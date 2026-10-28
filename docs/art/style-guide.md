@@ -303,6 +303,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Held tool (net) | 500 to 650 | per level |
 | Potion bottles (F64, F73) | 700, Big Tip 750 | `potions.py`: they land at 468 to 688 |
 | Cafe Crates (F53) | 1,500 | `crates.py`, body and `_Lid` together, golden twin the same: they land at 384 (Neighbourhood) to 1,146 (Park) |
+| Mystery Visitor and gift (F64) | visitor 2,600, gift 700 | `mystery.py`: the visitor (cat, hood and capelet) lands at 1,636, the gift at 362 |
 | Customer NPC | 1,000 | |
 | Hero furniture (Counter) | 3,000 | the night dealer's cart 3,500 |
 | Furniture | 800 | role stations: GreeterPodium 800, StageCatTree 1,400; the F79 CatBed 800 |
@@ -491,7 +492,7 @@ open). Golden twins keep the paw, ribbons and accents in colour and are Metal el
 (`icons.py`). Each net's `_Handle` carries an Attachment named `Grip`, mid wrap with no turn, for the hand in the net
 hold (the pole runs along -Z). The potion bottles (`CatCafe_Prop_Potion_<Name>`, `potions.py`) never collide; the
 pivot is the base centre with the front -Z, the name is the potion id without `_potion` in PascalCase, the liquid is
-the potion's colour in the UI's `Theme.potionColors` and the picture is `exports/icons/CatCafe_Icon_Potion_<Name>.png`. Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
+the potion's colour in the UI's `Theme.potionColors` and the picture is `exports/icons/CatCafe_Icon_Potion_<Name>.png`. The Mystery Visitor (`CatCafe_NPC_MysteryVisitor`, `mystery.py`) is a sitting cat at scale 1.3 with the usual hinged pieces, its hood the child Model `_Prop` inside `Head` and its capelet `_Cloak`; the pivot is the floor under a chair seat's centre, facing the table (-Z), so the cat sits at 1.57 clear of the chair's back. Its gift (`CatCafe_Item_MysteryGift`) has its pivot at the base centre with the "?" tag to the front (-Z). Neither collides; the client tags them `MysteryVisitor` and `MysteryGift`. Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
 `Fountain`; the engineer tags `CafeDoor` and `WorkingCat` at placement.
 `rbx_preview.py` renders the Part versions the way Roblox draws them; check them before a PR. A MeshPart import
 saved as `<Name>.rbxm` replaces the JSON of the same name (delete the JSON).

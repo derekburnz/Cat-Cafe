@@ -40,6 +40,7 @@ import common  # noqa: E402
 import crate_decor  # noqa: E402
 import crates  # noqa: E402
 import potions  # noqa: E402
+import mystery  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
 import gold  # noqa: E402
@@ -72,7 +73,7 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions]
+           woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -249,6 +250,16 @@ for _n in potions.ASSETS:                        # F64 and F73 potions: the bag,
     STUDIO_NOTES[_n] = ("Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the "
                         "potion's colour. Its picture is exports/icons/" + _n.replace("Prop_", "Icon_")
                         + ".png (icons.py).")
+PIVOT_NOTES["CatCafe_NPC_MysteryVisitor"] = ("the floor under a cafe chair's seat centre, facing the table (-Z); the cat "
+                                             "sits on the seat at 1.57")
+STUDIO_NOTES["CatCafe_NPC_MysteryVisitor"] = (
+    "F64 Mystery Visitor: the client pivots it at a MysteryTable chair's seat on the floor, looking at the table, and "
+    "tags it MysteryVisitor. A sitting cat (scale 1.3) with the usual hinged pieces (Head, Eye1, Eye2, EarL, EarR, "
+    "Tail, LegF1, LegF2); the hood is the child Model _Prop inside Head and the capelet _Cloak rides the body. "
+    "Nothing collides.")
+STUDIO_NOTES["CatCafe_Item_MysteryGift"] = (
+    "F64 Mystery Visitor's gift: pivot base centre, front -Z (the \"?\" tag), nothing collides; the client puts it "
+    "on the bottom of the plot's MysteryGiftAnchor and tags it MysteryGift.")
 for _st in doorsets.SETS:                       # F80 door sets: CafeService.refreshDoors places them
     _f, _b = f"CatCafe_Door_{_st.NAME}_Front", f"CatCafe_Door_{_st.NAME}_Back"
     PIVOT_NOTES[_f] = "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z"

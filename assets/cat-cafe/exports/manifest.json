@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 09:41 UTC",
+  "generated": "2026-10-28 10:16 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -75423,6 +75423,239 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_MysteryVisitor",
+      "category": "NPC",
+      "module": "mystery",
+      "objects": [
+        "CatCafe_NPC_MysteryVisitor_Body",
+        "CatCafe_NPC_MysteryVisitor_Head",
+        "CatCafe_NPC_MysteryVisitor_Eye1",
+        "CatCafe_NPC_MysteryVisitor_Eye2",
+        "CatCafe_NPC_MysteryVisitor_EarL",
+        "CatCafe_NPC_MysteryVisitor_EarR",
+        "CatCafe_NPC_MysteryVisitor_Tail",
+        "CatCafe_NPC_MysteryVisitor_LegF1",
+        "CatCafe_NPC_MysteryVisitor_LegF2",
+        "CatCafe_NPC_MysteryVisitor_Prop",
+        "CatCafe_NPC_MysteryVisitor_Cloak"
+      ],
+      "triangles": 1636,
+      "budget": 2600,
+      "size_studs": {
+        "x": 1.51,
+        "y": 1.6,
+        "z": 2.64
+      },
+      "size_roblox": [
+        1.51,
+        2.64,
+        1.6
+      ],
+      "bounds_min": [
+        -0.75,
+        -1.0,
+        1.57
+      ],
+      "bounds_max": [
+        0.76,
+        0.59,
+        4.21
+      ],
+      "pivot": "the floor under a cafe chair's seat centre, facing the table (-Z); the cat sits on the seat at 1.57",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_NPC_MysteryVisitor_Body": [
+          0.0,
+          -0.15,
+          1.57
+        ],
+        "CatCafe_NPC_MysteryVisitor_Head": [
+          0.0,
+          -0.27,
+          2.83
+        ],
+        "CatCafe_NPC_MysteryVisitor_Eye1": [
+          0.27,
+          -0.92,
+          3.13
+        ],
+        "CatCafe_NPC_MysteryVisitor_Eye2": [
+          -0.27,
+          -0.92,
+          3.13
+        ],
+        "CatCafe_NPC_MysteryVisitor_EarL": [
+          0.35,
+          -0.37,
+          3.61
+        ],
+        "CatCafe_NPC_MysteryVisitor_EarR": [
+          -0.35,
+          -0.37,
+          3.61
+        ],
+        "CatCafe_NPC_MysteryVisitor_Tail": [
+          0.25,
+          0.52,
+          1.71
+        ],
+        "CatCafe_NPC_MysteryVisitor_LegF1": [
+          0.21,
+          -0.52,
+          2.34
+        ],
+        "CatCafe_NPC_MysteryVisitor_LegF2": [
+          -0.21,
+          -0.52,
+          2.34
+        ],
+        "CatCafe_NPC_MysteryVisitor_Prop": [
+          0.0,
+          -0.27,
+          2.83
+        ],
+        "CatCafe_NPC_MysteryVisitor_Cloak": [
+          0.0,
+          -0.15,
+          1.57
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_NPC_MysteryVisitor_Body": [
+          0.0,
+          1.57,
+          -0.15
+        ],
+        "CatCafe_NPC_MysteryVisitor_Head": [
+          0.0,
+          2.83,
+          -0.27
+        ],
+        "CatCafe_NPC_MysteryVisitor_Eye1": [
+          -0.27,
+          3.13,
+          -0.92
+        ],
+        "CatCafe_NPC_MysteryVisitor_Eye2": [
+          0.27,
+          3.13,
+          -0.92
+        ],
+        "CatCafe_NPC_MysteryVisitor_EarL": [
+          -0.35,
+          3.61,
+          -0.37
+        ],
+        "CatCafe_NPC_MysteryVisitor_EarR": [
+          0.35,
+          3.61,
+          -0.37
+        ],
+        "CatCafe_NPC_MysteryVisitor_Tail": [
+          -0.25,
+          1.71,
+          0.52
+        ],
+        "CatCafe_NPC_MysteryVisitor_LegF1": [
+          -0.21,
+          2.34,
+          -0.52
+        ],
+        "CatCafe_NPC_MysteryVisitor_LegF2": [
+          0.21,
+          2.34,
+          -0.52
+        ],
+        "CatCafe_NPC_MysteryVisitor_Prop": [
+          0.0,
+          2.83,
+          -0.27
+        ],
+        "CatCafe_NPC_MysteryVisitor_Cloak": [
+          0.0,
+          1.57,
+          -0.15
+        ]
+      },
+      "studio": "F64 Mystery Visitor: the client pivots it at a MysteryTable chair's seat on the floor, looking at the table, and tags it MysteryVisitor. A sitting cat (scale 1.3) with the usual hinged pieces (Head, Eye1, Eye2, EarL, EarR, Tail, LegF1, LegF2); the hood is the child Model _Prop inside Head and the capelet _Cloak rides the body. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_MysteryVisitor.model.json",
+      "rbx_parts": 114,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_MysteryVisitor.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_MysteryVisitor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "1636/2600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "919 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=1.57 (want 0)",
+          "centered": "footprint center x=0.01 y=-0.20"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Item_MysteryGift",
+      "category": "Item",
+      "module": "mystery",
+      "objects": [
+        "CatCafe_Item_MysteryGift"
+      ],
+      "triangles": 362,
+      "budget": 700,
+      "size_studs": {
+        "x": 1.01,
+        "y": 1.01,
+        "z": 1.04
+      },
+      "size_roblox": [
+        1.01,
+        1.04,
+        1.01
+      ],
+      "bounds_min": [
+        -0.5,
+        -0.5,
+        0.0
+      ],
+      "bounds_max": [
+        0.5,
+        0.5,
+        1.04
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F64 Mystery Visitor's gift: pivot base centre, front -Z (the \"?\" tag), nothing collides; the client puts it on the bottom of the plot's MysteryGiftAnchor and tags it MysteryGift.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_MysteryGift.model.json",
+      "rbx_parts": 31,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_MysteryGift.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_MysteryGift.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "362/700 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "181 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
         }
       }
     }

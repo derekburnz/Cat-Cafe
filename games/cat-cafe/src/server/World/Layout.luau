@@ -213,15 +213,15 @@ Layout.plot = {
 
 	-- Two columns of three, either side of the aisle from the front door to the counter (Derek 2026-10-28 01:27: the
 	-- second table stood in the doorway where everyone walks): a table and its two chairs reach 3.7 either side of
-	-- its x and 2.1 in front and behind, so the aisle is clear from x -6.3 to 6.3 and the walk from the back door to
-	-- the front door passes the back row a stud clear. Filled in order, two a tier: front row, middle row, back
+	-- its x and 2.1 in front and behind, so the aisle is clear from x -6.3 to 6.3. The back left table sits half a
+	-- stud further out, so the walk from the back door to the front door passes its chair a stud clear (review N237). Filled in order, two a tier: front row, middle row, back
 	-- row. Each row's `lane` is the walkway between it and the next row, which customers take to the outer chair.
 	tables = {
 		{ x = -10, y = 0, z = -8.5, lane = -5.4 },
 		{ x = 10, y = 0, z = -8.5, lane = -5.4 },
 		{ x = -10, y = 0, z = -2.25, lane = 0.9 },
 		{ x = 10, y = 0, z = -2.25, lane = 0.9 },
-		{ x = -10, y = 0, z = 4, lane = 0.9 },
+		{ x = -10.5, y = 0, z = 4, lane = 0.9 },
 		{ x = 10, y = 0, z = 4, lane = 0.9 },
 	} :: { TableSpot },
 	-- How far either side of the aisle's middle customers walk to and from a lane, clear of the waiters at 4.5.

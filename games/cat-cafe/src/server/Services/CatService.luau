@@ -236,8 +236,13 @@ local function clearPath(from: Vector3, to: Vector3): Vector3
 			return to
 		end
 		local part = hit.Instance
-		if part:IsA("BasePart") and part.Transparency >= 1 and not part.CanCollide then
-			table.insert(ignore, part) -- an invisible marker or zone: look past it
+		if
+			hit.Distance < 0.05
+			or (part:IsA("BasePart") and part.Transparency >= 1 and not part.CanCollide)
+		then
+			-- an invisible marker or zone, or a part the cat already stands in (the #433 review's playtest note): a
+			-- stray against a decoration must still be able to walk away from it
+			table.insert(ignore, part)
 			continue
 		end
 		local reach = math.max(0, hit.Distance - PATH_STOP_SHORT)

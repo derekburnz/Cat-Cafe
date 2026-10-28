@@ -42,6 +42,7 @@ import crates  # noqa: E402
 import potions  # noqa: E402
 import mystery  # noqa: E402
 import collector  # noqa: E402
+import townbuildings  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
 import gold  # noqa: E402
@@ -74,7 +75,8 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector]
+           woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
+           townbuildings]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -268,6 +270,18 @@ STUDIO_NOTES["CatCafe_NPC_Collector"] = (
     "Eye1, Eye2, EarL, EarR, Tail, LegF1, LegF2); the bowler is the child Model _Prop inside Head, the tweed coat "
     "_Coat rides the body and the magnifying glass _Lens is inside LegF2, whose paw is raised to his right eye. "
     "Nothing collides.")
+for _n in townbuildings.ASSETS:                  # town buildings on the back alleys' outer walls
+    PIVOT_NOTES[_n] = "wall: back plane at the bottom centre; -Z faces into the alley"
+    STUDIO_NOTES[_n] = (
+        "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: "
+        "30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) "
+        "2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. "
+        "The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door "
+        "lamp (Neon + a warm PointLight at night), _Flowers needs no collision.")
+STUDIO_NOTES[townbuildings.N + "Warehouse"] += (
+    " The fire escape is CatCafe_Alley_FireEscape's, at the same place on the facade: landings and ladder rungs "
+    "collide, landing_1 (top 9.35) is reached from CatCafe_Alley_CrateStack (top 7.7) just past its open left end "
+    "(local x -8), stairs lead to landing_2 (17.35). See ledges_roblox (in this model's frame).")
 for _st in doorsets.SETS:                       # F80 door sets: CafeService.refreshDoors places them
     _f, _b = f"CatCafe_Door_{_st.NAME}_Front", f"CatCafe_Door_{_st.NAME}_Back"
     PIVOT_NOTES[_f] = "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z"
@@ -472,8 +486,9 @@ def main():
             entry["display_slots_roblox"] = [common.to_roblox(p) for p in street.DISPLAY_SLOTS]
         if name.startswith("CatCafe_Item_") and name.split("_")[-1] in items.FOODS:
             entry["food_in_bowl_roblox"] = [0, items.FOOD_IN_BOWL, 0]
-        if name in alleyway.LEDGES:
-            entry["ledges_roblox"] = {k: list(v) for k, v in alleyway.LEDGES[name].items()}
+        ledges = alleyway.LEDGES.get(name) or townbuildings.LEDGES.get(name)
+        if ledges:
+            entry["ledges_roblox"] = {k: list(v) for k, v in ledges.items()}
         if name.endswith("_Gate") and name in areas.ASSETS:
             entry["sign_board_roblox"] = areas.SIGN_INFO
         if name.startswith("CatCafe_Plot_Cafe_"):

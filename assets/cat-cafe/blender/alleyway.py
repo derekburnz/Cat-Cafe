@@ -294,21 +294,9 @@ def _landing(b, x0, x1, top, z0=-4.6, z1=-1.0, rail_gap=None, sides=(True, True)
             b.span((x - 0.07, top, z1 - 0.14), (x + 0.07, top + 3.0, z1), "fur_black")
 
 
-def build_fire_escape(mat):
-    name = "CatCafe_Alley_FireEscape"
-    b, panes, flowers = RB(), RB(), RB()
-    h = 24.0
-    _facade(b, h)
-    _band(b, 8.6)
-    _band(b, 16.6)
-    _window(b, panes, -9.0, 2.6, 6.2, lit=True, curtain="pastel_lilac")
-    _window(b, panes, 9.0, 2.6, 6.2)
-    _window(b, panes, -3.5, 10.0, 13.6, lit=True, curtain="blush")
-    _window(b, panes, 3.5, 10.0, 13.6)
-    _window(b, panes, 11.5, 10.0, 13.6, shutters="mint", flowers=flowers)
-    _window(b, panes, -10.0, 18.0, 21.6, lit=True, curtain="pastel_butter")
-    _window(b, panes, -3.0, 18.0, 21.6)
-    _window(b, panes, 6.0, 18.0, 21.6, shutters="blush")
+def fire_escape_kit(b):
+    """The walkable fire escape on a facade whose face is at z -1 (LEDGES): landing 1 (x -8..8, top 9.35) with a
+    ladder to the ground, a stair up to landing 2 (top 17.35), a plant, a cushion and a watering can."""
     # landing 1 (x -8..8, top 9.35): a gap in the front rail for the ladder, no rail on the left end so players can
     # hop on from the crate stack beside it
     _landing(b, -8.0, 8.0, 9.35, rail_gap=(4.4, 6.6), sides=(False, True))
@@ -345,6 +333,24 @@ def build_fire_escape(mat):
     b.cyl((-2.5, 9.5, -2.2), 0.8, 0.3, "blush", segments=12)
     b.cyl((-2.5, 9.7, -2.2), 0.5, 0.12, "cream", segments=12)
     b.cyl((-5.2, 9.7, -3.8), 0.3, 0.7, "sign_teal", segments=8)
+
+
+def build_fire_escape(mat):
+    name = "CatCafe_Alley_FireEscape"
+    b, panes, flowers = RB(), RB(), RB()
+    h = 24.0
+    _facade(b, h)
+    _band(b, 8.6)
+    _band(b, 16.6)
+    _window(b, panes, -9.0, 2.6, 6.2, lit=True, curtain="pastel_lilac")
+    _window(b, panes, 9.0, 2.6, 6.2)
+    _window(b, panes, -3.5, 10.0, 13.6, lit=True, curtain="blush")
+    _window(b, panes, 3.5, 10.0, 13.6)
+    _window(b, panes, 11.5, 10.0, 13.6, shutters="mint", flowers=flowers)
+    _window(b, panes, -10.0, 18.0, 21.6, lit=True, curtain="pastel_butter")
+    _window(b, panes, -3.0, 18.0, 21.6)
+    _window(b, panes, 6.0, 18.0, 21.6, shutters="blush")
+    fire_escape_kit(b)
     return [b.finalize(name, mat), panes.finalize(name + "_Pane", mat), flowers.finalize(name + "_Flowers", mat)]
 
 

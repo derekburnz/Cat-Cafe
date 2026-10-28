@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 10:57 UTC",
+  "generated": "2026-10-28 11:37 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -75828,6 +75828,466 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
           "centered": "footprint center x=0.07 y=-0.14"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Building_Bakery",
+      "category": "Alley",
+      "module": "townbuildings",
+      "objects": [
+        "CatCafe_Alley_Building_Bakery",
+        "CatCafe_Alley_Building_Bakery_Pane",
+        "CatCafe_Alley_Building_Bakery_Lamp_Bulb",
+        "CatCafe_Alley_Building_Bakery_Flowers"
+      ],
+      "triangles": 2006,
+      "budget": 5000,
+      "size_studs": {
+        "x": 30.6,
+        "y": 6.25,
+        "z": 24.3
+      },
+      "size_roblox": [
+        30.6,
+        24.3,
+        6.25
+      ],
+      "bounds_min": [
+        -15.3,
+        -6.25,
+        0.0
+      ],
+      "bounds_max": [
+        15.3,
+        0.0,
+        24.3
+      ],
+      "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_Bakery.model.json",
+      "rbx_parts": 164,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_Bakery.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_Bakery.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2006/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "988 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.12"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Building_Townhouses",
+      "category": "Alley",
+      "module": "townbuildings",
+      "objects": [
+        "CatCafe_Alley_Building_Townhouses",
+        "CatCafe_Alley_Building_Townhouses_Pane",
+        "CatCafe_Alley_Building_Townhouses_Lamp_Bulb",
+        "CatCafe_Alley_Building_Townhouses_Flowers"
+      ],
+      "triangles": 2986,
+      "budget": 5000,
+      "size_studs": {
+        "x": 30.6,
+        "y": 5.45,
+        "z": 30.1
+      },
+      "size_roblox": [
+        30.6,
+        30.1,
+        5.45
+      ],
+      "bounds_min": [
+        -15.3,
+        -5.45,
+        0.0
+      ],
+      "bounds_max": [
+        15.3,
+        0.0,
+        30.1
+      ],
+      "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_Townhouses.model.json",
+      "rbx_parts": 241,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_Townhouses.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_Townhouses.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2986/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1500 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.72"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Building_Warehouse",
+      "category": "Alley",
+      "module": "townbuildings",
+      "objects": [
+        "CatCafe_Alley_Building_Warehouse",
+        "CatCafe_Alley_Building_Warehouse_Pane",
+        "CatCafe_Alley_Building_Warehouse_Lamp_Bulb",
+        "CatCafe_Alley_Building_Warehouse_Flowers"
+      ],
+      "triangles": 3674,
+      "budget": 6000,
+      "size_studs": {
+        "x": 30.3,
+        "y": 7.3,
+        "z": 33.6
+      },
+      "size_roblox": [
+        30.3,
+        33.6,
+        7.3
+      ],
+      "bounds_min": [
+        -15.15,
+        -7.3,
+        0.0
+      ],
+      "bounds_max": [
+        15.15,
+        0.0,
+        33.6
+      ],
+      "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "ledges_roblox": {
+        "landing_1": [
+          0.0,
+          9.35,
+          -5.05
+        ],
+        "landing_2": [
+          -5.5,
+          17.35,
+          -5.05
+        ]
+      },
+      "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision. The fire escape is CatCafe_Alley_FireEscape's, at the same place on the facade: landings and ladder rungs collide, landing_1 (top 9.35) is reached from CatCafe_Alley_CrateStack (top 7.7) just past its open left end (local x -8), stairs lead to landing_2 (17.35). See ledges_roblox (in this model's frame).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_Warehouse.model.json",
+      "rbx_parts": 291,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_Warehouse.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_Warehouse.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "3674/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1787 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.65"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Building_Grocer",
+      "category": "Alley",
+      "module": "townbuildings",
+      "objects": [
+        "CatCafe_Alley_Building_Grocer",
+        "CatCafe_Alley_Building_Grocer_Pane",
+        "CatCafe_Alley_Building_Grocer_Lamp_Bulb",
+        "CatCafe_Alley_Building_Grocer_Flowers"
+      ],
+      "triangles": 2582,
+      "budget": 5000,
+      "size_studs": {
+        "x": 30.3,
+        "y": 6.25,
+        "z": 18.2
+      },
+      "size_roblox": [
+        30.3,
+        18.2,
+        6.25
+      ],
+      "bounds_min": [
+        -15.15,
+        -6.25,
+        0.0
+      ],
+      "bounds_max": [
+        15.15,
+        0.0,
+        18.2
+      ],
+      "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_Grocer.model.json",
+      "rbx_parts": 209,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_Grocer.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_Grocer.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2582/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1422 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.12"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Building_Apartments",
+      "category": "Alley",
+      "module": "townbuildings",
+      "objects": [
+        "CatCafe_Alley_Building_Apartments",
+        "CatCafe_Alley_Building_Apartments_Pane",
+        "CatCafe_Alley_Building_Apartments_Lamp_Bulb",
+        "CatCafe_Alley_Building_Apartments_Flowers"
+      ],
+      "triangles": 3734,
+      "budget": 5000,
+      "size_studs": {
+        "x": 30.6,
+        "y": 5.1,
+        "z": 32.6
+      },
+      "size_roblox": [
+        30.6,
+        32.6,
+        5.1
+      ],
+      "bounds_min": [
+        -15.3,
+        -5.1,
+        0.0
+      ],
+      "bounds_max": [
+        15.3,
+        0.0,
+        32.6
+      ],
+      "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_Apartments.model.json",
+      "rbx_parts": 301,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_Apartments.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_Apartments.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "3734/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1831 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.55"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Building_ClockHouse",
+      "category": "Alley",
+      "module": "townbuildings",
+      "objects": [
+        "CatCafe_Alley_Building_ClockHouse",
+        "CatCafe_Alley_Building_ClockHouse_Pane",
+        "CatCafe_Alley_Building_ClockHouse_Lamp_Bulb",
+        "CatCafe_Alley_Building_ClockHouse_Flowers"
+      ],
+      "triangles": 2144,
+      "budget": 5000,
+      "size_studs": {
+        "x": 30.6,
+        "y": 4.75,
+        "z": 30.75
+      },
+      "size_roblox": [
+        30.6,
+        30.75,
+        4.75
+      ],
+      "bounds_min": [
+        -15.3,
+        -4.75,
+        0.0
+      ],
+      "bounds_max": [
+        15.3,
+        0.0,
+        30.75
+      ],
+      "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_ClockHouse.model.json",
+      "rbx_parts": 260,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_ClockHouse.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_ClockHouse.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2144/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1112 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.37"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Building_MusicShop",
+      "category": "Alley",
+      "module": "townbuildings",
+      "objects": [
+        "CatCafe_Alley_Building_MusicShop",
+        "CatCafe_Alley_Building_MusicShop_Pane",
+        "CatCafe_Alley_Building_MusicShop_Lamp_Bulb",
+        "CatCafe_Alley_Building_MusicShop_Flowers"
+      ],
+      "triangles": 1892,
+      "budget": 5000,
+      "size_studs": {
+        "x": 30.6,
+        "y": 6.25,
+        "z": 21.5
+      },
+      "size_roblox": [
+        30.6,
+        21.5,
+        6.25
+      ],
+      "bounds_min": [
+        -15.3,
+        -6.25,
+        0.0
+      ],
+      "bounds_max": [
+        15.3,
+        0.0,
+        21.5
+      ],
+      "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_MusicShop.model.json",
+      "rbx_parts": 164,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_MusicShop.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_MusicShop.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1892/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "926 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.12"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Building_NarrowHouses",
+      "category": "Alley",
+      "module": "townbuildings",
+      "objects": [
+        "CatCafe_Alley_Building_NarrowHouses",
+        "CatCafe_Alley_Building_NarrowHouses_Pane",
+        "CatCafe_Alley_Building_NarrowHouses_Lamp_Bulb",
+        "CatCafe_Alley_Building_NarrowHouses_Flowers"
+      ],
+      "triangles": 2662,
+      "budget": 5000,
+      "size_studs": {
+        "x": 30.61,
+        "y": 5.1,
+        "z": 28.5
+      },
+      "size_roblox": [
+        30.61,
+        28.5,
+        5.1
+      ],
+      "bounds_min": [
+        -15.31,
+        -5.1,
+        0.0
+      ],
+      "bounds_max": [
+        15.3,
+        0.0,
+        28.5
+      ],
+      "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_NarrowHouses.model.json",
+      "rbx_parts": 223,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_NarrowHouses.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Building_NarrowHouses.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2662/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1320 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=-0.00 y=-2.55"
         }
       }
     }

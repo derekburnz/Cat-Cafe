@@ -2,8 +2,11 @@
 -- Per-cat stats (data-model section 4b): charm rolled once when the cat is caught, level and XP earned while
 -- the owner is in the game (v0.12, F75), and the rating they combine into. Pure: random rolls are passed in, so tests are deterministic.
 --
---   rating = rarity rate x charmMultiplier(charm) x levelMultiplier(level) x variantMultiplier(variant)
---            x rescuedMultiplier(rescued)
+--   rating = rarity rate x areaMultiplier(def, tier) x charmMultiplier(charm) x levelMultiplier(level)
+--            x variantMultiplier(variant) x rescuedMultiplier(rescued)
+--
+-- `tier` is the owner's tier: a Legendary or Mythical from an older area keeps up with the newer ones (v0.13.16,
+-- F86). Without it a cat earns at its own area's multiplier, its CatDef's incomePerSecond (the Index's figure).
 --
 -- The rating is the one number "how good is this cat" that income, equip best and the cat room sort all use.
 -- Everything numeric comes from Config so QA can tune without touching logic. Missing fields (a profile saved
@@ -155,34 +158,67 @@ end
 
 -- Rating ---------------------------------------------------------------------------------------------------
 
--- Coins per second this cat earns on a neutral spot before the cafe multiplier. 0 for an unknown cat id.
-function CatStats.rating(instance: Types.CatInstance): number
+-- The area income multiplier a cat earns with for an owner at `tier` (data-model 4b, v0.13.16 F86). Its own area's
+-- incomeMultiplier (a spare cat's `incomeArea`), or for a KeepUpRarities cat the larger of that and the multiplier
+-- of the area opened at the owner's tier minus KeepUpStepsBehind (never below the first area's). Nil tier: its own.
+function CatStats.areaMultiplier(def: Types.CatDef, tier: number?): number
+	local base = Catalog.rarities[def.rarity].incomePerSecond
+	local own = if base > 0 then def.incomePerSecond / base else 1
+	if tier == nil or Config.KeepUpRarities[def.rarity] ~= true then
+		return own
+	end
+	local behind = math.max(math.floor(tier) - Config.KeepUpStepsBehind, 1)
+	local best = own
+	for _, area in Catalog.areas do
+		if area.tier == behind and area.incomeMultiplier > best then
+			best = area.incomeMultiplier
+		end
+	end
+	return best
+end
+
+-- A cat's base rate for an owner at `tier`: its rarity's rate times areaMultiplier. Its CatDef's incomePerSecond
+-- without a tier, or when it does not keep up.
+local function baseRate(def: Types.CatDef, tier: number?): number
+	local own = def.incomePerSecond
+	local multiplier = CatStats.areaMultiplier(def, tier)
+	local base = Catalog.rarities[def.rarity].incomePerSecond
+	if base <= 0 or multiplier * base <= own then
+		return own
+	end
+	return base * multiplier
+end
+
+-- Coins per second this cat earns on a neutral spot before the cafe multiplier, for an owner at `tier` (nil: at
+-- its own area's multiplier). 0 for an unknown cat id.
+function CatStats.rating(instance: Types.CatInstance, tier: number?): number
 	local def = Catalog.getCat(instance.catId)
 	if def == nil then
 		return 0
 	end
-	return def.incomePerSecond
+	return baseRate(def, tier)
 		* CatStats.charmMultiplier(CatStats.charm(instance))
 		* CatStats.levelMultiplier(CatStats.level(instance))
 		* CatStats.variantMultiplier(instance.variant)
 		* CatStats.rescuedMultiplier(instance.rescued)
 end
 
--- The best rating a cat of this id can reach at max level with 100 charm, base variant (the book's "potential";
--- the gold figure is this times GoldMultiplier).
-function CatStats.maxRating(catId: string): number
+-- The best rating a cat of this id can reach at max level with 100 charm, base variant, for an owner at `tier` (the
+-- book's "potential"; the gold figure is this times GoldMultiplier).
+function CatStats.maxRating(catId: string, tier: number?): number
 	local def = Catalog.getCat(catId)
 	if def == nil then
 		return 0
 	end
-	return def.incomePerSecond
+	return baseRate(def, tier)
 		* CatStats.charmMultiplier(CatStats.MAX_CHARM)
 		* CatStats.levelMultiplier(Config.CatMaxLevel)
 end
 
--- Sort order for the cat room and equip best: rating, then rarity, then name, then uid (stable).
-function CatStats.isBetter(a: Types.CatInstance, b: Types.CatInstance): boolean
-	local ra, rb = CatStats.rating(a), CatStats.rating(b)
+-- Sort order for the cat room and equip best: rating for an owner at `tier`, then rarity, then name, then uid
+-- (stable). CatStats.betterFor(tier) is the same as a table.sort comparator.
+function CatStats.isBetter(a: Types.CatInstance, b: Types.CatInstance, tier: number?): boolean
+	local ra, rb = CatStats.rating(a, tier), CatStats.rating(b, tier)
 	if ra ~= rb then
 		return ra > rb
 	end
@@ -196,6 +232,12 @@ function CatStats.isBetter(a: Types.CatInstance, b: Types.CatInstance): boolean
 		return a.catId < b.catId
 	end
 	return a.uid < b.uid
+end
+
+function CatStats.betterFor(tier: number?): (Types.CatInstance, Types.CatInstance) -> boolean
+	return function(a: Types.CatInstance, b: Types.CatInstance): boolean
+		return CatStats.isBetter(a, b, tier)
+	end
 end
 
 -- Construction ----------------------------------------------------------------------------------------------
@@ -232,8 +274,9 @@ function CatStats.arrivesLocked(catId: string, variant: string): boolean
 	return def ~= nil and (def.rarity == "Legendary" or def.rarity == "Mythical")
 end
 
--- What ProfileSync sends per cat: the saved fields plus the derived numbers the UI shows.
-function CatStats.view(instance: Types.CatInstance): Types.CatView
+-- What ProfileSync sends per cat: the saved fields plus the derived numbers the UI shows, `rating` for an owner at
+-- `tier` (the kept-up figure, v0.13.16).
+function CatStats.view(instance: Types.CatInstance, tier: number?): Types.CatView
 	local level = CatStats.level(instance)
 	local charm = CatStats.charm(instance)
 	return {
@@ -251,7 +294,7 @@ function CatStats.view(instance: Types.CatInstance): Types.CatView
 		xpToNext = CatStats.xpToNext(level),
 		charm = charm,
 		stars = CatStats.stars(charm),
-		rating = CatStats.rating(instance),
+		rating = CatStats.rating(instance, tier),
 	}
 end
 

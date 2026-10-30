@@ -144,6 +144,7 @@ return function()
 		DecorIndexBonus = 0.05,
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
 		BigBowlWaitMultiplier = 0.8, -- section 17 (v0.13.15): the Big Bowl takes a fifth off any bowl level's wait
+		KeepUpStepsBehind = 1, -- section 17 (v0.13.16, F86): an older Legendary or Mythical earns one area behind
 		DecorIndexHalfFish = 25, -- F54: a Decor Index page's decor5 prize
 		GoldLuckMax = 1.5, -- F54 (v0.10): the cap on summed Index gold luck
 		BaitSpeedMax = 0.5, -- F54 (v0.10): the cap on summed Index bait speed
@@ -240,6 +241,7 @@ return function()
 				StraySelfRetrySteps = true, -- section 17's StraySelfRetrySeconds {3, 6, 10}, checked below
 				BowlWaitSeconds = true, -- a table, checked below (F82)
 				BowlLuck = true, -- a table, checked below (F82)
+				KeepUpRarities = true, -- section 17's "Legendary, Mythical", checked in CatStats.spec (F86)
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

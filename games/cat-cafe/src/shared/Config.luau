@@ -25,6 +25,10 @@ local Config = {
 	CatXpPerSecondResting = 0.25, -- XP a resting cat earns per second while its owner is in the game
 	CharmSpread = 0.20, -- charm 0 earns 1 - spread, charm 100 earns 1 + spread
 	GoldMultiplier = 1.5, -- a gold cat's rating (data-model section 4)
+	-- Keep up (v0.13.16, F86, data-model 4b): a cat of these rarities from an older area earns with the incomeMultiplier
+	-- of the area opened KeepUpStepsBehind tiers before the owner's newest, never below its own area's.
+	KeepUpRarities = { Legendary = true, Mythical = true } :: { [string]: boolean },
+	KeepUpStepsBehind = 1,
 
 	-- The clock (data-model section 9): a server-wide loop of day then night. v0.9 (F66, Derek 2026-10-27): night is a
 	-- short reset between hunts; the catching areas close at dusk and a fresh wave spawns at sunrise.

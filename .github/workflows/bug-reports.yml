@@ -59,8 +59,12 @@ jobs:
 
       - name: Read yesterday's reports (daily run)
         if: github.event_name == 'schedule'
+        env:
+          MASK: "1" # public log: names to a letter, ids to 3 digits, no JSON (bug-reports.sh)
         run: bash games/cat-cafe/tools/opencloud/bug-reports.sh "$(date -u -d yesterday +%Y%m%d)" 100
 
       - name: Read today's reports so far (daily run)
         if: github.event_name == 'schedule'
+        env:
+          MASK: "1" # public log: names to a letter, ids to 3 digits, no JSON (bug-reports.sh)
         run: bash games/cat-cafe/tools/opencloud/bug-reports.sh "" 100

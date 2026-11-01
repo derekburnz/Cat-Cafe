@@ -351,6 +351,14 @@ Spec in [camp-extras.md](camp-extras.md). Before release per Derek's 2026-11-01 
 |---|---|---|---|---|---|---|
 | F100 | Camp extras, one per tier from Tier 2: a Picnic Basket in the Park (a Money Potion every 6 h, holds 2), a Yard Sale in the Neighbourhood (two crates a day at 40 fish), a Fish Pond in the Woods (2 fish every 30 min, holds 24) and a Lost and Found in the Sewer (one free prize a day from a shown table, holds 3); each fills while away, sits in the safe camp and shows its state on the cannon picker card with a "!" only when there is something to claim; no food, nothing for Robux | P2 | M | engineer, ui, asset, animation, sound, qa | F84 camps and picker | A player away 7 hours sees the pond at 24 with a "!" on the Woods card; a collect from outside the camp is refused; the Yard Sale stock matches across servers |
 
+## 2ag. The Rescue Rally weekend (Derek, 2026-10-30 00:38, decided)
+
+Spec in [rescue-rally.md](rescue-rally.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `rally`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F101 | Rescue Rally: every weekend (Saturday and Sunday UTC) each server fills one shared bar from check-ins and tames (1 point), rescues (3) and Team Rescues (3 to each player); the goal is 30 points a player; prizes at 25%, 50% and 100% to everyone in the server who scored 3 in the lap (golden fish, a Money Potion, a Rally Crate of twelve event pieces that return every weekend), at most 4 paid laps a weekend; a HUD banner, a Rally board and bunting in the Town Square; nothing sold | P1 | M | engineer, ui, asset, vfx, sound, qa | F92 Team Rescue, F53 crates, F84 Town Square | With RallyForce on, two players doing a Team Rescue each get 3 points; a late joiner with 1 point gets no 100% prize; the banner goes at Monday 00:00 UTC |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

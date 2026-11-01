@@ -602,14 +602,32 @@ function Logic.idle(style: Style, t: number, body: Body?): Offsets
 		o.headYaw = math.rad(l.look) * side * Logic.pulse(t, l.lookEvery, l.lookSeconds)
 		o.tailYaw *= 0.1
 	elseif style == "lick" then
-		-- Washing a paw (manifest lick): the paw is up at the mouth; in bursts the head bobs to it and the paw rubs.
+		-- Washing a paw (manifest lick; Derek 2026-10-29 19:46: the old rub read as kicking): the paw is held up at the
+		-- mouth and the head does the licking, dipping to it quickly and coming up slower, turned a little into it, in
+		-- bursts of `strokes` seconds; the paw only lifts a little to meet each lick. Every other pause the cat rubs
+		-- its cheek along the paw, the head turned, bowed and tipped into it as the paw rises, the way a cat washes its
+		-- face.
 		local k = m.lick
 		o.lick = 1
 		local cycle = k.strokes + k.pause
-		local stroking = if t % cycle < k.strokes then 1 else 0
-		local lap = math.sin(t * k.hz * 2 * math.pi) * stroking
-		o.headPitch = -math.rad(k.bob) * (0.5 + 0.5 * lap)
-		o.pawFL = math.rad(k.paw) * lap
+		local into = t % cycle
+		local lap = 0
+		if into < k.strokes then
+			local f = (t * k.hz) % 1
+			local dip = if f < k.down
+				then smoothstep(f / k.down)
+				else 1 - smoothstep((f - k.down) / (1 - k.down))
+			local ease = math.clamp(math.min(into, k.strokes - into) / k.ease, 0, 1) -- no lick cut off mid-dip
+			lap = dip * ease
+		end
+		local wipe = 0
+		if into >= k.strokes and math.floor(t / cycle) % 2 == 1 then
+			wipe = math.sin((into - k.strokes) / k.pause * math.pi)
+		end
+		o.headPitch = -math.rad(k.bob) * lap - math.rad(k.wipeBow) * wipe
+		o.headYaw = math.rad(k.turn) * lap + math.rad(k.wipeTurn) * wipe
+		o.headRoll = math.rad(k.wipeTilt) * wipe
+		o.pawFL = math.rad(k.paw) * lap + math.rad(k.wipe) * wipe
 		o.tailYaw *= 0.5
 	elseif style == "nap" then
 		-- Curled up: down on its belly, front paws out in front, back legs folded under, head tucked round to the
@@ -1128,6 +1146,12 @@ end
 function Logic.butterflyLeg(from: Vector3, to: Vector3, k: number): Vector3
 	local x = math.clamp(k, 0, 1)
 	return from + (to - from) * (x * x * (3 - 2 * x))
+end
+
+-- How far above its straight line a butterfly flying over to another bed is `k` (0 to 1) into the flight: up to
+-- `arc` studs halfway, none at either end.
+function Logic.hopLift(k: number, arc: number): number
+	return arc * math.sin(math.pi * math.clamp(k, 0, 1))
 end
 
 -- How much of a butterfly shows `age` seconds into a spell out `length` long: fading in over the first `fade`

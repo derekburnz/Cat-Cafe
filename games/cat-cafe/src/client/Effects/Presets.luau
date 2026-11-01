@@ -800,16 +800,27 @@ Presets.motion = {
 		hold = 24,
 	},
 	-- A sitting cat (the _Sit body, PR #259) washing a paw now and then (Derek 2026-10-27: the paw-up sit is a
-	-- lick), the way a walking cat loafs: `hold` seconds of every `every`, by day. In bursts of `strokes` seconds a
-	-- `pause` apart, the head bobs and the raised paw rubs at `hz` licks a second, eyes half shut.
+	-- lick), the way a walking cat loafs: `hold` seconds of every `every`, by day, eyes half shut. The paw stays up
+	-- at the mouth and the head licks it (Derek 2026-10-29: the old paw rub looked like kicking): in bursts of
+	-- `strokes` seconds a `pause` apart, `hz` licks a second, each a dip of `bob` degrees taking `down` of the lick
+	-- and the rest to come up, turned `turn` degrees into the paw, which lifts `paw` degrees to meet it; a burst eases
+	-- in and out over `ease` seconds. Every other pause the cat rubs its cheek along the paw: the paw rises `wipe`
+	-- degrees as the head turns `wipeTurn` into it, bowing `wipeBow` and tipping `wipeTilt`.
 	lick = {
 		every = 60,
 		hold = 9,
 		strokes = 1.6,
 		pause = 1.1,
-		hz = 2.4,
-		bob = 6,
-		paw = 10,
+		hz = 2.2,
+		bob = 9,
+		down = 0.3,
+		turn = 3,
+		paw = 4,
+		ease = 0.12,
+		wipe = 8,
+		wipeTurn = 20,
+		wipeBow = 8,
+		wipeTilt = 14,
 		eyes = 0.6,
 	},
 	-- Blinks squash each eye to `squash` of its height for `seconds`, every `every` seconds or so. A sleeping or
@@ -1335,6 +1346,11 @@ Presets.butterfly = {
 	firstAway = { 0, 10 }, -- the first wait once a bed is near, so they do not all arrive at once
 	fade = 1,
 	rise = 1.5,
+	-- Now and then (`chance` of a flight) it flies over to another bed within `range` studs of its home bed, or
+	-- back home, at about `speed` studs a second (`shortest` to `longest` seconds) in an arc `arc` studs high, and
+	-- stays out at least `stay` seconds after it lands (Derek 2026-10-28 17:48: the Town Square's butterflies
+	-- "going in circles are a little repetitive make them go between each one").
+	hop = { chance = 0.35, range = 26, speed = 3.5, shortest = 2, longest = 9, arc = 1.2, stay = 3 },
 	perSource = 2,
 }
 
@@ -1630,6 +1646,16 @@ Presets.market = {
 -- the stall's ice, the lid swung up `lidDegrees` (crates.py: 105 is wide open with no clipping) over `lidSeconds`,
 -- held for `hold` seconds from the open and faded over `fade`.
 Presets.marketCrate = { scale = 0.6, lidDegrees = 105, lidSeconds = 0.3, hold = 1.8, fade = 0.4 }
+
+-- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to
+-- 1, how much of the sky it hides) and `density` (how thick each cloud looks), tinted `color`, drifting on `wind`
+-- studs a second when the place has no wind of its own. Off in Low performance.
+Presets.sky = {
+	cover = 0.5,
+	density = 0.5,
+	color = Color3.fromRGB(255, 252, 247),
+	wind = Vector3.new(3, 0, 1.5),
+}
 
 -- A big pull (F89, luck-and-rare-moments.md 2a and 2b; Derek 2026-10-30: "when securing something good leg/mythic
 -- decor or cats possibly consider a bigger VFX"): when this player secures a Legendary, a Mythical or a gold Epic cat,

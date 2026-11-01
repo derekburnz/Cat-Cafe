@@ -2,11 +2,17 @@
 # "Restart servers for updates"). publish.yml does the same after a live publish when its restart_servers input is
 # on; this one is for a publish that went out without it, or whose restart step failed. Start it from the Actions
 # tab (restart-servers > Run workflow) or with the GitHub actions_run_trigger tool on main. Needs universe Write on
-# the repo secret ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 19).
+# the repo secret ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 19). Players get a countdown first unless warn_players
+# is off (restart-countdown.sh, step 21).
 name: restart-servers
 
 on:
   workflow_dispatch:
+    inputs:
+      warn_players:
+        description: "Tell every server 5, 3 and 1 minutes ahead and at the restart (adds 5 minutes)"
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -20,7 +26,7 @@ jobs:
   restart:
     name: Restart running servers onto the newest version
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     env:
       ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
       UNIVERSE_ID: "10773193456" # the Cat Cafe experience
@@ -36,6 +42,10 @@ jobs:
             echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
             exit 1
           fi
+
+      - name: Warn players in game (5, 3 and 1 minutes, then now)
+        if: inputs.warn_players
+        run: bash tools/opencloud/restart-countdown.sh
 
       - name: Restart running servers
         run: bash tools/opencloud/restart-servers.sh

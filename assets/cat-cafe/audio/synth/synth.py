@@ -1186,6 +1186,262 @@ def carry_purr() -> np.ndarray:
     return purr_loop(71, 23.5, 1.35, 1.05)
 
 
+# --- the release batch (2026-11-01, Derek: everything queued ships before release): F89 stings and the Lucky Day,
+# F96 Bellhop Cat, F99 rainbow coat, F100 camp extras, F101 Rescue Rally, F102 trading, F103 crate reel. They live
+# in two sound sheets (SHEETS below), so fifteen sounds cost two of the month's uploads. ---------------------------
+
+
+def horn(d: float, f: float, attack: float = 0.06, release: float = 0.25, seed: int = 0) -> np.ndarray:
+    """A soft, round horn note: the harmonics open up over the attack (a brassy swell without a blare), a little
+    vibrato once it is held and a gentle release."""
+    t = seconds(d)
+    vib = 1 + 0.003 * np.sin(2 * np.pi * 5.2 * t + seed) * np.clip((t - 0.15) / 0.2, 0, 1)
+    phase = np.cumsum(f * vib) / SR
+    out = np.zeros_like(t)
+    for k in range(1, 9):
+        opening = np.clip(t / (attack * (0.6 + 0.25 * k)), 0, 1) ** 1.5
+        out += np.sin(2 * np.pi * k * phase) / k**1.9 * opening
+    return out * np.clip((d - t) / release, 0, 1)
+
+
+def jingle_epic() -> np.ndarray:
+    """An Epic cat (F89, sound list 5.7): a quick harp sweep up into two bright glockenspiel notes and a small
+    sparkle. 1.5 s."""
+    d = 1.5
+    harp = [(bell(d, note(n), HARP, attack=0.002) * 0.4, 0.035 * i)
+            for i, n in enumerate(("G4", "B4", "D5", "G5", "B5", "D6"))]
+    top = [(bell(d, note(n), GLOCK) * amp, at) for n, at, amp in (("G6", 0.24, 0.8), ("D7", 0.36, 0.9))]
+    sparkle = [(bell(0.3, f, ((1.0, 1.0, 0.06),)) * 0.15, 0.5 + 0.05 * i)
+               for i, f in enumerate((4698.6, 3951.1, 5274.0, 4434.9))]
+    return finish(fade_tail(mix(d, *harp, *top, *sparkle), 0.35), -3)
+
+
+def jingle_legendary() -> np.ndarray:
+    """A Legendary cat (F89): a small warm fanfare. Soft horns play a three-note pickup into a held C major chord,
+    a harp sweeps up under it and gold bells ring on top. Ducks the music. 3 s."""
+    d = 3.0
+    pickup = [(horn(0.17, note(n), release=0.05) * 0.5, at) for n, at in (("G4", 0.0), ("C5", 0.13), ("E5", 0.26))]
+    held = [(horn(d - 0.42, note(n), attack=0.08, release=1.0, seed=i) * amp, 0.42)
+            for i, (n, amp) in enumerate((("C4", 0.35), ("G4", 0.45), ("C5", 0.5), ("E5", 0.45), ("G5", 0.4)))]
+    harp = [(bell(d, note(n), HARP, attack=0.002) * 0.3, 0.42 + 0.03 * i)
+            for i, n in enumerate(("C5", "E5", "G5", "C6", "E6", "G6"))]
+    gold = [(bell(d, note(n), GOLD, attack=0.002) * amp, at)
+            for n, at, amp in (("C7", 0.45, 0.45), ("G6", 0.6, 0.35), ("E7", 0.78, 0.3))]
+    return finish(fade_tail(mix(d, *pickup, *held, *harp, *gold), 1.0), -3)
+
+
+def jingle_mythical() -> np.ndarray:
+    """A Mythical cat (F89): a shimmer rises into a bigger fanfare (horns on a D major chord, a magic raised fourth
+    in the bells), a warm pad swells under it and a second wave of sparkles falls at the end. No voices. Ducks the
+    music. 4 s."""
+    d = 4.0
+    rise = 0.5
+    tr = seconds(rise)
+    shimmer = bandpass(bandpass(noise(rise, 610), sweep(rise, 2000, 8000), 4.0), sweep(rise, 2000, 8000), 4.0)
+    shimmer = shimmer / np.max(np.abs(shimmer)) * (tr / rise) ** 2 * 0.35
+    pickup = [(horn(0.18, note(n), release=0.05) * 0.5, at) for n, at in (("A4", 0.2), ("D5", 0.33), ("F#5", 0.46))]
+    held = [(horn(d - rise - 0.1, note(n), attack=0.1, release=1.3, seed=i) * amp, rise + 0.1)
+            for i, (n, amp) in enumerate((("D4", 0.35), ("A4", 0.45), ("D5", 0.5), ("F#5", 0.45), ("A5", 0.4)))]
+    pad = soft_pad(d - 0.5, ("D4", "A4", "F#5"), 0.6, 1.4) * 0.08
+    gold = [(bell(d, note(n), GOLD, attack=0.002) * amp, at)
+            for n, at, amp in (("D7", 0.62, 0.45), ("A6", 0.76, 0.35), ("G#6", 0.9, 0.3), ("F#7", 1.05, 0.25))]
+    first = [(bell(0.35, f, ((1.0, 1.0, 0.07),)) * 0.16, 0.7 + 0.06 * i)
+             for i, f in enumerate((4698.6, 5919.9, 5274.0, 6644.9, 4434.9))]
+    second = [(bell(0.45, f, ((1.0, 1.0, 0.09), (2.76, 0.15, 0.03))) * 0.15, 2.1 + 0.09 * i)
+              for i, f in enumerate((7040.0, 5919.9, 5274.0, 4698.6, 3520.0, 2960.0))]
+    tap = bell(0.6, note("A6"), GLOCK) * 0.3  # the shimmer swells from silence; this starts it on the beat
+    return finish(fade_tail(mix(d, (tap, 0.0), (shimmer, 0.0), *pickup, *held, (pad, 0.5), *gold, *first, *second),
+                            1.2), -3)
+
+
+def jingle_rainbow() -> np.ndarray:
+    """Securing a rainbow cat (F99): a glissando climbs two octaves, each note a little brighter, then lands on a
+    big chord whose bells are doubled a hair apart so they shimmer like the coat, with horns and a pad under it, and
+    a sparkle falls down the scale at the end. Ducks the music. 4.2 s."""
+    d = 4.2
+    scale = ("C5", "D5", "E5", "F#5", "G5", "A5", "B5", "C6", "D6", "E6", "F#6", "G6", "A6", "B6")
+    gliss = [(bell(0.7, note(n), ((1.0, 1.0, 0.25), (2.0, 0.2 + 0.03 * i, 0.12), (3.0, 0.05 + 0.02 * i, 0.06)),
+                   attack=0.002) * 0.35, 0.03 * i) for i, n in enumerate(scale)]
+    land = 0.03 * len(scale) + 0.03
+    chorus = [(bell(d, note(n) * (1 + detune), GOLD, attack=0.003) * 0.16, land + 0.03 * j)
+              for j, n in enumerate(("C6", "E6", "G6", "D7")) for detune in (-0.006, 0.0, 0.006)]
+    horns = [(horn(d - land, note(n), attack=0.1, release=1.3, seed=i) * amp, land)
+             for i, (n, amp) in enumerate((("C4", 0.35), ("G4", 0.45), ("C5", 0.5), ("E5", 0.45)))]
+    pad = soft_pad(d - land, ("C4", "G4", "E5", "B5"), 0.4, 1.4) * 0.07
+    fall = [(bell(0.45, note(n), ((1.0, 1.0, 0.1), (2.76, 0.15, 0.03))) * 0.2, 2.2 + 0.08 * i)
+            for i, n in enumerate(("B7", "A7", "G7", "F#7", "E7", "D7", "C7"))]
+    return finish(fade_tail(mix(d, *gliss, *chorus, *horns, (pad, land), *fall), 1.2), -3)
+
+
+def jingle_lucky_day() -> np.ndarray:
+    """A Lucky Day starts (F88): a sprinkle of coins climbs into a warm vibraphone run, a small bright bell rings
+    twice like the Lucky Cat's waving paw, and a gold chord settles. Plays after the sunrise sting. 2.6 s."""
+    d = 2.6
+    coins = [(bell(0.2, 2000.0 * 2 ** (i / 10), COIN, attack=0.0005) * (0.18 + 0.02 * i), 0.045 * i) for i in range(8)]
+    run = [(vibe(d - at, note(n), i) * 0.55, at)
+           for i, (n, at) in enumerate((("F5", 0.32), ("A5", 0.42), ("C6", 0.52), ("F6", 0.64)))]
+    wave = [(bell(d, note("C7"), SHOP_BELL) * amp, at) for at, amp in ((0.8, 0.35), (1.02, 0.25))]
+    chord = [(bell(d, note(n), GOLD, attack=0.002) * amp, 0.64) for n, amp in (("F5", 0.35), ("A5", 0.3), ("C6", 0.3))]
+    return finish(fade_tail(mix(d, *coins, *run, *wave, *chord), 0.8), -4)
+
+
+def clap(seed: int) -> np.ndarray:
+    """One hand clap: two tiny bursts a few milliseconds apart, then the clap's short body."""
+    d = 0.08
+    burst = bandpass(noise(d, seed), 1300, 1.4)
+    env = (envelope(d, 0.0003, 0.0025) * 0.7 + envelope(d, 0.0003, 0.0025, 0.006) * 0.7
+           + envelope(d, 0.0003, 0.018, 0.012))
+    return burst / np.max(np.abs(burst)) * env
+
+
+def party_horn(d: float, f: float) -> np.ndarray:
+    """A paper party horn: a buzzy reed that bends up onto its note and stops."""
+    t = seconds(d)
+    freq = f * (0.88 + 0.12 * np.clip(t / 0.03, 0, 1))
+    phase = np.cumsum(freq) / SR
+    buzz = sum(np.sin(2 * np.pi * k * phase) / k for k in range(1, 12))
+    shape = np.clip(t / 0.01, 0, 1) * np.clip((d - t) / 0.02, 0, 1)
+    return bandpass(buzz, 1500, 0.7) * shape
+
+
+def rally_cheer() -> np.ndarray:
+    """A Rescue Rally step is reached (F101): a party horn toots twice, a burst of clapping, a confetti popper and a
+    bright three-note rise. No voices. 1.5 s."""
+    d = 1.5
+    rng = np.random.default_rng(640)
+    claps = [(clap(641 + i) * (0.3 + 0.25 * rng.random()), 0.2 + 0.85 * rng.random() ** 1.4) for i in range(16)]
+    toots = [(party_horn(0.11, 523.3) * 0.5, 0.0), (party_horn(0.22, 659.3) * 0.5, 0.15)]
+    pop = bandpass(np.tanh(noise(0.06, 650) * 3), 2200, 0.8) * envelope(0.06, 0.0005, 0.01)
+    confetti = crackle(0.5, 651, 70, 5000) * 0.5
+    rise = [(bell(d, note(n), GLOCK) * 0.55, at) for n, at in (("C6", 0.42), ("E6", 0.5), ("G6", 0.58))]
+    return finish(fade_tail(mix(d, *toots, (pop, 0.36), (confetti, 0.38), *claps, *rise), 0.35), -4)
+
+
+def ui_reel_tick() -> np.ndarray:
+    """A tile line crosses the crate reel's marker (F103): a soft, dry tick, short enough to blur into a whirr at
+    15 a second and to stand alone as the reel slows."""
+    d = 0.04
+    click = bandpass(noise(d, 660), 3000, 2.5) * envelope(d, 0.0003, 0.003)
+    tone = bell(d, 1900.0, ((1.0, 1.0, 0.006), (2.7, 0.3, 0.003)), attack=0.0003)
+    return finish(click / np.max(np.abs(click)) * 0.6 + tone * 0.5, -10)
+
+
+def ui_reel_stop() -> np.ndarray:
+    """The crate reel stops on the prize (F103): a wooden thunk as the strip settles into its slot, with a small
+    latch click. The rarity sting follows from Epic up."""
+    d = 0.4
+    thump = glide(d, 200, 115, 0.05) * envelope(d, 0.002, 0.05)
+    knock = bell(d, 610.0, ((1.0, 1.0, 0.03), (2.7, 0.3, 0.012), (5.6, 0.08, 0.006)), attack=0.0005)
+    latch = bandpass(noise(0.03, 661), 3400, 4.0) * envelope(0.03, 0.0005, 0.005)
+    return finish(fade_tail(mix(d, (thump, 0.0), (knock * 0.6, 0.0), (latch / np.max(np.abs(latch)) * 0.25, 0.035)),
+                            0.1), -5)
+
+
+def ui_trade_tick() -> np.ndarray:
+    """One second of the trade countdown (F102): a soft woodblock tock, calm so five in a row never nag."""
+    d = 0.18
+    block = bell(d, 1250.0, ((1.0, 1.0, 0.028), (2.4, 0.25, 0.01), (4.1, 0.06, 0.005)), attack=0.0005)
+    click = bandpass(noise(0.015, 670), 2600, 2.0) * envelope(0.015, 0.0003, 0.002)
+    return finish(fade_tail(mix(d, (block, 0.0), (click / np.max(np.abs(click)) * 0.2, 0.0)), 0.05), -8)
+
+
+def ui_trade_done() -> np.ndarray:
+    """Trade done (F102): a paw shake (two soft pats), a light whoosh as the cats fly to the cat room, a quick
+    celesta arpeggio and a warm chord. Not the Cat Collector's trade jingle."""
+    d = 1.3
+    pats = [(glide(0.1, 230, 160, 0.03) * envelope(0.1, 0.002, 0.025) * 0.5, at) for at in (0.0, 0.1)]
+    tw = seconds(0.45)
+    whoosh = bandpass(noise(0.45, 680), sweep(0.45, 600, 2600), 1.0) * np.sin(np.pi * np.clip(tw / 0.45, 0, 1)) ** 2
+    arp = [(bell(d, note(n), CELESTA, attack=0.002) * 0.5, at)
+           for n, at in (("C6", 0.22), ("E6", 0.28), ("G6", 0.34), ("C7", 0.42))]
+    chord = [(vibe(d - 0.42, note(n), i) * 0.35, 0.42) for i, n in enumerate(("C5", "E5", "G5"))]
+    return finish(fade_tail(mix(d, *pats, (whoosh / np.max(np.abs(whoosh)) * 0.25, 0.12), *arp, *chord), 0.35), -5)
+
+
+HANDBELL = ((1.0, 1.0, 0.4), (2.42, 0.45, 0.18), (3.9, 0.22, 0.09), (5.55, 0.1, 0.05))
+
+
+def bellhop_bell() -> np.ndarray:
+    """The Bellhop Cat rings the little brass bell on its collar (F96): ting-a-ling, a swing and two smaller ones
+    with a soft jingle, bright and small so a ring every few seconds near the stand never nags. Not the door bell."""
+    d = 1.0
+    strikes = [(bell(d, 2350.0, HANDBELL) * amp, at) for at, amp in ((0.0, 1.0), (0.11, 0.6), (0.24, 0.35))]
+    clapper = [(bandpass(noise(0.01, 700 + i), 5200, 3.0) * envelope(0.01, 0.0002, 0.0015) * 0.6, at)
+               for i, at in enumerate((0.0, 0.11, 0.24))]
+    rattle = crackle(0.3, 703, 60, 6000) * 0.4
+    return finish(fade_tail(mix(d, *strikes, *clapper, (rattle, 0.02)), 0.4), -6)
+
+
+def rainbow_near() -> np.ndarray:
+    """A rainbow stray is out near you (F99): six bright twinkles climb, one per colour of its coat, over a breath of
+    shimmering air, each a pair of bells a hair apart so it sparkles. Brighter and longer than a Mythical's."""
+    d = 1.6
+    t = seconds(d)
+    air = bandpass(bandpass(noise(d, 710), sweep(d, 4000, 9000), 1.2), 7000, 1.0)
+    air *= np.sin(np.pi * np.clip(t / 1.2, 0, 1)) ** 2
+    twinkles = [(bell(d, note(n) * (1 + detune), ((1.0, 1.0, 0.18), (2.76, 0.25, 0.05))) * (0.4 + 0.04 * i), 0.09 * i)
+                for i, n in enumerate(("C6", "D6", "E6", "G6", "A6", "C7")) for detune in (0.0, 0.007)]
+    return finish(fade_tail(mix(d, (air / np.max(np.abs(air)) * 0.14, 0.0), *twinkles), 0.4), -6)
+
+
+def bubble(d: float, f0: float, f1: float, tau: float) -> np.ndarray:
+    """A water drop's bubble: a sine whose pitch rises fast as it rings out (the "plip")."""
+    return glide(d, f0, f1, d * 0.6) * envelope(d, 0.0008, tau)
+
+
+def camp_splash() -> np.ndarray:
+    """The Fish Pond (F100): a fish jumps and drops back in, or the line lands: a bright plip, a friendly splash and
+    a few droplets pattering back. Cartoon water, never a big crash."""
+    d = 0.9
+    plip = bubble(0.08, 700, 1500, 0.025)
+    splash = bandpass(bandpass(noise(0.5, 720), sweep(0.5, 2600, 900), 0.9), 1500, 0.8) * envelope(0.5, 0.004, 0.09)
+    body = glide(0.2, 260, 150, 0.08) * envelope(0.2, 0.003, 0.05) * 0.4
+    drops = [(bubble(0.07, f, f * 1.8, 0.015) * a, at)
+             for f, at, a in ((900, 0.26, 0.35), (1250, 0.34, 0.3), (1050, 0.45, 0.22), (1500, 0.58, 0.15))]
+    return finish(fade_tail(mix(d, (plip * 0.6, 0.0), (splash / np.max(np.abs(splash)) * 0.7, 0.03), (body, 0.03),
+                                *drops), 0.2), -5)
+
+
+def creak(d: float, seed: int, rate0: float, rate1: float, centre: float) -> np.ndarray:
+    """Wood or wicker creaking: a stick-slip train of tiny clicks whose rate rises from rate0 to rate1 and back,
+    rung through two narrow resonances."""
+    rng = np.random.default_rng(seed)
+    t = seconds(d)
+    rate = rate0 + (rate1 - rate0) * np.sin(np.pi * t / d)
+    phase = np.cumsum(rate) / SR
+    pulses = np.zeros_like(t)
+    hits = np.nonzero(np.diff(np.floor(phase), prepend=0) > 0)[0]
+    pulses[hits] = 0.6 + 0.4 * rng.random(len(hits))
+    out = bandpass(pulses, centre, 8.0) + 0.4 * bandpass(pulses, centre * 2.3, 6.0)
+    return out / np.max(np.abs(out)) * np.sin(np.pi * np.clip(t / d, 0, 1)) ** 0.7
+
+
+def camp_basket() -> np.ndarray:
+    """The Picnic Basket (F100): the wicker lid creaks open and drops back with a soft pat, and two warm notes say
+    there was a treat inside."""
+    d = 0.95
+    lid = creak(0.35, 730, 70, 170, 1100) * 0.6 + crackle(0.35, 731, 120, 2400) * 0.5
+    pat = glide(0.12, 190, 130, 0.04) * envelope(0.12, 0.002, 0.03) * 0.5
+    notes = [(vibe(d - at, note(n), i) * 0.45, at) for i, (n, at) in enumerate((("E6", 0.42), ("A6", 0.52)))]
+    return finish(fade_tail(mix(d, (lid, 0.0), (pat, 0.33), *notes), 0.3), -5)
+
+
+def camp_rattle() -> np.ndarray:
+    """The Lost and Found box (F100): its lid bumps and the odds and ends inside rattle, a cardboard thud and small
+    knocks (a ball, a key, a toy), as a prize waits or comes out."""
+    d = 0.7
+    rng = np.random.default_rng(740)
+    thud = glide(0.15, 160, 110, 0.04) * envelope(0.15, 0.002, 0.035)
+    thud += bandpass(noise(0.15, 741), 500, 1.0) * envelope(0.15, 0.001, 0.02) * 0.4
+    knocks = []
+    for i in range(9):
+        f = 700 + 1500 * rng.random()
+        at = 0.03 + 0.42 * i / 9 + 0.03 * rng.random()
+        knocks.append((bell(0.06, f, ((1.0, 1.0, 0.012), (2.6, 0.3, 0.005)), attack=0.0004)
+                       * (0.25 + 0.2 * rng.random()) * (1 - i / 12), at))
+    return finish(fade_tail(mix(d, (thud, 0.0), *knocks, (thud * 0.5, 0.42)), 0.15), -6)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -1269,6 +1525,35 @@ SOUNDS = {
     "CannonLand": ("sfx", "Sfx", cannon_land),
     "CloudHop": ("sfx", "Sfx", cloud_hop),
     "CampCheckIn": ("sfx", "Sfx", camp_check_in),
+    # the release batch: parts of the two sound sheets (SHEETS), gated one by one, uploaded only as their sheet
+    "BellhopBell": ("sheet-parts/sfx", "Sfx", bellhop_bell),
+    "RainbowNear": ("sheet-parts/sfx", "Sfx", rainbow_near),
+    "CampSplash": ("sheet-parts/sfx", "Sfx", camp_splash),
+    "CampBasket": ("sheet-parts/sfx", "Sfx", camp_basket),
+    "CampRattle": ("sheet-parts/sfx", "Sfx", camp_rattle),
+    "JingleEpic": ("sheet-parts/music", "Music", jingle_epic),
+    "JingleLegendary": ("sheet-parts/music", "Music", jingle_legendary),
+    "JingleMythical": ("sheet-parts/music", "Music", jingle_mythical),
+    "JingleRainbow": ("sheet-parts/music", "Music", jingle_rainbow),
+    "JingleLuckyDay": ("sheet-parts/music", "Music", jingle_lucky_day),
+    "RallyCheer": ("sheet-parts/sfx", "Sfx", rally_cheer),
+    "ReelTick": ("sheet-parts/ui", "Ui", ui_reel_tick),
+    "ReelStop": ("sheet-parts/ui", "Ui", ui_reel_stop),
+    "TradeTick": ("sheet-parts/ui", "Ui", ui_trade_tick),
+    "TradeDone": ("sheet-parts/ui", "Ui", ui_trade_done),
+}
+
+# Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the
+# release batch came when 6 were left, so its fifteen sounds share two files. Each part is written and gated on its
+# own under sheet-parts/; the sheet is the parts in order with SHEET_GAP seconds of silence between, written to
+# sheets/CatCafe_Sheet_<Name>.ogg (the only file uploaded), and every part's cue plays its own stretch of it
+# (`sheet` and `region` in Cues.luau; this script prints the regions to copy there whenever a part changes).
+# World plays in 3D, so it is mono; Moments plays flat and is stereo like the other jingles.
+SHEET_GAP = 0.5
+SHEETS = {
+    "World": (1, ("BellhopBell", "RainbowNear", "CampSplash", "CampBasket", "CampRattle")),
+    "Moments": (2, ("JingleEpic", "JingleLegendary", "JingleMythical", "JingleRainbow", "JingleLuckyDay",
+                    "RallyCheer", "ReelTick", "ReelStop", "TradeTick", "TradeDone")),
 }
 
 
@@ -1320,6 +1605,34 @@ def preview(rendered: dict[str, np.ndarray], folder: Path, tmp: Path) -> Path:
     return out
 
 
+def cue_name(name: str) -> str:
+    """The cue a part plays as (assets/cat-cafe/audio/upload.py cue_for): ReelTick -> uiReelTick."""
+    _, bus, _ = SOUNDS[name]
+    if bus == "Ui":
+        return "ui" + name
+    return name[0].lower() + name[1:]
+
+
+def write_sheet(sheet: str, channels: int, parts, rendered: dict[str, np.ndarray], tmp: Path) -> None:
+    """Joins the parts (building any not rendered in this run) into one file and prints each part's region."""
+    gap = np.zeros(int(SHEET_GAP * SR))
+    pieces: list[np.ndarray] = []
+    regions = []
+    at = 0
+    for part in parts:
+        x = rendered[part] if part in rendered else SOUNDS[part][2]()
+        regions.append((cue_name(part), at / SR, (at + len(x)) / SR))
+        pieces += [x, gap]
+        at += len(x) + len(gap)
+    wav = tmp / f"Sheet_{sheet}.wav"
+    write_wav(wav, np.concatenate(pieces[:-1]))
+    out = ROOT / "sheets" / f"CatCafe_Sheet_{sheet}.ogg"
+    encode(wav, out, ["-c:a", "libvorbis", "-q:a", "6"], channels=channels)
+    print(f"synth: {out.relative_to(ROOT.parents[2]).as_posix()}  {at / SR - SHEET_GAP:.2f} s, regions for Cues.luau:")
+    for cue, start, stop in regions:
+        print(f"    {cue} = {{ sheet = \"sheet{sheet}\", region = {{ {start:.3f}, {stop:.3f} }} }}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--only", help="comma list of names, e.g. CirclePerfect,CoinPop")
@@ -1342,8 +1655,11 @@ def main() -> int:
             wav = tmp / f"{name}.wav"
             write_wav(wav, x)
             out = ROOT / folder / f"CatCafe_{bus}_{name}.ogg"
-            encode(wav, out, ["-c:a", "libvorbis", "-q:a", "6"], channels=2 if folder == "music" else 1)
+            encode(wav, out, ["-c:a", "libvorbis", "-q:a", "6"], channels=2 if folder.endswith("music") else 1)
             print(f"synth: {out.relative_to(ROOT.parents[2]).as_posix()}  {len(x) / SR:.2f} s")
+        for sheet, (channels, parts) in SHEETS.items():
+            if any(part in rendered for part in parts):
+                write_sheet(sheet, channels, parts, rendered, tmp)
         if args.preview:
             folder = Path(args.preview)
             folder.mkdir(parents=True, exist_ok=True)

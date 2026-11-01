@@ -1,6 +1,7 @@
 --!strict
 -- Codes and the Codes Cat (F65, data-model section 11d), shared so the code box and RedeemCode agree. Pure.
--- `normalize` cleans what a player typed (codes are not case sensitive), `refusal` says why a code cannot pay, the
+-- `clean` is the code box's filter as a player types, `normalize` cleans what was sent (codes are not case
+-- sensitive), `refusal` says why a code cannot pay, the
 -- wrong-code guard locks the box after CodeWrongLimit wrong codes in CodeWrongWindowSeconds, and `circleOpen` keeps
 -- the box from flickering on the edge of the CodesCircle.
 
@@ -25,14 +26,28 @@ Codes.FAR = "Walk up to the Codes Cat"
 -- Wrong codes inside the window and when the lock ends, in one clock (the server's os.clock()).
 export type WrongGuard = { wrong: { number }, lockedUntil: number }
 
+-- What a code may hold: letters, digits and these symbols, so a code like "group!" is harder to guess (Derek's
+-- Set 4 answer 8). No spaces, quotes, slashes or brackets. CHAR_CLASS is the same set as a Luau pattern class.
+Codes.SYMBOLS = "!?#$&*@_-."
+Codes.CHAR_CLASS = "[%w!%?#%$&%*@_%-%.]"
+local NOT_CHAR = "[^%w!%?#%$&%*@_%-%.]"
+local ALL_CHARS = "^" .. Codes.CHAR_CLASS .. "+$"
+
+-- The code box's text as a player types: everything that cannot be in a code taken out (spaces included), cut to
+-- CodeMaxLength. Case is kept; the server lowercases.
+function Codes.clean(text: string): string
+	local kept = string.gsub(text, NOT_CHAR, "")
+	return string.sub(kept, 1, Config.CodeMaxLength)
+end
+
 -- The code a player typed, trimmed and lowercased, or nil when it cannot be a code: not a string, more than
--- MAX_BYTES before trimming, or not 1 to CodeMaxLength letters and digits after.
+-- MAX_BYTES before trimming, or not 1 to CodeMaxLength letters, digits and SYMBOLS after.
 function Codes.normalize(raw: unknown): string?
 	if type(raw) ~= "string" or #raw > Codes.MAX_BYTES then
 		return nil
 	end
 	local text = string.lower(string.match(raw, "^%s*(.-)%s*$") or "")
-	if #text < 1 or #text > Config.CodeMaxLength or string.match(text, "^%w+$") == nil then
+	if #text < 1 or #text > Config.CodeMaxLength or string.match(text, ALL_CHARS) == nil then
 		return nil
 	end
 	return text

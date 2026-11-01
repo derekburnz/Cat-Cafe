@@ -3,8 +3,10 @@
 -- bit of magic while it is in use. Midnight Sky's stars twinkle on the cafe's inside walls and a moon drifts along
 -- the back wall; Aurora Sky's northern lights sway there instead; Glimmer Canal's floor shimmers with light moving
 -- under the glass and a glint now and then; Rainbow Shimmer runs a slow rainbow over the cafe front and Gold Leaf
--- sends a sheen and glints over it, both seen from the street; the Blossom Tree drops petals. Which piece gets what
--- is Presets.decor by decor id.
+-- sends glints over it, both seen from the street; the Blossom Tree drops petals. Which piece gets what is
+-- Presets.decor by decor id. Gold Leaf's real gold trims (F89 2c, luck-and-rare-moments.md: Model-Agent's `_Trim`
+-- parts tagged PaintTrim) catch a glint that sweeps across them every 5 s and glow softly at night with a few warm
+-- lights (goldTrims); a cafe without them yet gets a sheen over its front instead.
 --
 -- Sources: each Plot's Wallpaper, Floor and Paint attributes (the style in use, which StyleController paints on the
 -- plot's parts with the same tag) and placed pieces carrying DecorId. Walls, floor and front are measured from those
@@ -16,6 +18,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
@@ -39,6 +42,7 @@ type Piece = {
 	mode: Mode?, -- what is built now; nil until its walls, floor or front have streamed in
 	made: { Instance },
 	tweens: { Tween },
+	cleanups: { () -> () }, -- run first when it stops (Gold Leaf's trims get their colour back)
 	retryAt: number, -- os.clock() of the next try after a failed build
 	backoff: number,
 }
@@ -64,12 +68,17 @@ local function newPiece(plot: Model, decorId: string, spec: Presets.DecorSpec, m
 		mode = nil,
 		made = {},
 		tweens = {},
+		cleanups = {},
 		retryAt = 0,
 		backoff = 0,
 	}
 end
 
 local function stop(piece: Piece)
+	for _, cleanup in piece.cleanups do
+		cleanup()
+	end
+	table.clear(piece.cleanups)
 	for _, tween in piece.tweens do
 		tween:Cancel()
 	end
@@ -514,6 +523,150 @@ local function sheen(piece: Piece, gui: SurfaceGui)
 	drift(piece, band, -1.5, 2.5, -1.5, s.seconds)
 end
 
+-- Gold Leaf's real gold trims (F89 2c) -----------------------------------------------------------------------------
+
+type Trim = { part: BasePart, base: Color3, written: Color3, x0: number, x1: number }
+
+-- The plot's trims (Presets.decorFx.trims.tag), keeping what `known` already holds for each, and their span in plot X.
+local function readTrims(plot: Model, known: { [BasePart]: Trim }): ({ Trim }, number, number)
+	local pivot = plot:GetPivot()
+	local list: { Trim } = {}
+	local lo, hi = math.huge, -math.huge
+	for _, instance in CollectionService:GetTagged(Presets.decorFx.trims.tag) do
+		if instance:IsA("BasePart") and instance:IsDescendantOf(plot) then
+			local part = instance :: BasePart
+			local found = known[part]
+			local trim: Trim
+			if found ~= nil then
+				trim = found
+			else
+				local frame = pivot:ToObjectSpace(part.CFrame)
+				local half = Logic.halfExtents(frame, part.Size)
+				trim = {
+					part = part,
+					base = part.Color,
+					written = part.Color,
+					x0 = frame.X - half.X,
+					x1 = frame.X + half.X,
+				}
+			end
+			table.insert(list, trim)
+			lo = math.min(lo, trim.x0)
+			hi = math.max(hi, trim.x1)
+		end
+	end
+	return list, lo, hi
+end
+
+-- In "full" a glint crosses the trims every few seconds with sparkles along the eave; at night, in "calm" too, they
+-- lift toward a soft gold with a few warm lights under the eave. `fallback` (the sheen shown while the cafe has no
+-- trims) goes once they stream in. Each trim gets the colour the style gave it back when this stops, unless
+-- something has recoloured it since.
+local function goldTrims(piece: Piece, box: Box, mode: Mode, fallback: Instance?)
+	local t = Presets.decorFx.trims
+	local plot = piece.plot
+	local pivot = plot:GetPivot()
+	local trims, lo, hi = readTrims(plot, {})
+	local lights: { PointLight } = {}
+	local lit: boolean? = nil
+	local lastStep, lastRead, nextSparkle = 0, os.clock(), 0
+	local cover: Instance? = fallback
+	local function glow(on: boolean)
+		if on and #lights == 0 then
+			local middle, span = (box.lo.X + box.hi.X) / 2, box.hi.X - box.lo.X
+			for i = 1, t.lights do
+				local x = middle + span * ((i - 0.5) / t.lights - 0.5)
+				local holder = Particles.anchor(
+					"Decor_goldLeafGlow",
+					pivot * Vector3.new(x, box.eave - t.below, box.lo.Z - t.out)
+				)
+				table.insert(piece.made, holder)
+				local light = Instance.new("PointLight")
+				light.Color = t.glow
+				light.Range = t.range
+				light.Brightness = t.brightness
+				light.Shadows = false
+				light.Parent = holder
+				table.insert(lights, light)
+			end
+		end
+		for _, light in lights do
+			light.Enabled = on
+		end
+	end
+	local connection = RunService.Heartbeat:Connect(function()
+		local now = os.clock()
+		if now - lastStep < 1 / Context.budget.animHz then
+			return
+		end
+		lastStep = now
+		if now - lastRead >= t.checkEvery then
+			lastRead = now
+			local known: { [BasePart]: Trim } = {}
+			for _, trim in trims do
+				known[trim.part] = trim
+			end
+			trims, lo, hi = readTrims(plot, known)
+		end
+		if #trims == 0 then
+			return
+		end
+		local old = cover
+		if old ~= nil then
+			old:Destroy()
+			cover = nil
+		end
+		local night = Context.isNight()
+		if night ~= lit then
+			lit = night
+			glow(night)
+		end
+		local band = if mode == "full"
+			then Logic.trimSweep(now, t.every, t.seconds, lo, hi, t.width)
+			else nil
+		for _, trim in trims do
+			local part = trim.part
+			if part.Parent == nil then
+				continue
+			end
+			if Logic.colourMoved(part.Color, trim.written, t.tolerance) then
+				-- the style recoloured it: that is its colour now
+				trim.base = part.Color
+				trim.written = part.Color
+			end
+			local colour = if night then trim.base:Lerp(t.glow, t.night) else trim.base
+			local shine = Logic.trimGlint(trim.x0, trim.x1, band, t.width)
+			if shine > 0 then
+				colour = colour:Lerp(t.glint, t.shine * shine)
+			end
+			if Logic.colourMoved(colour, trim.written, 0.5 / 255) then
+				part.Color = colour
+				trim.written = colour
+			end
+		end
+		if band ~= nil and band >= lo and band <= hi and now >= nextSparkle then
+			nextSparkle = now + t.sparkleEvery
+			Particles.burst(
+				"decorGlint",
+				pivot * Vector3.new(band, box.eave - 0.3, box.lo.Z - 0.4),
+				t.sparkles,
+				t.glow
+			)
+		end
+	end)
+	table.insert(piece.cleanups, function()
+		connection:Disconnect()
+		for _, trim in trims do
+			local part = trim.part
+			if
+				part.Parent ~= nil and not Logic.colourMoved(part.Color, trim.written, t.tolerance)
+			then
+				part.Color = trim.base
+			end
+		end
+	end)
+end
+
 local function seedOf(plot: Model, salt: number): number
 	local index = plot:GetAttribute("PlotIndex")
 	return (if type(index) == "number" then index else 0) * 97 + salt
@@ -582,8 +735,10 @@ local function build(piece: Piece, mode: Mode): boolean
 			)
 			rainbow(piece, gui, mode)
 		elseif mode ~= "still" then
-			-- Gold Leaf's still look is the foil itself.
-			if mode == "full" then
+			-- Gold Leaf's still look is the foil itself. Its real gold trims glint and glow (goldTrims); a cafe
+			-- without them yet gets a sheen over the front instead.
+			local fallback: Instance? = nil
+			if mode == "full" and #(readTrims(plot, {})) == 0 then
 				local gui = sheet(
 					piece,
 					"Decor_goldLeaf",
@@ -594,7 +749,9 @@ local function build(piece: Piece, mode: Mode): boolean
 					0.6
 				)
 				sheen(piece, gui)
+				fallback = gui.Parent
 			end
+			goldTrims(piece, box, mode, fallback)
 			sprayer(
 				piece,
 				front.frame * CFrame.new(0, 0, -0.15),

@@ -12,6 +12,9 @@
 --               price). Assign rings every free "+" in gold and marks the cat's favourite role "★ 1.5x".
 --   Lock (F62)  a locked cat shows a lock on its card, cannot be sold, and its detail has the Lock row that sets it
 --               (Components/CatLock). Gold, Legendary and Mythical cats arrive locked from the server.
+--   Keeps up    (F86) an older Legendary or Mythical earning like a newer area's cat has a "Keeps up" tag on its
+--               card and its detail; the detail's tag says why when pressed (Components/KeepUp). The rate shown is
+--               the server's kept-up rating.
 -- MyCats owns the window; this view only reads state and calls back.
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -21,6 +24,7 @@ local CatRoomList = require(script.Parent.Parent.Components.CatRoomList)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local KeepUp = require(script.Parent.Parent.Components.KeepUp)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RenameDialog = require(script.Parent.RenameDialog)
 local Sound = require(script.Parent.Parent.Components.Sound)
@@ -62,6 +66,7 @@ local RENAME_W = 34
 local LOCK_H = 36
 local FAV_H = 32 -- the favourite role row: its icon on the side, "Favourite role" over the role in bold
 local FAV_ICON = 28
+local KEEP_W = 74 -- the detail's "Keeps up" tag at the end of the rate line
 -- cards this far above or below the visible part of the grid already get their cat model (reviewer N71)
 local PORTRAIT_MARGIN = 240
 local NOTICE_SECONDS = 3
@@ -153,6 +158,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	self._lockTaps = {} :: { [string]: CatLock.Tap } -- uid -> the player's last lock tap (F62)
 	self._lockLive = false -- the server sends `locked` on its cats
 	self._notice = nil :: string?
+	self._noticeTip = false -- the notice is a tip (the Keeps up tag's), not a refusal
 	self._noticeToken = 0
 	self._state = nil :: Types.PlayerState?
 	self._buttons = {} :: { any }
@@ -428,6 +434,33 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		TextColor3 = Theme.colors.goodDark,
 		Parent = body,
 	})
+	local keep: TextButton = Create("TextButton", {
+		Name = "KeepsUp",
+		AutoButtonColor = false,
+		BackgroundColor3 = Theme.colors.goodDark,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -10, 0, DETAIL_ART + 14),
+		Size = UDim2.fromOffset(KEEP_W, 20),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.colors.white,
+		Text = KeepUp.TAG,
+		Visible = false,
+		Parent = body,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._detailKeep = keep
+	table.insert(
+		self._connections,
+		keep.Activated:Connect(function()
+			local state: Types.PlayerState? = self._state
+			local tip = if state then KeepUp.tip(state.tier or 1) else nil
+			if tip then
+				Sound.play("uiClick")
+				self:_say(tip, true)
+			end
+		end)
+	)
 	-- a notice or the Assign hint, in the favourite row's place while it shows
 	local favTop = DETAIL_ART + 36
 	self._detailInfo = text({
@@ -756,6 +789,11 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 	lock.AnchorPoint = Vector2.new(1, 1)
 	lock.Position = UDim2.new(1, -4, 0, CARD_ART + 4)
 	lock.Visible = false
+	-- F86: on the picture's lower left corner while an older Legendary or Mythical keeps up
+	local keep = badge(button, KeepUp.TAG, Theme.colors.goodDark, Theme.colors.white)
+	keep.AnchorPoint = Vector2.new(0, 1)
+	keep.Position = UDim2.fromOffset(4, CARD_ART + 4)
+	keep.Visible = false
 	local name = text({
 		Name = "Name",
 		Position = UDim2.fromOffset(4, CARD_ART + 10),
@@ -788,6 +826,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		loaded = false, -- the model is cloned by _loadPortraits once the card is near the visible window
 		role = role,
 		lock = lock,
+		keep = keep,
 		name = name,
 		rate = rate,
 		def = def,
@@ -831,8 +870,9 @@ function CatRoom._select(self: any, uid: string?)
 	self:_refresh()
 end
 
-function CatRoom._say(self: any, notice: string)
+function CatRoom._say(self: any, notice: string, tip: boolean?)
 	self._notice = notice
+	self._noticeTip = tip == true
 	self._noticeToken += 1
 	local token = self._noticeToken
 	task.delay(NOTICE_SECONDS, function()
@@ -1054,6 +1094,7 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 			entry.role.Text = Theme.roleIcons[spot.spotType] or "✓"
 		end
 		entry.lock.Visible = self:_locked(instance)
+		entry.keep.Visible = KeepUp.keepsUp(def, state.tier)
 		local picked = uid == selected
 		entry.stroke.Color = if picked
 			then Theme.colors.sky
@@ -1194,6 +1235,10 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	self._detailStats.Text = table.concat(statBits, "  ")
 
 	local rate, favorite = self:_rateOf(instance)
+	local state: Types.PlayerState? = self._state
+	local keeps = KeepUp.keepsUp(def, if state then state.tier else nil)
+	self._detailKeep.Visible = keeps
+	self._detailRate.Size = UDim2.new(1, if keeps then -(24 + KEEP_W) else -20, 0, 20)
 	local spotId = instance.spotId
 	if spotId then
 		self._detailRate.Text = ("%s  ·  %s"):format(
@@ -1207,7 +1252,9 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	local showFav = false
 	if self._notice then
 		self._detailInfo.Text = self._notice
-		self._detailInfo.TextColor3 = Theme.colors.warnDark
+		self._detailInfo.TextColor3 = if self._noticeTip
+			then Theme.colors.goodDark
+			else Theme.colors.warnDark
 	elseif self._placing then
 		self._detailInfo.Text = "Tap a gold-ringed + above."
 		self._detailInfo.TextColor3 = Theme.colors.caramelDark

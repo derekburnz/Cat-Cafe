@@ -136,6 +136,17 @@ Theme.modal = {
 	subtext = Color3.fromHex("6A5B4F"),
 }
 
+-- The Index's Cats and Gold tabs (Derek's Set 4 answer, 2026-11-01: "a darker background too make it look clean"):
+-- a dark cocoa page behind rarity tiles, light words on it, and tiles not found yet darkened toward black under a
+-- black silhouette.
+Theme.index = {
+	body = Color3.fromHex("2E2522"),
+	text = Theme.colors.white,
+	subtext = Color3.fromHex("D9C8B4"),
+	track = Color3.fromHex("4A3C35"), -- an area's progress bar behind its fill
+	dim = 0.55, -- how far a tile not found yet goes toward black
+}
+
 -- `ink` is the rarity as text on a light card (odds rows, Derek 2026-10-28), dark enough to read at 14 px
 Theme.rarity = {
 	Common = {
@@ -253,6 +264,7 @@ Theme.icons = {
 	equipBest = "✨",
 	drop = "⬇️",
 	settings = "⚙️",
+	feedback = "💬", -- the HUD's Feedback tile and the Feedback window's badge
 	gifts = "🎁",
 	spin = "🎡",
 	goldenFish = "🐟", -- in text only; tiles and the HUD draw the cat-face coin (Components/FishCoin)

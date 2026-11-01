@@ -5,8 +5,9 @@
 -- joints and `Avatar.solve` turns a pose into joint Transforms, lowered so the lowest part rests on the floor. An R15
 -- or R6 character, with Motor6D joints or the newer AnimationConstraint ones; R6 has no waist, elbows or knees, so
 -- those parts of a pose are left out on it.
--- The net hold (Derek 2026-10-28): the right arm holding the player's net upright and leaning ahead while it walks
--- a catching area; `Avatar.holdNet` poses that arm only and `Avatar.netHand` says where in the hand the net goes.
+-- The net hold (Derek 2026-10-28, F93): the right arm holding the player's net back over the shoulder at all times,
+-- and the net smack that swings it; `Avatar.holdNet` poses that arm only (`Avatar.smack` gives the swing's arm) and
+-- `Avatar.netHand` says where in the hand the net goes.
 -- The carry (Derek 2026-10-28): arms crossed in front of the chest with the caught cat on them; `Avatar.carryArms`
 -- poses the upper body only, so the legs keep walking, and `Avatar.cradle` says where on the arms the cat rests.
 -- The Cat Cannon flight (F84): the hop into the barrel, the curled ball rolling through the air and the crouch
@@ -116,6 +117,7 @@ local R15: { [string]: { string } } = {
 	RightShoulder = { "UpperTorso", "RightUpperArm" },
 	LeftElbow = { "LeftUpperArm", "LeftLowerArm" },
 	RightElbow = { "RightUpperArm", "RightLowerArm" },
+	LeftWrist = { "LeftLowerArm", "LeftHand" },
 	RightWrist = { "RightLowerArm", "RightHand" },
 	LeftHip = { "LowerTorso", "LeftUpperLeg" },
 	RightHip = { "LowerTorso", "RightUpperLeg" },
@@ -512,10 +514,15 @@ function Avatar.solve(rig: Rig, pose: Pose): { [Joint]: CFrame }
 	return out
 end
 
--- The net hold's right arm (Presets.netHold): raised and bent so the forearm points ahead, the wrist kept straight
--- so the pole stays steady while the character walks. The rest of the body stays the character's own.
-function Avatar.holdNet(rig: Rig): { [Joint]: CFrame }
-	local h = Presets.netHold
+-- The net arm: the right shoulder raised `sh` degrees forward, turned `tw` and out `sp`, the elbow bent `el` (R6,
+-- which has no elbow: the whole arm raised `sh6`), and the body bent `waist` degrees forward at the waist (R15).
+export type NetArm = { sh: number, tw: number, sp: number, el: number, sh6: number, waist: number }
+
+-- The net hold's right arm (Presets.netHold, or `arm`, the smack's): raised and bent so the forearm points ahead,
+-- the wrist kept straight so the pole stays steady while the character walks. The rest of the body stays the
+-- character's own, but for the waist while the smack bends it.
+function Avatar.holdNet(rig: Rig, arm: NetArm?): { [Joint]: CFrame }
+	local h: NetArm = arm or Presets.netHold
 	local rad = math.rad
 	local out: { [Joint]: CFrame } = {}
 	local set = setter(rig, out)
@@ -523,23 +530,85 @@ function Avatar.holdNet(rig: Rig): { [Joint]: CFrame }
 		set("RightShoulder", CFrame.Angles(rad(h.sh), rad(h.tw), rad(h.sp)))
 		set("RightElbow", CFrame.Angles(rad(h.el), 0, 0))
 		set("RightWrist", CFrame.identity)
+		if h.waist ~= 0 then
+			set("Waist", CFrame.Angles(rad(-h.waist), 0, 0))
+		end
 	else
 		set("RightShoulder", CFrame.Angles(rad(h.sh6), 0, rad(h.sp)))
 	end
 	return out
 end
 
--- Whether a character holds its net: standing in a catching area (a World.Zones box other than the Cafe; nil is the
--- street), alive and with no cat in its arms (`CarryingCatId`).
-function Avatar.holdsNet(zone: string?, carrying: unknown, alive: boolean): boolean
-	return zone ~= nil and zone ~= "Cafe" and carrying == nil and alive
+-- The net smack (F93, catch-rework.md section 1) `seconds` after the swing: the arm whips the net up over the head by
+-- Presets.netSmack's `rise`, brings it down onto the ground ahead by `land` (when the server judges the hit) and
+-- goes back to the hold by `ends`. `missedAt` is how far into the swing this screen learned that it hit nothing: from
+-- then, or from the landing if it knew before, the net bounces back up off the ground for `bounce` seconds and then
+-- goes back to the hold over the same time a hit's recovery has left, so a late answer (the swinger's own screen
+-- hears it a round trip after the landing) bends the swing where it is instead of jumping, and only makes it longer.
+-- A miss heard after the swing ended changes nothing. Nil outside the smack.
+function Avatar.smack(seconds: number, missedAt: number?): NetArm?
+	local k = Presets.netSmack
+	local hold: NetArm = Presets.netHold
+	local raised, landed, bounced = k.poses.raised, k.poses.landed, k.poses.bounced
+	local function mix(a: NetArm, b: NetArm, t: number): NetArm
+		return {
+			sh = a.sh + (b.sh - a.sh) * t,
+			tw = a.tw + (b.tw - a.tw) * t,
+			sp = a.sp + (b.sp - a.sp) * t,
+			el = a.el + (b.el - a.el) * t,
+			sh6 = a.sh6 + (b.sh6 - a.sh6) * t,
+			waist = a.waist + (b.waist - a.waist) * t,
+		}
+	end
+	-- the swing as a hit plays it, nil from `ends` on
+	local function swing(at: number): NetArm?
+		if at < k.rise then
+			return mix(hold, raised, smooth(at / k.rise))
+		elseif at < k.land then
+			local t = (at - k.rise) / (k.land - k.rise)
+			return mix(raised, landed, t * t) -- faster and faster into the ground
+		elseif at < k.ends then
+			return mix(landed, hold, smooth((at - k.land) / (k.ends - k.land)))
+		end
+		return nil
+	end
+	if seconds < 0 then
+		return nil
+	end
+	local from = if missedAt ~= nil then math.max(missedAt, k.land) else math.huge
+	if seconds < from then
+		return swing(seconds)
+	end
+	local start = swing(from)
+	if start == nil then
+		return nil
+	end
+	local up = from + k.bounce
+	local back = k.ends - k.land - k.bounce
+	if seconds < up then
+		return mix(start, bounced, smooth((seconds - from) / k.bounce))
+	elseif seconds < up + back then
+		return mix(bounced, hold, smooth((seconds - up) / back))
+	end
+	return nil
 end
 
--- Which net model a player's `NetLevel` shows, 1 to 3: the Basic net (level 0) and the Sturdy net (1) share the
--- first, and a missing or odd value is the Basic net.
+-- Whether a character holds its net (F93: at all times): alive, with no cat in its arms (`CarryingCatId`, or the
+-- server's `NetHidden` for the carry), and not shot out of the Cat Cannon (`Launching`).
+function Avatar.holdsNet(
+	carrying: unknown,
+	hidden: unknown,
+	alive: boolean,
+	launching: unknown
+): boolean
+	return carrying == nil and hidden ~= true and launching ~= true and alive
+end
+
+-- Which net model a player's `NetLevel` shows, 1 to 4: one a net, the Basic net (level 0) first and the Master net
+-- (3) last. A missing or odd value is the Basic net.
 function Avatar.netModel(level: unknown): number
 	local n = if type(level) == "number" and level == level then math.floor(level) else 0
-	return math.clamp(n, 1, 3)
+	return math.clamp(n + 1, 1, 4)
 end
 
 -- The hold's weight `dt` seconds on, easing towards 1 while it holds and 0 while it does not, over the blend times
@@ -585,18 +654,25 @@ function Avatar.carrying(carryingCatId: unknown, alive: boolean): boolean
 end
 
 -- The carry's upper body (Presets.carryPose): arms folded across the chest, the left forearm under the right, the
--- head tipped down to the cat; on R6, with no elbows, both arms reach forward and in. The hips, legs and root stay
--- the character's own, so it walks and stands as it would.
+-- head tipped down to the cat, the wrists straight so the hands do not wave with the walk under them; on R6, with no
+-- elbows or wrists, both arms reach forward and in. The hips, legs and root stay the character's own, so it walks
+-- and stands as it would.
 function Avatar.carryArms(rig: Rig): { [Joint]: CFrame }
 	local c = Presets.carryPose
 	local out: { [Joint]: CFrame } = {}
-	upper(setter(rig, out), Avatar.pose(if rig.joints.LeftElbow ~= nil then c.arms else c.arms6))
+	local set = setter(rig, out)
+	local r15 = rig.joints.LeftElbow ~= nil
+	upper(set, Avatar.pose(if r15 then c.arms else c.arms6))
+	if r15 then
+		set("LeftWrist", CFrame.identity)
+		set("RightWrist", CFrame.identity)
+	end
 	return out
 end
 
 -- Where a carried cat's floor goes (Pose.hold), from where the arms are this frame: on top of the higher forearm
--- (the whole arm on R6), halfway between the two, level with the chest's up, the cat's front towards the character's
--- left for a loaf (lying across the arms) and ahead for a sit (Presets.carryPose). `frameOf` gives a part's CFrame
+-- (the whole arm on R6), out to the side from halfway between the two, level with the chest's up, the cat's face back
+-- over the character's left shoulder for a loaf (lying on the arms) and ahead for a sit (Presets.carryPose). `frameOf` gives a part's CFrame
 -- (BasePart.CFrame in the game, the preview's own frames outside it). nil on a rig with no chest or arms.
 function Avatar.cradle(rig: Rig, held: string, frameOf: (BasePart) -> CFrame): CFrame?
 	local chest: BasePart? = rig.parts.Waist or rig.parts.Root -- the UpperTorso, or R6's Torso

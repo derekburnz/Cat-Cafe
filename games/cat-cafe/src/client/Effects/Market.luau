@@ -11,6 +11,11 @@
 -- crate that was opened appears on the counter facing you at the same instant, its lid (the child Model ending
 -- `_Lid`) swings up on its back hinge as the pop comes out of it, and it fades away a moment later. Before the models
 -- land, or for a crate with none, the pop comes off the bare counter as before.
+--
+-- A Legendary or Mythical piece is a big pull (F89, luck-and-rare-moments.md 2b): the crate glows in the piece's
+-- rarity colour from the moment it appears, so the rarity still shows from the first frame, shakes harder and harder
+-- for a moment with sparkles rising off it, then its lid blows open and the pop comes out with Pull.screen's confetti
+-- on your screen (UI-Engineer holds the big pull card for the shake). With Reduce Motion it glows without shaking.
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -26,6 +31,7 @@ local Logic = require(script.Parent.Logic)
 local Net = require(script.Parent.Parent.Net)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
+local Pull = require(script.Parent.Pull)
 
 local Market = {}
 
@@ -94,8 +100,9 @@ local function removeShown()
 	end
 end
 
--- Swings the lid up about its back edge, the hinge (the crate's front is -Z), from closed to `lidDegrees`.
-local function openLid(lid: Model, facing: CFrame)
+-- Swings the lid up about its back edge, the hinge (the crate's front is -Z), from closed to `lidDegrees` over
+-- `seconds`.
+local function openLid(lid: Model, facing: CFrame, seconds: number)
 	local c = Presets.marketCrate
 	local box, size = lid:GetBoundingBox()
 	local centre = facing:PointToObjectSpace(box.Position)
@@ -113,20 +120,77 @@ local function openLid(lid: Model, facing: CFrame)
 	local connection: RBXScriptConnection? = nil
 	connection = RunService.RenderStepped:Connect(function()
 		local elapsed = os.clock() - began
-		if lid.Parent == nil or elapsed >= c.lidSeconds then
+		if lid.Parent == nil or elapsed >= seconds then
 			if connection ~= nil then
 				connection:Disconnect()
 			end
 		end
 		if lid.Parent ~= nil then
-			swing(Logic.lidAngle(elapsed, c.lidSeconds, c.lidDegrees))
+			swing(Logic.lidAngle(elapsed, seconds, c.lidDegrees))
+		end
+	end)
+end
+
+-- A big pull's crate: a glow in `colour` from now on, then a rattle about its base (`facing`) that grows over
+-- crateShake seconds with sparkles rising off it; `done` runs when it ends, the crate back where it stood.
+local function rattle(model: Model, facing: CFrame, colour: Color3, done: () -> ())
+	local b = Presets.bigPull
+	local glow = Instance.new("Highlight")
+	glow.FillColor = colour
+	glow.FillTransparency = b.glowFill
+	glow.OutlineColor = colour
+	glow.DepthMode = Enum.HighlightDepthMode.Occluded
+	glow.Parent = model
+	local light = Instance.new("PointLight")
+	light.Color = colour
+	light.Range = b.glowLight.range
+	light.Brightness = b.glowLight.brightness
+	light.Shadows = false
+	local holder = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	light.Parent = holder
+	local placed = model:GetPivot()
+	local still = Context.reducedMotion()
+	local began, nextSparkle = os.clock(), 0
+	local connection: RBXScriptConnection? = nil
+	connection = RunService.RenderStepped:Connect(function()
+		local t = os.clock() - began
+		if model.Parent == nil or t >= b.crateShake then
+			if connection ~= nil then
+				connection:Disconnect()
+			end
+			if model.Parent ~= nil then
+				model:PivotTo(placed)
+				done()
+			end
+			return
+		end
+		if t >= nextSparkle then
+			nextSparkle = t + b.sparkleEvery
+			Particles.burst(
+				"catchSparkle",
+				facing.Position + Vector3.new(0, 0.6, 0),
+				b.crateSparkles,
+				colour
+			)
+		end
+		if not still then
+			local k = t / b.crateShake
+			local wave = math.sin(2 * math.pi * b.rattleHz * t)
+			local turn = CFrame.new(0, b.rattleHop * k * math.abs(wave), 0)
+				* CFrame.Angles(
+					0,
+					math.rad(b.rattle * k * wave * 0.5),
+					math.rad(b.rattle * k * wave)
+				)
+			model:PivotTo(facing * turn * facing:Inverse() * placed)
 		end
 	end)
 end
 
 -- Puts a copy of the crate on the counter at `top`, its front toward you, opens it and fades it away after a moment.
--- Returns the open crate's rim, where the pop comes out.
-local function showCrate(template: Model, top: Vector3): Vector3
+-- A big pull's crate (`rare`, its rarity colour) glows and shakes first. Calls `popped` with the open crate's rim,
+-- where the pop comes out, as the lid opens.
+local function showCrate(template: Model, top: Vector3, rare: Color3?, popped: (Vector3) -> ())
 	removeShown()
 	local c = Presets.marketCrate
 	local model = template:Clone() :: Model
@@ -159,15 +223,37 @@ local function showCrate(template: Model, top: Vector3): Vector3
 		local lidBox, lidSize = lid:GetBoundingBox()
 		rim = facing:PointToObjectSpace(lidBox.Position).Y
 			- Logic.halfExtents(facing:ToObjectSpace(lidBox), lidSize).Y
-		openLid(lid, facing)
 	end
-	task.delay(c.hold, function()
+	local function open(seconds: number)
+		if lid ~= nil then
+			openLid(lid, facing, seconds)
+		end
+		popped(top + Vector3.new(0, rim, 0))
+	end
+	local wait = 0
+	if rare ~= nil then
+		wait = Presets.bigPull.crateShake
+		rattle(model, facing, rare, function()
+			open(Presets.bigPull.blowSeconds)
+		end)
+	else
+		open(c.lidSeconds)
+	end
+	task.delay(c.hold + wait, function()
 		if model.Parent == nil then
 			return -- the next open took its place
 		end
+		-- a big pull's glow and light fade with it: a Highlight still draws on a part that has faded out
+		local fade = TweenInfo.new(c.fade)
 		for _, descendant in model:GetDescendants() do
 			if descendant:IsA("BasePart") then
-				TweenService:Create(descendant, TweenInfo.new(c.fade), { Transparency = 1 }):Play()
+				TweenService:Create(descendant, fade, { Transparency = 1 }):Play()
+			elseif descendant:IsA("Highlight") then
+				TweenService
+					:Create(descendant, fade, { FillTransparency = 1, OutlineTransparency = 1 })
+					:Play()
+			elseif descendant:IsA("PointLight") then
+				TweenService:Create(descendant, fade, { Brightness = 0 }):Play()
 			end
 		end
 		task.delay(c.fade, function()
@@ -177,7 +263,6 @@ local function showCrate(template: Model, top: Vector3): Vector3
 			model:Destroy()
 		end)
 	end)
-	return top + Vector3.new(0, rim, 0)
 end
 
 local function opened(crateId: string, decorId: string)
@@ -191,10 +276,25 @@ local function opened(crateId: string, decorId: string)
 		return
 	end
 	local m = Presets.market
+	local rarity = def.rarity or "Common"
+	local big = Logic.bigPull(rarity, false)
+	local function pop(from: Vector3)
+		Particles.burst("dust", from, m.puff, Presets.palette.fishBelly)
+		if big then
+			-- a Mythical's shockwave runs over the ground round the stall, not the counter top
+			local floor = Pull.floorBelow(top, { station }, m.floorDepth)
+			Pull.world(from + Vector3.new(0, m.above, 0), top, rarity, floor)
+			Pull.screen(rarity, false)
+		else
+			Catch.pop(from + Vector3.new(0, m.above, 0), top, rarity)
+		end
+	end
 	local template = crateTemplate(crateId)
-	local from = if template ~= nil then showCrate(template, top) else top
-	Particles.burst("dust", from, m.puff, Presets.palette.fishBelly)
-	Catch.pop(from + Vector3.new(0, m.above, 0), top, def.rarity or "Common")
+	if template ~= nil then
+		showCrate(template, top, if big then Presets.rarity[rarity] else nil, pop)
+	else
+		pop(top)
+	end
 end
 
 function Market.start()

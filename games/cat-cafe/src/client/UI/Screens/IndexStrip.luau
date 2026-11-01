@@ -9,6 +9,8 @@
 -- first one still to earn. Expand milestones opens the full row of small cards under it, which scrolls sideways and
 -- opens on the first NEXT card; the button carries a red count of the other rewards waiting. The sums live in
 -- Components/IndexRewards; the strip hides itself when the catalog has no prizes for the area.
+-- setTrack("normal" | "gold") keeps one track's milestones (the Index's Cats and Gold tabs, 2026-11-01); nil shows
+-- both, as before.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -32,6 +34,7 @@ export type IndexStrip = {
 	setCatalog: (self: IndexStrip, catalog: Types.Catalog) -> (),
 	setNight: (self: IndexStrip, night: boolean) -> (),
 	render: (self: IndexStrip, state: Types.PlayerState, areaId: string?) -> (),
+	setTrack: (self: IndexStrip, track: IndexRewards.Track?) -> (),
 	destroy: (self: IndexStrip) -> (),
 }
 
@@ -81,6 +84,7 @@ function IndexStrip.new(parent: Instance, callbacks: Callbacks): IndexStrip
 	self._scrolledFor = nil :: string? -- "area:milestone" the row last scrolled to, so it scrolls once per change
 	self._total = 0 -- the open page's cats, for "All 10"
 	self._expanded = false -- the full row; shut on open, so the next reward is all that shows
+	self._track = nil :: IndexRewards.Track? -- only this track's milestones, or both
 
 	self.frame = Create("Frame", {
 		Name = "Rewards",
@@ -400,6 +404,15 @@ function IndexStrip._buildCard(self: any, parent: Instance, big: boolean, order:
 	return card
 end
 
+function IndexStrip.setTrack(self: any, track: IndexRewards.Track?)
+	-- the Index sets it on every render before render() refreshes; refresh here only when it changes
+	if self._track == track then
+		return
+	end
+	self._track = track
+	self:_refresh()
+end
+
 function IndexStrip.render(self: any, state: Types.PlayerState, areaId: string?)
 	self._state = state
 	self._area = areaId
@@ -463,6 +476,16 @@ function IndexStrip._refresh(self: any)
 		return
 	end
 	local views = IndexRewards.views(catalog, state, area)
+	local track: IndexRewards.Track? = self._track
+	if track then
+		local kept: { IndexRewards.View } = {}
+		for _, view in views do
+			if IndexRewards.track(view.milestone) == track then
+				table.insert(kept, view)
+			end
+		end
+		views = kept
+	end
 	self._total = IndexRewards.counts(catalog, state, area).total
 	local nextNormal = IndexRewards.nextView(views, "normal")
 	local nextGold = IndexRewards.nextView(views, "gold")

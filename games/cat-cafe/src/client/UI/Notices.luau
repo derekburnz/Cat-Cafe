@@ -1,10 +1,11 @@
 --!strict
 -- What each menu screen has that the player has not seen yet, for the red dots on the menu tiles (F39 P1, the
 -- Pet Simulator 99 and Grow a Garden side menu). A key per thing: an upgrade level or decor item the player can
--- buy right now, a crate piece the player owns, a cat (or gold coat) in the collection. The HUD remembers which keys were on screen when the player
--- last opened that screen and shows a dot while any key is new. Pure: no services, so it can be unit tested.
+-- buy right now, a crate piece the player owns. The HUD remembers which keys were on screen when the player last
+-- opened that screen and shows a dot while any key is new. The Index has no keys: its "!" shows only while an
+-- Index reward waits to be claimed (Derek 2026-10-28: "Index keeps throwing up random exclamation marks even with
+-- nothing to claim"), so a newly met cat no longer lights it. Pure: no services, so it can be unit tested.
 
-local CatVariant = require(script.Parent.Components.CatVariant)
 local DecorPieces = require(script.Parent.Components.DecorPieces)
 local IndexRewards = require(script.Parent.Components.IndexRewards)
 local Types = require(script.Parent.Types)
@@ -12,7 +13,6 @@ local Types = require(script.Parent.Types)
 export type Candidates = {
 	Upgrades: { string },
 	Decor: { string },
-	Collection: { string },
 }
 
 local Notices = {}
@@ -64,24 +64,10 @@ local function decorKeys(catalog: Types.Catalog, state: Types.PlayerState): { st
 	return keys
 end
 
-local function collectionKeys(state: Types.PlayerState): { string }
-	local keys = {}
-	local collection: { [string]: number } = state.collection or {}
-	for catId in collection do
-		table.insert(keys, catId)
-	end
-	local gold: { [string]: number } = CatVariant.collection(state)
-	for catId in gold do
-		table.insert(keys, "gold:" .. catId)
-	end
-	return keys
-end
-
 function Notices.candidates(catalog: Types.Catalog, state: Types.PlayerState): Candidates
 	return {
 		Upgrades = upgradeKeys(catalog, state),
 		Decor = decorKeys(catalog, state),
-		Collection = collectionKeys(state),
 	}
 end
 

@@ -1,13 +1,16 @@
 --!strict
--- Report a bug (docs/playtests/bug-reports.md section 1, QA 2026-10-27, for the friends alpha): a small window
--- opened from the Help row in Settings. The line "What happened, and what were you doing right before?", three
+-- Feedback, once Report a bug (docs/playtests/bug-reports.md section 1, QA 2026-10-27, for the friends alpha): a
+-- small window opened from the HUD's Feedback tile on the Idea chip (2026-11-01, so players have an easy, visible way
+-- to send feedback) or from the Help row in Settings on Bug. A question that follows the chip ("What happened, and
+-- what were you doing right before?" for Bug, "What would make the game more fun?" for Idea), three
 -- chips (Bug, Stuck, Idea), a box of up to 500 bytes with a "123 / 500" counter, a line asking for no passwords
 -- or personal info, and Send and Cancel. Send stays grey until the server would take the text: 3 bytes once
 -- control characters are out and it is trimmed (Components/BugReportLogic, from Shared.BugReport).
 --
 -- Send calls callbacks.send(text, kind) with the text as the server keeps it and waits for the server's toast:
 -- result(true) (its "Thanks!") clears the box and closes, result(false) (one of its refusals) keeps every word and
--- lights Send again, and so does SEND_TIMEOUT without an answer. Cancel goes back to Settings; it, the X and the backdrop all keep the draft.
+-- lights Send again, and so does SEND_TIMEOUT without an answer. Cancel goes back to where it was opened from
+-- (callbacks.back); it, the X and the backdrop all keep the draft, chip included.
 --
 -- On a phone the on-screen keyboard covers the bottom of the screen, so while it is up the window moves to the
 -- top and ends above it (compact): the chips, Cancel and Send share one row over the box, so they stay tappable
@@ -30,7 +33,7 @@ local Theme = require(script.Parent.Parent.Theme)
 
 export type Callbacks = {
 	send: (text: string, kind: string) -> (),
-	back: () -> (), -- Cancel: back to Settings
+	back: () -> (), -- Cancel: back to Settings, or just closed when the HUD's Feedback tile opened it
 	close: () -> (),
 }
 
@@ -39,14 +42,14 @@ export type BugReport = {
 	onOpen: (self: BugReport) -> (),
 	onClose: (self: BugReport) -> (),
 	result: (self: BugReport, ok: boolean) -> (),
+	-- picks a chip ("bug", "stuck", "idea") before opening, unless a draft or a Send is waiting
+	setKind: (self: BugReport, id: string) -> (),
 	pending: (self: BugReport) -> boolean,
 	destroy: (self: BugReport) -> (),
 }
 
-local PROMPT = "What happened, and what were you doing right before?"
 local PRIVACY = "Please don't type passwords or personal info"
 local NO_ANSWER = "No answer yet. Your words are still here, try Send again"
-local PLACEHOLDER = "I was carrying a cat home when..."
 local SEND_TIMEOUT = 10 -- seconds without a toast before Send lights again
 local KEYBOARD_GUESS = 0.55 -- of the screen's height, when a phone does not say how tall its keyboard is
 local UNFOLD_DELAY = 0.4 -- seconds after the keyboard hides before the window moves back
@@ -99,10 +102,10 @@ function BugReport.new(callbacks: Callbacks): BugReport
 
 	local panel = Panel.new({
 		name = "BugReport",
-		title = "Report a bug",
+		title = "Feedback",
 		subtitle = "Read by the people making the game",
 		color = Theme.colors.sky,
-		icon = "🐞",
+		icon = Theme.icons.feedback,
 		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
 	})
@@ -115,7 +118,7 @@ function BugReport.new(callbacks: Callbacks): BugReport
 		Name = "Prompt",
 		Size = UDim2.new(1, 0, 0, PROMPT_HEIGHT),
 		FontFace = Theme.fonts.display,
-		Text = PROMPT,
+		Text = BugReportLogic.prompt(self._kind),
 		Parent = content,
 	})
 
@@ -148,7 +151,7 @@ function BugReport.new(callbacks: Callbacks): BugReport
 		TextSize = Theme.sizes.textBody,
 		TextColor3 = Theme.modal.text,
 		PlaceholderColor3 = Theme.modal.subtext,
-		PlaceholderText = PLACEHOLDER,
+		PlaceholderText = BugReportLogic.example(self._kind),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
 		Text = "",
@@ -347,6 +350,16 @@ function BugReport._refresh(self: any)
 	for id, chip: Button.Button in self._chips do
 		chip:setStyle(if id == self._kind then "secondary" else "ghost")
 	end
+	self._prompt.Text = BugReportLogic.prompt(self._kind)
+	self._box.PlaceholderText = BugReportLogic.example(self._kind)
+end
+
+function BugReport.setKind(self: any, id: string)
+	if self._pending or self._box.Text ~= "" or self._chips[id] == nil then
+		return
+	end
+	self._kind = id
+	self:_refresh()
 end
 
 function BugReport._submit(self: any)

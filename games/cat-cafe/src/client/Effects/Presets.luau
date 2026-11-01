@@ -70,6 +70,8 @@ export type Budget = {
 	decorEffects: number, -- Mythical cafe styles and decor moving at once; each takes one of steadyEmitters
 	potionGlows: number, -- players showing a running potion's glow at once (F64), your own first
 	cloudPuffs: number, -- puffs in the full-screen clouds of a cannon flight or a cloud hop (F84)
+	campfires: number, -- campfires whose flame moves, with embers and a light, at once
+	pullConfetti: number, -- confetti pieces on screen in a big pull (F89)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -95,6 +97,8 @@ Presets.budget = {
 		decorEffects = 2,
 		potionGlows = 3,
 		cloudPuffs = 10,
+		campfires = 2,
+		pullConfetti = 20,
 	},
 	high = {
 		animatedCats = 16,
@@ -115,6 +119,8 @@ Presets.budget = {
 		decorEffects = 4,
 		potionGlows = 6,
 		cloudPuffs = 16,
+		campfires = 3,
+		pullConfetti = 40,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -135,6 +141,8 @@ Presets.budget = {
 		decorEffects = 0,
 		potionGlows = 0,
 		cloudPuffs = 6,
+		campfires = 1,
+		pullConfetti = 13,
 	},
 } :: { [string]: Budget }
 
@@ -178,6 +186,24 @@ Presets.emitters = {
 		rate = 2.5,
 		acceleration = Vector3.new(1.2, 0.4, 0.4),
 		drag = 0.6,
+	},
+	ember = {
+		-- A campfire's embers: soft warm dots drifting up and fading, never sparks.
+		texture = Presets.textures.smoke,
+		colors = {
+			Presets.palette.lampWarm,
+			Color3.fromRGB(255, 170, 84),
+			Color3.fromRGB(232, 112, 64),
+		},
+		size = { 0.16, 0.04 },
+		transparency = { 0, 1 },
+		lifetime = { 1.2, 2.2 },
+		speed = { 1.5, 3 },
+		spread = 22,
+		rate = 3,
+		acceleration = Vector3.new(0.25, 0.5, 0.15),
+		drag = 0.7,
+		lightEmission = 1,
 	},
 	fireflies = {
 		texture = Presets.textures.sparkle,
@@ -1049,23 +1075,26 @@ Presets.tacklePose = {
 	} :: { [string]: { [string]: number } },
 }
 
--- The net hold (Derek 2026-10-28: "have your character holding a net while walking around until catching a cat"),
--- drawn by Tackle.luau, the net itself by NetHold.luau: in a catching area, with no cat in the arms, the right hand
--- holds the player's net (CatCafe_Item_Net_L1 to L3 by its `Grip` attachment) upright and leaning ahead, the other
--- arm free to swing. The right shoulder is raised `sh` degrees forward, turned `tw` and out `sp`, the elbow bent
--- `el`, so the forearm points ahead; on R6, which has no elbow, the whole arm rises `sh6`. The pole leaves the fist
--- along the hand's back-to-front axis tipped `tilt` (R6: `tilt6`) degrees towards the fingers, so it leans
--- `sh + el + tilt` degrees up from straight ahead, turned `roll` degrees about the pole so the hoop opens forward and
--- the bag trails back towards the player (Derek 14:17: the nets faced the wrong way). The grip sits at the hand's
--- own RightGripAttachment where it has one, else `grip` studs from the hand's centre (`grip6` on R6). Within
--- budget.animRadius; the arm eases in over `blendIn` and out over `blendOut` seconds, and the net shows while the arm
--- is past halfway (`showAt`).
+-- The net hold (Derek 2026-10-28: "have your character holding a net while walking around until catching a cat";
+-- 16:47 "default of holding net should be tilted back over your shoulder unless swinging down"), drawn by
+-- Tackle.luau, the net itself by NetHold.luau: at all times (F93), except with a cat in the arms or in a cannon
+-- flight, the right hand holds the player's net (CatCafe_Item_Net_L1 to L4 by its `Grip` attachment) at the
+-- shoulder with the pole resting back over it, the hoop behind and to the right of the head, out of the camera's
+-- way; the other arm is free to swing. `waist` is 0: the hold leaves the body alone. The right shoulder is raised
+-- `sh` degrees forward, turned `tw` and out `sp` (in, below 0), the elbow bent `el`, so the forearm points up; on R6,
+-- which has no elbow, the whole arm rises `sh6`. The pole leaves the fist along the hand's back-to-front axis tipped
+-- `tilt` (R6: `tilt6`) degrees towards the fingers, so it points `sh + el + tilt` degrees up from straight ahead
+-- (past 90 is back), turned `roll` degrees about the pole so the hoop opens forward and the bag trails back (Derek
+-- 14:17: the nets faced the wrong way). The grip sits at the hand's own RightGripAttachment where it has one, else
+-- `grip` studs from the hand's centre (`grip6` on R6). Within budget.animRadius; the arm eases in over `blendIn` and
+-- out over `blendOut` seconds, and the net shows while the arm is past halfway (`showAt`).
 Presets.netHold = {
-	sh = 20,
-	tw = 0,
-	sp = 6,
-	el = 80,
-	sh6 = 70,
+	sh = 35,
+	tw = -25,
+	sp = -15,
+	el = 135,
+	sh6 = 120,
+	waist = 0,
 	tilt = -45,
 	tilt6 = -15,
 	roll = 180,
@@ -1076,17 +1105,41 @@ Presets.netHold = {
 	showAt = 0.5,
 }
 
+-- The net smack (F93, catch-rework.md section 1): one swing every NetSwingCooldown (0.8 s), 0.35 s long. From the
+-- shoulder the arm whips the net up over the head by `rise`, slams it down onto the ground ahead by `land`
+-- (NetSmackDelay, when the server judges the hit) and is back on the shoulder by `ends`. A swing that hit nothing
+-- bounces the net back up off the ground for `bounce` seconds first (the recoil). Each pose is a NetArm
+-- (Avatar.holdNet): `raised` has the pole about 150 degrees up from straight ahead (up and back over the head),
+-- `landed` about 23 degrees below it with the body bent into the hit (the hoop at the ground on a stand-in R15),
+-- `bounced` partway back up. Played on the swinger's own screen from the press, elsewhere from the server's
+-- NetSwung; the swinger's own screen takes a NetSwung for its player within `answerWithin` seconds of the press
+-- (NetSwingCooldown) as that swing's answer, not a new swing.
+Presets.netSmack = {
+	rise = 0.1,
+	land = 0.15,
+	ends = 0.35,
+	bounce = 0.07,
+	answerWithin = 0.8,
+	poses = {
+		raised = { sh = 155, tw = 0, sp = 10, el = 30, sh6 = 150, waist = -8 },
+		landed = { sh = 32, tw = 0, sp = 4, el = 5, sh6 = 0, waist = 15 },
+		bounced = { sh = 60, tw = 0, sp = 6, el = 20, sh6 = 45, waist = 10 },
+	},
+}
+
 -- The carry (Derek 2026-10-28: "hold it in your arms crossed arms", the cat "awake loafing or sitting in your
 -- arms"), drawn by Tackle.luau on the carrier and by Carry.luau on the HeldCat. `arms` is the upper body's pose in
 -- Avatar.Pose degrees (the legs stay the character's own): arms folded across the chest, the left forearm under the
--- right, head tipped down to the cat. R6 has no elbows, so `arms6` reaches both arms forward and in to meet under the
--- cat. The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little) and
--- `forward` studs further out, clear of the chest. Lying across the arms it turns `loafTurn` degrees (its face at the
--- character's left) and sitting up `sitTurn` (facing out); either way it moves `loafSide` or `sitSide` studs to the
--- right (negative: left), so its head is beside the character's, not in front of the face, and the game's camera
--- behind the player sees it over the shoulder. The arms ease in over `blendIn` and out over `blendOut` seconds. A
--- HeldCat Pose cannot move part by part (still streaming in, or on Motor6D joints) stays on its weld and is tried again
--- after `retry` seconds.
+-- right, head tipped down to the cat; the wrists are held straight, so the hands keep still over the character's
+-- walk (16:51: "hands shake too much"). R6 has no elbows, so `arms6` reaches both arms forward and in to meet under
+-- the cat. The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little) and
+-- `forward` studs further out, clear of the chest, `loafSide` or `sitSide` studs to the right (negative: left).
+-- Lying on the arms it turns `loafTurn` degrees, which puts it out at the character's left side with its face back
+-- over the left shoulder: in front of the chest the body hid it from the game's camera behind the player (16:48:
+-- "cat is missing from the arms"), and this way that camera sees its face peeking over the shoulder. Sitting up it
+-- turns `sitTurn` (facing out). The arms ease in over `blendIn` and out over `blendOut` seconds. A HeldCat Pose
+-- cannot move part by part (still streaming in, or on Motor6D joints) stays on its weld and is tried again after
+-- `retry` seconds.
 Presets.carryPose = {
 	arms = {
 		shL = 60,
@@ -1102,9 +1155,9 @@ Presets.carryPose = {
 	} :: { [string]: number },
 	arms6 = { sh = 80, sp = -30, neck = -12 } :: { [string]: number },
 	gap = -0.15,
-	forward = -0.8,
-	loafTurn = 90,
-	loafSide = -0.45,
+	forward = -0.6,
+	loafTurn = 150,
+	loafSide = -1.4,
 	sitTurn = 15,
 	sitSide = -0.55,
 	blendIn = 0.2,
@@ -1571,11 +1624,53 @@ Presets.market = {
 	puff = 6, -- dust particles, tinted like ice
 	counterY = 3.1,
 	counterZ = -0.65,
+	floorDepth = 12, -- how far under the counter a Mythical crate's shockwave looks for the ground
 }
 -- The opened crate on the counter (crates.py's models, about 2.5 by 2 by 2 studs at full size): scaled down to sit on
 -- the stall's ice, the lid swung up `lidDegrees` (crates.py: 105 is wide open with no clipping) over `lidSeconds`,
 -- held for `hold` seconds from the open and faded over `fade`.
 Presets.marketCrate = { scale = 0.6, lidDegrees = 105, lidSeconds = 0.3, hold = 1.8, fade = 0.4 }
+
+-- A big pull (F89, luck-and-rare-moments.md 2a and 2b; Derek 2026-10-30: "when securing something good leg/mythic
+-- decor or cats possibly consider a bigger VFX"): when this player secures a Legendary, a Mythical or a gold Epic cat,
+-- or opens a Legendary or Mythical crate piece, confetti in the rarity colour (gold mixed in for a gold cat) bursts
+-- in from both edges of the screen over UI-Engineer's big pull card, with a small camera shake, and a Mythical adds a
+-- second wave of sparkles round the middle at `sparkles.at`. Everyone within `within` studs sees the catch pop of
+-- that rarity where the cat was secured, and a Mythical's ground shockwave `shockwave.diameter` studs across. The
+-- budget's pullConfetti is the count (phones half, Low performance a third); Reduce Motion halves it and drops the
+-- shake and the shockwave. On the screen the pieces fly in pixels from the screen's height.
+Presets.bigPull = {
+	seconds = 2.4, -- the card's longest stay
+	displayOrder = 47, -- over the big pull card (44), popups (40) and the cannon name card (46), under the intro (50)
+	fade = 0.5, -- seconds the pieces fade over at the end
+	height = { 0.45, 0.85 }, -- share of the screen's height the pieces leave the edges at
+	speed = { 1.1, 1.7 }, -- screen heights a second
+	angle = { 30, 68 }, -- degrees above level, in toward the middle
+	gravity = 1.5, -- screen heights a second, every second
+	drag = 1.1, -- share of their speed lost a second
+	size = { 0.014, 0.026 }, -- of the screen's height
+	spin = 540, -- degrees a second either way at most
+	flutter = { 2, 4.5 }, -- flips a second
+	round = 0.3, -- share of the pieces that are dots, not slips
+	stagger = 0.25, -- seconds the pieces leave over
+	sparkles = { at = 0.6, count = 14, seconds = 0.8, radius = { 0.16, 0.42 }, size = 0.035 },
+	gold = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.goldDark },
+	shake = 0.3, -- seconds
+	shakeStuds = 0.3,
+	within = 120, -- studs: onlookers see the world pop
+	shockwave = { diameter = 20, seconds = 0.7, puffs = 12, puffAt = 0.3 },
+	-- A Legendary or Mythical crate piece: the crate glows in the rarity colour from the moment it appears and shakes
+	-- for `crateShake` seconds before the lid blows open in `blowSeconds`.
+	crateShake = 0.6,
+	blowSeconds = 0.12,
+	rattle = 6, -- degrees at the end of the shake
+	rattleHop = 0.12, -- studs
+	rattleHz = 11,
+	glowFill = 0.6, -- the Highlight's fill transparency
+	glowLight = { range = 8, brightness = 2 },
+	crateSparkles = 5, -- catchSparkle particles rising off the crate every `sparkleEvery` seconds while it shakes
+	sparkleEvery = 0.15,
+}
 
 -- Golden fish landing in your wallet (golden-fish.md section 4: "the catch sparkle in gold"): catch sparkles in gold
 -- `chest` studs above the root part, `rise` of as many gold glints floating up (fishRise) and a gold ring at your
@@ -1705,6 +1800,32 @@ Presets.decorFx = {
 	},
 	-- Gold Leaf: a sheen `width` wide sweeping over the front, crossing it in a share of every `seconds`.
 	sheen = { width = 0.08, shown = 0.45, tilt = 20, seconds = 7 },
+	-- Gold Leaf on real gold trims (F89 2c, luck-and-rare-moments.md: "a slow glint that sweeps across the trims
+	-- every 5 seconds and a soft glow on them at night"). The trims are Model-Agent's `_Trim` parts tagged `tag`. A
+	-- glint `width` studs wide crosses the front in `seconds` at the start of every `every`, lifting each trim up to
+	-- `shine` of the way to `glint`, with `sparkles` glints along the eave every `sparkleEvery` as it passes. At night
+	-- every trim lifts `night` of the way to `glow`, and `lights` soft lights stand `out` studs in front of the front
+	-- and `below` studs under the eave, `range` and `brightness` each. The trims are read again every `checkEvery`
+	-- seconds as they stream in; `tolerance` is how far a trim's colour may read back from what was written.
+	trims = {
+		tag = "PaintTrim",
+		every = 5,
+		seconds = 1.6,
+		width = 3,
+		shine = 0.75,
+		glint = palette.offwhite,
+		sparkles = 1,
+		sparkleEvery = 0.12,
+		night = 0.3,
+		glow = palette.goldLight,
+		lights = 3,
+		out = 1.5,
+		below = 0.8,
+		range = 9,
+		brightness = 0.35,
+		checkEvery = 2,
+		tolerance = 2 / 255,
+	},
 	petalPad = 0.8, -- share of the tree's width the petals fall from
 }
 
@@ -1921,6 +2042,30 @@ Presets.clouds = {
 	},
 	hopPuff = 12, -- smokePuff particles where onlookers see a player hop away and arrive
 	moved = 30, -- studs a root jumps in one step during a hop: it has arrived
+}
+
+-- The campfires (the Woods' campsite and the Great Oak clearing; Derek 2026-10-30: "The fire from the camp fire
+-- isnt moving"). Model-Agent's flame (the `_Campfire_Glow` model: three tongues of three stacked Neon discs) moves on
+-- this client: each tongue stretches and squashes, leans and bends a little more at the tip, and flickers brighter,
+-- out of step with the others. Warm embers drift up off it with a small pop of them now and then, and a warm light
+-- flickers with the flame, brighter at night. With Reduce Motion the flame moves `still` as much. The nearest
+-- `campfires` (budget) within ambientRadius run; the rest stand as modelled.
+Presets.campfire = {
+	stretch = 0.2, -- of the modelled height, either way
+	lean = 9, -- degrees at the tip
+	hz = { 1.7, 2.9, 4.3 }, -- the three waves each tongue's motion is made of
+	still = 0.4,
+	gap = 0.05, -- studs across the ground between the discs of one tongue
+	brighten = 0.2, -- how far the flicker lifts each disc's colour toward `hot`
+	hot = Presets.palette.lampWarm,
+	light = Color3.fromRGB(255, 176, 102),
+	range = 14, -- studs
+	brightness = 1.1,
+	flicker = 0.35, -- of the brightness, either way
+	night = 1.6, -- times the brightness at night
+	emberHeight = 1.2, -- studs over the flame's base the embers leave from
+	popEvery = { 2.5, 5 }, -- seconds between pops
+	pop = 5, -- embers in a pop
 }
 
 -- A cat checked in at a camp (F84 section 4): it hops out of its carrier's arms in an arc `hopHeight` studs high

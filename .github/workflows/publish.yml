@@ -16,6 +16,10 @@ on:
         description: "Also move running servers onto it (Restart servers for updates). Turn on when the save version changed"
         type: boolean
         default: false
+      warn_players:
+        description: "With restart_servers: tell every server 5, 3 and 1 minutes ahead and at the restart (adds 5 minutes)"
+        type: boolean
+        default: true
   workflow_run:
     workflows: [check]
     types: [completed]
@@ -39,7 +43,7 @@ jobs:
       (vars.AUTO_PUBLISH == 'true' && github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
     defaults:
@@ -86,6 +90,15 @@ jobs:
       - name: Publish (goes live)
         if: github.event_name != 'workflow_dispatch' || inputs.version_type == 'Published'
         run: bash tools/opencloud/publish.sh Published CatCafe.rbxl
+
+      # The new version is already live for any server that starts from here on; only the old servers still running
+      # get the countdown, so nobody is cut off mid-catch without notice (Derek 2026-10-29). Skipped at once when the
+      # key cannot send in-game messages yet (docs/setup-guide.md step 21).
+      - name: Warn players in game (5, 3 and 1 minutes, then now)
+        if: >-
+          github.event_name == 'workflow_dispatch' && inputs.version_type == 'Published' && inputs.restart_servers &&
+          inputs.warn_players
+        run: bash tools/opencloud/restart-countdown.sh
 
       # A publish only reaches new servers. When it changes the save version, a player saved by a new server who
       # then joins an old one is kicked by the newer-save guard, so the old servers have to go.

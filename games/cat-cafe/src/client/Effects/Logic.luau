@@ -1244,4 +1244,204 @@ function Logic.lidAngle(elapsed: number, seconds: number, degrees: number): numb
 	return degrees * (1 - (1 - x) * (1 - x))
 end
 
+-- Campfires ---------------------------------------------------------------------------------------------------
+
+-- How one tongue of a campfire's flame moves `t` seconds in, `phase` radians apart from its neighbours: its stretch
+-- (1 is the modelled height), its lean at the tip in radians about X and about Z, and a flicker from 0 to 1 for its
+-- colour and the light. Three waves at `c.hz` added up, so it never repeats in an obvious beat.
+function Logic.flame(
+	t: number,
+	phase: number,
+	c: { stretch: number, lean: number, hz: { number } }
+): (number, number, number, number)
+	local a = math.sin(2 * math.pi * c.hz[1] * t + phase)
+	local b = math.sin(2 * math.pi * c.hz[2] * t + phase * 1.7)
+	local d = math.sin(2 * math.pi * c.hz[3] * t + phase * 2.3)
+	local lean = math.rad(c.lean)
+	return 1 + c.stretch * (0.6 * a + 0.4 * b),
+		lean * (0.7 * b + 0.3 * d),
+		lean * (0.7 * d + 0.3 * a),
+		math.clamp(0.5 + 0.3 * a + 0.2 * d, 0, 1)
+end
+
+-- Splits a campfire's flame discs (their centres in `points`) into tongues: discs within `gap` studs of each other
+-- across the ground, X and Z, stack into one tongue. Each list holds indexes into `points`, the lowest first.
+function Logic.flameTongues(points: { Vector3 }, gap: number): { { number } }
+	local tongues: { { number } } = {}
+	local anchors: { Vector3 } = {}
+	for i, point in points do
+		local found: number? = nil
+		for k, anchor in anchors do
+			if Vector2.new(point.X - anchor.X, point.Z - anchor.Z).Magnitude <= gap then
+				found = k
+				break
+			end
+		end
+		if found == nil then
+			table.insert(anchors, point)
+			table.insert(tongues, { i })
+		else
+			table.insert(tongues[found], i)
+		end
+	end
+	for _, list in tongues do
+		table.sort(list, function(x: number, y: number): boolean
+			return points[x].Y < points[y].Y
+		end)
+	end
+	return tongues
+end
+
+-- Which of a part's own axes points most nearly up, from the Y of its RightVector, UpVector and LookVector: 1 for X,
+-- 2 for Y, 3 for Z (a flame disc is a Cylinder, its axis X, turned to stand up).
+function Logic.upAxis(rightY: number, upY: number, lookY: number): number
+	local x, y, z = math.abs(rightY), math.abs(upY), math.abs(lookY)
+	if x >= y and x >= z then
+		return 1
+	end
+	return if y >= z then 2 else 3
+end
+
+-- Where one disc of a flame tongue goes, as an offset from the tongue's base: at rest `offset` from it (its centre
+-- `offset.Y` studs up a tongue `top` studs tall), stretched by `stretch` and bent by `leanX` and `leanZ` (radians at
+-- the top, less lower down). Also the disc's own turn, about X and about Z: CFrame.Angles(ax, 0, az), which turns
+-- about Z first and then about X, as this does to the offset.
+function Logic.flameLift(
+	offset: Vector3,
+	top: number,
+	stretch: number,
+	leanX: number,
+	leanZ: number
+): (Vector3, number, number)
+	local bend = if top > 0 then offset.Y / top else 0
+	local ax, az = leanX * bend, leanZ * bend
+	local x, y, z = offset.X, offset.Y * stretch, offset.Z
+	local cz, sz = math.cos(az), math.sin(az)
+	x, y = x * cz - y * sz, x * sz + y * cz
+	local cx, sx = math.cos(ax), math.sin(ax)
+	y, z = y * cx - z * sx, y * sx + z * cx
+	return Vector3.new(x, y, z), ax, az
+end
+
+-- How a flame disc's size scales as its tongue stretches: by `stretch` along its upright axis `up` (1 to 3 for X, Y,
+-- Z) and thinner across, so the flame keeps its body.
+function Logic.flameScale(up: number, stretch: number): Vector3
+	local thin = 1 / math.sqrt(stretch)
+	return Vector3.new(
+		if up == 1 then stretch else thin,
+		if up == 2 then stretch else thin,
+		if up == 3 then stretch else thin
+	)
+end
+
+-- Big pulls (F89) ------------------------------------------------------------------------------------------------
+
+-- True when securing something of `rarity` plays the big pull (luck-and-rare-moments.md 2a, 2b): a Legendary, a
+-- Mythical, or a gold Epic. Crate pieces are never gold.
+function Logic.bigPull(rarity: unknown, gold: boolean): boolean
+	if rarity == "Legendary" or rarity == "Mythical" then
+		return true
+	end
+	return gold and rarity == "Epic"
+end
+
+-- How many confetti pieces a big pull throws from the budget's `most`: half with Reduce Motion, and never fewer than
+-- one from each side.
+function Logic.pullCount(most: number, reduced: boolean): number
+	return math.max(2, if reduced then math.floor(most / 2) else most)
+end
+
+-- Where a piece of a big pull's confetti leaves the screen's edge and how fast it goes, in pixels and pixels a
+-- second (y down): from the left edge (`side` -1) or the right (1), `u1` to `u3` being its random draws from 0 to 1,
+-- up and in toward the middle.
+function Logic.pullLaunch(
+	side: number,
+	u1: number,
+	u2: number,
+	u3: number,
+	view: Vector2,
+	c: { height: { number }, speed: { number }, angle: { number } }
+): (Vector2, Vector2)
+	local y = view.Y * (c.height[1] + (c.height[2] - c.height[1]) * u1)
+	local x = if side < 0 then 0 else view.X
+	local speed = view.Y * (c.speed[1] + (c.speed[2] - c.speed[1]) * u2)
+	local angle = math.rad(c.angle[1] + (c.angle[2] - c.angle[1]) * u3)
+	return Vector2.new(x, y), Vector2.new(-side * speed * math.cos(angle), -speed * math.sin(angle))
+end
+
+-- Where a confetti piece is `t` seconds after it left `from` at `velocity`, falling at `gravity` pixels a second
+-- every second and slowed by `drag` (a share of its speed a second): the closed form, so every frame agrees.
+function Logic.confettiAt(
+	from: Vector2,
+	velocity: Vector2,
+	gravity: number,
+	drag: number,
+	t: number
+): Vector2
+	if drag <= 0 then
+		return from + velocity * t + Vector2.new(0, 0.5 * gravity * t * t)
+	end
+	local slowed = (1 - math.exp(-drag * t)) / drag
+	return from + velocity * slowed + Vector2.new(0, gravity / drag * (t - slowed))
+end
+
+-- How see-through a big pull's piece is `t` seconds in: solid, then fading over the last `fade` of `seconds`.
+function Logic.pullFade(t: number, seconds: number, fade: number): number
+	if t <= seconds - fade then
+		return 0
+	end
+	return math.clamp((t - (seconds - fade)) / fade, 0, 1)
+end
+
+-- Gold Leaf trims (F89 2c) ----------------------------------------------------------------------------------------
+
+-- Where Gold Leaf's glint is `t` seconds into its clock, along the cafe front in plot X: at the start of every
+-- `every` seconds a band crosses from `width` before `lo` to `width` past `hi` in `seconds`; nil between crossings.
+function Logic.trimSweep(
+	t: number,
+	every: number,
+	seconds: number,
+	lo: number,
+	hi: number,
+	width: number
+): number?
+	if every <= 0 or seconds <= 0 then
+		return nil
+	end
+	local into = t % every
+	if into >= seconds then
+		return nil
+	end
+	local from, to = lo - width, hi + width
+	return from + (to - from) * into / seconds
+end
+
+-- How brightly a trim spanning `x0` to `x1` in plot X catches the glint at `band`: 1 while the band is over it,
+-- easing to 0 `width` away. A trim longer than two band widths (the cornice, the awning edge) catches only that
+-- share of it, so a long run lifts gently while the short pieces flash in turn.
+function Logic.trimGlint(x0: number, x1: number, band: number?, width: number): number
+	if band == nil or width <= 0 then
+		return 0
+	end
+	local gap = if band < x0 then x0 - band elseif band > x1 then band - x1 else 0
+	if gap >= width then
+		return 0
+	end
+	local k = 1 - gap / width
+	local strength = k * k * (3 - 2 * k)
+	local length = x1 - x0
+	if length > 2 * width then
+		strength *= 2 * width / length
+	end
+	return strength
+end
+
+-- True when two colours differ by more than `tolerance` in any channel (a part keeps its Color in 8 bits, so a
+-- colour written to it reads back a little off).
+function Logic.colourMoved(a: Color3, b: Color3, tolerance: number): boolean
+	return math.abs(a.R - b.R) > tolerance
+		or math.abs(a.G - b.G) > tolerance
+		or math.abs(a.B - b.B) > tolerance
+end
+
 return Logic

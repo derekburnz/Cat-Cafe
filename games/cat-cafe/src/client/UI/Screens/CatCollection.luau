@@ -1,23 +1,30 @@
 --!strict
--- The Index screen with two tabs (the Cats screen is its own window since 2026-10-27, Screens/MyCats).
---   Index: the Pet Simulator index. A tab per area with its completion, then that area's cats as live 3D models
---         (dark silhouettes until found), rarest last; tap one for details. Above the cats, the area's reward
---         strip (Screens/IndexStrip, F48) pays at 3, 6 and 10 cats and all of them gold; a red badge on the Index
---         tab and on each area tab says a reward is waiting.
---         After All Cats, a Spare page (F78, data-model section 3d) lists the spare cats the player has found,
---         the ones moved out of every area for now; it shows only for a player who has one, and the All Cats page
---         and the "12 / 50" leave spare cats out.
+-- The Index window (the Cats screen is its own window since 2026-10-27, Screens/MyCats). Three tabs:
+--   Cats and Gold (Derek's Set 4 answer, 2026-11-01: "sorted into a normal and gold tab and a cleaner ui for
+--         navigating it looks so cluttered right now should be able to just swap between normal/gold and scroll
+--         through area's very simply showing rarity and what hasn't been found with a black filling and a darker
+--         background"): one scroll down a dark page, an area at a time in tier order (Components/IndexBook). Each
+--         area has a header line (its name in its colour, "7 / 10" or "Complete!", a slim bar and a Rewards button)
+--         over its cats as tiles in their rarity colour, rarest last, with the cat's name under it. A cat not found
+--         yet is a black silhouette on a darkened tile with its rarity in place of the name, and no other writing
+--         (Derek 2026-10-28: "just show found by the picture being filled its black if not found simple no need for
+--         writing"). The Gold tab shows each cat's gold coat and counts the gold track. Tap a tile for its details
+--         on a card over the page.
+--         The Rewards button opens the area's reward strip (Screens/IndexStrip, F48) under the header, on the tab's
+--         track; it turns green as Claim! with a red count while a reward waits. The Cats tab starts with an All
+--         cats line (the All Cats track, F54). The spare cats (F78) have no page (Derek 2026-10-28).
 --   Decor: the Decor Index (F53, Screens/DecorIndex): a page per crate with its twelve pieces and two rewards.
 --   Beside the tabs, the forever bonuses the claimed rewards add up to (F54 v0.10): tips, gold luck with the gold
 --   chance it gives, and faster bait, each in its track's colour (Components/IndexRewards.totals).
+-- The Index opens on the first open area with cats still to find; an Index Board's prompt opens it on that area.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
-local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local DecorIndex = require(script.Parent.DecorIndex)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local Format = require(script.Parent.Parent.Components.Format)
+local IndexBook = require(script.Parent.Parent.Components.IndexBook)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local IndexStrip = require(script.Parent.IndexStrip)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -33,6 +40,9 @@ export type Callbacks = {
 	close: () -> (),
 }
 
+-- "Index" is the Cats tab (the name init and the Index Boards already use)
+export type Tab = "Index" | "Gold" | "Decor"
+
 export type CatCollection = {
 	frame: Frame,
 	setCatalog: (self: CatCollection, catalog: Types.Catalog) -> (),
@@ -43,19 +53,19 @@ export type CatCollection = {
 	destroy: (self: CatCollection) -> (),
 }
 
-export type Tab = "Index" | "Decor"
-
-local CELL = Vector2.new(112, 134)
+local TILE = Vector2.new(104, 128)
 local PORTRAIT = 84
+local TAB_W = 112
 local TAB_HEIGHT = 40
-local DETAIL_HEIGHT = 92
-local AREA_TAB_HEIGHT = 46
-local PROGRESS_HEIGHT = 28
+local HEADER_HEIGHT = 52
+local REWARDS = Vector2.new(124, 40) -- an area's Rewards button
+local NAME_W = 220
+local BAR_H = 10
 local PERK_HEIGHT = 26 -- a forever bonus pill beside the tabs
-local FALLBACK_AREA = "alley"
+local DETAIL = Vector2.new(470, 216)
+local DETAIL_ART = 176
 local ALL_AREA = IndexRewards.ALL_AREA
-local SPARE_AREA = IndexRewards.SPARE_AREA
-local PORTRAITS_PER_FRAME = 10 -- the All Cats page clones its 50 models over a few frames
+local PORTRAITS_PER_FRAME = 10 -- a tab's 50-odd models are cloned over a few frames
 
 local CatCollection = {}
 CatCollection.__index = CatCollection
@@ -74,10 +84,6 @@ local function text(props: { [string]: any }): TextLabel
 		merged[key] = value
 	end
 	return Create("TextLabel", merged)
-end
-
-local function rarityIndex(rarity: string): number
-	return table.find(Theme.rarityOrder, rarity) or 1
 end
 
 local function pill(
@@ -107,7 +113,7 @@ local function pill(
 	})
 end
 
--- A red count badge on a tab's top right corner, hidden until something is waiting (F48).
+-- A red count badge on a tab's or button's top right corner, hidden until something is waiting (F48).
 local function badge(parent: Instance, size: number): (Frame, TextLabel)
 	local dot: Frame = Create("Frame", {
 		Name = "Badge",
@@ -135,31 +141,25 @@ local function badge(parent: Instance, size: number): (Frame, TextLabel)
 	return dot, mark
 end
 
-local function scroller(
-	name: string,
-	parent: Instance,
-	position: UDim2,
-	size: UDim2
-): ScrollingFrame
-	return Create("ScrollingFrame", {
-		Name = name,
-		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
-		Position = position,
-		Size = size,
-		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = Enum.AutomaticSize.Y,
-		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
-		ScrollingDirection = Enum.ScrollingDirection.Y,
-		Parent = parent,
-	}, {
-		Create(
-			"UIListLayout",
-			{ Padding = UDim.new(0, Theme.sizes.gap), SortOrder = Enum.SortOrder.LayoutOrder }
-		),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 10) }),
-	})
+-- The product of every UIScale from `gui` up, so a header's on-screen offset can be turned back into canvas pixels.
+local function scaleOf(gui: Instance): number
+	local scale = 1
+	local node: Instance? = gui
+	while node do
+		local found = node:FindFirstChildOfClass("UIScale")
+		if found then
+			scale *= (found :: UIScale).Scale
+		end
+		node = node.Parent
+	end
+	return math.max(scale, 0.01)
+end
+
+local function trackOf(tab: Tab): IndexRewards.Track
+	if tab == "Gold" then
+		return "gold"
+	end
+	return "normal"
 end
 
 function CatCollection.new(callbacks: Callbacks): CatCollection
@@ -168,13 +168,15 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._catalog = nil :: Types.Catalog?
 	self._catById = {} :: { [string]: Types.CatDef }
 	self._cells = {} :: { [string]: any }
-	self._areaChips = {} :: { any }
-	self._area = nil :: string? -- the Index's open area tab
-	self._areaRank = {} :: { [string]: number } -- each area's place in the tab row, for the All Cats page's order
+	self._sections = {} :: { [string]: any } -- area id (or "all") -> its header, strip and grid
 	self._loadToken = 0 -- the latest portrait queue's, so an older one stops
-	self._detailId = nil :: string? -- the cat in the detail strip's portrait
-	self._tab = "Index"
-	self._selected = nil :: string?
+	self._tab = "Index" :: Tab
+	self._selected = nil :: string? -- the cat on the detail card
+	self._detailId = nil :: string? -- the cat whose model the detail card holds
+	self._detailGold = false
+	self._scrollTo = nil :: string? -- an area to bring to the top on the next render
+	self._opened = false -- the first render picks the area to open on
+	self._night = false
 	self._dirty = true
 	self._lastState = nil :: Types.PlayerState?
 
@@ -191,7 +193,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._panel = panel
 	self.frame = panel.frame
 
-	-- tabs
+	-- tabs: Cats, Gold, Decor
 	local tabs: Frame = Create("Frame", {
 		Name = "Tabs",
 		BackgroundTransparency = 1,
@@ -204,35 +206,31 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
-	self._indexTab = Button.new({
-		name = "IndexTab",
-		text = "Index",
-		style = "gold",
-		size = UDim2.fromOffset(120, TAB_HEIGHT),
-		textSize = Theme.sizes.textBody,
-		layoutOrder = 1,
-		parent = tabs,
-		sound = "uiTab",
-		onClick = function()
-			self:showTab("Index")
-		end,
-	})
-	self._indexBadge, self._indexBadgeCount = badge(self._indexTab.instance, 24)
-	self._decorTab = Button.new({
-		name = "DecorTab",
-		text = "Decor",
-		style = "ghost",
-		size = UDim2.fromOffset(120, TAB_HEIGHT),
-		textSize = Theme.sizes.textBody,
-		layoutOrder = 2,
-		parent = tabs,
-		sound = "uiTab",
-		onClick = function()
-			self:showTab("Decor")
-		end,
-	})
+	local function tabButton(name: string, label: string, icon: string, order: number, tab: Tab)
+		local button = Button.new({
+			name = name,
+			text = label,
+			icon = icon,
+			style = "ghost",
+			size = UDim2.fromOffset(TAB_W, TAB_HEIGHT),
+			textSize = Theme.sizes.textBody,
+			layoutOrder = order,
+			parent = tabs,
+			sound = "uiTab",
+			onClick = function()
+				self:showTab(tab)
+			end,
+		})
+		local dot, count = badge(button.instance, 24)
+		return button, dot, count
+	end
+	self._indexTab, self._indexBadge, self._indexBadgeCount =
+		tabButton("IndexTab", "Cats", Theme.icons.cats, 1, "Index")
+	self._goldTab, self._goldBadge, self._goldBadgeCount =
+		tabButton("GoldTab", "Gold", "⭐", 2, "Gold")
+	self._decorTab, self._decorBadge, self._decorBadgeCount =
+		tabButton("DecorTab", "Decor", Theme.icons.decor, 3, "Decor")
 	self._decorTab.instance.Visible = false
-	self._decorBadge, self._decorBadgeCount = badge(self._decorTab.instance, 24)
 
 	-- the forever bonuses, right of the tabs; shrinks to fit the room the tabs leave on a narrow screen
 	local perks: Frame = Create("Frame", {
@@ -254,13 +252,13 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		Parent = perks,
 	})
 	local perksScale: UIScale = Create("UIScale", { Parent = perks })
-	text({
+	self._perksCaption = text({
 		Name = "Caption",
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, PERK_HEIGHT),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = Theme.index.subtext,
 		TextTruncate = Enum.TextTruncate.None,
 		Text = "Forever",
 		Parent = perks,
@@ -293,151 +291,26 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		tabsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fitPerks)
 	end
 
-	-- Index: detail strip + grid of sections
+	-- Cats and Gold: one scroll of areas
 	local indexTop = TAB_HEIGHT + Theme.sizes.gap
-	self._index = Create("Frame", {
-		Name = "Index",
+	self._book = Create("ScrollingFrame", {
+		Name = "Book",
 		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(0, indexTop),
 		Size = UDim2.new(1, 0, 1, -indexTop),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollBarThickness = 6,
+		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
-	})
-	local detail: Frame = Create("Frame", {
-		Name = "Detail",
-		BackgroundColor3 = Theme.modal.card,
-		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, DETAIL_HEIGHT),
-		Parent = self._index,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
-	})
-	self._detailArt = CatPortrait.new({
-		parent = detail,
-		size = UDim2.fromOffset(DETAIL_HEIGHT - 16, DETAIL_HEIGHT - 16),
-		position = UDim2.fromOffset(8, 8),
-		still = true,
-	})
-	self._detailName = text({
-		Name = "Name",
-		Position = UDim2.fromOffset(DETAIL_HEIGHT, 10),
-		Size = UDim2.new(1, -(DETAIL_HEIGHT + 120), 0, 26),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
-		Text = "Tap a cat",
-		Parent = detail,
-	})
-	self._detailMeta = text({
-		Name = "Meta",
-		Position = UDim2.fromOffset(DETAIL_HEIGHT, 38),
-		Size = UDim2.new(1, -(DETAIL_HEIGHT + 20), 0, 18),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
-		RichText = true, -- the favourite role in bold
-		Text = "Grey border Common, blue Rare, purple Epic, gold Legendary.",
-		Parent = detail,
-	})
-	self._detailDesc = text({
-		Name = "Description",
-		Position = UDim2.fromOffset(DETAIL_HEIGHT, 58),
-		Size = UDim2.new(1, -(DETAIL_HEIGHT + 20), 0, 24),
-		TextSize = Theme.sizes.textSmall,
-		Text = "Each cat earns on its own. A cat in its favourite role earns 1.5x.",
-		Parent = detail,
-	})
-	self._detailPill = pill(
-		detail,
-		"",
-		Theme.colors.line,
-		Theme.colors.ink,
-		UDim2.new(1, -12, 0, 12),
-		Vector2.new(1, 0)
-	)
-	self._detailPill.Visible = false
-
-	-- area tabs, one per area like the index's world tabs
-	local gap = Theme.sizes.gap
-	local areaTop = DETAIL_HEIGHT + gap
-	self._areaBar = Create("Frame", {
-		Name = "Areas",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, areaTop),
-		Size = UDim2.new(1, 0, 0, AREA_TAB_HEIGHT),
-		Parent = self._index,
 	}, {
 		Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, gap),
+			Padding = UDim.new(0, Theme.sizes.gap * 2),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-	})
-
-	-- the open area's completion: name, bar, count and percent
-	local progressTop = areaTop + AREA_TAB_HEIGHT + gap
-	local progress: Frame = Create("Frame", {
-		Name = "Progress",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, progressTop),
-		Size = UDim2.new(1, 0, 0, PROGRESS_HEIGHT),
-		Parent = self._index,
-	})
-	self._progressName = text({
-		Name = "Area",
-		Size = UDim2.new(0, 190, 1, 0),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
-		TextColor3 = Theme.colors.white,
-		Parent = progress,
-	})
-	Outline.text(self._progressName, 2)
-	local track: Frame = Create("Frame", {
-		Name = "Track",
-		BackgroundColor3 = Theme.colors.line,
-		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, 196, 0.5, 0),
-		Size = UDim2.new(1, -196 - 130, 0, 16),
-		Parent = progress,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.border(track, 2)
-	self._progressTrack = track -- hidden on the Spare page, which has nothing to complete
-	self._progressFill = Create("Frame", {
-		Name = "Fill",
-		BackgroundColor3 = Theme.colors.mint,
-		BorderSizePixel = 0,
-		Size = UDim2.fromScale(0, 1),
-		Parent = track,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.shade(self._progressFill, 0.2)
-	self._progressCount = text({
-		Name = "Count",
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, 0, 0, 0),
-		Size = UDim2.new(0, 124, 1, 0),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody,
-		TextXAlignment = Enum.TextXAlignment.Right,
-		Parent = progress,
-	})
-
-	local gridTop = progressTop + PROGRESS_HEIGHT + gap
-	self._grid =
-		scroller("Grid", self._index, UDim2.fromOffset(0, gridTop), UDim2.new(1, 0, 1, -gridTop))
-	-- the area's reward strip scrolls with the cats, so the grid keeps its height
-	self._strip = IndexStrip.new(self._grid, { claim = callbacks.claimIndexReward })
-	self._cellsFrame = Create("Frame", {
-		Name = "Cells",
-		BackgroundTransparency = 1,
-		AutomaticSize = Enum.AutomaticSize.Y,
-		Size = UDim2.new(1, 0, 0, 0),
-		LayoutOrder = 1,
-		Parent = self._grid,
-	}, {
-		Create("UIGridLayout", {
-			CellSize = UDim2.fromOffset(CELL.X, CELL.Y),
-			CellPadding = UDim2.fromOffset(gap, gap),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		}),
+		Create("UIPadding", { PaddingRight = UDim.new(0, 10), PaddingBottom = UDim.new(0, 8) }),
 	})
 
 	-- Decor Index: a page per crate (Screens/DecorIndex)
@@ -451,98 +324,335 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	})
 	self._decorIndex = DecorIndex.new(self._decor, { claim = callbacks.claimIndexReward })
 
+	self:_buildDetail(panel.content)
+	self:_paintTabs()
 	return self :: CatCollection
 end
 
-function CatCollection.showTab(self: any, tab: Tab)
-	self._tab = tab
-	self._index.Visible = tab == "Index"
-	self._decor.Visible = tab == "Decor"
+-- The card a tapped tile opens over the page: the cat big, its name, rarity, where it lives, what it earns and its
+-- story once found. The dim cover behind it or the X closes it.
+function CatCollection._buildDetail(self: any, parent: Instance)
+	local cover: TextButton = Create("TextButton", {
+		Name = "DetailCover",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundColor3 = Theme.colors.ink,
+		BackgroundTransparency = 0.35,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 40,
+		Visible = false,
+		Parent = parent,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+	self._cover = cover
+	cover.Activated:Connect(function()
+		self:_closeDetail()
+	end)
+	local card: Frame = Create("Frame", {
+		Name = "Card",
+		Active = true, -- taps on the card stay on it
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(DETAIL.X, DETAIL.Y),
+		BackgroundColor3 = Theme.modal.card,
+		BorderSizePixel = 0,
+		ZIndex = 41,
+		Parent = cover,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+	self._detailStroke = Outline.border(card, Theme.sizes.outline + 1)
+	self._detailDisc = Create("Frame", {
+		Name = "Disc",
+		BackgroundTransparency = 0.6,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(16, (DETAIL.Y - DETAIL_ART) / 2),
+		Size = UDim2.fromOffset(DETAIL_ART, DETAIL_ART),
+		ZIndex = 42,
+		Parent = card,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._detailArt = CatPortrait.new({
+		parent = card,
+		size = UDim2.fromOffset(DETAIL_ART, DETAIL_ART),
+		position = UDim2.fromOffset(16, (DETAIL.Y - DETAIL_ART) / 2),
+		zIndex = 43,
+	})
+	local left = DETAIL_ART + 32
+	self._detailName = text({
+		Name = "Name",
+		Position = UDim2.fromOffset(left, 16),
+		Size = UDim2.new(1, -(left + 56), 0, 30),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge + 2,
+		ZIndex = 42,
+		Parent = card,
+	})
+	self._detailPill = pill(
+		card,
+		"",
+		Theme.colors.line,
+		Theme.colors.ink,
+		UDim2.fromOffset(left, 50),
+		Vector2.new(0, 0)
+	)
+	self._detailPill.ZIndex = 42
+	self._detailMeta = text({
+		Name = "Meta",
+		Position = UDim2.fromOffset(left, 78),
+		Size = UDim2.new(1, -(left + 16), 0, 18),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.modal.subtext,
+		RichText = true, -- the favourite role in bold
+		ZIndex = 42,
+		Parent = card,
+	})
+	self._detailDesc = text({
+		Name = "Description",
+		Position = UDim2.fromOffset(left, 100),
+		Size = UDim2.new(1, -(left + 16), 0, DETAIL.Y - 116),
+		TextSize = Theme.sizes.textSmall,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		ZIndex = 42,
+		Parent = card,
+	})
+	self._detailClose = Button.new({
+		name = "Close",
+		text = "X",
+		style = "close",
+		size = UDim2.fromOffset(Theme.sizes.touchMin, Theme.sizes.touchMin),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -8, 0, 8),
+		textSize = Theme.sizes.textLarge,
+		sound = "uiClose",
+		zIndex = 44,
+		parent = card,
+		onClick = function()
+			self:_closeDetail()
+		end,
+	})
+	-- closing the window puts the card away, so the page is what opens next time
+	self.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not self.frame.Visible then
+			self:_closeDetail()
+		end
+	end)
+end
+
+function CatCollection._closeDetail(self: any)
+	self._selected = nil
+	self._cover.Visible = false
+end
+
+-- The tabs' looks and the page behind them: dark for Cats and Gold, the light window body for Decor.
+function CatCollection._paintTabs(self: any)
+	local tab: Tab = self._tab
 	self._indexTab:setStyle(if tab == "Index" then "gold" else "ghost")
+	self._goldTab:setStyle(if tab == "Gold" then "gold" else "ghost")
 	self._decorTab:setStyle(if tab == "Decor" then "gold" else "ghost")
+	local dark = tab ~= "Decor"
+	self._panel.body.BackgroundColor3 = if dark then Theme.index.body else Theme.modal.panel
+	self._perksCaption.TextColor3 = if dark then Theme.index.subtext else Theme.modal.subtext
+	self._book.Visible = dark
+	self._decor.Visible = not dark
+end
+
+function CatCollection.showTab(self: any, tab: Tab)
+	if self._tab ~= tab then
+		self:_closeDetail()
+		self._book.CanvasPosition = Vector2.zero
+		self._opened = false -- the Cats and Gold tabs each open on their first area still to find
+	end
+	self._tab = tab
+	self:_paintTabs()
 	if self._lastState then
 		self._dirty = true
 		self:render(self._lastState)
 	end
 end
 
--- The Index tab on an area's page (an Index Board's prompt, F50).
+-- The Cats tab with the area's cats at the top (an Index Board's prompt, F50).
 function CatCollection.showArea(self: any, areaId: string)
-	self._area = areaId
-	self._grid.CanvasPosition = Vector2.zero
-	self:showTab("Index")
+	if self._tab ~= "Index" then
+		self:_closeDetail()
+	end
+	self._tab = "Index"
+	self._scrollTo = areaId
+	self._opened = true -- so the first render does not pick another area over it
+	self:_paintTabs()
+	if self._lastState then
+		self._dirty = true
+		self:render(self._lastState)
+	end
 end
 
--- The reward strip prices prizes that grow with the cafe from the day rate (the synced income drops after dark).
+-- The reward strips price prizes that grow with the cafe from the day rate (the synced income drops after dark).
 function CatCollection.setNight(self: any, night: boolean)
-	self._strip:setNight(night)
-end
-
-function CatCollection._select(self: any, catId: string)
-	self._selected = catId
-	local def: Types.CatDef? = self._catById[catId]
-	local state: Types.PlayerState? = self._lastState
-	if not def then
-		return
-	end
-	assert(def, "cat definition missing")
-	local found = false
-	if state then
-		found = (state.collection and state.collection[catId] ~= nil)
-			or state.catsOwned[catId] ~= nil
-	end
-	-- render calls this on every state push while a cat is selected, so the model is cloned once per pick
-	if self._detailId ~= catId then
-		self._detailId = catId
-		self._detailArt:set(def)
-	end
-	self._detailArt:setSilhouette(not found)
-	self._detailName.Text = if found then def.name else "Not found yet"
-	local meta = {}
-	table.insert(meta, Format.rate(def.incomePerSecond))
-	if def.favoriteRole then
-		table.insert(meta, Format.lovesRole(def.favoriteRole, Theme.modal.text))
-	end
-	if def.area == SPARE_AREA then
-		table.insert(meta, "a spare cat, not in any area for now")
-	elseif def.area then
-		table.insert(meta, "found in the " .. Format.areaName(def.area))
-	end
-	self._detailMeta.Text = table.concat(meta, "  ·  ")
-	self._detailDesc.Text = if found
-		then (def.description or "")
-		else "Keep looking in the " .. Format.areaName(def.area or "alley") .. "."
-	self._detailPill.Visible = true
-	self._detailPill.Text = def.rarity
-	self._detailPill.BackgroundColor3 = Theme.rarityColor(def.rarity)
-	self._detailPill.TextColor3 = Theme.rarityTextColor(def.rarity)
-end
-
--- The Index's areas in tier order: the catalog's areas, else the areas the cats name in catalog order.
-type IndexArea = { id: string, name: string, tier: number }
-
-local function indexAreas(catalog: Types.Catalog): { IndexArea }
-	local list: { IndexArea } = {}
-	local seen: { [string]: boolean } = {}
-	local areas: { Types.AreaDef } = catalog.areas or {}
-	for _, area in areas do
-		seen[area.id] = true
-		table.insert(list, { id = area.id, name = area.name, tier = area.tier })
-	end
-	table.sort(list, function(a: IndexArea, b: IndexArea): boolean
-		return a.tier < b.tier
-	end)
-	for _, def in catalog.cats do
-		local areaId: string = def.area or FALLBACK_AREA
-		if areaId ~= SPARE_AREA and not seen[areaId] then
-			seen[areaId] = true
-			table.insert(list, { id = areaId, name = Format.areaName(areaId), tier = 0 })
+	self._night = night
+	for _, section in self._sections do
+		local strip = section.strip
+		if strip then
+			strip:setNight(night)
 		end
 	end
-	return list
 end
 
-function CatCollection._buildIndex(self: any)
+-- An area's header line: its name, count, bar and Rewards button, then a slot for its reward strip and its tiles.
+function CatCollection._buildSection(
+	self: any,
+	id: string,
+	name: string,
+	order: number,
+	grid: boolean
+)
+	local frame: Frame = Create("Frame", {
+		Name = id,
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.new(1, 0, 0, 0),
+		LayoutOrder = order,
+		Parent = self._book,
+	}, {
+		Create("UIListLayout", {
+			Padding = UDim.new(0, Theme.sizes.gap),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	local header: Frame = Create("Frame", {
+		Name = "Header",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+		LayoutOrder = 1,
+		Parent = frame,
+	})
+	local title = text({
+		Name = "Area",
+		Size = UDim2.fromOffset(NAME_W, 30),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge + 2,
+		TextColor3 = Theme.areaColors[id] or Theme.colors.caramel,
+		Text = name,
+		Parent = header,
+	})
+	Outline.text(title, 2.5)
+	local count = text({
+		Name = "Count",
+		Position = UDim2.fromOffset(NAME_W + 8, 2),
+		Size = UDim2.new(1, -(NAME_W + 8 + REWARDS.X + 12), 0, 28),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 2,
+		TextColor3 = Theme.index.text,
+		Parent = header,
+	})
+	Outline.text(count, 1.5)
+	local hint = text({
+		Name = "Hint",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -(REWARDS.X + 12), 0, 6),
+		Size = UDim2.fromOffset(220, 20),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.index.subtext,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Parent = header,
+	})
+	local track: Frame = Create("Frame", {
+		Name = "Track",
+		BackgroundColor3 = Theme.index.track,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(0, 36),
+		Size = UDim2.new(1, -(REWARDS.X + 12), 0, BAR_H),
+		Parent = header,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(track, 2)
+	local fill: Frame = Create("Frame", {
+		Name = "Fill",
+		BackgroundColor3 = Theme.areaColors[id] or Theme.colors.mint,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(0, 1),
+		Parent = track,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.shade(fill, 0.2)
+	local section = {
+		id = id,
+		frame = frame,
+		header = header,
+		title = title,
+		count = count,
+		hint = hint,
+		track = track,
+		fill = fill,
+		expanded = false,
+		strip = nil :: any,
+		slot = nil :: Frame?,
+		grid = nil :: Frame?,
+		rewards = nil :: any,
+		dot = nil :: Frame?,
+		dotCount = nil :: TextLabel?,
+	}
+	section.rewards = Button.new({
+		name = "Rewards",
+		text = "Rewards",
+		style = "ghost",
+		size = UDim2.fromOffset(REWARDS.X, REWARDS.Y),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, 0, 0.5, 0),
+		textSize = Theme.sizes.textSmall + 1,
+		parent = header,
+		sound = "uiTab",
+		onClick = function()
+			self:_toggleRewards(section)
+		end,
+	})
+	section.dot, section.dotCount = badge(section.rewards.instance, 20)
+	section.slot = Create("Frame", {
+		Name = "Rewards",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.new(1, 0, 0, 0),
+		LayoutOrder = 2,
+		Visible = false,
+		Parent = frame,
+	})
+	if grid then
+		section.grid = Create("Frame", {
+			Name = "Cats",
+			BackgroundTransparency = 1,
+			AutomaticSize = Enum.AutomaticSize.Y,
+			Size = UDim2.new(1, 0, 0, 0),
+			LayoutOrder = 3,
+			Parent = frame,
+		}, {
+			Create("UIGridLayout", {
+				CellSize = UDim2.fromOffset(TILE.X, TILE.Y),
+				CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+		})
+	end
+	self._sections[id] = section
+	return section
+end
+
+-- Opens or shuts an area's reward strip; the strip is built the first time it opens.
+function CatCollection._toggleRewards(self: any, section: any)
+	section.expanded = not section.expanded
+	if section.expanded and section.strip == nil then
+		local strip = IndexStrip.new(section.slot, { claim = self._callbacks.claimIndexReward })
+		local catalog: Types.Catalog? = self._catalog
+		if catalog then
+			strip:setCatalog(catalog)
+		end
+		strip:setNight(self._night)
+		section.strip = strip
+	end
+	section.slot.Visible = section.expanded
+	local state: Types.PlayerState? = self._lastState
+	if state then
+		self:render(state)
+	end
+end
+
+function CatCollection._clear(self: any)
 	self._loadToken += 1 -- the queued portraits are about to go
 	for _, cell in self._cells do
 		cell.connection:Disconnect()
@@ -550,121 +660,55 @@ function CatCollection._buildIndex(self: any)
 		cell.frame:Destroy()
 	end
 	table.clear(self._cells)
-	for _, chip in self._areaChips do
-		chip.connection:Disconnect()
-		chip.frame:Destroy()
+	for _, section in self._sections do
+		if section.strip then
+			section.strip:destroy()
+		end
+		section.rewards:destroy()
+		section.frame:Destroy()
 	end
-	table.clear(self._areaChips)
+	table.clear(self._sections)
 	table.clear(self._catById)
+end
 
+function CatCollection._buildIndex(self: any)
+	self:_clear()
 	local catalog: Types.Catalog? = self._catalog
 	if not catalog then
 		return
 	end
 	assert(catalog, "catalog not set; call UI.init first")
 
-	local areas = indexAreas(catalog)
-	-- the All Cats page last (F54, golden-fish.md 5b): every area's cats together, never locked
-	table.insert(areas, { id = ALL_AREA, name = Format.areaName(ALL_AREA), tier = 0 })
-	-- then the spare cats the player has found (F78), shown only once there is one
-	table.insert(areas, { id = SPARE_AREA, name = Format.areaName(SPARE_AREA), tier = 0 })
-	table.clear(self._areaRank)
-	local gap = Theme.sizes.gap
-	for order, area in areas do
-		self._areaRank[area.id] = order
-		local color = Theme.areaColors[area.id] or Theme.colors.caramel
-		local chip: TextButton = Create("TextButton", {
-			Name = area.id,
-			Text = "",
-			AutoButtonColor = false,
-			BackgroundColor3 = Theme.modal.card,
-			BorderSizePixel = 0,
-			Size = UDim2.new(1 / #areas, -gap * (#areas - 1) / #areas, 1, 0),
-			LayoutOrder = order,
-			Parent = self._areaBar,
-		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
-		local border = Outline.border(chip, Theme.sizes.outline)
-		local dot, dotCount = badge(chip, 20)
-		-- six tabs share the row, so a long name ("Neighbourhood") shrinks to fit a phone (N162)
-		local name = text({
-			Name = "Name",
-			Position = UDim2.fromOffset(4, 3),
-			Size = UDim2.new(1, -8, 0, 22),
-			FontFace = Theme.fonts.display,
-			TextScaled = true,
-			TextXAlignment = Enum.TextXAlignment.Center,
-			Text = area.name,
-			Parent = chip,
-		})
-		Create("UITextSizeConstraint", {
-			MaxTextSize = Theme.sizes.textSmall + 1,
-			MinTextSize = 9,
-			Parent = name,
-		})
-		local count = text({
-			Name = "Count",
-			Position = UDim2.fromOffset(6, 24),
-			Size = UDim2.new(1, -12, 0, 16),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textTiny,
-			TextXAlignment = Enum.TextXAlignment.Center,
-			Parent = chip,
-		})
-		local entry = {
-			id = area.id,
-			name = area.name,
-			tier = area.tier,
-			color = color,
-			frame = chip,
-			border = border,
-			label = name,
-			count = count,
-			dot = dot,
-			dotCount = dotCount,
-			connection = nil :: RBXScriptConnection?,
-		}
-		entry.connection = chip.Activated:Connect(function()
-			if self._area == area.id then
-				return
-			end
-			Sound.play("uiTab")
-			self._area = area.id
-			self._grid.CanvasPosition = Vector2.zero
-			local state: Types.PlayerState? = self._lastState
-			if state then
-				self:render(state)
-			end
-		end)
-		table.insert(self._areaChips, entry)
+	-- every area the catalog or its cats name, in tier order; the All cats line first
+	self:_buildSection(ALL_AREA, Format.areaName(ALL_AREA), 0, false)
+	local empty: any = { tier = 0, catsOwned = {}, collection = {}, goldCollection = {} }
+	local order = 0
+	for _, area in IndexBook.sections(catalog, empty, "normal") do
+		order += 1
+		self:_buildSection(area.id, area.name, order, true)
 	end
 
 	for index, def in catalog.cats do
 		self._catById[def.id] = def
+		local areaId: string = def.area or IndexBook.FALLBACK_AREA
+		local section = self._sections[areaId]
+		if not section or not section.grid then
+			continue
+		end
 		local rarity = def.rarity
-		local cell: TextButton = Create("TextButton", {
+		local tile: TextButton = Create("TextButton", {
 			Name = def.id,
 			Text = "",
 			AutoButtonColor = false,
-			BackgroundColor3 = Theme.modal.card,
-			BorderSizePixel = 0,
-			LayoutOrder = rarityIndex(rarity) * 1000 + index,
-			Visible = false,
-			Parent = self._cellsFrame,
-		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
-		Outline.border(cell, Theme.sizes.outline + 1, Theme.rarityColor(rarity))
-		-- a soft disc in the rarity colour behind the cat, like the index's rarity backdrop
-		local glow: Frame = Create("Frame", {
-			Name = "Glow",
 			BackgroundColor3 = Theme.rarityColor(rarity),
-			BackgroundTransparency = 0.7,
 			BorderSizePixel = 0,
-			AnchorPoint = Vector2.new(0.5, 0),
-			Position = UDim2.new(0.5, 0, 0, 8),
-			Size = UDim2.fromOffset(PORTRAIT - 8, PORTRAIT - 8),
-			Parent = cell,
-		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+			LayoutOrder = (table.find(IndexBook.RARITIES, rarity) or 1) * 1000 + index,
+			Parent = section.grid,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+		local border = Outline.border(tile, Theme.sizes.outline)
+		Outline.shade(tile, 0.3)
 		local portrait = CatPortrait.new({
-			parent = cell,
+			parent = tile,
 			size = UDim2.fromOffset(PORTRAIT, PORTRAIT),
 			anchorPoint = Vector2.new(0.5, 0),
 			position = UDim2.new(0.5, 0, 0, 4),
@@ -673,47 +717,34 @@ function CatCollection._buildIndex(self: any)
 		})
 		local name = text({
 			Name = "Name",
-			Position = UDim2.fromOffset(6, PORTRAIT + 6),
-			Size = UDim2.new(1, -12, 0, 20),
+			Position = UDim2.fromOffset(4, PORTRAIT + 10),
+			Size = UDim2.new(1, -8, 0, 22),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textSmall + 1,
+			TextScaled = true,
+			TextColor3 = Theme.colors.white,
 			TextXAlignment = Enum.TextXAlignment.Center,
 			Text = "???",
-			Parent = cell,
+			ZIndex = 3,
+			Parent = tile,
 		})
-		local sub = text({
-			Name = "Sub",
-			Position = UDim2.fromOffset(6, PORTRAIT + 26),
-			Size = UDim2.new(1, -12, 0, 18),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textTiny,
-			TextXAlignment = Enum.TextXAlignment.Center,
-			Parent = cell,
+		Create("UITextSizeConstraint", {
+			MaxTextSize = Theme.sizes.textSmall + 1,
+			MinTextSize = 9,
+			Parent = name,
 		})
-		local shiny = pill(
-			cell,
-			"Gold",
-			Theme.colors.gold,
-			Theme.colors.goldText,
-			UDim2.new(1, -4, 0, 4),
-			Vector2.new(1, 0)
-		)
-		shiny.ZIndex = 3
-		shiny.Visible = false
-		local connection = cell.Activated:Connect(function()
+		Outline.text(name, 2)
+		local connection = tile.Activated:Connect(function()
 			Sound.play("uiTab")
-			self:_select(def.id)
+			self._selected = def.id
+			self:_showDetail()
 		end)
 		self._cells[def.id] = {
-			frame = cell,
-			glow = glow,
+			frame = tile,
+			border = border,
 			portrait = portrait,
-			loaded = false,
+			loaded = nil :: boolean?, -- the coat the portrait holds: false the base, true the gold, nil none yet
 			name = name,
-			sub = sub,
-			shiny = shiny,
 			def = def,
-			order = rarityIndex(rarity) * 1000 + index,
 			connection = connection,
 		}
 	end
@@ -722,165 +753,200 @@ end
 function CatCollection.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
 	self:_buildIndex()
-	self._strip:setCatalog(catalog)
 	self._decorIndex:setCatalog(catalog)
 	-- the Decor tab shows once the catalog has crates to fill its pages
 	self._decorTab.instance.Visible = #DecorPieces.pools(catalog) > 0
 	self._dirty = true
 end
 
--- The open area's page: chips with each area's count, the progress strip, and that area's cells. Each cell's
--- model is cloned the first time its page opens (a few per frame, _loadPortraits), and again on later renders
--- until Assets has it. The All Cats page shows every cat, grouped by area in tab order and rarest last in each.
-function CatCollection._renderIndex(
+-- One header line from a section's counts and the tab's rewards.
+function CatCollection._paintHeader(
 	self: any,
-	state: Types.PlayerState,
-	found: { [string]: boolean },
-	ready: { [string]: number }
+	section: any,
+	have: number,
+	total: number,
+	countText: string,
+	reward: IndexBook.Reward,
+	locked: boolean,
+	areaId: string,
+	state: Types.PlayerState
 )
-	local totals: { [string]: number } = {}
-	local foundIn: { [string]: number } = {}
-	for catId, cell in self._cells do
-		local areaId: string = cell.def.area or FALLBACK_AREA
-		local spare = areaId == SPARE_AREA
-		if spare and not found[catId] then
-			continue -- the Spare page lists only the ones found
-		end
-		totals[areaId] = (totals[areaId] or 0) + 1
-		if not spare then
-			totals[ALL_AREA] = (totals[ALL_AREA] or 0) + 1
-		end
-		if found[catId] then
-			foundIn[areaId] = (foundIn[areaId] or 0) + 1
-			if not spare then
-				foundIn[ALL_AREA] = (foundIn[ALL_AREA] or 0) + 1
-			end
-		end
+	local gold = self._tab == "Gold"
+	local fraction = if total > 0 then have / total else 0
+	section.count.Text = countText
+	section.count.TextColor3 = if total > 0 and have >= total
+		then Theme.colors.gold
+		elseif locked then Theme.index.subtext
+		else Theme.index.text
+	section.fill.Size = UDim2.fromScale(fraction, 1)
+	section.fill.BackgroundColor3 = if gold or have >= total
+		then Theme.colors.gold
+		else Theme.areaColors[areaId] or Theme.colors.mint
+	local rewards = section.rewards
+	rewards.instance.Visible = reward.state ~= "none"
+	if reward.state == "ready" then
+		rewards:setText(if section.expanded then "Hide" else "Claim!")
+		rewards:setStyle("primary")
+		section.hint.Text = "Reward ready"
+	elseif reward.state == "next" then
+		rewards:setText(if section.expanded then "Hide" else "Rewards")
+		rewards:setStyle("ghost")
+		local word = if gold then "gold" else "cats"
+		section.hint.Text = ("Next reward at %d %s · %d to go"):format(
+			reward.need or 0,
+			word,
+			reward.toGo or 0
+		)
+	else
+		rewards:setText(if section.expanded then "Hide" else "Rewards")
+		rewards:setStyle("ghost")
+		section.hint.Text = if reward.state == "done" then "Every reward claimed" else ""
 	end
-	local hasSpare = (totals[SPARE_AREA] or 0) > 0
+	section.hint.TextColor3 = if reward.state == "ready"
+		then Theme.colors.mint
+		else Theme.index.subtext
+	local dot: Frame = section.dot
+	dot.Visible = reward.ready > 1
+	section.dotCount.Text = tostring(reward.ready)
+	section.slot.Visible = section.expanded and reward.state ~= "none"
+	if section.expanded and section.strip then
+		section.strip:setTrack(trackOf(self._tab))
+		section.strip:render(state, areaId)
+	end
+end
 
-	-- first open: the first area the player can reach that still has cats to find
-	if self._area == nil then
-		for _, chip in self._areaChips do
-			if
-				chip.id ~= ALL_AREA
-				and chip.id ~= SPARE_AREA
-				and state.tier >= chip.tier
-				and (foundIn[chip.id] or 0) < (totals[chip.id] or 0)
-			then
-				self._area = chip.id
-				break
-			end
-		end
-		local first = self._areaChips[1]
-		if self._area == nil and first then
-			self._area = first.id
-		end
+-- The Cats or Gold tab: each area's header and tiles. A tile's model is cloned the first time its tab shows it
+-- (a few per frame, _loadPortraits), and again on later renders until Assets has it.
+function CatCollection._renderBook(self: any, state: Types.PlayerState)
+	local catalog: Types.Catalog? = self._catalog
+	if not catalog then
+		return
 	end
-	if self._area == SPARE_AREA and not hasSpare then
-		local first = self._areaChips[1]
-		self._area = if first then first.id else nil
-	end
-	local open: string? = self._area
+	assert(catalog, "catalog")
+	local tab: Tab = self._tab
+	local gold = tab == "Gold"
+	local kind: IndexBook.Tab = if gold then "gold" else "normal"
+	local track: IndexRewards.Track = trackOf(tab)
+	local sections = IndexBook.sections(catalog, state, kind)
+	local found = IndexBook.found(state, kind)
 
-	-- the tabs share the row, the Spare tab only while it has cats
-	local shown = 0
-	for _, chip in self._areaChips do
-		chip.frame.Visible = chip.id ~= SPARE_AREA or hasSpare
-		if chip.frame.Visible then
-			shown += 1
+	local shown: { [string]: boolean } = {}
+	for _, area in sections do
+		local section = self._sections[area.id]
+		if not section then
+			continue
 		end
+		shown[area.id] = true
+		local views = IndexRewards.views(catalog, state, area.id)
+		self:_paintHeader(
+			section,
+			area.have,
+			area.total,
+			IndexBook.count(area),
+			IndexBook.reward(views, track),
+			area.locked,
+			area.id,
+			state
+		)
+		section.title.Text = area.name
 	end
-	local gap = Theme.sizes.gap
-	for _, chip in self._areaChips do
-		chip.frame.Size = UDim2.new(1 / shown, -gap * (shown - 1) / shown, 1, 0)
+	-- the All cats line: the All Cats track, on the Cats tab only
+	local all = self._sections[ALL_AREA]
+	if all and not gold then
+		local counts = IndexRewards.counts(catalog, state, ALL_AREA)
+		local views = IndexRewards.views(catalog, state, ALL_AREA)
+		local have, total = counts.found, counts.total
+		self:_paintHeader(
+			all,
+			have,
+			total,
+			if total > 0 and have >= total then "Complete!" else ("%d / %d"):format(have, total),
+			IndexBook.reward(views, "normal"),
+			false,
+			ALL_AREA,
+			state
+		)
+		shown[ALL_AREA] = true
 	end
-	self._progressTrack.Visible = open ~= SPARE_AREA
-
-	for _, chip in self._areaChips do
-		local selected = chip.id == open
-		local locked = state.tier < chip.tier
-		local have, all = foundIn[chip.id] or 0, totals[chip.id] or 0
-		chip.frame.BackgroundColor3 = if selected then chip.color else Theme.modal.card
-		chip.border.Color = if selected then Theme.colors.outline else Theme.modal.cardStroke
-		chip.label.TextColor3 = if selected then Theme.colors.white else Theme.modal.text
-		chip.count.Text = if chip.id == SPARE_AREA
-			then ("%d %s"):format(have, if have == 1 then "cat" else "cats")
-			elseif locked and have == 0 then "Tier " .. tostring(chip.tier)
-			elseif have >= all and all > 0 then "Complete!"
-			else ("%d / %d"):format(have, all)
-		chip.count.TextColor3 = if selected
-			then Theme.colors.cream
-			elseif have >= all and all > 0 and chip.id ~= SPARE_AREA then Theme.colors.goodDark
-			else Theme.modal.subtext
-		local waiting = ready[chip.id] or 0
-		chip.dot.Visible = waiting > 0
-		chip.dotCount.Text = tostring(waiting)
-		if selected then
-			local fraction = if all > 0 then have / all else 0
-			self._progressName.Text = chip.name
-			self._progressName.TextColor3 = chip.color
-			self._progressFill.BackgroundColor3 = if have >= all
-				then Theme.colors.gold
-				else chip.color
-			self._progressFill.Size = UDim2.fromScale(fraction, 1)
-			self._progressCount.Text = if chip.id == SPARE_AREA
-				then chip.count.Text
-				else ("%d / %d  ·  %s"):format(have, all, Format.percent(fraction))
-		end
+	for id, section in self._sections do
+		section.frame.Visible = shown[id] == true
 	end
 
-	if open then
-		self._strip:render(state, open)
-	end
-
-	local shinies: { [string]: number } = CatVariant.collection(state)
-	local all = open == ALL_AREA
 	local toLoad = {}
 	for catId, cell in self._cells do
 		local def: Types.CatDef = cell.def
-		local areaId: string = def.area or FALLBACK_AREA
-		local onPage = if areaId == SPARE_AREA
-			then open == SPARE_AREA and found[catId] == true
-			else all or areaId == open
-		cell.frame.Visible = onPage
-		if not onPage then
-			continue
-		end
-		cell.frame.LayoutOrder = if all
-			then (self._areaRank[areaId] or 0) * 100000 + cell.order
-			else cell.order
-		if not cell.loaded then
+		if cell.loaded ~= gold then
 			table.insert(toLoad, cell)
 		end
 		local isFound = found[catId] == true
-		local owned = state.catsOwned[catId]
+		local color = Theme.rarityColor(def.rarity)
+		cell.frame.BackgroundColor3 = if isFound
+			then color
+			else color:Lerp(Color3.new(0, 0, 0), Theme.index.dim)
 		cell.portrait:setSilhouette(not isFound)
-		cell.glow.BackgroundColor3 = if isFound
-			then Theme.rarityColor(def.rarity)
-			else Theme.colors.line
-		cell.name.Text = if isFound then def.name else "???"
-		cell.name.TextColor3 = if isFound then Theme.modal.text else Theme.modal.subtext
-		cell.sub.TextColor3 = Theme.modal.subtext
-		if owned and owned.count > 1 then
-			cell.sub.Text = ("x%d"):format(owned.count)
-		elseif owned then
-			cell.sub.Text = "in your cafe"
-		elseif isFound then
-			cell.sub.Text = "found"
-		else
-			cell.sub.Text = def.rarity
-			cell.sub.TextColor3 = Theme.rarityColor(def.rarity)
-		end
-		cell.shiny.Visible = shinies[catId] ~= nil
+		cell.name.Text = if isFound then def.name else def.rarity
+		cell.border.Color = if gold and isFound then Theme.colors.gold else Theme.colors.outline
+		cell.border.Thickness = Theme.sizes.outline + (if gold and isFound then 1 else 0)
 	end
-	self:_loadPortraits(toLoad)
+	self:_loadPortraits(toLoad, gold)
+
+	-- the first render picks the area to open on; an Index Board's prompt asked for one
+	if not self._opened then
+		self._opened = true
+		self._scrollTo = IndexBook.first(sections)
+	end
+	local target: string? = self._scrollTo
+	if target then
+		self._scrollTo = nil
+		self:_scrollToSection(target)
+	end
 end
 
--- Clones the page's missing cat models in grid order, PORTRAITS_PER_FRAME now and as many each frame after, so
--- the All Cats page does not clone 50 models in one frame. A newer render or page takes over the queue.
-function CatCollection._loadPortraits(self: any, cells: { any })
+-- Brings an area's header to the top of the scroll once the layout has placed it (the first area stays at 0, so
+-- the All cats line shows above it).
+function CatCollection._scrollToSection(self: any, areaId: string)
+	local section = self._sections[areaId]
+	if not section then
+		return
+	end
+	local first = true
+	for _, each in self._sections do
+		if
+			each.frame.Visible
+			and each.frame.LayoutOrder < section.frame.LayoutOrder
+			and each.id ~= ALL_AREA
+		then
+			first = false
+			break
+		end
+	end
+	if first then
+		self._book.CanvasPosition = Vector2.zero
+		return
+	end
+	-- two frames: the window's pop in and the grids' automatic sizes settle first
+	task.spawn(function()
+		task.wait()
+		task.wait()
+		local book: ScrollingFrame = self._book
+		if not section.frame.Parent or not section.frame.Visible then
+			return
+		end
+		local scale = scaleOf(book)
+		local offset = (section.frame.AbsolutePosition.Y - book.AbsolutePosition.Y) / scale
+		local most = math.max(0, (book.AbsoluteCanvasSize.Y - book.AbsoluteWindowSize.Y) / scale)
+		book.CanvasPosition = Vector2.new(0, math.clamp(book.CanvasPosition.Y + offset, 0, most))
+	end)
+end
+
+-- Clones the page's missing cat models (gold coats on the Gold tab) in grid order, PORTRAITS_PER_FRAME now and as
+-- many each frame after, so a tab does not clone 50 models in one frame. A newer render or tab takes over.
+function CatCollection._loadPortraits(self: any, cells: { any }, gold: boolean)
 	table.sort(cells, function(a: any, b: any): boolean
+		local pa, pb = a.frame.Parent, b.frame.Parent
+		if pa ~= pb and pa and pb then
+			return (pa.Parent :: any).LayoutOrder < (pb.Parent :: any).LayoutOrder
+		end
 		return a.frame.LayoutOrder < b.frame.LayoutOrder
 	end)
 	self._loadToken += 1
@@ -888,9 +954,9 @@ function CatCollection._loadPortraits(self: any, cells: { any })
 	local function load(first: number)
 		for index = first, math.min(first + PORTRAITS_PER_FRAME - 1, #cells) do
 			local cell = cells[index]
-			if not cell.loaded and cell.frame.Visible then
-				cell.portrait:set(cell.def)
-				cell.loaded = cell.portrait:hasModel()
+			if cell.loaded ~= gold and cell.frame.Visible then
+				cell.portrait:set(cell.def, gold)
+				cell.loaded = if cell.portrait:hasModel() then gold else nil
 			end
 		end
 	end
@@ -909,6 +975,45 @@ function CatCollection._loadPortraits(self: any, cells: { any })
 	end)
 end
 
+-- The detail card for the selected cat, on the tab it was tapped on.
+function CatCollection._showDetail(self: any)
+	local catId: string? = self._selected
+	local def: Types.CatDef? = if catId then self._catById[catId] else nil
+	local state: Types.PlayerState? = self._lastState
+	if not def or not state then
+		return
+	end
+	assert(def and state, "detail")
+	local gold = self._tab == "Gold"
+	local found = IndexBook.found(state, if gold then "gold" else "normal")[def.id] == true
+	if self._detailId ~= def.id or self._detailGold ~= gold then
+		self._detailId = def.id
+		self._detailGold = gold
+		self._detailArt:set(def, gold)
+	end
+	self._detailArt:setSilhouette(not found)
+	local color = Theme.rarityColor(def.rarity)
+	self._detailStroke.Color = color
+	self._detailDisc.BackgroundColor3 = color
+	local name = if found then def.name else "Not found yet"
+	self._detailName.Text = if gold and found then "Gold " .. name else name
+	self._detailPill.Text = def.rarity
+	self._detailPill.BackgroundColor3 = color
+	self._detailPill.TextColor3 = Theme.rarityTextColor(def.rarity)
+	local meta = {}
+	table.insert(meta, Format.rate(def.incomePerSecond))
+	if def.favoriteRole then
+		table.insert(meta, Format.lovesRole(def.favoriteRole, Theme.modal.text))
+	end
+	table.insert(meta, "lives in the " .. Format.areaName(def.area or IndexBook.FALLBACK_AREA))
+	self._detailMeta.Text = table.concat(meta, "  ·  ")
+	self._detailDesc.Text = if found then (def.description or "") else ""
+	if not self._cover.Visible then
+		self._cover.Visible = true
+		Tween.popIn(self._cover:FindFirstChild("Card") :: GuiObject, 0.9)
+	end
+end
+
 function CatCollection.render(self: any, state: Types.PlayerState)
 	self._lastState = state
 	if not self.frame.Visible then
@@ -917,67 +1022,66 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	end
 	self._dirty = false
 	local catalog: Types.Catalog? = self._catalog
-	-- the title's "12 / 50" leaves the spare cats out (F78)
+	local gold = self._tab == "Gold"
+	-- the title's "12 / 50" leaves the spare cats out (F78); the Gold tab counts gold cats
 	local foundCount, total = 0, 0
 	if catalog then
-		foundCount, total = IndexRewards.book(catalog, state)
-	end
-
-	-- found = in collection map, else owned
-	local found = {} :: { [string]: boolean }
-	for catId in state.catsOwned do
-		found[catId] = true
-	end
-	if state.collection then
-		for catId in state.collection :: { [string]: number } do
-			found[catId] = true
+		if gold then
+			for _, section in IndexBook.sections(catalog, state, "gold") do
+				foundCount += section.have
+				total += section.total
+			end
+		else
+			foundCount, total = IndexRewards.book(catalog, state)
 		end
 	end
 	self._panel:setTitle(
 		"Index",
-		("%d / %d found  ·  %s"):format(
+		("%d / %d %s  ·  %s"):format(
 			foundCount,
 			total,
+			if gold then "gold" else "found",
 			Format.percent(if total > 0 then foundCount / total else 0)
 		)
 	)
 
-	-- the Index and Decor tabs' badges count rewards waiting on their pages, whichever tab is open
-	local ready: { [string]: number } = {}
+	-- each tab's badge counts the rewards waiting on its pages, whichever tab is open
+	local waiting, goldWaiting, decorWaiting = 0, 0, 0
 	if catalog then
-		ready = IndexRewards.claimable(catalog, state)
-	end
-	local waiting, decorWaiting = 0, 0
-	for areaId, count in ready do
-		if DecorPieces.poolOf(areaId) then
-			decorWaiting += count
-		else
-			waiting += count
+		local ready = IndexRewards.claimable(catalog, state)
+		for areaId, count in ready do
+			if DecorPieces.poolOf(areaId) then
+				decorWaiting += count
+			elseif count > 0 then
+				local views = IndexRewards.views(catalog, state, areaId)
+				waiting += IndexBook.reward(views, "normal").ready
+				goldWaiting += IndexBook.reward(views, "gold").ready
+			end
 		end
 	end
-	if waiting > 0 and not self._indexBadge.Visible then
-		Tween.popIn(self._indexBadge, 0.5)
+	local function setBadge(dot: Frame, label: TextLabel, count: number)
+		if count > 0 and not dot.Visible then
+			Tween.popIn(dot, 0.5)
+		end
+		dot.Visible = count > 0
+		label.Text = tostring(count)
 	end
-	self._indexBadge.Visible = waiting > 0
-	self._indexBadgeCount.Text = tostring(waiting)
-	if decorWaiting > 0 and not self._decorBadge.Visible then
-		Tween.popIn(self._decorBadge, 0.5)
-	end
-	self._decorBadge.Visible = decorWaiting > 0
-	self._decorBadgeCount.Text = tostring(decorWaiting)
+	setBadge(self._indexBadge, self._indexBadgeCount, waiting)
+	setBadge(self._goldBadge, self._goldBadgeCount, goldWaiting)
+	setBadge(self._decorBadge, self._decorBadgeCount, decorWaiting)
 	self:_renderPerks(state)
 
-	if self._tab == "Index" then
-		self:_renderIndex(state, found, ready)
-		if self._selected then
-			self:_select(self._selected)
-		end
-	else
+	if self._tab == "Decor" then
 		self._decorIndex:render(state)
+	else
+		self:_renderBook(state)
+		if self._selected and self._cover.Visible then
+			self:_showDetail()
+		end
 	end
 end
 
--- The forever bonuses beside the tabs, on the Index and Decor tabs, once the player has any.
+-- The forever bonuses beside the tabs, on every tab, once the player has any.
 function CatCollection._renderPerks(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
 	local any = false
@@ -995,18 +1099,12 @@ function CatCollection._renderPerks(self: any, state: Types.PlayerState)
 end
 
 function CatCollection.destroy(self: any)
-	self._loadToken += 1
-	for _, cell in self._cells do
-		cell.connection:Disconnect()
-		cell.portrait:destroy()
-	end
-	for _, chip in self._areaChips do
-		chip.connection:Disconnect()
-	end
+	self:_clear()
 	self._detailArt:destroy()
-	self._strip:destroy()
+	self._detailClose:destroy()
 	self._decorIndex:destroy()
 	self._indexTab:destroy()
+	self._goldTab:destroy()
 	self._decorTab:destroy()
 	self._panel:destroy()
 end

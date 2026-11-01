@@ -252,7 +252,112 @@ Derek: "make the game especially the start as low friction as possible so we don
 
 | id | feature | P | size | owner | depends | done when |
 |---|---|---|---|---|---|---|
-| F87 | Easy start: no automatic intro (IntroAutoPlay false, the "?" tile glows); a first catch that cannot fail (one slow circle, doubled windows, retry with no flee, locked to the beginner); no tackles before the first check-in; the first cat takes the free role slot by itself; device-aware step hints; a small HUD until step 5 with buttons that pop in as they unlock; stuck nudges at 40 s and a help card at 90 s; twelve one-time context tips (cards or cuts of 4 s at most, one a minute, never mid-catch or mid-carry); a Feedback page with three faces and a once-only ask at 12 minutes; the onboarding funnel v2 (20 steps) and the events `left_early`, `stuck_nudge`, `tip_shown`, `feedback`, `intro_choice`; the bug-reports log stops printing report text | P0 | M | engineer, ui, vfx or animation, tools, qa | F72, F16 | A fresh phone account catches and checks in its first cat within 60 s of loading with no failed step; each tip shows once; Creator Hub shows the v2 funnel in order and `left_early` with the step a quitter left on |
+| F87 | Easy start: no automatic intro (IntroAutoPlay false, the "?" tile glows); a first catch that cannot fail (one slow circle, doubled windows, retry with no flee, locked to the beginner); no tackles before the first check-in; the first cat takes the free role slot by itself; device-aware step hints; a small HUD until step 5 with buttons that pop in as they unlock; stuck nudges at 40 s and a help card at 90 s; fourteen one-time context tips (cards or cuts of 3 to 4 s, one a minute, never mid-catch or mid-carry); a goal card with a next goal about two minutes away and a 20 minute session target; a Feedback page with three faces, a once-only ask at 12 minutes and one unrewarded like ask; the onboarding funnel v2 (24 steps) and the events `new_player_left`, `stuck_nudge`, `tip_shown`, `feedback`, `intro_choice`; the bug-reports log stops printing report text | P0 | M | engineer, ui, vfx or animation, tools, qa | F72, F16 | A fresh phone account catches and checks in its first cat within 60 s of loading with no failed step; each tip shows once; Creator Hub shows the v2 funnel in order and `new_player_left` with the step and bounce window a quitter left in |
+
+## 2u. Luck, Lucky Days and rare moments (Derek, 2026-10-30 23:31 and 2026-10-31 19:47, proposed)
+
+Derek: "the game is also missing some form of "Luck" most popular games have but no real way it fits in" and "when securing something good leg/mythic decor or cats possibly consider a bigger VFX or Animation". Spec in [luck-and-rare-moments.md](luck-and-rare-moments.md). Save change: the `lucky_cat` level in `upgradeLevels` only.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F88 | Luck: a Lucky Cat statue by every cafe door, `lucky_cat` upgrade levels 1 to 5 (Tier n, +0.1 Luck each); one Luck number (x1.0 to LuckMax x3) from the statue, a Lucky Potion (+0.5) and a Lucky Day (+0.5) that multiplies Epic, Legendary and Mythical chances on your bait and crate rolls; Lucky Days every fourth day (with a countdown on the HUD clock, replacing the Cat Parade) roll the wave and traps at Luck x2 with a banner, a gold sky and a warning 15 s before; a Luck chip and card on the HUD; nothing sold for Robux | P1 | M | engineer, ui, asset, vfx, animation, sound | F82 bowl levels, F53 crates | With Luck x1.5 the food and crate cards show Epic and up at 1.5 times and still add to 100; every fourth day is a Lucky Day with the clock counting down to it; other players see your statue's level from the street |
+| F89 | Rare moments: a big pull card, hop and spin, server toast and stings when a Legendary, Mythical or gold Epic or better is secured; a smaller card for the first Epic; Legendary and Mythical crate pieces glow from the first frame, shake 0.6 s and open into the same card; a quality bar per decor rarity and a redo of the twelve Legendary and Mythical pieces, Gold Leaf first, with before and after sheets for Derek | P1 | M | ui, vfx, animation, sound, asset, engineer | F53, catch bursts | Securing a Mythical plays the card and toasts the server once a minute at most; a Mythical crate piece never shows a lower rarity first; Gold Leaf reads as gold trims from across the street |
+
+## 2v. Cats make the orders (Derek, 2026-10-30 23:27, proposed)
+
+Derek: "Consider making it so the cats make whatever items the people are asking for and bring it to them / collect tips from table, Also add more bubble pop-ops for customers". Spec in [cats-make-orders.md](cats-make-orders.md). Client only: no server, save or economy change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F90 | Cats make the orders: a twelve-item menu that opens by tier (coffee, milk, cake slice and paw cookie at Tier 1 up to the rainbow cake at Tier 5); the Barista makes each order with a working bob, a bubble with a filling ring, a steam or flour puff and a ding (2 s drinks, 3 s bakes, three orders queued at most); the Waiter carries it on a head tray to the table; Waiters and Greeters sweep tip piles to a stack by the till, where the player still collects them (server piles unchanged); a small oven behind the counter; own cafe in full, other cafes lighter, phones lighter still | P2 | M | asset, animation, vfx, ui, engineer, sound, qa | F15, F37, F61 | A Tier 1 cafe serves only its four items and a Tier 5 cafe all twelve; each order is made, carried and served with the heart; the till pays exactly the server's tip piles |
+
+## 2w. Front lawn decorations (Derek, 2026-10-30 23:30, proposed)
+
+Derek: "Consider also adding decorations for the front lawn /infront of the cafe for more unique looking cafe's also". Spec in [front-lawn.md](front-lawn.md). Save change: `lawnOwned`, `lawn`, `lawnStyles`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F91 | Front lawn: six lawn spots in the front garden (two small at Tier 1, two big at Tier 2, two small at Tier 3), sixteen coin-bought pieces from a 500 coin Tulip Bed to a 3,000,000 coin Golden Paw Statue, four path styles and four fence styles; no tip bonus; a Front lawn tab with an edit view, rings and a picker; night glows and a few small moving touches near the camera; `BuyLawn`, `SetLawnSpot`, `SetLawnStyle` and plot attributes so the whole street sees it | P2 | M | asset, engineer, ui, vfx, qa | F36, F53 Decor screen | A Tier 1 player places a Tulip Bed that a second player sees from the street; sizes and tiers are enforced on the server; eight full lawns hold a phone's frame rate |
+
+## 2x. Playing together (Monetization-Agent's key stats plan, 2026-11-01, proposed)
+
+Roblox now ranks games partly on co-play days, counted through joins, invites and private servers. Spec in [playing-together.md](playing-together.md). No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F92 | Playing together: pals are Roblox friends, invite and follow links and private server members, all counted the same; +10% tips with one pal and +15% with two or more, with a HUD chip; Team Rescue, where one helper's hits count, their misses cost nothing, the deadline gains 5 s, the cat goes to the rescuer and the helper gets a helper's tip once in 120 s; a pal can collect your tip piles while you are away, you are paid in full and they get 25% on top up to a cap; invited and following players spawn at the pal's front door; one unrewarded invite nudge after the first rank up | P1 | M | engineer, ui, vfx, sound, qa | F61 tip piles, 10b rescues | Two friends see the pal chip and earn 10% more; a helped Mythical rescue counts both players' hits and never fails from the helper; a stranger cannot collect your piles |
+
+## 2y. Catch and rescue rework (Derek, 2026-10-28 14:19 to 14:20 and his Set 5 answers, decided)
+
+Derek's Set 5 answers Q1 to Q4 settle the net swing, circles by rarity, bands by net, clearer results and harder rescues. Spec in [catch-rework.md](catch-rework.md); it replaces the stray's hold prompt and the nets' timing in data-model sections 2 and 10. No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F93 | Catch and rescue rework: every character holds a net by net level, put away while carrying; click, R2 or a Net button swings (0.8 s cooldown) and the server judges a 7 stud, 120 degree arc when the net lands; a hit starts the catch or picks up a dropped cat, a miss near free strays makes them hop a quarter of their sprint (never before a player's first catch); circles 3 to 7 by rarity and faster, nets widen bands only, one CircleJitter; each circle clears with its grade, a progress strip of pips, a result word (PURRFECT, EXCELLENT, GREAT or "So close!") with a burst; rescue zones last two sweeps, the marker speeds up 8% a hit, `rescueHits` 3 to 7, with a paw marker, trap shake, pips, a deadline ring and a free burst | P0 | L | engineer, animation, asset, ui, vfx, sound, qa | F43 catching, 10b rescues | A swing at a stray 7 studs ahead starts its catch and one behind does not; a Mythical shows seven circles on every net; after a Miss nothing else shows a grade; a rescue zone unhit for two sweeps costs a paw |
+
+## 2z. Fewer, better rewards and the two rotating shops (Derek's Set 4 answers Q5, Q6 and Q9 and his 2026-11-01 22:32 note, decided)
+
+Spec in [rewards-and-shops.md](rewards-and-shops.md). It changes the prize tables in data-model 11b to 12b, quests.md and golden-fish.md 5 and 5b, the dealer in data-model 8b and the Golden Fish Market. Save change: `freshCatch` in, `dealer` out.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F94 | Rewards and shops: no Kibble, Tuna or Salmon in any prize, small golden fish amounts in their place, at most two pictures a prize (three for the big ones); new Tip Jar, wheel, Daily Treat, quest, Index, Mystery gift, Collector and code rows; a Fresh Catch shelf at the Golden Fish Market that sells potions (and now and then a cheaper Classic Crate) for golden fish by day, its stock rolled every 5 minutes for all servers with per player amounts and a once a window toast for the rare ones; the night dealer rolls one stock per server at dusk that holds all night; "money" in place of "tips" on income text, with the Tip and Big Tip Potions renamed Money and Big Money Potions | P1 | M | engineer, ui, asset, qa | F47 to F49, F53, F64, F70, F73 | No prize pays shop food or shows more than two pictures (three for the big ones); two servers show the same Fresh Catch stock in one window; the dealer's stock holds all night and differs between servers |
+
+## 2aa. The money ladder, tier pace and coming back (Derek's Set 5 answers Q5 to Q7, his 2026-11-01 22:32 offline answer and his 2026-10-28 to 10-30 notes, decided)
+
+Spec in [economy-ladder.md](economy-ladder.md). It changes the live keep up rule (F86) by config, data-model 4b to 12b and the Lucky Cat and lawn prices. No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F95 | Economy ladder: area `incomeMultiplier` 1, 3, 9, 27, 81, so an Alleyway Mythical earns like a Park Legendary, a Neighbourhood Epic, a Woods Rare and a Sewer Common; KeepUpRarities empty, with the keep up code kept for shop-only cats, which earn with the newest area's multiplier; tier costs 8,000, 350,000, 27M and 800M; prices from Tier 3 on up 4, 8 and 16 times (upgrades, decor, bowl, Lucky Cat, lawn); offline 50% for up to 8 h free and 100% for up to 16 h with Long Nap; a money pass multiplier after potions and an extra slot hook; coin prizes in day rate seconds pay half; the Big Bowl takes 2 minutes off; potions stack to 24 h | P0 | M | engineer, ui, qa | F86 keep up, F48 to F73 prizes, F64 potions | The diagonal in section 1 holds at charm 50; Pace.spec puts one-go Tier 5 at 8 to 12 h and an hour a day at day 4 to 6; a night away pays 8 h at half rate |
+
+## 2ab. The free Bellhop Cat and where the asks go (Derek, 2026-11-01 22:32, decided)
+
+Spec in [starter-cat.md](starter-cat.md); the Cafe Pass XP rows are in [quests.md](quests.md) section 8. Save change: `starterCatClaimed`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F96 | Free Bellhop Cat: an exclusive Rare-rate cat that always earns like a Rare from the newest area, claimed once from a luggage cart stand in the plaza; gated on finishing the first goals until the game is in Derek's group, then on joining the group (checked on the server); notification, favourite and like asks placed after the first loop, one a session at most and never rewarded; quests pay Cafe Pass XP | P1 | M | engineer, asset, animation, ui, sound, qa | F87 easy start, F95 exclusive cats | A Tier 1 player who finished the first goals claims the cat once and it earns 3 a second; with a group id set a non-member is refused; no ask shows before the first loop or twice in a session |
+
+## 2ac. Automatic tips, crate-only decor, dearer food and clearer pictures (Derek's notes of 2026-10-28 to 10-30, decided)
+
+Spec in [notes-10-28-to-10-30.md](notes-10-28-to-10-30.md). It changes F61 tip piles, F90 step 5 and F92 section 4, the coin decor shop, food prices and the wave roll. No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F97 | Derek's 10-28 to 10-30 notes: tip piles pay the moment they appear (no Collect; rich visitors, the Collector and Mystery gifts stay by hand), coin decor moves into the Classic Crate, food about four times dearer and growing 1, 1, 4, 8, 16 times by tier, every food list in rarity order with new icons, one Golden Fish name and picture with new treats and perks pictures, buff chips in place of charm stars, an Index of silhouettes with Normal and Gold tabs and no Spare page, and one Epic or rarer stray in every sunrise wave per area | P1 | M | engineer, ui, asset, qa | F61, F90, F92, F95 | A pile pays while the owner is in an area; the Decor screen sells nothing; Kibble is 100 at Tier 1; every wave has an Epic or rarer stray in each open area |
+
+## 2ad. Leaderboards (Derek, 2026-10-28 17:14, decided)
+
+Spec in [leaderboards.md](leaderboards.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `stats.bestRate`, `stats.weekPlay`, `stats.weekBestRate`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F98 | Leaderboards: Index (entries found), Playtime and Money (best money per second without potions), the top 50 for all time and for this week (Playtime and Money); three chalkboards in the Town Square showing the top 10 and the player's own line, a Top tab in the Index, a crown for the all-time top 10 on boards, cafe sign and head tag; OrderedDataStores written every 5 minutes and read every 2, writes off in Studio, a hidden list kept in a DataStore; no prizes | P1 | M | engineer, ui, asset, qa | F84 Town Square, F95 rate, F97 Index tabs | A live player's playtime shows on the weekly board within 7 minutes and a Studio player's never does; a Money Potion does not move the Money value; the crown shows on every surface for a top 10 player |
+
+## 2ae. The Rainbow coat (Derek, 2026-10-30 00:24, decided)
+
+Spec in [rainbow-coat.md](rainbow-coat.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `variant` `"rainbow"`, the Index entry's `rainbow`, `stats.rainbowCatches`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F99 | Rainbow coat: a third coat rolled before gold at one tenth of its chance (0.5% strays and bait, 1% rescues), earning x3 (gold x1.5); flowing rainbow bands, a glow, a sparkle trail and a spawn beam with a server toast; the big pull for every rainbow; a Rainbow Index tab and one Rainbow track of five milestones with rainbow luck up to +100%; odds on every food card; Collector x10 | P1 | M | engineer, vfx, ui, sound, qa | F42 gold, F89 big pull, F97 Index tabs | A forced rainbow stray shows the coat, beam and toast to the whole server; 100,000 cloud rolls give 0.5% rainbow and 5% gold; a rainbow cat earns twice its gold self |
+
+## 2af. One extra thing at each camp (Derek's Set 4 Q4 answer, decided)
+
+Spec in [camp-extras.md](camp-extras.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `campExtras`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F100 | Camp extras, one per tier from Tier 2: a Picnic Basket in the Park (a Money Potion every 6 h, holds 2), a Yard Sale in the Neighbourhood (two crates a day at 40 fish), a Fish Pond in the Woods (2 fish every 30 min, holds 24) and a Lost and Found in the Sewer (one free prize a day from a shown table, holds 3); each fills while away, sits in the safe camp and shows its state on the cannon picker card with a "!" only when there is something to claim; no food, nothing for Robux | P2 | M | engineer, ui, asset, animation, sound, qa | F84 camps and picker | A player away 7 hours sees the pond at 24 with a "!" on the Woods card; a collect from outside the camp is refused; the Yard Sale stock matches across servers |
+
+## 2ag. The Rescue Rally weekend (Derek, 2026-10-30 00:38, decided)
+
+Spec in [rescue-rally.md](rescue-rally.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `rally`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F101 | Rescue Rally: every weekend (Saturday and Sunday UTC) each server fills one shared bar from check-ins and tames (1 point), rescues (3) and Team Rescues (3 to each player); the goal is 30 points a player; prizes at 25%, 50% and 100% to everyone in the server who scored 3 in the lap (golden fish, a Money Potion, a Rally Crate of twelve event pieces that return every weekend), at most 4 paid laps a weekend; a HUD banner, a Rally board and bunting in the Town Square; nothing sold | P1 | M | engineer, ui, asset, vfx, sound, qa | F92 Team Rescue, F53 crates, F84 Town Square | With RallyForce on, two players doing a Team Rescue each get 3 points; a late joiner with 1 point gets no 100% prize; the banner goes at Monday 00:00 UTC |
 
 ## 3. Placeholder rules for the rough draft
 

@@ -2,7 +2,8 @@
 -- Always-on overlay in the simulator layout (docs/design/cat-cafe/ui-contract.md, HUD v3):
 --   top left      the money with the rate beside the amount, the golden fish under it (F52); a tap on either shows
 --                 the exact amount
---   top right     small icon buttons (Tutorial, Gifts, Daily, Settings, Invite), the day and night clock under them,
+--   top right     small icon buttons (Tutorial, Gifts, Daily, Feedback, Settings, Invite), the day and night clock
+--                 under them,
 --                 the tier and next goal block (Screens/GoalCard) under that and the quest line under that (F73: the
 --                 closest unfinished daily, "📜 Catch 5 cats 3/5", or "📜 2 ready to claim"; a tap opens Quests), and
 --                 under it "🎡 Free spin at the Town Square" while today's free spin waits (F49)
@@ -57,6 +58,7 @@ export type Callbacks = {
 	dropCat: () -> (), -- the carry banner's Drop button
 	replayIntro: () -> (), -- the Tutorial tile (F72)
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
+	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
 }
 
 export type HUD = {
@@ -112,7 +114,7 @@ local TRAVEL_W = 136
 local TRAVEL_H = 50 -- every bottom row button, My Cafe too (Derek 2026-10-27 22:26: no bigger, no ears)
 local TRAVEL_ROW_W = 4 * TRAVEL_W + 3 * Theme.sizes.gap
 local ICON = 58 -- top right icon buttons
-local ICON_ROW_W = 5 * ICON + 4 * Theme.sizes.gap -- Tutorial, Gifts, Daily (F70), Settings and Invite
+local ICON_ROW_W = 6 * ICON + 5 * Theme.sizes.gap -- Tutorial, Gifts, Daily (F70), Feedback, Settings and Invite
 local HIDE_HIT = 30 -- the Tutorial tile's × takes taps this big round its 20 px red dot
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
 local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
@@ -240,11 +242,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._cannonMode = false -- F84: Cannon in place of Areas, no Alley button, the carry banner points at the camp
 	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
 	self._dots = {} :: { [string]: Frame }
-	self._seen =
-		{ Upgrades = {}, Decor = {}, Collection = {} } :: { [string]: { [string]: boolean } }
+	self._seen = { Upgrades = {}, Decor = {} } :: { [string]: { [string]: boolean } }
 	self._candidates = nil :: Notices.Candidates?
 	self._indexReady = 0 -- Index rewards waiting to be claimed (F48)
-	self._collectionPrimed = false
 	self._openScreen = nil :: string?
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
@@ -402,7 +402,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	-- Icon row (top right): small square buttons like the calendar, mail and gear icons of popular simulators.
 	-- Tutorial replays the intro (F72), Gifts opens the Tip Jar (F47) and counts down to the next playtime gift,
-	-- Daily opens the Daily Treat card (F70), the gear opens Settings, Invite opens Roblox's own invite window.
+	-- Daily opens the Daily Treat card (F70), Feedback the Feedback window on its Idea chip (2026-11-01: an easy,
+	-- visible way to send feedback, where Settings > Help hid it), the gear opens Settings, Invite opens Roblox's own
+	-- invite window.
 	local icons: Frame = Create("Frame", {
 		Name = "Icons",
 		BackgroundTransparency = 1,
@@ -561,6 +563,24 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	table.insert(
 		self._buttons,
 		Button.new({
+			name = "Feedback",
+			text = "Feedback",
+			icon = Theme.icons.feedback,
+			layout = "tile",
+			textSize = Theme.sizes.textTiny,
+			style = "gold",
+			size = UDim2.fromOffset(ICON, ICON),
+			layoutOrder = 4,
+			parent = icons,
+			sound = false, -- the modal swish is the sound
+			onClick = function()
+				callbacks.openFeedback()
+			end,
+		})
+	)
+	table.insert(
+		self._buttons,
+		Button.new({
 			name = "Settings",
 			text = "Settings",
 			icon = Theme.icons.settings,
@@ -568,7 +588,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = Theme.sizes.textTiny,
 			style = "ghost",
 			size = UDim2.fromOffset(ICON, ICON),
-			layoutOrder = 4,
+			layoutOrder = 5,
 			parent = icons,
 			onClick = function()
 				callbacks.openScreen("Settings")
@@ -585,7 +605,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = Theme.sizes.textTiny,
 			style = "secondary",
 			size = UDim2.fromOffset(ICON, ICON),
-			layoutOrder = 5,
+			layoutOrder = 6,
 			parent = icons,
 			onClick = function()
 				task.spawn(function()
@@ -1791,23 +1811,19 @@ end
 function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerState)
 	local candidates = Notices.candidates(catalog, state)
 	self._candidates = candidates
-	-- cats caught before this session are not news: the first collection we see is all seen
-	if state.collection and not self._collectionPrimed then
-		self._collectionPrimed = true
-		Notices.markSeen(candidates.Collection, self._seen.Collection)
-	end
 	local open: string? = self._openScreen
 	if open and (candidates :: any)[open] then
 		Notices.markSeen((candidates :: any)[open], self._seen[open])
 	end
-	-- the Index's dot also stays lit while an Index reward waits to be claimed (F48), even after the Index is opened
+	-- the Index's dot shows only while an Index reward waits to be claimed (F48), even after the Index is opened
 	local _, indexReady = IndexRewards.claimable(catalog, state)
 	self._indexReady = indexReady
 	local lit = false
 	for screen, dot in self._dots do
 		local keys: { string } = (candidates :: any)[screen] or {}
-		local show = Notices.hasNew(keys, self._seen[screen])
-			or (screen == "Collection" and indexReady > 0)
+		local show = if screen == "Collection"
+			then indexReady > 0
+			else Notices.hasNew(keys, self._seen[screen] or {})
 		if show and not dot.Visible then
 			Tween.popIn(dot, 0.5)
 			lit = true
@@ -1869,7 +1885,8 @@ function HUD.setDailyTreat(self: any, shown: boolean, due: boolean)
 	self._dailyDot.Visible = due
 end
 
--- From the modal's changed signal: opening a screen marks what it shows as seen and clears its dot.
+-- From the modal's changed signal: opening a screen marks what it shows as seen and clears its dot. The Index has
+-- no keys (its dot is the waiting rewards, in _renderDots), so it is left alone here.
 function HUD.screenOpened(self: any, name: string?)
 	self._openScreen = name
 	local candidates: Notices.Candidates? = self._candidates
@@ -1877,7 +1894,7 @@ function HUD.screenOpened(self: any, name: string?)
 		Notices.markSeen((candidates :: any)[name], self._seen[name])
 		local dot: Frame? = self._dots[name]
 		if dot then
-			dot.Visible = name == "Collection" and (self._indexReady or 0) > 0
+			dot.Visible = false
 		end
 		self:_renderFoldDot()
 	end

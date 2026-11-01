@@ -2211,14 +2211,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": true,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45,
+        "Transparency": 0.6,
         "PivotOffset": {
          "CFrame": {
           "position": [
@@ -3211,9 +3211,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.955,
-           5.5,
-           14.88
+           -8.28,
+           3.65,
+           14.84
           ],
           "orientation": [
            [
@@ -3235,8 +3235,8 @@
          }
         },
         "Size": [
-         4.43,
-         1.9,
+         3.558,
+         1.1,
          0.12
         ],
         "Color": [
@@ -3254,9 +3254,9 @@
         "PivotOffset": {
          "CFrame": {
           "position": [
-           -2.925,
-           -5.5,
-           -0.16
+           -2.6,
+           -3.65,
+           -0.12
           ],
           "orientation": [
            [
@@ -3289,204 +3289,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -10.22,
-           5.5,
-           14.89
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.1,
-         2.1,
-         0.14
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -5.69,
-           5.5,
-           14.89
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.1,
-         2.1,
-         0.14
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -7.955,
-           4.5,
-           14.89
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         4.43,
-         0.1,
-         0.14
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -7.955,
-           6.5,
-           14.89
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         4.43,
-         0.1,
-         0.14
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -7.955,
-           7.15,
+           -10.099,
+           3.65,
            14.85
           ],
           "orientation": [
@@ -3509,9 +3313,254 @@
          }
         },
         "Size": [
-         0.12,
-         0.12,
-         0.26
+         0.08,
+         1.26,
+         0.14
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -6.461,
+           3.65,
+           14.85
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.08,
+         1.26,
+         0.14
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.28,
+           3.06,
+           14.85
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         3.558,
+         0.08,
+         0.14
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.28,
+           4.24,
+           14.85
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         3.558,
+         0.08,
+         0.14
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -10.099,
+           3.06,
+           14.93
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.06,
+         0.06,
+         0.02
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -10.099,
+           3.06,
+           14.75
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.08,
+         0.08,
+         0.06
         ],
         "Color": [
          0.6627,
@@ -3534,19 +3583,19 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.5087,
-           6.85,
-           14.89
+           -10.099,
+           4.24,
+           14.93
           ],
           "orientation": [
            [
-            0.4763,
-            0.8793,
+            1.0,
+            0.0,
             0.0
            ],
            [
-            -0.8793,
-            0.4763,
+            0.0,
+            1.0,
             0.0
            ],
            [
@@ -3558,14 +3607,14 @@
          }
         },
         "Size": [
-         0.05,
-         1.3096,
-         0.05
+         0.06,
+         0.06,
+         0.02
         ],
         "Color": [
-         0.1686,
-         0.1686,
-         0.2078
+         0.7216,
+         0.5686,
+         0.2275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -3583,19 +3632,19 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.4012,
-           6.85,
-           14.89
+           -10.099,
+           4.24,
+           14.75
           ],
           "orientation": [
            [
-            0.4763,
-            -0.8793,
+            1.0,
+            0.0,
             0.0
            ],
            [
-            0.8793,
-            0.4763,
+            0.0,
+            1.0,
             0.0
            ],
            [
@@ -3607,14 +3656,1974 @@
          }
         },
         "Size": [
-         0.05,
-         1.3096,
-         0.05
+         0.08,
+         0.08,
+         0.06
         ],
         "Color": [
-         0.1686,
-         0.1686,
-         0.2078
+         0.6627,
+         0.6863,
+         0.7216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -6.461,
+           3.06,
+           14.93
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.06,
+         0.06,
+         0.02
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -6.461,
+           3.06,
+           14.75
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.08,
+         0.08,
+         0.06
+        ],
+        "Color": [
+         0.6627,
+         0.6863,
+         0.7216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -6.461,
+           4.24,
+           14.93
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.06,
+         0.06,
+         0.02
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -6.461,
+           4.24,
+           14.75
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.08,
+         0.08,
+         0.06
+        ],
+        "Color": [
+         0.6627,
+         0.6863,
+         0.7216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.825,
+           4.01,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.92,
+           3.915,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.92,
+           3.82,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.92,
+           3.725,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.825,
+           3.63,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.54,
+           4.01,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.54,
+           3.915,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.54,
+           3.82,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.54,
+           3.725,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.445,
+           3.63,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.065,
+           4.01,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.16,
+           3.915,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.97,
+           3.915,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.16,
+           3.82,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.97,
+           3.82,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.16,
+           3.725,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.97,
+           3.725,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -8.065,
+           3.63,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.685,
+           4.01,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.78,
+           3.915,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.685,
+           3.82,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.59,
+           3.725,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.685,
+           3.63,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.305,
+           4.01,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.4,
+           3.915,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.3525,
+           3.82,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.19,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.4,
+           3.725,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.305,
+           3.63,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -6.9725,
+           4.01,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.19,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.02,
+           3.915,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -6.83,
+           3.915,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.02,
+           3.82,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -6.83,
+           3.82,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -7.02,
+           3.725,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -6.83,
+           3.725,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_BackDoor_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -6.9725,
+           3.63,
+           14.915
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.19,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -3669,9 +5678,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.635,
-           5.985,
-           14.96
+           -9.684,
+           4.01,
+           14.915
           ],
           "orientation": [
            [
@@ -3693,14 +5702,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -3712,9 +5721,9 @@
         "PivotOffset": {
          "CFrame": {
           "position": [
-           -2.245,
-           -5.985,
-           -0.24
+           -1.196,
+           -4.01,
+           -0.195
           ],
           "orientation": [
            [
@@ -3747,9 +5756,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.675,
-           5.985,
-           14.96
+           -9.075,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -3771,553 +5780,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -9.805,
-           5.855,
-           14.96
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -9.805,
-           5.725,
-           14.96
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -9.805,
-           5.595,
-           14.96
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -9.675,
-           5.465,
-           14.96
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.39,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -9.285,
-           5.985,
-           14.96
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -9.285,
-           5.855,
-           14.96
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -9.285,
-           5.725,
-           14.96
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -9.285,
-           5.595,
-           14.96
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -9.155,
-           5.465,
-           14.96
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.39,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -8.765,
-           5.855,
-           14.96
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -8.505,
-           5.855,
-           14.96
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4335,9 +5805,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.765,
-           5.725,
-           14.96
+           -8.979,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -4359,14 +5829,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4384,9 +5854,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.505,
-           5.725,
-           14.96
+           -9.075,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -4408,14 +5878,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4433,9 +5903,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.765,
-           5.595,
-           14.96
+           -8.979,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -4457,14 +5927,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4482,9 +5952,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.505,
-           5.595,
-           14.96
+           -9.075,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -4506,14 +5976,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4531,9 +6001,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.635,
-           5.465,
-           14.96
+           -8.979,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -4555,14 +6025,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4580,9 +6050,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.115,
-           5.985,
-           14.96
+           -9.075,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -4604,14 +6074,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4629,9 +6099,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.245,
-           5.855,
-           14.96
+           -8.979,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -4653,14 +6123,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4678,9 +6148,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.115,
-           5.725,
-           14.96
+           -9.027,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -4702,14 +6172,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4727,9 +6197,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.985,
-           5.595,
-           14.96
+           -8.883,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -4751,14 +6221,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4776,9 +6246,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.115,
-           5.465,
-           14.96
+           -8.739,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -4800,14 +6270,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4825,9 +6295,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.595,
-           5.985,
-           14.96
+           -8.859,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -4849,14 +6319,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4874,9 +6344,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.725,
-           5.855,
-           14.96
+           -8.739,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -4898,14 +6368,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4923,9 +6393,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.66,
-           5.725,
-           14.96
+           -8.883,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -4947,14 +6417,14 @@
          }
         },
         "Size": [
-         0.26,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -4972,9 +6442,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.725,
-           5.595,
-           14.96
+           -8.763,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -4996,14 +6466,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -5021,9 +6491,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.595,
-           5.465,
-           14.96
+           -8.883,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -5045,14 +6515,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -5070,9 +6540,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.14,
-           5.985,
-           14.96
+           -8.739,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -5094,14 +6564,14 @@
          }
         },
         "Size": [
-         0.26,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -5119,9 +6589,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.205,
-           5.855,
-           14.96
+           -8.883,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -5143,14 +6613,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -5168,9 +6638,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.945,
-           5.855,
-           14.96
+           -8.739,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -5192,14 +6662,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -5217,9 +6687,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.205,
-           5.725,
-           14.96
+           -8.595,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -5241,14 +6711,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -5266,9 +6736,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.945,
-           5.725,
-           14.96
+           -8.595,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -5290,14 +6760,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -5315,9 +6785,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.205,
-           5.595,
-           14.96
+           -8.595,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -5339,14 +6809,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -5364,9 +6834,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.945,
-           5.595,
-           14.96
+           -8.595,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -5388,14 +6858,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -5413,9 +6883,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.14,
-           5.465,
-           14.96
+           -8.595,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -5437,14 +6907,14 @@
          }
         },
         "Size": [
-         0.26,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -5462,9 +6932,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.705,
-           5.145,
-           14.96
+           -8.403,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -5486,9 +6956,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -5511,9 +6981,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.565,
-           5.145,
-           14.96
+           -8.403,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -5535,9 +7005,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -5560,9 +7030,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.705,
-           5.075,
-           14.96
+           -8.403,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -5584,9 +7054,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -5609,9 +7079,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.565,
-           5.075,
-           14.96
+           -8.403,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -5633,9 +7103,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -5658,9 +7128,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.705,
-           5.005,
-           14.96
+           -8.403,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -5682,9 +7152,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -5707,9 +7177,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.565,
-           5.005,
-           14.96
+           -8.259,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -5731,9 +7201,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -5756,9 +7226,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.705,
-           4.935,
-           14.96
+           -8.259,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -5780,9 +7250,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -5805,9 +7275,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.565,
-           4.935,
-           14.96
+           -8.259,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -5829,9 +7299,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -5854,9 +7324,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.635,
-           4.865,
-           14.96
+           -8.259,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -5878,9 +7348,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -5903,9 +7373,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.425,
-           5.145,
-           14.96
+           -8.211,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -5927,9 +7397,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -5952,9 +7422,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.215,
-           5.145,
-           14.96
+           -7.923,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -5976,9 +7446,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6001,9 +7471,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.39,
-           5.075,
-           14.96
+           -7.971,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -6025,9 +7495,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6050,9 +7520,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.215,
-           5.075,
-           14.96
+           -7.923,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -6074,9 +7544,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6099,9 +7569,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.425,
-           5.005,
-           14.96
+           -7.875,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -6123,9 +7593,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6148,9 +7618,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.25,
-           5.005,
-           14.96
+           -7.923,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -6172,9 +7642,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6197,9 +7667,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.425,
-           4.935,
-           14.96
+           -7.779,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -6221,9 +7691,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6246,9 +7716,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.215,
-           4.935,
-           14.96
+           -7.683,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -6270,9 +7740,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6295,9 +7765,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.425,
-           4.865,
-           14.96
+           -7.779,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -6319,9 +7789,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6344,9 +7814,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.215,
-           4.865,
-           14.96
+           -7.683,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -6368,9 +7838,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6393,9 +7863,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.005,
-           5.145,
-           14.96
+           -7.779,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -6417,9 +7887,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6442,9 +7912,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.005,
-           5.075,
-           14.96
+           -7.683,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -6466,9 +7936,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6491,9 +7961,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.005,
-           5.005,
-           14.96
+           -7.779,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -6515,9 +7985,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6540,9 +8010,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.005,
-           4.935,
-           14.96
+           -7.683,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -6564,9 +8034,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6589,9 +8059,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -9.005,
-           4.865,
-           14.96
+           -7.731,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -6613,9 +8083,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6638,9 +8108,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.725,
-           5.145,
-           14.96
+           -7.587,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -6662,9 +8132,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6687,9 +8157,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.725,
-           5.075,
-           14.96
+           -7.443,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -6711,9 +8181,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6736,9 +8206,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.725,
-           5.005,
-           14.96
+           -7.563,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -6760,9 +8230,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6785,9 +8255,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.725,
-           4.935,
-           14.96
+           -7.443,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -6809,9 +8279,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6834,9 +8304,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.725,
-           4.865,
-           14.96
+           -7.587,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -6858,9 +8328,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6883,9 +8353,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.515,
-           5.145,
-           14.96
+           -7.467,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -6907,9 +8377,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6932,9 +8402,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.515,
-           5.075,
-           14.96
+           -7.587,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -6956,9 +8426,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -6981,9 +8451,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.515,
-           5.005,
-           14.96
+           -7.443,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -7005,9 +8475,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7030,9 +8500,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.515,
-           4.935,
-           14.96
+           -7.587,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -7054,9 +8524,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7079,9 +8549,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.445,
-           4.865,
-           14.96
+           -7.443,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -7103,9 +8573,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7128,9 +8598,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.025,
-           5.145,
-           14.96
+           -7.323,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -7152,9 +8622,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7177,9 +8647,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.095,
-           5.075,
-           14.96
+           -7.347,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -7201,9 +8671,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7226,9 +8696,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.025,
-           5.005,
-           14.96
+           -7.251,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -7250,9 +8720,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7275,9 +8745,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.955,
-           4.935,
-           14.96
+           -7.323,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -7299,9 +8769,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7324,9 +8794,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -8.025,
-           4.865,
-           14.96
+           -7.347,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -7348,9 +8818,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7373,9 +8843,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.815,
-           5.145,
-           14.96
+           -7.251,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -7397,9 +8867,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7422,9 +8892,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.675,
-           5.145,
-           14.96
+           -7.347,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -7446,9 +8916,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7471,9 +8941,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.815,
-           5.075,
-           14.96
+           -7.251,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -7495,9 +8965,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7520,9 +8990,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.675,
-           5.075,
-           14.96
+           -7.107,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -7544,9 +9014,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7569,9 +9039,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.815,
-           5.005,
-           14.96
+           -7.107,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -7593,9 +9063,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7618,9 +9088,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.675,
-           5.005,
-           14.96
+           -7.107,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -7642,9 +9112,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7667,9 +9137,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.815,
-           4.935,
-           14.96
+           -7.107,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -7691,9 +9161,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7716,9 +9186,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.675,
-           4.935,
-           14.96
+           -7.107,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -7740,9 +9210,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7765,9 +9235,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.745,
-           4.865,
-           14.96
+           -6.915,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -7789,9 +9259,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7814,9 +9284,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.535,
-           5.145,
-           14.96
+           -6.963,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -7838,9 +9308,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7863,9 +9333,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.325,
-           5.145,
-           14.96
+           -6.915,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -7887,9 +9357,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7912,9 +9382,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.5,
-           5.075,
-           14.96
+           -6.867,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -7936,9 +9406,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -7961,9 +9431,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.325,
-           5.075,
-           14.96
+           -6.915,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -7985,9 +9455,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8010,9 +9480,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.535,
-           5.005,
-           14.96
+           -6.723,
+           3.4585,
+           14.915
           ],
           "orientation": [
            [
@@ -8034,9 +9504,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8059,9 +9529,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.36,
-           5.005,
-           14.96
+           -6.771,
+           3.4105,
+           14.915
           ],
           "orientation": [
            [
@@ -8083,9 +9553,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8108,9 +9578,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.535,
-           4.935,
-           14.96
+           -6.747,
+           3.3625,
+           14.915
           ],
           "orientation": [
            [
@@ -8132,9 +9602,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8157,9 +9627,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.325,
-           4.935,
-           14.96
+           -6.771,
+           3.3145,
+           14.915
           ],
           "orientation": [
            [
@@ -8181,9 +9651,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8206,9 +9676,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.535,
-           4.865,
-           14.96
+           -6.723,
+           3.2665,
+           14.915
           ],
           "orientation": [
            [
@@ -8230,9 +9700,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8255,9 +9725,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.325,
-           4.865,
-           14.96
+           -9.594,
+           4.01,
+           14.915
           ],
           "orientation": [
            [
@@ -8279,9 +9749,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8304,9 +9774,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.15,
-           5.145,
-           14.96
+           -9.774,
+           3.92,
+           14.915
           ],
           "orientation": [
            [
@@ -8328,9 +9798,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8353,9 +9823,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.185,
-           5.075,
-           14.96
+           -9.684,
+           3.92,
+           14.915
           ],
           "orientation": [
            [
@@ -8377,9 +9847,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8402,9 +9872,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.045,
-           5.075,
-           14.96
+           -9.864,
+           3.83,
+           14.915
           ],
           "orientation": [
            [
@@ -8426,9 +9896,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8451,9 +9921,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.15,
-           5.005,
-           14.96
+           -9.774,
+           3.83,
+           14.915
           ],
           "orientation": [
            [
@@ -8475,9 +9945,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8500,9 +9970,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.185,
-           4.935,
-           14.96
+           -9.684,
+           3.83,
+           14.915
           ],
           "orientation": [
            [
@@ -8524,9 +9994,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8549,9 +10019,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.045,
-           4.935,
-           14.96
+           -9.864,
+           3.74,
+           14.915
           ],
           "orientation": [
            [
@@ -8573,9 +10043,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8598,9 +10068,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.185,
-           4.865,
-           14.96
+           -9.774,
+           3.74,
+           14.915
           ],
           "orientation": [
            [
@@ -8622,9 +10092,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8647,9 +10117,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -7.045,
-           4.865,
-           14.96
+           -9.684,
+           3.74,
+           14.915
           ],
           "orientation": [
            [
@@ -8671,9 +10141,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8696,9 +10166,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.835,
-           5.145,
-           14.96
+           -9.864,
+           3.65,
+           14.915
           ],
           "orientation": [
            [
@@ -8720,9 +10190,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8745,9 +10215,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.835,
-           5.075,
-           14.96
+           -9.774,
+           3.65,
+           14.915
           ],
           "orientation": [
            [
@@ -8769,9 +10239,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8794,9 +10264,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.835,
-           5.005,
-           14.96
+           -9.684,
+           3.65,
+           14.915
           ],
           "orientation": [
            [
@@ -8818,9 +10288,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8843,9 +10313,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.835,
-           4.935,
-           14.96
+           -9.864,
+           3.56,
+           14.915
           ],
           "orientation": [
            [
@@ -8867,9 +10337,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8892,9 +10362,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.835,
-           4.865,
-           14.96
+           -9.774,
+           3.56,
+           14.915
           ],
           "orientation": [
            [
@@ -8916,9 +10386,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8941,9 +10411,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.555,
-           5.145,
-           14.96
+           -9.684,
+           3.56,
+           14.915
           ],
           "orientation": [
            [
@@ -8965,9 +10435,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -8990,9 +10460,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.625,
-           5.075,
-           14.96
+           -9.864,
+           3.47,
+           14.915
           ],
           "orientation": [
            [
@@ -9014,9 +10484,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9039,9 +10509,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.555,
-           5.005,
-           14.96
+           -9.774,
+           3.47,
+           14.915
           ],
           "orientation": [
            [
@@ -9063,9 +10533,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9088,9 +10558,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.485,
-           4.935,
-           14.96
+           -9.684,
+           3.47,
+           14.915
           ],
           "orientation": [
            [
@@ -9112,9 +10582,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9137,9 +10607,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.555,
-           4.865,
-           14.96
+           -9.774,
+           3.38,
+           14.915
           ],
           "orientation": [
            [
@@ -9161,9 +10631,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9186,9 +10656,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.275,
-           5.145,
-           14.96
+           -9.684,
+           3.38,
+           14.915
           ],
           "orientation": [
            [
@@ -9210,9 +10680,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9235,9 +10705,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.345,
-           5.075,
-           14.96
+           -9.594,
+           3.38,
+           14.915
           ],
           "orientation": [
            [
@@ -9259,9 +10729,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9284,9 +10754,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.31,
-           5.005,
-           14.96
+           -9.504,
+           3.38,
+           14.915
           ],
           "orientation": [
            [
@@ -9308,9 +10778,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9333,9 +10803,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.345,
-           4.935,
-           14.96
+           -9.684,
+           3.29,
+           14.915
           ],
           "orientation": [
            [
@@ -9357,9 +10827,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9382,9 +10852,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.275,
-           4.865,
-           14.96
+           -9.594,
+           3.29,
+           14.915
           ],
           "orientation": [
            [
@@ -9406,9 +10876,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9431,117 +10901,19 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.3404,
-           5.9298,
-           14.96
+           -9.504,
+           3.29,
+           14.915
           ],
           "orientation": [
-           [
-            0.3653,
-            0.9309,
-            0.0
-           ],
-           [
-            -0.9309,
-            0.3653,
-            0.0
-           ],
            [
-            0.0,
+            1.0,
             0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0638,
-         0.1711,
-         0.04
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -6.2004,
-           5.9368,
-           14.96
-          ],
-          "orientation": [
-           [
-            -0.2708,
-            0.9626,
-            0.0
-           ],
-           [
-            -0.9626,
-            -0.2708,
             0.0
            ],
            [
-            0.0,
             0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.1031,
-         0.1711,
-         0.04
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -6.0846,
-           5.8578,
-           14.96
-          ],
-          "orientation": [
-           [
-            -0.7971,
-            0.6038,
-            0.0
-           ],
-           [
-            -0.6038,
-            -0.7971,
+            1.0,
             0.0
            ],
            [
@@ -9553,9 +10925,9 @@
          }
         },
         "Size": [
-         0.1303,
-         0.1711,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9578,19 +10950,19 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.04,
-           5.725,
-           14.96
+           -9.414,
+           3.29,
+           14.915
           ],
           "orientation": [
            [
-            -1.0,
+            1.0,
             0.0,
             0.0
            ],
            [
             0.0,
-            -1.0,
+            1.0,
             0.0
            ],
            [
@@ -9602,9 +10974,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.1711,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9627,117 +10999,19 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -6.0846,
-           5.5922,
-           14.96
+           -9.324,
+           3.29,
+           14.915
           ],
           "orientation": [
-           [
-            -0.7971,
-            -0.6038,
-            0.0
-           ],
-           [
-            0.6038,
-            -0.7971,
-            0.0
-           ],
            [
-            0.0,
+            1.0,
             0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.1303,
-         0.1711,
-         0.04
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -6.2004,
-           5.5132,
-           14.96
-          ],
-          "orientation": [
-           [
-            -0.2708,
-            -0.9626,
-            0.0
-           ],
-           [
-            0.9626,
-            -0.2708,
             0.0
            ],
            [
-            0.0,
             0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.1031,
-         0.1711,
-         0.04
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Plot_BackDoor_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -6.3404,
-           5.5202,
-           14.96
-          ],
-          "orientation": [
-           [
-            0.3653,
-            -0.9309,
-            0.0
-           ],
-           [
-            0.9309,
-            0.3653,
+            1.0,
             0.0
            ],
            [
@@ -9749,9 +11023,9 @@
          }
         },
         "Size": [
-         0.0638,
-         0.1711,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,

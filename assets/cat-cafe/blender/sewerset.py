@@ -268,6 +268,7 @@ def _seg_pipes(b, x0, x1, H, k):
     b.cyl((dx, -0.5, 2.7), 0.4, 5.0, "dumpster_green", segments=10, bevel=False)                  # the drop pipe
     b.cyl((dx, -0.5, 0.3), 0.55, 0.4, "metal", segments=10, bevel=False)
     b.cyl((m, -0.85, 3.2), 0.55, 0.2, "offwhite", segments=12, bevel=False, rot=rx(90))         # a gauge
+    b.cyl((m, -0.38, 3.2), 0.09, 0.78, "metal", segments=8, bevel=False, rot=rx(90))            # on its stem
     b.box((m + 0.1, -0.97, 3.3), (0.06, 0.04, 0.4), "bowl_red", bevel=False, rot=ry(30))
 
 

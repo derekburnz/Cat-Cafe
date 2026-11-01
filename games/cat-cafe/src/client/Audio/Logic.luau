@@ -333,4 +333,74 @@ function Logic.rareNotice(
 	return distance <= near, distance <= near
 end
 
+-- F99: a rainbow stray (its Variant "rainbow") twinkles with its own rainbowNear, a Mythical with rareNear, and
+-- every other stray stays quiet.
+function Logic.strayNoticeCue(rarity: any, variant: any): string?
+	if variant == "rainbow" then
+		return "rainbowNear"
+	end
+	return if Logic.shimmers(rarity) then "rareNear" else nil
+end
+
+-- F89 and F99: the sting on your own big pull (SecuredRare). A rainbow cat always gets its own; otherwise the
+-- rarity's from Epic up (a gold Epic is the only Epic with a big pull). nil below Epic.
+function Logic.pullSting(rarity: any, variant: any): string?
+	if variant == "rainbow" then
+		return "jingleRainbow"
+	end
+	local step = if type(rarity) == "string" then Logic.rarityStep(rarity) else nil
+	if step == nil or step < 3 then
+		return nil
+	end
+	return Logic.jingleFor(rarity)
+end
+
+local STING_RANK: { [string]: number } =
+	{ jingleRare = 1, jingleEpic = 2, jingleLegendary = 3, jingleMythical = 4, jingleRainbow = 5 }
+
+-- Two stings within `quiet` seconds (a tame's BaitTame and its SecuredRare land together): the same one or a
+-- smaller one is skipped, a bigger one replaces the first (a rainbow's own sting over the rarity's).
+function Logic.stingAction(
+	lastCue: string?,
+	lastAt: number?,
+	cue: string,
+	now: number,
+	quiet: number
+): "play" | "skip" | "replace"
+	if lastCue == nil or lastAt == nil or now - lastAt >= quiet then
+		return "play"
+	end
+	return if (STING_RANK[cue] or 0) > (STING_RANK[lastCue] or 0) then "replace" else "skip"
+end
+
+-- F100: a camp extra collected (CampExtraCollect's extraId). The Yard Sale is a purchase, so it has none.
+local CAMP_EXTRA_CUES: { [string]: string } =
+	{ picnic = "campBasket", pond = "campSplash", lostFound = "campRattle" }
+
+function Logic.campExtraCue(extraId: any): string?
+	return if type(extraId) == "string" then CAMP_EXTRA_CUES[extraId] else nil
+end
+
+-- Animation beats (Beats.hit) to sounds: the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100).
+local BEAT_CUES: { [string]: string } = {
+	bellRing = "bellhopBell",
+	fishJump = "campSplash",
+	rodCast = "campSplash",
+	basketOpen = "campBasket",
+	lidRattle = "campRattle",
+}
+
+function Logic.beatCue(beat: any): string?
+	return if type(beat) == "string" then BEAT_CUES[beat] else nil
+end
+
+-- How long a sound sheet's part lasts at a PlaybackSpeed (its region { start, stop } in seconds of the file), so
+-- a play can be stopped at its end; nil for a cue without a valid region.
+function Logic.regionSeconds(region: { number }?, speed: number): number?
+	if region == nil or #region ~= 2 or region[2] <= region[1] then
+		return nil
+	end
+	return (region[2] - region[1]) / math.max(speed, 0.01)
+end
+
 return Logic

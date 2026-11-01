@@ -17,7 +17,7 @@ Model layout (rbx_export):
                                              flap, which brings its own frame, is in use)
       CatCafe_Plot_BackDoor_Flap             the default cat flap's swinging panel, pivot on its top hinge: turn it
                                              about its X (up to about 60 degrees either way) as a cat goes through
-      CatCafe_Plot_BackDoor_Sign             "CLOSED / UNTIL SUNRISE" hung on the leaf's yard face, for the night
+      CatCafe_Plot_BackDoor_Sign             "CLOSED / UNTIL SUNRISE" on the leaf's lock rail, for the night
       CatCafe_Plot_BackDoor_Sign_Bulb        the sign's letters and moon (_Bulb: Neon at night)
 Nothing here needs to collide: the code-built back door panel stays the
 collider, made invisible.
@@ -103,26 +103,47 @@ def _flap(b):
         b.span((x - 0.09, y - 0.09, 0.03), (x + 0.09, y + 0.09, 0.05), TRIM)                # toes
 
 
-def _sign(b, glow, z=0.1):
-    """The night sign on the leaf's yard face, hung from a nail in the top rail over the window; z is the board's
-    back, clear of whatever the leaf has under it (the cafe's own leaf: its window bead)."""
-    big, small, px, spx, moon = "CLOSED", "UNTIL SUNRISE", 0.13, 0.07, 0.22
-    cx = LW / 2
-    tw = text_width(big, px)
-    w = 0.3 + tw + 0.4 + 2 * moon + 0.3                         # CLOSED, then the moon facing it on the top line
-    left = cx - w / 2
-    y0, y1, nail = 4.55, 6.45, LY1 - 0.3
-    b.span((left, y0, z), (left + w, y1, z + 0.12), SIGN_BOARD)
-    _frame(b, left - 0.1, left + w + 0.1, y0 - 0.1, y1 + 0.1, 0.1, z, z + 0.14, SIGN_INK)
-    b.span((cx - 0.06, nail - 0.06, 0.0), (cx + 0.06, nail + 0.06, z + 0.16), "metal")
-    for sx in (-1, 1):
-        dx, dy = w / 4, nail - y1 - 0.1
-        b.box((cx + sx * dx / 2, (y1 + 0.1 + nail) / 2, z + 0.07), (0.05, math.hypot(dx, dy) + 0.05, 0.05), "fur_black",
-              rot=Matrix.Rotation(sx * math.atan2(dx, dy), 3, "Z"))
-    big_y = y0 + 0.85
-    label(glow, big, left + 0.3 + tw / 2, big_y, z + 0.12, px, 0.04, SIGN_INK, 1)
-    label(glow, small, cx, y0 + 0.28, z + 0.12, spx, 0.04, SIGN_GLOW, 1)
-    glow.b.crescent(RB.p(left + 0.3 + tw + 0.4 + moon, big_y + 2.5 * px, z + 0.14), moon, 0.14, 0.04, SIGN_GLOW)
+MOON = ("..##.....", ".##......", "###......", "###......", "###......", "###......", "###......", ".####....",
+        "..#####..")                             # the front ClosedSign's moon: from the front, horns toward the text
+
+
+def _sign(b, glow, z=0.06, y0=3.1, bh=1.1, cu=2.6, both=False, face=0.0):
+    """The night sign on the leaf's yard face (Derek 2026-10-30: it showed through the window and its moon faced the
+    wrong way). A board bh tall from y0 on the lock rail, under the window and over any F80 flap (they stay under
+    y 2.97), clear of the handle; its back at depth z, on short posts back to depth `face` (the leaf's face there)
+    when it stands off it.
+    The moon reads like the front ClosedSign's: left of CLOSED with its horns toward the text. both: the sign hangs
+    over glass, so its back reads CLOSED too (seen from inside through the window)."""
+    big, small, px, spx, mp, t = "CLOSED", "UNTIL SUNRISE", 0.095, 0.048, 0.09, 0.08
+    tw, sw = text_width(big, px), text_width(small, spx)
+    mw = 7 * mp                                                   # the moon's width (its widest row)
+    bw = 0.15 + mw + 0.18 + max(tw, sw) + 0.15
+    left, y1 = cu - bw / 2, y0 + bh
+    b.span((left, y0, z), (left + bw, y1, z + 0.12), SIGN_BOARD)
+    _frame(b, left - t, left + bw + t, y0 - t, y1 + t, t, z, z + 0.14, SIGN_INK)
+    for x in (left - t / 2, left + bw + t / 2):                   # brass screws in the frame's corners, and posts
+        for y in (y0 - t / 2, y1 + t / 2):                       # behind them when the board stands off the face
+            b.span((x - 0.03, y - 0.03, z + 0.14), (x + 0.03, y + 0.03, z + 0.16), "brass")
+            if z - face > 0.005:
+                b.span((x - 0.04, y - 0.04, face), (x + 0.04, y + 0.04, z), "metal")
+    block = 5 * spx + 0.1 + 5 * px                                # UNTIL SUNRISE under CLOSED, the two centred
+    ys = y0 + (bh - block) / 2
+    yb = ys + 5 * spx + 0.1
+    tx = left + 0.15 + mw + 0.18 + max(tw, sw) / 2
+    mtop = y0 + bh / 2 + 4.5 * mp
+    faces = ((z + 0.12, 1, 1),) + (((z, -1, -1),) if both else ())
+    for zf, s, facing in faces:                                   # facing 1: read from the yard (+Z)
+        # from the back the sign reads mirrored in x: the moon on the right of the text as seen from inside
+        mx = (lambda x: x) if facing > 0 else (lambda x: 2 * cu - x)
+        label(b, big, mx(tx), yb, zf, px, 0.03, SIGN_INK, facing)
+        if facing > 0:                                            # the back keeps to CLOSED and the moon
+            label(glow, small, mx(tx), ys, zf, spx, 0.03, SIGN_GLOW, facing)
+        for r, row in enumerate(MOON):
+            for c, ch in enumerate(row):
+                if ch == "#":
+                    x = mx(left + 0.15 + (c + 0.5) * mp)
+                    glow.span((x - mp / 2, mtop - (r + 1) * mp, min(zf, zf + s * 0.03)),
+                              (x + mp / 2, mtop - r * mp, max(zf, zf + s * 0.03)), SIGN_GLOW)
 
 
 def build_back_door(mat):

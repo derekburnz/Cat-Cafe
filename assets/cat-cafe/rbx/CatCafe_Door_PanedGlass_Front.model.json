@@ -1352,7 +1352,7 @@
         "position": [
          -0.3,
          3.4,
-         -0.295
+         -0.315
         ],
         "orientation": [
          [
@@ -1374,7 +1374,7 @@
        }
       },
       "Size": [
-       0.03,
+       0.07,
        0.22,
        0.22
       ],
@@ -1551,7 +1551,7 @@
         "position": [
          -0.3,
          3.4,
-         -0.015
+         0.005
         ],
         "orientation": [
          [
@@ -1573,7 +1573,7 @@
        }
       },
       "Size": [
-       0.03,
+       0.07,
        0.22,
        0.22
       ],
@@ -1887,14 +1887,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45,
+        "Transparency": 0.6,
         "PivotOffset": {
          "CFrame": {
           "position": [
@@ -3257,7 +3257,7 @@
         "position": [
          0.3,
          3.4,
-         -0.295
+         -0.315
         ],
         "orientation": [
          [
@@ -3279,7 +3279,7 @@
        }
       },
       "Size": [
-       0.03,
+       0.07,
        0.22,
        0.22
       ],
@@ -3456,7 +3456,7 @@
         "position": [
          0.3,
          3.4,
-         -0.015
+         0.005
         ],
         "orientation": [
          [
@@ -3478,7 +3478,7 @@
        }
       },
       "Size": [
-       0.03,
+       0.07,
        0.22,
        0.22
       ],
@@ -3792,14 +3792,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45,
+        "Transparency": 0.6,
         "PivotOffset": {
          "CFrame": {
           "position": [

@@ -457,8 +457,8 @@
      }
     },
     "Size": [
-     8.4,
-     0.2,
+     8.46,
+     0.26,
      0.04
     ],
     "Color": [
@@ -515,14 +515,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45
+    "Transparency": 0.6
    }
   },
   {
@@ -532,9 +532,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.1,
+       -1.085,
        3.575,
-       -0.9
+       -0.915
       ],
       "orientation": [
        [
@@ -556,9 +556,9 @@
      }
     },
     "Size": [
-     0.1,
+     0.13,
      1.15,
-     0.1
+     0.13
     ],
     "Color": [
      0.3686,
@@ -581,9 +581,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.1,
+       -1.085,
        3.575,
-       0.3
+       0.315
       ],
       "orientation": [
        [
@@ -605,9 +605,9 @@
      }
     },
     "Size": [
-     0.1,
+     0.13,
      1.15,
-     0.1
+     0.13
     ],
     "Color": [
      0.3686,
@@ -630,9 +630,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.7,
+       -3.715,
        3.575,
-       -0.9
+       -0.915
       ],
       "orientation": [
        [
@@ -654,9 +654,9 @@
      }
     },
     "Size": [
-     0.1,
+     0.13,
      1.15,
-     0.1
+     0.13
     ],
     "Color": [
      0.3686,
@@ -679,9 +679,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.7,
+       -3.715,
        3.575,
-       0.3
+       0.315
       ],
       "orientation": [
        [
@@ -703,9 +703,9 @@
      }
     },
     "Size": [
-     0.1,
+     0.13,
      1.15,
-     0.1
+     0.13
     ],
     "Color": [
      0.3686,
@@ -1457,14 +1457,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45,
+    "Transparency": 0.6,
     "Shape": "Cylinder"
    }
   },

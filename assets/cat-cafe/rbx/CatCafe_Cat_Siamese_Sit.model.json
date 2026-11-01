@@ -1112,7 +1112,7 @@
           "position": [
            -0.219,
            1.177,
-           -0.6127
+           -0.623
           ],
           "orientation": [
            [
@@ -1136,7 +1136,7 @@
         "Size": [
          0.1197,
          0.1867,
-         0.038
+         0.0585
         ],
         "Color": [
          0.1686,
@@ -1325,7 +1325,7 @@
           "position": [
            0.219,
            1.177,
-           -0.6127
+           -0.623
           ],
           "orientation": [
            [
@@ -1349,7 +1349,7 @@
         "Size": [
          0.1197,
          0.1867,
-         0.038
+         0.0585
         ],
         "Color": [
          0.1686,
@@ -1636,7 +1636,7 @@
           "position": [
            -0.2838,
            1.653,
-           -0.2736
+           -0.2895
           ],
           "orientation": [
            [
@@ -1660,7 +1660,7 @@
         "Size": [
          0.1026,
          0.1083,
-         0.0285
+         0.0604
         ],
         "Color": [
          0.8784,
@@ -1898,7 +1898,7 @@
           "position": [
            0.2838,
            1.653,
-           -0.2736
+           -0.2895
           ],
           "orientation": [
            [
@@ -1922,7 +1922,7 @@
         "Size": [
          0.1026,
          0.1083,
-         0.0285
+         0.0604
         ],
         "Color": [
          0.8784,
@@ -3587,14 +3587,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45,
+        "Transparency": 0.6,
         "Shape": "Cylinder",
         "PivotOffset": {
          "CFrame": {
@@ -3668,14 +3668,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45,
+        "Transparency": 0.6,
         "Shape": "Cylinder"
        },
        "attributes": {
@@ -3885,7 +3885,7 @@
        "CFrame": {
         "position": [
          -0.3463,
-         0.1045,
+         0.1195,
          -0.1187
         ],
         "orientation": [
@@ -3909,7 +3909,7 @@
       },
       "Size": [
        0.171,
-       0.171,
+       0.201,
        0.418
       ],
       "Color": [

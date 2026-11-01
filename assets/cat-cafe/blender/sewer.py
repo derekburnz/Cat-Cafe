@@ -20,7 +20,6 @@ Positions below are the draft's (Blender axes: Roblox x is -x here); `put` and `
 
 import math
 
-from mathutils import Matrix
 
 import alleyway
 from areakit import PI, Set, ring_blocks, rx, ry, rz
@@ -269,7 +268,6 @@ def puddle(mat):
     b, water = Builder(), Builder()
     water.cyl_base((0, 0, 0), 1.6, 0.04, "puddle", segments=12, scale=(1.3, 1, 1), bevel=False)
     b.ring((0.4, 0.2, 0.06), 0.6, 0.08, 0.02, "fish_belly", segments=12, bevel=False)
-    b.sphere((0.4, 0.2, 1.4), 0.12, "fish_blue", segments=6, rings=4, scale=(1, 1, 1.5))     # a drip on its way
     return [b.finalize(N + "DripPuddle", mat), water.finalize(N + "DripPuddle_Water", mat)]
 
 

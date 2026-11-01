@@ -72,6 +72,8 @@ export type Budget = {
 	cloudPuffs: number, -- puffs in the full-screen clouds of a cannon flight or a cloud hop (F84)
 	campfires: number, -- campfires whose flame moves, with embers and a light, at once
 	pullConfetti: number, -- confetti pieces on screen in a big pull (F89)
+	rainbowCats: number, -- rainbow cats whose bands flow, with a glow and a trail, at once (F99)
+	rainbowOutlines: number, -- of those, the nearest with a band-coloured outline (a Highlight each)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -99,6 +101,8 @@ Presets.budget = {
 		cloudPuffs = 10,
 		campfires = 2,
 		pullConfetti = 20,
+		rainbowCats = 6,
+		rainbowOutlines = 3,
 	},
 	high = {
 		animatedCats = 16,
@@ -121,6 +125,8 @@ Presets.budget = {
 		cloudPuffs = 16,
 		campfires = 3,
 		pullConfetti = 40,
+		rainbowCats = 10,
+		rainbowOutlines = 6,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -143,6 +149,8 @@ Presets.budget = {
 		cloudPuffs = 6,
 		campfires = 1,
 		pullConfetti = 13,
+		rainbowCats = 3,
+		rainbowOutlines = 0,
 	},
 } :: { [string]: Budget }
 
@@ -437,6 +445,25 @@ Presets.emitters = {
 		lightEmission = 0.8,
 	},
 	-- Mythical decor (F53): a glint now and then over Glimmer Canal's floor or a Gold Leaf front, tinted by the piece.
+	-- Rainbow cat sparkles dropping behind it as it moves (F99), shifting through the hues as they fade in 0.8 s.
+	rainbowTrail = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Color3.fromRGB(255, 72, 88),
+			Color3.fromRGB(255, 222, 60),
+			Color3.fromRGB(84, 214, 112),
+			Color3.fromRGB(72, 182, 255),
+			Color3.fromRGB(168, 108, 255),
+		},
+		size = { 0.3, 0 },
+		transparency = { 0, 0.6 },
+		lifetime = { 0.6, 0.8 },
+		speed = { 0, 0.3 },
+		spread = 180,
+		rate = 8,
+		lightEmission = 0.8,
+		rotSpeed = { -120, 120 },
+	},
 	decorGlint = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.offwhite, Presets.palette.sparkle },
@@ -1671,6 +1698,39 @@ Presets.market = {
 -- the stall's ice, the lid swung up `lidDegrees` (crates.py: 105 is wide open with no clipping) over `lidSeconds`,
 -- held for `hold` seconds from the open and faded over `fade`.
 Presets.marketCrate = { scale = 0.6, lidDegrees = 105, lidSeconds = 0.3, hold = 1.8, fade = 0.4 }
+
+-- Rainbow coats (F99, rainbow-coat.md section 2): a rainbow cat's own parts in `hues`, each part's colour drifting
+-- round them with its phase set by how far back from the nose it sits, so bands flow nose to tail, one lap every
+-- `period` seconds and `spread` laps along the cat; a part keeps `least` to all of its band's brightness by how light
+-- its own colour was, so stripes still show. Only the `pieces` named here change (not the eyes, props or outfits),
+-- and in them a part shorter than `keepShare` of its piece's biggest part (the nose, the mouth, the blush) keeps its
+-- colour. The nearest budget.rainbowCats within `within` studs (no more than Config.RainbowAnimateMax) flow at `hz`
+-- updates a second, glow (`glow`) and drop `trail` sparkles while they move faster than `moving` studs a second; the
+-- nearest budget.rainbowOutlines of those also get an outline in the band colour. The rest show still bands. When a
+-- rainbow stray spawns (`RainbowSpawned`), a bundle of six thin beams, one per hue, rises from it (`beam`) for
+-- anyone within `beam.within`. Reduce Motion stills the bands and drops the trail and beam; glow and outline stay.
+Presets.rainbow = {
+	hues = {
+		Color3.fromRGB(255, 72, 88), -- red
+		Color3.fromRGB(255, 150, 48), -- orange
+		Color3.fromRGB(255, 222, 60), -- yellow
+		Color3.fromRGB(84, 214, 112), -- green
+		Color3.fromRGB(72, 182, 255), -- sky blue
+		Color3.fromRGB(168, 108, 255), -- violet
+	},
+	period = 3,
+	spread = 1,
+	least = 0.7,
+	keepShare = 0.2,
+	pieces = { "Body", "Head", "EarL", "EarR", "Tail", "LegF1", "LegF2", "LegB1", "LegB2" },
+	within = 120,
+	hz = 20,
+	pick = 0.25, -- seconds between choosing which cats flow
+	glow = { color = Color3.new(1, 1, 1), range = 6, brightness = 0.6 },
+	outline = 0.25, -- outline transparency
+	moving = 0.6,
+	beam = { width = 0.5, height = 50, seconds = 3, ring = 0.55, within = 400 },
+}
 
 -- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to
 -- 1, how much of the sky it hides) and `density` (how thick each cloud looks), tinted `color`, drifting on `wind`

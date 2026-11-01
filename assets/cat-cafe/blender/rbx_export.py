@@ -9,9 +9,10 @@ code change. Every Builder primitive becomes one or a few Parts:
   sphere -> Ball, or a Part with a SpecialMesh Sphere when squashed, pyramid -> stacked blocks,
   ring -> blocks around the circle, flat star or badge outline -> two WedgeParts per triangle.
 
-Bevels are dropped, which suits the blocky style. Colours are the palette swatches. Glass and water are Glass at
-0.45 and 0.3 transparency, a gate barrier (_Bars) is ForceField, the gold coat tones (palette.METAL_SWATCHES) are
-Metal. Hanging lamp bulbs (lit all day) are Neon; other
+Bevels are dropped, which suits the blocky style. Colours are the palette swatches. Glass is SmoothPlastic at 0.6
+transparency (Roblox's Glass material bends the view through a window) and water is Glass at 0.3, a gate barrier
+(_Bars) is ForceField, the gold coat tones (palette.METAL_SWATCHES) are Metal. Hanging lamp bulbs (lit all day) are
+Neon; other
 _Bulb, _Bulbs, _Pane and _Tube parts keep their day look and WorldController lights them at night. _Glow parts are
 Neon day and night (WorldController leaves them alone), and a walk-in circle (_CodesCircle) is Neon at 0.85.
 
@@ -38,6 +39,7 @@ from mathutils import Matrix, Vector
 
 import common
 import palette
+import rbx_zfight
 
 C = common.TO_ROBLOX              # Blender (x, y, z) -> Roblox (-x, z, y), a proper rotation
 CT = C.transposed()
@@ -84,7 +86,7 @@ TAGS = {"CatCafe_Decor_FishTank": ["FishTank"], "CatCafe_Plot_Tier4_Water": ["Fi
         "_Basket": ["CampBasket"]}
 # Tags on every part of an object, by object name suffix: the crate styles (F53, StyleController) recolour the cafe
 # shell's outer wall layer (Paint) and inner wall layer (Wallpaper), and give each part its own look back after.
-PART_TAGS = {"_Paint": ["Paint"], "_Wallpaper": ["Wallpaper"]}
+PART_TAGS = {"_Paint": ["Paint"], "_Wallpaper": ["Wallpaper"], "_Trim": ["PaintTrim"]}   # _Trim: a cafe's trims (F89)
 # Root Model properties by asset name suffix: an Index Board streams in whole, so its Screen is there whenever the
 # board is (reviewer S37, as for the cats).
 MODEL_PROPS = {"_IndexBoard": {"ModelStreamingMode": "Atomic"}}
@@ -204,8 +206,9 @@ def prim_parts(name, kind, M4, swatch, extra):
 
 def _material(obname, swatch):
     """(Material, Transparency) for a part."""
-    if swatch == "glass" or obname.endswith("_Glass"):
-        return "Glass", 0.45
+    if swatch == "glass" or obname.endswith("_Glass"):   # SmoothPlastic, not Glass: Roblox's Glass bends what is
+        return "SmoothPlastic", 0.6                       # behind it, so a room seen through a window looked broken
+                                                          # (Derek 2026-10-30, "windows have distortion problems")
     if swatch == "puddle" or obname.endswith("_Water"):
         return "Glass", 0.3
     if obname.endswith("_Bars"):
@@ -225,12 +228,13 @@ def _material(obname, swatch):
 
 def _props(p, asset, uid):
     material, transparency = _material(p["name"], p["swatch"])
+    see_through = material == "Glass" or p["swatch"] == "glass" or p["name"].endswith("_Glass")
     climb = p["name"].endswith(CLIMB_OBJECTS)
     thin_ok = (asset.startswith(OUTDOOR_PREFIXES) and not any(k in asset for k in THIN_SKIP)
                and min(p["size"]) >= THIN_COLLIDE - 1e-3
                and max(p["size"]) >= THIN_LONG - 1e-3)
     collide = ((asset.startswith(COLLIDE_PREFIXES) and (min(p["size"]) >= MIN_COLLIDE or thin_ok)
-                and not p["name"].endswith(NO_COLLIDE_OBJECTS) and material != "Glass")
+                and not p["name"].endswith(NO_COLLIDE_OBJECTS) and not see_through)
                or (asset.startswith("CatCafe_Plot_") and p["name"].endswith(("_Wall", "_Glass")))
                or p["name"].endswith("_Bars") or p["name"].endswith(BARRIER_OBJECTS) or climb)
     size = [max(v, 0.01) for v in p["size"]]
@@ -248,7 +252,7 @@ def _props(p, asset, uid):
         "Anchored": True,
         "CanCollide": bool(collide),
         "CanTouch": p["name"].endswith(TOUCH_OBJECTS),
-        "CastShadow": material not in ("Glass", "ForceField") and transparency < 1,
+        "CastShadow": material != "ForceField" and not see_through and transparency < 1,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
     }
@@ -386,6 +390,7 @@ def write_model(objs, asset, out_dir, attachments=(), attributes=None, nest=None
     tree = model_json(objs, asset, attachments, attributes, nest, part_attributes)
     if tree is None:
         return None, 0
+    rbx_zfight.unfight(tree)              # faces that would flicker in one plane in game (Derek 2026-10-30)
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, asset + ".model.json")
     with open(path, "w") as f:

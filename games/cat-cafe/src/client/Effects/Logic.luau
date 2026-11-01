@@ -1362,7 +1362,10 @@ end
 
 -- True when securing something of `rarity` plays the big pull (luck-and-rare-moments.md 2a, 2b): a Legendary, a
 -- Mythical, or a gold Epic. Crate pieces are never gold.
-function Logic.bigPull(rarity: unknown, gold: boolean): boolean
+function Logic.bigPull(rarity: unknown, gold: boolean, rainbow: boolean?): boolean
+	if rainbow == true and type(rarity) == "string" then
+		return true -- a rainbow cat of any rarity (F99)
+	end
 	if rarity == "Legendary" or rarity == "Mythical" then
 		return true
 	end
@@ -1466,6 +1469,54 @@ function Logic.colourMoved(a: Color3, b: Color3, tolerance: number): boolean
 	return math.abs(a.R - b.R) > tolerance
 		or math.abs(a.G - b.G) > tolerance
 		or math.abs(a.B - b.B) > tolerance
+end
+
+-- Rainbow coats (F99) ---------------------------------------------------------------------------------------------
+
+-- The colour `u` of the way round a rainbow's hues (any number; it wraps), each hue blending into the next.
+function Logic.rainbowAt(hues: { Color3 }, u: number): Color3
+	local n = #hues
+	if n == 0 then
+		return Color3.new(1, 1, 1)
+	end
+	local x = (u % 1) * n
+	local i = math.floor(x)
+	return hues[i % n + 1]:Lerp(hues[(i + 1) % n + 1], x - i)
+end
+
+-- Where a coat part sits from the nose (0) to the tail tip (1): `z` back along the cat, the nose at `front` and the
+-- tail tip at `back`.
+function Logic.rainbowPhase(z: number, front: number, back: number): number
+	if back - front <= 1e-6 then
+		return 0
+	end
+	return math.clamp((z - front) / (back - front), 0, 1)
+end
+
+-- How far round the hues a part at `phase` is `t` seconds in: the bands flow from nose to tail, one lap every
+-- `period` seconds, `spread` laps along the cat. A still coat passes t = 0.
+function Logic.rainbowHue(t: number, phase: number, period: number, spread: number): number
+	return phase * spread - (if period > 0 then t / period else 0)
+end
+
+-- A coat colour's lightness (0 to 1).
+function Logic.lightness(colour: Color3): number
+	return 0.299 * colour.R + 0.587 * colour.G + 0.114 * colour.B
+end
+
+-- How bright a part's band is, from `least` to 1: its own colour's lightness against the lightest coat part's, so
+-- stripes and patches still show as darker bands.
+function Logic.rainbowShade(light: number, lightest: number, least: number): number
+	if lightest <= 1e-6 then
+		return 1
+	end
+	return least + (1 - least) * math.clamp(light / lightest, 0, 1)
+end
+
+-- True for a face detail a rainbow coat leaves as it is (the nose, the mouth, the blush): a part whose longest side
+-- is under `share` of its piece's biggest part's.
+function Logic.rainbowKeeps(longest: number, biggest: number, share: number): boolean
+	return longest < biggest * share
 end
 
 return Logic

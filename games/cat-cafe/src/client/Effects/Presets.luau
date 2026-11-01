@@ -1335,6 +1335,11 @@ Presets.butterfly = {
 	firstAway = { 0, 10 }, -- the first wait once a bed is near, so they do not all arrive at once
 	fade = 1,
 	rise = 1.5,
+	-- Now and then (`chance` of a flight) it flies over to another bed within `range` studs of its home bed, or
+	-- back home, at about `speed` studs a second (`shortest` to `longest` seconds) in an arc `arc` studs high, and
+	-- stays out at least `stay` seconds after it lands (Derek 2026-10-28 17:48: the Town Square's butterflies
+	-- "going in circles are a little repetitive make them go between each one").
+	hop = { chance = 0.35, range = 26, speed = 3.5, shortest = 2, longest = 9, arc = 1.2, stay = 3 },
 	perSource = 2,
 }
 

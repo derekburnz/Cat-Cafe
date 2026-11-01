@@ -9,7 +9,8 @@
     "test:verbose": "node run-tests.mjs --verbose",
     "analyze": "node analyze.mjs",
     "analyze:tests": "node analyze.mjs --tests",
-    "check": "node analyze.mjs --tests && node run-tests.mjs"
+    "check": "node analyze.mjs --tests && node run-tests.mjs",
+    "worldscan": "node worldscan.mjs --assets"
   },
   "engines": { "node": ">=20" },
   "dependencies": {

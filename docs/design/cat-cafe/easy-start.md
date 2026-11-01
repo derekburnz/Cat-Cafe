@@ -68,9 +68,14 @@ Stations a player cannot use yet stay in the world, with a small lock and "Opens
 - After StuckHelpSeconds (90) on the same step, a small card asks "Need a hand?" with two buttons: Show me (plays the step's context cut, or the intro for steps 0 to 2) and Got it. It shows once per step per account.
 - Each nudge logs `stuck_nudge` (section 5) so we see which step stalls.
 
+### 2h. After the first loop: always a next goal
+
+- From step 5 the goal card (today's GoalCard) always shows one next goal a player can reach in about two minutes: the next table, the next role slot, the next different cat for rank up, a quest step, the bait cat's countdown. When the current goal takes longer than that, the card offers the nearest small one beside it.
+- The design target for a session moves from 10 to 15 minutes to 20 minutes in the first two weeks and 30 to 45 minutes after, since Roblox counts playtime up to 60 minutes a day (key stats plan, section 2). Daily quests are sized to about 25 minutes in total (quests.md).
+
 ## 3. Context tips
 
-A context tip is one line on a card, or a camera cut of 4 seconds at most with one caption, shown the first time a player meets something. Each shows once per account and is saved in `tipsSeen`. Rules:
+A context tip is one line on a card, or a camera cut of 3 to 4 seconds with one caption, shown the first time a player meets something. Each shows once per account and is saved in `tipsSeen`. Rules:
 
 - Never during a catch, a rescue, a carry or a tackle, never in the 15 s dusk warning's last 5 seconds, and at most one every TipGapSeconds (60). A tip that cannot show yet waits in a queue of three; older ones drop.
 - A camera cut freezes controls for its length and can be skipped by any press after 1 second. A card needs no press and goes after 5 seconds or on a tap.
@@ -88,6 +93,8 @@ A context tip is one line on a card, or a camera cut of 4 seconds at most with o
 | `golden_fish` | the first golden fish | the camera swings to the Fish Market: "Spend golden fish on crates here" | cut, 3 s |
 | `potion` | the first potion | "Drink it from the potion bar for a short boost" | card |
 | `dealer` | Tier 2 opens the dealer | the camera swings to the dealer: "The dealer sells cats for coins" | cut, 3 s |
+| `spin_wheel` | step 5 opens the Spin Wheel | the camera swings to the wheel: "A free spin every day!" | cut, 3 s |
+| `codes_cat` | the first time the Codes Cat is within 20 studs | "New codes come with updates. Tell the Codes Cat!" | card |
 | `luck` | the first luck source, if F88 ships | "Luck makes rare cats more likely. Tap the chip to see why" | card |
 | `offline` | the first return after 10 minutes or more away | the existing offline card, with "Your cats earned while you were away!" on top | card |
 
@@ -96,6 +103,7 @@ A context tip is one line on a card, or a camera cut of 4 seconds at most with o
 - **Where.** A Feedback row at the top of Settings, and a small speech-bubble button on the HUD's top right row from step 5. It opens the existing report window with a new first page.
 - **First page.** "How is Cat Cafe so far?" with three big faces: Love it, It's OK, Not for me. A tap sends `SendFeedback(face, chip)` at once, so one tap is enough. Then optional chips (pick one): Too hard, Confusing, Boring, Laggy, Want more cats, Something else. Then an optional "Tell us more" box, which sends through today's `ReportBug(text, "idea")`, filtered and limited exactly as bug reports are.
 - **One ask.** Once per account, after FeedbackAskMinutes (12) of play in a session and only between activities, the same three faces slide in at the bottom for 10 seconds with "How is it so far?". Ignoring it is fine and it never comes back. No reward is given for answering, so the answers stay honest and nobody is pushed.
+- **One like ask.** Once per account, after the first Legendary is secured or the first rank up to Tier 2, whichever comes first, a toast that needs no press: "Having fun? A thumbs up and a favorite help other players find Cat Cafe." It never gives a reward and never blocks play.
 - **No free text in analytics.** The face and chip go to analytics as short fixed values; any text goes only to the report store.
 - **Public repo.** The repo is public, so the bug-reports workflow's job log can be read by anyone. Before the ads it must print only counts, kinds, faces and chips, never report text or user ids; the text is read locally with the Open Cloud script or with `Debug.bugReports` in Studio (Tools-Agent).
 
@@ -110,33 +118,39 @@ The onboarding funnel (analytics-plan section 3) gets finer steps at the start, 
 | 3 | saw_alley | the character enters the Alleyway (today's step) |
 | 4 | near_stray | within 12 studs of the tutorial stray |
 | 5 | catch_started | the first `GrabBegin` is accepted |
-| 6 | first_catch | the first success |
-| 7 | first_checkin | the first check-in |
-| 8 | first_role | the first cat in a role (now at the first check-in) |
-| 9 | second_cat | a second cat checked in |
-| 10 | first_table | tables to level 1 |
-| 11 | bowl_bought | the bait bowl bought |
-| 12 | first_bait | the first food in the bowl |
-| 13 | first_bait_resolved | the first bait result |
-| 14 | five_cats | five different cats owned |
-| 15 | rank_up_ready | Tier 2's needs met |
-| 16 | tier_2 | rank up to Tier 2 |
-| 17 | first_park_catch | the first catch in the Park |
-| 18 | returned_next_day | a join on a later UTC day than the last session ended |
-| 19 | first_offline_claim | the first offline claim |
-| 20 | tier_3 | rank up to Tier 3 |
+| 6 | first_circle_hit | the first Good or Perfect |
+| 7 | first_catch | the first success |
+| 8 | first_checkin | the first check-in |
+| 9 | first_role | the first cat in a role (now at the first check-in) |
+| 10 | second_cat | a second cat checked in |
+| 11 | first_table | tables to level 1 |
+| 12 | bowl_bought | the bait bowl bought |
+| 13 | first_bait | the first food in the bowl |
+| 14 | first_rescue_started | the first `RescueBegin` accepted |
+| 15 | first_rescue_done | the first stuck cat freed |
+| 16 | first_bait_resolved | the first bait result |
+| 17 | five_cats | five different cats owned |
+| 18 | rank_up_card_seen | the Rank Up card opened with Tier 2's needs showing |
+| 19 | rank_up_ready | Tier 2's needs met |
+| 20 | tier_2 | rank up to Tier 2 |
+| 21 | first_park_catch | the first catch in the Park |
+| 22 | returned_next_day | a join on a later UTC day than the last session ended |
+| 23 | first_offline_claim | the first offline claim |
+| 24 | tier_3 | rank up to Tier 3 |
+
+Steps 1 to 15 are the first session in Monetization-Agent's key stats plan (`Monetization-Agent/key-stats-plan-2026-11-01.md` in the project files), where it is called `first_session`; here they are the start of the one onboarding funnel, so the chart runs from the first second to the first week without a second funnel to keep in order.
 
 New custom events (analytics-plan section 6.4; three fields at most, short fixed values only):
 
 | eventName | value | customFields | Logged when |
 |---|---|---|---|
-| left_early | seconds played | tutorialStep, device, minutes bucket (0 to 1, 1 to 3, 3 to 10, 10+) | PlayerRemoving while `tutorialStep` is below 5 |
+| new_player_left | seconds played | the last funnel step reached, time bucket (0 to 60 s, 61 to 180 s, 3 to 10 min, 10 min plus: Roblox's bounce windows), device | PlayerRemoving on the player's first UTC day of play, or while `tutorialStep` is below 5 |
 | stuck_nudge | 1 | tutorialStep, kind (pulse, help_shown, show_me) | a nudge or the help card in 2g |
 | tip_shown | 1 | tip id, skipped (yes, no) | a context tip shows |
 | feedback | 1 | face (love, ok, no), chip (or none), tier | `SendFeedback` |
 | intro_choice | 1 | from (tile, help) | the intro is played from the tile or the help card |
 
-`left_early` and the funnel together answer Derek's "where/what step people are getting stuck and quitting": the funnel shows how many reach each step, `left_early` shows which step they were on when they left and how long they stayed.
+`new_player_left` and the funnel together answer Derek's "where/what step people are getting stuck and quitting": the funnel shows how many reach each step, `new_player_left` shows which step they were on when they left and in which of Roblox's bounce windows, which is what Home page ranking counts.
 
 ## 6. Contracts
 
@@ -165,5 +179,5 @@ New custom events (analytics-plan section 6.4; three fields at most, short fixed
 7. Standing still for 40 s pulses the hint; at 90 s the help card shows once for that step.
 8. Each context tip shows once, never during a catch or carry, never two within 60 s; "Show tips again" in Settings brings them back.
 9. The face buttons send with one tap; the slide-in ask comes once after 12 minutes and only between activities. It never comes back.
-10. In the published dev place, Creator Hub's View Events shows the v2 funnel steps in order and `left_early` with the step when a fresh account leaves after the first catch.
+10. In the published dev place, Creator Hub's View Events shows the v2 funnel steps in order and `new_player_left` with the step and the 61 to 180 s bucket when a fresh account leaves two minutes in, after the first catch.
 11. The bug-reports job log shows no report text and no user ids.

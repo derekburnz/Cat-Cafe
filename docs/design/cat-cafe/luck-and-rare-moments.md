@@ -37,10 +37,10 @@ The bowl's own luck is renamed on its card to "Comfy bowl: rarer visitors" so pl
 
 ### 1c. Lucky Days
 
-- At each sunrise the server rolls LuckyDayChance (0.25). On a hit, that day is a Lucky Day: the sunrise wave and the rescue traps roll with Luck x2 (LuckyDayWaveLuck), and every player in the server gets +0.5 Luck until dusk.
+- Every LuckyDayEvery (4th) day on a server, counted from the server's start, is a Lucky Day, so players can see one coming and stay for it (Monetization-Agent's key stats plan: a scheduled event with its start on the HUD clock keeps players for one and brings them back for one). It takes the place of the Cat Parade in common-features.md, which was the same idea. On a Lucky Day the sunrise wave and the rescue traps roll with Luck x2 (LuckyDayWaveLuck), and every player in the server gets +0.5 Luck until dusk.
 - The sky takes a warm gold tint for the day, a banner says "Lucky Day! Rare cats are twice as likely until night", and the HUD's Luck chip glows.
-- 15 seconds before a Lucky Day's sunrise, players still in the server see "Tomorrow is a Lucky Day!", so staying through the night pays.
-- A day plus a night is about 6.5 minutes, so a Lucky Day comes about every 26 minutes on average, about once in a normal session. It is random, free and never tied to logging in at a set time.
+- The HUD's day clock shows how far away the next one is ("Lucky Day in 2 days", about 13 minutes), and 15 seconds before a Lucky Day's sunrise players still in the server see "A Lucky Day starts at sunrise!", so staying through the night pays.
+- A day plus a night is about 6.5 minutes, so a Lucky Day comes every 26 minutes, at least once in a 30 minute session. It is free and runs on each server's own clock, never at a set time of day, so nobody has to log in at a certain hour.
 - A Lucky Day Mythical announce reads "A Mythical cat appeared in the Woods on a Lucky Day!".
 
 ### 1d. The Luck chip
@@ -53,7 +53,7 @@ No Luck is sold for Robux in v1. Paid Luck would turn every roll it touches into
 
 ### 1f. Contracts
 
-- Config: LuckPerStatueLevel 0.1, LuckMax 3, LuckyDayChance 0.25, LuckyDayWaveLuck 2, LuckyDayPlayerLuck 0.5, LuckyPotionLuck 0.5, LuckyDayWarnSeconds 15.
+- Config: LuckPerStatueLevel 0.1, LuckMax 3, LuckyDayEvery 4, LuckyDayWaveLuck 2, LuckyDayPlayerLuck 0.5, LuckyPotionLuck 0.5, LuckyDayWarnSeconds 15.
 - `shared/Luck.luau`: `Luck.of(profile, now, luckyDay)` and `Luck.apply(odds, luck)`, both pure, with a spec.
 - Clock folder: `LuckyDay` (bool) for the day phase, set at sunrise.
 - ProfileSync carries `luck` (the number) and `luckSources` (a list of `{ id, value, endsAt? }`).
@@ -108,7 +108,7 @@ Derek's bar for the models is the Fish Market stall. Each rarity of decor needs 
 
 1. A fresh player has no Luck chip. Buying the Lucky Cat's first level shows "Luck x1.1", the `luck` tip and the clay statue by the door, which other players see.
 2. With Luck x1.5, the food card and the crate card show the Epic, Legendary and Mythical chances at 1.5 times and the odds still add to 100.
-3. Over many sunrises about one day in four is a Lucky Day, with the banner, the gold sky, the glowing chip and the warning 15 s before.
+3. Every fourth day on a server is a Lucky Day, the HUD clock counts down to it, and it comes with the banner, the gold sky, the glowing chip and the warning 15 s before.
 4. A Lucky Day's wave rolls with Luck x2. A normal day's wave ignores everyone's own Luck.
 5. Checking in a Legendary plays the big pull card, the hop and spin and a toast for the whole server; a second Legendary within a minute plays the card but no toast.
 6. The first Epic ever gets the small card; the second does not.

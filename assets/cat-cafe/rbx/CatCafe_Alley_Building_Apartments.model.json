@@ -956,14 +956,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45
+    "Transparency": 0.6
    }
   },
   {
@@ -1145,7 +1145,7 @@
     },
     "Size": [
      5.0,
-     0.3,
+     0.36,
      1.8
     ],
     "Color": [
@@ -9842,7 +9842,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.9,
+       2.28,
        16.7,
        -4.39
       ],
@@ -9891,7 +9891,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.3,
+       7.92,
        16.7,
        -4.39
       ],
@@ -9964,7 +9964,7 @@
      }
     },
     "Size": [
-     6.4,
+     5.7,
      0.06,
      0.08
     ],
@@ -14593,14 +14593,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45,
+      "Transparency": 0.6,
       "PivotOffset": {
        "CFrame": {
         "position": [
@@ -14672,14 +14672,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14722,14 +14722,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14772,14 +14772,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     }
    ],

@@ -413,6 +413,8 @@ Studio import (3D Importer): Scale Unit Studs, Rig Type none, Insert using Scene
 
 Toolkit QA (since 2026-10-27): run `assets/cat-cafe/blender/toolkit_qa.py` after a build. It uses the EL4CTEO blender-skills (`blender-asset-qa` with the `roblox` profile, `blender-game-optimization` with the `roblox` budget) and lists visible overlaps and floating parts with the code line to change. Rules it enforces: two faces of different colours never share a plane (move one 0.01 studs: proud, recessed or past the other's edge), and no part hangs more than 0.05 studs off the piece it belongs to unless it is meant to (sparkles, litter on the ground, add-ons that touch the cafe shell).
 
+Overlap check in the Part models (since 2026-11-01, Derek 2026-10-30 "models flicker"): `rbx_zfight.py` looks for faces of two Parts that lie in one plane and overlap, which Roblox draws as a flicker even when the Blender mesh is clean (Parts are sized and placed apart from the mesh). The exporter runs `rbx_zfight.unfight` on every model it writes: the smaller face moves 0.03 studs clear of the bigger one (forward when it stood level or in front, back when it was set in), up to 3 times that when a neighbour is in the way, in up to six passes. Run `python3 rbx_zfight.py [--only names] [--out report.md] [--where]` from `assets/cat-cafe/blender` to check; every model should report 0. Render previews with `JITTER=0` when you want to see flicker spots, because the preview otherwise grows each part a hair to hide them.
+
 ## 11. Previews and reviews
 
 After every visual task save 2 to 4 PNGs to `docs/concepts/cat-cafe/` with a one-line caption in `docs/concepts/cat-cafe/README.md`. The build script renders a three-quarter view of every asset and a contact sheet for the whole set.
@@ -446,8 +448,16 @@ back patio pergola; gold trim, the cup-with-ears rooftop sign and a red carpet. 
 
 Cafe styles (F53, golden-fish.md): the shell's walls are two child Models the server recolours. `<shell>_Paint` is
 the pastel outer layer (facade, side and back walls, gables, the spandrels round the arches), every Part tagged
-`Paint`; `<shell>_Wallpaper` is the cream inner layer, tagged `Wallpaper`. Trim, pilasters, plinth, roof, door and
-garden stay in the shell's own parts, so a paint never reaches them. The floor is code-built and tagged by the server.
+`Paint`; `<shell>_Wallpaper` is the cream inner layer, tagged `Wallpaper`. Plinth, roof, door and garden stay in
+the shell's own parts, so a paint never reaches them. The floor is code-built and tagged by the server. Since F89
+(Gold Leaf, VFX-Agent's glint) the chunky trims are a third child Model, `<shell>_Trim`, every Part tagged
+`PaintTrim`: window and door jambs, heads and sills, the arch ring blocks, the keystones over the door, the corner
+pilasters, the eave cornices, the attic vent ring and the sign's frame. The roof's barge boards and eave fascias are
+`<shell>_Roof_Trim` inside `<shell>_Roof`, tagged the same. Anything under 0.19 studs thick (glazing bars, shutter
+slats, the fanlight's rays, the vent's bars) stays in the shell's own parts, because the glint recolours one Part at
+a time and slivers read as flicker. The shell's base and corner pilasters run 0.3 below the plot floor (the plot
+stands 0.2 above the grass), the side walls reach up into the roof slab, and the arched glass runs 0.05 past the
+arch into the wall so no daylight shows between glass and wall (QA world scan 2026-11-01, M2, M3, M5).
 
 The Alleyway behind the cafes is a city back street at cosy scale: building backs 30 wide and 16 to 24 tall in
 brick with concrete quoins, cornices and window frames, a few lit windows with curtains (`_Pane`), shutters and
@@ -487,7 +497,9 @@ one model, so a gate that passes on its own can still cut through the walls arou
 `build_all.py` also writes `assets/cat-cafe/rbx/<Name>.model.json` for every asset. Rojo syncs that folder into
 `ReplicatedStorage.Assets`, so the game uses these instead of the code placeholders with no Studio import. Each
 Builder block becomes a Part (cylinders, wedges, balls; cones as stacked bands; flat stars and arches as wedge
-pairs), coloured from the palette, SmoothPlastic, no bevels. Glass is Glass at 0.45 transparency, water at 0.3.
+pairs), coloured from the palette, SmoothPlastic, no bevels. Glass is SmoothPlastic at 0.6 transparency with no shadow
+(Roblox's Glass material bends the view through it, so a cafe room looked broken through its windows: Derek
+2026-10-30); water is Glass at 0.3.
 Hanging lamp bulbs are Neon; other `_Bulb`, `_Bulbs`, `_Pane` and `_Tube` parts keep their day look until
 WorldController lights them at night. Every extra object (Head, Tail, Lid, Branch, Roof, SignBoard, bulbs) is a
 child Model whose pivot is that object's origin, so hinges and joints match `part_pivots_roblox`. Big parts of

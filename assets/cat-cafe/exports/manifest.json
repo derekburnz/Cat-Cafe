@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-01 22:06 UTC",
+  "generated": "2026-11-01 23:12 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -75536,6 +75536,8 @@
         "CatCafe_Plot_Cafe_Mint",
         "CatCafe_Plot_Cafe_Mint_Glass",
         "CatCafe_Plot_Cafe_Mint_Roof",
+        "CatCafe_Plot_Cafe_Mint_Trim",
+        "CatCafe_Plot_Cafe_Mint_Roof_Trim",
         "CatCafe_Plot_Cafe_Mint_SignBoard",
         "CatCafe_Plot_Cafe_Mint_LampPost_Bulb",
         "CatCafe_Plot_Cafe_Mint_SignLamp_Bulb",
@@ -75546,22 +75548,22 @@
         "CatCafe_Plot_Cafe_Mint_Paint",
         "CatCafe_Plot_Cafe_Mint_Wallpaper"
       ],
-      "triangles": 5552,
+      "triangles": 5600,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
         "y": 36.8,
-        "z": 25.3
+        "z": 25.4
       },
       "size_roblox": [
         41.86,
-        25.3,
+        25.4,
         36.8
       ],
       "bounds_min": [
         -20.93,
         -20.0,
-        -0.2
+        -0.3
       ],
       "bounds_max": [
         20.93,
@@ -75588,9 +75590,9 @@
           -15.35
         ]
       },
-      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper).",
+      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, pilasters, cornices, the attic vent) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Mint.model.json",
-      "rbx_parts": 515,
+      "rbx_parts": 519,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint.glb"
@@ -75603,12 +75605,12 @@
           "centered"
         ],
         "checks": {
-          "budget": "5552/12000 tris",
+          "budget": "5600/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2658 faces on swatch centers",
+          "uv": "2682 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.20 (want 0)",
+          "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
         }
       },
@@ -75623,6 +75625,8 @@
         "CatCafe_Plot_Cafe_Blush",
         "CatCafe_Plot_Cafe_Blush_Glass",
         "CatCafe_Plot_Cafe_Blush_Roof",
+        "CatCafe_Plot_Cafe_Blush_Trim",
+        "CatCafe_Plot_Cafe_Blush_Roof_Trim",
         "CatCafe_Plot_Cafe_Blush_SignBoard",
         "CatCafe_Plot_Cafe_Blush_LampPost_Bulb",
         "CatCafe_Plot_Cafe_Blush_SignLamp_Bulb",
@@ -75633,22 +75637,22 @@
         "CatCafe_Plot_Cafe_Blush_Paint",
         "CatCafe_Plot_Cafe_Blush_Wallpaper"
       ],
-      "triangles": 5552,
+      "triangles": 5600,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
         "y": 36.8,
-        "z": 25.3
+        "z": 25.4
       },
       "size_roblox": [
         41.86,
-        25.3,
+        25.4,
         36.8
       ],
       "bounds_min": [
         -20.93,
         -20.0,
-        -0.2
+        -0.3
       ],
       "bounds_max": [
         20.93,
@@ -75675,9 +75679,9 @@
           -15.35
         ]
       },
-      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper).",
+      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, pilasters, cornices, the attic vent) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Blush.model.json",
-      "rbx_parts": 515,
+      "rbx_parts": 519,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush.glb"
@@ -75690,12 +75694,12 @@
           "centered"
         ],
         "checks": {
-          "budget": "5552/12000 tris",
+          "budget": "5600/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2658 faces on swatch centers",
+          "uv": "2682 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.20 (want 0)",
+          "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
         }
       },
@@ -75710,6 +75714,8 @@
         "CatCafe_Plot_Cafe_Butter",
         "CatCafe_Plot_Cafe_Butter_Glass",
         "CatCafe_Plot_Cafe_Butter_Roof",
+        "CatCafe_Plot_Cafe_Butter_Trim",
+        "CatCafe_Plot_Cafe_Butter_Roof_Trim",
         "CatCafe_Plot_Cafe_Butter_SignBoard",
         "CatCafe_Plot_Cafe_Butter_LampPost_Bulb",
         "CatCafe_Plot_Cafe_Butter_SignLamp_Bulb",
@@ -75720,22 +75726,22 @@
         "CatCafe_Plot_Cafe_Butter_Paint",
         "CatCafe_Plot_Cafe_Butter_Wallpaper"
       ],
-      "triangles": 5552,
+      "triangles": 5600,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
         "y": 36.8,
-        "z": 25.3
+        "z": 25.4
       },
       "size_roblox": [
         41.86,
-        25.3,
+        25.4,
         36.8
       ],
       "bounds_min": [
         -20.93,
         -20.0,
-        -0.2
+        -0.3
       ],
       "bounds_max": [
         20.93,
@@ -75762,9 +75768,9 @@
           -15.35
         ]
       },
-      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper).",
+      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, pilasters, cornices, the attic vent) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Butter.model.json",
-      "rbx_parts": 515,
+      "rbx_parts": 519,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter.glb"
@@ -75777,12 +75783,12 @@
           "centered"
         ],
         "checks": {
-          "budget": "5552/12000 tris",
+          "budget": "5600/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2658 faces on swatch centers",
+          "uv": "2682 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.20 (want 0)",
+          "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
         }
       },
@@ -75797,6 +75803,8 @@
         "CatCafe_Plot_Cafe_Lilac",
         "CatCafe_Plot_Cafe_Lilac_Glass",
         "CatCafe_Plot_Cafe_Lilac_Roof",
+        "CatCafe_Plot_Cafe_Lilac_Trim",
+        "CatCafe_Plot_Cafe_Lilac_Roof_Trim",
         "CatCafe_Plot_Cafe_Lilac_SignBoard",
         "CatCafe_Plot_Cafe_Lilac_LampPost_Bulb",
         "CatCafe_Plot_Cafe_Lilac_SignLamp_Bulb",
@@ -75807,22 +75815,22 @@
         "CatCafe_Plot_Cafe_Lilac_Paint",
         "CatCafe_Plot_Cafe_Lilac_Wallpaper"
       ],
-      "triangles": 5552,
+      "triangles": 5600,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
         "y": 36.8,
-        "z": 25.3
+        "z": 25.4
       },
       "size_roblox": [
         41.86,
-        25.3,
+        25.4,
         36.8
       ],
       "bounds_min": [
         -20.93,
         -20.0,
-        -0.2
+        -0.3
       ],
       "bounds_max": [
         20.93,
@@ -75849,9 +75857,9 @@
           -15.35
         ]
       },
-      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper).",
+      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, pilasters, cornices, the attic vent) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Lilac.model.json",
-      "rbx_parts": 515,
+      "rbx_parts": 519,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac.glb"
@@ -75864,12 +75872,12 @@
           "centered"
         ],
         "checks": {
-          "budget": "5552/12000 tris",
+          "budget": "5600/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2658 faces on swatch centers",
+          "uv": "2682 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.20 (want 0)",
+          "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
         }
       },
@@ -75885,7 +75893,7 @@
         "CatCafe_Plot_Interior_HangingLamp_Bulb",
         "CatCafe_Plot_Interior_StringLights_Bulbs"
       ],
-      "triangles": 3612,
+      "triangles": 3780,
       "budget": 8000,
       "size_studs": {
         "x": 36.02,
@@ -75911,7 +75919,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Every plot. Big parts collide. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Interior.model.json",
-      "rbx_parts": 267,
+      "rbx_parts": 281,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Interior.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Interior.glb"
@@ -75921,10 +75929,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "3612/8000 tris",
+          "budget": "3780/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2072 faces on swatch centers",
+          "uv": "2156 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -75942,17 +75950,17 @@
         "CatCafe_Plot_ForRent_Sign",
         "CatCafe_Plot_ForRent_Shutter"
       ],
-      "triangles": 3944,
-      "budget": 4000,
+      "triangles": 4884,
+      "budget": 5000,
       "size_studs": {
         "x": 31.7,
-        "y": 30.83,
+        "y": 30.6,
         "z": 8.45
       },
       "size_roblox": [
         31.7,
         8.45,
-        30.83
+        30.6
       ],
       "bounds_min": [
         -15.85,
@@ -75961,14 +75969,14 @@
       ],
       "bounds_max": [
         15.85,
-        12.93,
+        12.7,
         8.45
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, dust sheets over the counter, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
+      "studio": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a painters' corner with a step ladder and tins, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent.model.json",
-      "rbx_parts": 271,
+      "rbx_parts": 329,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent.glb"
@@ -75980,13 +75988,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "3944/4000 tris",
+          "budget": "4884/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1792 faces on swatch centers",
+          "uv": "2192 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-2.49"
+          "centered": "footprint center x=0.00 y=-2.60"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_ForRent.png",
@@ -76004,17 +76012,17 @@
       "size_studs": {
         "x": 1.0,
         "y": 1.24,
-        "z": 2.15
+        "z": 2.28
       },
       "size_roblox": [
         1.0,
-        2.15,
+        2.28,
         1.24
       ],
       "bounds_min": [
         2.45,
         -19.2,
-        0.15
+        0.02
       ],
       "bounds_max": [
         3.45,
@@ -76034,7 +76042,6 @@
         "pass": true,
         "failed": [],
         "warnings": [
-          "pivot",
           "centered"
         ],
         "checks": {
@@ -76043,7 +76050,7 @@
           "material": "one material (CatCafe_Palette)",
           "uv": "187 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.15 (want 0)",
+          "pivot": "floor at z=0.02 (want 0)",
           "centered": "footprint center x=2.95 y=-18.58"
         }
       },
@@ -76118,33 +76125,33 @@
         "CatCafe_Plot_Tier3_Sign_Tube",
         "CatCafe_Plot_Tier3_StringLights_Bulbs"
       ],
-      "triangles": 1246,
+      "triangles": 1294,
       "budget": 3000,
       "size_studs": {
-        "x": 31.66,
-        "y": 5.2,
-        "z": 9.13
+        "x": 31.68,
+        "y": 5.22,
+        "z": 9.71
       },
       "size_roblox": [
-        31.66,
-        9.13,
-        5.2
+        31.68,
+        9.71,
+        5.22
       ],
       "bounds_min": [
-        -15.83,
+        -15.84,
         -19.3,
         0.15
       ],
       "bounds_max": [
-        15.83,
-        -14.1,
-        9.28
+        15.84,
+        -14.08,
+        9.86
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cumulative: place every tier up to the cafe's tier.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier3.model.json",
-      "rbx_parts": 86,
+      "rbx_parts": 90,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Tier3.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Tier3.glb"
@@ -76157,13 +76164,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1246/3000 tris",
+          "budget": "1294/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "727 faces on swatch centers",
+          "uv": "751 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.15 (want 0)",
-          "centered": "footprint center x=0.00 y=-16.70"
+          "centered": "footprint center x=0.00 y=-16.69"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_Tier3.png",
@@ -76236,22 +76243,22 @@
       "objects": [
         "CatCafe_Plot_Tier5"
       ],
-      "triangles": 704,
+      "triangles": 716,
       "budget": 3000,
       "size_studs": {
         "x": 36.4,
         "y": 6.55,
-        "z": 28.19
+        "z": 28.25
       },
       "size_roblox": [
         36.4,
-        28.19,
+        28.25,
         6.55
       ],
       "bounds_min": [
         -18.2,
         -20.0,
-        0.08
+        0.02
       ],
       "bounds_max": [
         18.2,
@@ -76262,7 +76269,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cumulative: place every tier up to the cafe's tier.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier5.model.json",
-      "rbx_parts": 53,
+      "rbx_parts": 54,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Tier5.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Tier5.glb"
@@ -76271,16 +76278,15 @@
         "pass": true,
         "failed": [],
         "warnings": [
-          "pivot",
           "centered"
         ],
         "checks": {
-          "budget": "704/3000 tris",
+          "budget": "716/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "340 faces on swatch centers",
+          "uv": "346 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.08 (want 0)",
+          "pivot": "floor at z=0.02 (want 0)",
           "centered": "footprint center x=0.00 y=-16.72"
         }
       },
@@ -79834,7 +79840,7 @@
         "CatCafe_Woods_Set_049_Thicket",
         "CatCafe_Woods_Set_050_Stream_Water"
       ],
-      "triangles": 25682,
+      "triangles": 26858,
       "budget": 80000,
       "size_studs": {
         "x": 119.0,
@@ -80008,7 +80014,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_Set.model.json",
-      "rbx_parts": 1075,
+      "rbx_parts": 1189,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_Set.glb"
@@ -80020,10 +80026,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "25682/80000 tris",
+          "budget": "26858/80000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "15040 faces on swatch centers",
+          "uv": "15486 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.40 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -80105,7 +80111,7 @@
         "CatCafe_Sewer_Set_051_YarnTrolley_Decor",
         "CatCafe_Sewer_Set_052_PipeHammock"
       ],
-      "triangles": 36672,
+      "triangles": 36636,
       "budget": 80000,
       "size_studs": {
         "x": 93.2,
@@ -80274,7 +80280,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_Set.model.json",
-      "rbx_parts": 1257,
+      "rbx_parts": 1256,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_Set.glb"
@@ -80286,10 +80292,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "36672/80000 tris",
+          "budget": "36636/80000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "19995 faces on swatch centers",
+          "uv": "19971 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.05"
@@ -81944,7 +81950,7 @@
         "CatCafe_Woods_SetV32_208_PineTall",
         "CatCafe_Woods_SetV32_209_PineTall"
       ],
-      "triangles": 105040,
+      "triangles": 111376,
       "budget": 120000,
       "size_studs": {
         "x": 240.0,
@@ -82458,7 +82464,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetV32.model.json",
-      "rbx_parts": 4510,
+      "rbx_parts": 5138,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.glb"
@@ -82470,10 +82476,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "105040/120000 tris",
+          "budget": "111376/120000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "66759 faces on swatch centers",
+          "uv": "69231 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.84 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -82645,7 +82651,7 @@
         "CatCafe_Sewer_SetV32_113_Barrel",
         "CatCafe_Sewer_SetV32_114_Barrel"
       ],
-      "triangles": 89336,
+      "triangles": 89268,
       "budget": 120000,
       "size_studs": {
         "x": 179.2,
@@ -83076,7 +83082,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_SetV32.model.json",
-      "rbx_parts": 4471,
+      "rbx_parts": 4470,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_SetV32.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_SetV32.glb"
@@ -83088,10 +83094,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "89336/120000 tris",
+          "budget": "89268/120000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "46711 faces on swatch centers",
+          "uv": "46631 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.08"
@@ -84223,7 +84229,7 @@
         "CatCafe_Plot_BackDoor_Sign",
         "CatCafe_Plot_BackDoor_Sign_Bulb"
       ],
-      "triangles": 2298,
+      "triangles": 2532,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -84313,7 +84319,7 @@
       },
       "studio": "Every cafe, at the Plot pivot: a wooden door hung in the back doorway with a cat flap. Turn the child Model _Leaf about its pivot's Y to swing it (-90 degrees is wide open, out into the yard); _Flap rides the leaf and turns about its own X as a cat goes through. _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. The leaf's CatFlap Attachment is where an F80 flap goes (hide _Flap then). Nothing collides: keep the code panel as the collider.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_BackDoor.model.json",
-      "rbx_parts": 191,
+      "rbx_parts": 217,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_BackDoor.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_BackDoor.glb"
@@ -84325,10 +84331,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2298/4000 tris",
+          "budget": "2532/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1125 faces on swatch centers",
+          "uv": "1242 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=8.00 y=14.33"
@@ -84449,7 +84455,7 @@
         "CatCafe_Door_FireEscape_Back_Sign",
         "CatCafe_Door_FireEscape_Back_Sign_Bulb"
       ],
-      "triangles": 2778,
+      "triangles": 2964,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -84519,7 +84525,7 @@
       },
       "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_FireEscape_Back.model.json",
-      "rbx_parts": 233,
+      "rbx_parts": 255,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_FireEscape_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_FireEscape_Back.glb"
@@ -84531,10 +84537,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2778/4000 tris",
+          "budget": "2964/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1371 faces on swatch centers",
+          "uv": "1464 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.15"
@@ -84655,7 +84661,7 @@
         "CatCafe_Door_GardenGate_Back_Sign",
         "CatCafe_Door_GardenGate_Back_Sign_Bulb"
       ],
-      "triangles": 2818,
+      "triangles": 3004,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -84725,7 +84731,7 @@
       },
       "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_GardenGate_Back.model.json",
-      "rbx_parts": 243,
+      "rbx_parts": 265,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_GardenGate_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_GardenGate_Back.glb"
@@ -84737,10 +84743,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2818/4000 tris",
+          "budget": "3004/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1401 faces on swatch centers",
+          "uv": "1494 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.17"
@@ -84861,7 +84867,7 @@
         "CatCafe_Door_FrontPorch_Back_Sign",
         "CatCafe_Door_FrontPorch_Back_Sign_Bulb"
       ],
-      "triangles": 3052,
+      "triangles": 3286,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -84931,7 +84937,7 @@
       },
       "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_FrontPorch_Back.model.json",
-      "rbx_parts": 282,
+      "rbx_parts": 308,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_FrontPorch_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_FrontPorch_Back.glb"
@@ -84943,10 +84949,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3052/4000 tris",
+          "budget": "3286/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1508 faces on swatch centers",
+          "uv": "1625 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.13"
@@ -85044,7 +85050,7 @@
         "CatCafe_Door_LogCabin_Back_Sign",
         "CatCafe_Door_LogCabin_Back_Sign_Bulb"
       ],
-      "triangles": 2408,
+      "triangles": 2594,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -85104,7 +85110,7 @@
       },
       "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_LogCabin_Back.model.json",
-      "rbx_parts": 207,
+      "rbx_parts": 229,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_LogCabin_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_LogCabin_Back.glb"
@@ -85116,10 +85122,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2408/4000 tris",
+          "budget": "2594/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1192 faces on swatch centers",
+          "uv": "1285 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.17"
@@ -85240,21 +85246,21 @@
         "CatCafe_Door_PortholeHatch_Back_Sign",
         "CatCafe_Door_PortholeHatch_Back_Sign_Bulb"
       ],
-      "triangles": 3278,
+      "triangles": 3512,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
-        "y": 1.34,
+        "y": 1.45,
         "z": 7.95
       },
       "size_roblox": [
         6.9,
         7.95,
-        1.34
+        1.45
       ],
       "bounds_min": [
         -3.45,
-        -0.52,
+        -0.63,
         0.0
       ],
       "bounds_max": [
@@ -85310,7 +85316,7 @@
       },
       "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_PortholeHatch_Back.model.json",
-      "rbx_parts": 274,
+      "rbx_parts": 300,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_PortholeHatch_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_PortholeHatch_Back.glb"
@@ -85322,13 +85328,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "3278/4000 tris",
+          "budget": "3512/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1619 faces on swatch centers",
+          "uv": "1736 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.15"
+          "centered": "footprint center x=0.00 y=0.09"
         }
       }
     },
@@ -85446,7 +85452,7 @@
         "CatCafe_Door_PanedGlass_Back_Sign",
         "CatCafe_Door_PanedGlass_Back_Sign_Bulb"
       ],
-      "triangles": 2254,
+      "triangles": 3104,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -85516,7 +85522,7 @@
       },
       "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_PanedGlass_Back.model.json",
-      "rbx_parts": 182,
+      "rbx_parts": 268,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_PanedGlass_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_PanedGlass_Back.glb"
@@ -85528,10 +85534,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2254/4000 tris",
+          "budget": "3104/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1087 faces on swatch centers",
+          "uv": "1512 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.17"

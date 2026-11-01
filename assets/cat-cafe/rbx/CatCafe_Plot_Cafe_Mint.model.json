@@ -13,8 +13,8 @@
      "CFrame": {
       "position": [
        0.0,
-       15.0,
-       -15.1
+       -0.09,
+       -17.5
       ],
       "orientation": [
        [
@@ -36,14 +36,14 @@
      }
     },
     "Size": [
-     16.7,
-     3.9,
-     0.2
+     7.0,
+     0.22,
+     5.0
     ],
     "Color": [
-     0.3686,
-     0.2745,
-     0.2039
+     0.9137,
+     0.851,
+     0.7686
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -56,8 +56,8 @@
      "CFrame": {
       "position": [
        0.0,
-       -15.0,
-       15.1
+       0.09,
+       17.5
       ],
       "orientation": [
        [
@@ -175,643 +175,6 @@
     "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -15.445,
-       3.0,
-       -15.1
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.41,
-     4.0,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.555,
-       3.0,
-       -15.1
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.41,
-     4.0,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -6.6048,
-       5.6961,
-       -15.1
-      ],
-      "orientation": [
-       [
-        0.9877,
-        -0.1564,
-        0.0
-       ],
-       [
-        0.1564,
-        0.9877,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.035,
-       7.0203,
-       -15.115
-      ],
-      "orientation": [
-       [
-        0.891,
-        -0.454,
-        0.0
-       ],
-       [
-        0.454,
-        0.891,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -7.8534,
-       8.1466,
-       -15.1
-      ],
-      "orientation": [
-       [
-        0.7071,
-        -0.7071,
-        0.0
-       ],
-       [
-        0.7071,
-        0.7071,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.9797,
-       8.965,
-       -15.115
-      ],
-      "orientation": [
-       [
-        0.454,
-        -0.891,
-        0.0
-       ],
-       [
-        0.891,
-        0.454,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -10.3039,
-       9.3952,
-       -15.1
-      ],
-      "orientation": [
-       [
-        0.1564,
-        -0.9877,
-        0.0
-       ],
-       [
-        0.9877,
-        0.1564,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -11.6961,
-       9.3952,
-       -15.115
-      ],
-      "orientation": [
-       [
-        -0.1564,
-        -0.9877,
-        0.0
-       ],
-       [
-        0.9877,
-        -0.1564,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -13.0203,
-       8.965,
-       -15.1
-      ],
-      "orientation": [
-       [
-        -0.454,
-        -0.891,
-        0.0
-       ],
-       [
-        0.891,
-        -0.454,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -14.1466,
-       8.1466,
-       -15.115
-      ],
-      "orientation": [
-       [
-        -0.7071,
-        -0.7071,
-        0.0
-       ],
-       [
-        0.7071,
-        -0.7071,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -14.965,
-       7.0203,
-       -15.1
-      ],
-      "orientation": [
-       [
-        -0.891,
-        -0.454,
-        0.0
-       ],
-       [
-        0.454,
-        -0.891,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -15.3952,
-       5.6961,
-       -15.115
-      ],
-      "orientation": [
-       [
-        -0.9877,
-        -0.1564,
-        0.0
-       ],
-       [
-        0.1564,
-        -0.9877,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -11.0,
-       0.83,
-       -14.73
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     9.7,
-     0.36,
-     1.44
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -959,643 +322,6 @@
     "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       6.555,
-       3.0,
-       -15.1
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.41,
-     4.0,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       15.445,
-       3.0,
-       -15.1
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.41,
-     4.0,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       15.3952,
-       5.6961,
-       -15.1
-      ],
-      "orientation": [
-       [
-        0.9877,
-        -0.1564,
-        0.0
-       ],
-       [
-        0.1564,
-        0.9877,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       14.965,
-       7.0203,
-       -15.115
-      ],
-      "orientation": [
-       [
-        0.891,
-        -0.454,
-        0.0
-       ],
-       [
-        0.454,
-        0.891,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       14.1466,
-       8.1466,
-       -15.1
-      ],
-      "orientation": [
-       [
-        0.7071,
-        -0.7071,
-        0.0
-       ],
-       [
-        0.7071,
-        0.7071,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       13.0203,
-       8.965,
-       -15.115
-      ],
-      "orientation": [
-       [
-        0.454,
-        -0.891,
-        0.0
-       ],
-       [
-        0.891,
-        0.454,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       11.6961,
-       9.3952,
-       -15.1
-      ],
-      "orientation": [
-       [
-        0.1564,
-        -0.9877,
-        0.0
-       ],
-       [
-        0.9877,
-        0.1564,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       10.3039,
-       9.3952,
-       -15.115
-      ],
-      "orientation": [
-       [
-        -0.1564,
-        -0.9877,
-        0.0
-       ],
-       [
-        0.9877,
-        -0.1564,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.9797,
-       8.965,
-       -15.1
-      ],
-      "orientation": [
-       [
-        -0.454,
-        -0.891,
-        0.0
-       ],
-       [
-        0.891,
-        -0.454,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       7.8534,
-       8.1466,
-       -15.115
-      ],
-      "orientation": [
-       [
-        -0.7071,
-        -0.7071,
-        0.0
-       ],
-       [
-        0.7071,
-        -0.7071,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       7.035,
-       7.0203,
-       -15.1
-      ],
-      "orientation": [
-       [
-        -0.891,
-        -0.454,
-        0.0
-       ],
-       [
-        0.454,
-        -0.891,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       6.6048,
-       5.6961,
-       -15.115
-      ],
-      "orientation": [
-       [
-        -0.9877,
-        -0.1564,
-        0.0
-       ],
-       [
-        0.1564,
-        -0.9877,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     1.6294,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       11.0,
-       0.83,
-       -14.73
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     9.7,
-     0.36,
-     1.44
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -1903,56 +629,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       7.5,
-       -14.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     7.0,
-     0.3,
-     0.5
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -3.77,
+       -3.76,
        3.75,
        -15.15
       ],
@@ -1976,7 +653,7 @@
      }
     },
     "Size": [
-     0.56,
+     0.58,
      7.5,
      0.4
     ],
@@ -2001,7 +678,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       3.77,
+       3.76,
        3.75,
        -15.15
       ],
@@ -2025,7 +702,7 @@
      }
     },
     "Size": [
-     0.56,
+     0.58,
      7.5,
      0.4
     ],
@@ -2442,55 +1119,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       11.325,
-       -15.2
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.7,
-     0.85,
-     0.5
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -18.5,
        5.55,
        -7.0
@@ -2518,202 +1146,6 @@
      0.2,
      0.16,
      3.0
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -19.125,
-       7.475,
-       -7.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.35,
-     3.6
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -19.225,
-       3.65,
-       -7.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.3,
-     3.8
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -19.125,
-       5.55,
-       -8.65
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     3.5,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -19.125,
-       5.55,
-       -5.35
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     3.5,
-     0.3
     ],
     "Color": [
      1.0,
@@ -3227,202 +1659,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       19.125,
-       7.475,
-       -7.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     0.35,
-     3.6
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       19.225,
-       3.65,
-       -7.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.3,
-     3.8
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       19.125,
-       5.55,
-       -8.65
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     3.5,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       19.125,
-       5.55,
-       -5.35
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     3.5,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        19.075,
        5.55,
        -9.475
@@ -3914,105 +2150,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       14.0,
-       7.67,
-       15.1
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     3.6,
-     0.36,
-     0.3
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       14.0,
-       3.85,
-       15.2
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     3.8,
-     0.3,
-     0.5
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -11.245,
+       -11.235,
        3.75,
        15.125
       ],
@@ -4036,7 +2174,7 @@
      }
     },
     "Size": [
-     0.51,
+     0.53,
      7.5,
      0.35
     ],
@@ -4061,7 +2199,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -4.755,
+       -4.765,
        3.75,
        15.125
       ],
@@ -4085,7 +2223,7 @@
      }
     },
     "Size": [
-     0.51,
+     0.53,
      7.5,
      0.35
     ],
@@ -4111,7 +2249,7 @@
      "CFrame": {
       "position": [
        -8.0,
-       7.795,
+       7.785,
        15.125
       ],
       "orientation": [
@@ -4135,62 +2273,13 @@
     },
     "Size": [
      7.0,
-     0.61,
+     0.63,
      0.35
     ],
     "Color": [
      0.9098,
      0.6275,
      0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.0,
-       9.125,
-       15.9
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     8.0,
-     0.25,
-     1.8
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -4355,8 +2444,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.35,
-       0.45,
+       -11.36,
+       0.3,
        -15.1
       ],
       "orientation": [
@@ -4379,8 +2468,8 @@
      }
     },
     "Size": [
-     15.7,
-     0.9,
+     15.68,
+     1.2,
      0.2
     ],
     "Color": [
@@ -4404,8 +2493,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.35,
-       0.45,
+       11.36,
+       0.3,
        -15.1
       ],
       "orientation": [
@@ -4428,8 +2517,8 @@
      }
     },
     "Size": [
-     15.7,
-     0.9,
+     15.68,
+     1.2,
      0.2
     ],
     "Color": [
@@ -4453,8 +2542,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -15.1,
-       0.45,
+       -15.11,
+       0.3,
        15.1
       ],
       "orientation": [
@@ -4477,8 +2566,8 @@
      }
     },
     "Size": [
-     8.2,
-     0.9,
+     8.18,
+     1.2,
      0.2
     ],
     "Color": [
@@ -4502,8 +2591,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       7.1,
-       0.45,
+       7.11,
+       0.3,
        15.1
       ],
       "orientation": [
@@ -4526,8 +2615,8 @@
      }
     },
     "Size": [
-     24.2,
-     0.9,
+     24.18,
+     1.2,
      0.2
     ],
     "Color": [
@@ -4552,7 +2641,7 @@
      "CFrame": {
       "position": [
        -19.1,
-       0.45,
+       0.3,
        0.0
       ],
       "orientation": [
@@ -4576,7 +2665,7 @@
     },
     "Size": [
      0.2,
-     0.9,
+     1.2,
      30.0
     ],
     "Color": [
@@ -4601,7 +2690,7 @@
      "CFrame": {
       "position": [
        19.1,
-       0.45,
+       0.3,
        0.0
       ],
       "orientation": [
@@ -4625,7 +2714,7 @@
     },
     "Size": [
      0.2,
-     0.9,
+     1.2,
      30.0
     ],
     "Color": [
@@ -4640,448 +2729,6 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -18.8,
-       6.41,
-       -15.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.2,
-     12.82,
-     0.8
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -18.8,
-       6.41,
-       15.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.2,
-     12.82,
-     0.8
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       18.8,
-       6.41,
-       -15.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.2,
-     12.82,
-     0.8
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       18.8,
-       6.41,
-       15.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.2,
-     12.82,
-     0.8
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       12.5,
-       -15.175
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     38.7,
-     0.6,
-     0.35
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       12.5,
-       15.175
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     38.7,
-     0.6,
-     0.35
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -19.175,
-       12.5,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.6,
-     30.0
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       19.175,
-       12.5,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.6,
-     30.0
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       19.1,
-       -15.05
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.3,
-     2.5,
-     2.5
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Cylinder"
    }
   },
   {
@@ -7909,104 +5556,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -6.95,
-       17.575,
-       -15.1
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     1.25,
-     1.1
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -5.85,
-       17.575,
-       -15.1
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     1.25,
-     1.1
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -6.675,
        17.35,
        -15.25
@@ -8088,104 +5637,6 @@
      0.9098,
      0.6275,
      0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       5.85,
-       17.575,
-       -15.1
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     1.25,
-     1.1
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       6.95,
-       17.575,
-       -15.1
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     1.25,
-     1.1
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -8484,55 +5935,6 @@
     "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Cafe_Mint",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       -0.09,
-       -17.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     7.0,
-     0.22,
-     5.0
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -12820,14 +10222,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45,
+      "Transparency": 0.6,
       "PivotOffset": {
        "CFrame": {
         "position": [
@@ -12866,8 +10268,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.0347,
-         6.0625,
+         -6.8482,
+         6.1125,
          -14.5
         ],
         "orientation": [
@@ -12891,22 +10293,22 @@
       },
       "Size": [
        0.16,
-       2.125,
-       0.5694
+       2.225,
+       0.5962
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -12916,8 +10318,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.1597,
-         6.0625,
+         -9.0731,
+         6.1125,
          -14.5
         ],
         "orientation": [
@@ -12941,22 +10343,22 @@
       },
       "Size": [
        0.16,
-       2.125,
-       3.6806
+       2.225,
+       3.8537
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -12966,20 +10368,70 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.1597,
-         6.0625,
+         -9.0731,
+         6.1125,
          -14.5
         ],
         "orientation": [
          [
           0.0,
-          -0.7071,
-          -0.7071
+          0.866,
+          0.5
          ],
          [
           0.0,
-          -0.7071,
-          0.7071
+          -0.5,
+          0.866
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       3.8537
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -7.9606,
+         8.0394,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.866,
+          -0.5
+         ],
+         [
+          0.0,
+          -0.5,
+          -0.866
          ],
          [
           -1.0,
@@ -12991,22 +10443,22 @@
       },
       "Size": [
        0.16,
-       4.1052,
-       1.1
+       2.225,
+       0.5962
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -13016,20 +10468,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.9375,
-         6.8403,
+         -9.8875,
+         9.1518,
          -14.5
         ],
         "orientation": [
          [
           0.0,
-          -0.7071,
-          0.7071
+          -0.866,
+          -0.5
          ],
          [
           0.0,
-          -0.7071,
-          -0.7071
+          0.5,
+          -0.866
          ],
          [
           1.0,
@@ -13041,22 +10493,22 @@
       },
       "Size": [
        0.16,
-       4.1052,
-       1.1
+       2.225,
+       0.5962
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -13066,70 +10518,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.9375,
-         6.8403,
+         -11.0,
+         7.225,
          -14.5
         ],
         "orientation": [
          [
           0.0,
-          1.0,
-          0.0
+          -0.866,
+          0.5
          ],
          [
           0.0,
-          0.0,
-          1.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       2.125,
-       3.6806
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -9.9375,
-         8.9653,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          -1.0
+          0.5,
+          0.866
          ],
          [
           -1.0,
@@ -13141,22 +10543,22 @@
       },
       "Size": [
        0.16,
-       2.125,
-       0.5694
+       2.225,
+       3.8537
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -13166,20 +10568,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.0625,
-         8.9653,
+         -11.0,
+         7.225,
          -14.5
         ],
         "orientation": [
          [
           0.0,
-          -1.0,
-          0.0
+          0.866,
+          -0.5
          ],
          [
           0.0,
-          0.0,
-          -1.0
+          0.5,
+          0.866
          ],
          [
           1.0,
@@ -13191,22 +10593,22 @@
       },
       "Size": [
        0.16,
-       2.125,
-       0.5694
+       2.225,
+       3.8537
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -13216,70 +10618,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.0625,
-         6.8403,
+         -12.1125,
+         9.1518,
          -14.5
         ],
         "orientation": [
          [
           0.0,
-          -1.0,
-          0.0
+          0.866,
+          0.5
          ],
          [
           0.0,
-          0.0,
-          1.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       2.125,
-       3.6806
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.0625,
-         6.8403,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.7071,
-          -0.7071
-         ],
-         [
-          0.0,
-          -0.7071,
-          -0.7071
+          0.5,
+          -0.866
          ],
          [
           -1.0,
@@ -13291,22 +10643,22 @@
       },
       "Size": [
        0.16,
-       4.1052,
-       1.1
+       2.225,
+       0.5962
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -13316,20 +10668,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.8403,
-         6.0625,
+         -14.0394,
+         8.0394,
          -14.5
         ],
         "orientation": [
          [
           0.0,
-          0.7071,
-          0.7071
+          -0.866,
+          0.5
          ],
          [
           0.0,
-          -0.7071,
-          0.7071
+          -0.5,
+          -0.866
          ],
          [
           1.0,
@@ -13341,22 +10693,22 @@
       },
       "Size": [
        0.16,
-       4.1052,
-       1.1
+       2.225,
+       0.5962
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -13366,70 +10718,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -12.8403,
-         6.0625,
+         -12.9269,
+         6.1125,
          -14.5
         ],
         "orientation": [
          [
           0.0,
-          0.0,
-          -1.0
+          -0.866,
+          -0.5
          ],
          [
           0.0,
-          1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       2.125,
-       3.6806
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -14.9653,
-         6.0625,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
+          -0.5,
+          0.866
          ],
          [
           -1.0,
@@ -13441,22 +10743,122 @@
       },
       "Size": [
        0.16,
-       2.125,
-       0.5694
+       2.225,
+       3.8537
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -15.1518,
+         6.1125,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5,
+          0.866
+         ],
+         [
+          0.0,
+          -0.866,
+          -0.5
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       0.5962
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -13.225,
+         5.0,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5,
+          -0.866
+         ],
+         [
+          0.0,
+          -0.866,
+          0.5
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       3.8537
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
      }
     },
     {
@@ -13499,14 +10901,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -13516,8 +10918,508 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         14.9653,
-         6.0625,
+         13.225,
+         5.0,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.5,
+          0.866
+         ],
+         [
+          0.0,
+          -0.866,
+          0.5
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       3.8537
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         15.1518,
+         6.1125,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.5,
+          -0.866
+         ],
+         [
+          0.0,
+          -0.866,
+          -0.5
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       0.5962
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         12.9269,
+         6.1125,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.866,
+          0.5
+         ],
+         [
+          0.0,
+          -0.5,
+          0.866
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       3.8537
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         14.0394,
+         8.0394,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.866,
+          -0.5
+         ],
+         [
+          0.0,
+          -0.5,
+          -0.866
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       0.5962
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         12.1125,
+         9.1518,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.866,
+          -0.5
+         ],
+         [
+          0.0,
+          0.5,
+          -0.866
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       0.5962
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         11.0,
+         7.225,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.866,
+          0.5
+         ],
+         [
+          0.0,
+          0.5,
+          0.866
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       3.8537
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         11.0,
+         7.225,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.866,
+          -0.5
+         ],
+         [
+          0.0,
+          0.5,
+          0.866
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       3.8537
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         9.8875,
+         9.1518,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.866,
+          0.5
+         ],
+         [
+          0.0,
+          0.5,
+          -0.866
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       0.5962
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         7.9606,
+         8.0394,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.866,
+          0.5
+         ],
+         [
+          0.0,
+          -0.5,
+          -0.866
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       0.5962
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         9.0731,
+         6.1125,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.866,
+          -0.5
+         ],
+         [
+          0.0,
+          -0.5,
+          0.866
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       2.225,
+       3.8537
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         9.0731,
+         6.1125,
          -14.5
         ],
         "orientation": [
@@ -13541,22 +11443,22 @@
       },
       "Size": [
        0.16,
-       2.125,
-       0.5694
+       2.225,
+       3.8537
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -13566,8 +11468,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.8403,
-         6.0625,
+         6.8482,
+         6.1125,
          -14.5
         ],
         "orientation": [
@@ -13591,22 +11493,22 @@
       },
       "Size": [
        0.16,
-       2.125,
-       3.6806
+       2.225,
+       0.5962
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -13616,408 +11518,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.8403,
-         6.0625,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.7071,
-          -0.7071
-         ],
-         [
-          0.0,
-          -0.7071,
-          0.7071
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       4.1052,
-       1.1
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.0625,
-         6.8403,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.7071,
-          0.7071
-         ],
-         [
-          0.0,
-          -0.7071,
-          -0.7071
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       4.1052,
-       1.1
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.0625,
-         6.8403,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       2.125,
-       3.6806
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.0625,
-         8.9653,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       2.125,
-       0.5694
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.9375,
-         8.9653,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          -1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          -1.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       2.125,
-       0.5694
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.9375,
-         6.8403,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          -1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       2.125,
-       3.6806
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.9375,
-         6.8403,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.7071,
-          -0.7071
-         ],
-         [
-          0.0,
-          -0.7071,
-          -0.7071
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       4.1052,
-       1.1
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.1597,
-         6.0625,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.7071,
-          0.7071
-         ],
-         [
-          0.0,
-          -0.7071,
-          0.7071
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       4.1052,
-       1.1
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.1597,
-         6.0625,
+         3.4274,
+         8.4184,
          -14.5
         ],
         "orientation": [
@@ -14041,22 +11543,22 @@
       },
       "Size": [
        0.16,
-       2.125,
-       3.6806
+       1.8367,
+       0.4922
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14066,8 +11568,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         7.0347,
-         6.0625,
+         1.5907,
+         8.4184,
          -14.5
         ],
         "orientation": [
@@ -14091,22 +11593,22 @@
       },
       "Size": [
        0.16,
-       2.125,
-       0.5694
+       1.8367,
+       3.1813
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14116,20 +11618,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         3.2655,
-         8.375,
+         1.5907,
+         8.4184,
          -14.5
         ],
         "orientation": [
          [
           0.0,
-          0.0,
-          -1.0
+          0.866,
+          0.5
          ],
          [
           0.0,
-          1.0,
-          0.0
+          -0.5,
+          0.866
          ],
          [
           1.0,
@@ -14141,22 +11643,22 @@
       },
       "Size": [
        0.16,
-       1.75,
-       0.4689
+       1.8367,
+       3.1813
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14166,20 +11668,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.5155,
-         8.375,
+         2.509,
+         10.009,
          -14.5
         ],
         "orientation": [
          [
           0.0,
-          0.0,
-          1.0
+          0.866,
+          -0.5
          ],
          [
           0.0,
-          1.0,
-          0.0
+          -0.5,
+          -0.866
          ],
          [
           -1.0,
@@ -14191,22 +11693,22 @@
       },
       "Size": [
        0.16,
-       1.75,
-       3.0311
+       1.8367,
+       0.4922
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14216,108 +11718,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.5155,
-         8.375,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.7071,
-          -0.7071
-         ],
-         [
-          0.0,
-          -0.7071,
-          0.7071
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       3.3807,
-       0.9059
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.875,
-         9.0155,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          -0.7071,
-          0.7071
-         ],
-         [
-          0.0,
-          -0.7071,
-          -0.7071
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       3.3807,
-       0.9059
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.875,
-         9.0155,
+         0.9184,
+         9.0907,
          -14.5
         ],
         "orientation": [
@@ -14341,22 +11743,22 @@
       },
       "Size": [
        0.16,
-       1.75,
-       3.0311
+       1.8367,
+       3.1813
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14366,8 +11768,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.875,
-         10.7655,
+         0.9184,
+         10.9274,
          -14.5
         ],
         "orientation": [
@@ -14391,22 +11793,22 @@
       },
       "Size": [
        0.16,
-       1.75,
-       0.4689
+       1.8367,
+       0.4922
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14416,8 +11818,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.875,
-         10.7655,
+         -0.9184,
+         10.9274,
          -14.5
         ],
         "orientation": [
@@ -14441,22 +11843,22 @@
       },
       "Size": [
        0.16,
-       1.75,
-       0.4689
+       1.8367,
+       0.4922
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14466,8 +11868,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.875,
-         9.0155,
+         -0.9184,
+         9.0907,
          -14.5
         ],
         "orientation": [
@@ -14491,22 +11893,22 @@
       },
       "Size": [
        0.16,
-       1.75,
-       3.0311
+       1.8367,
+       3.1813
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14516,70 +11918,20 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.875,
-         9.0155,
+         -2.509,
+         10.009,
          -14.5
         ],
         "orientation": [
          [
           0.0,
-          0.7071,
-          -0.7071
+          -0.866,
+          0.5
          ],
          [
           0.0,
-          -0.7071,
-          -0.7071
-         ],
-         [
-          -1.0,
-          0.0,
-          0.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       3.3807,
-       0.9059
-      ],
-      "Color": [
-       0.8118,
-       0.9137,
-       0.8902
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.45
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Glass",
-     "className": "WedgePart",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -1.5155,
-         8.375,
-         -14.5
-        ],
-        "orientation": [
-         [
-          0.0,
-          0.7071,
-          0.7071
-         ],
-         [
-          0.0,
-          -0.7071,
-          0.7071
+          -0.5,
+          -0.866
          ],
          [
           1.0,
@@ -14591,22 +11943,22 @@
       },
       "Size": [
        0.16,
-       3.3807,
-       0.9059
+       1.8367,
+       0.4922
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14616,8 +11968,58 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -1.5155,
-         8.375,
+         -1.5907,
+         8.4184,
+         -14.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.866,
+          -0.5
+         ],
+         [
+          0.0,
+          -0.5,
+          0.866
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       1.8367,
+       3.1813
+      ],
+      "Color": [
+       0.8118,
+       0.9137,
+       0.8902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.6
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Glass",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.5907,
+         8.4184,
          -14.5
         ],
         "orientation": [
@@ -14641,22 +12043,22 @@
       },
       "Size": [
        0.16,
-       1.75,
-       3.0311
+       1.8367,
+       3.1813
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14666,8 +12068,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -3.2655,
-         8.375,
+         -3.4274,
+         8.4184,
          -14.5
         ],
         "orientation": [
@@ -14691,22 +12093,22 @@
       },
       "Size": [
        0.16,
-       1.75,
-       0.4689
+       1.8367,
+       0.4922
       ],
       "Color": [
        0.8118,
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14749,14 +12151,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14799,14 +12201,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -14849,14 +12251,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": true,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     }
    ],
@@ -15471,153 +12873,6 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -10.4268,
-         17.0288,
-         -16.5
-        ],
-        "orientation": [
-         [
-          0.9063,
-          -0.4226,
-          0.0
-         ],
-         [
-          0.4226,
-          0.9063,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       22.7296,
-       0.95,
-       0.2
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Roof",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -10.4268,
-         17.0288,
-         16.5
-        ],
-        "orientation": [
-         [
-          0.9063,
-          -0.4226,
-          0.0
-         ],
-         [
-          0.4226,
-          0.9063,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       22.7296,
-       0.95,
-       0.2
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Roof",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -20.7,
-         12.1789,
-         0.0
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.95,
-       33.2
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Roof",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          10.4268,
          17.1288,
          0.0
@@ -16157,153 +13412,6 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         10.4268,
-         17.0288,
-         -16.5
-        ],
-        "orientation": [
-         [
-          0.9063,
-          0.4226,
-          0.0
-         ],
-         [
-          -0.4226,
-          0.9063,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       22.7296,
-       0.95,
-       0.2
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Roof",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         10.4268,
-         17.0288,
-         16.5
-        ],
-        "orientation": [
-         [
-          0.9063,
-          0.4226,
-          0.0
-         ],
-         [
-          -0.4226,
-          0.9063,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       22.7296,
-       0.95,
-       0.2
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Roof",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         20.7,
-         12.1789,
-         0.0
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.95,
-       33.2
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_Cafe_Mint_Roof",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          0.0,
          22.4469,
          0.0
@@ -16443,6 +13551,384 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/4"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Plot_Cafe_Mint_Roof_Trim",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -20.7,
+           12.1789,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2,
+         0.95,
+         33.2
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Tags": [
+         "PaintTrim"
+        ],
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           20.7,
+           -12.1789,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Plot_Cafe_Mint/4"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_Cafe_Mint_Roof_Trim",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -10.4268,
+           17.0288,
+           -16.5
+          ],
+          "orientation": [
+           [
+            0.9063,
+            -0.4226,
+            0.0
+           ],
+           [
+            0.4226,
+            0.9063,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         22.7296,
+         0.95,
+         0.2
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Tags": [
+         "PaintTrim"
+        ]
+       }
+      },
+      {
+       "name": "CatCafe_Plot_Cafe_Mint_Roof_Trim",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -10.4268,
+           17.0288,
+           16.5
+          ],
+          "orientation": [
+           [
+            0.9063,
+            -0.4226,
+            0.0
+           ],
+           [
+            0.4226,
+            0.9063,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         22.7296,
+         0.95,
+         0.2
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Tags": [
+         "PaintTrim"
+        ]
+       }
+      },
+      {
+       "name": "CatCafe_Plot_Cafe_Mint_Roof_Trim",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           10.4268,
+           17.0288,
+           -16.5
+          ],
+          "orientation": [
+           [
+            0.9063,
+            0.4226,
+            0.0
+           ],
+           [
+            -0.4226,
+            0.9063,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         22.7296,
+         0.95,
+         0.2
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Tags": [
+         "PaintTrim"
+        ]
+       }
+      },
+      {
+       "name": "CatCafe_Plot_Cafe_Mint_Roof_Trim",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           10.4268,
+           17.0288,
+           16.5
+          ],
+          "orientation": [
+           [
+            0.9063,
+            0.4226,
+            0.0
+           ],
+           [
+            -0.4226,
+            0.9063,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         22.7296,
+         0.95,
+         0.2
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Tags": [
+         "PaintTrim"
+        ]
+       }
+      },
+      {
+       "name": "CatCafe_Plot_Cafe_Mint_Roof_Trim",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           20.7,
+           12.1789,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2,
+         0.95,
+         33.2
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Tags": [
+         "PaintTrim"
+        ]
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.0,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Plot_Cafe_Mint_Roof_Trim"
     }
    ],
    "properties": {
@@ -16479,6 +13965,2829 @@
    "className": "Model",
    "attributes": {
     "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/3"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         15.0,
+         -15.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       16.7,
+       3.9,
+       0.2
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ],
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -15.0,
+         15.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/3"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -15.435,
+         3.0,
+         -15.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.43,
+       4.0,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.565,
+         3.0,
+         -15.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.43,
+       4.0,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.6048,
+         5.6961,
+         -15.1
+        ],
+        "orientation": [
+         [
+          0.9877,
+          -0.1564,
+          0.0
+         ],
+         [
+          0.1564,
+          0.9877,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -7.035,
+         7.0203,
+         -15.115
+        ],
+        "orientation": [
+         [
+          0.891,
+          -0.454,
+          0.0
+         ],
+         [
+          0.454,
+          0.891,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -7.8534,
+         8.1466,
+         -15.1
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -8.9797,
+         8.965,
+         -15.115
+        ],
+        "orientation": [
+         [
+          0.454,
+          -0.891,
+          0.0
+         ],
+         [
+          0.891,
+          0.454,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -10.3039,
+         9.3952,
+         -15.1
+        ],
+        "orientation": [
+         [
+          0.1564,
+          -0.9877,
+          0.0
+         ],
+         [
+          0.9877,
+          0.1564,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -11.6961,
+         9.3952,
+         -15.115
+        ],
+        "orientation": [
+         [
+          -0.1564,
+          -0.9877,
+          0.0
+         ],
+         [
+          0.9877,
+          -0.1564,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -13.0203,
+         8.965,
+         -15.1
+        ],
+        "orientation": [
+         [
+          -0.454,
+          -0.891,
+          0.0
+         ],
+         [
+          0.891,
+          -0.454,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -14.1466,
+         8.1466,
+         -15.115
+        ],
+        "orientation": [
+         [
+          -0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -14.965,
+         7.0203,
+         -15.1
+        ],
+        "orientation": [
+         [
+          -0.891,
+          -0.454,
+          0.0
+         ],
+         [
+          0.454,
+          -0.891,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -15.3952,
+         5.6961,
+         -15.115
+        ],
+        "orientation": [
+         [
+          -0.9877,
+          -0.1564,
+          0.0
+         ],
+         [
+          0.1564,
+          -0.9877,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -11.0,
+         0.83,
+         -14.74
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       9.7,
+       0.36,
+       1.42
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         6.565,
+         3.0,
+         -15.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.43,
+       4.0,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         15.435,
+         3.0,
+         -15.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.43,
+       4.0,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         15.3952,
+         5.6961,
+         -15.1
+        ],
+        "orientation": [
+         [
+          0.9877,
+          -0.1564,
+          0.0
+         ],
+         [
+          0.1564,
+          0.9877,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         14.965,
+         7.0203,
+         -15.115
+        ],
+        "orientation": [
+         [
+          0.891,
+          -0.454,
+          0.0
+         ],
+         [
+          0.454,
+          0.891,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         14.1466,
+         8.1466,
+         -15.1
+        ],
+        "orientation": [
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         13.0203,
+         8.965,
+         -15.115
+        ],
+        "orientation": [
+         [
+          0.454,
+          -0.891,
+          0.0
+         ],
+         [
+          0.891,
+          0.454,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         11.6961,
+         9.3952,
+         -15.1
+        ],
+        "orientation": [
+         [
+          0.1564,
+          -0.9877,
+          0.0
+         ],
+         [
+          0.9877,
+          0.1564,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         10.3039,
+         9.3952,
+         -15.115
+        ],
+        "orientation": [
+         [
+          -0.1564,
+          -0.9877,
+          0.0
+         ],
+         [
+          0.9877,
+          -0.1564,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         8.9797,
+         8.965,
+         -15.1
+        ],
+        "orientation": [
+         [
+          -0.454,
+          -0.891,
+          0.0
+         ],
+         [
+          0.891,
+          -0.454,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         7.8534,
+         8.1466,
+         -15.115
+        ],
+        "orientation": [
+         [
+          -0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.7071,
+          -0.7071,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         7.035,
+         7.0203,
+         -15.1
+        ],
+        "orientation": [
+         [
+          -0.891,
+          -0.454,
+          0.0
+         ],
+         [
+          0.454,
+          -0.891,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         6.6048,
+         5.6961,
+         -15.115
+        ],
+        "orientation": [
+         [
+          -0.9877,
+          -0.1564,
+          0.0
+         ],
+         [
+          0.1564,
+          -0.9877,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.6294,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         11.0,
+         0.83,
+         -14.74
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       9.7,
+       0.36,
+       1.42
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         7.5,
+         -14.5
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       7.0,
+       0.3,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         11.325,
+         -15.2
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.7,
+       0.85,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -19.125,
+         7.475,
+         -7.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.25,
+       0.35,
+       3.6
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -19.225,
+         3.65,
+         -7.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.3,
+       3.8
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -19.125,
+         5.55,
+         -8.65
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.25,
+       3.5,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -19.125,
+         5.55,
+         -5.35
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.25,
+       3.5,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         19.125,
+         7.475,
+         -7.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.25,
+       0.35,
+       3.6
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         19.225,
+         3.65,
+         -7.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.3,
+       3.8
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         19.125,
+         5.55,
+         -8.65
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.25,
+       3.5,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         19.125,
+         5.55,
+         -5.35
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.25,
+       3.5,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         14.0,
+         7.66,
+         15.1
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.6,
+       0.38,
+       0.3
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         14.0,
+         3.865,
+         15.2
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.8,
+       0.33,
+       0.5
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -8.0,
+         9.125,
+         15.9
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       8.0,
+       0.25,
+       1.8
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -18.8,
+         6.26,
+         -15.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.2,
+       13.12,
+       0.8
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -18.8,
+         6.26,
+         15.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.2,
+       13.12,
+       0.8
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         18.8,
+         6.26,
+         -15.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.2,
+       13.12,
+       0.8
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         18.8,
+         6.26,
+         15.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.2,
+       13.12,
+       0.8
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         12.5,
+         -15.175
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       38.7,
+       0.6,
+       0.35
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         12.5,
+         15.175
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       38.7,
+       0.6,
+       0.35
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -19.175,
+         12.5,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.35,
+       0.6,
+       30.0
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         19.175,
+         12.5,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.35,
+       0.6,
+       30.0
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         19.1,
+         -15.05
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       2.5,
+       2.5
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ],
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.95,
+         17.575,
+         -15.1
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       1.25,
+       1.1
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -5.85,
+         17.575,
+         -15.1
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       1.25,
+       1.1
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         5.85,
+         17.575,
+         -15.1
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       1.25,
+       1.1
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Trim",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         6.95,
+         17.575,
+         -15.1
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       1.25,
+       1.1
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "PaintTrim"
+      ]
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Plot_Cafe_Mint_Trim"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/5"
    },
    "children": [
     {
@@ -16556,7 +16865,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/3"
+      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/5"
      }
     }
    ],
@@ -16593,7 +16902,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/4"
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/6"
    },
    "children": [
     {
@@ -16671,7 +16980,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/4"
+      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/6"
      }
     }
    ],
@@ -16708,7 +17017,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/5"
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/7"
    },
    "children": [
     {
@@ -16786,7 +17095,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/5"
+      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/7"
      }
     },
     {
@@ -16872,7 +17181,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/6"
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/8"
    },
    "children": [
     {
@@ -16950,7 +17259,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/6"
+      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/8"
      }
     }
    ],
@@ -16987,7 +17296,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/7"
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/9"
    },
    "children": [
     {
@@ -17065,7 +17374,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/7"
+      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/9"
      }
     }
    ],
@@ -17102,7 +17411,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/8"
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/10"
    },
    "children": [
     {
@@ -17180,7 +17489,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/8"
+      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/10"
      }
     },
     {
@@ -17266,7 +17575,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/9"
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/11"
    },
    "children": [
     {
@@ -17345,7 +17654,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/9"
+      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/11"
      }
     },
     {
@@ -17432,7 +17741,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/10"
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/12"
    },
    "children": [
     {
@@ -17513,7 +17822,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/10"
+      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/12"
      }
     },
     {
@@ -17732,7 +18041,7 @@
        "CFrame": {
         "position": [
          -11.0,
-         0.5,
+         0.49,
          -14.6
         ],
         "orientation": [
@@ -17756,7 +18065,7 @@
       },
       "Size": [
        8.5,
-       1.0,
+       0.98,
        0.8
       ],
       "Color": [
@@ -18876,7 +19185,7 @@
        "CFrame": {
         "position": [
          11.0,
-         0.5,
+         0.49,
          -14.6
         ],
         "orientation": [
@@ -18900,7 +19209,7 @@
       },
       "Size": [
        8.5,
-       1.0,
+       0.98,
        0.8
       ],
       "Color": [
@@ -21970,6 +22279,110 @@
        0.8,
        8.8598,
        19.0
+      ],
+      "Color": [
+       0.5608,
+       0.8275,
+       0.7569
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "Paint"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Paint",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -18.6,
+         13.0432,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.8,
+       0.4863,
+       30.0
+      ],
+      "Color": [
+       0.5608,
+       0.8275,
+       0.7569
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "Paint"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Paint",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         18.6,
+         13.0432,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.8,
+       0.4863,
+       30.0
       ],
       "Color": [
        0.5608,
@@ -22022,7 +22435,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/11"
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Mint/13"
    },
    "children": [
     {
@@ -22103,7 +22516,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/11"
+      "Rojo_Id": "CatCafe_Plot_Cafe_Mint/13"
      }
     },
     {
@@ -22113,9 +22526,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -17.125,
+         -17.14,
          6.4,
-         -14.1
+         -14.09
         ],
         "orientation": [
          [
@@ -22137,9 +22550,9 @@
        }
       },
       "Size": [
-       3.75,
+       3.78,
        12.8,
-       0.2
+       0.22
       ],
       "Color": [
        0.9647,
@@ -22167,7 +22580,7 @@
         "position": [
          -5.125,
          6.4,
-         -14.1
+         -14.09
         ],
         "orientation": [
          [
@@ -22191,7 +22604,7 @@
       "Size": [
        3.25,
        12.8,
-       0.2
+       0.22
       ],
       "Color": [
        0.9647,
@@ -22219,7 +22632,7 @@
         "position": [
          5.125,
          6.4,
-         -14.1
+         -14.09
         ],
         "orientation": [
          [
@@ -22243,7 +22656,7 @@
       "Size": [
        3.25,
        12.8,
-       0.2
+       0.22
       ],
       "Color": [
        0.9647,
@@ -22269,9 +22682,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         17.125,
+         17.14,
          6.4,
-         -14.1
+         -14.09
         ],
         "orientation": [
          [
@@ -22293,9 +22706,9 @@
        }
       },
       "Size": [
-       3.75,
+       3.78,
        12.8,
-       0.2
+       0.22
       ],
       "Color": [
        0.9647,
@@ -22322,7 +22735,7 @@
        "CFrame": {
         "position": [
          -11.0,
-         0.5,
+         0.49,
          -14.1
         ],
         "orientation": [
@@ -22346,7 +22759,7 @@
       },
       "Size": [
        8.5,
-       1.0,
+       0.98,
        0.2
       ],
       "Color": [
@@ -23466,7 +23879,7 @@
        "CFrame": {
         "position": [
          11.0,
-         0.5,
+         0.49,
          -14.1
         ],
         "orientation": [
@@ -23490,7 +23903,7 @@
       },
       "Size": [
        8.5,
-       1.0,
+       0.98,
        0.2
       ],
       "Color": [
@@ -26560,6 +26973,110 @@
        0.2,
        8.8598,
        19.0
+      ],
+      "Color": [
+       0.9647,
+       0.9216,
+       0.8667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "Wallpaper"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Wallpaper",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -18.1,
+         13.0432,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.4863,
+       28.0
+      ],
+      "Color": [
+       0.9647,
+       0.9216,
+       0.8667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Tags": [
+       "Wallpaper"
+      ]
+     }
+    },
+    {
+     "name": "CatCafe_Plot_Cafe_Mint_Wallpaper",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         18.1,
+         13.0432,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.4863,
+       28.0
       ],
       "Color": [
        0.9647,

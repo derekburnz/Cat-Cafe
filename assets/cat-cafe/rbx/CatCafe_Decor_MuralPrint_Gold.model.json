@@ -1414,6 +1414,55 @@
     "CFrame": {
      "CFrame": {
       "position": [
+       1.184,
+       0.8479,
+       -0.11
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1206,
+     0.0603,
+     0.02
+    ],
+    "Color": [
+     0.7216,
+     0.451,
+     0.1686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_MuralPrint_Gold",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
        1.0333,
        0.8479,
        -0.11
@@ -1512,56 +1561,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.184,
-       0.8479,
-       -0.11
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.1206,
-     0.0603,
-     0.02
-    ],
-    "Color": [
-     0.7216,
-     0.451,
-     0.1686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_MuralPrint_Gold",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.0634,
+       1.3046,
        0.7575,
        -0.11
       ],
@@ -1610,7 +1610,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.3046,
+       1.0634,
        0.7575,
        -0.11
       ],
@@ -2149,7 +2149,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.4714,
+       0.7126,
        0.7575,
        -0.11
       ],
@@ -2198,7 +2198,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.7126,
+       0.4714,
        0.7575,
        -0.11
       ],
@@ -2443,55 +2443,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.211,
-       0.9685,
-       -0.09
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0603,
-     0.0603,
-     0.02
-    ],
-    "Color": [
-     0.2902,
-     0.1804,
-     0.1216
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_MuralPrint_Gold",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -0.211,
        0.9685,
        -0.09
@@ -2541,7 +2492,56 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.1809,
+       0.211,
+       0.9685,
+       -0.09
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0603,
+     0.0603,
+     0.02
+    ],
+    "Color": [
+     0.2902,
+     0.1804,
+     0.1216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_MuralPrint_Gold",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1809,
        0.9082,
        -0.09
       ],
@@ -2590,7 +2590,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.1809,
+       -0.1809,
        0.9082,
        -0.09
       ],
@@ -2737,6 +2737,55 @@
     "CFrame": {
      "CFrame": {
       "position": [
+       0.1206,
+       0.7575,
+       -0.11
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1206,
+     0.1206,
+     0.02
+    ],
+    "Color": [
+     0.3725,
+     0.6588,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_MuralPrint_Gold",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
        -0.1206,
        0.7575,
        -0.11
@@ -2786,8 +2835,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.1206,
-       0.7575,
+       0.0,
+       0.667,
        -0.11
       ],
       "orientation": [
@@ -2811,13 +2860,13 @@
     },
     "Size": [
      0.1206,
-     0.1206,
+     0.0603,
      0.02
     ],
     "Color": [
-     0.3725,
-     0.6588,
-     1.0
+     0.2902,
+     0.1804,
+     0.1216
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -2909,55 +2958,6 @@
     },
     "Size": [
      0.0603,
-     0.0603,
-     0.02
-    ],
-    "Color": [
-     0.2902,
-     0.1804,
-     0.1216
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_MuralPrint_Gold",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       0.667,
-       -0.11
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.1206,
      0.0603,
      0.02
     ],
@@ -3423,7 +3423,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.7126,
+       -0.4714,
        0.7575,
        -0.11
       ],
@@ -3472,7 +3472,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.4714,
+       -0.7126,
        0.7575,
        -0.11
       ],
@@ -3668,55 +3668,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.973,
-       0.9384,
-       -0.09
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0603,
-     0.1206,
-     0.02
-    ],
-    "Color": [
-     0.9137,
-     0.6353,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_MuralPrint_Gold",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -1.395,
        0.9384,
        -0.09
@@ -3749,6 +3700,55 @@
      0.1686,
      0.1686,
      0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_MuralPrint_Gold",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.973,
+       0.9384,
+       -0.09
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0603,
+     0.1206,
+     0.02
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -4060,55 +4060,6 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.973,
-       0.7876,
-       -0.11
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0603,
-     0.0603,
-     0.02
-    ],
-    "Color": [
-     0.9137,
-     0.6353,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_MuralPrint_Gold",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        -1.395,
        0.7876,
        -0.11
@@ -4141,6 +4092,55 @@
      0.1686,
      0.1686,
      0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_MuralPrint_Gold",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.973,
+       0.7876,
+       -0.11
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0603,
+     0.0603,
+     0.02
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,

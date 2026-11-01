@@ -417,14 +417,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45,
+    "Transparency": 0.6,
     "Shape": "Cylinder"
    }
   },
@@ -567,14 +567,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45,
+    "Transparency": 0.6,
     "Shape": "Cylinder"
    }
   },
@@ -717,14 +717,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45,
+    "Transparency": 0.6,
     "Shape": "Cylinder"
    }
   },
@@ -867,14 +867,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45,
+    "Transparency": 0.6,
     "Shape": "Cylinder"
    }
   },
@@ -1017,14 +1017,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45,
+    "Transparency": 0.6,
     "Shape": "Cylinder"
    }
   },
@@ -1109,9 +1109,9 @@
      }
     },
     "Size": [
-     1.32,
+     1.36,
      0.06,
-     0.82
+     0.86
     ],
     "Color": [
      0.3686,
@@ -1158,9 +1158,9 @@
      }
     },
     "Size": [
-     1.32,
+     1.36,
      0.06,
-     0.82
+     0.86
     ],
     "Color": [
      0.3686,
@@ -1216,14 +1216,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45,
+    "Transparency": 0.6,
     "Shape": "Cylinder"
    }
   },
@@ -1317,14 +1317,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45,
+    "Transparency": 0.6,
     "Shape": "Cylinder"
    }
   },

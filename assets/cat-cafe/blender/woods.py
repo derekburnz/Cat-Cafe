@@ -175,11 +175,28 @@ def bramble(mat):
 
 
 def fern(mat):
+    """A fern clump (Derek 2026-10-30: the Woods grass could use some work): eight arching fronds round a dark heart,
+    each three segments that droop toward the tip, every segment two half blades in a shallow V so the frond catches
+    the light along its middle. Two greens, alternating."""
     b = Builder()
-    for k in range(7):
-        a = 2 * PI * k / 7
-        b.box((0.9 * math.cos(a), 0.9 * math.sin(a), 0.7), (0.5, 2.0, 0.08), "leaf_green",
-              rot=Matrix.Rotation(a - PI / 2, 3, "Z") @ Matrix.Rotation(-0.6, 3, "X"))
+    b.cyl_base((0, 0, 0), 0.42, 0.62, "leaf_dark", segments=8, radius2=0.3, bevel=False)   # hides where they cross
+    segs = ((0.62, 0.8, 1.05), (0.5, 0.72, 0.6), (0.3, 0.62, 0.05))          # width, length, pitch above level
+    for k in range(8):
+        a = 2 * PI * k / 8 + 0.1 * math.sin(3.1 * k)
+        f = Vector((math.cos(a), math.sin(a), 0.0))
+        at = f * 0.18 + Vector((0, 0, 0.32))
+        tone = ("leaf_green", "leaf_dark")[k % 2]
+        lift = 0.1 * math.cos(2.3 * k)                                        # not every frond at one height
+        for w, L, pitch in segs:
+            p = pitch + lift
+            d = f * math.cos(p) + Vector((0, 0, math.sin(p)))
+            R = Matrix.Rotation(a - PI / 2, 3, "Z") @ Matrix.Rotation(p, 3, "X")
+            c = at + d * (L / 2)
+            for side in (-1, 1):                                              # half blades, outer edges raised
+                off = R @ Vector((side * w / 4, 0, 0))
+                b.box(tuple(c + off), (w / 2, L, 0.05), tone, bevel=False,
+                      rot=R @ Matrix.Rotation(-side * 0.18, 3, "Y"))      # a shallow V: neighbours never line up
+            at = at + d * L
     return [b.finalize(N + "Fern", mat)]
 
 
@@ -398,11 +415,32 @@ def berry(mat):
 
 
 def leaves(mat):
+    """An autumn leaf pile a stray can hide in (Derek 2026-10-30: the orange blobs read as odd flowers): a low stepped
+    mound of fallen leaves with single leaves lying across it at every angle and a few blown off round its foot,
+    and a twig poking out."""
     b = Builder()
-    for k, sw in enumerate(("fur_orange", "fur_ginger", "pastel_butter", "fur_orange_dark", "terracotta")):
-        a = 2 * PI * k / 5
-        b.ico((0.7 * math.cos(a), 0.7 * math.sin(a), 0.5), 1.1, sw, subdivisions=1, scale=(1.2, 1.0, 0.5))
-    b.ico((0, 0, 1.0), 1.0, "fur_orange", subdivisions=1, scale=(1.1, 1.0, 0.6))
+    for (r, z0, h, sw) in ((1.6, 0.0, 0.36, "fur_orange_dark"), (1.25, 0.36, 0.34, "terracotta"),
+                           (0.8, 0.7, 0.3, "fur_orange_dark")):
+        b.cyl_base((0, 0, z0), r, h, sw, segments=10, bevel=False)
+    cols = ("fur_orange", "fur_ginger", "pastel_butter", "bowl_red", "fur_orange", "terracotta")
+    k = 0
+    for (ring, r, z, n) in ((0, 1.45, 0.36, 10), (1, 1.05, 0.7, 8), (2, 0.55, 1.0, 5), (3, 0.0, 1.0, 1)):
+        for i in range(n):
+            a = 2 * PI * (i + 0.37 * ring) / n
+            x, y = r * math.cos(a), r * math.sin(a)
+            yaw = a + 1.3 * math.sin(5.7 * k)
+            tilt = 0.35 * math.sin(2.9 * k + 1.0)                              # leaves lie at every angle
+            R = Matrix.Rotation(yaw, 3, "Z") @ Matrix.Rotation(tilt, 3, "X") @ Matrix.Rotation(PI / 4, 3, "Z")
+            b.box((x, y, z + 0.02 + 0.012 * (k % 3)), (0.36, 0.36, 0.05), cols[k % len(cols)], bevel=False, rot=R)
+            k += 1
+    for i in range(6):                                                        # blown off round the foot
+        a = 2 * PI * (i + 0.5) / 6 + 0.4 * math.sin(i)
+        r = 1.62 + 0.1 * math.cos(3 * i)                                     # tucked against the foot
+        R = Matrix.Rotation(a * 2.1, 3, "Z") @ Matrix.Rotation(PI / 4, 3, "Z")
+        b.box((r * math.cos(a), r * math.sin(a), 0.025), (0.3, 0.3, 0.05), cols[(i + 2) % len(cols)], bevel=False,
+              rot=R)
+    b.box((0.55, -0.4, 1.05), (0.07, 1.3, 0.07), "fur_brown", bevel=False,                  # a twig
+          rot=Matrix.Rotation(0.6, 3, "Z") @ Matrix.Rotation(0.7, 3, "X"))
     return [b.finalize(N + "LeafPile_Decor", mat)]                    # walk-through: strays hide inside it
 
 

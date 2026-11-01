@@ -10960,14 +10960,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45,
+      "Transparency": 0.6,
       "PivotOffset": {
        "CFrame": {
         "position": [
@@ -11039,14 +11039,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11089,14 +11089,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11139,14 +11139,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11189,14 +11189,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11239,14 +11239,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11289,14 +11289,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11339,14 +11339,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11389,14 +11389,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11439,14 +11439,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11489,14 +11489,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11539,14 +11539,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11589,14 +11589,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11639,14 +11639,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11689,14 +11689,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11739,14 +11739,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11789,14 +11789,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     },
     {
@@ -11839,14 +11839,14 @@
        0.9137,
        0.8902
       ],
-      "Material": "Glass",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
       "CastShadow": false,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",
-      "Transparency": 0.45
+      "Transparency": 0.6
      }
     }
    ],

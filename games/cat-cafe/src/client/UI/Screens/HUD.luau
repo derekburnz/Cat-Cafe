@@ -1885,7 +1885,8 @@ function HUD.setDailyTreat(self: any, shown: boolean, due: boolean)
 	self._dailyDot.Visible = due
 end
 
--- From the modal's changed signal: opening a screen marks what it shows as seen and clears its dot.
+-- From the modal's changed signal: opening a screen marks what it shows as seen and clears its dot. The Index has
+-- no keys (its dot is the waiting rewards, in _renderDots), so it is left alone here.
 function HUD.screenOpened(self: any, name: string?)
 	self._openScreen = name
 	local candidates: Notices.Candidates? = self._candidates
@@ -1893,7 +1894,7 @@ function HUD.screenOpened(self: any, name: string?)
 		Notices.markSeen((candidates :: any)[name], self._seen[name])
 		local dot: Frame? = self._dots[name]
 		if dot then
-			dot.Visible = name == "Collection" and (self._indexReady or 0) > 0
+			dot.Visible = false
 		end
 		self:_renderFoldDot()
 	end

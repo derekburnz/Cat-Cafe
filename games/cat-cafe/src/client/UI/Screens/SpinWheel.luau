@@ -541,7 +541,8 @@ function SpinWheel.result(self: any, slice: number, amount: number)
 			self:_say("You won a prize!", Theme.colors.goodDark) -- a slice this catalog does not know
 		else
 			self:_say(SpinLogic.refusal(self._spin, now), Theme.colors.warnDark)
-			Sound.play("uiError")
+			-- the wheel's own soft tok-tok; uiError "sounds too similar to a device disconnecting" (Derek 10-28)
+			Sound.play("uiSpinBusy")
 		end
 		self:_refresh()
 		return

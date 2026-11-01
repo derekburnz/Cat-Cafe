@@ -283,7 +283,7 @@ The Town Square has no location marker since 2026-10-28 (Derek: only your cafe k
 | `UI.spin.result(slice, amount)` | From `SpinResult(slice, amount)`: `amount` is the coins paid, or the number of foods, golden fish or crates. `(0, 0)` means refused. |
 | `events.spinWheel()` | Forward as `SpinWheel()`. |
 
-Sounds: `uiSpinStart` when the wheel starts, `uiSpinTick` as each slice passes the pointer, `uiSpinWin` on landing (Sound-Agent adds the files); a refusal plays `uiError`. Coin estimates in the list use the day rate worked back from `incomePerSecond`, as in the Tip Jar; the server's figure is final.
+Sounds: `uiSpinStart` when the wheel starts, `uiSpinTick` as each slice passes the pointer, `uiSpinWin` on landing (Sound-Agent adds the files); a refusal plays `uiSpinBusy`, the wheel's own soft wooden tok-tok (Derek 2026-10-28: the error sound "sounds too similar to a device disconnecting"). Coin estimates in the list use the day rate worked back from `incomePerSecond`, as in the Tip Jar; the server's figure is final.
 
 ### Report a bug (built, docs/playtests/bug-reports.md section 1)
 

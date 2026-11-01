@@ -543,4 +543,122 @@ return function()
 			end
 		end)
 	end)
+
+	-- F84 (hometown-cannon.md 6a and 6b, Sound-Agent PR #562): out in a wild area no door bell rings and a trip home
+	-- is a cloud hop, so the line between town and the wild areas has to hold for every spot a player can stand on.
+	describe("Audio.Logic wild areas (QA, F84)", function()
+		local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+		local Config = require(Shared:WaitForChild("Config")) :: any
+		local SPEC_DISTANCE = 2000 -- WildAreaDistance in hometown-cannon.md 7
+		-- each area's floor at its F85 size, camp included, as { min X, max X, min Z, max Z }: the longest sets, so the
+		-- ends nearest the town
+		local AREAS: { [string]: { number } } = {
+			alley = { -1445, -1355, -1540.5, -1259.5 }, -- 90 x 281 round (-1400, -1400)
+			park = { -60, 60, -2170, -1830 }, -- 120 x 340 round (0, -2000)
+			neighbourhood = { -90, 90, 1770, 2230 }, -- 180 x 460 round (0, 2000)
+			woods = { -2260, -1740, -80, 80 }, -- 160 x 520 round (-2000, 0), turned
+			sewer = { 1700, 2300, -60, 60 }, -- 120 x 600 round (2000, 0), turned
+		}
+
+		-- the spec's distance, and the build's once Config.World has one
+		local function distances(): { number }
+			local list = { SPEC_DISTANCE }
+			local built = Config.World.WildAreaDistance
+			if type(built) == "number" then
+				table.insert(list, built)
+			end
+			return list
+		end
+
+		it("never takes a spot in the hometown for the wild, back yards and backdrop ring included", function()
+			for _, distance in distances() do
+				for x = -200, 200, 10 do
+					for z = -200, 200, 10 do
+						if Logic.inWild(x, z, distance) then
+							error(string.format("(%d, %d) in town is wild at %d", x, z, distance))
+						end
+					end
+				end
+			end
+		end)
+
+		it("takes every corner of all five areas and the end nearest the town for the wild", function()
+			for _, distance in distances() do
+				for name, rect in AREAS do
+					local nearX, nearZ = math.clamp(0, rect[1], rect[2]), math.clamp(0, rect[3], rect[4])
+					local points = {
+						{ nearX, nearZ },
+						{ rect[1], rect[3] },
+						{ rect[1], rect[4] },
+						{ rect[2], rect[3] },
+						{ rect[2], rect[4] },
+					}
+					for _, point in points do
+						if not Logic.inWild(point[1], point[2], distance) then
+							error(string.format("%s (%g, %g) is not wild at %d", name, point[1], point[2], distance))
+						end
+					end
+				end
+			end
+		end)
+
+		it("draws the line at half the distance from the town's centre, in every direction", function()
+			expect(Logic.inWild(1000, 0, SPEC_DISTANCE)).to.equal(false)
+			expect(Logic.inWild(1000.01, 0, SPEC_DISTANCE)).to.equal(true)
+			expect(Logic.inWild(-600, 800, SPEC_DISTANCE)).to.equal(false) -- exactly 1000
+			expect(Logic.inWild(-601, 800, SPEC_DISTANCE)).to.equal(true)
+			expect(Logic.inWild(0, -1001, SPEC_DISTANCE)).to.equal(true)
+		end)
+
+		it("is never wild without a usable distance, so the town sounds as before the cannon", function()
+			expect(Logic.inWild(-1400, -1400, nil)).to.equal(false)
+			expect(Logic.inWild(-1400, -1400, "2000")).to.equal(false)
+			expect(Logic.inWild(-1400, -1400, {})).to.equal(false)
+			expect(Logic.inWild(-1400, -1400, 0)).to.equal(false)
+			expect(Logic.inWild(-1400, -1400, -2000)).to.equal(false)
+			expect(Logic.inWild(5, 5, 0)).to.equal(false)
+			expect(Logic.inWild(0, 0, -2000)).to.equal(false)
+			expect(Logic.inWild(-1400, -1400, 0 / 0)).to.equal(false)
+			-- a spot it cannot read is town
+			expect(Logic.inWild(0 / 0, 0, SPEC_DISTANCE)).to.equal(false)
+			if Config.World.WildAreaDistance == nil then
+				expect(Logic.inWild(-1400, -1400, Config.World.WildAreaDistance)).to.equal(false)
+			end
+		end)
+
+		-- PR #574: the Cannon button moves you at once to a cannon nearby, even in a wild area, so it poofs; Home from a
+		-- wild area is a cloud hop, known by where you were or by a fresh CloudHopAt once you have moved
+		it("poofs the Cannon button everywhere and hops every other trip out of a wild area (travelCue)", function()
+			local destinations: { any } = { "home", "cannon", "park", "alley", "Cannon", "", 5, false }
+			local function want(destination: any, wild: boolean, hopping: boolean): string
+				if hopping then
+					return "cloudHop"
+				elseif not wild then
+					return "travelPoof"
+				end
+				return if destination == "cannon" then "travelPoof" else "cloudHop"
+			end
+			for _, wild in { true, false } do
+				for _, hopping in { true, false } do
+					for _, destination in destinations do
+						local got = Logic.travelCue(destination, wild, hopping)
+						if got ~= want(destination, wild, hopping) then
+							error(
+								string.format(
+									"%s, wild %s, hopping %s: %s",
+									tostring(destination),
+									tostring(wild),
+									tostring(hopping),
+									tostring(got)
+								)
+							)
+						end
+					end
+					-- the sweep's home and a reply with no destination behave like Home
+					expect(Logic.travelCue(nil, wild, hopping)).to.equal(want(nil, wild, hopping))
+				end
+			end
+			expect(Cues.travelPoof ~= nil and Cues.cloudHop ~= nil).to.equal(true)
+		end)
+	end)
 end

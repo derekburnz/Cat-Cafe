@@ -107,8 +107,8 @@ Start with 50 coins and a Tabby as Barista earning 1.5 per second. Table 1 at 15
 
 ## The first ten minutes
 
-1. Watch the intro, about 26 seconds with Skip after 5 (F72, [intro-cutscene.md](intro-cutscene.md)), then start inside your cafe by the back door. Tabby is already behind the counter in an apron. A toast shows the rate.
-2. An arrow points to your back door. A Common stray is waiting right behind your cafe even by day. Start a catch, hit the one circle, carry it back, check in.
+1. Watch the intro, about 24 seconds with Skip after 5 (F72, [intro-cutscene.md](intro-cutscene.md)), then start at the Town Square spawn facing the Cat Cannon, with the first-flight hint. Tabby is already behind the counter in an apron. A toast shows the rate.
+2. Hop in the cannon and fly to the Alleyway. A Common stray is waiting just past the camp's way out, even by day. Start a catch, hit the one circle, carry it into the camp, check in.
 3. Give it the Waiter job. It sits at its station in a bow tie and vest and the rate rises. Prompt to buy Table 1.
 4. Prompt to buy the bait bowl and put Kibble in it: "a cat will come by in 10 minutes".
 5. The server opens at sunrise with ten strays in every area and a stuck cat in a bin (v0.9; the first night used to bring them at minute two). Rescue it.

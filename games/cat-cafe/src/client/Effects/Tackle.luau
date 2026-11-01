@@ -17,6 +17,8 @@
 -- (Avatar.holdNet, by NetHold.weight, which also puts the net in the hand), and a tackle's pose blends over that.
 -- The carry (Derek 2026-10-28) is a layer under the Tackle too: while the character carries a cat its arms fold
 -- across its chest (Avatar.carryArms, by Carry.weight, which also puts the cat on them).
+-- The Cat Cannon flight (F84) goes over all of them, at any distance: the hop, the rolling ball and the landing
+-- (CannonGlide.frames).
 -- Listening only: nothing here fires a remote.
 
 local Players = game:GetService("Players")
@@ -25,6 +27,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Avatar = require(script.Parent.Avatar)
+local CannonGlide = require(script.Parent.CannonGlide)
 local Carry = require(script.Parent.Carry)
 local Context = require(script.Parent.Context)
 local Moments = require(script.Parent.Parent.Moments)
@@ -117,6 +120,7 @@ local function forget(character: Model)
 	end
 	NetHold.forget(character)
 	Carry.forget(character)
+	CannonGlide.forget(character)
 end
 
 -- Which way a tackle threw this player, from where the tackler stands: on its front when hit from behind, and
@@ -177,6 +181,7 @@ local function rebind()
 			entries[character] = nil
 			NetHold.forget(character)
 			Carry.forget(character)
+			CannonGlide.forget(character)
 			stale[character] = clock + RETRY_SECONDS
 		elseif old ~= nil then
 			-- the same move goes on (a tool's grip or a new outfit mid-tackle): keep its fall direction and walk-out
@@ -193,7 +198,7 @@ end
 type Layer = { frames: { [Avatar.Joint]: CFrame }, weight: number }
 
 -- Writes this frame's layers into the joints: each over what the Animator played, in order (the net hold or the
--- carry, then the Tackle). A joint this wrote last frame and no layer moves now goes back to the Animator.
+-- carry, then the Tackle or the cannon flight). A joint this wrote last frame and no layer moves now goes back to the Animator.
 local function apply(entry: Entry, layers: { Layer })
 	local moved: { [Avatar.Joint]: boolean } = {}
 	for _, layer in layers do
@@ -264,6 +269,13 @@ local function step(dt: number)
 		local carrying = Carry.weight(character, entry.rig, dt, near)
 		if carrying > 0 then
 			table.insert(layers, { frames = Avatar.carryArms(entry.rig), weight = carrying })
+		end
+		-- a cannon flight over everything, near or far; nobody tackles or is tackled mid-flight
+		local flight, flying = CannonGlide.frames(character, entry.rig, now)
+		if flight ~= nil then
+			table.insert(layers, { frames = flight, weight = flying })
+			apply(entry, layers)
+			continue
 		end
 		if not near then
 			apply(entry, layers)
@@ -360,6 +372,7 @@ function Tackle.start()
 	end
 	NetHold.start()
 	Carry.start()
+	CannonGlide.start()
 	RunService.PreSimulation:Connect(step)
 end
 

@@ -4,7 +4,8 @@
 -- players' tackle poses, the spin wheel, the Codes Cat's circle, crate openings, golden fish, the Mythical cafe styles,
 -- potion glows, the Mystery Visitor, cat level ups, the red "!" over stuck cats, the green flash on decor you put out,
 -- the rarity gems over strays, splashes in water, the intro's puff, the Cat Cannon's flight, clouds and camp
--- check-in, the campfires' moving flames and the big confetti pull for a Legendary or Mythical, all on this client only. Effects read replicated world state (tags and attributes) and this player's own
+-- check-in, the campfires' moving flames, the big confetti pull for a Legendary or Mythical and the clouds in the sky, all on
+-- this client only. Effects read replicated world state (tags and attributes) and this player's own
 -- events; they never fire a remote, never change game state and never move a part the server moves for gameplay. Rules: .claude/skills/animation-vfx/SKILL.md.
 -- Wiring and file map: README.md next to this file.
 
@@ -31,6 +32,7 @@ local Rarity = require(script.Rarity)
 local Rescue = require(script.Rescue)
 local Shove = require(script.Shove)
 local Signature = require(script.Signature)
+local Sky = require(script.Sky)
 local Splash = require(script.Splash)
 local Tackle = require(script.Tackle)
 local Wheel = require(script.Wheel)
@@ -71,6 +73,7 @@ function Effects.start()
 	Cannon.setGlide(CannonGlide)
 	Cannon.start()
 	Campfire.start()
+	Sky.start()
 end
 
 -- "low" on a phone or tablet or in Low performance mode, "high" on a PC or console (Presets.budget).
@@ -91,6 +94,7 @@ end
 -- and a call with unchanged settings changes nothing.
 function Effects.applySettings(settings: { [string]: unknown }?)
 	Context.applySettings(settings)
+	Sky.refresh()
 end
 
 return Effects

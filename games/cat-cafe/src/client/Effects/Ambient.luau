@@ -331,8 +331,10 @@ end
 -- Now and then, instead of a spot on its own bed, a flight over to a spot on a bed close by (`hop`); its spell runs
 -- on until it has landed there and looked about a little. False when it stays.
 local function hopLeg(fly: Butterfly, area: Area, now: number): boolean
-	local hop = Presets.butterfly.hop
-	if rng:NextNumber() >= hop.chance then
+	local b = Presets.butterfly
+	local hop = b.hop
+	-- never once it has started fading out: stretching the spell then would snap it back to full
+	if fly.outSeconds - (now - fly.outAt) < b.fade or rng:NextNumber() >= hop.chance then
 		return false
 	end
 	local target = hopTarget(fly)

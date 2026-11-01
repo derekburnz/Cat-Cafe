@@ -7063,14 +7063,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45,
+        "Transparency": 0.6,
         "PivotOffset": {
          "CFrame": {
           "position": [
@@ -7147,8 +7147,8 @@
          "CFrame": {
           "position": [
            -0.045,
-           5.5,
-           -0.42
+           3.65,
+           -0.53
           ],
           "orientation": [
            [
@@ -7170,8 +7170,8 @@
          }
         },
         "Size": [
-         4.43,
-         1.9,
+         3.558,
+         1.1,
          0.12
         ],
         "Color": [
@@ -7190,8 +7190,8 @@
          "CFrame": {
           "position": [
            -2.925,
-           -5.5,
-           -0.2
+           -3.65,
+           -0.31
           ],
           "orientation": [
            [
@@ -7224,9 +7224,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           2.22,
-           5.5,
-           -0.43
+           1.774,
+           3.65,
+           -0.54
           ],
           "orientation": [
            [
@@ -7248,8 +7248,8 @@
          }
         },
         "Size": [
-         0.1,
-         2.1,
+         0.08,
+         1.26,
          0.14
         ],
         "Color": [
@@ -7273,9 +7273,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -2.31,
-           5.5,
-           -0.43
+           -1.864,
+           3.65,
+           -0.54
           ],
           "orientation": [
            [
@@ -7297,57 +7297,8 @@
          }
         },
         "Size": [
-         0.1,
-         2.1,
-         0.14
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.045,
-           4.5,
-           -0.43
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         4.43,
-         0.1,
+         0.08,
+         1.26,
          0.14
         ],
         "Color": [
@@ -7372,8 +7323,8 @@
          "CFrame": {
           "position": [
            -0.045,
-           6.5,
-           -0.43
+           3.06,
+           -0.54
           ],
           "orientation": [
            [
@@ -7395,8 +7346,8 @@
          }
         },
         "Size": [
-         4.43,
-         0.1,
+         3.558,
+         0.08,
          0.14
         ],
         "Color": [
@@ -7421,8 +7372,8 @@
          "CFrame": {
           "position": [
            -0.045,
-           7.15,
-           -0.37
+           4.24,
+           -0.54
           ],
           "orientation": [
            [
@@ -7444,9 +7395,107 @@
          }
         },
         "Size": [
-         0.12,
-         0.12,
-         0.3
+         3.558,
+         0.08,
+         0.14
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.774,
+           3.06,
+           -0.62
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.06,
+         0.06,
+         0.02
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.774,
+           3.06,
+           -0.345
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.08,
+         0.08,
+         0.25
         ],
         "Color": [
          0.6627,
@@ -7469,19 +7518,19 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.5088,
-           6.85,
-           -0.43
+           1.774,
+           4.24,
+           -0.62
           ],
           "orientation": [
            [
-            -0.4763,
-            -0.8793,
+            -1.0,
+            0.0,
             0.0
            ],
            [
-            -0.8793,
-            0.4763,
+            0.0,
+            1.0,
             0.0
            ],
            [
@@ -7493,14 +7542,14 @@
          }
         },
         "Size": [
-         0.05,
-         1.3096,
-         0.05
+         0.06,
+         0.06,
+         0.02
         ],
         "Color": [
-         0.1686,
-         0.1686,
-         0.2078
+         0.7216,
+         0.5686,
+         0.2275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -7518,19 +7567,19 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.5987,
-           6.85,
-           -0.43
+           1.774,
+           4.24,
+           -0.345
           ],
           "orientation": [
            [
-            -0.4763,
-            0.8793,
+            -1.0,
+            0.0,
             0.0
            ],
            [
-            0.8793,
-            0.4763,
+            0.0,
+            1.0,
             0.0
            ],
            [
@@ -7542,14 +7591,1974 @@
          }
         },
         "Size": [
-         0.05,
-         1.3096,
-         0.05
+         0.08,
+         0.08,
+         0.25
         ],
         "Color": [
-         0.1686,
-         0.1686,
-         0.2078
+         0.6627,
+         0.6863,
+         0.7216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.864,
+           3.06,
+           -0.62
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.06,
+         0.06,
+         0.02
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.864,
+           3.06,
+           -0.345
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.08,
+         0.08,
+         0.25
+        ],
+        "Color": [
+         0.6627,
+         0.6863,
+         0.7216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.864,
+           4.24,
+           -0.62
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.06,
+         0.06,
+         0.02
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.864,
+           4.24,
+           -0.345
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.08,
+         0.08,
+         0.25
+        ],
+        "Color": [
+         0.6627,
+         0.6863,
+         0.7216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.5,
+           4.01,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.595,
+           3.915,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.595,
+           3.82,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.595,
+           3.725,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.5,
+           3.63,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.215,
+           4.01,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.215,
+           3.915,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.215,
+           3.82,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.215,
+           3.725,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.12,
+           3.63,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.26,
+           4.01,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.165,
+           3.915,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.355,
+           3.915,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.165,
+           3.82,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.355,
+           3.82,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.165,
+           3.725,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.355,
+           3.725,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.26,
+           3.63,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.64,
+           4.01,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.545,
+           3.915,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.64,
+           3.82,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.735,
+           3.725,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.64,
+           3.63,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.02,
+           4.01,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.925,
+           3.915,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.9725,
+           3.82,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.19,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.925,
+           3.725,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.02,
+           3.63,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.285,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.3525,
+           4.01,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.19,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.305,
+           3.915,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.495,
+           3.915,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.305,
+           3.82,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.495,
+           3.82,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.305,
+           3.725,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.495,
+           3.725,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.095,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Door_PortholeHatch_Back_Sign",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -1.3525,
+           3.63,
+           -0.605
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.19,
+         0.095,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -7604,9 +9613,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.635,
-           5.985,
-           -0.5
+           1.359,
+           4.01,
+           -0.605
           ],
           "orientation": [
            [
@@ -7628,14 +9637,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -7647,9 +9656,9 @@
         "PivotOffset": {
          "CFrame": {
           "position": [
-           -2.245,
-           -5.985,
-           -0.28
+           -1.521,
+           -4.01,
+           -0.385
           ],
           "orientation": [
            [
@@ -7682,9 +9691,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.675,
-           5.985,
-           -0.5
+           0.75,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -7706,553 +9715,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.805,
-           5.855,
-           -0.5
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.805,
-           5.725,
-           -0.5
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.805,
-           5.595,
-           -0.5
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.675,
-           5.465,
-           -0.5
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.39,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.285,
-           5.985,
-           -0.5
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.285,
-           5.855,
-           -0.5
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.285,
-           5.725,
-           -0.5
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.285,
-           5.595,
-           -0.5
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           1.155,
-           5.465,
-           -0.5
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.39,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.765,
-           5.855,
-           -0.5
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.505,
-           5.855,
-           -0.5
-          ],
-          "orientation": [
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.13,
-         0.13,
-         0.04
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8270,9 +9740,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.765,
-           5.725,
-           -0.5
+           0.654,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -8294,14 +9764,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8319,9 +9789,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.505,
-           5.725,
-           -0.5
+           0.75,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -8343,14 +9813,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8368,9 +9838,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.765,
-           5.595,
-           -0.5
+           0.654,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -8392,14 +9862,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8417,9 +9887,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.505,
-           5.595,
-           -0.5
+           0.75,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -8441,14 +9911,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8466,9 +9936,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.635,
-           5.465,
-           -0.5
+           0.654,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -8490,14 +9960,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8515,9 +9985,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.115,
-           5.985,
-           -0.5
+           0.75,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -8539,14 +10009,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8564,9 +10034,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.245,
-           5.855,
-           -0.5
+           0.654,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -8588,14 +10058,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8613,9 +10083,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.115,
-           5.725,
-           -0.5
+           0.702,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -8637,14 +10107,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8662,9 +10132,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.015,
-           5.595,
-           -0.5
+           0.558,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -8686,14 +10156,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8711,9 +10181,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.115,
-           5.465,
-           -0.5
+           0.414,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -8735,14 +10205,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8760,9 +10230,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.405,
-           5.985,
-           -0.5
+           0.534,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -8784,14 +10254,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8809,9 +10279,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.275,
-           5.855,
-           -0.5
+           0.414,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -8833,14 +10303,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8858,9 +10328,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.34,
-           5.725,
-           -0.5
+           0.558,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -8882,14 +10352,14 @@
          }
         },
         "Size": [
-         0.26,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8907,9 +10377,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.275,
-           5.595,
-           -0.5
+           0.438,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -8931,14 +10401,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -8956,9 +10426,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.405,
-           5.465,
-           -0.5
+           0.558,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -8980,14 +10450,14 @@
          }
         },
         "Size": [
-         0.39,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -9005,9 +10475,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.86,
-           5.985,
-           -0.5
+           0.414,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -9029,14 +10499,14 @@
          }
         },
         "Size": [
-         0.26,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -9054,9 +10524,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.795,
-           5.855,
-           -0.5
+           0.558,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -9078,14 +10548,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -9103,9 +10573,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.055,
-           5.855,
-           -0.5
+           0.414,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -9127,14 +10597,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -9152,9 +10622,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.795,
-           5.725,
-           -0.5
+           0.27,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -9176,14 +10646,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -9201,9 +10671,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.055,
-           5.725,
-           -0.5
+           0.27,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -9225,14 +10695,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -9250,9 +10720,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.795,
-           5.595,
-           -0.5
+           0.27,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -9274,14 +10744,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -9299,9 +10769,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.055,
-           5.595,
-           -0.5
+           0.27,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -9323,14 +10793,14 @@
          }
         },
         "Size": [
-         0.13,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -9348,9 +10818,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.86,
-           5.465,
-           -0.5
+           0.27,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -9372,14 +10842,14 @@
          }
         },
         "Size": [
-         0.26,
-         0.13,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
-         1.0,
-         0.9765,
-         0.949
+         0.9647,
+         0.8745,
+         0.6275
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -9397,9 +10867,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.705,
-           5.145,
-           -0.5
+           0.078,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -9421,9 +10891,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9446,9 +10916,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.565,
-           5.145,
-           -0.5
+           0.078,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -9470,9 +10940,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9495,9 +10965,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.705,
-           5.075,
-           -0.5
+           0.078,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -9519,9 +10989,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9544,9 +11014,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.565,
-           5.075,
-           -0.5
+           0.078,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -9568,9 +11038,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9593,9 +11063,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.705,
-           5.005,
-           -0.5
+           0.078,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -9617,9 +11087,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9642,9 +11112,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.565,
-           5.005,
-           -0.5
+           -0.066,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -9666,9 +11136,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9691,9 +11161,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.705,
-           4.935,
-           -0.5
+           -0.066,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -9715,9 +11185,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9740,9 +11210,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.565,
-           4.935,
-           -0.5
+           -0.066,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -9764,9 +11234,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9789,9 +11259,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.635,
-           4.865,
-           -0.5
+           -0.066,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -9813,9 +11283,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9838,9 +11308,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.425,
-           5.145,
-           -0.5
+           -0.114,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -9862,9 +11332,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9887,9 +11357,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.215,
-           5.145,
-           -0.5
+           -0.402,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -9911,9 +11381,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9936,9 +11406,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.39,
-           5.075,
-           -0.5
+           -0.354,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -9960,9 +11430,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -9985,9 +11455,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.215,
-           5.075,
-           -0.5
+           -0.402,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -10009,9 +11479,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10034,9 +11504,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.425,
-           5.005,
-           -0.5
+           -0.45,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -10058,9 +11528,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10083,9 +11553,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.25,
-           5.005,
-           -0.5
+           -0.402,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -10107,9 +11577,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10132,9 +11602,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.425,
-           4.935,
-           -0.5
+           -0.546,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -10156,9 +11626,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10181,9 +11651,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.215,
-           4.935,
-           -0.5
+           -0.642,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -10205,9 +11675,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10230,9 +11700,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.425,
-           4.865,
-           -0.5
+           -0.546,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -10254,9 +11724,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10279,9 +11749,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.215,
-           4.865,
-           -0.5
+           -0.642,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -10303,9 +11773,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10328,9 +11798,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.005,
-           5.145,
-           -0.5
+           -0.546,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -10352,9 +11822,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10377,9 +11847,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.005,
-           5.075,
-           -0.5
+           -0.642,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -10401,9 +11871,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10426,9 +11896,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.005,
-           5.005,
-           -0.5
+           -0.546,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -10450,9 +11920,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10475,9 +11945,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.005,
-           4.935,
-           -0.5
+           -0.642,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -10499,9 +11969,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10524,9 +11994,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           1.005,
-           4.865,
-           -0.5
+           -0.594,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -10548,9 +12018,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10573,9 +12043,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.725,
-           5.145,
-           -0.5
+           -0.738,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -10597,9 +12067,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10622,9 +12092,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.725,
-           5.075,
-           -0.5
+           -0.882,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -10646,9 +12116,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10671,9 +12141,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.725,
-           5.005,
-           -0.5
+           -0.762,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -10695,9 +12165,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10720,9 +12190,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.725,
-           4.935,
-           -0.5
+           -0.882,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -10744,9 +12214,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10769,9 +12239,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.725,
-           4.865,
-           -0.5
+           -0.738,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -10793,9 +12263,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10818,9 +12288,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.515,
-           5.145,
-           -0.5
+           -0.858,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -10842,9 +12312,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10867,9 +12337,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.515,
-           5.075,
-           -0.5
+           -0.738,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -10891,9 +12361,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10916,9 +12386,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.515,
-           5.005,
-           -0.5
+           -0.882,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -10940,9 +12410,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -10965,9 +12435,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.515,
-           4.935,
-           -0.5
+           -0.738,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -10989,9 +12459,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11014,9 +12484,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.445,
-           4.865,
-           -0.5
+           -0.882,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -11038,9 +12508,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11063,9 +12533,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.025,
-           5.145,
-           -0.5
+           -1.002,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -11087,9 +12557,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11112,9 +12582,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.095,
-           5.075,
-           -0.5
+           -0.978,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -11136,9 +12606,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11161,9 +12631,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.025,
-           5.005,
-           -0.5
+           -1.074,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -11185,9 +12655,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11210,9 +12680,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.045,
-           4.935,
-           -0.5
+           -1.002,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -11234,9 +12704,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11259,9 +12729,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.025,
-           4.865,
-           -0.5
+           -0.978,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -11283,9 +12753,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11308,9 +12778,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.185,
-           5.145,
-           -0.5
+           -1.074,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -11332,9 +12802,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11357,9 +12827,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.325,
-           5.145,
-           -0.5
+           -0.978,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -11381,9 +12851,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11406,9 +12876,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.185,
-           5.075,
-           -0.5
+           -1.074,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -11430,9 +12900,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11455,9 +12925,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.325,
-           5.075,
-           -0.5
+           -1.218,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -11479,9 +12949,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11504,9 +12974,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.185,
-           5.005,
-           -0.5
+           -1.218,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -11528,9 +12998,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11553,9 +13023,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.325,
-           5.005,
-           -0.5
+           -1.218,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -11577,9 +13047,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11602,9 +13072,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.185,
-           4.935,
-           -0.5
+           -1.218,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -11626,9 +13096,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11651,9 +13121,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.325,
-           4.935,
-           -0.5
+           -1.218,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -11675,9 +13145,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11700,9 +13170,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.255,
-           4.865,
-           -0.5
+           -1.41,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -11724,9 +13194,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11749,9 +13219,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.465,
-           5.145,
-           -0.5
+           -1.362,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -11773,9 +13243,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11798,9 +13268,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.675,
-           5.145,
-           -0.5
+           -1.41,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -11822,9 +13292,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11847,9 +13317,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.5,
-           5.075,
-           -0.5
+           -1.458,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -11871,9 +13341,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11896,9 +13366,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.675,
-           5.075,
-           -0.5
+           -1.41,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -11920,9 +13390,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11945,9 +13415,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.465,
-           5.005,
-           -0.5
+           -1.602,
+           3.4585,
+           -0.605
           ],
           "orientation": [
            [
@@ -11969,9 +13439,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -11994,9 +13464,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.64,
-           5.005,
-           -0.5
+           -1.554,
+           3.4105,
+           -0.605
           ],
           "orientation": [
            [
@@ -12018,9 +13488,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12043,9 +13513,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.465,
-           4.935,
-           -0.5
+           -1.578,
+           3.3625,
+           -0.605
           ],
           "orientation": [
            [
@@ -12067,9 +13537,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.096,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12092,9 +13562,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.675,
-           4.935,
-           -0.5
+           -1.554,
+           3.3145,
+           -0.605
           ],
           "orientation": [
            [
@@ -12116,9 +13586,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.048,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12141,9 +13611,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.465,
-           4.865,
-           -0.5
+           -1.602,
+           3.2665,
+           -0.605
           ],
           "orientation": [
            [
@@ -12165,9 +13635,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.144,
+         0.048,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12190,9 +13660,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.675,
-           4.865,
-           -0.5
+           1.269,
+           4.01,
+           -0.605
           ],
           "orientation": [
            [
@@ -12214,9 +13684,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12239,9 +13709,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.85,
-           5.145,
-           -0.5
+           1.449,
+           3.92,
+           -0.605
           ],
           "orientation": [
            [
@@ -12263,9 +13733,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12288,9 +13758,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.815,
-           5.075,
-           -0.5
+           1.359,
+           3.92,
+           -0.605
           ],
           "orientation": [
            [
@@ -12312,9 +13782,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12337,9 +13807,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.955,
-           5.075,
-           -0.5
+           1.539,
+           3.83,
+           -0.605
           ],
           "orientation": [
            [
@@ -12361,9 +13831,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12386,9 +13856,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.85,
-           5.005,
-           -0.5
+           1.449,
+           3.83,
+           -0.605
           ],
           "orientation": [
            [
@@ -12410,9 +13880,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12435,9 +13905,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.815,
-           4.935,
-           -0.5
+           1.359,
+           3.83,
+           -0.605
           ],
           "orientation": [
            [
@@ -12459,9 +13929,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12484,9 +13954,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.955,
-           4.935,
-           -0.5
+           1.539,
+           3.74,
+           -0.605
           ],
           "orientation": [
            [
@@ -12508,9 +13978,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12533,9 +14003,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.815,
-           4.865,
-           -0.5
+           1.449,
+           3.74,
+           -0.605
           ],
           "orientation": [
            [
@@ -12557,9 +14027,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12582,9 +14052,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.955,
-           4.865,
-           -0.5
+           1.359,
+           3.74,
+           -0.605
           ],
           "orientation": [
            [
@@ -12606,9 +14076,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12631,9 +14101,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.165,
-           5.145,
-           -0.5
+           1.539,
+           3.65,
+           -0.605
           ],
           "orientation": [
            [
@@ -12655,9 +14125,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12680,9 +14150,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.165,
-           5.075,
-           -0.5
+           1.449,
+           3.65,
+           -0.605
           ],
           "orientation": [
            [
@@ -12704,9 +14174,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12729,9 +14199,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.165,
-           5.005,
-           -0.5
+           1.359,
+           3.65,
+           -0.605
           ],
           "orientation": [
            [
@@ -12753,9 +14223,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12778,9 +14248,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.165,
-           4.935,
-           -0.5
+           1.539,
+           3.56,
+           -0.605
           ],
           "orientation": [
            [
@@ -12802,9 +14272,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12827,9 +14297,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.165,
-           4.865,
-           -0.5
+           1.449,
+           3.56,
+           -0.605
           ],
           "orientation": [
            [
@@ -12851,9 +14321,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12876,9 +14346,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.445,
-           5.145,
-           -0.5
+           1.359,
+           3.56,
+           -0.605
           ],
           "orientation": [
            [
@@ -12900,9 +14370,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12925,9 +14395,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.375,
-           5.075,
-           -0.5
+           1.539,
+           3.47,
+           -0.605
           ],
           "orientation": [
            [
@@ -12949,9 +14419,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -12974,9 +14444,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.445,
-           5.005,
-           -0.5
+           1.449,
+           3.47,
+           -0.605
           ],
           "orientation": [
            [
@@ -12998,9 +14468,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -13023,9 +14493,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.515,
-           4.935,
-           -0.5
+           1.359,
+           3.47,
+           -0.605
           ],
           "orientation": [
            [
@@ -13047,9 +14517,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -13072,9 +14542,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.445,
-           4.865,
-           -0.5
+           1.449,
+           3.38,
+           -0.605
           ],
           "orientation": [
            [
@@ -13096,9 +14566,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -13121,9 +14591,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.725,
-           5.145,
-           -0.5
+           1.359,
+           3.38,
+           -0.605
           ],
           "orientation": [
            [
@@ -13145,9 +14615,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -13170,9 +14640,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.655,
-           5.075,
-           -0.5
+           1.269,
+           3.38,
+           -0.605
           ],
           "orientation": [
            [
@@ -13194,9 +14664,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -13219,9 +14689,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.69,
-           5.005,
-           -0.5
+           1.179,
+           3.38,
+           -0.605
           ],
           "orientation": [
            [
@@ -13243,9 +14713,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -13268,9 +14738,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.655,
-           4.935,
-           -0.5
+           1.359,
+           3.29,
+           -0.605
           ],
           "orientation": [
            [
@@ -13292,9 +14762,9 @@
          }
         },
         "Size": [
-         0.07,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -13317,9 +14787,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.725,
-           4.865,
-           -0.5
+           1.269,
+           3.29,
+           -0.605
           ],
           "orientation": [
            [
@@ -13341,9 +14811,9 @@
          }
         },
         "Size": [
-         0.21,
-         0.07,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -13366,117 +14836,19 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.6596,
-           5.9298,
-           -0.5
+           1.179,
+           3.29,
+           -0.605
           ],
           "orientation": [
-           [
-            -0.3653,
-            -0.9309,
-            0.0
-           ],
            [
-            -0.9309,
-            0.3653,
-            0.0
-           ],
-           [
-            0.0,
+            -1.0,
             0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0638,
-         0.1711,
-         0.04
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.7996,
-           5.9368,
-           -0.5
-          ],
-          "orientation": [
-           [
-            0.2708,
-            -0.9626,
             0.0
            ],
            [
-            -0.9626,
-            -0.2708,
-            0.0
-           ],
-           [
-            0.0,
             0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.1031,
-         0.1711,
-         0.04
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.9154,
-           5.8578,
-           -0.5
-          ],
-          "orientation": [
-           [
-            0.7971,
-            -0.6038,
-            0.0
-           ],
-           [
-            -0.6038,
-            -0.7971,
+            1.0,
             0.0
            ],
            [
@@ -13488,9 +14860,9 @@
          }
         },
         "Size": [
-         0.1303,
-         0.1711,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -13513,19 +14885,19 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.96,
-           5.725,
-           -0.5
+           1.089,
+           3.29,
+           -0.605
           ],
           "orientation": [
            [
-            1.0,
+            -1.0,
             0.0,
             0.0
            ],
            [
             0.0,
-            -1.0,
+            1.0,
             0.0
            ],
            [
@@ -13537,9 +14909,9 @@
          }
         },
         "Size": [
-         0.14,
-         0.1711,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,
@@ -13562,117 +14934,19 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -1.9154,
-           5.5922,
-           -0.5
+           0.999,
+           3.29,
+           -0.605
           ],
           "orientation": [
-           [
-            0.7971,
-            0.6038,
-            0.0
-           ],
-           [
-            0.6038,
-            -0.7971,
-            0.0
-           ],
            [
-            0.0,
+            -1.0,
             0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.1303,
-         0.1711,
-         0.04
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.7996,
-           5.5132,
-           -0.5
-          ],
-          "orientation": [
-           [
-            0.2708,
-            0.9626,
-            0.0
-           ],
-           [
-            0.9626,
-            -0.2708,
             0.0
            ],
            [
-            0.0,
             0.0,
-            -1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.1031,
-         0.1711,
-         0.04
-        ],
-        "Color": [
-         0.9647,
-         0.8745,
-         0.6275
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       }
-      },
-      {
-       "name": "CatCafe_Door_PortholeHatch_Back_Sign_Bulb",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -1.6596,
-           5.5202,
-           -0.5
-          ],
-          "orientation": [
-           [
-            -0.3653,
-            0.9309,
-            0.0
-           ],
-           [
-            0.9309,
-            0.3653,
+            1.0,
             0.0
            ],
            [
@@ -13684,9 +14958,9 @@
          }
         },
         "Size": [
-         0.0638,
-         0.1711,
-         0.04
+         0.09,
+         0.09,
+         0.03
         ],
         "Color": [
          0.9647,

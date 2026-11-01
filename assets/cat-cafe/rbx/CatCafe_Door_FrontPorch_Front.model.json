@@ -1842,7 +1842,7 @@
         "position": [
          -1.511,
          6.7804,
-         -0.315
+         -0.305
         ],
         "orientation": [
          [
@@ -1866,7 +1866,7 @@
       "Size": [
        0.14,
        0.4763,
-       0.05
+       0.03
       ],
       "Color": [
        0.9647,
@@ -3165,7 +3165,7 @@
         "position": [
          -1.26,
          4.6,
-         -0.34
+         -0.316
         ],
         "orientation": [
          [
@@ -3263,7 +3263,7 @@
         "position": [
          -1.3918,
          4.9182,
-         -0.34
+         -0.328
         ],
         "orientation": [
          [
@@ -3287,7 +3287,7 @@
       "Size": [
        0.34,
        0.16,
-       0.08
+       0.104
       ],
       "Color": [
        0.2431,
@@ -3312,7 +3312,7 @@
         "position": [
          -1.5378,
          5.0157,
-         -0.346
+         -0.385
         ],
         "orientation": [
          [
@@ -3336,7 +3336,7 @@
       "Size": [
        0.34,
        0.16,
-       0.08
+       0.05
       ],
       "Color": [
        0.3725,
@@ -3361,7 +3361,7 @@
         "position": [
          -1.71,
          5.05,
-         -0.34
+         -0.316
         ],
         "orientation": [
          [
@@ -3459,7 +3459,7 @@
         "position": [
          -2.0282,
          4.9182,
-         -0.34
+         -0.316
         ],
         "orientation": [
          [
@@ -3508,7 +3508,7 @@
         "position": [
          -2.1257,
          4.7722,
-         -0.346
+         -0.37
         ],
         "orientation": [
          [
@@ -3557,7 +3557,7 @@
         "position": [
          -2.16,
          4.6,
-         -0.34
+         -0.316
         ],
         "orientation": [
          [
@@ -3655,7 +3655,7 @@
         "position": [
          -2.0282,
          4.2818,
-         -0.34
+         -0.328
         ],
         "orientation": [
          [
@@ -3679,7 +3679,7 @@
       "Size": [
        0.34,
        0.16,
-       0.08
+       0.104
       ],
       "Color": [
        0.2431,
@@ -3704,7 +3704,7 @@
         "position": [
          -1.8822,
          4.1843,
-         -0.346
+         -0.37
         ],
         "orientation": [
          [
@@ -3753,7 +3753,7 @@
         "position": [
          -1.71,
          4.15,
-         -0.34
+         -0.328
         ],
         "orientation": [
          [
@@ -3777,7 +3777,7 @@
       "Size": [
        0.34,
        0.16,
-       0.08
+       0.104
       ],
       "Color": [
        0.2431,
@@ -3851,7 +3851,7 @@
         "position": [
          -1.3918,
          4.2818,
-         -0.34
+         -0.316
         ],
         "orientation": [
          [
@@ -3900,7 +3900,7 @@
         "position": [
          -1.2943,
          4.4278,
-         -0.346
+         -0.37
         ],
         "orientation": [
          [
@@ -5072,14 +5072,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45,
+        "Transparency": 0.6,
         "PivotOffset": {
          "CFrame": {
           "position": [
@@ -5151,14 +5151,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5201,14 +5201,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5251,14 +5251,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5301,14 +5301,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5351,14 +5351,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5401,14 +5401,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5451,14 +5451,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5501,14 +5501,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5551,14 +5551,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5601,14 +5601,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5651,14 +5651,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5701,14 +5701,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5751,14 +5751,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5801,14 +5801,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5851,14 +5851,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5901,14 +5901,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -5951,14 +5951,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -6001,14 +6001,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -6051,14 +6051,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -6101,14 +6101,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       }
      ],
@@ -7932,7 +7932,7 @@
         "position": [
          1.511,
          6.7804,
-         -0.315
+         -0.305
         ],
         "orientation": [
          [
@@ -7956,7 +7956,7 @@
       "Size": [
        0.14,
        0.4763,
-       0.05
+       0.03
       ],
       "Color": [
        0.9647,
@@ -9255,7 +9255,7 @@
         "position": [
          1.26,
          4.6,
-         -0.34
+         -0.316
         ],
         "orientation": [
          [
@@ -9353,7 +9353,7 @@
         "position": [
          1.3918,
          4.9182,
-         -0.34
+         -0.328
         ],
         "orientation": [
          [
@@ -9377,7 +9377,7 @@
       "Size": [
        0.34,
        0.16,
-       0.08
+       0.104
       ],
       "Color": [
        0.2431,
@@ -9402,7 +9402,7 @@
         "position": [
          1.5378,
          5.0157,
-         -0.346
+         -0.385
         ],
         "orientation": [
          [
@@ -9426,7 +9426,7 @@
       "Size": [
        0.34,
        0.16,
-       0.08
+       0.05
       ],
       "Color": [
        0.3725,
@@ -9451,7 +9451,7 @@
         "position": [
          1.71,
          5.05,
-         -0.34
+         -0.316
         ],
         "orientation": [
          [
@@ -9549,7 +9549,7 @@
         "position": [
          2.0282,
          4.9182,
-         -0.34
+         -0.316
         ],
         "orientation": [
          [
@@ -9598,7 +9598,7 @@
         "position": [
          2.1257,
          4.7722,
-         -0.346
+         -0.37
         ],
         "orientation": [
          [
@@ -9647,7 +9647,7 @@
         "position": [
          2.16,
          4.6,
-         -0.34
+         -0.316
         ],
         "orientation": [
          [
@@ -9745,7 +9745,7 @@
         "position": [
          2.0282,
          4.2818,
-         -0.34
+         -0.328
         ],
         "orientation": [
          [
@@ -9769,7 +9769,7 @@
       "Size": [
        0.34,
        0.16,
-       0.08
+       0.104
       ],
       "Color": [
        0.2431,
@@ -9794,7 +9794,7 @@
         "position": [
          1.8822,
          4.1843,
-         -0.346
+         -0.37
         ],
         "orientation": [
          [
@@ -9843,7 +9843,7 @@
         "position": [
          1.71,
          4.15,
-         -0.34
+         -0.328
         ],
         "orientation": [
          [
@@ -9867,7 +9867,7 @@
       "Size": [
        0.34,
        0.16,
-       0.08
+       0.104
       ],
       "Color": [
        0.2431,
@@ -9941,7 +9941,7 @@
         "position": [
          1.3918,
          4.2818,
-         -0.34
+         -0.316
         ],
         "orientation": [
          [
@@ -9990,7 +9990,7 @@
         "position": [
          1.2943,
          4.4278,
-         -0.346
+         -0.37
         ],
         "orientation": [
          [
@@ -11162,14 +11162,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45,
+        "Transparency": 0.6,
         "PivotOffset": {
          "CFrame": {
           "position": [
@@ -11241,14 +11241,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11291,14 +11291,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11341,14 +11341,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11391,14 +11391,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11441,14 +11441,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11491,14 +11491,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11541,14 +11541,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11591,14 +11591,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11641,14 +11641,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11691,14 +11691,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11741,14 +11741,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11791,14 +11791,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11841,14 +11841,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11891,14 +11891,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11941,14 +11941,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -11991,14 +11991,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -12041,14 +12041,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -12091,14 +12091,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -12141,14 +12141,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       },
       {
@@ -12191,14 +12191,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45
+        "Transparency": 0.6
        }
       }
      ],

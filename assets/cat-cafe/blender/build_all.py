@@ -199,10 +199,15 @@ STUDIO_NOTES = {
                                  "owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). "
                                  "Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. "
                                  "F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged "
-                                 "Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper)."
+                                 "Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the "
+                                 "chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, "
+                                 "the awnings' head rails, the sign frame) are "
+                                 "the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim "
+                                 "inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint)."
        for c in plot.COLOURS},
     "CatCafe_Plot_Interior": "Every plot. Big parts collide. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
-    "CatCafe_Plot_ForRent": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, dust sheets over the counter, "
+    "CatCafe_Plot_ForRent": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, the counter half built, a "
+                            "painters' corner with a step ladder and tins, "
                             "boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
     **{f"CatCafe_Plot_Tier{n}": "Cumulative: place every tier up to the cafe's tier." for n in range(1, 6)},
     **{n: f"F66: only while the areas are closed (Clock AreasOpen false), at the pivot of {h}. The fence collides "
@@ -455,6 +460,8 @@ def main():
             extra = {"attachments": furniture.spot_attachments(name, furniture.BED_SPOTS)}
         if name == "CatCafe_Decor_CatTreeTower":
             extra = {"attachments": furniture.spot_attachments(name, crate_decor.TOWER_SPOTS)}
+        if name.startswith("CatCafe_Plot_Cafe_"):  # the roof's trims ride the roof (it fades while you are inside)
+            extra = {"nest": {"_Roof_Trim": "_Roof"}}
         if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
         if name.startswith("CatCafe_Item_Net_L"):  # the hand's spot for the net hold (Animation-Engineer)

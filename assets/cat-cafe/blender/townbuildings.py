@@ -493,9 +493,9 @@ def build_apartments(mat):
     for xx in (bx0 + 0.1, bx1 - 0.1):
         b.span((xx - 0.08, 14.8, F - 1.75), (xx + 0.08, 16.0, F - 1.6), "fur_black")
     b.span((bx0, 16.0, F - 1.8), (bx1, 16.15, F - 1.6), "fur_black")
-    for xx in (bx0 - 0.3, bx1 + 0.3):
+    for xx in (bx0 + 0.08, bx1 - 0.08):                       # the line's poles stand on the balcony (QA scan M12)
         b.span((xx - 0.06, 14.8, F - 1.2), (xx + 0.06, 18.6, F - 1.08), "metal")
-    b.span((bx0 - 0.3, 18.5, F - 1.18), (bx1 + 0.3, 18.56, F - 1.1), "offwhite")
+    b.span((bx0 + 0.05, 18.5, F - 1.18), (bx1 - 0.05, 18.56, F - 1.1), "offwhite")         # ends in the poles
     for k, (sw, w, d) in enumerate((("blush", 0.9, 1.1), ("pastel_sky", 0.7, 0.8), ("offwhite", 1.0, 1.3),
                                     ("pastel_butter", 0.6, 0.9), ("mint", 0.8, 1.0))):
         cx = bx0 + 0.6 + k * 1.15

@@ -1979,7 +1979,7 @@
           "position": [
            -0.2838,
            1.653,
-           -0.2736
+           -0.2895
           ],
           "orientation": [
            [
@@ -2003,7 +2003,7 @@
         "Size": [
          0.1026,
          0.1083,
-         0.0285
+         0.0604
         ],
         "Color": [
          0.8784,
@@ -2241,7 +2241,7 @@
           "position": [
            0.2838,
            1.653,
-           -0.2736
+           -0.2895
           ],
           "orientation": [
            [
@@ -2265,7 +2265,7 @@
         "Size": [
          0.1026,
          0.1083,
-         0.0285
+         0.0604
         ],
         "Color": [
          0.8784,
@@ -4112,7 +4112,7 @@
           "position": [
            0.276,
            1.216,
-           -0.9358
+           -0.9456
           ],
           "orientation": [
            [
@@ -4134,7 +4134,7 @@
          }
         },
         "Size": [
-         0.0114,
+         0.0309,
          0.171,
          0.171
         ],
@@ -4143,19 +4143,19 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45,
+        "Transparency": 0.6,
         "Shape": "Cylinder",
         "PivotOffset": {
          "CFrame": {
           "position": [
-           -0.8407,
+           -0.8505,
            0.276,
            -0.247
           ],
@@ -4193,7 +4193,7 @@
           "position": [
            -0.276,
            1.216,
-           -0.9358
+           -0.9456
           ],
           "orientation": [
            [
@@ -4215,7 +4215,7 @@
          }
         },
         "Size": [
-         0.0114,
+         0.0309,
          0.171,
          0.171
         ],
@@ -4224,14 +4224,14 @@
          0.9137,
          0.8902
         ],
-        "Material": "Glass",
+        "Material": "SmoothPlastic",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
         "CastShadow": false,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Transparency": 0.45,
+        "Transparency": 0.6,
         "Shape": "Cylinder"
        },
        "attributes": {
@@ -4441,7 +4441,7 @@
        "CFrame": {
         "position": [
          -0.3463,
-         0.1045,
+         0.1195,
          -0.1187
         ],
         "orientation": [
@@ -4465,7 +4465,7 @@
       },
       "Size": [
        0.171,
-       0.171,
+       0.201,
        0.418
       ],
       "Color": [

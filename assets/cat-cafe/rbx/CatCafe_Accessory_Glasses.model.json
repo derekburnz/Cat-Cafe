@@ -92,7 +92,7 @@
       "position": [
        0.2,
        0.0,
-       -0.005
+       -0.0225
       ],
       "orientation": [
        [
@@ -116,21 +116,21 @@
     "Size": [
      0.22,
      0.22,
-     0.03
+     0.065
     ],
     "Color": [
      0.8118,
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45
+    "Transparency": 0.6
    }
   },
   {
@@ -191,7 +191,7 @@
       "position": [
        -0.2,
        0.0,
-       -0.005
+       -0.0225
       ],
       "orientation": [
        [
@@ -215,21 +215,21 @@
     "Size": [
      0.22,
      0.22,
-     0.03
+     0.065
     ],
     "Color": [
      0.8118,
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45
+    "Transparency": 0.6
    }
   },
   {

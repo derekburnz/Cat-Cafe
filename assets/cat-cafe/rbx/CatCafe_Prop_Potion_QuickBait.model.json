@@ -124,14 +124,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45,
+    "Transparency": 0.6,
     "Shape": "Cylinder"
    }
   },
@@ -283,14 +283,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45,
+    "Transparency": 0.6,
     "Shape": "Cylinder"
    }
   },
@@ -334,14 +334,14 @@
      0.9137,
      0.8902
     ],
-    "Material": "Glass",
+    "Material": "SmoothPlastic",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
     "CastShadow": false,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Transparency": 0.45,
+    "Transparency": 0.6,
     "Shape": "Cylinder"
    }
   },
@@ -353,7 +353,7 @@
      "CFrame": {
       "position": [
        0.0,
-       1.105,
+       1.1175,
        0.0
       ],
       "orientation": [
@@ -376,7 +376,7 @@
      }
     },
     "Size": [
-     0.17,
+     0.145,
      0.16,
      0.16
     ],
@@ -454,7 +454,7 @@
       "position": [
        0.0,
        0.5,
-       -0.334
+       -0.345
       ],
       "orientation": [
        [
@@ -476,7 +476,7 @@
      }
     },
     "Size": [
-     0.018,
+     0.04,
      0.15,
      0.15
     ],

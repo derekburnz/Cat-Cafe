@@ -201,15 +201,15 @@ class Builder:
         bmesh.ops.recalc_face_normals(self.bm, faces=list({f for v in vs for f in v.link_faces}))
         return self._tag(vs, swatch, bevel)
 
-    def crescent(self, center, radius, thickness, depth, swatch, segments=7):
-        """Blocky crescent moon standing in the XZ plane (faces -Y), horns toward +X."""
+    def crescent(self, center, radius, thickness, depth, swatch, segments=7, horns=1):
+        """Blocky crescent moon standing in the XZ plane (faces -Y), horns toward +X (horns -1: toward -X)."""
         a0, a1 = math.radians(50), math.radians(310)
         seg = (a1 - a0) / segments * radius * 1.2
         for k in range(segments):
             t = a0 + (a1 - a0) * (k + 0.5) / segments
             w = thickness * (0.3 + 0.7 * math.sin(math.pi * (k + 0.5) / segments))
-            c = (center[0] + radius * math.cos(t), center[1], center[2] + radius * math.sin(t))
-            self.box(c, (w, depth, seg), swatch, bevel=False, rot=(-t, "Y"))
+            c = (center[0] + horns * radius * math.cos(t), center[1], center[2] + radius * math.sin(t))
+            self.box(c, (w, depth, seg), swatch, bevel=False, rot=(-t if horns > 0 else t, "Y"))
 
     def star(self, center, outer, inner, height, swatch, points=5, rot=None):
         """Star prism lying flat (rot stands it up), first point toward +Y."""

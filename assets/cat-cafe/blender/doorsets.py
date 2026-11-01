@@ -173,7 +173,7 @@ def _used(rb):
 # ------------------------------------------------------------------------------------------------ door sets --
 class FireEscape:
     """Alley (Common): a red steel door with rivets and a small wired window. A panic bar inside, a lever outside."""
-    NAME, SILL, TRIM, SIGN_Z = "FireEscape", "concrete_dark", "concrete_dark", 0.1
+    NAME, SILL, TRIM, SIGN = "FireEscape", "concrete_dark", "concrete_dark", dict(z=0.0)
     RED, STEEL = "bowl_red", "metal"
 
     def leaf(self, L, b, g):
@@ -235,7 +235,7 @@ class FireEscape:
 class GardenGate:
     """Park (Common): a green plank door with a little round window ringed with leaves, iron straps and a ring pull;
     a ledge and brace inside."""
-    NAME, SILL, TRIM, SIGN_Z = "GardenGate", "dark_wood", "leaf_dark", 0.1
+    NAME, SILL, TRIM, SIGN = "GardenGate", "dark_wood", "leaf_dark", dict(z=0.0, cu=2.7)
     GREEN, GROOVE, IRON, WOOD, LEAVES = "leaf_dark", "dumpster_green", "fur_black", "caramel_wood", ("leaf_green",
                                                                                                       "paw_park")
 
@@ -289,7 +289,7 @@ class GardenGate:
 
 class FrontPorch:
     """Neighbourhood (Rare): a white door with a fanlight window and a wreath, raised panels and brass."""
-    NAME, SILL, TRIM, SIGN_Z = "FrontPorch", "brick", "offwhite", 0.17
+    NAME, SILL, TRIM, SIGN = "FrontPorch", "brick", "offwhite", dict(z=0.17, y0=3.42, bh=1.36, cu=2.925)
     WHITE, MOULD, BRASS = "offwhite", "cream", "brass"
 
     def _wreath(self, L, b, cu, cy, base):
@@ -373,7 +373,8 @@ class FrontPorch:
 
 class LogCabin:
     """Woods (Common): split logs laid across with long iron strap hinges and a ring pull; boards inside."""
-    NAME, SILL, TRIM, SIGN_Z = "LogCabin", "dark_wood", "fur_bramble", 0.1
+    NAME, SILL, TRIM, SIGN = "LogCabin", "dark_wood", "fur_bramble", dict(z=0.07, face=0.07, y0=4.3,
+                                                                                  cu=2.925)
     LOGS, IRON = ("caramel_wood", "fur_acorn", "fur_caramel"), "fur_black"
 
     def leaf(self, L, b, g):
@@ -412,7 +413,7 @@ class LogCabin:
 
 class PortholeHatch:
     """Sewer (Rare): a steel hatch with a bolted round window and a red wheel handle, a bolted band round the edge."""
-    NAME, SILL, TRIM, SIGN_Z = "PortholeHatch", "concrete_dark", "concrete_dark", 0.14
+    NAME, SILL, TRIM, SIGN = "PortholeHatch", "concrete_dark", "concrete_dark", dict(z=0.25, cu=2.925)
     BODY, BAND, BOLT, RIM, WHEEL = "fur_slate", "concrete_dark", "metal", "brass", "bowl_red"
 
     def _wheel(self, L, b, cu, cy, r, n_face, s):
@@ -455,11 +456,12 @@ class PortholeHatch:
 
 class PanedGlass:
     """Classic (Common): a cream door glazed in small panes with offwhite beads, raised panels and a brass knob."""
-    NAME, SILL, TRIM, SIGN_Z = "PanedGlass", "dark_wood", "offwhite", 0.1
+    NAME, SILL, TRIM, SIGN = "PanedGlass", "dark_wood", "offwhite", dict(z=0.04, face=0.04, cu=2.925,
+                                                                                    both=True)
     BODY, BEAD, BRASS = "cream", "offwhite", "brass"
 
     def leaf(self, L, b, g):
-        w, y0, y1 = L.w, L.y0, L.y1
+        w, y1 = L.w, L.y1
         if L.back:
             glazed, cols, rows = (0.5, w - 0.5, 3.2, y1 - 0.5), 3, 3
             panels = [(0.45, ZONE[0] - 0.08, 0.6, 2.75), (ZONE[1] + 0.08, w - 0.45, 0.6, 2.75)]
@@ -516,7 +518,7 @@ def build_back(style, mat):
     root.span((-2.98, 7.51, 0.5), (2.98, 7.95, 0.82), style.TRIM)
     b, g, sign, glow = RB(), RB(), RB(), RB()
     style.leaf(Leaf(1, B_W, B_Y0, B_Y1, B_T, 0.0, True), b, g)
-    doors._sign(sign, glow, z=style.SIGN_Z)
+    doors._sign(sign, glow, **style.SIGN)
     objs = [root.finalize(name, mat), _place(b.finalize(name + "_Leaf", mat), B_HINGE)]
     if _used(g):
         objs.append(_place(g.finalize(name + "_Leaf_Glass", mat), B_HINGE))

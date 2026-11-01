@@ -130,6 +130,50 @@ return function()
 		end)
 	end)
 
+	describe("SpinLogic button", function()
+		local function view(changes: { [string]: any }): any
+			local out: { [string]: any } = {
+				turning = false,
+				skippable = false,
+				waiting = false,
+				readyIn = 0,
+				spins = 1,
+				rows = 6,
+			}
+			for key, value in changes do
+				out[key] = value
+			end
+			return out
+		end
+
+		it("turns into a free Skip while the wheel turns, after a short beat", function()
+			local early = SpinLogic.button(view({ turning = true }))
+			expect(early.text).to.equal("Spinning...")
+			expect(early.enabled).to.equal(false)
+			local skip = SpinLogic.button(view({ turning = true, skippable = true, spins = 0 }))
+			expect(skip.text).to.equal("Skip")
+			expect(skip.enabled).to.equal(true)
+			expect(skip.skip).to.equal(true)
+		end)
+
+		it("counts down the server's cooldown after a skip, then reads Spin! again", function()
+			local cooling = SpinLogic.button(view({ readyIn = 2.4 }))
+			expect(cooling.text).to.equal("Spin in 3s")
+			expect(cooling.enabled).to.equal(false)
+			expect(SpinLogic.button(view({ readyIn = 0.2 })).text).to.equal("Spin in 1s")
+			local ready = SpinLogic.button(view({}))
+			expect(ready.text).to.equal("Spin!")
+			expect(ready.enabled).to.equal(true)
+			expect(ready.skip).to.equal(false)
+		end)
+
+		it("waits for the server, and says when no spin is left", function()
+			expect(SpinLogic.button(view({ waiting = true })).text).to.equal("...")
+			expect(SpinLogic.button(view({ spins = 0, readyIn = 3 })).text).to.equal("No spins")
+			expect(SpinLogic.button(view({ rows = 0 })).enabled).to.equal(false)
+		end)
+	end)
+
 	describe("SpinLogic edges (QA)", function()
 		local ReplicatedStorage = game:GetService("ReplicatedStorage")
 		local Catalog = require(ReplicatedStorage.Shared.Catalog)

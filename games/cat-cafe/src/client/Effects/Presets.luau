@@ -70,6 +70,7 @@ export type Budget = {
 	decorEffects: number, -- Mythical cafe styles and decor moving at once; each takes one of steadyEmitters
 	potionGlows: number, -- players showing a running potion's glow at once (F64), your own first
 	cloudPuffs: number, -- puffs in the full-screen clouds of a cannon flight or a cloud hop (F84)
+	campfires: number, -- campfires whose flame moves, with embers and a light, at once
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -95,6 +96,7 @@ Presets.budget = {
 		decorEffects = 2,
 		potionGlows = 3,
 		cloudPuffs = 10,
+		campfires = 2,
 	},
 	high = {
 		animatedCats = 16,
@@ -115,6 +117,7 @@ Presets.budget = {
 		decorEffects = 4,
 		potionGlows = 6,
 		cloudPuffs = 16,
+		campfires = 3,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -135,6 +138,7 @@ Presets.budget = {
 		decorEffects = 0,
 		potionGlows = 0,
 		cloudPuffs = 6,
+		campfires = 1,
 	},
 } :: { [string]: Budget }
 
@@ -178,6 +182,24 @@ Presets.emitters = {
 		rate = 2.5,
 		acceleration = Vector3.new(1.2, 0.4, 0.4),
 		drag = 0.6,
+	},
+	ember = {
+		-- A campfire's embers: soft warm dots drifting up and fading, never sparks.
+		texture = Presets.textures.smoke,
+		colors = {
+			Presets.palette.lampWarm,
+			Color3.fromRGB(255, 170, 84),
+			Color3.fromRGB(232, 112, 64),
+		},
+		size = { 0.16, 0.04 },
+		transparency = { 0, 1 },
+		lifetime = { 1.2, 2.2 },
+		speed = { 1.5, 3 },
+		spread = 22,
+		rate = 3,
+		acceleration = Vector3.new(0.25, 0.5, 0.15),
+		drag = 0.7,
+		lightEmission = 1,
 	},
 	fireflies = {
 		texture = Presets.textures.sparkle,
@@ -1921,6 +1943,30 @@ Presets.clouds = {
 	},
 	hopPuff = 12, -- smokePuff particles where onlookers see a player hop away and arrive
 	moved = 30, -- studs a root jumps in one step during a hop: it has arrived
+}
+
+-- The campfires (the Woods' campsite and the Great Oak clearing; Derek 2026-10-30: "The fire from the camp fire
+-- isnt moving"). Model-Agent's flame (the `_Campfire_Glow` model: three tongues of three stacked Neon discs) moves on
+-- this client: each tongue stretches and squashes, leans and bends a little more at the tip, and flickers brighter,
+-- out of step with the others. Warm embers drift up off it with a small pop of them now and then, and a warm light
+-- flickers with the flame, brighter at night. With Reduce Motion the flame moves `still` as much. The nearest
+-- `campfires` (budget) within ambientRadius run; the rest stand as modelled.
+Presets.campfire = {
+	stretch = 0.2, -- of the modelled height, either way
+	lean = 9, -- degrees at the tip
+	hz = { 1.7, 2.9, 4.3 }, -- the three waves each tongue's motion is made of
+	still = 0.4,
+	gap = 0.05, -- studs across the ground between the discs of one tongue
+	brighten = 0.2, -- how far the flicker lifts each disc's colour toward `hot`
+	hot = Presets.palette.lampWarm,
+	light = Color3.fromRGB(255, 176, 102),
+	range = 14, -- studs
+	brightness = 1.1,
+	flicker = 0.35, -- of the brightness, either way
+	night = 1.6, -- times the brightness at night
+	emberHeight = 1.2, -- studs over the flame's base the embers leave from
+	popEvery = { 2.5, 5 }, -- seconds between pops
+	pop = 5, -- embers in a pop
 }
 
 -- A cat checked in at a camp (F84 section 4): it hops out of its carrier's arms in an arc `hopHeight` studs high

@@ -394,7 +394,7 @@ end
 -- A door set or cat flap model (F80) named `name` in plot.decor at `at`, carrying `decorId` for the equip flash, or
 -- none when `asset` is nil. It never collides, is touched or blocks a cast, so both doorways stay open to players,
 -- customers and cats. It is Persistent and only moved when its place changes, so each client keeps the leaves and
--- the flap it swings (DoorController); a door set's back door sign comes hidden for the night (hideSignByDay).
+-- the flap it swings (DoorController); a door set's back door sign comes off (removeDoorSign).
 local function showStyleModel(
 	plot: WorldBuilder.Plot,
 	name: string,
@@ -430,7 +430,7 @@ local function showStyleModel(
 				part.CanQuery = false
 			end
 		end
-		WorldBuilder.hideSignByDay(model)
+		WorldBuilder.removeDoorSign(model)
 		model:PivotTo(at)
 		model.Parent = plot.decor
 	end
@@ -804,9 +804,16 @@ local function newUid(): string
 	return CatStats.uidFromGuid(HttpService:GenerateGUID(false))
 end
 
-function CafeService.advanceTutorial(profile: Profile, step: number)
-	if profile.tutorialStep < step then
+-- Moves the tutorial on to `step` when it is behind, and logs tutorial_step for every step it passes, as
+-- TutorialAdvance does for the steps the client reports, so a step skipped over (an upgrade bought from step 3, a
+-- catch before the alley step) still counts and never reads as a drop in the funnel.
+function CafeService.advanceTutorial(player: Player, profile: Profile, step: number)
+	local from = profile.tutorialStep
+	if from < step then
 		profile.tutorialStep = step
+		for passed = from + 1, step do
+			Telemetry.custom(player, "tutorial_step", 1, { tostring(passed) })
+		end
 	end
 end
 
@@ -902,12 +909,12 @@ function CafeService.addCaughtCat(
 			if isNew or firstGold then "first_catch" else "repeat_catch"
 		)
 	end
-	CafeService.advanceTutorial(profile, 2)
+	CafeService.advanceTutorial(player, profile, 2)
 
 	for _, spot in Catalog.spots do
 		if Economy.spotIsOpen(profile, spot.id) and Economy.catOnSpot(profile, spot.id) == nil then
 			instance.spotId = spot.id
-			CafeService.advanceTutorial(profile, 3)
+			CafeService.advanceTutorial(player, profile, 3)
 			Telemetry.onboarding(player, profile, "first_role")
 			break
 		end
@@ -1002,7 +1009,7 @@ local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
 		return
 	end
 	instance.spotId = spotId
-	CafeService.advanceTutorial(profile, 3)
+	CafeService.advanceTutorial(player, profile, 3)
 	Telemetry.onboarding(player, profile, "first_role")
 	Telemetry.catWorking(player, uid)
 	local catDef = Catalog.getCat(instance.catId)
@@ -1051,7 +1058,7 @@ local function onEquipBest(player: Player)
 		end
 	end
 	if plan.catsPlaced > 0 then
-		CafeService.advanceTutorial(profile, 3)
+		CafeService.advanceTutorial(player, profile, 3)
 		Telemetry.onboarding(player, profile, "first_role")
 	end
 	Net.toast(
@@ -1164,7 +1171,7 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 	profile.upgradeLevels[upgradeId] = Economy.level(profile, upgradeId) + 1
 	if upgradeId == "tables" then
 		-- a player who already baited the bowl has done step 5's task too (reviewer S48)
-		CafeService.advanceTutorial(profile, if profile.stats.luresUsed > 0 then 5 else 4)
+		CafeService.advanceTutorial(player, profile, if profile.stats.luresUsed > 0 then 5 else 4)
 		Telemetry.onboarding(player, profile, "first_table")
 	end
 	local def = Catalog.getUpgrade(upgradeId) :: Types.UpgradeDef

@@ -295,6 +295,14 @@ Derek's Set 5 answers Q1 to Q4 settle the net swing, circles by rarity, bands by
 |---|---|---|---|---|---|---|
 | F93 | Catch and rescue rework: every character holds a net by net level, put away while carrying; click, R2 or a Net button swings (0.8 s cooldown) and the server judges a 7 stud, 120 degree arc when the net lands; a hit starts the catch or picks up a dropped cat, a miss near free strays makes them hop a quarter of their sprint (never before a player's first catch); circles 3 to 7 by rarity and faster, nets widen bands only, one CircleJitter; each circle clears with its grade, a progress strip of pips, a result word (PURRFECT, EXCELLENT, GREAT or "So close!") with a burst; rescue zones last two sweeps, the marker speeds up 8% a hit, `rescueHits` 3 to 7, with a paw marker, trap shake, pips, a deadline ring and a free burst | P0 | L | engineer, animation, asset, ui, vfx, sound, qa | F43 catching, 10b rescues | A swing at a stray 7 studs ahead starts its catch and one behind does not; a Mythical shows seven circles on every net; after a Miss nothing else shows a grade; a rescue zone unhit for two sweeps costs a paw |
 
+## 2z. Fewer, better rewards and the two rotating shops (Derek's Set 4 answers Q5, Q6 and Q9 and his 2026-11-01 22:32 note, decided)
+
+Spec in [rewards-and-shops.md](rewards-and-shops.md). It changes the prize tables in data-model 11b to 12b, quests.md and golden-fish.md 5 and 5b, the dealer in data-model 8b and the Golden Fish Market. Save change: `freshCatch` in, `dealer` out.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F94 | Rewards and shops: no Kibble, Tuna or Salmon in any prize, small golden fish amounts in their place, at most two pictures a prize (three for the big ones); new Tip Jar, wheel, Daily Treat, quest, Index, Mystery gift, Collector and code rows; a Fresh Catch shelf at the Golden Fish Market that sells potions (and now and then a cheaper Classic Crate) for golden fish by day, its stock rolled every 5 minutes for all servers with per player amounts and a once a window toast for the rare ones; the night dealer rolls one stock per server at dusk that holds all night; "money" in place of "tips" on income text, with the Tip and Big Tip Potions renamed Money and Big Money Potions | P1 | M | engineer, ui, asset, qa | F47 to F49, F53, F64, F70, F73 | No prize pays shop food or shows more than two pictures (three for the big ones); two servers show the same Fresh Catch stock in one window; the dealer's stock holds all night and differs between servers |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

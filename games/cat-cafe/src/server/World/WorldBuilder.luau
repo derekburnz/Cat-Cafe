@@ -213,27 +213,24 @@ function WorldBuilder.setBackDoorOpen(plot: Plot, open: boolean)
 	plot.backDoor.Transparency = if open or plot.backDoorArt ~= nil then 1 else 0
 end
 
--- A back door's CLOSED UNTIL SUNRISE sign comes hidden: each part of its `_Sign` plate and `_Sign_Bulb` models keeps
--- its look in NightTransparency for DoorController and the bulbs' day look is hidden, so WorldController lights them
--- at night only. The cafe's own back door art and an F80 door set's back door (CafeService) both carry one.
-function WorldBuilder.hideSignByDay(model: Model)
+-- A back door's CLOSED UNTIL SUNRISE sign (its `_Sign` plate and `_Sign_Bulb` letters) comes off. Derek's 10-30
+-- playtest found it showing through the door's window from inside and still up by day, and the hometown (F84,
+-- data-model v0.13.17) drops the back doors' signs anyway: the back door opens onto the cafe's own yard. The cafe's
+-- own back door art and an F80 door set's back door (CafeService) both carry one.
+function WorldBuilder.removeDoorSign(model: Model)
 	for _, descendant in model:GetDescendants() do
-		local holder = descendant.Parent
 		if
-			descendant:IsA("BasePart")
-			and holder ~= nil
-			and (holder.Name:sub(-5) == "_Sign" or holder.Name:sub(-10) == "_Sign_Bulb")
+			descendant:IsA("Model")
+			and (descendant.Name:sub(-5) == "_Sign" or descendant.Name:sub(-10) == "_Sign_Bulb")
 		then
-			local piece = descendant :: BasePart
-			piece:SetAttribute("NightTransparency", piece.Transparency)
-			piece.Transparency = 1
+			descendant:Destroy()
 		end
 	end
 end
 
 -- The real back door (Model-Agent #509) at the plot's pivot, tagged CafeBackDoor: the threshold and architrave stay
 -- put and each client swings the _Leaf and turns the _Flap (DoorController). Nothing on it collides or blocks a ray,
--- so the code-built panel stays the collider. Its sign comes hidden (hideSignByDay).
+-- so the code-built panel stays the collider. Its sign comes off (removeDoorSign).
 local function buildBackDoorArt(cframe: CFrame, parent: Instance): Model
 	local art = AssetRegistry.clone(BACK_DOOR_ART)
 	art.Name = "BackDoorArt"
@@ -247,7 +244,7 @@ local function buildBackDoorArt(cframe: CFrame, parent: Instance): Model
 			piece.CanTouch = false
 		end
 	end
-	WorldBuilder.hideSignByDay(art)
+	WorldBuilder.removeDoorSign(art)
 	art:PivotTo(cframe)
 	CollectionService:AddTag(art, "CafeBackDoor")
 	art.Parent = parent
@@ -752,6 +749,10 @@ local function buildPlot(index: number, parent: Instance): Plot
 		richTipAnchor = richTipAnchor,
 	}
 	WorldBuilder.setDressing(plot, 0)
+	-- Shut as an empty plot's, and unseen under the real door: the panel was built in sight, and on a plot nobody had
+	-- taken since the server started its green planks stood round the art's leaf, sign and flap frame (Derek's 10-30
+	-- playtest, Model-Agent's read).
+	WorldBuilder.setBackDoorOpen(plot, false)
 	model.Parent = parent
 	return plot
 end

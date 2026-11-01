@@ -43,7 +43,9 @@ local FOV = 30
 local THREE_QUARTER = 35 -- degrees turned from face-on, so the body shows behind the head
 local SWAY_DEGREES = 20 -- each side of the three-quarter view
 local SWAY_SECONDS = 4
-local SILHOUETTE = Color3.fromRGB(38, 30, 26) -- multiplies the render: every part goes this dark brown
+-- multiplies the render: every part goes black (Derek's Set 4 answer, 2026-11-01: "what hasn't been found with a
+-- black filling"; was a dark brown)
+local SILHOUETTE = Color3.fromRGB(8, 8, 10)
 local HEAD_TURN = 15 -- degrees from face on for a head shot, so both eyes show
 local HEAD_SWAY = 10
 local HEAD_PIECES = { "Head", "Ear", "Eye" } -- the placeholder's head parts; the exporter's sit in <name>_Head

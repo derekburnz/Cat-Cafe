@@ -243,9 +243,17 @@ local function showCrate(template: Model, top: Vector3, rare: Color3?, popped: (
 		if model.Parent == nil then
 			return -- the next open took its place
 		end
+		-- a big pull's glow and light fade with it: a Highlight still draws on a part that has faded out
+		local fade = TweenInfo.new(c.fade)
 		for _, descendant in model:GetDescendants() do
 			if descendant:IsA("BasePart") then
-				TweenService:Create(descendant, TweenInfo.new(c.fade), { Transparency = 1 }):Play()
+				TweenService:Create(descendant, fade, { Transparency = 1 }):Play()
+			elseif descendant:IsA("Highlight") then
+				TweenService
+					:Create(descendant, fade, { FillTransparency = 1, OutlineTransparency = 1 })
+					:Play()
+			elseif descendant:IsA("PointLight") then
+				TweenService:Create(descendant, fade, { Brightness = 0 }):Play()
 			end
 		end
 		task.delay(c.fade, function()
@@ -273,7 +281,9 @@ local function opened(crateId: string, decorId: string)
 	local function pop(from: Vector3)
 		Particles.burst("dust", from, m.puff, Presets.palette.fishBelly)
 		if big then
-			Pull.world(from + Vector3.new(0, m.above, 0), top, rarity)
+			-- a Mythical's shockwave runs over the ground round the stall, not the counter top
+			local floor = Pull.floorBelow(top, { station }, m.floorDepth)
+			Pull.world(from + Vector3.new(0, m.above, 0), top, rarity, floor)
 			Pull.screen(rarity, false)
 		else
 			Catch.pop(from + Vector3.new(0, m.above, 0), top, rarity)

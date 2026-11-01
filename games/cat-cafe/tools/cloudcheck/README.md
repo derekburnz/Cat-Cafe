@@ -51,3 +51,28 @@ A state lives for one spec file, and the whole suite peaks at about 190 MB (abou
 - `script.Parent.Foo` outside of `require()` is typed as `Instance` (luau-lsp knows the tree), so those lines
   are reported as info, not errors. Pass `--all-lints` to see them.
 - `Instance.new("X")` and `game:GetService("X")` are cast to `X` by text rewrite before checking.
+
+## World scan: floating, gaps and clipping (QA, 2026-11-01)
+
+```
+npm run worldscan                               # node worldscan.mjs --assets, report in <system temp>/cat-cafe-worldscan
+node worldscan.mjs --out ./scan --tier 3        # cafes dressed at Tier 3 instead of 5; no per-model pass
+```
+
+Derek, 2026-10-30: "lots of models are not connected to each other and are floating or have gaps especially around
+the cafe", and "models with unfortunate placement clip into each other". This builds the real world and checks it.
+
+| File | What |
+|---|---|
+| `worldscan.mjs` | Loads all 453 models from `assets/cat-cafe/rbx/` as `ReplicatedStorage.Assets`, runs `WorldBuilder.build()`, dresses every cafe at the chosen tier with its patio open and back door art on (as `CafeService` does), dumps every part and writes the report. About 75 s, 150 s with `--assets`. |
+| `world-shim.luau` | A small Roblox with real geometry for the world code: `Vector3`, `CFrame` (all constructors, `*`, `Inverse`, `ToWorldSpace`/`ToObjectSpace`, `Lerp`), `Color3`, instances with parents, attributes, tags, `GetPivot`/`PivotTo`, `GetBoundingBox`, `ScaleTo`, `Clone` and `Workspace:Raycast` against boxes. `dumpParts(root)` writes one line per part. Separate from `roblox-shim.luau` on purpose: the tests' shim stays small. |
+| `worldscan-checks.mjs` | Every part as an oriented box (a cylinder or ball as the box round it, a SpecialMesh by its scale) and the separating axis test between neighbours. **Floating**: a drawn group with no chain of parts within 0.1 studs down to the ground. **Seams**: faces 0.05 to 0.6 studs apart, overlapping at least 0.3 studs each way, with at least 3 of 5 sample points in between open, and only where it shows (side by side, or a tall thing over a floor). **Clipping**: a drawn part of one placed model more than 0.12 studs into another model, leaving out props set into the floor and doors and windows set into walls. |
+
+Output, positions in world studs (y up, the Town Square at the origin): `world-scan.md` (folded tables per Cafes,
+Town and Areas, then "Inside the model files"), `floating.csv`, `seams.csv`, `clipping.csv`, `models.csv` and
+`world-parts.tsv` (every part: path, class, shape, CFrame, size, transparency, collide, mesh, model, material).
+
+Limits: boxes only, so a round or wedge part can show a gap or overlap its real shape does not have (a reported gap
+is at least that wide); Terrain, Studio-placed parts and anything built after join at runtime (customers, cats,
+effects) are not in it; the area sets are checked in place, not on their own. It reads the code and models on disk,
+so run it on the branch you want checked.

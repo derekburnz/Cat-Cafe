@@ -1597,6 +1597,7 @@ Presets.market = {
 	puff = 6, -- dust particles, tinted like ice
 	counterY = 3.1,
 	counterZ = -0.65,
+	floorDepth = 12, -- how far under the counter a Mythical crate's shockwave looks for the ground
 }
 -- The opened crate on the counter (crates.py's models, about 2.5 by 2 by 2 studs at full size): scaled down to sit on
 -- the stall's ice, the lid swung up `lidDegrees` (crates.py: 105 is wide open with no clipping) over `lidSeconds`,

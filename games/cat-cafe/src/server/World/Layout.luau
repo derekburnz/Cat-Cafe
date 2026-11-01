@@ -76,8 +76,9 @@ Layout.stuckPoses = {
 	-- the wriggles (Logic.stuckStyle, #545) read: back end out of the bin, can and bags, upside down on the tree.
 	-- Nose first into the bin under the open lid: back end, back legs and tail out of the top.
 	CatCafe_Alley_TrashBin = { 0, 2.55, -0.57, -1, 0, 0, 0, 0, 1, 0, 1, 0 },
-	-- Diving nose first into the bag pile, back end up and the back legs off the ground.
-	CatCafe_Alley_GarbageBags = { -0.4, 0, -0.45, -1, 0, 0, 0, 0.9063, 0.4226, 0, 0.4226, -0.9063 },
+	-- Nose first 60 degrees into the top of the big bag, back end up and the back legs off the ground (Animation-
+	-- Engineer's refit after Derek's 14:17 note, head hidden through the wriggle).
+	CatCafe_Alley_GarbageBags = { -0.45, 0.75, -0.8, -1, 0, 0, 0, 0.5, 0.866, 0, 0.866, -0.5 },
 	-- Hanging upside down under the shakeable branch, all four paws round it, facing the tip.
 	CatCafe_Park_RescueTree = { -2.2, 4.1, 0, 0, 0, 1, 0, -1, 0, 1, 0, 0 },
 	-- Nose first into the can under the lid, back end out of the top.
@@ -99,7 +100,8 @@ Layout.setStuckPoses = {
 	shed = { 0, 0, 0.75, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- head first through the jammed door (+Z), back end out
 	gutter = { 0, 1.25, 0.1, -1, 0, 0, 0, -1, 0, 0, 0, 1 }, -- on its back across the gutter, head over the front edge
 	hollow_log = { 3.5, 0.5, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0 }, -- head first into the open end (+X), back end out
-	bramble_bush = { 0, 3.9, 0, 0, 0, 1, 0, -1, 0, 1, 0, 0 }, -- on its back on top of the bush, legs up
+	-- nose first 70 degrees into the top front of the bush, back end out (refit with #581's back end wriggle)
+	bramble_bush = { 0, 2.56, -1.17, -1, 0, 0, 0, 0.342, 0.9397, 0, 0.9397, -0.342 },
 	tree = { 0.5, -0.55, 0, 0, 0, 1, 0, -1, 0, 1, 0, 0 }, -- hanging under the tree house branch, facing its tip
 	grate = { 0, 0.45, -0.57, -1, 0, 0, 0, 0, 1, 0, 1, 0 }, -- nose down through the grate, back end up
 	drain_pipe = { 0, 0.55, 0.5, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- head first into the mouth (-Z side), back end out

@@ -343,6 +343,14 @@ Spec in [rainbow-coat.md](rainbow-coat.md). Before release per Derek's 2026-11-0
 |---|---|---|---|---|---|---|
 | F99 | Rainbow coat: a third coat rolled before gold at one tenth of its chance (0.5% strays and bait, 1% rescues), earning x3 (gold x1.5); flowing rainbow bands, a glow, a sparkle trail and a spawn beam with a server toast; the big pull for every rainbow; a Rainbow Index tab and one Rainbow track of five milestones with rainbow luck up to +100%; odds on every food card; Collector x10 | P1 | M | engineer, vfx, ui, sound, qa | F42 gold, F89 big pull, F97 Index tabs | A forced rainbow stray shows the coat, beam and toast to the whole server; 100,000 cloud rolls give 0.5% rainbow and 5% gold; a rainbow cat earns twice its gold self |
 
+## 2af. One extra thing at each camp (Derek's Set 4 Q4 answer, decided)
+
+Spec in [camp-extras.md](camp-extras.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `campExtras`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F100 | Camp extras, one per tier from Tier 2: a Picnic Basket in the Park (a Money Potion every 6 h, holds 2), a Yard Sale in the Neighbourhood (two crates a day at 40 fish), a Fish Pond in the Woods (2 fish every 30 min, holds 24) and a Lost and Found in the Sewer (one free prize a day from a shown table, holds 3); each fills while away, sits in the safe camp and shows its state on the cannon picker card with a "!" only when there is something to claim; no food, nothing for Robux | P2 | M | engineer, ui, asset, animation, sound, qa | F84 camps and picker | A player away 7 hours sees the pond at 24 with a "!" on the Woods card; a collect from outside the camp is refused; the Yard Sale stock matches across servers |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

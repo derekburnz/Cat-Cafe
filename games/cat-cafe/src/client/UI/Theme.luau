@@ -253,6 +253,7 @@ Theme.icons = {
 	equipBest = "✨",
 	drop = "⬇️",
 	settings = "⚙️",
+	feedback = "💬", -- the HUD's Feedback tile and the Feedback window's badge
 	gifts = "🎁",
 	spin = "🎡",
 	goldenFish = "🐟", -- in text only; tiles and the HUD draw the cat-face coin (Components/FishCoin)

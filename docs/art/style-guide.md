@@ -345,6 +345,8 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Alleyway set pieces | 5,000 to 6,000 | arches, building backs and the town buildings (Warehouse 6,000); crate stack 3,000, laundry line 2,500, long string lights 1,500, manhole 2,500 |
 | Cafe plot set pieces | 12,000 shell, 8,000 interior, 4,000 For Rent, 3,000 per tier, 4,000 back door | built from blocks for the Part export (section 14); the FBX is the reference |
 | Door sets and cat flaps (F80) | 4,000 per door half, 1,600 per flap | `doorsets.py`: front double doors land at 1,196 to 3,292, back doors 2,254 to 3,278, flaps 256 to 1,336 |
+| Hometown cannon (F84) | 8,000 square, 6,000 per camp, 1,500 landing pad | `cannon.py`: the Town Square cannon (plinth, turret, moon cover and statue) lands at 7,004, each camp cannon 5,104, the pad 1,444 |
+| Camps (F84) | 20,000 | `camps.py`: ground, walls, pad, carrier basket and theme props land at 7,162 (Sewer) to 10,322 (Neighbourhood) |
 | Items | 300 | dealer foods: Sardines 400, Caviar 600; TipPile prop 600 |
 
 The build script prints the triangle count for every export and fails the build if a budget is exceeded.
@@ -460,6 +462,19 @@ the Woods in timber posts and a log beam with moss, mushrooms and small spruces;
 stripes, a big pipe and slime; the Neighbourhood in brick with a white pergola, hedges and a mailbox.
 
 The town buildings (`CatCafe_Alley_Building_<Name>`, `townbuildings.py`) replace the repeated backs and the staff door with whole little buildings, each its own colour, height and roof so no two neighbours match: Bakery, Townhouses, Warehouse, Grocer, Apartments, ClockHouse, MusicShop and NarrowHouses. Shops say what they are with a hanging picture sign (bread, apple, music note), never words. Each is 30.6 wide like the backs, with a 3 deep body standing over the 1 thick outer wall: the pivot is the back plane at the bottom centre, set 2.25 behind the wall's inner face so the facade is 1 out into the lane and the body's back meets the Woods' and the Sewer's own walls (only the back sills and eaves reach 0.25 into them); lane-side doors, sills, canopies and lamps keep within 3.5 of the facade. The backs have plain windows for the areas behind. The Warehouse carries the walkable fire escape at the FireEscape's place (`ledges_roblox`), so the crate stack beside it still climbs to landing 1.
+
+The hometown cannon (F84, `cannon.py`) stands in the middle of the Town Square: a cream barrel with gold bands and
+teal paws on a teal carriage with gold-rimmed wheels, a ladder up the back to the hatch, a fuse on the left shoulder,
+on a round cream plinth with two steps to the south, a coping paw print in each area's colour pointing its way and
+the golden waving cat statue on the south-east. `_Turret` turns about Y at its pivot to aim (the turns are in the
+manifest's `turret`); `_MoonCover`, a night-sky cap with a gold crescent and stars, closes the mouth at night. The
+landing pad is a flat cream disc with a paw print in the trim colour and a ring of dashes. Each side area has a camp
+outside its gate (`CatCafe_Camp_<Area>`, `camps.py`): 30 deep and as wide as the area, its ground and path in the
+area's swatches, low themed walls on the back and sides under a tall invisible barrier, a red SAFE ZONE line at the
+gate, the landing pad, a three-quarter cannon at the back trimmed in the area's colour (`CatCafe_Camp_Cannon_<Area>`)
+and a wicker carrier basket beside the pad (`CampBasket` tag, `Drop` attachment). Theme props: the Park's benches,
+lamps, trees and flowerbeds; the Neighbourhood's mailbox, bins, lamp posts, picket fences and hedges; the Woods' tent,
+campfire, log benches, lanterns and pines; the Sewer's manhole, big pipe, wall lanterns, barrels, cones and tyres.
 
 Where a model meets the code-built walls (gates and arches, 2026-10-27, Derek: "a lot of the gate models for zones
 are clipping in eachother and can see it when walking"): a wall that ends at an opening must end inside a post, never

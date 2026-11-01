@@ -4,6 +4,9 @@
 -- part of a window or beside it never shuts it (Derek 2026-10-27). Screens register a frame plus optional
 -- onOpen/onClose callbacks.
 -- Opening plays uiOpen and closing uiClose, so the buttons that only open or close a screen stay silent.
+-- A window shrinks away for 0.16 s as it closes. If another one opens in that time (F, a HUD button or a window's
+-- own "open the next one"), the closing one goes at once, so two never stay up together and closing one never shuts
+-- both (Derek 2026-10-30: "ui pop ups get stuck on top of eachother").
 
 local Create = require(script.Parent.Create)
 local Scale = require(script.Parent.Parent.Scale)
@@ -83,7 +86,7 @@ function Modal.new(parent: Instance): Modal
 	self._uiScale = uiScale
 	self._screens = {} :: { [string]: Screen }
 	self._current = nil :: string?
-	self._closing = false
+	self._closing = nil :: GuiObject? -- the frame still shrinking away after close()
 
 	if parent then
 		screenGui.Parent = parent
@@ -118,7 +121,12 @@ function Modal.open(self: any, name: string)
 			previous.onClose()
 		end
 	end
-	self._closing = false
+	-- a window still shrinking away goes now, so it never stays up under this one
+	local closing: GuiObject? = self._closing
+	if closing and closing ~= screen.frame then
+		closing.Visible = false
+	end
+	self._closing = nil
 	self._current = name
 	self.screenGui.Enabled = true
 	Tween.to(
@@ -138,19 +146,27 @@ end
 
 function Modal.close(self: any)
 	local name = self._current
-	if not name or self._closing then
+	if not name then
 		return
 	end
 	local screen: Screen = self._screens[name]
-	self._closing = true
+	local frame = screen.frame
+	self._closing = frame
 	self._current = nil
 	Sound.play("uiClose")
 	Tween.to(self._backdrop, Tween.FAST, { BackgroundTransparency = 1 })
-	Tween.popOut(screen.frame, function()
-		if self._closing then
-			screen.frame.Visible = false
-			self.screenGui.Enabled = false
-			self._closing = false
+	Tween.popOut(frame, function()
+		-- reopened while it shrank: it stays (its pop in cancelled this)
+		if self._current == name then
+			return
+		end
+		frame.Visible = false
+		-- only the last window to close turns the layer off, and only when nothing has opened since
+		if self._closing == frame then
+			self._closing = nil
+			if self._current == nil then
+				self.screenGui.Enabled = false
+			end
 		end
 	end)
 	if screen.onClose then

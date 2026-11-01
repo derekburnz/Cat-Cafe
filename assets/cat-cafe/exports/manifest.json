@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 14:21 UTC",
+  "generated": "2026-11-01 22:06 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -88867,6 +88867,1267 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_NPC_Customer_Rich_Sit.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_NPC_Customer_Rich_Sit.png"
+    },
+    {
+      "name": "CatCafe_Square_Cannon",
+      "category": "Square",
+      "module": "cannon",
+      "objects": [
+        "CatCafe_Square_Cannon",
+        "CatCafe_Square_Cannon_Turret",
+        "CatCafe_Square_Cannon_Climb",
+        "CatCafe_Square_Cannon_MoonCover",
+        "CatCafe_Square_Cannon_Statue",
+        "CatCafe_Square_Cannon_Decor"
+      ],
+      "triangles": 7016,
+      "budget": 8000,
+      "size_studs": {
+        "x": 13.05,
+        "y": 13.93,
+        "z": 13.28
+      },
+      "size_roblox": [
+        13.05,
+        13.28,
+        13.93
+      ],
+      "bounds_min": [
+        -6.53,
+        -7.4,
+        -0.01
+      ],
+      "bounds_max": [
+        6.53,
+        6.53,
+        13.27
+      ],
+      "pivot": "The plinth's base centre on the square's floor (0, 0.1, 0), placed with no turn, front -Z (south). The _Turret pivot is the turntable's top centre, the barrel at rest along +Z.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Square_Cannon_Turret": [
+          -0.0,
+          0.0,
+          2.53
+        ],
+        "CatCafe_Square_Cannon_Climb": [
+          -0.0,
+          0.0,
+          2.53
+        ],
+        "CatCafe_Square_Cannon_MoonCover": [
+          -0.0,
+          4.97,
+          12.01
+        ],
+        "CatCafe_Square_Cannon_Statue": [
+          -3.54,
+          -3.54,
+          0.0
+        ],
+        "CatCafe_Square_Cannon_Decor": [
+          -3.54,
+          -3.54,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Square_Cannon_Turret": [
+          0.0,
+          2.53,
+          0.0
+        ],
+        "CatCafe_Square_Cannon_Climb": [
+          0.0,
+          2.53,
+          0.0
+        ],
+        "CatCafe_Square_Cannon_MoonCover": [
+          0.0,
+          12.01,
+          4.97
+        ],
+        "CatCafe_Square_Cannon_Statue": [
+          3.54,
+          0.0,
+          -3.54
+        ],
+        "CatCafe_Square_Cannon_Decor": [
+          3.54,
+          0.0,
+          -3.54
+        ]
+      },
+      "placements_roblox": [
+        [
+          0,
+          0.1,
+          0,
+          0
+        ]
+      ],
+      "turret": {
+        "model": "CatCafe_Square_Cannon_Turret",
+        "pivot_roblox": [
+          0,
+          2.53,
+          0
+        ],
+        "rest": "barrel along +Z",
+        "turn_y_deg": {
+          "Alleyway": -135,
+          "Park": 180,
+          "Neighbourhood": 0,
+          "Woods": -90,
+          "Sewer": 90
+        },
+        "attachments": [
+          "Muzzle",
+          "Fuse",
+          "Seat"
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Cannon.model.json",
+      "rbx_parts": 460,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_Cannon.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_Cannon.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "7016/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2990 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.44"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Square_LandingPad",
+      "category": "Square",
+      "module": "cannon",
+      "objects": [
+        "CatCafe_Square_LandingPad"
+      ],
+      "triangles": 1444,
+      "budget": 1500,
+      "size_studs": {
+        "x": 16.0,
+        "y": 16.0,
+        "z": 0.12
+      },
+      "size_roblox": [
+        16.0,
+        0.12,
+        16.0
+      ],
+      "bounds_min": [
+        -8.0,
+        -8.0,
+        0.0
+      ],
+      "bounds_max": [
+        8.0,
+        8.0,
+        0.12
+      ],
+      "pivot": "The pad's centre on the floor top: (0, 0.1, -16.5) with no turn, toes toward the cannon (+Z).",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [
+        [
+          0.0,
+          0.1,
+          -16.5,
+          0
+        ]
+      ],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_LandingPad.model.json",
+      "rbx_parts": 39,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_LandingPad.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_LandingPad.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1444/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "478 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Cannon_Alleyway",
+      "category": "Camp",
+      "module": "cannon",
+      "objects": [
+        "CatCafe_Camp_Cannon_Alleyway",
+        "CatCafe_Camp_Cannon_Alleyway_Turret",
+        "CatCafe_Camp_Cannon_Alleyway_Climb",
+        "CatCafe_Camp_Cannon_Alleyway_MoonCover"
+      ],
+      "triangles": 5116,
+      "budget": 6000,
+      "size_studs": {
+        "x": 7.54,
+        "y": 9.03,
+        "z": 9.55
+      },
+      "size_roblox": [
+        7.54,
+        9.55,
+        9.03
+      ],
+      "bounds_min": [
+        -3.77,
+        -4.2,
+        -0.01
+      ],
+      "bounds_max": [
+        3.77,
+        4.83,
+        9.54
+      ],
+      "pivot": "The base centre on the camp's floor; -Z toward the camp's back wall, the barrel at rest along +Z over the area. The _Turret pivot is the turntable's top centre.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Cannon_Alleyway_Turret": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Alleyway_Climb": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Alleyway_MoonCover": [
+          -0.0,
+          3.73,
+          8.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Cannon_Alleyway_Turret": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Alleyway_Climb": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Alleyway_MoonCover": [
+          0.0,
+          8.6,
+          3.73
+        ]
+      },
+      "turret": {
+        "model": "CatCafe_Camp_Cannon_Alleyway_Turret",
+        "pivot_roblox": [
+          0,
+          1.485,
+          0
+        ],
+        "rest": "barrel along +Z",
+        "turn_y_deg": {
+          "Alleyway": -135,
+          "Park": 180,
+          "Neighbourhood": 0,
+          "Woods": -90,
+          "Sewer": 90
+        },
+        "attachments": [
+          "Muzzle",
+          "Fuse",
+          "Seat"
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Alleyway.model.json",
+      "rbx_parts": 375,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Alleyway.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Alleyway.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5116/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=4.83 (want 0)",
+          "centered": "footprint center x=0.00 y=0.32"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Cannon_Park",
+      "category": "Camp",
+      "module": "cannon",
+      "objects": [
+        "CatCafe_Camp_Cannon_Park",
+        "CatCafe_Camp_Cannon_Park_Turret",
+        "CatCafe_Camp_Cannon_Park_Climb",
+        "CatCafe_Camp_Cannon_Park_MoonCover"
+      ],
+      "triangles": 5116,
+      "budget": 6000,
+      "size_studs": {
+        "x": 7.54,
+        "y": 9.03,
+        "z": 9.55
+      },
+      "size_roblox": [
+        7.54,
+        9.55,
+        9.03
+      ],
+      "bounds_min": [
+        -3.77,
+        -4.2,
+        -0.01
+      ],
+      "bounds_max": [
+        3.77,
+        4.83,
+        9.54
+      ],
+      "pivot": "The base centre on the camp's floor; -Z toward the camp's back wall, the barrel at rest along +Z over the area. The _Turret pivot is the turntable's top centre.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Cannon_Park_Turret": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Park_Climb": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Park_MoonCover": [
+          -0.0,
+          3.73,
+          8.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Cannon_Park_Turret": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Park_Climb": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Park_MoonCover": [
+          0.0,
+          8.6,
+          3.73
+        ]
+      },
+      "turret": {
+        "model": "CatCafe_Camp_Cannon_Park_Turret",
+        "pivot_roblox": [
+          0,
+          1.485,
+          0
+        ],
+        "rest": "barrel along +Z",
+        "turn_y_deg": {
+          "Alleyway": -135,
+          "Park": 180,
+          "Neighbourhood": 0,
+          "Woods": -90,
+          "Sewer": 90
+        },
+        "attachments": [
+          "Muzzle",
+          "Fuse",
+          "Seat"
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Park.model.json",
+      "rbx_parts": 375,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Park.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Park.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5116/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=4.83 (want 0)",
+          "centered": "footprint center x=0.00 y=0.32"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Cannon_Neighbourhood",
+      "category": "Camp",
+      "module": "cannon",
+      "objects": [
+        "CatCafe_Camp_Cannon_Neighbourhood",
+        "CatCafe_Camp_Cannon_Neighbourhood_Turret",
+        "CatCafe_Camp_Cannon_Neighbourhood_Climb",
+        "CatCafe_Camp_Cannon_Neighbourhood_MoonCover"
+      ],
+      "triangles": 5116,
+      "budget": 6000,
+      "size_studs": {
+        "x": 7.54,
+        "y": 9.03,
+        "z": 9.55
+      },
+      "size_roblox": [
+        7.54,
+        9.55,
+        9.03
+      ],
+      "bounds_min": [
+        -3.77,
+        -4.2,
+        -0.01
+      ],
+      "bounds_max": [
+        3.77,
+        4.83,
+        9.54
+      ],
+      "pivot": "The base centre on the camp's floor; -Z toward the camp's back wall, the barrel at rest along +Z over the area. The _Turret pivot is the turntable's top centre.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Cannon_Neighbourhood_Turret": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Neighbourhood_Climb": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Neighbourhood_MoonCover": [
+          -0.0,
+          3.73,
+          8.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Cannon_Neighbourhood_Turret": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Neighbourhood_Climb": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Neighbourhood_MoonCover": [
+          0.0,
+          8.6,
+          3.73
+        ]
+      },
+      "turret": {
+        "model": "CatCafe_Camp_Cannon_Neighbourhood_Turret",
+        "pivot_roblox": [
+          0,
+          1.485,
+          0
+        ],
+        "rest": "barrel along +Z",
+        "turn_y_deg": {
+          "Alleyway": -135,
+          "Park": 180,
+          "Neighbourhood": 0,
+          "Woods": -90,
+          "Sewer": 90
+        },
+        "attachments": [
+          "Muzzle",
+          "Fuse",
+          "Seat"
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Neighbourhood.model.json",
+      "rbx_parts": 375,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Neighbourhood.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Neighbourhood.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5116/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=4.83 (want 0)",
+          "centered": "footprint center x=0.00 y=0.32"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Cannon_Woods",
+      "category": "Camp",
+      "module": "cannon",
+      "objects": [
+        "CatCafe_Camp_Cannon_Woods",
+        "CatCafe_Camp_Cannon_Woods_Turret",
+        "CatCafe_Camp_Cannon_Woods_Climb",
+        "CatCafe_Camp_Cannon_Woods_MoonCover"
+      ],
+      "triangles": 5116,
+      "budget": 6000,
+      "size_studs": {
+        "x": 7.54,
+        "y": 9.03,
+        "z": 9.55
+      },
+      "size_roblox": [
+        7.54,
+        9.55,
+        9.03
+      ],
+      "bounds_min": [
+        -3.77,
+        -4.2,
+        -0.01
+      ],
+      "bounds_max": [
+        3.77,
+        4.83,
+        9.54
+      ],
+      "pivot": "The base centre on the camp's floor; -Z toward the camp's back wall, the barrel at rest along +Z over the area. The _Turret pivot is the turntable's top centre.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Cannon_Woods_Turret": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Woods_Climb": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Woods_MoonCover": [
+          -0.0,
+          3.73,
+          8.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Cannon_Woods_Turret": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Woods_Climb": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Woods_MoonCover": [
+          0.0,
+          8.6,
+          3.73
+        ]
+      },
+      "turret": {
+        "model": "CatCafe_Camp_Cannon_Woods_Turret",
+        "pivot_roblox": [
+          0,
+          1.485,
+          0
+        ],
+        "rest": "barrel along +Z",
+        "turn_y_deg": {
+          "Alleyway": -135,
+          "Park": 180,
+          "Neighbourhood": 0,
+          "Woods": -90,
+          "Sewer": 90
+        },
+        "attachments": [
+          "Muzzle",
+          "Fuse",
+          "Seat"
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Woods.model.json",
+      "rbx_parts": 375,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Woods.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Woods.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5116/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=4.83 (want 0)",
+          "centered": "footprint center x=0.00 y=0.32"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Cannon_Sewer",
+      "category": "Camp",
+      "module": "cannon",
+      "objects": [
+        "CatCafe_Camp_Cannon_Sewer",
+        "CatCafe_Camp_Cannon_Sewer_Turret",
+        "CatCafe_Camp_Cannon_Sewer_Climb",
+        "CatCafe_Camp_Cannon_Sewer_MoonCover"
+      ],
+      "triangles": 5116,
+      "budget": 6000,
+      "size_studs": {
+        "x": 7.54,
+        "y": 9.03,
+        "z": 9.55
+      },
+      "size_roblox": [
+        7.54,
+        9.55,
+        9.03
+      ],
+      "bounds_min": [
+        -3.77,
+        -4.2,
+        -0.01
+      ],
+      "bounds_max": [
+        3.77,
+        4.83,
+        9.54
+      ],
+      "pivot": "The base centre on the camp's floor; -Z toward the camp's back wall, the barrel at rest along +Z over the area. The _Turret pivot is the turntable's top centre.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Cannon_Sewer_Turret": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Sewer_Climb": [
+          -0.0,
+          0.0,
+          1.49
+        ],
+        "CatCafe_Camp_Cannon_Sewer_MoonCover": [
+          -0.0,
+          3.73,
+          8.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Cannon_Sewer_Turret": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Sewer_Climb": [
+          0.0,
+          1.49,
+          0.0
+        ],
+        "CatCafe_Camp_Cannon_Sewer_MoonCover": [
+          0.0,
+          8.6,
+          3.73
+        ]
+      },
+      "turret": {
+        "model": "CatCafe_Camp_Cannon_Sewer_Turret",
+        "pivot_roblox": [
+          0,
+          1.485,
+          0
+        ],
+        "rest": "barrel along +Z",
+        "turn_y_deg": {
+          "Alleyway": -135,
+          "Park": 180,
+          "Neighbourhood": 0,
+          "Woods": -90,
+          "Sewer": 90
+        },
+        "attachments": [
+          "Muzzle",
+          "Fuse",
+          "Seat"
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Cannon_Sewer.model.json",
+      "rbx_parts": 375,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Sewer.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Cannon_Sewer.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "5116/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=4.83 (want 0)",
+          "centered": "footprint center x=0.00 y=0.32"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Park",
+      "category": "Camp",
+      "module": "camps",
+      "objects": [
+        "CatCafe_Camp_Park",
+        "CatCafe_Camp_Park_000_Basket",
+        "CatCafe_Camp_Park_001_Bench",
+        "CatCafe_Camp_Park_002_Lamp",
+        "CatCafe_Camp_Park_002_Lamp_Bulb",
+        "CatCafe_Camp_Park_002_Lamp_Flowers",
+        "CatCafe_Camp_Park_003_Tree",
+        "CatCafe_Camp_Park_004_Tree",
+        "CatCafe_Camp_Park_005_Tree",
+        "CatCafe_Camp_Park_006_FlowerBed",
+        "CatCafe_Camp_Park_006_FlowerBed_Decor",
+        "CatCafe_Camp_Park_007_FlowerBed",
+        "CatCafe_Camp_Park_007_FlowerBed_Decor",
+        "CatCafe_Camp_Park_008_FlowerBed",
+        "CatCafe_Camp_Park_008_FlowerBed_Decor",
+        "CatCafe_Camp_Park_009_FlowerBed",
+        "CatCafe_Camp_Park_009_FlowerBed_Decor",
+        "CatCafe_Camp_Park_010_Bench",
+        "CatCafe_Camp_Park_011_Lamp",
+        "CatCafe_Camp_Park_011_Lamp_Bulb",
+        "CatCafe_Camp_Park_011_Lamp_Flowers",
+        "CatCafe_Camp_Park_012_Tree",
+        "CatCafe_Camp_Park_013_Tree",
+        "CatCafe_Camp_Park_014_Tree",
+        "CatCafe_Camp_Park_015_FlowerBed",
+        "CatCafe_Camp_Park_015_FlowerBed_Decor",
+        "CatCafe_Camp_Park_016_FlowerBed",
+        "CatCafe_Camp_Park_016_FlowerBed_Decor",
+        "CatCafe_Camp_Park_017_FlowerBed",
+        "CatCafe_Camp_Park_017_FlowerBed_Decor",
+        "CatCafe_Camp_Park_018_FlowerBed",
+        "CatCafe_Camp_Park_018_FlowerBed_Decor",
+        "CatCafe_Camp_Park_Barrier"
+      ],
+      "triangles": 10334,
+      "budget": 20000,
+      "size_studs": {
+        "x": 162.0,
+        "y": 32.0,
+        "z": 31.0
+      },
+      "size_roblox": [
+        162.0,
+        31.0,
+        32.0
+      ],
+      "bounds_min": [
+        -81.0,
+        -92.0,
+        -1.0
+      ],
+      "bounds_max": [
+        81.0,
+        -60.0,
+        30.0
+      ],
+      "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "pad": [
+          [
+            0,
+            0.0,
+            -73.0
+          ]
+        ],
+        "cannon": [
+          [
+            0,
+            0.0,
+            -85.5
+          ]
+        ],
+        "basket": [
+          [
+            -11.0,
+            0.0,
+            -73.0
+          ]
+        ],
+        "index_board": [
+          [
+            -23.0,
+            0.0,
+            -62.5
+          ]
+        ]
+      },
+      "camp": {
+        "rect_roblox": [
+          -79.5,
+          -91.0,
+          79.5,
+          -61.0
+        ],
+        "gate_line_z": -61.0,
+        "opening_half_width": 16.0,
+        "pad_radius": 8.0,
+        "depth": 30.0
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Park.model.json",
+      "rbx_parts": 533,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Park.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Park.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "10334/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "6411 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-76.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Neighbourhood",
+      "category": "Camp",
+      "module": "camps",
+      "objects": [
+        "CatCafe_Camp_Neighbourhood",
+        "CatCafe_Camp_Neighbourhood_000_Basket",
+        "CatCafe_Camp_Neighbourhood_001_Mailbox",
+        "CatCafe_Camp_Neighbourhood_002_RecyclingBins",
+        "CatCafe_Camp_Neighbourhood_003_LampPost",
+        "CatCafe_Camp_Neighbourhood_003_LampPost_Bulb",
+        "CatCafe_Camp_Neighbourhood_004_PicketFence",
+        "CatCafe_Camp_Neighbourhood_005_PicketFence",
+        "CatCafe_Camp_Neighbourhood_006_PicketFence",
+        "CatCafe_Camp_Neighbourhood_007_PicketFence",
+        "CatCafe_Camp_Neighbourhood_008_FlowerBed",
+        "CatCafe_Camp_Neighbourhood_008_FlowerBed_Decor",
+        "CatCafe_Camp_Neighbourhood_009_FlowerBed",
+        "CatCafe_Camp_Neighbourhood_009_FlowerBed_Decor",
+        "CatCafe_Camp_Neighbourhood_010_Tree",
+        "CatCafe_Camp_Neighbourhood_011_Tree",
+        "CatCafe_Camp_Neighbourhood_012_Tree",
+        "CatCafe_Camp_Neighbourhood_013_Hedge",
+        "CatCafe_Camp_Neighbourhood_014_LampPost",
+        "CatCafe_Camp_Neighbourhood_014_LampPost_Bulb",
+        "CatCafe_Camp_Neighbourhood_015_PicketFence",
+        "CatCafe_Camp_Neighbourhood_016_PicketFence",
+        "CatCafe_Camp_Neighbourhood_017_PicketFence",
+        "CatCafe_Camp_Neighbourhood_018_PicketFence",
+        "CatCafe_Camp_Neighbourhood_019_FlowerBed",
+        "CatCafe_Camp_Neighbourhood_019_FlowerBed_Decor",
+        "CatCafe_Camp_Neighbourhood_020_FlowerBed",
+        "CatCafe_Camp_Neighbourhood_020_FlowerBed_Decor",
+        "CatCafe_Camp_Neighbourhood_021_Tree",
+        "CatCafe_Camp_Neighbourhood_022_Tree",
+        "CatCafe_Camp_Neighbourhood_023_Tree",
+        "CatCafe_Camp_Neighbourhood_024_Hedge",
+        "CatCafe_Camp_Neighbourhood_Barrier"
+      ],
+      "triangles": 10358,
+      "budget": 20000,
+      "size_studs": {
+        "x": 282.0,
+        "y": 32.0,
+        "z": 31.0
+      },
+      "size_roblox": [
+        282.0,
+        31.0,
+        32.0
+      ],
+      "bounds_min": [
+        -141.0,
+        -172.0,
+        -1.0
+      ],
+      "bounds_max": [
+        141.0,
+        -140.0,
+        30.0
+      ],
+      "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "pad": [
+          [
+            0,
+            0.0,
+            -153.0
+          ]
+        ],
+        "cannon": [
+          [
+            0,
+            0.0,
+            -165.5
+          ]
+        ],
+        "basket": [
+          [
+            -11.0,
+            0.0,
+            -153.0
+          ]
+        ],
+        "index_board": [
+          [
+            -23.0,
+            0.0,
+            -142.5
+          ]
+        ]
+      },
+      "camp": {
+        "rect_roblox": [
+          -139.5,
+          -171.0,
+          139.5,
+          -141.0
+        ],
+        "gate_line_z": -141.0,
+        "opening_half_width": 16.0,
+        "pad_radius": 8.0,
+        "depth": 30.0
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Neighbourhood.model.json",
+      "rbx_parts": 537,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "10358/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "5987 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-156.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Woods",
+      "category": "Camp",
+      "module": "camps",
+      "objects": [
+        "CatCafe_Camp_Woods",
+        "CatCafe_Camp_Woods_000_Basket",
+        "CatCafe_Camp_Woods_001_Tent",
+        "CatCafe_Camp_Woods_002_Campfire",
+        "CatCafe_Camp_Woods_002_Campfire_Glow",
+        "CatCafe_Camp_Woods_003_LogBench",
+        "CatCafe_Camp_Woods_004_LogBench",
+        "CatCafe_Camp_Woods_005_Lantern",
+        "CatCafe_Camp_Woods_005_Lantern_Bulb",
+        "CatCafe_Camp_Woods_006_Lantern",
+        "CatCafe_Camp_Woods_006_Lantern_Bulb",
+        "CatCafe_Camp_Woods_007_PineTall",
+        "CatCafe_Camp_Woods_008_PineTall",
+        "CatCafe_Camp_Woods_009_PineTall",
+        "CatCafe_Camp_Woods_010_PineTall",
+        "CatCafe_Camp_Woods_011_PineTall",
+        "CatCafe_Camp_Woods_012_Lantern",
+        "CatCafe_Camp_Woods_012_Lantern_Bulb",
+        "CatCafe_Camp_Woods_013_Lantern",
+        "CatCafe_Camp_Woods_013_Lantern_Bulb",
+        "CatCafe_Camp_Woods_014_PineTall",
+        "CatCafe_Camp_Woods_015_PineTall",
+        "CatCafe_Camp_Woods_016_PineTall",
+        "CatCafe_Camp_Woods_017_PineTall",
+        "CatCafe_Camp_Woods_018_PineTall",
+        "CatCafe_Camp_Woods_019_Stump",
+        "CatCafe_Camp_Woods_020_Fern",
+        "CatCafe_Camp_Woods_021_Fern",
+        "CatCafe_Camp_Woods_Barrier"
+      ],
+      "triangles": 8194,
+      "budget": 20000,
+      "size_studs": {
+        "x": 242.0,
+        "y": 32.0,
+        "z": 31.0
+      },
+      "size_roblox": [
+        242.0,
+        31.0,
+        32.0
+      ],
+      "bounds_min": [
+        -121.0,
+        -152.0,
+        -1.0
+      ],
+      "bounds_max": [
+        121.0,
+        -120.0,
+        30.0
+      ],
+      "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "pad": [
+          [
+            0,
+            0.0,
+            -133.0
+          ]
+        ],
+        "cannon": [
+          [
+            0,
+            0.0,
+            -145.5
+          ]
+        ],
+        "basket": [
+          [
+            -11.0,
+            0.0,
+            -133.0
+          ]
+        ],
+        "index_board": [
+          [
+            -19.0,
+            0.0,
+            -122.5
+          ]
+        ]
+      },
+      "camp": {
+        "rect_roblox": [
+          -119.5,
+          -151.0,
+          119.5,
+          -121.0
+        ],
+        "gate_line_z": -121.0,
+        "opening_half_width": 12.0,
+        "pad_radius": 8.0,
+        "depth": 30.0
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Woods.model.json",
+      "rbx_parts": 415,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Woods.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Woods.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "8194/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "3729 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-136.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Sewer",
+      "category": "Camp",
+      "module": "camps",
+      "objects": [
+        "CatCafe_Camp_Sewer",
+        "CatCafe_Camp_Sewer_000_Basket",
+        "CatCafe_Camp_Sewer_001_Manhole",
+        "CatCafe_Camp_Sewer_002_PipeLarge",
+        "CatCafe_Camp_Sewer_003_WallLantern",
+        "CatCafe_Camp_Sewer_003_WallLantern_Bulb",
+        "CatCafe_Camp_Sewer_004_WallLantern",
+        "CatCafe_Camp_Sewer_004_WallLantern_Bulb",
+        "CatCafe_Camp_Sewer_005_Barrel",
+        "CatCafe_Camp_Sewer_006_TrafficCone",
+        "CatCafe_Camp_Sewer_007_WallLantern",
+        "CatCafe_Camp_Sewer_007_WallLantern_Bulb",
+        "CatCafe_Camp_Sewer_008_WallLantern",
+        "CatCafe_Camp_Sewer_008_WallLantern_Bulb",
+        "CatCafe_Camp_Sewer_009_Barrel",
+        "CatCafe_Camp_Sewer_010_TrafficCone",
+        "CatCafe_Camp_Sewer_011_Barrel",
+        "CatCafe_Camp_Sewer_012_TyreStack",
+        "CatCafe_Camp_Sewer_013_TrafficCone",
+        "CatCafe_Camp_Sewer_Barrier"
+      ],
+      "triangles": 7198,
+      "budget": 20000,
+      "size_studs": {
+        "x": 182.0,
+        "y": 32.0,
+        "z": 31.0
+      },
+      "size_roblox": [
+        182.0,
+        31.0,
+        32.0
+      ],
+      "bounds_min": [
+        -91.0,
+        -122.0,
+        -1.0
+      ],
+      "bounds_max": [
+        91.0,
+        -90.0,
+        30.0
+      ],
+      "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "pad": [
+          [
+            0,
+            0.0,
+            -103.0
+          ]
+        ],
+        "cannon": [
+          [
+            0,
+            0.0,
+            -115.5
+          ]
+        ],
+        "basket": [
+          [
+            -11.0,
+            0.0,
+            -103.0
+          ]
+        ],
+        "index_board": [
+          [
+            -19.0,
+            0.0,
+            -92.5
+          ]
+        ]
+      },
+      "camp": {
+        "rect_roblox": [
+          -89.5,
+          -121.0,
+          89.5,
+          -91.0
+        ],
+        "gate_line_z": -91.0,
+        "opening_half_width": 12.0,
+        "pad_radius": 8.0,
+        "depth": 30.0
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Sewer.model.json",
+      "rbx_parts": 275,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Sewer.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Sewer.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "7198/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "3279 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-106.00"
+        }
+      }
     }
   ]
 }

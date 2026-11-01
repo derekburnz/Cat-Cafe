@@ -705,12 +705,12 @@ Presets.motion = {
 	-- sticking out or butt", "make the butt sticking out for a lot of the rescue's", "flip the cats upside for some
 	-- rescue missions where fit"). Each TrapType wriggles one of two ways (`kinds`), in bursts once every `every`
 	-- seconds over `seconds` at `hz`, still moving `twitch` as much in between. `butt`: head first into a bin, can,
-	-- bag pile, shed, log, pipe or grate with only its back end out: the hips wiggle `wiggle` degrees, the back legs
-	-- paddle `kick` and the raised tail (`tailUp`) lashes `tail`. `flip`: upside down, hanging under a branch or a
-	-- gutter or on its back in a bramble bush: all four legs pedal `legs` degrees in the air, the body rocks `rock`,
-	-- the tail swings `tail`, the head looks about `look` and the ears go back `ears`. Where the cat sits and which
-	-- way up is the server's stuck pose for the trap. A trap not in `kinds` keeps the plain shake (`every`, `shake`,
-	-- `seconds`).
+	-- bag pile, shed, log, pipe, grate or bramble bush (Derek 14:17: on its back on the bush looked off) with only
+	-- its back end out: the hips wiggle `wiggle` degrees, the back legs paddle `kick` and the raised tail (`tailUp`)
+	-- lashes `tail`. `flip`: upside down, hanging under a branch or on its back across a gutter: all four legs pedal
+	-- `legs` degrees in the air, the body rocks `rock`, the tail swings `tail`, the head looks about `look` and the
+	-- ears go back `ears`. Where the cat sits and which way up is the server's stuck pose for the trap. A trap not in
+	-- `kinds` keeps the plain shake (`every`, `shake`, `seconds`).
 	stuck = {
 		every = 2.6,
 		shake = 9,
@@ -723,9 +723,9 @@ Presets.motion = {
 			hollow_log = "butt",
 			drain_pipe = "butt",
 			grate = "butt",
+			bramble_bush = "butt",
 			tree = "flip",
 			gutter = "flip",
-			bramble_bush = "flip",
 		} :: { [string]: string },
 		butt = {
 			every = 2.2,
@@ -1821,6 +1821,7 @@ Presets.cannon = {
 	landAt = 2.62,
 	endAt = 3.0,
 	stale = 0.5, -- seconds past endAt a flight still plays (joined or streamed in late: none)
+	fuseSeconds = 0.5, -- the fizz runs over this long before the boom
 	fuseEvery = 0.08, -- seconds between fizzes
 	ring = 8, -- smoke puffs round the muzzle
 	ringRadius = 1.4, -- studs
@@ -1837,6 +1838,26 @@ Presets.cannon = {
 	within = 150,
 	most = 4, -- flights showing their trail at once, your own first
 	findCannon = 20, -- studs round the player at launch to look for the cannon they sit in
+	-- The intro's cannon shot (intro-cutscene.md shot 2, PR #576): the 3 s flight squeezed, in seconds from the
+	-- shot's BOOM, for Cannon.playStaged. The sky puff at 0.55, the clouds cover by the cut to the camp at 0.7, the
+	-- copy glides 0.7 to 1.1, the clouds part 1.1 to 1.4 and the dust poof goes off at 1.55.
+	introStage = {
+		boomAt = 0,
+		puffAt = 0.55,
+		dropAt = 1.4,
+		landAt = 1.55,
+		endAt = 1.8,
+		clouds = {
+			coverFrom = 0.55,
+			coverTo = 0.66, -- full a couple of frames before the cut to the camp at 0.7
+			partFrom = 1.1,
+			partTo = 1.4,
+			tintFrom = 0.75,
+			tintTo = 1.05,
+		},
+		glideFrom = 0.7,
+		glideTo = 1.1,
+	},
 	tints = {
 		town = Presets.palette.lampWarm,
 		home = Presets.palette.lampWarm,

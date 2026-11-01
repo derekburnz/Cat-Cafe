@@ -31,6 +31,8 @@ from mathutils import Euler, Matrix, Vector  # noqa: E402
 import accessories  # noqa: E402
 import alley  # noqa: E402
 import alleyway  # noqa: E402
+import camps  # noqa: E402
+import cannon  # noqa: E402
 import areakit  # noqa: E402
 import areas  # noqa: E402
 import boards  # noqa: E402
@@ -77,7 +79,7 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
-           townbuildings, customers]
+           townbuildings, customers, cannon, camps]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -85,6 +87,15 @@ PIVOT_NOTES = {
     "CatCafe_Square_Signpost": "Post's foot at (-9, 0.1, -7.5) with no turn: each _Arm<Area> board is aimed in world "
                                "space at its gate, long along its own X, with an Area attribute.",
     "CatCafe_Square_Bunting": "On the ground under the middle of the span; its ends sit inside two lamps 22 apart.",
+    "CatCafe_Square_Cannon": "The plinth's base centre on the square's floor (0, 0.1, 0), placed with no turn, front "
+                             "-Z (south). The _Turret pivot is the turntable's top centre, the barrel at rest "
+                             "along +Z.",
+    "CatCafe_Square_LandingPad": "The pad's centre on the floor top: (0, 0.1, -16.5) with no turn, toes toward the "
+                                 "cannon (+Z).",
+    **{n: "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame."
+       for n in camps.ASSETS},
+    **{n: "The base centre on the camp's floor; -Z toward the camp's back wall, the barrel at rest along +Z over the "
+          "area. The _Turret pivot is the turntable's top centre." for n in cannon.ASSETS if "_Camp_" in n},
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
     "CatCafe_Decor_WindowPlants": "wall: back-bottom center",
     "CatCafe_Decor_NeonSign": "wall: back-bottom center",
@@ -454,6 +465,10 @@ def main():
                 extra["attachments"] = [doorsets.back_cat_flap_attachment(name)]
         if name == "CatCafe_Square_Signpost":     # each arm's Area, for the UI to draw its name and lock on
             extra = {"part_attributes": square.ARM_ATTRIBUTES}
+        if name in cannon.ATTACHMENTS:            # F84: Muzzle, Fuse and Seat in the turret; ladder and cover ride it
+            extra = {"attachments": cannon.rbx_attachments(name), "nest": cannon.NEST}
+        if name in camps.ATTACHMENTS:             # F84: the carrier basket's Drop
+            extra = {"attachments": camps.rbx_attachments(name)}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)
         tris = common.tri_count(objs)
         lo, hi = common.bounds(objs)
@@ -473,8 +488,17 @@ def main():
             entry["part_pivots_roblox"] = {k: common.to_roblox(p) for k, p in moved.items()}
         if name.startswith("CatCafe_Square_"):    # Layout.townSquare.props: world x, floor top y, z, turn about Y
             entry["placements_roblox"] = [[x, 0.1, z, r] for (n, x, z, r) in square.PLACEMENTS if n == name]
+        if name in cannon.PLACEMENTS:
+            entry["placements_roblox"] = [list(cannon.PLACEMENTS[name])]
+        if name in cannon.ATTACHMENTS:            # where the turret turns and how far for each destination
+            ty = cannon.CAMP_TURRET_Y * cannon.CAMP_K if "_Camp_" in name else cannon.TURRET_Y
+            entry["turret"] = {"model": name + "_Turret", "pivot_roblox": [0, round(ty, 3), 0],
+                               "rest": "barrel along +Z", "turn_y_deg": dict(cannon.FIRE_TURNS),
+                               "attachments": [n for _, n, _, _ in cannon.ATTACHMENTS[name]]}
         if name in areakit.POINTS:                # spots inside an area set (cat spawns, traps), area-space Roblox x, z
             entry["points_roblox"] = areakit.POINTS[name]
+        if name in camps.CAMPS:                   # F84: the camp's rect and its way out, area space
+            entry["camp"] = camps.CAMPS[name]
         if name in furniture.SIT_POINTS:
             entry["sit_point"] = list(furniture.SIT_POINTS[name])
             entry["sit_point_roblox"] = common.to_roblox(furniture.SIT_POINTS[name])

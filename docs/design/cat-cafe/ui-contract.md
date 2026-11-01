@@ -91,7 +91,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.update(partialState)` | Merge into current state and re-render. Derives `tables` from `upgradeLevels.tables` and `catsOwned` from `cats` when those are absent. |
 | `UI.getState()` | Shallow copy of the current UI state. |
 | `UI.setCatalog(catalog)` | Swap the catalog at runtime (hot reload, tests). |
-| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"` (the Index), `"Cats"`, `"RankUp"`, `"Areas"`, `"Cannon"` (F84, opened with `UI.cannon.open`), `"Bait"`, `"Dealer"`, `"Settings"`, `"TipJar"`, `"Spin"`, `"Market"`, `"BugReport"`, `"Codes"`. One open at a time. |
+| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"` (the Index), `"Cats"`, `"RankUp"`, `"Areas"`, `"Cannon"` (F84, opened with `UI.cannon.open`), `"Bait"`, `"Dealer"`, `"Settings"`, `"TipJar"`, `"Spin"`, `"Market"`, `"BugReport"`, `"Codes"`. One open at a time: a window still shrinking away (0.16 s) when another opens is hidden at once, so two never stack and closing one never shuts both (Derek 2026-10-30). |
 | `UI.setZone(zone?)` | The `World.Zones` name the player stands in, from the controller's zone check: nil or `"Cafe"` is the safe street and cafes, else the area (`"Alley"`). Drives the "Safe zone" toast on coming back (the Safe zone chip went on 2026-10-28). |
 | `UI.openCatRoom()` | Opens the Cats screen (tutorial step 3, a free crew slot's "+" in Upgrades). |
 | `UI.toast(text, kind?)` | Top-centre message. kind: `"info"` (default), `"good"`, `"warn"`, `"announce"` (gold). |

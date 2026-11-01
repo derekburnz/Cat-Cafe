@@ -327,6 +327,46 @@ Spec in [notes-10-28-to-10-30.md](notes-10-28-to-10-30.md). It changes F61 tip p
 |---|---|---|---|---|---|---|
 | F97 | Derek's 10-28 to 10-30 notes: tip piles pay the moment they appear (no Collect; rich visitors, the Collector and Mystery gifts stay by hand), coin decor moves into the Classic Crate, food about four times dearer and growing 1, 1, 4, 8, 16 times by tier, every food list in rarity order with new icons, one Golden Fish name and picture with new treats and perks pictures, buff chips in place of charm stars, an Index of silhouettes with Normal and Gold tabs and no Spare page, and one Epic or rarer stray in every sunrise wave per area | P1 | M | engineer, ui, asset, qa | F61, F90, F92, F95 | A pile pays while the owner is in an area; the Decor screen sells nothing; Kibble is 100 at Tier 1; every wave has an Epic or rarer stray in each open area |
 
+## 2ad. Leaderboards (Derek, 2026-10-28 17:14, decided)
+
+Spec in [leaderboards.md](leaderboards.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `stats.bestRate`, `stats.weekPlay`, `stats.weekBestRate`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F98 | Leaderboards: Index (entries found), Playtime and Money (best money per second without potions), the top 50 for all time and for this week (Playtime and Money); three chalkboards in the Town Square showing the top 10 and the player's own line, a Top tab in the Index, a crown for the all-time top 10 on boards, cafe sign and head tag; OrderedDataStores written every 5 minutes and read every 2, writes off in Studio, a hidden list kept in a DataStore; no prizes | P1 | M | engineer, ui, asset, qa | F84 Town Square, F95 rate, F97 Index tabs | A live player's playtime shows on the weekly board within 7 minutes and a Studio player's never does; a Money Potion does not move the Money value; the crown shows on every surface for a top 10 player |
+
+## 2ae. The Rainbow coat (Derek, 2026-10-30 00:24, decided)
+
+Spec in [rainbow-coat.md](rainbow-coat.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `variant` `"rainbow"`, the Index entry's `rainbow`, `stats.rainbowCatches`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F99 | Rainbow coat: a third coat rolled before gold at one tenth of its chance (0.5% strays and bait, 1% rescues), earning x3 (gold x1.5); flowing rainbow bands, a glow, a sparkle trail and a spawn beam with a server toast; the big pull for every rainbow; a Rainbow Index tab and one Rainbow track of five milestones with rainbow luck up to +100%; odds on every food card; Collector x10 | P1 | M | engineer, vfx, ui, sound, qa | F42 gold, F89 big pull, F97 Index tabs | A forced rainbow stray shows the coat, beam and toast to the whole server; 100,000 cloud rolls give 0.5% rainbow and 5% gold; a rainbow cat earns twice its gold self |
+
+## 2af. One extra thing at each camp (Derek's Set 4 Q4 answer, decided)
+
+Spec in [camp-extras.md](camp-extras.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `campExtras`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F100 | Camp extras, one per tier from Tier 2: a Picnic Basket in the Park (a Money Potion every 6 h, holds 2), a Yard Sale in the Neighbourhood (two crates a day at 40 fish), a Fish Pond in the Woods (2 fish every 30 min, holds 24) and a Lost and Found in the Sewer (one free prize a day from a shown table, holds 3); each fills while away, sits in the safe camp and shows its state on the cannon picker card with a "!" only when there is something to claim; no food, nothing for Robux | P2 | M | engineer, ui, asset, animation, sound, qa | F84 camps and picker | A player away 7 hours sees the pond at 24 with a "!" on the Woods card; a collect from outside the camp is refused; the Yard Sale stock matches across servers |
+
+## 2ag. The Rescue Rally weekend (Derek, 2026-10-30 00:38, decided)
+
+Spec in [rescue-rally.md](rescue-rally.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `rally`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F101 | Rescue Rally: every weekend (Saturday and Sunday UTC) each server fills one shared bar from check-ins and tames (1 point), rescues (3) and Team Rescues (3 to each player); the goal is 30 points a player; prizes at 25%, 50% and 100% to everyone in the server who scored 3 in the lap (golden fish, a Money Potion, a Rally Crate of twelve event pieces that return every weekend), at most 4 paid laps a weekend; a HUD banner, a Rally board and bunting in the Town Square; nothing sold | P1 | M | engineer, ui, asset, vfx, sound, qa | F92 Team Rescue, F53 crates, F84 Town Square | With RallyForce on, two players doing a Team Rescue each get 3 points; a late joiner with 1 point gets no 100% prize; the banner goes at Monday 00:00 UTC |
+
+## 2ah. Trading from Tier 3 (Derek, 2026-10-30 00:23, decided)
+
+Spec in [trading.md](trading.md). Before release per Derek's 2026-11-01 22:59 rule, last in the build order. Save change: `tradeLog`, `settings.tradeRequests`, `stats.trades`, `stats.tradesToday`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F102 | Trading: cats only (never currency, potions, food, crates, decor or exclusive cats), both players Tier 3 or higher (a debug hook lowers it for testing) and in a safe zone; a request card, two 3 x 3 offer grids with what each cat would earn for you, any change resets both Ready, a 5 s countdown, a confirm screen with a lopsided warning and a gift warning; locked cats cannot be offered; a versioned server trade with a pending record so a shutdown never doubles or loses a cat; rate limits, a DataStore kill switch, a trade log, a requests setting, no logs of who | P1 | L | engineer, ui, sound, vfx, review, qa | F62 locks, F95 rates, F99 rainbow | A stale Confirm moves nothing; a change in the countdown clears both Ready; a forced shutdown mid-trade leaves each cat with one owner; the kill switch stops new trades within 60 s |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

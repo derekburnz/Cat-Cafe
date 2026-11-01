@@ -12,6 +12,9 @@
 #   count   the newest this many reports of that day (default 50), printed oldest first
 #   studio  read the Studio playtests' reports (s_ keys) instead of the players' (r_ keys)
 # Prints one line per report, as Debug.bugReports does, then every record as one JSON line.
+#   MASK=1  for the daily scheduled run, whose log is public like every Actions log on this repo: each name shrinks
+#           to its first letter and each user id to its last three digits, and the JSON records are left out of
+#           the log and the summary. Manual runs print in full, as before.
 # Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -93,14 +96,22 @@ done
 
 echo "== $total reports under $prefix in $STORE; showing the newest ${#records[@]}"
 # The same fields and order as BugReportService's line(), times in UTC.
-line='(if (.at | type) == "number" then .at else 0 end | strftime("%H:%M")) + " \(.kind) \(.name) (\(.userId))'
+who='\(.name) (\(.userId))'
+if [ "${MASK:-}" = 1 ]; then
+	who='\(.name | tostring | .[0:1])*** (...\(.userId | tostring | .[-3:]))'
+fi
+line='(if (.at | type) == "number" then .at else 0 end | strftime("%H:%M")) + " \(.kind) '"$who"
 line+=' v\(.placeVersion) \(.area) \(.device): \(.text) | client \(.clientErrors // [] | join(" / "))'
 line+=' | server \(.serverErrors // [] | join(" / "))"'
 for record in "${records[@]}"; do
 	jq -r "$line" <<<"$record"
 done
-echo "== records as JSON"
-[ "${#records[@]}" = 0 ] || printf '%s\n' "${records[@]}"
+if [ "${MASK:-}" = 1 ]; then
+	echo "== records as JSON left out (MASK=1, public log); run the workflow by hand for them"
+else
+	echo "== records as JSON"
+	[ "${#records[@]}" = 0 ] || printf '%s\n' "${records[@]}"
+fi
 
 if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
 	{

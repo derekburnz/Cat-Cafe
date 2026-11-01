@@ -117,6 +117,7 @@ local R15: { [string]: { string } } = {
 	RightShoulder = { "UpperTorso", "RightUpperArm" },
 	LeftElbow = { "LeftUpperArm", "LeftLowerArm" },
 	RightElbow = { "RightUpperArm", "RightLowerArm" },
+	LeftWrist = { "LeftLowerArm", "LeftHand" },
 	RightWrist = { "RightLowerArm", "RightHand" },
 	LeftHip = { "LowerTorso", "LeftUpperLeg" },
 	RightHip = { "LowerTorso", "RightUpperLeg" },
@@ -653,18 +654,25 @@ function Avatar.carrying(carryingCatId: unknown, alive: boolean): boolean
 end
 
 -- The carry's upper body (Presets.carryPose): arms folded across the chest, the left forearm under the right, the
--- head tipped down to the cat; on R6, with no elbows, both arms reach forward and in. The hips, legs and root stay
--- the character's own, so it walks and stands as it would.
+-- head tipped down to the cat, the wrists straight so the hands do not wave with the walk under them; on R6, with no
+-- elbows or wrists, both arms reach forward and in. The hips, legs and root stay the character's own, so it walks
+-- and stands as it would.
 function Avatar.carryArms(rig: Rig): { [Joint]: CFrame }
 	local c = Presets.carryPose
 	local out: { [Joint]: CFrame } = {}
-	upper(setter(rig, out), Avatar.pose(if rig.joints.LeftElbow ~= nil then c.arms else c.arms6))
+	local set = setter(rig, out)
+	local r15 = rig.joints.LeftElbow ~= nil
+	upper(set, Avatar.pose(if r15 then c.arms else c.arms6))
+	if r15 then
+		set("LeftWrist", CFrame.identity)
+		set("RightWrist", CFrame.identity)
+	end
 	return out
 end
 
 -- Where a carried cat's floor goes (Pose.hold), from where the arms are this frame: on top of the higher forearm
--- (the whole arm on R6), halfway between the two, level with the chest's up, the cat's front towards the character's
--- left for a loaf (lying across the arms) and ahead for a sit (Presets.carryPose). `frameOf` gives a part's CFrame
+-- (the whole arm on R6), out to the side from halfway between the two, level with the chest's up, the cat's face back
+-- over the character's left shoulder for a loaf (lying on the arms) and ahead for a sit (Presets.carryPose). `frameOf` gives a part's CFrame
 -- (BasePart.CFrame in the game, the preview's own frames outside it). nil on a rig with no chest or arms.
 function Avatar.cradle(rig: Rig, held: string, frameOf: (BasePart) -> CFrame): CFrame?
 	local chest: BasePart? = rig.parts.Waist or rig.parts.Root -- the UpperTorso, or R6's Torso

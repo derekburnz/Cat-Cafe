@@ -1,7 +1,8 @@
 --!strict
 -- Feedback, once Report a bug (docs/playtests/bug-reports.md section 1, QA 2026-10-27, for the friends alpha): a
 -- small window opened from the HUD's Feedback tile on the Idea chip (2026-11-01, so players have an easy, visible way
--- to send feedback) or from the Help row in Settings on Bug. A question that follows the chip ("What happened, and
+-- to send feedback), the one way in since Settings lost its Report a bug row (Derek 2026-11-01: "merge the feedback
+-- and bug report from old settings"). A question that follows the chip ("What happened, and
 -- what were you doing right before?" for Bug, "What would make the game more fun?" for Idea), three
 -- chips (Bug, Stuck, Idea), a box of up to 500 bytes with a "123 / 500" counter, a line asking for no passwords
 -- or personal info, and Send and Cancel. Send stays grey until the server would take the text: 3 bytes once
@@ -9,8 +10,8 @@
 --
 -- Send calls callbacks.send(text, kind) with the text as the server keeps it and waits for the server's toast:
 -- result(true) (its "Thanks!") clears the box and closes, result(false) (one of its refusals) keeps every word and
--- lights Send again, and so does SEND_TIMEOUT without an answer. Cancel goes back to where it was opened from
--- (callbacks.back); it, the X and the backdrop all keep the draft, chip included.
+-- lights Send again, and so does SEND_TIMEOUT without an answer. Cancel (callbacks.back) closes it; it, the X
+-- and the backdrop all keep the draft, chip included.
 --
 -- On a phone the on-screen keyboard covers the bottom of the screen, so while it is up the window moves to the
 -- top and ends above it (compact): the chips, Cancel and Send share one row over the box, so they stay tappable
@@ -33,7 +34,7 @@ local Theme = require(script.Parent.Parent.Theme)
 
 export type Callbacks = {
 	send: (text: string, kind: string) -> (),
-	back: () -> (), -- Cancel: back to Settings, or just closed when the HUD's Feedback tile opened it
+	back: () -> (), -- Cancel: closes the window, keeping the draft
 	close: () -> (),
 }
 

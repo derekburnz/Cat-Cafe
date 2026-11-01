@@ -97,14 +97,16 @@ def spandrels(walls, cx, cy, r, z_out, z_in, facade, n=5):
 def layered(walls, x0, x1, y0, y1, z_out, z_in, facade, axis="z"):
     """A wall piece in two layers: pastel outside (0.8) on the paint builder and cream inside (0.2) on the
     wallpaper builder. For axis z the piece spans x0..x1 at depth z_out (outer face) to z_in (inner face); for
-    axis x the roles of x and z swap."""
+    axis x the roles of x and z swap. A piece that starts on the floor runs its paint down into the grass like the
+    base (QA recheck after #630, M5): the walls stand outside the plot floor's edge."""
     paint, paper = walls
     split = z_out + (z_in - z_out) * 0.8
+    py0 = -GROUND if y0 <= 0 else y0
     if axis == "z":
-        paint.span((x0, y0, min(z_out, split)), (x1, y1, max(z_out, split)), facade)
+        paint.span((x0, py0, min(z_out, split)), (x1, y1, max(z_out, split)), facade)
         paper.span((x0, y0, min(split, z_in)), (x1, y1, max(split, z_in)), INNER)
     else:
-        paint.span((min(z_out, split), y0, x0), (max(z_out, split), y1, x1), facade)
+        paint.span((min(z_out, split), py0, x0), (max(z_out, split), y1, x1), facade)
         paper.span((min(split, z_in), y0, x0), (max(split, z_in), y1, x1), INNER)
 
 
@@ -201,7 +203,7 @@ def _side_walls(b, glass, walls, facade, accent):
         xo, xi = s * HW, s * (HW - 1)
         for (a0, a1, b0, b1) in ((-14, z0, 0, H), (z1, 14, 0, H), (z0, z1, 0, y0), (z0, z1, y1, H)):
             split = xo + (xi - xo) * 0.8
-            walls[0].span((min(xo, split), b0, a0), (max(xo, split), b1, a1), facade)
+            walls[0].span((min(xo, split), -GROUND if b0 <= 0 else b0, a0), (max(xo, split), b1, a1), facade)
             walls[1].span((min(split, xi), b0, a0), (max(split, xi), b1, a1), INNER)
         gx = s * (HW - 0.5)
         glass.span((gx - 0.08, y0, z0), (gx + 0.08, y1, z1), "glass")
@@ -219,7 +221,7 @@ def _side_walls(b, glass, walls, facade, accent):
                 yy = y0 + (y1 - y0) * (k + 1) / 4
                 b.span((min(xo, s * (HW + 0.22)), yy - 0.06, a0 + 0.15), (max(xo, s * (HW + 0.22)), yy + 0.06, a1 - 0.15),
                        TRIM)
-        b.cyl((s * (HW + 0.3), (H - 0.4) / 2, 13.6), 0.18, H - 0.4, "metal", axis="Y", segments=8)  # downpipe
+        b.cyl((s * (HW + 0.3), (H - 0.4 - GROUND) / 2, 13.6), 0.18, H - 0.4 + GROUND, "metal", axis="Y", segments=8)  # downpipe
 
 
 def _back_wall(b, glass, walls, facade, accent):
@@ -475,19 +477,22 @@ def _wainscot(b):
 
 def _curtains(b):
     """Curtains hung from a pole on two brackets off the wall (Derek 2026-10-30: gaps around the cafe): each curtain
-    from the pole's underside to the inner sill on the front windows, the poles' brackets back to the wall."""
+    from the pole's underside to the inner sill on the front windows, the poles' brackets back to the wall. The
+    curtains lie against the wallpaper, so no daylight shows between a curtain and the window's edge (QA recheck
+    after #630, M1 and M2)."""
     for cx in WINDOWS:
-        for x0, x1 in ((cx - WIN_R + 0.05, cx - WIN_R + 1.15), (cx + WIN_R - 1.15, cx + WIN_R - 0.05)):
-            b.span((x0, SILL + 0.01, -13.85), (x1, 8.65, -13.6), "mint")
-            b.span((x0 - 0.05, 3.8, -13.95), (x1 + 0.05, 4.1, -13.5), "blush")              # tie-back
-        b.span((cx - WIN_R - 0.3, 8.65, -13.85), (cx + WIN_R + 0.3, 8.85, -13.6), "dark_wood")
-        for x in (cx - WIN_R - 0.2, cx + WIN_R + 0.2):
+        for x0, x1 in ((cx - WIN_R, cx - WIN_R + 1.15), (cx + WIN_R - 1.15, cx + WIN_R)):     # from the opening's edge
+            b.span((x0, SILL + 0.01, -14.0), (x1, 8.65, -13.75), "mint")
+            b.span((x0 - 0.05, 3.8, -14.02), (x1 + 0.05, 4.1, -13.6), "blush")              # tie-back, round the curtain
+        b.span((cx - WIN_R - 0.6, 8.65, -13.85), (cx + WIN_R + 0.6, 8.85, -13.6), "dark_wood")
+        for x in (cx - WIN_R - 0.45, cx + WIN_R + 0.45):
             b.span((x - 0.07, 8.6, -14.0), (x + 0.07, 8.9, -13.85), "dark_wood")             # brackets
     z0, z1, y0, y1 = SIDE_WIN
     for s_ in (-1, 1):
         lo, hi = sorted((s_ * 17.85, s_ * 17.65))
+        clo, chi = sorted((s_ * 18.0, s_ * 17.75))
         for a0, a1 in ((z0 - 0.4, z0 + 0.5), (z1 - 0.5, z1 + 0.4)):
-            b.span((lo, y0 - 0.2, a0), (hi, y1 + 0.3, a1), "blush")
+            b.span((clo, y0 - 0.2, a0), (chi, y1 + 0.3, a1), "blush")
         b.span((lo, y1 + 0.3, z0 - 0.6), (hi, y1 + 0.5, z1 + 0.6), "dark_wood")
         blo, bhi = sorted((s_ * 18.0, s_ * 17.85))
         for z in (z0 - 0.5, z1 + 0.5):

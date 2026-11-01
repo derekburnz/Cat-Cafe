@@ -20,8 +20,11 @@
 -- across its chest (Avatar.carryArms, by Carry.weight, which also puts the cat on them).
 -- The Cat Cannon flight (F84) goes over all of them, at any distance: the hop, the rolling ball and the landing
 -- (CannonGlide.frames).
+-- A staged character (tagged StagedCharacter, such as the intro's copy of you) gets the net hold and the carry like a
+-- player's; it has no player, so no tackle and no cannon flight, whatever attributes it was cloned with.
 -- Listening only: nothing here fires a remote.
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -51,6 +54,7 @@ type Entry = {
 -- from the property need not match bit for bit).
 local SAME = 1e-5
 local RETRY_SECONDS = 1 -- a character with no rig yet is read again this often
+local STAGED = "StagedCharacter" -- the tag on a character model with no player that is posed all the same
 
 local entries: { [Model]: Entry } = {}
 local stale: { [Model]: number } = {} -- characters whose rig must be read (again), and when to try next
@@ -253,10 +257,24 @@ local function step(dt: number)
 		end
 	end
 
+	-- every player's character, then every staged one (no player, so no UserId)
+	local posed: { { character: Model, userId: number? } } = {}
 	for _, player in Players:GetPlayers() do
-		local character = player.Character
-		local entry = if character ~= nil then entries[character] else nil
-		if character == nil or entry == nil then
+		if player.Character ~= nil then
+			table.insert(posed, { character = player.Character, userId = player.UserId })
+		end
+	end
+	for _, tagged in CollectionService:GetTagged(STAGED) do
+		if tagged:IsA("Model") then
+			table.insert(posed, { character = tagged :: Model, userId = nil })
+		end
+	end
+
+	for _, item in posed do
+		local character = item.character
+		local userId = item.userId
+		local entry = entries[character]
+		if entry == nil then
 			continue
 		end
 		local root = entry.rig.root
@@ -271,6 +289,11 @@ local function step(dt: number)
 		local carrying = Carry.weight(character, entry.rig, dt, near)
 		if carrying > 0 then
 			table.insert(layers, { frames = Avatar.carryArms(entry.rig), weight = carrying })
+		end
+		if userId == nil then
+			-- staged: a copy keeps the tackle and flight attributes it was cloned with, which are not its own
+			apply(entry, layers)
+			continue
 		end
 		-- a cannon flight over everything, near or far; nobody tackles or is tackled mid-flight
 		local flight, flying = CannonGlide.frames(character, entry.rig, now)
@@ -297,7 +320,7 @@ local function step(dt: number)
 		end
 		local pose, weight, began, still = Avatar.at({
 			tackleAt = tackleAt,
-			hitAt = hits[player.UserId],
+			hitAt = if userId ~= nil then hits[userId] else nil,
 			missAt = number(character, "TackleMissAt"),
 			shovedAt = shovedAt,
 			fallForward = entry.fallForward,
@@ -355,6 +378,22 @@ function Tackle.start()
 		watchPlayer(player)
 	end
 	Players.PlayerAdded:Connect(watchPlayer)
+	for _, tagged in CollectionService:GetTagged(STAGED) do
+		if tagged:IsA("Model") then
+			watchCharacter(tagged :: Model)
+		end
+	end
+	CollectionService:GetInstanceAddedSignal(STAGED):Connect(function(tagged: Instance)
+		if tagged:IsA("Model") then
+			watchCharacter(tagged :: Model)
+		end
+	end)
+	CollectionService:GetInstanceRemovedSignal(STAGED):Connect(function(tagged: Instance)
+		if tagged:IsA("Model") then
+			stale[tagged :: Model] = nil
+			forget(tagged :: Model)
+		end
+	end)
 	-- The engineer's press and refusal moments, once Moments has them; until then the dive waits for TackleAt.
 	local moments = Moments :: any
 	if moments.TacklePress ~= nil then

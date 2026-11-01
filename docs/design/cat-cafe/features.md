@@ -303,6 +303,30 @@ Spec in [rewards-and-shops.md](rewards-and-shops.md). It changes the prize table
 |---|---|---|---|---|---|---|
 | F94 | Rewards and shops: no Kibble, Tuna or Salmon in any prize, small golden fish amounts in their place, at most two pictures a prize (three for the big ones); new Tip Jar, wheel, Daily Treat, quest, Index, Mystery gift, Collector and code rows; a Fresh Catch shelf at the Golden Fish Market that sells potions (and now and then a cheaper Classic Crate) for golden fish by day, its stock rolled every 5 minutes for all servers with per player amounts and a once a window toast for the rare ones; the night dealer rolls one stock per server at dusk that holds all night; "money" in place of "tips" on income text, with the Tip and Big Tip Potions renamed Money and Big Money Potions | P1 | M | engineer, ui, asset, qa | F47 to F49, F53, F64, F70, F73 | No prize pays shop food or shows more than two pictures (three for the big ones); two servers show the same Fresh Catch stock in one window; the dealer's stock holds all night and differs between servers |
 
+## 2aa. The money ladder, tier pace and coming back (Derek's Set 5 answers Q5 to Q7, his 2026-11-01 22:32 offline answer and his 2026-10-28 to 10-30 notes, decided)
+
+Spec in [economy-ladder.md](economy-ladder.md). It changes the live keep up rule (F86) by config, data-model 4b to 12b and the Lucky Cat and lawn prices. No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F95 | Economy ladder: area `incomeMultiplier` 1, 3, 9, 27, 81, so an Alleyway Mythical earns like a Park Legendary, a Neighbourhood Epic, a Woods Rare and a Sewer Common; KeepUpRarities empty, with the keep up code kept for shop-only cats, which earn with the newest area's multiplier; tier costs 8,000, 350,000, 27M and 800M; prices from Tier 3 on up 4, 8 and 16 times (upgrades, decor, bowl, Lucky Cat, lawn); offline 50% for up to 8 h free and 100% for up to 16 h with Long Nap; a money pass multiplier after potions and an extra slot hook; coin prizes in day rate seconds pay half; the Big Bowl takes 2 minutes off; potions stack to 24 h | P0 | M | engineer, ui, qa | F86 keep up, F48 to F73 prizes, F64 potions | The diagonal in section 1 holds at charm 50; Pace.spec puts one-go Tier 5 at 8 to 12 h and an hour a day at day 4 to 6; a night away pays 8 h at half rate |
+
+## 2ab. The free Bellhop Cat and where the asks go (Derek, 2026-11-01 22:32, decided)
+
+Spec in [starter-cat.md](starter-cat.md); the Cafe Pass XP rows are in [quests.md](quests.md) section 8. Save change: `starterCatClaimed`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F96 | Free Bellhop Cat: an exclusive Rare-rate cat that always earns like a Rare from the newest area, claimed once from a luggage cart stand in the plaza; gated on finishing the first goals until the game is in Derek's group, then on joining the group (checked on the server); notification, favourite and like asks placed after the first loop, one a session at most and never rewarded; quests pay Cafe Pass XP | P1 | M | engineer, asset, animation, ui, sound, qa | F87 easy start, F95 exclusive cats | A Tier 1 player who finished the first goals claims the cat once and it earns 3 a second; with a group id set a non-member is refused; no ask shows before the first loop or twice in a session |
+
+## 2ac. Automatic tips, crate-only decor, dearer food and clearer pictures (Derek's notes of 2026-10-28 to 10-30, decided)
+
+Spec in [notes-10-28-to-10-30.md](notes-10-28-to-10-30.md). It changes F61 tip piles, F90 step 5 and F92 section 4, the coin decor shop, food prices and the wave roll. No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F97 | Derek's 10-28 to 10-30 notes: tip piles pay the moment they appear (no Collect; rich visitors, the Collector and Mystery gifts stay by hand), coin decor moves into the Classic Crate, food about four times dearer and growing 1, 1, 4, 8, 16 times by tier, every food list in rarity order with new icons, one Golden Fish name and picture with new treats and perks pictures, buff chips in place of charm stars, an Index of silhouettes with Normal and Gold tabs and no Spare page, and one Epic or rarer stray in every sunrise wave per area | P1 | M | engineer, ui, asset, qa | F61, F90, F92, F95 | A pile pays while the owner is in an area; the Decor screen sells nothing; Kibble is 100 at Tier 1; every wave has an Epic or rarer stray in each open area |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

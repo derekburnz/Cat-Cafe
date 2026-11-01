@@ -240,9 +240,9 @@ local Cues: { [string]: Cue } = {
 	carryPurr = {
 		ids = { "rbxassetid://104398552389386" },
 		group = "Sfx",
-		volume = 0.25,
+		volume = 0.33,
 		looped = true,
-	},
+	}, -- Derek 2026-10-28: purring a little louder (both purrs about 2.5 dB up)
 	shove = {
 		ids = { "rbxassetid://135377461302918" },
 		group = "Sfx",
@@ -337,7 +337,7 @@ local Cues: { [string]: Cue } = {
 	purr = {
 		ids = { "rbxassetid://110254245469370" },
 		group = "Sfx",
-		volume = 0.2,
+		volume = 0.27,
 		looped = true,
 		range = 8,
 	},
@@ -583,6 +583,12 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 		duck = true,
 	},
+	uiSpinBusy = {
+		ids = { "rbxassetid://75782326640051" },
+		group = "Ui",
+		volume = 0.55,
+		minGap = 0.3,
+	}, -- the wheel can't spin yet: its own wooden "tok-tok", not uiError (Derek 2026-10-28: sounded like a disconnect)
 	uiCodeRedeem = {
 		ids = { "rbxassetid://128875832136345" },
 		group = "Ui",

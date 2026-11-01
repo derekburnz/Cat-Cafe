@@ -336,6 +336,8 @@ return function()
 			end
 		end)
 
+		-- since codes take symbols (Set 4 answer, 2026-11-01) a "!" is part of the code, so the junk here is a
+		-- bracket, which no code can hold
 		it("takes every code typed with any case, spaces and punctuation in the box", function()
 			for id in pairs(Catalog.codes) do
 				for _, raw in
@@ -343,7 +345,7 @@ return function()
 						id,
 						string.upper(id),
 						"  " .. id .. "  ",
-						string.sub(id, 1, 1) .. " " .. string.sub(id, 2) .. "!",
+						string.sub(id, 1, 1) .. " " .. string.sub(id, 2) .. ")",
 						"\t" .. string.upper(string.sub(id, 1, 2)) .. string.sub(id, 3) .. "\n",
 					}
 				do

@@ -13,8 +13,9 @@
 -- is the target whose ShovedBy names it. On its own screen the tackler's dive starts at the press
 -- (Moments.TacklePress, once the engineer adds it) instead of a round trip later, and a refused press
 -- (Moments.TackleRefused) lets go of it.
--- The net hold (Derek 2026-10-28) is the layer under the Tackle: in a catching area the right arm holds the net up
--- (Avatar.holdNet, by NetHold.weight, which also puts the net in the hand), and a tackle's pose blends over that.
+-- The net hold (Derek 2026-10-28, F93) is the layer under the Tackle: the right arm holds the net up at all times
+-- while the hands are free (Avatar.holdNet, by NetHold.weight, which also puts the net in the hand), a net smack
+-- moves that arm (NetHold.arm, Avatar.smack), and a tackle's pose blends over that.
 -- The carry (Derek 2026-10-28) is a layer under the Tackle too: while the character carries a cat its arms fold
 -- across its chest (Avatar.carryArms, by Carry.weight, which also puts the cat on them).
 -- The Cat Cannon flight (F84) goes over all of them, at any distance: the hop, the rolling ball and the landing
@@ -264,7 +265,8 @@ local function step(dt: number)
 		local layers: { Layer } = {}
 		local holding = NetHold.weight(character, entry.rig, dt, near)
 		if holding > 0 then
-			table.insert(layers, { frames = Avatar.holdNet(entry.rig), weight = holding })
+			local arm = NetHold.arm(character, now)
+			table.insert(layers, { frames = Avatar.holdNet(entry.rig, arm), weight = holding })
 		end
 		local carrying = Carry.weight(character, entry.rig, dt, near)
 		if carrying > 0 then

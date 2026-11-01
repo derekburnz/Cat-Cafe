@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-01 23:12 UTC",
+  "generated": "2026-11-01 23:17 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -75590,7 +75590,7 @@
           -15.35
         ]
       },
-      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, pilasters, cornices, the attic vent) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Mint.model.json",
       "rbx_parts": 519,
       "files": [
@@ -75679,7 +75679,7 @@
           -15.35
         ]
       },
-      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, pilasters, cornices, the attic vent) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Blush.model.json",
       "rbx_parts": 519,
       "files": [
@@ -75768,7 +75768,7 @@
           -15.35
         ]
       },
-      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, pilasters, cornices, the attic vent) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Butter.model.json",
       "rbx_parts": 519,
       "files": [
@@ -75857,7 +75857,7 @@
           -15.35
         ]
       },
-      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, pilasters, cornices, the attic vent) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
+      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Lilac.model.json",
       "rbx_parts": 519,
       "files": [

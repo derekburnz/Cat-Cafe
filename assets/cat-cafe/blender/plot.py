@@ -13,10 +13,11 @@ Objects per shell (the exporter turns each extra object into a child Model):
   ..._Paint                              the pastel outer layer of every wall and gable (collidable); each part is
                                          tagged Paint, so a crate paint recolours the cafe front (F53)
   ..._Wallpaper                          the cream inner layer of the same walls; each part is tagged Wallpaper
-  ..._Trim                               the chunky offwhite trims (frames, sills, pilasters, cornices, the attic
-                                         vent, the sign's frame); each part is tagged PaintTrim, so a paint can
-                                         colour them apart (F89, the Gold Leaf glint). ..._Roof_Trim (barge boards,
-                                         eave fascias) sits inside ..._Roof. Glazing bars and slats stay on the root
+  ..._Trim                               the chunky trims (window and door frames, sills, keystones, pilasters,
+                                         cornices, the attic vent, the awnings' head rails, the sign's frame); each
+                                         part is tagged PaintTrim, so a paint can colour them apart (F89, Gold Leaf).
+                                         ..._Roof_Trim (barge boards, eave fascias) sits inside ..._Roof. Glazing
+                                         bars, shutters and slats stay on the root
   ..._Glass                              window and fanlight glass (collidable, Transparency 0.45)
   ..._Roof                               roof, ridge and chimney: the engineer fades this Model for the owner
   ..._SignBoard                          one part named SignBoard; its -Z face takes the owner's SurfaceGui
@@ -400,15 +401,16 @@ def build_cafe(colour, mat):
     b, glass, roof, sign, bulbs_post, bulbs_sign, bulbs_back = RB(), RB(), RB(), RB(), RB(), RB(), RB()
     chimney, flowers, fireflies, paint, paper, trim, roof_trim = RB(), RB(), RB(), RB(), RB(), RB(), RB()
     walls = (paint, paper)
-    tb = _Route(b, trim, (TRIM,))             # window and door frames, sills, pilasters, cornices, the attic vent
+    tb = _Route(b, trim, (TRIM, accent))      # window and door frames, sills, keystones, pilasters, cornices, the vent
     _front_wall(tb, glass, walls, facade, accent)
     _side_walls(tb, glass, walls, facade, accent)
     _back_wall(tb, glass, walls, facade, accent)
     _base_and_trim(tb)
     _gables(tb, walls, facade)
     _wall_plates(walls, facade)
-    _awning(b, accent, -16.0, -5.0)
-    _awning(b, accent, 5.0, 16.0)
+    ab = _Route(b, trim, ("dark_wood",))      # the awnings' head rails: Gold Leaf's "awning edge" (F89 2c)
+    _awning(ab, accent, -16.0, -5.0)
+    _awning(ab, accent, 5.0, 16.0)
     _sign(_Route(b, trim, ("dark_wood",)), sign, bulbs_sign, accent)           # the sign's frame and its ears
     _garden(b, bulbs_post, flowers, fireflies)
     x = BACK_DOOR[1] + 1.4                                                                   # back door lamp

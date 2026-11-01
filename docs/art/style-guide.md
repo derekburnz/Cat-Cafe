@@ -451,8 +451,9 @@ the pastel outer layer (facade, side and back walls, gables, the spandrels round
 `Paint`; `<shell>_Wallpaper` is the cream inner layer, tagged `Wallpaper`. Plinth, roof, door and garden stay in
 the shell's own parts, so a paint never reaches them. The floor is code-built and tagged by the server. Since F89
 (Gold Leaf, VFX-Agent's glint) the chunky trims are a third child Model, `<shell>_Trim`, every Part tagged
-`PaintTrim`: window and door jambs, heads and sills, the arch ring blocks, the keystones over the door, the corner
-pilasters, the eave cornices, the attic vent ring and the sign's frame. The roof's barge boards and eave fascias are
+`PaintTrim`: window jambs, heads, sills, arch rings and keystones, the front and back door frames and the door's
+arch (in the cafe's accent colour), the corner pilasters, the eave cornices, the attic vent ring, the awnings' head
+rails and the sign's frame (F89 2c: Gold Leaf gilds "every trim"). The roof's barge boards and eave fascias are
 `<shell>_Roof_Trim` inside `<shell>_Roof`, tagged the same. Anything under 0.19 studs thick (glazing bars, shutter
 slats, the fanlight's rays, the vent's bars) stays in the shell's own parts, because the glint recolours one Part at
 a time and slivers read as flicker. The shell's base and corner pilasters run 0.3 below the plot floor (the plot

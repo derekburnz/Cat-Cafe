@@ -200,7 +200,8 @@ STUDIO_NOTES = {
                                  "Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. "
                                  "F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged "
                                  "Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the "
-                                 "chunky trims (window and door frames, sills, pilasters, cornices, the attic vent) are "
+                                 "chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, "
+                                 "the awnings' head rails, the sign frame) are "
                                  "the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim "
                                  "inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint)."
        for c in plot.COLOURS},

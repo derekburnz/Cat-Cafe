@@ -444,6 +444,15 @@ local function dropPoint(basket: Instance): Vector3
 	return if basket:IsA("Model") then (basket :: Model):GetPivot().Position else Vector3.zero
 end
 
+-- The real cat goes in a moment (or the intro removes its copy's cat); hidden on this client until then.
+local function hide(cat: Model)
+	for _, descendant in cat:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			(descendant :: BasePart).LocalTransparencyModifier = 1
+		end
+	end
+end
+
 -- A cat's hop from its carrier's arms into a camp's carrier basket: a copy of the cat, so it keeps its outfit and
 -- gold coat while the real one is removed. Into `basket`, else the nearest CampBasket.
 local function hopIn(cat: Model, basket: Model?)
@@ -466,6 +475,7 @@ local function hopIn(cat: Model, basket: Model?)
 	end
 	Particles.burst("gateSparkle", from.Position, k.sparkle)
 	if Context.reducedMotion() then
+		hide(cat)
 		Particles.burst("smokePuff", to, k.puff, Presets.clouds.white)
 		return
 	end
@@ -483,12 +493,7 @@ local function hopIn(cat: Model, basket: Model?)
 			part.CanQuery = false
 		end
 	end
-	for _, descendant in cat:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			-- the real one goes in a moment; only the copy shows
-			(descendant :: BasePart).LocalTransparencyModifier = 1
-		end
-	end
+	hide(cat) -- after the copy is made, so it shows
 	copy.Name = "EffectsCheckInCat"
 	copy.Parent = Context.folder()
 	local turn = from.Rotation

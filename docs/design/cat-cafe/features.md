@@ -263,6 +263,14 @@ Derek: "the game is also missing some form of "Luck" most popular games have but
 | F88 | Luck: a Lucky Cat statue by every cafe door, `lucky_cat` upgrade levels 1 to 5 (Tier n, +0.1 Luck each); one Luck number (x1.0 to LuckMax x3) from the statue, a Lucky Potion (+0.5) and a Lucky Day (+0.5) that multiplies Epic, Legendary and Mythical chances on your bait and crate rolls; Lucky Days at a quarter of sunrises roll the wave and traps at Luck x2 with a banner, a gold sky and a warning 15 s before; a Luck chip and card on the HUD; nothing sold for Robux | P1 | M | engineer, ui, asset, vfx, animation, sound | F82 bowl levels, F53 crates | With Luck x1.5 the food and crate cards show Epic and up at 1.5 times and still add to 100; about one sunrise in four is a Lucky Day; other players see your statue's level from the street |
 | F89 | Rare moments: a big pull card, hop and spin, server toast and stings when a Legendary, Mythical or gold Epic or better is secured; a smaller card for the first Epic; Legendary and Mythical crate pieces glow from the first frame, shake 0.6 s and open into the same card; a quality bar per decor rarity and a redo of the twelve Legendary and Mythical pieces, Gold Leaf first, with before and after sheets for Derek | P1 | M | ui, vfx, animation, sound, asset, engineer | F53, catch bursts | Securing a Mythical plays the card and toasts the server once a minute at most; a Mythical crate piece never shows a lower rarity first; Gold Leaf reads as gold trims from across the street |
 
+## 2v. Cats make the orders (Derek, 2026-10-30 23:27, proposed)
+
+Derek: "Consider making it so the cats make whatever items the people are asking for and bring it to them / collect tips from table, Also add more bubble pop-ops for customers". Spec in [cats-make-orders.md](cats-make-orders.md). Client only: no server, save or economy change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F90 | Cats make the orders: a twelve-item menu that opens by tier (coffee, milk, cake slice and paw cookie at Tier 1 up to the rainbow cake at Tier 5); the Barista makes each order with a working bob, a bubble with a filling ring, a steam or flour puff and a ding (2 s drinks, 3 s bakes, three orders queued at most); the Waiter carries it on a head tray to the table; Waiters and Greeters sweep tip piles to a stack by the till, where the player still collects them (server piles unchanged); a small oven behind the counter; own cafe in full, other cafes lighter, phones lighter still | P2 | M | asset, animation, vfx, ui, engineer, sound, qa | F15, F37, F61 | A Tier 1 cafe serves only its four items and a Tier 5 cafe all twelve; each order is made, carried and served with the heart; the till pays exactly the server's tip piles |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

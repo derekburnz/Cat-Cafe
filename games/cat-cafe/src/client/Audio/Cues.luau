@@ -662,8 +662,18 @@ local Cues: { [string]: Cue } = {
 	-- The release batch shares two uploads (Roblox's 100 a month for an account without ID verification). A
 	-- sheet's row holds the file and is never played itself; its parts are the cues that name it. Preloaded, so
 	-- the first part to play is not late.
-	sheetWorld = { ids = {}, group = "Sfx", volume = 1, preload = true }, -- mono, plays in 3D
-	sheetMoments = { ids = {}, group = "Music", volume = 1, preload = true }, -- stereo, plays flat
+	sheetWorld = {
+		ids = { "rbxassetid://117195695201052" },
+		group = "Sfx",
+		volume = 1,
+		preload = true,
+	}, -- mono, plays in 3D
+	sheetMoments = {
+		ids = { "rbxassetid://137051883099106" },
+		group = "Music",
+		volume = 1,
+		preload = true,
+	}, -- stereo, plays flat
 	bellhopBell = {
 		ids = {},
 		sheet = "sheetWorld",

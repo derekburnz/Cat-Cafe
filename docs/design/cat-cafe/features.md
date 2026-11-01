@@ -271,6 +271,14 @@ Derek: "Consider making it so the cats make whatever items the people are asking
 |---|---|---|---|---|---|---|
 | F90 | Cats make the orders: a twelve-item menu that opens by tier (coffee, milk, cake slice and paw cookie at Tier 1 up to the rainbow cake at Tier 5); the Barista makes each order with a working bob, a bubble with a filling ring, a steam or flour puff and a ding (2 s drinks, 3 s bakes, three orders queued at most); the Waiter carries it on a head tray to the table; Waiters and Greeters sweep tip piles to a stack by the till, where the player still collects them (server piles unchanged); a small oven behind the counter; own cafe in full, other cafes lighter, phones lighter still | P2 | M | asset, animation, vfx, ui, engineer, sound, qa | F15, F37, F61 | A Tier 1 cafe serves only its four items and a Tier 5 cafe all twelve; each order is made, carried and served with the heart; the till pays exactly the server's tip piles |
 
+## 2w. Front lawn decorations (Derek, 2026-10-30 23:30, proposed)
+
+Derek: "Consider also adding decorations for the front lawn /infront of the cafe for more unique looking cafe's also". Spec in [front-lawn.md](front-lawn.md). Save change: `lawnOwned`, `lawn`, `lawnStyles`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F91 | Front lawn: six lawn spots in the front garden (two small at Tier 1, two big at Tier 2, two small at Tier 3), sixteen coin-bought pieces from a 500 coin Tulip Bed to a 3,000,000 coin Golden Paw Statue, four path styles and four fence styles; no tip bonus; a Front lawn tab with an edit view, rings and a picker; night glows and a few small moving touches near the camera; `BuyLawn`, `SetLawnSpot`, `SetLawnStyle` and plot attributes so the whole street sees it | P2 | M | asset, engineer, ui, vfx, qa | F36, F53 Decor screen | A Tier 1 player places a Tulip Bed that a second player sees from the street; sizes and tiers are enforced on the server; eight full lawns hold a phone's frame rate |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

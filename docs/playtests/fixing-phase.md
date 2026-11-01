@@ -28,10 +28,10 @@ unless they fix the worst drop in the funnel (section 4).
 
 | When (Derek's day) | Who | What | Output |
 |---|---|---|---|
-| Morning, before Derek is on | QA-Planner (a cheap model, rule 11) | `npm run check` on main; the world scan against yesterday's (section 6); the analytics workflow with `days` 1 and 7; the bug-reports workflow for yesterday | `docs/playtests/fixing/<date>.md` (section 5) with the top three fixes and their owner threads |
+| Morning, after 10:17 UTC, before Derek is on | QA-Planner (a cheap model, rule 11) | `npm run check` on main; the world scan against yesterday's (section 6); the scheduled analytics and bug-reports runs (section 4) | `docs/playtests/fixing/<date>.md` (section 5) with the top three fixes and their owner threads |
 | Day | engineer threads | one fix per PR, each with a test row; reviewed; auto-merge | merged PRs |
 | Before publish | QA-Planner in the dev copy, Derek on his phone | the smoke test (section 3) on the build that will go live | pass, or a named stop-the-line bug |
-| Publish | Tools-Agent | publish only after a pass | the version number in the day file |
+| Publish | Tools-Agent | publish only after a pass; with `restart_servers` players get warnings at 5, 3 and 1 minutes (#613, once Derek adds setup step 21), so allow about 5 minutes more | the version number in the day file |
 | After publish | Derek, 3 minutes | join the live game on his phone: one catch, one check-in, no error | a line in the day file |
 
 Stop the line (fix today, publish nothing else first):
@@ -83,9 +83,16 @@ build is live: the back door and the walk home today (S3, S5), the cannon and th
 ## 4. Funnel checkpoints: reading where players stop
 
 Today's 12-step funnel, `tutorial_step` and `quit_point` are live; F87 section 5 adds finer steps and
-`new_player_left`. This is how QA reads them each morning, from the analytics workflow
-(Roblox fills a day about a day late, so a morning read is mostly about the day before; the 7-day run smooths
-small numbers).
+`new_player_left`. This is how QA reads them each morning.
+
+Since #618 (Tools-Agent) both workflows run by themselves every day at 10:17 UTC: analytics.yml reads yesterday
+and then the last 7 days, bug-reports.yml yesterday's reports and then today's so far. Find the newest run with
+GitHub's list of workflow runs for `analytics.yml` or `bug-reports.yml`, filtered to the `schedule` event, one per
+page, and read its summary or job log. Roblox fills a day about a day late, so a morning read is mostly about the
+day before, and the 7-day part smooths small numbers. The Actions logs are public, so scheduled bug report logs
+show a name's first letter and an id's last three digits and leave out the JSON; run bug-reports.yml by hand when a
+ticket needs more. The analytics run fails with the setup guide's step 20 message until Derek gives the publish key
+`universe.analytics:read`.
 
 1. **Worst drop.** Over steps 1 to 15 (the first session), the step with the largest share of players lost from the
    step before. That is the day's first fix ticket, even if no one reported it.

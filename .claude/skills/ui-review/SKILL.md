@@ -29,10 +29,10 @@ The house rules for Cat Cafe screens, in one place. Use it with:
 
 ## 3. Sizes and fit
 
-Check every changed screen at 1280 x 720, 1366 x 768 and a phone at 844 x 390, after the window's UIScale has shrunk it:
+Check every changed screen at 1280 x 720, 1366 x 768 and a phone at 844 x 390, after the window's UIScale has shrunk it. The UI gate (`npm run uigate` in `games/cat-cafe/tools/cloudcheck`, part of CI) builds every window at those three sizes and fails a new tap target, small text or piece off the screen; its report has a picture of each window with the findings boxed.
 
-- Anything pressable is at least `Theme.sizes.touchMin` (44) real pixels in both directions. The X on a window too.
-- Body text stays at `Theme.sizes.textSmall` (14) or more after scaling; `textTiny` (12) only for a tag on a tile. TextScaled labels get a `UITextSizeConstraint` with a sensible minimum.
+- Anything pressable is at least `Theme.sizes.touchMin` (44) real pixels in both directions on a phone, and at least 36 with a mouse. The X on a window too.
+- Body text stays at `Theme.sizes.textSmall` (14) or more after scaling; `textTiny` (12) only for a tag on a tile. Nothing renders under 9 real pixels (12 at the phone's 0.75 scale). TextScaled labels get a `UITextSizeConstraint` with a sensible minimum.
 - Nothing runs off the screen or under Roblox's top bar, the thumbstick (bottom left) or the jump button (bottom right) on touch.
 - Two things that can show at once do not overlap (a toast and a card, a window and the HUD's right column). Reflow before you shrink.
 - Long names and big numbers fit: try "Neighbourhood", "$1,234,567,890" and a 20-letter cat name.
@@ -66,7 +66,7 @@ Then ask:
 
 ## 6. Before you open the pull request
 
-- The gate passes: `./check.sh` (sourcemap, luau-lsp, selene, stylua) and the cloud specs.
+- The gate passes: `./check.sh` (sourcemap, luau-lsp, selene, stylua), the cloud specs and the UI gate (`npm run check` in `tools/cloudcheck`). A new window goes in `SCENES` in `uigate-scenes.luau`. When a fix clears baseline findings, run `node uigate.mjs --update-baseline` in the same pull request so the list shrinks.
 - The contract section is updated.
 - A visible change has a before and after picture or an HTML mockup in `docs/concepts/cat-cafe/ui/` or `/mnt/project-files/UI-Engineer/`, and the pull request says what to look at in Studio.
 - The pull request quotes Derek's words for the ask it answers.

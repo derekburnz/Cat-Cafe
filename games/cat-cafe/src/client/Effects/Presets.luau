@@ -726,7 +726,32 @@ Presets.motion = {
 	barista = { tapEvery = 1.6, headDip = 12, paw = 35 },
 	waiter = { sway = 5, swaySeconds = 1.8, step = 0.05 },
 	greeter = { waveEvery = 3.2, wave = 70, tilt = 10 },
-	entertainer = { swatEvery = 1.4, swat = 55, yarnStuds = 1.2 },
+	-- The entertainer bats a pom-pom on a springy wand stuck in its perch (Derek 2026-10-28 17:41: Comet's ball was
+	-- "kind of floating" and its foot "randomly" twitched; the old yarn ball slid about in mid air 2 studs past the
+	-- cat tree's top, which the paw never reached). The paws take turns once every `every` seconds: the paw comes
+	-- up over `windup`, faster and faster, meets the pom-pom from behind raised `reach` degrees, holds it `hold`, and
+	-- goes down again over `back`. A paw is one stiff piece, so it never lifts over the pom-pom, which would pass
+	-- through it. The pom-pom rests just ahead of that paw's pad, `pom` studs across, on a `wand` thick wand from
+	-- `wandBase` (studs ahead of the cat, on the perch). Each bat sends it away `tilt` degrees, `side` of that off to
+	-- the far side, and it springs back and wobbles at `hz` a second, dying away `decay` times a second. The head
+	-- looks down `look` degrees at it and turns after it by `follow` of its sway; the body leans into each bat `lean`.
+	entertainer = {
+		every = 1.6,
+		windup = 0.22,
+		reach = 70,
+		hold = 0.06,
+		back = 0.38,
+		pom = 0.3,
+		wand = 0.05,
+		wandBase = 0.55,
+		tilt = 30,
+		side = 0.45,
+		hz = 1.8,
+		decay = 2.6,
+		look = 10,
+		follow = 0.8,
+		lean = 4,
+	},
 	-- Stuck in a rescue trap (Derek 2026-10-28: a different animation "for whatever cat is stuck in it", "like tail
 	-- sticking out or butt", "make the butt sticking out for a lot of the rescue's", "flip the cats upside for some
 	-- rescue missions where fit"). Each TrapType wriggles one of two ways (`kinds`), in bursts once every `every`

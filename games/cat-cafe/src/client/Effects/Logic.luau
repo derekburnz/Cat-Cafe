@@ -44,7 +44,10 @@ export type Offsets = {
 	pawBL: number,
 	pawBR: number,
 	sink: number, -- 0 standing, 1 lying on its belly (Pose turns it into studs from the cat's leg length)
-	yarn: number, -- the entertainer's yarn ball, -1 (left) to 1 (right) in front of the cat
+	-- The entertainer's pom-pom wand (Logic.toy places it): radians it leans off its rest to the cat's right
+	-- (`yarn`) and away from the cat (`yarnOut`).
+	yarn: number,
+	yarnOut: number,
 	-- How far into each of Model-Agent's piece poses (Presets.catPoses) the cat is, 0 to 1, on the bodies with
 	-- hinged pieces. The idle's own turns ride on top.
 	sleep: number,
@@ -519,6 +522,76 @@ function Logic.pulse(t: number, every: number, length: number): number
 	return math.sin(into / length * math.pi)
 end
 
+-- How far up the entertainer's batting paw is, 0 to 1 of motion.entertainer.reach, `c` seconds after it meets the
+-- pom-pom (before that, negative): it comes up over `windup`, faster and faster so it strikes, holds the pom-pom
+-- for `hold`, then goes down smoothly over `back`.
+function Logic.bat(c: number): number
+	local e = Presets.motion.entertainer
+	if c < -e.windup or c >= e.hold + e.back then
+		return 0
+	elseif c < 0 then
+		local u = (c + e.windup) / e.windup
+		return u * u
+	elseif c < e.hold then
+		return 1
+	end
+	return 1 - smoothstep((c - e.hold) / e.back)
+end
+
+-- How the pom-pom wand leans `since` seconds after a bat sent it toward `toward` (1 the cat's right, -1 its left):
+-- radians away from the cat, then radians to its right. It springs away and wobbles back, dying away, and is still
+-- again by the next bat (it settles over the next paw's windup), so the next paw always meets it at rest.
+function Logic.toySway(since: number, toward: number): (number, number)
+	local e = Presets.motion.entertainer
+	if since < 0 or since >= e.every then
+		return 0, 0
+	end
+	local settle = 1 - smoothstep((since - (e.every - e.windup)) / e.windup)
+	local out = math.rad(e.tilt)
+		* math.exp(-e.decay * since)
+		* math.sin(since * e.hz * 2 * math.pi)
+		* settle
+	return out, out * e.side * toward
+end
+
+-- Where the entertainer's pom-pom rests, up and ahead (negative) of the cat's floor point in studs, for front paws
+-- hinged `hingeY` up and `hingeZ` ahead at the cat's `scale`: against the pad of a paw raised `reach` degrees.
+-- The pad sits at the bottom of the leg, PAD_AHEAD of the hinge; raised, it faces forward and a little down.
+local PAD_AHEAD = 0.05
+function Logic.toyRest(hingeY: number, hingeZ: number, scale: number): (number, number)
+	local e = Presets.motion.entertainer
+	local a = math.rad(e.reach)
+	local ahead = PAD_AHEAD * scale
+	local r = e.pom * scale / 2
+	-- the pad's centre with the leg swung forward `a` about the hinge, then out along the leg by the pom-pom's radius
+	local y = hingeY - hingeY * math.cos(a) + ahead * math.sin(a) - r * math.cos(a)
+	local z = hingeZ - hingeY * math.sin(a) - ahead * math.cos(a) - r * math.sin(a)
+	return y, z
+end
+
+-- The pom-pom and its wand in the cat's floor space for offsets `o` (`yarn`, `yarnOut`), resting at
+-- (0, restY, restZ) for a cat at `scale`: the pom-pom's centre, the wand's foot (`wandBase` ahead, on the perch)
+-- and its tip under the pom-pom. The wand leans about its foot, away from the cat by `yarnOut`, then to its right
+-- by `yarn`, so the pom-pom swings on an arc and never leaves it.
+function Logic.toy(
+	o: Offsets,
+	restY: number,
+	restZ: number,
+	scale: number
+): (Vector3, Vector3, Vector3)
+	local e = Presets.motion.entertainer
+	local foot = Vector3.new(0, 0, -e.wandBase * scale)
+	local y, z = restY, restZ - foot.Z
+	-- to the right about the wand's forward axis, then away about its sideways one
+	local x = y * math.sin(o.yarn)
+	y *= math.cos(o.yarn)
+	local away = -o.yarnOut
+	y, z = y * math.cos(away) - z * math.sin(away), y * math.sin(away) + z * math.cos(away)
+	local arm = Vector3.new(x, y, z)
+	local length = math.max(arm.Magnitude - e.pom * scale / 2, 0.05)
+	return foot + arm, foot, foot + arm.Unit * length
+end
+
 function Logic.blank(): Offsets
 	return {
 		bodyY = 0,
@@ -536,6 +609,7 @@ function Logic.blank(): Offsets
 		pawBR = 0,
 		sink = 0,
 		yarn = 0,
+		yarnOut = 0,
 		sleep = 0,
 		loaf = 0,
 		lick = 0,
@@ -739,9 +813,19 @@ function Logic.idle(style: Style, t: number, body: Body?): Offsets
 		o.pawFR = math.rad(m.greeter.wave) * greet * (0.75 + 0.25 * math.sin(t * 16))
 		o.headRoll = math.rad(m.greeter.tilt) * greet
 	elseif style == "entertainer" then
-		o.pawFL = math.rad(m.entertainer.swat) * Logic.pulse(t, m.entertainer.swatEvery, 0.35)
-		o.yarn = wave(t, m.entertainer.swatEvery * 2)
-		o.headYaw = math.rad(18) * o.yarn
+		-- the paws take turns batting the pom-pom: the last one going back down, the next one coming up for its bat
+		local e = m.entertainer
+		local beat = math.floor(t / e.every)
+		local since = t - beat * e.every
+		local last = Logic.bat(since)
+		local coming = Logic.bat(since - e.every)
+		local leftLast = beat % 2 == 0
+		o.pawFL = math.rad(e.reach) * (if leftLast then last else coming)
+		o.pawFR = math.rad(e.reach) * (if leftLast then coming else last)
+		o.yarnOut, o.yarn = Logic.toySway(since, if leftLast then 1 else -1)
+		o.headPitch = -math.rad(e.look)
+		o.headYaw = -e.follow * o.yarn
+		o.bodyPitch = -math.rad(e.lean) * math.max(last, coming)
 	else
 		o.headYaw = math.rad(m.headLook.degrees * 0.6) * wave(t, m.headLook.seconds)
 	end

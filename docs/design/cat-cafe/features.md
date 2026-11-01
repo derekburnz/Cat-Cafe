@@ -246,6 +246,14 @@ Derek: "also make it so legendarys / mythics in the previous areas still hold de
 |---|---|---|---|---|---|---|
 | F86 | Keep up: a Legendary or Mythical from an older area earns with the `incomeMultiplier` of the area one step behind the owner's newest (KeepUpStepsBehind 1, KeepUpRarities), never less than its own; `CatStats.areaMultiplier(def, tier)` and `rating(cat, def, tier)`, every caller passes the owner's tier; the income line shows the kept-up figure and a "Keeps up" tag | P1 | S | engineer, ui, qa | v0.13.7 area income | At Tier 5 an Alleyway Legendary at charm 50 and level 1 rates 87.5 and a Sewer Legendary 125; an Epic's rating does not change; ranking up to Tier 4 lifts an Alleyway Mythical from 112.5 to 168.75 at once; Equip Best puts an older Mythical ahead of a newest-area Legendary |
 
+## 2t. Easy start (Derek, 2026-10-30 23:28 and his research notes of 2026-10-31, proposed)
+
+Derek: "make the game especially the start as low friction as possible so we don't lose early players". Spec in [easy-start.md](easy-start.md). Save change: `tipsSeen`, `feedbackAsked`, `stuckHelpShown`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F87 | Easy start: no automatic intro (IntroAutoPlay false, the "?" tile glows); a first catch that cannot fail (one slow circle, doubled windows, retry with no flee, locked to the beginner); no tackles before the first check-in; the first cat takes the free role slot by itself; device-aware step hints; a small HUD until step 5 with buttons that pop in as they unlock; stuck nudges at 40 s and a help card at 90 s; twelve one-time context tips (cards or cuts of 4 s at most, one a minute, never mid-catch or mid-carry); a Feedback page with three faces and a once-only ask at 12 minutes; the onboarding funnel v2 (20 steps) and the events `left_early`, `stuck_nudge`, `tip_shown`, `feedback`, `intro_choice`; the bug-reports log stops printing report text | P0 | M | engineer, ui, vfx or animation, tools, qa | F72, F16 | A fresh phone account catches and checks in its first cat within 60 s of loading with no failed step; each tip shows once; Creator Hub shows the v2 funnel in order and `left_early` with the step a quitter left on |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

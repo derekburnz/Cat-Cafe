@@ -136,5 +136,26 @@ return function()
 			expect(last.knL).to.be.near(c.poses.ball.kn, 1)
 			expect((Avatar.glide(c.drop))).to.equal(nil)
 		end)
+
+		it("squeezes the rise, the opening and the dive into a shorter staged span", function()
+			local span = 0.4
+			local squeeze = span / (c.drop - c.gone)
+			expect((Avatar.glide(c.gone + span, span))).to.equal(nil)
+			local _, below = Avatar.glide(c.gone, span)
+			expect(below.Y).to.be.near(-g.below, 1e-6)
+			local opened = c.gone + (g.rise + g.open) * squeeze
+			local pose, at, _, roll = Avatar.glide(opened, span)
+			expect(at.Magnitude < 1e-6).to.equal(true)
+			expect(roll).to.equal(0)
+			expect(pose.lean).to.be.near(c.poses.spread.lean, 1e-6)
+			local last, out = Avatar.glide(c.gone + span - 1e-3, span)
+			expect(out.Y < -g.below * 0.9).to.equal(true)
+			expect(last.knL).to.be.near(c.poses.ball.kn, 1)
+			-- no span, or one as long as the flight's, is the flight's own glide
+			local _, a = Avatar.glide(c.gone + 0.5)
+			local _, b = Avatar.glide(c.gone + 0.5, c.drop - c.gone)
+			expect((a - b).Magnitude < 1e-9).to.equal(true)
+			expect((Avatar.glide(c.gone, 0))).to.equal(nil)
+		end)
 	end)
 end

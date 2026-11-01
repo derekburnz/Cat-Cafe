@@ -866,7 +866,9 @@ end
 -- Where the front legs are hinged in the floor's space (Pose.floor: -Z ahead, Y up), halfway between the two, on
 -- a body whose front legs are hinged pieces; nil on any other.
 function Pose.frontHinge(rig: Rig): Vector3?
-	local body, left, right = rig.joints.body, rig.joints.pawFL, rig.joints.pawFR
+	local body: CFrame? = rig.joints.body
+	local left: CFrame? = rig.joints.pawFL
+	local right: CFrame? = rig.joints.pawFR
 	if rig.usesMotors or body == nil or left == nil or right == nil then
 		return nil
 	end

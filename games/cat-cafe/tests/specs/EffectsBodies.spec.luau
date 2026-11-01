@@ -14,29 +14,37 @@ return function()
 	local AWAKE = { "stuck", "stray", "barista", "waiter", "greeter", "entertainer", "sit" }
 
 	describe("Effects new bodies", function()
-		it("naps in the sleep pose on the walking body, eyes shut, without folding its own legs", function()
-			for t = 0, 12, 0.37 do
-				local o = Logic.idle("nap", t, "walk")
-				expect(o.sleep).to.equal(1)
-				expect(o.loaf == 0 and o.lick == 0).to.equal(true)
-				expect(o.sink).to.equal(0) -- the pose's own lift lays it down
-				expect(o.pawFL == 0 and o.pawFR == 0 and o.pawBL == 0 and o.pawBR == 0).to.equal(true)
-				expect(o.headPitch == 0 and o.headYaw == 0).to.equal(true) -- the pose turns the head
-				expect(o.blink).to.equal(1)
+		it(
+			"naps in the sleep pose on the walking body, eyes shut, without folding its own legs",
+			function()
+				for t = 0, 12, 0.37 do
+					local o = Logic.idle("nap", t, "walk")
+					expect(o.sleep).to.equal(1)
+					expect(o.loaf == 0 and o.lick == 0).to.equal(true)
+					expect(o.sink).to.equal(0) -- the pose's own lift lays it down
+					expect(o.pawFL == 0 and o.pawFR == 0 and o.pawBL == 0 and o.pawBR == 0).to.equal(
+						true
+					)
+					expect(o.headPitch == 0 and o.headYaw == 0).to.equal(true) -- the pose turns the head
+					expect(o.blink).to.equal(1)
+				end
 			end
-		end)
+		)
 
-		it("loafs in the loaf pose on the walking body, eyes half shut, looking aside now and then", function()
-			local l = m.loaf
-			for t = 0, 30, 0.1 do
-				local o = Logic.idle("loaf", t, "walk")
-				expect(o.loaf).to.equal(1)
-				expect(o.sleep).to.equal(0)
-				expect(o.sink).to.equal(0)
-				expect(math.abs(o.headYaw) <= math.rad(l.look) + 1e-9).to.equal(true)
-				expect(o.blink >= m.blink.sleepy - 1e-9 and o.blink <= 1).to.equal(true)
+		it(
+			"loafs in the loaf pose on the walking body, eyes half shut, looking aside now and then",
+			function()
+				local l = m.loaf
+				for t = 0, 30, 0.1 do
+					local o = Logic.idle("loaf", t, "walk")
+					expect(o.loaf).to.equal(1)
+					expect(o.sleep).to.equal(0)
+					expect(o.sink).to.equal(0)
+					expect(math.abs(o.headYaw) <= math.rad(l.look) + 1e-9).to.equal(true)
+					expect(o.blink >= m.blink.sleepy - 1e-9 and o.blink <= 1).to.equal(true)
+				end
 			end
-		end)
+		)
 
 		it("settles from the nap into the loaf without leaving the floor", function()
 			for k = 0, 1, 0.1 do
@@ -48,25 +56,53 @@ return function()
 			expect(Presets.catPoses.sleep.lift).to.equal(Presets.catPoses.loaf.lift)
 		end)
 
-		it("washes a paw on the sitting body in bursts, the paw and head moving only a little", function()
-			local k = m.lick
-			local moved = false
-			for t = 0, 12, 0.05 do
-				local o = Logic.idle("lick", t, "sit")
-				expect(o.lick).to.equal(1)
-				expect(o.sleep == 0 and o.loaf == 0 and o.sink == 0).to.equal(true)
-				expect(math.abs(o.pawFL) <= math.rad(k.paw) + 1e-9).to.equal(true)
-				expect(o.headPitch <= 1e-9 and o.headPitch >= -math.rad(k.bob) - 1e-9).to.equal(true)
-				expect(o.blink).to.equal(k.eyes)
-				if math.abs(o.pawFL) > math.rad(k.paw) * 0.5 then
-					moved = true
+		it(
+			"licks the paw held at the mouth with the head, the paw moving only a little (Derek 10-29)",
+			function()
+				local k = m.lick
+				local cycle = k.strokes + k.pause
+				local dipped, rubbed = false, false
+				for t = 0, cycle * 4, 0.02 do
+					local o = Logic.idle("lick", t, "sit")
+					expect(o.lick).to.equal(1)
+					expect(o.sleep == 0 and o.loaf == 0 and o.sink == 0).to.equal(true)
+					expect(o.blink).to.equal(k.eyes)
+					expect(o.pawFL >= -1e-9 and o.pawFL <= math.rad(math.max(k.paw, k.wipe)) + 1e-9).to.equal(
+						true
+					)
+					expect(
+						o.headPitch <= 1e-9
+							and o.headPitch >= -math.rad(math.max(k.bob, k.wipeBow)) - 1e-9
+					).to.equal(true)
+					local into = t % cycle
+					if into < k.strokes then
+						expect(o.headRoll).to.be.near(0, 1e-9) -- licking: no rub
+						if o.headPitch < -math.rad(k.bob) * 0.9 then
+							dipped = true
+						end
+					elseif math.floor(t / cycle) % 2 == 0 then
+						expect(o.pawFL).to.be.near(0, 1e-9) -- a plain pause: the paw rests at the mouth
+						expect(o.headPitch).to.be.near(0, 1e-9)
+					elseif o.headRoll > math.rad(k.wipeTilt) * 0.9 then
+						rubbed = true -- every other pause: the cheek rub
+					end
 				end
-				-- between bursts the paw rests at the mouth
-				if t % (k.strokes + k.pause) >= k.strokes then
-					expect(o.pawFL).to.equal(0)
-				end
+				expect(dipped).to.equal(true)
+				expect(rubbed).to.equal(true)
 			end
-			expect(moved).to.equal(true)
+		)
+
+		it("dips quickly and comes up slower, with no jump at a burst's edges", function()
+			local k = m.lick
+			expect(k.down < 0.5).to.equal(true)
+			local step = 1 / 240
+			local last = Logic.idle("lick", 0, "sit")
+			for t = step, (k.strokes + k.pause) * 2, step do
+				local o = Logic.idle("lick", t, "sit")
+				expect(math.abs(o.headPitch - last.headPitch) < math.rad(3)).to.equal(true)
+				expect(math.abs(o.pawFL - last.pawFL) < math.rad(3)).to.equal(true)
+				last = o
+			end
 		end)
 
 		it("dozes seated with its eyes shut and never takes a lying pose", function()

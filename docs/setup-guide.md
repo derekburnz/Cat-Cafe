@@ -167,3 +167,12 @@ A publish reaches new servers only; servers already running keep the old version
 3. **Save Changes**. Don't press Regenerate.
 
 `universe:write` also lets the key change some experience settings through the Universes API. The key lives only in the GitHub secret, and no workflow uses it for anything but the restart.
+
+## 20. Let threads read the analytics (once, about 1 minute)
+Roblox already draws the funnel dashboards: Creator Hub > Cat Cafe > **Analytics** > **Funnels** shows the onboarding funnel (twelve steps, `src/shared/Onboarding.luau`) and the recurring ones (`catch_attempt`, `bait_cycle`), each as its own tab, about a day behind. With this step threads read the same numbers themselves through `.github/workflows/analytics.yml` (Open Cloud Analytics Query API, beta): players per funnel step and how many were lost at each, new and returning players per day, session length, day 1 retention, how long first sessions lasted and the most logged custom events. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > **Add API System**: **universe-analytics**, select the **Cat Cafe** experience, operation `universe.analytics:read`.
+3. **Save Changes**. Don't press Regenerate.
+4. Try it: **Actions > analytics > Run workflow**. The run summary shows the tables. Until the permission is on, it stops with "The key cannot read analytics yet".
+
+The permission only reads aggregate numbers; nothing in it names a player.

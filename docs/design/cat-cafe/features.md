@@ -279,6 +279,14 @@ Derek: "Consider also adding decorations for the front lawn /infront of the cafe
 |---|---|---|---|---|---|---|
 | F91 | Front lawn: six lawn spots in the front garden (two small at Tier 1, two big at Tier 2, two small at Tier 3), sixteen coin-bought pieces from a 500 coin Tulip Bed to a 3,000,000 coin Golden Paw Statue, four path styles and four fence styles; no tip bonus; a Front lawn tab with an edit view, rings and a picker; night glows and a few small moving touches near the camera; `BuyLawn`, `SetLawnSpot`, `SetLawnStyle` and plot attributes so the whole street sees it | P2 | M | asset, engineer, ui, vfx, qa | F36, F53 Decor screen | A Tier 1 player places a Tulip Bed that a second player sees from the street; sizes and tiers are enforced on the server; eight full lawns hold a phone's frame rate |
 
+## 2x. Playing together (Monetization-Agent's key stats plan, 2026-11-01, proposed)
+
+Roblox now ranks games partly on co-play days, counted through joins, invites and private servers. Spec in [playing-together.md](playing-together.md). No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F92 | Playing together: pals are Roblox friends, invite and follow links and private server members, all counted the same; +10% tips with one pal and +15% with two or more, with a HUD chip; Team Rescue, where one helper's hits count, their misses cost nothing, the deadline gains 5 s, the cat goes to the rescuer and the helper gets a helper's tip once in 120 s; a pal can collect your tip piles while you are away, you are paid in full and they get 25% on top up to a cap; invited and following players spawn at the pal's front door; one unrewarded invite nudge after the first rank up | P1 | M | engineer, ui, vfx, sound, qa | F61 tip piles, 10b rescues | Two friends see the pal chip and earn 10% more; a helped Mythical rescue counts both players' hits and never fails from the helper; a stranger cannot collect your piles |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

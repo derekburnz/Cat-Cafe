@@ -242,11 +242,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._cannonMode = false -- F84: Cannon in place of Areas, no Alley button, the carry banner points at the camp
 	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
 	self._dots = {} :: { [string]: Frame }
-	self._seen =
-		{ Upgrades = {}, Decor = {}, Collection = {} } :: { [string]: { [string]: boolean } }
+	self._seen = { Upgrades = {}, Decor = {} } :: { [string]: { [string]: boolean } }
 	self._candidates = nil :: Notices.Candidates?
 	self._indexReady = 0 -- Index rewards waiting to be claimed (F48)
-	self._collectionPrimed = false
 	self._openScreen = nil :: string?
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
@@ -1813,23 +1811,19 @@ end
 function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerState)
 	local candidates = Notices.candidates(catalog, state)
 	self._candidates = candidates
-	-- cats caught before this session are not news: the first collection we see is all seen
-	if state.collection and not self._collectionPrimed then
-		self._collectionPrimed = true
-		Notices.markSeen(candidates.Collection, self._seen.Collection)
-	end
 	local open: string? = self._openScreen
 	if open and (candidates :: any)[open] then
 		Notices.markSeen((candidates :: any)[open], self._seen[open])
 	end
-	-- the Index's dot also stays lit while an Index reward waits to be claimed (F48), even after the Index is opened
+	-- the Index's dot shows only while an Index reward waits to be claimed (F48), even after the Index is opened
 	local _, indexReady = IndexRewards.claimable(catalog, state)
 	self._indexReady = indexReady
 	local lit = false
 	for screen, dot in self._dots do
 		local keys: { string } = (candidates :: any)[screen] or {}
-		local show = Notices.hasNew(keys, self._seen[screen])
-			or (screen == "Collection" and indexReady > 0)
+		local show = if screen == "Collection"
+			then indexReady > 0
+			else Notices.hasNew(keys, self._seen[screen] or {})
 		if show and not dot.Visible then
 			Tween.popIn(dot, 0.5)
 			lit = true

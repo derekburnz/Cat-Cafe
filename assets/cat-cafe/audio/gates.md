@@ -2,7 +2,7 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-83 files: 83 PASS, 0 WARN, 0 FAIL.
+84 files: 84 PASS, 0 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -82,6 +82,7 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `ui/CatCafe_Ui_RankReady.ogg` | ui | 0.75 | 1 | 48000 | 9 | -15.7 | -4.7 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Rename.ogg` | ui | 0.50 | 1 | 48000 | 8 | -17.6 | -7.3 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Slider.ogg` | ui | 0.04 | 1 | 48000 | 4 | - | -12.1 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_SpinBusy.ogg` | ui | 0.26 | 1 | 48000 | 7 | - | -6.9 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_SpinStart.ogg` | ui | 0.60 | 1 | 48000 | 11 | -18.8 | -5.9 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_SpinTick.ogg` | ui | 0.05 | 1 | 48000 | 4 | - | -5.8 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_SpinWin.ogg` | ui | 1.40 | 1 | 48000 | 17 | -17.9 | -2.9 | 0 | - | PASS |  |

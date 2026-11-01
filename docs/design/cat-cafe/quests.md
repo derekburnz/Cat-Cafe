@@ -206,3 +206,18 @@ ProfileSync adds `quests`, `achievements` and `stats`, which the client needs fo
 - Achievements: a grid of cards, claimable ones first, then the closest to done. Each card shows the name, the goal, a progress bar, the prize chips and Claim when met. A count at the top reads "12 of 44".
 - The HUD tracker: one line under the next goal card with the closest unfinished daily, shown after onboarding.
 - The quest potions sit in the potion bag with F64's potions and a Use button, and their timers show in the HUD buff chips.
+
+## 8. Cafe Pass XP (2026-11-01, Monetization-Agent's plan)
+
+The Cafe Pass (Monetization-Agent's `shop-and-pass-plan-2026-11-01.md` section 3, in the project files) levels up from quests, as Derek asked on 2026-11-01 ("quest completion gives xp to progress the battlepass"). Every player earns pass XP the same way, whether or not they bought the paid track.
+
+| claim | pass XP |
+|---|---|
+| a slot 1 to 4 daily | 100 |
+| the Big Request | 200 |
+| the daily set | 200 (800 for a full day) |
+| a weekly quest | 400 |
+| the weekly set | 400 (1,600 for a full week) |
+| an achievement | none, since they count from a player's history and would let veterans skip levels |
+
+A season is 6 weeks of 30 levels at 800 XP each (24,000 XP). A player who finishes every quest earns about 7,200 XP a week and reaches level 30 in a little under four weeks; one who does three dailies a day and the weekly quests reaches it near the season's end. Pass XP pays through the same `Payout` call as the prize (`passXp` in the prize shape), counts toward the current season only and shows as a small "+100 pass XP" chip beside the prize chips.

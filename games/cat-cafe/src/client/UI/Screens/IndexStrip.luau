@@ -405,6 +405,10 @@ function IndexStrip._buildCard(self: any, parent: Instance, big: boolean, order:
 end
 
 function IndexStrip.setTrack(self: any, track: IndexRewards.Track?)
+	-- the Index sets it on every render before render() refreshes; refresh here only when it changes
+	if self._track == track then
+		return
+	end
 	self._track = track
 	self:_refresh()
 end

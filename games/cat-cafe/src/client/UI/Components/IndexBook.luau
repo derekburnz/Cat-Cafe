@@ -2,10 +2,11 @@
 -- The Index's pages as one scroll (Derek's Set 4 answer, 2026-11-01: "sorted into a normal and gold tab and a
 -- cleaner ui for navigating ... just swap between normal/gold and scroll through area's very simply showing rarity
 -- and what hasn't been found with a black filling"). The Cats tab and the Gold tab each list every area in tier
--- order, its cats rarest last; the Cats tab adds the spare cats the player has found at the end (F78).
+-- order, its cats rarest last. The spare cats (F78) have no page (Derek 2026-10-28: "No need for a spare part of
+-- the index has no use").
 --   found(state, tab)                    which cats count as found on the tab: met or owned, or found in gold
 --   sections(catalog, state, tab)        the areas to scroll through, each with its cats and counts
---   count(section)                       the line beside an area's name: "7 / 10", "Complete!", "Tier 3", "3 cats"
+--   count(section)                       the line beside an area's name: "7 / 10", "Complete!" or "Tier 3"
 --   reward(views, track)                 the area's reward button: "ready" with how many, "next", "done" or "none"
 --   first(sections)                      the area the Index opens on: the first open one with cats still to find
 -- Pure: no Theme, so the cloud spec runner can load it.
@@ -17,7 +18,7 @@ local Types = require(script.Parent.Parent.Types)
 export type Tab = "normal" | "gold"
 
 export type Section = {
-	id: string, -- an area id, or IndexRewards.SPARE_AREA
+	id: string, -- an area id
 	name: string,
 	tier: number,
 	locked: boolean, -- the player's tier has not opened the area and nothing in it is found yet
@@ -97,13 +98,7 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 		order[def.id] = index
 		local areaId: string = def.area or IndexBook.FALLBACK_AREA
 		if areaId == SPARE then
-			-- the Cats tab lists only the spare cats already found; the Gold tab has no spare page
-			if tab == "gold" or not found[def.id] then
-				continue
-			end
-			if not byId[SPARE] then
-				add(SPARE, "Spare cats", 0)
-			end
+			continue
 		elseif not byId[areaId] then
 			add(areaId, titled(areaId), 0)
 		end
@@ -114,12 +109,6 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 			section.have += 1
 		end
 	end
-	-- the spare page goes last whenever it was added
-	local spare = byId[SPARE]
-	if spare then
-		table.remove(list, table.find(list, spare) :: number)
-		table.insert(list, spare)
-	end
 	for _, section in list do
 		table.sort(section.cats, function(a: Types.CatDef, b: Types.CatDef): boolean
 			local ra, rb = rank(a.rarity), rank(b.rarity)
@@ -128,15 +117,13 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 			end
 			return order[a.id] < order[b.id]
 		end)
-		section.locked = section.id ~= SPARE and state.tier < section.tier and section.have == 0
+		section.locked = state.tier < section.tier and section.have == 0
 	end
 	return list
 end
 
 function IndexBook.count(section: Section): string
-	if section.id == SPARE then
-		return ("%d %s"):format(section.have, if section.have == 1 then "cat" else "cats")
-	elseif section.locked then
+	if section.locked then
 		return "Tier " .. tostring(section.tier)
 	elseif section.total > 0 and section.have >= section.total then
 		return "Complete!"
@@ -175,7 +162,7 @@ end
 
 function IndexBook.first(sections: { Section }): string?
 	for _, section in sections do
-		if section.id ~= SPARE and not section.locked and section.have < section.total then
+		if not section.locked and section.have < section.total then
 			return section.id
 		end
 	end

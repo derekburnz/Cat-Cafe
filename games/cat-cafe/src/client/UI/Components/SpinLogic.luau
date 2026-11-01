@@ -122,6 +122,40 @@ function SpinLogic.slotAt(rotation: number, count: number): number
 	return math.floor(angle / size) % count + 1
 end
 
+-- The big button under the chances (Derek 2026-10-30: "Add a skip to the wheel spin for free"). While the wheel
+-- turns it is a free Skip that lands it at once, after a short beat so a double tap on Spin does not skip by
+-- mistake; once it has landed it waits out the server's cooldown with a countdown, then reads Spin! again.
+export type ButtonView = {
+	turning: boolean, -- the wheel is turning
+	skippable: boolean, -- the turn is past SKIP_AFTER
+	waiting: boolean, -- a pressed Spin waits for SpinResult
+	readyIn: number, -- seconds until the server takes the next spin (0 once it does)
+	spins: number, -- SpinLogic.spins
+	rows: number, -- slices on the wheel
+}
+export type ButtonState = { text: string, enabled: boolean, skip: boolean }
+
+SpinLogic.SKIP_AFTER = 0.4
+
+function SpinLogic.button(view: ButtonView): ButtonState
+	if view.turning then
+		return if view.skippable
+			then { text = "Skip", enabled = true, skip = true }
+			else { text = "Spinning...", enabled = false, skip = false }
+	elseif view.waiting then
+		return { text = "...", enabled = false, skip = false }
+	elseif view.spins <= 0 or view.rows <= 0 then
+		return { text = "No spins", enabled = false, skip = false }
+	elseif view.readyIn > 0 then
+		return {
+			text = ("Spin in %ds"):format(math.max(1, math.ceil(view.readyIn - 1e-6))),
+			enabled = false,
+			skip = false,
+		}
+	end
+	return { text = "Spin!", enabled = true, skip = false }
+end
+
 -- Why a refused spin was refused, as far as the client can tell.
 function SpinLogic.refusal(spin: Spin?, now: number): string
 	if SpinLogic.spins(spin, now) <= 0 then

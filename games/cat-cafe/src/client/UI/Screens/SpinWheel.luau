@@ -8,7 +8,8 @@
 -- turns the wheel for SpinCooldownSeconds and stops it in the middle of that slice with a burst. It slows at a
 -- steady rate, so it is still moving briskly when it crosses into the prize's slice and never crawls past a bigger
 -- prize or stops on an edge (reviewer N127). Slice 0 means refused, and the line under the button says why. The
--- button stays off until the wheel has landed. Walking out of range closes the window (N132); a prize that lands
+-- button stays off until the wheel has landed, except as a free Skip while it turns (Derek 2026-10-30), and then
+-- until the server's cooldown has passed. Walking out of range closes the window (N132); a prize that lands
 -- while it is closed comes up as a toast. Spins are free only: nothing here mentions Robux (monetization-policy,
 -- N126). The sums live in Components/SpinLogic. F69 (round 4 Q11): the Odds button opens a list of the six slices
 -- likeliest first, each with its prize picture, a bar and its chance, the same numbers as on the wheel, and the food
@@ -73,6 +74,7 @@ type Turn = {
 	duration: number,
 	index: number,
 	amount: number,
+	skippable: boolean, -- past SpinLogic.SKIP_AFTER, so the button is a Skip
 }
 
 local WHEEL_SHARE = 0.47 -- of the window's width
@@ -547,15 +549,17 @@ function SpinWheel.result(self: any, slice: number, amount: number)
 	self:_light(nil)
 	self:_say("", Theme.modal.text)
 	local calm = GuiService.ReducedMotionEnabled
+	local start = os.clock()
 	self._turn = {
 		from = self._angle,
 		to = SpinLogic.landing(self._angle, index, #self._rows, if calm then CALM_TURNS else TURNS),
-		start = os.clock(),
+		start = start,
 		duration = if calm then CALM_SECONDS else SPIN_SECONDS,
 		index = index,
 		amount = amount,
+		skippable = false,
 	}
-	self._readyAt = os.clock() + SPIN_SECONDS
+	self._readyAt = start + SPIN_SECONDS -- a full spin lands right on it, so Spin! comes back as it stops
 	Sound.play("uiSpinStart")
 	self:_refresh()
 end
@@ -830,7 +834,12 @@ end
 -- One frame of a spin: ease toward the landing angle, tick and blink as each slice passes the pointer.
 function SpinWheel._step(self: any)
 	local turn: Turn = self._turn
-	local t = math.clamp((os.clock() - turn.start) / turn.duration, 0, 1)
+	local elapsed = os.clock() - turn.start
+	if not turn.skippable and elapsed >= SpinLogic.SKIP_AFTER then
+		turn.skippable = true
+		self:_refresh()
+	end
+	local t = math.clamp(elapsed / turn.duration, 0, 1)
 	-- Quad Out slows at a steady rate: no long crawl over the last slice edge (N127)
 	local eased = TweenService:GetValue(t, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	self:_setAngle(turn.from + (turn.to - turn.from) * eased)
@@ -891,6 +900,15 @@ function SpinWheel._land(self: any, turn: Turn)
 		self._callbacks.toast("Spin Wheel: " .. won)
 	end
 	self:_refresh()
+	-- landed early (a Skip or a calm spin): Spin! comes back the moment the cooldown ends, not up to a second later
+	local readyIn = self._readyAt - os.clock()
+	if readyIn > 0 then
+		task.delay(readyIn + 0.02, function()
+			if self._tick.Connected and not self._turn then
+				self:_refresh()
+			end
+		end)
+	end
 end
 
 -- Rings the landed tile in gold until the next spin; nil clears it.
@@ -928,7 +946,16 @@ function SpinWheel._prize(self: any, row: Types.SpinRow, amount: number?): strin
 end
 
 function SpinWheel._press(self: any)
-	if self._turn or self._pressedAt or os.clock() < self._readyAt then
+	local turn: Turn? = self._turn
+	if turn then
+		-- Skip: stop on the prize now (it is already paid); the next spin still waits out the cooldown
+		if turn.skippable then
+			self._turn = nil
+			self:_land(turn)
+		end
+		return
+	end
+	if self._pressedAt or os.clock() < self._readyAt then
 		return
 	end
 	self._pressedAt = os.clock()
@@ -987,16 +1014,18 @@ function SpinWheel._refresh(self: any)
 		then Theme.colors.goodDark
 		else Theme.modal.subtext
 
-	local turning = self._turn ~= nil or os.clock() < self._readyAt
-	local waiting = self._pressedAt ~= nil
-	self._button:setEnabled(not turning and not waiting and spins > 0 and #self._rows > 0)
-	self._button:setText(
-		if turning
-			then "Spinning..."
-			elseif waiting then "..."
-			elseif spins > 0 then "Spin!"
-			else "No spins"
-	)
+	local turn: Turn? = self._turn
+	local button = SpinLogic.button({
+		turning = turn ~= nil,
+		skippable = turn ~= nil and turn.skippable,
+		waiting = self._pressedAt ~= nil,
+		readyIn = math.max(0, self._readyAt - os.clock()),
+		spins = spins,
+		rows = #self._rows,
+	})
+	self._button:setText(button.text)
+	self._button:setStyle(if button.skip then "secondary" else "gold")
+	self._button:setEnabled(button.enabled)
 end
 
 function SpinWheel.destroy(self: any)

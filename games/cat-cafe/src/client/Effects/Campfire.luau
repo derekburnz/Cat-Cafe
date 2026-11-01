@@ -9,7 +9,9 @@
 --
 -- Source: Models under Workspace.World whose name ends `_Campfire_Glow` (their parts share the name). The parts are
 -- the server's, placed once by the area set and never moved after; a part found away from where this client last
--- put it has been moved or streamed again, so the fire is read again. Numbers in Presets.campfire.
+-- put it (checked every step while the fire moves, every second while it stands) has been moved or streamed again,
+-- so the fire is read again, and a flame whose parts have not streamed in yet is tried again every second. Numbers
+-- in Presets.campfire.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -39,6 +41,7 @@ type Fire = {
 	frames: { CFrame }, -- reused every step, also where this client last put each disc
 	base: Vector3, -- the flame's middle at the bottom
 	on: boolean,
+	stale: boolean, -- stopped by a step that found it moved or streamed out: read it again
 	holder: Attachment?,
 	light: PointLight?,
 	nextPop: number, -- os.clock()
@@ -48,6 +51,7 @@ local SUFFIX = "_Campfire_Glow"
 local TICK_SECONDS = 1
 
 local fires: { [Model]: Fire } = {}
+local waiting: { [Model]: boolean } = {} -- flames found before any of their parts had streamed in
 local rng = Random.new()
 local lastStep = 0
 local started = false
@@ -84,6 +88,7 @@ local function bind(model: Model): Fire?
 		frames = {},
 		base = Vector3.zero,
 		on = false,
+		stale = false,
 		holder = nil,
 		light = nil,
 		nextPop = 0,
@@ -198,12 +203,17 @@ local function step()
 		if not fire.on then
 			continue
 		end
+		-- a disc streamed out, or away from where this client last put it (the server moved it): stop, and tick
+		-- reads it again
 		local whole = true
-		for _, part in fire.parts do
-			whole = whole and part.Parent ~= nil
+		for i, part in fire.parts do
+			whole = whole
+				and part.Parent ~= nil
+				and (part.Position - fire.frames[i].Position).Magnitude <= 0.01
 		end
 		if not whole then
-			switchOff(fire, false) -- part of it streamed out; tick reads it again
+			switchOff(fire, false)
+			fire.stale = true
 			continue
 		end
 		local n, flickers = 0, 0
@@ -235,6 +245,15 @@ end
 
 -- Once a second: the nearest fires in range move, the rest stand still.
 local function tick()
+	for model in waiting do
+		local fire = if model.Parent ~= nil then bind(model) else nil
+		if fire ~= nil then
+			fires[model] = fire
+		end
+		if fire ~= nil or model.Parent == nil then
+			waiting[model] = nil
+		end
+	end
 	local budget = Context.budget
 	local candidates: { Logic.Candidate<Fire> } = {}
 	for model, fire in fires do
@@ -245,12 +264,14 @@ local function tick()
 		end
 		-- moved by the server or streamed out, or more of it streamed in: read it again
 		local moved = not intact(fire)
-		if moved or countParts(model) ~= #fire.parts then
+		if moved or fire.stale or countParts(model) ~= #fire.parts then
 			switchOff(fire, not moved)
 			fires[model] = nil
 			local again = bind(model)
 			if again ~= nil then
 				fires[model] = again
+			else
+				waiting[model] = true
 			end
 			continue
 		end
@@ -272,13 +293,15 @@ end
 
 local function found(instance: Instance)
 	if isFlame(instance) and fires[instance :: Model] == nil then
-		-- its parts stream in after it, so give them a moment; tick reads it again if one moves later
+		-- its parts stream in after it, so give them a moment; one with none yet waits for tick to try again
 		task.defer(function()
 			local model = instance :: Model
 			if model.Parent ~= nil and fires[model] == nil then
 				local fire = bind(model)
 				if fire ~= nil then
 					fires[model] = fire
+				else
+					waiting[model] = true
 				end
 			end
 		end)

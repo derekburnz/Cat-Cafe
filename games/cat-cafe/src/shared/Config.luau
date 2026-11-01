@@ -247,7 +247,7 @@ local Config = {
 	GoldLuckMax = 1.5,
 	BaitSpeedMax = 0.5,
 
-	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters and digits, typed in any case.
+	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
 	CodesCatRange = 12, -- RedeemCode from this close to a CodesCat station's pivot
 	CodesCircleRadius = 4, -- the code box opens within this flat distance of the CodesCircle, closes past it + 1
 	CodeMaxLength = 20,

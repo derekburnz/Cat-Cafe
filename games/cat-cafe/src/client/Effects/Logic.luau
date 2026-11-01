@@ -1334,4 +1334,63 @@ function Logic.flameScale(up: number, stretch: number): Vector3
 	)
 end
 
+-- Big pulls (F89) ------------------------------------------------------------------------------------------------
+
+-- True when securing something of `rarity` plays the big pull (luck-and-rare-moments.md 2a, 2b): a Legendary, a
+-- Mythical, or a gold Epic. Crate pieces are never gold.
+function Logic.bigPull(rarity: unknown, gold: boolean): boolean
+	if rarity == "Legendary" or rarity == "Mythical" then
+		return true
+	end
+	return gold and rarity == "Epic"
+end
+
+-- How many confetti pieces a big pull throws from the budget's `most`: half with Reduce Motion, and never fewer than
+-- one from each side.
+function Logic.pullCount(most: number, reduced: boolean): number
+	return math.max(2, if reduced then math.floor(most / 2) else most)
+end
+
+-- Where a piece of a big pull's confetti leaves the screen's edge and how fast it goes, in pixels and pixels a
+-- second (y down): from the left edge (`side` -1) or the right (1), `u1` to `u3` being its random draws from 0 to 1,
+-- up and in toward the middle.
+function Logic.pullLaunch(
+	side: number,
+	u1: number,
+	u2: number,
+	u3: number,
+	view: Vector2,
+	c: { height: { number }, speed: { number }, angle: { number } }
+): (Vector2, Vector2)
+	local y = view.Y * (c.height[1] + (c.height[2] - c.height[1]) * u1)
+	local x = if side < 0 then 0 else view.X
+	local speed = view.Y * (c.speed[1] + (c.speed[2] - c.speed[1]) * u2)
+	local angle = math.rad(c.angle[1] + (c.angle[2] - c.angle[1]) * u3)
+	return Vector2.new(x, y), Vector2.new(-side * speed * math.cos(angle), -speed * math.sin(angle))
+end
+
+-- Where a confetti piece is `t` seconds after it left `from` at `velocity`, falling at `gravity` pixels a second
+-- every second and slowed by `drag` (a share of its speed a second): the closed form, so every frame agrees.
+function Logic.confettiAt(
+	from: Vector2,
+	velocity: Vector2,
+	gravity: number,
+	drag: number,
+	t: number
+): Vector2
+	if drag <= 0 then
+		return from + velocity * t + Vector2.new(0, 0.5 * gravity * t * t)
+	end
+	local slowed = (1 - math.exp(-drag * t)) / drag
+	return from + velocity * slowed + Vector2.new(0, gravity / drag * (t - slowed))
+end
+
+-- How see-through a big pull's piece is `t` seconds in: solid, then fading over the last `fade` of `seconds`.
+function Logic.pullFade(t: number, seconds: number, fade: number): number
+	if t <= seconds - fade then
+		return 0
+	end
+	return math.clamp((t - (seconds - fade)) / fade, 0, 1)
+end
+
 return Logic

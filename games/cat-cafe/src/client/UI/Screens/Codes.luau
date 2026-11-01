@@ -4,7 +4,7 @@
 -- calls UI.codes.open and UI.codes.close). One line saying big and small letters both work, a box for the code with
 -- Redeem beside it, and an answer line: "Code redeemed!" in green with the prize as little pictures under it
 -- (Components/PrizeChips), or the server's refusal in red ("That code doesn't exist", "You already used that code",
--- "Too many tries, wait a minute"). The box takes letters and digits only, up to CodeMaxLength
+-- "Too many tries, wait a minute"). The box takes letters, digits and "!?#$&*@_-." only, up to CodeMaxLength
 -- (Components/CodeEntry), and Enter redeems too. Redeem shows "..." until CodeResult answers, or for 5 s, and stays
 -- grey until 2 s after the last send, since the server drops a second try inside that (review N183).
 --

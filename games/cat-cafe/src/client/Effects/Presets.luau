@@ -1130,14 +1130,16 @@ Presets.netSmack = {
 -- The carry (Derek 2026-10-28: "hold it in your arms crossed arms", the cat "awake loafing or sitting in your
 -- arms"), drawn by Tackle.luau on the carrier and by Carry.luau on the HeldCat. `arms` is the upper body's pose in
 -- Avatar.Pose degrees (the legs stay the character's own): arms folded across the chest, the left forearm under the
--- right, head tipped down to the cat. R6 has no elbows, so `arms6` reaches both arms forward and in to meet under the
--- cat. The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little) and
--- `forward` studs further out, clear of the chest. Lying across the arms it turns `loafTurn` degrees (its face at the
--- character's left) and sitting up `sitTurn` (facing out); either way it moves `loafSide` or `sitSide` studs to the
--- right (negative: left), so its head is beside the character's, not in front of the face, and the game's camera
--- behind the player sees it over the shoulder. The arms ease in over `blendIn` and out over `blendOut` seconds. A
--- HeldCat Pose cannot move part by part (still streaming in, or on Motor6D joints) stays on its weld and is tried again
--- after `retry` seconds.
+-- right, head tipped down to the cat; the wrists are held straight, so the hands keep still over the character's
+-- walk (16:51: "hands shake too much"). R6 has no elbows, so `arms6` reaches both arms forward and in to meet under
+-- the cat. The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little) and
+-- `forward` studs further out, clear of the chest, `loafSide` or `sitSide` studs to the right (negative: left).
+-- Lying on the arms it turns `loafTurn` degrees, which puts it out at the character's left side with its face back
+-- over the left shoulder: in front of the chest the body hid it from the game's camera behind the player (16:48:
+-- "cat is missing from the arms"), and this way that camera sees its face peeking over the shoulder. Sitting up it
+-- turns `sitTurn` (facing out). The arms ease in over `blendIn` and out over `blendOut` seconds. A HeldCat Pose
+-- cannot move part by part (still streaming in, or on Motor6D joints) stays on its weld and is tried again after
+-- `retry` seconds.
 Presets.carryPose = {
 	arms = {
 		shL = 60,
@@ -1153,9 +1155,9 @@ Presets.carryPose = {
 	} :: { [string]: number },
 	arms6 = { sh = 80, sp = -30, neck = -12 } :: { [string]: number },
 	gap = -0.15,
-	forward = -0.8,
-	loafTurn = 90,
-	loafSide = -0.45,
+	forward = -0.6,
+	loafTurn = 150,
+	loafSide = -1.4,
 	sitTurn = 15,
 	sitSide = -0.55,
 	blendIn = 0.2,

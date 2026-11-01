@@ -335,6 +335,14 @@ Spec in [leaderboards.md](leaderboards.md). Before release per Derek's 2026-11-0
 |---|---|---|---|---|---|---|
 | F98 | Leaderboards: Index (entries found), Playtime and Money (best money per second without potions), the top 50 for all time and for this week (Playtime and Money); three chalkboards in the Town Square showing the top 10 and the player's own line, a Top tab in the Index, a crown for the all-time top 10 on boards, cafe sign and head tag; OrderedDataStores written every 5 minutes and read every 2, writes off in Studio, a hidden list kept in a DataStore; no prizes | P1 | M | engineer, ui, asset, qa | F84 Town Square, F95 rate, F97 Index tabs | A live player's playtime shows on the weekly board within 7 minutes and a Studio player's never does; a Money Potion does not move the Money value; the crown shows on every surface for a top 10 player |
 
+## 2ae. The Rainbow coat (Derek, 2026-10-30 00:24, decided)
+
+Spec in [rainbow-coat.md](rainbow-coat.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `variant` `"rainbow"`, the Index entry's `rainbow`, `stats.rainbowCatches`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F99 | Rainbow coat: a third coat rolled before gold at one tenth of its chance (0.5% strays and bait, 1% rescues), earning x3 (gold x1.5); flowing rainbow bands, a glow, a sparkle trail and a spawn beam with a server toast; the big pull for every rainbow; a Rainbow Index tab and one Rainbow track of five milestones with rainbow luck up to +100%; odds on every food card; Collector x10 | P1 | M | engineer, vfx, ui, sound, qa | F42 gold, F89 big pull, F97 Index tabs | A forced rainbow stray shows the coat, beam and toast to the whole server; 100,000 cloud rolls give 0.5% rainbow and 5% gold; a rainbow cat earns twice its gold self |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

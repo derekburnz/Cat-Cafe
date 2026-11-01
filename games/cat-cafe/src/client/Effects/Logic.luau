@@ -1519,4 +1519,120 @@ function Logic.rainbowKeeps(longest: number, biggest: number, share: number): bo
 	return longest < biggest * share
 end
 
+-- Rescue Rally, bunting and Trade done (F101, F102) -----------------------------------------------------------------
+
+-- How full the Rally bar is, 0 to 1, with `points` of `goal` (empty for a goal of 0).
+function Logic.rallyFill(points: number, goal: number): number
+	if goal <= 0 then
+		return 0
+	end
+	return math.clamp(points / goal, 0, 1)
+end
+
+-- The steps (shares of the bar, 1 the full bar) a Rally state crossed going from `beforeFill` in lap `beforeLap` to
+-- `afterFill` in lap `afterLap`, in order. A new lap crossed every step the old one had left, the full bar always;
+-- laps skipped in between are not played again. Nothing when the lap goes back (a new weekend or a fresh server).
+function Logic.rallySteps(
+	beforeFill: number,
+	beforeLap: number,
+	afterFill: number,
+	afterLap: number,
+	steps: { number }
+): { number }
+	local crossed: { number } = {}
+	if afterLap < beforeLap then
+		return crossed
+	end
+	local from = beforeFill
+	if afterLap > beforeLap then
+		for _, step in steps do
+			if step >= 1 or step > beforeFill then
+				table.insert(crossed, step)
+			end
+		end
+		from = 0
+	end
+	for _, step in steps do
+		if step < 1 and step > from and step <= afterFill then
+			table.insert(crossed, step)
+		end
+	end
+	return crossed
+end
+
+-- Smooth in and out, 0 to 1.
+function Logic.easeInOut(u: number): number
+	local k = math.clamp(u, 0, 1)
+	return k * k * (3 - 2 * k)
+end
+
+-- The bend of a flight from `from` to `to` on the screen (pixels, y down): the middle, pushed sideways by `lift` of
+-- the distance (to the left of the way it goes when `lift` is above 0, so a flight to the left arcs up).
+function Logic.flyBend(from: Vector2, to: Vector2, lift: number): Vector2
+	local d = to - from
+	return (from + to) / 2 + Vector2.new(-d.Y, d.X) * lift
+end
+
+-- Where a flight is `u` (0 to 1) of the way along the curve from `from` past `bend` to `to`.
+function Logic.curve(from: Vector2, bend: Vector2, to: Vector2, u: number): Vector2
+	local v = 1 - u
+	return from * (v * v) + bend * (2 * v * u) + to * (u * u)
+end
+
+-- How big a flying pop is `t` seconds into its `seconds`: it pops in with a small overshoot over `popIn`, then
+-- shrinks to `land` as it arrives.
+function Logic.popScale(t: number, seconds: number, popIn: number, land: number): number
+	if t < popIn then
+		local k = t / popIn - 1
+		return math.max(0, 1 + 2.70158 * k * k * k + 1.70158 * k * k)
+	end
+	local u = math.clamp((t - popIn) / math.max(seconds - popIn, 1e-6), 0, 1)
+	return 1 + (land - 1) * u * u
+end
+
+-- A hanging pennant's hinge from its box's unit axes and size: the thinnest axis is its face's normal and, of the
+-- other two, the more upright one hangs it. Returns the axis along its string, its up axis turned toward the sky and
+-- half its height along that axis (the top edge is that far above its middle).
+function Logic.pennantHinge(
+	right: Vector3,
+	up: Vector3,
+	back: Vector3,
+	size: Vector3
+): (Vector3, Vector3, number)
+	local a, b, ha, hb = up, back, size.Y, size.Z
+	if size.Y < size.X and size.Y <= size.Z then
+		a, b, ha, hb = right, back, size.X, size.Z
+	elseif size.Z < size.X and size.Z < size.Y then
+		a, b, ha, hb = right, up, size.X, size.Y
+	end
+	local hang, along, height = a, b, ha
+	if math.abs(b.Y) > math.abs(a.Y) then
+		hang, along, height = b, a, hb
+	end
+	if hang.Y < 0 then
+		hang = -hang
+	end
+	return along, hang, height / 2
+end
+
+-- How far along the wind `at` sits, as a phase in radians every `wavelength` studs, so a gust runs across the bunting
+-- the way the wind blows (along X when there is no wind to speak of).
+function Logic.windPhase(at: Vector3, wind: Vector3, wavelength: number): number
+	local flat = Vector3.new(wind.X, 0, wind.Z)
+	local way = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(1, 0, 0)
+	return 2 * math.pi * at:Dot(way) / wavelength
+end
+
+-- How far a pennant swings out of its hanging plane, in degrees, `t` seconds in at `phase`: a lean of `lean` plus two
+-- waves of `swing` degrees at `hz1` and `hz2` that never line up.
+function Logic.flutter(
+	t: number,
+	phase: number,
+	f: { lean: number, swing: number, hz1: number, hz2: number }
+): number
+	local w1 = math.sin(2 * math.pi * f.hz1 * t - phase)
+	local w2 = math.sin(2 * math.pi * f.hz2 * t - 1.7 * phase + 0.9)
+	return f.lean + f.swing * (0.65 * w1 + 0.35 * w2)
+end
+
 return Logic

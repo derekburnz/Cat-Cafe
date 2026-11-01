@@ -684,7 +684,10 @@ local function whereOf(player: Player): string
 			end
 		else
 			local c = spec.center
-			if math.abs(at.X - c.x) <= spec.halfWidth and math.abs(at.Z - c.z) <= spec.halfDepth then
+			if
+				math.abs(at.X - c.x) <= spec.halfWidth
+				and math.abs(at.Z - c.z) <= spec.halfDepth
+			then
 				return id
 			end
 		end

@@ -804,12 +804,16 @@ local function newUid(): string
 	return CatStats.uidFromGuid(HttpService:GenerateGUID(false))
 end
 
--- Moves the tutorial on to `step` when it is behind, and logs the step reached (tutorial_step), as TutorialAdvance
--- does for the steps the client reports, so the funnel sees every step a player reaches.
+-- Moves the tutorial on to `step` when it is behind, and logs tutorial_step for every step it passes, as
+-- TutorialAdvance does for the steps the client reports, so a step skipped over (an upgrade bought from step 3, a
+-- catch before the alley step) still counts and never reads as a drop in the funnel.
 function CafeService.advanceTutorial(player: Player, profile: Profile, step: number)
-	if profile.tutorialStep < step then
+	local from = profile.tutorialStep
+	if from < step then
 		profile.tutorialStep = step
-		Telemetry.custom(player, "tutorial_step", 1, { tostring(step) })
+		for passed = from + 1, step do
+			Telemetry.custom(player, "tutorial_step", 1, { tostring(passed) })
+		end
 	end
 end
 

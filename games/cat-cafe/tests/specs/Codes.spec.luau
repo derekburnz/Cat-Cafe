@@ -23,13 +23,28 @@ return function()
 			expect(Codes.normalize("likes1000")).to.equal("likes1000")
 		end)
 
-		it("refuses anything that is not 1 to CodeMaxLength letters and digits", function()
+		it("takes the symbols in Codes.SYMBOLS, so group! and Play-Test.2 are codes (Set 4 answer 8)", function()
+			expect(Codes.normalize("Group!")).to.equal("group!")
+			expect(Codes.normalize(" Play-Test.2 ")).to.equal("play-test.2")
+			expect(Codes.normalize("cats&dogs?")).to.equal("cats&dogs?")
+			expect(Codes.normalize("#1_cat*$@")).to.equal("#1_cat*$@")
+			for i = 1, #Codes.SYMBOLS do
+				local symbol = string.sub(Codes.SYMBOLS, i, i)
+				expect(Codes.normalize("a" .. symbol)).to.equal("a" .. symbol)
+			end
+		end)
+
+		it("refuses anything that is not 1 to CodeMaxLength letters, digits and symbols", function()
 			local cases: { any } = {
 				"",
 				"   ",
 				"play test",
-				"group!",
-				"play-test",
+				"play/test",
+				"<b>code</b>",
+				"code'",
+				'code"',
+				"(code)",
+				"code%",
 				"café",
 				string.rep("a", Config.CodeMaxLength + 1),
 				string.rep(" ", 30) .. string.rep("a", 11), -- 41 bytes before trimming
@@ -43,6 +58,24 @@ return function()
 			expect(Codes.normalize(string.rep("a", Config.CodeMaxLength))).to.equal(
 				string.rep("a", Config.CodeMaxLength)
 			)
+		end)
+	end)
+
+	describe("clean (the code box as a player types)", function()
+		it("keeps letters, digits and symbols, case and all, and drops the rest", function()
+			expect(Codes.clean("Group!")).to.equal("Group!")
+			expect(Codes.clean("play test!")).to.equal("playtest!")
+			expect(Codes.clean("café/<b>")).to.equal("cafb")
+			expect(Codes.clean("  ")).to.equal("")
+		end)
+
+		it("cuts to CodeMaxLength, and what it keeps normalizes", function()
+			local long = string.rep("a!", Config.CodeMaxLength)
+			expect(#Codes.clean(long)).to.equal(Config.CodeMaxLength)
+			for _, typed in { "Group!", "play test!", "#1 Cat-Cafe.", long } do
+				local kept = Codes.clean(typed)
+				expect(Codes.normalize(kept)).to.equal(string.lower(kept))
+			end
 		end)
 	end)
 
@@ -108,7 +141,7 @@ return function()
 	end)
 
 	describe("Catalog.codes (section 11d)", function()
-		it("keys every row by its own lowercase id, letters and digits", function()
+		it("keys every row by its own lowercase id, a code normalize takes", function()
 			for key, def in Catalog.codes do
 				expect(def.id).to.equal(key)
 				expect(Codes.normalize(key)).to.equal(key)
@@ -207,8 +240,9 @@ return function()
 			return list[1 + math.floor(uniform() * #list)]
 		end
 
-		-- Bytes a player can type or paste: letters both ways, digits, spaces and tabs, punctuation, the
-		-- underscore %w leaves out, a NUL, and the UTF-8 of an accent, a fullwidth letter and an emoji.
+		-- Bytes a player can type or paste: letters both ways, digits, spaces and tabs, symbols a code takes and
+		-- punctuation it does not, the underscore %w leaves out, a NUL, and the UTF-8 of an accent, a fullwidth
+		-- letter and an emoji.
 		local PIECES = {
 			"a",
 			"Z",
@@ -222,6 +256,11 @@ return function()
 			"-",
 			"_",
 			".",
+			"?",
+			"@",
+			"/",
+			"%",
+			"'",
 			"\0",
 			"é",
 			"Ａ",
@@ -239,7 +278,7 @@ return function()
 		end
 
 		-- What the server must make of a raw text, worked out here: nil unless it is at most MAX_BYTES and,
-		-- trimmed of whitespace, 1 to CodeMaxLength ASCII letters and digits; then those, lowercased.
+		-- trimmed of whitespace, 1 to CodeMaxLength ASCII letters, digits and Codes.SYMBOLS; then those, lowercased.
 		local function want(raw: string): string?
 			if #raw > Codes.MAX_BYTES then
 				return nil
@@ -260,7 +299,8 @@ return function()
 				local digit = byte >= 48 and byte <= 57
 				local upper = byte >= 65 and byte <= 90
 				local lower = byte >= 97 and byte <= 122
-				if not (digit or upper or lower) then
+				local symbol = string.find(Codes.SYMBOLS, string.char(byte), 1, true) ~= nil
+				if not (digit or upper or lower or symbol) then
 					return nil
 				end
 			end
@@ -281,6 +321,11 @@ return function()
 				local at = string.format("%d %q: ", n, raw)
 				local direct = Codes.normalize(raw)
 				expect(at .. tostring(direct)).to.equal(at .. tostring(want(raw)))
+				local kept = Codes.clean(raw)
+				expect(#kept <= Config.CodeMaxLength).to.equal(true)
+				if kept ~= "" then
+					expect(at .. tostring(Codes.normalize(kept))).to.equal(at .. string.lower(kept))
+				end
 				local sent = CodeEntry.clean(raw)
 				expect(#sent <= Config.CodeMaxLength).to.equal(true)
 				if CodeEntry.canRedeem(raw) then

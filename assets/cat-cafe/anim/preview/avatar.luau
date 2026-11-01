@@ -10,7 +10,8 @@
 -- Scenarios: miss (a tackle with nobody ahead), hit (a tackle into a player facing it, who falls on its back),
 -- behind (into a player facing away, who falls on its front); net (three players holding the level 1, 2 and 3
 -- nets, standing and then walking: Avatar.holdNet and Avatar.netHand, the net pivoted by its Grip as NetHold.luau
--- does; the nets come from the rbxm that `rojo build preview.project.json` makes). The Cat Cannon flight (F84):
+-- does; the nets come from the rbxm that `rojo build preview.project.json` makes); smack (the F93 net smack at a
+-- quarter speed, Avatar.smack over the hold: a hit, then a miss with its bounce). The Cat Cannon flight (F84):
 -- cannon (the hop into a stand-in cannon and the shot out of it), cannonLand (the drop onto a stand-in pad and the
 -- landing) and cannonGlide (the flyer of the cloud cutscene through its ViewportFrame's camera, white puffs standing
 -- in for VFX-Agent's tunnel), with a sitting Tabby from the rbxm for scale where there is ground. Nothing here ships
@@ -115,6 +116,27 @@ local scenarios = {
 			{ name = "Basic", x = -5, z = 0, face = 0, shirt = "red", net = 1 },
 			{ name = "Pro", x = 0, z = 0, face = 0, shirt = "blue", skin = "tan", net = 2 },
 			{ name = "Master", x = 5, z = 0, face = 0, shirt = "red", net = 3 },
+		},
+	},
+	-- standing still, each `smacks` entry a swing `at` seconds in (`missedAt`: a miss heard that far in), at `slow` speed
+	smack = {
+		seconds = 1.6,
+		still = math.huge,
+		speed = 0,
+		slow = 0.25,
+		camera = "profile",
+		box = { { -2, 0, -7 }, { 2, 8, 1.5 } },
+		people = {
+			{
+				name = "Swinger",
+				x = 0,
+				z = 0,
+				face = 0,
+				shirt = "blue",
+				skin = "tan",
+				net = 2,
+				smacks = { { at = 0.2 }, { at = 1.0, missedAt = 0 } },
+			},
 		},
 	},
 }
@@ -375,11 +397,12 @@ for _, c in people do
 end
 local travelled = Vector3.zero
 
-local count = math.floor(scenario.seconds * fps + 0.5)
+local rate = scenario.slow or 1
+local count = math.floor(scenario.seconds / rate * fps + 0.5)
 local hitAt = nil
 for f = 0, count - 1 do
-	local now = f / fps
-	local dt = 1 / fps
+	local now = f / fps * rate
+	local dt = rate / fps
 	-- the engineer's motion: the lunge until it ends or hits, the target's push after a hit
 	if scenario.still == nil and now >= PRESS and now < PRESS + T.lunge and hitAt == nil then
 		tackler.pos += Vector3.new(0, 0, -LUNGE_SPEED * dt)
@@ -424,7 +447,11 @@ for f = 0, count - 1 do
 			transforms[joints.LeftKnee] = CFrame.Angles(-math.max(0, -swing) * 1.2, 0, 0)
 			transforms[joints.RightKnee] = CFrame.Angles(-math.max(0, swing) * 1.2, 0, 0)
 			transforms[joints.LeftShoulder] = CFrame.Angles(-swing * 0.8, 0, 0)
-			for motor, cf in Avatar.holdNet(c.rig) do
+			local arm = nil
+			for _, swing in c.spec.smacks or {} do
+				arm = Avatar.smack(now - swing.at, swing.missedAt) or arm
+			end
+			for motor, cf in Avatar.holdNet(c.rig, arm) do
 				transforms[motor] = cf
 			end
 		end

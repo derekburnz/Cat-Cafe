@@ -62,6 +62,14 @@ local localPress: number? = nil -- server time of this player's own press
 local timing: Avatar.Timing? = nil
 local started = false
 
+-- A tagged model that is staged, not a player's own character (that one is posed and watched as the player's).
+local function stagedModel(tagged: Instance): Model?
+	if tagged:IsA("Model") and Players:GetPlayerFromCharacter(tagged) == nil then
+		return tagged :: Model
+	end
+	return nil
+end
+
 -- The engineer's timers from the shared Config where it has them, else the design's numbers (Presets.tacklePose).
 local function timingNow(): Avatar.Timing
 	if timing ~= nil then
@@ -265,8 +273,9 @@ local function step(dt: number)
 		end
 	end
 	for _, tagged in CollectionService:GetTagged(STAGED) do
-		if tagged:IsA("Model") then
-			table.insert(posed, { character = tagged :: Model, userId = nil })
+		local model = stagedModel(tagged)
+		if model ~= nil then
+			table.insert(posed, { character = model, userId = nil })
 		end
 	end
 
@@ -379,19 +388,22 @@ function Tackle.start()
 	end
 	Players.PlayerAdded:Connect(watchPlayer)
 	for _, tagged in CollectionService:GetTagged(STAGED) do
-		if tagged:IsA("Model") then
-			watchCharacter(tagged :: Model)
+		local model = stagedModel(tagged)
+		if model ~= nil then
+			watchCharacter(model)
 		end
 	end
 	CollectionService:GetInstanceAddedSignal(STAGED):Connect(function(tagged: Instance)
-		if tagged:IsA("Model") then
-			watchCharacter(tagged :: Model)
+		local model = stagedModel(tagged)
+		if model ~= nil then
+			watchCharacter(model)
 		end
 	end)
 	CollectionService:GetInstanceRemovedSignal(STAGED):Connect(function(tagged: Instance)
-		if tagged:IsA("Model") then
-			stale[tagged :: Model] = nil
-			forget(tagged :: Model)
+		local model = stagedModel(tagged)
+		if model ~= nil then
+			stale[model] = nil
+			forget(model)
 		end
 	end)
 	-- The engineer's press and refusal moments, once Moments has them; until then the dive waits for TackleAt.

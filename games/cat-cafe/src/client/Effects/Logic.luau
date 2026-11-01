@@ -1148,6 +1148,12 @@ function Logic.butterflyLeg(from: Vector3, to: Vector3, k: number): Vector3
 	return from + (to - from) * (x * x * (3 - 2 * x))
 end
 
+-- How far above its straight line a butterfly flying over to another bed is `k` (0 to 1) into the flight: up to
+-- `arc` studs halfway, none at either end.
+function Logic.hopLift(k: number, arc: number): number
+	return arc * math.sin(math.pi * math.clamp(k, 0, 1))
+end
+
 -- How much of a butterfly shows `age` seconds into a spell out `length` long: fading in over the first `fade`
 -- seconds and out over the last, none before or after it.
 function Logic.spell(age: number, length: number, fade: number): number

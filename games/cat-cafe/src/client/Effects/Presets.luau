@@ -1798,6 +1798,32 @@ Presets.decorFx = {
 	},
 	-- Gold Leaf: a sheen `width` wide sweeping over the front, crossing it in a share of every `seconds`.
 	sheen = { width = 0.08, shown = 0.45, tilt = 20, seconds = 7 },
+	-- Gold Leaf on real gold trims (F89 2c, luck-and-rare-moments.md: "a slow glint that sweeps across the trims
+	-- every 5 seconds and a soft glow on them at night"). The trims are Model-Agent's `_Trim` parts tagged `tag`. A
+	-- glint `width` studs wide crosses the front in `seconds` at the start of every `every`, lifting each trim up to
+	-- `shine` of the way to `glint`, with `sparkles` glints along the eave every `sparkleEvery` as it passes. At night
+	-- every trim lifts `night` of the way to `glow`, and `lights` soft lights stand `out` studs in front of the front
+	-- and `below` studs under the eave, `range` and `brightness` each. The trims are read again every `checkEvery`
+	-- seconds as they stream in; `tolerance` is how far a trim's colour may read back from what was written.
+	trims = {
+		tag = "PaintTrim",
+		every = 5,
+		seconds = 1.6,
+		width = 3,
+		shine = 0.75,
+		glint = palette.offwhite,
+		sparkles = 1,
+		sparkleEvery = 0.12,
+		night = 0.3,
+		glow = palette.goldLight,
+		lights = 3,
+		out = 1.5,
+		below = 0.8,
+		range = 9,
+		brightness = 0.35,
+		checkEvery = 2,
+		tolerance = 2 / 255,
+	},
 	petalPad = 0.8, -- share of the tree's width the petals fall from
 }
 

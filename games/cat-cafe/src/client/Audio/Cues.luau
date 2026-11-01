@@ -584,7 +584,7 @@ local Cues: { [string]: Cue } = {
 		duck = true,
 	},
 	uiSpinBusy = {
-		ids = {},
+		ids = { "rbxassetid://75782326640051" },
 		group = "Ui",
 		volume = 0.55,
 		minGap = 0.3,

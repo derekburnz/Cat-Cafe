@@ -438,6 +438,14 @@ Derek 2026-10-27: "cats should level up overtime making slight increases and whe
 
 **Engineer:** keep `level`, `xp` and `xpToNext` in each `CatView` of ProfileSync's `cats`, set `Level` on every cat model under `Plot/Cats`, and call `UI.catLevelUp(uid, level)` on `CatLevelUp` (the controller may check that the function exists while both PRs land).
 
+### Keeps up tag (built, F86, data-model v0.13.16 section 4b)
+
+Derek 2026-10-28 13:55: "make it so legendarys / mythics in the previous areas still hold decent value across areas and don't instantly become useless next area". A Legendary or Mythical from an older area earns as if it came from the area one step behind the player's newest. `Components/KeepUp.luau` (with a spec) decides when it shows: `CatStats.areaMultiplier(def, state.tier)` above `CatStats.areaMultiplier(def)`, so never for Epic and below or a cat from the newest two areas.
+
+- **Cat room:** a green "Keeps up" tag on the card's lower left corner and at the end of the detail's rate line. Pressing the detail's tag shows the tip in green where notices show for 3 s: "Earns like a Woods cat now that you have reached the Sewer."
+- **Hover card:** the same tag at the end of the role line, on your own cats only (another player's tier is not known).
+- **Rates:** the cat room's rate is the server's `CatView.rating`, already the kept-up figure. The Index still shows each cat's own-area rate.
+
 ### Upgrades tabs: Cafe and Staff (built, UI plan 2026-10-27)
 
 Nothing new to call or forward: `UI.open("Upgrades")` opens it and the tabs read the state the UI already gets.

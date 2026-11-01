@@ -4,6 +4,8 @@
 --   your own cat     a picture of its head beside its name (with the catalog name under it when named), the rarity
 --                    badge and a Gold tag, the role with its icon and a heart in its favourite role (or Resting),
 --                    "Level 12" and the XP bar with "340 / 1,440 XP", "MAX" at the top level
+--                    and, on an older Legendary or Mythical that keeps up (F86, Components/KeepUp), a "Keeps up"
+--                    tag at the end of the role line
 --   another's cat    a smaller card from the model's attributes: head, name, rarity, Gold, role and level, no bar
 -- No charm stars (Derek 2026-10-27: "do a pic of the cats head instead and no stars needed").
 -- Mouse: the card shows over the cat under the pointer. Touch: a tap opens it, a second tap on the same cat or a tap
@@ -25,6 +27,7 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local KeepUp = require(script.Parent.Parent.Components.KeepUp)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
@@ -57,6 +60,7 @@ local LOVES_H = 18
 local LEVEL_H = 20
 local BAR_H = 10
 local PILL_H = 20
+local KEEP_W = 72 -- the "Keeps up" tag at the end of the role line
 local TICK = 0.1 -- seconds between pointer checks
 local RAY_STUDS = 150
 -- studs between the model's top and the card: over the rate tag when it shows (WorldTags: 1.8 tall, 0.3 up)
@@ -255,6 +259,16 @@ function CatCard.new(parent: Instance, callbacks: Callbacks): CatCard
 		RichText = true,
 		Parent = card,
 	})
+	local keep = pill(card, "KeepsUp", 0)
+	keep.AutomaticSize = Enum.AutomaticSize.None
+	keep.AnchorPoint = Vector2.new(1, 0)
+	keep.Size = UDim2.fromOffset(KEEP_W, PILL_H)
+	keep.BackgroundColor3 = Theme.colors.goodDark
+	keep.TextColor3 = Theme.colors.white
+	keep.Text = KeepUp.TAG
+	keep.Visible = false
+	self._keep = keep
+	self._tier = nil :: number? -- the local player's tier, for the tag on their own cats
 
 	self._loves = label({
 		Name = "Loves",
@@ -348,6 +362,7 @@ end
 
 function CatCard.render(self: any, state: Types.PlayerState)
 	self._cats = state.cats or {}
+	self._tier = state.tier
 	if self._model then
 		self:_fill()
 	end
@@ -520,6 +535,10 @@ function CatCard._layout(
 	y = PAD + block + GAP + 2
 	self._roleIcon.Position = UDim2.fromOffset(PAD, y)
 	self._role.Position = UDim2.fromOffset(PAD + ROLE_H + 6, y)
+	local keeps = self._keep.Visible
+	self._role.Size =
+		UDim2.new(1, -2 * PAD - ROLE_H - 6 - (if keeps then KEEP_W + GAP else 0), 0, ROLE_H)
+	self._keep.Position = UDim2.new(1, -PAD, 0, y + math.floor((ROLE_H - PILL_H) / 2))
 	y += ROLE_H
 	self._loves.Visible = loves
 	if loves then
@@ -622,6 +641,7 @@ function CatCard._fill(self: any)
 	-- resting or in another role: a line under it with where the cat would rather be (Derek 2026-10-28: the
 	-- favourite role in bold with its icon)
 	local lovesShows = loves ~= nil and not favourite
+	self._keep.Visible = instance ~= nil and KeepUp.keepsUp(def, self._tier)
 	self._loves.Text = if loves then Format.lovesRole(loves) else ""
 
 	-- the level: ProfileSync's for an own cat, else the model's Level

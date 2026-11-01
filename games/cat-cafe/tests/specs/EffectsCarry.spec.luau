@@ -46,6 +46,14 @@ return function()
 			expect(c.forward < 0).to.equal(true) -- out in front of the chest
 		end)
 
+		it(
+			"loafs out at the left side, its face back over the shoulder for the camera behind",
+			function()
+				expect(c.loafSide < -1).to.equal(true) -- past the chest's half width (2 studs wide), so the body does not hide it
+				expect(c.loafTurn > 120 and c.loafTurn < 180).to.equal(true) -- facing back, not ahead
+			end
+		)
+
 		it("loafs on the walking body, awake, breathing and looking about", function()
 			local looked = 0
 			local open = false

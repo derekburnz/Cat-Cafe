@@ -1244,4 +1244,94 @@ function Logic.lidAngle(elapsed: number, seconds: number, degrees: number): numb
 	return degrees * (1 - (1 - x) * (1 - x))
 end
 
+-- Campfires ---------------------------------------------------------------------------------------------------
+
+-- How one tongue of a campfire's flame moves `t` seconds in, `phase` radians apart from its neighbours: its stretch
+-- (1 is the modelled height), its lean at the tip in radians about X and about Z, and a flicker from 0 to 1 for its
+-- colour and the light. Three waves at `c.hz` added up, so it never repeats in an obvious beat.
+function Logic.flame(
+	t: number,
+	phase: number,
+	c: { stretch: number, lean: number, hz: { number } }
+): (number, number, number, number)
+	local a = math.sin(2 * math.pi * c.hz[1] * t + phase)
+	local b = math.sin(2 * math.pi * c.hz[2] * t + phase * 1.7)
+	local d = math.sin(2 * math.pi * c.hz[3] * t + phase * 2.3)
+	local lean = math.rad(c.lean)
+	return 1 + c.stretch * (0.6 * a + 0.4 * b),
+		lean * (0.7 * b + 0.3 * d),
+		lean * (0.7 * d + 0.3 * a),
+		math.clamp(0.5 + 0.3 * a + 0.2 * d, 0, 1)
+end
+
+-- Splits a campfire's flame discs (their centres in `points`) into tongues: discs within `gap` studs of each other
+-- across the ground, X and Z, stack into one tongue. Each list holds indexes into `points`, the lowest first.
+function Logic.flameTongues(points: { Vector3 }, gap: number): { { number } }
+	local tongues: { { number } } = {}
+	local anchors: { Vector3 } = {}
+	for i, point in points do
+		local found: number? = nil
+		for k, anchor in anchors do
+			if Vector2.new(point.X - anchor.X, point.Z - anchor.Z).Magnitude <= gap then
+				found = k
+				break
+			end
+		end
+		if found == nil then
+			table.insert(anchors, point)
+			table.insert(tongues, { i })
+		else
+			table.insert(tongues[found], i)
+		end
+	end
+	for _, list in tongues do
+		table.sort(list, function(x: number, y: number): boolean
+			return points[x].Y < points[y].Y
+		end)
+	end
+	return tongues
+end
+
+-- Which of a part's own axes points most nearly up, from the Y of its RightVector, UpVector and LookVector: 1 for X,
+-- 2 for Y, 3 for Z (a flame disc is a Cylinder, its axis X, turned to stand up).
+function Logic.upAxis(rightY: number, upY: number, lookY: number): number
+	local x, y, z = math.abs(rightY), math.abs(upY), math.abs(lookY)
+	if x >= y and x >= z then
+		return 1
+	end
+	return if y >= z then 2 else 3
+end
+
+-- Where one disc of a flame tongue goes, as an offset from the tongue's base: at rest `offset` from it (its centre
+-- `offset.Y` studs up a tongue `top` studs tall), stretched by `stretch` and bent by `leanX` and `leanZ` (radians at
+-- the top, less lower down). Also the disc's own turn, about X and about Z: CFrame.Angles(ax, 0, az), which turns
+-- about Z first and then about X, as this does to the offset.
+function Logic.flameLift(
+	offset: Vector3,
+	top: number,
+	stretch: number,
+	leanX: number,
+	leanZ: number
+): (Vector3, number, number)
+	local bend = if top > 0 then offset.Y / top else 0
+	local ax, az = leanX * bend, leanZ * bend
+	local x, y, z = offset.X, offset.Y * stretch, offset.Z
+	local cz, sz = math.cos(az), math.sin(az)
+	x, y = x * cz - y * sz, x * sz + y * cz
+	local cx, sx = math.cos(ax), math.sin(ax)
+	y, z = y * cx - z * sx, y * sx + z * cx
+	return Vector3.new(x, y, z), ax, az
+end
+
+-- How a flame disc's size scales as its tongue stretches: by `stretch` along its upright axis `up` (1 to 3 for X, Y,
+-- Z) and thinner across, so the flame keeps its body.
+function Logic.flameScale(up: number, stretch: number): Vector3
+	local thin = 1 / math.sqrt(stretch)
+	return Vector3.new(
+		if up == 1 then stretch else thin,
+		if up == 2 then stretch else thin,
+		if up == 3 then stretch else thin
+	)
+end
+
 return Logic

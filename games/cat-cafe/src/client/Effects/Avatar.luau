@@ -5,8 +5,9 @@
 -- joints and `Avatar.solve` turns a pose into joint Transforms, lowered so the lowest part rests on the floor. An R15
 -- or R6 character, with Motor6D joints or the newer AnimationConstraint ones; R6 has no waist, elbows or knees, so
 -- those parts of a pose are left out on it.
--- The net hold (Derek 2026-10-28): the right arm holding the player's net upright and leaning ahead while it walks
--- a catching area; `Avatar.holdNet` poses that arm only and `Avatar.netHand` says where in the hand the net goes.
+-- The net hold (Derek 2026-10-28, F93): the right arm holding the player's net back over the shoulder at all times,
+-- and the net smack that swings it; `Avatar.holdNet` poses that arm only (`Avatar.smack` gives the swing's arm) and
+-- `Avatar.netHand` says where in the hand the net goes.
 -- The carry (Derek 2026-10-28): arms crossed in front of the chest with the caught cat on them; `Avatar.carryArms`
 -- poses the upper body only, so the legs keep walking, and `Avatar.cradle` says where on the arms the cat rests.
 -- The Cat Cannon flight (F84): the hop into the barrel, the curled ball rolling through the air and the crouch

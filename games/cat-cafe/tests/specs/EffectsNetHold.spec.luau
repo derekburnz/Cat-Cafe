@@ -1,6 +1,7 @@
 --!strict
--- The net hold (Derek 2026-10-28: "have your character holding a net while walking around until catching a cat";
--- F93, catch-rework.md section 1: at all times, put away while a cat is in the arms) and the net smack: when a
+-- The net hold (Derek 2026-10-28: "have your character holding a net while walking around until catching a cat",
+-- back over the shoulder; F93, catch-rework.md section 1: at all times, put away while a cat is in the arms) and the
+-- net smack: when a
 -- character holds its net, which net it shows, how the arm eases in and out and how the 0.35 s smack moves it.
 -- Avatar.holdNet, Avatar.netHand and the net in the hand need a real character, so they are checked in Studio.
 -- Written by the Animation-Engineer (QA said new specs may go straight in here).
@@ -67,10 +68,9 @@ return function()
 			expect(Avatar.holdWeight(0.1, false, h.blendOut)).to.equal(0)
 		end)
 
-		it("leans the pole ahead and up, never flat or back over the head", function()
-			for _, angle in { pole(h), pole6(h) } do
-				expect(angle > 30 and angle < 80).to.equal(true)
-			end
+		it("rests the pole back over the shoulder (Derek 10-28 16:47), not flat behind", function()
+			expect(pole(h) > 100 and pole(h) < 150).to.equal(true)
+			expect(pole6(h) > 90 and pole6(h) < 150).to.equal(true)
 			expect(h.showAt > 0 and h.showAt < 1).to.equal(true)
 		end)
 	end)

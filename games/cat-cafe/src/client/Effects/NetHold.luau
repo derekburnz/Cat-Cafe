@@ -38,6 +38,8 @@ type Held = {
 
 local held: { [Model]: Held } = {}
 local started = false
+-- Server time of this player's last swing press, until the server's NetSwung for it comes back (Review S91).
+local pressAt: number? = nil
 
 local function alive(character: Model): boolean
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -212,7 +214,9 @@ function NetHold.start()
 		moments.NetSmackPress:Connect(function()
 			local me = Players.LocalPlayer.Character
 			if me ~= nil then
-				smack(me, Workspace:GetServerTimeNow())
+				local now = Workspace:GetServerTimeNow()
+				pressAt = now
+				smack(me, now)
 			end
 		end)
 	end
@@ -226,8 +230,29 @@ function NetHold.start()
 				return
 			end
 			local now = Workspace:GetServerTimeNow()
-			smack(character, now)
 			local entry = held[character]
+			local pressed = pressAt
+			if
+				player == Players.LocalPlayer
+				and pressed ~= nil
+				and now - pressed < Presets.netSmack.answerWithin
+			then
+				-- this player's own swing coming back, a round trip and NetSmackDelay after the press: it already
+				-- smacked at the press, so it only learns whether it missed, and only while that smack still plays
+				pressAt = nil
+				local at = if entry ~= nil then entry.smackAt else nil
+				if
+					entry ~= nil
+					and at ~= nil
+					and at == pressed
+					and hit == false
+					and entry.missedAt == nil
+				then
+					entry.missedAt = now - at
+				end
+				return
+			end
+			smack(character, now)
 			local at = if entry ~= nil then entry.smackAt else nil
 			if entry ~= nil and at ~= nil and hit == false and entry.missedAt == nil then
 				entry.missedAt = now - at

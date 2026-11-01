@@ -95,9 +95,9 @@ function Economy.baitWaitSeconds(
 	return math.floor(Economy.lureWaitSeconds(profile, night) * (1 - speed) + 1e-6)
 end
 
--- Rate of one working cat before the cafe multiplier: its rating (rarity x charm x level x variant, see CatStats)
--- times the favorite role bonus (data-model section 11). Resting cats earn nothing.
-function Economy.catRate(instance: Types.CatInstance): number
+-- Rate of one working cat before the cafe multiplier: its rating for an owner at `tier` (rarity x area x charm x
+-- level x variant, see CatStats) times the favorite role bonus (data-model section 11). Resting cats earn nothing.
+function Economy.catRate(instance: Types.CatInstance, tier: number?): number
 	local def = Catalog.getCat(instance.catId)
 	if def == nil or instance.spotId == nil then
 		return 0
@@ -107,7 +107,7 @@ function Economy.catRate(instance: Types.CatInstance): number
 		return 0
 	end
 	local favorite = if spot.spotType == def.favoriteRole then Config.FavoriteMultiplier else 1
-	return CatStats.rating(instance) * favorite
+	return CatStats.rating(instance, tier) * favorite
 end
 
 function Economy.variantMultiplier(variant: string): number
@@ -119,7 +119,7 @@ end
 function Economy.incomePerSecond(profile: Types.PlayerProfile): number
 	local total = 0
 	for _, instance in profile.cats do
-		total += Economy.catRate(instance)
+		total += Economy.catRate(instance, profile.tier)
 	end
 	return total * Economy.cafeMultiplier(profile) * Economy.tierMultiplier(profile)
 end

@@ -235,7 +235,9 @@ function Intro.demoRate(): number
 		xp = 0,
 		charm = 50,
 	}
-	return Economy.catRate(cat) * Economy.cafeMultiplier(profile) * Economy.tierMultiplier(profile)
+	return Economy.catRate(cat, profile.tier)
+		* Economy.cafeMultiplier(profile)
+		* Economy.tierMultiplier(profile)
 end
 
 -- The demo cat's name on its rate tag.

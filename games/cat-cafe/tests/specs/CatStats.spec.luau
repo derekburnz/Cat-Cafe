@@ -295,6 +295,78 @@ return function()
 		end)
 	end)
 
+	-- data-model v0.13.16 section 4b (F86, Derek 2026-10-28 13:55): a Legendary or Mythical from an older area earns
+	-- with the incomeMultiplier of the area one step behind the owner's newest, never less than its own.
+	describe("keep up (v0.13.16, F86)", function()
+		it("at Tier 5 an Alleyway Legendary at charm 50, level 1 rates 87.5 and a Sewer Legendary 125", function()
+			expect(CatStats.rating(cat("void"), 5)).to.be.near(87.5, 1e-9)
+			expect(CatStats.rating(cat("bottlecap"), 5)).to.be.near(125, 1e-9)
+			-- a Woods Legendary is the area one step behind, so it keeps its own
+			expect(CatStats.rating(cat("old_oak"), 5)).to.be.near(87.5, 1e-9)
+		end)
+
+		it("follows section 4b's table: the keep-up multiplier by the owner's tier", function()
+			local rows = { [1] = 1, [2] = 1, [3] = 1.5, [4] = 2.25, [5] = 3.5 }
+			for tier, multiplier in rows do
+				local void = Catalog.getCat("void") :: any
+				expect(CatStats.areaMultiplier(void, tier)).to.be.near(multiplier, 1e-9)
+				expect(CatStats.rating(cat("void"), tier)).to.be.near(25 * multiplier, 1e-9)
+				expect(CatStats.rating(cat("neon"), tier)).to.be.near(75 * multiplier, 1e-9)
+			end
+		end)
+
+		it("ranking up to Tier 4 lifts an Alleyway Mythical from 112.5 to 168.75 at once", function()
+			expect(CatStats.rating(cat("neon"), 3)).to.be.near(112.5, 1e-9)
+			expect(CatStats.rating(cat("neon"), 4)).to.be.near(168.75, 1e-9)
+		end)
+
+		it("leaves Epics and below, and every cat without a tier, at their own area's rate", function()
+			for _, def in Catalog.cats do
+				expect(CatStats.rating(cat(def.id))).to.equal(def.incomePerSecond)
+				if Config.KeepUpRarities[def.rarity] ~= true then
+					for tier = 1, 5 do
+						expect(CatStats.rating(cat(def.id), tier)).to.equal(def.incomePerSecond)
+					end
+				end
+			end
+		end)
+
+		it("never lowers a cat below its own area: the newest area's Legendary and Mythical stay on top", function()
+			for _, def in Catalog.cats do
+				for tier = 1, 5 do
+					expect(CatStats.rating(cat(def.id), tier) >= def.incomePerSecond).to.equal(true)
+				end
+			end
+			expect(CatStats.rating(cat("eclipse"), 5)).to.be.near(375, 1e-9)
+			expect(CatStats.rating(cat("neon"), 5)).to.be.near(262.5, 1e-9)
+		end)
+
+		it("a spare Mythical keeps up from the area it came from", function()
+			local midnight = Catalog.getCat("midnight") :: any
+			expect(midnight.area).to.equal("spare")
+			expect(CatStats.rating(cat("midnight"), 5)).to.be.near(75 * 3.5, 1e-9)
+		end)
+
+		it("sorts and pays with the kept-up rating: an older Mythical goes ahead of the newest Legendary", function()
+			expect(CatStats.isBetter(cat("neon"), cat("bottlecap"), 5)).to.equal(true)
+			expect(CatStats.isBetter(cat("neon"), cat("bottlecap"))).to.equal(false)
+			local list = { cat("bottlecap"), cat("neon") }
+			table.sort(list, CatStats.betterFor(5))
+			expect(list[1].catId).to.equal("neon")
+			expect(Economy.catRate(cat("void", 50, 1, "barista_1"), 5)).to.be.near(87.5, 1e-9)
+			expect(CatStats.maxRating("void", 5)).to.be.near(87.5 * 1.2 * 1.98, 1e-9)
+			expect(CatStats.view(cat("void"), 5).rating).to.be.near(87.5, 1e-9)
+			local profile = ProfileSchema.template(1000)
+			profile.tier = 5
+			profile.cats.starter_tabby = nil :: any
+			profile.cats.ninja = cat("void", 50, 1, "barista_1")
+			expect(Economy.incomePerSecond(profile)).to.be.near(
+				87.5 * Economy.cafeMultiplier(profile) * Economy.tierMultiplier(profile),
+				1e-9
+			)
+		end)
+	end)
+
 	describe("Economy integration", function()
 		it("a fresh profile still earns 1.5 per second (starter Tabby is neutral)", function()
 			local profile = ProfileSchema.template(1000)

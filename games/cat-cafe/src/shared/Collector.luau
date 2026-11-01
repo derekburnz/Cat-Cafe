@@ -20,11 +20,12 @@ function Collector.askable(instance: Types.CatInstance): boolean
 end
 
 -- The cat he wants from `cats`: a catId chosen evenly among the distinct catIds of the askable cats, so a pile of
--- Tabbies does not crowd out the rest, then that catId's askable cat with the lowest rating (the lowest uid on a
--- tie). `roll` returns 0 to 1. Nil when no cat is askable.
+-- Tabbies does not crowd out the rest, then that catId's askable cat with the lowest rating for an owner at `tier`
+-- (the lowest uid on a tie). `roll` returns 0 to 1. Nil when no cat is askable.
 function Collector.pickCat(
 	cats: { [string]: Types.CatInstance },
-	roll: () -> number
+	roll: () -> number,
+	tier: number?
 ): Types.CatInstance?
 	local byId: { [string]: { Types.CatInstance } } = {}
 	local ids: { string } = {}
@@ -48,7 +49,7 @@ function Collector.pickCat(
 	local best: Types.CatInstance? = nil
 	local bestRating = math.huge
 	for _, instance in byId[catId] do
-		local rating = CatStats.rating(instance)
+		local rating = CatStats.rating(instance, tier)
 		if
 			best == nil
 			or rating < bestRating

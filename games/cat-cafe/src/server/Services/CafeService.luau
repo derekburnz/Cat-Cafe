@@ -70,7 +70,7 @@ end
 function CafeService.catViews(player: Player, profile: Profile): { [string]: Types.CatView }
 	local views: { [string]: Types.CatView } = {}
 	for uid, instance in profile.cats do
-		local view = CatStats.view(instance)
+		local view = CatStats.view(instance, profile.tier)
 		view.name = NameService.displayName(player, instance)
 		views[uid] = view
 	end
@@ -185,16 +185,18 @@ local function shownName(player: Player, instance: Types.CatInstance): string
 		or (if def ~= nil then def.name else instance.catId)
 end
 
--- One cat's model at `at` for its `slot`, not parented yet. A working cat sits on the seated body (B) in its role's
--- outfit; with `sleepSpot` (F79) it is on the walking body (A) without the outfit instead, on a bedtime trip to that
--- spot or asleep on it. Resting cats mix their idles (Derek 2026-10-27: "use a mix of idle animations"): the odd nap
--- spots sit on B and wash a paw, the even ones lie on A, where they sleep and sit up into a loaf with its purr.
+-- One cat's model at `at` for its `slot`, not parented yet, its Rate for an owner at `tier`. A working cat sits on
+-- the seated body (B) in its role's outfit; with `sleepSpot` (F79) it is on the walking body (A) without the outfit
+-- instead, on a bedtime trip to that spot or asleep on it. Resting cats mix their idles (Derek 2026-10-27: "use a
+-- mix of idle animations"): the odd nap spots sit on B and wash a paw, the even ones lie on A, where they sleep and
+-- sit up into a loaf with its purr.
 local function buildCat(
 	player: Player,
 	instance: Types.CatInstance,
 	slot: string,
 	at: CFrame,
 	multiplier: number,
+	tier: number,
 	sleepSpot: string?
 ): Model
 	local def = Catalog.getCat(instance.catId)
@@ -210,7 +212,7 @@ local function buildCat(
 	model:SetAttribute("Napping", instance.spotId == nil)
 	model:SetAttribute("Rarity", if def ~= nil then def.rarity else nil)
 	model:SetAttribute("Gold", instance.variant == "gold")
-	model:SetAttribute("Rate", Economy.catRate(instance) * multiplier)
+	model:SetAttribute("Rate", Economy.catRate(instance, tier) * multiplier)
 	model:SetAttribute("DisplayName", shownName(player, instance))
 	model:SetAttribute("Level", CatStats.level(instance))
 	model:SetAttribute("OwnerUserId", player.UserId)
@@ -247,7 +249,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 			table.insert(resting, instance)
 		end
 	end
-	table.sort(resting, CatStats.isBetter)
+	table.sort(resting, CatStats.betterFor(profile.tier))
 	local nappers: { [string]: Types.CatInstance } = {} -- the best few resting cats, by uid
 	for n = 1, math.min(#resting, #plot.napSpots) do
 		nappers[resting[n].uid] = resting[n]
@@ -303,7 +305,10 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 			child:Destroy()
 		else
 			wanted[uid :: string] = nil
-			child:SetAttribute("Rate", Economy.catRate(placement.instance) * multiplier)
+			child:SetAttribute(
+				"Rate",
+				Economy.catRate(placement.instance, profile.tier) * multiplier
+			)
 			child:SetAttribute("DisplayName", shownName(player, placement.instance))
 			-- a rise plays the owner's level up sparkle (F75); the hover card reads it on other players' cats
 			child:SetAttribute("Level", CatStats.level(placement.instance))
@@ -334,7 +339,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 				table.insert(workers, placement.instance)
 			end
 		end
-		table.sort(workers, CatStats.isBetter)
+		table.sort(workers, CatStats.betterFor(profile.tier))
 		local uids: { string } = {}
 		for _, instance in workers do
 			table.insert(uids, instance.uid)
@@ -351,6 +356,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 			placement.slot,
 			if bed ~= nil then bed.at else placement.anchor.CFrame,
 			multiplier,
+			profile.tier,
 			if bed ~= nil then bed.id else nil
 		)
 		if bed ~= nil then
@@ -696,6 +702,7 @@ function CafeService.bedtimeBody(
 		if type(slot) == "string" then slot else instance.spotId :: string,
 		(old :: Model):GetPivot(),
 		multiplier,
+		profile.tier,
 		sleepSpot
 	)
 	model:SetAttribute("Asleep", false)

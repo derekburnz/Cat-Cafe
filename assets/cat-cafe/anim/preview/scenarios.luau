@@ -23,6 +23,12 @@ return {
 		attributes = { Pose = "sit" },
 		segments = { { style = "doze", seconds = 7.2 } },
 	},
+	-- A resting cat on the sitting body washing a paw (Derek 2026-10-29 19:46: "should look more like licking paws").
+	lick = {
+		model = "CatCafe_Cat_Tabby_Sit",
+		camera = "front",
+		segments = { { style = "lick", seconds = 5.4 } },
+	},
 	-- A resting cafe cat by day: asleep, it sits up into its loaf for a while and curls back up. It is still resting,
 	-- so no stretch (review S71); lying back down is the slower settle.
 	loaf = {

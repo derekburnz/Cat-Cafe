@@ -800,16 +800,27 @@ Presets.motion = {
 		hold = 24,
 	},
 	-- A sitting cat (the _Sit body, PR #259) washing a paw now and then (Derek 2026-10-27: the paw-up sit is a
-	-- lick), the way a walking cat loafs: `hold` seconds of every `every`, by day. In bursts of `strokes` seconds a
-	-- `pause` apart, the head bobs and the raised paw rubs at `hz` licks a second, eyes half shut.
+	-- lick), the way a walking cat loafs: `hold` seconds of every `every`, by day, eyes half shut. The paw stays up
+	-- at the mouth and the head licks it (Derek 2026-10-29: the old paw rub looked like kicking): in bursts of
+	-- `strokes` seconds a `pause` apart, `hz` licks a second, each a dip of `bob` degrees taking `down` of the lick
+	-- and the rest to come up, turned `turn` degrees into the paw, which lifts `paw` degrees to meet it; a burst eases
+	-- in and out over `ease` seconds. Every other pause the cat rubs its cheek along the paw: the paw rises `wipe`
+	-- degrees as the head turns `wipeTurn` into it, bowing `wipeBow` and tipping `wipeTilt`.
 	lick = {
 		every = 60,
 		hold = 9,
 		strokes = 1.6,
 		pause = 1.1,
-		hz = 2.4,
-		bob = 6,
-		paw = 10,
+		hz = 2.2,
+		bob = 9,
+		down = 0.3,
+		turn = 3,
+		paw = 4,
+		ease = 0.12,
+		wipe = 8,
+		wipeTurn = 20,
+		wipeBow = 8,
+		wipeTilt = 14,
 		eyes = 0.6,
 	},
 	-- Blinks squash each eye to `squash` of its height for `seconds`, every `every` seconds or so. A sleeping or

@@ -6,8 +6,9 @@
 -- the loaf over sitting up), put on the arms before each frame draws (Avatar.cradle) and posed like any cat.
 -- To move it, this client lets go of the HeldCat's welds and anchors its parts, here only: the server keeps its weld,
 -- so where the server has the cat, and every other client's own copy, are unchanged. Past the animation radius,
--- hidden by Show other cats, or once the carry ends, the parts go back where the server had them and the welds come
--- back on. Nothing here replicates or fires a remote.
+-- hidden by Show other cats, or once the carry ends, the parts go back where the server had them, anchored as they
+-- were, and the welds come back on. A staged character (Tackle.luau's StagedCharacter, the intro's copy of you) works
+-- the same with its local HeldCat. Nothing here replicates or fires a remote.
 
 local RunService = game:GetService("RunService")
 
@@ -27,6 +28,7 @@ type Held = {
 	catRig: Pose.Rig?,
 	welds: { WeldConstraint }, -- its welds this client let go of
 	parts: { BasePart }, -- its parts, anchored here while it is taken over
+	anchored: { boolean }, -- whether each was anchored before (a staged cat's are; the server's welded ones are not)
 	offsets: { CFrame }, -- each part where the server had it, from the carrier's root
 	phase: number, -- so two carried cats do not look about in step
 	refused: Model?, -- the last HeldCat Pose could not move, left on its weld until retryAt
@@ -66,14 +68,15 @@ local function release(entry: Held)
 		for _, weld in entry.welds do
 			weld.Enabled = true
 		end
-		for _, part in entry.parts do
-			part.Anchored = false
+		for i, part in entry.parts do
+			part.Anchored = entry.anchored[i] == true
 		end
 	end
 	entry.cat, entry.catRig = nil, nil
 	table.clear(entry.welds)
 	table.clear(entry.parts)
 	table.clear(entry.offsets)
+	table.clear(entry.anchored)
 end
 
 -- Takes the HeldCat off the server's weld on this client, so it can rest on the arms. The welds go first: anchoring
@@ -92,6 +95,7 @@ local function take(entry: Held, cat: Model, now: number)
 			local part = descendant :: BasePart
 			table.insert(entry.parts, part)
 			table.insert(entry.offsets, fromRoot * part.CFrame)
+			table.insert(entry.anchored, part.Anchored)
 			part.Anchored = true
 		end
 	end
@@ -120,6 +124,7 @@ function Carry.weight(character: Model, rig: Avatar.Rig, dt: number, near: boole
 			welds = {},
 			parts = {},
 			offsets = {},
+			anchored = {},
 			phase = 0,
 			refused = nil,
 			retryAt = 0,

@@ -3,11 +3,11 @@
 -- WorldBuilder puts CatCafe_Plot_BackDoor in every plot, tagged CafeBackDoor, with nothing on it solid. On this
 -- client, while the areas are open and on an owned cafe, its _Leaf swings out into the yard while any player is
 -- within BackDoor.OPEN_RANGE of the doorway and shuts when they have gone, and its _Flap swings as a cat goes through
--- (shared/BackDoor has the rules). While the areas are closed the leaf stays shut, the CLOSED UNTIL SUNRISE sign
--- shows (its bulbs glow with the other night bulbs, WorldController) and an owned cafe's back door panel turns
--- solid, as the closed back door art did.
+-- (shared/BackDoor has the rules). While the areas are closed the leaf stays shut and an owned cafe's back door
+-- panel turns solid, as the closed back door art did. The CLOSED UNTIL SUNRISE sign the leaves carried comes off on
+-- the server (WorldBuilder.removeDoorSign, Derek's 10-30 playtest).
 -- An F80 door set in use (the plot's Door attribute) hides the art, and its own models, which CafeService puts in the
--- plot's Decor, move instead: DoorBack's _Leaf swings and shows its sign as the art's did, and DoorFront's _LeafL and
+-- plot's Decor, move instead: DoorBack's _Leaf swings as the art's does, and DoorFront's _LeafL and
 -- _LeafR stand open into the cafe while the areas are open and shut while they are closed. Decor.CatFlap (the F80 cat
 -- flap in use, or the plain one a door set brings) rides the leaf in use from its CatFlap attachment, hides the art's
 -- own flap (and its _FlapFrame) and swings its _Flap for cats in that flap's place. Only this client's copy moves.
@@ -33,7 +33,6 @@ type Leaf = {
 	model: Model,
 	shut: CFrame, -- its pivot as built: shut
 	catFlapRest: CFrame?, -- its CatFlap attachment in its own space, where the server puts Decor.CatFlap
-	sign: { BasePart }, -- its sign's plate; the bulbs are WorldController's
 }
 
 type Swing = {
@@ -64,8 +63,6 @@ type Door = {
 	decorSwing: Swing?, -- its _Flap, as first seen from swingFrom
 	swingFrom: Model?,
 	flapSwings: boolean, -- a flap hangs in the leaf in use: the art's or decorFlap's
-	bulbs: Instance?, -- the art sign's _Sign_Bulb model
-	dimmed: { [Light]: boolean }, -- bulb lights put out while the art is hidden
 	angle: number,
 	flapAngle: number,
 	flapSpeed: number,
@@ -77,7 +74,6 @@ type Door = {
 	owned: boolean,
 	hidden: boolean, -- the art hidden behind a door set
 	ownFlapHidden: boolean,
-	signShown: boolean?,
 }
 
 local doors: { [Model]: Door } = {}
@@ -109,26 +105,16 @@ local function partNamed(parent: Instance, suffix: string): Model?
 	return nil
 end
 
--- A leaf as it stands now, shut: its CatFlap attachment and its _Sign plate's parts.
+-- A leaf as it stands now, shut, and its CatFlap attachment.
 local function leafOf(model: Model): Leaf
 	local shut = model:GetPivot()
 	local attachment = model:FindFirstChild("CatFlap", true)
-	local sign: { BasePart } = {}
-	local plate = partNamed(model, "_Sign")
-	if plate ~= nil then
-		for _, descendant in plate:GetDescendants() do
-			if descendant:IsA("BasePart") then
-				table.insert(sign, descendant :: BasePart)
-			end
-		end
-	end
 	return {
 		model = model,
 		shut = shut,
 		catFlapRest = if attachment ~= nil and attachment:IsA("Attachment")
 			then shut:Inverse() * (attachment :: Attachment).WorldCFrame
 			else nil,
-		sign = sign,
 	}
 end
 
@@ -143,17 +129,6 @@ local function setHidden(model: Instance, hidden: boolean)
 		if descendant:IsA("BasePart") then
 			(descendant :: BasePart).LocalTransparencyModifier = if hidden then 1 else 0
 		end
-	end
-end
-
-local function setSignShown(door: Door, leaf: Leaf, shown: boolean)
-	if door.signShown == shown then
-		return
-	end
-	door.signShown = shown
-	for _, piece in leaf.sign do
-		local look = piece:GetAttribute("NightTransparency")
-		piece.Transparency = if shown and type(look) == "number" then look else 1
 	end
 end
 
@@ -230,7 +205,6 @@ local function bindLeaf(door: Door, from: Model?)
 	door.angle = 0
 	door.flapAngle, door.flapSpeed = 0, 0
 	door.shownAngle = math.huge
-	door.signShown = nil
 end
 
 -- The door set's front leaves (`front`, its DoorFront), standing as the clock says when they come in.
@@ -255,32 +229,8 @@ local function bindFront(door: Door, front: Model?, open: boolean)
 	showFront(door)
 end
 
--- A hidden door's bulbs still turn Neon and get their light at night (WorldController). The Neon hides with the
--- rest, so only the light is put out here, and lit again when the door shows at night (review N251).
-local function keepLightsOut(door: Door)
-	local bulbs = door.bulbs
-	if bulbs == nil then
-		return
-	end
-	if door.hidden then
-		for _, descendant in bulbs:GetDescendants() do
-			if descendant:IsA("Light") and (descendant :: Light).Enabled then
-				(descendant :: Light).Enabled = false
-				door.dimmed[descendant :: Light] = true
-			end
-		end
-	elseif next(door.dimmed) ~= nil then
-		local clock = ReplicatedStorage:FindFirstChild("Clock")
-		local night = clock ~= nil and clock:GetAttribute("Phase") == "night"
-		for light in door.dimmed do
-			light.Enabled = night
-		end
-		table.clear(door.dimmed)
-	end
-end
-
--- Owner, clock, door set and cat flap in use: the leaves and flap in use, the sign, the panel's night collision and
--- what is hidden.
+-- Owner, clock, door set and cat flap in use: the leaves and flap in use, the panel's night collision and what is
+-- hidden.
 local function readState(door: Door, open: boolean)
 	local owner = door.plot:GetAttribute("OwnerUserId")
 	door.owned = type(owner) == "number" and owner > 0
@@ -323,10 +273,6 @@ local function readState(door: Door, open: boolean)
 		door.shownAngle = math.huge
 	end
 	door.flapSwings = flapHinge(door) ~= nil
-	if leaf ~= nil then
-		setSignShown(door, leaf, not open)
-	end
-	keepLightsOut(door)
 	-- the closed back door art used to block an owned cafe's back door at night; an empty plot's panel is shut anyway
 	local panel = panelOf(door)
 	if panel ~= nil and door.owned and panel.CanCollide == open then
@@ -466,8 +412,6 @@ local function register(instance: Instance)
 		decorSwing = nil,
 		swingFrom = nil,
 		flapSwings = false,
-		bulbs = own.model:FindFirstChild(ART .. "_Sign_Bulb"),
-		dimmed = {},
 		angle = 0,
 		flapAngle = 0,
 		flapSpeed = 0,
@@ -479,7 +423,6 @@ local function register(instance: Instance)
 		owned = false,
 		hidden = false,
 		ownFlapHidden = false,
-		signShown = nil,
 	}
 	doors[art] = door
 	readState(door, areasOpen())

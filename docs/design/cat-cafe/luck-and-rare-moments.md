@@ -76,9 +76,9 @@ No Luck is sold for Robux in v1. Paid Luck would turn every roll it touches into
 
 ### 2b. When a rare decor piece comes out of a crate
 
-The reveal keeps its rule that the won piece's rarity shows from the first frame, so nothing looks like a near miss. For a Legendary or Mythical piece only:
+Since F103 (2026-11-01) the crate reel shows the result, with its own near miss rules in [crate-reel.md](crate-reel.md); nothing hints at the rarity before the reel stops. For a Legendary or Mythical piece only, at the stop:
 
-- The crate glows in the rarity colour from the moment it appears and shakes for 0.6 seconds before the lid blows open.
+- The landing tile and the counter crate glow in the rarity colour and the crate shakes for 0.6 seconds before the lid blows open.
 - The same big pull card shows the piece's icon and name, with the "Use it" button on the card.
 - Mythical pieces get a server toast, "Sam found the Mythical Midnight Sky!", on the same once-a-minute rule.
 

@@ -367,6 +367,14 @@ Spec in [trading.md](trading.md). Before release per Derek's 2026-11-01 22:59 ru
 |---|---|---|---|---|---|---|
 | F102 | Trading: cats only (never currency, potions, food, crates, decor or exclusive cats), both players Tier 3 or higher (a debug hook lowers it for testing) and in a safe zone; a request card, two 3 x 3 offer grids with what each cat would earn for you, any change resets both Ready, a 5 s countdown, a confirm screen with a lopsided warning and a gift warning; locked cats cannot be offered; a versioned server trade with a pending record so a shutdown never doubles or loses a cat; rate limits, a DataStore kill switch, a trade log, a requests setting, no logs of who | P1 | L | engineer, ui, sound, vfx, review, qa | F62 locks, F95 rates, F99 rainbow | A stale Confirm moves nothing; a change in the countdown clears both Ready; a forced shutdown mid-trade leaves each cat with one owner; the kill switch stops new trades within 60 s |
 
+## 2ai. The crate reel (Derek, 2026-10-28, decided)
+
+Spec in [crate-reel.md](crate-reel.md). It replaces the card reveal in golden-fish.md section 4 and moves luck-and-rare-moments.md 2b's glow and shake to the reel's stop. No save or server change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F103 | Crate reel: every crate opens with a strip of 40 tiles sliding under a centre marker, the same length every time (0.3 s up to 15 tiles a second, full speed, a 0.8 s ease-out, stop at about 2.9 s dead centre on tile 34, the won piece); tiles 26 to 37 are never rarer than the prize and the rest follow the crate's odds; ticks and a thunk, the counter crate's lid pops at the stop, Legendary and Mythical glow and shake only at the stop; tap skips, Reduce Motion keeps the fade | P2 | S | ui, vfx, sound, qa | F53 crates, F89 2b | 50 opens of each crate stop centred at the same time; 10,000 cloud builds never put a rarer tile in 26 to 37 |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

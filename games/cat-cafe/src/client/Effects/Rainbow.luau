@@ -36,6 +36,7 @@ type Cat = {
 	parts: number, -- BaseParts in the model when it was read; more streaming in means read it again
 	root: BasePart?,
 	flowing: boolean,
+	since: number, -- os.clock() when it started flowing, so its bands carry on from the still ones
 	still: boolean, -- painted with still bands since it last flowed
 	holder: Attachment?,
 	trail: ParticleEmitter?,
@@ -138,6 +139,7 @@ local function bind(model: Model): Cat
 		parts = count,
 		root = model.PrimaryPart or body,
 		flowing = false,
+		since = 0,
 		still = false,
 		holder = nil,
 		trail = nil,
@@ -196,6 +198,7 @@ local function startFlowing(cat: Cat)
 	end
 	local g = Presets.rainbow.glow
 	cat.flowing = true
+	cat.since = os.clock()
 	local holder = Instance.new("Attachment")
 	holder.Name = "EffectsRainbow"
 	holder.Parent = root
@@ -261,8 +264,12 @@ local function consider(instance: Instance)
 	if watched[model] then
 		return
 	end
-	-- every cat model carries Gold (and Variant from F99); nothing else does
-	if model:GetAttribute("Variant") == nil and model:GetAttribute("Gold") == nil then
+	-- every cat model carries CatId before it is parented (a stuck cat has no Gold), and Variant from F99
+	if
+		model:GetAttribute("CatId") == nil
+		and model:GetAttribute("Variant") == nil
+		and model:GetAttribute("Gold") == nil
+	then
 		return
 	end
 	watched[model] = true
@@ -289,7 +296,8 @@ local function pick()
 		if countParts(model) ~= cat.parts then
 			-- more of it streamed in (or out): read it again, keeping its glow and trail
 			local again = bind(model)
-			again.flowing, again.holder, again.trail = cat.flowing, cat.holder, cat.trail
+			again.flowing, again.since, again.holder, again.trail =
+				cat.flowing, cat.since, cat.holder, cat.trail
 			again.outline, again.lastAt = cat.outline, cat.lastAt
 			cats[model] = again
 			paint(again, 0)
@@ -337,7 +345,7 @@ local function step()
 	for _, cat in flowingNow do
 		if cat.flowing and cat.model.Parent ~= nil then
 			if not reduced then
-				paint(cat, now)
+				paint(cat, now - cat.since)
 				cat.still = false
 			elseif not cat.still then
 				paint(cat, 0)

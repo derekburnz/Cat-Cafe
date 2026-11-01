@@ -10,8 +10,8 @@
 -- SetSetting is rate limited and only the last value matters (review N120). The saved value arrives back in
 -- state.settings through ProfileSync.
 --
--- Under them a Help section (docs/playtests/bug-reports.md, 2026-10-27) holds one button row, Report a bug, which
--- calls callbacks.reportBug to open the Report a bug window. It is not a setting, so it is not in SettingsList.
+-- The Help section with its Report a bug row is gone (Derek 2026-11-01: "merge the feedback and bug report from old
+-- settings"): the HUD's Feedback tile opens the one Feedback window, which has the Bug, Stuck and Idea chips.
 --
 -- F72 (intro-cutscene.md section 4): the Screen section ends with the Tutorial button switch and a Replay tutorial
 -- button row (callbacks.replayTutorial). Both stay hidden until showTutorial(true), once the intro is live.
@@ -31,7 +31,6 @@ export type Callbacks = {
 	setSetting: (key: string, value: boolean | number) -> (),
 	changed: (key: string, value: boolean | number) -> (), -- the shown value moved (a tap, a drag or the server)
 	close: () -> (),
-	reportBug: (() -> ())?, -- the Help section's Report a bug row; no Help section without it
 	replayTutorial: (() -> ())?, -- the Screen section's Replay tutorial row (F72); no row without it
 }
 
@@ -73,20 +72,11 @@ local TILE_COLORS: { [string]: Color3 } = {
 	markers = Theme.colors.good,
 	tutorialButton = Theme.colors.gold,
 	replayTutorial = Theme.colors.gold,
-	reportBug = Theme.colors.sky,
 }
 -- a volume row's switch: the slider greys while that switch is off
 local VOLUME_SWITCH: { [string]: string } = { musicVolume = "music", sfxVolume = "sfx" }
--- button rows: a button where a switch row has its switch. The Help section's one row, and the Screen section's
--- last (F72).
+-- button rows: a button where a switch row has its switch. The Screen section's last row (F72).
 type ButtonRow = { key: string, icon: string, name: string, detail: string, button: string }
-local HELP_ROW: ButtonRow = {
-	key = "reportBug",
-	icon = "🐞",
-	name = "Report a bug",
-	detail = "Tell us what broke, got stuck or could be better",
-	button = "Report",
-}
 local REPLAY_ROW: ButtonRow = {
 	key = "replayTutorial",
 	icon = Theme.icons.replay,
@@ -200,22 +190,6 @@ function Settings.new(callbacks: Callbacks): Settings
 		end
 	end
 	self:showTutorial(false)
-	local reportBug = callbacks.reportBug
-	if reportBug then
-		order += 1
-		text({
-			Name = "Help",
-			LayoutOrder = order,
-			Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textLarge,
-			TextColor3 = Theme.modal.subtext,
-			Text = "Help",
-			Parent = list,
-		})
-		order += 1
-		self:_buildButtonRow(HELP_ROW, order, reportBug)
-	end
 
 	-- a drag keeps following the finger off the track, and ends wherever it lets go. A touch drag follows only
 	-- its own finger (the same InputObject); a mouse drag follows the mouse and ends on its button.

@@ -287,6 +287,14 @@ Roblox now ranks games partly on co-play days, counted through joins, invites an
 |---|---|---|---|---|---|---|
 | F92 | Playing together: pals are Roblox friends, invite and follow links and private server members, all counted the same; +10% tips with one pal and +15% with two or more, with a HUD chip; Team Rescue, where one helper's hits count, their misses cost nothing, the deadline gains 5 s, the cat goes to the rescuer and the helper gets a helper's tip once in 120 s; a pal can collect your tip piles while you are away, you are paid in full and they get 25% on top up to a cap; invited and following players spawn at the pal's front door; one unrewarded invite nudge after the first rank up | P1 | M | engineer, ui, vfx, sound, qa | F61 tip piles, 10b rescues | Two friends see the pal chip and earn 10% more; a helped Mythical rescue counts both players' hits and never fails from the helper; a stranger cannot collect your piles |
 
+## 2y. Catch and rescue rework (Derek, 2026-10-28 14:19 to 14:20 and his Set 5 answers, decided)
+
+Derek's Set 5 answers Q1 to Q4 settle the net swing, circles by rarity, bands by net, clearer results and harder rescues. Spec in [catch-rework.md](catch-rework.md); it replaces the stray's hold prompt and the nets' timing in data-model sections 2 and 10. No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F93 | Catch and rescue rework: every character holds a net by net level, put away while carrying; click, R2 or a Net button swings (0.8 s cooldown) and the server judges a 7 stud, 120 degree arc when the net lands; a hit starts the catch or picks up a dropped cat, a miss near free strays makes them hop a quarter of their sprint (never before a player's first catch); circles 3 to 7 by rarity and faster, nets widen bands only, one CircleJitter; each circle clears with its grade, a progress strip of pips, a result word (PURRFECT, EXCELLENT, GREAT or "So close!") with a burst; rescue zones last two sweeps, the marker speeds up 8% a hit, `rescueHits` 3 to 7, with a paw marker, trap shake, pips, a deadline ring and a free burst | P0 | L | engineer, animation, asset, ui, vfx, sound, qa | F43 catching, 10b rescues | A swing at a stray 7 studs ahead starts its catch and one behind does not; a Mythical shows seven circles on every net; after a Miss nothing else shows a grade; a rescue zone unhit for two sweeps costs a paw |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

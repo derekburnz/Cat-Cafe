@@ -638,6 +638,22 @@ def wheel_tick() -> np.ndarray:
     return finish(knock + click / np.max(np.abs(click)) * 0.5, -6)
 
 
+
+def ui_spin_busy() -> np.ndarray:
+    """The Spin Wheel can't spin yet (no spin left, or not at the wheel). Derek 2026-10-28: the error's two falling
+    notes sounded like a device disconnecting, so the wheel says "not yet" in its own voice: its brake peg knocks twice
+    on the pointer, a soft wooden "tok-tok" on one pitch, and the wheel jiggles with a short rattle."""
+    d = 0.26
+
+    def knock(seed: int, f: float) -> np.ndarray:  # dry wood: every partial gone well inside its 0.09 s
+        wood = bell(0.09, f, ((1.0, 1.0, 0.03), (2.7, 0.3, 0.012), (5.6, 0.08, 0.006)), attack=0.0005)
+        click = bandpass(bandpass(noise(0.09, seed), 2600, 3), 2600, 3) * envelope(0.09, 0.0003, 0.004)
+        return (wood + click / np.max(np.abs(click)) * 0.35) * np.clip((0.09 - seconds(0.09)) / 0.02, 0, 1)
+
+    rattle = [(bandpass(noise(0.03, 462 + i), 3200, 3.0) * envelope(0.03, 0.0005, 0.005) * (0.22 - 0.05 * i),
+               0.17 + 0.026 * i) for i in range(3)]
+    return finish(mix(d, (knock(460, 820.0), 0.0), (knock(461, 840.0) * 0.8, 0.09), *rattle), -7)
+
 def wheel_win() -> np.ndarray:
     """The Spin Wheel stops on a prize: a quick run up into a bright chord, coins sparkling on top."""
     d = 1.4
@@ -1247,6 +1263,7 @@ SOUNDS = {
     "DailyStamp": ("ui", "Ui", ui_daily_stamp),
     "JingleDailyCard": ("music", "Music", jingle_daily_card),
     "WaterStep": ("sfx", "Sfx", water_step),
+    "SpinBusy": ("ui", "Ui", ui_spin_busy),
     "CannonLaunch": ("sfx", "Sfx", cannon_launch),
     "CannonClouds": ("sfx", "Sfx", cannon_clouds),
     "CannonLand": ("sfx", "Sfx", cannon_land),

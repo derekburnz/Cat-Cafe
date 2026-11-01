@@ -81,6 +81,7 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `shimmerRare` | `sfx/CatCafe_Sfx_ShimmerRare.ogg` (removed 2026-10-28) | synthesized by `synth/synth.py`; retired 2026-10-28, the constant loop around rare strays was annoying, replaced by `rareNear` (last upload 124510027027761) | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
 | `uiSpinTick` | `ui/CatCafe_Ui_SpinTick.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 109150468833128 | 2026-10-27 |
 | `uiSpinWin` | `ui/CatCafe_Ui_SpinWin.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 137789027351769 | 2026-10-27 |
+| `uiSpinBusy` | `ui/CatCafe_Ui_SpinBusy.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 75782326640051 | 2026-11-01 |
 | `uiSlider` | `ui/CatCafe_Ui_Slider.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 110732370632116 | 2026-10-27 |
 | `uiGiftReady` | `ui/CatCafe_Ui_GiftReady.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 109161742998311 | 2026-10-27 |
 | `uiBadge` | `ui/CatCafe_Ui_Badge.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 132178490173046 | 2026-10-27 |

@@ -225,7 +225,8 @@ local settingsScreen: Settings.Settings? = nil -- sound switches and volumes, sc
 local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened from the HUD's Gifts tile
 local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), opened from the plaza station's prompt
 local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53), opened from the stall's prompt
-local bugReportScreen: BugReport.BugReport? = nil -- the Report a bug window, opened from Settings > Help
+local bugReportScreen: BugReport.BugReport? = nil -- the Feedback window: the HUD's Feedback tile or Settings > Help
+local bugReportFromHud = false -- opened by the Feedback tile, so its Cancel closes instead of going to Settings
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
 local questsScreen: Quests.Quests? = nil -- the Quests window (F73), from the Quests pill, J or the HUD's quest line
@@ -633,6 +634,9 @@ function UI.init(config: Types.InitConfig)
 			end
 			UI.toast("Tutorial hidden. Replay it from Settings.", "info")
 		end,
+		openFeedback = function()
+			UI.bugReport.open("idea")
+		end,
 	})
 	local hudInstance = hud :: HUD.HUD
 
@@ -828,6 +832,10 @@ function UI.init(config: Types.InitConfig)
 		end,
 		close = closeModal,
 		reportBug = function()
+			bugReportFromHud = false
+			if bugReportScreen then
+				bugReportScreen:setKind("bug")
+			end
 			modalInstance:open("BugReport")
 		end,
 		replayTutorial = function()
@@ -855,7 +863,11 @@ function UI.init(config: Types.InitConfig)
 			UI.events.reportBug:Fire(text, kind, ClientErrors.recent())
 		end,
 		back = function()
-			modalInstance:open("Settings")
+			if bugReportFromHud then
+				closeModal()
+			else
+				modalInstance:open("Settings")
+			end
 		end,
 		close = closeModal,
 	})
@@ -1901,9 +1913,14 @@ end
 
 UI.bugReport = {}
 
--- Opens the Report a bug window (players reach it from Settings > Help > Report).
-function UI.bugReport.open()
+-- Opens the Feedback window, on the `kind` chip ("bug", "stuck" or "idea") unless a draft is waiting. Players reach
+-- it from the HUD's Feedback tile (on Idea) and Settings > Help > Report (on Bug); opened this way, Cancel closes it.
+function UI.bugReport.open(kind: string?)
 	if modal then
+		bugReportFromHud = true
+		if bugReportScreen and kind then
+			bugReportScreen:setKind(kind)
+		end
 		modal:open("BugReport")
 	end
 end

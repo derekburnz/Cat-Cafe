@@ -55,6 +55,31 @@ function BugReportLogic.counter(text: string): string
 	return ("%d / %d"):format(#text, BugReportLogic.MAX_BYTES)
 end
 
+-- The line over the box and the grey example in it follow the picked chip, so an idea is not asked "what
+-- happened" (the HUD's Feedback tile opens the window on Idea; Settings' Report a bug on Bug).
+local WORDS: { [string]: { prompt: string, example: string } } = {
+	bug = {
+		prompt = "What happened, and what were you doing right before?",
+		example = "I was carrying a cat home when...",
+	},
+	stuck = {
+		prompt = "Where are you stuck, and what were you trying to do?",
+		example = "I was in the Woods trying to...",
+	},
+	idea = {
+		prompt = "What would make the game more fun?",
+		example = "It would be fun if...",
+	},
+}
+
+function BugReportLogic.prompt(id: string?): string
+	return WORDS[BugReport.kind(id)].prompt
+end
+
+function BugReportLogic.example(id: string?): string
+	return WORDS[BugReport.kind(id)].example
+end
+
 -- A chip's id, or "bug" for anything else (the server's rule).
 function BugReportLogic.kindOf(id: string?): string
 	return BugReport.kind(id)

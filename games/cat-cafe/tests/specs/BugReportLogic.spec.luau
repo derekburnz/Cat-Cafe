@@ -83,6 +83,25 @@ return function()
 		end)
 	end)
 
+	describe("BugReportLogic words", function()
+		it("asks each kind its own question, with its own example", function()
+			expect(BugReportLogic.prompt("bug")).to.equal("What happened, and what were you doing right before?")
+			expect(BugReportLogic.prompt("idea")).to.equal("What would make the game more fun?")
+			expect(BugReportLogic.prompt("stuck")).to.equal("Where are you stuck, and what were you trying to do?")
+			expect(BugReportLogic.example("idea")).to.equal("It would be fun if...")
+			expect(BugReportLogic.example("bug")).to.equal("I was carrying a cat home when...")
+		end)
+
+		it("has words for every kind the server takes, and reads anything else as a bug", function()
+			for _, id in BugReport.Kinds do
+				expect(#BugReportLogic.prompt(id) > 0).to.equal(true)
+				expect(#BugReportLogic.example(id) > 0).to.equal(true)
+			end
+			expect(BugReportLogic.prompt("admin")).to.equal(BugReportLogic.prompt("bug"))
+			expect(BugReportLogic.example(nil)).to.equal(BugReportLogic.example("bug"))
+		end)
+	end)
+
 	describe("BugReportLogic client errors", function()
 		it("keeps the newest 3, oldest first", function()
 			local lines: { string } = {}

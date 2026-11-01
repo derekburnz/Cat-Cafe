@@ -191,21 +191,31 @@ function Pull.screen(rarity: string, gold: boolean)
 	end)
 end
 
+-- The ground under `at`, within `depth` studs and past `ignore` and the effects, or nil when there is none.
+function Pull.floorBelow(at: Vector3, ignore: { Instance }, depth: number): Vector3?
+	local skip = table.clone(ignore)
+	table.insert(skip, Context.folder())
+	below.FilterDescendantsInstances = skip
+	local hit = Workspace:Raycast(at, Vector3.new(0, -depth, 0), below)
+	return if hit ~= nil then hit.Position else nil
+end
+
 -- The world side of a big pull at `at` (where the cat went into the basket, or the open crate's rim) over `ground`:
--- the catch pop of `rarity` and a Mythical's shockwave.
-function Pull.world(at: Vector3, ground: Vector3, rarity: string)
+-- the catch pop of `rarity` and a Mythical's shockwave, on `floor` when given (a crate's sits on the counter).
+function Pull.world(at: Vector3, ground: Vector3, rarity: string, floor: Vector3?)
 	Catch.pop(at, ground, rarity)
 	if rarity ~= "Mythical" or Context.reducedMotion() then
 		return
 	end
 	local w = Presets.bigPull.shockwave
 	local colour = Presets.rarity.Mythical
-	Particles.ring(ground + Vector3.new(0, 0.1, 0), colour, w.diameter, w.seconds)
+	local centre = floor or ground
+	Particles.ring(centre + Vector3.new(0, 0.1, 0), colour, w.diameter, w.seconds)
 	task.delay(w.puffAt, function()
 		for i = 1, w.puffs do
 			local angle = 2 * math.pi * i / w.puffs
 			local edge = Vector3.new(math.cos(angle), 0.3, math.sin(angle)) * (w.diameter / 2)
-			Particles.burst("dust", ground + edge, 2, colour:Lerp(Color3.new(1, 1, 1), 0.5))
+			Particles.burst("dust", centre + edge, 2, colour:Lerp(Color3.new(1, 1, 1), 0.5))
 		end
 	end)
 end
@@ -233,9 +243,7 @@ local function secured(userId: unknown, rarity: unknown, gold: unknown)
 	if not mine and Context.distance(at) > Presets.bigPull.within then
 		return
 	end
-	below.FilterDescendantsInstances = { character, Context.folder() }
-	local hit = Workspace:Raycast(at, Vector3.new(0, -10, 0), below)
-	local ground = if hit ~= nil then hit.Position else at - Vector3.new(0, 3, 0)
+	local ground = Pull.floorBelow(at, { character }, 10) or at - Vector3.new(0, 3, 0)
 	Pull.world(at + Vector3.new(0, 1.5, 0), ground, rarity)
 end
 

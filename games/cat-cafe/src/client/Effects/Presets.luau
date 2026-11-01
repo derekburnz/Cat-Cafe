@@ -1647,6 +1647,16 @@ Presets.market = {
 -- held for `hold` seconds from the open and faded over `fade`.
 Presets.marketCrate = { scale = 0.6, lidDegrees = 105, lidSeconds = 0.3, hold = 1.8, fade = 0.4 }
 
+-- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to
+-- 1, how much of the sky it hides) and `density` (how thick each cloud looks), tinted `color`, drifting on `wind`
+-- studs a second when the place has no wind of its own. Off in Low performance.
+Presets.sky = {
+	cover = 0.5,
+	density = 0.5,
+	color = Color3.fromRGB(255, 252, 247),
+	wind = Vector3.new(3, 0, 1.5),
+}
+
 -- A big pull (F89, luck-and-rare-moments.md 2a and 2b; Derek 2026-10-30: "when securing something good leg/mythic
 -- decor or cats possibly consider a bigger VFX"): when this player secures a Legendary, a Mythical or a gold Epic cat,
 -- or opens a Legendary or Mythical crate piece, confetti in the rarity colour (gold mixed in for a gold cat) bursts

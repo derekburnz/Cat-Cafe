@@ -64,8 +64,9 @@ local started = false
 
 -- A tagged model that is staged, not a player's own character (that one is posed and watched as the player's).
 local function stagedModel(tagged: Instance): Model?
-	if tagged:IsA("Model") and Players:GetPlayerFromCharacter(tagged) == nil then
-		return tagged :: Model
+	local model = if tagged:IsA("Model") then tagged :: Model else nil
+	if model ~= nil and Players:GetPlayerFromCharacter(model) == nil then
+		return model
 	end
 	return nil
 end

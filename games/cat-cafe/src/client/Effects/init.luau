@@ -3,12 +3,13 @@
 -- reactions, the getaway and the startled stars, cafe and gate moments, dusk and sunrise, ambient life, shoves, the
 -- players' tackle poses, the spin wheel, the Codes Cat's circle, crate openings, golden fish, the Mythical cafe styles,
 -- potion glows, the Mystery Visitor, cat level ups, the red "!" over stuck cats, the green flash on decor you put out,
--- the rarity gems over strays, splashes in water, the intro's puff and the Cat Cannon's flight, clouds and camp
--- check-in, all on this client only. Effects read replicated world state (tags and attributes) and this player's own
+-- the rarity gems over strays, splashes in water, the intro's puff, the Cat Cannon's flight, clouds and camp
+-- check-in, the campfires' moving flames and the big confetti pull for a Legendary or Mythical, all on this client only. Effects read replicated world state (tags and attributes) and this player's own
 -- events; they never fire a remote, never change game state and never move a part the server moves for gameplay. Rules: .claude/skills/animation-vfx/SKILL.md.
 -- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
+local Campfire = require(script.Campfire)
 local Cannon = require(script.Cannon)
 local CannonGlide = require(script.CannonGlide)
 local Catch = require(script.Catch)
@@ -25,6 +26,7 @@ local Market = require(script.Market)
 local Mystery = require(script.Mystery)
 local Plots = require(script.Plots)
 local Potions = require(script.Potions)
+local Pull = require(script.Pull)
 local Rarity = require(script.Rarity)
 local Rescue = require(script.Rescue)
 local Shove = require(script.Shove)
@@ -59,6 +61,7 @@ function Effects.start()
 	Decor.start()
 	Equip.start()
 	Potions.start()
+	Pull.start()
 	Mystery.start()
 	Levels.start()
 	Rarity.start()
@@ -67,6 +70,7 @@ function Effects.start()
 	Intro.start()
 	Cannon.setGlide(CannonGlide)
 	Cannon.start()
+	Campfire.start()
 end
 
 -- "low" on a phone or tablet or in Low performance mode, "high" on a PC or console (Presets.budget).

@@ -176,3 +176,12 @@ Roblox already draws the funnel dashboards: Creator Hub > Cat Cafe > **Analytics
 4. Try it: **Actions > analytics > Run workflow**. The run summary shows the tables. Until the permission is on, it stops with "The key cannot read analytics yet".
 
 The permission only reads aggregate numbers; nothing in it names a player.
+
+## 21. Let a publish warn players before the restart (once, about 1 minute)
+When a publish restarts the running servers (step 19), every server first shows its players a warning such as "Servers restart for an update in 5 minutes", again at 3 and 1 minutes and at the restart, so nobody is cut off mid-catch. The workflow sends those lines to all servers at once through Roblox's MessagingService (`tools/opencloud/restart-countdown.sh`, topic `CatCafeAnnounce`), and each server turns them into a toast. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > **Add API System**: **messaging-service**, select the **Cat Cafe** experience, operation `universe-messaging-service:publish`.
+3. **Save Changes**. Don't press Regenerate.
+4. Nothing to try by hand: the next publish with `restart_servers` on shows "Warned every server: restart in 300 s" in its log. Until the permission is on, the run skips the countdown with a warning and restarts at once, as it does today.
+
+The permission only sends messages into our own game's servers. A publish with the countdown takes about 5 minutes longer; untick `warn_players` on the Run workflow form to restart straight away.

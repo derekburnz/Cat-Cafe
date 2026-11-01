@@ -1393,4 +1393,55 @@ function Logic.pullFade(t: number, seconds: number, fade: number): number
 	return math.clamp((t - (seconds - fade)) / fade, 0, 1)
 end
 
+-- Gold Leaf trims (F89 2c) ----------------------------------------------------------------------------------------
+
+-- Where Gold Leaf's glint is `t` seconds into its clock, along the cafe front in plot X: at the start of every
+-- `every` seconds a band crosses from `width` before `lo` to `width` past `hi` in `seconds`; nil between crossings.
+function Logic.trimSweep(
+	t: number,
+	every: number,
+	seconds: number,
+	lo: number,
+	hi: number,
+	width: number
+): number?
+	if every <= 0 or seconds <= 0 then
+		return nil
+	end
+	local into = t % every
+	if into >= seconds then
+		return nil
+	end
+	local from, to = lo - width, hi + width
+	return from + (to - from) * into / seconds
+end
+
+-- How brightly a trim spanning `x0` to `x1` in plot X catches the glint at `band`: 1 while the band is over it,
+-- easing to 0 `width` away. A trim longer than two band widths (the cornice, the awning edge) catches only that
+-- share of it, so a long run lifts gently while the short pieces flash in turn.
+function Logic.trimGlint(x0: number, x1: number, band: number?, width: number): number
+	if band == nil or width <= 0 then
+		return 0
+	end
+	local gap = if band < x0 then x0 - band elseif band > x1 then band - x1 else 0
+	if gap >= width then
+		return 0
+	end
+	local k = 1 - gap / width
+	local strength = k * k * (3 - 2 * k)
+	local length = x1 - x0
+	if length > 2 * width then
+		strength *= 2 * width / length
+	end
+	return strength
+end
+
+-- True when two colours differ by more than `tolerance` in any channel (a part keeps its Color in 8 bits, so a
+-- colour written to it reads back a little off).
+function Logic.colourMoved(a: Color3, b: Color3, tolerance: number): boolean
+	return math.abs(a.R - b.R) > tolerance
+		or math.abs(a.G - b.G) > tolerance
+		or math.abs(a.B - b.B) > tolerance
+end
+
 return Logic

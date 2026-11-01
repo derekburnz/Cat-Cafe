@@ -319,6 +319,22 @@ Spec in [starter-cat.md](starter-cat.md); the Cafe Pass XP rows are in [quests.m
 |---|---|---|---|---|---|---|
 | F96 | Free Bellhop Cat: an exclusive Rare-rate cat that always earns like a Rare from the newest area, claimed once from a luggage cart stand in the plaza; gated on finishing the first goals until the game is in Derek's group, then on joining the group (checked on the server); notification, favourite and like asks placed after the first loop, one a session at most and never rewarded; quests pay Cafe Pass XP | P1 | M | engineer, asset, animation, ui, sound, qa | F87 easy start, F95 exclusive cats | A Tier 1 player who finished the first goals claims the cat once and it earns 3 a second; with a group id set a non-member is refused; no ask shows before the first loop or twice in a session |
 
+## 2ac. Automatic tips, crate-only decor, dearer food and clearer pictures (Derek's notes of 2026-10-28 to 10-30, decided)
+
+Spec in [notes-10-28-to-10-30.md](notes-10-28-to-10-30.md). It changes F61 tip piles, F90 step 5 and F92 section 4, the coin decor shop, food prices and the wave roll. No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F97 | Derek's 10-28 to 10-30 notes: tip piles pay the moment they appear (no Collect; rich visitors, the Collector and Mystery gifts stay by hand), coin decor moves into the Classic Crate, food about four times dearer and growing 1, 1, 4, 8, 16 times by tier, every food list in rarity order with new icons, one Golden Fish name and picture with new treats and perks pictures, buff chips in place of charm stars, an Index of silhouettes with Normal and Gold tabs and no Spare page, and one Epic or rarer stray in every sunrise wave per area | P1 | M | engineer, ui, asset, qa | F61, F90, F92, F95 | A pile pays while the owner is in an area; the Decor screen sells nothing; Kibble is 100 at Tier 1; every wave has an Epic or rarer stray in each open area |
+
+## 2ad. Leaderboards (Derek, 2026-10-28 17:14, decided)
+
+Spec in [leaderboards.md](leaderboards.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `stats.bestRate`, `stats.weekPlay`, `stats.weekBestRate`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F98 | Leaderboards: Index (entries found), Playtime and Money (best money per second without potions), the top 50 for all time and for this week (Playtime and Money); three chalkboards in the Town Square showing the top 10 and the player's own line, a Top tab in the Index, a crown for the all-time top 10 on boards, cafe sign and head tag; OrderedDataStores written every 5 minutes and read every 2, writes off in Studio, a hidden list kept in a DataStore; no prizes | P1 | M | engineer, ui, asset, qa | F84 Town Square, F95 rate, F97 Index tabs | A live player's playtime shows on the weekly board within 7 minutes and a Studio player's never does; a Money Potion does not move the Money value; the crown shows on every surface for a top 10 player |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

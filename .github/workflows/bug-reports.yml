@@ -1,6 +1,7 @@
 # Read the friends' in-game bug reports from Roblox (Open Cloud data stores), so threads see them without Studio.
 # Start it from the Actions tab (bug-reports > Run workflow) or from any thread with the GitHub actions_run_trigger
-# tool; the job log and the run summary list the reports. Read only. Needs the repo secret ROBLOX_PUBLISH_KEY with
+# tool; the job log and the run summary list the reports. It also runs by itself every morning at 10:17 UTC for
+# yesterday's reports and today's so far. Read only. Needs the repo secret ROBLOX_PUBLISH_KEY with
 # the data store List and Read permissions (docs/setup-guide.md step 17).
 name: bug-reports
 
@@ -19,6 +20,10 @@ on:
         description: "Studio playtests' reports instead of the players'"
         type: boolean
         default: false
+  # Every morning before Derek is on, with analytics.yml: yesterday's reports and today's so far, for the
+  # fixing-phase read (QA-Planner, fixing-phase plan section 4).
+  schedule:
+    - cron: "17 10 * * *"
 
 permissions:
   contents: read
@@ -49,4 +54,13 @@ jobs:
           fi
 
       - name: Read the reports
+        if: github.event_name != 'schedule'
         run: bash games/cat-cafe/tools/opencloud/bug-reports.sh "$DAY" "$COUNT" $STUDIO
+
+      - name: Read yesterday's reports (daily run)
+        if: github.event_name == 'schedule'
+        run: bash games/cat-cafe/tools/opencloud/bug-reports.sh "$(date -u -d yesterday +%Y%m%d)" 100
+
+      - name: Read today's reports so far (daily run)
+        if: github.event_name == 'schedule'
+        run: bash games/cat-cafe/tools/opencloud/bug-reports.sh "" 100

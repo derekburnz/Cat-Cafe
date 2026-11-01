@@ -1,12 +1,17 @@
 --!strict
 -- The net in each player's hand (Derek 2026-10-28: "have your character holding a net while walking around until
--- catching a cat"): in a catching area, alive and with no cat in its arms, a character this client sees holds its
--- player's net, CatCafe_Item_Net_L1 to L3 from ReplicatedStorage.Assets by the player's `NetLevel` (Avatar.netModel),
--- a copy made on this client and pivoted by its `Grip` attachment into the hand before each frame draws. Tackle.luau
--- asks `NetHold.weight` every frame for each character it poses and raises the arm by that much (Avatar.holdNet);
--- the net shows once the arm is past Presets.netHold.showAt, and fades as the hand does (the player's own in first
--- person). The area is the World.Zones box the character stands in, as the WorldController reads it for the player.
--- A server that never sets `NetLevel` shows the Basic net. Nothing here replicates or fires a remote.
+-- catching a cat"; F93, catch-rework.md section 1: at all times, put away while a cat is in the arms): alive, with no
+-- cat in its arms (`CarryingCatId`, or the server's `NetHidden`) and not in a cannon flight (`Launching`), a character
+-- this client sees holds its player's net, CatCafe_Item_Net_L1 to L4 from ReplicatedStorage.Assets by the server's
+-- `NetLevel` on the character or its player (Avatar.netModel; a level whose model is missing shows the next one
+-- down), a copy made on this client and pivoted by its `Grip` attachment into the hand before each frame draws.
+-- Tackle.luau asks `NetHold.weight` every frame for each character it poses and raises the arm by that much
+-- (Avatar.holdNet), with `NetHold.arm`'s smack over it; the net shows once the arm is past Presets.netHold.showAt,
+-- and fades as the hand does (the player's own in first person). The smack (Avatar.smack) starts on the swinger's
+-- own screen at the press (Moments.NetSmackPress) and elsewhere when the server's NetSwung arrives
+-- (Moments.NetSwung), which also says whether it hit; a miss bounces the net back up from where the arm is when this
+-- client hears it. A server that never sets `NetLevel` shows the Basic net. Nothing
+-- here replicates or fires a remote.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,6 +20,7 @@ local Workspace = game:GetService("Workspace")
 
 local Avatar = require(script.Parent.Avatar)
 local Context = require(script.Parent.Context)
+local Moments = require(script.Parent.Parent.Moments)
 local Presets = require(script.Parent.Presets)
 
 local NetHold = {}
@@ -22,42 +28,16 @@ local NetHold = {}
 type Held = {
 	rig: Avatar.Rig,
 	weight: number,
-	holding: boolean,
-	checkedAt: number, -- os.clock() of the last area check
 	model: Model?, -- the net in the hand, while it shows
-	level: number, -- the model it is (1 to 3)
+	level: number, -- the model it is (1 to 4)
 	offset: CFrame, -- the model's pivot from its Grip
 	parts: { BasePart }, -- the net's parts, to fade with the hand
-	missing: number?, -- a level whose net the assets lack: no hold while it stays the level
+	smackAt: number?, -- server time the last smack began
+	missedAt: number?, -- seconds into that smack this client heard it hit nothing
 }
-
-local CHECK_SECONDS = 0.25 -- how often a character's area is read again
 
 local held: { [Model]: Held } = {}
 local started = false
-
--- The World.Zones box `position` stands in ("Cafe", "Alley", "Park" and so on), or nil on the street.
-local function zoneAt(position: Vector3): string?
-	local world = Workspace:FindFirstChild("World")
-	local zones = if world ~= nil then world:FindFirstChild("Zones") else nil
-	if zones == nil then
-		return nil
-	end
-	for _, box in zones:GetChildren() do
-		if box:IsA("BasePart") then
-			local offset = box.CFrame:PointToObjectSpace(position)
-			local half = box.Size / 2
-			if
-				math.abs(offset.X) <= half.X
-				and math.abs(offset.Y) <= half.Y
-				and math.abs(offset.Z) <= half.Z
-			then
-				return box.Name
-			end
-		end
-	end
-	return nil
-end
 
 local function alive(character: Model): boolean
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -71,14 +51,22 @@ local function drop(entry: Held)
 	end
 end
 
--- A copy of the level's net that never collides or blocks a click, and its pivot from the Grip (the pivot itself on
--- a net made before the Grip was added). nil when the assets have no such net.
+-- A copy of the level's net (or, when the assets lack it, of the next one down) that never collides or blocks a
+-- click, its pivot from the Grip (the pivot itself on a net made before the Grip was added) and its parts. nil when
+-- the assets have no net at all.
 local function make(level: number): (Model?, CFrame, { BasePart })
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
-	local template = if assets ~= nil
-		then assets:FindFirstChild("CatCafe_Item_Net_L" .. level)
-		else nil
-	if template == nil or not template:IsA("Model") then
+	local template: Instance? = nil
+	for n = level, 1, -1 do
+		local found = if assets ~= nil
+			then assets:FindFirstChild("CatCafe_Item_Net_L" .. n)
+			else nil
+		if found ~= nil and found:IsA("Model") then
+			template = found
+			break
+		end
+	end
+	if template == nil then
 		return nil, CFrame.identity, {}
 	end
 	local model = (template :: Model):Clone() :: Model
@@ -101,51 +89,84 @@ local function make(level: number): (Model?, CFrame, { BasePart })
 	return model, offset, parts
 end
 
--- How far `character`'s arm is raised for its net this frame, 0 to 1, `dt` seconds after the last call; `near` is
--- false beyond the animation radius, where the arm lowers and the net goes. Also makes or drops the net to match.
-function NetHold.weight(character: Model, rig: Avatar.Rig, dt: number, near: boolean): number
+local function entryOf(character: Model, rig: Avatar.Rig): Held
 	local entry: Held = held[character]
 		or {
 			rig = rig,
 			weight = 0,
-			holding = false,
-			checkedAt = -math.huge,
 			model = nil,
 			level = 0,
 			offset = CFrame.identity,
 			parts = {},
-			missing = nil,
+			smackAt = nil,
+			missedAt = nil,
 		}
 	held[character] = entry
 	entry.rig = rig
-	local clock = os.clock()
-	if clock - entry.checkedAt >= CHECK_SECONDS then
-		entry.checkedAt = clock
-		entry.holding = Avatar.holdsNet(
-			zoneAt(rig.root.Position),
-			character:GetAttribute("CarryingCatId"),
-			alive(character)
-		)
-	end
+	return entry
+end
+
+-- How far `character`'s arm is raised for its net this frame, 0 to 1, `dt` seconds after the last call; `near` is
+-- false beyond the animation radius, where the arm lowers and the net goes. Also makes or drops the net to match.
+function NetHold.weight(character: Model, rig: Avatar.Rig, dt: number, near: boolean): number
+	local entry = entryOf(character, rig)
+	local holding = Avatar.holdsNet(
+		character:GetAttribute("CarryingCatId"),
+		character:GetAttribute("NetHidden"),
+		alive(character),
+		character:GetAttribute("Launching")
+	)
+	-- the server's NetLevel on the character, or on its player
 	local player = Players:GetPlayerFromCharacter(character)
-	local level = Avatar.netModel(if player ~= nil then player:GetAttribute("NetLevel") else nil)
+	local netLevel = character:GetAttribute("NetLevel")
+	if netLevel == nil and player ~= nil then
+		netLevel = player:GetAttribute("NetLevel")
+	end
+	local level = Avatar.netModel(netLevel)
 	if entry.model ~= nil and entry.level ~= level then
 		drop(entry) -- an upgrade bought while holding: the new net comes next
 	end
-	entry.weight =
-		Avatar.holdWeight(entry.weight, entry.holding and near and entry.missing ~= level, dt)
+	entry.weight = Avatar.holdWeight(entry.weight, holding and near, dt)
 	if entry.weight >= Presets.netHold.showAt then
 		if entry.model == nil then
 			local model, offset, parts = make(level)
 			entry.model, entry.offset, entry.parts, entry.level = model, offset, parts, level
 			if model == nil then
-				entry.weight, entry.missing = 0, level -- no net to hold, so the arm stays down
+				entry.weight = 0 -- no net to hold, so the arm stays down
 			end
 		end
 	else
 		drop(entry)
 	end
 	return entry.weight
+end
+
+-- The smack's arm on `character` at server time `now` (Avatar.smack), nil when it is not swinging.
+function NetHold.arm(character: Model, now: number): Avatar.NetArm?
+	local entry = held[character]
+	local at = if entry ~= nil then entry.smackAt else nil
+	if entry == nil or at == nil then
+		return nil
+	end
+	local arm = Avatar.smack(now - at, entry.missedAt)
+	if arm == nil then
+		entry.smackAt = nil
+	end
+	return arm
+end
+
+-- A smack starting now on `character`, unless one is still playing (the swinger's own, started at its press, when the
+-- server's NetSwung comes back for it).
+local function smack(character: Model, now: number)
+	local entry = held[character]
+	if entry == nil or entry.weight <= 0 then
+		return
+	end
+	local at = entry.smackAt
+	if at ~= nil and Avatar.smack(now - at, entry.missedAt) ~= nil then
+		return
+	end
+	entry.smackAt, entry.missedAt = now, nil
 end
 
 -- Lets go of a character that left or was rebuilt.
@@ -185,6 +206,34 @@ function NetHold.start()
 	end
 	started = true
 	RunService.PreRender:Connect(place)
+	-- The engineer's swing moments, once Moments has them (F93); until then nobody smacks.
+	local moments = Moments :: any
+	if moments.NetSmackPress ~= nil then
+		moments.NetSmackPress:Connect(function()
+			local me = Players.LocalPlayer.Character
+			if me ~= nil then
+				smack(me, Workspace:GetServerTimeNow())
+			end
+		end)
+	end
+	if moments.NetSwung ~= nil then
+		moments.NetSwung:Connect(function(userId: unknown, hit: unknown)
+			local player = if type(userId) == "number"
+				then Players:GetPlayerByUserId(userId)
+				else nil
+			local character = if player ~= nil then player.Character else nil
+			if character == nil then
+				return
+			end
+			local now = Workspace:GetServerTimeNow()
+			smack(character, now)
+			local entry = held[character]
+			local at = if entry ~= nil then entry.smackAt else nil
+			if entry ~= nil and at ~= nil and hit == false and entry.missedAt == nil then
+				entry.missedAt = now - at
+			end
+		end)
+	end
 end
 
 return NetHold

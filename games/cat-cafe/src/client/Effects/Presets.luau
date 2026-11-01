@@ -1072,9 +1072,9 @@ Presets.tacklePose = {
 }
 
 -- The net hold (Derek 2026-10-28: "have your character holding a net while walking around until catching a cat"),
--- drawn by Tackle.luau, the net itself by NetHold.luau: in a catching area, with no cat in the arms, the right hand
--- holds the player's net (CatCafe_Item_Net_L1 to L3 by its `Grip` attachment) upright and leaning ahead, the other
--- arm free to swing. The right shoulder is raised `sh` degrees forward, turned `tw` and out `sp`, the elbow bent
+-- drawn by Tackle.luau, the net itself by NetHold.luau: at all times (F93), but with a cat in the arms or in a
+-- cannon flight, the right hand holds the player's net (CatCafe_Item_Net_L1 to L4 by its `Grip` attachment) upright
+-- and leaning ahead, the other arm free to swing. `waist` is 0: the hold leaves the body alone. The right shoulder is raised `sh` degrees forward, turned `tw` and out `sp`, the elbow bent
 -- `el`, so the forearm points ahead; on R6, which has no elbow, the whole arm rises `sh6`. The pole leaves the fist
 -- along the hand's back-to-front axis tipped `tilt` (R6: `tilt6`) degrees towards the fingers, so it leans
 -- `sh + el + tilt` degrees up from straight ahead, turned `roll` degrees about the pole so the hoop opens forward and
@@ -1088,6 +1088,7 @@ Presets.netHold = {
 	sp = 6,
 	el = 80,
 	sh6 = 70,
+	waist = 0,
 	tilt = -45,
 	tilt6 = -15,
 	roll = 180,
@@ -1096,6 +1097,25 @@ Presets.netHold = {
 	blendIn = 0.25,
 	blendOut = 0.2,
 	showAt = 0.5,
+}
+
+-- The net smack (F93, catch-rework.md section 1): one swing every NetSwingCooldown (0.8 s), 0.35 s long. The arm
+-- whips the net up and back over the head by `rise`, slams it down onto the ground ahead by `land` (NetSmackDelay,
+-- when the server judges the hit) and is back in the hold by `ends`. A swing that hit nothing bounces the net back up
+-- off the ground for `bounce` seconds first (the recoil). Each pose is a NetArm (Avatar.holdNet): `raised` has the
+-- pole about 140 degrees up from straight ahead (up and back over the head), `landed` about 23 degrees below it with
+-- the body bent into the hit (the hoop at the ground on a stand-in R15), `bounced` partway back up. Played on the
+-- swinger's own screen from the press, elsewhere from the server's NetSwung.
+Presets.netSmack = {
+	rise = 0.1,
+	land = 0.15,
+	ends = 0.35,
+	bounce = 0.07,
+	poses = {
+		raised = { sh = 150, tw = 0, sp = 10, el = 25, sh6 = 150, waist = -8 },
+		landed = { sh = 32, tw = 0, sp = 4, el = 5, sh6 = 0, waist = 15 },
+		bounced = { sh = 60, tw = 0, sp = 6, el = 20, sh6 = 45, waist = 10 },
+	},
 }
 
 -- The carry (Derek 2026-10-28: "hold it in your arms crossed arms", the cat "awake loafing or sitting in your

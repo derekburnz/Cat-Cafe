@@ -30,11 +30,12 @@ return function()
 					"hollow_log",
 					"drain_pipe",
 					"grate",
+					"bramble_bush",
 				}
 			do
 				expect(Logic.stuckStyle(trap)).to.equal("stuckButt")
 			end
-			for _, trap in { "tree", "gutter", "bramble_bush" } do
+			for _, trap in { "tree", "gutter" } do
 				expect(Logic.stuckStyle(trap)).to.equal("stuckFlip")
 			end
 		end)

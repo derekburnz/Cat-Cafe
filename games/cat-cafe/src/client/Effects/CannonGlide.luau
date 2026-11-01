@@ -169,10 +169,16 @@ local function fastened(
 	return out
 end
 
--- Lays the cloud cutscene's flyer into `parent` (VFX-Agent's tunnel, at `zIndex` between its clouds): a full-size,
--- see-through ViewportFrame with a copy of `character` flying through, which takes itself away when the clouds part.
--- Nothing when the character cannot be copied.
-function CannonGlide.mount(parent: GuiObject, zIndex: number, character: Model, launchAt: number)
+-- A copy of `character` flying in a full-size, see-through ViewportFrame laid into `parent` at `zIndex`, posed each
+-- frame by `seconds()` (the flight's seconds from CannonLaunchAt) and `span` (Avatar.glide's), which takes itself
+-- away once it has dived out. Nothing when the character cannot be copied.
+local function fly(
+	parent: GuiObject,
+	zIndex: number,
+	character: Model,
+	seconds: () -> number,
+	span: number?
+)
 	local clone = copy(character)
 	local rig = if clone ~= nil then Avatar.bind(clone) else nil
 	if clone == nil or rig == nil then
@@ -210,7 +216,7 @@ function CannonGlide.mount(parent: GuiObject, zIndex: number, character: Model, 
 
 	local connection: RBXScriptConnection? = nil
 	local function step()
-		local transforms = Avatar.glideFrames(rig, Workspace:GetServerTimeNow() - launchAt)
+		local transforms = Avatar.glideFrames(rig, seconds(), span)
 		if transforms == nil or frame.Parent == nil then
 			if connection ~= nil then
 				connection:Disconnect()
@@ -230,6 +236,29 @@ function CannonGlide.mount(parent: GuiObject, zIndex: number, character: Model, 
 	end
 	step()
 	connection = RunService.RenderStepped:Connect(step)
+end
+
+-- Lays the cloud cutscene's flyer into `parent` (VFX-Agent's tunnel, at `zIndex` between its clouds): a copy of
+-- `character` rising into view from cannonPose's `gone` after `launchAt` and diving out at its `drop`.
+function CannonGlide.mount(parent: GuiObject, zIndex: number, character: Model, launchAt: number)
+	fly(parent, zIndex, character, function()
+		return Workspace:GetServerTimeNow() - launchAt
+	end)
+end
+
+-- The same flyer on a staged timeline (the intro's shot 2, Cannon.playStaged): a copy of `model` rising into view at
+-- server time `from` and diving out `seconds` later, the rise, opening and dive squeezed to fit (Avatar.glide).
+function CannonGlide.mountStaged(
+	rider: GuiObject,
+	zIndex: number,
+	model: Model,
+	from: number,
+	seconds: number
+)
+	local gone = Presets.cannonPose.gone
+	fly(rider, zIndex, model, function()
+		return gone + Workspace:GetServerTimeNow() - from
+	end, seconds)
 end
 
 -- The launching player's view, from the frame its flight began.

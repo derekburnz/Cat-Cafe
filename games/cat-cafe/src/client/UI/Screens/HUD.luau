@@ -29,6 +29,7 @@ local Workspace = game:GetService("Workspace")
 
 local BuffChips = require(script.Parent.BuffChips)
 local Button = require(script.Parent.Parent.Components.Button)
+local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -68,6 +69,7 @@ export type HUD = {
 	setAreasOpen: (self: HUD, open: boolean) -> (),
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
 	pressTravel: (self: HUD, destination: string) -> boolean,
+	setCannonMode: (self: HUD, on: boolean) -> (),
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
 	isCarrying: (self: HUD) -> boolean,
 	bottomTop: (self: HUD) -> number,
@@ -123,6 +125,8 @@ local FOLD_H = 34
 local MENU_FOLDED_X = -(PILL_W + 40) -- past the left edge, dots too
 local HOME_TEXT = "My Cafe"
 local HOME_CARRYING_TEXT = "Walk it home" -- the server refuses trips while carrying, so the button says why
+local HOME_CAMP_TEXT = "Camp first" -- the same with the Cat Cannon live: a carried cat is checked in at a camp (F84)
+local CARRY_SUB = "Walk home and check in at your door"
 -- F19: the server allows one trip per 3 s; the row greys for the same time so a double tap is not refused
 local TRAVEL_COOLDOWN: number = Config.TravelCooldownSeconds
 -- right column: icon row (58), the clock line, then the tier and next goal block; the night tips line pushes it down
@@ -233,6 +237,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._areasOpen = true -- F66: false from dusk to sunrise (the Clock folder's AreasOpen)
 	self._night = false -- the clock's phase is night (F60: night bait waits half)
 	self._alleyClosed = false -- what the Alley button shows now
+	self._cannonMode = false -- F84: Cannon in place of Areas, no Alley button, the carry banner points at the camp
 	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
 	self._dots = {} :: { [string]: Frame }
 	self._seen =
@@ -1057,6 +1062,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			icon = Theme.icons.travel,
 			style = "primary",
 		},
+		-- F84: shown in place of Areas once the Cat Cannon is live (setCannonMode)
+		{
+			key = "cannon",
+			name = "Cannon",
+			label = "Cannon",
+			icon = Theme.icons.cannon,
+			style = "primary",
+		},
 	}
 	for index, item in travelItems do
 		local home = item.key == "home"
@@ -1086,6 +1099,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		self._travelButtons[item.key] = button
 		table.insert(self._buttons, button)
 	end
+	self._travelButtons.cannon.instance.Visible = false
 	-- the arrow tab right of the row folds it below the screen edge and back; it stays where it is
 	self._travelFolded = false
 	local travelFold = Button.new({
@@ -1136,7 +1150,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Size = UDim2.new(1, -(68 + DROP_W), 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.hud.subtext,
-		Text = "Walk home and check in at your door",
+		Text = CARRY_SUB,
 		Parent = carry,
 	})
 	local drop = Button.new({
@@ -1282,7 +1296,8 @@ function HUD.pressTravel(self: any, destination: string): boolean
 	if self:isCarrying() or os.clock() < self._travelUntil then
 		return false
 	end
-	if destination ~= "home" and not self._areasOpen then
+	-- the Cannon button works at night too: the picker shows the sunrise countdown (F84)
+	if destination ~= "home" and destination ~= "cannon" and not self._areasOpen then
 		self:travelResult(destination, false) -- shut for the night (F66): wobble, as the server would refuse it
 		return false
 	end
@@ -1295,6 +1310,25 @@ function HUD.pressTravel(self: any, destination: string): boolean
 		end
 	end)
 	return true
+end
+
+-- F84 (hometown-cannon.md section 5): with the Cat Cannon live, Cannon takes the Areas button's place and moves the
+-- player at once to the front of the nearest cannon, and the Alley button goes, since every catching area is a
+-- cannon area now. The carry banner points at the camp and Home reads "Camp first" while carrying.
+function HUD.setCannonMode(self: any, on: boolean)
+	if self._cannonMode == on then
+		return
+	end
+	self._cannonMode = on
+	self._travelButtons.cannon.instance.Visible = on
+	self._travelButtons.areas.instance.Visible = not on
+	self._travelButtons.alley.instance.Visible = not on
+	local width = if on then 3 * TRAVEL_W + 2 * Theme.sizes.gap else TRAVEL_ROW_W
+	self._travelRow.Size = UDim2.fromOffset(width, TRAVEL_H)
+	self._travelFold.instance.Position = UDim2.new(0.5, width / 2 + Theme.sizes.gap, 1, -MARGIN)
+	self._carrySub.Text = if on then CannonLogic.CARRY_SUB else CARRY_SUB
+	self._homeCarrying = nil -- the next render writes Home's text for the new mode
+	self:_renderTravel()
 end
 
 -- The server's answer (TravelResult). A refusal lifts the cooldown at once and wobbles the button that
@@ -1391,7 +1425,8 @@ function HUD._renderTravel(self: any)
 	end
 	if self._homeCarrying ~= carrying then
 		self._homeCarrying = carrying
-		self._travelButtons.home:setText(if carrying then HOME_CARRYING_TEXT else HOME_TEXT)
+		local carryingText = if self._cannonMode then HOME_CAMP_TEXT else HOME_CARRYING_TEXT
+		self._travelButtons.home:setText(if carrying then carryingText else HOME_TEXT)
 	end
 	self:_renderTutorialTile()
 end
@@ -1532,12 +1567,13 @@ end
 
 function HUD.setTutorial(self: any, text: string?)
 	if text and text ~= "" then
+		-- only a new line chimes and pops; the same line again (a sync, a zone change) stays still
 		if not self._tutorial.Visible or self._tutorial.Text ~= text then
 			Sound.play("uiHint")
+			Tween.popIn(self._tutorial, 0.92)
 		end
 		self._tutorial.Text = text
 		self._tutorial.Visible = true
-		Tween.popIn(self._tutorial, 0.92)
 	else
 		self._tutorial.Visible = false
 	end

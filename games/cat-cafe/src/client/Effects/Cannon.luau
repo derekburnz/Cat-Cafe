@@ -65,8 +65,8 @@ export type Glide = {
 	mount: (parent: GuiObject, zIndex: number, character: Model, launchAt: number) -> (),
 }
 
--- CannonGlide.mountStaged once Animation-Engineer has it: the intro's copy gliding from `from` (server time) for
--- `seconds`. Looked up on the module when the intro plays, so the build works with or without it.
+-- CannonGlide.mountStaged (Animation-Engineer, #581): the intro's copy gliding from `from` (server time) for
+-- `seconds`. Looked up on the module when the intro plays, so Cannon's Glide type stays the two calls it always has.
 type MountStaged = (
 	parent: GuiObject,
 	zIndex: number,
@@ -549,8 +549,8 @@ end
 -- The intro's cannon shot (F84 intro, intro-cutscene.md shot 2): the same flight on a local copy of the player's
 -- character, which the intro flies itself, on `stage`'s squeezed beats (Presets.cannon.introStage by default) from
 -- `startedAt` (Workspace:GetServerTimeNow() terms; call it stage.boomAt - fuseSeconds early for the fuse fizz). The
--- muzzle and fuse come from `cannon`'s attachments. This screen only: the clouds tinted toward `destination` and,
--- once Animation-Engineer has it, the copy gliding in them.
+-- muzzle and fuse come from `cannon`'s attachments. This screen only: the clouds tinted toward `destination` and
+-- the copy gliding in them (CannonGlide.mountStaged).
 function Cannon.playStaged(
 	model: Model,
 	cannon: Model?,

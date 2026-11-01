@@ -625,5 +625,40 @@ return function()
 				expect(Logic.inWild(-1400, -1400, Config.World.WildAreaDistance)).to.equal(false)
 			end
 		end)
+
+		-- PR #574: the Cannon button moves you at once to a cannon nearby, even in a wild area, so it poofs; Home from a
+		-- wild area is a cloud hop, known by where you were or by a fresh CloudHopAt once you have moved
+		it("poofs the Cannon button everywhere and hops every other trip out of a wild area (travelCue)", function()
+			local destinations: { any } = { "home", "cannon", "park", "alley", "Cannon", "", 5, false }
+			local function want(destination: any, wild: boolean, hopping: boolean): string
+				if hopping then
+					return "cloudHop"
+				elseif not wild then
+					return "travelPoof"
+				end
+				return if destination == "cannon" then "travelPoof" else "cloudHop"
+			end
+			for _, wild in { true, false } do
+				for _, hopping in { true, false } do
+					for _, destination in destinations do
+						local got = Logic.travelCue(destination, wild, hopping)
+						if got ~= want(destination, wild, hopping) then
+							error(
+								string.format(
+									"%s, wild %s, hopping %s: %s",
+									tostring(destination),
+									tostring(wild),
+									tostring(hopping),
+									tostring(got)
+								)
+							)
+						end
+					end
+					-- the sweep's home and a reply with no destination behave like Home
+					expect(Logic.travelCue(nil, wild, hopping)).to.equal(want(nil, wild, hopping))
+				end
+			end
+			expect(Cues.travelPoof ~= nil and Cues.cloudHop ~= nil).to.equal(true)
+		end)
 	end)
 end

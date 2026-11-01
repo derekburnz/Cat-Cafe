@@ -128,7 +128,7 @@ local function onUseLure(player: Player, rawLureId: unknown)
 	)
 	Telemetry.baitStep(player, bait, 1)
 	if profile.tutorialStep == 4 then
-		CafeService.advanceTutorial(profile, 5) -- the last step: set bait
+		CafeService.advanceTutorial(player, profile, 5) -- the last step: set bait
 	end
 	Net.toast(
 		player,

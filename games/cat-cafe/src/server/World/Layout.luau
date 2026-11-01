@@ -206,7 +206,9 @@ Layout.plot = {
 	decorAnchors = {
 		plants = { x = 11, y = 1, z = -halfD + 0.7 }, -- on the right window's sill, clear of its curtain
 		rug = { x = 0, y = 0, z = -2 },
-		neon_sign = { x = 0, y = 5.5, z = halfD - 0.7 },
+		-- flat on the back wall over the Alleyway print, right of the counter: in front of the menu board it hid the
+		-- menu and stood 0.7 off the wall (Derek's 10-30 playtest); the sign's back is its pivot plane
+		neon_sign = { x = 13, y = 6.2, z = halfD - 0.2 },
 		fish_tank = { x = -halfW + 2, y = 0, z = 0, rotY = 90 },
 		index_alley = INDEX_SPOTS.alley,
 		index_park = INDEX_SPOTS.park,

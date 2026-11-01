@@ -12,6 +12,7 @@
 -- every sync) and logged as one Source at least once a minute, before every Sink and when the player leaves.
 
 local AnalyticsService = game:GetService("AnalyticsService")
+local CollectionService = game:GetService("CollectionService")
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -22,6 +23,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
@@ -70,6 +72,10 @@ export type CustomEvent =
 	| "quest_set" -- F73: kind, when the last quest of a full set is claimed and the set prize paid
 	| "achievement_claimed" -- F73: achievement id, size
 	| "daily_treat" -- F70: the day stamped (1 to 7)
+	-- Derek's 10-31 research notes: where early players stop. On leaving before Tier 2: the furthest onboarding step,
+	-- the tutorial step ("intro" while the intro has never finished) and where they were; the value is the session's
+	-- seconds
+	| "quit_point"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -643,6 +649,49 @@ local function onLoaded(player: Player, profile: Profile)
 	task.delay(DEVICE_WAIT_SECONDS, logJoined, player)
 end
 
+local CAFE_REACH = 32 -- studs from the player's own plot's pivot that count as at the cafe for quit_point
+
+-- Where the player's character stands as they leave, for quit_point: "cafe" by their own cafe, an area id on an
+-- area's floor, "town" anywhere else, "none" with no character.
+local function whereOf(player: Player): string
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return "none"
+	end
+	local at = (root :: BasePart).Position
+	for _, plot in CollectionService:GetTagged("Plot") do
+		if plot:IsA("Model") and plot:GetAttribute("OwnerUserId") == player.UserId then
+			local pivot = (plot :: Model):GetPivot().Position
+			if Vector3.new(at.X - pivot.X, 0, at.Z - pivot.Z).Magnitude <= CAFE_REACH then
+				return "cafe"
+			end
+		end
+	end
+	for id, spec in Layout.areas do
+		local rects = spec.rects
+		if rects ~= nil then
+			-- a rects area's bounding box takes in the town between its floors, so test the floors themselves
+			for _, r in rects do
+				if
+					at.X >= math.min(r.x1, r.x2)
+					and at.X <= math.max(r.x1, r.x2)
+					and at.Z >= math.min(r.z1, r.z2)
+					and at.Z <= math.max(r.z1, r.z2)
+				then
+					return id
+				end
+			end
+		else
+			local c = spec.center
+			if math.abs(at.X - c.x) <= spec.halfWidth and math.abs(at.Z - c.z) <= spec.halfDepth then
+				return id
+			end
+		end
+	end
+	return "town"
+end
+
 -- Runs after the other services' leave work (Telemetry starts last), so a carried cat saved on leave or a rich tip
 -- paid on leave has logged its own Source first.
 local function onRelease(player: Player, profile: Profile)
@@ -680,6 +729,14 @@ local function onRelease(player: Player, profile: Profile)
 		tierText(profile),
 		session.device or "unknown",
 	})
+	if Economy.tier(profile) < 2 then
+		local reached = Onboarding.STEPS[profile.telemetry.onboardingStep]
+		Telemetry.custom(player, "quit_point", math.max(0, now - session.joinedAt), {
+			if reached ~= nil then reached else "none",
+			if profile.introSeen then "t" .. tostring(profile.tutorialStep) else "intro",
+			whereOf(player),
+		})
+	end
 	sessions[player] = nil
 end
 

@@ -269,6 +269,59 @@ end
 local rig = Pose.bind(model)
 assert(rig, "Pose.bind found no body")
 
+-- The entertainer's toy, as Effects/Cats.luau's addYarn and step place it: the pom-pom on its wand (Logic.toy) or,
+-- with an older Effects folder, the yarn ball it had then. Drawn after the props, out of sight in other styles.
+local toy = nil
+for _, segment in scenario.segments do
+	if segment.style == "entertainer" then
+		toy = {}
+	end
+end
+if toy then
+	local presets = modules.Presets
+	local Color3 = roblox.Color3
+	local scale = model:GetAttribute("Scale") or 1
+	toy.scale = scale
+	if Logic.toy then
+		local hinge = (Pose.frontHinge and Pose.frontHinge(rig)) or Vector3.new(0, 0.59, -0.28) * scale
+		toy.restY, toy.restZ = Logic.toyRest(hinge.Y, hinge.Z, scale)
+	end
+	local aurora, wood = presets.palette.aurora, presets.palette.goldDark or Color3.new(0.8, 0.55, 0.2)
+	table.insert(info, {
+		name = "Prop_Yarn",
+		shape = "Ball",
+		color = { aurora.R, aurora.G, aurora.B },
+		material = "Fabric",
+		transparency = 0,
+	})
+	table.insert(info, {
+		name = "Prop_YarnWand",
+		shape = "Cylinder",
+		color = { wood.R, wood.G, wood.B },
+		material = "SmoothPlastic",
+		transparency = 0,
+	})
+end
+local AWAY = { 0, -1000, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 }
+local function toyFrames(o, style)
+	if style ~= "entertainer" then
+		return { cf = AWAY, size = { 0.01, 0.01, 0.01 } }, { cf = AWAY, size = { 0.01, 0.01, 0.01 } }
+	end
+	local floor = Pose.floor(rig)
+	local e = modules.Presets.motion.entertainer
+	if Logic.toy then
+		local pom, foot, tip = Logic.toy(o, toy.restY, toy.restZ, toy.scale)
+		local size = e.pom * toy.scale
+		local w = e.wand * toy.scale
+		local stick = CFrame.lookAt((foot + tip) / 2, tip) * CFrame.Angles(0, math.pi / 2, 0)
+		return { cf = cframeList(floor * CFrame.new(pom)), size = { size, size, size } },
+			{ cf = cframeList(floor * stick), size = { (tip - foot).Magnitude, w, w } }
+	end
+	-- before: Cats.luau's yarn ball, 2 studs ahead on the floor plane, sliding side to side
+	local ball = floor * CFrame.new(o.yarn * e.yarnStuds, 0.3, -2) * CFrame.Angles(0, 0, -o.yarn * 3)
+	return { cf = cframeList(ball), size = { 0.6, 0.6, 0.6 } }, { cf = AWAY, size = { 0.01, 0.01, 0.01 } }
+end
+
 -- The carrier: the stand-in player holding the cat on its folded arms, its parts after the cat's in the JSON.
 local carrier = nil
 if scenario.carrier then
@@ -441,6 +494,11 @@ for _, segment in scenario.segments do
 		end
 		for _, part in propParts do
 			table.insert(frame.parts, { cf = cframeList(part.CFrame), size = sizeOf(part) })
+		end
+		if toy then
+			local pom, wand = toyFrames(o, style)
+			table.insert(frame.parts, pom)
+			table.insert(frame.parts, wand)
 		end
 		if carrier ~= nil then
 			for _, part in carrier.order do

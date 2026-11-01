@@ -105,6 +105,19 @@ return {
 		attributes = { Pose = "sit", CatId = "balloon" },
 		segments = { { style = "entertainer", seconds = 4.4 } },
 	},
+	-- Comet (the Ice Cream Cat) at work on its cat tree's top cushion, where Layout puts an entertainer (the sit
+	-- point, -0.5 4.47 -0.4 from the tree's pivot), batting its pom-pom (Derek 2026-10-28 17:41: the ball floating
+	-- and the foot twitching). The tree is drawn as a trap prop; `box` keeps the camera on the top.
+	cometTree = {
+		model = "CatCafe_Cat_Comet_Sit",
+		role = "entertainer",
+		camera = "three",
+		trap = "CatCafe_Furniture_CatTree",
+		stuckAt = { -0.5, 4.47, -0.4, 1, 0, 0, 0, 1, 0, 0, 0, 1 },
+		box = { { -2.1, 3.7, -2.9 }, { 1.1, 6.2, 0.5 } },
+		attributes = { Pose = "sit", CatId = "comet" },
+		segments = { { style = "entertainer", seconds = 6.4 } },
+	},
 	-- Stuck in a rescue trap (Derek 2026-10-28: the back end sticking out for most traps, upside down where it fits).
 	-- A `trap` scenario puts the cat on the trap's own prop, a `trapSet` one on a trap built into an area set (spot
 	-- and piece turn as Layout's setTrap has them). `stuckAt` is the pose tried (12 numbers in the prop's pivot space,

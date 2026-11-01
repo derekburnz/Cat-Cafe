@@ -45,7 +45,7 @@ RZ90 = Matrix(((0, -1, 0), (1, 0, 0), (0, 0, 1)))   # Roblox local X (cylinder a
 
 # Asset families whose big parts block players. Everything else (cats, people, items, wall decor) is walk-through.
 COLLIDE_PREFIXES = ("CatCafe_Furniture_", "CatCafe_Alley_", "CatCafe_Park_", "CatCafe_Plot_", "CatCafe_Street_",
-                    "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_", "CatCafe_Square_")
+                    "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_", "CatCafe_Square_", "CatCafe_Camp_")
 NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle",
                       "_Wheel", "_Pointer", "_RimLight", "_Flowers")
 INVISIBLE_OBJECTS = ("_Fireflies", "_Climb", "_Barrier")   # volumes never drawn: where fireflies drift, ladders'
@@ -55,7 +55,7 @@ CLIMB_OBJECTS = ("_Climb",)           # invisible TrussParts behind a ladder's r
 # Outdoor families (Derek 2026-10-28: "make all the models climbable not sinking through them"): their planks, rungs,
 # rails and pickets collide too, down to THIN_COLLIDE thick when at least THIN_LONG long.
 OUTDOOR_PREFIXES = ("CatCafe_Alley_", "CatCafe_Park_", "CatCafe_Street_", "CatCafe_Neighbourhood_", "CatCafe_Woods_",
-                    "CatCafe_Sewer_", "CatCafe_Square_")
+                    "CatCafe_Sewer_", "CatCafe_Square_", "CatCafe_Camp_")
 THIN_COLLIDE, THIN_LONG = 0.12, 0.9
 THIN_SKIP = ("StringLights",)       # overhead cables stay walk-through
 ELLIPSOID_FIT = 0.75                  # an ellipsoid's collision box, as a share of the box round it (the mesh is scaled
@@ -80,7 +80,8 @@ PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars", "_Screen": "Screen", "
 TAGS = {"CatCafe_Decor_FishTank": ["FishTank"], "CatCafe_Plot_Tier4_Water": ["FishTank"],
         "CatCafe_Park_Fountain": ["Fountain"], "_IndexBoard": ["IndexBoard"],
         "CatCafe_Street_CodesCat": ["CodesCat"], "_NightFence": ["NightFence"],
-        "CatCafe_Alley_NightFenceSegment": ["NightFence"], "CatCafe_Plot_BackDoorClosed": ["NightFence"]}
+        "CatCafe_Alley_NightFenceSegment": ["NightFence"], "CatCafe_Plot_BackDoorClosed": ["NightFence"],
+        "_Basket": ["CampBasket"]}
 # Tags on every part of an object, by object name suffix: the crate styles (F53, StyleController) recolour the cafe
 # shell's outer wall layer (Paint) and inner wall layer (Wallpaper), and give each part its own look back after.
 PART_TAGS = {"_Paint": ["Paint"], "_Wallpaper": ["Wallpaper"]}

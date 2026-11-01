@@ -9,7 +9,9 @@ Usage (from the repo root):
     python .claude/skills/audio-pipeline/scripts/audio_gate.py [ROOT] [--out FILE]
 
 ROOT defaults to assets/cat-cafe/audio and the report to ROOT/gates.md. The kind of each
-file comes from its folder (music, ambience, sfx, ui). Needs ffmpeg and ffprobe on PATH.
+file comes from its folder (music, ambience, sfx, ui, sheets). A sound sheet (several short
+sounds in one upload, each cue playing its own region) is checked as a whole here; its parts
+sit under sheet-parts/<kind>/ and are checked against their own kind. Needs ffmpeg and ffprobe on PATH.
 Exit code 1 when any file FAILs, 2 when ffmpeg is missing.
 """
 
@@ -29,7 +31,7 @@ EXTENSIONS = {".ogg", ".mp3", ".wav", ".flac"}
 MAX_BYTES = 20 * 1024 * 1024  # Roblox upload limit
 MAX_SECONDS = 7 * 60  # Roblox upload limit
 MAX_RATE = 48000  # Roblox upload limit
-NAME = re.compile(r"^CatCafe_(Music|Amb|Sfx|Ui)_[A-Z][A-Za-z0-9]*(_[A-Za-z0-9]+)*$")
+NAME = re.compile(r"^CatCafe_(Music|Amb|Sfx|Ui|Sheet)_[A-Z][A-Za-z0-9]*(_[A-Za-z0-9]+)*$")
 SILENCE = 10 ** (-60 / 20)  # -60 dBFS
 
 # kind: (min s, max s, mono required, loudness target LUFS or None, peak ceiling dBTP, max lead ms, loops)
@@ -39,9 +41,10 @@ BUDGETS = {
     "sfx": (0.05, 4.0, True, None, -1.0, 20, False),
     "ui": (0.02, 1.5, True, None, -1.0, 10, False),
     "stinger": (0.5, 6.0, False, None, -1.0, 20, False),  # music/ files named Jingle* or Sting*
+    "sheet": (0.5, 120.0, False, None, -1.0, 20, False),  # sheets/: parts joined with silence between
 }
 LOUDNESS_TOLERANCE = 3.0
-FOLDER_KIND = {"music": "music", "ambience": "ambience", "amb": "ambience", "sfx": "sfx", "ui": "ui"}
+FOLDER_KIND = {"music": "music", "ambience": "ambience", "amb": "ambience", "sfx": "sfx", "ui": "ui", "sheets": "sheet"}
 
 
 def run(args: list[str]) -> subprocess.CompletedProcess:

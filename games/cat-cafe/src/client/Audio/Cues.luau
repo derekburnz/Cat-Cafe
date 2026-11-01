@@ -13,6 +13,8 @@
 -- looped   plays until stopped (Audio.loop, music and ambience beds)
 -- range    studs at which a 3D play fades out (RollOffMaxDistance)
 -- duck     ducks the music bed to 40 % while it plays
+-- sheet    a sound sheet's cue (sheetWorld, sheetMoments): the file is the sheet's, and this cue plays only its
+--          `region`, { start, stop } in seconds of that file (sound list section 5.13). Its own ids stay empty.
 
 export type Group = "Music" | "Ambience" | "Sfx" | "Ui"
 
@@ -27,6 +29,8 @@ export type Cue = {
 	looped: boolean?,
 	range: number?,
 	duck: boolean?,
+	sheet: string?,
+	region: { number }?,
 }
 
 local Cues: { [string]: Cue } = {
@@ -70,9 +74,52 @@ local Cues: { [string]: Cue } = {
 		preload = true,
 	},
 	jingleRare = { ids = {}, group = "Music", volume = 0.6, minGap = 1 },
-	jingleEpic = { ids = {}, group = "Music", volume = 0.65, minGap = 1 },
-	jingleLegendary = { ids = {}, group = "Music", volume = 0.7, minGap = 1, duck = true },
-	jingleMythical = { ids = {}, group = "Music", volume = 0.7, minGap = 1, duck = true },
+	-- F89: one sting per rarity from Epic up, at the catch and on your own big pull; the crate reel's stop plays
+	-- them too (the UI). Rainbow (F99) has its own on the big pull. All five live in sheetMoments.
+	jingleEpic = {
+		ids = {},
+		sheet = "sheetMoments",
+		region = { 0.000, 1.500 },
+		group = "Music",
+		volume = 0.65,
+		minGap = 1,
+	},
+	jingleLegendary = {
+		ids = {},
+		sheet = "sheetMoments",
+		region = { 2.000, 5.000 },
+		group = "Music",
+		volume = 0.7,
+		minGap = 1,
+		duck = true,
+	},
+	jingleMythical = {
+		ids = {},
+		sheet = "sheetMoments",
+		region = { 5.500, 9.500 },
+		group = "Music",
+		volume = 0.7,
+		minGap = 1,
+		duck = true,
+	},
+	jingleRainbow = {
+		ids = {},
+		sheet = "sheetMoments",
+		region = { 10.000, 14.200 },
+		group = "Music",
+		volume = 0.75,
+		minGap = 1,
+		duck = true,
+	},
+	jingleLuckyDay = {
+		ids = {},
+		sheet = "sheetMoments",
+		region = { 14.700, 17.300 },
+		group = "Music",
+		volume = 0.6,
+		minGap = 5,
+		duck = true,
+	}, -- F88: a Lucky Day starts, after the sunrise sting
 	jingleRankUp = {
 		ids = { "rbxassetid://77815750894397" },
 		group = "Music",
@@ -610,6 +657,102 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 		duck = true,
 	}, -- F58: a Mythical shout-out
+
+	-- Sound sheets (5.13) -----------------------------------------------------------------------------------
+	-- The release batch shares two uploads (Roblox's 100 a month for an account without ID verification). A
+	-- sheet's row holds the file and is never played itself; its parts are the cues that name it. Preloaded, so
+	-- the first part to play is not late.
+	sheetWorld = { ids = {}, group = "Sfx", volume = 1, preload = true }, -- mono, plays in 3D
+	sheetMoments = { ids = {}, group = "Music", volume = 1, preload = true }, -- stereo, plays flat
+	bellhopBell = {
+		ids = {},
+		sheet = "sheetWorld",
+		region = { 0.000, 1.000 },
+		group = "Sfx",
+		volume = 0.35,
+		minGap = 0.5,
+		range = 30,
+		voices = 2,
+	}, -- F96: the Bellhop Cat rings its collar bell (Effects' Beats "bellRing", on the stand or as a greeter)
+	rainbowNear = {
+		ids = {},
+		sheet = "sheetWorld",
+		region = { 1.500, 3.100 },
+		group = "Sfx",
+		volume = 0.4,
+		minGap = 3,
+		range = 50,
+	}, -- F99: once as you come near a rainbow stray (in place of rareNear for it)
+	campSplash = {
+		ids = {},
+		sheet = "sheetWorld",
+		region = { 3.600, 4.500 },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 0.5,
+		range = 40,
+		voices = 2,
+	}, -- F100: the Fish Pond, collected or a fish jumping
+	campBasket = {
+		ids = {},
+		sheet = "sheetWorld",
+		region = { 5.000, 5.950 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 0.5,
+		range = 30,
+	}, -- F100: the Picnic Basket opened
+	campRattle = {
+		ids = {},
+		sheet = "sheetWorld",
+		region = { 6.450, 7.150 },
+		group = "Sfx",
+		volume = 0.4,
+		minGap = 0.5,
+		range = 30,
+	}, -- F100: the Lost and Found box, collected or its lid rattling while a prize waits
+	rallyCheer = {
+		ids = {},
+		sheet = "sheetMoments",
+		region = { 17.800, 19.300 },
+		group = "Ui",
+		volume = 0.55,
+		minGap = 1,
+	}, -- F101: a Rescue Rally step reached (the UI's banner plays it)
+	uiReelTick = {
+		ids = {},
+		sheet = "sheetMoments",
+		region = { 19.800, 19.840 },
+		group = "Ui",
+		volume = 0.35,
+		pitch = { 0.97, 1.03 },
+		minGap = 0.06,
+		voices = 2,
+	}, -- F103: a tile line crosses the crate reel's marker; minGap 0.06 lets all 15 a second through as a whirr
+	uiReelStop = {
+		ids = {},
+		sheet = "sheetMoments",
+		region = { 20.340, 20.740 },
+		group = "Ui",
+		volume = 0.6,
+		minGap = 0.3,
+	}, -- F103: the reel stops on the prize; the rarity sting follows from Epic up
+	uiTradeTick = {
+		ids = {},
+		sheet = "sheetMoments",
+		region = { 21.240, 21.420 },
+		group = "Ui",
+		volume = 0.45,
+		minGap = 0.5,
+	}, -- F102: each second of the trade countdown
+	uiTradeDone = {
+		ids = {},
+		sheet = "sheetMoments",
+		region = { 21.920, 23.220 },
+		group = "Ui",
+		volume = 0.6,
+		minGap = 1,
+	}, -- F102: "Trade done!" between players (uiTrade stays the Cat Collector's)
 }
 
 return Cues

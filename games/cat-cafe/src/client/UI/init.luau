@@ -1205,6 +1205,7 @@ function UI.init(config: Types.InitConfig)
 	areaTitle = AreaTitle.new(parent)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
+	UI.leaderboards.start(parent) -- the town boards' faces and the crowns over heads (F98)
 	worldTags = WorldTags.new()
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
@@ -1301,6 +1302,7 @@ function UI.destroy()
 	UI.catch.unbindProximityPrompts()
 	UI.clock.unbind()
 	UI.bigPull.reset()
+	UI.leaderboards.reset()
 	if hud then
 		hud:destroy()
 	end
@@ -4060,6 +4062,67 @@ do
 			screen:destroy()
 		end
 		pull.screen, pull.parent = nil, nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Leaderboards (F98)
+----------------------------------------------------------------------------------------------------
+
+-- The three leaderboards (leaderboards.md): the faces on the town's boards (Screens/LeaderboardBoards), the Index's
+-- Top tab (Screens/LeaderboardTop) and the crown over an all time top 10 player's head (Screens/Crowns). UI.init
+-- starts the faces and crowns; UIController calls UI.leaderboards.sync with each LeaderboardSync payload. The last
+-- payload is kept, so a rebuilt UI shows it at once. Its own block, as the module is short of locals.
+UI.leaderboards = {}
+do
+	local LeaderboardBoards = require(script.Screens.LeaderboardBoards)
+	local Crowns = require(script.Screens.Crowns)
+	local LeaderboardLogic = require(script.Components.LeaderboardLogic)
+	local boards = {
+		faces = nil :: LeaderboardBoards.LeaderboardBoards?,
+		crowns = nil :: Crowns.Crowns?,
+		last = nil :: LeaderboardLogic.Sync?,
+	}
+
+	-- UI.init: the faces hang on every tagged board, including ones that stream in later.
+	function UI.leaderboards.start(parent: Instance)
+		UI.leaderboards.reset()
+		local faces = LeaderboardBoards.new(parent)
+		boards.faces = faces
+		boards.crowns = Crowns.new()
+		faces:setSync(boards.last)
+		if collection then
+			collection:setLeaderboards(boards.last)
+		end
+	end
+
+	-- LeaderboardSync { boards = { [board] = { allTime = rows, week = rows } }, me = { [board] = { rank?, value,
+	-- weekRank?, weekValue? } }, week }: the server's top 50 lists and this player's own places.
+	function UI.leaderboards.sync(payload: any)
+		if type(payload) ~= "table" then
+			return
+		end
+		local sync = payload :: LeaderboardLogic.Sync
+		boards.last = sync
+		local faces = boards.faces
+		if faces then
+			faces:setSync(sync)
+		end
+		if collection then
+			collection:setLeaderboards(sync)
+		end
+	end
+
+	-- UI.destroy: the faces and crowns go with the rest of the screens.
+	function UI.leaderboards.reset()
+		local faces, crowns = boards.faces, boards.crowns
+		if faces then
+			faces:destroy()
+		end
+		if crowns then
+			crowns:destroy()
+		end
+		boards.faces, boards.crowns = nil, nil
 	end
 end
 

@@ -1056,6 +1056,12 @@ local function showAsk(id: string)
 		if asks ~= nil and type(asks.show) == "function" then
 			shown = (asks.show :: (string) -> unknown)(id) == true
 		end
+		if not shown and id == Tips.INVITE_ASK then
+			-- Review N320: the invite ask is only worth its card (which opens Roblox's invite prompt). Until the UI
+			-- has one, leave it unanswered so the server offers it again in a later session instead of a toast
+			-- using it up for good.
+			return
+		end
 		if not shown then
 			UI.toast(ASK_LINES[id] or "", "info")
 		end

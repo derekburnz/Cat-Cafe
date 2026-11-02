@@ -69,7 +69,8 @@ local function writeValues(player: Player, values: { [List]: number }, week: num
 	written[player] = mine
 	for list, value in values do
 		local name = Leaderboards.storeName(list, week)
-		if mine[name] == value then
+		-- review N321: nothing on a list yet (a first join, under a minute played) is no entry, not a write of 0
+		if value <= 0 or mine[name] == value then
 			continue
 		end
 		local ok = pcall(function()
@@ -212,6 +213,17 @@ local function readList(list: List, week: number)
 	lists[list] = Leaderboards.rows(entries :: { any }, hidden, nameOf)
 end
 
+-- Crown on the player and on their cafe's name sign, from the last refresh's lists.
+local function wearCrown(player: Player)
+	local wears = crowned[player.UserId] == true
+	player:SetAttribute("Crown", wears)
+	local plot = PlotService.get(player)
+	local sign = if plot ~= nil then plot.sign:FindFirstAncestorWhichIsA("BasePart") else nil
+	if sign ~= nil then
+		sign:SetAttribute("Crown", wears)
+	end
+end
+
 -- The crown on every row and every player here: top LeaderboardCrownRank of any all-time board.
 local function crown()
 	local fresh: { [number]: boolean } = {}
@@ -229,13 +241,7 @@ local function crown()
 		end
 	end
 	for _, player in Players:GetPlayers() do
-		local wears = crowned[player.UserId] == true
-		player:SetAttribute("Crown", wears)
-		local plot = PlotService.get(player)
-		local sign = if plot ~= nil then plot.sign:FindFirstAncestorWhichIsA("BasePart") else nil
-		if sign ~= nil then
-			sign:SetAttribute("Crown", wears)
-		end
+		wearCrown(player)
 	end
 end
 
@@ -291,6 +297,7 @@ end
 
 function LeaderboardService.start()
 	DataService.onLoaded:Connect(function(player: Player)
+		wearCrown(player) -- review N322: a top player joining between refreshes wears it at once
 		task.spawn(writeNow, player)
 	end)
 	-- On leave: the values as they stand at the end of the session, written after the profile is gone.

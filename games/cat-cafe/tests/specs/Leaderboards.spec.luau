@@ -213,4 +213,90 @@ return function()
 			expect(Config.LeaderboardCrownRank).to.equal(10)
 		end)
 	end)
+
+	describe("Leaderboards edges (QA)", function()
+		-- An OrderedDataStore keeps whole numbers only, so a NaN, a negative, an infinity or a fraction would make the
+		-- write throw and the player drop off every board.
+		it("makes every list a whole number from 0 for any save the game could load, money at most RateMax", function()
+			local junk: { any } = { 0 / 0, -5, math.huge, -math.huge, 1e300, 12.75, "60", true, {} }
+			local week = Leaderboards.week(NOW)
+			local saves: { any } = {}
+			for _, value in junk do
+				table.insert(saves, {
+					stats = {
+						playtimeSeconds = value,
+						bestRate = value,
+						weekPlay = { week = week, seconds = value },
+						weekBestRate = { week = week, rate = value },
+					},
+				})
+				table.insert(saves, {
+					stats = {
+						weekPlay = { week = value, seconds = 600 },
+						weekBestRate = value,
+					},
+				})
+			end
+			table.insert(saves, { stats = "not a table" })
+			table.insert(saves, {})
+			for n, raw in saves do
+				local p = ProfileSchema.migrate(raw, NOW)
+				for _, joinedAt in { NOW, NOW - 3600, MONDAY - 600, NOW + 300, 0 } do
+					for _, now in { NOW, MONDAY - 1, MONDAY, MONDAY + 1 } do
+						for list, value in Leaderboards.values(p, joinedAt, now) do
+							local where = string.format(
+								"save %d, joined %d, now %d: %s %s",
+								n,
+								joinedAt,
+								now,
+								list,
+								tostring(value)
+							)
+							local ok = value == value and value >= 0 and value < math.huge and value % 1 == 0
+							expect(ok or error(where)).to.equal(true)
+							if list == "money" or list == "money_week" then
+								expect(value <= Config.LeaderboardRateMax or error(where)).to.equal(true)
+							end
+						end
+					end
+				end
+			end
+		end)
+
+		it("never lowers a best Money figure, and starts each week from its own first rate", function()
+			local p = profile()
+			local week = Leaderboards.week(NOW)
+			local best, weekBest = 0, 0
+			for _, step in
+				{
+					{ rate = 40, at = NOW },
+					{ rate = 0 / 0, at = NOW },
+					{ rate = -10, at = NOW },
+					{ rate = 25, at = NOW },
+					{ rate = 90, at = NOW + 60 },
+					{ rate = 0, at = NOW + 120 },
+					{ rate = 0 / 0, at = MONDAY + 604800 }, -- a bad rate never starts a week
+					{ rate = 30, at = MONDAY + 604800 }, -- next week: its own best starts at 30
+					{ rate = 20, at = MONDAY + 604800 + 60 },
+				}
+			do
+				Leaderboards.noteRate(p, step.rate, step.at)
+				local rate = step.rate
+				if rate == rate and rate > 0 then
+					best = math.max(best, rate)
+					if Leaderboards.week(step.at) ~= week then
+						week = Leaderboards.week(step.at)
+						weekBest = rate
+					else
+						weekBest = math.max(weekBest, rate)
+					end
+				end
+				expect(p.stats.bestRate).to.equal(best)
+				expect(p.stats.weekBestRate.week).to.equal(week)
+				expect(p.stats.weekBestRate.rate).to.equal(weekBest)
+			end
+			expect(p.stats.bestRate).to.equal(90)
+			expect(p.stats.weekBestRate.rate).to.equal(30)
+		end)
+	end)
 end

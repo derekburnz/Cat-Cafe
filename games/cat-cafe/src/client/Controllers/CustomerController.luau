@@ -45,7 +45,9 @@ local folder: Folder? = nil
 local busySeats: { [BasePart]: boolean } = {}
 local activeByPlot: { [Model]: number } = {}
 local activeCustomers = 0
-local variants = { "A", "B", "C", "D", "E", "F" }
+-- everyday customers, each with its seated twin `_Sit` (Model-Agent; G to L added for Derek's 10-28 "more customer
+-- variety", #697)
+local variants = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" }
 local orders = { "coffee", "cake", "milk" }
 local clock: Instance? = nil -- ReplicatedStorage.Clock once it has replicated
 local richVisits: { [Model]: boolean } = {} -- plots with a rich customer on the way or seated

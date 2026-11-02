@@ -817,8 +817,14 @@ function FishMarket._buildReveal(self: any, body: Frame)
 		done = done,
 		use = use,
 	}
-	-- F103: the reel plays over the window before the card
+	-- F103: the reel plays over the window before the card. Closing the window mid reel skips it to the stop
+	-- (review N324), so its ticks end with the window and the toast says what was won at once.
 	self._reelView = CrateReel.new(body)
+	self.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not self.frame.Visible and self._reelView:playing() then
+			self._reelView:skip()
+		end
+	end)
 	-- a tap while it plays skips to the end; after that only the card's own buttons close it
 	cover.Activated:Connect(function()
 		if self._revealing then
@@ -952,6 +958,9 @@ function FishMarket._playReel(
 		timing = timing,
 		decorById = self._decorById,
 		onLanded = function()
+			if not self.frame.Visible then
+				return -- closed mid reel: the toast says it, as a result that lands while closed does
+			end
 			local piece = DecorPieces.info(self._decorById[decorId])
 			self:_bigPull(decorId, piece.rarity, not duplicate and DecorPieces.isStyle(piece.kind))
 		end,

@@ -118,6 +118,11 @@ def build_park_gate(mat):
     return _gate("CatCafe_Park_Gate", mat, 32.0, "mint", "dumpster_green", _park)
 
 
+def build_park_gate_f85(mat):
+    """F85: the same gate over the long Park's 24 stud opening (Config.World.CampOpeningWidth)."""
+    return _gate("CatCafe_Park_GateF85", mat, 24.0, "mint", "dumpster_green", _park)
+
+
 # -------------------------------------------------------------------------------------------- woods --
 def _spruce(b, x, z, s=1.0):
     b.cyl((x, 0.6 * s, z), 0.3 * s, 1.2 * s, "fur_brown", segments=8)
@@ -271,6 +276,7 @@ def build_neighbourhood_gate(mat):
 
 ASSETS = {
     "CatCafe_Park_Gate": (build_park_gate, 6000),
+    "CatCafe_Park_GateF85": (build_park_gate_f85, 6000),
     "CatCafe_Neighbourhood_Gate": (build_neighbourhood_gate, 6000),
     "CatCafe_Woods_Gate": (build_woods_gate, 6000),
     "CatCafe_Sewer_Gate": (build_sewer_gate, 6000),

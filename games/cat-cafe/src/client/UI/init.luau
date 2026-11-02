@@ -1612,11 +1612,13 @@ end
 function UI.catLevelUp(_uid: string, _level: number) end
 
 -- F87: the first return after Tips.OFFLINE_SECONDS or more away puts the `offline` tip's line on the card's top.
+-- F95: the welcome back card says what time away pays, the Long Nap pass's line when state.longNap.
 function UI.showOfflineEarnings(amount: number, seconds: number)
 	if popups then
+		local note = require(script.Components.WelcomeBack).note(state.longNap)
 		popups:showOffline(amount, seconds, function()
 			UI.events.claimOffline:Fire()
-		end, UI.tips.offlineLine(seconds))
+		end, UI.tips.offlineLine(seconds), note)
 	end
 end
 

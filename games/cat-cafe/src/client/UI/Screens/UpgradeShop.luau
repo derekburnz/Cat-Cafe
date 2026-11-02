@@ -523,7 +523,7 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 			IconArt.setImage(row.glyph, ShopIcons.net(level), 1.25) -- the net the row offers next
 		end
 		if upgradeId == "lure_bowl" and catalog then
-			-- the next bowl and its wait, with the Big Bowl perk's fifth off when owned (F82)
+			-- the next bowl and its wait, with the Big Bowl perk's 2 minutes off when owned (F82, F95)
 			local fishPerks: { [string]: number } = state.fishPerks or {}
 			local bigBowl = (fishPerks.big_bowl or 0) >= 1
 			if level ~= before or bigBowl ~= row.bigBowl then

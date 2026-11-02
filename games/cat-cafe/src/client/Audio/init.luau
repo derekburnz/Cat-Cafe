@@ -1627,6 +1627,41 @@ local HANDLERS: { [string]: (...any) -> () } = {
 			Audio.play(cue, if typeof(position) == "Vector3" then position else nil)
 		end
 	end,
+	-- F90 cats make the orders (Controllers/CafeOrders), in every cafe this client shows the making in: the espresso
+	-- pour as a Barista starts a drink and the "ding!" when any order is ready, at the station (`at` is the Espresso
+	-- or Oven model, or the Barista); the tray clink where the Waiter sets the dish down; and, your own cafe only,
+	-- the coin sweep at the table and the bag dropped in the till. Each needs a place: none plays flat.
+	OrderMaking = function(_plot: any, station: any, at: any)
+		local cueId = Logic.orderMakeCue(station)
+		local part = if typeof(at) == "Instance" then partOf(at) else nil
+		if cueId ~= nil and part ~= nil then
+			Audio.play(cueId, part)
+		end
+	end,
+	OrderReady = function(_plot: any, station: any, at: any)
+		local part = if typeof(at) == "Instance" then partOf(at) else nil
+		if part ~= nil then
+			Audio.play("orderDing", part, Logic.orderDingStep(station))
+		end
+	end,
+	OrderServed = function(_customer: any, _itemId: any, position: any)
+		local where = vec(position)
+		if where ~= nil then
+			Audio.play("trayClink", where)
+		end
+	end,
+	TipSwept = function(_cat: any, position: any)
+		local where = vec(position)
+		if where ~= nil then
+			Audio.play("tipSweep", where)
+		end
+	end,
+	TipBanked = function(_cat: any, position: any)
+		local where = vec(position)
+		if where ~= nil then
+			Audio.play("tipBank", where)
+		end
+	end,
 	-- F58: a Mythical shout-out (the sunrise wave's or a catch) plays its own sting once it has a file.
 	Announce = function(_text: any, rarity: any)
 		local cueId = Logic.announceCue(str(rarity))

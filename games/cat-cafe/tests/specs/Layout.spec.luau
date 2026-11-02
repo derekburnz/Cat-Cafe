@@ -1218,19 +1218,29 @@ return function()
 			end
 		end)
 
-		-- F85 (hometown-cannon.md section 6b; Model-Agent #864): three low blockers cross each lane on its middle
-		-- line, the way through (lane-local x 6 to 15, +X at rotY 0) on alternating sides, so no lane is a straight
-		-- run home. Each pile (local x -13.35 to 6 and its own half depth) stays clear of the lane spawn points by a
+		-- F85 (hometown-cannon.md section 6b; Model-Agent #864): three rows of low blockers cross each lane on its
+		-- middle line, the way through never on the same side twice running. A long pile covers local x -15 to 2.6
+		-- (its lamp post) and leaves 1 to 15 open; a short one -15 to -4.9, and two back to back (turned 0 and
+		-- 180) leave the middle open. Each pile, with its own half depth, stays clear of the lane spawn points by a
 		-- cat's half body and of the traps by 2.
 		it(
-			"crosses each lane three times with a low blocker, the ways through alternating",
+			"crosses each lane with three rows of low blockers, the ways through moving about",
 			function()
-				type Row = { z: number, gap: number, depth: number }
+				type Pile = { z: number, x1: number, x2: number, depth: number }
 				local prefix = "CatCafe_Alley_Blocker_"
-				local halfDepth: { [string]: number } =
-					{ Bins = 1, Pallets = 1.5, Skip = 2.7, Van = 3 }
+				local halfDepth: { [string]: number } = {
+					Bins = 1.3,
+					Pallets = 1.5,
+					Skip = 2.7,
+					Van = 5.7,
+					BinsShort = 1.3,
+					PalletsShort = 1.5,
+				}
 				for _, side in { -1, 1 } do
-					local rows: { Row } = {}
+					local mid = side * MID
+					local piles: { Pile } = {}
+					local ways: { [number]: number } = {} -- each row's z: its way through, -1, 0 (middle) or 1
+					local shorts: { [number]: number } = {} -- each row's z: the sum of its short piles' sides
 					for _, prop in alley.props :: { Layout.Prop } do
 						if prop.asset:sub(1, #prefix) ~= prefix then
 							continue
@@ -1239,31 +1249,56 @@ return function()
 						if x * side <= 0 then
 							continue
 						end
-						expect(x).to.be.near(side * MID, 1e-9)
+						expect(x).to.be.near(mid, 1e-9)
 						local turn = prop.rotY or 0
 						expect(turn == 0 or turn == 180).to.equal(true)
-						local depth = halfDepth[prop.asset:sub(#prefix + 1)]
+						local name = prop.asset:sub(#prefix + 1)
+						local depth = halfDepth[name]
 						expect(depth).to.be.ok()
+						local flip = if turn == 0 then 1 else -1
+						local short = name:sub(-5) == "Short"
+						local reach = if short then -4.9 else 2.6
+						local a, b = mid - 15 * flip, mid + reach * flip
 						table.insert(
-							rows,
-							{ z = z, gap = if turn == 0 then 1 else -1, depth = depth }
+							piles,
+							{ z = z, x1 = math.min(a, b), x2 = math.max(a, b), depth = depth }
 						)
+						if short then
+							shorts[z] = (shorts[z] or 0) + flip
+							ways[z] = 0
+						else
+							expect(ways[z]).to.equal(nil)
+							ways[z] = flip
+						end
 					end
-					expect(#rows).to.equal(3)
-					table.sort(rows, function(a: Row, b: Row): boolean
-						return a.z > b.z
+					-- a pair of shorts is one turned each way
+					for z, sum in shorts do
+						if sum ~= 0 then
+							fail("the short piles at z %g are not a pair", z)
+						end
+					end
+					local rows: { number } = {}
+					for z in ways do
+						table.insert(rows, z)
+					end
+					table.sort(rows, function(a: number, b: number): boolean
+						return a > b
 					end)
+					expect(#rows).to.equal(3)
 					for i = 2, #rows do
-						expect(rows[i].gap).to.equal(-rows[i - 1].gap)
+						if ways[rows[i]] == ways[rows[i - 1]] then
+							fail(
+								"the rows at z %g and %g leave the same way through",
+								rows[i - 1],
+								rows[i]
+							)
+						end
 					end
-					for _, row in rows do
-						local mid = side * MID
-						local x1 = if row.gap == 1 then mid - 13.35 else mid - 6
-						local x2 = if row.gap == 1 then mid + 6 else mid + 13.35
+					for _, pile in piles do
 						local function clear(x: number, z: number, margin: number): boolean
-							return x < x1 - margin
-								or x > x2 + margin
-								or math.abs(z - row.z) > row.depth + margin
+							return x < pile.x1 - margin
+								or x > pile.x2 + margin
+								or math.abs(z - pile.z) > pile.depth + margin
 						end
 						for i, point in alley.spawnPoints do
 							local x, z = toLane(point.x, point.z)
@@ -1273,7 +1308,7 @@ return function()
 									i,
 									x,
 									z,
-									row.z
+									pile.z
 								)
 							end
 						end
@@ -1285,7 +1320,7 @@ return function()
 									i,
 									x,
 									z,
-									row.z
+									pile.z
 								)
 							end
 						end

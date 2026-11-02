@@ -13,8 +13,8 @@
 --                 under it "🎡 Free spin at the Town Square" while today's free spin waits (F49)
 --   Lighter HUD (Derek 2026-10-28, after a look at popular Roblox HUDs): counters, the clock and the goal are outlined
 --   text with no box behind them; only things you press look like buttons, and the top centre is left clear.
---   left          square symbol tiles two to a row (Derek 2026-11-02, fewer buttons): Store (gold, once a Store window
---                 exists), Cats, Index, Quests, Upgrades, Decor, with small key caps and red "!" dots, centred in the
+--   left          square symbol tiles two to a row, three on a short screen that would need three rows (Derek
+--                 2026-11-02, fewer buttons): Store (gold, once a pass is on sale), Cats, Index, Quests, Upgrades, Decor, with small key caps and red "!" dots, centred in the
 --                 space over the counters, and an arrow tab under them (beside the last row on a short screen) that
 --                 folds them off the edge. Quests (F73) shows once ProfileSync has quests, with a red count of what is
 --                 ready to claim
@@ -114,7 +114,7 @@ export type HUD = {
 	screenOpened: (self: HUD, name: string?) -> (),
 	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
-	-- the gold Store tile at the top of the left menu, hidden until a Store window exists to open
+	-- the gold Store tile at the top of the left menu, hidden until a pass is on sale (init's Store block)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
@@ -154,7 +154,13 @@ local BOWL_ICON = "🥣" -- the bait bowl symbol's glyph, under the Big Bowl per
 -- some buttons into just symbols"): the left menu is a two-column grid of square symbol tiles, not wide pills
 local MENU_TILE = 76
 local MENU_COLUMNS = 2
-local MENU_W = MENU_COLUMNS * MENU_TILE + (MENU_COLUMNS - 1) * Theme.sizes.gap
+-- a short screen (a phone) whose grid would run three rows deep takes three tiles a row, so the bottom row stays out
+-- of Roblox's thumbstick in the bottom left (review N343: the Store tile's row put Upgrades there)
+local MENU_COLUMNS_SHORT = 3
+local function menuWidth(columns: number): number
+	return columns * MENU_TILE + (columns - 1) * Theme.sizes.gap
+end
+local MENU_W = menuWidth(MENU_COLUMNS)
 local TRAVEL_ICON = 28
 local TRAVEL_W = 136
 -- the potion and bait bowl symbols, bottom right (moved clear of Roblox's jump button on a phone: _placeCorner)
@@ -181,7 +187,9 @@ local DROP_W = 104
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
-local MENU_FOLDED_X = -(MENU_W + 40) -- past the left edge, dots too
+local function menuFoldedX(width: number): number
+	return -(width + 40) -- past the left edge, dots too
+end
 local HOME_TEXT = "My Cafe"
 local HOME_CARRYING_TEXT = "Walk it home" -- the server refuses trips while carrying, so the button says why
 local HOME_CAMP_TEXT = "Camp first" -- the same with the Cat Cannon live: a carried cat is checked in at a camp (F84)
@@ -866,7 +874,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Menu (left, vertically centred): square symbol tiles two to a row, the "Shop / Index" grid of popular
 	-- simulators (Derek 2026-11-02: "group some of the buttons into less screen clutter"; they were wide pills). A small
 	-- key cap shows the keyboard shortcut and a red "!" dot says the screen has something new. The gold Store tile
-	-- leads the grid once a Store window exists (setStore); Potions moved to a symbol in the bottom right corner.
+	-- leads the grid once a pass is on sale (setStore); Potions moved to a symbol in the bottom right corner.
 	local showKeys = UserInputService.KeyboardEnabled
 	type MenuItem = {
 		name: string,
@@ -1564,7 +1572,12 @@ function HUD.setMenuFolded(self: any, folded: boolean)
 	self._menuFolded = folded
 	self._menuFold:setText(if folded then "▶" else "◀")
 	Tween.to(self._menu, Tween.POP, {
-		Position = UDim2.new(0, if folded then MENU_FOLDED_X else MARGIN, 0, self._menuTop),
+		Position = UDim2.new(
+			0,
+			if folded then menuFoldedX(self._menu.Size.X.Offset) else MARGIN,
+			0,
+			self._menuTop
+		),
 	})
 	self:_placeMenuFold()
 	self:_renderFoldDot()
@@ -2308,9 +2321,6 @@ function HUD._pressMenu(self: any)
 	end
 end
 
--- The gold Store tile at the top of the left menu: shown with the function that opens the Store window, hidden
--- with nil. Nothing sells yet, so nothing calls it; the grid keeps its place (Derek 2026-11-02: "store still needs
--- to be added").
 -- The rows a list holds now, in order: id, icon, style and what pressing it does.
 type PopRow = { id: string, icon: string, style: Button.Style, press: () -> () }
 function HUD._popRowsFor(self: any, kind: string): { PopRow }
@@ -2434,6 +2444,9 @@ function HUD._closePop(self: any)
 	table.clear(self._popRows)
 end
 
+-- The gold Store tile at the top of the left menu (Derek 2026-11-02: "store still needs to be added"): shown with
+-- the function that opens the Store window, hidden with nil. init's Store block calls it once Roblox says a pass is on
+-- sale, or while the Workspace has StoreOpen for a preview; hidden, the grid closes up (review N341: moved here).
 function HUD.setStore(self: any, open: (() -> ())?)
 	self._storeOpen = open
 	local tile: Button.Button = self._storeTile
@@ -2707,13 +2720,22 @@ function HUD._layoutMenu(self: any)
 		end
 	end
 	self._menuFold.instance.Visible = shown > 0 -- no tab to fold an empty menu (the small HUD, F87)
-	local rows = math.ceil(shown / MENU_COLUMNS)
+	local columns = MENU_COLUMNS
+	local rows = math.ceil(shown / columns)
 	local spaces = math.max(0, rows - 1)
 	local pills = rows * MENU_TILE
 	local foldUnder = gap + 4 + FOLD_H
 	local bandBottom = height - MARGIN - self._counterH - gap
 	local buffsH = BuffChips.rowHeight()
 	local roomy = bandBottom - (buffsH + BUFFS_GAP) - MARGIN >= pills + spaces * gap + foldUnder
+	if not roomy and rows >= 3 then
+		columns = MENU_COLUMNS_SHORT
+		rows = math.ceil(shown / columns)
+		spaces = math.max(0, rows - 1)
+		pills = rows * MENU_TILE
+	end
+	self._menuLayout.FillDirectionMaxCells = columns
+	local menuW = menuWidth(columns)
 	if roomy then
 		self._buffs:place(
 			UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
@@ -2729,7 +2751,7 @@ function HUD._layoutMenu(self: any)
 	end
 	self._menuLayout.CellPadding = UDim2.fromOffset(gap, padding)
 	local menuH = pills + spaces * padding
-	self._menu.Size = UDim2.fromOffset(MENU_W, menuH)
+	self._menu.Size = UDim2.fromOffset(menuW, menuH)
 	local block = if roomy then menuH + foldUnder else menuH
 	-- a short screen (a phone) keeps the grid up at the top, clear of Roblox's thumbstick in the bottom left
 	self._menuTop = if roomy then MARGIN + math.max(0, math.floor((band - block) / 2)) else MARGIN
@@ -2745,7 +2767,7 @@ function HUD._layoutMenu(self: any)
 	end
 
 	self._menu.Position =
-		UDim2.new(0, if self._menuFolded then MENU_FOLDED_X else MARGIN, 0, self._menuTop)
+		UDim2.new(0, if self._menuFolded then menuFoldedX(menuW) else MARGIN, 0, self._menuTop)
 	self:_placeMenuFold()
 
 	-- the bottom row (and its arrow tab) keeps clear of the counters
@@ -2825,7 +2847,9 @@ function HUD._placeMenuFold(self: any)
 	local fold = self._menuFold.instance
 	local menuH = self._menu.Size.Y.Offset
 	if self._foldBeside then
-		local x = if self._menuFolded then MARGIN else MARGIN + MENU_W + Theme.sizes.gap
+		local x = if self._menuFolded
+			then MARGIN
+			else MARGIN + self._menu.Size.X.Offset + Theme.sizes.gap
 		local middle = self._menuTop + menuH - MENU_TILE / 2
 		fold.Position = UDim2.fromOffset(x, middle - FOLD_H / 2)
 		if not self._buffsLow then

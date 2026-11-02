@@ -1194,6 +1194,9 @@ Layout.townSquare = {
 	-- The finger signpost (v3.1, section 7d) in place of the ring's south-west bench: left of the cannon from the
 	-- spawn and off the cross. Its arms point the way the cannon fires to each area (v4).
 	signpost = { x = -9, y = 0.1, z = -7.5 } :: Point,
+	-- The Rescue Rally's board (F101, Model-Agent #759: `CatCafe_Square_RallyBoard`, front -Z), in the north-east
+	-- quarter facing the spawn, off the lane and the cannon's lines; WorldBuilder.setRally shows it while a Rally runs.
+	rallyBoard = { asset = "CatCafe_Square_RallyBoard", x = 15, y = 0.1, z = 12, rotY = 30 } :: Prop,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
 	-- street, then the edge (Derek 10-28, Model-Agent #726): twelve lamps on the brick border, eight long buntings

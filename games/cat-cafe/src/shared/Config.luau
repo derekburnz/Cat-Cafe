@@ -413,6 +413,20 @@ local Config = {
 	} :: { { chance: number, fish: number?, potion: string?, crate: string? } },
 	CampExtraRangeStuds = 8,
 
+	-- The Rescue Rally weekend (F101, rescue-rally.md; shared/Rally, Catalog.rallySteps). From RallyStartWeekday (0 is
+	-- Sunday) 00:00 UTC for RallyHours, or at any time with RallyForce, each server fills one bar together. The goal is
+	-- RallyPointsPerPlayer times the players (never fewer than RallyMinPlayers' worth), fixed when the lap starts; a
+	-- step pays everyone in the server who scored RallyMinPoints this lap, from at most RallyMaxLaps laps a weekend.
+	RallyStartWeekday = 6,
+	RallyHours = 48,
+	RallyPointsPerPlayer = 30,
+	RallyMinPlayers = 3,
+	RallyMinPoints = 3,
+	RallyMaxLaps = 4,
+	RallyPoints = { checkIn = 1, tame = 1, rescue = 3, teamRescue = 3 } :: { [string]: number },
+	RallyForce = false,
+	RallyStateSeconds = 0.5, -- RallyState goes out at most this often while points come in (steps go at once)
+
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
 	CodesCatRange = 12, -- RedeemCode from this close to a CodesCat station's pivot
 	CodesCircleRadius = 4, -- the code box opens within this flat distance of the CodesCircle, closes past it + 1

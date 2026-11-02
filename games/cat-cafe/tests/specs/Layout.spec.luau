@@ -1411,6 +1411,44 @@ return function()
 			expect(Layout.cannonAim("town")).to.equal(0)
 		end)
 
+		it("stands the Rally board in the north-east quarter facing the spawn, off the cross and the stations (F101)", function()
+			local board = square.rallyBoard
+			expect(board.asset).to.equal("CatCafe_Square_RallyBoard")
+			expect(board.x > 0 and board.z > 0).to.equal(true)
+			-- its face is about 11 by 1.5 (Model-Agent #759); every corner of that, turned, stays off the cross
+			local yaw = math.rad(board.rotY or 0)
+			local cos, sin = math.cos(yaw), math.sin(yaw)
+			for _, corner in { { -5.5, -0.75 }, { 5.5, -0.75 }, { -5.5, 0.75 }, { 5.5, 0.75 } } do
+				local x = board.x + corner[1] * cos + corner[2] * sin
+				local z = board.z - corner[1] * sin + corner[2] * cos
+				expect(inside(x, z, square.floor, 4)).to.equal(true)
+				for _, lane in lanes do
+					expect(inside(x, z, lane, -0.5)).to.equal(false)
+				end
+				expect(math.sqrt(x ^ 2 + z ^ 2) > square.fountainRadius + 3).to.equal(true)
+			end
+			-- front -Z turned toward the spawn on the street's line
+			local spawn = Layout.playerSpawn
+			local toX, toZ = spawn.x - board.x, spawn.z - board.z
+			local length = math.sqrt(toX ^ 2 + toZ ^ 2)
+			expect((-sin * toX - cos * toZ) / length > 0.95).to.equal(true)
+			for name, point in
+				{
+					spinWheel = Layout.spinWheel,
+					fishMarket = Layout.fishMarket,
+					codesCat = Layout.codesCat,
+					dealerCart = Layout.dealerCart,
+					bellhopStand = Layout.bellhopStand,
+					leaderboards = Layout.leaderboards,
+					signpost = square.signpost,
+				} :: { [string]: Point }
+			do
+				if math.sqrt((point.x - board.x) ^ 2 + (point.z - board.z) ^ 2) < 9 then
+					fail("the Rally board stands on the %s", name)
+				end
+			end
+		end)
+
 		it("stands the signpost by the cannon's plinth, south-west and off the cross", function()
 			local post = square.signpost :: Point
 			expect(post.x < 0 and post.z < 0).to.equal(true)

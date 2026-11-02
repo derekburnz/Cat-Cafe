@@ -29,7 +29,9 @@ goes on the square's floor top (y 0.1) unless the table says otherwise.
   CatCafe_Square_Bench      4 studs long, teal slats on a black iron frame, seat at 1.35, front -Z.
   CatCafe_Square_Lamp       an 11 stud post with two lanterns (_Bulb) and a brass hook ring at 9.6 for the bunting.
   CatCafe_Square_Bunting    22 studs of pennants on a line that sags from 9.6 at its ends to 8.6 in the middle; pivot
-                            on the ground under the middle of the span, its ends inside two lamp posts.
+                            on the ground under the middle of the span, its ends inside two lamp posts. Each flag is
+                            its own child Model CatCafe_Square_Bunting_Flag<NN>_Pennant (two wedges), its pivot at
+                            the middle of its top edge on the line, which VFX-Agent's flutter turns it about (#640).
   CatCafe_Square_Garden     a 22 x 12 raised bed for the gardens between the square and the back alleys: brick kerb,
                             grass, two trees, a hedge along the back (+Z), flowers along the front, a topiary cat.
 
@@ -461,7 +463,7 @@ def _line_y(x, half):
 
 
 def build_bunting(mat, span=2 * LAMP_AT):
-    b, flags = RB(), RB()
+    b = RB()
     half = span / 2
     n = 12
     xs = [-half + span * k / n for k in range(n + 1)]
@@ -472,13 +474,16 @@ def build_bunting(mat, span=2 * LAMP_AT):
         b.box(((x0 + x1) / 2, (y0 + y1) / 2, 0), (length, 0.07, 0.07), "dark_wood", rot=rot_z(ang))
     count = 16
     step = (span - 2.6) / (count - 1)
-    for k in range(count):
+    out = [b.finalize("CatCafe_Square_Bunting", mat)]
+    for k in range(count):                       # each flag its own Model, pivot on the line (VFX flutter, #640)
         x = -half + 1.3 + k * step
         xl, xr = x - 0.42, x + 0.42
         yl, yr = _line_y(xl, half) - 0.03, _line_y(xr, half) - 0.03
-        tip = (x, (yl + yr) / 2 - 1.05)
-        flags.fan_z(0.0, tip, [(xl, yl), (xr, yr)], 0.05, FLAGS[k % len(FLAGS)])
-    return [b.finalize("CatCafe_Square_Bunting", mat), flags.finalize("CatCafe_Square_Bunting_Decor", mat)]
+        ym = (yl + yr) / 2
+        flag = RB()
+        flag.fan_z(0.0, (0, -1.05), [(xl - x, yl - ym), (xr - x, yr - ym)], 0.05, FLAGS[k % len(FLAGS)])
+        out.append(flag.finalize(f"CatCafe_Square_Bunting_Flag{k + 1:02d}_Pennant", mat, location=(x, ym, 0)))
+    return out
 
 
 # -------------------------------------------------------------------------------------------------- arches --

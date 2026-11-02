@@ -15,10 +15,15 @@
 --                                   drops `done`.
 --   CafeWalk.isAway(cat)            whether it is up and about.
 --
+-- It rises out of a sit as it gets up and sinks into one as it sits back down, trots steady under a tray with its
+-- chin up, and plays the tip sweep at the pile (Moments.TipSwept: it rears up and drags the coins in, and the tray
+-- with the coin bag hops from the pile onto its head) and the drop at the till (Moments.TipBanked: a quick dip),
+-- pausing its walk for each (F90, cats-make-orders.md section 6; Logic.crouch, trayCarry, sweepPose, bankNod).
+--
 -- By itself it sends an idle waiter in your own cafe on a stroll now and then (Presets.cafeWalk): onto the nearest
 -- lane, along it to a chair's Approach point, a look over the table, and back. F90's orders (cats-make-orders.md,
--- Gameplay-Engineer's CustomerController) will call go() and home() with real routes and a tray; a go() takes over
--- an idle stroll. A walk ends at once, the station model shown again, if that model goes, the cafe closes for the
+-- Gameplay-Engineer's Controllers/CafeOrders) call go() and home() with real routes and a tray; a go() takes over an
+-- idle stroll. A walk ends at once, the station model shown again, if that model goes, the cafe closes for the
 -- night, the cat is sent to bed (Bedtime), it is hidden, or the camera goes out of range.
 
 local CollectionService = game:GetService("CollectionService")
@@ -30,6 +35,7 @@ local CatDress = require(ReplicatedStorage.Shared.CatDress)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
+local Moments = require(script.Parent.Parent.Moments)
 local Pose = require(script.Parent.Pose)
 local Presets = require(script.Parent.Presets)
 
@@ -44,6 +50,9 @@ export type Options = {
 }
 
 type State = "up" | "walk" | "stand" | "settle" | "down"
+
+-- A tip sweep at the pile or a drop at the till (F90), from `at` (os.clock()), facing `toward`; the walk waits for it.
+type Action = { kind: "sweep" | "bank", at: number, toward: Vector3 }
 
 type Walk = {
 	station: Model,
@@ -76,6 +85,8 @@ type Walk = {
 	done: (() -> ())?,
 	idle: boolean, -- an idle stroll of its own
 	standUntil: number, -- when an idle stroll heads home
+	carrying: number, -- 0 to 1 of the way into carrying a tray (Presets.cafeWalk.carry.ease)
+	action: Action?,
 }
 
 local walks: { [Model]: Walk } = {}
@@ -364,6 +375,8 @@ local function begin(cat: Model, idle: boolean): Walk?
 		done = nil,
 		idle = idle,
 		standUntil = math.huge,
+		carrying = 0,
+		action = nil,
 	}
 	for _, descendant in cat:GetDescendants() do
 		take(walk, descendant)
@@ -380,9 +393,11 @@ end
 local function walkOn(walk: Walk)
 	local now = os.clock()
 	if walk.state == "down" then
-		local k = math.clamp((now - walk.stateAt) / Presets.cafeWalk.fade, 0, 1)
+		-- as far up as it had sunk: the sit and the cross-fade both run back from there
+		local rise = Presets.cafeWalk.sit.rise
+		local r = math.clamp((now - walk.stateAt) / rise, 0, 1)
 		walk.state = "up"
-		walk.stateAt = now - (1 - k) * Presets.cafeWalk.fade
+		walk.stateAt = now - (1 - r) * rise
 	elseif walk.state ~= "up" then
 		walk.state = "walk"
 		walk.stateAt = now
@@ -545,18 +560,46 @@ local function broken(walk: Walk): boolean
 		or Context.distance(walk.home.Position) > Presets.cafeWalk.range * 1.25
 end
 
+-- Turns the walker toward `at` on the floor, at most `turn` radians.
+local function face(walk: Walk, at: Vector3, turn: number)
+	local way = Vector3.new(at.X - walk.position.X, 0, at.Z - walk.position.Z)
+	if way.Magnitude > 1e-3 then
+		walk.yaw = Logic.turnToward(walk.yaw, Logic.yawOf(way), turn)
+	end
+end
+
 local function advance(walk: Walk, now: number, dt: number)
 	local c = Presets.cafeWalk
 	local turn = math.rad(c.turn) * dt
 	local target = 0
+	local crouch = 0 -- how far down into a sit the walker is (getting up or sitting down)
+	local faded = 0 -- how far the walker is faded out
+	-- a sweep or a drop at the till holds the walk where it is, facing the pile or the till
+	local action = walk.action
+	local alpha = -1
+	if action ~= nil then
+		alpha = (now - action.at)
+			/ (if action.kind == "sweep" then c.sweep.seconds else c.bank.seconds)
+		if alpha >= 1 or (walk.state ~= "walk" and walk.state ~= "stand") then
+			walk.action = nil
+			action = nil
+			alpha = -1
+		end
+	end
 	if walk.state == "up" then
-		local k = math.clamp((now - walk.stateAt) / c.fade, 0, 1)
+		local into = now - walk.stateAt
+		local k = math.clamp(into / c.fade, 0, 1)
+		local r = math.clamp(into / c.sit.rise, 0, 1)
 		cover(walk, k)
-		setFade(walk.shown, 1 - k)
-		if k >= 1 then
+		faded = 1 - k
+		setFade(walk.shown, faded)
+		crouch = 1 - r * r * (3 - 2 * r)
+		if r >= 1 then
 			walk.state = if #walk.route > 1 then "walk" else "stand"
 			walk.stateAt = now
 		end
+	elseif walk.state == "walk" and action ~= nil then
+		face(walk, action.toward, turn)
 	elseif walk.state == "walk" then
 		target = walk.options.speed or c.speed
 		walk.travelled += walk.speed * dt
@@ -586,12 +629,9 @@ local function advance(walk: Walk, now: number, dt: number)
 			end
 		end
 	elseif walk.state == "stand" then
-		local faceAt = walk.options.faceAt
+		local faceAt = if action ~= nil then action.toward else walk.options.faceAt
 		if faceAt ~= nil then
-			local way = Vector3.new(faceAt.X - walk.position.X, 0, faceAt.Z - walk.position.Z)
-			if way.Magnitude > 1e-3 then
-				walk.yaw = Logic.turnToward(walk.yaw, Logic.yawOf(way), turn)
-			end
+			face(walk, faceAt, turn)
 		end
 		if walk.idle and now >= walk.standUntil then
 			CafeWalk.home(walk.station)
@@ -605,14 +645,37 @@ local function advance(walk: Walk, now: number, dt: number)
 			walk.stateAt = now
 		end
 	elseif walk.state == "down" then
-		local k = math.clamp((now - walk.stateAt) / c.fade, 0, 1)
-		setFade(walk.shown, k)
+		-- it sinks into the sit over sit.rise; the station model fades back in over the last `fade` of it
+		local into = now - walk.stateAt
+		local r = math.clamp(into / c.sit.rise, 0, 1)
+		local k = math.clamp((into - (c.sit.rise - c.fade)) / c.fade, 0, 1)
+		faded = k
+		setFade(walk.shown, faded)
 		cover(walk, 1 - k)
-		if k >= 1 then
+		crouch = r * r * (3 - 2 * r)
+		if r >= 1 then
 			finish(walk)
 			return
 		end
 	end
+
+	if walk.action ~= action then
+		-- one that started just now, from the arrived hook above (a TipSwept, then the go() with the coin bag)
+		action = walk.action
+		alpha = 0
+	end
+
+	-- the tray: with the coin bag it waits where the pile was until the sweep scoops it up onto the head
+	local tray, head, carry = walk.options.tray, walk.head, walk.carry
+	local carrying = tray ~= nil and tray.Parent ~= nil
+	local scoop, arc = 1, 0
+	if action ~= nil and action.kind == "sweep" then
+		scoop, arc = Logic.sweepScoop(alpha)
+	end
+	local into = dt / c.carry.ease
+	walk.carrying =
+		math.clamp(walk.carrying + (if carrying and scoop > 0 then into else -into), 0, 1)
+	local held = walk.carrying * walk.carrying * (3 - 2 * walk.carrying)
 
 	-- the walker: where it is, with the legs going at the speed it walks
 	walk.speed += (target - walk.speed) * math.min(1, dt * EASE)
@@ -628,10 +691,17 @@ local function advance(walk: Walk, now: number, dt: number)
 	local floor = CFrame.new(walk.position) * CFrame.Angles(0, walk.yaw, 0)
 	Pose.hold(rig, floor)
 	local o = Logic.idle("stray", now + walk.phase, rig.kind)
-	Logic.gait(o, walk.speed, walk.stride)
+	Logic.gait(o, walk.speed, walk.stride, held)
+	Logic.trayCarry(o, held)
+	Logic.crouch(o, crouch)
+	if action ~= nil then
+		if action.kind == "sweep" then
+			Logic.sweepPose(o, alpha)
+		else
+			Logic.bankNod(o, alpha)
+		end
+	end
 	Pose.draw(rig, o, -1)
-	local tray, head, carry = walk.options.tray, walk.head, walk.carry
-	local carrying = tray ~= nil and tray.Parent ~= nil
 	if carrying then
 		-- level and turned with the walker, its underside on the ear tips (Carry), else just over the head's top
 		local top = if carry ~= nil and carry.Parent ~= nil
@@ -642,14 +712,27 @@ local function advance(walk: Walk, now: number, dt: number)
 				0
 			)
 			else nil
+		if top ~= nil and action ~= nil and scoop < 1 then
+			top = action.toward:Lerp(top, scoop) + Vector3.new(0, arc, 0)
+		end
 		if top ~= nil then
 			(tray :: Model):PivotTo(CFrame.new(top) * CFrame.Angles(0, walk.yaw, 0))
 		end
 	end
-	-- tall head props step aside under a tray and come back once it is set down; the get up and sit down fades
-	-- handle them otherwise
-	if carrying or (walk.state ~= "up" and walk.state ~= "down") then
-		setFade(walk.tall, if carrying then 1 else 0)
+	-- tall head props step aside as a tray comes onto the head and come back once it is set down, and fade with the
+	-- rest of the walker as it gets up or sits down
+	setFade(walk.tall, math.max(held, faded))
+end
+
+-- A tip sweep at the pile or a drop at the till for a cat on the move (F90; Gameplay-Engineer's CafeOrders fires
+-- them in your own cafe). Not with Reduce Motion: the walk just goes on.
+local function onTip(kind: "sweep" | "bank", cat: unknown, position: unknown)
+	if typeof(cat) ~= "Instance" or typeof(position) ~= "Vector3" or Context.reducedMotion() then
+		return
+	end
+	local walk = walks[cat :: any]
+	if walk ~= nil then
+		walk.action = { kind = kind, at = os.clock(), toward = position :: Vector3 }
 	end
 end
 
@@ -674,6 +757,17 @@ function CafeWalk.start()
 	end
 	started = true
 	RunService.PreRender:Connect(step)
+	local swept, banked = (Moments :: any).TipSwept, (Moments :: any).TipBanked
+	if swept ~= nil then
+		swept:Connect(function(cat: unknown, position: unknown)
+			onTip("sweep", cat, position)
+		end)
+	end
+	if banked ~= nil then
+		banked:Connect(function(cat: unknown, position: unknown)
+			onTip("bank", cat, position)
+		end)
+	end
 end
 
 return CafeWalk

@@ -146,6 +146,14 @@ local ITEMS: { [string]: { name: string, icon: string, blurb: string } } = {
 local FishMarket = {}
 FishMarket.__index = FishMarket
 
+-- The gold fish before a price (F97 section 4), hidden when the button shows no price ("Maxed", "Sold out", "Open")
+local function showFish(button: Button.Button, shown: boolean)
+	local fish: TextLabel? = button.icon
+	if fish then
+		fish.Visible = shown
+	end
+end
+
 local function text(props: { [string]: any }): TextLabel
 	local merged: { [string]: any } = {
 		BackgroundTransparency = 1,
@@ -1006,6 +1014,7 @@ function FishMarket._build(self: any)
 		local open = Button.new({
 			name = "Open",
 			text = "Open",
+			icon = Theme.icons.goldenFish, -- the gold fish before a price, hidden while it opens free or is locked
 			style = "primary",
 			size = UDim2.new(1, -16, 0, 40),
 			anchorPoint = Vector2.new(0.5, 1),
@@ -1056,7 +1065,7 @@ function FishMarket._build(self: any)
 		icon:set(
 			if lure then lure.asset else nil,
 			fallback,
-			if row.kind == "perk" then "Legendary" elseif lure then lure.attracts else nil,
+			"Legendary", -- F97 section 4: the treats and perks each on a gold tile
 			if row.kind == "perk" then ShopIcons.perk(row.id) else ShopIcons.food(row.id)
 		)
 		text({
@@ -1181,6 +1190,7 @@ function FishMarket._refresh(self: any)
 		entry.owned.Text = "x" .. Format.short(count)
 		local price = crate.price or 0
 		local pending = self:_pendingFor(crate.id)
+		showFish(entry.open, count <= 0 and open and not pending)
 		if count > 0 then
 			entry.line.Text = ("You have %s"):format(Format.commas(count))
 			entry.open:setText(if pending then "..." else "Open")
@@ -1221,6 +1231,7 @@ function FishMarket._refresh(self: any)
 			local have = state.lures[row.id]
 			entry.level.Text = if have and have > 0 then ("You have %d"):format(have) else ""
 		end
+		showFish(entry.buy, cost ~= nil and not pending)
 		if cost == nil then
 			entry.buy:setText("Maxed")
 			entry.buy:setEnabled(false)
@@ -1428,6 +1439,7 @@ function FishMarket._renderFresh(self: any)
 		row.stock.TextColor3 = if can > 0 then Theme.colors.goodDark else Theme.modal.subtext
 		row.blurb.Text = self:_freshBlurb(item)
 		local pending = self:_pendingFor("fresh:" .. item.itemId)
+		showFish(row.buy, not pending and not none and can > 0)
 		row.buy:setText(
 			if pending
 				then "..."

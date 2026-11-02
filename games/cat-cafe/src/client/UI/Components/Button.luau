@@ -19,6 +19,8 @@ export type Style = "primary" | "secondary" | "gold" | "berry" | "ghost" | "dang
 
 -- "row": icon then text on one line. "tile": a big icon above a short label (the HUD menu squares).
 -- A row with `iconSize` draws its icon as its own picture that size at the left, then the text (the HUD's pills).
+-- An inline icon with a whole picture in Theme.glyphImages (the golden fish on a price, F97 section 4) is drawn as that
+-- picture just before the text, the two centred together, the emoji showing until the picture loads.
 export type Layout = "row" | "tile"
 
 export type Props = {
@@ -194,29 +196,60 @@ function Button.new(props: Props): Button
 	-- the icon sits in the text unless it is drawn on its own (tiles, and rows with iconSize)
 	local inlineIcon = props.icon ~= nil and not isTile and iconSize == nil
 	local textSize = props.textSize or Theme.sizes.textBody
+	-- an inline glyph with a whole picture: the picture and the text side by side in a centred row
+	local inlinePicture = if inlineIcon then Theme.glyphImages[props.icon :: string] else nil
+	local pictureRow: Frame? = nil
+	if inlinePicture and inlinePicture ~= "" then
+		inlineIcon = false
+		pictureRow = Create("Frame", {
+			Name = "Row",
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, -16, 1, 0),
+			Position = UDim2.fromOffset(8, 0),
+			ZIndex = (props.zIndex or 1) + 2,
+			Parent = face,
+		}, {
+			Create("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				HorizontalAlignment = Enum.HorizontalAlignment.Center,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				Padding = UDim.new(0, 4),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+		})
+	end
 	local label: TextLabel = Create("TextLabel", {
 		Name = "Label",
 		BackgroundTransparency = 1,
 		AnchorPoint = if isTile then Vector2.new(0, 1) else Vector2.new(),
 		Size = if isTile
 			then UDim2.new(1, -8, 0, textSize + 6)
+			elseif pictureRow then UDim2.fromScale(0, 1)
 			else UDim2.new(1, -(iconLeft + (if iconSize then 6 else 8)), 1, 0),
-		Position = if isTile then UDim2.new(0, 4, 1, -4) else UDim2.fromOffset(iconLeft, 0),
+		AutomaticSize = if pictureRow then Enum.AutomaticSize.X else Enum.AutomaticSize.None,
+		LayoutOrder = 2,
+		Position = if isTile
+			then UDim2.new(0, 4, 1, -4)
+			elseif pictureRow then UDim2.new()
+			else UDim2.fromOffset(iconLeft, 0),
 		FontFace = props.font or Theme.fonts.display,
 		TextSize = textSize,
 		TextColor3 = STYLES[style].text,
 		Text = if inlineIcon
 			then (props.icon :: string) .. " " .. (props.text or "")
 			else props.text or "",
-		TextTruncate = Enum.TextTruncate.AtEnd,
+		-- beside a picture the label sizes itself to its text, so nothing to cut
+		TextTruncate = if pictureRow then Enum.TextTruncate.None else Enum.TextTruncate.AtEnd,
 		-- next to a big icon the text reads from the icon and shrinks or wraps rather than cut off ("Walk it home")
 		TextXAlignment = if iconSize then Enum.TextXAlignment.Left else Enum.TextXAlignment.Center,
 		TextScaled = iconSize ~= nil,
 		ZIndex = (props.zIndex or 1) + 2,
-		Parent = face,
+		Parent = pictureRow or face,
 	})
 	if iconSize then
 		Create("UITextSizeConstraint", { MaxTextSize = textSize, MinTextSize = 10, Parent = label })
+	elseif pictureRow then
+		Create("UIPadding", { PaddingRight = UDim.new(0, 2), Parent = label }) -- room for the text outline
 	end
 	local textOutline = Outline.text(label, if textSize >= 20 then 3 else 2)
 
@@ -235,6 +268,20 @@ function Button.new(props: Props): Button
 			Text = props.icon,
 			ZIndex = (props.zIndex or 1) + 2,
 			Parent = face,
+		})
+	elseif pictureRow then
+		local side = math.floor(textSize * 1.3)
+		icon = Create("TextLabel", {
+			Name = "Icon",
+			BackgroundTransparency = 1,
+			Size = UDim2.fromOffset(side, side),
+			FontFace = Theme.fonts.display,
+			TextScaled = true,
+			TextColor3 = Theme.colors.white,
+			Text = props.icon,
+			LayoutOrder = 1,
+			ZIndex = (props.zIndex or 1) + 2,
+			Parent = pictureRow,
 		})
 	elseif isTile and props.icon then
 		icon = Create("TextLabel", {

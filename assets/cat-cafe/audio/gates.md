@@ -90,13 +90,13 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sheet-parts/sfx/CatCafe_Sfx_RainbowNear.ogg` | sfx | 1.60 | 1 | 48000 | 21 | -18.9 | -6.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RallyCheer.ogg` | sfx | 1.50 | 1 | 48000 | 24 | -17.6 | -4.2 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RescueDone.ogg` | sfx | 1.10 | 1 | 48000 | 13 | -15.6 | -4.0 | 0 | - | PASS |  |
-| `sheet-parts/sfx/CatCafe_Sfx_RescueDrop.ogg` | sfx | 0.55 | 1 | 48000 | 10 | -17.0 | -5.3 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_RescueDrop.ogg` | sfx | 0.42 | 1 | 48000 | 10 | -16.7 | -5.3 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RescueFail.ogg` | sfx | 0.50 | 1 | 48000 | 6 | -18.6 | -7.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RescueHitBag.ogg` | sfx | 0.30 | 1 | 48000 | 8 | - | -4.8 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RescueHitBin.ogg` | sfx | 0.32 | 1 | 48000 | 7 | - | -5.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RescueHitCan.ogg` | sfx | 0.35 | 1 | 48000 | 6 | - | -5.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RescueHitTone.ogg` | sfx | 0.15 | 1 | 48000 | 4 | - | -5.9 | 0 | - | PASS |  |
-| `sheet-parts/sfx/CatCafe_Sfx_RescueHitTree.ogg` | sfx | 0.40 | 1 | 48000 | 8 | - | -5.3 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_RescueHitTree.ogg` | sfx | 0.40 | 1 | 48000 | 8 | - | -4.8 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RescueMiss.ogg` | sfx | 0.26 | 1 | 48000 | 5 | - | -6.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RescueStart.ogg` | sfx | 0.50 | 1 | 48000 | 6 | -13.3 | -5.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_StrayHop.ogg` | sfx | 0.50 | 1 | 48000 | 6 | -23.4 | -4.9 | 0 | - | PASS |  |
@@ -110,7 +110,7 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sheets/CatCafe_Sheet_Catch.ogg` | sheet | 4.85 | 1 | 48000 | 23 | -19.1 | -4.1 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Decor.ogg` | sheet | 14.90 | 1 | 48000 | 130 | -18.9 | -5.3 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Moments.ogg` | sheet | 23.22 | 2 | 48000 | 266 | -16.3 | -5.9 | 0 | - | PASS |  |
-| `sheets/CatCafe_Sheet_Rescue.ogg` | sheet | 10.23 | 1 | 48000 | 51 | -18.9 | -4.1 | 0 | - | PASS |  |
+| `sheets/CatCafe_Sheet_Rescue.ogg` | sheet | 10.10 | 1 | 48000 | 52 | -18.9 | -4.0 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_World.ogg` | sheet | 7.15 | 1 | 48000 | 55 | -19.5 | -4.7 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Badge.ogg` | ui | 0.11 | 1 | 48000 | 4 | - | -11.0 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Click.ogg` | ui | 0.07 | 1 | 48000 | 4 | - | -5.7 | 0 | - | PASS |  |

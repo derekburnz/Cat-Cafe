@@ -16,6 +16,9 @@
 -- Equip Best (Derek 2026-10-28, server #828): a pink button right of the chips while Config.DecorEquipBest is true,
 -- like the HUD's. A press fires callbacks.equipBest and holds the button grey until the next sync (at most
 -- PRESS_HOLD seconds); the server puts out the best owned pieces and toasts what changed, or that nothing would.
+-- F91 (front-lawn.md section 3): a "Front lawn" chip after All, shown while the lawn is live (the bound plot's
+-- LawnPath attribute is set and ProfileSync has sent the lawn, Components/LawnLogic.live). Picking it swaps the strip
+-- and grid for the Front lawn tab (Screens/LawnTab) and hides Equip Best, which is for the inside.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -25,6 +28,8 @@ local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local Format = require(script.Parent.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
+local LawnTab = require(script.Parent.LawnTab)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
@@ -37,12 +42,20 @@ export type Callbacks = {
 	toggleDecor: (decorId: string, placed: boolean) -> (),
 	close: () -> (),
 	equipBest: (() -> ())?, -- Equip Best on the chips row; no button without it
+	-- F91: the Front lawn tab's requests (Screens/LawnTab)
+	buyLawn: (id: string, spotId: string?) -> (),
+	setLawnSpot: (spotId: string, pieceId: string) -> (),
+	setLawnStyle: (kind: Types.LawnStyleKind, id: string) -> (),
+	editLawn: () -> (),
 }
 
 export type DecorShop = {
 	frame: Frame,
 	setCatalog: (self: DecorShop, catalog: Types.Catalog) -> (),
 	render: (self: DecorShop, state: Types.PlayerState) -> (),
+	-- F91: the player's own plot, whose LawnPath attribute says the lawn is live; nil stops watching
+	bindPlot: (self: DecorShop, plot: Instance?) -> (),
+	showLawn: (self: DecorShop) -> (), -- the Front lawn chip picked, when the lawn is live
 	destroy: (self: DecorShop) -> (),
 }
 
@@ -61,6 +74,8 @@ local SLOT_WIDTH = 150 -- four slots fit a full-width window with the fifth peek
 local STRIP_ORDER = { "wallpaper", "floor", "paint", "spots", "door", "catflap" }
 local LATE_KINDS: { [string]: boolean } = { door = true, catflap = true } -- shown once the catalog has one
 local SPOTS_BY_TIER: { number } = Config.DecorSpots or DecorPieces.SPOTS_BY_TIER
+local LAWN_CHIP = "Front lawn" -- F91: the chip that shows the Front lawn tab
+local LAWN_GLYPH = "🌷"
 
 -- Placeholder art colour per category until the asset thread delivers images.
 local CATEGORY_COLORS: { [string]: Color3 } = {
@@ -99,6 +114,9 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self._decor = {} :: { Types.DecorDef } -- Catalog.decor and Catalog.crateDecor
 	self._filter = "All"
 	self._catalog = nil :: Types.Catalog?
+	self._plot = nil :: Instance?
+	self._plotConnection = nil :: RBXScriptConnection?
+	self._lawnLive = false
 	self._state = nil :: Types.PlayerState?
 	self._dirty = true
 	-- a phone's buttons grow to a 44 px face
@@ -249,6 +267,17 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	})
 	self._footer = footer
 
+	-- F91: the Front lawn tab, in place of the strip and grid while its chip is picked
+	local lawnTab = LawnTab.new(panel.content, {
+		buyLawn = callbacks.buyLawn,
+		setLawnSpot = callbacks.setLawnSpot,
+		setLawnStyle = callbacks.setLawnStyle,
+		editLawn = callbacks.editLawn,
+	})
+	lawnTab.frame.Position = UDim2.fromOffset(0, chipHeight + Theme.sizes.gap)
+	lawnTab.frame.Size = UDim2.new(1, 0, 1, -(chipHeight + Theme.sizes.gap))
+	self._lawnTab = lawnTab
+
 	return self :: DecorShop
 end
 
@@ -263,7 +292,59 @@ function DecorShop._setFilter(self: any, category: string)
 	for _, chip in self._chips do
 		chip.button:setStyle(if chip.category == category then "gold" else "ghost")
 	end
+	-- F91: the Front lawn tab takes the strip's and grid's place, and Equip Best (for the inside) steps aside
+	local lawn = category == LAWN_CHIP
+	self._lawnTab.frame.Visible = lawn
+	self._grid.Visible = not lawn
+	self._strip.Visible = not lawn and self._hasPieces == true
+	local equipBest: Button.Button? = self._equipBest
+	if equipBest then
+		equipBest.instance.Visible = not lawn
+	end
+	if lawn and self._state then
+		self._lawnTab:render(self._state)
+	end
 	self:_applyVisible()
+end
+
+-- F91: whether the Front lawn chip shows; off with its tab picked goes back to All.
+function DecorShop._renderLawnLive(self: any)
+	local plot: Instance? = self._plot
+	local live =
+		LawnLogic.live(self._state, if plot ~= nil then plot:GetAttribute("LawnPath") else nil)
+	self._lawnLive = live
+	for _, chip in self._chips do
+		if chip.category == LAWN_CHIP then
+			chip.button.instance.Visible = live
+		end
+	end
+	if not live and self._filter == LAWN_CHIP then
+		self:_setFilter("All")
+	end
+end
+
+function DecorShop.bindPlot(self: any, plot: Instance?)
+	if plot == self._plot then
+		return
+	end
+	local connection: RBXScriptConnection? = self._plotConnection
+	if connection then
+		connection:Disconnect()
+		self._plotConnection = nil
+	end
+	self._plot = plot
+	if plot ~= nil then
+		self._plotConnection = plot:GetAttributeChangedSignal("LawnPath"):Connect(function()
+			self:_renderLawnLive()
+		end)
+	end
+	self:_renderLawnLive()
+end
+
+function DecorShop.showLawn(self: any)
+	if self._lawnLive then
+		self:_setFilter(LAWN_CHIP)
+	end
 end
 
 -- A card shows when its chip is picked; a crate piece, or a coin piece that now comes from crates (F97), only once
@@ -408,6 +489,7 @@ function DecorShop._build(self: any)
 			break
 		end
 	end
+	self._hasPieces = hasPieces
 	self._strip.Visible = hasPieces
 	local gridTop = self._chipHeight
 		+ Theme.sizes.gap
@@ -420,6 +502,9 @@ function DecorShop._build(self: any)
 
 	-- chips: All + each category (a piece's kind) in catalog order
 	local categories = { "All" }
+	if #LawnLogic.pieces() > 0 then
+		table.insert(categories, LAWN_CHIP) -- F91: shown while the lawn is live
+	end
 	for _, decor in all do
 		local chip = chipOf(decor)
 		if not table.find(categories, chip) then
@@ -427,12 +512,14 @@ function DecorShop._build(self: any)
 		end
 	end
 	for index, category in categories do
+		local lawn = category == LAWN_CHIP
 		local button = Button.new({
-			name = category,
+			name = if lawn then "FrontLawn" else category,
 			text = category,
+			icon = if lawn then LAWN_GLYPH else nil,
 			style = "ghost",
 			size = UDim2.fromOffset(
-				math.max(CHIP_MIN_WIDTH, #category * 11 + CHIP_PAD),
+				math.max(CHIP_MIN_WIDTH, #category * 11 + CHIP_PAD + (if lawn then 24 else 0)),
 				self._chipHeight
 			),
 			textSize = Theme.sizes.textSmall,
@@ -443,6 +530,7 @@ function DecorShop._build(self: any)
 				self:_setFilter(category)
 			end,
 		})
+		button.instance.Visible = not lawn or self._lawnLive
 		table.insert(self._chips, { category = category, button = button })
 	end
 
@@ -620,7 +708,7 @@ function DecorShop._build(self: any)
 			mode = "buy",
 		}
 	end
-	self:_setFilter("All")
+	self:_setFilter(if self._filter == LAWN_CHIP and self._lawnLive then LAWN_CHIP else "All")
 end
 
 function DecorShop.setCatalog(self: any, catalog: Types.Catalog)
@@ -652,11 +740,15 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 	self._state = state
 	self._bestPressed = nil -- the sync the server sends after Equip Best
 	self:_renderBest()
+	self:_renderLawnLive()
 	if not self.frame.Visible then
 		self._dirty = true
 		return
 	end
 	self._dirty = false
+	if self._filter == LAWN_CHIP then
+		self._lawnTab:render(state)
+	end
 	local replaced = if self._catalog then IndexRewards.replacedBy(self._catalog, state) else {}
 	local used = DecorPieces.spotsUsed(self._decor, state.decorPlaced, replaced)
 	local spots = DecorPieces.spots(state.tier, state.fishPerks, SPOTS_BY_TIER)
@@ -768,6 +860,11 @@ function DecorShop.destroy(self: any)
 	if equipBest then
 		equipBest:destroy()
 	end
+	local connection: RBXScriptConnection? = self._plotConnection
+	if connection then
+		connection:Disconnect()
+	end
+	self._lawnTab:destroy()
 	self._panel:destroy()
 end
 

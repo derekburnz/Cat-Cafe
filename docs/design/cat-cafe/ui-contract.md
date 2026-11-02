@@ -798,6 +798,15 @@ A tip shows once per account, the first time a player meets something: one line 
 
 **Engineer (F102):** accept `tradeRequests` with those three values in SetSetting (a saved key with default `"everyone"`; `SettingsList.OTHER_KEYS` lists it, so the SettingsList spec accepts a saved key with no switch row) and send `settings.tradeRequests` and `tradeLog` (up to 20 `{ id, at (os.time()), partnerName, gave, got }`, `gave` and `got` lists of `CatSummary`) in ProfileSync (agreed 2026-11-02).
 
+### Front lawn tab and edit view (built, F91, front-lawn.md section 3)
+
+- **Front lawn chip** in the Decor window (`Screens/DecorShop.luau`), right after All, shown while the lawn is live: the plot passed to `UI.richTip.bind(plot)` has its `LawnPath` attribute (Gameplay's LawnBuilder sets it once Model-Agent's lawn art is in) and ProfileSync has sent `lawnStyles` (`Components/LawnLogic.live`). Picking it swaps the strip and grid for the Front lawn tab and hides Equip Best, which is for the inside.
+- **Front lawn tab** (`Screens/LawnTab.luau`): a "Your lawn" strip like the inside's, with the Path in use, the Fence in use ("None") and Lawn spots ("1 / 2" used of open, red when full), then a gold **Edit lawn** button. Tapping a slot shows its cards: path styles, fence styles, or the pieces (yours first, then the shop's, each in catalog order). A piece card shows its model, "On lawn" or "Owned", "Small spot · Tier 1" and one button: Place (onto the first open empty spot of its size), Put away, Spots full, its price (grey when the coins fall short), or "Tier 3". A style card: Use it, In use (the path), Take down (the fence), its price or tier. Prices come from `Catalog.lawn` and `Catalog.lawnStyles` (economy-ladder.md section 4), and every rule from `shared/Lawn` (`Components/LawnLogic.luau`, with a spec), so a button the UI offers is one LawnService takes.
+- **Edit lawn** (`Screens/LawnEdit.luau`, `UI.lawn.edit()`): the Decor window closes, the HUD steps aside (toasts stay) and the camera swings to the cafe front, far enough back that all six spots fit the screen's width. A ring floats over each of the plot's `LawnSpots/<spotId>` parts: "+" and "Small spot" on an open empty spot, a pencil and the piece's name on a filled one, a lock and "Tier 3" on a closed one. Tapping a ring opens the picker along the bottom: the piece on that spot, the other owned pieces of its size (Place, or Move here when it stands elsewhere), then the shop's (buying puts it right there) and the later tiers'. Clear spot empties it and keeps the piece. Done brings the Decor window back on the Front lawn tab; walking 14 studs away or the character going ends the view without it. Edit lawn from more than 80 studs away toasts "Walk to your cafe to edit the lawn." The purchase sparkle stays the game's (Moments.Purchase).
+- **Gate scenes:** DecorLawn (the tab on a half done lawn) and LawnEdit (the edit view with the picker on the first small spot). The rings are world UI, which the gate lays out but does not draw.
+
+**Engineer (F91):** in UIController pass `lawnOwned = s.lawnOwned, lawn = s.lawn, lawnStyles = s.lawnStyles` in `UI.update`; connect `UI.events.buyLawn` to `Net.fire("BuyLawn", id, spotId)`, `UI.events.setLawnSpot` to `Net.fire("SetLawnSpot", spotId, pieceId)` and `UI.events.setLawnStyle` to `Net.fire("SetLawnStyle", kind, id)` (the UI sends `""` to clear a spot, lay Grey Slabs or take the fence down, never nil); and count a new `lawnOwned` id in `boughtSomething` so a lawn buy plays the purchase sparkle (section 3). Until then the tab stays hidden, as it waits for `lawnStyles`.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
@@ -877,6 +886,9 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `tradeReady` | `tradeId, version, ready` | Ready or Not ready (F102). Forward as `TradeReady(tradeId, version, ready)`; a stale `version` is refused. |
 | `tradeConfirm` | `tradeId, version` | Confirm on the confirm face (F102). Forward as `TradeConfirm(tradeId, version)`. |
 | `tradeCancel` | `tradeId` | Cancel or the X on the Trade window during a trade (F102). Forward as `TradeCancel(tradeId)`. |
+| `buyLawn` | `id, spotId?` | A price on a Front lawn card (no spot: the server picks the first free one of its size) or in the edit view's picker (that spot) (F91). Forward as `BuyLawn(id, spotId)`. |
+| `setLawnSpot` | `spotId, pieceId` | Place, Put away or Move here on a lawn piece, or Clear spot in the picker (`pieceId` `""`) (F91). Forward as `SetLawnSpot(spotId, pieceId)`. |
+| `setLawnStyle` | `kind, id` | Use it on a path or fence card, or Take down on the fence in use (`id` `""`) (F91). Forward as `SetLawnStyle(kind, id)`. |
 
 ## State shape (`Types.PlayerState`)
 
@@ -914,6 +926,8 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     dailyTreat: { stamp, lastDay, due, nextDay }?,                 -- F70: the Daily Treat card and the HUD's Daily tile
     tipsSeen: { [tipId]: true }?, feedbackAsked: boolean?,          -- F87: context tips seen; the one feedback ask shown
     stuckHelpShown: { [step]: true }?,                             -- F87: "Need a hand?" shown, by tutorialStep "0" to "5"
+    lawnOwned: { [id]: true }?, lawn: { [spotId]: pieceId }?,       -- F91: the lawn pieces and styles owned, the piece on each spot
+    lawnStyles: { path, fence? }?,                                 -- F91: the path and fence in use; nil keeps the Front lawn tab hidden
 }
 ```
 

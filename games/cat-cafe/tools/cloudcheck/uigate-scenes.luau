@@ -194,6 +194,17 @@ local function samplePlayer(now)
 		},
 		achievements = achievements,
 		dailyTreat = { stamp = 2, lastDay = day - 1, due = true, nextDay = 3 },
+		-- F91: a lawn half done: two pieces out, two more in the bag, a Red Brick path and the White Picket
+		lawnOwned = {
+			tulip_bed = true,
+			mailbox = true,
+			lamp_post = true,
+			garden_bench = true,
+			red_brick = true,
+			white_picket = true,
+		},
+		lawn = { small1 = "tulip_bed", big1 = "garden_bench" },
+		lawnStyles = { path = "red_brick", fence = "white_picket" },
 	}
 end
 
@@ -566,6 +577,31 @@ local function tapCircles()
 	})
 end
 
+-- F91: the player's own plot as UIController binds it, with the lawn live (LawnPath) and the six LawnSpots parts the
+-- edit view's rings stand on
+local lawnPlot = nil
+local function bindLawnPlot()
+	if lawnPlot == nil then
+		local Lawn = UIShim.require("ReplicatedStorage.Shared.Lawn")
+		local plot = Instance.new("Model")
+		plot.Name = "Plot_1"
+		plot:SetAttribute("LawnPath", "red_brick")
+		local spots = Instance.new("Folder")
+		spots.Name = "LawnSpots"
+		spots.Parent = plot
+		for _, spot in Lawn.SPOTS do
+			local part = Instance.new("Part")
+			part.Name = spot.id
+			part.Anchored = true
+			part.Position = Vector3.new(spot.x, spot.y, spot.z)
+			part.Parent = spots
+		end
+		plot.Parent = workspace
+		lawnPlot = plot
+	end
+	UI.richTip.bind(lawnPlot)
+end
+
 -- name, how the game opens it
 local SCENES = {
 	{ "Upgrades", function()
@@ -573,6 +609,18 @@ local SCENES = {
 	end },
 	{ "Decor", function()
 		UI.open("Decor")
+	end },
+	-- F91: the Front lawn tab, the path and fence slots over the pieces (yours first)
+	{ "DecorLawn", function()
+		bindLawnPlot()
+		UI.open("Decor")
+		press("Decor", "FrontLawn")
+	end },
+	-- F91: Edit lawn's view with the picker open on the first small spot (the Tulip Bed is on it)
+	{ "LawnEdit", function()
+		bindLawnPlot()
+		UI.lawn.edit()
+		UI.lawn.pick("small1")
 	end },
 	{ "Index", function()
 		UI.open("Collection")
@@ -1222,6 +1270,7 @@ end
 
 function Scenes.close()
 	reel(false)
+	UI.lawn.stop(false) -- F91: the edit view ends and the camera goes back
 	UI.close()
 	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were

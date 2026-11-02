@@ -4,6 +4,9 @@
 -- Angles are degrees: the leaf turns about its hinge's Y, OPEN_DEGREES out into the yard; the flap turns about its
 -- top hinge's X, negative out into the yard and positive into the cafe. An F80 door set's back leaf swings the same
 -- way, and its two front leaves stand open into the cafe by day (Model-Agent, F80).
+-- At night (Derek 2026-10-28: "walking through closed doors at night; the door should open for its owner") an owned
+-- cafe's shut doors are solid for everyone but its owner (`solid`), and they open as the owner comes near
+-- (`wantsOpen` and `frontOpen` with the owner's distance), on every client, so others see the owner go through.
 
 local BackDoor = {}
 
@@ -18,10 +21,28 @@ BackDoor.FLAP_SPRING = 140 -- degrees a second squared per degree off rest, once
 BackDoor.FLAP_DAMPING = 5 -- per second, so it rocks a few times and settles
 BackDoor.FRONT_OPEN_DEGREES = 90 -- a door set's front leaves by day, each flat against the wall inside
 
--- Whether the leaf stands open: while the areas are open (by day), on an owned cafe, with a player's character
--- `nearest` studs from the doorway, within OPEN_RANGE. The leaf is the cafe's own or an F80 door set's.
-function BackDoor.wantsOpen(areasOpen: boolean, owned: boolean, nearest: number?): boolean
-	return areasOpen and owned and nearest ~= nil and nearest <= BackDoor.OPEN_RANGE
+-- Whether the leaf stands open, on an owned cafe: by day (the areas open) for any player's character `nearest` studs
+-- from the doorway within OPEN_RANGE, at night only for the owner's, `ownerNearest` studs away. The leaf is the cafe's
+-- own or an F80 door set's.
+function BackDoor.wantsOpen(
+	areasOpen: boolean,
+	owned: boolean,
+	nearest: number?,
+	ownerNearest: number?
+): boolean
+	local near = if areasOpen then nearest else ownerNearest
+	return owned and near ~= nil and near <= BackDoor.OPEN_RANGE
+end
+
+-- Whether a door set's front leaves stand open: all day, and at night while the owner is within OPEN_RANGE.
+function BackDoor.frontOpen(areasOpen: boolean, ownerNearest: number?): boolean
+	return areasOpen or (ownerNearest ~= nil and ownerNearest <= BackDoor.OPEN_RANGE)
+end
+
+-- Whether an owned cafe's shut doors (the back door panel, a door set's front leaves) block this client's character:
+-- at night, unless this client is the owner.
+function BackDoor.solid(areasOpen: boolean, owned: boolean, isOwner: boolean): boolean
+	return owned and not areasOpen and not isOwner
 end
 
 -- Which way a door set's front leaf named `name` turns to open (Model-Agent, F80: `_LeafL` -90 about its hinge's Y

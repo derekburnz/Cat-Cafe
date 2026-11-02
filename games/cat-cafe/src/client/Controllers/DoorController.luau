@@ -3,14 +3,17 @@
 -- WorldBuilder puts CatCafe_Plot_BackDoor in every plot, tagged CafeBackDoor, with nothing on it solid. On this
 -- client, while the areas are open and on an owned cafe, its _Leaf swings out into the yard while any player is
 -- within BackDoor.OPEN_RANGE of the doorway and shuts when they have gone, and its _Flap swings as a cat goes through
--- (shared/BackDoor has the rules). While the areas are closed the leaf stays shut and an owned cafe's back door
--- panel turns solid, as the closed back door art did. The CLOSED UNTIL SUNRISE sign the leaves carried comes off on
--- the server (WorldBuilder.removeDoorSign, Derek's 10-30 playtest).
+-- (shared/BackDoor has the rules). While the areas are closed (Derek 2026-10-28: "walking through closed doors at
+-- night; the door should open for its owner") an owned cafe's back door panel and a door set's shut front leaves are
+-- solid on every client but the owner's, and the leaves swing open as the owner comes near, on every client. The
+-- CLOSED UNTIL SUNRISE sign the leaves carried comes off on the server (WorldBuilder.removeDoorSign, Derek's 10-30
+-- playtest).
 -- An F80 door set in use (the plot's Door attribute) hides the art, and its own models, which CafeService puts in the
--- plot's Decor, move instead: DoorBack's _Leaf swings as the art's does, and DoorFront's _LeafL and
--- _LeafR stand open into the cafe while the areas are open and shut while they are closed. Decor.CatFlap (the F80 cat
--- flap in use, or the plain one a door set brings) rides the leaf in use from its CatFlap attachment, hides the art's
--- own flap (and its _FlapFrame) and swings its _Flap for cats in that flap's place. Only this client's copy moves.
+-- plot's Decor, move instead: DoorBack's _Leaf swings as the art's does, and DoorFront's _LeafL and _LeafR stand open
+-- into the cafe while the areas are open and shut while they are closed, but for the owner near them. Decor.CatFlap
+-- (the F80 cat flap in use, or the plain one a door set brings) rides the leaf in use from its CatFlap attachment,
+-- hides the art's own flap (and its _FlapFrame) and swings its _Flap for cats in that flap's place. Only this
+-- client's copy moves.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -59,6 +62,8 @@ type Door = {
 	frontLeaves: { FrontLeaf },
 	frontAngle: number, -- 0 shut to FRONT_OPEN_DEGREES
 	shownFront: number,
+	frontWants: boolean, -- the front leaves stand open: by day, or at night for the owner near them
+	frontSolid: boolean?, -- the front leaves' collision as last set on this client, nil to set it again
 	decorFlap: Model?, -- Decor.CatFlap riding the leaf in use
 	decorSwing: Swing?, -- its _Flap, as first seen from swingFrom
 	swingFrom: Model?,
@@ -72,6 +77,8 @@ type Door = {
 	wantsOpen: boolean,
 	active: boolean,
 	owned: boolean,
+	ownerId: number, -- the owner's user id, 0 on an empty plot
+	isOwner: boolean, -- this client's player owns the cafe
 	hidden: boolean, -- the art hidden behind a door set
 	ownFlapHidden: boolean,
 }
@@ -225,8 +232,25 @@ local function bindFront(door: Door, front: Model?, open: boolean)
 	end
 	door.frontLeaves = leaves
 	door.shownFront = 0 -- built shut
+	door.frontWants = open
 	door.frontAngle = if open then BackDoor.FRONT_OPEN_DEGREES else 0
+	door.frontSolid = nil
 	showFront(door)
+end
+
+-- Every part of a door set's front leaves solid or not, on this client only.
+local function setFrontSolid(door: Door, solid: boolean)
+	if door.frontSolid == solid then
+		return
+	end
+	door.frontSolid = solid
+	for _, leaf in door.frontLeaves do
+		for _, descendant in leaf.model:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				(descendant :: BasePart).CanCollide = solid
+			end
+		end
+	end
 end
 
 -- Owner, clock, door set and cat flap in use: the leaves and flap in use, the panel's night collision and what is
@@ -234,6 +258,8 @@ end
 local function readState(door: Door, open: boolean)
 	local owner = door.plot:GetAttribute("OwnerUserId")
 	door.owned = type(owner) == "number" and owner > 0
+	door.ownerId = if door.owned then owner :: number else 0
+	door.isOwner = door.owned and door.ownerId == Players.LocalPlayer.UserId
 	local replaced = door.plot:GetAttribute("Door") ~= nil
 	if door.hidden ~= replaced then
 		door.hidden = replaced
@@ -273,11 +299,14 @@ local function readState(door: Door, open: boolean)
 		door.shownAngle = math.huge
 	end
 	door.flapSwings = flapHinge(door) ~= nil
-	-- the closed back door art used to block an owned cafe's back door at night; an empty plot's panel is shut anyway
+	-- at night an owned cafe's shut doors block everyone but its owner (the closed back door art used to block the
+	-- back door for everyone); an empty plot's panel is shut anyway
+	local solid = BackDoor.solid(open, door.owned, door.isOwner)
 	local panel = panelOf(door)
-	if panel ~= nil and door.owned and panel.CanCollide == open then
-		panel.CanCollide = not open
+	if panel ~= nil and door.owned and panel.CanCollide ~= solid then
+		panel.CanCollide = solid
 	end
+	setFrontSolid(door, solid)
 end
 
 local function rootOf(player: Player): BasePart?
@@ -302,6 +331,21 @@ local function nearestPlayer(doorway: Vector3): number?
 		end
 	end
 	return best
+end
+
+-- The owner's character to `doorway`, in studs across the ground, or nil when they are not here or not close in
+-- height.
+local function ownerDistance(door: Door, doorway: Vector3): number?
+	local owner = if door.ownerId > 0 then Players:GetPlayerByUserId(door.ownerId) else nil
+	local root = if owner ~= nil then rootOf(owner) else nil
+	if root == nil then
+		return nil
+	end
+	local offset = root.Position - doorway
+	if math.abs(offset.Y) > NEAR_HEIGHT then
+		return nil
+	end
+	return Vector3.new(offset.X, 0, offset.Z).Magnitude
 end
 
 -- Which way a cat at the flap hanging from `hinge` pushes it (BackDoor.pushFrom), or nil with none within
@@ -348,12 +392,21 @@ local function sense(door: Door, open: boolean, camera: Vector3?)
 		door.push = nil
 		return
 	end
-	door.wantsOpen = BackDoor.wantsOpen(open, door.owned, nearestPlayer(doorway))
+	door.wantsOpen = BackDoor.wantsOpen(
+		open,
+		door.owned,
+		if open then nearestPlayer(doorway) else nil,
+		if open then nil else ownerDistance(door, doorway)
+	)
+	local front = door.front
+	door.frontWants = if open or front == nil
+		then open
+		else BackDoor.frontOpen(open, ownerDistance(door, front:GetPivot().Position))
 	local hinge = if math.abs(door.angle) < FLAP_SHUT_DEGREES then flapHinge(door) else nil
 	door.push = if hinge ~= nil then catPush(door, panel, hinge) else nil
 end
 
-local function step(door: Door, dt: number, open: boolean)
+local function step(door: Door, dt: number)
 	if not door.active then
 		return
 	end
@@ -369,8 +422,11 @@ local function step(door: Door, dt: number, open: boolean)
 		show(door)
 	end
 	if #door.frontLeaves > 0 then
-		door.frontAngle =
-			BackDoor.stepLeaf(door.frontAngle, if open then BackDoor.FRONT_OPEN_DEGREES else 0, dt)
+		door.frontAngle = BackDoor.stepLeaf(
+			door.frontAngle,
+			if door.frontWants then BackDoor.FRONT_OPEN_DEGREES else 0,
+			dt
+		)
 		showFront(door)
 	end
 end
@@ -408,6 +464,8 @@ local function register(instance: Instance)
 		frontLeaves = {},
 		frontAngle = 0,
 		shownFront = 0,
+		frontWants = false,
+		frontSolid = nil,
 		decorFlap = nil,
 		decorSwing = nil,
 		swingFrom = nil,
@@ -421,6 +479,8 @@ local function register(instance: Instance)
 		wantsOpen = false,
 		active = false,
 		owned = false,
+		ownerId = 0,
+		isOwner = false,
 		hidden = false,
 		ownFlapHidden = false,
 	}
@@ -460,7 +520,7 @@ function DoorController.start()
 			if senseNow then
 				sense(door, open, cameraAt)
 			end
-			step(door, dt, open)
+			step(door, dt)
 		end
 	end)
 end

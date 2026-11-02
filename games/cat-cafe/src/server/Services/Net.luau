@@ -28,6 +28,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	EquipBest = RateLimiter.new(1, 2), -- sorts, solves, rebuilds the plot and sends a full sync
 	UnequipAll = RateLimiter.new(1, 2), -- rebuilds the plot and sends a full sync, like EquipBest
 	EquipBestDecor = RateLimiter.new(1, 2), -- rebuilds the plot's decor and sends a full sync, like EquipBest
+	ResetSave = RateLimiter.new(1, 5), -- testers only; kicks on success
 	RankUp = RateLimiter.new(1, 2), -- data-model section 15: 1 per 2 s
 	TutorialAdvance = RateLimiter.new(1, 1),
 	Travel = RateLimiter.new(1, 1), -- a flood guard; TravelService answers TravelCooldownSeconds with a reason

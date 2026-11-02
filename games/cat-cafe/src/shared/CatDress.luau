@@ -75,7 +75,8 @@ end
 -- The standing worker at work (Model-Agent #826; Derek picked S on 2026-11-02): each role's front legs turn in their
 -- own axes by the manifest's cat_poses.work_<role> angles_roblox_deg (degrees about X, Y and Z, applied as
 -- CFrame.Angles), and copy new numbers from there when Model-Agent poses them again. The client's Effects add small
--- idles on top, so a far cat, which gets none, still shows the pose.
+-- idles on top, so a far cat, which gets none, still shows the pose. Copied from the manifest generated 2026-11-02
+-- 13:20 UTC (its "generated" field): a newer export means checking these against it (review N330).
 CatDress.WORK_ARMS = {
 	barista = { LegF2 = { 57.5, 21.5, 13.1 }, LegF1 = { 9.9, -1.0, -5.9 } },
 	waiter = { LegF1 = { 37.5, -27.0, -30.7 }, LegF2 = { 9.9, 1.0, 5.9 } },

@@ -2171,4 +2171,26 @@ function Logic.fishReturn(
 	return length * (1 - along), yaw, dive * (1 - smoothstep(k / share))
 end
 
+-- The Rally board's marquee (F101, Model-Agent's #759) ----------------------------------------------------------
+
+-- Whether the `index`th bulb round a marquee (from 1) is lit at chase step `phase`: every `gap`th bulb, the lit ones
+-- moving one bulb on each step.
+function Logic.marqueeLit(index: number, phase: number, gap: number): boolean
+	local g = math.max(1, math.floor(gap))
+	return (index - 1 - math.floor(phase)) % g == 0
+end
+
+-- A marquee's flash `t` seconds in: whether every bulb is lit now (the first half of each of `flashes` flashes at
+-- `hz`), or nil before it starts and once it is done.
+function Logic.marqueeFlash(t: number, flashes: number, hz: number): boolean?
+	if t < 0 or hz <= 0 then
+		return nil
+	end
+	local cycles = t * hz
+	if cycles >= flashes then
+		return nil
+	end
+	return cycles % 1 < 0.5
+end
+
 return Logic

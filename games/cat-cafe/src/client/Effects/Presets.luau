@@ -81,6 +81,7 @@ export type Budget = {
 	luckyShimmers: number, -- jade Lucky Cat statues shimmering at once (F88), a Highlight each
 	campDrips: number, -- camp pipes dripping at once (F100), a drop part each
 	campFish: number, -- camp pond fish jumping now and then (F100); 0 holds them all still
+	rallyBoards: number, -- Rally boards running their marquee at once (F101); 0 leaves them as built
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -117,6 +118,7 @@ Presets.budget = {
 		luckyShimmers = 2,
 		campDrips = 1,
 		campFish = 1,
+		rallyBoards = 1,
 	},
 	high = {
 		animatedCats = 16,
@@ -148,6 +150,7 @@ Presets.budget = {
 		luckyShimmers = 4,
 		campDrips = 2,
 		campFish = 2,
+		rallyBoards = 1,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -179,6 +182,7 @@ Presets.budget = {
 		luckyShimmers = 0,
 		campDrips = 1,
 		campFish = 0,
+		rallyBoards = 0,
 	},
 } :: { [string]: Budget }
 
@@ -1921,6 +1925,29 @@ Presets.rally = {
 	stepSparkles = 14,
 	stepSeconds = 0.8,
 	full = Color3.fromRGB(242, 193, 78),
+}
+
+-- The Rally board's marquee (F101, Model-Agent's #759: `CatCafe_Square_RallyBoard` with its 32 bulbs in the
+-- `_Bulbs` Model round the face). While a Rally runs, every `gap`th bulb glows and the lit ones run round the frame
+-- clockwise at `hz` steps a second, `burstHz` for `burstSeconds` after each point anyone scores; each step of the bar
+-- flashes every bulb `flashes` times at `flashHz` (`fullFlashes` in `full` gold for the full bar), under 3 flashes a
+-- second. A lit bulb is a Neon cover `grow` times its size in `on`; an unlit one at night is a cover in `off` so the
+-- chase reads against the night glow, and by day shows the bulb as built. The nearest budget.rallyBoards within
+-- `within` studs, chosen every `pick` seconds; none with Reduce Motion or in Low performance.
+Presets.rallyBoard = {
+	within = 120,
+	gap = 3,
+	hz = 5,
+	burstHz = 8,
+	burstSeconds = 1.2,
+	flashes = 2,
+	fullFlashes = 3,
+	flashHz = 2.5,
+	grow = 1.15,
+	on = Color3.fromRGB(255, 236, 190),
+	full = Color3.fromRGB(242, 193, 78),
+	off = Color3.fromRGB(120, 92, 60),
+	pick = 1,
 }
 
 -- Bunting pennants (F101: the Town Square's Rally bunting, the Rally Crate's cheer bunting): every Model or part whose

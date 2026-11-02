@@ -281,6 +281,87 @@ return function()
 			end
 		)
 
+		-- F85 (hometown-cannon.md 6b; QA edge): whatever a long set's spots, it keeps what makes the carry home long.
+		-- The table's size is width x length with the 30 stud camp, and the v3.2 counts are the floors 6b keeps
+		-- (F81 rows: Park 16 + 24 spots, Neighbourhood 28 + 44, Woods 26 + 38 + the oak's rare, Sewer 20 + 32). In camp
+		-- space z is how far in from the gate line, the camp's edge, so "none within 100 studs of the camp" is z > 100.
+		-- An area joins when its set is a SetF85 one; one in the table that is not yet is skipped.
+		it("F85's long sets are 6b's size, with their traps deep and none near the camp (QA)", function()
+			local rows: { [string]: { width: number, length: number, spots: number, traps: number } } = {
+				park = { width = 120, length = 340, spots = 40, traps = 5 },
+				neighbourhood = { width = 180, length = 460, spots = 72, traps = 4 },
+				woods = { width = 160, length = 520, spots = 65, traps = 5 },
+				sewer = { width = 120, length = 600, spots = 52, traps = 4 },
+			}
+			local long = 0
+			for id, spec in Layout.areas do
+				local set = spec.set
+				if set == nil or string.sub(set, -7) ~= "_SetF85" then
+					continue
+				end
+				local row = rows[id]
+				if row == nil then
+					fail("%s has a long set (%s) with no row here", id, set)
+				end
+				long += 1
+				local camp = Layout.camps[id]
+				expect(camp).to.be.ok()
+				-- the set's floor from its four corners, across and along the way in
+				local x1, x2, z1, z2 = math.huge, -math.huge, math.huge, -math.huge
+				for _, sx in { -1, 1 } do
+					for _, sz in { -1, 1 } do
+						local x, z = Layout.campLocal(
+							camp,
+							spec.center.x + sx * spec.halfWidth,
+							spec.center.z + sz * spec.halfDepth
+						)
+						x1, x2 = math.min(x1, x), (math.max(x2, x))
+						z1, z2 = math.min(z1, z), (math.max(z2, z))
+					end
+				end
+				expect(x2 - x1).to.be.near(row.width, 0.5)
+				expect(z1).to.be.near(0, 0.5)
+				expect(z2 + W.CampDepth).to.be.near(row.length, 0.5)
+				local along = z2
+				-- spawn points: at least v3.2's, about 60% deep (or rare), spread to the far end
+				local deep, farthest = 0, 0
+				for _, point in spec.spawnPoints do
+					local _, z = Layout.campLocal(camp, point.x, point.z)
+					farthest = math.max(farthest, z)
+					if point.zone ~= "near" then
+						deep += 1
+					end
+				end
+				local spots = #spec.spawnPoints
+				if spots < row.spots then
+					fail("%s has %d spawn points, fewer than v3.2's %d", id, spots, row.spots)
+				end
+				if deep / spots < 0.55 or deep / spots > 0.67 then
+					fail("%s has %d of %d spawn points deep, not about 60%%", id, deep, spots)
+				end
+				if farthest < 0.9 * along then
+					fail("%s's farthest spawn point is %.0f of %.0f studs in", id, farthest, along)
+				end
+				-- traps: v3.2's count, three quarters in the far half, none within 100 studs of the camp
+				expect(#spec.rescueSpots).to.equal(row.traps)
+				local far = 0
+				for i, spot in spec.rescueSpots do
+					local _, z = Layout.campLocal(camp, spot.x, spot.z)
+					if z <= 100 then
+						fail("%s trap %d (%s) is %.1f studs from the camp", id, i, spot.trap, z)
+					end
+					if z > along / 2 then
+						far += 1
+					end
+				end
+				if far < 0.75 * row.traps then
+					fail("%s has %d of %d traps in its far half", id, far, row.traps)
+				end
+			end
+			-- the Park, the Neighbourhood and the Woods since #816, #817 and #858
+			expect(long >= 3).to.equal(true)
+		end)
+
 		-- Derek 2026-10-28 01:34 and 01:35 (Model-Agent #452): a cat can get stuck up the tree house's branch, and the
 		-- Great Oak's top nook is where the rarer cats wait.
 		it(

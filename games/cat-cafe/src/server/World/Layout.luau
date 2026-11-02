@@ -1376,7 +1376,7 @@ local CAMP_PAD = { x = 0, z = -13 }
 local CAMP_CANNON = { x = 0, z = -26.5 }
 local CAMP_BASKET = { x = -11, z = -13 }
 local BOARD_OUT = 4 -- an Index Board stands this far beside the way out
-local ALLEY_BOARD_OUT, ALLEY_BOARD_IN = 7, 2.5 -- the Alleyway's (F85, Model-Agent)
+local ALLEY_BOARD_OUT = 7 -- the Alleyway's (F85, Model-Agent): its low walls run on from the opening
 
 -- A camp-space point (x, z) in world space: the same turn as setPoints, about the camp's origin.
 function Layout.campPoint(camp: Camp, x: number, z: number): (number, number)
@@ -1428,16 +1428,11 @@ for id, spec in Layout.areas do
 		Layout.camps[id] = camp
 		spec.arrival = camp.pad
 		-- Beside the way out, 4 in from the gate line, its front toward the pad and turned 20 degrees toward the path:
-		-- left of the opening for a player walking out. The Alleyway's (F85, one way in under the arch) stands where
-		-- Model-Agent's camp leaves room for it, 7 beside the opening and 2.5 in, clear of the low walls on its line.
-		Layout.indexBoards[id] = if spec.rects ~= nil
-			then {
-				x = -(camp.openingHalfWidth + ALLEY_BOARD_OUT),
-				y = 0,
-				z = -ALLEY_BOARD_IN,
-				rotY = -20,
-			}
-			else { x = -(camp.openingHalfWidth + BOARD_OUT), y = 0, z = -4, rotY = -20 }
+		-- left of the opening for a player walking out. The Alleyway's (F85, one way in under the arch) stands 7 beside
+		-- its opening (Model-Agent), past where its low walls begin; 4 in keeps the turned board's near post out of
+		-- the low wall on the camp line, which 2.5 in put it through (worldscan).
+		local out = if spec.rects ~= nil then ALLEY_BOARD_OUT else BOARD_OUT
+		Layout.indexBoards[id] = { x = -(camp.openingHalfWidth + out), y = 0, z = -4, rotY = -20 }
 	end
 end
 

@@ -170,7 +170,6 @@ local CAMP_PAD_Z = -13
 local CAMP_BASKET = { x = -11, z = -13 }
 local BOARD_IN = -4
 local BOARD_OUT = 4
-local ALLEY_BOARD_IN = -2.5
 local ALLEY_BOARD_OUT = 7
 
 -- Where Layout.camps puts `area`'s camp, or nil for an area without one.
@@ -209,10 +208,9 @@ function Intro.camp(area: string): Camp?
 	local function point(x: number, z: number): Vector3
 		return origin + across * x + u * z
 	end
-	-- every board beside the opening, on the left of it; the Alleyway's further out and nearer its line (F85)
-	local board = if area == "alley"
-		then point(-(opening + ALLEY_BOARD_OUT), ALLEY_BOARD_IN)
-		else point(-(opening + BOARD_OUT), BOARD_IN)
+	-- every board beside the opening, on the left of it, 4 in; the Alleyway's further out, past its low walls (F85)
+	local board =
+		point(-(opening + if area == "alley" then ALLEY_BOARD_OUT else BOARD_OUT), BOARD_IN)
 	return {
 		area = area,
 		turn = turn,

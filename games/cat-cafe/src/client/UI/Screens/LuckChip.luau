@@ -408,13 +408,24 @@ function LuckChip._place(self: any)
 	local top = (chip.AbsolutePosition.Y - root.AbsolutePosition.Y) / scale
 	local bottom = top + chip.AbsoluteSize.Y / scale
 	x = math.max(0, math.min(x, width - CARD_W - EDGE))
-	if top + bottom > height then
-		card.AnchorPoint = Vector2.new(0, 1)
-		card.Position = UDim2.fromOffset(x, top - GAP)
-	else
-		card.AnchorPoint = Vector2.new(0, 0)
-		card.Position = UDim2.fromOffset(x, bottom + GAP)
+	local cardH = card.AbsoluteSize.Y / scale
+	if cardH <= 0 then
+		-- no size yet: the lower half opens it above the chip, the upper half below
+		if top + bottom > height then
+			card.AnchorPoint = Vector2.new(0, 1)
+			card.Position = UDim2.fromOffset(x, top - GAP)
+		else
+			card.AnchorPoint = Vector2.new(0, 0)
+			card.Position = UDim2.fromOffset(x, bottom + GAP)
+		end
+		return
 	end
+	-- above the chip in the lower half of the screen, below it in the upper half, then kept inside the screen: a card
+	-- taller than the room on its side (a small phone) slides over the chip rather than past the edge
+	local y = if top + bottom > height then top - GAP - cardH else bottom + GAP
+	y = math.max(0, math.min(y, height - cardH))
+	card.AnchorPoint = Vector2.new(0, 0)
+	card.Position = UDim2.fromOffset(x, y)
 end
 
 function LuckChip.hide(self: any)

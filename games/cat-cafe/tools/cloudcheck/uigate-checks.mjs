@@ -9,6 +9,15 @@ export const PROFILES = [
   { name: 'phone', width: 844, height: 390, touch: true, inset: 58 },
 ];
 
+// More devices (Derek 2026-11-02: "make sure the ui is fine for all devices"), run on their own with --devices: a tablet held
+// sideways (iPad Air, 1180 x 820 points), the smallest phone still sold (iPhone SE, 667 x 375) and a console on a
+// 1080p TV, which plays with a gamepad (no tap floor, the mouse one stands in for a cursor).
+export const DEVICE_PROFILES = [
+  { name: 'tablet', width: 1180, height: 820, touch: true, inset: 58 },
+  { name: 'smallphone', width: 667, height: 375, touch: true, inset: 58 },
+  { name: 'console', width: 1920, height: 1080, touch: false, inset: 58 },
+];
+
 export const LIMITS = {
   tapTouch: 44, // Theme.sizes.touchMin, Apple and Google's own floor
   tapMouse: 36,

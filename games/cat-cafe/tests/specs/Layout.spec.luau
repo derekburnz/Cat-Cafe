@@ -171,7 +171,7 @@ return function()
 				local gx, gz = Layout.gatePosition(spec)
 				expect(gx).to.be.ok()
 				-- the Park's plaza at local (-4, -145) is near its gate side, the Neighbourhood's porch at local
-				-- (-67.2, -166.9) near its own, the Woods' berry bush at local (-30, -223.8) near its own, the Sewer's
+				-- (-71.45, -166.9) near its own, the Woods' berry bush at local (-30, -223.8) near its own, the Sewer's
 				-- brick bridge at local (38, -205) near its own
 				local index = if id == "woods" then 4 else 1
 				local point = spec.spawnPoints[index]
@@ -428,8 +428,7 @@ return function()
 	local function fromLane(x: number, z: number): (number, number)
 		return W.AlleyCenterX + x - math.sign(x) * W.AlleyLaneShift, W.AlleyCenterZ + z
 	end
-	local AI, AO, AS, AN = W.AlleyInnerX, W.AlleyOuterX, W.AlleySouthZ, W.AlleyNorthZ
-	local MID = (AI + AO) / 2
+	local AO, AS, AN = W.AlleyOuterX, W.AlleySouthZ, W.AlleyNorthZ
 
 	describe("the Alleyway in the wild (world-and-feel section 2, F35; v4, F84)", function()
 		it(
@@ -987,8 +986,8 @@ return function()
 				for _, def in Catalog.areas do
 					local camp = Layout.camps[def.id]
 					expect(camp).to.be.ok()
-					-- the Alleyway's ways out are its lanes' ends, either side of the block in the middle
-					local wayOut = if def.id == "alley" then MID - W.AlleyLaneShift else 0
+					-- every way out is the middle of the gate line, the Alleyway's one way in too since F85 (N338)
+					local wayOut = 0
 					for _, across in { -camp.halfAcross + 3, wayOut, camp.halfAcross - 3 } do
 						local ix, iz = Layout.campPoint(camp, across, -0.2)
 						expect(Layout.campAt(ix, iz)).to.equal(def.id)

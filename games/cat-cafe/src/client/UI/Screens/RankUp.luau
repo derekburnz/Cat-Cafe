@@ -3,11 +3,15 @@
 -- ticked or not (coins, different cats, a rarity from Tier 3) and what the next tier opens. The button
 -- only lights up when everything is met; the server checks it all again on RankUp.
 -- RankUp.progress is shared with the HUD's tier and goal block so both always agree.
+-- Where the window has the room (PC, tablet) it is TALL, everything in one column; on a short screen (a phone, sideways)
+-- it is WIDE: the requirements on the left, what the tier opens and the button on the right, so it never runs off the
+-- screen or under Roblox's menu buttons.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -45,6 +49,13 @@ local RankUp = {}
 RankUp.__index = RankUp
 
 local ROW_HEIGHT = 46
+local TALL = Vector2.new(560, 470) -- the window where the screen has room for it
+local WIDE = Vector2.new(840, 310) -- the window on a shorter screen
+local LEFT = 0.6 -- the wide window's requirements column, a share of the content's width
+local BUTTON = Vector2.new(260, 52)
+local LIST_TOP = 58
+local LIST_H = 3 * ROW_HEIGHT + 2 * Theme.sizes.gap
+local OPENS_TOP = LIST_TOP + LIST_H + 10 -- the tall window's "It opens", under the requirements
 
 local RARITY_WORDS: { [number]: string } = { "One", "Two", "Three", "Four", "Five" }
 
@@ -256,12 +267,14 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		icon = "🏆",
 		title = "Rank up",
 		subtitle = "Tier 1",
-		size = UDim2.fromOffset(560, 470),
+		size = UDim2.fromOffset(TALL.X, TALL.Y),
 		onClose = callbacks.close,
 	})
 	self._panel = panel
 	self.frame = panel.frame
 	local content = panel.content
+	self._wide = nil :: boolean?
+	self._room = nil :: RBXScriptConnection?
 
 	self._nextTitle = text({
 		Name = "Next",
@@ -282,8 +295,8 @@ function RankUp.new(callbacks: Callbacks): RankUp
 	local list: Frame = Create("Frame", {
 		Name = "Requirements",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, 58),
-		Size = UDim2.new(1, 0, 0, 3 * ROW_HEIGHT + 2 * Theme.sizes.gap),
+		Position = UDim2.fromOffset(0, LIST_TOP),
+		Size = UDim2.new(1, 0, 0, LIST_H),
 		Parent = content,
 	}, {
 		Create("UIListLayout", {
@@ -293,10 +306,9 @@ function RankUp.new(callbacks: Callbacks): RankUp
 	})
 	self._list = list
 
-	local opensTop = 58 + 3 * ROW_HEIGHT + 2 * Theme.sizes.gap + 10
 	self._opensLabel = text({
 		Name = "OpensLabel",
-		Position = UDim2.fromOffset(0, opensTop),
+		Position = UDim2.fromOffset(0, OPENS_TOP),
 		Size = UDim2.new(1, 0, 0, 20),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.modal.subtext,
@@ -305,7 +317,7 @@ function RankUp.new(callbacks: Callbacks): RankUp
 	})
 	self._opens = text({
 		Name = "Opens",
-		Position = UDim2.fromOffset(0, opensTop + 22),
+		Position = UDim2.fromOffset(0, OPENS_TOP + 22),
 		Size = UDim2.new(1, 0, 0, 84),
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
@@ -318,7 +330,7 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		name = "RankUpButton",
 		text = "Not yet",
 		style = "gold",
-		size = UDim2.fromOffset(260, 52),
+		size = UDim2.fromOffset(BUTTON.X, BUTTON.Y),
 		anchorPoint = Vector2.new(0.5, 1),
 		position = UDim2.new(0.5, 0, 1, 0),
 		textSize = Theme.sizes.textLarge - 2,
@@ -326,7 +338,70 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		parent = content,
 		onClick = callbacks.rankUp,
 	})
+
+	-- the window's room is the modal container it sits in, known once it is parented
+	self._parented = panel.frame.AncestryChanged:Connect(function()
+		self:_watchRoom()
+	end)
+	self:_watchRoom()
 	return self :: RankUp
+end
+
+function RankUp._watchRoom(self: any)
+	if self._room then
+		self._room:Disconnect()
+		self._room = nil
+	end
+	local holder = self.frame.Parent
+	if holder and holder:IsA("GuiObject") then
+		self._room = holder:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			self:_fit()
+		end)
+		self:_fit()
+	end
+end
+
+-- TALL where it fits, WIDE (no bigger than the room) where it does not.
+function RankUp._fit(self: any)
+	local holder = self.frame.Parent
+	if not (holder and holder:IsA("GuiObject")) then
+		return
+	end
+	local room = holder.AbsoluteSize / math.max(Scale.get(), 0.01)
+	if room.Y <= 0 then
+		return
+	end
+	local wide = room.Y < TALL.Y
+	local size = if wide
+		then Vector2.new(math.min(WIDE.X, room.X), math.min(WIDE.Y, room.Y))
+		else TALL
+	self.frame.Size = UDim2.fromOffset(math.floor(size.X), math.floor(size.Y))
+	if self._wide == wide then
+		return
+	end
+	self._wide = wide
+	local half = Theme.sizes.gap / 2
+	local left = if wide then UDim.new(LEFT, -half) else UDim.new(1, 0)
+	self._nextTitle.Size = UDim2.new(left, UDim.new(0, 30))
+	self._needsLabel.Size = UDim2.new(left, UDim.new(0, 20))
+	self._list.Size = UDim2.new(left, UDim.new(0, LIST_H))
+	local button = self._button.instance
+	if wide then
+		-- the right column: what opens from the top, the button at the foot
+		local right = UDim.new(1 - LEFT, -half)
+		local x = UDim.new(LEFT, half)
+		self._opensLabel.Position = UDim2.new(x, UDim.new(0, 0))
+		self._opensLabel.Size = UDim2.new(right, UDim.new(0, 20))
+		self._opens.Position = UDim2.new(x, UDim.new(0, 22))
+		self._opens.Size = UDim2.new(right, UDim.new(1, -(22 + BUTTON.Y + Theme.sizes.gap)))
+		button.Position = UDim2.new(LEFT + (1 - LEFT) / 2, half / 2, 1, 0)
+	else
+		self._opensLabel.Position = UDim2.fromOffset(0, OPENS_TOP)
+		self._opensLabel.Size = UDim2.new(1, 0, 0, 20)
+		self._opens.Position = UDim2.fromOffset(0, OPENS_TOP + 22)
+		self._opens.Size = UDim2.new(1, 0, 0, 84)
+		button.Position = UDim2.new(0.5, 0, 1, 0)
+	end
 end
 
 function RankUp.setCatalog(self: any, catalog: Types.Catalog)
@@ -427,6 +502,11 @@ function RankUp.render(self: any, state: Types.PlayerState)
 end
 
 function RankUp.destroy(self: any)
+	self._parented:Disconnect()
+	if self._room then
+		self._room:Disconnect()
+		self._room = nil
+	end
 	self._button:destroy()
 	self._panel:destroy()
 end

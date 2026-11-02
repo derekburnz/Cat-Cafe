@@ -1,6 +1,6 @@
 # Catch a Cat Cafe studio rules
 
-Game name: **Catch a Cat Cafe** (final since 2026-11-02: no hyphens, plain Cafe; the working title before it was Cat Cafe). Game slug used in paths: `cat-cafe`, and code names keep it (`CatCafe*`). One game for now; the repo layout leaves room for a second.
+Game name: **Catch a Cat Cafe** (final since 2026-11-02: no hyphens, plain Cafe; the working title before it was Cat Cafe). Game slug used in paths: `cat-cafe`, and code names keep it (`CatCafe*`). In-world signs, the town name "Cat Cafe Town" and the Alley mural keep their Cat Cafe wording on purpose (Derek, 2026-11-02). One game for now; the repo layout leaves room for a second.
 Phase as of 2026-10-25: Phase 0 (setup on Derek's PC) running in parallel with an early Phase 2 rough draft.
 Repo: https://github.com/derekburnz/Cat-Cafe (public since 2026-10-27, source of truth; named purr-pot until 2026-10-27). Work on a branch, open a pull request, let CI run the check gate. Once a PR is reviewed, turn on GitHub auto-merge for it (merge commit) and it merges itself when the required checks pass; the `automerge` label is the fallback when GitHub refuses. Publishing to Roblox runs from GitHub Actions (skill `merge-and-publish`).
 

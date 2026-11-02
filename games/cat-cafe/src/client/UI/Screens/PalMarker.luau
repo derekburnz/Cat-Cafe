@@ -97,7 +97,7 @@ function PalMarker.new(): PalMarker
 		Parent = row,
 	}) :: TextLabel
 	-- the little pointer under the bubble, down at the button
-	Create("Frame", {
+	self._pointer = Create("Frame", {
 		Name = "Pointer",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 1, 0),
@@ -125,6 +125,9 @@ function PalMarker.new(): PalMarker
 	bubble.Activated:Connect(function()
 		self:hide()
 	end)
+	bubble:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		self:_keepOnScreen()
+	end)
 	return self :: PalMarker
 end
 
@@ -149,24 +152,55 @@ function PalMarker.show(self: any, text: string, userId: number, button: GuiObje
 		local pulse = Tween.to(self._stroke, BREATHE, { Transparency = 0.7 })
 		self._pulse = pulse
 	end
-	-- pressing the button it points at is the point: the marker goes
-	if button:IsA("GuiButton") then
-		self._pressed = (button :: GuiButton).Activated:Connect(function()
+	self:_keepOnScreen()
+	-- pressing the button it points at is the point: the marker goes. On a touch screen a Components/Button's face
+	-- takes no input (its Hit pad does), so the first button that takes input is the one.
+	local target: GuiButton? = nil
+	if button:IsA("GuiButton") and button.Interactable then
+		target = button :: GuiButton
+	else
+		for _, piece in button:GetDescendants() do
+			if piece:IsA("GuiButton") and piece.Interactable then
+				target = piece :: GuiButton
+				break
+			end
+		end
+	end
+	if target then
+		self._pressed = target.Activated:Connect(function()
 			self:hide()
 		end)
-	else
-		local face = button:FindFirstChildWhichIsA("GuiButton", true)
-		if face then
-			self._pressed = face.Activated:Connect(function()
-				self:hide()
-			end)
-		end
 	end
 	task.delay(MARKER_SECONDS, function()
 		if self._token == token then
 			self:hide()
 		end
 	end)
+end
+
+-- Centred over its button, slid sideways as far as it takes to stay 6 px inside the screen (a small phone, the Cannon
+-- button near the right edge); the pointer slides back the other way so it still points at the button.
+function PalMarker._keepOnScreen(self: any)
+	local bubble: TextButton = self._bubble
+	local button = bubble.Parent
+	local gui = bubble:FindFirstAncestorWhichIsA("LayerCollector")
+	if not (button and button:IsA("GuiObject") and gui) then
+		return
+	end
+	local scale = math.max(Scale.get(), 0.01)
+	local margin = 6
+	local centre = button.AbsolutePosition.X + button.AbsoluteSize.X / 2
+	local half = bubble.AbsoluteSize.X / 2
+	local width = gui.AbsoluteSize.X
+	local shift = 0
+	if centre + half + margin > width then
+		shift = width - margin - (centre + half)
+	elseif centre - half - margin < 0 then
+		shift = margin - (centre - half)
+	end
+	local offset = math.floor(shift / scale + 0.5)
+	bubble.Position = UDim2.new(0.5, offset, 0, -(POINTER + 2))
+	self._pointer.Position = UDim2.new(0.5, -offset, 1, 0)
 end
 
 function PalMarker.hide(self: any)

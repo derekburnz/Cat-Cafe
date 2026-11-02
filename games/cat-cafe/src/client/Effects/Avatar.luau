@@ -711,8 +711,8 @@ function Avatar.carryArms(rig: Rig): { [Joint]: CFrame }
 end
 
 -- Where a carried cat's floor goes (Pose.hold), from where the arms are this frame: on top of the higher forearm
--- (the whole arm on R6), out to the side from halfway between the two, level with the chest's up, the cat's face back
--- over the character's left shoulder for a loaf (lying on the arms) and ahead for a sit (Presets.carryPose). `frameOf` gives a part's CFrame
+-- (the whole arm on R6), in front of halfway between the two, level with the chest's up, lying straight across the
+-- arms for a loaf, head to the character's left, and facing ahead for a sit (Presets.carryPose). `frameOf` gives a part's CFrame
 -- (BasePart.CFrame in the game, the preview's own frames outside it). nil on a rig with no chest or arms.
 function Avatar.cradle(rig: Rig, held: string, frameOf: (BasePart) -> CFrame): CFrame?
 	local chest: BasePart? = rig.parts.Waist or rig.parts.Root -- the UpperTorso, or R6's Torso
@@ -737,7 +737,7 @@ function Avatar.cradle(rig: Rig, held: string, frameOf: (BasePart) -> CFrame): C
 	local spot = Vector3.new(
 		(a.X + b.X) / 2 + (if sit then c.sitSide else c.loafSide),
 		math.max(a.Y, b.Y) + c.gap,
-		(a.Z + b.Z) / 2 + c.forward
+		(a.Z + b.Z) / 2 + (if sit then c.forward else c.loafForward)
 	)
 	return torso
 		* CFrame.new(spot)

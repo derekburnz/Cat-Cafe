@@ -34,6 +34,7 @@ local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
+local RallyService = require(script.Parent.RallyService)
 local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Shove = require(ReplicatedStorage.Shared.Shove)
@@ -64,7 +65,9 @@ type Stray = {
 	missStreak: { [number]: Catching.MissStreak },
 	jumping: boolean, -- sprinting or catching its breath: no wandering
 	charm: number, -- rolled at spawn (section 4b); a net catch adds the Perfect bonus
-	variant: string, -- "gold" (GoldChanceNet with gold luck, rolled at spawn and shown as a sparkle) or "base"
+	-- "rainbow" (RainbowChanceNet with rainbow luck, F99) or "gold" (GoldChanceNet with gold luck), rolled at spawn
+	-- and shown on the model (the Variant attribute; Gold too for a gold one), else "base"
+	variant: string,
 	method: Types.CatchMethod, -- "net", or what a Dropped cat was before it fell (its rescued flag, 10c)
 	-- set on a Dropped stray (section 10c, S25): a shove knocked it out of someone's arms or they let it go. It has
 	-- no circles: the first swing that lands on it picks it up (v0.8 F56, F93).
@@ -84,7 +87,8 @@ type Stray = {
 	alive: boolean,
 }
 
--- variant is "gold" for a gold cat (a rescue rolls it at night start, data-model section 4); nil is the base.
+-- variant is "gold" or "rainbow" (F99) for those coats (a rescue rolls it at night start, data-model section 4); nil
+-- is the base.
 -- startedAt and immuneUntil are the shove protections (section 10c); the character mirrors them.
 type Carry = {
 	def: Types.CatDef,
@@ -121,6 +125,8 @@ local lastCatchStart: { [Player]: number } = {} -- server time of the player's l
 local startledUntil: { [Player]: number } = {} -- server time each player's Startled slow ends (F57)
 local rng = Random.new()
 local nextStrayNumber = 0
+local debugNextCoat: string? = nil -- Studio's debug hook: the coat the next stray spawned by a wave or refill gets
+local lastRainbowToastAt: number? = nil -- os.clock() of this server's last rainbow stray toast (F99)
 -- RescueService's answer to "is this player in a rescue attempt?", so a catch cannot start during one.
 local inRescue: (Player) -> boolean = function(_player: Player): boolean
 	return false
@@ -206,6 +212,35 @@ function CatService.goldLuckSource(areaId: string): (number, Player?)
 	end
 	local luck, from = IndexRewards.luckiest(profiles, area.tier, Economy.tier, os.time())
 	return luck, if from ~= nil then players[from] else nil
+end
+
+-- The rainbow luck a stray or a rescue trap in the area rolls with (F99, rainbow-coat.md section 1): the highest
+-- Index rainbow luck among the players in the server whose tier has the area open, 0 when nobody has. No potion
+-- adds to it.
+function CatService.rainbowLuckFor(areaId: string): number
+	local area = Catalog.getArea(areaId)
+	if area == nil then
+		return 0
+	end
+	local profiles: { Types.PlayerProfile } = {}
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			table.insert(profiles, profile)
+		end
+	end
+	return IndexRewards.bestRainbowLuck(profiles, area.tier, Economy.tier)
+end
+
+-- The coat a stray of `def` spawning in the area gets (F99): one roll, rainbow first and then gold
+-- (Catching.rollCoat), each with the best luck in the server for the area.
+local function rollStrayCoat(def: Types.CatDef, areaId: string): string
+	return Catching.rollCoat(
+		def,
+		rng:NextNumber(),
+		IndexRewards.rainbowChance(Config.RainbowChanceNet, CatService.rainbowLuckFor(areaId)),
+		IndexRewards.rollChance(Config.GoldChanceNet, CatService.goldLuckFor(areaId))
+	)
 end
 
 -- Each area's Index Board shows whose gold luck its strays and traps roll with ("Gold luck +40% from Sam", F54):
@@ -444,17 +479,17 @@ local function spawnStray(
 	position: Vector3,
 	pointIndex: number?,
 	lifetime: number?, -- nil: stays until the next dusk clears it
-	forceGold: boolean?, -- Studio's debug hook
-	kept: Kept?, -- a Dropped cat keeps its charm, gold and rescued flag
+	forceCoat: string?, -- Studio's debug hook: "gold" or "rainbow"
+	kept: Kept?, -- a Dropped cat keeps its charm, coat and rescued flag
 	beginner: number? -- F87: the tutorial stray's beginner
 ): Stray
+	if kept == nil and forceCoat == nil and debugNextCoat ~= nil then
+		forceCoat, debugNextCoat = debugNextCoat, nil
+	end
 	local variant = if kept ~= nil
 		then kept.variant or "base"
-		elseif forceGold == true or rng:NextNumber() < IndexRewards.rollChance(
-			Config.GoldChanceNet,
-			CatService.goldLuckFor(areaId)
-		) then "gold"
-		else "base"
+		elseif forceCoat ~= nil then forceCoat
+		else rollStrayCoat(def, areaId)
 	nextStrayNumber += 1
 	local id = string.format("stray_%d_%d", os.time() % 100000, nextStrayNumber)
 	local model = AssetRegistry.cloneCat(def.id, variant)
@@ -469,8 +504,10 @@ local function spawnStray(
 	model:SetAttribute("Beginner", beginner or 0) -- F87: other clients leave a beginner's stray alone
 	model:SetAttribute("SpawnedAt", os.time())
 	model:SetAttribute("FleeingUntil", 0) -- v0.5: server time a missed stray stops running (display only)
-	-- A net stray's gold is no secret (data-model section 4): the sparkle and the catch header show it.
+	-- A net stray's gold is no secret (data-model section 4): the sparkle and the catch header show it. Its Variant
+	-- ("base", "gold" or "rainbow", F99) draws the rainbow coat on every client.
 	model:SetAttribute("Gold", variant == "gold")
+	model:SetAttribute("Variant", variant)
 	-- Display only (section 13); the drop record itself stays in the server's table below (S25, N29). A Dropped
 	-- stray is picked up by the first swing that lands on it, with no circles (v0.8 F56, F93).
 	model:SetAttribute("Dropped", kept ~= nil)
@@ -516,6 +553,17 @@ local function spawnStray(
 	if pointIndex ~= nil then
 		occupiedPoints[areaId] = occupiedPoints[areaId] or {}
 		occupiedPoints[areaId][pointIndex] = id
+	end
+	-- F99 (rainbow-coat.md section 2): every client raises the beam over a new rainbow stray; the server's toast goes
+	-- out at most once every RainbowSpawnToastSeconds. A Dropped one is not new.
+	if variant == "rainbow" and kept == nil then
+		local clock = os.clock()
+		local toast = lastRainbowToastAt == nil
+			or clock - (lastRainbowToastAt :: number) >= Config.RainbowSpawnToastSeconds
+		if toast then
+			lastRainbowToastAt = clock
+		end
+		Net.fireAll("RainbowSpawned", areaId, def.id, id, toast)
 	end
 
 	task.spawn(wander, stray)
@@ -756,6 +804,7 @@ local function attachHeldCat(player: Player, carry: Carry)
 	model.Name = "HeldCat"
 	model:SetAttribute("CatId", carry.def.id)
 	model:SetAttribute("Gold", carry.variant == "gold") -- a rescued gold shows its sparkle from here
+	model:SetAttribute("Variant", carry.variant or "base") -- F99: and a rescued rainbow its coat
 	local body = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart") :: BasePart
 	local nameTag = body:FindFirstChild("NameTag")
 	if nameTag ~= nil then
@@ -841,8 +890,8 @@ local function getaway(player: Player, carry: Carry)
 end
 
 -- Callers check carrying first; the refusal here keeps one carry per player whatever path calls it. `method` is
--- "net" or "rescue"; `variant` "gold" shows on the held cat and in the toast. `pickedUp` is a Dropped cat taken
--- with a swing (v0.8 F56, F93): only the toast says so, the carry is like any other.
+-- "net" or "rescue"; `variant` "gold" or "rainbow" shows on the held cat and in the toast. `pickedUp` is a Dropped
+-- cat taken with a swing (v0.8 F56, F93): only the toast says so, the carry is like any other.
 local function startCarry(
 	player: Player,
 	def: Types.CatDef,
@@ -895,7 +944,9 @@ local function startCarry(
 		then "picked up"
 		elseif method == "rescue" then "rescued"
 		else "caught"
-	local name = if variant == "gold" then "gold " .. def.name else def.name
+	local name = if variant == "gold" or variant == "rainbow"
+		then variant .. " " .. def.name
+		else def.name
 	Net.toast(
 		player,
 		string.format("You %s %s! Bring it to the camp to check in.", verb, withArticle(name)),
@@ -1593,7 +1644,7 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 		if carry.funnel ~= nil then
 			Telemetry.catchCheckedIn(player, carry.funnel, instance.uid, instance.spotId ~= nil)
 		end
-		Net.fire(player, "CatCaught", def.id, isNew)
+		Net.fire(player, "CatCaught", def.id, isNew, instance.variant)
 		local verb = if carry.method == "rescue" then "rescued" else "caught"
 		-- the shout-out chime rises with rarity; F89: a Legendary or Mythical one at most once a minute a player
 		RareMomentService.shoutOut(
@@ -1602,6 +1653,8 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 			Catching.shoutOut(player.DisplayName, verb, def, carry.variant)
 		)
 		RareMomentService.secured(player, def, carry.variant, carry.method, hadEpicOrBetter)
+		-- F101: a check-in scores for the Rescue Rally, a rescued cat three times (the rescue's points)
+		RallyService.score(player, if carry.method == "rescue" then "rescue" else "checkIn")
 	end
 end
 
@@ -2250,9 +2303,13 @@ function CatService.strayCount(areaId: string): number
 	return countStrays(areaId)
 end
 
--- Studio-only test hook: spawns a given cat at a free spawn point of the area (or point 1 if all are taken),
--- gold when `gold` is true and rolled as usual otherwise.
-function CatService.debugSpawnStray(catId: string, areaId: string, gold: boolean?): string
+-- Studio-only test hook: spawns a given cat at a free spawn point of the area (or point 1 if all are taken), in the
+-- coat `coat` names ("gold", or true for gold; "rainbow", F99) and rolled as usual otherwise.
+function CatService.debugSpawnStray(
+	catId: string,
+	areaId: string,
+	coat: (boolean | string)?
+): string
 	assert(RunService:IsStudio(), "debugSpawnStray is Studio only")
 	local def = Catalog.getCat(catId)
 	local areaDef = Catalog.getArea(areaId)
@@ -2266,9 +2323,19 @@ function CatService.debugSpawnStray(catId: string, areaId: string, gold: boolean
 		point.Position,
 		pointIndex,
 		Config.StrayDespawnSeconds,
-		gold
+		if coat == true or coat == "gold"
+			then "gold"
+			elseif coat == "rainbow" then "rainbow"
+			else nil
 	)
 	return stray.id
+end
+
+-- Studio-only test hook (F99 QA check 1): the next stray a wave or a refill spawns gets `coat` ("gold" or
+-- "rainbow"); nil clears it.
+function CatService.debugNextCoat(coat: string?)
+	assert(RunService:IsStudio(), "debugNextCoat is Studio only")
+	debugNextCoat = if coat == "gold" or coat == "rainbow" then coat else nil
 end
 
 return CatService

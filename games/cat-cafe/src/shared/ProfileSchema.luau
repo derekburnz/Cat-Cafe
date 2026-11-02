@@ -1,6 +1,7 @@
 --!strict
 -- Save data (data-model section 14): template, migration and sanitising. Pure.
 
+local CampExtras = require(script.Parent.CampExtras)
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
@@ -8,6 +9,7 @@ local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
 local FreshCatch = require(script.Parent.FreshCatch)
 local Onboarding = require(script.Parent.Onboarding)
+local Rally = require(script.Parent.Rally)
 local Settings = require(script.Parent.Settings)
 local Spin = require(script.Parent.Spin)
 local StarterCat = require(script.Parent.StarterCat)
@@ -57,7 +59,15 @@ local ProfileSchema = {}
 -- ask (Tips.sanitizeSeen keeps them).
 -- Version 23 (F98, leaderboards.md section 5) adds stats.bestRate, stats.weekPlay and stats.weekBestRate: an older
 -- server would drop them, and the Money board would forget the player's best rate.
-ProfileSchema.VERSION = 23
+-- Version 24 (F99, rainbow-coat.md section 5) adds the rainbow coat: variant "rainbow", rainbowCollection and
+-- stats.rainbowCatches. An older server would read a rainbow cat as a base one and save it so, and drop the
+-- collection and the count.
+-- Version 25 (F100, camp-extras.md section 4) adds campExtras, what the four camp extras hold and the Yard Sale's
+-- buys today: an older server would drop it, letting a player collect the same fill or buy the same crate twice by
+-- hopping servers during a rollout. A save from before version 25 starts with one fill waiting at each open extra.
+-- Version 26 (F101, rescue-rally.md section 5) adds rally, the weekend and the laps paid in it: an older server would
+-- drop it, and a player could take more than RallyMaxLaps laps of prizes by hopping servers during a rollout.
+ProfileSchema.VERSION = 26
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -115,6 +125,7 @@ local function newStats(): Types.Stats
 		collectorTrades = 0,
 		rareCatches = 0,
 		goldCatches = 0,
+		rainbowCatches = 0, -- F99
 		tipPilesCollected = 0,
 		dailyQuestsDone = 0,
 		dailySetsDone = 0,
@@ -176,6 +187,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		},
 		collection = { tabby = now },
 		goldCollection = {},
+		rainbowCollection = {},
 		indexRewards = {},
 		spin = { lastFreeDay = 0, banked = 0 },
 		goldenFish = 0,
@@ -205,6 +217,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		stuckHelpShown = {},
 		starterCatClaimed = false,
 		notifyAskAt = 0,
+		campExtras = CampExtras.fresh(now),
+		rally = Rally.fresh(now),
 	}
 end
 
@@ -281,10 +295,13 @@ local function migrateV3Upgrades(rawLevels: any, profile: Types.PlayerProfile)
 	end
 end
 
--- A saved cat or bait variant: "gold", or "shiny" from a version 3 save (Derek 2026-10-27 renamed shiny to gold);
--- anything else is the base coat.
+-- A saved cat or bait variant: "gold", "rainbow" (F99), or "shiny" from a version 3 save (Derek 2026-10-27 renamed
+-- shiny to gold); anything else is the base coat.
 local function variantOf(value: any): string
-	return if value == "gold" or value == "shiny" then "gold" else "base"
+	return if value == "rainbow"
+		then "rainbow"
+		elseif value == "gold" or value == "shiny" then "gold"
+		else "base"
 end
 
 -- A saved name, cut to MAX_NAME_LENGTH bytes on a character boundary; nil when empty or not valid UTF-8
@@ -699,6 +716,13 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 			profile.goldCollection[instance.catId] = instance.caughtAt
 		end
 	end
+	-- F99: the rainbow coats found (version 24); every rainbow cat owned is in it
+	profile.rainbowCollection = sanitizeCollection(raw.rainbowCollection, now)
+	for _, instance in profile.cats do
+		if instance.variant == "rainbow" and profile.rainbowCollection[instance.catId] == nil then
+			profile.rainbowCollection[instance.catId] = instance.caughtAt
+		end
+	end
 
 	-- Index reward claims (F48); saves before version 5 have none and can claim every milestone they passed.
 	if type(raw.indexRewards) == "table" then
@@ -775,6 +799,10 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 
 	-- F96 (version 22): when the notification ask first showed, never in the future
 	profile.notifyAskAt = math.clamp(asInt(raw.notifyAskAt, 0), 0, now)
+	-- F100 (version 25): the camp extras, settled for the tier by CampExtraService once the profile loads
+	profile.campExtras = CampExtras.sanitize(raw.campExtras, now)
+	-- F101 (version 26): the Rescue Rally laps this weekend
+	profile.rally = Rally.sanitize(raw.rally, now)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

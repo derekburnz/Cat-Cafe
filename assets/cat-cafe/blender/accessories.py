@@ -45,32 +45,47 @@ ROLE_OUTFITS = {"barista": ("Apron", "BaristaCap"), "waiter": ("BowTie", "Vest")
 
 def slots(spec, body="sit"):
     """(part, offset, rotation) per accessory on one cat's model before its Scale: the role pieces on the sitting
-    body, Glasses and Hat on the walking one (just in front of the face at eye height, and the head top)."""
+    body, Glasses and Hat on the walking one (just in front of the face at eye height, and the head top). Body S
+    (working, cats.py) has B's chest, so it wears the sitting pieces at B's slots, and the hats on its own head's top
+    as on A."""
     if body == "sit":
         return dict(SIT_SLOTS)
+    if body == "work":
+        h = cats.dims(spec, "work")["head"]
+        hat = tuple(round(v * K, 4) for v in (0.0, h["c"][1] - 0.06, h["top"] - 0.01))
+        return {**SIT_SLOTS, **{n: ("Head", hat, (0, 0, 0)) for n in ("BaristaCap", "Boater", "PartyHat")}}
     h = cats.dims(spec, "walk")["head"]
     return {"Glasses": ("Head", (0.0, round(h["fy"] - 0.05, 4), h["fz"]), (0, 0, 0)),
             "Hat": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)), **walk_slots(spec)}
 
 
-# Role pieces that fit the walking body A as built for B (Animation-Engineer, 2026-11-02): the three hats, the bow tie
-# and the cape. The apron, waistcoat and sash wrap B's upright chest and would be buried in A's wider level body, so
-# A has no slot for them yet and CatDress leaves them off a walking cat.
-WALK_PIECES = ("BaristaCap", "Boater", "PartyHat", "BowTie", "Cape")
+# Role pieces on the walking body A (Animation-Engineer, 2026-11-02): the three hats, the bow tie and the cape fit A as
+# built for B. The apron, waistcoat and sash wrap B's upright chest and would be buried in A's wider level body, so A
+# wears its own versions of them, CatCafe_Accessory_<Piece>_Walk (WALK_MESHES): pieces that lie on the back, the part
+# of a walking cat the camera sees, narrow enough for the slimmest back (the Sphynx's) so they never hang in the air.
+# A cat with a Back prop has no walking slot for them, as it has none for the cape.
+WALK_PIECES = ("BaristaCap", "Boater", "PartyHat", "BowTie", "Cape", "Vest", "Sash", "Apron")
+WALK_MESHES = ("Vest", "Sash", "Apron")
+BACK_W = 0.6                                  # the back pieces' width: the Sphynx's back is 0.64
+BACK_TOP = 0.07                               # their base's top above the slot (the back's top, or the coat's extras)
 
 
 def walk_slots(spec):
     """(part, offset, rotation) of each WALK_PIECES slot on one cat's walking model before its Scale. The hats sit on
     the head top as on B; the bow tie hangs under the chin from the Head, since A's chest is tucked under the head;
-    the cape is turned 90 about X so it lies along the back from just behind the head instead of hanging down."""
+    the cape is turned 90 about X so it lies along the back from just behind the head instead of hanging down; the
+    walking waistcoat, sash and apron start on the back's middle line just under the back of the head."""
     d = cats.dims(spec, "walk")
     h, (bc, bs), n = d["head"], d["body"], d["neck"]
     hat = (0.0, round(h["c"][1] - 0.06, 4), round(h["top"] - 0.01, 4))
     chin = (0.0, round(h["fy"] + 0.12, 4), round(h["c"][2] - h["s"][2] / 2 - 0.05, 4))
-    back = (0.0, round(n[1] + h["c"][1] + h["s"][1] / 2 + 0.06, 4), round(bc[2] + bs[2] / 2 - 0.02, 4))
+    head_back = n[1] + h["c"][1] + h["s"][1] / 2
+    back = (0.0, round(head_back + 0.06, 4), round(bc[2] + bs[2] / 2 - 0.02, 4))
+    lift = max(0.0, cats.back_rise(spec) - (BACK_TOP - 0.02))      # a mane or star specks: sit on them, not under
+    on_back = (0.0, round(head_back - 0.04, 4), round(bc[2] + bs[2] / 2 + lift, 4))
     return {"BaristaCap": ("Head", hat, (0, 0, 0)), "Boater": ("Head", hat, (0, 0, 0)),
             "PartyHat": ("Head", hat, (0, 0, 0)), "BowTie": ("Head", chin, (0, 0, 0)),
-            "Cape": ("Body", back, (90, 0, 0))}
+            "Cape": ("Body", back, (90, 0, 0)), **{p: ("Body", on_back, (0, 0, 0)) for p in WALK_MESHES}}
 
 def _x(deg):
     return (math.radians(deg), "X")
@@ -231,6 +246,59 @@ def build_hat(mat):
     return [b.finalize("CatCafe_Accessory_Hat", mat)]
 
 
+# The walking versions (WALK_MESHES): built about the slot on the back's middle line just under the back of the head,
+# +Y running back along the spine, each 0.03 into the back so the coat's stripes and specks stay under it.
+def _back_panel(b, y0, y1, swatch, top=BACK_TOP, w=BACK_W):
+    b.box((0, (y0 + y1) / 2, (top - 0.03) / 2), (w, y1 - y0, top + 0.03), swatch)
+
+
+def build_vest_walk(mat):
+    """The waiter's waistcoat on a walking cat: a dark back with a white shirt collar under the head, two gold
+    buttons by the collar and a half belt with a gold buckle."""
+    b = Builder()
+    _back_panel(b, -0.02, 0.5, "dark_wood")
+    b.box((0, 0.025, 0.04), (BACK_W - 0.08, 0.09, 0.08), "offwhite", bevel=False)               # shirt collar
+    for sx in (-1, 1):
+        b.box((sx * 0.1, 0.07, 0.085), (0.12, 0.08, 0.02), "offwhite", bevel=False,
+              rot=(math.radians(sx * 25), "Z"))                                                    # collar points
+        b.box((sx * 0.26, 0.17, 0.08), (0.05, 0.05, 0.03), "rarity_legend", bevel=False)          # buttons
+    b.box((0, 0.36, 0.078), (0.4, 0.07, 0.02), "choco", bevel=False)                              # half belt
+    b.box((0, 0.36, 0.088), (0.09, 0.08, 0.02), "rarity_legend", bevel=False)                     # buckle
+    b.box((0, 0.36, 0.093), (0.045, 0.04, 0.012), "choco", bevel=False)
+    return [b.finalize("CatCafe_Accessory_Vest_Walk", mat)]
+
+
+def build_sash_walk(mat):
+    """The greeter's sash on a walking cat: a red band across the back from the left shoulder to the right hip, with
+    the gold rosette on the shoulder."""
+    b = Builder()
+    (x0, y0), (x1, y1) = (0.2, 0.04), (-0.2, 0.46)
+    L, ang = math.hypot(x1 - x0, y1 - y0), math.atan2(y1 - y0, x1 - x0)
+    b.box(((x0 + x1) / 2, (y0 + y1) / 2, 0.02), (L, 0.17, 0.1), "shirt_red", bevel=False, rot=(ang, "Z"))
+    b.box(((x0 + x1) / 2, (y0 + y1) / 2, 0.072), (L - 0.04, 0.04, 0.012), "offwhite", bevel=False,
+          rot=(ang, "Z"))                                                                          # a white stripe
+    b.cyl_base((x0, y0 + 0.02, 0.04), 0.11, 0.05, "rarity_legend", segments=10)                 # rosette
+    b.cyl_base((x0, y0 + 0.02, 0.09), 0.055, 0.03, "shirt_red", segments=8)
+    for sx in (-1, 1):                                                                             # its two tails
+        b.box((x0 + sx * 0.04, y0 + 0.15, 0.005), (0.05, 0.12, 0.07), "shirt_red", bevel=False,
+              rot=(math.radians(sx * 15), "Z"))
+    return [b.finalize("CatCafe_Accessory_Sash_Walk", mat)]
+
+
+def build_apron_walk(mat):
+    """The barista's apron on a walking cat: the mint neck strap behind the head and the waist tie across the back
+    with a bow, the apron itself being under the cat."""
+    b = Builder()
+    b.box((0, 0.03, 0.02), (BACK_W, 0.07, 0.1), "mint", bevel=False)                              # neck strap
+    b.box((0, 0.36, 0.02), (BACK_W, 0.08, 0.1), "mint", bevel=False)                              # waist tie
+    for sx in (-1, 1):
+        b.box((sx * 0.1, 0.36, 0.095), (0.16, 0.11, 0.05), "mint", rot=(math.radians(sx * 20), "Z"))  # bow loops
+        b.box((sx * 0.05, 0.47, 0.005), (0.05, 0.14, 0.07), "mint", bevel=False,
+              rot=(math.radians(sx * 18), "Z"))                                                    # tails
+    b.box((0, 0.36, 0.105), (0.07, 0.08, 0.06), "cream", bevel=False)                             # knot
+    return [b.finalize("CatCafe_Accessory_Apron_Walk", mat)]
+
+
 ASSETS = {
     "CatCafe_Accessory_Glasses": (build_glasses, 200),
     "CatCafe_Accessory_BowTie": (build_bow_tie, 200),
@@ -242,4 +310,7 @@ ASSETS = {
     "CatCafe_Accessory_Vest": (build_vest, 300),
     "CatCafe_Accessory_Boater": (build_boater, 300),
     "CatCafe_Accessory_Cape": (build_cape, 300),
+    "CatCafe_Accessory_Vest_Walk": (build_vest_walk, 300),
+    "CatCafe_Accessory_Sash_Walk": (build_sash_walk, 300),
+    "CatCafe_Accessory_Apron_Walk": (build_apron_walk, 300),
 }

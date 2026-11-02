@@ -80,10 +80,14 @@ function Payout.pay(
 			end
 		end
 	end
-	local forever = (prize.bonus or 0) + (prize.goldLuck or 0) + (prize.baitSpeed or 0)
+	local forever = (prize.bonus or 0)
+		+ (prize.goldLuck or 0)
+		+ (prize.rainbowLuck or 0)
+		+ (prize.baitSpeed or 0)
 	if forever > 0 then
 		local what = if prize.goldLuck ~= nil
 			then "gold luck"
+			elseif prize.rainbowLuck ~= nil then "rainbow luck"
 			elseif prize.baitSpeed ~= nil then "faster bait"
 			else "money"
 		table.insert(paid, string.format("+%d%% %s forever", math.floor(forever * 100 + 0.5), what))

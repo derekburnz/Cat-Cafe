@@ -235,13 +235,14 @@ function Crates.fullPages(profile: Types.PlayerProfile): number
 end
 
 -- Why `crateId` cannot be opened now, or nil (the Market's range and cooldown are the server's). `tier` opens the
--- zone crates (the Classic Crate is open from Tier 1); a banked crate is used before fish.
+-- zone crates (the Classic Crate and F101's Rally Crate, which have no area, are open from Tier 1); a banked crate is
+-- used before fish.
 function Crates.openBlocker(profile: Types.PlayerProfile, tier: number, crateId: string): string?
 	local crate = Catalog.getCrate(crateId)
 	if crate == nil then
 		return "Unknown crate"
 	end
-	if crate.area ~= "classic" then
+	if crate.area ~= "classic" and crate.area ~= Catalog.RALLY_POOL then
 		local area = Catalog.getArea(crate.area)
 		if area == nil or tier < area.tier then
 			return "Unlock this zone first"
@@ -252,7 +253,9 @@ function Crates.openBlocker(profile: Types.PlayerProfile, tier: number, crateId:
 	end
 	local price = crate.price
 	if price == nil then
-		return "Golden crates come from the Index"
+		return if crate.area == Catalog.RALLY_POOL
+			then "Rally Crates come from the Rescue Rally"
+			else "Golden crates come from the Index"
 	end
 	if profile.goldenFish < price then
 		return "Not enough golden fish"

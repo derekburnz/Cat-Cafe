@@ -155,6 +155,36 @@ if scenario.role then
 	end
 end
 
+-- A working cat on the work body (S, Model-Agent #826): a scenario with `work` set does what the server does to the
+-- clone (Gameplay-Engineer's CatDress): keeps only `role`'s held Model (none for a greeter) and turns each arm about
+-- its own pivot by the manifest's cat_poses.work_<role> (angles_roblox_deg, in the arm's own axes). The manifest is
+-- assets/cat-cafe/exports/manifest.json, or $MANIFEST to try a branch's copy before it is on main.
+if scenario.work then
+	local role = assert(scenario.role, "a work scenario needs its role")
+	local manifestPath = process.env.MANIFEST or (HERE .. "../../exports/manifest.json")
+	local manifest = serde.decode("json", fs.readFile(manifestPath))
+	local pose = assert(manifest.cat_poses["work_" .. role], "no cat_poses.work_" .. role .. " in " .. manifestPath)
+	local keep = "_Held_" .. string.upper(string.sub(role, 1, 1)) .. string.sub(role, 2)
+	for _, descendant in model:GetDescendants() do
+		if
+			descendant:IsA("Model")
+			and string.find(descendant.Name, "_Held_", 1, true)
+			and string.sub(descendant.Name, -#keep) ~= keep
+		then
+			descendant:Destroy()
+		end
+	end
+	for pieceName, turn in pose.parts do
+		for _, child in model:GetChildren() do
+			if child:IsA("Model") and string.sub(child.Name, -(#pieceName + 1)) == "_" .. pieceName then
+				local a = turn.angles_roblox_deg
+				local pivot = child:GetPivot()
+				pivotTo(child, pivot * CFrame.Angles(math.rad(a[1]), math.rad(a[2]), math.rad(a[3])))
+			end
+		end
+	end
+end
+
 -- A stuck cat. A scenario's `trap` names a rescue prop: the prop with its pivot at the origin and the cat where the
 -- server pivots it, Layout.stuckPoses[prop], read from Layout.luau itself so the two cannot drift apart. A
 -- `trapSet` is a trap built into an area set instead (Layout's setTrap): `set` names the set, `spot` is the trap spot
@@ -273,7 +303,7 @@ assert(rig, "Pose.bind found no body")
 -- with an older Effects folder, the yarn ball it had then. Drawn after the props, out of sight in other styles.
 local toy = nil
 for _, segment in scenario.segments do
-	if segment.style == "entertainer" then
+	if segment.style == "entertainer" and rig.kind ~= "work" then -- S sings into its mic instead (#826)
 		toy = {}
 	end
 end

@@ -19,8 +19,10 @@ local Config = {
 	OfflineCapPassSeconds = 57600,
 	-- Game pass ids for F95's hooks (section 6); 0 until Tools-Agent makes the pass, which turns its effect off. The
 	-- Money passes by the income they multiply by (the highest owned counts); each extra slot pass adds a role slot.
-	LongNapPassId = 0,
-	MoneyPassIds = { [2] = 0, [3] = 0, [4] = 0 } :: { [number]: number },
+	-- Tools-Agent made the four in tools/opencloud/passes.json on 2026-11-02 (off sale until launch); no extra slot
+	-- pass exists yet.
+	LongNapPassId = 2064345084,
+	MoneyPassIds = { [2] = 2064604577, [3] = 2064670602, [4] = 2064357148 } :: { [number]: number },
 	ExtraSlotPassIds = {} :: { number },
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)
@@ -252,7 +254,7 @@ local Config = {
 	-- Tip piles (F61, data-model section 12, round 3 Q6): by day, every TipPileSeconds each earning cafe with a table
 	-- gets a pile worth TipPileRateSeconds of the day rate (at least $5). Since F97 (notes-10-28-to-10-30.md section 1)
 	-- a pile pays its owner the moment it appears, wherever they are; it shows on a table for TipPileShowSeconds and
-	-- at most TipPilesMax show at once (F90's Waiter will sweep them to the till instead).
+	-- at most TipPilesMax show at once (in your own cafe F90's Waiter sweeps them to the till).
 	TipPileSeconds = 30,
 	TipPileRateSeconds = 6,
 	TipPilesMax = 6,
@@ -314,6 +316,11 @@ local Config = {
 	QuestWeeklyCount = 3,
 	QuestWeekOffsetSeconds = 345600,
 	QuestRollCheckSeconds = 60,
+	-- Claim all (Derek 2026-10-28 and 10-29): the server has ClaimAll (ClaimAllService), so the UI shows its Claim all
+	-- buttons in the Quests window, the Index and the Tip Jar
+	QuestClaimAll = true,
+	IndexClaimAll = true,
+	TipJarClaimAll = true,
 
 	-- Bedtime (F79, data-model sections 12c and 17): at night the working cats walk from their stations to the cat
 	-- trees and beds and sleep, and walk back at sunrise. Pure rules in Bedtime, the walk in BedtimeService.
@@ -350,7 +357,21 @@ local Config = {
 	},
 	FishMarketRange = 14, -- OpenCrate and BuyFishItem from this close to a FishMarket station
 	CrateOpenCooldownSeconds = 2,
+	-- The crate reel (F103, crate-reel.md section 4), shared so the UI's reel and VFX's counter crate time to the same
+	-- numbers: CrateReelTiles tiles slide under the marker and the won piece is tile CrateReelLandingTile; tiles
+	-- CrateReelProtectFrom to CrateReelProtectTo are never rarer than the prize; the reel eases in over
+	-- CrateReelRampSeconds to CrateReelTopSpeed tiles a second, slows over the last CrateReelStopSeconds and the marker
+	-- pulses CrateReelHoldSeconds at the stop (about 2.9 s to the stop). Display only: the server's CrateResult decides.
+	CrateReelTiles = 40,
+	CrateReelLandingTile = 34,
+	CrateReelProtectFrom = 26,
+	CrateReelProtectTo = 37,
+	CrateReelTopSpeed = 15,
+	CrateReelRampSeconds = 0.3,
+	CrateReelStopSeconds = 0.8,
+	CrateReelHoldSeconds = 0.25,
 	DecorSpots = { 2, 3, 4, 5, 6 } :: { number }, -- furniture and decorations in use, by tier
+	DecorEquipBest = true, -- the server has EquipBestDecor (Derek 2026-10-28), so the Decor page shows Equip Best
 	DecorIndexBonus = 0.05, -- every tip forever: a Decor Index page's decor10 prize (all twelve pieces since F80, F54)
 	DecorIndexHalfFish = 25, -- golden fish: a Decor Index page's decor5 prize (five of ten, F54)
 	GoldenEspressoBonus = 0.05, -- every tip, per Golden Espresso level
@@ -359,6 +380,58 @@ local Config = {
 	-- up to. Gold rolls use chance x (1 + goldLuck); a bait wait is the wait x (1 - baitSpeed).
 	GoldLuckMax = 1.5,
 	BaitSpeedMax = 0.5,
+
+	-- The Rainbow coat (F99, rainbow-coat.md sections 1, 2 and 5): rolled before gold at the same moments (a net stray
+	-- at spawn, bait as the food goes in, a rescue at night start), so gold keeps its chance. Rainbow luck from the
+	-- Index's Rainbow track multiplies the chance by (1 + luck), the luck at most RainbowLuckMax; gold luck, Gold Rush
+	-- and Lucky Potions never touch it. A rainbow cat earns RainbowMultiplier (gold 1.5) and the Cat Collector values
+	-- it at CollectorRainbowMultiplier (gold 3). Clients animate the bands on at most RainbowAnimateMax rainbow cats
+	-- near the camera; a rainbow stray's server toast goes out at most once every RainbowSpawnToastSeconds.
+	RainbowChanceNet = 0.005,
+	RainbowChanceBait = 0.005,
+	RainbowChanceRescue = 0.01,
+	RainbowMultiplier = 3,
+	RainbowLuckMax = 1.0,
+	CollectorRainbowMultiplier = 10,
+	RainbowAnimateMax = 10,
+	RainbowSpawnToastSeconds = 60,
+
+	-- The camp extras (F100, camp-extras.md sections 2 and 4), each filling while the player is away up to its hold.
+	-- The Picnic Basket (Park) bags one PicnicPotion (Design-Agent 11-02: the 10 minute Money Potion) every
+	-- PicnicEverySeconds; the Yard Sale (Neighbourhood) sells the Classic Crate and one zone crate a UTC day at
+	-- YardSaleCratePrice golden fish each, banked for the Market; the Fish Pond (Woods) lands PondFishPerStep golden
+	-- fish every PondStepSeconds; the Lost and Found (Sewer) keeps one prize a UTC day from LostFoundTable (chances add
+	-- to 1, shown on its card). Each is collected within CampExtraRangeStuds of its PromptAnchor.
+	PicnicEverySeconds = 21600,
+	PicnicHold = 2,
+	PicnicPotion = "tip_potion",
+	YardSaleCratePrice = 40,
+	PondFishPerStep = 2,
+	PondStepSeconds = 1800,
+	PondHold = 24,
+	LostFoundHold = 3,
+	LostFoundTable = {
+		{ chance = 0.40, fish = 10 },
+		{ chance = 0.30, potion = "lucky_potion" },
+		{ chance = 0.20, potion = "gold_rush_potion" },
+		{ chance = 0.09, crate = "classic_crate" },
+		{ chance = 0.01, crate = "classic_golden_crate" },
+	} :: { { chance: number, fish: number?, potion: string?, crate: string? } },
+	CampExtraRangeStuds = 8,
+
+	-- The Rescue Rally weekend (F101, rescue-rally.md; shared/Rally, Catalog.rallySteps). From RallyStartWeekday (0 is
+	-- Sunday) 00:00 UTC for RallyHours, or at any time with RallyForce, each server fills one bar together. The goal is
+	-- RallyPointsPerPlayer times the players (never fewer than RallyMinPlayers' worth), fixed when the lap starts; a
+	-- step pays everyone in the server who scored RallyMinPoints this lap, from at most RallyMaxLaps laps a weekend.
+	RallyStartWeekday = 6,
+	RallyHours = 48,
+	RallyPointsPerPlayer = 30,
+	RallyMinPlayers = 3,
+	RallyMinPoints = 3,
+	RallyMaxLaps = 4,
+	RallyPoints = { checkIn = 1, tame = 1, rescue = 3, teamRescue = 3 } :: { [string]: number },
+	RallyForce = false,
+	RallyStateSeconds = 0.5, -- RallyState goes out at most this often while points come in (steps go at once)
 
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
 	CodesCatRange = 12, -- RedeemCode from this close to a CodesCat station's pivot
@@ -475,10 +548,10 @@ local Config = {
 		-- none is in view of the town or of another. Only the Cat Cannon reaches them. Each keeps its gate on its town
 		-- side as its camp's way out, with the camp (CampDepth deep, across the area's whole width) in front of it.
 		WildAreaDistance = 2000,
-		-- The Park at its v3.2 size (F81, town-layout-v3.md section 8e): 160 x 120, its camp on its north side.
+		-- The Park (F85, hometown-cannon.md section 6b): long, 120 wide and 310 deep, its camp on its north side.
 		ParkCenterZ = -2000,
-		ParkWidth = 160,
-		ParkDepth = 120,
+		ParkWidth = 120,
+		ParkDepth = 310,
 		-- The Woods (v3.2: 240 x 240) with its camp on its east side, the Sewer (180 x 180) with its camp on its west. Their
 		-- gates keep the 24 wide openings they had in the back alleys' outer walls (SideGateHalfWidth either side).
 		WoodsCenterX = -2000,
@@ -490,11 +563,11 @@ local Config = {
 		SewerWidth = 180,
 		SewerDepth = 180,
 		SideGateHalfWidth = 12,
-		-- The Neighbourhood (v3.2: 280 x 280) with its camp on its south side.
+		-- The Neighbourhood (F85, hometown-cannon.md section 6b): long, 180 wide and 430 deep, its camp on its south side.
 		NeighbourhoodCenterX = 0,
 		NeighbourhoodCenterZ = 2000,
-		NeighbourhoodWidth = 280,
-		NeighbourhoodDepth = 280,
+		NeighbourhoodWidth = 180,
+		NeighbourhoodDepth = 430,
 		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
 		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
 		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its
@@ -512,6 +585,17 @@ local Config = {
 		CustomersMax = 24,
 		CustomersMaxLow = 12, -- on a phone or tablet (Effects.tier() "low"): each walker moves every frame
 		CustomerOrderSeconds = 2, -- standing at the counter before taking a seat
+		-- Cats make the orders (F90, cats-make-orders.md section 2), client only: at most OrderQueueMax orders wait or
+		-- are being made per cafe (a customer past that finds its dish on the table as it sits); with no Waiter in
+		-- your own cafe a customer waits up to OrderHandOverSeconds at the counter for the Barista to hand it over;
+		-- a Waiter trots at OrderWaiterSpeed; a left plate stays OrderPlateSeconds, then fades over
+		-- OrderPlateFadeSeconds; an idle Waiter or Greeter sweeps a tip pile TipSweepAfterSeconds after it appears.
+		OrderQueueMax = 3,
+		OrderHandOverSeconds = 8,
+		OrderWaiterSpeed = 5,
+		OrderPlateSeconds = 5,
+		OrderPlateFadeSeconds = 1,
+		TipSweepAfterSeconds = 6,
 	},
 }
 

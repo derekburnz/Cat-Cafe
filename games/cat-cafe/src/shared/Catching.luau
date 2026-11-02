@@ -152,8 +152,8 @@ function Catching.rarityAtLeast(rarity: Types.Rarity, minimum: string): boolean
 end
 
 -- The server-wide shout-out for a new cat, or nil when it is not worth one: AnnounceMinRarity (Epic) and up, and
--- every gold (data-model section 15). "Sam caught a gold Rare Tabby!", "Sam rescued an Epic Maine Coon!";
--- `where` adds a place before the "!" (" at their bait bowl").
+-- every gold and rainbow (data-model section 15, F99). "Sam caught a gold Rare Tabby!", "Sam rescued an Epic Maine
+-- Coon!", "Sam caught a rainbow Common Tabby!"; `where` adds a place before the "!" (" at their bait bowl").
 function Catching.shoutOut(
 	playerName: string,
 	verb: string,
@@ -161,18 +161,19 @@ function Catching.shoutOut(
 	variant: string?,
 	where: string?
 ): string?
-	local gold = variant == "gold"
-	if not gold and not Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
+	local coat = if variant == "gold" or variant == "rainbow" then variant .. " " else ""
+	if coat == "" and not Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
 		return nil
 	end
-	local phrase = (if gold then "gold " else "") .. def.rarity .. " " .. def.name
+	local phrase = coat .. def.rarity .. " " .. def.name
 	local article = if phrase:match("^[AEIOUaeiou]") then "an " else "a "
 	return string.format("%s %s %s%s%s!", playerName, verb, article, phrase, where or "")
 end
 
 -- F58 (data-model section 9, v0.8): the server-wide line when a wave spawns a Mythical stray, naming the area and
 -- not the cat, so finding it is still a surprise: "A Mythical cat appeared in the Woods!", "A gold Mythical cat..."
--- when it is gold, "... in the Woods on a Lucky Day!" on a Lucky Day's wave (F88). Nil for any other rarity.
+-- when it is gold (or "rainbow", F99), "... in the Woods on a Lucky Day!" on a Lucky Day's wave (F88). Nil for any
+-- other rarity.
 function Catching.waveShoutOut(
 	rarity: Types.Rarity,
 	variant: string?,
@@ -184,10 +185,34 @@ function Catching.waveShoutOut(
 	end
 	return string.format(
 		"A %sMythical cat appeared in the %s%s!",
-		if variant == "gold" then "gold " else "",
+		if variant == "gold" or variant == "rainbow" then variant .. " " else "",
 		areaName,
 		if luckyDay == true then " on a Lucky Day" else ""
 	)
+end
+
+-- F99 (rainbow-coat.md section 1): a found cat's coat from one roll in [0, 1): "rainbow" below `rainbowChance`, else
+-- "gold" below rainbowChance + goldChance, else "base". Rainbow is rolled first on the same roll, so the gold chance
+-- stays exactly as it was. An exclusive cat (the Bellhop Cat, the shop cats) is always "base".
+function Catching.rollCoat(
+	def: Types.CatDef,
+	roll: number,
+	rainbowChance: number,
+	goldChance: number
+): string
+	if def.exclusive == true then
+		return "base"
+	end
+	if roll < rainbowChance then
+		return "rainbow"
+	end
+	return if roll < rainbowChance + goldChance then "gold" else "base"
+end
+
+-- F99 (rainbow-coat.md section 2): the server's toast when a rainbow stray spawns, "A Rainbow Tabby is out in the
+-- Woods!", naming the cat (its coat is visible from the spawn, unlike the Mythical wave line).
+function Catching.rainbowSpawnText(def: Types.CatDef, areaName: string): string
+	return string.format("A Rainbow %s is out in the %s!", def.name, areaName)
 end
 
 function Catching.percentText(chance: number): string

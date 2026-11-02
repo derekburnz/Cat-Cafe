@@ -118,8 +118,8 @@ return function()
 		-- logs, drain pipes, sheds and gutters turned in the set as well.
 		it("the area sets' cat spots stand on the set's ground, clear of its traps", function()
 			local sets: { [string]: string } = {
-				park = "CatCafe_Park_Set",
-				neighbourhood = "CatCafe_Neighbourhood_SetV32",
+				park = "CatCafe_Park_SetF85", -- F85 (#799)
+				neighbourhood = "CatCafe_Neighbourhood_SetF85", -- F85 (#810)
 				woods = "CatCafe_Woods_SetV32",
 				sewer = "CatCafe_Sewer_SetV32",
 			}
@@ -151,7 +151,7 @@ return function()
 				local pieceTurns: { number } = if id == "woods"
 					then { 20, -20, 0, 0, -106.26 }
 					elseif id == "sewer" then { 0, 0, 90, -90 }
-					elseif id == "neighbourhood" then { 0, -90, 180, 34 }
+					elseif id == "neighbourhood" then { 0, 90, 0, 0 }
 					else {}
 				local built = 0
 				for _, spot in spec.rescueSpots do
@@ -169,8 +169,8 @@ return function()
 				local spec = Layout.areas[id]
 				local gx, gz = Layout.gatePosition(spec)
 				expect(gx).to.be.ok()
-				-- the Park's plaza at local (-3.5, -49.5) is near its gate side, the Neighbourhood's porch at local
-				-- (-110.2, -98.9) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
+				-- the Park's plaza at local (-4, -145) is near its gate side, the Neighbourhood's porch at local
+				-- (-67.2, -166.9) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
 				-- canal bridge at local (44, -61) near its own
 				local index = if id == "woods" then 8 else 1
 				local point = spec.spawnPoints[index]
@@ -200,11 +200,11 @@ return function()
 			function()
 				local rows = {
 					{
-						id = "park",
-						near = 16,
-						deep = 24,
+						id = "park", -- F85 (#799): four of its five traps deep
+						near = 20,
+						deep = 28,
 						rare = 0,
-						deepTraps = 3,
+						deepTraps = 4,
 						byRegion = false,
 					},
 					{
@@ -224,11 +224,11 @@ return function()
 						byRegion = true,
 					},
 					{
-						id = "neighbourhood",
-						near = 28,
-						deep = 44,
+						id = "neighbourhood", -- F85 (#810): three of its four traps deep
+						near = 29,
+						deep = 45,
 						rare = 0,
-						deepTraps = 2,
+						deepTraps = 3,
 						byRegion = false,
 					},
 				}
@@ -272,12 +272,12 @@ return function()
 					end
 					expect(deep).to.equal(row.deepTraps)
 				end
-				-- the Park's traps are the world's trees and bins, the first a prop turned 180 in the set, which is
-				-- turned 180 itself
+				-- the Park's traps are the world's trees and bins, the first (F85) a prop with no turn in the set, which
+				-- is turned 180 itself
 				for _, spot in Layout.park.rescueSpots do
 					expect(spot.prop).to.be.ok()
 				end
-				expect(Layout.park.rescueSpots[1].rotY).to.equal(0)
+				expect(Layout.park.rescueSpots[1].rotY).to.equal(180)
 			end
 		)
 
@@ -1411,6 +1411,44 @@ return function()
 			expect(Layout.cannonAim("town")).to.equal(0)
 		end)
 
+		it("stands the Rally board in the north-east quarter facing the spawn, off the cross and the stations (F101)", function()
+			local board = square.rallyBoard
+			expect(board.asset).to.equal("CatCafe_Square_RallyBoard")
+			expect(board.x > 0 and board.z > 0).to.equal(true)
+			-- its face is about 11 by 1.5 (Model-Agent #759); every corner of that, turned, stays off the cross
+			local yaw = math.rad(board.rotY or 0)
+			local cos, sin = math.cos(yaw), math.sin(yaw)
+			for _, corner in { { -5.5, -0.75 }, { 5.5, -0.75 }, { -5.5, 0.75 }, { 5.5, 0.75 } } do
+				local x = board.x + corner[1] * cos + corner[2] * sin
+				local z = board.z - corner[1] * sin + corner[2] * cos
+				expect(inside(x, z, square.floor, 4)).to.equal(true)
+				for _, lane in lanes do
+					expect(inside(x, z, lane, -0.5)).to.equal(false)
+				end
+				expect(math.sqrt(x ^ 2 + z ^ 2) > square.fountainRadius + 3).to.equal(true)
+			end
+			-- front -Z turned toward the spawn on the street's line
+			local spawn = Layout.playerSpawn
+			local toX, toZ = spawn.x - board.x, spawn.z - board.z
+			local length = math.sqrt(toX ^ 2 + toZ ^ 2)
+			expect((-sin * toX - cos * toZ) / length > 0.95).to.equal(true)
+			for name, point in
+				{
+					spinWheel = Layout.spinWheel,
+					fishMarket = Layout.fishMarket,
+					codesCat = Layout.codesCat,
+					dealerCart = Layout.dealerCart,
+					bellhopStand = Layout.bellhopStand,
+					leaderboards = Layout.leaderboards,
+					signpost = square.signpost,
+				} :: { [string]: Point }
+			do
+				if math.sqrt((point.x - board.x) ^ 2 + (point.z - board.z) ^ 2) < 9 then
+					fail("the Rally board stands on the %s", name)
+				end
+			end
+		end)
+
 		it("stands the signpost by the cannon's plinth, south-west and off the cross", function()
 			local post = square.signpost :: Point
 			expect(post.x < 0 and post.z < 0).to.equal(true)
@@ -1783,5 +1821,179 @@ return function()
 				end
 			end
 		)
+
+		it(
+			"stands a nap bed on each nap spot inside the walls, facing into the room, clear of everything but its cat",
+			function()
+				expect(#plot.napSpots).to.equal(4)
+				for n, spot in plot.napSpots do
+					local bed = { x = spot.x, z = spot.z }
+					local function check(what: string, x: number, z: number)
+						if apart(bed, x, z) < CLEAR then
+							fail("nap spot %d is %.2f studs from %s", n, apart(bed, x, z), what)
+						end
+					end
+					expect(spot.y).to.equal(0)
+					expect(math.abs(spot.x) <= halfW - 1.5 and math.abs(spot.z) <= halfD - 1.5).to.equal(true)
+					local angle = math.rad(spot.rotY or 0)
+					if -math.sin(angle) * -spot.x + -math.cos(angle) * -spot.z <= 0 then
+						fail("nap spot %d faces the wall", n)
+					end
+					for k, decor in plot.decorSpots do
+						check("decor spot " .. k, decor.x, decor.z)
+					end
+					for k, tableSpot in plot.tables do
+						check("table " .. k, tableSpot.x, tableSpot.z)
+					end
+					for id, station in plot.spots do
+						check(id, station.x, station.z)
+					end
+					for id, tree in plot.spotFurniture do
+						check(id .. "'s cat tree", tree.x, tree.z)
+					end
+					for k, other in plot.napSpots do
+						if k ~= n then
+							check("nap spot " .. k, other.x, other.z)
+						end
+					end
+				end
+			end
+		)
+	end)
+
+	describe("cats make the orders (F90, cats-make-orders.md section 3)", function()
+		local plot = Layout.plot
+		local halfW, halfD = W.PlotWidth / 2, W.PlotDepth / 2
+		-- footprints as plot-local boxes {x1, z1, x2, z2}: the counter (CatCafe_Furniture_Counter, 8.4 by 2.6 about
+		-- its pivot), the oven (Model-Agent #775: 3.2 wide, 2.9 deep, base centre), the till and the level 3 espresso
+		-- machine on the counter top, and a seated cat (Scale 1.2) round its spot
+		local function box(x: number, z: number, w: number, d: number): { number }
+			return { x - w / 2, z - d / 2, x + w / 2, z + d / 2 }
+		end
+		local function overlaps(a: { number }, b: { number }): boolean
+			return a[1] < b[3] and b[1] < a[3] and a[2] < b[4] and b[2] < a[4]
+		end
+		local counter = { plot.counter.x - 4.2, plot.counter.z - 1.33, plot.counter.x + 4.2, plot.counter.z + 1.3 }
+		local oven = box(plot.oven.x, plot.oven.z, 3.2, 2.9)
+		local till = { 0.7, plot.counter.z - 0.15, 1.7, plot.counter.z + 0.7 }
+		local espresso = { plot.espresso.x - 1.23, plot.espresso.z - 1.15, plot.espresso.x + 1.23, plot.espresso.z + 0.5 }
+		local function cat(spot: any): { number }
+			return { spot.x - 0.75, spot.z - 0.78, spot.x + 0.75, spot.z + 0.76 }
+		end
+
+		it("stands the oven on the floor against the back wall, clear of the counter and the back door", function()
+			expect(plot.oven.y).to.equal(0)
+			expect(oven[4] <= halfD - 0.25 and oven[4] >= halfD - 0.5).to.equal(true)
+			expect(overlaps(oven, counter)).to.equal(false)
+			local door = plot.backDoor
+			expect(oven[1] > door.x + door.width / 2 or oven[3] < door.x - door.width / 2).to.equal(true)
+			expect(oven[3] <= halfW - 1).to.equal(true)
+		end)
+
+		it("keeps the oven and its open door clear of every cat spot, decor spot, nap spot and bed", function()
+			-- the door (Model-Agent #775) hinges at the front 1.2 in from the pivot and is 1.75 long, so open flat it
+			-- reaches 2.95 in front of the pivot
+			local swept = { oven[1], plot.oven.z - 2.95, oven[3], oven[4] }
+			for id, spot in plot.spots do
+				if overlaps(swept, cat(spot)) then
+					fail("the oven or its open door overlaps %s", id)
+				end
+			end
+			for n, spot in plot.decorSpots do
+				-- the widest decor piece is 4.2 across and 2.5 deep
+				local turned = spot.rotY == 90 or spot.rotY == -90
+				local piece = if turned then box(spot.x, spot.z, 2.5, 4.2) else box(spot.x, spot.z, 4.2, 2.5)
+				if overlaps(oven, piece) then
+					fail("the oven overlaps decor spot %d", n)
+				end
+			end
+			for n, spot in plot.napSpots do
+				if overlaps(oven, cat(spot)) then
+					fail("the oven overlaps nap spot %d", n)
+				end
+			end
+			for _, bed in plot.beds do
+				if overlaps(oven, box(bed.x, bed.z, 2.65, 2.65)) then
+					fail("the oven overlaps %s", bed.id)
+				end
+			end
+		end)
+
+		it("puts the pass on the counter top, a plate clear of the till, the espresso machine and the tip jar", function()
+			local plate = box(plot.pass.x, plot.pass.z, 1.1, 1.1)
+			expect(plot.pass.y).to.equal(3)
+			expect(plate[1] >= counter[1] and plate[3] <= counter[3]).to.equal(true)
+			expect(plate[2] >= counter[2] - 0.05 and plate[4] <= counter[4]).to.equal(true)
+			expect(overlaps(plate, till)).to.equal(false)
+			expect(overlaps(plate, espresso)).to.equal(false)
+			expect(overlaps(plate, box(0.2, plot.counter.z - 0.6, 0.4, 0.4))).to.equal(false) -- the tip jar
+		end)
+
+		it("has the Waiter pick up in front of the counter, clear of the queue and the Cat Collector", function()
+			expect(plot.pickup.y).to.equal(0)
+			local body = cat(plot.pickup)
+			expect(body[4] <= counter[2]).to.equal(true)
+			expect(math.abs(plot.pickup.x) < 6.3 - 1).to.equal(true) -- in the aisle, off the tables
+			expect(overlaps(body, box(plot.collectorSpot.x, plot.collectorSpot.z, 1.56, 1.99))).to.equal(false)
+			-- behind the queue's line at the right edge of its spread, so a customer ordering there brushes it at most
+			expect(plot.pickup.z - plot.orderPoint.z >= 0.8 and plot.pickup.x >= 2.5).to.equal(true)
+		end)
+
+		it("drops the swept coin bag on the till", function()
+			local x, z = plot.tillStack.x, plot.tillStack.z
+			expect(x > till[1] and x < till[3] and z > till[2] and z < till[4]).to.equal(true)
+			expect(plot.tillStack.y > 3).to.equal(true)
+		end)
+	end)
+
+	-- F100 (camp-extras.md section 3; Model-Agent #750): one extra in each camp from the Park on.
+	describe("the camp extras (F100)", function()
+		local function apart(ax: number, az: number, bx: number, bz: number): number
+			return math.sqrt((ax - bx) ^ 2 + (az - bz) ^ 2)
+		end
+
+		it("has a spot for each Catalog extra's area and none for the Alleyway", function()
+			local count = 0
+			for areaId in Layout.campExtras do
+				count += 1
+				local found = false
+				for _, def in Catalog.campExtras do
+					found = found or def.area == areaId
+				end
+				expect(found).to.equal(true)
+			end
+			expect(count).to.equal(#Catalog.campExtras)
+			expect(Layout.campExtras.alley).never.to.be.ok()
+			expect(Layout.campExtraAt("alley")).to.equal(nil)
+		end)
+
+		it("stands each inside its camp beside the way out, clear of the board, the pad, the cannon and the basket", function()
+			for _, def in Catalog.campExtras do
+				local camp = Layout.camps[def.area]
+				local x, y, z, turn = Layout.campExtraAt(def.area)
+				assert(x ~= nil and y ~= nil and z ~= nil and turn ~= nil, def.id)
+				-- in the camp, which is the safe zone, its 3 by 2.2 footprint 2 in from every edge
+				if not inside(x, z, camp.rect, 2) then
+					fail("%s at (%g, %g) is not inside its camp", def.id, x, z)
+				end
+				expect(Layout.campAt(x, z)).to.equal(def.area)
+				expect(y).to.equal(Layout.areas[def.area].floorY)
+				expect(turn).to.equal(camp.turn)
+				-- beside the way out (not in front of it) and on the other side from the Index Board
+				local lx, lz = Layout.campLocal(camp, x, z)
+				expect(lx > camp.openingHalfWidth + 2).to.equal(true)
+				expect(lz < -2 and lz > -12).to.equal(true)
+				local board = Layout.indexBoards[def.area]
+				expect(board.x < 0).to.equal(true)
+				local bx, bz = Layout.campPoint(camp, board.x, board.z)
+				expect(apart(x, z, bx, bz) > 2 * Config.CampExtraRangeStuds).to.equal(true)
+				-- clear of the landing pad's spots, the cannon and its front, and the carrier basket
+				local pad = Layout.landingPads[def.area].centre
+				expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
+				for _, point in { Layout.cannons[def.area], Layout.cannonFronts[def.area], camp.basket } do
+					expect(apart(x, z, point.x, point.z) > 6).to.equal(true)
+				end
+			end
+		end)
 	end)
 end

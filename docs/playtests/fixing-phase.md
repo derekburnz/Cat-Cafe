@@ -12,7 +12,8 @@ Other threads took parts of the same notes, and this plan builds on them rather 
 - **Feedback tile (#594, merged 2026-11-01):** a gold Feedback tile on the HUD's top right row opens the report
   window, which used to sit three taps deep under Settings > Help and got zero reports there.
 - **analytics.yml (Tools-Agent, 2026-11-01):** threads read players per funnel step, the loss at each step,
-  day 1 retention, session lengths and custom events from the Actions tab, without Creator Hub.
+  day 1 retention, session lengths and custom events from the Actions tab, without Creator Hub. Since #819
+  (2026-11-02) it reads every funnel's steps and each custom event's times and players.
 - **`quit_point` (Gameplay-Engineer, 2026-11-01):** logged when a player below Tier 2 leaves: seconds played, the
   last funnel step, the intro or tutorial step and where the character stood; `tutorial_step` now logs every step.
 
@@ -49,7 +50,9 @@ Stop the line (fix today, publish nothing else first):
 - [ ] The world scan shows nothing floating or clipping on the first ten minutes' route: the spawn, the way to the
   Alleyway (the back door today, the cannon with F84), the Alleyway's lanes and the player's own cafe inside and out.
 - [ ] The funnel and `quit_point` (and F87's funnel v2 and `new_player_left` if they are built by then) show in the
-  analytics workflow from friends' sessions in the published dev place (F87 QA check 10).
+  analytics workflow from friends' sessions in the published dev place (F87 QA check 10). 2026-11-02: the alpha
+  funnel and the custom events show (run 41447808008); v2, `new_player_left` and `quit_point` wait for the
+  2026-11-03 run.
 - [ ] The Feedback tile is live and a test report shows in the next bug-reports run, with no report text or user
   ids in the job log (the repo is public; F87 section 4).
 - [ ] F87's first context tips are live: at least `bowl`, `stuck_cat` and `rank_up`.
@@ -82,8 +85,9 @@ build is live: the back door and the walk home today (S3, S5), the cannon and th
 
 ## 4. Funnel checkpoints: reading where players stop
 
-Today's 12-step funnel, `tutorial_step` and `quit_point` are live; F87 section 5 adds finer steps and
-`new_player_left`. This is how QA reads them each morning.
+The alpha's 12-step funnel (`FUNNEL_TYPE_ONBOARDING`) logged until v96. Since v96 (2026-11-02, 04:01 UTC) the
+25-step `onboarding_v2` (F87 section 5's 24 steps and F96's `starter_cat`), `new_player_left`, `tutorial_step` and
+`quit_point` are live. This is how QA reads them each morning.
 
 Since #618 (Tools-Agent) both workflows run by themselves every day at 10:17 UTC: analytics.yml reads yesterday
 and then the last 7 days, bug-reports.yml yesterday's reports and then today's so far. Find the newest run with
@@ -91,8 +95,24 @@ GitHub's list of workflow runs for `analytics.yml` or `bug-reports.yml`, filtere
 page, and read its summary or job log. Roblox fills a day about a day late, so a morning read is mostly about the
 day before, and the 7-day part smooths small numbers. The Actions logs are public, so scheduled bug report logs
 show a name's first letter and an id's last three digits and leave out the JSON; run bug-reports.yml by hand when a
-ticket needs more. The analytics run fails with the setup guide's step 20 message until Derek gives the publish key
-`universe.analytics:read`.
+ticket needs more. The publish key reads analytics since 2026-11-02 (Tools-Agent's run 41447808008).
+
+Reading the tables (QA, from that first full run):
+- The onboarding funnels give each player one session, so their counts are players. `catch_attempt` gives each
+  attempt its own id and `bait_cycle` each bait, so their counts are attempts and baits: 49 engaged in that run came
+  from at most 7 players.
+- F93 renumbered `catch_attempt` under the same name at v87 (2026-11-02, 02:58 UTC; v1 was 1 engaged, 2 caught,
+  3 checked_in, 4 working). Roblox adds steps by number, so a window that holds 2026-11-02 mixes v1's step N with
+  v2's. Read the catch funnel from the yesterday table from the 2026-11-04 run and from the 7-day table from the
+  2026-11-10 run.
+- `onboarding_v2` first shows in the 2026-11-03 run; earlier windows hold only the alpha's 12 steps.
+
+Alpha baseline (the v1 funnel, 2026-10-19 to 11-01, friends only, before F87 and F95): 7 joined, all saw the alley,
+6 caught, checked in, gave a role and bought a table, 5 set bait and 3 had the bait cat come and reached Tier 2.
+One came back the next day, claimed offline money and reached Tier 3. The biggest loss in the first session was
+first_bait to first_bait_resolved (2 of 5); catch attempts lost most between checked_in and working (9 of 44) while
+`slots_full` fired 99 times for 6 players. Seven players are too few to act on; these are the numbers v2 is compared
+with.
 
 1. **Worst drop.** Over steps 1 to 15 (the first session), the step with the largest share of players lost from the
    step before. That is the day's first fix ticket, even if no one reported it.

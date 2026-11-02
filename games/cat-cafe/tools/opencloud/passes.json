@@ -1,6 +1,7 @@
 [
 	{
 		"name": "2x Money",
+		"id": 2064604577,
 		"config": "MoneyPassIds[2]",
 		"price": 5,
 		"regionalPricing": false,
@@ -8,6 +9,7 @@
 	},
 	{
 		"name": "3x Money",
+		"id": 2064670602,
 		"config": "MoneyPassIds[3]",
 		"price": 15,
 		"regionalPricing": false,
@@ -15,6 +17,7 @@
 	},
 	{
 		"name": "4x Money",
+		"id": 2064357148,
 		"config": "MoneyPassIds[4]",
 		"price": 25,
 		"regionalPricing": false,
@@ -22,6 +25,7 @@
 	},
 	{
 		"name": "Long Nap",
+		"id": 2064345084,
 		"config": "LongNapPassId",
 		"price": 199,
 		"regionalPricing": true,

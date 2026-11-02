@@ -2,7 +2,8 @@
 -- Leaderboards (F98, leaderboards.md). Pure: what each board ranks, as the whole numbers the OrderedDataStores keep,
 -- and the store names. LeaderboardService writes and reads them; the boards in town and the Index's Top tab show
 -- LeaderboardSync.
---   index     Index entries found: every normal cat in the collection plus every gold coat, exclusive cats left out
+--   index     Index entries found: every normal cat in the collection plus every gold and rainbow coat, exclusive
+--             cats left out
 --             as in the Index itself. All time.
 --   playtime  minutes played (stats.playtimeSeconds plus the session so far). All time, and this week (stats.weekPlay
 --             plus the session's time since the week began).
@@ -62,10 +63,10 @@ function Leaderboards.weekStartsAt(now: number): number
 	return Quests.weekEndsAt(now) - WEEK_SECONDS
 end
 
--- Index entries found: the collection's cats and the gold coats, not counting exclusive cats.
+-- Index entries found: the collection's cats, the gold coats and the rainbow coats (F99), not counting exclusive cats.
 function Leaderboards.indexEntries(profile: Types.PlayerProfile): number
 	local n = 0
-	for _, found in { profile.collection, profile.goldCollection } do
+	for _, found in { profile.collection, profile.goldCollection, profile.rainbowCollection or {} } do
 		for catId in found do
 			local def = Catalog.getCat(catId)
 			if def ~= nil and def.exclusive ~= true then

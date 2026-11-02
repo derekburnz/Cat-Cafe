@@ -56,6 +56,8 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every effect a
 
    Rescues (sound list 5.2) and F92 Team Rescue: the rescue moments play their rows from the Rescue sheet (they had no files before 2026-11-02); a trap hit plays at the trap and the pip climbs one scale step per hit. `TeamRescue` (rescueSpotId, rescuerUserId, helperUserId, position) plays `teamRescue` flat on both friends' screens, just after their `rescueDone`.
 
+   F90 cats make the orders (sound list 5.16): `OrderMaking` at the espresso machine plays `orderPour` there (`Logic.orderMakeCue`); `OrderReady` plays `orderDing` at the station, a scale step higher for a drink and two for the counter (`Logic.orderDingStep`); `OrderServed` plays `trayClink` at the table; in your own cafe `TipSwept` plays `tipSweep` (the `tipPile` file) at the table and `TipBanked` plays `tipBank` at the till. All five are 3D and stay silent without a place.
+
    Sound sheets: a cue with `sheet` plays its sheet's file, and `region` makes its Sounds play only that stretch (`PlaybackRegionsEnabled` and `PlaybackRegion`); a timed stop just after the region, counted from when the file loads, backs it up. The sheet's own row holds the id and is preloaded.
 
    The nearest resting cafe cat within 14 studs purrs too, by day (`Logic.restingPurrs`): the Napping children of each `Plot`'s `Cats` folder, one sitting on the seated body (`Pose` "sit", PR #266) the whole day, one on the lying body only while `Effects.isLoafing(model)` (vfx-animator PR #222). Only one, so it is always a cat Effects is animating (reviewer N131, N150).

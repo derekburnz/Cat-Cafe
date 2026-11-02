@@ -1944,7 +1944,7 @@ Catalog.areas = {
 		id = "park",
 		name = "Park",
 		tier = 2,
-		spawnPoints = 40, -- the v3.2 set's cat spots, 16 near the gate and 24 deep (F81)
+		spawnPoints = 48, -- F85's long set's cat spots, 20 near the camp and 28 deep
 		waveSize = 5,
 		rescueSpots = 5,
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
@@ -1954,7 +1954,7 @@ Catalog.areas = {
 		id = "neighbourhood",
 		name = "Neighbourhood",
 		tier = 3,
-		spawnPoints = 72, -- the v3.2 set's cat spots, 28 near the gate and 44 deep (F81)
+		spawnPoints = 74, -- F85's long set's cat spots, 29 near the camp and 45 deep
 		waveSize = 5,
 		rescueSpots = 4, -- two sheds and two gutters
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
@@ -1989,8 +1989,9 @@ end
 
 -- Section 11b and golden-fish.md sections 5 and 5b (F54): every Index milestone, in order. An area page has the
 -- normal track (its cats) and the gold track (its gold cats), the All Cats page (area id "all") counts different
--- cats across every area, and a Decor Index page (area id "decor_<pool>") counts that crate's pieces owned. A page
--- shows the milestones it has a prize for.
+-- cats across every area, a Decor Index page (area id "decor_<pool>") counts that crate's pieces owned and the
+-- Rainbow page (area id "rainbow", F99) counts different rainbow cats across every area. A page shows the milestones
+-- it has a prize for.
 Catalog.indexMilestones = {
 	{ id = "cats3", track = "normal", needs = 3 },
 	{ id = "cats6", track = "normal", needs = 6 },
@@ -2014,6 +2015,12 @@ Catalog.indexMilestones = {
 	{ id = "decor5", track = "decor", needs = 5 },
 	-- every piece of the page: 12 since F80 (golden-fish.md 4b), and 16 on the Classic page since F97 (`whole`)
 	{ id = "decor10", track = "decor", needs = 12, whole = true },
+	-- F99 (rainbow-coat.md section 4): one track for the whole Index, since one rainbow Mythical can take weeks
+	{ id = "rainbow1", track = "rainbow", needs = 1 },
+	{ id = "rainbow3", track = "rainbow", needs = 3 },
+	{ id = "rainbow5", track = "rainbow", needs = 5 },
+	{ id = "rainbow10", track = "rainbow", needs = 10 },
+	{ id = "rainbow25", track = "rainbow", needs = 25 },
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server
@@ -2199,6 +2206,23 @@ Catalog.indexPrizes = {
 		decor5 = { fish = Config.DecorIndexHalfFish },
 		decor10 = { bonus = Config.DecorIndexBonus },
 	},
+	decor_rally = { -- F101: the Rally Crate's own page
+		decor5 = { fish = Config.DecorIndexHalfFish },
+		decor10 = { bonus = Config.DecorIndexBonus },
+	},
+	-- F99 (rainbow-coat.md section 4): the three luck steps add up to RainbowLuckMax (+100%)
+	rainbow = {
+		rainbow1 = { fish = 25, tag = "Rainbow Finder" },
+		rainbow3 = { fish = 50, crates = { classic_golden_crate = 1 } },
+		rainbow5 = { fish = 75, rainbowLuck = 0.2 },
+		rainbow10 = { fish = 100, crates = { classic_golden_crate = 2 }, rainbowLuck = 0.3 },
+		rainbow25 = {
+			fish = 150,
+			crates = { classic_golden_crate = 3 },
+			tag = "Rainbow Master",
+			rainbowLuck = 0.5,
+		},
+	},
 } :: { [string]: { [string]: Types.IndexPrize } }
 for _, prizes in Catalog.indexPrizes do
 	for _, prize in prizes do
@@ -2280,14 +2304,19 @@ local CRATE_ODDS =
 	{ Common = 60, Rare = 27, Epic = 10, Legendary = 2.5, Mythical = 0.5 } :: { [string]: number }
 local GOLDEN_CRATE_ODDS =
 	{ Common = 0, Rare = 0, Epic = 80, Legendary = 17.5, Mythical = 2.5 } :: { [string]: number }
-local CRATE_POOLS = {
+-- F101: the Rally Crate is never sold and has no golden twin (`sold` and `golden` false).
+local CRATE_POOLS: { { area: string, name: string, sold: boolean?, golden: boolean? } } = {
 	{ area = "alley", name = "Alley" },
 	{ area = "park", name = "Park" },
 	{ area = "neighbourhood", name = "Neighbourhood" },
 	{ area = "woods", name = "Woods" },
 	{ area = "sewer", name = "Sewer" },
 	{ area = "classic", name = "Classic" },
+	{ area = "rally", name = "Rally", sold = false, golden = false },
 }
+
+-- The Rescue Rally's crate pool (F101): open from Tier 1 like the Classic Crate, banked by the Rally's 100% step.
+Catalog.RALLY_POOL = "rally"
 -- The pieces in each pool (F53, golden-fish.md section 4): ten, two of each kind, 4 Common, 3 Rare and one each of
 -- Epic, Legendary and Mythical, then since F80 (section 4b) a door set and a cat flap, one Common and one Rare, so
 -- twelve with 5 Common and 4 Rare. A wallpaper, floor or paint is a colour and a material on the cafe's tagged shell
@@ -2899,6 +2928,106 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			description = "A pastel flap with a tiny gold bell on top.",
 		},
 	},
+	-- The Rally Crate (F101, rescue-rally.md section 3; Model-Agent #759 and #766): the Rescue Rally's own twelve, in
+	-- the Rally's red, navy, blue and gold, at the Classic Crate's rarity odds. It only comes from the Rally.
+	rally = {
+		{
+			id = "rally_pennant_wall",
+			name = "Pennant Wall",
+			kind = "wallpaper",
+			rarity = "Common",
+			color = Color3.fromRGB(217, 72, 59),
+			material = Enum.Material.Fabric,
+			description = "Red felt like a team pennant.",
+		},
+		{
+			id = "rally_team_banner",
+			name = "Team Banner",
+			kind = "wallpaper",
+			rarity = "Rare",
+			color = Color3.fromRGB(47, 62, 92),
+			material = Enum.Material.Fabric,
+			description = "Deep navy banner cloth for the big game.",
+		},
+		{
+			id = "rally_running_track",
+			name = "Running Track",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(196, 84, 62),
+			material = Enum.Material.Rubber,
+			description = "Springy red track, made for zoomies.",
+		},
+		{
+			id = "rally_gym_floor",
+			name = "Gym Floor",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(214, 170, 110),
+			material = Enum.Material.WoodPlanks,
+			description = "Polished boards that squeak under paws.",
+		},
+		{
+			id = "rally_team_stripes",
+			name = "Team Stripes",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(60, 125, 217),
+			material = Enum.Material.SmoothPlastic,
+			description = "Bright blue trim in the team colours.",
+		},
+		{
+			id = "rally_trophy_gold",
+			name = "Trophy Gold",
+			kind = "paint",
+			rarity = "Mythical",
+			color = Color3.fromRGB(255, 201, 77),
+			material = Enum.Material.Foil,
+			description = "Shines like a first-place cup.",
+		},
+		{
+			id = "rally_bleacher_bench",
+			name = "Bleacher Bench",
+			kind = "furniture",
+			rarity = "Rare",
+			description = "Tiered seats for the home crowd.",
+		},
+		{
+			id = "rally_trophy_shelf",
+			name = "Trophy Shelf",
+			kind = "furniture",
+			rarity = "Epic",
+			description = "A shelf of bright cups and ribbons.",
+		},
+		{
+			id = "rally_cheer_bunting",
+			name = "Cheer Bunting",
+			kind = "decoration",
+			rarity = "Rare",
+			description = "Red and blue flags strung up for the big day.",
+		},
+		{
+			id = "rally_victory_podium",
+			name = "Victory Podium",
+			kind = "decoration",
+			rarity = "Legendary",
+			description = "First, second and third, with a cup that spins.",
+		},
+		{
+			id = "rally_medal_door",
+			name = "Medal Door",
+			kind = "door",
+			rarity = "Common",
+			description = "A team door with a gold medal on it.",
+		},
+		{
+			id = "rally_finish_line_flap",
+			name = "Finish Line Flap",
+			kind = "catflap",
+			rarity = "Rare",
+			description = "A checked flap for a winning dash.",
+		},
+	},
 }
 
 local KIND_CATEGORY: { [string]: string } = {
@@ -2965,10 +3094,13 @@ for _, pool in CRATE_POOLS do
 		name = pool.name .. " Crate",
 		area = pool.area,
 		golden = false,
-		price = Config.CratePrice,
+		price = if pool.sold == false then nil else Config.CratePrice,
 		odds = CRATE_ODDS,
 		pieces = poolPieces[pool.area],
 	})
+	if pool.golden == false then
+		continue
+	end
 	table.insert(Catalog.crates, {
 		id = pool.area .. "_golden_crate",
 		name = "Golden " .. pool.name .. " Crate",
@@ -2981,7 +3113,7 @@ for _, pool in CRATE_POOLS do
 end
 
 Catalog.cratesById = {} :: { [string]: Types.CrateDef }
-Catalog.cratePools = {} :: { [string]: boolean } -- the zone ids and "classic": crateLuck's keys
+Catalog.cratePools = {} :: { [string]: boolean } -- the zone ids, "classic" and "rally": crateLuck's keys
 for _, def in Catalog.crates do
 	Catalog.cratesById[def.id] = def
 	Catalog.cratePools[def.area] = true
@@ -2990,6 +3122,15 @@ end
 function Catalog.getCrate(id: string): Types.CrateDef?
 	return Catalog.cratesById[id]
 end
+
+-- The Rescue Rally's steps (F101, rescue-rally.md section 3), in order: at a quarter of the goal 5 golden fish, at half
+-- 10 and a Money Potion for the bag, at the full bar a Rally Crate for the Market and 15. The bar then empties for the
+-- next lap.
+Catalog.rallySteps = {
+	{ share = 0.25, prize = { fish = 5 } },
+	{ share = 0.5, prize = { fish = 10, potions = { tip_potion = 1 } } },
+	{ share = 1, prize = { fish = 15, crates = { rally_crate = 1 } } },
+} :: { Types.RallyStep }
 
 -- The Golden Fish Market (F53, golden-fish.md section 3): what golden fish buy. Crates open at once; a perk is
 -- forever: Golden Espresso +5% tips a level, Big Bowl a shorter bait wait, Extra Decor Spot one more decor spot a
@@ -3046,6 +3187,199 @@ table.freeze(Catalog.freshCatch)
 
 function Catalog.getFreshCatchRow(id: string): Types.FreshCatchRow?
 	return Catalog.freshCatchById[id]
+end
+
+-- F90 (cats-make-orders.md section 1): the menu, which grows with the cafe's tier. A customer picks evenly among the
+-- items its cafe's tier has opened (menuFor); the rich customer orders the newest one (newestMenuItem) on the gold
+-- plate. A drink (espresso machine or counter) takes 2 s to make, a bake (oven) 3 s. Client only and cosmetic.
+Catalog.menu = {
+	{
+		id = "coffee",
+		name = "Coffee",
+		tier = 1,
+		station = "espresso",
+		makeSeconds = 2,
+		model = "Coffee",
+		glyph = "☕",
+	},
+	{
+		id = "milk",
+		name = "Milk",
+		tier = 1,
+		station = "counter",
+		makeSeconds = 2,
+		model = "Milk",
+		glyph = "🥛",
+	},
+	{
+		id = "cake_slice",
+		name = "Cake Slice",
+		tier = 1,
+		station = "oven",
+		makeSeconds = 3,
+		model = "CakeSlice",
+		glyph = "🍰",
+	},
+	{
+		id = "paw_cookie",
+		name = "Paw Cookie",
+		tier = 1,
+		station = "oven",
+		makeSeconds = 3,
+		model = "PawCookie",
+		glyph = "🍪",
+	},
+	{
+		id = "tea",
+		name = "Tea",
+		tier = 2,
+		station = "espresso",
+		makeSeconds = 2,
+		model = "Tea",
+		glyph = "🍵",
+	},
+	{
+		id = "fish_biscuit",
+		name = "Fish Biscuit",
+		tier = 2,
+		station = "oven",
+		makeSeconds = 3,
+		model = "FishBiscuit",
+		glyph = "🐟",
+	},
+	{
+		id = "kitty_cupcake",
+		name = "Kitty Cupcake",
+		tier = 3,
+		station = "oven",
+		makeSeconds = 3,
+		model = "KittyCupcake",
+		glyph = "🧁",
+	},
+	{
+		id = "hot_cocoa",
+		name = "Hot Cocoa",
+		tier = 3,
+		station = "espresso",
+		makeSeconds = 2,
+		model = "HotCocoa",
+		glyph = "☕",
+	},
+	{
+		id = "pancake_stack",
+		name = "Pancake Stack",
+		tier = 4,
+		station = "oven",
+		makeSeconds = 3,
+		model = "PancakeStack",
+		glyph = "🥞",
+	},
+	{
+		id = "sundae",
+		name = "Ice Cream Sundae",
+		tier = 4,
+		station = "counter",
+		makeSeconds = 2,
+		model = "Sundae",
+		glyph = "🍨",
+	},
+	{
+		id = "strawberry_roll",
+		name = "Strawberry Roll",
+		tier = 5,
+		station = "oven",
+		makeSeconds = 3,
+		model = "StrawberryRoll",
+		glyph = "🍓",
+	},
+	{
+		id = "rainbow_cake",
+		name = "Rainbow Cake",
+		tier = 5,
+		station = "oven",
+		makeSeconds = 3,
+		model = "RainbowCake",
+		glyph = "🎂",
+	},
+} :: { Types.MenuItem }
+Catalog.menuById = {} :: { [string]: Types.MenuItem }
+for _, item in Catalog.menu do
+	Catalog.menuById[item.id] = item
+	table.freeze(item)
+end
+table.freeze(Catalog.menu)
+
+function Catalog.getMenuItem(id: string): Types.MenuItem?
+	return Catalog.menuById[id]
+end
+
+-- The items a cafe of `tier` serves, in menu order (Tier 1's four at least).
+function Catalog.menuFor(tier: number): { Types.MenuItem }
+	local open: { Types.MenuItem } = {}
+	for _, item in Catalog.menu do
+		if item.tier <= math.max(1, tier) then
+			table.insert(open, item)
+		end
+	end
+	return open
+end
+
+-- The newest item a cafe of `tier` has opened: the rich customer's order.
+function Catalog.newestMenuItem(tier: number): Types.MenuItem
+	local open = Catalog.menuFor(tier)
+	return open[#open]
+end
+
+-- The asset of a menu item on its plate, and the plates and carriers around it (Model-Agent's F90 sheet).
+function Catalog.menuModelName(item: Types.MenuItem): string
+	return "CatCafe_Menu_" .. item.model
+end
+
+Catalog.menuGoldPlate = "CatCafe_Menu_GoldPlate"
+Catalog.menuTray = "CatCafe_Menu_Tray"
+Catalog.menuCoinBag = "CatCafe_Menu_CoinBag"
+Catalog.ovenModel = "CatCafe_Cafe_Oven"
+
+-- The camp extras (F100, camp-extras.md section 2), one at each camp from the Park on, in tier order. Model-Agent's
+-- models (#750) stand at Layout.campExtras; shared/CampExtras holds their rules.
+Catalog.campExtras = {
+	{
+		id = "picnic",
+		area = "park",
+		name = "Picnic Basket",
+		model = "CatCafe_Camp_Park_PicnicBasket",
+		kind = "collect",
+	},
+	{
+		id = "yardSale",
+		area = "neighbourhood",
+		name = "Yard Sale",
+		model = "CatCafe_Camp_Neighbourhood_YardSale",
+		kind = "shop",
+	},
+	{
+		id = "pond",
+		area = "woods",
+		name = "Fish Pond",
+		model = "CatCafe_Camp_Woods_FishPond",
+		kind = "collect",
+	},
+	{
+		id = "lostFound",
+		area = "sewer",
+		name = "Lost and Found",
+		model = "CatCafe_Camp_Sewer_LostFound",
+		kind = "collect",
+	},
+} :: { Types.CampExtraDef }
+
+Catalog.campExtrasById = {} :: { [string]: Types.CampExtraDef }
+for _, def in Catalog.campExtras do
+	Catalog.campExtrasById[def.id] = def
+end
+
+function Catalog.getCampExtra(id: string): Types.CampExtraDef?
+	return Catalog.campExtrasById[id]
 end
 
 return Catalog

@@ -4,7 +4,7 @@
 -- picture with its grade gem (F69) "x2", a crate "x1", the wheel "x1" for spins (the pictures of F97 section 4,
 -- Components/ShopIcons), a name tag, and a pill for a forever bonus
 -- (golden-fish.md section 5, v0.10): gold "+2% tips forever", deep gold "+3% gold luck forever" and blue "+2% faster
--- bait forever". One chip per part from IndexRewards.prizeParts, so whatever the designer puts in Catalog.indexPrizes
+-- bait forever", and since F99 "+20% rainbow luck forever" on the turning rainbow bands (Components/Rainbow). One chip per part from IndexRewards.prizeParts, so whatever the designer puts in Catalog.indexPrizes
 -- shows without a UI change; a kind the UI does not know yet shows a gift.
 --   PrizeChips.new(props)   a row that sizes itself to its chips, or wraps them inside its width (props.wrap); with
 --                           props.fitTo it shrinks to fit, never below 9 px text (ui-review), and past that the last
@@ -15,6 +15,8 @@
 --                             the "highest" crate (CrateLogic.resolve)
 --   PrizeChips.bonusText(0.02)   "+2% tips forever"; bonusText(0.03, "goldLuck") "+3% gold luck forever"
 --   PrizeChips.perkColor(perk)   the pill's colour
+--   PrizeChips.paintPerk(label, perk)   colours a reused bonus label for its perk: the rainbow bands with dark words
+--                                       for rainbow luck, else perkColor with white outlined words
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -25,6 +27,7 @@ local Format = require(script.Parent.Format)
 local IndexRewards = require(script.Parent.IndexRewards)
 local ItemIcon = require(script.Parent.ItemIcon)
 local Outline = require(script.Parent.Outline)
+local Rainbow = require(script.Parent.Rainbow)
 local ShopIcons = require(script.Parent.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -284,6 +287,7 @@ end
 local PERK_WORDS: { [string]: string } = {
 	bonus = "money forever", -- F94 section 5
 	goldLuck = "gold luck forever",
+	rainbowLuck = "rainbow luck forever", -- F99
 	baitSpeed = "faster bait forever",
 }
 
@@ -293,14 +297,40 @@ function PrizeChips.bonusText(fraction: number, perk: string?): string
 end
 local bonusText = PrizeChips.bonusText
 
--- Tips gold, gold luck a deeper gold, faster bait sky blue, so the three tracks' bonuses read apart.
+-- Tips gold, gold luck a deeper gold, faster bait sky blue, so the tracks' bonuses read apart. Rainbow luck is the
+-- turning bands (paintPerk); berry stands in where a label cannot carry them.
 function PrizeChips.perkColor(perk: string?): Color3
 	if perk == "goldLuck" then
 		return Theme.colors.goldDark
 	elseif perk == "baitSpeed" then
 		return Theme.colors.sky
+	elseif perk == "rainbowLuck" then
+		return Theme.colors.berry
 	end
 	return Theme.colors.gold
+end
+
+-- A bonus label in its perk's look. Rainbow luck gets the bands on its fill and dark words (the bands tint the words
+-- too, so white ones would vanish), with the words' outline off; any other perk its colour and white outlined words.
+-- A label can switch back and forth, as the reward strip's band does.
+function PrizeChips.paintPerk(label: TextLabel, perk: string?)
+	local rainbow = perk == "rainbowLuck"
+	local gradient = label:FindFirstChild("Rainbow")
+	if rainbow and gradient == nil then
+		Rainbow.fill(label)
+	elseif gradient and gradient:IsA("UIGradient") then
+		(gradient :: UIGradient).Enabled = rainbow
+	end
+	label.BackgroundColor3 = if rainbow then Theme.colors.white else PrizeChips.perkColor(perk)
+	label.TextColor3 = if rainbow then Theme.colors.ink else Theme.colors.white
+	for _, child in label:GetChildren() do
+		if child:IsA("UIStroke") then
+			local stroke = child :: UIStroke
+			if stroke.ApplyStrokeMode == Enum.ApplyStrokeMode.Contextual then
+				stroke.Enabled = not rainbow
+			end
+		end
+	end
 end
 
 function PrizeChips._clear(self: any)
@@ -355,6 +385,7 @@ function PrizeChips._bonusPill(self: any, chip: Frame, text: string, perk: strin
 	})
 	Outline.border(pill, 2)
 	Outline.text(pill, 1.5)
+	PrizeChips.paintPerk(pill, perk)
 	return pill
 end
 

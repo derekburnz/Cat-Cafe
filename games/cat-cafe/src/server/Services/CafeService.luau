@@ -18,6 +18,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Crates = require(ReplicatedStorage.Shared.Crates)
 local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
+local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
@@ -151,6 +152,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		cats = CafeService.catViews(player, profile),
 		collection = profile.collection,
 		goldCollection = profile.goldCollection,
+		rainbowCollection = profile.rainbowCollection, -- F99
 		indexRewards = profile.indexRewards,
 		spin = table.clone(profile.spin),
 		goldenFish = profile.goldenFish,
@@ -158,6 +160,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		crateLuck = profile.crateLuck,
 		fishPerks = profile.fishPerks,
 		goldLuck = totals.goldLuck,
+		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
 		baitSpeed = totals.baitSpeed,
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
@@ -245,6 +248,7 @@ local function buildCat(
 	model:SetAttribute("Napping", instance.spotId == nil)
 	model:SetAttribute("Rarity", if def ~= nil then def.rarity else nil)
 	model:SetAttribute("Gold", instance.variant == "gold")
+	model:SetAttribute("Variant", instance.variant) -- F99: a rainbow cat's coat flows at work and at rest
 	model:SetAttribute("Rate", Economy.catRate(instance, tier) * multiplier)
 	model:SetAttribute("DisplayName", shownName(player, instance))
 	model:SetAttribute("Level", CatStats.level(instance))
@@ -702,6 +706,7 @@ local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		model:SetAttribute("CatId", bait.catId)
 		model:SetAttribute("Rarity", def.rarity)
 		model:SetAttribute("Gold", bait.variant == "gold")
+		model:SetAttribute("Variant", bait.variant) -- F99: a rainbow bait cat shows its coat as it arrives
 		model:SetAttribute("OwnerUserId", player.UserId)
 		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 		model:PivotTo(plot.baitCat.CFrame)
@@ -881,8 +886,8 @@ end
 -- `knownProfile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
 -- `charm` is the stray's roll when the caller has one (CatService can roll it at spawn and show stars on the
 -- prompt); otherwise it is rolled here.
--- `method` is how the cat was found, "net" when nil; "rescue" also sets the rescued flag. `variant` keeps a gold
--- roll made before the cat was owned (a bait cat when the food went in, a stuck cat at night start).
+-- `method` is how the cat was found, "net" when nil; "rescue" also sets the rescued flag. `variant` keeps a gold or
+-- rainbow (F99) roll made before the cat was owned (a bait cat when the food went in, a stuck cat at night start).
 function CafeService.addCaughtCat(
 	player: Player,
 	def: Types.CatDef,
@@ -914,7 +919,19 @@ function CafeService.addCaughtCat(
 	local firstGold = false
 	if variant ~= nil then
 		instance.variant = variant
-		if variant == "gold" then
+		if variant == "rainbow" then
+			-- F99 (rainbow-coat.md section 5): the Rainbow page counts each cat's first rainbow coat
+			local firstRainbow = profile.rainbowCollection[def.id] == nil
+			if firstRainbow then
+				profile.rainbowCollection[def.id] = now
+			end
+			Telemetry.custom(
+				player,
+				"rainbow_found",
+				1,
+				{ def.rarity :: string, howText, if firstRainbow then "yes" else "no" }
+			)
+		elseif variant == "gold" then
 			firstGold = profile.goldCollection[def.id] == nil
 			if firstGold then
 				profile.goldCollection[def.id] = now
@@ -939,6 +956,8 @@ function CafeService.addCaughtCat(
 	end
 	if instance.variant == "gold" then
 		profile.stats.goldCatches += 1
+	elseif instance.variant == "rainbow" then
+		profile.stats.rainbowCatches += 1
 	end
 	Telemetry.custom(player, "cat_caught", 1, { def.id, howText, instance.variant })
 	if isNew then
@@ -1424,6 +1443,40 @@ local function onToggleDecor(player: Player, rawId: unknown, rawPlaced: unknown)
 	CafeService.sync(player)
 end
 
+-- Equip Best for decor (Derek 2026-10-28): the best owned pieces out for the most money (shared/DecorBest), the rest
+-- put away, then one toast and a sync. Only owned pieces move.
+local function onEquipBestDecor(player: Player)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	local cap = Crates.spotCap(Economy.tier(profile), profile.fishPerks.extra_decor_spot or 0)
+	local plan = DecorBest.plan(profile, cap)
+	if plan.pieces == 0 then
+		Net.toast(player, "No decor yet. Find some in the Market's crates.", "info")
+		CafeService.sync(player)
+		return
+	end
+	if DecorBest.isSame(profile, plan) then
+		Net.toast(player, "Your best decor is already out.", "info")
+		CafeService.sync(player)
+		return
+	end
+	profile.decorPlaced = plan.placed
+	CafeService.refreshPlot(player)
+	Net.toast(
+		player,
+		string.format(
+			"Best decor out: %d piece%s, +%d%% money",
+			plan.pieces,
+			if plan.pieces == 1 then "" else "s",
+			math.floor(plan.bonus * 100 + 0.5)
+		),
+		"good"
+	)
+	CafeService.sync(player)
+end
+
 local function onBuyLure(player: Player, rawId: unknown)
 	local lureId = Guard.id(rawId)
 	local profile = profileFor(player)
@@ -1583,6 +1636,7 @@ function CafeService.start()
 	Net.on("BuyDecor", onBuyDecor)
 	Net.on("RankUp", onRankUp)
 	Net.on("ToggleDecor", onToggleDecor)
+	Net.on("EquipBestDecor", onEquipBestDecor)
 	Net.on("BuyLure", onBuyLure)
 	Net.on("ClaimOffline", onClaimOffline)
 	Net.on("TutorialAdvance", onTutorialAdvance)

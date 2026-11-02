@@ -23,7 +23,8 @@ Model layout (pivots match the FBX exports and manifest.json, so placement code 
     <object name>            a Model per other object (Head, Tail, Lid, Branch, LeafL, Bulb...), pivot at that
                              object's origin, which is its hinge or joint (manifest part_pivots_roblox)
       <object name>          a Model nested in another (NEST): a cat's Eye1, Eye2, EarL and EarR ride its Head,
-                             and so does a themed cat's Head or Face prop (_Prop, _Prop_Glass)
+                             and so does a themed cat's Head or Face prop (_Prop, _Prop_Glass); body S's
+                             Held_<Role> rides its arm (LegF1 or LegF2)
 Every part keeps its object's name, so name checks such as the night suffixes keep working. An asset can add
 Attachments to the biggest part of one object (a cat's Outfit_<Piece> slots) and attributes on the root Model.
 
@@ -97,7 +98,8 @@ MODEL_PROPS = {"_IndexBoard": {"ModelStreamingMode": "Atomic"},
                "_LeaderboardRow": {"ModelStreamingMode": "Atomic"}}
 # Objects whose Model goes inside another object's Model rather than the root: name suffix -> the suffix of the
 # object it rides, with the same prefix. Turning the Head Model (PivotTo) carries the eyes and ears with it.
-NEST = {"_Eye1": "_Head", "_Eye2": "_Head", "_EarL": "_Head", "_EarR": "_Head"}
+NEST = {"_Eye1": "_Head", "_Eye2": "_Head", "_EarL": "_Head", "_EarR": "_Head",
+        "_Held_Barista": "_LegF2", "_Held_Waiter": "_LegF1", "_Held_Entertainer": "_LegF2"}   # body S's held things
 
 
 def _r(v):

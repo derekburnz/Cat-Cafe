@@ -47,10 +47,13 @@ return function()
 		end)
 
 		it(
-			"loafs out at the left side, its face back over the shoulder for the camera behind",
+			"loafs straight across the middle of the arms, out far enough that its head clears the face",
 			function()
-				expect(c.loafSide < -1).to.equal(true) -- past the chest's half width (2 studs wide), so the body does not hide it
-				expect(c.loafTurn > 120 and c.loafTurn < 180).to.equal(true) -- facing back, not ahead
+				-- Derek 2026-11-02 12:01: "it should be straight across middle of arms"
+				expect(c.loafSide).to.equal(0)
+				expect(c.loafTurn).to.equal(90) -- across the arms, head to the character's left
+				expect(c.loafForward < c.forward).to.equal(true) -- further out than a sitting cat, past the face
+				expect(c.loafForward > -1.5).to.equal(true) -- and still over the hands
 			end
 		)
 

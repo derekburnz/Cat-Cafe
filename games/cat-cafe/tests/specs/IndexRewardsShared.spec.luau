@@ -10,7 +10,7 @@ return function()
 	local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 
 	local AREAS = { "alley", "park", "neighbourhood", "woods", "sewer" }
-	local POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "classic" }
+	local POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "classic", "rally" } -- rally: F101
 	local AREA_MILESTONES =
 		{ "cats3", "cats6", "cats10", "gold1", "gold2", "gold4", "gold6", "gold8", "gold10" }
 
@@ -27,7 +27,7 @@ return function()
 			local ids: { string } = {}
 			for _, milestone in Catalog.indexMilestones do
 				table.insert(ids, milestone.id)
-				expect(table.find({ "normal", "gold", "decor" }, milestone.track) ~= nil).to.equal(
+				expect(table.find({ "normal", "gold", "decor", "rainbow" }, milestone.track) ~= nil).to.equal(
 					true
 				)
 				expect(milestone.needs > 0).to.equal(true)
@@ -61,6 +61,11 @@ return function()
 				"total50",
 				"decor5",
 				"decor10",
+				"rainbow1", -- F99 (rainbow-coat.md section 4)
+				"rainbow3",
+				"rainbow5",
+				"rainbow10",
+				"rainbow25",
 			})
 		end)
 
@@ -165,10 +170,11 @@ return function()
 			end
 		)
 
-		it("has no page beyond the areas, All Cats and the six Decor Index pages", function()
+		it("has no page beyond the areas, All Cats, the seven Decor Index pages and Rainbow", function()
 			for pageId in pairs(Catalog.indexPrizes) do
 				local known = table.find(AREAS, pageId) ~= nil
 					or pageId == "all"
+					or pageId == "rainbow" -- F99
 					or table.find(POOLS, string.sub(pageId, 7)) ~= nil
 						and string.sub(pageId, 1, 6) == "decor_"
 				expect(known).to.equal(true)
@@ -494,6 +500,7 @@ return function()
 			for _, def in Catalog.cats do
 				profile.collection[def.id] = 1000
 				profile.goldCollection[def.id] = 1000
+				profile.rainbowCollection[def.id] = 1000 -- F99
 			end
 			for _, def in Catalog.crateDecor do
 				profile.decorOwned[def.id] = true
@@ -526,13 +533,14 @@ return function()
 			end
 			local collection = if track == "gold"
 				then profile.goldCollection
+				elseif track == "rainbow" then profile.rainbowCollection -- F99: across every area
 				else profile.collection
 			for _, def in Catalog.cats do
 				if
 					collection[def.id] ~= nil
 					and def.area ~= "spare"
 					and def.exclusive ~= true -- F96: the Bellhop Cat is no Index page's
-					and (areaId == "all" or def.area == areaId)
+					and (areaId == "all" or track == "rainbow" or def.area == areaId)
 				then
 					n += 1
 				end
@@ -700,7 +708,7 @@ return function()
 
 		-- golden-fish.md sections 4, 5 and 5b: +7% tips a normal track, +5% a full Decor page, +30% gold
 		-- luck a gold track up to GoldLuckMax, 38% faster bait. No cap may eat a bonus a card promises.
-		it("sums the whole Index once: +65% tips, gold luck at its cap, 38% faster bait", function()
+		it("sums the whole Index once: +70% tips, gold luck at its cap, 38% faster bait", function()
 			local profile = fullProfile()
 			local sums = { bonus = 0, goldLuck = 0, baitSpeed = 0 }
 			for _, areaId in pages() do
@@ -719,11 +727,11 @@ return function()
 				end
 			end
 			local totals = IndexRewards.totals(profile)
-			expect(math.abs(totals.bonus - 0.65) < 1e-9).to.equal(true)
+			expect(math.abs(totals.bonus - 0.70) < 1e-9).to.equal(true) -- +5% more from F101's Rally page
 			expect(math.abs(totals.goldLuck - Config.GoldLuckMax) < 1e-9).to.equal(true)
 			expect(math.abs(totals.baitSpeed - 0.38) < 1e-9).to.equal(true)
 			-- the full Decor pages count through their decor10 claims only, not a second time for being full
-			expect(math.abs(Economy.cafeMultiplier(profile) - before - 0.65) < 1e-9).to.equal(true)
+			expect(math.abs(Economy.cafeMultiplier(profile) - before - 0.70) < 1e-9).to.equal(true)
 			expect(
 				math.abs(IndexRewards.goldChance(Config.GoldChanceBait, totals.goldLuck) - 0.125)
 					< 1e-9
@@ -790,6 +798,9 @@ return function()
 							if uniform() < keep then
 								profile.goldCollection[def.id] = 1000
 							end
+							if uniform() < keep then
+								profile.rainbowCollection[def.id] = 1000 -- F99
+							end
 						end
 					end
 					for _, def in Catalog.crateDecor do
@@ -825,6 +836,7 @@ return function()
 							local what = if milestone.track == "decor"
 								then "piece"
 								elseif milestone.track == "gold" then "gold cat"
+								elseif milestone.track == "rainbow" then "rainbow cat"
 								else "cat"
 							local text = string.format(
 								"Find %d more %s%s first",

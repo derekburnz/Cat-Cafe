@@ -329,7 +329,8 @@ function RescueBar.new(parent: Instance): RescueBar
 	-- F93: the zone's bottom edge drains as its zonePasses sweeps run out
 	self._life = Create("Frame", {
 		Name = "Life",
-		BackgroundColor3 = Theme.colors.goodDark,
+		BackgroundColor3 = Theme.colors.white,
+		BackgroundTransparency = 0.15,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.fromScale(0, 1),

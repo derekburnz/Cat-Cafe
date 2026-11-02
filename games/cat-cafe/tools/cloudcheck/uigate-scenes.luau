@@ -339,7 +339,8 @@ local SCENES = {
 	{ "DailyTreat", function()
 		UI.open("DailyTreat")
 	end },
-	-- F93: the rescue bar after one hit, the zone moved on and the marker sped up
+	-- F93: the rescue bar after one hit, the zone moved on and the marker sped up (the scene is drawn about two
+	-- seconds in, so the zone keeps a few seconds)
 	{ "Rescue", function()
 		UI.rescue.show("gate_rescue", rescueChallenge())
 		local t = workspace:GetServerTimeNow()
@@ -348,7 +349,7 @@ local SCENES = {
 			startsAt = t,
 			phase = 0.6,
 			speed = 0.97,
-			zoneEndsAt = t + 2,
+			zoneEndsAt = t + 5,
 		})
 	end },
 	-- F93: the touch Net button, in a catching area while a swing could go (phones only)

@@ -882,7 +882,7 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 10000, -- F95 v2 (economy-ladder.md section 3, after F97's Epic in every wave; was 8,000)
+		cost = 12000, -- F95 v2.1 (QA's Pace with cannon trips: 9.8 min, under the 10 min floor; was 10,000)
 		distinctCats = 5,
 		slots = 4,
 		multiplier = 1.25,

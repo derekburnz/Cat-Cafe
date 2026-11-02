@@ -838,6 +838,15 @@ local function watchStray(instance: Instance)
 			once("catHiss", false)
 		end)
 	)
+	-- F93: a near miss of the net makes a free stray hop away; HopAt (server time) is set as it goes
+	table.insert(
+		watch.connections,
+		instance:GetAttributeChangedSignal("HopAt"):Connect(function()
+			if instance:GetAttribute("HopAt") ~= nil then
+				once("strayHop", true)
+			end
+		end)
+	)
 	table.insert(
 		watch.connections,
 		instance:GetAttributeChangedSignal("FleeingUntil"):Connect(function()
@@ -1300,34 +1309,18 @@ local function rarityJingle(rarity: any)
 	end
 end
 
--- F89 and F99: your own big pull (the server's SecuredRare(userId, catId, rarity, gold, variant)) plays its sting.
--- Like Effects' Pull, it hooks the remote whenever it appears, since it only exists once the server has F89.
-local function followSecuredRare()
+-- Hooks a server-to-client remote whenever it appears, since some only exist once the server has their feature
+-- (like Effects' Pull).
+local function onRemote(name: string, handler: (...any) -> ())
 	local folder = Remotes.folder()
 	local function hook(child: Instance): boolean
-		if child.Name ~= "SecuredRare" or not child:IsA("RemoteEvent") then
+		if child.Name ~= name or not child:IsA("RemoteEvent") then
 			return false
 		end
-		(child :: RemoteEvent).OnClientEvent:Connect(
-			function(
-				userId: unknown,
-				_catId: unknown,
-				rarity: unknown,
-				_gold: unknown,
-				variant: unknown
-			)
-				if userId ~= Players.LocalPlayer.UserId then
-					return
-				end
-				local cue = Logic.pullSting(rarity, variant)
-				if cue ~= nil then
-					playSting(cue)
-				end
-			end
-		)
+		(child :: RemoteEvent).OnClientEvent:Connect(handler)
 		return true
 	end
-	local existing = folder:FindFirstChild("SecuredRare")
+	local existing = folder:FindFirstChild(name)
 	if existing ~= nil and hook(existing) then
 		return
 	end
@@ -1335,6 +1328,39 @@ local function followSecuredRare()
 	waiting = folder.ChildAdded:Connect(function(child: Instance)
 		if hook(child) and waiting ~= nil then
 			waiting:Disconnect()
+		end
+	end)
+end
+
+-- F89 and F99: your own big pull (the server's SecuredRare(userId, catId, rarity, gold, variant)) plays its sting.
+local function followSecuredRare()
+	onRemote(
+		"SecuredRare",
+		function(
+			userId: unknown,
+			_catId: unknown,
+			rarity: unknown,
+			_gold: unknown,
+			variant: unknown
+		)
+			if userId ~= Players.LocalPlayer.UserId then
+				return
+			end
+			local cue = Logic.pullSting(rarity, variant)
+			if cue ~= nil then
+				playSting(cue)
+			end
+		end
+	)
+end
+
+-- F93: GREAT and EXCELLENT get their word's sound from the server's grades (CatchResult goes only to the catcher),
+-- over the catch sparkle; PURRFECT and "So close!" keep the Purrfect and CatchFail moments' sounds.
+local function followCatchWords()
+	onRemote("CatchResult", function(_strayId: unknown, grades: unknown, success: unknown)
+		local cue = Logic.wordCue(Logic.catchWord(grades, success))
+		if cue ~= nil then
+			Audio.play(cue)
 		end
 	end)
 end
@@ -1358,6 +1384,30 @@ local function followBeats()
 	end)
 end
 
+-- F93 net swing (catch-rework.md section 1): the whoosh as the net comes over and the smack NetSmackDelay later, as
+-- it lands. Your own swing plays at the press (NetSmackPress); another player's when the server tells this client
+-- (NetSwung), which is when their smack animation starts. Only your own miss bounces.
+local NET_SMACK_DELAY = 0.15
+
+local function rootOf(userId: unknown): BasePart?
+	local player = if type(userId) == "number" then Players:GetPlayerByUserId(userId) else nil
+	local character = if player ~= nil then player.Character else nil
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	return if root ~= nil and root:IsA("BasePart") then root :: BasePart else nil
+end
+
+local function swingSounds(root: BasePart?)
+	if root == nil then
+		return
+	end
+	Audio.play("netSwing", root)
+	task.delay((Config :: any).NetSmackDelay or NET_SMACK_DELAY, function()
+		if root.Parent ~= nil then
+			Audio.play("netSmack", root)
+		end
+	end)
+end
+
 -- Moment name to sounds (sound list section 6). NightStart and DayStart are absent on purpose: the music already
 -- follows the clock attribute, so it also knows the phase on join. CarryStart is absent too: the purr follows the
 -- synced carrying state (Audio.setCarrying), so a missed moment can never leave it purring.
@@ -1371,6 +1421,16 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	end,
 	NetSwing = function()
 		Audio.play("netSwing", you())
+	end,
+	NetSmackPress = function()
+		swingSounds(you())
+	end,
+	NetSwung = function(userId: any, hit: any)
+		if userId ~= Players.LocalPlayer.UserId then
+			swingSounds(rootOf(userId))
+		elseif hit == false then
+			Audio.play("netBounce", you())
+		end
 	end,
 	CircleGrade = function(index: any, grade: any)
 		local cueId = Logic.gradeCue(str(grade))
@@ -1588,6 +1648,7 @@ function Audio.start()
 	followPlots()
 	followBeats()
 	task.spawn(followSecuredRare)
+	task.spawn(followCatchWords)
 end
 
 -- Applies the player's settings (ProfileSync `settings`): music off silences Music; sound off silences Ambience,

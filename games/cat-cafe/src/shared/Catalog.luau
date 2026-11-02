@@ -3388,4 +3388,223 @@ function Catalog.getCampExtra(id: string): Types.CampExtraDef?
 	return Catalog.campExtrasById[id]
 end
 
+-- The front lawn (F91, front-lawn.md section 2): pieces for the six lawn spots (shared/Lawn.SPOTS) and the path and
+-- fence styles, bought with coins in the Decor screen's Front lawn tab at the tier that sells them. No tip bonus: the
+-- lawn is looks only. Models are Model-Agent's (#673, style guide section 13).
+Catalog.lawn = {
+	{
+		id = "tulip_bed",
+		name = "Tulip Bed",
+		spot = "small",
+		tier = 1,
+		price = 500,
+		model = "CatCafe_Lawn_TulipBed",
+	},
+	{
+		id = "sandwich_board",
+		name = "Sandwich Board",
+		spot = "small",
+		tier = 1,
+		price = 500,
+		model = "CatCafe_Lawn_SandwichBoard",
+	},
+	{
+		id = "potted_cat_topiary",
+		name = "Potted Cat Topiary",
+		spot = "small",
+		tier = 1,
+		price = 1000,
+		model = "CatCafe_Lawn_PottedCatTopiary",
+	},
+	{
+		id = "mailbox",
+		name = "Mailbox",
+		spot = "small",
+		tier = 1,
+		price = 1000,
+		model = "CatCafe_Lawn_Mailbox",
+	},
+	{
+		id = "lamp_post",
+		name = "Lamp Post",
+		spot = "small",
+		tier = 2,
+		price = 3000,
+		model = "CatCafe_Lawn_LampPost",
+	},
+	{
+		id = "bird_bath",
+		name = "Bird Bath",
+		spot = "small",
+		tier = 2,
+		price = 3000,
+		model = "CatCafe_Lawn_BirdBath",
+	},
+	{
+		id = "garden_gnome_cat",
+		name = "Garden Gnome Cat",
+		spot = "small",
+		tier = 2,
+		price = 5000,
+		model = "CatCafe_Lawn_GardenGnomeCat",
+	},
+	{
+		id = "bicycle_with_basket",
+		name = "Bicycle with Basket",
+		spot = "big",
+		tier = 2,
+		price = 8000,
+		model = "CatCafe_Lawn_BicycleWithBasket",
+	},
+	{
+		id = "garden_bench",
+		name = "Garden Bench",
+		spot = "big",
+		tier = 2,
+		price = 8000,
+		model = "CatCafe_Lawn_GardenBench",
+	},
+	{
+		id = "umbrella_table",
+		name = "Umbrella Table",
+		spot = "big",
+		tier = 3,
+		price = 25000,
+		model = "CatCafe_Lawn_UmbrellaTable",
+	},
+	{
+		id = "little_fountain",
+		name = "Little Fountain",
+		spot = "big",
+		tier = 3,
+		price = 40000,
+		model = "CatCafe_Lawn_LittleFountain",
+	},
+	{
+		id = "fairy_light_arch",
+		name = "Fairy Light Arch",
+		spot = "big",
+		tier = 4,
+		price = 150000,
+		model = "CatCafe_Lawn_FairyLightArch",
+	},
+	{
+		id = "flower_cart",
+		name = "Flower Cart",
+		spot = "big",
+		tier = 4,
+		price = 200000,
+		model = "CatCafe_Lawn_FlowerCart",
+	},
+	{
+		id = "balloon_bunch",
+		name = "Balloon Bunch",
+		spot = "small",
+		tier = 4,
+		price = 100000,
+		model = "CatCafe_Lawn_BalloonBunch",
+	},
+	{
+		id = "cat_tree_sign",
+		name = "Cat Tree Sign",
+		spot = "big",
+		tier = 5,
+		price = 1000000,
+		model = "CatCafe_Lawn_CatTreeSign",
+	},
+	{
+		id = "golden_paw_statue",
+		name = "Golden Paw Statue",
+		spot = "big",
+		tier = 5,
+		price = 3000000,
+		model = "CatCafe_Lawn_GoldenPawStatue",
+	},
+} :: { Types.LawnPieceDef }
+
+-- One path and one fence at a time. Grey Slabs is free and laid at every cafe; a cafe starts with no fence.
+Catalog.lawnStyles = {
+	{
+		id = "grey_slabs",
+		name = "Grey Slabs",
+		kind = "path",
+		tier = 1,
+		price = 0,
+		model = "CatCafe_Lawn_Path_GreySlabs",
+	},
+	{
+		id = "red_brick",
+		name = "Red Brick",
+		kind = "path",
+		tier = 1,
+		price = 2000,
+		model = "CatCafe_Lawn_Path_RedBrick",
+	},
+	{
+		id = "stepping_stones",
+		name = "Stepping Stones",
+		kind = "path",
+		tier = 2,
+		price = 10000,
+		model = "CatCafe_Lawn_Path_SteppingStones",
+	},
+	{
+		id = "paw_print_path",
+		name = "Paw Print Path",
+		kind = "path",
+		tier = 3,
+		price = 50000,
+		model = "CatCafe_Lawn_Path_PawPrintPath",
+	},
+	{
+		id = "white_picket",
+		name = "White Picket",
+		kind = "fence",
+		tier = 1,
+		price = 2000,
+		model = "CatCafe_Lawn_Fence_WhitePicket",
+	},
+	{
+		id = "low_hedge",
+		name = "Low Hedge",
+		kind = "fence",
+		tier = 2,
+		price = 10000,
+		model = "CatCafe_Lawn_Fence_LowHedge",
+	},
+	{
+		id = "iron_railing",
+		name = "Iron Railing",
+		kind = "fence",
+		tier = 3,
+		price = 50000,
+		model = "CatCafe_Lawn_Fence_IronRailing",
+	},
+	{
+		id = "flower_box_fence",
+		name = "Flower Box Fence",
+		kind = "fence",
+		tier = 4,
+		price = 200000,
+		model = "CatCafe_Lawn_Fence_FlowerBoxFence",
+	},
+} :: { Types.LawnStyleDef }
+
+Catalog.lawnById = {} :: { [string]: Types.LawnPieceDef }
+for _, def in Catalog.lawn do
+	Catalog.lawnById[def.id] = def
+end
+Catalog.lawnStylesById = {} :: { [string]: Types.LawnStyleDef }
+for _, def in Catalog.lawnStyles do
+	Catalog.lawnStylesById[def.id] = def
+end
+
+function Catalog.getLawn(id: string): Types.LawnPieceDef?
+	return Catalog.lawnById[id]
+end
+
+function Catalog.getLawnStyle(id: string): Types.LawnStyleDef?
+	return Catalog.lawnStylesById[id]
+end
+
 return Catalog

@@ -65,6 +65,10 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimStarterCat = RateLimiter.new(1, 2), -- F96 (starter-cat.md section 4): 1 per 2 s
 	CollectCampExtra = RateLimiter.new(1, 1), -- F100 (camp-extras.md section 4): 1 a second
 	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second
+	-- F91 (front-lawn.md section 5): each rebuilds the lawn and sends a full sync
+	BuyLawn = RateLimiter.new(2, 1),
+	SetLawnSpot = RateLimiter.new(4, 1),
+	SetLawnStyle = RateLimiter.new(2, 1),
 	-- F102 (trading.md section 4): 5 trade calls a second, one request out at a time (TradeBook)
 	TradeRequest = RateLimiter.new(1, 1),
 	TradeRespond = RateLimiter.new(2, 1),

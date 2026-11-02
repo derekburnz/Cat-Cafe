@@ -24,6 +24,8 @@ local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
+local Lawn = require(ReplicatedStorage.Shared.Lawn)
+local LawnBuilder = require(script.Parent.Parent.World.LawnBuilder)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LeaderboardService = require(script.Parent.LeaderboardService)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
@@ -190,6 +192,9 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		luckSources = luckSources,
 		longNap = Economy.passes(profile).longNap, -- F95: the welcome back card's line
 		tradeLog = table.clone(profile.tradeLog), -- F102: the Trades page
+		lawnOwned = profile.lawnOwned, -- F91: the Front lawn tab
+		lawn = profile.lawn,
+		lawnStyles = profile.lawnStyles,
 		serverTime = now,
 	}
 end
@@ -743,6 +748,32 @@ function CafeService.refreshPlot(player: Player)
 	refreshCats(player, plot, profile)
 	refreshTables(plot, profile)
 	refreshBait(player, plot, profile)
+	LawnBuilder.refresh(plot, profile) -- F91: the front lawn's pieces, path and fence
+end
+
+-- F91 (front-lawn.md section 1b): the front lawn pieces the cafe's tier has earned and it does not own yet (a Garden
+-- Bench at Tier 2, an Umbrella Table at Tier 3), each placed in an empty big spot when there is one, with a toast.
+-- Rank up and load both call it, so a cafe already past those tiers when the lawn arrives gets them too. Only once the
+-- lawn's art is in, so nothing is given that the player cannot see.
+local function giveLawnGifts(player: Player, profile: Profile)
+	if not WorldBuilder.lawnLive() then
+		return
+	end
+	local names: { string } = {}
+	for _, id in Lawn.grantTierGifts(profile) do
+		local piece = Catalog.getLawn(id)
+		if piece ~= nil then
+			local article = if piece.name:match("^[AEIOU]") ~= nil then "an " else "a "
+			table.insert(names, article .. piece.name)
+		end
+	end
+	if #names > 0 then
+		Net.toast(
+			player,
+			string.format("Your front lawn got %s, free!", table.concat(names, " and ")),
+			"good"
+		)
+	end
 end
 
 -- Bedtime (F79, BedtimeService) ----------------------------------------------------------------------------------
@@ -1416,6 +1447,7 @@ local function onRankUp(player: Player)
 		"good"
 	)
 	Net.fireAll("Announce", string.format("%s's cafe is now a %s!", player.DisplayName, def.name))
+	giveLawnGifts(player, profile) -- F91: a Garden Bench at Tier 2, an Umbrella Table at Tier 3
 	print(string.format("[CafeService] %s ranked up to Tier %d", player.Name, def.tier))
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
@@ -1610,6 +1642,7 @@ local function onLoaded(player: Player, profile: Profile)
 	if plot == nil then
 		Net.toast(player, "The street is full. Try another server.", "warn")
 	end
+	giveLawnGifts(player, profile) -- F91: a cafe already at Tier 2 or 3 when the lawn arrives
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 	local offline, seconds = DataService.peekPendingOffline(player)

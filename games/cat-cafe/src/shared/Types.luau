@@ -632,6 +632,41 @@ export type CampExtraDef = {
 	kind: string, -- "collect" or "shop"
 }
 
+-- The front lawn (F91, front-lawn.md): a lawn spot's size, and the pieces and styles bought for it with coins
+-- (Catalog.lawn, Catalog.lawnStyles). `tier` is the tier that sells it; `model` is Model-Agent's (#673, style guide
+-- section 13): CatCafe_Lawn_<Piece>, CatCafe_Lawn_Path_<Style> or CatCafe_Lawn_Fence_<Style>.
+export type LawnSize = "small" | "big"
+export type LawnPieceDef = {
+	id: string,
+	name: string,
+	spot: LawnSize,
+	tier: number,
+	price: number,
+	model: string,
+}
+export type LawnStyleKind = "path" | "fence"
+export type LawnStyleDef = {
+	id: string,
+	name: string,
+	kind: LawnStyleKind,
+	tier: number,
+	price: number, -- 0: every cafe has it (Grey Slabs)
+	model: string,
+}
+-- A lawn spot (shared/Lawn.SPOTS, Layout.plot.lawnSpots) in plot space: the base centre of its piece on the grass
+-- top, front -Z to the street, and the tier that opens it.
+export type LawnSpot = {
+	id: string,
+	size: LawnSize,
+	tier: number,
+	x: number,
+	y: number,
+	z: number,
+	rotY: number,
+}
+-- The path and fence in use (save version 28): a path style id, and a fence style id or nil for no fence.
+export type LawnStyles = { path: string, fence: string? }
+
 -- What the camp extras hold (section 4, save version 25), all times server os.time(): the Picnic Basket's potions
 -- and when the next started filling; the Yard Sale's UTC day number (os.time() // 86400) and the crates bought that
 -- day; the Fish Pond's fill start (its fish follow from the time); the Lost and Found's last settled UTC day and its
@@ -815,6 +850,11 @@ export type PlayerProfile = {
 	-- of the last TradeIdsMax trades applied to this save, so a trade pending after a shutdown is applied only once
 	tradeLog: { TradeLogEntry },
 	tradeIds: { string },
+	-- F91 (front-lawn.md section 5, save version 28): the lawn pieces and styles bought or given (id to true), the
+	-- piece on each lawn spot (spot id to piece id) and the path and fence in use
+	lawnOwned: { [string]: boolean },
+	lawn: { [string]: string },
+	lawnStyles: LawnStyles,
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
@@ -873,6 +913,11 @@ export type PlayerState = {
 	-- OfflineCapPassSeconds instead of half pay up to OfflineCapSeconds
 	longNap: boolean,
 	tradeLog: { TradeLogEntry }, -- F102: the Trades page, newest first
+	-- F91: the Decor screen's Front lawn tab (what is owned, on each spot and in use); the street reads the plot's
+	-- Lawn_<spotId>, LawnPath and LawnFence attributes instead
+	lawnOwned: { [string]: boolean },
+	lawn: { [string]: string },
+	lawnStyles: LawnStyles,
 	serverTime: number,
 }
 

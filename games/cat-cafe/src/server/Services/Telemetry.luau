@@ -108,6 +108,9 @@ export type CustomEvent =
 	| "feedback"
 	-- F96 (starter-cat.md section 4): the free Bellhop Cat taken home; the gate it passed, "task" or "group"
 	| "starter_cat"
+	-- F91 (front-lawn.md section 5): a lawn piece put on a spot or a path or fence style put in use, value 1; its id,
+	-- tier. The coins it cost are the economy sink "lawn"
+	| "lawn_placed"
 	-- F92 (playing-together.md 6): on leave, the minutes with at least one pal on the server (how the first pal was
 	-- linked: friend, invite, follow or private; tier)
 	| "pal_time"

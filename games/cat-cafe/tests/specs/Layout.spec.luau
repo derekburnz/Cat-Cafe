@@ -771,6 +771,60 @@ return function()
 		end)
 	end)
 
+	describe("the front lawn (F91, front-lawn.md section 1b)", function()
+		local plot = Layout.plot
+		-- a footprint's half extents: small pieces keep to 2 x 2, big ones to 4 wide by 3.1 deep under the windows
+		local function half(size: string): (number, number)
+			return if size == "big" then 2 else 1, if size == "big" then 1.55 else 1
+		end
+		local path = plot.lawnPath
+		local line = plot.fenceLine
+
+		it("keeps every spot in the garden, inside the fence and off the path", function()
+			expect(#plot.lawnSpots).to.equal(6)
+			for _, spot in plot.lawnSpots do
+				local hx, hz = half(spot.size)
+				local garden = plot.frontGarden
+				expect(spot.x - hx >= garden.x1 and spot.x + hx <= garden.x2).to.equal(true)
+				expect(spot.z - hz > line.z and spot.z + hz <= garden.z2).to.equal(true)
+				-- the path style is 7 wide (x -3.5 to 3.5); the fence's gap is x -3.9 to 3.9
+				expect(math.abs(spot.x) - hx >= line.gapHalfWidth).to.equal(true)
+				expect(math.abs(spot.x) + hx <= line.halfWidth).to.equal(true)
+			end
+		end)
+
+		it("keeps the spots apart and clear of the Lucky Cat's plinth", function()
+			local cat = plot.luckyCat
+			for i, a in plot.lawnSpots do
+				local ax, az = half(a.size)
+				local clearX = math.abs(a.x - cat.x) >= ax + 0.9
+				local clearZ = math.abs(a.z - cat.z) >= az + 0.9
+				expect(clearX or clearZ).to.equal(true)
+				for j, b in plot.lawnSpots do
+					if j > i then
+						local bx, bz = half(b.size)
+						local apart = math.abs(a.x - b.x) >= ax + bx
+							or math.abs(a.z - b.z) >= az + bz
+						expect(apart).to.equal(true)
+					end
+				end
+			end
+		end)
+
+		it(
+			"lays the path over the shell's own and runs the fence along the sidewalk edge",
+			function()
+				expect(path.x).to.equal(0)
+				expect(path.y).to.equal(0)
+				expect(path.z).to.be.near((plot.frontPath.z1 + plot.frontPath.z2) / 2, 1e-9)
+				expect(line.z).to.be.near(-19.85, 1e-9)
+				expect(line.z > plot.frontGarden.z1 and line.z < plot.frontGarden.z1 + 0.5).to.equal(
+					true
+				)
+			end
+		)
+	end)
+
 	-- Shortest walks over the Alleyway floor on a 1 stud grid, moving along x or z only, so every distance is at least
 	-- the real walk. A cell is walkable when the floor reaches 1 stud past its centre every way (across the seams
 	-- where one floor meets the next) and it is 1 stud clear of every wall. v4: the grid covers the set in the wild.

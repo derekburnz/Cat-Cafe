@@ -15,7 +15,8 @@
 --
 -- F72 (intro-cutscene.md section 4): the Screen section ends with the Tutorial button switch and a Replay tutorial
 -- button row (callbacks.replayTutorial). Both stay hidden until showTutorial(true), once the intro is live.
--- F87 (easy-start.md section 3): then a Show tips again row (callbacks.showTipsAgain), which brings back the context
+-- F87 (easy-start.md section 4): a Feedback row tops the list (callbacks.openFeedback, the Feedback window's faces).
+-- F87 (easy-start.md section 3): the Screen section ends with a Show tips again row (callbacks.showTipsAgain), which brings back the context
 -- tips; its button reads "Done" for a moment after a press.
 
 local UserInputService = game:GetService("UserInputService")
@@ -24,6 +25,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local Scale = require(script.Parent.Parent.Scale)
 local SettingsList = require(script.Parent.Parent.Components.SettingsList)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -35,6 +37,7 @@ export type Callbacks = {
 	close: () -> (),
 	replayTutorial: (() -> ())?, -- the Screen section's Replay tutorial row (F72); no row without it
 	showTipsAgain: (() -> ())?, -- the Screen section's Show tips again row (F87); no row without it
+	openFeedback: (() -> ())?, -- the Feedback row on top (F87 section 4); no row without it
 }
 
 export type Settings = {
@@ -76,6 +79,7 @@ local TILE_COLORS: { [string]: Color3 } = {
 	tutorialButton = Theme.colors.gold,
 	replayTutorial = Theme.colors.gold,
 	showTips = Theme.colors.sky,
+	feedback = Theme.colors.gold,
 	shopAlerts = Theme.colors.goldDark,
 }
 -- a volume row's switch: the slider greys while that switch is off
@@ -95,6 +99,13 @@ local TIPS_ROW: ButtonRow = {
 	name = "Show tips again",
 	detail = "The one-line tips you have already seen",
 	button = "Show",
+}
+local FEEDBACK_ROW: ButtonRow = {
+	key = "feedback",
+	icon = Theme.icons.feedback,
+	name = "Feedback",
+	detail = "Tell us how the game is going",
+	button = "Open",
 }
 local TIPS_DONE_SECONDS = 2 -- the button reads "Done" this long after a press
 -- the rows hidden until the intro is live (F72)
@@ -180,6 +191,11 @@ function Settings.new(callbacks: Callbacks): Settings
 	self._list = list
 
 	local order = 0
+	local openFeedback = callbacks.openFeedback
+	if openFeedback then
+		order += 1
+		self:_buildButtonRow(FEEDBACK_ROW, order, openFeedback)
+	end
 	for _, section in SettingsList.SECTIONS do
 		order += 1
 		text({
@@ -421,7 +437,8 @@ function Settings._buildButtonRow(
 		name = "Open",
 		text = row.button,
 		style = "secondary",
-		size = UDim2.fromOffset(SWITCH.X, SWITCH.Y),
+		-- a phone's finger needs 44 real px; the row card has room for the taller button
+		size = UDim2.fromOffset(SWITCH.X, Scale.tapHeight(SWITCH.Y, Theme.sizes.buttonDepth)),
 		anchorPoint = Vector2.new(1, 0.5),
 		position = UDim2.new(1, -12, 0.5, -2),
 		textSize = Theme.sizes.textLarge,

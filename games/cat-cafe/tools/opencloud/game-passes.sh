@@ -88,6 +88,12 @@ fetch_passes() {
 		query='pageSize=50'
 		[ -z "$token" ] || query="$query&pageToken=$(jq -rn --arg t "$token" '$t | @uri')"
 		call "$API/creator?$query"
+		# An answer in a shape this does not know would read as no passes, and create would then make every pass
+		# again, for good. Only a gamePasses list, or {} for an experience with none, counts.
+		if ! jq -e 'type == "object" and ((has("gamePasses") and (.gamePasses | type) == "array") or . == {})' <<<"$body" >/dev/null 2>&1; then
+			echo "Open Cloud's pass list came back in a shape this script does not know, so nothing was changed: $body" >&2
+			exit 1
+		fi
 		passes=$(jq -c --argjson all "$passes" '$all + (.gamePasses // [])' <<<"$body")
 		token=$(jq -r '.nextPageToken // ""' <<<"$body")
 		[ -n "$token" ] || break
@@ -155,7 +161,7 @@ check_file() {
 	}
 	jq -e 'type == "array" and length > 0 and all(.[];
 		(.name | type) == "string" and (.name | length) > 0 and (.price | type) == "number" and .price >= 1
-		and .price == (.price | floor) and ((.regionalPricing // false) | type) == "boolean")' "$file" >/dev/null || {
+		and .price == (.price | floor) and (.regionalPricing | type) == "boolean")' "$file" >/dev/null || {
 		echo "$file must be a list of passes, each with a name, a whole price of at least 1 and regionalPricing true or false" >&2
 		exit 2
 	}
@@ -190,7 +196,7 @@ create() {
 			--form-string "description=$(jq -r '.description // ""' <<<"$entry")"
 			--form-string "price=$(jq -r .price <<<"$entry")"
 			--form-string "isForSale=$sale"
-			--form-string "isRegionalPricingEnabled=$(jq -r 'if has("regionalPricing") then .regionalPricing else true end' <<<"$entry")"
+			--form-string "isRegionalPricingEnabled=$(jq -r .regionalPricing <<<"$entry")"
 			--form-string "isManagedPricingEnabled=false"
 		)
 		icon=$(jq -r '.icon // ""' <<<"$entry")
@@ -211,7 +217,10 @@ create() {
 			[ -z "$id" ] || break
 		done
 		if [ -z "$id" ]; then
-			[ "$status" = 200 ] || fail
+			case "$status" in
+			200 | 201) ;;
+			*) fail ;;
+			esac
 			id=$(jq -r '.gamePassId // empty' <<<"$body")
 			[ -n "$id" ] || {
 				echo "Open Cloud made $name but gave no id: $body" >&2

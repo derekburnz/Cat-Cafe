@@ -807,6 +807,7 @@ end
 -- HissAt attribute, which the server sets on a Miss, and the sprint its FleeingUntil (design v0.5, F40), playing
 -- on the cat itself so it runs off with it. Each at most once per cat per second, like the Effects hiss.
 local STRAY_GAP = 1
+local HOP_FRESH = 0.5 -- seconds: a FleeingUntil this soon after HopAt belongs to the hop
 type StrayWatch = {
 	connections: { RBXScriptConnection },
 	last: { [string]: number },
@@ -850,10 +851,19 @@ local function watchStray(instance: Instance)
 	table.insert(
 		watch.connections,
 		instance:GetAttributeChangedSignal("FleeingUntil"):Connect(function()
-			local untilTime = instance:GetAttribute("FleeingUntil")
-			if type(untilTime) == "number" and untilTime > Workspace:GetServerTimeNow() then
-				once("straySprint", true)
-			end
+			-- a hop (F93) sets HopAt with its FleeingUntil and plays strayHop instead, so wait for the batch to land
+			-- and skip the sprint when HopAt is fresh (review N297)
+			task.defer(function()
+				local now = Workspace:GetServerTimeNow()
+				local untilTime = instance:GetAttribute("FleeingUntil")
+				if
+					type(untilTime) == "number"
+					and untilTime > now
+					and not Logic.freshStart(instance:GetAttribute("HopAt"), now, HOP_FRESH)
+				then
+					once("straySprint", true)
+				end
+			end)
 		end)
 	)
 end

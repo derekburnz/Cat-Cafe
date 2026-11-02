@@ -137,7 +137,7 @@ Each wild area becomes a long rectangle with its camp across one short end. The 
 - **The far end** gets each area's best landmark, as in town-layout-v3 8f.
 - **Bridges, decks and water** keep the 8c rules: steps or ramps at both ends, solid railings, water crossed only on bridges.
 
-The tackle rules do not change. The getaway (CatchRushWalkSpeed 24 for 5 s after a catch) and the grace and cooldowns still protect a carrier, and the camp is safe. Derek wants more tackles on the way home; the longer runs give them without changing the tackle itself.
+The tackle rules do not change. The getaway (CatchRushWalkSpeed 24 for 10 s after a catch, 5 s before #836) and the grace and cooldowns still protect a carrier, and the camp is safe. Derek wants more tackles on the way home; the longer runs give them without changing the tackle itself.
 
 ## 7. Contract for each thread
 

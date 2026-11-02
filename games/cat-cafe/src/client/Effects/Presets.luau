@@ -879,6 +879,35 @@ Presets.motion = {
 	-- round the tables are Presets.cafeWalk.
 	waiter = { look = 22, lookSeconds = 7, tilt = 8, tiltEvery = 5.5 },
 	greeter = { waveEvery = 3.2, wave = 70, tilt = 10 },
+	-- Working cats on the work body (S, Model-Agent #826; Derek 2026-11-02 12:02: "S: chibi holding the prop"),
+	-- standing at the station on their back legs with the role's arm pose already on the model (the server turns
+	-- each arm by cat_poses.work_<role>), so every turn here is small, none past about 15 degrees, and the held thing
+	-- stays where Model-Agent's clip sweep checked it (Logic.workIdle). Each shifts its weight from foot to foot, the
+	-- body rocking `sway` degrees over `swaySeconds`.
+	-- `barista`: holds its cup out to the customer and now and then (`every`) offers it over `seconds`: the arm
+	--   lifts `lift` degrees, the cup tips `held` towards them and the cat looks down at it `look`.
+	-- `waiter`: the tray held steady at its side (it rides the breath and the sway) while the head turns `look` from
+	--   table to table over `lookSeconds` and tilts `tilt` once every `tiltEvery`.
+	-- `greeter`: the raised paw waves side to side `wave` degrees `hz` times a second, in bursts of `seconds` once
+	--   every `every`, the head tilting `tilt` towards it; between bursts the paw drifts `rest` over `restSeconds`.
+	-- `entertainer`: sings into its mic: once a `beat` the head nods `nod` and the mic tips `mic` with it, the body
+	--   sways `sway` over two beats and the raised paw waves `wave` with the sway.
+	work = {
+		sway = 2.5,
+		swaySeconds = 4.8,
+		barista = { every = 2.6, seconds = 1, lift = 8, held = 10, look = 10 },
+		waiter = { look = 22, lookSeconds = 7, tilt = 8, tiltEvery = 5.5 },
+		greeter = {
+			every = 3.2,
+			seconds = 1.6,
+			wave = 14,
+			hz = 2,
+			tilt = 10,
+			rest = 3,
+			restSeconds = 3.7,
+		},
+		entertainer = { beat = 0.5, nod = 6, mic = 6, sway = 4, wave = 12 },
+	},
 	-- The entertainer bats a pom-pom on a springy wand stuck in its perch (Derek 2026-10-28 17:41: Comet's ball was
 	-- "kind of floating" and its foot "randomly" twitched; the old yarn ball slid about in mid air 2 studs past the
 	-- cat tree's top, which the paw never reached). The paws take turns once every `every` seconds: the paw comes
@@ -1131,6 +1160,11 @@ Presets.cafeWalk = {
 	trayLift = 0.08, -- studs a tray sits above the top of the head, on a body without a Carry attachment
 	tallAbove = 0.05, -- studs a head prop may rise above Carry before it steps aside under a tray
 	sit = { rise = 0.45, drop = 0.1, tuck = 40, pitch = 12, tail = 20 },
+	-- A cat standing at its station on the work body (S, #826) gets up from standing instead: the walker starts
+	-- reared up on its back legs, nose up `pitch` degrees and `drop` studs (negative: lifted, so its back end stays
+	-- out of the floor), back legs tucked `tuck` and tail down `tail`, and drops onto all fours over sit.rise while
+	-- the station model fades out; coming home it rears back up as the station model fades in.
+	stand = { drop = -0.12, tuck = 30, pitch = 30, tail = 10 },
 	carry = { ease = 0.25, chin = 6, tail = 20 },
 	sweep = {
 		seconds = 1.1,

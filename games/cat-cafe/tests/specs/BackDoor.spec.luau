@@ -47,6 +47,13 @@ return function()
 			expect(BackDoor.solid(true, true, false)).to.equal(false)
 			expect(BackDoor.solid(false, false, false)).to.equal(false)
 		end)
+
+		it("lets anyone through the back door while it stands open for the owner", function()
+			expect(BackDoor.panelSolid(false, true, false, false)).to.equal(true)
+			expect(BackDoor.panelSolid(false, true, false, true)).to.equal(false)
+			expect(BackDoor.panelSolid(false, true, true, false)).to.equal(false)
+			expect(BackDoor.panelSolid(true, true, false, false)).to.equal(false)
+		end)
 	end)
 
 	describe("frontTurn", function()

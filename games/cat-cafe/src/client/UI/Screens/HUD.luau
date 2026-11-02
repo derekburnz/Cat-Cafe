@@ -20,6 +20,9 @@
 --                 above them the carry banner with
 --                 its red Drop button, and the tutorial strip above that
 --   bottom right  the bait bowl chip, once the Bait bowl upgrade is owned
+-- F87 (easy-start.md section 2f, Components/HudUnlocks): until the first loop is done only the money, the hint, Home
+-- and the Alley (or the Cannon), the Tutorial tile and Settings show; each other piece appears as it unlocks, with a
+-- gold "New!" on its button for NEW_SECONDS.
 -- Laid out in design pixels under one UIScale from Scale.bind.
 --
 -- Roblox terms: SocialService:PromptGameInvite opens Roblox's own invite-friends window; the game only asks.
@@ -40,6 +43,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
+local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
@@ -90,6 +94,7 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
+	pulseTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
 	destroy: (self: HUD) -> (),
 }
@@ -159,6 +164,16 @@ local QUEST_LINE_H = 24
 local SPIN_TEXT = Theme.icons.spin .. " Free spin at the Town Square"
 local TUTORIAL_DONE = 5 -- the tutorial's last step (UIController.refreshTutorial): the quest line waits for it
 local TOPBAR_SLACK = 48
+-- F87: a newly unlocked button's gold "New!" stays this long
+local NEW_SECONDS = 6
+-- the left pills each small HUD key shows (F87; Quests has its own rule too)
+local PILL_KEYS: { [string]: HudUnlocks.Key } = {
+	Cats = "cats",
+	Index = "index",
+	Upgrades = "upgrades",
+	Decor = "decor",
+	Potions = "potions",
+}
 -- data-model NightIncomeMultiplier: tips pay this share at night (F31: 0.6; F60: 1, full pay, so no line)
 local NIGHT_TIPS: number = Config.NightIncomeMultiplier
 
@@ -605,24 +620,22 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(dailyDot, 2)
 	self._dailyDot = dailyDot
-	table.insert(
-		self._buttons,
-		Button.new({
-			name = "Feedback",
-			text = "Feedback",
-			icon = Theme.icons.feedback,
-			layout = "tile",
-			textSize = Theme.sizes.textTiny,
-			style = "gold",
-			size = UDim2.fromOffset(ICON, ICON),
-			layoutOrder = 4,
-			parent = icons,
-			sound = false, -- the modal swish is the sound
-			onClick = function()
-				callbacks.openFeedback()
-			end,
-		})
-	)
+	self._feedbackTile = Button.new({
+		name = "Feedback",
+		text = "Feedback",
+		icon = Theme.icons.feedback,
+		layout = "tile",
+		textSize = Theme.sizes.textTiny,
+		style = "gold",
+		size = UDim2.fromOffset(ICON, ICON),
+		layoutOrder = 4,
+		parent = icons,
+		sound = false, -- the modal swish is the sound
+		onClick = function()
+			callbacks.openFeedback()
+		end,
+	})
+	table.insert(self._buttons, self._feedbackTile)
 	table.insert(
 		self._buttons,
 		Button.new({
@@ -640,33 +653,31 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			end,
 		})
 	)
-	table.insert(
-		self._buttons,
-		Button.new({
-			name = "Invite",
-			text = "Invite",
-			icon = Theme.icons.invite,
-			layout = "tile",
-			textSize = Theme.sizes.textTiny,
-			style = "secondary",
-			size = UDim2.fromOffset(ICON, ICON),
-			layoutOrder = 6,
-			parent = icons,
-			onClick = function()
-				task.spawn(function()
-					local player = Players.LocalPlayer
-					local ok, canInvite = pcall(function()
-						return SocialService:CanSendGameInviteAsync(player)
-					end)
-					if ok and canInvite then
-						pcall(function()
-							SocialService:PromptGameInvite(player)
-						end)
-					end
+	self._inviteTile = Button.new({
+		name = "Invite",
+		text = "Invite",
+		icon = Theme.icons.invite,
+		layout = "tile",
+		textSize = Theme.sizes.textTiny,
+		style = "secondary",
+		size = UDim2.fromOffset(ICON, ICON),
+		layoutOrder = 6,
+		parent = icons,
+		onClick = function()
+			task.spawn(function()
+				local player = Players.LocalPlayer
+				local ok, canInvite = pcall(function()
+					return SocialService:CanSendGameInviteAsync(player)
 				end)
-			end,
-		})
-	)
+				if ok and canInvite then
+					pcall(function()
+						SocialService:PromptGameInvite(player)
+					end)
+				end
+			end)
+		end,
+	})
+	table.insert(self._buttons, self._inviteTile)
 
 	-- Clock (top right, under the icon row): the sun or moon and the time to the next phase (F20), right-aligned
 	-- outlined text with no chip behind it ("☀ Day 3:29")
@@ -883,6 +894,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Size = UDim2.fromOffset(PILL_W, #menuItems * PILL_H + (#menuItems - 1) * Theme.sizes.gap),
 		Parent = root,
 	}, { menuLayout :: Instance })
+	self._pills = {} :: { [string]: Button.Button }
 	for index, item in menuItems do
 		local button = Button.new({
 			name = item.name,
@@ -984,6 +996,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				Parent = button.face,
 			})
 		end
+		self._pills[item.name] = button
 		table.insert(self._buttons, button)
 	end
 	self._menu = menu
@@ -1096,23 +1109,21 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._carryBanner = false
 	self._carryState = false
 	self._homeCarrying = false
-	table.insert(
-		self._buttons,
-		Button.new({
-			name = "EquipBest",
-			text = "Equip Best",
-			icon = Theme.icons.equipBest,
-			iconSize = TRAVEL_ICON,
-			style = "berry",
-			size = UDim2.fromOffset(TRAVEL_W, TRAVEL_H),
-			textSize = Theme.sizes.textBody,
-			layoutOrder = 1,
-			parent = travelRow,
-			onClick = function()
-				callbacks.equipBest()
-			end,
-		})
-	)
+	self._equipBest = Button.new({
+		name = "EquipBest",
+		text = "Equip Best",
+		icon = Theme.icons.equipBest,
+		iconSize = TRAVEL_ICON,
+		style = "berry",
+		size = UDim2.fromOffset(TRAVEL_W, TRAVEL_H),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 1,
+		parent = travelRow,
+		onClick = function()
+			callbacks.equipBest()
+		end,
+	})
+	table.insert(self._buttons, self._equipBest)
 	type TravelItem = { key: string, name: string, label: string, icon: string, style: Button.Style }
 	local travelItems: { TravelItem } = {
 		{ key = "home", name = "Cafe", label = HOME_TEXT, icon = Theme.icons.home, style = "gold" },
@@ -1398,10 +1409,9 @@ function HUD.setCannonMode(self: any, on: boolean)
 	end
 	self._cannonMode = on
 	self._travelButtons.cannon.instance.Visible = on
-	self._travelButtons.areas.instance.Visible = not on
+	self._travelButtons.areas.instance.Visible = not on and self:_open("areas")
 	self._travelButtons.alley.instance.Visible = not on
-	local width = if on then 3 * TRAVEL_W + 2 * Theme.sizes.gap else TRAVEL_ROW_W
-	self._travelRow.Size = UDim2.fromOffset(width, TRAVEL_H)
+	self:_sizeTravelRow()
 	self:_layoutMenu() -- the row and its arrow tab, kept clear of the counters
 	self._carrySub.Text = if on then CannonLogic.CARRY_SUB else CARRY_SUB
 	self._homeCarrying = nil -- the next render writes Home's text for the new mode
@@ -1523,28 +1533,42 @@ function HUD.setTutorialButton(self: any, shown: boolean)
 	self._tutorialTile.instance.Visible = shown
 end
 
--- Two gold pulses round the Tutorial tile, so a new player sees where the intro replays.
-function HUD.glowTutorial(self: any)
-	local tile: Frame = self._tutorialTile.instance
-	if not tile.Visible then
-		return
-	end
-	local glow: Frame = Create("Frame", {
+-- Two pulses spreading out from round `target`, gold unless `color` says.
+local function glow(target: GuiObject, color: Color3?)
+	local ring: Frame = Create("Frame", {
 		Name = "Glow",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 10,
-		Parent = tile,
+		Parent = target,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }) })
 	local stroke: UIStroke =
-		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 5, Parent = glow })
-	Tween.to(glow, GLOW, { Size = UDim2.new(1, 26, 1, 26) })
+		Create("UIStroke", { Color = color or Theme.colors.gold, Thickness = 5, Parent = ring })
+	Tween.to(ring, GLOW, { Size = UDim2.new(1, 26, 1, 26) })
 	Tween.to(stroke, GLOW, { Transparency = 1 }).Completed:Once(function()
-		glow:Destroy()
+		ring:Destroy()
 	end)
 	Sound.play("uiHint")
+end
+
+-- Two gold pulses round the Tutorial tile, so a new player sees where the intro replays (F72; F87 section 2a: on
+-- the first join, since the intro no longer plays by itself).
+function HUD.glowTutorial(self: any)
+	local tile: Frame = self._tutorialTile.instance
+	if tile.Visible then
+		glow(tile)
+	end
+end
+
+-- F87 section 2g: the tutorial strip pops and pulses when its step has not moved for StuckNudgeSeconds.
+function HUD.pulseTutorial(self: any)
+	local strip: GuiObject = self._tutorial
+	if strip.Visible then
+		Tween.popIn(strip, 0.85)
+		glow(strip, Theme.colors.white) -- the strip itself is gold
+	end
 end
 
 function HUD.setCatalog(self: any, catalog: Types.Catalog)
@@ -1564,8 +1588,10 @@ function HUD.render(self: any, state: Types.PlayerState)
 	end
 	self._lastMoney = state.money
 	-- golden fish, with a white flash when they go up
+	-- the small HUD's pieces first, so everything below reads this state's unlocks (F87)
+	self:_renderUnlocks(state)
 	local fish = state.goldenFish
-	self._fishPanel.Visible = fish ~= nil
+	self._fishPanel.Visible = fish ~= nil and self:_open("fish")
 	if fish then
 		self._fishText.Text = Format.short(fish)
 		if self._lastFish and fish > self._lastFish then
@@ -1602,6 +1628,9 @@ function HUD.render(self: any, state: Types.PlayerState)
 		tierProgress = RankUp.progress(catalog, state)
 	end
 	self._goal:render(tierProgress, Format.tier(state.tier, if catalog then catalog.tiers else nil))
+	if not self:_open("goal") then
+		self._goal.frame.Visible = false
+	end
 	-- uiRankReady chimes once per tier, the first time that tier's requirements are all met
 	if tierProgress and tierProgress.ready and self._chimedTier ~= tierProgress.tier then
 		self._chimedTier = tierProgress.tier
@@ -1615,6 +1644,140 @@ function HUD.render(self: any, state: Types.PlayerState)
 	end
 	self._indexCount.Text = ("%d/%d"):format(distinct, total)
 	self:_renderBowlSlot(state)
+end
+
+-- F87 (easy-start.md section 2f): whether a piece of the small HUD shows yet; everything before the first state.
+function HUD._open(self: any, key: HudUnlocks.Key): boolean
+	local unlocks: { [HudUnlocks.Key]: boolean }? = self._unlocks
+	return unlocks == nil or unlocks[key] == true
+end
+
+-- The pieces this state unlocks (Components/HudUnlocks). Nothing changes while the unlocks stay the same; each piece
+-- that opens after the first state pops in with a gold "New!".
+function HUD._renderUnlocks(self: any, state: Types.PlayerState)
+	if state.tutorialStep == nil then
+		-- no step (the demo, the UI gate's sample player): everything shows, and nothing sticks for a later state
+		if self._unlocks ~= nil then
+			self._unlocks = nil
+			self:_applyUnlocks()
+		end
+		return
+	end
+	local before: { [HudUnlocks.Key]: boolean }? = self._unlocks
+	local now, opened = HudUnlocks.update(before, HudUnlocks.view(state :: any))
+	if before ~= nil and #opened == 0 then
+		return -- update keeps what showed, so no new key means no change
+	end
+	self._unlocks = now
+	self:_applyUnlocks()
+	for _, key in opened do
+		self:_popNew(key)
+	end
+	if #opened > 0 then
+		Sound.play("uiHint")
+	end
+end
+
+-- Shows or hides every gated piece for the current unlocks, then lays the menu, the bottom row and the right column
+-- out again. The fish counter and the goal card follow in render.
+function HUD._applyUnlocks(self: any)
+	for name, key in PILL_KEYS do
+		self._pills[name].instance.Visible = self:_open(key)
+	end
+	self._questsPill.instance.Visible = self._questsLive == true and self:_open("quests")
+	self._gifts.instance.Visible = self._giftsWanted == true and self:_open("gifts")
+	self._daily.instance.Visible = self._dailyWanted == true and self:_open("daily")
+	self._feedbackTile.instance.Visible = self:_open("feedback")
+	self._inviteTile.instance.Visible = self:_open("invite")
+	self._equipBest.instance.Visible = self:_open("equipBest")
+	self._travelButtons.areas.instance.Visible = not self._cannonMode and self:_open("areas")
+	self:_sizeTravelRow()
+	self:setClock(self._clockState) -- the clock and the night tips line
+	self:_layoutMenu()
+	self:_layoutBottom()
+end
+
+-- The bottom row as wide as the buttons it shows (Equip Best and Areas wait for their unlocks; the Cannon takes the
+-- Alley's and Areas' place, F84).
+function HUD._sizeTravelRow(self: any)
+	local count = 0
+	for _, child in self._travelRow:GetChildren() do
+		if child:IsA("GuiObject") and child.Visible then
+			count += 1
+		end
+	end
+	local width = count * TRAVEL_W + math.max(0, count - 1) * Theme.sizes.gap
+	self._travelRow.Size = UDim2.fromOffset(width, TRAVEL_H)
+end
+
+-- The piece a small HUD key shows, for its pop, and whether it is a button.
+function HUD._unlockTarget(self: any, key: HudUnlocks.Key): (GuiObject?, boolean)
+	local pill: Button.Button? = nil
+	for name, pillKey in PILL_KEYS do
+		if pillKey == key then
+			pill = self._pills[name]
+		end
+	end
+	local button: Button.Button? = pill
+		or (
+			if key == "quests"
+				then self._questsPill
+				elseif key == "gifts" then self._gifts
+				elseif key == "daily" then self._daily
+				elseif key == "feedback" then self._feedbackTile
+				elseif key == "invite" then self._inviteTile
+				elseif key == "equipBest" then self._equipBest
+				elseif key == "areas" then self._travelButtons.areas
+				else nil
+		)
+	if button ~= nil then
+		return button.instance, true
+	end
+	local piece: GuiObject? = if key == "clock"
+		then self._clock
+		elseif key == "goal" then self._goal.frame
+		elseif key == "fish" then self._fishPanel
+		else nil
+	return piece, false
+end
+
+-- A newly unlocked piece pops in; a button also wears a gold "New!" on its top right corner for NEW_SECONDS.
+function HUD._popNew(self: any, key: HudUnlocks.Key)
+	local target, isButton = self:_unlockTarget(key)
+	if target == nil or not target.Visible then
+		return
+	end
+	if not isButton then
+		Tween.popIn(target, 0.85) -- the clock, the goal card and the fish counter have no button to mark
+		return
+	end
+	local old = target:FindFirstChild("New")
+	if old then
+		old:Destroy()
+	end
+	local badge: TextLabel = Create("TextLabel", {
+		Name = "New",
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, 6, 0, 2),
+		Size = UDim2.fromOffset(52, 24),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.white,
+		Text = "New!",
+		ZIndex = 12,
+		Parent = target,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(badge, 2)
+	Outline.text(badge, 2)
+	Tween.popIn(target, 0.85)
+	Tween.popIn(badge, 0.5)
+	task.delay(NEW_SECONDS, function()
+		if badge.Parent ~= nil then
+			badge:Destroy()
+		end
+	end)
 end
 
 -- The bowl chip shows once the Bait bowl upgrade is owned.
@@ -1694,26 +1857,30 @@ end
 -- in orange (F66). F60: when night falls on an empty bowl, the bowl chip pops so the half wait is seen.
 function HUD.setClock(self: any, clock: Types.ClockState?)
 	self:_stopClock()
+	self._clockState = clock
 	if not clock then
 		self._clock.Visible = false
 		self._nightTips.Visible = false
 		self._night = false
+		self._clockSeen = false
 		self:_renderBowl()
 		self:_layoutRight()
 		return
 	end
 	local current: Types.ClockState = clock
 	local isNight = current.phase == "night"
-	local nightfall = isNight and not self._night and self._clock.Visible
+	local nightfall = isNight and not self._night and self._clockSeen == true -- not the first clock
 	self._night = isNight
+	self._clockSeen = true
 	self:_renderBowl()
 	if nightfall and self._bait == nil and self._bowlSlot.Visible then
 		Tween.popIn(self._bowlSlot, 0.9)
 	end
 	self._sun.Visible = not isNight
 	self._moon.Visible = isNight
-	self._clock.Visible = true
-	self._nightTips.Visible = isNight and NIGHT_TIPS < 1
+	local shown = self:_open("clock") -- the small HUD keeps it hidden until step 5 (F87)
+	self._clock.Visible = shown
+	self._nightTips.Visible = shown and isNight and NIGHT_TIPS < 1
 	self:_layoutRight()
 	local function tick()
 		local remaining = current.phaseEndsAt - Workspace:GetServerTimeNow()
@@ -1784,8 +1951,10 @@ end
 function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.Catalog?)
 	local pill = self._questsPill
 	local live = state.quests ~= nil
-	if pill.instance.Visible ~= live then
-		pill.instance.Visible = live
+	self._questsLive = live
+	local shown = live and self:_open("quests")
+	if pill.instance.Visible ~= shown then
+		pill.instance.Visible = shown
 		self:_layoutMenu()
 	end
 	local ready = if live then QuestLogic.claimable(state, catalog) else 0
@@ -1888,7 +2057,8 @@ end
 -- once all twelve are claimed. nil hides the tile.
 function HUD.setTipJar(self: any, summary: { ready: number, nextIn: number?, left: number }?)
 	local gifts: Button.Button = self._gifts
-	gifts.instance.Visible = summary ~= nil
+	self._giftsWanted = summary ~= nil
+	gifts.instance.Visible = summary ~= nil and self:_open("gifts")
 	if summary == nil then
 		return
 	end
@@ -1919,7 +2089,8 @@ end
 -- due, else "Daily".
 function HUD.setDailyTreat(self: any, shown: boolean, due: boolean)
 	local tile: Button.Button = self._daily
-	tile.instance.Visible = shown
+	self._dailyWanted = shown
+	tile.instance.Visible = shown and self:_open("daily")
 	local text = if due then "Claim!" else "Daily"
 	if text ~= self._dailyText then
 		self._dailyText = text
@@ -2190,6 +2361,7 @@ function HUD._layoutMenu(self: any)
 			shown += 1
 		end
 	end
+	self._menuFold.instance.Visible = shown > 0 -- no tab to fold an empty menu (the small HUD, F87)
 	local spaces = math.max(0, shown - 1)
 	local pills = shown * PILL_H
 	local foldUnder = gap + 4 + FOLD_H

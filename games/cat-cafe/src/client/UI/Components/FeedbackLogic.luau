@@ -88,7 +88,8 @@ function Answer.reset(self: any)
 	self._sent = false
 end
 
--- A face tapped: a new answer, unless this one was sent already with a chip.
+-- A face tapped: a new answer, sent again even after a chip went with the last one (the server's 1 per 10 s and 5 a
+-- session hold a player who keeps changing their mind, review N310).
 function Answer.pick(self: any, face: string, now: number)
 	self._face = face
 	self._at = now

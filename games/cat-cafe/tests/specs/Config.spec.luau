@@ -104,7 +104,6 @@ return function()
 		GoldMultiplier = 1.5, -- v0.3 (F22)
 		-- the night dealer (F32, section 8b)
 		DealerRangeStuds = 12,
-		DealerWindowSeconds = 300, -- F59: every 5 minutes (was 600); retired by F94, kept for the UI's dealer screen
 		FreshCatchWindowSeconds = 300, -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf rolls every 5 minutes
 		-- night income and rich customers (F31, sections 11 and 12)
 		NightIncomeMultiplier = 1, -- F60: full pay at night (0.6 until v0.8)

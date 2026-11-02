@@ -84,7 +84,8 @@ PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars", "_Screen": "Screen", "
 # are tagged by WorldBuilder at placement.
 TAGS = {"CatCafe_Decor_FishTank": ["FishTank"], "CatCafe_Plot_Tier4_Water": ["FishTank"],
         "CatCafe_Park_Fountain": ["Fountain"], "_IndexBoard": ["IndexBoard"],
-        "CatCafe_Street_CodesCat": ["CodesCat"], "_NightFence": ["NightFence"],
+        "CatCafe_Street_CodesCat": ["CodesCat"], "CatCafe_Street_BellhopStand": ["BellhopStand"],
+        "_NightFence": ["NightFence"],
         "CatCafe_Alley_NightFenceSegment": ["NightFence"], "CatCafe_Plot_BackDoorClosed": ["NightFence"],
         "_Basket": ["CampBasket"], "_LeaderboardRow_Index": ["Leaderboard"],
         "_LeaderboardRow_Playtime": ["Leaderboard"], "_LeaderboardRow_Money": ["Leaderboard"]}

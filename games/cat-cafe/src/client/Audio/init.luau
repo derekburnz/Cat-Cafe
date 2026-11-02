@@ -22,6 +22,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
 local Logic = require(script.Logic)
+local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local Splash = require(script.Parent.Effects.Splash)
 
@@ -93,10 +94,6 @@ end
 local function has(cueId: string): boolean
 	local cue = Cues[cueId]
 	return cue ~= nil and #idsOf(cue) > 0
-end
-
-local function exists(cueId: string): boolean
-	return Cues[cueId] ~= nil
 end
 
 local function tweenVolume(sound: Sound, volume: number, seconds: number): Tween
@@ -1372,6 +1369,116 @@ local function followCatchWords()
 	end)
 end
 
+-- F102: the trade countdown tocks once a second while TradeState's phase is "countdown"; any other state (a change
+-- on the table resets it), TradeDone or TradeEnded stops the rest. TradeDone plays "Trade done!" for both players.
+local TRADE_TICKS_MAX = 10
+local tradeToken = 0
+
+local function followTrade()
+	onRemote("TradeState", function(state: any)
+		tradeToken += 1
+		if type(state) ~= "table" or state.phase ~= "countdown" then
+			return
+		end
+		local token = tradeToken
+		for _, delay in
+			Logic.countdownTicks(
+				Workspace:GetServerTimeNow(),
+				state.countdownEndsAt,
+				TRADE_TICKS_MAX
+			)
+		do
+			task.delay(delay, function()
+				if token == tradeToken then
+					Audio.play("uiTradeTick")
+				end
+			end)
+		end
+	end)
+	onRemote("TradeDone", function()
+		tradeToken += 1
+		Audio.play("uiTradeDone")
+	end)
+	onRemote("TradeEnded", function()
+		tradeToken += 1
+	end)
+end
+
+-- F101: the Rescue Rally's bar reaching a step (Catalog.rallySteps, a quarter, a half and the whole goal) cheers
+-- once on every client in the server, from the RallyState the server sends at each step.
+local function followRally()
+	local last: { lap: number, points: number }? = nil
+	onRemote("RallyState", function(state: any)
+		if
+			type(state) ~= "table"
+			or type(state.points) ~= "number"
+			or type(state.goal) ~= "number"
+		then
+			return
+		end
+		local from = Logic.rallyFrom(last, state.lap, state.active)
+		last = if type(state.lap) == "number"
+			then { lap = state.lap, points = state.points }
+			else nil
+		if from ~= nil and #Rally.stepsCrossed(from, state.points, state.goal) > 0 then
+			Audio.play("rallyCheer")
+		end
+	end)
+end
+
+local function countOf(map: any): number
+	local count = 0
+	if type(map) == "table" then
+		for _ in map do
+			count += 1
+		end
+	end
+	return count
+end
+
+-- F28, your own bait bowl, from each ProfileSync's `bait` (Logic.baitChange), so it needs no moment: the food going
+-- in clinks (its own food cue once it has one, else foodDealer), the cat arriving mrrps (a gold or rainbow one
+-- plays its reveal, Logic.baitArriveCue) and Let go plays the cat hopping off. A tame sounds with its check-in. The
+-- first sync Audio sees only sets where the bowl stands, so a rejoin with a cat already waiting stays quiet.
+local function followBait()
+	local seen = false
+	local last: any = nil
+	local lastCats = 0
+	onRemote("ProfileSync", function(state: any)
+		if type(state) ~= "table" then
+			return
+		end
+		local bait = state.bait
+		local cats = countOf(state.cats)
+		local change = if seen then Logic.baitChange(last, bait, lastCats, cats) else nil
+		seen, last, lastCats = true, bait, cats
+		if change == "placed" then
+			Audio.play(Logic.foodCue(str(bait.lureId), has), you())
+		elseif change == "arrive" then
+			Audio.play(Logic.baitArriveCue(bait.cat.variant))
+		elseif change == "letgo" then
+			Audio.play("baitLetGo")
+		end
+	end)
+end
+
+-- The remotes that also feed a controller's state (ProfileSync, TradeState, RallyState) are hooked only once the
+-- first ProfileSync has reached the UI (the first applySettings), when every controller is listening: a remote
+-- fired before anything listens holds its events for the first listener alone, and that must be the controller.
+local followingState = false
+
+local function followServerState()
+	if followingState then
+		return
+	end
+	followingState = true
+	-- deferred, so the order does not hang on signal behaviour: even a first sync handled inside UIController.start
+	-- hooks these only after the rest of Main.client has started its controllers (review S117)
+	task.defer(followTrade)
+	task.defer(followRally)
+	task.defer(followBait)
+end
+
 -- Animation beats (Beats.hit from Effects): the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100),
 -- in 3D where the animation plays.
 local function followBeats()
@@ -1535,25 +1642,9 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		end
 	end,
 
-	BaitPlaced = function(lureId: any)
-		Audio.play(Logic.foodCue(str(lureId), exists), you())
-	end,
-	BaitArrive = function()
-		Audio.play("baitArrive")
-	end,
-	BaitTame = function(rarity: any)
-		Audio.play("baitTame")
-		rarityJingle(rarity)
-	end,
-	BaitLetGo = function()
-		Audio.play("baitLetGo")
-	end,
-
-	-- F42: a bait or rescue cat that turns out gold; a gold cat in your arms plays it by itself (watchHeld), and a
-	-- Mythical stray twinkles as you come near (noticeRareStrays), so RareStrayNearby is gone.
-	GoldReveal = function()
-		Audio.play("goldReveal")
-	end,
+	-- The bait bowl's food, arrival and Let go need no moment since 2026-11-02: Audio follows ProfileSync's `bait`
+	-- (followBait), and a gold or rainbow bait cat plays its reveal as it arrives. A gold cat in your arms plays
+	-- goldReveal by itself (watchHeld), and a Mythical stray twinkles as you come near (noticeRareStrays).
 	-- Drop (F45, the Drop button or G): the cat hops down at your feet.
 	CatDrop = function(position: any)
 		Audio.play("catDrop", vec(position) or you())
@@ -1611,9 +1702,7 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		end
 		Audio.play("dealerLeave", spot(taggedPart("DealerCart")))
 	end,
-	OfflineClaim = function()
-		Audio.play("offlineClaim")
-	end,
+	-- The welcome back card's Claim plays offlineClaim through the UI's playSound, so OfflineClaim needs no moment.
 	TipJarClaim = function() -- F47
 		Audio.play("giftClaim")
 	end,
@@ -1660,6 +1749,19 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		local where = vec(position)
 		if where ~= nil then
 			Audio.play("tipBank", where)
+		end
+	end,
+	-- F103 crate reel (UI/Screens/CrateReel): a tick as each tile line crosses the marker (the cue keeps them 0.06 s
+	-- apart), and the thunk at the stop or a skip, then the won piece's rarity sting from Epic up when the reel passes
+	-- its rarity.
+	CrateReelTick = function()
+		Audio.play("uiReelTick")
+	end,
+	CrateReelLanded = function(rarity: any)
+		Audio.play("uiReelStop")
+		local cue = Logic.pullSting(rarity, nil)
+		if cue ~= nil then
+			playSting(cue)
 		end
 	end,
 	-- F58: a Mythical shout-out (the sunrise wave's or a catch) plays its own sting once it has a file.
@@ -1723,6 +1825,7 @@ function Audio.applySettings(settings: Settings)
 		refreshMusic(false)
 		refreshAmbience()
 		refreshWorldLoops()
+		followServerState()
 		return
 	end
 	if enabled.Music ~= musicWas then

@@ -889,7 +889,7 @@ return function()
 		): any
 			local p = freshProfile()
 			p.tier = tier
-			p.coins = coins or 1e9
+			p.coins = coins or 1e10 -- F95 v2: Tier 5 costs 1.2B
 			p.collection = {}
 			local added = 0
 			if rarity ~= nil then
@@ -946,17 +946,17 @@ return function()
 		end)
 
 		it(
-			"Tier 1 to 2: 5 different cats and 8,000 coins (v0.13.6), the starter Tabby counts",
+			"Tier 1 to 2: 5 different cats and 10,000 coins (F95 v2), the starter Tabby counts",
 			function()
 				local p = freshProfile()
-				p.coins = 8000
+				p.coins = 10000
 				for _, id in { "ginger", "tuxedo", "smoke" } do
 					p.collection[id] = 1000
 				end
 				expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 4)")
 				p.collection.calico = 1000
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-				p.coins = 7999
+				p.coins = 9999
 				expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 			end
 		)

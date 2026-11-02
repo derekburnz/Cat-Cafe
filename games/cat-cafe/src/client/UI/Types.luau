@@ -370,8 +370,30 @@ export type RescueChallenge = {
 	hitsNeeded: number?,
 	paws: number?, -- misses allowed (RescuePatience); nil hides the paw row
 	endsAt: number?, -- the attempt's deadline; else startsAt + RescueAttemptMaxSeconds
+	-- F93 (catch-rework.md section 4) adds zone, zoneEndsAt, zonePasses and speedUpPerHit; Screens/RescueBar reads
+	-- them as RescueRules, so the engineer's RescueChallenge fits with or without them
 	circle: CatchCircle?, -- kind "circle"
 	windows: CatchWindows?, -- kind "circle"
+}
+
+-- F93's extra RescueChallenge fields (catch-rework.md section 4): `zones` holds a spare zone per paw; `zone` is the
+-- one to hit now and `zoneEndsAt` when it moves on unhit (zonePasses sweeps); each hit makes the marker speedUpPerHit
+-- faster.
+export type RescueRules = {
+	zone: number?,
+	zoneEndsAt: number?,
+	zonePasses: number?,
+	speedUpPerHit: number?,
+}
+
+-- How the rescue bar runs now (F93), RescueResult's last argument: the marker from server time startsAt at phase
+-- (0 to 2) and speed bar lengths per second, zones[zone] the one to hit, zoneEndsAt when it moves on unhit.
+export type RescueBar = {
+	zone: number,
+	startsAt: number,
+	phase: number,
+	speed: number,
+	zoneEndsAt: number,
 }
 
 -- UI.intro.start (F72): Skip shows after skipAfter seconds (default 2.0, or at once on a replay)

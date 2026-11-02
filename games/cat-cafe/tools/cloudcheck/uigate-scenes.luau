@@ -231,6 +231,26 @@ local CODE_PRIZE = {
 	crates = { classic_crate = 1 },
 }
 
+-- an F93 rescue bar mid attempt: a Legendary needs six hits, one landed, with a spare zone per paw
+local function rescueChallenge()
+	local t = workspace:GetServerTimeNow()
+	return {
+		kind = "bar",
+		startsAt = t - 1,
+		phase = 0.3,
+		speed = 0.9,
+		zoneWidth = 0.16,
+		zones = { 0.3, 0.7, 0.45, 0.82, 0.2, 0.6, 0.35, 0.75, 0.5 },
+		hitsNeeded = 6,
+		paws = 3,
+		endsAt = t + 9,
+		zone = 1,
+		zoneEndsAt = t + 1.5,
+		zonePasses = 2,
+		speedUpPerHit = 0.08,
+	}
+end
+
 -- name, how the game opens it
 local SCENES = {
 	{ "Upgrades", function()
@@ -319,6 +339,24 @@ local SCENES = {
 	{ "DailyTreat", function()
 		UI.open("DailyTreat")
 	end },
+	-- F93: the rescue bar after one hit, the zone moved on and the marker sped up (the scene is drawn about two
+	-- seconds in, so the zone keeps a few seconds)
+	{ "Rescue", function()
+		UI.rescue.show("gate_rescue", rescueChallenge())
+		local t = workspace:GetServerTimeNow()
+		UI.rescue.update("gate_rescue", 1, 3, false, false, {
+			zone = 2,
+			startsAt = t,
+			phase = 0.6,
+			speed = 0.97,
+			zoneEndsAt = t + 5,
+		})
+	end },
+	-- F93: the touch Net button, in a catching area while a swing could go (phones only)
+	{ "NetButton", function()
+		UI.setZone("Alley")
+		UI.net.setEnabled(true)
+	end },
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
 	end },
@@ -341,6 +379,9 @@ end
 
 function Scenes.close()
 	UI.close()
+	UI.rescue.hide()
+	UI.net.setEnabled(false)
+	UI.setZone(nil)
 end
 
 return Scenes

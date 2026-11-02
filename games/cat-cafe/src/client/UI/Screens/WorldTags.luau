@@ -244,18 +244,28 @@ function WorldTags._attachCat(self: any, cat: Instance)
 	local function making()
 		self:_renderMaking(cat, part, height + RATE_SIZE.Y + NAME_HEIGHT + 0.3)
 	end
+	local function retime()
+		self:_retimeMaking(cat)
+	end
 	self._watched[cat] = {
 		cat:GetAttributeChangedSignal("Rate"):Connect(render),
 		cat:GetAttributeChangedSignal("Napping"):Connect(render),
 		cat:GetAttributeChangedSignal("Rarity"):Connect(render),
 		cat:GetAttributeChangedSignal("DisplayName"):Connect(render),
 		cat:GetAttributeChangedSignal("Making"):Connect(making),
+		cat:GetAttributeChangedSignal("MakeSeconds"):Connect(retime),
 	}
 	render()
 	making()
 end
 
 -- Making bubbles (F90) --------------------------------------------------------------------------------------
+
+-- A Barista's MakeSeconds, or 2 while it has none yet.
+local function makeSeconds(cat: Instance): number
+	local seconds = cat:GetAttribute("MakeSeconds")
+	return if type(seconds) == "number" and seconds > 0 then seconds else 2
+end
 
 -- Shows, restarts or pops out a Barista's making bubble from its Making and MakeSeconds attributes. `above` is how
 -- far over the anchor part's centre the rate tag ends.
@@ -276,8 +286,7 @@ function WorldTags._renderMaking(self: any, cat: Instance, part: BasePart, above
 	end
 	local bubble: Making = if entry then entry else self:_makingBubble(part, above)
 	self._making[cat] = bubble
-	local seconds = cat:GetAttribute("MakeSeconds")
-	bubble.seconds = if type(seconds) == "number" and seconds > 0 then seconds else 2
+	bubble.seconds = makeSeconds(cat)
 	bubble.startAt = os.clock()
 	bubble.on = true
 	bubble.icon.Text = orderGlyph(item)
@@ -285,6 +294,16 @@ function WorldTags._renderMaking(self: any, cat: Instance, part: BasePart, above
 	bubble.billboard.Enabled = true
 	Tween.popIn(bubble.bubble, 0.6)
 	self:_startFill()
+end
+
+-- CafeOrders sets Making before MakeSeconds, so with immediate signals the order's time can land just after its
+-- bubble started (review S115): the ring keeps its start and takes the new time.
+function WorldTags._retimeMaking(self: any, cat: Instance)
+	local entry: Making? = self._making[cat]
+	if entry and entry.on then
+		entry.seconds = makeSeconds(cat)
+		self:_startFill()
+	end
 end
 
 function WorldTags._makingBubble(_self: any, part: BasePart, above: number): Making

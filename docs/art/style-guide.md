@@ -346,7 +346,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Cafe plot set pieces | 12,000 shell, 8,000 interior, 4,000 For Rent, 3,000 per tier, 4,000 back door | built from blocks for the Part export (section 14); the FBX is the reference |
 | Door sets and cat flaps (F80) | 4,000 per door half, 1,600 per flap | `doorsets.py`: front double doors land at 1,196 to 3,292, back doors 2,254 to 3,278, flaps 256 to 1,336 |
 | Hometown cannon (F84) | 8,000 square, 6,000 per camp, 1,500 landing pad | `cannon.py`: the Town Square cannon (plinth, turret, moon cover and statue) lands at 7,004, each camp cannon 5,104, the pad 1,444 |
-| Camps (F84) | 20,000 | `camps.py`: ground, walls, pad, carrier basket and theme props land at 7,162 (Sewer) to 10,322 (Neighbourhood) |
+| Camps (F84) | 20,000 | `camps.py`: ground, walls, pad, carrier basket and theme props land at 6,596 (Sewer) to 12,306 (Alleyway) |
 | Items | 300 | dealer foods: Sardines 400, Caviar 600; TipPile prop 600 |
 
 The build script prints the triangle count for every export and fails the build if a budget is exceeded.
@@ -468,7 +468,8 @@ flower boxes in the street's pastels, AC units, drainpipes and pipes. Variants: 
 `WallDoor` (green staff door, teal canopy, lamp), `FireEscape` (two walkable landings, a ladder and stairs) and
 `Mural` (sunset bands, CAT CAFE and pixel faces of Tabby, Tuxedo, Siamese, Void and Calico). Arches over the mouths
 of the Alley Square (`CatCafe_Alley_ArchStreet`, `CatCafe_Alley_Arch`) are brick posts with lanterns, a teal name
-board and an iron arc of bulbs with a gold cat medallion. Props: a crate stack in climbable steps, a laundry line,
+board and an iron arc of bulbs with a gold cat medallion; since F84 the two `CatCafe_Alley_Arch` stand over the
+Alleyway's two ways out of its camp and read THE ALLEYWAY on both faces. Props: a crate stack in climbable steps, a laundry line,
 long string lights and the Sewer manhole with barricades. Area gates are arches over the full opening with a
 ForceField barrier and a hanging sign board, themed: the Park in brick with ivy, planters and a green iron frame;
 the Woods in timber posts and a log beam with moss, mushrooms and small spruces; the Sewer in concrete with hazard
@@ -483,9 +484,12 @@ the golden waving cat statue on the south-east. `_Turret` turns about Y at its p
 manifest's `turret`); `_MoonCover`, a night-sky cap with a gold crescent and stars, closes the mouth at night. The
 landing pad is a flat cream disc with a paw print in the trim colour and a ring of dashes. Each side area has a camp
 outside its gate (`CatCafe_Camp_<Area>`, `camps.py`): 30 deep and as wide as the area, its ground and path in the
-area's swatches, low themed walls on the back and sides under a tall invisible barrier, a red SAFE ZONE line at the
-gate, the landing pad, a three-quarter cannon at the back trimmed in the area's colour (`CatCafe_Camp_Cannon_<Area>`)
-and a wicker carrier basket beside the pad (`CampBasket` tag, `Drop` attachment). Theme props: the Park's benches,
+area's swatches, low themed walls on the back and sides under a tall invisible barrier, the landing pad, a three-quarter cannon at the back trimmed in the area's colour (`CatCafe_Camp_Cannon_<Area>`)
+and a wicker carrier basket beside the pad (`CampBasket` tag, `Drop` attachment). The red SAFE ZONE line and words
+are the game's own paint on every camp (WorldBuilder), so the sets carry none. The Alleyway's camp lies across both
+lanes' north ends: a brick building end (`_BlockEnd`, two shuttered windows with flower boxes) on the block between
+them, where the Index Board stands, string lights over both ways out, a dumpster, bin bags, trash cans, crates and
+boxes, benches, lamps and flowerbeds. Theme props: the Park's benches,
 lamps, trees and flowerbeds; the Neighbourhood's mailbox, bins, lamp posts, picket fences and hedges; the Woods' tent,
 campfire, log benches, lanterns and pines; the Sewer's manhole, big pipe, wall lanterns, barrels, cones and tyres.
 

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 04:25 UTC",
+  "generated": "2026-11-02 04:34 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -77025,7 +77025,7 @@
         "CatCafe_Alley_Arch_Lamp_Bulb",
         "CatCafe_Alley_Arch_Bulbs"
       ],
-      "triangles": 2672,
+      "triangles": 2888,
       "budget": 5000,
       "size_studs": {
         "x": 30.6,
@@ -77051,7 +77051,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Over each back alley's north end at (+-78, 123.5). Posts collide; ALLEY SQUARE reads from the back alley, BACK ALLEY from the square.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Arch.model.json",
-      "rbx_parts": 225,
+      "rbx_parts": 246,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Arch.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Arch.glb"
@@ -77061,10 +77061,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "2672/5000 tris",
+          "budget": "2888/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1306 faces on swatch centers",
+          "uv": "1414 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -91073,6 +91073,142 @@
       }
     },
     {
+      "name": "CatCafe_Camp_Alleyway",
+      "category": "Camp",
+      "module": "camps",
+      "objects": [
+        "CatCafe_Camp_Alleyway",
+        "CatCafe_Camp_Alleyway_000_Basket",
+        "CatCafe_Camp_Alleyway_001_BlockEnd",
+        "CatCafe_Camp_Alleyway_001_BlockEnd_Flowers",
+        "CatCafe_Camp_Alleyway_002_StringLightsLong",
+        "CatCafe_Camp_Alleyway_002_StringLightsLong_Decor",
+        "CatCafe_Camp_Alleyway_002_StringLightsLong_Bulbs",
+        "CatCafe_Camp_Alleyway_003_Lamp",
+        "CatCafe_Camp_Alleyway_003_Lamp_Bulb",
+        "CatCafe_Camp_Alleyway_003_Lamp_Flowers",
+        "CatCafe_Camp_Alleyway_004_Bench",
+        "CatCafe_Camp_Alleyway_005_FlowerBed",
+        "CatCafe_Camp_Alleyway_005_FlowerBed_Decor",
+        "CatCafe_Camp_Alleyway_006_StringLightsLong",
+        "CatCafe_Camp_Alleyway_006_StringLightsLong_Decor",
+        "CatCafe_Camp_Alleyway_006_StringLightsLong_Bulbs",
+        "CatCafe_Camp_Alleyway_007_Lamp",
+        "CatCafe_Camp_Alleyway_007_Lamp_Bulb",
+        "CatCafe_Camp_Alleyway_007_Lamp_Flowers",
+        "CatCafe_Camp_Alleyway_008_Bench",
+        "CatCafe_Camp_Alleyway_009_FlowerBed",
+        "CatCafe_Camp_Alleyway_009_FlowerBed_Decor",
+        "CatCafe_Camp_Alleyway_010_Dumpster",
+        "CatCafe_Camp_Alleyway_011_GarbageBags",
+        "CatCafe_Camp_Alleyway_012_TrashCan",
+        "CatCafe_Camp_Alleyway_013_TrashCan",
+        "CatCafe_Camp_Alleyway_014_Crate",
+        "CatCafe_Camp_Alleyway_015_Crate",
+        "CatCafe_Camp_Alleyway_016_Crate",
+        "CatCafe_Camp_Alleyway_017_CardboardBox",
+        "CatCafe_Camp_Alleyway_018_CardboardBox",
+        "CatCafe_Camp_Alleyway_019_CardboardBox",
+        "CatCafe_Camp_Alleyway_020_CardboardBox",
+        "CatCafe_Camp_Alleyway_021_Puddle",
+        "CatCafe_Camp_Alleyway_022_Puddle",
+        "CatCafe_Camp_Alleyway_023_FlowerBed",
+        "CatCafe_Camp_Alleyway_023_FlowerBed_Decor",
+        "CatCafe_Camp_Alleyway_024_FlowerBed",
+        "CatCafe_Camp_Alleyway_024_FlowerBed_Decor",
+        "CatCafe_Camp_Alleyway_Barrier"
+      ],
+      "triangles": 12306,
+      "budget": 20000,
+      "size_studs": {
+        "x": 92.0,
+        "y": 32.0,
+        "z": 31.0
+      },
+      "size_roblox": [
+        92.0,
+        31.0,
+        32.0
+      ],
+      "bounds_min": [
+        -46.0,
+        -157.5,
+        -1.0
+      ],
+      "bounds_max": [
+        46.0,
+        -125.5,
+        30.0
+      ],
+      "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "pad": [
+          [
+            0,
+            0.0,
+            -138.5
+          ]
+        ],
+        "cannon": [
+          [
+            0,
+            0.0,
+            -151.0
+          ]
+        ],
+        "basket": [
+          [
+            -11.0,
+            0.0,
+            -138.5
+          ]
+        ],
+        "index_board": [
+          [
+            0,
+            0.0,
+            -129.5
+          ]
+        ]
+      },
+      "camp": {
+        "rect_roblox": [
+          -44.5,
+          -156.5,
+          44.5,
+          -126.5
+        ],
+        "gate_line_z": -126.5,
+        "opening_half_width": 15.0,
+        "pad_radius": 8.0,
+        "depth": 30.0
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Alleyway.model.json",
+      "rbx_parts": 706,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Alleyway.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Alleyway.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "12306/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "6593 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-141.50"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Camp_Park",
       "category": "Camp",
       "module": "camps",
@@ -91111,7 +91247,7 @@
         "CatCafe_Camp_Park_018_FlowerBed_Decor",
         "CatCafe_Camp_Park_Barrier"
       ],
-      "triangles": 10334,
+      "triangles": 9732,
       "budget": 20000,
       "size_studs": {
         "x": 162.0,
@@ -91178,7 +91314,7 @@
         "depth": 30.0
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Park.model.json",
-      "rbx_parts": 533,
+      "rbx_parts": 481,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Park.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Park.glb"
@@ -91191,10 +91327,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "10334/20000 tris",
+          "budget": "9732/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "6411 faces on swatch centers",
+          "uv": "6110 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-76.00"
@@ -91240,7 +91376,7 @@
         "CatCafe_Camp_Neighbourhood_024_Hedge",
         "CatCafe_Camp_Neighbourhood_Barrier"
       ],
-      "triangles": 10358,
+      "triangles": 9744,
       "budget": 20000,
       "size_studs": {
         "x": 282.0,
@@ -91307,7 +91443,7 @@
         "depth": 30.0
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Neighbourhood.model.json",
-      "rbx_parts": 537,
+      "rbx_parts": 485,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood.glb"
@@ -91320,10 +91456,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "10358/20000 tris",
+          "budget": "9744/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "5987 faces on swatch centers",
+          "uv": "5680 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-156.00"
@@ -91365,7 +91501,7 @@
         "CatCafe_Camp_Woods_021_Fern",
         "CatCafe_Camp_Woods_Barrier"
       ],
-      "triangles": 8194,
+      "triangles": 8408,
       "budget": 20000,
       "size_studs": {
         "x": 242.0,
@@ -91432,7 +91568,7 @@
         "depth": 30.0
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Woods.model.json",
-      "rbx_parts": 415,
+      "rbx_parts": 449,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Woods.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Woods.glb"
@@ -91445,10 +91581,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "8194/20000 tris",
+          "budget": "8408/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "3729 faces on swatch centers",
+          "uv": "3772 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-136.00"
@@ -91481,7 +91617,7 @@
         "CatCafe_Camp_Sewer_013_TrafficCone",
         "CatCafe_Camp_Sewer_Barrier"
       ],
-      "triangles": 7198,
+      "triangles": 6596,
       "budget": 20000,
       "size_studs": {
         "x": 182.0,
@@ -91548,7 +91684,7 @@
         "depth": 30.0
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Sewer.model.json",
-      "rbx_parts": 275,
+      "rbx_parts": 223,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Sewer.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Sewer.glb"
@@ -91561,10 +91697,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "7198/20000 tris",
+          "budget": "6596/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "3279 faces on swatch centers",
+          "uv": "2978 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-106.00"

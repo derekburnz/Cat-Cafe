@@ -59,6 +59,17 @@ function Economy.tier(profile: Types.PlayerProfile): number
 	return math.clamp(math.floor(tier), 1, Catalog.maxTier)
 end
 
+-- A food's price in coins at `tier` (F97, notes-10-28-to-10-30.md section 3): its Catalog base times
+-- FoodTierPriceFactor at that tier, so Kibble is 100 at Tiers 1 and 2 and 1,600 at Tier 5. 0 for an unknown food.
+function Economy.foodPrice(lureId: string, tier: number): number
+	local def = Catalog.getLure(lureId)
+	if def == nil then
+		return 0
+	end
+	local factors = Config.FoodTierPriceFactor
+	return def.cost * factors[math.clamp(math.floor(tier), 1, #factors)]
+end
+
 -- tierMultiplier in the income formula: 1.00 at Tier 1 up to 2.00 at Tier 5.
 function Economy.tierMultiplier(profile: Types.PlayerProfile): number
 	local def = Catalog.getTier(Economy.tier(profile))

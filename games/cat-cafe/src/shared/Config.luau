@@ -129,6 +129,11 @@ local Config = {
 	BowlLuck = { 0, 0.04, 0.08, 0.12, 0.16 } :: { number },
 	BigBowlWaitCutSeconds = 120,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
+	-- F97 (notes-10-28-to-10-30.md section 3): a food's price is its Catalog base times this factor at the buyer's
+	-- tier (Economy.foodPrice), the same growth as the later shop items (economy-ladder.md section 4)
+	FoodTierPriceFactor = { 1, 1, 4, 8, 16 } :: { number },
+	-- F97 section 7: a sunrise wave with no Epic or rarer stray rerolls its last one from these odds (Catching.waveRare)
+	WaveMinRareRerollOdds = { Common = 0, Rare = 0, Epic = 83, Legendary = 15, Mythical = 2 },
 	BaitResolveRangeStuds = 20, -- Tame or Let go from this close
 	GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02): rolled when the food goes in, revealed when the cat arrives
 	GoldChanceNet = 0.05, -- v0.5 F42 (was 0.02): rolled when a stray spawns, shown as its gold coat and sparkle
@@ -234,12 +239,13 @@ local Config = {
 	RichTipStaySeconds = 90, -- unclaimed, it is gone after this (Derek 2026-10-28: "if you miss it you miss it")
 	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the plot's RichTipAnchor
 	-- Tip piles (F61, data-model section 12, round 3 Q6): by day, every TipPileSeconds each earning cafe with a table
-	-- gets a pile worth TipPileRateSeconds of the day rate (at least $5), up to TipPilesMax waiting. Only CollectTips
-	-- at the cafe pays them; the owner's client sends it within TipPileCollectRangeStuds of a pile.
+	-- gets a pile worth TipPileRateSeconds of the day rate (at least $5). Since F97 (notes-10-28-to-10-30.md section 1)
+	-- a pile pays its owner the moment it appears, wherever they are; it shows on a table for TipPileShowSeconds and
+	-- at most TipPilesMax show at once (F90's Waiter will sweep them to the till instead).
 	TipPileSeconds = 30,
 	TipPileRateSeconds = 6,
 	TipPilesMax = 6,
-	TipPileCollectRangeStuds = 8,
+	TipPileShowSeconds = 90,
 
 	-- The Mystery Visitor and potions (F64, data-model section 12b). Potions are earned only, never sold.
 	MysteryCheckSeconds = 120, -- by day, how often each earning cafe rolls for a Mystery Visitor

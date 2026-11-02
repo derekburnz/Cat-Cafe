@@ -13,7 +13,7 @@
      "CFrame": {
       "position": [
        0.0,
-       1.77,
+       1.765,
        0.0
       ],
       "orientation": [
@@ -37,7 +37,7 @@
     },
     "Size": [
      2.4,
-     3.06,
+     3.05,
      1.3
     ],
     "Color": [
@@ -56,7 +56,7 @@
      "CFrame": {
       "position": [
        0.0,
-       -1.77,
+       -1.765,
        0.0
       ],
       "orientation": [
@@ -91,7 +91,7 @@
      "CFrame": {
       "position": [
        0.0,
-       0.125,
+       0.12,
        0.0
       ],
       "orientation": [
@@ -115,13 +115,62 @@
     },
     "Size": [
      2.5,
-     0.25,
-     1.4
+     0.24,
+     1.44
     ],
     "Color": [
      0.3686,
      0.2745,
      0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.105,
+       -0.735
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.36,
+     0.09,
+     0.03
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -180,6 +229,300 @@
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
     "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.215,
+       1.75,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     2.3,
+     0.9
+    ],
+    "Color": [
+     0.549,
+     0.3725,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5598,
+       4.1959,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5062,
+        -0.8624
+       ],
+       [
+        0.0,
+        -0.8624,
+        0.5062
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.398,
+     0.208
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.8806,
+       4.3842,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.5062,
+        0.8624
+       ],
+       [
+        0.0,
+        -0.8624,
+        -0.5062
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.398,
+     0.536
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.215,
+       1.75,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     2.3,
+     0.9
+    ],
+    "Color": [
+     0.549,
+     0.3725,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.8806,
+       4.3842,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5062,
+        -0.8624
+       ],
+       [
+        0.0,
+        -0.8624,
+        -0.5062
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.398,
+     0.536
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5598,
+       4.1959,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.5062,
+        0.8624
+       ],
+       [
+        0.0,
+        -0.8624,
+        0.5062
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.398,
+     0.208
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
    }
   },
   {
@@ -772,996 +1115,13 @@
   },
   {
    "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.35,
-       3.3,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.3827,
-        0.9239
-       ],
-       [
-        0.0,
-        -0.9239,
-        0.3827
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.6467
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.6734,
-       3.4339,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.3827,
-        -0.9239
-       ],
-       [
-        0.0,
-        -0.9239,
-        -0.3827
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.0533
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5708,
-       3.6814,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.3827,
-        -0.9239
-       ],
-       [
-        0.0,
-        0.9239,
-        -0.3827
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.0533
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2475,
-       3.5475,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.3827,
-        0.9239
-       ],
-       [
-        0.0,
-        0.9239,
-        0.3827
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.6467
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.3814,
-       3.8708,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.7071,
-        -0.7071
-       ],
-       [
-        0.0,
-        0.7071,
-        -0.7071
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.0533
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1339,
-       3.6234,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.7071,
-        0.7071
-       ],
-       [
-        0.0,
-        0.7071,
-        0.7071
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.6467
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1339,
-       3.6234,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.6467
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1339,
-       3.9734,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.0533
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1339,
-       3.9734,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.0533
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1339,
-       3.6234,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.6467
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1339,
-       3.6234,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.7071,
-        -0.7071
-       ],
-       [
-        0.0,
-        0.7071,
-        0.7071
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.6467
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3814,
-       3.8708,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.7071,
-        0.7071
-       ],
-       [
-        0.0,
-        0.7071,
-        -0.7071
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.0533
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2475,
-       3.5475,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.3827,
-        -0.9239
-       ],
-       [
-        0.0,
-        0.9239,
-        0.3827
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.6467
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5708,
-       3.6814,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.3827,
-        0.9239
-       ],
-       [
-        0.0,
-        0.9239,
-        -0.3827
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.0533
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.6734,
-       3.4339,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.3827,
-        0.9239
-       ],
-       [
-        0.0,
-        -0.9239,
-        -0.3827
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.0533
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.35,
-       3.3,
-       -0.66
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.3827,
-        -0.9239
-       ],
-       [
-        0.0,
-        -0.9239,
-        0.3827
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2679,
-     0.6467
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
    "className": "Part",
    "properties": {
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       2.85,
-       -0.66
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.4,
-     0.9,
-     0.02
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.36,
-       3.0,
-       -0.69
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.6,
-     0.6
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Cylinder"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.36,
-       3.0,
-       -0.71
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.2,
-     0.2
-    ],
-    "Color": [
-     0.851,
-     0.2824,
-     0.2314
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Cylinder"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.36,
-       3.0,
-       -0.71
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.6,
-     0.6
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Cylinder"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_RetroJukebox",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.36,
-       3.0,
+       -0.98,
+       0.5,
        -0.73
       ],
       "orientation": [
@@ -1771,6 +1131,358 @@
         0.0
        ],
        [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2,
+     0.2
+    ],
+    "Color": [
+     0.949,
+     0.7569,
+     0.3059
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.98,
+       3.25,
+       -0.73
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2,
+     0.2
+    ],
+    "Color": [
+     0.949,
+     0.7569,
+     0.3059
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.98,
+       1.875,
+       -0.73
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.65,
+     0.16,
+     0.16
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6,
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.98,
+       0.5,
+       -0.73
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2,
+     0.2
+    ],
+    "Color": [
+     0.949,
+     0.7569,
+     0.3059
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.98,
+       3.25,
+       -0.73
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.2,
+     0.2
+    ],
+    "Color": [
+     0.949,
+     0.7569,
+     0.3059
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.98,
+       1.875,
+       -0.73
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.65,
+     0.16,
+     0.16
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6,
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4,
+       3.6,
+       -0.685
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.34,
+     0.34
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4,
+       3.6,
+       -0.71
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
         0.0,
         0.0,
         -1.0
@@ -1785,8 +1497,8 @@
     },
     "Size": [
      0.02,
-     0.2,
-     0.2
+     0.12,
+     0.12
     ],
     "Color": [
      0.9647,
@@ -1810,9 +1522,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       3.45,
-       -0.73
+       0.4,
+       3.6,
+       -0.685
       ],
       "orientation": [
        [
@@ -1834,9 +1546,9 @@
      }
     },
     "Size": [
-     0.02,
-     0.6,
-     0.6
+     0.03,
+     0.34,
+     0.34
     ],
     "Color": [
      0.1686,
@@ -1860,9 +1572,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       3.45,
-       -0.75
+       0.4,
+       3.6,
+       -0.71
       ],
       "orientation": [
        [
@@ -1885,8 +1597,8 @@
     },
     "Size": [
      0.02,
-     0.2,
-     0.2
+     0.12,
+     0.12
     ],
     "Color": [
      0.5608,
@@ -1901,6 +1613,154 @@
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
     "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.6,
+       2.58,
+       -0.72
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.14,
+     0.14
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.45,
+       2.84,
+       -0.775
+      ],
+      "orientation": [
+       [
+        0.8662,
+        -0.4997,
+        0.0
+       ],
+       [
+        0.4997,
+        0.8662,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.6003,
+     0.04
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.29,
+       3.13,
+       -0.772
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.08,
+     0.1,
+     0.054
+    ],
+    "Color": [
+     0.2902,
+     0.3098,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
    }
   },
   {
@@ -2744,8 +2604,8 @@
      "CFrame": {
       "position": [
        0.0,
-       4.5,
-       0.0
+       0.47,
+       -0.67
       ],
       "orientation": [
        [
@@ -2767,14 +2627,210 @@
      }
     },
     "Size": [
-     0.32,
-     0.32,
-     0.32
+     1.8,
+     0.06,
+     0.04
     ],
     "Color": [
-     0.949,
-     0.7569,
-     0.3059
+     0.7882,
+     0.5608,
+     0.1647
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.63,
+       -0.67
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.8,
+     0.06,
+     0.04
+    ],
+    "Color": [
+     0.7882,
+     0.5608,
+     0.1647
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.825,
+       1.05,
+       -0.67
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.07,
+     1.1,
+     0.04
+    ],
+    "Color": [
+     0.7882,
+     0.5608,
+     0.1647
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.825,
+       1.05,
+       -0.67
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.07,
+     1.1,
+     0.04
+    ],
+    "Color": [
+     0.7882,
+     0.5608,
+     0.1647
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.05,
+       -0.72
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.34,
+     0.34
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
     ],
     "Material": "Metal",
     "Anchored": true,
@@ -2783,7 +2839,57 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Shape": "Ball"
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_RetroJukebox",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.05,
+       -0.75
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.16,
+     0.16
+    ],
+    "Color": [
+     1.0,
+     0.4196,
+     0.5059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
    }
   },
   {
@@ -2799,9 +2905,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.98,
-         1.875,
-         -0.68
+         0.0,
+         2.875,
+         -0.66
         ],
         "orientation": [
          [
@@ -2823,14 +2929,14 @@
        }
       },
       "Size": [
-       0.12,
-       2.85,
-       0.06
+       1.4,
+       0.95,
+       0.02
       ],
       "Color": [
        1.0,
-       0.4196,
-       0.5059
+       0.851,
+       0.6588
       ],
       "Material": "Neon",
       "Anchored": true,
@@ -2842,9 +2948,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         0.98,
-         -1.875,
-         0.68
+         0.0,
+         -2.875,
+         0.66
         ],
         "orientation": [
          [
@@ -2868,6 +2974,202 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Decor_RetroJukebox/1"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6275,
+         4.2702,
+         -0.19
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5062,
+          -0.8624
+         ],
+         [
+          0.0,
+          -0.8624,
+          0.5062
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.02,
+       0.2189,
+       0.1144
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.8039,
+         4.3738,
+         -0.19
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.5062,
+          0.8624
+         ],
+         [
+          0.0,
+          -0.8624,
+          -0.5062
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.02,
+       0.2189,
+       0.2948
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.8039,
+         4.3738,
+         -0.19
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.5062,
+          -0.8624
+         ],
+         [
+          0.0,
+          -0.8624,
+          -0.5062
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.02,
+       0.2189,
+       0.2948
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6275,
+         4.2702,
+         -0.19
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.5062,
+          0.8624
+         ],
+         [
+          0.0,
+          -0.8624,
+          0.5062
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.02,
+       0.2189,
+       0.1144
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
      }
     },
     {
@@ -3955,6 +4257,256 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -0.98,
+         1.875,
+         -0.73
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.75,
+       0.08,
+       0.08
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.93,
+         0.9,
+         -0.73
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.06,
+       0.06
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.03,
+         1.45,
+         -0.73
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.06,
+       0.06
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.93,
+         2.05,
+         -0.73
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.06,
+       0.06
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.03,
+         2.6,
+         -0.73
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.06,
+       0.06
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -0.8,
          2.825,
          -0.68
@@ -4006,7 +4558,57 @@
         "position": [
          0.98,
          1.875,
-         -0.68
+         -0.73
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.75,
+       0.08,
+       0.08
+      ],
+      "Color": [
+       0.1216,
+       0.6471,
+       0.5608
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.03,
+         0.9,
+         -0.73
         ],
         "orientation": [
          [
@@ -4028,14 +4630,14 @@
        }
       },
       "Size": [
-       0.12,
-       2.85,
+       0.06,
+       0.06,
        0.06
       ],
       "Color": [
        1.0,
-       0.4196,
-       0.5059
+       0.9765,
+       0.949
       ],
       "Material": "Neon",
       "Anchored": true,
@@ -4043,7 +4645,158 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.93,
+         1.45,
+         -0.73
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.06,
+       0.06
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.03,
+         2.05,
+         -0.73
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.06,
+       0.06
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.93,
+         2.6,
+         -0.73
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.06,
+       0.06
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
      }
     },
     {
@@ -4085,6 +4838,790 @@
        0.1216,
        0.6471,
        0.5608
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.35,
+         3.3,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.3827,
+          0.9239
+         ],
+         [
+          0.0,
+          -0.9239,
+          0.3827
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.02,
+       0.2679,
+       0.6467
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6734,
+         3.4339,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.3827,
+          -0.9239
+         ],
+         [
+          0.0,
+          -0.9239,
+          -0.3827
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.02,
+       0.2679,
+       0.0533
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.5708,
+         3.6814,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3827,
+          -0.9239
+         ],
+         [
+          0.0,
+          0.9239,
+          -0.3827
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.022,
+       0.2679,
+       0.0533
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2475,
+         3.5475,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3827,
+          0.9239
+         ],
+         [
+          0.0,
+          0.9239,
+          0.3827
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.022,
+       0.2679,
+       0.6467
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.3814,
+         3.8708,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7071,
+          -0.7071
+         ],
+         [
+          0.0,
+          0.7071,
+          -0.7071
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.024,
+       0.2679,
+       0.0533
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1339,
+         3.6234,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7071,
+          0.7071
+         ],
+         [
+          0.0,
+          0.7071,
+          0.7071
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.024,
+       0.2679,
+       0.6467
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1339,
+         3.6234,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.026,
+       0.2679,
+       0.6467
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1339,
+         3.9734,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.026,
+       0.2679,
+       0.0533
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1339,
+         3.9734,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.028,
+       0.2679,
+       0.0533
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1339,
+         3.6234,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.028,
+       0.2679,
+       0.6467
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1339,
+         3.6234,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7071,
+          -0.7071
+         ],
+         [
+          0.0,
+          0.7071,
+          0.7071
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.03,
+       0.2679,
+       0.6467
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3814,
+         3.8708,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7071,
+          0.7071
+         ],
+         [
+          0.0,
+          0.7071,
+          -0.7071
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.03,
+       0.2679,
+       0.0533
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.2475,
+         3.5475,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.3827,
+          -0.9239
+         ],
+         [
+          0.0,
+          0.9239,
+          0.3827
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.032,
+       0.2679,
+       0.6467
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.5708,
+         3.6814,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.3827,
+          0.9239
+         ],
+         [
+          0.0,
+          0.9239,
+          -0.3827
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.032,
+       0.2679,
+       0.0533
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6734,
+         3.4339,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3827,
+          0.9239
+         ],
+         [
+          0.0,
+          -0.9239,
+          -0.3827
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.034,
+       0.2679,
+       0.0533
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Glow",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.35,
+         3.3,
+         -0.662
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3827,
+          -0.9239
+         ],
+         [
+          0.0,
+          -0.9239,
+          0.3827
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.034,
+       0.2679,
+       0.6467
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
       ],
       "Material": "Neon",
       "Anchored": true,
@@ -4140,8 +5677,8 @@
        "CFrame": {
         "position": [
          0.0,
-         2.84,
-         -0.78
+         2.865,
+         -0.81
         ],
         "orientation": [
          [
@@ -4164,7 +5701,7 @@
       },
       "Size": [
        1.44,
-       0.92,
+       0.97,
        0.02
       ],
       "Color": [
@@ -4184,8 +5721,8 @@
        "CFrame": {
         "position": [
          0.0,
-         -2.84,
-         0.78
+         -2.865,
+         0.81
         ],
         "orientation": [
          [
@@ -4220,7 +5757,7 @@
         "position": [
          0.6926,
          3.4378,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4270,7 +5807,7 @@
         "position": [
          0.3326,
          3.4378,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4320,7 +5857,7 @@
         "position": [
          0.3326,
          3.4378,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4342,7 +5879,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.022,
        0.2755,
        0.6652
       ],
@@ -4370,7 +5907,7 @@
         "position": [
          0.5872,
          3.6923,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4392,7 +5929,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.022,
        0.2755,
        0.0548
       ],
@@ -4420,7 +5957,7 @@
         "position": [
          0.2546,
          3.5546,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4442,7 +5979,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.024,
        0.2755,
        0.6652
       ],
@@ -4470,7 +6007,7 @@
         "position": [
          0.3923,
          3.8872,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4492,7 +6029,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.024,
        0.2755,
        0.0548
       ],
@@ -4520,7 +6057,7 @@
         "position": [
          0.1378,
          3.9926,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4542,7 +6079,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.026,
        0.2755,
        0.0548
       ],
@@ -4570,7 +6107,7 @@
         "position": [
          0.0,
          3.66,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4592,7 +6129,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.026,
        0.2755,
        0.6652
       ],
@@ -4620,7 +6157,7 @@
         "position": [
          0.0,
          3.66,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4642,7 +6179,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.028,
        0.2755,
        0.6652
       ],
@@ -4670,7 +6207,7 @@
         "position": [
          -0.1378,
          3.9926,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4692,7 +6229,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.028,
        0.2755,
        0.0548
       ],
@@ -4720,7 +6257,7 @@
         "position": [
          -0.3923,
          3.8872,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4742,7 +6279,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.03,
        0.2755,
        0.0548
       ],
@@ -4770,7 +6307,7 @@
         "position": [
          -0.2546,
          3.5546,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4792,7 +6329,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.03,
        0.2755,
        0.6652
       ],
@@ -4820,7 +6357,7 @@
         "position": [
          -0.5872,
          3.6923,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4842,7 +6379,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.032,
        0.2755,
        0.0548
       ],
@@ -4870,7 +6407,7 @@
         "position": [
          -0.3326,
          3.4378,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4892,7 +6429,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.032,
        0.2755,
        0.6652
       ],
@@ -4920,7 +6457,7 @@
         "position": [
          -0.3326,
          3.4378,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4942,7 +6479,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.034,
        0.2755,
        0.6652
       ],
@@ -4970,7 +6507,7 @@
         "position": [
          -0.6926,
          3.4378,
-         -0.78
+         -0.81
         ],
         "orientation": [
          [
@@ -4992,7 +6529,7 @@
        }
       },
       "Size": [
-       0.02,
+       0.034,
        0.2755,
        0.0548
       ],
@@ -5041,6 +6578,323 @@
     }
    },
    "name": "CatCafe_Decor_RetroJukebox_Glass"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Decor_RetroJukebox/3",
+    "Seconds": {
+     "Float64": 1.8
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Record_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.05,
+         -0.72
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.03,
+       0.72,
+       0.72
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Decor_RetroJukebox/3"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Record_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.05,
+         -0.72
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.07,
+       0.2376,
+       0.2376
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Record_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.11,
+         -0.765
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.1,
+       0.02
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Record_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.05,
+         -0.72
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.15,
+       0.04,
+       0.04
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_RetroJukebox_Record_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.8124,
+         -0.72
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.035,
+       0.1296,
+       0.07
+      ],
+      "Color": [
+       0.6471,
+       0.6471,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       3.05,
+       -0.72
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Decor_RetroJukebox_Record_Spin"
   }
  ],
  "properties": {

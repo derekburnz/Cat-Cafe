@@ -35,7 +35,7 @@ Crates are never sold for Robux, but these rules hold anyway (monetization-polic
 
 ## 3. Sound and the counter crate
 
-- **Sound** (Sound-Agent): a soft tick each time a tile line crosses the marker (at most one every 0.07 s, so it reads as a whirr at full speed and slows into distinct ticks), a wooden thunk at the stop, then the rarity sting from Epic up as now.
+- **Sound** (Sound-Agent): a soft tick each time a tile line crosses the marker (at most one every 0.06 s, just under the 0.067 s between tiles at full speed, so every tile ticks and it reads as a whirr that slows into distinct ticks; Sound-Agent, #634), a wooden thunk at the stop, then the rarity sting from Epic up as now.
 - **The crate on the Market counter** (VFX-Agent, `Market.luau`): its lid rattles while the reel runs and pops open at the stop (about 2.9 s) with confetti in the won rarity's colour.
 - **Legendary and Mythical** (luck-and-rare-moments.md section 2b, moved to the landing): at the stop the landing tile glows in the rarity colour, the counter crate glows and shakes for 0.6 s, the lid blows open and the big pull card plays in place of the prize card. Before the stop nothing hints at the rarity.
 

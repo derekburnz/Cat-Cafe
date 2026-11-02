@@ -456,9 +456,11 @@ arch (in the cafe's accent colour), the corner pilasters, the eave cornices, the
 rails and the sign's frame (F89 2c: Gold Leaf gilds "every trim"). The roof's barge boards and eave fascias are
 `<shell>_Roof_Trim` inside `<shell>_Roof`, tagged the same. Anything under 0.19 studs thick (glazing bars, shutter
 slats, the fanlight's rays, the vent's bars) stays in the shell's own parts, because the glint recolours one Part at
-a time and slivers read as flicker. The shell's base and corner pilasters run 0.3 below the plot floor (the plot
-stands 0.2 above the grass), the side walls reach up into the roof slab, and the arched glass runs 0.05 past the
-arch into the wall so no daylight shows between glass and wall (QA world scan 2026-11-01, M2, M3, M5).
+a time and slivers read as flicker. The shell's base, corner pilasters, downpipes and the walls' paint layer run
+0.3 below the plot floor (the plot stands 0.2 above the grass and the walls stand outside its edge), the side walls
+reach up into the roof slab, and the arched glass runs 0.05 past the arch into the wall so no daylight shows between
+glass and wall (QA world scan 2026-11-01, M2, M3, M5). Inside, the curtains lie on the wallpaper from the window's
+edge, never on a pole in front of a gap (QA recheck after #630, M1, M2).
 
 The Alleyway behind the cafes is a city back street at cosy scale: building backs 30 wide and 16 to 24 tall in
 brick with concrete quoins, cornices and window frames, a few lit windows with curtains (`_Pane`), shutters and

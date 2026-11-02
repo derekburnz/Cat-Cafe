@@ -762,6 +762,10 @@ Presets.motion = {
 		tailUp = 40,
 		jumpStuds = 3, -- a server move longer than this during a hiss is drawn as part of the hop
 	},
+	-- A near miss (F93, catch-rework.md section 1): a free stray within NetMissHopStuds of a swing that hit nothing
+	-- springs `hop` studs up over `seconds` as the server sends it off (HopAt), nose up `lean` degrees, tail up `tailUp`
+	-- and ears flat back `ears`, without the hiss: startled, then away at a run.
+	startle = { seconds = 0.4, hop = 0.8, lean = 10, tailUp = 35, ears = 40 },
 	barista = { tapEvery = 1.6, headDip = 12, paw = 35 },
 	-- A waiter watching the room from its station (Derek 2026-10-29 19:45: cats should move around the cafe, "not just
 	-- waddle back and fourth while sitting"; it used to rock side to side with a little hop): the head turns `look`

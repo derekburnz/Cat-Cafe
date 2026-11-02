@@ -8,7 +8,8 @@
 --     oldest drops (the server sends it again next session, since it was never seen)
 --   * a card needs no press and goes after CARD_SECONDS or on a tap
 -- The lines name the input the player last used: a letter key on a keyboard, "tap" on touch and the button on a
--- gamepad; on touch a line never names a letter key (section 2e).
+-- gamepad; on touch a line never names a letter key (section 2e). F96's favorite and like asks share the card and its
+-- words here (UI.asks.show), staying ASK_SECONDS.
 --   device(lastInput, touch) -> Device         "keyboard", "touch" or "gamepad" from the last UserInputType's name
 --   line(id, device, cut?, nextArea?) -> string?   a tip's card line, or its camera cut's caption when cut is true
 --   icon(id) -> string                         the glyph on the tip's card
@@ -24,6 +25,7 @@ export type Device = "keyboard" | "touch" | "gamepad"
 TipQueue.CARD_SECONDS = 5 -- a card goes by itself after this
 TipQueue.DUSK_QUIET = 5 -- no tip in the dusk warning's last seconds (section 3)
 TipQueue.SIZE = 3 -- tips waiting at most
+TipQueue.ASK_SECONDS = 7 -- F96: the favorite and like asks stay a little longer (UI.asks.show)
 
 -- A line per device where the input matters; one string where it does not.
 type Line = string | { keyboard: string, touch: string, gamepad: string }
@@ -56,6 +58,7 @@ local CARD: { [string]: Line } = {
 	luck = "Luck makes rare cats more likely. Tap the chip to see why",
 	offline = "Your cats earned while you were away!",
 	like_ask = "Having fun? A thumbs up helps other players find Cat Cafe.",
+	favorite_ask = "Favorite Cat Cafe to find it fast next time", -- F96, starter-cat.md section 3
 }
 
 -- A camera cut's caption, said while the camera shows the place (section 3's table).
@@ -83,6 +86,7 @@ local ICONS: { [string]: string } = {
 	luck = "🍀",
 	offline = "💤",
 	like_ask = "👍",
+	favorite_ask = "⭐",
 }
 
 function TipQueue.device(lastInput: string, touch: boolean): Device

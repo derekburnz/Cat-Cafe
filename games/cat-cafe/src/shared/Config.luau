@@ -128,6 +128,18 @@ local Config = {
 	BowlWaitSeconds = { 600, 570, 540, 510, 480 } :: { number },
 	BowlLuck = { 0, 0.04, 0.08, 0.12, 0.16 } :: { number },
 	BigBowlWaitCutSeconds = 120,
+	-- F88 Luck (luck-and-rare-moments.md section 1): one number from x1.0 that multiplies the Epic, Legendary and
+	-- Mythical chances of your bait and crate rolls (shared/Luck), at most LuckMax. The Lucky Cat statue adds
+	-- LuckPerStatueLevel a level, a Lucky Potion LuckyPotionLuck while it runs, a Lucky Day LuckyDayPlayerLuck to
+	-- everyone in the server until dusk. Every LuckyDayEvery-th day of a server is a Lucky Day: its sunrise wave and
+	-- traps roll at LuckyDayWaveLuck, and LuckyDayWarnSeconds before its sunrise the players still in are told.
+	LuckPerStatueLevel = 0.1,
+	LuckMax = 3,
+	LuckyPotionLuck = 0.5,
+	LuckyDayEvery = 4,
+	LuckyDayWaveLuck = 2,
+	LuckyDayPlayerLuck = 0.5,
+	LuckyDayWarnSeconds = 15,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	-- F97 (notes-10-28-to-10-30.md section 3): a food's price is its Catalog base times this factor at the buyer's
 	-- tier (Economy.foodPrice), the same growth as the later shop items (economy-ladder.md section 4)

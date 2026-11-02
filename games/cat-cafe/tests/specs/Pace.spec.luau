@@ -23,10 +23,13 @@
 --   the tables and the bait bowl;
 -- - plays in one go, or SESSION seconds a day (F95): away the rest of the day, it is paid Economy.offlineGain at the
 --   next join (half its day rate for up to 8 hours), its bowl keeps counting, and it joins a running server at a
---   random point of its day with a fresh wave and a new Tip Jar;
--- - with MONEY owns that Money pass (Economy.setPasses; 24 stands for owning every paid bonus).
--- Spins, golden fish and their perks, crates, potions, quests, the Daily Treat, rescues, the night dealer, the Lucky
--- Cat and the lawn are left out, as in the economy-ladder.md section 3 model, so real players run a little faster.
+--   random point of its day and of its LuckyDayEvery days with a fresh wave and a new Tip Jar;
+-- - with MONEY owns that Money pass (Economy.setPasses; 24 stands for owning every paid bonus);
+-- - has Luck (F88, shared/Luck): the Lucky Cat levels it buys from the shop go into each food's roll, fixed when the
+--   food goes in, and on a Lucky Day (the day phase of every LuckyDayEvery-th day of its server) the sunrise wave
+--   rolls at LuckyDayWaveLuck and its food at LuckyDayPlayerLuck more.
+-- Spins, golden fish and their perks, crates, potions, quests, the Daily Treat, rescues, the night dealer and the lawn
+-- are left out, as in the economy-ladder.md section 3 model, so real players run a little faster.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Bait = require(Shared.Bait)
@@ -39,6 +42,7 @@ return function()
 	local Economy = require(Shared.Economy)
 	local EquipBest = require(Shared.EquipBest)
 	local IndexRewards = require(Shared.IndexRewards)
+	local Luck = require(Shared.Luck)
 	local Prizes = require(Shared.Prizes)
 	local ProfileSchema = require(Shared.ProfileSchema)
 	local Types = require(Shared.Types)
@@ -280,12 +284,13 @@ return function()
 			end
 		end
 
-		-- A sunrise wave (F66): the area's waveSize strays rolled on its odds, the last one rerolled to Epic or better
-		-- when none is (F97, Catching.waveRare).
-		local function rollWave(area: Types.AreaDef): { Types.Rarity }
+		-- A sunrise wave (F66): the area's waveSize strays rolled on its odds, at LuckyDayWaveLuck on a Lucky Day
+		-- (F88), the last one rerolled to Epic or better when none is (F97, Catching.waveRare).
+		local function rollWave(area: Types.AreaDef, lucky: boolean): { Types.Rarity }
+			local odds = Luck.apply(area.odds, if lucky then Config.LuckyDayWaveLuck else 1)
 			local wave: { Types.Rarity } = {}
 			for _ = 1, area.waveSize do
-				table.insert(wave, Catching.pickRarity(area.odds, rng()))
+				table.insert(wave, Catching.pickRarity(odds, rng()))
 			end
 			Catching.waveRare(wave, rng())
 			return wave
@@ -323,15 +328,19 @@ return function()
 
 		local played = 0 -- seconds of play before this session
 		local leftAt: number? = nil
+		local baitLuck = 1 -- the Luck the food in the bowl was rolled at (F88)
 		local rateAtLogout = 0
 		local session = 0
 		while played < limit do
 			session += 1
-			-- a running server at a random point of its day and night (a fresh one at sunrise with FRESH_SERVER)
+			-- a running server at a random point of its day and night and of its run of LuckyDayEvery days (F88), or a
+			-- fresh one at sunrise with FRESH_SERVER
 			local offset = if options.freshServer and session == 1
 				then 0
 				else Config.ServerStartDaySeconds
-					+ math.floor(rng() * (Config.DayLengthSeconds + Config.NightLengthSeconds))
+					+ math.floor(
+						rng() * (Config.DayLengthSeconds + Config.NightLengthSeconds) * Config.LuckyDayEvery
+					)
 			local joined = base + (session - 1) * DAY
 			epoch = joined - offset
 			if leftAt ~= nil then
@@ -341,8 +350,12 @@ return function()
 				run.coinsOffline += coins
 			end
 			profile.lastTick = joined -- DataService.load: time away settles nothing
+			-- F88: a Lucky Day is the day phase of every LuckyDayEvery-th day of the server (ClockService.luckyDay)
+			local function luckyAt(clockT: number): boolean
+				return Clock.phaseAt(clockT) == "day" and Clock.isLuckyDay(Clock.dayAt(clockT))
+			end
 			local area = newestArea()
-			local wave = rollWave(area)
+			local wave = rollWave(area, luckyAt(offset))
 			local rich: { amount: number, leaves: number }? = nil
 			local tipJarPaid: { [number]: boolean } = {}
 			local tripsStarted = 0 -- today's trips, by their place in the day's schedule
@@ -359,6 +372,7 @@ return function()
 				local clockT = offset + s
 				local phase, left = Clock.phaseAt(clockT)
 				local day = phase == "day"
+				local lucky = day and Clock.isLuckyDay(Clock.dayAt(clockT))
 				-- every tick on the Tier 2 runs; a long run settles every LONG_SETTLE and right after a change, and
 				-- shops only then
 				local settling = dirty or s - settledAt >= settleEvery
@@ -395,7 +409,7 @@ return function()
 					rich = nil -- gone unpaid: it left at its time or at nightfall
 				end
 				if day and Config.DayLengthSeconds - left < step then
-					wave = rollWave(area) -- the sunrise wave
+					wave = rollWave(area, lucky) -- the sunrise wave
 					tripsStarted = 0
 				end
 				if not day then
@@ -479,7 +493,8 @@ return function()
 					local bait = profile.bait
 					if bait ~= nil and now >= bait.readyAt then
 						local lure = assert(Catalog.luresById[bait.lureId])
-						local odds = Bait.oddsFor(lure.odds, Economy.level(profile, "lure_bowl"))
+						-- F88: the Luck fixed when the food went in (BaitService.onUseLure)
+						local odds = Luck.apply(Bait.oddsFor(lure.odds, Economy.level(profile, "lure_bowl")), baitLuck)
 						local rarity = Catching.pickRarity(odds, rng())
 						local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng())
 						profile.bait = nil
@@ -492,6 +507,7 @@ return function()
 						local food = bestFood()
 						if food ~= nil then
 							profile.lures[food] -= 1
+							baitLuck = Luck.of(profile, now, lucky)
 							profile.bait = {
 								lureId = food,
 								placedAt = now,
@@ -523,7 +539,7 @@ return function()
 					end
 					placeBest(nil) -- the new role slots
 					area = newestArea()
-					wave = rollWave(area)
+					wave = rollWave(area, lucky)
 					dirty = true
 				else
 					local id, cost, isDecor = cheapestItem()

@@ -28,6 +28,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
+local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local Rescue = require(ReplicatedStorage.Shared.Rescue)
 local Telemetry = require(script.Parent.Telemetry)
@@ -189,10 +190,12 @@ local function spawnStuck(
 end
 
 -- Rolls the cat, its charm and its gold chance now, at sunrise, from the area's rescue odds; the gold chance has the
--- best gold luck among the players with the area open (F54).
+-- best gold luck among the players with the area open (F54). On a Lucky Day (F88) the traps roll at
+-- LuckyDayWaveLuck, like the wave; nobody's own Luck touches them.
 local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePart): Stuck
+	local luck = if ClockService.luckyDay() then Config.LuckyDayWaveLuck else 1
 	local rarity: Types.Rarity =
-		Catching.pickRarity(Catching.rescueOdds(areaDef.odds), rng:NextNumber())
+		Catching.pickRarity(Luck.apply(Catching.rescueOdds(areaDef.odds), luck), rng:NextNumber())
 	local def = Catching.pickCat(rarity, areaDef.id, rng:NextNumber())
 	local charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber())
 	local chance =

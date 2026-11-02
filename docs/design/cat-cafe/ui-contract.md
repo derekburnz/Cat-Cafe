@@ -96,7 +96,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.openCatRoom()` | Opens the Cats screen (tutorial step 3, a free crew slot's "+" in Upgrades). |
 | `UI.toast(text, kind?)` | Top-centre message. kind: `"info"` (default), `"good"`, `"warn"`, `"announce"` (gold). |
 | `UI.announce(text, rarity?)` | Server-wide catch shout-out, on the rarity's colour for 4 s. Pass the rarity from `Announce` once it carries one; without it the last rarity named as a whole word in the text decides, so a DisplayName like "EpicGamer" does not colour it. Silent, since Audio plays the shout-out sting from the remote. |
-| `UI.showCatFound(catId, isNew?, extra?)` | The hatch style reveal (F39 P1): rays in the rarity colour, the cat's own model from `ReplicatedStorage.Assets` popping in and swaying (its initial when the model is missing), a NEW sticker when `isNew`, the rate and the favourite role ("+$1/s  ·  ☕ **Loves Barista**", the role in bold ink), charm stars filling one by one and "Purrfect catch! Charm +N". `extra = { stars?, shiny?, charmGain? }`; stars and shiny fall back to the newest copy of the cat in `state.cats` from the last 30 s, and the stars row hides without them. Pass `charmGain` from the v0.4 `CatchResult`. Auto-closes in 5 s. |
+| `UI.showCatFound(catId, isNew?, extra?)` | The hatch style reveal (F39 P1): rays in the rarity colour, the cat's own model from `ReplicatedStorage.Assets` popping in and swaying (its initial when the model is missing), a NEW sticker when `isNew`, the rate and the favourite role ("+$1/s  ·  ☕ **Loves Barista**", the role in bold ink), charm stars filling one by one and "Purrfect catch! Charm +N". `extra = { stars?, shiny?, charmGain?, banner?, line?, rate? }` (the last three for a cat given rather than caught, F96); stars and shiny fall back to the newest copy of the cat in `state.cats` from the last 30 s, and the stars row hides without them. Pass `charmGain` from the v0.4 `CatchResult`. Auto-closes in 5 s. |
 | `UI.catLevelUp(uid, level)` | F75, from `CatLevelUp` for the owner. Shows nothing since 2026-11-02 (Derek: the level up toasts were "a little spammy"); kept so the call stays valid. The hover card and the Cats screen read the new level from ProfileSync. |
 | `UI.showOfflineEarnings(amount, seconds)` | The welcome back card (F95, economy-ladder.md section 5): "Welcome back!", "Your cats earned this in 7h 40m", the amount, what time away pays ("Half pay while away, up to 8 hours", or "Full pay, up to 16 hours" when `state.longNap`; `Components/WelcomeBack` from `Config.OfflineRate`, `OfflineCapSeconds` and the pass values) and **Collect**, which fires `events.claimOffline`. The card never offers Long Nap. **Engineer (F95):** send `longNap` (the player owns the Long Nap pass) in ProfileSync; nil reads as not owned. |
 | `UI.floatText(worldPosition, text, color?)` | Rising "+$8" at a world point (customers' coin pops). |
@@ -646,6 +646,23 @@ A tip shows once per account, the first time a player meets something: one line 
 
 **Engineer (F87):** forward `events.introChoice(from)` as `TelemetryReport("intro_choice", from)` and `events.stuckNudge(kind)` as `TelemetryReport("stuck_nudge", kind)`; the server allowlists both and logs a nudge once per step and kind a session. The stations' locks ("Opens at Tier 2") stay with the world code.
 
+### The free Bellhop Cat and the asks (built, F96, starter-cat.md sections 1 to 3)
+
+- **Stand card** (`Screens/StarterCat.luau`, the window `"StarterCat"`, red header, 🛎️ badge, "Bellhop Cat" over "Free cat!"): the cat on a disc ringed in its rarity colour with a "Rare" pill under it, "Earns like a Rare from your newest area, always", "Today: +$3/s" in green and "👋 **Loves Greeter**". Under them a status line and the buttons. Before the game is in a group (`gate` "task") one wide **Take me home**, grey with "Finish your first goals to take me home" in orange until tutorialStep 5. Once it is (`gate` "group") **Join the group** (blue) beside **Take me home**. A press reads "..." until the answer or for 5 s ("No answer yet. Try again.") and stays grey 2 s, as the server takes one claim per 2 s. A refusal plays `uiError` and shows the server's words in red ("Join the Cat Cafe group to take me home", "Try again in a moment", "Walk up to my stand to take me home") until the next press or the card closes. Once claimed the buttons go and the card says "Already home with you" in green.
+
+| Call | When |
+|---|---|
+| `UI.starterCat.open(view)` | StarterCatController, within `StarterCatRangeStuds` of a `BellhopStand`. Another open window stays open (the Codes Cat and the Spin Wheel stand near). `view = { claimed, gate: "task" \| "group", line?, rate }`. |
+| `UI.starterCat.close()` | A stud past the range; closes the card if it is the open window. |
+| `UI.starterCat.update(view)` | Every 0.2 s while in range; repaints only when the view changed. |
+| `UI.starterCat.result(ok, reason?)` | From `StarterCatResult`. A claim that works closes the card and shows the **claim card**: the cat found card with "FREE RARE CAT!", the cat, its rate from the view and "The Bellhop Cat joined your cafe!" in gold (`showCatFound`'s `extra` gains `banner`, `line` and `rate`); the server's toast says where it went. A refusal with the card closed is a toast. |
+
+- **Favorite ask:** `UI.asks.show(id) -> boolean` for `favorite_ask` (and `like_ask`), called by UIController's showAsk at a quiet moment. It shows on the tip card, "Favorite Cat Cafe to find it fast next time" with ⭐ for 7 s, counts as the session's tip for the gap and does not fire `tipSeen` (showAsk does). False (a tip or another card up, another id) leaves the toast to showAsk.
+- **Exclusive page:** the Index's Cats tab ends with an **Exclusive** page for every `exclusive` cat (`area` "exclusive"), "1 / 1" with "Not counted in the Index" in place of a reward line, no Rewards button and never "Complete!". It is not on the Gold tab (exclusive cats are never gold), the title's count and All Cats leave it out (`IndexRewards`), and the Index never opens on it (`Components/IndexBook`, with specs). The cat's card reads "free at its stand in town" (source "free") or "from the shop" in place of "lives in the ...".
+- **Cat room:** an exclusive cat's Sell reads "Can't sell", greyed (the Lock row stays). No "Keeps up" tag on an exclusive cat, which always earns like its rarity from the newest area (`KeepUp.keepsUp`).
+
+**Engineer (F96):** StarterCatController and showAsk already call all of this; with `UI.starterCat` present the stand's fallback prompt is not made.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
@@ -713,6 +730,8 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `clearTips` | none | Show tips again in Settings (F87). Forward as `ClearTips()`; ProfileSync then sends the cleared `tipsSeen` |
 | `introChoice` | `from` | Where the intro was played from (F87, analytics only): "tile" (the Tutorial tile) or "help" (Show me on Need a hand?). Forward as `TelemetryReport("intro_choice", from)` |
 | `stuckNudge` | `kind` | A stuck nudge (F87 section 2g, analytics only): "pulse", "help_shown" or "show_me". Forward as `TelemetryReport("stuck_nudge", kind)` |
+| `claimStarterCat` | | Take me home on the Bellhop Cat's stand card (F96). Forward as `ClaimStarterCat()`; the answer goes to `UI.starterCat.result`. |
+| `joinGroup` | | Join the group on the stand card, shown only once `Config.GroupId` is set. `GroupService:PromptJoinAsync(Config.GroupId)` (StarterCatController). |
 | `launchCannon` | `cannonId, destination` | Launch on a Cat Cannon card (F84): `cannonId` "town" or a camp's area id, `destination` "town" or an area id. Forward as `LaunchCannon(cannonId, destination)`; pass a refusal to `UI.cannon.result(false, destination)` |
 
 ## State shape (`Types.PlayerState`)

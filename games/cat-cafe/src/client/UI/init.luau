@@ -169,6 +169,9 @@ UI.events = {
 	-- F87 (easy-start.md sections 2g and 5), analytics only: where the intro was played from, and each stuck nudge
 	introChoice = Signal.new(), -- (from)   "tile" (the Tutorial tile) or "help" (Show me on Need a hand?): forward as TelemetryReport("intro_choice", from)
 	stuckNudge = Signal.new(), -- (kind)   "pulse", "help_shown" or "show_me": forward as TelemetryReport("stuck_nudge", kind)
+	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
+	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
+	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
 }
 
 local state: Types.PlayerState = {
@@ -1576,6 +1579,9 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			stars = extra and extra.stars,
 			shiny = extra and extra.shiny,
 			charmGain = extra and extra.charmGain,
+			banner = extra and extra.banner,
+			line = extra and extra.line,
+			rate = extra and extra.rate,
 		}
 		local cats: { [string]: Types.CatInstance } = state.cats or {}
 		local newest: Types.CatInstance? = nil
@@ -3295,6 +3301,7 @@ export type CutPlayer = (
 
 -- one block, so its locals do not count against the module's 200 (Luau's limit per function)
 UI.tips = {}
+UI.asks = {}
 do
 	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
 
@@ -3489,6 +3496,34 @@ do
 		end
 		tipQueue:push(id)
 		pumpTips()
+	end
+
+	-- F96 (starter-cat.md section 3): the favorite and like asks on the tip card, with a star or a thumb. UIController's
+	-- showAsk calls it at a quiet moment and answers TipSeen itself, so this does not fire tipSeen; it shows the card
+	-- and says true, or false (a tip or another card is up, or the id is not one of the two) for the toast instead.
+	-- The ask counts as this session's tip for the gap. The notification ask is Roblox's prompt, never this.
+	function UI.asks.show(id: string): boolean
+		local card = tipCard
+		if
+			card == nil
+			or tipBusy
+			or not initialized
+			or (id ~= Tips.FAVORITE_ASK and id ~= Tips.LIKE_ASK)
+			or not TipQueue.free(tipMoment())
+		then
+			return false
+		end
+		local text = TipQueue.line(id, tipDevice())
+		if text == nil then
+			return false
+		end
+		tipBusy = true
+		tipAnswered[id] = true -- so the queue never shows it again this session
+		tipQueue:shown(os.clock())
+		card:show(text, TipQueue.icon(id), TipQueue.ASK_SECONDS, function()
+			tipBusy = false
+		end)
+		return true
 	end
 
 	-- The effects code's camera cut player (see above), or nil to show cut tips as cards.
@@ -3737,6 +3772,117 @@ do
 	function UI.tutorial.showHelp()
 		local step = state.tutorialStep or 0
 		askHelp(math.min(step, TutorialHints.DONE - 1))
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- The free Bellhop Cat (F96, starter-cat.md section 2)
+----------------------------------------------------------------------------------------------------
+
+-- The stand card (Screens/StarterCat), built the first time it opens and registered with the window manager as
+-- "StarterCat". StarterCatController calls open(view) within StarterCatRangeStuds of a BellhopStand, close() a stud
+-- past it, update(view) every 0.2 s while open and result(ok, reason) from StarterCatResult. A claim that works
+-- closes the card and shows the claim card: the cat found card with "The Bellhop Cat joined your cafe!" (the
+-- server's toast says where it went). Its own block, as the module is short of locals.
+UI.starterCat = {}
+do
+	local StarterCatScreen = require(script.Screens.StarterCat)
+	local StarterCatRules =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterCat")) :: any
+	local stand = {
+		screen = nil :: StarterCatScreen.StarterCat?,
+		modal = nil :: Modal.Modal?, -- the window manager it is registered with; a new UI.init makes it again
+		view = nil :: StarterCatScreen.View?,
+	}
+
+	local function screenFor(): StarterCatScreen.StarterCat?
+		local manager = modal
+		if manager == nil then
+			return nil
+		end
+		local screen = stand.screen
+		if screen ~= nil and stand.modal == manager then
+			return screen
+		end
+		if screen ~= nil then
+			screen:destroy() -- the last UI.init's, whose windows are gone
+		end
+		local made = StarterCatScreen.new({
+			claim = function()
+				UI.events.claimStarterCat:Fire()
+			end,
+			join = function()
+				UI.events.joinGroup:Fire()
+			end,
+			close = function()
+				UI.starterCat.close()
+			end,
+		})
+		manager:register("StarterCat", {
+			frame = made.frame,
+			onOpen = function()
+				made:onOpen()
+			end,
+			onClose = function()
+				made:onClose()
+			end,
+		})
+		stand.screen, stand.modal = made, manager
+		return made
+	end
+
+	local function paint(view: StarterCatScreen.View)
+		stand.view = view
+		local screen = screenFor()
+		if screen ~= nil then
+			screen:show(view, lookupCat(StarterCatRules.CAT_ID))
+		end
+	end
+
+	-- Opens the card with this view, unless another window is open (the Codes Cat and the Spin Wheel stand near).
+	function UI.starterCat.open(view: StarterCatScreen.View)
+		paint(view)
+		if modal ~= nil and stand.screen ~= nil and modal:current() == nil then
+			modal:open("StarterCat")
+		end
+	end
+
+	-- Closes the card if it is the open window.
+	function UI.starterCat.close()
+		if modal ~= nil and modal:current() == "StarterCat" then
+			modal:close()
+		end
+	end
+
+	-- The view again while open; repaints only on a change.
+	function UI.starterCat.update(view: StarterCatScreen.View)
+		paint(view)
+	end
+
+	-- StarterCatResult(ok, reason): ok closes the card and shows the claim card; a refusal is the card's status line,
+	-- or a toast when the card was closed first.
+	function UI.starterCat.result(ok: boolean, reason: string?)
+		local screen = stand.screen
+		if screen ~= nil then
+			screen:result(ok, reason)
+		end
+		local open = modal ~= nil and modal:current() == "StarterCat"
+		if not ok then
+			if not open and reason ~= nil then
+				UI.toast(reason, "warn")
+			end
+			return
+		end
+		UI.starterCat.close()
+		local def = lookupCat(StarterCatRules.CAT_ID)
+		local view = stand.view
+		if def ~= nil and popups ~= nil then
+			popups:showCatFound(def, true, {
+				banner = "FREE " .. def.rarity:upper() .. " CAT!",
+				line = ("The %s joined your cafe!"):format(def.name),
+				rate = if view ~= nil then view.rate else nil,
+			})
+		end
 	end
 end
 

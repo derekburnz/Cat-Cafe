@@ -32,6 +32,7 @@ export type Plot = {
 	customerEntry: BasePart,
 	counter: Model, -- Counter; out of the plot while the For Rent set's dust-sheeted counter stands in for it
 	espresso: BasePart,
+	luckyCat: BasePart, -- LuckyCatAnchor, in the front garden: where the Lucky Cat statue stands (F88)
 	backDoor: BasePart, -- the back door panel: shut on an empty plot, open from Tier 1; unseen under backDoorArt
 	backDoorArt: Model?, -- BackDoorArt, CatCafe_Plot_BackDoor when the art is in: the door the client swings
 	backDoorZone: BasePart, -- check-in works here as well as at the front door
@@ -650,6 +651,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		place("CatCafe_Furniture_Counter", localCFrame(cframe, Layout.plot.counter), model)
 	counter.Name = "Counter"
 	local espresso = anchor("EspressoAnchor", localCFrame(cframe, Layout.plot.espresso), model)
+	local luckyCat = anchor("LuckyCatAnchor", localCFrame(cframe, Layout.plot.luckyCat), model)
 
 	local spotsFolder = folder("Spots", model)
 	local furnitureFolder = folder("SpotFurniture", model)
@@ -743,6 +745,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		customerEntry = entry,
 		counter = counter,
 		espresso = espresso,
+		luckyCat = luckyCat,
 		backDoor = backDoor,
 		backDoorArt = backDoorArt,
 		backDoorZone = backDoorZone,

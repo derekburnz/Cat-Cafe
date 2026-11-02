@@ -107,9 +107,11 @@ function PlotService.release(player: Player)
 	if anchor ~= nil then
 		anchor:Destroy()
 	end
-	local espresso = plot.model:FindFirstChild("Espresso")
-	if espresso ~= nil then
-		espresso:Destroy()
+	for _, name in { "Espresso", "LuckyCat" } do
+		local owned = plot.model:FindFirstChild(name)
+		if owned ~= nil then
+			owned:Destroy()
+		end
 	end
 	for _, expansion in plot.expansions do
 		WorldBuilder.setExpansionOpen(expansion, false)

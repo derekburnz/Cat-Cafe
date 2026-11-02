@@ -116,7 +116,7 @@ return function()
 			expect(profile.lastTick).to.equal(1000)
 			expect(profile.lastSeen).to.equal(1000)
 			expect(profile.rateAtLogout).to.equal(0)
-			expect(profile.upgradeLevels :: any).to.deepEqual({ tables = 0, espresso = 1, net = 0, lure_bowl = 0 })
+			expect(profile.upgradeLevels :: any).to.deepEqual({ tables = 0, espresso = 1, net = 0, lure_bowl = 0, lucky_cat = 0 })
 			expect(count(profile.decorOwned) + count(profile.decorPlaced) + count(profile.lures)).to.equal(0)
 			expect(profile.tutorialStep).to.equal(0)
 			expect(profile.settings :: any).to.deepEqual({
@@ -273,7 +273,7 @@ return function()
 			local profile = ProfileSchema.migrate(raw, 1000)
 			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.tier).to.equal(1)
-			expect(profile.upgradeLevels :: any).to.deepEqual({ tables = 2, espresso = 2, net = 1, lure_bowl = 1 })
+			expect(profile.upgradeLevels :: any).to.deepEqual({ tables = 2, espresso = 2, net = 1, lure_bowl = 1, lucky_cat = 0 })
 			-- cafe_level 2 and 3 (250 + 800), park_access (1000), tables 3 and 4 (600 + 1500), espresso 3 (1200),
 			-- net 2 at the v2 price (2500, not today's 3000)
 			local refund = 250 + 800 + 1000 + 600 + 1500 + 1200 + 2500
@@ -326,7 +326,7 @@ return function()
 				1000
 			)
 			expect(profile.coins).to.equal(1234)
-			expect(profile.upgradeLevels :: any).to.deepEqual({ tables = 2, espresso = 2, net = 1, lure_bowl = 1 })
+			expect(profile.upgradeLevels :: any).to.deepEqual({ tables = 2, espresso = 2, net = 1, lure_bowl = 1, lucky_cat = 0 })
 		end)
 
 		it("damaged levels count as the start level and refund nothing", function()
@@ -587,7 +587,10 @@ return function()
 			local before = ProfileSchema.migrate(v3Save(), 500)
 			expect(before.coins).to.equal(4321)
 			expect(before.tier).to.equal(3)
-			expect(before.upgradeLevels :: any).to.deepEqual(raw.upgradeLevels)
+			-- F88: every save gains the Lucky Cat at level 0
+			local levels = table.clone(raw.upgradeLevels)
+			levels.lucky_cat = 0
+			expect(before.upgradeLevels :: any).to.deepEqual(levels)
 			expect(working(before) :: any).to.deepEqual({
 				starter_tabby = "barista_1",
 				c1 = "entertainer_1",
@@ -641,7 +644,7 @@ return function()
 			local raw = v3Save()
 			raw.upgradeLevels = { tables = 40, espresso = -2, net = "x", lure_bowl = 9, cafe_level = 4 }
 			local profile: any = ProfileSchema.migrate(raw, 500)
-			expect(profile.upgradeLevels).to.deepEqual({ tables = 6, espresso = 1, net = 0, lure_bowl = 5 })
+			expect(profile.upgradeLevels).to.deepEqual({ tables = 6, espresso = 1, net = 0, lure_bowl = 5, lucky_cat = 0 })
 			expect(profile.coins).to.equal(4321) -- refunds are for the 2 to 3 step only
 		end)
 

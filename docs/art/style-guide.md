@@ -508,9 +508,14 @@ Fountain) and `_Flowers` (Flower Cart, Flower Box Fence) as elsewhere. The Sandw
 and the Cat Tree Sign's name board `_NameBoard`, with the painted CAT CAFE in `_NameText` for the UI to hide when it
 writes the cafe's name. The Garden Bench has a `NapSpot` attachment on its cushion and the Umbrella Table `Seat1`
 and `Seat2` on the floor under its chairs (a customer faces the table). The cafe shell's own garden is two child
-Models so the lawn code can hide it: `_Path` (the path and its joints) and `_Garden` (beds, picket fence, flower
-clumps, bench, lamp post and shrubs, with the beds' `_Flowers`, the `_Fireflies` and the `_LampPost_Bulb` nested
-inside). The door mat stays on the shell. The bistro sets of Tier 2 and Tier 3 stand in the garden too, so each is its
+Models the lawn code hides: `_Path` (the path and its joints) when a path style is laid, and `_Garden` (beds, picket
+fence, bench, lamp post, the round bush and the flower clumps on lawn spots, with the beds' `_Flowers` and the
+`_LampPost_Bulb` nested inside) once the lawn is live. The door mat, the potted shrubs by the door, three flower
+clumps on leafy tufts and the `_Fireflies` stay on the shell, standing on the grass and clear of every lawn spot, so
+a new front is never bare. Lawn spots (`Layout.cafe.lawnSpots`, plot space): small by the path (±5.0, -18.3), small
+by the wall (±8.5, -17.3), big (±14.0, -17.8); a big spot under a window has 3.2 studs of depth in front of the
+Tier 2 window boxes, so big pieces keep their ground footprint within 3.1 deep (the Little Fountain is scaled to
+fit). The bistro sets of Tier 2 and Tier 3 stand in the garden too, so each is its
 own child Model, `CatCafe_Plot_Tier2_Bistro` and `CatCafe_Plot_Tier3_Bistro`.
 
 Where a model meets the code-built walls (gates and arches, 2026-10-27, Derek: "a lot of the gate models for zones

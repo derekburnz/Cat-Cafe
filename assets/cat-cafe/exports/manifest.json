@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 01:49 UTC",
+  "generated": "2026-11-02 02:16 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -75550,7 +75550,7 @@
         "CatCafe_Plot_Cafe_Mint_Garden",
         "CatCafe_Plot_Cafe_Mint_Path"
       ],
-      "triangles": 5600,
+      "triangles": 5636,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -75594,7 +75594,7 @@
       },
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Mint.model.json",
-      "rbx_parts": 519,
+      "rbx_parts": 522,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint.glb"
@@ -75607,10 +75607,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5600/12000 tris",
+          "budget": "5636/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2682 faces on swatch centers",
+          "uv": "2700 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -75641,7 +75641,7 @@
         "CatCafe_Plot_Cafe_Blush_Garden",
         "CatCafe_Plot_Cafe_Blush_Path"
       ],
-      "triangles": 5600,
+      "triangles": 5636,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -75685,7 +75685,7 @@
       },
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Blush.model.json",
-      "rbx_parts": 519,
+      "rbx_parts": 522,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush.glb"
@@ -75698,10 +75698,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5600/12000 tris",
+          "budget": "5636/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2682 faces on swatch centers",
+          "uv": "2700 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -75732,7 +75732,7 @@
         "CatCafe_Plot_Cafe_Butter_Garden",
         "CatCafe_Plot_Cafe_Butter_Path"
       ],
-      "triangles": 5600,
+      "triangles": 5636,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -75776,7 +75776,7 @@
       },
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Butter.model.json",
-      "rbx_parts": 519,
+      "rbx_parts": 522,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter.glb"
@@ -75789,10 +75789,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5600/12000 tris",
+          "budget": "5636/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2682 faces on swatch centers",
+          "uv": "2700 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -75823,7 +75823,7 @@
         "CatCafe_Plot_Cafe_Lilac_Garden",
         "CatCafe_Plot_Cafe_Lilac_Path"
       ],
-      "triangles": 5600,
+      "triangles": 5636,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -75867,7 +75867,7 @@
       },
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Lilac.model.json",
-      "rbx_parts": 519,
+      "rbx_parts": 522,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac.glb"
@@ -75880,10 +75880,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5600/12000 tris",
+          "budget": "5636/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2682 faces on swatch centers",
+          "uv": "2700 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -90980,24 +90980,24 @@
       "triangles": 944,
       "budget": 1500,
       "size_studs": {
-        "x": 3.97,
-        "y": 3.94,
-        "z": 3.33
+        "x": 3.1,
+        "y": 3.07,
+        "z": 2.6
       },
       "size_roblox": [
-        3.97,
-        3.33,
-        3.94
+        3.1,
+        2.6,
+        3.07
       ],
       "bounds_min": [
-        -1.98,
-        -1.97,
+        -1.55,
+        -1.54,
         0.0
       ],
       "bounds_max": [
-        1.98,
-        1.97,
-        3.33
+        1.55,
+        1.54,
+        2.6
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",

@@ -555,6 +555,9 @@ def build_umbrella_table(mat):
     return [b.finalize(name, mat)]
 
 
+FOUNTAIN_SCALE = 0.78
+
+
 def build_little_fountain(mat):
     """Tier 3 big: an octagonal stone fountain: a stone cat on top pours a jug into the upper bowl, which spills into
     the basin on four sides; lily pads, a water lily and coins in the water; a flowering shrub in each corner. All
@@ -596,7 +599,10 @@ def build_little_fountain(mat):
                 b.span((x + 0.2 * math.cos(a) - 0.06, 0.5, z + 0.2 * math.sin(a) - 0.06),
                        (x + 0.2 * math.cos(a) + 0.06, 0.62, z + 0.2 * math.sin(a) + 0.06),
                        BLOOMS[(k + (sx + 1) + (sz + 1) // 2) % 6])
-    return [b.finalize(name, mat), water.finalize(name + "_Water", mat)]
+    objs = [b.finalize(name, mat), water.finalize(name + "_Water", mat)]
+    for ob in objs:                 # 3.1 across: a big spot under a window has 3.2 of depth (front-lawn.md, Layout)
+        common.scale_mesh(ob, FOUNTAIN_SCALE)
+    return objs
 
 
 def build_fairy_light_arch(mat):

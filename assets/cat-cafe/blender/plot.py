@@ -23,9 +23,10 @@ Objects per shell (the exporter turns each extra object into a child Model):
   ..._SignBoard                          one part named SignBoard; its -Z face takes the owner's SurfaceGui
   ..._LampPost_Bulb, _SignLamp_Bulb, _BackLamp_Bulb    Neon at night
   ..._Path                               the path to the door and its joints (F91: a lawn path style replaces it)
-  ..._Garden                             beds, picket fence, flower clumps, bench, lamp post and shrubs, with the
-                                         beds' _Flowers, the _Fireflies and the _LampPost_Bulb nested in it (F91:
-                                         hidden when the player's lawn takes its place)
+  ..._Garden                             beds, picket fence, bench, lamp post, round bush and the flower clumps on
+                                         lawn spots, with the beds' _Flowers and the _LampPost_Bulb nested in it
+                                         (F91: hidden once the lawn is live); the shrubs by the door and three
+                                         clumps stay on the root
 """
 
 import math
@@ -354,16 +355,17 @@ def _roof(r, chimney):
 
 
 def _garden(b, g, path, bulbs, flowers, fireflies):
-    """The front garden. The path is the child Model `_Path` and everything else on the grass (beds, picket fence,
-    flower clumps, bench, lamp post, shrubs) the child Model `_Garden`, with the bed's `_Flowers`, the `_Fireflies`
-    and the lamp's `_LampPost_Bulb` nested in it: the F91 lawn code hides them when a player's path style or lawn
-    takes their place. The door mat stays on the shell."""
+    """The front garden. The F91 lawn code hides the child Model `_Path` when a path style is laid and the child
+    Model `_Garden` (beds, picket fence, bench, lamp post, the round bush and the flower clumps on lawn spots, with
+    the beds' `_Flowers` and the lamp's `_LampPost_Bulb` nested in it) once the lawn is live (front-lawn.md section
+    1). What stays on the shell sits on no lawn spot and off the fence line, so a new front is never bare: the door
+    mat, the potted shrubs by the door and three flower clumps on leafy tufts, all standing on the grass itself."""
     gz0, gz1 = -20.0, FRONT
     path.span((DOOR[0], -0.2, gz0), (DOOR[1], 0.02, gz1), "floor_tile")                      # path
     for z in (-19.0, -17.6, -16.2):
         path.span((DOOR[0] + 0.2, 0.02, z - 0.06), (DOOR[1] - 0.2, 0.05, z + 0.06), "concrete")
     b.span((-2.2, 0.02, -17.3), (2.2, 0.08, -15.3), "blush")                                # door mat
-    b = g
+    keep, b = b, g
     for x0, x1 in ((-HW + 0.2, DOOR[0] - 0.5), (DOOR[1] + 0.5, HW - 0.2)):                  # beds
         flowers.span((x0, -0.2, -19.6), (x1, 0.15, gz1 - 0.2), "leaf_green")
         fireflies.span((x0, 0.6, -19.6), (x1, 4.0, gz1 - 0.4), "leaf_green")                 # air they drift in
@@ -379,9 +381,13 @@ def _garden(b, g, path, bulbs, flowers, fireflies):
                (-7.6, -16.4, "nose_pink"), (-5.4, -18.2, "sparkle"), (6.0, -18.6, "blush"),
                (7.4, -16.2, "sparkle"), (12.2, -16.5, "nose_pink"), (13.4, -19.0, "offwhite"),
                (17.4, -16.6, "blush"))
+    stay = ((-17.0, -18.4), (-9.0, -18.9), (17.4, -16.6))          # clear of the lawn spots (Layout.cafe.lawnSpots)
     for x, z, sw in flowers:
+        on = keep if (x, z) in stay else b
+        if on is keep:                                                # a leafy tuft on the grass under the bed's top
+            on.span((x - 0.62, -0.1, z - 0.26), (x + 0.72, 0.2, z + 0.66), "leaf_green")
         for dx, dz in ((0, 0), (0.45, 0.3), (-0.35, 0.4)):
-            b.span((x + dx - 0.18, 0.15, z + dz - 0.18), (x + dx + 0.18, 0.5, z + dz + 0.18), sw)
+            on.span((x + dx - 0.18, 0.15, z + dz - 0.18), (x + dx + 0.18, 0.5, z + dz + 0.18), sw)
     # bench on the left bed, facing the street
     bx = -12.5
     b.span((bx - 1.8, 0.95, -18.3), (bx + 1.8, 1.15, -17.2), "caramel_wood")
@@ -400,9 +406,9 @@ def _garden(b, g, path, bulbs, flowers, fireflies):
     bulbs.span((lx - 0.3, 6.5, lz - 0.3), (lx + 0.3, 7.25, lz + 0.3), "lamp_warm")          # stands on the plate
     b.b.pyramid(RB.p(lx, 7.3, lz), 1.1, 0.6, "fur_black")
     # potted shrubs by the door and a round bush
-    for x in (DOOR[0] - 1.6, DOOR[1] + 1.6):
-        b.cyl((x, 0.45, -16.0), 0.55, 0.9, "terracotta", r2=0.65, segments=10)
-        b.ball((x, 1.55, -16.0), 0.8, "leaf_dark")
+    for x in (DOOR[0] - 1.6, DOOR[1] + 1.6):                   # these stay: they stand on the grass, not the bed
+        keep.cyl((x, 0.4, -16.0), 0.55, 1.0, "terracotta", r2=0.65, segments=10)
+        keep.ball((x, 1.55, -16.0), 0.8, "leaf_dark")
     b.ball((6.6, 0.8, -18.6), 0.9, "leaf_green", scale=(1.2, 0.9, 1.0))
 
 

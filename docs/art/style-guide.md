@@ -354,6 +354,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Lucky Cat statue | 4,000 | `luckycat.py`: 646 to 726 triangles, 51 to 59 Parts a level |
 | Welcome arch (F84) | 8,000 | `welcomearch.py`: 6,654 triangles in 548 Parts, a third of them the board's letters |
 | Camps (F84) | 20,000 | `camps.py`: ground, walls, pad, carrier basket and theme props land at 6,596 (Sewer) to 12,306 (Alleyway) |
+| Front lawn (F91) | 800 small, 1,500 big, 2,500 Tier 4 and 5 big; paths 1,000, fences 2,400 | `lawn.py`: small pieces land at 392 to 796, big at 620 to 2,472, paths at 204 to 804, fences at 744 to 1,968 (each fence is both halves, 30 studs). A fully dressed lawn (six pieces, a path and a fence) is 6,600 to 10,300 triangles and 500 to 1,000 Parts, well over the 1,500 the spec guessed; the eight-lawn phone check in front-lawn.md section 6 decides |
 | Camp extras (F100) | 3,000 | `campextras.py`: the Fish Pond 1,036, the Picnic Basket 1,052, the Yard Sale 1,722 and the Lost and Found 1,848 |
 | Leaderboard row (F98) | 8,000 | `leaderboards.py`: 5,250 triangles in 358 Parts for the three boards, the plinth and the planters |
 | Rescue Rally board (F101) | 8,000 | `rally.py`: 4,004 triangles in 281 Parts; the Rally bunting 272 and 240 |
@@ -517,6 +518,34 @@ them, where the Index Board stands, string lights over both ways out, a dumpster
 boxes, benches, lamps and flowerbeds. Theme props: the Park's benches,
 lamps, trees and flowerbeds; the Neighbourhood's mailbox, bins, lamp posts, picket fences and hedges; the Woods' tent,
 campfire, log benches, lanterns and pines; the Sewer's manhole, big pipe, wall lanterns, barrels, cones and tyres.
+
+The front lawn (F91, `lawn.py`, front-lawn.md) is what a player places in the front garden. Pieces are
+`CatCafe_Lawn_<Piece>` (the catalog name without spaces), pivot the base centre on the grass top, front -Z to the
+street: small ones keep to 2 x 2 (Tulip Bed, Sandwich Board, Potted Cat Topiary, Mailbox, Lamp Post, Bird Bath,
+Garden Gnome Cat, Balloon Bunch), big ones to 4 x 4 (Bicycle with Basket, Garden Bench, Umbrella Table, Little
+Fountain, Fairy Light Arch, Flower Cart, Cat Tree Sign, Golden Paw Statue). Paths are `CatCafe_Lawn_Path_<Style>`
+(Grey Slabs, Red Brick, Stepping Stones, Paw Print Path), 7 x 5 over the shell's own path (plot x -3.5..3.5, z
+-20..-15), pivot its centre at the plot's floor level; each keeps ground under the door mat. Fences are
+`CatCafe_Lawn_Fence_<Style>` (White Picket, Low Hedge, Iron Railing, Flower Box Fence), both halves from the path's
+gap (x 3.9) to the plot's edge (x 19) each side, pivot the gap's centre on the fence line (plot z -19.85). Lawn parts
+collide like other outdoor sets. The moving and lit bits: the Mailbox's `_Flag` (pivot on its hinge, lying back
+along the side; -90 about the pivot's X raises it), the Bird Bath's robin `_Bird_Bob`, the Balloon Bunch's
+`_Balloons_Swing` with the LED `_Balloons_Glow`, the Fairy Light Arch's and Flower Cart's `_Lantern_Swing` with
+`_Lantern_Glow`, the Cat Tree Sign's `_Star_Spin` and `_Toy_Swing`, the Golden Paw Statue's `_Paw_Spin`; night
+lights are `_Bulbs` (Lamp Post, Fairy Light Arch, Cat Tree Sign, Golden Paw Statue). `_Water` (Bird Bath, Little
+Fountain) and `_Flowers` (Flower Cart, Flower Box Fence) as elsewhere. The Sandwich Board's chalk face is `_Chalk`
+and the Cat Tree Sign's name board `_NameBoard`, with the painted CAT CAFE in `_NameText` for the UI to hide when it
+writes the cafe's name. The Garden Bench has a `NapSpot` attachment on its cushion and the Umbrella Table `Seat1`
+and `Seat2` on the floor under its chairs (a customer faces the table). The cafe shell's own garden is two child
+Models the lawn code hides: `_Path` (the path and its joints) when a path style is laid, and `_Garden` (beds, picket
+fence, bench, lamp post, the round bush and the flower clumps on lawn spots, with the beds' `_Flowers` and the
+`_LampPost_Bulb` nested inside) once the lawn is live. The door mat, the potted shrub right of the door, three flower
+clumps on leafy tufts and the `_Fireflies` stay on the shell, standing on the grass and clear of every lawn spot, so
+a new front is never bare. Lawn spots (`Layout.cafe.lawnSpots`, plot space): small by the path (±5.0, -18.3), small
+by the wall (±8.5, -17.3), big (±14.0, -17.8); a big spot under a window has 3.2 studs of depth in front of the
+Tier 2 window boxes, so big pieces keep their ground footprint within 3.1 deep (the Little Fountain is scaled to
+fit). The bistro sets of Tier 2 and Tier 3 stand in the garden too, so each is its
+own child Model, `CatCafe_Plot_Tier2_Bistro` and `CatCafe_Plot_Tier3_Bistro`.
 
 Each camp from the Park on has one extra (F100, camp-extras.md, `campextras.py`), the size of an Index Board, beside the way out across from the board (`campextras.SPOTS`, area space): the Park's Picnic Basket (a red checked blanket, a wicker basket with a Money Potion peeking out, a teal thermos, sandwiches, an apple and fish crackers), the Neighbourhood's Yard Sale (a folding table with a striped cloth on a rug, two cardboard boxes with crates inside and "40" price tags with a gold fish, a lamp, books, a teapot, a cash tin, and a hand-painted YARD SALE board hanging from a little frame), the Woods' Fish Pond (a ring of stones, lily pads, reeds and cattails, a cat-sized jetty with a bucket of golden fish and a rod in its holder) and the Sewer's Lost and Found (a battered crate stencilled LOST AND / FOUND with a sock, an umbrella's hook and a teddy's ear poking out under its lid, a list pinned to its side, a boot and a puddle, under a standpipe that drips onto the lid). Each moving touch is its own child Model for Animation-Engineer: `_Sign_Swing` pivots on the bar it hangs from (turn about Z), `_Rod` on the rod's butt (turn about X to cast; its line and bobber ride it), `_Fish` at the fish's middle, `_Lid` on the back hinge (a rattle is a small turn about X). VFX points are Attachments on the main model: `Steam` (the thermos's mouth), `FishJump` (on the water above the fish) and `Drip` (under the pipe's mouth). Every extra has a `PromptAnchor` 1.5 up in front of it. The pond's water is `_Water` (see-through, walk-through) and its lily pads stand on stems so nothing floats.
 

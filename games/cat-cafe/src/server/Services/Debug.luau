@@ -20,6 +20,7 @@
 --   D:Invoke("spinSlice", nil, 4)      -- your next spin lands on slice 4 (F94, QA S63; nil goes back to random)
 --   D:Invoke("dailyTreat", nil, 6)     -- the Daily Treat card at 6 stamps and a stamp due now: Claim pays day 7 (F70)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
+--   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
 --   D:Invoke("potionLeft", nil, "tip_potion", 30)   -- the running Tip Potion has 30 s left (0 ends it)
@@ -46,6 +47,7 @@ local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local FishMarketService = require(script.Parent.FishMarketService)
+local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local Layout = require(script.Parent.Parent.World.Layout)
 local MysteryService = require(script.Parent.MysteryService)
 local NameService = require(script.Parent.NameService)
@@ -203,6 +205,19 @@ end
 function Debug.giveCrate(player: (Player | number | string)?, crateId: string, count: number?)
 	local p = resolve(player)
 	FishMarketService.debugGive(p, profileOf(p), crateId, count or 1)
+end
+
+-- Forgets the player's Fresh Catch buys and heads up (F94, QA S63), so the shelf sells this window's stock again and
+-- the alert can come again. Returns the window and its stock, "<window>: <itemId>=<amount> ..." in shelf order.
+function Debug.freshCatch(player: (Player | number | string)?): string
+	local profile = profileOf(resolve(player))
+	profile.freshCatch = FreshCatch.fresh()
+	local window = FreshCatch.window(os.time())
+	local parts: { string } = {}
+	for _, item in FreshCatch.stock(window) do
+		table.insert(parts, string.format("%s=%d", item.itemId, item.amount))
+	end
+	return string.format("%d: %s", window, table.concat(parts, " "))
 end
 
 -- Puts `count` (default 1) of a potion in the bag, or of every potion when `potionId` is nil (F64).

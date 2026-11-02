@@ -1,10 +1,11 @@
 --!strict
 -- The night food dealer (F32, data-model section 8b). A cart parks mid-street at night start and leaves at day
--- start. v0.8 F59: every window shared/Dealer rolls an amount of each dealer food, the same on every server, and
--- each player can buy up to that many of each in the window. BuyDealerFood(lureId, window) recomputes the amount
--- and refuses a buy sent for a window that has rolled over (reviewer S42: nobody buys stock they never saw).
--- DealerStock goes to each player whenever their stock or bought counts change (night start, a new window, a
--- join), nil by day, and after every buy, bought or not.
+-- start. F94 (rewards-and-shops.md section 4): at dusk this server rolls one stock with its own Random (shared/Dealer)
+-- that holds all night, and each player can buy up to that many of each food that night. The counts live in memory
+-- by user id, so a rejoin to this server keeps them, and clear at sunrise; nothing is saved. BuyDealerFood(lureId,
+-- night) refuses a buy sent for another night (reviewer S42: nobody buys stock they never saw). DealerStock goes to
+-- each player whenever their stock or bought counts change (night start, a join), nil by day, and after every buy,
+-- bought or not.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -31,6 +32,10 @@ local CLOSED = "closed"
 
 local cart: Model? = nil
 local sentKey: { [Player]: string } = {} -- what this player was last sent, so an unchanged stock is not resent
+local random = Random.new()
+local night = 0 -- this server's night count, 1 from its first dusk; DealerStock and BuyDealerFood carry it
+local stock: { Dealer.FoodAmount }? = nil -- tonight's stock, rolled at dusk; nil by day
+local bought: { [number]: { [string]: number } } = {} -- tonight's buys by user id; cleared at sunrise
 
 -- Puts a model's lowest point on the street, since the art and the stand-ins pivot at different heights.
 local function standOnStreet(model: Model, at: CFrame)
@@ -105,30 +110,25 @@ local function leave()
 	end
 end
 
--- Everyone's amounts right now, with this player's bought counts of the current window. While this server's
--- window is behind the saved one every food shows as bought out (reviewer N32).
-local function stockFor(profile: Types.PlayerProfile): Types.DealerStock
-	local window = Dealer.window(os.time())
-	Dealer.refresh(profile.dealer, window)
-	local behind = Dealer.behind(profile.dealer, window)
-	local stock: { Types.DealerFood } = {}
-	for _, food in Dealer.stock(window) do
+-- Tonight's amounts with this player's bought counts.
+local function stockFor(player: Player, tonight: { Dealer.FoodAmount }): Types.DealerStock
+	local mine = bought[player.UserId] or {}
+	local rows: { Types.DealerFood } = {}
+	for _, food in tonight do
 		local def = Catalog.getLure(food.lureId)
-		table.insert(stock, {
+		table.insert(rows, {
 			lureId = food.lureId,
 			cost = if def ~= nil then def.cost else 0,
 			amount = food.amount,
-			bought = if behind
-				then food.amount
-				else math.min(profile.dealer.bought[food.lureId] or 0, food.amount),
+			bought = math.min(mine[food.lureId] or 0, food.amount),
 		})
 	end
-	return { window = window, restocksAt = Dealer.restocksAt(window), stock = stock }
+	return { night = night, stock = rows }
 end
 
-local function stockKey(stock: Types.DealerStock): string
-	local parts = { tostring(stock.window) }
-	for _, food in stock.stock do
+local function stockKey(sent: Types.DealerStock): string
+	local parts = { tostring(sent.night) }
+	for _, food in sent.stock do
 		table.insert(parts, string.format("%s=%d/%d", food.lureId, food.bought, food.amount))
 	end
 	return table.concat(parts, ":")
@@ -136,22 +136,22 @@ end
 
 -- Sends the player's stock when it differs from what they have, or always with `force`.
 local function sendStock(player: Player, force: boolean)
-	local profile = DataService.get(player)
-	if profile == nil then
+	if DataService.get(player) == nil then
 		return
 	end
-	if cart == nil then
+	local tonight = stock
+	if cart == nil or tonight == nil then
 		if force or sentKey[player] ~= CLOSED then
 			sentKey[player] = CLOSED
 			Net.fire(player, "DealerStock", nil)
 		end
 		return
 	end
-	local stock = stockFor(profile)
-	local key = stockKey(stock)
+	local sent = stockFor(player, tonight)
+	local key = stockKey(sent)
 	if force or sentKey[player] ~= key then
 		sentKey[player] = key
-		Net.fire(player, "DealerStock", stock)
+		Net.fire(player, "DealerStock", sent)
 	end
 end
 
@@ -165,7 +165,7 @@ local function nearCart(player: Player): boolean
 	return ((root :: BasePart).Position - part.Position).Magnitude <= Config.DealerRangeStuds
 end
 
-local function onBuyDealerFood(player: Player, rawLureId: unknown, rawWindow: unknown)
+local function onBuyDealerFood(player: Player, rawLureId: unknown, rawNight: unknown)
 	local profile = DataService.get(player)
 	if profile == nil then
 		return
@@ -175,12 +175,13 @@ local function onBuyDealerFood(player: Player, rawLureId: unknown, rawWindow: un
 		sendStock(player, true)
 	end
 	local lureId = Guard.id(rawLureId)
-	local seenWindow = Guard.int(rawWindow, 0, 2 ^ 40)
-	if lureId == nil or seenWindow == nil then
+	local seenNight = Guard.int(rawNight, 0, 2 ^ 40)
+	if lureId == nil or seenNight == nil then
 		sendStock(player, true)
 		return
 	end
-	if cart == nil or not ClockService.isNight() then
+	local tonight = stock
+	if cart == nil or tonight == nil or not ClockService.isNight() then
 		refuse("The dealer only comes out at night.")
 		return
 	end
@@ -188,15 +189,9 @@ local function onBuyDealerFood(player: Player, rawLureId: unknown, rawWindow: un
 		refuse("Walk back to the cart to buy.")
 		return
 	end
-	local window = Dealer.window(os.time())
-	Dealer.refresh(profile.dealer, window)
-	if Dealer.behind(profile.dealer, window) then
-		refuse("Fresh stock is on its way. Try again in a moment.")
-		return
-	end
-	if seenWindow ~= window then
-		-- the stock rolled over while the player looked: they never saw these amounts (S42)
-		refuse("Fresh stock just arrived. Take another look.")
+	if seenNight ~= night then
+		-- a stock from another night: the player never saw tonight's amounts (S42)
+		refuse("The cart has a new stock tonight. Take another look.")
 		return
 	end
 	local def = Catalog.getLure(lureId)
@@ -204,17 +199,18 @@ local function onBuyDealerFood(player: Player, rawLureId: unknown, rawWindow: un
 		refuse("That food isn't on the cart.")
 		return
 	end
-	local amount = Dealer.amountOf(window, lureId)
-	local bought = profile.dealer.bought[lureId] or 0
+	local amount = Dealer.amountIn(tonight, lureId)
+	local mine = bought[player.UserId] or {}
+	local already = mine[lureId] or 0
 	if amount <= 0 then
-		refuse("None this time.")
+		refuse("None tonight.")
 		return
 	end
-	if bought >= amount then
+	if already >= amount then
 		refuse(
 			if amount == 1
-				then "You bought the only one this time."
-				else "You bought them all this time."
+				then "You bought the only one tonight."
+				else "You bought them all tonight."
 		)
 		return
 	end
@@ -224,15 +220,16 @@ local function onBuyDealerFood(player: Player, rawLureId: unknown, rawWindow: un
 		return
 	end
 	Telemetry.sink(player, profile, def.cost, "Shop", "dealer_" .. lureId)
-	-- the third field was the slot number before F59; it is now which of the window's amount this buy was ("2/3")
+	-- the third field was the slot number before F59; it is which of the stock's amount this buy was ("2/3")
 	Telemetry.custom(
 		player,
 		"dealer_buy",
 		def.cost,
-		{ lureId, tostring(Economy.tier(profile)), string.format("%d/%d", bought + 1, amount) }
+		{ lureId, tostring(Economy.tier(profile)), string.format("%d/%d", already + 1, amount) }
 	)
 	profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
-	profile.dealer.bought[lureId] = bought + 1
+	mine[lureId] = already + 1
+	bought[player.UserId] = mine
 	Net.toast(player, string.format("Bought %s (%d)", def.name, profile.lures[lureId]), "good")
 	CafeService.sync(player)
 	sendStock(player, true)
@@ -240,9 +237,19 @@ end
 
 local function onPhase(phase: Types.ClockPhase)
 	if phase == "night" then
+		if cart == nil then
+			-- dusk: this server's stock for the night, held until sunrise
+			night += 1
+			stock = Dealer.roll(function()
+				return random:NextNumber()
+			end)
+			bought = {}
+		end
 		park()
 	else
 		leave()
+		stock = nil
+		bought = {}
 	end
 	for _, player in DataService.loadedPlayers() do
 		sendStock(player, false)
@@ -256,7 +263,7 @@ function DealerService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		sentKey[player] = nil
 	end)
-	-- A new window or a join changes someone's stock; one check a second catches them all.
+	-- A join changes someone's stock; one check a second catches them all.
 	task.spawn(function()
 		while true do
 			task.wait(1)

@@ -459,8 +459,11 @@ local function applyState(s: Types.PlayerState)
 	refreshRichTip()
 end
 
--- The night dealer (F59): the window of the last DealerStock, which a buy sends back when the screen has none.
+-- The night dealer: the night of the last DealerStock (F94; the 5 minute window before), which a buy sends back when
+-- the screen has none.
 local dealerWindow: number? = nil
+-- The Fresh Catch shelf (F94): the window of the last FreshCatchStock, which a buy sends back when the screen has none.
+local freshWindow: number? = nil
 
 local function wireIntents()
 	UI.events.setSetting:Connect(function(key: string, value: any)
@@ -609,11 +612,20 @@ local function wireIntents()
 	UI.events.claimDailyTreat:Connect(function()
 		Net.fire("ClaimDailyTreat")
 	end)
-	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused. Since F59 a buy names
-	-- the food and the window the screen showed (else the last one sent), so a buy sent across a roll is refused (S42).
+	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused. A buy names the food
+	-- and the night the screen showed (else the last one sent; the screen calls it its window), so a buy sent for
+	-- another night is refused (S42).
 	UI.events.buyDealerFood:Connect(function(_index: number, lureId: string, window: number?)
 		Net.fire("BuyDealerFood", lureId, window or dealerWindow or -1)
 	end)
+	-- The Fresh Catch tab (F94), once the UI has it: (itemId, window) the row and the window the tab showed; the server
+	-- answers every buy with FreshCatchStock, bought or refused.
+	local buyFreshCatch = (UI.events :: any).buyFreshCatch
+	if buyFreshCatch ~= nil then
+		buyFreshCatch:Connect(function(itemId: string, window: number?)
+			Net.fire("BuyFreshCatch", itemId, window or freshWindow or -1)
+		end)
+	end
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
 	UI.events.travel:Connect(function(destination: string)
 		Net.fire("Travel", destination)
@@ -890,13 +902,47 @@ local function wireServerEvents()
 		Moments.CatLevelUp:Fire(uid, level)
 	end)
 	Net.on("DealerStock", function(stock: Types.DealerStock?)
-		dealerWindow = if stock ~= nil then stock.window else nil
-		-- the screen takes F59's amounts as they come (#492)
-		UI.dealer.setStock(
-			if stock ~= nil
-				then { window = stock.window, restocksAt = stock.restocksAt, stock = stock.stock }
-				else nil
-		)
+		dealerWindow = if stock ~= nil then stock.night else nil
+		-- the screen takes the amounts as they come (#492). F94: one stock a night, so the screen's window is the
+		-- night and its countdown runs to sunrise, when the cart leaves
+		local clock = ReplicatedStorage:FindFirstChild("Clock")
+		local sunrise = if clock ~= nil then clock:GetAttribute("PhaseEndsAt") else nil
+		UI.dealer.setStock(if stock ~= nil
+			then {
+				window = stock.night,
+				restocksAt = if type(sunrise) == "number" then sunrise else 0,
+				stock = stock.stock,
+			}
+			else nil)
+	end)
+	-- The Fresh Catch shelf (F94): this player's stock by day, nil at night; the UI's tab takes it once it exists.
+	Net.on("FreshCatchStock", function(stock: Types.FreshCatchStock?)
+		freshWindow = if stock ~= nil then stock.window else nil
+		local fresh: any = (UI :: any).freshCatch
+		local setStock: unknown = if fresh ~= nil then fresh.setStock else nil
+		if type(setStock) == "function" then
+			(setStock :: (Types.FreshCatchStock?) -> ())(stock)
+		end
+	end)
+	-- The once a window heads up (F94): the UI's own alert once it has one, else a plain toast. The server sends it
+	-- only with settings.shopAlerts on.
+	Net.on("ShopAlert", function(itemId: unknown)
+		local row = if type(itemId) == "string" then Catalog.getFreshCatchRow(itemId) else nil
+		if row == nil then
+			return
+		end
+		local alert: unknown = (UI :: any).shopAlert
+		if type(alert) == "function" then
+			(alert :: (string) -> ())(row.id)
+			return
+		end
+		local potion = Catalog.getPotion(row.potionId or "")
+		local crate = Catalog.getCrate(row.crateId or "")
+		local text = if potion ~= nil
+			then potion.name .. "s at the Fish Market!"
+			elseif crate ~= nil then "A cheap " .. crate.name .. " at the Fish Market!"
+			else "Something good at the Fish Market!"
+		UI.toast(text, "info")
 	end)
 	Net.on("PlotOpened", function(position: Vector3, plotIndex: number)
 		Moments.PlotOpened:Fire(position, plotIndex)

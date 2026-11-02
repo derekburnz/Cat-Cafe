@@ -41,6 +41,8 @@ export type CustomEvent =
 	| "session_end"
 	| "offline_claim"
 	| "dealer_buy"
+	-- F94 (rewards-and-shops.md section 6): a Fresh Catch buy, value the golden fish spent; the row id, tier
+	| "fresh_catch_buy"
 	| "rich_tip"
 	| "cat_sold"
 	| "cat_renamed"

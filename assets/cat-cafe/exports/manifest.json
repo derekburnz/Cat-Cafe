@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 19:57 UTC",
+  "generated": "2026-11-02 20:19 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -69676,6 +69676,1251 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.07 y=0.05"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Cat_BellhopCat",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_BellhopCat_Body",
+        "CatCafe_Cat_BellhopCat_Head",
+        "CatCafe_Cat_BellhopCat_Eye1",
+        "CatCafe_Cat_BellhopCat_Eye2",
+        "CatCafe_Cat_BellhopCat_EarL",
+        "CatCafe_Cat_BellhopCat_EarR",
+        "CatCafe_Cat_BellhopCat_Tail",
+        "CatCafe_Cat_BellhopCat_LegF1",
+        "CatCafe_Cat_BellhopCat_LegF2",
+        "CatCafe_Cat_BellhopCat_LegB1",
+        "CatCafe_Cat_BellhopCat_LegB2",
+        "CatCafe_Cat_BellhopCat_Prop",
+        "CatCafe_Cat_BellhopCat_Prop2",
+        "CatCafe_Cat_BellhopCat_Bell"
+      ],
+      "triangles": 1732,
+      "budget": 1800,
+      "size_studs": {
+        "x": 1.04,
+        "y": 2.04,
+        "z": 1.92
+      },
+      "size_roblox": [
+        1.04,
+        1.92,
+        2.04
+      ],
+      "bounds_min": [
+        -0.52,
+        -1.05,
+        -0.0
+      ],
+      "bounds_max": [
+        0.52,
+        0.98,
+        1.92
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Rare",
+      "body": "walk",
+      "gold": false,
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "fur_ginger",
+          "hex": "#D9662E"
+        },
+        "second": {
+          "swatch": "fur_russet",
+          "hex": "#8E4A2C"
+        },
+        "muzzle": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "tip": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "socks": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "blaze": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.3,
+          0.85
+        ],
+        "Tail": [
+          0.0,
+          0.58,
+          0.8
+        ],
+        "LegF1": [
+          0.22,
+          -0.2,
+          0.42
+        ],
+        "LegF2": [
+          -0.22,
+          -0.2,
+          0.42
+        ],
+        "LegB1": [
+          0.22,
+          0.42,
+          0.42
+        ],
+        "LegB2": [
+          -0.22,
+          0.42,
+          0.42
+        ],
+        "Eye1": [
+          0.253,
+          -0.93,
+          1.11
+        ],
+        "Eye2": [
+          -0.253,
+          -0.93,
+          1.11
+        ],
+        "EarL": [
+          0.3,
+          -0.46,
+          1.56
+        ],
+        "EarR": [
+          -0.3,
+          -0.46,
+          1.56
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          0.85,
+          -0.3
+        ],
+        "Tail": [
+          0.0,
+          0.8,
+          0.58
+        ],
+        "LegF1": [
+          -0.22,
+          0.42,
+          -0.2
+        ],
+        "LegF2": [
+          0.22,
+          0.42,
+          -0.2
+        ],
+        "LegB1": [
+          -0.22,
+          0.42,
+          0.42
+        ],
+        "LegB2": [
+          0.22,
+          0.42,
+          0.42
+        ],
+        "Eye1": [
+          -0.25,
+          1.11,
+          -0.93
+        ],
+        "Eye2": [
+          0.25,
+          1.11,
+          -0.93
+        ],
+        "EarL": [
+          -0.3,
+          1.56,
+          -0.46
+        ],
+        "EarR": [
+          0.3,
+          1.56,
+          -0.46
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.67,
+            0.26
+          ],
+          "offset_roblox": [
+            0.0,
+            0.26,
+            -0.67
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.22,
+            0.74
+          ],
+          "offset_roblox": [
+            0.0,
+            0.74,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.28,
+            0.73
+          ],
+          "offset_roblox": [
+            0.0,
+            0.73,
+            -0.28
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.28,
+            0.73
+          ],
+          "offset_roblox": [
+            0.0,
+            0.73,
+            -0.28
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.28,
+            0.73
+          ],
+          "offset_roblox": [
+            0.0,
+            0.73,
+            -0.28
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BowTie": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.5,
+            -0.15
+          ],
+          "offset_roblox": [
+            0.0,
+            -0.15,
+            -0.5
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.06,
+            0.89
+          ],
+          "offset_roblox": [
+            0.0,
+            0.89,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Carry": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.22,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_BellhopCat_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Face",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_BellhopCat_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Bell": {
+          "object": "CatCafe_Cat_BellhopCat_Bell",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            0.71,
+            -0.95
+          ]
+        }
+      },
+      "exclusive": true,
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
+      "studio": "Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Face prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Face, so the role piece in that slot stays off too (F71). The child Model <name>_Bell hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_BellhopCat.model.json",
+      "rbx_parts": 110,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_BellhopCat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_BellhopCat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1732/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "916 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.04"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Cat_BellhopCat_Sit",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_BellhopCat_Sit_Body",
+        "CatCafe_Cat_BellhopCat_Sit_Head",
+        "CatCafe_Cat_BellhopCat_Sit_Eye1",
+        "CatCafe_Cat_BellhopCat_Sit_Eye2",
+        "CatCafe_Cat_BellhopCat_Sit_EarL",
+        "CatCafe_Cat_BellhopCat_Sit_EarR",
+        "CatCafe_Cat_BellhopCat_Sit_Tail",
+        "CatCafe_Cat_BellhopCat_Sit_LegF1",
+        "CatCafe_Cat_BellhopCat_Sit_LegF2",
+        "CatCafe_Cat_BellhopCat_Sit_Prop",
+        "CatCafe_Cat_BellhopCat_Sit_Prop2",
+        "CatCafe_Cat_BellhopCat_Sit_Bell"
+      ],
+      "triangles": 1728,
+      "budget": 1800,
+      "size_studs": {
+        "x": 1.29,
+        "y": 1.29,
+        "z": 1.89
+      },
+      "size_roblox": [
+        1.29,
+        1.89,
+        1.29
+      ],
+      "bounds_min": [
+        -0.45,
+        -0.7,
+        0.0
+      ],
+      "bounds_max": [
+        0.84,
+        0.6,
+        1.89
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Rare",
+      "body": "sit",
+      "gold": false,
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "fur_ginger",
+          "hex": "#D9662E"
+        },
+        "second": {
+          "swatch": "fur_russet",
+          "hex": "#8E4A2C"
+        },
+        "muzzle": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "tip": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "socks": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "blaze": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.095,
+          0.969
+        ],
+        "Tail": [
+          0.19,
+          0.413,
+          0.104
+        ],
+        "LegF1": [
+          0.162,
+          -0.285,
+          0.589
+        ],
+        "LegF2": [
+          -0.162,
+          -0.285,
+          0.589
+        ],
+        "Eye1": [
+          0.209,
+          -0.589,
+          1.197
+        ],
+        "Eye2": [
+          -0.209,
+          -0.589,
+          1.197
+        ],
+        "EarL": [
+          0.266,
+          -0.171,
+          1.567
+        ],
+        "EarR": [
+          -0.266,
+          -0.171,
+          1.567
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          0.97,
+          -0.09
+        ],
+        "Tail": [
+          -0.19,
+          0.1,
+          0.41
+        ],
+        "LegF1": [
+          -0.16,
+          0.59,
+          -0.28
+        ],
+        "LegF2": [
+          0.16,
+          0.59,
+          -0.28
+        ],
+        "Eye1": [
+          -0.21,
+          1.2,
+          -0.59
+        ],
+        "Eye2": [
+          0.21,
+          1.2,
+          -0.59
+        ],
+        "EarL": [
+          -0.27,
+          1.57,
+          -0.17
+        ],
+        "EarR": [
+          0.27,
+          1.57,
+          -0.17
+        ]
+      },
+      "attachments": {
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.318,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.351,
+            0.703
+          ],
+          "offset_roblox": [
+            0.0,
+            0.7,
+            -0.35
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.057,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.057,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            0.204,
+            0.874
+          ],
+          "offset_roblox": [
+            0.0,
+            0.87,
+            0.2
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.618
+          ],
+          "offset_roblox": [
+            0.0,
+            0.62,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.618
+          ],
+          "offset_roblox": [
+            0.0,
+            0.62,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.618
+          ],
+          "offset_roblox": [
+            0.0,
+            0.62,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Carry": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.133,
+            0.874
+          ],
+          "offset_roblox": [
+            0.0,
+            0.87,
+            -0.13
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_BellhopCat_Sit_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Face",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_BellhopCat_Sit_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Bell": {
+          "object": "CatCafe_Cat_BellhopCat_Sit_Bell",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            0.84,
+            -0.61
+          ]
+        }
+      },
+      "exclusive": true,
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_BellhopCat for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Face prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Face, so the role piece in that slot stays off too (F71). The child Model <name>_Bell hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_BellhopCat_Sit.model.json",
+      "rbx_parts": 112,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_BellhopCat_Sit.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_BellhopCat_Sit.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1728/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "914 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.19 y=-0.05"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Cat_BellhopCat_Work",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_BellhopCat_Work_Body",
+        "CatCafe_Cat_BellhopCat_Work_Head",
+        "CatCafe_Cat_BellhopCat_Work_Eye1",
+        "CatCafe_Cat_BellhopCat_Work_Eye2",
+        "CatCafe_Cat_BellhopCat_Work_EarL",
+        "CatCafe_Cat_BellhopCat_Work_EarR",
+        "CatCafe_Cat_BellhopCat_Work_Tail",
+        "CatCafe_Cat_BellhopCat_Work_LegF1",
+        "CatCafe_Cat_BellhopCat_Work_LegF2",
+        "CatCafe_Cat_BellhopCat_Work_LegB1",
+        "CatCafe_Cat_BellhopCat_Work_LegB2",
+        "CatCafe_Cat_BellhopCat_Work_Held_Barista",
+        "CatCafe_Cat_BellhopCat_Work_Held_Waiter",
+        "CatCafe_Cat_BellhopCat_Work_Held_Entertainer",
+        "CatCafe_Cat_BellhopCat_Work_Prop",
+        "CatCafe_Cat_BellhopCat_Work_Prop2",
+        "CatCafe_Cat_BellhopCat_Work_Bell"
+      ],
+      "triangles": 2288,
+      "budget": 2400,
+      "size_studs": {
+        "x": 1.56,
+        "y": 1.68,
+        "z": 1.99
+      },
+      "size_roblox": [
+        1.56,
+        1.99,
+        1.68
+      ],
+      "bounds_min": [
+        -0.71,
+        -0.76,
+        0.0
+      ],
+      "bounds_max": [
+        0.85,
+        0.92,
+        1.99
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Rare",
+      "body": "work",
+      "gold": false,
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "fur_ginger",
+          "hex": "#D9662E"
+        },
+        "second": {
+          "swatch": "fur_russet",
+          "hex": "#8E4A2C"
+        },
+        "muzzle": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "tip": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "socks": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "blaze": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.095,
+          0.969
+        ],
+        "Tail": [
+          0.0,
+          0.19,
+          0.475
+        ],
+        "LegF1": [
+          0.451,
+          -0.057,
+          0.779
+        ],
+        "LegF2": [
+          -0.451,
+          -0.057,
+          0.779
+        ],
+        "LegB1": [
+          0.162,
+          -0.057,
+          0.418
+        ],
+        "LegB2": [
+          -0.162,
+          -0.057,
+          0.418
+        ],
+        "Eye1": [
+          0.24,
+          -0.646,
+          1.216
+        ],
+        "Eye2": [
+          -0.24,
+          -0.646,
+          1.216
+        ],
+        "EarL": [
+          0.285,
+          -0.2,
+          1.643
+        ],
+        "EarR": [
+          -0.285,
+          -0.2,
+          1.643
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          0.97,
+          -0.09
+        ],
+        "Tail": [
+          0.0,
+          0.47,
+          0.19
+        ],
+        "LegF1": [
+          -0.45,
+          0.78,
+          -0.06
+        ],
+        "LegF2": [
+          0.45,
+          0.78,
+          -0.06
+        ],
+        "LegB1": [
+          -0.16,
+          0.42,
+          -0.06
+        ],
+        "LegB2": [
+          0.16,
+          0.42,
+          -0.06
+        ],
+        "Eye1": [
+          -0.24,
+          1.22,
+          -0.65
+        ],
+        "Eye2": [
+          0.24,
+          1.22,
+          -0.65
+        ],
+        "EarL": [
+          -0.28,
+          1.64,
+          -0.2
+        ],
+        "EarR": [
+          0.28,
+          1.64,
+          -0.2
+        ]
+      },
+      "attachments": {
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.318,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.351,
+            0.703
+          ],
+          "offset_roblox": [
+            0.0,
+            0.7,
+            -0.35
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.057,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.057,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            0.204,
+            0.874
+          ],
+          "offset_roblox": [
+            0.0,
+            0.87,
+            0.2
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.218,
+            0.694
+          ],
+          "offset_roblox": [
+            0.0,
+            0.69,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.218,
+            0.694
+          ],
+          "offset_roblox": [
+            0.0,
+            0.69,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.218,
+            0.694
+          ],
+          "offset_roblox": [
+            0.0,
+            0.69,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Carry": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.162,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_BellhopCat_Work_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Face",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_BellhopCat_Work_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Bell": {
+          "object": "CatCafe_Cat_BellhopCat_Work_Bell",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            0.84,
+            -0.67
+          ]
+        }
+      },
+      "exclusive": true,
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_BellhopCat_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Face prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Face, so the role piece in that slot stays off too (F71). The child Model <name>_Bell hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_BellhopCat_Work.model.json",
+      "rbx_parts": 127,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_BellhopCat_Work.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_BellhopCat_Work.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2288/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1188 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.07 y=0.08"
         }
       }
     },
@@ -169656,6 +170901,196 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.20 (want 0)",
           "centered": "footprint center x=0.00 y=20.09"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Street_BellhopStand",
+      "category": "Street",
+      "module": "bellhop",
+      "objects": [
+        "CatCafe_Street_BellhopStand",
+        "CatCafe_Street_BellhopStand_Bulbs",
+        "CatCafe_Street_BellhopStand_Cat_Body",
+        "CatCafe_Street_BellhopStand_Cat_Head",
+        "CatCafe_Street_BellhopStand_Cat_Eye1",
+        "CatCafe_Street_BellhopStand_Cat_Eye2",
+        "CatCafe_Street_BellhopStand_Cat_EarL",
+        "CatCafe_Street_BellhopStand_Cat_EarR",
+        "CatCafe_Street_BellhopStand_Cat_Tail",
+        "CatCafe_Street_BellhopStand_Cat_LegF1",
+        "CatCafe_Street_BellhopStand_Cat_LegF2",
+        "CatCafe_Street_BellhopStand_Cat_Prop",
+        "CatCafe_Street_BellhopStand_Cat_Prop2",
+        "CatCafe_Street_BellhopStand_Cat_Bell"
+      ],
+      "triangles": 7990,
+      "budget": 9000,
+      "size_studs": {
+        "x": 9.2,
+        "y": 9.2,
+        "z": 7.72
+      },
+      "size_roblox": [
+        9.2,
+        7.72,
+        9.2
+      ],
+      "bounds_min": [
+        -4.6,
+        -4.6,
+        0.0
+      ],
+      "bounds_max": [
+        4.6,
+        4.6,
+        7.72
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Street_BellhopStand_Cat_Body": [
+          0.0,
+          0.0,
+          2.57
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Head": [
+          0.0,
+          -0.14,
+          4.02
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Eye1": [
+          0.31,
+          -0.88,
+          4.37
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Eye2": [
+          -0.31,
+          -0.88,
+          4.37
+        ],
+        "CatCafe_Street_BellhopStand_Cat_EarL": [
+          0.4,
+          -0.26,
+          4.92
+        ],
+        "CatCafe_Street_BellhopStand_Cat_EarR": [
+          -0.4,
+          -0.26,
+          4.92
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Tail": [
+          0.28,
+          0.62,
+          2.73
+        ],
+        "CatCafe_Street_BellhopStand_Cat_LegF1": [
+          0.24,
+          -0.43,
+          3.45
+        ],
+        "CatCafe_Street_BellhopStand_Cat_LegF2": [
+          -0.24,
+          -0.43,
+          3.45
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Prop": [
+          0.0,
+          -0.07,
+          4.95
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Prop2": [
+          0.0,
+          -0.14,
+          4.02
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Bell": [
+          0.0,
+          -0.91,
+          3.83
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Street_BellhopStand_Cat_Body": [
+          0.0,
+          2.57,
+          0.0
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Head": [
+          0.0,
+          4.02,
+          -0.14
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Eye1": [
+          -0.31,
+          4.37,
+          -0.88
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Eye2": [
+          0.31,
+          4.37,
+          -0.88
+        ],
+        "CatCafe_Street_BellhopStand_Cat_EarL": [
+          -0.4,
+          4.92,
+          -0.26
+        ],
+        "CatCafe_Street_BellhopStand_Cat_EarR": [
+          0.4,
+          4.92,
+          -0.26
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Tail": [
+          -0.28,
+          2.73,
+          0.62
+        ],
+        "CatCafe_Street_BellhopStand_Cat_LegF1": [
+          -0.24,
+          3.45,
+          -0.43
+        ],
+        "CatCafe_Street_BellhopStand_Cat_LegF2": [
+          0.24,
+          3.45,
+          -0.43
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Prop": [
+          0.0,
+          4.95,
+          -0.07
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Prop2": [
+          0.0,
+          4.02,
+          -0.14
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Bell": [
+          0.0,
+          3.83,
+          -0.91
+        ]
+      },
+      "studio": "F96 (starter-cat.md section 2): the Bellhop Cat's stand in the street plaza, between the Codes Cat and the Spin Wheel, the sign (-Z) toward the street. Tag BellhopStand; claims check the caller within 12 studs of its pivot. Attachments PromptAnchor (front of the dais, 3 studs up) and CatSeat (the cat's pivot on the suitcase). The cat is _Cat_<Piece> (BellhopCat at 1.5 times): its cap _Cat_Prop and collar _Cat_Prop2 ride inside _Cat_Head, the bell _Cat_Bell inside _Cat_Prop2, pivoted where it hangs. The sign's _Bulbs are lit at night. The dais and cart collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_BellhopStand.model.json",
+      "rbx_parts": 474,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_BellhopStand.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_BellhopStand.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "7990/9000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "4021 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
         }
       }
     }

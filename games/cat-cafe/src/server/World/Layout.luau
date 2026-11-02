@@ -1092,82 +1092,92 @@ Layout.woods = {
 	props = {},
 } :: AreaSpec
 
--- The Sewer at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Sewer_SetV32 (#491, area-sets.md
--- "The Sewer (v3.2)") fills the 180 x 180 floor, roofed from the tunnel front back. The way in winds from the storm
--- drain yard over the canal's one brick bridge, through the walk-in arch and the east hall's market to the cross
--- wall's one archway, then over the far catwalk into the west hall and the junk throne. Its cat spots are tagged by
--- region, not by half: `near` the yard and the market, `deep` everything past the cross wall's arch, the west hall's
--- far chamber in the gate half among them. Its grates and drain pipes are built into the set, each turned in it, two
--- of the four deep.
+-- The long Sewer (F85, hometown-cannon.md section 6b; Model-Agent #860, area-sets.md "The Sewer (F85)"): a 120 x 570
+-- wild part with its camp 30 more in front of the gate, on its west side, so the set's long axis runs along world X as
+-- the Woods' does. Its set, camp and backdrop carry the F85 suffix (artSuffix); its gate and night fence are the v3.2
+-- ones, which already span the 24 stud opening. Six blockers cross the width with their gaps on alternating sides:
+-- the yard's canal under its brick bridge, the tunnel front's walk-in arch, the rubble under the cracked beam, the
+-- channel's steel catwalk, the vault wall's arch into cat town and the pipe bank, to the throne room with the junk
+-- throne and the pipe organ at the far end. Its cat spots are `near` up to the channel and `deep` from its catwalk on,
+-- and its grates and drain pipes are built into the set, each turned in it, three of the four deep.
 local SX, SZ = W.SewerCenterX, W.SewerCenterZ
-local SGATE = SX - W.SewerWidth / 2 -- its west side
+local SGATE = SX - W.SewerDepth / 2 -- its west side
 local STURN = townTurn(SX, SZ, SGATE, nil)
 Layout.sewer = {
 	floorY = 0.1,
 	center = { x = SX, y = 0, z = SZ },
-	halfWidth = W.SewerWidth / 2,
-	halfDepth = W.SewerDepth / 2,
+	halfWidth = W.SewerDepth / 2, -- world X, the set's long axis (a quarter turn)
+	halfDepth = W.SewerWidth / 2,
 	gateX = SGATE,
 	openingHalfWidth = W.SideGateHalfWidth,
-	set = "CatCafe_Sewer_SetV32",
+	set = "CatCafe_Sewer_SetF85",
+	artSuffix = "F85",
 	setLift = 0.4, -- the set's tiled slab
 	spawnPoints = (function(): { Point }
 		local points = setPoints(SX, SZ, STURN, 0.1, {
-			{ 44, 2.8, -61 }, -- the bridge
-			{ -24, 0.4, -73 }, -- the puddle
-			{ 73, 0.4, -79 }, -- the barrel
-			{ 60, 0.4, -78 }, -- the tyres
-			{ 30, 0.4, -76 }, -- the cones
-			{ -66, 0.4, -78 }, -- the crates
-			{ -78, 0.4, -72.5 }, -- the suitcases
-			{ -56, 0.4, -76.5 }, -- glow mushrooms
-			{ 12, 0.4, -26.5 },
-			{ 20, 0.4, -46 }, -- the canal banks
-			{ -20, 0.4, -47 },
-			{ -66, 0.4, -47 },
-			{ 72, 0.4, -46 },
-			{ -44, 0.4, -44.5 }, -- the barred arch
-			{ 20, 0.4, -4 }, -- the market stalls
-			{ 34, 0.4, -4 },
-			{ 48, 0.4, -4 },
-			{ 74.04, 2.55, -23.33 }, -- the deck
-			{ 24, 0.4, -22 }, -- the market
-			{ 56, 0.4, -12 },
+			{ 38, 2.8, -205 }, -- the brick bridge
+			{ -24, 0.4, -247 }, -- the puddle
+			{ 45, 0.4, -259 }, -- the barrel
+			{ 32, 0.4, -264 }, -- the tyres
+			{ 14, 0.4, -232 }, -- the cones
+			{ -40, 0.4, -262 }, -- the crates
+			{ -48, 0.4, -240.5 }, -- the suitcases
+			{ -40, 0.4, -229.5 }, -- glow mushrooms
+			{ 6, 0.4, -95.5 },
+			{ -48, 0.4, -26.5 },
+			{ 20, 0.4, -193 }, -- the canal banks
+			{ -20, 0.4, -193 },
+			{ -38, 0.4, -154.5 }, -- the walk-in arch
+			{ -47.4, 0.4, -130 }, -- the market stalls
+			{ -47.4, 0.4, -114 },
+			{ 10, 0.4, -135.4 },
+			{ 44.04, 2.55, -131.33 }, -- the market's crate deck
+			{ -16, 0.4, -124 }, -- the market
+			{ 44, 0.4, -22.35 }, -- a pipe end
+			{ 51.9, 0.4, -47 }, -- the valve
+			{ -14, 1.82, -12 }, -- the bathtub boat
+			{ -23.5, 2.2, -14.52 }, -- the raft
+			{ -20, 0.4, -44 }, -- the pump room
+			{ 24, 0.4, -20 },
+			{ -36, 0.4, -12 }, -- the catwalk's feet
 		}, "near")
 		for _, point in
 			setPoints(SX, SZ, STURN, 0.1, {
-				{ 0, 3.6, 50 }, -- the bridge
-				{ -76, 0.4, 79.5 }, -- the suitcases
-				{ 20, 0.4, 66.5 }, -- glow mushrooms
-				{ 72, 0.4, 17.5 },
-				{ -15.5, 0.4, 30 },
-				{ -60, 0.4, -2.5 },
-				{ -17.5, 0.4, -32 },
-				{ -38.49, 2.55, -21.54 }, -- the deck
-				{ 32.34, 0.4, 32.73 }, -- the cat houses
-				{ 51.66, 0.4, 32.73 },
-				{ 30.73, 0.4, 53.66 },
-				{ 53.45, 0.4, 55.45 },
-				{ 42, 0.4, 38 }, -- the square
-				{ 36, 0.4, 46 },
-				{ 80, 3.65, 64 }, -- the mine cart
-				{ 34, 0.4, 81.9 }, -- the valve
-				{ 73.6, 0.4, 78 }, -- a pipe end
-				{ 12, 0.4, 46 }, -- the far catwalk's feet
-				{ -12, 0.4, 54 },
-				{ 14, 0.4, 74 }, -- the pool
-				{ -46, 3.3, 80.1 }, -- the junk throne
-				{ -32, 0.4, 82.7 }, -- the pipe organ
-				{ -62, 0.4, 74 }, -- the toy pile
-				{ -67.2, 1.88, 45.3 }, -- the sofa
-				{ -30, 1, 40 }, -- the trolley
-				{ -46, 0.4, 66 }, -- the throne room
-				{ -20, 0.4, 70 },
-				{ -28, 1.82, 4 }, -- the boat
-				{ -39.5, 2.2, 2.98 }, -- the raft
-				{ -82, 2.4, -25.7 }, -- the hammock
-				{ -46, 0.4, -18 }, -- the far chamber
-				{ -60, 0.4, 20 },
+				{ -40, 3.6, 0 }, -- the steel catwalk over the channel
+				{ -46, 0.4, 273.5 }, -- the suitcases
+				{ 12, 0.4, 74.5 }, -- glow mushrooms
+				{ -44.5, 0.4, 24 },
+				{ -8, 0.4, 104.5 },
+				{ 50.5, 0.4, 172 },
+				{ 16, 0.4, 272.5 },
+				{ -44.5, 0.4, 206 },
+				{ 19.51, 2.55, 20.46 }, -- the deck
+				{ -6.35, 0.4, 166 }, -- a pipe end
+				{ -44, 0.4, 12 }, -- the catwalk's feet
+				{ 38.8, 1.88, 71.3 }, -- the sofa
+				{ -14, 1, 44 }, -- the yarn trolley
+				{ -52, 2.4, 70.3 }, -- the pipe hammock
+				{ 0, 0.4, 40 }, -- the lost and found
+				{ 34, 0.4, 50 },
+				{ 20.6, 0.4, 128.49 }, -- the cat houses
+				{ 39.4, 0.4, 128.49 },
+				{ 20.6, 0.4, 146.51 },
+				{ 39.4, 0.4, 146.51 },
+				{ 30, 0.4, 132 }, -- cat town's square
+				{ 26, 0.4, 143 },
+				{ -50.5, 3.65, 164 }, -- the mine cart
+				{ -36, 0.4, 104 }, -- cat town
+				{ -4, 0.4, 156 },
+				{ -40, 0.4, 172 },
+				{ 34, 4.5, 270.6 }, -- the junk throne
+				{ 34, 0.4, 277.7 }, -- the pipe organ
+				{ 24, 0.4, 263 }, -- the dais
+				{ -30, 0.4, 266 }, -- the toy pile
+				{ -16, 0.4, 256 }, -- the pool
+				{ 16, 0.4, 252 },
+				{ 10, 0.4, 230 }, -- the throne room
+				{ -20, 0.4, 212 },
+				{ -42, 0.4, 194 }, -- the pipe bank
 			}, "deep")
 		do
 			table.insert(points, point)
@@ -1176,10 +1186,10 @@ Layout.sewer = {
 	end)(),
 	rescueSpots = {
 		-- a grate is square; a drain pipe's mouth faces the piece's -Z
-		setTrap(SX, SZ, STURN, "grate", { -38, 0.4, -78 }),
-		setTrap(SX, SZ, STURN, "grate", { 70, 0.4, 40 }),
-		setTrap(SX, SZ, STURN, "drain_pipe", { 81.7, 0.4, -77 }, 90),
-		setTrap(SX, SZ, STURN, "drain_pipe", { -81.7, 0.4, 22 }, -90),
+		setTrap(SX, SZ, STURN, "grate", { -34, 0.4, -92 }), -- in the junk market
+		setTrap(SX, SZ, STURN, "grate", { -36, 0.4, 112 }), -- in cat town
+		setTrap(SX, SZ, STURN, "drain_pipe", { -51.7, 0.4, 49 }, -90), -- in the lost and found
+		setTrap(SX, SZ, STURN, "drain_pipe", { 51.7, 0.4, 256 }, 90), -- in the throne room
 	},
 	props = {},
 } :: AreaSpec
@@ -1422,7 +1432,7 @@ Layout.campExtras = {
 	park = { x = 19, y = 0, z = -160.5 }, -- F85: in the long camp, left of the flower bed (Model-Agent 11-02)
 	neighbourhood = { x = 22, y = 0, z = -220.5 }, -- F85: in the long camp, clear of its mailbox (Model-Agent)
 	woods = { x = 21.5, y = 0, z = -250 }, -- F85: the Fish Pond beside the long camp's way out (Model-Agent)
-	sewer = { x = 20, y = 0, z = -94.5 },
+	sewer = { x = 20, y = 0, z = -289.5 }, -- F85: the Lost and Found 3.5 inside the long camp's gate line (Model-Agent)
 } :: { [string]: Point }
 
 -- Where an area's camp extra stands in the world: x, the floor's y and z, the turn about Y (the camp's), or nil for an

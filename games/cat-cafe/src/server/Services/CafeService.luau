@@ -615,8 +615,9 @@ local function refreshEspresso(plot: WorldBuilder.Plot, profile: Profile)
 end
 
 -- The Lucky Cat statue in the front garden (F88, luck-and-rare-moments.md section 1): CatCafe_Plot_LuckyCat_<level>,
--- level 0 a plinth and sign before the first level is bought, swapped when the level changes. Its Level attribute is
--- for the client, which waves the paw (the <asset>_Paw child) of levels 1 to 5.
+-- level 0 a plinth and sign before the first level is bought, swapped when the level changes. Named LuckyCat and
+-- tagged LuckyCat, with its Level attribute, for the client's effects: the paw wave (the <asset>_Paw child) of
+-- levels 1 to 5 and the level up sparkle.
 local function refreshLuckyCat(plot: WorldBuilder.Plot, profile: Profile)
 	local level = math.clamp(Economy.level(profile, Luck.UPGRADE), 0, 5)
 	local assetName = "CatCafe_Plot_LuckyCat_" .. level
@@ -631,6 +632,7 @@ local function refreshLuckyCat(plot: WorldBuilder.Plot, profile: Profile)
 	model.Name = "LuckyCat"
 	model:SetAttribute("Asset", assetName)
 	model:SetAttribute("Level", level)
+	CollectionService:AddTag(model, "LuckyCat")
 	model:PivotTo(plot.luckyCat.CFrame)
 	model.Parent = plot.model
 end

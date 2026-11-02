@@ -9,7 +9,7 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
   CatCafe_Icon_StarTreat    the Star Treat (items.py), the Golden Fish Market's food
   CatCafe_Icon_Perk_<Perk>  the market perks: GoldenEspresso (a gold espresso), BigBowl (a heaped bowl and a quick
                             clock), ExtraDecorSpot (a plant on a new decor spot with a plus)
-  CatCafe_Icon_Net_L<n>     the catching net at each level (items.py)
+  CatCafe_Icon_Net_L<n>     the catching net at each level, L1 Basic to L4 Master (items.py)
   CatCafe_Icon_Decor        the HUD's Decor button: a cat-eared armchair and a potted plant (Set 5 Q10)
 """
 import argparse
@@ -122,7 +122,7 @@ ICONS = {
     "CatCafe_Icon_Perk_BigBowl": (_perk_big_bowl, INK, 10, (-20.0, 28.0)),
     "CatCafe_Icon_Perk_ExtraDecorSpot": (_perk_extra_decor_spot, INK, 10, (-28.0, 26.0)),
     "CatCafe_Icon_Decor": (_hud_decor, INK, 10, (-24.0, 16.0)),
-    **{f"CatCafe_Icon_Net_L{n}": ((lambda m, n=n: items.build_net(n, m)), INK, 10, (-62.0, 40.0)) for n in (1, 2, 3)},
+    **{f"CatCafe_Icon_Net_L{n}": ((lambda m, n=n: items.build_net(n, m)), INK, 10, (-62.0, 40.0)) for n in (1, 2, 3, 4)},
     **{f"CatCafe_Icon_Potion_{k}": ((lambda m, k=k: potions.build_potion(k, m)), INK, 10, (8.0, 10.0))
        for k in potions.POTIONS},
 }

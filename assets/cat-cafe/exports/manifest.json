@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 03:15 UTC",
+  "generated": "2026-11-02 03:34 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -74352,35 +74352,37 @@
       "module": "items",
       "objects": [
         "CatCafe_Item_Net_L1_Handle",
-        "CatCafe_Item_Net_L1_Bag"
+        "CatCafe_Item_Net_L1_Hoop",
+        "CatCafe_Item_Net_L1_Bag",
+        "CatCafe_Item_Net_L1_Bag_Glass"
       ],
-      "triangles": 412,
-      "budget": 500,
+      "triangles": 496,
+      "budget": 600,
       "size_studs": {
-        "x": 1.75,
-        "y": 4.8,
-        "z": 1.22
+        "x": 1.89,
+        "y": 4.78,
+        "z": 1.17
       },
       "size_roblox": [
-        1.75,
-        1.22,
-        4.8
+        1.89,
+        1.17,
+        4.78
       ],
       "bounds_min": [
-        -0.88,
+        -0.95,
         -4.8,
-        -1.1
+        -1.05
       ],
       "bounds_max": [
-        0.88,
-        0.0,
+        0.95,
+        -0.02,
         0.12
       ],
       "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the Handle, the net's axes) is where the hand holds it.",
+      "studio": "The Basic Net (F93), held all the time by Effects' NetHold: the Attachment Grip (mid wrap, on the Handle, the net's axes) goes in the hand. Child Models _Hoop (the rim, its far edge the point farthest from the Grip) and _Bag (strands; _Bag_Glass, the see-through netting cone, exports at Transparency 0.6).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_Net_L1.model.json",
-      "rbx_parts": 21,
+      "rbx_parts": 28,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_Net_L1.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_Net_L1.glb"
@@ -74393,13 +74395,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "412/500 tris",
+          "budget": "496/600 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "206 faces on swatch centers",
+          "uv": "262 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-1.10 (want 0)",
-          "centered": "footprint center x=0.00 y=-2.40"
+          "pivot": "floor at z=-1.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.41"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Net_L1.png",
@@ -74411,35 +74413,37 @@
       "module": "items",
       "objects": [
         "CatCafe_Item_Net_L2_Handle",
-        "CatCafe_Item_Net_L2_Bag"
+        "CatCafe_Item_Net_L2_Hoop",
+        "CatCafe_Item_Net_L2_Bag",
+        "CatCafe_Item_Net_L2_Bag_Glass"
       ],
-      "triangles": 596,
-      "budget": 600,
+      "triangles": 680,
+      "budget": 750,
       "size_studs": {
-        "x": 2.05,
-        "y": 5.4,
-        "z": 1.22
+        "x": 2.21,
+        "y": 5.38,
+        "z": 1.27
       },
       "size_roblox": [
-        2.05,
-        1.22,
-        5.4
+        2.21,
+        1.27,
+        5.38
       ],
       "bounds_min": [
-        -1.02,
+        -1.1,
         -5.4,
-        -1.1
+        -1.15
       ],
       "bounds_max": [
-        1.02,
-        0.0,
+        1.1,
+        -0.02,
         0.12
       ],
       "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the Handle, the net's axes) is where the hand holds it.",
+      "studio": "The Sturdy Net (F93), held all the time by Effects' NetHold: the Attachment Grip (mid wrap, on the Handle, the net's axes) goes in the hand. Child Models _Hoop (the rim, its far edge the point farthest from the Grip) and _Bag (strands; _Bag_Glass, the see-through netting cone, exports at Transparency 0.6).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_Net_L2.model.json",
-      "rbx_parts": 23,
+      "rbx_parts": 30,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_Net_L2.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_Net_L2.glb"
@@ -74452,13 +74456,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "596/600 tris",
+          "budget": "680/750 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "306 faces on swatch centers",
+          "uv": "362 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-1.10 (want 0)",
-          "centered": "footprint center x=0.00 y=-2.70"
+          "pivot": "floor at z=-1.15 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.71"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Net_L2.png",
@@ -74470,35 +74474,37 @@
       "module": "items",
       "objects": [
         "CatCafe_Item_Net_L3_Handle",
-        "CatCafe_Item_Net_L3_Bag"
+        "CatCafe_Item_Net_L3_Hoop",
+        "CatCafe_Item_Net_L3_Bag",
+        "CatCafe_Item_Net_L3_Bag_Glass"
       ],
-      "triangles": 644,
-      "budget": 650,
+      "triangles": 864,
+      "budget": 900,
       "size_studs": {
-        "x": 2.5,
-        "y": 6.05,
-        "z": 1.25
+        "x": 2.52,
+        "y": 6.02,
+        "z": 1.4
       },
       "size_roblox": [
-        2.5,
-        1.25,
-        6.05
+        2.52,
+        1.4,
+        6.02
       ],
       "bounds_min": [
-        -1.25,
-        -6.05,
-        -1.1
+        -1.26,
+        -6.0,
+        -1.26
       ],
       "bounds_max": [
-        1.25,
-        0.0,
-        0.15
+        1.26,
+        0.02,
+        0.14
       ],
       "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the Handle, the net's axes) is where the hand holds it.",
+      "studio": "The Pro Net (F93), held all the time by Effects' NetHold: the Attachment Grip (mid wrap, on the Handle, the net's axes) goes in the hand. Child Models _Hoop (the rim, its far edge the point farthest from the Grip) and _Bag (strands; _Bag_Glass, the see-through netting cone, exports at Transparency 0.6).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_Net_L3.model.json",
-      "rbx_parts": 27,
+      "rbx_parts": 32,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_Net_L3.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_Net_L3.glb"
@@ -74511,17 +74517,76 @@
           "centered"
         ],
         "checks": {
-          "budget": "644/650 tris",
+          "budget": "864/900 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "330 faces on swatch centers",
+          "uv": "462 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-1.10 (want 0)",
-          "centered": "footprint center x=0.00 y=-3.03"
+          "pivot": "floor at z=-1.26 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.99"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Net_L3.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Item_Net_L3.png"
+    },
+    {
+      "name": "CatCafe_Item_Net_L4",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_Net_L4_Handle",
+        "CatCafe_Item_Net_L4_Hoop",
+        "CatCafe_Item_Net_L4_Bag",
+        "CatCafe_Item_Net_L4_Bag_Glass"
+      ],
+      "triangles": 968,
+      "budget": 1100,
+      "size_studs": {
+        "x": 2.84,
+        "y": 6.94,
+        "z": 1.51
+      },
+      "size_roblox": [
+        2.84,
+        1.51,
+        6.94
+      ],
+      "bounds_min": [
+        -1.42,
+        -6.69,
+        -1.36
+      ],
+      "bounds_max": [
+        1.42,
+        0.25,
+        0.15
+      ],
+      "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "The Master Net (F93), held all the time by Effects' NetHold: the Attachment Grip (mid wrap, on the Handle, the net's axes) goes in the hand. Child Models _Hoop (the rim, its far edge the point farthest from the Grip) and _Bag (strands; _Bag_Glass, the see-through netting cone, exports at Transparency 0.6).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_Net_L4.model.json",
+      "rbx_parts": 42,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_Net_L4.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_Net_L4.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "968/1100 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "528 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.36 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.22"
+        }
+      }
     },
     {
       "name": "CatCafe_Item_Sardines",

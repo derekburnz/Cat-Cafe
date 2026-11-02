@@ -218,6 +218,7 @@ return function()
 		CollectorRainbowMultiplier = 10,
 		RainbowAnimateMax = 10,
 		RainbowSpawnToastSeconds = 60,
+		FishFirstRainbowMultiplier = 5, -- F99 section 1: a first rainbow pays five first catches
 		PicnicEverySeconds = 21600, -- F100 (camp-extras.md section 4); LostFoundTable is checked in CampExtras.spec
 		PicnicHold = 2,
 		PicnicPotion = "tip_potion", -- Design-Agent 11-02: one 10 minute Money Potion a fill, not a 15 minute one

@@ -397,6 +397,9 @@ local Config = {
 	CollectorRainbowMultiplier = 10,
 	RainbowAnimateMax = 10,
 	RainbowSpawnToastSeconds = 60,
+	-- golden fish for each cat's first rainbow coat: this times the rarity's FishFirstCatch (Common 5 to Mythical
+	-- 200), any way it was found, on top of a new cat's fish (section 1, added after the #795 review)
+	FishFirstRainbowMultiplier = 5,
 
 	-- The camp extras (F100, camp-extras.md sections 2 and 4), each filling while the player is away up to its hold.
 	-- The Picnic Basket (Park) bags one PicnicPotion (Design-Agent 11-02: the 10 minute Money Potion) every

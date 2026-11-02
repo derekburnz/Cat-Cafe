@@ -6,7 +6,8 @@
 -- filled, gold and twice as many for the full bar. In the world, the bunting (any Model or part ending `_Pennant`
 -- inside a Model with `Bunting` in its name: the Town Square's Rally bunting, the Rally Crate's cheer bunting)
 -- flutters in the wind, a gust running across it the way the wind blows. Reduce Motion stops the pops and the
--- flutter and halves the step sparkles; the bar still fills (the UI's).
+-- flutter and halves the step sparkles; the bar still fills (the UI's). The Rally board's marquee is RallyBoard.luau,
+-- told here when the Rally is on, each point and each step.
 --
 -- Source: the server's `RallyState({ active, endsAt, lap, goal, points, myPoints, lapsPaid })` and
 -- `RallyPoint(userId, amount)` to every client, hooked when they appear (they only exist once the server has F101).
@@ -19,6 +20,7 @@ local Workspace = game:GetService("Workspace")
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Presets = require(script.Parent.Presets)
+local RallyBoard = require(script.Parent.RallyBoard)
 local ScreenFx = require(script.Parent.ScreenFx)
 
 local Rally = {}
@@ -243,8 +245,10 @@ local function onState(payload: unknown)
 	if served.known and served.active and active then
 		for i, step in Logic.rallySteps(served.fill, served.lap, fill, lap, Presets.rally.steps) do
 			task.delay((i - 1) * 0.35, stepped, step)
+			task.delay((i - 1) * 0.35, RallyBoard.flash, step)
 		end
 	end
+	RallyBoard.setActive(active)
 	served.known, served.active, served.lap, served.fill = true, active, lap, fill
 	shown.goal, shown.points = goal, points
 end
@@ -255,6 +259,7 @@ local function onPoint(userId: unknown, amount: unknown)
 	end
 	shown.points += amount
 	pop(amount, userId == Players.LocalPlayer.UserId)
+	RallyBoard.point()
 end
 
 -- Bunting ---------------------------------------------------------------------------------------------------------
@@ -450,6 +455,7 @@ function Rally.start()
 		considerPennant(descendant)
 	end
 	Workspace.DescendantAdded:Connect(considerPennant)
+	RallyBoard.start()
 	task.spawn(function()
 		while true do
 			pickPennants()

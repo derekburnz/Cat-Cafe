@@ -7,8 +7,8 @@
 --   split  the same chance for every cat of a rarity across the areas you have unlocked, cat by cat, and which
 --          area the next rank up adds to the pool
 --   extras the gold chance (with the Index's gold luck in it, v0.10, and a running Gold Rush or Lucky Potion's,
---          F73) and the charm star odds, because both change what the cat earns; under the card's Details since
---          2026-10-28, with the split
+--          F73), because it changes what the cat earns; under the card's Details since 2026-10-28, with the split.
+--          The charm star odds left with F97 section 5 (stars show nowhere now)
 --   atBowl a food's odds in the player's bowl (F82): shared Bait.oddsFor at the lure_bowl level, as the server rolls
 --   waitSeconds how long the bowl's cat takes: the bowl level's wait (F82), a fifth off with the Big Bowl perk, half
 --          for food set at night (F60), less the faster bait (the Index's, F54, plus a running Quick Bait Potion's,
@@ -30,9 +30,8 @@ local FoodOdds = {}
 local RARITIES: { string } = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 local NBSP = utf8.char(0xA0) -- a no-break space
 
--- data-model section 8: GoldChanceBait 0.05 (v0.5 F42), and the charm star odds from the two-roll charm
+-- data-model section 8: GoldChanceBait 0.05 (v0.5 F42)
 local GOLD_CHANCE: number = Config.GoldChanceBait
-local STAR_ODDS: { number } = Config.CharmStarOdds
 local GOLD_LUCK_MAX: number = (Config :: any).GoldLuckMax or 1.5
 local BAIT_SPEED_MAX: number = (Config :: any).BaitSpeedMax or 0.5
 
@@ -168,15 +167,11 @@ function FoodOdds.split(
 	return table.concat(lines, "\n")
 end
 
--- "Gold 5% · Charm 1★ 7.8%, 2★ 23.5%, 3★ 35.7%, 4★ 24.3%, 5★ 8.7%"; with gold luck the chance has it in
--- (chance x (1 + luck), golden-fish.md section 5): "Gold 7% (+40% luck) · Charm ...". F73, as the server's
--- BaitService: `potionLuck` (a running Gold Rush Potion's) goes on top of the Index's capped luck, and `goldScale`
--- (a running Lucky Potion's 2) multiplies the lot: "Gold 16.5% (+65% luck, Lucky Potion x2) · Charm ...".
+-- "Gold 5%"; with gold luck the chance has it in (chance x (1 + luck), golden-fish.md section 5): "Gold 7% (+40%
+-- luck)". F73, as the server's BaitService: `potionLuck` (a running Gold Rush Potion's) goes on top of the Index's
+-- capped luck, and `goldScale` (a running Lucky Potion's 2) multiplies the lot: "Gold 16.5% (+65% luck, Lucky Potion
+-- x2)". No charm star odds since F97 section 5.
 function FoodOdds.extras(goldLuck: number?, potionLuck: number?, goldScale: number?): string
-	local stars: { string } = {}
-	for count, share in STAR_ODDS do
-		table.insert(stars, ("%d★ %s"):format(count, percent(share)))
-	end
 	local luck = math.clamp(goldLuck or 0, 0, GOLD_LUCK_MAX) + math.max(0, potionLuck or 0)
 	local scale = math.max(1, goldScale or 1)
 	local gold = percent(GOLD_CHANCE * (1 + luck) * scale * 100)
@@ -190,7 +185,7 @@ function FoodOdds.extras(goldLuck: number?, potionLuck: number?, goldScale: numb
 	if #notes > 0 then
 		gold ..= " (" .. table.concat(notes, ", ") .. ")"
 	end
-	return ("Gold %s · Charm %s"):format(gold, table.concat(stars, ", "))
+	return "Gold " .. gold
 end
 
 -- The bait wait for food going in now, as the server's Economy.baitWaitSeconds: shared Bait.waitSeconds for the

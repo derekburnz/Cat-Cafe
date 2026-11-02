@@ -599,7 +599,7 @@ function BaitBowl._renderStatus(self: any)
 			title = "A cat is at your bowl!"
 			sub = if self._catWaiting
 				then "Tame it or let it go. The food is used either way."
-				else "Go to your bowl by the door to see who came."
+				else "It is sitting down at your bowl now."
 			if self._catWaiting then
 				action = "cat"
 			end

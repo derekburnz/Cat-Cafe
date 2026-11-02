@@ -256,7 +256,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 -- data-model section 8: UseLure works from anywhere (Derek 2026-10-28), and so do Tame and Let go once the server drops
 -- BaitResolveRangeStuds (Derek 2026-10-28: "tame or let go from anywhere"); while Config has the range, the bait card
 -- greys its buttons beyond it as the server refuses there
-local resolveRange: unknown = Config.BaitResolveRangeStuds
+local resolveRange: unknown = (Config :: any).BaitResolveRangeStuds
 local RESOLVE_RANGE: number? = if type(resolveRange) == "number"
 		and resolveRange < math.huge
 	then resolveRange

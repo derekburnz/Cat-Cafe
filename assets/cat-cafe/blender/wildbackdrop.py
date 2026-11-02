@@ -22,7 +22,8 @@ Themes: the Alleyway in city blocks, the Park in hills and parkland with a lake,
 a road, the Woods in deep forest under mountains, the Sewer in brick works with chimneys. Nothing collides, casts a
 shadow or takes a raycast (rbx_export BACKDROP), and every piece keeps KEEP clear of the area's walls and its camp set.
 Built against Config.World's v4 (F84) sizes; each F85 long rectangle gets its own ring with its numbers in AREAS
-(CatCafe_Park_BackdropF85 round the 120 x 310 Park, CatCafe_Neighbourhood_BackdropF85 round the 180 x 430 Neighbourhood).
+(CatCafe_Park_BackdropF85 round the 120 x 310 Park, CatCafe_Neighbourhood_BackdropF85 round the 180 x 430 Neighbourhood,
+CatCafe_Woods_BackdropF85 round the 160 x 490 Woods).
 """
 
 import math
@@ -51,8 +52,10 @@ AREAS = {
     "Sewer": (90.0, 90.0, "works"),
     "ParkF85": (60.0, 155.0, "park"),         # F85's long Park, 120 x 310 (parkf85.py)
     "NeighbourhoodF85": (90.0, 215.0, "houses"),   # F85's long Neighbourhood, 180 x 430 (neighbourhoodf85.py)
+    "WoodsF85": (80.0, 245.0, "forest"),      # F85's long Woods, 160 x 490 (woodsf85.py)
 }
-NAMES = {"ParkF85": "CatCafe_Park_BackdropF85", "NeighbourhoodF85": "CatCafe_Neighbourhood_BackdropF85"}   # an F85 ring keeps its area's name, so WorldBuilder can pick it
+NAMES = {"ParkF85": "CatCafe_Park_BackdropF85", "NeighbourhoodF85": "CatCafe_Neighbourhood_BackdropF85",
+         "WoodsF85": "CatCafe_Woods_BackdropF85"}   # an F85 ring keeps its area's name, so WorldBuilder can pick it
 
 ASPHALT_RGB = (70, 70, 75)                     # WorldBuilder's ASPHALT
 PALE_RGB = (150, 186, 128)                     # the far hills, as in the hometown's

@@ -421,7 +421,10 @@ local DECOR_SOUNDS: { [string]: { cue: string, part: string? } } = {
 		part = "CatCafe_Decor_DuckFountain_Ducklings_Spin",
 	},
 	alley_retro_jukebox = { cue = "decorJukebox", part = "CatCafe_Decor_RetroJukebox_Record_Spin" },
-	classic_cat_tree_tower = { cue = "decorCatTree" },
+	classic_cat_tree_tower = {
+		cue = "decorCatTree",
+		part = "CatCafe_Decor_CatTreeTower_Toy1_Swing",
+	},
 }
 
 function Logic.decorSound(decorId: any): (string?, string?)

@@ -224,6 +224,16 @@ local function localUserId()
 	return game:GetService("Players").LocalPlayer.UserId
 end
 
+-- F92: the first catching area the gate's Tier 1 player has open, for a pal who is out there
+local function firstArea()
+	for _, area in Catalog.areas do
+		if area.tier <= 1 then
+			return area.id
+		end
+	end
+	return Catalog.areas[1].id
+end
+
 -- an F99 rainbow cat for the cat room: the first Epic in the catalog, level 8, resting
 local function rainbowCat()
 	local catId = Catalog.cats[1].id
@@ -615,6 +625,37 @@ local SCENES = {
 			zoneEndsAt = t + 5,
 		})
 	end },
+	-- F92: a Team Rescue helper's copy of the bar, two hits in: "Helping!" and the rescuer's paws
+	{ "RescueHelper", function()
+		local challenge = rescueChallenge()
+		challenge.helper = true
+		challenge.hits = 2
+		challenge.zone = 3
+		UI.rescue.show("gate_rescue", challenge)
+	end },
+	-- F92: the Team Rescue pop on the helper's screen, with the helper's tip
+	{ "TeamRescue", function()
+		UI.teamRescue(4242, localUserId(), 1240)
+	end },
+	-- F92: four pals on the server: three faces, "+1" and "+15% with pals" after the potion timer
+	{ "HUDPals", function()
+		local t = workspace:GetServerTimeNow()
+		UI.update({ buffs = { tip_potion = t + 492 } })
+		UI.pals({ 4242, 4343, 4444, 4545 })
+	end },
+	-- F92: a joiner whose pal is out in the first area: "Your pal is in the Alleyway" over the glowing Cannon
+	{ "PalArrived", function()
+		UI.palArrived(4242, firstArea())
+	end },
+	-- F92: the Cannon picker with that pal's tag on the area's card
+	{ "CannonPal", function()
+		UI.palArrived(4242, firstArea())
+		UI.cannon.open()
+	end },
+	-- F92: the one invite nudge on the slide-in ask card
+	{ "InviteAsk", function()
+		UI.asks.show("invite_ask")
+	end },
 	-- F93: the touch Net button, in a catching area while a swing could go (phones only)
 	{ "NetButton", function()
 		UI.setZone("Alley")
@@ -700,6 +741,7 @@ local SCENES = {
 	end },
 	-- last, since no window closes it: the money's boosts card with a Money Potion running and some boosts bought
 	{ "HUDBoosts", function()
+		UI.pals({ 4242 }) -- F92: one pal on the server, so the card has the Pals row
 		local t = workspace:GetServerTimeNow()
 		UI.update({
 			buffs = { tip_potion = t + 492, swift_potion = t + 130 },
@@ -771,6 +813,7 @@ end
 
 function Scenes.close()
 	UI.close()
+	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
 	UI.catch.hideCircles()
 	UI.catch.hide()
 	UI.rescue.hide()
@@ -782,6 +825,10 @@ function Scenes.close()
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 	if ask and ask:FindFirstChild("Choice_ok", true) and ask:FindFirstChild("Card", true).Visible then
 		press("CatCafeAsk", "Choice_ok")
+	end
+	-- F92: the invite nudge's Not now
+	if ask and ask:FindFirstChild("Choice_later", true) and ask:FindFirstChild("Card", true).Visible then
+		press("CatCafeAsk", "Choice_later")
 	end
 	-- the cat found card goes by itself after 5 s; Nice! now, so it is not over the next scene
 	local found = UIShim.playerGui:FindFirstChild("CatCafePopups")

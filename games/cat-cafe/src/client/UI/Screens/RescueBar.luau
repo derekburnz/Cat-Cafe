@@ -16,6 +16,10 @@
 -- drains as its time runs out. Polish: the marker is a needle with a little paw on top, the hit pips sit above the
 -- bar and a ring round the bar runs down the attempt's deadline (it was a line under the bar). The trap's shake and
 -- the free burst are the vfx-animator's.
+--
+-- F92 Team Rescue (playing-together.md section 3): a helper's copy of a running bar (challenge.helper) starts from
+-- the hits so far, says "Helping! Your misses cost no paws", guesses no paw lost on a miss (the paws row is the
+-- rescuer's, from RescueResult), and ends with "Thanks for helping!": the cat goes to the rescuer.
 
 local ContextActionService = game:GetService("ContextActionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -521,7 +525,8 @@ function RescueBar.show(
 	self._callbacks = callbacks
 	self._active = true
 	self._done = false
-	self._hits = 0
+	self._helper = challenge.helper == true -- F92: on someone else's bar
+	self._hits = if self._helper then math.max(0, math.floor(challenge.hits or 0)) else 0
 	self._lastPress = 0
 	self._paws = challenge.paws
 	self._run = {
@@ -529,7 +534,7 @@ function RescueBar.show(
 		phase = challenge.phase or 0,
 		speed = challenge.speed or 1,
 	}
-	self._zoneIndex = rules(challenge).zone or 1
+	self._zoneIndex = rules(challenge).zone or (self._hits + 1)
 	self._zoneSince = challenge.startsAt
 	self._zoneEndsAt = rules(challenge).zoneEndsAt
 
@@ -540,8 +545,9 @@ function RescueBar.show(
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
 	local shake = challenge.kind == "shake_catch"
-	self._hint.Text = if shake
-		then "Hit the green to shake the branch!"
+	self._hint.Text = if self._helper
+		then "Helping! Your misses cost no paws"
+		elseif shake then "Hit the green to shake the branch!"
 		elseif rules(challenge).zone ~= nil then "Hit the green before it moves!"
 		elseif Scale.isTouch() then "Tap when the bar is in the green!"
 		else "Press Space or click when the bar is in the green!"
@@ -704,7 +710,7 @@ function RescueBar._press(self: any)
 		self:_flash("MISS", Theme.colors.red, position)
 		wobble(self._bar, self._barBase)
 		local paws: number? = self._paws
-		if paws ~= nil then
+		if paws ~= nil and not self._helper then -- F92: a helper's miss costs no paw
 			self._paws = math.max(0, paws - 1)
 			self._pawRow:lose(self._paws)
 		end
@@ -827,14 +833,18 @@ function RescueBar.update(
 	if success then
 		self._outcome.Text = "Rescued!"
 		self._outcome.TextColor3 = Theme.colors.good
-		self._detail.Text = "Carry it home to check in"
+		-- F92: the helper's cat goes to the rescuer
+		self._detail.Text = if self._helper
+			then "Thanks for helping!"
+			else "Carry it home to check in"
 		self._banner.UIStroke.Color = Theme.colors.good
 		self._hint.Text = "It's free!"
 	else
 		self._outcome.Text = "Still stuck"
 		self._outcome.TextColor3 = Theme.colors.red
-		self._detail.Text = if pawsLeft == 0
-			then "Out of paws. Try again soon"
+		self._detail.Text = if self._helper
+			then "Thanks for helping"
+			elseif pawsLeft == 0 then "Out of paws. Try again soon"
 			else "Try again in a moment"
 		self._banner.UIStroke.Color = Theme.colors.red
 		wobble(self._bar, self._barBase)

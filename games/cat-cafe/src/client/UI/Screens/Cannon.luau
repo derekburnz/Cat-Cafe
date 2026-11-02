@@ -6,6 +6,8 @@
 -- lists Town Square first, then the other opened areas. In the last DuskWarningSeconds of the day the area cards
 -- read "Night soon" and at night a moon covers them, with the sunrise countdown under the title; Town Square
 -- stays open. Every Launch greys while carrying. Rules and words in Components/CannonLogic.
+-- F92 (playing-together.md section 5): while a joiner's pal marker is up, the pal's area card wears a gold "Sam is
+-- here" tag on its picture (setPal).
 
 local Workspace = game:GetService("Workspace")
 
@@ -32,6 +34,8 @@ export type Cannon = {
 	setCannon: (self: Cannon, cannonId: string) -> (),
 	setAreasOpen: (self: Cannon, open: boolean) -> (),
 	setClock: (self: Cannon, phase: Types.ClockPhase?, phaseEndsAt: number?) -> (),
+	-- F92: the area a joiner's pal is in and the pal's name, or nil to take the tag away
+	setPal: (self: Cannon, areaId: string?, name: string?) -> (),
 	render: (self: Cannon, state: Types.PlayerState, carrying: boolean) -> (),
 	opened: (self: Cannon) -> (),
 	closed: (self: Cannon) -> (),
@@ -83,6 +87,7 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._pendingUntil = 0
 	self._open = false
 	self._tick = 0
+	self._pal = nil :: { areaId: string, name: string }?
 
 	local panel = Panel.new({
 		name = "Cannon",
@@ -224,6 +229,28 @@ function Cannon._buildCards(self: any)
 		Outline.text(nightLine, 2)
 		Outline.border(art, 2)
 		Outline.shade(art, 0.2)
+		-- F92: the joiner's pal is here
+		local pal = text({
+			Name = "Pal",
+			AutomaticSize = Enum.AutomaticSize.X,
+			Position = UDim2.fromOffset(6, 6),
+			Size = UDim2.fromOffset(0, 26),
+			BackgroundColor3 = Theme.colors.gold,
+			BackgroundTransparency = 0,
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall + 1,
+			TextColor3 = Theme.colors.goldText,
+			TextTruncate = Enum.TextTruncate.None,
+			Visible = false,
+			ZIndex = 5,
+			Parent = art,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = pal })
+		Create(
+			"UIPadding",
+			{ PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), Parent = pal }
+		)
+		Outline.border(pal, 2)
 		text({
 			Name = "Name",
 			Position = UDim2.fromOffset(10, ART_H + 14),
@@ -258,6 +285,7 @@ function Cannon._buildCards(self: any)
 		})
 		self._cards[id] = {
 			frame = frame,
+			pal = pal,
 			night = night,
 			count = count,
 			launch = launch,
@@ -267,9 +295,27 @@ function Cannon._buildCards(self: any)
 	end
 end
 
+-- F92: the gold "Sam is here" tag on the pal's area card, or none.
+function Cannon.setPal(self: any, areaId: string?, name: string?)
+	self._pal = if areaId ~= nil then { areaId = areaId, name = name or "Your pal" } else nil
+	self:_paintPal()
+end
+
+function Cannon._paintPal(self: any)
+	local pal: { areaId: string, name: string }? = self._pal
+	for id, card in self._cards do
+		local here = pal ~= nil and pal.areaId == id
+		card.pal.Visible = here
+		if pal ~= nil and here then
+			card.pal.Text = ("👋 %s is here"):format(pal.name)
+		end
+	end
+end
+
 function Cannon.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
 	self:_buildCards()
+	self:_paintPal()
 	self:_rerender()
 end
 

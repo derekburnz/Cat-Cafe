@@ -242,6 +242,41 @@ over the rubble let the day in; brick beams cross the width on pillars at x +-28
 way), with cage lamps (`_Bulb`) hanging from them, pipe runs along both walls under the roof, and wall lanterns on
 every other pier. As in v3.2, if the halls read too dark in game, PointLights on the cage lamps would fix it.
 
+## The Alleyway blockers (F85)
+
+The Alleyway is laid out by Layout.luau from kit pieces, not as one set, so its F85 blockers (hometown-cannon.md
+section 6b: "the F84 set, 90 x 281, with low blockers along the lanes") are four prop models (`alleyblockers.py`)
+that go in `Layout.alley.props` through `laneProp`, three across each 30 stud lane with the gaps on alternating sides.
+
+| Model | What | Tris | Parts |
+|---|---|---|---|
+| `CatCafe_Alley_Blocker_Bins` | six wheelie bins and two bag piles on a bin-store slab, about 3.9 high, 2.5 deep | 1,634 | 119 |
+| `CatCafe_Alley_Blocker_Pallets` | six pallet stacks with FISH and MILK crates, a tarp and boxes, about 4 high, 2.9 deep | 4,354 | 378 |
+| `CatCafe_Alley_Blocker_Skip` | a WHISKER SKIPS skip of rubble on scaffold boards, a bulk bag of sand, planks on trestles, cones; 5.4 deep | 2,862 | 242 |
+| `CatCafe_Alley_Blocker_Van` | a FRESH FISH box van, 8.4 high (the tall one, it hides the lane past it), doors open, a ramp to its crates | 2,744 | 204 |
+
+Each pivots on the lane's middle line on the floor. The pile runs from local x -13.35 to about 6 and the way through
+is local x 6 to 15 (9 studs) at +X: rotY 0 puts the gap at world +x, rotY 180 at world -x. Its `_Barrier`, 21 x 30 x
+0.5 along local z 0 from x -15 to 6, arrives invisible, CanCollide true, CanQuery false and anchored, so nobody jumps
+it and the camera passes through. A lamp post at the gap end leans its lamp (`_Bulb`, lit at night) over the way
+through. Every row stands on the line of a `CatCafe_Alley_StringLightsLong` (alleyDressing hangs one in every gap
+between the buildings, poles at local x -14 and 14): the pile stops 0.15 short of the wall pole's base, so that pole
+stands between the pile and the wall (1.65 studs, too narrow to pass), and the other pole stands in the way through,
+which leaves 7.5 studs to walk.
+
+| Lane (x) | z | Model | rotY | Gap |
+|---|---|---|---|---|
+| west (-78) | 88.025 | Bins | 0 | by the block (x -72 to -63) |
+| west (-78) | 18.25 | Skip | 180 | by the buildings (x -93 to -84) |
+| west (-78) | -53.675 | Pallets | 0 | by the block |
+| east (78) | 88.025 | Pallets | 180 | by the block (x 63 to 72) |
+| east (78) | 18.25 | Van | 0 | by the buildings (x 84 to 93) |
+| east (78) | -88.025 | Bins | 180 | by the block |
+
+All in lane space. The east lane's third row is at -88.025 rather than -53.675 because the east Warehouse's crate
+stack stands in that gap. Two lane spawn points sit 3 to 4 studs from a pile's side, (-86, -49) by the west Pallets
+and (86, -93) by the east Bins; both stay clear of it.
+
 ## The Woods (v3.2)
 
 `CatCafe_Woods_SetV32` is a new model, so the live game keeps `CatCafe_Woods_Set` (v3.1) until Gameplay moves the
@@ -447,4 +482,6 @@ the runs and sink into them by design, and the F85 Woods' blockers meet the side
 F85 Sewer the pipe bank runs into the side walls (0.5), the rubble meets the wall courses (0.34) and the timber props
 stand in it (1.2), and the tunnel front's end piers meet the roof's rim (0.25); no other pairs. The Sewer kit's
 stall caps, bunting caps, yarn balls and teapot spout and the v3.2 tunnel front's padlock now touch what they hang on,
-so the v3.1 and v3.2 Sewer sets list no floating parts either.
+so the v3.1 and v3.2 Sewer sets list no floating parts either. The four Alleyway blockers pass the same QA (0 visible, 0 floating, z-fight
+0) and, placed in the whole lane layout with its buildings, crate stacks, string lights, laundry lines and loose props,
+touch none of them.

@@ -910,7 +910,7 @@ function UI.init(config: Types.InitConfig)
 		end,
 		-- F102: the Trading section, saved as settings.tradeRequests through SetSetting (Gameplay 2026-11-02)
 		setTradeRequests = function(mode: string)
-			UI.events.setSetting:Fire("tradeRequests", mode)
+			UI.events.setSetting:Fire(SettingsList.TRADE_REQUESTS_KEY, mode)
 		end,
 		openTrades = function()
 			UI.open("TradeLog")

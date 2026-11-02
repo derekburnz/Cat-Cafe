@@ -83,4 +83,54 @@ return function()
 		expect(ticket.state).to.equal("gone")
 		expect(ticket.dish).to.equal(nil)
 	end)
+
+	-- QA for engineer PR #781 (cats-make-orders.md section 7 check 1): a cafe's Tier attribute that is missing or odd
+	-- still gives a real order from a menu that is never empty, and never anything above the tier.
+	describe("CafeOrders edges (QA)", function()
+		local function ids(tier: number): { [string]: boolean }
+			local open: { [string]: boolean } = {}
+			for _, item in Catalog.menuFor(tier) do
+				open[item.id] = true
+			end
+			return open
+		end
+
+		it("orders from Tier 1's menu when the Tier is missing, junk or under 1", function()
+			local tierOne = ids(1)
+			for _, raw in { 0, -3, 0.5, 0 / 0, "5", true } :: { any } do
+				for _ = 1, 20 do
+					local customer = fake()
+					local plot = fake({ Tier = raw })
+					local ticket = CafeOrders.order(plot, customer, place(), false, true)
+					expect(tierOne[customer:GetAttribute("Order") :: string]).to.equal(true)
+					CafeOrders.left(ticket)
+				end
+			end
+			local customer = fake()
+			CafeOrders.left(CafeOrders.order(fake(), customer, place(), false, true))
+			expect(tierOne[customer:GetAttribute("Order") :: string]).to.equal(true)
+		end)
+
+		it("never orders above the tier, a part tier counting as the one below", function()
+			for _, case in { { 2.5, 2 }, { 4.99, 4 }, { 6, 5 }, { 1e9, 5 } } do
+				local open = ids(case[2])
+				for _ = 1, 20 do
+					local customer = fake()
+					CafeOrders.left(CafeOrders.order(cafe(case[1]), customer, place(), false, true))
+					expect(open[customer:GetAttribute("Order") :: string]).to.equal(true)
+				end
+			end
+		end)
+
+		it("gives the rich customer each tier's newest dish, on gold", function()
+			for tier = 1, 5 do
+				local customer = fake()
+				local ticket = CafeOrders.order(cafe(tier), customer, place(), true, true)
+				expect(customer:GetAttribute("Order")).to.equal(Catalog.newestMenuItem(tier).id)
+				expect(ticket.item.tier).to.equal(tier)
+				expect(ticket.gold).to.equal(true)
+				CafeOrders.left(ticket)
+			end
+		end)
+	end)
 end

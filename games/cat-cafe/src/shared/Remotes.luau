@@ -113,6 +113,10 @@ Remotes.ServerToClient = {
 	-- Epic a player ever secures goes to that player alone for the small card. The toast is the Announce above
 	"FoundRareDecor", -- (userId: number, decorId: string)  F89 (2b): a Mythical crate piece, to everyone for the
 	-- toast ("Sam found the Mythical Midnight Sky!", RareMoments.decorText), at most once a minute a player
+	"PalArrived", -- (joinerUserId: number, palUserId: number, palArea: string?)  F92 (playing-together.md section 5),
+	-- to everyone: a player who joined through a pal's invite or by following them now stands at that pal's front
+	-- door, for the wave from both characters; palArea is the catching area the pal is in (nil in town or a cafe),
+	-- for the joiner's "Sam is in the Park" marker
 	"PalsChanged", -- (userIds: { number })  F92 (playing-together.md 1): this player's pals on the server, every time
 	-- one comes or goes, for the HUD chip's headshots and "+10% with pals"; none sent while a player has never had one
 	"GrabResult", -- (id: string, ok: boolean, reason: string, retry: boolean)  id is a rescueSpotId; retry keeps the

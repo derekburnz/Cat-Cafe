@@ -9,6 +9,8 @@
 -- its camp's pad (section 4); any other respawn comes back just inside its own cafe's back door (Layout.plot's
 -- respawnSpot, Derek 2026-10-28 01:17), never a carrier. Every cannon's moon cover (its ..._MoonCover model) is down
 -- over the barrel while the areas are closed and lifted by day (section 3a: "At dusk a moon cover drops").
+-- F92 (playing-together.md section 5): a first spawn after joining through a pal's invite or by following them stands
+-- at that pal's front door instead (palArrival).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -25,6 +27,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local NightService = require(script.Parent.NightService)
+local PalService = require(script.Parent.PalService)
 local PlotService = require(script.Parent.PlotService)
 local Telemetry = require(script.Parent.Telemetry)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -193,8 +196,34 @@ local function cafeLanding(player: Player): CFrame?
 	return plot.cframe * CFrame.new(spot.x, spot.y, spot.z) * CFrame.Angles(0, math.pi, 0)
 end
 
+-- F92 (playing-together.md section 5): a player who joined through a pal's invite or by following them starts on the
+-- path just out from that pal's front door, facing the street (Layout.plot.palArrival), new players too. Then every
+-- client gets PalArrived(joinerUserId, palUserId, palArea) for the wave from both characters, and the joiner's HUD
+-- says where the pal is: palArea is the catching area the pal stands in, nil in town or a cafe.
+local function palArrival(player: Player, character: Model)
+	local pal = PalService.joinedVia(player)
+	local plot = if pal ~= nil then PlotService.get(pal) else nil
+	if pal == nil or plot == nil then
+		return
+	end
+	task.wait(0.1) -- after Roblox has placed the character at the town spawn
+	local spot = Layout.plot.palArrival
+	local landing = plot.cframe * CFrame.new(spot.x, spot.y, spot.z) -- plot space -Z is the street
+	pcall(function()
+		player:RequestStreamAroundAsync(landing.Position, 2)
+	end)
+	if player.Character ~= character or character.Parent == nil or pal.Parent ~= Players then
+		return
+	end
+	character:PivotTo(landing)
+	local palRoot = rootOf(pal.Character)
+	local area = if palRoot ~= nil then WorldBuilder.areaAt(world, palRoot.Position) else nil
+	Net.fireAll("PalArrived", player.UserId, pal.UserId, area)
+end
+
 -- Where a respawn lands: on its camp's pad after a death in a wild area by day (section 4), on a free spot, else
--- inside its own cafe. A first spawn of the session stays at the hometown spawn, facing the cannon.
+-- inside its own cafe. A first spawn of the session stays at the hometown spawn, facing the cannon, unless the player
+-- joined through a pal (palArrival).
 local function watchCharacter(player: Player, character: Model, respawn: boolean)
 	local area = diedIn[player]
 	diedIn[player] = nil
@@ -210,7 +239,11 @@ local function watchCharacter(player: Player, character: Model, respawn: boolean
 			end
 		end)
 	end
-	if not respawn or character:WaitForChild("HumanoidRootPart", 10) == nil then
+	if character:WaitForChild("HumanoidRootPart", 10) == nil then
+		return
+	end
+	if not respawn then
+		palArrival(player, character)
 		return
 	end
 	task.wait(0.1) -- after Roblox has placed the character at the town spawn

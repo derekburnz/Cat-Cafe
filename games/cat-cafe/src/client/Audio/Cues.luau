@@ -763,6 +763,72 @@ local Cues: { [string]: Cue } = {
 		volume = 0.6,
 		minGap = 1,
 	}, -- F102: "Trade done!" between players (uiTrade stays the Cat Collector's)
+
+	-- F89 rare decor (5.14): each Legendary and Mythical piece's small sound, once as you walk up to it
+	sheetDecor = { ids = {}, group = "Sfx", volume = 1, preload = true }, -- mono, plays in 3D
+	decorBlossomTree = {
+		ids = {},
+		sheet = "sheetDecor",
+		region = { 0.000, 2.400 },
+		group = "Sfx",
+		volume = 0.45,
+		minGap = 1,
+		range = 30,
+	}, -- the wind chime between its paper lanterns (Mythical)
+	decorBathtubSofa = {
+		ids = {},
+		sheet = "sheetDecor",
+		region = { 2.900, 4.200 },
+		group = "Sfx",
+		volume = 0.45,
+		minGap = 1,
+		range = 30,
+	}, -- bath bubbles and the rubber duck's squeak
+	decorHollowLog = {
+		ids = {},
+		sheet = "sheetDecor",
+		region = { 4.700, 6.500 },
+		group = "Sfx",
+		volume = 0.6,
+		minGap = 1,
+		range = 30,
+	}, -- the lantern's flame crackling and crickets
+	decorIceCream = {
+		ids = {},
+		sheet = "sheetDecor",
+		region = { 7.000, 8.500 },
+		group = "Sfx",
+		volume = 0.4,
+		minGap = 1,
+		range = 30,
+	}, -- a scoop, a plop and a little music box tune
+	decorDuckFountain = {
+		ids = {},
+		sheet = "sheetDecor",
+		region = { 9.000, 10.600 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 1,
+		range = 30,
+	}, -- water burbling and one small squeak
+	decorJukebox = {
+		ids = {},
+		sheet = "sheetDecor",
+		region = { 11.100, 13.100 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 1,
+		range = 30,
+	}, -- a coin, the record dropping, the needle and a short organ riff
+	decorCatTree = {
+		ids = {},
+		sheet = "sheetDecor",
+		region = { 13.600, 14.900 },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 1,
+		range = 30,
+	}, -- claws on the sisal post, the toy's bell and a paw landing
 }
 
 return Cues

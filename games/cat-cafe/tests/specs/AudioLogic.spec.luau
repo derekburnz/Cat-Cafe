@@ -723,4 +723,31 @@ return function()
 			end
 		end)
 	end)
+	describe("Audio.Logic rare decor sounds (F89)", function()
+		it("gives the seven Legendary and Mythical models a sheet cue, and nothing else", function()
+			local Catalog = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
+			) :: any
+			local ids = {
+				"park_blossom_tree",
+				"sewer_bathtub_sofa",
+				"woods_hollow_log_booth",
+				"neighbourhood_ice_cream_counter",
+				"park_duck_fountain",
+				"alley_retro_jukebox",
+				"classic_cat_tree_tower",
+			}
+			for _, id in ids do
+				local cue = Logic.decorSound(id)
+				expect(cue ~= nil and Cues[cue] ~= nil).to.equal(true)
+				expect(Cues[cue].sheet).to.equal("sheetDecor")
+				local def = Catalog.getDecor(id)
+				expect(def ~= nil and (def.rarity == "Legendary" or def.rarity == "Mythical")).to.equal(true)
+			end
+			local _, part = Logic.decorSound("park_blossom_tree")
+			expect(part).to.equal("CatCafe_Decor_BlossomTree_Chime_Swing")
+			expect(Logic.decorSound("park_bench")).to.equal(nil)
+			expect(Logic.decorSound(nil)).to.equal(nil)
+		end)
+	end)
 end

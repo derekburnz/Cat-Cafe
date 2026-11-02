@@ -888,6 +888,57 @@ local function noticeRareStrays()
 	end
 end
 
+-- F89: a Legendary or Mythical decor piece in any cafe makes its small sound once as you walk up to it (within
+-- DECOR_NEAR studs), and again only after you have been DECOR_FORGET away, like the rare stray twinkle: never a
+-- loop. It plays at the piece's moving part once the model has it, else at the model (Logic.decorSound).
+local DECOR_NEAR = 12
+local DECOR_FORGET = 24
+local decorNoticed: { [Instance]: boolean } = {}
+
+local function decorSpot(model: Instance, partName: string?): BasePart?
+	if partName ~= nil then
+		local part = model:FindFirstChild(partName, true)
+		if part ~= nil and part:IsA("BasePart") then
+			return part :: BasePart
+		end
+	end
+	return partOf(model)
+end
+
+local function noticeDecor()
+	while true do
+		task.wait(LOOP_CHECK_SECONDS)
+		for model in decorNoticed do
+			if model.Parent == nil then
+				decorNoticed[model] = nil
+			end
+		end
+		local root = you()
+		if root ~= nil then
+			for _, plot in CollectionService:GetTagged("Plot") do
+				local folder = plot:FindFirstChild("Decor")
+				for _, model in if folder ~= nil then folder:GetChildren() else {} do
+					local cue, partName = Logic.decorSound(model:GetAttribute("DecorId"))
+					local part = if cue ~= nil then decorSpot(model, partName) else nil
+					if cue ~= nil and part ~= nil then
+						local distance = (part.Position - root.Position).Magnitude
+						local play, noticed = Logic.rareNotice(
+							decorNoticed[model] == true,
+							distance,
+							DECOR_NEAR,
+							DECOR_FORGET
+						)
+						decorNoticed[model] = noticed
+						if play then
+							Audio.play(cue, part)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
 -- Derek's splashes (2026-10-28): a soft step on each splash Effects shows under a player in water, already budgeted
 -- to the nearest walkers. A cat's splashes stay quiet, since a stray splashes about every stud and would patter.
 local function followSplashes()
@@ -905,6 +956,7 @@ local function followStrays()
 		watchStray(instance)
 	end
 	task.spawn(noticeRareStrays)
+	task.spawn(noticeDecor)
 end
 
 local function stopCarry()

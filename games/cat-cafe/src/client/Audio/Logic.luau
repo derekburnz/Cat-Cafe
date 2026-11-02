@@ -420,7 +420,7 @@ local DECOR_SOUNDS: { [string]: { cue: string, part: string? } } = {
 		cue = "decorDuckFountain",
 		part = "CatCafe_Decor_DuckFountain_Ducklings_Spin",
 	},
-	alley_retro_jukebox = { cue = "decorJukebox" },
+	alley_retro_jukebox = { cue = "decorJukebox", part = "CatCafe_Decor_RetroJukebox_Record_Spin" },
 	classic_cat_tree_tower = { cue = "decorCatTree" },
 }
 

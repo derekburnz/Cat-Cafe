@@ -151,10 +151,15 @@ export function checkScene(profile, scene) {
   }
 
   if (profile.touch) {
-    // Roblox's own touch controls on a small screen: thumbstick bottom left, jump button 70 px at (W-95, H-90)
+    // Roblox's own touch controls: thumbstick bottom left; the jump button 70 px at (W-95, H-90) on a small screen
+    // (short side 500 or less), else 120 px at (W-170, H-210), as Components/NetButtonPlace.jump has it
+    const small = Math.min(W, H) <= 500;
+    const jump = small
+      ? { x1: W - 95, y1: H - 90, x2: W - 25, y2: H - 20 }
+      : { x1: W - 170, y1: H - 210, x2: W - 50, y2: H - 90 };
     const zones = [
       { name: 'the thumbstick', r: { x1: 0, y1: H - 180, x2: 200, y2: H } },
-      { name: 'the jump button', r: { x1: W - 95, y1: H - 90, x2: W - 25, y2: H - 20 } },
+      { name: 'the jump button', r: jump },
     ];
     for (const { node, rect } of presses) {
       for (const zone of zones) {

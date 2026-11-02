@@ -98,7 +98,8 @@ return function()
 			expect(table.concat(CatDress.WORK_ARMS.barista.LegF2, ",")).to.equal("57.5,21.5,13.1")
 			expect(table.concat(CatDress.WORK_ARMS.waiter.LegF1, ",")).to.equal("37.5,-27,-30.7")
 			expect(table.concat(CatDress.WORK_ARMS.greeter.LegF1, ",")).to.equal("172.4,13,-59.1")
-			expect(table.concat(CatDress.WORK_ARMS.entertainer.LegF1, ",")).to.equal("163.9,25.7,-56.3")
+			expect(table.concat(CatDress.WORK_ARMS.entertainer.LegF1, ",")).to.equal("9.9,-1,-5.9")
+			expect(table.concat(CatDress.WORK_ARMS.entertainer.LegF2, ",")).to.equal("18,84,30") -- #901, Derek's A
 		end)
 
 		it("keeps only the role's own held thing, and none for a greeter", function()

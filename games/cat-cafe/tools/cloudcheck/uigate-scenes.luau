@@ -1121,6 +1121,14 @@ local SCENES = {
 		workspace:SetAttribute("TradingOn", true)
 		UI.update({ tier = 3 })
 	end },
+	-- Fewer buttons (Derek 2026-11-02): the Rewards tile's list (gifts and the Daily Treat) and the Menu tile's list
+	-- (Settings, Invite) under the icon row
+	{ "HUDRewards", function()
+		press("CatCafeHUD", "Icons.Rewards")
+	end },
+	{ "HUDMenu", function()
+		press("CatCafeHUD", "Icons.Menu")
+	end },
 	-- F102: the Trade window's players: Sam to ask, Alex under the minimum tier, Mia busy in a trade
 	{ "TradePlayers", function()
 		addTradePlayer("Sam", 4242, 4, false)
@@ -1247,6 +1255,12 @@ function Scenes.close()
 	local me = game:GetService("Players").LocalPlayer
 	if me:GetAttribute("Tester") ~= nil then
 		me:SetAttribute("Tester", nil) -- the Testers section hides again
+	end
+	-- the HUD's Rewards or Menu list closes with another press of the tile that opened it
+	local hudGui = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+	local pop = hudGui and hudGui:FindFirstChild("Pop", true)
+	if pop and pop.Visible then
+		press("CatCafeHUD", if pop:FindFirstChild("Settings") then "Icons.Menu" else "Icons.Rewards")
 	end
 	-- the help card waits for Got it
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")

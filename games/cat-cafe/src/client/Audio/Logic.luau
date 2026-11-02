@@ -379,6 +379,65 @@ function Logic.orderDingStep(station: any): number?
 	return if type(station) == "string" then ORDER_DING_STEPS[station] else nil
 end
 
+-- F102: the trade countdown's tocks, one each whole second left (5, 4, 3, 2, 1 for a full TradeCountdownSeconds),
+-- as delays from `now` in order; a state that arrives part way through gets only the seconds still ahead. At most
+-- `maxTicks`, none once `endsAt` has passed or for a bad time.
+function Logic.countdownTicks(now: number, endsAt: any, maxTicks: number): { number }
+	local delays: { number } = {}
+	if type(endsAt) ~= "number" or endsAt ~= endsAt or endsAt <= now then
+		return delays
+	end
+	local count = math.min(math.ceil(endsAt - now - 1e-6), maxTicks)
+	for left = count, 1, -1 do
+		table.insert(delays, math.max(0, endsAt - left - now))
+	end
+	return delays
+end
+
+-- F101: the points a new RallyState's bar counts its steps from, so a step reached plays the cheer once: the last
+-- state's points on the same lap, 0 on a newer lap, nil for the first state seen (joining mid-Rally is quiet) or
+-- while no Rally runs.
+function Logic.rallyFrom(before: { lap: number, points: number }?, lap: any, active: any): number?
+	if before == nil or active ~= true or type(lap) ~= "number" then
+		return nil
+	end
+	if lap == before.lap then
+		return before.points
+	end
+	return if lap > before.lap then 0 else nil
+end
+
+-- The bait bowl (F28) between two ProfileSyncs: `before` and `after` are the syncs' `bait` (nil for an empty bowl)
+-- and `catsBefore` and `catsAfter` how many cats each showed. "placed" when food went in, "arrive" when its cat came
+-- (the sync names the cat only once it is at the bowl), "letgo" when a bowl with a cat emptied and no cat joined.
+-- A tame adds its cat in the same sync and sounds with its check-in (CatCaught), so it is nil, like no change.
+function Logic.baitChange(before: any, after: any, catsBefore: number, catsAfter: number): string?
+	if type(after) == "table" then
+		if type(before) ~= "table" or before.placedAt ~= after.placedAt then
+			return "placed"
+		end
+		if before.cat == nil and type(after.cat) == "table" then
+			return "arrive"
+		end
+		return nil
+	end
+	if type(before) == "table" and before.cat ~= nil and catsAfter <= catsBefore then
+		return "letgo"
+	end
+	return nil
+end
+
+-- The arrival sound for a bait cat's coat: a gold one plays the gold reveal (F42), a rainbow one the rainbow shimmer
+-- (F99) and any other the arrival mrrp.
+function Logic.baitArriveCue(variant: any): string
+	if variant == "gold" then
+		return "goldReveal"
+	elseif variant == "rainbow" then
+		return "rainbowNear"
+	end
+	return "baitArrive"
+end
+
 -- Animation beats (Beats.hit) to sounds: the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100).
 local BEAT_CUES: { [string]: string } = {
 	bellRing = "bellhopBell",

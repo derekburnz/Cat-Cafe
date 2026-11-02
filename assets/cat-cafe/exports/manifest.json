@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 19:28 UTC",
+  "generated": "2026-11-02 20:42 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -525,30 +525,30 @@
       "parts": {
         "LegF2": {
           "xyz_deg_blender": [
-            -50,
-            35,
-            0
+            -2.76,
+            47.87,
+            82.24
           ],
           "angles_roblox_deg": [
-            44.3,
-            26.1,
-            24.2
+            18.0,
+            84.0,
+            30.0
           ]
         },
         "LegF1": {
           "xyz_deg_blender": [
-            -150,
-            60,
+            -10,
+            -6,
             0
           ],
           "angles_roblox_deg": [
-            163.9,
-            25.7,
-            -56.3
+            9.9,
+            -1.0,
+            -5.9
           ]
         }
       },
-      "note": "Standing at work, a microphone in the right paw (Held_Entertainer in LegF2), the left paw up and waving."
+      "note": "Standing at work, a microphone held up under the chin in the right paw (Held_Entertainer in LegF2, leaning in to the mouth), the left paw down at its side."
     }
   },
   "role_outfits": {
@@ -1519,17 +1519,17 @@
       "triangles": 1392,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -1859,7 +1859,7 @@
           "uv": "746 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -2641,17 +2641,17 @@
       "triangles": 1332,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -2981,7 +2981,7 @@
           "uv": "716 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -3763,17 +3763,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -4103,7 +4103,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -4885,17 +4885,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -5225,7 +5225,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -5999,17 +5999,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -6335,7 +6335,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -7135,17 +7135,17 @@
       "triangles": 1428,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.66,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.66
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.74,
         0.0
       ],
@@ -7482,7 +7482,7 @@
           "uv": "764 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -8279,17 +8279,17 @@
       "triangles": 1648,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.67,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.67
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.75,
         0.0
       ],
@@ -8623,7 +8623,7 @@
           "uv": "858 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -9425,17 +9425,17 @@
       "triangles": 1588,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -9772,7 +9772,7 @@
           "uv": "822 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -10572,17 +10572,17 @@
       "triangles": 1612,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.65,
         "z": 1.98
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.98,
         1.65
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -10919,7 +10919,7 @@
           "uv": "846 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -11711,17 +11711,17 @@
       "triangles": 1572,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.58,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.58
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.68,
         0.0
       ],
@@ -12054,7 +12054,7 @@
           "uv": "796 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.10"
+          "centered": "footprint center x=0.08 y=0.10"
         }
       }
     },
@@ -12854,17 +12854,17 @@
       "triangles": 1480,
       "budget": 2400,
       "size_studs": {
-        "x": 1.87,
+        "x": 1.84,
         "y": 1.94,
         "z": 2.7
       },
       "size_roblox": [
-        1.87,
+        1.84,
         2.7,
         1.94
       ],
       "bounds_min": [
-        -0.86,
+        -0.82,
         -0.84,
         0.0
       ],
@@ -13201,7 +13201,7 @@
           "uv": "774 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.13"
+          "centered": "footprint center x=0.10 y=0.13"
         }
       }
     },
@@ -13993,17 +13993,17 @@
       "triangles": 1416,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -14336,7 +14336,7 @@
           "uv": "758 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -15144,17 +15144,17 @@
       "triangles": 1552,
       "budget": 2400,
       "size_studs": {
-        "x": 1.87,
+        "x": 1.84,
         "y": 1.97,
         "z": 2.44
       },
       "size_roblox": [
-        1.87,
+        1.84,
         2.44,
         1.97
       ],
       "bounds_min": [
-        -0.86,
+        -0.82,
         -0.84,
         0.0
       ],
@@ -15495,7 +15495,7 @@
           "uv": "834 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.14"
+          "centered": "footprint center x=0.10 y=0.14"
         }
       }
     },
@@ -16287,17 +16287,17 @@
       "triangles": 1718,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.63,
         "z": 2.58
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.58,
         1.63
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.71,
         0.0
       ],
@@ -16630,7 +16630,7 @@
           "uv": "935 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.10"
+          "centered": "footprint center x=0.08 y=0.10"
         }
       }
     },
@@ -17412,17 +17412,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -17752,7 +17752,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -18534,17 +18534,17 @@
       "triangles": 1392,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -18874,7 +18874,7 @@
           "uv": "746 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -19648,17 +19648,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -19984,7 +19984,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -20778,17 +20778,17 @@
       "triangles": 1732,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.57,
         "z": 2.17
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.17,
         1.57
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.63,
         0.0
       ],
@@ -21121,7 +21121,7 @@
           "uv": "910 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.16"
+          "centered": "footprint center x=0.08 y=0.16"
         }
       }
     },
@@ -24246,17 +24246,17 @@
       "triangles": 1836,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.97
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.97,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -24604,7 +24604,7 @@
           "uv": "972 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -25421,17 +25421,17 @@
       "triangles": 1676,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.67,
         "z": 1.9
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.9,
         1.67
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.76,
         0.0
       ],
@@ -25775,7 +25775,7 @@
           "uv": "844 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -26592,17 +26592,17 @@
       "triangles": 1708,
       "budget": 2400,
       "size_studs": {
-        "x": 1.95,
+        "x": 1.92,
         "y": 2.05,
         "z": 2.95
       },
       "size_roblox": [
-        1.95,
+        1.92,
         2.95,
         2.05
       ],
       "bounds_min": [
-        -0.89,
+        -0.86,
         -0.91,
         0.0
       ],
@@ -26946,7 +26946,7 @@
           "uv": "938 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.09 y=0.12"
+          "centered": "footprint center x=0.10 y=0.12"
         }
       }
     },
@@ -27763,17 +27763,17 @@
       "triangles": 1604,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.65,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.65
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -28117,7 +28117,7 @@
           "uv": "820 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -28934,17 +28934,17 @@
       "triangles": 1760,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.64,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.64
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -29288,7 +29288,7 @@
           "uv": "964 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.12"
+          "centered": "footprint center x=0.08 y=0.12"
         }
       }
     },
@@ -30097,17 +30097,17 @@
       "triangles": 2220,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.68,
         "z": 2.57
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.57,
         1.68
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.76,
         0.0
       ],
@@ -30447,7 +30447,7 @@
           "uv": "1182 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -31264,17 +31264,17 @@
       "triangles": 1822,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.67,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.67
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.75,
         0.0
       ],
@@ -31618,7 +31618,7 @@
           "uv": "917 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -32443,17 +32443,17 @@
       "triangles": 2176,
       "budget": 2400,
       "size_studs": {
-        "x": 1.87,
+        "x": 1.84,
         "y": 2.02,
         "z": 2.44
       },
       "size_roblox": [
-        1.87,
+        1.84,
         2.44,
         2.02
       ],
       "bounds_min": [
-        -0.86,
+        -0.82,
         -0.89,
         0.0
       ],
@@ -32801,7 +32801,7 @@
           "uv": "1074 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.12"
+          "centered": "footprint center x=0.10 y=0.12"
         }
       }
     },
@@ -33620,17 +33620,17 @@
       "triangles": 2226,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.71,
         "z": 2.02
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.02,
         1.71
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.79,
         0.0
       ],
@@ -33974,7 +33974,7 @@
           "uv": "1171 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.06"
+          "centered": "footprint center x=0.08 y=0.06"
         }
       }
     },
@@ -34804,17 +34804,17 @@
       "triangles": 1876,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.23
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.23,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -35163,7 +35163,7 @@
           "uv": "1038 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -35980,17 +35980,17 @@
       "triangles": 1780,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.21
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.21,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -36334,7 +36334,7 @@
           "uv": "960 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -37126,17 +37126,17 @@
       "triangles": 1596,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.11
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.11,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -37469,7 +37469,7 @@
           "uv": "824 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -38286,17 +38286,17 @@
       "triangles": 1682,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.64,
         "z": 1.97
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.97,
         1.64
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -38640,7 +38640,7 @@
           "uv": "853 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -39464,17 +39464,17 @@
       "triangles": 2024,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 2.12,
         "z": 2.13
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.13,
         2.12
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -1.2,
         0.0
       ],
@@ -39819,7 +39819,7 @@
           "uv": "1166 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=-0.15"
+          "centered": "footprint center x=0.08 y=-0.15"
         }
       }
     },
@@ -40643,17 +40643,17 @@
       "triangles": 2364,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.7,
         "z": 2.11
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.11,
         1.7
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.79,
         0.0
       ],
@@ -40998,7 +40998,7 @@
           "uv": "1184 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.06"
+          "centered": "footprint center x=0.08 y=0.06"
         }
       }
     },
@@ -41822,17 +41822,17 @@
       "triangles": 1832,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.72,
         "z": 2.06
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.06,
         1.72
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.81,
         0.0
       ],
@@ -42177,7 +42177,7 @@
           "uv": "940 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.05"
+          "centered": "footprint center x=0.08 y=0.05"
         }
       }
     },
@@ -43002,17 +43002,17 @@
       "triangles": 2044,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -43360,7 +43360,7 @@
           "uv": "1026 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -45327,17 +45327,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -45675,7 +45675,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -46457,17 +46457,17 @@
       "triangles": 1404,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -46797,7 +46797,7 @@
           "uv": "752 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -47595,17 +47595,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -47943,7 +47943,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -48725,17 +48725,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -49065,7 +49065,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -49847,17 +49847,17 @@
       "triangles": 1332,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -50187,7 +50187,7 @@
           "uv": "720 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -50977,17 +50977,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -51321,7 +51321,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -52103,17 +52103,17 @@
       "triangles": 1392,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -52443,7 +52443,7 @@
           "uv": "746 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -53225,17 +53225,17 @@
       "triangles": 1392,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -53565,7 +53565,7 @@
           "uv": "746 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -54347,17 +54347,17 @@
       "triangles": 1380,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -54687,7 +54687,7 @@
           "uv": "740 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -55477,17 +55477,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -55821,7 +55821,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -56603,17 +56603,17 @@
       "triangles": 1392,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -56943,7 +56943,7 @@
           "uv": "746 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -57733,17 +57733,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -58077,7 +58077,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -58873,17 +58873,17 @@
       "triangles": 1804,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -59220,7 +59220,7 @@
           "uv": "972 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -60016,17 +60016,17 @@
       "triangles": 1872,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.98
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.98,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -60363,7 +60363,7 @@
           "uv": "986 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -61176,17 +61176,17 @@
       "triangles": 1828,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.95
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.95,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -61530,7 +61530,7 @@
           "uv": "908 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -62333,17 +62333,17 @@
       "triangles": 1892,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.96,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.96
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -1.05,
         0.0
       ],
@@ -62681,7 +62681,7 @@
           "uv": "956 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=-0.07"
+          "centered": "footprint center x=0.08 y=-0.07"
         }
       }
     },
@@ -63477,17 +63477,17 @@
       "triangles": 1754,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.14
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.14,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -63824,7 +63824,7 @@
           "uv": "965 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -64620,17 +64620,17 @@
       "triangles": 1926,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.72,
         "z": 2.39
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.39,
         1.72
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -64967,7 +64967,7 @@
           "uv": "1055 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.16"
+          "centered": "footprint center x=0.08 y=0.16"
         }
       }
     },
@@ -65771,17 +65771,17 @@
       "triangles": 1676,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.65,
         "z": 1.97
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.97,
         1.65
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -66122,7 +66122,7 @@
           "uv": "853 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -66945,17 +66945,17 @@
       "triangles": 2060,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.71,
         "z": 1.98
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.98,
         1.71
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.79,
         0.0
       ],
@@ -67303,7 +67303,7 @@
           "uv": "1042 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.06"
+          "centered": "footprint center x=0.08 y=0.06"
         }
       }
     },
@@ -68124,17 +68124,17 @@
       "triangles": 1862,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.7,
         "z": 2.32
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.32,
         1.7
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.77,
         0.0
       ],
@@ -68482,7 +68482,7 @@
           "uv": "1039 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -69313,17 +69313,17 @@
       "triangles": 1762,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.72,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.72
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.8,
         0.0
       ],
@@ -69675,7 +69675,1252 @@
           "uv": "941 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.05"
+          "centered": "footprint center x=0.08 y=0.05"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Cat_BellhopCat",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_BellhopCat_Body",
+        "CatCafe_Cat_BellhopCat_Head",
+        "CatCafe_Cat_BellhopCat_Eye1",
+        "CatCafe_Cat_BellhopCat_Eye2",
+        "CatCafe_Cat_BellhopCat_EarL",
+        "CatCafe_Cat_BellhopCat_EarR",
+        "CatCafe_Cat_BellhopCat_Tail",
+        "CatCafe_Cat_BellhopCat_LegF1",
+        "CatCafe_Cat_BellhopCat_LegF2",
+        "CatCafe_Cat_BellhopCat_LegB1",
+        "CatCafe_Cat_BellhopCat_LegB2",
+        "CatCafe_Cat_BellhopCat_Prop",
+        "CatCafe_Cat_BellhopCat_Prop2",
+        "CatCafe_Cat_BellhopCat_Bell"
+      ],
+      "triangles": 1732,
+      "budget": 1800,
+      "size_studs": {
+        "x": 1.04,
+        "y": 2.04,
+        "z": 1.92
+      },
+      "size_roblox": [
+        1.04,
+        1.92,
+        2.04
+      ],
+      "bounds_min": [
+        -0.52,
+        -1.05,
+        -0.0
+      ],
+      "bounds_max": [
+        0.52,
+        0.98,
+        1.92
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Rare",
+      "body": "walk",
+      "gold": false,
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "fur_ginger",
+          "hex": "#D9662E"
+        },
+        "second": {
+          "swatch": "fur_russet",
+          "hex": "#8E4A2C"
+        },
+        "muzzle": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "tip": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "socks": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "blaze": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.3,
+          0.85
+        ],
+        "Tail": [
+          0.0,
+          0.58,
+          0.8
+        ],
+        "LegF1": [
+          0.22,
+          -0.2,
+          0.42
+        ],
+        "LegF2": [
+          -0.22,
+          -0.2,
+          0.42
+        ],
+        "LegB1": [
+          0.22,
+          0.42,
+          0.42
+        ],
+        "LegB2": [
+          -0.22,
+          0.42,
+          0.42
+        ],
+        "Eye1": [
+          0.253,
+          -0.93,
+          1.11
+        ],
+        "Eye2": [
+          -0.253,
+          -0.93,
+          1.11
+        ],
+        "EarL": [
+          0.3,
+          -0.46,
+          1.56
+        ],
+        "EarR": [
+          -0.3,
+          -0.46,
+          1.56
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          0.85,
+          -0.3
+        ],
+        "Tail": [
+          0.0,
+          0.8,
+          0.58
+        ],
+        "LegF1": [
+          -0.22,
+          0.42,
+          -0.2
+        ],
+        "LegF2": [
+          0.22,
+          0.42,
+          -0.2
+        ],
+        "LegB1": [
+          -0.22,
+          0.42,
+          0.42
+        ],
+        "LegB2": [
+          0.22,
+          0.42,
+          0.42
+        ],
+        "Eye1": [
+          -0.25,
+          1.11,
+          -0.93
+        ],
+        "Eye2": [
+          0.25,
+          1.11,
+          -0.93
+        ],
+        "EarL": [
+          -0.3,
+          1.56,
+          -0.46
+        ],
+        "EarR": [
+          0.3,
+          1.56,
+          -0.46
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.67,
+            0.26
+          ],
+          "offset_roblox": [
+            0.0,
+            0.26,
+            -0.67
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.22,
+            0.74
+          ],
+          "offset_roblox": [
+            0.0,
+            0.74,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.28,
+            0.73
+          ],
+          "offset_roblox": [
+            0.0,
+            0.73,
+            -0.28
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.28,
+            0.73
+          ],
+          "offset_roblox": [
+            0.0,
+            0.73,
+            -0.28
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.28,
+            0.73
+          ],
+          "offset_roblox": [
+            0.0,
+            0.73,
+            -0.28
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BowTie": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.5,
+            -0.15
+          ],
+          "offset_roblox": [
+            0.0,
+            -0.15,
+            -0.5
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.06,
+            0.89
+          ],
+          "offset_roblox": [
+            0.0,
+            0.89,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Carry": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.22,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_BellhopCat_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Face",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_BellhopCat_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Bell": {
+          "object": "CatCafe_Cat_BellhopCat_Bell",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            0.71,
+            -0.95
+          ]
+        }
+      },
+      "exclusive": true,
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
+      "studio": "Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Face prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Face, so the role piece in that slot stays off too (F71). The child Model <name>_Bell hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_BellhopCat.model.json",
+      "rbx_parts": 110,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_BellhopCat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_BellhopCat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1732/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "916 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.04"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Cat_BellhopCat_Sit",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_BellhopCat_Sit_Body",
+        "CatCafe_Cat_BellhopCat_Sit_Head",
+        "CatCafe_Cat_BellhopCat_Sit_Eye1",
+        "CatCafe_Cat_BellhopCat_Sit_Eye2",
+        "CatCafe_Cat_BellhopCat_Sit_EarL",
+        "CatCafe_Cat_BellhopCat_Sit_EarR",
+        "CatCafe_Cat_BellhopCat_Sit_Tail",
+        "CatCafe_Cat_BellhopCat_Sit_LegF1",
+        "CatCafe_Cat_BellhopCat_Sit_LegF2",
+        "CatCafe_Cat_BellhopCat_Sit_Prop",
+        "CatCafe_Cat_BellhopCat_Sit_Prop2",
+        "CatCafe_Cat_BellhopCat_Sit_Bell"
+      ],
+      "triangles": 1728,
+      "budget": 1800,
+      "size_studs": {
+        "x": 1.29,
+        "y": 1.29,
+        "z": 1.89
+      },
+      "size_roblox": [
+        1.29,
+        1.89,
+        1.29
+      ],
+      "bounds_min": [
+        -0.45,
+        -0.7,
+        0.0
+      ],
+      "bounds_max": [
+        0.84,
+        0.6,
+        1.89
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Rare",
+      "body": "sit",
+      "gold": false,
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "fur_ginger",
+          "hex": "#D9662E"
+        },
+        "second": {
+          "swatch": "fur_russet",
+          "hex": "#8E4A2C"
+        },
+        "muzzle": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "tip": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "socks": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "blaze": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.095,
+          0.969
+        ],
+        "Tail": [
+          0.19,
+          0.413,
+          0.104
+        ],
+        "LegF1": [
+          0.162,
+          -0.285,
+          0.589
+        ],
+        "LegF2": [
+          -0.162,
+          -0.285,
+          0.589
+        ],
+        "Eye1": [
+          0.209,
+          -0.589,
+          1.197
+        ],
+        "Eye2": [
+          -0.209,
+          -0.589,
+          1.197
+        ],
+        "EarL": [
+          0.266,
+          -0.171,
+          1.567
+        ],
+        "EarR": [
+          -0.266,
+          -0.171,
+          1.567
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          0.97,
+          -0.09
+        ],
+        "Tail": [
+          -0.19,
+          0.1,
+          0.41
+        ],
+        "LegF1": [
+          -0.16,
+          0.59,
+          -0.28
+        ],
+        "LegF2": [
+          0.16,
+          0.59,
+          -0.28
+        ],
+        "Eye1": [
+          -0.21,
+          1.2,
+          -0.59
+        ],
+        "Eye2": [
+          0.21,
+          1.2,
+          -0.59
+        ],
+        "EarL": [
+          -0.27,
+          1.57,
+          -0.17
+        ],
+        "EarR": [
+          0.27,
+          1.57,
+          -0.17
+        ]
+      },
+      "attachments": {
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.318,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.351,
+            0.703
+          ],
+          "offset_roblox": [
+            0.0,
+            0.7,
+            -0.35
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.057,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.057,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            0.204,
+            0.874
+          ],
+          "offset_roblox": [
+            0.0,
+            0.87,
+            0.2
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.618
+          ],
+          "offset_roblox": [
+            0.0,
+            0.62,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.618
+          ],
+          "offset_roblox": [
+            0.0,
+            0.62,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.618
+          ],
+          "offset_roblox": [
+            0.0,
+            0.62,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Carry": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.133,
+            0.874
+          ],
+          "offset_roblox": [
+            0.0,
+            0.87,
+            -0.13
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_BellhopCat_Sit_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Face",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_BellhopCat_Sit_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Bell": {
+          "object": "CatCafe_Cat_BellhopCat_Sit_Bell",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            0.84,
+            -0.61
+          ]
+        }
+      },
+      "exclusive": true,
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_BellhopCat for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Face prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Face, so the role piece in that slot stays off too (F71). The child Model <name>_Bell hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_BellhopCat_Sit.model.json",
+      "rbx_parts": 112,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_BellhopCat_Sit.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_BellhopCat_Sit.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1728/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "914 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.19 y=-0.05"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Cat_BellhopCat_Work",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_BellhopCat_Work_Body",
+        "CatCafe_Cat_BellhopCat_Work_Head",
+        "CatCafe_Cat_BellhopCat_Work_Eye1",
+        "CatCafe_Cat_BellhopCat_Work_Eye2",
+        "CatCafe_Cat_BellhopCat_Work_EarL",
+        "CatCafe_Cat_BellhopCat_Work_EarR",
+        "CatCafe_Cat_BellhopCat_Work_Tail",
+        "CatCafe_Cat_BellhopCat_Work_LegF1",
+        "CatCafe_Cat_BellhopCat_Work_LegF2",
+        "CatCafe_Cat_BellhopCat_Work_LegB1",
+        "CatCafe_Cat_BellhopCat_Work_LegB2",
+        "CatCafe_Cat_BellhopCat_Work_Held_Barista",
+        "CatCafe_Cat_BellhopCat_Work_Held_Waiter",
+        "CatCafe_Cat_BellhopCat_Work_Held_Entertainer",
+        "CatCafe_Cat_BellhopCat_Work_Prop",
+        "CatCafe_Cat_BellhopCat_Work_Prop2",
+        "CatCafe_Cat_BellhopCat_Work_Bell"
+      ],
+      "triangles": 2288,
+      "budget": 2400,
+      "size_studs": {
+        "x": 1.53,
+        "y": 1.68,
+        "z": 1.99
+      },
+      "size_roblox": [
+        1.53,
+        1.99,
+        1.68
+      ],
+      "bounds_min": [
+        -0.69,
+        -0.76,
+        0.0
+      ],
+      "bounds_max": [
+        0.85,
+        0.92,
+        1.99
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Rare",
+      "body": "work",
+      "gold": false,
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "fur_ginger",
+          "hex": "#D9662E"
+        },
+        "second": {
+          "swatch": "fur_russet",
+          "hex": "#8E4A2C"
+        },
+        "muzzle": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "tip": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "socks": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "blaze": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.095,
+          0.969
+        ],
+        "Tail": [
+          0.0,
+          0.19,
+          0.475
+        ],
+        "LegF1": [
+          0.451,
+          -0.057,
+          0.779
+        ],
+        "LegF2": [
+          -0.451,
+          -0.057,
+          0.779
+        ],
+        "LegB1": [
+          0.162,
+          -0.057,
+          0.418
+        ],
+        "LegB2": [
+          -0.162,
+          -0.057,
+          0.418
+        ],
+        "Eye1": [
+          0.24,
+          -0.646,
+          1.216
+        ],
+        "Eye2": [
+          -0.24,
+          -0.646,
+          1.216
+        ],
+        "EarL": [
+          0.285,
+          -0.2,
+          1.643
+        ],
+        "EarR": [
+          -0.285,
+          -0.2,
+          1.643
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          0.97,
+          -0.09
+        ],
+        "Tail": [
+          0.0,
+          0.47,
+          0.19
+        ],
+        "LegF1": [
+          -0.45,
+          0.78,
+          -0.06
+        ],
+        "LegF2": [
+          0.45,
+          0.78,
+          -0.06
+        ],
+        "LegB1": [
+          -0.16,
+          0.42,
+          -0.06
+        ],
+        "LegB2": [
+          0.16,
+          0.42,
+          -0.06
+        ],
+        "Eye1": [
+          -0.24,
+          1.22,
+          -0.65
+        ],
+        "Eye2": [
+          0.24,
+          1.22,
+          -0.65
+        ],
+        "EarL": [
+          -0.28,
+          1.64,
+          -0.2
+        ],
+        "EarR": [
+          0.28,
+          1.64,
+          -0.2
+        ]
+      },
+      "attachments": {
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.318,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.351,
+            0.703
+          ],
+          "offset_roblox": [
+            0.0,
+            0.7,
+            -0.35
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.057,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.057,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            0.204,
+            0.874
+          ],
+          "offset_roblox": [
+            0.0,
+            0.87,
+            0.2
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.218,
+            0.694
+          ],
+          "offset_roblox": [
+            0.0,
+            0.69,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.218,
+            0.694
+          ],
+          "offset_roblox": [
+            0.0,
+            0.69,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.218,
+            0.694
+          ],
+          "offset_roblox": [
+            0.0,
+            0.69,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Carry": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.162,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_BellhopCat_Work_Prop"
+        ]
+      },
+      "prop2": {
+        "slot": "Face",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_BellhopCat_Work_Prop2"
+        ]
+      },
+      "prop_pieces": {
+        "Bell": {
+          "object": "CatCafe_Cat_BellhopCat_Work_Bell",
+          "inside": "Prop2",
+          "follows": "Head",
+          "pivot_roblox": [
+            0.0,
+            0.84,
+            -0.67
+          ]
+        }
+      },
+      "exclusive": true,
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_BellhopCat_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Face prop is the child Model <name>_Prop2 and rides the Head (inside the Head Model); PropSlot2 = Face, so the role piece in that slot stays off too (F71). The child Model <name>_Bell hangs inside <name>_Prop2, pivoted where it hangs, and rides what that prop rides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_BellhopCat_Work.model.json",
+      "rbx_parts": 127,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_BellhopCat_Work.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_BellhopCat_Work.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2288/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1188 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -70450,17 +71695,17 @@
       "triangles": 1368,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -70786,7 +72031,7 @@
           "uv": "734 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -71561,17 +72806,17 @@
       "triangles": 1332,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -71897,7 +73142,7 @@
           "uv": "716 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -72672,17 +73917,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -73008,7 +74253,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -73783,17 +75028,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -74119,7 +75364,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -74886,17 +76131,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -75218,7 +76463,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -76010,17 +77255,17 @@
       "triangles": 1428,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.66,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.66
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.74,
         0.0
       ],
@@ -76353,7 +77598,7 @@
           "uv": "764 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -77142,17 +78387,17 @@
       "triangles": 1648,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.67,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.67
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.75,
         0.0
       ],
@@ -77482,7 +78727,7 @@
           "uv": "858 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -78276,17 +79521,17 @@
       "triangles": 1588,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -78619,7 +79864,7 @@
           "uv": "822 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -79411,17 +80656,17 @@
       "triangles": 1588,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.65,
         "z": 1.98
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.98,
         1.65
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -79754,7 +80999,7 @@
           "uv": "834 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -80538,17 +81783,17 @@
       "triangles": 1572,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.58,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.58
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.68,
         0.0
       ],
@@ -80877,7 +82122,7 @@
           "uv": "796 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.10"
+          "centered": "footprint center x=0.08 y=0.10"
         }
       }
     },
@@ -81669,17 +82914,17 @@
       "triangles": 1480,
       "budget": 2400,
       "size_studs": {
-        "x": 1.87,
+        "x": 1.84,
         "y": 1.94,
         "z": 2.7
       },
       "size_roblox": [
-        1.87,
+        1.84,
         2.7,
         1.94
       ],
       "bounds_min": [
-        -0.86,
+        -0.82,
         -0.84,
         0.0
       ],
@@ -82012,7 +83257,7 @@
           "uv": "774 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.13"
+          "centered": "footprint center x=0.10 y=0.13"
         }
       }
     },
@@ -82796,17 +84041,17 @@
       "triangles": 1416,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -83135,7 +84380,7 @@
           "uv": "758 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -83935,17 +85180,17 @@
       "triangles": 1552,
       "budget": 2400,
       "size_studs": {
-        "x": 1.87,
+        "x": 1.84,
         "y": 1.97,
         "z": 2.44
       },
       "size_roblox": [
-        1.87,
+        1.84,
         2.44,
         1.97
       ],
       "bounds_min": [
-        -0.86,
+        -0.82,
         -0.84,
         0.0
       ],
@@ -84282,7 +85527,7 @@
           "uv": "834 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.14"
+          "centered": "footprint center x=0.10 y=0.14"
         }
       }
     },
@@ -85066,17 +86311,17 @@
       "triangles": 1718,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.63,
         "z": 2.58
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.58,
         1.63
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.71,
         0.0
       ],
@@ -85405,7 +86650,7 @@
           "uv": "935 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.10"
+          "centered": "footprint center x=0.08 y=0.10"
         }
       }
     },
@@ -86180,17 +87425,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -86516,7 +87761,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -87291,17 +88536,17 @@
       "triangles": 1368,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -87627,7 +88872,7 @@
           "uv": "734 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -88394,17 +89639,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -88726,7 +89971,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -89512,17 +90757,17 @@
       "triangles": 1732,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.57,
         "z": 2.17
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.17,
         1.57
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.63,
         0.0
       ],
@@ -89851,7 +91096,7 @@
           "uv": "910 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.16"
+          "centered": "footprint center x=0.08 y=0.16"
         }
       }
     },
@@ -92944,17 +94189,17 @@
       "triangles": 1836,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.97
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.97,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -93298,7 +94543,7 @@
           "uv": "972 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -94107,17 +95352,17 @@
       "triangles": 1652,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.67,
         "z": 1.9
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.9,
         1.67
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.76,
         0.0
       ],
@@ -94457,7 +95702,7 @@
           "uv": "832 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -95266,17 +96511,17 @@
       "triangles": 1708,
       "budget": 2400,
       "size_studs": {
-        "x": 1.95,
+        "x": 1.92,
         "y": 2.05,
         "z": 2.95
       },
       "size_roblox": [
-        1.95,
+        1.92,
         2.95,
         2.05
       ],
       "bounds_min": [
-        -0.89,
+        -0.86,
         -0.91,
         0.0
       ],
@@ -95616,7 +96861,7 @@
           "uv": "938 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.09 y=0.12"
+          "centered": "footprint center x=0.10 y=0.12"
         }
       }
     },
@@ -96425,17 +97670,17 @@
       "triangles": 1580,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.65,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.65
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -96775,7 +98020,7 @@
           "uv": "808 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -97584,17 +98829,17 @@
       "triangles": 1760,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.64,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.64
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -97934,7 +99179,7 @@
           "uv": "964 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.12"
+          "centered": "footprint center x=0.08 y=0.12"
         }
       }
     },
@@ -98735,17 +99980,17 @@
       "triangles": 2220,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.68,
         "z": 2.57
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.57,
         1.68
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.76,
         0.0
       ],
@@ -99081,7 +100326,7 @@
           "uv": "1182 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -99890,17 +101135,17 @@
       "triangles": 1798,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.67,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.67
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.75,
         0.0
       ],
@@ -100240,7 +101485,7 @@
           "uv": "905 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -101057,17 +102302,17 @@
       "triangles": 2176,
       "budget": 2400,
       "size_studs": {
-        "x": 1.87,
+        "x": 1.84,
         "y": 2.02,
         "z": 2.44
       },
       "size_roblox": [
-        1.87,
+        1.84,
         2.44,
         2.02
       ],
       "bounds_min": [
-        -0.86,
+        -0.82,
         -0.89,
         0.0
       ],
@@ -101411,7 +102656,7 @@
           "uv": "1074 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.12"
+          "centered": "footprint center x=0.10 y=0.12"
         }
       }
     },
@@ -102222,17 +103467,17 @@
       "triangles": 2226,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.71,
         "z": 2.02
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.02,
         1.71
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.79,
         0.0
       ],
@@ -102572,7 +103817,7 @@
           "uv": "1171 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.06"
+          "centered": "footprint center x=0.08 y=0.06"
         }
       }
     },
@@ -103394,17 +104639,17 @@
       "triangles": 1876,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.23
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.23,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -103749,7 +104994,7 @@
           "uv": "1038 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -104558,17 +105803,17 @@
       "triangles": 1780,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.21
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.21,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -104908,7 +106153,7 @@
           "uv": "960 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -105692,17 +106937,17 @@
       "triangles": 1596,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.11
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.11,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -106031,7 +107276,7 @@
           "uv": "824 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -106840,17 +108085,17 @@
       "triangles": 1658,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.64,
         "z": 1.97
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.97,
         1.64
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -107190,7 +108435,7 @@
           "uv": "841 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -108006,17 +109251,17 @@
       "triangles": 2000,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 2.12,
         "z": 2.13
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.13,
         2.12
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -1.2,
         0.0
       ],
@@ -108357,7 +109602,7 @@
           "uv": "1154 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=-0.15"
+          "centered": "footprint center x=0.08 y=-0.15"
         }
       }
     },
@@ -109173,17 +110418,17 @@
       "triangles": 2340,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.7,
         "z": 2.11
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.11,
         1.7
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.79,
         0.0
       ],
@@ -109524,7 +110769,7 @@
           "uv": "1172 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.06"
+          "centered": "footprint center x=0.08 y=0.06"
         }
       }
     },
@@ -110340,17 +111585,17 @@
       "triangles": 1808,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.72,
         "z": 2.06
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.06,
         1.72
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.81,
         0.0
       ],
@@ -110691,7 +111936,7 @@
           "uv": "928 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.05"
+          "centered": "footprint center x=0.08 y=0.05"
         }
       }
     },
@@ -111508,17 +112753,17 @@
       "triangles": 2020,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -111862,7 +113107,7 @@
           "uv": "1014 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -113810,17 +115055,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -114154,7 +115399,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -114929,17 +116174,17 @@
       "triangles": 1380,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -115265,7 +116510,7 @@
           "uv": "740 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -116056,17 +117301,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -116400,7 +117645,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -117175,17 +118420,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -117511,7 +118756,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -118286,17 +119531,17 @@
       "triangles": 1308,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -118622,7 +119867,7 @@
           "uv": "708 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -119405,17 +120650,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -119745,7 +120990,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -120520,17 +121765,17 @@
       "triangles": 1368,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -120856,7 +122101,7 @@
           "uv": "734 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -121631,17 +122876,17 @@
       "triangles": 1368,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -121967,7 +123212,7 @@
           "uv": "734 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -122742,17 +123987,17 @@
       "triangles": 1380,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -123078,7 +124323,7 @@
           "uv": "740 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -123861,17 +125106,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -124201,7 +125446,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -124976,17 +126221,17 @@
       "triangles": 1368,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -125312,7 +126557,7 @@
           "uv": "734 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -126095,17 +127340,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -126435,7 +127680,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -127223,17 +128468,17 @@
       "triangles": 1780,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -127566,7 +128811,7 @@
           "uv": "960 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -128354,17 +129599,17 @@
       "triangles": 1848,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.98
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.98,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -128697,7 +129942,7 @@
           "uv": "974 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -129502,17 +130747,17 @@
       "triangles": 1828,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.95
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.95,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -129852,7 +131097,7 @@
           "uv": "908 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -130647,17 +131892,17 @@
       "triangles": 1868,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.96,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.96
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -1.05,
         0.0
       ],
@@ -130991,7 +132236,7 @@
           "uv": "944 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=-0.07"
+          "centered": "footprint center x=0.08 y=-0.07"
         }
       }
     },
@@ -131779,17 +133024,17 @@
       "triangles": 1754,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.14
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.14,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -132122,7 +133367,7 @@
           "uv": "965 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -132910,17 +134155,17 @@
       "triangles": 1926,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.72,
         "z": 2.39
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.39,
         1.72
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -133253,7 +134498,7 @@
           "uv": "1055 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.16"
+          "centered": "footprint center x=0.08 y=0.16"
         }
       }
     },
@@ -134049,17 +135294,17 @@
       "triangles": 1676,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.65,
         "z": 1.97
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.97,
         1.65
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -134396,7 +135641,7 @@
           "uv": "853 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -135211,17 +136456,17 @@
       "triangles": 2036,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.71,
         "z": 1.98
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.98,
         1.71
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.79,
         0.0
       ],
@@ -135565,7 +136810,7 @@
           "uv": "1030 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.06"
+          "centered": "footprint center x=0.08 y=0.06"
         }
       }
     },
@@ -136378,17 +137623,17 @@
       "triangles": 1862,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.7,
         "z": 2.32
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.32,
         1.7
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.77,
         0.0
       ],
@@ -136732,7 +137977,7 @@
           "uv": "1039 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -137555,17 +138800,17 @@
       "triangles": 1762,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.72,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.72
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.8,
         0.0
       ],
@@ -137913,7 +139158,7 @@
           "uv": "941 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.05"
+          "centered": "footprint center x=0.08 y=0.05"
         }
       }
     },
@@ -142593,7 +143838,7 @@
         ],
         "CatCafe_Street_DealerCart_Cat_Tail": [
           0.19,
-          0.96,
+          0.86,
           2.98
         ],
         "CatCafe_Street_DealerCart_Cat_LegF1": [
@@ -142646,7 +143891,7 @@
         "CatCafe_Street_DealerCart_Cat_Tail": [
           -0.19,
           2.98,
-          0.96
+          0.86
         ],
         "CatCafe_Street_DealerCart_Cat_LegF1": [
           -0.16,
@@ -143181,9 +144426,11 @@
         "CatCafe_Plot_Cafe_Mint_Flowers",
         "CatCafe_Plot_Cafe_Mint_Fireflies",
         "CatCafe_Plot_Cafe_Mint_Paint",
-        "CatCafe_Plot_Cafe_Mint_Wallpaper"
+        "CatCafe_Plot_Cafe_Mint_Wallpaper",
+        "CatCafe_Plot_Cafe_Mint_Garden",
+        "CatCafe_Plot_Cafe_Mint_Path"
       ],
-      "triangles": 5544,
+      "triangles": 5580,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -143227,7 +144474,7 @@
       },
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Mint.model.json",
-      "rbx_parts": 516,
+      "rbx_parts": 519,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint.glb"
@@ -143240,10 +144487,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5544/12000 tris",
+          "budget": "5580/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2650 faces on swatch centers",
+          "uv": "2668 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -143270,9 +144517,11 @@
         "CatCafe_Plot_Cafe_Blush_Flowers",
         "CatCafe_Plot_Cafe_Blush_Fireflies",
         "CatCafe_Plot_Cafe_Blush_Paint",
-        "CatCafe_Plot_Cafe_Blush_Wallpaper"
+        "CatCafe_Plot_Cafe_Blush_Wallpaper",
+        "CatCafe_Plot_Cafe_Blush_Garden",
+        "CatCafe_Plot_Cafe_Blush_Path"
       ],
-      "triangles": 5544,
+      "triangles": 5580,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -143316,7 +144565,7 @@
       },
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Blush.model.json",
-      "rbx_parts": 516,
+      "rbx_parts": 519,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush.glb"
@@ -143329,10 +144578,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5544/12000 tris",
+          "budget": "5580/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2650 faces on swatch centers",
+          "uv": "2668 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -143359,9 +144608,11 @@
         "CatCafe_Plot_Cafe_Butter_Flowers",
         "CatCafe_Plot_Cafe_Butter_Fireflies",
         "CatCafe_Plot_Cafe_Butter_Paint",
-        "CatCafe_Plot_Cafe_Butter_Wallpaper"
+        "CatCafe_Plot_Cafe_Butter_Wallpaper",
+        "CatCafe_Plot_Cafe_Butter_Garden",
+        "CatCafe_Plot_Cafe_Butter_Path"
       ],
-      "triangles": 5544,
+      "triangles": 5580,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -143405,7 +144656,7 @@
       },
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Butter.model.json",
-      "rbx_parts": 516,
+      "rbx_parts": 519,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter.glb"
@@ -143418,10 +144669,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5544/12000 tris",
+          "budget": "5580/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2650 faces on swatch centers",
+          "uv": "2668 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -143448,9 +144699,11 @@
         "CatCafe_Plot_Cafe_Lilac_Flowers",
         "CatCafe_Plot_Cafe_Lilac_Fireflies",
         "CatCafe_Plot_Cafe_Lilac_Paint",
-        "CatCafe_Plot_Cafe_Lilac_Wallpaper"
+        "CatCafe_Plot_Cafe_Lilac_Wallpaper",
+        "CatCafe_Plot_Cafe_Lilac_Garden",
+        "CatCafe_Plot_Cafe_Lilac_Path"
       ],
-      "triangles": 5544,
+      "triangles": 5580,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -143494,7 +144747,7 @@
       },
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Lilac.model.json",
-      "rbx_parts": 516,
+      "rbx_parts": 519,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac.glb"
@@ -143507,10 +144760,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5544/12000 tris",
+          "budget": "5580/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2650 faces on swatch centers",
+          "uv": "2668 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -143698,7 +144951,8 @@
       "module": "plot",
       "objects": [
         "CatCafe_Plot_Tier2",
-        "CatCafe_Plot_Tier2_Flowers"
+        "CatCafe_Plot_Tier2_Flowers",
+        "CatCafe_Plot_Tier2_Bistro"
       ],
       "triangles": 624,
       "budget": 3000,
@@ -143758,7 +145012,8 @@
       "objects": [
         "CatCafe_Plot_Tier3",
         "CatCafe_Plot_Tier3_Sign_Tube",
-        "CatCafe_Plot_Tier3_StringLights_Bulbs"
+        "CatCafe_Plot_Tier3_StringLights_Bulbs",
+        "CatCafe_Plot_Tier3_Bistro"
       ],
       "triangles": 1294,
       "budget": 3000,
@@ -143825,13 +145080,13 @@
       "budget": 3000,
       "size_studs": {
         "x": 27.52,
-        "y": 37.05,
+        "y": 36.75,
         "z": 8.85
       },
       "size_roblox": [
         27.52,
         8.85,
-        37.05
+        36.75
       ],
       "bounds_min": [
         -13.6,
@@ -143840,7 +145095,7 @@
       ],
       "bounds_max": [
         13.92,
-        24.8,
+        24.5,
         8.85
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
@@ -143865,7 +145120,7 @@
           "uv": "500 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.16 y=6.27"
+          "centered": "footprint center x=0.16 y=6.12"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_Tier4.png",
@@ -146269,7 +147524,7 @@
         ],
         "CatCafe_Street_CodesCat_Cat_Tail": [
           0.28,
-          1.67,
+          1.52,
           2.17
         ],
         "CatCafe_Street_CodesCat_Cat_LegF1": [
@@ -146322,7 +147577,7 @@
         "CatCafe_Street_CodesCat_Cat_Tail": [
           -0.28,
           2.17,
-          1.67
+          1.52
         ],
         "CatCafe_Street_CodesCat_Cat_LegF1": [
           -0.24,
@@ -146517,7 +147772,7 @@
         ],
         "CatCafe_Street_FishMarket_Cat_Tail": [
           0.28,
-          1.72,
+          1.57,
           2.37
         ],
         "CatCafe_Street_FishMarket_Cat_LegF1": [
@@ -146575,7 +147830,7 @@
         "CatCafe_Street_FishMarket_Cat_Tail": [
           -0.28,
           2.37,
-          1.72
+          1.57
         ],
         "CatCafe_Street_FishMarket_Cat_LegF1": [
           -0.24,
@@ -148810,7 +150065,7 @@
         ],
         "CatCafe_Street_SpinWheel_Cat_Tail": [
           -5.07,
-          0.02,
+          -0.13,
           2.4
         ],
         "CatCafe_Street_SpinWheel_Cat_LegF1": [
@@ -148873,7 +150128,7 @@
         "CatCafe_Street_SpinWheel_Cat_Tail": [
           5.07,
           2.4,
-          0.02
+          -0.13
         ],
         "CatCafe_Street_SpinWheel_Cat_LegF1": [
           5.11,
@@ -160037,14 +161292,14 @@
       "triangles": 1636,
       "budget": 2600,
       "size_studs": {
-        "x": 1.51,
-        "y": 1.6,
+        "x": 1.79,
+        "y": 1.63,
         "z": 2.64
       },
       "size_roblox": [
-        1.51,
+        1.79,
         2.64,
-        1.6
+        1.63
       ],
       "bounds_min": [
         -0.75,
@@ -160052,8 +161307,8 @@
         1.57
       ],
       "bounds_max": [
-        0.76,
-        0.59,
+        1.04,
+        0.63,
         4.21
       ],
       "pivot": "the floor under a cafe chair's seat centre, facing the table (-Z); the cat sits on the seat at 1.57",
@@ -160091,7 +161346,7 @@
         ],
         "CatCafe_NPC_MysteryVisitor_Tail": [
           0.25,
-          0.52,
+          0.39,
           1.71
         ],
         "CatCafe_NPC_MysteryVisitor_LegF1": [
@@ -160149,7 +161404,7 @@
         "CatCafe_NPC_MysteryVisitor_Tail": [
           -0.25,
           1.71,
-          0.52
+          0.39
         ],
         "CatCafe_NPC_MysteryVisitor_LegF1": [
           -0.21,
@@ -160193,7 +161448,7 @@
           "uv": "919 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=1.57 (want 0)",
-          "centered": "footprint center x=0.01 y=-0.20"
+          "centered": "footprint center x=0.15 y=-0.19"
         }
       }
     },
@@ -160271,14 +161526,14 @@
       "triangles": 1856,
       "budget": 2600,
       "size_studs": {
-        "x": 1.56,
-        "y": 1.99,
+        "x": 1.87,
+        "y": 2.01,
         "z": 2.7
       },
       "size_roblox": [
-        1.56,
+        1.87,
         2.7,
-        1.99
+        2.01
       ],
       "bounds_min": [
         -0.71,
@@ -160286,8 +161541,8 @@
         -0.0
       ],
       "bounds_max": [
-        0.85,
-        0.85,
+        1.16,
+        0.87,
         2.7
       ],
       "pivot": "the floor under him, on the plot's CollectorSpot, facing into the room (-Z)",
@@ -160320,7 +161575,7 @@
         ],
         "CatCafe_NPC_Collector_Tail": [
           0.28,
-          0.74,
+          0.6,
           0.15
         ],
         "CatCafe_NPC_Collector_LegF1": [
@@ -160373,7 +161628,7 @@
         "CatCafe_NPC_Collector_Tail": [
           -0.28,
           0.15,
-          0.74
+          0.6
         ],
         "CatCafe_NPC_Collector_LegF1": [
           -0.23,
@@ -160416,7 +161671,7 @@
           "uv": "951 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=-0.14"
+          "centered": "footprint center x=0.23 y=-0.14"
         }
       }
     },
@@ -164220,6 +165475,1439 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-301.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_TulipBed",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_TulipBed"
+      ],
+      "triangles": 708,
+      "budget": 800,
+      "size_studs": {
+        "x": 2.0,
+        "y": 2.0,
+        "z": 1.44
+      },
+      "size_roblox": [
+        2.0,
+        1.44,
+        2.0
+      ],
+      "bounds_min": [
+        -1.0,
+        -1.0,
+        0.0
+      ],
+      "bounds_max": [
+        1.0,
+        1.0,
+        1.44
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_TulipBed.model.json",
+      "rbx_parts": 74,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_TulipBed.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_TulipBed.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "708/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "345 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_SandwichBoard",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_SandwichBoard",
+        "CatCafe_Lawn_SandwichBoard_Chalk"
+      ],
+      "triangles": 796,
+      "budget": 800,
+      "size_studs": {
+        "x": 1.49,
+        "y": 1.26,
+        "z": 2.03
+      },
+      "size_roblox": [
+        1.49,
+        2.03,
+        1.26
+      ],
+      "bounds_min": [
+        -0.9,
+        -0.8,
+        0.0
+      ],
+      "bounds_max": [
+        0.59,
+        0.46,
+        2.03
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_SandwichBoard.model.json",
+      "rbx_parts": 62,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_SandwichBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_SandwichBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "796/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "382 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.16 y=-0.17"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_PottedCatTopiary",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_PottedCatTopiary"
+      ],
+      "triangles": 456,
+      "budget": 800,
+      "size_studs": {
+        "x": 1.4,
+        "y": 1.32,
+        "z": 2.45
+      },
+      "size_roblox": [
+        1.4,
+        2.45,
+        1.32
+      ],
+      "bounds_min": [
+        -0.77,
+        -0.66,
+        0.0
+      ],
+      "bounds_max": [
+        0.63,
+        0.66,
+        2.45
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_PottedCatTopiary.model.json",
+      "rbx_parts": 42,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_PottedCatTopiary.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_PottedCatTopiary.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "456/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "254 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.07 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_Mailbox",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_Mailbox",
+        "CatCafe_Lawn_Mailbox_Flag"
+      ],
+      "triangles": 594,
+      "budget": 800,
+      "size_studs": {
+        "x": 0.95,
+        "y": 1.48,
+        "z": 2.35
+      },
+      "size_roblox": [
+        0.95,
+        2.35,
+        1.48
+      ],
+      "bounds_min": [
+        -0.48,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.48,
+        0.9,
+        2.35
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Lawn_Mailbox_Flag": [
+          -0.34,
+          0.3,
+          1.8
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Lawn_Mailbox_Flag": [
+          0.34,
+          1.8,
+          0.3
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_Mailbox.model.json",
+      "rbx_parts": 57,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_Mailbox.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_Mailbox.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "594/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "281 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.16"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_LampPost",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_LampPost",
+        "CatCafe_Lawn_LampPost_Bulbs"
+      ],
+      "triangles": 522,
+      "budget": 800,
+      "size_studs": {
+        "x": 1.3,
+        "y": 0.8,
+        "z": 6.8
+      },
+      "size_roblox": [
+        1.3,
+        6.8,
+        0.8
+      ],
+      "bounds_min": [
+        -0.9,
+        -0.4,
+        0.0
+      ],
+      "bounds_max": [
+        0.4,
+        0.4,
+        6.8
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_LampPost.model.json",
+      "rbx_parts": 42,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_LampPost.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_LampPost.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "522/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "273 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.25 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_BirdBath",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_BirdBath",
+        "CatCafe_Lawn_BirdBath_Water",
+        "CatCafe_Lawn_BirdBath_Bird_Bob"
+      ],
+      "triangles": 580,
+      "budget": 800,
+      "size_studs": {
+        "x": 1.91,
+        "y": 1.68,
+        "z": 2.16
+      },
+      "size_roblox": [
+        1.91,
+        2.16,
+        1.68
+      ],
+      "bounds_min": [
+        -1.07,
+        -0.84,
+        0.0
+      ],
+      "bounds_max": [
+        0.84,
+        0.84,
+        2.16
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Lawn_BirdBath_Bird_Bob": [
+          -0.78,
+          0.05,
+          1.72
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Lawn_BirdBath_Bird_Bob": [
+          0.78,
+          1.72,
+          0.05
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_BirdBath.model.json",
+      "rbx_parts": 44,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_BirdBath.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_BirdBath.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "580/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "292 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.11 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_GardenGnomeCat",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_GardenGnomeCat"
+      ],
+      "triangles": 616,
+      "budget": 800,
+      "size_studs": {
+        "x": 0.97,
+        "y": 1.0,
+        "z": 1.77
+      },
+      "size_roblox": [
+        0.97,
+        1.77,
+        1.0
+      ],
+      "bounds_min": [
+        -0.49,
+        -0.5,
+        0.0
+      ],
+      "bounds_max": [
+        0.48,
+        0.5,
+        1.77
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_GardenGnomeCat.model.json",
+      "rbx_parts": 44,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_GardenGnomeCat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_GardenGnomeCat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "616/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "350 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.01 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_BalloonBunch",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_BalloonBunch",
+        "CatCafe_Lawn_BalloonBunch_Balloons_Swing",
+        "CatCafe_Lawn_BalloonBunch_Balloons_Glow"
+      ],
+      "triangles": 392,
+      "budget": 1200,
+      "size_studs": {
+        "x": 1.89,
+        "y": 1.35,
+        "z": 5.72
+      },
+      "size_roblox": [
+        1.89,
+        5.72,
+        1.35
+      ],
+      "bounds_min": [
+        -0.94,
+        -0.62,
+        0.0
+      ],
+      "bounds_max": [
+        0.94,
+        0.72,
+        5.72
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Lawn_BalloonBunch_Balloons_Swing": [
+          0.0,
+          0.0,
+          0.79
+        ],
+        "CatCafe_Lawn_BalloonBunch_Balloons_Glow": [
+          0.0,
+          0.0,
+          0.79
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Lawn_BalloonBunch_Balloons_Swing": [
+          0.0,
+          0.79,
+          0.0
+        ],
+        "CatCafe_Lawn_BalloonBunch_Balloons_Glow": [
+          0.0,
+          0.79,
+          0.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_BalloonBunch.model.json",
+      "rbx_parts": 48,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_BalloonBunch.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_BalloonBunch.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "392/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "282 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.05"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_BicycleWithBasket",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_BicycleWithBasket"
+      ],
+      "triangles": 1384,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.26,
+        "y": 1.99,
+        "z": 2.11
+      },
+      "size_roblox": [
+        3.26,
+        2.11,
+        1.99
+      ],
+      "bounds_min": [
+        -1.63,
+        -0.76,
+        -0.02
+      ],
+      "bounds_max": [
+        1.63,
+        1.23,
+        2.09
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_BicycleWithBasket.model.json",
+      "rbx_parts": 125,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_BicycleWithBasket.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_BicycleWithBasket.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1384/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "678 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.02 (want 0)",
+          "centered": "footprint center x=0.00 y=0.24"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_GardenBench",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_GardenBench"
+      ],
+      "triangles": 680,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.76,
+        "y": 1.82,
+        "z": 2.1
+      },
+      "size_roblox": [
+        3.76,
+        2.1,
+        1.82
+      ],
+      "bounds_min": [
+        -1.88,
+        -1.26,
+        -0.0
+      ],
+      "bounds_max": [
+        1.88,
+        0.56,
+        2.1
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_GardenBench.model.json",
+      "rbx_parts": 48,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_GardenBench.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_GardenBench.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "680/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "374 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.35"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_UmbrellaTable",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_UmbrellaTable"
+      ],
+      "triangles": 1080,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.82,
+        "y": 3.82,
+        "z": 5.58
+      },
+      "size_roblox": [
+        3.82,
+        5.58,
+        3.82
+      ],
+      "bounds_min": [
+        -1.91,
+        -1.91,
+        -0.0
+      ],
+      "bounds_max": [
+        1.91,
+        1.91,
+        5.58
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_UmbrellaTable.model.json",
+      "rbx_parts": 88,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_UmbrellaTable.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_UmbrellaTable.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1080/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "496 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_LittleFountain",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_LittleFountain",
+        "CatCafe_Lawn_LittleFountain_Water"
+      ],
+      "triangles": 944,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.1,
+        "y": 3.07,
+        "z": 2.6
+      },
+      "size_roblox": [
+        3.1,
+        2.6,
+        3.07
+      ],
+      "bounds_min": [
+        -1.55,
+        -1.54,
+        0.0
+      ],
+      "bounds_max": [
+        1.55,
+        1.54,
+        2.6
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_LittleFountain.model.json",
+      "rbx_parts": 70,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_LittleFountain.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_LittleFountain.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "944/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "480 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_FairyLightArch",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_FairyLightArch",
+        "CatCafe_Lawn_FairyLightArch_Bulbs",
+        "CatCafe_Lawn_FairyLightArch_Lantern_Swing",
+        "CatCafe_Lawn_FairyLightArch_Lantern_Glow"
+      ],
+      "triangles": 1868,
+      "budget": 2500,
+      "size_studs": {
+        "x": 3.66,
+        "y": 1.56,
+        "z": 5.21
+      },
+      "size_roblox": [
+        3.66,
+        5.21,
+        1.56
+      ],
+      "bounds_min": [
+        -1.85,
+        -0.81,
+        0.0
+      ],
+      "bounds_max": [
+        1.81,
+        0.75,
+        5.21
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Lawn_FairyLightArch_Lantern_Swing": [
+          0.0,
+          -0.55,
+          4.75
+        ],
+        "CatCafe_Lawn_FairyLightArch_Lantern_Glow": [
+          0.0,
+          -0.55,
+          4.75
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Lawn_FairyLightArch_Lantern_Swing": [
+          0.0,
+          4.75,
+          -0.55
+        ],
+        "CatCafe_Lawn_FairyLightArch_Lantern_Glow": [
+          0.0,
+          4.75,
+          -0.55
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_FairyLightArch.model.json",
+      "rbx_parts": 155,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_FairyLightArch.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_FairyLightArch.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1868/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "932 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.02 y=-0.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_FlowerCart",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_FlowerCart",
+        "CatCafe_Lawn_FlowerCart_Flowers",
+        "CatCafe_Lawn_FlowerCart_Lantern_Swing",
+        "CatCafe_Lawn_FlowerCart_Lantern_Glow"
+      ],
+      "triangles": 2472,
+      "budget": 2500,
+      "size_studs": {
+        "x": 3.32,
+        "y": 2.02,
+        "z": 3.47
+      },
+      "size_roblox": [
+        3.32,
+        3.47,
+        2.02
+      ],
+      "bounds_min": [
+        -1.91,
+        -1.24,
+        -0.01
+      ],
+      "bounds_max": [
+        1.41,
+        0.78,
+        3.46
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Lawn_FlowerCart_Lantern_Swing": [
+          -1.2,
+          -0.62,
+          2.99
+        ],
+        "CatCafe_Lawn_FlowerCart_Lantern_Glow": [
+          -1.2,
+          -0.62,
+          2.99
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Lawn_FlowerCart_Lantern_Swing": [
+          1.2,
+          2.99,
+          -0.62
+        ],
+        "CatCafe_Lawn_FlowerCart_Lantern_Glow": [
+          1.2,
+          2.99,
+          -0.62
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_FlowerCart.model.json",
+      "rbx_parts": 234,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_FlowerCart.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_FlowerCart.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2472/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1195 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=-0.25 y=-0.23"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_CatTreeSign",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_CatTreeSign",
+        "CatCafe_Lawn_CatTreeSign_Bulbs",
+        "CatCafe_Lawn_CatTreeSign_NameBoard",
+        "CatCafe_Lawn_CatTreeSign_NameText",
+        "CatCafe_Lawn_CatTreeSign_Star_Spin",
+        "CatCafe_Lawn_CatTreeSign_Toy_Swing"
+      ],
+      "triangles": 2368,
+      "budget": 2500,
+      "size_studs": {
+        "x": 3.5,
+        "y": 1.86,
+        "z": 6.97
+      },
+      "size_roblox": [
+        3.5,
+        6.97,
+        1.86
+      ],
+      "bounds_min": [
+        -1.73,
+        -0.93,
+        0.0
+      ],
+      "bounds_max": [
+        1.77,
+        0.93,
+        6.97
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Lawn_CatTreeSign_Star_Spin": [
+          1.2,
+          0.1,
+          6.36
+        ],
+        "CatCafe_Lawn_CatTreeSign_Toy_Swing": [
+          -1.42,
+          -0.3,
+          2.94
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Lawn_CatTreeSign_Star_Spin": [
+          -1.2,
+          6.36,
+          0.1
+        ],
+        "CatCafe_Lawn_CatTreeSign_Toy_Swing": [
+          1.42,
+          2.94,
+          -0.3
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_CatTreeSign.model.json",
+      "rbx_parts": 197,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_CatTreeSign.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_CatTreeSign.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2368/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1108 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.02 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_GoldenPawStatue",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_GoldenPawStatue",
+        "CatCafe_Lawn_GoldenPawStatue_Bulbs",
+        "CatCafe_Lawn_GoldenPawStatue_Paw_Spin"
+      ],
+      "triangles": 620,
+      "budget": 2500,
+      "size_studs": {
+        "x": 3.0,
+        "y": 3.0,
+        "z": 5.2
+      },
+      "size_roblox": [
+        3.0,
+        5.2,
+        3.0
+      ],
+      "bounds_min": [
+        -1.5,
+        -1.5,
+        0.0
+      ],
+      "bounds_max": [
+        1.5,
+        1.5,
+        5.2
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Lawn_GoldenPawStatue_Paw_Spin": [
+          0.0,
+          0.0,
+          2.36
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Lawn_GoldenPawStatue_Paw_Spin": [
+          0.0,
+          2.36,
+          0.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_GoldenPawStatue.model.json",
+      "rbx_parts": 38,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_GoldenPawStatue.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_GoldenPawStatue.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "620/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "338 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_Path_GreySlabs",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_Path_GreySlabs"
+      ],
+      "triangles": 204,
+      "budget": 1000,
+      "size_studs": {
+        "x": 7.0,
+        "y": 5.0,
+        "z": 0.26
+      },
+      "size_roblox": [
+        7.0,
+        0.26,
+        5.0
+      ],
+      "bounds_min": [
+        -3.5,
+        -2.5,
+        -0.2
+      ],
+      "bounds_max": [
+        3.5,
+        2.5,
+        0.06
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_Path_GreySlabs.model.json",
+      "rbx_parts": 17,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_Path_GreySlabs.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_Path_GreySlabs.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "204/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "102 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.20 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_Path_RedBrick",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_Path_RedBrick"
+      ],
+      "triangles": 804,
+      "budget": 1000,
+      "size_studs": {
+        "x": 6.96,
+        "y": 4.96,
+        "z": 0.25
+      },
+      "size_roblox": [
+        6.96,
+        0.25,
+        4.96
+      ],
+      "bounds_min": [
+        -3.48,
+        -2.48,
+        -0.2
+      ],
+      "bounds_max": [
+        3.48,
+        2.48,
+        0.05
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_Path_RedBrick.model.json",
+      "rbx_parts": 67,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_Path_RedBrick.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_Path_RedBrick.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "804/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "402 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.20 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_Path_SteppingStones",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_Path_SteppingStones"
+      ],
+      "triangles": 492,
+      "budget": 1000,
+      "size_studs": {
+        "x": 4.8,
+        "y": 5.08,
+        "z": 0.19
+      },
+      "size_roblox": [
+        4.8,
+        0.19,
+        5.08
+      ],
+      "bounds_min": [
+        -2.4,
+        -2.63,
+        -0.09
+      ],
+      "bounds_max": [
+        2.4,
+        2.45,
+        0.1
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_Path_SteppingStones.model.json",
+      "rbx_parts": 23,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_Path_SteppingStones.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_Path_SteppingStones.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "492/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "264 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.09 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.09"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_Path_PawPrintPath",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_Path_PawPrintPath"
+      ],
+      "triangles": 804,
+      "budget": 1000,
+      "size_studs": {
+        "x": 7.0,
+        "y": 5.0,
+        "z": 0.25
+      },
+      "size_roblox": [
+        7.0,
+        0.25,
+        5.0
+      ],
+      "bounds_min": [
+        -3.5,
+        -2.5,
+        -0.2
+      ],
+      "bounds_max": [
+        3.5,
+        2.5,
+        0.04
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_Path_PawPrintPath.model.json",
+      "rbx_parts": 43,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_Path_PawPrintPath.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_Path_PawPrintPath.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "804/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "330 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.20 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_Fence_WhitePicket",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_Fence_WhitePicket"
+      ],
+      "triangles": 1232,
+      "budget": 2400,
+      "size_studs": {
+        "x": 38.21,
+        "y": 0.24,
+        "z": 1.95
+      },
+      "size_roblox": [
+        38.21,
+        1.95,
+        0.24
+      ],
+      "bounds_min": [
+        -19.09,
+        -0.12,
+        0.0
+      ],
+      "bounds_max": [
+        19.12,
+        0.12,
+        1.95
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_Fence_WhitePicket.model.json",
+      "rbx_parts": 96,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_Fence_WhitePicket.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_Fence_WhitePicket.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1232/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "716 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.02 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_Fence_LowHedge",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_Fence_LowHedge"
+      ],
+      "triangles": 744,
+      "budget": 2400,
+      "size_studs": {
+        "x": 37.96,
+        "y": 0.84,
+        "z": 1.38
+      },
+      "size_roblox": [
+        37.96,
+        1.38,
+        0.84
+      ],
+      "bounds_min": [
+        -18.98,
+        -0.44,
+        0.0
+      ],
+      "bounds_max": [
+        18.98,
+        0.4,
+        1.38
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_Fence_LowHedge.model.json",
+      "rbx_parts": 54,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_Fence_LowHedge.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_Fence_LowHedge.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "744/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "348 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_Fence_IronRailing",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_Fence_IronRailing"
+      ],
+      "triangles": 1620,
+      "budget": 2400,
+      "size_studs": {
+        "x": 38.28,
+        "y": 0.44,
+        "z": 2.0
+      },
+      "size_roblox": [
+        38.28,
+        2.0,
+        0.44
+      ],
+      "bounds_min": [
+        -19.14,
+        -0.22,
+        0.0
+      ],
+      "bounds_max": [
+        19.14,
+        0.22,
+        2.0
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_Fence_IronRailing.model.json",
+      "rbx_parts": 252,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_Fence_IronRailing.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_Fence_IronRailing.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1620/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1030 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Lawn_Fence_FlowerBoxFence",
+      "category": "Lawn",
+      "module": "lawn",
+      "objects": [
+        "CatCafe_Lawn_Fence_FlowerBoxFence",
+        "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers"
+      ],
+      "triangles": 1968,
+      "budget": 2400,
+      "size_studs": {
+        "x": 38.36,
+        "y": 0.76,
+        "z": 1.1
+      },
+      "size_roblox": [
+        38.36,
+        1.1,
+        0.76
+      ],
+      "bounds_min": [
+        -19.18,
+        -0.38,
+        0.0
+      ],
+      "bounds_max": [
+        19.18,
+        0.38,
+        1.1
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Lawn_Fence_FlowerBoxFence.model.json",
+      "rbx_parts": 164,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Lawn_Fence_FlowerBoxFence.fbx",
+        "assets/cat-cafe/exports/CatCafe_Lawn_Fence_FlowerBoxFence.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1968/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "984 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
         }
       }
     },
@@ -169656,6 +172344,196 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.20 (want 0)",
           "centered": "footprint center x=0.00 y=20.09"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Street_BellhopStand",
+      "category": "Street",
+      "module": "bellhop",
+      "objects": [
+        "CatCafe_Street_BellhopStand",
+        "CatCafe_Street_BellhopStand_Bulbs",
+        "CatCafe_Street_BellhopStand_Cat_Body",
+        "CatCafe_Street_BellhopStand_Cat_Head",
+        "CatCafe_Street_BellhopStand_Cat_Eye1",
+        "CatCafe_Street_BellhopStand_Cat_Eye2",
+        "CatCafe_Street_BellhopStand_Cat_EarL",
+        "CatCafe_Street_BellhopStand_Cat_EarR",
+        "CatCafe_Street_BellhopStand_Cat_Tail",
+        "CatCafe_Street_BellhopStand_Cat_LegF1",
+        "CatCafe_Street_BellhopStand_Cat_LegF2",
+        "CatCafe_Street_BellhopStand_Cat_Prop",
+        "CatCafe_Street_BellhopStand_Cat_Prop2",
+        "CatCafe_Street_BellhopStand_Cat_Bell"
+      ],
+      "triangles": 7990,
+      "budget": 9000,
+      "size_studs": {
+        "x": 9.2,
+        "y": 9.2,
+        "z": 7.72
+      },
+      "size_roblox": [
+        9.2,
+        7.72,
+        9.2
+      ],
+      "bounds_min": [
+        -4.6,
+        -4.6,
+        0.0
+      ],
+      "bounds_max": [
+        4.6,
+        4.6,
+        7.72
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Street_BellhopStand_Cat_Body": [
+          0.0,
+          0.0,
+          2.57
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Head": [
+          0.0,
+          -0.14,
+          4.02
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Eye1": [
+          0.31,
+          -0.88,
+          4.37
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Eye2": [
+          -0.31,
+          -0.88,
+          4.37
+        ],
+        "CatCafe_Street_BellhopStand_Cat_EarL": [
+          0.4,
+          -0.26,
+          4.92
+        ],
+        "CatCafe_Street_BellhopStand_Cat_EarR": [
+          -0.4,
+          -0.26,
+          4.92
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Tail": [
+          0.28,
+          0.62,
+          2.73
+        ],
+        "CatCafe_Street_BellhopStand_Cat_LegF1": [
+          0.24,
+          -0.43,
+          3.45
+        ],
+        "CatCafe_Street_BellhopStand_Cat_LegF2": [
+          -0.24,
+          -0.43,
+          3.45
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Prop": [
+          0.0,
+          -0.07,
+          4.95
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Prop2": [
+          0.0,
+          -0.14,
+          4.02
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Bell": [
+          0.0,
+          -0.91,
+          3.83
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Street_BellhopStand_Cat_Body": [
+          0.0,
+          2.57,
+          0.0
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Head": [
+          0.0,
+          4.02,
+          -0.14
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Eye1": [
+          -0.31,
+          4.37,
+          -0.88
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Eye2": [
+          0.31,
+          4.37,
+          -0.88
+        ],
+        "CatCafe_Street_BellhopStand_Cat_EarL": [
+          -0.4,
+          4.92,
+          -0.26
+        ],
+        "CatCafe_Street_BellhopStand_Cat_EarR": [
+          0.4,
+          4.92,
+          -0.26
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Tail": [
+          -0.28,
+          2.73,
+          0.62
+        ],
+        "CatCafe_Street_BellhopStand_Cat_LegF1": [
+          -0.24,
+          3.45,
+          -0.43
+        ],
+        "CatCafe_Street_BellhopStand_Cat_LegF2": [
+          0.24,
+          3.45,
+          -0.43
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Prop": [
+          0.0,
+          4.95,
+          -0.07
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Prop2": [
+          0.0,
+          4.02,
+          -0.14
+        ],
+        "CatCafe_Street_BellhopStand_Cat_Bell": [
+          0.0,
+          3.83,
+          -0.91
+        ]
+      },
+      "studio": "F96 (starter-cat.md section 2): the Bellhop Cat's stand in the street plaza, between the Codes Cat and the Spin Wheel, the sign (-Z) toward the street. Tag BellhopStand; claims check the caller within 12 studs of its pivot. Attachments PromptAnchor (front of the dais, 3 studs up) and CatSeat (the cat's pivot on the suitcase). The cat is _Cat_<Piece> (BellhopCat at 1.5 times): its cap _Cat_Prop and collar _Cat_Prop2 ride inside _Cat_Head, the bell _Cat_Bell inside _Cat_Prop2, pivoted where it hangs. The sign's _Bulbs are lit at night. The dais and cart collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_BellhopStand.model.json",
+      "rbx_parts": 474,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_BellhopStand.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_BellhopStand.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "7990/9000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "4021 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
         }
       }
     }

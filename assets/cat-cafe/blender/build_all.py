@@ -45,6 +45,7 @@ import camps  # noqa: E402
 import cannon  # noqa: E402
 import areakit  # noqa: E402
 import areas  # noqa: E402
+import bellhop  # noqa: E402
 import boards  # noqa: E402
 import cats  # noqa: E402
 import coins  # noqa: E402
@@ -61,6 +62,7 @@ import furniture  # noqa: E402
 import gold  # noqa: E402
 import gates  # noqa: E402
 import items  # noqa: E402
+import lawn  # noqa: E402
 import style_icons  # noqa: E402
 import neighbourhood  # noqa: E402
 import night  # noqa: E402
@@ -95,8 +97,8 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, alleyblockers,
            boards, night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
-           townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
-           leaderboards, rally, rallycrate, menu, style_icons, yardfence]
+           townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
+           leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -305,11 +307,18 @@ STUDIO_NOTES = {
        for n in cats.ROSTER},
     **{f"CatCafe_Cat_{n}_Gold{sfx}": f"F42: clone this instead of CatCafe_Cat_{n}{sfx} when the cat is gold. Same "
                                       "parts, joints, attachments and poses; only the coat colours differ (style guide 2)."
-       for n in cats.ROSTER for sfx in cats.SUFFIX.values()},
+       for n in cats.ROSTER if cats.has_gold(n) for sfx in cats.SUFFIX.values()},
     "CatCafe_Street_FishMarket": "F53: the Golden Fish Market in the street plaza (x -8.5, z 64, rotY -90); WorldBuilder "
                                  "tags it FishMarket and hangs the Shop prompt on the Attachment PromptAnchor (counter "
                                  "front, 3 up). The shopkeeper cat's sou'wester rides its Head Model; the sign Bulb is "
                                  "lit at night.",
+    "CatCafe_Street_BellhopStand": "F96 (starter-cat.md section 2): the Bellhop Cat's stand in the street plaza, "
+                                   "between the Codes Cat and the Spin Wheel, the sign (-Z) toward the street. Tag "
+                                   "BellhopStand; claims check the caller within 12 studs of its pivot. Attachments "
+                                   "PromptAnchor (front of the dais, 3 studs up) and CatSeat (the cat's pivot on the "
+                                   "suitcase). The cat is _Cat_<Piece> (BellhopCat at 1.5 times): its cap _Cat_Prop and "
+                                   "collar _Cat_Prop2 ride inside _Cat_Head, the bell _Cat_Bell inside _Cat_Prop2, "
+                                   "pivoted where it hangs. The sign's _Bulbs are lit at night. The dais and cart collide.",
     "CatCafe_Street_DealerCart": "F32: the night dealer's cart (DealerService clones it at night). The Bulb and Bulbs "
                                  "are lit at night. The dealer's own cat sits on the cushion at the back of the counter: "
                                  "Cat_Body, Cat_Head and the other hinged sitting-cat pieces, its hood Cat_Prop inside "
@@ -430,7 +439,8 @@ for _fl in doorsets.FLAPS:                      # F80 cat flaps: on a back leaf'
 
 for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): Neon eye parts in Studio
     if _spec.get("glow_eyes"):
-        for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") for sfx in cats.SUFFIX.values()):
+        for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") if g == "" or cats.has_gold(_n)
+                   for sfx in cats.SUFFIX.values()):
             STUDIO_NOTES[_v] = (STUDIO_NOTES.get(_v, "") + " Glowing eyes: set the parts of the Eye1 and Eye2 Models "
                                 "to Neon.").strip()
     if props.slot(_n):                          # themed cats (data-model 3): the prop is part of the model
@@ -440,7 +450,11 @@ for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): N
             _r2 = "the Body" if props.slot2(_n) == "Back" else "the Head (inside the Head Model)"
             _two = (f" Second prop: the {props.slot2(_n)} prop is the child Model <name>_Prop2 and rides {_r2}; "
                     f"PropSlot2 = {props.slot2(_n)}, so the role piece in that slot stays off too (F71).")
-        for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") for sfx in cats.SUFFIX.values()):
+        for _piece, _host in props.PIECES.get(_n, {}).items():
+            _two += (f" The child Model <name>_{_piece} hangs inside <name>_{_host}, pivoted where it hangs, and rides "
+                     f"what that prop rides.")
+        for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") if g == "" or cats.has_gold(_n)
+                   for sfx in cats.SUFFIX.values()):
             STUDIO_NOTES[_v] = (STUDIO_NOTES.get(_v, "") + f" Prop: the {props.slot(_n)} prop is the child Model "
                                 f"<name>_Prop (and <name>_Prop_Glass, Glass) and rides {_rides}; PropSlot = "
                                 f"{props.slot(_n)}, so CatPose.dress leaves that slot's role piece off." + _two).strip()
@@ -483,6 +497,9 @@ def cat_rbx_extras(name):
             extras["part_attributes"]["_Prop2"] = {"Follows": props.follows(slot2)}
             if props.follows(slot2) == "Head":
                 extras["nest"]["_Prop2"] = "_Head"
+        for piece, host in props.PIECES.get(cat, {}).items():   # extra objects (the Bellhop's bell): in their host
+            extras["nest"]["_" + piece] = "_" + host
+            extras["part_attributes"]["_" + piece] = {"Follows": props.follows(props.piece_slot(cat, piece))}
     return extras
 
 
@@ -552,6 +569,8 @@ def main():
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         if name == "CatCafe_Street_DealerCart":   # the dealer's cat: its hood rides its Head
             extra = {"nest": {"_Prop": "_Head"}}
+        if name == bellhop.NAME:                  # F96: the claim card's spots; the cat's cap and collar in its Head
+            extra = {"attachments": bellhop.attachments(), "nest": bellhop.NEST, "part_attributes": bellhop.FOLLOWS}
         if name in {**mystery.NEST, **collector.NEST}:   # F64, F63: hats ride the Head, the glass the raised paw
             extra = {"nest": {**mystery.NEST, **collector.NEST}[name]}
         if name == "CatCafe_Furniture_CatTree":   # F79 sleep spots: pedestals, hops and the foot (furniture.TREE_SPOTS)
@@ -561,7 +580,7 @@ def main():
         if name == "CatCafe_Decor_CatTreeTower":
             extra = {"attachments": furniture.spot_attachments(name, crate_decor.TOWER_SPOTS)}
         if name.startswith("CatCafe_Plot_Cafe_"):  # the roof's trims ride the roof (it fades while you are inside)
-            extra = {"nest": {"_Roof_Trim": "_Roof"}}
+            extra = {"nest": {"_Roof_Trim": "_Roof", "_LampPost_Bulb": "_Garden", "_Flowers": "_Garden"}}
         if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
         if name.startswith("CatCafe_Item_Net_L"):  # the hand's spot for the net hold (Animation-Engineer)
@@ -576,6 +595,10 @@ def main():
             extra = {"attachments": cannon.rbx_attachments(name), "nest": cannon.NEST}
         if name in camps.ATTACHMENTS:             # F84: the carrier basket's Drop
             extra = {"attachments": camps.rbx_attachments(name)}
+        if name in lawn.ASSETS:                   # F91: lanterns' lights ride their swing; nap and seat spots
+            extra = {"nest": lawn.NEST}
+            if name in lawn.SPOTS:
+                extra["attachments"] = furniture.spot_attachments(name, lawn.SPOTS[name])
         if name == leaderboards.N:                # F98: each board's Screen rides its board's Model
             extra = {"nest": leaderboards.NEST}
         if name in menu.ATTACHMENTS:              # F90: the tray's Item spot, the oven's DoorGlow
@@ -641,6 +664,13 @@ def main():
             if props.slot2(cat):
                 entry["prop2"] = {"slot": props.slot2(cat), "follows": props.follows(props.slot2(cat)),
                                   "objects": [o.name for o in objs if o.name.endswith("_Prop2")]}
+            for piece, host in props.PIECES.get(cat, {}).items():
+                ob = next(o for o in objs if o.name.endswith("_" + piece))
+                entry.setdefault("prop_pieces", {})[piece] = {
+                    "object": ob.name, "inside": host, "follows": props.follows(props.piece_slot(cat, piece)),
+                    "pivot_roblox": common.to_roblox(list(ob.location))}
+            if spec.get("exclusive"):
+                entry["exclusive"] = True               # no gold twin, never rainbow (F96)
             lifts = {k: cats.pose_lift(spec, v) for k, v in poses.CAT_POSES.items() if v["body"] == body and "lift" in v}
             if lifts:                               # already times the cat's scale
                 entry["pose_lifts_roblox"] = {k: common.to_roblox([c * cats.scale_of(spec, body) for c in v])

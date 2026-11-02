@@ -31,6 +31,7 @@ local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
+local RareMomentService = require(script.Parent.RareMomentService)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -182,6 +183,7 @@ local function onOpenCrate(player: Player, rawCrateId: unknown)
 	local def, duplicate, refund, placed =
 		open(player, profile, Catalog.getCrate(crateId) :: Types.CrateDef)
 	Net.fire(player, "CrateResult", crateId, def.id, duplicate, refund)
+	RareMomentService.foundDecor(player, def) -- F89: a Mythical piece toasts the server
 	if placed then
 		CafeService.refreshPlot(player)
 	end

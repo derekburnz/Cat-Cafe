@@ -28,6 +28,7 @@ local PassService = require(script.Parent.Services.PassService)
 local PlotService = require(script.Parent.Services.PlotService)
 local PotionService = require(script.Parent.Services.PotionService)
 local QuestService = require(script.Parent.Services.QuestService)
+local RareMomentService = require(script.Parent.Services.RareMomentService)
 local RescueService = require(script.Parent.Services.RescueService)
 local RichTipService = require(script.Parent.Services.RichTipService)
 local ShoveService = require(script.Parent.Services.ShoveService)
@@ -71,6 +72,7 @@ SpinService.start()
 FishMarketService.start()
 CodeService.start()
 StarterCatService.start() -- F96: the free Bellhop Cat
+RareMomentService.start() -- F89: the toast clock
 IntroService.start()
 TipService.start() -- F87: context tips and feedback; before DataService so its onLoaded sees every join
 BugReportService.start(world)

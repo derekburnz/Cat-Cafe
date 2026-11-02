@@ -92,6 +92,7 @@ function StarterCat.new(callbacks: Callbacks): StarterCat
 	self._pending = false
 	self._token = 0 -- one per press, so a late timeout cannot touch a newer one
 	self._sentAt = -math.huge -- os.clock() of the last press
+	self._joinedAt = -math.huge -- os.clock() of the last Join the group, which rests as long (review N314)
 	self._refusal = nil :: string? -- the server's last refusal, kept over the view's line until the next press
 	self._view = nil :: View?
 	self._key = "" -- the last painted view, so update's calls cost nothing when it has not changed
@@ -194,7 +195,7 @@ function StarterCat.new(callbacks: Callbacks): StarterCat
 		position = UDim2.fromOffset(0, rowTop),
 		parent = content,
 		onClick = function()
-			callbacks.join()
+			self:_pressJoin()
 		end,
 	})
 	self._claim = Button.new({
@@ -278,6 +279,21 @@ function StarterCat.show(self: any, view: View, def: Types.CatDef?)
 		self._refusal = nil
 	end
 	self:_paint()
+end
+
+-- Join the group opens Roblox's prompt; it rests RESEND_SECONDS too, so two quick taps make one prompt.
+function StarterCat._pressJoin(self: any)
+	if os.clock() - self._joinedAt < RESEND_SECONDS then
+		return
+	end
+	self._joinedAt = os.clock()
+	self._join:setEnabled(false)
+	self._callbacks.join()
+	task.delay(RESEND_SECONDS, function()
+		if self._alive then
+			self._join:setEnabled(true)
+		end
+	end)
 end
 
 function StarterCat._press(self: any)

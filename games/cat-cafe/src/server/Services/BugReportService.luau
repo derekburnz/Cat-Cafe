@@ -8,7 +8,8 @@
 -- Cloud. In Studio each is also printed as one [BugReport] <json> line, so a run with API access off still shows
 -- it. The text is never shown to another player. Each record also keeps the text through Roblox's broadcast filter
 -- (`filteredText`; decisions.md 2026-11-01): the Actions logs that print reports are public on this repo, and once the
--- game is public the reporters are strangers, many of them young (rule 10), so bug-reports.sh prints only that copy.
+-- game is public the reporters are strangers, many of them young (rule 10), so bug-reports.sh prints only that copy
+-- (the lead's #840 switches it from `text`; until that lands the script still prints the raw text).
 -- The raw text stays in the data store for Derek and Studio.
 --
 -- Roblox terms: a DataStore is Roblox's key-value storage for an experience; SetAsync writes one key and can fail

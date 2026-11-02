@@ -208,11 +208,16 @@ return function()
 			expect(replaced.index_park).to.equal(nil)
 		end)
 
-		it("lists a prize's foods in id order", function()
-			local list = IndexRewards.lureList({ lures = { tuna = 2, salmon = 1 } })
-			expect(#list).to.equal(2)
-			expect(list[1].id).to.equal("salmon")
-			expect(list[2].count).to.equal(2)
+		it("lists a prize's foods in rarity order (F97 section 3)", function()
+			local list = IndexRewards.lureList({
+				lures = { star_treat = 1, salmon = 1, tuna = 2, sardines = 3 },
+			})
+			expect(#list).to.equal(4)
+			expect(list[1].id).to.equal("tuna")
+			expect(list[1].count).to.equal(2)
+			expect(list[2].id).to.equal("sardines")
+			expect(list[3].id).to.equal("salmon")
+			expect(list[4].id).to.equal("star_treat")
 			expect(#IndexRewards.lureList({ coins = 5 })).to.equal(0)
 		end)
 	end)
@@ -265,14 +270,11 @@ return function()
 
 		it("lists what a prize pays as parts with amounts, in a steady order", function()
 			expect(kinds(IndexRewards.prizeParts({ coins = 300 }))).to.equal("coins=300")
-			expect(
-				kinds(
-					IndexRewards.prizeParts({
-						lures = { tuna = 2, salmon = 1 },
-						decorId = "index_alley",
-					})
-				)
-			).to.equal("lure:salmon=1,lure:tuna=2,decor:index_alley=1")
+			-- foods in rarity order (F97 section 3)
+			expect(kinds(IndexRewards.prizeParts({
+				lures = { tuna = 2, salmon = 1 },
+				decorId = "index_alley",
+			}))).to.equal("lure:tuna=2,lure:salmon=1,decor:index_alley=1")
 			expect(kinds(IndexRewards.prizeParts({}))).to.equal("")
 		end)
 

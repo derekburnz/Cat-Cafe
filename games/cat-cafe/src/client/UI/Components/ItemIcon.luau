@@ -4,7 +4,8 @@
 -- rarity colour. Until the asset thread's model is there, the food's glyph from Theme.foodIcons stands in.
 -- A still ViewportFrame only redraws when its contents change, so a list of these costs no frames.
 -- setFood (F69) colours the tile by the food's grade (Components/FoodGrade) and adds the grade badge: a word pill
--- across the bottom edge, or a lettered gem in the top right corner of a picture too small for the word.
+-- across the bottom edge, or a lettered gem in the top right corner of a picture too small for the word. Since F97
+-- section 3 a food draws its uploaded picture (Components/ShopIcons.food) on that tile in place of its model.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -12,6 +13,7 @@ local Create = require(script.Parent.Create)
 local FoodGrade = require(script.Parent.FoodGrade)
 local IconArt = require(script.Parent.IconArt)
 local Outline = require(script.Parent.Outline)
+local ShopIcons = require(script.Parent.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -161,7 +163,7 @@ function ItemIcon.setFood(self: any, lure: Types.LureDef?, id: string?)
 	local grade = FoodGrade.of(lure)
 	local key = if lure then lure.id else id or ""
 	local asset = if lure then lure.asset else nil
-	self:set(asset, Theme.foodIcons[key] or Theme.icons.food, grade)
+	self:set(asset, Theme.foodIcons[key] or Theme.icons.food, grade, ShopIcons.food(key))
 	local badge = self:_badgeLabel()
 	badge.BackgroundColor3 = Theme.rarityColor(grade)
 	badge.TextColor3 = Theme.rarityTextColor(grade)

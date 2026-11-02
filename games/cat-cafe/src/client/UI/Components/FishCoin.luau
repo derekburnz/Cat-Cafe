@@ -1,9 +1,10 @@
 --!strict
--- The golden fish coin (golden-fish.md section 1, Derek 2026-10-27: "it can be a cute coin with like a cat face on
--- it"): a gold coin with a lighter rim, two cat ears behind it and a little cat face (two eyes and an "ω" mouth),
--- drawn from frames. Once Theme.textures.fishCoin holds the asset thread's picture (CatCafe_Icon_GoldenFish, Derek
--- okayed it 2026-10-27) the coin is that picture instead, in the same place and size.
---   FishCoin.new({ parent, size }) -> Frame   the size is the coin's; the ears reach a third of it higher
+-- The golden fish (F97 section 4, Derek 2026-10-28: "Golden fish / golden cat coins should be merged together as one
+-- currency and picture"): Theme.textures.fishCoin, a shiny gold fish with a white glint (CatCafe_Icon_GoldenFish,
+-- Model-Agent #690), centred in a square `size` wide. The fish is wider than tall, so it fills the width and sits in
+-- the middle. Without the picture it falls back to the old drawn coin: a gold coin with a lighter rim, two cat ears
+-- behind it and a little cat face (golden-fish.md section 1).
+--   FishCoin.new({ parent, size }) -> Frame   the size is the picture's square (the drawn coin's ears reach higher)
 --   FishCoin.fill(parent, share) -> Frame   a coin `share` of a scale-sized parent's width, kept so as it resizes
 
 local CatEars = require(script.Parent.CatEars)
@@ -23,10 +24,9 @@ export type Props = {
 local FishCoin = {}
 
 local FILL_BASE = 40 -- px the filling coin is drawn at before its UIScale
--- the picture's round face is 88% of its width with its centre 55% down (the ears take the top), so the picture is
--- drawn this much bigger than the coin and lifted until its face covers the coin's square
-local PICTURE_SCALE = 1 / 0.88
-local PICTURE_FACE_Y = 0.55
+-- the fish spans 95% of its 512 px picture's width and 65% of its height, centred (alpha box 12, 90 to 500, 422), so
+-- the picture fills the square as it is
+local PICTURE_SCALE = 1
 
 function FishCoin.new(props: Props): Frame
 	local size = props.size
@@ -48,7 +48,7 @@ function FishCoin.new(props: Props): Frame
 			BackgroundTransparency = 1,
 			Image = picture,
 			ScaleType = Enum.ScaleType.Fit,
-			AnchorPoint = Vector2.new(0.5, PICTURE_FACE_Y),
+			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromScale(0.5, 0.5),
 			Size = UDim2.fromScale(PICTURE_SCALE, PICTURE_SCALE),
 			ZIndex = z + 1,
@@ -113,13 +113,14 @@ function FishCoin.new(props: Props): Frame
 	return holder
 end
 
--- For a parent sized by scale (a Spin Wheel tile): the coin is drawn once at FILL_BASE and a UIScale keeps it at
--- `share` of the parent's width, centred a little low so the ears fit. The parent's own signal ends with it.
+-- For a parent sized by scale (a Spin Wheel tile): the fish is drawn once at FILL_BASE and a UIScale keeps it at
+-- `share` of the parent's width, centred (the drawn coin a little low so its ears fit). The parent's own signal ends
+-- with it.
 function FishCoin.fill(parent: GuiObject, share: number, zIndex: number?): Frame
 	local holder = FishCoin.new({
 		parent = parent,
 		size = FILL_BASE,
-		position = UDim2.fromScale(0.5, 0.56),
+		position = UDim2.fromScale(0.5, if Theme.textures.fishCoin ~= "" then 0.5 else 0.56),
 		anchorPoint = Vector2.new(0.5, 0.5),
 		zIndex = zIndex,
 	})

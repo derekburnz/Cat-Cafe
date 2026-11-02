@@ -17,6 +17,7 @@
 	  J tip jar         K index rewards     L spin wheel           R bug report
 	  P fish market     O fresh catch       T codes             X tips              Z bellhop cat
 	  V trade (two clients)  Keypad 1 claim all     Keypad 2 camp extras (stand in a camp)
+	  Keypad 3 front lawn (changes the lawn: a test profile)
 	  Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
@@ -56,6 +57,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local Crates = require(Shared:WaitForChild("Crates"))
 local FreshCatch = require(Shared:WaitForChild("FreshCatch"))
 local IndexRewards = require(Shared:WaitForChild("IndexRewards"))
+local Lawn = require(Shared:WaitForChild("Lawn"))
 local NetSwing = require(Shared:WaitForChild("NetSwing"))
 local Prizes = require(Shared:WaitForChild("Prizes"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
@@ -6828,6 +6830,464 @@ case(
 		else
 			table.insert(notes, string.format('the next buy "%s"', bought))
 		end
+		return verdict, table.concat(notes, "; ") .. ". Server output: no [Net] handler failed line"
+	end
+)
+
+-- Front lawn (F91, engineer PR #902; front-lawn.md sections 5 and 6) ------------------------------------------------
+
+-- The lawn in the newest ProfileSync as one line, so a case can tell whether anything changed.
+local function lawnText(): string
+	if state == nil then
+		return "no ProfileSync"
+	end
+	local s = state :: Types.PlayerState
+	local owned: { string } = {}
+	for id, value in s.lawnOwned or {} do
+		if value == true then
+			table.insert(owned, id)
+		end
+	end
+	table.sort(owned)
+	local spots: { string } = {}
+	for spotId, pieceId in s.lawn or {} do
+		table.insert(spots, spotId .. "=" .. tostring(pieceId))
+	end
+	table.sort(spots)
+	local styles: Types.LawnStyles = s.lawnStyles or { path = "?" }
+	return string.format(
+		"owned {%s} spots {%s} path %s fence %s",
+		table.concat(owned, ","),
+		table.concat(spots, ","),
+		tostring(styles.path),
+		tostring(styles.fence)
+	)
+end
+
+-- What a reload would do to the lawn the server holds: "" when Lawn.sanitize keeps it as it is (every piece owned, of
+-- its spot's size, on one spot open at the tier; an owned path and fence), else what it would change.
+local function lawnReloadChange(): string
+	if state == nil then
+		return "no ProfileSync"
+	end
+	local s = state :: Types.PlayerState
+	local owned, placed, styles = Lawn.sanitize(s.lawnOwned, s.lawn, s.lawnStyles, s.tier)
+	local changes: { string } = {}
+	for id in s.lawnOwned do
+		if owned[id] ~= true then
+			table.insert(changes, "owns " .. id)
+		end
+	end
+	for spotId, pieceId in s.lawn do
+		if placed[spotId] ~= pieceId then
+			table.insert(changes, string.format("%s holds %s", spotId, tostring(pieceId)))
+		end
+	end
+	if styles.path ~= s.lawnStyles.path or styles.fence ~= s.lawnStyles.fence then
+		table.insert(
+			changes,
+			string.format(
+				"path %s fence %s",
+				tostring(s.lawnStyles.path),
+				tostring(s.lawnStyles.fence)
+			)
+		)
+	end
+	table.sort(changes)
+	return table.concat(changes, ", ")
+end
+
+-- The spots open at the newest sync's tier, of `size` when one is given, in Lawn.SPOTS order.
+local function openSpots(size: Types.LawnSize?): { Types.LawnSpot }
+	local found: { Types.LawnSpot } = {}
+	local tier = if state ~= nil then state.tier else 1
+	for _, spot in Lawn.SPOTS do
+		if tier >= spot.tier and (size == nil or spot.size == size) then
+			table.insert(found, spot)
+		end
+	end
+	return found
+end
+
+-- Fires one lawn call, waits `gap` (the remote's limit) and says whether a toast since held `expected`.
+local function lawnCall(gap: number, expected: string?, remote: string, ...: any): boolean
+	local startedAt = os.clock()
+	fire(remote, ...)
+	task.wait(gap)
+	return expected == nil or toasted(startedAt, expected)
+end
+
+case(
+	"lawn",
+	Enum.KeyCode.KeypadThree,
+	"Front lawn: junk, tier locks, too few coins, ten buys in a frame, wrong spots and styles",
+	function()
+		if table.find(Remotes.ClientToServer, "BuyLawn") == nil then
+			return "SKIP", "no BuyLawn remote in this build (engineer PR #902)"
+		end
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		local notes: { string } = {}
+		local verdict: Verdict = "PASS"
+		-- The lawn's art: until it is in, every valid call answers "The front lawn opens soon." Grey Slabs is every
+		-- cafe's already, so buying it changes nothing either way. The case changes the lawn: run it on a test profile.
+		if lawnCall(0.7, "The front lawn opens soon", "BuyLawn", "grey_slabs") then
+			return "SKIP", "the lawn's art is not in this build (WorldBuilder.lawnLive)"
+		end
+		local BUY, SPOT, STYLE = 0.6, 0.3, 0.6 -- the limits: 2, 4 and 2 a second
+		local long = string.rep("a", 5000)
+		local nan = 0 / 0
+
+		-- Junk: Guard drops it with no answer, so nothing on the lawn or in the wallet moves.
+		local junkLawn = lawnText()
+		local junkWallet = freshWallet()
+		local junkAt = os.clock()
+		local buyJunk: { { any } } = {
+			{},
+			{ 5 },
+			{ nan },
+			{ {} },
+			{ "TULIP_BED" },
+			{ "Tulip_Bed" },
+			{ long },
+			{ "rocket" },
+			{ "rug" },
+			{ "tulip_bed", 5 },
+			{ "tulip_bed", {} },
+			{ "tulip_bed", "SMALL1" },
+			{ "tulip_bed", long },
+		}
+		for _, args in buyJunk do
+			lawnCall(BUY, nil, "BuyLawn", table.unpack(args))
+		end
+		local spotJunk: { { any } } = {
+			{},
+			{ 5 },
+			{ {} },
+			{ "nowhere", "tulip_bed" },
+			{ "SMALL1", "" },
+			{ long, "" },
+			{ "small1", 5 },
+			{ "small1", nan },
+			{ "small1", {} },
+			{ "small1", "ROCKET" },
+			{ "small1", "rocket" },
+			{ "small1", "rug" },
+			{ "small1", long },
+		}
+		for _, args in spotJunk do
+			lawnCall(SPOT, nil, "SetLawnSpot", table.unpack(args))
+		end
+		local styleJunk: { { any } } = {
+			{},
+			{ "path" },
+			{ "PATH", "red_brick" },
+			{ "roof", "red_brick" },
+			{ 5, "red_brick" },
+			{ "path", 5 },
+			{ "path", {} },
+			{ "path", nan },
+			{ "path", long },
+		}
+		for _, args in styleJunk do
+			lawnCall(STYLE, nil, "SetLawnStyle", table.unpack(args))
+		end
+		task.wait(0.5)
+		if lawnText() ~= junkLawn then
+			return "FAIL", string.format("junk changed the lawn: %s, now %s", junkLawn, lawnText())
+		end
+		local junkCoinsOk, junkCoinsText = coinsMovedBy(junkWallet, 0)
+		if not junkCoinsOk then
+			return "FAIL", "junk moved coins: " .. junkCoinsText
+		end
+		local junkToasts = #since(junkAt, "Toast")
+		if junkToasts > 0 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format("%d toasts during junk (Guard should drop it silently)", junkToasts)
+			)
+		else
+			table.insert(
+				notes,
+				string.format("%d junk calls dropped", #buyJunk + #spotJunk + #styleJunk)
+			)
+		end
+
+		local s = state :: Types.PlayerState
+		local tier = s.tier
+		-- A piece and a style above the tier, and a spot it has not opened.
+		local lockedPiece: Types.LawnPieceDef? = nil
+		for _, piece in Catalog.lawn do
+			if piece.tier > tier and (lockedPiece == nil or piece.tier < lockedPiece.tier) then
+				lockedPiece = piece
+			end
+		end
+		if lockedPiece ~= nil then
+			local lockWallet = freshWallet()
+			local said = lawnCall(BUY, "opens at Tier", "BuyLawn", lockedPiece.id)
+			if (state :: Types.PlayerState).lawnOwned[lockedPiece.id] == true then
+				return "FAIL",
+					string.format(
+						"%s sold at Tier %d (opens at %d)",
+						lockedPiece.id,
+						tier,
+						lockedPiece.tier
+					)
+			end
+			local lockOk, lockText = coinsMovedBy(lockWallet, 0)
+			if not lockOk then
+				return "FAIL",
+					string.format("the locked %s moved coins: %s", lockedPiece.id, lockText)
+			end
+			if not said then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(
+					notes,
+					string.format('locked %s: no "opens at Tier" toast', lockedPiece.id)
+				)
+			else
+				table.insert(notes, string.format("locked %s refused", lockedPiece.id))
+			end
+		else
+			table.insert(notes, "Tier 5: no locked piece")
+		end
+		local closedSpot: Types.LawnSpot? = nil
+		for _, spot in Lawn.SPOTS do
+			if spot.tier > tier then
+				closedSpot = spot
+				break
+			end
+		end
+		if closedSpot ~= nil then
+			local owned: string? = nil
+			for id in s.lawnOwned do
+				local piece = Catalog.getLawn(id)
+				if piece ~= nil and piece.spot == closedSpot.size then
+					owned = id
+				end
+			end
+			local said =
+				lawnCall(SPOT, "That spot opens at Tier", "SetLawnSpot", closedSpot.id, owned or "")
+			if (state :: Types.PlayerState).lawn[closedSpot.id] ~= nil then
+				return "FAIL", string.format("%s took a piece at Tier %d", closedSpot.id, tier)
+			end
+			if not said then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(
+					notes,
+					string.format('closed %s: no "opens at Tier" toast', closedSpot.id)
+				)
+			end
+		end
+
+		-- The open pieces not owned yet, cheapest first.
+		local open: { Types.LawnPieceDef } = {}
+		for _, piece in Catalog.lawn do
+			if piece.tier <= tier and (state :: Types.PlayerState).lawnOwned[piece.id] ~= true then
+				table.insert(open, piece)
+			end
+		end
+		table.sort(open, function(a: Types.LawnPieceDef, b: Types.LawnPieceDef): boolean
+			return a.price < b.price
+		end)
+
+		-- Too few coins: the dearest open piece the wallet cannot reach even with a few seconds of income.
+		local poorWallet = freshWallet()
+		local dear: Types.LawnPieceDef? = nil
+		for _, piece in open do
+			if poorWallet.money + poorWallet.rate * 3 + 1 < piece.price then
+				dear = piece
+			end
+		end
+		if dear ~= nil then
+			local said = lawnCall(BUY, "Not enough coins", "BuyLawn", dear.id)
+			if (state :: Types.PlayerState).lawnOwned[dear.id] == true then
+				return "FAIL",
+					string.format(
+						"%s (%d) sold to a wallet of %d",
+						dear.id,
+						dear.price,
+						poorWallet.money
+					)
+			end
+			local poorOk, poorText = coinsMovedBy(poorWallet, 0)
+			if not poorOk then
+				return "FAIL", "the unaffordable buy moved coins: " .. poorText
+			end
+			if not said then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, string.format('%s: no "Not enough coins" toast', dear.id))
+			else
+				table.insert(
+					notes,
+					string.format("%s refused at %d coins", dear.id, poorWallet.money)
+				)
+			end
+		else
+			table.insert(
+				notes,
+				string.format(
+					'too few coins skipped: every open piece is affordable; run %s("setCoins", nil, 0)',
+					DEBUG
+				)
+			)
+		end
+
+		-- Ten buys of the cheapest affordable piece in one frame: one sale, one price off, the rest refused.
+		local burstWallet = freshWallet()
+		local cheap: Types.LawnPieceDef? = nil
+		for _, piece in open do
+			if piece.price <= burstWallet.money then
+				cheap = piece
+				break
+			end
+		end
+		if cheap == nil then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format(
+					'no open piece affordable for the burst; run %s("setCoins", nil, 100000)',
+					DEBUG
+				)
+			)
+		else
+			local burstAt = os.clock()
+			for _ = 1, 10 do
+				fire("BuyLawn", cheap.id)
+			end
+			waitFor(burstAt, "ProfileSync", 3, function(_event: Event): boolean
+				return (state :: Types.PlayerState).lawnOwned[cheap.id] == true
+			end)
+			task.wait(1.2)
+			local paidOk, paidText = coinsMovedBy(burstWallet, -cheap.price)
+			if not paidOk then
+				return "FAIL",
+					string.format("ten buys of %s (%d): %s", cheap.id, cheap.price, paidText)
+			end
+			if (state :: Types.PlayerState).lawnOwned[cheap.id] ~= true then
+				return "FAIL",
+					string.format(
+						"ten buys of %s took %d coins but it is not owned",
+						cheap.id,
+						cheap.price
+					)
+			end
+			local placedAt = Lawn.spotOf(state :: any, cheap.id)
+			table.insert(
+				notes,
+				string.format(
+					"ten buys sold one %s for %d, %s",
+					cheap.id,
+					cheap.price,
+					if placedAt ~= nil then "placed on " .. placedAt else "no free spot"
+				)
+			)
+			-- Wrong size: the small piece into an open big spot, or the big one into an open small spot.
+			local wrong = openSpots(if cheap.spot == "small" then "big" else "small")
+			if #wrong > 0 then
+				local before = (state :: Types.PlayerState).lawn[wrong[1].id]
+				local said = lawnCall(SPOT, "needs a", "SetLawnSpot", wrong[1].id, cheap.id)
+				if (state :: Types.PlayerState).lawn[wrong[1].id] ~= before then
+					return "FAIL",
+						string.format("%s (%s) went on %s", cheap.id, cheap.spot, wrong[1].id)
+				end
+				if not said then
+					verdict = downgrade(verdict, "CHECK")
+					table.insert(
+						notes,
+						string.format(
+							'%s on %s: no "needs a ... spot" toast',
+							cheap.id,
+							wrong[1].id
+						)
+					)
+				end
+			end
+			-- Ten moves in one frame between the open spots of its size: it ends on one spot, never two.
+			local fits = openSpots(cheap.spot)
+			if #fits >= 2 then
+				local moveAt = os.clock()
+				for index = 1, 10 do
+					fire("SetLawnSpot", fits[(index % 2) + 1].id, cheap.id)
+				end
+				waitFor(moveAt, "ProfileSync", 3)
+				task.wait(1.2)
+				local on = 0
+				for _, pieceId in (state :: Types.PlayerState).lawn do
+					if pieceId == cheap.id then
+						on += 1
+					end
+				end
+				if on > 1 then
+					return "FAIL", string.format("ten moves left %s on %d spots", cheap.id, on)
+				end
+				table.insert(notes, string.format("ten moves left %s on %d spot", cheap.id, on))
+			end
+		end
+
+		-- A piece not owned onto an open spot of its size, and styles of the wrong kind or not owned.
+		local unowned: Types.LawnPieceDef? = nil
+		for _, piece in Catalog.lawn do
+			if
+				(state :: Types.PlayerState).lawnOwned[piece.id] ~= true
+				and #openSpots(piece.spot) > 0
+			then
+				unowned = piece
+				break
+			end
+		end
+		if unowned ~= nil then
+			local spot = openSpots(unowned.spot)[1]
+			local said = lawnCall(SPOT, "Buy the", "SetLawnSpot", spot.id, unowned.id)
+			if (state :: Types.PlayerState).lawn[spot.id] == unowned.id then
+				return "FAIL",
+					string.format("%s went on %s without being bought", unowned.id, spot.id)
+			end
+			if not said then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(
+					notes,
+					string.format('%s not owned: no "Buy the ... first" toast', unowned.id)
+				)
+			end
+		end
+		local styleBefore = lawnText()
+		local wrongKind =
+			lawnCall(STYLE, "That is not a fence", "SetLawnStyle", "fence", "grey_slabs")
+		local notBought: Types.LawnStyleDef? = nil
+		for _, style in Catalog.lawnStyles do
+			if style.price > 0 and (state :: Types.PlayerState).lawnOwned[style.id] ~= true then
+				notBought = style
+				break
+			end
+		end
+		local notBoughtSaid = true
+		if notBought ~= nil then
+			notBoughtSaid = lawnCall(STYLE, "Buy the", "SetLawnStyle", notBought.kind, notBought.id)
+		end
+		task.wait(0.3)
+		if lawnText() ~= styleBefore then
+			return "FAIL",
+				string.format(
+					"a refused style changed the lawn: %s, now %s",
+					styleBefore,
+					lawnText()
+				)
+		end
+		if not wrongKind or not notBoughtSaid then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, "a refused style gave no reason toast")
+		end
+
+		-- Whatever happened above, the lawn the server holds is one a reload keeps as it is.
+		local change = lawnReloadChange()
+		if change ~= "" then
+			return "FAIL", "the server holds a lawn a reload would change: " .. change
+		end
+		table.insert(notes, "the lawn survives a reload unchanged: " .. lawnText())
 		return verdict, table.concat(notes, "; ") .. ". Server output: no [Net] handler failed line"
 	end
 )

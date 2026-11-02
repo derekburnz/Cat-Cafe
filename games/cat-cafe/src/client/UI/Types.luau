@@ -28,6 +28,13 @@ export type RarityDef = SharedTypes.RarityDef
 export type SpotDef = SharedTypes.SpotDef
 export type TierDef = SharedTypes.TierDef -- data-model section 5b
 export type AreaDef = SharedTypes.AreaDef
+-- F91 front lawn (front-lawn.md): a lawn spot's size, the pieces and styles bought for it, a spot, the styles in use
+export type LawnSize = SharedTypes.LawnSize
+export type LawnPieceDef = SharedTypes.LawnPieceDef
+export type LawnStyleKind = SharedTypes.LawnStyleKind
+export type LawnStyleDef = SharedTypes.LawnStyleDef
+export type LawnSpot = SharedTypes.LawnSpot
+export type LawnStyles = SharedTypes.LawnStyles
 
 export type Catalog = {
 	cats: { CatDef },
@@ -277,6 +284,11 @@ export type PlayerState = {
 	feedbackAsked: boolean?, -- F87: the one slide-in feedback ask has shown, or a face was sent
 	stuckHelpShown: { [string]: boolean }?, -- F87: tutorialStep ("0" to "5") to true once its help card showed
 	longNap: boolean?, -- F95: owns the Long Nap pass, for the welcome back card's line; nil reads as not owned
+	-- F91 (front-lawn.md section 5): the lawn pieces and styles owned (id to true), the piece on each lawn spot (spot
+	-- id to piece id) and the path and fence in use; nil until ProfileSync sends them, and the Front lawn tab waits
+	lawnOwned: { [string]: boolean }?,
+	lawn: { [string]: string }?,
+	lawnStyles: LawnStyles?,
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -323,6 +335,9 @@ export type PartialState = {
 	feedbackAsked: boolean?,
 	stuckHelpShown: { [string]: boolean }?,
 	longNap: boolean?,
+	lawnOwned: { [string]: boolean }?,
+	lawn: { [string]: string }?,
+	lawnStyles: LawnStyles?,
 }
 
 export type ScreenName =

@@ -37,14 +37,14 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 
 ## 4. Rokit (toolchain manager)
 Rokit installs and pins Rojo, Wally, Selene, StyLua and luau-lsp from `rokit.toml` so every machine matches.
-1. Download the latest `rokit-*-windows-x86_64.zip` from https://github.com/rojo-rbx/rokit/releases and extract `rokit.exe`.
-2. In the folder you extracted to: `.\rokit.exe self-install`, then close and reopen the terminal.
+1. `winget install --id Rojo.Rokit -e`, or download the latest `rokit-*-windows-x86_64.zip` from https://github.com/rojo-rbx/rokit/releases and extract `rokit.exe`.
+2. `rokit self-install` (from the zip: `.\rokit.exe self-install` in the folder you extracted to), then close and reopen the terminal.
 3. In the repo root: `rokit install`. Rokit asks you to trust each tool author the first time (`rokit trust rojo-rbx/rojo` and so on, or run `rokit install --no-trust-check` once you have read the list).
 4. `rokit update` to move the pins to current releases, then commit `rokit.toml`.
 5. Check: `rojo --version`, `wally --version`, `selene --version`, `stylua --version`, `luau-lsp --version`.
 
 ## 5. Roblox Studio and the dev place
-1. Install Studio from https://create.roblox.com and sign in.
+1. Install Studio from https://create.roblox.com and sign in. A PC can hold only the installer stub: if the Start menu's Roblox Studio entry opens an installer, let it finish. Studio itself lives in `%LOCALAPPDATA%\Roblox\Versions\version-*\RobloxStudioBeta.exe`.
 2. Create a new experience (Baseplate template). File > Publish to Roblox As > name it **Cat Cafe Dev**, keep it **private**. This is the dev copy agents work in; the public experience comes later and is published from the same place.
 3. Game Settings > Security > turn on **Enable Studio Access to API Services** (lets DataStores run in Studio playtests). Leave HTTP requests off.
 4. Save often (Ctrl+S publishes to the dev place). Agents can break things; Git has the code, Studio's Version History has the place.
@@ -115,6 +115,7 @@ Commit (`git commit -am "chore: phase 0 smoke test"`), delete PH_SmokeTest, and 
 - **Studio MCP not listed in `/mcp`:** check `%LOCALAPPDATA%\Roblox\mcp.bat` exists; re-enable the server in Studio; restart Claude Code. `claude mcp list` shows what is configured.
 - **Rojo plugin "version mismatch":** run `rojo plugin install` again after any `rokit update`.
 - **`check.ps1` cannot run:** execution policy (step 3). If `Invoke-WebRequest` fails behind a proxy, download `globalTypes.None.d.luau` manually from the luau-lsp repo's `scripts/` folder at the tag matching `luau-lsp --version` into `games/cat-cafe/`, and write that version into `games/cat-cafe/.types-version`.
+- **StyLua reports a diff in nearly every file on Windows:** the clone predates `.gitattributes`, so Git for Windows checked the files out with CRLF line endings. Commit or stash your work, then refresh the checkout once: `git rm -r -q --cached .` and then `git reset --hard`.
 - **Selene says no Roblox std:** run `selene generate-roblox-std` in `games/cat-cafe`.
 - **DataStore errors in playtest:** step 5.3 (API access) and make sure the dev place uses the `CatCafeProfiles` store name from `Config.luau` (Studio adds `_dev`).
 - **Blender MCP hangs:** only one Connect to Claude session; close extra Blender windows; `uvx blender-mcp` needs internet the first time to fetch the package.
@@ -213,3 +214,12 @@ Trading (F102) checks two switches in the `CatCafe_Flags` data store every minut
 4. Try it: **Actions > flags > Run workflow** with `show`. The log prints both switches (no entry yet means trading on and the minimum tier from Config).
 
 The key can then write any entry in the game's data stores, saves included, so it stays only in the GitHub secret. The workflow writes only the two `CatCafe_Flags` keys.
+
+## 25. Let threads share the sounds and pictures with the game (once, about 1 minute)
+The game's sounds and pictures (139 ids today) were uploaded under your user. When the game moves to the group, Roblox treats it as the group's, and audio your user owns plays only in experiences it is shared with. The `asset-permissions` workflow (`tools/opencloud/asset-permissions.sh`) shares every id the code uses with the Cat Cafe experience in one run, before the move, so nothing goes quiet or blank on transfer day and nobody opens 139 asset pages. The experience keeps its id through the transfer, so the share carries over. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > **Add API System**: **asset-permissions**, operation `asset-permissions:write`. If it asks for an experience, pick **Cat Cafe**.
+3. **Save Changes**. Don't press Regenerate.
+4. Nothing to try by hand: a thread runs **Actions > asset-permissions > Run workflow** with `grant`, and the log counts the ids shared.
+
+Roblox cannot take a share back through the API, which is fine: the only thing it shares with is our own game. Run `grant` again after new sounds or pictures land.

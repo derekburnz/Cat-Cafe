@@ -343,11 +343,15 @@ def _add_attachments(node, parts, wanted):
         target.setdefault("children", []).extend(_attachment(n, parts, M4) for n, M4 in wanted)
 
 
-def model_json(objs, asset, attachments=(), attributes=None, nest=None, part_attributes=None):
+def model_json(objs, asset, attachments=(), attributes=None, nest=None, part_attributes=None, model_attributes=None,
+               pivot_turns=None):
     """The .model.json tree for one asset, or None when no object has a primitive log. `attachments` is a list of
     (object name suffix, Attachment name, Blender asset-space 4x4); `attributes` go on the root Model. `nest` adds
     to NEST for this asset (a themed cat's Head or Face prop rides the Head), and `part_attributes` puts attributes
-    on every part of the objects whose names end with a key (a prop's parts say what they follow)."""
+    on every part of the objects whose names end with a key (a prop's parts say what they follow). `model_attributes`
+    puts attributes on the child Model itself of each object whose name ends with a key (F89 2c: a _Swing's Angle),
+    and `pivot_turns` turns such a child Model's pivot by a Roblox 3x3 rotation (a jukebox record faces the room,
+    so its _Spin pivot's Y axis is turned to the front: Effects spins every _Spin about its pivot's Y)."""
     nests = {**NEST, **(nest or {})}
     bpy.context.view_layer.update()
     main = next((o for o in objs if o.name == asset), objs[0])
@@ -386,11 +390,16 @@ def model_json(objs, asset, attachments=(), attributes=None, nest=None, part_att
             root["children"].append(node)
             continue
         R, _ = _split(o.matrix_world.to_3x3())
-        sub = _group(asset, o.name, parts, C @ o.matrix_world.translation, C @ R @ CT, f"{asset}/{k}", part_name)
+        turn = next((M for sfx, M in (pivot_turns or {}).items() if o.name.endswith(sfx)), Matrix.Identity(3))
+        sub = _group(asset, o.name, parts, C @ o.matrix_world.translation, C @ R @ CT @ turn, f"{asset}/{k}",
+                     part_name)
         for suffix, attrs in (part_attributes or {}).items():
             if o.name.endswith(suffix):
                 for node in sub["children"]:
                     node.setdefault("attributes", {}).update(attrs)
+        for suffix, attrs in (model_attributes or {}).items():
+            if o.name.endswith(suffix):
+                sub["attributes"].update(attrs)
         _add_attachments(sub, parts, wanted(o))
         subs[o.name] = sub
         host = next((o.name[:-len(sfx)] + to for sfx, to in nests.items() if o.name.endswith(sfx)), None)
@@ -405,9 +414,10 @@ def count_parts(tree):
     return n + sum(count_parts(c) for c in tree.get("children", []))
 
 
-def write_model(objs, asset, out_dir, attachments=(), attributes=None, nest=None, part_attributes=None):
+def write_model(objs, asset, out_dir, attachments=(), attributes=None, nest=None, part_attributes=None,
+                model_attributes=None, pivot_turns=None):
     """Write <out_dir>/<asset>.model.json. Returns (path, part count) or (None, 0)."""
-    tree = model_json(objs, asset, attachments, attributes, nest, part_attributes)
+    tree = model_json(objs, asset, attachments, attributes, nest, part_attributes, model_attributes, pivot_turns)
     if tree is None:
         return None, 0
     rbx_zfight.unfight(tree)              # faces that would flicker in one plane in game (Derek 2026-10-30)

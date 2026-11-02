@@ -1,0 +1,51 @@
+# Share the sounds and pictures the game uses with the experience, so they keep working after the game moves to the
+# group. list prints every rbxassetid in the shipped code (main's src and Rojo model files); grant gives universe
+# 10773193456 Use permission on each one. Start it from the Actions tab (asset-permissions > Run workflow) or from
+# any thread with the GitHub actions_run_trigger tool on main. Run grant again after new sounds or pictures land;
+# ids that already have the permission are fine. Script: games/cat-cafe/tools/opencloud/asset-permissions.sh.
+# Needs the repo secret ROBLOX_PUBLISH_KEY with asset-permissions:write (docs/setup-guide.md step 25).
+name: asset-permissions
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "list | grant (grant: Use permission for the experience on every id the game uses)"
+        type: choice
+        options: [list, grant]
+        default: list
+
+permissions:
+  contents: read
+
+concurrency:
+  group: asset-permissions
+  cancel-in-progress: false
+
+jobs:
+  asset-permissions:
+    name: Asset permissions
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      ACTION: ${{ inputs.action }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          sparse-checkout: |
+            games/cat-cafe/src
+            games/cat-cafe/tools/opencloud
+            assets/cat-cafe/rbx
+
+      - name: Check the key is set
+        if: inputs.action == 'grant'
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      - name: List or grant
+        run: bash games/cat-cafe/tools/opencloud/asset-permissions.sh "$ACTION"

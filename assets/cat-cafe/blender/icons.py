@@ -71,7 +71,7 @@ ICONS = {
     "CatCafe_Icon_GoldenFish": (icon_art.golden_fish, GOLD_INK, 10, (0.0, 8.0)),
     **{f"CatCafe_Icon_Crate_{p}{'_Gold' if g else ''}": ((lambda m, p=p, g=g: crates.build_crate(p, m, g)),
                                                          GOLD_INK if g else INK, 10, QUARTER)
-       for p in crates.POOLS for g in (False, True)},
+       for p in crates.POOLS for g in ((False,) if p in crates.NO_GOLD else (False, True))},
     "CatCafe_Icon_Kibble": (icon_art.kibble, INK, 10, (-24.0, 20.0)),
     "CatCafe_Icon_Tuna": (icon_art.tuna, INK, 10, (-18.0, 30.0)),
     "CatCafe_Icon_Sardines": (icon_art.sardines, INK, 10, (-16.0, 34.0)),

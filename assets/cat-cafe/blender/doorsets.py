@@ -492,7 +492,48 @@ class PanedGlass:
         L.knuckles(b, (0.95, y1 - 0.6), 0.07 if L.back else 0.06, self.BRASS)
 
 
-SETS = (FireEscape(), GardenGate(), FrontPorch(), LogCabin(), PortholeHatch(), PanedGlass())
+class Medal:
+    """Rally (Common, F101): a navy door with an off-white border, red and white team stripes across both faces, a
+    window in a gold frame and outside a gold medal with a paw on a blue, white and red ribbon; a gold push bar."""
+    NAME, SILL, TRIM, SIGN = "Medal", "dark_wood", "offwhite", dict(z=0.0, cu=2.925)
+    BODY, BORDER, GOLD = "pants_navy", "offwhite", "gold_mid"
+
+    def leaf(self, L, b, g):
+        w, y0, y1 = L.w, L.y0, L.y1
+        if L.back:                                       # the medal sits over the night sign, the window over it
+            win, my, mr, hu, hy = (1.0, w - 1.0, 5.75, y1 - 0.55), 4.68, 0.3, w - 0.5, 2.55
+        else:
+            win, my, mr, hu, hy = (0.55, w - 0.55, 4.95, y1 - 0.55), 3.95, 0.38, w - 0.42, 3.0
+        L.body(b, [win], self.BODY)
+        L.glass(g, win)
+        for n0, n1 in L.faces(0.04):                                           # the border, both faces
+            L.outline(b, 0.12, w - 0.12, y0 + 0.12, y1 - 0.12, 0.16, n0, n1, self.BORDER, L.gap())
+        for n0, n1 in L.faces(0.05):                                           # the window's gold frame
+            L.outline(b, win[0] - 0.1, win[1] + 0.1, win[2] - 0.1, win[3] + 0.1, 0.1, n0, n1, self.GOLD)
+        zone = [(ZONE[0], ZONE[1], y0, ZONE[2])] if L.back else []
+        for n0, n1 in L.faces(0.03):                                           # team stripes, clear of a flap
+            for ya, yb, sw in ((1.0, 1.12, "offwhite"), (1.12, 1.42, "shirt_red"), (1.42, 1.54, "offwhite")):
+                L.slab(b, 0.28, w - 0.28, ya, yb, n0, n1, zone, sw)
+        c, out = w / 2, L.out                                                  # the medal, outside
+        ry0 = my + mr + 0.1
+        for u0, u1, sw in ((c - 0.24, c - 0.08, "shirt_blue"), (c - 0.08, c + 0.08, "offwhite"),
+                           (c + 0.08, c + 0.24, "shirt_red")):
+            L.span(b, u0, u1, ry0, win[2] - 0.2, out, out + 0.04, sw)
+        L.span(b, c - 0.3, c + 0.3, my + mr - 0.04, ry0, out, out + 0.1, self.GOLD)         # its clasp
+        L.cyl(b, c, my, out + 0.04, mr, 0.08, self.GOLD, segments=14)                       # the medal
+        k = mr / 0.38
+        L.span(b, c - 0.12 * k, c + 0.12 * k, my - 0.17 * k, my + 0.03 * k, out + 0.08, out + 0.11, "gold_light")
+        for du, dy in ((-0.17, 0.12), (-0.06, 0.2), (0.06, 0.2), (0.17, 0.12)):             # a paw on it
+            L.span(b, c + (du - 0.04) * k, c + (du + 0.04) * k, my + (dy - 0.04) * k, my + (dy + 0.04) * k,
+                   out + 0.08, out + 0.11, "gold_light")
+        for zf, s in ((L.out, 1), (L.inn, -1)):                                # a gold push bar, both faces
+            for y in (hy, hy + 0.9):
+                L.span(b, hu - 0.06, hu + 0.06, y - 0.06, y + 0.06, *sorted((zf, zf + s * 0.14)), self.GOLD)
+            L.span(b, hu - 0.05, hu + 0.05, hy - 0.12, hy + 1.02, *sorted((zf + s * 0.14, zf + s * 0.22)), self.GOLD)
+        L.knuckles(b, (0.95, (y0 + y1) / 2, y1 - 0.6), 0.07 if L.back else 0.06, "gold_dark")
+
+
+SETS = (FireEscape(), GardenGate(), FrontPorch(), LogCabin(), PortholeHatch(), PanedGlass(), Medal())
 
 
 def build_front(style, mat):
@@ -693,11 +734,32 @@ def build_flap_bell(mat):
             bell.finalize(name + "_Bell", mat, location=hang)]
 
 
+def build_flap_finish_line(mat):
+    """Rally (Rare, F101): a chequered flap like a finish-line flag, checks on both faces, in a red frame under a
+    navy hood with a gold band."""
+    name = "CatCafe_CatFlap_FinishLine"
+    f, p = RB(), RB()
+    _rect_frame(f, "shirt_red", 0.2, 0.08, 0.06)
+    f.span((-FX - 0.32, FY1 + 0.2, -0.22), (FX + 0.32, FY1 + 0.36, 0.0), "pants_navy")          # the hood
+    f.span((-FX - 0.32, FY1 + 0.25, -0.26), (FX + 0.32, FY1 + 0.31, -0.22), "rarity_legend")    # its gold band
+    _panel(p, "offwhite")
+    h = FY1 - FY0
+    cols, rows = 4, 4
+    cw, rh = (2 * FX - 0.06) / cols, (h - 0.05) / rows
+    for r in range(rows):
+        for c in range(cols):
+            if (r + c) % 2 == 0:
+                x0, ya = -FX + 0.03 + c * cw, -h + 0.03 + r * rh
+                p.span((x0, ya, -0.07), (x0 + cw, ya + rh, -0.03), "fur_black")             # yard face
+                p.span((x0, ya, 0.03), (x0 + cw, ya + rh, 0.07), "fur_black")               # cafe face
+    return [f.finalize(name, mat), p.finalize(name + "_Flap", mat, location=FLAP_HINGE)]
+
+
 NEST = {"_LeafL_Glass": "_LeafL", "_LeafR_Glass": "_LeafR", "_Leaf_Glass": "_Leaf", "_Sign": "_Leaf",
         "_Sign_Bulb": "_Leaf", "_Flap_Bulb": "_Flap"}
 FLAPS = {"Plain": build_flap_plain, "NeonPaw": build_flap_neon_paw, "Birdhouse": build_flap_birdhouse,
          "MailSlot": build_flap_mail_slot, "TreeStump": build_flap_tree_stump, "PipeRing": build_flap_pipe_ring,
-         "Bell": build_flap_bell}
+         "Bell": build_flap_bell, "FinishLine": build_flap_finish_line}
 
 ASSETS = {}
 for _s in SETS:

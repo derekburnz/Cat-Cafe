@@ -334,6 +334,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Furniture | 800 | role stations: GreeterPodium 800, StageCatTree 1,400; the F79 CatBed 800 |
 | Decor | 500 | |
 | Crate decor | 1,500 to 2,400 | the F53 crate furniture and decorations (`crate_decor.py`): 1,500 for the Commons, 1,800 Rare and Epic, 2,400 Legendary and Mythical; they land at 324 to 1,640 (section 14) |
+| Rally Crate decor (F101) | 1,800 to 2,400 | `rallycrate.py`, the same budgets: Bleacher Bench 620, Trophy Shelf 1,768, Cheer Bunting 672, Victory Podium 1,720 |
 | Alley props | 800 | Dumpster 1,200; rescue traps (TrashBin, GarbageBags) 600 |
 | Park props | 800 | Fountain 1,200; rescue traps (RescueTree, TrashCan) 900 |
 | Area gates | 6,000 | Park, Neighbourhood, Woods, Sewer: arches with a barrier (section 13) |
@@ -582,7 +583,22 @@ the cafe's own included, and no flap reaches below the leaf's foot. The Cafe Cra
 `_Gold`, `crates.py`) never collide; the pivot is the base centre with the front -Z, and the lid is the child Model
 `_Lid`, pivoted on its back hinge, so the reveal turns it about the pivot's X (positive lifts the front, 105 is wide
 open). Golden twins keep the paw, ribbons and accents in colour and are Metal elsewhere. Their shop pictures are
-`exports/icons/CatCafe_Icon_Crate_<Pool>[_Gold].png`; the four nets have theirs too (`icons.py`). The F97 pictures
+`exports/icons/CatCafe_Icon_Crate_<Pool>[_Gold].png`; the four nets have theirs too (`icons.py`). The Rescue Rally's crate (F101, rescue-rally.md
+section 2) is `CatCafe_Prop_Crate_Rally`: a navy kit crate with off-white corners and rails, a red team stripe edged in
+white, a gold star and the gold paw on the front, a chequered finish-line band across the lid and a gold carry handle;
+it has no golden twin, since it only comes from the Rally. Its twelve pieces keep to the Rally colours (red
+`shirt_red`, blue `shirt_blue`, navy `pants_navy`, gold `rarity_legend`, off-white) at the Classic Crate's mix:
+wallpapers Pennant Wall (red felt) and Team Banner (navy felt), floors Running Track (red rubber) and Gym Floor (maple
+boards), paints Team Stripes (blue) and Trophy Gold (foil gold), whose samples `style_icons.py` makes from the catalog
+rows (its PENDING list stands in until Catalog.luau has them); in `rallycrate.py` the Bleacher Bench (two tiers of red
+and blue seats on aluminium frames, a megaphone and a gold foam finger), the Trophy Shelf (a wooden case with a navy
+back and a red fascia of gold stars: a gold cup with a paw, a silver cup, a framed team photo of two cats, a star
+trophy, a ball, folded shirts and a board of gold, silver and bronze medals), the Cheer Bunting (two striped poles and
+six pennants, each flag its own `_FlagNN_Pennant` Model for the bunting flutter) and the Victory Podium (1-2-3 steps
+with gold, silver and bronze tops, `_Glow` marquee bulbs and a gold cup on top that turns, the child Model
+`_Trophy_Spin` pivoted at the middle of its foot); in `doorsets.py` the Medal Door (navy leaves with an off-white
+border, red and white team stripes, a gold-framed window, a gold medal with a paw on a blue, white and red ribbon and
+a gold push bar) and the Finish Line Flap (a chequered flap in a red frame under a navy hood with a gold band). The F97 pictures
 (`icon_art.py`, picture-only models) are the seven foods, each named for its game id (`CatCafe_Icon_Kibble`, `_Tuna`,
 `_Sardines`, `_Salmon`, `_Caviar`, `_MoonMilk`, `_StarTreat`) and drawn to read at 48 px on its rarity tile: a kibble
 bag with a cat face, a peeled tuna tin, an open night-blue sardine tin with a moon on its lid, a salmon fillet on a

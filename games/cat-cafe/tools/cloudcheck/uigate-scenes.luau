@@ -312,7 +312,7 @@ local SCENES = {
 		-- F94: one stock all night, the countdown to sunrise
 		UI.dealer.setStock({
 			window = 20400,
-			restocksAt = os.time() + 7 * 60 + 12,
+			restocksAt = workspace:GetServerTimeNow() + 7 * 60 + 12,
 			stock = {
 				{ lureId = "sardines", cost = 25000, amount = 3, bought = 1 },
 				{ lureId = "caviar", cost = 120000, amount = 1, bought = 1 },
@@ -343,7 +343,7 @@ local SCENES = {
 		-- F94: a window mid-way, one row sold out to this player, one not stocked, a crate row
 		UI.freshCatch.setStock({
 			window = 5900000,
-			restocksAt = os.time() + 192,
+			restocksAt = workspace:GetServerTimeNow() + 192,
 			stock = {
 				{ itemId = "tip_potion", fish = 10, amount = 3, bought = 1 },
 				{ itemId = "swift_potion", fish = 6, amount = 2, bought = 2 },

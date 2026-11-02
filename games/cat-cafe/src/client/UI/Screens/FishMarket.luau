@@ -28,6 +28,7 @@ local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -1404,7 +1405,7 @@ function FishMarket._renderFresh(self: any)
 		self._freshKey = key
 		self:_buildFresh(current)
 	end
-	local left = current.restocksAt - os.time()
+	local left = current.restocksAt - Workspace:GetServerTimeNow() -- the server's clock, as restocksAt is (S102)
 	self._freshTitle.Text = if left > 0
 		then FreshCatchLogic.countdown(left)
 		else "Fresh catch coming..."

@@ -9,6 +9,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local FreshCatchLogic = require(script.Parent.Parent.Components.FreshCatchLogic)
@@ -139,7 +140,7 @@ function FreshCatchBoard._drawFoot(self: any)
 		self._foot.Text = ""
 		return
 	end
-	local left = stock.restocksAt - os.time()
+	local left = stock.restocksAt - Workspace:GetServerTimeNow() -- the server's clock, as restocksAt is (S102)
 	local count = #self._lines
 	self._foot.Text = if left <= 0
 		then "Fresh catch coming..."

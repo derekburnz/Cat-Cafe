@@ -33,7 +33,9 @@ jobs:
   read:
     name: Read the analytics
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # the script keeps to the API's 30 queries a minute, so a window with many custom events takes three or four
+    # minutes, and the daily run reads twice
+    timeout-minutes: 20
     env:
       ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
       DAYS: ${{ inputs.days }}

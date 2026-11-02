@@ -753,6 +753,21 @@ A tip shows once per account, the first time a player meets something: one line 
 
 **Engineer (F100):** nothing new: `CampExtrasController` (#801) already calls these hooks when they exist and forwards `events.buyYardSale` as `BuyYardSale`; with the card in, its fallback (the prompt buying the next crate) no longer runs.
 
+### Rescue Rally (built, F101, rescue-rally.md sections 1 and 4)
+
+- **Banner** (`Screens/RallyBanner.luau`, words in `Components/RallyLogic.luau` with a spec): while a Rally runs, a navy card top centre under Roblox's top bar: "🏁 Rescue Rally", a gold "Lap 2" chip from the second lap, the time left in the weekend on the right ("1d 4h left", "5h 20m left", "12m left"), the bar, and this player's line under it: "Score 3 points to share the prizes", "2 more points to share the prizes", "You: 7 points", or in gold "You've done your laps this weekend". It takes no input and hides with the HUD. On a phone, when the potion timers' row beside the menu grows long enough to reach it (Luck, three potions, pals), the banner moves down just under the row (`HUD:buffRow`).
+- **Bar** (`Components/RallyBar.luau`): a dark rounded track filling in the Rally red (it eases up with points and empties at once on a new lap), a round marker at each of `Catalog.rallySteps` (25%, 50%, the end) with its prize's picture (the golden fish, the Money Potion, the Rally Crate), gold once reached at `Rally.stepAt`, and "50 / 90" in the widest gap between the markers. The banner's track is named **`RallyBar`**, which VFX's `Effects/Rally` finds in the PlayerGui for its "+1" and paw pops.
+- **Town Square board** (`Screens/RallyBoards.luau`): a SurfaceGui in the PlayerGui on every Model tagged `RallyBoard` under the Workspace, adorned to its Part named `Screen` (else `*_Screen`), Front face, 50 pixels a stud, hidden past 150 studs: "🏁 RESCUE RALLY", the gold Lap chip, the same bar (track `RallyBoardBar`, so the pops stay on the banner) and the time left, in chalk white on the board's navy. No background of its own. It follows the tag as the board is parented in and out.
+- **Before a Rally:** "🏁 Rescue Rally in 5h 20m" in white under the clock (and the Lucky Day line) for the last 12 hours (`RallyLogic.soon`, the Friday chip), worked out again every 15 s.
+- **Cat Cannon at night:** while a Rally runs, every card wears a red "🏁 Rally: rescues x3" tag along the foot of its picture, over the night cover (`Cannon:setRally`, `RallyLogic.nightLine`, rescue points over check-in points from `Config.RallyPoints`).
+- The step cheers are Sound-Agent's, the bunting and bulbs Model-Agent's and VFX-Agent's, and the step prize toasts the server's.
+
+| API | Purpose |
+|---|---|
+| `UI.rally.update(state)` | From `RallyState`: `active`, `endsAt` (0 when none runs), `startsAt`, `lap`, `goal`, `points`, `myPoints`, `lapsPaid`, `lapsDone`. Kept, so a rebuilt UI shows the banner at once; the banner goes by itself when `endsAt` passes. |
+
+**Engineer (F101):** nothing new: `RallyController` (#809) already calls `UI.rally.update` when it exists, and the board is the tagged `CatCafe_Square_RallyBoard` (#759) with its `Screen` part.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |

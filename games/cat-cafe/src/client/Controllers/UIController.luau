@@ -718,6 +718,11 @@ local function wireIntents()
 	UI.events.claimAchievement:Connect(function(achievementId: string)
 		Net.fire("ClaimAchievement", achievementId)
 	end)
+	-- Claim all in the Quests window ("daily", "weekly", "achievements"), the Index ("index") and the Tip Jar
+	-- ("tipjar"): the server pays every ready one with one toast and a sync (QuestResult, TipJarState).
+	UI.events.claimAll:Connect(function(what: string)
+		Net.fire("ClaimAll", what)
+	end)
 	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
 	UI.events.claimDailyTreat:Connect(function()
 		Net.fire("ClaimDailyTreat")

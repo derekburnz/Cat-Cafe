@@ -12,6 +12,9 @@
 -- icon, name and what waits ("1 ready", "14 fish", "Next in 2 h 10 m"), and a red "!" dot when something is ready to
 -- claim (Components/CampExtrasLogic; never on the Yard Sale). The cards grow to fit it only while one shows, and the
 -- strip stays clear of the night cover, so players plan their morning (setExtras).
+-- F101 (rescue-rally.md section 4): while a Rescue Rally runs, at night every card wears a red "🏁 Rally: rescues x3"
+-- tag along the foot of its picture, over the night cover in place of its "Closed until sunrise" (the header and the
+-- button still say so), since a rescue scores three (setRally, RallyLogic).
 
 local Workspace = game:GetService("Workspace")
 
@@ -23,6 +26,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local RallyLogic = require(script.Parent.Parent.Components.RallyLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
@@ -43,6 +47,8 @@ export type Cannon = {
 	setPal: (self: Cannon, areaId: string?, name: string?) -> (),
 	-- F100: the last CampExtrasState, or nil before the first
 	setExtras: (self: Cannon, extras: Types.CampExtrasState?) -> (),
+	-- F101: the last RallyState, or nil
+	setRally: (self: Cannon, rally: Types.RallyState?) -> (),
 	render: (self: Cannon, state: Types.PlayerState, carrying: boolean) -> (),
 	opened: (self: Cannon) -> (),
 	closed: (self: Cannon) -> (),
@@ -98,6 +104,7 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._pal = nil :: { areaId: string, name: string }?
 	self._extras = nil :: Types.CampExtrasState?
 	self._tall = false -- the cards have room for a camp extra's strip
+	self._rally = nil :: Types.RallyState?
 
 	local panel = Panel.new({
 		name = "Cannon",
@@ -263,6 +270,30 @@ function Cannon._buildCards(self: any)
 			{ PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), Parent = pal }
 		)
 		Outline.border(pal, 2)
+		-- F101: the Rally's night tag along the foot of the picture
+		local rally = text({
+			Name = "Rally",
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.new(0.5, 0, 1, -6),
+			Size = UDim2.fromOffset(0, 24),
+			AutomaticSize = Enum.AutomaticSize.X,
+			BackgroundColor3 = Color3.fromHex("D9483B"), -- the Rally red (Components/RallyBar)
+			BackgroundTransparency = 0,
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.colors.white,
+			TextTruncate = Enum.TextTruncate.None,
+			Visible = false,
+			ZIndex = 5,
+			Parent = art,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = rally })
+		Create(
+			"UIPadding",
+			{ PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), Parent = rally }
+		)
+		Outline.border(rally, 2)
+		Outline.text(rally, 1.5)
 		text({
 			Name = "Name",
 			Position = UDim2.fromOffset(10, ART_H + 14),
@@ -356,7 +387,9 @@ function Cannon._buildCards(self: any)
 		self._cards[id] = {
 			frame = frame,
 			pal = pal,
+			rally = rally,
 			night = night,
+			nightLine = nightLine,
 			count = count,
 			extra = extra,
 			extraIcon = extraIcon,
@@ -390,6 +423,12 @@ end
 -- F100: CampExtrasState, kept for the strips; render redraws them (once a second while the picker is open).
 function Cannon.setExtras(self: any, extras: Types.CampExtrasState?)
 	self._extras = extras
+	self:_rerender()
+end
+
+-- F101: RallyState, kept for the night tag; render shows it (once a second while the picker is open).
+function Cannon.setRally(self: any, rally: Types.RallyState?)
+	self._rally = rally
 	self:_rerender()
 end
 
@@ -464,6 +503,8 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		and remaining ~= nil
 		and NightClock.isDusk(self._phase :: NightClock.Phase, remaining, DUSK_SECONDS)
 	local pending = os.clock() < self._pendingUntil
+	local rallyLine =
+		RallyLogic.nightLine(self._rally, Workspace:GetServerTimeNow(), self._phase == "night")
 	local list = CannonLogic.destinations(areas :: any, tier, self._cannonId)
 	local shown: { [string]: number } = {}
 	for index, destination in list do
@@ -480,6 +521,12 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		card.frame.LayoutOrder = order
 		local buttonState: CannonLogic.ButtonState = CannonLogic.button(id, closed, dusk, carrying)
 		card.night.Visible = buttonState == "night"
+		card.rally.Visible = rallyLine ~= nil
+		-- the tag takes the cover's "Closed until sunrise" spot; the header and the button still say it
+		card.nightLine.Visible = rallyLine == nil
+		if rallyLine ~= nil then
+			card.rally.Text = RallyLogic.ICON .. " " .. rallyLine
+		end
 		if id ~= CannonLogic.TOWN then
 			local counts = IndexRewards.counts(catalog, state, id)
 			card.count.Text = ("%d/%d cats"):format(counts.found, counts.total)

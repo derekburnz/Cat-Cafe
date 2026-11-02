@@ -11,6 +11,7 @@ local RunService = game:GetService("RunService")
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
 local PassService = require(script.Parent.PassService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local ProfileStore = require(script.Parent.Parent.Vendor.ProfileStore)
@@ -67,6 +68,7 @@ local function finalize(player: Player, session: Session)
 	end
 	profile.rateAtLogout = Economy.incomePerSecond(profile)
 	profile.lastSeen = now
+	Leaderboards.foldWeekPlay(profile, session.joinedAt, now) -- F98: this week's play time
 	profile.stats.playtimeSeconds += math.max(0, now - session.joinedAt)
 	session.store.Data = profile :: any
 end
@@ -205,6 +207,12 @@ end
 -- Register work to run on the profile right before it is saved on leave or shutdown (e.g. save a carried cat).
 function DataService.beforeRelease(fn: (player: Player, profile: Profile) -> ())
 	table.insert(finalizers, fn)
+end
+
+-- os.time() the player's session began (F98: the leaderboards add the time since to the saved play time), or nil.
+function DataService.joinedAt(player: Player): number?
+	local session = sessions[player]
+	return if session ~= nil then session.joinedAt else nil
 end
 
 function DataService.takePendingOffline(player: Player): (number, number)

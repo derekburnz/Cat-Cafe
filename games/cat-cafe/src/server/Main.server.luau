@@ -20,6 +20,7 @@ local DealerService = require(script.Parent.Services.DealerService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
 local IndexRewardService = require(script.Parent.Services.IndexRewardService)
 local IntroService = require(script.Parent.Services.IntroService)
+local LeaderboardService = require(script.Parent.Services.LeaderboardService)
 local MysteryService = require(script.Parent.Services.MysteryService)
 local NameService = require(script.Parent.Services.NameService)
 local Net = require(script.Parent.Services.Net)
@@ -79,6 +80,7 @@ TipService.start() -- F87: context tips and feedback; before DataService so its 
 BugReportService.start(world)
 PassService.start() -- F95: purchases in game; DataService checks owned passes at each join
 PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work
+LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 Telemetry.start() -- after every service that registers leave work, so its own runs last
 DataService.start()
 

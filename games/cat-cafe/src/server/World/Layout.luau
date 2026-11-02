@@ -1176,28 +1176,45 @@ Layout.townSquare = {
 	signpost = { x = -9, y = 0.1, z = -7.5 } :: Point,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
-	-- street, seven benches round the middle, four lamps (0.25 further out than the manifest's, clear of the
-	-- buntings' ends: QA world scan G5), four buntings and the four gardens. The fountain gave way to the Cat Cannon
-	-- (v4), which WorldBuilder places itself.
+	-- street, then the edge (Derek 10-28, Model-Agent #726): twelve lamps on the brick border, eight long buntings
+	-- round the sides and two short ones over the lane's ends (each ends 0.25 inside its lamps' hook rings, so the
+	-- lamps need no nudge), eight benches facing in, and the four gardens. The middle holds only the Cat Cannon
+	-- (v4, placed by WorldBuilder), its pad and the signpost, and the quarters only the stations. A short bunting
+	-- skips until its model is in (AssetRegistry.known).
 	props = {
 		{ asset = "CatCafe_Square_Paving", x = 0, y = 0.1, z = 0 },
 		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = -32 },
 		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = 32, rotY = 180 },
-		{ asset = "CatCafe_Square_Bench", x = 13.93, y = 0.1, z = 9.75, rotY = 55 },
-		{ asset = "CatCafe_Square_Bench", x = 9.75, y = 0.1, z = 13.93, rotY = 35 },
-		{ asset = "CatCafe_Square_Bench", x = -9.75, y = 0.1, z = 13.93, rotY = 325 },
-		{ asset = "CatCafe_Square_Bench", x = -13.93, y = 0.1, z = 9.75, rotY = 305 },
-		{ asset = "CatCafe_Square_Bench", x = -9.75, y = 0.1, z = -13.93, rotY = 215 },
-		{ asset = "CatCafe_Square_Bench", x = 9.75, y = 0.1, z = -13.93, rotY = 145 },
-		{ asset = "CatCafe_Square_Bench", x = 13.93, y = 0.1, z = -9.75, rotY = 125 },
-		{ asset = "CatCafe_Square_Lamp", x = -11.25, y = 0.1, z = -11.25, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = -11.25, y = 0.1, z = 11.25, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = 11.25, y = 0.1, z = -11.25, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = 11.25, y = 0.1, z = 11.25, rotY = 45 },
-		{ asset = "CatCafe_Square_Bunting", x = 0, y = 0.1, z = -11 },
-		{ asset = "CatCafe_Square_Bunting", x = 0, y = 0.1, z = 11 },
-		{ asset = "CatCafe_Square_Bunting", x = -11, y = 0.1, z = 0, rotY = 90 },
-		{ asset = "CatCafe_Square_Bunting", x = 11, y = 0.1, z = 0, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = -31, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = -31, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = -8.5 },
+		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = 31, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = 31, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = 8.5 },
+		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = -31, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = -31, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = -8.5 },
+		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = 31, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = 31, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = 8.5 },
+		{ asset = "CatCafe_Square_Bunting", x = -35.75, y = 0.1, z = -31 },
+		{ asset = "CatCafe_Square_Bunting", x = -47, y = 0.1, z = -19.75, rotY = 90 },
+		{ asset = "CatCafe_Square_Bunting", x = -35.75, y = 0.1, z = 31 },
+		{ asset = "CatCafe_Square_Bunting", x = -47, y = 0.1, z = 19.75, rotY = 90 },
+		{ asset = "CatCafe_Square_Bunting", x = 35.75, y = 0.1, z = -31 },
+		{ asset = "CatCafe_Square_Bunting", x = 47, y = 0.1, z = -19.75, rotY = 90 },
+		{ asset = "CatCafe_Square_Bunting", x = 35.75, y = 0.1, z = 31 },
+		{ asset = "CatCafe_Square_Bunting", x = 47, y = 0.1, z = 19.75, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingShort", x = -47, y = 0.1, z = 0, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingShort", x = 47, y = 0.1, z = 0, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = -35.75, y = 0.1, z = -29.4, rotY = 180 },
+		{ asset = "CatCafe_Square_Bench", x = -45.4, y = 0.1, z = -19.75, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = -35.75, y = 0.1, z = 29.4 },
+		{ asset = "CatCafe_Square_Bench", x = -45.4, y = 0.1, z = 19.75, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = 35.75, y = 0.1, z = -29.4, rotY = 180 },
+		{ asset = "CatCafe_Square_Bench", x = 45.4, y = 0.1, z = -19.75, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = 35.75, y = 0.1, z = 29.4 },
+		{ asset = "CatCafe_Square_Bench", x = 45.4, y = 0.1, z = 19.75, rotY = 90 },
 		{ asset = "CatCafe_Square_Garden", x = -55.5, y = 0.1, z = -19.5, rotY = -90 },
 		{ asset = "CatCafe_Square_Garden", x = -55.5, y = 0.1, z = 19.5, rotY = -90 },
 		{ asset = "CatCafe_Square_Garden", x = 55.5, y = 0.1, z = -19.5, rotY = 90 },

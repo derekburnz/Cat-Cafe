@@ -10,7 +10,7 @@ return function()
 	local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 
 	local AREAS = { "alley", "park", "neighbourhood", "woods", "sewer" }
-	local POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "classic" }
+	local POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "classic", "rally" } -- rally: F101
 	local AREA_MILESTONES =
 		{ "cats3", "cats6", "cats10", "gold1", "gold2", "gold4", "gold6", "gold8", "gold10" }
 
@@ -170,7 +170,7 @@ return function()
 			end
 		)
 
-		it("has no page beyond the areas, All Cats, the six Decor Index pages and Rainbow", function()
+		it("has no page beyond the areas, All Cats, the seven Decor Index pages and Rainbow", function()
 			for pageId in pairs(Catalog.indexPrizes) do
 				local known = table.find(AREAS, pageId) ~= nil
 					or pageId == "all"
@@ -708,7 +708,7 @@ return function()
 
 		-- golden-fish.md sections 4, 5 and 5b: +7% tips a normal track, +5% a full Decor page, +30% gold
 		-- luck a gold track up to GoldLuckMax, 38% faster bait. No cap may eat a bonus a card promises.
-		it("sums the whole Index once: +65% tips, gold luck at its cap, 38% faster bait", function()
+		it("sums the whole Index once: +70% tips, gold luck at its cap, 38% faster bait", function()
 			local profile = fullProfile()
 			local sums = { bonus = 0, goldLuck = 0, baitSpeed = 0 }
 			for _, areaId in pages() do
@@ -727,11 +727,11 @@ return function()
 				end
 			end
 			local totals = IndexRewards.totals(profile)
-			expect(math.abs(totals.bonus - 0.65) < 1e-9).to.equal(true)
+			expect(math.abs(totals.bonus - 0.70) < 1e-9).to.equal(true) -- +5% more from F101's Rally page
 			expect(math.abs(totals.goldLuck - Config.GoldLuckMax) < 1e-9).to.equal(true)
 			expect(math.abs(totals.baitSpeed - 0.38) < 1e-9).to.equal(true)
 			-- the full Decor pages count through their decor10 claims only, not a second time for being full
-			expect(math.abs(Economy.cafeMultiplier(profile) - before - 0.65) < 1e-9).to.equal(true)
+			expect(math.abs(Economy.cafeMultiplier(profile) - before - 0.70) < 1e-9).to.equal(true)
 			expect(
 				math.abs(IndexRewards.goldChance(Config.GoldChanceBait, totals.goldLuck) - 0.125)
 					< 1e-9

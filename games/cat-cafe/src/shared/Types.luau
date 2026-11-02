@@ -264,7 +264,7 @@ export type LureDef = {
 export type CrateDef = {
 	id: string,
 	name: string,
-	area: string, -- its pool: a zone id or "classic"
+	area: string, -- its pool: a zone id, "classic" or "rally" (F101)
 	golden: boolean,
 	price: number?, -- golden fish at the Market; nil for a golden crate
 	odds: { [string]: number }, -- percent by rarity, adding up to 100; a piece's chance is its rarity's share

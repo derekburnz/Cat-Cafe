@@ -84,22 +84,24 @@ are where Layout's camp spots already are (pad 0, -13; cannon 0, -26.5; basket -
 
 The set's walls are the v3.2 Park's (hedge, brick, iron railing on a hedge, old stone) just inside WorldBuilder's at
 x +-60 and z +155, and on the camp side a plinth with a railing and flower boxes, open to the camp, with lantern
-pillars at x +-17.5 either side of the gate. Four blockers cross the width, their gaps on alternating sides, so the
-far end is never in a straight line. Each is low enough to see over and has a 30 high `_Barrier` on its own line:
+pillars at x +-17.5 either side of the gate. Four blockers cross the width, their gaps 24 wide and never in line, one
+of them in the middle (Derek 11-02: "the gaps also don't always have to be on the sides can be a bit wider ... don't
+want it feeling too tightly cramped"), so the far end is never in a straight line. Each is low enough to see over and
+has a 30 high `_Barrier` on its own line:
 
 | z (set space) | Blocker | Gap |
 |---|---|---|
-| -113 to -111 | a clipped box hedge, 3.4 to 4 high, an urn at each end of the gap | x 23 to 37 |
-| -50 to -47.6 | a plinth with a railing 4.6 high and flower boxes, lantern pillars at the gap | x -37 to -23 |
-| 8.2 to 15.8 | the stream, 6 wide between stone kerbs, an iron rail 3 high on each kerb | the footbridge at x 30 |
-| 73 to 75 | a second box hedge | x -37 to -23 |
+| -113 to -111 | a clipped box hedge, 3.4 to 4 high, an urn at each end of the gap | x 14 to 38 |
+| -50 to -47.6 | a plinth with a railing 4.6 high and flower boxes, lantern pillars at the gap | x -12 to 12, the middle |
+| 8.2 to 15.8 | the stream, 6 wide between stone kerbs, an iron rail 3 high on each kerb | the footbridge at x 30, deck 10 wide |
+| 73 to 75 | a second box hedge | x -44 to -20 |
 
-The footbridge spans z 3 to 21 at x 30: a deck 5.2 wide at 1.6 high, a ramp of 4 at each end (22 degrees), solid
+The footbridge spans z 3 to 21 at x 30: a deck 10 wide at 1.6 high, a ramp of 4 at each end (22 degrees), solid
 railings. The walk from the pad: the plaza and the picnic lawn, the first hedge gap, round the duck pond (players wade
 in it, as in v3.2), the railing gap, past the glasshouse (a tall piece, 15.6 high, with a barrier on its plinth) and
 the orchard, over the footbridge, through the rose garden, the second hedge gap, past the playground to the bandstand
-loop at the far end. The gravel path is about 485 studs; the shortest walk from the gate to the far corner is about
-415 (walk check on the Part model), so about 428 from the pad (6b: about 425).
+loop at the far end. The shortest walk from the gate to the far corner is about 375 (walk check on the Part model),
+so about 388 from the pad (6b: about 425); the 24 wide gaps took about 40 off it.
 
 ## The Neighbourhood (F85)
 
@@ -121,26 +123,26 @@ rect (x -89.5 to 89.5, z -246 to -216 in set space), the gate line z -216 and th
 
 The set's walls are the v3.2 Neighbourhood's runs of picket fence, hedge and brick just inside WorldBuilder's at
 x +-90 and z +215, with a 30 high `_Barrier` all round but the way in; on the camp side a low town hedge, open to the
-camp, with a street lamp either side of the gate. Five blockers cross the width, their gaps on alternating sides, so
-the far end is never in a straight line. The low ones are about 4 high, so a hunter sees a carrier coming but has to
+camp, with a street lamp either side of the gate. Five blockers cross the width, their ways through 24 wide and never
+in line, the green's fence's in the middle (Derek 11-02), so the far end is never in a straight line. The low ones are about 4 high, so a hunter sees a carrier coming but has to
 go round, and each has a 30 high `_Barrier` on its own line; the house blocks are the tall pieces, with a barrier from
 the house fronts back (the front gardens stay open):
 
 | z (set space) | Blocker | Gap |
 |---|---|---|
-| -172 to -122 | the first house block, 12 houses back to back | Cat Lane, x 21 to 37 |
-| -57 to -54 | the village green's picket fence with a box hedge behind, 3.6 to 4 high | x -38 to -22, by the ALLOTMENTS post |
-| 10.6 to 17.4 | road works dug along Paw Road: a trench behind red and white barriers 3.7 high, spoil heaps, a digger and a skip | the steel plates at x 22 to 38 |
-| 22 to 72 | the second house block, back to back, with a bungalow | Mitten Lane, x -37 to -21 |
-| 149 to 152 | the garden wall, brick under a hedge about 4 high | the Paw Parade arch, x 22 to 38 |
+| -172 to -122 | the first house block, 12 houses back to back | Cat Lane, x 15 to 39 |
+| -57 to -54 | the village green's picket fence with a box hedge behind, 3.6 to 4 high | x -12 to 12, the middle, by the ALLOTMENTS post |
+| 10.6 to 17.4 | road works dug along Paw Road: a trench behind red and white barriers 3.7 high, spoil heaps, a digger and a skip | the steel plates at x 18 to 42 |
+| 22 to 72 | the second house block, back to back, with a bungalow | Mitten Lane, x -39 to -15 |
+| 149 to 152 | the garden wall, brick under a hedge about 4 high | the Paw Parade arch, x 18 to 42 |
 
 The walk from the pad: Whisker Lane past the bus stop to Cat Lane, through the first block to Green Side and Whisker
 Green (picnic tables, the village sign, the ice cream van), through the fence's gap into the allotments, over the
 plated crossing of the road works, along Paw Road to Mitten Lane, through the second block to Mitten Row and the back
 gardens (trampoline, paddling pool, greenhouse), under the Paw Parade arch and over the last street to the far end:
 the corner shop against the far wall, the playground beside it and two houses across. The shortest walk from the gate
-is about 534 to the shop step and 615 to the far corner (walk check on the Part model), so about 550 and 630 from the
-pad (6b: about 575).
+is about 480 to the shop step and 560 to the far corner (walk check on the Part model), so about 495 and 575 from the
+pad (6b: about 575); the 24 wide gaps took about 50 off it.
 
 ## The Woods (F85)
 

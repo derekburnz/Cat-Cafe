@@ -14,7 +14,7 @@ hunter sees a carrier coming over them but has to go round; a `_Barrier` 30 high
 The tall pieces that break the view now and then are the willow and the kiosk by the duck pond, the glasshouse past
 the railing, the oaks and the bandstand, the far landmark.
 
-From the camp's pad the gravel path runs about 485 studs and the shortest walk about 415 (6b: about 425): the plaza and
+From the camp's pad the shortest walk is about 375 (6b: about 425; the 24 wide gaps took about 40 off): the plaza and
 the picnic lawn, the hedge gap, round the duck pond, the railing gap, past the glasshouse and the orchard, over the
 footbridge, through the rose garden, the second hedge gap, past the playground to the bandstand loop.
 

@@ -22,6 +22,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
+local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local Telemetry = require(script.Parent.Telemetry)
@@ -73,11 +74,21 @@ local function onUseLure(player: Player, rawLureId: unknown)
 	else
 		profile.lures[lureId] = nil
 	end
-	-- F82: the bowl's level now, its luck fixed in the roll, so a level bought later never touches this food
+	-- F82: the bowl's level now, its luck fixed in the roll, so a level bought later never touches this food. F88:
+	-- then the player's Luck now (statue, Lucky Potion, Lucky Day), fixed in the same roll
+	local luck = Luck.of(profile, os.time(), ClockService.luckyDay())
 	local rarity: Types.Rarity = Catching.pickRarity(
-		Bait.oddsFor(lure.odds, Economy.level(profile, "lure_bowl")),
+		Luck.apply(Bait.oddsFor(lure.odds, Economy.level(profile, "lure_bowl")), luck),
 		rng:NextNumber()
 	)
+	if luck > 1 then
+		Telemetry.custom(
+			player,
+			"luck_used",
+			luck,
+			{ "bait", rarity, tostring(Economy.tier(profile)) }
+		)
+	end
 	local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
 	-- the player's own gold luck and bait speed, fixed now (F54): a later claim never moves a filling bowl. A Lucky
 	-- Potion running now doubles the gold chance (F64).

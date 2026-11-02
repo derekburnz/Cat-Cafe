@@ -15,8 +15,11 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local Clock = require(Shared:WaitForChild("Clock"))
+local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
+local Luck = require(Shared:WaitForChild("Luck"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Settings = require(Shared:WaitForChild("Settings"))
@@ -480,6 +483,9 @@ local function applyState(s: Types.PlayerState)
 		tipsSeen = s.tipsSeen,
 		feedbackAsked = s.feedbackAsked,
 		stuckHelpShown = s.stuckHelpShown,
+		-- F88: the player's Luck and what makes it, for the HUD chip and its card (luck-and-rare-moments.md section 1)
+		luck = s.luck,
+		luckSources = s.luckSources,
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
@@ -684,6 +690,28 @@ local function wireIntents()
 	if events.sendFeedback ~= nil then
 		events.sendFeedback:Connect(function(face: string, chip: string?)
 			Net.fire("SendFeedback", face, chip)
+		end)
+	end
+	-- F87 part 3 (UI #745), analytics only: the intro's choice ("tile" or "help") and the stuck nudges ("pulse",
+	-- "help_shown", "show_me") as TelemetryReport, which allowlists both with their session caps. A nudge goes once
+	-- per tutorial step and kind, as the server logs it, so a repeating pulse never reaches the remote's limit.
+	if events.introChoice ~= nil then
+		events.introChoice:Connect(function(from: string)
+			Net.fire("TelemetryReport", "intro_choice", from)
+		end)
+	end
+	if events.stuckNudge ~= nil then
+		local nudged: { [string]: boolean } = {}
+		events.stuckNudge:Connect(function(kind: string)
+			local key = string.format(
+				"%s:%s",
+				tostring(if state ~= nil then state.tutorialStep else nil),
+				kind
+			)
+			if not nudged[key] then
+				nudged[key] = true
+				Net.fire("TelemetryReport", "stuck_nudge", kind)
+			end
 		end)
 	end
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
@@ -1274,6 +1302,52 @@ local function startPrediction()
 	end)
 end
 
+-- F88 (luck-and-rare-moments.md 1c): a Lucky Day's two moments, read off the server's Clock folder. "warning" comes
+-- LuckyDayWarnSeconds before a sunrise that starts a Lucky Day (at night Day is the day that ended, so the sunrise
+-- starts Day + 1), to whoever is still in the server; "start" comes when LuckyDay turns true at that sunrise. Joining
+-- in the middle of one shows neither: the Luck chip and the sky say so then. The UI's own banner, `UI.luckyDay(kind,
+-- line)`, once it has one, else a gold shout-out.
+local function bindLuckyDay(clock: Instance)
+	local function show(kind: string, line: string)
+		local hook: unknown = (UI :: any).luckyDay
+		if type(hook) == "function" then
+			(hook :: (string, string) -> ())(kind, line)
+		else
+			UI.announce(line, "Legendary")
+		end
+	end
+	clock:GetAttributeChangedSignal("LuckyDay"):Connect(function()
+		if clock:GetAttribute("LuckyDay") == true then
+			show("start", Luck.DAY_BANNER)
+		end
+	end)
+	task.spawn(function()
+		local warned = 0 -- the Lucky Day already warned of
+		while clock.Parent ~= nil do
+			local day = clock:GetAttribute("Day")
+			local endsAt = clock:GetAttribute("PhaseEndsAt")
+			if
+				clock:GetAttribute("Phase") == "night"
+				and type(day) == "number"
+				and type(endsAt) == "number"
+			then
+				local coming = day + 1
+				local left = endsAt - Workspace:GetServerTimeNow()
+				if
+					Clock.isLuckyDay(coming)
+					and warned ~= coming
+					and left > 0
+					and left <= Config.LuckyDayWarnSeconds
+				then
+					warned = coming
+					show("warning", Luck.DAY_WARNING)
+				end
+			end
+			task.wait(1)
+		end
+	end)
+end
+
 function UIController.start()
 	-- Same shapes as UI/Types.luau, but our catalogs use literal unions (rarity, area, role) where the
 	-- UI declares string; Luau table properties are invariant, so the catalog is handed over as any.
@@ -1313,7 +1387,9 @@ function UIController.start()
 	UI.catch.bindProximityPrompts()
 	-- The HUD clock chip reads Phase and PhaseEndsAt off the server's Clock folder and follows its changes.
 	task.spawn(function()
-		UI.clock.bind(ReplicatedStorage:WaitForChild("Clock"))
+		local clock = ReplicatedStorage:WaitForChild("Clock")
+		UI.clock.bind(clock)
+		bindLuckyDay(clock)
 	end)
 	wireIntents()
 	wireServerEvents()

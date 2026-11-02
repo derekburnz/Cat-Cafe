@@ -9,6 +9,8 @@
 -- over the screen from the intro's end until the first cat found card had come and gone). There is one "While you
 -- were away" card at a time: the server sends the earnings when the profile loads and again on the client's first
 -- RequestSync, and a second card made Claim look like it needed two clicks (Derek 2026-10-28).
+-- F96: a cat given rather than caught (the free Bellhop Cat) brings its own banner ("FREE RARE CAT!"), a gold line
+-- for the description ("The Bellhop Cat joined your cafe!") and its rate (CatFoundExtra's banner, line and rate).
 -- F87 (easy-start.md section 3, tip `offline`): the first return after a long time away puts a gold ribbon on the
 -- offline card's top edge, "Your cats earned while you were away!" (showOffline's headline).
 
@@ -597,9 +599,8 @@ function Popups.showCatFound(
 		local shiny = info.shiny == true
 		local rarityColor = Theme.rarityColor(rarity)
 		local label = (if shiny then "GOLD " else "") .. rarity:upper()
-		self._catBanner.Text = if isNew
-			then ("NEW %s CAT!"):format(label)
-			else ("%s CAT CAUGHT"):format(label)
+		self._catBanner.Text = info.banner
+			or if isNew then ("NEW %s CAT!"):format(label) else ("%s CAT CAUGHT"):format(label)
 		self._catBanner.BackgroundColor3 = rarityColor
 		self._catCard.UIStroke.Color = if shiny then Theme.colors.gold else rarityColor
 		self._catName.TextColor3 = rarityColor
@@ -626,11 +627,12 @@ function Popups.showCatFound(
 
 		self._catName.Text = def.name
 		local loves: string? = def.favoriteRole
-		self._catMeta.Text = Format.rate(def.incomePerSecond)
+		self._catMeta.Text = Format.rate(info.rate or def.incomePerSecond)
 			.. (if loves then "  ·  " .. Format.lovesRole(loves, Theme.modal.text) else "")
 		local charmGain = info.charmGain or 0
-		if charmGain > 0 then
-			self._catDesc.Text = ("Purrfect catch!  Charm +%d"):format(charmGain)
+		local line: string? = info.line
+		if line ~= nil or charmGain > 0 then
+			self._catDesc.Text = line or ("Purrfect catch!  Charm +%d"):format(charmGain)
 			self._catDesc.TextColor3 = Theme.colors.goldDark
 			self._catDesc.FontFace = Theme.fonts.display
 		else
@@ -638,6 +640,7 @@ function Popups.showCatFound(
 			self._catDesc.TextColor3 = Theme.modal.subtext
 			self._catDesc.FontFace = Theme.fonts.body
 		end
+		self._catDesc.TextSize = if line ~= nil then Theme.sizes.textBody else Theme.sizes.textSmall
 
 		-- F97 section 5 (Derek 2026-10-28): charm stars show nowhere now, so the row stays hidden and the text sits
 		-- up; the Purrfect line still names the charm a catch added

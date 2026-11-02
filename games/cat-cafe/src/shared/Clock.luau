@@ -43,6 +43,37 @@ function Clock.nightSecondsBetween(t0: number, t1: number): number
 	return nightBefore(t1) - nightBefore(t0)
 end
 
+-- F88 (luck-and-rare-moments.md 1c): the number of the day at time t, counting the server's first day as 1; at night
+-- it is the day that just ended.
+function Clock.dayAt(t: number): number
+	local time = math.max(0, t)
+	if time < Config.ServerStartDaySeconds + Config.NightLengthSeconds then
+		return 1
+	end
+	local cycle = Config.NightLengthSeconds + Config.DayLengthSeconds
+	return 2 + math.floor((time - Config.ServerStartDaySeconds - Config.NightLengthSeconds) / cycle)
+end
+
+-- Seconds since the server started at which day `day` begins: 0 for the first, a sunrise for every later one.
+function Clock.sunriseOf(day: number): number
+	if day <= 1 then
+		return 0
+	end
+	local cycle = Config.NightLengthSeconds + Config.DayLengthSeconds
+	return Config.ServerStartDaySeconds + Config.NightLengthSeconds + (math.floor(day) - 2) * cycle
+end
+
+-- Every LuckyDayEvery-th day of a server is a Lucky Day: days 4, 8, 12 and on.
+function Clock.isLuckyDay(day: number): boolean
+	return day >= 1 and day % Config.LuckyDayEvery == 0
+end
+
+-- The next Lucky Day after `day` (the one after this one when `day` is a Lucky Day).
+function Clock.nextLuckyDay(day: number): number
+	local every = Config.LuckyDayEvery
+	return (math.floor(math.max(day, 0) / every) + 1) * every
+end
+
 -- Seconds since the server started at which a phase begins its first full run (used to jump the clock).
 function Clock.startOf(phase: Types.ClockPhase): number
 	if phase == "night" then

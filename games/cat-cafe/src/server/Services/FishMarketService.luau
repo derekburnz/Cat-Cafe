@@ -29,6 +29,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -39,6 +40,8 @@ FishMarketService.TAG = "FishMarket"
 
 local random = Random.new()
 local lastOpenAt: { [Player]: number } = {} -- os.clock() of each player's last crate, for the cooldown
+local luckLogs: { [Player]: number } = {} -- F88: luck_used crate events this session
+local LUCK_LOGS_PER_SESSION = 20
 local freshSent: { [Player]: string } = {} -- the Fresh Catch stock this player was last sent, so it is not resent
 local CLOSED = "closed"
 
@@ -86,7 +89,10 @@ local function open(
 ): (Types.DecorDef, boolean, number, boolean)
 	-- roll first (pure), then pay, so an error in the roll never takes the crate or the fish (review N168)
 	local luck = profile.crateLuck[crate.area] or 0
-	local decorId, lucky = Crates.roll(crate, luck, random:NextNumber(), random:NextNumber())
+	-- F88: the player's Luck now multiplies a plain open's Epic and rarer chances (not the twentieth or golden ones)
+	local playerLuck = Luck.of(profile, os.time(), ClockService.luckyDay())
+	local decorId, lucky =
+		Crates.roll(crate, luck, random:NextNumber(), random:NextNumber(), playerLuck)
 	local def = Catalog.getDecor(decorId) :: Types.DecorDef
 	local rarity: Types.Rarity = def.rarity or "Common"
 	local banked = profile.crates[crate.id] or 0
@@ -133,6 +139,17 @@ local function open(
 		1,
 		{ crate.id, rarity .. " " .. (def.kind or "unknown"), outcome }
 	)
+	-- at most LUCK_LOGS_PER_SESSION a session: an open is 1 a second, and on a Lucky Day every open qualifies (S109)
+	local logged = luckLogs[player] or 0
+	if playerLuck > 1 and not lucky and not crate.golden and logged < LUCK_LOGS_PER_SESSION then
+		luckLogs[player] = logged + 1
+		Telemetry.custom(
+			player,
+			"luck_used",
+			playerLuck,
+			{ "crate", rarity, tostring(Economy.tier(profile)) }
+		)
+	end
 	return def, duplicate, refund, placed
 end
 
@@ -378,6 +395,7 @@ function FishMarketService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		lastOpenAt[player] = nil
 		freshSent[player] = nil
+		luckLogs[player] = nil
 	end)
 	Net.on("OpenCrate", onOpenCrate)
 	Net.on("BuyFishItem", onBuyFishItem)

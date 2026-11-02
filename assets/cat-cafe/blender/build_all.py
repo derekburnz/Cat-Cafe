@@ -35,6 +35,7 @@ import backdrop  # noqa: E402
 import wildbackdrop  # noqa: E402
 import luckycat  # noqa: E402
 import welcomearch  # noqa: E402
+import campextras  # noqa: E402
 import leaderboards  # noqa: E402
 import camps  # noqa: E402
 import cannon  # noqa: E402
@@ -85,12 +86,16 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
-           townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch,
+           townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, style_icons]
 
 PIVOT_NOTES = {
     "CatCafe_Town_LeaderboardRow": "the plinth's base centre on the paving (world y 0.1), front -Z toward the Cat "
                                    "Cannon; Layout.leaderboards (40, 0.1, 0) turned 90, at the lane's east end",
+    **{n: "the base centre on the camp's ground, front -Z toward the camp, no turn; area space at "
+          "campextras.SPOTS (beside the way out, across from the Index Board)" for n in (
+        "CatCafe_Camp_Park_PicnicBasket", "CatCafe_Camp_Neighbourhood_YardSale", "CatCafe_Camp_Woods_FishPond",
+        "CatCafe_Camp_Sewer_LostFound")},
     "CatCafe_Town_WelcomeArch": "the opening's base centre on the street top (world y 0.1), front -Z toward the "
                                 "Town Square; Layout.townEnds at (0, -123) turned 180 and (0, 123) unturned",
     **{f"CatCafe_Plot_LuckyCat_{n}": "the plinth's base centre on the plot floor, front -Z to the street; plot space "
@@ -491,6 +496,8 @@ def main():
             extra = {"attachments": camps.rbx_attachments(name)}
         if name == leaderboards.N:                # F98: each board's Screen rides its board's Model
             extra = {"nest": leaderboards.NEST}
+        if name in campextras.ATTACHMENTS:          # F100: PromptAnchor, and Steam, FishJump or Drip
+            extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about
             extra = {"attachments": luckycat.hinge_attachments(name)}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)

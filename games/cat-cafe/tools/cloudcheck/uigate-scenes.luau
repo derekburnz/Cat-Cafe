@@ -192,8 +192,12 @@ end
 function Scenes.setup()
 	Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog")
 	UI = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI")
-	-- Claim all in the Quests window shows once the server has ClaimAll (Gameplay-Engineer); the gate checks it now
-	UIShim.require("ReplicatedStorage.Shared.Config").QuestClaimAll = true
+	-- Claim all in the Quests window, the Index window and the Tip Jar shows once the server has ClaimAll
+	-- (Gameplay-Engineer); the gate checks the buttons now
+	local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+	Config.QuestClaimAll = true
+	Config.IndexClaimAll = true
+	Config.TipJarClaimAll = true
 	UI.init({ catalog = catalogLikeTheGame(), keybinds = true })
 	UI.cannon.setEnabled(true) -- the Cat Cannon is live (F84): Cannon in the bottom row, no Alley or Areas
 	local now = os.time()

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 19:11 UTC",
+  "generated": "2026-11-02 19:28 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -169599,6 +169599,63 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-0.46 y=-0.19"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_YardFence",
+      "category": "Plot",
+      "module": "yardfence",
+      "objects": [
+        "CatCafe_Plot_YardFence",
+        "CatCafe_Plot_YardFence_Barrier"
+      ],
+      "triangles": 3584,
+      "budget": 8000,
+      "size_studs": {
+        "x": 38.4,
+        "y": 10.17,
+        "z": 4.38
+      },
+      "size_roblox": [
+        38.4,
+        4.38,
+        10.17
+      ],
+      "bounds_min": [
+        -19.2,
+        15.0,
+        -0.2
+      ],
+      "bounds_max": [
+        19.2,
+        25.17,
+        4.18
+      ],
+      "pivot": "Plot.cframe: floor top centre of the cafe, as CatCafe_Plot_BackDoor; the yard is +Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence.model.json",
+      "rbx_parts": 264,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_YardFence.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_YardFence.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "3584/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2276 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.20 (want 0)",
+          "centered": "footprint center x=0.00 y=20.09"
         }
       }
     }

@@ -1,6 +1,6 @@
 --!strict
 -- The HUD's potion timers (F64, data-model section 12b; quests.md section 7: "their timers show in the HUD buff
--- chips"): over the money and golden fish counters in the bottom left (beside the menu's top on a phone), one small chip per running potion, a round tile in the potion's
+-- chips"): over the money and golden fish counters in the bottom left (beside the menu's arrow tab on a phone), one small chip per running potion, a round tile in the potion's
 -- colour and its time left in outlined white ("8:12"), no dark panel behind them. A tap on any chip opens the
 -- potion bag. Each tile shows the potion's own bottle icon (Components/ShopIcons). The row hides with no potion running; while one runs it ticks once a second, and a chip goes when
 -- its time is up. Times come from ProfileSync `buffs` (endsAt in server time), so a rejoin shows what is left.
@@ -77,7 +77,7 @@ function BuffChips.setCatalog(self: any, catalog: Types.Catalog)
 	self:_draw()
 end
 
--- Where the row sits (the HUD's _layoutMenu: over the counters in the bottom left, or beside the menu's top).
+-- Where the row sits (the HUD's _layoutMenu: over the counters in the bottom left, or beside the menu's arrow tab).
 function BuffChips.place(self: any, position: UDim2, anchor: Vector2)
 	self.frame.AnchorPoint = anchor
 	self.frame.Position = position

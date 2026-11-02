@@ -6,6 +6,8 @@
 --     "Thanks!" for a moment after a face
 --   * the "Need a hand?" card after StuckHelpSeconds on one tutorial step (Show me, Got it)
 --   * later, F96's styled asks (UI.asks.show)
+--   * F92's one invite nudge, "Playing with a friend gives you both +10% tips. Invite one?" with Invite and Not now,
+--     on two title lines (Ask.lines)
 --   show(ask)      slides it up with these words and buttons; an ask already up is answered nil and replaced
 --   hide()         slides it away, answering nil
 --   isShowing() -> boolean
@@ -33,6 +35,7 @@ export type Ask = {
 	choices: { Choice }, -- two or three
 	seconds: number, -- how long it stays with no answer
 	thanks: string?, -- said for THANKS_SECONDS after a press, in place of the title; nil slides away at once
+	lines: number?, -- F92: 2 wraps a long title onto two lines and makes the card that much taller; 1 by default
 	answer: (id: string?) -> (),
 }
 
@@ -87,6 +90,7 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	self._uiScale = Scale.bind(root)
 
 	local choiceH = Scale.tapHeight(CHOICE_H, Theme.sizes.buttonDepth)
+	self._choiceH = choiceH
 	local cardH = PAD + TITLE_H + 6 + choiceH + PAD + BAR_H
 	self._cardH = cardH
 	local card: Frame = Create("Frame", {
@@ -157,6 +161,16 @@ function AskCard._fit(self: any)
 	self._card.Size = UDim2.fromOffset(math.min(CARD_W, math.max(280, width - 32)), self._cardH)
 end
 
+-- F92: one title line or two; the buttons and the card's foot move down with it.
+function AskCard._setLines(self: any, lines: number)
+	local titleH = if lines >= 2 then TITLE_H * 2 - 2 else TITLE_H
+	self._title.TextWrapped = lines >= 2
+	self._title.Size = UDim2.new(1, -2 * PAD, 0, titleH)
+	self._row.Position = UDim2.fromOffset(PAD, PAD + titleH + 6)
+	self._cardH = PAD + titleH + 6 + self._choiceH + PAD + BAR_H
+	self:_fit()
+end
+
 function AskCard._place(self: any, shown: boolean): UDim2
 	local lift = self._callbacks.lift()
 	return if shown then UDim2.new(0.5, 0, 1, lift) else UDim2.new(0.5, 0, 1, self._cardH + 24)
@@ -209,6 +223,7 @@ function AskCard.show(self: any, ask: Ask)
 	self._token += 1
 	local token = self._token
 	self._title.Text = ask.title
+	self:_setLines(ask.lines or 1)
 	self:_buildChoices(ask.choices)
 	local card: Frame = self._card
 	local wasVisible = card.Visible

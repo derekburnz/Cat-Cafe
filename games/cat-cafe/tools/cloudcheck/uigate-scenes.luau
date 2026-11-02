@@ -208,6 +208,20 @@ function Scenes.setup()
 	UI.tipJar.set({ sessionStartedAt = workspace:GetServerTimeNow() - 25 * 60, claimed = { [1] = true } })
 end
 
+-- the first Mythical cat in the catalog, and this player's id, for the big pull scenes (F89)
+local function mythicalCat()
+	for _, def in Catalog.cats do
+		if def.rarity == "Mythical" then
+			return def.id
+		end
+	end
+	return Catalog.cats[1].id
+end
+
+local function localUserId()
+	return game:GetService("Players").LocalPlayer.UserId
+end
+
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
 -- "Daily.Quest2.Claim" walks down one name at a time
 local function press(windowName, name)
@@ -540,6 +554,27 @@ local SCENES = {
 		UI.starterCat.open({ claimed = false, gate = "task", rate = 3 })
 		UI.starterCat.result(true)
 	end },
+	-- F89: this player's big pull card for a gold Mythical cat. It closes by itself at 2.4 s and the gate looks 2.5 s in,
+	-- so it starts 0.5 s into the scene, after the word has slammed down and the shake has settled
+	{ "BigPullCat", function()
+		task.delay(0.5, function()
+			UI.securedRare(localUserId(), mythicalCat(), "Mythical", true, "gold")
+		end)
+	end },
+	-- F89 and F99: the longest rarity word, RAINBOW LEGENDARY!, on a rainbow card
+	{ "BigPullRainbow", function()
+		task.delay(0.5, function()
+			UI.securedRare(localUserId(), mythicalCat(), "Legendary", false, "rainbow")
+		end)
+	end },
+	-- F89 section 2b: a Mythical style piece out of a Classic crate: the reveal, then the big card with Use it as the
+	-- crate's lid blows open 0.6 s later
+	{ "BigPullPiece", function()
+		UI.market.open()
+		task.delay(0.3, function()
+			UI.market.result("classic_crate", "classic_gold_leaf", false, 0)
+		end)
+	end },
 	-- last, since no window closes it: the money's boosts card with a Money Potion running and some boosts bought
 	{ "HUDBoosts", function()
 		local t = workspace:GetServerTimeNow()
@@ -630,6 +665,11 @@ function Scenes.close()
 	found = found and found:FindFirstChild("CatFound", true)
 	if found and found.Visible then
 		press("CatCafePopups", "CatFound.Ok")
+	end
+	-- the big pull card takes a tap after 1 s (F89)
+	local pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
+	if pull and pull.Enabled then
+		press("CatCafeBigPull", "Card")
 	end
 	-- the offline card waits for its Claim
 	local popups = UIShim.playerGui:FindFirstChild("CatCafePopups")

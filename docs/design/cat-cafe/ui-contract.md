@@ -675,6 +675,17 @@ A tip shows once per account, the first time a player meets something: one line 
 
 **Engineer (F88):** nothing more to send: ProfileSync's `luck` and `luckSources`, the Clock attributes and `UI.luckyDay` are all read as they are.
 
+### Rare moments: the big pull card (built, F89, luck-and-rare-moments.md sections 2a and 2b)
+
+- **Big pull card** (`Screens/BigPull.luau`, its choices, words and times in `Components/BigPullLogic.luau` with a spec): its own ScreenGui at DisplayOrder 44, over the windows (20), toasts (30) and popups (40), under the cannon card (46) and VFX's confetti (`Effects/Pull`, 47). The screen's edges warm to the rarity colour, light rays turn slowly behind a big card with the cat's portrait (or a crate piece's icon on its rarity tile), the rarity word slams in from 1.6 times size with a small shake ("LEGENDARY!", "MYTHICAL!", "GOLD EPIC!", "GOLD MYTHICAL!", and for F99 "RAINBOW COMMON!" to "RAINBOW MYTHICAL!" on rainbow bands), and under it the cat's kind, never its nickname, or the piece's name. A tap on the card closes it after 1 s; it closes by itself at 2.4 s. Only the card takes taps, so the controls stay on. Gold coats colour it gold. Reduce Motion: no shake and no turning rays.
+- **First Epic:** a plain Epic in `SecuredRare` (the server sends one only to its owner, only for the first Epic they ever secure) gets the card at 0.8 size with "FIRST EPIC!", closing by itself at 2 s.
+- **`UI.securedRare(userId, catId, rarity, gold, variant)`** (UIController's hook on `SecuredRare`): the card plays only when `userId` is this player; everyone else already has the server's Announce toast, so it adds nothing for them. A Common or Rare that is not rainbow plays nothing.
+- **`UI.foundRareDecor(userId, decorId)`** (UIController's hook on `FoundRareDecor`): "Sam found the Mythical Midnight Sky!" as a Mythical shout-out (`UI.announce`, `RareMoments.decorText`) for everyone but the finder, who has the reveal and the card.
+- **Crate pieces:** a Legendary or Mythical piece in the Fish Market's reveal plays the same card 0.6 s after the prize shows, as Effects/Market's crate stops shaking and its lid blows open (`BigPullLogic.CRATE_HOLD`, matching `Presets.bigPull.crateShake`). A new style piece's card has "Use it", which does what the reveal's own Use it does (`events.toggleDecor(decorId, true)` and the reveal closes). A duplicate's card has no Use it; the reveal under it still says what came back. When the crate reel (F103) replaces the reveal, the card moves to the reel's stop.
+- The reveal's Later, Nice! and Use it buttons now keep a 44 px face on a phone, and the reveal card grows to hold them.
+
+**Engineer (F89):** nothing more to send: `SecuredRare` and `FoundRareDecor` reach the hooks as they are, and `CrateResult` already carries the piece.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |

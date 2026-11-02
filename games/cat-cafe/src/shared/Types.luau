@@ -69,6 +69,9 @@ export type CatDef = {
 	incomePerSecond: number,
 	area: CatArea, -- the one area it spawns in, or "spare" (data-model 3d: never spawns)
 	incomeArea: Area?, -- a spare cat's old area, whose income multiplier it keeps
+	-- F95: a shop-only cat (the starter, Royal, Grand and season cats): it earns at the owner's newest area's
+	-- multiplier and counts toward no "different cats", Index page or Index milestone
+	exclusive: boolean?,
 	favoriteRole: Role, -- earns FavoriteMultiplier in a slot of this role
 	description: string,
 	pattern: string,

@@ -24,6 +24,7 @@ local MysteryService = require(script.Parent.Services.MysteryService)
 local NameService = require(script.Parent.Services.NameService)
 local Net = require(script.Parent.Services.Net)
 local NightService = require(script.Parent.Services.NightService)
+local PassService = require(script.Parent.Services.PassService)
 local PlotService = require(script.Parent.Services.PlotService)
 local PotionService = require(script.Parent.Services.PotionService)
 local QuestService = require(script.Parent.Services.QuestService)
@@ -69,6 +70,7 @@ FishMarketService.start()
 CodeService.start()
 IntroService.start()
 BugReportService.start(world)
+PassService.start() -- F95: purchases in game; DataService checks owned passes at each join
 Telemetry.start() -- after every service that registers leave work, so its own runs last
 DataService.start()
 

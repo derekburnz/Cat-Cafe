@@ -52,7 +52,8 @@ return function()
 			for i, instance in ipairs(cats) do
 				if not used[i] then
 					used[i] = true
-					local value = EquipBest.value(instance, spots[index], profile.tier) + search(index + 1)
+					local value = EquipBest.value(instance, spots[index], profile.tier)
+						+ search(index + 1)
 					used[i] = nil
 					if value > best then
 						best = value
@@ -204,10 +205,10 @@ return function()
 		it("ten slots at Tier 5: the hand-computed best of eleven cats (F25 done-when)", function()
 			-- Slots: three barista, three waiter, two greeter, two entertainer. Every slot can take a cat that
 			-- loves its role, so the best plan pays 1.5x everywhere and rests the weakest spare, Ginger:
-			-- barista Wizard 393.75 + Bandit 12 + Tabby 1.5, waiter Ninja 131.25 + Pirate 4.5 + Tuxedo 1.5, greeter
-			-- DJ 12 + Sleepy 18 (a Park Epic: 8 x 1.5 for its area since v0.13.7, x 1.5), entertainer Rocker 4.5 +
-			-- Smoke 1.5 = 580.5. At Tier 5 the Wizard (a Mythical) and the Ninja (a Legendary), both from the Alleyway,
-			-- keep up with the Woods (v0.13.16): 75 x 3.5 x 1.5 and 25 x 3.5 x 1.5 (205.5 before).
+			-- barista Wizard 112.5 + Bandit 12 + Tabby 1.5, waiter Ninja 37.5 + Pirate 4.5 + Tuxedo 1.5, greeter
+			-- DJ 12 + Sleepy 36 (a Park Epic: 8 x 3 for its area since F95, x 1.5), entertainer Rocker 4.5 +
+			-- Smoke 1.5 = 223.5. Keep up is off since F95, so the Wizard (a Mythical) and the Ninja (a Legendary),
+			-- both from the Alleyway, earn their own area's 75 x 1.5 and 25 x 1.5.
 			local profile = profileAt(5)
 			for _, id in ipairs({
 				"tabby",
@@ -227,7 +228,7 @@ return function()
 			local plan = EquipBest.plan(profile)
 			expect(plan.spotsOpen).to.equal(10)
 			expect(plan.catsPlaced).to.equal(10)
-			expect(plan.baseRate).to.be.near(580.5, 1e-9)
+			expect(plan.baseRate).to.be.near(223.5, 1e-9)
 			expect(plan.placements.ginger).never.to.be.ok()
 			for uid, spotId in pairs(plan.placements) do
 				local spot = Catalog.getSpot(spotId)

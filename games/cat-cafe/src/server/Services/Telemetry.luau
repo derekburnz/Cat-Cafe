@@ -80,6 +80,9 @@ export type CustomEvent =
 	-- in at a camp, the value its seconds carried, with area, rarity and times knocked loose
 	| "cannon_launch"
 	| "camp_checkin"
+	-- F95 (economy-ladder.md section 7): on a returning join, the value the minutes away; tier, the minutes offline
+	-- pays for (inside the cap) and "long_nap" or "free"
+	| "offline_return"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -649,6 +652,18 @@ local function onLoaded(player: Player, profile: Profile)
 		)
 		progression(player, profile, false, Economy.tier(profile))
 		areaIndex(player, profile, false, "alley")
+	else
+		local _, paidSeconds = DataService.peekPendingOffline(player)
+		Telemetry.custom(
+			player,
+			"offline_return",
+			math.floor(math.max(0, now - profile.lastSeen) / 60),
+			{
+				tostring(Economy.tier(profile)),
+				tostring(math.floor(paidSeconds / 60)),
+				if Economy.passes(profile).longNap then "long_nap" else "free",
+			}
+		)
 	end
 	task.delay(DEVICE_WAIT_SECONDS, logJoined, player)
 end

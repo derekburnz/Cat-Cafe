@@ -8,18 +8,18 @@ return function()
 	describe("Catalog.tipJar (section 11b table, v0.10 F68)", function()
 		-- step -> { minutes, prize }
 		local expected: { { any } } = {
-			{ 2, { coins = 50, coinSeconds = 30 } },
+			{ 2, { coins = 50, coinSeconds = 15 } },
 			{ 5, { lures = { kibble = 2 } } },
-			{ 10, { coins = 100, coinSeconds = 60 } },
+			{ 10, { coins = 100, coinSeconds = 30 } },
 			{ 15, { lures = { tuna = 1 } } },
-			{ 20, { coins = 150, coinSeconds = 90 } },
+			{ 20, { coins = 150, coinSeconds = 45 } },
 			{ 30, { lures = { tuna = 2 } } },
-			{ 40, { coins = 250, coinSeconds = 120 } },
+			{ 40, { coins = 250, coinSeconds = 60 } },
 			{ 50, { lures = { salmon = 1 } } },
 			-- the pretty good gift at an hour (round 4 Q10)
-			{ 60, { coins = 1000, coinSeconds = 600, fish = 10, spins = 1 } },
+			{ 60, { coins = 1000, coinSeconds = 300, fish = 10, spins = 1 } },
 			{ 75, { lures = { sardines = 1 } } },
-			{ 90, { coins = 600, coinSeconds = 300, spins = 1 } },
+			{ 90, { coins = 600, coinSeconds = 150, spins = 1 } },
 			-- and the really good one at two hours, with its Tip Potion since F64
 			{
 				120,
@@ -33,15 +33,18 @@ return function()
 			},
 		}
 
-		it("has the twelve steps in order, each at its own index, paying the design's prizes", function()
-			expect(#Catalog.tipJar).to.equal(#expected)
-			for index, def in ipairs(Catalog.tipJar) do
-				local row = expected[index]
-				expect(def.step).to.equal(index)
-				expect(def.minutes).to.equal(row[1])
-				expect(def.prize :: any).to.deepEqual(row[2])
+		it(
+			"has the twelve steps in order, each at its own index, paying the design's prizes",
+			function()
+				expect(#Catalog.tipJar).to.equal(#expected)
+				for index, def in ipairs(Catalog.tipJar) do
+					local row = expected[index]
+					expect(def.step).to.equal(index)
+					expect(def.minutes).to.equal(row[1])
+					expect(def.prize :: any).to.deepEqual(row[2])
+				end
 			end
-		end)
+		)
 
 		it("unlocks later with every step, and every food and crate is real", function()
 			for index, def in ipairs(Catalog.tipJar) do
@@ -93,14 +96,14 @@ return function()
 
 		it("a coins step pays its seconds of day rate, never under its floor", function()
 			expect(TipJar.coins(first, 0)).to.equal(50)
-			expect(TipJar.coins(first, 1.5)).to.equal(50) -- 45 is under the floor
-			expect(TipJar.coins(first, 10)).to.equal(300)
-			expect(TipJar.coins(first, 10.55)).to.equal(316) -- floored
+			expect(TipJar.coins(first, 1.5)).to.equal(50) -- 22 is under the floor
+			expect(TipJar.coins(first, 10)).to.equal(150) -- F95: coin prizes pay half their seconds
+			expect(TipJar.coins(first, 10.55)).to.equal(158) -- floored
 			expect(TipJar.coins(first, -5)).to.equal(50)
-			expect(TipJar.coins(Catalog.tipJar[11], 100)).to.equal(30000)
-			-- step 9 (v0.10): 600 s of day rate, at least 1,000
+			expect(TipJar.coins(Catalog.tipJar[11], 100)).to.equal(15000)
+			-- step 9 (v0.10): 300 s of day rate since F95 (was 600), at least 1,000
 			expect(TipJar.coins(Catalog.tipJar[9], 1)).to.equal(1000)
-			expect(TipJar.coins(Catalog.tipJar[9], 2.5)).to.equal(1500)
+			expect(TipJar.coins(Catalog.tipJar[9], 2.5)).to.equal(1000) -- 750 is under the floor since F95
 		end)
 
 		it("a step without coins pays none", function()

@@ -35,6 +35,7 @@ local SpinService = require(script.Parent.Services.SpinService)
 local Telemetry = require(script.Parent.Services.Telemetry)
 local TipJarService = require(script.Parent.Services.TipJarService)
 local TipPileService = require(script.Parent.Services.TipPileService)
+local TipService = require(script.Parent.Services.TipService)
 local TravelService = require(script.Parent.Services.TravelService)
 local WorldBuilder = require(script.Parent.World.WorldBuilder)
 
@@ -69,6 +70,7 @@ SpinService.start()
 FishMarketService.start()
 CodeService.start()
 IntroService.start()
+TipService.start() -- F87: context tips and feedback; before DataService so its onLoaded sees every join
 BugReportService.start(world)
 PassService.start() -- F95: purchases in game; DataService checks owned passes at each join
 Telemetry.start() -- after every service that registers leave work, so its own runs last

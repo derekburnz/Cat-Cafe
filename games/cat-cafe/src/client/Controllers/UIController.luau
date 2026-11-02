@@ -19,6 +19,7 @@ local Effects = require(script.Parent.Parent.Effects)
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Settings = require(Shared:WaitForChild("Settings"))
+local Tips = require(Shared:WaitForChild("Tips"))
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
 local UITypes = require(script.Parent.Parent.UI.Types)
@@ -639,6 +640,24 @@ local function wireIntents()
 			Net.fire("BuyFreshCatch", itemId, window or freshWindow or -1)
 		end)
 	end
+	-- F87 context tips and feedback (easy-start.md sections 3 and 4), once the UI has them: a tip or ask shown (skipped
+	-- true when a camera cut was skipped), Settings' "Show tips again", and a face with an optional chip.
+	local events = UI.events :: any
+	if events.tipSeen ~= nil then
+		events.tipSeen:Connect(function(id: string, skipped: boolean?)
+			Net.fire("TipSeen", id, skipped == true)
+		end)
+	end
+	if events.clearTips ~= nil then
+		events.clearTips:Connect(function()
+			Net.fire("ClearTips")
+		end)
+	end
+	if events.sendFeedback ~= nil then
+		events.sendFeedback:Connect(function(face: string, chip: string?)
+			Net.fire("SendFeedback", face, chip)
+		end)
+	end
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
 	UI.events.travel:Connect(function(destination: string)
 		Net.fire("Travel", destination)
@@ -956,6 +975,24 @@ local function wireServerEvents()
 			elseif crate ~= nil then "A cheap " .. crate.name .. " at the Fish Market!"
 			else "Something good at the Fish Market!"
 		UI.toast(text, "info")
+	end)
+	-- F87: a server-side context tip's moment (shared/Tips). The UI's tip queue times it and answers tipSeen; until
+	-- the UI has one, the like ask (a toast that needs no press, section 4) shows as a plain toast and the rest wait
+	-- unseen, so they still show once the cards land.
+	Net.on("ShowTip", function(id: unknown)
+		if type(id) ~= "string" or not Tips.seenId(id) then
+			return
+		end
+		local tips: any = (UI :: any).tips
+		if tips ~= nil and type(tips.show) == "function" then
+			(tips.show :: (string) -> ())(id)
+		elseif id == Tips.LIKE_ASK then
+			UI.toast(
+				"Having fun? A thumbs up and a favorite help other players find Cat Cafe.",
+				"info"
+			)
+			Net.fire("TipSeen", id, false)
+		end
 	end)
 	Net.on("PlotOpened", function(position: Vector3, plotIndex: number)
 		Moments.PlotOpened:Fire(position, plotIndex)

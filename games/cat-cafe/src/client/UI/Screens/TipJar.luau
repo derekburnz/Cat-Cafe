@@ -17,6 +17,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
+local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Types = require(script.Parent.Parent.Types)
@@ -25,6 +26,9 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 
 export type Callbacks = {
 	claim: (step: number) -> (),
+	-- Claim all (Derek 2026-10-28: "more claim all buttons needed so many reward pop ups"): every ready gift in one
+	-- ClaimAll("tipjar"), one toast; shown once shared Config.TipJarClaimAll says the server has it
+	claimAll: (() -> ())?,
 	status: (summary: TipJarLogic.Summary?) -> (), -- every second, for the HUD's Gifts tile; nil before any jar
 	close: () -> (),
 }
@@ -49,6 +53,7 @@ local STRIP_HEIGHT = 52
 -- CLAIM_GAP before it lights again (Derek 2026-10-27: a quick second claim sat on "..." until the old 3 s ran out).
 local PENDING_SECONDS = 1.5
 local CLAIM_GAP = 1.1
+local CLAIM_ALL_W = 140
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 local SPIN_BANK_CAP: number = Config.SpinBankCap or 20
 
@@ -97,12 +102,14 @@ function TipJar.new(callbacks: Callbacks): TipJar
 	self._panel = panel
 	self.frame = panel.frame
 
-	-- the strip: time played, the next gift, and a bar filling toward it
+	-- the strip: time played, the next gift, and a bar filling toward it; on a phone tall enough for Claim all's tap
+	local claimH = Scale.tapHeight(STRIP_HEIGHT - 11, Theme.sizes.buttonDepth)
+	local stripH = math.max(STRIP_HEIGHT, claimH + 12)
 	local strip: Frame = Create("Frame", {
 		Name = "Strip",
 		BackgroundColor3 = Theme.modal.card,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, STRIP_HEIGHT),
+		Size = UDim2.new(1, 0, 0, stripH),
 		Parent = panel.content,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
@@ -125,6 +132,21 @@ function TipJar.new(callbacks: Callbacks): TipJar
 		Size = UDim2.new(1, -28, 0, 10),
 		Parent = strip,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._track = track
+	self._claimAll = Button.new({
+		name = "ClaimAll",
+		text = "Claim all",
+		style = "primary",
+		size = UDim2.fromOffset(CLAIM_ALL_W, claimH),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -6, 0.5, 0),
+		textSize = Theme.sizes.textBody,
+		parent = strip,
+		onClick = function()
+			self:_pressAll()
+		end,
+	})
+	self._claimAll.instance.Visible = false
 	self._fill = Create("Frame", {
 		Name = "Fill",
 		BackgroundColor3 = Theme.colors.warn,
@@ -137,8 +159,8 @@ function TipJar.new(callbacks: Callbacks): TipJar
 		Name = "Grid",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(0, STRIP_HEIGHT + Theme.sizes.gap + 2),
-		Size = UDim2.new(1, 0, 1, -(STRIP_HEIGHT + Theme.sizes.gap + 2)),
+		Position = UDim2.fromOffset(0, stripH + Theme.sizes.gap + 2),
+		Size = UDim2.new(1, 0, 1, -(stripH + Theme.sizes.gap + 2)),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
@@ -350,6 +372,34 @@ function TipJar._build(self: any)
 	self:_refresh()
 end
 
+-- Claim all: every ready gift reads "Claiming" until TipJarState answers, then one ClaimAll.
+function TipJar._pressAll(self: any)
+	local callbacks: Callbacks = self._callbacks
+	local claimAll = callbacks.claimAll
+	if claimAll == nil then
+		return
+	end
+	local now = Workspace:GetServerTimeNow()
+	local marked = 0
+	for _, view in TipJarLogic.views(self._rows, self._jar, now) do
+		if view.state == "ready" then
+			self._pending[view.row.step] = os.clock()
+			marked += 1
+		end
+	end
+	if marked == 0 then
+		return
+	end
+	self._lastClaim = os.clock()
+	claimAll()
+	self:_refresh()
+	task.delay(math.max(PENDING_SECONDS, CLAIM_GAP), function()
+		if not self._destroyed then
+			self:_refresh()
+		end
+	end)
+end
+
 function TipJar._refresh(self: any)
 	local now = Workspace:GetServerTimeNow()
 	local jar: TipJarLogic.Jar? = self._jar
@@ -400,6 +450,29 @@ function TipJar._refresh(self: any)
 		end
 	end
 
+	-- Claim all, at the strip's right end while two or more gifts wait; the played line and bar make room
+	local canAll = (Config :: any).TipJarClaimAll == true and self._callbacks.claimAll ~= nil
+	local showAll = canAll and summary.ready >= 2
+	local allPending = false
+	for _, view in views do
+		local pressedAt: number? = self._pending[view.row.step]
+		if
+			view.state == "ready"
+			and pressedAt ~= nil
+			and os.clock() - pressedAt < PENDING_SECONDS
+		then
+			allPending = true
+		end
+	end
+	self._claimAll.instance.Visible = showAll
+	self._claimAll:setEnabled(not allPending)
+	self._claimAll:setText(
+		if allPending then "Claiming" else ("Claim all (%d)"):format(summary.ready)
+	)
+	local room = if showAll then CLAIM_ALL_W + 12 else 0
+	self._played.Size = UDim2.new(1, -28 - room, 0, 24)
+	self._track.Size = UDim2.new(1, -28 - room, 0, 10)
+
 	-- the strip: minutes played and the next gift
 	local elapsed = if jar then math.max(0, now - jar.sessionStartedAt) else 0
 	local played = "Played " .. TipJarLogic.clock(elapsed)
@@ -435,7 +508,9 @@ function TipJar._refresh(self: any)
 end
 
 function TipJar.destroy(self: any)
+	self._destroyed = true
 	self._tick:Disconnect()
+	self._claimAll:destroy()
 	for _, card in self._cards do
 		card.claim:destroy()
 		card.chips:destroy()

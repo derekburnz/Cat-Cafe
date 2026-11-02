@@ -83,6 +83,8 @@ export type CustomEvent =
 	-- F95 (economy-ladder.md section 7): on a returning join, the value the minutes away; tier, the minutes offline
 	-- pays for (inside the cap) and "long_nap" or "free"
 	| "offline_return"
+	-- F93 (catch-rework.md section 5): every net swing, value 1; "hit", "miss_near" or "miss_empty", net level, device
+	| "net_swing"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -392,25 +394,39 @@ local function funnelStep(
 	end)
 end
 
--- catch_attempt step 1: GrabBegin sent the circles, or RescueBegin sent the challenge. `method` is net, rescue or
+-- catch_attempt step 1 (F93, catch-rework.md section 5): a net swing landed on a stray. `method` is net, rescue or
 -- net_dropped (a knocked-loose cat).
-function Telemetry.catchEngaged(
+function Telemetry.swingHit(
 	player: Player,
 	rarity: string,
 	method: string,
 	area: string
 ): CatchFunnel
 	local funnel = { id = HttpService:GenerateGUID(false), values = { rarity, method, area } }
-	funnelStep(player, "catch_attempt", funnel.id, 1, "engaged", funnel.values)
+	funnelStep(player, "catch_attempt", funnel.id, 1, "swing_hit", funnel.values)
 	return funnel
 end
 
--- Step 2: the cat is in the player's arms.
-function Telemetry.catchCaught(player: Player, funnel: CatchFunnel)
-	funnelStep(player, "catch_attempt", funnel.id, 2, "caught", funnel.values)
+-- Step 2: the circles went out after that swing, or RescueBegin sent the challenge. A rescue has no swing, so with no
+-- `funnel` this opens one and logs step 1 with it: the hold on the trap is where a rescue reaches its cat.
+function Telemetry.catchEngaged(
+	player: Player,
+	rarity: string,
+	method: string,
+	area: string,
+	funnel: CatchFunnel?
+): CatchFunnel
+	local current = funnel or Telemetry.swingHit(player, rarity, method, area)
+	funnelStep(player, "catch_attempt", current.id, 2, "engaged", current.values)
+	return current
 end
 
--- Step 3, and step 4 at once when the cat went straight to a role; otherwise step 4 waits for PlaceCat or Equip
+-- Step 3: the cat is in the player's arms.
+function Telemetry.catchCaught(player: Player, funnel: CatchFunnel)
+	funnelStep(player, "catch_attempt", funnel.id, 3, "caught", funnel.values)
+end
+
+-- Step 4, and step 5 at once when the cat went straight to a role; otherwise step 5 waits for PlaceCat or Equip
 -- best to give that uid a role (`catWorking`).
 function Telemetry.catchCheckedIn(
 	player: Player,
@@ -418,9 +434,9 @@ function Telemetry.catchCheckedIn(
 	uid: string,
 	working: boolean
 )
-	funnelStep(player, "catch_attempt", funnel.id, 3, "checked_in", funnel.values)
+	funnelStep(player, "catch_attempt", funnel.id, 4, "checked_in", funnel.values)
 	if working then
-		funnelStep(player, "catch_attempt", funnel.id, 4, "working", funnel.values)
+		funnelStep(player, "catch_attempt", funnel.id, 5, "working", funnel.values)
 		return
 	end
 	local session = sessions[player]
@@ -436,7 +452,7 @@ function Telemetry.catWorking(player: Player, uid: string)
 		return
 	end
 	session.waitingForRole[uid] = nil
-	funnelStep(player, "catch_attempt", funnel.id, 4, "working", funnel.values)
+	funnelStep(player, "catch_attempt", funnel.id, 5, "working", funnel.values)
 end
 
 -- bait_cycle (analytics-plan 4.2): one persistent session id per bowl of food, because the timer runs offline.

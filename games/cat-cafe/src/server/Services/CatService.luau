@@ -1,8 +1,9 @@
 --!strict
--- Strays: sunrise waves per area, the net (lock, closing circles, the chase after a miss), carrying a caught or rescued
--- cat home and check-in. The bait bowl is BaitService; NightService closes the areas at night and calls nightFalls,
--- sunriseWave and forceCheckIn (v0.9, F66). Server authoritative: the client only says which circle it pressed for;
--- distance, locks, the schedule, the press times, the chase and odds live here.
+-- Strays: sunrise waves per area, the net (the swing, lock, closing circles, the chase after a miss), carrying a caught
+-- or rescued cat home and check-in. The bait bowl is BaitService; NightService closes the areas at night and calls
+-- nightFalls, sunriseWave and forceCheckIn (v0.9, F66). Server authoritative: the client only says that it swung
+-- (F93) and which circle it pressed for; what the swing lands on, distance, locks, the schedule, the press times, the
+-- chase and odds live here.
 
 local CollectionService = game:GetService("CollectionService")
 local PathfindingService = game:GetService("PathfindingService")
@@ -28,6 +29,7 @@ local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
+local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local Shove = require(ReplicatedStorage.Shared.Shove)
@@ -43,7 +45,6 @@ type Stray = {
 	area: string,
 	model: Model,
 	body: BasePart,
-	prompt: ProximityPrompt,
 	spawnedAt: number,
 	pointIndex: number?, -- spawn point it occupies
 	home: Vector3,
@@ -62,7 +63,7 @@ type Stray = {
 	variant: string, -- "gold" (GoldChanceNet with gold luck, rolled at spawn and shown as a sparkle) or "base"
 	method: Types.CatchMethod, -- "net", or what a Dropped cat was before it fell (its rescued flag, 10c)
 	-- set on a Dropped stray (section 10c, S25): a shove knocked it out of someone's arms or they let it go. It has
-	-- no circles: anyone picks it up with PickUpCat (v0.8 F56).
+	-- no circles: the first swing that lands on it picks it up (v0.8 F56, F93).
 	drop: Shove.Drop?,
 	-- F67 (section 10c v0.10): where a Dropped cat was first caught, kept through every pick up and drop, and true
 	-- while one let go with the Drop button walks back there. Home again it is a normal stray whose next catch adds
@@ -108,7 +109,7 @@ local strays: { [string]: Stray } = {}
 local occupiedPoints: { [string]: { [number]: string } } = {} -- area -> point index -> stray id
 local carrying: { [Player]: Carry } = {}
 local circleHistory: { [Player]: { boolean } } = {} -- last judged circles per player, true for Perfect (S23)
-local lastCatchStart: { [Player]: number } = {} -- server time of the player's last GrabBegin that started circles
+local lastCatchStart: { [Player]: number } = {} -- server time of the player's last catch start or pick up
 local startledUntil: { [Player]: number } = {} -- server time each player's Startled slow ends (F57)
 local rng = Random.new()
 local nextStrayNumber = 0
@@ -461,27 +462,12 @@ local function spawnStray(
 	-- A net stray's gold is no secret (data-model section 4): the sparkle and the catch header show it.
 	model:SetAttribute("Gold", variant == "gold")
 	-- Display only (section 13); the drop record itself stays in the server's table below (S25, N29). A Dropped
-	-- stray's card reads Pick up, with no circles (v0.8 F56, ui-contract "Pick up").
+	-- stray is picked up by the first swing that lands on it, with no circles (v0.8 F56, F93).
 	model:SetAttribute("Dropped", kept ~= nil)
 	model:SetAttribute("PickUp", kept ~= nil)
 	model:SetAttribute("Returning", kept ~= nil and kept.returning == true) -- F67: walking home
 	CollectionService:AddTag(model, "Stray")
-
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "GrabPrompt"
-	prompt.ActionText = if kept ~= nil then "Pick up" else "Catch"
-	prompt.ObjectText = def.name
-	prompt.HoldDuration = Config.CatchHoldSeconds -- holding E starts the circles (Derek 2026-10-27)
-	prompt.MaxActivationDistance = Config.GrabRangeStuds
-	prompt.RequiresLineOfSight = false
-	prompt.Style = Enum.ProximityPromptStyle.Custom
-	prompt.KeyboardKeyCode = Enum.KeyCode.E
-	prompt:SetAttribute("CatId", def.id)
-	prompt:SetAttribute("CatName", def.name)
-	prompt:SetAttribute("Rarity", def.rarity)
-	prompt:SetAttribute("StrayId", id)
-	prompt:SetAttribute("Gold", variant == "gold")
-	prompt.Parent = body
+	-- F93 (catch-rework.md section 1): no Catch prompt; the net swing finds the stray (SwingNet).
 
 	model:PivotTo(CFrame.new(position) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0))
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
@@ -493,7 +479,6 @@ local function spawnStray(
 		area = areaId,
 		model = model,
 		body = body,
-		prompt = prompt,
 		spawnedAt = os.clock(),
 		pointIndex = pointIndex,
 		home = position,
@@ -679,8 +664,9 @@ local CARRIED_POSE = (function(): CFrame
 	return CFrame.new(p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11], p[12])
 end)()
 
--- The carrier's character attributes (section 13): CarryingCatId, CarryStartedAt (server time) and BumpImmune (the
--- held window). Display only; the shove checks read the carry record. nil clears them.
+-- The carrier's character attributes (section 13): CarryingCatId, CarryStartedAt (server time), BumpImmune (the
+-- held window) and NetHidden (F93: the net is away while a cat is in the arms, on every client). Display only; the
+-- shove checks read the carry record. nil clears them.
 local function showCarry(player: Player, carry: Carry?)
 	local character = player.Character
 	if character == nil then
@@ -692,6 +678,7 @@ local function showCarry(player: Player, carry: Carry?)
 		"BumpImmune",
 		if carry ~= nil then serverNow() < carry.immuneUntil else nil
 	)
+	character:SetAttribute("NetHidden", if carry ~= nil then true else nil)
 end
 
 local function attachHeldCat(player: Player, carry: Carry)
@@ -798,7 +785,7 @@ end
 
 -- Callers check carrying first; the refusal here keeps one carry per player whatever path calls it. `method` is
 -- "net" or "rescue"; `variant` "gold" shows on the held cat and in the toast. `pickedUp` is a Dropped cat taken
--- with PickUpCat (v0.8 F56): only the toast says so, the carry is like any other.
+-- with a swing (v0.8 F56, F93): only the toast says so, the carry is like any other.
 local function startCarry(
 	player: Player,
 	def: Types.CatDef,
@@ -1040,8 +1027,8 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 
 	if succeeded then
 		-- no Perfect bonus for a scripted-looking profile, nor on a Dropped cat, which already has its charm
-		-- (reviewer S36: two friends could shove and re-catch it up to 100). Since v0.8 F56 a Dropped stray refuses
-		-- GrabBegin, so this is only a guard.
+		-- (reviewer S36: two friends could shove and re-catch it up to 100). Since v0.8 F56 a swing picks a Dropped
+		-- stray up and never starts its circles, so this is only a guard.
 		local gain = if profile.flags.autoPress
 				or stray.drop ~= nil
 				or stray.recaught
@@ -1084,8 +1071,8 @@ end
 -- Shove (section 10c) --------------------------------------------------------------------------------------
 
 -- The carried cat drops where the target stands as a Dropped stray that keeps its charm, gold, rescued flag and the
--- spot it was caught at (a shove, v0.8 F56: no scurry; it stays where it fell, F67). Anyone picks it up with
--- PickUpCat. `shoverUserId` is 0 for a night death or Studio's hook. Nil when the target has no character to drop it
+-- spot it was caught at (a shove, v0.8 F56: no scurry; it stays where it fell, F67). Anyone picks it up with a
+-- swing (F93). `shoverUserId` is 0 for a night death or Studio's hook. Nil when the target has no character to drop it
 -- from, in which case the carry stays.
 local function knockLoose(target: Player, shoverUserId: number, areaId: string): Stray?
 	local root = rootPosition(target)
@@ -1117,76 +1104,58 @@ local function holdsCatch(player: Player): boolean
 	return false
 end
 
-local function onGrabBegin(player: Player, rawStrayId: unknown)
-	local strayId = Guard.id(rawStrayId)
-	local profile = DataService.get(player)
-	if strayId == nil or profile == nil then
-		return
-	end
-	local stray = strays[strayId]
-	if stray == nil or not stray.alive then
-		return
-	end
+-- Starts the circles on `stray` for a swing that landed on it (F93: the old GrabBegin, now the server's own start):
+-- the same checks, then CatchSchedule. Returns why it did not start, in words for a toast, or nil. `funnel` is the
+-- catch_attempt funnel the swing opened.
+local function startCatch(
+	player: Player,
+	profile: Types.PlayerProfile,
+	stray: Stray,
+	funnel: Telemetry.CatchFunnel?
+): string?
 	if carrying[player] ~= nil then
-		Net.toast(player, "Check in the cat you are carrying first.", "warn")
-		return
+		return "Check in the cat you are carrying first"
 	end
 	if inRescue(player) then
-		Net.fire(player, "GrabResult", strayId, false, "Finish this rescue first", true)
-		return
+		return "Finish this rescue first"
 	end
 	if inFlight(player) then
-		return -- mid flight or hop (F84): the prompt is out of reach anyway
+		return "Land first"
 	end
 	if campOf(player) ~= nil then
-		Net.fire(player, "GrabResult", strayId, false, "Step out of the camp to catch it", true)
-		return
+		return "Step out of the camp to catch it"
 	end
 	if not areaUnlocked(profile, stray.area) then
-		Net.toast(player, "This area opens at a higher tier. Rank up to catch cats here.", "warn")
-		return
+		return "This area opens at a higher tier. Rank up to catch cats here"
 	end
 	if not ClockService.areasOpen() then
-		-- a stray still waiting out someone's catch at dusk, or a modified client past the fence (v0.9, F66)
-		Net.toast(player, Clock.CLOSED_TEXT, "warn")
-		return
+		-- a stray still waiting out someone's catch at dusk (v0.9, F66)
+		return Clock.CLOSED_TEXT
 	end
 	if stray.lockedBy ~= 0 and not lockExpired(stray) then
-		-- Busy, including the player's own catch in progress: a second GrabBegin never restarts the circles.
-		local reason = if stray.lockedBy == player.UserId
+		-- busy, including the player's own catch in progress: a second start never restarts the circles
+		return if stray.lockedBy == player.UserId
 			then "Keep going, the circles are coming"
 			else "Someone else is catching it"
-		Net.fire(player, "GrabResult", strayId, false, reason, true)
-		return
 	end
 	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
-		Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
-		return
+		return "Too far away"
 	end
 	local now = serverNow()
 	if now < stray.fleeingUntil then
-		Net.fire(player, "GrabResult", strayId, false, "It's running!", true)
-		return
+		return "It's running!"
 	end
 	local selfRetryAt = stray.selfRetryAt[player.UserId]
 	if selfRetryAt ~= nil and now < selfRetryAt then
-		Net.fire(player, "GrabResult", strayId, false, "Catch your breath, then try again", true)
-		return
-	end
-	if stray.drop ~= nil then
-		-- v0.8 F56: a Dropped stray has no circles; its card fires PickUpCat
-		Net.fire(player, "GrabResult", strayId, false, "Hold to pick it up", true)
-		return
+		return "Catch your breath, then try again"
 	end
 	local last = lastCatchStart[player]
 	if last ~= nil and now - last < Config.GrabCooldownSeconds then
-		Net.fire(player, "GrabResult", strayId, false, "Give it a moment", true)
-		return
+		return "Give it a moment"
 	end
 	-- One catch at a time: a script must not run circles on two strays at once.
 	if holdsCatch(player) then
-		Net.fire(player, "GrabResult", strayId, false, "Finish this catch first", true)
-		return
+		return "Finish this catch first"
 	end
 	lastCatchStart[player] = now
 
@@ -1201,13 +1170,8 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
 	profile.stats.grabsAttempted += 1
-	Net.fire(player, "CatchSchedule", strayId, circles, Circles.publicWindows(windows))
-	stray.funnel = Telemetry.catchEngaged(
-		player,
-		stray.def.rarity,
-		if stray.drop ~= nil then "net_dropped" else "net",
-		stray.area
-	)
+	Net.fire(player, "CatchSchedule", stray.id, circles, Circles.publicWindows(windows))
+	stray.funnel = Telemetry.catchEngaged(player, stray.def.rarity, "net", stray.area, funnel)
 
 	-- A circle nobody presses is a Miss at its deadline, which ends the catch; so is walking out of range.
 	task.spawn(function()
@@ -1236,6 +1200,7 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 			setLock(stray, 0)
 		end
 	end)
+	return nil
 end
 
 -- One press for circle `index`. The client sends no time: the press is stamped on arrival and half the player's
@@ -1267,20 +1232,12 @@ local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unkno
 	end
 end
 
--- PickUpCat (v0.8 F56, data-model section 10c): anyone takes a Dropped stray with the hold and no circles, the
--- shover and its last carrier included, with no owner window. The first valid call wins. The cat keeps its catId,
--- gold, charm and rescued flag and gains no charm (S36), with no rush or burst; the carry is like any other, so
--- BumpGraceSeconds runs from here and the last carrier can shove back once it passes.
-local function onPickUpCat(player: Player, rawStrayId: unknown)
-	local strayId = Guard.id(rawStrayId)
-	local profile = DataService.get(player)
-	if strayId == nil or profile == nil then
-		return
-	end
-	local stray = strays[strayId]
-	if stray == nil or not stray.alive then
-		return
-	end
+-- Picks up a Dropped stray a swing landed on (v0.8 F56, data-model section 10c; F93 folds PickUpCat into the swing):
+-- anyone takes it with no circles, the shover and its last carrier included, with no owner window. The first swing
+-- wins. The cat keeps its catId, gold, charm and rescued flag and gains no charm (S36), with no rush or burst; the
+-- carry is like any other, so BumpGraceSeconds runs from here and the last carrier can shove back once it passes.
+-- Returns why it was refused, in words for a toast, or nil.
+local function pickUp(player: Player, profile: Types.PlayerProfile, stray: Stray): string?
 	local root = rootPosition(player)
 	local now = serverNow()
 	local last = lastCatchStart[player]
@@ -1295,8 +1252,7 @@ local function onPickUpCat(player: Player, rawStrayId: unknown)
 		sinceGrab = if last ~= nil then now - last else nil,
 	})
 	if reason ~= nil then
-		Net.fire(player, "GrabResult", strayId, false, reason, true)
-		return
+		return reason
 	end
 	lastCatchStart[player] = now
 	profile.stats.pickups += 1
@@ -1305,6 +1261,172 @@ local function onPickUpCat(player: Player, rawStrayId: unknown)
 	local knocks = stray.knocks
 	despawn(stray, player) -- logs drop_outcome against the player who ended up with it
 	startCarry(player, def, method, charm, variant, true, nil, homePos, knocks)
+	return nil
+end
+
+-- The net swing (F93, catch-rework.md section 1) -----------------------------------------------------------
+
+-- Server time of each player's last swing, for NetSwingCooldown.
+local lastSwing: { [Player]: number } = {}
+-- Clients this close to the swinger hear its NetSwung (the smack and whoosh on everyone else's screen).
+local SWUNG_RANGE_STUDS = 150
+
+-- A near miss (F93): the stray hops NetSwing.hopStuds straight away from the swinger at StrayFleeSpeed, kept inside
+-- its area, then catches its breath like a miss, so the next swing cannot land on it straight away. It is no miss on
+-- the cat: no hiss, no selfRetry and no streak. `HopAt` (server time) is for the sound and effects. A stray on a
+-- perch stays put, as flee keeps it (S86).
+local function hop(stray: Stray, player: Player)
+	local at = stray.model:GetPivot().Position
+	local area = world.areas[stray.area]
+	if area == nil or at.Y > area.floorY + PERCH_ABOVE then
+		return
+	end
+	local from = rootPosition(player)
+	local away = if from ~= nil then Vector3.new(at.X - from.X, 0, at.Z - from.Z) else Vector3.zero
+	if away.Magnitude < 0.1 then
+		local angle = rng:NextNumber(0, math.pi * 2)
+		away = Vector3.new(math.cos(angle), 0, math.sin(angle))
+	end
+	local target = clearPath(
+		at,
+		WorldBuilder.clampToArea(area, at + away.Unit * NetSwing.hopStuds(stray.def.rarity), 2, at)
+	)
+	local now = serverNow()
+	local sprint = Vector3.new(target.X - at.X, 0, target.Z - at.Z).Magnitude
+	stray.fleeingUntil = Catching.fleeUntil(now, sprint)
+	stray.model:SetAttribute("HopAt", now)
+	stray.model:SetAttribute("FleeingUntil", stray.fleeingUntil)
+	stray.jumping = true
+	stray.home = target
+	task.spawn(function()
+		Mover.walkTo(stray.model, target, Config.StrayFleeSpeed, function()
+			return stray.alive and stray.lockedBy == 0
+		end)
+		task.wait(math.max(0, stray.fleeingUntil - serverNow()))
+		stray.jumping = false
+	end)
+end
+
+-- True when a swing can land on the stray: alive, not sprinting or catching its breath, not locked by anyone else
+-- (catch-rework.md section 1). Everything else is startCatch's or pickUp's to refuse with words.
+local function swingable(stray: Stray, player: Player, now: number): boolean
+	if not stray.alive or stray.jumping or now < stray.fleeingUntil then
+		return false
+	end
+	return stray.lockedBy == 0 or stray.lockedBy == player.UserId or lockExpired(stray)
+end
+
+-- Free strays for a near miss: swingable, not Dropped (a dropped cat stays where it fell, F67) and not mid-walk home.
+local function hoppable(stray: Stray, player: Player, now: number): boolean
+	return swingable(stray, player, now)
+		and stray.drop == nil
+		and not stray.returning
+		and stray.lockedBy == 0
+end
+
+local function swingCheck(player: Player): NetSwing.SwingCheck
+	local last = lastSwing[player]
+	return {
+		carrying = carrying[player] ~= nil,
+		busy = holdsCatch(player) or inRescue(player),
+		inFlight = inFlight(player),
+		inCamp = campOf(player) ~= nil,
+		sinceSwing = if last ~= nil then serverNow() - last else nil,
+	}
+end
+
+-- Tells the swinger and every client near them how the swing went, for the smack, the bounce and the whoosh.
+local function announceSwing(player: Player, at: Vector3, hit: boolean)
+	for _, other in Players:GetPlayers() do
+		local position = if other ~= player then rootPosition(other) else at
+		if position ~= nil and (position - at).Magnitude <= SWUNG_RANGE_STUDS then
+			Net.fire(other, "NetSwung", player.UserId, hit)
+		end
+	end
+end
+
+-- The net lands, NetSmackDelay after SwingNet arrived: the nearest swingable stray in reach is the hit. A hit starts
+-- its catch (a Dropped one is picked up at once); a miss makes the free strays near the swinger hop away, unless the
+-- player has not caught a cat yet. At night in an area there is nothing to land on and nothing hops.
+local function landSwing(player: Player)
+	local profile = DataService.get(player)
+	local character = player.Character
+	local rootInstance = if character ~= nil
+		then character:FindFirstChild("HumanoidRootPart")
+		else nil
+	if
+		profile == nil
+		or player.Parent ~= Players
+		or rootInstance == nil
+		or not rootInstance:IsA("BasePart")
+	then
+		return
+	end
+	local root = rootInstance :: BasePart
+	local check = swingCheck(player)
+	check.sinceSwing = nil -- this swing's own cooldown is already spent
+	if NetSwing.refusal(check) ~= nil then
+		announceSwing(player, root.Position, false) -- a carry or a rescue began while the net came down
+		return
+	end
+	local now = serverNow()
+	local origin, look = root.Position, root.CFrame.LookVector
+	local open = ClockService.areasOpen()
+	local targets: { NetSwing.Target } = {}
+	local near = 0
+	if open then
+		for id, stray in strays do
+			if swingable(stray, player, now) then
+				table.insert(targets, { id = id, position = stray.body.Position })
+				if NetSwing.nearMiss(origin, stray.body.Position) then
+					near += 1
+				end
+			end
+		end
+	end
+	local picked = NetSwing.pick(origin, look, targets)
+	local stray = if picked ~= nil then strays[picked.id] else nil
+	local started = false
+	if stray ~= nil then
+		local reason = if stray.drop ~= nil
+			then pickUp(player, profile, stray)
+			else startCatch(
+				player,
+				profile,
+				stray,
+				Telemetry.swingHit(player, stray.def.rarity, "net", stray.area)
+			)
+		started = reason == nil
+		if reason ~= nil then
+			Net.toast(player, reason :: string, "warn") -- the checker loses the narrowing over the two calls
+		end
+	elseif near > 0 and NetSwing.missHops(profile.tutorialStep) then
+		for _, other in strays do
+			if hoppable(other, player, now) and NetSwing.nearMiss(origin, other.body.Position) then
+				hop(other, player)
+			end
+		end
+	end
+	announceSwing(player, origin, started)
+	Telemetry.custom(player, "net_swing", 1, {
+		NetSwing.result(stray ~= nil, near),
+		tostring(Economy.level(profile, "net")),
+		Telemetry.device(player) or "unknown",
+	})
+end
+
+-- SwingNet() (F93): no arguments; one per NetSwingCooldown (the limiter in Net is the flood guard). The swing is
+-- judged when the net lands, NetSmackDelay from now. A refused swing gets no answer: the client checks the same
+-- before it plays the smack.
+local function onSwingNet(player: Player)
+	if DataService.get(player) == nil then
+		return
+	end
+	if NetSwing.refusal(swingCheck(player)) ~= nil then
+		return
+	end
+	lastSwing[player] = serverNow()
+	task.delay(Config.NetSmackDelay, landSwing, player)
 end
 
 -- Adds the cat to the player's cafe and, with `notify`, tells them and the server (CatCaught, the shout-out). The
@@ -1533,7 +1655,6 @@ local function arriveHome(stray: Stray, home: Vector3)
 	stray.model:SetAttribute("Returning", false)
 	stray.model:SetAttribute("Dropped", false)
 	stray.model:SetAttribute("PickUp", false)
-	stray.prompt.ActionText = "Catch"
 	local owner = if drop ~= nil then Players:GetPlayerByUserId(drop.owner) else nil
 	if owner ~= nil then
 		Telemetry.custom(owner, "drop_outcome", 1, { "returned", stray.def.rarity, stray.area })
@@ -1640,7 +1761,7 @@ end
 
 -- The Drop button (Derek 2026-10-27; F67, round 4 Q4): by day the cat is put down at the carrier's feet, wherever
 -- they stand, as a Dropped, Returning stray with the player as its last carrier and no shover. It walks back to where
--- it was caught (walkHome) and anyone picks it up on the way with PickUpCat, gaining no charm. While the areas are
+-- it was caught (walkHome) and anyone picks it up on the way with a swing (F93), gaining no charm. While the areas are
 -- closed the button is refused, so no cat walks into a closed area.
 -- A carrier's death drops the cat the same way, where the character fell and before the respawn (data-model 10c
 -- v0.13.3), so Reset Character is never a free check-in and cannot skip a Tackle or the dusk sweep; at night it
@@ -1710,7 +1831,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	folder.Parent = Workspace:FindFirstChild("World") or Workspace
 	straysFolder = folder
 
-	Net.on("GrabBegin", onGrabBegin)
+	Net.on("SwingNet", onSwingNet)
 	Net.on("CatchPress", onCatchPress)
 	Net.on("CheckIn", onCheckIn)
 	task.spawn(function()
@@ -1726,7 +1847,6 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		end
 	end)
 	Net.on("DropCat", onDropCat)
-	Net.on("PickUpCat", onPickUpCat)
 	task.spawn(function()
 		while true do
 			-- one bad board or profile must not end the loop for the server's life (review N185)
@@ -1783,6 +1903,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		end
 		circleHistory[player] = nil
 		lastCatchStart[player] = nil
+		lastSwing[player] = nil
 		startledUntil[player] = nil
 		for _, stray in strays do
 			if stray.lockedBy == player.UserId then

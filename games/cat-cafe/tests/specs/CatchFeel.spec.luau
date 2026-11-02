@@ -1,10 +1,12 @@
 --!strict
 -- F83's feel in numbers (QA; data-model sections 10 and 10b, v0.13.15, Derek 2026-10-28 12:15: "make the catching
--- and rescue games harder"). The design gives catch and rescue chances for a player whose presses land within about
--- 50 ms (one standard deviation, ping wobble included) and a shakier one at 70 ms. These checks work the same chances
--- out from the build's own numbers: Circles.windowsFor and each rarity's circles for the net, RescueMarker.inZone
--- over the real bar's speed, zone width and tolerance, Rescue.hitsNeeded and RescuePatience for a rescue. A change
--- to any of them that moves a chance by more than a point fails here, so the design's tables stay true.
+-- and rescue games harder"), retuned for F93 (catch-rework.md sections 2 and 4). The design gives catch and rescue
+-- chances for a player whose presses land within about 50 ms (one standard deviation, ping wobble included) and a
+-- shakier one at 70 ms. These checks work the same chances out from the build's own numbers: Circles.windowsFor and
+-- each rarity's circles for the net, RescueMarker.inZone over the real bar's speed (faster after every hit), zone
+-- width and tolerance, Rescue.hitsNeeded, RescuePatience and RescueZonePasses for a rescue. A change to any of them
+-- that moves a chance by more than a point fails here, so the design's tables stay true. The F93 rescue rows are the
+-- build's own figures, which the designer accepted against the spec's rounder ones (2026-11-02).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
@@ -40,9 +42,8 @@ return function()
 	end
 
 	-- The chance one bar press is a hit, worked out on the real marker and zone: the marker crossing a zone in the
-	-- middle of the bar, the press `e` seconds off the crossing, summed over e with the normal weights.
-	local function barHit(rarity: Types.Rarity, spread: number): number
-		local speed = Config.RescueBarSpeed[rarity]
+	-- middle of the bar at `speed`, the press `e` seconds off the crossing, summed over e with the normal weights.
+	local function barHit(rarity: Types.Rarity, speed: number, spread: number): number
 		local width = Config.RescueZoneWidth[rarity]
 		local crossing = 0.5 / speed -- from the left end at phase 0
 		local step = spread / 200
@@ -59,23 +60,42 @@ return function()
 		return total / weight
 	end
 
-	local function choose(n: number, k: number): number
-		local out = 1
-		for i = 1, k do
-			out = out * (n - k + i) / i
-		end
-		return out
-	end
-
-	-- Percent of bar attempts that free the cat: rescueHits hits before RescuePatience misses.
+	-- Percent of bar attempts that free the cat (F93): hit k is pressed with the marker at RescueBarSpeed x (1 +
+	-- RescueSpeedUpPerHit)^k. A zone lasts RescueZonePasses (2) passes of the marker, so it takes at most two presses,
+	-- each miss a paw, and a zone missed twice runs out for a third paw as it moves on. Out of paws ends it.
 	local function rescueChance(rarity: Types.Rarity, spread: number): number
-		local p = barHit(rarity, spread)
+		expect(Config.RescueZonePasses).to.equal(2) -- the two presses per zone below
 		local hits = Rescue.hitsNeeded(rarity, "bar")
-		local chance = 0
-		for misses = 0, Config.RescuePatience - 1 do
-			chance += choose(hits - 1 + misses, misses) * p ^ hits * (1 - p) ^ misses
+		local p: { number } = {}
+		for k = 0, hits - 1 do
+			local speed = Config.RescueBarSpeed[rarity] * (1 + Config.RescueSpeedUpPerHit) ^ k
+			p[k + 1] = barHit(rarity, speed, spread)
 		end
-		return 100 * chance
+		local memo: { [number]: number } = {}
+		local function from(done: number, paws: number): number
+			if done == hits then
+				return 1
+			end
+			if paws <= 0 then
+				return 0
+			end
+			local key = done * 100 + paws
+			local known = memo[key]
+			if known ~= nil then
+				return known
+			end
+			local q = p[done + 1]
+			local chance = q * from(done + 1, paws)
+			if paws > 1 then
+				chance += (1 - q) * q * from(done + 1, paws - 1)
+			end
+			if paws > 2 then
+				chance += (1 - q) * (1 - q) * from(done, paws - 3)
+			end
+			memo[key] = chance
+			return chance
+		end
+		return 100 * from(0, Config.RescuePatience)
 	end
 
 	local function rowMatches(label: string, got: { number }, want: { number })
@@ -86,13 +106,15 @@ return function()
 		end
 	end
 
-	describe("F83 catch and rescue feel (QA, data-model 10 and 10b)", function()
-		it("nets a stray as often as the design's table, Basic and Master Net, at 50 and 70 ms", function()
+	describe("F83 and F93 catch and rescue feel (QA, data-model 10 and 10b, catch-rework.md)", function()
+		it("nets a stray as often as the design's table, every net at 50 ms and Basic and Master at 70 ms", function()
 			local rows = {
-				{ "Basic 50 ms", 0, 0.05, { 95, 85, 67, 44, 21 } },
-				{ "Master 50 ms", 3, 0.05, { 100, 99, 97, 88, 69 } },
-				{ "Basic 70 ms", 0, 0.07, { 84, 63, 39, 18, 6 } },
-				{ "Master 70 ms", 3, 0.07, { 98, 92, 80, 59, 33 } },
+				{ "Basic 50 ms", 0, 0.05, { 95, 86, 69, 46, 23 } },
+				{ "Sturdy 50 ms", 1, 0.05, { 99, 95, 84, 65, 41 } },
+				{ "Pro 50 ms", 2, 0.05, { 100, 99, 94, 83, 63 } },
+				{ "Master 50 ms", 3, 0.05, { 100, 100, 98, 93, 80 } },
+				{ "Basic 70 ms", 0, 0.07, { 77, 56, 33, 15, 5 } },
+				{ "Master 70 ms", 3, 0.07, { 99, 94, 83, 64, 40 } },
 			}
 			for _, row in rows do
 				local got = {}
@@ -104,9 +126,10 @@ return function()
 		end)
 
 		it("keeps a new player's Common easy and makes every better net help at every rarity", function()
-			-- the intro's catch and a new player's first five cats are Commons: one or two tries
+			-- the intro's catch and a new player's first five cats are Commons: one or two tries (F93: three circles, so
+			-- a shaky young player on a phone needs a second try a quarter of the time)
 			expect(catchChance(0, "Common", 0.05) >= 94).to.equal(true)
-			expect(catchChance(0, "Common", 0.07) >= 80).to.equal(true)
+			expect(catchChance(0, "Common", 0.07) >= 75).to.equal(true)
 			for _, rarity in RARITIES do
 				for level = 1, 3 do
 					expect(catchChance(level, rarity, 0.05) > catchChance(level - 1, rarity, 0.05)).to.equal(true)
@@ -123,8 +146,8 @@ return function()
 				at50[i] = rescueChance(rarity, 0.05)
 				at70[i] = rescueChance(rarity, 0.07)
 			end
-			rowMatches("bar 50 ms", at50, { 100, 100, 97, 73, 37 })
-			rowMatches("bar 70 ms", at70, { 100, 99, 77, 37, 11 })
+			rowMatches("bar 50 ms", at50, { 100, 98, 78, 36, 9 })
+			rowMatches("bar 70 ms", at70, { 100, 88, 44, 11, 2 })
 		end)
 
 		it("gives a steady player time for every hit and every spare paw inside the 15 s deadline", function()

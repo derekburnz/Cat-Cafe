@@ -610,21 +610,9 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "ui_opened", name)
 		end
 	end)
-	-- The net (data-model section 10): one press on the prompt asks for the circles. The server answers with
-	-- CatchSchedule (or a GrabResult refusal); each press on a circle sends only its index, since the server
-	-- stamps the time itself.
-	UI.events.grabBegan:Connect(function(strayId: string?)
-		if strayId ~= nil then
-			Net.fire("GrabBegin", strayId)
-		end
-	end)
-	-- v0.8 F56: a Dropped stray has no circles. The hold picks it up; the carry starting (or a GrabResult refusal)
-	-- is the answer.
-	UI.events.pickUpBegan:Connect(function(strayId: string?)
-		if strayId ~= nil then
-			Net.fire("PickUpCat", strayId)
-		end
-	end)
+	-- The net (data-model section 10): since F93 a swing starts the circles or picks a Dropped cat up
+	-- (Controllers/NetSwingController); the server answers with CatchSchedule, and each press on a circle sends only
+	-- its index, since the server stamps the time itself.
 	-- Each press is heard the instant it lands (sound list 5.1): the swing, then this device's grade estimate.
 	-- The server's own grades come back in CatchResult.
 	UI.events.catchPressed:Connect(
@@ -988,9 +976,13 @@ local function wireServerEvents()
 			hits: number,
 			pawsLeft: number,
 			done: boolean,
-			success: boolean
+			success: boolean,
+			bar: Types.RescueBar?
 		)
-			UI.rescue.update(rescueSpotId, hits, pawsLeft, done, success)
+			-- F93: `bar` is how the marker runs and which zone to hit from now (a zone that ran out, a faster marker
+			-- after a hit); a UI that does not take it yet ignores it
+			local update: any = UI.rescue.update
+			update(rescueSpotId, hits, pawsLeft, done, success, bar)
 			local current = rescue
 			if current == nil or current.spotId ~= rescueSpotId then
 				return

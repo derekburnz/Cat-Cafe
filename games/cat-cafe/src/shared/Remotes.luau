@@ -10,15 +10,15 @@ Remotes.FolderName = "Remotes"
 
 -- Client -> server: (args) and what the server checks.
 Remotes.ClientToServer = {
-	"GrabBegin", -- (strayId: string)  locks the stray and answers with CatchSchedule
+	"SwingNet", -- ()  F93 (catch-rework.md section 1): not carrying, in a catch or rescue, flying or in a camp; one per
+	-- NetSwingCooldown, 3 a second at most. Judged NetSmackDelay later from the root and its facing: the nearest free
+	-- stray in reach starts its catch (CatchSchedule) or, Dropped, is picked up; a miss makes nearby strays hop
 	"CatchPress", -- (strayId: string, index: number)  no time is sent: the server stamps the press on arrival
 	"RescueBegin", -- (rescueSpotId: string)  trap holds a stuck cat, unlocked, past its retry waits, in range, not carrying
 	"RescuePress", -- (rescueSpotId: string)  no time is sent: the server stamps the press and judges the marker
 	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail
 	"CheckIn", -- ()  carrying and within CheckInRangeStuds of own plot Door
 	"DropCat", -- ()  carrying, areas open: puts the cat down to walk back to where it was caught (F67)
-	"PickUpCat", -- (strayId: string)  v0.8 F56: a Dropped stray, area unlocked, 10 studs, not carrying, no lock held,
-	-- GrabCooldownSeconds; the first valid call wins and starts the carry (data-model section 10c)
 	"PlaceCat", -- (uid: string, spotId: string)
 	"UnplaceCat", -- (uid: string)
 	"EquipBest", -- ()  places owned cats on open spots for the highest rate (shared/EquipBest.plan)
@@ -89,16 +89,19 @@ Remotes.ServerToClient = {
 	"OfflineEarnings", -- (amount: number, seconds: number)
 	"Toast", -- (text: string, kind: "info" | "good" | "warn")
 	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch
-	"GrabResult", -- (id: string, ok: boolean, reason: string, retry: boolean)  id is a strayId or a rescueSpotId;
-	-- retry keeps the prompt open. For a stray it only refuses GrabBegin; the catch outcome is CatchResult.
+	"GrabResult", -- (id: string, ok: boolean, reason: string, retry: boolean)  id is a rescueSpotId; retry keeps the
+	-- prompt open. Since F93 a stray has no prompt: a swing's refusal is a toast and its outcome CatchResult.
+	"NetSwung", -- (userId: number, hit: boolean)  F93: a swing landed, to the swinger and every client within 150 studs,
+	-- for the smack, the bounce on a miss and the whoosh; hit is true when it started a catch or a pick up
 	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
 	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number,
 	-- retryAt: number?)  grades up to and including the first Miss; after a miss the stray sprints off and anyone may
 	-- try again (v0.5). retryAt (server time, miss only) is when this player may try that stray again (F57: 3, 6
 	-- then 10 s after it stops, by their miss streak).
 	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
-	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean)
-	-- after every judged press and when the attempt ends; refusals of RescueBegin come as GrabResult
+	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean,
+	-- bar: Types.RescueBar)  after every judged press, when a zone runs out (F93) and when the attempt ends; `bar` is
+	-- how the marker runs and which zone to hit from now. Refusals of RescueBegin come as GrabResult
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
 	"CannonLaunch", -- (destination: string, launchAt: number?)  F84: the caller's flight began at launchAt (server
 	-- time) and lands at the destination's pad CannonLaunchSeconds later; launchAt nil when the launch was refused

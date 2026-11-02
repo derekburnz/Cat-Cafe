@@ -10,6 +10,7 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
   CatCafe_Icon_Perk_<Perk>  the market perks: GoldenEspresso (a gold espresso), BigBowl (a heaped bowl and a quick
                             clock), ExtraDecorSpot (a plant on a new decor spot with a plus)
   CatCafe_Icon_Net_L<n>     the catching net at each level (items.py)
+  CatCafe_Icon_Decor        the HUD's Decor button: a cat-eared armchair and a potted plant (Set 5 Q10)
 """
 import argparse
 import math
@@ -84,6 +85,32 @@ def _perk_extra_decor_spot(mat):
     return [b.finalize("CatCafe_IconArt_ExtraDecorSpot", mat)]
 
 
+def _hud_decor(mat):
+    """The HUD's Decor button (Set 5 Q10): a plump blush armchair with cat ears on its back and a paw on it, a cream
+    cushion, and a potted plant beside it."""
+    b = RB()
+    for x in (-0.72, 0.72):                                                     # short dark legs
+        for z in (-0.52, 0.48):
+            b.span((x - 0.09, 0.0, z - 0.09), (x + 0.09, 0.3, z + 0.09), "dark_wood")
+    b.span((-0.92, 0.26, -0.7), (0.92, 0.78, 0.62), "blush")                    # the seat's body
+    b.span((-0.76, 0.76, -0.78), (0.76, 1.0, 0.44), "offwhite")                 # the cushion
+    b.span((-0.92, 0.7, 0.42), (0.92, 2.05, 0.78), "blush")                     # the back
+    for sx in (-1, 1):
+        b.span((sx * 0.86 - 0.17, 0.26, -0.8), (sx * 0.86 + 0.17, 1.3, 0.78), "blush")   # arms
+        b.cyl((sx * 0.86, 1.3, -0.02), 0.19, 1.64, "blush", axis="Z", segments=12)   # rolled tops, proud of the arm
+        b.b.pyramid(RB.p(sx * 0.52, 2.04, 0.6), 0.56, 0.5, "blush")             # cat ears on the back
+        b.b.pyramid(RB.p(sx * 0.52, 2.04, 0.4), 0.3, 0.3, "nose_pink")
+    b.span((-0.2, 1.3, 0.38), (0.2, 1.62, 0.43), "nose_pink")                   # a paw on the back
+    for dx, dy in ((-0.27, 1.72), (0.0, 1.8), (0.27, 1.72)):
+        b.span((dx - 0.09, dy - 0.07, 0.38), (dx + 0.09, dy + 0.09, 0.43), "nose_pink")
+    b.cyl((1.62, 0.36, -0.15), 0.3, 0.72, "terracotta", r2=0.37, segments=12)   # a potted plant beside it
+    b.cyl((1.62, 0.7, -0.15), 0.33, 0.04, "choco", segments=12)
+    for (x, y, z, r) in ((1.62, 1.05, -0.15, 0.32), (1.38, 0.92, -0.25, 0.22), (1.86, 0.95, -0.1, 0.24),
+                         (1.66, 1.34, -0.2, 0.2)):
+        b.ball((x, y, z), r, "leaf_green" if r > 0.21 else "leaf_dark")
+    return [b.finalize("CatCafe_IconArt_Decor", mat)]
+
+
 # icon -> (builder, outline colour, outline width in pixels at 512, (yaw, pitch) of the view)
 ICONS = {
     "CatCafe_Icon_GoldenFish": (coins.build_fish_coin, GOLD_INK, 10, (0.0, 0.0)),
@@ -94,6 +121,7 @@ ICONS = {
     "CatCafe_Icon_Perk_GoldenEspresso": (_perk_golden_espresso, GOLD_INK, 10, (-20.0, 22.0)),
     "CatCafe_Icon_Perk_BigBowl": (_perk_big_bowl, INK, 10, (-20.0, 28.0)),
     "CatCafe_Icon_Perk_ExtraDecorSpot": (_perk_extra_decor_spot, INK, 10, (-28.0, 26.0)),
+    "CatCafe_Icon_Decor": (_hud_decor, INK, 10, (-24.0, 16.0)),
     **{f"CatCafe_Icon_Net_L{n}": ((lambda m, n=n: items.build_net(n, m)), INK, 10, (-62.0, 40.0)) for n in (1, 2, 3)},
     **{f"CatCafe_Icon_Potion_{k}": ((lambda m, k=k: potions.build_potion(k, m)), INK, 10, (8.0, 10.0))
        for k in potions.POTIONS},

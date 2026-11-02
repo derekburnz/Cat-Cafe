@@ -204,6 +204,9 @@ def prim_parts(name, kind, M4, swatch, extra):
     raise ValueError(f"unknown primitive {kind}")
 
 
+LOOKS = {}  # object name -> ([r, g, b] in 0..1, Material): a look from outside the palette (style_icons' samples)
+
+
 def _material(obname, swatch):
     """(Material, Transparency) for a part."""
     if swatch == "glass" or obname.endswith("_Glass"):   # SmoothPlastic, not Glass: Roblox's Glass bends what is
@@ -258,6 +261,9 @@ def _props(p, asset, uid):
     }
     if transparency:
         props["Transparency"] = transparency
+    look = LOOKS.get(p["name"])
+    if look:
+        props["Color"], props["Material"] = [_r(c) for c in look[0]], look[1]
     part_tags = [t for sfx, tags in PART_TAGS.items() if p["name"].endswith(sfx) for t in tags]
     if part_tags:
         props["Tags"] = part_tags

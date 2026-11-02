@@ -208,7 +208,7 @@ These endpoints are experimental on Roblox's side, so every change reads the pic
 ## 24. Let threads flip the trading kill switch (once, about 1 minute)
 Trading (F102) checks two switches in the `CatCafe_Flags` data store every minute: `trading` (false turns trading off in every server) and `tradeMinTier` (a live minimum cafe tier, for testing). The `flags` workflow (`tools/opencloud/flags.sh`) reads and writes them, so a thread can stop trading within a minute if something goes wrong, with no publish and no restart. Phone browser works, and it can go in the same edit as step 23.
 1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
-2. **Access Permissions** > the **universe-datastores** row from step 17 (Cat Cafe): add the operations `universe-datastores.objects:create` and `universe-datastores.objects:update`, next to the list and read it has. Leave delete off; the workflow never deletes.
+2. **Access Permissions** > the **universe-datastores** row from step 17 (Cat Cafe): tick `universe-datastores.objects:read`, `universe-datastores.objects:create` and `universe-datastores.objects:update`, next to `universe-datastores.objects:list`. Leave delete off; the workflow never deletes. The first `flags` run on 2026-11-02 got "Scope not authorized" reading one entry while listing still works, so read is missing from the key today; `bug-reports` needs it too, to open a report once the first one is filed.
 3. **Save Changes**. Don't press Regenerate.
 4. Try it: **Actions > flags > Run workflow** with `show`. The log prints both switches (no entry yet means trading on and the minimum tier from Config).
 

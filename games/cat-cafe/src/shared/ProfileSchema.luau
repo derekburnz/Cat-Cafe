@@ -689,7 +689,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.achievements = sanitizeAchievements(raw.achievements)
 	profile.dailyTreat = DailyTreat.sanitize(raw.dailyTreat, now) -- F70; saves before version 17 start a fresh card
 	-- F94; saves before version 18 have bought nothing on the shelf, and their dealer counts are dropped
-	profile.freshCatch = FreshCatch.sanitize(raw.freshCatch)
+	profile.freshCatch = FreshCatch.sanitize(raw.freshCatch, now)
 
 	if type(raw.stats) == "table" then
 		local stats = profile.stats :: any

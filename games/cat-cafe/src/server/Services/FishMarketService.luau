@@ -12,7 +12,7 @@
 -- each player whenever their stock or bought counts change (sunrise, a new window, a join), nil at night, and after
 -- every buy, bought or not. A window that stocks the Gold Rush Potion or the cheap crate sends one ShopAlert a window
 -- to each player by day who has the golden fish for it and has settings.shopAlerts on; the window is saved in
--- profile.freshCatch.alerted, so a rejoin never alerts twice.
+-- profile.freshCatch.alerted, so a rejoin never alerts twice. No alert goes out until settings saves the switch.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -275,10 +275,11 @@ local function sendFresh(player: Player, force: boolean)
 end
 
 -- The once a window heads up (section 3): by day, with the switch on, for the first alert row in stock the player
--- can afford. The "Shop alerts" switch is settings.shopAlerts once shared/Settings saves it (with the UI's row);
--- until then every player has it on.
+-- can afford. The "Shop alerts" switch is settings.shopAlerts, which shared/Settings saves only once the UI's
+-- Settings row for it is in (SettingsList.spec wants a row for every saved key); until then no alert goes out, so
+-- nobody gets one they cannot turn off (review S100).
 local function alertIfDue(player: Player, profile: Types.PlayerProfile)
-	if ClockService.isNight() or (profile.settings :: any).shopAlerts == false then
+	if ClockService.isNight() or not FreshCatch.alertsOn(profile.settings) then
 		return
 	end
 	local window = FreshCatch.window(os.time())

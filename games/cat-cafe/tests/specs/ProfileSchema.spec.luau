@@ -1379,7 +1379,8 @@ return function()
 		end)
 
 		it("keeps whole counts of shelf rows, at most the most a window rolls, and drops the rest", function()
-			local raw: any = ProfileSchema.template(500)
+			local NOW = 5977152 * 300 + 10 -- in window 5977152 (2026-10-28 00:00 UTC)
+			local raw: any = ProfileSchema.template(NOW)
 			raw.freshCatch = {
 				window = 5977152.7,
 				alerted = 5977150,
@@ -1392,13 +1393,20 @@ return function()
 					kibble = 3,
 				},
 			}
-			expect(ProfileSchema.migrate(raw, 500).freshCatch :: any).to.deepEqual({
+			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
 				window = 5977152,
 				alerted = 5977150,
 				bought = { tip_potion = 2, gold_rush_potion = 1, classic_crate = 1 },
 			})
+			-- a future-dated window comes back to the next one, so the shelf is not "on its way" for days (N299)
+			raw.freshCatch = { window = 9000000, alerted = 9000000, bought = {} }
+			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
+				window = 5977153,
+				alerted = 5977153,
+				bought = {},
+			})
 			raw.freshCatch = "junk"
-			expect(ProfileSchema.migrate(raw, 500).freshCatch :: any).to.deepEqual({
+			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
 				window = 0,
 				bought = {},
 				alerted = 0,

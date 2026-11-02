@@ -55,12 +55,16 @@ return function()
 		it("sells the Classic Crate 10 golden fish under its Market price", function()
 			local crate = Catalog.getCrate("classic_crate")
 			assert(crate ~= nil)
-			expect((Catalog.getFreshCatchRow("classic_crate") :: any).fish).to.equal((crate.price :: number) - 10)
+			expect((Catalog.getFreshCatchRow("classic_crate") :: any).fish).to.equal(
+				(crate.price :: number) - 10
+			)
 		end)
 
 		it("alerts on the Gold Rush Potion and the cheap crate only", function()
 			for _, row in Catalog.freshCatch do
-				expect(row.alert == true).to.equal(row.id == "gold_rush_potion" or row.id == "classic_crate")
+				expect(row.alert == true).to.equal(
+					row.id == "gold_rush_potion" or row.id == "classic_crate"
+				)
 			end
 		end)
 
@@ -112,54 +116,67 @@ return function()
 			expect(FreshCatch.amountOf(TODAY, "kibble")).to.equal(0)
 		end)
 
-		it("follows FreshCatchAmountWeights over many windows and never rolls a zero weight", function()
-			local counts: { [string]: { number } } = {}
-			local windows = 70 * 288
-			for window = TODAY, TODAY + windows - 1 do
-				for _, item in FreshCatch.stock(window) do
-					local weights = Config.FreshCatchAmountWeights[item.itemId]
-					if weights[item.amount + 1] == 0 then
-						error(string.format("window %d rolled %d %s, a zero weight", window, item.amount, item.itemId))
+		it(
+			"follows FreshCatchAmountWeights over many windows and never rolls a zero weight",
+			function()
+				local counts: { [string]: { number } } = {}
+				local windows = 70 * 288
+				for window = TODAY, TODAY + windows - 1 do
+					for _, item in FreshCatch.stock(window) do
+						local weights = Config.FreshCatchAmountWeights[item.itemId]
+						if weights[item.amount + 1] == 0 then
+							error(
+								string.format(
+									"window %d rolled %d %s, a zero weight",
+									window,
+									item.amount,
+									item.itemId
+								)
+							)
+						end
+						local row = counts[item.itemId] or { 0, 0, 0, 0 }
+						row[item.amount + 1] += 1
+						counts[item.itemId] = row
 					end
-					local row = counts[item.itemId] or { 0, 0, 0, 0 }
-					row[item.amount + 1] += 1
-					counts[item.itemId] = row
+				end
+				for itemId, weights in Config.FreshCatchAmountWeights do
+					local row = counts[itemId]
+					assert(row, itemId)
+					for index, weight in weights do
+						expect(row[index] / windows).to.be.near(weight / 100, 0.02)
+					end
 				end
 			end
-			for itemId, weights in Config.FreshCatchAmountWeights do
-				local row = counts[itemId]
-				assert(row, itemId)
-				for index, weight in weights do
-					expect(row[index] / windows).to.be.near(weight / 100, 0.02)
-				end
-			end
-		end)
+		)
 
-		it("rolls each window afresh: a row matches the window before about as often as chance", function()
-			local count = 70 * 288
-			local amounts: { [string]: { number } } = {}
-			for window = TODAY, TODAY + count - 1 do
-				for _, item in FreshCatch.stock(window) do
-					local list = amounts[item.itemId] or {}
-					table.insert(list, item.amount)
-					amounts[item.itemId] = list
-				end
-			end
-			for itemId, weights in Config.FreshCatchAmountWeights do
-				local chance = 0
-				for _, weight in weights do
-					chance += (weight / 100) ^ 2
-				end
-				local list = amounts[itemId]
-				local same = 0
-				for index = 2, count do
-					if list[index] == list[index - 1] then
-						same += 1
+		it(
+			"rolls each window afresh: a row matches the window before about as often as chance",
+			function()
+				local count = 70 * 288
+				local amounts: { [string]: { number } } = {}
+				for window = TODAY, TODAY + count - 1 do
+					for _, item in FreshCatch.stock(window) do
+						local list = amounts[item.itemId] or {}
+						table.insert(list, item.amount)
+						amounts[item.itemId] = list
 					end
 				end
-				expect(same / (count - 1)).to.be.near(chance, 0.03)
+				for itemId, weights in Config.FreshCatchAmountWeights do
+					local chance = 0
+					for _, weight in weights do
+						chance += (weight / 100) ^ 2
+					end
+					local list = amounts[itemId]
+					local same = 0
+					for index = 2, count do
+						if list[index] == list[index - 1] then
+							same += 1
+						end
+					end
+					expect(same / (count - 1)).to.be.near(chance, 0.03)
+				end
 			end
-		end)
+		)
 	end)
 
 	describe("bought counts (reviewer N32)", function()
@@ -211,6 +228,18 @@ return function()
 			expect(FreshCatch.alertFor(FreshCatch.fresh(), window, 0)).never.to.be.ok()
 		end)
 
+		it("goes out only with the Shop alerts switch saved and on (review S100)", function()
+			local Settings = require(Shared.Settings)
+			local settings: any = Settings.defaults()
+			expect(FreshCatch.alertsOn(settings)).to.equal(settings.shopAlerts == true)
+			settings.shopAlerts = nil
+			expect(FreshCatch.alertsOn(settings)).to.equal(false)
+			settings.shopAlerts = false
+			expect(FreshCatch.alertsOn(settings)).to.equal(false)
+			settings.shopAlerts = true
+			expect(FreshCatch.alertsOn(settings)).to.equal(true)
+		end)
+
 		it("comes up in about a third of windows", function()
 			local count, alerting = 2000, 0
 			for window = TODAY, TODAY + count - 1 do
@@ -226,13 +255,29 @@ return function()
 	describe("saved state (save version 18)", function()
 		it("starts fresh and sanitizes a damaged save", function()
 			expect(FreshCatch.fresh() :: any).to.deepEqual({ window = 0, bought = {}, alerted = 0 })
-			expect(FreshCatch.sanitize(nil) :: any).to.deepEqual({ window = 0, bought = {}, alerted = 0 })
-			expect(FreshCatch.sanitize({ window = -5, alerted = 0 / 0, bought = "x" }) :: any).to.deepEqual({
+			local now = 20 * 300 + 5 -- window 20
+			expect(FreshCatch.sanitize(nil, now) :: any).to.deepEqual({
 				window = 0,
 				bought = {},
 				alerted = 0,
 			})
-			expect(FreshCatch.sanitize({ window = 12.5, alerted = 11, bought = { tip_potion = 9, nope = 1 } }) :: any).to.deepEqual({
+			expect(FreshCatch.sanitize({ window = -5, alerted = 0 / 0, bought = "x" }, now) :: any).to.deepEqual({
+				window = 0,
+				bought = {},
+				alerted = 0,
+			})
+			-- a window or alert past the next window (a damaged or future-dated save) comes back to it (review N299)
+			expect(FreshCatch.sanitize({ window = 99, alerted = 50, bought = {} }, now) :: any).to.deepEqual({
+				window = 21,
+				bought = {},
+				alerted = 21,
+			})
+			expect(
+				FreshCatch.sanitize(
+					{ window = 12.5, alerted = 11, bought = { tip_potion = 9, nope = 1 } },
+					now
+				) :: any
+			).to.deepEqual({
 				window = 12,
 				bought = { tip_potion = 3 },
 				alerted = 11,

@@ -119,6 +119,12 @@ function FreshCatch.alertFor(
 	return nil
 end
 
+-- Whether a player with these settings hears the heads up: only with the "Shop alerts" switch saved and on. The key
+-- is saved once the UI's Settings row for it is in; until then nobody gets an alert they cannot turn off (S100).
+function FreshCatch.alertsOn(settings: Types.Settings): boolean
+	return (settings :: any).shopAlerts == true
+end
+
 -- True while this server's window is behind the one the saved counts belong to (a hop to a server whose clock is a
 -- second behind at a window edge). Every row then counts as bought out until the window catches up, so a row bought
 -- in the newer window cannot be bought again from the older one (reviewer N32).
@@ -155,8 +161,10 @@ local function most(itemId: string): number
 	return top
 end
 
--- A saved state made whole: whole numbers, and a count per shelf row of at most the largest amount a window rolls.
-function FreshCatch.sanitize(raw: unknown): Types.FreshCatchState
+-- A saved state made whole at os.time() `now`: whole numbers, the window and the alert no later than the next
+-- window (a damaged or future-dated save would otherwise hold the shelf "on its way" until real time caught up,
+-- review N299), and a count per shelf row of at most the largest amount a window rolls.
+function FreshCatch.sanitize(raw: unknown, now: number): Types.FreshCatchState
 	local state = FreshCatch.fresh()
 	if type(raw) ~= "table" then
 		return state
@@ -165,8 +173,9 @@ function FreshCatch.sanitize(raw: unknown): Types.FreshCatchState
 	local function whole(x: unknown): number
 		return if type(x) == "number" and x == x and math.abs(x) < 2 ^ 40 then math.floor(x) else 0
 	end
-	state.window = math.max(0, whole(value.window))
-	state.alerted = math.max(0, whole(value.alerted))
+	local latest = FreshCatch.window(now) + 1
+	state.window = math.clamp(whole(value.window), 0, latest)
+	state.alerted = math.clamp(whole(value.alerted), 0, latest)
 	if type(value.bought) == "table" then
 		for _, row in Catalog.freshCatch do
 			local count = math.clamp(whole(value.bought[row.id]), 0, most(row.id))

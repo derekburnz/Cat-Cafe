@@ -115,7 +115,8 @@ Remotes.ServerToClient = {
 	"FreshCatchStock", -- (stock: Types.FreshCatchStock?)  F94: this player's Fresh Catch amounts and buys by day,
 	-- nil at night ("Back at sunrise"); at sunrise, at each new window, on join and after every BuyFreshCatch
 	"ShopAlert", -- (itemId: string)  F94: a Gold Rush Potion or the cheap Classic Crate is on the Fresh Catch shelf
-	-- and this player has the golden fish for it; at most once a window per player, never with settings.shopAlerts off
+	-- and this player has the golden fish for it; at most once a window per player, only with settings.shopAlerts on
+	-- (none until shared/Settings saves the key, review S100)
 	"TipJarState", -- (state: Types.TipJarState)  when the profile loads and after every claim (F47)
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)

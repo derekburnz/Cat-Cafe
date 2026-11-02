@@ -17,6 +17,7 @@
 --   D:Invoke("tipJar", nil, 30)        -- the Tip Jar's session is 30 minutes older: steps 1 to 6 unlock now
 --   D:Invoke("fillIndex", nil, "alley", nil, true)     -- every Alleyway cat in your Index, gold too (F48)
 --   D:Invoke("spins", nil, 3, true)    -- 3 banked spins and today's free spin due again, no cooldown (F49)
+--   D:Invoke("spinSlice", nil, 4)      -- your next spin lands on slice 4 (F94, QA S63; nil goes back to random)
 --   D:Invoke("dailyTreat", nil, 6)     -- the Daily Treat card at 6 stamps and a stamp due now: Claim pays day 7 (F70)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
@@ -176,6 +177,14 @@ end
 function Debug.spins(player: (Player | number | string)?, banked: number, freeDue: boolean?): number
 	local p = resolve(player)
 	return SpinService.debugSet(p, profileOf(p), banked, freeDue == true)
+end
+
+-- Makes the player's next spin land on `slice` (1 to 6), or random again with nil (F94, QA S63). Bank a spin with
+-- Debug.spins first. Returns the slice set.
+function Debug.spinSlice(player: (Player | number | string)?, slice: number?): number?
+	guard()
+	local p = resolve(player)
+	return SpinService.debugForceSlice(p, if slice ~= nil then math.floor(slice) else nil)
 end
 
 -- Sets the Daily Treat card to `stamp` stamps (0 to 7) with a stamp due now, as if the last claim was yesterday

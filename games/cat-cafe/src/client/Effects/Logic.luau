@@ -1207,6 +1207,22 @@ function Logic.hiss(o: Offsets, alpha: number)
 	o.tailYaw *= 1 - arc
 end
 
+-- The startled spring of a near miss (motion.startle), `alpha` 0 to 1 through it, layered on whatever the cat does:
+-- up and back down in one arc, nose up, tail up and ears flat back, all easing out by the landing.
+function Logic.startle(o: Offsets, alpha: number)
+	if alpha < 0 or alpha >= 1 then
+		return
+	end
+	local s = Presets.motion.startle
+	local arc = math.sin(alpha * math.pi)
+	o.bodyY += s.hop * arc
+	o.bodyPitch += math.rad(s.lean) * arc
+	o.tailPitch += math.rad(s.tailUp) * arc
+	o.tailYaw *= 1 - arc
+	o.earL = math.max(o.earL, math.rad(s.ears) * arc)
+	o.earR = math.max(o.earR, math.rad(s.ears) * arc)
+end
+
 -- How much of a server jump is still drawn as distance left to travel: 1 at the jump, 0 on landing.
 function Logic.landing(alpha: number): number
 	local a = math.clamp(alpha, 0, 1)
@@ -1860,6 +1876,58 @@ end
 -- How high a `_Bob` part rides, in studs, `t` seconds in: up and down by `rise`, once every `seconds`.
 function Logic.bobRise(t: number, seconds: number, rise: number, offset: number): number
 	return rise * math.sin(2 * math.pi * (t / seconds + offset))
+end
+
+-- The net swing, the catch's result word and rescues (F93, catch-rework.md) ---------------------------------------
+
+-- The word a finished catch's `grades` earn (section 3): "purrfect" when every circle is Perfect, "excellent" when at
+-- least half are, "great" when every circle is Good or better; nil with no circles or a Miss ("So close!", no burst).
+function Logic.catchWord(grades: { Grade }): string?
+	local count = #grades
+	if count == 0 then
+		return nil
+	end
+	local perfects = 0
+	for _, grade in grades do
+		if grade == "perfect" or grade == 1 then
+			perfects += 1
+		elseif grade == "miss" or grade == 0 then
+			return nil
+		end
+	end
+	if perfects == count then
+		return "purrfect"
+	elseif perfects * 2 >= count then
+		return "excellent"
+	end
+	return "great"
+end
+
+-- Where a result word's sparkles start: `n` spots spread evenly across `width` pixels through `centre`.
+function Logic.wordSpots(centre: Vector2, width: number, n: number): { Vector2 }
+	local spots: { Vector2 } = {}
+	for i = 1, n do
+		spots[i] = centre + Vector2.new(width * ((i - 0.5) / n - 0.5), 0)
+	end
+	return spots
+end
+
+export type TrapShake = { least: number, most: number, seconds: number, hz: number, hop: number }
+
+-- How a rescue trap shakes `t` seconds after the `hits`-th hit of `needed` (section 4: "a little more each time"): it
+-- tips side to side, `o.hz` times a second, up to an angle in degrees that grows from `o.least` on the first hit to
+-- `o.most` on the last and dies away over `o.seconds`, hopping up to `o.hop` studs at the biggest. Returns the tip
+-- and the hop, both 0 outside the shake.
+function Logic.trapShake(t: number, hits: number, needed: number, o: TrapShake): (number, number)
+	if t < 0 or t >= o.seconds or o.seconds <= 0 or o.most <= 0 then
+		return 0, 0
+	end
+	local share = if needed > 1 then math.clamp((hits - 1) / (needed - 1), 0, 1) else 1
+	local size = o.least + (o.most - o.least) * share
+	local fade = 1 - t / o.seconds
+	fade *= fade
+	local wave = math.sin(2 * math.pi * o.hz * t)
+	return size * wave * fade, o.hop * (size / o.most) * math.abs(wave) * fade
 end
 
 return Logic

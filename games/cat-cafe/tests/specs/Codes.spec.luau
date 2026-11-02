@@ -194,8 +194,8 @@ return function()
 						expect(Catalog.getPotion(potionId) ~= nil).to.equal(true)
 					end
 				end
-				local groupPotions: { [string]: number } = Catalog.codes.group.prize.potions or {}
-				expect(groupPotions.tip_potion).to.equal(1)
+				-- F94 (rewards-and-shops.md section 2f): the group code no longer pays a potion
+				expect(Catalog.codes.group.prize.potions).never.to.be.ok()
 			end
 		)
 
@@ -205,13 +205,17 @@ return function()
 				coins = 1000,
 				coinSeconds = 300,
 				fish = 25,
-				spins = 2,
-				lures = { tuna = 3 },
-			})
+			}) -- F94: no spins or Tuna
 			expect(Catalog.codes.group.active).to.equal(false)
 			expect(Catalog.codes.group.requiresGroup).to.equal(true)
 			expect(Catalog.codes.group.prize.coinSeconds).to.equal(900) -- F95: half
 			expect(Catalog.codes.group.prize.coins).to.equal(2500)
+			expect(Catalog.codes.group.prize :: any).to.deepEqual({
+				coins = 2500,
+				coinSeconds = 900,
+				fish = 100,
+				crates = { classic_crate = 1 },
+			}) -- F94: no spins, Caviar or potion
 		end)
 
 		it("every prize names real crates and foods", function()

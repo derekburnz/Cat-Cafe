@@ -514,7 +514,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 			index = 5,
 			starts = 0,
 			seconds = 2.8,
-			caption = "Give it a job. Working cats earn tips!",
+			caption = "Give it a job. Working cats earn money!",
 			ease = "InOut",
 			job = true,
 			cuts = {

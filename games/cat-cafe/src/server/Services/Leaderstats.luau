@@ -1,11 +1,12 @@
 --!strict
--- The player list's leaderboard (F17; gdd "Social": tips per second and cats found), the way every Roblox simulator
--- shows it: a `leaderstats` folder on the Player. Tips/s is made first, so the list sorts by it; Cafe is the tier's
--- name, which reads "Grand Cafe" at Tier 5. Display only: CafeService rewrites it on every sync.
+-- The player list's leaderboard (F17; gdd "Social": money per second and cats found), the way every Roblox simulator
+-- shows it: a `leaderstats` folder on the Player. Money/s is made first, so the list sorts by it; Cafe is the tier's
+-- name, which reads "Grand Cafe" at Tier 5. Display only: CafeService rewrites it on every sync. F94
+-- (rewards-and-shops.md section 5): the column reads Money/s (was Tips/s).
 
 local Leaderstats = {}
 
-local TIPS = "Tips/s"
+local TIPS = "Money/s"
 local CATS = "Cats"
 local CAFE = "Cafe"
 

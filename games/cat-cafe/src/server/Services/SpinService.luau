@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local CafeService = require(script.Parent.CafeService)
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -28,6 +29,7 @@ SpinService.TAG = "SpinWheel"
 
 local random = Random.new()
 local lastSpinAt: { [Player]: number } = {} -- os.clock() of each player's last spin, for the cooldown
+local forcedSlice: { [Player]: number } = {} -- Studio only (Debug.spinSlice): the slice this player's next spin lands on
 
 -- The station the player stands within SpinStationRange of, or nil.
 local function stationNear(player: Player): Model?
@@ -87,7 +89,9 @@ local function onSpinWheel(player: Player)
 		return
 	end
 	lastSpinAt[player] = os.clock()
-	local row = Spin.pick(random:NextNumber())
+	local forced = forcedSlice[player]
+	forcedSlice[player] = nil
+	local row = if forced ~= nil then Catalog.spinWheel[forced] else Spin.pick(random:NextNumber())
 	local amount = pay(player, profile, row)
 	profile.stats.spins += 1
 	Telemetry.custom(player, "spin", row.slice, { kind :: string })
@@ -101,6 +105,7 @@ end
 function SpinService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		lastSpinAt[player] = nil
+		forcedSlice[player] = nil
 	end)
 	Net.on("SpinWheel", onSpinWheel)
 end
@@ -120,6 +125,18 @@ function SpinService.debugSet(
 	lastSpinAt[player] = nil
 	CafeService.sync(player)
 	return Spin.available(profile.spin, os.time())
+end
+
+-- Studio-only test hook (Debug.spinSlice, QA S63): this player's next spin lands on `slice` (1 to #Catalog.spinWheel)
+-- and pays it, with every other check as normal; nil goes back to the random pick. Returns the slice set.
+function SpinService.debugForceSlice(player: Player, slice: number?): number?
+	if slice == nil then
+		forcedSlice[player] = nil
+		return nil
+	end
+	assert(Catalog.spinWheel[slice] ~= nil, "no such slice")
+	forcedSlice[player] = slice
+	return slice
 end
 
 return SpinService

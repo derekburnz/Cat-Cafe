@@ -351,6 +351,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Lucky Cat statue | 4,000 | `luckycat.py`: 646 to 726 triangles, 51 to 59 Parts a level |
 | Welcome arch (F84) | 8,000 | `welcomearch.py`: 6,654 triangles in 548 Parts, a third of them the board's letters |
 | Camps (F84) | 20,000 | `camps.py`: ground, walls, pad, carrier basket and theme props land at 6,596 (Sewer) to 12,306 (Alleyway) |
+| Camp extras (F100) | 3,000 | `campextras.py`: the Fish Pond 1,036, the Picnic Basket 1,052, the Yard Sale 1,722 and the Lost and Found 1,848 |
 | Items | 300 | dealer foods: Sardines 400, Caviar 600; TipPile prop 600 |
 
 The build script prints the triangle count for every export and fails the build if a budget is exceeded.
@@ -506,6 +507,8 @@ them, where the Index Board stands, string lights over both ways out, a dumpster
 boxes, benches, lamps and flowerbeds. Theme props: the Park's benches,
 lamps, trees and flowerbeds; the Neighbourhood's mailbox, bins, lamp posts, picket fences and hedges; the Woods' tent,
 campfire, log benches, lanterns and pines; the Sewer's manhole, big pipe, wall lanterns, barrels, cones and tyres.
+
+Each camp from the Park on has one extra (F100, camp-extras.md, `campextras.py`), the size of an Index Board, beside the way out across from the board (`campextras.SPOTS`, area space): the Park's Picnic Basket (a red checked blanket, a wicker basket with a Money Potion peeking out, a teal thermos, sandwiches, an apple and fish crackers), the Neighbourhood's Yard Sale (a folding table with a striped cloth on a rug, two cardboard boxes with crates inside and "40" price tags with a gold fish, a lamp, books, a teapot, a cash tin, and a hand-painted YARD SALE board hanging from a little frame), the Woods' Fish Pond (a ring of stones, lily pads, reeds and cattails, a cat-sized jetty with a bucket of golden fish and a rod in its holder) and the Sewer's Lost and Found (a battered crate stencilled LOST AND / FOUND with a sock, an umbrella's hook and a teddy's ear poking out under its lid, a list pinned to its side, a boot and a puddle, under a standpipe that drips onto the lid). Each moving touch is its own child Model for Animation-Engineer: `_Sign_Swing` pivots on the bar it hangs from (turn about Z), `_Rod` on the rod's butt (turn about X to cast; its line and bobber ride it), `_Fish` at the fish's middle, `_Lid` on the back hinge (a rattle is a small turn about X). VFX points are Attachments on the main model: `Steam` (the thermos's mouth), `FishJump` (on the water above the fish) and `Drip` (under the pipe's mouth). Every extra has a `PromptAnchor` 1.5 up in front of it. The pond's water is `_Water` (see-through, walk-through) and its lily pads stand on stems so nothing floats.
 
 Where a model meets the code-built walls (gates and arches, 2026-10-27, Derek: "a lot of the gate models for zones
 are clipping in eachother and can see it when walking"): a wall that ends at an opening must end inside a post, never

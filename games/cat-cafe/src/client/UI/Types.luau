@@ -525,6 +525,9 @@ export type DealerStock = {
 export type CampExtraView = SharedTypes.CampExtraView
 export type CampExtrasState = SharedTypes.CampExtrasState
 export type YardSaleCrate = SharedTypes.YardSaleCrate
+-- The Rescue Rally (F101, rescue-rally.md section 5) as RallyState sends it (shared/Types): active, endsAt (0 when
+-- none runs), startsAt, lap, goal, points, myPoints, lapsPaid and lapsDone.
+export type RallyState = SharedTypes.RallyState
 
 -- ModuleScripts must return a non-nil value.
 return {}

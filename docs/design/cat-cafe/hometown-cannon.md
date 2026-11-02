@@ -96,7 +96,8 @@ Every wild area has a camp across its whole width at one short end, CampDepth (3
 - **Night:** the dusk warning stays. At night start the sweep moves every character in a wild area home by cloud hop, the same move as Home. A carried cat is checked in for them on arrival and a Dropped stray goes to its last carrier, exactly as F66 does now. Nothing spawns at night and the cannons are covered.
   - **A flight or hop under way at night start** is left alone: the sweep skips a character with `Launching` or `CloudHopAt` set. Only flights to Town Square can be in the air then, because launches into areas stop 15 seconds before night and a flight takes 3, and those land in town anyway. If a flight into an area is somehow still under way, the sweep moves that character the moment it lands. Nobody is moved twice or left anchored.
 - **Joining** puts you at the hometown spawn as now; Tutorial-Agent picks where the intro starts. Nothing in a save stores a position, so there is no save change.
-- **During a flight** the character is anchored and marked `Launching`. Tackles pass through them, Travel and every minigame are refused, and a second `LaunchCannon` is refused. Leaving mid-flight is simply leaving.
+- **During a flight** the character is anchored and marked `Launching`. Tackles pass through them, Travel and every minigame are refused, and a second `LaunchCannon` is refused.
+- **While knocked down** (the TackledDownSeconds, 0.8, after a landed tackle), `Travel` to `home` or `cannon` is refused with the same refusal and toast as `LaunchCannon`, so the Home and Cannon buttons cannot hop a downed player out of a chase (Review-Agent N281 on #643, decided 2026-11-02 by the game-designer thread). Leaving mid-flight is simply leaving.
 
 ## 6. Where the wild areas go, and their shapes
 

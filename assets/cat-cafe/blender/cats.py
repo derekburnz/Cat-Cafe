@@ -781,9 +781,9 @@ def _held(role, arm):
         P.box((t[0] + 0.1, t[1] - 0.05, t[2] + 0.075), (0.18, 0.15, 0.12), "pastel_butter")
         P.box((t[0] + 0.1, t[1] - 0.05, t[2] + 0.15), (0.19, 0.16, 0.035), "blush")
         P.sphere((t[0] + 0.1, t[1] - 0.05, t[2] + 0.19), 0.035, "shirt_red", segments=8, rings=5)
-    elif role == "entertainer":                         # a microphone, gripped at the paw's outer side, clear of a wide head
-        P.cyl((-0.06, -0.03, 0.09), 0.035, 0.3, "fur_black", r2=0.045, segments=8)
-        P.sphere((-0.06, -0.03, 0.27), 0.075, "metal", segments=8, rings=5)
+    elif role == "entertainer":                         # a microphone, gripped at the paw's outer side, clear of a wide head;
+        P.cyl((-0.06, -0.03, 0.055), 0.035, 0.23, "fur_black", r2=0.045, segments=8)   # a short handle keeps the ball
+        P.sphere((-0.06, -0.03, 0.2), 0.075, "metal", segments=8, rings=5)          # under the chin, clear of the head
     return b
 
 

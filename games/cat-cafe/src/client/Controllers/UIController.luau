@@ -22,6 +22,7 @@ local Effects = require(script.Parent.Parent.Effects)
 local Luck = require(Shared:WaitForChild("Luck"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
+local RareMoments = require(Shared:WaitForChild("RareMoments"))
 local Settings = require(Shared:WaitForChild("Settings"))
 local Tips = require(Shared:WaitForChild("Tips"))
 local Types = require(Shared:WaitForChild("Types"))
@@ -1011,6 +1012,40 @@ local function wireServerEvents()
 	Net.on("Announce", function(text: string, rarity: string?)
 		UI.announce(text, rarity)
 		Moments.Announce:Fire(text, rarity)
+	end)
+	-- Rare moments (F89, luck-and-rare-moments.md 2a): a big pull anywhere in the server, or this player's first Epic.
+	-- The UI's card (`UI.securedRare(userId, catId, rarity, gold, variant)`, which plays the owner's card and leaves
+	-- everyone else to the Announce toast) once it has one; Effects, Animation and Audio from Moments.SecuredRare.
+	Net.on(
+		"SecuredRare",
+		function(userId: number, catId: string, rarity: string, gold: boolean, variant: string)
+			local hook: unknown = (UI :: any).securedRare
+			if type(hook) == "function" then
+				(hook :: (number, string, string, boolean, string) -> ())(
+					userId,
+					catId,
+					rarity,
+					gold,
+					variant
+				)
+			end
+			Moments.SecuredRare:Fire(userId, catId, rarity, gold, variant)
+		end
+	)
+	-- A Mythical crate piece (2b): the toast for everyone else (the finder has the reel and the big card), from the
+	-- UI's `UI.foundRareDecor(userId, decorId)` once it has one, else a Mythical shout-out.
+	Net.on("FoundRareDecor", function(userId: number, decorId: string)
+		Moments.FoundRareDecor:Fire(userId, decorId)
+		local hook: unknown = (UI :: any).foundRareDecor
+		if type(hook) == "function" then
+			(hook :: (number, string) -> ())(userId, decorId)
+			return
+		end
+		local finder = Players:GetPlayerByUserId(userId)
+		local decor = Catalog.getDecor(decorId)
+		if finder ~= nil and finder ~= player and decor ~= nil then
+			UI.announce(RareMoments.decorText(finder.DisplayName, decor.name), "Mythical")
+		end
 	end)
 	Net.on("CatCaught", function(catId: string, isNew: boolean)
 		local extra: UITypes.CatFoundExtra? = if pendingCharmGain > 0

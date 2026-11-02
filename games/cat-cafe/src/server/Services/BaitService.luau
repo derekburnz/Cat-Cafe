@@ -25,6 +25,8 @@ local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local Potions = require(ReplicatedStorage.Shared.Potions)
+local RareMomentService = require(script.Parent.RareMomentService)
+local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -172,14 +174,16 @@ local function onResolveBait(player: Player, rawChoice: unknown)
 	end
 	if choice == "tame" and def ~= nil then
 		profile.stats.baitsTamed += 1
+		local hadEpicOrBetter = RareMoments.ownsEpicOrBetter(profile.collection) -- F89: the first Epic's card
 		local _, isNew =
 			CafeService.addCaughtCat(player, def, true, nil, bait.charm, "bait", bait.variant)
 		Net.fire(player, "CatCaught", def.id, isNew)
-		local text =
+		RareMomentService.shoutOut(
+			player,
+			def.rarity,
 			Catching.shoutOut(player.DisplayName, "tamed", def, bait.variant, " at their bait bowl")
-		if text ~= nil then
-			Net.fireAll("Announce", text, def.rarity)
-		end
+		)
+		RareMomentService.secured(player, def, bait.variant, "bait", hadEpicOrBetter)
 		return
 	end
 	profile.stats.baitsLetGo += 1

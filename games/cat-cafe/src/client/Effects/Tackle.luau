@@ -21,7 +21,8 @@
 -- The Cat Cannon flight (F84) goes over all of them, at any distance: the hop, the rolling ball and the landing
 -- (CannonGlide.frames).
 -- A staged character (tagged StagedCharacter, such as the intro's copy of you) gets the net hold and the carry like a
--- player's; it has no player, so no tackle and no cannon flight, whatever attributes it was cloned with.
+-- player's; it has no player, so no tackle and no cannon flight from the attributes it was cloned with. Its own
+-- flight poses come from StagedFlight (CannonGlide.staged), over everything, while the intro moves it.
 -- Listening only: nothing here fires a remote.
 
 local CollectionService = game:GetService("CollectionService")
@@ -301,7 +302,12 @@ local function step(dt: number)
 			table.insert(layers, { frames = Avatar.carryArms(entry.rig), weight = carrying })
 		end
 		if userId == nil then
-			-- staged: a copy keeps the tackle and flight attributes it was cloned with, which are not its own
+			-- staged: a copy keeps the tackle and flight attributes it was cloned with, which are not its own; the
+			-- intro poses its own copy's cannon flight through StagedFlight instead
+			local staged, showing = CannonGlide.staged(character, entry.rig, now)
+			if staged ~= nil then
+				table.insert(layers, { frames = staged, weight = showing })
+			end
 			apply(entry, layers)
 			continue
 		end

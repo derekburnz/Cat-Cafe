@@ -1,7 +1,7 @@
 --!strict
 -- Cafe cats on the move (Derek 2026-10-29 19:45: "make the cats move around cafe not just waddle back and fourth
--- while sitting"), on this client only. A working cat sits at its station on the seated body (B), a model the
--- server owns. To walk, this client hides that model (LocalTransparencyModifier; its rate tag moves onto the walker
+-- while sitting"), on this client only. A working cat sits at its station on the seated body (B), or stands there on
+-- the work body (S, #826), a model the server owns. To walk, this client hides that model (LocalTransparencyModifier; its rate tag moves onto the walker
 -- and its sparkles pause) and walks a copy of the cat on the walking body (A), dressed in its role's outfit, then
 -- brings the copy back and shows the station model again. The server's model never moves, so nothing replicates.
 --
@@ -15,7 +15,8 @@
 --                                   drops `done`.
 --   CafeWalk.isAway(cat)            whether it is up and about.
 --
--- It rises out of a sit as it gets up and sinks into one as it sits back down, trots steady under a tray with its
+-- It rises out of a sit as it gets up and sinks into one as it sits back down (or, from a station cat standing on the
+-- work body, S, #826, drops from its back legs onto all fours and rears back up), trots steady under a tray with its
 -- chin up, and plays the tip sweep at the pile (Moments.TipSwept: it rears up and drags the coins in, and the tray
 -- with the coin bag hops from the pile onto its head) and the drop at the till (Moments.TipBanked: a quick dip),
 -- pausing its walk for each (F90, cats-make-orders.md section 6; Logic.crouch, trayCarry, sweepPose, bankNod).
@@ -87,6 +88,7 @@ type Walk = {
 	standUntil: number, -- when an idle stroll heads home
 	carrying: number, -- 0 to 1 of the way into carrying a tray (Presets.cafeWalk.carry.ease)
 	action: Action?,
+	standing: boolean, -- the station model stands on the work body (S, #826), so it gets up from standing
 }
 
 local walks: { [Model]: Walk } = {}
@@ -319,7 +321,7 @@ end
 local function free(cat: Model): boolean
 	return cat.Parent ~= nil
 		and ownCafe(cat)
-		and cat:GetAttribute("Pose") == "sit"
+		and (cat:GetAttribute("Pose") == "sit" or cat:GetAttribute("Pose") == "work")
 		and cat:GetAttribute("Bedtime") == nil
 		and cat:GetAttribute("HiddenLocal") ~= true
 		and not Context.isNight()
@@ -378,6 +380,7 @@ local function begin(cat: Model, idle: boolean): Walk?
 		standUntil = math.huge,
 		carrying = 0,
 		action = nil,
+		standing = cat:GetAttribute("Pose") == "work" or Pose.kindOf(cat) == "work",
 	}
 	for _, descendant in cat:GetDescendants() do
 		take(walk, descendant)
@@ -694,7 +697,7 @@ local function advance(walk: Walk, now: number, dt: number)
 	local o = Logic.idle("stray", now + walk.phase, rig.kind)
 	Logic.gait(o, walk.speed, walk.stride, held)
 	Logic.trayCarry(o, held)
-	Logic.crouch(o, crouch)
+	Logic.crouch(o, crouch, walk.standing)
 	if action ~= nil then
 		if action.kind == "sweep" then
 			Logic.sweepPose(o, alpha)

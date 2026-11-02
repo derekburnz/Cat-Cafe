@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 01:38 UTC",
+  "generated": "2026-11-02 01:48 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -75546,7 +75546,9 @@
         "CatCafe_Plot_Cafe_Mint_Flowers",
         "CatCafe_Plot_Cafe_Mint_Fireflies",
         "CatCafe_Plot_Cafe_Mint_Paint",
-        "CatCafe_Plot_Cafe_Mint_Wallpaper"
+        "CatCafe_Plot_Cafe_Mint_Wallpaper",
+        "CatCafe_Plot_Cafe_Mint_Garden",
+        "CatCafe_Plot_Cafe_Mint_Path"
       ],
       "triangles": 5600,
       "budget": 12000,
@@ -75635,7 +75637,9 @@
         "CatCafe_Plot_Cafe_Blush_Flowers",
         "CatCafe_Plot_Cafe_Blush_Fireflies",
         "CatCafe_Plot_Cafe_Blush_Paint",
-        "CatCafe_Plot_Cafe_Blush_Wallpaper"
+        "CatCafe_Plot_Cafe_Blush_Wallpaper",
+        "CatCafe_Plot_Cafe_Blush_Garden",
+        "CatCafe_Plot_Cafe_Blush_Path"
       ],
       "triangles": 5600,
       "budget": 12000,
@@ -75724,7 +75728,9 @@
         "CatCafe_Plot_Cafe_Butter_Flowers",
         "CatCafe_Plot_Cafe_Butter_Fireflies",
         "CatCafe_Plot_Cafe_Butter_Paint",
-        "CatCafe_Plot_Cafe_Butter_Wallpaper"
+        "CatCafe_Plot_Cafe_Butter_Wallpaper",
+        "CatCafe_Plot_Cafe_Butter_Garden",
+        "CatCafe_Plot_Cafe_Butter_Path"
       ],
       "triangles": 5600,
       "budget": 12000,
@@ -75813,7 +75819,9 @@
         "CatCafe_Plot_Cafe_Lilac_Flowers",
         "CatCafe_Plot_Cafe_Lilac_Fireflies",
         "CatCafe_Plot_Cafe_Lilac_Paint",
-        "CatCafe_Plot_Cafe_Lilac_Wallpaper"
+        "CatCafe_Plot_Cafe_Lilac_Wallpaper",
+        "CatCafe_Plot_Cafe_Lilac_Garden",
+        "CatCafe_Plot_Cafe_Lilac_Path"
       ],
       "triangles": 5600,
       "budget": 12000,

@@ -9,7 +9,7 @@ two arched front windows, a gable roof with its ridge running front to back, and
 z -20 to -15 with a path, beds, a bench and a lamp post.
 
 Objects per shell (the exporter turns each extra object into a child Model):
-  CatCafe_Plot_Cafe_<Colour>             trim, awning, garden
+  CatCafe_Plot_Cafe_<Colour>             trim, awning, door mat; the garden is the child Models _Garden and _Path
   ..._Paint                              the pastel outer layer of every wall and gable (collidable); each part is
                                          tagged Paint, so a crate paint recolours the cafe front (F53)
   ..._Wallpaper                          the cream inner layer of the same walls; each part is tagged Wallpaper
@@ -22,6 +22,10 @@ Objects per shell (the exporter turns each extra object into a child Model):
   ..._Roof                               roof, ridge and chimney: the engineer fades this Model for the owner
   ..._SignBoard                          one part named SignBoard; its -Z face takes the owner's SurfaceGui
   ..._LampPost_Bulb, _SignLamp_Bulb, _BackLamp_Bulb    Neon at night
+  ..._Path                               the path to the door and its joints (F91: a lawn path style replaces it)
+  ..._Garden                             beds, picket fence, flower clumps, bench, lamp post and shrubs, with the
+                                         beds' _Flowers, the _Fireflies and the _LampPost_Bulb nested in it (F91:
+                                         hidden when the player's lawn takes its place)
 """
 
 import math
@@ -349,12 +353,17 @@ def _roof(r, chimney):
     chimney.span((10.5, 25.0, 8.5), (11.7, 25.1, 9.7), "fur_black")                             # smoke starts here
 
 
-def _garden(b, bulbs, flowers, fireflies):
+def _garden(b, g, path, bulbs, flowers, fireflies):
+    """The front garden. The path is the child Model `_Path` and everything else on the grass (beds, picket fence,
+    flower clumps, bench, lamp post, shrubs) the child Model `_Garden`, with the bed's `_Flowers`, the `_Fireflies`
+    and the lamp's `_LampPost_Bulb` nested in it: the F91 lawn code hides them when a player's path style or lawn
+    takes their place. The door mat stays on the shell."""
     gz0, gz1 = -20.0, FRONT
-    b.span((DOOR[0], -0.2, gz0), (DOOR[1], 0.02, gz1), "floor_tile")                         # path
+    path.span((DOOR[0], -0.2, gz0), (DOOR[1], 0.02, gz1), "floor_tile")                      # path
     for z in (-19.0, -17.6, -16.2):
-        b.span((DOOR[0] + 0.2, 0.02, z - 0.06), (DOOR[1] - 0.2, 0.05, z + 0.06), "concrete")
+        path.span((DOOR[0] + 0.2, 0.02, z - 0.06), (DOOR[1] - 0.2, 0.05, z + 0.06), "concrete")
     b.span((-2.2, 0.02, -17.3), (2.2, 0.08, -15.3), "blush")                                # door mat
+    b = g
     for x0, x1 in ((-HW + 0.2, DOOR[0] - 0.5), (DOOR[1] + 0.5, HW - 0.2)):                  # beds
         flowers.span((x0, -0.2, -19.6), (x1, 0.15, gz1 - 0.2), "leaf_green")
         fireflies.span((x0, 0.6, -19.6), (x1, 4.0, gz1 - 0.4), "leaf_green")                 # air they drift in
@@ -414,7 +423,8 @@ def build_cafe(colour, mat):
     _awning(ab, accent, -16.0, -5.0)
     _awning(ab, accent, 5.0, 16.0)
     _sign(_Route(b, trim, ("dark_wood",)), sign, bulbs_sign, accent)           # the sign's frame and its ears
-    _garden(b, bulbs_post, flowers, fireflies)
+    garden, path = RB(), RB()
+    _garden(b, garden, path, bulbs_post, flowers, fireflies)
     x = BACK_DOOR[1] + 1.4                                                                   # back door lamp
     b.span((x - 0.1, 6.6, BACK), (x + 0.1, 6.8, BACK + 0.6), "fur_black")
     bulbs_back.span((x - 0.25, 6.0, BACK + 0.4), (x + 0.25, 6.6, BACK + 0.9), "lamp_warm")
@@ -425,7 +435,8 @@ def build_cafe(colour, mat):
             bulbs_sign.finalize(name + "_SignLamp_Bulb", mat), bulbs_back.finalize(name + "_BackLamp_Bulb", mat),
             chimney.finalize(name + "_Chimney", mat), flowers.finalize(name + "_Flowers", mat),
             fireflies.finalize(name + "_Fireflies", mat), paint.finalize(name + "_Paint", mat),
-            paper.finalize(name + "_Wallpaper", mat)]
+            paper.finalize(name + "_Wallpaper", mat), garden.finalize(name + "_Garden", mat),
+            path.finalize(name + "_Path", mat)]
 
 
 # ------------------------------------------------------------------------------------------ interior --

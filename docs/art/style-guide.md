@@ -507,7 +507,10 @@ lights are `_Bulbs` (Lamp Post, Fairy Light Arch, Cat Tree Sign, Golden Paw Stat
 Fountain) and `_Flowers` (Flower Cart, Flower Box Fence) as elsewhere. The Sandwich Board's chalk face is `_Chalk`
 and the Cat Tree Sign's name board `_NameBoard`, with the painted CAT CAFE in `_NameText` for the UI to hide when it
 writes the cafe's name. The Garden Bench has a `NapSpot` attachment on its cushion and the Umbrella Table `Seat1`
-and `Seat2` on the floor under its chairs (a customer faces the table).
+and `Seat2` on the floor under its chairs (a customer faces the table). The cafe shell's own garden is two child
+Models so the lawn code can hide it: `_Path` (the path and its joints) and `_Garden` (beds, picket fence, flower
+clumps, bench, lamp post and shrubs, with the beds' `_Flowers`, the `_Fireflies` and the `_LampPost_Bulb` nested
+inside). The door mat stays on the shell.
 
 Where a model meets the code-built walls (gates and arches, 2026-10-27, Derek: "a lot of the gate models for zones
 are clipping in eachother and can see it when walking"): a wall that ends at an opening must end inside a post, never

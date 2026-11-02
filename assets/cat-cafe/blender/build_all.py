@@ -462,7 +462,8 @@ def main():
         if name == "CatCafe_Decor_CatTreeTower":
             extra = {"attachments": furniture.spot_attachments(name, crate_decor.TOWER_SPOTS)}
         if name.startswith("CatCafe_Plot_Cafe_"):  # the roof's trims ride the roof (it fades while you are inside)
-            extra = {"nest": {"_Roof_Trim": "_Roof"}}
+            extra = {"nest": {"_Roof_Trim": "_Roof", "_LampPost_Bulb": "_Garden", "_Flowers": "_Garden",
+                               "_Fireflies": "_Garden"}}
         if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
         if name.startswith("CatCafe_Item_Net_L"):  # the hand's spot for the net hold (Animation-Engineer)

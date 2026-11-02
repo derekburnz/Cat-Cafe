@@ -183,6 +183,16 @@ Layout.plot = {
 	counter = { x = 0, y = 0, z = halfD - 3 } :: Point,
 	-- On the counter's espresso plate (its top is 3 up); the level 3 machine fills it to the till.
 	espresso = { x = 3, y = 3, z = halfD - 3 } :: Point,
+	-- F90 (cats-make-orders.md section 3): the oven (CatCafe_Cafe_Oven, 3.2 wide, 2.9 deep, front -Z) against the
+	-- back wall past the counter's right end, x 4.5 to 7.7 and z 10.8 to the wall, under the back wall shelf; the
+	-- gap behind the counter itself is 1.5 deep. Barista 3 sits in front of it and decor spots 5 and 8 moved right.
+	oven = { x = 6.1, y = 0, z = halfD - 1.75 } :: Point,
+	-- F90 (section 2), client only: where a made dish waits for the Waiter (on the counter top in front of the till,
+	-- clear of the tip jar and the level 3 espresso machine), where the Waiter stands to take it (on the floor at the
+	-- counter's front, clear of the Cat Collector) and where a swept coin bag goes (on the till's keypad).
+	pass = { x = 1.2, y = 3, z = halfD - 3.75 } :: Point,
+	pickup = { x = 2.6, y = 0, z = halfD - 5.15 } :: Point,
+	tillStack = { x = 1.2, y = 3.45, z = halfD - 2.9 } :: Point,
 
 	-- Where a working cat sits, per role slot: baristas at the counter, waiters between the tables, greeters inside
 	-- the door, entertainers on the cat trees. A seated cat (the _Sit body) has its pivot on the point and fills from
@@ -194,7 +204,7 @@ Layout.plot = {
 	spots = {
 		barista_1 = { x = -0.2, y = 3, z = halfD - 2.55 },
 		barista_2 = { x = -5.2, y = 0, z = halfD - 3 },
-		barista_3 = { x = 5.2, y = 0, z = halfD - 3 },
+		barista_3 = { x = 6.2, y = 0, z = halfD - 4.4 }, -- F90: in front of the oven (was 5.2, halfD - 3)
 		waiter_1 = { x = -4.5, y = 0, z = -2.5 },
 		waiter_2 = { x = 4.5, y = 0, z = -2.5 },
 		waiter_3 = { x = 4.5, y = 0, z = 3.5 }, -- beside the aisle, off the door to counter walk (was 0, 4.5)
@@ -234,10 +244,10 @@ Layout.plot = {
 		{ x = 9.5, y = 0, z = -halfD + 1.4, rotY = 180 }, -- front wall, right of the door
 		{ x = halfW - 1.4, y = 0, z = -6.5, rotY = 90 }, -- right wall, between the window corner and the bench
 		{ x = -halfW + 1.4, y = 0, z = -7.5, rotY = -90 }, -- left wall, between the window corner and the planter
-		{ x = 8, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the counter
+		{ x = 9.8, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the oven (F90; was x 8)
 		{ x = -12.6, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, left of the back door
 		{ x = -halfW + 1.4, y = 0, z = 4, rotY = -90 }, -- left wall, between the fish tank and the cat tree
-		{ x = 11.5, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the counter beyond the first
+		{ x = 13.4, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the oven beyond the first (F90; was 11.5)
 	} :: { Point },
 
 	-- Two columns of three, either side of the aisle from the front door to the counter (Derek 2026-10-28 01:27: the

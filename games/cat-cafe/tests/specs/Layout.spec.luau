@@ -1784,4 +1784,86 @@ return function()
 			end
 		)
 	end)
+
+	describe("cats make the orders (F90, cats-make-orders.md section 3)", function()
+		local plot = Layout.plot
+		local halfW, halfD = W.PlotWidth / 2, W.PlotDepth / 2
+		-- footprints as plot-local boxes {x1, z1, x2, z2}: the counter (CatCafe_Furniture_Counter, 8.4 by 2.6 about
+		-- its pivot), the oven (Model-Agent #775: 3.2 wide, 2.9 deep, base centre), the till and the level 3 espresso
+		-- machine on the counter top, and a seated cat (Scale 1.2) round its spot
+		local function box(x: number, z: number, w: number, d: number): { number }
+			return { x - w / 2, z - d / 2, x + w / 2, z + d / 2 }
+		end
+		local function overlaps(a: { number }, b: { number }): boolean
+			return a[1] < b[3] and b[1] < a[3] and a[2] < b[4] and b[2] < a[4]
+		end
+		local counter = { plot.counter.x - 4.2, plot.counter.z - 1.33, plot.counter.x + 4.2, plot.counter.z + 1.3 }
+		local oven = box(plot.oven.x, plot.oven.z, 3.2, 2.9)
+		local till = { 0.7, plot.counter.z - 0.15, 1.7, plot.counter.z + 0.7 }
+		local espresso = { plot.espresso.x - 1.23, plot.espresso.z - 1.15, plot.espresso.x + 1.23, plot.espresso.z + 0.5 }
+		local function cat(spot: any): { number }
+			return { spot.x - 0.75, spot.z - 0.78, spot.x + 0.75, spot.z + 0.76 }
+		end
+
+		it("stands the oven on the floor against the back wall, clear of the counter and the back door", function()
+			expect(plot.oven.y).to.equal(0)
+			expect(oven[4] <= halfD - 0.25 and oven[4] >= halfD - 0.5).to.equal(true)
+			expect(overlaps(oven, counter)).to.equal(false)
+			local door = plot.backDoor
+			expect(oven[1] > door.x + door.width / 2 or oven[3] < door.x - door.width / 2).to.equal(true)
+			expect(oven[3] <= halfW - 1).to.equal(true)
+		end)
+
+		it("keeps the oven clear of every cat spot, decor spot, nap spot and bed", function()
+			for id, spot in plot.spots do
+				if overlaps(oven, cat(spot)) then
+					fail("the oven overlaps %s", id)
+				end
+			end
+			for n, spot in plot.decorSpots do
+				-- the widest decor piece is 4.2 across and 2.5 deep
+				local turned = spot.rotY == 90 or spot.rotY == -90
+				local piece = if turned then box(spot.x, spot.z, 2.5, 4.2) else box(spot.x, spot.z, 4.2, 2.5)
+				if overlaps(oven, piece) then
+					fail("the oven overlaps decor spot %d", n)
+				end
+			end
+			for n, spot in plot.napSpots do
+				if overlaps(oven, cat(spot)) then
+					fail("the oven overlaps nap spot %d", n)
+				end
+			end
+			for _, bed in plot.beds do
+				if overlaps(oven, box(bed.x, bed.z, 2.65, 2.65)) then
+					fail("the oven overlaps %s", bed.id)
+				end
+			end
+		end)
+
+		it("puts the pass on the counter top, a plate clear of the till, the espresso machine and the tip jar", function()
+			local plate = box(plot.pass.x, plot.pass.z, 1.1, 1.1)
+			expect(plot.pass.y).to.equal(3)
+			expect(plate[1] >= counter[1] and plate[3] <= counter[3]).to.equal(true)
+			expect(plate[2] >= counter[2] - 0.05 and plate[4] <= counter[4]).to.equal(true)
+			expect(overlaps(plate, till)).to.equal(false)
+			expect(overlaps(plate, espresso)).to.equal(false)
+			expect(overlaps(plate, box(0.2, plot.counter.z - 0.6, 0.4, 0.4))).to.equal(false) -- the tip jar
+		end)
+
+		it("has the Waiter pick up in front of the counter, clear of the queue and the Cat Collector", function()
+			expect(plot.pickup.y).to.equal(0)
+			local body = cat(plot.pickup)
+			expect(body[4] <= counter[2]).to.equal(true)
+			expect(math.abs(plot.pickup.x) < 6.3 - 1).to.equal(true) -- in the aisle, off the tables
+			expect(overlaps(body, box(plot.collectorSpot.x, plot.collectorSpot.z, 1.56, 1.99))).to.equal(false)
+			-- behind the queue's line at the right edge of its spread, so a customer ordering there brushes it at most
+			expect(plot.pickup.z - plot.orderPoint.z >= 0.8 and plot.pickup.x >= 2.5).to.equal(true)
+		end)
+
+		it("drops the swept coin bag on the till", function()
+			local x, z = plot.tillStack.x, plot.tillStack.z
+			expect(x > till[1] and x < till[3] and z > till[2] and z < till[4]).to.equal(true)
+			expect(plot.tillStack.y > 3).to.equal(true)
+		end)
+	end)
 end

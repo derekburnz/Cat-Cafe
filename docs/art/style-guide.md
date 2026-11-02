@@ -347,6 +347,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Door sets and cat flaps (F80) | 4,000 per door half, 1,600 per flap | `doorsets.py`: front double doors land at 1,196 to 3,292, back doors 2,254 to 3,278, flaps 256 to 1,336 |
 | Hometown cannon (F84) | 8,000 square, 6,000 per camp, 1,500 landing pad | `cannon.py`: the Town Square cannon (plinth, turret, moon cover and statue) lands at 7,004, each camp cannon 5,104, the pad 1,444 |
 | Camps (F84) | 20,000 | `camps.py`: ground, walls, pad, carrier basket and theme props land at 7,162 (Sewer) to 10,322 (Neighbourhood) |
+| Front lawn (F91) | 800 small, 1,500 big, 2,500 Tier 4 and 5 big; paths 1,000, fences 2,400 | `lawn.py`: small pieces land at 392 to 796, big at 620 to 2,472, paths at 204 to 804, fences at 744 to 1,968 (each fence is both halves, 30 studs). A fully dressed lawn (six pieces, a path and a fence) is 6,600 to 10,300 triangles and 500 to 1,000 Parts, well over the 1,500 the spec guessed; the eight-lawn phone check in front-lawn.md section 6 decides |
 | Items | 300 | dealer foods: Sardines 400, Caviar 600; TipPile prop 600 |
 
 The build script prints the triangle count for every export and fails the build if a budget is exceeded.
@@ -488,6 +489,25 @@ gate, the landing pad, a three-quarter cannon at the back trimmed in the area's 
 and a wicker carrier basket beside the pad (`CampBasket` tag, `Drop` attachment). Theme props: the Park's benches,
 lamps, trees and flowerbeds; the Neighbourhood's mailbox, bins, lamp posts, picket fences and hedges; the Woods' tent,
 campfire, log benches, lanterns and pines; the Sewer's manhole, big pipe, wall lanterns, barrels, cones and tyres.
+
+The front lawn (F91, `lawn.py`, front-lawn.md) is what a player places in the front garden. Pieces are
+`CatCafe_Lawn_<Piece>` (the catalog name without spaces), pivot the base centre on the grass top, front -Z to the
+street: small ones keep to 2 x 2 (Tulip Bed, Sandwich Board, Potted Cat Topiary, Mailbox, Lamp Post, Bird Bath,
+Garden Gnome Cat, Balloon Bunch), big ones to 4 x 4 (Bicycle with Basket, Garden Bench, Umbrella Table, Little
+Fountain, Fairy Light Arch, Flower Cart, Cat Tree Sign, Golden Paw Statue). Paths are `CatCafe_Lawn_Path_<Style>`
+(Grey Slabs, Red Brick, Stepping Stones, Paw Print Path), 7 x 5 over the shell's own path (plot x -3.5..3.5, z
+-20..-15), pivot its centre at the plot's floor level; each keeps ground under the door mat. Fences are
+`CatCafe_Lawn_Fence_<Style>` (White Picket, Low Hedge, Iron Railing, Flower Box Fence), both halves from the path's
+gap (x 3.9) to the plot's edge (x 19) each side, pivot the gap's centre on the fence line (plot z -19.85). Lawn parts
+collide like other outdoor sets. The moving and lit bits: the Mailbox's `_Flag` (pivot on its hinge, lying back
+along the side; -90 about the pivot's X raises it), the Bird Bath's robin `_Bird_Bob`, the Balloon Bunch's
+`_Balloons_Swing` with the LED `_Balloons_Glow`, the Fairy Light Arch's and Flower Cart's `_Lantern_Swing` with
+`_Lantern_Glow`, the Cat Tree Sign's `_Star_Spin` and `_Toy_Swing`, the Golden Paw Statue's `_Paw_Spin`; night
+lights are `_Bulbs` (Lamp Post, Fairy Light Arch, Cat Tree Sign, Golden Paw Statue). `_Water` (Bird Bath, Little
+Fountain) and `_Flowers` (Flower Cart, Flower Box Fence) as elsewhere. The Sandwich Board's chalk face is `_Chalk`
+and the Cat Tree Sign's name board `_NameBoard`, with the painted CAT CAFE in `_NameText` for the UI to hide when it
+writes the cafe's name. The Garden Bench has a `NapSpot` attachment on its cushion and the Umbrella Table `Seat1`
+and `Seat2` on the floor under its chairs (a customer faces the table).
 
 Where a model meets the code-built walls (gates and arches, 2026-10-27, Derek: "a lot of the gate models for zones
 are clipping in eachother and can see it when walking"): a wall that ends at an opening must end inside a post, never

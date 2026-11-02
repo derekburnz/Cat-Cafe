@@ -51,6 +51,7 @@ import furniture  # noqa: E402
 import gold  # noqa: E402
 import gates  # noqa: E402
 import items  # noqa: E402
+import lawn  # noqa: E402
 import neighbourhood  # noqa: E402
 import night  # noqa: E402
 import doors  # noqa: E402
@@ -79,7 +80,7 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
-           townbuildings, customers, cannon, camps]
+           townbuildings, customers, cannon, camps, lawn]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -476,6 +477,10 @@ def main():
             extra = {"attachments": cannon.rbx_attachments(name), "nest": cannon.NEST}
         if name in camps.ATTACHMENTS:             # F84: the carrier basket's Drop
             extra = {"attachments": camps.rbx_attachments(name)}
+        if name in lawn.ASSETS:                   # F91: lanterns' lights ride their swing; nap and seat spots
+            extra = {"nest": lawn.NEST}
+            if name in lawn.SPOTS:
+                extra["attachments"] = furniture.spot_attachments(name, lawn.SPOTS[name])
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)
         tris = common.tri_count(objs)
         lo, hi = common.bounds(objs)

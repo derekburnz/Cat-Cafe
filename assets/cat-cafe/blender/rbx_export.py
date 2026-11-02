@@ -47,7 +47,7 @@ RZ90 = Matrix(((0, -1, 0), (1, 0, 0), (0, 0, 1)))   # Roblox local X (cylinder a
 
 # Asset families whose big parts block players. Everything else (cats, people, items, wall decor) is walk-through.
 COLLIDE_PREFIXES = ("CatCafe_Furniture_", "CatCafe_Alley_", "CatCafe_Park_", "CatCafe_Plot_", "CatCafe_Street_",
-                    "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_", "CatCafe_Square_", "CatCafe_Camp_")
+                    "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_", "CatCafe_Square_", "CatCafe_Camp_", "CatCafe_Lawn_")
 NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle",
                       "_Wheel", "_Pointer", "_RimLight", "_Flowers", "_Pennant")
 INVISIBLE_OBJECTS = ("_Fireflies", "_Climb", "_Barrier")   # volumes never drawn: where fireflies drift, ladders'
@@ -57,7 +57,7 @@ CLIMB_OBJECTS = ("_Climb",)           # invisible TrussParts behind a ladder's r
 # Outdoor families (Derek 2026-10-28: "make all the models climbable not sinking through them"): their planks, rungs,
 # rails and pickets collide too, down to THIN_COLLIDE thick when at least THIN_LONG long.
 OUTDOOR_PREFIXES = ("CatCafe_Alley_", "CatCafe_Park_", "CatCafe_Street_", "CatCafe_Neighbourhood_", "CatCafe_Woods_",
-                    "CatCafe_Sewer_", "CatCafe_Square_", "CatCafe_Camp_")
+                    "CatCafe_Sewer_", "CatCafe_Square_", "CatCafe_Camp_", "CatCafe_Lawn_")
 THIN_COLLIDE, THIN_LONG = 0.12, 0.9
 THIN_SKIP = ("StringLights",)       # overhead cables stay walk-through
 ELLIPSOID_FIT = 0.75                  # an ellipsoid's collision box, as a share of the box round it (the mesh is scaled

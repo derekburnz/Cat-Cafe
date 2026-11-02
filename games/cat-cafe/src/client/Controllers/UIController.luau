@@ -602,10 +602,6 @@ local function wireIntents()
 	UI.events.lockCat:Connect(function(uid: string, locked: boolean)
 		Net.fire("LockCat", uid, locked)
 	end)
-	-- Collect on the till (F61): every waiting tip pile. Walking near a pile sends the same (CustomerController).
-	UI.events.collectTips:Connect(function()
-		Net.fire("CollectTips")
-	end)
 	-- Trade or No thanks on the Cat Collector's card (F63). The server checks the range and the cat and answers with
 	-- CollectorOffer("") when the visit ends, or a toast when the cat cannot go yet.
 	UI.events.answerCollector:Connect(function(accept: boolean)

@@ -88,6 +88,9 @@ export type CustomEvent =
 	-- F93 (catch-rework.md section 5): net swings rolled up per player (review S99), value the swings since the last
 	-- roll up; "hit", "miss_near" or "miss_empty", net level, device
 	| "net_swing"
+	-- F97 (notes-10-28-to-10-30.md section 7): a sunrise wave with no Epic or rarer stray rerolled its last one; area,
+	-- the rarity it got. A server event, logged under the first loaded player
+	| "wave_rare"
 	-- F87 (easy-start.md section 5): a new player leaving (their first UTC day of play, or tutorialStep below 5), value
 	-- the session's seconds; the furthest onboarding step, the session's bounce window, device. From the client: a
 	-- stuck nudge (tutorialStep, kind: pulse, help_shown or show_me) and where the intro was played from (tile, help)

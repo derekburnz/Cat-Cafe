@@ -247,7 +247,7 @@ return function()
 					"Found in Cafe Crates, not for sale"
 				)
 				expect(Economy.decorBlocker(p, "index_park_gold")).to.equal("Unknown decor")
-				expect(Economy.decorBlocker(p, "rug")).never.to.be.ok()
+				expect(Economy.decorBlocker(p, "rug")).to.equal("Found in Cafe Crates, not for sale") -- F97
 			end)
 		end
 	)
@@ -645,24 +645,70 @@ return function()
 	end)
 
 	describe("decor blockers (section 7)", function()
-		it("refuses unknown, owned, gated and unaffordable decor in that order", function()
+		it("refuses unknown decor, and every old coin piece as a crate find since F97", function()
 			local p = freshProfile()
 			expect(Economy.decorBlocker(p, "lava_lamp")).to.equal("Unknown decor")
-			expect(Economy.decorBlocker(p, "plants")).to.equal("Needs Tier 2")
-			p.tier = 2
-			expect(Economy.decorBlocker(p, "plants")).to.equal("Not enough coins")
-			p.coins = 4000
-			expect(Economy.decorBlocker(p, "plants")).never.to.be.ok()
-			p.decorOwned.plants = true
-			expect(Economy.decorBlocker(p, "plants")).to.equal("Already owned")
-			p.coins = 1e7 -- F95: the Fish Tank is 4,000,000
-			expect(Economy.decorBlocker(p, "neon_sign")).to.equal("Needs Tier 3")
-			expect(Economy.decorBlocker(p, "fish_tank")).to.equal("Needs Tier 4")
-			p.tier = 3
-			expect(Economy.decorBlocker(p, "neon_sign")).never.to.be.ok()
-			expect(Economy.decorBlocker(p, "fish_tank")).to.equal("Needs Tier 4")
-			p.tier = 4
-			expect(Economy.decorBlocker(p, "fish_tank")).never.to.be.ok()
+			p.coins = 1e9
+			p.tier = 5
+			for _, def in Catalog.decor do
+				expect(Economy.decorBlocker(p, def.id)).to.equal("Found in Cafe Crates, not for sale")
+				p.decorOwned[def.id] = true -- bought before F97: kept, still never sold
+				expect(Economy.decorBlocker(p, def.id)).to.equal("Found in Cafe Crates, not for sale")
+			end
+		end)
+
+		it("keeps an old buyer's placed piece paying its bonus (F97)", function()
+			local p = freshProfile()
+			local base = Economy.cafeMultiplier(p)
+			p.decorOwned.fish_tank = true
+			p.decorPlaced.fish_tank = true
+			expect(Economy.cafeMultiplier(p)).to.be.near(base + 0.10, 1e-9)
+		end)
+	end)
+
+	describe("food prices (F97, notes-10-28-to-10-30.md section 3)", function()
+		it("prices food at its base times the tier factor 1, 1, 4, 8, 16", function()
+			local want: { [string]: { number } } = {
+				kibble = { 100, 100, 400, 800, 1600 },
+				tuna = { 500, 500, 2000, 4000, 8000 },
+				salmon = { 2500, 2500, 10000, 20000, 40000 },
+				sardines = { 4000, 4000, 16000, 32000, 64000 },
+				caviar = { 15000, 15000, 60000, 120000, 240000 },
+				moon_milk = { 50000, 50000, 200000, 400000, 800000 },
+				star_treat = { 200000, 200000, 800000, 1600000, 3200000 },
+			}
+			for lureId, prices in want do
+				for tier, price in prices do
+					expect(Economy.foodPrice(lureId, tier)).to.equal(price)
+				end
+			end
+		end)
+
+		it("clamps the tier and prices unknown food at 0", function()
+			expect(Economy.foodPrice("kibble", 0)).to.equal(100)
+			expect(Economy.foodPrice("kibble", 9)).to.equal(1600)
+			expect(Economy.foodPrice("kibble", 2.7)).to.equal(100)
+			expect(Economy.foodPrice("lava_lamp", 3)).to.equal(0)
+		end)
+
+		it("lists every food in rarity order by sortOrder", function()
+			local sorted: { any } = table.clone(Catalog.lures)
+			table.sort(sorted, function(a: any, b: any): boolean
+				return a.sortOrder < b.sortOrder
+			end)
+			local ids: { string } = {}
+			for _, def in sorted do
+				table.insert(ids, def.id)
+			end
+			expect(ids :: any).to.deepEqual({
+				"kibble",
+				"tuna",
+				"sardines",
+				"salmon",
+				"caviar",
+				"moon_milk",
+				"star_treat",
+			})
 		end)
 	end)
 
@@ -766,7 +812,7 @@ return function()
 				local p = freshProfile(0)
 				p.cats.new = cat("new", "ginger", "waiter_1")
 				p.upgradeLevels.tables = 1
-				p.coins = 0
+				p.coins = Config.StartCoins -- F97: Kibble is 100, so the start coins count, as in the Tier 2 guard below
 				Economy.settle(p, 600 - 90) -- rough: 90 s spent walking and catching
 				local tables = Catalog.upgradesById.tables.costs
 				local spend = tables[1]

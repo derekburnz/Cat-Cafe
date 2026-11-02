@@ -1013,13 +1013,17 @@ return function()
 						Config.DecorIndexBonus,
 						1e-9
 					)
-					-- the page's cards read "5 pieces" and "All 12" from the catalog's twelve
+					-- the page's cards read "5 pieces" and "All 12" from the catalog's twelve (F97: the Classic page
+					-- holds sixteen with the old coin pieces, so its decor10 reads "12 pieces")
+					local classic = pool == "classic"
 					local counts =
 						UIRewards.counts(Catalog, { decorOwned = before.decorOwned }, page)
-					expect(counts.total).to.equal(12)
+					expect(counts.total).to.equal(if classic then 16 else 12)
 					expect(counts.found).to.equal(10)
 					expect(UIRewards.needLabel(decor5, counts.total, page)).to.equal("5 pieces")
-					expect(UIRewards.needLabel(decor10, counts.total, page)).to.equal("All 12")
+					expect(UIRewards.needLabel(decor10, counts.total, page)).to.equal(
+						if classic then "12 pieces" else "All 12"
+					)
 				end
 			end
 		)

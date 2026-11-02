@@ -120,6 +120,7 @@ return function()
 		TipPileSeconds = 30, -- F61: tip piles (section 12)
 		TipPileRateSeconds = 6,
 		TipPilesMax = 6,
+		TipPileShowSeconds = 90, -- F97 section 1: a paid pile shows this long
 		RichTipStaySeconds = 90,
 		-- the Mystery Visitor and potions (F64, section 12b)
 		MysteryCheckSeconds = 120,
@@ -241,6 +242,10 @@ return function()
 			end
 		)
 
+		it("FoodTierPriceFactor = 1, 1, 4, 8, 16 by tier (F97, notes-10-28-to-10-30.md section 3)", function()
+			expect(Config.FoodTierPriceFactor :: any).to.deepEqual({ 1, 1, 4, 8, 16 })
+		end)
+
 		it("IntroAutoPlay = false: the intro waits for the Tutorial tile (F87, easy-start.md section 2a)", function()
 			expect(Config.IntroAutoPlay).to.equal(false)
 		end)
@@ -259,7 +264,8 @@ return function()
 				LureReserveSeconds = true,
 				IntroAutoPlay = true, -- false, checked below
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
-				TipPileCollectRangeStuds = true, -- section 12 (F61): the client sends CollectTips within 8 studs
+				WaveMinRareRerollOdds = true, -- a table, checked in Catching.spec (F97 section 7)
+				FoodTierPriceFactor = true, -- a table, checked below (F97 section 3)
 				FishFirstCatch = true, -- a table, checked below
 				FishRepeatCatch = true, -- a table, checked below
 				FishRankUp = true, -- a table, checked below

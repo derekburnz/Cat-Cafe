@@ -1869,4 +1869,55 @@ return function()
 			expect(plot.tillStack.y > 3).to.equal(true)
 		end)
 	end)
+
+	-- F100 (camp-extras.md section 3; Model-Agent #750): one extra in each camp from the Park on.
+	describe("the camp extras (F100)", function()
+		local function apart(ax: number, az: number, bx: number, bz: number): number
+			return math.sqrt((ax - bx) ^ 2 + (az - bz) ^ 2)
+		end
+
+		it("has a spot for each Catalog extra's area and none for the Alleyway", function()
+			local count = 0
+			for areaId in Layout.campExtras do
+				count += 1
+				local found = false
+				for _, def in Catalog.campExtras do
+					found = found or def.area == areaId
+				end
+				expect(found).to.equal(true)
+			end
+			expect(count).to.equal(#Catalog.campExtras)
+			expect(Layout.campExtras.alley).never.to.be.ok()
+			expect(Layout.campExtraAt("alley")).to.equal(nil)
+		end)
+
+		it("stands each inside its camp beside the way out, clear of the board, the pad, the cannon and the basket", function()
+			for _, def in Catalog.campExtras do
+				local camp = Layout.camps[def.area]
+				local x, y, z, turn = Layout.campExtraAt(def.area)
+				assert(x ~= nil and y ~= nil and z ~= nil and turn ~= nil, def.id)
+				-- in the camp, which is the safe zone, its 3 by 2.2 footprint 2 in from every edge
+				if not inside(x, z, camp.rect, 2) then
+					fail("%s at (%g, %g) is not inside its camp", def.id, x, z)
+				end
+				expect(Layout.campAt(x, z)).to.equal(def.area)
+				expect(y).to.equal(Layout.areas[def.area].floorY)
+				expect(turn).to.equal(camp.turn)
+				-- beside the way out (not in front of it) and on the other side from the Index Board
+				local lx, lz = Layout.campLocal(camp, x, z)
+				expect(lx > camp.openingHalfWidth + 2).to.equal(true)
+				expect(lz < -2 and lz > -12).to.equal(true)
+				local board = Layout.indexBoards[def.area]
+				expect(board.x < 0).to.equal(true)
+				local bx, bz = Layout.campPoint(camp, board.x, board.z)
+				expect(apart(x, z, bx, bz) > 2 * Config.CampExtraRangeStuds).to.equal(true)
+				-- clear of the landing pad's spots, the cannon and its front, and the carrier basket
+				local pad = Layout.landingPads[def.area].centre
+				expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
+				for _, point in { Layout.cannons[def.area], Layout.cannonFronts[def.area], camp.basket } do
+					expect(apart(x, z, point.x, point.z) > 6).to.equal(true)
+				end
+			end
+		end)
+	end)
 end

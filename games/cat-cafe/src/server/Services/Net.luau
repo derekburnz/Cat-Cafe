@@ -60,6 +60,8 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClearTips = RateLimiter.new(1, 10), -- F87: 1 per 10 s; each call sends a full sync
 	SendFeedback = RateLimiter.new(1, 10), -- F87: 1 per 10 s; TipService also holds FeedbackSessionLimit a session
 	ClaimStarterCat = RateLimiter.new(1, 2), -- F96 (starter-cat.md section 4): 1 per 2 s
+	CollectCampExtra = RateLimiter.new(1, 1), -- F100 (camp-extras.md section 4): 1 a second
+	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 

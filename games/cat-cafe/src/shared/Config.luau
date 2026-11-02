@@ -388,6 +388,29 @@ local Config = {
 	RainbowAnimateMax = 10,
 	RainbowSpawnToastSeconds = 60,
 
+	-- The camp extras (F100, camp-extras.md sections 2 and 4), each filling while the player is away up to its hold.
+	-- The Picnic Basket (Park) bags one PicnicPotion (Design-Agent 11-02: the 10 minute Money Potion) every
+	-- PicnicEverySeconds; the Yard Sale (Neighbourhood) sells the Classic Crate and one zone crate a UTC day at
+	-- YardSaleCratePrice golden fish each, banked for the Market; the Fish Pond (Woods) lands PondFishPerStep golden
+	-- fish every PondStepSeconds; the Lost and Found (Sewer) keeps one prize a UTC day from LostFoundTable (chances add
+	-- to 1, shown on its card). Each is collected within CampExtraRangeStuds of its PromptAnchor.
+	PicnicEverySeconds = 21600,
+	PicnicHold = 2,
+	PicnicPotion = "tip_potion",
+	YardSaleCratePrice = 40,
+	PondFishPerStep = 2,
+	PondStepSeconds = 1800,
+	PondHold = 24,
+	LostFoundHold = 3,
+	LostFoundTable = {
+		{ chance = 0.40, fish = 10 },
+		{ chance = 0.30, potion = "lucky_potion" },
+		{ chance = 0.20, potion = "gold_rush_potion" },
+		{ chance = 0.09, crate = "classic_crate" },
+		{ chance = 0.01, crate = "classic_golden_crate" },
+	} :: { { chance: number, fish: number?, potion: string?, crate: string? } },
+	CampExtraRangeStuds = 8,
+
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
 	CodesCatRange = 12, -- RedeemCode from this close to a CodesCat station's pivot
 	CodesCircleRadius = 4, -- the code box opens within this flat distance of the CodesCircle, closes past it + 1

@@ -6,6 +6,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Signal = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Signal"))
+local Types = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Types"))
 
 local Moments = {
 	CatchStart = Signal.new() :: Signal.Signal<string>, -- (strayId) the circles arrived
@@ -113,6 +114,13 @@ local Moments = {
 	-- skip (the thunk, and VFX's lid pop on the counter crate).
 	CrateReelTick = Signal.new() :: Signal.Signal<()>,
 	CrateReelLanded = Signal.new() :: Signal.Signal<()>,
+	-- The camp extras (F100, camp-extras.md section 3), from Controllers/CampExtrasController: CampExtraCollect
+	-- (extraId, position) on this client when the server confirms a collect or a Yard Sale buy ("picnic", "pond": the
+	-- rod lands the fish, "lostFound": the lid lets the prize out, or "yardSale"), at the extra's PromptAnchor;
+	-- CampExtrasState (state) on every CampExtrasState from the server, the Lost and Found's prizes waiting at
+	-- state.lostFound.held (its lid rattles while above 0).
+	CampExtraCollect = Signal.new() :: Signal.Signal<string, Vector3>,
+	CampExtrasState = Signal.new() :: Signal.Signal<Types.CampExtrasState>,
 }
 
 return Moments

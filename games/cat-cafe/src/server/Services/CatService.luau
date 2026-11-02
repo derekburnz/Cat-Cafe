@@ -73,6 +73,10 @@ type Stray = {
 	recaught: boolean,
 	funnel: Telemetry.CatchFunnel?, -- the lock holder's catch_attempt funnel (F16)
 	knocks: number, -- F84: times tackles knocked this cat loose since it was first caught (camp_checkin)
+	-- F87 (easy-start.md section 2b): the user id of the beginner this tutorial stray waits for, mirrored in the
+	-- model's Beginner attribute (0 when none). Only they can swing at it; their catch is one slow circle and a
+	-- Miss brings it back instead of sending the cat running. LockedBy stays the catch lock the effects read.
+	beginner: number?,
 	alive: boolean,
 }
 
@@ -437,7 +441,8 @@ local function spawnStray(
 	pointIndex: number?,
 	lifetime: number?, -- nil: stays until the next dusk clears it
 	forceGold: boolean?, -- Studio's debug hook
-	kept: Kept? -- a Dropped cat keeps its charm, gold and rescued flag
+	kept: Kept?, -- a Dropped cat keeps its charm, gold and rescued flag
+	beginner: number? -- F87: the tutorial stray's beginner
 ): Stray
 	local variant = if kept ~= nil
 		then kept.variant or "base"
@@ -457,6 +462,7 @@ local function spawnStray(
 	model:SetAttribute("Rarity", def.rarity)
 	model:SetAttribute("Area", areaId)
 	model:SetAttribute("LockedBy", 0)
+	model:SetAttribute("Beginner", beginner or 0) -- F87: other clients leave a beginner's stray alone
 	model:SetAttribute("SpawnedAt", os.time())
 	model:SetAttribute("FleeingUntil", 0) -- v0.5: server time a missed stray stops running (display only)
 	-- A net stray's gold is no secret (data-model section 4): the sparkle and the catch header show it.
@@ -499,6 +505,7 @@ local function spawnStray(
 		returning = kept ~= nil and kept.returning == true,
 		knocks = if kept ~= nil then kept.knocks or 0 else 0,
 		recaught = false,
+		beginner = beginner,
 		alive = true,
 	}
 	strays[id] = stray
@@ -556,11 +563,16 @@ local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	return if pick ~= nil then pool[pick] else nil
 end
 
-local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity): Stray
+local function spawnAt(
+	areaId: string,
+	pointIndex: number,
+	rarity: Types.Rarity,
+	beginner: number?
+): Stray
 	local area = world.areas[areaId]
 	local def = Catching.pickCat(rarity, areaId, rng:NextNumber())
 	local point = area.spawnPoints[pointIndex]
-	return spawnStray(def, areaId, point.Position, pointIndex, nil)
+	return spawnStray(def, areaId, point.Position, pointIndex, nil, nil, nil, beginner)
 end
 
 -- The Alleyway's spawn point indices with zone `near`, in order: plot p owns the p-th (v4, F84).
@@ -577,14 +589,23 @@ local function tutorialPoints(): { number }
 	return list
 end
 
+-- F87: gives a tutorial stray to `userId`, or frees it (nil), along with its Beginner attribute.
+local function reserve(stray: Stray, userId: number?)
+	stray.beginner = userId
+	stray.model:SetAttribute("Beginner", userId or 0)
+end
+
 -- A beginner always finds a Common stray waiting just past the Alleyway camp's way out, at their plot's own `near`
--- point (v4, F84, data-model section 9 v0.13.18: plot p owns near point p), where the intro shows it.
+-- point (v4, F84, data-model section 9 v0.13.18: plot p owns near point p), where the intro shows it. Since F87
+-- (easy-start.md section 2b) it is theirs alone until their first check-in: one that waits at their point for
+-- someone who left the plot is handed over, and one whose beginner left or checked in a cat is freed.
 local function tutorialTick()
 	if not ClockService.areasOpen() then
 		return -- nothing spawns at night (v0.9, F66); the beginner's stray comes with the sunrise
 	end
 	local occupied = occupiedPoints[TUTORIAL_AREA] or {}
 	local near = tutorialPoints()
+	local beginners: { [number]: boolean } = {}
 	for _, player in DataService.loadedPlayers() do
 		local profile = DataService.get(player)
 		local plot = PlotService.get(player)
@@ -595,21 +616,25 @@ local function tutorialTick()
 		then
 			continue
 		end
+		beginners[player.UserId] = true
 		local own = near[plot.index]
-		local lane: { number } = if own ~= nil then { own } else {}
-		local waiting = false
-		local freePoint: number? = nil
-		for _, pointIndex in lane do
-			local strayId = occupied[pointIndex]
-			local stray = if strayId ~= nil then strays[strayId] else nil
-			if stray ~= nil and stray.alive and stray.def.rarity == "Common" then
-				waiting = true
-			elseif strayId == nil and freePoint == nil then
-				freePoint = pointIndex
-			end
+		if own == nil then
+			continue
 		end
-		if not waiting and freePoint ~= nil then
-			spawnAt(TUTORIAL_AREA, freePoint :: number, "Common")
+		local strayId = occupied[own]
+		local stray = if strayId ~= nil then strays[strayId] else nil
+		if stray ~= nil and stray.alive and stray.def.rarity == "Common" then
+			if stray.beginner ~= player.UserId and (stray.lockedBy == 0 or lockExpired(stray)) then
+				reserve(stray, player.UserId)
+			end
+		elseif strayId == nil then
+			spawnAt(TUTORIAL_AREA, own, "Common", player.UserId)
+		end
+	end
+	for _, stray in strays do
+		local beginner = stray.beginner
+		if beginner ~= nil and not beginners[beginner] then
+			reserve(stray, nil)
 		end
 	end
 end
@@ -985,6 +1010,57 @@ local function startle(player: Player)
 	end)
 end
 
+-- startCatch, below; a beginner's Miss on their tutorial stray starts the circle again through it (F87).
+local startCatch: (Player, Types.PlayerProfile, Stray, Telemetry.CatchFunnel?) -> string?
+
+-- F87 (easy-start.md section 2b): a beginner's Miss on their own tutorial stray costs nothing. The cat stays put
+-- with no hiss, sprint, wait or shaky paws, and the circle comes back by itself after TutorialRetrySeconds with
+-- "Try again!", as often as it takes. Walking out of reach is said instead, and the next swing starts it again. A
+-- circle that ran out with no press at all does not come back by itself either, so a beginner who walked off or
+-- went idle in front of the cat does not loop catches (and catch_circles events) until the next swing.
+local function tutorialMiss(
+	player: Player,
+	stray: Stray,
+	attempt: Circles.Attempt,
+	forfeit: string?,
+	funnel: Telemetry.CatchFunnel?
+)
+	Net.fire(
+		player,
+		"CatchResult",
+		stray.id,
+		attempt.grades,
+		false,
+		0,
+		serverNow() + Config.TutorialRetrySeconds
+	)
+	if forfeit ~= nil then
+		Net.toast(player, forfeit, "warn")
+		return
+	end
+	Net.toast(player, "Try again! Tap as the circle closes.", "info")
+	if next(attempt.errors) == nil then
+		return -- no press reached the server: wait for the next swing
+	end
+	task.delay(Config.TutorialRetrySeconds, function()
+		local profile = DataService.get(player)
+		if
+			profile == nil
+			or player.Parent ~= Players
+			or not stray.alive
+			or stray.beginner ~= player.UserId
+			or stray.attempt ~= nil
+		then
+			return
+		end
+		lastCatchStart[player] = nil -- the server's own restart, not a second swing
+		local reason = startCatch(player, profile, stray, funnel)
+		if reason ~= nil then
+			Net.toast(player, reason, "warn")
+		end
+	end)
+end
+
 -- Ends a catch at its first Miss or after its last circle (data-model section 10 step 5, v0.4): every circle Good
 -- or Perfect is a sure catch, anything else sends the stray running (v0.5). The schedule and the press times are the
 -- server's own, so a scripted client can only press on time.
@@ -1048,6 +1124,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		return
 	end
 
+	if stray.beginner == player.UserId then
+		tutorialMiss(player, stray, attempt, forfeit, funnel)
+		return
+	end
 	-- The stray moves first, so its FleeingUntil reaches the client ahead of the result (QA on #130). The miss costs
 	-- the player who missed and nobody else (F57): a longer wait the more they miss it in a row, and shaky paws.
 	local streak = Catching.nextMiss(stray.missStreak[player.UserId], serverNow())
@@ -1107,7 +1187,7 @@ end
 -- Starts the circles on `stray` for a swing that landed on it (F93: the old GrabBegin, now the server's own start):
 -- the same checks, then CatchSchedule. Returns why it did not start, in words for a toast, or nil. `funnel` is the
 -- catch_attempt funnel the swing opened.
-local function startCatch(
+function startCatch(
 	player: Player,
 	profile: Types.PlayerProfile,
 	stray: Stray,
@@ -1138,6 +1218,9 @@ local function startCatch(
 			then "Keep going, the circles are coming"
 			else "Someone else is catching it"
 	end
+	if stray.beginner ~= nil and stray.beginner ~= player.UserId then
+		return "This cat is waiting for a new player" -- F87; the swing skips it, so this is only a guard
+	end
 	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
 		return "Too far away"
 	end
@@ -1161,11 +1244,19 @@ local function startCatch(
 
 	-- a Steady Paw Potion running now plays the circles of the next net level (F64)
 	local netLevel = Potions.netLevel(profile, Economy.level(profile, "net"), os.time())
-	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
-	local windows = Circles.windowsFor(netLevel, stray.def.rarity)
-	local circles = Circles.schedule(stray.def.rarity, netLevel, now, function()
+	local function roll(): number
 		return rng:NextNumber()
-	end)
+	end
+	-- F87: a beginner's own tutorial stray is one slow circle with doubled bands (easy-start.md section 2b)
+	local tutorial = stray.beginner == player.UserId
+		and profile.tutorialStep < Config.TutorialGuaranteedStrayStep
+	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
+	local windows = if tutorial
+		then Circles.tutorialWindows(netLevel)
+		else Circles.windowsFor(netLevel, stray.def.rarity)
+	local circles = if tutorial
+		then Circles.tutorialSchedule(now, roll)
+		else Circles.schedule(stray.def.rarity, netLevel, now, roll)
 	local attempt = Circles.newAttempt(circles, windows)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
@@ -1312,6 +1403,9 @@ end
 local function swingable(stray: Stray, player: Player, now: number): boolean
 	if not stray.alive or stray.jumping or now < stray.fleeingUntil then
 		return false
+	end
+	if stray.beginner ~= nil and stray.beginner ~= player.UserId then
+		return false -- F87: a beginner's tutorial stray is theirs alone
 	end
 	return stray.lockedBy == 0 or stray.lockedBy == player.UserId or lockExpired(stray)
 end

@@ -55,6 +55,13 @@ local function areaAt(position: Vector3): string?
 	return WorldBuilder.areaAt(PlotService.world(), position)
 end
 
+-- F87 (easy-start.md section 2c): a player who has not checked in a cat yet cannot be tackled, carrying or not. The
+-- first check-in moves tutorialStep to TutorialGuaranteedStrayStep, which ends the shield.
+local function newcomer(target: Player): boolean
+	local profile = DataService.get(target)
+	return profile ~= nil and profile.tutorialStep < Config.TutorialGuaranteedStrayStep
+end
+
 -- Why the lunge passes through `target` standing at `position`, or nil when it would hit them.
 local function targetRefusal(
 	player: Player,
@@ -72,6 +79,7 @@ local function targetRefusal(
 			and WorldBuilder.inSafeZone(plot, position, Config.BumpSafeRadiusStuds),
 		targetInCamp = Layout.campAt(position.X, position.Z) ~= nil,
 		targetFlying = CatService.inFlight(target),
+		targetNewcomer = newcomer(target),
 		sinceShoveTarget = since((lastShoveOf[player] or {})[target.UserId], now),
 		sinceTargetShoved = since(lastShovedAt[target.UserId], now),
 	})

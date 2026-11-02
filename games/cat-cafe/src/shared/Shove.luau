@@ -41,6 +41,7 @@ export type TargetCheck = {
 	targetSafe: boolean, -- on its own plot or near one of its doors
 	targetInCamp: boolean?, -- F84: standing in a camp, a safe zone up to its gate line
 	targetFlying: boolean?, -- F84: mid Cat Cannon flight or cloud hop: the lunge passes through
+	targetNewcomer: boolean?, -- F87: has not checked in a cat yet (easy-start.md section 2c): nobody tackles them
 	sinceShoveTarget: number?, -- since this tackler last hit this player
 	sinceTargetShoved: number?, -- since anyone last hit this player (S45)
 }
@@ -119,6 +120,9 @@ function Shove.targetRefusal(check: TargetCheck): string?
 	end
 	if check.targetFlying == true then
 		return "They're flying"
+	end
+	if check.targetNewcomer == true then
+		return "They're new here" -- the `newcomer` refusal (F87)
 	end
 	if check.sinceShoveTarget ~= nil and check.sinceShoveTarget < Config.BumpSameTargetSeconds then
 		return "Give them a break"

@@ -1,6 +1,8 @@
 --!strict
 -- The intro cutscene on this client (F72, docs/design/cat-cafe/intro-cutscene.md, reshot for F84). It plays once when
--- this session's first ProfileSync with a plot says introSeen is false, and again whenever the UI's Tutorial tile or
+-- this session's first ProfileSync with a plot says introSeen is false (only while Config.IntroAutoPlay is true:
+-- since F87, easy-start.md section 2a, a new player starts playing at once and the Tutorial tile glows instead), and
+-- again whenever the UI's Tutorial tile or
 -- Settings row asks (UI.events.introReplay). Before it starts it asks the server to stream the Alleyway's camp in and
 -- waits for it for up to Intro.STREAM_WAIT seconds; without it the shots there are left out (section 2's fallback).
 -- While it runs the character's controls and every proximity prompt are off and the camera is Scriptable, flown
@@ -29,6 +31,7 @@ local CannonFx = require(script.Parent.Parent.Effects.Cannon)
 local CatDress = require(Shared:WaitForChild("CatDress"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Catching = require(Shared:WaitForChild("Catching"))
+local Config = require(Shared:WaitForChild("Config"))
 local Intro = require(Shared:WaitForChild("Intro"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
@@ -1263,7 +1266,12 @@ end
 
 function IntroController.start()
 	Net.on("ProfileSync", function(s: Types.PlayerState)
-		if not firstStarted and s.introSeen == false and s.plotIndex ~= 0 then
+		if
+			Config.IntroAutoPlay
+			and not firstStarted
+			and s.introSeen == false
+			and s.plotIndex ~= 0
+		then
 			firstStarted = true
 			-- after UIController has applied this sync, so play() reads the same state
 			task.defer(IntroController.play, false)

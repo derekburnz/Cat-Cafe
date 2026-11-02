@@ -104,6 +104,11 @@ return function()
 			expect(Shove.targetRefusal(target({ targetSafe = true }))).to.be.ok()
 		end)
 
+		it("passes through a player who has not checked in a cat yet, carrying or not (F87 newcomer)", function()
+			expect(Shove.targetRefusal(target({ targetNewcomer = true }))).to.equal("They're new here")
+			expect(Shove.targetRefusal(target({ targetNewcomer = false }))).never.to.be.ok()
+		end)
+
 		it("BumpSameTargetSeconds before this tackler hits the same player again", function()
 			local wait = Config.BumpSameTargetSeconds
 			expect(Shove.targetRefusal(target({ sinceShoveTarget = wait - 0.01 }))).to.be.ok()

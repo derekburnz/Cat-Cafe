@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CafeName = require(ReplicatedStorage.Shared.CafeName)
 local ClockService = require(script.Parent.ClockService)
+local LawnBuilder = require(script.Parent.Parent.World.LawnBuilder)
 local Net = require(script.Parent.Net)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -88,6 +89,7 @@ function PlotService.release(player: Player)
 	plot.tables:ClearAllChildren()
 	plot.bait:ClearAllChildren()
 	plot.model:SetAttribute("BaitReadyAt", 0)
+	LawnBuilder.clear(plot) -- F91: the owner's lawn pieces, path and fence go with them
 	-- RichTipService has already missed any open tip (unclaimed tips are never paid); the marker and its outcome
 	-- must not outlive the owner (review N232)
 	plot.model:SetAttribute("RichTipOutcome", nil)

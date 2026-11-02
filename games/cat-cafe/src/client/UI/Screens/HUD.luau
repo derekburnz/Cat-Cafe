@@ -5,22 +5,23 @@
 --                 cafe's money, the exact amount on top), a tap on the golden fish shows its exact amount; the potion
 --                 timers sit over the row, or beside the menu's arrow tab on a short screen, led by the Luck chip (F88,
 --                 Screens/LuckChip: "🍀 Luck x1.3" from the first Luck source, a tap opens its card)
---   top right     small icon buttons (Tutorial, Gifts, Daily, Feedback, Settings, Invite), the day and night clock
+--   top right     small icon buttons (Tutorial, Rewards for the gifts and the Daily Treat, Trade, Feedback, and Menu for
+--                 Settings and Invite; Rewards and Menu open a short list), the day and night clock
 --                 under them with the next Lucky Day under it (F88: "🍀 Lucky Day in 2 days"),
 --                 the tier and next goal block (Screens/GoalCard) under that and the quest line under that (F73: the
 --                 closest unfinished daily, "📜 Catch 5 cats 3/5", or "📜 2 ready to claim"; a tap opens Quests), and
 --                 under it "🎡 Free spin at the Town Square" while today's free spin waits (F49)
 --   Lighter HUD (Derek 2026-10-28, after a look at popular Roblox HUDs): counters, the clock and the goal are outlined
 --   text with no box behind them; only things you press look like buttons, and the top centre is left clear.
---   left          big pill buttons: Cats, Index, Quests, Upgrades, Decor, Potions, with key caps and red "!" dots,
---                 centred in the space over the counters, and an arrow tab under them (beside the last pill on a
---                 short screen) that folds them off the edge. Quests (F73) shows once ProfileSync has
---                 quests, with a red count of what is ready to claim
---   bottom centre Equip Best, the gold My Cafe teleport, Alley and Areas (an arrow tab folds the row away), moved
---                 right of the counters on a narrow screen;
---                 above them the carry banner with
---                 its red Drop button, and the tutorial strip above that
---   bottom right  the bait bowl chip, once the Bait bowl upgrade is owned
+--   left          square symbol tiles two to a row (Derek 2026-11-02, fewer buttons): Store (gold, once a Store window
+--                 exists), Cats, Index, Quests, Upgrades, Decor, with small key caps and red "!" dots, centred in the
+--                 space over the counters, and an arrow tab under them (beside the last row on a short screen) that
+--                 folds them off the edge. Quests (F73) shows once ProfileSync has quests, with a red count of what is
+--                 ready to claim
+--   bottom centre the gold My Cafe teleport, Alley and Areas (an arrow tab folds the row away), moved right of the
+--                 counters on a narrow screen; above them the carry banner with its red Drop button, and the tutorial
+--                 strip above that
+--   bottom right  the Potions symbol (the bag) and, once the Bait bowl upgrade is owned, the bowl symbol
 -- F87 (easy-start.md section 2f, Components/HudUnlocks): until the first loop is done only the money, the hint, Home
 -- and the Alley (or the Cannon), the Tutorial tile and Settings show; each other piece appears as it unlocks, with a
 -- gold "New!" on its button for NEW_SECONDS.
@@ -113,6 +114,8 @@ export type HUD = {
 	screenOpened: (self: HUD, name: string?) -> (),
 	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
+	-- the gold Store tile at the top of the left menu, hidden until a Store window exists to open
+	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
 	pulseTutorial: (self: HUD) -> (),
@@ -145,21 +148,30 @@ local BOOST_ROW_H = 24
 -- button while the areas are shut for the night
 local DUSK_SECONDS: number = (Config :: any).DuskWarningSeconds or 15
 local CLOSED_TEXT = Theme.icons.moon .. " Closed"
-local PILL_W = 192
-local PILL_H = 54
-local PILL_ICON = 36 -- the pictures on the pills and the bottom row are bigger than their text (Derek 2026-10-27)
+local STORE_ICON = "🛍️" -- the Store tile (no drawn icon yet; IconArt keeps the emoji)
+local BOWL_ICON = "🥣" -- the bait bowl symbol's glyph, under the Big Bowl perk's picture
+-- Fewer buttons (Derek 2026-11-02: "find a way to group some of the buttons into less screen clutter"; "changing
+-- some buttons into just symbols"): the left menu is a two-column grid of square symbol tiles, not wide pills
+local MENU_TILE = 76
+local MENU_COLUMNS = 2
+local MENU_W = MENU_COLUMNS * MENU_TILE + (MENU_COLUMNS - 1) * Theme.sizes.gap
 local TRAVEL_ICON = 28
 local TRAVEL_W = 136
-local BOWL_W = 150 -- the bait bowl chip, bottom right (moved clear of Roblox's jump button on a phone: _placeBowl)
-local BOWL_H = 64
+-- the potion and bait bowl symbols, bottom right (moved clear of Roblox's jump button on a phone: _placeCorner)
+local SYMBOL = 64
+local SYMBOL_ROW_W = 2 * SYMBOL + Theme.sizes.gap
 local TRAVEL_H = 50 -- every bottom row button, My Cafe too (Derek 2026-10-27 22:26: no bigger, no ears)
-local TRAVEL_ROW_W = 4 * TRAVEL_W + 3 * Theme.sizes.gap
+local TRAVEL_ROW_W = 3 * TRAVEL_W + 2 * Theme.sizes.gap
 -- top right icon buttons; on a phone a little bigger, so each face reaches a finger's 44 px under its lip (F102 took
 -- them out of the UI gate's baseline)
 local ICON = Scale.tapHeight(58)
 local ICON_H = Scale.tapHeight(58, Theme.sizes.buttonDepth)
 -- Tutorial, Gifts, Daily (F70), Feedback, Settings, Trade (F102, from TradeMinTier) and Invite
-local ICON_ROW_W = 7 * ICON + 6 * Theme.sizes.gap
+local ICON_ROW_W = 5 * ICON + 4 * Theme.sizes.gap -- Tutorial, Rewards, Trade, Feedback, Menu
+-- the Rewards and Menu tiles open a short list under the icon row when they hold more than one thing
+local POP_W = 220
+local POP_ROW_H = Scale.tapHeight(44, Theme.sizes.buttonDepth)
+local POP_PAD = 8
 local HIDE_HIT = 30 -- the Tutorial tile's × takes taps this big round its 20 px red dot
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
 local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
@@ -169,7 +181,7 @@ local DROP_W = 104
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
-local MENU_FOLDED_X = -(PILL_W + 40) -- past the left edge, dots too
+local MENU_FOLDED_X = -(MENU_W + 40) -- past the left edge, dots too
 local HOME_TEXT = "My Cafe"
 local HOME_CARRYING_TEXT = "Walk it home" -- the server refuses trips while carrying, so the button says why
 local HOME_CAMP_TEXT = "Camp first" -- the same with the Cat Cannon live: a carried cat is checked in at a camp (F84)
@@ -198,13 +210,12 @@ local TUTORIAL_DONE = 5 -- the tutorial's last step (UIController.refreshTutoria
 local TOPBAR_SLACK = 48
 -- F87: a newly unlocked button's gold "New!" stays this long
 local NEW_SECONDS = 6
--- the left pills each small HUD key shows (F87; Quests has its own rule too)
+-- the left menu tiles each small HUD key shows (F87; Quests has its own rule too, Potions is the corner symbol)
 local PILL_KEYS: { [string]: HudUnlocks.Key } = {
 	Cats = "cats",
 	Index = "index",
 	Upgrades = "upgrades",
 	Decor = "decor",
-	Potions = "potions",
 }
 -- data-model NightIncomeMultiplier: tips pay this share at night (F31: 0.6; F60: 1, full pay, so no line)
 local NIGHT_TIPS: number = Config.NightIncomeMultiplier
@@ -487,7 +498,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Tutorial replays the intro (F72), Gifts opens the Tip Jar (F47) and counts down to the next playtime gift,
 	-- Daily opens the Daily Treat card (F70), Feedback the Feedback window on its Idea chip (2026-11-01: an easy,
 	-- visible way to send feedback, where Settings > Help hid it), the gear opens Settings, Invite opens Roblox's own
-	-- invite window.
+	-- invite window. Since 2026-11-02 (fewer buttons) Gifts and Daily share the Rewards tile and Settings and Invite
+	-- the Menu tile, each opening a short list (_openPop); Feedback stays its own tile (the ads list needs it seen).
 	local icons: Frame = Create("Frame", {
 		Name = "Icons",
 		BackgroundTransparency = 1,
@@ -570,9 +582,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 
-	local gifts = Button.new({
-		name = "Gifts",
-		text = "Gifts",
+	-- Rewards (Derek 2026-11-02, fewer buttons): one tile for the Tip Jar's playtime gifts (F47) and the Daily Treat
+	-- (F70). "Claim!" with a red count while either has something waiting, else the time to the next gift. With both
+	-- live a press opens a short list under the row; with one it opens that window at once.
+	local rewards = Button.new({
+		name = "Rewards",
+		text = "Rewards",
 		icon = Theme.icons.gifts,
 		layout = "tile",
 		textSize = Theme.sizes.textTiny,
@@ -580,16 +595,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 2,
 		parent = icons,
-		sound = false, -- the modal swish is the sound
+		sound = false, -- the list or the modal swish is the sound
 		onClick = function()
-			callbacks.openScreen("TipJar")
+			self:_pressRewards()
 		end,
 	})
-	gifts.instance.Visible = false -- until the first TipJarState
-	table.insert(self._buttons, gifts)
-	self._gifts = gifts
-	-- red count of gifts ready to claim, on the tile's top right corner
-	local giftDot: Frame = Create("Frame", {
+	rewards.instance.Visible = false -- until the first TipJarState or Daily Treat card
+	table.insert(self._buttons, rewards)
+	self._rewards = rewards
+	self._rewardsText = "Rewards"
+	self._gift = nil :: { ready: number, nextIn: number?, left: number }?
+	self._dailyDue = false
+	-- red count of what is ready to claim, on the tile's top right corner
+	local rewardsDot: Frame = Create("Frame", {
 		Name = "Dot",
 		BackgroundColor3 = Theme.colors.red,
 		BorderSizePixel = 0,
@@ -598,52 +616,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Size = UDim2.fromOffset(24, 24),
 		Visible = false,
 		ZIndex = 6,
-		Parent = gifts.instance,
+		Parent = rewards.instance,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.border(giftDot, 2)
-	self._giftDot = giftDot
-	self._giftCount = label({
+	Outline.border(rewardsDot, 2)
+	self._rewardsDot = rewardsDot
+	self._rewardsCount = label({
 		Name = "Count",
 		Size = UDim2.fromScale(1, 1),
 		TextSize = Theme.sizes.textSmall,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "",
 		ZIndex = 7,
-		Parent = giftDot,
+		Parent = rewardsDot,
 	})
-	-- Daily (F70): the Daily Treat card, once ProfileSync has it; "Claim!" and a red dot while a stamp is due
-	local daily = Button.new({
-		name = "Daily",
-		text = "Daily",
-		icon = Theme.icons.daily,
-		layout = "tile",
-		textSize = Theme.sizes.textTiny,
-		style = "primary",
-		size = UDim2.fromOffset(ICON, ICON_H),
-		layoutOrder = 3,
-		parent = icons,
-		sound = false, -- the modal swish is the sound
-		onClick = function()
-			callbacks.openScreen("DailyTreat")
-		end,
-	})
-	daily.instance.Visible = false
-	table.insert(self._buttons, daily)
-	self._daily = daily
-	self._dailyText = "Daily"
-	local dailyDot: Frame = Create("Frame", {
-		Name = "Dot",
-		BackgroundColor3 = Theme.colors.red,
-		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(1, -4, 0, 4),
-		Size = UDim2.fromOffset(18, 18),
-		Visible = false,
-		ZIndex = 6,
-		Parent = daily.instance,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.border(dailyDot, 2)
-	self._dailyDot = dailyDot
 	self._feedbackTile = Button.new({
 		name = "Feedback",
 		text = "Feedback",
@@ -660,38 +645,24 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 	})
 	table.insert(self._buttons, self._feedbackTile)
-	table.insert(
-		self._buttons,
-		Button.new({
-			name = "Settings",
-			text = "Settings",
-			icon = Theme.icons.settings,
-			layout = "tile",
-			textSize = Theme.sizes.textTiny,
-			style = "ghost",
-			size = UDim2.fromOffset(ICON, ICON_H),
-			layoutOrder = 5,
-			parent = icons,
-			onClick = function()
-				callbacks.openScreen("Settings")
-			end,
-		})
-	)
-	self._inviteTile = Button.new({
-		name = "Invite",
-		text = "Invite",
-		icon = Theme.icons.invite,
+	-- Menu (Derek 2026-11-02, fewer buttons): Settings and Invite behind one gear. Once Invite is unlocked a press
+	-- opens the short list; before that it opens Settings.
+	self._menuTile = Button.new({
+		name = "Menu",
+		text = "Menu",
+		icon = Theme.icons.settings,
 		layout = "tile",
 		textSize = Theme.sizes.textTiny,
-		style = "secondary",
+		style = "ghost",
 		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 7,
 		parent = icons,
+		sound = false, -- the list's click or the Settings swish is the sound
 		onClick = function()
-			Invite.prompt() -- F92: with this player's name in the launch data
+			self:_pressMenu()
 		end,
 	})
-	table.insert(self._buttons, self._inviteTile)
+	table.insert(self._buttons, self._menuTile)
 	-- F102 (trading.md section 3): the Trade window, from TradeMinTier (Workspace's live value, so a test server's
 	-- lower minimum shows it too); hidden below it
 	self._tradeTile = Button.new({
@@ -711,6 +682,30 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	self._tradeTile.instance.Visible = false
 	table.insert(self._buttons, self._tradeTile)
+	-- The short list the Rewards and Menu tiles open under the icon row (_openPop): a dark card of full-width rows.
+	local pop = hudPanel("Pop", {
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, MARGIN + ICON_H + 6),
+		Size = UDim2.fromOffset(POP_W, POP_ROW_H + 2 * POP_PAD),
+		Visible = false,
+		ZIndex = 20,
+	})
+	Create("UIPadding", {
+		PaddingTop = UDim.new(0, POP_PAD),
+		PaddingBottom = UDim.new(0, POP_PAD),
+		PaddingLeft = UDim.new(0, POP_PAD),
+		PaddingRight = UDim.new(0, POP_PAD),
+		Parent = pop,
+	})
+	Create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Vertical,
+		Padding = UDim.new(0, 6),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = pop,
+	})
+	self._pop = pop
+	self._popFor = nil :: string?
+	self._popRows = {} :: { [string]: Button.Button }
 
 	-- Clock (top right, under the icon row): the sun or moon and the time to the next phase (F20), right-aligned
 	-- outlined text with no chip behind it ("☀ Day 3:29")
@@ -868,8 +863,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	end)
 	self:_liftRight()
 
-	-- Menu (left, vertically centred): big pill buttons with an icon, the "Shop / Index" column of popular
-	-- simulators. A key cap shows the keyboard shortcut and a red "!" dot says the screen has something new.
+	-- Menu (left, vertically centred): square symbol tiles two to a row, the "Shop / Index" grid of popular
+	-- simulators (Derek 2026-11-02: "group some of the buttons into less screen clutter"; they were wide pills). A small
+	-- key cap shows the keyboard shortcut and a red "!" dot says the screen has something new. The gold Store tile
+	-- leads the grid once a Store window exists (setStore); Potions moved to a symbol in the bottom right corner.
 	local showKeys = UserInputService.KeyboardEnabled
 	type MenuItem = {
 		name: string,
@@ -881,6 +878,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		open: () -> (),
 	}
 	local menuItems: { MenuItem } = {
+		{
+			name = "Store",
+			icon = STORE_ICON,
+			style = "gold",
+			open = function()
+				local open: (() -> ())? = self._storeOpen
+				if open then
+					open()
+				end
+			end,
+		},
 		{
 			name = "Cats",
 			icon = Theme.icons.cats,
@@ -930,20 +938,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				callbacks.openScreen("Decor")
 			end,
 		},
-		{
-			name = "Potions",
-			icon = Theme.icons.potion,
-			key = "P",
-			style = "berry",
-			open = function()
-				callbacks.openScreen("Potions")
-			end,
-		},
 	}
-	-- placed by _layoutMenu in the space over the counters
-	local menuLayout: UIListLayout = Create("UIListLayout", {
-		FillDirection = Enum.FillDirection.Vertical,
-		Padding = UDim.new(0, Theme.sizes.gap),
+	-- placed by _layoutMenu in the space over the counters; hidden tiles leave no hole in the grid
+	local menuLayout: UIGridLayout = Create("UIGridLayout", {
+		CellSize = UDim2.fromOffset(MENU_TILE, MENU_TILE),
+		CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
+		FillDirection = Enum.FillDirection.Horizontal,
+		FillDirectionMaxCells = MENU_COLUMNS,
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	})
 	self._menuLayout = menuLayout
@@ -951,7 +952,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Name = "Menu",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(MARGIN, MARGIN),
-		Size = UDim2.fromOffset(PILL_W, #menuItems * PILL_H + (#menuItems - 1) * Theme.sizes.gap),
+		Size = UDim2.fromOffset(MENU_W, MENU_TILE),
 		Parent = root,
 	}, { menuLayout :: Instance })
 	self._pills = {} :: { [string]: Button.Button }
@@ -960,10 +961,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			name = item.name,
 			text = item.name,
 			icon = item.icon,
-			iconSize = PILL_ICON,
+			layout = "tile",
 			style = item.style,
-			size = UDim2.fromOffset(PILL_W, PILL_H),
-			textSize = Theme.sizes.textLarge,
+			size = UDim2.fromOffset(MENU_TILE, MENU_TILE),
+			textSize = Theme.sizes.textSmall,
 			layoutOrder = index,
 			parent = menu,
 			sound = false, -- the modal swish is the sound
@@ -975,7 +976,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end
 		local key = item.key
 		if showKeys and key then
-			keycap(button.face, key, UDim2.new(1, -8, 0.5, 0), Vector2.new(1, 0.5))
+			keycap(button.face, key, UDim2.new(1, -3, 0, 3), Vector2.new(1, 0))
 		end
 		local screen = item.dot
 		if screen then
@@ -1003,14 +1004,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			})
 			self._dots[screen] = dot
 		end
-		if item.name == "Index" then
-			-- cats found out of all cats, where the old top right cats pill had it
+		if item.name == "Store" then
+			button.instance.Visible = false -- until setStore hands it a window to open
+			self._storeTile = button
+		elseif item.name == "Index" then
+			-- cats found out of all cats, where the old top right cats pill had it, in the tile's top right corner
 			self._indexCount = label({
 				Name = "Count",
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(1, -10, 0.5, 0),
-				Size = UDim2.fromOffset(52, 20),
-				TextSize = Theme.sizes.textSmall,
+				AnchorPoint = Vector2.new(1, 0),
+				Position = UDim2.new(1, -4, 0, 2),
+				Size = UDim2.fromOffset(44, 16),
+				TextSize = Theme.sizes.textTiny,
 				TextXAlignment = Enum.TextXAlignment.Right,
 				Text = "",
 				ZIndex = 5,
@@ -1042,26 +1046,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				Parent = dot,
 			})
 			self._questDot = dot
-		elseif item.name == "Potions" then
-			-- how many potions are in the bag, beside the key cap; blank with none (F64)
-			self._potionCount = label({
-				Name = "Count",
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(1, if showKeys then -36 else -10, 0.5, 0),
-				Size = UDim2.fromOffset(40, 20),
-				TextSize = Theme.sizes.textSmall,
-				TextXAlignment = Enum.TextXAlignment.Right,
-				Text = "",
-				ZIndex = 5,
-				Parent = button.face,
-			})
 		end
 		self._pills[item.name] = button
 		table.insert(self._buttons, button)
 	end
 	self._menu = menu
+	self._storeOpen = nil :: (() -> ())?
 	self._menuFolded = false
-	-- The arrow tab under the pills folds them off the left edge and back. Key binds still open every screen while
+	-- The arrow tab under the tiles folds them off the left edge and back. Key binds still open every screen while
 	-- they are folded, and the tab carries a red dot whenever a folded pill has one, so news is never hidden.
 	local menuFold = Button.new({
 		name = "MenuFold",
@@ -1078,6 +1070,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._menuFold = menuFold
 	self._menuTop = MARGIN
 	self._foldBeside = false
+	self._buffsLow = true -- the potion row sits over the counters (_layoutMenu), not beside the arrow tab
 	self._travelShift = 0
 	local foldDot: Frame = Create("Frame", {
 		Name = "Dot",
@@ -1093,58 +1086,99 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	Outline.border(foldDot, 2)
 	self._menuFoldDot = foldDot
 
-	-- Bait bowl chip (bottom right, F28): what is in the bowl and when the cat comes
-	local bowlSlot: TextButton = Create("TextButton", {
-		Name = "BowlSlot",
-		Text = "",
-		AutoButtonColor = false,
-		BackgroundColor3 = Theme.hud.panel,
-		BackgroundTransparency = Theme.hud.panelTransparency,
-		BorderSizePixel = 0,
+	-- Bottom right corner (Derek 2026-11-02: "a clean potion symbol bottom right and then clicking it opens the menu of
+	-- which to use"): two symbol tiles side by side, Potions (the bag, with how many it holds) and, once the Bait bowl
+	-- upgrade is owned, the bowl (F28) with its state under the picture: "Add food", the time to the cat, "Cat!" on gold.
+	local corner: Frame = Create("Frame", {
+		Name = "Corner",
+		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 1),
 		Position = UDim2.new(1, -MARGIN, 1, -MARGIN),
-		Size = UDim2.fromOffset(BOWL_W, BOWL_H),
+		Size = UDim2.fromOffset(SYMBOL_ROW_W, SYMBOL),
 		Parent = root,
 	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Right,
+			VerticalAlignment = Enum.VerticalAlignment.Bottom,
+			Padding = UDim.new(0, Theme.sizes.gap),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
 	})
-	self._bowlBorder = Outline.border(bowlSlot, Theme.sizes.outline, Theme.hud.stroke)
-	self._bowlSlot = bowlSlot
+	self._corner = corner
+	local potions = Button.new({
+		name = "Potions",
+		text = "Potions",
+		icon = Theme.icons.potion,
+		layout = "tile",
+		textSize = Theme.sizes.textTiny,
+		style = "berry",
+		size = UDim2.fromOffset(SYMBOL, SYMBOL),
+		layoutOrder = 1,
+		parent = corner,
+		sound = false, -- the modal swish is the sound
+		onClick = function()
+			callbacks.openScreen("Potions")
+		end,
+	})
+	table.insert(self._buttons, potions)
+	self._potionsTile = potions
+	if showKeys then
+		keycap(potions.face, "P", UDim2.fromOffset(3, 3))
+	end
+	-- how many potions are in the bag (F64), a paper pill inside the top right corner (the bowl tile sits close on its
+	-- right, so the pill stays inside); hidden with none
+	local potionCount: TextLabel = Create("TextLabel", {
+		Name = "Count",
+		BackgroundColor3 = Theme.colors.paper,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -3, 0, 3),
+		Size = UDim2.fromOffset(28, 22),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.ink,
+		Text = "",
+		Visible = false,
+		ZIndex = 6,
+		Parent = potions.instance,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(potionCount, 2)
+	self._potionCount = potionCount
+	local bowl = Button.new({
+		name = "Bowl",
+		text = "Add food",
+		icon = BOWL_ICON,
+		layout = "tile",
+		textSize = Theme.sizes.textTiny,
+		style = "primary",
+		size = UDim2.fromOffset(SYMBOL, SYMBOL),
+		layoutOrder = 2,
+		parent = corner,
+		sound = false, -- the bait screen plays uiOpen itself
+		onClick = function()
+			self._callbacks.openBait()
+		end,
+	})
+	if bowl.icon then
+		IconArt.setImage(bowl.icon, ShopIcons.image("Perk_BigBowl"), 1.1)
+	end
+	if showKeys then
+		keycap(bowl.face, "F", UDim2.fromOffset(3, 3))
+	end
+	bowl.instance.Visible = false -- once the Bait bowl upgrade is owned (_renderBowlSlot)
+	table.insert(self._buttons, bowl)
+	self._bowl = bowl
+	self._bowlSlot = bowl.instance
+	self._bowlText = "Add food"
+	self._bowlStyle = "primary" :: Button.Style
 	self._bait = nil :: Types.BaitView?
 	self._catWaiting = false
 	self._baitLoop = nil :: RBXScriptConnection?
 	self._baitReady = false
-	self._bowlName = label({
-		Name = "Name",
-		Position = UDim2.fromOffset(12, 8),
-		Size = UDim2.new(1, -24, 0, 22),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody,
-		Text = "Bait bowl",
-		Parent = bowlSlot,
-	})
-	self._bowlSub = label({
-		Name = "Sub",
-		Position = UDim2.fromOffset(12, 32),
-		Size = UDim2.new(1, -24, 0, 20),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.hud.subtext,
-		Text = "Empty · add food",
-		Parent = bowlSlot,
-	})
-	if showKeys then
-		keycap(bowlSlot, "F", UDim2.new(1, -6, 0, 6), Vector2.new(1, 0))
-	end
-	table.insert(
-		self._connections,
-		bowlSlot.Activated:Connect(function()
-			-- the bait screen plays uiOpen itself
-			self._callbacks.openBait()
-		end)
-	)
 
-	-- Bottom row (bottom centre): Equip Best, the gold My Cafe teleport, Alley and Areas, where Grow a Garden
-	-- puts its teleport buttons (features.md F19). The three travel buttons grey out while carrying a cat, since
+	-- Bottom row (bottom centre): the gold My Cafe teleport, Alley and Areas, where Grow a Garden puts its teleport
+	-- buttons (features.md F19). Equip Best left the row on 2026-11-02 (fewer buttons); it stays in the Cats window. The three travel buttons grey out while carrying a cat, since
 	-- walking it home is the loop and the server refuses those trips, and for the trip cooldown.
 	local travelRow: Frame = Create("Frame", {
 		Name = "Travel",
@@ -1169,21 +1203,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._carryBanner = false
 	self._carryState = false
 	self._homeCarrying = false
-	self._equipBest = Button.new({
-		name = "EquipBest",
-		text = "Equip Best",
-		icon = Theme.icons.equipBest,
-		iconSize = TRAVEL_ICON,
-		style = "berry",
-		size = UDim2.fromOffset(TRAVEL_W, TRAVEL_H),
-		textSize = Theme.sizes.textBody,
-		layoutOrder = 1,
-		parent = travelRow,
-		onClick = function()
-			callbacks.equipBest()
-		end,
-	})
-	table.insert(self._buttons, self._equipBest)
 	type TravelItem = { key: string, name: string, label: string, icon: string, style: Button.Style }
 	local travelItems: { TravelItem } = {
 		{ key = "home", name = "Cafe", label = HOME_TEXT, icon = Theme.icons.home, style = "gold" },
@@ -1351,6 +1370,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	self:_layoutBottom()
 	self:_buildBoosts(root)
+	pop.Parent = root -- the Rewards and Menu list goes in last, so it draws over the clock and the goal card
 	-- F88: the Luck chip leads the potion timers' row; its card opens over the counters as the boosts card does (built
 	-- after the menu, so it draws over it)
 	self._luck = LuckChip.new(
@@ -1422,40 +1442,34 @@ function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	end)
 end
 
--- "Bait bowl / Empty · add food", "Tuna / Cat in 7m 42s", then "Cat waiting! / Tap to see it" on gold. F60: food
--- set at night counts down behind a moon ("Tuna / 🌙 Cat in 3m 42s"), and an empty bowl at night reads "🌙 Half wait
--- now", since food set then comes in half the time.
+-- The bowl symbol's line under its picture: "Add food" when empty, the time to the cat ("7:42"), then "Cat!" on a
+-- gold tile. F60: food set at night counts down behind a moon ("🌙 3:42"), and an empty bowl at night reads
+-- "🌙 Half", since food set then comes in half the time. The Bait bowl window has the food's name and the rest.
 function HUD._renderBowl(self: any)
 	local bait: Types.BaitView? = self._bait
 	local wasReady = self._baitReady
 	local ready = false
-	local name = "Bait bowl"
-	local sub = if self._night then Theme.icons.moon .. " Half wait now" else "Empty · add food"
+	local text = if self._night then Theme.icons.moon .. " Half" else "Add food"
 	if bait then
 		local left = bait.readyAt - Workspace:GetServerTimeNow()
 		ready = left <= 0
-		local catalog: Types.Catalog? = self._catalog
-		if catalog then
-			for _, lure in catalog.lures do
-				if lure.id == bait.lureId then
-					name = lure.name
-				end
-			end
-		end
-		if ready then
-			name = "Cat waiting!"
-			sub = if self._catWaiting then "Tap to see it" else "At your bowl"
-		else
-			sub = (if bait.night then Theme.icons.moon .. " " else "")
-				.. "Cat in "
-				.. Format.duration(math.ceil(left))
-		end
+		text = if ready
+			then "Cat!"
+			else (if bait.night then Theme.icons.moon .. " " else "") .. TipJarLogic.clock(
+				left
+			)
 	end
 	self._baitReady = ready
-	self._bowlName.Text = name
-	self._bowlName.TextColor3 = if ready then Theme.colors.gold else Theme.hud.text
-	self._bowlSub.Text = sub
-	self._bowlBorder.Color = if ready then Theme.colors.gold else Theme.hud.stroke
+	local bowl: Button.Button = self._bowl
+	if text ~= self._bowlText then
+		self._bowlText = text
+		bowl:setText(text)
+	end
+	local style: Button.Style = if ready then "gold" else "primary"
+	if style ~= self._bowlStyle then
+		self._bowlStyle = style
+		bowl:setStyle(style)
+	end
 	if ready and not wasReady and self._bowlSlot.Visible then
 		Tween.popIn(self._bowlSlot, 0.9)
 	end
@@ -1707,7 +1721,8 @@ function HUD.render(self: any, state: Types.PlayerState)
 	for _, count in bag do
 		potions += math.max(0, count)
 	end
-	self._potionCount.Text = if potions > 0 then tostring(potions) else ""
+	self._potionCount.Text = tostring(potions)
+	self._potionCount.Visible = potions > 0
 	self._state = state
 	self._carryState = state.carrying ~= nil
 	self:_renderTravel()
@@ -1781,11 +1796,10 @@ function HUD._applyUnlocks(self: any)
 		self._pills[name].instance.Visible = self:_open(key)
 	end
 	self._questsPill.instance.Visible = self._questsLive == true and self:_open("quests")
-	self._gifts.instance.Visible = self._giftsWanted == true and self:_open("gifts")
-	self._daily.instance.Visible = self._dailyWanted == true and self:_open("daily")
+	self:_renderRewards()
 	self._feedbackTile.instance.Visible = self:_open("feedback")
-	self._inviteTile.instance.Visible = self:_open("invite")
-	self._equipBest.instance.Visible = self:_open("equipBest")
+	self._potionsTile.instance.Visible = self:_open("potions")
+	self:_closePop() -- a list made under the old unlocks may hold a row that is gone
 	self._travelButtons.areas.instance.Visible = not self._cannonMode and self:_open("areas")
 	self:_sizeTravelRow()
 	self:setClock(self._clockState) -- the clock and the night tips line
@@ -1818,11 +1832,10 @@ function HUD._unlockTarget(self: any, key: HudUnlocks.Key): (GuiObject?, boolean
 		or (
 			if key == "quests"
 				then self._questsPill
-				elseif key == "gifts" then self._gifts
-				elseif key == "daily" then self._daily
+				elseif key == "gifts" or key == "daily" then self._rewards
 				elseif key == "feedback" then self._feedbackTile
-				elseif key == "invite" then self._inviteTile
-				elseif key == "equipBest" then self._equipBest
+				elseif key == "invite" then self._menuTile
+				elseif key == "potions" then self._potionsTile
 				elseif key == "areas" then self._travelButtons.areas
 				else nil
 		)
@@ -1878,7 +1891,11 @@ end
 
 -- The bowl chip shows once the Bait bowl upgrade is owned.
 function HUD._renderBowlSlot(self: any, state: Types.PlayerState)
-	self._bowlSlot.Visible = (state.upgradeLevels.lure_bowl or 0) >= 1
+	local shown = (state.upgradeLevels.lure_bowl or 0) >= 1
+	if self._bowlSlot.Visible ~= shown then
+		self._bowlSlot.Visible = shown
+		self:_placeCorner()
+	end
 	self:_renderBowl()
 end
 
@@ -2079,6 +2096,7 @@ end
 function HUD._layoutRight(self: any)
 	local lift = self._lift
 	self._icons.Position = UDim2.new(1, -MARGIN, 0, MARGIN - lift)
+	self._pop.Position = UDim2.new(1, -MARGIN, 0, MARGIN + ICON_H + 6 - lift)
 	self._clock.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP - lift)
 	self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H - lift)
 	local top = if self._clock.Visible then GOAL_TOP else CLOCK_TOP
@@ -2210,53 +2228,220 @@ function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerS
 	self:_renderFoldDot()
 end
 
--- The Gifts tile (F47): "Claim!" with a red count while gifts are ready, else the time to the next one, "Done"
--- once all twelve are claimed. nil hides the tile.
+-- The Tip Jar's playtime gifts (F47) on the Rewards tile: nil hides them. uiGiftReady plays when another gift
+-- becomes ready, never for the gifts the first TipJarState already has.
 function HUD.setTipJar(self: any, summary: { ready: number, nextIn: number?, left: number }?)
-	local gifts: Button.Button = self._gifts
 	self._giftsWanted = summary ~= nil
-	gifts.instance.Visible = summary ~= nil and self:_open("gifts")
-	if summary == nil then
-		return
+	self._gift = summary
+	if summary ~= nil then
+		local before: number? = self._giftReady
+		self._giftReady = summary.ready
+		if before ~= nil and summary.ready > before then
+			Sound.play("uiGiftReady")
+		end
 	end
-	local nextIn: number? = summary.nextIn
-	local text = if summary.ready > 0
-		then "Claim!"
-		elseif nextIn ~= nil then TipJarLogic.clock(nextIn)
-		else "Done"
-	if text ~= self._giftText then
-		self._giftText = text
-		gifts:setText(text)
-	end
-	-- uiGiftReady when another gift becomes ready, never for the gifts the first TipJarState already has
-	local before: number? = self._giftReady
-	self._giftReady = summary.ready
-	if before ~= nil and summary.ready > before then
-		Sound.play("uiGiftReady")
-	end
-	local ready = summary.ready > 0
-	if ready and not self._giftDot.Visible then
-		Tween.popIn(self._giftDot, 0.5)
-	end
-	self._giftDot.Visible = ready
-	self._giftCount.Text = tostring(summary.ready)
+	self:_renderRewards()
 end
 
--- The Daily tile (F70): shown once ProfileSync has the Daily Treat card; "Claim!" with a red dot while a stamp is
--- due, else "Daily".
+-- The Daily Treat card (F70) on the Rewards tile: shown once ProfileSync has it, due while a stamp waits.
 function HUD.setDailyTreat(self: any, shown: boolean, due: boolean)
-	local tile: Button.Button = self._daily
 	self._dailyWanted = shown
-	tile.instance.Visible = shown and self:_open("daily")
-	local text = if due then "Claim!" else "Daily"
-	if text ~= self._dailyText then
-		self._dailyText = text
+	self._dailyDue = shown and due
+	self:_renderRewards()
+end
+
+-- What the Rewards tile holds now: the gifts and the Daily Treat, each once it is live and unlocked (F87).
+function HUD._rewardParts(self: any): (boolean, boolean)
+	return self._giftsWanted == true and self:_open("gifts"),
+		self._dailyWanted == true and self:_open("daily")
+end
+
+-- The Rewards tile: shown while it holds anything; "Claim!" and a red count of what waits (gifts ready, plus one for
+-- a due stamp), else the time to the next gift, "Daily" with only the card, or "Rewards".
+function HUD._renderRewards(self: any)
+	local tile: Button.Button = self._rewards
+	local gifts, daily = self:_rewardParts()
+	tile.instance.Visible = gifts or daily
+	local summary: { ready: number, nextIn: number?, left: number }? = if gifts
+		then self._gift
+		else nil
+	local ready = (if summary then summary.ready else 0)
+		+ (if daily and self._dailyDue then 1 else 0)
+	local nextIn: number? = if summary then summary.nextIn else nil
+	local text = if ready > 0
+		then "Claim!"
+		elseif nextIn ~= nil then TipJarLogic.clock(nextIn)
+		elseif daily and not gifts then "Daily"
+		else "Rewards"
+	if text ~= self._rewardsText then
+		self._rewardsText = text
 		tile:setText(text)
 	end
-	if due and not self._dailyDot.Visible then
-		Tween.popIn(self._dailyDot, 0.5)
+	if ready > 0 and not self._rewardsDot.Visible then
+		Tween.popIn(self._rewardsDot, 0.5)
 	end
-	self._dailyDot.Visible = due
+	self._rewardsDot.Visible = ready > 0
+	self._rewardsCount.Text = tostring(ready)
+	if self._popFor == "rewards" then
+		self:_fillPop() -- the open list's lines follow the countdown and the claims
+	end
+end
+
+-- The Rewards tile's press: the list when both parts are live, else the one window it holds.
+function HUD._pressRewards(self: any)
+	local gifts, daily = self:_rewardParts()
+	if gifts and daily then
+		self:_togglePop("rewards")
+	elseif gifts then
+		self._callbacks.openScreen("TipJar")
+	elseif daily then
+		self._callbacks.openScreen("DailyTreat")
+	end
+end
+
+-- The Menu tile's press: the list (Settings, Invite) once Invite is unlocked, else Settings at once.
+function HUD._pressMenu(self: any)
+	if self:_open("invite") then
+		self:_togglePop("menu")
+	else
+		self._callbacks.openScreen("Settings")
+	end
+end
+
+-- The gold Store tile at the top of the left menu: shown with the function that opens the Store window, hidden
+-- with nil. Nothing sells yet, so nothing calls it; the grid keeps its place (Derek 2026-11-02: "store still needs
+-- to be added").
+-- The rows a list holds now, in order: id, icon, style and what pressing it does.
+type PopRow = { id: string, icon: string, style: Button.Style, press: () -> () }
+function HUD._popRowsFor(self: any, kind: string): { PopRow }
+	local rows: { PopRow } = {}
+	local callbacks: Callbacks = self._callbacks
+	if kind == "rewards" then
+		local gifts, daily = self:_rewardParts()
+		if gifts then
+			table.insert(rows, {
+				id = "Gifts",
+				icon = Theme.icons.gifts,
+				style = "berry" :: Button.Style,
+				press = function()
+					callbacks.openScreen("TipJar")
+				end,
+			})
+		end
+		if daily then
+			table.insert(rows, {
+				id = "Daily",
+				icon = Theme.icons.daily,
+				style = "primary" :: Button.Style,
+				press = function()
+					callbacks.openScreen("DailyTreat")
+				end,
+			})
+		end
+	else
+		table.insert(rows, {
+			id = "Settings",
+			icon = Theme.icons.settings,
+			style = "ghost" :: Button.Style,
+			press = function()
+				callbacks.openScreen("Settings")
+			end,
+		})
+		if self:_open("invite") then
+			table.insert(rows, {
+				id = "Invite",
+				icon = Theme.icons.invite,
+				style = "secondary" :: Button.Style,
+				press = function()
+					Invite.prompt() -- F92: with this player's name in the launch data
+				end,
+			})
+		end
+	end
+	return rows
+end
+
+-- A row's words: what it opens and, for the rewards, what waits there ("Gifts: 2 ready", "Next gift 3:20",
+-- "Daily treat: Claim!").
+function HUD._popText(self: any, id: string): string
+	if id == "Gifts" then
+		local summary: { ready: number, nextIn: number?, left: number }? = self._gift
+		local nextIn: number? = if summary then summary.nextIn else nil
+		return if summary and summary.ready > 0
+			then ("Gifts: %d ready"):format(summary.ready)
+			elseif nextIn ~= nil then "Next gift " .. TipJarLogic.clock(nextIn)
+			else "Gifts"
+	elseif id == "Daily" then
+		return if self._dailyDue then "Daily treat: Claim!" else "Daily treat"
+	elseif id == "Invite" then
+		return "Invite friends"
+	end
+	return id
+end
+
+-- Opens the kind's list, or closes it when it is already open; another kind's list gives way.
+function HUD._togglePop(self: any, kind: string)
+	if self._popFor == kind then
+		self:_closePop()
+		return
+	end
+	self:_closePop()
+	self:_hideBoosts()
+	self._luck:hide()
+	local rows = self:_popRowsFor(kind)
+	local pop: Frame = self._pop
+	local width = POP_W - 2 * POP_PAD
+	for order, row in rows do
+		local button = Button.new({
+			name = row.id,
+			text = self:_popText(row.id),
+			icon = row.icon,
+			iconSize = TRAVEL_ICON,
+			style = row.style,
+			size = UDim2.fromOffset(width, POP_ROW_H),
+			textSize = Theme.sizes.textBody,
+			layoutOrder = order,
+			zIndex = 21,
+			parent = pop,
+			sound = false, -- the window's swish (or Roblox's invite window) follows
+			onClick = function()
+				self:_closePop()
+				row.press()
+			end,
+		})
+		self._popRows[row.id] = button
+	end
+	pop.Size = UDim2.fromOffset(POP_W, #rows * POP_ROW_H + math.max(0, #rows - 1) * 6 + 2 * POP_PAD)
+	self._popFor = kind
+	pop.Visible = true
+	Tween.popIn(pop, 0.9)
+	Sound.play("uiClick")
+end
+
+-- The open list's rows say what they say now (the gift countdown ticks while it is open).
+function HUD._fillPop(self: any)
+	for id, button in self._popRows do
+		button:setText(self:_popText(id))
+	end
+end
+
+function HUD._closePop(self: any)
+	self._popFor = nil
+	self._pop.Visible = false
+	for _, button in self._popRows do
+		button:destroy()
+	end
+	table.clear(self._popRows)
+end
+
+function HUD.setStore(self: any, open: (() -> ())?)
+	self._storeOpen = open
+	local tile: Button.Button = self._storeTile
+	local shown = open ~= nil
+	if tile.instance.Visible ~= shown then
+		tile.instance.Visible = shown
+		self:_layoutMenu()
+	end
 end
 
 -- From the modal's changed signal: opening a screen marks what it shows as seen and clears its dot. The Index has
@@ -2266,6 +2451,7 @@ function HUD.screenOpened(self: any, name: string?)
 	if name then
 		self:_hideBoosts() -- a window over the world closes the money's card
 		self._luck:hide() -- and the Luck card (F88)
+		self:_closePop() -- and the Rewards or Menu list
 	end
 	local candidates: Notices.Candidates? = self._candidates
 	if name and candidates and (candidates :: any)[name] then
@@ -2503,9 +2689,9 @@ function HUD._renderBoosts(self: any)
 end
 
 -- The left side, laid out for the screen's height: the counters in the bottom left corner; the potion timers over
--- them when there is room for those and the whole menu with its arrow tab under it, else (a phone) beside the top
--- of the menu with the arrow tab beside the last pill; the menu centred in what is left above; and the bottom row
--- moved right of the counters when the screen is too narrow for it to sit in the middle.
+-- them when there is room for those and the whole menu with its arrow tab under it, else (a phone) beside the
+-- menu's last row with the arrow tab; the menu grid centred in what is left above; the bottom row moved right of the
+-- counters when the screen is too narrow for it to sit in the middle; and the potion and bowl symbols.
 function HUD._layoutMenu(self: any)
 	local scale = Scale.get()
 	local size = self._root.AbsoluteSize
@@ -2521,8 +2707,9 @@ function HUD._layoutMenu(self: any)
 		end
 	end
 	self._menuFold.instance.Visible = shown > 0 -- no tab to fold an empty menu (the small HUD, F87)
-	local spaces = math.max(0, shown - 1)
-	local pills = shown * PILL_H
+	local rows = math.ceil(shown / MENU_COLUMNS)
+	local spaces = math.max(0, rows - 1)
+	local pills = rows * MENU_TILE
 	local foldUnder = gap + 4 + FOLD_H
 	local bandBottom = height - MARGIN - self._counterH - gap
 	local buffsH = BuffChips.rowHeight()
@@ -2535,17 +2722,27 @@ function HUD._layoutMenu(self: any)
 		bandBottom -= buffsH + BUFFS_GAP
 	end
 	local band = bandBottom - MARGIN
-	-- a short screen closes the gaps between the pills a little before anything overlaps
+	-- a short screen closes the gaps between the rows a little before anything overlaps
 	local padding = gap
 	if not roomy and spaces > 0 and pills + spaces * gap > band then
 		padding = math.max(4, math.floor((band - pills) / spaces))
 	end
-	self._menuLayout.Padding = UDim.new(0, padding)
+	self._menuLayout.CellPadding = UDim2.fromOffset(gap, padding)
 	local menuH = pills + spaces * padding
-	self._menu.Size = UDim2.fromOffset(PILL_W, menuH)
+	self._menu.Size = UDim2.fromOffset(MENU_W, menuH)
 	local block = if roomy then menuH + foldUnder else menuH
-	self._menuTop = MARGIN + math.max(0, math.floor((band - block) / 2))
+	-- a short screen (a phone) keeps the grid up at the top, clear of Roblox's thumbstick in the bottom left
+	self._menuTop = if roomy then MARGIN + math.max(0, math.floor((band - block) / 2)) else MARGIN
 	self._foldBeside = not roomy
+	-- the luck, potion and pal chips stay just over the counters on a short screen too, when they fit under the grid
+	-- (Derek 2026-11-02: "the luck on mobile should be moved somewhere better"); else they go beside the arrow tab
+	self._buffsLow = roomy or MARGIN + menuH + gap <= bandBottom - (buffsH + BUFFS_GAP)
+	if self._buffsLow and not roomy then
+		self._buffs:place(
+			UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
+			Vector2.new(0, 1)
+		)
+	end
 
 	self._menu.Position =
 		UDim2.new(0, if self._menuFolded then MENU_FOLDED_X else MARGIN, 0, self._menuTop)
@@ -2565,21 +2762,35 @@ function HUD._layoutMenu(self: any)
 		self._travelFold.instance.Position =
 			UDim2.new(0.5, self._travelShift + rowW / 2 + gap, 1, -MARGIN)
 	end
-	self:_placeBowl()
+	self:_placeCorner()
 end
 
--- The bait bowl chip sits in the bottom right corner, except where Roblox's touch jump button would cover it (a phone:
--- the jump button is drawn in screen pixels, Components/NetButtonPlace). There it moves up and left, its right edge
--- left of where the Net button shows and its foot over the bottom row, so a thumb on jump or Net never lands on it.
--- A tablet's bigger jump button sits higher, over the chip, so the corner stays.
-function HUD._placeBowl(self: any)
-	local bowl: TextButton = self._bowlSlot
+-- The potion and bowl symbols sit in the bottom right corner, except where Roblox's touch jump button would cover
+-- them (a phone: the jump button is drawn in screen pixels, Components/NetButtonPlace). There they move up and left,
+-- their right edge left of where the Net button shows and their foot over the bottom row, so a thumb on jump or Net
+-- never lands on them. A tablet's bigger jump button sits higher, over the corner, so the corner stays.
+function HUD._placeCorner(self: any)
+	local holder: Frame = self._corner
+	local shown = 0
+	for _, child in holder:GetChildren() do
+		if child:IsA("GuiObject") and child.Visible then
+			shown += 1
+		end
+	end
+	local rowW = shown * SYMBOL + math.max(0, shown - 1) * Theme.sizes.gap
+	holder.Size = UDim2.fromOffset(math.max(rowW, SYMBOL), SYMBOL)
 	local corner = UDim2.new(1, -MARGIN, 1, -MARGIN)
 	local camera = Workspace.CurrentCamera
 	local root: Frame = self._root
 	local scale = Scale.get()
-	if not Scale.isTouch() or camera == nil or scale <= 0 or root.AbsoluteSize.Y <= 0 then
-		bowl.Position = corner
+	if
+		shown == 0
+		or not Scale.isTouch()
+		or camera == nil
+		or scale <= 0
+		or root.AbsoluteSize.Y <= 0
+	then
+		holder.Position = corner
 		return
 	end
 	-- the root's corner in screen pixels (GUI space starts under the top bar inset)
@@ -2590,34 +2801,36 @@ function HUD._placeBowl(self: any)
 	local height = root.AbsoluteSize.Y / scale
 	local viewport = camera.ViewportSize
 	local jumpAt, jumpSize = NetButtonPlace.jump(viewport)
-	local chipX = left + (width - MARGIN - BOWL_W) * scale
-	local chipY = top + (height - MARGIN - BOWL_H) * scale
-	local covered = chipX < jumpAt.X + jumpSize
-		and chipX + BOWL_W * scale > jumpAt.X
-		and chipY < jumpAt.Y + jumpSize
-		and chipY + BOWL_H * scale > jumpAt.Y
+	local rowX = left + (width - MARGIN - rowW) * scale
+	local rowY = top + (height - MARGIN - SYMBOL) * scale
+	local covered = rowX < jumpAt.X + jumpSize
+		and rowX + rowW * scale > jumpAt.X
+		and rowY < jumpAt.Y + jumpSize
+		and rowY + SYMBOL * scale > jumpAt.Y
 	if not covered then
-		bowl.Position = corner
+		holder.Position = corner
 		return
 	end
 	local netAt = NetButtonPlace.place(viewport)
 	local right = (netAt.X - NetButtonPlace.GAP - left) / scale -- design px from the root's left edge
 	local foot = height - MARGIN - TRAVEL_H - Theme.sizes.gap
-	bowl.Position = UDim2.fromOffset(math.floor(right), math.floor(foot))
+	holder.Position = UDim2.fromOffset(math.floor(right), math.floor(foot))
 end
 
--- The menu's arrow tab: under the menu, or beside its last pill on a short screen; at the edge once folded.
--- On a short screen the luck, potion and pal chips follow the tab, just over the counters as on a PC (Derek
--- 2026-11-02: "the luck on mobile should be moved somewhere better"; it sat by the Cats pill at the top, on its own),
--- clear of the thumbstick, the jump and Net buttons and the right column.
+-- The menu's arrow tab: under the menu, or beside its last row on a short screen; at the edge once folded.
+-- On a short screen the luck, potion and pal chips sit just over the counters as on a PC when they fit under the
+-- grid (Derek 2026-11-02: "the luck on mobile should be moved somewhere better"; it sat by the Cats pill at the top,
+-- on its own), else they follow the tab, clear of the jump and Net buttons and the right column.
 function HUD._placeMenuFold(self: any)
 	local fold = self._menuFold.instance
 	local menuH = self._menu.Size.Y.Offset
 	if self._foldBeside then
-		local x = if self._menuFolded then MARGIN else MARGIN + PILL_W + Theme.sizes.gap
-		local middle = self._menuTop + menuH - PILL_H / 2
+		local x = if self._menuFolded then MARGIN else MARGIN + MENU_W + Theme.sizes.gap
+		local middle = self._menuTop + menuH - MENU_TILE / 2
 		fold.Position = UDim2.fromOffset(x, middle - FOLD_H / 2)
-		self._buffs:place(UDim2.fromOffset(x + FOLD_W + 12, middle), Vector2.new(0, 0.5))
+		if not self._buffsLow then
+			self._buffs:place(UDim2.fromOffset(x + FOLD_W + 12, middle), Vector2.new(0, 0.5))
+		end
 	else
 		fold.Position = UDim2.fromOffset(MARGIN, self._menuTop + menuH + Theme.sizes.gap + 4)
 	end

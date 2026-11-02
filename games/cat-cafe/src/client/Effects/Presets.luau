@@ -921,8 +921,10 @@ Presets.motion = {
 	--   table to table over `lookSeconds` and tilts `tilt` once every `tiltEvery`.
 	-- `greeter`: the raised paw waves side to side `wave` degrees `hz` times a second, in bursts of `seconds` once
 	--   every `every`, the head tilting `tilt` towards it; between bursts the paw drifts `rest` over `restSeconds`.
-	-- `entertainer`: sings into its mic: once a `beat` the head nods `nod` and the mic tips `mic` with it, the body
-	--   sways `sway` over two beats and the raised paw waves `wave` with the sway.
+	-- `entertainer`: sings into the mic held up under its chin: once a `beat` the head nods `nod` and the mic tips
+	--   `mic` with it, the body sways `sway` over two beats and the free paw, down at its side, swings `swing`
+	--   forward and back with the sway (Derek 2026-11-02 19:34: the mic at the hip with the other paw waving
+	--   "looks a little bit off").
 	work = {
 		sway = 2.5,
 		swaySeconds = 4.8,
@@ -937,7 +939,7 @@ Presets.motion = {
 			rest = 3,
 			restSeconds = 3.7,
 		},
-		entertainer = { beat = 0.5, nod = 6, mic = 6, sway = 4, wave = 12 },
+		entertainer = { beat = 0.5, nod = 6, mic = 6, sway = 4, swing = 10 },
 	},
 	-- The entertainer bats a pom-pom on a springy wand stuck in its perch (Derek 2026-10-28 17:41: Comet's ball was
 	-- "kind of floating" and its foot "randomly" twitched; the old yarn ball slid about in mid air 2 studs past the

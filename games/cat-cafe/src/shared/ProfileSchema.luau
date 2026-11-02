@@ -8,6 +8,7 @@ local Config = require(script.Parent.Config)
 local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
 local FreshCatch = require(script.Parent.FreshCatch)
+local Lawn = require(script.Parent.Lawn)
 local Onboarding = require(script.Parent.Onboarding)
 local Rally = require(script.Parent.Rally)
 local Settings = require(script.Parent.Settings)
@@ -71,7 +72,10 @@ local ProfileSchema = {}
 -- Version 27 (F102, trading.md section 6) adds tradeLog, tradeIds, stats.trades, stats.tradesToday and the "trade"
 -- method: an older server would drop the applied trade ids, so a trade still
 -- pending after a shutdown (section 4) could be applied twice, and it would read a traded cat's method as none.
-ProfileSchema.VERSION = 27
+-- Version 28 (F91, front-lawn.md section 5) adds lawnOwned, lawn and lawnStyles, the front lawn bought with coins: an
+-- older server would drop them, and the player would lose every piece and style paid for. Older saves start with an
+-- empty lawn, Grey Slabs and no fence; CafeService gives the Tier 2 and 3 gifts on load (Lawn.grantTierGifts).
+ProfileSchema.VERSION = 28
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -227,6 +231,9 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		rally = Rally.fresh(now),
 		tradeLog = {},
 		tradeIds = {},
+		lawnOwned = {},
+		lawn = {},
+		lawnStyles = Lawn.freshStyles(),
 	}
 end
 
@@ -833,6 +840,9 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- F102 (version 27): the Trades page and the trades this save has applied
 	profile.tradeLog = Trade.sanitizeLog(raw.tradeLog)
 	profile.tradeIds = Trade.sanitizeIds(raw.tradeIds)
+	-- F91 (version 28): the front lawn, kept to what the tier opens
+	profile.lawnOwned, profile.lawn, profile.lawnStyles =
+		Lawn.sanitize(raw.lawnOwned, raw.lawn, raw.lawnStyles, profile.tier)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

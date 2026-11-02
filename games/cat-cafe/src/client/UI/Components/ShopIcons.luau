@@ -56,7 +56,7 @@ local IDS: { [string]: string } = {
 	Potion_Lucky = "rbxassetid://113720150794733",
 	Potion_Swift = "rbxassetid://73826039259143",
 	Potion_Steady = "rbxassetid://73487077104082",
-	Potion_BigTip = "rbxassetid://72358158442143",
+	Potion_BigTip = "rbxassetid://88414799294549", -- the Big Money jug (Model-Agent #700, uploaded 2026-11-02)
 	Potion_GoldRush = "rbxassetid://120517326297613",
 	Potion_QuickBait = "rbxassetid://88867156736573",
 	-- the HUD's Decor pill: a cat-eared armchair and a potted plant (Model-Agent, Set 5 Q10; uploaded 2026-11-02)

@@ -34,6 +34,7 @@ type Mover = {
 	seconds: number,
 	rise: number,
 	moving: boolean,
+	changed: RBXScriptConnection?, -- its AttributeChanged hook, let go when it leaves Workspace
 }
 
 local movers: { [Model]: Mover } = {}
@@ -152,9 +153,10 @@ local function consider(instance: Instance)
 		seconds = 1,
 		rise = 0,
 		moving = false,
+		changed = nil,
 	}
 	-- a change to its numbers is read on its next pick
-	model.AttributeChanged:Connect(function()
+	movers[model].changed = model.AttributeChanged:Connect(function()
 		local m = movers[model]
 		if m ~= nil and m.bound then
 			rest(m)
@@ -170,6 +172,10 @@ local function pick()
 	local candidates: { Logic.Candidate<Mover> } = {}
 	for model, m in movers do
 		if not model:IsDescendantOf(Workspace) then
+			local changed = m.changed
+			if changed ~= nil then
+				changed:Disconnect()
+			end
 			movers[model] = nil
 		elseif not still then
 			table.insert(

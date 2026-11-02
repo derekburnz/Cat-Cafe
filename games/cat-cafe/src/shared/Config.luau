@@ -316,6 +316,11 @@ local Config = {
 	QuestWeeklyCount = 3,
 	QuestWeekOffsetSeconds = 345600,
 	QuestRollCheckSeconds = 60,
+	-- Claim all (Derek 2026-10-28 and 10-29): the server has ClaimAll (ClaimAllService), so the UI shows its Claim all
+	-- buttons in the Quests window, the Index and the Tip Jar
+	QuestClaimAll = true,
+	IndexClaimAll = true,
+	TipJarClaimAll = true,
 
 	-- Bedtime (F79, data-model sections 12c and 17): at night the working cats walk from their stations to the cat
 	-- trees and beds and sleep, and walk back at sunrise. Pure rules in Bedtime, the walk in BedtimeService.
@@ -557,11 +562,11 @@ local Config = {
 		SewerWidth = 180,
 		SewerDepth = 180,
 		SideGateHalfWidth = 12,
-		-- The Neighbourhood (v3.2: 280 x 280) with its camp on its south side.
+		-- The Neighbourhood (F85, hometown-cannon.md section 6b): long, 180 wide and 430 deep, its camp on its south side.
 		NeighbourhoodCenterX = 0,
 		NeighbourhoodCenterZ = 2000,
-		NeighbourhoodWidth = 280,
-		NeighbourhoodDepth = 280,
+		NeighbourhoodWidth = 180,
+		NeighbourhoodDepth = 430,
 		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
 		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
 		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its

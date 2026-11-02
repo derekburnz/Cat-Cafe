@@ -4,6 +4,7 @@
 # a one-time Robux purchase the player keeps for good; the game asks MarketplaceService whether a player owns its id.
 # Passes cannot be deleted, so `create` only makes the passes whose names are not there yet: running it twice makes
 # nothing new. New passes start off sale unless FOR_SALE=true, so nobody can buy one before the shop is ready.
+# An entry's "id" in passes.json only records the pass Roblox made for it (create matches passes by name).
 # Run by .github/workflows/game-passes.yml; also works from Git Bash on a PC with the same variables set.
 #
 #   ROBLOX_PUBLISH_KEY   Open Cloud API key with game-pass:read and game-pass:write on Cat Cafe (docs/setup-guide.md step 22)

@@ -59,6 +59,11 @@ STUCK_POSES = {
 }
 
 
+def cats_work_arms(role):
+    import cats
+    return cats.WORK_ARMS[role]
+
+
 # Piece poses (cats.py joints). Angles are Blender XYZ degrees about each piece's joint; lift is unscaled studs.
 # lick: the left front paw (LegF1) swings forward and up to the mouth and the head tips down and toward it.
 # Lying down, the folded legs turn out a little so the paws show at the sides (Derek 2026-10-27; the game's
@@ -76,6 +81,17 @@ CAT_POSES = {
                   note="The loaf with the head down and turned, tail curled round the side."),
     "eat": dict(body="walk", parts={"Head": (42, 0, 0), "Tail": (-10, 0, 0)},
                 note="Standing, head down to a bowl in front of the front paws."),
+    # S at work (cats.WORK_ARMS): the arms turned for the role, and the role's Held_<Role> riding its arm upright
+    "work_barista": dict(body="work", parts=dict(cats_work_arms("barista")),
+                         note="Standing at work, the right paw held out with a takeaway cup (Held_Barista in LegF2)."),
+    "work_waiter": dict(body="work", parts=dict(cats_work_arms("waiter")),
+                        note="Standing at work, a tray with a cup and a slice of cake held out at the left side "
+                             "(Held_Waiter in LegF1)."),
+    "work_greeter": dict(body="work", parts=dict(cats_work_arms("greeter")),
+                         note="Standing at work, waving the left paw up and out; nothing held."),
+    "work_entertainer": dict(body="work", parts=dict(cats_work_arms("entertainer")),
+                             note="Standing at work, a microphone in the right paw (Held_Entertainer in LegF2), the "
+                                  "left paw up and waving."),
 }
 
 
@@ -106,6 +122,8 @@ def cat_pose_matrices(cat_objs, pose, spec, body):
     out = {}
     for ob in cat_objs:
         piece = _piece(ob)
+        if ob.get("rides") not in (None, "Head", "Body"):  # S's held things turn with their arm
+            piece = ob["rides"]
         M = lift
         if _on_head(ob):
             M = M @ turn.get("Head", Matrix.Identity(4))

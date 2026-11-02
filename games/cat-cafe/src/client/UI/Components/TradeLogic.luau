@@ -12,7 +12,8 @@
 --   countdown(state, now) -> number?     the big number while both are ready
 --   readyButton(state) -> ButtonView     Ready, Not ready, or Ready greyed with both offers empty
 --   warning(state) -> string?            the confirm screen's red line: a gift or a lopsided trade
---   confirmButton(state, shownFor)       Confirm, "Confirm (2)" for the first CONFIRM_WAIT seconds of a warning, or
+--   confirmButton(state, shownFor, now)  Confirm, "Confirm (2)" until the server's confirmAt (else for the first
+--                                        CONFIRM_WAIT seconds of a warning), or
 --                                        "Waiting for Sam" once pressed
 --   changed(state, now) -> Changed?      the tile that changed in the last CHANGED_SECONDS, for the yellow flash
 --   myCats(cats, defOf, offered) -> { Pick }   your cats under the grids: rarest first, each with why it cannot go
@@ -94,7 +95,7 @@ local TradeLogic = {}
 TradeLogic.ICON = "🤝"
 TradeLogic.TITLE = "Trade"
 TradeLogic.CHANGED_SECONDS = 2 -- how long a changed tile flashes and its side says "Changed!"
-TradeLogic.CONFIRM_WAIT = 2 -- Confirm stays off this long on a gift or a lopsided trade
+TradeLogic.CONFIRM_WAIT = (Config.TradeConfirmWaitSeconds or 2) :: number -- Confirm stays off this long on a gift or a lopsided trade
 TradeLogic.MAX_CATS = (Config.TradeMaxCats or 9) :: number
 TradeLogic.REQUEST_SECONDS = (Config.TradeRequestSeconds or 20) :: number
 -- a declined or lapsed ask cannot be repeated this long, so a players row says "Asked" for it (review N332)
@@ -201,8 +202,10 @@ function TradeLogic.warning(state: any): string?
 	return nil
 end
 
--- `shownFor` is how long the confirm screen has been up, in seconds.
-function TradeLogic.confirmButton(state: any, shownFor: number): ButtonView
+-- `shownFor` is how long the confirm screen has been up, in seconds, and `now` the server time. The server's
+-- confirmAt (when it starts to accept this player's Confirm) decides the wait; a state without one waits CONFIRM_WAIT
+-- from the screen showing on a warning. Never more than CONFIRM_WAIT, so an odd confirmAt cannot hold it longer.
+function TradeLogic.confirmButton(state: any, shownFor: number, now: number?): ButtonView
 	if state.me.confirmed then
 		return {
 			text = string.format("Waiting for %s", state.them.name),
@@ -210,9 +213,21 @@ function TradeLogic.confirmButton(state: any, shownFor: number): ButtonView
 			style = "primary",
 		}
 	end
-	local wait = math.ceil(TradeLogic.CONFIRM_WAIT - shownFor)
-	if TradeLogic.warning(state) ~= nil and wait > 0 then
-		return { text = string.format("Confirm (%d)", wait), enabled = false, style = "danger" }
+	local warned = TradeLogic.warning(state) ~= nil
+	local confirmAt = state.confirmAt
+	local left = 0
+	if type(confirmAt) == "number" and confirmAt == confirmAt and now ~= nil then
+		left = confirmAt - now
+	elseif warned then
+		left = TradeLogic.CONFIRM_WAIT - shownFor
+	end
+	local wait = math.ceil(math.min(left, TradeLogic.CONFIRM_WAIT))
+	if wait > 0 then
+		return {
+			text = string.format("Confirm (%d)", wait),
+			enabled = false,
+			style = if warned then "danger" else "primary",
+		}
 	end
 	return {
 		text = "Confirm",
@@ -322,7 +337,7 @@ end
 local REQUEST_MODES: { RequestMode } = { "everyone", "friends", "off" }
 TradeLogic.REQUEST_MODES = REQUEST_MODES
 TradeLogic.HOLD_SECONDS = 5 -- a press shows this long while the server has not agreed (SettingsList.HOLD_SECONDS)
-TradeLogic.LOG_MAX = 20
+TradeLogic.LOG_MAX = (Config.TradeLogMax or 20) :: number
 
 local MODE_LABELS: { [string]: string } =
 	{ everyone = "Everyone", friends = "Friends only", off = "Off" }

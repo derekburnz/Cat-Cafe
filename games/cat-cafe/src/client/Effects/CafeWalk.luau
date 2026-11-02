@@ -7,7 +7,9 @@
 --
 --   CafeWalk.go(cat, route, opts)  walks `cat` (a station cat in your own cafe) from where it is through `route`
 --                                   (world points on the cafe floor), then stands facing opts.faceAt; opts.tray rides
---                                   on its head and opts.arrived runs when it gets there. False if it cannot go.
+--                                   level on its head, its underside on the body's Carry attachment at the ear tips,
+--                                   with any hat taller than the ears hidden under it, and opts.arrived runs when it
+--                                   gets there. False if it cannot go.
 --   CafeWalk.home(cat, done)        walks it back the way it came, sits it at its station and then runs `done`
 --                                   (at once if it is not away). A go() before it is back sends it off again and
 --                                   drops `done`.
@@ -35,7 +37,8 @@ local CafeWalk = {}
 
 export type Options = {
 	faceAt: Vector3?, -- where it looks once it gets there (a table)
-	tray: Model?, -- carried level on its head, placed each frame; the caller makes and removes it
+	tray: Model?, -- carried level on its head, placed each frame; the caller makes and removes it (a dish or the
+	-- coin bag goes inside the tray Model, on its Item attachment, so it moves with it)
 	speed: number?, -- studs a second; Presets.cafeWalk.speed by default
 	arrived: (() -> ())?, -- runs once when it gets to the end of the route
 }
@@ -48,6 +51,8 @@ type Walk = {
 	walker: Model,
 	rig: Pose.Rig,
 	head: BasePart?,
+	carry: Attachment?, -- Model-Agent's Carry attachment over the ears (#778), where a tray's underside goes
+	tall: { BasePart }, -- head props and hats that rise above Carry, hidden while a tray rides on the head
 	hidden: { BasePart }, -- the station model's parts, faded out on this client
 	cover: number, -- how far they are faded out now, for a part that arrives mid walk
 	shown: { BasePart }, -- the walker's parts
@@ -144,8 +149,8 @@ local function makeWalker(station: Model, home: CFrame): Model?
 	local role = station:GetAttribute("Role")
 	local folder = assets()
 	if type(role) == "string" and folder ~= nil then
-		-- the walking body has no Outfit_ slots yet, so today it walks in its own coat, as a cat on its bedtime trip
-		-- does; the pieces go on by themselves once the asset gains them
+		-- the walking body has slots for the head pieces, the bow tie and the cape (Model-Agent's #778); a piece it has
+		-- no slot for (the apron, the vest, the sash) is left off until the walking meshes exist
 		CatDress.dress(walker, role, function(name: string): Model?
 			local found = folder:FindFirstChild(name)
 			return if found ~= nil and found:IsA("Model")
@@ -177,6 +182,50 @@ local function headOf(walker: Model): BasePart?
 		end
 	end
 	return best
+end
+
+-- The walker's Carry attachment (in its Head part, at the ear tips), or nil on a body without one.
+local function carryOf(walker: Model): Attachment?
+	local found = walker:FindFirstChild("Carry", true)
+	return if found ~= nil and found:IsA("Attachment") then found :: Attachment else nil
+end
+
+-- Whether a part is a prop on the cat rather than the cat: a dressed outfit piece (CatDress gives its parts Follows) or
+-- a part of the cat's own `_Prop` or `_Prop2` Model.
+local function isProp(part: BasePart, walker: Model): boolean
+	if part:GetAttribute("Follows") ~= nil then
+		return true
+	end
+	local at: Instance? = part.Parent
+	while at ~= nil and at ~= (walker :: Instance) do
+		local name = at.Name
+		if string.sub(name, -5) == "_Prop" or string.sub(name, -6) == "_Prop2" then
+			return true
+		end
+		at = at.Parent
+	end
+	return false
+end
+
+-- The props whose top rises above the Carry attachment (a chef's hat, a top hat, the role hats), which a tray on the
+-- head would cut through (cats-make-orders.md: "props on the Head move aside"); glasses, a bow tie or a collar stay.
+local function tallProps(walker: Model, carry: Attachment?): { BasePart }
+	local out: { BasePart } = {}
+	if carry == nil then
+		return out
+	end
+	local over = carry.WorldPosition.Y + Presets.cafeWalk.tallAbove
+	for _, part in partsOf(walker) do
+		if isProp(part, walker) then
+			local cf = part.CFrame
+			local top = cf.Position.Y
+				+ Logic.halfHeight(part.Size, cf.RightVector, cf.UpVector, cf.LookVector)
+			if top > over then
+				table.insert(out, part)
+			end
+		end
+	end
+	return out
 end
 
 local function setRoute(walk: Walk, points: { Vector3 })
@@ -283,12 +332,15 @@ local function begin(cat: Model, idle: boolean): Walk?
 		walker:Destroy()
 		return nil
 	end
+	local carry = carryOf(walker)
 	local walk: Walk = {
 		station = cat,
 		home = home,
 		walker = walker,
 		rig = rig,
 		head = headOf(walker),
+		carry = carry,
+		tall = tallProps(walker, carry),
 		hidden = {},
 		cover = 0,
 		shown = partsOf(walker),
@@ -578,10 +630,26 @@ local function advance(walk: Walk, now: number, dt: number)
 	local o = Logic.idle("stray", now + walk.phase, rig.kind)
 	Logic.gait(o, walk.speed, walk.stride)
 	Pose.draw(rig, o, -1)
-	local tray, head = walk.options.tray, walk.head
-	if tray ~= nil and head ~= nil and tray.Parent ~= nil then
-		local top = head.Position + Vector3.new(0, head.Size.Y / 2 + c.trayLift, 0)
-		tray:PivotTo(CFrame.new(top) * CFrame.Angles(0, walk.yaw, 0))
+	local tray, head, carry = walk.options.tray, walk.head, walk.carry
+	local carrying = tray ~= nil and tray.Parent ~= nil
+	if carrying then
+		-- level and turned with the walker, its underside on the ear tips (Carry), else just over the head's top
+		local top = if carry ~= nil and carry.Parent ~= nil
+			then carry.WorldPosition
+			elseif head ~= nil then head.Position + Vector3.new(
+				0,
+				head.Size.Y / 2 + c.trayLift,
+				0
+			)
+			else nil
+		if top ~= nil then
+			(tray :: Model):PivotTo(CFrame.new(top) * CFrame.Angles(0, walk.yaw, 0))
+		end
+	end
+	-- tall head props step aside under a tray and come back once it is set down; the get up and sit down fades
+	-- handle them otherwise
+	if carrying or (walk.state ~= "up" and walk.state ~= "down") then
+		setFade(walk.tall, if carrying then 1 else 0)
 	end
 end
 

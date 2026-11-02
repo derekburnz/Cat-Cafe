@@ -2099,6 +2099,14 @@ function Logic.luckyLevelUp(before: number?, after: number): boolean
 	return before ~= nil and after > before and after >= 1
 end
 
+-- Cafe walks ------------------------------------------------------------------------------------------------------
+
+-- Half a box's height in the world: how far above its centre the top of a part `size` big reaches, turned so its own
+-- axes point along `right`, `up` and `look` (a CFrame's RightVector, UpVector and LookVector).
+function Logic.halfHeight(size: Vector3, right: Vector3, up: Vector3, look: Vector3): number
+	return 0.5 * (math.abs(right.Y) * size.X + math.abs(up.Y) * size.Y + math.abs(look.Y) * size.Z)
+end
+
 -- Camp extras (F100, camp-extras.md section 3) --------------------------------------------------------------------
 
 -- A keyed turn `t` seconds in, in degrees: `keys` lists { seconds, degrees } in time order; between two keys it eases

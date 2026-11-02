@@ -1030,7 +1030,7 @@ export type CatPose = { body: string, lift: number, turns: { [string]: { number 
 -- every `every` seconds (a random time between the two), at most `most` at once and only while the camera is within
 -- `range` studs. Getting up and sitting down cross-fade the seated body and the walking body over `fade` seconds; it
 -- turns at most `turn` degrees a second. Off with Reduce Motion. F90's orders (cats-make-orders.md) send the same
--- walk with a tray.
+-- walk with a tray, its underside on the walking body's Carry attachment at the ear tips (Model-Agent's #778).
 Presets.cafeWalk = {
 	speed = 3,
 	turn = 300,
@@ -1040,7 +1040,8 @@ Presets.cafeWalk = {
 	reach = 12,
 	most = 2,
 	range = 70,
-	trayLift = 0.08, -- studs a tray sits above the top of the head
+	trayLift = 0.08, -- studs a tray sits above the top of the head, on a body without a Carry attachment
+	tallAbove = 0.05, -- studs a head prop may rise above Carry before it steps aside under a tray
 }
 
 -- The Bellhop Cat's five animations (F96, starter-cat.md section 1), on Model-Agent's #708 hinges: the cap (`_Prop`

@@ -432,6 +432,10 @@ export type CatFoundExtra = {
 	stars: number?,
 	shiny: boolean?,
 	charmGain: number?,
+	-- F96: a cat given, not caught (the free Bellhop Cat's claim card)
+	banner: string?, -- in place of "NEW RARE CAT!"
+	line: string?, -- in gold under the name, in place of the description
+	rate: number?, -- in place of the catalog's incomePerSecond (an exclusive cat earns like its rarity in the newest area)
 }
 
 export type InitConfig = {

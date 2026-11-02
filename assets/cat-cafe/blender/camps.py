@@ -27,7 +27,8 @@ beds and recycling bins; Woods a tent, a campfire with log benches, lanterns and
 wall lanterns, barrels, cones and tyres.
 
 CatCafe_Camp_ParkF85 is the Park's camp for F85's long Park (parkf85.py, CatCafe_Park_SetF85, 120 x 310): the same
-camp 120 wide, in front of the 24 stud way out, placed with the long set's CFrame.
+camp 120 wide, in front of the 24 stud way out, placed with the long set's CFrame. CatCafe_Camp_NeighbourhoodF85 is
+the same for the long Neighbourhood (neighbourhoodf85.py, 180 x 430).
 """
 
 import math
@@ -63,7 +64,10 @@ AREAS = {
     "ParkF85": dict(W=120.0, D=310.0, half=12.0, ground="leaf_green", path="paving_sand", wall="paving_grout",
                     top="leaf_dark", trim="paw_park", theme="Park"),
     "Neighbourhood": dict(W=280.0, D=280.0, half=16.0, ground="leaf_green", path="paving_light", wall="brick",
-                          top="offwhite", trim="paw_neighbourhood"),
+                          top="offwhite", trim="paw_neighbourhood", theme="Neighbourhood"),
+    # F85: the long Neighbourhood, 180 x 430 behind a 24 stud opening
+    "NeighbourhoodF85": dict(W=180.0, D=430.0, half=12.0, ground="leaf_green", path="paving_light", wall="brick",
+                             top="offwhite", trim="paw_neighbourhood", theme="Neighbourhood"),
     "Woods": dict(W=240.0, D=240.0, half=12.0, ground="fur_moss", path="fur_sand", wall="caramel_wood",
                   top="dark_wood", trim="paw_woods"),
     "Sewer": dict(W=180.0, D=180.0, half=12.0, ground="concrete_dark", path="concrete", wall="brick",
@@ -248,7 +252,7 @@ def _theme(s, mat, area, G, B, W, half):
             for x in (18, 32, 52):
                 s.put(nb.flowerbed(mat), sx * x, B + 2.5, 180)
             s.put(nb.flowerbed(mat), sx * (half + 14), G - 3, 0)
-    elif area == "Neighbourhood":
+    elif AREAS[area].get("theme") == "Neighbourhood":
         s.put(nb.mailbox(mat), half + 4, G - 3, 0)
         s.put(nb.recycling_bins(mat), -(half + 14), G - 3.5, 0)
         for sx in (1, -1):
@@ -257,7 +261,7 @@ def _theme(s, mat, area, G, B, W, half):
                 s.put(nb.fence(mat, 8.0), sx * x, B + 3, 0)
             for x in (16, 32):
                 s.put(nb.flowerbed(mat), sx * x, B + 6, 0)
-            for x in (60, 90, 120):
+            for x in (x for x in (60, 90, 120) if x < W / 2 - 6):
                 s.put(park.build_tree(mat), sx * x, B + 8, 0)
             s.put(nb.hedge(mat, 6.0), sx * (W / 2 - 4), G - 10, 90)
     elif area == "Woods":

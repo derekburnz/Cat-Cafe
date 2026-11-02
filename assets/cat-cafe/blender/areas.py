@@ -274,10 +274,16 @@ def build_neighbourhood_gate(mat):
     return _gate("CatCafe_Neighbourhood_Gate", mat, 32.0, "rarity_rare", "sign_teal", _neighbourhood)
 
 
+def build_neighbourhood_gate_f85(mat):
+    """F85: the same gate over the long Neighbourhood's 24 stud opening (Config.World.CampOpeningWidth)."""
+    return _gate("CatCafe_Neighbourhood_GateF85", mat, 24.0, "rarity_rare", "sign_teal", _neighbourhood)
+
+
 ASSETS = {
     "CatCafe_Park_Gate": (build_park_gate, 6000),
     "CatCafe_Park_GateF85": (build_park_gate_f85, 6000),
     "CatCafe_Neighbourhood_Gate": (build_neighbourhood_gate, 6000),
+    "CatCafe_Neighbourhood_GateF85": (build_neighbourhood_gate_f85, 6000),
     "CatCafe_Woods_Gate": (build_woods_gate, 6000),
     "CatCafe_Sewer_Gate": (build_sewer_gate, 6000),
 }

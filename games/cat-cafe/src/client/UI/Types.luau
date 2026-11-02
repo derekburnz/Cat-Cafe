@@ -255,6 +255,11 @@ export type PlayerState = {
 	quests: QuestsView?, -- F73: the Quests window's Daily and Weekly tabs and the HUD's quest line
 	achievements: { [string]: AchievementView }?, -- F73: achievement id -> its progress and claim
 	dailyTreat: DailyTreatView?, -- F70: the Daily Treat window's card and the HUD's Daily tile
+	-- F87 (easy-start.md section 6): the context tips seen (tip id or "like_ask" to true); nil until ProfileSync
+	-- sends it, and the client-found tips, the help card and the feedback ask wait for it
+	tipsSeen: { [string]: boolean }?,
+	feedbackAsked: boolean?, -- F87: the one slide-in feedback ask has shown, or a face was sent
+	stuckHelpShown: { [string]: boolean }?, -- F87: tutorialStep ("0" to "5") to true once its help card showed
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -292,6 +297,9 @@ export type PartialState = {
 	quests: QuestsView?,
 	achievements: { [string]: AchievementView }?,
 	dailyTreat: DailyTreatView?,
+	tipsSeen: { [string]: boolean }?,
+	feedbackAsked: boolean?,
+	stuckHelpShown: { [string]: boolean }?,
 }
 
 export type ScreenName =

@@ -1375,6 +1375,30 @@ for id, spec in Layout.areas do
 	end
 end
 
+-- The camp extras (F100, camp-extras.md section 3; Model-Agent #750): where each model's pivot (its base centre,
+-- front -Z, no turn of its own) stands in its area's set space, the space the camp set is placed in (origin the area's
+-- centre on its floor, turned by the camp's turn): in the camp beside the way out, across from the Index Board.
+Layout.campExtras = {
+	park = { x = 23, y = 0, z = -65.5 },
+	neighbourhood = { x = 26, y = 0, z = -145.5 },
+	woods = { x = 21.5, y = 0, z = -125 },
+	sewer = { x = 20, y = 0, z = -94.5 },
+} :: { [string]: Point }
+
+-- Where an area's camp extra stands in the world: x, the floor's y and z, the turn about Y (the camp's), or nil for an
+-- area with no extra or no camp.
+function Layout.campExtraAt(areaId: string): (number?, number?, number?, number?)
+	local at, spec, camp = Layout.campExtras[areaId], Layout.areas[areaId], Layout.camps[areaId]
+	if at == nil or spec == nil or camp == nil then
+		return nil, nil, nil, nil
+	end
+	local c, s = math.cos(math.rad(camp.turn)), math.sin(math.rad(camp.turn))
+	return spec.center.x + at.x * c + at.z * s,
+		spec.floorY,
+		spec.center.z - at.x * s + at.z * c,
+		camp.turn
+end
+
 -- The camp an x, z stands in, by its rect (edges included), or nil.
 function Layout.campAt(x: number, z: number): string?
 	for id, camp in Layout.camps do

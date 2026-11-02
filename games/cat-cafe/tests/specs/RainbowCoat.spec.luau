@@ -226,7 +226,7 @@ return function()
 			local profile = ProfileSchema.migrate(raw, 1000)
 			expect(next(profile.rainbowCollection)).never.to.be.ok()
 			expect(profile.stats.rainbowCatches).to.equal(0)
-			expect(profile.version).to.equal(24)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 		end)
 	end)
 end

@@ -9,6 +9,7 @@ local BaitService = require(script.Parent.Services.BaitService)
 local BedtimeService = require(script.Parent.Services.BedtimeService)
 local BugReportService = require(script.Parent.Services.BugReportService)
 local CafeService = require(script.Parent.Services.CafeService)
+local CampExtraService = require(script.Parent.Services.CampExtraService)
 local CannonService = require(script.Parent.Services.CannonService)
 local CatService = require(script.Parent.Services.CatService)
 local ClockService = require(script.Parent.Services.ClockService)
@@ -81,6 +82,7 @@ BugReportService.start(world)
 PassService.start() -- F95: purchases in game; DataService checks owned passes at each join
 PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
+CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
 Telemetry.start() -- after every service that registers leave work, so its own runs last
 DataService.start()
 

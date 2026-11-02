@@ -1,6 +1,7 @@
 --!strict
 -- Save data (data-model section 14): template, migration and sanitising. Pure.
 
+local CampExtras = require(script.Parent.CampExtras)
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
@@ -60,7 +61,10 @@ local ProfileSchema = {}
 -- Version 24 (F99, rainbow-coat.md section 5) adds the rainbow coat: variant "rainbow", rainbowCollection and
 -- stats.rainbowCatches. An older server would read a rainbow cat as a base one and save it so, and drop the
 -- collection and the count.
-ProfileSchema.VERSION = 24
+-- Version 25 (F100, camp-extras.md section 4) adds campExtras, what the four camp extras hold and the Yard Sale's
+-- buys today: an older server would drop it, letting a player collect the same fill or buy the same crate twice by
+-- hopping servers during a rollout. A save from before version 25 starts with one fill waiting at each open extra.
+ProfileSchema.VERSION = 25
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -210,6 +214,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		stuckHelpShown = {},
 		starterCatClaimed = false,
 		notifyAskAt = 0,
+		campExtras = CampExtras.fresh(now),
 	}
 end
 
@@ -790,6 +795,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 
 	-- F96 (version 22): when the notification ask first showed, never in the future
 	profile.notifyAskAt = math.clamp(asInt(raw.notifyAskAt, 0), 0, now)
+	-- F100 (version 25): the camp extras, settled for the tier by CampExtraService once the profile loads
+	profile.campExtras = CampExtras.sanitize(raw.campExtras, now)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

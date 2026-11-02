@@ -54,6 +54,7 @@ export type CustomEvent =
 	| "bait_resolved"
 	| "gold_found"
 	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
+	| "camp_extra" -- F100 (camp-extras.md section 4): value the fills taken or 1; the extra, what was taken, tier
 	| "shove"
 	| "drop_outcome"
 	| "left_after_shove"

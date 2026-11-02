@@ -16,7 +16,7 @@
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
 	  J tip jar         K index rewards     L spin wheel           R bug report
 	  P fish market     O fresh catch       T codes             X tips              Z bellhop cat
-	  V trade (two clients)
+	  V trade (two clients)  Keypad 1 claim all     Keypad 2 camp extras (stand in a camp)
 	  Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
@@ -47,7 +47,9 @@ end
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BugReport = require(Shared:WaitForChild("BugReport"))
+local CampExtras = require(Shared:WaitForChild("CampExtras"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local ClaimAll = require(Shared:WaitForChild("ClaimAll"))
 local Circles = require(Shared:WaitForChild("Circles"))
 local Codes = require(Shared:WaitForChild("Codes"))
 local Config = require(Shared:WaitForChild("Config"))
@@ -92,6 +94,7 @@ local events: { Event } = {}
 local state: Types.PlayerState? = nil
 local tipJar: Types.TipJarState? = nil -- the newest TipJarState (F47)
 local freshStock: Types.FreshCatchStock? = nil -- the newest FreshCatchStock (F94), nil at night
+local campState: Types.CampExtrasState? = nil -- the newest CampExtrasState (F100), sent on join
 local running: string? = nil
 local lastSyncAt = 0 -- os.clock() of the newest ProfileSync
 local lastSwingAt = -math.huge -- os.clock() of the newest SwingNet this script fired
@@ -6275,6 +6278,560 @@ case("reportBug", Enum.KeyCode.R, "Bug reports: bad texts, huge, flood, 21 s on"
 			.. "; 21 s later went through. Server output: the big report's [BugReport] line keeps 500 bytes of text, kind bug and 3 client errors of 200 bytes; no [Net] ReportBug handler failed line"
 end)
 
+-- Claim all (engineer PR #818, ui-contract.md `claimAll`) ----------------------------------------------------------
+-- ClaimAll(what) pays every ready reward of one kind (shared/ClaimAll.KINDS) with one "good" toast, each marked before
+-- it pays, so a burst can never pay twice; nothing ready answers ClaimAll.NOTHING; anything else is dropped with no
+-- answer. Net allows 2 per 2 s, so the Quests window's daily then weekly both land.
+
+-- The answers to ClaimAll since `startedAt`: the toasts that paid ("[good]") and the ClaimAll.NOTHING refusals.
+local function claimAllAnswers(startedAt: number): (number, number)
+	local paid, nothing = 0, 0
+	for _, event in since(startedAt, "Toast") do
+		if string.find(event.text, ClaimAll.NOTHING, 1, true) ~= nil then
+			nothing += 1
+		elseif string.sub(event.text, 1, 6) == "[good]" then
+			paid += 1
+		end
+	end
+	return paid, nothing
+end
+
+case(
+	"claimAll",
+	Enum.KeyCode.KeypadOne,
+	"Claim all: junk kinds, ten Index claims in a frame, daily and weekly together",
+	function()
+		if table.find(Remotes.ClientToServer, "ClaimAll") == nil then
+			return "SKIP", "no ClaimAll remote in this build (engineer PR #818)"
+		end
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		-- Junk, 1.1 s apart: Guard.oneOf drops it, so no answer at all, not even "Nothing to claim yet".
+		local junk: { { any } } = {
+			{},
+			{ 5 },
+			{ {} },
+			{ "" },
+			{ "Daily" },
+			{ "index " },
+			{ "INDEX" },
+			{ "tipJar" },
+			{ 0 / 0 },
+			{ true },
+			{ string.rep("a", 5000) },
+		}
+		local before = freshWallet()
+		local fishBefore = fish()
+		local junkAt = os.clock()
+		for _, args in junk do
+			fire("ClaimAll", table.unpack(args))
+			task.wait(1.1)
+		end
+		local junkPaid, junkNothing = claimAllAnswers(junkAt)
+		if
+			junkNothing > 0
+			or fish() ~= fishBefore
+			or money() - before.money > incomeSince(before)
+		then
+			return "FAIL",
+				string.format(
+					'junk got %d "%s" answers, fish %d to %d, coins %d to %d',
+					junkNothing,
+					ClaimAll.NOTHING,
+					fishBefore,
+					fish(),
+					before.money,
+					money()
+				)
+		end
+		local verdict: Verdict = "PASS"
+		local notes = { string.format("%d junk calls dropped with no answer", #junk) }
+		if junkPaid > 0 then
+			verdict = "CHECK"
+			table.insert(notes, string.format("%d unrelated good toasts while it ran", junkPaid))
+		end
+
+		-- Ten in one frame: at most two get past the limiter, at most one pays, and the second finds nothing left.
+		task.wait(2.1)
+		local burstAt = os.clock()
+		for _ = 1, 10 do
+			Remotes.event("ClaimAll"):FireServer("index")
+		end
+		log('    -> ClaimAll("index") x10')
+		task.wait(2.5)
+		local paid, nothing = claimAllAnswers(burstAt)
+		if paid > 1 or paid + nothing > 2 then
+			return "FAIL",
+				string.format(
+					'ten ClaimAll("index") in one frame answered %d times, %d of them paying',
+					paid + nothing,
+					paid
+				)
+		end
+		if paid == 1 and nothing ~= 1 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format("the burst paid once but %d calls said nothing was left", nothing)
+			)
+		elseif paid == 0 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format(
+					'no Index reward was ready, so the burst only got "%s" (on the server run %s("fillIndex", nil, "alley", 5) and run again)',
+					ClaimAll.NOTHING,
+					DEBUG
+				)
+			)
+		else
+			table.insert(notes, "the burst paid once and the second call found nothing left")
+		end
+		-- And once more: everything is claimed, so nothing pays.
+		task.wait(2.1)
+		local after = freshWallet()
+		local fishAfter = fish()
+		local againAt = os.clock()
+		fire("ClaimAll", "index")
+		task.wait(1.5)
+		local againPaid, againNothing = claimAllAnswers(againAt)
+		if againPaid > 0 or fish() ~= fishAfter or money() - after.money > incomeSince(after) then
+			return "FAIL", 'ClaimAll("index") paid again after the burst had claimed everything'
+		end
+		if againNothing ~= 1 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format("the call after the burst got %d answers", againNothing)
+			)
+		end
+
+		-- Daily and weekly in one frame: 2 per 2 s, so both answer.
+		task.wait(2.1)
+		local pairAt = os.clock()
+		fire("ClaimAll", "daily")
+		fire("ClaimAll", "weekly")
+		task.wait(2)
+		local pairPaid, pairNothing = claimAllAnswers(pairAt)
+		if pairPaid + pairNothing < 2 then
+			return "FAIL",
+				string.format(
+					"ClaimAll daily and weekly in one frame got %d answers; Net should let both through (2 per 2 s)",
+					pairPaid + pairNothing
+				)
+		end
+		table.insert(notes, string.format("daily and weekly both answered (%d paid)", pairPaid))
+		return verdict,
+			table.concat(notes, "; ") .. ". Server output: no [Net] ClaimAll handler failed line"
+	end
+)
+
+-- Camp extras (F100, camp-extras.md section 4, engineer PR #801) ---------------------------------------------------
+-- CollectCampExtra(extraId) and BuyYardSale(crateId): the server checks the tier, then the reach (CampExtraRangeStuds
+-- plus 4 studs of slack from the model's PromptAnchor), then what the save holds or sells, 1 a second each. A refusal
+-- toasts why and answers CampExtraResult(id, false); junk gets no answer at all.
+
+type CampAnswer = { ok: boolean, paid: { string } }
+
+-- The placed camp extra nearest the character and its prompt's position. The models stream in only near their camp.
+local function nearestCampExtra(): (string?, Vector3?)
+	local root = rootPart()
+	if root == nil then
+		return nil, nil
+	end
+	local bestId: string? = nil
+	local bestAt: Vector3? = nil
+	local bestDistance = math.huge
+	for _, instance in CollectionService:GetTagged(CampExtras.TAG) do
+		local extraId = instance:GetAttribute("ExtraId")
+		if instance:IsA("Model") and type(extraId) == "string" then
+			local anchor = instance:FindFirstChild("PromptAnchor", true)
+			local at = if anchor ~= nil and anchor:IsA("Attachment")
+				then (anchor :: Attachment).WorldPosition
+				else (instance :: Model):GetPivot().Position
+			local distance = (at - root.Position).Magnitude
+			if distance < bestDistance then
+				bestId, bestAt, bestDistance = extraId, at, distance
+			end
+		end
+	end
+	return bestId, bestAt
+end
+
+local function campView(extraId: string): Types.CampExtraView?
+	if campState == nil then
+		return nil
+	end
+	return (campState :: any)[extraId] :: Types.CampExtraView?
+end
+
+-- The CampExtraResult answers about `extraId` since `startedAt`.
+local function campAnswers(startedAt: number, extraId: string): { CampAnswer }
+	local found: { CampAnswer } = {}
+	for _, event in since(startedAt, "CampExtraResult") do
+		if event.id == extraId then
+			table.insert(found, event.data :: CampAnswer)
+		end
+	end
+	return found
+end
+
+local function okCount(answers: { CampAnswer }): number
+	local count = 0
+	for _, answer in answers do
+		if answer.ok then
+			count += 1
+		end
+	end
+	return count
+end
+
+-- Fires one call and returns its CampExtraResult answer (nil after 2 s) and whether a toast held `expected`. Waits
+-- out the 1 a second limit after.
+local function campCall(
+	remote: string,
+	arg: string,
+	extraId: string,
+	expected: string
+): (CampAnswer?, boolean)
+	local startedAt = os.clock()
+	fire(remote, arg)
+	local event = waitFor(startedAt, "CampExtraResult", 2, about(extraId))
+	task.wait(1.1)
+	return if event ~= nil then event.data :: CampAnswer else nil, toasted(startedAt, expected)
+end
+
+-- Stands `studs` from the prompt, on the side the character is on, at the character's height.
+local function standFrom(anchor: Vector3, studs: number)
+	local root = rootPart()
+	if root == nil then
+		return
+	end
+	local flat = Vector3.new(root.Position.X - anchor.X, 0, root.Position.Z - anchor.Z)
+	local direction = if flat.Magnitude > 0.1 then flat.Unit else Vector3.new(1, 0, 0)
+	local spot = anchor + direction * studs
+	teleportTo(Vector3.new(spot.X, root.Position.Y - 3, spot.Z))
+end
+
+case(
+	"campExtras",
+	Enum.KeyCode.KeypadTwo,
+	"Camp extras: junk, a shut extra, from 20 studs, ten in a frame, the Yard Sale's checks",
+	function()
+		if table.find(Remotes.ClientToServer, "CollectCampExtra") == nil then
+			return "SKIP", "no CollectCampExtra remote in this build (engineer PR #801)"
+		end
+		if state == nil or campState == nil then
+			return "SKIP", "no ProfileSync or CampExtrasState yet"
+		end
+		-- Junk, 1.1 s apart: Guard drops it with no answer. "yardSale" is not a collect id, "Pond" is not "pond", and
+		-- "Classic_Crate" is not an id at all.
+		local long = string.rep("a", 5000)
+		local junk: { { any } } = {
+			{ "CollectCampExtra" },
+			{ "CollectCampExtra", 5 },
+			{ "CollectCampExtra", {} },
+			{ "CollectCampExtra", "Pond" },
+			{ "CollectCampExtra", CampExtras.YARD_SALE },
+			{ "CollectCampExtra", "" },
+			{ "CollectCampExtra", long },
+			{ "CollectCampExtra", 0 / 0 },
+			{ "BuyYardSale" },
+			{ "BuyYardSale", 5 },
+			{ "BuyYardSale", {} },
+			{ "BuyYardSale", "" },
+			{ "BuyYardSale", "Classic_Crate" },
+			{ "BuyYardSale", long },
+			{ "BuyYardSale", 0 / 0 },
+		}
+		local before = holdings()
+		local w = freshWallet()
+		local junkAt = os.clock()
+		for _, call in junk do
+			fire(call[1], table.unpack(call, 2))
+			task.wait(1.1)
+		end
+		local junkAnswers = #since(junkAt, "CampExtraResult")
+		if junkAnswers > 0 or fish() ~= before.fish or money() - w.money > incomeSince(w) then
+			return "FAIL",
+				string.format(
+					"%d junk calls got %d CampExtraResult answers or paid (fish %d to %d)",
+					#junk,
+					junkAnswers,
+					before.fish,
+					fish()
+				)
+		end
+		local verdict: Verdict = "PASS"
+		local notes = { string.format("%d junk calls dropped with no answer", #junk) }
+
+		-- A shut extra, its area above my tier: refused with its tier line from anywhere, nothing paid.
+		for _, extraId in CampExtras.COLLECT do
+			local view = campView(extraId)
+			if view ~= nil and not view.open then
+				local def = Catalog.getCampExtra(extraId) :: Types.CampExtraDef
+				local expected = string.format(
+					"The %s opens at Tier %d",
+					def.name,
+					CampExtras.tierOf(extraId) or 0
+				)
+				local fishBefore = fish()
+				local answer, said = campCall("CollectCampExtra", extraId, extraId, expected)
+				if answer ~= nil and answer.ok or fish() ~= fishBefore then
+					return "FAIL", string.format("the shut %s paid", def.name)
+				end
+				if answer == nil or not said then
+					verdict = downgrade(verdict, "CHECK")
+					table.insert(
+						notes,
+						string.format('the shut %s: no answer or no "%s"', def.name, expected)
+					)
+				else
+					table.insert(
+						notes,
+						string.format('the shut %s refused "%s"', def.name, expected)
+					)
+				end
+				break
+			end
+		end
+		local sale = campView(CampExtras.YARD_SALE)
+		if sale ~= nil and not sale.open then
+			local expected = string.format(
+				"The Yard Sale opens at Tier %d",
+				CampExtras.tierOf(CampExtras.YARD_SALE) or 0
+			)
+			local fishBefore = fish()
+			local answer, said =
+				campCall("BuyYardSale", CampExtras.CLASSIC_CRATE, CampExtras.YARD_SALE, expected)
+			if answer ~= nil and answer.ok or fish() ~= fishBefore then
+				return "FAIL", "a shut Yard Sale sold a crate"
+			end
+			if answer == nil or not said then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(
+					notes,
+					string.format('the shut Yard Sale: no answer or no "%s"', expected)
+				)
+			else
+				table.insert(notes, string.format('the shut Yard Sale refused "%s"', expected))
+			end
+		end
+
+		-- The rest needs a placed extra near me, open for my tier.
+		local extraId, anchor = nearestCampExtra()
+		local root = rootPart()
+		if
+			extraId == nil
+			or anchor == nil
+			or root == nil
+			or (anchor - root.Position).Magnitude > 60
+		then
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ")
+					.. "; for the reach and burst checks stand in a camp with an open extra (the Woods' Fish Pond at Tier 4, the Neighbourhood's Yard Sale at Tier 3) and run again"
+		end
+		local view = campView(extraId)
+		local def = Catalog.getCampExtra(extraId) :: Types.CampExtraDef
+		if view == nil or not view.open then
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ") .. string.format(
+					"; the %s here is shut for my tier, so stand by an open one",
+					def.name
+				)
+		end
+		local reach = Config.CampExtraRangeStuds + 4
+
+		if extraId ~= CampExtras.YARD_SALE then
+			-- From 20 studs: refused for the reach, nothing taken.
+			standFrom(anchor, 20)
+			local walkUp = string.format("Walk up to the %s first", def.name)
+			local far, saidFar = campCall("CollectCampExtra", extraId, extraId, walkUp)
+			if far ~= nil and far.ok then
+				return "FAIL",
+					string.format("the %s paid from 20 studs (reach %d)", def.name, reach)
+			end
+			if far == nil or not saidFar then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, string.format('from 20 studs: no answer or no "%s"', walkUp))
+			else
+				table.insert(notes, string.format('from 20 studs "%s"', walkUp))
+			end
+			-- Beside it, ten in one frame: one answer, at most one pays; then a second later "Nothing yet".
+			standFrom(anchor, 3)
+			local held = (campView(extraId) :: Types.CampExtraView).held
+			local burstAt = os.clock()
+			for _ = 1, 10 do
+				Remotes.event("CollectCampExtra"):FireServer(extraId)
+			end
+			log(string.format("    -> CollectCampExtra(%q) x10", extraId))
+			task.wait(2)
+			local burst = campAnswers(burstAt, extraId)
+			if okCount(burst) > 1 then
+				return "FAIL",
+					string.format("ten in one frame took the %s %d times", def.name, okCount(burst))
+			end
+			if #burst ~= 1 then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(
+					notes,
+					string.format("ten in one frame got %d answers (1 a second)", #burst)
+				)
+			end
+			if held > 0 and okCount(burst) == 1 then
+				local again, saidAgain =
+					campCall("CollectCampExtra", extraId, extraId, "Nothing yet")
+				if again ~= nil and again.ok then
+					return "FAIL", string.format("the %s paid twice after it was emptied", def.name)
+				end
+				if again == nil or not saidAgain then
+					verdict = downgrade(verdict, "CHECK")
+					table.insert(notes, 'after the take: no answer or no "Nothing yet"')
+				end
+				table.insert(
+					notes,
+					string.format(
+						'the burst took the %s\'s %d once (%s), then "Nothing yet"',
+						def.name,
+						held,
+						table.concat(burst[1].paid, ", ")
+					)
+				)
+			else
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(
+					notes,
+					string.format(
+						'the %s held nothing, so the burst was refused (on the server run %s("campExtras", nil, 7 * 3600) and run again)',
+						def.name,
+						DEBUG
+					)
+				)
+			end
+			return verdict,
+				table.concat(notes, "; ") .. ". Server output: no [Net] handler failed line"
+		end
+
+		-- The Yard Sale. From 20 studs: refused for the reach.
+		local stock: { Types.YardSaleCrate } = view.stock or {}
+		local today: string? = nil
+		for _, crate in stock do
+			if not crate.bought then
+				today = crate.crateId
+				break
+			end
+		end
+		local notToday: string? = nil
+		for _, area in Catalog.areas do
+			local crateId = area.id .. "_crate"
+			local listed = false
+			for _, crate in stock do
+				listed = listed or crate.crateId == crateId
+			end
+			if not listed and Catalog.getCrate(crateId) ~= nil then
+				notToday = crateId
+				break
+			end
+		end
+		standFrom(anchor, 20)
+		local walkUp = "Walk up to the Yard Sale first"
+		local far, saidFar =
+			campCall("BuyYardSale", today or CampExtras.CLASSIC_CRATE, CampExtras.YARD_SALE, walkUp)
+		if far ~= nil and far.ok then
+			return "FAIL", "the Yard Sale sold from 20 studs"
+		end
+		if far == nil or not saidFar then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, string.format('from 20 studs: no answer or no "%s"', walkUp))
+		else
+			table.insert(notes, string.format('from 20 studs "%s"', walkUp))
+		end
+		standFrom(anchor, 3)
+		if notToday ~= nil then
+			local expected = "That crate is not at the Yard Sale today"
+			local answer, said = campCall("BuyYardSale", notToday, CampExtras.YARD_SALE, expected)
+			if answer ~= nil and answer.ok then
+				return "FAIL",
+					string.format("the Yard Sale sold %s, not in today's stock", notToday)
+			end
+			if answer == nil or not said then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, string.format('%s: no answer or no "%s"', notToday, expected))
+			else
+				table.insert(notes, string.format('%s refused "%s"', notToday, expected))
+			end
+		end
+		if today == nil then
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ") .. "; both crates already bought today, so no burst"
+		end
+		local price = Config.YardSaleCratePrice
+		local fishBefore, cratesBefore = fish(), crateCount(today)
+		if fishBefore < price then
+			local expected = "Not enough golden fish"
+			local answer, said = campCall("BuyYardSale", today, CampExtras.YARD_SALE, expected)
+			if answer ~= nil and answer.ok or fish() ~= fishBefore then
+				return "FAIL",
+					string.format(
+						"the Yard Sale sold %s for %d fish of %d",
+						today,
+						fishBefore,
+						price
+					)
+			end
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ") .. string.format(
+					'; %d fish: "%s"; for the burst run %s("setFish", nil, %d) and run again',
+					fishBefore,
+					if said then expected else "no toast",
+					DEBUG,
+					price * 2
+				)
+		end
+		-- Ten in one frame: one sale for exactly the price, then a second later "You bought that one today".
+		local burstAt = os.clock()
+		for _ = 1, 10 do
+			Remotes.event("BuyYardSale"):FireServer(today)
+		end
+		log(string.format("    -> BuyYardSale(%q) x10", today))
+		task.wait(2)
+		freshWallet()
+		local burst = campAnswers(burstAt, CampExtras.YARD_SALE)
+		local spent = fishBefore - fish()
+		local got = crateCount(today) - cratesBefore
+		if okCount(burst) > 1 or spent > price or got > 1 then
+			return "FAIL",
+				string.format(
+					"ten in one frame: %d sales, %d fish spent, %d %s banked",
+					okCount(burst),
+					spent,
+					got,
+					today
+				)
+		end
+		if okCount(burst) == 0 or spent ~= price or got ~= 1 then
+			verdict = downgrade(verdict, "CHECK")
+		end
+		table.insert(
+			notes,
+			string.format("the burst sold one %s for %d fish (%d answers)", today, spent, #burst)
+		)
+		local bought = "You bought that one today. New crates tomorrow"
+		local again, saidAgain = campCall("BuyYardSale", today, CampExtras.YARD_SALE, bought)
+		if again ~= nil and again.ok then
+			return "FAIL", string.format("%s sold twice in one day", today)
+		end
+		if again == nil or not saidAgain then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, string.format('the next buy: no answer or no "%s"', bought))
+		else
+			table.insert(notes, string.format('the next buy "%s"', bought))
+		end
+		return verdict, table.concat(notes, "; ") .. ". Server output: no [Net] handler failed line"
+	end
+)
+
 case("flood", Enum.KeyCode.Backspace, "Flood: 30 RequestSync in one frame", function()
 	local startedAt = os.clock()
 	for _ = 1, 30 do
@@ -6444,6 +7001,23 @@ if table.find(Remotes.ServerToClient, "TradeState") ~= nil then
 	Remotes.event("TradeAsked").OnClientEvent:Connect(function(requestId: string, from: number)
 		record("TradeAsked", string.format("%s from %d", requestId, from), requestId)
 	end)
+end
+-- F100: only once CampExtraService exists (engineer PR #801).
+if table.find(Remotes.ServerToClient, "CampExtraResult") ~= nil then
+	Remotes.event("CampExtrasState").OnClientEvent:Connect(function(view: Types.CampExtrasState)
+		campState = view
+		record("CampExtrasState", string.format("day %d", view.day))
+	end)
+	Remotes.event("CampExtraResult").OnClientEvent
+		:Connect(function(extraId: string, ok: boolean, paid: { string }?, _prize: any)
+			local answer: CampAnswer = { ok = ok, paid = paid or {} }
+			record(
+				"CampExtraResult",
+				string.format("%s ok=%s %s", extraId, tostring(ok), table.concat(paid or {}, ", ")),
+				extraId,
+				answer
+			)
+		end)
 end
 -- F96: only once the remote exists (engineer PR #734), so the client still loads on an older build.
 if table.find(Remotes.ServerToClient, "StarterCatResult") ~= nil then

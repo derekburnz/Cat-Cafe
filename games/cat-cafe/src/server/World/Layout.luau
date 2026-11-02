@@ -906,8 +906,8 @@ Layout.neighbourhood = {
 	artSuffix = "F85",
 	spawnPoints = (function(): { Point }
 		local points = setPoints(NX, NZ, NTURN, 0.1, {
-			{ -71.45, 1, -166.9 }, -- porch
-			{ 5.05, 1, -166.9 },
+			{ 5.05, 1, -166.9 }, -- porch
+
 			{ -5.05, 1, -127.1 },
 			{ 48.2, 1, -127.1 },
 			{ -39.25, 0.7, -170.2 }, -- flowerbed
@@ -935,20 +935,21 @@ Layout.neighbourhood = {
 			{ -58.5, 0, -35.5 }, -- water butt
 			{ -30, 0, -24 }, -- allotments
 			{ -73.8, 0, -3.8 }, -- works hut
+			-- side paths beside the end houses' islands, where the far porches were (Model-Agent #905)
+			{ -74.3, 0.05, -157 },
+			{ -74.3, 0.05, -137 },
+			{ 75.05, 0.05, -157 },
+			{ 75.05, 0.05, -137 },
 		}, "near")
 		for _, point in
 			setPoints(NX, NZ, NTURN, 0.1, {
-				{ -72.2, 1, 27.1 }, -- porch
-				{ 4.3, 1, 27.1 },
-				{ 71.8, 1, 27.1 },
+				{ 4.3, 1, 27.1 }, -- porch
 				{ -53.8, 1, 66.9 },
 				{ -5.8, 1, 66.9 },
-				{ 66.2, 1, 66.9 },
 				{ 51.3, 1, 179.1 },
 				{ -44.5, 0.7, 23.8 }, -- flowerbed
 				{ 27.5, 0.7, 23.8 },
 				{ 51.5, 0.7, 23.8 },
-				{ -84.5, 0.7, 70.2 },
 				{ 38.5, 0.7, 70.2 },
 				{ 6, 0.7, 96 },
 				{ 76.5, 0.7, 175.8 },
@@ -983,6 +984,11 @@ Layout.neighbourhood = {
 				{ 22, 0, 180 }, -- lawn
 				{ -82, 0.05, 179 }, -- far
 				{ -6, 0.3, 176 },
+				-- side paths beside the end houses' islands, where the porches were (Model-Agent #905)
+				{ -75.05, 0.05, 37 },
+				{ -75.05, 0.05, 57 },
+				{ 72.05, 0.05, 37 },
+				{ 72.05, 0.05, 57 },
 			}, "deep")
 		do
 			table.insert(points, point)
@@ -1023,8 +1029,8 @@ Layout.woods = {
 	artSuffix = "F85",
 	spawnPoints = (function(): { Point }
 		local points = setPoints(WX, WZ, WTURN, 0.1, {
-			{ -51.5, 0, -106.5 }, -- the log bridge
-			{ -40.5, 0, -73.5 },
+			{ -8.5, 0, -112.5 }, -- the log bridge (moved onto the trail since #905)
+			{ 6.5, 0, -79.5 },
 			{ 64, 0, -102.48 }, -- the waterfall
 			{ -30, 0, -223.8 }, -- berry bushes
 			{ -48, 0, -213.8 },
@@ -1141,7 +1147,7 @@ Layout.sewer = {
 	setLift = 0.4, -- the set's tiled slab
 	spawnPoints = (function(): { Point }
 		local points = setPoints(SX, SZ, STURN, 0.1, {
-			{ 38, 2.8, -205 }, -- the brick bridge
+			{ -26, 2.8, -205 }, -- the brick bridge (at x -26 since #905)
 			{ -24, 0.4, -247 }, -- the puddle
 			{ 45, 0.4, -259 }, -- the barrel
 			{ 32, 0.4, -264 }, -- the tyres
@@ -1165,11 +1171,11 @@ Layout.sewer = {
 			{ -23.5, 2.2, -14.52 }, -- the raft
 			{ -20, 0.4, -44 }, -- the pump room
 			{ 24, 0.4, -20 },
-			{ -36, 0.4, -12 }, -- the catwalk's feet
+			{ 28, 0.4, -12 }, -- the catwalk's feet
 		}, "near")
 		for _, point in
 			setPoints(SX, SZ, STURN, 0.1, {
-				{ -40, 3.6, 0 }, -- the steel catwalk over the channel
+				{ 24, 3.6, 0 }, -- the steel catwalk over the channel (at x 24 since #905)
 				{ -46, 0.4, 273.5 }, -- the suitcases
 				{ 12, 0.4, 74.5 }, -- glow mushrooms
 				{ -44.5, 0.4, 24 },
@@ -1179,7 +1185,7 @@ Layout.sewer = {
 				{ -44.5, 0.4, 206 },
 				{ 19.51, 2.55, 20.46 }, -- the deck
 				{ -6.35, 0.4, 166 }, -- a pipe end
-				{ -44, 0.4, 12 }, -- the catwalk's feet
+				{ 20, 0.4, 12 }, -- the catwalk's feet (at x 20 since #905)
 				{ 38.8, 1.88, 71.3 }, -- the sofa
 				{ -14, 1, 44 }, -- the yarn trolley
 				{ -52, 2.4, 70.3 }, -- the pipe hammock

@@ -1,0 +1,288 @@
+--!strict
+-- The front lawn's buttons and counts (F91, front-lawn.md section 3) for the Decor screen's Front lawn tab
+-- (Screens/LawnTab) and the edit view's picker (Screens/LawnEdit). Pure: it reads the PlayerState's lawnOwned, lawn
+-- and lawnStyles with shared/Lawn's own rules, so a button the UI offers is one LawnService takes. The server still
+-- checks every press.
+--
+--   live(state, lawnPath)   whether the tab shows: the plot's LawnPath attribute is set (the lawn art is in) and
+--                           ProfileSync has sent the lawn
+--   pieceAction(state, piece)          a piece card's button in the tab
+--   styleAction(state, style)          a path or fence card's button
+--   spotChoices(state, spotId)         the picker's rows for one spot: owned pieces that fit, then the shop's
+--   counts(state)                      lawn spots used and open at the cafe's tier
+--   inUse(state, kind)                 the path or fence in use (nil: no fence)
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local ShortNumber = require(script.Parent.ShortNumber)
+local Types = require(script.Parent.Parent.Types)
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Catalog = require(Shared:WaitForChild("Catalog")) :: any
+local Lawn = require(Shared:WaitForChild("Lawn")) :: any
+
+export type Mode =
+	"buy" -- not owned, open at the tier: price; buys it (a piece onto a free spot, a style in use)
+	| "locked" -- a later tier sells it
+	| "place" -- owned, off the lawn: onto `spotId`
+	| "away" -- owned, on `spotId`: back to the player's pieces
+	| "full" -- owned, off the lawn, and every open spot of its size has a piece
+	| "here" -- the picker: already on this spot
+	| "use" -- an owned style not in use
+	| "inUse" -- the path in use
+	| "takeDown" -- the fence in use: no fence
+
+export type Action = {
+	mode: Mode,
+	text: string,
+	style: string, -- a Button style
+	enabled: boolean,
+	spotId: string?, -- "place", "away" and the picker's "buy": the spot it goes on or comes off
+}
+
+export type Choice = {
+	piece: Types.LawnPieceDef,
+	action: Action,
+	owned: boolean,
+}
+
+local LawnLogic = {}
+
+LawnLogic.SPOTS = Lawn.SPOTS :: { Types.LawnSpot }
+LawnLogic.DEFAULT_PATH = Lawn.DEFAULT_PATH :: string
+
+-- The lawn rows of the shared catalog (empty on a build without F91).
+function LawnLogic.pieces(): { Types.LawnPieceDef }
+	return (Catalog.lawn or {}) :: { Types.LawnPieceDef }
+end
+
+function LawnLogic.styles(kind: string): { Types.LawnStyleDef } -- "path" or "fence"
+	local out: { Types.LawnStyleDef } = {}
+	for _, style in (Catalog.lawnStyles or {}) :: { Types.LawnStyleDef } do
+		if style.kind == kind then
+			table.insert(out, style)
+		end
+	end
+	return out
+end
+
+function LawnLogic.getPiece(id: string): Types.LawnPieceDef?
+	return Catalog.getLawn(id)
+end
+
+function LawnLogic.getStyle(id: string): Types.LawnStyleDef?
+	return Catalog.getLawnStyle(id)
+end
+
+function LawnLogic.getSpot(id: string): Types.LawnSpot?
+	return Lawn.getSpot(id)
+end
+
+-- The state as the profile shape shared/Lawn reads; missing fields read as an empty lawn.
+local function view(state: Types.PlayerState): any
+	return {
+		tier = state.tier,
+		lawnOwned = state.lawnOwned or {},
+		lawn = state.lawn or {},
+		lawnStyles = state.lawnStyles or Lawn.freshStyles(),
+	}
+end
+
+function LawnLogic.live(state: Types.PlayerState?, lawnPath: any): boolean
+	return state ~= nil
+		and state.lawnStyles ~= nil
+		and type(lawnPath) == "string"
+		and lawnPath ~= ""
+		and #LawnLogic.pieces() > 0
+end
+
+function LawnLogic.owns(state: Types.PlayerState, id: string): boolean
+	return Lawn.owns(view(state), id)
+end
+
+-- The spot a piece stands in, or nil.
+function LawnLogic.spotOf(state: Types.PlayerState, pieceId: string): string?
+	return Lawn.spotOf(view(state), pieceId)
+end
+
+function LawnLogic.inUse(state: Types.PlayerState, kind: Types.LawnStyleKind): string?
+	local styles = view(state).lawnStyles
+	return if kind == "path" then styles.path or Lawn.DEFAULT_PATH else styles.fence
+end
+
+-- Lawn spots with a piece and lawn spots open at the cafe's tier.
+function LawnLogic.counts(state: Types.PlayerState): (number, number)
+	local lawn = state.lawn or {}
+	local used, open = 0, 0
+	for _, spot in LawnLogic.SPOTS do
+		if state.tier >= spot.tier then
+			open += 1
+			if lawn[spot.id] ~= nil then
+				used += 1
+			end
+		end
+	end
+	return used, open
+end
+
+local function buyOrLocked(
+	state: Types.PlayerState,
+	price: number,
+	tier: number,
+	spotId: string?
+): Action
+	if state.tier < tier then
+		return {
+			mode = "locked",
+			text = "Tier " .. tostring(tier),
+			style = "ghost",
+			enabled = false,
+		}
+	end
+	return {
+		mode = "buy",
+		text = "$" .. ShortNumber.format(price), -- Format.money, without Theme so the spec runner loads it
+		style = "primary",
+		enabled = state.money >= price,
+		spotId = spotId,
+	}
+end
+
+-- A piece card in the tab: Put away when it stands on the lawn, Place onto the first open spot of its size, Spots
+-- full, else its price or the tier that sells it.
+function LawnLogic.pieceAction(state: Types.PlayerState, piece: Types.LawnPieceDef): Action
+	local profile = view(state)
+	if Lawn.owns(profile, piece.id) then
+		local at = Lawn.spotOf(profile, piece.id)
+		if at ~= nil then
+			return {
+				mode = "away",
+				text = "Put away",
+				style = "ghost",
+				enabled = true,
+				spotId = at,
+			}
+		end
+		local free = Lawn.firstFreeSpot(profile, piece.spot)
+		if free ~= nil then
+			return {
+				mode = "place",
+				text = "Place",
+				style = "secondary",
+				enabled = true,
+				spotId = free,
+			}
+		end
+		return {
+			mode = "full",
+			text = "Spots full",
+			style = "ghost",
+			enabled = false,
+		}
+	end
+	return buyOrLocked(state, piece.price, piece.tier, nil)
+end
+
+-- A path or fence card: In use (the path) or Take down (the fence), Use it when owned, else its price or tier.
+function LawnLogic.styleAction(state: Types.PlayerState, style: Types.LawnStyleDef): Action
+	if LawnLogic.inUse(state, style.kind) == style.id then
+		if style.kind == "fence" then
+			return {
+				mode = "takeDown",
+				text = "Take down",
+				style = "ghost",
+				enabled = true,
+			}
+		end
+		return {
+			mode = "inUse",
+			text = "In use",
+			style = "ghost",
+			enabled = false,
+		}
+	end
+	if Lawn.owns(view(state), style.id) then
+		return {
+			mode = "use",
+			text = "Use it",
+			style = "primary",
+			enabled = true,
+		}
+	end
+	return buyOrLocked(state, style.price, style.tier, nil)
+end
+
+-- The picker for one open spot: the piece on it, then the other owned pieces of its size (Place, which moves one
+-- off another spot), then the shop's pieces of its size (buying places it here), the ones a later tier sells last.
+function LawnLogic.spotChoices(state: Types.PlayerState, spotId: string): { Choice }
+	local spot = Lawn.getSpot(spotId)
+	if spot == nil then
+		return {}
+	end
+	local profile = view(state)
+	local here = profile.lawn[spotId]
+	local first: { Choice } = {}
+	local mine: { Choice } = {}
+	local shop: { Choice } = {}
+	local later: { Choice } = {}
+	for _, piece in LawnLogic.pieces() do
+		if piece.spot ~= spot.size then
+			continue
+		end
+		if piece.id == here then
+			local stays: Action = {
+				mode = "here",
+				text = "Here",
+				style = "ghost",
+				enabled = false,
+				spotId = spotId,
+			}
+			table.insert(first, { piece = piece, owned = true, action = stays })
+		elseif Lawn.owns(profile, piece.id) then
+			local from = Lawn.spotOf(profile, piece.id)
+			local place: Action = {
+				mode = "place",
+				text = if from ~= nil then "Move here" else "Place",
+				style = "secondary",
+				enabled = true,
+				spotId = spotId,
+			}
+			table.insert(mine, { piece = piece, owned = true, action = place })
+		else
+			local action = buyOrLocked(state, piece.price, piece.tier, spotId)
+			table.insert(if action.mode == "locked" then later else shop, {
+				piece = piece,
+				owned = false,
+				action = action,
+			})
+		end
+	end
+	local out: { Choice } = {}
+	for _, list in { first, mine, shop, later } do
+		for _, choice in list do
+			table.insert(out, choice)
+		end
+	end
+	return out
+end
+
+-- The edit view's camera (Screens/LawnEdit): how far back from the lawn's middle it stands, and how high for each stud
+-- back, so the lawn fills the screen's width without a spot cut off.
+LawnLogic.EDIT_RISE = 0.6
+LawnLogic.EDIT_MIN = 16
+LawnLogic.EDIT_MAX = 40
+
+-- Studs back from the lawn's middle so `half` studs either side (plus one) fit the width of a screen `aspect` wide
+-- for each unit high at the vertical field of view `fov` in degrees; between EDIT_MIN and EDIT_MAX.
+function LawnLogic.editDistance(half: number, fov: number, aspect: number): number
+	local across = math.tan(math.rad(fov) / 2) * math.max(aspect, 0.5)
+	local back = (half + 1) / math.max(across, 0.1)
+	return math.clamp(back, LawnLogic.EDIT_MIN, LawnLogic.EDIT_MAX)
+end
+
+-- "Small spot" or "Big spot".
+function LawnLogic.sizeName(size: Types.LawnSize): string
+	return if size == "big" then "Big spot" else "Small spot"
+end
+
+return LawnLogic

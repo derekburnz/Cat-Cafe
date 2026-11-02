@@ -1,0 +1,5 @@
+# Text files are LF in the repo and in every checkout, Windows included. StyLua (stylua.toml
+# line_endings = "Unix") fails every file of a Windows clone that Git converted to CRLF, which is what
+# Git for Windows does by default (core.autocrlf = true). Binary files (FBX, glTF, PNG, .rbxm) are
+# detected by `text=auto` and left alone.
+* text=auto eol=lf

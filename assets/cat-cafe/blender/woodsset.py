@@ -119,7 +119,7 @@ def _at(c, a, d):
     return (c[0] - d * math.sin(a), c[1] + d * math.cos(a))
 
 
-def stream(mat, half=IN, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E, bridge_hw=3.4):
+def stream(mat, half=IN, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E, bridge_hw=3.4, west=None):
     """The stream across the whole width, from the waterfall at the east wall (Roblox +x) to the west wall: a dark
     bed under water 0.36 deep in look, a rock edge 1.3 high either side and a grass bank down to the floor. Every
     other segment is 0.006 taller so the overlaps never share a face. A log rail (dark posts, two split rails, like
@@ -127,9 +127,12 @@ def stream(mat, half=IN, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E, b
     short of the waterfall pond, whose rocks close it. Stream_Barrier: an invisible wall on each rail's line, on to
     the walls past the pond, plus the walls along the bridge's sides. `half` is the walls' inner faces (x), `zfn`
     the centre line, `bridge_x` the crossing (the line level there), `bridge_hw` half the rails' opening there (the
-    bridge's deck half and 0.4) and `rail_end` where the east rails stop."""
+    bridge's deck half and 0.4) and `rail_end` where the east rails stop. `west` (F85 islands, Derek 11-02: "just
+    little areas to walk around") ends the stream short of the west wall: a rock lip closes it there, boulders and
+    ferns round the end, the rails and the barrier turn across it, and the way round its end is open."""
     b, water, bar = Builder(), Builder(), Builder()
-    xs = [-half + 0.5 + k * (2 * half - 1.0) / 58 for k in range(59)]      # its ends stop at the walls' faces
+    x0 = -half + 0.5 if west is None else west
+    xs = [x0 + k * (half - 0.5 - x0) / 58 for k in range(59)]               # its ends stop at the walls' faces
     for i, (x0, x1) in enumerate(zip(xs, xs[1:])):
         c, a, L = _seg_frame(x0, x1, zfn)
         e = 0.006 * (i % 2)
@@ -145,13 +148,20 @@ def stream(mat, half=IN, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E, b
             b.wedge((*_at(c, a, d), EDGE_H / 2), (L * 1.12, BANK_W, EDGE_H - 0.01 * (i % 2)), "leaf_dark", bevel=False,
                     rot=turn)
     gaps = (bridge_x - bridge_hw, bridge_x + bridge_hw)
-    for (r0, r1) in ((-half + 0.8, gaps[0] - 0.4), (gaps[1] + 0.4, rail_end)):   # the log rails
+    lip = None if west is None else west - EDGE_W / 2                        # the end lip's centre line (x)
+    for (r0, r1) in ((-half + 0.8 if lip is None else lip, gaps[0] - 0.4), (gaps[1] + 0.4, rail_end)):   # the log rails
         n = max(1, math.ceil((r1 - r0) / RAIL_STEP))
-        for s in (-1, 1):
-            pts = [_edge_point(r0 + (r1 - r0) * k / n, s * (WATER_HW + EDGE_W / 2), zfn) for k in range(n + 1)]
-            log_rail(b, pts)
+        sides = {s: [_edge_point(r0 + (r1 - r0) * k / n, s * (WATER_HW + EDGE_W / 2), zfn) for k in range(n + 1)]
+                 for s in (-1, 1)}
+        if lip is not None and r0 == lip:                                    # one rail round the end
+            log_rail(b, sides[-1][::-1] + _end_points(lip, zfn)[1:-1] + sides[1])
+        else:
+            for s in (-1, 1):
+                log_rail(b, sides[s])
+    if lip is not None:
+        _stream_end(b, bar, lip, zfn)
     # the barriers: chunks about 12 long along each rail's line, none across the bridge
-    for (r0, r1) in ((-half, gaps[0]), (gaps[1], half)):
+    for (r0, r1) in ((-half if lip is None else lip, gaps[0]), (gaps[1], half)):
         n = max(1, round((r1 - r0) / 12.0))
         for k in range(n):
             x0, x1 = r0 + (r1 - r0) * k / n, r0 + (r1 - r0) * (k + 1) / n
@@ -163,6 +173,38 @@ def stream(mat, half=IN, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E, b
         x, y, _ = bl(bridge_x + s * bridge_hw, zfn(bridge_x))
         bar.box_base((x, y, 0), (0.6, 2 * (WATER_HW + EDGE_W) + 0.6, BARRIER_H), "offwhite", bevel=False)
     return [b.finalize(N + "Stream", mat), water.finalize(N + "Stream_Water", mat), bar.finalize(N + "Stream_Barrier", mat)]
+
+
+def _end_points(lip, zfn):
+    """Builder points across the stream's end on the lip's line, from the side _at calls -d (Roblox +Z) to +d: the
+    rail's posts there."""
+    d = WATER_HW + EDGE_W / 2
+    p, q = _edge_point(lip, -d, zfn), _edge_point(lip, d, zfn)
+    n = max(1, math.ceil(2 * d / RAIL_STEP))
+    return [(p[0] + (q[0] - p[0]) * k / n, p[1] + (q[1] - p[1]) * k / n) for k in range(n + 1)]
+
+
+def _stream_end(b, bar, lip, zfn):
+    """The stream's west end (stream `west`): a rock lip across it 0.05 above the edges, mossy boulders and ferns
+    round its outside, and the barrier across the end on the rail's line."""
+    c, a, _ = _seg_frame(lip - 0.05, lip + 0.05, zfn)
+    w = 2 * (WATER_HW + EDGE_W)
+    b.box_base((*c, 0), (EDGE_W, w + 0.1, EDGE_H + 0.05), "concrete", bevel=False, rot=(a, "Z"))
+
+    def out(along, across):                       # Builder point `along` past the lip (away from the water), `across`
+        ux, uy = -math.cos(a), -math.sin(a)       # the flow runs along +a, so the outside is -a
+        q = _at(c, a, across)
+        return (q[0] + along * ux, q[1] + along * uy)
+    for (dx, dz, r, sw) in ((1.9, -3.6, 1.5, "fur_grey"), (2.4, 0.4, 1.8, "concrete"), (1.8, 4.0, 1.4, "fur_grey"),
+                            (0.9, -6.4, 1.1, "concrete_dark"), (1.0, 6.8, 1.2, "concrete_dark")):
+        bx, by = out(dx, dz)
+        b.ico((bx, by, r * 0.5), r, sw, subdivisions=1, scale=(1.2, 1.0, 0.8))
+        b.ico((bx, by, r * 1.15), r * 0.55, "fur_moss", subdivisions=1, scale=(1.3, 1.1, 0.4))
+    for (dx, dz) in ((3.0, -1.3), (3.4, 2.4)):                  # ferns against the middle boulder, so none floats
+        bx, by = out(dx, dz)
+        b.ico((bx, by, 0.7), 1.1, "leaf_green", subdivisions=1, scale=(1.4, 0.9, 0.75))
+    bar.box_base((*c, 0), (BAR_T, 2 * (WATER_HW + EDGE_W / 2) + BAR_T, BARRIER_H), "offwhite", bevel=False,
+                 rot=(a, "Z"))
 
 
 def _edge_point(x, d, zfn=stream_z):
@@ -232,13 +274,15 @@ def _pine_into(b, x, y, h, base=0.0):
                    bevel=False)
 
 
-def _tree_line(s, mat, z, gap, half=IN):
+def _tree_line(s, mat, z, gap, half=IN, runs=None):
     """A dense thicket across the area (walls' inner faces at x +-half), one gap (x0, x1): a row of big overlapping
     bush masses about 9.5 high round a narrow solid core, smaller bushes at their feet and pines standing in it. A
-    barrier 30 high on its footprint, so the gap is the only way through."""
+    barrier 30 high on its footprint, so the gap is the only way through. `runs` [(x0, x1), ...] instead builds
+    only those stretches (F85 islands: copses to walk round), their pines kept 6 in from every end."""
     b, bar = Builder(), Builder()
     greens = ("leaf_dark", "paw_woods", "dumpster_green", "leaf_dark", "shirt_green")
-    for (a0, a1) in ((-half, gap[0]), (gap[1], half)):
+    ends = gap if runs is None else [e for r in runs for e in r]
+    for (a0, a1) in (runs or ((-half, gap[0]), (gap[1], half))):
         n = max(1, round((a1 - a0) / 6.5))
         step = (a1 - a0) / n
         x, y, _ = bl((a0 + a1) / 2, z)
@@ -255,7 +299,7 @@ def _tree_line(s, mat, z, gap, half=IN):
                 if (i + (side > 0)) % 2 == 0:
                     b.ico((x + 0.3 * step * side, y + side * 2.0, 1.2), 1.5, ("leaf_green", "shirt_green")[i % 2],
                           subdivisions=1, scale=(1.5, 0.8, 0.9))
-            if i % 2 == 0 and (abs(c - gap[0]) > 6 and abs(c - gap[1]) > 6):
+            if i % 2 == 0 and all(abs(c - e) > 6 for e in ends):
                 _pine_into(b, x, y + 0.5 * (-1) ** (i // 2), 18 + 3 * ((i // 2) % 3))
         x, y, _ = bl((a0 + a1) / 2, z)
         bar.box_base((x, y, 0), (a1 - a0, 5.2, BARRIER_H), "offwhite", bevel=False)

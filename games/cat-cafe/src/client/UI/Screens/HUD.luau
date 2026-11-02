@@ -89,6 +89,10 @@ export type HUD = {
 	setTutorial: (self: HUD, text: string?) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
 	setLuckyDay: (self: HUD, view: LuckLogic.DayView?) -> (),
+	-- F101: "🏁 Rescue Rally in 5h 20m" under the clock in the last hours before a Rally, nil hides it
+	setRallySoon: (self: HUD, line: string?) -> (),
+	-- F101: the potion timers' row (with the Luck and pal chips), which the Rally banner keeps clear of on a phone
+	buffRow: (self: HUD) -> GuiObject,
 	luckShown: (self: HUD) -> boolean,
 	setAreasOpen: (self: HUD, open: boolean) -> (),
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
@@ -771,6 +775,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = root,
 	})
 	self._luckyDay = nil :: LuckLogic.DayView?
+	-- F101 (rescue-rally.md section 1): the Friday countdown to the Rescue Rally, under the Lucky Day line
+	self._rallyLine = label({
+		Name = "RallySoon",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H),
+		Size = UDim2.fromOffset(LUCKY_LINE_W, NIGHT_LINE),
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Visible = false,
+		Parent = root,
+	})
+	self._rallySoon = nil :: string?
 
 	-- Tier and next goal (right, under the clock): the tier, the next tier's requirements as slim bars; a tap opens
 	-- rank up
@@ -1906,6 +1923,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 		self._clock.Visible = false
 		self._nightTips.Visible = false
 		self._luckyLine.Visible = false
+		self._rallyLine.Visible = false
 		self._night = false
 		self._clockSeen = false
 		self:_renderBowl()
@@ -1927,6 +1945,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	self._clock.Visible = shown
 	self._nightTips.Visible = shown and isNight and NIGHT_TIPS < 1
 	self:_renderLuckyLine()
+	self._rallyLine.Visible = self._rallySoon ~= nil and shown
 	self:_layoutRight()
 	local function tick()
 		local remaining = current.phaseEndsAt - Workspace:GetServerTimeNow()
@@ -1970,6 +1989,23 @@ function HUD._renderLuckyLine(self: any)
 	end
 	self._luckyLine.Text = if line then LuckLogic.ICON .. " " .. line else ""
 	self._luckyLine.Visible = line ~= nil and self._clock.Visible
+end
+
+-- F101: the Rescue Rally countdown under the clock (RallyLogic.soon), shown with the clock; nil hides it.
+function HUD.setRallySoon(self: any, line: string?)
+	if line == self._rallySoon then
+		return
+	end
+	self._rallySoon = line
+	self._rallyLine.Text = if line ~= nil then "🏁 " .. line else ""
+	self._rallyLine.Visible = line ~= nil and self._clock.Visible
+	self:_layoutRight()
+end
+
+-- F101: the potion timers' row. On a phone it sits level with the menu's top, where a long row (Luck, potions,
+-- pals) can reach the top centre; the Rally banner moves down under it then.
+function HUD.buffRow(self: any): GuiObject
+	return self._buffs.frame
 end
 
 -- F88: the Luck chip shows (its first source came), for the `luck` context tip.
@@ -2017,6 +2053,11 @@ function HUD._layoutRight(self: any)
 	-- F88: the Lucky Day line under the clock (and under the night tips line when that shows)
 	self._luckyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
 	if self._luckyLine.Visible then
+		top += NIGHT_LINE
+	end
+	-- F101: the Rescue Rally countdown under those
+	self._rallyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
+	if self._rallyLine.Visible then
 		top += NIGHT_LINE
 	end
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)

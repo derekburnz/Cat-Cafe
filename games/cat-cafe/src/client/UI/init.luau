@@ -91,6 +91,7 @@ local WorldTags = require(script.Screens.WorldTags)
 local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
+UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 
 UI.Types = Types
 UI.Theme = Theme
@@ -1218,6 +1219,7 @@ function UI.init(config: Types.InitConfig)
 	UI.leaderboards.start(parent) -- the town boards' faces and the crowns over heads (F98)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
 	UI.campExtras.start() -- the Yard Sale card and the Cannon picker's camp extra strips (F100)
+	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	worldTags = WorldTags.new()
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
@@ -1317,6 +1319,7 @@ function UI.destroy()
 	UI.leaderboards.reset()
 	UI.together.reset()
 	UI.campExtras.reset()
+	UI.rally.reset()
 	if hud then
 		hud:destroy()
 	end
@@ -1550,6 +1553,8 @@ function UI.setVisible(isVisible: boolean)
 	if toasts then
 		toasts.screenGui.Enabled = isVisible
 	end
+	-- cast: the old solver reads UI.rally before its block at the end of the file fills it
+	(UI.rally :: any).setVisible(isVisible)
 	if locationMarkers then
 		locationMarkers:setVisible(isVisible)
 	end
@@ -4488,6 +4493,104 @@ do
 			yard:destroy()
 		end
 		camp.yard = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Rescue Rally (F101, rescue-rally.md section 4)
+----------------------------------------------------------------------------------------------------
+
+-- Controllers/RallyController calls UI.rally.update(state) on every RallyState: the banner top centre while a Rally
+-- runs, the Town Square board's face, "🏁 Rescue Rally in 5h 20m" under the clock in the last 12 hours before one
+-- (the Friday chip) and the Cat Cannon cards' night tag. The pops are VFX's (Effects/Rally hooks RallyPoint and finds
+-- the banner's RallyBar) and the step prizes' toasts the server's. The state is kept, so a rebuilt UI shows it at
+-- once. Its own block, as the module is short of locals.
+do
+	local RallyBanner = require(script.Screens.RallyBanner)
+	local RallyBoards = require(script.Screens.RallyBoards)
+	local RallyLogic = require(script.Components.RallyLogic)
+	local SOON_SECONDS = 15 -- how often the clock line's countdown is worked out again
+	local rally = {
+		state = nil :: Types.RallyState?,
+		banner = nil :: RallyBanner.RallyBanner?,
+		boards = nil :: RallyBoards.RallyBoards?,
+		token = 0,
+	}
+
+	local function paint()
+		local current = rally.state
+		local banner = rally.banner
+		if banner then
+			banner:set(current)
+		end
+		local boards = rally.boards
+		if boards then
+			boards:set(current)
+		end
+		if cannonScreen then
+			cannonScreen:setRally(current)
+		end
+		if hud then
+			hud:setRallySoon(RallyLogic.soon(current, Workspace:GetServerTimeNow()))
+		end
+	end
+
+	-- UI.init: the banner and the board faces, painted from the kept state.
+	function UI.rally.start(parent: Instance)
+		UI.rally.reset()
+		-- on a phone the potion timers' row can reach the top centre; the banner moves under it then
+		rally.banner = RallyBanner.new(parent, function(): { GuiObject }
+			local current = hud
+			if current == nil then
+				return {}
+			end
+			return { current:buffRow() }
+		end)
+		rally.boards = RallyBoards.new(parent)
+		rally.token += 1
+		local token = rally.token
+		task.spawn(function()
+			while rally.token == token do
+				task.wait(SOON_SECONDS)
+				local current = hud
+				if rally.token == token and current ~= nil then
+					current:setRallySoon(RallyLogic.soon(rally.state, Workspace:GetServerTimeNow()))
+				end
+			end
+		end)
+		paint()
+	end
+
+	-- RallyState from the server.
+	function UI.rally.update(state: Types.RallyState)
+		if type(state) ~= "table" then
+			return
+		end
+		rally.state = state
+		paint()
+	end
+
+	-- UI.setVisible: the banner hides with the HUD.
+	function UI.rally.setVisible(isVisible: boolean)
+		local banner = rally.banner
+		if banner then
+			banner:setVisible(isVisible)
+		end
+	end
+
+	-- UI.destroy: the banner and the faces go; the state stays for the next build.
+	function UI.rally.reset()
+		rally.token += 1
+		local banner = rally.banner
+		if banner then
+			banner:destroy()
+		end
+		local boards = rally.boards
+		if boards then
+			boards:destroy()
+		end
+		rally.banner = nil
+		rally.boards = nil
 	end
 end
 

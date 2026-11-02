@@ -252,6 +252,26 @@ local function campExtras(picnic, bought, open)
 	}
 end
 
+-- F101: a RallyState, running for another day and 4 hours unless `fields` says otherwise.
+local function rallyState(fields)
+	local t = workspace:GetServerTimeNow()
+	local state = {
+		active = true,
+		endsAt = t + 28 * 3600,
+		startsAt = t - 20 * 3600,
+		lap = 1,
+		goal = 90,
+		points = 0,
+		myPoints = 0,
+		lapsPaid = 0,
+		lapsDone = false,
+	}
+	for key, value in fields do
+		state[key] = value
+	end
+	return state
+end
+
 local function firstArea()
 	for _, area in Catalog.areas do
 		if area.tier <= 1 then
@@ -928,6 +948,41 @@ local SCENES = {
 			{ potions = { lucky_potion = 1 }, fish = 10 }
 		)
 	end },
+	-- F101: a Rescue Rally on its second lap, the bar past its first step, this player on 7 points
+	{ "RallyBanner", function()
+		UI.rally.update(rallyState({ lap = 2, points = 50, myPoints = 7 }))
+	end },
+	-- F101: this player's laps used up this weekend, the bar nearly full
+	{ "RallyBannerDone", function()
+		UI.rally.update(rallyState({ lap = 5, points = 85, myPoints = 12, lapsPaid = 4, lapsDone = true }))
+	end },
+	-- F101: the Cat Cannon at night during a Rally: every card's "Rally: rescues x3" tag over its night cover
+	{ "RallyCannonNight", function()
+		local t = workspace:GetServerTimeNow()
+		local clock = Instance.new("Folder")
+		clock.Name = "Clock"
+		clock:SetAttribute("Phase", "night")
+		clock:SetAttribute("PhaseEndsAt", t + 60)
+		clock:SetAttribute("AreasOpen", false)
+		clock:SetAttribute("Day", 3)
+		clock:SetAttribute("NextLuckyDay", 4)
+		clock:SetAttribute("LuckyDay", false)
+		UI.clock.bind(clock)
+		UI.rally.update(rallyState({ points = 12, myPoints = 0 }))
+		UI.cannon.open()
+	end },
+	-- F101: three potions running and the Luck chip: on the phone the row beside the menu reaches the top centre,
+	-- so the banner moves down under it
+	{ "RallyBannerPotions", function()
+		local t = workspace:GetServerTimeNow()
+		UI.update({ buffs = { tip_potion = t + 492, swift_potion = t + 130, lucky_potion = t + 492 } })
+		UI.rally.update(rallyState({ points = 30, myPoints = 2 }))
+	end },
+	-- F101: Friday, 5 h 20 m before the Rally: the countdown under the clock and no banner
+	{ "RallySoon", function()
+		local t = workspace:GetServerTimeNow()
+		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = t + 5 * 3600 + 1200 }))
+	end },
 }
 
 Scenes.names = {}
@@ -950,6 +1005,7 @@ function Scenes.close()
 	UI.close()
 	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were
+	UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = workspace:GetServerTimeNow() + 3 * 86400 })) -- F101: no Rally
 	UI.catch.hideCircles()
 	UI.catch.hide()
 	UI.rescue.hide()

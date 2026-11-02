@@ -14,7 +14,7 @@
       "position": [
        0.0,
        0.1,
-       11.0
+       14.0
       ],
       "orientation": [
        [
@@ -57,7 +57,7 @@
       "position": [
        0.0,
        -0.1,
-       -11.0
+       -14.0
       ],
       "orientation": [
        [
@@ -90,9 +90,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.0,
+       -15.0,
        5.275,
-       -15.275
+       -18.275
       ],
       "orientation": [
        [
@@ -139,9 +139,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.0,
+       15.0,
        5.275,
-       -15.275
+       -18.275
       ],
       "orientation": [
        [
@@ -190,7 +190,7 @@
       "position": [
        0.0,
        7.775,
-       -15.525
+       -18.525
       ],
       "orientation": [
        [
@@ -239,7 +239,7 @@
       "position": [
        4.4,
        8.35,
-       -16.45
+       -19.45
       ],
       "orientation": [
        [
@@ -288,7 +288,7 @@
       "position": [
        4.4,
        8.175,
-       -15.1
+       -18.1
       ],
       "orientation": [
        [
@@ -337,7 +337,7 @@
       "position": [
        4.4,
        8.025,
-       -17.5
+       -20.5
       ],
       "orientation": [
        [
@@ -386,7 +386,7 @@
       "position": [
        4.4,
        8.025,
-       -15.4
+       -18.4
       ],
       "orientation": [
        [
@@ -435,7 +435,7 @@
       "position": [
        4.4,
        6.4,
-       -16.45
+       -19.45
       ],
       "orientation": [
        [
@@ -484,7 +484,7 @@
       "position": [
        4.54,
        7.585,
-       -15.595
+       -18.595
       ],
       "orientation": [
        [
@@ -533,7 +533,7 @@
       "position": [
        4.54,
        7.455,
-       -15.465
+       -18.465
       ],
       "orientation": [
        [
@@ -582,7 +582,7 @@
       "position": [
        4.54,
        7.325,
-       -15.53
+       -18.53
       ],
       "orientation": [
        [
@@ -631,7 +631,7 @@
       "position": [
        4.54,
        7.195,
-       -15.465
+       -18.465
       ],
       "orientation": [
        [
@@ -680,7 +680,7 @@
       "position": [
        4.54,
        7.065,
-       -15.465
+       -18.465
       ],
       "orientation": [
        [
@@ -729,7 +729,7 @@
       "position": [
        4.54,
        7.585,
-       -16.115
+       -19.115
       ],
       "orientation": [
        [
@@ -778,7 +778,7 @@
       "position": [
        4.54,
        7.455,
-       -15.985
+       -18.985
       ],
       "orientation": [
        [
@@ -827,7 +827,7 @@
       "position": [
        4.54,
        7.455,
-       -16.245
+       -19.245
       ],
       "orientation": [
        [
@@ -876,7 +876,7 @@
       "position": [
        4.54,
        7.325,
-       -15.985
+       -18.985
       ],
       "orientation": [
        [
@@ -925,7 +925,7 @@
       "position": [
        4.54,
        7.325,
-       -16.245
+       -19.245
       ],
       "orientation": [
        [
@@ -974,7 +974,7 @@
       "position": [
        4.54,
        7.195,
-       -15.985
+       -18.985
       ],
       "orientation": [
        [
@@ -1023,7 +1023,7 @@
       "position": [
        4.54,
        7.195,
-       -16.245
+       -19.245
       ],
       "orientation": [
        [
@@ -1072,7 +1072,7 @@
       "position": [
        4.54,
        7.065,
-       -16.115
+       -19.115
       ],
       "orientation": [
        [
@@ -1121,7 +1121,7 @@
       "position": [
        4.54,
        7.585,
-       -16.57
+       -19.57
       ],
       "orientation": [
        [
@@ -1170,7 +1170,7 @@
       "position": [
        4.54,
        7.455,
-       -16.505
+       -19.505
       ],
       "orientation": [
        [
@@ -1219,7 +1219,7 @@
       "position": [
        4.54,
        7.455,
-       -16.765
+       -19.765
       ],
       "orientation": [
        [
@@ -1268,7 +1268,7 @@
       "position": [
        4.54,
        7.325,
-       -16.57
+       -19.57
       ],
       "orientation": [
        [
@@ -1317,7 +1317,7 @@
       "position": [
        4.54,
        7.195,
-       -16.505
+       -19.505
       ],
       "orientation": [
        [
@@ -1366,7 +1366,7 @@
       "position": [
        4.54,
        7.195,
-       -16.765
+       -19.765
       ],
       "orientation": [
        [
@@ -1415,7 +1415,7 @@
       "position": [
        4.54,
        7.065,
-       -16.505
+       -19.505
       ],
       "orientation": [
        [
@@ -1464,7 +1464,7 @@
       "position": [
        4.54,
        7.065,
-       -16.765
+       -19.765
       ],
       "orientation": [
        [
@@ -1513,7 +1513,7 @@
       "position": [
        4.54,
        6.835,
-       -15.53
+       -18.53
       ],
       "orientation": [
        [
@@ -1562,7 +1562,7 @@
       "position": [
        4.54,
        6.705,
-       -15.465
+       -18.465
       ],
       "orientation": [
        [
@@ -1611,7 +1611,7 @@
       "position": [
        4.54,
        6.705,
-       -15.725
+       -18.725
       ],
       "orientation": [
        [
@@ -1660,7 +1660,7 @@
       "position": [
        4.54,
        6.575,
-       -15.53
+       -18.53
       ],
       "orientation": [
        [
@@ -1709,7 +1709,7 @@
       "position": [
        4.54,
        6.445,
-       -15.465
+       -18.465
       ],
       "orientation": [
        [
@@ -1758,7 +1758,7 @@
       "position": [
        4.54,
        6.445,
-       -15.725
+       -18.725
       ],
       "orientation": [
        [
@@ -1807,7 +1807,7 @@
       "position": [
        4.54,
        6.315,
-       -15.465
+       -18.465
       ],
       "orientation": [
        [
@@ -1856,7 +1856,7 @@
       "position": [
        4.54,
        6.315,
-       -15.725
+       -18.725
       ],
       "orientation": [
        [
@@ -1905,7 +1905,7 @@
       "position": [
        4.54,
        6.835,
-       -16.115
+       -19.115
       ],
       "orientation": [
        [
@@ -1954,7 +1954,7 @@
       "position": [
        4.54,
        6.705,
-       -15.985
+       -18.985
       ],
       "orientation": [
        [
@@ -2003,7 +2003,7 @@
       "position": [
        4.54,
        6.575,
-       -16.05
+       -19.05
       ],
       "orientation": [
        [
@@ -2052,7 +2052,7 @@
       "position": [
        4.54,
        6.445,
-       -15.985
+       -18.985
       ],
       "orientation": [
        [
@@ -2101,7 +2101,7 @@
       "position": [
        4.54,
        6.315,
-       -16.115
+       -19.115
       ],
       "orientation": [
        [
@@ -2150,7 +2150,7 @@
       "position": [
        4.54,
        6.835,
-       -16.505
+       -19.505
       ],
       "orientation": [
        [
@@ -2199,7 +2199,7 @@
       "position": [
        4.54,
        6.835,
-       -16.895
+       -19.895
       ],
       "orientation": [
        [
@@ -2248,7 +2248,7 @@
       "position": [
        4.54,
        6.705,
-       -16.57
+       -19.57
       ],
       "orientation": [
        [
@@ -2297,7 +2297,7 @@
       "position": [
        4.54,
        6.705,
-       -16.895
+       -19.895
       ],
       "orientation": [
        [
@@ -2346,7 +2346,7 @@
       "position": [
        4.54,
        6.575,
-       -16.505
+       -19.505
       ],
       "orientation": [
        [
@@ -2395,7 +2395,7 @@
       "position": [
        4.54,
        6.575,
-       -16.83
+       -19.83
       ],
       "orientation": [
        [
@@ -2444,7 +2444,7 @@
       "position": [
        4.54,
        6.445,
-       -16.505
+       -19.505
       ],
       "orientation": [
        [
@@ -2493,7 +2493,7 @@
       "position": [
        4.54,
        6.445,
-       -16.895
+       -19.895
       ],
       "orientation": [
        [
@@ -2542,7 +2542,7 @@
       "position": [
        4.54,
        6.315,
-       -16.505
+       -19.505
       ],
       "orientation": [
        [
@@ -2591,7 +2591,7 @@
       "position": [
        4.54,
        6.315,
-       -16.895
+       -19.895
       ],
       "orientation": [
        [
@@ -2640,7 +2640,7 @@
       "position": [
        4.54,
        6.835,
-       -17.285
+       -20.285
       ],
       "orientation": [
        [
@@ -2689,7 +2689,7 @@
       "position": [
        4.54,
        6.705,
-       -17.285
+       -20.285
       ],
       "orientation": [
        [
@@ -2738,7 +2738,7 @@
       "position": [
        4.54,
        6.575,
-       -17.285
+       -20.285
       ],
       "orientation": [
        [
@@ -2787,7 +2787,7 @@
       "position": [
        4.54,
        6.445,
-       -17.285
+       -20.285
       ],
       "orientation": [
        [
@@ -2836,7 +2836,7 @@
       "position": [
        4.54,
        6.315,
-       -17.285
+       -20.285
       ],
       "orientation": [
        [
@@ -2885,7 +2885,7 @@
       "position": [
        4.54,
        5.525,
-       -16.55
+       -19.55
       ],
       "orientation": [
        [
@@ -2934,7 +2934,7 @@
       "position": [
        4.54,
        5.8,
-       -15.95
+       -18.95
       ],
       "orientation": [
        [
@@ -2983,7 +2983,7 @@
       "position": [
        4.54,
        6.075,
-       -16.07
+       -19.07
       ],
       "orientation": [
        [
@@ -3032,7 +3032,7 @@
       "position": [
        4.54,
        6.075,
-       -15.83
+       -18.83
       ],
       "orientation": [
        [
@@ -3081,7 +3081,7 @@
       "position": [
        4.54,
        5.8,
-       -17.075
+       -20.075
       ],
       "orientation": [
        [
@@ -3130,7 +3130,7 @@
       "position": [
        4.26,
        7.585,
-       -17.305
+       -20.305
       ],
       "orientation": [
        [
@@ -3179,7 +3179,7 @@
       "position": [
        4.26,
        7.455,
-       -17.435
+       -20.435
       ],
       "orientation": [
        [
@@ -3228,7 +3228,7 @@
       "position": [
        4.26,
        7.325,
-       -17.37
+       -20.37
       ],
       "orientation": [
        [
@@ -3277,7 +3277,7 @@
       "position": [
        4.26,
        7.195,
-       -17.435
+       -20.435
       ],
       "orientation": [
        [
@@ -3326,7 +3326,7 @@
       "position": [
        4.26,
        7.065,
-       -17.435
+       -20.435
       ],
       "orientation": [
        [
@@ -3375,7 +3375,7 @@
       "position": [
        4.26,
        7.585,
-       -16.785
+       -19.785
       ],
       "orientation": [
        [
@@ -3424,7 +3424,7 @@
       "position": [
        4.26,
        7.455,
-       -16.915
+       -19.915
       ],
       "orientation": [
        [
@@ -3473,7 +3473,7 @@
       "position": [
        4.26,
        7.455,
-       -16.655
+       -19.655
       ],
       "orientation": [
        [
@@ -3522,7 +3522,7 @@
       "position": [
        4.26,
        7.325,
-       -16.915
+       -19.915
       ],
       "orientation": [
        [
@@ -3571,7 +3571,7 @@
       "position": [
        4.26,
        7.325,
-       -16.655
+       -19.655
       ],
       "orientation": [
        [
@@ -3620,7 +3620,7 @@
       "position": [
        4.26,
        7.195,
-       -16.915
+       -19.915
       ],
       "orientation": [
        [
@@ -3669,7 +3669,7 @@
       "position": [
        4.26,
        7.195,
-       -16.655
+       -19.655
       ],
       "orientation": [
        [
@@ -3718,7 +3718,7 @@
       "position": [
        4.26,
        7.065,
-       -16.785
+       -19.785
       ],
       "orientation": [
        [
@@ -3767,7 +3767,7 @@
       "position": [
        4.26,
        7.585,
-       -16.33
+       -19.33
       ],
       "orientation": [
        [
@@ -3816,7 +3816,7 @@
       "position": [
        4.26,
        7.455,
-       -16.395
+       -19.395
       ],
       "orientation": [
        [
@@ -3865,7 +3865,7 @@
       "position": [
        4.26,
        7.455,
-       -16.135
+       -19.135
       ],
       "orientation": [
        [
@@ -3914,7 +3914,7 @@
       "position": [
        4.26,
        7.325,
-       -16.33
+       -19.33
       ],
       "orientation": [
        [
@@ -3963,7 +3963,7 @@
       "position": [
        4.26,
        7.195,
-       -16.395
+       -19.395
       ],
       "orientation": [
        [
@@ -4012,7 +4012,7 @@
       "position": [
        4.26,
        7.195,
-       -16.135
+       -19.135
       ],
       "orientation": [
        [
@@ -4061,7 +4061,7 @@
       "position": [
        4.26,
        7.065,
-       -16.395
+       -19.395
       ],
       "orientation": [
        [
@@ -4110,7 +4110,7 @@
       "position": [
        4.26,
        7.065,
-       -16.135
+       -19.135
       ],
       "orientation": [
        [
@@ -4159,7 +4159,7 @@
       "position": [
        4.26,
        6.835,
-       -17.37
+       -20.37
       ],
       "orientation": [
        [
@@ -4208,7 +4208,7 @@
       "position": [
        4.26,
        6.705,
-       -17.435
+       -20.435
       ],
       "orientation": [
        [
@@ -4257,7 +4257,7 @@
       "position": [
        4.26,
        6.705,
-       -17.175
+       -20.175
       ],
       "orientation": [
        [
@@ -4306,7 +4306,7 @@
       "position": [
        4.26,
        6.575,
-       -17.37
+       -20.37
       ],
       "orientation": [
        [
@@ -4355,7 +4355,7 @@
       "position": [
        4.26,
        6.445,
-       -17.435
+       -20.435
       ],
       "orientation": [
        [
@@ -4404,7 +4404,7 @@
       "position": [
        4.26,
        6.445,
-       -17.175
+       -20.175
       ],
       "orientation": [
        [
@@ -4453,7 +4453,7 @@
       "position": [
        4.26,
        6.315,
-       -17.435
+       -20.435
       ],
       "orientation": [
        [
@@ -4502,7 +4502,7 @@
       "position": [
        4.26,
        6.315,
-       -17.175
+       -20.175
       ],
       "orientation": [
        [
@@ -4551,7 +4551,7 @@
       "position": [
        4.26,
        6.835,
-       -16.785
+       -19.785
       ],
       "orientation": [
        [
@@ -4600,7 +4600,7 @@
       "position": [
        4.26,
        6.705,
-       -16.915
+       -19.915
       ],
       "orientation": [
        [
@@ -4649,7 +4649,7 @@
       "position": [
        4.26,
        6.575,
-       -16.85
+       -19.85
       ],
       "orientation": [
        [
@@ -4698,7 +4698,7 @@
       "position": [
        4.26,
        6.445,
-       -16.915
+       -19.915
       ],
       "orientation": [
        [
@@ -4747,7 +4747,7 @@
       "position": [
        4.26,
        6.315,
-       -16.785
+       -19.785
       ],
       "orientation": [
        [
@@ -4796,7 +4796,7 @@
       "position": [
        4.26,
        6.835,
-       -16.395
+       -19.395
       ],
       "orientation": [
        [
@@ -4845,7 +4845,7 @@
       "position": [
        4.26,
        6.835,
-       -16.005
+       -19.005
       ],
       "orientation": [
        [
@@ -4894,7 +4894,7 @@
       "position": [
        4.26,
        6.705,
-       -16.33
+       -19.33
       ],
       "orientation": [
        [
@@ -4943,7 +4943,7 @@
       "position": [
        4.26,
        6.705,
-       -16.005
+       -19.005
       ],
       "orientation": [
        [
@@ -4992,7 +4992,7 @@
       "position": [
        4.26,
        6.575,
-       -16.395
+       -19.395
       ],
       "orientation": [
        [
@@ -5041,7 +5041,7 @@
       "position": [
        4.26,
        6.575,
-       -16.07
+       -19.07
       ],
       "orientation": [
        [
@@ -5090,7 +5090,7 @@
       "position": [
        4.26,
        6.445,
-       -16.395
+       -19.395
       ],
       "orientation": [
        [
@@ -5139,7 +5139,7 @@
       "position": [
        4.26,
        6.445,
-       -16.005
+       -19.005
       ],
       "orientation": [
        [
@@ -5188,7 +5188,7 @@
       "position": [
        4.26,
        6.315,
-       -16.395
+       -19.395
       ],
       "orientation": [
        [
@@ -5237,7 +5237,7 @@
       "position": [
        4.26,
        6.315,
-       -16.005
+       -19.005
       ],
       "orientation": [
        [
@@ -5286,7 +5286,7 @@
       "position": [
        4.26,
        6.835,
-       -15.615
+       -18.615
       ],
       "orientation": [
        [
@@ -5335,7 +5335,7 @@
       "position": [
        4.26,
        6.705,
-       -15.615
+       -18.615
       ],
       "orientation": [
        [
@@ -5384,7 +5384,7 @@
       "position": [
        4.26,
        6.575,
-       -15.615
+       -18.615
       ],
       "orientation": [
        [
@@ -5433,7 +5433,7 @@
       "position": [
        4.26,
        6.445,
-       -15.615
+       -18.615
       ],
       "orientation": [
        [
@@ -5482,7 +5482,7 @@
       "position": [
        4.26,
        6.315,
-       -15.615
+       -18.615
       ],
       "orientation": [
        [
@@ -5531,7 +5531,7 @@
       "position": [
        4.26,
        5.525,
-       -16.35
+       -19.35
       ],
       "orientation": [
        [
@@ -5580,7 +5580,7 @@
       "position": [
        4.26,
        5.8,
-       -16.95
+       -19.95
       ],
       "orientation": [
        [
@@ -5629,7 +5629,7 @@
       "position": [
        4.26,
        6.075,
-       -16.83
+       -19.83
       ],
       "orientation": [
        [
@@ -5678,7 +5678,7 @@
       "position": [
        4.26,
        6.075,
-       -17.07
+       -20.07
       ],
       "orientation": [
        [
@@ -5727,7 +5727,7 @@
       "position": [
        4.26,
        5.8,
-       -15.825
+       -18.825
       ],
       "orientation": [
        [
@@ -5776,7 +5776,7 @@
       "position": [
        -4.4,
        1.425,
-       9.6
+       12.6
       ],
       "orientation": [
        [
@@ -5825,7 +5825,7 @@
       "position": [
        -4.4,
        1.425,
-       12.4
+       15.4
       ],
       "orientation": [
        [
@@ -5874,7 +5874,7 @@
       "position": [
        -1.5,
        1.425,
-       9.6
+       12.6
       ],
       "orientation": [
        [
@@ -5923,7 +5923,7 @@
       "position": [
        -1.5,
        1.425,
-       12.4
+       15.4
       ],
       "orientation": [
        [
@@ -5972,7 +5972,7 @@
       "position": [
        1.5,
        1.425,
-       9.6
+       12.6
       ],
       "orientation": [
        [
@@ -6021,7 +6021,7 @@
       "position": [
        1.5,
        1.425,
-       12.4
+       15.4
       ],
       "orientation": [
        [
@@ -6070,7 +6070,7 @@
       "position": [
        4.4,
        1.425,
-       9.6
+       12.6
       ],
       "orientation": [
        [
@@ -6119,7 +6119,7 @@
       "position": [
        4.4,
        1.425,
-       12.4
+       15.4
       ],
       "orientation": [
        [
@@ -6168,7 +6168,7 @@
       "position": [
        0.0,
        2.725,
-       9.6
+       12.6
       ],
       "orientation": [
        [
@@ -6217,7 +6217,7 @@
       "position": [
        0.0,
        2.725,
-       12.4
+       15.4
       ],
       "orientation": [
        [
@@ -6266,7 +6266,7 @@
       "position": [
        -4.4,
        2.725,
-       11.0
+       14.0
       ],
       "orientation": [
        [
@@ -6315,7 +6315,7 @@
       "position": [
        4.4,
        2.725,
-       11.0
+       14.0
       ],
       "orientation": [
        [
@@ -6364,7 +6364,7 @@
       "position": [
        0.0,
        1.5,
-       12.53
+       15.53
       ],
       "orientation": [
        [
@@ -6413,7 +6413,7 @@
       "position": [
        -3.01,
        1.5,
-       9.47
+       12.47
       ],
       "orientation": [
        [
@@ -6462,7 +6462,7 @@
       "position": [
        0.01,
        1.5,
-       9.47
+       12.47
       ],
       "orientation": [
        [
@@ -6511,7 +6511,7 @@
       "position": [
        0.0,
        2.87,
-       9.885
+       12.885
       ],
       "orientation": [
        [
@@ -6560,7 +6560,7 @@
       "position": [
        0.0,
        2.87,
-       10.985
+       13.985
       ],
       "orientation": [
        [
@@ -6609,7 +6609,7 @@
       "position": [
        0.0,
        2.87,
-       12.1
+       15.1
       ],
       "orientation": [
        [
@@ -6658,7 +6658,7 @@
       "position": [
        -3.2,
        3.215,
-       10.95
+       13.95
       ],
       "orientation": [
        [
@@ -6707,7 +6707,7 @@
       "position": [
        -3.2,
        3.4,
-       10.95
+       13.95
       ],
       "orientation": [
        [
@@ -6756,7 +6756,7 @@
       "position": [
        -3.5,
        3.59,
-       10.95
+       13.95
       ],
       "orientation": [
        [
@@ -6805,7 +6805,7 @@
       "position": [
        -2.9,
        3.59,
-       10.95
+       13.95
       ],
       "orientation": [
        [
@@ -6854,7 +6854,7 @@
       "position": [
        -3.2,
        3.69,
-       10.95
+       13.95
       ],
       "orientation": [
        [
@@ -6903,7 +6903,7 @@
       "position": [
        -1.0,
        3.165,
-       11.0
+       14.0
       ],
       "orientation": [
        [
@@ -6953,7 +6953,7 @@
       "position": [
        -1.0,
        3.41,
-       11.0
+       14.0
       ],
       "orientation": [
        [
@@ -7003,7 +7003,7 @@
       "position": [
        -1.0,
        3.305,
-       10.71
+       13.71
       ],
       "orientation": [
        [
@@ -7052,7 +7052,7 @@
       "position": [
        -1.0,
        3.43,
-       11.0
+       14.0
       ],
       "orientation": [
        [
@@ -7101,7 +7101,7 @@
       "position": [
        1.6,
        3.02,
-       10.25
+       13.25
       ],
       "orientation": [
        [
@@ -7150,7 +7150,7 @@
       "position": [
        1.6,
        3.11,
-       10.25
+       13.25
       ],
       "orientation": [
        [
@@ -7199,7 +7199,7 @@
       "position": [
        4.665,
        1.275,
-       11.0
+       14.0
       ],
       "orientation": [
        [
@@ -7248,7 +7248,7 @@
       "position": [
        4.729,
        1.275,
-       11.15
+       14.15
       ],
       "orientation": [
        [
@@ -7297,7 +7297,7 @@
       "position": [
        4.793,
        1.275,
-       11.3
+       14.3
       ],
       "orientation": [
        [
@@ -7344,9 +7344,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.0,
+       -12.22,
        0.06,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -7394,9 +7394,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.0,
+       -12.22,
        1.27,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -7444,9 +7444,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.0,
+       -12.22,
        2.5,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -7494,9 +7494,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.0,
+       -12.22,
        2.61,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -7544,9 +7544,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.25,
+       -13.47,
        2.68,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -7593,9 +7593,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.26,
+       -13.48,
        2.815,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -7642,9 +7642,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.85,
+       -14.07,
        3.54,
-       -9.1
+       -10.92
       ],
       "orientation": [
        [
@@ -7691,9 +7691,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.85,
+       -14.07,
        3.54,
-       -7.9
+       -9.72
       ],
       "orientation": [
        [
@@ -7740,9 +7740,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.65,
+       -12.87,
        3.54,
-       -9.1
+       -10.92
       ],
       "orientation": [
        [
@@ -7789,9 +7789,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.65,
+       -12.87,
        3.54,
-       -7.9
+       -9.72
       ],
       "orientation": [
        [
@@ -7838,9 +7838,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.885,
+       -14.13,
        1.99,
-       -9.1
+       -10.92
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     1.6,
+     0.16
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_ForRent",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.105,
+       1.99,
+       -9.72
       ],
       "orientation": [
        [
@@ -7887,58 +7936,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.91,
-       1.99,
-       -7.9
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     1.6,
-     0.16
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -11.91,
+       -14.13,
        2.04,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -7985,9 +7985,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.91,
+       -14.13,
        1.49,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -8034,9 +8034,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.75,
+       -10.97,
        2.68,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -8083,9 +8083,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.74,
+       -10.96,
        2.815,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -8132,9 +8132,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.35,
+       -11.57,
        3.54,
-       -9.1
+       -10.92
       ],
       "orientation": [
        [
@@ -8181,9 +8181,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.35,
+       -11.57,
        3.54,
-       -7.9
+       -9.72
       ],
       "orientation": [
        [
@@ -8230,9 +8230,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.15,
+       -10.37,
        3.54,
-       -9.1
+       -10.92
       ],
       "orientation": [
        [
@@ -8279,9 +8279,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.15,
+       -10.37,
        3.54,
-       -7.9
+       -9.72
       ],
       "orientation": [
        [
@@ -8328,9 +8328,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.115,
+       -10.31,
        1.99,
-       -9.1
+       -10.92
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     1.6,
+     0.16
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_ForRent",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -10.335,
+       1.99,
+       -9.72
       ],
       "orientation": [
        [
@@ -8377,58 +8426,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.09,
-       1.99,
-       -7.9
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     1.6,
-     0.16
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.09,
+       -10.31,
        2.04,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -8475,9 +8475,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.09,
+       -10.31,
        1.49,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -8524,9 +8524,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        0.06,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -8574,9 +8574,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        1.27,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -8624,9 +8624,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        2.5,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -8674,9 +8674,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        2.61,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -8724,9 +8724,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.75,
+       10.97,
        2.68,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -8773,9 +8773,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.74,
+       10.96,
        2.815,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -8822,9 +8822,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.15,
+       10.37,
        3.54,
-       -9.1
+       -10.92
       ],
       "orientation": [
        [
@@ -8871,9 +8871,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.15,
+       10.37,
        3.54,
-       -7.9
+       -9.72
       ],
       "orientation": [
        [
@@ -8920,9 +8920,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.35,
+       11.57,
        3.54,
-       -9.1
+       -10.92
       ],
       "orientation": [
        [
@@ -8969,9 +8969,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.35,
+       11.57,
        3.54,
-       -7.9
+       -9.72
       ],
       "orientation": [
        [
@@ -9018,9 +9018,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.115,
+       10.31,
        1.99,
-       -9.1
+       -10.92
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     1.6,
+     0.16
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_ForRent",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       10.335,
+       1.99,
+       -9.72
       ],
       "orientation": [
        [
@@ -9067,58 +9116,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.09,
-       1.99,
-       -7.9
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     1.6,
-     0.16
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.09,
+       10.31,
        2.04,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -9165,9 +9165,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.09,
+       10.31,
        1.49,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -9214,9 +9214,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.25,
+       13.47,
        2.68,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -9263,9 +9263,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.26,
+       13.48,
        2.815,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -9312,9 +9312,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.65,
+       12.87,
        3.54,
-       -9.1
+       -10.92
       ],
       "orientation": [
        [
@@ -9361,9 +9361,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.65,
+       12.87,
        3.54,
-       -7.9
+       -9.72
       ],
       "orientation": [
        [
@@ -9410,9 +9410,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.85,
+       14.07,
        3.54,
-       -9.1
+       -10.92
       ],
       "orientation": [
        [
@@ -9459,9 +9459,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.85,
+       14.07,
        3.54,
-       -7.9
+       -9.72
       ],
       "orientation": [
        [
@@ -9508,9 +9508,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.885,
+       14.13,
        1.99,
-       -9.1
+       -10.92
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     1.6,
+     0.16
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_ForRent",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       14.105,
+       1.99,
+       -9.72
       ],
       "orientation": [
        [
@@ -9557,58 +9606,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.91,
-       1.99,
-       -7.9
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     1.6,
-     0.16
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       11.91,
+       14.13,
        2.04,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -9655,9 +9655,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.91,
+       14.13,
        1.49,
-       -8.5
+       -10.32
       ],
       "orientation": [
        [
@@ -9704,9 +9704,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.0,
+       -12.22,
        0.06,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -9754,9 +9754,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.0,
+       -12.22,
        1.27,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -9804,9 +9804,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.0,
+       -12.22,
        2.5,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -9854,9 +9854,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.0,
+       -12.22,
        2.61,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -9904,9 +9904,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.25,
+       -13.47,
        2.68,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -9953,9 +9953,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.26,
+       -13.48,
        2.815,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -10002,9 +10002,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.85,
+       -14.07,
        3.54,
-       -2.85
+       -3.33
       ],
       "orientation": [
        [
@@ -10051,9 +10051,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.85,
+       -14.07,
        3.54,
-       -1.65
+       -2.13
       ],
       "orientation": [
        [
@@ -10100,9 +10100,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.65,
+       -12.87,
        3.54,
-       -2.85
+       -3.33
       ],
       "orientation": [
        [
@@ -10149,9 +10149,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.65,
+       -12.87,
        3.54,
-       -1.65
+       -2.13
       ],
       "orientation": [
        [
@@ -10198,9 +10198,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.91,
+       -14.13,
        1.99,
-       -2.85
+       -3.33
       ],
       "orientation": [
        [
@@ -10247,9 +10247,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.885,
+       -14.105,
        1.99,
-       -1.65
+       -2.13
       ],
       "orientation": [
        [
@@ -10296,9 +10296,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.91,
+       -14.13,
        2.04,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -10345,9 +10345,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.91,
+       -14.13,
        1.49,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -10394,9 +10394,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.75,
+       -10.97,
        2.68,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -10443,9 +10443,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.74,
+       -10.96,
        2.815,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -10492,9 +10492,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.35,
+       -11.57,
        3.54,
-       -2.85
+       -3.33
       ],
       "orientation": [
        [
@@ -10541,9 +10541,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.35,
+       -11.57,
        3.54,
-       -1.65
+       -2.13
       ],
       "orientation": [
        [
@@ -10590,9 +10590,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.15,
+       -10.37,
        3.54,
-       -2.85
+       -3.33
       ],
       "orientation": [
        [
@@ -10639,9 +10639,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.15,
+       -10.37,
        3.54,
-       -1.65
+       -2.13
       ],
       "orientation": [
        [
@@ -10688,9 +10688,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.09,
+       -10.31,
        1.99,
-       -2.85
+       -3.33
       ],
       "orientation": [
        [
@@ -10737,9 +10737,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.115,
+       -10.335,
        1.99,
-       -1.65
+       -2.13
       ],
       "orientation": [
        [
@@ -10786,9 +10786,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.09,
+       -10.31,
        2.04,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -10835,9 +10835,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.09,
+       -10.31,
        1.49,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -10884,9 +10884,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        0.02,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -10933,9 +10933,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.6,
+       10.82,
        0.045,
-       -3.45
+       -3.93
       ],
       "orientation": [
        [
@@ -10982,9 +10982,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.1,
+       11.32,
        0.045,
-       -0.95
+       -1.43
       ],
       "orientation": [
        [
@@ -11031,9 +11031,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.5,
+       13.72,
        0.055,
-       -2.85
+       -3.33
       ],
       "orientation": [
        [
@@ -11080,9 +11080,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.9,
+       13.12,
        0.045,
-       -0.75
+       -1.23
       ],
       "orientation": [
        [
@@ -11129,9 +11129,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.3,
+       10.52,
        0.055,
-       -1.85
+       -2.33
       ],
       "orientation": [
        [
@@ -11178,9 +11178,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.4,
+       11.62,
        2.09,
-       -2.9485
+       -3.4285
       ],
       "orientation": [
        [
@@ -11227,9 +11227,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.4,
+       11.62,
        2.09,
-       -1.5515
+       -2.0315
       ],
       "orientation": [
        [
@@ -11276,9 +11276,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.6,
+       12.82,
        2.09,
-       -2.9485
+       -3.4285
       ],
       "orientation": [
        [
@@ -11325,9 +11325,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.6,
+       12.82,
        2.09,
-       -1.5515
+       -2.0315
       ],
       "orientation": [
        [
@@ -11374,9 +11374,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        1.025,
-       -3.1477
+       -3.6277
       ],
       "orientation": [
        [
@@ -11423,9 +11423,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        2.05,
-       -2.9485
+       -3.4285
       ],
       "orientation": [
        [
@@ -11472,9 +11472,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        3.075,
-       -2.7492
+       -3.2292
       ],
       "orientation": [
        [
@@ -11521,9 +11521,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        4.17,
-       -2.25
+       -2.73
       ],
       "orientation": [
        [
@@ -11570,9 +11570,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.25,
+       12.47,
        4.43,
-       -2.3
+       -2.78
       ],
       "orientation": [
        [
@@ -11620,9 +11620,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.25,
+       12.47,
        4.64,
-       -2.3
+       -2.78
       ],
       "orientation": [
        [
@@ -11670,9 +11670,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.25,
+       12.47,
        4.535,
-       -2.55
+       -3.03
       ],
       "orientation": [
        [
@@ -11719,9 +11719,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.25,
+       12.47,
        4.66,
-       -2.3
+       -2.78
       ],
       "orientation": [
        [
@@ -11768,9 +11768,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.65,
+       11.87,
        4.28,
-       -2.2
+       -2.68
       ],
       "orientation": [
        [
@@ -11817,9 +11817,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.27,
+       11.49,
        4.28,
-       -2.42
+       -2.9
       ],
       "orientation": [
        [
@@ -11866,9 +11866,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.5,
+       13.72,
        0.265,
-       -1.65
+       -2.13
       ],
       "orientation": [
        [
@@ -11916,9 +11916,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.5,
+       13.72,
        0.51,
-       -1.65
+       -2.13
       ],
       "orientation": [
        [
@@ -11966,9 +11966,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.5,
+       13.72,
        0.405,
-       -1.94
+       -2.42
       ],
       "orientation": [
        [
@@ -12015,9 +12015,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.5,
+       13.72,
        0.53,
-       -1.65
+       -2.13
       ],
       "orientation": [
        [
@@ -12064,9 +12064,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.55,
+       13.77,
        0.23,
-       -2.5
+       -2.98
       ],
       "orientation": [
        [
@@ -12114,9 +12114,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.55,
+       13.77,
        0.44,
-       -2.5
+       -2.98
       ],
       "orientation": [
        [
@@ -12164,9 +12164,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.55,
+       13.77,
        0.335,
-       -2.75
+       -3.23
       ],
       "orientation": [
        [
@@ -12213,9 +12213,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.55,
+       13.77,
        0.46,
-       -2.5
+       -2.98
       ],
       "orientation": [
        [
@@ -12262,9 +12262,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.6,
+       10.82,
        0.09,
-       -3.65
+       -4.13
       ],
       "orientation": [
        [
@@ -12311,9 +12311,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.45,
+       10.67,
        0.15,
-       -3.65
+       -4.13
       ],
       "orientation": [
        [
@@ -12360,9 +12360,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.8,
+       11.02,
        0.27,
-       -3.65
+       -4.13
       ],
       "orientation": [
        [
@@ -12410,9 +12410,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.8,
+       11.02,
        0.27,
-       -2.95
+       -3.43
       ],
       "orientation": [
        [
@@ -12459,9 +12459,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.9,
+       12.12,
        0.36,
-       -0.8
+       -1.28
       ],
       "orientation": [
        [
@@ -12509,9 +12509,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.19,
+       10.41,
        0.36,
-       -0.8
+       -1.28
       ],
       "orientation": [
        [
@@ -12559,9 +12559,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.61,
+       13.83,
        0.36,
-       -0.8
+       -1.28
       ],
       "orientation": [
        [
@@ -12609,9 +12609,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.5,
+       -12.83,
        0.06,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -12659,9 +12659,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.5,
+       -12.83,
        1.27,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -12709,9 +12709,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.5,
+       -12.83,
        2.5,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -12759,9 +12759,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -10.5,
+       -12.83,
        2.61,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -12809,9 +12809,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.75,
+       -14.08,
        2.68,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -12858,9 +12858,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.76,
+       -14.09,
        2.815,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -12907,9 +12907,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -12.35,
+       -14.68,
        3.54,
-       3.4
+       4.26
       ],
       "orientation": [
        [
@@ -12956,9 +12956,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -12.35,
+       -14.68,
        3.54,
-       4.6
+       5.46
       ],
       "orientation": [
        [
@@ -13005,9 +13005,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.15,
+       -13.48,
        3.54,
-       3.4
+       4.26
       ],
       "orientation": [
        [
@@ -13054,9 +13054,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.15,
+       -13.48,
        3.54,
-       4.6
+       5.46
       ],
       "orientation": [
        [
@@ -13103,9 +13103,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -12.385,
+       -14.74,
        1.99,
-       3.4
+       4.26
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     1.6,
+     0.16
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_ForRent",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.715,
+       1.99,
+       5.46
       ],
       "orientation": [
        [
@@ -13152,58 +13201,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -12.41,
-       1.99,
-       4.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     1.6,
-     0.16
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -12.41,
+       -14.74,
        2.04,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -13250,9 +13250,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -12.41,
+       -14.74,
        1.49,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -13299,9 +13299,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.25,
+       -11.58,
        2.68,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -13348,9 +13348,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.24,
+       -11.57,
        2.815,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -13397,9 +13397,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.85,
+       -12.18,
        3.54,
-       3.4
+       4.26
       ],
       "orientation": [
        [
@@ -13446,9 +13446,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.85,
+       -12.18,
        3.54,
-       4.6
+       5.46
       ],
       "orientation": [
        [
@@ -13495,9 +13495,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.65,
+       -10.98,
        3.54,
-       3.4
+       4.26
       ],
       "orientation": [
        [
@@ -13544,9 +13544,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.65,
+       -10.98,
        3.54,
-       4.6
+       5.46
       ],
       "orientation": [
        [
@@ -13593,9 +13593,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.615,
+       -10.92,
        1.99,
-       3.4
+       4.26
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     1.6,
+     0.16
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_ForRent",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -10.945,
+       1.99,
+       5.46
       ],
       "orientation": [
        [
@@ -13642,58 +13691,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.59,
-       1.99,
-       4.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     1.6,
-     0.16
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.59,
+       -10.92,
        2.04,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -13740,9 +13740,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -8.59,
+       -10.92,
        1.49,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -13789,9 +13789,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        0.06,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -13839,9 +13839,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        1.27,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -13889,9 +13889,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        2.5,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -13939,9 +13939,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       12.22,
        2.61,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -13989,9 +13989,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.75,
+       10.97,
        2.68,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -14038,9 +14038,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.74,
+       10.96,
        2.815,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -14087,9 +14087,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.15,
+       10.37,
        3.54,
-       3.4
+       4.26
       ],
       "orientation": [
        [
@@ -14136,9 +14136,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.15,
+       10.37,
        3.54,
-       4.6
+       5.46
       ],
       "orientation": [
        [
@@ -14185,9 +14185,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.35,
+       11.57,
        3.54,
-       3.4
+       4.26
       ],
       "orientation": [
        [
@@ -14234,9 +14234,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.35,
+       11.57,
        3.54,
-       4.6
+       5.46
       ],
       "orientation": [
        [
@@ -14283,9 +14283,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.115,
+       10.31,
        1.99,
-       3.4
+       4.26
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     1.6,
+     0.16
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_ForRent",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       10.335,
+       1.99,
+       5.46
       ],
       "orientation": [
        [
@@ -14332,58 +14381,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.09,
-       1.99,
-       4.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     1.6,
-     0.16
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       8.09,
+       10.31,
        2.04,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -14430,9 +14430,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.09,
+       10.31,
        1.49,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -14479,9 +14479,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.25,
+       13.47,
        2.68,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -14528,9 +14528,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.26,
+       13.48,
        2.815,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -14577,9 +14577,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.65,
+       12.87,
        3.54,
-       3.4
+       4.26
       ],
       "orientation": [
        [
@@ -14626,9 +14626,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.65,
+       12.87,
        3.54,
-       4.6
+       5.46
       ],
       "orientation": [
        [
@@ -14675,9 +14675,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.85,
+       14.07,
        3.54,
-       3.4
+       4.26
       ],
       "orientation": [
        [
@@ -14724,9 +14724,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.85,
+       14.07,
        3.54,
-       4.6
+       5.46
       ],
       "orientation": [
        [
@@ -14773,9 +14773,58 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.885,
+       14.13,
        1.99,
-       3.4
+       4.26
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     1.6,
+     0.16
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_ForRent",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       14.105,
+       1.99,
+       5.46
       ],
       "orientation": [
        [
@@ -14822,58 +14871,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.91,
-       1.99,
-       4.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     1.6,
-     0.16
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_ForRent",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       11.91,
+       14.13,
        2.04,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -14920,9 +14920,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.91,
+       14.13,
        1.49,
-       4.0
+       4.86
       ],
       "orientation": [
        [
@@ -14971,7 +14971,7 @@
       "position": [
        -6.3,
        0.7,
-       -16.4
+       -19.4
       ],
       "orientation": [
        [
@@ -15020,7 +15020,7 @@
       "position": [
        -6.3,
        1.195,
-       -16.4
+       -19.4
       ],
       "orientation": [
        [
@@ -15069,7 +15069,7 @@
       "position": [
        -7.7,
        0.6,
-       -16.2
+       -19.2
       ],
       "orientation": [
        [
@@ -15118,7 +15118,7 @@
       "position": [
        -7.7,
        1.005,
-       -16.2
+       -19.2
       ],
       "orientation": [
        [
@@ -15167,7 +15167,7 @@
       "position": [
        -6.6,
        1.65,
-       -16.3
+       -19.3
       ],
       "orientation": [
        [
@@ -15216,7 +15216,7 @@
       "position": [
        -6.6,
        2.005,
-       -16.3
+       -19.3
       ],
       "orientation": [
        [
@@ -15265,7 +15265,7 @@
       "position": [
        -5.8,
        2.48,
-       -16.0
+       -19.0
       ],
       "orientation": [
        [
@@ -15314,7 +15314,7 @@
       "position": [
        -5.378,
        0.475,
-       -16.0
+       -19.0
       ],
       "orientation": [
        [
@@ -15369,7 +15369,7 @@
         "position": [
          4.4,
          6.4,
-         -16.45
+         -19.45
         ],
         "orientation": [
          [
@@ -15412,7 +15412,7 @@
         "position": [
          -4.4,
          -6.4,
-         16.45
+         19.45
         ],
         "orientation": [
          [
@@ -15482,9 +15482,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -11.0,
+         -15.0,
          4.01,
-         -15.29
+         -18.29
         ],
         "orientation": [
          [
@@ -15525,9 +15525,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         11.0,
+         15.0,
          -4.01,
-         15.29
+         18.29
         ],
         "orientation": [
          [
@@ -15560,9 +15560,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -11.0,
+         -15.0,
          4.7,
-         -15.37
+         -18.37
         ],
         "orientation": [
          [
@@ -15609,9 +15609,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -11.0,
+         -15.0,
          4.3,
-         -15.37
+         -18.37
         ],
         "orientation": [
          [
@@ -15658,9 +15658,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -11.0,
+         -15.0,
          3.9,
-         -15.37
+         -18.37
         ],
         "orientation": [
          [
@@ -15707,9 +15707,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -11.0,
+         -15.0,
          3.5,
-         -15.37
+         -18.37
         ],
         "orientation": [
          [
@@ -15756,9 +15756,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -11.0,
+         -15.0,
          3.07,
-         -15.315
+         -18.315
         ],
         "orientation": [
          [
@@ -15805,9 +15805,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         11.0,
+         15.0,
          4.01,
-         -15.29
+         -18.29
         ],
         "orientation": [
          [
@@ -15854,9 +15854,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         11.0,
+         15.0,
          4.7,
-         -15.37
+         -18.37
         ],
         "orientation": [
          [
@@ -15903,9 +15903,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         11.0,
+         15.0,
          4.3,
-         -15.37
+         -18.37
         ],
         "orientation": [
          [
@@ -15952,9 +15952,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         11.0,
+         15.0,
          3.9,
-         -15.37
+         -18.37
         ],
         "orientation": [
          [
@@ -16001,9 +16001,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         11.0,
+         15.0,
          3.5,
-         -15.37
+         -18.37
         ],
         "orientation": [
          [
@@ -16050,9 +16050,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         11.0,
+         15.0,
          3.07,
-         -15.315
+         -18.315
         ],
         "orientation": [
          [
@@ -16101,7 +16101,7 @@
         "position": [
          0.0,
          7.06,
-         -15.54
+         -18.54
         ],
         "orientation": [
          [
@@ -16150,7 +16150,7 @@
         "position": [
          0.0,
          7.2,
-         -15.62
+         -18.62
         ],
         "orientation": [
          [
@@ -16199,7 +16199,7 @@
         "position": [
          0.0,
          6.8,
-         -15.62
+         -18.62
         ],
         "orientation": [
          [
@@ -16248,7 +16248,7 @@
         "position": [
          0.0,
          6.67,
-         -15.565
+         -18.565
         ],
         "orientation": [
          [

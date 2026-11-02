@@ -26,7 +26,7 @@ from mathutils import Matrix, Vector
 import common
 from common import GLYPHS, RB, text_width
 from crate_decor import _arc, _half_disc, _mushroom, _ring_flat, _ring_front, _rod
-from plot import rot_x, rot_y, rot_z
+from plot import HW, rot_x, rot_y, rot_z
 
 RED, YELLOW = "shirt_red", "fur_golden"
 BLOOMS = ("blush", "offwhite", "fur_golden", "pastel_lilac", "nose_pink", "shirt_red")
@@ -945,7 +945,7 @@ def build_path_paw_print(mat):
 
 
 # -- fences --------------------------------------------------------------------------------------------------------
-GAP, END = 3.9, 19.0                       # the fence runs from the path's gap to the plot's edge, each side
+GAP, END = 3.9, HW                         # the fence runs from the path's gap to the plot's edge (19), each side
 
 
 def _halves():

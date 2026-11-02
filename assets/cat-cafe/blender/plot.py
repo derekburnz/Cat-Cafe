@@ -30,26 +30,52 @@ Objects per shell (the exporter turns each extra object into a child Model):
 """
 
 import math
+import os
 
 from mathutils import Matrix
 
 from common import RB, text_width
 
+# The cafe's inside floor, IW along the street by ID deep (Config.World.PlotWidth and PlotDepth; Layout's halfW and
+# halfD are their halves). The shell, the interior dressing, the For Rent dressing, the tier sets, the yard fence and
+# the lawn fences are all laid out from these (Derek 2026-11-02 21:52, bigger cafes); CAFE_SIZE="w,d" tries another.
+IW, ID = (float(v) for v in os.environ.get("CAFE_SIZE", "44,34").split(","))   # 36 x 28 until 11-02
+HWI, HDI = IW / 2, ID / 2                    # the inner faces: side walls x +-HWI, front z -HDI, back z HDI
+YARD = 10.0                                  # Config.World.YardDepth: the yard fence stands this far behind the back wall
+# The town grows round the cafes (Config.World): the cafe rows end at the town's back edge, x TownEdgeX (street 16,
+# sidewalk 2, front garden 5, front wall, the floor, back wall, yard), and two cafes a side of the square, each with an
+# 8 wide passage before it, end 4 short of the street's ends (Town Square half depth 32).
+TOWN_EDGE_X = 16 + 2 + 5 + 1 + ID + 1 + YARD        # 63 at 28 deep
+STREET_END_Z = 32 + 2 * (8 + IW) + 4                 # 124 at 36 wide
 H = 12.8                 # wall height to the eave
-HW = 19.0                # outer half width (walls x 18..19)
+HW = HWI + 1             # outer half width (walls x 18..19 at 36 wide)
 PITCH = math.radians(25)
 GROUND = 0.3             # how far the shell's base runs below the plot floor (the plot stands 0.2 above the grass)
-RIDGE = H + HW * math.tan(PITCH)            # 21.66, underside of the roof at the ridge
-FRONT, BACK = -15.0, 15.0                    # outer faces
+RIDGE = H + HW * math.tan(PITCH)            # 21.66 at 36 wide, underside of the roof at the ridge
+FRONT, BACK = -HDI - 1, HDI + 1              # outer faces (-15 and 15 at 28 deep)
 DOOR = (-3.5, 3.5, 7.5)
-WINDOWS = (-11.0, 11.0)                      # arched window centres
+WX = HWI - 7                                 # the arched windows' centres, 2.75 in from the side walls' pilasters
+WINDOWS = (-WX, WX)
 WIN_R, SILL, SPRING = 4.25, 1.0, 5.0         # arch radius = half width, sill and springing heights
-SIDE_WIN = (-8.5, -5.5, 3.8, 7.3)            # z0, z1, y0, y1 on both side walls
-BACK_DOOR = (-11.0, -5.0, 7.5)
-BACK_WIN = (12.5, 15.5, 4.0, 7.5)            # x0, x1, y0, y1
+
+
+def zs(z):
+    """A depth in the room scaled with it: 0 stays the room's middle and +-14 (today's inner faces) goes to +-HDI."""
+    return z * HDI / 14.0
+
+
+def xs(x):
+    """A width in the room scaled with it: +-18 (today's inner faces) goes to +-HWI."""
+    return x * HWI / 18.0
+
+
+SIDE_WIN = (zs(-8.5), zs(-8.5) + 3.0, 3.8, 7.3)   # z0, z1, y0, y1 on both side walls
+BACK_DOOR = (-11.0, -5.0, 7.5)               # stays put: the yard gate, the deck and the bait bowl line up with it
+BACK_WIN = (HWI - 5.5, HWI - 2.5, 4.0, 7.5)  # x0, x1, y0, y1
 SIGN = (-8.0, 8.0, 13.4, 16.6)               # x0, x1, y0, y1 on the front gable
-SIGN_INFO = {"part": "SignBoard", "face": "Front (-Z)", "size": [16.0, 3.2], "centre": [0.0, 15.0, -15.35]}
-CHIMNEY_TOP = (11.1, 25.1, 9.1)              # Roblox plot-local, where chimney smoke starts
+SIGN_INFO = {"part": "SignBoard", "face": "Front (-Z)", "size": [16.0, 3.2], "centre": [0.0, 15.0, FRONT - 0.35]}
+CHIMNEY = (10.0, 12.2, zs(8.0), zs(8.0) + 2.2)   # x0, x1, z0, z1 of the chimney stack on the right slope
+CHIMNEY_TOP = (11.1, round(25.1 + (HW - 19.0) * math.tan(PITCH), 2), round(zs(8.0) + 1.1, 2))   # Roblox plot-local, where chimney smoke starts
 
 COLOURS = {                                  # facade, accent (awning stripes, door frame, shutters)
     "Mint": ("mint", "blush"),
@@ -177,10 +203,10 @@ def _front_wall(b, glass, walls, facade, accent):
         layered(walls, cx - WIN_R, cx + WIN_R, SPRING + WIN_R, H, zo, zi, facade)   # over the arch
         spandrels(walls, cx, SPRING, WIN_R, zo, zi, facade)
         # glass and its cross bars
-        glass.span((cx - WIN_R, SILL, -14.58), (cx + WIN_R, SPRING, -14.42), "glass")
-        glass.fan_z(-14.5, (cx, SPRING), arc(cx, SPRING, _over(WIN_R), 0, 180, 6), 0.16, "glass")
-        b.span((cx - 0.1, SILL, -14.7), (cx + 0.1, SPRING + WIN_R, -14.6), TRIM)
-        b.span((cx - WIN_R, SPRING - 0.1, -14.7), (cx + WIN_R, SPRING + 0.1, -14.6), TRIM)
+        glass.span((cx - WIN_R, SILL, FRONT + 0.42), (cx + WIN_R, SPRING, FRONT + 0.58), "glass")
+        glass.fan_z(FRONT + 0.5, (cx, SPRING), arc(cx, SPRING, _over(WIN_R), 0, 180, 6), 0.16, "glass")
+        b.span((cx - 0.1, SILL, FRONT + 0.3), (cx + 0.1, SPRING + WIN_R, FRONT + 0.4), TRIM)
+        b.span((cx - WIN_R, SPRING - 0.1, FRONT + 0.3), (cx + WIN_R, SPRING + 0.1, FRONT + 0.4), TRIM)
         # frame: jambs, arch ring, sill and keystone
         for x0, x1 in ((cx - WIN_R - 0.4, cx - WIN_R + 0.01), (cx + WIN_R - 0.01, cx + WIN_R + 0.4)):   # 0.01 into the opening
             b.span((x0, SILL, zo - 0.25), (x1, SPRING, zo + 0.05), TRIM)
@@ -191,11 +217,11 @@ def _front_wall(b, glass, walls, facade, accent):
     layered(walls, d0, d1, dh + (d1 - d0) / 2, H, zo, zi, facade)
     spandrels(walls, 0, dh, (d1 - d0) / 2, zo, zi, facade)
     r = (d1 - d0) / 2
-    glass.fan_z(-14.5, (0, dh), arc(0, dh, _over(r), 0, 180, 6), 0.16, "glass")
+    glass.fan_z(FRONT + 0.5, (0, dh), arc(0, dh, _over(r), 0, 180, 6), 0.16, "glass")
     for a in (30, 60, 90, 120, 150):
-        b.box((0.5 * r * math.cos(math.radians(a)), dh + 0.5 * r * math.sin(math.radians(a)), -14.65),
+        b.box((0.5 * r * math.cos(math.radians(a)), dh + 0.5 * r * math.sin(math.radians(a)), FRONT + 0.35),
               (r, 0.14, 0.12), TRIM, rot=rot_z(a))
-    b.span((d0, dh - 0.15, -14.75), (d1, dh + 0.15, -14.25), TRIM)
+    b.span((d0, dh - 0.15, FRONT + 0.25), (d1, dh + 0.15, FRONT + 0.75), TRIM)
     for x0, x1 in ((d0 - 0.55, d0 + 0.01), (d1 - 0.01, d1 + 0.55)):                       # 0.01 into the opening
         b.span((x0, 0, zo - 0.35), (x1, dh, zo + 0.05), accent)
     arch_ring(b, 0, dh, r, 0.55, zo - 0.35, zo + 0.05, accent, n=8)
@@ -206,7 +232,7 @@ def _side_walls(b, glass, walls, facade, accent):
     z0, z1, y0, y1 = SIDE_WIN
     for s in (-1, 1):
         xo, xi = s * HW, s * (HW - 1)
-        for (a0, a1, b0, b1) in ((-14, z0, 0, H), (z1, 14, 0, H), (z0, z1, 0, y0), (z0, z1, y1, H)):
+        for (a0, a1, b0, b1) in ((-HDI, z0, 0, H), (z1, HDI, 0, H), (z0, z1, 0, y0), (z0, z1, y1, H)):
             split = xo + (xi - xo) * 0.8
             walls[0].span((min(xo, split), -GROUND if b0 <= 0 else b0, a0), (max(xo, split), b1, a1), facade)
             walls[1].span((min(split, xi), b0, a0), (max(split, xi), b1, a1), INNER)
@@ -226,7 +252,8 @@ def _side_walls(b, glass, walls, facade, accent):
                 yy = y0 + (y1 - y0) * (k + 1) / 4
                 b.span((min(xo, s * (HW + 0.22)), yy - 0.06, a0 + 0.15), (max(xo, s * (HW + 0.22)), yy + 0.06, a1 - 0.15),
                        TRIM)
-        b.cyl((s * (HW + 0.3), (H - 0.4 - GROUND) / 2, 13.6), 0.18, H - 0.4 + GROUND, "metal", axis="Y", segments=8)  # downpipe
+        b.cyl((s * (HW + 0.3), (H - 0.4 - GROUND) / 2, HDI - 0.4), 0.18, H - 0.4 + GROUND, "metal", axis="Y",
+              segments=8)                                                                    # downpipe
 
 
 def _back_wall(b, glass, walls, facade, accent):
@@ -238,8 +265,8 @@ def _back_wall(b, glass, walls, facade, accent):
     layered(walls, bd0, bd1, bdh, H, zo, zi, facade)
     layered(walls, w0, w1, 0, wy0, zo, zi, facade)
     layered(walls, w0, w1, wy1, H, zo, zi, facade)
-    glass.span((w0, wy0, 14.42), (w1, wy1, 14.58), "glass")
-    b.span((w0, (wy0 + wy1) / 2 - 0.08, 14.62), (w1, (wy0 + wy1) / 2 + 0.08, 14.72), TRIM)
+    glass.span((w0, wy0, BACK - 0.58), (w1, wy1, BACK - 0.42), "glass")
+    b.span((w0, (wy0 + wy1) / 2 - 0.08, BACK - 0.38), (w1, (wy0 + wy1) / 2 + 0.08, BACK - 0.28), TRIM)
     b.span((w0 - 0.3, wy1 - 0.01, zo - 0.05), (w1 + 0.3, wy1 + 0.35, zo + 0.25), TRIM)
     b.span((w0 - 0.4, wy0 - 0.3, zo - 0.05), (w1 + 0.4, wy0, zo + 0.45), TRIM)
     # back door frame, canopy and mat
@@ -262,7 +289,8 @@ def _base_and_trim(b):
         b.span((min(s * HW, s * (HW + 0.2)), g, FRONT), (max(s * HW, s * (HW + 0.2)), 0.9, BACK), "terracotta")
     for s in (-1, 1):                                                                    # corner pilasters
         for z in (FRONT, BACK):
-            b.span((min(s * 18.2, s * 19.4), g, z - 0.4), (max(s * 18.2, s * 19.4), H + 0.02, z + 0.4), TRIM)
+            b.span((min(s * (HWI + 0.2), s * (HW + 0.4)), g, z - 0.4), (max(s * (HWI + 0.2), s * (HW + 0.4)),
+                   H + 0.02, z + 0.4), TRIM)
     b.span((-HW - 0.35, H - 0.6, FRONT - 0.35), (HW + 0.35, H, FRONT), TRIM)            # eave cornice
     b.span((-HW - 0.35, H - 0.6, BACK), (HW + 0.35, H, BACK + 0.35), TRIM)
     for s in (-1, 1):
@@ -286,10 +314,11 @@ def _gables(b, walls, facade):
         split = zo + (zi - zo) * 0.8
         walls[0].fan_z((zo + split) / 2, (0, RIDGE), tri, abs(split - zo), facade)
         walls[1].fan_z((split + zi) / 2, (0, RIDGE), tri, abs(zi - split), INNER)
-    b.cyl((0, 19.1, FRONT - 0.05), 1.25, 0.3, TRIM, axis="Z", segments=16)              # attic vent
-    b.cyl((0, 19.1, FRONT - 0.2), 0.85, 0.12, "night_sky", axis="Z", segments=16)
+    vy = 19.1 + (HW - 19.0) * math.tan(PITCH)                                             # rises with the ridge
+    b.cyl((0, vy, FRONT - 0.05), 1.25, 0.3, TRIM, axis="Z", segments=16)                 # attic vent
+    b.cyl((0, vy, FRONT - 0.2), 0.85, 0.12, "night_sky", axis="Z", segments=16)
     for a in (0, 90):
-        b.box((0, 19.1, FRONT - 0.28), (1.7, 0.12, 0.06), TRIM, rot=rot_z(a))
+        b.box((0, vy, FRONT - 0.28), (1.7, 0.12, 0.06), TRIM, rot=rot_z(a))
 
 
 def _awning(b, accent, x0=-16.0, x1=16.0, top=11.6, drop=1.4, out=3.0):
@@ -331,7 +360,7 @@ def _roof(r, chimney):
     t = 0.6
     tan, cos, sin = math.tan(PITCH), math.cos(PITCH), math.sin(PITCH)
     eave_x = HW + 1.6
-    zlen = 2 * 16.4
+    zlen = 2 * (BACK + 1.4)
     L = eave_x / cos
     for s in (-1, 1):
         mid = eave_x / 2
@@ -344,14 +373,16 @@ def _roof(r, chimney):
             d = 1.0 + 2.1 * k
             px, py = ex - d * cos, ey + d * sin
             r.box((s * (px + 0.08 * sin), py + 0.08 * cos, 0), (0.32, 0.16, zlen), "brick", rot=rot_z(ang))
-        for zf in (-16.5, 16.5):                                                             # barge boards
+        for zf in (FRONT - 1.5, BACK + 1.5):                                                 # barge boards
             r.box((cx, cy - 0.1, zf), (L, t + 0.35, 0.2), TRIM, rot=rot_z(ang))
-        r.span((min(s * eave_x, s * (eave_x + 0.2)), RIDGE - eave_x * tan - 0.35, -16.6),
-               (max(s * eave_x, s * (eave_x + 0.2)), RIDGE - eave_x * tan + t, 16.6), TRIM)
-    r.span((-0.7, RIDGE + t / cos - 0.2, -16.7), (0.7, RIDGE + t / cos + 0.45, 16.7), "brick")   # ridge cap
-    r.span((10.0, RIDGE - 12.2 * tan, 8.0), (12.2, 24.5, 10.2), "brick")                        # chimney
-    r.span((9.7, 24.5, 7.7), (12.5, 25.0, 10.5), "concrete_dark")
-    chimney.span((10.5, 25.0, 8.5), (11.7, 25.1, 9.7), "fur_black")                             # smoke starts here
+        r.span((min(s * eave_x, s * (eave_x + 0.2)), RIDGE - eave_x * tan - 0.35, FRONT - 1.6),
+               (max(s * eave_x, s * (eave_x + 0.2)), RIDGE - eave_x * tan + t, BACK + 1.6), TRIM)
+    r.span((-0.7, RIDGE + t / cos - 0.2, FRONT - 1.7), (0.7, RIDGE + t / cos + 0.45, BACK + 1.7), "brick")   # ridge cap
+    cx0, cx1, cz0, cz1 = CHIMNEY
+    top = 24.5 + (HW - 19.0) * math.tan(PITCH)                                                    # rises with the ridge
+    r.span((cx0, RIDGE - cx1 * tan, cz0), (cx1, top, cz1), "brick")                               # chimney
+    r.span((cx0 - 0.3, top, cz0 - 0.3), (cx1 + 0.3, top + 0.5, cz1 + 0.3), "concrete_dark")
+    chimney.span((cx0 + 0.5, top + 0.5, cz0 + 0.5), (cx1 - 0.5, top + 0.6, cz1 - 0.5), "fur_black")   # smoke starts here
 
 
 def _garden(b, g, path, bulbs, flowers, fireflies):
@@ -360,28 +391,30 @@ def _garden(b, g, path, bulbs, flowers, fireflies):
     the beds' `_Flowers` and the lamp's `_LampPost_Bulb` nested in it) once the lawn is live (front-lawn.md section
     1). What stays on the shell sits on no lawn spot and off the fence line, so a new front is never bare: the door
     mat, the potted shrubs by the door and three flower clumps on leafy tufts, all standing on the grass itself."""
-    gz0, gz1 = -20.0, FRONT
+    F = FRONT                     # the garden's depths below are from the front wall's outer face (-15 at 28 deep)
+    gz0, gz1 = F - 5.0, F
     path.span((DOOR[0], -0.2, gz0), (DOOR[1], 0.02, gz1), "floor_tile")                      # path
-    for z in (-19.0, -17.6, -16.2):
+    for z in (F - 4.0, F - 2.6, F - 1.2):
         path.span((DOOR[0] + 0.2, 0.02, z - 0.06), (DOOR[1] - 0.2, 0.05, z + 0.06), "concrete")
-    b.span((-2.2, 0.02, -17.3), (2.2, 0.08, -15.3), "blush")                                # door mat
+    b.span((-2.2, 0.02, F - 2.3), (2.2, 0.08, F - 0.3), "blush")                            # door mat
     keep, b = b, g
     for x0, x1 in ((-HW + 0.2, DOOR[0] - 0.5), (DOOR[1] + 0.5, HW - 0.2)):                  # beds
-        flowers.span((x0, -0.2, -19.6), (x1, 0.15, gz1 - 0.2), "leaf_green")
-        fireflies.span((x0, 0.6, -19.6), (x1, 4.0, gz1 - 0.4), "leaf_green")                 # air they drift in
-        b.span((x0 - 0.15, -0.2, -19.75), (x1 + 0.15, 0.3, -19.6), "terracotta")
+        flowers.span((x0, -0.2, F - 4.6), (x1, 0.15, gz1 - 0.2), "leaf_green")
+        fireflies.span((x0, 0.6, F - 4.6), (x1, 4.0, gz1 - 0.4), "leaf_green")               # air they drift in
+        b.span((x0 - 0.15, -0.2, F - 4.75), (x1 + 0.15, 0.3, F - 4.6), "terracotta")
     for x0, x1 in ((-HW, DOOR[0] - 0.4), (DOOR[1] + 0.4, HW)):                              # picket fence
         n = int((x1 - x0) / 1.5)
         for k in range(n + 1):
             x = x0 + (x1 - x0) * k / n
-            b.span((x - 0.1, 0, -19.95), (x + 0.1, 1.15, -19.75), TRIM)
+            b.span((x - 0.1, 0, F - 4.95), (x + 0.1, 1.15, F - 4.75), TRIM)
         for y in (0.45, 0.9):
-            b.span((x0, y - 0.07, -19.92), (x1, y + 0.07, -19.78), TRIM)
-    flowers = ((-17.0, -18.4, "blush"), (-16.2, -16.6, "sparkle"), (-9.0, -18.9, "offwhite"),
-               (-7.6, -16.4, "nose_pink"), (-5.4, -18.2, "sparkle"), (6.0, -18.6, "blush"),
-               (7.4, -16.2, "sparkle"), (12.2, -16.5, "nose_pink"), (13.4, -19.0, "offwhite"),
-               (17.4, -16.6, "blush"))
-    stay = ((-17.0, -18.4), (-9.0, -18.9), (17.4, -16.6))          # clear of the lawn spots (Layout.cafe.lawnSpots)
+            b.span((x0, y - 0.07, F - 4.92), (x1, y + 0.07, F - 4.78), TRIM)
+    e = HW - 19.0                                  # the outer flowers, bench and lamp keep their distance to the edge
+    flowers = ((-17.0 - e, F - 3.4, "blush"), (-16.2 - e, F - 1.6, "sparkle"), (-9.0 - e, F - 3.9, "offwhite"),
+               (-7.6, F - 1.4, "nose_pink"), (-5.4, F - 3.2, "sparkle"), (6.0, F - 3.6, "blush"),
+               (7.4, F - 1.2, "sparkle"), (12.2 + e, F - 1.5, "nose_pink"), (13.4 + e, F - 4.0, "offwhite"),
+               (17.4 + e, F - 1.6, "blush"))
+    stay = ((-17.0 - e, F - 3.4), (-9.0 - e, F - 3.9), (17.4 + e, F - 1.6))   # clear of the lawn spots (Lawn.SPOTS)
     for x, z, sw in flowers:
         on = keep if (x, z) in stay else b
         if on is keep:                                                # a leafy tuft on the grass under the bed's top
@@ -389,14 +422,14 @@ def _garden(b, g, path, bulbs, flowers, fireflies):
         for dx, dz in ((0, 0), (0.45, 0.3), (-0.35, 0.4)):
             on.span((x + dx - 0.18, 0.15, z + dz - 0.18), (x + dx + 0.18, 0.5, z + dz + 0.18), sw)
     # bench on the left bed, facing the street
-    bx = -12.5
-    b.span((bx - 1.8, 0.95, -18.3), (bx + 1.8, 1.15, -17.2), "caramel_wood")
-    b.span((bx - 1.8, 1.15, -17.3), (bx + 1.8, 2.3, -17.1), "caramel_wood")
+    bx = -12.5 - e
+    b.span((bx - 1.8, 0.95, F - 3.3), (bx + 1.8, 1.15, F - 2.2), "caramel_wood")
+    b.span((bx - 1.8, 1.15, F - 2.3), (bx + 1.8, 2.3, F - 2.1), "caramel_wood")
     for x in (bx - 1.5, bx + 1.5):
-        for z0, z1 in ((-18.2, -17.95), (-17.4, -17.15)):
+        for z0, z1 in ((F - 3.2, F - 2.95), (F - 2.4, F - 2.15)):
             b.span((x - 0.12, 0.15, z0), (x + 0.12, 0.95, z1), "dark_wood")
     # lamp post on the right bed
-    lx, lz = 15.6, -18.6
+    lx, lz = 15.6 + e, F - 3.6
     b.span((lx - 0.35, 0.15, lz - 0.35), (lx + 0.35, 0.5, lz + 0.35), "fur_black")
     b.cyl((lx, 3.45, lz), 0.14, 5.9, "fur_black", segments=8)
     b.span((lx - 0.45, 6.4, lz - 0.45), (lx + 0.45, 6.5, lz + 0.45), "fur_black")
@@ -407,9 +440,9 @@ def _garden(b, g, path, bulbs, flowers, fireflies):
     b.b.pyramid(RB.p(lx, 7.3, lz), 1.1, 0.6, "fur_black")
     # a potted shrub right of the door (the Lucky Cat's plinth stands left of it, F88 luckycat.SPOT) and a round bush
     for x in (DOOR[1] + 1.6,):                                 # it stays: it stands on the grass, not the bed
-        keep.cyl((x, 0.4, -16.0), 0.55, 1.0, "terracotta", r2=0.65, segments=10)
-        keep.ball((x, 1.55, -16.0), 0.8, "leaf_dark")
-    b.ball((6.6, 0.8, -18.6), 0.9, "leaf_green", scale=(1.2, 0.9, 1.0))
+        keep.cyl((x, 0.4, F - 1.0), 0.55, 1.0, "terracotta", r2=0.65, segments=10)
+        keep.ball((x, 1.55, F - 1.0), 0.8, "leaf_dark")
+    b.ball((6.6, 0.8, F - 3.6), 0.9, "leaf_green", scale=(1.2, 0.9, 1.0))
 
 
 def build_cafe(colour, mat):
@@ -426,8 +459,8 @@ def build_cafe(colour, mat):
     _gables(tb, walls, facade)
     _wall_plates(walls, facade)
     ab = _Route(b, trim, ("dark_wood",))      # the awnings' head rails: Gold Leaf's "awning edge" (F89 2c)
-    _awning(ab, accent, -16.0, -5.0)
-    _awning(ab, accent, 5.0, 16.0)
+    _awning(ab, accent, -WX - 5.0, -WX + 6.0)
+    _awning(ab, accent, WX - 6.0, WX + 5.0)
     _sign(_Route(b, trim, ("dark_wood",)), sign, bulbs_sign, accent)           # the sign's frame and its ears
     garden, path = RB(), RB()
     _garden(b, garden, path, bulbs_post, flowers, fireflies)
@@ -446,22 +479,23 @@ def build_cafe(colour, mat):
 
 
 # ------------------------------------------------------------------------------------------ interior --
-TABLES = ((-9, -6), (0, -6), (9, -6), (-9, 1), (0, 1), (9, 1))      # Layout.plot.tables
-BEAMS = (-6.0, 1.0, 8.0)                                            # tie beams; the pendant lamps hang from them
+LAMPS = tuple((xs(x), zs(z)) for x, z in ((-9, -6), (0, -6), (9, -6), (-9, 1), (0, 1), (9, 1)))   # pendant lamps
+BEAMS = tuple(zs(z) for z in (-6.0, 1.0, 8.0))                      # tie beams; the pendant lamps hang from them
 
 
 def _wainscot(b):
     """Plank wainscot to 3.4 with a chair rail and baseboard on every inner wall face, skipping the openings."""
     top = 3.4
     runs = []                                                   # (axis, fixed, a0, a1, height, inward sign)
-    for a0, a1 in ((-18, -15.25), (-6.75, DOOR[0]), (DOOR[1], 6.75), (15.25, 18)):
-        runs.append(("z", -14.0, a0, a1, top, 1))
+    w0, w1 = WX - WIN_R, WX + WIN_R
+    for a0, a1 in ((-HWI, -w1), (-w0, DOOR[0]), (DOOR[1], w0), (w1, HWI)):
+        runs.append(("z", -HDI, a0, a1, top, 1))
     for cx in WINDOWS:
-        runs.append(("z", -14.0, cx - WIN_R, cx + WIN_R, SILL, 1))
-    for a0, a1 in ((-18, BACK_DOOR[0]), (BACK_DOOR[1], 18)):
-        runs.append(("z", 14.0, a0, a1, top, -1))
+        runs.append(("z", -HDI, cx - WIN_R, cx + WIN_R, SILL, 1))
+    for a0, a1 in ((-HWI, BACK_DOOR[0]), (BACK_DOOR[1], HWI)):
+        runs.append(("z", HDI, a0, a1, top, -1))
     for s_ in (-1, 1):
-        runs.append(("x", s_ * 18.0, -14, 14, top, -s_))
+        runs.append(("x", s_ * HWI, -HDI, HDI, top, -s_))
     for axis, f, a0, a1, h, inward in runs:
         def slab(t0, t1, y0, y1, sw, a0=a0, a1=a1, f=f, inward=inward, axis=axis, ext=0.0):
             a0, a1 = a0 - ext, a1 + ext                         # rails run 0.01 past the planks
@@ -485,11 +519,11 @@ def _wainscot(b):
         else:
             slab(0, 0.45, h - 0.12, h + 0.01, "offwhite", ext=0.01)                         # inner window sill
     # crown moulding
-    b.span((-18, H - 0.6, -14), (18, H, -13.75), TRIM)
-    b.span((-18, H - 0.6, 13.75), (18, H, 14), TRIM)
+    b.span((-HWI, H - 0.6, -HDI), (HWI, H, -HDI + 0.25), TRIM)
+    b.span((-HWI, H - 0.6, HDI - 0.25), (HWI, H, HDI), TRIM)
     for s_ in (-1, 1):
-        lo, hi = sorted((s_ * 18, s_ * 17.75))
-        b.span((lo, H - 0.6, -14), (hi, H, 14), TRIM)
+        lo, hi = sorted((s_ * HWI, s_ * (HWI - 0.25)))
+        b.span((lo, H - 0.6, -HDI), (hi, H, HDI), TRIM)
 
 
 def _curtains(b):
@@ -499,26 +533,26 @@ def _curtains(b):
     after #630, M1 and M2)."""
     for cx in WINDOWS:
         for x0, x1 in ((cx - WIN_R, cx - WIN_R + 1.15), (cx + WIN_R - 1.15, cx + WIN_R)):     # from the opening's edge
-            b.span((x0, SILL + 0.01, -14.0), (x1, 8.65, -13.75), "mint")
-            b.span((x0 - 0.05, 3.8, -14.02), (x1 + 0.05, 4.1, -13.6), "blush")              # tie-back, round the curtain
-        b.span((cx - WIN_R - 0.6, 8.65, -13.85), (cx + WIN_R + 0.6, 8.85, -13.6), "dark_wood")
+            b.span((x0, SILL + 0.01, -HDI), (x1, 8.65, -HDI + 0.25), "mint")
+            b.span((x0 - 0.05, 3.8, -HDI - 0.02), (x1 + 0.05, 4.1, -HDI + 0.4), "blush")    # tie-back, round the curtain
+        b.span((cx - WIN_R - 0.6, 8.65, -HDI + 0.15), (cx + WIN_R + 0.6, 8.85, -HDI + 0.4), "dark_wood")
         for x in (cx - WIN_R - 0.45, cx + WIN_R + 0.45):
-            b.span((x - 0.07, 8.6, -14.0), (x + 0.07, 8.9, -13.85), "dark_wood")             # brackets
+            b.span((x - 0.07, 8.6, -HDI), (x + 0.07, 8.9, -HDI + 0.15), "dark_wood")       # brackets
     z0, z1, y0, y1 = SIDE_WIN
     for s_ in (-1, 1):
-        lo, hi = sorted((s_ * 17.85, s_ * 17.65))
-        clo, chi = sorted((s_ * 18.0, s_ * 17.75))
+        lo, hi = sorted((s_ * (HWI - 0.15), s_ * (HWI - 0.35)))
+        clo, chi = sorted((s_ * HWI, s_ * (HWI - 0.25)))
         for a0, a1 in ((z0 - 0.4, z0 + 0.5), (z1 - 0.5, z1 + 0.4)):
             b.span((clo, y0 - 0.2, a0), (chi, y1 + 0.3, a1), "blush")
         b.span((lo, y1 + 0.3, z0 - 0.6), (hi, y1 + 0.5, z1 + 0.6), "dark_wood")
-        blo, bhi = sorted((s_ * 18.0, s_ * 17.85))
+        blo, bhi = sorted((s_ * HWI, s_ * (HWI - 0.15)))
         for z in (z0 - 0.5, z1 + 0.5):
             b.span((blo, y1 + 0.25, z - 0.07), (bhi, y1 + 0.55, z + 0.07), "dark_wood")       # brackets
 
 
 def _menu_board(b):
-    z = 13.75
-    b.span((-3.3, 5.7, z - 0.02), (3.3, 9.7, 14.0), "dark_wood")
+    z = HDI - 0.25
+    b.span((-3.3, 5.7, z - 0.02), (3.3, 9.7, HDI), "dark_wood")
     b.span((-3.0, 6.0, z - 0.12), (3.0, 9.4, z), "fur_black")
     w = b.text("MENU", (2.0, 8.3, z - 0.12), 0.22, 0.05, "offwhite", right=(-1, 0, 0))
     for k, (ln, dot) in enumerate(((2.6, "rarity_legend"), (2.0, "blush"), (2.9, "mint"))):
@@ -529,33 +563,35 @@ def _menu_board(b):
 
 
 def _shelves(b):
-    for (x0, x1, y) in ((5.5, 10.5, 7.0), (-17.5, -12.5, 8.2)):
-        b.span((x0, y, 13.1), (x1, y + 0.2, 14.0), "caramel_wood")
+    d = HDI - 14.0                                 # depths below are today's, carried to the back wall
+    e = HWI - 18.0                                 # the mug shelf keeps its distance to the left wall
+    for (x0, x1, y) in ((5.5, 10.5, 7.0), (-17.5 - e, -12.5 - e, 8.2)):
+        b.span((x0, y, 13.1 + d), (x1, y + 0.2, 14.0 + d), "caramel_wood")
         for x in (x0 + 0.5, x1 - 0.5):
-            b.span((x - 0.1, y - 0.6, 13.6), (x + 0.1, y, 14.0), "dark_wood")
+            b.span((x - 0.1, y - 0.6, 13.6 + d), (x + 0.1, y, 14.0 + d), "dark_wood")
     for x, plant in ((6.3, "ball"), (8.0, "cactus"), (9.7, "ball")):
-        b.cyl((x, 7.55, 13.55), 0.35, 0.7, "terracotta", r2=0.42, segments=10)
+        b.cyl((x, 7.55, 13.55 + d), 0.35, 0.7, "terracotta", r2=0.42, segments=10)
         if plant == "ball":
-            b.ball((x, 8.25, 13.55), 0.45, "leaf_green")
+            b.ball((x, 8.25, 13.55 + d), 0.45, "leaf_green")
         else:
-            b.span((x - 0.15, 7.9, 13.4), (x + 0.15, 8.9, 13.7), "leaf_dark")
-            b.span((x - 0.45, 8.2, 13.45), (x - 0.15, 8.35, 13.65), "leaf_dark")
-            b.span((x - 0.45, 8.35, 13.45), (x - 0.3, 8.7, 13.65), "leaf_dark")
+            b.span((x - 0.15, 7.9, 13.4 + d), (x + 0.15, 8.9, 13.7 + d), "leaf_dark")
+            b.span((x - 0.45, 8.2, 13.45 + d), (x - 0.15, 8.35, 13.65 + d), "leaf_dark")
+            b.span((x - 0.45, 8.35, 13.45 + d), (x - 0.3, 8.7, 13.65 + d), "leaf_dark")
     for x, sw in ((-16.8, "offwhite"), (-15.8, "mint"), (-14.8, "blush")):                  # mugs
-        b.cyl((x, 8.75, 13.55), 0.3, 0.7, sw, segments=10)
+        b.cyl((x - e, 8.75, 13.55 + d), 0.3, 0.7, sw, segments=10)
     # a little cat figurine on the mug shelf
-    b.span((-13.8, 8.4, 13.3), (-13.0, 8.85, 13.8), "fur_orange")
-    b.span((-13.75, 8.85, 13.3), (-13.25, 9.3, 13.6), "fur_orange")
+    b.span((-13.8 - e, 8.4, 13.3 + d), (-13.0 - e, 8.85, 13.8 + d), "fur_orange")
+    b.span((-13.75 - e, 8.85, 13.3 + d), (-13.25 - e, 9.3, 13.6 + d), "fur_orange")
     for x in (-13.7, -13.35):
-        b.span((x, 9.3, 13.4), (x + 0.1, 9.5, 13.5), "fur_orange")
+        b.span((x - e, 9.3, 13.4 + d), (x - e + 0.1, 9.5, 13.5 + d), "fur_orange")
 
 
 def _frames(b):
     """Pictures of our cats on the side walls: frame, mat and a pixel cat."""
-    pics = ((-1, 0.0, "fur_orange", "mint"), (-1, 4.6, "fur_black", "blush"), (1, 0.0, "fur_grey", "pastel_butter"),
-            (1, -11.2, "fur_white", "mint"))
+    pics = ((-1, zs(0.0), "fur_orange", "mint"), (-1, zs(4.6), "fur_black", "blush"),
+            (1, zs(0.0), "fur_grey", "pastel_butter"), (1, -HDI + 2.8, "fur_white", "mint"))
     for s_, z, fur, bg in pics:
-        f = s_ * 18.0
+        f = s_ * HWI
         def sl(t0, t1, y0, y1, za, zb, sw, f=f, s_=s_):
             lo, hi = sorted((f - s_ * t0, f - s_ * t1))
             b.span((lo, y0, za), (hi, y1, zb), sw)
@@ -601,14 +637,14 @@ def build_interior(mat):
     _shelves(b)
     _frames(b)
     for z in BEAMS:
-        b.span((-18, H - 0.55, z - 0.3), (18, H - 0.05, z + 0.3), "dark_wood")
-    for x, z in TABLES:
+        b.span((-HWI, H - 0.55, z - 0.3), (HWI, H - 0.05, z + 0.3), "dark_wood")
+    for x, z in LAMPS:
         b.span((x - 0.05, 9.95, z - 0.05), (x + 0.05, H - 0.55, z + 0.05), "fur_black")
         b.cyl((x, 9.6, z), 0.95, 0.7, "mint", r2=0.3, segments=12)
         lamps.ball((x, 9.2, z), 0.3, "lamp_warm")
-    _string_lights(b, bulbs, -17.0, -1.0, 11.6, 13.6, 0.9, 7, wall=14.0)
-    _string_lights(b, bulbs, 1.0, 17.0, 11.6, 13.6, 0.9, 7, wall=14.0)
-    _string_lights(b, bulbs, -17.0, 17.0, 11.9, -13.6, 0.7, 13, wall=-14.0)
+    _string_lights(b, bulbs, -HWI + 1, -1.0, 11.6, HDI - 0.4, 0.9, round(7 * (HWI - 2) / 16), wall=HDI)
+    _string_lights(b, bulbs, 1.0, HWI - 1, 11.6, HDI - 0.4, 0.9, round(7 * (HWI - 2) / 16), wall=HDI)
+    _string_lights(b, bulbs, -HWI + 1, HWI - 1, 11.9, -HDI + 0.4, 0.7, round(13 * (HWI - 1) / 17), wall=-HDI)
     return [b.finalize(name, mat), lamps.finalize(name + "_HangingLamp_Bulb", mat),
             bulbs.finalize(name + "_StringLights_Bulbs", mat)]
 
@@ -627,9 +663,10 @@ def _roller(b, shutter, x0, x1, top, bottom, z):
 
 # The cafe's round tables (furniture.build_table_round) at Layout.plot.tables, put away for the night: a For Rent
 # cafe keeps its tables with their two chairs turned up on top, and the painters' corner where one stood.
-TABLE_SPOTS = ((-10, -8.5), (10, -8.5), (-10, -2.25), (10, -2.25), (-10.5, 4), (10, 4))
+TABLE_SPOTS = tuple((round(xs(x), 2), round(zs(z), 2))          # today's spots spread with the room
+                    for x, z in ((-10, -8.5), (10, -8.5), (-10, -2.25), (10, -2.25), (-10.5, 4), (10, 4)))
 TABLE_TOP = 2.62
-SHEETED = (10, -2.25)
+SHEETED = TABLE_SPOTS[3]                                            # (10, -2.25) at today's size
 
 
 def _table(b, x, z):
@@ -701,7 +738,7 @@ def _ladder_corner(b, x, z):
 def _counter_build(b):
     """Where the counter will go, half built: a plinth, a stud frame, plywood on the front's left two thirds (the
     right third still open), a plank top with a toolbox, a tin and a level on it, plywood sheets leaning on its end."""
-    x0, x1, z0, z1, top = -4.5, 4.5, 9.5, 12.5, 2.8
+    x0, x1, z0, z1, top = -4.5, 4.5, HDI - 4.5, HDI - 1.5, 2.8
     b.span((x0, 0.0, z0), (x1, 0.2, z1), "dark_wood")                                                      # plinth
     for x in (x0 + 0.1, -1.5, 1.5, x1 - 0.1):                                                             # studs
         for zc in (z0 + 0.1, z1 - 0.1):
@@ -713,19 +750,20 @@ def _counter_build(b):
     b.span((x0, 0.2, z1), (x1, top, z1 + 0.06), "treat_tan")                                              # back
     for (a, c) in ((x0, -1.52), (-1.48, 1.5)):                                                            # front ply
         b.span((a, 0.2, z0 - 0.06), (c, top, z0), "treat_tan")
-    for k, (za, zb) in enumerate(((z0 - 0.2, 10.47), (10.5, 11.47), (11.5, z1 + 0.2))):                 # planks
+    for k, (za, zb) in enumerate(((z0 - 0.2, z0 + 0.97), (z0 + 1.0, z0 + 1.97), (z0 + 2.0, z1 + 0.2))):   # planks
         b.span((x0 - 0.2, top, za), (x1 + 0.2, top + 0.14, zb), ("caramel_wood", "treat_tan", "caramel_wood")[k])
     y = top + 0.14
-    b.span((-3.8, y, 10.6), (-2.6, y + 0.55, 11.3), "bowl_red")                                           # toolbox
-    b.span((-3.82, y + 0.42, 10.58), (-2.58, y + 0.5, 11.32), "fur_black")
+    d = z0 - 9.5                                                                                          # depths
+    b.span((-3.8, y, 10.6 + d), (-2.6, y + 0.55, 11.3 + d), "bowl_red")                                   # toolbox
+    b.span((-3.82, y + 0.42, 10.58 + d), (-2.58, y + 0.5, 11.32 + d), "fur_black")
     for x in (-3.5, -2.9):
-        b.span((x - 0.04, y + 0.55, 10.92), (x + 0.04, y + 0.75, 10.98), "fur_black")
-    b.span((-3.5, y + 0.71, 10.92), (-2.9, y + 0.79, 10.98), "fur_black")
-    _paint_tin(b, -1.0, y, 11.0, "blush")
-    b.span((0.6, y, 10.1), (2.6, y + 0.16, 10.4), "pastel_butter")                                        # a level
-    b.span((1.5, y + 0.16, 10.2), (1.7, y + 0.18, 10.3), "mint")
+        b.span((x - 0.04, y + 0.55, 10.92 + d), (x + 0.04, y + 0.75, 10.98 + d), "fur_black")
+    b.span((-3.5, y + 0.71, 10.92 + d), (-2.9, y + 0.79, 10.98 + d), "fur_black")
+    _paint_tin(b, -1.0, y, 11.0 + d, "blush")
+    b.span((0.6, y, 10.1 + d), (2.6, y + 0.16, 10.4 + d), "pastel_butter")                                # a level
+    b.span((1.5, y + 0.16, 10.2 + d), (1.7, y + 0.18, 10.3 + d), "mint")
     for k in range(3):                                                                                    # ply sheets
-        b.box((x1 + 0.165 + 0.064 * k, 1.275, 11.0 + 0.15 * k), (0.06, 2.55, 2.6), "treat_tan", rot=rot_z(6))
+        b.box((x1 + 0.165 + 0.064 * k, 1.275, 11.0 + d + 0.15 * k), (0.06, 2.55, 2.6), "treat_tan", rot=rot_z(6))
 
 
 def build_for_rent(mat):
@@ -736,11 +774,11 @@ def build_for_rent(mat):
     _roller(b, shutter, DOOR[0] - 0.55, DOOR[1] + 0.55, DOOR[2], DOOR[2] - 0.9, FRONT - 0.3)
     # hanging blade sign beside the door: FOR / RENT both sides and a cat silhouette
     sx = DOOR[1] + 0.9
-    b.span((sx - 0.1, 8.25, -17.9), (sx + 0.1, 8.45, FRONT), "fur_black")
+    b.span((sx - 0.1, 8.25, FRONT - 2.9), (sx + 0.1, 8.45, FRONT), "fur_black")
     b.span((sx - 0.1, 7.9, FRONT - 0.2), (sx + 0.1, 8.45, FRONT), "fur_black")
-    for z in (-17.5, -15.4):
+    for z in (FRONT - 2.5, FRONT - 0.4):
         b.span((sx - 0.04, 7.8, z - 0.04), (sx + 0.04, 8.25, z + 0.04), "metal")
-    z0, z1, y0, y1 = -17.75, -15.15, 5.0, 7.8
+    z0, z1, y0, y1 = FRONT - 2.75, FRONT - 0.15, 5.0, 7.8
     sign.span((sx - 0.12, y0, z0), (sx + 0.12, y1, z1), "offwhite")
     b.span((sx - 0.1, y0 - 0.12, z0 - 0.12), (sx + 0.1, y1 + 0.12, z1 + 0.12), "blush")
     for side in (1, -1):
@@ -767,11 +805,13 @@ def build_for_rent(mat):
         for s in (-1, 1):
             _chair_up(b, x, z, s)
     # boxes and a broom by the door
-    for (x, y, z, w, h) in ((-6.3, 0.15, -16.4, 1.4, 1.1), (-7.7, 0.15, -16.2, 1.2, 0.9), (-6.6, 1.25, -16.3, 1.0, 0.8)):
+    F = FRONT
+    for (x, y, z, w, h) in ((-6.3, 0.15, F - 1.4, 1.4, 1.1), (-7.7, 0.15, F - 1.2, 1.2, 0.9),
+                            (-6.6, 1.25, F - 1.3, 1.0, 0.8)):
         b.span((x - w / 2, y, z - w / 2), (x + w / 2, y + h, z + w / 2), "cardboard")
         b.span((x - w / 2 - 0.01, y + h - 0.12, z - 0.12), (x + w / 2 + 0.01, y + h + 0.01, z + 0.12), "kibble")
-    b.box((-5.80, 2.48, -16.0), (0.12, 3.6, 0.12), "caramel_wood", rot=rot_z(12))      # broom leans on the boxes
-    b.box((-5.378, 0.475, -16.0), (0.3, 0.55, 0.6), "treat_tan", rot=rot_z(12))
+    b.box((-5.80, 2.48, F - 1.0), (0.12, 3.6, 0.12), "caramel_wood", rot=rot_z(12))   # broom leans on the boxes
+    b.box((-5.378, 0.475, F - 1.0), (0.3, 0.55, 0.6), "treat_tan", rot=rot_z(12))
     out = [b.finalize(name, mat), sign.finalize(name + "_Sign", mat), shutter.finalize(name + "_Shutter", mat)]
     return out
 
@@ -801,7 +841,7 @@ def build_tier(n, mat):
     b = RB()
     extra = []
     if n == 1:                                                                # chalkboard stand on the path
-        x, z, hw = -2.95, -18.9, 0.5                  # path's left edge, clear of Tier 5's rope line at x -2.3
+        x, z, hw = -2.95, FRONT - 3.9, 0.5            # path's left edge, clear of Tier 5's rope line at x -2.3
         b.span((x - hw, 0.02, z - 0.06), (x + hw, 2.3, z + 0.06), "dark_wood")             # both feet on the path
         b.span((x - hw + 0.12, 0.45, z - 0.1), (x + hw - 0.12, 2.15, z - 0.06), "fur_black")
         b.box((x, 0.99, z + 0.45), (2 * hw, 2.1, 0.1), "dark_wood", rot=rot_x(-25))
@@ -812,36 +852,39 @@ def build_tier(n, mat):
             b.span((x + dx - 0.06, dy, z - 0.14), (x + dx + 0.06, dy + 0.1, z - 0.1), "blush")
     elif n == 2:                                                              # flower boxes and a bistro set
         flowers = RB()                                                        # _Flowers: butterflies by day
+        F = FRONT
         for cx in WINDOWS:                            # hung under the sill's front edge (z -15.45), above the beds
-            b.span((cx - 4.4, 0.5, -16.2), (cx + 4.4, 1.0, -15.45), "terracotta")
-            flowers.span((cx - 4.3, 1.0, -16.1), (cx + 4.3, 1.15, -15.55), "leaf_green")
+            b.span((cx - 4.4, 0.5, F - 1.2), (cx + 4.4, 1.0, F - 0.45), "terracotta")
+            flowers.span((cx - 4.3, 1.0, F - 1.1), (cx + 4.3, 1.15, F - 0.55), "leaf_green")
             for k in range(9):
                 fx = cx - 3.9 + k * 0.975
-                b.span((fx - 0.2, 1.1, -16.0 + 0.2 * (k % 2)), (fx + 0.2, 1.5, -15.6 + 0.2 * (k % 2)),
+                b.span((fx - 0.2, 1.1, F - 1.0 + 0.2 * (k % 2)), (fx + 0.2, 1.5, F - 0.6 + 0.2 * (k % 2)),
                        ("blush", "sparkle", "offwhite", "nose_pink")[k % 4])
         bistro = RB()                                 # _Bistro: the lawn code hides it when the lawn is in (F91)
-        _bistro(bistro, 11.0, -17.3, "mint")
+        _bistro(bistro, WX, F - 2.3, "mint")
         extra = [flowers.finalize(name + "_Flowers", mat), bistro.finalize(name + "_Bistro", mat)]
     elif n == 3:                                                              # neon OPEN, string lights, 2nd bistro
         tube, bulbs = RB(), RB()
         cx = WINDOWS[0]
-        tube.text("OPEN", (cx + 2.4, 2.4, -14.3), 0.3, 0.1, "neon_pink", right=(-1, 0, 0))
+        z = -HDI                                      # the inner face of the front wall
+        tube.text("OPEN", (cx + 2.4, 2.4, z - 0.3), 0.3, 0.1, "neon_pink", right=(-1, 0, 0))
         for (x0, x1, y0, y1) in ((cx - 2.75, cx + 2.75, 2.05, 2.15), (cx - 2.75, cx + 2.75, 4.15, 4.25),
                                  (cx - 2.75, cx - 2.65, 2.05, 4.25), (cx + 2.65, cx + 2.75, 2.05, 4.25)):
-            tube.span((x0, y0, -14.32), (x1, y1, -14.22), "neon_pink")
-        b.span((cx - 2.9, 1.9, -14.22), (cx + 2.9, 4.4, -14.1), "fur_black")           # the tubes' backing board
+            tube.span((x0, y0, z - 0.32), (x1, y1, z - 0.22), "neon_pink")
+        b.span((cx - 2.9, 1.9, z - 0.22), (cx + 2.9, 4.4, z - 0.1), "fur_black")       # the tubes' backing board
         for x in (cx - 2.6, cx + 2.6):                                                 # standing on the sill on
-            b.span((x - 0.1, SILL + 0.01, -14.24), (x + 0.1, 1.9, -14.08), "fur_black")   # two feet (QA M6)
+            b.span((x - 0.1, SILL + 0.01, z - 0.24), (x + 0.1, 1.9, z - 0.08), "fur_black")   # two feet (QA M6)
         # a festoon under each awning's scalloped edge (awnings x 5..16 each side, lip at z -18, scallops to y 9.35)
-        _string_lights(b, bulbs, -15.8, -5.2, 9.25, FRONT - 3.0, 0.6, 7, up=9.86)       # hooked to the valance
-        _string_lights(b, bulbs, 5.2, 15.8, 9.25, FRONT - 3.0, 0.6, 7, up=9.86)
+        _string_lights(b, bulbs, -WX - 4.8, -WX + 5.8, 9.25, FRONT - 3.0, 0.6, 7, up=9.86)   # hooked to the valance
+        _string_lights(b, bulbs, WX - 5.8, WX + 4.8, 9.25, FRONT - 3.0, 0.6, 7, up=9.86)
         bistro = RB()                                 # _Bistro: the lawn code hides it when the lawn is in (F91)
-        _bistro(bistro, -7.6, -17.4, "blush")
+        _bistro(bistro, -7.6, FRONT - 2.4, "blush")
         extra = [tube.finalize(name + "_Sign_Tube", mat), bulbs.finalize(name + "_StringLights_Bulbs", mat),
                  bistro.finalize(name + "_Bistro", mat)]
     elif n == 4:                                                              # fish tank in the window, back patio
         glass, water = RB(), RB()
         cx, dz = WINDOWS[1], 1.6                       # 1.6 back from the window, clear of the Window plants decor
+        dz += 14.0 - HDI                               # depths below are from today's front wall (inner face -14)
         b.span((cx - 2.6, 0, -13.85 + dz), (cx + 2.6, 1.0, -12.2 + dz), "dark_wood")
         glass.span((cx - 2.5, 1.0, -13.75 + dz), (cx + 2.5, 3.4, -12.3 + dz), "glass")
         water.span((cx - 2.4, 1.1, -13.65 + dz), (cx + 2.4, 3.0, -12.4 + dz), "fish_blue")
@@ -853,7 +896,7 @@ def build_tier(n, mat):
             b.span((px - 0.1, 1.1, -13.2 + dz), (px + 0.1, 2.3, -13.0 + dz), "leaf_green")
         # back patio: deck path to the yard gate, pergola over the back door, planters, lights
         bd0, bd1 = BACK_DOOR[0], BACK_DOOR[1]
-        b.span((bd0 - 0.5, 0, BACK + 0.2), (bd1 + 0.5, 0.15, 24.5), "caramel_wood")   # stops short of the yard fence's posts (z 24.575)
+        b.span((bd0 - 0.5, 0, BACK + 0.2), (bd1 + 0.5, 0.15, BACK + YARD - 0.5), "caramel_wood")   # stops short of the yard fence's posts (z 24.575)
         for k in range(12):
             z = BACK + 0.6 + k * 0.8
             b.span((bd0 - 0.5, 0.15, z - 0.04), (bd1 + 0.5, 0.17, z + 0.04), "kibble")
@@ -866,7 +909,7 @@ def build_tier(n, mat):
             x = bd0 - 1.0 + k * (bd1 - bd0 + 2.0) / 5
             b.span((x - 0.1, 8.6, BACK + 0.8), (x + 0.1, 8.85, BACK + 4.6), TRIM)
         for x in (bd0 - 2.2, bd1 + 2.2):
-            for z in (19.0, 23.0):
+            for z in (BACK + 4.0, BACK + 8.0):
                 b.span((x - 0.7, 0, z - 0.7), (x + 0.7, 1.0, z + 0.7), "terracotta")
                 b.ball((x, 1.5, z), 0.8, "leaf_green")
         bulbs = RB()
@@ -875,7 +918,7 @@ def build_tier(n, mat):
                  bulbs.finalize(name + "_StringLights_Bulbs", mat)]
     elif n == 5:                                                              # gold trim, rooftop sign, red carpet
         gold = "rarity_legend"
-        b.span((-18.2, H - 0.75, FRONT - 0.42), (18.2, H - 0.6, FRONT - 0.3), gold)       # between the pilasters
+        b.span((-HWI - 0.2, H - 0.75, FRONT - 0.42), (HWI + 0.2, H - 0.6, FRONT - 0.3), gold)   # between the pilasters
         x0, x1, y0, y1 = SIGN
         top = [(x0 - 0.45, -4.6), (-4.4, 4.4), (4.6, x1 + 0.45)]                    # gaps for the gooseneck arms
         strips = [(a0, a1, y1 + 0.3, y1 + 0.45) for a0, a1 in top]
@@ -898,13 +941,13 @@ def build_tier(n, mat):
         b.span((-0.07, cy + 2.6, FRONT - 0.27), (0.07, cy + 4.3, FRONT - 0.13), gold)     # the star's rod (QA M7)
         b.span((-0.08, cy - 0.01, FRONT - 0.25), (0.08, cy + 0.1, FRONT - 0.15), gold)
         # red carpet with gold posts and ropes
-        b.span((-1.6, 0.08, -20.0), (1.6, 0.15, FRONT - 0.2), "shirt_red")              # over the stones and mat
+        b.span((-1.6, 0.08, FRONT - 5.0), (1.6, 0.15, FRONT - 0.2), "shirt_red")       # over the stones and mat
         for x in (-2.3, 2.3):
-            for z in (-19.6, -16.4):
+            for z in (FRONT - 4.6, FRONT - 1.4):
                 b.cyl((x, 0.095, z), 0.3, 0.15, gold, segments=10)                    # on the path
                 b.cyl((x, 0.95, z), 0.08, 1.6, gold, segments=8)
                 b.ball((x, 1.8, z), 0.16, gold)
-            b.span((x - 0.06, 1.45, -19.6), (x + 0.06, 1.6, -16.4), "shirt_red")
+            b.span((x - 0.06, 1.45, FRONT - 4.6), (x + 0.06, 1.6, FRONT - 1.4), "shirt_red")
     else:
         raise ValueError(n)
     return [b.finalize(name, mat)] + extra
@@ -916,7 +959,7 @@ def build_closed_sign(mat):
     head height (5.5 to 7.1) and nothing on it collides. Place it at the Plot pivot like the tiers, nights only."""
     name = "CatCafe_Plot_ClosedSign"
     b, moon = RB(), RB()
-    zc, t = -14.5, 0.12                                   # in the doorway, centred under the transom (z -14.75..-14.25)
+    zc, t = FRONT + 0.5, 0.12                             # in the doorway, centred under the transom (z -14.75..-14.25)
     x0, x1, y0, y1 = -2.9, 2.9, 5.5, 7.1
     zf, zb = zc - t / 2 - 0.04, zc + t / 2 + 0.04         # board faces, proud of the frame
     for x in (-2.2, 2.2):

@@ -7,28 +7,29 @@ so the long Woods keeps them.
                          gate side -Z toward the camp, like every set. Walls at x +-80 and z +-245 (WorldBuilder's);
                          the way in is a 24 stud opening (CampOpeningWidth) at x 0 on z -245.
 
-Five blockers cross the width, their ways through 24 wide and moving about (Derek 11-02: "the gaps also don't always
-have to be on the sides can be a bit wider ... don't want it feeling too tightly cramped"), so the far end is never in
-a straight line:
+Five pieces cross the width. Since Derek 11-02 ("it should be easily navigatable just little areas to walk around to
+continue forward") none of them runs wall to wall: they are short islands with open ground between and round them,
+so the way on is a short walk round an end, and no straight line runs to the far end:
 
-  z -172 to -168   the fallen timber: big trunks end to end, a thinner one on every other, about 4 high; its gap at
-                   x 34 to 58 between two lanterns
-  z -98 to -82     the stream from the waterfall at the east wall, log rails on its rock edges; crossed only on the
-                   log bridge at x -46, its deck 10 wide (6 until 11-02)
-  z -14 to -6      the tree line, a thicket 9 to 10 high with pines in it (tall); its gap in the middle, x -12 to 12
-  z 70 to 72       a dry stone wall about 4 high; its gap at x -58 to -34 between stone gateposts, the field gate
-                   standing open
-  z 147 to 153     a mossy boulder ridge about 4.5 high; its gap at x 34 to 58 under the GREAT OAK arch
+  z -172 to -168   the fallen timber: two piles of big trunks, about 4 high, x -58 to -18 and x 18 to 54; the trail
+                   goes up the middle between two lanterns
+  z -98 to -82     the stream from the waterfall at the east wall, log rails on its rock edges, ending at x -26 in a
+                   rock lip with boulders and ferns; walk round its west end or cross the log bridge at x -1, its
+                   deck 10 wide
+  z -14 to -6      the tree line, two copses 9 to 10 high with pines in them (tall), x -56 to -22 and x 12 to 50;
+                   open between them and at both walls
+  z 70 to 72       a dry stone wall about 4 high in two stretches with end piers, x -52 to -12 and x 24 to 56
+  z 147 to 153     a mossy boulder ridge about 4.5 high, one island x -24 to 20; the trail goes round its east end
+                   under the GREAT OAK arch at x 46
 
-The low four let a hunter see a carrier coming but make them go round; a `_Barrier` 30 high stands on each, on the
-stream's rails and in the wall band all round but the way in. The tree line is the tall piece that hides the far half
-from the near. The far end is the Great Oak's clearing with the tree house and the lookout tower, the Woods' best
-landmark.
+Each piece has a 30 high `_Barrier` on its own run only (on the stream's rails and across its end), and one stands in
+the wall band all round but the way in. The tree line is the tall piece that hides the far half from the near. The far
+end is the Great Oak's clearing with the tree house and the lookout tower, the Woods' best landmark.
 
-The way, camp to far end: the dirt trail north-east from the gate past the berry meadow to the timber's gap, back west
-past the mushroom ring to the log bridge, past the berry patch to the tree line's gap in the middle, west through the
-dell to the wall's field gate, east past the old campsite to the arch, and west into the clearing. Shortest walk from the pad
-(walk check on the Part model) in area-sets.md (6b: about 650 camp to far end).
+The way, camp to far end: the dirt trail nearly straight up the middle, between the timber piles, over the log bridge,
+between the copses and the wall's stretches, round the ridge's east end under the arch and west into the clearing.
+Shortest walk from the pad (walk check on the Part model) in area-sets.md (6b: about 490 camp to far end, about 610
+before the islands).
 
 Points (manifest points_roblox): [x, y, z, zone], zone "near" (the camp half, z < 0) or "deep" (the far half). The
 traps are built in, as in v3.2: `trap_hollow_log` x2 (the open end faces the piece's local +X), `trap_bramble_bush` x2
@@ -54,12 +55,17 @@ HALF_X, HALF_Z = 80.0, 245.0            # WorldBuilder's walls at +-80, +-245 (W
 IN_X, IN_Z = HALF_X - 0.5 - WALL_D, HALF_Z - 0.5 - WALL_D       # 76.5, 241.5
 GATE_HALF = 19.0                        # CatCafe_Woods_Gate is 36.2 wide, centred on the trail
 
-LOGS_Z, GAP_A = -170.0, (34.0, 58.0)    # the fallen timber, gap east (the gaps 24 wide since Derek 11-02)
-STREAM_Z, BRIDGE_X = -90.0, -46.0       # the stream's centre line at the bridge, and the bridge (west)
+# Islands to walk round (Derek 11-02: "it should be easily navigatable just little areas to walk around to continue
+# forward"): each piece is one or two runs (x0, x1), open between them and by the walls
+LOGS_Z, ISLE_A = -170.0, [(-58.0, -18.0), (18.0, 54.0)]     # the fallen timber, two piles
+STREAM_Z, STREAM_PHASE = -90.0, -46.0   # the stream's line (unchanged since v3.2's bridge at x -46)
+BRIDGE_X = -1.0                         # the log bridge, on the trail where the line runs level
+STREAM_W = -26.0                        # the stream ends here, its west end open to walk round
 BRIDGE_W = 10.0                         # the log bridge's deck (6 until 11-02)
-TREES_Z, GAP_C = -10.0, (-12.0, 12.0)   # the tree line, gap in the middle
-WALL_Z, GAP_D = 70.0, (-58.0, -34.0)    # the dry stone wall (its face), gap west
-RIDGE_Z, GAP_E = 150.0, (34.0, 58.0)    # the boulder ridge, gap east
+TREES_Z, ISLE_C = -10.0, [(-56.0, -22.0), (12.0, 50.0)]     # the tree line, two copses
+WALL_Z, ISLE_D = 70.0, [(-52.0, -12.0), (24.0, 56.0)]       # the dry stone wall (its face), two stretches
+RIDGE_Z, ISLE_E = 150.0, [(-24.0, 20.0)]                    # the boulder ridge, one in the middle
+ARCH_X, ARCH_W = 46.0, 24.0             # the GREAT OAK arch over the trail east of the ridge
 WATERFALL_X = IN_X - 7.5                # as in v3.2: the pond's back against the east wall
 RAIL_END_E = IN_X - 13.5                # the rails stop short of the pond's rocks
 OAK = (-32.0, 206.0)                    # the Great Oak, in its clearing
@@ -67,27 +73,28 @@ CLEARING_R = 20.0
 CAMPSITE = (54.0, 98.0)                 # the old campsite between the wall and the ridge
 RING = (-30.0, -146.0)                  # the mushroom ring
 
-TRAIL_IN = [(0, -IN_Z), (0, -232), (8, -222), (22, -208), (36, -194), (44, -184), (46, -176), (46, -164), (42, -154),
-            (30, -144), (12, -134), (-8, -124), (-24, -116), (-36, -110), (-42, -106.5), (BRIDGE_X, -104.5)]
-TRAIL_ON = [(BRIDGE_X, -75.5), (-44, -70), (-36, -62), (-24, -50), (-12, -38), (-4, -28), (0, -20), (0, -4),
-            (-6, 6), (-16, 18), (-22, 34), (-34, 46), (-42, 54), (-46, 62), (-46, 78),
-            (-42, 88), (-28, 98), (-8, 108), (14, 118), (32, 128), (42, 138), (46, 146), (46, 156), (40, 166),
-            (24, 176), (4, 186), (-14, 192)]
 
 
 def stream_z(x):
-    """The stream's centre line: level with the bridge at BRIDGE_X, wandering up to 6 south of it."""
-    return STREAM_Z - 3.0 * (1 - math.cos(2 * PI * (x - BRIDGE_X) / 90.0))
+    """The stream's centre line: north at x -46 and 44, wandering 6 south between (level at the bridge, x -1)."""
+    return STREAM_Z - 3.0 * (1 - math.cos(2 * PI * (x - STREAM_PHASE) / 90.0))
+
+
+BRIDGE_Z = stream_z(BRIDGE_X)           # -96
+TRAIL_IN = [(0, -IN_Z), (0, -232), (4, -214), (4, -188), (0, -170), (2, -150), (2, -130), (BRIDGE_X, BRIDGE_Z - 14.5)]
+TRAIL_ON = [(BRIDGE_X, BRIDGE_Z + 14.5), (1, -62), (0, -40), (-4, -22), (-5, -10), (-7, 6), (-2, 24), (6, 44), (8, 60),
+            (7, 80), (12, 92), (24, 110), (32, 128), (42, 138), (46, 146), (46, 156), (40, 166), (24, 176), (4, 186),
+            (-14, 192)]
 
 
 def trail_length():
-    pts = TRAIL_IN + [(BRIDGE_X, -104.5 + 0.01)] + TRAIL_ON
+    pts = TRAIL_IN + [(BRIDGE_X, BRIDGE_Z - 14.5 + 0.01)] + TRAIL_ON
     return sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:])) + CLEARING_R - 2
 
 
 def near_trail(x, z):
     d = 1e9
-    for pts in (TRAIL_IN, TRAIL_ON, [(BRIDGE_X, -105), (BRIDGE_X, -75)]):
+    for pts in (TRAIL_IN, TRAIL_ON, [(BRIDGE_X, BRIDGE_Z - 15), (BRIDGE_X, BRIDGE_Z + 15)]):
         for a, b in zip(pts, pts[1:]):
             d = min(d, _dist_seg((x, z), a, b))
     return d
@@ -135,13 +142,13 @@ def _walls(s, mat):
 
 
 # -------------------------------------------------------------------------------------------- low blockers --
-def _log_line(s, mat, z, gap):
-    """The fallen timber across the area, one gap: big trunks (radius 1.3 to 1.6) end to end along the line, each a
+def _log_line(s, mat, z, runs):
+    """The fallen timber in piles (runs, x0 to x1): big trunks (radius 1.3 to 1.6) end to end along the line, each a
     hair off straight, a thinner log lying on every other one so the line stands about 4 high, a brush mound over
     every join, moss on the trunks, ferny bushes at their feet and a snapped branch here and there. Cut ends show
-    only at the runs' ends. A barrier 30 high on the line."""
+    only at the runs' ends. A barrier 30 high on each pile."""
     b, bar = Builder(), Builder()
-    for k, (a0, a1) in enumerate(((-IN_X, gap[0]), (gap[1], IN_X))):
+    for k, (a0, a1) in enumerate(runs):
         L = a1 - a0
         n = max(1, round(L / 10.0))
         step = L / n
@@ -181,33 +188,17 @@ def _log_line(s, mat, z, gap):
         x, y, _ = bl((a0 + a1) / 2, z)
         bar.box_base((x, y, 0), (L, 3.6, BARRIER_H), "offwhite", bevel=False)
     s.put([b.finalize(N + "FallenTimber", mat), bar.finalize(N + "FallenTimber_Barrier", mat)], 0, 0, 0)
-    for (x, rot) in ((gap[0] - 1.5, 180), (gap[1] + 1.5, 0)):           # lanterns either side of the gap
+    for (x, rot) in ((runs[0][1] - 1.5, 180), (runs[1][0] + 1.5, 0)):   # lanterns either side of the trail's way
         s.put(wd.lantern(mat), x, z - 3.5, rot)
 
 
-def field_gate(mat, L=7.0):
-    """An old five bar field gate, L long and 3.6 high, standing on its hinge end at local x 0 and running to -x
-    (Roblox +x), with a diagonal brace; front -Y."""
-    b = Builder()
-    for x in (-0.15, -(L - 0.15)):
-        b.box_base((x, 0, 0), (0.3, 0.3, 3.7), "caramel_wood", bevel=False)                     # stiles
-    for k in range(5):
-        b.box((-L / 2, 0, 0.6 + 0.7 * k), (L - 0.6, 0.12, 0.22), "caramel_wood", bevel=False)
-    a = math.atan2(2.8, L - 0.8)
-    b.box((-L / 2, -0.12, 2.0), (math.hypot(L - 0.8, 2.8), 0.12, 0.22), "dark_wood", bevel=False,
-          rot=Matrix.Rotation(a, 3, "Y"))                                                       # the brace
-    for zz in (0.9, 3.0):
-        b.box((-0.15, 0.25, zz), (0.2, 0.2, 0.3), "metal", bevel=False)                         # hinges
-    return [b.finalize(N + "FieldGate", mat)]
-
-
-def _stone_wall(s, mat, z, gap):
-    """A dry stone field wall across the area, one gap: 1.8 thick and 3.4 high, cap stones on edge to about 3.9,
-    coursing on both faces, moss on the caps and ferns at its foot; at the gap two tall stone gateposts with lanterns
-    in front, the field gate swung back against the wall's far side. A barrier 30 high on the wall."""
+def _stone_wall(s, mat, z, runs):
+    """Stretches of dry stone field wall (runs, x0 to x1): 1.8 thick and 3.4 high, cap stones on edge to about 3.9,
+    coursing on both faces, moss on the caps and ferns at its foot, a tall stone pier at each end and lanterns either
+    side of the trail's way. A barrier 30 high on each stretch."""
     b, bar = Builder(), Builder()
     H = 3.4
-    for k, (a0, a1) in enumerate(((-IN_X, gap[0]), (gap[1], IN_X))):
+    for k, (a0, a1) in enumerate(runs):
         L = a1 - a0
         x, y, _ = bl((a0 + a1) / 2, z + 0.9)
         b.box_base((x, y, 0), (L, 1.8, H), "concrete")
@@ -227,30 +218,27 @@ def _stone_wall(s, mat, z, gap):
         for i in range(m):
             cx = a0 + (i + 0.5) * L / m
             side = -1 if (i + k) % 2 == 0 else 1
-            if side > 0 and gap[1] - 3.0 < cx < gap[1] + 9.0:                # the field gate lies here
-                continue
             x, y, _ = bl(cx, z + 0.9 + side * 1.4)
             b.ico((x, y, 0.7), 1.1, ("leaf_green", "leaf_dark")[i % 2], subdivisions=1, scale=(1.5, 0.6, 0.75))
         x, y, _ = bl((a0 + a1) / 2, z + 0.9)
         bar.box_base((x, y, 0), (L, 2.0, BARRIER_H), "offwhite", bevel=False)
-    for gx in (gap[0] + 0.8, gap[1] - 0.8):                                                    # gateposts
+    for gx in [e for (a0, a1) in runs for e in (a0 + 0.8, a1 - 0.8)]:                      # end piers
         x, y, _ = bl(gx, z + 0.9)
         b.box_base((x, y, 0), (1.6, 2.2, 5.0), "fur_grey")
         b.box_base((x, y, 5.0), (2.0, 2.6, 0.4), "concrete_dark", bevel=False)
         b.ico((x, y, 5.5), 0.55, "fur_moss", subdivisions=1, scale=(1.3, 1.2, 0.5))
         bar.box_base((x, y, 0), (1.6, 2.2, BARRIER_H), "offwhite", bevel=False)
     s.put([b.finalize(N + "StoneWall", mat), bar.finalize(N + "StoneWall_Barrier", mat)], 0, 0, 0)
-    s.put(field_gate(mat), gap[1] - 1.6, z + 2.3, 0)                     # hinged on the east post, swung back east
-    for (x, rot) in ((gap[0] - 0.6, 180), (gap[1] + 0.6, 0)):
+    for (x, rot) in ((runs[0][1] - 0.6, 180), (runs[1][0] + 0.6, 0)):    # either side of the trail's way
         s.put(wd.lantern(mat), x, z - 2.2, rot)
 
 
-def _boulder_ridge(s, mat, z, gap):
-    """A low mossy boulder ridge across the area, one gap: two staggered rows of boulders round a low core, about 3.6
+def _boulder_ridge(s, mat, z, runs):
+    """A low mossy boulder ridge (runs, x0 to x1): two staggered rows of boulders round a low core, about 3.6
     high with smaller stones and moss on top to about 4.8, ferns at the foot. A barrier 30 high on it."""
     b, bar = Builder(), Builder()
     rocks = ("concrete", "fur_grey", "concrete", "fur_smoke_light", "concrete_dark")
-    for k, (a0, a1) in enumerate(((-IN_X, gap[0]), (gap[1], IN_X))):
+    for k, (a0, a1) in enumerate(runs):
         n = max(1, round((a1 - a0) / 4.5))
         step = (a1 - a0) / n
         x, y, _ = bl((a0 + a1) / 2, z)
@@ -261,7 +249,7 @@ def _boulder_ridge(s, mat, z, gap):
                 c = a0 + (i + 0.5 + 0.25 * row) * step
                 r = 2.3 + 0.25 * ((j * 3 + row) % 3)
                 sx = min(1.4, step / (1.3 * r))
-                c = min(max(c, a0 + r * sx), a1 - r * sx)                # the ends stop at the gap and the walls
+                c = min(max(c, a0 + r * sx), a1 - r * sx)                # the boulders stop at the run's ends
                 x, y, _ = bl(c, z + row * 0.9 + 0.3 * math.sin(j * 2.3))
                 b.ico((x, y, r * 0.55), r, rocks[(j * 2 + (row > 0)) % 5], subdivisions=1, scale=(sx, 0.75, 0.9))
             c = a0 + (i + 0.5) * step
@@ -312,16 +300,16 @@ def build_set(mat):
         return s.put(fn, x, z, rot, y)
 
     _walls(s, mat)
-    _log_line(s, mat, LOGS_Z, GAP_A)
-    ws._tree_line(s, mat, TREES_Z, GAP_C, half=IN_X)
-    _stone_wall(s, mat, WALL_Z, GAP_D)
-    _boulder_ridge(s, mat, RIDGE_Z, GAP_E)
-    put(trail_arch(mat, w=GAP_E[1] - GAP_E[0]), (GAP_E[0] + GAP_E[1]) / 2, RIDGE_Z, 0, r=0)
+    _log_line(s, mat, LOGS_Z, ISLE_A)
+    ws._tree_line(s, mat, TREES_Z, None, half=IN_X, runs=ISLE_C)
+    _stone_wall(s, mat, WALL_Z, ISLE_D)
+    _boulder_ridge(s, mat, RIDGE_Z, ISLE_E)
+    put(trail_arch(mat, w=ARCH_W), ARCH_X, RIDGE_Z, 0, r=0)
     s.put(ws.stream(mat, half=IN_X, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E,
-                    bridge_hw=BRIDGE_W / 2 + 0.4), 0, 0, 0)
-    put(log_bridge(mat, w=BRIDGE_W), BRIDGE_X, STREAM_Z, 0, r=0)
-    _spot(s, "bridge", BRIDGE_X - 5.5, STREAM_Z - 16.5)
-    _spot(s, "bridge", BRIDGE_X + 5.5, STREAM_Z + 16.5)
+                    bridge_hw=BRIDGE_W / 2 + 0.4, west=STREAM_W), 0, 0, 0)
+    put(log_bridge(mat, w=BRIDGE_W), BRIDGE_X, BRIDGE_Z, 0, r=0)
+    _spot(s, "bridge", BRIDGE_X - 7.5, BRIDGE_Z - 16.5)
+    _spot(s, "bridge", BRIDGE_X + 7.5, BRIDGE_Z + 16.5)
     put(wd.waterfall(mat), WATERFALL_X, stream_z(WATERFALL_X), 90, r=9)
     _spot(s, "waterfall", WATERFALL_X - 5.0, stream_z(WATERFALL_X - 5.0) - 10.0)
 
@@ -382,7 +370,7 @@ def build_set(mat):
     put(wd.mushroom(mat), -50, -26, 0, r=2.5)
     for (x, z, rot) in ((-30, -66, 90), (40, -30, 180)):
         put(wd.lantern(mat), x, z, rot, r=3)
-    for (x, rot) in ((GAP_C[0] - 1.5, 180), (GAP_C[1] + 1.5, 0)):              # either side of the tree line's gap
+    for (x, rot) in ((ISLE_C[0][1] - 1.5, 180), (ISLE_C[1][0] + 1.5, 0)):     # either side of the trail's way
         put(wd.lantern(mat), x, TREES_Z - 5.5, rot, r=3)
 
     # past the tree line: the dell east, a bramble trap west

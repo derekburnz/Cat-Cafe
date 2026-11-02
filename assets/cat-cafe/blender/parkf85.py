@@ -6,17 +6,20 @@ is long and in view. The set is the wild part, 120 x 310; the camp (CatCafe_Camp
                         gate side -Z toward the camp, like every set. Walls at x +-60 and z +-155 (WorldBuilder's);
                         the way in is a 24 stud opening (CampOpeningWidth) at x 0 on z -155, where the gate stands.
 
-Four blockers run across the width with their gaps 24 wide (Derek 11-02: wider, not always at the sides, not
-cramped) and never in line, so the far end is never in a straight line: a low box hedge (z -112, gap east), a low
-railing on a plinth with flower boxes (z -50, gap in the middle), a stream crossed only on its footbridge (z 9 to 15,
-bridge east, deck 10 wide) and a second low hedge (z 74, gap west). They are about 4 high, so a
-hunter sees a carrier coming over them but has to go round; a `_Barrier` 30 high on each stops anyone jumping one.
+Four low obstacles stand across the way, each short enough to walk round (Derek 11-02: "it should be easily
+navigatable just little areas to walk around to continue forward"), so the far end is never in a straight line but
+nothing walls you off: a box hedge island (z -112, x -30 to 6), two short railings on a plinth with flower boxes
+(z -50, x +-18 to +-40, open in the middle and by both walls), a stream out of the west wall that ends in a drain at
+x 10 (z 9 to 15; cross on the footbridge at x -24, deck 10 wide, or walk round its end) and a second hedge island
+(z 74, x -14 to 24). They are about 4 high, so a hunter sees a carrier coming over them; a `_Barrier` 30 high on each
+stops anyone jumping one.
 The tall pieces that break the view now and then are the willow and the kiosk by the duck pond, the glasshouse past
 the railing, the oaks and the bandstand, the far landmark.
 
-From the camp's pad the shortest walk is about 375 (6b: about 425; the 24 wide gaps took about 40 off): the plaza and
-the picnic lawn, the hedge gap, round the duck pond, the railing gap, past the glasshouse and the orchard, over the
-footbridge, through the rose garden, the second hedge gap, past the playground to the bandstand loop.
+From the camp's pad the shortest walk is close to a straight line with a few steps round each obstacle: the plaza
+and the picnic lawn, round the hedge island, round the duck pond, between the railings, past the glasshouse and the
+orchard, round the stream's end (or over the footbridge), through the rose garden, round the second hedge, past the
+playground to the bandstand loop.
 
 Points (manifest points_roblox): [x, y, z, zone], zone "near" (the camp half, z < 0) or "deep" (the far half). The
 trap spots (trap_tree, trap_trashcan) add a fifth number, the turn in degrees for the world-placed
@@ -42,25 +45,26 @@ HALF_X, HALF_Z = 60.0, 155.0          # WorldBuilder's walls at +-60, +-155 (Par
 IN_X, IN_Z = HALF_X - 0.5 - WALL_D, HALF_Z - 0.5 - WALL_D
 GATE_HALF = 17.5                      # CatCafe_Park_GateF85 is 32.95 wide, centred on the path
 PLAZA = (0.0, -140.0)
-HEDGE_A, GAP_A = -112.0, (14.0, 38.0)        # gaps 24 wide (Derek 11-02: wider, not cramped)
+HEDGE_A, ISLE_A = -112.0, [(-30.0, 6.0)]     # islands to walk round (Derek 11-02: "easily navigatable")
 POND, RING_R = (-4.0, -80.0), 20.5
-FENCE_B, GAP_B = -50.0, (-12.0, 12.0)        # the railing's gap in the middle
+FENCE_B, ISLE_B = -50.0, [(-40.0, -18.0), (18.0, 40.0)]   # two short railings, open in the middle and by the walls
 GLASS = (-30.0, -20.0)                # the glasshouse, front -Z
-STREAM_Z, BRIDGE_X = 12.0, 30.0       # the stream's middle line and the footbridge
+STREAM_Z, BRIDGE_X = 12.0, -24.0      # the stream's middle line and the footbridge
+STREAM_END = 10.0                     # the stream runs from the west wall to its drain here; east of it is lawn
 BRIDGE_W = 10.0                       # its deck (5.2 until Derek 11-02: not cramped)
 BRIDGE_HX = BRIDGE_W / 2 + 0.3        # the kerbs and rails stop this far either side of it
 GARDEN = (6.0, 46.0)
-HEDGE_D, GAP_D = 74.0, (-44.0, -20.0)
+HEDGE_D, ISLE_D = 74.0, [(-14.0, 24.0)]
 PLAY = (-36.0, 98.0, 36.0, 24.0)      # the playground mat's centre and size
 BAND, LOOP_R = (8.0, 130.0), 13.5
 
 RING_IN, RING_OUT = ring_point(POND, RING_R, -40), ring_point(POND, RING_R, 100)
 LOOP_IN = ring_point(BAND, LOOP_R, 225)
-PATH_1 = [(0, -155), PLAZA, (14, -133), (30, -124), (30, -104), (22, -100), RING_IN]
+PATH_1 = [(0, -155), PLAZA, (14, -133), (18, -122), (18, -104), (16, -100), RING_IN]
 PATH_2 = [RING_OUT, (-5, -52), (0, -45)]
-PATH_3 = [(0, -45), (6, -34), (18, -20), (30, -8), (30, 3.2)]
-PATH_4 = [(30, 20.8), (30, 23), (18, 30), (GARDEN[0], 33.5)]
-PATH_5 = [(GARDEN[0] - 12.5, GARDEN[1]), (-22, 52), (-30, 62), (-30, 80), (-12, 88), (-6, 106), LOOP_IN]
+PATH_3 = [(0, -45), (6, -34), (14, -20), (18, -8), (18, 3.2), (18, 22), (GARDEN[0] + 6, 30)]
+PATH_4 = [(GARDEN[0] + 6, 30), (GARDEN[0], 33.5)]
+PATH_5 = [(GARDEN[0] - 12.5, GARDEN[1]), (-22, 52), (-26, 62), (-26, 80), (-12, 88), (-6, 106), LOOP_IN]
 
 
 # ------------------------------------------------------------------------------------------------- ground --
@@ -117,11 +121,12 @@ def _walls(s, mat):
 
 
 # ------------------------------------------------------------------------------------------------ blockers --
-def _low_hedge(s, mat, z, gap):
-    """A clipped box hedge across the area, 3.4 to 4 high, so a hunter sees over it, with one gap (x0, x1) and an urn
-    in line with each end of it. Its `_Barrier` 30 high on the hedge's footprint keeps the gap the only way."""
+def _low_hedge(s, mat, z, runs):
+    """Clipped box hedge islands on the line z, 3.4 to 4 high, so a hunter sees over them, each run (x0, x1) with
+    rounded ends and an urn just past each end, open ground all round. Its `_Barrier` 30 high on each run's footprint
+    stops anyone jumping it."""
     b, bar = Builder(), Builder()
-    for (a0, a1) in ((-IN_X, gap[0]), (gap[1], IN_X)):
+    for (a0, a1) in runs:
         n = max(1, round((a1 - a0) / 6.0))
         step = (a1 - a0) / n
         for i in range(n):
@@ -130,25 +135,32 @@ def _low_hedge(s, mat, z, gap):
             x, y, _ = bl(c, z)
             b.box_base((x, y, 0), (step + 0.02 * (i % 2), 2.0 + 0.02 * (i % 2), h), sw, bevel=False)
             b.ico((x, y, h), 1.2, sw, subdivisions=1, scale=(step / 2.4, 0.85, 0.4))
+        for (xe, sx) in ((a0, -1), (a1, 1)):                                    # rounded ends
+            x, y, _ = bl(xe, z)
+            b.cyl_base((x, y, 0), 1.0, 3.4, "leaf_dark", segments=10, bevel=False)
+            b.ico((x, y, 3.4), 1.05, "leaf_dark", subdivisions=1, scale=(1, 1, 0.45))
         x, y, _ = bl((a0 + a1) / 2, z)
-        bar.box_base((x, y, 0), (a1 - a0, 2.0, BARRIER_H), "offwhite", bevel=False)
+        bar.box_base((x, y, 0), (a1 - a0 + 2.0, 2.0, BARRIER_H), "offwhite", bevel=False)
     s.put([b.finalize(N + "LowHedge", mat), bar.finalize(N + "LowHedge_Barrier", mat)], 0, 0, 0)
-    for x in (gap[0] + 0.9, gap[1] - 0.9):
-        s.put(urn(mat), x, z, 0)
+    for (a0, a1) in runs:
+        for x in (a0 - 2.1, a1 + 2.1):
+            if abs(x) < IN_X - 1.5:
+                s.put(urn(mat), x, z, 0)
 
 
-def _railing(s, mat, z, gap):
-    """The low railing across the area (the camp side's own look: a plinth, railings 4.6 high and flower boxes facing
-    the camp), between 1.8 pillars, a lantern pillar at each end of the gap. Its face is at z, its back at z + 2.4."""
+def _railing(s, mat, z, runs):
+    """Short low railings on the line z (the camp side's own look: a plinth, railings 4.6 high and flower boxes facing
+    the camp), each run (x0, x1) between 1.8 pillars with a lantern pillar at each end, open ground all round. Its face
+    is at z, its back at z + 2.4."""
     bar = Builder()
-    for (a0, a1, toward) in ((-IN_X, gap[0], 1), (gap[1], IN_X, -1)):
-        n = max(1, round((a1 - a0) / 9.0))
-        L = (a1 - a0 - n * 1.8) / n
-        start = a0 if toward > 0 else a1                                   # from the side wall toward the gap
+    for (a0, a1) in runs:
+        n = max(1, round((a1 - a0 - 1.8) / 9.0))
+        L = (a1 - a0 - (n + 1) * 1.8) / n
+        s.put(pillar(mat, top="lantern", h=6.0), a0 + 0.9, z, 0)
         for i in range(n):
-            c = start + toward * (i * (L + 1.8) + L / 2)
+            c = a0 + 1.8 + i * (L + 1.8) + L / 2
             s.put(wall_segment(mat, "low", L, i), c, z, 0)
-            p = c + toward * (L / 2 + 0.9)
+            p = c + L / 2 + 0.9
             s.put(pillar(mat, top="lantern", h=6.0) if i == n - 1 else pillar(mat, h=5.2), p, z, 0)
         x, y, _ = bl((a0 + a1) / 2, z + WALL_D / 2)
         bar.box_base((x, y, 0), (a1 - a0, WALL_D, BARRIER_H), "offwhite", bevel=False)
@@ -156,26 +168,35 @@ def _railing(s, mat, z, gap):
 
 
 def _stream(s, mat):
-    """A stream across the whole width, 6 wide between stone kerbs 0.7 high, out of a culvert in each side wall. It is
-    crossed only on the footbridge (town-layout-v3 8c): an iron rail 3 high on each kerb, its `_Barrier` a 0.5 thick
-    wall on the rail's line (style guide: a barrier always stands on something a player can see)."""
+    """A stream 6 wide between stone kerbs 0.7 high, out of a culvert in the west wall and into a drain at
+    STREAM_END, where a kerb closes it and an iron grate takes the water; east of it is open lawn, so a player walks
+    round its end or crosses on the footbridge. An iron rail 3 high on each kerb and round the end, its `_Barrier` a
+    0.5 thick wall on the rail's line (style guide: a barrier always stands on something a player can see)."""
     b, water, decor, bar = Builder(), Builder(), Builder(), Builder()
     z0, z1 = STREAM_Z - 3.0, STREAM_Z + 3.0
-    L = 2 * IN_X
-    b.box_base(bl(0, STREAM_Z), (L, 6.0, 0.02), "concrete_dark", bevel=False)                    # the bed
-    water.box_base(bl(0, STREAM_Z, 0.02), (L, 6.0, 0.33), "fish_blue", bevel=False)
+    E = STREAM_END
+    L, cx = E + IN_X, (E - IN_X) / 2
+    b.box_base(bl(cx, STREAM_Z), (L, 6.0, 0.02), "concrete_dark", bevel=False)                   # the bed
+    water.box_base(bl(cx, STREAM_Z, 0.02), (L, 6.0, 0.33), "fish_blue", bevel=False)
+    runs = ((-IN_X, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, E + 0.8))
     for i, zc in enumerate((z0 - 0.4, z1 + 0.4)):                        # the kerbs, broken by the bridge's abutments
-        for (a0, a1) in ((-IN_X, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, IN_X)):
+        for (a0, a1) in runs:
             b.box_base(bl((a0 + a1) / 2, zc), (a1 - a0, 0.8, 0.7 + 0.006 * i), "concrete", bevel=False)
-    for sx in (-1, 1):                                                                            # the culverts
+    b.box_base(bl(E + 0.4, STREAM_Z), (0.8, 6.0, 0.7), "concrete", bevel=False)                  # the end kerb
+    b.box_base(bl(E - 1.2, STREAM_Z, 0.02), (2.0, 4.4, 0.33), "concrete_dark", bevel=False)      # the drain's sill
+    for k in range(7):                                                                            # its grate
+        b.box_base(bl(E - 1.2, STREAM_Z - 1.8 + 0.6 * k, 0.35), (1.8, 0.14, 0.06), "metal", bevel=False)
+    for (dx, dz, r) in ((-2.6, -2.0, 0.45), (-3.4, 2.1, 0.35), (-1.0, 2.3, 0.3)):                  # stones by it
+        decor.ico(bl(E + dx, STREAM_Z + dz, 0.3), r, "concrete", subdivisions=1, scale=(1.2, 1, 0.7))
+    for sx in (-1,):                                                                              # the culvert
         x = sx * IN_X
         b.box_base(bl(x - sx * 0.2, STREAM_Z), (0.4, 8.4, 3.0), "concrete", bevel=False)
         b.box_base(bl(x - sx * 0.45, STREAM_Z), (0.1, 5.2, 1.9), "fur_black", bevel=False)
         for k in range(5):
             b.box_base(bl(x - sx * 0.55, STREAM_Z - 2.0 + k), (0.12, 0.14, 1.9), "metal", bevel=False)
         b.box_base(bl(x - sx * 0.5, STREAM_Z), (0.2, 6.0, 0.3), "concrete_dark", bevel=False, rot=None)
-    for k in range(14):                                                                           # lily pads, reeds
-        x = -IN_X + 5.0 + k * (2 * IN_X - 10.0) / 13
+    for k in range(8):                                                                            # lily pads, reeds
+        x = -IN_X + 5.0 + k * (E + IN_X - 12.0) / 7
         if abs(x - BRIDGE_X) < BRIDGE_HX + 3.0:
             continue
         dz = (-1.6, 1.2, -0.4, 1.9)[k % 4]
@@ -186,7 +207,7 @@ def _stream(s, mat):
         for j in range(3):
             decor.box_base(bl(x + 1.5 + 0.35 * j, side, 0.3), (0.12, 0.12, 1.1 + 0.35 * j),
                            ("leaf_dark", "leaf_green")[j % 2], bevel=False)
-    for (x, rot) in ((-38.0, 30.0), (-12.0, 200.0), (48.0, 110.0)):                              # ducks
+    for (x, rot) in ((-38.0, 30.0), (-8.0, 200.0)):                                              # ducks
         a = math.radians(rot)
         decor.ico(bl(x, STREAM_Z + 0.8, 0.55), 0.5, "offwhite", subdivisions=1, scale=(1.3, 0.9, 0.7))
         hx, hz = x + 0.55 * math.cos(a), STREAM_Z + 0.8 + 0.55 * math.sin(a)
@@ -195,15 +216,21 @@ def _stream(s, mat):
                   bevel=False, rot=(-a, "Z"))
     for i, zc in enumerate((z0 - 0.4, z1 + 0.4)):      # an iron rail on each kerb, its barrier a wall on the rail's line
         kt = 0.7 + 0.006 * i
-        for (a0, a1) in ((-IN_X + 0.45, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, IN_X - 0.45)):    # clear of the culverts
+        for (a0, a1) in ((-IN_X + 0.45, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, E + 0.4)):    # clear of the culvert
             n = max(1, round((a1 - a0 - 0.6) / 2.0))
             for k in range(n + 1):
                 b.box_base(bl(a0 + 0.3 + (a1 - a0 - 0.6) * k / n, zc, kt), (0.16, 0.16, 3.0 - kt), "fur_black",
                            bevel=False)
             for (h, t) in ((1.6, 0.14), (2.85, 0.2)):
                 b.box(bl((a0 + a1) / 2, zc, h), (a1 - a0 - 0.4, 0.12, t), "fur_black", bevel=False)
-        for (a0, a1) in ((-IN_X, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, IN_X)):
+        for (a0, a1) in ((-IN_X, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, E + 0.65)):
             bar.box_base(bl((a0 + a1) / 2, zc), (a1 - a0, 0.5, BARRIER_H), "offwhite", bevel=False)
+    xe = E + 0.4                                                          # the rail round the end
+    for k in range(4):
+        b.box_base(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 3, 0.7), (0.16, 0.16, 2.3), "fur_black", bevel=False)
+    for (h, t) in ((1.6, 0.14), (2.85, 0.2)):
+        b.box(bl(xe, STREAM_Z, h), (0.12, z1 - z0 + 0.8, t), "fur_black", bevel=False)
+    bar.box_base(bl(xe, STREAM_Z), (0.5, z1 - z0 + 1.3, BARRIER_H), "offwhite", bevel=False)
     s.put([b.finalize(N + "Stream", mat), water.finalize(N + "Stream_Water", mat),
            decor.finalize(N + "Stream_Decor", mat), bar.finalize(N + "Stream_Barrier", mat)], 0, 0, 0)
 
@@ -389,11 +416,11 @@ def beehives(mat):
 def build_set(mat):
     s = Set(NAME)
     _walls(s, mat)
-    _low_hedge(s, mat, HEDGE_A, GAP_A)
-    _railing(s, mat, FENCE_B, GAP_B)
+    _low_hedge(s, mat, HEDGE_A, ISLE_A)
+    _railing(s, mat, FENCE_B, ISLE_B)
     _stream(s, mat)
     s.put(footbridge(mat), BRIDGE_X, STREAM_Z, 0)
-    _low_hedge(s, mat, HEDGE_D, GAP_D)
+    _low_hedge(s, mat, HEDGE_D, ISLE_D)
 
     # the way in: the plaza with its planter, the map, lamps and benches; flower beds along the path east
     s.put(planter(mat), *PLAZA, 0)
@@ -463,7 +490,7 @@ def build_set(mat):
     # the stream's far bank and the rose garden
     _spot(s, "stream", 16, 20)
     _spot(s, "stream", -40, 20)
-    s.put(bench(mat), 42, 22, face(42, 22, BRIDGE_X, STREAM_Z))
+    s.put(bench(mat), 42, 22, face(42, 22, STREAM_END, STREAM_Z))
     s.put(lamp(mat), 22, 22, 0)
     s.put(garden_fountain(mat), *GARDEN, 0)
     _spot(s, "fountain", GARDEN[0], GARDEN[1] + 4.5)
@@ -530,7 +557,7 @@ def build_set(mat):
         s.put(flower_bed(mat, i + 3), x, z, 0 if i % 2 else 90)
 
     # more trees, flower patches and the beehives
-    for (x, z, r) in ((-40, 2, 0), (-24, 26, 0)):
+    for (x, z, r) in ((-40, 2, 0), (-42, 30, 0)):
         s.put(willow(mat), x, z, r)
     for (x, z, r) in ((36, -150, 60), (16, 88, 110), (-36, 124, 200), (47, 25, 300), (-2, -118, 30)):
         s.put(oak(mat), x, z, r)

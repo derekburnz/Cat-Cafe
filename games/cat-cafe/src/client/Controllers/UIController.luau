@@ -486,6 +486,7 @@ local function applyState(s: Types.PlayerState)
 		-- F88: the player's Luck and what makes it, for the HUD chip and its card (luck-and-rare-moments.md section 1)
 		luck = s.luck,
 		luckSources = s.luckSources,
+		longNap = s.longNap, -- F95: the welcome back card's "Full pay, up to 16 hours"
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.

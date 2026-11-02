@@ -454,6 +454,31 @@ local SCENES = {
 			press("Cats", "gate_bellhop")
 		end)
 	end },
+	-- F97 section 6: two spare cats (no Index page) with their "Classic" tag, one gold under its sparkle
+	{ "CatsClassic", function()
+		local player = samplePlayer(os.time())
+		local count = 0
+		for _, def in Catalog.cats do
+			if def.area == "spare" and count < 2 then
+				count += 1
+				local uid = "gate_classic_" .. count
+				player.cats[uid] = {
+					uid = uid,
+					catId = def.id,
+					variant = if count == 1 then "gold" else "base",
+					caughtAt = os.time() - 30 * count,
+					level = 5,
+					xp = 0,
+					xpToNext = 40,
+					charm = 50,
+					stars = 3,
+					rating = 12,
+				}
+			end
+		end
+		UI.update({ cats = player.cats })
+		UI.open("Cats")
+	end },
 	{ "Potions", function()
 		UI.open("Potions")
 	end },

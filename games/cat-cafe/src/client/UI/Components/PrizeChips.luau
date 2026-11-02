@@ -28,6 +28,7 @@ local Outline = require(script.Parent.Outline)
 local ShopIcons = require(script.Parent.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
+local ViewScale = require(script.Parent.Parent.Scale)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
@@ -75,7 +76,7 @@ local SPIN_BANK_CAP: number = Config.SpinBankCap or 20
 local FIT_DEAD_BAND = 0.03 -- a fitted row ignores scale changes smaller than this
 local FIT_ECHO = 0.08 -- a width within 8% of what our own scale change should give is that change coming back
 local MIN_TEXT = 9.05 -- a fitted row never shrinks its text below 9 px (ui-review, the UI gate's text check)
-local REGROW = 12 -- px fitTo must widen past where pictures were folded before they come back
+local UNFOLD_SLACK = 2 -- px of spare room a folded picture needs before it comes back, so it never flips
 
 local PrizeChips = {}
 PrizeChips.__index = PrizeChips
@@ -99,8 +100,7 @@ function PrizeChips.new(props: Props): PrizeChips
 	self._shape = "" -- the kinds and ids on show; a change rebuilds the chips, an amount change only relabels
 	self._fit = {} :: { RBXScriptConnection }
 	self._cap = nil :: number? -- a fitted row too wide at its smallest: how many pictures still show
-	self._capRoom = 0 -- fitTo's room when the pictures were folded, before any UIScale above
-	self._capFloor = 1 -- the smallest scale the text allowed then
+	self._needs = {} :: { [number]: number } -- the row's full width with n pictures, measured before folding one
 	self._fullShape = "" -- the parts before folding; a new prize unfolds them
 	self._hasPill = false
 	self._pictures = 0 -- picture parts in the whole prize (forever pills are not pictures)
@@ -134,36 +134,41 @@ function PrizeChips.new(props: Props): PrizeChips
 		-- sizes, so the width does not follow the scale exactly: each new scale gave a slightly different full width,
 		-- which gave a new scale, flipping every frame. Now the full width is only measured when the chips change,
 		-- the width our own scale change brings back is ignored, and a change under FIT_DEAD_BAND is left alone.
+		-- Review S96 (2026-11-02): the text never goes under 9 px; past that the last pictures fold into "+N".
 		local natural = 0 -- the row's width at full size, in screen pixels
 		local echo: number? = nil -- the width our last scale change should bring back
 		local textSize = props.textSize or Theme.sizes.textBody
 		local function apply()
 			local room = fitTo.AbsoluteSize.X - (props.fitPad or 0)
+			local height = self.frame.AbsoluteSize.Y
+			if room <= 0 or height <= 0 or natural <= 0 then
+				return
+			end
+			-- widths compare in the row's own pixels, before the scales above it (the screen's, a pop-in), so a
+			-- window popping open changes nothing here
+			local above = height / (props.tile * scale.Scale)
+			local roomHere = room / above
+			local needHere = natural / above
+			-- the 9 px floor counts the screen's scale only (the phone's smaller windows), not a pop-in
 			local smallest = if self._hasPill
 				then math.min(textSize, pillTextSize(textSize))
 				else textSize
-			-- a UIScale further up shrinks the text too: the phone's smaller windows, a window popping open
-			local height = self.frame.AbsoluteSize.Y
-			local above = if height > 0 then height / (props.tile * scale.Scale) else 1
-			local floor = math.min(1, MIN_TEXT / (smallest * above))
-			local roomHere = room / math.max(above, 0.01) -- the room before the scales above
-			if
-				self._cap ~= nil
-				and (roomHere > self._capRoom + REGROW or floor < self._capFloor - FIT_DEAD_BAND)
-			then
-				-- more room, or bigger text, than when the pictures were folded (a pop-in ending): try them all
-				self._cap = nil
+			local floor = math.min(1, MIN_TEXT / (smallest * ViewScale.get()))
+			local shown = self._showing
+			local wider = self._needs[shown + 1]
+			if wider ~= nil and wider * floor <= roomHere - UNFOLD_SLACK then
+				-- room again for the picture folded last (a bigger screen)
+				self._cap = shown + 1
 				echo = nil
 				self:_rebuild()
 				return
 			end
-			local target = if room > 0 and natural > room then room / natural else 1
+			local target = math.min(1, roomHere / needHere)
 			if target < floor then
-				if self._showing > 1 then
-					-- still too wide with the text at 9 px: the last picture folds into the "+N" chip
-					self._cap = self._showing - 1
-					self._capRoom = roomHere
-					self._capFloor = floor
+				if shown > 1 then
+					-- too wide even with the text at 9 px: the last picture folds into the "+N" chip
+					self._needs[shown] = needHere
+					self._cap = shown - 1
 					echo = nil
 					self:_rebuild()
 					return
@@ -171,7 +176,8 @@ function PrizeChips.new(props: Props): PrizeChips
 				target = floor
 			end
 			if
-				math.abs(target - scale.Scale) < FIT_DEAD_BAND
+				scale.Scale >= floor
+				and math.abs(target - scale.Scale) < FIT_DEAD_BAND
 				and not (target == 1 and scale.Scale ~= 1)
 			then
 				return
@@ -384,6 +390,7 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 		self._shape = ""
 		self._fullShape = ""
 		self._cap = nil
+		table.clear(self._needs)
 		self:_clear()
 		return
 	end
@@ -416,6 +423,7 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 	if fullShape ~= self._fullShape then
 		self._fullShape = fullShape
 		self._cap = nil -- a new prize: every picture gets a try
+		table.clear(self._needs)
 	end
 	self._pictures = pictures
 	self._hasPill = hasPill

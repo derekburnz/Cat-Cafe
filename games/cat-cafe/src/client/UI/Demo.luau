@@ -75,7 +75,7 @@ local DEMO_SHOTS: { { seconds: number, caption: string, cards: { string }? } } =
 	{ seconds = 3.5, caption = "Catch stray cats behind your cafe!" },
 	{ seconds = 2.5, caption = "Tap as each circle closes!" },
 	{ seconds = 2.0, caption = "Carry it home to your cafe!" },
-	{ seconds = 2.8, caption = "Give it a job. Working cats earn tips!" },
+	{ seconds = 2.8, caption = "Give it a job. Working cats earn money!" },
 	{ seconds = 2.7, caption = "Rank up your cafe to open new areas" },
 	{
 		seconds = 1.8,

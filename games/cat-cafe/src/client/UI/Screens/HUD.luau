@@ -693,7 +693,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		TextSize = Theme.sizes.textBody,
 		TextColor3 = Theme.colors.sky,
 		TextXAlignment = Enum.TextXAlignment.Right,
-		Text = "Tips " .. Format.percent(NIGHT_TIPS),
+		Text = "Money " .. Format.percent(NIGHT_TIPS), -- F94 section 5: "money", not "tips"
 		Visible = false,
 		Parent = root,
 	})

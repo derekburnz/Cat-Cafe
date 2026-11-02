@@ -13,7 +13,7 @@
 --   giftRows(catalog)          what a Mystery gift can hold: Catalog.mysteryGift, else the data model's table
 --   giftLine(rows, foodName)   "Potion 60%  ·  2 Salmon 20%  ·  10 golden fish 10%  ·  1 spin 10%"
 --   giftPrize(kind, id, count) a MysteryGiftResult as the prize shape PrizeChips draws
---   giftTitle(...)             "Tip Potion", "2 Salmon", "10 golden fish", "1 spin"
+--   giftTitle(...)             "Money Potion", "2 Salmon", "10 golden fish", "1 spin"
 -- `buffs` holds each running potion's endsAt in server time (Workspace:GetServerTimeNow()); the server pauses the
 -- timers while the player is away, so the client only counts down to endsAt.
 
@@ -29,7 +29,7 @@ export type Potion = {
 	id: string,
 	name: string,
 	minutes: number,
-	effect: string, -- one short line for the bag ("+25% tips")
+	effect: string, -- one short line for the bag ("+25% money")
 }
 
 export type Row = {
@@ -59,7 +59,7 @@ PotionLogic.MAX_MINUTES = if type(Config.PotionMaxMinutes) == "number"
 -- data-model section 12b and quests.md section 4: names, minutes and the bag's short line, by id. The bag keeps
 -- these words even once Catalog.potions arrives, since the catalog's `effect` is the server's, not the card's.
 local KNOWN: { Potion } = {
-	{ id = "tip_potion", name = "Tip Potion", minutes = 10, effect = "+25% tips" },
+	{ id = "tip_potion", name = "Money Potion", minutes = 10, effect = "+25% money" },
 	{
 		id = "lucky_potion",
 		name = "Lucky Potion",
@@ -73,7 +73,7 @@ local KNOWN: { Potion } = {
 		minutes = 10,
 		effect = "Easier catch circles",
 	},
-	{ id = "big_tip_potion", name = "Big Tip Potion", minutes = 30, effect = "+50% tips" },
+	{ id = "big_tip_potion", name = "Big Money Potion", minutes = 30, effect = "+50% money" },
 	{ id = "gold_rush_potion", name = "Gold Rush Potion", minutes = 30, effect = "+25% gold luck" },
 	{
 		id = "quick_bait_potion",
@@ -292,7 +292,7 @@ function PotionLogic.giftRows(catalog: Types.Catalog?): { GiftRow }
 end
 
 -- What a gift row or result is, in a few words: "Potion", "2 Salmon", "10 golden fish", "1 spin"; with an id a
--- potion is named ("Tip Potion"). `foodName` names a food by id (the catalog's lures).
+-- potion is named ("Money Potion"). `foodName` names a food by id (the catalog's lures).
 function PotionLogic.giftTitle(
 	kind: string,
 	id: string?,

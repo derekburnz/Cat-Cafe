@@ -547,7 +547,7 @@ function DecorShop._build(self: any)
 			TextSize = Theme.sizes.textTiny,
 			TextColor3 = Theme.modal.subtext,
 			Text = if piece.kind
-				then ("+%s tips while in use"):format(Format.percent(decor.bonus or 0))
+				then ("+%s money while in use"):format(Format.percent(decor.bonus or 0))
 				else decor.effect or decor.description or "",
 			Parent = card,
 		})

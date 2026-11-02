@@ -580,7 +580,7 @@ return function()
 		end)
 
 		it("writes the Index header pills", function()
-			expect(IndexRewards.perkLabel("bonus", 0.12)).to.equal("+12% tips")
+			expect(IndexRewards.perkLabel("bonus", 0.12)).to.equal("+12% money")
 			local luck = IndexRewards.perkLabel("goldLuck", 0.4)
 			expect(luck).to.equal("+40% gold luck (gold 7%)")
 			expect(IndexRewards.perkLabel("goldLuck", 1.5)).to.equal("+150% gold luck (gold 12.5%)")

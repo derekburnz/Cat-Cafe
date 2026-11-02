@@ -43,6 +43,8 @@ local Dealer = require(script.Screens.Dealer)
 local DecorShop = require(script.Screens.DecorShop)
 local FishMarket = require(script.Screens.FishMarket)
 local Format = require(script.Components.Format)
+local FreshCatchBoard = require(script.Screens.FreshCatchBoard)
+local FreshCatchLogic = require(script.Components.FreshCatchLogic)
 local GateSigns = require(script.Screens.GateSigns)
 local GuideTrail = require(script.Components.GuideTrail)
 local HUD = require(script.Screens.HUD)
@@ -132,6 +134,7 @@ UI.events = {
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
 	openCrate = Signal.new(), -- (crateId)   Open on a Golden Fish Market crate card: forward as OpenCrate (F53)
 	buyFishItem = Signal.new(), -- (itemId)   Buy on a Market treat or perk row: forward as BuyFishItem (F53)
+	buyFreshCatch = Signal.new(), -- (itemId, window?)   Buy on a Fresh Catch row: forward as BuyFreshCatch (F94)
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
 	reportBug = Signal.new(), -- (text, kind, clientErrors)   Send on Report a bug (trimmed text, "bug" | "stuck" | "idea", up to 3 client error lines): forward all three as ReportBug
 	redeemCode = Signal.new(), -- (code)   Redeem in the code box (letters and digits, at most CodeMaxLength): forward as RedeemCode (F65)
@@ -229,6 +232,8 @@ local settingsScreen: Settings.Settings? = nil -- sound switches and volumes, sc
 local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened from the HUD's Gifts tile
 local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), opened from the plaza station's prompt
 local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53), opened from the stall's prompt
+local freshBoard: FreshCatchBoard.FreshCatchBoard? = nil -- the Fresh Catch chalkboard on the stall (F94)
+local freshStock: FreshCatchLogic.Stock? = nil -- the last FreshCatchStock, nil at night (F94)
 local bugReportScreen: BugReport.BugReport? = nil -- the Feedback window, from the HUD's Feedback tile
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
@@ -928,7 +933,11 @@ function UI.init(config: Types.InitConfig)
 			end
 		end,
 		close = closeModal,
+		buyFresh = function(itemId: string, window: number?)
+			UI.events.buyFreshCatch:Fire(itemId, window)
+		end,
 	})
+	freshBoard = FreshCatchBoard.new(parent)
 	local marketView = marketScreen :: FishMarket.FishMarket
 	modalInstance:register("Market", {
 		frame = marketView.frame,
@@ -1261,6 +1270,10 @@ function UI.destroy()
 		marketScreen:destroy()
 	end
 	marketScreen = nil
+	if freshBoard then
+		freshBoard:destroy()
+	end
+	freshBoard, freshStock = nil, nil
 	if codesScreen then
 		codesScreen:destroy()
 	end
@@ -1795,12 +1808,66 @@ function UI.market.result(crateId: string, decorId: string, duplicate: boolean, 
 end
 
 ----------------------------------------------------------------------------------------------------
+-- The Fresh Catch shelf (F94, rewards-and-shops.md section 3)
+----------------------------------------------------------------------------------------------------
+
+UI.freshCatch = {}
+
+-- A Fresh Catch row's name: its potion's or crate's, from the catalog.
+local function freshName(itemId: string): string
+	local catalog = currentCatalog
+	if catalog then
+		for _, potion in PotionLogic.list(catalog) do
+			if potion.id == itemId then
+				return potion.name
+			end
+		end
+		local crates: { Types.CrateDef } = catalog.crates or {}
+		for _, crate in crates do
+			if crate.id == itemId then
+				return crate.name
+			end
+		end
+	end
+	return itemId
+end
+
+-- From FreshCatchStock(stock?): this player's Fresh Catch stock by day, nil at night,
+-- `{ window, restocksAt, stock = { { itemId, fish, amount, bought } } }`. It reaches the Market's Fresh Catch tab and
+-- the chalkboard on the stall; the server sends it whenever it changes and after every BuyFreshCatch.
+function UI.freshCatch.setStock(stock: any)
+	freshStock = FreshCatchLogic.normalize(stock)
+	if marketScreen then
+		marketScreen:setFreshStock(freshStock)
+	end
+	if freshBoard then
+		freshBoard:set(freshStock, freshName)
+	end
+end
+
+-- From ShopAlert(itemId): the once a window heads up when the Fresh Catch stocks a Gold Rush Potion or the cheap
+-- Classic Crate ("Gold Rush Potions at the Fish Market!"). The server sends it only with "Shop alerts" on.
+function UI.shopAlert(itemId: string)
+	if toasts == nil or type(itemId) ~= "string" then
+		return
+	end
+	local name = freshName(itemId)
+	local isCrate = string.find(itemId, "_crate$") ~= nil
+	toasts:show(
+		if isCrate
+			then ("A cheap %s at the Fish Market!"):format(name)
+			else ("%ss at the Fish Market!"):format(name),
+		"info"
+	)
+end
+
+----------------------------------------------------------------------------------------------------
 -- Potions and the Mystery gift (F64, data-model section 12b)
 ----------------------------------------------------------------------------------------------------
 
 UI.potions = {}
 
--- From MysteryGiftResult(kind, id, count): a card with what the gift held ("Tip Potion", "2 Salmon",
+-- From MysteryGiftResult(kind, id, count): a card with what the gift held ("Money Potion", "2 Salmon",
 -- "10 golden fish", "1 spin") as a picture, closing by itself, with the giftOpen sound.
 function UI.potions.giftResult(kind: string, id: string?, count: number)
 	if popups == nil then

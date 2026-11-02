@@ -13,18 +13,29 @@ return function()
 	local DEVICES = { "keyboard", "touch", "gamepad" }
 
 	describe("TipQueue words", function()
-		it("has a card line for every tip and the like ask, on every device", function()
-			local ids: { string } = { Tips.LIKE_ASK }
-			for _, def in Tips.LIST do
-				table.insert(ids, def.id)
-			end
-			for _, id in ids do
-				for _, device in DEVICES do
-					local line = TipQueue.line(id, device)
-					expect(type(line)).to.equal("string")
-					expect(#line > 10).to.equal(true)
+		it(
+			"has a card line for every tip and the like and favorite asks, on every device",
+			function()
+				local ids: { string } = { Tips.LIKE_ASK, Tips.FAVORITE_ASK }
+				for _, def in Tips.LIST do
+					table.insert(ids, def.id)
+				end
+				for _, id in ids do
+					for _, device in DEVICES do
+						local line = TipQueue.line(id, device)
+						expect(type(line)).to.equal("string")
+						expect(#line > 10).to.equal(true)
+					end
 				end
 			end
+		)
+
+		it("words the favorite ask as starter-cat.md section 3 does, with a star", function()
+			expect(TipQueue.line(Tips.FAVORITE_ASK, "touch")).to.equal(
+				"Favorite Cat Cafe to find it fast next time"
+			)
+			expect(TipQueue.icon(Tips.FAVORITE_ASK)).to.equal("⭐")
+			expect(TipQueue.ASK_SECONDS > TipQueue.CARD_SECONDS).to.equal(true)
 		end)
 
 		it("gives every camera cut its caption", function()
@@ -81,7 +92,9 @@ return function()
 	describe("TipQueue.free", function()
 		it("waits for every busy moment", function()
 			expect(TipQueue.free({})).to.equal(true)
-			for _, key in { "catching", "rescuing", "carrying", "intro", "flying", "window", "hidden" } do
+			for _, key in
+				{ "catching", "rescuing", "carrying", "intro", "flying", "window", "hidden" }
+			do
 				expect(TipQueue.free({ [key] = true })).to.equal(false)
 			end
 		end)

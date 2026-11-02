@@ -3,12 +3,15 @@
 -- cleaner ui for navigating ... just swap between normal/gold and scroll through area's very simply showing rarity
 -- and what hasn't been found with a black filling"). The Cats tab and the Gold tab each list every area in tier
 -- order, its cats rarest last. The spare cats (F78) have no page (Derek 2026-10-28: "No need for a spare part of
--- the index has no use").
+-- the index has no use"). The exclusive cats (F95 and F96: given or sold, never caught, like the free Bellhop Cat)
+-- have their own Exclusive page after the areas, on the Cats tab only (they are never gold), with no count toward
+-- the Index and no rewards.
 --   found(state, tab)                    which cats count as found on the tab: met or owned, or found in gold
 --   sections(catalog, state, tab)        the areas to scroll through, each with its cats and counts
 --   count(section)                       the line beside an area's name: "7 / 10", "Complete!" or "Tier 3"
 --   reward(views, track)                 the area's reward button: "ready" with how many, "next", "done" or "none"
 --   first(sections)                      the area the Index opens on: the first open one with cats still to find
+--                                        (never the Exclusive page)
 -- Pure: no Theme, so the cloud spec runner can load it.
 
 local CatVariant = require(script.Parent.CatVariant)
@@ -22,6 +25,7 @@ export type Section = {
 	name: string,
 	tier: number,
 	locked: boolean, -- the player's tier has not opened the area and nothing in it is found yet
+	exclusive: boolean, -- the Exclusive page (EXCLUSIVE), not an area: it counts toward nothing
 	have: number,
 	total: number,
 	cats: { Types.CatDef }, -- rarest last, catalog order within a rarity
@@ -37,6 +41,9 @@ export type Reward = {
 local IndexBook = {}
 
 IndexBook.FALLBACK_AREA = "alley"
+IndexBook.EXCLUSIVE = "exclusive" -- the catalog's area for every exclusive cat, and the page's id
+IndexBook.EXCLUSIVE_NAME = "Exclusive"
+IndexBook.EXCLUSIVE_NOTE = "Not counted in the Index"
 IndexBook.RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
 local SPARE = IndexRewards.SPARE_AREA
@@ -78,6 +85,7 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 			name = name,
 			tier = tier,
 			locked = false,
+			exclusive = false,
 			have = 0,
 			total = 0,
 			cats = {},
@@ -94,20 +102,41 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 		add(area.id, area.name, area.tier)
 	end
 	local order: { [string]: number } = {}
+	local exclusive: Section = {
+		id = IndexBook.EXCLUSIVE,
+		name = IndexBook.EXCLUSIVE_NAME,
+		tier = 0,
+		locked = false,
+		exclusive = true,
+		have = 0,
+		total = 0,
+		cats = {},
+	}
 	for index, def in catalog.cats do
 		order[def.id] = index
 		local areaId: string = def.area or IndexBook.FALLBACK_AREA
+		local section: Section
 		if areaId == SPARE then
 			continue
-		elseif not byId[areaId] then
-			add(areaId, titled(areaId), 0)
+		elseif def.exclusive == true or areaId == IndexBook.EXCLUSIVE then
+			if tab == "gold" then
+				continue -- never gold
+			end
+			section = exclusive
+		else
+			if not byId[areaId] then
+				add(areaId, titled(areaId), 0)
+			end
+			section = byId[areaId]
 		end
-		local section = byId[areaId]
 		table.insert(section.cats, def)
 		section.total += 1
 		if found[def.id] then
 			section.have += 1
 		end
+	end
+	if exclusive.total > 0 then
+		table.insert(list, exclusive) -- after every area
 	end
 	for _, section in list do
 		table.sort(section.cats, function(a: Types.CatDef, b: Types.CatDef): boolean
@@ -123,7 +152,9 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 end
 
 function IndexBook.count(section: Section): string
-	if section.locked then
+	if section.exclusive then
+		return ("%d / %d"):format(section.have, section.total) -- never "Complete!": it is not part of the Index
+	elseif section.locked then
 		return "Tier " .. tostring(section.tier)
 	elseif section.total > 0 and section.have >= section.total then
 		return "Complete!"
@@ -162,7 +193,7 @@ end
 
 function IndexBook.first(sections: { Section }): string?
 	for _, section in sections do
-		if not section.locked and section.have < section.total then
+		if not section.locked and not section.exclusive and section.have < section.total then
 			return section.id
 		end
 	end

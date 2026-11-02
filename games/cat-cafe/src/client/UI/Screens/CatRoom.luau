@@ -1007,6 +1007,9 @@ function CatRoom._pressSell(self: any)
 		return -- a locked cat's Sell is greyed (F62)
 	end
 	local def: Types.CatDef? = self._catById[instance.catId]
+	if def ~= nil and def.exclusive == true then
+		return -- F95 and F96: an exclusive cat is never sold; its Sell reads "Can't sell"
+	end
 	local needsConfirm = def ~= nil and rarityRank(def.rarity) >= CONFIRM_SELL_FROM
 	if needsConfirm and not self._confirmSell then
 		self._placing = false
@@ -1367,9 +1370,10 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 		self._rest:setText("Unequip")
 		self._rest:setEnabled(spotId ~= nil)
 		self._rest.instance.Size = UDim2.new(1 / 3, -4, 1, 0)
-		self._sell:setText("Sell")
+		local exclusive = def ~= nil and def.exclusive == true -- F95 and F96: exclusive cats can be locked, never sold
+		self._sell:setText(if exclusive then "Can't sell" else "Sell")
 		self._sell:setStyle("danger")
-		self._sell:setEnabled(not locked)
+		self._sell:setEnabled(not locked and not exclusive)
 		self._sell.instance.Size = UDim2.new(1 / 3, -4, 1, 0)
 	end
 end

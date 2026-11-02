@@ -20,7 +20,6 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
-local Format = require(script.Parent.Parent.Components.Format)
 local Motion = require(script.Parent.Parent.Components.Motion)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
@@ -437,11 +436,8 @@ function CatchCircles.show(
 
 	local info: Header = header or {}
 	local rarity = info.rarity or "Common"
-	local name = info.catName or "Stray cat"
-	if info.stars then
-		name ..= "  " .. Format.stars(info.stars :: number)
-	end
-	self._name.Text = name
+	-- no charm stars after the name (F97 section 5: stars show nowhere now)
+	self._name.Text = info.catName or "Stray cat"
 	self._rarity.Text = if info.shiny then rarity .. "  ·  Gold" else rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)

@@ -1,24 +1,32 @@
 --!strict
--- The loop script's Tier 2 in numbers (QA; test plan section 6, data-model 11 and 12, features F60 and F61 "QA
--- re-times Tier 2"). A second by second run of a new player on the real shared code: Economy's income, settle, XP
--- and blockers, the Clock's day and night, the Catalog's prices, odds, first catch rewards, Tip Jar and Index
--- prizes, EquipBest's placements, Catching's picks and CatStats' charm. The player:
+-- The loop script's pace in numbers (QA; test plan section 6, data-model 11 and 12, features F60 and F61 "QA re-times
+-- Tier 2", economy-ladder.md section 8 checks 3 and 7 and section 6's one hour floor for F95). A second by second run
+-- of a new player on the real shared code: Economy's income, settle, XP, blockers, passes and offline pay, the Clock's
+-- day and night, the Catalog's prices, odds, first catch rewards, Tip Jar and Index prizes, Bait's bowl luck,
+-- EquipBest's placements, Catching's picks and CatStats' charm. The player:
 -- - joins, watches the 25 s intro, then catches the tutorial Common behind the cafe and checks it in at 75 s;
--- - by day sets out on CATCHES trips into the Alleyway at even times, each TRIP_SECONDS out and back, a catch per
---   trip while the sunrise wave lasts, and is home between trips and all night (areas closed);
+-- - by day sets out on CATCHES trips into the newest area its tier opens at even times, each TRIP_SECONDS out and
+--   back, a catch per trip while the sunrise wave lasts, and is home between trips and all night (areas closed);
 -- - nets each stray with presses that land PRESS_SPREAD seconds either side of the target (one standard deviation,
 --   ping wobble included; data-model 10, v0.13.15), graded by Circles on its net level's windows times the
 --   stray's `catchWindow` (F83). A miss costs the chase: the stray sprints and rests (Catching.fleeUntil), the
---   misser waits his growing step longer (Catching.selfRetrySeconds) and walks over, startled at first. A trip
+--   misser waits its growing step longer (Catching.selfRetrySeconds) and walks over, startled at first. A trip
 --   that runs late delays the next one, and a stray still loose at the dusk banner is left behind;
 -- - at home collects every tip pile, claims a waiting rich visitor, tames a ready bait cat and puts food in an
---   empty bowl (buying Kibble when out of food); claims Tip Jar coins and the Index `cats3` and `cats6` prizes when
---   due; places the best cats after every new one;
--- - ranks up the moment `rankUpBlocker` allows, otherwise buys the cheapest open shop item it can afford (the
---   data-model 11 pace model's player), or with SAVER only the tables and the bait bowl.
--- Spins, golden fish, crates and rescues are left out, as in the data-model 11 model.
+--   empty bowl, buying the best shop food that costs at most FOOD_SECONDS of income (Kibble at least) when out;
+--   claims Tip Jar coins when due and every Index milestone it reaches on the area pages and All Cats (their coins,
+--   food, tips forever, bait speed and gold luck); places the best cats after every new one and every rank up;
+-- - ranks up the moment `rankUpBlocker` allows, otherwise buys the cheapest open shop item, upgrades and the coin
+--   decor shop (the data-model 11 pace model's player), or with SAVER only the tables and the bait bowl;
+-- - plays in one go, or SESSION seconds a day (F95): away the rest of the day, it is paid Economy.offlineGain at the
+--   next join (half its day rate for up to 8 hours), its bowl keeps counting, and it joins a running server at a
+--   random point of its day with a fresh wave and a new Tip Jar;
+-- - with MONEY owns that Money pass (Economy.setPasses; 24 stands for owning every paid bonus).
+-- Spins, golden fish and their perks, crates, potions, quests, the Daily Treat, rescues, the night dealer, the Lucky
+-- Cat and the lawn are left out, as in the economy-ladder.md section 3 model, so real players run a little faster.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+	local Bait = require(Shared.Bait)
 	local Catalog = require(Shared.Catalog)
 	local CatStats = require(Shared.CatStats)
 	local Catching = require(Shared.Catching)
@@ -27,6 +35,7 @@ return function()
 	local Config = require(Shared.Config)
 	local Economy = require(Shared.Economy)
 	local EquipBest = require(Shared.EquipBest)
+	local IndexRewards = require(Shared.IndexRewards)
 	local Prizes = require(Shared.Prizes)
 	local ProfileSchema = require(Shared.ProfileSchema)
 	local Types = require(Shared.Types)
@@ -36,14 +45,35 @@ return function()
 	local TRIP_SECONDS = 45
 	local PRESS_SPREAD = 0.05 -- data-model 10 (v0.13.15): presses within about 50 ms
 	local MAX_TRIES = 200
-	local LIMIT = 3600 -- give up after an hour
+	local LIMIT = 3600 -- a Tier 2 run gives up after an hour
+	local FOOD_SECONDS = 60 -- economy-ladder.md section 3's model: each food at most a minute of income
+	local DAY = 86400
+	local HOUR = 3600
+	-- The long runs to Tier 5 hold hundreds of cats, so they take bigger steps: five second ticks, a settle and a look
+	-- at the shop every 30 s and right after any change, and Equip best only when a new cat can win a slot or every
+	-- 10 minutes of play (resting cats level up too). Each costs at most a few seconds a step against hours of play.
+	local LONG_STEP = 5
+	local LONG_SETTLE = 30
+	local LONG_PLAN = 600
 
-	type Options = { catches: number, saver: boolean?, freshServer: boolean?, spread: number? }
+	type Options = {
+		catches: number,
+		saver: boolean?,
+		freshServer: boolean?,
+		spread: number?,
+		target: number?, -- the tier the run stops at, 2 when nil
+		limit: number?, -- seconds of play before it gives up, LIMIT when nil
+		session: number?, -- seconds of play a day; nil plays in one go
+		money: number?, -- the Money pass multiplier, none when nil
+		long: boolean?, -- a long run to Tier 5: bigger steps (LONG_STEP, LONG_SETTLE and LONG_PLAN)
+	}
 	type Run = {
-		tier2: number?,
-		catsReady: number?,
+		tierAt: { [number]: number }, -- seconds of play at each rank up
+		dayAt: { [number]: number }, -- the day (session) of each rank up
+		catsReady: number?, -- seconds of play when the cats for Tier 2 were in
 		coinsFromPiles: number,
 		coinsFromRich: number,
+		coinsOffline: number,
 		tries: number,
 		misses: number,
 		chaseSeconds: number,
@@ -76,33 +106,41 @@ return function()
 		return Config.StartledSeconds + (studs - startled) / Config.NormalWalkSpeed
 	end
 
+	-- Whether a tick from `clockT - step` to `clockT` passed a multiple of `every` (the server's pile and visitor
+	-- ticks); with one second ticks, `clockT % every == 0`.
+	local function crossed(clockT: number, step: number, every: number): boolean
+		return clockT // every ~= (clockT - step) // every
+	end
+
 	local function simulate(options: Options, seed: number): Run
 		local rng = generator(seed)
-		local offset = if options.freshServer
-			then 0
-			else Config.ServerStartDaySeconds
-				+ math.floor(rng() * (Config.DayLengthSeconds + Config.NightLengthSeconds))
+		local step = if options.long then LONG_STEP else 1
+		local limit = options.limit or LIMIT
+		local target = options.target or 2
+		local sessionLength = options.session or limit
 		local base = 1000000
-		local epoch = base - offset
 		local profile: any = ProfileSchema.template(base)
-		local alley = assert(Catalog.getArea("alley"))
+		if options.money ~= nil then
+			Economy.setPasses(profile, { money = options.money, longNap = false, slots = 0 })
+		end
 		local run: Run = {
+			tierAt = {},
+			dayAt = {},
 			coinsFromPiles = 0,
 			coinsFromRich = 0,
+			coinsOffline = 0,
 			tries = 0,
 			misses = 0,
 			chaseSeconds = 0,
 			leftBehind = 0,
 		}
 		local spread = options.spread or PRESS_SPREAD
-		local piles: { number } = {}
-		local rich: { amount: number, leaves: number }? = nil
+		local settleEvery = if options.long then LONG_SETTLE else 1
+		local plannedAt = 0 -- seconds of play at the last full Equip best
 		local tutorialDone = false
-		local waveLeft = alley.waveSize
-		local tipJarPaid: { [number]: boolean } = {}
 		local uid = 0
-		local tripsStarted = 0 -- today's trips, by their place in the day's schedule
-		local trip: { back: number, def: Types.CatDef?, variant: string }? = nil
+		local epoch = 0 -- the session's server clock start, for settling across day and night
+		local dirty = true -- the rate changed since the last settle: settle on the next tick
 
 		-- A press's error: normal, by Box and Muller from two of the run's rolls (never 0, so the log is safe).
 		local function pressError(): number
@@ -142,7 +180,59 @@ return function()
 			return Economy.incomePerSecond(profile)
 		end
 
+		-- The newest area the player's tier opens, where its trips go.
+		local function newestArea(): Types.AreaDef
+			return assert(Catalog.getArea(assert(Catalog.getTier(Economy.tier(profile))).area))
+		end
+
+		-- A gold roll with the player's Index gold luck (the shared stray roll uses the best luck in the area, its own
+		-- when it plays alone).
+		local function gold(chance: number): string
+			local luck = IndexRewards.totals(profile).goldLuck
+			return if rng() < IndexRewards.rollChance(chance, luck) then "gold" else "base"
+		end
+
+		-- Every milestone reached on the area's page and All Cats, claimed at once: coins at today's rate, food, and
+		-- the tips forever, bait speed and gold luck that count from the claim on (crates, fish and spins left out).
+		local function claimIndex(areaId: string)
+			for _, page in { areaId, IndexRewards.ALL } do
+				for _, milestone in Catalog.indexMilestones do
+					if milestone.track ~= "decor" and IndexRewards.blocker(profile, page, milestone.id) == nil then
+						local claims = profile.indexRewards[page] or {}
+						profile.indexRewards[page] = claims
+						claims[milestone.id] = true
+						local prize = assert(IndexRewards.prize(page, milestone.id))
+						Economy.credit(profile, Prizes.coins(prize.coins, prize.coinSeconds, rate()))
+						for lureId, count in (prize.lures or {}) :: { [string]: number } do
+							profile.lures[lureId] = (profile.lures[lureId] or 0) + count
+						end
+					end
+				end
+			end
+		end
+
+		-- Equip best (EquipBest's plan) after a new cat. A long run skips it when the newcomer cannot win a slot: every
+		-- slot is filled and its rating, even in its favourite role, is no more than any working cat's own, so putting
+		-- the weakest left out in its place does at least as well.
+		local function placeBest(newcomer: Types.CatInstance?)
+			if options.long and newcomer ~= nil then
+				local working, weakest = 0, math.huge
+				for _, other in profile.cats do
+					if other.spotId ~= nil then
+						working += 1
+						weakest = math.min(weakest, CatStats.rating(other, profile.tier))
+					end
+				end
+				local best = CatStats.rating(newcomer, profile.tier) * Config.FavoriteMultiplier
+				if working >= #EquipBest.openSpots(profile) and best <= weakest then
+					return
+				end
+			end
+			EquipBest.apply(profile, EquipBest.plan(profile))
+		end
+
 		local function addCat(def: Types.CatDef, variant: string, now: number)
+			Economy.settle(profile, now, epoch) -- the time before it at the old rate
 			uid += 1
 			local instance = CatStats.newInstance("c" .. uid, def.id, now, CatStats.rollCharm(rng(), rng()))
 			instance.variant = variant
@@ -151,29 +241,12 @@ return function()
 				profile.collection[def.id] = now
 				Economy.credit(profile, Catalog.rarities[def.rarity].firstCatchReward)
 			end
-			EquipBest.apply(profile, EquipBest.plan(profile))
-			-- the Alleyway page's first two cards, claimed at once
-			local page = profile.indexRewards.alley or {}
-			profile.indexRewards.alley = page
-			local alleyCats = 0
-			for catId in profile.collection do
-				local cat = Catalog.getCat(catId)
-				if cat ~= nil and cat.area == "alley" then
-					alleyCats += 1
-				end
+			if variant == "gold" and profile.goldCollection[def.id] == nil then
+				profile.goldCollection[def.id] = now
 			end
-			local prizes = assert(Catalog.indexPrizes.alley)
-			if alleyCats >= 3 and not page.cats3 then
-				page.cats3 = true
-				local prize = assert(prizes.cats3)
-				Economy.credit(profile, Prizes.coins(prize.coins, prize.coinSeconds, rate()))
-			end
-			if alleyCats >= 6 and not page.cats6 then
-				page.cats6 = true
-				for lureId, count in (assert(prizes.cats6).lures or {}) :: { [string]: number } do
-					profile.lures[lureId] = (profile.lures[lureId] or 0) + count
-				end
-			end
+			placeBest(instance)
+			claimIndex(def.area)
+			dirty = true
 		end
 
 		-- Catalog.lures runs from Kibble up, so the last food held is the best
@@ -187,151 +260,25 @@ return function()
 			return best
 		end
 
-		for t = 0, LIMIT do
-			local now = base + t
-			local clockT = offset + t
-			local phase, left = Clock.phaseAt(clockT)
-			local day = phase == "day"
-			Economy.settle(profile, now, epoch)
-			local r = rate() -- this second's rate; a cat placed below counts from the next second
+		-- Out of food: the best shop food that costs at most FOOD_SECONDS of income, Kibble at least.
+		local function buyFood()
+			local pick = Catalog.luresById.kibble
+			for _, def in Catalog.lures do
+				if def.source == "shop" and def.cost > pick.cost and def.cost <= FOOD_SECONDS * rate() then
+					pick = def
+				end
+			end
+			if Economy.trySpend(profile, pick.cost) then
+				profile.lures[pick.id] = (profile.lures[pick.id] or 0) + 1
+			end
+		end
 
-			-- the server's ticks: tip piles every 30 s and rich visitors every 60 s, by day, at cafes that earn
-			local tables = Economy.level(profile, "tables")
-			if day and tables >= 1 and r > 0 then
-				if clockT % Config.TipPileSeconds == 0 and #piles < Config.TipPilesMax then
-					table.insert(piles, Economy.tipPileAmount(r))
-				end
-				if
-					clockT % Config.RichCheckSeconds == 0
-					and rich == nil
-					and left > Config.DuskWarningSeconds
-					and rng() < Config.RichChance
-				then
-					rich = { amount = Economy.richTipAmount(r), leaves = t + Config.RichTipStaySeconds }
-				end
-			end
-			if rich ~= nil and (not day or t >= rich.leaves) then
-				rich = nil -- gone unpaid: it left at its time or at nightfall
-			end
-			if day and left == Config.DayLengthSeconds then
-				waveLeft = alley.waveSize -- the sunrise wave
-				tripsStarted = 0
-			end
-			if not day then
-				trip = nil -- the areas close at night
-			end
-
-			-- where the player is: out on a trip or at home
-			local home = t >= INTRO_SECONDS
-			if day and t >= INTRO_SECONDS then
-				local into = Config.DayLengthSeconds - left
-				local dusk = Config.DayLengthSeconds - Config.DuskWarningSeconds
-				local interval = (dusk - 10) / options.catches
-				-- the latest trip whose start time has come; one missed while out on a long chase is skipped, and none
-				-- sets out that could not be back by the dusk banner
-				local due = if into >= 10 then math.min(options.catches, math.floor((into - 10) / interval) + 1) else 0
-				if trip == nil and due > tripsStarted and into + TRIP_SECONDS > dusk then
-					tripsStarted = due
-				elseif trip == nil and due > tripsStarted then
-					tripsStarted = due
-					local back = into + TRIP_SECONDS
-					local def: Types.CatDef? = nil
-					local variant = "base"
-					if waveLeft > 0 then
-						local rarity = Catching.pickRarity(alley.odds, rng())
-						def = Catching.pickCat(rarity, "alley", rng())
-						variant = if rng() < Config.GoldChanceNet then "gold" else "base"
-						local extra = chase(rarity)
-						if extra ~= nil and back + extra <= dusk then
-							back += extra
-							run.chaseSeconds += extra
-						else
-							def = nil -- still loose at the dusk banner: left behind
-							run.leftBehind += 1
-							back = math.max(back, dusk)
-						end
-					end
-					trip = { back = math.ceil(back), def = def, variant = variant }
-				end
-				local current = trip
-				if current ~= nil then
-					home = false
-					if into >= current.back then
-						trip = nil
-						if current.def ~= nil and tutorialDone and waveLeft > 0 then
-							waveLeft -= 1
-							addCat(current.def, current.variant, now)
-						end
-					end
-				end
-				if not tutorialDone and t >= TUTORIAL_CHECKIN then
-					tutorialDone = true
-					addCat(Catching.pickCat("Common", "alley", rng()), "base", now)
-				end
-			end
-
-			-- the Tip Jar's coin gifts at their session minutes, claimed from the HUD
-			for _, def in Catalog.tipJar do
-				if not tipJarPaid[def.step] and t >= def.minutes * 60 then
-					tipJarPaid[def.step] = true
-					local prize = def.prize
-					Economy.credit(profile, Prizes.coins(prize.coins, prize.coinSeconds, r))
-					for lureId, count in (prize.lures or {}) :: { [string]: number } do
-						profile.lures[lureId] = (profile.lures[lureId] or 0) + count
-					end
-				end
-			end
-
-			if home then
-				local collected = 0
-				for _, amount in piles do
-					collected += amount
-				end
-				piles = {}
-				if collected > 0 then
-					Economy.credit(profile, collected)
-					run.coinsFromPiles += collected
-				end
-				if rich ~= nil then
-					Economy.credit(profile, rich.amount)
-					run.coinsFromRich += rich.amount
-					rich = nil
-				end
-				local bait = profile.bait
-				if bait ~= nil and now >= bait.readyAt then
-					local lure = assert(Catalog.luresById[bait.lureId])
-					local rarity = Catching.pickRarity(lure.odds, rng())
-					local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng())
-					profile.bait = nil
-					addCat(def, if rng() < Config.GoldChanceBait then "gold" else "base", now)
-				end
-				if profile.bait == nil and Economy.level(profile, "lure_bowl") >= 1 then
-					if bestFood() == nil and Economy.trySpend(profile, Catalog.luresById.kibble.cost) then
-						profile.lures.kibble = (profile.lures.kibble or 0) + 1
-					end
-					local food = bestFood()
-					if food ~= nil then
-						profile.lures[food] -= 1
-						profile.bait = {
-							lureId = food,
-							placedAt = now,
-							readyAt = now + Economy.baitWaitSeconds(profile, not day),
-							night = if day then nil else true,
-						}
-					end
-				end
-			end
-
-			-- spending: the rank up first, then the cheapest open shop item
-			if run.catsReady == nil and Economy.distinctCats(profile) >= assert(Catalog.getTier(2)).distinctCats then
-				run.catsReady = t
-			end
-			if Economy.rankUpBlocker(profile) == nil then
-				run.tier2 = t
-				break
-			end
+		-- The cheapest open shop item, affordable or not: an upgrade's next level or a coin decor piece (bought and
+		-- placed), or with SAVER only the tables and the bait bowl.
+		local function cheapestItem(): (string?, number, boolean)
 			local cheapest: string? = nil
 			local cheapestCost = math.huge
+			local isDecor = false
 			for _, def in Catalog.upgrades do
 				local blocker = Economy.upgradeBlocker(profile, def.id)
 				local cost = Economy.nextUpgradeCost(profile, def.id)
@@ -342,12 +289,243 @@ return function()
 					and (blocker == nil or blocker == "Not enough coins")
 					and cost < cheapestCost
 				then
-					cheapest, cheapestCost = def.id, cost
+					cheapest, cheapestCost, isDecor = def.id, cost, false
 				end
 			end
-			if cheapest ~= nil and Economy.trySpend(profile, cheapestCost) then
-				profile.upgradeLevels[cheapest] = Economy.level(profile, cheapest) + 1
+			if not options.saver then
+				for _, def in Catalog.decor do
+					local blocker = Economy.decorBlocker(profile, def.id)
+					if (blocker == nil or blocker == "Not enough coins") and def.cost < cheapestCost then
+						cheapest, cheapestCost, isDecor = def.id, def.cost, true
+					end
+				end
 			end
+			return cheapest, cheapestCost, isDecor
+		end
+
+		local played = 0 -- seconds of play before this session
+		local leftAt: number? = nil
+		local rateAtLogout = 0
+		local session = 0
+		while played < limit do
+			session += 1
+			-- a running server at a random point of its day and night (a fresh one at sunrise with FRESH_SERVER)
+			local offset = if options.freshServer and session == 1
+				then 0
+				else Config.ServerStartDaySeconds
+					+ math.floor(rng() * (Config.DayLengthSeconds + Config.NightLengthSeconds))
+			local joined = base + (session - 1) * DAY
+			epoch = joined - offset
+			if leftAt ~= nil then
+				-- the welcome back card: the day rate at logout, half of it for up to 8 hours (F95)
+				local coins = Economy.offlineGain(rateAtLogout, leftAt, joined, Economy.passes(profile).longNap)
+				Economy.credit(profile, coins)
+				run.coinsOffline += coins
+			end
+			profile.lastTick = joined -- DataService.load: time away settles nothing
+			local area = newestArea()
+			local waveLeft = area.waveSize
+			local piles: { number } = {}
+			local rich: { amount: number, leaves: number }? = nil
+			local tipJarPaid: { [number]: boolean } = {}
+			local tripsStarted = 0 -- today's trips, by their place in the day's schedule
+			local trip: { back: number, def: Types.CatDef?, variant: string }? = nil
+			local intro = if session == 1 then INTRO_SECONDS else 0
+			local length = math.min(sessionLength, limit - played)
+			local r = 0 -- the rate at the last settle; a cat placed after it counts from the next
+			local settledAt = -math.huge
+
+			local s = 0 -- seconds into this session
+			while s <= length do
+				local t = played + s
+				local now = joined + s
+				local clockT = offset + s
+				local phase, left = Clock.phaseAt(clockT)
+				local day = phase == "day"
+				-- every tick on the Tier 2 runs; a long run settles every LONG_SETTLE and right after a change, and
+				-- shops only then
+				local settling = dirty or s - settledAt >= settleEvery
+				if settling then
+					Economy.settle(profile, now, epoch)
+					if options.long and t - plannedAt >= LONG_PLAN then
+						plannedAt = t
+						placeBest(nil)
+					end
+					r = rate()
+					settledAt = s
+					dirty = false
+				end
+
+				-- the server's ticks: tip piles every 30 s and rich visitors every 60 s, by day, at cafes that earn
+				local tables = Economy.level(profile, "tables")
+				if day and tables >= 1 and r > 0 then
+					if crossed(clockT, step, Config.TipPileSeconds) and #piles < Config.TipPilesMax then
+						table.insert(piles, Economy.tipPileAmount(r))
+					end
+					if
+						crossed(clockT, step, Config.RichCheckSeconds)
+						and rich == nil
+						and left > Config.DuskWarningSeconds
+						and rng() < Config.RichChance
+					then
+						rich = { amount = Economy.richTipAmount(r), leaves = s + Config.RichTipStaySeconds }
+					end
+				end
+				if rich ~= nil and (not day or s >= rich.leaves) then
+					rich = nil -- gone unpaid: it left at its time or at nightfall
+				end
+				if day and Config.DayLengthSeconds - left < step then
+					waveLeft = area.waveSize -- the sunrise wave
+					tripsStarted = 0
+				end
+				if not day then
+					trip = nil -- the areas close at night
+				end
+
+				-- where the player is: out on a trip or at home
+				local home = s >= intro
+				if day and s >= intro then
+					local into = Config.DayLengthSeconds - left
+					local dusk = Config.DayLengthSeconds - Config.DuskWarningSeconds
+					local interval = (dusk - 10) / options.catches
+					-- the latest trip whose start time has come; one missed while out on a long chase is skipped, and
+					-- none sets out that could not be back by the dusk banner
+					local due = if into >= 10
+						then math.min(options.catches, math.floor((into - 10) / interval) + 1)
+						else 0
+					if trip == nil and due > tripsStarted and into + TRIP_SECONDS > dusk then
+						tripsStarted = due
+					elseif trip == nil and due > tripsStarted then
+						tripsStarted = due
+						local back = into + TRIP_SECONDS
+						local def: Types.CatDef? = nil
+						local variant = "base"
+						if waveLeft > 0 then
+							local rarity = Catching.pickRarity(area.odds, rng())
+							def = Catching.pickCat(rarity, area.id, rng())
+							variant = gold(Config.GoldChanceNet)
+							local extra = chase(rarity)
+							if extra ~= nil and back + extra <= dusk then
+								back += extra
+								run.chaseSeconds += extra
+							else
+								def = nil -- still loose at the dusk banner: left behind
+								run.leftBehind += 1
+								back = math.max(back, dusk)
+							end
+						end
+						trip = { back = math.ceil(back), def = def, variant = variant }
+					end
+					local current = trip
+					if current ~= nil then
+						home = false
+						if into >= current.back then
+							trip = nil
+							if current.def ~= nil and tutorialDone and waveLeft > 0 then
+								waveLeft -= 1
+								addCat(current.def, current.variant, now)
+							end
+						end
+					end
+					if not tutorialDone and s >= TUTORIAL_CHECKIN then
+						tutorialDone = true
+						addCat(Catching.pickCat("Common", "alley", rng()), "base", now)
+					end
+				end
+
+				-- the Tip Jar's coin gifts at their session minutes, claimed from the HUD
+				for _, def in Catalog.tipJar do
+					if not tipJarPaid[def.step] and s >= def.minutes * 60 then
+						tipJarPaid[def.step] = true
+						local prize = def.prize
+						Economy.credit(profile, Prizes.coins(prize.coins, prize.coinSeconds, r))
+						for lureId, count in (prize.lures or {}) :: { [string]: number } do
+							profile.lures[lureId] = (profile.lures[lureId] or 0) + count
+						end
+					end
+				end
+
+				if home then
+					local collected = 0
+					for _, amount in piles do
+						collected += amount
+					end
+					piles = {}
+					if collected > 0 then
+						Economy.credit(profile, collected)
+						run.coinsFromPiles += collected
+					end
+					if rich ~= nil then
+						Economy.credit(profile, rich.amount)
+						run.coinsFromRich += rich.amount
+						rich = nil
+					end
+					local bait = profile.bait
+					if bait ~= nil and now >= bait.readyAt then
+						local lure = assert(Catalog.luresById[bait.lureId])
+						local odds = Bait.oddsFor(lure.odds, Economy.level(profile, "lure_bowl"))
+						local rarity = Catching.pickRarity(odds, rng())
+						local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng())
+						profile.bait = nil
+						addCat(def, gold(Config.GoldChanceBait), now)
+					end
+					if profile.bait == nil and Economy.level(profile, "lure_bowl") >= 1 then
+						if bestFood() == nil then
+							buyFood()
+						end
+						local food = bestFood()
+						if food ~= nil then
+							profile.lures[food] -= 1
+							profile.bait = {
+								lureId = food,
+								placedAt = now,
+								readyAt = now + Economy.baitWaitSeconds(profile, not day),
+								night = if day then nil else true,
+							}
+						end
+					end
+				end
+
+				-- spending: the rank up first, then the cheapest open shop item
+				local blocker = if settling then Economy.rankUpBlocker(profile) else "not shopping"
+				if
+					run.catsReady == nil
+					and Economy.distinctCats(profile) >= assert(Catalog.getTier(2)).distinctCats
+				then
+					run.catsReady = t
+				end
+				if not settling then
+					-- between settles: nothing bought
+				elseif blocker == nil then
+					local def = assert(Catalog.getTier(Economy.tier(profile) + 1))
+					assert(Economy.trySpend(profile, def.cost))
+					profile.tier = def.tier
+					run.tierAt[def.tier] = t
+					run.dayAt[def.tier] = session
+					if def.tier >= target then
+						return run
+					end
+					placeBest(nil) -- the new role slots
+					area = newestArea()
+					waveLeft = area.waveSize
+					dirty = true
+				else
+					local id, cost, isDecor = cheapestItem()
+					if id ~= nil and Economy.trySpend(profile, cost) then
+						if isDecor then
+							profile.decorOwned[id] = true
+							profile.decorPlaced[id] = true
+						else
+							profile.upgradeLevels[id] = Economy.level(profile, id) + 1
+						end
+						dirty = true
+					end
+				end
+				s += step
+			end
+			played += length
+			leftAt = joined + length
+			rateAtLogout = rate() -- the day rate; no potions in the model
 		end
 		return run
 	end
@@ -360,23 +538,35 @@ return function()
 		return out
 	end
 
-	-- The minute at the given share of the runs (0.5 the median), every run that never got there counted as LIMIT.
-	local function quantile(list: { Run }, field: string, share: number): number
+	-- The value at the given share of the runs (0.5 the median), every run without one counted as `missing`.
+	local function quantile(list: { Run }, value: (Run) -> number?, share: number, missing: number): number
 		local values = {}
 		for _, run in list do
-			table.insert(values, ((run :: any)[field] or LIMIT) / 60)
+			table.insert(values, value(run) or missing)
 		end
 		table.sort(values)
 		return values[math.clamp(math.floor(share * #values + 0.5), 1, #values)]
 	end
 
-	-- Each check is the median of RUNS seeded runs: join at a random point of a running server's day and night.
+	local function tierAt(tier: number): (Run) -> number?
+		return function(run: Run): number?
+			return run.tierAt[tier]
+		end
+	end
+
+	local function clock(seconds: number): string
+		return string.format("%d h %02d", seconds // HOUR, (seconds % HOUR) // 60)
+	end
+
+	-- Each Tier 2 check is the median of RUNS seeded runs: join at a random point of a running server's day and night.
 	local RUNS = 40
 
 	local function check(options: Options)
 		local list = runs(options, RUNS)
-		local ready = quantile(list, "catsReady", 0.5)
-		local median = quantile(list, "tier2", 0.5)
+		local ready = quantile(list, function(run: Run): number?
+			return run.catsReady
+		end, 0.5, LIMIT) / 60
+		local median = quantile(list, tierAt(2), 0.5, LIMIT) / 60
 		local tries, misses, chased, behind = 0, 0, 0, 0
 		for _, run in list do
 			tries += run.tries
@@ -391,8 +581,8 @@ return function()
 			if options.saver then ", tables and bowl only" else "",
 			ready,
 			median,
-			quantile(list, "tier2", 0.1),
-			quantile(list, "tier2", 0.9),
+			quantile(list, tierAt(2), 0.1, LIMIT) / 60,
+			quantile(list, tierAt(2), 0.9, LIMIT) / 60,
 			misses,
 			tries,
 			chased / #list,
@@ -406,6 +596,38 @@ return function()
 		if ready >= median then
 			error("the cats come after the coins: " .. text)
 		end
+	end
+
+	-- The long runs to Tier 5 (F95): LONG_RUNS seeded runs each. Returns the runs and a line with
+	-- each tier's median time of play (and day, for daily play) for the failure message.
+	local LONG_RUNS = 10
+
+	local function toTier5(options: Options): ({ Run }, string)
+		local list = runs(options, LONG_RUNS)
+		local limit = assert(options.limit)
+		local parts = {}
+		for tier = 2, Catalog.maxTier do
+			local played = quantile(list, tierAt(tier), 0.5, limit)
+			local part = string.format("Tier %d %s", tier, clock(played))
+			if options.session ~= nil then
+				local day = quantile(list, function(run: Run): number?
+					return run.dayAt[tier]
+				end, 0.5, math.huge)
+				part ..= string.format(" (day %s)", if day == math.huge then "none" else tostring(day))
+			end
+			table.insert(parts, part)
+		end
+		local text = string.format(
+			"%d catches a day%s%s, medians of %d runs: %s; Tier 5 10th to 90th %s to %s",
+			options.catches,
+			if options.session ~= nil then string.format(", %d min a day", options.session // 60) else " in one go",
+			if options.money ~= nil then string.format(", %dx Money", options.money) else "",
+			#list,
+			table.concat(parts, ", "),
+			clock(quantile(list, tierAt(5), 0.1, limit)),
+			clock(quantile(list, tierAt(5), 0.9, limit))
+		)
+		return list, text
 	end
 
 	describe("Tier 2 in the loop script (QA re-time after F60 and F61, misses and chases for F83)", function()
@@ -422,6 +644,51 @@ return function()
 		it("takes 10 to 20 minutes for a shakier player whose presses land within about 70 ms (F83)", function()
 			-- data-model 10 (v0.13.15): a young player on a phone
 			check({ catches = 4, spread = 0.07 })
+		end)
+	end)
+
+	describe("Tier 5 on the money ladder (F95, economy-ladder.md section 8 checks 3 and 7)", function()
+		it("takes 8 to 12 hours of play in one go", function()
+			local list, text = toTier5({ catches = 4, target = 5, limit = 16 * HOUR, long = true })
+			local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
+			if median < 8 * HOUR or median > 12 * HOUR then
+				error("Tier 5 outside 8 to 12 hours of play: " .. text)
+			end
+		end)
+
+		it("comes on day 4 to 6 for an hour a day with free offline pay", function()
+			local list, text = toTier5({
+				catches = 4,
+				target = 5,
+				limit = 10 * HOUR,
+				session = HOUR,
+				long = true,
+			})
+			local day = quantile(list, function(run: Run): number?
+				return run.dayAt[5]
+			end, 0.5, math.huge)
+			if day < 4 or day > 6 then
+				error("Tier 5 outside day 4 to 6: " .. text)
+			end
+		end)
+
+		it("takes over 2 hours of play in one go with 4x Money", function()
+			local list, text =
+				toTier5({ catches = 4, target = 5, limit = 8 * HOUR, money = 4, long = true })
+			-- check 7: if not, the Tier 5 cost goes up
+			if quantile(list, tierAt(5), 0.5, 8 * HOUR) <= 2 * HOUR then
+				error("Tier 5 in 2 hours or less with 4x Money: " .. text)
+			end
+		end)
+
+		it("takes over an hour of play in one go with every paid bonus (about 24x)", function()
+			-- section 6: Monetization-Agent's floor; if not, the cat requirements go up. The extra role slot is not
+			-- in the model yet (EquipBest does not read the pass), so this player is a slot short of the real one.
+			local list, text =
+				toTier5({ catches = 4, target = 5, limit = 8 * HOUR, money = 24, long = true })
+			if quantile(list, tierAt(5), 0.5, 8 * HOUR) <= HOUR then
+				error("Tier 5 in an hour or less with every paid bonus: " .. text)
+			end
 		end)
 	end)
 end

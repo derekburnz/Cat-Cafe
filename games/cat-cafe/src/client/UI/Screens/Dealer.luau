@@ -4,7 +4,7 @@
 -- every food shows, "x2 Stock" while some are left for you, "Sold out" once you bought them all and "None this time"
 -- for an amount of 0; the amounts are the same on every server (Components/DealerRows). The five-rarity odds
 -- sit on every row before Buy as one short row, each rarity in its colour (Derek 2026-10-28), and Details opens the
--- food's line, the gold chance, the charm star odds, the chance of each stock amount and the per-cat split (the
+-- food's line, the gold chance, the chance of each stock amount and the per-cat split (the
 -- growth thread's rules for random items); each food wears its grade badge and border (F69). F82: the odds and the
 -- split are the player's bowl level's (shared Bait, as the server rolls). What is for sale comes
 -- only from UI.dealer.setStock (the DealerStock remote); the screen never guesses stock, and the server recomputes
@@ -519,7 +519,7 @@ function Dealer._renderAll(self: any)
 		end
 	end
 	-- Details: the food's line, the gold chance with the Index's gold luck (F54) and the running potions (F73) in
-	-- it, the charm stars, the chance of each stock amount (F59) and the split
+	-- it, the chance of each stock amount (F59) and the split
 	local luck = if catalog then IndexRewards.totals(catalog, state).goldLuck else 0
 	local boosts = PotionLogic.boosts(catalog, state, Workspace:GetServerTimeNow())
 	local extras = FoodOdds.extras(luck, boosts.goldLuck, boosts.goldScale)

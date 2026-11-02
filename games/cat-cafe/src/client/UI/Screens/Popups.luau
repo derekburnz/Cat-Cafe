@@ -588,8 +588,9 @@ function Popups.showCatFound(
 			self._catDesc.FontFace = Theme.fonts.body
 		end
 
-		-- charm stars fill one by one after the cat lands; without stars the row hides and the text moves up
-		local stars = info.stars
+		-- F97 section 5 (Derek 2026-10-28): charm stars show nowhere now, so the row stays hidden and the text sits
+		-- up; the Purrfect line still names the charm a catch added
+		local stars: number? = nil
 		self._starRow.Visible = stars ~= nil
 		local textTop = if stars ~= nil then 242 else 214
 		self._catMeta.Position = UDim2.fromOffset(16, textTop)

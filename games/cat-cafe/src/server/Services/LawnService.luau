@@ -5,7 +5,9 @@
 -- of its size. SetLawnSpot(spotId, pieceId?) puts an owned piece on an open spot of its size, moving it from any other,
 -- or clears the spot; SetLawnStyle(kind, id) lays an owned path or puts up an owned fence. Each needs the caller's own
 -- cafe and the lawn's art in (WorldBuilder.lawnLive), validates every argument, toasts why when it refuses, and
--- otherwise rebuilds the lawn and sends a ProfileSync. A piece or style placed logs lawn_placed (its id, the tier).
+-- otherwise rebuilds the lawn and sends a ProfileSync. A buy logs lawn_placed (its id, the tier), once per piece or
+-- style ever: moves and style swaps log nothing, so 4 SetLawnSpot calls a second cannot eat the server's custom event
+-- budget (review S119; Telemetry's note on the budget, as with net swings in S99).
 -- Lawn pieces pay no tip bonus, so nothing here changes the income; coins are settled before a price comes off.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -52,7 +54,8 @@ local function optionalId(raw: unknown): (string?, boolean)
 	return id, id ~= nil
 end
 
-local function placed(player: Player, profile: Profile, id: string)
+-- One per piece or style ever: a buy that went through (review S119).
+local function bought(player: Player, profile: Profile, id: string)
 	Telemetry.custom(player, "lawn_placed", 1, { id, tostring(Economy.tier(profile)) })
 end
 
@@ -93,9 +96,9 @@ local function onBuyLawn(player: Player, rawId: unknown, rawSpotId: unknown)
 	end
 	Telemetry.sink(player, profile, price, "Shop", "lawn")
 	profile.lawnOwned[id] = true
+	bought(player, profile, id)
 	if style ~= nil then
 		Lawn.setStyle(profile, style.kind, id)
-		placed(player, profile, id)
 		Net.toast(
 			player,
 			string.format(
@@ -111,7 +114,6 @@ local function onBuyLawn(player: Player, rawId: unknown, rawSpotId: unknown)
 		end
 		if target ~= nil then
 			Lawn.place(profile, target, id)
-			placed(player, profile, id)
 			Net.toast(player, string.format("%s placed on your lawn", piece.name), "good")
 		else
 			Net.toast(
@@ -146,9 +148,6 @@ local function onSetLawnSpot(player: Player, rawSpotId: unknown, rawPieceId: unk
 		return -- nothing changes
 	end
 	Lawn.place(profile, spotId, pieceId)
-	if pieceId ~= nil then
-		placed(player, profile, pieceId)
-	end
 	rebuild(player, profile, plot)
 end
 
@@ -175,9 +174,6 @@ local function onSetLawnStyle(player: Player, rawKind: unknown, rawId: unknown)
 		return -- already in use
 	end
 	Lawn.setStyle(profile, styleKind, id)
-	if id ~= nil then
-		placed(player, profile, id)
-	end
 	rebuild(player, profile, plot)
 end
 

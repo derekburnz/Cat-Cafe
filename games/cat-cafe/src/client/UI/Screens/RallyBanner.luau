@@ -6,7 +6,8 @@
 -- share the prizes", "You've done your laps this weekend"). It takes no input. Words from Components/RallyLogic; the
 -- step cheers are Sound-Agent's and the step prizes' toasts the server's. On a phone the HUD's potion timers' row sits
 -- level with the menu's top; when it grows long enough to reach the banner (Luck, three potions, pals), the banner
--- moves down just under it (`avoid`, checked with each redraw).
+-- moves down just under it (`avoid`, checked with each redraw). While a catch or rescue runs the banner steps aside
+-- (setBusy), so the circles' and the rescue bar's headers under it are never covered (review S113).
 
 local Workspace = game:GetService("Workspace")
 
@@ -23,6 +24,8 @@ export type RallyBanner = {
 	screenGui: ScreenGui,
 	set: (self: RallyBanner, state: Types.RallyState?) -> (),
 	setVisible: (self: RallyBanner, visible: boolean) -> (),
+	-- a catch or rescue runs (HUD.catchingChanged): the banner hides until it ends
+	setBusy: (self: RallyBanner, busy: boolean) -> (),
 	destroy: (self: RallyBanner) -> (),
 }
 
@@ -59,6 +62,7 @@ function RallyBanner.new(parent: Instance, avoid: (() -> { GuiObject })?): Rally
 	self._top = TOP
 	self._state = nil :: Types.RallyState?
 	self._visible = true
+	self._busy = false
 	self._shown = false
 	self._alive = true
 	local screenGui: ScreenGui = Create("ScreenGui", {
@@ -222,7 +226,7 @@ function RallyBanner._render(self: any)
 			Tween.popIn(self._banner, 0.85)
 		end
 	end
-	self.screenGui.Enabled = shown and self._visible
+	self.screenGui.Enabled = shown and self._visible and not self._busy
 end
 
 -- RallyState from the server (through UI.rally.update), or nil.
@@ -234,7 +238,12 @@ end
 -- UI.setVisible: the banner hides with the HUD (the intro, cutscenes).
 function RallyBanner.setVisible(self: any, visible: boolean)
 	self._visible = visible
-	self.screenGui.Enabled = self._shown and visible
+	self.screenGui.Enabled = self._shown and visible and not self._busy
+end
+
+function RallyBanner.setBusy(self: any, busy: boolean)
+	self._busy = busy
+	self.screenGui.Enabled = self._shown and self._visible and not busy
 end
 
 function RallyBanner.destroy(self: any)

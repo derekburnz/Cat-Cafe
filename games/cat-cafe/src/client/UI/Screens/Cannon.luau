@@ -521,12 +521,12 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		card.frame.LayoutOrder = order
 		local buttonState: CannonLogic.ButtonState = CannonLogic.button(id, closed, dusk, carrying)
 		card.night.Visible = buttonState == "night"
-		card.rally.Visible = rallyLine ~= nil
+		-- the Town Square has no night cover and no rescues, so no tag (review N327)
+		local tag: string? = if id ~= CannonLogic.TOWN then rallyLine else nil
+		card.rally.Visible = tag ~= nil
 		-- the tag takes the cover's "Closed until sunrise" spot; the header and the button still say it
-		card.nightLine.Visible = rallyLine == nil
-		if rallyLine ~= nil then
-			card.rally.Text = RallyLogic.ICON .. " " .. rallyLine
-		end
+		card.nightLine.Visible = tag == nil
+		card.rally.Text = RallyLogic.ICON .. " " .. (tag or "")
 		if id ~= CannonLogic.TOWN then
 			local counts = IndexRewards.counts(catalog, state, id)
 			card.count.Text = ("%d/%d cats"):format(counts.found, counts.total)

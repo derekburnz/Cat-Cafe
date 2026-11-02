@@ -62,6 +62,7 @@ local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
+local Signal = require(script.Parent.Parent.Components.Signal)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
@@ -102,6 +103,9 @@ export type HUD = {
 	isCarrying: (self: HUD) -> boolean,
 	bottomTop: (self: HUD) -> number,
 	setCatching: (self: HUD, active: boolean) -> (),
+	-- F101: fires (active) when a catch or rescue starts or ends, so the Rally banner gets out of its way
+	catchingChanged: Signal.Signal,
+	isCatching: (self: HUD) -> boolean,
 	setMenuFolded: (self: HUD, folded: boolean) -> (),
 	setTravelFolded: (self: HUD, folded: boolean) -> (),
 	screenOpened: (self: HUD, name: string?) -> (),
@@ -527,6 +531,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._tutorialTile = tutorial
 	self._tutorialEnabled = true
 	self._catching = false
+	self.catchingChanged = Signal.new()
 	local hide: TextButton = Create("TextButton", {
 		Name = "Hide",
 		Text = "",
@@ -1507,11 +1512,19 @@ end
 -- The server refuses a trip mid catch (N47) and the circles need the screen, so the bottom row steps aside
 -- until the catch ends.
 function HUD.setCatching(self: any, active: boolean)
+	local changed = self._catching ~= active
 	self._catching = active
 	self._travelRow.Visible = not active
 	self._travelFold.instance.Visible = not active
 	self:_layoutBottom()
 	self:_renderTutorialTile()
+	if changed then
+		self.catchingChanged:Fire(active)
+	end
+end
+
+function HUD.isCatching(self: any): boolean
+	return self._catching == true
 end
 
 -- The arrow tabs (Derek 2026-10-27): fold the left pills off the edge, or the bottom row below it, and back.
@@ -2606,6 +2619,7 @@ end
 
 function HUD.destroy(self: any)
 	self:_stopClock()
+	self.catchingChanged:DisconnectAll()
 	local spinTimer: thread? = self._spinTimer
 	if spinTimer then
 		task.cancel(spinTimer)

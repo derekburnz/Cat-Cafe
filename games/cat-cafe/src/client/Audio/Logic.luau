@@ -379,6 +379,34 @@ function Logic.orderDingStep(station: any): number?
 	return if type(station) == "string" then ORDER_DING_STEPS[station] else nil
 end
 
+-- F102: the trade countdown's tocks, one each whole second left (5, 4, 3, 2, 1 for a full TradeCountdownSeconds),
+-- as delays from `now` in order; a state that arrives part way through gets only the seconds still ahead. At most
+-- `maxTicks`, none once `endsAt` has passed or for a bad time.
+function Logic.countdownTicks(now: number, endsAt: any, maxTicks: number): { number }
+	local delays: { number } = {}
+	if type(endsAt) ~= "number" or endsAt ~= endsAt or endsAt <= now then
+		return delays
+	end
+	local count = math.min(math.ceil(endsAt - now - 1e-6), maxTicks)
+	for left = count, 1, -1 do
+		table.insert(delays, math.max(0, endsAt - left - now))
+	end
+	return delays
+end
+
+-- F101: the points a new RallyState's bar counts its steps from, so a step reached plays the cheer once: the last
+-- state's points on the same lap, 0 on a newer lap, nil for the first state seen (joining mid-Rally is quiet) or
+-- while no Rally runs.
+function Logic.rallyFrom(before: { lap: number, points: number }?, lap: any, active: any): number?
+	if before == nil or active ~= true or type(lap) ~= "number" then
+		return nil
+	end
+	if lap == before.lap then
+		return before.points
+	end
+	return if lap > before.lap then 0 else nil
+end
+
 -- Animation beats (Beats.hit) to sounds: the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100).
 local BEAT_CUES: { [string]: string } = {
 	bellRing = "bellhopBell",

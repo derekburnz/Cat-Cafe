@@ -22,6 +22,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
 local Logic = require(script.Logic)
+local Rally = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Rally"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local Splash = require(script.Parent.Effects.Splash)
 
@@ -1372,6 +1373,63 @@ local function followCatchWords()
 	end)
 end
 
+-- F102: the trade countdown tocks once a second while TradeState's phase is "countdown"; any other state (a change
+-- on the table resets it), TradeDone or TradeEnded stops the rest. TradeDone plays "Trade done!" for both players.
+local TRADE_TICKS_MAX = 10
+local tradeToken = 0
+
+local function followTrade()
+	onRemote("TradeState", function(state: any)
+		tradeToken += 1
+		if type(state) ~= "table" or state.phase ~= "countdown" then
+			return
+		end
+		local token = tradeToken
+		for _, delay in
+			Logic.countdownTicks(
+				Workspace:GetServerTimeNow(),
+				state.countdownEndsAt,
+				TRADE_TICKS_MAX
+			)
+		do
+			task.delay(delay, function()
+				if token == tradeToken then
+					Audio.play("uiTradeTick")
+				end
+			end)
+		end
+	end)
+	onRemote("TradeDone", function()
+		tradeToken += 1
+		Audio.play("uiTradeDone")
+	end)
+	onRemote("TradeEnded", function()
+		tradeToken += 1
+	end)
+end
+
+-- F101: the Rescue Rally's bar reaching a step (Catalog.rallySteps, a quarter, a half and the whole goal) cheers
+-- once on every client in the server, from the RallyState the server sends at each step.
+local function followRally()
+	local last: { lap: number, points: number }? = nil
+	onRemote("RallyState", function(state: any)
+		if
+			type(state) ~= "table"
+			or type(state.points) ~= "number"
+			or type(state.goal) ~= "number"
+		then
+			return
+		end
+		local from = Logic.rallyFrom(last, state.lap, state.active)
+		last = if type(state.lap) == "number"
+			then { lap = state.lap, points = state.points }
+			else nil
+		if from ~= nil and #Rally.stepsCrossed(from, state.points, state.goal) > 0 then
+			Audio.play("rallyCheer")
+		end
+	end)
+end
+
 -- Animation beats (Beats.hit from Effects): the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100),
 -- in 3D where the animation plays.
 local function followBeats()
@@ -1662,6 +1720,19 @@ local HANDLERS: { [string]: (...any) -> () } = {
 			Audio.play("tipBank", where)
 		end
 	end,
+	-- F103 crate reel (UI/Screens/CrateReel): a tick as each tile line crosses the marker (the cue keeps them 0.06 s
+	-- apart), and the thunk at the stop or a skip, then the won piece's rarity sting from Epic up when the reel passes
+	-- its rarity.
+	CrateReelTick = function()
+		Audio.play("uiReelTick")
+	end,
+	CrateReelLanded = function(rarity: any)
+		Audio.play("uiReelStop")
+		local cue = Logic.pullSting(rarity, nil)
+		if cue ~= nil then
+			playSting(cue)
+		end
+	end,
 	-- F58: a Mythical shout-out (the sunrise wave's or a catch) plays its own sting once it has a file.
 	Announce = function(_text: any, rarity: any)
 		local cueId = Logic.announceCue(str(rarity))
@@ -1695,6 +1766,8 @@ function Audio.start()
 	followBeats()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)
+	task.spawn(followTrade)
+	task.spawn(followRally)
 end
 
 -- Applies the player's settings (ProfileSync `settings`): music off silences Music; sound off silences Ambience,

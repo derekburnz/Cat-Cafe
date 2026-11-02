@@ -333,7 +333,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Hero furniture (Counter) | 3,000 | the night dealer's cart 6,000 (with its jars, fish, lights and sack, and the dealer's cat on its cushion) |
 | Furniture | 800 | role stations: GreeterPodium 800, StageCatTree 1,400; the F79 CatBed 800 |
 | Decor | 500 | |
-| Crate decor | 1,500 to 2,400 | the F53 crate furniture and decorations (`crate_decor.py`): 1,500 for the Commons, 1,800 Rare and Epic, 2,400 Legendary and Mythical; they land at 324 to 1,640 (section 14) |
+| Crate decor | 1,500 to 3,000 | the F53 crate furniture and decorations (`crate_decor.py`): 1,500 for the Commons, 1,800 Rare and Epic, 3,000 Legendary and Mythical (F89 2c: the most detailed piece in its crate, with a moving part, a light and a sound); they land at 324 to 2,880 (section 14) |
 | Alley props | 800 | Dumpster 1,200; rescue traps (TrashBin, GarbageBags) 600 |
 | Park props | 800 | Fountain 1,200; rescue traps (RescueTree, TrashCan) 900 |
 | Area gates | 6,000 | Park, Neighbourhood, Woods, Sewer: arches with a barrier (section 13) |
@@ -535,7 +535,15 @@ readable down to 24 px), uploaded as `rbxassetid://77287948377172`. The crate fu
 wide and 2.5 deep around a base-centre pivot, front -Z, and never collides; tall pieces are fine (the Cat Tree Tower
 is 10.6). Lamps and neon are `_Glow`, fountain water `_Water`, a window to look through `_Glass`, and the Blossom
 Tree's flowers are the child Model `_Canopy` that the petal effect falls from. `_Glow` parts are Neon day and night,
-and WorldController leaves them alone. The F80 door sets (`CatCafe_Door_<Name>_Front` and `_Back`, `doorsets.py`) and
+and WorldController leaves them alone. Each Legendary and Mythical piece (F89 2c) has a moving part that Effects
+drives: a child Model ending `_Swing` swings about its pivot's Z (the pivot on its hook), `_Spin` turns about its
+pivot's Y and `_Bob` rises and falls along Y. Every part in one is anchored, never welded; a light inside one is a
+nested `_Glow`; the Model carries its own numbers as attributes (`Angle` in degrees, `Rise` in studs, `Seconds` per
+cycle, 2 when missing). The parts: Blossom Tree `_LanternL_Swing`, `_LanternR_Swing`, `_Chime_Swing`; Bathtub Sofa
+`_Duck_Bob`; Hollow Log Booth `_Lantern_Swing`; Ice Cream Counter `_Sign_Spin`; Duck Fountain `_Ducklings_Spin`
+(on the fountain's axis; a positive turn about +Y swims them beak first); Retro Jukebox `_Record_Spin` (its pivot is
+turned so Y points out of the record's face, `crate_decor.MOVING` pivot_turns); Cat Tree Tower `_Toy1_Swing`,
+`_Toy2_Swing`, `_Moon_Swing`. Sound-Agent hangs each piece's sound on its moving part. The F80 door sets (`CatCafe_Door_<Name>_Front` and `_Back`, `doorsets.py`) and
 cat flaps (`CatCafe_CatFlap_<Name>`) never collide; the code reads `_LeafL`, `_LeafR` and `_Leaf` (each pivoted on its
 hinge), the back leaf's `CatFlap` Attachment, `_Sign` and `_Sign_Bulb` (night), `_Flap` (pivoted on the flap's top
 hinge) and the Bell flap's `_Bell`. Back leaves keep the flap patch flat on both faces, so any flap fits any back door,

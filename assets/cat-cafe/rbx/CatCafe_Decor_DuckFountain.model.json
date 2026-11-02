@@ -13,7 +13,7 @@
      "CFrame": {
       "position": [
        0.0,
-       0.36,
+       0.42,
        0.0
       ],
       "orientation": [
@@ -36,7 +36,7 @@
      }
     },
     "Size": [
-     0.72,
+     0.6,
      2.3,
      2.3
     ],
@@ -56,7 +56,7 @@
     "PivotOffset": {
      "CFrame": {
       "position": [
-       -0.36,
+       -0.42,
        0.0,
        0.0
       ],
@@ -92,7 +92,7 @@
      "CFrame": {
       "position": [
        0.0,
-       0.12,
+       0.06,
        0.0
       ],
       "orientation": [
@@ -116,13 +116,13 @@
     },
     "Size": [
      0.12,
-     2.34,
-     2.34
+     2.64,
+     2.64
     ],
     "Color": [
-     0.9137,
-     0.851,
-     0.7686
+     0.8863,
+     0.8118,
+     0.6824
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -141,6 +141,790 @@
     "CFrame": {
      "CFrame": {
       "position": [
+       1.1328,
+       0.4,
+       0.2253
+      ],
+      "orientation": [
+       [
+        0.1951,
+        0.0,
+        0.9808
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9808,
+        0.0,
+        0.1951
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.36,
+     0.07
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9603,
+       0.4,
+       0.6417
+      ],
+      "orientation": [
+       [
+        0.5556,
+        0.0,
+        0.8315
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.8315,
+        0.0,
+        0.5556
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.24,
+     0.07
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.6417,
+       0.4,
+       0.9603
+      ],
+      "orientation": [
+       [
+        0.8315,
+        0.0,
+        0.5556
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.5556,
+        0.0,
+        0.8315
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.3,
+     0.07
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2253,
+       0.4,
+       1.1328
+      ],
+      "orientation": [
+       [
+        0.9808,
+        0.0,
+        0.1951
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.1951,
+        0.0,
+        0.9808
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.24,
+     0.07
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2253,
+       0.4,
+       1.1328
+      ],
+      "orientation": [
+       [
+        0.9808,
+        0.0,
+        -0.1951
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.1951,
+        0.0,
+        0.9808
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.3,
+     0.07
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.6417,
+       0.4,
+       0.9603
+      ],
+      "orientation": [
+       [
+        0.8315,
+        0.0,
+        -0.5556
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.5556,
+        0.0,
+        0.8315
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.24,
+     0.07
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.9603,
+       0.4,
+       0.6417
+      ],
+      "orientation": [
+       [
+        0.5556,
+        0.0,
+        -0.8315
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.8315,
+        0.0,
+        0.5556
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.3,
+     0.07
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.1328,
+       0.4,
+       0.2253
+      ],
+      "orientation": [
+       [
+        0.1951,
+        0.0,
+        -0.9808
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9808,
+        0.0,
+        0.1951
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.24,
+     0.07
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.1328,
+       0.4,
+       -0.2253
+      ],
+      "orientation": [
+       [
+        -0.1951,
+        0.0,
+        -0.9808
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9808,
+        0.0,
+        -0.1951
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.3,
+     0.07
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.9603,
+       0.4,
+       -0.6417
+      ],
+      "orientation": [
+       [
+        -0.5556,
+        0.0,
+        -0.8315
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.8315,
+        0.0,
+        -0.5556
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.24,
+     0.07
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.6417,
+       0.4,
+       -0.9603
+      ],
+      "orientation": [
+       [
+        -0.8315,
+        0.0,
+        -0.5556
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.5556,
+        0.0,
+        -0.8315
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.3,
+     0.07
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2253,
+       0.4,
+       -1.1328
+      ],
+      "orientation": [
+       [
+        -0.9808,
+        0.0,
+        -0.1951
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.1951,
+        0.0,
+        -0.9808
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.24,
+     0.07
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2253,
+       0.4,
+       -1.1328
+      ],
+      "orientation": [
+       [
+        -0.9808,
+        0.0,
+        0.1951
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.1951,
+        0.0,
+        -0.9808
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.3,
+     0.07
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.6417,
+       0.4,
+       -0.9603
+      ],
+      "orientation": [
+       [
+        -0.8315,
+        0.0,
+        0.5556
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.5556,
+        0.0,
+        -0.8315
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.24,
+     0.07
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9603,
+       0.4,
+       -0.6417
+      ],
+      "orientation": [
+       [
+        -0.5556,
+        0.0,
+        0.8315
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.8315,
+        0.0,
+        -0.5556
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.3,
+     0.07
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.1328,
+       0.4,
+       -0.2253
+      ],
+      "orientation": [
+       [
+        -0.1951,
+        0.0,
+        0.9808
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9808,
+        0.0,
+        -0.1951
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.492,
+     0.42,
+     0.07
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
        -1.0985,
        0.79,
        0.2185
@@ -165,9 +949,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -214,9 +998,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -263,9 +1047,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -312,9 +1096,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -361,9 +1145,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -410,9 +1194,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -459,9 +1243,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -508,9 +1292,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -557,9 +1341,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -606,9 +1390,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -655,9 +1439,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -704,9 +1488,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -753,9 +1537,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -802,9 +1586,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -851,9 +1635,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -900,9 +1684,9 @@
      }
     },
     "Size": [
-     0.2,
+     0.24,
      0.14,
-     0.5141
+     0.5225
     ],
     "Color": [
      1.0,
@@ -975,9 +1759,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       1.22,
-       0.0
+       0.792,
+       0.89,
+       0.792
       ],
       "orientation": [
        [
@@ -999,9 +1783,1259 @@
      }
     },
     "Size": [
-     1.0,
+     0.06,
+     0.16,
+     0.16
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.792,
+       1.15,
+       0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
      0.6,
-     0.6
+     0.08,
+     0.08
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.792,
+       1.47,
+       0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.14,
+     0.14
+    ],
+    "Color": [
+     0.949,
+     0.7569,
+     0.3059
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.792,
+       1.69,
+       0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.1567,
+     0.1567
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.792,
+       1.71,
+       0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.11,
+     0.11
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.792,
+       1.73,
+       0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.0633,
+     0.0633
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.792,
+       0.89,
+       0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.16,
+     0.16
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.792,
+       1.15,
+       0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     0.08,
+     0.08
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.792,
+       1.47,
+       0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.14,
+     0.14
+    ],
+    "Color": [
+     0.949,
+     0.7569,
+     0.3059
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.792,
+       1.69,
+       0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.1567,
+     0.1567
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.792,
+       1.71,
+       0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.11,
+     0.11
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.792,
+       1.73,
+       0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.0633,
+     0.0633
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.792,
+       0.89,
+       -0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.16,
+     0.16
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.792,
+       1.15,
+       -0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     0.08,
+     0.08
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.792,
+       1.47,
+       -0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.14,
+     0.14
+    ],
+    "Color": [
+     0.949,
+     0.7569,
+     0.3059
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.792,
+       1.69,
+       -0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.1567,
+     0.1567
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.792,
+       1.71,
+       -0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.11,
+     0.11
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.792,
+       1.73,
+       -0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.0633,
+     0.0633
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.792,
+       0.89,
+       -0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.16,
+     0.16
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.792,
+       1.15,
+       -0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     0.08,
+     0.08
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.792,
+       1.47,
+       -0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.14,
+     0.14
+    ],
+    "Color": [
+     0.949,
+     0.7569,
+     0.3059
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.792,
+       1.69,
+       -0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.1567,
+     0.1567
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.792,
+       1.71,
+       -0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.11,
+     0.11
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.792,
+       1.73,
+       -0.792
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.0633,
+     0.0633
+    ],
+    "Color": [
+     0.2471,
+     0.4353,
+     0.3686
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.81,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     0.72,
+     0.72
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.31,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.9,
+     0.5,
+     0.5
     ],
     "Color": [
      0.9647,
@@ -1026,7 +3060,7 @@
      "CFrame": {
       "position": [
        0.0,
-       1.0,
+       1.15,
        0.0
       ],
       "orientation": [
@@ -1049,14 +3083,14 @@
      }
     },
     "Size": [
-     0.1,
-     0.68,
-     0.68
+     0.06,
+     0.56,
+     0.56
     ],
     "Color": [
-     0.9137,
-     0.851,
-     0.7686
+     0.6588,
+     0.8471,
+     0.9412
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -1076,7 +3110,57 @@
      "CFrame": {
       "position": [
        0.0,
-       1.7733,
+       1.55,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.56,
+     0.56
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.7933,
        0.0
       ],
       "orientation": [
@@ -1100,8 +3184,8 @@
     },
     "Size": [
      0.1067,
-     0.7733,
-     0.7733
+     0.7667,
+     0.7667
     ],
     "Color": [
      0.9647,
@@ -1126,7 +3210,7 @@
      "CFrame": {
       "position": [
        0.0,
-       1.88,
+       1.9,
        0.0
       ],
       "orientation": [
@@ -1150,8 +3234,8 @@
     },
     "Size": [
      0.1067,
-     1.04,
-     1.04
+     1.1,
+     1.1
     ],
     "Color": [
      0.9647,
@@ -1176,7 +3260,7 @@
      "CFrame": {
       "position": [
        0.0,
-       1.9867,
+       2.0067,
        0.0
       ],
       "orientation": [
@@ -1200,8 +3284,8 @@
     },
     "Size": [
      0.1067,
-     1.3067,
-     1.3067
+     1.4333,
+     1.4333
     ],
     "Color": [
      0.9647,
@@ -1225,8 +3309,588 @@
     "CFrame": {
      "CFrame": {
       "position": [
+       0.78,
+       2.06,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     0.135,
+     0.3
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.631,
+       2.06,
+       0.4585
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     0.135,
+     0.3
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.241,
+       2.06,
+       0.7418
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     0.135,
+     0.3
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.241,
+       2.06,
+       0.7418
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     0.135,
+     0.3
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.631,
+       2.06,
+       0.4585
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     0.135,
+     0.3
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.78,
+       2.06,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     0.135,
+     0.3
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.631,
+       2.06,
+       -0.4585
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     0.135,
+     0.3
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.241,
+       2.06,
+       -0.7418
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     0.135,
+     0.3
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.241,
+       2.06,
+       -0.7418
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     0.135,
+     0.3
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.631,
+       2.06,
+       -0.4585
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     0.135,
+     0.3
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
        0.0,
-       2.4,
+       2.36,
        0.08
       ],
       "orientation": [
@@ -1284,7 +3948,7 @@
      "CFrame": {
       "position": [
        0.0,
-       2.88,
+       2.84,
        -0.2
       ],
       "orientation": [
@@ -1334,7 +3998,7 @@
      "CFrame": {
       "position": [
        0.0,
-       2.84,
+       2.8,
        -0.5
       ],
       "orientation": [
@@ -1382,31 +4046,31 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.13,
-       2.95,
-       -0.44
+       -0.1194,
+       2.9047,
+       -0.409
       ],
       "orientation": [
        [
-        0.0,
-        -1.0,
-        0.0
+        -0.4791,
+        -0.8177,
+        -0.319
        ],
        [
-        0.0,
-        0.0,
-        -1.0
+        0.2595,
+        -0.4791,
+        0.8385
        ],
        [
-        1.0,
-        0.0,
-        0.0
+        -0.8385,
+        0.319,
+        0.4418
        ]
       ]
      }
     },
     "Size": [
-     0.03,
+     0.072,
      0.1,
      0.1
     ],
@@ -1433,7 +4097,7 @@
      "CFrame": {
       "position": [
        -0.38,
-       2.45,
+       2.41,
        0.12
       ],
       "orientation": [
@@ -1490,31 +4154,31 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.13,
-       2.95,
-       -0.44
+       0.1194,
+       2.9047,
+       -0.409
       ],
       "orientation": [
        [
-        0.0,
-        -1.0,
-        0.0
+        0.4791,
+        -0.8177,
+        0.319
        ],
        [
-        0.0,
-        0.0,
-        -1.0
+        0.2595,
+        0.4791,
+        0.8385
        ],
        [
-        1.0,
-        0.0,
-        0.0
+        -0.8385,
+        -0.319,
+        0.4418
        ]
       ]
      }
     },
     "Size": [
-     0.03,
+     0.072,
      0.1,
      0.1
     ],
@@ -1541,7 +4205,7 @@
      "CFrame": {
       "position": [
        0.38,
-       2.45,
+       2.41,
        0.12
       ],
       "orientation": [
@@ -1599,7 +4263,7 @@
      "CFrame": {
       "position": [
        0.0,
-       2.62,
+       2.58,
        0.56
       ],
       "orientation": [
@@ -1656,323 +4320,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.62,
-       0.84,
-       0.2
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.34,
-     0.255,
-     0.408
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   },
-   "children": [
-    {
-     "name": "Mesh",
-     "className": "SpecialMesh",
-     "properties": {
-      "MeshType": "Sphere"
-     }
-    }
-   ]
-  },
-  {
-   "name": "CatCafe_Decor_DuckFountain",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.62,
-       1.01,
-       0.08
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.22,
-     0.22,
-     0.22
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Ball"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_DuckFountain",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.62,
-       0.99,
-       -0.04
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.04,
-     0.08
-    ],
-    "Color": [
-     0.9137,
-     0.6353,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_DuckFountain",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5,
-       0.84,
-       0.45
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.34,
-     0.255,
-     0.408
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   },
-   "children": [
-    {
-     "name": "Mesh",
-     "className": "SpecialMesh",
-     "properties": {
-      "MeshType": "Sphere"
-     }
-    }
-   ]
-  },
-  {
-   "name": "CatCafe_Decor_DuckFountain",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5,
-       1.01,
-       0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.22,
-     0.22,
-     0.22
-    ],
-    "Color": [
-     0.9647,
-     0.8745,
-     0.6275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Ball"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_DuckFountain",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5,
-       0.99,
-       0.21
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.09,
-     0.04,
-     0.08
-    ],
-    "Color": [
-     0.9137,
-     0.6353,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_DuckFountain",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.55,
-       0.8,
-       -0.45
+       0.0,
+       3.1,
+       -0.2
       ],
       "orientation": [
        [
@@ -1994,16 +4344,16 @@
      }
     },
     "Size": [
-     0.02,
-     0.36,
-     0.36
+     0.08,
+     0.28,
+     0.28
     ],
     "Color": [
-     0.3725,
-     0.7216,
-     0.3529
+     0.949,
+     0.7569,
+     0.3059
     ],
-    "Material": "SmoothPlastic",
+    "Material": "Metal",
     "Anchored": true,
     "CanCollide": false,
     "CanTouch": false,
@@ -2020,59 +4370,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.45,
-       0.8,
-       -0.55
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.02,
-     0.36,
-     0.36
-    ],
-    "Color": [
-     0.3725,
-     0.7216,
-     0.3529
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Cylinder"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_DuckFountain",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.55,
-       0.85,
-       -0.45
+       0.0,
+       3.1483,
+       -0.1
       ],
       "orientation": [
        [
@@ -2094,14 +4394,749 @@
      }
     },
     "Size": [
-     0.14,
-     0.14,
-     0.14
+     0.0667,
+     0.0367,
+     0.0667
     ],
     "Color": [
-     0.9098,
-     0.6275,
-     0.6275
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       3.185,
+       -0.1
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.0367,
+     0.04
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       3.2217,
+       -0.1
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0133,
+     0.0367,
+     0.0133
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0951,
+       3.1483,
+       -0.1691
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0667,
+     0.0367,
+     0.0667
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0951,
+       3.185,
+       -0.1691
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.0367,
+     0.04
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0951,
+       3.2217,
+       -0.1691
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0133,
+     0.0367,
+     0.0133
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0588,
+       3.1483,
+       -0.2809
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0667,
+     0.0367,
+     0.0667
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0588,
+       3.185,
+       -0.2809
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.0367,
+     0.04
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0588,
+       3.2217,
+       -0.2809
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0133,
+     0.0367,
+     0.0133
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0588,
+       3.1483,
+       -0.2809
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0667,
+     0.0367,
+     0.0667
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0588,
+       3.185,
+       -0.2809
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.0367,
+     0.04
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0588,
+       3.2217,
+       -0.2809
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0133,
+     0.0367,
+     0.0133
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0951,
+       3.1483,
+       -0.1691
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0667,
+     0.0367,
+     0.0667
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0951,
+       3.185,
+       -0.1691
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.0367,
+     0.04
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0951,
+       3.2217,
+       -0.1691
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0133,
+     0.0367,
+     0.0133
+    ],
+    "Color": [
+     0.9843,
+     0.8941,
+     0.6039
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_DuckFountain",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       3.1,
+       -0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.07,
+     0.07,
+     0.07
+    ],
+    "Color": [
+     1.0,
+     0.3686,
+     0.4941
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -2207,7 +5242,7 @@
        "CFrame": {
         "position": [
          0.0,
-         2.05,
+         2.0625,
          0.0
         ],
         "orientation": [
@@ -2230,9 +5265,9 @@
        }
       },
       "Size": [
-       0.03,
-       1.32,
-       1.32
+       0.055,
+       1.4,
+       1.4
       ],
       "Color": [
        0.4314,
@@ -2257,33 +5292,133 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.0,
-         2.7569,
-         -0.6612
+         0.864,
+         1.9216,
+         0.0
         ],
         "orientation": [
          [
-          1.0,
-          0.0,
+          -0.9715,
+          0.237,
+          0.0
+         ],
+         [
+          -0.237,
+          -0.9715,
           0.0
          ],
          [
           0.0,
-          -0.8371,
-          0.547
-         ],
-         [
           0.0,
-          -0.547,
-          -0.8371
+          1.0
          ]
         ]
        }
       },
       "Size": [
-       0.09,
-       0.1508,
-       0.09
+       0.05,
+       0.2026,
+       0.05
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.906,
+         1.6202,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.9961,
+          0.0883,
+          0.0
+         ],
+         [
+          -0.0883,
+          -0.9961,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.4075,
+       0.05
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.942,
+         1.1036,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.9984,
+          0.0573,
+          0.0
+         ],
+         [
+          -0.0573,
+          -0.9984,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.6283,
+       0.05
       ],
       "Color": [
        0.4314,
@@ -2308,8 +5443,8 @@
        "CFrame": {
         "position": [
          0.0,
-         2.5044,
-         -0.7437
+         1.9216,
+         0.864
         ],
         "orientation": [
          [
@@ -2319,21 +5454,21 @@
          ],
          [
           0.0,
-          -0.9771,
-          0.2128
+          -0.9715,
+          -0.237
          ],
          [
           0.0,
-          -0.2128,
-          -0.9771
+          0.237,
+          -0.9715
          ]
         ]
        }
       },
       "Size": [
-       0.09,
-       0.3876,
-       0.09
+       0.05,
+       0.2026,
+       0.05
       ],
       "Color": [
        0.4314,
@@ -2358,108 +5493,8 @@
        "CFrame": {
         "position": [
          0.0,
-         2.0726,
-         -0.818
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          -0.9909,
-          0.1349
-         ],
-         [
-          0.0,
-          -0.1349,
-          -0.9909
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.09,
-       0.4893,
-       0.09
-      ],
-      "Color": [
-       0.4314,
-       0.7569,
-       1.0
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.3
-     }
-    },
-    {
-     "name": "CatCafe_Decor_DuckFountain_Water",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         1.5954,
-         -0.8758
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          -0.9945,
-          0.1048
-         ],
-         [
-          0.0,
-          -0.1048,
-          -0.9945
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.09,
-       0.4723,
-       0.09
-      ],
-      "Color": [
-       0.4314,
-       0.7569,
-       1.0
-      ],
-      "Material": "Glass",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 0.3
-     }
-    },
-    {
-     "name": "CatCafe_Decor_DuckFountain_Water",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         1.0803,
-         -0.9252
+         1.6202,
+         0.906
         ],
         "orientation": [
          [
@@ -2470,20 +5505,20 @@
          [
           0.0,
           -0.9961,
-          0.088
+          -0.0883
          ],
          [
           0.0,
-          -0.088,
+          0.0883,
           -0.9961
          ]
         ]
        }
       },
       "Size": [
-       0.09,
-       0.5627,
-       0.09
+       0.05,
+       0.4075,
+       0.05
       ],
       "Color": [
        0.4314,
@@ -2508,8 +5543,508 @@
        "CFrame": {
         "position": [
          0.0,
-         0.82,
-         -0.95
+         1.1036,
+         0.942
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9984,
+          -0.0573
+         ],
+         [
+          0.0,
+          0.0573,
+          -0.9984
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.6283,
+       0.05
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.864,
+         1.9216,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.9715,
+          -0.237,
+          0.0
+         ],
+         [
+          0.237,
+          -0.9715,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.2026,
+       0.05
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.906,
+         1.6202,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.9961,
+          -0.0883,
+          0.0
+         ],
+         [
+          0.0883,
+          -0.9961,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.4075,
+       0.05
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.942,
+         1.1036,
+         0.0
+        ],
+        "orientation": [
+         [
+          -0.9984,
+          -0.0573,
+          0.0
+         ],
+         [
+          0.0573,
+          -0.9984,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.6283,
+       0.05
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.7402,
+         -0.635
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7509,
+          0.6604
+         ],
+         [
+          0.0,
+          -0.6604,
+          -0.7509
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.07,
+       0.106,
+       0.07
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.581,
+         -0.705
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9596,
+          0.2813
+         ],
+         [
+          0.0,
+          -0.2813,
+          -0.9596
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.07,
+       0.2488,
+       0.07
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.3198,
+         -0.7663
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9833,
+          0.182
+         ],
+         [
+          0.0,
+          -0.182,
+          -0.9833
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.07,
+       0.2884,
+       0.07
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.9915,
+         -0.8188
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9902,
+          0.1393
+         ],
+         [
+          0.0,
+          -0.1393,
+          -0.9902
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.07,
+       0.3768,
+       0.07
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.5736,
+         -0.8713
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9936,
+          0.1127
+         ],
+         [
+          0.0,
+          -0.1127,
+          -0.9936
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.07,
+       0.4656,
+       0.07
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.0661,
+         -0.9237
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9955,
+          0.0946
+         ],
+         [
+          0.0,
+          -0.0946,
+          -0.9955
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.07,
+       0.5547,
+       0.07
+      ],
+      "Color": [
+       0.4314,
+       0.7569,
+       1.0
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Water",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.12,
+         0.81,
+         -0.97
         ],
         "orientation": [
          [
@@ -2531,9 +6066,9 @@
        }
       },
       "Size": [
-       0.14,
-       0.14,
-       0.14
+       0.12,
+       0.12,
+       0.12
       ],
       "Color": [
        0.4314,
@@ -2558,9 +6093,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.15,
-         0.82,
-         -0.87
+         -0.12,
+         0.81,
+         -0.97
         ],
         "orientation": [
          [
@@ -2582,9 +6117,9 @@
        }
       },
       "Size": [
-       0.14,
-       0.14,
-       0.14
+       0.12,
+       0.12,
+       0.12
       ],
       "Color": [
        0.4314,
@@ -2609,9 +6144,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.14,
-         0.82,
-         -0.9
+         0.0,
+         0.81,
+         -1.0
         ],
         "orientation": [
          [
@@ -2633,9 +6168,9 @@
        }
       },
       "Size": [
-       0.14,
-       0.14,
-       0.14
+       0.12,
+       0.12,
+       0.12
       ],
       "Color": [
        0.4314,
@@ -2683,6 +6218,1286 @@
     }
    },
    "name": "CatCafe_Decor_DuckFountain_Water"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Decor_DuckFountain/2"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Decor_DuckFountain_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.792,
+         1.58,
+         0.792
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.22,
+       0.22
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -0.792,
+         -1.58,
+         -0.792
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Decor_DuckFountain/2"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.792,
+         1.58,
+         0.792
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.22,
+       0.22
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.792,
+         1.58,
+         -0.792
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.22,
+       0.22
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.792,
+         1.58,
+         -0.792
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.22,
+       0.22
+      ],
+      "Color": [
+       1.0,
+       0.851,
+       0.6588
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Decor_DuckFountain_Glow"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Decor_DuckFountain/3",
+    "Seconds": {
+     "Float64": 12.0
+    }
+   },
+   "children": [
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.84,
+         0.68
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.357,
+       0.238,
+       0.357
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.05,
+         -0.68
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Decor_DuckFountain/3"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.12,
+         0.99,
+         0.68
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.22,
+       0.22
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.23,
+         0.97,
+         0.68
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.09,
+       0.04,
+       0.08
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2,
+         1.02,
+         0.74
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.05,
+       0.05
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2,
+         1.02,
+         0.62
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.05,
+       0.05
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.16,
+         0.91,
+         0.68
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.12,
+       0.156,
+       0.12
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.5889,
+         0.84,
+         -0.34
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.357,
+       0.238,
+       0.357
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6489,
+         0.99,
+         -0.2361
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.22,
+       0.22
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.7039,
+         0.97,
+         -0.1408
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.0,
+          -0.5
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.5,
+          0.0,
+          0.866
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.09,
+       0.04,
+       0.08
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.7409,
+         1.02,
+         -0.1968
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.05,
+       0.05
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6369,
+         1.02,
+         -0.1368
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.05,
+       0.05
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.5089,
+         0.91,
+         -0.4786
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.12,
+       0.156,
+       0.12
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.5889,
+         0.84,
+         -0.34
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.357,
+       0.238,
+       0.357
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.5289,
+         0.99,
+         -0.4439
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.22,
+       0.22,
+       0.22
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4739,
+         0.97,
+         -0.5392
+        ],
+        "orientation": [
+         [
+          -0.866,
+          0.0,
+          -0.5
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.5,
+          0.0,
+          -0.866
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.09,
+       0.04,
+       0.08
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.5409,
+         1.02,
+         -0.5432
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.05,
+       0.05
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4369,
+         1.02,
+         -0.4832
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.05,
+       0.05,
+       0.05
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
+     }
+    },
+    {
+     "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6689,
+         0.91,
+         -0.2014
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.12,
+       0.156,
+       0.12
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.79,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Decor_DuckFountain_Ducklings_Spin"
   }
  ],
  "properties": {

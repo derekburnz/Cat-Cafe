@@ -416,7 +416,7 @@ def build_set(mat):
     s.put(blanket(mat), -45, -124, 15)
     _spot(s, "blanket", -45, -124, y=0.06)
     s.put(oak(mat), -48, -146, 20)
-    _spot(s, "oak", -44, -144)
+    _spot(s, "oak", -44.5, -147.5)          # 4 studs clear of the picnic spot at (-41.2, -141.9) (Layout)
     s.put(oak(mat, blossom=True), 46, -146, 40)
     _spot(s, "blossom", 42, -148)
 

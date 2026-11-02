@@ -1,6 +1,7 @@
 """Gold cats (features.md F42, data-model.md section 4; called "shiny" until Derek renamed them on 2026-10-27):
 every cat has a gold version on the same shapes, `CatCafe_Cat_<Name>_Gold` (walking, body A) and
-`CatCafe_Cat_<Name>_Gold_Sit` (sitting, body B), gold-modeled as Derek asked. Eyes,
+`CatCafe_Cat_<Name>_Gold_Sit` (sitting, body B) and `CatCafe_Cat_<Name>_Gold_Work` (standing at work, body S),
+gold-modeled as Derek asked. Eyes,
 nose, inner ears and star specks keep their colours, so the cat still reads as itself.
 
 The coat roles of a cat (fur, second, third, ruff, a tail tip and socks; not `sparkle` specks) are ranked lightest first by CIE L*: the
@@ -52,5 +53,6 @@ def build_gold(name, mat, body="walk"):
     return cats.build_cat(name, mat, spec=gold_spec(name), base=f"CatCafe_Cat_{name}_Gold{cats.SUFFIX[body]}", body=body)
 
 
-ASSETS = {f"CatCafe_Cat_{n}_Gold{cats.SUFFIX[bd]}": (lambda mat, n=n, bd=bd: build_gold(n, mat, bd), 1500)
+ASSETS = {f"CatCafe_Cat_{n}_Gold{cats.SUFFIX[bd]}": (lambda mat, n=n, bd=bd: build_gold(n, mat, bd),
+                                                     2400 if bd == "work" else 1500)
           for n in cats.ROSTER for bd in cats.BODIES}

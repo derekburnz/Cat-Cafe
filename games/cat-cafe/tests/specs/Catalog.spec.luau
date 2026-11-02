@@ -106,12 +106,12 @@ return function()
 	describe("rarities (section 2)", function()
 		local expected = {
 			-- v0.5: the fourth column is fleeStuds (the sprint after a miss), replacing the v0.4 patience; doubled in v0.8
-			-- (F57)
-			Common = { 1, 1, 1.40, 24, 2, 25, 50, "#8E97B2" },
-			Rare = { 3, 2, 1.15, 32, 3, 150, 300, "#5FA8FF" },
-			Epic = { 8, 3, 0.95, 40, 4, 600, 1500, "#C07CFF" },
-			Legendary = { 25, 4, 0.80, 52, 5, 3000, 8000, "#FFC94D" },
-			Mythical = { 75, 5, 0.65, 64, 6, 12000, 30000, "#FF5E7E" },
+			-- (F57). F93 (catch-rework.md section 2): 3 to 7 circles, faster at every rarity, one more rescue hit.
+			Common = { 1, 3, 1.20, 24, 3, 25, 50, "#8E97B2" },
+			Rare = { 3, 4, 1.00, 32, 4, 150, 300, "#5FA8FF" },
+			Epic = { 8, 5, 0.82, 40, 5, 600, 1500, "#C07CFF" },
+			Legendary = { 25, 6, 0.68, 52, 6, 3000, 8000, "#FFC94D" },
+			Mythical = { 75, 7, 0.56, 64, 7, 12000, 30000, "#FF5E7E" },
 		}
 		for _, rarity in ipairs(RARITIES) do
 			it(rarity .. " matches the table", function()
@@ -132,10 +132,10 @@ return function()
 		end
 
 		it(
-			"catchWindow narrows the net 0.9 / 0.8 / 0.7 / 0.6 / 0.5 by rarity (v0.13.15 F83)",
+			"catchWindow scales the net 1.1 / 0.95 / 0.82 / 0.70 / 0.60 by rarity (v0.13.15 F83, F93)",
 			function()
 				local windows =
-					{ Common = 0.9, Rare = 0.8, Epic = 0.7, Legendary = 0.6, Mythical = 0.5 }
+					{ Common = 1.1, Rare = 0.95, Epic = 0.82, Legendary = 0.70, Mythical = 0.60 }
 				for _, rarity in ipairs(RARITIES) do
 					expect(Catalog.rarities[rarity].catchWindow).to.be.near(windows[rarity], 1e-12)
 				end

@@ -4,12 +4,17 @@
 --   Daily         "3 of 5 done" and "New quests in 5 h", a strip with what finishing all five pays (✓ once paid),
 --                 then a row per quest: its text, a bar with "3/5" ("$320/$600" for a coins quest), what it pays as
 --                 little pictures (Components/PrizeChips) and Claim once done, ✓ once claimed, or Swap (the day's
---                 one free reroll) while it is unfinished and the swap unused.
+--                 one free reroll) while it is unfinished and the swap unused. Claimed rows drop to the bottom
+--                 (Derek 2026-10-29).
 --   Weekly        the same for the week's three.
 --   Achievements  "12 of 44 claimed", then a card each: name, goal, bar, prize and Claim once met. Ready ones come
 --                 first, then the closest to done; claimed ones go last, faded.
--- A tab with something to claim carries a red count. Claim and Swap read "..." until a sync shows the change or
--- PENDING_SECONDS pass; a refusal is the server's toast. QuestResult plays giftClaim. Rules: Components/QuestLogic.
+-- A tab with something to claim carries a red count, and with two or more a Claim all button right of the tabs
+-- (Derek 2026-10-29; shown once the server has ClaimAll, Config.QuestClaimAll). A claim shows at once (Derek
+-- 2026-10-29, "claim lag"): the row or card reads "✓ Claimed", moves down and plays giftClaim on the press, and goes
+-- back to Claim if the next sync still has it unclaimed (the server refused and toasted why) or none comes within
+-- CLAIM_HOLD. Swap reads "..." until a sync shows the new quest or PENDING_SECONDS pass. The server still decides
+-- every claim. Rules: Components/QuestLogic.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -22,6 +27,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
+local Scale = require(script.Parent.Parent.Scale)
 local ShortNumber = require(script.Parent.Parent.Components.ShortNumber)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -37,6 +43,7 @@ export type Callbacks = {
 	claimQuest: (kind: string, slot: number) -> (),
 	rerollQuest: (kind: string, slot: number) -> (),
 	claimAchievement: (achievementId: string) -> (),
+	claimAll: ((what: string) -> ())?, -- "daily", "weekly" or "achievements"
 	close: () -> (),
 }
 
@@ -61,7 +68,7 @@ type QuestRow = {
 	claim: Button.Button,
 	swap: Button.Button,
 	check: TextLabel,
-	claimed: boolean,
+	claimed: boolean, -- shown as claimed, the server's or a claim on its way
 }
 
 type Page = {
@@ -85,9 +92,21 @@ type Card = {
 	claim: Button.Button,
 	check: TextLabel,
 	size: string,
+	claimed: boolean, -- shown as claimed
 }
 
-type Pending = { at: number, id: string, claimed: boolean }
+-- A press waiting for the server. `source` is the state's quests (or achievements) table at the press: every
+-- ProfileSync brings a new one, so a sync that still shows the old state means the server said no. The first new
+-- table within SYNC_GRACE of the press may have left the server before the press reached it (the 10 s sync, a
+-- catch), so it only moves `source` on (`moved`); the next one decides (review N293).
+type Pending = {
+	at: number,
+	id: string,
+	claimed: boolean,
+	source: any,
+	action: string,
+	moved: boolean?,
+}
 
 local TABS: { Tab } = { "Daily", "Weekly", "Achievements" }
 local MAX_SIZE = Vector2.new(660, 560)
@@ -100,9 +119,13 @@ local BAR = 14
 local CHIP = 30
 local ACTION_W = 112
 local CARD = Vector2.new(0, 142) -- two cards a row; the width follows the window
+local CARD_CLAIM_H = Theme.sizes.touchMin -- a 39 px face, over the 36 a mouse needs
 local CARD_CHIP = 26
 local GAP = Theme.sizes.gap
 local PENDING_SECONDS = 2 -- ClaimQuest and ClaimAchievement take 2 a second, RerollQuest 1
+local CLAIM_HOLD = 4 -- how long a claim shows as done with no sync before it goes back to Claim
+local SYNC_GRACE = 0.5 -- a sync this soon after a press may predate it (one round trip)
+local CLAIM_ALL_W = 150 -- fits right of the three tabs at the window's narrowest (636 px of tab row)
 local TICK_SECONDS = 1 -- the reset times, while the window is open
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 
@@ -269,13 +292,16 @@ function Quests.new(callbacks: Callbacks): Quests
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	-- on a phone the row is tall enough for a 44 px finger (Scale.tapHeight), as the Spin and Decor windows
+	local tabHeight = Scale.tapHeight(TAB_HEIGHT, Theme.sizes.buttonDepth)
+	tabs.Size = UDim2.new(1, 0, 0, tabHeight)
 	self._tabs = {} :: { [string]: { button: Button.Button, dot: Frame, count: TextLabel } }
 	for index, tab in TABS do
 		local button = Button.new({
 			name = tab .. "Tab",
 			text = tab,
 			style = if tab == "Daily" then "gold" else "ghost",
-			size = UDim2.fromOffset(TAB_WIDTH, TAB_HEIGHT),
+			size = UDim2.fromOffset(TAB_WIDTH, tabHeight),
 			textSize = Theme.sizes.textBody,
 			layoutOrder = index,
 			parent = tabs,
@@ -287,8 +313,24 @@ function Quests.new(callbacks: Callbacks): Quests
 		local dot, count = countDot(button.instance)
 		self._tabs[tab] = { button = button, dot = dot, count = count }
 	end
+	-- Claim all, right of the tabs: every ready quest of the open tab, or every met achievement, in one go
+	self._readyByTab = {} :: { [string]: number }
+	self._claimAll = Button.new({
+		name = "ClaimAll",
+		text = "Claim all",
+		style = "primary",
+		size = UDim2.fromOffset(CLAIM_ALL_W, tabHeight),
+		textSize = Theme.sizes.textBody,
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.fromScale(1, 0),
+		parent = content,
+		onClick = function()
+			self:_pressAll()
+		end,
+	})
+	self._claimAll.instance.Visible = false
 
-	local top = TAB_HEIGHT + GAP
+	local top = tabHeight + GAP
 	self._pages = {
 		Daily = self:_buildPage("daily", 5, content, top),
 		Weekly = self:_buildPage("weekly", 3, content, top),
@@ -313,8 +355,10 @@ function Quests.new(callbacks: Callbacks): Quests
 	})
 	local grid = scroll("Grid", achievements, HEAD + 4)
 	grid.Visible = true
+	-- on a phone the card's Claim is a finger tall, and the card grows by as much so it clears the count
+	self._cardClaimH = Scale.tapHeight(CARD_CLAIM_H, Theme.sizes.buttonDepth)
 	Create("UIGridLayout", {
-		CellSize = UDim2.new(0.5, -GAP / 2, 0, CARD.Y),
+		CellSize = UDim2.new(0.5, -GAP / 2, 0, CARD.Y + self._cardClaimH - CARD_CLAIM_H),
 		CellPadding = UDim2.fromOffset(GAP, GAP),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		Parent = grid,
@@ -461,11 +505,12 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		maxPictures = 2, -- F94: two pictures a quest
 	})
 	local actionPosition = UDim2.new(1, -10, 0.5, 0)
+	local actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth) -- 64 of the 80 on a phone
 	local claim = Button.new({
 		name = "Claim",
 		text = "Claim",
 		style = "primary",
-		size = UDim2.fromOffset(ACTION_W, Theme.sizes.touchMin),
+		size = UDim2.fromOffset(ACTION_W, actionHeight),
 		anchorPoint = Vector2.new(1, 0.5),
 		position = actionPosition,
 		parent = frame,
@@ -478,7 +523,7 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		text = "Swap",
 		icon = "🔄",
 		style = "ghost",
-		size = UDim2.fromOffset(ACTION_W, Theme.sizes.touchMin),
+		size = UDim2.fromOffset(ACTION_W, actionHeight),
 		anchorPoint = Vector2.new(1, 0.5),
 		position = actionPosition,
 		parent = frame,
@@ -517,12 +562,13 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 		TextColor3 = Theme.modal.subtext,
 		Parent = frame,
 	})
-	local fill = bar(frame, UDim2.fromOffset(12, 58), UDim2.new(1, -110, 0, BAR - 2))
+	-- the count has room for "120,000/360,000" (Play for 100 hours) beside the bar
+	local fill = bar(frame, UDim2.fromOffset(12, 58), UDim2.new(1, -150, 0, BAR - 2))
 	local count = text({
 		Name = "Count",
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -12, 0, 53),
-		Size = UDim2.fromOffset(86, 20),
+		Size = UDim2.fromOffset(126, 20),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.modal.subtext,
@@ -550,7 +596,7 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 		name = "Claim",
 		text = "Claim",
 		style = "primary",
-		size = UDim2.fromOffset(ACTION_W - 16, Theme.sizes.touchMin - 4),
+		size = UDim2.fromOffset(ACTION_W - 16, self._cardClaimH),
 		anchorPoint = Vector2.new(1, 1),
 		position = actionPosition,
 		parent = frame,
@@ -569,6 +615,7 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 		claim = claim,
 		check = done,
 		size = def.size,
+		claimed = false,
 	}
 end
 
@@ -636,21 +683,45 @@ function Quests._look(self: any): PrizeChips.Look
 	}
 end
 
--- Whether a press on `key` still waits for the server: until a sync shows `id` swapped or claimed, or the wait ends.
-function Quests._waiting(self: any, key: string, id: string, claimed: boolean): boolean
+-- The press on `key` still waiting for the server, or nil once a sync shows `id` swapped or claimed, a newer sync
+-- (`source`) still shows it as it was (refused), or the wait ends.
+function Quests._waiting(
+	self: any,
+	key: string,
+	id: string,
+	claimed: boolean,
+	source: any
+): Pending?
 	local pending: Pending? = self._pending[key]
 	if pending == nil then
-		return false
+		return nil
 	end
-	if
-		pending.id ~= id
-		or pending.claimed ~= claimed
-		or os.clock() - pending.at >= PENDING_SECONDS
-	then
+	local hold = if pending.action == "claim" then CLAIM_HOLD else PENDING_SECONDS
+	local age = os.clock() - pending.at
+	if pending.id ~= id or pending.claimed ~= claimed or age >= hold then
 		self._pending[key] = nil
-		return false
+		return nil
 	end
-	return true
+	if pending.source ~= source then
+		if age < SYNC_GRACE and not pending.moved then
+			pending.source = source
+			pending.moved = true
+			return pending
+		end
+		self._pending[key] = nil
+		return nil
+	end
+	return pending
+end
+
+-- Config.QuestClaimAll: the server has ClaimAll (Gameplay-Engineer), so the button never shows before it works.
+local function claimAllReady(self: any): boolean
+	return (Config :: any).QuestClaimAll == true and self._callbacks.claimAll ~= nil
+end
+
+function Quests._syncClaimAll(self: any)
+	local ready: number = self._readyByTab[self._tab] or 0
+	self._claimAll.instance.Visible = claimAllReady(self) and ready >= 2
 end
 
 function Quests.render(self: any, state: Types.PlayerState)
@@ -675,15 +746,19 @@ function Quests.render(self: any, state: Types.PlayerState)
 			local quest = list[slot]
 			row.frame.Visible = quest ~= nil
 			if quest then
-				if not quest.claimed and QuestLogic.done(quest) then
+				local pending = self:_waiting(kind .. ":" .. slot, quest.id, quest.claimed, quests)
+				local claiming = pending ~= nil and pending.action == "claim"
+				if not quest.claimed and not claiming and QuestLogic.done(quest) then
 					ready += 1
 				end
-				self:_renderRow(row, kind, slot, quest, rerollUsed, look)
+				self:_renderRow(row, kind, slot, quest, rerollUsed, look, pending)
 			end
 		end
+		self._readyByTab[tab] = ready
 		self:_setTabCount(tab, ready)
 	end
 	self:_renderAchievements(state, look)
+	self:_syncClaimAll()
 	self:_tickResets()
 end
 
@@ -694,7 +769,8 @@ function Quests._renderRow(
 	slot: number,
 	quest: Types.QuestView,
 	rerollUsed: boolean,
-	look: PrizeChips.Look
+	look: PrizeChips.Look,
+	pending: Pending?
 )
 	local needs = math.max(1, quest.needs)
 	local progress = math.clamp(quest.progress, 0, needs)
@@ -707,26 +783,39 @@ function Quests._renderRow(
 		else ShortNumber.commas(progress) .. "/" .. ShortNumber.commas(needs)
 	row.chips:set(QuestLogic.prize(self._catalog, kind, slot), look)
 
-	local key = kind .. ":" .. slot
-	local waiting = self:_waiting(key, quest.id, quest.claimed)
-	row.claim.instance.Visible = done and not quest.claimed
-	row.claim:setText(if waiting then "..." else "Claim")
-	row.claim:setEnabled(not waiting)
-	row.swap.instance.Visible = not done and not quest.claimed and not rerollUsed
-	row.swap:setText(if waiting then "..." else "Swap")
-	row.swap:setEnabled(not waiting)
-	row.check.Visible = quest.claimed
-	if quest.claimed and not row.claimed and self._open then
+	-- a claim on its way shows as claimed; a swap on its way reads "..."
+	local claimed = quest.claimed or (pending ~= nil and pending.action == "claim")
+	local swapping = pending ~= nil and pending.action == "swap"
+	row.claim.instance.Visible = done and not claimed
+	row.swap.instance.Visible = not done and not claimed and not rerollUsed
+	row.swap:setText(if swapping then "..." else "Swap")
+	row.swap:setEnabled(not swapping)
+	row.check.Visible = claimed
+	if claimed and not row.claimed and self._open then
 		Tween.popIn(row.check, 0.6)
 	end
-	row.claimed = quest.claimed
-	row.frame.BackgroundColor3 = if quest.claimed then Theme.modal.panel else Theme.modal.card
+	row.claimed = claimed
+	row.frame.BackgroundColor3 = if claimed then Theme.modal.panel else Theme.modal.card
+	row.frame.LayoutOrder = QuestLogic.rowOrder(slot, claimed)
 end
 
 function Quests._renderAchievements(self: any, state: Types.PlayerState, look: PrizeChips.Look)
 	local catalog: Types.Catalog? = self._catalog
 	local prizes = if catalog then catalog.achievementPrizes else nil
-	local rows = QuestLogic.achievementRows(catalog, state.achievements)
+	-- a claim on its way counts as claimed: the card fades and moves to the end at once
+	local source = state.achievements
+	local views: { [string]: Types.AchievementView } = source or {}
+	local shown = views
+	for id in self._pending do
+		local view = views[id]
+		if view ~= nil and self:_waiting(id, id, view.claimed == true, source) ~= nil then
+			if shown == views then
+				shown = table.clone(views)
+			end
+			shown[id] = { progress = view.progress, claimed = true }
+		end
+	end
+	local rows = QuestLogic.achievementRows(catalog, shown)
 	-- F94: two pictures an achievement, three on an XL one
 	local small: PrizeChips.Look = table.clone(look)
 	small.maxPictures = 2
@@ -749,11 +838,12 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 			if prizes then prizes[entry.size] else nil,
 			if entry.size == "XL" then big else small
 		)
-		local waiting = self:_waiting(row.def.id, row.def.id, row.claimed)
 		entry.claim.instance.Visible = row.ready
-		entry.claim:setText(if waiting then "..." else "Claim")
-		entry.claim:setEnabled(not waiting)
 		entry.check.Visible = row.claimed
+		if row.claimed and not entry.claimed and self._open then
+			Tween.popIn(entry.check, 0.6)
+		end
+		entry.claimed = row.claimed
 		entry.frame.BackgroundColor3 = if row.claimed
 			then Theme.modal.panel
 			elseif row.ready then Theme.colors.gold:Lerp(Theme.colors.paper, 0.75)
@@ -763,9 +853,10 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 		end
 	end
 	self._claimedCount.Text = ("%d of %d claimed"):format(
-		QuestLogic.claimedCount(catalog, state.achievements),
+		QuestLogic.claimedCount(catalog, shown),
 		#rows
 	)
+	self._readyByTab.Achievements = ready
 	self:_setTabCount("Achievements", ready)
 end
 
@@ -798,6 +889,7 @@ function Quests.showTab(self: any, tab: Tab)
 	self._pages.Daily.scroll.Visible = tab == "Daily"
 	self._pages.Weekly.scroll.Visible = tab == "Weekly"
 	self._achievements.Visible = tab == "Achievements"
+	self:_syncClaimAll()
 end
 
 function Quests._press(self: any, kind: string, slot: number, action: string)
@@ -805,20 +897,27 @@ function Quests._press(self: any, kind: string, slot: number, action: string)
 	local quests = if state then state.quests else nil
 	local list = if quests then (if kind == "daily" then quests.daily else quests.weekly) else nil
 	local quest = if list then list[slot] else nil
-	if quest == nil then
+	if quest == nil or (action == "claim" and (quest.claimed or not QuestLogic.done(quest))) then
 		return
 	end
 	local key = kind .. ":" .. slot
-	if self:_waiting(key, quest.id, quest.claimed) then
+	if self:_waiting(key, quest.id, quest.claimed, quests) then
 		return
 	end
-	self._pending[key] = { at = os.clock(), id = quest.id, claimed = quest.claimed }
+	self._pending[key] = {
+		at = os.clock(),
+		id = quest.id,
+		claimed = quest.claimed,
+		source = quests,
+		action = action,
+	}
 	if action == "claim" then
+		self:_claimed()
 		self._callbacks.claimQuest(kind, slot)
 	else
 		self._callbacks.rerollQuest(kind, slot)
 	end
-	self:_refreshAfter()
+	self:_refreshAfter(if action == "claim" then CLAIM_HOLD else PENDING_SECONDS)
 end
 
 function Quests._pressAchievement(self: any, id: string)
@@ -826,29 +925,85 @@ function Quests._pressAchievement(self: any, id: string)
 	local views = if state then state.achievements else nil
 	local view = if views then views[id] else nil
 	local claimed = view ~= nil and view.claimed
-	if self:_waiting(id, id, claimed) then
+	if claimed or self:_waiting(id, id, claimed, views) then
 		return
 	end
-	self._pending[id] = { at = os.clock(), id = id, claimed = claimed }
+	self._pending[id] =
+		{ at = os.clock(), id = id, claimed = claimed, source = views, action = "claim" }
+	self:_claimed()
 	self._callbacks.claimAchievement(id)
-	self:_refreshAfter()
+	self:_refreshAfter(CLAIM_HOLD)
 end
 
--- Shows "..." now and lights the button again if no sync came within PENDING_SECONDS.
-function Quests._refreshAfter(self: any)
+-- Claim all: marks every ready quest of the open tab (or every met achievement) as on its way, then one ClaimAll.
+function Quests._pressAll(self: any)
+	local state: Types.PlayerState? = self._state
+	if state == nil or not claimAllReady(self) then
+		return
+	end
+	local now = os.clock()
+	local marked = 0
+	if self._tab == "Achievements" then
+		local views = state.achievements
+		for _, row in QuestLogic.achievementRows(self._catalog, views) do
+			local id = row.def.id
+			if row.ready and self:_waiting(id, id, false, views) == nil then
+				self._pending[id] =
+					{ at = now, id = id, claimed = false, source = views, action = "claim" }
+				marked += 1
+			end
+		end
+	else
+		local page: Page = self._pages[self._tab]
+		local quests = state.quests
+		local list: { Types.QuestView } = if quests
+			then (if page.kind == "daily" then quests.daily else quests.weekly)
+			else {}
+		for slot, quest in list do
+			local key = page.kind .. ":" .. slot
+			if
+				not quest.claimed
+				and QuestLogic.done(quest)
+				and self:_waiting(key, quest.id, false, quests) == nil
+			then
+				self._pending[key] =
+					{ at = now, id = quest.id, claimed = false, source = quests, action = "claim" }
+				marked += 1
+			end
+		end
+	end
+	if marked == 0 then
+		return
+	end
+	self:_claimed()
+	local what = if self._tab == "Achievements" then "achievements" else string.lower(self._tab)
+	self._callbacks.claimAll(what)
+	self:_refreshAfter(CLAIM_HOLD)
+end
+
+-- The claim sound plays on the press; QuestResult right after it stays quiet.
+function Quests._claimed(self: any)
+	self._claimedAt = os.clock()
+	Sound.play("giftClaim")
+end
+
+-- Shows the press now and redraws once `seconds` pass, so a press the server never answered goes back.
+function Quests._refreshAfter(self: any, seconds: number)
 	if self._state then
 		self:render(self._state)
 	end
-	task.delay(PENDING_SECONDS, function()
+	task.delay(seconds, function()
 		if self._alive and self._state then
 			self:render(self._state)
 		end
 	end)
 end
 
--- QuestResult(paid): the server's toast already says what it paid; the window gives it a sound.
-function Quests.result(_self: any, paid: { string })
-	if #paid > 0 then
+-- QuestResult(paid): the server's toast already says what it paid. The press played the sound; a claim from
+-- anywhere else still gets one.
+function Quests.result(self: any, paid: { string })
+	local pressed: number? = self._claimedAt
+	if #paid > 0 and (pressed == nil or os.clock() - pressed > CLAIM_HOLD) then
 		Sound.play("giftClaim")
 	end
 end
@@ -910,6 +1065,7 @@ function Quests.destroy(self: any)
 	for _, entry in self._tabs do
 		entry.button:destroy()
 	end
+	self._claimAll:destroy()
 	self._panel:destroy()
 end
 

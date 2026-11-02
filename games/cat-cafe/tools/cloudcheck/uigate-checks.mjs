@@ -101,7 +101,10 @@ export function checkScene(profile, scene) {
         const past = Math.max(-rect.x1, -rect.y1, rect.x2 - W, rect.y2 - H);
         if (past > LIMITS.edge) add('offscreen', node, `${px(past)} px past the screen edge${label(node)}`);
         const bar = intersect(rect, { x1: 0, y1: 0, x2: LIMITS.topbarLeft, y2: profile.inset });
-        if (bar && bar.w > LIMITS.edge && bar.h > LIMITS.edge) {
+        // a tap catcher over the whole screen (the rescue bar, the catch circles) is under Roblox's buttons by design:
+        // they take their own taps first and every other spot still counts
+        const catcher = node.press && !node.text && rect.x1 <= 0 && rect.y1 <= 0 && rect.x2 >= W && rect.y2 >= H;
+        if (bar && bar.w > LIMITS.edge && bar.h > LIMITS.edge && !catcher) {
           add('topbar', node, `under Roblox's menu buttons (top left ${LIMITS.topbarLeft} x ${profile.inset})${label(node)}`);
         }
       }

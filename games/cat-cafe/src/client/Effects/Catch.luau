@@ -6,8 +6,15 @@
 --
 -- Sources: this player's own CatchSchedule and CatchResult events, plus the stray's HissAt attribute so every
 -- player nearby sees a hiss, not only the catcher. Listening only: nothing here fires a remote.
+--
+-- The result word (F93, catch-rework.md section 3): as UI-Engineer's word slams in over the catch screen, sparkles
+-- burst off it and rings grow round it in its colour, gold and biggest for PURRFECT!, gold for EXCELLENT!, mint for
+-- GREAT!, none for "So close!". The word comes from CatchResult's grades (Logic.catchWord) and the burst waits for the
+-- label to show (Presets.catchWord.targets in CatCafeCatchCircles). Screen only, over the UI through ScreenFx.
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Cats = require(script.Parent.Cats)
@@ -16,6 +23,7 @@ local Logic = require(script.Parent.Logic)
 local Net = require(script.Parent.Parent.Net)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
+local ScreenFx = require(script.Parent.ScreenFx)
 
 local Catch = {}
 
@@ -144,6 +152,84 @@ function Catch.pop(at: Vector3, ground: Vector3, rarity: string)
 	caught(at, ground, rarity)
 end
 
+-- The result word on the catch screen while it shows: the first of Presets.catchWord.targets in CatCafeCatchCircles.
+local function resultWord(): GuiObject?
+	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	local screen = if playerGui ~= nil then playerGui:FindFirstChild("CatCafeCatchCircles") else nil
+	if screen == nil then
+		return nil
+	end
+	for _, name in Presets.catchWord.targets do
+		local found = screen:FindFirstChild(name, true)
+		if found ~= nil and found:IsA("GuiObject") and ScreenFx.shown(found :: GuiObject) then
+			return found :: GuiObject
+		end
+	end
+	return nil
+end
+
+-- The burst behind `word` ("purrfect", "excellent" or "great"), once the word shows, within Presets.catchWord.wait.
+local function wordBurst(word: string)
+	local c = Presets.catchWord
+	local look = c.words[word]
+	if look == nil then
+		return
+	end
+	local began = os.clock()
+	local loop: RBXScriptConnection? = nil
+	loop = RunService.RenderStepped:Connect(function()
+		local label = resultWord()
+		if label == nil then
+			if os.clock() - began > c.wait and loop ~= nil then
+				loop:Disconnect()
+			end
+			return
+		end
+		if loop ~= nil then
+			loop:Disconnect()
+		end
+		local gui = ScreenFx.gui("EffectsCatchWord", c.displayOrder)
+		if gui == nil then
+			return
+		end
+		local object = label :: GuiObject
+		local centre = ScreenFx.centre(gui, object)
+		local width = object.AbsoluteSize.X
+		if object:IsA("TextLabel") then
+			local bounds = (object :: TextLabel).TextBounds.X
+			if bounds > 0 then
+				width = math.min(width, bounds) -- the word, not its box
+			end
+		end
+		local reduced = Context.reducedMotion()
+		local count = math.min(look.sparkles, Context.budget.maxBurst)
+		if reduced then
+			count = math.max(1, math.floor(count / 2))
+		end
+		ScreenFx.sparkle(gui, Logic.wordSpots(centre, width, count), look.colour, {
+			size = c.size,
+			seconds = c.seconds,
+			reach = c.reach,
+			stagger = c.stagger,
+		})
+		if reduced then
+			return
+		end
+		for i = 1, look.rings do
+			task.delay((i - 1) * c.ringGap, function()
+				ScreenFx.ring(
+					gui,
+					centre,
+					width * c.ringFrom,
+					width * c.ringTo,
+					look.colour,
+					c.ringSeconds
+				)
+			end)
+		end
+	end)
+end
+
 local function watchStray(instance: Instance)
 	if not instance:IsA("Model") then
 		return
@@ -198,6 +284,10 @@ function Catch.start()
 				return
 			end
 			if Logic.catchSucceeded(third, fourth) then
+				local word = Logic.catchWord(grades)
+				if word ~= nil then
+					wordBurst(word) -- on the screen, wherever the cat is
+				end
 				-- A catch whose schedule this client missed plays where the cat stands now.
 				local spot: Scheduled? = entry
 				if spot == nil and model ~= nil then

@@ -66,7 +66,7 @@ build is live: the back door and the walk home today (S3, S5), the cannon and th
 |---|---|---|---|
 | 1 | Join | Within 10 s the first hint and its trail show (and the intro, while it still plays by itself, skips after its 5 s bar); the HUD shows `$50` and the rate within 5 s | joined |
 | 2 | Go to the Alleyway | out of the back door, or Cannon, launch, 3 s of clouds and the camp pad | first_move, saw_alley |
-| 3 | Catch the tutorial Common | its "!" shows from the spawn; the catch starts and one good press catches it (a sure catch once F87 is in) | near_stray, catch_started, first_circle_hit, first_catch |
+| 3 | Catch the tutorial Common | its "!" shows from the spawn; a swing of the net (click, R2 or the Net button, F93) from a few studs away facing it starts the circles, and good presses catch it (a sure catch once F87 is in) | near_stray, catch_started, first_circle_hit, first_catch |
 | 4 | Bring it home | Cat found popup, `+50`, the cat is in the cat room | first_checkin |
 | 5 | Give it a job | Collection (C), Assign, Waiter (by itself once F87 is in): the rate rises | first_role |
 | 6 | Buy Table 1 | `$150`, rate x1.10, the table stands clear of the door path | first_table |
@@ -103,7 +103,9 @@ ticket needs more. The analytics run fails with the setup guide's step 20 messag
 4. **What they say.** Feedback faces and chips by day, and the bug-reports run: the share of "Not for me", and
    any chip that doubles from one day to the next.
 5. **Catch and bait.** The catch_attempt and bait_cycle funnels: a drop between engaged and caught after a
-   balance change is a stop-the-line candidate.
+   balance change is a stop-the-line candidate. Since F93 the catch funnel starts at the swing (1 swing_hit, 2
+   engaged, 3 caught, 4 checked_in, 5 working), and `net_swing` counts each player's swings as `hit`, `miss_near` and
+   `miss_empty` by device: many `miss_empty` swings on phones mean players cannot tell where the net reaches.
 
 Thresholds: a quarter or more of players lost on one of steps 1 to 9 stops the line (section 1); a step that loses
 more each day for two days goes to the top of the queue.

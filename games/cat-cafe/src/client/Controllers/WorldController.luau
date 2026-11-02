@@ -60,34 +60,6 @@ end
 
 local heldRoof: Model? = nil -- a cafe whose roof the intro holds faded wherever the character is (F72)
 
--- v0.5 (data-model section 10 step 5): a missed stray sprints off and catches its breath until its FleeingUntil
--- (server time). Its prompt hides on this client until then; the server refuses GrabBegin meanwhile anyway.
-local function watchStray(model: Instance)
-	local serial = 0
-	local function refresh()
-		serial += 1
-		local mine = serial
-		local prompt = model:FindFirstChild("GrabPrompt", true)
-		if prompt == nil or not prompt:IsA("ProximityPrompt") then
-			return
-		end
-		local fleeingUntil = model:GetAttribute("FleeingUntil")
-		local left = if type(fleeingUntil) == "number"
-			then fleeingUntil - Workspace:GetServerTimeNow()
-			else 0
-		(prompt :: ProximityPrompt).Enabled = left <= 0
-		if left > 0 then
-			task.delay(left, function()
-				if serial == mine and model.Parent ~= nil then
-					refresh()
-				end
-			end)
-		end
-	end
-	refresh()
-	model:GetAttributeChangedSignal("FleeingUntil"):Connect(refresh)
-end
-
 -- The World.Zones box the player stands in ("Cafe", "Alley", "Park" and so on), or nil (WorldBuilder).
 local function zoneAt(position: Vector3): string?
 	local world = Workspace:FindFirstChild("World")
@@ -650,11 +622,6 @@ end
 function WorldController.start()
 	task.spawn(followClock)
 	watchOtherCats()
-
-	for _, model in CollectionService:GetTagged("Stray") do
-		watchStray(model)
-	end
-	CollectionService:GetInstanceAddedSignal("Stray"):Connect(watchStray)
 
 	-- Gates under World.Gates (WorldBuilder): the barrier is solid below the gate's RequiresTier and gone at or
 	-- above it, and solid on every gate while the Clock's AreasOpen is false (v0.9, F66: the areas close at night;

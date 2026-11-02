@@ -38,9 +38,9 @@ export type CatchCircle = {
 	y: number,
 }
 
--- Timing windows of a net level: half-widths in seconds either side of each target; jitter spreads each circle's
--- shrink time by up to that fraction. CatchSchedule sends only perfect and good.
-export type NetWindows = { perfect: number, good: number, jitter: number }
+-- Timing windows of a net level: half-widths in seconds either side of each target (F93: the shrink time's wobble
+-- is Config.CircleJitter on every net).
+export type NetWindows = { perfect: number, good: number }
 export type CatchWindows = { perfect: number, good: number }
 
 -- A rescue minigame as RescueChallenge sends it (data-model section 10b), times in server time. "bar": a marker
@@ -58,8 +58,26 @@ export type RescueChallenge = {
 	hitsNeeded: number?,
 	paws: number?, -- misses the attempt can take (RescuePatience)
 	endsAt: number?, -- the attempt's deadline
+	-- F93 (catch-rework.md section 4): zones holds one spare zone per paw, since a zone not hit within zonePasses
+	-- sweeps costs a paw and the next one takes over; `zone` is the index of the one to hit now and zoneEndsAt when it
+	-- moves on. Every hit makes the marker speedUpPerHit faster; RescueResult's RescueBar says how it runs after that.
+	zone: number?,
+	zoneEndsAt: number?,
+	zonePasses: number?,
+	speedUpPerHit: number?,
 	circle: CatchCircle?, -- kind "circle"
 	windows: CatchWindows?, -- kind "circle"
+}
+
+-- How the rescue bar runs now (F93), RescueResult's last argument: the marker from server time startsAt at phase
+-- (0 to 2) and speed bar lengths per second (shared/RescueMarker.position), zones[zone] the one to hit and
+-- zoneEndsAt the server time it moves on if nobody hits it.
+export type RescueBar = {
+	zone: number,
+	startsAt: number,
+	phase: number,
+	speed: number,
+	zoneEndsAt: number,
 }
 
 export type CatDef = {

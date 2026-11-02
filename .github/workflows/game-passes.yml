@@ -1,0 +1,74 @@
+# List, make and change the game's game passes (Open Cloud Game Passes API), so nobody types them into Creator Hub.
+# Start it from the Actions tab (game-passes > Run workflow) or from any thread with the GitHub actions_run_trigger
+# tool on main. list prints every pass with its id; create makes each pass in
+# games/cat-cafe/tools/opencloud/passes.json that is missing, off sale unless for_sale is ticked, and prints the
+# Config lines for its ids; set changes one pass's price, sale state, regional pricing or icon. Passes cannot be
+# deleted, so a pass goes in passes.json only once the code that sells it is merged.
+# Needs the repo secret ROBLOX_PUBLISH_KEY with game-pass:read and game-pass:write (docs/setup-guide.md step 22).
+name: game-passes
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "list: every pass and its id. create: make the missing passes from passes.json. set: change one pass"
+        type: choice
+        options: [list, create, set]
+        default: list
+      pass:
+        description: "set: the pass id, or its name"
+        required: false
+        default: ""
+      changes:
+        description: "set: one or more of price=N forSale=true|false regional=true|false icon=<image path from the repo root>"
+        required: false
+        default: ""
+      for_sale:
+        description: "create: put the new passes on sale at once (unticked: nobody can buy them until a set with forSale=true)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: game-passes
+  cancel-in-progress: false
+
+jobs:
+  passes:
+    name: Game passes
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      ROBLOX_UNIVERSE_ID: "10773193456" # Cat Cafe
+      ACTION: ${{ inputs.action }}
+      PASS: ${{ inputs.pass }}
+      CHANGES: ${{ inputs.changes }}
+      FOR_SALE: ${{ inputs.for_sale }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check the key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      # The inputs reach the script as environment variables, never pasted into the shell, so no input runs as code.
+      - name: Game passes
+        run: |
+          script=games/cat-cafe/tools/opencloud/game-passes.sh
+          case "$ACTION" in
+          list | create) bash "$script" "$ACTION" ;;
+          set)
+            read -r -a changes <<<"$CHANGES"
+            bash "$script" set "$PASS" "${changes[@]}"
+            ;;
+          *)
+            echo "::error::unknown action: $ACTION"
+            exit 1
+            ;;
+          esac

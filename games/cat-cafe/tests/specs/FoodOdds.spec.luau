@@ -271,7 +271,7 @@ return function()
 
 	describe("FoodOdds.extras", function()
 		it(
-			"shows the shiny chance and the five charm star odds the server rolls with (QA)",
+			"shows the gold chance the server rolls with and no charm stars (F97 section 5)",
 			function()
 				local Config = require(
 					game:GetService("ReplicatedStorage")
@@ -279,27 +279,15 @@ return function()
 						:WaitForChild("Config")
 				) :: any
 				local text = FoodOdds.extras()
-				local shiny = text:match("^Gold ([%d%.]+)%% · Charm ")
+				local shiny = text:match("^Gold ([%d%.]+)%%$")
 				expect(shiny).to.be.ok()
 				-- data-model section 8: GoldChanceBait (was ShinyChanceBait), so the card says its percent
 				expect(tonumber(shiny or "") :: number).to.be.near(
 					Config.GoldChanceBait * 100,
 					1e-9
 				)
-				local shares: { number } = {}
-				local sum = 0
-				for count, share in text:gmatch("(%d)★ ([%d%.]+)%%") do
-					expect(tonumber(count)).to.equal(#shares + 1)
-					table.insert(shares, tonumber(share) :: number)
-					sum += tonumber(share) :: number
-				end
-				expect(#shares).to.equal(5)
-				expect(sum).to.be.near(100, 0.05)
-				if Config.CharmStarOdds then
-					for index, share in Config.CharmStarOdds do
-						expect(shares[index]).to.be.near(share, 0.005 + 1e-9)
-					end
-				end
+				expect(text:find("★", 1, true)).never.to.be.ok()
+				expect(text:find("Charm", 1, true)).never.to.be.ok()
 			end
 		)
 	end)
@@ -312,7 +300,7 @@ return function()
 		it("puts gold luck in the gold chance and says so", function()
 			local base = Config.GoldChanceBait * 100
 			local lucky = FoodOdds.extras(0.4)
-			local gold, luck = lucky:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck%) · Charm ")
+			local gold, luck = lucky:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck%)$")
 			expect(tonumber(gold or "") :: number).to.be.near(base * 1.4, 0.005)
 			expect(luck).to.equal("40")
 			expect(FoodOdds.extras(0)).to.equal(FoodOdds.extras())
@@ -325,17 +313,17 @@ return function()
 			function()
 				local base = Config.GoldChanceBait * 100
 				local rush = FoodOdds.extras(9, 0.25)
-				local gold, luck = rush:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck%) · Charm ")
+				local gold, luck = rush:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck%)$")
 				-- BaitService: the Index's luck capped at GoldLuckMax, then the Gold Rush Potion's on top
 				expect(tonumber(gold or "") :: number).to.be.near(base * (2.5 + 0.25), 0.005)
 				expect(luck).to.equal("175")
 				local lucky = FoodOdds.extras(0.4, 0.25, 2)
 				local doubled, luck2 =
-					lucky:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck, Lucky Potion x2%) · Charm ")
+					lucky:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck, Lucky Potion x2%)$")
 				expect(tonumber(doubled or "") :: number).to.be.near(base * 1.65 * 2, 0.005)
 				expect(luck2).to.equal("65")
 				local onlyLucky = FoodOdds.extras(0, 0, 2)
-					:match("^Gold ([%d%.]+)%% %(Lucky Potion x2%) · Charm ")
+					:match("^Gold ([%d%.]+)%% %(Lucky Potion x2%)$")
 				expect(tonumber(onlyLucky or "") :: number).to.be.near(base * 2, 0.005)
 				expect(FoodOdds.extras(0, 0, 1)).to.equal(FoodOdds.extras())
 			end

@@ -3,7 +3,7 @@
 -- goes in with Use from anywhere, F included (Derek 2026-10-28); the cat it brings is rolled then and arrives after
 -- the wait, even while you are offline, and you choose Tame or Let go when it comes. Every food card shows its
 -- five-rarity odds before Buy or Use as one short row, each rarity in its colour (Derek 2026-10-28: "make it simple
--- and easy can click info/details for more"), and Details opens the gold chance, the charm star odds and the
+-- and easy can click info/details for more"), and Details opens the gold chance (no charm stars since F97) and the
 -- per-cat split (the growth thread's rules for random items). Use and Buy are the same size, and Use is the green
 -- one, so the screen never nudges toward spending. F69: each food's picture wears its grade badge, its card a border
 -- in the grade's colour, and the chip by its name says what it attracts; the bowl shows the food in it. F54: the gold

@@ -132,6 +132,20 @@ local function hasRestingCatAndFreeSpot(s: Types.PlayerState): boolean
 	return false
 end
 
+-- How to swing the net on this device (F93): the UI's UI.net.hint() ("Tap NET next to a cat", "Press R2 next to a
+-- cat" or "Click next to a cat", UI-Engineer #677) once it has it.
+local function swingHint(): string
+	local net: any = (UI :: any).net
+	local hint: unknown = if net ~= nil then net.hint else nil
+	if type(hint) == "function" then
+		local text = (hint :: () -> unknown)()
+		if type(text) == "string" then
+			return text
+		end
+	end
+	return "Click next to a cat"
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if s.carrying ~= nil then
 		UI.tutorial.hide()
@@ -139,7 +153,10 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 	if s.tutorialStep < 2 then
 		UI.tutorial.show(
-			"Go out your back door to the alley and press E on a cat, then tap as each circle closes",
+			string.format(
+				"Go out your back door to the alley. %s, then tap as each circle closes",
+				swingHint()
+			),
 			tutorialStrayPoint(),
 			"Alley"
 		)
@@ -150,7 +167,7 @@ local function refreshTutorial(s: Types.PlayerState)
 			UI.tutorial.show("Catch more cats in the alley, or buy a table in Upgrades (U)")
 		end
 	elseif s.tutorialStep == 3 then
-		UI.tutorial.show("Buy your first table in Upgrades (U): more tips from every cat")
+		UI.tutorial.show("Buy your first table in Upgrades (U): more money from every cat")
 	elseif s.tutorialStep == 4 then
 		-- gdd "The first ten minutes" beat 4: the bowl, then food in it (BaitService finishes the tutorial)
 		-- (the HUD strip shows about 50 characters on one line, reviewer N94)
@@ -610,21 +627,9 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "ui_opened", name)
 		end
 	end)
-	-- The net (data-model section 10): one press on the prompt asks for the circles. The server answers with
-	-- CatchSchedule (or a GrabResult refusal); each press on a circle sends only its index, since the server
-	-- stamps the time itself.
-	UI.events.grabBegan:Connect(function(strayId: string?)
-		if strayId ~= nil then
-			Net.fire("GrabBegin", strayId)
-		end
-	end)
-	-- v0.8 F56: a Dropped stray has no circles. The hold picks it up; the carry starting (or a GrabResult refusal)
-	-- is the answer.
-	UI.events.pickUpBegan:Connect(function(strayId: string?)
-		if strayId ~= nil then
-			Net.fire("PickUpCat", strayId)
-		end
-	end)
+	-- The net (data-model section 10): since F93 a swing starts the circles or picks a Dropped cat up
+	-- (Controllers/NetSwingController); the server answers with CatchSchedule, and each press on a circle sends only
+	-- its index, since the server stamps the time itself.
 	-- Each press is heard the instant it lands (sound list 5.1): the swing, then this device's grade estimate.
 	-- The server's own grades come back in CatchResult.
 	UI.events.catchPressed:Connect(
@@ -988,9 +993,13 @@ local function wireServerEvents()
 			hits: number,
 			pawsLeft: number,
 			done: boolean,
-			success: boolean
+			success: boolean,
+			bar: Types.RescueBar?
 		)
-			UI.rescue.update(rescueSpotId, hits, pawsLeft, done, success)
+			-- F93: `bar` is how the marker runs and which zone to hit from now (a zone that ran out, a faster marker
+			-- after a hit); a UI that does not take it yet ignores it
+			local update: any = UI.rescue.update
+			update(rescueSpotId, hits, pawsLeft, done, success, bar)
 			local current = rescue
 			if current == nil or current.spotId ~= rescueSpotId then
 				return

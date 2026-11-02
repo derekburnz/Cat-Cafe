@@ -48,7 +48,7 @@ return function()
 		end)
 
 		it(
-			"shows the gift's chances summing to 100: a potion 60, 2 Salmon 20, 10 fish 10, a spin 10",
+			"shows the gift's chances summing to 100: a potion 60, 10 fish 30, a spin 10 (F94: no Salmon)",
 			function()
 				local total = 0
 				for _, row in Catalog.mysteryGift do
@@ -57,11 +57,9 @@ return function()
 				expect(total).to.equal(100)
 				expect(Catalog.mysteryGift :: any).to.deepEqual({
 					{ kind = "potion", count = 1, chance = 60 },
-					{ kind = "lure", id = "salmon", count = 2, chance = 20 },
-					{ kind = "fish", count = 10, chance = 10 },
+					{ kind = "fish", count = 10, chance = 30 },
 					{ kind = "spin", count = 1, chance = 10 },
 				})
-				expect(Catalog.getLure("salmon")).to.be.ok()
 			end
 		)
 	end)
@@ -323,11 +321,10 @@ return function()
 				count = 1,
 			})
 			expect(Potions.rollGift(rolls({ 0.6 })) :: any).to.deepEqual({
-				kind = "lure",
-				id = "salmon",
-				count = 2,
+				kind = "fish",
+				count = 10,
 			})
-			expect(Potions.rollGift(rolls({ 0.85 })) :: any).to.deepEqual({
+			expect(Potions.rollGift(rolls({ 0.89 })) :: any).to.deepEqual({
 				kind = "fish",
 				count = 10,
 			})
@@ -440,7 +437,7 @@ return function()
 		end)
 
 		it(
-			"rolls only real gifts: a known potion, a known food, counts above 0, and the last row past 100",
+			"rolls only real gifts: a known potion, counts above 0, no food since F94, and the last row past 100",
 			function()
 				local seen: { [string]: boolean } = {}
 				for i = 0, 99 do
@@ -464,7 +461,10 @@ return function()
 				for _, def in Catalog.potions do
 					expect(seen["potion:" .. def.id] == true).to.equal(def.quest ~= true)
 				end
-				expect(seen["lure:salmon"] and seen["fish:nil"] and seen["spin:nil"]).to.equal(true)
+				expect(seen["fish:nil"] and seen["spin:nil"]).to.equal(true)
+				for key in seen do
+					expect(string.sub(key, 1, 5) == "lure:").to.equal(false)
+				end
 				local over = Potions.rollGift(function()
 					return 1
 				end)

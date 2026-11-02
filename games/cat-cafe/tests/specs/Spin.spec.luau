@@ -30,13 +30,8 @@ return function()
 				minCoins = 200,
 				weight = 30,
 			})
-			expect(rows[2]).to.deepEqual({
-				slice = 2,
-				kind = "lure",
-				lureId = "tuna",
-				count = 3,
-				weight = 22,
-			})
+			-- F94 (rewards-and-shops.md section 2b): 3 golden fish and a Caviar in place of the Tuna and Salmon
+			expect(rows[2]).to.deepEqual({ slice = 2, kind = "fish", count = 3, weight = 22 })
 			expect(rows[3]).to.deepEqual({
 				slice = 3,
 				kind = "coins",
@@ -47,12 +42,12 @@ return function()
 			expect(rows[4]).to.deepEqual({
 				slice = 4,
 				kind = "lure",
-				lureId = "salmon",
-				count = 2,
+				lureId = "caviar",
+				count = 1,
 				weight = 15,
 			})
-			-- F54 (golden-fish.md section 6): four golden fish, and the crate of the highest open zone
-			expect(rows[5]).to.deepEqual({ slice = 5, kind = "fish", count = 4, weight = 10 })
+			-- F54 (golden-fish.md section 6): golden fish (8 since F94), and the crate of the highest open zone
+			expect(rows[5]).to.deepEqual({ slice = 5, kind = "fish", count = 8, weight = 10 })
 			expect(rows[6]).to.deepEqual({
 				slice = 6,
 				kind = "crate",
@@ -60,7 +55,7 @@ return function()
 				count = 1,
 				weight = 5,
 			})
-			expect(Spin.amount(rows[5], 100)).to.equal(4)
+			expect(Spin.amount(rows[5], 100)).to.equal(8)
 			expect(Spin.amount(rows[6], 100)).to.equal(1)
 		end)
 
@@ -74,8 +69,8 @@ return function()
 			expect(table.isfrozen(Catalog.spinWheel)).to.equal(true)
 		end)
 
-		it("banks a spin from Tip Jar steps 9 and 11, two from step 12 and none from the rest (v0.10)", function()
-			local spins = { [9] = 1, [11] = 1, [12] = 2 }
+		it("banks a spin from Tip Jar steps 6 and 11 and none from the rest (F94)", function()
+			local spins = { [6] = 1, [11] = 1 }
 			for _, row in Catalog.tipJar do
 				expect(row.prize.spins).to.equal(spins[row.step])
 			end

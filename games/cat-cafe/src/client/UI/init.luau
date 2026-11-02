@@ -29,7 +29,6 @@ local Cannon = require(script.Screens.Cannon)
 local CannonCard = require(script.Screens.CannonCard)
 local CannonLogic = require(script.Components.CannonLogic)
 local CatCard = require(script.Screens.CatCard)
-local CatCardLogic = require(script.Components.CatCardLogic)
 local CatCollection = require(script.Screens.CatCollection)
 local CatVariant = require(script.Components.CatVariant)
 local CatchCircles = require(script.Screens.CatchCircles)
@@ -52,8 +51,11 @@ local Intro = require(script.Screens.Intro)
 local IntroLogic = require(script.Components.IntroLogic)
 local LocationMarkers = require(script.Screens.LocationMarkers)
 local Modal = require(script.Components.Modal)
+local Moments = require(script.Parent.Moments)
 local Motion = require(script.Components.Motion)
 local MyCats = require(script.Screens.MyCats)
+local NetButton = require(script.Screens.NetButton)
+local NetGlow = require(script.Components.NetGlow)
 local NightClock = require(script.Components.NightClock)
 local Popups = require(script.Screens.Popups)
 local PotionLogic = require(script.Components.PotionLogic)
@@ -121,6 +123,7 @@ UI.events = {
 	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
 	-- design v0.5
 	tackle = Signal.new(), -- ()   the Tackle button or Q: lunge and forward as Tackle (F74, no target)
+	netSwing = Signal.new(), -- ()   the Net button on a touch screen (F93): swing, as a click in the world or R2 (NetSwingController)
 	-- 2026-10-27 HUD v3
 	dropCat = Signal.new(), -- ()   Drop on the carry banner or G while carrying: forward as DropCat
 	-- 2026-10-27 wave 2
@@ -145,6 +148,7 @@ UI.events = {
 	claimQuest = Signal.new(), -- (kind, slot)   Claim on a finished quest, kind "daily" or "weekly": forward as ClaimQuest
 	rerollQuest = Signal.new(), -- (kind, slot)   Swap on an unfinished quest (the free reroll): forward as RerollQuest
 	claimAchievement = Signal.new(), -- (achievementId)   Claim on a met achievement: forward as ClaimAchievement
+	claimAll = Signal.new(), -- (what)   Claim all in the Quests window, "daily", "weekly" or "achievements": forward as ClaimAll (shown once Config.QuestClaimAll)
 	-- F63
 	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
 	-- F70
@@ -168,6 +172,7 @@ local catById: { [string]: Types.CatDef } = {}
 local initialized = false
 local visible = true
 local connections: { RBXScriptConnection } = {}
+local reachConnection: any = nil -- Moments.NetInReach (F93), once NetSwingController fires it
 
 local hud: HUD.HUD? = nil
 local modal: Modal.Modal? = nil
@@ -197,8 +202,6 @@ local signpost: Signpost.Signpost? = nil -- the fountain signpost's arms with ti
 local indexBoards: IndexBoards.IndexBoards? = nil -- each area's Index Board (F50), drawn from this player's Index
 local areaTitle: AreaTitle.AreaTitle? = nil
 local locationMarkers: LocationMarkers.LocationMarkers? = nil -- My Cafe, area and dealer icons that fade up close
-local zoneSafe: boolean? = nil -- whether the last UI.setZone was safe, nil before the first
-local safeToastAt = -math.huge -- os.clock() of the last "Safe zone" toast, so an area's open edge cannot spam it
 local currentZone: string? = nil -- the World.Zones name from UI.setZone, for the dusk banner (F66)
 local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
@@ -207,6 +210,7 @@ local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not c
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
 local tillTips: TillTipsButton.TillTipsButton? = nil -- the till's Collect for tip piles (F61, UI.richTip.bind)
 local tackleBar: TackleBar.TackleBar? = nil -- the Tackle inside catching areas (UI.shove, F74)
+local netButton: NetButton.NetButton? = nil -- the touch Net button inside catching areas (UI.net, F93)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -581,6 +585,13 @@ function UI.init(config: Types.InitConfig)
 	Scale.start()
 	Sound.set(config.playSound)
 	ClientErrors.start() -- the newest client errors ride along with a bug report
+	-- F93: the stray a swing would land on glows (NetSwingController fires NetInReach; older clients have none)
+	local inReach = (Moments :: any).NetInReach
+	if inReach ~= nil then
+		reachConnection = inReach:Connect(function(model: Model?)
+			UI.net.setInReach(model)
+		end)
+	end
 
 	local player = Players.LocalPlayer
 	local parent: Instance = config.parent or player:WaitForChild("PlayerGui")
@@ -965,6 +976,9 @@ function UI.init(config: Types.InitConfig)
 		claimAchievement = function(achievementId: string)
 			UI.events.claimAchievement:Fire(achievementId)
 		end,
+		claimAll = function(what: string)
+			UI.events.claimAll:Fire(what)
+		end,
 		close = closeModal,
 	})
 	local questsView = questsScreen :: Quests.Quests
@@ -1084,6 +1098,14 @@ function UI.init(config: Types.InitConfig)
 		end,
 		lift = function()
 			return hudInstance:bottomTop()
+		end,
+	})
+	netButton = NetButton.new(parent, {
+		swing = function()
+			UI.events.netSwing:Fire()
+		end,
+		blocked = function()
+			return UI.catch.circlesActive() or UI.rescue.isActive()
 		end,
 	})
 	toasts = Toasts.new(parent)
@@ -1349,6 +1371,14 @@ function UI.destroy()
 	if tackleBar then
 		tackleBar:destroy()
 	end
+	if netButton then
+		netButton:destroy()
+	end
+	NetGlow.set(nil)
+	if reachConnection ~= nil then
+		reachConnection:Disconnect()
+		reachConnection = nil
+	end
 	if toasts then
 		toasts:destroy()
 	end
@@ -1367,11 +1397,11 @@ function UI.destroy()
 	hud, upgrades, decor, collection, modal, catch, toasts, popups =
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
-	locationMarkers, zoneSafe = nil, nil
+	locationMarkers = nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
 	cafeSigns, worldTags, actionPills, richTipScreen, tillTips = nil, nil, nil, nil, nil
 	catCard = nil
-	tackleBar = nil
+	tackleBar, netButton = nil, nil
 	Scale.stop()
 	Sound.set(nil)
 	initialized = false
@@ -1500,45 +1530,10 @@ end
 -- Cat levels (F75)
 ----------------------------------------------------------------------------------------------------
 
-local LEVEL_UP_GATHER = 0.6 -- seconds: level ups that land together share one toast
-local levelUps: { [string]: number } = {} -- uid -> the newest level, until the toast
-local levelUpOrder: { string } = {}
-
-local function toastLevelUps()
-	local list: { CatCardLogic.LevelUp } = {}
-	local cats: { [string]: Types.CatInstance } = state.cats or {}
-	for _, uid in levelUpOrder do
-		local instance = cats[uid]
-		local def = lookupCat(if instance then instance.catId else nil)
-		local name = CatCardLogic.names(
-			if instance then instance.name else nil,
-			if def then def.name else "Your cat"
-		)
-		table.insert(list, { name = name, level = levelUps[uid] })
-	end
-	table.clear(levelUpOrder)
-	table.clear(levelUps)
-	local text = CatCardLogic.levelUpToast(list)
-	if text and toasts then
-		toasts:show(text, "good", true) -- quiet: Audio plays the level up chime from the same moment
-	end
-end
-
--- From the engineer's CatLevelUp(uid, level), the owner only: "Biscuit reached level 12!". Level ups that land
--- within LEVEL_UP_GATHER share one toast ("Biscuit and 2 more cats reached a new level!"), since a room of resting
--- cats can level together. The sparkle comes from the model's Level attribute (Effects) and the chime from Audio.
-function UI.catLevelUp(uid: string, level: number)
-	if type(uid) ~= "string" or type(level) ~= "number" then
-		return
-	end
-	if levelUps[uid] == nil then
-		table.insert(levelUpOrder, uid)
-		if #levelUpOrder == 1 then
-			task.delay(LEVEL_UP_GATHER, toastLevelUps)
-		end
-	end
-	levelUps[uid] = math.max(levelUps[uid] or 0, level)
-end
+-- From the engineer's CatLevelUp(uid, level), the owner only. No toast since 2026-11-02 (Derek 2026-10-28: "the
+-- levelup notifications for cats are a little spammy no need for that"): the cat's hover card shows its level and
+-- XP bar, which the next ProfileSync moves. Kept so the controller's call stays valid.
+function UI.catLevelUp(_uid: string, _level: number) end
 
 function UI.showOfflineEarnings(amount: number, seconds: number)
 	if popups then
@@ -1975,6 +1970,41 @@ function UI.shove.result(ok: boolean, outcome: string?, targetUserId: number?)
 end
 
 ----------------------------------------------------------------------------------------------------
+-- The net swing (F93, catch-rework.md section 1)
+----------------------------------------------------------------------------------------------------
+
+UI.net = {}
+
+-- From NetSwingController whenever a swing becomes possible or not (carrying, a minigame, the intro, a flight, a
+-- camp). The touch Net button shows while this is on, the player stands in a catching area (UI.setZone) or has a
+-- stray in reach (a dropped cat on the street, reviewer N298), and no circles or rescue bar are up; a press fires
+-- events.netSwing.
+function UI.net.setEnabled(on: boolean)
+	if netButton then
+		netButton:setEnabled(on)
+	end
+end
+
+-- The stray a swing would land on right now, or nil: a soft glow on it (Moments.NetInReach calls this too).
+function UI.net.setInReach(model: Model?)
+	NetGlow.set(model)
+	if netButton then
+		netButton:setInReach(model ~= nil)
+	end
+end
+
+-- One short line on how to swing on this device, for the tutorial strip and hints: "Tap NET next to a cat",
+-- "Press R2 next to a cat" or "Click next to a cat".
+function UI.net.hint(): string
+	if Scale.isTouch() then
+		return "Tap NET next to a cat"
+	elseif UserInputService.GamepadEnabled and not UserInputService.MouseEnabled then
+		return "Press R2 next to a cat"
+	end
+	return "Click next to a cat"
+end
+
+----------------------------------------------------------------------------------------------------
 -- Carry indicator and tutorial hooks
 ----------------------------------------------------------------------------------------------------
 
@@ -2261,22 +2291,15 @@ local function watchDusk(phase: Types.ClockPhase, phaseEndsAt: number)
 end
 
 -- The World.Zones name the player stands in, from the controller's zone check (the one that picks the ambience):
--- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). Walking back to safety toasts at most
--- once in SAFE_TOAST_SECONDS (walking along an area's open edge flips the zone several times). The "Safe zone" chip
--- under the tier pill went on 2026-10-28 (Derek: "no need for 'safe zone' or danger zone bubble its just clutter").
-local SAFE_TOAST_SECONDS = 20
+-- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). It only times the dusk warning now:
+-- the "Safe zone" chip went on 2026-10-28 (Derek: "no need for 'safe zone' or danger zone bubble its just clutter")
+-- and the "Safe zone: no tackling here" toast on 2026-11-02 (Derek 2026-10-28: "no need for the safe area reached
+-- banner either").
 function UI.setZone(zone: string?)
 	currentZone = zone
 	showDusk() -- walking into an area during the dusk warning
-	local safe = Wayfinding.isSafe(zone)
-	local cameBack = zoneSafe == false and safe
-	zoneSafe = safe
-	if cameBack and os.clock() - safeToastAt >= SAFE_TOAST_SECONDS then
-		safeToastAt = os.clock()
-		-- quiet: Audio plays its own zone chime from Audio.setZone
-		if toasts then
-			toasts:show("Safe zone: no tackling here", "good", true)
-		end
+	if netButton then
+		netButton:setInArea(not Wayfinding.isSafe(zone))
 	end
 end
 
@@ -2574,14 +2597,16 @@ function UI.rescue.show(rescueSpotId: string, challenge: Types.RescueChallenge)
 	})
 end
 
--- From RescueResult(rescueSpotId, hits, pawsLeft, done, success): the server's hit count, the paws left, and
--- whether the attempt is over. A success then moves the player to carry, as after a catch.
+-- From RescueResult(rescueSpotId, hits, pawsLeft, done, success, bar?): the server's hit count, the paws left, and
+-- whether the attempt is over. A success then moves the player to carry, as after a catch. F93: `bar` is how the
+-- marker runs and which zone to hit from now (after a hit, or a zone that ran out unhit, which also costs a paw).
 function UI.rescue.update(
 	rescueSpotId: string,
 	hits: number,
 	pawsLeft: number?,
 	done: boolean,
-	success: boolean
+	success: boolean,
+	bar: Types.RescueBar?
 )
 	if rescueSpotId ~= rescueTarget then
 		return
@@ -2602,7 +2627,7 @@ function UI.rescue.update(
 		return
 	end
 	if rescueBar then
-		rescueBar:update(hits, pawsLeft, done, success)
+		rescueBar:update(hits, pawsLeft, done, success, bar)
 	end
 end
 

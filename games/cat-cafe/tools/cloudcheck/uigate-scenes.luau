@@ -192,18 +192,29 @@ end
 function Scenes.setup()
 	Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog")
 	UI = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI")
+	-- Claim all in the Quests window shows once the server has ClaimAll (Gameplay-Engineer); the gate checks it now
+	UIShim.require("ReplicatedStorage.Shared.Config").QuestClaimAll = true
 	UI.init({ catalog = catalogLikeTheGame(), keybinds = true })
 	local now = os.time()
 	UI.update(samplePlayer(now))
 	UI.tipJar.set({ sessionStartedAt = workspace:GetServerTimeNow() - 25 * 60, claimed = { [1] = true } })
 end
 
--- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window
+-- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
+-- "Daily.Quest2.Claim" walks down one name at a time
 local function press(windowName, name)
 	local playerGui = UIShim.playerGui
-	local window = playerGui:FindFirstChild(windowName, true)
+	-- windows sit in CatCafeModals.Root.Container; the HUD and the Index have pieces with the same names (Cats)
+	local modals = playerGui:FindFirstChild("CatCafeModals")
+	local rootFrame = modals and modals:FindFirstChild("Root")
+	local container = rootFrame and rootFrame:FindFirstChild("Container")
+	local window = (container and container:FindFirstChild(windowName))
+		or playerGui:FindFirstChild(windowName, true)
 	assert(window, "uigate: no window " .. windowName)
-	local holder = window:FindFirstChild(name, true)
+	local holder = window
+	for part in string.gmatch(name, "[^%.]+") do
+		holder = holder and holder:FindFirstChild(part, true)
+	end
 	assert(holder, "uigate: no " .. name .. " in " .. windowName)
 	local button = if holder:IsA("GuiButton") then holder else holder:FindFirstChildWhichIsA("GuiButton", true)
 	assert(button, "uigate: " .. name .. " has no button")
@@ -220,6 +231,26 @@ local CODE_PRIZE = {
 	crates = { classic_crate = 1 },
 }
 
+-- an F93 rescue bar mid attempt: a Legendary needs six hits, one landed, with a spare zone per paw
+local function rescueChallenge()
+	local t = workspace:GetServerTimeNow()
+	return {
+		kind = "bar",
+		startsAt = t - 1,
+		phase = 0.3,
+		speed = 0.9,
+		zoneWidth = 0.16,
+		zones = { 0.3, 0.7, 0.45, 0.82, 0.2, 0.6, 0.35, 0.75, 0.5 },
+		hitsNeeded = 6,
+		paws = 3,
+		endsAt = t + 9,
+		zone = 1,
+		zoneEndsAt = t + 1.5,
+		zonePasses = 2,
+		speedUpPerHit = 0.08,
+	}
+end
+
 -- name, how the game opens it
 local SCENES = {
 	{ "Upgrades", function()
@@ -233,6 +264,13 @@ local SCENES = {
 	end },
 	{ "Cats", function()
 		UI.open("Cats")
+	end },
+	{ "CatsPicked", function()
+		UI.open("Cats")
+		-- the cards build on the next frame; the gold cat, level 13, at work: favourite or Likes, Gold and level chips
+		task.delay(0.2, function()
+			press("Cats", "gate_3")
+		end)
 	end },
 	{ "RankUp", function()
 		UI.open("RankUp")
@@ -282,8 +320,42 @@ local SCENES = {
 		UI.open("Quests")
 		press("Quests", "WeeklyTab")
 	end },
+	{ "QuestsAchievements", function()
+		UI.open("Quests")
+		press("Quests", "AchievementsTab")
+	end },
+	-- a claim shows at once: the row reads Claimed and drops to the bottom (Derek 2026-10-29)
+	{ "QuestsClaimed", function()
+		UI.open("Quests")
+		press("Quests", "DailyTab")
+		press("Quests", "Daily.Quest2.Claim")
+	end },
+	-- Claim all on the Achievements tab (two met in the sample player)
+	{ "QuestsClaimAll", function()
+		UI.open("Quests")
+		press("Quests", "AchievementsTab")
+		press("Quests", "ClaimAll")
+	end },
 	{ "DailyTreat", function()
 		UI.open("DailyTreat")
+	end },
+	-- F93: the rescue bar after one hit, the zone moved on and the marker sped up (the scene is drawn about two
+	-- seconds in, so the zone keeps a few seconds)
+	{ "Rescue", function()
+		UI.rescue.show("gate_rescue", rescueChallenge())
+		local t = workspace:GetServerTimeNow()
+		UI.rescue.update("gate_rescue", 1, 3, false, false, {
+			zone = 2,
+			startsAt = t,
+			phase = 0.6,
+			speed = 0.97,
+			zoneEndsAt = t + 5,
+		})
+	end },
+	-- F93: the touch Net button, in a catching area while a swing could go (phones only)
+	{ "NetButton", function()
+		UI.setZone("Alley")
+		UI.net.setEnabled(true)
 	end },
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
@@ -307,6 +379,9 @@ end
 
 function Scenes.close()
 	UI.close()
+	UI.rescue.hide()
+	UI.net.setEnabled(false)
+	UI.setZone(nil)
 end
 
 return Scenes

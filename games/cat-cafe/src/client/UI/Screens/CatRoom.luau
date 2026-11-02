@@ -17,6 +17,9 @@
 --   Keeps up    (F86) an older Legendary or Mythical earning like a newer area's cat has a "Keeps up" tag on its
 --               card and its detail; the detail's tag says why when pressed (Components/KeepUp). The rate shown is
 --               the server's kept-up rating.
+-- Phone   on a short touch screen (under COMPACT_H design px of room) the grid takes the whole width and the
+--          picked cat's detail opens over the window as a sheet with Back to the grid, its buttons a finger tall
+--          (Scale.tapHeight); Assign drops the sheet so a "+" in the crew strip can be tapped, and it comes back after.
 -- MyCats owns the window; this view only reads state and calls back.
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -30,6 +33,7 @@ local Format = require(script.Parent.Parent.Components.Format)
 local KeepUp = require(script.Parent.Parent.Components.KeepUp)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RenameDialog = require(script.Parent.RenameDialog)
+local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local StaffSlots = require(script.Parent.Parent.Components.StaffSlots)
 local Theme = require(script.Parent.Parent.Theme)
@@ -71,6 +75,7 @@ local BUFFS_H = 52 -- the buff chips: two lines of BUFF_H
 local BUFF_H = 22
 local BUFF_GAP = 6
 local KEEP_W = 74 -- the detail's "Keeps up" tag at the end of the rate line
+local COMPACT_H = 420 -- design px of room under which a touch screen gets the phone layout
 -- cards this far above or below the visible part of the grid already get their cat model (reviewer N71)
 local PORTRAIT_MARGIN = 240
 local NOTICE_SECONDS = 3
@@ -167,6 +172,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	self._state = nil :: Types.PlayerState?
 	self._buttons = {} :: { any }
 	self._connections = {} :: { RBXScriptConnection }
+	self._compact = false -- the phone layout (_layout)
 	self.frame = parent
 
 	-- crew strip: the role slots, scrolling sideways if a later catalog adds more
@@ -329,7 +335,15 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		Parent = parent,
 	})
 
+	self._bodyTop = bodyTop
 	self:_buildDetail(parent, bodyTop)
+	self:_layout()
+	table.insert(
+		self._connections,
+		parent:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			self:_layout()
+		end)
+	)
 
 	self._rename = RenameDialog.new(parent, function(uid: string, name: string)
 		self._callbacks.renameCat(uid, name)
@@ -390,6 +404,9 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 	self._detailShiny.Visible = false
 
 	local textLeft = DETAIL_ART + 14
+	self._textLeft = textLeft
+	local renameW = Scale.tapHeight(RENAME_W, Theme.sizes.buttonDepth)
+	self._renameW = renameW
 	self._detailName = text({
 		Name = "Name",
 		Position = UDim2.fromOffset(textLeft, 8),
@@ -413,22 +430,20 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		TextColor3 = Theme.colors.caramelDark,
 		Parent = body,
 	})
-	table.insert(
-		self._buttons,
-		Button.new({
-			name = "Rename",
-			text = "✏️",
-			style = "ghost",
-			size = UDim2.fromOffset(RENAME_W, RENAME_W),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -8, 0, 6),
-			textSize = Theme.sizes.textSmall,
-			parent = body,
-			onClick = function()
-				self:_openRename()
-			end,
-		})
-	)
+	self._renameButton = Button.new({
+		name = "Rename",
+		text = "✏️",
+		style = "ghost",
+		size = UDim2.fromOffset(renameW, renameW),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -8, 0, 6),
+		textSize = Theme.sizes.textSmall,
+		parent = body,
+		onClick = function()
+			self:_openRename()
+		end,
+	})
+	table.insert(self._buttons, self._renameButton)
 	self._detailRate = text({
 		Name = "Rate",
 		Position = UDim2.fromOffset(10, DETAIL_ART + 14),
@@ -494,8 +509,30 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		}),
 	})
 	self._buffsKey = ""
+	-- the phone sheet's way back to the grid, top right, the pencil left of it (_layout); "Back", so it is not
+	-- taken for the window's own X
+	local backW = renameW + 40
+	self._backW = backW
+	self._back = Button.new({
+		name = "Back",
+		text = "Back",
+		style = "ghost",
+		size = UDim2.fromOffset(backW, renameW),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -8, 0, 6),
+		textSize = Theme.sizes.textSmall + 1,
+		sound = "uiClose",
+		parent = body,
+		onClick = function()
+			self:_select(nil)
+		end,
+	})
+	self._back.instance.Visible = false
+	table.insert(self._buttons, self._back)
 	-- the breed's line from the catalog, where the window is tall enough for it
-	local actionsH = Theme.sizes.touchMin
+	local actionsH = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
+	local lockH = Scale.tapHeight(LOCK_H, Theme.sizes.buttonDepth)
+	self._lockH = lockH
 	local descTop = favTop + BUFFS_H + 6
 	self._descBottom = descTop + actionsH + 18 -- grows by the Lock row while it shows
 	self._detailDesc = text({
@@ -515,7 +552,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		name = "Lock",
 		text = "",
 		style = "ghost",
-		size = UDim2.new(1, -16, 0, LOCK_H),
+		size = UDim2.new(1, -16, 0, lockH),
 		anchorPoint = Vector2.new(0, 1),
 		position = UDim2.new(0, 8, 1, -(10 + actionsH + 6)),
 		textSize = Theme.sizes.textSmall,
@@ -838,8 +875,50 @@ function CatRoom._rateOf(self: any, instance: Types.CatInstance): (number, boole
 	return rate * (if favorite then 1.5 else 1), favorite
 end
 
+-- The phone layout or the wide one, from the room the window has (design px, Scale.get()).
+function CatRoom._layout(self: any)
+	local scale = Scale.get()
+	local height = self.frame.AbsoluteSize.Y / (if scale > 0 then scale else 1)
+	local compact = Scale.isTouch() and height > 0 and height < COMPACT_H
+	if compact == self._compact and self._laidOut then
+		return
+	end
+	self._laidOut = true
+	self._compact = compact
+	local bodyTop: number = self._bodyTop
+	local detail: Frame = self._detail
+	local side = if compact then 0 else DETAIL_W + GAP
+	self._grid.Size = UDim2.new(1, -side, 1, -bodyTop)
+	self._empty.Size = UDim2.new(1, -side, 0, 48)
+	if compact then
+		detail.AnchorPoint = Vector2.zero
+		detail.Position = UDim2.new()
+		detail.Size = UDim2.fromScale(1, 1)
+		detail.ZIndex = 5
+	else
+		detail.AnchorPoint = Vector2.new(1, 0)
+		detail.Position = UDim2.new(1, 0, 0, bodyTop)
+		detail.Size = UDim2.new(0, DETAIL_W, 1, -bodyTop)
+		detail.ZIndex = 1
+		detail.Visible = true
+	end
+	-- the pencil moves left of the sheet's X
+	local renameW: number = self._renameW
+	self._back.instance.Visible = compact
+	local rename = self._renameButton
+	if rename then
+		rename.instance.Position =
+			UDim2.new(1, if compact then -(8 + self._backW + 6) else -8, 0, 6)
+	end
+	local textRight = self._textLeft + renameW + 10 + (if compact then self._backW + 6 else 0)
+	self._detailName.Size = UDim2.new(1, -textRight, 0, 24)
+	self._detailBreed.Size = UDim2.new(1, -textRight, 0, 18)
+	self:_refresh()
+end
+
 function CatRoom._select(self: any, uid: string?)
-	if self._selected ~= uid then
+	if self._selected ~= uid or self._compact then
+		-- on a phone a tap on the cat again also ends Assign, so its sheet comes back
 		self._placing = false
 		self._confirmSell = false
 		self._notice = nil
@@ -1175,6 +1254,8 @@ end
 function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	local uid: string? = self._selected
 	local instance = if uid then cats[uid] else nil
+	-- the phone sheet shows only with a cat picked, and steps aside while Assign waits for a "+"
+	self._detail.Visible = not self._compact or (instance ~= nil and not self._placing)
 	self._detailBody.Visible = instance ~= nil
 	self._detailEmpty.Visible = instance == nil
 	if not instance then
@@ -1260,7 +1341,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 			else Theme.icons.unlock .. " Lock so it can't be sold"
 	)
 	self._lock:setStyle(if locked then "gold" else "ghost")
-	local descBottom = self._descBottom + (if live then LOCK_H + 6 else 0)
+	local descBottom = self._descBottom + (if live then self._lockH + 6 else 0)
 	self._detailDesc.Size = UDim2.new(1, -20, 1, -descBottom)
 
 	-- actions: Assign (Move), Rest, Sell; a sell to confirm becomes Cancel and a wide "Sell $150"

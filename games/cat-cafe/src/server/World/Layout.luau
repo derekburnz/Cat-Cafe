@@ -856,11 +856,12 @@ Layout.park = {
 -- spots and their traps are built into the sets. Since v3.1 (F77) the Neighbourhood opens on its -Z side at the
 -- street's north end, the Woods on its +X side and the Sewer on its -X side, through the back alleys' outer walls.
 --
--- The Neighbourhood at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Neighbourhood_SetV32
--- (#505, area-sets.md "The Neighbourhood (v3.2)") fills the 280 x 280 floor behind the same gate. Whisker Lane winds
--- round two blocks of houses, each with one gap, past the village green to the playground hub, and Paw Crescent loops
--- round the far third to the corner shop, with the back gardens and the allotments behind it. Its cat spots are `near`
--- on the gate half and `deep` on the far half; its two sheds and two gutters are built into it, one of each deep.
+-- The long Neighbourhood (F85, hometown-cannon.md section 6b; Model-Agent #810, area-sets.md "The Neighbourhood
+-- (F85)"): a 180 x 430 wild part with its camp 30 more in front of the gate. Its set, camp, gate, night fence and
+-- backdrop carry the F85 suffix (artSuffix). Five blockers cross the width with their gaps on alternating sides: the
+-- first house block, the village green's fence, the road works, the second house block and the garden wall, to the
+-- corner shop and the playground at the far end. Its cat spots are `near` on the camp half and `deep` on the far half;
+-- its two sheds and two gutters are built into it, three of the four deep.
 local NX, NZ = W.NeighbourhoodCenterX, W.NeighbourhoodCenterZ
 local NGATE = NZ - W.NeighbourhoodDepth / 2 -- its south side
 local NTURN = townTurn(NX, NZ, nil, NGATE)
@@ -870,84 +871,88 @@ Layout.neighbourhood = {
 	halfWidth = W.NeighbourhoodWidth / 2,
 	halfDepth = W.NeighbourhoodDepth / 2,
 	gateZ = NGATE,
-	set = "CatCafe_Neighbourhood_SetV32",
+	openingHalfWidth = W.CampOpeningWidth / 2,
+	set = "CatCafe_Neighbourhood_SetF85",
+	artSuffix = "F85",
 	spawnPoints = (function(): { Point }
 		local points = setPoints(NX, NZ, NTURN, 0.1, {
-			{ -110.2, 1, -98.9 }, -- porch steps
-			{ -58.2, 1, -98.9 },
-			{ -1.7, 1, -98.9 },
-			{ 77.8, 1, -98.9 },
-			{ -89.8, 1, -59.1 },
-			{ -11.8, 1, -59.1 },
-			{ 14.2, 1, -59.1 },
-			{ 98.2, 1, -59.1 },
-			{ -98.2, 1, -32.9 },
-			{ 16.3, 1, -32.9 },
-			{ 63.8, 1, -32.9 },
-			{ 120.3, 1, -32.9 },
-			{ -77.5, 0.7, -102.2 }, -- flower beds
-			{ 23.5, 0.7, -102.2 },
-			{ 110.5, 0.7, -102.2 },
-			{ -122.5, 0.7, -55.8 },
-			{ -67.5, 0.7, -55.8 },
-			{ 68.5, 0.7, -55.8 },
-			{ -10.5, 0.7, -36.2 },
-			{ 93.5, 0.7, -36.2 },
-			{ 120, 0, -92 }, -- a front garden
-			{ -121.5, 0.29, -35 }, -- the parked cars
-			{ 73, 0.34, -119.2 },
-			{ -40, 1.65, -124.4 }, -- the bus stop
-			{ 16.2, 0, -128 }, -- the post box
-			{ 62, 0, -123.6 }, -- the verge benches
-			{ -78, 0, -123.6 },
-			{ -24, 0, -100.8 }, -- the bins
+			{ -67.2, 1, -166.9 }, -- porch
+			{ 10.8, 1, -166.9 },
+			{ 0.7, 1, -127.1 },
+			{ 46.2, 1, -127.1 },
+			{ -34.5, 0.7, -170.2 }, -- flowerbed
+			{ 55.5, 0.7, -170.2 },
+			{ -50.5, 0.7, -123.8 },
+			{ -18, 0.62, -100 },
+			{ -14.6, 1.65, -200 }, -- bus stop
+			{ 16.2, 0, -196 }, -- post box
+			{ -58, 0, -197.6 }, -- verge bench
+			{ 56, 0, -197.6 },
+			{ 44, 0, -207 }, -- bins
+			{ -40, 0.34, -187 }, -- car
+			{ -58.5, 0, -93 }, -- oak
+			{ -40.56, 0, -99.96 }, -- picnic
+			{ 44.69, 0, -99.94 },
+			{ -57.66, 0, -68.55 }, -- green bench
+			{ 36.5, 0, -82 }, -- birdbath
+			{ -47, 0.34, -107.4 }, -- van
+			{ -67.6, 0.6, -46 }, -- veg bed
+			{ 0.4, 0.6, -46 },
+			{ -39.6, 0.6, -8 },
+			{ -72, 0.52, -11 }, -- greenhouse
+			{ 27.5, 0, -41.5 }, -- scarecrow
+			{ 80.5, 0, -30 }, -- compost
+			{ -58.5, 0, -35.5 }, -- water butt
+			{ -30, 0, -24 }, -- allotments
+			{ -73.8, 0, -3.8 }, -- works hut
 		}, "near")
 		for _, point in
 			setPoints(NX, NZ, NTURN, 0.1, {
-				{ -59.1, 1, 12.8 }, -- porch steps
-				{ -59.1, 1, 48.8 },
-				{ 31.1, 1, 48.7 },
-				{ -53.88, 1, 92.28 },
-				{ -36.9, 1, 108.96 },
-				{ 29.34, 1, 82.79 },
-				{ 14.76, 0.7, 101.02 }, -- flower beds
-				{ -8, 0.62, 34 },
-				{ -78, 0, 132 }, -- a front garden
-				{ -27.5, 0.3, 110.8 }, -- the corner shop: its bench
-				{ -14, 0.4, 116.1 }, -- its step
-				{ -23, 0.3, 112.9 }, -- its fruit stall
-				{ -16.89, 0, 73.44 }, -- the playground: the tyre swing
-				{ -25.3, 4, 76.95 }, -- the slide's deck
-				{ -16, 0, 53.5 }, -- the swings
-				{ -0.61, 0.55, 65.97 }, -- the sandpit
-				{ -25, 0.72, 63 }, -- the roundabout
-				{ -5.25, 0, 79.7 }, -- the seesaw
-				{ -23.5, 0, 26.5 }, -- the village green: the oak
-				{ 1.31, 0, 18.06 }, -- a picnic table
-				{ -31, 0, 18.14 }, -- a bench
-				{ 26.6, 0.24, 40 }, -- the ice cream van
-				{ -118, 1.73, 14 }, -- the back gardens: the trampoline
-				{ -108, 0, 31.5 }, -- the washing line
-				{ -84, 0, 0.5 }, -- a deckchair
-				{ -80.5, 0, 21 }, -- the gnomes
-				{ -118, 0, 57 }, -- the paddling pool
-				{ -111.31, 0, 86.82 }, -- the playhouse
-				{ -77.6, 0, 70 }, -- a bench
-				{ -101.5, 0, 54 }, -- the bird bath
-				{ -118, 0.52, 120.5 }, -- the greenhouses
-				{ 101.4, 0.52, 80 },
-				{ 46.4, 0.6, 117 }, -- the allotments: the veg beds
-				{ 102.4, 0.6, 99 },
-				{ 64.4, 0.6, 59 },
-				{ 108.4, 0.6, 18 },
-				{ 80.5, 0, 74.5 }, -- the water butt
-				{ 57.5, 0, 96 }, -- the scarecrow
-				{ 47.5, 0, 70 }, -- the compost bins
-				{ 93.6, 0, 25.4 }, -- the potting bench
-				{ 44.5, 0, 24 }, -- the sunflowers
-				{ 96, 0, 130.4 }, -- a bench
-				{ 122, 0, 88 }, -- the plots
-				{ 60, 0, 4 },
+				{ -70.2, 1, 27.1 }, -- porch
+				{ -0.7, 1, 27.1 },
+				{ 72.8, 1, 27.1 },
+				{ -51.8, 1, 66.9 },
+				{ -10.8, 1, 66.9 },
+				{ 67.2, 1, 66.9 },
+				{ 51.3, 1, 179.1 },
+				{ -42.5, 0.7, 23.8 }, -- flowerbed
+				{ 24.5, 0.7, 23.8 },
+				{ 50.5, 0.7, 23.8 },
+				{ -82.5, 0.7, 70.2 },
+				{ 37.5, 0.7, 70.2 },
+				{ 6, 0.7, 96 },
+				{ 76.5, 0.7, 175.8 },
+				{ -60, 0, 156.8 }, -- verge bench
+				{ -60, 0.34, 87 }, -- car
+				{ 18.5, 0, 112 }, -- birdbath
+				{ 72, 0.52, 137 }, -- greenhouse
+				{ 50.5, 0, 2 }, -- sunflowers
+				{ -8, 0, 0.4 }, -- allot bench
+				{ 4, 0.34, 7.5 }, -- works
+				{ -62, 0.34, 20.5 },
+				{ -72, 1.73, 100 }, -- trampoline
+				{ -60, 0, 131.5 }, -- washing
+				{ -80, 0, 104.5 }, -- deckchair
+				{ -46, 0, 104 }, -- gnomes
+				{ -40, 0, 133 }, -- pool
+				{ 57.2, 0, 103 }, -- playhouse
+				{ -1.11, 0, 125.77 }, -- garden bench
+				{ -84, 0, 140 }, -- garden
+				{ 84, 0, 96 },
+				{ 74, 0, 154.5 }, -- verge
+				{ 0, 0.4, 198.3 }, -- shop step
+				{ -9, 0.3, 195.1 }, -- fruit stall
+				{ -12.5, 0.3, 188.3 }, -- shop bench
+				{ -78.89, 0, 199.44 }, -- tyre
+				{ -28, 4, 198 }, -- slide
+				{ -53, 0, 200.5 }, -- swings
+				{ -32.61, 0.55, 184.97 }, -- sandbox
+				{ -56, 0.72, 186 }, -- roundabout
+				{ -76, 0, 179.4 }, -- seesaw
+				{ -40, 0, 177.4 }, -- play bench
+				{ 22, 0, 180 }, -- lawn
+				{ -82, 0.05, 179 }, -- far
+				{ -6, 0.3, 176 },
 			}, "deep")
 		do
 			table.insert(points, point)
@@ -956,10 +961,10 @@ Layout.neighbourhood = {
 	end)(),
 	rescueSpots = {
 		-- a shed's door and a gutter's drainpipe face the piece's -Z; the gutters are on house corners, 7 up
-		setTrap(NX, NZ, NTURN, "shed", { 126.4, 0, -89.3 }),
-		setTrap(NX, NZ, NTURN, "shed", { 85.3, 0, 83.4 }, -90),
-		setTrap(NX, NZ, NTURN, "gutter", { -53.4, 7.05, -60.5 }, 180),
-		setTrap(NX, NZ, NTURN, "gutter", { 5.7, 7.05, 112.8 }, 34),
+		setTrap(NX, NZ, NTURN, "shed", { 65.4, 0, -33.3 }),
+		setTrap(NX, NZ, NTURN, "shed", { 76.7, 0, 108.6 }, 90),
+		setTrap(NX, NZ, NTURN, "gutter", { 36.4, 7.05, 28.5 }),
+		setTrap(NX, NZ, NTURN, "gutter", { 62.4, 7.05, 180.5 }),
 	},
 	props = {},
 } :: AreaSpec
@@ -1399,7 +1404,7 @@ end
 -- centre on its floor, turned by the camp's turn): in the camp beside the way out, across from the Index Board.
 Layout.campExtras = {
 	park = { x = 19, y = 0, z = -160.5 }, -- F85: in the long camp, left of the flower bed (Model-Agent 11-02)
-	neighbourhood = { x = 26, y = 0, z = -145.5 },
+	neighbourhood = { x = 22, y = 0, z = -220.5 }, -- F85: in the long camp, clear of its mailbox (Model-Agent)
 	woods = { x = 21.5, y = 0, z = -125 },
 	sewer = { x = 20, y = 0, z = -94.5 },
 } :: { [string]: Point }

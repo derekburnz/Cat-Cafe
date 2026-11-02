@@ -119,7 +119,7 @@ return function()
 		it("the area sets' cat spots stand on the set's ground, clear of its traps", function()
 			local sets: { [string]: string } = {
 				park = "CatCafe_Park_SetF85", -- F85 (#799)
-				neighbourhood = "CatCafe_Neighbourhood_SetV32",
+				neighbourhood = "CatCafe_Neighbourhood_SetF85", -- F85 (#810)
 				woods = "CatCafe_Woods_SetV32",
 				sewer = "CatCafe_Sewer_SetV32",
 			}
@@ -151,7 +151,7 @@ return function()
 				local pieceTurns: { number } = if id == "woods"
 					then { 20, -20, 0, 0, -106.26 }
 					elseif id == "sewer" then { 0, 0, 90, -90 }
-					elseif id == "neighbourhood" then { 0, -90, 180, 34 }
+					elseif id == "neighbourhood" then { 0, 90, 0, 0 }
 					else {}
 				local built = 0
 				for _, spot in spec.rescueSpots do
@@ -170,7 +170,7 @@ return function()
 				local gx, gz = Layout.gatePosition(spec)
 				expect(gx).to.be.ok()
 				-- the Park's plaza at local (-4, -145) is near its gate side, the Neighbourhood's porch at local
-				-- (-110.2, -98.9) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
+				-- (-67.2, -166.9) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
 				-- canal bridge at local (44, -61) near its own
 				local index = if id == "woods" then 8 else 1
 				local point = spec.spawnPoints[index]
@@ -224,11 +224,11 @@ return function()
 						byRegion = true,
 					},
 					{
-						id = "neighbourhood",
-						near = 28,
-						deep = 44,
+						id = "neighbourhood", -- F85 (#810): three of its four traps deep
+						near = 29,
+						deep = 45,
 						rare = 0,
-						deepTraps = 2,
+						deepTraps = 3,
 						byRegion = false,
 					},
 				}

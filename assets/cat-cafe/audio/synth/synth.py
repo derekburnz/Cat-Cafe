@@ -1748,6 +1748,64 @@ def team_rescue() -> np.ndarray:
     return finish(fade_tail(mix(d, (clap(956) * 0.45, 0.0), *notes, (under, 0.15)), 0.25), -5)
 
 
+# --- F90 cats make the orders (2026-11-02, cats-make-orders.md section 6): the espresso pour, the order's ding, the
+# Waiter's tray set down and the coin bag dropped in the till. The table sweep reuses tipPile's file. They live in
+# the Cafe sheet (mono, all 3D at the station, the table or the till). They repeat with every order, so each is
+# short and soft. ------------------------------------------------------------------------------------------------
+
+
+def order_pour() -> np.ndarray:
+    """A Barista starts a drink at the espresso machine: the pump's low hum, a thin stream filling a cup (its note
+    rising as the cup fills, a few small bubbles) and a little puff of steam to finish."""
+    d = 1.5
+    t = seconds(1.2)
+    pump = sum(np.sin(2 * np.pi * 95 * k * t) / k ** 1.5 for k in (1, 2, 3, 4))
+    pump *= np.clip(t / 0.15, 0, 1) * np.clip((1.2 - t) / 0.2, 0, 1) * 0.12
+    stream_t = seconds(1.0)
+    centre = sweep(1.0, 900, 1500)
+    stream = bandpass(bandpass(noise(1.0, 960), centre, 2.5), centre, 2.5)
+    stream *= (0.75 + 0.25 * np.sin(2 * np.pi * 11 * stream_t + 0.4)) * np.clip(stream_t / 0.06, 0, 1)
+    stream *= np.clip((1.0 - stream_t) / 0.15, 0, 1)
+    rng = np.random.default_rng(961)
+    bubbles = [(bubble(0.05, f, f * 1.6, 0.012) * (0.15 + 0.1 * rng.random()), at)
+               for f, at in zip(700 + 600 * rng.random(7), np.sort(0.25 + 0.8 * rng.random(7)))]
+    steam = swish(0.3, 5200, 3800, 962)
+    return finish(fade_tail(mix(d, (pump, 0.0), (stream / np.max(np.abs(stream)) * 0.5, 0.12), *bubbles,
+                                (steam / np.max(np.abs(steam)) * 0.2, 1.15)), 0.1), -8)
+
+
+def order_ding() -> np.ndarray:
+    """An order is ready ("ding!"): one strike of a small counter bell, bright and short. Audio raises it a note for
+    a drink and two for the counter, so the oven's ding is the lowest."""
+    d = 0.9
+    desk = ((1.0, 1.0, 0.45), (2.62, 0.35, 0.2), (4.1, 0.18, 0.1), (5.9, 0.08, 0.05))
+    strike = bell(d, note("E6"), desk, attack=0.0006)
+    tap = bandpass(noise(0.01, 963), 3500, 2.0) * envelope(0.01, 0.0003, 0.002)
+    return finish(fade_tail(mix(d, (strike, 0.0), (tap / np.max(np.abs(tap)) * 0.15, 0.0)), 0.3), -6)
+
+
+def tray_clink() -> np.ndarray:
+    """The Waiter sets a dish down at the table: a soft wooden tap and two small china clinks as the plate settles."""
+    d = 0.28
+    tap = glide(0.08, 260, 180, 0.03) * envelope(0.08, 0.001, 0.02)
+    tap += bandpass(noise(0.08, 964), 900, 1.2) * envelope(0.08, 0.0008, 0.012) * 0.3
+    china = ((1.0, 1.0, 0.05), (2.32, 0.5, 0.03), (3.7, 0.25, 0.015))
+    clinks = [(bell(0.15, f, china, attack=0.0004) * a, at) for f, at, a in ((2650.0, 0.005, 0.4), (3050.0, 0.07, 0.25))]
+    return finish(fade_tail(mix(d, (tap, 0.0), *clinks), 0.08), -7)
+
+
+def tip_bank() -> np.ndarray:
+    """A Waiter or Greeter drops its coin bag in the till: a soft cloth thump and a muffled jingle of the coins
+    settling inside."""
+    d = 0.4
+    thump = glide(0.12, 170, 110, 0.04) * envelope(0.12, 0.002, 0.03)
+    cloth = bandpass(bandpass(noise(0.1, 965), 700, 1.0), 700, 1.0) * envelope(0.1, 0.002, 0.025)
+    coins = [(bell(0.15, 2200.0 * (1 + 0.04 * ((i * 3) % 5 - 2)), COIN, attack=0.0005) * (0.3 - 0.05 * i),
+              0.02 + 0.04 * i) for i in range(4)]
+    jingle = muffle(mix(0.3, *coins), 1600) * 0.35
+    return finish(fade_tail(mix(d, (thump, 0.0), (cloth / np.max(np.abs(cloth)) * 0.3, 0.0), (jingle, 0.01)), 0.1), -7)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -1870,6 +1928,10 @@ SOUNDS = {
     "RescueFail": ("sheet-parts/sfx", "Sfx", rescue_fail),
     "RescueDone": ("sheet-parts/sfx", "Sfx", rescue_done),
     "TeamRescue": ("sheet-parts/sfx", "Sfx", team_rescue),
+    "OrderPour": ("sheet-parts/sfx", "Sfx", order_pour),
+    "OrderDing": ("sheet-parts/sfx", "Sfx", order_ding),
+    "TrayClink": ("sheet-parts/sfx", "Sfx", tray_clink),
+    "TipBank": ("sheet-parts/sfx", "Sfx", tip_bank),
 }
 
 # Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the
@@ -1891,6 +1953,8 @@ SHEETS = {
     # the rescue minigames and F92's Team Rescue chime (2026-11-02), mono: the trap hits and the drop play in 3D
     "Rescue": (1, ("RescueStart", "RescueHitBin", "RescueHitBag", "RescueHitTree", "RescueHitCan", "RescueHitTone",
                    "RescueMiss", "RescueDrop", "RescueFail", "RescueDone", "TeamRescue")),
+    # F90's cafe orders (2026-11-02), mono, all 3D
+    "Cafe": (1, ("OrderPour", "OrderDing", "TrayClink", "TipBank")),
 }
 
 

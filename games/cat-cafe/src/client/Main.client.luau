@@ -8,6 +8,7 @@ ReplicatedStorage:WaitForChild("Shared")
 ReplicatedStorage:WaitForChild("Remotes")
 
 local Audio = require(script.Parent.Audio)
+local CannonController = require(script.Parent.Controllers.CannonController)
 local CodesController = require(script.Parent.Controllers.CodesController)
 local CustomerController = require(script.Parent.Controllers.CustomerController)
 local DoorController = require(script.Parent.Controllers.DoorController)
@@ -27,6 +28,7 @@ DoorController.start()
 IntroController.start() -- after the UI and the world controller, whose hooks it uses
 StyleController.start()
 ShoveController.start()
+CannonController.start() -- F84: after the UI, whose cannon picker it opens
 CodesController.start()
 CustomerController.start()
 Effects.start()

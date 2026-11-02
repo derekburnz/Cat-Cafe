@@ -13,6 +13,7 @@ local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local CafeService = require(script.Parent.CafeService)
+local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
@@ -24,6 +25,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
+local Layout = require(script.Parent.Parent.World.Layout)
 local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
@@ -69,6 +71,7 @@ type Stray = {
 	returning: boolean,
 	recaught: boolean,
 	funnel: Telemetry.CatchFunnel?, -- the lock holder's catch_attempt funnel (F16)
+	knocks: number, -- F84: times tackles knocked this cat loose since it was first caught (camp_checkin)
 	alive: boolean,
 }
 
@@ -85,6 +88,7 @@ type Carry = {
 	funnel: Telemetry.CatchFunnel?, -- the catch_attempt funnel this cat came from (F16)
 	rushUntil: number?, -- server time the Catch Rush ends (F55); nil for a picked-up cat
 	homePos: Vector3?, -- F67: where it was caught (a rescue: the cat spot nearest its trap), for a Drop to walk back to
+	knocks: number, -- F84: times tackles knocked it loose since it was first caught (camp_checkin)
 }
 
 -- What a Dropped cat keeps from the arms it fell out of (section 10c): charm, gold and rescued flag.
@@ -95,6 +99,7 @@ type Kept = {
 	drop: Shove.Drop,
 	homePos: Vector3?, -- F67: where it was caught, carried on to the next carry
 	returning: boolean?, -- F67: let go with the Drop button, so it walks back to homePos
+	knocks: number?, -- F84: times tackles knocked it loose so far
 }
 
 local world: WorldBuilder.World
@@ -131,6 +136,29 @@ end
 local function withinRange(player: Player, position: Vector3, range: number): boolean
 	local root = rootPosition(player)
 	return root ~= nil and (root - position).Magnitude <= range
+end
+
+-- F84: true while the player's character is in a Cat Cannon flight or a cloud hop (CannonService, TravelService set
+-- these): no catch, pick up, rescue or tackle starts, and tackles pass through them.
+local function inFlight(player: Player): boolean
+	local character = player.Character
+	return character ~= nil
+		and (
+			character:GetAttribute("Launching") == true
+			or character:GetAttribute("CloudHopAt") ~= nil
+		)
+end
+
+-- F84: the camp the player stands in (its area id), or nil. Nobody catches, picks up, rescues or tackles in a camp.
+local function campOf(player: Player): string?
+	local root = rootPosition(player)
+	return if root ~= nil then Layout.campAt(root.X, root.Z) else nil
+end
+
+-- F84 (section 4): a drop spot in a camp or at its edge moves out into the wild part (Layout.outOfCamp).
+local function outOfCamp(position: Vector3): Vector3
+	local x, z = Layout.outOfCamp(position.X, position.Z)
+	return Vector3.new(x, position.Y, z)
 end
 
 local function areaUnlocked(profile: Types.PlayerProfile, areaId: string): boolean
@@ -481,6 +509,7 @@ local function spawnStray(
 		drop = if kept ~= nil then kept.drop else nil,
 		homePos = if kept ~= nil then kept.homePos else nil,
 		returning = kept ~= nil and kept.returning == true,
+		knocks = if kept ~= nil then kept.knocks or 0 else 0,
 		recaught = false,
 		alive = true,
 	}
@@ -508,17 +537,20 @@ end
 
 -- A free spawn point in the area, spread from the strays already there (Catching.spreadPick), or nil. Which points a
 -- stray of `rarity` may take is Catching.spawnPool's rule: the Woods' oak top for a Rare or better first, Epic and
--- rarer only in a nook or deep, never in a back alley lane or by a gate (F35, v3.1, F81).
+-- rarer only in a nook or deep, never in a back alley lane or by a gate (F35, v3.1, F81). The Alleyway's `near`
+-- points by its camp are the tutorial stray's alone (v4, F84, data-model section 9 v0.13.18), never free here.
+local TUTORIAL_AREA, TUTORIAL_ZONE = "alley", "near"
 local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
 	local slots: { Catching.SpawnSlot } = {}
 	for i, point in area.spawnPoints do
 		local zone = point:GetAttribute("Zone")
-		table.insert(
-			slots,
-			{ zone = if type(zone) == "string" then zone else nil, free = occupied[i] == nil }
-		)
+		local tutorialOnly = areaId == TUTORIAL_AREA and zone == TUTORIAL_ZONE
+		table.insert(slots, {
+			zone = if type(zone) == "string" then zone else nil,
+			free = occupied[i] == nil and not tutorialOnly,
+		})
 	end
 	local pool = Catching.spawnPool(slots, rarity)
 	-- Spread out (Derek 22:38): away from every stray already in the area, StraySpawnSpacingStuds apart when it can.
@@ -543,13 +575,28 @@ local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity)
 	return spawnStray(def, areaId, point.Position, pointIndex, nil)
 end
 
--- A beginner always finds a Common stray waiting in the back alley right outside their own yard gate: plot p's
--- lane points are alley points 2p - 1 and 2p (Layout.alley).
+-- The Alleyway's spawn point indices with zone `near`, in order: plot p owns the p-th (v4, F84).
+local function tutorialPoints(): { number }
+	local area = world.areas[TUTORIAL_AREA]
+	local list: { number } = {}
+	if area ~= nil then
+		for i, point in area.spawnPoints do
+			if point:GetAttribute("Zone") == TUTORIAL_ZONE then
+				table.insert(list, i)
+			end
+		end
+	end
+	return list
+end
+
+-- A beginner always finds a Common stray waiting just past the Alleyway camp's way out, at their plot's own `near`
+-- point (v4, F84, data-model section 9 v0.13.18: plot p owns near point p), where the intro shows it.
 local function tutorialTick()
 	if not ClockService.areasOpen() then
 		return -- nothing spawns at night (v0.9, F66); the beginner's stray comes with the sunrise
 	end
-	local occupied = occupiedPoints.alley or {}
+	local occupied = occupiedPoints[TUTORIAL_AREA] or {}
+	local near = tutorialPoints()
 	for _, player in DataService.loadedPlayers() do
 		local profile = DataService.get(player)
 		local plot = PlotService.get(player)
@@ -560,7 +607,8 @@ local function tutorialTick()
 		then
 			continue
 		end
-		local lane = { 2 * plot.index - 1, 2 * plot.index }
+		local own = near[plot.index]
+		local lane: { number } = if own ~= nil then { own } else {}
 		local waiting = false
 		local freePoint: number? = nil
 		for _, pointIndex in lane do
@@ -573,7 +621,7 @@ local function tutorialTick()
 			end
 		end
 		if not waiting and freePoint ~= nil then
-			spawnAt("alley", freePoint :: number, "Common")
+			spawnAt(TUTORIAL_AREA, freePoint :: number, "Common")
 		end
 	end
 end
@@ -756,7 +804,8 @@ local function startCarry(
 	variant: string?,
 	pickedUp: boolean?,
 	funnel: Telemetry.CatchFunnel?,
-	homePos: Vector3?
+	homePos: Vector3?,
+	knocks: number?
 ): boolean
 	if carrying[player] ~= nil then
 		warn(
@@ -778,6 +827,7 @@ local function startCarry(
 		immuneUntil = 0,
 		funnel = funnel,
 		homePos = homePos,
+		knocks = knocks or 0,
 	}
 	carrying[player] = carry
 	attachHeldCat(player, carry)
@@ -801,7 +851,7 @@ local function startCarry(
 	local name = if variant == "gold" then "gold " .. def.name else def.name
 	Net.toast(
 		player,
-		string.format("You %s %s! Walk it home to check in.", verb, withArticle(name)),
+		string.format("You %s %s! Bring it to the camp to check in.", verb, withArticle(name)),
 		"good"
 	)
 	return true
@@ -1002,8 +1052,9 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		-- where it stood for the catch (it stays put while locked), on the floor or perch it lives on (F67)
 		local at = stray.model:GetPivot().Position
 		local homePos = Vector3.new(at.X, stray.home.Y, at.Z)
+		local knocks = stray.knocks
 		despawn(stray, player)
-		startCarry(player, def, method, charm, variant, nil, funnel, homePos)
+		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks)
 		return
 	end
 
@@ -1040,13 +1091,14 @@ local function knockLoose(target: Player, shoverUserId: number, areaId: string):
 		return nil
 	end
 	local carry = endCarry(target) :: Carry
-	local feet = WorldBuilder.clampToArea(area, root, 2, root)
+	local feet = outOfCamp(WorldBuilder.clampToArea(area, root, 2, root))
 	return spawnStray(carry.def, areaId, feet, nil, nil, nil, {
 		charm = carry.charm,
 		variant = carry.variant,
 		method = carry.method,
 		drop = Shove.newDrop(target.UserId, shoverUserId, serverNow()),
 		homePos = carry.homePos,
+		knocks = carry.knocks + (if shoverUserId ~= 0 then 1 else 0),
 	})
 end
 
@@ -1078,6 +1130,13 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 	end
 	if inRescue(player) then
 		Net.fire(player, "GrabResult", strayId, false, "Finish this rescue first", true)
+		return
+	end
+	if inFlight(player) then
+		return -- mid flight or hop (F84): the prompt is out of reach anyway
+	end
+	if campOf(player) ~= nil then
+		Net.fire(player, "GrabResult", strayId, false, "Step out of the camp to catch it", true)
 		return
 	end
 	if not areaUnlocked(profile, stray.area) then
@@ -1225,7 +1284,8 @@ local function onPickUpCat(player: Player, rawStrayId: unknown)
 	local reason = Shove.pickUpRefusal({
 		dropped = stray.drop ~= nil,
 		carrying = carrying[player] ~= nil,
-		busy = inRescue(player) or holdsCatch(player),
+		busy = inRescue(player) or holdsCatch(player) or inFlight(player),
+		inCamp = campOf(player) ~= nil,
 		areaUnlocked = areaUnlocked(profile, stray.area),
 		areasClosed = not ClockService.areasOpen(),
 		distance = if root ~= nil then (root - stray.body.Position).Magnitude else nil,
@@ -1239,8 +1299,9 @@ local function onPickUpCat(player: Player, rawStrayId: unknown)
 	profile.stats.pickups += 1
 	local method: Types.CatchMethod = stray.method
 	local def, charm, variant, homePos = stray.def, stray.charm, stray.variant, stray.homePos
+	local knocks = stray.knocks
 	despawn(stray, player) -- logs drop_outcome against the player who ended up with it
-	startCarry(player, def, method, charm, variant, true, nil, homePos)
+	startCarry(player, def, method, charm, variant, true, nil, homePos, knocks)
 end
 
 -- Adds the cat to the player's cafe and, with `notify`, tells them and the server (CatCaught, the shout-out). The
@@ -1299,6 +1360,7 @@ local function leaveAtDusk(stray: Stray)
 		startedAt = serverNow(),
 		immuneUntil = 0,
 		funnel = nil,
+		knocks = stray.knocks,
 	}
 	despawn(stray, owner)
 	checkIn(owner, carry, true)
@@ -1326,6 +1388,24 @@ local function onCheckIn(player: Player)
 	finishCheckIn(player, true)
 end
 
+-- F84 (hometown-cannon.md section 4): a carrier who walks into a camp checks the cat in there, as at a door.
+-- CampCheckIn goes to every client first, while the cat is still in their arms, so each client copies it into the
+-- camp's basket; then CatCaught as for any check-in.
+local function campCheckIn(player: Player, campId: string)
+	local carry = carrying[player]
+	if carry == nil then
+		return
+	end
+	Net.fireAll("CampCheckIn", player.UserId, campId)
+	Telemetry.custom(
+		player,
+		"camp_checkin",
+		math.floor(serverNow() - carry.startedAt),
+		{ campId, carry.def.rarity, tostring(carry.knocks) }
+	)
+	finishCheckIn(player, true)
+end
+
 -- How near the straight path from `from` to `to` passes `point`.
 local function pathDistance(from: Vector3, to: Vector3, point: Vector3): number
 	local step = to - from
@@ -1337,13 +1417,21 @@ end
 -- The server's own check-in (Derek 2026-10-28 01:22: "make it friendlier so that you can't run past it"): ten times
 -- a second it checks every carrier's path since the last look, so one who runs straight past a door within
 -- CheckInRangeStuds is checked in even if the client's ask never came. A step longer than MAX_STEP_STUDS is a
--- teleport or a respawn, not a walk, so only its end counts (review N225).
+-- teleport or a respawn, not a walk, so only its end counts (review N225). A carrier inside a camp's rect checks in
+-- there (F84); a camp is CampDepth deep, so no run skips it between two looks.
 local MAX_STEP_STUDS = 16
 local lastCarrierAt: { [Player]: Vector3 } = {}
 local function checkInPassing()
 	local seen: { [Player]: Vector3 } = {}
 	for player in carrying do
 		local position = rootPosition(player)
+		local campId: string? = if position ~= nil
+			then Layout.campAt(position.X, position.Z)
+			else nil
+		if campId ~= nil then
+			campCheckIn(player, campId :: string)
+			continue
+		end
 		local plot = PlotService.get(player)
 		if position == nil or plot == nil then
 			continue
@@ -1363,6 +1451,21 @@ local function checkInPassing()
 		end
 	end
 	lastCarrierAt = seen
+end
+
+-- F84: each character's `Camp` attribute names the camp it stands in (its area id), nil elsewhere, for the client's
+-- Tackle button and safe zone chip; the server's own checks look again (campOf).
+local function markCamps()
+	for _, player in Players:GetPlayers() do
+		local character = player.Character
+		if character == nil then
+			continue
+		end
+		local campId = campOf(player)
+		if character:GetAttribute("Camp") ~= campId then
+			character:SetAttribute("Camp", campId)
+		end
+	end
 end
 
 -- F67 (data-model 10c v0.10) ------------------------------------------------------------------------------
@@ -1520,6 +1623,7 @@ local function dropAtNight(player: Player, carry: Carry, root: Vector3?)
 		method = carry.method,
 		drop = Shove.newDrop(player.UserId, 0, serverNow()),
 		homePos = carry.homePos,
+		knocks = carry.knocks,
 	})
 	local areaDef = Catalog.getArea(homeId)
 	Net.toast(
@@ -1565,7 +1669,7 @@ local function dropCarry(player: Player, died: boolean)
 	local stray = spawnStray(
 		carry.def,
 		areaId,
-		if root ~= nil then floorBelow(root) else home,
+		if root ~= nil then outOfCamp(floorBelow(root)) else home,
 		nil,
 		nil,
 		nil,
@@ -1576,6 +1680,7 @@ local function dropCarry(player: Player, died: boolean)
 			drop = Shove.newDrop(player.UserId, 0, serverNow()),
 			homePos = home,
 			returning = true,
+			knocks = carry.knocks,
 		}
 	)
 	task.spawn(walkHome, stray, home)
@@ -1613,6 +1718,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			-- one bad carrier must not end the check-ins for the server's life (review N226, as N185)
 			xpcall(checkInPassing, function(err: unknown)
 				warn("[CatService] check-in: " .. tostring(err))
+			end)
+			xpcall(markCamps, function(err: unknown)
+				warn("[CatService] camps: " .. tostring(err))
 			end)
 		end
 	end)
@@ -1728,6 +1836,16 @@ function CatService.inMinigame(player: Player): boolean
 	return CatService.inCatch(player) or inRescue(player)
 end
 
+-- F84: true mid Cat Cannon flight or cloud hop.
+function CatService.inFlight(player: Player): boolean
+	return inFlight(player)
+end
+
+-- F84: the camp the player stands in (its area id), or nil.
+function CatService.campOf(player: Player): string?
+	return campOf(player)
+end
+
 -- A landed shove on `target` (ShoveService). When the carry can be knocked loose (carrying, past BumpGraceSeconds
 -- and any held window) it rolls BumpChance, 1.0 since v0.8 F56: "loose" drops the cat where the target stood as a
 -- Dropped stray in `areaId` (knockLoose), "held" (only when BumpChance is tuned below 1) makes the carrier immune for
@@ -1830,8 +1948,11 @@ end
 -- Why the player cannot leave by fast travel right now, or nil: carrying a cat (walking it home is the loop and
 -- bumps depend on it), or in the middle of a catch or a rescue.
 function CatService.busyReason(player: Player): string?
+	if inFlight(player) then
+		return "You're already flying"
+	end
 	if carrying[player] ~= nil then
-		return "Walk your cat home first"
+		return Cannon.CARRY_TEXT -- every catching area is a wild area with a camp (F84)
 	end
 	if CatService.inCatch(player) then
 		return "Finish this catch first"

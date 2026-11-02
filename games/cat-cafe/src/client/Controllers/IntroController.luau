@@ -1,16 +1,20 @@
 --!strict
--- The intro cutscene on this client (F72, docs/design/cat-cafe/intro-cutscene.md). It plays once when this session's
--- first ProfileSync with a plot says introSeen is false, and again whenever the UI's Tutorial tile or Settings row
--- asks (UI.events.introReplay). While it runs the character's controls and every proximity prompt are off and the
--- camera is Scriptable, flown through shared/Intro's ten shots once a frame; the UI's intro screen (UI.intro, the
--- ui-designer's) draws the bars, captions, dots, title cards, the demo ring, the job card and Skip, and hides the HUD.
+-- The intro cutscene on this client (F72, docs/design/cat-cafe/intro-cutscene.md, reshot for F84). It plays once when
+-- this session's first ProfileSync with a plot says introSeen is false, and again whenever the UI's Tutorial tile or
+-- Settings row asks (UI.events.introReplay). Before it starts it asks the server to stream the Alleyway's camp in and
+-- waits for it for up to Intro.STREAM_WAIT seconds; without it the shots there are left out (section 2's fallback).
+-- While it runs the character's controls and every proximity prompt are off and the camera is Scriptable, flown
+-- through shared/Intro's shots once a frame; the UI's intro screen (UI.intro, the ui-designer's) draws the bars,
+-- captions, dots, title cards, the demo ring, the job card and Skip, and hides the HUD.
 --
--- Shots 1 to 4 (section 2a): a local copy of your own character catches the demo Tuxedo behind your cafe, carries it
--- home through the yard gate and in at the back door, and the cat takes the waiter spot in its outfit with its rate
--- tag, while the real character stays hidden at the intro spot. Everything staged here is local and goes at the end:
--- your copy, the demo cat, the seated waiter, the strays and the real waiter hidden, the turning wheel, the short
--- night and the sunrise cats. The end, played out or skipped (UI.events.introSkip) or cut short by a respawn, puts
--- all of it back and sends IntroDone(shot, replay): 0 when it played out, else the shot showing.
+-- Shots 1 to 4 (section 2a): a local copy of your own character, tagged StagedCharacter so Effects pose its net and
+-- its carry, climbs into the Town Square's cannon, flies to the Alleyway camp's pad on Effects/Cannon's staged flight,
+-- catches the demo Tuxedo just past the way out and carries it into the camp, where it hops into the basket. The real
+-- character stays at the spawn the whole time, hidden on this screen until shot 5. In shot 5 the cat takes the waiter
+-- spot in your cafe in its outfit with its rate tag. Everything staged here is local and goes at the end: your copy,
+-- the demo cat, the seated waiter, the strays and the real waiter hidden, the cannon's turn and moon cover, the
+-- turning wheel and the short night. The end, played out or skipped (UI.events.introSkip) or cut short by a respawn,
+-- puts all of it back and sends IntroDone(shot, replay): 0 when it played out, else the shot showing.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -21,12 +25,14 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local CannonFx = require(script.Parent.Parent.Effects.Cannon)
 local CatDress = require(Shared:WaitForChild("CatDress"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Catching = require(Shared:WaitForChild("Catching"))
 local Intro = require(Shared:WaitForChild("Intro"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
+local Presets = require(script.Parent.Parent.Effects.Presets)
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
@@ -36,11 +42,25 @@ local IntroController = {}
 
 local player = Players.LocalPlayer
 local RENDER_STEP = "CatCafeIntro"
-local POP_SECONDS = 0.2 -- a sunrise cat grows from nothing to full size
 local DEMO_FADE_SECONDS = 0.4 -- with no copy of you to catch it, the demo cat fades at the hop instead
-local STREAMED_RADIUS = 40 -- a shot 6 area counts as streamed in when a part stands this close to its look point
+local STREAMED_RADIUS = 40 -- a camp counts as streamed in when a part stands this close to the point checked
 local WHEEL_TURNS = 2
 local BLEND = 0.15 -- seconds an animation of your copy fades in or out
+local SPIN_TURNS = 2 -- the ball's tumbles on the way up
+local NO_LADDER = Vector3.new(0, 0.1, -7.5) -- the foot of the town cannon's south steps without its Climb part
+local STAGED = "StagedCharacter" -- Tackle.luau poses a model with this tag (and no player) like a character
+-- The attributes a copy of the character must not keep from it: no carry, no flight, no camp, the net out.
+local COPY_CLEARS = {
+	"CarryingCatId",
+	"NetHidden",
+	"Launching",
+	"CannonLaunchAt",
+	"CannonFrom",
+	"CannonTo",
+	"CloudHopAt",
+	"CloudHopTo",
+	"Camp",
+}
 -- The avatar's own animations your copy plays: the Animate script's StringValue for each and its Animation's name.
 local ANIMATIONS: { [string]: string } = { run = "RunAnim", idle = "Animation1" }
 
@@ -57,6 +77,16 @@ type You = {
 	height: number, -- the root's height above the ground it stands on
 	tracks: { [string]: AnimationTrack }, -- "run" and "idle", the avatar's own where the Animate script names them
 	playing: string?,
+	shown: boolean,
+}
+
+-- The Town Square's cannon on this screen (section 2a): its turret turned and its moon cover lifted locally.
+type TownCannon = {
+	model: Model,
+	turret: Model?,
+	rest: CFrame?, -- the turret's pivot at rest, facing north
+	ladder: Vector3, -- the foot of its south steps, where your copy stands in shot 1
+	seat: CFrame, -- the barrel's Seat, where your copy waits for the BOOM
 }
 
 type Run = {
@@ -64,22 +94,31 @@ type Run = {
 	started: number, -- os.clock()
 	shots: { Intro.Shot },
 	plot: Intro.Plot,
-	shot: number, -- the shot showing, 0 before the first
+	camp: Intro.Camp, -- the Alleyway's
+	alleyStreamed: boolean,
+	shot: number, -- the position in `shots` of the shot showing, 0 before the first
 	cuts: { Intro.Cut }, -- the showing shot's cuts; shot 6's after the stream check
 	cut: number, -- the cut showing, for shot 6's title cards
 	character: Model?, -- the character when it started, so a respawn ends it
 	staged: { Instance }, -- local clones, destroyed at the end
 	hidden: { [Instance]: boolean }, -- parts and decals given a LocalTransparencyModifier, set back to 0 at the end
+	covers: { [BasePart]: number }, -- moon cover parts this screen changed, and the Transparency they had
 	tweens: { Tween },
-	pops: { { model: Model, at: number } }, -- shot 9's sunrise cats and when each starts to grow
 	you: You?,
 	characterHidden: boolean, -- the real character is hidden (shots 1 to 4)
+	cannon: TownCannon?,
+	flying: boolean, -- Effects/Cannon's staged flight is on your copy
+	muzzle: Vector3, -- where the ball leaves the barrel, at the BOOM
+	aim: Vector3, -- the flat way it fires
 	demo: Model?, -- the demo Tuxedo, at the stray point and then in your arms
+	demoName: string,
+	demoParent: Instance?,
 	hopFrom: CFrame?, -- where the demo cat's hop into your arms starts
-	held: boolean, -- the demo cat rides in your arms
-	nearDemo: { Model }, -- real strays hidden at the tutorial stray point for shots 1 and 2
-	seated: Model?, -- shot 4's seated waiter
-	waiters: { Model }, -- real cats on the waiter spot, hidden for shot 4
+	held: boolean, -- the demo cat rides in your arms (a HeldCat of your copy)
+	basket: Model?, -- the Alleyway camp's carrier basket
+	nearDemo: { Model }, -- real strays hidden round the catch and the run for shots 3 and 4
+	seated: Model?, -- shot 5's seated waiter
+	waiters: { Model }, -- real cats on the waiter spot, hidden for shot 5
 	wheel: { model: Model, base: CFrame }?,
 	done: { [string]: boolean }, -- the timed beats inside a shot that have happened
 	controls: any?, -- the PlayerModule's controls, disabled for the run
@@ -89,6 +128,7 @@ type Run = {
 }
 
 local run: Run? = nil
+local starting = false -- a play is waiting for the camp to stream in
 local firstStarted = false -- the first play of this session has begun
 
 -- The PlayerModule's controls, or nil when the default player scripts are not there.
@@ -155,14 +195,17 @@ local function hideCharacter(r: Run, hidden: boolean)
 	end
 end
 
--- The strays in the Workspace within `radius` studs (flat) of `point`.
-local function straysNear(point: Vector3, radius: number): { Model }
+-- The strays in the Workspace within `radius` studs (flat) of any of `points`.
+local function straysNear(points: { Vector3 }, radius: number): { Model }
 	local found: { Model } = {}
 	for _, stray in CollectionService:GetTagged("Stray") do
 		if stray:IsA("Model") and stray:IsDescendantOf(Workspace) then
 			local at = (stray :: Model):GetPivot().Position
-			if Vector2.new(at.X - point.X, at.Z - point.Z).Magnitude <= radius then
-				table.insert(found, stray :: Model)
+			for _, point in points do
+				if Vector2.new(at.X - point.X, at.Z - point.Z).Magnitude <= radius then
+					table.insert(found, stray :: Model)
+					break
+				end
 			end
 		end
 	end
@@ -219,7 +262,8 @@ local function animationId(character: Model, state: string, name: string): strin
 end
 
 -- A local copy of this player's character (section 2a): Archivable just for the Clone, its scripts gone, its root
--- anchored and moved by CFrame, no collisions and no name over its head. Nil without a character.
+-- anchored and moved by CFrame, no collisions and no name over its head, tagged StagedCharacter with none of the
+-- character's carry or flight attributes (Animation-Engineer #631). Nil without a character.
 local function stageYou(r: Run): You?
 	local character = player.Character
 	local root = rootOf(character)
@@ -245,6 +289,13 @@ local function stageYou(r: Run): You?
 	end
 	local model = cloned :: Model
 	model.Name = "IntroYou"
+	local held = model:FindFirstChild("HeldCat")
+	if held ~= nil then
+		held:Destroy()
+	end
+	for _, name in COPY_CLEARS do
+		model:SetAttribute(name, nil)
+	end
 	local copyRoot: BasePart? = nil
 	for _, item in model:GetDescendants() do
 		if item:IsA("LuaSourceContainer") or item:IsA("ForceField") then
@@ -272,10 +323,17 @@ local function stageYou(r: Run): You?
 	local height = if h.RigType == Enum.HumanoidRigType.R15
 		then h.HipHeight + (copyRoot :: BasePart).Size.Y / 2
 		else (copyRoot :: BasePart).Size.Y / 2 + 2
+	CollectionService:AddTag(model, STAGED)
 	model.Parent = Workspace
 	table.insert(r.staged, model)
-	local you: You =
-		{ model = model, root = copyRoot :: BasePart, height = height, tracks = {}, playing = nil }
+	local you: You = {
+		model = model,
+		root = copyRoot :: BasePart,
+		height = height,
+		tracks = {},
+		playing = nil,
+		shown = true,
+	}
 	local animator = h:FindFirstChildOfClass("Animator") or Instance.new("Animator")
 	animator.Parent = h
 	for name, id in ids do
@@ -308,6 +366,19 @@ local function playYou(you: You, name: string)
 	end
 end
 
+-- Shows or hides your copy on this screen (in the barrel, in the sky).
+local function showYou(r: Run, you: You, shown: boolean)
+	if you.shown == shown then
+		return
+	end
+	you.shown = shown
+	if shown then
+		show(r, you.model)
+	else
+		hide(r, you.model)
+	end
+end
+
 -- Stands your copy on `ground`, facing the flat way `facing`.
 local function placeYou(you: You, ground: Vector3, facing: Vector3)
 	local at = ground + Vector3.new(0, you.height, 0)
@@ -329,6 +400,160 @@ local function facingOf(yaw: number): Vector3
 	return Vector3.new(-math.sin(yaw), 0, -math.cos(yaw))
 end
 
+-- Turns your copy from facing `from` to facing `to` the short way round, `k` (0 to 1) of the way.
+local function turnYou(you: You, ground: Vector3, from: Vector3, to: Vector3, k: number)
+	local a, b = yawOf(from), yawOf(to)
+	local delta = (b - a + math.pi) % (2 * math.pi) - math.pi
+	placeYou(you, ground, facingOf(a + delta * Intro.ease("InOut", k)))
+end
+
+-- The town cannon's turret: a child model named ..._Turret, as WorldBuilder builds and turns it.
+local function turretOf(model: Model): Model?
+	for _, child in model:GetChildren() do
+		if child:IsA("Model") and child.Name:sub(-7) == "_Turret" then
+			return child :: Model
+		end
+	end
+	return nil
+end
+
+local function attachment(model: Instance, name: string): Attachment?
+	local found = model:FindFirstChild(name, true)
+	return if found ~= nil and found:IsA("Attachment") then found :: Attachment else nil
+end
+
+-- The Town Square cannon (tagged CatCannon, CannonId `town`) with its turret's rest, the foot of its ladder on the
+-- south steps and its Seat, or nil without one.
+local function townCannon(): TownCannon?
+	for _, tagged in CollectionService:GetTagged("CatCannon") do
+		if
+			tagged:IsA("Model")
+			and tagged:GetAttribute("CannonId") == "town"
+			and tagged:IsDescendantOf(Workspace)
+		then
+			local model = tagged :: Model
+			local turret = turretOf(model)
+			local aimed = model:GetAttribute("AimTurn")
+			local rest = if turret ~= nil
+				then turret:GetPivot() * CFrame.Angles(
+					0,
+					-math.rad(if type(aimed) == "number" then aimed else 0),
+					0
+				)
+				else nil
+			-- the ladder and the Seat turn with the turret: where each is with the turret at rest, as the intro has it
+			local function atRest(frame: CFrame): CFrame
+				if turret ~= nil and rest ~= nil then
+					return (rest :: CFrame) * (turret :: Model):GetPivot():ToObjectSpace(frame)
+				end
+				return frame
+			end
+			-- the foot of the climb on the south side, on whatever it stands on
+			local ladder = NO_LADDER
+			local climb: BasePart? = nil
+			for _, item in model:GetDescendants() do
+				if item:IsA("BasePart") and item.Name:sub(-6) == "_Climb" then
+					climb = item :: BasePart
+					break
+				end
+			end
+			if climb ~= nil then
+				local c = climb :: BasePart
+				local at = atRest(c.CFrame).Position
+				local south = Vector3.new(at.X, 0, at.Z - c.Size.Z / 2 - 1.2)
+				local top = at.Y + c.Size.Y / 2
+				local params = RaycastParams.new()
+				params.FilterType = Enum.RaycastFilterType.Exclude
+				params.FilterDescendantsInstances = { c }
+				local hit = Workspace:Raycast(
+					Vector3.new(south.X, top, south.Z),
+					Vector3.new(0, -top - 2, 0),
+					params
+				)
+				ladder = if hit ~= nil then hit.Position else Vector3.new(south.X, 0.1, south.Z)
+			end
+			local seat = attachment(model, "Seat")
+			local seatAt = if seat ~= nil
+				then atRest(CFrame.new((seat :: Attachment).WorldPosition)).Position
+				else (model:GetPivot() * CFrame.new(0, 5.4, 0)).Position
+			return {
+				model = model,
+				turret = turret,
+				rest = rest,
+				ladder = ladder,
+				seat = CFrame.lookAt(seatAt, seatAt + Vector3.new(0, 0, 1)),
+			}
+		end
+	end
+	return nil
+end
+
+-- Turns the town cannon's turret `turn` degrees from rest, on this screen only.
+local function aimTurret(r: Run, turn: number)
+	local cannon = r.cannon
+	if cannon ~= nil and cannon.turret ~= nil and cannon.rest ~= nil then
+		(cannon.turret :: Model):PivotTo(
+			(cannon.rest :: CFrame) * CFrame.Angles(0, math.rad(turn), 0)
+		)
+	end
+end
+
+-- Puts the turret back where the server has it (its AimTurn, which may have changed while the intro ran).
+local function restoreTurret(r: Run)
+	local cannon = r.cannon
+	if cannon ~= nil then
+		local aimed = cannon.model:GetAttribute("AimTurn")
+		aimTurret(r, if type(aimed) == "number" then aimed else 0)
+	end
+end
+
+-- Covers or uncovers the town cannon's barrel on this screen only (section 2a: lifted for shots 1 and 2, dropped
+-- for shot 9's night), remembering each part's replicated Transparency for coverBack.
+local function cover(r: Run, covered: boolean)
+	local cannon = r.cannon
+	if cannon == nil then
+		return
+	end
+	for _, item in cannon.model:GetDescendants() do
+		if item:IsA("Model") and item.Name:sub(-10) == "_MoonCover" then
+			for _, piece in item:GetDescendants() do
+				if piece:IsA("BasePart") then
+					local part = piece :: BasePart
+					if r.covers[part] == nil then
+						r.covers[part] = part.Transparency
+					end
+					local shown = part:GetAttribute("CoverTransparency")
+					part.Transparency = if covered
+						then (if type(shown) == "number" then shown else 0)
+						else 1
+				end
+			end
+		end
+	end
+end
+
+local function coverBack(r: Run)
+	for part, was in r.covers do
+		part.Transparency = was
+	end
+	table.clear(r.covers)
+end
+
+-- The Alleyway camp's carrier basket (CampBasket), nearest its basket spot, or nil.
+local function campBasket(r: Run): Model?
+	local best: Model? = nil
+	local bestDistance = 12
+	for _, tagged in CollectionService:GetTagged("CampBasket") do
+		if tagged:IsA("Model") and tagged:IsDescendantOf(Workspace) then
+			local distance = ((tagged :: Model):GetPivot().Position - r.camp.basket).Magnitude
+			if distance < bestDistance then
+				best, bestDistance = tagged :: Model, distance
+			end
+		end
+	end
+	return best
+end
+
 -- The own cafe's waiter spot (Spots.<JOB_SPOT>, where a real waiter sits), or where shared/Intro works it out.
 local function waiterSpot(r: Run): CFrame
 	local plot = UIController.ownPlot()
@@ -341,7 +566,7 @@ local function waiterSpot(r: Run): CFrame
 	return CFrame.lookAt(point, point + Vector3.new(-r.plot.side, 0, 0)) -- a spot faces the street, as plot -Z
 end
 
--- A real cat working the waiter spot in the own cafe (a tester's replay), hidden for shot 4.
+-- A real cat working the waiter spot in the own cafe (a tester's replay), hidden for shot 5.
 local function hideRealWaiter(r: Run)
 	local plot = UIController.ownPlot()
 	local cats = if plot ~= nil then plot:FindFirstChild("Cats") else nil
@@ -356,8 +581,8 @@ local function hideRealWaiter(r: Run)
 	end
 end
 
--- Shot 4's seated waiter: the demo cat's seated body (or its walking one while that is missing) at the waiter spot in
--- the waiter outfit, as CafeService and CatPose seat a real one.
+-- Shot 5's seated waiter: the demo cat's seated body (or its walking one while that is missing) at the waiter spot,
+-- as CafeService and CatPose seat a real one; its outfit comes on later (dressSeated).
 local function stageSeated(r: Run): Model?
 	local at = waiterSpot(r)
 	local base = Catalog.catModelName(Intro.DEMO_CAT)
@@ -369,13 +594,15 @@ local function stageSeated(r: Run): Model?
 	if model == nil then
 		return nil
 	end
-	local cat = model :: Model
 	if seated then
-		cat:SetAttribute("Pose", "sit")
+		(model :: Model):SetAttribute("Pose", "sit")
 	end
+	return model
+end
+
+local function dressSeated(cat: Model)
 	cat:SetAttribute("Role", Intro.JOB_ROLE)
 	CatDress.dress(cat, Intro.JOB_ROLE, cloneAsset)
-	return cat
 end
 
 -- Asks the server to stream the world around `point` in before a shot needs it. Never yields the caller.
@@ -423,43 +650,21 @@ local function hasCodesCat(): boolean
 	return false
 end
 
--- Shot 9's fresh strays: the Alleyway's Common cats, one per back alley spawn point that has streamed in.
-local function sunriseCats(r: Run, elapsed: number)
-	local kinds: { string } = {}
-	for _, cat in Catalog.cats do
-		if cat.area == "alley" and cat.rarity == "Common" then
-			table.insert(kinds, cat.id)
-		end
-	end
-	if #kinds == 0 then
-		return
-	end
-	local count = 0
-	for _, point in CollectionService:GetTagged("SpawnPoint") do
-		if count >= Intro.SUNRISE_STRAYS then
-			break
-		end
-		if
-			point:IsA("BasePart")
-			and point:GetAttribute("Area") == Intro.STRAY_AREA
-			and point:IsDescendantOf(Workspace)
-		then
-			local at = (point :: BasePart).Position
-			count += 1
-			local model = stageCat(
-				r,
-				kinds[(count - 1) % #kinds + 1],
-				CFrame.new(at.X, at.Y, at.Z) * CFrame.Angles(0, count * 2.4, 0)
-			)
-			if model ~= nil then
-				model:ScaleTo(0.05)
-				table.insert(
-					r.pops,
-					{ model = model, at = elapsed + (count - 1) * Intro.SUNRISE_STRAY_GAP }
-				)
-			end
-		end
-	end
+-- Effects/Cannon's beats for a flight whose camp has not streamed in: the clouds hold to the end of shot 2.
+local function heldStage(seconds: number): CannonFx.Stage
+	local base = Presets.cannon.introStage
+	local clouds = table.clone(base.clouds)
+	clouds.partFrom, clouds.partTo = seconds - 0.1, seconds
+	return {
+		boomAt = base.boomAt,
+		puffAt = base.puffAt,
+		dropAt = seconds - 0.1,
+		landAt = seconds - 0.05,
+		endAt = seconds,
+		clouds = clouds,
+		glideFrom = base.glideFrom,
+		glideTo = seconds - 0.1,
+	}
 end
 
 local function setCamera(at: Intro.Key)
@@ -469,13 +674,33 @@ local function setCamera(at: Intro.Key)
 	end
 end
 
+-- The demo cat into your copy's arms as its HeldCat, which Effects/Carry holds in the carry pose (#631).
+local function holdDemo(r: Run, you: You, demo: Model)
+	r.held = true
+	r.demoName, r.demoParent = demo.Name, demo.Parent
+	demo:PivotTo(you.root.CFrame * CARRIED)
+	demo.Name = "HeldCat"
+	demo.Parent = you.model
+	you.model:SetAttribute("CarryingCatId", Intro.DEMO_CAT)
+end
+
+-- The demo cat out of your copy's arms, back where it was staged, for the check-in hop.
+local function releaseDemo(r: Run, you: You?, demo: Model)
+	r.held = false
+	if you ~= nil then
+		you.model:SetAttribute("CarryingCatId", nil)
+	end
+	demo.Name = r.demoName
+	demo.Parent = r.demoParent or Workspace
+end
+
 -- Everything a shot starts with. Called once per shot, in order; a shot the frame rate skipped still starts.
-local function enterShot(r: Run, index: number)
-	local shot = r.shots[index]
-	r.shot = index
+local function enterShot(r: Run, position: number)
+	local shot = r.shots[position]
+	r.shot = position
 	r.cut = 1
 	r.cuts = shot.cuts
-	if shot.cuts[1].area ~= nil then
+	if shot.cuts[1] ~= nil and shot.cuts[1].area ~= nil then
 		r.cuts = Intro.keepCuts(shot, function(cut: Intro.Cut): boolean
 			return streamedNear(cut.to.look)
 		end)
@@ -488,42 +713,50 @@ local function enterShot(r: Run, index: number)
 		end
 	end
 	-- the next shot's places stream in while this one plays
-	local following = r.shots[index + 1]
+	local following = r.shots[position + 1]
 	if following ~= nil then
 		for _, cut in following.cuts do
 			streamAround(cut.to.look)
 		end
 	end
 
-	if shot.run and r.you ~= nil and r.demo ~= nil then
-		r.held = true -- in your arms for the run, even when a slow frame skipped the hop
-	end
-	if not shot.demo then
-		-- the real strays at the stray point come back, and the demo cat goes unless it is in your arms
-		for _, stray in r.nearDemo do
-			show(r, stray)
-		end
-		table.clear(r.nearDemo)
-		if r.demo ~= nil and not r.held then
-			(r.demo :: Model):Destroy()
-			r.demo = nil
-		end
-	end
 	local you = r.you
-	if you ~= nil and shot.run then
-		playYou(you, "run")
-	elseif you ~= nil and shot.job then
-		-- seen from inside after the cut: you step in at the back door
-		local steps = Intro.stepIn(r.plot)
-		placeYou(you, steps[1], toward(steps[1], steps[2]))
-		playYou(you, "run")
-		hideRealWaiter(r)
+	if not shot.cannon then
+		-- the cannon back at rest and covered as the night has it, from the cut out of shot 2 on
+		restoreTurret(r)
+		coverBack(r)
+	end
+	if shot.catch then
+		-- a hard cut to the catch spot, facing the Tuxedo; real strays round the catch and the run are hidden
+		local stray, spot = Intro.strayPoint(), Intro.catchSpot()
+		local points = Intro.runPath()
+		table.insert(points, stray)
+		r.nearDemo = straysNear(points, Intro.DEMO_HIDE_RADIUS)
+		for _, real in r.nearDemo do
+			hide(r, real)
+		end
+		if you ~= nil then
+			showYou(r, you, true)
+			placeYou(you, spot, toward(spot, stray))
+			playYou(you, "idle")
+		end
+		UI.intro.demoCatch(stray + Vector3.new(0, 1, 0))
+	end
+	if shot.run then
+		r.basket = campBasket(r)
+		if you ~= nil and r.demo ~= nil and not r.held then
+			holdDemo(r, you, r.demo :: Model) -- in your arms for the run, even when a slow frame skipped the hop
+		end
 	end
 	if not shot.you and not r.done.sceneOver then
-		-- at the cut to shot 5 your copy, the demo cat and the seated waiter go and the real character shows where the
-		-- copy stopped; a real waiter hidden for shot 4 comes back
+		-- at the cut to shot 5 your copy and the demo cat go and the real character shows at the spawn; the strays
+		-- hidden round the catch come back
 		r.done.sceneOver = true
 		if you ~= nil then
+			if r.flying then
+				CannonFx.stopStaged(you.model)
+				r.flying = false
+			end
 			you.model:Destroy()
 			r.you = nil
 		end
@@ -532,6 +765,18 @@ local function enterShot(r: Run, index: number)
 			r.demo = nil
 			r.held = false
 		end
+		for _, stray in r.nearDemo do
+			show(r, stray)
+		end
+		table.clear(r.nearDemo)
+		if r.characterHidden then
+			hideCharacter(r, false)
+		end
+	end
+	if shot.job then
+		hideRealWaiter(r)
+	elseif r.seated ~= nil or #r.waiters > 0 then
+		-- after shot 5 the seated waiter goes and a real one hidden for it comes back
 		if r.seated ~= nil then
 			(r.seated :: Model):Destroy()
 			r.seated = nil
@@ -540,9 +785,6 @@ local function enterShot(r: Run, index: number)
 			show(r, waiter)
 		end
 		table.clear(r.waiters)
-		if r.characterHidden then
-			hideCharacter(r, false)
-		end
 	end
 	if shot.spinWheel and r.wheel == nil then
 		local wheel = findWheel()
@@ -558,15 +800,169 @@ local function enterShot(r: Run, index: number)
 		WorldController.endPreview(shot.seconds) -- the real sky comes back during the swoop
 	end
 
-	UI.intro.setShot(index, shot.caption, r.cuts[1].title)
-	if shot.catch then
-		UI.intro.demoCatch(Intro.strayPoint(r.plot) + Vector3.new(0, 1, 0))
-	end
-	Moments.IntroShot:Fire(index)
+	UI.intro.setShot(shot.index, shot.caption, if r.cuts[1] ~= nil then r.cuts[1].title else nil)
+	Moments.IntroShot:Fire(shot.index)
 end
 
--- Shots 1 to 4's staging, `t` seconds into the showing shot: you, the hop, the run, the steps in and the job.
-local function stageScene(r: Run, shot: Intro.Shot, t: number)
+-- Shot 1, `t` seconds in: your copy at the ladder's foot, its hop into the barrel, the turn, the wiggle and the fuse.
+local function stageLaunch(r: Run, t: number)
+	local you, cannon = r.you, r.cannon
+	local aim = Intro.cannonAim()
+	if t >= Intro.AIM_FROM and t < Intro.AIM_TO then
+		aimTurret(
+			r,
+			aim * Intro.ease("InOut", (t - Intro.AIM_FROM) / (Intro.AIM_TO - Intro.AIM_FROM))
+		)
+	elseif t >= Intro.AIM_TO then
+		local k = math.clamp((t - Intro.AIM_TO) / (Intro.WIGGLE_TO - Intro.AIM_TO), 0, 1)
+		aimTurret(r, aim + Intro.WIGGLE_DEGREES * math.sin(k * 3 * math.pi) * (1 - k))
+	end
+	if you == nil then
+		return
+	end
+	local ladder = if cannon ~= nil then cannon.ladder else NO_LADDER
+	local seat = if cannon ~= nil then cannon.seat else CFrame.new(Intro.NO_CANNON_MUZZLE)
+	if t < Intro.CLIMB_AT then
+		placeYou(you, ladder, toward(ladder, seat.Position))
+	elseif t < Intro.CLIMB_AT + Intro.CLIMB_SECONDS then
+		-- until Animation-Engineer's hop in lands: a plain hop up into the barrel
+		local k = (t - Intro.CLIMB_AT) / Intro.CLIMB_SECONDS
+		local from = ladder + Vector3.new(0, you.height, 0)
+		local at = from:Lerp(seat.Position, Intro.ease("Out", k))
+			+ Vector3.new(0, Intro.CLIMB_HEIGHT * math.sin(math.pi * k), 0)
+		you.root.CFrame = CFrame.lookAt(at, at + toward(ladder, seat.Position))
+	else
+		you.root.CFrame = seat
+		showYou(r, you, false) -- out of sight in the barrel
+	end
+	if t >= Intro.FUSE_AT and not r.done.fuse then
+		-- the fuse fizzes BOOM_LEAD before the BOOM at the start of shot 2, on Effects/Cannon's staged beats
+		r.done.fuse = true
+		local boomAt = Workspace:GetServerTimeNow() + Intro.BOOM_LEAD
+		local flight = r.shots[r.shot + 1]
+		local stage = if r.alleyStreamed or flight == nil then nil else heldStage(flight.seconds)
+		CannonFx.playStaged(
+			you.model,
+			if cannon ~= nil then cannon.model else nil,
+			Intro.AREA,
+			boomAt,
+			stage
+		)
+		r.flying = true
+		UI.cannon.flight(Intro.AREA, boomAt - Intro.CARD_LEAD, Intro.CARD_HOLD)
+	end
+end
+
+-- Shot 2, `t` seconds in: the ball out of the muzzle and up into the sky, then the drop onto the Alleyway's pad.
+local function stageFlight(r: Run, t: number)
+	local you = r.you
+	if you == nil then
+		return
+	end
+	if not r.done.boom then
+		r.done.boom = true
+		local cannon = r.cannon
+		local muzzle = if cannon ~= nil then attachment(cannon.model, "Muzzle") else nil
+		r.muzzle = if muzzle ~= nil
+			then (muzzle :: Attachment).WorldPosition
+			else Intro.NO_CANNON_MUZZLE
+		local turn = math.rad(Intro.cannonAim())
+		r.aim = Vector3.new(math.sin(turn), 0, math.cos(turn))
+	end
+	if t < Intro.PUFF_AT then
+		showYou(r, you, true)
+		local at = Intro.arcPoint(r.muzzle, r.aim, t)
+		local spin = SPIN_TURNS * 2 * math.pi * (t / Intro.PUFF_AT)
+		you.root.CFrame = CFrame.lookAt(at, at + r.aim) * CFrame.Angles(-spin, 0, 0)
+		return
+	end
+	local height = Intro.dropHeight(t)
+	if height == nil or not r.alleyStreamed then
+		showYou(r, you, false) -- gone in the cloud puff, waiting over the pad
+		placeYou(you, r.camp.pad + Vector3.new(0, Intro.DROP_HEIGHT, 0), r.camp.u)
+		return
+	end
+	showYou(r, you, true)
+	placeYou(you, r.camp.pad + Vector3.new(0, height :: number, 0), r.camp.u)
+end
+
+-- Shot 3, `t` seconds in: PERFECT, then the cat's hop into your arms.
+local function stageCatch(r: Run, t: number)
+	local you = r.you
+	if you == nil then
+		-- nobody to catch it: the demo cat fades, as before the carry
+		if t >= Intro.HOP_FROM and not r.done.demoFade and r.demo ~= nil then
+			r.done.demoFade = true
+			hide(r, r.demo :: Model, DEMO_FADE_SECONDS)
+		end
+		return
+	end
+	if r.demo == nil or r.held or t < Intro.HOP_FROM then
+		return
+	end
+	local demo = r.demo :: Model
+	if r.hopFrom == nil then
+		r.hopFrom = demo:GetPivot()
+	end
+	local u = math.clamp((t - Intro.HOP_FROM) / Intro.HOP_SECONDS, 0, 1)
+	if u >= 1 then
+		holdDemo(r, you, demo)
+		return
+	end
+	local arc = Intro.HOP_HEIGHT * math.sin(math.pi * u)
+	demo:PivotTo(
+		(r.hopFrom :: CFrame):Lerp(you.root.CFrame * CARRIED, Intro.ease("Out", u))
+			+ Vector3.new(0, arc, 0)
+	)
+end
+
+-- Shot 4, `t` seconds in: the turn toward the way out, the run into the camp, the check-in as you cross the camp
+-- line and the turn to watch the cat go.
+local function stageRun(r: Run, t: number)
+	local you = r.you
+	local path = Intro.runPath()
+	if t >= Intro.checkInAt() and not r.done.checkIn then
+		r.done.checkIn = true
+		local demo = r.demo
+		if demo ~= nil then
+			-- the real check-in on this screen: the cat hops into the basket and puffs away (Effects/Cannon)
+			releaseDemo(r, you, demo)
+			CannonFx.checkInStaged(demo, r.basket)
+			demo:Destroy()
+			r.demo = nil
+		end
+	end
+	if you == nil then
+		return
+	end
+	local stopAt = Intro.stopAt()
+	if t < Intro.TURN_SECONDS then
+		turnYou(
+			you,
+			path[1],
+			toward(path[1], Intro.strayPoint()),
+			toward(path[1], path[2]),
+			t / Intro.TURN_SECONDS
+		)
+	elseif t < stopAt then
+		playYou(you, "run")
+		local ground, facing = Intro.along(path, (t - Intro.TURN_SECONDS) * Intro.RUN_SPEED)
+		placeYou(you, ground, facing)
+	else
+		playYou(you, "idle")
+		local stop = path[#path]
+		turnYou(
+			you,
+			stop,
+			toward(path[#path - 1], stop),
+			toward(stop, r.camp.basket),
+			(t - stopAt) / Intro.WATCH_SECONDS
+		)
+	end
+end
+
+-- Shot 5, `t` seconds in: the Tuxedo in its seat, the job card, the outfit and the rate tag.
+local function stageJob(r: Run, t: number)
 	local function once(name: string, at: number): boolean
 		if t >= at and not r.done[name] then
 			r.done[name] = true
@@ -574,96 +970,32 @@ local function stageScene(r: Run, shot: Intro.Shot, t: number)
 		end
 		return false
 	end
-	if shot.you then
-		hideCharacter(r, true)
-	end
-	local you = r.you
-	if shot.catch then
-		if you == nil then
-			-- nobody to catch it: the demo cat fades, as before the carry
-			if once("demoFade", Intro.HOP_FROM) and r.demo ~= nil then
-				hide(r, r.demo :: Model, DEMO_FADE_SECONDS)
-			end
-		elseif r.demo ~= nil and t >= Intro.HOP_FROM and not r.held then
-			local demo = r.demo :: Model
-			if r.hopFrom == nil then
-				r.hopFrom = demo:GetPivot()
-			end
-			local u = math.clamp((t - Intro.HOP_FROM) / Intro.HOP_SECONDS, 0, 1)
-			local arc = Intro.HOP_HEIGHT * math.sin(math.pi * u)
-			demo:PivotTo(
-				(r.hopFrom :: CFrame):Lerp(you.root.CFrame * CARRIED, Intro.ease("Out", u))
-					+ Vector3.new(0, arc, 0)
-			)
-			r.held = u >= 1
-		end
-	elseif shot.run and you ~= nil then
-		local path = Intro.runPath(r.plot)
-		local toStray = toward(path[1], Intro.strayPoint(r.plot))
-		if t < Intro.TURN_SECONDS then
-			-- turn from the stray toward the yard gate the short way round
-			local from, to = yawOf(toStray), yawOf(toward(path[1], path[2]))
-			local delta = (to - from + math.pi) % (2 * math.pi) - math.pi
-			placeYou(
-				you,
-				path[1],
-				facingOf(from + delta * Intro.ease("InOut", t / Intro.TURN_SECONDS))
-			)
-		else
-			local ground, facing = Intro.along(path, (t - Intro.TURN_SECONDS) * Intro.RUN_SPEED)
-			placeYou(you, ground, facing)
-			if t - Intro.TURN_SECONDS >= Intro.pathSeconds(path, Intro.RUN_SPEED) then
-				playYou(you, "idle")
-			end
-		end
-	elseif shot.job then
-		if you ~= nil then
-			local steps = Intro.stepIn(r.plot)
-			local length = (steps[2] - steps[1]).Magnitude
-			local ground, facing =
-				Intro.along(steps, length * math.min(1, t / Intro.STEP_IN_SECONDS))
-			placeYou(you, ground, facing)
-			if t >= Intro.STEP_IN_SECONDS then
-				playYou(you, "idle")
-			end
-		end
-		if once("jobCard", Intro.JOB_CARD_AT) then
-			UI.intro.jobCard(waiterSpot(r).Position, Intro.JOB_ROLE)
-		end
-		if once("seated", Intro.JOB_SEATED_AT) then
-			-- the cat leaves your arms and takes its spot; the effects can puff it from one to the other
-			local from = if r.demo ~= nil
-				then (r.demo :: Model):GetPivot().Position
-				else waiterSpot(r).Position
-			if r.demo ~= nil then
-				(r.demo :: Model):Destroy()
-				r.demo = nil
-			end
-			r.held = false
-			r.seated = stageSeated(r)
-			if r.seated ~= nil then
-				Moments.IntroCatSeated:Fire(from, r.seated :: Model)
-			end
-		end
-		if once("rateTag", Intro.JOB_RATE_AT) and r.seated ~= nil then
-			-- the UI's rate tag shows over a working cat (WorldTags reads these)
-			local seated = r.seated :: Model
-			seated:SetAttribute("Rate", Intro.demoRate())
-			local def = Catalog.getCat(Intro.DEMO_CAT)
-			seated:SetAttribute("Rarity", if def ~= nil then def.rarity else nil)
-			seated:SetAttribute("Napping", false)
-			seated:SetAttribute("DisplayName", Intro.demoName())
-			CollectionService:AddTag(seated, "WorkingCat")
+	if once("seated", Intro.JOB_SEATED_AT) then
+		r.seated = stageSeated(r)
+		if r.seated ~= nil then
+			Moments.IntroCatSeated:Fire(waiterSpot(r).Position, r.seated :: Model) -- a small puff
 		end
 	end
-	-- a cat in your arms rides there as a real carry holds it
-	if r.held and you ~= nil and r.demo ~= nil then
-		(r.demo :: Model):PivotTo(you.root.CFrame * CARRIED)
+	if once("jobCard", Intro.JOB_CARD_AT) then
+		UI.intro.jobCard(waiterSpot(r).Position, Intro.JOB_ROLE)
+	end
+	if once("dressed", Intro.JOB_DRESS_AT) and r.seated ~= nil then
+		dressSeated(r.seated :: Model)
+	end
+	if once("rateTag", Intro.JOB_RATE_AT) and r.seated ~= nil then
+		-- the UI's rate tag shows over a working cat (WorldTags reads these)
+		local seated = r.seated :: Model
+		seated:SetAttribute("Rate", Intro.demoRate())
+		local def = Catalog.getCat(Intro.DEMO_CAT)
+		seated:SetAttribute("Rarity", if def ~= nil then def.rarity else nil)
+		seated:SetAttribute("Napping", false)
+		seated:SetAttribute("DisplayName", Intro.demoName())
+		CollectionService:AddTag(seated, "WorkingCat")
 	end
 end
 
 -- The timed beats of shots 8 and 9, `t` seconds into the showing shot.
-local function beats(r: Run, shot: Intro.Shot, t: number, elapsed: number)
+local function beats(r: Run, shot: Intro.Shot, t: number)
 	local function once(name: string, at: number): boolean
 		if t >= at and not r.done[name] then
 			r.done[name] = true
@@ -675,33 +1007,18 @@ local function beats(r: Run, shot: Intro.Shot, t: number, elapsed: number)
 		if once("dusk", Intro.NIGHT_FROM) then
 			WorldController.previewPhase("night", Intro.NIGHT_TO - Intro.NIGHT_FROM)
 		end
-		if once("straysOut", Intro.STRAYS_OUT_FROM) then
-			for _, stray in CollectionService:GetTagged("Stray") do
-				if
-					stray:IsA("Model")
-					and stray:IsDescendantOf(Workspace)
-					and stray:GetAttribute("Area") == Intro.STRAY_AREA
-				then
-					hide(r, stray :: Model, Intro.STRAYS_OUT_TO - Intro.STRAYS_OUT_FROM)
-				end
-			end
+		if once("coverDown", Intro.NIGHT_TO) then
+			cover(r, true)
 		end
 		if once("sunrise", Intro.SUNRISE_FROM) then
 			WorldController.previewPhase("day", Intro.SUNRISE_TO - Intro.SUNRISE_FROM)
-		end
-		if once("sunriseCats", Intro.SUNRISE_STRAYS_AT) then
-			sunriseCats(r, elapsed)
+			cover(r, false)
 		end
 	end
 	if r.wheel ~= nil then
 		local wheel = r.wheel :: { model: Model, base: CFrame }
 		local turn = Intro.ease("Out", t / shot.seconds) * WHEEL_TURNS * 2 * math.pi
 		wheel.model:PivotTo(wheel.base * CFrame.Angles(0, 0, -turn))
-	end
-	for _, pop in r.pops do
-		if elapsed >= pop.at and pop.model.Parent ~= nil then
-			pop.model:ScaleTo(math.max(0.05, Intro.ease("Out", (elapsed - pop.at) / POP_SECONDS)))
-		end
 	end
 end
 
@@ -713,15 +1030,15 @@ local function step()
 		return
 	end
 	local elapsed = os.clock() - r.started
-	local index = Intro.shotAt(r.shots, elapsed)
-	if index == 0 then
+	local position = Intro.shotAt(r.shots, elapsed)
+	if position == 0 then
 		finish(true)
 		return
 	end
-	while r.shot < index do
+	while r.shot < position do
 		enterShot(r, r.shot + 1)
 	end
-	local shot = r.shots[index]
+	local shot = r.shots[position]
 	local t = elapsed - shot.starts
 	-- the cut showing and how far through it
 	local cutStart = 0
@@ -735,12 +1052,25 @@ local function step()
 	end
 	if cut ~= r.cut then
 		r.cut = cut
-		UI.intro.setShot(index, shot.caption, r.cuts[cut].title)
+		UI.intro.setShot(shot.index, shot.caption, r.cuts[cut].title)
 	end
 	local c = r.cuts[cut]
 	setCamera(Intro.at(c, shot.ease, (t - cutStart) / c.seconds))
-	stageScene(r, shot, t)
-	beats(r, shot, t, elapsed)
+	if shot.you then
+		hideCharacter(r, true)
+	end
+	if shot.launch then
+		stageLaunch(r, t)
+	elseif shot.flight then
+		stageFlight(r, t)
+	elseif shot.catch then
+		stageCatch(r, t)
+	elseif shot.run then
+		stageRun(r, t)
+	elseif shot.job then
+		stageJob(r, t)
+	end
+	beats(r, shot, t)
 end
 
 finish = function(finished: boolean)
@@ -750,6 +1080,9 @@ finish = function(finished: boolean)
 	end
 	r.ended = true
 	RunService:UnbindFromRenderStep(RENDER_STEP)
+	if r.flying and r.you ~= nil then
+		CannonFx.stopStaged((r.you :: You).model)
+	end
 	for _, tween in r.tweens do
 		tween:Cancel()
 	end
@@ -764,6 +1097,8 @@ finish = function(finished: boolean)
 	if r.characterHidden then
 		hideCharacter(r, false)
 	end
+	restoreTurret(r)
+	coverBack(r)
 	if r.wheel ~= nil then
 		local wheel = r.wheel :: { model: Model, base: CFrame }
 		wheel.model:PivotTo(wheel.base)
@@ -791,38 +1126,73 @@ finish = function(finished: boolean)
 	ProximityPromptService.Enabled = r.promptsWere
 
 	UI.intro.finish()
-	Net.fire("IntroDone", if finished then 0 else math.max(r.shot, 1), r.replay)
+	local showing = r.shots[r.shot]
+	Net.fire(
+		"IntroDone",
+		if finished then 0 else (if showing ~= nil then showing.index else 1),
+		r.replay
+	)
 	run = nil
 	Moments.IntroEnd:Fire()
 end
 
 -- Plays the intro from the first shot. `replay` is a replay from the Tutorial tile or Settings: Skip shows at once
--- and the server saves nothing. Does nothing while one is playing or without a plot.
+-- and the server saves nothing. Does nothing while one is playing or without a plot. Yields up to STREAM_WAIT while
+-- the Alleyway's camp streams in.
 function IntroController.play(replay: boolean)
 	local state = UIController.state
+	if run ~= nil or starting or state == nil or state.plotIndex == 0 then
+		return
+	end
+	starting = true
+	local camp = Intro.camp(Intro.AREA) :: Intro.Camp
+	-- with streaming on the camps are far from the spawn this client holds: ask for the Alleyway's pad and wait
+	pcall(function()
+		player:RequestStreamAroundAsync(camp.pad, Intro.STREAM_WAIT)
+	end)
+	starting = false
+	state = UIController.state
 	if run ~= nil or state == nil or state.plotIndex == 0 then
 		return
 	end
+	-- the other camps and the Alleyway's board stream in during shots 1 to 4
+	for _, area in Intro.CAMP_CUTS do
+		local other = Intro.camp(area)
+		if other ~= nil then
+			streamAround(other.wayOut + other.u * 10)
+		end
+	end
+	streamAround(camp.board)
+	local alleyStreamed = streamedNear(camp.pad)
 	local plot = Intro.plot(state.plotIndex)
 	local camera = Workspace.CurrentCamera
 	local r: Run = {
 		replay = replay,
 		started = os.clock(),
-		shots = Intro.shots(plot, hasCodesCat()),
+		shots = Intro.shots(plot, hasCodesCat(), alleyStreamed),
 		plot = plot,
+		camp = camp,
+		alleyStreamed = alleyStreamed,
 		shot = 0,
 		cuts = {},
 		cut = 1,
 		character = player.Character,
 		staged = {},
 		hidden = {},
+		covers = {},
 		tweens = {},
-		pops = {},
 		you = nil,
 		characterHidden = false,
+		cannon = townCannon(),
+		flying = false,
+		muzzle = Intro.NO_CANNON_MUZZLE,
+		aim = Vector3.new(0, 0, 1),
 		demo = nil,
+		demoName = "",
+		demoParent = nil,
 		hopFrom = nil,
 		held = false,
+		basket = nil,
 		nearDemo = {},
 		seated = nil,
 		waiters = {},
@@ -845,29 +1215,27 @@ function IntroController.play(replay: boolean)
 		camera.CameraType = Enum.CameraType.Scriptable
 	end
 
-	-- the demo Tuxedo waits at the tutorial stray point through shots 1 and 2, facing you at the catch spot; real
-	-- strays there are hidden
-	local strayAt = Intro.strayPoint(plot)
-	local catchAt = Intro.catchSpot(plot)
-	r.nearDemo = straysNear(strayAt, Intro.DEMO_HIDE_RADIUS)
-	for _, stray in r.nearDemo do
-		hide(r, stray)
+	-- the demo Tuxedo waits at S through shot 3, facing the catch spot
+	if alleyStreamed then
+		local strayAt, catchAt = Intro.strayPoint(), Intro.catchSpot()
+		r.demo =
+			stageCat(r, Intro.DEMO_CAT, CFrame.lookAt(strayAt, strayAt + toward(strayAt, catchAt)))
 	end
-	r.demo = stageCat(r, Intro.DEMO_CAT, CFrame.lookAt(strayAt, strayAt + toward(strayAt, catchAt)))
 	r.you = stageYou(r)
 	if r.you ~= nil then
 		local you = r.you :: You
-		placeYou(you, catchAt, toward(catchAt, strayAt))
+		local ladder = if r.cannon ~= nil then (r.cannon :: TownCannon).ladder else NO_LADDER
+		placeYou(you, ladder, toward(ladder, Vector3.zero))
 		playYou(you, "idle")
 		hideCharacter(r, true)
 	end
-	for _, cut in r.shots[1].cuts do
-		streamAround(cut.to.look)
-	end
+	aimTurret(r, 0) -- at rest, facing north, until it turns toward the Alleyway in shot 1
+	cover(r, false) -- lifted for shots 1 and 2 when it is night
 
 	UI.intro.start({ skipAfter = if replay then 0 else Intro.SKIP_AFTER, replay = replay })
 	Moments.IntroStart:Fire(replay)
-	RunService:BindToRenderStep(RENDER_STEP, Enum.RenderPriority.Camera.Value + 1, step)
+	-- at Camera priority, under Effects/Cannon's BOOM shake at Camera + 1
+	RunService:BindToRenderStep(RENDER_STEP, Enum.RenderPriority.Camera.Value, step)
 end
 
 function IntroController.playing(): boolean

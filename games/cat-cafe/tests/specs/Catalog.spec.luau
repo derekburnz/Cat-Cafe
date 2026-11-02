@@ -1093,7 +1093,7 @@ return function()
 				-- id -> { name, tier, spawnPoints, odds, waveSize, incomeMultiplier }; v0.13.7: one set of odds everywhere
 				local same = { 72, 22, 5, 0.9, 0.1 }
 				local want = {
-					{ "alley", "Alleyway", 1, 24, same, 6, 1 }, -- v0.4 layout: 24 spawn points
+					{ "alley", "Alleyway", 1, 32, same, 6, 1 }, -- v4 (F84, v0.13.18): 24 and the 8 near points
 					{ "park", "Park", 2, 40, same, 5, 1.5 }, -- the v3.2 set's cat spots (F81, #460)
 					{ "neighbourhood", "Neighbourhood", 3, 72, same, 5, 2.25 }, -- the v3.2 set's cat spots (F81, #505)
 					{ "woods", "Woods", 4, 65, same, 4, 3.5 }, -- the v3.2 set (#470) and the oak top

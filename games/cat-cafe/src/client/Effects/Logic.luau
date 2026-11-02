@@ -804,10 +804,10 @@ function Logic.idle(style: Style, t: number, body: Body?): Offsets
 		o.headPitch = -math.rad(m.barista.headDip) * tap
 		o.pawFL = math.rad(m.barista.paw) * tap
 	elseif style == "waiter" then
-		local sway = wave(t, m.waiter.swaySeconds)
-		o.bodyRoll = math.rad(m.waiter.sway) * sway
-		o.bodyY += math.abs(sway) * m.waiter.step
-		o.headRoll = -o.bodyRoll * 0.6
+		-- watching the room: the head turns from table to table and tilts now and then, the body still
+		local w = m.waiter
+		o.headYaw = math.rad(w.look) * wave(t, w.lookSeconds)
+		o.headRoll = math.rad(w.tilt) * Logic.pulse(t, w.tiltEvery, 1.2)
 	elseif style == "greeter" then
 		local greet = Logic.pulse(t, m.greeter.waveEvery, 1.2)
 		o.pawFR = math.rad(m.greeter.wave) * greet * (0.75 + 0.25 * math.sin(t * 16))
@@ -1601,6 +1601,75 @@ end
 -- is under `share` of its piece's biggest part's.
 function Logic.rainbowKeeps(longest: number, biggest: number, share: number): boolean
 	return longest < biggest * share
+end
+
+-- Cafe walks (CafeWalk.luau, Presets.cafeWalk). A waiter's way from its station to a chair's Approach point
+-- (CafeService: Aisle is beside the middle aisle at the chair's row lane, Approach on that lane in line with the
+-- chair): square onto the lane first, then along it, so it never cuts across a table. The lane point is where the
+-- station meets the lane square on, kept between Aisle and Approach; a station already on the lane (or in line with
+-- the Approach point) walks straight there. Every point is at the station's height (the cafe floor).
+function Logic.strollRoute(station: Vector3, aisle: Vector3, approach: Vector3): { Vector3 }
+	local function floor(point: Vector3): Vector3
+		return Vector3.new(point.X, station.Y, point.Z)
+	end
+	local lane = floor(approach) - floor(aisle)
+	local length = lane.Magnitude
+	local route: { Vector3 } = {}
+	if length > 1e-3 then
+		local along = lane / length
+		local onto = floor(aisle)
+			+ along * math.clamp((station - floor(aisle)):Dot(along), 0, length)
+		if (onto - station).Magnitude > 0.3 and (onto - floor(approach)).Magnitude > 0.3 then
+			table.insert(route, onto)
+		end
+	end
+	table.insert(route, floor(approach))
+	return route
+end
+
+-- How long a walk through `points` is, in studs.
+function Logic.routeLength(points: { Vector3 }): number
+	local total = 0
+	for i = 2, #points do
+		total += (points[i] - points[i - 1]).Magnitude
+	end
+	return total
+end
+
+-- Where a walk through `points` is once it has gone `travelled` studs from the first: the position, the way it is
+-- going (a flat unit vector; the last leg's way once it has arrived) and whether it has arrived.
+function Logic.along(points: { Vector3 }, travelled: number): (Vector3, Vector3, boolean)
+	local left = math.max(travelled, 0)
+	local heading = Vector3.new(0, 0, -1)
+	for i = 2, #points do
+		local leg = points[i] - points[i - 1]
+		local flat = Vector3.new(leg.X, 0, leg.Z)
+		local length = leg.Magnitude
+		if length > 1e-6 then
+			if flat.Magnitude > 1e-6 then
+				heading = flat.Unit
+			end
+			if left < length then
+				return points[i - 1] + leg * (left / length), heading, false
+			end
+			left -= length
+		end
+	end
+	return points[#points], heading, true
+end
+
+-- The turn about Y (radians) that faces a model, which looks along -Z, along the flat direction `way`.
+function Logic.yawOf(way: Vector3): number
+	return math.atan2(-way.X, -way.Z)
+end
+
+-- `yaw` turned toward `target` by at most `step` radians, the short way round.
+function Logic.turnToward(yaw: number, target: number, step: number): number
+	local d = (target - yaw + math.pi) % (2 * math.pi) - math.pi
+	if math.abs(d) <= step then
+		return target
+	end
+	return yaw + (if d > 0 then step else -step)
 end
 
 return Logic

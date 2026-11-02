@@ -751,7 +751,11 @@ Presets.motion = {
 		jumpStuds = 3, -- a server move longer than this during a hiss is drawn as part of the hop
 	},
 	barista = { tapEvery = 1.6, headDip = 12, paw = 35 },
-	waiter = { sway = 5, swaySeconds = 1.8, step = 0.05 },
+	-- A waiter watching the room from its station (Derek 2026-10-29 19:45: cats should move around the cafe, "not just
+	-- waddle back and fourth while sitting"; it used to rock side to side with a little hop): the head turns `look`
+	-- degrees from table to table over `lookSeconds`, and tilts `tilt` now and then, once every `tiltEvery`. Its walks
+	-- round the tables are Presets.cafeWalk.
+	waiter = { look = 22, lookSeconds = 7, tilt = 8, tiltEvery = 5.5 },
 	greeter = { waveEvery = 3.2, wave = 70, tilt = 10 },
 	-- The entertainer bats a pom-pom on a springy wand stuck in its perch (Derek 2026-10-28 17:41: Comet's ball was
 	-- "kind of floating" and its foot "randomly" twitched; the old yarn ball slid about in mid air 2 studs past the
@@ -970,6 +974,26 @@ Presets.motion = {
 -- numbers here when the manifest changes. In the sleep and the loaf the folded legs also turn out to the sides (the
 -- last angle, front 30 degrees, back 26), so the paws peek out a little (Derek 2026-10-27; in the manifest since #296).
 export type CatPose = { body: string, lift: number, turns: { [string]: { number } } }
+-- Cafe cats on the move (CafeWalk.luau; Derek 2026-10-29 19:45: "make the cats move around cafe not just waddle
+-- back and fourth while sitting"). In your own cafe by day, a waiter at its station now and then gets up, walks
+-- `speed` studs a second onto the nearest lane and along it to a chair within `reach` studs (the chair's Approach
+-- point, where customers walk to sit), looks over the table for `pause` seconds and walks back to sit again, once
+-- every `every` seconds (a random time between the two), at most `most` at once and only while the camera is within
+-- `range` studs. Getting up and sitting down cross-fade the seated body and the walking body over `fade` seconds; it
+-- turns at most `turn` degrees a second. Off with Reduce Motion. F90's orders (cats-make-orders.md) send the same
+-- walk with a tray.
+Presets.cafeWalk = {
+	speed = 3,
+	turn = 300,
+	fade = 0.3,
+	every = { 16, 32 },
+	pause = { 2.5, 4.5 },
+	reach = 12,
+	most = 2,
+	range = 70,
+	trayLift = 0.08, -- studs a tray sits above the top of the head
+}
+
 Presets.catPoses = {
 	sleep = {
 		body = "walk",

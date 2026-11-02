@@ -11,6 +11,7 @@
 -- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
+local CafeWalk = require(script.CafeWalk)
 local Campfire = require(script.Campfire)
 local Cannon = require(script.Cannon)
 local CannonGlide = require(script.CannonGlide)
@@ -51,6 +52,7 @@ function Effects.start()
 	started = true
 	Context.init()
 	Cats.start()
+	CafeWalk.start()
 	Signature.start()
 	Catch.start()
 	Chase.start()

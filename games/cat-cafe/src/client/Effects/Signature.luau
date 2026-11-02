@@ -16,6 +16,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
+local CafeWalk = require(script.Parent.CafeWalk)
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
@@ -62,9 +63,10 @@ local function isGold(model: Instance): boolean
 	return model:GetAttribute("Gold") == true or model:GetAttribute("Shiny") == true
 end
 
--- A cat this player hid with the Show other cats switch off (HiddenLocal): no effect until the mark clears.
+-- A cat this player hid with the Show other cats switch off (HiddenLocal), or a waiter whose seated model is hidden
+-- while its copy walks round the cafe (CafeWalk): no effect until it is back.
 local function hidden(model: Model): boolean
-	return model:GetAttribute("HiddenLocal") == true
+	return model:GetAttribute("HiddenLocal") == true or CafeWalk.isAway(model)
 end
 
 local function partNamed(model: Model, name: string): BasePart?

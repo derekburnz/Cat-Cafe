@@ -8,6 +8,11 @@
 -- next slot peeking at the edge. Tapping a slot filters the grid to that kind. A style card (wallpaper, floor, paint,
 -- door set, cat flap) says "Use it" (it takes the place of the one in use) or "Remove"; furniture and decorations
 -- say Place, Remove or "Spots full". The server checks the spots too.
+-- Derek 2026-10-28: "decor menu buttons are squished a little too much", so the chips are taller and wider with more
+-- room between them, and on a phone the chips and card buttons grow to a 44 px face (Scale.tapHeight).
+-- F97 section 2 (Derek 2026-10-28: "make it so decor is crate find only"): a coin piece the catalog marks
+-- `source = "crate"` shows only once owned and never with a price, like a crate piece, and the grid always ends
+-- with "Find more decor in crates" pointing to the Golden Fish Market.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -18,6 +23,7 @@ local Format = require(script.Parent.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -36,8 +42,13 @@ export type DecorShop = {
 	destroy: (self: DecorShop) -> (),
 }
 
-local CARD = Vector2.new(164, 196)
-local CHIP_HEIGHT = 36
+local CARD_WIDTH = 164
+local CARD_TOP = 152 -- the card above its button: art, name, effect
+local CHIP_HEIGHT = 44 -- was 36 with a 31 px face (Derek 2026-10-28: "squished")
+local CHIP_MIN_WIDTH = 96
+local CHIP_PAD = 40 -- px round a chip's words
+local CHIP_GAP = 10
+local FOOTER_HEIGHT = 56
 local STRIP_HEIGHT = 58
 local SLOT_WIDTH = 150 -- four slots fit a full-width window with the fifth peeking, so the strip reads as scrollable
 -- the strip's slots left to right: the first four as before F80, then the door set and the cat flap
@@ -84,6 +95,10 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self._catalog = nil :: Types.Catalog?
 	self._state = nil :: Types.PlayerState?
 	self._dirty = true
+	-- a phone's buttons grow to a 44 px face
+	self._chipHeight = Scale.tapHeight(CHIP_HEIGHT, Theme.sizes.buttonDepth)
+	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
+	local chipHeight = self._chipHeight
 
 	local panel = Panel.new({
 		name = "Decor",
@@ -102,7 +117,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 		Name = "Chips",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, CHIP_HEIGHT),
+		Size = UDim2.new(1, 0, 0, chipHeight),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.X,
 		ScrollBarThickness = 0,
@@ -111,7 +126,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, Theme.sizes.gap),
+			Padding = UDim.new(0, CHIP_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
@@ -121,7 +136,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 		Name = "YourCafe",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(0, CHIP_HEIGHT + Theme.sizes.gap),
+		Position = UDim2.fromOffset(0, chipHeight + Theme.sizes.gap),
 		Size = UDim2.new(1, 0, 0, STRIP_HEIGHT),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.X,
@@ -141,8 +156,8 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 		Name = "Grid",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(0, CHIP_HEIGHT + Theme.sizes.gap),
-		Size = UDim2.new(1, 0, 1, -(CHIP_HEIGHT + Theme.sizes.gap)),
+		Position = UDim2.fromOffset(0, chipHeight + Theme.sizes.gap),
+		Size = UDim2.new(1, 0, 1, -(chipHeight + Theme.sizes.gap)),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
@@ -151,24 +166,54 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 		Parent = panel.content,
 	}, {
 		Create("UIGridLayout", {
-			CellSize = UDim2.fromOffset(CARD.X, CARD.Y),
+			CellSize = UDim2.fromOffset(CARD_WIDTH, CARD_TOP + self._actionHeight),
 			CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 			HorizontalAlignment = Enum.HorizontalAlignment.Left,
 		}),
 		Create("UIPadding", { PaddingRight = UDim.new(0, 10) }),
 	})
-	self._hint = text({
-		Name = "Hint",
+	-- F97: no shop; the last cell says where decor comes from now. A grid cell, so it sits after the last card.
+	local footer: Frame = Create("Frame", {
+		Name = "FindMore",
 		LayoutOrder = 100000,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		TextWrapped = true,
-		TextTruncate = Enum.TextTruncate.None,
-		TextColor3 = Theme.modal.subtext,
-		Text = "Open crates at the Golden Fish Market to find more.",
-		Visible = false,
+		BackgroundColor3 = Theme.modal.card,
+		BorderSizePixel = 0,
 		Parent = self._grid,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
+	text({
+		Name = "Glyph",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 18),
+		Size = UDim2.fromOffset(FOOTER_HEIGHT, FOOTER_HEIGHT),
+		TextScaled = true,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = Theme.icons.crate,
+		Parent = footer,
+	})
+	text({
+		Name = "Title",
+		Position = UDim2.fromOffset(10, FOOTER_HEIGHT + 26),
+		Size = UDim2.new(1, -20, 0, 22),
+		FontFace = Theme.fonts.display,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "Find more in crates",
+		Parent = footer,
+	})
+	text({
+		Name = "Where",
+		Position = UDim2.fromOffset(10, FOOTER_HEIGHT + 50),
+		Size = UDim2.new(1, -20, 0, 18),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.modal.subtext,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "Golden Fish Market",
+		Parent = footer,
+	})
+	self._footer = footer
 
 	return self :: DecorShop
 end
@@ -187,20 +232,15 @@ function DecorShop._setFilter(self: any, category: string)
 	self:_applyVisible()
 end
 
--- A card shows when its chip is picked; a crate piece only once the player owns it (the Decor Index shows the rest).
+-- A card shows when its chip is picked; a crate piece, or a coin piece that now comes from crates (F97), only once
+-- the player owns it (the Decor Index shows the rest).
 function DecorShop._applyVisible(self: any)
 	local state: Types.PlayerState? = self._state
-	local shown = 0
 	for _, card in self._cards do
 		local owned = state ~= nil and state.decorOwned[card.def.id] == true
-		local visible = (self._filter == "All" or card.chip == self._filter)
-			and (not card.piece or owned)
-		card.frame.Visible = visible
-		if visible then
-			shown += 1
-		end
+		card.frame.Visible = (self._filter == "All" or card.chip == self._filter)
+			and (not card.crateOnly or owned)
 	end
-	self._hint.Visible = shown == 0
 end
 
 -- The strip's slots: Wallpaper, Floor and Paint (the piece in use, or "Plain"), the decor spots, then Door and Cat
@@ -335,7 +375,7 @@ function DecorShop._build(self: any)
 		end
 	end
 	self._strip.Visible = hasPieces
-	local gridTop = CHIP_HEIGHT
+	local gridTop = self._chipHeight
 		+ Theme.sizes.gap
 		+ (if hasPieces then STRIP_HEIGHT + Theme.sizes.gap else 0)
 	self._grid.Position = UDim2.fromOffset(0, gridTop)
@@ -357,7 +397,10 @@ function DecorShop._build(self: any)
 			name = category,
 			text = category,
 			style = "ghost",
-			size = UDim2.fromOffset(math.max(84, #category * 11 + 28), CHIP_HEIGHT),
+			size = UDim2.fromOffset(
+				math.max(CHIP_MIN_WIDTH, #category * 11 + CHIP_PAD),
+				self._chipHeight
+			),
 			textSize = Theme.sizes.textSmall,
 			layoutOrder = index,
 			parent = self._chipRow,
@@ -513,8 +556,8 @@ function DecorShop._build(self: any)
 			name = "Action",
 			text = Format.money(decor.cost),
 			style = "primary",
-			size = UDim2.new(1, -20, 0, Theme.sizes.touchMin),
-			position = UDim2.new(0, 10, 1, -(Theme.sizes.touchMin + 10)),
+			size = UDim2.new(1, -20, 0, self._actionHeight),
+			position = UDim2.new(0, 10, 1, -(self._actionHeight + 10)),
 			textSize = Theme.sizes.textSmall + 1,
 			parent = card,
 			onClick = function()
@@ -538,6 +581,7 @@ function DecorShop._build(self: any)
 			def = decor,
 			chip = chipOf(decor),
 			piece = piece.kind ~= nil,
+			crateOnly = piece.kind ~= nil or decor.source == "crate", -- F97: never sold for coins
 			kind = piece.kind,
 			mode = "buy",
 		}
@@ -629,6 +673,12 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 			-- F48: won from the Index, never bought (BuyDecor refuses it)
 			card.mode = "index"
 			card.action:setText(Theme.icons.collection .. " Index reward")
+			card.action:setStyle("ghost")
+			card.action:setEnabled(false)
+		elseif card.crateOnly then
+			-- F97: crate find only (hidden until owned, so this only shows for a moment after a trade or a reset)
+			card.mode = "crate"
+			card.action:setText(Theme.icons.crate .. " From crates")
 			card.action:setStyle("ghost")
 			card.action:setEnabled(false)
 		elseif locked then

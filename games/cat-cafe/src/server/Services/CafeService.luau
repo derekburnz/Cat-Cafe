@@ -151,6 +151,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		cats = CafeService.catViews(player, profile),
 		collection = profile.collection,
 		goldCollection = profile.goldCollection,
+		rainbowCollection = profile.rainbowCollection, -- F99
 		indexRewards = profile.indexRewards,
 		spin = table.clone(profile.spin),
 		goldenFish = profile.goldenFish,
@@ -158,6 +159,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		crateLuck = profile.crateLuck,
 		fishPerks = profile.fishPerks,
 		goldLuck = totals.goldLuck,
+		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
 		baitSpeed = totals.baitSpeed,
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
@@ -245,6 +247,7 @@ local function buildCat(
 	model:SetAttribute("Napping", instance.spotId == nil)
 	model:SetAttribute("Rarity", if def ~= nil then def.rarity else nil)
 	model:SetAttribute("Gold", instance.variant == "gold")
+	model:SetAttribute("Variant", instance.variant) -- F99: a rainbow cat's coat flows at work and at rest
 	model:SetAttribute("Rate", Economy.catRate(instance, tier) * multiplier)
 	model:SetAttribute("DisplayName", shownName(player, instance))
 	model:SetAttribute("Level", CatStats.level(instance))
@@ -702,6 +705,7 @@ local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		model:SetAttribute("CatId", bait.catId)
 		model:SetAttribute("Rarity", def.rarity)
 		model:SetAttribute("Gold", bait.variant == "gold")
+		model:SetAttribute("Variant", bait.variant) -- F99: a rainbow bait cat shows its coat as it arrives
 		model:SetAttribute("OwnerUserId", player.UserId)
 		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 		model:PivotTo(plot.baitCat.CFrame)
@@ -881,8 +885,8 @@ end
 -- `knownProfile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
 -- `charm` is the stray's roll when the caller has one (CatService can roll it at spawn and show stars on the
 -- prompt); otherwise it is rolled here.
--- `method` is how the cat was found, "net" when nil; "rescue" also sets the rescued flag. `variant` keeps a gold
--- roll made before the cat was owned (a bait cat when the food went in, a stuck cat at night start).
+-- `method` is how the cat was found, "net" when nil; "rescue" also sets the rescued flag. `variant` keeps a gold or
+-- rainbow (F99) roll made before the cat was owned (a bait cat when the food went in, a stuck cat at night start).
 function CafeService.addCaughtCat(
 	player: Player,
 	def: Types.CatDef,
@@ -914,7 +918,19 @@ function CafeService.addCaughtCat(
 	local firstGold = false
 	if variant ~= nil then
 		instance.variant = variant
-		if variant == "gold" then
+		if variant == "rainbow" then
+			-- F99 (rainbow-coat.md section 5): the Rainbow page counts each cat's first rainbow coat
+			local firstRainbow = profile.rainbowCollection[def.id] == nil
+			if firstRainbow then
+				profile.rainbowCollection[def.id] = now
+			end
+			Telemetry.custom(
+				player,
+				"rainbow_found",
+				1,
+				{ def.rarity :: string, howText, if firstRainbow then "yes" else "no" }
+			)
+		elseif variant == "gold" then
 			firstGold = profile.goldCollection[def.id] == nil
 			if firstGold then
 				profile.goldCollection[def.id] = now
@@ -939,6 +955,8 @@ function CafeService.addCaughtCat(
 	end
 	if instance.variant == "gold" then
 		profile.stats.goldCatches += 1
+	elseif instance.variant == "rainbow" then
+		profile.stats.rainbowCatches += 1
 	end
 	Telemetry.custom(player, "cat_caught", 1, { def.id, howText, instance.variant })
 	if isNew then

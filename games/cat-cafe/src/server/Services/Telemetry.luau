@@ -53,6 +53,7 @@ export type CustomEvent =
 	| "bait_rolled"
 	| "bait_resolved"
 	| "gold_found"
+	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
 	| "shove"
 	| "drop_outcome"
 	| "left_after_shove"

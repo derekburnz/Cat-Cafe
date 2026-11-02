@@ -61,7 +61,8 @@ function Collector.pickCat(
 	return best
 end
 
--- The value he puts on `instance`: CollectorValue by its rarity, times CollectorGoldMultiplier for a gold cat, times
+-- The value he puts on `instance`: CollectorValue by its rarity, times CollectorGoldMultiplier for a gold cat (or
+-- CollectorRainbowMultiplier for a rainbow one, F99), times
 -- `roll` (0 to 1) laid over CollectorRollMin to CollectorRollMax, so the same cat can get a better offer another
 -- time. 0 for an unknown cat.
 function Collector.value(instance: Types.CatInstance, roll: number): number
@@ -70,7 +71,10 @@ function Collector.value(instance: Types.CatInstance, roll: number): number
 		return 0
 	end
 	local base = Config.CollectorValue[def.rarity] or 0
-	local gold = if instance.variant == "gold" then Config.CollectorGoldMultiplier else 1
+	local gold = if instance.variant == "rainbow"
+		then Config.CollectorRainbowMultiplier
+		elseif instance.variant == "gold" then Config.CollectorGoldMultiplier
+		else 1
 	local scale = Config.CollectorRollMin
 		+ math.clamp(roll, 0, 1) * (Config.CollectorRollMax - Config.CollectorRollMin)
 	return base * gold * scale

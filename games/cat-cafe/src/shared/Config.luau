@@ -373,6 +373,21 @@ local Config = {
 	GoldLuckMax = 1.5,
 	BaitSpeedMax = 0.5,
 
+	-- The Rainbow coat (F99, rainbow-coat.md sections 1, 2 and 5): rolled before gold at the same moments (a net stray
+	-- at spawn, bait as the food goes in, a rescue at night start), so gold keeps its chance. Rainbow luck from the
+	-- Index's Rainbow track multiplies the chance by (1 + luck), the luck at most RainbowLuckMax; gold luck, Gold Rush
+	-- and Lucky Potions never touch it. A rainbow cat earns RainbowMultiplier (gold 1.5) and the Cat Collector values
+	-- it at CollectorRainbowMultiplier (gold 3). Clients animate the bands on at most RainbowAnimateMax rainbow cats
+	-- near the camera; a rainbow stray's server toast goes out at most once every RainbowSpawnToastSeconds.
+	RainbowChanceNet = 0.005,
+	RainbowChanceBait = 0.005,
+	RainbowChanceRescue = 0.01,
+	RainbowMultiplier = 3,
+	RainbowLuckMax = 1.0,
+	CollectorRainbowMultiplier = 10,
+	RainbowAnimateMax = 10,
+	RainbowSpawnToastSeconds = 60,
+
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
 	CodesCatRange = 12, -- RedeemCode from this close to a CodesCat station's pivot
 	CodesCircleRadius = 4, -- the code box opens within this flat distance of the CodesCircle, closes past it + 1

@@ -57,7 +57,10 @@ local ProfileSchema = {}
 -- ask (Tips.sanitizeSeen keeps them).
 -- Version 23 (F98, leaderboards.md section 5) adds stats.bestRate, stats.weekPlay and stats.weekBestRate: an older
 -- server would drop them, and the Money board would forget the player's best rate.
-ProfileSchema.VERSION = 23
+-- Version 24 (F99, rainbow-coat.md section 5) adds the rainbow coat: variant "rainbow", rainbowCollection and
+-- stats.rainbowCatches. An older server would read a rainbow cat as a base one and save it so, and drop the
+-- collection and the count.
+ProfileSchema.VERSION = 24
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -115,6 +118,7 @@ local function newStats(): Types.Stats
 		collectorTrades = 0,
 		rareCatches = 0,
 		goldCatches = 0,
+		rainbowCatches = 0, -- F99
 		tipPilesCollected = 0,
 		dailyQuestsDone = 0,
 		dailySetsDone = 0,
@@ -176,6 +180,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		},
 		collection = { tabby = now },
 		goldCollection = {},
+		rainbowCollection = {},
 		indexRewards = {},
 		spin = { lastFreeDay = 0, banked = 0 },
 		goldenFish = 0,
@@ -281,10 +286,13 @@ local function migrateV3Upgrades(rawLevels: any, profile: Types.PlayerProfile)
 	end
 end
 
--- A saved cat or bait variant: "gold", or "shiny" from a version 3 save (Derek 2026-10-27 renamed shiny to gold);
--- anything else is the base coat.
+-- A saved cat or bait variant: "gold", "rainbow" (F99), or "shiny" from a version 3 save (Derek 2026-10-27 renamed
+-- shiny to gold); anything else is the base coat.
 local function variantOf(value: any): string
-	return if value == "gold" or value == "shiny" then "gold" else "base"
+	return if value == "rainbow"
+		then "rainbow"
+		elseif value == "gold" or value == "shiny" then "gold"
+		else "base"
 end
 
 -- A saved name, cut to MAX_NAME_LENGTH bytes on a character boundary; nil when empty or not valid UTF-8
@@ -697,6 +705,13 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	for _, instance in profile.cats do
 		if instance.variant == "gold" and profile.goldCollection[instance.catId] == nil then
 			profile.goldCollection[instance.catId] = instance.caughtAt
+		end
+	end
+	-- F99: the rainbow coats found (version 24); every rainbow cat owned is in it
+	profile.rainbowCollection = sanitizeCollection(raw.rainbowCollection, now)
+	for _, instance in profile.cats do
+		if instance.variant == "rainbow" and profile.rainbowCollection[instance.catId] == nil then
+			profile.rainbowCollection[instance.catId] = instance.caughtAt
 		end
 	end
 

@@ -1472,9 +1472,11 @@ local function followServerState()
 		return
 	end
 	followingState = true
-	task.spawn(followTrade)
-	task.spawn(followRally)
-	task.spawn(followBait)
+	-- deferred, so the order does not hang on signal behaviour: even a first sync handled inside UIController.start
+	-- hooks these only after the rest of Main.client has started its controllers (review S117)
+	task.defer(followTrade)
+	task.defer(followRally)
+	task.defer(followBait)
 end
 
 -- Animation beats (Beats.hit from Effects): the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100),

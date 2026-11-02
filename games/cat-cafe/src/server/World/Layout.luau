@@ -367,15 +367,15 @@ Layout.plot = {
 -- stud back alleys side by side, far out in the wild like every catching area since Derek's 2026-10-28 14:09 "no
 -- alleyway should move also all locations should move". It is laid out below in lane space, the numbers the lanes
 -- had behind the cafes until v4 (|x| AlleyInnerX to AlleyOuterX, AlleySouthZ to AlleyNorthZ), and moved into the
--- wild at the end (laneX, laneZ): each lane AlleyLaneShift nearer the set's middle (AlleyCenterX, AlleyCenterZ), with
--- the 30 stud block of building backs between them and a passage through it at the far (south) end. The camp lies
--- across both lanes' north ends, where the Neighbourhood's wall closed them, so the north end walls' dressing went.
+-- wild at the end (laneX, laneZ): each lane AlleyLaneShift nearer the set's middle (AlleyCenterX, AlleyCenterZ).
+-- F85 (Derek 2026-11-02: "just make it one big one"): the 30 stud block of building backs that stood between the two
+-- lanes went, so the Alleyway is one lane 90 wide with the buildings along both outer walls. The camp lies across its
+-- north end, one way in under the street arch (AlleyWayHalfWidth either side of the middle).
 local AI, AO = W.AlleyInnerX, W.AlleyOuterX
 local AS, AN = W.AlleySouthZ, W.AlleyNorthZ
 local MID = (AI + AO) / 2 -- the middle of a back alley's width
 local AX, AZ = W.AlleyCenterX, W.AlleyCenterZ
 local SHIFT = W.AlleyLaneShift
-local PASSAGE = W.AlleyPassageDepth
 
 -- Lane space to world space. Everything in the set stands at |x| SHIFT or more in lane space, the block's and the
 -- passage's edges included, so each side keeps its sign and a rect across the middle keeps its order.
@@ -387,16 +387,19 @@ local function laneZ(z: number): number
 end
 
 -- Two lane spawn points behind every cafe's old place, in plot order (plot p's are points 2p - 1 and 2p). Then the
--- nooks, where Epic and rarer strays go, all at the far (south) end since v4: two at each lane's dead end and, moved
--- from the north ends that open into the camp now, two either side of the middle of the passage through the block,
--- each 6 studs off the south end wall, at least 2 inside the roam rects and at least 10 studs from every lane point.
--- Then the eight `near` points just past the camp's two ways out for the tutorial stray (data-model section 9,
--- v0.13.18): the east lane's first (the one toward the town), each lane's at 10 and then 16 studs into it, 5 studs
--- right (+X for a player facing south into the lane) then 5 left of its middle line. Plot p owns near point p, so
--- plot 1's stray waits where the intro shows it.
+-- nooks, where Epic and rarer strays go, all at the far (south) end: four either side of the middle, 6 studs off the
+-- south end wall (two where each old lane's dead end was, two where the passage through the block was), at least 2
+-- inside the roam rect and at least 10 studs from every lane point. Then the eight `near` points just past the camp's
+-- way in for the tutorial stray (data-model section 9, v0.13.18), 10 and then 16 studs into the Alleyway: 5 studs
+-- right (+X for a player facing south into it) then 5 left of the middle, then the same 15 studs out (F85, one way in
+-- since the block went). Plot p owns near point p, so plot 1's stray waits where the intro shows it.
 local NOOKS = { { 82, -119 }, { 68, -119 }, { SHIFT + 5, AS + 6 }, { SHIFT + 11, AS + 6 } }
 local NEAR_IN = { 10, 16 }
-local NEAR_SIDE = 5
+local NEAR_ACROSS = { 5, 15 }
+-- An x across the whole Alleyway (0 its middle) in lane space, which has no middle: |x| SHIFT more, the same side.
+local function fromMiddle(x: number): number
+	return x + math.sign(x) * SHIFT
+end
 -- the outer lane points of the cafes nearest the camp end stop this far in, 4 or more studs clear of the near points
 local LANE_NORTH_MAX = AN - NEAR_IN[2] - 3.5
 local function alleySpawnPoints(): { Point }
@@ -413,11 +416,11 @@ local function alleySpawnPoints(): { Point }
 			table.insert(points, { x = side * xz[1], y = 0.1, z = xz[2], zone = "nook" })
 		end
 	end
-	for _, side in { 1, -1 } do
+	for _, across in NEAR_ACROSS do
 		for _, into in NEAR_IN do
 			for _, right in { 1, -1 } do
 				table.insert(points, {
-					x = side * MID + right * NEAR_SIDE,
+					x = fromMiddle(right * across),
 					y = 0.1,
 					z = AN - into,
 					rotY = 180,
@@ -527,11 +530,12 @@ local function alleyDressing(): { Prop }
 			x = side * (MID - 0.4),
 			z = if side < 0 then BACK_SLOTS[5] else BACK_SLOTS[3],
 		})
-		-- the south dead ends close on a building, where a staff door stood
-		add(
-			onEndWall(building(if side < 0 then "NarrowHouses" else "ClockHouse"), side, 0, END_OUT)
-		)
+		-- the south end closes on a building either side, where the old lanes' staff doors stood
+		add(onEndWall(building(if side < 0 then "NarrowHouses" else "Grocer"), side, 0, END_OUT))
 	end
+	-- and the Clock House in the middle, where the passage through the block came out: the landmark at the end of
+	-- the one lane (F85, Model-Agent)
+	add({ asset = building("ClockHouse"), x = 0, z = AS - END_OUT, rotY = 180 })
 	return props
 end
 
@@ -572,57 +576,40 @@ Layout.alley = {
 	center = { x = AX, y = 0, z = laneZ((AS + AN) / 2) },
 	halfWidth = AO - SHIFT,
 	halfDepth = (AN - AS) / 2,
-	-- the camp's line across both lanes' north ends (Layout.camps); the alley has no gate model of its own
+	-- the camp's line across the north end (Layout.camps); the alley has no gate model of its own, and its one way in
+	-- is the street arch's opening
 	gateZ = laneZ(AN),
-	rects = laneAll(
-		{
-			{ x1 = -AO, z1 = AS, x2 = -AI, z2 = AN }, -- west back alley
-			{ x1 = AI, z1 = AS, x2 = AO, z2 = AN }, -- east back alley
-			{ x1 = -AI, z1 = AS, x2 = AI, z2 = AS + PASSAGE }, -- the passage through the block at the far end
-		} :: { Rect },
-		laneRect
-	),
+	openingHalfWidth = W.AlleyWayHalfWidth,
+	-- one floor wall to wall (F85: the block between the old lanes went)
+	rects = laneAll({ { x1 = -AO, z1 = AS, x2 = AO, z2 = AN } } :: { Rect }, laneRect),
 	walls = laneAll(
 		{
 			-- the outer walls, up to the camp, where its own side walls carry on
 			{ x1 = -AO - 1, z1 = AS - 1, x2 = -AO, z2 = AN },
 			{ x1 = AO, z1 = AS - 1, x2 = AO + 1, z2 = AN },
-			-- the south end wall right across both lanes and the passage
+			-- the south end wall right across
 			{ x1 = -AO, z1 = AS - 1, x2 = AO, z2 = AS },
-			-- the block of building backs between the lanes, from the passage to the camp
-			{ x1 = -AI, z1 = AS + PASSAGE, x2 = AI, z2 = AN },
 		} :: { Rect },
 		laneRect
 	),
 	-- Strays keep off the strip along the outer walls where the buildings, the Warehouses' fire escapes and the crate
 	-- stacks stand (up to 5 studs deep), 4 off the south end wall and 6 short of the camp's line (reviewer S84); the
-	-- nooks stay 2 or more inside, the passage's two of each side among them.
+	-- nooks stay 2 or more inside.
 	roam = laneAll(
-		{
-			{ x1 = -AO + 5, z1 = AS + 4, x2 = -AI, z2 = AN - 6 },
-			{ x1 = AI, z1 = AS + 4, x2 = AO - 5, z2 = AN - 6 },
-			{ x1 = -AI, z1 = AS + 4, x2 = AI, z2 = AS + PASSAGE - 2 },
-		} :: { Rect },
+		{ { x1 = -AO + 5, z1 = AS + 4, x2 = AO - 5, z2 = AN - 6 } } :: { Rect },
 		laneRect
 	),
 	wallHeight = 10,
-	-- the name arches over the two ways out into the camp, front (-Z) toward the camp
+	-- the name arch over the one way in from the camp, front (-Z) toward the camp (F85: one, where the two lanes'
+	-- arches stood)
 	arches = laneAll(
 		{
 			{
-				x = -MID,
+				x = 0,
 				z = AN,
-				span = AO - AI,
+				span = 2 * W.AlleyWayHalfWidth,
 				label = "THE ALLEYWAY",
-				asset = "CatCafe_Alley_Arch",
-				rotY = 180,
-			},
-			{
-				x = MID,
-				z = AN,
-				span = AO - AI,
-				label = "THE ALLEYWAY",
-				asset = "CatCafe_Alley_Arch",
+				asset = "CatCafe_Alley_ArchStreet",
 				rotY = 180,
 			},
 		} :: { Arch },
@@ -1390,6 +1377,7 @@ local CAMP_PAD = { x = 0, z = -13 }
 local CAMP_CANNON = { x = 0, z = -26.5 }
 local CAMP_BASKET = { x = -11, z = -13 }
 local BOARD_OUT = 4 -- an Index Board stands this far beside the way out
+local ALLEY_BOARD_OUT, ALLEY_BOARD_IN = 7, 2.5 -- the Alleyway's (F85, Model-Agent)
 
 -- A camp-space point (x, z) in world space: the same turn as setPoints, about the camp's origin.
 function Layout.campPoint(camp: Camp, x: number, z: number): (number, number)
@@ -1441,10 +1429,15 @@ for id, spec in Layout.areas do
 		Layout.camps[id] = camp
 		spec.arrival = camp.pad
 		-- Beside the way out, 4 in from the gate line, its front toward the pad and turned 20 degrees toward the path:
-		-- left of the opening for a player walking out, or for the Alleyway between its two ways out, in front of the
-		-- block of building backs (6a: its two boards became one).
+		-- left of the opening for a player walking out. The Alleyway's (F85, one way in under the arch) stands where
+		-- Model-Agent's camp leaves room for it, 7 beside the opening and 2.5 in, clear of the low walls on its line.
 		Layout.indexBoards[id] = if spec.rects ~= nil
-			then { x = 0, y = 0, z = -4, rotY = 0 }
+			then {
+				x = -(camp.openingHalfWidth + ALLEY_BOARD_OUT),
+				y = 0,
+				z = -ALLEY_BOARD_IN,
+				rotY = -20,
+			}
 			else { x = -(camp.openingHalfWidth + BOARD_OUT), y = 0, z = -4, rotY = -20 }
 	end
 end

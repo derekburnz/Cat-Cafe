@@ -1165,23 +1165,19 @@ local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
 		CollectionService:AddTag(basket, "CampBasket")
 	end
 	-- SAFE ZONE: the red stripe just inside the camp along the gate line, across the camp's whole width, and the
-	-- words on the camp side of each way out, reading for a player walking in from the wild part
+	-- words on the camp side of the way out, reading for a player walking in from the wild part
 	local top = floorY + 0.03
 	safeStripe(
 		(base * CFrame.new(-across, top, -0.8)).Position,
 		(base * CFrame.new(across, top, -0.8)).Position,
 		folderCamp
 	)
-	local lane = (W.AlleyInnerX + W.AlleyOuterX) / 2 - W.AlleyLaneShift -- the Alleyway's two ways out
-	local ways: { number } = if spec.rects ~= nil then { -lane, lane } else { 0 }
-	for _, x in ways do
-		safeWords(
-			(base * CFrame.new(x, top, -4)).Position,
-			base:VectorToWorldSpace(Vector3.new(0, 0, -1)),
-			12,
-			folderCamp
-		)
-	end
+	safeWords(
+		(base * CFrame.new(0, top, -4)).Position,
+		base:VectorToWorldSpace(Vector3.new(0, 0, -1)),
+		12,
+		folderCamp
+	)
 end
 
 local function buildArea(
@@ -1462,7 +1458,7 @@ local function buildGate(
 end
 
 -- The Index Boards (F50): CatCafe_<Area>_IndexBoard at Layout.indexBoards, in its area's camp space (v4, F84:
--- beside the way out, or for the Alleyway between its two ways out). The model comes tagged IndexBoard with Area; the UI draws that area's Index on its
+-- beside the way out, the Alleyway's too since F85). The model comes tagged IndexBoard with Area; the UI draws that area's Index on its
 -- Screen part and adds its own hold-E prompt. It streams whole (Atomic, as cats do: reviewer S37), so the Screen
 -- never arrives without its board. Skipped while an asset is missing.
 local function buildIndexBoards(parent: Instance)

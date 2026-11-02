@@ -12,7 +12,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -17.1125,
+       -20.6125,
        0.35,
        0.0
       ],
@@ -36,7 +36,7 @@
      }
     },
     "Size": [
-     3.535,
+     4.535,
      0.7,
      0.6
     ],
@@ -55,7 +55,7 @@
     "PivotOffset": {
      "CFrame": {
       "position": [
-       17.1125,
+       20.6125,
        -0.35,
        0.0
       ],
@@ -90,7 +90,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -19.0,
+       -23.0,
        0.525,
        0.0
       ],
@@ -139,7 +139,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -19.0,
+       -23.0,
        1.065,
        0.0
       ],
@@ -188,7 +188,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -15.225,
+       -18.225,
        0.525,
        0.0
       ],
@@ -237,7 +237,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -15.225,
+       -18.225,
        1.065,
        0.0
       ],
@@ -286,7 +286,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.45,
+       -13.45,
        0.525,
        0.0
       ],
@@ -335,7 +335,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -11.45,
+       -13.45,
        1.065,
        0.0
       ],
@@ -384,7 +384,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.675,
+       -8.675,
        0.525,
        0.0
       ],
@@ -433,7 +433,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.675,
+       -8.675,
        1.065,
        0.0
       ],
@@ -580,7 +580,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -17.1125,
+       -20.6125,
        0.66,
        0.0
       ],
@@ -604,7 +604,7 @@
      }
     },
     "Size": [
-     3.495,
+     4.495,
      0.08,
      0.64
     ],
@@ -629,7 +629,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -17.1125,
+       -20.6125,
        0.395,
        0.0
       ],
@@ -653,7 +653,7 @@
      }
     },
     "Size": [
-     3.435,
+     4.435,
      0.69,
      0.5
     ],
@@ -678,7 +678,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -17.1125,
+       -20.6125,
        0.8,
        0.0
       ],
@@ -702,7 +702,7 @@
      }
     },
     "Size": [
-     3.375,
+     4.375,
      0.24,
      0.44
     ],
@@ -727,7 +727,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -13.3375,
+       -15.8375,
        0.35,
        0.0
       ],
@@ -751,7 +751,7 @@
      }
     },
     "Size": [
-     3.535,
+     4.535,
      0.7,
      0.6
     ],
@@ -776,7 +776,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -13.3375,
+       -15.8375,
        0.66,
        0.0
       ],
@@ -800,7 +800,7 @@
      }
     },
     "Size": [
-     3.495,
+     4.495,
      0.08,
      0.64
     ],
@@ -825,7 +825,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -13.3375,
+       -15.8375,
        0.395,
        0.0
       ],
@@ -849,7 +849,7 @@
      }
     },
     "Size": [
-     3.435,
+     4.435,
      0.69,
      0.5
     ],
@@ -874,7 +874,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -13.3375,
+       -15.8375,
        0.8,
        0.0
       ],
@@ -898,7 +898,7 @@
      }
     },
     "Size": [
-     3.375,
+     4.375,
      0.24,
      0.44
     ],
@@ -923,7 +923,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.5625,
+       -11.0625,
        0.35,
        0.0
       ],
@@ -947,7 +947,7 @@
      }
     },
     "Size": [
-     3.535,
+     4.535,
      0.7,
      0.6
     ],
@@ -972,7 +972,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.5625,
+       -11.0625,
        0.66,
        0.0
       ],
@@ -996,7 +996,7 @@
      }
     },
     "Size": [
-     3.495,
+     4.495,
      0.08,
      0.64
     ],
@@ -1021,7 +1021,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.5625,
+       -11.0625,
        0.395,
        0.0
       ],
@@ -1045,7 +1045,7 @@
      }
     },
     "Size": [
-     3.435,
+     4.435,
      0.69,
      0.5
     ],
@@ -1070,7 +1070,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -9.5625,
+       -11.0625,
        0.8,
        0.0
       ],
@@ -1094,7 +1094,7 @@
      }
     },
     "Size": [
-     3.375,
+     4.375,
      0.24,
      0.44
     ],
@@ -1119,7 +1119,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.7875,
+       -6.2875,
        0.35,
        0.0
       ],
@@ -1143,7 +1143,7 @@
      }
     },
     "Size": [
-     3.535,
+     4.535,
      0.7,
      0.6
     ],
@@ -1168,7 +1168,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.7875,
+       -6.2875,
        0.66,
        0.0
       ],
@@ -1192,7 +1192,7 @@
      }
     },
     "Size": [
-     3.495,
+     4.495,
      0.08,
      0.64
     ],
@@ -1217,7 +1217,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.7875,
+       -6.2875,
        0.395,
        0.0
       ],
@@ -1241,7 +1241,7 @@
      }
     },
     "Size": [
-     3.435,
+     4.435,
      0.69,
      0.5
     ],
@@ -1266,7 +1266,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.7875,
+       -6.2875,
        0.8,
        0.0
       ],
@@ -1290,7 +1290,7 @@
      }
     },
     "Size": [
-     3.375,
+     4.375,
      0.24,
      0.44
     ],
@@ -1413,7 +1413,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       7.675,
+       8.675,
        0.525,
        0.0
       ],
@@ -1462,7 +1462,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       7.675,
+       8.675,
        1.065,
        0.0
       ],
@@ -1511,7 +1511,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.45,
+       13.45,
        0.525,
        0.0
       ],
@@ -1560,7 +1560,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       11.45,
+       13.45,
        1.065,
        0.0
       ],
@@ -1609,7 +1609,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       15.225,
+       18.225,
        0.525,
        0.0
       ],
@@ -1658,7 +1658,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       15.225,
+       18.225,
        1.065,
        0.0
       ],
@@ -1707,7 +1707,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       19.0,
+       23.0,
        0.525,
        0.0
       ],
@@ -1756,7 +1756,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       19.0,
+       23.0,
        1.065,
        0.0
       ],
@@ -1805,7 +1805,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       5.7875,
+       6.2875,
        0.35,
        0.0
       ],
@@ -1829,7 +1829,7 @@
      }
     },
     "Size": [
-     3.535,
+     4.535,
      0.7,
      0.6
     ],
@@ -1854,7 +1854,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       5.7875,
+       6.2875,
        0.66,
        0.0
       ],
@@ -1878,7 +1878,7 @@
      }
     },
     "Size": [
-     3.495,
+     4.495,
      0.08,
      0.64
     ],
@@ -1903,7 +1903,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       5.7875,
+       6.2875,
        0.395,
        0.0
       ],
@@ -1927,7 +1927,7 @@
      }
     },
     "Size": [
-     3.435,
+     4.435,
      0.69,
      0.5
     ],
@@ -1952,7 +1952,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       5.7875,
+       6.2875,
        0.8,
        0.0
       ],
@@ -1976,7 +1976,7 @@
      }
     },
     "Size": [
-     3.375,
+     4.375,
      0.24,
      0.44
     ],
@@ -2001,7 +2001,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.5625,
+       11.0625,
        0.35,
        0.0
       ],
@@ -2025,7 +2025,7 @@
      }
     },
     "Size": [
-     3.535,
+     4.535,
      0.7,
      0.6
     ],
@@ -2050,7 +2050,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.5625,
+       11.0625,
        0.66,
        0.0
       ],
@@ -2074,7 +2074,7 @@
      }
     },
     "Size": [
-     3.495,
+     4.495,
      0.08,
      0.64
     ],
@@ -2099,7 +2099,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.5625,
+       11.0625,
        0.395,
        0.0
       ],
@@ -2123,7 +2123,7 @@
      }
     },
     "Size": [
-     3.435,
+     4.435,
      0.69,
      0.5
     ],
@@ -2148,7 +2148,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       9.5625,
+       11.0625,
        0.8,
        0.0
       ],
@@ -2172,7 +2172,7 @@
      }
     },
     "Size": [
-     3.375,
+     4.375,
      0.24,
      0.44
     ],
@@ -2197,7 +2197,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       13.3375,
+       15.8375,
        0.35,
        0.0
       ],
@@ -2221,7 +2221,7 @@
      }
     },
     "Size": [
-     3.535,
+     4.535,
      0.7,
      0.6
     ],
@@ -2246,7 +2246,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       13.3375,
+       15.8375,
        0.66,
        0.0
       ],
@@ -2270,7 +2270,7 @@
      }
     },
     "Size": [
-     3.495,
+     4.495,
      0.08,
      0.64
     ],
@@ -2295,7 +2295,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       13.3375,
+       15.8375,
        0.395,
        0.0
       ],
@@ -2319,7 +2319,7 @@
      }
     },
     "Size": [
-     3.435,
+     4.435,
      0.69,
      0.5
     ],
@@ -2344,7 +2344,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       13.3375,
+       15.8375,
        0.8,
        0.0
       ],
@@ -2368,7 +2368,7 @@
      }
     },
     "Size": [
-     3.375,
+     4.375,
      0.24,
      0.44
     ],
@@ -2393,7 +2393,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       17.1125,
+       20.6125,
        0.35,
        0.0
       ],
@@ -2417,7 +2417,7 @@
      }
     },
     "Size": [
-     3.535,
+     4.535,
      0.7,
      0.6
     ],
@@ -2442,7 +2442,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       17.1125,
+       20.6125,
        0.66,
        0.0
       ],
@@ -2466,7 +2466,7 @@
      }
     },
     "Size": [
-     3.495,
+     4.495,
      0.08,
      0.64
     ],
@@ -2491,7 +2491,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       17.1125,
+       20.6125,
        0.395,
        0.0
       ],
@@ -2515,7 +2515,7 @@
      }
     },
     "Size": [
-     3.435,
+     4.435,
      0.69,
      0.5
     ],
@@ -2540,7 +2540,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       17.1125,
+       20.6125,
        0.8,
        0.0
       ],
@@ -2564,7 +2564,7 @@
      }
     },
     "Size": [
-     3.375,
+     4.375,
      0.24,
      0.44
     ],
@@ -2595,7 +2595,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -18.74,
+         -22.74,
          0.97,
          -0.17
         ],
@@ -2638,7 +2638,7 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         18.74,
+         22.74,
          -0.97,
          0.17
         ],
@@ -2673,7 +2673,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -18.54,
+         -22.54,
          0.99,
          0.07
         ],
@@ -2722,7 +2722,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -18.2342,
+         -22.0675,
          1.0,
          -0.17
         ],
@@ -2771,7 +2771,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -18.0342,
+         -21.8675,
          0.99,
          0.07
         ],
@@ -2820,7 +2820,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -17.7283,
+         -21.395,
          0.97,
          -0.17
         ],
@@ -2869,7 +2869,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -17.5283,
+         -21.195,
          0.99,
          0.07
         ],
@@ -2918,7 +2918,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -17.2225,
+         -20.7225,
          1.0,
          -0.17
         ],
@@ -2967,7 +2967,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -17.0225,
+         -20.5225,
          0.99,
          0.07
         ],
@@ -3016,7 +3016,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -16.7167,
+         -20.05,
          0.97,
          -0.17
         ],
@@ -3065,7 +3065,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -16.5167,
+         -19.85,
          0.99,
          0.07
         ],
@@ -3114,7 +3114,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -16.2108,
+         -19.3775,
          1.0,
          -0.17
         ],
@@ -3163,7 +3163,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -16.0108,
+         -19.1775,
          0.99,
          0.07
         ],
@@ -3212,7 +3212,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -15.705,
+         -18.705,
          0.97,
          -0.17
         ],
@@ -3261,7 +3261,693 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -15.495,
+         -18.505,
+         0.99,
+         0.07
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -17.965,
+         0.97,
+         -0.17
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -17.765,
+         0.99,
+         0.07
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       0.8784,
+       0.4784,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -17.2925,
+         1.0,
+         -0.17
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -17.0925,
+         0.99,
+         0.07
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -16.62,
+         0.97,
+         -0.17
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -16.42,
+         0.99,
+         0.07
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -15.9475,
+         1.0,
+         -0.17
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       0.8784,
+       0.4784,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -15.7475,
+         0.99,
+         0.07
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -15.275,
+         0.97,
+         -0.17
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       0.851,
+       0.2824,
+       0.2314
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -15.075,
+         0.99,
+         0.07
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -14.6025,
+         1.0,
+         -0.17
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -14.4025,
+         0.99,
+         0.07
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -13.93,
+         0.97,
+         -0.17
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.18,
+       0.18,
+       0.18
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -13.72,
          0.99,
          0.07
         ],
@@ -3290,104 +3976,6 @@
        0.18
       ],
       "Color": [
-       0.7882,
-       0.7216,
-       0.9098
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -14.965,
-         0.97,
-         -0.17
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -14.765,
-         0.99,
-         0.07
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
        0.8784,
        0.4784,
        0.549
@@ -3408,8 +3996,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -14.4592,
-         1.0,
+         -13.19,
+         0.97,
          -0.17
         ],
         "orientation": [
@@ -3457,7 +4045,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -14.2592,
+         -12.99,
          0.99,
          0.07
         ],
@@ -3506,595 +4094,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -13.9533,
-         0.97,
-         -0.17
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       0.7882,
-       0.7216,
-       0.9098
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -13.7533,
-         0.99,
-         0.07
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       0.9098,
-       0.6275,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -13.4475,
-         1.0,
-         -0.17
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       0.8784,
-       0.4784,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -13.2475,
-         0.99,
-         0.07
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.9417,
-         0.97,
-         -0.17
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       0.851,
-       0.2824,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.7417,
-         0.99,
-         0.07
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.4358,
-         1.0,
-         -0.17
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       0.9098,
-       0.6275,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.2358,
-         0.99,
-         0.07
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       0.7882,
-       0.7216,
-       0.9098
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -11.93,
-         0.97,
-         -0.17
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -11.72,
-         0.99,
-         0.07
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       0.8784,
-       0.4784,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -11.19,
-         0.97,
-         -0.17
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       0.949,
-       0.7569,
-       0.3059
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -10.99,
-         0.99,
-         0.07
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.18,
-       0.18,
-       0.18
-      ],
-      "Color": [
-       0.851,
-       0.2824,
-       0.2314
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Lawn_Fence_FlowerBoxFence_Flowers",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -10.6842,
+         -12.5175,
          1.0,
          -0.17
         ],
@@ -4143,7 +4143,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -10.4842,
+         -12.3175,
          0.99,
          0.07
         ],
@@ -4192,7 +4192,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -10.1783,
+         -11.845,
          0.97,
          -0.17
         ],
@@ -4241,7 +4241,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.9783,
+         -11.645,
          0.99,
          0.07
         ],
@@ -4290,7 +4290,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.6725,
+         -11.1725,
          1.0,
          -0.17
         ],
@@ -4339,7 +4339,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.4725,
+         -10.9725,
          0.99,
          0.07
         ],
@@ -4388,7 +4388,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -9.1667,
+         -10.5,
          0.97,
          -0.17
         ],
@@ -4437,7 +4437,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -8.9667,
+         -10.3,
          0.99,
          0.07
         ],
@@ -4486,7 +4486,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -8.6608,
+         -9.8275,
          1.0,
          -0.17
         ],
@@ -4535,7 +4535,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -8.4608,
+         -9.6275,
          0.99,
          0.07
         ],
@@ -4584,7 +4584,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -8.155,
+         -9.155,
          0.97,
          -0.17
         ],
@@ -4633,7 +4633,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.945,
+         -8.945,
          0.99,
          0.07
         ],
@@ -4682,7 +4682,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.415,
+         -8.415,
          0.97,
          -0.17
         ],
@@ -4731,7 +4731,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.215,
+         -8.215,
          0.99,
          0.07
         ],
@@ -4780,7 +4780,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.9092,
+         -7.7425,
          1.0,
          -0.17
         ],
@@ -4829,7 +4829,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.7092,
+         -7.5425,
          0.99,
          0.07
         ],
@@ -4878,7 +4878,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.4033,
+         -7.07,
          0.97,
          -0.17
         ],
@@ -4927,7 +4927,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.2033,
+         -6.87,
          0.99,
          0.07
         ],
@@ -4976,7 +4976,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.8975,
+         -6.3975,
          1.0,
          -0.17
         ],
@@ -5025,7 +5025,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.6975,
+         -6.1975,
          0.99,
          0.07
         ],
@@ -5074,7 +5074,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.3917,
+         -5.725,
          0.97,
          -0.17
         ],
@@ -5123,7 +5123,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -5.1917,
+         -5.525,
          0.99,
          0.07
         ],
@@ -5172,7 +5172,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -4.8858,
+         -5.0525,
          1.0,
          -0.17
         ],
@@ -5221,7 +5221,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -4.6858,
+         -4.8525,
          0.99,
          0.07
         ],
@@ -5466,7 +5466,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         4.6658,
+         4.8325,
          1.0,
          -0.17
         ],
@@ -5515,7 +5515,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         4.8658,
+         5.0325,
          0.99,
          0.07
         ],
@@ -5564,7 +5564,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         5.1717,
+         5.505,
          0.97,
          -0.17
         ],
@@ -5613,7 +5613,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         5.3717,
+         5.705,
          0.99,
          0.07
         ],
@@ -5662,7 +5662,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         5.6775,
+         6.1775,
          1.0,
          -0.17
         ],
@@ -5711,7 +5711,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         5.8775,
+         6.3775,
          0.99,
          0.07
         ],
@@ -5760,7 +5760,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         6.1833,
+         6.85,
          0.97,
          -0.17
         ],
@@ -5809,7 +5809,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         6.3833,
+         7.05,
          0.99,
          0.07
         ],
@@ -5858,7 +5858,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         6.6892,
+         7.5225,
          1.0,
          -0.17
         ],
@@ -5907,7 +5907,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         6.8892,
+         7.7225,
          0.99,
          0.07
         ],
@@ -5956,7 +5956,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         7.195,
+         8.195,
          0.97,
          -0.17
         ],
@@ -6005,7 +6005,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         7.405,
+         8.405,
          0.99,
          0.07
         ],
@@ -6054,7 +6054,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         7.935,
+         8.935,
          0.97,
          -0.17
         ],
@@ -6103,7 +6103,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         8.135,
+         9.135,
          0.99,
          0.07
         ],
@@ -6152,7 +6152,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         8.4408,
+         9.6075,
          1.0,
          -0.17
         ],
@@ -6201,7 +6201,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         8.6408,
+         9.8075,
          0.99,
          0.07
         ],
@@ -6250,7 +6250,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         8.9467,
+         10.28,
          0.97,
          -0.17
         ],
@@ -6299,7 +6299,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         9.1467,
+         10.48,
          0.99,
          0.07
         ],
@@ -6348,7 +6348,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         9.4525,
+         10.9525,
          1.0,
          -0.17
         ],
@@ -6397,7 +6397,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         9.6525,
+         11.1525,
          0.99,
          0.07
         ],
@@ -6446,7 +6446,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         9.9583,
+         11.625,
          0.97,
          -0.17
         ],
@@ -6495,7 +6495,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         10.1583,
+         11.825,
          0.99,
          0.07
         ],
@@ -6544,7 +6544,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         10.4642,
+         12.2975,
          1.0,
          -0.17
         ],
@@ -6593,7 +6593,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         10.6642,
+         12.4975,
          0.99,
          0.07
         ],
@@ -6642,7 +6642,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         10.97,
+         12.97,
          0.97,
          -0.17
         ],
@@ -6691,7 +6691,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         11.18,
+         13.18,
          0.99,
          0.07
         ],
@@ -6740,7 +6740,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         11.71,
+         13.71,
          0.97,
          -0.17
         ],
@@ -6789,7 +6789,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         11.91,
+         13.91,
          0.99,
          0.07
         ],
@@ -6838,7 +6838,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.2158,
+         14.3825,
          1.0,
          -0.17
         ],
@@ -6887,7 +6887,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.4158,
+         14.5825,
          0.99,
          0.07
         ],
@@ -6936,7 +6936,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.7217,
+         15.055,
          0.97,
          -0.17
         ],
@@ -6985,7 +6985,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         12.9217,
+         15.255,
          0.99,
          0.07
         ],
@@ -7034,7 +7034,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         13.2275,
+         15.7275,
          1.0,
          -0.17
         ],
@@ -7083,7 +7083,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         13.4275,
+         15.9275,
          0.99,
          0.07
         ],
@@ -7132,7 +7132,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         13.7333,
+         16.4,
          0.97,
          -0.17
         ],
@@ -7181,7 +7181,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         13.9333,
+         16.6,
          0.99,
          0.07
         ],
@@ -7230,7 +7230,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         14.2392,
+         17.0725,
          1.0,
          -0.17
         ],
@@ -7279,7 +7279,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         14.4392,
+         17.2725,
          0.99,
          0.07
         ],
@@ -7328,7 +7328,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         14.745,
+         17.745,
          0.97,
          -0.17
         ],
@@ -7377,7 +7377,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         14.955,
+         17.955,
          0.99,
          0.07
         ],
@@ -7426,7 +7426,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.485,
+         18.485,
          0.97,
          -0.17
         ],
@@ -7475,7 +7475,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.685,
+         18.685,
          0.99,
          0.07
         ],
@@ -7524,7 +7524,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         15.9908,
+         19.1575,
          1.0,
          -0.17
         ],
@@ -7573,7 +7573,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         16.1908,
+         19.3575,
          0.99,
          0.07
         ],
@@ -7622,7 +7622,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         16.4967,
+         19.83,
          0.97,
          -0.17
         ],
@@ -7671,7 +7671,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         16.6967,
+         20.03,
          0.99,
          0.07
         ],
@@ -7720,7 +7720,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         17.0025,
+         20.5025,
          1.0,
          -0.17
         ],
@@ -7769,7 +7769,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         17.2025,
+         20.7025,
          0.99,
          0.07
         ],
@@ -7818,7 +7818,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         17.5083,
+         21.175,
          0.97,
          -0.17
         ],
@@ -7867,7 +7867,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         17.7083,
+         21.375,
          0.99,
          0.07
         ],
@@ -7916,7 +7916,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         18.0142,
+         21.8475,
          1.0,
          -0.17
         ],
@@ -7965,7 +7965,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         18.2142,
+         22.0475,
          0.99,
          0.07
         ],
@@ -8014,7 +8014,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         18.52,
+         22.52,
          0.97,
          -0.17
         ],
@@ -8063,7 +8063,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         18.73,
+         22.73,
          0.99,
          0.07
         ],

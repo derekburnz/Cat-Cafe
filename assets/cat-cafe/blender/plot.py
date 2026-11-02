@@ -39,7 +39,7 @@ from common import RB, text_width
 # The cafe's inside floor, IW along the street by ID deep (Config.World.PlotWidth and PlotDepth; Layout's halfW and
 # halfD are their halves). The shell, the interior dressing, the For Rent dressing, the tier sets, the yard fence and
 # the lawn fences are all laid out from these (Derek 2026-11-02 21:52, bigger cafes); CAFE_SIZE="w,d" tries another.
-IW, ID = (float(v) for v in os.environ.get("CAFE_SIZE", "36,28").split(","))
+IW, ID = (float(v) for v in os.environ.get("CAFE_SIZE", "44,34").split(","))   # 36 x 28 until 11-02
 HWI, HDI = IW / 2, ID / 2                    # the inner faces: side walls x +-HWI, front z -HDI, back z HDI
 YARD = 10.0                                  # Config.World.YardDepth: the yard fence stands this far behind the back wall
 # The town grows round the cafes (Config.World): the cafe rows end at the town's back edge, x TownEdgeX (street 16,

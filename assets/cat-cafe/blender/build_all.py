@@ -285,6 +285,16 @@ STUDIO_NOTES = {
                                 "LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's "
                                 "Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90)."
        for n in cats.ROSTER},
+    **{f"CatCafe_Cat_{n}_Work": f"Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_{n}_Sit "
+                                 "for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> "
+                                 "Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and "
+                                 "LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and "
+                                 "ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a "
+                                 "Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer "
+                                 "(a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for "
+                                 "the cat's role and remove the others (the greeter holds nothing). Turn the arms "
+                                 "with the role's pose (manifest cat_poses work_<role>), which holds the thing upright."
+       for n in cats.ROSTER},
     **{f"CatCafe_Cat_{n}_Gold{sfx}": f"F42: clone this instead of CatCafe_Cat_{n}{sfx} when the cat is gold. Same "
                                       "parts, joints, attachments and poses; only the coat colours differ (style guide 2)."
        for n in cats.ROSTER for sfx in cats.SUFFIX.values()},
@@ -577,7 +587,7 @@ def main():
             cat, is_gold, body = cats.parse(name)
             spec = cats.ROSTER[cat]
             entry["rarity"] = spec["rarity"]
-            entry["body"] = body                        # walk (A, on all fours) or sit (B, sitting up)
+            entry["body"] = body                        # walk (A, on all fours), sit (B, sitting up) or work (S)
             entry["gold"] = is_gold
             look = gold.gold_spec(cat) if is_gold else spec
             entry["pattern"] = look["pattern"]          # colors by field, as swatch and hex, for any future cat model
@@ -589,7 +599,7 @@ def main():
             entry["joints"] = {k: [round(v, 3) for v in j] for k, j in joints.items() if k != "Body"}
             entry["joints_roblox"] = {k: common.to_roblox(j) for k, j in joints.items() if k != "Body"}
             entry["attachments"] = {k: _slot_entry(p, o, r, s_) for k, (p, o, r) in accessories.slots(spec, body).items()}
-            k_ = cats.SIT_SCALE if body == "sit" else 1.0
+            k_ = cats.SIT_SCALE if body in ("sit", "work") else 1.0
             entry["attachments"]["Carry"] = _slot_entry("Head", [v * k_ for v in cats.carry_at(spec, body)], (0, 0, 0), s_)
             if props.slot(cat):
                 entry["prop"] = {"slot": props.slot(cat), "follows": props.follows(props.slot(cat)),
@@ -645,7 +655,7 @@ def main():
         if rbx_path:
             entry["rbx_model"] = os.path.relpath(rbx_path, ROOT)
             entry["rbx_parts"] = rbx_parts
-        if not args.no_export and not name.endswith(("_Gold", "_Gold_Sit")):    # gold cats are Part models only
+        if not args.no_export and not name.endswith(("_Gold", "_Gold_Sit", "_Gold_Work")):   # gold cats: Part models only
             entry["files"] = [os.path.relpath(p, ROOT) for p in common.export_asset(objs, name, args.out)]
         entry["gates"] = gates.check(objs, name, budget, tris, lo, hi, PIVOT_NOTES.get(name), mat)
         if args.render:

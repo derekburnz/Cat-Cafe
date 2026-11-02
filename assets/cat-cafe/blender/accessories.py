@@ -45,9 +45,15 @@ ROLE_OUTFITS = {"barista": ("Apron", "BaristaCap"), "waiter": ("BowTie", "Vest")
 
 def slots(spec, body="sit"):
     """(part, offset, rotation) per accessory on one cat's model before its Scale: the role pieces on the sitting
-    body, Glasses and Hat on the walking one (just in front of the face at eye height, and the head top)."""
+    body, Glasses and Hat on the walking one (just in front of the face at eye height, and the head top). Body S
+    (working, cats.py) has B's chest, so it wears the sitting pieces at B's slots, and the hats on its own head's top
+    as on A."""
     if body == "sit":
         return dict(SIT_SLOTS)
+    if body == "work":
+        h = cats.dims(spec, "work")["head"]
+        hat = tuple(round(v * K, 4) for v in (0.0, h["c"][1] - 0.06, h["top"] - 0.01))
+        return {**SIT_SLOTS, **{n: ("Head", hat, (0, 0, 0)) for n in ("BaristaCap", "Boater", "PartyHat")}}
     h = cats.dims(spec, "walk")["head"]
     return {"Glasses": ("Head", (0.0, round(h["fy"] - 0.05, 4), h["fz"]), (0, 0, 0)),
             "Hat": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)), **walk_slots(spec)}

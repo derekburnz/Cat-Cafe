@@ -9,8 +9,9 @@
 --   extras the gold chance (with the Index's gold luck in it, v0.10, and a running Gold Rush or Lucky Potion's,
 --          F73), because it changes what the cat earns; under the card's Details since 2026-10-28, with the split.
 --          The charm star odds left with F97 section 5 (stars show nowhere now)
---   atBowl a food's odds in the player's bowl (F82): shared Bait.oddsFor at the lure_bowl level, as the server rolls
---   waitSeconds how long the bowl's cat takes: the bowl level's wait (F82), a fifth off with the Big Bowl perk, half
+--   atBowl a food's odds in the player's bowl (F82): shared Bait.oddsFor at the lure_bowl level, then the player's
+--          Luck (F88, shared/Luck.apply), as the server rolls food set now
+--   waitSeconds how long the bowl's cat takes: the bowl level's wait (F82), 2 minutes off with the Big Bowl perk, half
 --          for food set at night (F60), less the faster bait (the Index's, F54, plus a running Quick Bait Potion's,
 --          F73, the two inside BaitSpeedMax), whole seconds as the server's Economy.baitWaitSeconds
 --   bowlStep the bait bowl's two shop lines: the next bowl and its wait, and one food's rarer cats (F82)
@@ -23,6 +24,7 @@ local Types = require(script.Parent.Parent.Types)
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Bait = require(Shared:WaitForChild("Bait"))
 local Config = require(Shared:WaitForChild("Config"))
+local Luck = require(Shared:WaitForChild("Luck"))
 
 local FoodOdds = {}
 
@@ -79,26 +81,30 @@ function FoodOdds.rich(odds: Types.LureOdds?, hexOf: (rarity: string) -> string)
 	return table.concat(parts, "   ")
 end
 
--- A food's odds in a bowl of `bowlLevel` (F82): the server rolls shared Bait.oddsFor at the player's lure_bowl
--- level, so every card shows the same. No bowl (0) or a level 1 bowl keeps the food's own odds.
-function FoodOdds.atBowl(odds: Types.LureOdds?, bowlLevel: number?): Types.LureOdds?
+-- A food's odds in a bowl of `bowlLevel` (F82) at the player's Luck (F88): the server rolls shared Bait.oddsFor at
+-- the player's lure_bowl level and then Luck.apply, so every card shows the same. No bowl (0) or a level 1 bowl
+-- keeps the food's own odds, and Luck x1 (or nil) leaves them as the bowl makes them.
+function FoodOdds.atBowl(odds: Types.LureOdds?, bowlLevel: number?, luck: number?): Types.LureOdds?
 	if not odds then
 		return nil
 	end
 	assert(odds, "odds not set")
-	return Bait.oddsFor(odds, bowlLevel or 0)
+	local bowl = Bait.oddsFor(odds, bowlLevel or 0)
+	return if luck ~= nil and luck > 1 then Luck.apply(bowl, luck) else bowl
 end
 
 -- Bait picks the cat uniformly among that rarity's cats in every area the player has unlocked (data-model
 -- section 8), so the pool grows with the tier. "Rare 22%: Calico 11%, Siamese 11%". The shares are the bowl's
--- (F82), and a bowl with luck says so on the last line.
+-- (F82) at the player's Luck (F88). A bowl past level 1 says so on a last line, named "rarer visitors" so the one
+-- thing called Luck is the HUD chip's (spec 1b), and Luck over x1 says so under it.
 function FoodOdds.split(
 	catalog: Types.Catalog,
 	lure: Types.LureDef,
 	tier: number,
-	bowlLevel: number?
+	bowlLevel: number?,
+	luck: number?
 ): string
-	local odds = FoodOdds.atBowl(lure.odds, bowlLevel)
+	local odds = FoodOdds.atBowl(lure.odds, bowlLevel, luck)
 	if not odds then
 		return "Odds not set for this food yet."
 	end
@@ -154,13 +160,21 @@ function FoodOdds.split(
 			)
 		)
 	end
-	local luck = Bait.luck(bowlLevel or 0)
-	if luck > 0 then
+	local shift = Bait.luck(bowlLevel or 0)
+	if shift > 0 then
 		table.insert(
 			lines,
-			("Your %s moves %s of each rarity's chance up one rarity."):format(
+			("%s: rarer visitors. %s of each rarity's chance moves up one rarity."):format(
 				Bait.bowlName(bowlLevel or 0),
-				percent(luck * 100)
+				percent(shift * 100)
+			)
+		)
+	end
+	if luck ~= nil and luck > 1 then
+		table.insert(
+			lines,
+			("Your %s is in these odds: Epic and rarer cats are more likely."):format(
+				Luck.text(luck)
 			)
 		)
 	end
@@ -189,9 +203,9 @@ function FoodOdds.extras(goldLuck: number?, potionLuck: number?, goldScale: numb
 end
 
 -- The bait wait for food going in now, as the server's Economy.baitWaitSeconds: shared Bait.waitSeconds for the
--- bowl's level (F82: 600 s down to 480), a fifth off with the Big Bowl perk, LureWaitSecondsNight's share of it at
--- night (F60: half), then less the faster bait. The server adds a hair before flooring for the summed percents' float
--- error, so this does too (372 s, not 371).
+-- bowl's level (F82: 600 s down to 480), BigBowlWaitCutSeconds (120) off with the Big Bowl perk (F95),
+-- LureWaitSecondsNight's share of it at night (F60: half), then less the faster bait. The server adds a hair before
+-- flooring for the summed percents' float error, so this does too (372 s, not 371).
 function FoodOdds.waitSeconds(
 	bowlLevel: number,
 	bigBowl: boolean,
@@ -230,7 +244,7 @@ end
 --   "Next: Comfy Bowl · 9m 30s wait"
 --   "Rarer bait cats: Salmon Legendary 8.5% to 9.36%", the rarity one up from what the food attracts
 -- With no bowl the second line is nil, so the row keeps the catalog's description; at the top level the first line
--- names the bowl you have. The wait is the day wait, with the Big Bowl perk's fifth off when owned.
+-- names the bowl you have. The wait is the day wait, with the Big Bowl perk's 2 minutes off when owned (F95).
 function FoodOdds.bowlStep(
 	catalog: Types.Catalog,
 	level: number,

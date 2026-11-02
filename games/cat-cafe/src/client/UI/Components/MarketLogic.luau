@@ -24,6 +24,9 @@ export type PieceChance = { id: string, rarity: string, percent: number }
 
 type Known = { id: string, rarity: string, order: number }
 
+local Luck =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Luck"))
+
 local MarketLogic = {}
 
 MarketLogic.RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
@@ -49,18 +52,27 @@ function MarketLogic.luckText(left: number): string
 end
 
 -- The odds the next crate of this kind opens on: a golden crate's own, the golden odds on the lucky twentieth,
--- else the crate's.
+-- else the crate's. F88: with the player's Luck (`playerLuck`, 1 or nil for none) a plain crate's Epic and rarer
+-- chances are multiplied as shared Crates.oddsFor rolls them (shared/Luck.applyMap); the lucky twentieth and a
+-- golden crate keep their own odds.
 function MarketLogic.nextOdds(
 	crate: Crate,
 	luck: number?,
 	every: number,
-	goldenOdds: { [string]: number }?
+	goldenOdds: { [string]: number }?,
+	playerLuck: number?
 ): { [string]: number }
 	local own = crate.odds
-	if crate.golden or goldenOdds == nil then
+	if crate.golden then
 		return own
 	end
-	return if MarketLogic.luckLeft(luck, every) <= 1 then goldenOdds else own
+	if goldenOdds ~= nil and MarketLogic.luckLeft(luck, every) <= 1 then
+		return goldenOdds
+	end
+	if playerLuck == nil or playerLuck <= 1 then
+		return own
+	end
+	return Luck.applyMap(own, playerLuck)
 end
 
 -- The rarities with a chance, Common first: { rarity, percent }.

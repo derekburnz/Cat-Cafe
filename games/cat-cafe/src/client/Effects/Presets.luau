@@ -79,6 +79,8 @@ export type Budget = {
 	decorMotion: number, -- rare decor's moving parts (_Swing, _Spin, _Bob) moving at once (F89 2c)
 	netTrails: number, -- nets drawing a whoosh trail at once (F93)
 	luckyShimmers: number, -- jade Lucky Cat statues shimmering at once (F88), a Highlight each
+	campDrips: number, -- camp pipes dripping at once (F100), a drop part each
+	campFish: number, -- camp pond fish jumping now and then (F100); 0 holds them all still
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -113,6 +115,8 @@ Presets.budget = {
 		decorMotion = 12,
 		netTrails = 3,
 		luckyShimmers = 2,
+		campDrips = 1,
+		campFish = 1,
 	},
 	high = {
 		animatedCats = 16,
@@ -142,6 +146,8 @@ Presets.budget = {
 		decorMotion = 24,
 		netTrails = 6,
 		luckyShimmers = 4,
+		campDrips = 2,
+		campFish = 2,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -171,6 +177,8 @@ Presets.budget = {
 		decorMotion = 0,
 		netTrails = 1,
 		luckyShimmers = 0,
+		campDrips = 1,
+		campFish = 0,
 	},
 } :: { [string]: Budget }
 
@@ -342,6 +350,19 @@ Presets.emitters = {
 		spread = 30,
 		rate = 0,
 		acceleration = Vector3.new(0, -35, 0),
+		lightEmission = 0.2,
+	},
+	-- A pipe's drip landing on the Lost and Found's lid (Effects/CampWater, F100): a few tiny drops hopping off it.
+	dripSplash = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.fishBelly },
+		size = { 0.09, 0.03 },
+		transparency = { 0.15, 1 },
+		lifetime = { 0.2, 0.3 },
+		speed = { 1.5, 3 },
+		spread = 55,
+		rate = 0,
+		acceleration = Vector3.new(0, -30, 0),
 		lightEmission = 0.2,
 	},
 	gateSparkle = {
@@ -1097,6 +1118,36 @@ Presets.pullHop = {
 	proud = 12,
 	fadeIn = 0.06,
 	fadeOut = 0.15,
+}
+
+-- The camp extras' moving touches (F100, camp-extras.md section 3), drawn by CampExtras.luau. Each turn is about the
+-- pivot's X of Model-Agent's child Model (#750): the Fish Pond's `_Rod` at its butt in the holder (below 0 lifts the
+-- tip, above 0 dips it toward the water), the Lost and Found's `_Lid` at its back hinge (above 0 lifts the front).
+-- Nothing moves with Reduce Motion. VFX-Agent draws the fish jump, the thermos steam and the pipe drips.
+Presets.campExtras = {
+	rod = {
+		-- the fish landed at a pond collect, { seconds, degrees }: a tug at the bite, the tip lifted high to swing the
+		-- fish in, a pause, the cast back out past rest so the bobber plops in (the rodCast beat), and a settle
+		keys = {
+			{ 0, 0 },
+			{ 0.12, 6 },
+			{ 0.45, -35 },
+			{ 0.9, -32 },
+			{ 1.15, 8 },
+			{ 1.4, -3 },
+			{ 1.65, 1 },
+			{ 1.85, 0 },
+		},
+		hangBeyond = 1.2, -- studs out from the butt past which an upright part (the line, the bobber) hangs from the tip
+		within = 30, -- studs from the collect's position to the rod it plays on
+	},
+	lid = {
+		every = { 3.5, 6.5 }, -- seconds between rattles while a prize waits, each with the lidRattle beat
+		rattle = { seconds = 0.55, degrees = 5, knocks = 4 }, -- quick lifts of the front edge, each smaller
+		-- the lid at a Lost and Found collect, { seconds, degrees }: up to let the prize out, a pause, shut with a bounce
+		pop = { { 0, 0 }, { 0.18, 28 }, { 0.55, 26 }, { 0.8, 0 }, { 0.9, 4 }, { 1, 0 } },
+		within = 30, -- studs from the collect's position to the lid it plays on
+	},
 }
 
 Presets.catPoses = {
@@ -2043,6 +2094,49 @@ Presets.luckyCat = {
 	fill = 0.82,
 	twinkle = 2,
 	twinkleEvery = 1.4,
+	pick = 1,
+}
+
+-- The camp extras' water (F100, camp-extras.md section 3; Model-Agent's #750). `drip`: under the Sewer standpipe's
+-- `Drip` attachment a drop swells for `swell` seconds to `size` studs across, falls under `gravity` (gentle, so the
+-- fall reads) onto what is below it within `reach` studs (the Lost and Found's lid, or `fallback` studs down) and
+-- lands with `splash` dripSplash drops and a ripple from `rippleFrom` to `ripple` studs across; the next forms
+-- `gap` seconds later. `fish`: the Woods pond's `_Fish` jumps every `every` seconds (the first `first` seconds after
+-- it comes near): from its rest under the water it arcs `peak` studs over the `FishJump` attachment's height and
+-- `length` studs on along its head (`headX`: Model-Agent's fish faces -X, its tail fin at +X) in `seconds`, with
+-- `exitDrops` and an `exitRipple` as it leaves the water (the fishJump beat, Sound-Agent's campSplash) and
+-- `entryDrops` and an `entryRipple` as it dives back in, then swims home under the water in `back` seconds, turning
+-- over the first and last `turn` of it. Only the nearest budget.campDrips and budget.campFish within `within` studs,
+-- chosen every `pick` seconds. Reduce Motion holds the fish at rest; the drips go on, like steam.
+Presets.campWater = {
+	drip = {
+		gap = { 0.6, 1.4 },
+		swell = 0.45,
+		size = 0.14,
+		gravity = 22,
+		reach = 3,
+		fallback = 1,
+		colour = Color3.fromRGB(196, 226, 240),
+		transparency = 0.25,
+		splash = 3,
+		rippleFrom = 0.08,
+		ripple = 0.45,
+	},
+	fish = {
+		every = { 6, 12 },
+		first = { 2, 6 },
+		seconds = 0.8,
+		length = 1,
+		peak = 1,
+		headX = -1,
+		back = 2.2,
+		turn = 0.25,
+		exitDrops = 5,
+		exitRipple = 0.8,
+		entryDrops = 8,
+		entryRipple = 0.9,
+	},
+	within = 70,
 	pick = 1,
 }
 

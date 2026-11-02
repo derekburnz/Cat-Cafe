@@ -27,6 +27,7 @@ local FoodOrder = require(script.Parent.Parent.Components.FoodOrder)
 local Format = require(script.Parent.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
@@ -122,6 +123,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	self._extras = "" -- the gold and charm line the Details were written with
 	self._waitSeconds = FoodOdds.waitSeconds(0, false, 0)
 	self._bowlLevel = 0 -- lure_bowl (F82): the odds and wait are this level's
+	self._luck = 1 -- F88: the player's Luck, in the odds rows and the split
 	self._bigBowl = false
 	self._speed = 0 -- the Index's faster bait (F54) plus a running Quick Bait Potion's (F73)
 	self._night = false -- the clock's phase (F60: food set at night waits half)
@@ -492,17 +494,19 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 		return -- money ticks re-render every screen; this one catches up when it opens
 	end
 	local catalog: Types.Catalog? = self._catalog
-	-- the odds row and the split are the bowl level's (F82), the split the tier's areas too
+	-- the odds row and the split are the bowl level's (F82) at the player's Luck (F88), the split the tier's areas too
 	local bowlLevel: number = state.upgradeLevels.lure_bowl or 0
+	local luck = LuckLogic.current(state, Workspace:GetServerTimeNow())
 	local oddsChanged = catalog ~= nil
-		and (state.tier ~= self._tier or bowlLevel ~= self._bowlLevel)
+		and (state.tier ~= self._tier or bowlLevel ~= self._bowlLevel or luck ~= self._luck)
 	self._bowlLevel = bowlLevel
 	if catalog and oddsChanged then
 		self._tier = state.tier
+		self._luck = luck
 		self._panel:setTitle(if bowlLevel >= 1 then Bait.bowlName(bowlLevel) else TITLE, SUBTITLE)
 		for _, row in self._rows do
-			row.odds.Text = FoodOdds.rich(FoodOdds.atBowl(row.def.odds, bowlLevel), rarityHex)
-			row.split = FoodOdds.split(catalog, row.def, state.tier, bowlLevel)
+			row.odds.Text = FoodOdds.rich(FoodOdds.atBowl(row.def.odds, bowlLevel, luck), rarityHex)
+			row.split = FoodOdds.split(catalog, row.def, state.tier, bowlLevel, luck)
 		end
 	end
 	local totals = if catalog then IndexRewards.totals(catalog, state) else nil

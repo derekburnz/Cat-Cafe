@@ -87,6 +87,9 @@ local Moments = {
 	-- F92 (section 5): a player who joined through a pal's invite or by following them stands at that pal's front door,
 	-- on every client: (joinerUserId, palUserId) for the wave from both characters
 	PalArrived = Signal.new() :: Signal.Signal<number, number>,
+	-- F99 (rainbow-coat.md section 2): a rainbow stray spawned, on every client: (areaId, catId, strayId) for the beam
+	-- over it (the stray is the model named strayId in the Strays folder, Variant "rainbow") and a nearby shimmer
+	RainbowSpawned = Signal.new() :: Signal.Signal<string, string, string>,
 	-- The crate reel (F103, crate-reel.md section 3), fired by the UI's reel in the Market window: CrateReelTick at each
 	-- tile line crossing the marker (Sound's ticks, at most one every 0.06 s), CrateReelLanded at the stop or on a tap
 	-- skip (the thunk, and VFX's lid pop on the counter crate).

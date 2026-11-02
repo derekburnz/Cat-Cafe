@@ -155,8 +155,10 @@ export type DecorDef = {
 
 -- Data-model section 11b and golden-fish.md sections 5 and 5b (F54): a milestone on an Index page, `needs` of what
 -- its track counts. "normal": different cats of the page's area (every area on the All Cats page, area id "all");
--- "gold": gold cats of the area; "decor": pieces of the Decor Index page's crate (area ids "decor_<pool>").
-export type IndexTrack = "normal" | "gold" | "decor"
+-- "gold": gold cats of the area; "decor": pieces of the Decor Index page's crate (area ids "decor_<pool>");
+-- "rainbow" (F99, rainbow-coat.md section 4): different rainbow cats across every area, on the Rainbow page (area id
+-- "rainbow").
+export type IndexTrack = "normal" | "gold" | "decor" | "rainbow"
 
 export type IndexMilestone = {
 	id: string,
@@ -169,8 +171,8 @@ export type IndexMilestone = {
 
 -- What one Index milestone pays (golden-fish.md section 8), any of it. `coins` is the minimum and `coinSeconds`
 -- (when set) pays max(coins, floor(dayRate x coinSeconds)). `crates` maps a crate id, or "highest" (the plain crate
--- of the player's highest open zone), to a count. `bonus` (tips), `goldLuck` and `baitSpeed` are permanent fractions
--- from the claim on; a milestone has one kind. `tag` names a title the prize unlocks.
+-- of the player's highest open zone), to a count. `bonus` (tips), `goldLuck`, `rainbowLuck` (F99) and `baitSpeed` are
+-- permanent fractions from the claim on; a milestone has one kind. `tag` names a title the prize unlocks.
 export type IndexPrize = {
 	coins: number?,
 	coinSeconds: number?,
@@ -181,6 +183,7 @@ export type IndexPrize = {
 	potions: { [string]: number }?, -- F64: potionId -> count (Tip Jar step 12, codes)
 	bonus: number?,
 	goldLuck: number?,
+	rainbowLuck: number?, -- F99: on every rainbow roll, the Rainbow track's sum capped at RainbowLuckMax
 	baitSpeed: number?,
 	tag: string?,
 }
@@ -371,7 +374,7 @@ export type TierDef = {
 export type CatInstance = {
 	uid: string,
 	catId: string,
-	variant: string, -- "base" or "gold"
+	variant: string, -- "base", "gold" or "rainbow" (F99)
 	caughtAt: number,
 	spotId: string?, -- the role slot it works, nil when resting in the cat room
 	-- Stats (data-model section 4b). Readers go through CatStats, which defaults any missing field.
@@ -435,6 +438,7 @@ export type Stats = {
 	-- quests and full sets finished
 	rareCatches: number,
 	goldCatches: number,
+	rainbowCatches: number, -- F99: rainbow cats added by net, rescue or bait
 	tipPilesCollected: number,
 	dailyQuestsDone: number,
 	dailySetsDone: number,
@@ -630,6 +634,7 @@ export type PlayerProfile = {
 	cats: { [string]: CatInstance },
 	collection: { [string]: number },
 	goldCollection: { [string]: number }, -- catId -> first gold caught at
+	rainbowCollection: { [string]: number }, -- F99: catId -> first rainbow caught at (save version 24)
 	indexRewards: { [string]: { [string]: boolean } }, -- areaId -> milestoneId -> claimed (F48)
 	spin: SpinState, -- F49
 	-- Golden fish (F52, golden-fish.md): the rare currency, earned only. Crates, their luck and the Market's perks
@@ -685,6 +690,7 @@ export type PlayerState = {
 	cats: { [string]: CatView },
 	collection: { [string]: number },
 	goldCollection: { [string]: number },
+	rainbowCollection: { [string]: number }, -- F99
 	indexRewards: { [string]: { [string]: boolean } }, -- F48
 	spin: SpinState, -- F49
 	goldenFish: number, -- F52
@@ -692,6 +698,7 @@ export type PlayerState = {
 	crateLuck: { [string]: number },
 	fishPerks: { [string]: number },
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
+	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
 	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax
 	plotIndex: number,
 	carrying: string?, -- catId while carrying a caught stray home

@@ -1989,8 +1989,9 @@ end
 
 -- Section 11b and golden-fish.md sections 5 and 5b (F54): every Index milestone, in order. An area page has the
 -- normal track (its cats) and the gold track (its gold cats), the All Cats page (area id "all") counts different
--- cats across every area, and a Decor Index page (area id "decor_<pool>") counts that crate's pieces owned. A page
--- shows the milestones it has a prize for.
+-- cats across every area, a Decor Index page (area id "decor_<pool>") counts that crate's pieces owned and the
+-- Rainbow page (area id "rainbow", F99) counts different rainbow cats across every area. A page shows the milestones
+-- it has a prize for.
 Catalog.indexMilestones = {
 	{ id = "cats3", track = "normal", needs = 3 },
 	{ id = "cats6", track = "normal", needs = 6 },
@@ -2014,6 +2015,12 @@ Catalog.indexMilestones = {
 	{ id = "decor5", track = "decor", needs = 5 },
 	-- every piece of the page: 12 since F80 (golden-fish.md 4b), and 16 on the Classic page since F97 (`whole`)
 	{ id = "decor10", track = "decor", needs = 12, whole = true },
+	-- F99 (rainbow-coat.md section 4): one track for the whole Index, since one rainbow Mythical can take weeks
+	{ id = "rainbow1", track = "rainbow", needs = 1 },
+	{ id = "rainbow3", track = "rainbow", needs = 3 },
+	{ id = "rainbow5", track = "rainbow", needs = 5 },
+	{ id = "rainbow10", track = "rainbow", needs = 10 },
+	{ id = "rainbow25", track = "rainbow", needs = 25 },
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server
@@ -2198,6 +2205,19 @@ Catalog.indexPrizes = {
 	decor_classic = {
 		decor5 = { fish = Config.DecorIndexHalfFish },
 		decor10 = { bonus = Config.DecorIndexBonus },
+	},
+	-- F99 (rainbow-coat.md section 4): the three luck steps add up to RainbowLuckMax (+100%)
+	rainbow = {
+		rainbow1 = { fish = 25, tag = "Rainbow Finder" },
+		rainbow3 = { fish = 50, crates = { classic_golden_crate = 1 } },
+		rainbow5 = { fish = 75, rainbowLuck = 0.2 },
+		rainbow10 = { fish = 100, crates = { classic_golden_crate = 2 }, rainbowLuck = 0.3 },
+		rainbow25 = {
+			fish = 150,
+			crates = { classic_golden_crate = 3 },
+			tag = "Rainbow Master",
+			rainbowLuck = 0.5,
+		},
 	},
 } :: { [string]: { [string]: Types.IndexPrize } }
 for _, prizes in Catalog.indexPrizes do

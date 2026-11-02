@@ -30,11 +30,11 @@ The number and speed of circles now come only from the stray's rarity. The net o
 
 | rarity | circles | shrinkSeconds | catchWindow |
 |---|---|---|---|
-| Common | 3 | 1.20 | 1.0 |
+| Common | 3 | 1.20 | 1.1 |
 | Rare | 4 | 1.00 | 0.95 |
-| Epic | 5 | 0.82 | 0.9 |
-| Legendary | 6 | 0.68 | 0.85 |
-| Mythical | 7 | 0.56 | 0.8 |
+| Epic | 5 | 0.82 | 0.82 |
+| Legendary | 6 | 0.68 | 0.70 |
+| Mythical | 7 | 0.56 | 0.60 |
 
 | net | perfect | good |
 |---|---|---|
@@ -43,9 +43,9 @@ The number and speed of circles now come only from the stray's rarity. The net o
 | Pro Net | 0.065 | 0.155 |
 | Master Net | 0.08 | 0.18 |
 
-The bands are the net's `perfect` and `good` times the rarity's `catchWindow`, as since v0.13.15. Net jitter goes: every circle's shrink time wobbles by CircleJitter (0.10) whatever the net. CircleGapMin still clears the widest Good (0.18 on a Master Net Common). The tutorial stray keeps its one slow circle (easy-start.md).
+The bands are the net's `perfect` and `good` times the rarity's `catchWindow`, as since v0.13.15. Net jitter goes: every circle's shrink time wobbles by CircleJitter (0.10) whatever the net. CircleGapMin (0.40) still clears the widest Good (0.198 on a Master Net Common). The tutorial stray keeps its one slow circle (easy-start.md).
 
-Catch chances per try, for a player whose presses land within about 50 ms, and 70 ms for a young player on a phone:
+Catch chances per try, for a player whose presses land within about 50 ms, and 70 ms for a young player on a phone. These are the target Derek saw in Set 5 Q3 (a Mythical on a Basic Net about 1 try in 4, about 4 in 5 on a Master Net, a Common about 19 in 20); the catchWindow column above is fitted to them (fixed 2026-11-02 after Gameplay-Engineer found the first column, 1.0 to 0.8, gave a Basic Net Mythical 57%):
 
 | net | Common | Rare | Epic | Legendary | Mythical |
 |---|---|---|---|---|---|

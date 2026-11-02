@@ -19,7 +19,7 @@ local Presets = require(script.Parent.Presets)
 
 local Crown = {}
 
-local seen: { [Player]: boolean } = {} -- each player's Crown as last seen; missing until the first value
+local seen: { [Player]: boolean? } = {} -- each player's Crown as last seen; missing until it holds a boolean
 local nextAt: { [Player]: number } = {} -- when each glinting crown glints next
 local rng = Random.new()
 local started = false
@@ -76,13 +76,15 @@ local function earned(player: Player)
 	nextAt[player] = os.clock() + c.every[2] -- the burst is its glint for a while
 end
 
+-- The attribute stays nil until the server has loaded the player's save (LeaderboardService sets it then), so a
+-- missing value is kept as unseen: a crowned player's join reads nil to true and never bursts.
 local function follow(player: Player)
-	seen[player] = wears(player)
+	seen[player] = Logic.crownSeen(player:GetAttribute("Crown"))
 	player:GetAttributeChangedSignal("Crown"):Connect(function()
-		local now = wears(player)
+		local now = Logic.crownSeen(player:GetAttribute("Crown"))
 		local before = seen[player]
 		seen[player] = now
-		if Logic.crownEarned(before, now) then
+		if now ~= nil and Logic.crownEarned(before, now) then
 			earned(player)
 		end
 	end)

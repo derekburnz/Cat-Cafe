@@ -10,14 +10,14 @@ What design v0.3 removed from v0.1 of this list: the hold-and-release ring and i
 
 ## Leaderboard crown (F98, 2026-11-02)
 
-Design: `docs/design/cat-cafe/leaderboards.md` section 3 (a crown over anyone in an all time top 10 at the last refresh). Asked by Derek 2026-11-02 19:36: "add the new vfx for a lot of the new features". The crown itself is UI-Engineer's (`Screens/Crowns.luau`, a gold crown BillboardGui 3.2 studs over the head); this adds its sparkle. Files: `Effects/Crown.luau`, `Logic.crownEarned`, the `crownGlint` emitter, numbers in `Presets.crown`.
+Design: `docs/design/cat-cafe/leaderboards.md` section 3 (a crown over anyone in an all time top 10 at the last refresh). Asked by Derek 2026-11-02 19:36: "add the new vfx for a lot of the new features". The crown itself is UI-Engineer's (`Screens/Crowns.luau`, a gold crown BillboardGui 3.2 studs over the head); this adds its sparkle. Files: `Effects/Crown.luau`, `Logic.crownEarned` and `crownSeen`, the `crownGlint` emitter, numbers in `Presets.crown`.
 
 | Effect | Look | Hook |
 |---|---|---|
 | Crown glint | Every 2.5 to 5 s, 3 small gold and white stars flash and fade round the crown, each crown on its own beat | each Player's `Crown` attribute; the nearest `budget.crownGlints` crowned players within 80 studs (5 on a PC, 2 on a phone, 1 in Low performance), chosen every half second |
 | Crown earned | When a player near you earns the crown at a refresh, 12 gold sparkles and 6 stars burst at the crown, a little gold confetti falls (30% of the budget's) and a gold ring 4 studs across opens at their feet | `Crown` going from false to true while you watch (`Logic.crownEarned`); within 80 studs |
 
-How it works: the crown is lifted in the camera's up (the BillboardGui's `StudsOffset`), so the glint is too, and it sits where the crown shows from any angle. A crown already on when a player joins or when your client starts only glints, so a crowned player walking in does not burst every time. Nothing moves, so Reduce Motion plays it all (the confetti cut to 40% as everywhere). Four cases are in `docs/vfx/cat-cafe/specs/EffectsCrown.spec.luau` for QA. Studio checks: with `Crown` set true on a test player before you join, see the crown glint every few seconds and no burst; set it false and then true with the command bar while you watch, and see the burst and the ring; stand more than 80 studs away and see nothing. No new console errors.
+How it works: the crown is lifted in the camera's up (the BillboardGui's `StudsOffset`), so the glint is too, and it sits where the crown shows from any angle. A crown already on when a player joins or when your client starts only glints, so a crowned player walking in does not burst every time; the server sets `Crown` only once their save loads, seconds after they arrive, so until then it counts as not seen yet rather than off. Nothing moves, so Reduce Motion plays it all (the confetti cut to 40% as everywhere). Five cases are in `docs/vfx/cat-cafe/specs/EffectsCrown.spec.luau` for QA. Studio checks: with `Crown` set true on a test player before you join, see the crown glint every few seconds and no burst; set it false and then true with the command bar while you watch, and see the burst and the ring; stand more than 80 studs away and see nothing. No new console errors.
 
 ## Working cats on S (2026-11-02)
 

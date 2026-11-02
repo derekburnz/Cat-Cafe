@@ -17,6 +17,21 @@ return function()
 			expect(Logic.crownEarned(false, false)).to.equal(false)
 		end)
 
+		it(
+			"keeps a crown the server has not set yet as unseen, so a crowned join never bursts",
+			function()
+				expect(Logic.crownSeen(nil)).to.equal(nil) -- the save is still loading
+				expect(Logic.crownSeen(true)).to.equal(true)
+				expect(Logic.crownSeen(false)).to.equal(false)
+				expect(Logic.crownSeen("yes")).to.equal(nil)
+				-- a join: nothing, then the server's true once the save loads
+				local before = Logic.crownSeen(nil)
+				expect(Logic.crownEarned(before, Logic.crownSeen(true) :: boolean)).to.equal(false)
+				-- a join with no crown, then a refresh that crowns them while you watch
+				expect(Logic.crownEarned(Logic.crownSeen(false), true)).to.equal(true)
+			end
+		)
+
 		it("glints now and then, a few stars at a time", function()
 			local c = Presets.crown
 			expect(c.every[1] >= 1 and c.every[1] < c.every[2]).to.equal(true)

@@ -2503,4 +2503,10 @@ function Logic.crownEarned(before: boolean?, now: boolean): boolean
 	return before == false and now
 end
 
+-- A Player's `Crown` attribute as Crown.luau keeps it: the boolean, or nil while the server has not set it yet (it
+-- sets it once the save loads, seconds after the player arrives), so a join is never read as off and then on.
+function Logic.crownSeen(value: unknown): boolean?
+	return if type(value) == "boolean" then value else nil
+end
+
 return Logic

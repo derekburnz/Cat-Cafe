@@ -120,6 +120,16 @@ local function spare(def: Types.CatDef): Types.CatDef
 	return def
 end
 
+-- F95 and F96: a cat that never spawns (no wave, bait, rescue or prize) and is only given or sold. It earns like a
+-- cat of its rarity from the owner's newest area (CatStats.areaMultiplier), counts toward no "different cats", Index
+-- page or Index milestone, and cannot be sold or offered to the Cat Collector.
+local function exclusive(def: Types.CatDef, source: Types.CatSource): Types.CatDef
+	def.area = "exclusive"
+	def.exclusive = true
+	def.source = source
+	return def
+end
+
 -- Section 3: 50 cats, 10 per area (four Common, two Rare, two Epic, one Legendary, one Mythical), then the ten of
 -- the spare pool (3d). Each lives in exactly one area. Colors are the placeholder body's {r, g, b}. Rares and up in the Alleyway and the Park are
 -- themed cats with a signature prop (v0.5.2, Derek 2026-10-27); their ids keep the old breed names so saves and
@@ -748,6 +758,21 @@ Catalog.cats = {
 			{ 240, 180, 80 },
 			"Found down in the Sewer. More soon."
 		)
+	),
+	-- The free Bellhop Cat (F96, starter-cat.md): one per account from its stand in the Town Square, at the Rare
+	-- rate (3 a second at Tier 1, 243 at Tier 5), never gold. Its models are CatCafe_Cat_BellhopCat and _Sit.
+	exclusive(
+		cat(
+			"bellhop_cat",
+			"Bellhop Cat",
+			"Rare",
+			"alley",
+			"greeter",
+			"socks", -- ginger and white, white socks
+			{ 232, 150, 80 },
+			"Rings its bell for every customer and tips its cap as they pass."
+		),
+		"free"
 	),
 } :: { Types.CatDef }
 

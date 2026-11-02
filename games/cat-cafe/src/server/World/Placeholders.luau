@@ -1593,6 +1593,65 @@ builders.CatCafe_Street_CodesCat = function()
 	return finish(model, booth)
 end
 
+-- The free Bellhop Cat's stand (F96, starter-cat.md section 2) until Model-Agent's #708 art is synced: a round red
+-- dais 9.2 across with a gold luggage cart, the cat sitting on its suitcase and a "Free cat!" sign, with the art's
+-- PromptAnchor (front of the dais, 3 up) and CatSeat attachments. The sign faces -Z, toward the street.
+builders.CatCafe_Street_BellhopStand = function()
+	local model = newModel("CatCafe_Street_BellhopStand")
+	local dais = addPart(model, {
+		name = "Dais",
+		size = Vector3.new(1, 9.2, 9.2),
+		offset = Vector3.new(0, 0.5, 0),
+		rotation = Vector3.new(0, 0, 90),
+		color = Color3.fromRGB(190, 45, 50),
+		shape = Enum.PartType.Cylinder,
+		collide = true,
+	})
+	local cart = addPart(model, {
+		name = "Cart",
+		size = Vector3.new(4, 2.2, 2.4),
+		offset = Vector3.new(0, 2.1, 0.6),
+		color = Color3.fromRGB(230, 185, 70),
+		material = Enum.Material.Metal,
+		collide = true,
+	})
+	-- relative to the cart's centre: (0, 3, -4.6) and (0, 3.2, 0.6) from the pivot
+	local anchor = Instance.new("Attachment")
+	anchor.Name = "PromptAnchor"
+	anchor.Position = Vector3.new(0, 0.9, -5.2)
+	anchor.Parent = cart
+	local seat = Instance.new("Attachment")
+	seat.Name = "CatSeat"
+	seat.Position = Vector3.new(0, 1.1, 0)
+	seat.Parent = cart
+	addPart(model, {
+		name = "Cat",
+		size = Vector3.new(1.4, 1.8, 1.8),
+		offset = Vector3.new(0, 4.1, 0.6),
+		color = Color3.fromRGB(232, 150, 80),
+	})
+	local sign = addPart(model, {
+		name = "Sign",
+		size = Vector3.new(5, 1.2, 0.2),
+		offset = Vector3.new(0, 6.4, -0.8),
+		color = CREAM,
+	})
+	local gui = Instance.new("SurfaceGui")
+	gui.Face = Enum.NormalId.Front
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 40
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.TextScaled = true
+	label.Font = Enum.Font.FredokaOne
+	label.TextColor3 = DARK
+	label.Text = "Free cat! Take me home"
+	label.Parent = gui
+	gui.Parent = sign
+	return finish(model, dais)
+end
+
 function Placeholders.names(): { string }
 	local names: { string } = {}
 	for _, def in Catalog.cats do

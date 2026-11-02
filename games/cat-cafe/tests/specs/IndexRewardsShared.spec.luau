@@ -531,6 +531,7 @@ return function()
 				if
 					collection[def.id] ~= nil
 					and def.area ~= "spare"
+					and def.exclusive ~= true -- F96: the Bellhop Cat is no Index page's
 					and (areaId == "all" or def.area == areaId)
 				then
 					n += 1

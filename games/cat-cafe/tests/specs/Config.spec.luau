@@ -170,6 +170,9 @@ return function()
 		CodeWrongLimit = 5,
 		CodeLockSeconds = 60,
 		GroupId = 0,
+		StarterCatRangeStuds = 12, -- F96 (starter-cat.md section 4)
+		StarterCatTutorialStep = 5,
+		StarterCatCharm = 60,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 same target cooldown 20, v0.5.1 target immunity S45; v0.8 F56)
 		BumpEnabled = true,
 		BumpChance = 1.0, -- v0.8 F56: a shove always drops the cat

@@ -12,6 +12,7 @@ local AssetRegistry = require(script.Parent.AssetRegistry)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Layout = require(script.Parent.Layout)
+local StarterCat = require(ReplicatedStorage.Shared.StarterCat)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 export type Plot = {
@@ -1526,6 +1527,24 @@ local function buildCodesCat(parent: Instance): Model
 	return model
 end
 
+-- The free Bellhop Cat's stand (F96, starter-cat.md section 2, Model-Agent #708): `CatCafe_Street_BellhopStand`
+-- tagged BellhopStand (StarterCat.TAG) at Layout.bellhopStand, with the cat baked onto its luggage cart. No prompt:
+-- walking within StarterCatRangeStuds opens its card on the client, and StarterCatService measures the same range
+-- from the pivot. Persistent, so the card and the claim find it from anywhere in the square.
+local function buildBellhopStand(parent: Instance): Model
+	local spec = Layout.bellhopStand
+	local model = place(
+		"CatCafe_Street_BellhopStand",
+		CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0),
+		parent
+	)
+	model.Name = "BellhopStand"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	model:SetAttribute("CatId", StarterCat.CAT_ID)
+	CollectionService:AddTag(model, StarterCat.TAG)
+	return model
+end
+
 local SQUARE_PAVING = "CatCafe_Square_Paving"
 
 -- The Town Square (F76, Layout.townSquare): its paving and the lighter open cross, the gardens' wall along each
@@ -1993,6 +2012,7 @@ function WorldBuilder.build(): World
 	buildSpinWheel(root)
 	buildFishMarket(root)
 	buildCodesCat(root)
+	buildBellhopStand(root)
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"

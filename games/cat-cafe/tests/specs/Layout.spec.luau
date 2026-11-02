@@ -1074,6 +1074,48 @@ return function()
 		)
 
 		it(
+			"puts the Bellhop stand at the lane's west end, facing the cannon, its card clear of the Codes circle (F96)",
+			function()
+				local stand = Layout.bellhopStand
+				local DAIS = 4.6 -- half the stand's 9.2 stud dais
+				expect(inside(stand.x, stand.z, square.floor, DAIS)).to.equal(true)
+				expect(stand.x < 0).to.equal(true)
+				expect(stand.z > Layout.codesCat.z and stand.z < Layout.spinWheel.z).to.equal(true)
+				-- the street's line stays open past the dais
+				expect(math.abs(stand.x) - DAIS > W.TownSquareLaneHalfWidth).to.equal(true)
+				local yaw = math.rad(stand.rotY or 0)
+				local lookX, lookZ = -math.sin(yaw), -math.cos(yaw)
+				local length = math.sqrt(stand.x * stand.x + stand.z * stand.z)
+				expect((lookX * -stand.x + lookZ * -stand.z) / length > 0.999).to.equal(true)
+				-- walking into the stand's card never also opens the code box
+				local codes = Layout.codesCat
+				local codesYaw = math.rad(codes.rotY or 0)
+				local cx, cz = codes.x - 6 * math.sin(codesYaw), codes.z - 6 * math.cos(codesYaw)
+				local gap = math.sqrt((cx - stand.x) ^ 2 + (cz - stand.z) ^ 2)
+				expect(gap > Config.StarterCatRangeStuds + 1 + Config.CodesCircleRadius + 1).to.equal(
+					true
+				)
+				for name, point in stations do
+					local apart = math.sqrt((point.x - stand.x) ^ 2 + (point.z - stand.z) ^ 2)
+					if apart < DAIS + 8 then
+						fail("the stand is %.1f studs from the %s", apart, name)
+					end
+				end
+				for _, prop in square.props :: { any } do
+					local apart = math.sqrt((prop.x - stand.x) ^ 2 + (prop.z - stand.z) ^ 2)
+					if prop.asset ~= "CatCafe_Square_Paving" and apart < DAIS + 1 then
+						fail(
+							"%s at (%g, %g) stands on the stand's dais",
+							prop.asset,
+							prop.x,
+							prop.z
+						)
+					end
+				end
+			end
+		)
+
+		it(
 			"spawns players on the street's line in the square, looking north at the fountain",
 			function()
 				local spawn = Layout.playerSpawn

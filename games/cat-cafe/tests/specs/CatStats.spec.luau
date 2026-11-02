@@ -359,7 +359,8 @@ return function()
 			function()
 				for _, def in Catalog.cats do
 					expect(CatStats.rating(cat(def.id))).to.equal(def.incomePerSecond)
-					if Config.KeepUpRarities[def.rarity] ~= true then
+					-- F96: an exclusive cat (the Bellhop Cat) earns at the newest area's rate (StarterCat.spec)
+					if Config.KeepUpRarities[def.rarity] ~= true and def.exclusive ~= true then
 						for tier = 1, 5 do
 							expect(CatStats.rating(cat(def.id), tier)).to.equal(def.incomePerSecond)
 						end

@@ -101,6 +101,8 @@ export type CustomEvent =
 	-- a feedback face (love, ok or no; the chip or none; tier), FeedbackSessionLimit a session
 	| "tip_shown"
 	| "feedback"
+	-- F96 (starter-cat.md section 4): the free Bellhop Cat taken home; the gate it passed, "task" or "group"
+	| "starter_cat"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -707,6 +709,7 @@ local function logJoined(player: Player)
 		bowl = Economy.level(profile, "lure_bowl"),
 		tier = Economy.tier(profile),
 		parkCats = parkCats,
+		starterCat = profile.starterCatClaimed,
 	})
 	for _, name in shown do
 		Telemetry.onboarding(player, profile, name :: Onboarding.StepName)

@@ -17,6 +17,7 @@ local IntroController = require(script.Parent.Controllers.IntroController)
 local Moments = require(script.Parent.Moments)
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
 local ShoveController = require(script.Parent.Controllers.ShoveController)
+local StarterCatController = require(script.Parent.Controllers.StarterCatController)
 local StyleController = require(script.Parent.Controllers.StyleController)
 local UIController = require(script.Parent.Controllers.UIController)
 local WorldController = require(script.Parent.Controllers.WorldController)
@@ -32,5 +33,6 @@ ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to
 CannonController.start() -- F84: after the UI, whose cannon picker it opens
 CodesController.start()
+StarterCatController.start() -- F96: the Bellhop Cat's stand card
 CustomerController.start()
 Effects.start()

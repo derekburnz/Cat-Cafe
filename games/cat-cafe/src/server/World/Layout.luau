@@ -1230,6 +1230,10 @@ Layout.fishMarket = station(28, 16)
 Layout.codesCat = station(-28, -16)
 Layout.dealerCart = station(28, -16)
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
+-- The free Bellhop Cat's stand (F96, starter-cat.md section 2): between the Codes Cat and the Spin Wheel, at the west
+-- end of the lane, which leads nowhere since the side arches closed (v4). Out at x -38 its 12 stud card stays clear
+-- of the Codes circle, and its 9.2 stud dais leaves the lane open from the street to x -33. Its sign faces the cannon.
+Layout.bellhopStand = station(-38, 0)
 
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,
 -- hometown-cannon.md section 4), in camp space (Layout.campPoint), filled in with the camps below.

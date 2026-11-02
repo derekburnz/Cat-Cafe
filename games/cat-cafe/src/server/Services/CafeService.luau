@@ -151,6 +151,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		tipsSeen = table.clone(profile.tipsSeen), -- F87
 		feedbackAsked = profile.feedbackAsked,
 		stuckHelpShown = table.clone(profile.stuckHelpShown),
+		starterCatClaimed = profile.starterCatClaimed, -- F96
 		serverTime = now,
 	}
 end
@@ -1010,6 +1011,45 @@ function CafeService.addCaughtCat(
 	return instance, isNew
 end
 
+-- F96 (starter-cat.md section 2): a cat given, not caught (the free Bellhop Cat): level 1, base coat and `charm`,
+-- method "starter". It joins the collection with no first-catch reward and counts toward no catch, quest or Index
+-- (an exclusive cat). It takes the first free open role slot, or rests in the cat room when none is free.
+function CafeService.addGiftCat(
+	player: Player,
+	profile: Profile,
+	def: Types.CatDef,
+	charm: number
+): Types.CatInstance
+	Economy.settle(profile, os.time(), ClockService.epoch())
+	local now = os.time()
+	local instance = CatStats.newInstance(newUid(), def.id, now, charm)
+	instance.method = "starter"
+	profile.cats[instance.uid] = instance
+	if profile.collection[def.id] == nil then
+		profile.collection[def.id] = now
+	end
+	for _, spot in Catalog.spots do
+		if Economy.spotIsOpen(profile, spot.id) and Economy.catOnSpot(profile, spot.id) == nil then
+			instance.spotId = spot.id
+			break
+		end
+	end
+	local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId :: string) else nil
+	Net.toast(
+		player,
+		if spot ~= nil
+			then string.format("The %s joined your cafe as your %s!", def.name, roleName(spot))
+			else string.format(
+				"The %s joined your cafe! It is resting in the cat room.",
+				def.name
+			),
+		"good"
+	)
+	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+	return instance
+end
+
 function CafeService.setCarrying(player: Player, catId: string?)
 	carrying[player] = catId
 	CafeService.sync(player)
@@ -1161,6 +1201,15 @@ local function onSellCat(player: Player, rawUid: unknown)
 	end
 	local def = Catalog.getCat(instance.catId)
 	if def == nil then
+		return
+	end
+	if def.exclusive == true then
+		-- F95 and F96: an exclusive cat can be locked but never sold
+		Net.toast(
+			player,
+			string.format("The %s stays with you. Exclusive cats cannot be sold.", def.name),
+			"warn"
+		)
 		return
 	end
 	profile.cats[uid] = nil

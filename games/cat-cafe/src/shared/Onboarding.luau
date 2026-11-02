@@ -41,6 +41,7 @@ export type StepName =
 	| "returned_next_day"
 	| "first_offline_claim"
 	| "tier_3"
+	| "starter_cat"
 
 -- The step number is the index. Names never change once shipped.
 Onboarding.STEPS = {
@@ -68,6 +69,7 @@ Onboarding.STEPS = {
 	"returned_next_day",
 	"first_offline_claim",
 	"tier_3",
+	"starter_cat", -- F96 (starter-cat.md section 4): step 25, the free Bellhop Cat taken home
 } :: { StepName }
 
 Onboarding.COUNT = #Onboarding.STEPS
@@ -157,6 +159,7 @@ export type SaveFacts = {
 	bowl: number,
 	tier: number,
 	parkCats: number, -- cats owned from the Park (a spare cat counts by its old area)
+	starterCat: boolean?, -- F96: the Bellhop Cat claimed
 }
 
 -- The steps a save already shows, in step order (QA S72). Logged on every join, so a step the save passed without
@@ -191,6 +194,9 @@ function Onboarding.fromSave(facts: SaveFacts): { StepName }
 	end
 	if facts.tier >= 3 then
 		add("tier_3")
+	end
+	if facts.starterCat == true then
+		add("starter_cat")
 	end
 	return out
 end

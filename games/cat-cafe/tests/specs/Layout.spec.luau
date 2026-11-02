@@ -120,7 +120,7 @@ return function()
 			local sets: { [string]: string } = {
 				park = "CatCafe_Park_SetF85", -- F85 (#799)
 				neighbourhood = "CatCafe_Neighbourhood_SetF85", -- F85 (#810)
-				woods = "CatCafe_Woods_SetV32",
+				woods = "CatCafe_Woods_SetF85", -- F85 (#847)
 				sewer = "CatCafe_Sewer_SetV32",
 			}
 			for id, name in sets do
@@ -149,7 +149,7 @@ return function()
 					end
 				end
 				local pieceTurns: { number } = if id == "woods"
-					then { 20, -20, 0, 0, -106.26 }
+					then { 20, -20, 0, 0, 87.21 }
 					elseif id == "sewer" then { 0, 0, 90, -90 }
 					elseif id == "neighbourhood" then { 0, 90, 0, 0 }
 					else {}
@@ -170,9 +170,9 @@ return function()
 				local gx, gz = Layout.gatePosition(spec)
 				expect(gx).to.be.ok()
 				-- the Park's plaza at local (-4, -145) is near its gate side, the Neighbourhood's porch at local
-				-- (-67.2, -166.9) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
+				-- (-67.2, -166.9) near its own, the Woods' berry bush at local (-30, -223.8) near its own, the Sewer's
 				-- canal bridge at local (44, -61) near its own
-				local index = if id == "woods" then 8 else 1
+				local index = if id == "woods" then 4 else 1
 				local point = spec.spawnPoints[index]
 				local toGate =
 					math.sqrt((point.x - (gx :: number)) ^ 2 + (point.z - (gz :: number)) ^ 2)
@@ -208,11 +208,11 @@ return function()
 						byRegion = false,
 					},
 					{
-						id = "woods",
-						near = 26,
-						deep = 38,
+						id = "woods", -- F85 (#847): four of its five traps deep
+						near = 28,
+						deep = 43,
 						rare = 1,
-						deepTraps = 3,
+						deepTraps = 4,
 						byRegion = false,
 					},
 					{
@@ -1348,7 +1348,7 @@ return function()
 					alley = { W.AlleyCenterX, W.AlleyCenterZ + W.AlleyNorthZ, 180 },
 					park = { 0, W.ParkCenterZ + W.ParkDepth / 2, 180 },
 					neighbourhood = { 0, W.NeighbourhoodCenterZ - W.NeighbourhoodDepth / 2, 0 },
-					woods = { W.WoodsCenterX + W.WoodsWidth / 2, 0, -90 },
+					woods = { W.WoodsCenterX + W.WoodsDepth / 2, 0, -90 }, -- F85: its depth along X
 					sewer = { W.SewerCenterX - W.SewerWidth / 2, 0, 90 },
 				} :: { [string]: { number } }
 				for id, spec in Layout.areas do

@@ -1970,7 +1970,7 @@ Catalog.areas = {
 		id = "woods",
 		name = "Woods",
 		tier = 4,
-		spawnPoints = 65, -- the v3.2 set's cat spots, 26 near the gate, 38 deep and the Great Oak's top (F81)
+		spawnPoints = 72, -- F85's long set's cat spots, 28 near the camp, 43 deep and the Great Oak's top
 		waveSize = 4,
 		rescueSpots = 5, -- two hollow logs, two bramble bushes and the tree house branch
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },

@@ -1128,7 +1128,7 @@ return function()
 					{ "alley", "Alleyway", 1, 32, same, 6, 1 }, -- v4 (F84, v0.13.18): 24 and the 8 near points
 					{ "park", "Park", 2, 48, same, 5, 3 }, -- F85's long set's cat spots (#799)
 					{ "neighbourhood", "Neighbourhood", 3, 74, same, 5, 9 }, -- F85's long set's cat spots (#810)
-					{ "woods", "Woods", 4, 65, same, 4, 27 }, -- the v3.2 set (#470) and the oak top
+					{ "woods", "Woods", 4, 72, same, 4, 27 }, -- F85's long set (#847) and the oak top
 					{ "sewer", "Sewer", 5, 52, same, 4, 81 }, -- the v3.2 set's cat spots (F81, #491)
 				}
 				expect(#Catalog.areas).to.equal(#want)

@@ -1,0 +1,899 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Lawn_Path_GreySlabs/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.1,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     6.96,
+     0.2,
+     4.96
+    ],
+    "Color": [
+     0.6549,
+     0.5843,
+     0.4863
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.1,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Lawn_Path_GreySlabs/0"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.175,
+       -0.0075,
+       -1.875
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.07,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.0075,
+       -1.875
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.12,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.8039,
+     0.8235,
+     0.8549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.175,
+       -0.0075,
+       -1.875
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.07,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.8039,
+     0.8235,
+     0.8549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.7,
+       -0.0075,
+       -0.625
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.02,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.8039,
+     0.8235,
+     0.8549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.075,
+       -0.0075,
+       -0.625
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.07,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.8039,
+     0.8235,
+     0.8549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.075,
+       -0.0075,
+       -0.625
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.07,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.7,
+       -0.0075,
+       -0.625
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.02,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.8039,
+     0.8235,
+     0.8549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.175,
+       -0.0075,
+       0.625
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.07,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.8039,
+     0.8235,
+     0.8549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.0075,
+       0.625
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.12,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.175,
+       -0.0075,
+       0.625
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.07,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.8039,
+     0.8235,
+     0.8549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.7,
+       -0.0075,
+       1.875
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.02,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.075,
+       -0.0075,
+       1.875
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.07,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.8039,
+     0.8235,
+     0.8549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.075,
+       -0.0075,
+       1.875
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.07,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.8039,
+     0.8235,
+     0.8549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       2.7,
+       -0.0075,
+       1.875
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.02,
+     0.085,
+     1.17
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -3.385,
+       0.005,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.23,
+     0.11,
+     5.0
+    ],
+    "Color": [
+     0.5451,
+     0.5608,
+     0.6
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Path_GreySlabs",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       3.385,
+       0.005,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.23,
+     0.11,
+     5.0
+    ],
+    "Color": [
+     0.5451,
+     0.5608,
+     0.6
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

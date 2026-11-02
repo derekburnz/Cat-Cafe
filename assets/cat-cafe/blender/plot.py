@@ -9,7 +9,7 @@ two arched front windows, a gable roof with its ridge running front to back, and
 z -20 to -15 with a path, beds, a bench and a lamp post.
 
 Objects per shell (the exporter turns each extra object into a child Model):
-  CatCafe_Plot_Cafe_<Colour>             trim, awning, garden
+  CatCafe_Plot_Cafe_<Colour>             trim, awning, door mat; the garden is the child Models _Garden and _Path
   ..._Paint                              the pastel outer layer of every wall and gable (collidable); each part is
                                          tagged Paint, so a crate paint recolours the cafe front (F53)
   ..._Wallpaper                          the cream inner layer of the same walls; each part is tagged Wallpaper
@@ -22,6 +22,11 @@ Objects per shell (the exporter turns each extra object into a child Model):
   ..._Roof                               roof, ridge and chimney: the engineer fades this Model for the owner
   ..._SignBoard                          one part named SignBoard; its -Z face takes the owner's SurfaceGui
   ..._LampPost_Bulb, _SignLamp_Bulb, _BackLamp_Bulb    Neon at night
+  ..._Path                               the path to the door and its joints (F91: a lawn path style replaces it)
+  ..._Garden                             beds, picket fence, bench, lamp post, round bush and the flower clumps on
+                                         lawn spots, with the beds' _Flowers and the _LampPost_Bulb nested in it
+                                         (F91: hidden once the lawn is live); the shrubs by the door and three
+                                         clumps stay on the root
 """
 
 import math
@@ -349,12 +354,18 @@ def _roof(r, chimney):
     chimney.span((10.5, 25.0, 8.5), (11.7, 25.1, 9.7), "fur_black")                             # smoke starts here
 
 
-def _garden(b, bulbs, flowers, fireflies):
+def _garden(b, g, path, bulbs, flowers, fireflies):
+    """The front garden. The F91 lawn code hides the child Model `_Path` when a path style is laid and the child
+    Model `_Garden` (beds, picket fence, bench, lamp post, the round bush and the flower clumps on lawn spots, with
+    the beds' `_Flowers` and the lamp's `_LampPost_Bulb` nested in it) once the lawn is live (front-lawn.md section
+    1). What stays on the shell sits on no lawn spot and off the fence line, so a new front is never bare: the door
+    mat, the potted shrubs by the door and three flower clumps on leafy tufts, all standing on the grass itself."""
     gz0, gz1 = -20.0, FRONT
-    b.span((DOOR[0], -0.2, gz0), (DOOR[1], 0.02, gz1), "floor_tile")                         # path
+    path.span((DOOR[0], -0.2, gz0), (DOOR[1], 0.02, gz1), "floor_tile")                      # path
     for z in (-19.0, -17.6, -16.2):
-        b.span((DOOR[0] + 0.2, 0.02, z - 0.06), (DOOR[1] - 0.2, 0.05, z + 0.06), "concrete")
+        path.span((DOOR[0] + 0.2, 0.02, z - 0.06), (DOOR[1] - 0.2, 0.05, z + 0.06), "concrete")
     b.span((-2.2, 0.02, -17.3), (2.2, 0.08, -15.3), "blush")                                # door mat
+    keep, b = b, g
     for x0, x1 in ((-HW + 0.2, DOOR[0] - 0.5), (DOOR[1] + 0.5, HW - 0.2)):                  # beds
         flowers.span((x0, -0.2, -19.6), (x1, 0.15, gz1 - 0.2), "leaf_green")
         fireflies.span((x0, 0.6, -19.6), (x1, 4.0, gz1 - 0.4), "leaf_green")                 # air they drift in
@@ -370,9 +381,13 @@ def _garden(b, bulbs, flowers, fireflies):
                (-7.6, -16.4, "nose_pink"), (-5.4, -18.2, "sparkle"), (6.0, -18.6, "blush"),
                (7.4, -16.2, "sparkle"), (12.2, -16.5, "nose_pink"), (13.4, -19.0, "offwhite"),
                (17.4, -16.6, "blush"))
+    stay = ((-17.0, -18.4), (-9.0, -18.9), (17.4, -16.6))          # clear of the lawn spots (Layout.cafe.lawnSpots)
     for x, z, sw in flowers:
+        on = keep if (x, z) in stay else b
+        if on is keep:                                                # a leafy tuft on the grass under the bed's top
+            on.span((x - 0.62, -0.1, z - 0.26), (x + 0.72, 0.2, z + 0.66), "leaf_green")
         for dx, dz in ((0, 0), (0.45, 0.3), (-0.35, 0.4)):
-            b.span((x + dx - 0.18, 0.15, z + dz - 0.18), (x + dx + 0.18, 0.5, z + dz + 0.18), sw)
+            on.span((x + dx - 0.18, 0.15, z + dz - 0.18), (x + dx + 0.18, 0.5, z + dz + 0.18), sw)
     # bench on the left bed, facing the street
     bx = -12.5
     b.span((bx - 1.8, 0.95, -18.3), (bx + 1.8, 1.15, -17.2), "caramel_wood")
@@ -391,9 +406,9 @@ def _garden(b, bulbs, flowers, fireflies):
     bulbs.span((lx - 0.3, 6.5, lz - 0.3), (lx + 0.3, 7.25, lz + 0.3), "lamp_warm")          # stands on the plate
     b.b.pyramid(RB.p(lx, 7.3, lz), 1.1, 0.6, "fur_black")
     # a potted shrub right of the door (the Lucky Cat's plinth stands left of it, F88 luckycat.SPOT) and a round bush
-    for x in (DOOR[1] + 1.6,):
-        b.cyl((x, 0.45, -16.0), 0.55, 0.9, "terracotta", r2=0.65, segments=10)
-        b.ball((x, 1.55, -16.0), 0.8, "leaf_dark")
+    for x in (DOOR[1] + 1.6,):                                 # it stays: it stands on the grass, not the bed
+        keep.cyl((x, 0.4, -16.0), 0.55, 1.0, "terracotta", r2=0.65, segments=10)
+        keep.ball((x, 1.55, -16.0), 0.8, "leaf_dark")
     b.ball((6.6, 0.8, -18.6), 0.9, "leaf_green", scale=(1.2, 0.9, 1.0))
 
 
@@ -414,7 +429,8 @@ def build_cafe(colour, mat):
     _awning(ab, accent, -16.0, -5.0)
     _awning(ab, accent, 5.0, 16.0)
     _sign(_Route(b, trim, ("dark_wood",)), sign, bulbs_sign, accent)           # the sign's frame and its ears
-    _garden(b, bulbs_post, flowers, fireflies)
+    garden, path = RB(), RB()
+    _garden(b, garden, path, bulbs_post, flowers, fireflies)
     x = BACK_DOOR[1] + 1.4                                                                   # back door lamp
     b.span((x - 0.1, 6.6, BACK), (x + 0.1, 6.8, BACK + 0.6), "fur_black")
     bulbs_back.span((x - 0.25, 6.0, BACK + 0.4), (x + 0.25, 6.6, BACK + 0.9), "lamp_warm")
@@ -425,7 +441,8 @@ def build_cafe(colour, mat):
             bulbs_sign.finalize(name + "_SignLamp_Bulb", mat), bulbs_back.finalize(name + "_BackLamp_Bulb", mat),
             chimney.finalize(name + "_Chimney", mat), flowers.finalize(name + "_Flowers", mat),
             fireflies.finalize(name + "_Fireflies", mat), paint.finalize(name + "_Paint", mat),
-            paper.finalize(name + "_Wallpaper", mat)]
+            paper.finalize(name + "_Wallpaper", mat), garden.finalize(name + "_Garden", mat),
+            path.finalize(name + "_Path", mat)]
 
 
 # ------------------------------------------------------------------------------------------ interior --
@@ -802,8 +819,9 @@ def build_tier(n, mat):
                 fx = cx - 3.9 + k * 0.975
                 b.span((fx - 0.2, 1.1, -16.0 + 0.2 * (k % 2)), (fx + 0.2, 1.5, -15.6 + 0.2 * (k % 2)),
                        ("blush", "sparkle", "offwhite", "nose_pink")[k % 4])
-        _bistro(b, 11.0, -17.3, "mint")
-        extra = [flowers.finalize(name + "_Flowers", mat)]
+        bistro = RB()                                 # _Bistro: the lawn code hides it when the lawn is in (F91)
+        _bistro(bistro, 11.0, -17.3, "mint")
+        extra = [flowers.finalize(name + "_Flowers", mat), bistro.finalize(name + "_Bistro", mat)]
     elif n == 3:                                                              # neon OPEN, string lights, 2nd bistro
         tube, bulbs = RB(), RB()
         cx = WINDOWS[0]
@@ -817,8 +835,10 @@ def build_tier(n, mat):
         # a festoon under each awning's scalloped edge (awnings x 5..16 each side, lip at z -18, scallops to y 9.35)
         _string_lights(b, bulbs, -15.8, -5.2, 9.25, FRONT - 3.0, 0.6, 7, up=9.86)       # hooked to the valance
         _string_lights(b, bulbs, 5.2, 15.8, 9.25, FRONT - 3.0, 0.6, 7, up=9.86)
-        _bistro(b, -7.6, -17.4, "blush")
-        extra = [tube.finalize(name + "_Sign_Tube", mat), bulbs.finalize(name + "_StringLights_Bulbs", mat)]
+        bistro = RB()                                 # _Bistro: the lawn code hides it when the lawn is in (F91)
+        _bistro(bistro, -7.6, -17.4, "blush")
+        extra = [tube.finalize(name + "_Sign_Tube", mat), bulbs.finalize(name + "_StringLights_Bulbs", mat),
+                 bistro.finalize(name + "_Bistro", mat)]
     elif n == 4:                                                              # fish tank in the window, back patio
         glass, water = RB(), RB()
         cx, dz = WINDOWS[1], 1.6                       # 1.6 back from the window, clear of the Window plants decor
@@ -833,7 +853,7 @@ def build_tier(n, mat):
             b.span((px - 0.1, 1.1, -13.2 + dz), (px + 0.1, 2.3, -13.0 + dz), "leaf_green")
         # back patio: deck path to the yard gate, pergola over the back door, planters, lights
         bd0, bd1 = BACK_DOOR[0], BACK_DOOR[1]
-        b.span((bd0 - 0.5, 0, BACK + 0.2), (bd1 + 0.5, 0.15, 24.8), "caramel_wood")
+        b.span((bd0 - 0.5, 0, BACK + 0.2), (bd1 + 0.5, 0.15, 24.5), "caramel_wood")   # stops short of the yard fence's posts (z 24.575)
         for k in range(12):
             z = BACK + 0.6 + k * 0.8
             b.span((bd0 - 0.5, 0.15, z - 0.04), (bd1 + 0.5, 0.17, z + 0.04), "kibble")

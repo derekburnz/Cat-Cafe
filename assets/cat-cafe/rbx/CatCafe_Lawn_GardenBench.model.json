@@ -1,0 +1,2482 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Lawn_GardenBench/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.9,
+       1.075,
+       -0.03
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.04,
+     0.17,
+     0.78
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.9,
+       -1.075,
+       0.03
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Lawn_GardenBench/0"
+   },
+   "children": [
+    {
+     "name": "NapSpot",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.085,
+         0.03
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.6,
+       0.725,
+       -0.42
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.14,
+     1.45,
+     0.12
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.6,
+       1.0511,
+       0.46
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9993,
+        0.0381
+       ],
+       [
+        0.0,
+        -0.0381,
+        0.9993
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     2.0992,
+     0.12
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.6,
+       1.45,
+       -0.065
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.14,
+     0.1,
+     1.07
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.6,
+       0.86,
+       0.005
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.14,
+     0.08,
+     0.95
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.6,
+       0.07,
+       -0.47
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.22,
+     0.132,
+     0.286
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.65,
+       0.05,
+       -0.6
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.08,
+     0.08,
+     0.08
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.55,
+       0.05,
+       -0.6
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.08,
+     0.08,
+     0.08
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.6,
+       0.725,
+       -0.42
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.14,
+     1.45,
+     0.12
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.6,
+       1.0511,
+       0.46
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9993,
+        0.0381
+       ],
+       [
+        0.0,
+        -0.0381,
+        0.9993
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     2.0992,
+     0.12
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.6,
+       1.45,
+       -0.065
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.14,
+     0.1,
+     1.07
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.6,
+       0.86,
+       0.005
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.14,
+     0.08,
+     0.95
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.6,
+       0.07,
+       -0.47
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.22,
+     0.132,
+     0.286
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   },
+   "children": [
+    {
+     "name": "Mesh",
+     "className": "SpecialMesh",
+     "properties": {
+      "MeshType": "Sphere"
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.55,
+       0.05,
+       -0.6
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.08,
+     0.08,
+     0.08
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.65,
+       0.05,
+       -0.6
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.08,
+     0.08,
+     0.08
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.94,
+       -0.42
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.24,
+     0.12,
+     0.17
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.94,
+       -0.21
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.24,
+     0.12,
+     0.17
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.94,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.24,
+     0.12,
+     0.17
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.94,
+       0.21
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.24,
+     0.12,
+     0.17
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.94,
+       0.4
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.24,
+     0.12,
+     0.17
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.745,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.29,
+     0.76
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.25,
+       0.4524
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.24,
+     0.2,
+     0.1
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.55,
+       0.441
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.24,
+     0.2,
+     0.1
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.85,
+       0.4295
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     3.24,
+     0.2,
+     0.1
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.55,
+       0.361
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.52,
+     0.52
+    ],
+    "Color": [
+     0.7216,
+     0.5686,
+     0.2275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.12,
+       1.85,
+       0.361
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9829,
+        -0.1843
+       ],
+       [
+        0.0,
+        -0.1843,
+        -0.9829
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.2052,
+     0.2261
+    ],
+    "Color": [
+     0.7216,
+     0.5686,
+     0.2275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.15,
+       1.69,
+       0.361
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.9829,
+        0.1843
+       ],
+       [
+        0.0,
+        -0.1843,
+        0.9829
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.2052,
+     0.0995
+    ],
+    "Color": [
+     0.7216,
+     0.5686,
+     0.2275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.09,
+       1.61,
+       0.3185
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.06,
+     0.035
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.12,
+       1.85,
+       0.361
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9829,
+        0.1843
+       ],
+       [
+        0.0,
+        -0.1843,
+        -0.9829
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.2052,
+     0.2261
+    ],
+    "Color": [
+     0.7216,
+     0.5686,
+     0.2275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.15,
+       1.69,
+       0.361
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.9829,
+        -0.1843
+       ],
+       [
+        0.0,
+        -0.1843,
+        0.9829
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.2052,
+     0.0995
+    ],
+    "Color": [
+     0.7216,
+     0.5686,
+     0.2275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.09,
+       1.61,
+       0.3185
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.06,
+     0.035
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.52,
+       0.3185
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.04,
+     0.035
+    ],
+    "Color": [
+     0.8784,
+     0.4784,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.0,
+       1.32,
+       0.28
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9781,
+        0.2079
+       ],
+       [
+        0.0,
+        -0.2079,
+        0.9781
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     0.5,
+     0.15
+    ],
+    "Color": [
+     0.6588,
+     0.8471,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.0,
+       1.32,
+       0.2
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.16,
+     0.16
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.62,
+       0.085,
+       -1.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.17,
+     0.42,
+     0.42
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.62,
+       0.245,
+       -1.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.15,
+     0.46,
+     0.46
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.62,
+       0.3,
+       -1.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.52,
+     0.52
+    ],
+    "Color": [
+     0.4784,
+     0.2902,
+     0.1647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.5421,
+       0.535,
+       -0.955
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.47,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.7216,
+     0.9098
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.665,
+       0.535,
+       -0.9221
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.47,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.7216,
+     0.9098
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.6979,
+       0.535,
+       -1.045
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.47,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.7216,
+     0.9098
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.575,
+       0.535,
+       -1.0779
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.47,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.7216,
+     0.9098
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.62,
+       0.085,
+       -1.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.17,
+     0.42,
+     0.42
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.62,
+       0.245,
+       -1.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.15,
+     0.46,
+     0.46
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.62,
+       0.3,
+       -1.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     0.52,
+     0.52
+    ],
+    "Color": [
+     0.4784,
+     0.2902,
+     0.1647
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.6979,
+       0.535,
+       -0.955
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.47,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.7216,
+     0.9098
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.575,
+       0.535,
+       -0.9221
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.47,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.7216,
+     0.9098
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.5421,
+       0.535,
+       -1.045
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.47,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.7216,
+     0.9098
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_GardenBench",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.665,
+       0.535,
+       -1.0779
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.47,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.7216,
+     0.9098
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

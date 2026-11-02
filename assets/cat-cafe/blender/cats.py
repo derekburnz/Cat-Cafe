@@ -36,7 +36,9 @@ from common import Builder, scale_mesh
 # fluffy (long coat with a normal face), sprinkles (colours of the sprinkle specks), tip (tail tip colour), leafy
 # (spots turned into leaves), mane (colours from the forehead down the back), socks (the colour of all four paws);
 # v0.13: stripes2 (stripes alternate the second and third colours), checker (two colours: a checkered band along
-# each flank, the Taxi Cat's). Themed cats wear a prop, some two (props.py).
+# each flank, the Taxi Cat's); v0.18 (F96): blaze (a stripe of that colour up the face from the muzzle between the
+# eyes), curl (the tail tip curls over: up and forward on A, up off the floor and back on B), exclusive (no gold
+# twins). Themed cats wear a prop, some two (props.py).
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
     "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True),
@@ -156,9 +158,20 @@ ROSTER = {
                         pattern="patches", muzzle="fur_white", fluffy=True, tail_thick=0.28, body_scale=(1.08, 1.0, 1.05)),
     "Plumber":     dict(rarity="Rare", fur="fur_gunmetal", second="fur_white", eyes="eye_copper", pattern="patches", muzzle="fur_white",
                         nose="nose_dark", tuxedo=True, socks="fur_gunmetal", tip="fur_gunmetal"),
+    # F96 (starter-cat.md): the free Bellhop Cat, an exclusive cat earning at the Rare rate. Ginger and white: a ginger
+    # tabby with a white chest, muzzle and blaze, white socks and a white curl at the tip of its tail; its cap, collar
+    # and bell are props (props.py). Exclusive cats are never gold (no _Gold twins) and never roll rainbow.
+    "BellhopCat":  dict(rarity="Rare", fur="fur_ginger", second="fur_russet", eyes="eye_green", pattern="stripes",
+                        muzzle="fur_white", socks="fur_white", tip="fur_white", blaze="fur_white", curl=True,
+                        exclusive=True),
 }
 
-COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks")
+COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze")
+
+
+def has_gold(name):
+    """Whether a roster cat has gold twins: every cat but the exclusives (the Bellhop Cat, F96)."""
+    return not ROSTER[name].get("exclusive")
 
 
 def coat(spec):
@@ -224,13 +237,18 @@ S_TAIL = (0.0, B_CHEST_C[1] + B_CHEST_S[1] / 2 - 0.015, 0.5)
 HEADS["work"] = dict(HEADS["walk"], c=(0.0, -0.17, 0.32), arms=True)
 # Each role's held thing (HELD) rides one arm, and the role's pose turns the arms (Blender XYZ degrees about the
 # shoulders; poses.CAT_POSES work_<role>): the barista holds out a cup in the right paw, the waiter a tray with a
-# cake at its left side, the greeter waves its left paw, the entertainer holds a microphone up and waves.
+# cake at its left side, the greeter waves its left paw, the entertainer holds a microphone up under its chin in the
+# right paw with the left paw down at its side (Derek 11-02 picked Animation-Engineer's option A: Roblox angles
+# LegF2 18, 84, 30 and LegF1 9.9, -1, -5.9, the barista's free paw).
 WORK_ARMS = {
     "barista": {"LegF2": (-60, 25, 0), "LegF1": (-10, -6, 0)},
     "waiter": {"LegF1": (-45, -40, 0), "LegF2": (-10, 6, 0)},
     "greeter": {"LegF1": (-165, 60, 0), "LegF2": (-10, 6, 0)},
-    "entertainer": {"LegF2": (-50, 35, 0), "LegF1": (-150, 60, 0)},
+    "entertainer": {"LegF2": (-2.76, 47.87, 82.24), "LegF1": (-10, -6, 0)},
 }
+# How far a held thing leans from upright in its pose (Blender XYZ degrees, world): the microphone tips 15 toward
+# the cat's middle, to the mouth; at 20 it touches the head or the cape's collar on some cats
+HELD_LEAN = {"entertainer": (0, 15, 0)}
 HELD = {"barista": "LegF2", "waiter": "LegF1", "entertainer": "LegF2"}      # role -> the arm its Held_<Role> rides
 
 
@@ -281,7 +299,8 @@ def dims(spec, body="walk"):
         d["tail"] = (A_TAIL[0], A_TAIL[1] + dy, A_TAIL[2] + dz)
         d["legs"] = {n: (x * bs[0], A_BODY_C[1] + (y - A_BODY_C[1]) * bs[1], A_HIP_Z + low)
                      for n, (x, y) in A_LEG_XY.items()}
-        d["tail_chain"] = dict(angles=(35, 80), seg=0.3, thick=0.24 * tail_k, plane="X", taper=0.02)
+        d["tail_chain"] = dict(angles=(35, 80), seg=0.3, thick=0.24 * tail_k, plane="X", taper=0.02,
+                               curl=bool(spec.get("curl")))
     elif body == "work":
         d["chest"] = (B_CHEST_C, B_CHEST_S)
         d["haunch"] = S_HAUNCH_FRAME                     # only for props.Ctx's frames
@@ -290,9 +309,10 @@ def dims(spec, body="walk"):
         sx, sy, sz = S_SHOULDER
         d["legs"] = {"LegF1": S_SHOULDER, "LegF2": (-sx, sy, sz), **{n: (x, y, S_HIP_Z) for n, (x, y) in S_LEG_XY.items()}}
         # out of the base of the back and up in a curve, the tip hooked over, leaning a little to the cat's left, so
-        # it reads from behind, over the cape and above an apron's bow (Derek 11-02: "tail seems off")
-        d["tail_chain"] = dict(angles=(-15, 15, 45, 75, 100), seg=0.24, thick=0.2 * tail_k, plane="X", taper=0.015,
-                               lean=10)
+        # it reads from behind, over the cape and above an apron's bow (Derek 11-02: "tail seems off"); a curled
+        # tail stops a segment short and its curl (CURL) hooks it over instead
+        d["tail_chain"] = dict(angles=(-15, 15, 45, 75) if spec.get("curl") else (-15, 15, 45, 75, 100), seg=0.24,
+                               thick=0.2 * tail_k, plane="X", taper=0.015, lean=10, curl=bool(spec.get("curl")))
     else:
         size = tuple(B_HAUNCH_S[i] * (1 + (bs[i] - 1) * B_HAUNCH_BS) for i in range(3))
         d["haunch"] = ((B_HAUNCH_C[0], B_HAUNCH_C[1], size[2] / 2), size)
@@ -301,8 +321,10 @@ def dims(spec, body="walk"):
         d["neck"] = B_NECK
         d["tail"] = (B_TAIL[0] * bs[0], B_HAUNCH_C[1] + size[1] / 2 - 0.015, 0.09 * tail_k + 0.02)   # lying just off the floor
         d["legs"] = {n: (x, y, B_SHOULDER_Z) for n, (x, y) in B_LEG_XY.items()}
-        # out behind the haunches first, so it shows from behind, then forward along the left side
-        d["tail_chain"] = dict(angles=(20, -45, -115), seg=0.35, thick=0.18 * tail_k, plane="Z", taper=0.0)
+        # out behind the haunches first, so it shows from behind, then forward along the left side; a curled tail's
+        # tip rises there beside the front of the haunch, clear of the front paws
+        d["tail_chain"] = dict(angles=(20, -45, -115), seg=0.35, thick=0.18 * tail_k, plane="Z", taper=0.0,
+                               curl=bool(spec.get("curl")))
     h = d["head"]
     n = d["neck"]
     for piece, sx in (("Eye1", 1), ("Eye2", -1)):
@@ -389,6 +411,11 @@ def _head(spec, c, h):
         # 0.015 came out under rbx_zfight's reach, which pushed the muzzle out over the nose and mouth (Derek 11-02)
         b.box((0, fy + 0.015, fz - 0.15 * k), (0.36 * k, 0.07, 0.2 * k), c["muzzle"], bevel=False)
         surf, under = fy - 0.02, c["muzzle"]
+    if c.get("blaze"):                                  # up from the muzzle between the eyes, narrowing to the brow
+        # each box starts where the one below it ends, so no two fronts overlap for rbx_zfight to push apart
+        lo = fz - 0.05 * k                              # the muzzle's top
+        b.box((0, fy + 0.012, (lo + fz) / 2), (0.16 * k, 0.06, fz - lo), c["blaze"], bevel=False)
+        b.box((0, fy + 0.014, fz + 0.11), (0.11 * k, 0.06, 0.22), c["blaze"], bevel=False)
     b.box((0, fy - 0.025, fz - 0.11 * k), (0.1 * k, 0.06, 0.07 * k), c["nose"], bevel=False)
     _mouth(b, surf, fz - 0.145 * k, k, "fur_grey" if palette.lstar(under) < 35 else "fur_black")
     for side in (-1, 1):
@@ -464,12 +491,22 @@ def _ear(spec, c, h, side):
     return b
 
 
+# A curled tip (spec curl), segment by segment: (turn, rise) in degrees from the last segment's heading, length,
+# thickness (times the tail's) and whether it takes the tip colour. Plane X (A, the tail up behind) only rises: it
+# goes on round over the back like a question mark. Plane Z (B, the tail on the floor) turns outward and back as it
+# rises, a C beside the haunch clear of the front paws.
+CURL = {"X": ((0, 50, 0.17, 0.85, False), (0, 105, 0.15, 0.75, True), (0, 160, 0.12, 0.65, True)),
+        "Z": ((60, 35, 0.16, 0.85, False), (120, 50, 0.14, 0.75, True), (170, 30, 0.12, 0.65, True))}
+
+
 def _tail(c, t):
     """Boxes chained from the tail root. Plane X: each angle tips the segment up from +Y toward +Z. Plane Z: lying
-    on the floor, each angle is a heading in XY from +X."""
+    on the floor, each angle is a heading in XY from +X. A curl adds two short tip segments bending on: on plane X
+    on round over the back, on plane Z up off the floor and back over (CURL)."""
     b = Builder()
     pos = [0.0, 0.0, 0.0]
     n = len(t["angles"])
+    curl = t.get("curl")
     lean = Matrix.Rotation(math.radians(t.get("lean", 0)), 3, "Y")      # tips the whole chain toward +X
     for i, deg in enumerate(t["angles"]):
         a = math.radians(deg)
@@ -480,9 +517,24 @@ def _tail(c, t):
         else:
             d, rot = (math.cos(a), math.sin(a), 0.0), (a - math.pi / 2, "Z")
         seg, th = t["seg"], t["thick"] - i * t["taper"]
-        b.box(tuple(pos[j] + d[j] * seg / 2 for j in range(3)), (th, seg + 0.06, th), c["tip"] if i == n - 1 else c["fur"],
-              rot=rot)
+        b.box(tuple(pos[j] + d[j] * seg / 2 for j in range(3)), (th, seg + 0.06, th),
+              c["tip"] if i == n - 1 and not curl else c["fur"], rot=rot)
         pos = [pos[j] + d[j] * seg for j in range(3)]
+    if curl:
+        last, th = math.radians(t["angles"][-1]), t["thick"] - (n - 1) * t["taper"]
+        for turn, rise, seg, k, white in CURL[t["plane"]]:
+            if t["plane"] == "X":
+                a = last + math.radians(rise)
+                d, rot = (0.0, math.cos(a), math.sin(a)), Matrix.Rotation(a, 3, "X")
+                if t.get("lean"):
+                    d, rot = tuple(lean @ Vector(d)), lean @ rot
+            else:                                       # turn the heading, then rise from it toward +Z
+                h, e = last + math.radians(turn), math.radians(rise)
+                d = (math.cos(h) * math.cos(e), math.sin(h) * math.cos(e), math.sin(e))
+                rot = Matrix.Rotation(h - math.pi / 2, 3, "Z") @ Matrix.Rotation(e, 3, "X")
+            b.box(tuple(pos[j] + d[j] * seg / 2 for j in range(3)), (th * k, seg + 0.05, th * k),
+                  c["tip"] if white else c["fur"], rot=rot)
+            pos = [pos[j] + d[j] * seg for j in range(3)]
     return b
 
 
@@ -711,9 +763,11 @@ def _arm(c, side, toe=None):
 
 def _held(role, arm):
     """A role's held thing, drawn standing up at the paw (the origin) as it is held in the role's pose, then turned
-    back by that arm's pose, so the arm Model carries it upright when the game turns the arm (WORK_ARMS)."""
+    back by that arm's pose, so the arm Model carries it upright (or leaning by HELD_LEAN) when the game turns the arm
+    (WORK_ARMS)."""
     from props import Pen                               # props imports this module
-    R = Euler([math.radians(a) for a in WORK_ARMS[role][arm]], "XYZ").to_matrix().inverted()
+    R = Euler([math.radians(a) for a in WORK_ARMS[role][arm]], "XYZ").to_matrix().inverted() @ \
+        Euler([math.radians(a) for a in HELD_LEAN.get(role, (0, 0, 0))], "XYZ").to_matrix()
     b = Builder()
     P = Pen(b, (0.0, 0.0, 0.0), R, 1.0)                 # the object sits at the paw (build_cat at_)
     if role == "barista":                               # a takeaway cup with a sleeve and a lid
@@ -727,9 +781,9 @@ def _held(role, arm):
         P.box((t[0] + 0.1, t[1] - 0.05, t[2] + 0.075), (0.18, 0.15, 0.12), "pastel_butter")
         P.box((t[0] + 0.1, t[1] - 0.05, t[2] + 0.15), (0.19, 0.16, 0.035), "blush")
         P.sphere((t[0] + 0.1, t[1] - 0.05, t[2] + 0.19), 0.035, "shirt_red", segments=8, rings=5)
-    elif role == "entertainer":                         # a microphone, gripped at the paw's outer side, clear of a wide head
-        P.cyl((-0.06, -0.03, 0.09), 0.035, 0.3, "fur_black", r2=0.045, segments=8)
-        P.sphere((-0.06, -0.03, 0.27), 0.075, "metal", segments=8, rings=5)
+    elif role == "entertainer":                         # a microphone, gripped at the paw's outer side, clear of a wide head;
+        P.cyl((-0.06, -0.03, 0.055), 0.035, 0.23, "fur_black", r2=0.045, segments=8)   # a short handle keeps the ball
+        P.sphere((-0.06, -0.03, 0.2), 0.075, "metal", segments=8, rings=5)          # under the chin, clear of the head
     return b
 
 
@@ -763,13 +817,16 @@ def build_cat(name, mat, spec=None, base=None, body="walk"):
     else:
         pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[i])) for i, n in enumerate(LEGS[body])]
     import props                                        # themed cats' props (props imports this module)
+    shift = {}
     if name in props.PROPS:                             # S wears B's props: the same chest, its own head
-        for suffix, b in props.build(name, spec, body, d).items():
+        for suffix, (b, at) in props.build(name, spec, body, d).items():
             pieces.append((suffix, b))
             rides[suffix] = props.follows(props.piece_slot(name, suffix))
+            shift[suffix] = at                          # a prop pivoted at its own hinge (the Bellhop's cap, its bell)
     objs = []
     for piece, b in pieces:
         at = at_.get(piece) or d["pivots"][rides.get(piece, piece)]
+        at = tuple(at[i] + shift.get(piece, (0.0, 0.0, 0.0))[i] for i in range(3))
         ob = b.finalize(f"{base}_{piece}", mat, location=tuple(v * k for v in at))
         if k != 1.0:
             scale_mesh(ob, k)

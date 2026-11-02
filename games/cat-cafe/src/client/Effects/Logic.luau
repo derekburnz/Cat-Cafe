@@ -712,7 +712,7 @@ function Logic.workIdle(o: Offsets, style: Style, t: number): boolean
 		o.headRoll = -o.bodyRoll * 0.5
 		o.headPitch = -math.rad(e.nod) * nod
 		o.held = math.rad(e.mic) * nod
-		o.waveL = math.rad(e.wave) * sway
+		o.pawFL = math.rad(e.swing) * sway -- the free paw at its side keeps time
 	end
 	return true
 end
@@ -2495,6 +2495,18 @@ end
 function Logic.glowFlicker(level: number, t: number, flicker: number, hz: number): number
 	local wave = math.sin(t * hz * 2 * math.pi) * 0.6 + math.sin(t * hz * 1.73 * 2 * math.pi) * 0.4
 	return math.max(0, level * (1 + flicker * wave))
+end
+
+-- Whether a player's leaderboard crown was just earned (F98): their `Crown` going from false to true. `before` nil
+-- is the first value seen (they joined, or this client started), which sets no burst.
+function Logic.crownEarned(before: boolean?, now: boolean): boolean
+	return before == false and now
+end
+
+-- A Player's `Crown` attribute as Crown.luau keeps it: the boolean, or nil while the server has not set it yet (it
+-- sets it once the save loads, seconds after the player arrives), so a join is never read as off and then on.
+function Logic.crownSeen(value: unknown): boolean?
+	return if type(value) == "boolean" then value else nil
 end
 
 return Logic

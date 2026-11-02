@@ -83,6 +83,7 @@ export type Budget = {
 	campFish: number, -- camp pond fish jumping now and then (F100); 0 holds them all still
 	rallyBoards: number, -- Rally boards running their marquee at once (F101); 0 leaves them as built
 	cafeOrders: number, -- orders in other cafes showing their puff, oven glow and ding at once (F90); your own always
+	crownGlints: number, -- crowned players whose crown glints now and then (F98), the nearest first
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -121,6 +122,7 @@ Presets.budget = {
 		campFish = 1,
 		rallyBoards = 1,
 		cafeOrders = 0,
+		crownGlints = 2,
 	},
 	high = {
 		animatedCats = 16,
@@ -154,6 +156,7 @@ Presets.budget = {
 		campFish = 2,
 		rallyBoards = 1,
 		cafeOrders = 3,
+		crownGlints = 5,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -187,6 +190,7 @@ Presets.budget = {
 		campFish = 0,
 		rallyBoards = 0,
 		cafeOrders = 0,
+		crownGlints = 1,
 	},
 } :: { [string]: Budget }
 
@@ -756,6 +760,19 @@ Presets.emitters = {
 		lightEmission = 0.6,
 		rotSpeed = { -180, 180 },
 	},
+	-- A glint on a leaderboard crown (Effects/Crown, F98): a few gold stars that flash and fade where they are.
+	crownGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite, Presets.palette.goldLight, Presets.palette.golden },
+		size = { 0.55, 0 },
+		transparency = { 0, 0.3 },
+		lifetime = { 0.35, 0.6 },
+		speed = { 0, 0.4 },
+		spread = 180,
+		rate = 0,
+		lightEmission = 0.9,
+		rotSpeed = { -120, 120 },
+	},
 } :: { [string]: EmitterPreset }
 
 -- Burst sizes before burstScale. A catch sparkle grows with rarity and stays under 30 (skill section 6).
@@ -904,8 +921,10 @@ Presets.motion = {
 	--   table to table over `lookSeconds` and tilts `tilt` once every `tiltEvery`.
 	-- `greeter`: the raised paw waves side to side `wave` degrees `hz` times a second, in bursts of `seconds` once
 	--   every `every`, the head tilting `tilt` towards it; between bursts the paw drifts `rest` over `restSeconds`.
-	-- `entertainer`: sings into its mic: once a `beat` the head nods `nod` and the mic tips `mic` with it, the body
-	--   sways `sway` over two beats and the raised paw waves `wave` with the sway.
+	-- `entertainer`: sings into the mic held up under its chin: once a `beat` the head nods `nod` and the mic tips
+	--   `mic` with it, the body sways `sway` over two beats and the free paw, down at its side, swings `swing`
+	--   forward and back with the sway (Derek 2026-11-02 19:34: the mic at the hip with the other paw waving
+	--   "looks a little bit off").
 	work = {
 		sway = 2.5,
 		swaySeconds = 4.8,
@@ -920,7 +939,7 @@ Presets.motion = {
 			rest = 3,
 			restSeconds = 3.7,
 		},
-		entertainer = { beat = 0.5, nod = 6, mic = 6, sway = 4, wave = 12 },
+		entertainer = { beat = 0.5, nod = 6, mic = 6, sway = 4, swing = 10 },
 	},
 	-- The entertainer bats a pom-pom on a springy wand stuck in its perch (Derek 2026-10-28 17:41: Comet's ball was
 	-- "kind of floating" and its foot "randomly" twitched; the old yarn ball slid about in mid air 2 studs past the
@@ -2963,6 +2982,31 @@ Presets.campCheckIn = {
 	sparkle = 8,
 	findBasket = 40, -- studs round the carrier
 	within = 120,
+}
+
+-- The leaderboard crown (F98, leaderboards.md section 3: a crown over anyone in an all time top 10; the UI's
+-- Screens/Crowns draws it `lift` studs over the head, in the camera's up, as a BillboardGui seen within `within`
+-- studs). Effects/Crown: every `every` seconds a crown glints with `glint` crownGlint stars within `spread` studs of
+-- it, on the nearest budget.crownGlints crowned players, chosen every `pick` seconds. When a player near you earns the
+-- crown (their `Crown` goes from false to true at a refresh while you watch; the first value seen sets no burst),
+-- `earned.sparkles` gold sparkles and `earned.stars` glints burst at the crown, a share `earned.confetti` of the
+-- budget's confetti falls in gold, and a gold ring `earned.ring` studs across opens at their feet. Still with Reduce
+-- Motion (the confetti halves there as everywhere).
+Presets.crown = {
+	lift = 3.2, -- Screens/Crowns LIFT
+	within = 80, -- Screens/Crowns MAX_DISTANCE
+	every = { 2.5, 5 },
+	glint = 3,
+	spread = 0.4,
+	pick = 0.5,
+	earned = {
+		sparkles = 12,
+		stars = 6,
+		confetti = 0.3,
+		ring = 4,
+		ringSeconds = 0.55,
+		colour = Presets.palette.golden,
+	},
 }
 
 return Presets

@@ -1,0 +1,4780 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Lawn_Fence_WhitePicket/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -11.45,
+       0.4,
+       0.0725
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     15.1,
+     0.12,
+     0.075
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       11.45,
+       -0.4,
+       -0.0725
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Lawn_Fence_WhitePicket/0"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -19.0,
+       0.775,
+       0.01
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     1.55,
+     0.26
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -19.0,
+       1.63,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.24
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -18.3136,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -18.3136,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -17.6273,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -17.6273,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -16.9409,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -16.9409,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -16.2545,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -16.2545,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -15.5682,
+       0.775,
+       0.01
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     1.55,
+     0.26
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -15.5682,
+       1.63,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.24
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.8818,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.8818,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.1955,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -14.1955,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -13.5091,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -13.5091,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -12.8227,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -12.8227,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -12.1364,
+       0.775,
+       0.01
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     1.55,
+     0.26
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -12.1364,
+       1.63,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.24
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -11.45,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -11.45,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -10.7636,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -10.7636,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -10.0773,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -10.0773,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -9.3909,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -9.3909,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -8.7045,
+       0.775,
+       0.01
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     1.55,
+     0.26
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -8.7045,
+       1.63,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.24
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -8.0182,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -8.0182,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -7.3318,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -7.3318,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -6.6455,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -6.6455,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -5.9591,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -5.9591,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -5.2727,
+       0.775,
+       0.01
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     1.55,
+     0.26
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -5.2727,
+       1.63,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.24
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -4.5864,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -4.5864,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -3.9,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -3.9,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -11.45,
+       0.95,
+       0.0625
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     15.1,
+     0.12,
+     0.055
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       3.9,
+       0.875,
+       0.01
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     1.75,
+     0.26
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       3.9,
+       1.83,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.24
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       4.5864,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       4.5864,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       5.2727,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       5.2727,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       5.9591,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       5.9591,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       6.6455,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       6.6455,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       7.3318,
+       0.775,
+       0.01
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     1.55,
+     0.26
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       7.3318,
+       1.63,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.24
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       8.0182,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       8.0182,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       8.7045,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       8.7045,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       9.3909,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       9.3909,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       10.0773,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       10.0773,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       10.7636,
+       0.775,
+       0.01
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     1.55,
+     0.26
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       10.7636,
+       1.63,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.24
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       11.45,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       11.45,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       12.1364,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       12.1364,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       12.8227,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       12.8227,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       13.5091,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       13.5091,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       14.1955,
+       0.775,
+       0.01
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     1.55,
+     0.26
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       14.1955,
+       1.63,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.24
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       14.8818,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       14.8818,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       15.5682,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       15.5682,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       16.2545,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       16.2545,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       16.9409,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       16.9409,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       17.6273,
+       0.775,
+       0.01
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     1.55,
+     0.26
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       17.6273,
+       1.63,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.24
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       18.3136,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       18.3136,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       19.0,
+       0.6,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     1.2,
+     0.08
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       19.0,
+       1.2,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.127,
+     0.127,
+     0.075
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       11.45,
+       0.4,
+       0.0725
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     15.1,
+     0.12,
+     0.075
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Lawn_Fence_WhitePicket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       11.45,
+       0.95,
+       0.0625
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     15.1,
+     0.12,
+     0.055
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

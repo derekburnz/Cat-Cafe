@@ -160,6 +160,7 @@ return function()
 		FishMarketRange = 14,
 		CrateOpenCooldownSeconds = 2,
 		DecorIndexBonus = 0.05,
+		DecorEquipBest = true,
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
 		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
 		KeepUpStepsBehind = 1, -- section 17 (v0.13.16, F86): an older Legendary or Mythical earns one area behind

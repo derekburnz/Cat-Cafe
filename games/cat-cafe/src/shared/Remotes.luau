@@ -32,6 +32,7 @@ Remotes.ClientToServer = {
 	"BuyDecor", -- (decorId: string)
 	"RankUp", -- ()  next tier's cost, different cats and rarity (Economy.rankUpBlocker); spends and raises the tier
 	"ToggleDecor", -- (decorId: string, placed: boolean)
+	"EquipBestDecor", -- ()  puts out the best owned decor for the most money (shared/DecorBest), the rest away
 	"BuyLure", -- (lureId: string)
 	"UseLure", -- (lureId: string)  bowl bought and empty, food in stock; from anywhere (2026-10-28)
 	"ResolveBait", -- (choice: "tame" | "letgo")  the bowl's cat has arrived; from anywhere (2026-10-28)

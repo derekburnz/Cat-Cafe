@@ -665,6 +665,14 @@ local function wireIntents()
 			Net.fire("EquipBest")
 		end)
 	end
+	-- Equip Best on the Decor page (Derek 2026-10-28; shown once Config.DecorEquipBest is true), looked up loosely the
+	-- same way: the server puts out the best owned decor and answers with a toast and a sync.
+	local equipBestDecor = (UI.events :: any).equipBestDecor
+	if equipBestDecor ~= nil then
+		equipBestDecor:Connect(function()
+			Net.fire("EquipBestDecor")
+		end)
+	end
 	-- Drop cat: the carry banner's Drop button and the G key (UI thread, reviewer S53). Looked up loosely the same
 	-- way, so this lands before or after the UI build that adds the signal.
 	local dropCat = (UI.events :: any).dropCat

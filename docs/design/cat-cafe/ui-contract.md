@@ -648,7 +648,7 @@ A tip shows once per account, the first time a player meets something: one line 
 
 ### The free Bellhop Cat and the asks (built, F96, starter-cat.md sections 1 to 3)
 
-- **Stand card** (`Screens/StarterCat.luau`, the window `"StarterCat"`, red header, 🛎️ badge, "Bellhop Cat" over "Free cat!"): the cat on a disc ringed in its rarity colour with a "Rare" pill under it, "Earns like a Rare from your newest area, always", "Today: +$3/s" in green and "👋 **Loves Greeter**". Under them a status line and the buttons. Before the game is in a group (`gate` "task") one wide **Take me home**, grey with "Finish your first goals to take me home" in orange until tutorialStep 5. Once it is (`gate` "group") **Join the group** (blue) beside **Take me home**. A press reads "..." until the answer or for 5 s ("No answer yet. Try again.") and stays grey 2 s, as the server takes one claim per 2 s. A refusal plays `uiError` and shows the server's words in red ("Join the Cat Cafe group to take me home", "Try again in a moment", "Walk up to my stand to take me home") until the next press or the card closes. Once claimed the buttons go and the card says "Already home with you" in green.
+- **Stand card** (`Screens/StarterCat.luau`, the window `"StarterCat"`, red header, 🛎️ badge, "Bellhop Cat" over "Free cat!"): the cat on a disc ringed in its rarity colour with a "Rare" pill under it, "Earns like a Rare from your newest area, always", "Today: +$3/s" in green and "👋 **Loves Greeter**". Under them a status line and the buttons. Before the game is in a group (`gate` "task") one wide **Take me home**, grey with "Finish your first goals to take me home" in orange until tutorialStep 5. Once it is (`gate` "group") **Join the group** (blue) beside **Take me home**; it rests 2 s after a press, so two taps make one prompt (review N314). A press reads "..." until the answer or for 5 s ("No answer yet. Try again.") and stays grey 2 s, as the server takes one claim per 2 s. A refusal plays `uiError` and shows the server's words in red ("Join the Cat Cafe group to take me home", "Try again in a moment", "Walk up to my stand to take me home") until the next press or the card closes. Once claimed the buttons go and the card says "Already home with you" in green.
 
 | Call | When |
 |---|---|
@@ -796,6 +796,7 @@ AreaDef    : id, name, tier, ...   (the UI reads id, name and tier)
 - One `UIScale` per ScreenGui root, driven by viewport: design size 1280x720, `scale = clamp(min(w/1280, h/720), 0.6, 1.3)`, floor 0.75 on touch. The root's Size is `1/scale` so edge-anchored panels stay on the edges.
 - Everything is laid out in design pixels under that scale; no raw Offset layouts that ignore it.
 - Touch targets at least 44x44 design px. Hover effects only with a mouse. Keyboard hints hidden on touch.
+- On a touch screen a window's red X is 44 real px at the 0.75 floor (`Scale.tapHeight`) and sits over the window's top-right corner, poking out 10 px like the badge on the left, as the 56 px header is too short for it (review N313).
 - `ScreenInsets = CoreUISafeInsets`: the HUD keeps clear of the Roblox top bar.
 - Modals are 92% x 86% of the viewport with a UISizeConstraint cap; lists scroll with `AutomaticCanvasSize`.
 - Money uses `Format.money` ("$8,420", "$1.24M", cut down, never rounded up) so it never overflows; tap the counter for the exact amount.

@@ -1,0 +1,34 @@
+[
+	{
+		"name": "2x Money",
+		"id": 2064604577,
+		"config": "MoneyPassIds[2]",
+		"price": 5,
+		"regionalPricing": false,
+		"description": "All your cafe income x2, for good."
+	},
+	{
+		"name": "3x Money",
+		"id": 2064670602,
+		"config": "MoneyPassIds[3]",
+		"price": 15,
+		"regionalPricing": false,
+		"description": "All your cafe income x3, for good. Takes the place of 2x Money."
+	},
+	{
+		"name": "4x Money",
+		"id": 2064357148,
+		"config": "MoneyPassIds[4]",
+		"price": 25,
+		"regionalPricing": false,
+		"description": "All your cafe income x4, for good. Takes the place of 3x Money."
+	},
+	{
+		"name": "Long Nap",
+		"id": 2064345084,
+		"config": "LongNapPassId",
+		"price": 199,
+		"regionalPricing": true,
+		"description": "Your cats earn full pay while you are away, for up to 16 hours. Without it they earn half pay for up to 8 hours."
+	}
+]

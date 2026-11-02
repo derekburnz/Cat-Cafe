@@ -1,6 +1,6 @@
 ---
 name: asset-pipeline
-description: How Purr Pot 3D assets go from Blender (via Blender MCP) to Roblox Studio: scale calibration, triangle budgets, naming, pivots, UV and texture rules, FBX export settings, Roblox Blender plugin upload, Studio import checks, saving .rbxm files for Rojo and replacing PH_ placeholders. Use for any model, prop or environment task.
+description: How Cat Cafe 3D assets go from Blender (via Blender MCP) to Roblox Studio: scale calibration, triangle budgets, naming, pivots, UV and texture rules, FBX export settings, Roblox Blender plugin upload, Studio import checks, saving .rbxm files for Rojo and replacing PH_ placeholders. Use for any model, prop or environment task.
 ---
 
 # Asset pipeline (Blender -> Studio -> Rojo)

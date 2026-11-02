@@ -4,6 +4,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Placeholders = require(script.Parent.Placeholders)
 
 local AssetRegistry = {}
@@ -48,6 +49,11 @@ function AssetRegistry.has(name: string): boolean
 	return AssetRegistry.folder():FindFirstChild(name) ~= nil
 end
 
+-- True when the named model is in the folder or can be built as a placeholder, so `clone` will not error.
+function AssetRegistry.known(name: string): boolean
+	return AssetRegistry.has(name) or table.find(Placeholders.names(), name) ~= nil
+end
+
 -- Clones the named model. Builds a placeholder on the spot if the name is unknown to the folder but known to us.
 function AssetRegistry.clone(name: string): Model
 	local assets = AssetRegistry.folder()
@@ -71,6 +77,40 @@ function AssetRegistry.clone(name: string): Model
 		return wrapper
 	end
 	return clone :: Model
+end
+
+-- Which body a cat model is: the walking body (A), the seated one (B, the _Sit models) or the standing worker (S,
+-- the _Work models).
+export type Body = "walk" | "sit" | "work"
+
+-- A cat's model: its gold coat (v0.5 F42) when `variant` is "gold" and the asset is there, else the base cat, which
+-- is the walking body (A). `body` "sit" asks for the seated body a resting cat sits on at the odd nap spots, trying
+-- the gold seat, the seat, the gold walker and the walker in that order, so a cat whose seat is not exported yet
+-- still shows. "work" asks for the standing worker a working cat wears at its station (Model-Agent #826; Derek
+-- picked S on 2026-11-02), trying the gold worker and the worker before that seated order. The second result is the
+-- body that came back.
+function AssetRegistry.cloneCat(catId: string, variant: string?, body: Body?): (Model, Body)
+	local base = Catalog.catModelName(catId)
+	local gold = Catalog.goldModelName(catId)
+	local walkers: { string } = if variant == "gold" then { gold, base } else { base }
+	if body == "work" then
+		for _, name in walkers do
+			if AssetRegistry.has(Catalog.workModelName(name)) then
+				return AssetRegistry.clone(Catalog.workModelName(name)), "work"
+			end
+		end
+	end
+	if body == "work" or body == "sit" then
+		for _, name in walkers do
+			if AssetRegistry.has(Catalog.sitModelName(name)) then
+				return AssetRegistry.clone(Catalog.sitModelName(name)), "sit"
+			end
+		end
+	end
+	if variant == "gold" and AssetRegistry.has(gold) then
+		return AssetRegistry.clone(gold), "walk"
+	end
+	return AssetRegistry.clone(base), "walk"
 end
 
 return AssetRegistry

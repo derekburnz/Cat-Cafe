@@ -1,14 +1,18 @@
 {
-  "name": "purr-pot-cloudcheck",
+  "name": "cat-cafe-cloudcheck",
   "private": true,
   "version": "0.1.0",
-  "description": "Runs Purr Pot Luau unit tests and a strict type check without Roblox Studio, using a WebAssembly build of Luau.",
+  "description": "Runs Cat Cafe Luau unit tests, a strict type check and the UI gate without Roblox Studio, using a WebAssembly build of Luau.",
   "type": "module",
   "scripts": {
     "test": "node run-tests.mjs",
     "test:verbose": "node run-tests.mjs --verbose",
     "analyze": "node analyze.mjs",
-    "check": "node analyze.mjs && node run-tests.mjs"
+    "analyze:tests": "node analyze.mjs --tests",
+    "check": "node analyze.mjs --tests && node run-tests.mjs && node uigate.mjs",
+    "worldscan": "node worldscan.mjs --assets",
+    "uigate": "node uigate.mjs",
+    "plancoverage": "node plan-coverage.mjs"
   },
   "engines": { "node": ">=20" },
   "dependencies": {

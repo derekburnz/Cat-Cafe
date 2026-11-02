@@ -1,126 +1,469 @@
 # Cat Cafe Vertical Slice: Feature List and Thread Handoffs
 
-Draft v0.1, 2026-10-25. Owner: game-designer thread. Readers: engineer (Build cat cafe rough draft), asset-artist (Create cat cafe 3D models), ui-designer (Design cat cafe UI), QA (Plan cat cafe playtests), reviewer, growth. Design reasoning is in [gdd.md](gdd.md), every number in [data-model.md](data-model.md), the UI API in [ui-contract.md](ui-contract.md).
+Draft v0.5, 2026-10-27 (v0.1 on 2026-10-25; v0.4 adds section 2b from Derek's rough draft playtest, with the reasoning in [world-and-feel.md](world-and-feel.md); v0.5 adds section 2c from Gavin's round 2 answers; v0.7 adds section 2e, which Derek okayed on 2026-10-27 at 19:27; v0.8 adds section 2f from Gavin's round 3 answers 1 to 6 and Derek's Codes Cat; v0.9 adds F66, Derek's short night; v0.10 adds section 2g from the round 4 answers and Derek's Codes Cat stand, and section 2h, the intro cutscene F72). Owner: game-designer thread. Readers: engineer (Build cat cafe rough draft), asset-artist (Create cat cafe 3D models), ui-designer (Design cat cafe UI), QA (Plan cat cafe playtests), reviewer, growth. Design reasoning is in [gdd.md](gdd.md), every number in [data-model.md](data-model.md), the UI API in [ui-contract.md](ui-contract.md), Gavin's answers in [feedback/](feedback/) (round 1 2026-10-26, round 2 2026-10-27).
 
 Priorities: P0 must exist for the ten-minute loop test, P1 should ship in the slice, P2 can slip. Sizes S, M, L. The slice is done when the QA loop script in section 8 passes with no blocker tickets, data saves, and the check gate is green.
 
-## 1. Build order for the engineer
+## 1. What v0.3 changes and the build order
 
-Build in this order so there is something playable after each step and every step can be reviewed on its own branch.
+v0.2 (F01 to F21) is built on main. v0.3 replaces parts of it with Gavin's mechanics. Build in this order, one feature per branch, so there is something playable after each step:
 
-1. Street, plots, areas as grayboxes with spots, anchors, spawn points, bait spots and rescue spots (F01), then the clock (F20).
-2. Profile load and save with the version 1 schema, starter cat placed (F10).
-3. Income accounting and ProfileSync to the UI (F04). At this point money goes up and the HUD shows it.
-4. Night waves in the alley with attributes and prompts (F05).
-5. Grab with server lock and chance roll, carry and check-in (F06, F07).
-6. Place, unplace, sell from the cat room (F02, F03).
-7. Upgrade, decor and cafe level purchases (F08).
-8. Lure bowl and food (F09).
-9. Rescue (F21), park, offline earnings, tutorial beats, announcements (F11 to F14).
-10. Cosmetic customers, analytics, leaderboards (F15 to F17).
+1. F22 Data v3: rarities with Mythical, the 20-cat catalog plus reserved ids, roles, tiers, profile v3 and its migration. Everything else reads these tables.
+2. F26 Net circles. The riskiest feel and the most fun; prototype it early on touch.
+3. F23 Clock 5 and 5, waves of ten, five areas with gates (three as grayboxes).
+4. F24 Tiers and rank up, then F25 roles with seated workers in role outfits and Equip Best over ten slots.
+5. F28 Bait bowl at the cafe.
+6. F27 Rescue minigames.
+7. F30 Gold.
+8. F29 Carry bumps (v0.5: Shove, F41).
+9. F31 Night income and rich customers.
+10. F32 Night food dealer.
+11. F33 Naming cats.
+12. Update F13 tutorial beats, F16 analytics and F17 leaderboards for v0.3.
 
-## 2. Features
+v0.4 (Derek, 2026-10-26 23:03, after playing the rough draft) jumps the queue: F34 catching stakes, F35 the back alley layout and F19 fast travel are P0 and go next, then F36 to F39 alongside the remaining v0.3 rows. Section 2b has the rows.
+
+| v0.2 feature | v0.3 status |
+|---|---|
+| F01 street, plots, areas | Kept; areas grow to five in F23 |
+| F02 spots and placement | Replaced by F25 roles |
+| F03 cat room | Kept; role picker and rename added (F25, F33) |
+| F04 income | Kept; tier and phase multipliers in F24 and F31 |
+| F05 night waves | Kept; sizes and areas in F23 |
+| F06 net hold-and-release | Replaced by F26 circles |
+| F07 carry and check-in | Kept; bumps added in F29 |
+| F08 shop | Kept minus cafe level; tier caps in F24 |
+| F09 lure spots | Replaced by F28 bait bowl |
+| F10 profile | Migrates to v3 in F22 |
+| F11 park access | Replaced by tier gates in F23 and F24 |
+| F12 offline earnings | Kept (day rate) |
+| F13 tutorial | Updated beats (section 8) |
+| F14 announcements | Kept; adds gold cats and rank ups |
+| F15 cosmetic customers | Kept by day; v0.5 closes the cafe at night with no customers (F44) |
+| F16 analytics | New events (data-model 16) |
+| F17 leaderboards | "Grand Cafe" tag at Tier 5 replaces "Cafe Owner" |
+| F18 cat stats, Equip Best | Kept; gold multiplier, ten slots, favoriteRole |
+| F18 visiting, F19 fast travel | Kept; fast travel is P0 in v0.4: Cafe, Alley and Areas buttons top centre, greyed while carrying |
+| F20 clock | Lengths change in F23 |
+| F21 rescue hold | Replaced by F27 minigames |
+
+## 2. v0.3 features
 
 | id | feature | P | size | owner | depends on | done when |
 |---|---|---|---|---|---|---|
-| F01 | Street with 8 plots, alley and park grayboxes. Plot assigned on join and freed on leave. Plot model has Spots, DecorAnchors, Door, CustomerWaypoints; areas have SpawnPoints and LureSpots | P0 | S | engineer, asset for props | | Join, own a plot, walk from cafe to alley to park and back in under 60 s |
-| F02 | Spots and placement. Spots open by cafe level. PlaceCat and UnplaceCat remotes, placed cat model appears on the spot with an idle animation or bob | P0 | M | engineer | F01, F10 | Place and remove a cat, rate changes, survives rejoin |
-| F03 | Cat room list in the Collection screen: owned cats with Place, Remove and Sell, silhouettes for unfound cats, 7 / 12 count | P0 | S | ui, engineer binds | F02 | Sell a duplicate and see coins rise |
-| F04 | Income accounting (lazy, per data-model section 11), cafe multiplier, ProfileSync partial updates, predicted counter on the client | P0 | M | engineer | F10 | HUD rate equals the formula for any setup QA builds |
-| F05 | Night waves: at each night start despawn leftovers and spawn waveSize strays per area with odds, attributes and tagged models, tutorial guaranteed Common | P0 | M | engineer | F01, F20 | Six strays appear in the alley at night start, leftovers vanish at the next night |
-| F06 | Net: GrabBegin lock, swing ring via the UI catch API, GrabEnd roll, flee or retry rules, toast on fail | P0 | M | engineer, ui | F05 | Two players cannot catch the same stray; cheat client with permanent perfect gains at most 15% |
-| F07 | Carry and check-in: held cat model, 80% walk speed, door zone, CatCaught popup, first-catch reward, collection entry | P1 | S | engineer, asset for held pose | F06 | Catch, walk home, cat appears in the cat room; leaving mid-carry still saves the cat |
-| F08 | Shop: BuyUpgrade, BuyDecor, ToggleDecor, cafe level gates, decor anchors show and hide, tables add visible tables and chairs | P0 | M | engineer, ui | F04 | Buy every slice item in order, each visible in the world, each refused when unaffordable |
-| F09 | Lure: lure_bowl upgrade, BuyLure, EquipLure, UseLure at lure spots, lured stray reserved to the placer until caught or despawn, never flees from the placer, food refunded on despawn, odds shown before buy | P1 | S | engineer, ui | F05, F08 | Tuna produces a Rare at roughly the table rate over 20 tries; a missed grab on a lured Rare lets the placer retry |
-| F10 | Profile save and load with session locking, autosave, BindToClose, migration by version, starter state | P0 | M | engineer | | Rejoin after a crash of the server keeps coins and cats; reviewer signs off data safety |
-| F11 | Park area with park_access gate and its own odds | P1 | S | engineer, asset | F05, F08 | Park spawns Tortie, Bengal and Ragdoll; locked gate before purchase |
-| F12 | Offline earnings: rateAtLogout, 25% for up to one hour, OfflineEarnings popup and ClaimOffline | P1 | S | engineer, ui | F04, F10 | Leave for 10 minutes, return, popup shows the formula amount |
-| F13 | Tutorial beats: arrow to the alley, guaranteed stray, place prompt, buy table prompt, TutorialAdvance steps, skipped on repeat joins | P1 | S | engineer, ui | F06, F08 | New account finishes the loop in under 10 minutes without help |
-| F14 | Announcements for Epic and Legendary catches, Toast remote | P2 | S | engineer, ui | F07 | Everyone on the server sees the catch message |
-| F15 | Cosmetic customers on the client with seats per table, coin effects via UI.floatText | P2 | S | engineer, asset | F08 | Customers fill seats, no server cost, under 2 ms per frame on a phone |
-| F16 | Analytics events per data-model section 16 | P2 | S | engineer | F13 | Events appear in the Creator Hub analytics view |
-| F17 | Leaderboards: tips per second and cats found, "Cafe Owner" tag at cafe level 5 | P2 | S | engineer, ui | F04 | Boards update within 60 s |
-| F18 | Cat stats and Equip best (data-model section 4b): charm rolled at catch, stars on the prompt and in the cat room, levels from time placed, rating shown per cat, EquipBest remote and button that places the best cats on the open spots | P1 | M | cat stats thread, ui | F02, F03, F04 | Two Tabbies with different charm earn different rates; a cat levels after 60 s placed; Equip best on a cafe with more cats than spots matches a hand-computed best placement |
-| F18 | Visiting: walk into any cafe and see its placed cats and decor | P2 | S | engineer | F02, F08 | Other players' cafes replicate placed cats |
-| F19 | Fast travel: Home, Alley and Park buttons on the HUD, disabled while carrying | P2 | S | engineer, ui | F01, F07 | Tap Alley from the cafe and arrive at its entrance; button greyed while carrying |
-| F20 | Clock: 3 minute day, 2 minute night, Clock attributes, lighting and street lamps, cafe sign, HUD chip with countdown, customers by day only | P0 | S | engineer, ui, asset | F01 | Night arrives two minutes after a server starts and every five minutes after; lighting and sign follow |
-| F21 | Rescue: rescue spots roll at night start, stuck cat model, 4 s hold with no fail, RescueBegin and RescueEnd, rescued flag and 1.10x tips | P1 | S | engineer, ui, asset | F05, F07, F20 | Rescue a stuck cat with a 4 s hold; its tips show the bonus |
+| F22 | Data v3: `Mythical` rarity with circles, shrinkSeconds, rescueHits; catalog sections 3a and 3b (20 cats) with `area` and `favoriteRole`, 3c ids reserved; `TierDef` table; role `SpotDef`s with `tier`; upgrades without cafe_level and park_access; shop and dealer `LureDef`s with `source` and five-rarity odds; profile v3 and the 2 to 3 migration (data-model 14) | P0 | M | engineer | | A v2 save loads as v3 with tier 1, refunds applied, two cats working, no coins lost; specs cover the migration |
+| F23 | Clock 300 and 300 s; waves of 10 per area; five areas with spawn points and trap anchors, Neighbourhood, Woods and Sewer as grayboxes; gates solid for locked players; server refuses catch, rescue and bump in locked areas | P0 | S | engineer, asset for gates | F22 | Ten strays per unlocked area at each night start; a Tier 1 player inside the Park gate cannot catch |
+| F24 | Tiers: `RankUp` with cost, distinct cats and rarity checks; tier multiplier in income; tier caps on tables, espresso and net; decor `requiresTier`; area unlocks; cafe expansions as plot variants; rank up card data in ProfileSync | P0 | M | engineer, ui | F22, F23 | Rank to Tier 2 with 8,000 coins (1,500 before data-model v0.13.6) and 5 different cats; refused with 4; income rises 25%; the Park gate opens |
+| F25 | Roles: Barista, Waiter, Greeter, Entertainer slots by tier; `favoriteRole` 1.5x; a working cat sits at its station on the seated body B (the `CatCafe_Cat_<Name>_Sit` model) in its two-piece role outfit, the cat room shows it relaxing without the outfit; Equip Best over up to 10 slots | P0 | M | engineer, asset for poses and uniforms, ui | F22, F24 | Assign a Tabby to Barista and it sits at the counter in its apron and cap earning 1.5x; Equip Best matches a hand-computed best on ten slots |
+| F26 | Net circles: `GrabBegin` builds the schedule from rarity and net level; `CatchSchedule`, `CatchPress`, `CatchResult`; latency-corrected judging; per-circle telemetry. v0.4: the retry and flee rules and the scoring move to F34 | P0 | M | engineer, ui | F22 | A forged early or late press is a Miss; a Mythical with a Basic Net shows uneven circle speeds |
+| F27 | Rescue minigames: traps by area (Alleyway trash_bin and garbage_bag, Park tree and trashcan); `bar` and `shake_catch` kinds; `RescueBegin`, `RescuePress`, `RescueCancel`, `RescueChallenge`, `RescueResult`; paws, retry, the cat never lost; 10% gold hidden until freed | P1 | M | engineer, ui, asset for traps | F22, F23 | Free a Common from a bin in two hits; three misses end the attempt and the cat is still there; a tree rescue ends with one catch circle |
+| F28 | Bait bowl: `lure_bowl` at the plot's BaitBowl anchor; `UseLure(lureId)` rolls and saves the cat; 600 s timer runs offline; `BaitReady`, bait card with Tame and Let go; `ResolveBait`; odds and per-cat split on food cards | P1 | S | engineer, ui | F22 | Put Kibble in, log off for 10 minutes, rejoin and see the same cat waiting; Tame adds it, Let go clears it, the food is gone either way |
+| F29 | Carry bumps: carrier attributes; Bump prompt for non-carriers; `Bump` checks (range, grace, safe zone, cooldowns, immunity); 50% knock loose; dropped stray with the 8 s owner window, the bumper barred, unlimited paws for the old carrier (v0.4) and a 120 s minimum stay; immunity for the next carrier; `BumpEnabled` switch | P1 | M | engineer, ui | F07, F26 | Bump a carrier in the Alleyway: half the time the cat drops, only the old carrier can catch it for 8 s, the bumper never can and the old carrier never runs out of paws on it; no bump works near the carrier's door or in the first 3 s; the re-catcher cannot be bumped |
+| F30 | Gold: roll per method, `Gold` attribute and sparkle on strays, reveal on rescue and bait, 1.5x rating, gold page in the Index, announce every gold | P1 | S | engineer, ui, asset for sparkle VFX | F22, F26 | A forced gold (Debug) earns 1.5x and appears on the gold page |
+| F31 | Night income 0.6x settled across phase boundaries; night-owl customers at half rate; rich customers by day with `ClaimRichTip` (v0.13.4: no auto-collect, an unclaimed tip is missed) | P1 | S | engineer, ui, asset for the rich customer | F04, F23 | Rate drops to 60% at nightfall and recovers at dawn; a rich tip pays 45 s of the day rate whether claimed or not |
+| F32 | Night food dealer: cart and NPC on the street at night; per-player three-slot stock seeded by UserId and the global 600 s window; `DealerStock`, `BuyDealerFood`; dealer foods usable in the bowl | P1 | M | engineer, ui, asset for the cart and NPC | F23, F28 | The same stock after a rejoin or a server change within one dealer window; a bought slot cannot be bought again in that window; a Tier 5 player sees Star Treat far more often than Tier 1 over many windows (Debug) |
+| F33 | Naming cats: `RenameCat` with TextService filtering, DisplayName over working cats, rename in the cat room | P2 | S | engineer, ui | F25 | A name shows over the cat for other players; a filter failure keeps the old name with a toast |
+
+## 2b. v0.4 features (Derek's playtest, 2026-10-26)
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F34 | (v0.5: the paws in this row are replaced by F40's chase) Catching stakes: the first Miss ends the attempt with no roll and cancels the rest; all Good or Perfect is a sure catch; `patience` per rarity replaces `fleesOnFail`; paws per player per stray in a server table; jump back 6 to 10 studs; StrayWarySeconds for the player who missed; at 0 paws GrabBegin refuses that player and their prompt hides; unlimited paws for the dropOwner and the tutorial Common; Perfect charm bonus, doubled for Purrfect, none while `flags.autoPress` or on a Dropped stray (S36); the flag clears at 85%; new `CatchSchedule` and `CatchResult` payloads (data-model 10, 15) | P0 | M | engineer, ui, vfx, sound | F26 | A Miss on circle 1 of a Rare ends it at once and shows 1 paw left; a second Miss hides the prompt for that player but not for a second player; 20 mixed Good and Perfect attempts all catch; an all-Perfect Common arrives with 8 more charm |
+| F35 | World layout v2: two back alleys behind the cafe rows meeting in the Alley Square, at least 8 times the old alley; back doors open from Tier 1, check-in at either door; 24 alley spawn points with `Zone` lane or square, Epic and rarer on square points only; traps one bin per back alley and the bags in the Square; gates moved (world-and-feel.md section 2); NormalWalkSpeed 20 and CarryWalkSpeed 16; tutorial stray behind the player's own cafe | P0 | M | engineer, asset for dressing | F23 | From any back door a stray spawn is under 2 s away on foot; the Square and every unlocked gate are one travel tap away; a carry from the farthest Square spawn to the farthest cafe's nearer door is under 25 s; a Tier 1 player walks out of the back door into the Alleyway |
+| F19 | Fast travel: `Travel(destination)`; Cafe, Alley and Areas buttons top centre (Grow a Garden style); the Areas panel shows five area cards, locked ones greyed with their tier (since #358 it lists only the opened areas, section 6); greyed while carrying; refused during a catch or rescue (N47); lands at the destination's entry; 3 s cooldown | P0 | S | engineer, ui | F35 | Travel works from anywhere when not carrying and is refused by the server while carrying or into a locked area |
+| F36 | Cafe shell v2: roof with overhang and chimney, arched windows, recessed door, awning, trim, back door; glass street front; roof fades on the owner's screen while inside; facade pastel by plot number; interior per the sketch; front garden strip; name sign with the owner's headshot, tier and rate; tier dressing sets 1 to 5 swapped on rank up with a confetti puff | P1 | L | asset, engineer, vfx | F24, F35 | From the street you see cats working inside; the sign shows name, tier and rate; ranking up adds the next tier's pieces |
+| F37 | Cafe life: customers queue, sit, show order bubbles and leave hearts; coin pops for the owner; station idles for the four roles; "+$X/s" tags in rarity color within 40 studs; up to four jobless cats roam and nap (highest rating first); ambient VFX and sound; culling beyond 80 studs and roaming paused with nobody within 60 | P1 | M | engineer, vfx, sound, ui | F25, F36 | Eight running cafes hold 30 fps or more on a phone-sized viewport in the street |
+| F38 | For Rent plots: an empty plot uses the cafe shell with shutters half down, dust sheets, a For Rent sign, boxes and broom, a sleeping doorstep cat (not catchable) and the lamp on at night; joining reverses it (shutters up, sign to OPEN, lights on, the Tabby walks in); invite prompt on the sign at P2 | P1 | S | asset, engineer, vfx | F36 | With one player on the server the other seven plots are For Rent shops, never grey boxes |
+| F39 | UI patterns pass (world-and-feel.md section 6): P0 travel buttons, catch HUD misses (v0.5: no paw row), gate signs with progress, money with rate; P1 next goal tracker, new cat reveal, left side menu with red dots, rate tags, area title cards, dealer restock list, server shout-outs, tutorial trail, collection Index silhouettes; FredokaOne with UIStroke, green 3D buttons, world labels within 30 studs | P0 and P1 | M | ui, engineer for gate data | F34, F19 | A first-time player finds travel, the next goal and the catch result without being told |
+
+## 2c. v0.5 features (Gavin's round 2, 2026-10-27)
+
+Gavin's answers are in [feedback/gavin-2026-10-27.md](feedback/gavin-2026-10-27.md). These rows change rows already built or in progress; build them in this order.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F40 | Chase after a miss (replaces F34's paws): a Miss still ends the catch with no roll; the stray sprints `fleeStuds[rarity]` (12 to 32) away from the player at StrayFleeSpeed 26 inside its area, rests StrayRestSeconds 1.5, then anyone can try again while the player who missed waits StraySelfRetrySeconds 1 (S44); the end point is clamped to the roam rects and the run stops at the first prop (N84); a Dropped stray stays put while its owner window runs (N86); tries unlimited; `FleeingUntil` attribute; GrabBegin refuses "It's running!" until it stops; `CatchSchedule` and `CatchResult` lose `pawsLeft`; remove patience, the paw table, StrayWarySeconds and the paw row | P0 | S | engineer, ui, vfx, sound | F34 | A missed Rare sprints about 16 studs, nobody can grab it while it runs, then the same player can try again as often as they like; in a deliberate-miss loop a second player gets the next try within 1 s of the stop |
+| F41 | Shove (replaces F29's Bump prompt): any player can shove another while both are inside a catching area the shover has unlocked; ShoveKnockbackStuds 10 applied on the target's client; never on a player holding a catch or rescue lock; back door safe radius kept; cooldown 8 s, same target 20 s, then nobody can shove that target for ShoveTargetImmuneSeconds 4 (S45); no shove from a player holding a catch or rescue lock and the key is never E or Space (N85); shoving a carrier keeps the 50% knock-loose with every 10c protection; a Shove button and key inside areas only; the remote and constants may keep `Bump` names | P1 | M | engineer, ui, sound, vfx | F29 | Two players in the Alleyway can shove each other; nobody can shove on the street, in a cafe or mid-catch; a shoved carrier drops the cat about half the time; three players shoving one target land one shove per 4 s |
+| F42 | Gold coats: every cat gets a gold model (Derek, 2026-10-27, round 3 Q4 option B; was frost), and players see "Gold", never "Shiny" (Derek, 13:18); GoldChanceNet and GoldChanceBait 0.05; food cards show 5% | P1 | M | asset, engineer, ui | F30 | A forced gold stray shows its gold coat and sparkle; food cards read 5% |
+| F43 | Shared dealer stock: seed `hash(dealerWindow)` only, one DealerSlotWeights row (50 / 33 / 14 / 3); per-player bought marks unchanged | P1 | S | engineer, ui | F32 | Two players on different servers in the same window see the same three foods; each can buy each slot once |
+| F44 | Night and the bowl: the cafe closes at night (no customers, Closed sign with a moon, working cats nap at their stations, 60% income unchanged, night owls removed); the `BaitBowl` anchor moves outside to the back step facing the Alleyway | P1 | S | engineer, asset, vfx | F31, F28 | At nightfall customers leave and the cats curl up at their stations; the bowl sits on the back step |
+| F45 | Derek's 2026-10-27 12:07 round: hold E for CatchHoldSeconds 0.5 on the Catch and Rescue prompts; circles pressed with Space; a Drop button on the carry banner and the G key fire `DropCat()` (data-model 10c, 15); SAFE ZONE stripes at the edges of the catching areas; the "opens at Tier" labels over locked slots are gone and Upgrades gets a Roles section | P1 | S | engineer, ui | F41 | A tap of E near a stray does nothing and a half-second hold starts the circles; Drop in the Alleyway leaves the cat at your feet and only you can catch it for 8 s; Drop on the street sends it back to the Alleyway |
+| F46 | Themed cats (Derek, 2026-10-27 13:22): every Rare and up in the Alleyway and the Park becomes a "<Theme> Cat" with one signature prop (data-model 3a and 3b: Pirate, Rocker, DJ, Bandit, Ninja, Wizard, Nerd, Explorer, Sleepy, Fancy, Fairy, Astro); ids stay; new names, favorite roles and descriptions in the catalog; each prop is a `CatCafe_Accessory_<Prop>` with a `PropSlot` of Head, Face or Back on the cat model; a working cat leaves off the role piece in that slot; no neck props | P1 | M | asset, engineer, ui | F42 | A Nerd Cat stray wears its glasses; working as a barista it wears the apron and cap; a DJ Cat working as a greeter wears its headphones and sash but no boater; a gold Wizard Cat keeps its hat |
+| F47 | Tip Jar playtime gifts (data-model 11b): twelve steps from 2 to 120 minutes of a session, coins scaled to the day rate or foods; `ClaimTipJar(step)` and `TipJarState`; claimed steps in server memory, reset each session; a HUD jar with a fill ring and a row of steps with Claim buttons | P1 | S | engineer, ui | F22 | At 2 minutes step 1 pays max(50, 30 s of day rate) once; step 3 at 9 minutes is refused; after a rejoin the jar starts again at step 1 |
+| F48 | Index rewards (data-model 11b): per area at 3, 6 and 10 cats and all 10 as gold cats; `ClaimIndexReward(areaId, milestoneId)`; profile `indexRewards` (save version 5, S60); Index decor rows in section 7; a reward strip under each area tab in the Index with a Claim button | P1 | S | engineer, ui, asset (Index decor) | F22, F30 | A save with 3 Alleyway cats claims 300 coins once and a second claim is refused; a Park milestone with 2 Park cats is refused; all 10 Alleyway cats give a Salmon and the Alley Mural Print, placed |
+
+## 2d. v0.6 features (Derek, 2026-10-27 afternoon)
+
+Derek's 14:35 and 14:36 asks: walk-up stations instead of HUD buttons, and drafts for the three locked areas. Design in [areas-and-stations.md](areas-and-stations.md), contract in data-model 3c and 11c.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F49 | Spin Wheel station (data-model 11c, areas-and-stations B2 and B3): `CatCafe_Street_SpinWheel` in a street plaza in the safe zone with a "Plaza" place marker; hold E opens the Spin window; one free spin per UTC day plus banked spins from Tip Jar steps 11 and 12 (cap 20); six slices with their chances shown; `SpinWheel()` and `SpinResult`; profile `spin` (save version 6); the world wheel turns on `LastSpinAt`; never sold for Robux | P1 | S | engineer, ui, asset, vfx, sound | F47 | A new day's first spin pays one slice and a second is refused with the time to the next; a player 20 studs away is refused; leaving mid-spin keeps the prize; the chances in the window add up to 100% and nothing mentions Robux |
+| F50 | Index Boards (areas-and-stations B4): `CatCafe_<Area>_IndexBoard` inside each gate, tagged `IndexBoard` with `Area`; a SurfaceGui of the area's ten cats (silhouettes until found), the count, the gold count and a red dot when a reward is ready; hold E opens the Index on that area's page; a locked area's board shows "Opens at Tier n" | P2 | S | asset, ui, engineer | F48 | The Alleyway board reads 3 / 10 for a player with three Alleyway cats and opens the Index on the Alleyway page |
+| F51 | Areas 3 to 5 sets (areas-and-stations Part A): the Neighbourhood, Woods and Sewer kits and hubs at least 100 x 90 studs, spawn points in the hiding spots, Epic and up only in each hub, the six provisional traps on the existing kinds (`shed` bar, `gutter` shake_catch, `hollow_log` bar, `bramble_bush` bar, `drain_pipe` bar, `grate` bar) and the themed cats of data-model 3c with their props | P2 (after the slice) | L | asset, engineer, vfx, sound | F23, F46 | Each area spawns its 10 cats in its own hiding spots, its two traps run their minigames and its six themed cats wear their props |
+
+## 2e. v0.7 proposal: golden fish, Cafe Crates and Index rewards (Derek, 2026-10-27 evening)
+
+Derek's 18:26 to 18:33 asks: a rare second currency (golden fish, a cute coin with a cat face), cosmetic crates whose decor boosts the cafe, Index rewards worth chasing (with permanent bonuses, a separate gold track and an all-areas count) and no decor handed out directly ("crates to open for decor or spins for the wheel"). Design, research and the contract in [golden-fish.md](golden-fish.md). Decided: Derek okayed the numbers at 19:27 ("looks good"), and the build runs F52, F53, F54, then F65 codes.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F52 | Golden fish (golden-fish.md sections 1 and 2): `goldenFish` in the profile (save version 7), fish from first catches, gold first catches, Epic and up repeat net or rescue catches, rank ups, the Tip Jar step 12 and the wheel; a second HUD counter under coins with the cat-face coin; `Format.short` cut down, never rounded up, with Qa and Qi | P1 | M | engineer, ui, asset | F49 | A first Rare catch pays 3 fish and the counter shows them; 1,999,999 coins reads 1.99M |
+| F53 | Cafe Crates, the Decor Index and the Golden Fish Market (sections 3 and 4): `CatCafe_Street_FishMarket` in the plaza; a 10-piece crate per zone and a Classic Crate (60 / 27 / 10 / 2.5 / 0.5, 60 fish), each with a never-sold golden version (Epic and up); pieces are wallpaper, flooring, paint, furniture and decorations; one wallpaper, floor and paint in use, furniture and decorations on decor spots by tier; the lucky twentieth; duplicates refund fish by rarity (10 / 20 / 40 / 80 / 150); a Decor Index page per crate (`decor5`, `decor10`); Star Treat and three perks for fish; `OpenCrate`, `BuyFishItem`, `CrateResult` | P1 | L | engineer, ui, asset, vfx | F52 | Opening an Alley Crate with 60 fish shows the odds first, rolls on the server, and a new wallpaper can be put up at once and raises the tip rate by its bonus; the 20th crate without an Epic opens Epic or better; the Decor tab shows the Alley page with the piece found |
+| F54 | Index rewards and wheel rebalance (sections 5, 5b and 6): no decor prizes; each area gets a normal track (`cats3`, `cats6`, `cats10`) and its own gold track (`gold1`, `gold2`, `gold4`, `gold6`, `gold8`, `gold10`); an all-areas All Cats track (`total5` to `total50`, area id `all`; v0.8 renames it from Cat Collector, which is now a visitor); prizes are coins scaled to the day rate, food, fish, banked spins, crates and small permanent tip bonuses (`bonus`, up to +148% in all); wheel slice 5 is 4 fish and slice 6 a Cafe Crate | P1 | M | engineer, ui | F48, F49 (crates and fish need F52, F53) | Each milestone shows its prize pictures, amounts and any "tips forever" chip; claiming Alleyway `cats6` gives 3 Tuna, an Alley Crate and +2% tips that survive a rejoin |
+
+## 2f. v0.8 features (Gavin's round 3 answers 1 to 6 and Derek's codes, 2026-10-27 evening)
+
+Gavin's answers are in [feedback/gavin-2026-10-27-round3.md](feedback/gavin-2026-10-27-round3.md), and every number is in [data-model.md](data-model.md) (v0.8 notes). Build order: F66 (the short night, Derek 19:40) can go first, because it touches only the clock, the areas and the waves; F65 codes comes straight after F54 (Derek: "After all the currency is good and sorted add codes"), then F56, F55, F57, F58, F60, F61, F59, F62, F63 and F64. Save fields: F59, F62, F64 and F65 each need a save version above F52's 7; if they ship in one release they share one bump.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F65 | Codes and the Codes Cat (data-model 11d, Derek 19:33 and 20:10): `CatCafe_Street_CodesCat` in the street plaza, tag `CodesCat`, the cat up on a stand with a clearly marked `CodesCircle` on the ground in front; walking into the circle opens the code box and walking out closes it, no key press (v0.10, replaces the prompt); also the `launch` code (inactive until the game goes public) and the `requiresGroup` rule for the later `group` code; codes are trimmed and lowercased on the server; `Catalog.codes` with one launch code, `playtest`; one redeem per code per player in `codesRedeemed`; `RedeemCode(text)` and `CodeResult`; 1 per 2 s and a 60 s lock after 5 wrong codes in a minute | P1 | S | engineer, ui, asset | F52, F53 (the crates in the prize) | "PlayTest" at the Codes Cat pays 5,000 coins, 300 fish, 10 spins and the crates once; a second try says "You already used that code"; six wrong codes in a minute lock the box |
+| F56 | Shove drops the cat and anyone picks it up (data-model 10c, round 3 Q2): BumpChance 1.0, no scurry, the carrier pushed back as now; a Dropped stray shows Pick up with the hold E and `PickUpCat(strayId)` starts the carry without circles or charm; DropOwnerPrioritySeconds, the shover bar and BumpImmune for whoever takes a dropped cat are removed; the Drop button makes the same pick-up stray inside an area | P1 | S | engineer, ui, sound | F41, F45 | A shoved carrier always drops the cat; the shover picks it up with a half-second hold; the old carrier shoves them 3 s later and takes it back; the shover cannot shove that player again for 20 s |
+| F55 | Getaway after a catch (10c, round 3 Q1): on a net catch or rescue, every other player within 10 studs is pushed 8 studs away (not a shove: no drop, no cooldown, never a player holding a lock) and the catcher walks at 24 for 5 s before carry speed; `RushUntil` for the speed lines | P1 | S | engineer, vfx, sound | F41 | Catching next to two players pushes both back and the catcher outruns them for 5 s; a player mid-catch next to the catcher is not pushed |
+| F57 | Longer chase and a miss that costs the misser (section 2 and 10, round 3 Q3): `fleeStuds` 24 / 32 / 40 / 52 / 64; the self wait after a miss grows 3, 6, then 10 s per miss in a row on that stray (`missStreak`, reset by a catch, a despawn or 60 s without a miss); Startled at walk speed 12 for 2 s; everyone else can try the moment it stops | P1 | S | engineer, ui, vfx | F40 | A missed Mythical runs about 64 studs; the player who missed three times in a row waits 10 s while a second player gets straight in |
+| F66 | Short night and the sunrise wave (data-model 9, Derek 19:40 and 19:41): NightLengthSeconds 90 and ServerStartDaySeconds 300; a 15 s dusk warning; at night start the catching areas close (fences with a moon sign, back doors closed, `AreasOpen` false, Travel refused with a toast), everyone inside is sent home and swept every 2 s, a carried cat or a Dropped stray is checked in for its carrier, strays and traps clear; at sunrise a fresh wave of 10 per area and the traps fill, then the areas open; GrabBegin, RescueBegin, PickUpCat and Bump refused in areas at night; DroppedMinStaySeconds removed | P1 | S | engineer, ui, asset, sound | F44 | At dusk a player carrying a cat in the Park lands at their cafe with the cat checked in; Travel to the Alleyway at night is refused; at sunrise every area has 10 fresh strays and the banner shows |
+| F58 | Mythical wave announcement (section 9, round 3 Q3): when a wave spawns a Mythical (v0.9: the sunrise wave), `Announce` to the whole server, "A Mythical cat appeared in the Woods!" (gold says so), naming the area, not the cat | P1 | S | engineer, ui, sound | F30 | A forced Mythical in the Park wave shows the banner to every player, including one still at Tier 1 |
+| F60 | Night pays 100% and night bait (sections 8 and 11, round 3 Q6): NightIncomeMultiplier 1.0, the cafe still closed with napping cats; food set during night waits half the day wait (LureWaitSecondsNight 300 of LureWaitSeconds 600, so 240 with the Big Bowl), saved as `bait.readyAt`; the bowl countdown shows a moon | P1 | S | engineer, ui | F44 | The rate on the HUD stays the same at dusk; bait set at night is ready in 5:00 (4:00 with the Big Bowl) and bait set by day in 10:00 (8:00), also after a rejoin |
+| F61 | Tip piles and bigger rich visitors (section 12, round 3 Q6): every 30 s by day a pile worth 6 s of day rate (at least 5) on a table, up to 6 waiting; `CollectTips()` when the owner walks near a pile or presses Collect on the till; piles collected at the cafe only (v0.13.4, Derek 01:32: no pay on leave, and rich customers leave at night start unpaid); RichTipSeconds 120 and RichChance 0.10; QA re-times Tier 2 | P1 | M | engineer, ui, asset, sound | F31 | Standing in the cafe for 5 minutes of day collects 10 piles; staying out leaves 6 waiting and no more; Tier 2 still takes 10 to 20 minutes in the loop script |
+| F59 | Dealer amounts every 5 minutes (section 8b, round 3 Q5): DealerWindowSeconds 300; each window rolls an amount of 0 to 4 of each dealer food from `DealerAmountWeights`, the same on every server; each player buys up to that amount; `BuyDealerFood(lureId, window)`, `dealer.bought` counts per food; "None this time" for 0 | P1 | S | engineer, ui | F43 | Two players on different servers see the same amounts; one buys both Caviar of a window and the other can still buy both; a buy sent across a roll is refused |
+| F62 | Cat lock (section 4): `locked` on cat instances and `LockCat(uid, locked)`; gold, Legendary and Mythical cats arrive locked and the migration locks owned ones; locked cats cannot be sold or traded; a lock icon on cat cards | P1 | S | engineer, ui | F22 | A new Legendary arrives locked and Sell is refused until it is unlocked |
+| F63 | The Cat Collector (section 12b, round 3 Q6): a day visitor who asks for one of your resting, unlocked cats and offers fish, food, spins, zone crates or golden crates by the cat's rarity and gold, with a roll; `AnswerCollector(accept)`, `CollectorOffer`; the Index keeps the cat | P2 | M | engineer, ui, asset, sound | F62, F53 | A forced visit asking for a gold Epic offers a crate and 20 fish, two crates or a golden crate; Trade removes the cat, pays and the Index still shows it; No thanks loses nothing |
+| F64 | The Mystery Visitor and potions (section 12b, round 3 Q6): a hooded day visitor leaves a gift (a potion 60%, 2 Salmon 20%, 10 fish 10%, a spin 10%), shown before opening; four potions (Tip, Lucky, Swift, Steady Paw) in `potions`, drunk with `UsePotion` into real-time `buffs`, stacking to 60 minutes; `playtest2` code with two of each potion if F65 shipped first; v0.10.1 display hooks for the effects: plot `MysteryVisitorUntil`, client tags `MysteryVisitor` and `MysteryGift`, character `ActivePotions` (data-model 13) | P2 | M | engineer, ui, asset, vfx, sound | F52, F65 | A Tip Potion raises the HUD rate by 25% for 10 minutes; leaving with 8 minutes left and rejoining an hour later shows 8 minutes left (v0.10.2, timers pause while away); the gift card shows its chances before opening |
+
+Asset list for v0.8: the Cat Collector (a cat in a tweed coat with a magnifying glass) and the Mystery Visitor (a cat in a hooded cloak), both `CatCafe_NPC_<Name>`, a wrapped gift box `Prop_MysteryGift`, four potion bottles `Prop_Potion_<Name>` and their icons, the Codes Cat station `CatCafe_Street_CodesCat` and the tip pile coins (the rich pile, smaller). Effects: the getaway ring and the rush speed lines, the Startled shake, a potion glow per kind and the Mythical banner sting.
+
+## 2g. v0.10 features (the round 4 answers and Derek's Codes Cat stand, 2026-10-27 evening)
+
+The answers are word for word in [feedback/answers-2026-10-27-round4.md](feedback/answers-2026-10-27-round4.md), and every number is in [data-model.md](data-model.md) (v0.10 notes) and [golden-fish.md](golden-fish.md). Round 4 Q1 to Q3, Q5 and Q16 keep what is built or planned, so they add no features. Two changes land on features not built yet: F54 builds the v0.10 Index tracks (gold luck on the gold track, faster bait on All Cats, bigger finishing prizes, golden-fish.md 5 and 5b), and F65 builds the stand and walk-in circle (Derek 20:10). Build order after the 2f list: F67 and F68 first (small and in the slice), then F69, F71 once Set 4 picks the second props, and F70 with the launch features.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F67 | Drop walks home (data-model 10c, round 4 Q4): the carry record keeps `homePos`; `DropCat()` puts the cat down as a Dropped, Returning stray that walks back at 8 studs a second; anyone picks it up on the way with the hold E (`PickUpCat`); within 2 studs of home it is a normal stray that needs the circles again, with no charm on that catch; 60 s fallback; refused while the areas are closed; a shoved-loose cat still stays where it fell | P1 | S | engineer, ui, vfx (walk), sound | F56 | Dropping a cat in the street makes it walk back into its area; a second player picks it up on the way; left alone it reaches its spot and the circles are needed to catch it again |
+| F68 | Bigger Tip Jar steps (data-model 11b, round 4 Q10): rows move to the prize shape; step 9 (60 min) pays 600 s of day rate (min 1,000), 10 golden fish and a spin; step 12 (120 min) pays a Caviar, a Classic Crate, 25 golden fish, 2 spins and a Tip Potion; TipJarStep12Fish removed; crate as 60 fish before F53, no potion before F64 | P1 | S | engineer, ui | F47, F52 | The 60 minute row shows coins, fish and a spin, and the 120 minute row five prize pictures; claiming both pays them all once |
+| F69 | Food rarity badges and the Spin Odds button (data-model 8 and 11c, round 4 Q11): `LureDef.rarity` (Kibble Common, Tuna and Moonlit Sardines Rare, Salmon and Caviar Epic, Moon Milk Legendary, Star Treat Mythical) shown as a coloured badge and border wherever a food appears; an Odds button on the Spin window listing the six slices and their chances, likeliest first | P1 | S | ui, engineer (catalog field) | F49 | Every food in the shop, bag, bowl and dealer shows its badge; the Odds list adds up to 100% and matches the wheel |
+| F70 | Daily Treat (data-model 11e, round 4 Q9): seven stamps, one per UTC day played, never reset; prizes in the prize shape with days 2 and 4 pretty good and day 7 a Golden Classic Crate, a Star Treat, 50 fish and 3 spins; `ClaimDailyTreat()`, `dailyTreat` saved at the next version; the window opens once a day and from the HUD | P2 | M | engineer, ui, sound | F52, F53 | A player who plays on Monday and Thursday has claimed days 1 and 2; day 7 pays all four prizes; a missed week loses nothing |
+| F71 | Second props and the role sign rule (data-model 3 and 5, round 4 Q6 and Q7): a second prop in a different slot (`PropSlot2`, `_Prop2` parts) for the cats Derek or Gavin pick from [area-ideas.md](area-ideas.md); `CatPose.dress` drops the role pieces in either slot, except that an Entertainer with Head and Back props wears the party hat in place of its head prop at the station | P2 | S | asset, engineer | Set 4 picks | A Skater Cat entertainer at work shows the party hat and its skateboard, and its cap comes back when it leaves the stage |
+
+Effects for v0.10: the gold versions of the Legendary and Mythical effects (round 4 Q8, vfx-animator), the dropped cat's slow walk home and a soft glow on the Codes Cat circle. Assets: the Codes Cat stand and circle, and the picked second props.
+
+## 2h. The intro cutscene (Derek, 2026-10-27 evening)
+
+Designed by the Tutorial-Agent thread from Derek's 20:11 ask and approved by him at 20:45 ("1 yes, 2 yes, 3 keep them but keep it brief"); the spec with shots, timings and the build split is [intro-cutscene.md](intro-cutscene.md).
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F72 | Intro cutscene and Tutorial button ([intro-cutscene.md](intro-cutscene.md), Derek 2026-10-27 20:11, approved 20:45, changed 2026-10-28 00:57, reshot for F84 the same day): a 24.3 s client camera fly-through of ten shots with one caption each, including your own avatar flying the Cat Cannon to the Alleyway's camp, catching a cat, carrying it into the camp and giving it the waiter job, shown once to every player whose `introSeen` is false (existing saves too); HUD, prompts and controls off while it runs; Skip bottom right, on screen from the start with a bar that fills for 5 s before it can be pressed, ready at once on a replay; it starts and ends at the hometown spawn facing the cannon and hands over to the first-flight hint; `IntroDone(shot, replay)` saves `introSeen` and logs `intro_cutscene`; a Tutorial tile in the HUD's top right row replays it and its × hides it (`settings.tutorialButton`), with a switch and a Replay tutorial row in Settings; the copy of your avatar, demo cats, the cannon's turn, the wheel spin and the night lighting are client-only | P1 | M | engineer, ui | F84 (cannon, camps), F66 (night shot), F65 (Codes Cat; fallback caption without it) | A fresh account sees the intro once, Skip's bar fills for 5 s and then a press ends it at once, and the character stands at the spawn facing the cannon with the first-flight hint showing; a rejoin does not replay it; the Tutorial tile replays it with Skip ready at once, × hides it across a rejoin and Settings brings it back; nothing staged is left after it ends |
+
+## 2i. Quests and achievements (Derek, 2026-10-27 evening)
+
+From Derek's 21:59 ask and his 22:10 changes; the spec is [quests.md](quests.md). Derek approved it at 22:14 ("looks good").
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F73 | Daily quests, weekly quests and achievements ([quests.md](quests.md), Derek 21:59 and 22:10): five dailies a day (two Streets, one Cafe, one Extra and a Big Request) and three weeklies a week, reset at 00:00 UTC and Monday 00:00 UTC, progress counted from stat counters saved when each quest is picked, one free reroll a day and a week, finished quests paid at reset if unclaimed; the full daily set pays a Big Tip Potion and a Gold Rush Potion, the full weekly set three of each, two Quick Bait Potions and a Golden Classic Crate, all drunk later from the potion bag; 44 standalone achievements in any order, sized S to XL, paying coins scaled to the day rate, spins, crates and potions, no permanent bonus; `quests`, `achievements` and seven new stats; Quests window with three tabs and a HUD tracker | P1 | L | engineer, ui | F52, F53, F64 (F61 for the tip pile rows, F63 for one achievement) | A new player sees five dailies and three weeklies they can do; finishing all five dailies banks the two potions, and a Big Tip Potion raises the HUD rate by 50% for 30 minutes once drunk; at 00:00 UTC unclaimed finished quests are paid and new ones appear; an old save can claim the achievements its stats already meet, in any order |
+
+## 2j. The Tackle (Derek, 2026-10-27 22:31, priority fix for the friends alpha)
+
+Derek: "shove should be changed into like a tackle so you can just spam it and chase people it needs to be like skill and then go on cooldown so if you miss they are pretty much out". Rules and numbers in [data-model.md](data-model.md) section 10c (v0.11). P0 because friends are playing now.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F74 | Tackle replaces the Shove's lock-on (10c v0.11): Q or the button lunges 12 studs ahead in 0.35 s; the server hits the first player within 3 studs (plus 1.5 slack) who could be shoved, during the lunge plus 0.25 s; a hit is a landed shove (knockback 10, the target down 0.8 s, the knock-loose roll as built); a miss leaves the tackler down 1.2 s; TackleCooldownSeconds 8 from the press, hit or miss, never refunded; `Tackle()` replaces `Bump(targetUserId)`, ShoveResult gains `miss`; `TackleAt` and `TackleMissAt` on the tackler. UI: the Shove button becomes Tackle in the same spot and key, no target hand or name tag, a faint arrow on the ground in front shows the 12 stud reach while ready, the cooldown ring drains 8 s from the press and the button greys mid-lunge and while down; "Missed!" and "Tackled Alex!" toasts. Animation: the dive, the belly slide and get up on a miss, the stumble stop on a hit and the target's fall and get up. Effects: a dust streak during the lunge, the shove puff and dizzy stars on a hit, a skid of dust on a miss. Sound: a whoosh on the press, the shove thud on a hit, a scrape on a miss | P0 | M | engineer, ui, animation, vfx, sound | F41 | Pressing with nobody ahead lunges, misses, puts the tackler down for 1.2 s and drains the button for 8 s; pressing again during the cooldown does nothing; a lunge into a carrier knocks them back, puts them down for 0.8 s and runs the knock-loose roll; a player in the circles or the rescue bar is passed through; a refused press (carrying, in a minigame, outside an area) spends no cooldown |
+
+## 2k. Cat levels and the hover card (Derek, 2026-10-27 22:40)
+
+Derek: "cats should level up overtime making slight increases and when you hover over your cat in cafe it should display what they are and their lvl / xp bar". Rules in [data-model.md](data-model.md) section 4b (v0.12).
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F75 | Cat levels over time and the hover card (4b v0.12): CatMaxLevel 50, +2% rating a level (1.98x at 50), XP to the next level 120 x n; every owned cat earns XP while the owner is in the game (working 1 a second, 1.5 in its favorite role, resting 0.25), none offline; settle at least every 10 s; `CatLevelUp(uid, level)` with a toast and sparkle, `Level` on every cat model under `Plot/Cats`, `stats.catLevelUps`; old level L becomes 1 + ceil(2.5 x (L - 1)) with the next save version. UI: a hover card over the player's own cats (mouse hover, a tap on touch, nearest within 8 studs on gamepad) with the name and catalog name, rarity badge, Gold tag, stars, role or Resting, "Level 12" and the XP bar ("MAX" at 50); other players' cats show name, rarity, role and level only. Effects: a small level up sparkle. Sound: a short level up chime | P1 | M | engineer, ui, vfx, sound | cat stats as built (section 4b) | A cat at a station goes from level 1 to 2 in 2 minutes; a resting cat levels too, four times slower; leaving for an hour adds no XP; a saved level 10 cat loads as level 24 with a rating no lower than before; hovering a working cat shows its card with the XP bar moving; another player's cat shows its level without the bar |
+
+## 2l. Town layout v3: a wider street and the Town Square (Derek, 2026-10-27 22:44)
+
+Derek: "the main town should be wider so that it can have a central middle area for like code cat and spin wheel and more cleaned up". Layout, numbers and the engineer contract in [town-layout-v3.md](town-layout-v3.md), sketch in [town-layout-v3.svg](town-layout-v3.svg); the intro's new shot positions in [intro-cutscene.md](intro-cutscene.md) section 2b.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F76 | Town layout v3 (town-layout-v3.md): StreetHalfWidth 16, Cafe Street z -124 to 124; a 96 x 64 Town Square (x -48 to 48, z -32 to 32) in the middle of the street with gardens to 63 on each side and a side arch into each back alley at (±63, 0); cafe rows at z ±58 and ±102 with plot centres x ±38, plots 1 to 4 on the inner rows; back alleys x 63 to 93, the Alley Square z 124 to 188, the Park, Woods and Sewer gates at z -125 and the Neighbourhood gate at 187.5, GroundSize 680. A fountain at (0, 0) with the spawn at (0, -14); the Spin Wheel (-28, 16), Golden Fish Market (28, 16), Codes Cat (-28, -16) and the night dealer's cart (28, -16) all face the fountain; a paved cross (x -8 to 8, z -6 to 6) stays clear. The square and its gardens are a safe zone and the plaza marker reads "Town Square". Assets: the fountain, benches, lamps, bunting, two sign arches, two side arches, garden beds, paw paving. The F72 intro uses the 2b positions. No save change | P1 | M | engineer, asset, ui | layout v2 as built; before the Neighbourhood kit placement | From the spawn every station is in view and none blocks the walk to the arches or the Park gate; the farthest cafe door reaches the fountain in under 6 seconds; tackling is off in the square and on one step past a side arch; strays never enter the square; the intro shows the gate, the board, the square and the Alley Square with nothing in the way |
+| F77 | Town layout v3.1, the compass (town-layout-v3.md section 7, Derek 23:56 and 23:57: the Alley Square goes, the areas easier to reach without the map feeling segmented): the Neighbourhood at the street's north end (gate z 125, centre (0, 196)); the Woods (120 x 120, centre (-155, 0)) and the Sewer (90 x 90, centre (140, 0)) off the middle of the back alleys' outer walls, gates at (-94, 0) and (94, 0) straight across from the square's side arches (now 12 wide); the Park unchanged. The Alleyway is the two back alleys, closed at both ends, with the rare cat `nook` points at the four ends, the garbage bags on the west outer wall, a board and the travel arrival inside each side arch; the manhole goes. A signpost by the fountain points at all four gates with tier locks, paw paths in each area's colour run from the fountain to each gate, locked gates stay see-through and each area's look spills out around its gate. Gates on an X side for the Woods and Sewer. Intro shots 5, 6, 8 and 9 in intro-cutscene.md 2c. No save change | P1 | M | engineer, asset, ui | F76 as built | From the fountain every gate is in view down its arm and the signpost points at each; each gate is under 6.5 s from the fountain; Epic and rarer alley strays appear only at the alley ends; the Alley button lands in the player's own back alley |
+
+## 2m. Area-themed cats (Derek, 2026-10-27 23:59)
+
+Derek: "themed cat ideas can be made based on something you might see in those areas ... garbage bag cat or construction worker cat or taxi driver cat. Put extra cats that we decide to replace in spare for now". Rules in [data-model.md](data-model.md) 3d (v0.13).
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F78 | Area-themed cats and the spare pool (3d): ten new themed cats with new ids, Garbage Bag (`binbag`), Taxi (`taxi`) and Jazz Cat (`neon`) in the Alleyway, Birdwatcher (`birdwatch`), Duckling (`duckling`) and Balloon Cat (`balloon`) in the Park, Construction (`builder`), Gardener (`gardener`) and Gnome Cat (`gnome`) in the Neighbourhood and Plumber Cat (`plumber`) in the Sewer, in the slots of the cats they replace; the ten replaced cats (`calico`, `sphynx`, `midnight`, `siamese`, `persian`, `aurora`, `fold`, `chonk`, `marshmallow`, `lantern`) get `area = "spare"`: never spawn, never offered, still owned and working; area Index pages and tracks list the current ten; an Index "Spare" page for the spare cats the player has found (#399). Assets: ten cats with coats, props and `_Gold` models. Effects: Jazz Cat notes, Balloon Cat bob and shine, Gnome Cat sparkles. No save change | P1 | M | asset, engineer, vfx, ui | the themed props as built (#259 and the props build) | No spare cat appears in any wave, bait, dealer, trap or prize over a full test night; a profile that owns Pirate Cat still has it working in the cafe after the update; each area page shows its new ten; every new cat has its prop on the stray, carried, at work, napping and gold |
+
+## 2n. Bedtime on the cat trees (Derek, 2026-10-28 01:23)
+
+Derek: "when the cats sleep at night have them sleep in the cat tree pedestals make sure at least one each for cats assigned can add cat beds in corner if needed". Spec in [data-model.md](data-model.md) section 12c (v0.13.2). No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F79 | Bedtime: `Layout.plot.sleepSpots` (the two cat trees' top perches and lower shelves, then decor cat tree pedestals, then beds); `CatCafe_Furniture_CatBed` in the tier dressing, 2 at Tier 3, 4 at Tier 4 and 6 at Tier 5; at night start the working cats, best rating first, get up on the walking body without outfits, walk at 6 round the tables, hop up and sleep (`Bedtime`, `SleepSpot`, `Asleep`, `StretchAt`); the reverse at sunrise; a 15 s timeout; no walking for changes made at night; income, XP and slots unchanged; the hover card says "Asleep" | P1 | M | engineer, asset (bed, tree attachments), animation (client walk and nap rule), ui (hover card) | F44, F66 | At nightfall in a Tier 5 cafe all ten working cats walk off, the best two sleep on the top perches and six in the beds, every visitor sees the same spots, and at sunrise each walks back to its station in its outfit; a cat placed at night appears asleep in a free spot |
+
+## 2o. Door and cat flap decor (Derek, 2026-10-28 01:28)
+
+Derek: "and add a back door with a cat door on it", then "can add decor for cat door / doors also". Spec in [golden-fish.md](golden-fish.md) section 4b. No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F80 | Doors and cat flaps: two new style kinds, `door` (front and back door together) and `catflap` (in the back door's `CatFlap` attachment), one Common and one Rare in each crate (12 pieces a crate, group odds unchanged), plot attributes `Door` and `CatFlap`, model swap instead of colour, Decor screen rows and Decor Index pages of 12 (`decor10` needs all 12) | P2 | M | asset (12 models and icons), engineer, ui | F53, the back door with its plain flap | An Alley Crate can roll the Fire Escape Door; using it swaps both doors and the street sees the front one; the Bell Flap goes into any door; the Alley page reads 1 / 12 |
+
+## 2p. Bigger side areas with longer walks (Derek, 2026-10-28 01:42)
+
+Derek: "expand all areas on the side to at least 4x the size it feels a little cramped if a lot of players were here", "and the walking should feel longer", and the Sewer bridge "needs some way of getting up and also shouldn't be able to juts walk through it". Spec in [town-layout-v3.md](town-layout-v3.md) section 8.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F81 | Bigger side areas (town-layout-v3 section 8): each side area doubles its width and depth behind a gate that does not move. Park 160 x 120 at (0, -186), Neighbourhood 280 x 280 at (0, 266), Woods 240 x 240 at (-215, 0), Sewer 180 x 180 at (185, 0), GroundSize 880. Each area's main path winds about 1.6 times the straight distance, with blockers whose gaps alternate sides (Park about 10 s gate to far wall, Neighbourhood 23 s, Woods 19 s, Sewer 15 s on foot). Every raised walkway has steps (1 stud rises at most) or ramps (30 degrees at most) at both ends, bridges, decks and railings collide, and water is crossed only on bridges. Spawn points grow to 40, 72, 64 and 52, tagged `near` or `deep`; Epic and rarer strays take only `deep` points; traps double. Layout keeps each old set at its v3.1 place until its new set lands. No save change | P1 | L | asset, engineer | F77 as built | Each gate is still under 6.5 s from the fountain; no far wall can be reached in a straight line from its gate; every bridge and deck can be walked onto from both ends and not walked through; the Sewer channel is crossed only on its bridges; Epic and rarer side area strays appear only at `deep` points |
+
+## 2q. Bowl levels and harder minigames (Derek, 2026-10-28 12:14 and 12:15)
+
+Derek: "have the ability to get more food bowl upgrades and balance the rates around that" and "make the catching and rescue games harder". Spec in [data-model.md](data-model.md) sections 2, 6, 8, 10, 10b and 17 (v0.13.15). No save change: `upgradeLevels.lure_bowl` already holds a level.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F82 | Bowl levels: `lure_bowl` maxLevel 5 at 600 / 6,000 / 60,000 / 500,000 / 3,000,000, level n needs Tier n; names Bait, Comfy, Fancy, Deluxe and Royal Bowl; day wait BowlWaitSeconds 600 to 480 by level, the Big Bowl perk as BigBowlWaitMultiplier 0.8 on any level, night still half and `baitSpeed` after; BowlLuck 0 to 0.16 moves that share of each rarity's chance up one rarity through one shared `Bait.oddsFor`, used by the roll and every food card | P1 | M | engineer, ui, qa | F28, F53 | A Tier 3 player buys the Fancy Bowl for 60,000; Salmon then reads Legendary 10.22% on its card and the bowl rolls those odds; the wait reads 9:00 (7:12 with the Big Bowl, half at night); food already in the bowl keeps its roll and wait |
+| F83 | Harder catching and rescues: rarity `catchWindow` 0.9 / 0.8 / 0.7 / 0.6 / 0.5 times the net's windows, judged on the server and sent in CatchSchedule; the tree's falling-cat circle uses it too; RescueBarSpeed 1.0 to 1.8 and RescueZoneWidth 0.26 to 0.10 | P1 | S | engineer, qa | F26, F27 | A Basic Net Mythical shows bands half as wide as a Common's at the same net; a Legendary bar runs at 1.6 with a 0.12 zone; QA's Tier 2 re-time still lands inside 10 to 20 minutes |
+
+## 2r. Hometown and the Cat Cannon (Derek, 2026-10-28 13:39 to 13:42; Derek's yes 14:05, all five areas out at 14:09)
+
+Spec in [hometown-cannon.md](hometown-cannon.md). No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F84 | Hometown and cannons: all five catching areas move out with their current sets (the Alleyway's two lanes as one set at (-1400, -1400), the others 2000 studs out), the back alleys become cafe back yards, the town's area gates close, the Cat Cannon replaces the fountain; `LaunchCannon(cannonId, destination)` with a 3 s flight and a cloud cutscene that hides the server move; a safe camp at each area's town end with a landing pad, check-in on entry and a camp cannon to town or the other open areas; Home refused while carrying and played as a cloud hop from a wild area; the Alley button goes; the Areas button becomes Cannon and moves you to the nearest cannon's front; night sweep by cloud hop; respawn at the camp | P1 | L | engineer, asset, vfx, anim, ui, sound, tutorial | F66, F81 | A new player flies to the Alleyway after the intro and checks a cat in at its camp; a Tier 3 player hops in, picks the Neighbourhood, sees the boom, the arc and the clouds and lands on its pad in 3 s; a caught cat carried into the camp is in the cat room; Home is refused while carrying; at night everyone in the Neighbourhood is clouded home |
+| F85 | Longer rectangular areas: the Alleyway keeps its F84 set (90 x 281) with low blockers, Park 120 x 340, Neighbourhood 180 x 460, Woods 160 x 520, Sewer 120 x 600 with the camp at the town end; the main path about 1.25 times the length with low blockers a hunter can see over; three quarters of the traps in the far half and none within 100 studs of the camp | P2 | L | asset, engineer, qa | F84 | The carry from each area's far end to its camp takes about 27, 36, 41 and 47 s, and QA sees a carrier from across the blockers |
+
+## 2s. Older Legendaries and Mythicals keep up (Derek, 2026-10-28 13:55)
+
+Derek: "also make it so legendarys / mythics in the previous areas still hold decent value across areas and don't instantly become useless next area". Spec in [data-model.md](data-model.md) sections 4b, 11 and 17 (v0.13.16). No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F86 | Keep up: a Legendary or Mythical from an older area earns with the `incomeMultiplier` of the area one step behind the owner's newest (KeepUpStepsBehind 1, KeepUpRarities), never less than its own; `CatStats.areaMultiplier(def, tier)` and `rating(cat, def, tier)`, every caller passes the owner's tier; the income line shows the kept-up figure and a "Keeps up" tag | P1 | S | engineer, ui, qa | v0.13.7 area income | At Tier 5 an Alleyway Legendary at charm 50 and level 1 rates 87.5 and a Sewer Legendary 125; an Epic's rating does not change; ranking up to Tier 4 lifts an Alleyway Mythical from 112.5 to 168.75 at once; Equip Best puts an older Mythical ahead of a newest-area Legendary |
+
+## 2t. Easy start (Derek, 2026-10-30 23:28 and his research notes of 2026-10-31, proposed)
+
+Derek: "make the game especially the start as low friction as possible so we don't lose early players". Spec in [easy-start.md](easy-start.md). Save change: `tipsSeen`, `feedbackAsked`, `stuckHelpShown`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F87 | Easy start: no automatic intro (IntroAutoPlay false, the "?" tile glows); a first catch that cannot fail (one slow circle, doubled windows, retry with no flee, locked to the beginner); no tackles before the first check-in; the first cat takes the free role slot by itself; device-aware step hints; a small HUD until step 5 with buttons that pop in as they unlock; stuck nudges at 40 s and a help card at 90 s; fourteen one-time context tips (cards or cuts of 3 to 4 s, one a minute, never mid-catch or mid-carry); a goal card with a next goal about two minutes away and a 20 minute session target; a Feedback page with three faces, a once-only ask at 12 minutes and one unrewarded like ask; the onboarding funnel v2 (24 steps) and the events `new_player_left`, `stuck_nudge`, `tip_shown`, `feedback`, `intro_choice`; the bug-reports log stops printing report text | P0 | M | engineer, ui, vfx or animation, tools, qa | F72, F16 | A fresh phone account catches and checks in its first cat within 60 s of loading with no failed step; each tip shows once; Creator Hub shows the v2 funnel in order and `new_player_left` with the step and bounce window a quitter left in |
+
+## 2u. Luck, Lucky Days and rare moments (Derek, 2026-10-30 23:31 and 2026-10-31 19:47, proposed)
+
+Derek: "the game is also missing some form of "Luck" most popular games have but no real way it fits in" and "when securing something good leg/mythic decor or cats possibly consider a bigger VFX or Animation". Spec in [luck-and-rare-moments.md](luck-and-rare-moments.md). Save change: the `lucky_cat` level in `upgradeLevels` only.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F88 | Luck: a Lucky Cat statue by every cafe door, `lucky_cat` upgrade levels 1 to 5 (Tier n, +0.1 Luck each); one Luck number (x1.0 to LuckMax x3) from the statue, a Lucky Potion (+0.5) and a Lucky Day (+0.5) that multiplies Epic, Legendary and Mythical chances on your bait and crate rolls; Lucky Days every fourth day (with a countdown on the HUD clock, replacing the Cat Parade) roll the wave and traps at Luck x2 with a banner, a gold sky and a warning 15 s before; a Luck chip and card on the HUD; nothing sold for Robux | P1 | M | engineer, ui, asset, vfx, animation, sound | F82 bowl levels, F53 crates | With Luck x1.5 the food and crate cards show Epic and up at 1.5 times and still add to 100; every fourth day is a Lucky Day with the clock counting down to it; other players see your statue's level from the street |
+| F89 | Rare moments: a big pull card, hop and spin, server toast and stings when a Legendary, Mythical or gold Epic or better is secured; a smaller card for the first Epic; Legendary and Mythical crate pieces glow from the first frame, shake 0.6 s and open into the same card; a quality bar per decor rarity and a redo of the twelve Legendary and Mythical pieces, Gold Leaf first, with before and after sheets for Derek | P1 | M | ui, vfx, animation, sound, asset, engineer | F53, catch bursts | Securing a Mythical plays the card and toasts the server once a minute at most; a Mythical crate piece never shows a lower rarity first; Gold Leaf reads as gold trims from across the street |
+
+## 2v. Cats make the orders (Derek, 2026-10-30 23:27, proposed)
+
+Derek: "Consider making it so the cats make whatever items the people are asking for and bring it to them / collect tips from table, Also add more bubble pop-ops for customers". Spec in [cats-make-orders.md](cats-make-orders.md). Client only: no server, save or economy change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F90 | Cats make the orders: a twelve-item menu that opens by tier (coffee, milk, cake slice and paw cookie at Tier 1 up to the rainbow cake at Tier 5); the Barista makes each order with a working bob, a bubble with a filling ring, a steam or flour puff and a ding (2 s drinks, 3 s bakes, three orders queued at most); the Waiter carries it on a head tray to the table; Waiters and Greeters sweep tip piles to a stack by the till, where the player still collects them (server piles unchanged); a small oven behind the counter; own cafe in full, other cafes lighter, phones lighter still | P2 | M | asset, animation, vfx, ui, engineer, sound, qa | F15, F37, F61 | A Tier 1 cafe serves only its four items and a Tier 5 cafe all twelve; each order is made, carried and served with the heart; the till pays exactly the server's tip piles |
+
+## 2w. Front lawn decorations (Derek, 2026-10-30 23:30, proposed)
+
+Derek: "Consider also adding decorations for the front lawn /infront of the cafe for more unique looking cafe's also". Spec in [front-lawn.md](front-lawn.md). Save change: `lawnOwned`, `lawn`, `lawnStyles`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F91 | Front lawn: six lawn spots in the front garden (two small at Tier 1, two big at Tier 2, two small at Tier 3), sixteen coin-bought pieces from a 500 coin Tulip Bed to a 3,000,000 coin Golden Paw Statue, four path styles and four fence styles; no tip bonus; a Front lawn tab with an edit view, rings and a picker; night glows and a few small moving touches near the camera; `BuyLawn`, `SetLawnSpot`, `SetLawnStyle` and plot attributes so the whole street sees it | P2 | M | asset, engineer, ui, vfx, qa | F36, F53 Decor screen | A Tier 1 player places a Tulip Bed that a second player sees from the street; sizes and tiers are enforced on the server; eight full lawns hold a phone's frame rate |
+
+## 2x. Playing together (Monetization-Agent's key stats plan, 2026-11-01, proposed)
+
+Roblox now ranks games partly on co-play days, counted through joins, invites and private servers. Spec in [playing-together.md](playing-together.md). No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F92 | Playing together: pals are Roblox friends, invite and follow links and private server members, all counted the same; +10% tips with one pal and +15% with two or more, with a HUD chip; Team Rescue, where one helper's hits count, their misses cost nothing, the deadline gains 5 s, the cat goes to the rescuer and the helper gets a helper's tip once in 120 s; a pal can collect your tip piles while you are away, you are paid in full and they get 25% on top up to a cap; invited and following players spawn at the pal's front door; one unrewarded invite nudge after the first rank up | P1 | M | engineer, ui, vfx, sound, qa | F61 tip piles, 10b rescues | Two friends see the pal chip and earn 10% more; a helped Mythical rescue counts both players' hits and never fails from the helper; a stranger cannot collect your piles |
+
+## 2y. Catch and rescue rework (Derek, 2026-10-28 14:19 to 14:20 and his Set 5 answers, decided)
+
+Derek's Set 5 answers Q1 to Q4 settle the net swing, circles by rarity, bands by net, clearer results and harder rescues. Spec in [catch-rework.md](catch-rework.md); it replaces the stray's hold prompt and the nets' timing in data-model sections 2 and 10. No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F93 | Catch and rescue rework: every character holds a net by net level, put away while carrying; click, R2 or a Net button swings (0.8 s cooldown) and the server judges a 7 stud, 120 degree arc when the net lands; a hit starts the catch or picks up a dropped cat, a miss near free strays makes them hop a quarter of their sprint (never before a player's first catch); circles 3 to 7 by rarity and faster, nets widen bands only, one CircleJitter; each circle clears with its grade, a progress strip of pips, a result word (PURRFECT, EXCELLENT, GREAT or "So close!") with a burst; rescue zones last two sweeps, the marker speeds up 8% a hit, `rescueHits` 3 to 7, with a paw marker, trap shake, pips, a deadline ring and a free burst | P0 | L | engineer, animation, asset, ui, vfx, sound, qa | F43 catching, 10b rescues | A swing at a stray 7 studs ahead starts its catch and one behind does not; a Mythical shows seven circles on every net; after a Miss nothing else shows a grade; a rescue zone unhit for two sweeps costs a paw |
+
+## 2z. Fewer, better rewards and the two rotating shops (Derek's Set 4 answers Q5, Q6 and Q9 and his 2026-11-01 22:32 note, decided)
+
+Spec in [rewards-and-shops.md](rewards-and-shops.md). It changes the prize tables in data-model 11b to 12b, quests.md and golden-fish.md 5 and 5b, the dealer in data-model 8b and the Golden Fish Market. Save change: `freshCatch` in, `dealer` out.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F94 | Rewards and shops: no Kibble, Tuna or Salmon in any prize, small golden fish amounts in their place, at most two pictures a prize (three for the big ones); new Tip Jar, wheel, Daily Treat, quest, Index, Mystery gift, Collector and code rows; a Fresh Catch shelf at the Golden Fish Market that sells potions (and now and then a cheaper Classic Crate) for golden fish by day, its stock rolled every 5 minutes for all servers with per player amounts and a once a window toast for the rare ones; the night dealer rolls one stock per server at dusk that holds all night; "money" in place of "tips" on income text, with the Tip and Big Tip Potions renamed Money and Big Money Potions | P1 | M | engineer, ui, asset, qa | F47 to F49, F53, F64, F70, F73 | No prize pays shop food or shows more than two pictures (three for the big ones); two servers show the same Fresh Catch stock in one window; the dealer's stock holds all night and differs between servers |
+
+## 2aa. The money ladder, tier pace and coming back (Derek's Set 5 answers Q5 to Q7, his 2026-11-01 22:32 offline answer and his 2026-10-28 to 10-30 notes, decided)
+
+Spec in [economy-ladder.md](economy-ladder.md). It changes the live keep up rule (F86) by config, data-model 4b to 12b and the Lucky Cat and lawn prices. No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F95 | Economy ladder: area `incomeMultiplier` 1, 3, 9, 27, 81, so an Alleyway Mythical earns like a Park Legendary, a Neighbourhood Epic, a Woods Rare and a Sewer Common; KeepUpRarities empty, with the keep up code kept for shop-only cats, which earn with the newest area's multiplier; tier costs 12,000, 500,000, 40M and 1.2B (v2 after F97's wave Epic; Tier 2 10,000 to 12,000 in v2.1 after Pace timed the cannon trips); prices from Tier 3 on up 4, 8 and 16 times (upgrades, decor, bowl, Lucky Cat, lawn); offline 50% for up to 8 h free and 100% for up to 16 h with Long Nap; a money pass multiplier after potions and an extra slot hook; coin prizes in day rate seconds pay half; the Big Bowl takes 2 minutes off; potions stack to 24 h | P0 | M | engineer, ui, qa | F86 keep up, F48 to F73 prizes, F64 potions | The diagonal in section 1 holds at charm 50; Pace.spec puts one-go Tier 5 at 8 to 12 h and an hour a day at day 4 to 6; a night away pays 8 h at half rate |
+
+## 2ab. The free Bellhop Cat and where the asks go (Derek, 2026-11-01 22:32, decided)
+
+Spec in [starter-cat.md](starter-cat.md); the Cafe Pass XP rows are in [quests.md](quests.md) section 8. Save change: `starterCatClaimed`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F96 | Free Bellhop Cat: an exclusive Rare-rate cat that always earns like a Rare from the newest area, claimed once from a luggage cart stand in the plaza; gated on finishing the first goals until the game is in Derek's group, then on joining the group (checked on the server); notification, favourite and like asks placed after the first loop, one a session at most and never rewarded; quests pay Cafe Pass XP | P1 | M | engineer, asset, animation, ui, sound, qa | F87 easy start, F95 exclusive cats | A Tier 1 player who finished the first goals claims the cat once and it earns 3 a second; with a group id set a non-member is refused; no ask shows before the first loop or twice in a session |
+
+## 2ac. Automatic tips, crate-only decor, dearer food and clearer pictures (Derek's notes of 2026-10-28 to 10-30, decided)
+
+Spec in [notes-10-28-to-10-30.md](notes-10-28-to-10-30.md). It changes F61 tip piles, F90 step 5 and F92 section 4, the coin decor shop, food prices and the wave roll. No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F97 | Derek's 10-28 to 10-30 notes: tip piles pay the moment they appear (no Collect; rich visitors, the Collector and Mystery gifts stay by hand), coin decor moves into the Classic Crate, food about four times dearer and growing 1, 1, 4, 8, 16 times by tier, every food list in rarity order with new icons, one Golden Fish name and picture with new treats and perks pictures, buff chips in place of charm stars, an Index of silhouettes with Normal and Gold tabs and no Spare page, and one Epic or rarer stray in every sunrise wave per area | P1 | M | engineer, ui, asset, qa | F61, F90, F92, F95 | A pile pays while the owner is in an area; the Decor screen sells nothing; Kibble is 100 at Tier 1; every wave has an Epic or rarer stray in each open area |
+
+## 2ad. Leaderboards (Derek, 2026-10-28 17:14, decided)
+
+Spec in [leaderboards.md](leaderboards.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `stats.bestRate`, `stats.weekPlay`, `stats.weekBestRate`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F98 | Leaderboards: Index (entries found), Playtime and Money (best money per second without potions), the top 50 for all time and for this week (Playtime and Money); three chalkboards in the Town Square showing the top 10 and the player's own line, a Top tab in the Index, a crown for the all-time top 10 on boards, cafe sign and head tag; OrderedDataStores written every 5 minutes and read every 2, writes off in Studio, a hidden list kept in a DataStore; no prizes | P1 | M | engineer, ui, asset, qa | F84 Town Square, F95 rate, F97 Index tabs | A live player's playtime shows on the weekly board within 7 minutes and a Studio player's never does; a Money Potion does not move the Money value; the crown shows on every surface for a top 10 player |
+
+## 2ae. The Rainbow coat (Derek, 2026-10-30 00:24, decided)
+
+Spec in [rainbow-coat.md](rainbow-coat.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `variant` `"rainbow"`, the Index entry's `rainbow`, `stats.rainbowCatches`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F99 | Rainbow coat: a third coat rolled before gold at one tenth of its chance (0.5% strays and bait, 1% rescues), earning x3 (gold x1.5); flowing rainbow bands, a glow, a sparkle trail and a spawn beam with a server toast; the big pull for every rainbow; a Rainbow Index tab and one Rainbow track of five milestones with rainbow luck up to +100%; odds on every food card; Collector x10 | P1 | M | engineer, vfx, ui, sound, qa | F42 gold, F89 big pull, F97 Index tabs | A forced rainbow stray shows the coat, beam and toast to the whole server; 100,000 cloud rolls give 0.5% rainbow and 5% gold; a rainbow cat earns twice its gold self |
+
+## 2af. One extra thing at each camp (Derek's Set 4 Q4 answer, decided)
+
+Spec in [camp-extras.md](camp-extras.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `campExtras`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F100 | Camp extras, one per tier from Tier 2: a Picnic Basket in the Park (a Money Potion every 6 h, holds 2), a Yard Sale in the Neighbourhood (two crates a day at 40 fish), a Fish Pond in the Woods (2 fish every 30 min, holds 24) and a Lost and Found in the Sewer (one free prize a day from a shown table, holds 3); each fills while away, sits in the safe camp and shows its state on the cannon picker card with a "!" only when there is something to claim; no food, nothing for Robux | P2 | M | engineer, ui, asset, animation, sound, qa | F84 camps and picker | A player away 7 hours sees the pond at 24 with a "!" on the Woods card; a collect from outside the camp is refused; the Yard Sale stock matches across servers |
+
+## 2ag. The Rescue Rally weekend (Derek, 2026-10-30 00:38, decided)
+
+Spec in [rescue-rally.md](rescue-rally.md). Before release per Derek's 2026-11-01 22:59 rule. Save change: `rally`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F101 | Rescue Rally: every weekend (Saturday and Sunday UTC) each server fills one shared bar from check-ins and tames (1 point), rescues (3) and Team Rescues (3 to each player); the goal is 30 points a player; prizes at 25%, 50% and 100% to everyone in the server who scored 3 in the lap (golden fish, a Money Potion, a Rally Crate of twelve event pieces that return every weekend), at most 4 paid laps a weekend; a HUD banner, a Rally board and bunting in the Town Square; nothing sold | P1 | M | engineer, ui, asset, vfx, sound, qa | F92 Team Rescue, F53 crates, F84 Town Square | With RallyForce on, two players doing a Team Rescue each get 3 points; a late joiner with 1 point gets no 100% prize; the banner goes at Monday 00:00 UTC |
+
+## 2ah. Trading from Tier 3 (Derek, 2026-10-30 00:23, decided)
+
+Spec in [trading.md](trading.md). Before release per Derek's 2026-11-01 22:59 rule, last in the build order. Save change: `tradeLog`, `settings.tradeRequests`, `stats.trades`, `stats.tradesToday`.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F102 | Trading: cats only (never currency, potions, food, crates, decor or exclusive cats), both players Tier 3 or higher (a debug hook lowers it for testing) and in a safe zone; a request card, two 3 x 3 offer grids with what each cat would earn for you, any change resets both Ready, a 5 s countdown, a confirm screen with a lopsided warning and a gift warning; locked cats cannot be offered; a versioned server trade with a pending record so a shutdown never doubles or loses a cat; rate limits, a DataStore kill switch, a trade log, a requests setting, no logs of who | P1 | L | engineer, ui, sound, vfx, review, qa | F62 locks, F95 rates, F99 rainbow | A stale Confirm moves nothing; a change in the countdown clears both Ready; a forced shutdown mid-trade leaves each cat with one owner; the kill switch stops new trades within 60 s |
+
+## 2ai. The crate reel (Derek, 2026-10-28, decided)
+
+Spec in [crate-reel.md](crate-reel.md). It replaces the card reveal in golden-fish.md section 4 and moves luck-and-rare-moments.md 2b's glow and shake to the reel's stop. No save or server change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F103 | Crate reel: every crate opens with a strip of 40 tiles sliding under a centre marker, the same length every time (0.3 s up to 15 tiles a second, full speed, a 0.8 s ease-out, stop at about 2.9 s dead centre on tile 34, the won piece); tiles 26 to 37 are never rarer than the prize and the rest follow the crate's odds; ticks and a thunk, the counter crate's lid pops at the stop, Legendary and Mythical glow and shake only at the stop; tap skips, Reduce Motion keeps the fade | P2 | S | ui, vfx, sound, qa | F53 crates, F89 2b | 50 opens of each crate stop centred at the same time; 10,000 cloud builds never put a rarer tile in 26 to 37 |
 
 ## 3. Placeholder rules for the rough draft
 
-The engineer builds the whole loop with placeholders so nothing waits on art. Every placeholder uses the final name and attributes so swapping is a file replace, not a code change.
+As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.
 
-- Cats: a Model named `CatCafe_Cat_<Name>` with a `Body` Part 1 x 1.6 x 2.6 studs (the style guide size) in the cat's base color, a `Head` Part on top, PrimaryPart `Body`, pivot at the base. A BillboardGui with the name and rarity color is fine for the draft.
-- Held cat: the same model welded to the character's upper torso. The asset thread later delivers a carried pose.
-- Plot: Parts for floor, walls and counter in palette colors cream, caramel_wood and mint. Spots are invisible anchor Parts named `counter_1`, `window_1` and so on with attribute `SpotType`.
-- Decor and tables: a colored Part per anchor until the asset arrives.
-- Customers: default R15 rigs with shirt colors from palette row 4.
-- Areas: flat ground with brick walls for the alley and green for the park. Spawn points are invisible Parts tagged `SpawnPoint` with attribute `Area`.
-- Use `generate_procedural_model` in Studio MCP only for one-off set dressing; everything with a name in this doc is a Part placeholder so it can be replaced by name.
+- Cats: `CatCafe_Cat_<Name>` with `Body`, `Head`, `Tail`, PrimaryPart `Body`, facing -Z. Working cats use the seated body B (`CatCafe_Cat_<Name>_Sit`, PR #259) with their two-piece role outfit attached at the model's `Outfit_<Piece>` attachments; strays walk on body A.
+- Gold: a sparkle on `Body` while the cat's `Gold` attribute is true (the vfx-animator's Effects/Cats; sprite `CatCafe_VFX_ShinySparkle`).
+- Traps: colored Parts named `CatCafe_Alley_TrashBin`, `CatCafe_Alley_GarbageBags`, `CatCafe_Park_RescueTree`, `CatCafe_Park_TrashCan` with a `CatAnchor` attachment.
+- Areas 3 to 5: flat ground in a distinct palette color, walls, a gate Part named `CatCafe_<Area>_Gate`, spawn points and trap anchors.
+- Dealer: an R15 rig with a dark hooded shirt and a Part cart named `CatCafe_Street_DealerCart`.
+- Bait bowl: `CatCafe_Item_FoodBowl` at the plot's `BaitBowl` anchor.
+- Rich customer: a customer rig with a black top hat Part.
 
 ## 4. Interface contracts between threads
 
-- Ids and names: data-model section 1. Model names: `CatCafe_<Category>_<Name>` per the style guide. Cat id to model name is `CatCafe_Cat_` plus the id in PascalCase.
-- World attributes and tags: data-model section 13. The UI reads `CatId`, `CatName`, `Rarity` from the stray's ProximityPrompt; the engineer sets them when spawning.
-- Catalog: data-model sections 3, 6, 7 and 8 map one to one onto `CatDef`, `UpgradeDef`, `DecorDef` and `LureDef` in ui-contract. Designer requests to the UI thread: add `odds` to `LureDef` (must be visible before purchase), add `placeCat`, `unplaceCat` and `sellCat` intents on the Collection screen, add a carry indicator and a check-in prompt, add tutorial arrow and prompt hooks, and a P2 leaderboard panel.
-- Starting levels: `cafe_level` 1 and `espresso` 1 so their `costs[1]` is 0 and never offered.
-- Config and Catalog modules: data-model sections 6 to 9 and 17 give every field name. Nothing numeric lives in a Service.
-- Remotes: data-model section 15 is the list in `src/shared/Remotes.luau`. Reviewer checks each against the validation column.
-- Asset delivery: a cat is one Model with `Body`, `Head`, `Tail` MeshParts, PrimaryPart `Body`, pivot at the base, facing -Z (Roblox's LookVector, so CFrame.lookAt needs no flip), sized per the style guide. Furniture pivots per the style guide. Each asset lands in `assets/cat-cafe/rbx/` and shows up under `ReplicatedStorage.Assets` by name; the engineer clones by name.
+- Ids and names: data-model section 1. Model names: `CatCafe_<Category>_<Name>`.
+- World attributes and tags: data-model section 13.
+- Catalog: data-model sections 2, 3, 5, 5b, 6, 7, 8 and 8b. New or changed UI types: `CatDef.favoriteRole` and single `area`; `SpotDef.tier`; `TierDef`; `LureDef.source` and five-rarity `odds`; `Rarity` gains `Mythical` and drops `Secret`.
+- Remotes: data-model section 15. Reviewer checks each row.
+- Asset delivery: one Model per asset in `assets/cat-cafe/rbx/`, cats facing -Z (LookVector), pivot at the base, per the style guide.
 
-## 5. Asset list for the asset thread
+## 5. Asset list for the asset thread (v0.3 additions)
 
-Order is by when the engineer needs it. Placeholder stand-ins are in section 3.
+v0.2 assets stay. New, in the order the engineer needs them:
 
 | priority | asset | name | notes |
 |---|---|---|---|
-| 1 | Cat base rig, three pattern variants | `CatCafe_Cat_Tabby`, `CatCafe_Cat_Tuxedo`, `CatCafe_Cat_Void` | Proves the one-rig rule: stripes, patches, solid. Void gets glowing eyes (Neon) and sparkle |
-| 2 | Remaining slice cats | Ginger, Smoke, Snow, Calico, Siamese, Tortie, Bengal, Sphynx, Ragdoll | Sphynx is the one shape exception (no fur silhouette, bigger ears). Ragdoll is scaled 1.2 |
-| 3 | Counter with espresso machine (hero asset) | `CatCafe_Furniture_Counter`, `CatCafe_Furniture_EspressoMachine_L1`, `_L2`, `_L3` | One mesh per visible espresso level: base, chrome trim, double boiler. The engineer swaps the mesh by upgrade level |
-| 4 | Spots | `CatCafe_Furniture_Cushion`, `CatCafe_Furniture_WallShelf`, `CatCafe_Furniture_CatTree`, `CatCafe_Furniture_WindowSeat`, `CatCafe_Furniture_PatioBench` | One per spot type, each with a visible sit point |
-| 5 | Tables and chairs | `CatCafe_Furniture_TableRound`, `CatCafe_Furniture_Chair` | Six tables use the same pair |
-| 6 | Decor | `CatCafe_Decor_WindowPlants`, `CatCafe_Decor_Rug`, `CatCafe_Decor_NeonSign`, `CatCafe_Decor_FishTank` | Neon sign uses Neon material and a point light |
-| 7 | Alley set | `CatCafe_Alley_Dumpster`, `CatCafe_Alley_TrashCan`, `CatCafe_Alley_StreetLamp`, `CatCafe_Alley_Crate` | Spawn points sit beside these |
-| 8 | Items | `CatCafe_Item_FoodBowl`, `CatCafe_Item_FoodBowl_Premium`, `CatCafe_Item_Net` (3 levels, was Gloves), `CatCafe_Item_Kibble`, `CatCafe_Item_TunaCan`, `CatCafe_Item_Salmon` | Food models match lure ids kibble, tuna, salmon and sit in the bowl while a lure is active |
-| 8b | Rescue props | `CatCafe_Alley_StuckTree`, `CatCafe_Alley_StuckBox`, `CatCafe_Alley_Drainpipe` | A stuck cat pose per prop; the alley wall gets a Closed and Open sign |
-| 9 | Park set | `CatCafe_Park_Bench`, `CatCafe_Park_Tree`, `CatCafe_Park_Fountain`, `CatCafe_Park_Gate` | Gate stays closed until park_access |
-| 10 | Customers | `CatCafe_NPC_Customer_A`, `_B`, `_C` | Adult, kid, elder |
-| 11 | Poses and motion | cat idle bob, cat carried pose, cat flee dash | CFrame tweens on Head and Tail per the style guide; no skeleton in the slice |
-| 12 | VFX and audio | coin pop, catch sparkle, Legendary glow, purr loop, meow on catch, cafe ambience | Original or Roblox-provided audio only |
+| 1 | Role outfits on the seated body | `CatCafe_Accessory_Apron`, `CatCafe_Accessory_BaristaCap`, `CatCafe_Accessory_BowTie`, `CatCafe_Accessory_Vest`, `CatCafe_Accessory_Sash`, `CatCafe_Accessory_Boater`, `CatCafe_Accessory_PartyHat`, `CatCafe_Accessory_Cape` | Attach to the seated cat at its `Outfit_<Piece>` attachments; one set fits all 50 cats |
+| 2 | Eight new slice cats | Maine Coon, Midnight, Cream, Brownie, Blue, Persian, Blossom, Aurora | Data-model 3a and 3b art notes; Midnight and Aurora are the Mythical hero assets |
+| 3 | Gold sparkle VFX | `CatCafe_VFX_ShinySparkle` | Readable on a phone at 30 studs |
+| 4 | Alleyway traps | `CatCafe_Alley_TrashBin`, `CatCafe_Alley_GarbageBags` | Stuck pose per trap (head and paws poking out) |
+| 5 | Park traps | `CatCafe_Park_RescueTree` (with a shakeable branch), `CatCafe_Park_TrashCan` | Branch is its own part so it can wobble |
+| 6 | Role stations | `CatCafe_Furniture_GreeterPodium`, `CatCafe_Furniture_StageCatTree` | Barista sits at the counter, Waiter sits between tables |
+| 7 | Bait bowl by the door | reuse `CatCafe_Item_FoodBowl`, plus food models for the four dealer foods `CatCafe_Item_Sardines`, `_Caviar`, `_MoonMilk`, `_StarTreat` | Food sits in the bowl while waiting |
+| 8 | Night dealer | `CatCafe_NPC_Dealer`, `CatCafe_Street_DealerCart` | Mysterious but friendly: hood, lantern, star-patterned cart |
+| 9 | Rich customer | `CatCafe_NPC_Customer_Rich`, `CatCafe_Prop_TipPile` | Top hat; the tip pile is gold coins |
+| 10 | Area gates and grayboxes | `CatCafe_Park_Gate` (exists), `CatCafe_Neighbourhood_Gate`, `CatCafe_Woods_Gate`, `CatCafe_Sewer_Gate` | Sets for areas 3 to 5 come after the slice |
+| 11 | Cafe expansions | `CatCafe_Plot_Expansion1` to `4` | Floor and wall extensions, the patio at 3; v0.4: the expansions become the backyard patio between the cafe and the back alley |
 
-## 6. UI screens for the UI thread
+v0.4 additions (world-and-feel.md sections 2 to 5), in build order: 1) the cafe shell v2 (pitched or rounded roof with chimney, arched windows, recessed door, awning, trim, back door, glass street front, interior per the sketch) with a facade color per plot; 2) the For Rent dressing (shutters, dust sheets, sign, boxes, broom, sleeping doorstep cat pose); 3) tier dressing sets 1 to 5 (chalkboard, flower boxes, bistro tables, neon OPEN sign, string lights, fish tank, gold trim, rooftop sign, red carpet); 4) back alley and Alley Square dressing (dumpster corner, hop-on crates, fire escape with a ledge, laundry line, puddles, string lights, a mural of our cats, bench and lamp); 5) gates as arches with a see-through barrier and a sign board; 6) a manhole for the Sewer. Names are the asset thread's, following `CatCafe_<Category>_<Name>`.
 
-ui-contract already covers HUD, Upgrades, Decor, Collection, catch prompt, toasts, cat found, offline earnings. Additions the slice needs:
+Rescued cats no longer need the v0.2 tree, box and drainpipe props; the tree comes back as the Park rescue tree.
+
+## 6. UI screens for the UI thread (v0.3 additions)
 
 | screen or element | shows | actions | P |
 |---|---|---|---|
-| Collection: cat room tab | owned cats grouped by catId with count, placed or resting, spot name | Place (pick a free spot from a list), Remove, Sell with confirm for Rare and above | P0 |
-| Collection: book tab | all catalog cats, silhouettes with "?" for unfound, 7 / 12 count, rarity filter chips | tap for description, favorite spot, where it is found | P0 |
-| Lure strip | equipped food, count, odds for each food before buying | buy, equip | P1 |
-| Clock chip | sun or moon with a countdown to the next phase, Closed or Open on the cafe sign | none | P0 |
-| Rescue prompt | 4 s hold bar with no ring, "Rescuing..." | hold | P1 |
-| Carry indicator | small panel "Carrying Void. Walk home to check in" with an arrow to the door | none | P1 |
-| Tutorial prompts | arrow in the world and one-line prompt per step | dismiss on completion only | P1 |
-| Leaderboards | two boards, top 10, own rank | none | P2 |
-| Settings | music, sfx toggles | toggle | P2 |
+| Catch circles | 1 to 5 circles closing on rings at server positions, Perfect and Good bands sized from `windows`, a grade per circle, the final chance and result | press (tap anywhere or a key) | P0 |
+| Rank up card | current tier, next tier's name, each requirement ticked or not (coins, different cats, rarity), what it opens | Rank up | P0 |
+| Cat room roles (the Cats window since #358) | each cat's favorite role icon; Assign picks a free slot by role; working cats show their role | Assign, Remove, Equip Best, Sell, Rename | P0 |
+| Rescue minigame | bar with sliding marker and zone, paw lives, hit count; tree variant shakes then one catch circle | press, cancel | P1 |
+| Bait bowl | empty, waiting (countdown) or ready; ready card with the cat, rarity, stars, sparkle | put food in (food picker with odds), Tame, Let go | P1 |
+| Food cards | odds for five rarities and the per-cat split for the player's unlocked areas, shop or dealer source | buy | P1 |
+| Dealer screen | three slots with food, price, odds, bought state, a moon timer to dawn | buy | P1 |
+| Shove (v0.5, was Bump prompt; replaced by the Tackle, F74) | a Shove button and key shown only inside catching areas, aimed at the nearest player within 6 studs; toasts "You knocked it loose!", "It held on tight!", "You got shoved!" | press | P1 |
+| Rich tip | world marker over the tip pile, toast on collect or auto-collect | collect | P1 |
+| Clock chip | sun or moon, countdown, "Tips 60%" at night | none | P0 |
+| Gold | sparkle badge on cards and in the Index, a gold page with its own count | none | P1 |
+| Rename dialog | text box, 20 character limit, filtered result | save, cancel | P2 |
+| Fast travel | v0.4: Cafe, Alley and Areas buttons top centre; Areas opens five area cards, locked ones greyed with the tier they need; all greyed while carrying. As built since #358: the Areas panel shows only the areas the player's tier has opened, with "More open as you rank up." under them | travel | P0 |
+| Catch misses (v0.4, v0.5) | PERFECT, GOOD and MISS pops at the ring, a Miss ends the overlay with a small shake and the cat sprints off with "It got away! Chase it!", the Purrfect burst and "Charm +N"; no percentage and, from v0.5, no paw row | press | P0 |
+| v0.4 patterns | the rest of world-and-feel.md section 6: gate signs, goal tracker, reveal card, side menu with red dots, rate tags, area title cards, dealer restock list, shout-outs, tutorial trail, Index silhouettes | | P0 and P1 |
+
+As built by the UI thread (PR #358, Derek's live notes 2026-10-27 22:26 to 22:42), and these win over older wording in the design docs:
+
+- The Cats window and the Index are separate windows. **Cats** (the Cats pill and the C key) holds the crew strip and the cat inventory. The **Index** (window title "Collection", the Index pill) has only the Index and Decor tabs. There is no cat room tab inside the Collection.
+- The Areas panel lists only the areas the player's tier has opened, with "More open as you rank up." under them.
+- The bottom buttons have no cat ears, and My Cafe is the same size as the others.
+- Only a window's X closes it.
 
 ## 7. Reviewer focus
 
-In order: GrabBegin and GrabEnd (lock, distance, cooldown, ring bonus cap), SellCat and PlaceCat ownership checks, every purchase's affordability and gate check, profile session locking and migration, remote rate limits, no client-trusted time.
+In order: `CatchPress` judging (server clock, latency cap, order, first press only, schedule ownership, the CircleGapMin spec, the self-retry wait after a miss), `Bump` (every protection in data-model 10c, the bumper barred from the dropped stray, the owner window, no sprint for a dropped stray while that window runs, ShoveTargetImmuneSeconds per target, no shove from a lock holder, server tables over attributes, the off switch), `RankUp` requirement checks, `UseLure` rolling at placement and `ResolveBait` (no reroll by rejoin), dealer stock seeding and once-per-window buys, `RenameCat` filtering and failure path, `ClaimRichTip` and the expiry auto-credit (no double pay), the v2 to v3 migration and refunds, locked-area checks on every catch remote, then the v0.2 list (ownership on place and sell, affordability, session locking, rate limits).
 
-## 8. QA loop script (Phase 2 exit test)
+## 8. QA loop script (Phase 2 exit test, v0.3)
 
 Fresh account, phone-sized viewport, 10 minute limit.
 
-1. Join. Plot assigned, Tabby on the counter, HUD shows $50 and a positive rate within 5 s.
-2. Follow the arrow to the alley. A Common stray is there even by day. Hold to wind up the net, release in the band. Catch succeeds (retry is allowed for Commons). Night arrives by minute two with a full wave.
-3. Walk home at carry speed, check in at the door. Cat found popup, collection goes to 2 / 12.
-4. Place the new cat on window_1. Rate rises.
-5. Buy Table 1 at $100. A table appears, rate rises by 10%.
-6. Free play until minute 10. Expected: cafe level 2 bought, three cats placed, at least one more purchase.
-7. Leave for 5 minutes, rejoin. Offline popup shows about 25% of the rate times 300 s. Coins and cats match before leaving.
-8. Pass criteria: all steps complete under 10 minutes, no console errors, no blocker tickets from the reviewer.
+1. Join. Plot assigned, Tabby working as Barista in an apron, HUD shows $50 and a positive rate within 5 s.
+2. Hop in the cannon and fly to the Alleyway (F84). A Common stray is waiting just past the camp's way out, even by day. Start a catch: one slow circle. Good or Perfect catches it; a Miss costs one of its three paws and you try again after 5 s.
+3. Carry it into the camp, where it checks in. Cat found popup, Index shows 2 / 50.
+4. Assign the new cat as Waiter. It sits at its station in a bow tie and vest. Rate rises.
+5. Buy Table 1 at $150, then the bait bowl at $600 when affordable (data-model v0.13.6 prices), and put Kibble in. The countdown shows 10:00.
+6. First night by minute two: ten strays and at least one stuck cat (guaranteed per area). Rescue it with the bar.
+7. Free play until minute 10. Expected: three or four different cats, two roles filled, two tables, a bait cat on the way, the rank up card showing what Tier 2 still needs.
+8. Leave for 10 minutes, rejoin. Offline popup shows about 25% of the day rate times 600 s, and the bait cat is waiting at the bowl. Tame it.
+9. Pass criteria: steps 1 to 7 under 10 minutes, no console errors, no blocker tickets from the reviewer.
+
+Extra checks for v0.3: two-player shove test (shoves only inside areas, none mid-catch, the 8 s owner window, the shover barred and the 50% roll over 20 tries on a carrier), any mix of Good and Perfect always catches and a Miss always ends the attempt (v0.4), a missed cat sprints and can be retried without limit (v0.5), travel greyed while carrying, For Rent plots on a near-empty server, dealer stock identical after a rejoin or a server change in the same window, a rescue attempt that stops pressing ends at its deadline, Tier 2 reached in 10 to 20 minutes of normal play, the circle feel on a phone on mobile data. The reviewer's findings S23 to S31 and N28 to N30 (docs/reviews/2026-10-26-design-v0.3.md) belong in the test plan of the feature PR that builds them.
 
 ## 9. Post-slice backlog
 
-Scheduled by phase in [common-features.md](common-features.md). Unscheduled: Secret cats at night and in rain, Golden and Galaxy variants, merging three duplicates, Woods, Rooftops and Harbor, naming cats with text filtering, free decor placement, customer demand model, daily special customer, seasonal cats, prestige (Renovate), opt-in carry raids, trading, game passes and a cash product gated by PolicyService, friends list features.
+Scheduled by phase in [common-features.md](common-features.md). Unscheduled: content for Neighbourhood, Woods and Sewer (30 cats, traps, sets), role boosts for specific cats (Gavin, Q12), a dealer upgrade that improves his odds, a second bait bowl, patio and second floor content, cat toys, staff outfits, the daily special customer (Gavin, Q13: content ideas to expand the game), free decor placement, the customer demand model, seasonal cats, trading, game passes and a cash product gated by PolicyService, friends list features.

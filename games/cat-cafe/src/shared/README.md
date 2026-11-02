@@ -8,6 +8,7 @@ Types.luau          shared types: catalog defs, CatInstance, PlayerProfile v1, P
 Catalog.luau        rarities, cats, spots, upgrades, decor, lures, areas (data-model sections 2 to 9)
 Economy.luau        income per second, cafe multiplier, lazy settle(), offline gain, purchase gates
 Catching.luau       catch chance, ring result, rarity and cat picks from odds tables
+Bait.luau           bait bowl levels: odds moved up by the bowl's luck, waits by level (F82)
 ProfileSchema.luau  template(now) and migrate(raw, now)
 Signal.luau         tiny typed signal (no Wally dependency)
 Remotes.luau        the remote list; touches ReplicatedStorage only when folder()/event() are called

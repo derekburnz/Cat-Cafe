@@ -1,0 +1,940 @@
+--!strict
+-- Settings screen (UI plan 2026-10-27, wave 2; v2 the same day: volumes, screen shake and the like): a Sound and a
+-- Screen section, a row per setting with its icon, name and one line on what it does, like the settings lists of
+-- Pet Simulator 99 and Grow a Garden. Switch rows have a chunky ON or OFF switch; volume rows a slider with a
+-- percent and "−" and "+" buttons for gamepads and small steps. Opened from the gear in the HUD's top-right icon
+-- row. Rows, defaults and the shown value come from Components/SettingsList.
+--
+-- A tap fires callbacks.setSetting(key, value) at once. A slider follows the finger live (callbacks.changed, so
+-- Audio can follow) and fires setSetting once on release, and the "−" and "+" buttons after a short pause, since
+-- SetSetting is rate limited and only the last value matters (review N120). The saved value arrives back in
+-- state.settings through ProfileSync.
+--
+-- The Help section with its Report a bug row is gone (Derek 2026-11-01: "merge the feedback and bug report from old
+-- settings"): the HUD's Feedback tile opens the one Feedback window, which has the Bug, Stuck and Idea chips.
+--
+-- F72 (intro-cutscene.md section 4): the Screen section ends with the Tutorial button switch and a Replay tutorial
+-- button row (callbacks.replayTutorial). Both stay hidden until showTutorial(true), once the intro is live.
+-- F87 (easy-start.md section 4): a Feedback row tops the list (callbacks.openFeedback, the Feedback window's faces).
+-- F87 (easy-start.md section 3): the Screen section ends with a Show tips again row (callbacks.showTipsAgain), which brings back the context
+-- tips; its button reads "Done" for a moment after a press.
+-- F102 (trading.md sections 1 and 5): a Trading section at the end, hidden until showTrading(true) (TradeService
+-- runs): Trade requests with Everyone, Friends only and Off (callbacks.setTradeRequests, saved as
+-- settings.tradeRequests) and a Trades row that opens the last 20 trades (callbacks.openTrades).
+-- Testers (Derek's 10-28 to 10-30 notes: "reset character (wipe save) option for testing"): a Testers section at the
+-- end with one row, Reset my save, shown only while showTester(true) (the Player attribute Tester, which the server
+-- sets in Studio and for the game's owner). Its Reset button swaps the list for a confirm card; the card's Reset
+-- calls callbacks.resetSave once, and the row reads "Resetting your save..." with the button grey until the server
+-- kicks the player to rejoin, or after RESET_HOLD_SECONDS when it refused (its toast says why).
+
+local UserInputService = game:GetService("UserInputService")
+
+local Button = require(script.Parent.Parent.Components.Button)
+local Create = require(script.Parent.Parent.Components.Create)
+local Outline = require(script.Parent.Parent.Components.Outline)
+local Panel = require(script.Parent.Parent.Components.Panel)
+local Scale = require(script.Parent.Parent.Scale)
+local SettingsList = require(script.Parent.Parent.Components.SettingsList)
+local Sound = require(script.Parent.Parent.Components.Sound)
+local Theme = require(script.Parent.Parent.Theme)
+local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
+local Types = require(script.Parent.Parent.Types)
+
+export type Callbacks = {
+	setSetting: (key: string, value: boolean | number) -> (),
+	changed: (key: string, value: boolean | number) -> (), -- the shown value moved (a tap, a drag or the server)
+	close: () -> (),
+	replayTutorial: (() -> ())?, -- the Screen section's Replay tutorial row (F72); no row without it
+	showTipsAgain: (() -> ())?, -- the Screen section's Show tips again row (F87); no row without it
+	openFeedback: (() -> ())?, -- the Feedback row on top (F87 section 4); no row without it
+	-- F102: the Trading section; no section without both
+	setTradeRequests: ((mode: string) -> ())?, -- "everyone", "friends" or "off"
+	openTrades: (() -> ())?,
+	resetSave: (() -> ())?, -- the Testers section's Reset my save, after its confirm card; no section without it
+}
+
+export type Settings = {
+	frame: Frame,
+	render: (self: Settings, state: Types.PlayerState) -> (),
+	value: (self: Settings, key: string) -> boolean,
+	volume: (self: Settings, key: string) -> number,
+	set: (self: Settings, key: string, value: boolean | number) -> (),
+	showTutorial: (self: Settings, shown: boolean) -> (),
+	showTrading: (self: Settings, shown: boolean) -> (),
+	showTester: (self: Settings, shown: boolean) -> (),
+	cancelReset: (self: Settings) -> (),
+	destroy: (self: Settings) -> (),
+}
+
+local ROW_HEIGHT = 80
+local HEADER_HEIGHT = 26
+local TILE = 56
+local SWITCH = Vector2.new(108, 48)
+-- "−" and "+", small and side by side at the slider's right end, well clear of its knob (Derek 2026-10-27: they
+-- were too big and the knob ran into them)
+local STEP_BUTTON = Vector2.new(36, 32)
+-- on a touch screen each one's tap pad (Components/Button) is a finger wide, so they sit that far apart and a tap
+-- between them never lands on the wrong one
+local STEP_GAP = if Scale.isTouch()
+	then math.ceil(Scale.TAP / Scale.TOUCH_FLOOR) - STEP_BUTTON.X
+	else 6
+local STEPS_W = STEP_BUTTON.X * 2 + STEP_GAP
+local NUDGE = 0.1 -- what one "−" or "+" press moves a volume
+local NUDGE_PAUSE = 0.5 -- seconds after the last "−" or "+" before the volume is sent
+local KNOB = 28
+local SLIDER_Y = 54 -- the middle of a volume row's slider, in its card
+-- the band that takes presses and drags, taller than the track so the slider is easy to grab (a finger tall on a phone)
+local SLIDER_HIT = Scale.tapHeight(44)
+local SLIDER_RIGHT = 12 + STEPS_W + 14 -- the slider's band ends this far from the card's right edge
+local TEXT_LEFT = 12 + TILE + 12 -- a row's name and detail start right of its icon tile
+local TEXT_RIGHT = TEXT_LEFT + SWITCH.X + 24 -- and end left of its switch
+-- each row's icon tile colour, by setting key
+local TILE_COLORS: { [string]: Color3 } = {
+	music = Theme.colors.berry,
+	musicVolume = Theme.colors.berry,
+	sfx = Theme.colors.sky,
+	sfxVolume = Theme.colors.sky,
+	screenShake = Theme.colors.warn,
+	lowPerformance = Theme.colors.mintDark,
+	showOtherCats = Theme.colors.caramel,
+	markers = Theme.colors.good,
+	tutorialButton = Theme.colors.gold,
+	replayTutorial = Theme.colors.gold,
+	showTips = Theme.colors.sky,
+	feedback = Theme.colors.gold,
+	shopAlerts = Theme.colors.goldDark,
+	tradeRequests = Theme.colors.mintDark,
+	trades = Theme.colors.mintDark,
+	resetSave = Theme.colors.warn,
+}
+-- a volume row's switch: the slider greys while that switch is off
+local VOLUME_SWITCH: { [string]: string } = { musicVolume = "music", sfxVolume = "sfx" }
+-- button rows: a button where a switch row has its switch. The Screen section's last row (F72).
+type ButtonRow = { key: string, icon: string, name: string, detail: string, button: string }
+local REPLAY_ROW: ButtonRow = {
+	key = "replayTutorial",
+	icon = Theme.icons.replay,
+	name = "Replay tutorial",
+	detail = "The quick tour of the town again",
+	button = "Play",
+}
+local TIPS_ROW: ButtonRow = {
+	key = "showTips",
+	icon = "💡",
+	name = "Show tips again",
+	detail = "The one-line tips you have already seen",
+	button = "Show",
+}
+local FEEDBACK_ROW: ButtonRow = {
+	key = "feedback",
+	icon = Theme.icons.feedback,
+	name = "Feedback",
+	detail = "Tell us how the game is going",
+	button = "Open",
+}
+local TRADES_ROW: ButtonRow = {
+	key = "trades",
+	icon = "📜",
+	name = "Trades",
+	detail = "Your last 20 trades and who they were with",
+	button = "Open",
+}
+local RESET_ROW: ButtonRow = {
+	key = "resetSave",
+	icon = "🧪",
+	name = "Reset my save",
+	detail = "Start again as a brand new player",
+	button = "Reset",
+}
+local RESET_QUESTION = "Start over from a brand new save? Everything but game passes is lost."
+local RESET_WAIT = "Resetting your save..."
+local RESET_HOLD_SECONDS = 5 -- the server kicks at once; still here after this, it refused and toasted why
+local CONFIRM_W = 380 -- the reset confirm card's widest
+local TIPS_DONE_SECONDS = 2 -- the button reads "Done" this long after a press
+-- the rows hidden until the intro is live (F72)
+local TUTORIAL_ROWS = { SettingsList.TUTORIAL_KEY, REPLAY_ROW.key }
+
+local Settings = {}
+Settings.__index = Settings
+
+local function text(props: { [string]: any }): TextLabel
+	local merged: { [string]: any } = {
+		BackgroundTransparency = 1,
+		FontFace = Theme.fonts.body,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.modal.text,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Text = "",
+	}
+	for key, value in props do
+		merged[key] = value
+	end
+	return Create("TextLabel", merged)
+end
+
+local function isPress(input: InputObject): boolean
+	return input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch
+end
+
+function Settings.new(callbacks: Callbacks): Settings
+	local self = setmetatable({}, Settings) :: any
+	self._callbacks = callbacks
+	self._taps = {} :: { [string]: SettingsList.Tap }
+	self._shown = {} :: { [string]: boolean | number }
+	self._drag = {} :: { [string]: number } -- a volume being dragged or nudged, before it is sent
+	self._dragging = nil :: string? -- the slider under the finger
+	self._dragInput = nil :: InputObject? -- the press that started it; another finger cannot move it (N138)
+	self._nudges = {} :: { [string]: number } -- a token per volume, so only the last nudge sends
+	self._settings = nil :: { [string]: unknown }?
+	self._switches = {} :: { [string]: Button.Button }
+	self._sliders = {} :: { [string]: any }
+	self._buttons = {} :: { Button.Button }
+	self._cards = {} :: { [string]: Frame }
+	self._connections = {} :: { RBXScriptConnection }
+	self._alive = true
+
+	local panel = Panel.new({
+		name = "Settings",
+		title = "Settings",
+		subtitle = "Saved with your cafe",
+		color = Theme.colors.cocoa,
+		icon = Theme.icons.settings,
+		size = UDim2.fromScale(1, 1),
+		onClose = callbacks.close,
+	})
+	Create("UISizeConstraint", { MaxSize = Vector2.new(600, 520), Parent = panel.frame })
+	self._panel = panel
+	self.frame = panel.frame
+
+	local list: ScrollingFrame = Create("ScrollingFrame", {
+		Name = "List",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollBarThickness = 6,
+		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		Parent = panel.content,
+	}, {
+		Create("UIListLayout", {
+			Padding = UDim.new(0, Theme.sizes.gap + 2),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+		Create("UIPadding", {
+			PaddingTop = UDim.new(0, 4),
+			PaddingBottom = UDim.new(0, 6),
+			PaddingLeft = UDim.new(0, 2),
+			PaddingRight = UDim.new(0, 8),
+		}),
+	})
+	self._list = list
+
+	local order = 0
+	local openFeedback = callbacks.openFeedback
+	if openFeedback then
+		order += 1
+		self:_buildButtonRow(FEEDBACK_ROW, order, openFeedback)
+	end
+	for _, section in SettingsList.SECTIONS do
+		order += 1
+		text({
+			Name = section.title,
+			LayoutOrder = order,
+			Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textLarge,
+			TextColor3 = Theme.modal.subtext,
+			Text = section.title,
+			Parent = list,
+		})
+		for _, row in section.rows do
+			order += 1
+			self:_buildRow(row, order)
+		end
+		local replayTutorial = callbacks.replayTutorial
+		if section.title == "Screen" and replayTutorial then
+			order += 1
+			self:_buildButtonRow(REPLAY_ROW, order, replayTutorial)
+		end
+		local showTipsAgain = callbacks.showTipsAgain
+		if section.title == "Screen" and showTipsAgain then
+			order += 1
+			local button: Button.Button
+			button = self:_buildButtonRow(TIPS_ROW, order, function()
+				Sound.play("uiClick")
+				showTipsAgain()
+				button:setText("Done")
+				button:setEnabled(false)
+				task.delay(TIPS_DONE_SECONDS, function()
+					if self._alive then
+						button:setText(TIPS_ROW.button)
+						button:setEnabled(true)
+					end
+				end)
+			end)
+		end
+	end
+	local setTradeRequests = callbacks.setTradeRequests
+	local openTrades = callbacks.openTrades
+	if setTradeRequests and openTrades then
+		order = self:_buildTrading(order, setTradeRequests, openTrades)
+	end
+	local resetSave = callbacks.resetSave
+	if resetSave then
+		self:_buildTester(order + 1, panel.content, resetSave)
+	end
+	self:showTutorial(false)
+	self:showTrading(false)
+	self:showTester(false)
+
+	-- a drag keeps following the finger off the track, and ends wherever it lets go. A touch drag follows only
+	-- its own finger (the same InputObject); a mouse drag follows the mouse and ends on its button.
+	table.insert(
+		self._connections,
+		UserInputService.InputChanged:Connect(function(input: InputObject)
+			local key: string? = self._dragging
+			local started: InputObject? = self._dragInput
+			if not key or not started then
+				return
+			end
+			local follows = if started.UserInputType == Enum.UserInputType.Touch
+				then input == started
+				else input.UserInputType == Enum.UserInputType.MouseMovement
+			if follows then
+				self:_dragTo(key, input.Position.X)
+			end
+		end)
+	)
+	table.insert(
+		self._connections,
+		UserInputService.InputEnded:Connect(function(input: InputObject)
+			local key: string? = self._dragging
+			local started: InputObject? = self._dragInput
+			if not key or not started then
+				return
+			end
+			local ends = if started.UserInputType == Enum.UserInputType.Touch
+				then input == started
+				else input.UserInputType == started.UserInputType
+			if ends then
+				self._dragging = nil
+				self._dragInput = nil
+				list.ScrollingEnabled = true
+				self:_send(key)
+			end
+		end)
+	)
+	self:_refresh() -- defaults first: Low performance starts OFF
+
+	return self :: Settings
+end
+
+-- A row's card with its icon tile at the left.
+function Settings._buildCard(self: any, key: string, icon: string, order: number): Frame
+	local card: Frame = Create("Frame", {
+		Name = key,
+		BackgroundColor3 = Theme.modal.card,
+		BorderSizePixel = 0,
+		LayoutOrder = order,
+		Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
+		Parent = self._list,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+	})
+	self._cards[key] = card
+	local tile: Frame = Create("Frame", {
+		Name = "Icon",
+		BackgroundColor3 = TILE_COLORS[key] or Theme.colors.caramel,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 12, 0.5, 0),
+		Size = UDim2.fromOffset(TILE, TILE),
+		Parent = card,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+		text({
+			Name = "Glyph",
+			Size = UDim2.fromScale(1, 1),
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextSize = 30,
+			Text = icon,
+		}),
+	})
+	Outline.border(tile, 2)
+	Outline.shade(tile, 0.2)
+	return card
+end
+
+-- A switch or button row's name over its one-line detail, left of the switch.
+local function nameAndDetail(card: Frame, name: string, detail: string)
+	text({
+		Name = "Name",
+		Position = UDim2.fromOffset(TEXT_LEFT, 12),
+		Size = UDim2.new(1, -TEXT_RIGHT, 0, 28),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		Text = name,
+		Parent = card,
+	})
+	text({
+		Name = "Detail",
+		Position = UDim2.fromOffset(TEXT_LEFT, 42),
+		Size = UDim2.new(1, -TEXT_RIGHT, 0, 26),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.modal.subtext,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		Text = detail,
+		Parent = card,
+	})
+end
+
+function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
+	local card = self:_buildCard(row.key, row.icon, order)
+	local key = row.key
+	if row.kind == "volume" then
+		text({
+			Name = "Name",
+			Position = UDim2.fromOffset(TEXT_LEFT, 10),
+			Size = UDim2.new(1, -(TEXT_LEFT + SLIDER_RIGHT + 64), 0, 28),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textLarge,
+			Text = row.name,
+			Parent = card,
+		})
+		local percent = text({
+			Name = "Percent",
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -SLIDER_RIGHT, 0, 10),
+			Size = UDim2.fromOffset(60, 28),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textBody,
+			TextColor3 = Theme.modal.subtext,
+			TextXAlignment = Enum.TextXAlignment.Right,
+			Parent = card,
+		})
+		self:_buildSlider(card, key, percent)
+		local function nudge(delta: number)
+			self:_nudge(key, delta)
+		end
+		local minus = Button.new({
+			name = "Minus",
+			text = "−",
+			style = "secondary",
+			size = UDim2.fromOffset(STEP_BUTTON.X, STEP_BUTTON.Y),
+			anchorPoint = Vector2.new(1, 0.5),
+			position = UDim2.new(1, -(12 + STEP_BUTTON.X + STEP_GAP), 0, SLIDER_Y),
+			textSize = Theme.sizes.textBody + 2,
+			parent = card,
+			sound = false, -- the slider's tick is the sound
+			onClick = function()
+				nudge(-NUDGE)
+			end,
+		})
+		local plus = Button.new({
+			name = "Plus",
+			text = "+",
+			style = "secondary",
+			size = UDim2.fromOffset(STEP_BUTTON.X, STEP_BUTTON.Y),
+			anchorPoint = Vector2.new(1, 0.5),
+			position = UDim2.new(1, -12, 0, SLIDER_Y),
+			textSize = Theme.sizes.textBody + 2,
+			parent = card,
+			sound = false, -- the slider's tick is the sound
+			onClick = function()
+				nudge(NUDGE)
+			end,
+		})
+		table.insert(self._buttons, minus)
+		table.insert(self._buttons, plus)
+		self._sliders[key].minus = minus
+		self._sliders[key].plus = plus
+	else
+		nameAndDetail(card, row.name, row.detail)
+		local switch = Button.new({
+			name = "Switch",
+			text = "ON",
+			style = "primary",
+			size = UDim2.fromOffset(SWITCH.X, SWITCH.Y),
+			anchorPoint = Vector2.new(1, 0.5),
+			position = UDim2.new(1, -12, 0.5, -2),
+			textSize = Theme.sizes.textLarge,
+			parent = card,
+			sound = "uiToggle",
+			onClick = function()
+				self:_tap(key)
+			end,
+		})
+		self._switches[key] = switch
+		table.insert(self._buttons, switch)
+	end
+	self._shown[key] = SettingsList.default(key)
+end
+
+-- A button row (Report a bug, Replay tutorial): a row card like a switch row's, with a button where the switch
+-- would be.
+function Settings._buildButtonRow(
+	self: any,
+	row: ButtonRow,
+	order: number,
+	onClick: () -> ()
+): Button.Button
+	local card = self:_buildCard(row.key, row.icon, order)
+	nameAndDetail(card, row.name, row.detail)
+	local button = Button.new({
+		name = "Open",
+		text = row.button,
+		style = "secondary",
+		-- a phone's finger needs 44 real px; the row card has room for the taller button
+		size = UDim2.fromOffset(SWITCH.X, Scale.tapHeight(SWITCH.Y, Theme.sizes.buttonDepth)),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -12, 0.5, -2),
+		textSize = Theme.sizes.textLarge,
+		parent = card,
+		sound = false, -- the window's open swish, or the intro, is the sound
+		onClick = onClick,
+	})
+	table.insert(self._buttons, button)
+	return button
+end
+
+-- F102: the Trading header, the Trade requests card (three choices under its name) and the Trades row.
+function Settings._buildTrading(
+	self: any,
+	start: number,
+	setTradeRequests: (mode: string) -> (),
+	openTrades: () -> ()
+): number
+	local order = start + 1
+	self._tradingHeader = text({
+		Name = "Trading",
+		LayoutOrder = order,
+		Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = Theme.modal.subtext,
+		Text = "Trading",
+		Parent = self._list,
+	})
+	order += 1
+	local card = self:_buildCard("tradeRequests", TradeLogic.ICON, order)
+	local choiceH = Scale.tapHeight(44, Theme.sizes.buttonDepth)
+	card.Size = UDim2.new(1, 0, 0, 76 + choiceH + 12)
+	nameAndDetail(card, "Trade requests", "Who can ask you to trade")
+	local choices: Frame = Create("Frame", {
+		Name = "Choices",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(TEXT_LEFT, 76),
+		Size = UDim2.new(1, -(TEXT_LEFT + 12), 0, choiceH),
+		Parent = card,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._modeButtons = {} :: { [string]: Button.Button }
+	self._modeTap = nil :: TradeLogic.Tap?
+	for index, mode in TradeLogic.REQUEST_MODES do
+		local button = Button.new({
+			name = mode,
+			text = TradeLogic.modeLabel(mode),
+			style = "ghost",
+			size = UDim2.new(1 / 3, -4, 1, 0),
+			layoutOrder = index,
+			textSize = Theme.sizes.textBody,
+			parent = choices,
+			sound = "uiToggle",
+			onClick = function()
+				self._modeTap = { value = mode, at = os.clock() }
+				setTradeRequests(mode)
+				self:_refreshTrading()
+				self:_refreshLater()
+			end,
+		})
+		self._modeButtons[mode] = button
+		table.insert(self._buttons, button)
+	end
+	order += 1
+	self:_buildButtonRow(TRADES_ROW, order, openTrades)
+	self:_refreshTrading()
+	return order
+end
+
+-- The Trade requests choice: the pressed one in green, the others plain.
+function Settings._refreshTrading(self: any)
+	local buttons: { [string]: Button.Button }? = self._modeButtons
+	if buttons == nil then
+		return
+	end
+	local settings = self._settings
+	local saved = if settings then settings.tradeRequests else nil
+	local mode = TradeLogic.requestsMode(saved, self._modeTap, os.clock())
+	for key, button in buttons do
+		button:setStyle(if key == mode then "primary" else "ghost")
+	end
+end
+
+-- The Trading section, hidden until TradeService runs (F102).
+function Settings.showTrading(self: any, shown: boolean)
+	local header: TextLabel? = self._tradingHeader
+	if header then
+		header.Visible = shown
+	end
+	for _, key in { "tradeRequests", TRADES_ROW.key } do
+		local card: Frame? = self._cards[key]
+		if card then
+			card.Visible = shown
+		end
+	end
+end
+
+-- The Testers section: its header, the Reset my save row and the confirm card its Reset opens over the list.
+function Settings._buildTester(self: any, order: number, content: Instance, resetSave: () -> ())
+	self._testerHeader = text({
+		Name = "Testers",
+		LayoutOrder = order,
+		Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = Theme.modal.subtext,
+		Text = "Testers",
+		Parent = self._list,
+	})
+	local rowButton = self:_buildButtonRow(RESET_ROW, order + 1, function()
+		self:_askReset()
+	end)
+	rowButton:setStyle("danger")
+	self._resetButton = rowButton
+	self._resetting = false
+
+	-- the confirm card, centred where the list was (the list hides while it shows, so nothing under it takes a tap)
+	local buttonH = Scale.tapHeight(SWITCH.Y, Theme.sizes.buttonDepth)
+	local pad = 16
+	local questionH = 66 -- three lines of the question on a phone's narrow card
+	local cardH = pad + 28 + 6 + questionH + 12 + buttonH + pad
+	local card: Frame = Create("Frame", {
+		Name = "ResetConfirm",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, -24, 0, cardH),
+		BackgroundColor3 = Theme.modal.card,
+		BorderSizePixel = 0,
+		Visible = false,
+		Parent = content,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UISizeConstraint", { MaxSize = Vector2.new(CONFIRM_W, cardH) }),
+	})
+	Outline.border(card, 3)
+	self._resetConfirm = card
+	text({
+		Name = "Title",
+		Position = UDim2.fromOffset(pad, pad),
+		Size = UDim2.new(1, -pad * 2, 0, 28),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		Text = "Reset my save?",
+		Parent = card,
+	})
+	text({
+		Name = "Question",
+		Position = UDim2.fromOffset(pad, pad + 28 + 6),
+		Size = UDim2.new(1, -pad * 2, 0, questionH),
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		Text = RESET_QUESTION,
+		Parent = card,
+	})
+	local cancel = Button.new({
+		name = "Cancel",
+		text = "Cancel",
+		style = "secondary",
+		size = UDim2.new(0.5, -(pad + 4), 0, buttonH),
+		anchorPoint = Vector2.new(0, 1),
+		position = UDim2.new(0, pad, 1, -pad),
+		textSize = Theme.sizes.textLarge,
+		parent = card,
+		onClick = function()
+			self:cancelReset()
+		end,
+	})
+	local confirm = Button.new({
+		name = "Confirm",
+		text = "Reset",
+		style = "danger",
+		size = UDim2.new(0.5, -(pad + 4), 0, buttonH),
+		anchorPoint = Vector2.new(1, 1),
+		position = UDim2.new(1, -pad, 1, -pad),
+		textSize = Theme.sizes.textLarge,
+		parent = card,
+		onClick = function()
+			self:_confirmReset(resetSave)
+		end,
+	})
+	table.insert(self._buttons, cancel)
+	table.insert(self._buttons, confirm)
+end
+
+function Settings._askReset(self: any)
+	if self._resetting then
+		return
+	end
+	self._list.Visible = false
+	self._resetConfirm.Visible = true
+end
+
+-- The confirm card's Reset: sent once, then the row waits for the kick.
+function Settings._confirmReset(self: any, resetSave: () -> ())
+	self:cancelReset()
+	if self._resetting then
+		return
+	end
+	self._resetting = true
+	local button: Button.Button = self._resetButton
+	local detail = self._cards[RESET_ROW.key]:FindFirstChild("Detail") :: TextLabel
+	button:setEnabled(false)
+	detail.Text = RESET_WAIT
+	resetSave()
+	task.delay(RESET_HOLD_SECONDS, function()
+		if self._alive then
+			self._resetting = false
+			button:setEnabled(true)
+			detail.Text = RESET_ROW.detail
+		end
+	end)
+end
+
+-- Puts the list back in place of the confirm card (Cancel, Reset, the window closing or the row hiding).
+function Settings.cancelReset(self: any)
+	local card: Frame? = self._resetConfirm
+	if card then
+		card.Visible = false
+	end
+	self._list.Visible = true
+end
+
+-- The Testers section, shown while the Player attribute Tester is true.
+function Settings.showTester(self: any, shown: boolean)
+	local header: TextLabel? = self._testerHeader
+	if header then
+		header.Visible = shown
+	end
+	local card: Frame? = self._cards[RESET_ROW.key]
+	if card then
+		card.Visible = shown
+	end
+	if not shown then
+		self:cancelReset()
+	end
+end
+
+-- The bar under a volume row's name: the track with its fill and a round knob at its end, under a clear band
+-- SLIDER_HIT tall that takes the press anywhere along it, knob included, and the drag that follows.
+function Settings._buildSlider(self: any, card: Frame, key: string, percent: TextLabel)
+	local inset = TEXT_LEFT + KNOB / 2 -- the knob's centre at 0%
+	local track: Frame = Create("Frame", {
+		Name = "Track",
+		BackgroundColor3 = Theme.colors.line,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.fromOffset(inset, SLIDER_Y),
+		Size = UDim2.new(1, -(inset + SLIDER_RIGHT + KNOB / 2), 0, 14),
+		Parent = card,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(track, 2)
+	local fill: Frame = Create("Frame", {
+		Name = "Fill",
+		BackgroundColor3 = TILE_COLORS[key] or Theme.colors.good,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		Parent = track,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	local knob: Frame = Create("Frame", {
+		Name = "Knob",
+		BackgroundColor3 = Theme.colors.white,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(1, 0.5),
+		Size = UDim2.fromOffset(KNOB, KNOB),
+		ZIndex = 3,
+		Parent = track,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(knob, 3)
+	local hit: TextButton = Create("TextButton", {
+		Name = "Hit",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.fromOffset(TEXT_LEFT, SLIDER_Y),
+		Size = UDim2.new(1, -(TEXT_LEFT + SLIDER_RIGHT), 0, SLIDER_HIT),
+		ZIndex = 4,
+		Parent = card,
+	})
+	table.insert(
+		self._connections,
+		hit.InputBegan:Connect(function(input: InputObject)
+			if isPress(input) and self._dragging == nil then
+				self._dragging = key
+				self._dragInput = input
+				self._list.ScrollingEnabled = false -- a sideways drag must not scroll the list
+				self:_dragTo(key, input.Position.X)
+			end
+		end)
+	)
+	self._sliders[key] = { track = track, fill = fill, knob = knob, percent = percent }
+end
+
+function Settings._dragTo(self: any, key: string, x: number)
+	local track: Frame = self._sliders[key].track
+	local width = track.AbsoluteSize.X
+	if width <= 0 then
+		return
+	end
+	self:_setDrag(key, SettingsList.step((x - track.AbsolutePosition.X) / width))
+end
+
+-- A dragged or nudged volume: shown at once, with a tick on every 5% step (uiSlider plays on the sound
+-- channel, so it previews the new volume).
+function Settings._setDrag(self: any, key: string, volume: number)
+	if volume ~= self:volume(key) then
+		Sound.play("uiSlider")
+	end
+	self._drag[key] = volume
+	self:_refresh()
+end
+
+function Settings._nudge(self: any, key: string, delta: number)
+	self:_setDrag(key, SettingsList.step(self:volume(key) + delta))
+	local token = (self._nudges[key] or 0) + 1
+	self._nudges[key] = token
+	task.delay(NUDGE_PAUSE, function()
+		if self._alive and self._nudges[key] == token and self._dragging ~= key then
+			self:_send(key)
+		end
+	end)
+end
+
+-- Sends a dragged or nudged volume once, and holds it on screen until the server agrees.
+function Settings._send(self: any, key: string)
+	local value: number? = self._drag[key]
+	if value == nil then
+		return
+	end
+	self._drag[key] = nil
+	self._taps[key] = { value = value, at = os.clock() }
+	self._callbacks.setSetting(key, value)
+	self:_refresh()
+	self:_refreshLater()
+end
+
+function Settings._tap(self: any, key: string)
+	self:set(key, not self:value(key))
+end
+
+-- A choice made outside the screen (the Tutorial tile's ×): shown and sent as a tap would be.
+function Settings.set(self: any, key: string, value: boolean | number)
+	self._taps[key] = { value = value, at = os.clock() }
+	self._callbacks.setSetting(key, value)
+	self:_refresh()
+	self:_refreshLater()
+end
+
+-- The Tutorial button and Replay tutorial rows, hidden until the intro is live (F72).
+function Settings.showTutorial(self: any, shown: boolean)
+	for _, key in TUTORIAL_ROWS do
+		local card: Frame? = self._cards[key]
+		if card then
+			card.Visible = shown
+		end
+	end
+end
+
+-- after the hold, fall back to the saved value if the server never answered
+function Settings._refreshLater(self: any)
+	task.delay(SettingsList.HOLD_SECONDS + 0.1, function()
+		if self._alive then
+			self:_refresh()
+			self:_refreshTrading()
+		end
+	end)
+end
+
+function Settings._refresh(self: any)
+	local now = os.clock()
+	for _, row in SettingsList.ROWS do
+		local key = row.key
+		local shown: boolean | number = self._drag[key]
+			or SettingsList.shown(self._settings, self._taps, key, now)
+		if row.kind == "volume" then
+			local volume = if type(shown) == "number" then shown else 1
+			local slider = self._sliders[key]
+			slider.fill.Size = UDim2.fromScale(volume, 1)
+			slider.knob.Position = UDim2.fromScale(volume, 0.5)
+			slider.percent.Text = SettingsList.percent(volume)
+			slider.minus:setEnabled(volume > 0)
+			slider.plus:setEnabled(volume < 1)
+			local switchKey = VOLUME_SWITCH[key]
+			local muted = switchKey ~= nil and self:value(switchKey) == false
+			slider.fill.BackgroundColor3 = if muted
+				then Theme.colors.disabled
+				else TILE_COLORS[key] or Theme.colors.good
+		else
+			local on = shown == true
+			local switch: Button.Button = self._switches[key]
+			switch:setText(if on then "ON" else "OFF")
+			switch:setStyle(if on then "primary" else "danger")
+		end
+		local before = self._shown[key]
+		if before ~= shown then
+			self._shown[key] = shown
+			self._callbacks.changed(key, shown)
+		end
+	end
+end
+
+function Settings.render(self: any, state: Types.PlayerState)
+	self._settings = (state :: any).settings
+	self:_refresh()
+	self:_refreshTrading()
+end
+
+-- What a switch shows now (its default until the server or the player says otherwise).
+function Settings.value(self: any, key: string): boolean
+	local shown = self._shown[key]
+	if shown == nil then
+		return SettingsList.default(key) == true
+	end
+	return shown == true
+end
+
+-- What a volume shows now, 0 to 1 (live while it is dragged).
+function Settings.volume(self: any, key: string): number
+	local shown = self._shown[key]
+	return if type(shown) == "number" then shown else 1
+end
+
+function Settings.destroy(self: any)
+	self._alive = false
+	for _, connection in self._connections do
+		connection:Disconnect()
+	end
+	table.clear(self._connections)
+	for _, button: Button.Button in self._buttons do
+		button:destroy()
+	end
+	table.clear(self._buttons)
+	table.clear(self._switches)
+	self._panel:destroy()
+end
+
+return Settings

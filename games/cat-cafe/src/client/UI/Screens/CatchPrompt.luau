@@ -1,102 +1,65 @@
 --!strict
--- Grab prompt with the timing ring.
---   show(info)          "Hold [E] to grab" card at the bottom centre with the cat's name and rarity.
---   startRing(config)   the outer ring shrinks to the centre over the hold; call on hold begin.
---   stopRing()          shows "Perfect!" / "Good" / "Too early" from where the ring was and returns it.
---                       A hint only: the server scores the real time between GrabBegin and GrabEnd.
---   expire()            the hold ran its full length with no release: miss flash, then wait for the server.
---   startRescue(d)      rescue prompt (stuck cat, F21): a bar fills over the hold instead of the ring.
---   stopRescue(done)    done = true after the full hold ("Rescued!"); false resets the bar, there is no fail.
---   fail(reason)        red flash ("It got away"), then hide.
+-- Catch prompt card for strays and stuck cats.
+--   show(info)          "[E] Catch" card at the bottom centre with the cat's name and rarity (no stars, F97). v0.5: tries
+--                       are unlimited; while the cat sprints off after a miss (info.fleeingUntil) it reads "It's
+--                       running!", then "Catch your breath..." for the player who missed until info.retryAt, and
+--                       turns back to Catch when it can be tried. A cat knocked loose by a shove reads "Owner's
+--                       turn" for everyone else until info.ownerTurnUntil (reviewer N90). A dropped cat anyone can
+--                       pick up (kind "pickup", v0.8 F56) reads "Pick up" with no circles, and "It's walking home"
+--                       while it heads back to where it was caught (info.returning, v0.10 F67).
+--   waiting()           one press went to the server: "Get ready..." until the circles (CatchCircles) or the
+--                       rescue bar (RescueBar) come.
+--   fail(reason)        red flash ("It got away"), then hide; with retry the card stays.
 --   hide()
--- Band sizes come from shared Config (data-model section 10). The ring shrinks over GrabHoldSeconds and
--- the band is the end of the shrink: good = the last RingGoodWindow s (0.80), perfect = the last
--- RingPerfectWindow s (0.30). So a release 0.70 to 1.50 s into the hold is good, 1.20 to 1.50 s perfect.
--- On touch devices a big round GRAB button appears; holding it fires holdBegan / holdEnded.
+--   holdStart() / holdStop()   the player began or let go of the prompt's hold (PromptButtonHoldBegan/Ended):
+--                       the key cap and the CATCH button fill with gold over info.holdDuration, letting go drains
+--                       them (reviewer S52)
+-- 2026-10-27: a stray's prompt (F26) and a stuck cat's (F27) are held for HoldDuration (0.5 s), so a passing
+-- player never starts a catch by accident; the trigger asks the server for the closing circles or the rescue
+-- minigame. The key cap says HOLD under it.
+-- On touch devices a big round CATCH button appears; it drives the real prompt through holdBegan / holdEnded.
 -- bindProximityPrompts() in init.luau wires all of this to any ProximityPrompt with Style = Custom.
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
-local Shared = ReplicatedStorage:WaitForChild("Shared")
-local Config = require(Shared:WaitForChild("Config"))
 local Create = require(script.Parent.Parent.Components.Create)
-local Format = require(script.Parent.Parent.Components.Format)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
+local OWNER_TURN = "Owner's turn" -- a knocked-loose cat inside its old carrier's DropOwnerPrioritySeconds
+
 export type CatchPrompt = {
 	screenGui: ScreenGui,
 	holdBegan: Signal.Signal,
 	holdEnded: Signal.Signal,
 	show: (self: CatchPrompt, info: Types.CatchInfo) -> (),
-	startRing: (self: CatchPrompt, config: Types.RingConfig?) -> (),
-	stopRing: (self: CatchPrompt) -> Types.RingResult,
-	expire: (self: CatchPrompt) -> (),
-	startRescue: (self: CatchPrompt, duration: number?) -> (),
-	stopRescue: (self: CatchPrompt, completed: boolean) -> (),
-	isRescuing: (self: CatchPrompt) -> boolean,
-	isRinging: (self: CatchPrompt) -> boolean,
-	setProgress: (self: CatchPrompt, alpha: number) -> (),
 	fail: (self: CatchPrompt, reason: string?, retry: boolean?) -> (),
+	waiting: (self: CatchPrompt) -> (),
 	hide: (self: CatchPrompt) -> (),
 	isVisible: (self: CatchPrompt) -> boolean,
+	blockedText: (self: CatchPrompt) -> string?,
+	holdStart: (self: CatchPrompt) -> (),
+	holdStop: (self: CatchPrompt) -> (),
 	destroy: (self: CatchPrompt) -> (),
 }
 
-local RING_SIZE = 150 -- outer ring diameter at scale 1 (design px)
-local DEFAULT_DURATION: number = Config.GrabHoldSeconds
--- Bands as { min, max } of the ring's scale (1 = full size, 0 = collapsed). Both reach 0: the band is
--- the end of the shrink, so only an early release reads as a miss on the client.
-local DEFAULT_GOOD: { number } = { 0, Config.RingGoodWindow / Config.GrabHoldSeconds }
-local DEFAULT_PERFECT: { number } = { 0, Config.RingPerfectWindow / Config.GrabHoldSeconds }
--- data-model RescueHoldSeconds (4)
-local DEFAULT_RESCUE_HOLD: number = Config.RescueHoldSeconds
-
 local CatchPrompt = {}
 CatchPrompt.__index = CatchPrompt
-
-local function ring(
-	parent: Instance,
-	name: string,
-	diameter: number,
-	color: Color3,
-	thickness: number,
-	transparency: number?
-): Frame
-	return Create("Frame", {
-		Name = name,
-		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(diameter, diameter),
-		Parent = parent,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create(
-			"UIStroke",
-			{ Color = color, Thickness = thickness, Transparency = transparency or 0 }
-		),
-	})
-end
 
 function CatchPrompt.new(parent: Instance): CatchPrompt
 	local self = setmetatable({}, CatchPrompt) :: any
 	self.holdBegan = Signal.new()
 	self.holdEnded = Signal.new()
 	self._connections = {} :: { RBXScriptConnection }
-	self._ringConnection = nil :: RBXScriptConnection?
-	self._ringScale = 1
-	self._ringing = false
-	self._good = DEFAULT_GOOD
-	self._perfect = DEFAULT_PERFECT
 	self._failToken = 0
-	self._rescueConnection = nil :: RBXScriptConnection?
-	self._rescuing = false
 	self._kind = "swing" :: Types.PromptKind
+	self._fleeingUntil = nil :: number?
+	self._retryAt = nil :: number?
+	self._ownerTurnUntil = nil :: number?
+	self._holdDuration = 0
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeCatch",
@@ -114,114 +77,6 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		Parent = screenGui,
 	})
 	self._uiScale = Scale.bind(root)
-
-	-- Ring sits above the card, centred horizontally.
-	local ringHolder: Frame = Create("Frame", {
-		Name = "Ring",
-		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -236),
-		Size = UDim2.fromOffset(RING_SIZE + 8, RING_SIZE + 8),
-		Visible = false,
-		Parent = root,
-	})
-	self._ringHolder = ringHolder
-	-- target band: a translucent green disc (good), a gold disc inside it (perfect) with a crisp edge,
-	-- and a dark hole that only shows for a custom band that stops short of the centre
-	self._goodDisc = Create("Frame", {
-		Name = "GoodBand",
-		BackgroundColor3 = Theme.colors.good,
-		BackgroundTransparency = 0.6,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(RING_SIZE * DEFAULT_GOOD[2], RING_SIZE * DEFAULT_GOOD[2]),
-		ZIndex = 1,
-		Parent = ringHolder,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	self._perfectDisc = Create("Frame", {
-		Name = "PerfectBand",
-		BackgroundColor3 = Theme.colors.gold,
-		BackgroundTransparency = 0.55,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(RING_SIZE * DEFAULT_PERFECT[2], RING_SIZE * DEFAULT_PERFECT[2]),
-		ZIndex = 2,
-		Parent = ringHolder,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	self._goodHole = Create("Frame", {
-		Name = "GoodHole",
-		BackgroundColor3 = Theme.colors.cocoaDeep,
-		BackgroundTransparency = 0.35,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(0, 0),
-		Visible = false,
-		ZIndex = 2,
-		Parent = ringHolder,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	self._perfectRing =
-		ring(ringHolder, "PerfectRing", RING_SIZE * DEFAULT_PERFECT[2], Theme.colors.gold, 3)
-	self._perfectRing.ZIndex = 2
-	self._outerRing = ring(ringHolder, "OuterRing", RING_SIZE, Theme.colors.paper, 5)
-	self._outerRing.ZIndex = 3
-	self._centreText = Create("TextLabel", {
-		Name = "Result",
-		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(RING_SIZE, 40),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
-		TextColor3 = Theme.colors.paper,
-		TextStrokeTransparency = 0.4,
-		TextStrokeColor3 = Theme.colors.ink,
-		Text = "",
-		ZIndex = 4,
-		Parent = ringHolder,
-	})
-
-	-- Rescue bar: stands in for the ring on a rescue prompt (4 s hold, no band, no fail)
-	local rescueHolder: Frame = Create("Frame", {
-		Name = "Rescue",
-		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -236),
-		Size = UDim2.fromOffset(260, 56),
-		Visible = false,
-		Parent = root,
-	})
-	self._rescueHolder = rescueHolder
-	self._rescueText = Create("TextLabel", {
-		Name = "Label",
-		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 28),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
-		TextColor3 = Theme.colors.paper,
-		TextStrokeTransparency = 0.4,
-		TextStrokeColor3 = Theme.colors.ink,
-		Text = "Rescuing...",
-		Parent = rescueHolder,
-	})
-	local rescueTrack: Frame = Create("Frame", {
-		Name = "Track",
-		BackgroundColor3 = Theme.colors.cocoaDeep,
-		BackgroundTransparency = 0.35,
-		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(0, 36),
-		Size = UDim2.new(1, 0, 0, 18),
-		Parent = rescueHolder,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIStroke", { Color = Theme.colors.paper, Thickness = 2, Transparency = 0.3 }),
-	})
-	self._rescueFill = Create("Frame", {
-		Name = "Fill",
-		BackgroundColor3 = Theme.colors.mint,
-		BorderSizePixel = 0,
-		Size = UDim2.fromScale(0, 1),
-		Parent = rescueTrack,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 
 	-- Card
 	local card: Frame = Create("Frame", {
@@ -241,18 +96,50 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		),
 	})
 	self._card = card
-	self._keycap = Create("TextLabel", {
+	-- Key cap: a light key whose gold fill rises over the hold, with HOLD under it
+	local keyFrame: Frame = Create("Frame", {
 		Name = "Key",
 		BackgroundColor3 = Theme.colors.paper,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(14, 14),
+		ClipsDescendants = true,
+		Position = UDim2.fromOffset(14, 10),
 		Size = UDim2.fromOffset(40, 40),
+		Parent = card,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, 8) }) })
+	self._keyFrame = keyFrame
+	self._keyFill = Create("Frame", {
+		Name = "Fill",
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.fromScale(0, 1),
+		Size = UDim2.fromScale(1, 0),
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		ZIndex = 1,
+		Parent = keyFrame,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, 8) }) })
+	self._keycap = Create("TextLabel", {
+		Name = "Glyph",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 2,
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
 		TextColor3 = Theme.colors.ink,
 		Text = "E",
+		Parent = keyFrame,
+	})
+	self._holdTag = Create("TextLabel", {
+		Name = "Hold",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(10, 54),
+		Size = UDim2.fromOffset(48, 16),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.colors.gold,
+		Text = "HOLD",
+		Visible = false,
 		Parent = card,
-	}, { Create("UICorner", { CornerRadius = UDim.new(0, 8) }) })
+	})
 	self._action = Create("TextLabel", {
 		Name = "Action",
 		BackgroundTransparency = 1,
@@ -263,7 +150,7 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		TextColor3 = Theme.hud.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
-		Text = "Hold to swing",
+		Text = "Catch",
 		Parent = card,
 	})
 	self._catName = Create("TextLabel", {
@@ -305,23 +192,20 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = Theme.hud.subtext,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = "Let go when the ring hits the green band",
+		Text = "Hit each circle on its ring",
 		Parent = card,
 	})
 
-	-- Mobile SWING button (bottom right, above the lure slot); reads HOLD on a rescue prompt
+	-- Mobile CATCH button (bottom right, right of the Shove button); reads RESCUE on a stuck cat
 	local grab: TextButton = Create("TextButton", {
 		Name = "Grab",
-		Text = "SWING",
+		Text = "",
 		AutoButtonColor = false,
 		BackgroundColor3 = Theme.colors.good,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 1),
 		Position = UDim2.new(1, -28, 1, -100),
 		Size = UDim2.fromOffset(108, 108),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
-		TextColor3 = Theme.colors.goodText,
 		Visible = Scale.isTouch(),
 		Parent = root,
 	}, {
@@ -329,6 +213,28 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		Create("UIStroke", { Color = Theme.colors.goodDark, Thickness = 4 }),
 	})
 	self._grab = grab
+	-- a gold disc that grows from the centre over the hold, under the word
+	self._grabFill = Create("Frame", {
+		Name = "Fill",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0, 0),
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+		Parent = grab,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._grabLabel = Create("TextLabel", {
+		Name = "Label",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 3,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = Theme.colors.goodText,
+		Text = "CATCH",
+		Parent = grab,
+	})
 	local holding = false
 	table.insert(
 		self._connections,
@@ -354,7 +260,9 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 			then
 				if holding then
 					holding = false
-					grab.BackgroundColor3 = Theme.colors.good
+					grab.BackgroundColor3 = if self:blockedText()
+						then Theme.colors.disabled
+						else Theme.colors.good
 					self.holdEnded:Fire()
 				end
 			end
@@ -367,215 +275,102 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 	return self :: CatchPrompt
 end
 
+-- v0.5: why the cat cannot be grabbed yet, or nil when it can. "It's running!" while it sprints off after a miss
+-- (FleeingUntil still ahead); "Catch your breath..." for the player who missed, until the retryAt the server sent
+-- with CatchResult (F57: 3, 6, then 10 s after the stop by misses in a row; the server's own refusal for that wait is
+-- "Catch your breath, then try again").
+function CatchPrompt.blockedText(self: any): string?
+	local now = Workspace:GetServerTimeNow()
+	local fleeingUntil: number? = self._fleeingUntil
+	if fleeingUntil ~= nil and now < fleeingUntil then
+		return "It's running!"
+	end
+	local ownerTurnUntil: number? = self._ownerTurnUntil
+	if ownerTurnUntil ~= nil and now < ownerTurnUntil then
+		return OWNER_TURN
+	end
+	local retryAt: number? = self._retryAt
+	if retryAt ~= nil and now < retryAt then
+		return "Catch your breath..."
+	end
+	return nil
+end
+
+function CatchPrompt._actionText(self: any): string
+	if self._kind == "rescue" then
+		return "Rescue"
+	elseif self._kind == "pickup" then
+		return self:blockedText() or "Pick up"
+	end
+	return self:blockedText() or "Catch"
+end
+
+-- The resting look of the action line and the CATCH button: warn and grey while the cat runs.
+function CatchPrompt._paintIdle(self: any, actionText: string?)
+	local blocked = self:blockedText()
+	self._action.Text = blocked or actionText or self:_actionText()
+	self._action.TextColor3 = if blocked == "It's running!"
+		then Theme.colors.warn
+		elseif blocked then Theme.hud.subtext
+		else Theme.hud.text
+	self._grab.BackgroundColor3 = if blocked then Theme.colors.disabled else Theme.colors.good
+end
+
 function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._failToken += 1
 	local kind: Types.PromptKind = info.kind or "swing"
+	local rescue = kind == "rescue" -- a plain boolean: chained singleton tests confuse the type checker
+	local pickUp = kind == "pickup"
 	self._kind = kind
-	self._action.Text = info.actionText
-		or (if kind == "rescue" then "Hold to rescue" else "Hold to swing")
-	self._action.TextColor3 = Theme.hud.text
-	self._grab.Text = if kind == "rescue" then "HOLD" else "SWING"
-	self:_stopRescueLoop()
-	self._rescuing = false
-	self._rescueHolder.Visible = false
-	local nameText = info.catName or ""
-	if info.stars then
-		nameText = nameText .. "  " .. Format.stars(info.stars :: number)
-	end
-	self._catName.Text = nameText
+	self._fleeingUntil = if rescue then nil else info.fleeingUntil
+	self._retryAt = if rescue then nil else info.retryAt
+	self._ownerTurnUntil = if rescue then nil else info.ownerTurnUntil
+	self:_paintIdle(info.actionText)
+	self._grabLabel.Text = if rescue then "RESCUE" elseif pickUp then "PICK UP" else "CATCH"
+	self._holdDuration = info.holdDuration or 0
+	-- no charm stars after the name (F97 section 5: stars show nowhere now)
+	self._catName.Text = info.catName or ""
 	local rarity: string = info.rarity or "Common"
 	self._rarity.Text = rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
-	self._hint.Text = if kind == "rescue"
-		then "Hold still for 4 seconds. No swing, no miss."
-		elseif rarity == "Common" then "Let go in the green. Commons stay if you miss."
-		else "Let go in the green. It runs if you miss!"
+	local blocked = self:blockedText()
+	self._hint.Text = if rescue
+		then "Stop the marker in the zone. The cat never leaves if you miss."
+		elseif pickUp and info.returning then "It's walking home. Grab it before it gets there!"
+		elseif pickUp then "No circles. Hold to pick it up!"
+		elseif blocked == OWNER_TURN then "Its owner gets the first try"
+		elseif blocked then "Wait till it stops, then try again"
+		else "Hit each ring. Miss and it runs off!"
 	local key: Enum.KeyCode = info.keyCode or Enum.KeyCode.E
 	self._keycap.Text = key.Name
-	self._keycap.Visible = not Scale.isTouch()
+	self._keyFrame.Visible = not Scale.isTouch()
+	self._holdTag.Visible = self._holdDuration > 0 and not Scale.isTouch()
 	self._grab.Visible = Scale.isTouch()
-	self._outerRing.UIStroke.Color = Theme.rarityColor(rarity)
-	self._centreText.Text = ""
-	self._ringHolder.Visible = false
 	if not self.screenGui.Enabled then
 		self.screenGui.Enabled = true
 		Tween.popIn(self._card, 0.9)
 	end
-end
-
-function CatchPrompt._setRingScale(self: any, alpha: number)
-	self._ringScale = alpha
-	local size = RING_SIZE * alpha
-	self._outerRing.Size = UDim2.fromOffset(size, size)
-end
-
-function CatchPrompt.startRing(self: any, config: Types.RingConfig?)
-	self._failToken += 1 -- a new hold cancels the reset a pending retry fail would apply
-	local duration = (config and config.duration) or DEFAULT_DURATION
-	self._good = (config and config.goodBand) or DEFAULT_GOOD
-	self._perfect = (config and config.perfectBand) or DEFAULT_PERFECT
-	local goodMax = RING_SIZE * self._good[2]
-	local goodMin = RING_SIZE * self._good[1]
-	local perfectMax = RING_SIZE * self._perfect[2]
-	self._goodDisc.Size = UDim2.fromOffset(goodMax, goodMax)
-	self._perfectDisc.Size = UDim2.fromOffset(perfectMax, perfectMax)
-	self._perfectRing.Size = UDim2.fromOffset(perfectMax, perfectMax)
-	self._goodHole.Size = UDim2.fromOffset(goodMin, goodMin)
-	self._goodHole.Visible = goodMin > 0
-
-	self:_stopRingLoop()
-	self._ringing = true
-	self._centreText.Text = ""
-	self._ringHolder.Visible = true
-	self:_setRingScale(1)
-	local elapsed = 0
-	self._ringConnection = RunService.RenderStepped:Connect(function(dt: number)
-		elapsed += dt
-		local alpha = math.max(0, 1 - elapsed / duration)
-		self:_setRingScale(alpha)
-		if alpha <= 0 then
-			-- the ring collapsed: the hold ran its full length with no release
-			self:expire()
-		end
-	end)
-end
-
--- The hold ran its full length with no release. The client sends nothing (a GrabEnd now would score
--- as a 1.5 s release); the server resolves the attempt itself as a ring miss and still rolls the catch,
--- so flash the miss and wait for the controller's fail() or showCatFound.
-function CatchPrompt.expire(self: any)
-	self:_stopRingLoop()
-	self._ringing = false
-	self:_setRingScale(0)
-	self._centreText.Text = "Missed"
-	self._centreText.TextColor3 = Theme.colors.warn
-end
-
-function CatchPrompt._stopRingLoop(self: any)
-	local connection: RBXScriptConnection? = self._ringConnection
-	if connection then
-		connection:Disconnect()
-		self._ringConnection = nil
+	if blocked then
+		-- turn back to Catch the moment it may be tried, unless anything else changed the card first
+		local token = self._failToken
+		local ready =
+			math.max(self._fleeingUntil or 0, self._retryAt or 0, self._ownerTurnUntil or 0)
+		task.delay(ready - Workspace:GetServerTimeNow() + 0.05, function()
+			if self._failToken == token and self.screenGui.Enabled then
+				self:show(info)
+			end
+		end)
 	end
-end
-
-function CatchPrompt.isRinging(self: any): boolean
-	return self._ringing
-end
-
--- Called on hold release. Shows the word for where the ring was and returns it as a hint. The server
--- scores the real hold time, so this never decides anything.
-function CatchPrompt.stopRing(self: any): Types.RingResult
-	local wasRinging = self._ringing
-	self:_stopRingLoop()
-	self._ringing = false
-	if not wasRinging then
-		return "miss"
-	end
-	self._action.Text = "Swing!"
-	local alpha = self._ringScale
-	local result: Types.RingResult = "miss"
-	if alpha >= self._perfect[1] and alpha <= self._perfect[2] then
-		result = "perfect"
-	elseif alpha >= self._good[1] and alpha <= self._good[2] then
-		result = "good"
-	end
-	if result == "perfect" then
-		self._centreText.Text = "Perfect!"
-		self._centreText.TextColor3 = Theme.colors.gold
-	elseif result == "good" then
-		self._centreText.Text = "Good"
-		self._centreText.TextColor3 = Theme.colors.good
-	else
-		self._centreText.Text = if alpha > self._good[2] then "Too early" else "Too late"
-		self._centreText.TextColor3 = Theme.colors.warn
-	end
-	return result
-end
-
--- Rescue hold (F21, data-model section 10): the bar fills over the hold; releasing early only resets it.
-function CatchPrompt.startRescue(self: any, duration: number?)
-	local total: number = duration or DEFAULT_RESCUE_HOLD
-	self._failToken += 1 -- a new hold cancels the reset a pending retry fail would apply
-	self:_stopRingLoop()
-	self:_stopRescueLoop()
-	self._ringing = false
-	self._rescuing = true
-	self._ringHolder.Visible = false
-	self._rescueHolder.Visible = true
-	self._rescueText.Text = "Rescuing..."
-	self._rescueText.TextColor3 = Theme.colors.paper
-	self._rescueFill.Size = UDim2.fromScale(0, 1)
-	self._action.Text = "Keep holding"
-	self._action.TextColor3 = Theme.hud.text
-	local elapsed = 0
-	self._rescueConnection = RunService.Heartbeat:Connect(function(dt: number)
-		elapsed += dt
-		local alpha = math.clamp(elapsed / total, 0, 1)
-		self._rescueFill.Size = UDim2.fromScale(alpha, 1)
-		if alpha >= 1 then
-			self:_stopRescueLoop()
-		end
-	end)
-end
-
--- completed = true when the hold ran its full length (the controller then sends RescueEnd and the
--- server moves the player to carry). false is an early release: the bar resets, nothing else happens.
-function CatchPrompt.stopRescue(self: any, completed: boolean)
-	self:_stopRescueLoop()
-	self._rescuing = false
-	if completed then
-		self._rescueFill.Size = UDim2.fromScale(1, 1)
-		self._rescueText.Text = "Rescued!"
-		self._rescueText.TextColor3 = Theme.colors.mint
-		self._action.Text = "Rescued!"
-		self._action.TextColor3 = Theme.colors.good
-	else
-		self._rescueFill.Size = UDim2.fromScale(0, 1)
-		self._rescueHolder.Visible = false
-		self._action.Text = "Hold to rescue"
-		self._action.TextColor3 = Theme.hud.text
-	end
-end
-
-function CatchPrompt._stopRescueLoop(self: any)
-	local connection: RBXScriptConnection? = self._rescueConnection
-	if connection then
-		connection:Disconnect()
-		self._rescueConnection = nil
-	end
-end
-
-function CatchPrompt.isRescuing(self: any): boolean
-	return self._rescuing
-end
-
--- Plain progress fill for engineers who skip the ring (0..1 shrinks the outer ring).
-function CatchPrompt.setProgress(self: any, alpha: number)
-	self._ringHolder.Visible = true
-	self:_setRingScale(1 - math.clamp(alpha, 0, 1))
 end
 
 -- retry = true keeps the prompt open: Commons and lured strays, or a rescue the server turned down for
 -- now ("Someone else is rescuing it"). Otherwise the card flashes the reason and hides, which is what a
--- fleeing cat looks like. A fail during a rescue hold also stops and hides the rescue bar.
+-- fleeing cat looks like.
 function CatchPrompt.fail(self: any, reason: string?, retry: boolean?)
 	self._failToken += 1
 	local token = self._failToken
-	self:_stopRingLoop()
-	self:_stopRescueLoop()
-	self._ringing = false
-	self._rescuing = false
-	local rescue = self._kind == "rescue"
-	if rescue then
-		self._rescueFill.Size = UDim2.fromScale(0, 1)
-		self._rescueHolder.Visible = false
-	end
-	local fallback = if not retry
-		then "It got away"
-		elseif rescue then "Hold again to rescue it"
-		else "Missed, try again"
+	local fallback = if retry then "Missed, try again" else "It got away"
 	self._action.Text = reason or fallback
 	self._action.TextColor3 = Theme.colors.warn
 	task.delay(if retry then 1.4 else 0.9, function()
@@ -583,24 +378,44 @@ function CatchPrompt.fail(self: any, reason: string?, retry: boolean?)
 			return
 		end
 		if retry then
-			self._action.Text = if rescue then "Hold to rescue" else "Hold to swing"
-			self._action.TextColor3 = Theme.hud.text
-			self._centreText.Text = ""
-			self._ringHolder.Visible = false
+			self:_paintIdle(nil)
 		else
 			self:hide()
 		end
 	end)
 end
 
+-- The hold began: fill the key cap and the CATCH button over the prompt's HoldDuration.
+function CatchPrompt.holdStart(self: any)
+	local duration: number = self._holdDuration
+	if duration <= 0 or self:blockedText() then
+		return
+	end
+	local info = TweenInfo.new(duration, Enum.EasingStyle.Linear)
+	self._keyFill.Size = UDim2.fromScale(1, 0)
+	self._grabFill.Size = UDim2.fromScale(0, 0)
+	Tween.to(self._keyFill, info, { Size = UDim2.fromScale(1, 1) })
+	Tween.to(self._grabFill, info, { Size = UDim2.fromScale(1, 1) })
+end
+
+-- Let go before the hold finished, or the hold triggered: drain both fills.
+function CatchPrompt.holdStop(self: any)
+	Tween.to(self._keyFill, Tween.FAST, { Size = UDim2.fromScale(1, 0) })
+	Tween.to(self._grabFill, Tween.FAST, { Size = UDim2.fromScale(0, 0) })
+end
+
+-- The press went to the server; dim the card until the circles or the minigame come.
+function CatchPrompt.waiting(self: any)
+	self:holdStop()
+	self._failToken += 1
+	self._action.Text = if self._kind == "pickup" then "Picking up..." else "Get ready..."
+	self._action.TextColor3 = Theme.hud.subtext
+end
+
 function CatchPrompt.hide(self: any)
 	self._failToken += 1
-	self:_stopRingLoop()
-	self:_stopRescueLoop()
-	self._ringing = false
-	self._rescuing = false
-	self._ringHolder.Visible = false
-	self._rescueHolder.Visible = false
+	self._keyFill.Size = UDim2.fromScale(1, 0)
+	self._grabFill.Size = UDim2.fromScale(0, 0)
 	self.screenGui.Enabled = false
 end
 
@@ -609,8 +424,6 @@ function CatchPrompt.isVisible(self: any): boolean
 end
 
 function CatchPrompt.destroy(self: any)
-	self:_stopRingLoop()
-	self:_stopRescueLoop()
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end

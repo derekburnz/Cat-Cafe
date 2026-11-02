@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256"><defs><linearGradient id="bookG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A98BFF"/><stop offset="1" stop-color="#7A4FE6"/></linearGradient></defs>
+<g fill="#2A1C15" stroke="#2A1C15" stroke-width="22" stroke-linejoin="round" stroke-linecap="round"><rect x="66" y="46" width="150" height="186" rx="16"/><rect x="40" y="28" width="156" height="186" rx="18"/></g>
+<rect x="66" y="46" width="150" height="186" rx="16" fill="#FFF3DC"/>
+<g stroke="#E3C9A0" stroke-width="5"><line x1="196" y1="70" x2="196" y2="214"/><line x1="206" y1="74" x2="206" y2="210"/></g>
+<rect x="40" y="28" width="156" height="186" rx="18" fill="url(#bookG)"/>
+<rect x="40" y="28" width="34" height="186" rx="16" fill="#5E36C2"/>
+<line x1="74" y1="34" x2="74" y2="208" stroke="#2A1C15" stroke-width="6"/>
+<ellipse cx="118" cy="56" rx="46" ry="14" transform="rotate(-8 118 56)" fill="#fff" opacity="0.35"/>
+<g fill="#FFC94D" stroke="#2A1C15" stroke-width="6"><ellipse cx="128" cy="138" rx="28" ry="23"/><ellipse cx="96" cy="104" rx="11" ry="14" transform="rotate(-20 96 104)"/><ellipse cx="116" cy="88" rx="11" ry="14"/><ellipse cx="142" cy="88" rx="11" ry="14"/><ellipse cx="162" cy="104" rx="11" ry="14" transform="rotate(20 162 104)"/></g></svg>

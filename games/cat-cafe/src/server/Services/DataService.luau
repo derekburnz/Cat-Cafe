@@ -8,8 +8,11 @@ local PolicyService = game:GetService("PolicyService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
+local PassService = require(script.Parent.PassService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local ProfileStore = require(script.Parent.Parent.Vendor.ProfileStore)
 local Signal = require(ReplicatedStorage.Shared.Signal)
@@ -25,6 +28,7 @@ type Session = {
 	pendingOffline: number,
 	pendingOfflineSeconds: number,
 	policy: { [string]: any }?,
+	resetOnRelease: boolean?, -- a tester's Reset my save (ResetSaveService): a fresh save goes in at release
 }
 
 local DataService = {}
@@ -34,6 +38,7 @@ DataService.onReleasing = Signal.new() :: Signal.Signal<Player, Profile>
 
 local sessions: { [Player]: Session } = {}
 local finalizers: { (player: Player, profile: Profile) -> () } = {}
+local loaders: { (player: Player, profile: Profile) -> () } = {}
 -- Studio playtests get their own store, so "Enable Studio Access to API Services" never touches live profiles
 -- (DataStores are per experience, not per place).
 local storeName = Config.ProfileStoreName .. (if RunService:IsStudio() then "_dev" else "")
@@ -56,7 +61,7 @@ local function finalize(player: Player, session: Session)
 			warn("[DataService] finalizer failed:", err)
 		end
 	end
-	Economy.settle(profile, now)
+	Economy.settle(profile, now, ClockService.epoch())
 	if session.pendingOffline > 0 then
 		-- Offline earnings the player never claimed (popup dismissed, left early) are credited, not lost.
 		Economy.credit(profile, session.pendingOffline)
@@ -65,6 +70,7 @@ local function finalize(player: Player, session: Session)
 	end
 	profile.rateAtLogout = Economy.incomePerSecond(profile)
 	profile.lastSeen = now
+	Leaderboards.foldWeekPlay(profile, session.joinedAt, now) -- F98: this week's play time
 	profile.stats.playtimeSeconds += math.max(0, now - session.joinedAt)
 	session.store.Data = profile :: any
 end
@@ -81,12 +87,56 @@ local function load(player: Player)
 	end
 	profileStore:AddUserId(player.UserId)
 
+	-- A save written by newer code (a server still running the old version after an update): loading it here
+	-- would drop what this version does not know and save that, so leave it untouched and send the player to a
+	-- new server (reviewer S31).
+	if ProfileSchema.isNewerThanCode(profileStore.Data) then
+		warn(
+			string.format(
+				"[DataService] %d has a version %d save; this server runs version %d. Not loading it.",
+				player.UserId,
+				ProfileSchema.versionOf(profileStore.Data),
+				ProfileSchema.VERSION
+			)
+		)
+		profileStore:EndSession()
+		player:Kick("The game just updated, please rejoin.")
+		return
+	end
+
+	-- F95: the passes first, since Long Nap sets the offline rate and cap (rateAtLogout already has the Money pass)
+	local passes = PassService.check(player)
 	local now = os.time()
 	local profile = ProfileSchema.migrate(profileStore.Data, now)
-	local offline, offlineSeconds = Economy.offlineGain(profile.rateAtLogout, profile.lastSeen, now)
+	Economy.setPasses(profile, passes)
+	local offline, offlineSeconds =
+		Economy.offlineGain(profile.rateAtLogout, profile.lastSeen, now, passes.longNap)
 	profile.lastTick = now -- never credit the offline gap at the online rate
 	profile.stats.sessions += 1
 	profileStore.Data = profile :: any
+
+	-- F102: work that must land before anything can use the profile (a trade a stopped server still owes this player);
+	-- it may yield. A hook that errors ends the session (the save stays as it was loaded) and the player rejoins.
+	for _, fn in loaders do
+		local ok, err = pcall(function()
+			fn(player, profile)
+			return nil :: any
+		end)
+		if not ok then
+			warn("[DataService] load hook failed:", err)
+			profileStore:EndSession()
+			if player.Parent == Players then
+				player:Kick("Your cats are still settling in. Please rejoin in a minute.")
+			end
+			return
+		end
+	end
+	if not profileStore:IsActive() then
+		if player.Parent == Players then
+			player:Kick("Your data session ended. Please rejoin.")
+		end
+		return
+	end
 
 	local session: Session = {
 		profile = profile,
@@ -137,6 +187,10 @@ local function release(player: Player)
 	if not ok then
 		warn("[DataService] finalize failed:", err)
 	end
+	if session.resetOnRelease then
+		-- after the leave hooks, so nothing they save (a carried cat, a tip) lands in the fresh save
+		session.store.Data = ProfileSchema.template(os.time()) :: any
+	end
 	sessions[player] = nil
 	session.store:EndSession()
 end
@@ -184,6 +238,56 @@ function DataService.beforeRelease(fn: (player: Player, profile: Profile) -> ())
 	table.insert(finalizers, fn)
 end
 
+-- F102: `fn` runs on each profile as it loads, after the migration and before DataService.get answers or onLoaded
+-- fires, so nothing can use the profile first. It may yield (DataStore reads); an error ends the session and kicks
+-- the player to rejoin, leaving the save as it was loaded.
+function DataService.onLoading(fn: (player: Player, profile: Profile) -> ())
+	table.insert(loaders, fn)
+end
+
+-- Saves the player's profile now (in the background; ProfileStore retries). Nothing for a player without a session.
+function DataService.save(player: Player)
+	local session = sessions[player]
+	if session ~= nil then
+		session.store:Save()
+	end
+end
+
+-- F102: calls `fn` once, after the first save of the player's profile whose saved data passes `check` (this save or
+-- a later one, the last save on leave included). False when the player has no session.
+function DataService.whenSaved(player: Player, check: (data: any) -> boolean, fn: () -> ()): boolean
+	local session = sessions[player]
+	if session == nil then
+		return false
+	end
+	local done = false
+	local connection: any = nil
+	connection = session.store.OnAfterSave:Connect(function(data: any)
+		if not done and check(data) then
+			done = true
+			local held: any = connection
+			held:Disconnect()
+			task.spawn(fn)
+		end
+	end)
+	return true
+end
+
+-- A tester's Reset my save (ResetSaveService): when this player's session ends, a fresh save is stored in place of
+-- theirs, after every beforeRelease hook has run on the old one. Nothing happens for a player without a session.
+function DataService.resetOnLeave(player: Player)
+	local session = sessions[player]
+	if session ~= nil then
+		session.resetOnRelease = true
+	end
+end
+
+-- os.time() the player's session began (F98: the leaderboards add the time since to the saved play time), or nil.
+function DataService.joinedAt(player: Player): number?
+	local session = sessions[player]
+	return if session ~= nil then session.joinedAt else nil
+end
+
 function DataService.takePendingOffline(player: Player): (number, number)
 	local session = sessions[player]
 	if session == nil then
@@ -201,6 +305,26 @@ function DataService.peekPendingOffline(player: Player): (number, number)
 		return 0, 0
 	end
 	return session.pendingOffline, session.pendingOfflineSeconds
+end
+
+-- Studio test hook (Debug.setLastSeen): pretend the player was away `seconds` before this session started, at
+-- their current day rate. Replaces any unclaimed offline earnings. Returns the amount.
+function DataService.debugSetAway(player: Player, seconds: number): number
+	local session = sessions[player]
+	if session == nil then
+		return 0
+	end
+	local now = os.time()
+	local profile = session.profile
+	local amount, counted = Economy.offlineGain(
+		Economy.incomePerSecond(profile),
+		now - seconds,
+		now,
+		Economy.passes(profile).longNap
+	)
+	session.pendingOffline = amount
+	session.pendingOfflineSeconds = counted
+	return amount
 end
 
 function DataService.policy(player: Player): { [string]: any }?

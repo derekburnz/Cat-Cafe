@@ -1,11 +1,14 @@
 --!strict
--- Hands each loaded player a plot on the street and frees it when they leave. The sign above an owned cafe
--- follows the clock: open by day, Closed at night (features F20).
+-- Hands each loaded player a plot on the street and frees it when they leave. The sign above an owned cafe shows
+-- its tier and tips, behind a moon at night: cafes keep earning after dark (common-features note 1, reviewer S41).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local CafeName = require(ReplicatedStorage.Shared.CafeName)
 local ClockService = require(script.Parent.ClockService)
+local LawnBuilder = require(script.Parent.Parent.World.LawnBuilder)
+local Net = require(script.Parent.Net)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -14,10 +17,16 @@ local PlotService = {}
 local world: WorldBuilder.World? = nil
 local owners: { [number]: Player } = {} -- plot index -> player
 local plotOf: { [Player]: WorldBuilder.Plot } = {}
+local infoLine: { [Player]: string } = {} -- the sign's second line: tier name and tips per second
+local MOON = "🌙" -- the same night mark as the UI's CafeSigns
 
 local function signText(player: Player, phase: Types.ClockPhase): string
-	local name = player.DisplayName .. "'s Cafe"
-	return if phase == "night" then name .. "\nClosed" else name
+	local name = CafeName.title(player.DisplayName)
+	local line = infoLine[player]
+	if line == nil then
+		return name
+	end
+	return name .. "\n" .. (if phase == "night" then MOON .. " " .. line else line)
 end
 
 function PlotService.start(builtWorld: WorldBuilder.World)
@@ -26,6 +35,7 @@ function PlotService.start(builtWorld: WorldBuilder.World)
 	ClockService.changed:Connect(function(phase: Types.ClockPhase)
 		for player, plot in plotOf do
 			plot.sign.Text = signText(player, phase)
+			WorldBuilder.setClosedSign(plot, phase == "night") -- the cafe closes at night (F44)
 		end
 	end)
 end
@@ -45,7 +55,12 @@ function PlotService.assign(player: Player): WorldBuilder.Plot?
 			owners[plot.index] = player
 			plotOf[player] = plot
 			plot.model:SetAttribute("OwnerUserId", player.UserId)
+			-- capped, so the UI's sign (CafeSigns: headshot and "<OwnerName>'s Cafe") fits a long name too
+			plot.model:SetAttribute("OwnerName", CafeName.shown(player.DisplayName))
 			plot.sign.Text = signText(player, ClockService.phase())
+			WorldBuilder.setClosedSign(plot, ClockService.phase() == "night")
+			-- every client hears the shutters roll up and sees the shop open, at the shop front (F38)
+			Net.fireAll("PlotOpened", plot.door.Position, plot.index)
 			return plot
 		end
 	end
@@ -60,15 +75,65 @@ function PlotService.release(player: Player)
 	end
 	plotOf[player] = nil
 	owners[plot.index] = nil
+	infoLine[player] = nil
 	plot.model:SetAttribute("OwnerUserId", 0)
+	plot.model:SetAttribute("OwnerName", "")
+	plot.model:SetAttribute("Tier", 0)
+	plot.model:SetAttribute("TierName", "")
+	plot.model:SetAttribute("Rate", 0)
 	plot.sign.Text = "Cafe for rent"
 	plot.cats:ClearAllChildren()
-	plot.decor:ClearAllChildren()
+	plot.decor:ClearAllChildren() -- the door set and cat flap models too (F80)
+	plot.model:SetAttribute("Door", nil)
+	plot.model:SetAttribute("CatFlap", nil)
 	plot.tables:ClearAllChildren()
-	local espresso = plot.model:FindFirstChild("Espresso")
-	if espresso ~= nil then
-		espresso:Destroy()
+	plot.bait:ClearAllChildren()
+	plot.model:SetAttribute("BaitReadyAt", 0)
+	LawnBuilder.clear(plot) -- F91: the owner's lawn pieces, path and fence go with them
+	-- RichTipService has already missed any open tip (unclaimed tips are never paid); the marker and its outcome
+	-- must not outlive the owner (review N232)
+	plot.model:SetAttribute("RichTipOutcome", nil)
+	plot.model:SetAttribute("RichTipAmount", 0)
+	plot.model:SetAttribute("RichTipExpiresAt", 0)
+	-- TipPileService has already dropped any waiting piles, unpaid (F61)
+	plot.model:SetAttribute("TipPiles", 0)
+	plot.model:SetAttribute("TipPilesAmount", 0)
+	-- MysteryService has already ended any visit (an unopened gift is gone with its owner, F64)
+	plot.model:SetAttribute("MysteryVisitorUntil", 0)
+	plot.model:SetAttribute("MysteryGiftAt", 0)
+	plot.model:SetAttribute("MysteryTable", 0)
+	-- CollectorService has already ended any Cat Collector visit, nothing traded (F63)
+	plot.model:SetAttribute("CollectorUntil", 0)
+	plot.model:SetAttribute("CollectorCatId", "")
+	local anchor = plot.model:FindFirstChild("MysteryGiftAnchor")
+	if anchor ~= nil then
+		anchor:Destroy()
 	end
+	for _, name in { "Espresso", "LuckyCat" } do
+		local owned = plot.model:FindFirstChild(name)
+		if owned ~= nil then
+			owned:Destroy()
+		end
+	end
+	for _, expansion in plot.expansions do
+		WorldBuilder.setExpansionOpen(expansion, false)
+	end
+	WorldBuilder.setBackDoorOpen(plot, false)
+	WorldBuilder.setDressing(plot, 0)
+	WorldBuilder.setClosedSign(plot, false)
+end
+
+-- What the street sees of an owned cafe (F36 name sign, F37 rate tags): the plot's TierName and Rate (tips per
+-- second) attributes and the sign's second line. CafeService calls it on every sync.
+function PlotService.setShowcase(player: Player, tierName: string, rate: number, line: string)
+	local plot = plotOf[player]
+	if plot == nil then
+		return
+	end
+	plot.model:SetAttribute("TierName", tierName)
+	plot.model:SetAttribute("Rate", rate)
+	infoLine[player] = line
+	plot.sign.Text = signText(player, ClockService.phase())
 end
 
 function PlotService.get(player: Player): WorldBuilder.Plot?

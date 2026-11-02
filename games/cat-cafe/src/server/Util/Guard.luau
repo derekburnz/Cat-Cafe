@@ -7,12 +7,14 @@ local Config = require(ReplicatedStorage.Shared.Config)
 
 local Guard = {}
 
--- A catalog id or instance id: short, lowercase letters, digits and underscores only.
+-- A catalog id or instance id: short, lowercase letters, digits, underscores and hyphens only. Cat uids are the
+-- first 12 characters of a lowercased GUID ("fa3848f6-e97", CafeService newUid), so the hyphen has to pass or no
+-- caught cat can be placed, sold or renamed (laptop Studio run 2026-10-27).
 function Guard.id(value: unknown): string?
 	if type(value) ~= "string" or #value == 0 or #value > Config.MaxIdLength then
 		return nil
 	end
-	if value:match("^[%l%d_]+$") == nil then
+	if value:match("^[%l%d_%-]+$") == nil then
 		return nil
 	end
 	return value

@@ -8,6 +8,11 @@ local Types = require(script.Parent.Types)
 
 local Clock = {}
 
+-- v0.9 (F66): what Travel, a catch, a rescue and a shove answer while the catching areas are closed at night, and
+-- the toast for the sweep home. The dusk and sunrise banners are the client's, from the Clock attributes.
+Clock.CLOSED_TEXT = "The areas are closed at night. They open at sunrise."
+Clock.SENT_HOME_TEXT = "Night fell, so you headed home."
+
 -- The phase at time t and how many seconds of it are left.
 function Clock.phaseAt(t: number): (Types.ClockPhase, number)
 	local time = math.max(0, t)
@@ -20,6 +25,53 @@ function Clock.phaseAt(t: number): (Types.ClockPhase, number)
 		return "night", Config.NightLengthSeconds - into
 	end
 	return "day", cycle - into
+end
+
+-- Seconds of night between clock times t0 and t1 (t0 <= t1), for settling income across phase boundaries
+-- (data-model section 11). The first stretch of day before the first night counts as day.
+function Clock.nightSecondsBetween(t0: number, t1: number): number
+	local function nightBefore(t: number): number
+		local time = math.max(0, t - Config.ServerStartDaySeconds)
+		local cycle = Config.NightLengthSeconds + Config.DayLengthSeconds
+		local full = math.floor(time / cycle)
+		return full * Config.NightLengthSeconds
+			+ math.min(time - full * cycle, Config.NightLengthSeconds)
+	end
+	if t1 <= t0 then
+		return 0
+	end
+	return nightBefore(t1) - nightBefore(t0)
+end
+
+-- F88 (luck-and-rare-moments.md 1c): the number of the day at time t, counting the server's first day as 1; at night
+-- it is the day that just ended.
+function Clock.dayAt(t: number): number
+	local time = math.max(0, t)
+	if time < Config.ServerStartDaySeconds + Config.NightLengthSeconds then
+		return 1
+	end
+	local cycle = Config.NightLengthSeconds + Config.DayLengthSeconds
+	return 2 + math.floor((time - Config.ServerStartDaySeconds - Config.NightLengthSeconds) / cycle)
+end
+
+-- Seconds since the server started at which day `day` begins: 0 for the first, a sunrise for every later one.
+function Clock.sunriseOf(day: number): number
+	if day <= 1 then
+		return 0
+	end
+	local cycle = Config.NightLengthSeconds + Config.DayLengthSeconds
+	return Config.ServerStartDaySeconds + Config.NightLengthSeconds + (math.floor(day) - 2) * cycle
+end
+
+-- Every LuckyDayEvery-th day of a server is a Lucky Day: days 4, 8, 12 and on.
+function Clock.isLuckyDay(day: number): boolean
+	return day >= 1 and day % Config.LuckyDayEvery == 0
+end
+
+-- The next Lucky Day after `day` (the one after this one when `day` is a Lucky Day).
+function Clock.nextLuckyDay(day: number): number
+	local every = Config.LuckyDayEvery
+	return (math.floor(math.max(day, 0) / every) + 1) * every
 end
 
 -- Seconds since the server started at which a phase begins its first full run (used to jump the clock).

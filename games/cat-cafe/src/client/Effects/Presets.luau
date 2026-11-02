@@ -1,0 +1,3012 @@
+--!strict
+-- Every number Effects tunes, in one place (animation-vfx skill sections 6 and 7). Tune in Studio through MCP,
+-- then copy the numbers here. Pure data: no services, so a spec can require it.
+
+local Presets = {}
+
+export type Tier = "low" | "high"
+
+-- Swatches from the style guide palette (docs/art/style-guide.md section 2). Effects use nothing else.
+Presets.palette = {
+	cream = Color3.fromRGB(246, 235, 221), -- 0 cream
+	mint = Color3.fromRGB(143, 211, 193), -- 3 mint
+	blush = Color3.fromRGB(232, 160, 160), -- 4 blush
+	offwhite = Color3.fromRGB(255, 249, 242), -- 5 offwhite
+	lampWarm = Color3.fromRGB(255, 217, 168), -- 6 lamp_warm
+	furGrey = Color3.fromRGB(142, 150, 163), -- 12 fur_grey
+	golden = Color3.fromRGB(242, 193, 78), -- 15 fur_golden
+	eyeBlue = Color3.fromRGB(95, 168, 255), -- 18 eye_blue
+	nosePink = Color3.fromRGB(224, 122, 140), -- 19 nose_pink
+	leaf = Color3.fromRGB(95, 184, 90), -- 47 leaf_green
+	fishBlue = Color3.fromRGB(110, 193, 255), -- 42 fish_blue
+	fishBelly = Color3.fromRGB(221, 242, 255), -- 43 fish_belly
+	milk = Color3.fromRGB(255, 255, 255), -- 46 milk
+	neonPink = Color3.fromRGB(255, 107, 129), -- 53 neon_pink
+	sparkle = Color3.fromRGB(255, 244, 176), -- 54 sparkle
+	aurora = Color3.fromRGB(142, 124, 240), -- 58 aurora_violet
+	shirtBlue = Color3.fromRGB(60, 125, 217), -- 35 shirt_blue
+	shirtRed = Color3.fromRGB(217, 72, 59), -- 36 shirt_red
+	signTeal = Color3.fromRGB(31, 165, 143), -- 51 sign_teal
+	galaxyBlue = Color3.fromRGB(59, 76, 140), -- 55 galaxy_blue
+	goldLight = Color3.fromRGB(251, 228, 154), -- 61 gold_light
+	goldDark = Color3.fromRGB(201, 143, 42), -- 63 gold_dark (62 gold_mid is fur_golden, `golden`)
+	furRose = Color3.fromRGB(242, 191, 203), -- 69 fur_rose
+	pastelSky = Color3.fromRGB(168, 216, 240), -- 94 pastel_sky
+}
+
+-- Rarity swatches 20 to 23 and 56, the same hex values as Catalog.rarities.
+Presets.rarity = {
+	Common = Color3.fromRGB(142, 151, 178),
+	Rare = Color3.fromRGB(95, 168, 255),
+	Epic = Color3.fromRGB(192, 124, 255),
+	Legendary = Color3.fromRGB(255, 201, 77),
+	Mythical = Color3.fromRGB(255, 94, 126),
+} :: { [string]: Color3 }
+
+-- Roblox's own particle textures ship with the engine, so they need no upload and no permission. Our sprites in
+-- assets/cat-cafe/vfx/ replace them once Derek uploads them: put the rbxassetid:// here and leave the rest alone.
+Presets.textures = {
+	sparkle = "rbxasset://textures/particles/sparkles_main.dds",
+	smoke = "rbxasset://textures/particles/smoke_main.dds",
+	goldSparkle = "", -- the sparkle sprite CatCafe_VFX_ShinySparkle.png (asset thread, PR #46) once uploaded
+}
+
+export type Budget = {
+	animatedCats: number, -- cats whose head, tail and paws move at once
+	animRadius: number, -- studs from the player within which a cat can move
+	animHz: number, -- pose updates per second
+	steadyEmitters: number, -- steam, chimney smoke and fireflies on at once
+	rateScale: number, -- multiplies every steady emitter's rate
+	goldEmitters: number, -- gold cats sparkling at once
+	butterflies: number,
+	ambientRadius: number, -- studs; steam, butterflies and fireflies beyond it are off
+	chimneyRadius: number, -- smoke reads from far away, so it gets a longer range
+	burstScale: number, -- multiplies every burst count
+	maxBurst: number, -- no single burst is bigger than this
+	confetti: number, -- pieces in one confetti burst
+	napLabels: number, -- napping cats that show floating z's
+	rushLines: number, -- speed lines on a player in a Catch Rush (F55)
+	signatureCats: number, -- Legendary and Mythical themed cats showing their signature effect at once
+	decorEffects: number, -- Mythical cafe styles and decor moving at once; each takes one of steadyEmitters
+	potionGlows: number, -- players showing a running potion's glow at once (F64), your own first
+	cloudPuffs: number, -- puffs in the full-screen clouds of a cannon flight or a cloud hop (F84)
+	campfires: number, -- campfires whose flame moves, with embers and a light, at once
+	pullConfetti: number, -- confetti pieces on screen in a big pull (F89)
+	rainbowCats: number, -- rainbow cats whose bands flow, with a glow and a trail, at once (F99)
+	rainbowOutlines: number, -- of those, the nearest with a band-coloured outline (a Highlight each)
+	rallyPops: number, -- "+1" pops and paws flying into the Rally bar at once (F101)
+	pennants: number, -- bunting pennants fluttering at once (F101); 0 hangs them all still
+	decorMotion: number, -- rare decor's moving parts (_Swing, _Spin, _Bob) moving at once (F89 2c)
+	netTrails: number, -- nets drawing a whoosh trail at once (F93)
+	luckyShimmers: number, -- jade Lucky Cat statues shimmering at once (F88), a Highlight each
+	campDrips: number, -- camp pipes dripping at once (F100), a drop part each
+	campFish: number, -- camp pond fish jumping now and then (F100); 0 holds them all still
+	rallyBoards: number, -- Rally boards running their marquee at once (F101); 0 leaves them as built
+	cafeOrders: number, -- orders in other cafes showing their puff, oven glow and ding at once (F90); your own always
+	crownGlints: number, -- crowned players whose crown glints now and then (F98), the nearest first
+}
+
+-- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
+-- (skill section 7). "high" is a PC or console. "lowPerformance" is the Low performance setting on any device:
+-- under the phone budget everywhere, with half the steady particles.
+Presets.budget = {
+	low = {
+		animatedCats = 8,
+		animRadius = 60,
+		animHz = 30,
+		steadyEmitters = 4,
+		rateScale = 1,
+		goldEmitters = 3,
+		butterflies = 6,
+		ambientRadius = 80,
+		chimneyRadius = 140,
+		burstScale = 0.5,
+		maxBurst = 12,
+		confetti = 14,
+		napLabels = 4,
+		rushLines = 2,
+		signatureCats = 3,
+		decorEffects = 2,
+		potionGlows = 3,
+		cloudPuffs = 10,
+		campfires = 2,
+		pullConfetti = 20,
+		rainbowCats = 6,
+		rainbowOutlines = 3,
+		rallyPops = 5,
+		pennants = 40,
+		decorMotion = 12,
+		netTrails = 3,
+		luckyShimmers = 2,
+		campDrips = 1,
+		campFish = 1,
+		rallyBoards = 1,
+		cafeOrders = 0,
+		crownGlints = 2,
+	},
+	high = {
+		animatedCats = 16,
+		animRadius = 80,
+		animHz = 60,
+		steadyEmitters = 10,
+		rateScale = 1,
+		goldEmitters = 8,
+		butterflies = 14,
+		ambientRadius = 110,
+		chimneyRadius = 200,
+		burstScale = 1,
+		maxBurst = 30,
+		confetti = 28,
+		napLabels = 10,
+		rushLines = 3,
+		signatureCats = 6,
+		decorEffects = 4,
+		potionGlows = 6,
+		cloudPuffs = 16,
+		campfires = 3,
+		pullConfetti = 40,
+		rainbowCats = 10,
+		rainbowOutlines = 6,
+		rallyPops = 8,
+		pennants = 90,
+		decorMotion = 24,
+		netTrails = 6,
+		luckyShimmers = 4,
+		campDrips = 2,
+		campFish = 2,
+		rallyBoards = 1,
+		cafeOrders = 3,
+		crownGlints = 5,
+	},
+	lowPerformance = {
+		animatedCats = 4,
+		animRadius = 45,
+		animHz = 20,
+		steadyEmitters = 2,
+		rateScale = 0.5,
+		goldEmitters = 1,
+		butterflies = 2,
+		ambientRadius = 60,
+		chimneyRadius = 100,
+		burstScale = 0.35,
+		maxBurst = 8,
+		confetti = 8,
+		napLabels = 2,
+		rushLines = 1,
+		signatureCats = 1,
+		decorEffects = 0,
+		potionGlows = 0,
+		cloudPuffs = 6,
+		campfires = 1,
+		pullConfetti = 13,
+		rainbowCats = 3,
+		rainbowOutlines = 0,
+		rallyPops = 3,
+		pennants = 0,
+		decorMotion = 0,
+		netTrails = 1,
+		luckyShimmers = 0,
+		campDrips = 1,
+		campFish = 0,
+		rallyBoards = 0,
+		cafeOrders = 0,
+		crownGlints = 1,
+	},
+} :: { [string]: Budget }
+
+export type EmitterPreset = {
+	texture: string,
+	colors: { Color3 }, -- spread evenly over the particle's life
+	size: { number }, -- studs at birth and at death
+	transparency: { number }, -- at birth and at death
+	lifetime: { number }, -- min and max seconds
+	speed: { number }, -- min and max studs per second
+	spread: number, -- degrees either side of straight up
+	rate: number, -- per second, steady emitters only (bursts use Emit)
+	acceleration: Vector3?,
+	drag: number?,
+	lightEmission: number?, -- 0 by day; glow effects use 0.5 to 1
+	rotSpeed: { number }?,
+}
+
+Presets.emitters = {
+	-- Ambient
+	steam = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite },
+		size = { 0.4, 1.6 },
+		transparency = { 0.55, 1 },
+		lifetime = { 1.2, 1.8 },
+		speed = { 1.5, 2.5 },
+		spread = 12,
+		rate = 4,
+		acceleration = Vector3.new(0.3, 0.6, 0),
+		drag = 1,
+	},
+	chimney = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.cream, Presets.palette.furGrey },
+		size = { 1.2, 4 },
+		transparency = { 0.45, 1 },
+		lifetime = { 3, 4 },
+		speed = { 2, 3 },
+		spread = 10,
+		rate = 2.5,
+		acceleration = Vector3.new(1.2, 0.4, 0.4),
+		drag = 0.6,
+	},
+	ember = {
+		-- A campfire's embers: soft warm dots drifting up and fading, never sparks.
+		texture = Presets.textures.smoke,
+		colors = {
+			Presets.palette.lampWarm,
+			Color3.fromRGB(255, 170, 84),
+			Color3.fromRGB(232, 112, 64),
+		},
+		size = { 0.16, 0.04 },
+		transparency = { 0, 1 },
+		lifetime = { 1.2, 2.2 },
+		speed = { 1.5, 3 },
+		spread = 22,
+		rate = 3,
+		acceleration = Vector3.new(0.25, 0.5, 0.15),
+		drag = 0.7,
+		lightEmission = 1,
+	},
+	fireflies = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.lampWarm, Presets.palette.sparkle },
+		size = { 0.35, 0.2 },
+		transparency = { 0.1, 1 },
+		lifetime = { 3, 5 },
+		speed = { 0.2, 0.6 },
+		spread = 180,
+		rate = 2.5,
+		lightEmission = 1,
+		drag = 0.5,
+	},
+	shiny = {
+		-- A gold cat's sparkle (F42; Derek picked gold coats on 2026-10-27): warm white glints off the gold. The key
+		-- keeps its old name because QA's EffectsMotion spec checks it.
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite, Presets.palette.sparkle, Presets.palette.golden },
+		size = { 0.45, 0 },
+		transparency = { 0, 1 },
+		lifetime = { 0.6, 1 },
+		speed = { 0.5, 1.2 },
+		spread = 180,
+		rate = 3,
+		lightEmission = 0.6,
+		rotSpeed = { -90, 90 },
+	},
+	-- Bursts
+	hissPuff = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite, Presets.palette.furGrey },
+		size = { 0.6, 1.4 },
+		transparency = { 0.35, 1 },
+		lifetime = { 0.35, 0.55 },
+		speed = { 5, 8 },
+		spread = 70,
+		rate = 0,
+		drag = 6,
+	},
+	smokePuff = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.cream, Presets.palette.offwhite },
+		size = { 1.5, 4 },
+		transparency = { 0.3, 1 },
+		lifetime = { 0.8, 1.2 },
+		speed = { 4, 7 },
+		spread = 80,
+		rate = 0,
+		drag = 4,
+	},
+	dust = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.cream },
+		size = { 0.6, 1.8 },
+		transparency = { 0.4, 1 },
+		lifetime = { 0.6, 0.9 },
+		speed = { 1, 3 },
+		spread = 60,
+		rate = 0,
+		drag = 3,
+	},
+	-- Little puffs kicked up behind a running cat's feet (F40).
+	kick = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.cream },
+		size = { 0.3, 0.9 },
+		transparency = { 0.5, 1 },
+		lifetime = { 0.35, 0.55 },
+		speed = { 0.5, 1.5 },
+		spread = 70,
+		rate = 0,
+		drag = 3,
+	},
+	-- A small huff of breath from a cat catching its breath (F40).
+	huff = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite },
+		size = { 0.2, 0.55 },
+		transparency = { 0.35, 1 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 1, 2 },
+		spread = 30,
+		rate = 0,
+		drag = 2,
+	},
+	catchSparkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite }, -- tinted by rarity when the burst is made
+		size = { 0.8, 0 },
+		transparency = { 0, 0.3 },
+		lifetime = { 0.5, 0.9 },
+		speed = { 6, 10 },
+		spread = 180,
+		rate = 0,
+		acceleration = Vector3.new(0, -6, 0),
+		drag = 3,
+		lightEmission = 0.5,
+		rotSpeed = { -180, 180 },
+	},
+	-- Water kicked up by a step in a puddle or a pond (Effects/Splash): small drops thrown up and falling back.
+	splashDrops = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.fishBelly },
+		size = { 0.2, 0.08 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.3, 0.45 },
+		speed = { 5, 8 },
+		spread = 30,
+		rate = 0,
+		acceleration = Vector3.new(0, -35, 0),
+		lightEmission = 0.2,
+	},
+	-- A pipe's drip landing on the Lost and Found's lid (Effects/CampWater, F100): a few tiny drops hopping off it.
+	dripSplash = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.fishBelly },
+		size = { 0.09, 0.03 },
+		transparency = { 0.15, 1 },
+		lifetime = { 0.2, 0.3 },
+		speed = { 1.5, 3 },
+		spread = 55,
+		rate = 0,
+		acceleration = Vector3.new(0, -30, 0),
+		lightEmission = 0.2,
+	},
+	gateSparkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle, Presets.palette.mint },
+		size = { 0.7, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.8, 1.3 },
+		speed = { 2, 5 },
+		spread = 40,
+		rate = 0,
+		acceleration = Vector3.new(0, 4, 0),
+		lightEmission = 0.5,
+		rotSpeed = { -120, 120 },
+	},
+	-- A slow fall of sparkles from the top of a Mythical's beam or a jackpot wheel.
+	shower = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite }, -- tinted when the burst is made
+		size = { 0.5, 0 },
+		transparency = { 0, 0.6 },
+		lifetime = { 1.2, 1.8 },
+		speed = { 1, 3 },
+		spread = 180,
+		rate = 0,
+		acceleration = Vector3.new(0, -2.5, 0),
+		drag = 1,
+		lightEmission = 0.6,
+		rotSpeed = { -90, 90 },
+	},
+	-- A soft violet haze rolling over an area gate as it closes for the night (F66).
+	duskHaze = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.aurora, Presets.palette.furGrey },
+		size = { 1.4, 3.6 },
+		transparency = { 0.55, 1 },
+		lifetime = { 1.2, 1.8 },
+		speed = { 1, 2.5 },
+		spread = 70,
+		rate = 0,
+		acceleration = Vector3.new(0, 0.6, 0),
+		drag = 1.5,
+	},
+	-- Signature effects (Presets.signature): one steady emitter on a Legendary or Mythical themed cat, at Rate 2 or
+	-- less, coloured per cat when it is made. Glints twinkle on the fur or a prop, `sigRise` drifts up (stars,
+	-- sprinkles, sparks), `sigFall` flutters down (petals, leaves), `sigHalo` is a soft glow round the cat and
+	-- `sigWhoosh` puffs behind a cat on the move. The sparkle sprite stands in for petals and leaves until our own
+	-- sprites are uploaded.
+	sigGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle },
+		size = { 0.25, 0 },
+		transparency = { 0, 1 },
+		lifetime = { 0.5, 0.9 },
+		speed = { 0, 0.3 },
+		spread = 180,
+		rate = 1.5,
+		lightEmission = 0.8,
+		rotSpeed = { -60, 60 },
+	},
+	sigRise = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle },
+		size = { 0.24, 0.06 },
+		transparency = { 0.1, 1 },
+		lifetime = { 1.4, 2.2 },
+		speed = { 0.4, 0.9 },
+		spread = 30,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.5, 0),
+		drag = 0.4,
+		lightEmission = 0.7,
+		rotSpeed = { -45, 45 },
+	},
+	sigFall = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.furRose },
+		size = { 0.32, 0.22 },
+		transparency = { 0, 1 },
+		lifetime = { 1.4, 2 },
+		speed = { 0.2, 0.6 },
+		spread = 90,
+		rate = 1,
+		acceleration = Vector3.new(0.3, -0.35, 0), -- a slow drift down that fades before it reaches the floor
+		drag = 0.8,
+		rotSpeed = { -120, 120 },
+	},
+	sigHalo = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.galaxyBlue },
+		size = { 1.2, 1.8 },
+		transparency = { 0.75, 1 },
+		lifetime = { 1.6, 2.4 },
+		speed = { 0, 0.2 },
+		spread = 180,
+		rate = 1.5,
+		drag = 1,
+		lightEmission = 1,
+	},
+	sigWhoosh = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite },
+		size = { 0.5, 1.2 },
+		transparency = { 0.6, 1 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 0, 0.2 },
+		spread = 20,
+		rate = 2,
+		drag = 2,
+	},
+	-- Motes rising off the Codes Cat's walk-in circle (F65), from the whole circle.
+	codesMotes = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.mint, Presets.palette.sparkle },
+		size = { 0.4, 0 },
+		transparency = { 0.1, 1 },
+		lifetime = { 1.2, 1.8 },
+		speed = { 0.6, 1.2 },
+		spread = 8,
+		rate = 2,
+		lightEmission = 0.8,
+	},
+	-- Mythical decor (F53): a glint now and then over Glimmer Canal's floor or a Gold Leaf front, tinted by the piece.
+	-- Rainbow cat sparkles dropping behind it as it moves (F99), shifting through the hues as they fade in 0.8 s.
+	rainbowTrail = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Color3.fromRGB(255, 72, 88),
+			Color3.fromRGB(255, 222, 60),
+			Color3.fromRGB(84, 214, 112),
+			Color3.fromRGB(72, 182, 255),
+			Color3.fromRGB(168, 108, 255),
+		},
+		size = { 0.3, 0 },
+		transparency = { 0, 0.6 },
+		lifetime = { 0.6, 0.8 },
+		speed = { 0, 0.3 },
+		spread = 180,
+		rate = 8,
+		lightEmission = 0.8,
+		rotSpeed = { -120, 120 },
+	},
+	decorGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite, Presets.palette.sparkle },
+		size = { 0.4, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.4, 0.8 },
+		speed = { 0, 0.2 },
+		spread = 180,
+		rate = 2,
+		lightEmission = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	-- Gold glints floating up off you as golden fish land in your wallet (Fish.luau).
+	fishRise = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.sparkle },
+		size = { 0.4, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.8, 1.3 },
+		speed = { 2, 4 },
+		spread = 30,
+		rate = 0,
+		acceleration = Vector3.new(0, 3, 0),
+		drag = 1,
+		lightEmission = 0.5,
+		rotSpeed = { -120, 120 },
+	},
+	-- The Blossom Tree's petals fluttering down from its canopy, with a little sideways drift.
+	decorPetals = {
+		texture = Presets.textures.sparkle, -- a petal sprite once one is uploaded
+		colors = { Presets.palette.furRose, Presets.palette.blush, Presets.palette.offwhite },
+		size = { 0.35, 0.28 },
+		transparency = { 0, 0.5 },
+		lifetime = { 3, 4.5 },
+		speed = { 0.2, 0.6 },
+		spread = 180,
+		rate = 2,
+		acceleration = Vector3.new(0.2, -0.6, 0),
+		drag = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	-- Potion glows (F64), one per kind, on a drinker while the potion runs (Potions.luau). Tip: gold glints drifting
+	-- up off the body (a coin sprite once one is uploaded); Lucky: green and mint glints all round; Swift: blue wisps
+	-- left behind at the feet; Steady Paw: soft mint sparkles on the paws, split between the two hands.
+	potionTip = {
+		texture = Presets.textures.sparkle, -- a coin sprite once one is uploaded
+		colors = { Presets.palette.golden, Presets.palette.goldLight },
+		size = { 0.45, 0.35 },
+		transparency = { 0, 1 },
+		lifetime = { 1.3, 1.9 },
+		speed = { 0.8, 1.3 },
+		spread = 15,
+		rate = 2.5,
+		acceleration = Vector3.new(0, 0.2, 0),
+		drag = 0.6,
+		lightEmission = 0.5,
+		rotSpeed = { -180, 180 },
+	},
+	potionLucky = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.leaf, Presets.palette.mint, Presets.palette.sparkle },
+		size = { 0.4, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.8, 1.2 },
+		speed = { 0.1, 0.4 },
+		spread = 180,
+		rate = 2,
+		drag = 1,
+		lightEmission = 0.7,
+		rotSpeed = { -90, 90 },
+	},
+	potionSwift = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.fishBlue, Presets.palette.pastelSky },
+		size = { 0.5, 1.1 },
+		transparency = { 0.45, 1 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 0.3, 0.6 },
+		spread = 40,
+		rate = 4,
+		acceleration = Vector3.new(0, 0.5, 0),
+		drag = 1,
+		lightEmission = 0.4,
+	},
+	potionSteady = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.mint, Presets.palette.offwhite },
+		size = { 0.32, 0.1 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.9, 1.4 },
+		speed = { 0.1, 0.3 },
+		spread = 180,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.3, 0),
+		drag = 1,
+		lightEmission = 0.6,
+		rotSpeed = { -60, 60 },
+	},
+	-- The quest potions (F73, quests.md section 4). Big Tip: a brighter, busier stream of gold glints than the Tip
+	-- Potion's; Gold Rush: gold glints twinkling all round; Quick Bait: food crumbs falling from the paws.
+	potionBigTip = {
+		texture = Presets.textures.sparkle, -- a coin sprite once one is uploaded
+		colors = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.sparkle },
+		size = { 0.55, 0.4 },
+		transparency = { 0, 1 },
+		lifetime = { 1.3, 1.9 },
+		speed = { 1, 1.6 },
+		spread = 20,
+		rate = 3.5,
+		acceleration = Vector3.new(0, 0.2, 0),
+		drag = 0.6,
+		lightEmission = 0.7,
+		rotSpeed = { -180, 180 },
+	},
+	potionGoldRush = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden, Presets.palette.offwhite },
+		size = { 0.45, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.8, 1.2 },
+		speed = { 0.1, 0.4 },
+		spread = 180,
+		rate = 2,
+		drag = 1,
+		lightEmission = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	potionQuickBait = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.blush, Presets.palette.cream },
+		size = { 0.18, 0.12 },
+		transparency = { 0, 0.6 },
+		lifetime = { 0.8, 1.2 },
+		speed = { 0.2, 0.5 },
+		spread = 60,
+		rate = 2,
+		acceleration = Vector3.new(0, -4, 0),
+		drag = 0.5,
+	},
+	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
+	giftTwinkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle, Presets.palette.offwhite },
+		size = { 0.3, 0 },
+		transparency = { 0.1, 0.6 },
+		lifetime = { 0.5, 0.9 },
+		speed = { 0, 0.3 },
+		spread = 180,
+		rate = 1.5,
+		lightEmission = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	-- The Cat Cannon (F84): sparks off the fuse as it fizzes, and the sparkle trail behind a flying player.
+	fuseSpark = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle, Presets.palette.lampWarm, Presets.palette.golden },
+		size = { 0.35, 0 },
+		transparency = { 0, 0.3 },
+		lifetime = { 0.15, 0.3 },
+		speed = { 6, 11 },
+		spread = 70,
+		rate = 0,
+		acceleration = Vector3.new(0, -20, 0),
+		lightEmission = 1,
+	},
+	cannonTrail = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle, Presets.palette.mint, Presets.palette.offwhite },
+		size = { 0.9, 0 },
+		transparency = { 0, 0.5 },
+		lifetime = { 0.4, 0.7 },
+		speed = { 0.5, 2 },
+		spread = 180,
+		rate = 40,
+		drag = 2,
+		lightEmission = 0.7,
+		rotSpeed = { -180, 180 },
+	},
+	-- Cats make the orders (F90, Effects/Orders): steam over the espresso machine while a drink is made, a flour puff
+	-- over the oven while a bake is made, a few cool twinkles at the counter for the milk and the sundae, and the
+	-- "ding" sparkle over the finished item.
+	orderSteam = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite },
+		size = { 0.3, 1.2 },
+		transparency = { 0.4, 1 },
+		lifetime = { 0.7, 1.1 },
+		speed = { 2, 3.5 },
+		spread = 15,
+		rate = 0,
+		acceleration = Vector3.new(0.2, 0.8, 0),
+		drag = 1.5,
+	},
+	flourPuff = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite, Presets.palette.cream },
+		size = { 0.25, 0.9 },
+		transparency = { 0.3, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 1.5, 3 },
+		spread = 60,
+		rate = 0,
+		acceleration = Vector3.new(0, 0.4, 0),
+		drag = 3,
+	},
+	counterTwinkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite, Presets.palette.pastelSky },
+		size = { 0.25, 0 },
+		transparency = { 0, 1 },
+		lifetime = { 0.35, 0.6 },
+		speed = { 0.5, 1.5 },
+		spread = 180,
+		rate = 0,
+		lightEmission = 0.4,
+	},
+	-- Coins off a swept tip pile and into the till (F90 section 2 step 5): gold glints hopping up and falling back.
+	coinGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden },
+		size = { 0.35, 0.12 },
+		transparency = { 0, 0.6 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 3, 5 },
+		spread = 35,
+		rate = 0,
+		acceleration = Vector3.new(0, -18, 0),
+		lightEmission = 0.5,
+		rotSpeed = { -180, 180 },
+	},
+	dingSparkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite, Presets.palette.sparkle }, -- tinted gold on the rich customer's plate
+		size = { 0.5, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.4, 0.7 },
+		speed = { 3, 6 },
+		spread = 180,
+		rate = 0,
+		drag = 4,
+		lightEmission = 0.6,
+		rotSpeed = { -180, 180 },
+	},
+	-- A glint on a leaderboard crown (Effects/Crown, F98): a few gold stars that flash and fade where they are.
+	crownGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite, Presets.palette.goldLight, Presets.palette.golden },
+		size = { 0.55, 0 },
+		transparency = { 0, 0.3 },
+		lifetime = { 0.35, 0.6 },
+		speed = { 0, 0.4 },
+		spread = 180,
+		rate = 0,
+		lightEmission = 0.9,
+		rotSpeed = { -120, 120 },
+	},
+} :: { [string]: EmitterPreset }
+
+-- Burst sizes before burstScale. A catch sparkle grows with rarity and stays under 30 (skill section 6).
+Presets.bursts = {
+	hissPuff = 10,
+	smokePuff = 12,
+	dust = 6,
+	gateSparkle = 24,
+	purrfect = 28,
+	duskHaze = 4, -- at dusk, at each of the areas.points places along an area gate
+	shower = 8, -- each of a Mythical catch's or a jackpot spin's showers
+	fuseSpark = 3, -- each fizz of a cannon's fuse
+}
+
+-- A gold coat seen for the first time (a gold cat caught or rescued, F42): this many sparkles from the gold
+-- cat's emitter and a golden ring.
+Presets.reveal = { sparkles = 20 }
+Presets.catchSparkle = {
+	Common = 8,
+	Rare = 12,
+	Epic = 16,
+	Legendary = 22,
+	Mythical = 28,
+} :: { [string]: number }
+
+-- Confetti is small parts, not particles, so it needs no texture: the palette's party colours.
+Presets.confettiColors = {
+	Presets.palette.mint,
+	Presets.palette.blush,
+	Presets.palette.lampWarm,
+	Presets.palette.aurora,
+	Presets.palette.fishBlue,
+	Presets.palette.offwhite,
+}
+Presets.purrfectColors =
+	{ Presets.palette.golden, Presets.palette.sparkle, Presets.palette.offwhite }
+
+Presets.confetti = {
+	size = Vector3.new(0.35, 0.05, 0.22),
+	seconds = 1.8, -- life of one piece; it fades over the last 0.4 s
+	upSpeed = { 16, 24 }, -- studs per second at launch
+	sideSpeed = { 6, 12 },
+	gravity = 12, -- with the drag it falls at about 4 studs a second, so it flutters back to launch height
+	drag = 3,
+	flutter = 0.8, -- studs of side to side sway while it falls
+	maxLive = 80, -- pieces alive at once on any device
+}
+
+Presets.ring = {
+	diameter = 9, -- studs at the end of the Purrfect and gate ring
+	seconds = 0.5,
+}
+
+-- A beam of light that shoots up from a spot and fades: a Legendary or Mythical catch, your own rank up. One
+-- flash; skipped with Reduce Motion like the ring.
+Presets.beam = { grow = 0.25, holdShare = 0.4 } -- of its seconds: rising, then held before it fades
+
+-- Everyday moments (Derek 2026-10-27 20:13: effects "for basic stuff in game like catching or clicking upgrade or
+-- unlocking new tiers or landing on a good item on the spin the wheel"). A catch pops in the rarity's colour: a
+-- ring under the cat as wide as `ring`, confetti from Epic up (`confetti`, a share of the budget's confetti), a beam
+-- from Legendary up and for a Mythical a second, wider ring and three slow sparkle showers from the top of the beam.
+Presets.catchPop = {
+	ring = { Common = 4, Rare = 5, Epic = 7, Legendary = 9, Mythical = 11 } :: { [string]: number },
+	ringSeconds = 0.5,
+	confetti = { Epic = 0.4, Legendary = 0.6, Mythical = 0.9 } :: { [string]: number },
+	beams = { Legendary = true, Mythical = true } :: { [string]: boolean },
+	beam = { width = 1.4, height = 16, seconds = 1.3 },
+	echo = { after = 0.16, scale = 1.4, seconds = 0.7 }, -- the Mythical's second ring
+	shower = { bursts = 3, after = 0.3, every = 0.25, height = 9 },
+}
+
+-- Something you bought appears at your cafe (a table set, the espresso machine, the bait bowl, decor): a sparkle
+-- above it, a mint ring at its foot as wide as it plus `ringPad` (at most `ringMost`), a puff of dust and a few
+-- confetti. A purchase with nothing new to show (the net, a food) gives a sparkle swirl at your feet instead. A
+-- piece counts when it appeared up to `before` seconds before the purchase showed or up to `after` seconds after.
+Presets.purchase = {
+	before = 1.5,
+	after = 1,
+	within = 120, -- studs from the player
+	sparkle = 14, -- gateSparkle particles above the piece
+	dust = 6,
+	ringPad = 3,
+	ringMost = 10,
+	ringSeconds = 0.55,
+	confetti = 0.3, -- of the budget's confetti
+	swirlRing = 5,
+	swirl = { 12, 8 }, -- gateSparkle particles at the feet, `swirlGap` seconds apart
+	swirlGap = 0.3,
+}
+
+-- Cat motion. Angles in degrees, distances in studs, times in seconds.
+Presets.motion = {
+	breathe = { studs = 0.03, seconds = 2.6 },
+	-- The shape of one breath while asleep or resting (Logic.breath): the belly fills over `inhale` of the cycle,
+	-- lets out over `exhale`, and rests for the rest. The nap, loaf and doze give the length and the rise.
+	breath = { inhale = 0.38, exhale = 0.47 },
+	-- How the body swells as it breathes in (Pose): sideways by `side` of the rise, so the belly fills out rather
+	-- than the back just getting taller. Pieces ride the swell by how high their joint sits on the body.
+	belly = { side = 0.5 },
+	tailSwish = { degrees = 18, seconds = 2.2 },
+	headLook = { degrees = 14, seconds = 5.5 },
+	hiss = {
+		seconds = 0.6,
+		hop = 1.3, -- peak height of the jump back
+		headBack = 22,
+		tailUp = 40,
+		jumpStuds = 3, -- a server move longer than this during a hiss is drawn as part of the hop
+	},
+	-- A near miss (F93, catch-rework.md section 1): a free stray within NetMissHopStuds of a swing that hit nothing
+	-- springs `hop` studs up over `seconds` as the server sends it off (HopAt), nose up `lean` degrees, tail up `tailUp`
+	-- and ears flat back `ears`, without the hiss: startled, then away at a run.
+	startle = { seconds = 0.4, hop = 0.8, lean = 10, tailUp = 35, ears = 40 },
+	barista = { tapEvery = 1.6, headDip = 12, paw = 35 },
+	-- The Barista's working bob while it makes an order (F90, cats-make-orders.md section 2: "two small hops and a head
+	-- tilt, on a loop"; Logic.makingBob and makingPose, drawn by Cats.luau while the cat's local Making attribute is
+	-- set): each `seconds` loop it hops `hops` times, `height` studs off its seat over `hopSeconds` each with its front
+	-- paws lifting `paws` degrees, pauses `tiltGap`, then tilts its head `tilt` degrees over `tiltSeconds`, the other
+	-- way the next loop; its tail is up `tail` throughout. It eases in and out over `ease` seconds. With Reduce Motion
+	-- only the tilt plays.
+	making = {
+		seconds = 1.5,
+		hops = 2,
+		hopSeconds = 0.24,
+		height = 0.1,
+		paws = 10,
+		tiltGap = 0.1,
+		tilt = 14,
+		tiltSeconds = 0.6,
+		tail = 15,
+		ease = 0.2,
+	},
+	-- A waiter watching the room from its station (Derek 2026-10-29 19:45: cats should move around the cafe, "not just
+	-- waddle back and fourth while sitting"; it used to rock side to side with a little hop): the head turns `look`
+	-- degrees from table to table over `lookSeconds`, and tilts `tilt` now and then, once every `tiltEvery`. Its walks
+	-- round the tables are Presets.cafeWalk.
+	waiter = { look = 22, lookSeconds = 7, tilt = 8, tiltEvery = 5.5 },
+	greeter = { waveEvery = 3.2, wave = 70, tilt = 10 },
+	-- Working cats on the work body (S, Model-Agent #826; Derek 2026-11-02 12:02: "S: chibi holding the prop"),
+	-- standing at the station on their back legs with the role's arm pose already on the model (the server turns
+	-- each arm by cat_poses.work_<role>), so every turn here is small, none past about 15 degrees, and the held thing
+	-- stays where Model-Agent's clip sweep checked it (Logic.workIdle). Each shifts its weight from foot to foot, the
+	-- body rocking `sway` degrees over `swaySeconds`.
+	-- `barista`: holds its cup out to the customer and now and then (`every`) offers it over `seconds`: the arm
+	--   lifts `lift` degrees, the cup tips `held` towards them and the cat looks down at it `look`.
+	-- `waiter`: the tray held steady at its side (it rides the breath and the sway) while the head turns `look` from
+	--   table to table over `lookSeconds` and tilts `tilt` once every `tiltEvery`.
+	-- `greeter`: the raised paw waves side to side `wave` degrees `hz` times a second, in bursts of `seconds` once
+	--   every `every`, the head tilting `tilt` towards it; between bursts the paw drifts `rest` over `restSeconds`.
+	-- `entertainer`: sings into the mic held up under its chin: once a `beat` the head nods `nod` and the mic tips
+	--   `mic` with it, the body sways `sway` over two beats and the free paw, down at its side, swings `swing`
+	--   forward and back with the sway (Derek 2026-11-02 19:34: the mic at the hip with the other paw waving
+	--   "looks a little bit off").
+	work = {
+		sway = 2.5,
+		swaySeconds = 4.8,
+		barista = { every = 2.6, seconds = 1, lift = 8, held = 10, look = 10 },
+		waiter = { look = 22, lookSeconds = 7, tilt = 8, tiltEvery = 5.5 },
+		greeter = {
+			every = 3.2,
+			seconds = 1.6,
+			wave = 14,
+			hz = 2,
+			tilt = 10,
+			rest = 3,
+			restSeconds = 3.7,
+		},
+		entertainer = { beat = 0.5, nod = 6, mic = 6, sway = 4, swing = 10 },
+	},
+	-- The entertainer bats a pom-pom on a springy wand stuck in its perch (Derek 2026-10-28 17:41: Comet's ball was
+	-- "kind of floating" and its foot "randomly" twitched; the old yarn ball slid about in mid air 2 studs past the
+	-- cat tree's top, which the paw never reached). The paws take turns once every `every` seconds: the paw comes
+	-- up over `windup`, faster and faster, meets the pom-pom from behind raised `reach` degrees, holds it `hold`, and
+	-- goes down again over `back`. A paw is one stiff piece, so it never lifts over the pom-pom, which would pass
+	-- through it. The pom-pom rests just ahead of that paw's pad, `pom` studs across, on a `wand` thick wand from
+	-- `wandBase` (studs ahead of the cat, on the perch). Each bat sends it away `tilt` degrees, `side` of that off to
+	-- the far side, and it springs back and wobbles at `hz` a second, dying away `decay` times a second. The head
+	-- looks down `look` degrees at it and turns after it by `follow` of its sway; the body leans into each bat `lean`.
+	entertainer = {
+		every = 1.6,
+		windup = 0.22,
+		reach = 70,
+		hold = 0.06,
+		back = 0.38,
+		pom = 0.3,
+		wand = 0.05,
+		wandBase = 0.55,
+		tilt = 30,
+		side = 0.45,
+		hz = 1.8,
+		decay = 2.6,
+		look = 10,
+		follow = 0.8,
+		lean = 4,
+	},
+	-- Stuck in a rescue trap (Derek 2026-10-28: a different animation "for whatever cat is stuck in it", "like tail
+	-- sticking out or butt", "make the butt sticking out for a lot of the rescue's", "flip the cats upside for some
+	-- rescue missions where fit"). Each TrapType wriggles one of two ways (`kinds`), in bursts once every `every`
+	-- seconds over `seconds` at `hz`, still moving `twitch` as much in between. `butt`: head first into a bin, can,
+	-- bag pile, shed, log, pipe, grate or bramble bush (Derek 14:17: on its back on the bush looked off) with only
+	-- its back end out: the hips wiggle `wiggle` degrees, the back legs paddle `kick` and the raised tail (`tailUp`)
+	-- lashes `tail`. `flip`: upside down, hanging under a branch or on its back across a gutter: all four legs pedal
+	-- `legs` degrees in the air, the body rocks `rock`, the tail swings `tail`, the head looks about `look` and the
+	-- ears go back `ears`. Where the cat sits and which way up is the server's stuck pose for the trap. A trap not in
+	-- `kinds` keeps the plain shake (`every`, `shake`, `seconds`).
+	stuck = {
+		every = 2.6,
+		shake = 9,
+		seconds = 0.5,
+		kinds = {
+			trash_bin = "butt",
+			trashcan = "butt",
+			garbage_bag = "butt",
+			shed = "butt",
+			hollow_log = "butt",
+			drain_pipe = "butt",
+			grate = "butt",
+			bramble_bush = "butt",
+			tree = "flip",
+			gutter = "flip",
+		} :: { [string]: string },
+		butt = {
+			every = 2.2,
+			seconds = 1.3,
+			hz = 3,
+			twitch = 0.2,
+			wiggle = 14,
+			kick = 40,
+			tail = 45,
+			tailUp = 30,
+		},
+		flip = {
+			every = 2,
+			seconds = 1.2,
+			hz = 2.5,
+			twitch = 0.3,
+			legs = 45,
+			rock = 10,
+			tail = 40,
+			look = 25,
+			ears = 30,
+		},
+	},
+	-- A nap curls the cat up: it lies on its belly with its legs folded (front paws out in front), tucks its head
+	-- round towards its tail and wraps the tail along its side. sink 1 is right down on its belly. `breathe` is how
+	-- far the top of its back rises with each breath (Derek 2026-10-27: the belly lifting and lowering while it
+	-- sleeps), one breath every `seconds`.
+	nap = { headDroop = 18, headTuck = 35, tailWrap = 70, sink = 1, breathe = 0.09, seconds = 3.2 },
+	-- A cat stood upright at its station (F25) dozes on its feet at night instead: chin down on its chest with a
+	-- slow nod, a little sway, the tail hanging still. Nothing sinks, so it never dips into the counter.
+	doze = { headDroop = 26, nod = 5, sway = 2, tail = 0.15, breathe = 0.06, seconds = 3.6 },
+	-- A loaf (Derek 2026-10-27, from draft E): a resting cafe cat sits up from its nap now and then, tucked in and
+	-- still. On its belly with every leg folded under and the front paws peeking out, head up and level, the tail laid along its right side, a slow
+	-- breath, a slow look aside once in a while and a quick ear flick. `hold` seconds of every `every`, by day.
+	loaf = {
+		headDroop = 4,
+		look = 16,
+		lookEvery = 11,
+		lookSeconds = 3.5,
+		flick = 4,
+		flickEvery = 6.5,
+		tailWrap = 60,
+		breathe = 0.05,
+		seconds = 4.2,
+		every = 75,
+		hold = 24,
+	},
+	-- A sitting cat (the _Sit body, PR #259) washing a paw now and then (Derek 2026-10-27: the paw-up sit is a
+	-- lick), the way a walking cat loafs: `hold` seconds of every `every`, by day, eyes half shut. The paw stays up
+	-- at the mouth and the head licks it (Derek 2026-10-29: the old paw rub looked like kicking): in bursts of
+	-- `strokes` seconds a `pause` apart, `hz` licks a second, each a dip of `bob` degrees taking `down` of the lick
+	-- and the rest to come up, turned `turn` degrees into the paw, which lifts `paw` degrees to meet it; a burst eases
+	-- in and out over `ease` seconds. Every other pause the cat rubs its cheek along the paw: the paw rises `wipe`
+	-- degrees as the head turns `wipeTurn` into it, bowing `wipeBow` and tipping `wipeTilt`.
+	lick = {
+		every = 60,
+		hold = 9,
+		strokes = 1.6,
+		pause = 1.1,
+		hz = 2.2,
+		bob = 9,
+		down = 0.3,
+		turn = 3,
+		paw = 4,
+		ease = 0.12,
+		wipe = 8,
+		wipeTurn = 20,
+		wipeBow = 8,
+		wipeTilt = 14,
+		eyes = 0.6,
+	},
+	-- Blinks squash each eye to `squash` of its height for `seconds`, every `every` seconds or so. A sleeping or
+	-- dozing cat keeps its eyes shut; a loafing cat keeps them `sleepy` shut and blinks slowly.
+	blink = { every = 4.3, seconds = 0.16, squash = 0.12, sleepy = 0.4, slowSeconds = 0.6 },
+	-- An ear flicks back and out by `twitch` degrees for `seconds`, the left every `everyL` seconds and the right
+	-- every `everyR` (the new bodies' EarL and EarR); asleep, half as often.
+	ears = { twitch = 22, seconds = 0.22, everyL = 5.3, everyR = 7.7 },
+	settle = 0.8, -- seconds a cat takes to move from one style to the next
+	settleDown = 1.2, -- lying down (into a nap or a loaf) takes longer
+	settleUp = 0.9, -- and getting up a little less
+	lieGap = 0.02, -- studs a lying cat's belly stays off the floor, at Scale 1 (the manifest's 0.31 on a 0.33 body)
+	-- A stretch (Derek 2026-10-27): as a stray gets up from a nap to walk off (the server's `StretchAt`), and every
+	-- `every` to `everyMax` seconds while a stray stands still. On all fours it rises out of its pose over `rise` of the stretch, bows (front legs `reach` degrees
+	-- ahead, body `bow` degrees nose down and `drop` studs lower, head up by `yawn`, tail up by `tail`, ears back by
+	-- `ears`, eyes shut, the head kept nearly level), then rocks `rock` degrees forward and stretches each back leg `rear` degrees out behind.
+	stretch = {
+		seconds = 3.2,
+		rise = 0.12,
+		bow = 22,
+		drop = 0.17,
+		reach = 70,
+		yawn = 8,
+		headLevel = 0.6, -- of the bow the head turns back up, so it looks ahead rather than at the floor
+		tail = 45,
+		ears = 20,
+		rock = 6,
+		rear = 50,
+		every = 35,
+		everyMax = 80,
+	},
+	-- Legs swing with the distance the server moves the cat, so the feet keep pace with the ground: a trot at
+	-- walking speed, a gallop once it runs (F40's sprint is 26 studs a second). Speeds in studs a second.
+	gait = {
+		moveFrom = 0.8, -- slower than this the cat stands
+		runFrom = 9, -- the gallop starts to blend in here
+		runFull = 18, -- and is full from here
+		walkStride = 1.3, -- studs travelled per leg cycle
+		runStride = 3.2,
+		trotFrom = 3.4, -- slower than this it walks one leg at a time (strays wander at 3)
+		trotFull = 4, -- and trots from here
+		walkSwing = 28, -- degrees each leg swings either way
+		runSwing = 50,
+		walkBob = 0.04,
+		walkRoll = 3, -- degrees the body sways side to side once a cycle at a walk
+		walkNod = 4, -- degrees the head nods with each step
+		walkTail = 18, -- degrees the tail is held up while it walks or trots
+		tailSway = 10, -- degrees the tail sways with the steps
+		lookAhead = 0.7, -- how much of its look around a moving cat drops to watch where it is going
+		runBob = 0.16,
+		runRock = 9, -- degrees the body rocks nose up and down in a gallop
+		runHead = 12, -- the head stretches forward and down
+		dustEvery = 0.14, -- seconds between dust kicks while it runs
+		dust = 3,
+	},
+	-- Catching its breath after the sprint (FleeingUntil still ahead, standing still): quick shallow breaths,
+	-- head low, tail down, a small huff of breath now and then.
+	pant = {
+		seconds = 0.32,
+		studs = 0.035,
+		headDown = 14,
+		tailDown = 15,
+		huffEvery = 0.7,
+		huff = 2,
+	},
+	-- Held in a player's arms (Derek 2026-10-28: "awake loafing or sitting"): a loaf on the walking body, a sit on the
+	-- sitting body, eyes open, a breath every `seconds` rising `breathe`, looking `look` degrees either way and `nod`
+	-- up and down over `lookSeconds`, the tail swishing `tail` as much as usual.
+	held = { seconds = 3.4, breathe = 0.05, look = 30, nod = 8, lookSeconds = 6.5, tail = 0.5 },
+	-- Balloon Cat (F78, design v0.13: "it bobs as if it might float off"): a cat in `cats` lifts off its paws and
+	-- settles back once every `seconds`, rising over `rise` of it and coming down over `fall`, then resting on its
+	-- paws for the rest; every `tugEvery`th bob the balloons pull it up to `tugStuds` instead of `studs`. While it is
+	-- up its legs hang `dangle` degrees apart, the tail lifts `tail` and it sways `sway` degrees about every
+	-- `swaySeconds`. Asleep or loafing it floats `resting` as high; stuck in a trap or galloping it stays down.
+	float = {
+		cats = { balloon = true } :: { [string]: boolean },
+		studs = 0.14,
+		tugStuds = 0.3,
+		tugEvery = 4,
+		seconds = 2.2,
+		rise = 0.5,
+		fall = 0.35,
+		dangle = 8,
+		tail = 15,
+		sway = 3,
+		swaySeconds = 3.1,
+		resting = 0.5,
+	},
+}
+
+-- Model-Agent's piece poses for the new bodies (manifest `cat_poses`, PR #259), copied here because the
+-- manifest does not ship with the game: for each hinged piece, the turn about its own joint as
+-- piece:PivotTo(piece:GetPivot() * CFrame.Angles(x, y, z)) in degrees (`angles_roblox_deg`), and how far the whole
+-- cat drops (`lift_roblox` Y, studs at Scale 1). `body` is the body each is for, "walk" (A) or "sit" (B). Copy new
+-- numbers here when the manifest changes. In the sleep and the loaf the folded legs also turn out to the sides (the
+-- last angle, front 30 degrees, back 26), so the paws peek out a little (Derek 2026-10-27; in the manifest since #296).
+export type CatPose = { body: string, lift: number, turns: { [string]: { number } } }
+-- Cafe cats on the move (CafeWalk.luau; Derek 2026-10-29 19:45: "make the cats move around cafe not just waddle
+-- back and fourth while sitting"). In your own cafe by day, a waiter at its station now and then gets up, walks
+-- `speed` studs a second onto the nearest lane and along it to a chair within `reach` studs (the chair's Approach
+-- point, where customers walk to sit), looks over the table for `pause` seconds and walks back to sit again, once
+-- every `every` seconds (a random time between the two), at most `most` at once and only while the camera is within
+-- `range` studs. Getting up and sitting down cross-fade the seated body and the walking body over `fade` seconds; it
+-- turns at most `turn` degrees a second. Off with Reduce Motion. F90's orders (cats-make-orders.md) send the same
+-- walk with a tray, its underside on the walking body's Carry attachment at the ear tips (Model-Agent's #778).
+-- F90's animation (section 6, Logic.crouch, trayCarry, sweepPose, sweepScoop and bankNod):
+-- - `sit`: getting up, the walking copy rises out of a sit over `rise` seconds (the cross-fade runs over the first
+--   `fade` of them); sitting down it sinks into one, the cross-fade over the last `fade`. Down, its hindquarters
+--   are `drop` studs lower with the back legs tucked `tuck` degrees, the body `pitch` degrees nose up and the tail
+--   `tail` degrees down.
+-- - `carry`: with a tray on its head it eases into carrying over `ease` seconds, its chin `chin` degrees up and tail
+--   `tail` degrees higher, the head steady (Logic.gait's level); tall hats fade out over the same ease.
+-- - `sweep`: at a tip pile (Moments.TipSwept) it stops for `seconds`: rears up by `up` (a share of the sweep) with
+--   its body `rear` degrees back and `lift` studs higher, its left paw `reach` degrees out on the table edge, drags
+--   its right paw back `drag` degrees `swipes` times, and is back on all fours from `down` to the end, tail up
+--   `tail`. The tray with the coin bag waits where the pile was and hops onto its head between `scoop` and `land`,
+--   in an arc `arc` studs high.
+-- - `bank`: at the till (Moments.TipBanked) it stops for `seconds` and dips its shoulders `lean` and head `nod`
+--   degrees toward it as the bag tips off, tail up `tail`.
+-- Sweep and bank do not play with Reduce Motion: the bag goes straight onto the head and the walk goes on.
+Presets.cafeWalk = {
+	speed = 3,
+	turn = 300,
+	fade = 0.3,
+	every = { 16, 32 },
+	pause = { 2.5, 4.5 },
+	reach = 12,
+	most = 2,
+	range = 70,
+	trayLift = 0.08, -- studs a tray sits above the top of the head, on a body without a Carry attachment
+	tallAbove = 0.05, -- studs a head prop may rise above Carry before it steps aside under a tray
+	sit = { rise = 0.45, drop = 0.1, tuck = 40, pitch = 12, tail = 20 },
+	-- A cat standing at its station on the work body (S, #826) gets up from standing instead: the walker starts
+	-- reared up on its back legs, nose up `pitch` degrees and `drop` studs (negative: lifted, so its back end stays
+	-- out of the floor), back legs tucked `tuck` and tail down `tail`, and drops onto all fours over sit.rise while
+	-- the station model fades out; coming home it rears back up as the station model fades in.
+	stand = { drop = -0.12, tuck = 30, pitch = 30, tail = 10 },
+	carry = { ease = 0.25, chin = 6, tail = 20 },
+	sweep = {
+		seconds = 1.1,
+		up = 0.18,
+		down = 0.72,
+		rear = 22,
+		lift = 0.12,
+		reach = 50,
+		drag = 40,
+		swipes = 2,
+		tail = 25,
+		scoop = 0.6,
+		land = 0.85,
+		arc = 0.8,
+	},
+	bank = { seconds = 0.45, lean = 10, nod = 25, tail = 15 },
+}
+
+-- The Bellhop Cat's five animations (F96, starter-cat.md section 1), on Model-Agent's #708 hinges: the cap (`_Prop`
+-- in `_Head`) tips about its pivot at the back of its base, front up for plus; the bell (`_Bell`, in the collar
+-- `_Prop2`) swings side to side about its pivot's Z where it hangs.
+-- - `ring`: the head gives a quick shake over `shakeSeconds` (`shake` degrees of roll) and the bell swings `swings`
+--   times either way, `degrees` at first and dying away, over `seconds`. The stand rings once every `every` seconds
+--   (a random time between the two) by day; a cafe Bellhop rings in each customer who comes within `greet` studs
+--   before ordering, at most once every `gap` seconds, and tips its cap to them `tipAfter` seconds later.
+-- - `tip`: the cap lifts `degrees` at the front with a `nod` of the head and settles back, over `seconds`. The stand
+--   tips it to you as you walk within `walkUp` studs, at most once every `tipGap` seconds.
+-- - `bow`: put in its place (a new station model), it leans `lean` degrees forward with its head `head` degrees
+--   down and the cap tipped `cap`, over `seconds`, if it shows within `bowWindow` seconds of appearing.
+-- - `sleepCap`: asleep (a nap or doze) the cap turns `turn` degrees and moves `down` and `forward` studs, times the
+--   cat's scale, to sit over its eyes, sliding there or back over `seconds`. Since #708's cap fix (Derek saw the old
+--   one sink into the face) `down` is negative: the cap lifts as it tips forward, so its back rises and its front rim
+--   rests on the tops of the eyes, outside the face.
+-- - `hop`: claimed at the stand, it bounces `bounceHeight` studs where it sits for the first `bounce` share of
+--   `seconds`, then leaps in an arc `height` studs high to `ahead` studs in front of you, its feet `lift` studs above
+--   the middle of your character (in your arms), nose up
+--   `lean`, tail up `tailUp` and front paws reaching `reach` degrees. It vanishes in a sparkle there and fades back
+--   onto the cart over `fade` seconds, `back` seconds later.
+-- `standScale`: the cart's cat is the sitting body (`sitModel`) at this scale (Model-Agent).
+Presets.bellhop = {
+	catId = "bellhop_cat",
+	ring = { seconds = 1.4, degrees = 30, swings = 4, shake = 7, shakeSeconds = 0.5 },
+	every = { 8, 12 },
+	greet = 7,
+	gap = 3,
+	tipAfter = 1.2,
+	tip = { seconds = 1, degrees = 20, nod = 8 },
+	walkUp = 12,
+	tipGap = 8,
+	bow = { seconds = 1.5, lean = 16, head = 18, cap = 8 },
+	bowWindow = 3,
+	sleepCap = { turn = -40, down = -0.13, forward = 0.39, seconds = 1.2 },
+	hop = {
+		seconds = 1.1,
+		bounce = 0.3,
+		bounceHeight = 0.6,
+		height = 3,
+		ahead = 1.8,
+		lift = -0.6,
+		lean = 14,
+		tailUp = 40,
+		reach = 35,
+		back = 3,
+		fade = 0.4,
+	},
+	standScale = 1.5,
+	sitModel = "CatCafe_Cat_BellhopCat_Sit",
+}
+
+-- The Lucky Cat statue's beckoning paw (F88, luck-and-rare-moments.md section 1a: "Its paw waves a little faster at
+-- each level"): the statue's `_Paw` piece (Model-Agent's #742, pivoted at the shoulder) tips forward and back about
+-- its pivot's X, `degrees` each way (clear of the head and ear), one beckon every `seconds[level]` for levels 1 to 5,
+-- on statues within budget.ambientRadius. Still with Reduce Motion.
+Presets.luckyPaw = {
+	degrees = 20,
+	seconds = { 2.4, 2.1, 1.8, 1.5, 1.2 },
+}
+
+-- The secured cat's happy hop with a full spin (F89, luck-and-rare-moments.md 2a: "the cat does a happy hop with a
+-- full spin at the door ... inside the existing catch beam"): on a big pull a copy of the cat on its walking body
+-- appears `ahead` studs in front of the player, facing them, crouches until `takeoff`, leaps `height` studs turning
+-- `turns` full turns until `land`, squashes `squash` studs on landing until `settle`, sits up proud and fades,
+-- `seconds` in all (each share is of that). It fades in over the first `fadeIn` share and out over the last `fadeOut`.
+Presets.pullHop = {
+	seconds = 1.6,
+	ahead = 1.5,
+	takeoff = 0.15,
+	land = 0.7,
+	settle = 0.82,
+	height = 2.5,
+	turns = 1,
+	crouch = 0.25,
+	squash = 0.2,
+	tailUp = 45,
+	reach = 30,
+	lean = 10,
+	proud = 12,
+	fadeIn = 0.06,
+	fadeOut = 0.15,
+}
+
+-- The camp extras' moving touches (F100, camp-extras.md section 3), drawn by CampExtras.luau. Each turn is about the
+-- pivot's X of Model-Agent's child Model (#750): the Fish Pond's `_Rod` at its butt in the holder (below 0 lifts the
+-- tip, above 0 dips it toward the water), the Lost and Found's `_Lid` at its back hinge (above 0 lifts the front).
+-- Nothing moves with Reduce Motion. VFX-Agent draws the fish jump, the thermos steam and the pipe drips.
+Presets.campExtras = {
+	rod = {
+		-- the fish landed at a pond collect, { seconds, degrees }: a tug at the bite, the tip lifted high to swing the
+		-- fish in, a pause, the cast back out past rest so the bobber plops in (the rodCast beat), and a settle
+		keys = {
+			{ 0, 0 },
+			{ 0.12, 6 },
+			{ 0.45, -35 },
+			{ 0.9, -32 },
+			{ 1.15, 8 },
+			{ 1.4, -3 },
+			{ 1.65, 1 },
+			{ 1.85, 0 },
+		},
+		hangBeyond = 1.2, -- studs out from the butt past which an upright part (the line, the bobber) hangs from the tip
+		within = 30, -- studs from the collect's position to the rod it plays on
+	},
+	lid = {
+		every = { 3.5, 6.5 }, -- seconds between rattles while a prize waits, each with the lidRattle beat
+		rattle = { seconds = 0.55, degrees = 5, knocks = 4 }, -- quick lifts of the front edge, each smaller
+		-- the lid at a Lost and Found collect, { seconds, degrees }: up to let the prize out, a pause, shut with a bounce
+		pop = { { 0, 0 }, { 0.18, 28 }, { 0.55, 26 }, { 0.8, 0 }, { 0.9, 4 }, { 1, 0 } },
+		within = 30, -- studs from the collect's position to the lid it plays on
+	},
+}
+
+Presets.catPoses = {
+	sleep = {
+		body = "walk",
+		lift = 0.31,
+		turns = {
+			LegF1 = { -90, 0, -30 },
+			LegF2 = { -90, 0, 30 },
+			LegB1 = { 90, 0, -26 },
+			LegB2 = { 90, 0, 26 },
+			Head = { -26.8, 25.4, 12.2 },
+			Tail = { 71.7, 49.6, -66.5 },
+		},
+	},
+	loaf = {
+		body = "walk",
+		lift = 0.31,
+		turns = {
+			LegF1 = { -90, 0, -30 },
+			LegF2 = { -90, 0, 30 },
+			LegB1 = { 90, 0, -26 },
+			LegB2 = { 90, 0, 26 },
+			Tail = { 42.1, 23.2, -19.6 },
+		},
+	},
+	lick = {
+		body = "sit",
+		lift = 0,
+		turns = {
+			LegF1 = { 128.8, -11.0, 8.7 },
+			Head = { -16.5, 13.4, 3.9 },
+		},
+	},
+} :: { [string]: CatPose }
+
+Presets.shake = { seconds = 0.18, studs = 0.22 }
+
+-- A shove (F41), a landed tackle since F74: a puff where it lands, dizzy stars over the shoved player's head and,
+-- for them, a bigger camera bump than a missed catch. The knockback itself is the engineer's, on the target's own
+-- client.
+Presets.shove = {
+	puff = 10, -- hissPuff particles where it lands
+	stars = 3,
+	starRadius = 0.9,
+	starHz = 1.4,
+	shake = 0.3,
+	shakeStuds = 0.4,
+}
+
+-- A tackle (F74, data-model 10c v0.11): a streak of dust along the ground behind the tackler while they lunge, and
+-- after a miss a skid of dust kicked up as they slide on their belly with a puff where they stop. The seconds come
+-- from the shared Config once it has them (TackleLungeSeconds, TackleHitGraceSeconds, TackledDownSeconds); these
+-- until then.
+Presets.tackle = {
+	lungeSeconds = 0.35, -- TackleLungeSeconds
+	graceSeconds = 0.25, -- TackleHitGraceSeconds: the streak may run this much longer for lag
+	downSeconds = 0.8, -- TackledDownSeconds: a tackled player's stars circle this long
+	starsAfter = 0.4, -- and this much longer while they get up, fading out over the last 0.3 s
+	lungeSpeed = 28, -- studs a second: a lunge (12 in 0.35 s) beats this, a Catch Rush walk (24) does not
+	streakWidth = 1.4, -- studs: the flat ribbon of dust along the ground
+	streakSeconds = 0.45, -- how long the ribbon trails behind before it fades
+	every = 0.06, -- seconds between looks at how fast the tackler moves, and between kicks
+	kick = 2, -- kick particles at the feet each time while lunging fast
+	skidSeconds = 0.6, -- the longest a missed tackler's slide is followed
+	skidSpeed = 3, -- studs a second: slower than this they have stopped
+	skidKick = 3, -- kick particles each time while sliding
+	skidDust = 8, -- dust particles where they stop
+}
+
+-- The Tackle (design v0.11, F74), drawn on R15 characters by Tackle.luau with Avatar.luau's poses. Seconds as the
+-- engineer's timers (Config Tackle* once it has them: the lunge, the hit window's grace, the stand-up after a hit
+-- and after a miss, the target's push and how long it stays down), so a pose ends when the player can move again.
+-- Each key pose is degrees about the R15 joints (Avatar.Pose; `sh`, `sp`, `el`, `hip` and `kn` set both sides,
+-- `shL`... one side) and `air`, studs from the floor to the lowest part (0: resting on the floor). A pose eases in
+-- over `blendIn` from whatever the character was playing and back out over `blendOut`. A character that moves
+-- faster than `cutSpeed` studs a second after the moving part of its tackle is up again, so its pose eases out.
+Presets.tacklePose = {
+	lunge = 0.35, -- TackleLungeSeconds
+	grace = 0.25, -- TackleHitGraceSeconds: the window runs this much past the lunge before a miss is known
+	hitRecover = 0.4, -- TackleHitRecoverSeconds
+	missRecover = 1.2, -- TackleMissRecoverSeconds
+	push = 0.25, -- the target's knockback: ShoveController's PUSH_SECONDS, keep the two together
+	down = 0.8, -- TackledDownSeconds, after the push
+	land = 0.15, -- after the lunge the diver comes down on its belly over this long
+	lost = 0.5, -- after the window, no hit and no TackleMissAt for this long: it gets up anyway
+	blendIn = 0.06,
+	blendOut = 0.12,
+	cutSpeed = 8,
+	cutAfter = 0.15, -- seconds after the moving part before speed counts: the push or lunge dies away
+	cutSeconds = 0.15, -- how fast the pose lets go once the player moves
+	sideRoll = 20, -- most a tackled player tips towards a push from the side
+	slide = { neck = 6, kick = 25, roll = 3, hz = 6 }, -- the belly slide's wobble, fading as it stops
+	poses = {
+		coil = { lean = 20, waist = 15, neck = 20, sh = -50, sp = 15, el = 25, hip = 70, kn = 85 },
+		launch = { lean = 55, neck = 40, sh = 120, sp = 15, el = 20, hip = 5, kn = 25, air = 0.5 },
+		fly = {
+			lean = 82,
+			waist = -5,
+			neck = 55,
+			sh = 165,
+			sp = 22,
+			el = 10,
+			hip = -8,
+			kn = 35,
+			air = 0.5,
+		},
+		belly = {
+			lean = 90,
+			waist = -6,
+			neck = 50,
+			sh = 168,
+			sp = 28,
+			el = 15,
+			hip = -4,
+			kn = 40,
+			air = 0.04,
+		},
+		allFours = { lean = 60, neck = 40, sh = 60, sp = 5, el = 5, hip = 62, kn = 92 },
+		stumble = {
+			lean = 28,
+			waist = 10,
+			neck = 25,
+			shL = 85,
+			shR = 55,
+			sp = 35,
+			el = 30,
+			hipL = 55,
+			knL = 35,
+			hipR = -22,
+			knR = 30,
+		},
+		recoil = {
+			lean = -22,
+			waist = -10,
+			neck = -20,
+			sh = 70,
+			sp = 40,
+			el = 30,
+			hip = 25,
+			kn = 25,
+			air = 0.3,
+		},
+		recoilForward = {
+			lean = 28,
+			waist = 10,
+			neck = 30,
+			sh = 100,
+			sp = 30,
+			el = 20,
+			hip = -20,
+			kn = 35,
+			air = 0.3,
+		},
+		back = {
+			lean = -90,
+			waist = 5,
+			neck = -15,
+			sh = 35,
+			sp = 70,
+			el = 20,
+			hip = 40,
+			kn = 50,
+			air = 0.04,
+		},
+		sit = { lean = -10, waist = 12, neck = 5, sh = 25, sp = 30, el = 35, hip = 88, kn = 20 },
+		crouch = { lean = 30, waist = 15, neck = 20, sh = 30, sp = 20, el = 30, hip = 95, kn = 115 },
+	} :: { [string]: { [string]: number } },
+}
+
+-- The net hold (Derek 2026-10-28: "have your character holding a net while walking around until catching a cat";
+-- 16:47 "default of holding net should be tilted back over your shoulder unless swinging down"), drawn by
+-- Tackle.luau, the net itself by NetHold.luau: at all times (F93), except with a cat in the arms or in a cannon
+-- flight, the right hand holds the player's net (CatCafe_Item_Net_L1 to L4 by its `Grip` attachment) at the
+-- shoulder with the pole resting back over it, the hoop behind and to the right of the head, out of the camera's
+-- way; the other arm is free to swing. `waist` is 0: the hold leaves the body alone. The right shoulder is raised
+-- `sh` degrees forward, turned `tw` and out `sp` (in, below 0), the elbow bent `el`, so the forearm points up; on R6,
+-- which has no elbow, the whole arm rises `sh6`. The pole leaves the fist along the hand's back-to-front axis tipped
+-- `tilt` (R6: `tilt6`) degrees towards the fingers, so it points `sh + el + tilt` degrees up from straight ahead
+-- (past 90 is back), turned `roll` degrees about the pole so the hoop opens forward and the bag trails back (Derek
+-- 14:17: the nets faced the wrong way). The grip sits at the hand's own RightGripAttachment where it has one, else
+-- `grip` studs from the hand's centre (`grip6` on R6). Within budget.animRadius; the arm eases in over `blendIn` and
+-- out over `blendOut` seconds, and the net shows while the arm is past halfway (`showAt`).
+Presets.netHold = {
+	sh = 35,
+	tw = -25,
+	sp = -15,
+	el = 135,
+	sh6 = 120,
+	waist = 0,
+	tilt = -45,
+	tilt6 = -15,
+	roll = 180,
+	grip = Vector3.new(0, -0.1, 0),
+	grip6 = Vector3.new(0, -0.9, 0),
+	blendIn = 0.25,
+	blendOut = 0.2,
+	showAt = 0.5,
+}
+
+-- The net smack (F93, catch-rework.md section 1): one swing every NetSwingCooldown (0.8 s), 0.35 s long. From the
+-- shoulder the arm whips the net up over the head by `rise`, slams it down onto the ground ahead by `land`
+-- (NetSmackDelay, when the server judges the hit) and is back on the shoulder by `ends`. A swing that hit nothing
+-- bounces the net back up off the ground for `bounce` seconds first (the recoil). Each pose is a NetArm
+-- (Avatar.holdNet): `raised` has the pole about 150 degrees up from straight ahead (up and back over the head),
+-- `landed` about 23 degrees below it with the body bent into the hit (the hoop at the ground on a stand-in R15),
+-- `bounced` partway back up. Played on the swinger's own screen from the press, elsewhere from the server's
+-- NetSwung; the swinger's own screen takes a NetSwung for its player within `answerWithin` seconds of the press
+-- (NetSwingCooldown) as that swing's answer, not a new swing.
+Presets.netSmack = {
+	rise = 0.1,
+	land = 0.15,
+	ends = 0.35,
+	bounce = 0.07,
+	answerWithin = 0.8,
+	poses = {
+		raised = { sh = 155, tw = 0, sp = 10, el = 30, sh6 = 150, waist = -8 },
+		landed = { sh = 32, tw = 0, sp = 4, el = 5, sh6 = 0, waist = 15 },
+		bounced = { sh = 60, tw = 0, sp = 6, el = 20, sh6 = 45, waist = 10 },
+	},
+}
+
+-- The pal wave (F92, playing-together.md section 5: "a little wave from both characters" when an invited or
+-- following player spawns at a pal's front door): the left arm comes up over `raise` seconds, raised `sh` degrees
+-- forward and `sp` out to the side with the elbow bent `el` so the forearm stands up by the head, turns `twist`
+-- degrees in and out about the upper arm `waves` times (one every `every` seconds) and goes back down over `lower`
+-- seconds, 1.9 s in all. The right arm keeps the net. R6, with no elbow, raises the whole arm `sh6` and sways it
+-- `sway6` degrees either side of `sp6` out. The pal waves back `palDelay` seconds after the joiner starts.
+Presets.palWave = {
+	raise = 0.25,
+	waves = 3,
+	every = 0.45,
+	lower = 0.3,
+	sh = 125,
+	sp = 20,
+	el = 60,
+	twist = 25,
+	sh6 = 160,
+	sp6 = 15,
+	sway6 = 15,
+	palDelay = 0.35,
+}
+
+-- The carry (Derek 2026-10-28: "hold it in your arms crossed arms", the cat "awake loafing or sitting in your
+-- arms"), drawn by Tackle.luau on the carrier and by Carry.luau on the HeldCat. `arms` is the upper body's pose in
+-- Avatar.Pose degrees (the legs stay the character's own): arms folded across the chest, the left forearm under the
+-- right, head tipped down to the cat; the wrists are held straight, so the hands keep still over the character's
+-- walk (16:51: "hands shake too much"). R6 has no elbows, so `arms6` reaches both arms forward and in to meet under
+-- the cat. The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little),
+-- `loafSide` or `sitSide` studs to the right of halfway between the forearms (negative: left) and `loafForward` or
+-- `forward` studs further out than them. Lying on the arms it turns `loafTurn` degrees: straight across the middle
+-- of the arms, head to the character's left (Derek 2026-11-02 12:01: "it should be straight across middle of arms";
+-- before, it lay out at the left side facing back over the shoulder, for the camera behind, which he found off
+-- centre). `loafForward` keeps its big head clear of the character's face, its back just in front of it, while it
+-- looks about. Sitting up it turns `sitTurn` (facing out), `forward` out. The arms ease in over `blendIn` and out over `blendOut` seconds. A HeldCat Pose
+-- cannot move part by part (still streaming in, or on Motor6D joints) stays on its weld and is tried again after
+-- `retry` seconds.
+Presets.carryPose = {
+	arms = {
+		shL = 60,
+		twL = 45,
+		spL = -45,
+		elL = 45,
+		shR = 60,
+		twR = 45,
+		spR = -45,
+		elR = 58,
+		neck = -12,
+		waist = -4,
+	} :: { [string]: number },
+	arms6 = { sh = 80, sp = -30, neck = -12 } :: { [string]: number },
+	gap = -0.15,
+	forward = -0.6,
+	loafForward = -1.15,
+	loafTurn = 90,
+	loafSide = 0,
+	sitTurn = 15,
+	sitSide = -0.55,
+	blendIn = 0.2,
+	blendOut = 0.2,
+	retry = 1,
+}
+
+-- The Cat Cannon flight (F84, hometown-cannon.md section 3b), drawn by Cannon.luau on every character from its
+-- `CannonLaunchAt`, in seconds from it (CannonLaunchSeconds 3.0 in all). The server holds the character's root
+-- anchored at the barrel's seat, upright and facing where the barrel fires, then on the landing pad from
+-- CannonTeleportAtSeconds (1.9); the body moves away from the root through the Root joint, so nothing replicates.
+-- From where it stood the character crouches for `hopCrouch` and hops in a `hopHeight` arc into the barrel by `hop`,
+-- curling into the ball on the way. At `boom` the ball leaves along the barrel, tipped `tilt` degrees up, at `speed`
+-- studs a second under `gravity`, rolling forward `spin` turns a second about its middle, and at `gone` it waits
+-- `hidden` studs up, out of sight, while the clouds cover the move. At `drop` it falls from `dropHeight` over the
+-- pad, still rolling, opens over the last `open` seconds and lands at `touch` in a crouch; it sinks deeper, bounces
+-- `bounce` studs up and lands standing at `ends`, then gives the joints back over `blendOut`. A key's numbers are
+-- Avatar.Pose degrees, as in tacklePose; `ball` hugs the shins with the chin tucked.
+Presets.cannonPose = {
+	hopCrouch = 0.1,
+	hop = 0.4,
+	boom = 0.5,
+	gone = 1.4,
+	drop = 2.4,
+	touch = 2.62,
+	ends = 3.0,
+	hopHeight = 2.5,
+	tilt = 50,
+	speed = 150,
+	gravity = 60,
+	spin = 2,
+	hidden = 4000,
+	dropHeight = 40,
+	open = 0.1,
+	bounce = 0.6,
+	blendOut = 0.15,
+	poses = {
+		hopCrouch = {
+			lean = 15,
+			waist = 15,
+			neck = 15,
+			sh = -45,
+			sp = 12,
+			el = 30,
+			hip = 65,
+			kn = 85,
+		},
+		hopUp = { lean = -5, neck = 20, sh = 160, sp = 20, el = 10, hip = 15, kn = 25 },
+		ball = { waist = 50, neck = -35, sh = 55, sp = -10, tw = 35, el = 115, hip = 125, kn = 150 },
+		land = { lean = 25, waist = 20, neck = 25, sh = 35, sp = 50, el = 25, hip = 85, kn = 115 },
+		squash = {
+			lean = 30,
+			waist = 25,
+			neck = 20,
+			sh = 25,
+			sp = 55,
+			el = 30,
+			hip = 100,
+			kn = 135,
+		},
+		bounce = { lean = 5, waist = 5, neck = 15, sh = 60, sp = 45, el = 15, hip = 15, kn = 25 },
+		settle = { lean = 8, waist = 5, neck = 5, sh = 10, sp = 15, el = 15, hip = 25, kn = 35 },
+		spread = {
+			lean = 78,
+			waist = -8,
+			neck = 45,
+			sh = 100,
+			sp = 70,
+			el = 25,
+			hip = -12,
+			kn = 45,
+			lg = 25,
+		},
+	} :: { [string]: { [string]: number } },
+}
+
+-- The cloud cutscene's flyer (Derek 2026-10-28 13:56: "make the cloud cutscene a little better"), drawn by
+-- CannonGlide.luau in a ViewportFrame in the cloud tunnel on the launching player's screen, from cannonPose's `gone`
+-- to its `drop`. The rolling ball rises `below` studs into view over `rise` seconds and opens into cannonPose's
+-- `spread` over `open`, a happy skydiver: flat out, arms up and out, legs apart and bent. It glides with its knees fluttering `flutter` degrees
+-- at `flutterHz`, bobbing `bob` studs at `bobHz` and banking `bank` degrees at `bankHz`, then over the last `dive`
+-- seconds tucks back into the ball and dives out of the bottom of the frame, ready to drop onto the pad. It heads
+-- `heading` degrees off straight into the screen, so its side and face show; the frame's camera sits at `camera`
+-- looking at `look` with `fov` degrees, which puts the flyer in the lower middle, under UI's name card.
+Presets.cannonGlide = {
+	rise = 0.18,
+	open = 0.2,
+	dive = 0.22,
+	below = 9,
+	flutter = 14,
+	flutterHz = 3,
+	bob = 0.25,
+	bobHz = 1.3,
+	bank = 14,
+	bankHz = 0.7,
+	heading = 20,
+	camera = Vector3.new(0, 6, 12),
+	look = Vector3.new(0, -1.2, -1.5),
+	fov = 40,
+}
+
+-- The launching player's camera through the flight (hometown-cannon.md section 7), moved by CannonGlide.luau; everyone
+-- else keeps their own. Over the hop and the fuse it eases from the player's own view to `launch` (studs right, up
+-- and back of the seat) looking `ahead` studs up the barrel. From the boom it chases the ball from `chase` (right, up
+-- and back of its flight), easing there over `catch` seconds (the boom's shake is Cannon.luau's, on top). Under the
+-- clouds it waits. From `over` seconds before the drop it hangs at `above` (right, up and
+-- back of the pad) watching the ball come down, and after the landing it settles behind the character at the
+-- player's own distance and pitch by cannonPose's `ends`, where the game's camera takes over again.
+Presets.cannonCamera = {
+	launch = Vector3.new(5, 5, 14),
+	ahead = 12,
+	chase = Vector3.new(2.5, 3, 13),
+	catch = 0.15,
+	over = 0.1,
+	above = Vector3.new(4, 10, 18),
+}
+
+-- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue
+-- pushes every other player within CatchBurstRadiusStuds (10) of the catcher away, so a ring as wide as that
+-- spreads from the catcher's feet, and while their `RushUntil` runs (Config.CatchRushSeconds) speed lines stream off
+-- them. Startled (F57): the player who missed walks slowly while their `StartledUntil` runs (StartledSeconds, 2), with
+-- the dizzy stars of a shove for that long and, for them, a camera bump between a miss's and a shove's.
+Presets.chase = {
+	ringDiameter = 20, -- studs: twice CatchBurstRadiusStuds, so the ring ends where the push does
+	ringSeconds = 0.6,
+	dust = 8, -- dust particles at the catcher's feet as the rush starts
+	pushedDust = 6, -- kick particles at a pushed player's feet (`PushedAt`, when the engineer sets it)
+	lineSeconds = 0.25, -- how long a speed line trails behind
+	lineWidth = 0.12, -- studs
+	-- Where each line leaves the body, in the HumanoidRootPart's axes (x right, y up, z back), in the order the
+	-- budget's rushLines takes them.
+	lines = {
+		Vector3.new(-1.15, 0.9, 0.4),
+		Vector3.new(1.15, 0.2, 0.4),
+		Vector3.new(-0.95, -1.2, 0.4),
+	},
+	longest = 30, -- seconds; a RushUntil or StartledUntil further ahead than this is cut to it
+	startledShake = 0.24,
+	startledStuds = 0.3,
+}
+
+-- The areas closing at dusk and opening at sunrise (F66, data-model section 9): at every area gate this player
+-- can use and is near, a violet haze as it closes and a sunrise sparkle and a warm ring as it opens.
+Presets.areas = {
+	points = 3, -- places along each gate's width the haze and sparkle come from
+	sparkle = 6, -- gateSparkle particles at each of those places at sunrise
+	ringDiameter = 12,
+}
+
+-- Butterflies by day (design v0.4 section 4; Derek 2026-10-27 22:43: round more than the door, and they come and
+-- go). The `perSource` butterflies of a flower bed wander all of it and `pad` studs past its edges (at least `least`
+-- from its middle each way): a flight to a random spot at about `speed` studs a second, often then a hover over it,
+-- with a little loop of `roam` on top all the time. Each is out for a spell of `out` seconds, then away for `away`;
+-- it comes down from `rise` studs up as it fades in, and rises as it fades out, over `fade` seconds.
+Presets.butterfly = {
+	wing = Vector3.new(0.34, 0.03, 0.28),
+	colors = {
+		Presets.palette.blush,
+		Presets.palette.aurora,
+		Presets.palette.lampWarm,
+		Presets.palette.mint,
+	},
+	flapHz = 2.2,
+	flapDegrees = 55,
+	roam = Vector3.new(0.7, 0.35, 0.6), -- half size of the little loop it flutters in on top of its flight
+	height = 1.6, -- studs over the flowers
+	speed = 2.6,
+	legShortest = 1.2, -- seconds of one flight
+	legLongest = 5,
+	hover = { chance = 0.45, shortest = 0.6, longest = 1.8 },
+	pad = 1,
+	least = Vector3.new(1.5, 0, 1.2),
+	out = { 6, 14 }, -- seconds, shortest and longest
+	away = { 8, 20 },
+	firstAway = { 0, 10 }, -- the first wait once a bed is near, so they do not all arrive at once
+	fade = 1,
+	rise = 1.5,
+	-- Now and then (`chance` of a flight) it flies over to another bed within `range` studs of its home bed, or
+	-- back home, at about `speed` studs a second (`shortest` to `longest` seconds) in an arc `arc` studs high, and
+	-- stays out at least `stay` seconds after it lands (Derek 2026-10-28 17:48: the Town Square's butterflies
+	-- "going in circles are a little repetitive make them go between each one").
+	hop = { chance = 0.35, range = 26, speed = 3.5, shortest = 2, longest = 9, arc = 1.2, stay = 3 },
+	perSource = 2,
+}
+
+-- The z's over a sleeping cat (Logic.napZ): `labels` z's take turns, one each time the cat breathes out, each
+-- rising for `life` breaths before it fades and starts again at the bottom. Places are in the z's box, which sits
+-- `offset` studs up and to the right of the head on screen and is `box` studs: x 0 to 1 from the left, y 0 to 1
+-- from the top. A z starts at (x, y) at `size` of a full z, rises by `rise` and drifts right by `drift` with a
+-- `sway` to and fro, fades in over the first `fadeIn` of its life and out over the last `fadeOut`, tilting by
+-- up to `tilt` degrees.
+Presets.nap = {
+	maxDistance = 45,
+	labels = 3,
+	life = 2.5,
+	box = Vector2.new(1.8, 2.4),
+	offset = Vector3.new(0.55, 1.35, 0),
+	zSize = Vector2.new(0.42, 0.3), -- of the box, for a full z
+	x = 0.22,
+	y = 0.86,
+	size = 0.45,
+	rise = 0.76,
+	drift = 0.5,
+	sway = 0.07,
+	fadeIn = 0.15,
+	fadeOut = 0.35,
+	tilt = 12,
+}
+
+Presets.gate = { seconds = 1.4, playWithin = 70 }
+
+Presets.shutter = { seconds = 0.9, signSeconds = 0.6 }
+
+-- A rank up: confetti and a smoke puff at any cafe's door in range. Your own cafe also gets a gold beam from roof
+-- height, a gold ring across the street, confetti from both sides of the door (`sideStuds` either side, each a share
+-- of the budget's confetti) and `fountains` sparkle fountains `fountainEvery` seconds apart.
+Presets.rankUp = {
+	within = 120,
+	claimGrace = 2,
+	beam = { width = 2.6, height = 22, seconds = 1.8 },
+	ring = 18,
+	ringSeconds = 0.8,
+	sideStuds = 4,
+	sideConfetti = 0.75,
+	fountains = 3,
+	fountainEvery = 0.3,
+	fountain = 12, -- gateSparkle particles in each
+}
+
+-- The Spin Wheel station (F49): the world wheel turns for everyone nearby whenever anyone spins and stops on the
+-- won slice (LastSlice). It stops inside the server's 4 s SpinCooldownSeconds, so a player's next spin starts from
+-- rest.
+Presets.wheel = {
+	seconds = 3.4, -- turning, easing to a stop
+	turns = 3, -- whole turns before it settles
+	stillTurns = 1, -- with Reduce Motion
+	slices = 6, -- Catalog.spinWheel's six slices
+	landWithin = 0.6, -- of a slice's width around its centre the wheel stops in, so never by an edge
+	tick = 14, -- degrees the pointer is knocked aside as a slice edge passes it
+	tickShare = 0.18, -- of a slice it takes to spring back
+	chaseStep = 0.09, -- seconds between steps of the rim lights chasing round
+	flashes = 3, -- the rim lights blink together when it stops
+	flashSeconds = 0.6,
+	sparkles = 10, -- at the pointer when it stops
+	within = 120, -- studs; a spin farther away just moves the wheel to where it stopped
+	-- How a prize is celebrated, by its chance in Catalog.spinWheel, only once the wheel has stopped on it: a
+	-- "good" one (chance at most `good`) adds a mint ring and confetti from the top of the wheel, a "jackpot" (at
+	-- most `jackpot`) gold confetti, a gold ring, `showers` sparkle showers and longer blinking.
+	good = 0.16,
+	jackpot = 0.06,
+	goodRing = 8,
+	jackpotRing = 12,
+	ringSeconds = 0.6,
+	goodConfetti = 0.5, -- of the budget's confetti
+	jackpotConfetti = 1,
+	showers = 3,
+	showerEvery = 0.3,
+	jackpotFlashes = 6,
+	jackpotFlashSeconds = 1.2,
+}
+
+-- Signature effects (effects list section 1; round 4 Q8, 2026-10-27: "Yes thats a great idea make them special
+-- because of rarity"): each Legendary and Mythical themed cat, keyed by CatId, shows one emitter (`emitter`, a
+-- Presets.emitters key) on its Body or Head (`on`) in `colors`, and a gold one shows the same effect in `gold`.
+-- `eyes`: the cat was modelled with glowing eyes (cats.py glow_eyes), so the iris of each eye turns Neon;
+-- `goldEyes` is the eye colour of a gold one where the eyes are the effect (Ninja Cat). `moving`: only while the
+-- cat moves. Only the nearest budget.signatureCats within `radius` studs show their emitter; eyes glow on all.
+export type Signature = {
+	emitter: string,
+	-- "Body" or "Head", or "Prop" / "Prop2" for the cat's first or second prop (parts named ..._Prop, ..._Prop2);
+	-- a prop's emitter goes on its `props` biggest parts (1 if not set), sharing the rate, and falls back to the body
+	-- while the prop has not streamed in
+	on: string,
+	props: number?,
+	colors: { Color3 },
+	gold: { Color3 },
+	eyes: boolean?,
+	goldEyes: Color3?,
+	moving: boolean?,
+	notes: boolean?, -- music notes float up off the prop as well (Jazz Cat, Presets.notes)
+}
+
+local palette = Presets.palette
+Presets.signature = {
+	void = { -- Ninja Cat: glowing eyes and a twinkle on the black coat
+		emitter = "sigGlint",
+		on = "Body",
+		colors = { palette.sparkle, palette.offwhite },
+		gold = { palette.goldLight, palette.golden },
+		eyes = true,
+		goldEyes = palette.goldLight,
+	},
+	midnight = { -- Wizard Cat: little stars drifting up off the night sky coat
+		emitter = "sigRise",
+		on = "Body",
+		colors = { palette.sparkle, palette.offwhite },
+		gold = { palette.goldLight, palette.golden },
+		eyes = true,
+	},
+	blossom = { -- Fairy Cat: a petal now and then
+		emitter = "sigFall",
+		on = "Body",
+		colors = { palette.furRose, palette.nosePink, palette.offwhite },
+		gold = { palette.goldLight, palette.golden },
+	},
+	aurora = { -- Astro Cat: a glow shifting from galaxy blue through violet to mint
+		emitter = "sigHalo",
+		on = "Body",
+		colors = { palette.galaxyBlue, palette.aurora, palette.mint },
+		gold = { palette.goldDark, palette.golden, palette.goldLight },
+		eyes = true,
+	},
+	marshmallow = { -- Super Cat: a whoosh behind the cape as it runs
+		emitter = "sigWhoosh",
+		on = "Body",
+		colors = { palette.offwhite, palette.shirtRed },
+		gold = { palette.goldLight, palette.golden },
+		moving = true,
+	},
+	comet = { -- Ice Cream Cat: floating sprinkles off the cone hat
+		emitter = "sigRise",
+		on = "Head",
+		colors = {
+			palette.neonPink,
+			palette.signTeal,
+			Presets.rarity.Legendary,
+			palette.shirtBlue,
+			palette.mint,
+		},
+		gold = { palette.goldLight, palette.golden, palette.goldDark, palette.sparkle },
+		eyes = true,
+	},
+	old_oak = { -- Antler Cat: a leaf drifting down off the antlers
+		emitter = "sigFall",
+		on = "Head",
+		colors = { palette.leaf, palette.mint },
+		gold = { palette.golden, palette.goldDark },
+	},
+	wisp = { -- Unicorn Cat: a sparkle trail off the glowing horn
+		emitter = "sigGlint",
+		on = "Head",
+		colors = { palette.pastelSky, palette.sparkle, palette.blush },
+		gold = { palette.goldLight, palette.sparkle },
+		eyes = true,
+	},
+	bottlecap = { -- King Cat: glints off the bottle cap crown
+		emitter = "sigGlint",
+		on = "Head",
+		colors = { palette.offwhite, palette.sparkle },
+		gold = { palette.golden, palette.goldLight },
+	},
+	eclipse = { -- Dragon Cat: tiny harmless sparks that fade to smoke
+		emitter = "sigRise",
+		on = "Head",
+		colors = { palette.sparkle, palette.lampWarm, palette.furGrey },
+		gold = { palette.sparkle, palette.golden, palette.goldDark },
+		eyes = true,
+	},
+	-- The area-themed cats of design v0.13 (F78, data-model 3d). Wizard, Astro and Super Cat above are spare cats
+	-- now; owned ones keep their effects.
+	neon = { -- Jazz Cat: music notes floating up off the glowing saxophone, which twinkles in the sign colours
+		emitter = "sigGlint",
+		on = "Prop2",
+		colors = { palette.neonPink, palette.signTeal, palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		notes = true,
+	},
+	balloon = { -- Balloon Cat: its three balloons shine; the floaty bob is the cat motion's (Animation-Engineer)
+		emitter = "sigGlint",
+		on = "Prop",
+		props = 3,
+		colors = { palette.offwhite, palette.sparkle, palette.blush },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	gnome = { -- Gnome Cat: little lucky sparkles, clover green and gold, round the pointy hat
+		emitter = "sigGlint",
+		on = "Head",
+		colors = { palette.leaf, palette.mint, palette.goldLight },
+		gold = { palette.golden, palette.goldLight, palette.sparkle },
+	},
+} :: { [string]: Signature }
+Presets.signatureFx = {
+	radius = 40, -- studs from the player
+	movedStuds = 0.5, -- a `moving` effect runs while the cat moved this far since the last choice
+}
+
+-- Jazz Cat's music notes (F78): drawn notes (a head, a stem and a flag, every other one a pair joined by a beam) in
+-- the cat's colours, one every `every` seconds from `above` studs over its saxophone, rising `rise` studs with a
+-- `sway` to and fro over `seconds`, fading in over `fadeIn` and out over the last `fade`; at most `most` per cat.
+-- Only on cats that show their signature effect (the nearest signatureCats). They only drift, so Reduce Motion keeps
+-- them.
+Presets.notes = {
+	every = 1,
+	seconds = 2.2,
+	rise = 1.8,
+	sway = 0.3,
+	swayHz = 0.7,
+	fadeIn = 0.2,
+	fade = 0.6,
+	above = 0.3,
+	size = 0.5, -- studs tall
+	most = 3,
+	maxDistance = 60,
+}
+
+-- The Codes Cat's walk-in circle (F65; Derek 2026-10-27 20:10: "a clear area circle to walk into to open code
+-- entering menu"): a soft mint ring round the inside of the circle's rim that breathes between `glow` transparencies
+-- every `seconds` (steady with Reduce Motion), brighter (`inside`) while you stand in it, motes rising off it within
+-- the budget's ambientRadius (not in Low performance) and a ring with a few sparkles as you step in. In and out use
+-- the code box's own edges, CodesCircleRadius (`radius` until Config has it) and `leaveAfter` studs past it, so the
+-- glow and the box agree. The glow is a ring, `ring` studs wide `inset` in from the edge with a fainter `halo` band
+-- inside it at `haloShare` of its strength, drawn flat (a SurfaceGui, no Neon bloom), so the middle of the circle
+-- and the ticket on it stay clear (Derek 2026-10-28 00:47: "too bright and can't see what symbol its showing").
+Presets.codes = {
+	radius = 4,
+	leaveAfter = 1,
+	glow = { 0.75, 0.5 },
+	inside = 0.25,
+	seconds = 1.2, -- one way; a breath is twice this
+	ring = 0.25,
+	halo = 0.3,
+	haloShare = 0.35,
+	inset = 0.3, -- clear of the modelled rim; the halo's inner edge stays clear of the ticket's corners (3.1 studs)
+	pixelsPerStud = 24,
+	lift = 0.06, -- studs above the circle's top
+	ringPad = 1,
+	ringSeconds = 0.45,
+	sparkles = 10,
+	padShare = 1.4, -- the motes' square pad is this many radii wide, so its corners stay inside the circle
+	checkEvery = 0.1,
+}
+
+-- A red "!" over each rescue trap that holds a stuck cat (Derek 2026-10-28 01:01: "rescue mini games like stuck in
+-- trash and others should have a red exclamation mark coming out"), so players spot a rescue from across the area.
+-- It pops up out of the trap over `popSeconds`, rising `rise` studs to sit `above` + `rise` studs over the cat, then
+-- bobs `bob` studs every `bobSeconds` (it just sits there with Reduce Motion). It is `size` studs tall plus `pixels`
+-- on screen, so it still reads from afar, in `colour` with an `outline` round it. The nearest `most` within
+-- `maxDistance` show, checked every `checkEvery` seconds; none while someone is rescuing that cat (LockedBy) or
+-- once you are within `hideWithin` studs, where its Rescue card takes over (GrabRangeStuds is 10).
+Presets.stuckMark = {
+	colour = Presets.palette.shirtRed,
+	outline = Presets.palette.offwhite,
+	outlinePixels = 3,
+	above = 0.3,
+	rise = 0.8,
+	popSeconds = 0.35,
+	bob = 0.3,
+	bobSeconds = 0.6, -- one way
+	size = 1.4,
+	pixels = 18,
+	maxDistance = 100, -- in view only (Derek 12:13); was 160 when it drew over everything
+	hideWithin = 10,
+	showAfter = 1, -- a hidden mark comes back only this far past hideWithin
+	lostAfter = 0.5, -- seconds out of view before it hides
+	gem = 0.8, -- studs: the cat's rarity gem over the "!", as big as a stray's (rarityMark.size)
+	gemGap = 0.15,
+	seeThrough = 3, -- see-through parts a sight line passes before it gives up
+	most = 6,
+	checkEvery = 0.25,
+}
+
+-- Opening a Cafe Crate at the Golden Fish Market (F53): a puff of ice off the stall's counter and the won piece's
+-- rarity popping `above` studs over it, as a catch of that rarity does (catchPop). On the modelled stall (market.py)
+-- the pop comes from `counterY` up and `counterZ` toward the front from its pivot, over the ice.
+Presets.market = {
+	within = 30, -- studs from the player to the stall (FishMarketRange is 14)
+	above = 0.6,
+	puff = 6, -- dust particles, tinted like ice
+	counterY = 3.1,
+	counterZ = -0.65,
+	floorDepth = 12, -- how far under the counter a Mythical crate's shockwave looks for the ground
+}
+-- The opened crate on the counter (crates.py's models, about 2.5 by 2 by 2 studs at full size): scaled down to sit on
+-- the stall's ice, the lid swung up `lidDegrees` (crates.py: 105 is wide open with no clipping) over `lidSeconds`,
+-- held for `hold` seconds from the open and faded over `fade`.
+-- While the Market window's crate reel runs (F103, crate-reel.md), the lid knocks on its hinge as hard as the reel is
+-- fast (Logic.crateReelPace): up to `reelRattle` degrees and `reelHop` studs, `reelHz` knocks a second, the same for
+-- every prize. The lid opens at the stop: the time Config's CrateReel* numbers give (Logic.crateReelStop), or the
+-- UI's CrateReelLanded moment (a tap skips), in which case the stop plus `reelSafety` seconds is only the fallback.
+Presets.marketCrate = {
+	scale = 0.6,
+	lidDegrees = 105,
+	lidSeconds = 0.3,
+	hold = 1.8,
+	fade = 0.4,
+	reelRattle = 3,
+	reelHop = 0.04,
+	reelHz = 9,
+	reelSafety = 1.5,
+}
+
+-- Rainbow coats (F99, rainbow-coat.md section 2): a rainbow cat's own parts in `hues`, each part's colour drifting
+-- round them with its phase set by how far back from the nose it sits, so bands flow nose to tail, one lap every
+-- `period` seconds and `spread` laps along the cat; a part keeps `least` to all of its band's brightness by how light
+-- its own colour was, so stripes still show. Only the `pieces` named here change (not the eyes, props or outfits),
+-- and in them a part shorter than `keepShare` of its piece's biggest part (the nose, the mouth, the blush) keeps its
+-- colour. The nearest budget.rainbowCats within `within` studs (no more than Config.RainbowAnimateMax) flow at `hz`
+-- updates a second, glow (`glow`) and drop `trail` sparkles while they move faster than `moving` studs a second; the
+-- nearest budget.rainbowOutlines of those also get an outline in the band colour. The rest show still bands. When a
+-- rainbow stray spawns (`RainbowSpawned`), a bundle of six thin beams, one per hue, rises from it (`beam`) for
+-- anyone within `beam.within`. Reduce Motion stills the bands and drops the trail and beam; glow and outline stay.
+Presets.rainbow = {
+	hues = {
+		Color3.fromRGB(255, 72, 88), -- red
+		Color3.fromRGB(255, 150, 48), -- orange
+		Color3.fromRGB(255, 222, 60), -- yellow
+		Color3.fromRGB(84, 214, 112), -- green
+		Color3.fromRGB(72, 182, 255), -- sky blue
+		Color3.fromRGB(168, 108, 255), -- violet
+	},
+	period = 3,
+	spread = 1,
+	least = 0.7,
+	keepShare = 0.2,
+	pieces = { "Body", "Head", "EarL", "EarR", "Tail", "LegF1", "LegF2", "LegB1", "LegB2" },
+	within = 120,
+	hz = 20,
+	pick = 0.25, -- seconds between choosing which cats flow
+	glow = { color = Color3.new(1, 1, 1), range = 6, brightness = 0.6 },
+	outline = 0.25, -- outline transparency
+	moving = 0.6,
+	beam = { width = 0.5, height = 50, seconds = 3, ring = 0.55, within = 400 },
+}
+
+-- The Rescue Rally (F101, rescue-rally.md section 4) on this player's screen, over the UI's banner bar (`RallyBar`):
+-- each point anyone scores pops a "+N" in `text` up from just under the bar into the end of its fill, and this
+-- player's own points fly a paw with the "+N" up from the bottom middle of the screen. Each flies `seconds`, popping
+-- in over `popIn` and shrinking to `land` as it arrives, with a small sparkle there; no more than the budget's
+-- rallyPops at once, the rest skipped. Each step of the bar (`steps`) runs `stepSparkles` sparkles along the filled
+-- bar, twice as many in gold for the full bar. Reduce Motion drops the pops and halves the step sparkles.
+Presets.rally = {
+	displayOrder = 11, -- over the HUD (10), under the area title (12) and the modals (20)
+	steps = { 0.25, 0.5, 1 },
+	seconds = 0.65,
+	popIn = 0.14,
+	land = 0.55,
+	below = { 34, 64 }, -- pixels under the bar the "+N" pops at
+	spreadX = 46, -- pixels either side of the fill end
+	lift = { 0.12, 0.28 }, -- how far a flight bends, a share of its length, to either side
+	textSize = 26,
+	ownSize = 44, -- the paw's size in pixels
+	text = Color3.fromRGB(255, 249, 242),
+	stroke = Color3.fromRGB(217, 102, 40),
+	paw = Color3.fromRGB(255, 166, 77),
+	sparkle = Color3.fromRGB(255, 244, 176),
+	arrive = 5, -- sparkles where a pop lands
+	stepSparkles = 14,
+	stepSeconds = 0.8,
+	full = Color3.fromRGB(242, 193, 78),
+}
+
+-- The Rally board's marquee (F101, Model-Agent's #759: `CatCafe_Square_RallyBoard` with its 32 bulbs in the
+-- `_Bulbs` Model round the face). While a Rally runs, every `gap`th bulb glows and the lit ones run round the frame
+-- clockwise at `hz` steps a second, `burstHz` for `burstSeconds` after each point anyone scores; each step of the bar
+-- flashes every bulb `flashes` times at `flashHz` (`fullFlashes` in `full` gold for the full bar), under 3 flashes a
+-- second. A lit bulb is a Neon cover `grow` times its size in `on`; an unlit one at night is a cover in `off` so the
+-- chase reads against the night glow, and by day shows the bulb as built. The nearest budget.rallyBoards within
+-- `within` studs, chosen every `pick` seconds; none with Reduce Motion or in Low performance.
+Presets.rallyBoard = {
+	within = 120,
+	gap = 3,
+	hz = 5,
+	burstHz = 8,
+	burstSeconds = 1.2,
+	flashes = 2,
+	fullFlashes = 3,
+	flashHz = 2.5,
+	grow = 1.15,
+	on = Color3.fromRGB(255, 236, 190),
+	full = Color3.fromRGB(242, 193, 78),
+	off = Color3.fromRGB(120, 92, 60),
+	pick = 1,
+}
+
+-- Bunting pennants (F101: the Town Square's Rally bunting, the Rally Crate's cheer bunting): every Model or part whose
+-- name ends `_Pennant` inside a Model whose name has `Bunting` in it swings about its top edge, out of its hanging
+-- plane, leaning `lean` degrees downwind and fluttering `swing` degrees on two waves (`hz1`, `hz2`) that run across
+-- the square with the wind every `wavelength` studs. The nearest budget.pennants within ambientRadius move at the
+-- budget's update rate; the rest, and all of them with Reduce Motion, hang as modelled.
+Presets.bunting = {
+	lean = 7,
+	swing = 13,
+	hz1 = 0.9,
+	hz2 = 1.6,
+	wavelength = 18,
+	pick = 1, -- seconds between choosing which pennants move
+}
+
+-- Trade done (F102, trading.md section 3 step 6): the UI's "You get" pictures (tag `TradeGot`) fly off the confirm
+-- screen into the HUD's Cats pill, the cat room, one after another `stagger` seconds apart, in an arc that bends up
+-- by `lift` of the way, shrinking to `land` of the pill's height over `seconds`; each lands with `arrive` sparkles and
+-- a ring round the pill. With Reduce Motion nothing flies: the pill gets half the sparkles and no ring.
+Presets.tradeFly = {
+	displayOrder = 21, -- over the trade window (a modal, 20), under the bait card (35) and toasts (30)
+	seconds = 0.75,
+	stagger = 0.09,
+	lift = 0.22,
+	land = 0.8,
+	popIn = 0.12,
+	arrive = 6,
+	ring = 1.6, -- the ring grows to this many times the pill's height
+	ringSeconds = 0.45,
+	sparkle = Color3.fromRGB(255, 244, 176),
+	ringColor = Color3.fromRGB(255, 249, 242),
+}
+
+-- Moving parts of rare decor (F89 2c, luck-and-rare-moments.md: a Legendary piece has "a moving part and a light"):
+-- Model-Agent marks each with a child Model named ending `_Swing` (swings side to side about its pivot's Z axis, the
+-- pivot at the hook: lanterns, a porch swing, wind chimes), `_Spin` (turns about its pivot's Y axis: a record, a little
+-- fan) or `_Bob` (rides up and down along its pivot's Y: a duck on the water), lights inside riding along. Its own
+-- `Angle` (degrees), `Seconds` (one cycle) and `Rise` (studs) attributes override the defaults here, held inside the
+-- ranges. The nearest budget.decorMotion within ambientRadius move at the budget's update rate, each started at a
+-- random point of its cycle; Reduce Motion and Low performance hold them all still as modelled.
+Presets.decorMotion = {
+	angle = { default = 10, least = 0, most = 45 },
+	seconds = { default = 2, least = 0.3, most = 30 },
+	rise = { default = 0.08, least = 0, most = 1 },
+	pick = 1, -- seconds between choosing which parts move
+}
+
+-- The net swing (F93, catch-rework.md sections 1 and 5): a whoosh trail off the net's hoop over the downswing, from
+-- `from` to `to` seconds into the smack (it lands at netSmack.land), each piece fading over `lifetime`. The trail's
+-- edges are the hoop and a point `inner` of the way out from the grip, so it sweeps a fan like a swung racket. Only
+-- characters within `within` studs, the nearest budget.netTrails at once; none with Reduce Motion.
+Presets.netTrail = {
+	from = 0.06,
+	to = 0.17,
+	lifetime = 0.14,
+	inner = 0.55,
+	transparency = 0.3, -- at the hoop's end of each piece; it fades to clear
+	lightEmission = 0.4,
+	within = 60,
+	colors = { Presets.palette.offwhite, Presets.palette.pastelSky },
+}
+
+-- The catch's result word (F93 section 3): as UI-Engineer's word slams in, sparkles burst off it in its colour and
+-- rings grow round it, the biggest for PURRFECT!; "So close!" gets none. The word is the first of `targets` found in
+-- CatCafeCatchCircles that shows within `wait` seconds of CatchResult. Sparkles are `size` pixels and fly up to
+-- `reach` pixels over `seconds`; rings grow from `ringFrom` to `ringTo` of the word's width over `ringSeconds`, the
+-- second `ringGap` seconds later. Never more sparkles than the budget's maxBurst; Reduce Motion halves them and drops
+-- the rings.
+Presets.catchWord = {
+	displayOrder = 26, -- just over the catch screen (CatCafeCatchCircles, 25), under toasts (30)
+	targets = { "ResultWord", "Outcome" },
+	wait = 0.5,
+	size = 12,
+	seconds = 0.6,
+	reach = 80,
+	stagger = 0.12,
+	ringFrom = 0.5,
+	ringTo = 1.4,
+	ringSeconds = 0.5,
+	ringGap = 0.15,
+	words = {
+		purrfect = { sparkles = 18, rings = 2, colour = Presets.palette.golden },
+		excellent = { sparkles = 11, rings = 1, colour = Presets.palette.golden },
+		great = { sparkles = 7, rings = 1, colour = Presets.palette.mint },
+	} :: { [string]: { sparkles: number, rings: number, colour: Color3 } },
+}
+
+-- Rescues (F93 section 4): the trap (the `<rescueSpotId>_Trap` model by its anchor) shakes on every hit of your
+-- rescue, tipping side to side about its base and hopping, a little more each hit (Logic.trapShake); Reduce Motion
+-- keeps it still. When the cat comes free it pops in its rarity colour (Catch.pop) `above` studs over its spot.
+Presets.trapShake = { least = 1.5, most = 5, seconds = 0.35, hz = 12, hop = 0.08 }
+Presets.rescueFree = { above = 1.2, depth = 20 } -- `depth`: how far under the spot the ring looks for the ground
+
+-- Team Rescue (F92, playing-together.md section 3: "Both players see a small "Team Rescue!" pop when the cat comes
+-- free"): on the rescuer's and the helper's screens, `text` pops up `above` studs over the trap's spot, `width` by
+-- `height` studs, growing in over `popIn` s with a small overshoot, then rises `rise` studs and fades over the last
+-- half of `seconds`, seen within `maxDistance` studs. `sparkles` catch sparkles in each of `colours` burst there, a
+-- ring of each grows `ring` studs across over `ringSeconds`, `ringGap` s apart, and a share `confetti` of the budget's
+-- confetti falls in them. Reduce Motion keeps the word where it popped, skips the rings and halves the confetti.
+Presets.teamRescue = {
+	text = "Team Rescue!",
+	above = 2.4,
+	width = 5,
+	height = 1.2,
+	popIn = 0.18,
+	seconds = 1.8,
+	rise = 1.2,
+	maxDistance = 80,
+	textColour = palette.golden,
+	stroke = Color3.fromRGB(94, 70, 52), -- palette 2 dark wood, the UI's outline
+	colours = { palette.mint, palette.golden },
+	sparkles = 10,
+	ring = 4,
+	ringSeconds = 0.6,
+	ringGap = 0.15,
+	confetti = 0.4,
+}
+
+-- Cats make the orders (F90, cats-make-orders.md section 2 step 2 and section 4; Model-Agent's oven in #775). While a
+-- Barista makes an order a puff plays at its station every `every` seconds: `count` steam puffs off one of the
+-- espresso machine's `_Steam` parts (else `rise` over its top) for a drink, `count` flour puffs `above` studs over the
+-- oven's top and `forward` studs toward its front for a bake, `count` cool twinkles `above` the counter spot for the
+-- milk and the sundae. A bake also lights the oven's door window: a warm Neon cover `pad` studs proud of the window
+-- part by the `DoorGlow` attachment (`window` studs across when there is none), with a light inside, coming up over
+-- `rise` s, flickering by `flicker` at `hz` and fading over `fade` s once the oven has nothing left to bake; brighter
+-- by `night` after dark. When the item appears, `sparkles` ding sparkles burst `above` studs over it and a ring
+-- `ring` studs across opens round its plate over `ringSeconds`, both gold with `goldSparkles` on the rich customer's
+-- gold-rimmed plate; a bake's oven door (its `_Door` child Model, pivoted on the bottom hinge) swings out by `door`
+-- (keys of { seconds, degrees }, negative opens it toward the front) with `waft` steam puffs out of it. Orders within
+-- `within` studs play: your own cafe's always, other cafes' while fewer than the budget's `cafeOrders` play. A make
+-- with no OrderReady stops on its own `grace` s after its seconds. Reduce Motion keeps the door shut and the glow
+-- steady; Low performance leaves out the light. Serving and tips (section 2 steps 3 and 5): `served` as the dish goes
+-- on the table (by the same rule, a spot within `plotReach` of your own plot counting as your cafe), `sweep` as a tip
+-- pile goes into the coin bag and `bank` as the bag lands in the till, both your own cafe within `within`.
+Presets.orders = {
+	within = 150,
+	grace = 1.5,
+	steam = { every = 0.35, count = 3, rise = 0.3 },
+	flour = { every = 0.55, count = 4, above = 0.35, forward = 0.4 },
+	counter = { every = 0.5, count = 3, above = 0.6 },
+	glow = {
+		rise = 0.6,
+		fade = 0.4,
+		colour = Color3.fromRGB(255, 170, 84),
+		transparency = 0.3, -- the cover's, fully lit
+		pad = 0.035,
+		thick = 0.02,
+		margin = 0.02, -- studs past the window part's edges
+		window = Vector2.new(1.5, 0.74),
+		reach = 0.5, -- studs from DoorGlow the window part can be
+		light = Color3.fromRGB(255, 176, 102),
+		range = 7,
+		brightness = 1.2,
+		night = 1.5,
+		flicker = 0.12,
+		hz = 3.1,
+	},
+	-- 30 at most: the plot's Barista stands 2.65 studs in front of the oven (#781), and the 1.75 stud door would reach
+	-- it past that
+	door = { { 0, 0 }, { 0.12, -30 }, { 0.55, -30 }, { 0.85, 0 } },
+	waft = 6,
+	-- the dish set on the table: `sparkles` ding sparkles `above` it and a ring `ring` studs across round the plate
+	served = {
+		sparkles = 6,
+		above = 0.3,
+		ring = 1.3,
+		ringSeconds = 0.4,
+		colour = Presets.palette.blush,
+	},
+	-- a tip sweep: `coins` coin glints hop up off the table and `dust` puffs; the bag landing in the till: `coins`
+	-- glints and `sparkles` gold ding sparkles `above` it with a gold ring `ring` studs across
+	sweep = { coins = 6, dust = 2, above = 0.3 },
+	bank = {
+		coins = 8,
+		sparkles = 10,
+		above = 0.4,
+		ring = 1.8,
+		ringSeconds = 0.45,
+		colour = Presets.palette.golden,
+	},
+	plotReach = 40, -- studs from a plot's pivot that count as in that cafe
+	ding = {
+		sparkles = 10,
+		goldSparkles = 14,
+		above = 0.25,
+		ring = 1.6,
+		ringSeconds = 0.45,
+		colour = Presets.palette.sparkle,
+		gold = Presets.palette.golden,
+	},
+}
+
+-- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to
+-- 1, how much of the sky it hides) and `density` (how thick each cloud looks), tinted `color`, drifting on `wind`
+-- studs a second when the place has no wind of its own. Off in Low performance.
+Presets.sky = {
+	cover = 0.5,
+	density = 0.5,
+	color = Color3.fromRGB(255, 252, 247),
+	wind = Vector3.new(3, 0, 1.5),
+}
+
+-- A Lucky Day (F88, luck-and-rare-moments.md 1c: "The sky takes a warm gold tint for the day"): while the Clock's
+-- LuckyDay is on by day, the world takes a warm gold `tint` with a touch more `saturation` and `brightness` (a
+-- ColorCorrectionEffect of this client's own, over the place's, so the sky's day and night curve is untouched) and
+-- the clouds turn `clouds` gold, easing in and out over `seconds`. Joining during one shows it at once.
+Presets.luckyDay = {
+	tint = Color3.fromRGB(255, 240, 206),
+	saturation = 0.06,
+	brightness = 0.02,
+	clouds = Color3.fromRGB(255, 232, 178),
+	seconds = 4,
+}
+
+-- The Lucky Cat statue by each cafe's door (F88, 1a; Model-Agent's CatCafe_Plot_LuckyCat_0 to _5). When a plot's
+-- statue goes up a level while this client has it, sparkles in the new look's colour and some sparkle yellow burst
+-- `centre` studs over its base (the cushion is at 1.2, the head top about 3.2), a ring grows on the plinth and, from
+-- `confettiFrom` (gold and jade), confetti. Within `within` studs. The jade statue (`shimmerFrom`) shimmers: a faint
+-- Highlight over it drifts through the rainbow coat hues once every `period` seconds (`fill` transparent) and a
+-- `twinkle` of sparkles rises off it every `twinkleEvery` seconds; the nearest budget.luckyShimmers within
+-- `shimmerWithin` studs, chosen every `pick` seconds. Reduce Motion holds the shimmer at one hue with no twinkles.
+Presets.luckyCat = {
+	centre = 2.2,
+	sparkles = 14,
+	ring = 5,
+	ringSeconds = 0.6,
+	confettiFrom = 4,
+	within = 120,
+	colours = {
+		Color3.fromRGB(196, 122, 88), -- 1 clay (terracotta)
+		Color3.fromRGB(128, 86, 46), -- 2 bronze
+		Color3.fromRGB(205, 210, 218), -- 3 silver (fur_silver)
+		Color3.fromRGB(242, 193, 78), -- 4 gold (fur_golden)
+		Color3.fromRGB(46, 158, 107), -- 5 jade (fur_emerald)
+	},
+	shimmerFrom = 5,
+	shimmerWithin = 90,
+	period = 6,
+	fill = 0.82,
+	twinkle = 2,
+	twinkleEvery = 1.4,
+	pick = 1,
+}
+
+-- The camp extras' water (F100, camp-extras.md section 3; Model-Agent's #750). `drip`: under the Sewer standpipe's
+-- `Drip` attachment a drop swells for `swell` seconds to `size` studs across, falls under `gravity` (gentle, so the
+-- fall reads) onto what is below it within `reach` studs (the Lost and Found's lid, or `fallback` studs down) and
+-- lands with `splash` dripSplash drops and a ripple from `rippleFrom` to `ripple` studs across; the next forms
+-- `gap` seconds later. `fish`: the Woods pond's `_Fish` jumps every `every` seconds (the first `first` seconds after
+-- it comes near): from its rest under the water it arcs `peak` studs over the `FishJump` attachment's height and
+-- `length` studs on along its head (`headX`: Model-Agent's fish faces -X, its tail fin at +X) in `seconds`, with
+-- `exitDrops` and an `exitRipple` as it leaves the water (the fishJump beat, Sound-Agent's campSplash) and
+-- `entryDrops` and an `entryRipple` as it dives back in, then swims home under the water in `back` seconds, turning
+-- over the first and last `turn` of it. Only the nearest budget.campDrips and budget.campFish within `within` studs,
+-- chosen every `pick` seconds. Reduce Motion holds the fish at rest; the drips go on, like steam.
+Presets.campWater = {
+	drip = {
+		gap = { 0.6, 1.4 },
+		swell = 0.45,
+		size = 0.14,
+		gravity = 22,
+		reach = 3,
+		fallback = 1,
+		colour = Color3.fromRGB(196, 226, 240),
+		transparency = 0.25,
+		splash = 3,
+		rippleFrom = 0.08,
+		ripple = 0.45,
+	},
+	fish = {
+		every = { 6, 12 },
+		first = { 2, 6 },
+		seconds = 0.8,
+		length = 1,
+		peak = 1,
+		headX = -1,
+		back = 2.2,
+		turn = 0.25,
+		exitDrops = 5,
+		exitRipple = 0.8,
+		entryDrops = 8,
+		entryRipple = 0.9,
+	},
+	within = 70,
+	pick = 1,
+}
+
+-- One camp extra's collect burst (Presets.campCollect): `count` particles of `emitter`, tinted when `tint` is given.
+export type CampBurst = { emitter: string, count: number, tint: Color3? }
+export type CampCollect = {
+	delay: number, -- seconds after the press, so it meets Animation-Engineer's turn
+	above: number, -- studs over the spot the bursts pop at
+	bursts: { CampBurst },
+	colour: Color3, -- the ring's
+	ring: number, -- studs across
+}
+
+-- The camp extras' collect bursts (F100, camp-extras.md section 2: "Collecting is one press. The prize flies to the
+-- HUD with F94's prize toast"; Effects/CampCollect). When you collect one, a small burst in its own colours pops
+-- `above` studs over it and a ring `ring` studs across opens on its ground over `ringSeconds`, `delay` seconds after
+-- the press so it meets Animation-Engineer's turn (Presets.campExtras: the pond's rod tugs at the bite at 0.12 s and
+-- the Lost and Found's lid is up at 0.18 s). The spot is the top of the extra's model, the pond's `FishJump` water
+-- (its ring on the water) and the Lost and Found's `_Lid`. Picnic Basket: warm sparkles and a few gold coin glints
+-- for the Money Potion, a mint ring on the blanket. Fish Pond: drops off the water and gold glints rising, a fish-blue
+-- ripple. Lost and Found: a grey puff of dust out of the battered box and bright sparkles, a sparkle ring. Yard
+-- Sale (a crate bought for golden fish): sparkles over the boxes in gold and a blush ring. Your own collects only
+-- (the server answers only you), within `within` studs; the model is looked for within `reach` studs of the prompt.
+-- The golden fish landing in your wallet sparkle round you as ever (Fish.luau).
+Presets.campCollect = {
+	within = 40,
+	reach = 12,
+	ringSeconds = 0.5,
+	extras = {
+		picnic = {
+			delay = 0,
+			above = 0.3,
+			bursts = {
+				{ emitter = "dingSparkle", count = 8 },
+				{ emitter = "coinGlint", count = 5 },
+			},
+			colour = Presets.palette.mint,
+			ring = 3,
+		},
+		pond = {
+			delay = 0.12,
+			above = 0.1,
+			bursts = { { emitter = "splashDrops", count = 8 }, { emitter = "fishRise", count = 6 } },
+			colour = Presets.palette.fishBlue,
+			ring = 2.4,
+		},
+		lostFound = {
+			delay = 0.18,
+			above = 0.2,
+			bursts = {
+				{ emitter = "dust", count = 3, tint = Presets.palette.furGrey },
+				{ emitter = "dingSparkle", count = 10 },
+			},
+			colour = Presets.palette.sparkle,
+			ring = 2.6,
+		},
+		yardSale = {
+			delay = 0,
+			above = 0.3,
+			bursts = { { emitter = "dingSparkle", count = 8, tint = Presets.palette.golden } },
+			colour = Presets.palette.blush,
+			ring = 3,
+		},
+	} :: { [string]: CampCollect },
+}
+
+-- A big pull (F89, luck-and-rare-moments.md 2a and 2b; Derek 2026-10-30: "when securing something good leg/mythic
+-- decor or cats possibly consider a bigger VFX"): when this player secures a Legendary, a Mythical or a gold Epic cat,
+-- or opens a Legendary or Mythical crate piece, confetti in the rarity colour (gold mixed in for a gold cat) bursts
+-- in from both edges of the screen over UI-Engineer's big pull card, with a small camera shake, and a Mythical adds a
+-- second wave of sparkles round the middle at `sparkles.at`. Everyone within `within` studs sees the catch pop of
+-- that rarity where the cat was secured, and a Mythical's ground shockwave `shockwave.diameter` studs across. The
+-- budget's pullConfetti is the count (phones half, Low performance a third); Reduce Motion halves it and drops the
+-- shake and the shockwave. On the screen the pieces fly in pixels from the screen's height.
+Presets.bigPull = {
+	seconds = 2.4, -- the card's longest stay
+	displayOrder = 47, -- over the big pull card (44), popups (40) and the cannon name card (46), under the intro (50)
+	fade = 0.5, -- seconds the pieces fade over at the end
+	height = { 0.45, 0.85 }, -- share of the screen's height the pieces leave the edges at
+	speed = { 1.1, 1.7 }, -- screen heights a second
+	angle = { 30, 68 }, -- degrees above level, in toward the middle
+	gravity = 1.5, -- screen heights a second, every second
+	drag = 1.1, -- share of their speed lost a second
+	size = { 0.014, 0.026 }, -- of the screen's height
+	spin = 540, -- degrees a second either way at most
+	flutter = { 2, 4.5 }, -- flips a second
+	round = 0.3, -- share of the pieces that are dots, not slips
+	stagger = 0.25, -- seconds the pieces leave over
+	sparkles = { at = 0.6, count = 14, seconds = 0.8, radius = { 0.16, 0.42 }, size = 0.035 },
+	gold = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.goldDark },
+	shake = 0.3, -- seconds
+	shakeStuds = 0.3,
+	within = 120, -- studs: onlookers see the world pop
+	shockwave = { diameter = 20, seconds = 0.7, puffs = 12, puffAt = 0.3 },
+	-- A Legendary or Mythical crate piece: the crate glows in the rarity colour from the moment it appears and shakes
+	-- for `crateShake` seconds before the lid blows open in `blowSeconds`.
+	crateShake = 0.6,
+	blowSeconds = 0.12,
+	rattle = 6, -- degrees at the end of the shake
+	rattleHop = 0.12, -- studs
+	rattleHz = 11,
+	glowFill = 0.6, -- the Highlight's fill transparency
+	glowLight = { range = 8, brightness = 2 },
+	crateSparkles = 5, -- catchSparkle particles rising off the crate every `sparkleEvery` seconds while it shakes
+	sparkleEvery = 0.15,
+}
+
+-- Golden fish landing in your wallet (golden-fish.md section 4: "the catch sparkle in gold"): catch sparkles in gold
+-- `chest` studs above the root part, `rise` of as many gold glints floating up (fishRise) and a gold ring at your
+-- feet, both by the biggest step the gain reaches.
+Presets.fishPickup = {
+	chest = 0.5,
+	rise = 0.5,
+	ringSeconds = 0.45,
+	steps = {
+		{ from = 1, sparkles = 8, ring = 3 },
+		{ from = 10, sparkles = 14, ring = 4.5 },
+		{ from = 40, sparkles = 22, ring = 6 },
+	},
+}
+
+-- A cat levelling up (F75, data-model 4b v0.12): a small mint sparkle over one of your own cafe cats, `above` studs
+-- over its head, and a few glints floating up. Small, since cats level often early on.
+Presets.levelUp = {
+	sparkles = 6, -- catchSparkle particles
+	glints = 3, -- fishRise particles, tinted
+	above = 0.4,
+	colour = Presets.palette.mint,
+}
+
+-- Decor you just put out (Derek 2026-10-28): a green outline and faint fill (a Highlight, drawn over whatever stands
+-- in front) come in over `fadeIn` seconds, hold, then fade over `fade`. `fill` is the fill's transparency at its
+-- strongest. The piece's model is waited for up to `wait` seconds after the sync; past `maxDistance` studs nothing
+-- shows, and at most `most` flash at once (Roblox draws 31 Highlights at most).
+Presets.equipFlash = {
+	colour = Presets.palette.leaf,
+	fill = 0.7,
+	fadeIn = 0.15,
+	hold = 0.6,
+	fade = 0.75,
+	wait = 3,
+	maxDistance = 150,
+	most = 4,
+}
+
+-- Mythical cafe styles and decor (F53, golden-fish.md section 4: each "gets one steady emitter or a texture scroll.
+-- It runs only near the player, counts against the steady-emitter budget and shows a still look in Low performance
+-- mode"), by decor id. `on` is a plot style attribute (the style shows on the plot's parts with that tag) or
+-- "model", a placed piece carrying DecorId. `emitter` and `colors` are its glints or petals.
+export type DecorSpec = { look: string, on: string, emitter: string?, colors: { Color3 }? }
+Presets.decor = {
+	alley_midnight_sky = { look = "stars", on = "Wallpaper" },
+	park_blossom_tree = { look = "petals", on = "model", emitter = "decorPetals" },
+	neighbourhood_rainbow_shimmer = { look = "rainbow", on = "Paint" },
+	woods_aurora_sky = { look = "aurora", on = "Wallpaper" },
+	sewer_glimmer_canal = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { palette.milk, palette.pastelSky },
+	},
+	classic_gold_leaf = {
+		look = "goldLeaf",
+		on = "Paint",
+		emitter = "decorGlint",
+		colors = { palette.offwhite, palette.goldLight },
+	},
+	-- The Rally Crate's Mythical paint (F101, Model-Agent's #766: gold 255, 201, 77 Foil on the Paint parts, its
+	-- `_Trim` trims with #660), with Gold Leaf's look: the glints over the front and, once trims are in, their sweep.
+	rally_trophy_gold = {
+		look = "goldLeaf",
+		on = "Paint",
+		emitter = "decorGlint",
+		colors = { palette.offwhite, palette.goldLight },
+	},
+} :: { [string]: DecorSpec }
+
+-- How the Mythical styles look. Walls: Midnight Sky's stars and moon and Aurora Sky's lights are pictures on a
+-- see-through sheet laid `lift` studs inside the back and side walls (the wallpaper layer is `layer` thick, from
+-- plot.py), from `wallFrom` above the floor to `wallTo` under the eave, at `pixels` per stud. The floor and the
+-- front take `floorPixels`. Times are seconds; positions and sizes in UI scale unless they say pixels.
+Presets.decorFx = {
+	checkEvery = 1,
+	retry = { first = 2, most = 30 }, -- a piece whose walls, floor or front are missing waits, doubling, between tries
+	layer = 0.2,
+	lift = 0.03,
+	wallFrom = 1,
+	wallTo = 0.4,
+	pixels = 12,
+	floorPixels = 6,
+	-- Midnight Sky: stars on the back and side walls (`size` pixels, `shown` transparency), `twinkleShare` of them
+	-- fading to `faded` and back every `twinkle` seconds, diamonds from `diamondFrom` pixels.
+	stars = {
+		back = 16,
+		side = 10,
+		size = { 3, 7 },
+		shown = { 0.05, 0.35 },
+		twinkleShare = 0.5,
+		twinkle = { 1.2, 2.6 },
+		faded = 0.85,
+		diamondFrom = 6,
+	},
+	-- A full moon `size` pixels wide, `height` down the back wall, drifting from `from` to `to` and back. Its soft
+	-- glow is rings of warm light, each { times as wide, transparency }, fainter as they widen.
+	moon = {
+		size = 52,
+		glow = { { 1.5, 0.84 }, { 2.1, 0.9 }, { 2.8, 0.95 } },
+		crater = 0.75,
+		height = 0.3,
+		from = 0.2,
+		to = 0.8,
+		seconds = 45,
+	},
+	-- Aurora Sky: soft curtains of light `height` tall, violet at the top to teal at the foot, swaying `sway`
+	-- degrees and drifting `drift` across over their `seconds`, with `stars` still stars a wall behind them.
+	aurora = {
+		bands = 3,
+		height = 0.42,
+		shown = 0.45,
+		sway = 5,
+		drift = 0.05,
+		shimmer = 0.12,
+		seconds = { 7, 9, 11 },
+		stars = 6,
+	},
+	-- Glimmer Canal: light bands `width` wide sliding across the floor under the glass, each crossing in `seconds`.
+	canal = { bands = 4, width = 0.16, shown = 0.78, tilt = 30, seconds = { 9, 15 } },
+	-- Rainbow Shimmer: a rainbow tint over the cafe front that scrolls once across in `seconds`, lit like paint.
+	rainbow = {
+		shown = 0.78,
+		seconds = 18,
+		light = 0.6,
+		colors = {
+			palette.shirtRed,
+			palette.golden,
+			palette.leaf,
+			palette.fishBlue,
+			palette.aurora,
+			palette.nosePink,
+		},
+	},
+	-- Gold Leaf: a sheen `width` wide sweeping over the front, crossing it in a share of every `seconds`.
+	sheen = { width = 0.08, shown = 0.45, tilt = 20, seconds = 7 },
+	-- Gold Leaf on real gold trims (F89 2c, luck-and-rare-moments.md: "a slow glint that sweeps across the trims
+	-- every 5 seconds and a soft glow on them at night"). The trims are Model-Agent's `_Trim` parts tagged `tag`. A
+	-- glint `width` studs wide crosses the front in `seconds` at the start of every `every`, lifting each trim up to
+	-- `shine` of the way to `glint`, with `sparkles` glints along the eave every `sparkleEvery` as it passes. At night
+	-- every trim lifts `night` of the way to `glow`, and `lights` soft lights stand `out` studs in front of the front
+	-- and `below` studs under the eave, `range` and `brightness` each. The trims are read again every `checkEvery`
+	-- seconds as they stream in; `tolerance` is how far a trim's colour may read back from what was written.
+	trims = {
+		tag = "PaintTrim",
+		every = 5,
+		seconds = 1.6,
+		width = 3,
+		shine = 0.75,
+		glint = palette.offwhite,
+		sparkles = 1,
+		sparkleEvery = 0.12,
+		night = 0.3,
+		glow = palette.goldLight,
+		lights = 3,
+		out = 1.5,
+		below = 0.8,
+		range = 9,
+		brightness = 0.35,
+		checkEvery = 2,
+		tolerance = 2 / 255,
+	},
+	petalPad = 0.8, -- share of the tree's width the petals fall from
+}
+
+-- A stray's rarity gem (Derek 2026-10-28 01:25: "have some sort indicator of what rarity the cat is before going
+-- up to it and looking at the name"): a small gem in the rarity colour (Presets.rarity) bobs `above` studs over each
+-- stray whose rarity `shows`, `size` studs tall plus `pixels` so a far one still reads. It is a square turned 45
+-- degrees, `gem` of the gui across, lit from the top (`light` of the way to white, `dark` to black at the bottom)
+-- with a white edge; a Mythical one glints now and then. It hides within hideWithin studs, where the Catch card
+-- shows the name, comes back past hideWithin + showAfter, and shows to maxDistance for the `most` nearest.
+Presets.rarityMark = {
+	shows = { Common = true, Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
+	glints = { Mythical = true } :: { [string]: boolean },
+	above = 0.9,
+	size = 0.8,
+	pixels = 16,
+	gem = 0.62,
+	corner = 0.18,
+	light = 0.45,
+	dark = 0.2,
+	outline = Presets.palette.milk,
+	outlinePixels = 2,
+	bob = 0.15,
+	bobSeconds = 0.9, -- one way
+	glintSize = 0.34,
+	glintSeconds = 0.3, -- one way
+	glintEvery = 2.2,
+	hideWithin = 10,
+	showAfter = 1,
+	maxDistance = 80,
+	most = 12,
+	checkEvery = 0.25,
+}
+
+-- Walking through water (Derek 2026-10-28 01:33, Effects/Splash): feet count as in the water from `above` studs
+-- over its top down to `depth` under it, on a plate whose up is at least `flat` upright. A splash comes on stepping
+-- in, then every `stride` studs walked (a player's step, a cat's), at least `minSpeed` studs a second, alternating
+-- feet `side` studs out: `drops` droplets (splashDrops) and a ripple from `rippleFrom` to `ripple` studs across over
+-- rippleSeconds. Checked every checkEvery seconds for the `most` nearest walkers within maxDistance studs (you first).
+Presets.splash = {
+	above = 0.4,
+	depth = 3,
+	flat = 0.7,
+	minSpeed = 2,
+	stride = { player = 2.6, cat = 1.1 } :: { [string]: number },
+	side = { player = 0.4, cat = 0.15 } :: { [string]: number },
+	drops = { player = 5, cat = 3 } :: { [string]: number },
+	ripple = { player = 1.8, cat = 1 } :: { [string]: number },
+	rippleFrom = 0.4,
+	rippleSeconds = 0.5,
+	rippleTransparency = 0.35,
+	rippleColour = Presets.palette.milk,
+	checkEvery = 0.1,
+	maxDistance = 60,
+	most = { high = 6, low = 3, saver = 1 },
+}
+
+-- Potions (F64, data-model 12b, and the quest potions of F73): each kind's glow while it runs, shown on the newest id in the drinker's
+-- `ActivePotions` (data-model 13). `on` is where its emitter sits: "Body" the root part, "Feet" an attachment under it,
+-- "Hands" the two hands (the rate split between them). The drink pop, on your own `buffs` growing in ProfileSync, is
+-- `sparkles` catch sparkles in the potion's colour at the chest and a `ring` stud ring at the feet.
+export type PotionSpec = { emitter: string, on: string, colour: Color3 }
+Presets.potions = {
+	tip_potion = { emitter = "potionTip", on = "Body", colour = palette.golden },
+	lucky_potion = { emitter = "potionLucky", on = "Body", colour = palette.leaf },
+	swift_potion = { emitter = "potionSwift", on = "Feet", colour = palette.fishBlue },
+	steady_potion = { emitter = "potionSteady", on = "Hands", colour = palette.mint },
+	-- the quest potions (F73, quests.md section 4)
+	big_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
+	gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
+	quick_bait_potion = { emitter = "potionQuickBait", on = "Hands", colour = palette.blush },
+} :: { [string]: PotionSpec }
+Presets.potionFx =
+	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }
+
+-- The intro's shot 4 (F72): the demo cat leaves your arms in a cream puff of `from` smoke and appears in its seat in
+-- one of `seat` with `sparkle` sparkles.
+Presets.introPuff = { from = 5, seat = 6, sparkle = 8 }
+
+-- The Mystery Visitor (F64): a purple puff of `puff` smoke where the visitor arrives and leaves, `sparkle` sparkles
+-- where the gift appears and, when the owner opens it (MysteryGiftResult), confetti (`confetti` of the budget's) in
+-- the ribbon colours with `pop` sparkles and a `ring` in the colour of what was inside, from the gift's top.
+Presets.mystery = {
+	puff = 6,
+	puffColour = palette.aurora,
+	sparkle = 6,
+	pop = 8,
+	ring = 3,
+	ringSeconds = 0.45,
+	confetti = 0.4,
+	ribbon = { palette.neonPink, palette.aurora, palette.sparkle, palette.offwhite },
+	-- what was inside: a potion in its own colour, the rest by kind
+	kinds = {
+		lure = palette.blush,
+		fish = palette.golden,
+		spin = palette.lampWarm,
+		potion = palette.mint,
+	} :: {
+		[string]: Color3,
+	},
+}
+
+-- The Cat Cannon flight (F84, hometown-cannon.md section 3b; CannonLaunchSeconds 3.0 is `endAt`). Seconds from the
+-- server's `CannonLaunchAt`: the fuse fizzes until `boomAt`, then a smoke ring, confetti and a shake at the muzzle
+-- and a sparkle trail on the flying body until `puffAt`, where a cloud puff swallows it in the sky. The trail comes
+-- back as it drops onto the landing pad from `dropAt`, and a dust poof goes off at `landAt`, when its feet touch
+-- down (Animation-Engineer's Presets.cannonPose). Onlookers within `within` studs see it; the launching player also
+-- gets the full-screen clouds (Presets.clouds.cannon) with their own character gliding through them. `tints` is
+-- each destination's colour in the clouds: the paw path colours of town-layout-v3, neon pink for the Alleyway and a
+-- warm cream for the Town Square and Home.
+Presets.cannon = {
+	boomAt = 0.5,
+	puffAt = 1.4,
+	dropAt = 2.4,
+	landAt = 2.62,
+	endAt = 3.0,
+	stale = 0.5, -- seconds past endAt a flight still plays (joined or streamed in late: none)
+	fuseSeconds = 0.5, -- the fizz runs over this long before the boom
+	fuseEvery = 0.08, -- seconds between fizzes
+	ring = 8, -- smoke puffs round the muzzle
+	ringRadius = 1.4, -- studs
+	ringPuffs = 2, -- smokePuff particles at each of them
+	confetti = 0.6, -- of the budget's confetti
+	shake = 0.35, -- seconds
+	shakeStuds = 0.5, -- for the launching player
+	shakeNear = 0.2, -- for anyone within shakeWithin studs of the muzzle
+	shakeWithin = 24,
+	skyPuff = 14, -- smokePuff particles where the player vanishes
+	landRing = 6, -- dust bursts round the landing spot
+	landRadius = 1.6,
+	landDust = 4,
+	within = 150,
+	most = 4, -- flights showing their trail at once, your own first
+	findCannon = 20, -- studs round the player at launch to look for the cannon they sit in
+	-- The intro's cannon shot (intro-cutscene.md shot 2, PR #576): the 3 s flight squeezed, in seconds from the
+	-- shot's BOOM, for Cannon.playStaged. The sky puff at 0.55, the clouds cover by the cut to the camp at 0.7, the
+	-- copy glides 0.7 to 1.1, the clouds part 1.1 to 1.4 and the dust poof goes off at 1.55.
+	introStage = {
+		boomAt = 0,
+		puffAt = 0.55,
+		dropAt = 1.4,
+		landAt = 1.55,
+		endAt = 1.8,
+		clouds = {
+			coverFrom = 0.55,
+			coverTo = 0.66, -- full a couple of frames before the cut to the camp at 0.7
+			partFrom = 1.1,
+			partTo = 1.4,
+			tintFrom = 0.75,
+			tintTo = 1.05,
+		},
+		glideFrom = 0.7,
+		glideTo = 1.1,
+	},
+	tints = {
+		town = Presets.palette.lampWarm,
+		home = Presets.palette.lampWarm,
+		alley = Presets.palette.neonPink, -- a fifth cannon area since hometown-cannon.md PR 566: the jazz club signs
+		park = Presets.palette.leaf,
+		neighbourhood = Color3.fromRGB(240, 150, 70),
+		woods = Color3.fromRGB(46, 122, 74),
+		sewer = Color3.fromRGB(96, 116, 158),
+	} :: { [string]: Color3 },
+}
+
+-- The full-screen clouds of a cannon flight and of a cloud hop (Home and the night sweep from a wild area;
+-- CloudHopSeconds 1.6, the move at 0.6; Derek 13:56: "make the cloud cutscene a little better"). Each plan is
+-- seconds from its start: the clouds rush in over coverFrom..coverTo, cover the screen fully until partFrom (the
+-- server moves the player meanwhile), and draw aside like curtains by partTo. Over tintFrom..tintTo the
+-- destination's colour comes up from below as if the land shows through: `tint` says how far toward it the cloud
+-- tops, their undersides and the sky's top and bottom go. A cloud is `lobes` circles ({x, y, size} as shares of its
+-- box), white on top and shaded only in its lower part, and flies out from the middle in `rush` seconds, puffing up
+-- as the clouds rush in; the wind streaks take `windShare` of that. A sun glow of `glow` rings ({size of the
+-- screen's shorter side, most opacity}) shines ahead, and the tunnel banks by `bank`. With Reduce Motion it all
+-- holds still and fades instead. `displayOrder` sits over the popups (40) and under the intro (50);
+-- UI-Engineer's destination name card goes above it.
+Presets.clouds = {
+	displayOrder = 45,
+	riderZ = 7, -- Animation-Engineer's gliding character, between the clouds behind (4, 6) and in front (8, 10)
+	white = Presets.palette.offwhite,
+	shade = Color3.fromRGB(214, 226, 240), -- the underside of each cloud
+	sky = Presets.palette.pastelSky,
+	sun = Presets.palette.sparkle,
+	tint = { top = 0.1, under = 0.45, skyTop = 0.15, skyBottom = 0.55 },
+	shadeFrom = 0.55, -- of a lobe's height: white above, shading down to `shade` below
+	rush = 0.9,
+	cloudSize = { 0.45, 0.85 }, -- of the screen's shorter side, at the edge
+	lobes = {
+		{ 0, 0.05, 0.6 },
+		{ -0.28, 0.12, 0.44 },
+		{ 0.28, 0.14, 0.42 },
+		{ -0.1, -0.16, 0.42 },
+		{ 0.14, -0.1, 0.36 },
+	},
+	glow = { { 1.0, 0.12 }, { 0.8, 0.16 }, { 0.6, 0.22 }, { 0.42, 0.3 }, { 0.26, 0.4 } },
+	bank = { share = 0.04, hz = 0.35 }, -- the middle drifts this share of the shorter side round a slow loop
+	windShare = 0.45,
+	windLength = 0.22, -- of the shorter side, at the edge
+	windAlpha = 0.6,
+	cannon = {
+		coverFrom = 1.4,
+		coverTo = 1.6,
+		partFrom = 2.4,
+		partTo = 2.8,
+		tintFrom = 2.0,
+		tintTo = 2.4,
+	},
+	hop = {
+		coverFrom = 0,
+		coverTo = 0.5,
+		partFrom = 1.1,
+		partTo = 1.6,
+		tintFrom = 0.6,
+		tintTo = 1.0,
+	},
+	hopPuff = 12, -- smokePuff particles where onlookers see a player hop away and arrive
+	moved = 30, -- studs a root jumps in one step during a hop: it has arrived
+}
+
+-- The campfires (the Woods' campsite and the Great Oak clearing; Derek 2026-10-30: "The fire from the camp fire
+-- isnt moving"). Model-Agent's flame (the `_Campfire_Glow` model: three tongues of three stacked Neon discs) moves on
+-- this client: each tongue stretches and squashes, leans and bends a little more at the tip, and flickers brighter,
+-- out of step with the others. Warm embers drift up off it with a small pop of them now and then, and a warm light
+-- flickers with the flame, brighter at night. With Reduce Motion the flame moves `still` as much. The nearest
+-- `campfires` (budget) within ambientRadius run; the rest stand as modelled.
+Presets.campfire = {
+	stretch = 0.2, -- of the modelled height, either way
+	lean = 9, -- degrees at the tip
+	hz = { 1.7, 2.9, 4.3 }, -- the three waves each tongue's motion is made of
+	still = 0.4,
+	gap = 0.05, -- studs across the ground between the discs of one tongue
+	brighten = 0.2, -- how far the flicker lifts each disc's colour toward `hot`
+	hot = Presets.palette.lampWarm,
+	light = Color3.fromRGB(255, 176, 102),
+	range = 14, -- studs
+	brightness = 1.1,
+	flicker = 0.35, -- of the brightness, either way
+	night = 1.6, -- times the brightness at night
+	emberHeight = 1.2, -- studs over the flame's base the embers leave from
+	popEvery = { 2.5, 5 }, -- seconds between pops
+	pop = 5, -- embers in a pop
+}
+
+-- A cat checked in at a camp (F84 section 4): it hops out of its carrier's arms in an arc `hopHeight` studs high
+-- into the carrier basket over `hopSeconds`, then puffs away with a few sparkles.
+Presets.campCheckIn = {
+	hopSeconds = 0.45,
+	hopHeight = 2.5,
+	shrink = 0.6, -- of its size by the end of the hop, as it goes into the basket
+	puff = 10,
+	sparkle = 8,
+	findBasket = 40, -- studs round the carrier
+	within = 120,
+}
+
+-- The leaderboard crown (F98, leaderboards.md section 3: a crown over anyone in an all time top 10; the UI's
+-- Screens/Crowns draws it `lift` studs over the head, in the camera's up, as a BillboardGui seen within `within`
+-- studs). Effects/Crown: every `every` seconds a crown glints with `glint` crownGlint stars within `spread` studs of
+-- it, on the nearest budget.crownGlints crowned players, chosen every `pick` seconds. When a player near you earns the
+-- crown (their `Crown` goes from false to true at a refresh while you watch; the first value seen sets no burst),
+-- `earned.sparkles` gold sparkles and `earned.stars` glints burst at the crown, a share `earned.confetti` of the
+-- budget's confetti falls in gold, and a gold ring `earned.ring` studs across opens at their feet. Still with Reduce
+-- Motion (the confetti halves there as everywhere).
+Presets.crown = {
+	lift = 3.2, -- Screens/Crowns LIFT
+	within = 80, -- Screens/Crowns MAX_DISTANCE
+	every = { 2.5, 5 },
+	glint = 3,
+	spread = 0.4,
+	pick = 0.5,
+	earned = {
+		sparkles = 12,
+		stars = 6,
+		confetti = 0.3,
+		ring = 4,
+		ringSeconds = 0.55,
+		colour = Presets.palette.golden,
+	},
+}
+
+return Presets

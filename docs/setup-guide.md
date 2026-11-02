@@ -1,12 +1,12 @@
 # Setup guide: Derek's Windows PC
 
-Goal: by the end, Claude Code on your PC can edit Purr Pot's code in Git, sync it into Roblox Studio with Rojo, drive Studio over MCP (spawn parts, run playtests, take screenshots), and later drive Blender. Budget about 2 hours the first time. Steps 1 to 9 are Phase 0; 10 and 11 are Phase 1 (Blender); 12 is the smoke test that closes Phase 0.
+Goal: by the end, Claude Code on your PC can edit Cat Cafe's code in Git, sync it into Roblox Studio with Rojo, drive Studio over MCP (spawn parts, run playtests, take screenshots), and later drive Blender. Budget about 2 hours the first time. Steps 1 to 9 are Phase 0; 10 and 11 are Phase 1 (Blender); 12 is the smoke test that closes Phase 0.
 
 Roblox terms you will meet: a **place** is one world file; an **experience** is the published game that groups places; **Studio** is the editor; a **plugin** is a Studio extension; **Rojo** syncs files on disk into the open place; **MCP** (Model Context Protocol) is the standard that lets Claude call tools exposed by Studio and Blender.
 
 ## 1. Accounts
 - Roblox account (yours). Later: a Roblox Group to own the game once friends and revenue split are agreed (docs/plan.md section 12).
-- GitHub account `derekburnz`. Create a **private** repository named `purr-pot` (or `roblox-studio` if you want one repo for every game). Do not add a README or .gitignore; the scaffold has them.
+- GitHub account `derekburnz`. Create a **private** repository named `Cat-Cafe` (it was `purr-pot` until 2026-10-27; GitHub redirects the old URL). Do not add a README or .gitignore; the scaffold has them.
 
 ## 2. Git and the repo
 ```powershell
@@ -15,11 +15,11 @@ winget install --id GitHub.cli -e        # optional, gives you `gh`
 git config --global user.name "Derek"
 git config --global user.email "<your github email>"
 cd ~\Documents
-git clone https://github.com/derekburnz/purr-pot.git
+git clone https://github.com/derekburnz/Cat-Cafe.git
 ```
 The repo already holds the scaffold and the first rough draft (pushed from the lead thread on 2026-10-26), so there is nothing to copy. Check it landed:
 ```powershell
-cd ~\Documents\purr-pot
+cd ~\Documents\Cat-Cafe
 git log --oneline          # three commits: scaffold + code + docs, asset exports, concept previews
 ```
 From here on the GitHub repo is the source of truth. Role threads that run in claude.ai open pull requests against it; the project folder `cat-cafe/` is only a mirror for threads that cannot reach GitHub. After each day of work push, and pull before letting agents loose.
@@ -45,7 +45,7 @@ Rokit installs and pins Rojo, Wally, Selene, StyLua and luau-lsp from `rokit.tom
 
 ## 5. Roblox Studio and the dev place
 1. Install Studio from https://create.roblox.com and sign in. A PC can hold only the installer stub: if the Start menu's Roblox Studio entry opens an installer, let it finish. Studio itself lives in `%LOCALAPPDATA%\Roblox\Versions\version-*\RobloxStudioBeta.exe`.
-2. Create a new experience (Baseplate template). File > Publish to Roblox As > name it **Purr Pot Dev**, keep it **private**. This is the dev copy agents work in; the public experience comes later and is published from the same place.
+2. Create a new experience (Baseplate template). File > Publish to Roblox As > name it **Cat Cafe Dev**, keep it **private**. This is the dev copy agents work in; the public experience comes later and is published from the same place.
 3. Game Settings > Security > turn on **Enable Studio Access to API Services** (lets DataStores run in Studio playtests). Leave HTTP requests off.
 4. Save often (Ctrl+S publishes to the dev place). Agents can break things; Git has the code, Studio's Version History has the place.
 
@@ -98,7 +98,7 @@ API lookups without Studio: `.mcp.json` also starts `roblox_docs` (`uvx mcp-robl
 Download from https://github.com/Roblox/roblox-blender-plugin (see https://create.roblox.com/docs/art/modeling/roblox-blender-plugin), install as a Blender add-on, log in with your Roblox account in the add-on panel. Select objects and Upload; they appear in the open Studio session. Calibrate scale once with the 4-stud cube test in the asset-pipeline skill and write the number into `docs/art/style-guide.md`.
 
 ## 12. Phase 0 smoke test (closes setup)
-With Studio open on Purr Pot Dev, Rojo connected, `rojo serve` running, and Claude Code in the repo root, ask Claude Code:
+With Studio open on Cat Cafe Dev, Rojo connected, `rojo serve` running, and Claude Code in the repo root, ask Claude Code:
 1. "Using Studio MCP, insert an anchored Part named PH_SmokeTest at 0,5,0 and screenshot it." A grey block appears in the viewport; the screenshot is saved under `docs/concepts/cat-cafe/`.
 2. "Create games/cat-cafe/src/server/Main.server.luau that prints 'Hello from Rojo' and run the check gate." Rojo syncs it; `.\check.ps1` passes.
 3. "Start a playtest, read the console, stop it." The console shows the print and no errors.
@@ -117,6 +117,100 @@ Commit (`git commit -am "chore: phase 0 smoke test"`), delete PH_SmokeTest, and 
 - **`check.ps1` cannot run:** execution policy (step 3). If `Invoke-WebRequest` fails behind a proxy, download `globalTypes.None.d.luau` manually from the luau-lsp repo's `scripts/` folder at the tag matching `luau-lsp --version` into `games/cat-cafe/`, and write that version into `games/cat-cafe/.types-version`.
 - **StyLua reports a diff in nearly every file on Windows:** the clone predates `.gitattributes`, so Git for Windows checked the files out with CRLF line endings. Commit or stash your work, then refresh the checkout once: `git rm -r -q --cached .` and then `git reset --hard`.
 - **Selene says no Roblox std:** run `selene generate-roblox-std` in `games/cat-cafe`.
-- **DataStore errors in playtest:** step 5.3 (API access) and make sure the dev place uses the `PurrPotDev` store name from `Config.luau`.
+- **DataStore errors in playtest:** step 5.3 (API access) and make sure the dev place uses the `CatCafeProfiles` store name from `Config.luau` (Studio adds `_dev`).
 - **Blender MCP hangs:** only one Connect to Claude session; close extra Blender windows; `uvx blender-mcp` needs internet the first time to fetch the package.
 - **Usage running low:** check Settings > Usage; move chores to Sonnet or Haiku with `/model`.
+
+## 15. Publish from GitHub instead of Studio (once, about 3 minutes)
+After this, a thread or the Actions tab publishes the game (`.github/workflows/publish.yml`), so nobody clicks Publish in Studio again. Phone browser works for every step.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > **Create API Key**. Name: `Cat Cafe GitHub`. Make a new key rather than widening the audio upload key: this one has to accept any IP.
+2. **Access Permissions**: add **universe-places**, select the **Cat Cafe** experience, operation **Write** (publishing). Add the **Luau Execution** API (the name contains `luau-execution`), the same experience, operation **Write** (the engine smoke test).
+3. **Security > Accepted IP Addresses**: `0.0.0.0/0`, because GitHub's runners get a new IP every run. Expiration is optional.
+4. **Save & Generate Key**, then copy it. Roblox shows it once.
+5. [github.com/derekburnz/Cat-Cafe/settings/secrets/actions/new](https://github.com/derekburnz/Cat-Cafe/settings/secrets/actions/new): Name `ROBLOX_PUBLISH_KEY`, Secret: the key, **Add secret**. Never paste the key into chat or a file.
+6. Optional: on the **Variables** tab of the same page, add `AUTO_PUBLISH` with value `true`. Every main commit whose check passed then goes live by itself. Without it, publish runs only when started.
+7. Try it: **Actions > publish > Run workflow**, pick `Saved`. The run summary shows the new version number, and the live game is untouched. `Published` makes it live.
+
+The experience and place ids (10773193456 and 119569792798199) are in the workflow; they are not secret. A Rojo-built place replaces everything in the published place, so anything placed by hand in Studio and not in the repo disappears on the next publish. Today the server builds the whole world from code, so nothing is lost.
+
+## 16. Quiet GitHub email (once, about 1 minute)
+Threads open, push and merge PRs from Derek's GitHub account, so GitHub mails that account about all of it. Since PR #248 automerge no longer pushes into PR branches; these two settings stop the rest. Everything stays visible on GitHub, and threads report in the project anyway.
+1. [github.com/settings/notifications](https://github.com/settings/notifications) > **System** > **Actions**: open the dropdown and untick **Email**. That ends the "Run failed" mails from threads' unfinished pushes.
+2. Same page, **Subscriptions** > **Participating, @mentions and custom**: untick **Email**. That ends the merge, push and comment mails on PRs the threads open.
+
+## 17. Let threads upload images and read bug reports (once, about 2 minutes)
+After this, threads upload UI and art images (`.github/workflows/upload-image.yml`) and sounds (`.github/workflows/upload-audio.yml`, so the SecretStore key on the laptop is no longer needed for uploads) and read the friends' in-game bug reports (`.github/workflows/bug-reports.yml`) themselves, with the publish key from step 15. Nothing waits on Studio's Asset Manager or a Studio session any more. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key (the one saved as `ROBLOX_PUBLISH_KEY`) > **Edit**.
+2. **Access Permissions** > **Add API System**: **assets**, operations **Read** and **Write** (uploading images, which belong to your account like the sounds).
+3. **Add API System** again: **universe-datastores**, select the **Cat Cafe** experience, operations `universe-datastores.objects:list` and `universe-datastores.objects:read` only (listing and reading the bug reports; nothing that writes or deletes).
+4. **Save Changes**. The key stays the same, so the GitHub secret needs no change. Don't press Regenerate, which would.
+5. Try it: **Actions > bug-reports > Run workflow**. The run summary lists today's reports, or says there are 0.
+
+The key still accepts any IP (GitHub's runners need that), so whoever holds it could also upload images as you and read the reports. It lives only in the GitHub secret.
+
+## 18. Required checks for auto-merge (once, about 2 minutes)
+Done 2026-10-27 22:14: ruleset `main` (id 25996536) is active with both checks. The steps stay here in case it ever needs making again.
+
+GitHub's auto-merge (Settings > General > Allow auto-merge, on since 2026-10-27) waits only for checks that main requires. Without this step there is nothing to wait for, so GitHub refuses to turn auto-merge on and threads fall back to the `automerge` label. Phone browser works.
+1. [github.com/derekburnz/Cat-Cafe/settings/rules](https://github.com/derekburnz/Cat-Cafe/settings/rules) > **New ruleset** > **New branch ruleset**.
+2. **Ruleset name**: `main`. **Enforcement status**: **Active**. Leave the bypass list empty.
+3. **Target branches** > **Add target** > **Include default branch**.
+4. **Rules**: keep **Restrict deletions** and **Block force pushes** ticked. Tick **Require status checks to pass**. Leave **Require branches to be up to date before merging** unticked: nothing pushes main into PR branches any more (that was the email noise), and each check run already tests the PR merged with the latest main.
+5. **Add checks**: type `Rojo sourcemap` and pick **Rojo sourcemap, luau-lsp, Selene, StyLua**, then type `Luau unit tests` and pick **Luau unit tests and strict type check (WebAssembly Luau)**. Leave the other rules as they are.
+6. **Create**.
+
+After that, a thread turns auto-merge on for each reviewed PR and GitHub merges it once both checks pass. Merges by hand still work once the checks are green.
+
+## 19. Let a publish restart the running servers (once, about 1 minute)
+A publish reaches new servers only; servers already running keep the old version until they empty. When a publish changes the save version (cat levels F75 did, save version 12), a player saved on a new server who then joins an old one is kicked. Creator Hub's **Restart servers for updates** fixes that by hand; with this step the publish workflow can do it (`restart_servers` input), and `restart-servers.yml` restarts them without publishing. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > **Add API System**: **universe**, select the **Cat Cafe** experience, operation `universe:write`.
+3. **Save Changes**. Don't press Regenerate.
+
+`universe:write` also lets the key change some experience settings through the Universes API. The key lives only in the GitHub secret, and no workflow uses it for anything but the restart.
+
+## 20. Let threads read the analytics (once, about 1 minute)
+Roblox already draws the funnel dashboards: Creator Hub > Cat Cafe > **Analytics** > **Funnels** shows the onboarding funnel (twelve steps, `src/shared/Onboarding.luau`) and the recurring ones (`catch_attempt`, `bait_cycle`), each as its own tab, about a day behind. With this step threads read the same numbers themselves through `.github/workflows/analytics.yml` (Open Cloud Analytics Query API, beta): players per funnel step and how many were lost at each, new and returning players per day, session length, day 1 retention, how long first sessions lasted and the most logged custom events. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > **Add API System**: **universe-analytics**, select the **Cat Cafe** experience, operation `universe.analytics:read`.
+3. **Save Changes**. Don't press Regenerate.
+4. Try it: **Actions > analytics > Run workflow**. The run summary shows the tables. Until the permission is on, it stops with "The key cannot read analytics yet".
+
+The permission only reads aggregate numbers; nothing in it names a player.
+
+## 21. Let a publish warn players before the restart (once, about 1 minute)
+When a publish restarts the running servers (step 19), every server first shows its players a warning such as "Servers restart for an update in 5 minutes", again at 3 and 1 minutes and at the restart, so nobody is cut off mid-catch. The workflow sends those lines to all servers at once through Roblox's MessagingService (`tools/opencloud/restart-countdown.sh`, topic `CatCafeAnnounce`), and each server turns them into a toast. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > **Add API System**: **messaging-service**, select the **Cat Cafe** experience, operation `universe-messaging-service:publish`.
+3. **Save Changes**. Don't press Regenerate.
+4. Nothing to try by hand: the next publish with `restart_servers` on shows "Warned every server: restart in 300 s" in its log. Until the permission is on, the run skips the countdown with a warning and restarts at once, as it does today.
+
+The permission only sends messages into our own game's servers. A publish with the countdown takes about 5 minutes longer; untick `warn_players` on the Run workflow form to restart straight away.
+
+## 22. Let threads make the game passes (once, about 1 minute)
+A game pass is a one-time Robux purchase a player keeps for good, such as 2x Money or Long Nap. Each pass has an id, and the game asks Roblox whether a player owns that id. The `game-passes` workflow makes the passes listed in `tools/opencloud/passes.json` (names, prices and descriptions from Monetization-Agent's shop plan), lists them and changes their prices, so nobody types them into Creator Hub, and launch week's half prices go on and come off with one run each. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > **Add API System**: **game-passes**, select the **Cat Cafe** experience, operations `game-pass:read` and `game-pass:write`.
+3. **Save Changes**. Don't press Regenerate.
+4. Nothing to try by hand: a thread runs **Actions > game-passes > Run workflow** with `create`, and the log lists each pass with its id.
+
+New passes start off sale, so nobody can buy one until release day puts them on sale. Passes cannot be deleted, only taken off sale, which is why the file only holds passes whose code is merged.
+
+## 23. Let threads change the store page pictures (once, about 1 minute)
+The game's page on Roblox shows an icon (512 x 512) and a gallery of thumbnails (1920 x 1080 pictures). The Home page can also show its own homepage thumbnails, which Roblox tests against each other. The `store-media` workflow (`tools/opencloud/store-media.sh`) lists all three, sets the icon, adds, orders and removes thumbnails, uploads homepage thumbnails from pictures in the repo and picks which of them (up to five) the homepage test uses, so new pictures of each update go up without Creator Hub. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > **Add API System**: **legacy-universe**, select the **Cat Cafe** experience, operation `legacy-universe:manage` (icon and thumbnails).
+3. **Add API System**: **universe** (or **thumbnail**), select **Cat Cafe**, operations `universe.thumbnail:read` and `universe.thumbnail:write` (homepage thumbnails).
+4. **Save Changes**. Don't press Regenerate.
+5. Nothing to try by hand: a thread runs **Actions > store-media > Run workflow** with `list`, and the log shows the icon and every thumbnail with its id.
+
+These endpoints are experimental on Roblox's side, so every change reads the pictures back and the log shows whether it took. A thumbnail taken off the page can be uploaded again from the repo.
+
+## 24. Let threads flip the trading kill switch (once, about 1 minute)
+Trading (F102) checks two switches in the `CatCafe_Flags` data store every minute: `trading` (false turns trading off in every server) and `tradeMinTier` (a live minimum cafe tier, for testing). The `flags` workflow (`tools/opencloud/flags.sh`) reads and writes them, so a thread can stop trading within a minute if something goes wrong, with no publish and no restart. Phone browser works, and it can go in the same edit as step 23.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > the **universe-datastores** row from step 17 (Cat Cafe): tick `universe-datastores.objects:read`, `universe-datastores.objects:create` and `universe-datastores.objects:update`, next to `universe-datastores.objects:list`. Leave delete off; the workflow never deletes. The first `flags` run on 2026-11-02 got "Scope not authorized" reading one entry while listing still works, so read is missing from the key today; `bug-reports` needs it too, to open a report once the first one is filed.
+3. **Save Changes**. Don't press Regenerate.
+4. Try it: **Actions > flags > Run workflow** with `show`. The log prints both switches (no entry yet means trading on and the minimum tier from Config).
+
+The key can then write any entry in the game's data stores, saves included, so it stays only in the GitHub secret. The workflow writes only the two `CatCafe_Flags` keys.

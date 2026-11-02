@@ -1,0 +1,36 @@
+# Fallback merge queue for Cat Cafe PRs; GitHub's auto-merge comes first (skill merge-and-publish). A thread adds
+# the `automerge` label when auto-merge is refused and its PR would be merged by hand except for waiting on CI
+# (project rule: green CI with the latest main in, review findings addressed).
+# When the label goes on, this workflow only starts check.yml on the PR's branch with main merged in (not pushed);
+# the last job of that run (and of every later run on the PR) merges. The rules live in .github/scripts/automerge.sh.
+name: automerge
+
+on:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: automerge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  automerge:
+    name: Merge if labeled automerge
+    if: github.event.label.name == 'automerge'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: .github/scripts
+      # A run of check.yml that was already going when the label went on skips its last job (no label at push
+      # time), so the script starts a fresh one.
+      - run: bash .github/scripts/automerge.sh "${{ github.event.pull_request.number }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUTO_PUBLISH: ${{ vars.AUTO_PUBLISH }}

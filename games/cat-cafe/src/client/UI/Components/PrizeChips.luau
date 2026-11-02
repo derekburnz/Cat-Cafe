@@ -1,0 +1,562 @@
+--!strict
+-- What an Index reward pays, as little pictures with amounts (Derek 2026-10-27: "showing little symbols of whatever
+-- they are going to get as next reward and how much"): three gold coins "$300", the gold fish "x10", the food's
+-- picture with its grade gem (F69) "x2", a crate "x1", the wheel "x1" for spins (the pictures of F97 section 4,
+-- Components/ShopIcons), a name tag, and a pill for a forever bonus
+-- (golden-fish.md section 5, v0.10): gold "+2% tips forever", deep gold "+3% gold luck forever" and blue "+2% faster
+-- bait forever", and since F99 "+20% rainbow luck forever" on the turning rainbow bands (Components/Rainbow). One chip per part from IndexRewards.prizeParts, so whatever the designer puts in Catalog.indexPrizes
+-- shows without a UI change; a kind the UI does not know yet shows a gift.
+--   PrizeChips.new(props)   a row that sizes itself to its chips, or wraps them inside its width (props.wrap); with
+--                           props.fitTo it shrinks to fit, never below 9 px text (ui-review), and past that the last
+--                           pictures fold into a "+2" chip
+--   chips:setCatalog(catalog)   foods, decor and crates by id, for their names and models
+--   chips:set(prize, look?)   look.dayRate prices coins that grow with the cafe, look.spinsBanked marks spins that
+--                             would not fit the Spin Wheel bank, look.gold tints a decor tile gold, look.tier names
+--                             the "highest" crate (CrateLogic.resolve)
+--   PrizeChips.bonusText(0.02)   "+2% tips forever"; bonusText(0.03, "goldLuck") "+3% gold luck forever"
+--   PrizeChips.perkColor(perk)   the pill's colour
+--   PrizeChips.paintPerk(label, perk)   colours a reused bonus label for its perk: the rainbow bands with dark words
+--                                       for rainbow luck, else perkColor with white outlined words
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local CrateLogic = require(script.Parent.CrateLogic)
+local Create = require(script.Parent.Create)
+local FoodGrade = require(script.Parent.FoodGrade)
+local Format = require(script.Parent.Format)
+local IndexRewards = require(script.Parent.IndexRewards)
+local ItemIcon = require(script.Parent.ItemIcon)
+local Outline = require(script.Parent.Outline)
+local Rainbow = require(script.Parent.Rainbow)
+local ShopIcons = require(script.Parent.ShopIcons)
+local Theme = require(script.Parent.Parent.Theme)
+local Types = require(script.Parent.Parent.Types)
+local ViewScale = require(script.Parent.Parent.Scale)
+
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+
+export type Props = {
+	parent: Instance,
+	tile: number, -- each picture's size in px
+	textSize: number?,
+	textColor: Color3?,
+	outlined: boolean?, -- white text with a dark outline, for dark boards
+	wrap: boolean?, -- wrap onto more lines inside `size` (its height grows) instead of growing sideways
+	size: UDim2?, -- with wrap; the width the chips wrap in
+	showBonus: boolean?, -- false leaves the forever pills out, for a card that shows them on a band of its own
+	fitTo: GuiObject?, -- without wrap: shrink the whole row to fit inside this frame's width (a big prize on a board)
+	fitPad: number?, -- px of fitTo's width kept clear
+	maxPictures: number?, -- F94 rule 3: at most two pictures a prize, three on the big ones; the rest show as "+N"
+	name: string?,
+	position: UDim2?,
+	anchorPoint: Vector2?,
+	layoutOrder: number?,
+	align: Enum.HorizontalAlignment?,
+}
+
+export type Look = {
+	gold: boolean?, -- the all-gold milestone of F48
+	dayRate: number?, -- prices coinSeconds; without it coins shows the least it pays
+	spinsBanked: number?, -- spins already banked; spins over SpinBankCap read "Full"
+	tier: number?, -- the player's tier: a "highest" crate shows the crate of the highest area it opens
+	maxPictures: number?, -- in place of props.maxPictures for this prize (an XL achievement shows three)
+}
+
+export type PrizeChips = {
+	frame: Frame,
+	setCatalog: (self: PrizeChips, catalog: Types.Catalog) -> (),
+	set: (self: PrizeChips, prize: Types.IndexPrize?, look: Look?) -> (),
+	destroy: (self: PrizeChips) -> (),
+}
+
+-- one chip on show: its amount label, kept to change the text without rebuilding the pictures
+type Chip = { frame: Frame, label: TextLabel? }
+
+local COIN_GLYPH = "💰"
+local OTHER_GLYPH = "🎁"
+local LINE_GAP = 4 -- between wrapped lines
+local SPIN_BANK_CAP: number = Config.SpinBankCap or 20
+local FIT_DEAD_BAND = 0.03 -- a fitted row ignores scale changes smaller than this
+local FIT_ECHO = 0.08 -- a width within 8% of what our own scale change should give is that change coming back
+local MIN_TEXT = 9.05 -- a fitted row never shrinks its text below 9 px (ui-review, the UI gate's text check)
+local UNFOLD_SLACK = 2 -- px of spare room a folded picture needs before it comes back, so it never flips
+
+local PrizeChips = {}
+PrizeChips.__index = PrizeChips
+
+-- a forever pill's text, a little smaller than the amounts
+local function pillTextSize(textSize: number): number
+	return math.max(12, textSize - 2)
+end
+
+function PrizeChips.new(props: Props): PrizeChips
+	local self = setmetatable({}, PrizeChips) :: any
+	self._props = props
+	self._lures = {} :: { [string]: Types.LureDef }
+	self._decor = {} :: { [string]: Types.DecorDef }
+	self._crates = {} :: { [string]: CrateLogic.Crate }
+	self._areas = {} :: { CrateLogic.Area }
+	self._icons = {} :: { ItemIcon.ItemIcon }
+	self._chips = {} :: { Chip }
+	self._prize = nil :: Types.IndexPrize?
+	self._look = nil :: Look?
+	self._shape = "" -- the kinds and ids on show; a change rebuilds the chips, an amount change only relabels
+	self._fit = {} :: { RBXScriptConnection }
+	self._cap = nil :: number? -- a fitted row too wide at its smallest: how many pictures still show
+	self._needs = {} :: { [number]: number } -- the row's full width with n pictures, measured before folding one
+	self._fullShape = "" -- the parts before folding; a new prize unfolds them
+	self._hasPill = false
+	self._pictures = 0 -- picture parts in the whole prize (forever pills are not pictures)
+	self._showing = 0 -- picture chips on show
+	local wrap = props.wrap == true
+	local layout: UIListLayout = Create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		HorizontalAlignment = props.align or Enum.HorizontalAlignment.Left,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, math.max(4, math.floor(props.tile / 5))),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Wraps = wrap,
+	})
+	self.frame = Create("Frame", {
+		Name = props.name or "Prize",
+		BackgroundTransparency = 1,
+		AutomaticSize = if wrap then Enum.AutomaticSize.Y else Enum.AutomaticSize.X,
+		Size = if wrap
+			then props.size or UDim2.new(1, 0, 0, 0)
+			else UDim2.fromOffset(0, props.tile),
+		Position = props.position or UDim2.new(),
+		AnchorPoint = props.anchorPoint or Vector2.new(),
+		LayoutOrder = props.layoutOrder or 0,
+		Parent = props.parent,
+	}, { layout :: Instance })
+	local fitTo = props.fitTo
+	if fitTo and not wrap then
+		local scale: UIScale = Create("UIScale", { Parent = self.frame })
+		-- Derek 2026-10-28: the weekly quest, Daily Treat day 2 and code prize rows were "spassing back and forth".
+		-- The row used to work out its full width from its own width under the UIScale. Text draws at whole pixel
+		-- sizes, so the width does not follow the scale exactly: each new scale gave a slightly different full width,
+		-- which gave a new scale, flipping every frame. Now the full width is only measured when the chips change,
+		-- the width our own scale change brings back is ignored, and a change under FIT_DEAD_BAND is left alone.
+		-- Review S96 (2026-11-02): the text never goes under 9 px; past that the last pictures fold into "+N".
+		local natural = 0 -- the row's width at full size, in screen pixels
+		local echo: number? = nil -- the width our last scale change should bring back
+		local textSize = props.textSize or Theme.sizes.textBody
+		local function apply()
+			local room = fitTo.AbsoluteSize.X - (props.fitPad or 0)
+			local height = self.frame.AbsoluteSize.Y
+			if room <= 0 or height <= 0 or natural <= 0 then
+				return
+			end
+			-- widths compare in the row's own pixels, before the scales above it (the screen's, a pop-in), so a
+			-- window popping open changes nothing here
+			local above = height / (props.tile * scale.Scale)
+			local roomHere = room / above
+			local needHere = natural / above
+			-- the 9 px floor counts the screen's scale only (the phone's smaller windows), not a pop-in
+			local smallest = if self._hasPill
+				then math.min(textSize, pillTextSize(textSize))
+				else textSize
+			local floor = math.min(1, MIN_TEXT / (smallest * ViewScale.get()))
+			local shown = self._showing
+			local wider = self._needs[shown + 1]
+			if wider ~= nil and wider * floor <= roomHere - UNFOLD_SLACK then
+				-- room again for the picture folded last (a bigger screen)
+				self._cap = shown + 1
+				echo = nil
+				self:_rebuild()
+				return
+			end
+			local target = math.min(1, roomHere / needHere)
+			if target < floor then
+				if shown > 1 then
+					-- too wide even with the text at 9 px: the last picture folds into the "+N" chip
+					self._needs[shown] = needHere
+					self._cap = shown - 1
+					echo = nil
+					self:_rebuild()
+					return
+				end
+				target = floor
+			end
+			if
+				scale.Scale >= floor
+				and math.abs(target - scale.Scale) < FIT_DEAD_BAND
+				and not (target == 1 and scale.Scale ~= 1)
+			then
+				return
+			end
+			echo = natural * target
+			scale.Scale = target
+		end
+		local function measure()
+			local width = layout.AbsoluteContentSize.X
+			if echo ~= nil and math.abs(width - echo) <= math.max(2, echo * FIT_ECHO) then
+				echo = nil -- our own scale change coming back
+				return
+			end
+			echo = nil
+			natural = width / math.max(scale.Scale, 0.01)
+			apply()
+		end
+		table.insert(
+			self._fit,
+			layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(measure)
+		)
+		table.insert(self._fit, fitTo:GetPropertyChangedSignal("AbsoluteSize"):Connect(apply))
+	end
+	return self :: PrizeChips
+end
+
+function PrizeChips.setCatalog(self: any, catalog: Types.Catalog)
+	table.clear(self._lures)
+	for _, lure in catalog.lures do
+		self._lures[lure.id] = lure
+	end
+	table.clear(self._decor)
+	for _, decor in catalog.decor do
+		self._decor[decor.id] = decor
+	end
+	self._crates = CrateLogic.byId(catalog.crates)
+	self._areas = (catalog.areas or {}) :: any
+	self._shape = "" -- names and models may have changed
+	if self._prize ~= nil then
+		self:set(self._prize, self._look)
+	end
+end
+
+-- The uploaded picture for a part (Components/ShopIcons; the golden fish is Theme's), drawn in place of its model.
+local function partImage(part: IndexRewards.PrizePart): string?
+	local kind = part.kind
+	if kind == "crate" then
+		return ShopIcons.crate(part.id)
+	elseif kind == "potion" then
+		return ShopIcons.potion(part.id)
+	elseif kind == "coins" then
+		return ShopIcons.image("Coins")
+	elseif kind == "spins" then
+		return ShopIcons.image("Spin")
+	elseif kind == "fish" then
+		return Theme.textures.fishCoin
+	end
+	return nil
+end
+
+-- The picture, the glyph without a model, the tile's rarity colour and the amount text for one part.
+function PrizeChips._partLook(
+	self: any,
+	part: IndexRewards.PrizePart,
+	look: Look
+): (string?, string, string?, string)
+	local amount = "x" .. Format.short(part.amount)
+	local kind = part.kind
+	if kind == "coins" then
+		return nil, COIN_GLYPH, "Legendary", Format.money(part.amount)
+	elseif kind == "fish" then
+		return nil, Theme.icons.goldenFish, "Legendary", amount
+	elseif kind == "lure" then
+		local lure: Types.LureDef? = self._lures[part.id or ""]
+		return if lure then lure.asset else nil,
+			Theme.foodIcons[part.id or ""] or Theme.icons.food,
+			if lure then FoodGrade.of(lure) else nil,
+			amount
+	elseif kind == "spins" then
+		local banked = look.spinsBanked
+		local full = banked ~= nil and banked + part.amount > SPIN_BANK_CAP
+		return nil, Theme.icons.spin, "Epic", if full then "Full" else amount
+	elseif kind == "crate" then
+		local id = part.id or "" -- already resolved by set
+		local crate: CrateLogic.Crate? = self._crates[id]
+		return if crate then crate.asset else nil,
+			Theme.icons.crate,
+			if CrateLogic.isGolden(id, crate) then "Legendary" else "Rare",
+			amount
+	elseif kind == "potion" then
+		return nil, Theme.icons.potion, "Epic", amount
+	elseif kind == "tag" then
+		return nil, Theme.icons.tag, "Mythical", part.id or ""
+	elseif kind == "decor" then
+		local decor: Types.DecorDef? = self._decor[part.id or ""]
+		return if decor then decor.asset else nil,
+			Theme.icons.decor,
+			if look.gold then "Legendary" else "Epic",
+			""
+	end
+	return nil, OTHER_GLYPH, nil, amount
+end
+
+local PERK_WORDS: { [string]: string } = {
+	bonus = "money forever", -- F94 section 5
+	goldLuck = "gold luck forever",
+	rainbowLuck = "rainbow luck forever", -- F99
+	baitSpeed = "faster bait forever",
+}
+
+function PrizeChips.bonusText(fraction: number, perk: string?): string
+	local words = PERK_WORDS[perk or "bonus"] or PERK_WORDS.bonus
+	return "+" .. Format.percent(fraction) .. " " .. words
+end
+local bonusText = PrizeChips.bonusText
+
+-- Tips gold, gold luck a deeper gold, faster bait sky blue, so the tracks' bonuses read apart. Rainbow luck is the
+-- turning bands (paintPerk); berry stands in where a label cannot carry them.
+function PrizeChips.perkColor(perk: string?): Color3
+	if perk == "goldLuck" then
+		return Theme.colors.goldDark
+	elseif perk == "baitSpeed" then
+		return Theme.colors.sky
+	elseif perk == "rainbowLuck" then
+		return Theme.colors.berry
+	end
+	return Theme.colors.gold
+end
+
+-- A bonus label in its perk's look. Rainbow luck gets the bands on its fill and dark words (the bands tint the words
+-- too, so white ones would vanish), with the words' outline off; any other perk its colour and white outlined words.
+-- A label can switch back and forth, as the reward strip's band does.
+function PrizeChips.paintPerk(label: TextLabel, perk: string?)
+	local rainbow = perk == "rainbowLuck"
+	local gradient = label:FindFirstChild("Rainbow")
+	if rainbow and gradient == nil then
+		Rainbow.fill(label)
+	elseif gradient and gradient:IsA("UIGradient") then
+		(gradient :: UIGradient).Enabled = rainbow
+	end
+	label.BackgroundColor3 = if rainbow then Theme.colors.white else PrizeChips.perkColor(perk)
+	label.TextColor3 = if rainbow then Theme.colors.ink else Theme.colors.white
+	for _, child in label:GetChildren() do
+		if child:IsA("UIStroke") then
+			local stroke = child :: UIStroke
+			if stroke.ApplyStrokeMode == Enum.ApplyStrokeMode.Contextual then
+				stroke.Enabled = not rainbow
+			end
+		end
+	end
+end
+
+function PrizeChips._clear(self: any)
+	for _, icon in self._icons do
+		icon:destroy()
+	end
+	table.clear(self._icons)
+	for _, chip in self._chips do
+		chip.frame:Destroy()
+	end
+	table.clear(self._chips)
+end
+
+function PrizeChips._amountLabel(self: any, chip: Frame, text: string, height: number): TextLabel
+	local props: Props = self._props
+	local label: TextLabel = Create("TextLabel", {
+		Name = "Amount",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, height),
+		LayoutOrder = 1,
+		FontFace = Theme.fonts.display,
+		TextSize = props.textSize or Theme.sizes.textBody,
+		TextColor3 = props.textColor
+			or (if props.outlined then Theme.colors.white else Theme.modal.text),
+		Text = text,
+		Parent = chip,
+	})
+	if props.outlined then
+		Outline.text(label, 2)
+	end
+	return label
+end
+
+-- The pill for a forever bonus, a little shorter than a picture.
+function PrizeChips._bonusPill(self: any, chip: Frame, text: string, perk: string): TextLabel
+	local props: Props = self._props
+	local pill: TextLabel = Create("TextLabel", {
+		Name = "Bonus",
+		BackgroundColor3 = PrizeChips.perkColor(perk),
+		BorderSizePixel = 0,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, math.floor(props.tile * 0.7)),
+		FontFace = Theme.fonts.display,
+		TextSize = pillTextSize(props.textSize or Theme.sizes.textBody),
+		TextColor3 = Theme.colors.white,
+		Text = text,
+		Parent = chip,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
+	})
+	Outline.border(pill, 2)
+	Outline.text(pill, 1.5)
+	PrizeChips.paintPerk(pill, perk)
+	return pill
+end
+
+-- The "+2" chip for pictures a fitted row had no room for.
+function PrizeChips._morePill(self: any, chip: Frame, text: string): TextLabel
+	local props: Props = self._props
+	local pill: TextLabel = Create("TextLabel", {
+		Name = "More",
+		BackgroundColor3 = Theme.colors.paper,
+		BorderSizePixel = 0,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, math.floor(props.tile * 0.7)),
+		FontFace = Theme.fonts.display,
+		TextSize = props.textSize or Theme.sizes.textBody,
+		TextColor3 = Theme.modal.text,
+		Text = text,
+		Parent = chip,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }),
+	})
+	Outline.border(pill, 2)
+	return pill
+end
+
+-- Builds the chips again (a fitted row folding or unfolding pictures).
+function PrizeChips._rebuild(self: any)
+	self._shape = ""
+	if self._prize ~= nil then
+		self:set(self._prize, self._look)
+	end
+end
+
+function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
+	local props: Props = self._props
+	local shown: Look = look or {}
+	self._prize = prize
+	self._look = look
+	if prize == nil then
+		self._shape = ""
+		self._fullShape = ""
+		self._cap = nil
+		table.clear(self._needs)
+		self:_clear()
+		return
+	end
+	local all: { IndexRewards.PrizePart } = {}
+	for _, raw in IndexRewards.prizeParts(prize, shown.dayRate) do
+		local part: IndexRewards.PrizePart = raw
+		if raw.kind == "crate" then
+			-- "highest" becomes the crate it pays now, so the picture changes when a new area opens
+			local id = CrateLogic.resolve(raw.id or "", self._crates, self._areas, shown.tier)
+			local resolved: IndexRewards.PrizePart =
+				{ kind = "crate", id = id, amount = raw.amount }
+			part = resolved
+		end
+		if not IndexRewards.isPerk(part.kind) or props.showBonus ~= false then
+			table.insert(all, part)
+		end
+	end
+	local keys: { string } = {}
+	local pictures = 0
+	local hasPill = false
+	for _, part in all do
+		table.insert(keys, part.kind .. ":" .. (part.id or ""))
+		if IndexRewards.isPerk(part.kind) then
+			hasPill = true
+		else
+			pictures += 1
+		end
+	end
+	local fullShape = table.concat(keys, ",") .. (if shown.gold then "|gold" else "")
+	if fullShape ~= self._fullShape then
+		self._fullShape = fullShape
+		self._cap = nil -- a new prize: every picture gets a try
+		table.clear(self._needs)
+	end
+	self._pictures = pictures
+	self._hasPill = hasPill
+	-- keep the first `cap` pictures and count the rest in "+N": the F94 limit, or fewer in a fitted row that has no
+	-- room for them even at 9 px text
+	local parts: { IndexRewards.PrizePart } = all
+	local cap: number? = self._cap
+	local most: number? = shown.maxPictures or props.maxPictures
+	if most ~= nil and (cap == nil or most < cap) then
+		cap = math.max(1, most)
+	end
+	self._showing = if cap ~= nil then math.min(cap, pictures) else pictures
+	if cap ~= nil and cap < pictures then
+		parts = {}
+		local kept = 0
+		for _, part in all do
+			if IndexRewards.isPerk(part.kind) then
+				table.insert(parts, part)
+			elseif kept < cap then
+				kept += 1
+				table.insert(parts, part)
+			end
+		end
+		local more: IndexRewards.PrizePart = { kind = "more" :: any, amount = pictures - cap }
+		table.insert(parts, more)
+	end
+	local shape = fullShape .. "|" .. tostring(cap)
+	if shape == self._shape and #self._chips == #parts then
+		-- the same pictures: only the amounts can have changed (a coin estimate, a fuller spin bank)
+		for index, part in parts do
+			local label: TextLabel? = self._chips[index].label
+			if label then
+				local _, _, _, amount = self:_partLook(part, shown)
+				label.Text = if IndexRewards.isPerk(part.kind)
+					then bonusText(part.amount, part.kind)
+					elseif (part.kind :: string) == "more" then "+" .. part.amount
+					else amount
+			end
+		end
+		return
+	end
+	self._shape = shape
+	self:_clear()
+	local tile = props.tile
+	local height = tile + (if props.wrap then LINE_GAP else 0)
+	for order, part in parts do
+		local chip: Frame = Create("Frame", {
+			Name = part.kind .. (if part.id then "_" .. part.id else ""),
+			BackgroundTransparency = 1,
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, height),
+			LayoutOrder = order,
+			Parent = self.frame,
+		}, {
+			Create("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				Padding = UDim.new(0, 3),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+		})
+		local entry: Chip = { frame = chip, label = nil }
+		if IndexRewards.isPerk(part.kind) then
+			entry.label = self:_bonusPill(chip, bonusText(part.amount, part.kind), part.kind)
+		elseif (part.kind :: string) == "more" then
+			entry.label = self:_morePill(chip, "+" .. part.amount)
+		else
+			local asset, glyph, rarity, amount = self:_partLook(part, shown)
+			local icon = ItemIcon.new({
+				parent = chip,
+				size = UDim2.fromOffset(tile, tile),
+				name = "Picture",
+				badge = "gem",
+			})
+			if part.kind == "lure" then
+				icon:setFood(self._lures[part.id or ""], part.id) -- F69: the food's grade gem
+			else
+				icon:set(asset, glyph, rarity, partImage(part))
+			end
+			table.insert(self._icons, icon)
+			if amount ~= "" then
+				entry.label = self:_amountLabel(chip, amount, tile)
+			end
+		end
+		table.insert(self._chips, entry)
+	end
+end
+
+function PrizeChips.destroy(self: any)
+	for _, connection in self._fit do
+		connection:Disconnect()
+	end
+	table.clear(self._fit)
+	self:_clear()
+	self.frame:Destroy()
+end
+
+return PrizeChips

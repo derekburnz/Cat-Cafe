@@ -1,9 +1,9 @@
 ---
 name: remote-security-checklist
-description: Server-side security rules for Purr Pot remotes and data: never trust the client, validate types/ranges/ownership, rate-limit, server cooldowns, distance checks, text filtering, DataStore session locking and retries. Use when writing or reviewing any RemoteEvent handler, purchase, catch, serve or save code.
+description: Server-side security rules for Cat Cafe remotes and data: never trust the client, validate types/ranges/ownership, rate-limit, server cooldowns, distance checks, text filtering, DataStore session locking and retries. Use when writing or reviewing any RemoteEvent handler, purchase, catch, serve or save code.
 ---
 
-# Remote security checklist (Purr Pot)
+# Remote security checklist (Cat Cafe)
 
 Roblox runs one server per game instance and a client on every player's device. The client is the player's own computer, so an exploiter can run any code there: fire any RemoteEvent with any arguments, teleport, read everything in ReplicatedStorage. For Derek: treat every remote like an unauthenticated API endpoint on the public internet. The server is the only trusted party.
 
@@ -21,7 +21,7 @@ Roblox runs one server per game instance and a client on every player's device. 
 11. **Filter user text** (cafe name, cat names) with `TextService:FilterStringAsync` on the server before storing or showing it to anyone else. Store the raw text only for the owner, and filter again when displaying to others.
 12. **Protect the save**: session locking, retries, no overwriting a profile that failed to load.
 
-## Purr Pot threat table
+## Cat Cafe threat table
 | Remote | What an exploiter tries | Server rule |
 |---|---|---|
 | `RequestServe(orderId)` | serve orders that are not theirs, serve 100 times a second, serve from the alley | order owned by player and pending; cooldown `Config.Cafe.ServeCooldown`; player within range of the counter; rate limit |
@@ -108,7 +108,7 @@ DataStoreService is Roblox's key-value store, with request budgets and occasiona
 - **Save on leave and on shutdown**: `Players.PlayerRemoving` releases the profile; `game:BindToClose` waits for all saves (ProfileStore handles both).
 - **Autosave** every 30 to 60 s for long sessions.
 - **Robux purchases** (`ProcessReceipt`) grant only after the profile is loaded and are idempotent on `PurchaseId`; return `Granted` only after the save succeeds.
-- **Studio**: DataStores need "Enable Studio access to API services" on the dev place, and the dev place must use a different DataStore name or scope than the live place (`Config.Data.StoreName = "PurrPotDev"` vs `"PurrPot"`).
+- **Studio**: DataStores need "Enable Studio access to API services" on the dev place, and the dev place must use a different DataStore name or scope than the live place (`Config.Data.StoreName = "CatCafeDev"` vs `"CatCafe"`).
 
 ## Review questions (the luau-reviewer asks these)
 - Which line proves the player owns the thing they are acting on?

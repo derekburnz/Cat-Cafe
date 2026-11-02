@@ -1,0 +1,68 @@
+# Read the first-session numbers from Roblox analytics (Open Cloud Analytics Query API, beta), so threads see where
+# new players quit without Creator Hub: players per step of every funnel (onboarding first), players per day new and
+# returning, session length, day 1 retention, first-session lengths and the most logged custom events. Start it from
+# the Actions tab (analytics > Run workflow) or from any thread with the GitHub actions_run_trigger tool on main; the
+# run summary holds the tables, the job log the same plus every raw answer. It also runs by itself every morning at
+# 10:17 UTC for yesterday and the last 7 days. Read only. Needs the repo secret
+# ROBLOX_PUBLISH_KEY with universe-analytics universe.analytics:read (docs/setup-guide.md step 20).
+name: analytics
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Whole UTC days back from today (today is left out; Roblox fills a day about a day late)"
+        required: false
+        default: "14"
+      funnel:
+        description: "Only this funnel (empty: every funnel)"
+        required: false
+        default: ""
+  # Every morning before Derek is on, so the fixing-phase read (QA-Planner, fixing-phase plan section 4) finds
+  # yesterday and the last week waiting. Minute 17 avoids the top of the hour, when GitHub delays scheduled runs.
+  schedule:
+    - cron: "17 10 * * *"
+
+permissions:
+  contents: read
+
+env:
+  UNIVERSE_ID: "10773193456" # the Cat Cafe experience
+
+jobs:
+  read:
+    name: Read the analytics
+    runs-on: ubuntu-latest
+    # the script keeps to the API's 30 queries a minute, so a window with many custom events takes three or four
+    # minutes, and the daily run reads twice
+    timeout-minutes: 20
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      DAYS: ${{ inputs.days }}
+      FUNNEL: ${{ inputs.funnel }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # the script, and Onboarding.luau for the onboarding funnels' step names (v2 and the alpha's v1)
+          sparse-checkout: |
+            games/cat-cafe/tools/opencloud
+            games/cat-cafe/src/shared
+
+      - name: Check the key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      - name: Read the analytics
+        if: github.event_name != 'schedule'
+        run: bash games/cat-cafe/tools/opencloud/analytics.sh "$DAYS" "$FUNNEL"
+
+      - name: Read yesterday (daily run)
+        if: github.event_name == 'schedule'
+        run: bash games/cat-cafe/tools/opencloud/analytics.sh 1
+
+      - name: Read the last 7 days (daily run)
+        if: github.event_name == 'schedule'
+        run: bash games/cat-cafe/tools/opencloud/analytics.sh 7

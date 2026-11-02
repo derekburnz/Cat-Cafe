@@ -1,4 +1,4 @@
-# Skills, MCP servers and tools for Purr Pot: survey and ranking
+# Skills, MCP servers and tools for Cat Cafe: survey and ranking
 
 Date: 2026-10-26. Owner: lead (research thread "Find Roblox dev skills and tools"). Trigger: Derek found [EL4CTEO/blender-skills](https://github.com/EL4CTEO/blender-skills) and asked for similar tools for Blender modelling, then for every part of Roblox development. Nothing here is installed. Star counts and version numbers are what the GitHub pages showed on 2026-10-26.
 
@@ -111,3 +111,21 @@ Animation. The slice animates cats with CFrame tweens on Head and Tail (features
 3. Asset thread: port the gate report and five-view inspection sheet from blender-LPM-skill into `build_all.py`.
 4. Setup guide: add `DISABLE_TELEMETRY=true` for blender-mcp and a Blender 5.2 compatibility check at step 10; add the ACT add-on as an optional step.
 5. Phase 2 to 3: Asphalt and Lune into `rokit.toml`. Phase 4: rbxcloud and the analytics MCP, each with its own least-privilege Open Cloud key.
+
+## 11. Update 2026-10-27: what removes waiting
+
+Trigger: Derek asked for tools and agents that make development faster without slowing anything down, plus the Rojo upgrade. The pain points in the day's thread messages: publishing needed Derek in Studio, Studio checks needed the laptop online and an Allow click, PRs sat waiting on CI or a permission prompt, and CI failure mail. Versions are the newest tags on 2026-10-27.
+
+| Tool | Verdict | Notes |
+|---|---|---|
+| Open Cloud place publishing ([guide](https://create.roblox.com/docs/cloud/guides/usage-place-publishing)) | Installed | `publish.yml` plus `tools/opencloud/publish.sh`: `rojo build`, then one `curl` POST with `versionType=Saved` or `Published`. Key needs universe-places Write; 10 uploads a minute. It cannot update unions, SurfaceAppearance, EditableMesh, EditableImage or layered clothing; the place has none. |
+| Open Cloud Luau Execution ([reference](https://create.roblox.com/docs/cloud/reference/features/luau-execution)) | Installed; blocks a broken publish since its first green run (2026-10-27) | `tools/opencloud/run-luau.sh` and `Smoke.luau` run against the Saved version before publishing. The place's own scripts do not run in a task and physics is off, so the smoke test requires every module and builds the world by hand. 5 tasks a minute, 5 minute limit. Next step: run the TestKit specs in the real engine the same way (QA's call). |
+| `automerge` label (`.github/scripts/automerge.sh`) | Built | GitHub's own auto-merge only waits on required status checks in branch protection, which this repo does not use, so a small script does it: merge on green when the head contains main, otherwise bring main in and re-run CI. |
+| [Sleitnick/rbxcloud](https://github.com/Sleitnick/rbxcloud) v0.17.0 | Not needed | Publishing is one HTTP call; curl keeps the toolchain smaller. Revisit for DataStore or MessagingService admin from CI. |
+| Rojo 7.7.1 | Upgraded | PR #161 (laptop thread). Sourcemap and luau-lsp analyze unchanged. After pulling: `rokit install`, then `rojo plugin install`. |
+| luau-lsp 1.70.1, Selene 0.32.0 | Bumped | luau-lsp analyze passes with 0 errors locally; CI runs the real Selene against the Roblox std. |
+| StyLua 2.6.0 | Hold at 2.1.0 | 2.6.0 rewraps one long type union in `src/client/UI/Types.luau`, and cloud threads format with the npm 2.1.0 build. Bump everyone at once when no UI branch is open. |
+| [Lune](https://github.com/lune-org/lune) 0.11.1 | Still later | cloudcheck runs the specs in CI and the cloud; Lune adds nothing until a script needs it (find-resources' `scan-model.sh`). |
+| [Asphalt](https://github.com/jackTabsCode/asphalt) 2.0.2 | Still later | Audio uploads already run through `assets/cat-cafe/audio/upload.py` (44 ids). Worth it when HUD icons and textures need uploading. |
+| Studio MCP | No change | No official release found after the February 2026 update (console output, start and stop play, run script in play mode, Studio mode). The laptop session keeps using the built-in server. |
+| CI | Tidied | A new push cancels that PR's older run; job timeouts. Runs already take about 40 s, so caching would save seconds, not minutes. |

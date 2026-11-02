@@ -1,0 +1,1879 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Accessory_Cape/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.038,
+       0.019
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.007,
+     0.114,
+     0.152
+    ],
+    "Color": [
+     1.0,
+     0.4196,
+     0.5059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.038,
+       -0.019
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Accessory_Cape/0"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.1066,
+       0.0874
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9903,
+        -0.1392
+       ],
+       [
+        0.0,
+        0.1392,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.007,
+     0.342,
+     0.0475
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.111,
+       0.0501
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9903,
+        -0.1392
+       ],
+       [
+        0.0,
+        0.1392,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.95,
+     0.304,
+     0.0348
+    ],
+    "Color": [
+     1.0,
+     0.4196,
+     0.5059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3306,
+       -0.4735,
+       0.0358
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9903,
+        -0.1392
+       ],
+       [
+        0.0,
+        0.1392,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3382,
+     0.475,
+     0.0427
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3306,
+       -0.4586,
+       -0.0017
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9903,
+        -0.1392
+       ],
+       [
+        0.0,
+        0.1392,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2812,
+     0.437,
+     0.0385
+    ],
+    "Color": [
+     1.0,
+     0.4196,
+     0.5059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.175,
+       -0.4682,
+       0.0663
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9903,
+        -0.1392
+       ],
+       [
+        0.0,
+        0.1392,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.087,
+     0.3705,
+     0.0437
+    ],
+    "Color": [
+     1.0,
+     0.4196,
+     0.5059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3306,
+       -0.678,
+       -0.0117
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9903,
+        -0.1392
+       ],
+       [
+        0.0,
+        0.1392,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3982,
+     0.0665,
+     0.1398
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3135,
+       -0.4681,
+       0.0649
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7002,
+        0.7002,
+        -0.1392
+       ],
+       [
+        0.0984,
+        0.0984,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0855,
+     0.0855,
+     0.0465
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3306,
+       -0.4735,
+       0.0358
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9903,
+        -0.1392
+       ],
+       [
+        0.0,
+        0.1392,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3382,
+     0.475,
+     0.0427
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3306,
+       -0.4586,
+       -0.0017
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9903,
+        -0.1392
+       ],
+       [
+        0.0,
+        0.1392,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2812,
+     0.437,
+     0.0385
+    ],
+    "Color": [
+     1.0,
+     0.4196,
+     0.5059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.175,
+       -0.4682,
+       0.0663
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9903,
+        -0.1392
+       ],
+       [
+        0.0,
+        0.1392,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.087,
+     0.3705,
+     0.0437
+    ],
+    "Color": [
+     1.0,
+     0.4196,
+     0.5059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3306,
+       -0.678,
+       -0.0117
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.9903,
+        -0.1392
+       ],
+       [
+        0.0,
+        0.1392,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3982,
+     0.0665,
+     0.1398
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3135,
+       -0.4681,
+       0.0649
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.7071,
+        0.0
+       ],
+       [
+        0.7002,
+        0.7002,
+        -0.1392
+       ],
+       [
+        0.0984,
+        0.0984,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0855,
+     0.0855,
+     0.0465
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0154,
+       -0.0183,
+       0.1228
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.1392,
+        0.0,
+        -0.9903
+       ],
+       [
+        -0.9903,
+        0.0,
+        -0.1392
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0812
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0154,
+       -0.0795,
+       0.1143
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.1392,
+        0.0,
+        0.9903
+       ],
+       [
+        0.9903,
+        0.0,
+        0.1392
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0423
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0154,
+       -0.0795,
+       0.1143
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ],
+       [
+        0.1392,
+        0.9418,
+        0.306
+       ],
+       [
+        -0.9903,
+        0.1324,
+        0.043
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0423
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0741,
+       -0.0606,
+       0.1169
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        -0.9511
+       ],
+       [
+        -0.1392,
+        0.9418,
+        -0.306
+       ],
+       [
+        0.9903,
+        0.1324,
+        -0.043
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0812
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0836,
+       -0.0895,
+       0.1128
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        0.1392,
+        -0.9418,
+        -0.306
+       ],
+       [
+        -0.9903,
+        -0.1324,
+        -0.043
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0812
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0248,
+       -0.1084,
+       0.1102
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        -0.1392,
+        -0.9418,
+        0.306
+       ],
+       [
+        0.9903,
+        -0.1324,
+        0.043
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0423
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0248,
+       -0.1084,
+       0.1102
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        0.5878
+       ],
+       [
+        0.1392,
+        0.5821,
+        -0.8011
+       ],
+       [
+        -0.9903,
+        0.0818,
+        -0.1126
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0423
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0611,
+       -0.1579,
+       0.1032
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        -0.5878
+       ],
+       [
+        -0.1392,
+        0.5821,
+        0.8011
+       ],
+       [
+        0.9903,
+        0.0818,
+        0.1126
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0812
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0363,
+       -0.1757,
+       0.1007
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        0.1392,
+        -0.5821,
+        0.8011
+       ],
+       [
+        -0.9903,
+        -0.0818,
+        0.1126
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0812
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.1263,
+       0.1077
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        -0.1392,
+        -0.5821,
+        -0.8011
+       ],
+       [
+        0.9903,
+        -0.0818,
+        -0.1126
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0423
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.1263,
+       0.1077
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        -0.5878
+       ],
+       [
+        0.1392,
+        -0.5821,
+        -0.8011
+       ],
+       [
+        -0.9903,
+        -0.0818,
+        -0.1126
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0423
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0363,
+       -0.1757,
+       0.1007
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        0.5878
+       ],
+       [
+        -0.1392,
+        -0.5821,
+        0.8011
+       ],
+       [
+        0.9903,
+        -0.0818,
+        0.1126
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0812
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0611,
+       -0.1579,
+       0.1032
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        0.1392,
+        0.5821,
+        0.8011
+       ],
+       [
+        -0.9903,
+        0.0818,
+        0.1126
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0812
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0248,
+       -0.1084,
+       0.1102
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        -0.1392,
+        0.5821,
+        -0.8011
+       ],
+       [
+        0.9903,
+        0.0818,
+        -0.1126
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0423
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0248,
+       -0.1084,
+       0.1102
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        -0.9511
+       ],
+       [
+        0.1392,
+        -0.9418,
+        0.306
+       ],
+       [
+        -0.9903,
+        -0.1324,
+        0.043
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0423
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0836,
+       -0.0895,
+       0.1128
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ],
+       [
+        -0.1392,
+        -0.9418,
+        -0.306
+       ],
+       [
+        0.9903,
+        -0.1324,
+        -0.043
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0812
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0741,
+       -0.0606,
+       0.1169
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        0.1392,
+        0.9418,
+        -0.306
+       ],
+       [
+        -0.9903,
+        0.1324,
+        -0.043
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0812
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0154,
+       -0.0795,
+       0.1143
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        -0.1392,
+        0.9418,
+        0.306
+       ],
+       [
+        0.9903,
+        0.1324,
+        0.043
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0423
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0154,
+       -0.0795,
+       0.1143
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.1392,
+        0.0,
+        0.9903
+       ],
+       [
+        -0.9903,
+        0.0,
+        0.1392
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0423
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0154,
+       -0.0183,
+       0.1228
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        -0.1392,
+        0.0,
+        -0.9903
+       ],
+       [
+        0.9903,
+        0.0,
+        -0.1392
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.0307,
+     0.0812
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3467,
+       -0.038,
+       -0.2684
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.076,
+     0.5368
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2394,
+       -0.038,
+       -0.5462
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.114,
+     0.114,
+     0.038
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3467,
+       -0.038,
+       -0.2684
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0285,
+     0.076,
+     0.5368
+    ],
+    "Color": [
+     0.1216,
+     0.6471,
+     0.5608
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Cape",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2394,
+       -0.038,
+       -0.5462
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.114,
+     0.114,
+     0.038
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

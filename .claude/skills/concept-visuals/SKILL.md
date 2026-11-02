@@ -1,14 +1,14 @@
 ---
 name: concept-visuals
-description: The rough-visual process for Purr Pot: style options in words, a Studio graybox of the cafe and alley, one Blender hero asset, an HTML or SVG HUD mockup, saved to docs/concepts/cat-cafe/ with captions. Use for mood, graybox, hero asset and mockup tasks, and when assembling a comparison page for Derek and friends to vote on.
+description: The rough-visual process for Cat Cafe: style options in words, a Studio graybox of the cafe and alley, one Blender hero asset, an HTML or SVG HUD mockup, saved to docs/concepts/cat-cafe/ with captions. Use for mood, graybox, hero asset and mockup tasks, and when assembling a comparison page for Derek and friends to vote on.
 ---
 
-# Concept visuals (Purr Pot)
+# Concept visuals (Cat Cafe)
 
 Claude does not paint. Rough visuals come from the real tools: Roblox Studio generation tools for grayboxes, Blender for one hero asset, HTML or SVG for UI mockups. This doubles as a test of the pipeline.
 
-## 1. Style options (already drafted; pick one)
-The Three Game Sketches page (https://claude.ai/artifact/LEGHFzKQrACa125S45VCqX) lists three named styles for the cafe. Keep them as the vote options unless Gavin or Derek asks for new ones:
+## 1. Style options (Cozy Cream picked)
+Cozy Cream was picked on 2026-10-25 (`docs/decisions.md`, `docs/art/style-guide.md`). The three named styles came from the Three Game Sketches page, which was retired on 2026-10-27; an offline copy is in the project file library at `Planning-Manager/three-game-sketches-2026-10-25.html`. The other two stay as alternates unless Gavin or Derek asks for new ones:
 - **Cozy Cream**: warm creams and wood browns, soft rounded shapes, afternoon window light.
 - **Pastel Pop**: mint, peach and lavender, chunky toy-like shapes, flat bright lighting.
 - **Alley Night**: cafe glows warm against a blue dusk alley, string lights, higher contrast.

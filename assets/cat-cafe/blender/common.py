@@ -10,9 +10,40 @@ import sys
 
 import bmesh
 import bpy
-from mathutils import Matrix, Vector
+from mathutils import Euler, Matrix, Vector
 
 import palette
+
+# Blender (Z up, front -Y) to Roblox (Y up, front -Z = LookVector): (x, y, z) -> (-x, z, y).
+# It is the rotation the FBX export applies with Forward Z, Up Y, Roblox's documented settings.
+TO_ROBLOX = Matrix(((-1, 0, 0), (0, 0, 1), (0, 1, 0)))
+
+# Every primitive a Builder adds, per finalized mesh name (posed copies of an object share the mesh): (kind, matrix, extra), the matrix taking the
+# kind's unit shape into the object's local space. rbx_export.py turns these into Roblox Parts.
+#   box, wedge: unit cube / unit wedge (-0.5..0.5); cyl: unit cylinder along Z, extra = (bottom, top) radius
+#   fractions; sphere: unit-diameter sphere; pyramid: unit square pyramid on z -0.5..0.5;
+#   tri: flat triangle in local XY at z 0, extra = ((x, y) * 3, thickness).
+PRIMS = {}
+
+
+def _r(v, n=2):
+    return round(v, n) + 0.0      # + 0.0 turns -0.0 into 0.0
+
+
+def to_roblox(v):
+    """Blender position or offset -> Roblox [x, y, z] in studs."""
+    return [_r(c) for c in TO_ROBLOX @ Vector(v)]
+
+
+def rotation_to_roblox(R):
+    """Blender rotation matrix -> (CFrame.Angles degrees [x, y, z], Roblox 3x3 rotation)."""
+    Rr = TO_ROBLOX @ R.to_3x3() @ TO_ROBLOX.transposed()
+    return [_r(math.degrees(a), 1) for a in Rr.to_euler("ZYX")], Rr   # ZYX here = Rx @ Ry @ Rz = CFrame.Angles
+
+
+def euler_to_roblox(deg_xyz):
+    """Blender XYZ Euler degrees -> CFrame.Angles degrees."""
+    return rotation_to_roblox(Euler([math.radians(a) for a in deg_xyz], "XYZ").to_matrix())[0]
 
 BEVEL = 0.06          # stud, see style guide section 3
 BEVEL_SEGMENTS = 1   # one-segment chamfer reads as soft at Roblox scale and keeps tris low
@@ -32,21 +63,35 @@ def reset_scene():
 
 
 def palette_material(png_path):
-    """The one material every mesh uses: palette PNG into Base Color."""
+    """The one material every mesh uses: palette PNG into Base Color, and a metal mask (<palette>_Metal.png, white on
+    palette.METAL_SWATCHES) into Metallic, with those swatches smoother, so gold cats render as metal."""
     mat = bpy.data.materials.get(palette.TEXTURE_NAME)
     if mat:
         return mat
     img = bpy.data.images.get(palette.TEXTURE_NAME) or palette.write_palette_png(png_path)
+    metal_name = palette.TEXTURE_NAME + "_Metal"
+    metal = bpy.data.images.get(metal_name) or palette.write_metal_png(os.path.splitext(png_path)[0] + "_Metal.png")
     mat = bpy.data.materials.new(palette.TEXTURE_NAME)
     mat.use_nodes = True
     nodes, links = mat.node_tree.nodes, mat.node_tree.links
     bsdf = nodes.get("Principled BSDF")
-    bsdf.inputs["Roughness"].default_value = 0.65
     tex = nodes.new("ShaderNodeTexImage")
     tex.image = img
     tex.interpolation = "Closest"
     tex.location = (-400, 300)
     links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+    mask = nodes.new("ShaderNodeTexImage")
+    mask.image = metal
+    mask.interpolation = "Closest"
+    mask.location = (-400, 0)
+    links.new(mask.outputs["Color"], bsdf.inputs["Metallic"])
+    rough = nodes.new("ShaderNodeMath")             # 0.65 matte, 0.3 on metal
+    rough.operation = "MULTIPLY_ADD"
+    rough.inputs[1].default_value = -0.35
+    rough.inputs[2].default_value = 0.65
+    rough.location = (-150, 0)
+    links.new(mask.outputs["Color"], rough.inputs[0])
+    links.new(rough.outputs["Value"], bsdf.inputs["Roughness"])
     return mat
 
 
@@ -71,14 +116,19 @@ class Builder:
     build everything relative to the pivot you want (base center, floor).
     """
 
-    def __init__(self):
+    def __init__(self, remap=None):
         self.bm = bmesh.new()
         self.sw = self.bm.faces.layers.int.new("swatch")
         self.bev = self.bm.edges.layers.int.new("bev")
+        self.prims = []
+        self.remap = remap              # swatch -> swatch, for a recoloured twin (a golden crate)
+
+    def _log(self, kind, matrix, swatch, extra=None):
+        self.prims.append((kind, matrix.copy(), self.remap(swatch) if self.remap else swatch, extra))
 
     # -- tagging ------------------------------------------------------------
     def _tag(self, verts, swatch, bevel):
-        i = palette.idx(swatch)
+        i = palette.idx(self.remap(swatch) if self.remap else swatch)
         faces, edges = set(), set()
         for v in verts:
             faces.update(v.link_faces)
@@ -92,7 +142,9 @@ class Builder:
     # -- primitives ---------------------------------------------------------
     def box(self, center, size, swatch, bevel=True, rot=None):
         """Axis-aligned box. center=(x,y,z) of the box center, size=(w,d,h)."""
-        r = bmesh.ops.create_cube(self.bm, size=1.0, matrix=_mat(center, size, rot))
+        m = _mat(center, size, rot)
+        self._log("box", m, swatch)
+        r = bmesh.ops.create_cube(self.bm, size=1.0, matrix=m)
         return self._tag(r["verts"], swatch, bevel)
 
     def box_base(self, base_center, size, swatch, bevel=True, rot=None):
@@ -104,6 +156,9 @@ class Builder:
         """Vertical cylinder (or cone when radius2 given) centered at center.
         radius is the bottom radius, radius2 the top. scale squashes it (ellipses)."""
         r2 = radius if radius2 is None else radius2
+        rmax = max(radius, r2)
+        self._log("cyl", _mat(center, scale, rot) @ Matrix.Diagonal((2 * rmax, 2 * rmax, height, 1.0)), swatch,
+                  (radius / rmax, r2 / rmax))
         r = bmesh.ops.create_cone(self.bm, cap_ends=True, cap_tris=False, segments=segments,
                                   radius1=radius, radius2=r2, depth=height,
                                   matrix=_mat(center, scale, rot))
@@ -113,19 +168,83 @@ class Builder:
         c = (base_center[0], base_center[1], base_center[2] + height / 2)
         return self.cyl(c, radius, height, swatch, segments, bevel, None, radius2, scale)
 
-    def sphere(self, center, radius, swatch, segments=10, rings=6, scale=(1, 1, 1)):
+    def sphere(self, center, radius, swatch, segments=10, rings=6, scale=(1, 1, 1), rot=None):
+        self._log("sphere", _mat(center, scale, rot) @ Matrix.Scale(2 * radius, 4), swatch)
         r = bmesh.ops.create_uvsphere(self.bm, u_segments=segments, v_segments=rings, radius=radius,
-                                      matrix=_mat(center, scale))
+                                      matrix=_mat(center, scale, rot))
         return self._tag(r["verts"], swatch, False)
 
-    def ico(self, center, radius, swatch, subdivisions=1, scale=(1, 1, 1)):
+    def ico(self, center, radius, swatch, subdivisions=1, scale=(1, 1, 1), rot=None):
+        self._log("sphere", _mat(center, scale, rot) @ Matrix.Scale(2 * radius, 4), swatch)
         r = bmesh.ops.create_icosphere(self.bm, subdivisions=subdivisions, radius=radius,
-                                       matrix=_mat(center, scale))
+                                       matrix=_mat(center, scale, rot))
         return self._tag(r["verts"], swatch, False)
+
+    def prism(self, center, points, height, swatch, bevel=False, rot=None):
+        """Flat outline extruded `height` along Z, centered on `center`. `points` are (x, y) around
+        (0, 0), counter-clockwise, every point visible from (0, 0) (stars, badges)."""
+        m = _mat(center, (1, 1, 1), rot)
+        n = len(points)
+        for i in range(n):
+            self._log("tri", m, swatch, (((0.0, 0.0), points[i], points[(i + 1) % n]), height))
+        h = height / 2
+        bot = [self.bm.verts.new(m @ Vector((x, y, -h))) for x, y in points]
+        top = [self.bm.verts.new(m @ Vector((x, y, h))) for x, y in points]
+        cb, ct = self.bm.verts.new(m @ Vector((0, 0, -h))), self.bm.verts.new(m @ Vector((0, 0, h)))
+        n = len(points)
+        for i in range(n):
+            j = (i + 1) % n
+            self.bm.faces.new((bot[j], bot[i], cb))
+            self.bm.faces.new((top[i], top[j], ct))
+            self.bm.faces.new((bot[i], bot[j], top[j], top[i]))
+        vs = bot + top + [cb, ct]
+        bmesh.ops.recalc_face_normals(self.bm, faces=list({f for v in vs for f in v.link_faces}))
+        return self._tag(vs, swatch, bevel)
+
+    def crescent(self, center, radius, thickness, depth, swatch, segments=7, horns=1):
+        """Blocky crescent moon standing in the XZ plane (faces -Y), horns toward +X (horns -1: toward -X)."""
+        a0, a1 = math.radians(50), math.radians(310)
+        seg = (a1 - a0) / segments * radius * 1.2
+        for k in range(segments):
+            t = a0 + (a1 - a0) * (k + 0.5) / segments
+            w = thickness * (0.3 + 0.7 * math.sin(math.pi * (k + 0.5) / segments))
+            c = (center[0] + horns * radius * math.cos(t), center[1], center[2] + radius * math.sin(t))
+            self.box(c, (w, depth, seg), swatch, bevel=False, rot=(-t if horns > 0 else t, "Y"))
+
+    def star(self, center, outer, inner, height, swatch, points=5, rot=None):
+        """Star prism lying flat (rot stands it up), first point toward +Y."""
+        pts = []
+        for k in range(points * 2):
+            a = math.pi / 2 + math.pi * k / points
+            r = outer if k % 2 == 0 else inner
+            pts.append((r * math.cos(a), r * math.sin(a)))
+        return self.prism(center, pts, height, swatch, rot=rot)
+
+    def fan(self, center, apex, chain, height, swatch, rot=None):
+        """Triangles (apex, chain[i], chain[i+1]) in local XY, each extruded `height` along Z around z 0.
+        For flat shapes with a curved edge: arch glass, the wall left around an arch, gable ends."""
+        m = _mat(center, (1, 1, 1), rot)
+        h = height / 2
+        vs_all = []
+        for p0, p1 in zip(chain, chain[1:]):
+            self._log("tri", m, swatch, ((tuple(apex), tuple(p0), tuple(p1)), height))
+            pts = (apex, p0, p1)
+            bot = [self.bm.verts.new(m @ Vector((x, y, -h))) for x, y in pts]
+            top = [self.bm.verts.new(m @ Vector((x, y, h))) for x, y in pts]
+            self.bm.faces.new(bot[::-1])
+            self.bm.faces.new(top)
+            for i in range(3):
+                j = (i + 1) % 3
+                self.bm.faces.new((bot[i], bot[j], top[j], top[i]))
+            vs_all += bot + top
+        if vs_all:
+            bmesh.ops.recalc_face_normals(self.bm, faces=list({f for v in vs_all for f in v.link_faces}))
+        return self._tag(vs_all, swatch, False)
 
     def pyramid(self, base_center, size, height, swatch, bevel=False, rot=None):
         """Square pyramid standing on base_center. size = base width."""
         c = (base_center[0], base_center[1], base_center[2] + height / 2)
+        self._log("pyramid", _mat(c, (size, size, height), rot), swatch)
         r = bmesh.ops.create_cone(self.bm, cap_ends=True, cap_tris=False, segments=4,
                                   radius1=size / math.sqrt(2), radius2=0.0, depth=height,
                                   matrix=_mat(c, (1, 1, 1), rot) @ Matrix.Rotation(math.radians(45), 4, "Z"))
@@ -138,6 +257,7 @@ class Builder:
         pts = [(-w / 2, -d / 2, -h / 2), (w / 2, -d / 2, -h / 2), (w / 2, d / 2, -h / 2), (-w / 2, d / 2, -h / 2),
                (w / 2, d / 2, h / 2), (-w / 2, d / 2, h / 2)]
         m = _mat(center, (1, 1, 1), rot)
+        self._log("wedge", m @ Matrix.Diagonal((w, d, h, 1.0)), swatch)
         vs = [self.bm.verts.new(m @ Vector(p)) for p in pts]
         for idxs in [(0, 1, 2, 3), (3, 2, 4, 5), (0, 3, 5), (1, 4, 2), (0, 5, 4, 1)]:
             self.bm.faces.new([vs[i] for i in idxs])
@@ -148,7 +268,14 @@ class Builder:
     def ring(self, center, radius, thickness, height, swatch, segments=12, bevel=True, rot=None):
         """Ring (washer) lying flat in XY, `height` thick along Z: outer radius, inner radius-thickness.
         rot=(angle,'X') tips it, e.g. (pi/2,'X') for a collar standing in the XZ plane."""
-        base = _mat(center, (1, 1, 1), rot) @ Matrix.Translation((0, 0, -height / 2))
+        mid = _mat(center, (1, 1, 1), rot)
+        chord = 2 * radius * math.sin(math.pi / segments) * 1.08
+        for k in range(segments):
+            a = 2 * math.pi * (k + 0.5) / segments
+            rr = radius - thickness / 2
+            self._log("box", mid @ Matrix.Translation((rr * math.cos(a), rr * math.sin(a), 0))
+                      @ Matrix.Rotation(a, 4, "Z") @ Matrix.Diagonal((thickness, chord, height, 1.0)), swatch)
+        base = mid @ Matrix.Translation((0, 0, -height / 2))
         geom = bmesh.ops.create_circle(self.bm, cap_ends=False, segments=segments, radius=radius, matrix=base)
         outer = geom["verts"]
         inner = bmesh.ops.create_circle(self.bm, cap_ends=False, segments=segments, radius=radius - thickness,
@@ -188,7 +315,118 @@ class Builder:
         ob = bpy.data.objects.new(name, me)
         ob.location = location
         bpy.context.scene.collection.objects.link(ob)
+        PRIMS[me.name] = self.prims
         return ob
+
+
+class RB:
+    """A Builder you feed in Roblox axes (x across, y up, z away from the street, -Z is the front), for big
+    set pieces laid out in plot or area coordinates. Sizes are Roblox (x, y, z); rot is a Roblox 3x3 Matrix."""
+
+    def __init__(self, remap=None):
+        self.b = Builder(remap)
+
+    @staticmethod
+    def p(x, y, z):
+        return (-x, z, y)
+
+    @staticmethod
+    def _rot(rot):
+        return None if rot is None else (TO_ROBLOX.transposed() @ rot @ TO_ROBLOX)
+
+    def box(self, c, s, swatch, rot=None):
+        self.b.box(self.p(*c), (s[0], s[2], s[1]), swatch, bevel=False, rot=self._rot(rot))
+
+    def span(self, lo, hi, swatch, rot=None):
+        """Axis-aligned box from corner lo to corner hi."""
+        c = tuple((a + b) / 2 for a, b in zip(lo, hi))
+        self.box(c, tuple(abs(b - a) for a, b in zip(lo, hi)), swatch, rot)
+
+    def wedge(self, c, s, swatch, rot=None):
+        """Roblox WedgePart semantics: tall face at +Z, slope down toward -Z."""
+        self.b.wedge(self.p(*c), (s[0], s[2], s[1]), swatch, bevel=False, rot=self._rot(rot))
+
+    def cyl(self, c, r, h, swatch, axis="Y", r2=None, segments=12):
+        rot = {"Y": None, "X": (math.radians(90), "Y"), "Z": (math.radians(-90), "X")}[axis]
+        self.b.cyl(self.p(*c), r, h, swatch, segments=segments, bevel=False, rot=rot, radius2=r2)
+
+    def ball(self, c, r, swatch, scale=(1, 1, 1)):
+        self.b.ico(self.p(*c), r, swatch, scale=(scale[0], scale[2], scale[1]))
+
+    def fan_z(self, z, apex, chain, depth, swatch):
+        """Flat triangles in the Roblox XY plane at depth z (a facade), points as Roblox (x, y)."""
+        self.b.fan(self.p(0, 0, z), apex, chain, depth, swatch, rot=TO_ROBLOX.copy())
+
+    def text(self, s, origin, px, depth, swatch, right=(1, 0, 0), up=(0, 1, 0)):
+        """Block letters (5 px tall) from `origin` (bottom left of the first letter), reading along `right`."""
+        rx, ux = Vector(right), Vector(up)
+        nrm = rx.cross(ux)
+        cur = 0
+        for ch in s.upper():
+            g = GLYPHS.get(ch)
+            if g is None:
+                cur += 2
+                continue
+            for row, bits in enumerate(g):
+                col = 0
+                while col < len(bits):
+                    if bits[col] == "1":
+                        end = col
+                        while end < len(bits) and bits[end] == "1":
+                            end += 1
+                        a = Vector(origin) + rx * ((cur + col) * px) + ux * ((4 - row) * px)
+                        bvec = a + rx * ((end - col) * px) + ux * px + nrm * depth
+                        lo = [min(a[i], bvec[i]) for i in range(3)]
+                        hi = [max(a[i], bvec[i]) for i in range(3)]
+                        self.span(lo, hi, swatch)
+                        col = end
+                    else:
+                        col += 1
+            cur += len(g[0]) + 1
+        return cur * px
+
+    def finalize(self, name, mat, location=(0, 0, 0)):
+        return self.b.finalize(name, mat, location=self.p(*location))
+
+
+GLYPHS = {
+    "A": ("010", "101", "111", "101", "101"), "B": ("110", "101", "110", "101", "110"),
+    "C": ("111", "100", "100", "100", "111"), "D": ("110", "101", "101", "101", "110"),
+    "E": ("111", "100", "110", "100", "111"), "F": ("111", "100", "110", "100", "100"),
+    "G": ("111", "100", "101", "101", "111"), "H": ("101", "101", "111", "101", "101"),
+    "I": ("111", "010", "010", "010", "111"), "J": ("001", "001", "001", "101", "010"),
+    "K": ("101", "110", "100", "110", "101"),
+    "L": ("100", "100", "100", "100", "111"), "M": ("10001", "11011", "10101", "10001", "10001"),
+    "N": ("1001", "1101", "1011", "1001", "1001"), "O": ("111", "101", "101", "101", "111"),
+    "P": ("110", "101", "110", "100", "100"), "R": ("110", "101", "110", "101", "101"),
+    "S": ("111", "100", "111", "001", "111"), "T": ("111", "010", "010", "010", "010"),
+    "U": ("101", "101", "101", "101", "111"), "V": ("101", "101", "101", "101", "010"),
+    "W": ("10001", "10001", "10101", "11011", "10001"), "X": ("101", "101", "010", "101", "101"),
+    "Y": ("101", "101", "010", "010", "010"), "Z": ("111", "001", "010", "100", "111"),
+    "Q": ("010", "101", "101", "110", "011"), "$": ("111", "110", "111", "011", "111"),
+    "!": ("1", "1", "1", "0", "1"),
+}
+
+
+def text_width(s, px):
+    """Width of RB.text(s) in studs, without the gap after the last letter."""
+    cols = sum(len(GLYPHS[ch][0]) + 1 if ch in GLYPHS else 2 for ch in s.upper())
+    return (cols - 1) * px
+
+
+def bake_transform(ob):
+    """Move an object's transform into its mesh (and primitive log), leaving it at the origin unrotated."""
+    M = ob.matrix_world.copy()
+    ob.data.transform(M)
+    ob.matrix_world = Matrix.Identity(4)
+    PRIMS[ob.data.name] = [(k, M @ m, sw, extra) for k, m, sw, extra in PRIMS.get(ob.data.name, [])]
+
+
+def scale_mesh(ob, s):
+    """Scale an object's mesh about its origin (big cats, tall customers), keeping its primitive log in step."""
+    ob.data.transform(Matrix.Scale(s, 4))
+    S = Matrix.Scale(s, 4)
+    PRIMS[ob.data.name] = [(k, S @ m, sw, extra) for k, m, sw, extra in PRIMS.get(ob.data.name, [])]
 
 
 # -------------------------------------------------------------- metrics -----
@@ -227,7 +465,7 @@ def export_asset(objs, name, out_dir, glb=True):
     bpy.ops.export_scene.fbx(
         filepath=fbx, use_selection=True, object_types={"MESH"},
         apply_unit_scale=True, apply_scale_options="FBX_SCALE_UNITS", global_scale=1.0,
-        axis_forward="-Z", axis_up="Y", mesh_smooth_type="FACE", use_mesh_modifiers=True,
+        axis_forward="Z", axis_up="Y", mesh_smooth_type="FACE", use_mesh_modifiers=True,
         add_leaf_bones=False, bake_anim=False, path_mode="COPY", embed_textures=True,
         use_custom_props=False, use_triangles=False,
     )
@@ -303,11 +541,12 @@ def render_preview(objs, path, res=(640, 480), samples=32, azimuth=35, elevation
     sc.view_settings.view_transform = "Standard"
     if floor:
         _ensure_floor()
+    lo, hi = bounds(objs)
     fl = bpy.data.objects.get("_PreviewFloor")
     if fl:
         fl.hide_render = not floor
+        fl.location.z = min(0.0, lo.z) - 0.001
     _ensure_lights(warm)
-    lo, hi = bounds(objs)
     center = (lo + hi) / 2
     radius = max((hi - lo).length / 2, 0.5)
     cam = bpy.data.objects.get("_Cam")
@@ -321,6 +560,9 @@ def render_preview(objs, path, res=(640, 480), samples=32, azimuth=35, elevation
     direction = Vector((math.sin(az) * math.cos(el), -math.cos(az) * math.cos(el), math.sin(el)))
     fov = cam.data.angle_y if res[0] >= res[1] else cam.data.angle_x
     dist = radius * margin / math.sin(fov / 2)
+    cam.data.type = "PERSP"                      # render_views leaves ORTHO or a tight clip_end behind
+    cam.data.clip_start = 0.05
+    cam.data.clip_end = max(dist * 4, 500.0)
     cam.location = center + direction * dist
     cam.rotation_euler = (center - cam.location).to_track_quat("-Z", "Y").to_euler()
     hidden = []

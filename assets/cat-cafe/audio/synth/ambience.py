@@ -1,0 +1,574 @@
+"""Synthesize Cat Cafe's ambience beds: the cafes, the Alleyway and the Park, by day and night.
+
+Retired 2026-10-27: Derek asked for quiet music instead of ambience (synth/music.py), so these files were
+removed from the repo and the game. Kept to rebuild a bed if one comes back.
+
+Run from the repo root:  python assets/cat-cafe/audio/synth/ambience.py [--only CafeDay,AlleyNight]
+                                                                       [--preview DIR]
+
+Every bed is built from seeded noise, sine partials and pulse trains (no samples), so the files
+are original and the same on every run. Everything is made over exactly one loop: filters work in
+the frequency domain over the whole loop, every event (a cup clink, a drip, a chirp, a voice)
+wraps around the loop end, and every steady tone fits a whole number of cycles. So the end flows
+into the start with no seam. Outputs (overwritten):
+  assets/cat-cafe/audio/ambience/CatCafe_Amb_<Name>.ogg  (stereo, 48 kHz, about -26 LUFS; the 3D
+  loop CatCafe_Amb_LoopCafeDoor is mono)
+  with --preview: DIR/cat-cafe-ambience-preview.mp3, 20 s of each bed with crossfades.
+
+The cafe has no voices: a synthesized murmuring crowd sounded eerie in game (Derek, 2026-10-27), so
+customers are heard by their cups, spoons and the espresso machine instead. Needs numpy and ffmpeg. Check the files with
+.claude/skills/audio-pipeline/scripts/audio_gate.py. Cue rows: docs/audio/cat-cafe/sound-list.md 4.
+"""
+
+from __future__ import annotations
+
+import argparse
+import re
+import subprocess
+import sys
+import tempfile
+import wave
+from pathlib import Path
+
+import numpy as np
+
+from synth import SR, bandpass, bell, envelope, glide  # same folder
+
+ROOT = Path(__file__).resolve().parents[1]  # assets/cat-cafe/audio
+LOOP = 48.0  # seconds; whole seconds so the wall clock ticks and the hums fit the loop exactly
+N = int(LOOP * SR)
+TARGET_LUFS = -26.0
+CEILING_DB = -4.0  # sample peak; the gate's limit is -3 dBTP
+
+
+# --- building blocks (all circular over one loop) ---------------------------------------------
+
+
+def rng(seed: int) -> np.random.Generator:
+    return np.random.default_rng(seed)
+
+
+def shape(x: np.ndarray, gain) -> np.ndarray:
+    """Filter a signal through a gain curve, gain(freqs) -> array, in the frequency domain."""
+    spectrum = np.fft.rfft(x)
+    return np.fft.irfft(spectrum * gain(np.fft.rfftfreq(len(x), 1 / SR)), len(x))
+
+
+def band(lo: float | None = None, hi: float | None = None, order: int = 2):
+    def gain(f: np.ndarray) -> np.ndarray:
+        out = np.ones_like(f)
+        if lo:
+            out = out / np.sqrt(1 + (lo / np.maximum(f, 1e-3)) ** (2 * order))
+        if hi:
+            out = out / np.sqrt(1 + (f / hi) ** (2 * order))
+        return out
+
+    return gain
+
+
+def unit(x: np.ndarray) -> np.ndarray:
+    return x / (np.sqrt(np.mean(x**2)) + 1e-12)
+
+
+def pink(seed: int, lo: float | None = None, hi: float | None = None, n: int = N) -> np.ndarray:
+    x = rng(seed).standard_normal(n)
+    tilt = band(lo, hi)
+    return unit(shape(x, lambda f: tilt(f) / np.sqrt(np.maximum(f, 20.0))))
+
+
+def lfo(seed: int, cycles=(1, 2, 3, 5)) -> np.ndarray:
+    """Slow wobble in [-1, 1] made of whole cycles per loop, so it is periodic too."""
+    r = rng(seed)
+    t = np.arange(N) / SR
+    out = sum(r.uniform(0.4, 1.0) * np.sin(2 * np.pi * k * t / LOOP + r.uniform(0, 2 * np.pi)) for k in cycles)
+    return out / np.max(np.abs(out))
+
+
+def put(track: np.ndarray, signal: np.ndarray, start: float) -> None:
+    """Add a signal at `start` seconds, wrapping past the loop end. Mono or stereo."""
+    index = (np.arange(len(signal)) + int(start * SR)) % len(track)
+    track[index] += signal
+
+
+def pan(x: np.ndarray, position: float) -> np.ndarray:
+    """Constant-power pan, -1 left to 1 right."""
+    angle = (position + 1) * np.pi / 4
+    return np.stack([x * np.cos(angle), x * np.sin(angle)], axis=1)
+
+
+def stereo() -> np.ndarray:
+    return np.zeros((N, 2))
+
+
+def reverb(x: np.ndarray, seconds: float, seed: int, hi: float = 5000.0, predelay: float = 0.012) -> np.ndarray:
+    """Circular convolution with a decaying-noise room, a different one per ear."""
+    n = int(seconds * SR)
+    t = np.arange(n) / SR
+    out = np.empty_like(x)
+    for channel in (0, 1):
+        ir = rng(seed + channel).standard_normal(n) * np.exp(-6.9 * t / seconds)
+        ir = shape(ir, band(hi=hi))
+        ir[: int(predelay * SR)] = 0
+        full = np.zeros(N)
+        full[:n] = ir / np.sqrt(np.sum(ir**2))
+        out[:, channel] = np.fft.irfft(np.fft.rfft(x[:, channel]) * np.fft.rfft(full), N)
+    return out
+
+
+def room(x: np.ndarray, seconds: float, seed: int, wet: float, hi: float = 5000.0) -> np.ndarray:
+    return (1 - wet) * x + wet * reverb(x, seconds, seed, hi)
+
+
+def events(seed: int, mean_gap: float, jitter: float = 0.6, start: float = 0.0):
+    """Start times over one loop with gaps around `mean_gap` seconds."""
+    r = rng(seed)
+    at = start + r.uniform(0, mean_gap)
+    while at < start + LOOP - 0.05:
+        yield at, r
+        at += mean_gap * r.uniform(1 - jitter, 1 + jitter)
+
+
+def burst(seed: int, duration: float, lo: float, hi: float, tau: float, attack: float = 0.001) -> np.ndarray:
+    x = rng(seed).standard_normal(int(duration * SR))
+    return unit(shape(x, band(lo, hi))) * envelope(duration, attack, tau)
+
+
+def shape_stereo(x: np.ndarray, gain) -> np.ndarray:
+    return np.stack([shape(x[:, 0], gain), shape(x[:, 1], gain)], axis=1)
+
+
+# --- cafe sounds -------------------------------------------------------------------------------
+
+
+def clink(seed: int) -> np.ndarray:
+    """A cup or saucer touched: porcelain partials over a tiny knock."""
+    r = rng(seed)
+    f0 = r.uniform(2300, 3500)
+    partials = ((1.0, 1.0, r.uniform(0.07, 0.16)), (2.32, 0.5, 0.05), (4.25, 0.25, 0.03), (6.63, 0.12, 0.018))
+    knock = burst(seed + 1, 0.03, 500, 1600, 0.006) * 0.2
+    x = bell(0.35, f0, partials)
+    x[: len(knock)] += knock
+    return x
+
+
+def spoon(seed: int) -> np.ndarray:
+    r = rng(seed)
+    out = np.zeros(int(0.9 * SR))
+    for k in range(r.integers(4, 7)):
+        tink = bell(0.12, r.uniform(4200, 5200), ((1.0, 1.0, 0.03), (2.4, 0.3, 0.01)))
+        put(out, tink * r.uniform(0.3, 0.5), k * r.uniform(0.11, 0.15))
+    return out
+
+
+def steam(seed: int, duration: float = 3.0) -> np.ndarray:
+    """The milk steamer: a hiss that rises and settles, with a little gurgle."""
+    t = np.arange(int(duration * SR)) / SR
+    env = np.clip(t / 0.4, 0, 1) * np.clip((duration - t) / 0.8, 0, 1)
+    hiss = unit(shape(rng(seed).standard_normal(len(t)), band(2000, 7000))) * env
+    gurgle = unit(shape(rng(seed + 1).standard_normal(len(t)), band(150, 600))) * env
+    gurgle *= 0.5 + 0.5 * np.sin(2 * np.pi * 7 * t)
+    return hiss * 0.5 + gurgle * 0.25
+
+
+def grinder(seed: int, duration: float = 2.2) -> np.ndarray:
+    t = np.arange(int(duration * SR)) / SR
+    env = np.clip(t / 0.15, 0, 1) * np.clip((duration - t) / 0.25, 0, 1)
+    whirr = unit(shape(rng(seed).standard_normal(len(t)), band(300, 2500))) * (1 + 0.5 * np.sin(2 * np.pi * 47 * t))
+    return whirr * env * 0.35
+
+
+def scrape(seed: int) -> np.ndarray:
+    d = 0.45
+    t = np.arange(int(d * SR)) / SR
+    grain = unit(shape(rng(seed).standard_normal(len(t)), band(250, 1200)))
+    return grain * np.sin(np.pi * t / d) ** 2 * (1 + 0.6 * np.sin(2 * np.pi * 31 * t)) * 0.3
+
+
+def pour(seed: int, duration: float = 1.6) -> np.ndarray:
+    """Coffee poured into a cup: a soft trickle whose ring rises as the cup fills."""
+    t = np.arange(int(duration * SR)) / SR
+    trickle = rng(seed).standard_normal(len(t)) * (0.7 + 0.3 * np.sin(2 * np.pi * 9 * t))
+    ring = bandpass(trickle, 650 * 2 ** (1.1 * t / duration), 6.0)
+    env = np.clip(t / 0.08, 0, 1) * np.clip((duration - t) / 0.25, 0, 1)
+    return unit(shape(ring, band(300, 3000))) * env * 0.4
+
+
+def cafe(seed: int, clinks: float, tone: float) -> np.ndarray:
+    """A busy cafe heard only by what its customers do: cups, saucers, spoons, a chair, the espresso machine."""
+    mix = pan(pink(seed + 1, 60, 700), 0) * tone  # warm room presence
+    things = stereo()
+    for at, r in events(seed + 2, clinks):
+        roll = r.uniform()
+        sound = spoon(r.integers(1 << 30)) if roll < 0.15 else clink(r.integers(1 << 30))
+        put(things, pan(sound * r.uniform(0.15, 0.35), r.uniform(-0.9, 0.9)), at)
+        if 0.15 <= roll < 0.4:  # the cup goes back on its saucer
+            put(things, pan(clink(r.integers(1 << 30)) * 0.15, r.uniform(-0.9, 0.9)), at + r.uniform(0.06, 0.14))
+    r = rng(seed + 3)
+    put(things, pan(steam(seed + 4), -0.5) * 0.12, r.uniform(0, LOOP))
+    put(things, pan(grinder(seed + 5), 0.6) * 0.15, r.uniform(0, LOOP))
+    for k in range(2):
+        put(things, pan(pour(seed + 7 + k), -0.4 + 0.5 * k) * 0.25, r.uniform(0, LOOP))
+    put(things, pan(scrape(r.integers(1 << 30)), r.uniform(-0.8, 0.8)) * 0.15, r.uniform(0, LOOP))
+    mix += room(things, 0.7, seed + 6, wet=0.35, hi=7000)
+    return mix
+
+
+def cafe_day() -> np.ndarray:
+    """Inside by day: the busy cafe and a few birds outside the windows, dulled by the glass."""
+    mix = cafe(100, clinks=1.8, tone=0.03)
+    mix += shape_stereo(room(scatter(110, 8.0, bird, 0.1), 0.5, 111, wet=0.3), band(hi=4500))
+    return mix
+
+
+def wall_clock(seed: int) -> np.ndarray:
+    track = np.zeros(N)
+    for second in range(int(LOOP)):
+        lo, hi = (1800, 3200) if second % 2 == 0 else (1300, 2400)
+        put(track, burst(seed + second % 2, 0.02, lo, hi, 0.003), float(second))
+    return track
+
+
+# A small brass wind chime: (ratio, amplitude, decay seconds); rods tuned to C major pentatonic so it stays sunny.
+CHIME = ((1.0, 1.0, 1.1), (2.76, 0.3, 0.45), (5.4, 0.12, 0.2))
+PENTATONIC = (1046.5, 1174.7, 1318.5, 1568.0, 1760.0)  # C6 D6 E6 G6 A6
+
+
+def chimes(seed: int) -> np.ndarray:
+    """The door's wind chime stirred by a breeze: two to four rods touching, softly."""
+    r = rng(seed)
+    out = np.zeros(int(4.0 * SR))
+    at = 0.0
+    for _ in range(r.integers(2, 5)):
+        put(out, bell(2.0, PENTATONIC[r.integers(len(PENTATONIC))], CHIME, attack=0.003) * r.uniform(0.4, 1.0), at)
+        at += r.uniform(0.15, 0.4)
+    return out
+
+
+def cafe_door() -> np.ndarray:
+    """Outside a running cafe's door by day (a 3D loop, so mono): its cups and espresso machine through the
+    doorway, sparrows on the awning and the door's wind chime now and then."""
+    mix = shape_stereo(cafe(150, clinks=2.4, tone=0.0), band(hi=2800)) * 0.7  # muffled by the doorway
+    mix += room(scatter(160, 6.0, bird, 0.2), 0.4, 161, wet=0.2)
+    mix += room(scatter(170, 11.0, chimes, 0.15), 0.8, 171, wet=0.25, hi=8000)
+    mono = mix.mean(axis=1)
+    return np.stack([mono, mono], axis=1)
+
+
+def sleeper(seed: int, rate: float, breath: float) -> np.ndarray:
+    """A cat purring in its sleep for the whole loop: slow breaths, soft rumbling pulses, now and then quieter."""
+    t = np.arange(N) / SR
+    pulses = round(rate * LOOP)  # whole numbers of pulses and breaths per loop: no seam
+    pulse = np.exp(-((t * pulses / LOOP) % 1.0) / 0.2)
+    breaths = round(LOOP / breath)
+    inhale = np.sin(np.pi * breaths * t / LOOP) ** 2
+    rumble = unit(shape(rng(seed).standard_normal(N), band(60, 450, order=4)))
+    deeper = 0.45 + 0.55 * np.clip(lfo(seed + 1, (1, 2, 3)) + 0.4, 0, 1)
+    return rumble * pulse * (0.3 + 0.7 * inhale) * deeper
+
+
+def dream_chirp(seed: int) -> np.ndarray:
+    """A dreaming cat's tiny "mrrp": a short rising trill through a small mouth."""
+    r = rng(seed)
+    d = r.uniform(0.14, 0.22)
+    t = np.arange(int(d * SR)) / SR
+    pitch = r.uniform(380, 480) * 1.35 ** np.clip(t / (d * 0.6), 0, 1)
+    phase = np.cumsum(pitch) / SR
+    voice = (2 * (phase % 1.0) - 1) * (0.55 + 0.45 * np.sin(2 * np.pi * 26 * t)) * np.sin(np.pi * t / d) ** 0.8
+    mouth = ((850, 1.0, 120), (1700, 0.5, 160), (2900, 0.2, 200))
+    return unit(shape(voice, lambda f: sum(a / (1 + ((f - c) / w) ** 2) for c, a, w in mouth)))
+
+
+def cafe_night() -> np.ndarray:
+    """The cafe is closed at night (design v0.5, F44): no customers, the clock, the fridge and the cats asleep."""
+    mix = pan(pink(200, 30, 250), 0) * 0.015  # room tone, under the cats
+    mix += pan(wall_clock(210), 0.4) * 0.1
+    t = np.arange(N) / SR
+    fridge = sum(a * np.sin(2 * np.pi * f * t) for f, a in ((100, 1.0), (200, 0.4), (300, 0.15)))  # whole cycles
+    mix += pan(fridge * (0.8 + 0.2 * lfo(211)), -0.3) * 0.006
+    cats = stereo()
+    for i, (rate, breath, position) in enumerate(((22.0, 3.4, -0.55), (25.0, 2.9, 0.35), (20.0, 4.0, 0.75))):
+        cats += pan(sleeper(220 + 10 * i, rate, breath), position) * (0.14, 0.1, 0.08)[i]
+    for at, r in events(250, 19.0):
+        put(cats, pan(dream_chirp(r.integers(1 << 30)) * 0.05, r.uniform(-0.7, 0.7)), at)
+    for at, r in events(260, 13.0):  # the espresso machine cooling down, tick by tick
+        put(cats, pan(burst(r.integers(1 << 30), 0.03, 2500, 6000, 0.004) * 0.04, -0.6), at)
+    mix += room(cats, 0.7, 270, wet=0.35, hi=6000)
+    outside = car(280) * 0.08  # one car passes the shut door, muffled by the glass
+    passing = stereo()
+    put(passing, outside, rng(281).uniform(0, LOOP))
+    mix += shape_stereo(passing, band(hi=500))
+    return mix
+
+
+# --- outdoors ----------------------------------------------------------------------------------
+
+
+def wind(seed: int, strength: float) -> np.ndarray:
+    low = pink(seed, 150, 900) * (0.6 + 0.4 * lfo(seed + 1, (1, 2, 3, 4)))
+    high = pink(seed + 2, 700, 2600) * np.clip(lfo(seed + 3, (2, 3, 5, 7)), 0, 1) ** 2
+    return np.stack([low * 0.9 + high * 0.3, low * 0.8 + high * 0.4], axis=1) * strength
+
+
+def rumble(seed: int, level: float) -> np.ndarray:
+    """A far city: low traffic hum, slowly breathing."""
+    left = pink(seed, 25, 160) * (0.8 + 0.2 * lfo(seed + 1))
+    right = pink(seed + 2, 25, 160) * (0.8 + 0.2 * lfo(seed + 3))
+    return np.stack([left, right], axis=1) * level
+
+
+def car(seed: int, duration: float = 7.0) -> np.ndarray:
+    """A car passing the end of the street, panning across."""
+    t = np.arange(int(duration * SR)) / SR
+    swell = np.exp(-(((t - duration / 2) / (duration / 5)) ** 2))
+    body = unit(shape(rng(seed).standard_normal(len(t)), band(60, 700))) * swell
+    side = np.clip((t - duration / 2) / (duration / 2), -1, 1) * (1 if seed % 2 else -1) * 0.8
+    angle = (side + 1) * np.pi / 4
+    return np.stack([body * np.cos(angle), body * np.sin(angle)], axis=1)
+
+
+def drip(seed: int) -> np.ndarray:
+    r = rng(seed)
+    f = r.uniform(1100, 1900)
+    d = 0.14
+    plink = glide(d, f, f * 1.7, 0.025) * envelope(d, 0.0008, 0.022)
+    plop = glide(d, 300, 180, 0.02) * envelope(d, 0.001, 0.01) * 0.3
+    return plink + plop
+
+
+def chirp_train(seed: int, freq: float, pulses: int, gap: float, pulse: float) -> np.ndarray:
+    n = int(pulse * SR)
+    one = np.sin(2 * np.pi * freq * np.arange(n) / SR) * np.hanning(n)
+    out = np.zeros(int((pulses * gap + pulse) * SR))
+    r = rng(seed)
+    for k in range(pulses):
+        put(out, one * r.uniform(0.7, 1.0), k * gap)
+    return out
+
+
+def crickets(seed: int, freq: float, position: float) -> np.ndarray:
+    """A cricket that chirps in stretches and rests between them."""
+    track = np.zeros(N)
+    r = rng(seed)
+    at = r.uniform(0, 3)
+    while at < LOOP - 0.5:
+        stretch = r.uniform(5, 14)
+        end = min(at + stretch, LOOP - 0.5)
+        while at < end:
+            put(track, chirp_train(r.integers(1 << 30), freq * r.uniform(0.995, 1.005), 3, 0.034, 0.016), at)
+            at += r.uniform(0.5, 0.62)
+        at += r.uniform(1.5, 5)
+    return pan(track, position)
+
+
+def coo(seed: int) -> np.ndarray:
+    """A pigeon: three soft hooting notes, throaty and round."""
+    r = rng(seed)
+    base = r.uniform(300, 380)
+    out = np.zeros(int(1.3 * SR))
+    for start, length, ratio in ((0.0, 0.22, 1.0), (0.3, 0.42, 1.12), (0.8, 0.28, 0.94)):
+        n = int(length * SR)
+        t = np.arange(n) / SR
+        f = base * ratio * (1 + 0.04 * np.sin(np.pi * t / length))
+        ph = 2 * np.pi * np.cumsum(f) / SR
+        note = (np.sin(ph) + 0.25 * np.sin(2 * ph)) * (1 - 0.45 * (0.5 + 0.5 * np.sin(2 * np.pi * 19 * t)))
+        put(out, note * np.sin(np.pi * t / length) ** 1.5, start)
+    return out
+
+
+def bird(seed: int) -> np.ndarray:
+    """A small songbird phrase: quick sweeps and a short trill."""
+    r = rng(seed)
+    out = np.zeros(int(1.6 * SR))
+    at = 0.0
+    for _ in range(r.integers(2, 5)):
+        d = r.uniform(0.04, 0.09)
+        f0, f1 = r.uniform(2800, 4200), r.uniform(3500, 6500)
+        if r.uniform() < 0.5:
+            f0, f1 = f1, f0
+        t = np.arange(int(d * SR)) / SR
+        put(out, glide(d, f0, f1, d) * np.sin(np.pi * t / d), at)
+        at += d + r.uniform(0.03, 0.09)
+    if r.uniform() < 0.6:
+        put(out, chirp_train(seed + 1, r.uniform(4000, 5200), int(r.integers(5, 10)), 0.045, 0.03), at)
+    return out
+
+
+def owl(seed: int) -> np.ndarray:
+    r = rng(seed)
+    out = np.zeros(int(2.2 * SR))
+    for start, length in ((0.0, 0.5), (0.95, 0.25), (1.3, 0.55)):
+        n = int(length * SR)
+        t = np.arange(n) / SR
+        f = r.uniform(370, 390) * (1 - 0.06 * t / length)
+        ph = 2 * np.pi * np.cumsum(f) / SR
+        put(out, (np.sin(ph) + 0.12 * np.sin(2 * ph)) * np.sin(np.pi * t / length) ** 2, start)
+    return out
+
+
+def scatter(seed: int, mean_gap: float, maker, level: float, spread: float = 0.9) -> np.ndarray:
+    track = stereo()
+    for at, r in events(seed, mean_gap):
+        put(track, pan(maker(r.integers(1 << 30)) * level * r.uniform(0.6, 1.0), r.uniform(-spread, spread)), at)
+    return track
+
+
+def alley_day() -> np.ndarray:
+    mix = rumble(300, 0.5) + wind(301, 0.12)
+    cars = stereo()
+    for at, r in events(302, 6.0):
+        put(cars, car(r.integers(1 << 30)) * 0.35, at)
+    mix += cars
+    mix += room(scatter(303, 9.0, coo, 0.25, 0.7), 0.6, 304, wet=0.4)
+    mix += room(scatter(305, 11.0, bird, 0.07), 0.5, 306, wet=0.3)
+    return mix
+
+
+def alley_night() -> np.ndarray:
+    mix = rumble(400, 0.35) + wind(401, 0.16)
+    cars = stereo()
+    for at, r in events(402, 18.0, jitter=0.4):
+        put(cars, car(r.integers(1 << 30)) * 0.2, at)
+    mix += cars
+    drips = stereo()
+    for at, r in events(403, 1.8, jitter=0.15):  # a steady drip from a gutter
+        put(drips, pan(drip(404) * r.uniform(0.8, 1.0), -0.45), at)
+    for at, r in events(405, 4.5):  # and a slower, random one
+        put(drips, pan(drip(r.integers(1 << 30)) * 0.6, 0.55), at)
+    mix += room(drips * 0.22, 1.4, 406, wet=0.55, hi=6000)
+    bugs = crickets(407, 4400, -0.6) + crickets(408, 4750, 0.7) * 0.8
+    mix += room(bugs * 0.05, 0.8, 409, wet=0.5, hi=8000)
+    return mix
+
+
+def fountain(seed: int) -> np.ndarray:
+    splash = pink(seed, 300, 6000)
+    fizz = unit(shape(rng(seed + 1).standard_normal(N), band(4, 18)))
+    water = splash * (1 + 0.35 * fizz)
+    return pan(shape(water, band(hi=3500)), 0.3)
+
+
+def leaves(seed: int, gusts: np.ndarray) -> np.ndarray:
+    rustle = pink(seed, 2000, 9000) * np.clip(gusts, 0, 1) ** 2
+    return np.stack([rustle, np.roll(rustle, int(0.3 * SR))], axis=1)
+
+
+def park_day() -> np.ndarray:
+    mix = wind(500, 0.1) + fountain(501) * 0.12
+    mix += leaves(502, lfo(503, (2, 3, 5, 8))) * 0.05
+    mix += room(scatter(504, 2.6, bird, 0.12), 0.5, 505, wet=0.3)
+    mix += room(scatter(506, 14.0, coo, 0.15, 0.8), 0.5, 507, wet=0.4)
+    return mix
+
+
+def park_night() -> np.ndarray:
+    mix = wind(600, 0.14) + fountain(601) * 0.06
+    mix += leaves(602, lfo(603, (1, 2, 3, 5))) * 0.03
+    bugs = crickets(604, 4300, -0.7) + crickets(605, 4650, 0.1) * 0.9 + crickets(606, 4900, 0.8) * 0.7
+    mix += room(bugs * 0.06, 0.6, 607, wet=0.4, hi=8000)
+    hoots = stereo()
+    r = rng(608)
+    for at in (r.uniform(4, 10), r.uniform(28, 36)):
+        put(hoots, pan(owl(r.integers(1 << 30)) * 0.12, r.uniform(-0.8, 0.8)), at)
+    mix += room(hoots, 1.6, 609, wet=0.7, hi=2500)
+    return mix
+
+
+MONO = {"LoopCafeDoor"}  # 3D loops on a part must be mono to be placed in the world
+
+BEDS = {
+    "CafeDay": cafe_day,
+    "LoopCafeDoor": cafe_door,
+    "CafeNight": cafe_night,
+    "AlleyDay": alley_day,
+    "AlleyNight": alley_night,
+    "ParkDay": park_day,
+    "ParkNight": park_night,
+}
+
+
+# --- level and output --------------------------------------------------------------------------
+
+
+def write_wav(path: Path, x: np.ndarray) -> None:
+    pcm = (np.clip(x, -1, 1) * 32767).astype("<i2")
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(x.shape[1] if x.ndim == 2 else 1)
+        w.setsampwidth(2)
+        w.setframerate(SR)
+        w.writeframes(pcm.tobytes())
+
+
+def lufs(path: Path) -> float:
+    out = subprocess.run(["ffmpeg", "-nostats", "-i", str(path), "-af", "ebur128", "-f", "null", "-"],
+                         capture_output=True, text=True, check=True).stderr
+    return float(re.findall(r"I:\s+(-?[\d.]+) LUFS", out)[-1])
+
+
+def level(x: np.ndarray, tmp: Path) -> np.ndarray:
+    """Set the bed to TARGET_LUFS, then round off the few peaks above the ceiling."""
+    x = x / np.max(np.abs(x)) * 0.5
+    probe = tmp / "probe.wav"
+    write_wav(probe, x)
+    x = x * 10 ** ((TARGET_LUFS - lufs(probe)) / 20)
+    ceiling = 10 ** (CEILING_DB / 20)
+    knee = ceiling * 0.7
+    over = np.abs(x) > knee
+    x[over] = np.sign(x[over]) * (knee + (ceiling - knee) * np.tanh((np.abs(x[over]) - knee) / (ceiling - knee)))
+    return x
+
+
+def encode(wav: Path, out: Path, codec: list[str]) -> None:
+    out.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(wav), "-ar", str(SR), *codec,
+                    "-fflags", "+bitexact", "-flags:a", "+bitexact", str(out)], check=True)
+
+
+def preview(rendered: dict[str, np.ndarray], folder: Path, tmp: Path) -> Path:
+    length, fade = int(20 * SR), int(2 * SR)
+    track = np.zeros((0, 2))
+    for x in rendered.values():
+        part = x[:length].copy()
+        if len(track):
+            ramp = np.linspace(0, 1, fade)[:, None]
+            track[-fade:] = track[-fade:] * (1 - ramp) + part[:fade] * ramp
+            part = part[fade:]
+        track = np.concatenate([track, part])
+    wav = tmp / "preview.wav"
+    write_wav(wav, track * 2.5)  # beds are mastered quiet; louder so they can be heard on a phone
+    out = folder / "cat-cafe-ambience-preview.mp3"
+    encode(wav, out, ["-c:a", "libmp3lame", "-q:a", "2"])
+    return out
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--only", help="comma list of names, e.g. CafeDay,AlleyNight")
+    parser.add_argument("--preview", help="folder for a listening preview mp3")
+    args = parser.parse_args()
+
+    names = list(BEDS) if not args.only else [n.strip() for n in args.only.split(",")]
+    unknown = [n for n in names if n not in BEDS]
+    if unknown:
+        print(f"ambience: unknown bed(s) {', '.join(unknown)}; known: {', '.join(BEDS)}", file=sys.stderr)
+        return 2
+
+    rendered: dict[str, np.ndarray] = {}
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp = Path(tmpdir)
+        for name in names:
+            x = level(BEDS[name](), tmp)
+            rendered[name] = x
+            wav = tmp / f"{name}.wav"
+            write_wav(wav, x)
+            out = ROOT / "ambience" / f"CatCafe_Amb_{name}.ogg"
+            encode(wav, out, ["-c:a", "libvorbis", "-q:a", "5", "-ac", "1" if name in MONO else "2"])
+            print(f"ambience: {out.relative_to(ROOT.parents[2]).as_posix()}  {LOOP:.0f} s")
+        if args.preview:
+            folder = Path(args.preview)
+            folder.mkdir(parents=True, exist_ok=True)
+            print(f"ambience: preview {preview(rendered, folder, tmp).as_posix()}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

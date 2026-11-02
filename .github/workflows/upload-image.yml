@@ -1,0 +1,105 @@
+# Upload images from the repo to Roblox and print their rbxassetids (Open Cloud Assets API), so UI and art threads need
+# no Studio Asset Manager. Start it from the Actions tab (upload-image > Run workflow) or from any thread with the
+# GitHub actions_run_trigger tool on main; the job log and the run summary show each id. One run takes one image or a
+# batch (paths separated by spaces, commas or new lines), so a set of icons needs one run instead of one each. The
+# images can come from an unmerged branch. Each upload makes a new asset owned by Derek's account, so upload a file
+# once and commit its id.
+# Needs the repo secret ROBLOX_PUBLISH_KEY with the assets Read and Write permissions (docs/setup-guide.md step 17).
+name: upload-image
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: "Images in the repo (.png, .jpg, .bmp or .tga), one or more separated by spaces or commas, e.g. assets/cat-cafe/ui/textures/UI_ButtonTiles.png"
+        required: true
+      branch:
+        description: "Branch that holds the image (empty: the branch this run starts on)"
+        required: false
+        default: ""
+      name:
+        description: "Name on Roblox, for a single image (empty, or several images: each file's name without extension)"
+        required: false
+        default: ""
+      type:
+        description: "Image goes straight into ImageLabel.Image and textures; Decal is for parts via the Toolbox"
+        type: choice
+        options: [Image, Decal]
+        default: Image
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upload-image
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    name: Upload the image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      ROBLOX_CREATOR_USER_ID: "40908216" # Derek, who owns the experience
+      ASSET_TYPE: ${{ inputs.type }}
+      IMAGE_PATH: ${{ inputs.path }}
+      IMAGE_BRANCH: ${{ inputs.branch }}
+      IMAGE_NAME: ${{ inputs.name }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check the key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      # The images come out of git (this checkout, or the named branch), so every path must be a file in the repo.
+      # All of them are checked before anything is uploaded.
+      - name: Take the images from the repo
+        run: |
+          read -r -a paths <<<"$(printf '%s' "$IMAGE_PATH" | tr ',\n\r\t' '    ')"
+          if [ "${#paths[@]}" = 0 ]; then
+            echo "::error::no image path given"
+            exit 1
+          fi
+          if [ "${#paths[@]}" -gt 1 ] && [ -n "$IMAGE_NAME" ]; then
+            echo "::error::name is for a single image; leave it empty for a batch (each keeps its file name)"
+            exit 1
+          fi
+          rev=HEAD
+          if [ -n "$IMAGE_BRANCH" ]; then
+            git fetch --no-tags --depth 1 origin "$IMAGE_BRANCH"
+            rev=FETCH_HEAD
+          fi
+          for path in "${paths[@]}"; do
+            case "$path" in
+            /* | *..*)
+              echo "::error::path must be relative to the repo root, without '..': $path"
+              exit 1
+              ;;
+            esac
+            mkdir -p "$(dirname "$path")"
+            if ! git show "$rev:$path" >"$path.upload"; then
+              echo "::error::$path is not a file on ${IMAGE_BRANCH:-$GITHUB_REF_NAME}"
+              exit 1
+            fi
+            mv "$path.upload" "$path"
+            echo "Taking $path from ${IMAGE_BRANCH:-$GITHUB_REF_NAME} ($(git rev-parse --short "$rev"))"
+          done
+          printf '%s\n' "${paths[@]}" >"$RUNNER_TEMP/upload-paths"
+
+      # One image at a time; one that fails does not stop the rest, and the run fails at the end if any did.
+      - name: Upload to Roblox
+        run: |
+          mapfile -t paths <"$RUNNER_TEMP/upload-paths"
+          failed=0
+          for path in "${paths[@]}"; do
+            bash games/cat-cafe/tools/opencloud/upload-image.sh "$path" "$IMAGE_NAME" || failed=$((failed + 1))
+          done
+          if [ "$failed" -gt 0 ]; then
+            echo "::error::$failed image(s) did not upload; see the log above"
+            exit 1
+          fi

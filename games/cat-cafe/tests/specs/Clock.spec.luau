@@ -1,5 +1,6 @@
 --!strict
--- Clock.luau against data-model section 9: a short first day, then night and day forever.
+-- Clock.luau against data-model section 9: a first day of ServerStartDaySeconds, then night and day forever, and
+-- v0.9's night closing texts (F66).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Clock = require(Shared.Clock)
@@ -8,6 +9,13 @@ return function()
 	local firstDay = Config.ServerStartDaySeconds
 	local night = Config.NightLengthSeconds
 	local day = Config.DayLengthSeconds
+
+	describe("night closing texts (v0.9, F66)", function()
+		it("say what data-model section 9 says", function()
+			expect(Clock.CLOSED_TEXT).to.equal("The areas are closed at night. They open at sunrise.")
+			expect(Clock.SENT_HOME_TEXT).to.equal("Night fell, so you headed home.")
+		end)
+	end)
 
 	describe("phaseAt", function()
 		it("starts in day with the whole first day left", function()
@@ -72,6 +80,36 @@ return function()
 				expect(found).to.equal(phase)
 				expect(left).to.equal(if phase == "night" then night else day)
 			end
+		end)
+	end)
+
+	describe("nightSecondsBetween (F31, section 11)", function()
+		local start = firstDay
+
+		it("is 0 in the first day and for an empty or backwards window", function()
+			expect(Clock.nightSecondsBetween(0, start)).to.equal(0)
+			expect(Clock.nightSecondsBetween(start + 10, start + 10)).to.equal(0)
+			expect(Clock.nightSecondsBetween(start + 50, start + 10)).to.equal(0)
+		end)
+
+		it("counts only the night part of a window that crosses dusk or dawn", function()
+			expect(Clock.nightSecondsBetween(start - 30, start + 40)).to.equal(40)
+			expect(Clock.nightSecondsBetween(start + night - 25, start + night + 60)).to.equal(25)
+		end)
+
+		it("adds up whole cycles", function()
+			expect(Clock.nightSecondsBetween(0, start + 2 * (night + day))).to.equal(2 * night)
+			expect(Clock.nightSecondsBetween(start + night, start + night + day)).to.equal(0)
+		end)
+
+		it("agrees with phaseAt second by second", function()
+			local counted = 0
+			for t = 0, start + 2 * (night + day) do
+				if Clock.phaseAt(t + 0.5) == "night" then
+					counted += 1
+				end
+			end
+			expect(Clock.nightSecondsBetween(0, start + 2 * (night + day) + 1)).to.equal(counted)
 		end)
 	end)
 end

@@ -1,10 +1,10 @@
 --!strict
--- Equip best: the placement of owned cats on open spots that earns the most. Pure, no Roblox services.
+-- Equip best: the placement of owned cats on open role slots that earns the most. Pure, no Roblox services.
 --
--- Each cat is worth rating x 1.5 on its favorite spot type and rating x 1 elsewhere, so this is a weighted
--- assignment problem (spots on one side, cats on the other). Greedy by rating is wrong when a slightly weaker
--- cat is the only one that loves a free spot, so the Hungarian algorithm is used instead. The matrix is at most
--- 7 spots by N cats, which is far too small to matter for cost. A tiny bonus for staying on the current spot
+-- Each cat is worth rating x 1.5 in a slot of its favorite role and rating x 1 elsewhere, so this is a weighted
+-- assignment problem (slots on one side, cats on the other). Greedy by rating is wrong when a slightly weaker
+-- cat is the only one that loves a free slot, so the Hungarian algorithm is used instead. The matrix is at most
+-- 10 slots by N cats, which is far too small to matter for cost. A tiny bonus for staying on the current spot
 -- means ties never shuffle cats around the cafe for no gain.
 
 local CatStats = require(script.Parent.CatStats)
@@ -17,7 +17,7 @@ local EquipBest = {}
 
 export type Plan = {
 	placements: { [string]: string }, -- uid -> spotId; any owned uid missing here rests in the cat room
-	baseRate: number, -- sum of cat x spot values before the cafe and prestige multipliers
+	baseRate: number, -- sum of cat x slot values before the cafe and tier multipliers
 	spotsOpen: number,
 	catsPlaced: number,
 }
@@ -25,14 +25,14 @@ export type Plan = {
 local STAY_BONUS = 1e-6 -- below any real difference in value; only breaks exact ties
 local INF = math.huge
 
--- Value of one cat on one spot: rating x favorite multiplier. 0 for an unknown cat.
-function EquipBest.value(instance: Types.CatInstance, spot: Types.SpotDef): number
+-- Value of one cat in one slot for an owner at `tier`: rating x favorite role multiplier. 0 for an unknown cat.
+function EquipBest.value(instance: Types.CatInstance, spot: Types.SpotDef, tier: number?): number
 	local def = Catalog.getCat(instance.catId)
 	if def == nil then
 		return 0
 	end
-	local favorite = if def.favoriteSpot == spot.spotType then Config.FavoriteMultiplier else 1
-	return CatStats.rating(instance) * favorite
+	local favorite = if def.favoriteRole == spot.spotType then Config.FavoriteMultiplier else 1
+	return CatStats.rating(instance, tier) * favorite
 end
 
 -- Hungarian algorithm (minimising), rows 1..n, columns 1..m with n <= m. cost[i][j] is a number.
@@ -121,7 +121,7 @@ local function orderedCats(profile: Types.PlayerProfile): { Types.CatInstance }
 	for _, instance in profile.cats do
 		table.insert(cats, instance)
 	end
-	table.sort(cats, CatStats.isBetter)
+	table.sort(cats, CatStats.betterFor(profile.tier))
 	return cats
 end
 
@@ -140,7 +140,7 @@ function EquipBest.plan(profile: Types.PlayerProfile): Plan
 	for i, spot in spots do
 		local row: { number } = table.create(m, 0)
 		for j, instance in cats do
-			local value = EquipBest.value(instance, spot)
+			local value = EquipBest.value(instance, spot, profile.tier)
 			if value > 0 and instance.spotId == spot.id then
 				value += STAY_BONUS
 			end
@@ -159,7 +159,7 @@ function EquipBest.plan(profile: Types.PlayerProfile): Plan
 		local j = assignment[i] -- 0 when the spot stays empty (table.create fills with 0)
 		local instance = if j >= 1 then cats[j] else nil
 		if instance ~= nil then
-			local value = EquipBest.value(instance, spot)
+			local value = EquipBest.value(instance, spot, profile.tier)
 			if value > 0 then
 				placements[instance.uid] = spot.id
 				baseRate += value
@@ -183,6 +183,18 @@ function EquipBest.apply(profile: Types.PlayerProfile, plan: Plan): number
 	return changed
 end
 
+-- Unequip all: rests every working cat in the cat room. Returns how many cats left a role.
+function EquipBest.restAll(profile: Types.PlayerProfile): number
+	local rested = 0
+	for _, instance in profile.cats do
+		if instance.spotId ~= nil then
+			instance.spotId = nil
+			rested += 1
+		end
+	end
+	return rested
+end
+
 -- True when the current placement already earns the plan's rate (nothing to do).
 function EquipBest.isOptimal(profile: Types.PlayerProfile, plan: Plan): boolean
 	local current = 0
@@ -190,7 +202,7 @@ function EquipBest.isOptimal(profile: Types.PlayerProfile, plan: Plan): boolean
 		if instance.spotId ~= nil then
 			local spot = Catalog.getSpot(instance.spotId :: string)
 			if spot ~= nil and Economy.spotIsOpen(profile, spot.id) then
-				current += EquipBest.value(instance, spot)
+				current += EquipBest.value(instance, spot, profile.tier)
 			end
 		end
 	end

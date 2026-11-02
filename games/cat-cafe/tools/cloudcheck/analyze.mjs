@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Strict type check and lint for Purr Pot without luau-lsp installed.
+// Strict type check and lint for Cat Cafe without luau-lsp installed.
 //
 //   node analyze.mjs [--project ../../default.project.json] [--tests] [--definitions path] [--all-lints]
 //

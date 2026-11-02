@@ -1,14 +1,26 @@
 """Cat Cafe palette: the single source of color truth for every mesh.
 
 Mirrors docs/art/style-guide.md section 2. Index = row * 8 + col, rows counted
-from the top of the PNG. Edit the style guide first, then this list.
+from the top of the PNG. Edit the style guide first, then this list. The texture is 8 swatches wide and 16 tall
+(256 x 512 px); rows 0 to 7 are the original 64, rows 8 and up were added on 2026-10-27 for per-cat coats, and new
+swatches only ever go at the end so every existing index keeps its place.
 """
 
 import bpy
 
-GRID = 8          # 8 x 8 swatches
-SWATCH_PX = 32    # 256 x 256 texture
+GRID = 8          # swatches per row
+ROWS = 16         # rows in the texture (room for more coats); unused cells are black
+SWATCH_PX = 32    # 256 x 512 texture
 TEXTURE_NAME = "CatCafe_Palette"
+
+# Gold cats (features.md F42, formerly "shiny"; Derek, 2026-10-27: gold, gold-modeled, and called gold): each
+# cat's coat colours map onto these three golds (gold.py), dark coats onto the deepest so nothing turns brown,
+# and the golds are metal (METAL_SWATCHES).
+GOLD_TONES = ("#FBE49A", "#F2C14E", "#C98F2A")
+GOLD_DEEP = "gold_dark"           # what a near-black coat colour becomes
+# Swatches that are metal: Material Metal on the Roblox Part models, metallic in the palette material (a mask
+# texture, CatCafe_Palette_Metal.png). Only the golds, so only gold cats shine.
+METAL_SWATCHES = ("gold_light", "gold_mid", "gold_dark")
 
 # (name, hex) in index order. Row comments match the style guide tables.
 SWATCHES = [
@@ -33,11 +45,32 @@ SWATCHES = [
     # row 6: extra plants and glass
     ("leaf_dark", "#3E7F4E"), ("terracotta", "#C47A58"), ("glass", "#CFE9E3"), ("sign_teal", "#1FA58F"),
     ("night_sky", "#1F2A44"), ("neon_pink", "#FF6B81"), ("sparkle", "#FFF4B0"), ("galaxy_blue", "#3B4C8C"),
-    # row 7: spare
-    ("spare_56", "#FF00FF"), ("spare_57", "#FF00FF"), ("spare_58", "#FF00FF"), ("spare_59", "#FF00FF"),
-    ("spare_60", "#FF00FF"), ("spare_61", "#FF00FF"), ("spare_62", "#FF00FF"), ("spare_63", "#FF00FF"),
+    # row 7: v0.3 and v0.4 additions, then the gold coat tones (v0.5, renamed from shiny)
+    ("rarity_mythic", "#FF5E7E"), ("fur_blue", "#9AA9C2"), ("aurora_violet", "#8E7CF0"), ("pastel_butter", "#F6DFA0"),
+    ("pastel_lilac", "#C9B8E8"), ("gold_light", GOLD_TONES[0]), ("gold_mid", GOLD_TONES[1]),
+    ("gold_dark", GOLD_TONES[2]),
+    # row 8: coats, so every cat has its own colors (2026-10-27)
+    ("fur_ginger", "#D9662E"), ("fur_charcoal", "#4A4F58"), ("fur_silver", "#CDD2DA"), ("fur_latte", "#C79F7A"),
+    ("fur_sand", "#DDB46A"), ("fur_rose", "#F2BFCB"), ("fur_peach", "#EDBBA1"), ("fur_lavender", "#B9A3DE"),
+    # row 9: eyes and noses for the coats
+    ("eye_copper", "#E0782F"), ("eye_chartreuse", "#B9D84A"), ("eye_violet", "#9C7CF2"), ("nose_dark", "#4A4450"),
+    ("nose_brick", "#C4675B"), ("fur_seal", "#3E2A22"), ("fur_apricot", "#F2B88A"), ("fur_smoke_light", "#8A8F99"),
+    # rows 10 and 11: the Neighbourhood, Woods and Sewer cats (data-model 3c) and their props
+    ("fur_slate", "#6E7E98"), ("fur_oat", "#E6CFA8"), ("fur_vanilla", "#FBF0D2"), ("fur_strawberry", "#F28FAA"),
+    ("fur_hazel", "#A27A55"), ("fur_russet", "#8E4A2C"), ("fur_rust_red", "#C4512F"), ("fur_soot", "#625D59"),
+    ("fur_mist", "#C3D0DE"), ("fur_copper", "#B5602F"), ("fur_teal_grey", "#7A9C9E"), ("fur_caramel", "#CF8F52"),
+    ("bronze", "#80562E"), ("fur_emerald", "#2E9E6B"), ("pastel_sky", "#A8D8F0"), ("brass", "#B8913A"),
+    # row 12: the twelve plain Commons of the Neighbourhood, Woods and Sewer (data-model 3c)
+    ("fur_puddle", "#7A96B4"), ("fur_pepper", "#6B6C73"), ("fur_ink", "#363C4C"), ("fur_moss", "#8D9B6E"),
+    ("fur_acorn", "#A0683A"), ("fur_bramble", "#6E5140"), ("fur_fern", "#A4C08F"), ("fur_ash", "#3A373C"),
+    # row 13: the Town Square's paving and the four areas' compass colours (v3.1, the paw paths' colours)
+    ("paving_light", "#F2E8D5"), ("paving_sand", "#E2CFAE"), ("paving_tan", "#D4BC96"), ("paving_grout", "#A7957C"),
+    ("paw_park", "#68C45C"), ("paw_neighbourhood", "#F09640"), ("paw_woods", "#267040"), ("paw_sewer", "#566E96"),
+    # row 14: the ten area-themed cats of F78 (data-model 3, v0.13), eight new coats
+    ("fur_dusty", "#96918C"), ("fur_marmalade", "#E18C3C"), ("fur_indigo", "#2D236E"), ("fur_dune", "#D7B987"),
+    ("fur_bubblegum", "#F7A8C8"), ("fur_toffee", "#8C5F3C"), ("fur_pewter", "#A5A5AA"), ("fur_gunmetal", "#69737D"),
 ]
-assert len(SWATCHES) == GRID * GRID
+assert len(SWATCHES) % GRID == 0 and len(SWATCHES) <= GRID * ROWS
 
 INDEX = {name: i for i, (name, _) in enumerate(SWATCHES)}
 
@@ -64,34 +97,54 @@ def rgb_linear(name):
     return tuple(srgb_to_linear(c) for c in hex_to_rgb(SWATCHES[idx(name)][1]))
 
 
+def lstar(name):
+    """CIE L* (0 black to 100 white) of a swatch: how light it reads, for picking gold tones and line colours."""
+    r, g, b = (srgb_to_linear(c) for c in hex_to_rgb(SWATCHES[idx(name)][1]))
+    y = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    return 116 * y ** (1 / 3) - 16 if y > 0.008856 else 903.3 * y
+
+
 def uv_center(i):
     """UV of the center of swatch i. Row 0 is the TOP of the image."""
     col, row = i % GRID, i // GRID
-    return ((col + 0.5) / GRID, 1.0 - (row + 0.5) / GRID)
+    return ((col + 0.5) / GRID, 1.0 - (row + 0.5) / ROWS)
 
 
-def write_palette_png(path):
-    """Generate the palette texture and save it as PNG. Returns the bpy image."""
-    size = GRID * SWATCH_PX
-    img = bpy.data.images.get(TEXTURE_NAME)
+def _write_grid_png(path, name, value, colorspace):
+    """A GRID x ROWS swatch texture where swatch i is value(i, hex) (an RGB tuple). Returns the bpy image."""
+    w, h = GRID * SWATCH_PX, ROWS * SWATCH_PX
+    img = bpy.data.images.get(name)
     if img is None:
-        img = bpy.data.images.new(TEXTURE_NAME, size, size, alpha=False)
-    px = [0.0] * (size * size * 4)
-    for i, (_, h) in enumerate(SWATCHES):
+        img = bpy.data.images.new(name, w, h, alpha=False)
+    px = [0.0] * (w * h * 4)
+    for o in range(3, len(px), 4):
+        px[o] = 1.0
+    for i, (sw, hx) in enumerate(SWATCHES):
         col, row = i % GRID, i // GRID
-        r, g, b = hex_to_rgb(h)
-        y0 = (GRID - 1 - row) * SWATCH_PX   # bpy pixel rows start at the bottom
+        r, g, b = value(sw, hx)
+        y0 = (ROWS - 1 - row) * SWATCH_PX   # bpy pixel rows start at the bottom
         for y in range(y0, y0 + SWATCH_PX):
-            base = (y * size + col * SWATCH_PX) * 4
+            base = (y * w + col * SWATCH_PX) * 4
             for x in range(SWATCH_PX):
                 o = base + x * 4
-                px[o], px[o + 1], px[o + 2], px[o + 3] = r, g, b, 1.0
+                px[o], px[o + 1], px[o + 2] = r, g, b
     img.pixels.foreach_set(px)
     img.filepath_raw = path
     img.file_format = "PNG"
     img.save()
-    # Reload from disk so exporters see a real file path (and sRGB color space).
+    # Reload from disk so exporters see a real file path (and the right color space).
     img = bpy.data.images.load(path, check_existing=False)
-    img.name = TEXTURE_NAME
-    img.colorspace_settings.name = "sRGB"
+    img.name = name
+    img.colorspace_settings.name = colorspace
     return img
+
+
+def write_palette_png(path):
+    """Generate the palette texture and save it as PNG. Returns the bpy image."""
+    return _write_grid_png(path, TEXTURE_NAME, lambda sw, hx: hex_to_rgb(hx), "sRGB")
+
+
+def write_metal_png(path):
+    """White where a swatch is metal (METAL_SWATCHES), black elsewhere; a Non-Color mask for Metallic."""
+    return _write_grid_png(path, TEXTURE_NAME + "_Metal", lambda sw, hx: (1.0,) * 3 if sw in METAL_SWATCHES else (0.0,) * 3,
+                           "Non-Color")

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256"><defs><linearGradient id="woodG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E0A465"/><stop offset="1" stop-color="#B87638"/></linearGradient></defs>
+<g fill="#2A1C15" stroke="#2A1C15" stroke-width="22" stroke-linejoin="round" stroke-linecap="round"><rect x="34" y="46" width="188" height="176" rx="14"/></g>
+<rect x="34" y="46" width="188" height="176" rx="14" fill="url(#woodG)"/>
+<g fill="#9C6330"><rect x="34" y="46" width="36" height="176" rx="12"/><rect x="186" y="46" width="36" height="176" rx="12"/></g>
+<path d="M70,206 L186,62" stroke="#9C6330" stroke-width="26" stroke-linecap="round"/>
+<g stroke="#2A1C15" stroke-width="6" stroke-linecap="round"><line x1="70" y1="50" x2="70" y2="218"/><line x1="186" y1="50" x2="186" y2="218"/><line x1="40" y1="106" x2="66" y2="106"/><line x1="40" y1="162" x2="66" y2="162"/><line x1="190" y1="106" x2="216" y2="106"/><line x1="190" y1="162" x2="216" y2="162"/></g>
+<g fill="#2A1C15"><circle cx="52" cy="66" r="5"/><circle cx="204" cy="66" r="5"/><circle cx="52" cy="202" r="5"/><circle cx="204" cy="202" r="5"/></g>
+<ellipse cx="110" cy="66" rx="34" ry="8" transform="rotate(0 110 66)" fill="#fff" opacity="0.4"/></svg>

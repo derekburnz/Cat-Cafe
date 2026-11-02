@@ -22,7 +22,8 @@ local function isSpec(instance: Instance): boolean
 	return instance:IsA("ModuleScript") and string.sub(instance.Name, -5) == ".spec"
 end
 
-local function collect(root: Instance, filter: string?): { SpecEntry }
+-- `filter` keeps spec files whose name contains it, or only the one named exactly `filter` when `exact` is set.
+local function collect(root: Instance, filter: string?, exact: boolean?): { SpecEntry }
 	local specs: { SpecEntry } = {}
 	local found: { ModuleScript } = {}
 	for _, instance in ipairs(root:GetDescendants()) do
@@ -35,8 +36,13 @@ local function collect(root: Instance, filter: string?): { SpecEntry }
 	end)
 
 	for _, moduleScript in ipairs(found) do
-		if filter ~= nil and not string.find(moduleScript.Name, filter, 1, true) then
-			continue
+		if filter ~= nil then
+			local matches = if exact
+				then moduleScript.Name == filter
+				else string.find(moduleScript.Name, filter, 1, true) ~= nil
+			if not matches then
+				continue
+			end
 		end
 		local ok, result = pcall(require, moduleScript :: any)
 		if ok and type(result) == "function" then
@@ -56,11 +62,11 @@ local function collect(root: Instance, filter: string?): { SpecEntry }
 	return specs
 end
 
-type RunOptions = { verbose: boolean?, filter: string?, print: ((string) -> ())? }
+type RunOptions = { verbose: boolean?, filter: string?, exact: boolean?, print: ((string) -> ())? }
 
 return function(root: Instance?, options: RunOptions?): TestKit.Summary
 	local opts: RunOptions = options or {}
 	local folder: Instance = root or (script.Parent :: Instance)
-	local specs = collect(folder, opts.filter)
+	local specs = collect(folder, opts.filter, opts.exact)
 	return TestKit.runSpecs(specs, { verbose = opts.verbose, print = opts.print })
 end

@@ -6,3 +6,6 @@ exclude = ["src/server/Vendor/**"]
 [lints]
 # Allow `_` prefixed unused variables and shadowing of common names; everything else default (warn or deny).
 shadowing = "allow"
+# Selene 0.32 suggests UDim2.fromScale/fromOffset for a UDim2.new with a zero half. Style only; off so the bump
+# did not mean editing 11 lines across the UI screens. The ui-designer can turn it on and convert them.
+roblox_manual_fromscale_or_fromoffset = "allow"

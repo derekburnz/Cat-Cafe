@@ -1,6 +1,6 @@
 ---
 name: gdd-onepager
-description: Template and rules for a one-page game design document for Purr Pot features or whole games: hook, core loop at three scales, session and progression loops, social, monetization, prototype scope with S/M/L, risks, open questions. Use whenever the game-designer writes or updates a GDD or feature spec.
+description: Template and rules for a one-page game design document for Cat Cafe features or whole games: hook, core loop at three scales, session and progression loops, social, monetization, prototype scope with S/M/L, risks, open questions. Use whenever the game-designer writes or updates a GDD or feature spec.
 ---
 
 # GDD one-pager
@@ -44,12 +44,12 @@ A GDD (game design document) is the spec the engineer, artist and QA build from.
 ## Rules
 - The core loop sentence must contain a verb the player does, a reward they get, and what the reward buys.
 - Every system in the scope table gets S (under a day of agent work), M (2 to 3 days) or L (a week or more). Anything L must have a smaller version listed beneath it.
-- Name the one tuning number that controls pace (for Purr Pot: coins per serve against the price of the next upgrade) and give the engineer a starting value.
+- Name the one tuning number that controls pace (for Cat Cafe: coins per serve against the price of the next upgrade) and give the engineer a starting value.
 - Numbers go in `docs/design/cat-cafe/tuning.md` as a table with columns: key (matches `Config.luau`), value, why, last changed.
 - Flag these on sight: paid random items, trading, stealing from other players, PvP, user-generated text, anything that reads differently for players under 13.
 - Reference games may be named for mechanics. Never copy their names, characters or art.
 
-## Purr Pot starting skeleton (fill in, do not treat as decided)
+## Cat Cafe starting skeleton (fill in, do not treat as decided)
 - Hook: run a tiny cafe where your cats are the staff, and grow the crew by befriending strays in the alley.
 - 30 s loop: customer sits > tap a cat to serve > coins pop > spend on the next upgrade.
 - Session loop: 2 to 3 upgrades, 1 to 2 new cats, one "new table unlocked" moment.

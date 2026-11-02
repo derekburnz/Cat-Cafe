@@ -1,5 +1,6 @@
 --!strict
--- Pure catch math (data-model sections 8 to 10). Callers pass random rolls in so tests are deterministic.
+-- Pure catch math (data-model sections 8 to 10): odds, picking a cat, the chase after a miss. The circles are in
+-- Circles. Callers pass random rolls in so tests are deterministic.
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
@@ -7,56 +8,46 @@ local Types = require(script.Parent.Types)
 
 local Catching = {}
 
-function Catching.ringBonus(result: Types.RingResult): number
-	if result == "perfect" then
-		return Config.RingBonusPerfect
-	elseif result == "good" then
-		return Config.RingBonusGood
-	end
-	return 0
-end
-
--- Scores the ring from how long after GrabBegin the GrabEnd arrived, on the server's own clock (data-model
--- section 10). The last RingGoodWindow of the hold is good and the last RingPerfectWindow is perfect, both
--- running RingLatencyGraceSeconds past the end of the hold. Earlier or later is a miss, and a miss still rolls
--- the base chance. nil: sooner than GrabMinHoldSeconds, the server drops the GrabEnd and the lock continues.
-function Catching.ringResultFromHold(secondsSinceGrabBegin: number): Types.RingResult?
-	if secondsSinceGrabBegin < Config.GrabMinHoldSeconds then
-		return nil
-	end
-	local hold = Config.GrabHoldSeconds
-	if secondsSinceGrabBegin > hold + Config.RingLatencyGraceSeconds then
-		return "miss"
-	elseif secondsSinceGrabBegin >= hold - Config.RingPerfectWindow then
-		return "perfect"
-	elseif secondsSinceGrabBegin >= hold - Config.RingGoodWindow then
-		return "good"
-	end
-	return "miss"
-end
-
--- chance = clamp(base + net x 0.10 + lureBonus + ringBonus, 0.05, 0.95)
-function Catching.chance(
-	rarity: Types.Rarity,
-	netLevel: number,
-	lured: boolean,
-	ring: Types.RingResult
-): number
-	local base = Catalog.rarities[rarity].baseCatchChance
-	local chance = base
-		+ netLevel * Config.NetBonus
-		+ (if lured then Config.LureBonus else 0)
-		+ Catching.ringBonus(ring)
-	return math.clamp(chance, Config.CatchChanceMin, Config.CatchChanceMax)
-end
+-- Where a carried cat rides, relative to the carrier's HumanoidRootPart: the asset manifest's
+-- poses.carried.body_cframe_roblox, cradled across the chest and facing the carrier's left so the camera behind the
+-- player sees it side on. 12 numbers for CFrame.new(table.unpack(...)), so this module stays free of Roblox types;
+-- the server's carry (CatService) and the intro's demo carry (IntroController, F72) both use it.
+Catching.CARRIED_POSE = { 0, -0.4, -1.05, 0, 0, 1, 0, 1, 0, -1, 0, 0 }
 
 -- roll is in [0, 1).
 function Catching.succeeds(chance: number, roll: number): boolean
 	return roll < chance
 end
 
-function Catching.fleesOnMiss(rarity: Types.Rarity): boolean
-	return Catalog.rarities[rarity].fleesOnMiss
+-- Studs a stray of this rarity sprints away from the player who missed (v0.5, data-model section 10 step 5).
+function Catching.fleeStuds(rarity: Types.Rarity): number
+	return Catalog.rarities[rarity].fleeStuds
+end
+
+-- Server time from which anyone may try a stray again after a miss: the sprint at StrayFleeSpeed, then the
+-- StrayRestSeconds breather, and never sooner than GrabRetrySeconds after the miss.
+function Catching.fleeUntil(missedAt: number, sprintStuds: number): number
+	local sprint = math.max(0, sprintStuds) / Config.StrayFleeSpeed
+	return missedAt + math.max(Config.GrabRetrySeconds, sprint + Config.StrayRestSeconds)
+end
+
+-- F57 (data-model section 10 step 5, v0.8): a player's misses in a row on one stray, the last at server time `at`.
+export type MissStreak = { count: number, at: number }
+
+-- The streak after a miss at `now`: one more, or 1 again when StrayMissStreakResetSeconds have passed since the
+-- last. A catch or a despawn ends the stray and its streaks with it.
+function Catching.nextMiss(streak: MissStreak?, now: number): MissStreak
+	if streak == nil or now - streak.at >= Config.StrayMissStreakResetSeconds then
+		return { count = 1, at = now }
+	end
+	return { count = streak.count + 1, at = now }
+end
+
+-- How much longer than everyone else the player who missed waits once the stray stops: StraySelfRetrySteps by
+-- misses in a row (3, 6, then 10 s for every miss after).
+function Catching.selfRetrySeconds(misses: number): number
+	local steps = Config.StraySelfRetrySteps
+	return steps[math.clamp(misses, 1, #steps)]
 end
 
 local function oddsTotal(odds: Types.LureOdds): number
@@ -91,21 +82,23 @@ function Catching.pickRarity(odds: Types.LureOdds, roll: number): Types.Rarity
 	return "Common"
 end
 
--- Rescue odds (data-model section 10): the area's odds with the Rare weight doubled, scaled back to 100.
--- The alley's 75 / 20 / 4.5 / 0.5 becomes 62.5 / 33.3 / 3.75 / 0.42.
+-- Rescue odds (data-model section 10b): the area's odds with every non-Common weight doubled, scaled back to
+-- 100. The Alleyway's 72 / 22 / 5 / 0.9 / 0.1 becomes 56.25 / 34.375 / 7.8125 / 1.40625 / 0.15625.
 function Catching.rescueOdds(odds: Types.LureOdds): Types.LureOdds
-	local weighted =
-		{ Common = odds.Common, Rare = odds.Rare * 2, Epic = odds.Epic, Legendary = odds.Legendary }
-	local total = weighted.Common + weighted.Rare + weighted.Epic + weighted.Legendary
+	local common = odds.Common
+	local rare, epic = odds.Rare * 2, odds.Epic * 2
+	local legendary, mythical = odds.Legendary * 2, odds.Mythical * 2
+	local total = common + rare + epic + legendary + mythical
 	if total <= 0 then
-		return { Common = 100, Rare = 0, Epic = 0, Legendary = 0 }
+		return { Common = 100, Rare = 0, Epic = 0, Legendary = 0, Mythical = 0 }
 	end
 	local scale = 100 / total
 	return {
-		Common = weighted.Common * scale,
-		Rare = weighted.Rare * scale,
-		Epic = weighted.Epic * scale,
-		Legendary = weighted.Legendary * scale,
+		Common = common * scale,
+		Rare = rare * scale,
+		Epic = epic * scale,
+		Legendary = legendary * scale,
+		Mythical = mythical * scale,
 	}
 end
 
@@ -113,7 +106,7 @@ end
 function Catching.candidates(rarity: Types.Rarity, area: string): { Types.CatDef }
 	local out: { Types.CatDef } = {}
 	for _, def in Catalog.cats do
-		if def.rarity == rarity and (def.area == "both" or def.area == area) then
+		if def.rarity == rarity and def.area == area then
 			table.insert(out, def)
 		end
 	end
@@ -134,12 +127,204 @@ function Catching.pickCat(rarity: Types.Rarity, area: string, roll: number): Typ
 	return Catalog.cats[1]
 end
 
+-- The bait bowl's pick (data-model section 8): uniform among the rarity's cats in every area `tier` opens, so the
+-- pool grows with the tier, the same split the food cards show. Falls back down the rarity ladder like pickCat.
+function Catching.pickBaitCat(rarity: Types.Rarity, tier: number, roll: number): Types.CatDef
+	local rank = Catalog.rarityRank[rarity]
+	while rank >= 1 do
+		local list: { Types.CatDef } = {}
+		for _, def in Catalog.cats do
+			local area = Catalog.getArea(def.area)
+			if def.rarity == Catalog.rarityOrder[rank] and area ~= nil and area.tier <= tier then
+				table.insert(list, def)
+			end
+		end
+		if #list > 0 then
+			return list[math.clamp(math.floor(roll * #list) + 1, 1, #list)]
+		end
+		rank -= 1
+	end
+	return Catalog.cats[1]
+end
+
 function Catching.rarityAtLeast(rarity: Types.Rarity, minimum: string): boolean
 	return (Catalog.rarityRank[rarity] or 0) >= (Catalog.rarityRank[minimum] or 99)
 end
 
+-- The server-wide shout-out for a new cat, or nil when it is not worth one: AnnounceMinRarity (Epic) and up, and
+-- every gold and rainbow (data-model section 15, F99). "Sam caught a gold Rare Tabby!", "Sam rescued an Epic Maine
+-- Coon!", "Sam caught a rainbow Common Tabby!"; `where` adds a place before the "!" (" at their bait bowl").
+function Catching.shoutOut(
+	playerName: string,
+	verb: string,
+	def: Types.CatDef,
+	variant: string?,
+	where: string?
+): string?
+	local coat = if variant == "gold" or variant == "rainbow" then variant .. " " else ""
+	if coat == "" and not Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
+		return nil
+	end
+	local phrase = coat .. def.rarity .. " " .. def.name
+	local article = if phrase:match("^[AEIOUaeiou]") then "an " else "a "
+	return string.format("%s %s %s%s%s!", playerName, verb, article, phrase, where or "")
+end
+
+-- F58 (data-model section 9, v0.8): the server-wide line when a wave spawns a Mythical stray, naming the area and
+-- not the cat, so finding it is still a surprise: "A Mythical cat appeared in the Woods!", "A gold Mythical cat..."
+-- when it is gold (or "rainbow", F99), "... in the Woods on a Lucky Day!" on a Lucky Day's wave (F88). Nil for any
+-- other rarity.
+function Catching.waveShoutOut(
+	rarity: Types.Rarity,
+	variant: string?,
+	areaName: string,
+	luckyDay: boolean?
+): string?
+	if rarity ~= "Mythical" then
+		return nil
+	end
+	return string.format(
+		"A %sMythical cat appeared in the %s%s!",
+		if variant == "gold" or variant == "rainbow" then variant .. " " else "",
+		areaName,
+		if luckyDay == true then " on a Lucky Day" else ""
+	)
+end
+
+-- F99 (rainbow-coat.md section 1): a found cat's coat from one roll in [0, 1): "rainbow" below `rainbowChance`, else
+-- "gold" below rainbowChance + goldChance, else "base". Rainbow is rolled first on the same roll, so the gold chance
+-- stays exactly as it was. An exclusive cat (the Bellhop Cat, the shop cats) is always "base".
+function Catching.rollCoat(
+	def: Types.CatDef,
+	roll: number,
+	rainbowChance: number,
+	goldChance: number
+): string
+	if def.exclusive == true then
+		return "base"
+	end
+	if roll < rainbowChance then
+		return "rainbow"
+	end
+	return if roll < rainbowChance + goldChance then "gold" else "base"
+end
+
+-- F99 (rainbow-coat.md section 2): the server's toast when a rainbow stray spawns, "A Rainbow Tabby is out in the
+-- Woods!", naming the cat (its coat is visible from the spawn, unlike the Mythical wave line).
+function Catching.rainbowSpawnText(def: Types.CatDef, areaName: string): string
+	return string.format("A Rainbow %s is out in the %s!", def.name, areaName)
+end
+
 function Catching.percentText(chance: number): string
 	return string.format("%d%%", math.floor(chance * 100 + 0.5))
+end
+
+-- F97 (notes-10-28-to-10-30.md section 7; Derek 2026-10-29: "getting epic+ cats feels a little non existent from
+-- outside world"): a sunrise wave rolled as `rarities` with no Epic or rarer stray rerolls its last one from
+-- WaveMinRareRerollOdds (Epic 83, Legendary 15, Mythical 2). Changes `rarities` in place and returns the rarity the
+-- reroll gave, or nil when the wave already had one (or is empty). roll is in [0, 1).
+function Catching.waveRare(rarities: { Types.Rarity }, roll: number): Types.Rarity?
+	if #rarities == 0 then
+		return nil
+	end
+	for _, rarity in rarities do
+		if Catalog.rarityRank[rarity] >= Catalog.rarityRank.Epic then
+			return nil
+		end
+	end
+	local rerolled: Types.Rarity =
+		Catching.pickRarity(Config.WaveMinRareRerollOdds :: Types.LureOdds, roll)
+	rarities[#rarities] = rerolled
+	return rerolled
+end
+
+local SPREAD_WEIGHT_CAP = 60 -- studs: past this every gap weighs the same, so an empty area picks evenly
+
+-- Which of the free spawn `points` a new stray takes, as an index, given where the area's strays already stand
+-- (`taken`): a point at least StraySpawnSpacingStuds from all of them, picked with weight growing with its flat gap
+-- to the nearest (capped), or, when none is that far, the point with the biggest gap. Nil with no points. roll is in
+-- [0, 1).
+function Catching.spreadPick(points: { Vector3 }, taken: { Vector3 }, roll: number): number?
+	if #points == 0 then
+		return nil
+	end
+	local spacing = Config.StraySpawnSpacingStuds
+	local gaps: { number } = {}
+	local farthest, farthestGap = 1, -1
+	local total = 0
+	for i, point in points do
+		local gap = math.huge
+		for _, other in taken do
+			gap = math.min(gap, Vector3.new(point.X - other.X, 0, point.Z - other.Z).Magnitude)
+		end
+		gaps[i] = gap
+		if gap > farthestGap then
+			farthest, farthestGap = i, gap
+		end
+		if gap >= spacing then
+			total += math.min(gap, SPREAD_WEIGHT_CAP)
+		end
+	end
+	if total <= 0 then
+		return farthest
+	end
+	local left = math.clamp(roll, 0, 1) * total
+	local last = farthest
+	for i, gap in gaps do
+		if gap >= spacing then
+			last = i
+			left -= math.min(gap, SPREAD_WEIGHT_CAP)
+			if left < 0 then
+				return i
+			end
+		end
+	end
+	return last -- roll 1: the last far-enough point
+end
+
+-- The zones Epic and rarer strays keep to: the Alleyway's "nook" points (town-layout-v3.md 7e: the exciting cats
+-- wait at the back alleys' ends, so no cafe's lane is the lucky one) and a v3.2 side area's "deep" ones (section 8d:
+-- the rarer the cat, the longer the walk to it).
+local KEEP_ZONES: { [string]: boolean } = { nook = true, deep = true }
+
+-- A "rare" spawn point is a rare-biased nook (the Great Oak's top in the Woods, Derek 2026-10-28 01:35): only a Rare
+-- or rarer stray takes it, and one takes it first while it is free, so whoever climbs up finds a Rare or better.
+Catching.RARE_ZONE = "rare"
+
+export type SpawnSlot = { zone: string?, free: boolean }
+
+-- The spawn points, as indexes into `slots`, that a new stray of `rarity` may take: a free "rare" point for a Rare
+-- or rarer stray when there is one; else, for Epic and rarer in an area with "nook" or "deep" points, only the free
+-- ones of those (none free: none, and the stray waits for the next wave; spawnWave places the rarest first, so this
+-- is rare); else every free point but a "rare" one. A nil rarity (a carried cat sent home) is any but a "rare" one.
+function Catching.spawnPool(slots: { SpawnSlot }, rarity: Types.Rarity?): { number }
+	local rare: { number } = {}
+	local kept: { number } = {}
+	local open: { number } = {}
+	local hasKept = false
+	for i, slot in slots do
+		local zone = slot.zone
+		local keep = zone ~= nil and KEEP_ZONES[zone] == true
+		hasKept = hasKept or keep
+		if not slot.free then
+			continue
+		end
+		if zone == Catching.RARE_ZONE then
+			table.insert(rare, i)
+		else
+			table.insert(open, i)
+			if keep then
+				table.insert(kept, i)
+			end
+		end
+	end
+	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Rare") and #rare > 0 then
+		return rare
+	end
+	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasKept then
+		return kept
+	end
+	return open
 end
 
 return Catching

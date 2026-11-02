@@ -1,9 +1,9 @@
 ---
 name: luau-conventions
-description: How Purr Pot Luau is written and laid out: strict mode, naming, server/client/shared folders, one Service or Controller per ModuleScript, the typed Remotes module, UI-in-code helper and comment style. Use before writing or reviewing any Luau in games/cat-cafe/src.
+description: How Cat Cafe Luau is written and laid out: strict mode, naming, server/client/shared folders, one Service or Controller per ModuleScript, the typed Remotes module, UI-in-code helper and comment style. Use before writing or reviewing any Luau in games/cat-cafe/src.
 ---
 
-# Luau conventions for Purr Pot
+# Luau conventions for Cat Cafe
 
 Luau is Roblox's typed Lua dialect. Files end in `.luau`. Rojo (`games/cat-cafe/default.project.json`) maps folders on disk to the Roblox instance tree, so a file's location decides where and how it runs.
 

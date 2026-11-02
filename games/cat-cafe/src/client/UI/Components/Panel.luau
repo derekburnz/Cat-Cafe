@@ -1,9 +1,23 @@
 --!strict
--- Rounded window with a caramel header, title, optional close button and a content frame.
--- Used by every modal screen so they all share one look.
+-- Rounded window with a coloured header, outlined title, red X close button and a content frame, in the
+-- simulator style (thick dark outline, shaded header). Used by every modal screen so they all share one look.
+-- Cat cafe dress (UI plan 2026-10-27): two cat ears poke up from behind the header in its colour, a round icon
+-- badge sits over the top-left corner, and faint paw prints dot the body behind the content. Each screen picks
+-- its header colour and icon, so a window is known at a glance (Upgrades red, Decor gold, Cats sky).
+--
+-- On a touch screen the red X is finger sized (44 real px at the phone's 0.75 scale, review N313) and sits over the
+-- top-right corner like the badge on the left, poking out a little, since the header is too short for it.
+--
+-- Roblox terms: `frame` is a see-through holder that does not clip, so the ears, badge and touch X can stick out of the
+-- window; the window itself is its child `Body`, which clips the content to the rounded corners. A child
+-- GuiObject turns with its parent's Rotation, so each ear is one square turned 45 degrees with its pink inside.
 
 local Button = require(script.Parent.Button)
+local CatEars = require(script.Parent.CatEars)
 local Create = require(script.Parent.Create)
+local IconArt = require(script.Parent.IconArt)
+local Outline = require(script.Parent.Outline)
+local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type Props = {
@@ -13,63 +27,139 @@ export type Props = {
 	parent: Instance?,
 	onClose: (() -> ())?,
 	name: string?,
+	color: Color3?, -- the header and ears (default Theme.modal.header, caramel)
+	icon: string?, -- an emoji on the round badge over the top-left corner; no badge when nil
 }
 
 export type Panel = {
 	frame: Frame,
+	body: Frame,
 	content: Frame,
 	setTitle: (self: Panel, title: string, subtitle: string?) -> (),
 	destroy: (self: Panel) -> (),
 }
 
 local HEADER_HEIGHT = 56
+local HEADER_SHADE = 0.86
+local EAR_SIZE = 46 -- the square before it turns; about 26 px pokes above the window
+local EAR_X = 0.17 -- each ear's centre, from either side
+local BADGE_SIZE = 60
+local BADGE_OVERHANG = 12 -- how far the badge sticks out past the window's top and left edges
+local BADGE_ART = 0.78 -- the drawn icon's share of the badge, inside its outline
+local CLOSE_OVERHANG = 10 -- on a touch screen: how far the X sticks out past the window's top and right edges
+-- faint paw prints behind the content: x and y scale, rotation
+local PAWS: { { number } } = {
+	{ 0.06, 0.3, -20 },
+	{ 0.2, 0.62, 15 },
+	{ 0.36, 0.9, -10 },
+	{ 0.55, 0.4, 25 },
+	{ 0.7, 0.75, -25 },
+	{ 0.9, 0.22, 10 },
+	{ 0.94, 0.92, -15 },
+}
 
 local Panel = {}
 Panel.__index = Panel
 
 function Panel.new(props: Props): Panel
+	local color = props.color or Theme.modal.header
 	local frame: Frame = Create("Frame", {
 		Name = props.name or "Panel",
-		BackgroundColor3 = Theme.modal.panel,
+		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		Size = props.size or UDim2.fromOffset(760, 520),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		ClipsDescendants = true,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }),
-		Create("UIStroke", {
-			Color = Theme.colors.caramelDark,
-			Thickness = Theme.sizes.stroke,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		}),
 	})
 
-	local header: Frame = Create("Frame", {
-		Name = "Header",
-		BackgroundColor3 = Theme.modal.header,
+	-- behind the body, so only the top half of each ear shows
+	CatEars.add(frame, color, {
+		size = EAR_SIZE,
+		inset = EAR_X,
+		y = 6,
+		outline = Theme.sizes.outline + 1,
+	})
+
+	local body: Frame = Create("Frame", {
+		Name = "Body",
+		BackgroundColor3 = Theme.modal.panel,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+		Size = UDim2.fromScale(1, 1),
+		ClipsDescendants = true,
+		ZIndex = 2,
 		Parent = frame,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }),
+	})
+	Outline.border(body, Theme.sizes.outline + 1)
+
+	for _, paw in PAWS do
+		Create("TextLabel", {
+			Name = "Paw",
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(paw[1], paw[2]),
+			Size = UDim2.fromOffset(40, 40),
+			Rotation = paw[3],
+			Text = "🐾",
+			TextSize = 30,
+			TextTransparency = 0.95, -- fainter since 2026-10-27, so text over them reads clean
+			Parent = body,
+		})
+	end
+
+	local header: Frame = Create("Frame", {
+		Name = "Header",
+		BackgroundColor3 = color,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+		ZIndex = 2,
+		Parent = body,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }),
+		-- lighter at the top; the bottom 30% is flat so the square-off strip below matches it
+		Create("UIGradient", {
+			Name = "Shade",
+			Rotation = 90,
+			Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+				ColorSequenceKeypoint.new(
+					0.7,
+					Color3.new(HEADER_SHADE, HEADER_SHADE, HEADER_SHADE)
+				),
+				ColorSequenceKeypoint.new(1, Color3.new(HEADER_SHADE, HEADER_SHADE, HEADER_SHADE)),
+			}),
+		}),
 		-- square off the bottom corners of the header
 		Create("Frame", {
 			Name = "Square",
-			BackgroundColor3 = Theme.modal.header,
+			BackgroundColor3 = color:Lerp(Theme.colors.black, 1 - HEADER_SHADE),
 			BorderSizePixel = 0,
 			Position = UDim2.new(0, 0, 1, -16),
 			Size = UDim2.new(1, 0, 0, 16),
 		}),
+		-- dark rule between the header and the body
+		Create("Frame", {
+			Name = "Rule",
+			BackgroundColor3 = Theme.colors.outline,
+			BorderSizePixel = 0,
+			Position = UDim2.new(0, 0, 1, -2),
+			Size = UDim2.new(1, 0, 0, Theme.sizes.outline),
+			ZIndex = 2,
+		}),
 	})
 
+	-- the title starts right of the badge when there is one
+	local textLeft = if props.icon
+		then BADGE_SIZE - BADGE_OVERHANG + Theme.sizes.gap
+		else Theme.sizes.padding + 4
 	local title: TextLabel = Create("TextLabel", {
 		Name = "Title",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(Theme.sizes.padding + 4, 0),
+		Position = UDim2.fromOffset(textLeft, 0),
 		Size = UDim2.new(
 			1,
-			-(HEADER_HEIGHT + Theme.sizes.padding * 2),
+			-(textLeft + HEADER_HEIGHT + Theme.sizes.padding),
 			0,
 			if props.subtitle then 34 else HEADER_HEIGHT
 		),
@@ -84,35 +174,46 @@ function Panel.new(props: Props): Panel
 		Text = props.title,
 		Parent = header,
 	})
+	Outline.text(title, Theme.sizes.textOutline + 0.5)
 
 	local subtitle: TextLabel = Create("TextLabel", {
 		Name = "Subtitle",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(Theme.sizes.padding + 4, 32),
-		Size = UDim2.new(1, -(HEADER_HEIGHT + Theme.sizes.padding * 2), 0, 20),
+		Position = UDim2.fromOffset(textLeft, 32),
+		Size = UDim2.new(1, -(textLeft + HEADER_HEIGHT + Theme.sizes.padding), 0, 20),
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.modal.headerText,
-		TextTransparency = 0.15,
+		TextTransparency = 0,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = props.subtitle or "",
 		Visible = props.subtitle ~= nil,
 		Parent = header,
 	})
+	Outline.text(subtitle, 1.5)
 
 	local closeButton: Button.Button? = nil
 	if props.onClose then
+		-- a touch X is a finger wide and tall above its lip: Scale.tapHeight's floor, in front of the body
+		local touch = Scale.isTouch()
+		local side = Theme.sizes.touchMin
+		local tall = Scale.tapHeight(side, Theme.sizes.buttonDepth)
+		local wide = math.max(side, tall - Theme.sizes.buttonDepth)
 		closeButton = Button.new({
 			name = "Close",
 			text = "X",
-			style = "ghost",
-			size = UDim2.fromOffset(Theme.sizes.touchMin, Theme.sizes.touchMin),
-			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -8, 0.5, -2),
-			textSize = Theme.sizes.textLarge,
+			style = "close",
+			size = if touch then UDim2.fromOffset(wide, tall) else UDim2.fromOffset(side, side),
+			anchorPoint = if touch then Vector2.new(1, 0) else Vector2.new(1, 0.5),
+			position = if touch
+				then UDim2.new(1, CLOSE_OVERHANG, 0, -CLOSE_OVERHANG)
+				else UDim2.new(1, -8, 0.5, -2),
+			textSize = Theme.sizes.textLarge + 2,
+			sound = false, -- the modal's close swish is the sound
 			onClick = props.onClose,
-			parent = header,
+			zIndex = if touch then 4 else nil,
+			parent = if touch then frame else header,
 		})
 	end
 
@@ -121,7 +222,8 @@ function Panel.new(props: Props): Panel
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(0, HEADER_HEIGHT),
 		Size = UDim2.new(1, 0, 1, -HEADER_HEIGHT),
-		Parent = frame,
+		ZIndex = 2,
+		Parent = body,
 	}, {
 		Create("UIPadding", {
 			PaddingTop = UDim.new(0, Theme.sizes.padding),
@@ -131,8 +233,36 @@ function Panel.new(props: Props): Panel
 		}),
 	})
 
+	-- over the corner, above the body, tilted a little like a sticker
+	if props.icon then
+		local badge: Frame = Create("Frame", {
+			Name = "Badge",
+			BackgroundColor3 = color:Lerp(Theme.colors.white, 0.35),
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(-BADGE_OVERHANG, -BADGE_OVERHANG),
+			Size = UDim2.fromOffset(BADGE_SIZE, BADGE_SIZE),
+			Rotation = -8,
+			ZIndex = 3,
+			Parent = frame,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0.5, 0) }),
+			Create("TextLabel", {
+				Name = "Icon",
+				BackgroundTransparency = 1,
+				Size = UDim2.fromScale(1, 1),
+				Text = props.icon,
+				TextSize = 32,
+			}),
+		})
+		Outline.border(badge, Theme.sizes.outline + 1)
+		Outline.shade(badge, 0.2)
+		local iconLabel = badge:FindFirstChild("Icon") :: TextLabel
+		IconArt.set(iconLabel, props.icon, BADGE_ART)
+	end
+
 	local self = setmetatable({}, Panel) :: any
 	self.frame = frame
+	self.body = body
 	self.content = content
 	self._title = title
 	self._subtitle = subtitle
@@ -150,7 +280,7 @@ function Panel.setTitle(self: any, title: string, subtitle: string?)
 	self._subtitle.Visible = subtitle ~= nil
 	self._title.Size = UDim2.new(
 		1,
-		-(HEADER_HEIGHT + Theme.sizes.padding * 2),
+		-(self._title.Position.X.Offset + HEADER_HEIGHT + Theme.sizes.padding),
 		0,
 		if subtitle then 34 else HEADER_HEIGHT
 	)

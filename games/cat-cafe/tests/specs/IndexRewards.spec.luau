@@ -1,0 +1,739 @@
+--!strict
+-- UI/Components/IndexRewards.luau: the Index's per-area milestones (F48, data-model section 11b).
+return function()
+	local Client =
+		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
+	local Components = Client:WaitForChild("UI"):WaitForChild("Components")
+	local IndexRewards = require(Components:WaitForChild("IndexRewards")) :: any
+
+	local CATALOG = {
+		cats = {
+			{ id = "tabby", area = "alley" },
+			{ id = "tuxedo", area = "alley" },
+			{ id = "calico" }, -- no area: an Alleyway cat
+			{ id = "siamese", area = "alley" },
+			{ id = "corgi_cat", area = "park" },
+		},
+		indexMilestones = {
+			{ id = "cats3", need = 3 },
+			{ id = "cats6", need = 6 },
+			{ id = "all4", need = 4 },
+			{ id = "gold4", need = 4, gold = true },
+		},
+		indexPrizes = {
+			alley = {
+				cats3 = { coins = 300 },
+				all4 = { lures = { salmon = 1 }, decorId = "index_alley" },
+				gold4 = { decorId = "index_alley_gold" },
+			},
+			park = { cats3 = { coins = 1000 } },
+		},
+	}
+
+	describe("IndexRewards.counts", function()
+		it("counts the area's cats found and gold, with no area meaning the Alleyway", function()
+			local state = {
+				collection = { tabby = 1, calico = 2, corgi_cat = 3 },
+				goldCollection = { tabby = 1 },
+			}
+			local counts = IndexRewards.counts(CATALOG, state, "alley")
+			expect(counts.total).to.equal(4)
+			expect(counts.found).to.equal(2)
+			expect(counts.gold).to.equal(1)
+			expect(IndexRewards.counts(CATALOG, state, "park").found).to.equal(1)
+		end)
+	end)
+
+	describe("IndexRewards spare cats (F78)", function()
+		local WITH_SPARE = {
+			cats = {
+				{ id = "tabby", area = "alley" },
+				{ id = "binbag", area = "alley" },
+				{ id = "corgi_cat", area = "park" },
+				{ id = "calico", area = "spare" },
+				{ id = "persian", area = "spare" },
+			},
+		}
+
+		it("leaves spare cats off the All Cats page and every area page", function()
+			local found = { tabby = 1, calico = 1 }
+			local state = { collection = found, goldCollection = { calico = 1 } }
+			local all = IndexRewards.counts(WITH_SPARE, state, "all")
+			expect(all.total).to.equal(3)
+			expect(all.found).to.equal(1)
+			expect(all.gold).to.equal(0)
+			expect(IndexRewards.counts(WITH_SPARE, state, "alley").total).to.equal(2)
+		end)
+
+		it("counts the spare page on its own", function()
+			local state = { collection = { tabby = 1, calico = 1 } }
+			local spare = IndexRewards.counts(WITH_SPARE, state, "spare")
+			expect(spare.total).to.equal(2)
+			expect(spare.found).to.equal(1)
+		end)
+
+		it("gives the Index's whole count without spare cats, owned ones included", function()
+			local owned = { corgi_cat = { count = 1 } }
+			local state = { collection = { tabby = 1, calico = 1 }, catsOwned = owned }
+			local found, total = IndexRewards.book(WITH_SPARE, state)
+			expect(found).to.equal(2)
+			expect(total).to.equal(3)
+		end)
+	end)
+
+	describe("IndexRewards.views", function()
+		it("skips milestones without a prize and keeps catalog order", function()
+			local views = IndexRewards.views(CATALOG, {}, "alley")
+			expect(#views).to.equal(3)
+			expect(views[1].milestone.id).to.equal("cats3")
+			expect(views[2].milestone.id).to.equal("all4")
+			expect(views[3].milestone.id).to.equal("gold4")
+		end)
+
+		it("marks reached milestones ready, claimed ones claimed, and caps the count", function()
+			local state = {
+				collection = { tabby = 1, tuxedo = 1, calico = 1, siamese = 1 },
+				goldCollection = { tabby = 1 },
+				indexRewards = { alley = { cats3 = true } },
+			}
+			local views = IndexRewards.views(CATALOG, state, "alley")
+			expect(views[1].state).to.equal("claimed")
+			expect(views[2].state).to.equal("ready")
+			expect(views[2].have).to.equal(4)
+			expect(views[3].state).to.equal("locked")
+			expect(views[3].have).to.equal(1)
+		end)
+
+		it("has no cards without milestones or prizes for the area", function()
+			expect(#IndexRewards.views({ cats = CATALOG.cats }, {}, "alley")).to.equal(0)
+			expect(#IndexRewards.views(CATALOG, {}, "woods")).to.equal(0)
+		end)
+	end)
+
+	describe("IndexRewards.claimable", function()
+		it("counts ready milestones per area and in all", function()
+			local state = { collection = { tabby = 1, tuxedo = 1, calico = 1 } }
+			local perArea, total = IndexRewards.claimable(CATALOG, state)
+			expect(perArea.alley).to.equal(1)
+			expect(perArea.park).to.equal(nil)
+			expect(total).to.equal(1)
+			local _, none = IndexRewards.claimable(CATALOG, { collection = {} })
+			expect(none).to.equal(0)
+		end)
+	end)
+
+	describe("IndexRewards Decor Index pages (F53)", function()
+		local catalog = {
+			cats = CATALOG.cats,
+			decor = {
+				{ id = "brick", crate = "alley", rarity = "Common", kind = "wallpaper" },
+				{ id = "stools", crate = "alley", rarity = "Common", kind = "furniture" },
+				{ id = "sky", crate = "alley", rarity = "Mythical", kind = "wallpaper" },
+			},
+			crates = { { id = "alley_crate", area = "alley", golden = false, pieces = {} } },
+			indexMilestones = { { id = "decor5", needs = 2 }, { id = "decor10", needs = 3 } },
+			indexPrizes = { decor_alley = { decor5 = { fish = 25 }, decor10 = { bonus = 0.05 } } },
+		}
+
+		it("counts a page's owned pieces and readies its rewards", function()
+			local state = { decorOwned = { brick = true, sky = true }, indexRewards = {} }
+			local counts = IndexRewards.counts(catalog, state, "decor_alley")
+			expect(counts.total).to.equal(3)
+			expect(counts.found).to.equal(2)
+			local views = IndexRewards.views(catalog, state, "decor_alley")
+			expect(views[1].state).to.equal("ready")
+			expect(views[2].state).to.equal("locked")
+			local perArea, total = IndexRewards.claimable(catalog, state)
+			expect(perArea.decor_alley).to.equal(1)
+			expect(total).to.equal(1)
+		end)
+
+		it("asks a whole-page milestone for every piece on the page (F97)", function()
+			local whole: any = table.clone(catalog)
+			whole.indexMilestones = { { id = "decor10", needs = 2, whole = true } }
+			whole.indexPrizes = { decor_alley = { decor10 = { bonus = 0.05 } } }
+			local two = { decorOwned = { brick = true, sky = true }, indexRewards = {} }
+			local views = IndexRewards.views(whole, two, "decor_alley")
+			expect(views[1].need).to.equal(3)
+			expect(views[1].state).to.equal("locked")
+			expect(IndexRewards.toGo(views[1])).to.equal(1)
+			local all =
+				{ decorOwned = { brick = true, stools = true, sky = true }, indexRewards = {} }
+			expect(IndexRewards.views(whole, all, "decor_alley")[1].state).to.equal("ready")
+			expect(
+				IndexRewards.needLabel(
+					{ id = "decor10", needs = 12, whole = true },
+					16,
+					"decor_classic"
+				)
+			).to.equal("All 16")
+			-- the floor stands on a smaller page, and a plain milestone ignores the page
+			expect(IndexRewards.need({ id = "decor10", needs = 12, whole = true }, 10)).to.equal(12)
+			expect(IndexRewards.need({ id = "decor10", needs = 12 }, 16)).to.equal(12)
+		end)
+
+		it("names a page's need in pieces", function()
+			expect(IndexRewards.needLabel({ id = "decor5", needs = 5 }, 10, "decor_alley")).to.equal(
+				"5 pieces"
+			)
+			expect(IndexRewards.needLabel({ id = "decor10", needs = 10 }, 10, "decor_alley")).to.equal(
+				"All 10"
+			)
+		end)
+	end)
+
+	describe("IndexRewards labels", function()
+		it("names the need, saying All once it is the whole page", function()
+			expect(IndexRewards.needLabel({ id = "cats3", need = 3 }, 10)).to.equal("3 cats")
+			expect(IndexRewards.needLabel({ id = "cats10", need = 10 }, 10)).to.equal("All 10")
+			expect(IndexRewards.needLabel({ id = "gold10", need = 10, gold = true }, 10)).to.equal(
+				"All 10 gold"
+			)
+			expect(IndexRewards.needLabel({ id = "gold10", need = 10, gold = true }, 12)).to.equal(
+				"10 gold"
+			)
+		end)
+
+		it("finds the milestone behind an Index decor piece and names it", function()
+			local areaId, milestone = IndexRewards.decorSource(CATALOG, "index_alley_gold")
+			expect(areaId).to.equal("alley")
+			expect(milestone.id).to.equal("gold4")
+			expect(IndexRewards.decorSource(CATALOG, "plants")).to.equal(nil)
+			expect(IndexRewards.unlockLabel(milestone, "Alleyway", 4)).to.equal(
+				"All 4 Alleyway cats as gold"
+			)
+			expect(IndexRewards.unlockLabel({ id = "cats10", need = 10 }, "Park", 10)).to.equal(
+				"All 10 Park cats"
+			)
+			expect(IndexRewards.isIndexDecor({ id = "index_alley", source = "index" })).to.equal(
+				true
+			)
+			expect(IndexRewards.isIndexDecor({ id = "plants" })).to.equal(false)
+		end)
+
+		it("finds normal pieces whose gold piece is owned and placed", function()
+			local catalog = {
+				cats = {},
+				decor = {
+					{ id = "index_alley" },
+					{ id = "index_alley_gold", replaces = "index_alley" },
+					{ id = "index_park_gold", replaces = "index_park" },
+				},
+			}
+			local replaced = IndexRewards.replacedBy(catalog, {
+				decorOwned = { index_alley = true, index_alley_gold = true, index_park_gold = true },
+				decorPlaced = {
+					index_alley = true,
+					index_alley_gold = true,
+					index_park_gold = false,
+				},
+			})
+			expect(replaced.index_alley).to.equal("index_alley_gold")
+			expect(replaced.index_park).to.equal(nil)
+		end)
+
+		it("lists a prize's foods in rarity order (F97 section 3)", function()
+			local list = IndexRewards.lureList({
+				lures = { star_treat = 1, salmon = 1, tuna = 2, sardines = 3 },
+			})
+			expect(#list).to.equal(4)
+			expect(list[1].id).to.equal("tuna")
+			expect(list[1].count).to.equal(2)
+			expect(list[2].id).to.equal("sardines")
+			expect(list[3].id).to.equal("salmon")
+			expect(list[4].id).to.equal("star_treat")
+			expect(#IndexRewards.lureList({ coins = 5 })).to.equal(0)
+		end)
+	end)
+
+	describe("IndexRewards next reward (Derek 2026-10-27)", function()
+		local function kinds(parts: { any }): string
+			local out: { string } = {}
+			for _, part in parts do
+				table.insert(
+					out,
+					part.kind .. (if part.id then ":" .. part.id else "") .. "=" .. part.amount
+				)
+			end
+			return table.concat(out, ",")
+		end
+
+		it("points at the first reward to claim, else the first still to reach", function()
+			local none = { collection = {}, goldCollection = {}, indexRewards = {} }
+			local views = IndexRewards.views(CATALOG, none, "alley")
+			local nextView = IndexRewards.nextView(views)
+			expect(nextView.milestone.id).to.equal("cats3")
+			expect(nextView.state).to.equal("locked")
+			expect(IndexRewards.toGo(nextView)).to.equal(3)
+
+			local three = {
+				collection = { tabby = 1, tuxedo = 1, calico = 1 },
+				goldCollection = {},
+				indexRewards = {},
+			}
+			local ready = IndexRewards.nextView(IndexRewards.views(CATALOG, three, "alley"))
+			expect(ready.milestone.id).to.equal("cats3")
+			expect(ready.state).to.equal("ready")
+			expect(IndexRewards.toGo(ready)).to.equal(0)
+
+			three.indexRewards = { alley = { cats3 = true } }
+			local after = IndexRewards.nextView(IndexRewards.views(CATALOG, three, "alley"))
+			expect(after.milestone.id).to.equal("all4")
+			expect(IndexRewards.toGo(after)).to.equal(1)
+		end)
+
+		it("has no next reward once every milestone is claimed", function()
+			local done = {
+				collection = { tabby = 1, tuxedo = 1, calico = 1, siamese = 1 },
+				goldCollection = { tabby = 1, tuxedo = 1, calico = 1, siamese = 1 },
+				indexRewards = { alley = { cats3 = true, all4 = true, gold4 = true } },
+			}
+			expect(IndexRewards.nextView(IndexRewards.views(CATALOG, done, "alley"))).to.equal(nil)
+			expect(IndexRewards.nextView({})).to.equal(nil)
+		end)
+
+		it("lists what a prize pays as parts with amounts, in a steady order", function()
+			expect(kinds(IndexRewards.prizeParts({ coins = 300 }))).to.equal("coins=300")
+			-- foods in rarity order (F97 section 3)
+			expect(kinds(IndexRewards.prizeParts({
+				lures = { tuna = 2, salmon = 1 },
+				decorId = "index_alley",
+			}))).to.equal("lure:tuna=2,lure:salmon=1,decor:index_alley=1")
+			expect(kinds(IndexRewards.prizeParts({}))).to.equal("")
+		end)
+
+		it("shows spins and crates, the rewards Derek wants instead of decor outright", function()
+			local prize = { coins = 1000, spins = 2, crates = { decor_park = 1, decor_alley = 3 } }
+			expect(kinds(IndexRewards.prizeParts(prize))).to.equal(
+				"coins=1000,spins=2,crate:decor_alley=3,crate:decor_park=1"
+			)
+		end)
+
+		it("shows potions after the crates, by id (v0.10)", function()
+			local prize = {
+				crates = { classic_crate = 1 },
+				potions = { tip_potion = 1, luck_potion = 2, none = 0 },
+			}
+			expect(kinds(IndexRewards.prizeParts(prize))).to.equal(
+				"crate:classic_crate=1,potion:luck_potion=2,potion:tip_potion=1"
+			)
+		end)
+
+		it("shows a prize kind it does not know yet, and skips empty amounts", function()
+			local prize = { goldenFish = 5, coins = 0, lures = { tuna = 0 }, spins = 0, note = "x" }
+			expect(kinds(IndexRewards.prizeParts(prize))).to.equal("other:goldenFish=5")
+		end)
+	end)
+
+	-- golden-fish.md sections 5, 5b and 8: two tracks per area, rows { id, track, needs }, the "all" page and the
+	-- new prize fields. The UI reads both shapes so it works before and after the engineer's catalog change.
+	describe("IndexRewards F54 shapes (design v0.7)", function()
+		local function kinds(parts: { any }): string
+			local out: { string } = {}
+			for _, part in parts do
+				table.insert(
+					out,
+					part.kind .. (if part.id then ":" .. part.id else "") .. "=" .. part.amount
+				)
+			end
+			return table.concat(out, ",")
+		end
+
+		local F54 = {
+			cats = CATALOG.cats,
+			indexMilestones = {
+				{ id = "cats3", track = "normal", needs = 3 },
+				{ id = "gold1", track = "gold", needs = 1 },
+				{ id = "gold2", track = "gold", needs = 2 },
+				{ id = "total5", track = "normal", needs = 5 },
+			},
+			indexPrizes = {
+				alley = {
+					cats3 = { coins = 300, coinSeconds = 600, fish = 5, spins = 1 },
+					gold1 = { fish = 10, spins = 1, crates = { alley_crate = 1 }, bonus = 0.01 },
+					gold2 = { fish = 15, spins = 2 },
+				},
+				all = { total5 = { fish = 10, spins = 1, bonus = 0.02 } },
+			},
+		}
+
+		it("reads needs and the gold track as well as need and gold", function()
+			expect(IndexRewards.need({ id = "a", needs = 6 })).to.equal(6)
+			expect(IndexRewards.need({ id = "a", need = 4 })).to.equal(4)
+			expect(IndexRewards.isGold({ id = "a", track = "gold", needs = 1 })).to.equal(true)
+			expect(IndexRewards.isGold({ id = "a", need = 10, gold = true })).to.equal(true)
+			expect(IndexRewards.isGold({ id = "a", track = "normal", needs = 3 })).to.equal(false)
+			expect(IndexRewards.needLabel({ id = "gold1", track = "gold", needs = 1 }, 4)).to.equal(
+				"1 gold"
+			)
+			expect(IndexRewards.needLabel({ id = "c", needs = 1 }, 4)).to.equal("1 cat")
+		end)
+
+		it("counts each track from its own collection and points NEXT per track", function()
+			local state = {
+				collection = { tabby = 1, tuxedo = 1 },
+				goldCollection = { tabby = 1 },
+				indexRewards = {},
+			}
+			local views = IndexRewards.views(F54, state, "alley")
+			local ids: { string } = {}
+			for _, view in views do
+				table.insert(ids, view.milestone.id .. "=" .. view.state)
+			end
+			expect(table.concat(ids, ",")).to.equal("cats3=locked,gold1=ready,gold2=locked")
+			-- the board's next reward: the one ready to claim
+			expect(IndexRewards.nextView(views).milestone.id).to.equal("gold1")
+			-- the strip's NEXT stickers, one per track
+			local normal = IndexRewards.nextView(views, "normal")
+			expect(normal.milestone.id).to.equal("cats3")
+			expect(IndexRewards.toGo(normal)).to.equal(1)
+			expect(IndexRewards.nextView(views, "gold").milestone.id).to.equal("gold1")
+			state.indexRewards = { alley = { gold1 = true } }
+			local gold = IndexRewards.nextView(IndexRewards.views(F54, state, "alley"), "gold")
+			expect(gold.milestone.id).to.equal("gold2")
+			expect(IndexRewards.toGo(gold)).to.equal(1)
+		end)
+
+		it("counts every area's cats on the All Cats page", function()
+			local state = {
+				collection = { tabby = 1, calico = 1, corgi_cat = 1 },
+				goldCollection = {},
+				indexRewards = {},
+			}
+			local counts = IndexRewards.counts(F54, state, IndexRewards.ALL_AREA)
+			expect(counts.total).to.equal(5)
+			expect(counts.found).to.equal(3)
+			local views = IndexRewards.views(F54, state, "all")
+			expect(#views).to.equal(1)
+			expect(views[1].milestone.id).to.equal("total5")
+			expect(IndexRewards.toGo(views[1])).to.equal(2)
+		end)
+
+		it(
+			"prices coins that grow with the cafe like the Tip Jar, never under the least",
+			function()
+				local prize = { coins = 300, coinSeconds = 600 }
+				expect(IndexRewards.coins(prize, 2)).to.equal(1200)
+				expect(IndexRewards.coins(prize, 0.1)).to.equal(300)
+				expect(IndexRewards.coins(prize, nil)).to.equal(300)
+				expect(IndexRewards.coins({ coins = 500 }, 100)).to.equal(500)
+				expect(IndexRewards.coins({ coinSeconds = 60 }, 2.5)).to.equal(150)
+			end
+		)
+
+		it("shows coins, fish, food, spins, crates, the tag and the bonus in that order", function()
+			local prize = {
+				bonus = 0.05,
+				tag = "Cat Master",
+				crates = { alley_golden_crate = 2, alley_crate = 1 },
+				spins = 2,
+				lures = { salmon = 2 },
+				fish = 25,
+				coins = 1000,
+				coinSeconds = 600,
+			}
+			expect(kinds(IndexRewards.prizeParts(prize, 10))).to.equal(
+				"coins=6000,fish=25,lure:salmon=2,spins=2,crate:alley_crate=1,crate:alley_golden_crate=2,"
+					.. "tag:Cat Master=1,bonus=0.05"
+			)
+			expect(kinds(IndexRewards.prizeParts({ fish = 10, bonus = 0, tag = "" }))).to.equal(
+				"fish=10"
+			)
+		end)
+	end)
+
+	describe("IndexRewards edges (QA)", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local Catalog = require(ReplicatedStorage.Shared.Catalog) :: any
+		local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+		local SharedRewards = require(ReplicatedStorage.Shared.IndexRewards)
+
+		-- The card the server's answer stands for: no blocker is a Claim button, "Already claimed"
+		-- a tick, and "Find n more" a bar with n to go.
+		local function serverCard(
+			profile: any,
+			areaId: string,
+			milestoneId: string
+		): (string, number?)
+			local blocker = SharedRewards.blocker(profile, areaId, milestoneId)
+			if blocker == nil then
+				return "ready", nil
+			elseif blocker == "Already claimed" then
+				return "claimed", nil
+			end
+			return "locked", tonumber(string.match(blocker, "^Find (%d+) more"))
+		end
+
+		-- Every card on every page against the server; returns how many the server would pay now.
+		local function agree(profile: any): number
+			local ready = 0
+			for areaId, prizes in pairs(Catalog.indexPrizes) do
+				local views = IndexRewards.views(Catalog, profile, areaId)
+				local cards = 0 -- F54: a page shows the milestones it has a prize for
+				for _ in pairs(prizes) do
+					cards += 1
+				end
+				expect(#views).to.equal(cards)
+				for _, view in ipairs(views) do
+					local card = areaId .. "." .. view.milestone.id .. " "
+					local state, left = serverCard(profile, areaId, view.milestone.id)
+					expect(card .. view.state).to.equal(card .. state)
+					if state == "locked" then
+						expect(IndexRewards.toGo(view)).to.equal(left)
+					elseif state == "ready" then
+						ready += 1
+					end
+				end
+			end
+			local _, badges = IndexRewards.claimable(Catalog, profile)
+			expect(badges).to.equal(ready)
+			return ready
+		end
+
+		-- The Claim button and the red badges promise a payout, so they light exactly where
+		-- ClaimIndexReward pays.
+		it("shows Claim where the server pays, as every page fills and is claimed", function()
+			local profile: any = ProfileSchema.template(1000)
+			table.clear(profile.collection)
+			expect(agree(profile)).to.equal(0)
+			for _, def in ipairs(Catalog.cats) do
+				profile.collection[def.id] = 1000
+				agree(profile)
+			end
+			for _, def in ipairs(Catalog.cats) do
+				profile.goldCollection[def.id] = 1000
+				agree(profile)
+			end
+			-- Every cat page full: every cat milestone is reachable (a Decor Index page counts crate pieces and the
+			-- Rainbow page, F99, rainbow coats, none owned here); a claim ticks its own card, no other.
+			local open = 0
+			for areaId, prizes in pairs(Catalog.indexPrizes) do
+				if string.sub(areaId, 1, 6) ~= "decor_" and areaId ~= "rainbow" then
+					for _ in pairs(prizes) do
+						open += 1
+					end
+				end
+			end
+			expect(agree(profile)).to.equal(open)
+			for areaId, prizes in pairs(Catalog.indexPrizes) do
+				for milestoneId in pairs(prizes) do
+					local wasReady = SharedRewards.blocker(profile, areaId, milestoneId) == nil
+					profile.indexRewards[areaId] = profile.indexRewards[areaId] or {}
+					profile.indexRewards[areaId][milestoneId] = true
+					if wasReady then
+						open -= 1
+					end
+					expect(agree(profile)).to.equal(open)
+				end
+			end
+		end)
+	end)
+
+	describe("IndexRewards forever bonuses (v0.10)", function()
+		local function kinds(parts: { any }): string
+			local out: { string } = {}
+			for _, part in parts do
+				table.insert(out, part.kind .. "=" .. part.amount)
+			end
+			return table.concat(out, ",")
+		end
+
+		local PERKED = {
+			cats = CATALOG.cats,
+			indexMilestones = {
+				{ id = "cats6", track = "normal", needs = 6 },
+				{ id = "gold1", track = "gold", needs = 1 },
+				{ id = "gold10", track = "gold", needs = 10 },
+				{ id = "total5", track = "normal", needs = 5 },
+			},
+			indexPrizes = {
+				alley = {
+					cats6 = { lures = { tuna = 3 }, bonus = 0.02 },
+					gold1 = { fish = 10, goldLuck = 0.3 },
+					gold10 = { fish = 100, goldLuck = 1.4 },
+				},
+				all = { total5 = { fish = 10, baitSpeed = 0.6 } },
+			},
+		}
+
+		it("shows gold luck and faster bait after the tips, as pills", function()
+			local both = IndexRewards.prizeParts({ fish = 10, goldLuck = 0.03, bonus = 0.02 })
+			expect(kinds(both)).to.equal("fish=10,bonus=0.02,goldLuck=0.03")
+			local speed = IndexRewards.prizeParts({ spins = 1, baitSpeed = 0.02 })
+			expect(kinds(speed)).to.equal("spins=1,baitSpeed=0.02")
+			expect(IndexRewards.isPerk("goldLuck")).to.equal(true)
+			expect(IndexRewards.isPerk("bonus")).to.equal(true)
+			expect(IndexRewards.isPerk("fish")).to.equal(false)
+		end)
+
+		it("names a milestone's one forever bonus for its band", function()
+			local perk, amount = IndexRewards.perk({ fish = 10, goldLuck = 0.03 })
+			expect(perk).to.equal("goldLuck")
+			expect(amount).to.equal(0.03)
+			expect((IndexRewards.perk({ baitSpeed = 0.02 }))).to.equal("baitSpeed")
+			expect((IndexRewards.perk({ fish = 25, bonus = 0 }))).to.equal(nil)
+			expect((IndexRewards.perk(nil))).to.equal(nil)
+		end)
+
+		it("adds up the claims and caps gold luck and faster bait as the server does", function()
+			local state = {
+				indexRewards = {
+					alley = { cats6 = true, gold1 = true, gold10 = true },
+					all = { total5 = true },
+					park = { cats3 = true }, -- a page with no prizes here counts nothing
+				},
+			}
+			local totals = IndexRewards.totals(PERKED, state)
+			expect(totals.bonus).to.be.near(0.02, 1e-9)
+			expect(totals.goldLuck).to.equal(IndexRewards.GOLD_LUCK_MAX) -- 1.7 capped at 1.5
+			expect(totals.baitSpeed).to.equal(IndexRewards.BAIT_SPEED_MAX) -- 0.6 capped at 0.5
+			local none = IndexRewards.totals(PERKED, {})
+			expect(none.bonus + none.goldLuck + none.baitSpeed).to.equal(0)
+		end)
+
+		it("takes the server's gold luck and faster bait when ProfileSync sends them", function()
+			local state =
+				{ indexRewards = { alley = { gold1 = true } }, goldLuck = 0.4, baitSpeed = 0.1 }
+			local totals = IndexRewards.totals(PERKED, state)
+			expect(totals.goldLuck).to.equal(0.4)
+			expect(totals.baitSpeed).to.equal(0.1)
+		end)
+
+		it("rolls gold at chance x (1 + luck), never past the cap", function()
+			expect(IndexRewards.goldChance(0.05, 0.4)).to.be.near(0.07, 1e-9)
+			expect(IndexRewards.goldChance(0.05, 0)).to.be.near(0.05, 1e-9)
+			expect(IndexRewards.goldChance(0.1, 9)).to.be.near(0.25, 1e-9)
+		end)
+
+		it("writes the Index header pills", function()
+			expect(IndexRewards.perkLabel("bonus", 0.12)).to.equal("+12% money")
+			local luck = IndexRewards.perkLabel("goldLuck", 0.4)
+			expect(luck).to.equal("+40% gold luck (gold 7%)")
+			expect(IndexRewards.perkLabel("goldLuck", 1.5)).to.equal("+150% gold luck (gold 12.5%)")
+			expect(IndexRewards.perkLabel("baitSpeed", 0.38)).to.equal("+38% faster bait")
+			expect(IndexRewards.perkLabel("bonus", 0)).to.equal(nil)
+		end)
+
+		it("writes an Index Board's gold luck line from its attributes", function()
+			expect(IndexRewards.boardLuck(0.4, "Sam")).to.equal("Gold luck +40% from Sam")
+			expect(IndexRewards.boardLuck(0.4, "")).to.equal("Gold luck +40%")
+			expect(IndexRewards.boardLuck(0, "Sam")).to.equal(nil)
+			expect(IndexRewards.boardLuck(nil, nil)).to.equal(nil)
+			expect(IndexRewards.boardLuck("0.4", "Sam")).to.equal(nil)
+		end)
+	end)
+
+	describe("IndexRewards Rainbow track (F99)", function()
+		local RAINBOW = {
+			cats = {
+				{ id = "tabby", area = "alley" },
+				{ id = "tuxedo", area = "alley" },
+				{ id = "corgi_cat", area = "park" },
+				{ id = "calico", area = "spare" },
+				{ id = "bellhop", area = "exclusive", exclusive = true },
+			},
+			indexMilestones = {
+				{ id = "cats3", track = "normal", needs = 3 },
+				{ id = "rainbow1", track = "rainbow", needs = 1 },
+				{ id = "rainbow3", track = "rainbow", needs = 3 },
+				{ id = "rainbow5", track = "rainbow", needs = 5 },
+			},
+			indexPrizes = {
+				alley = { cats3 = { coins = 300 } },
+				rainbow = {
+					rainbow1 = { fish = 25, tag = "Rainbow Finder" },
+					rainbow3 = { fish = 50 },
+					rainbow5 = { fish = 75, rainbowLuck = 0.2 },
+				},
+			},
+		}
+
+		it(
+			"counts different rainbow cats of every area, spare and exclusive ones left out",
+			function()
+				local state = {
+					collection = { tabby = 1, bellhop = 1 },
+					rainbowCollection = { tabby = 1, corgi_cat = 2, calico = 3, bellhop = 4 },
+				}
+				local counts = IndexRewards.counts(RAINBOW, state, IndexRewards.RAINBOW_AREA)
+				expect(counts.total).to.equal(3)
+				expect(counts.rainbow).to.equal(2)
+				expect(IndexRewards.counts(RAINBOW, state, "alley").rainbow).to.equal(1)
+				expect(IndexRewards.counts(RAINBOW, {}, "rainbow").rainbow).to.equal(0)
+			end
+		)
+
+		it(
+			"leaves the exclusive cats out of All Cats and the Index count, as the server does",
+			function()
+				local state =
+					{ collection = { tabby = 1, bellhop = 1 }, catsOwned = { bellhop = 1 } }
+				local all = IndexRewards.counts(RAINBOW, state, "all")
+				expect(all.total).to.equal(3)
+				expect(all.found).to.equal(1)
+				local found, total = IndexRewards.book(RAINBOW, state)
+				expect(found).to.equal(1)
+				expect(total).to.equal(3)
+			end
+		)
+
+		it("readies the track's milestones from the rainbow count only", function()
+			local state = {
+				collection = { tabby = 1, tuxedo = 1, corgi_cat = 1 },
+				rainbowCollection = { tabby = 1 },
+				indexRewards = { rainbow = { rainbow1 = true } },
+			}
+			local views = IndexRewards.views(RAINBOW, state, "rainbow")
+			expect(#views).to.equal(3)
+			expect(views[1].state).to.equal("claimed")
+			expect(views[2].state).to.equal("locked")
+			expect(views[2].have).to.equal(1)
+			expect(IndexRewards.track(views[2].milestone)).to.equal("rainbow")
+			expect(IndexRewards.isGold(views[2].milestone)).to.equal(false)
+			local next = IndexRewards.nextView(views, "rainbow")
+			expect(next and next.milestone.id).to.equal("rainbow3")
+			expect(IndexRewards.toGo(views[2])).to.equal(2)
+			state.rainbowCollection = { tabby = 1, tuxedo = 2, corgi_cat = 3 }
+			local perPage, all = IndexRewards.claimable(RAINBOW, state)
+			expect(perPage.rainbow).to.equal(1) -- rainbow3; rainbow1 is claimed, rainbow5 needs two more
+			expect(all).to.equal(1)
+		end)
+
+		it("labels the track's cards in rainbow cats", function()
+			local one = { id = "rainbow1", track = "rainbow", needs = 1 }
+			local five = { id = "rainbow5", track = "rainbow", needs = 5 }
+			expect(IndexRewards.needLabel(one, 50, "rainbow")).to.equal("1 rainbow cat")
+			expect(IndexRewards.needLabel(five, 50, "rainbow")).to.equal("5 rainbow cats")
+		end)
+
+		it("shows rainbow luck as a forever bonus and adds it up to its cap", function()
+			local parts = IndexRewards.prizeParts({ fish = 75, rainbowLuck = 0.2 })
+			expect(#parts).to.equal(2)
+			expect(parts[2].kind).to.equal("rainbowLuck")
+			expect(IndexRewards.isPerk("rainbowLuck")).to.equal(true)
+			local perk, amount = IndexRewards.perk({ fish = 75, rainbowLuck = 0.2 })
+			expect(perk).to.equal("rainbowLuck")
+			expect(amount).to.equal(0.2)
+			local claimed = { indexRewards = { rainbow = { rainbow5 = true } } }
+			expect(IndexRewards.totals(RAINBOW, claimed).rainbowLuck).to.be.near(0.2, 1e-9)
+			expect(IndexRewards.totals(RAINBOW, {}).rainbowLuck).to.equal(0)
+			local sent = { indexRewards = claimed.indexRewards, rainbowLuck = 0.5 }
+			expect(IndexRewards.totals(RAINBOW, sent).rainbowLuck).to.equal(0.5)
+		end)
+
+		it("writes the rainbow luck pill with the rainbow chance in hundredths", function()
+			expect(IndexRewards.rainbowChance(0.005, 0.5)).to.be.near(0.0075, 1e-12)
+			expect(IndexRewards.rainbowChance(0.005, 9)).to.be.near(0.01, 1e-12)
+			expect(IndexRewards.perkLabel("rainbowLuck", 0.2)).to.equal(
+				"+20% rainbow luck (rainbow 0.6%)"
+			)
+			expect(IndexRewards.perkLabel("rainbowLuck", 0.5)).to.equal(
+				"+50% rainbow luck (rainbow 0.75%)"
+			)
+			expect(IndexRewards.perkLabel("rainbowLuck", 1)).to.equal(
+				"+100% rainbow luck (rainbow 1%)"
+			)
+			expect(IndexRewards.perkLabel("rainbowLuck", 0)).to.equal(nil)
+		end)
+	end)
+end

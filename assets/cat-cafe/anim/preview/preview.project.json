@@ -1,0 +1,6 @@
+{
+	"name": "Cats",
+	"tree": {
+		"$path": "../../rbx"
+	}
+}

@@ -1,9 +1,12 @@
 --!strict
 -- Per-cat stats (data-model section 4b): charm rolled once when the cat is caught, level and XP earned while
--- placed, and the rating they combine into. Pure: random rolls are passed in, so tests are deterministic.
+-- the owner is in the game (v0.12, F75), and the rating they combine into. Pure: random rolls are passed in, so tests are deterministic.
 --
---   rating = rarity rate x charmMultiplier(charm) x levelMultiplier(level) x variantMultiplier(variant)
---            x rescuedMultiplier(rescued)
+--   rating = rarity rate x areaMultiplier(def, tier) x charmMultiplier(charm) x levelMultiplier(level)
+--            x variantMultiplier(variant) x rescuedMultiplier(rescued)
+--
+-- `tier` is the owner's tier: a Legendary or Mythical from an older area keeps up with the newer ones (v0.13.16,
+-- F86). Without it a cat earns at its own area's multiplier, its CatDef's incomePerSecond (the Index's figure).
 --
 -- The rating is the one number "how good is this cat" that income, equip best and the cat room sort all use.
 -- Everything numeric comes from Config so QA can tune without touching logic. Missing fields (a profile saved
@@ -19,6 +22,7 @@ CatStats.MIN_CHARM = 0
 CatStats.MAX_CHARM = 100
 CatStats.DEFAULT_CHARM = 50 -- exactly a 1.0x multiplier
 CatStats.MIN_LEVEL = 1
+CatStats.OLD_MAX_LEVEL = 10 -- the cap before v0.12 (frozen: old saves are remapped from it)
 
 -- Readers -------------------------------------------------------------------------------------------------
 
@@ -30,12 +34,14 @@ function CatStats.level(instance: Types.CatInstance): number
 	return math.clamp(math.floor(level), CatStats.MIN_LEVEL, Config.CatMaxLevel)
 end
 
+-- XP toward the next level. It may hold a fraction (a resting cat earns a quarter a second, v0.12), so only what
+-- is shown is floored (CatStats.view).
 function CatStats.xp(instance: Types.CatInstance): number
 	local xp = (instance :: any).xp
-	if type(xp) ~= "number" or xp ~= xp or xp < 0 then
+	if type(xp) ~= "number" or xp ~= xp or xp < 0 or xp == math.huge then
 		return 0
 	end
-	return math.floor(xp)
+	return xp
 end
 
 function CatStats.charm(instance: Types.CatInstance): number
@@ -76,19 +82,18 @@ function CatStats.levelMultiplier(level: number): number
 	return 1 + Config.CatLevelBonus * (clamped - CatStats.MIN_LEVEL)
 end
 
--- A cat freed from a rescue spot earns RescuedTipsMultiplier for good (data-model section 10); others 1x.
+-- A cat freed from a rescue spot earns RescuedTipsMultiplier (1.0 since v0.3, so the flag is for the book).
 function CatStats.rescuedMultiplier(rescued: boolean?): number
 	return if rescued == true then Config.RescuedTipsMultiplier else 1
 end
 
--- Post-slice variants (data-model section 4). "base" and anything unknown is 1x.
+-- A gold cat earns GoldMultiplier (data-model section 4), a rainbow cat RainbowMultiplier (F99, twice gold). "base"
+-- and anything unknown is 1x.
 function CatStats.variantMultiplier(variant: string?): number
-	if variant == "golden" then
-		return 2
-	elseif variant == "galaxy" then
-		return 5
-	end
-	return 1
+	return if variant == "rainbow"
+		then Config.RainbowMultiplier
+		elseif variant == "gold" then Config.GoldMultiplier
+		else 1
 end
 
 -- Stars 1 to 5 for the UI: charm 0-19 one star, 20-39 two, 40-59 three, 60-79 four, 80-100 five.
@@ -110,7 +115,7 @@ end
 
 -- XP and levels -------------------------------------------------------------------------------------------
 
--- XP needed to go from `level` to the next one; 0 at the cap. One XP is one second placed on a spot.
+-- XP needed to go from `level` to the next one; 0 at the cap. A working cat earns one XP a second.
 function CatStats.xpToNext(level: number): number
 	if level >= Config.CatMaxLevel then
 		return 0
@@ -118,7 +123,7 @@ function CatStats.xpToNext(level: number): number
 	return Config.CatXpBase * math.max(CatStats.MIN_LEVEL, math.floor(level))
 end
 
--- Total placed seconds needed to reach `level` from level 1 (for balance checks and the collection UI).
+-- Total XP needed to reach `level` from level 1 (for balance checks and the collection UI).
 function CatStats.xpForLevel(level: number): number
 	local total = 0
 	for step = CatStats.MIN_LEVEL, math.min(level, Config.CatMaxLevel) - 1 do
@@ -132,8 +137,8 @@ end
 function CatStats.addXp(instance: Types.CatInstance, amount: number): number
 	local level = CatStats.level(instance)
 	local xp = CatStats.xp(instance)
-	if type(amount) == "number" and amount == amount and amount > 0 then
-		xp += math.floor(amount)
+	if type(amount) == "number" and amount == amount and amount > 0 and amount ~= math.huge then
+		xp += amount
 	end
 	local gained = 0
 	while level < Config.CatMaxLevel do
@@ -157,33 +162,79 @@ end
 
 -- Rating ---------------------------------------------------------------------------------------------------
 
--- Coins per second this cat earns on a neutral spot before the cafe multiplier. 0 for an unknown cat id.
-function CatStats.rating(instance: Types.CatInstance): number
+-- The area income multiplier a cat earns with for an owner at `tier` (data-model 4b, v0.13.16 F86). Its own area's
+-- incomeMultiplier (a spare cat's `incomeArea`), or for a KeepUpRarities cat the larger of that and the multiplier
+-- of the area opened at the owner's tier minus KeepUpStepsBehind (never below the first area's). An exclusive
+-- (shop-only) cat takes the newest area's at the owner's tier, the largest of the areas opened by then (F95). Nil
+-- tier: its own.
+function CatStats.areaMultiplier(def: Types.CatDef, tier: number?): number
+	local base = Catalog.rarities[def.rarity].incomePerSecond
+	local own = if base > 0 then def.incomePerSecond / base else 1
+	if tier == nil then
+		return own
+	end
+	local opened: number
+	if def.exclusive == true then
+		opened = math.floor(tier)
+	elseif Config.KeepUpRarities[def.rarity] == true then
+		opened = math.max(math.floor(tier) - Config.KeepUpStepsBehind, 1)
+	else
+		return own
+	end
+	local best = own
+	for _, area in Catalog.areas do
+		if
+			(if def.exclusive == true then area.tier <= opened else area.tier == opened)
+			and area.incomeMultiplier > best
+		then
+			best = area.incomeMultiplier
+		end
+	end
+	return best
+end
+
+-- A cat's base rate for an owner at `tier`: its rarity's rate times areaMultiplier. Its CatDef's incomePerSecond
+-- without a tier, or when it does not keep up.
+local function baseRate(def: Types.CatDef, tier: number?): number
+	local own = def.incomePerSecond
+	local multiplier = CatStats.areaMultiplier(def, tier)
+	local base = Catalog.rarities[def.rarity].incomePerSecond
+	if base <= 0 or multiplier * base <= own then
+		return own
+	end
+	return base * multiplier
+end
+
+-- Coins per second this cat earns on a neutral spot before the cafe multiplier, for an owner at `tier` (nil: at
+-- its own area's multiplier). 0 for an unknown cat id.
+function CatStats.rating(instance: Types.CatInstance, tier: number?): number
 	local def = Catalog.getCat(instance.catId)
 	if def == nil then
 		return 0
 	end
-	return def.incomePerSecond
+	return baseRate(def, tier)
 		* CatStats.charmMultiplier(CatStats.charm(instance))
 		* CatStats.levelMultiplier(CatStats.level(instance))
 		* CatStats.variantMultiplier(instance.variant)
 		* CatStats.rescuedMultiplier(instance.rescued)
 end
 
--- The best rating a cat of this id can reach at max level with 100 charm (collection book "potential").
-function CatStats.maxRating(catId: string): number
+-- The best rating a cat of this id can reach at max level with 100 charm, base variant, for an owner at `tier` (the
+-- book's "potential"; the gold figure is this times GoldMultiplier).
+function CatStats.maxRating(catId: string, tier: number?): number
 	local def = Catalog.getCat(catId)
 	if def == nil then
 		return 0
 	end
-	return def.incomePerSecond
+	return baseRate(def, tier)
 		* CatStats.charmMultiplier(CatStats.MAX_CHARM)
 		* CatStats.levelMultiplier(Config.CatMaxLevel)
 end
 
--- Sort order for the cat room and equip best: rating, then rarity, then name, then uid (stable).
-function CatStats.isBetter(a: Types.CatInstance, b: Types.CatInstance): boolean
-	local ra, rb = CatStats.rating(a), CatStats.rating(b)
+-- Sort order for the cat room and equip best: rating for an owner at `tier`, then rarity, then name, then uid
+-- (stable). CatStats.betterFor(tier) is the same as a table.sort comparator.
+function CatStats.isBetter(a: Types.CatInstance, b: Types.CatInstance, tier: number?): boolean
+	local ra, rb = CatStats.rating(a, tier), CatStats.rating(b, tier)
 	if ra ~= rb then
 		return ra > rb
 	end
@@ -197,6 +248,12 @@ function CatStats.isBetter(a: Types.CatInstance, b: Types.CatInstance): boolean
 		return a.catId < b.catId
 	end
 	return a.uid < b.uid
+end
+
+function CatStats.betterFor(tier: number?): (Types.CatInstance, Types.CatInstance) -> boolean
+	return function(a: Types.CatInstance, b: Types.CatInstance): boolean
+		return CatStats.isBetter(a, b, tier)
+	end
 end
 
 -- Construction ----------------------------------------------------------------------------------------------
@@ -223,8 +280,19 @@ function CatStats.newInstance(
 	}
 end
 
--- What ProfileSync sends per cat: the saved fields plus the derived numbers the UI shows.
-function CatStats.view(instance: Types.CatInstance): Types.CatView
+-- F62 (data-model section 4): gold, rainbow (F99), Legendary and Mythical cats arrive locked, so one quick tap never
+-- sells or trades away a player's best cat. Version 14 locks the ones already owned the same way.
+function CatStats.arrivesLocked(catId: string, variant: string): boolean
+	if variant == "gold" or variant == "rainbow" then
+		return true
+	end
+	local def = Catalog.getCat(catId)
+	return def ~= nil and (def.rarity == "Legendary" or def.rarity == "Mythical")
+end
+
+-- What ProfileSync sends per cat: the saved fields plus the derived numbers the UI shows, `rating` for an owner at
+-- `tier` (the kept-up figure, v0.13.16).
+function CatStats.view(instance: Types.CatInstance, tier: number?): Types.CatView
 	local level = CatStats.level(instance)
 	local charm = CatStats.charm(instance)
 	return {
@@ -234,13 +302,25 @@ function CatStats.view(instance: Types.CatInstance): Types.CatView
 		caughtAt = instance.caughtAt,
 		spotId = instance.spotId,
 		rescued = instance.rescued,
+		name = instance.name,
+		method = instance.method,
+		locked = instance.locked == true,
 		level = level,
-		xp = CatStats.xp(instance),
+		xp = math.floor(CatStats.xp(instance)),
 		xpToNext = CatStats.xpToNext(level),
 		charm = charm,
 		stars = CatStats.stars(charm),
-		rating = CatStats.rating(instance),
+		rating = CatStats.rating(instance, tier),
 	}
+end
+
+-- An old save's level (CatMaxLevel 10, 5% a level) on the v0.12 curve (50 levels, 2% a level): 1 + ceil(2.5 x
+-- (L - 1)), which never lowers the cat's rating. Level 10 becomes 24 and level 1 stays 1 (data-model section 4b).
+function CatStats.remapLevel(level: number): number
+	local old = if type(level) == "number" and level == level
+		then math.clamp(math.floor(level), CatStats.MIN_LEVEL, CatStats.OLD_MAX_LEVEL)
+		else CatStats.MIN_LEVEL
+	return math.clamp(1 + math.ceil(2.5 * (old - 1)), CatStats.MIN_LEVEL, Config.CatMaxLevel)
 end
 
 -- "Lv 3 · ★★★★☆" for toasts.
@@ -250,6 +330,12 @@ function CatStats.shortText(instance: Types.CatInstance): string
 		CatStats.level(instance),
 		CatStats.starsText(CatStats.stars(CatStats.charm(instance)))
 	)
+end
+
+-- A new cat's uid from HttpService:GenerateGUID(false): its first 12 characters, lowercased ("fa3848f6-e97"). Saves
+-- already hold uids of this shape, so Guard.id passes the hyphen rather than the shape changing.
+function CatStats.uidFromGuid(guid: string): string
+	return guid:sub(1, 12):lower()
 end
 
 return CatStats

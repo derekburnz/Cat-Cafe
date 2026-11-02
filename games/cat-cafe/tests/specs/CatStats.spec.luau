@@ -1,5 +1,6 @@
 --!strict
--- CatStats.luau against data-model section 4b: charm, level and XP, rating, and how Economy uses them.
+-- CatStats.luau against data-model v0.3.1 sections 4 and 4b: charm, level and XP, gold, rating, and how Economy
+-- uses them. The v2 to v3 save migration has its own spec (ProfileSchema.spec).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local CatStats = require(Shared.CatStats)
@@ -53,6 +54,23 @@ return function()
 			expect(fiveStar / samples).to.be.near(0.08, 0.015)
 			expect(oneStar / samples).to.be.near(0.08, 0.015)
 		end)
+
+		-- reviewer N70: the star odds on every food card are Config.CharmStarOdds, so they must match the roll.
+		-- A 400 x 400 grid of roll midpoints puts each share within about 0.2 points of the exact value.
+		it("Config.CharmStarOdds matches rollCharm and stars (F28 food cards)", function()
+			local steps = 400
+			local counts = { 0, 0, 0, 0, 0 }
+			for i = 0, steps - 1 do
+				for j = 0, steps - 1 do
+					local charm = CatStats.rollCharm((i + 0.5) / steps, (j + 0.5) / steps)
+					local stars = CatStats.stars(charm)
+					counts[stars] += 1
+				end
+			end
+			for stars, share in Config.CharmStarOdds do
+				expect(counts[stars] / (steps * steps) * 100).to.be.near(share, 0.3)
+			end
+		end)
 	end)
 
 	describe("multipliers", function()
@@ -75,13 +93,18 @@ return function()
 			expect(CatStats.levelMultiplier(0)).to.equal(1)
 		end)
 
-		it("variants: base 1x, golden 2x, galaxy 5x, unknown 1x", function()
-			expect(CatStats.variantMultiplier("base")).to.equal(1)
-			expect(CatStats.variantMultiplier("golden")).to.equal(2)
-			expect(CatStats.variantMultiplier("galaxy")).to.equal(5)
-			expect(CatStats.variantMultiplier(nil)).to.equal(1)
-			expect(Economy.variantMultiplier("galaxy")).to.equal(5)
-		end)
+		it(
+			"variants: base 1x, gold GoldMultiplier (1.5x); Golden and Galaxy are gone (v0.3)",
+			function()
+				expect(Config.GoldMultiplier).to.equal(1.5)
+				expect(CatStats.variantMultiplier("base")).to.equal(1)
+				expect(CatStats.variantMultiplier("gold")).to.equal(Config.GoldMultiplier)
+				expect(CatStats.variantMultiplier("golden")).to.equal(1)
+				expect(CatStats.variantMultiplier("galaxy")).to.equal(1)
+				expect(CatStats.variantMultiplier(nil)).to.equal(1)
+				expect(Economy.variantMultiplier("gold")).to.equal(Config.GoldMultiplier)
+			end
+		)
 
 		it("stars: five equal bands of 20 charm", function()
 			expect(CatStats.stars(0)).to.equal(1)
@@ -97,12 +120,16 @@ return function()
 
 	describe("XP and levels", function()
 		it(
-			"xpToNext is CatXpBase x level and 0 at the cap; level 10 takes 45 minutes placed",
+			"xpToNext is CatXpBase x level and 0 at the cap; level 10 takes 90 minutes working, 50 about 41 hours",
 			function()
 				expect(CatStats.xpToNext(1)).to.equal(Config.CatXpBase)
 				expect(CatStats.xpToNext(9)).to.equal(Config.CatXpBase * 9)
 				expect(CatStats.xpToNext(Config.CatMaxLevel)).to.equal(0)
-				expect(CatStats.xpForLevel(Config.CatMaxLevel)).to.equal(45 * 60)
+				expect(CatStats.xpForLevel(2)).to.equal(2 * 60)
+				expect(CatStats.xpForLevel(10)).to.equal(90 * 60)
+				expect(math.abs(CatStats.xpForLevel(Config.CatMaxLevel) / 3600 - 41) < 0.5).to.equal(
+					true
+				)
 				expect(CatStats.xpForLevel(1)).to.equal(0)
 			end
 		)
@@ -138,8 +165,42 @@ return function()
 			expect(legacy.xp).to.equal(0)
 			expect(legacy.charm).to.equal(CatStats.DEFAULT_CHARM)
 			expect(CatStats.addXp(legacy, 0 / 0)).to.equal(0)
+			expect(CatStats.addXp(legacy, math.huge)).to.equal(0)
 			expect(legacy.xp).to.equal(0)
 		end)
+
+		it("keeps fractions of XP, so a resting cat's quarter a second adds up (v0.12)", function()
+			local instance = cat("tabby")
+			for _ = 1, 4 * Config.CatXpBase - 1 do
+				CatStats.addXp(instance, 0.25)
+			end
+			expect(instance.level).to.equal(1)
+			expect(instance.xp).to.be.near(Config.CatXpBase - 0.25)
+			expect(CatStats.view(instance).xp).to.equal(Config.CatXpBase - 1)
+			expect(CatStats.addXp(instance, 0.25)).to.equal(1)
+			expect(instance.level).to.equal(2)
+			expect(instance.xp).to.be.near(0)
+		end)
+
+		it(
+			"remapLevel moves an old 10-level cat onto the 50-level curve without lowering its rating",
+			function()
+				expect(CatStats.remapLevel(1)).to.equal(1)
+				expect(CatStats.remapLevel(2)).to.equal(4)
+				expect(CatStats.remapLevel(3)).to.equal(6)
+				expect(CatStats.remapLevel(10)).to.equal(24)
+				expect(CatStats.remapLevel(99)).to.equal(24)
+				expect(CatStats.remapLevel(0)).to.equal(1)
+				expect(CatStats.remapLevel(0 / 0)).to.equal(1)
+				for old = 1, CatStats.OLD_MAX_LEVEL do
+					local before = 1 + 0.05 * (old - 1)
+					expect(CatStats.levelMultiplier(CatStats.remapLevel(old)) >= before - 1e-9).to.equal(
+						true
+					)
+				end
+				expect(CatStats.levelMultiplier(24)).to.be.near(1.46)
+			end
+		)
 	end)
 
 	describe("rating = rarity rate x charm x level x variant", function()
@@ -149,12 +210,18 @@ return function()
 			end
 		end)
 
-		it("a perfect max level Tabby rates 1.74, a Void 43.5", function()
-			expect(CatStats.rating(cat("tabby", 100, Config.CatMaxLevel))).to.be.near(1.2 * 1.45)
-			expect(CatStats.maxRating("tabby")).to.be.near(1.2 * 1.45)
-			expect(CatStats.maxRating("void")).to.be.near(25 * 1.2 * 1.45)
-			expect(CatStats.maxRating("nope")).to.equal(0)
-		end)
+		it(
+			"a perfect level 50 Tabby rates 2.376, a Ninja Cat 59.4 (v0.12: 1.98x at the cap)",
+			function()
+				expect(CatStats.levelMultiplier(Config.CatMaxLevel)).to.be.near(1.98)
+				expect(CatStats.rating(cat("tabby", 100, Config.CatMaxLevel))).to.be.near(
+					1.2 * 1.98
+				)
+				expect(CatStats.maxRating("tabby")).to.be.near(2.376)
+				expect(CatStats.maxRating("void")).to.be.near(25 * 1.2 * 1.98)
+				expect(CatStats.maxRating("nope")).to.equal(0)
+			end
+		)
 
 		it(
 			"a one star Common is still worth more than nothing and less than a neutral one",
@@ -165,12 +232,34 @@ return function()
 			end
 		)
 
-		it("variants multiply the rating and unknown cats rate 0", function()
-			local golden = cat("tabby")
-			golden.variant = "golden"
-			expect(CatStats.rating(golden)).to.equal(2)
+		it("a gold cat multiplies the rating and unknown cats rate 0", function()
+			local gold = cat("tabby")
+			gold.variant = "gold"
+			expect(CatStats.rating(gold)).to.be.near(1.5, 1e-9)
+			expect(CatStats.isBetter(gold, cat("tabby"))).to.equal(true)
 			expect(CatStats.rating(cat("dragon"))).to.equal(0)
 		end)
+
+		it(
+			"a perfect level 50 gold Wizard Cat rates 267.3 (section 4b's 195.75 was at the old level 10 cap)",
+			function()
+				local best = cat("midnight", 100, Config.CatMaxLevel)
+				best.variant = "gold"
+				expect(CatStats.rating(best)).to.be.near(75 * 1.2 * 1.98 * 1.5, 1e-9)
+				expect(CatStats.rating(best)).to.be.near(267.3, 1e-9)
+			end
+		)
+
+		it(
+			"maxRating is the base variant figure; the book's gold line is that times 1.5",
+			function()
+				expect(CatStats.maxRating("midnight")).to.be.near(75 * 1.2 * 1.98, 1e-9)
+				expect(CatStats.maxRating("midnight") * Config.GoldMultiplier).to.be.near(
+					267.3,
+					1e-9
+				)
+			end
+		)
 
 		it("isBetter orders by rating, then rarity, then id, then uid", function()
 			local a = cat("tabby", 100)
@@ -199,12 +288,16 @@ return function()
 		end)
 
 		it("view adds xpToNext, stars and rating for the UI", function()
-			local instance = cat("siamese", 85, 3, "counter_1")
-			instance.xp = 40
+			local instance = cat("calico", 85, 3, "barista_1")
+			instance.xp = 40.75 -- shown floored
+			instance.name = "Mochi"
+			instance.method = "bait"
 			local view = CatStats.view(instance)
 			expect(view.uid).to.equal(instance.uid)
-			expect(view.catId).to.equal("siamese")
-			expect(view.spotId).to.equal("counter_1")
+			expect(view.catId).to.equal("calico")
+			expect(view.spotId).to.equal("barista_1")
+			expect(view.name).to.equal("Mochi")
+			expect(view.method).to.equal("bait")
 			expect(view.level).to.equal(3)
 			expect(view.xp).to.equal(40)
 			expect(view.xpToNext).to.equal(Config.CatXpBase * 3)
@@ -217,28 +310,233 @@ return function()
 		end)
 	end)
 
+	-- data-model v0.13.16 section 4b (F86, Derek 2026-10-28 13:55): a Legendary or Mythical from an older area earns
+	-- with the incomeMultiplier of the area one step behind the owner's newest, never less than its own. F95
+	-- (economy-ladder.md section 1) turns it off (KeepUpRarities empty) now that each area pays three times the one
+	-- before; the code stays, so these specs switch it back on by config to check it still works.
+	local function withKeepUp(fn: () -> ())
+		local was = Config.KeepUpRarities
+		Config.KeepUpRarities = { Legendary = true, Mythical = true }
+		local ok, err = pcall(fn)
+		Config.KeepUpRarities = was
+		if not ok then
+			error(err, 0)
+		end
+	end
+
+	describe("keep up (v0.13.16, F86; off since F95)", function()
+		it("is off: an older Legendary keeps its own area's rate at every tier", function()
+			expect(next(Config.KeepUpRarities)).to.equal(nil)
+			expect(CatStats.rating(cat("void"), 5)).to.be.near(25, 1e-9)
+			expect(CatStats.rating(cat("neon"), 5)).to.be.near(75, 1e-9)
+			expect(CatStats.rating(cat("bottlecap"), 5)).to.be.near(25 * 81, 1e-9)
+			expect(CatStats.isBetter(cat("neon"), cat("bottlecap"), 5)).to.equal(false)
+		end)
+
+		it(
+			"switched back on by config, follows the area one step behind the owner's newest",
+			function()
+				withKeepUp(function()
+					local rows = { [1] = 1, [2] = 1, [3] = 3, [4] = 9, [5] = 27 }
+					for tier, multiplier in rows do
+						local void = Catalog.getCat("void") :: any
+						expect(CatStats.areaMultiplier(void, tier)).to.be.near(multiplier, 1e-9)
+						expect(CatStats.rating(cat("void"), tier)).to.be.near(25 * multiplier, 1e-9)
+						expect(CatStats.rating(cat("neon"), tier)).to.be.near(75 * multiplier, 1e-9)
+					end
+					-- a Woods Legendary is the area one step behind at Tier 5, so it keeps its own
+					expect(CatStats.rating(cat("old_oak"), 5)).to.be.near(25 * 27, 1e-9)
+					-- a spare Mythical keeps up from the area it came from
+					local midnight = Catalog.getCat("midnight") :: any
+					expect(midnight.area).to.equal("spare")
+					expect(CatStats.rating(cat("midnight"), 5)).to.be.near(75 * 27, 1e-9)
+				end)
+			end
+		)
+
+		it(
+			"leaves Epics and below, and every cat without a tier, at their own area's rate",
+			function()
+				for _, def in Catalog.cats do
+					expect(CatStats.rating(cat(def.id))).to.equal(def.incomePerSecond)
+					-- F96: an exclusive cat (the Bellhop Cat) earns at the newest area's rate (StarterCat.spec)
+					if Config.KeepUpRarities[def.rarity] ~= true and def.exclusive ~= true then
+						for tier = 1, 5 do
+							expect(CatStats.rating(cat(def.id), tier)).to.equal(def.incomePerSecond)
+						end
+					end
+				end
+			end
+		)
+
+		it(
+			"never lowers a cat below its own area: the newest area's Legendary and Mythical stay on top",
+			function()
+				withKeepUp(function()
+					for _, def in Catalog.cats do
+						for tier = 1, 5 do
+							expect(CatStats.rating(cat(def.id), tier) >= def.incomePerSecond).to.equal(
+								true
+							)
+						end
+					end
+					expect(CatStats.rating(cat("eclipse"), 5)).to.be.near(75 * 81, 1e-9)
+					expect(CatStats.rating(cat("neon"), 5)).to.be.near(75 * 27, 1e-9)
+				end)
+			end
+		)
+
+		it("sorts and pays with the rating at the owner's tier", function()
+			withKeepUp(function()
+				expect(CatStats.isBetter(cat("neon"), cat("old_oak"), 5)).to.equal(true)
+				local list = { cat("old_oak"), cat("neon") }
+				table.sort(list, CatStats.betterFor(5))
+				expect(list[1].catId).to.equal("neon")
+				expect(Economy.catRate(cat("void", 50, 1, "barista_1"), 5)).to.be.near(
+					25 * 27,
+					1e-9
+				)
+				expect(CatStats.view(cat("void"), 5).rating).to.be.near(25 * 27, 1e-9)
+				local profile = ProfileSchema.template(1000)
+				profile.tier = 5
+				profile.cats.starter_tabby = nil :: any
+				profile.cats.ninja = cat("void", 50, 1, "barista_1")
+				expect(Economy.incomePerSecond(profile)).to.be.near(
+					25 * 27 * Economy.cafeMultiplier(profile) * Economy.tierMultiplier(profile),
+					1e-9
+				)
+			end)
+		end)
+	end)
+
+	-- F95 (economy-ladder.md section 6): a shop-only cat (`exclusive`) earns like a cat of its rarity from the
+	-- owner's newest area and counts toward no "different cats", Index page or milestone.
+	describe("exclusive cats (F95)", function()
+		local function withShopCat(fn: (def: any) -> ())
+			local def: any = {
+				id = "spec_grand_cat",
+				name = "Spec Grand Cat",
+				rarity = "Mythical",
+				incomePerSecond = 75,
+				area = "spare",
+				incomeArea = "alley",
+				favoriteRole = "barista",
+				description = "",
+				pattern = "solid",
+				color = { 255, 255, 255 },
+				exclusive = true,
+			}
+			Catalog.catsById[def.id] = def
+			local ok, err = pcall(fn, def)
+			Catalog.catsById[def.id] = nil
+			if not ok then
+				error(err, 0)
+			end
+		end
+
+		it("earns at the newest area's multiplier: 75 at Tier 1, 6,075 at Tier 5", function()
+			withShopCat(function(def)
+				local rows = { [1] = 1, [2] = 3, [3] = 9, [4] = 27, [5] = 81 }
+				for tier, multiplier in rows do
+					expect(CatStats.areaMultiplier(def, tier)).to.be.near(multiplier, 1e-9)
+					expect(CatStats.rating(cat(def.id), tier)).to.be.near(75 * multiplier, 1e-9)
+				end
+				expect(CatStats.areaMultiplier(def)).to.be.near(1, 1e-9) -- no tier: its own
+				-- done-when 6: at Tier 3 it earns like a Neighbourhood Mythical
+				local neighbourhoodMythical = 0
+				for _, other in Catalog.cats do
+					if other.area == "neighbourhood" and other.rarity == "Mythical" then
+						neighbourhoodMythical = other.incomePerSecond
+					end
+				end
+				expect(CatStats.rating(cat(def.id), 3)).to.be.near(neighbourhoodMythical, 1e-9)
+			end)
+		end)
+
+		it("counts toward no different cats, Mythical count or Index page", function()
+			withShopCat(function(def)
+				local profile: any = ProfileSchema.template(1000)
+				local before = Economy.distinctCats(profile)
+				local mythicalBefore = Economy.distinctCatsAtLeast(profile, "Mythical")
+				profile.collection[def.id] = 1000
+				expect(Economy.distinctCats(profile)).to.equal(before)
+				expect(Economy.distinctCatsAtLeast(profile, "Mythical")).to.equal(mythicalBefore)
+				local IndexRewards = require(Shared.IndexRewards)
+				expect(IndexRewards.progress(profile.collection, IndexRewards.ALL)).to.equal(
+					IndexRewards.progress({}, IndexRewards.ALL) + before
+				)
+			end)
+		end)
+	end)
+
 	describe("Economy integration", function()
 		it("a fresh profile still earns 1.5 per second (starter Tabby is neutral)", function()
 			local profile = ProfileSchema.template(1000)
-			expect(profile.version).to.equal(2)
-			expect(profile.renovations).to.equal(0)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
+			expect(profile.tier).to.equal(1)
+			expect((profile :: any).renovations).never.to.be.ok()
 			expect(profile.cats.starter_tabby.charm).to.equal(CatStats.DEFAULT_CHARM)
+			expect(profile.cats.starter_tabby.spotId).to.equal("barista_1")
 			expect(Economy.incomePerSecond(profile)).to.be.near(1.5)
 		end)
 
-		it("catRate uses the rating: a perfect Tabby on the counter earns 1.8", function()
-			expect(Economy.catRate(cat("tabby", 100, 1, "counter_1"))).to.be.near(1.8)
-			expect(Economy.catRate(cat("tabby", 100, 1, "window_1"))).to.be.near(1.2)
+		it(
+			"catRate uses the rating: a perfect Tabby as Barista earns 1.8, as Waiter 1.2",
+			function()
+				expect(Economy.catRate(cat("tabby", 100, 1, "barista_1"))).to.be.near(1.8)
+				expect(Economy.catRate(cat("tabby", 100, 1, "waiter_1"))).to.be.near(1.2)
+			end
+		)
+
+		it(
+			"settle grants XP to every owned cat: 1.5 a second in its favorite role, 1 in another, 0.25 resting",
+			function()
+				local profile = ProfileSchema.template(1000)
+				profile.cats.waiter = cat("tabby", 50, 1, "waiter_1")
+				profile.cats.resting = cat("snow")
+				Economy.settle(profile, 1000 + 80)
+				expect(profile.cats.starter_tabby.level).to.equal(2) -- the Barista is the Tabby's favorite: 120 XP
+				expect(profile.cats.starter_tabby.xp).to.be.near(0)
+				expect(profile.cats.waiter.level).to.equal(1)
+				expect(profile.cats.waiter.xp).to.be.near(80)
+				expect(profile.cats.resting.level).to.equal(1)
+				expect(profile.cats.resting.xp).to.be.near(20)
+				expect(profile.stats.catLevelUps).to.equal(1)
+				Economy.settle(profile, 1000 + 81)
+				expect(profile.cats.resting.xp).to.be.near(20.25)
+				expect(profile.stats.catLevelUps).to.equal(1)
+			end
+		)
+
+		it("rarity and night do not change XP; an unknown spot counts as resting", function()
+			-- greeter is neither the Ninja Cat's favorite (waiter) nor the Tabby's (barista)
+			expect(Economy.catXpRate(cat("void", 50, 1, "greeter_1"))).to.equal(
+				Config.CatXpPerSecondPlaced
+			)
+			expect(Economy.catXpRate(cat("tabby", 50, 1, "greeter_1"))).to.equal(
+				Config.CatXpPerSecondPlaced
+			)
+			expect(Economy.catXpRate(cat("void", 50, 1, "waiter_1"))).to.equal(
+				Config.CatXpPerSecondPlaced * Config.CatXpFavoriteMultiplier
+			)
+			expect(Economy.catXpRate(cat("tabby", 50, 1, "nowhere"))).to.equal(
+				Config.CatXpPerSecondResting
+			)
+			local profile = ProfileSchema.template(0)
+			local dusk = Config.DayLengthSeconds
+			profile.lastTick = dusk
+			Economy.settle(profile, dusk + 40, 0) -- all night: the Barista still earns 1.5 a second
+			expect(profile.cats.starter_tabby.xp).to.be.near(60)
 		end)
 
-		it("settle grants one XP per second to placed cats only", function()
-			local profile = ProfileSchema.template(1000)
-			profile.cats.resting = cat("snow")
-			Economy.settle(profile, 1000 + Config.CatXpBase + 5)
-			expect(profile.cats.starter_tabby.level).to.equal(2)
-			expect(profile.cats.starter_tabby.xp).to.equal(5)
-			expect(profile.cats.resting.level).to.equal(1)
-			expect(profile.cats.resting.xp).to.equal(0)
+		it("a long settle counts every level gained in stats.catLevelUps", function()
+			local profile = ProfileSchema.template(0)
+			Economy.settle(
+				profile,
+				math.ceil(CatStats.xpForLevel(5) / Config.CatXpFavoriteMultiplier)
+			)
+			expect(profile.cats.starter_tabby.level).to.equal(5)
+			expect(profile.stats.catLevelUps).to.equal(4)
 		end)
 
 		it("coins in a settle window use the rate from before the level up", function()
@@ -250,80 +548,79 @@ return function()
 			expect(Economy.incomePerSecond(profile)).to.be.near(1.5 * (1 + Config.CatLevelBonus))
 		end)
 
-		it("prestige multiplier is 1 until Renovate ships, then +RenovateBonus each", function()
-			local profile = ProfileSchema.template(0)
-			expect(Economy.prestigeMultiplier(profile)).to.equal(1)
+		it("v0.3: the tier multiplier replaces prestige and renovations (section 11)", function()
+			local economy = Economy :: any
+			expect(economy.prestigeMultiplier).never.to.be.ok()
+			local profile: any = ProfileSchema.template(0)
 			profile.renovations = 2
-			expect(Economy.prestigeMultiplier(profile)).to.be.near(1 + 2 * Config.RenovateBonus)
-			expect(Economy.incomePerSecond(profile)).to.be.near(
-				1.5 * (1 + 2 * Config.RenovateBonus)
-			)
-			local legacy: any = profile
-			legacy.renovations = nil
-			expect(Economy.prestigeMultiplier(profile)).to.equal(1)
+			expect(Economy.incomePerSecond(profile)).to.be.near(1.5)
 		end)
 
-		it("migrate keeps saved stats, defaults missing ones and clamps nonsense", function()
-			local raw: any = ProfileSchema.template(0)
-			raw.version = 1
-			raw.renovations = nil
-			raw.cats = {
-				old = {
-					uid = "old",
-					catId = "tabby",
-					variant = "base",
-					caughtAt = 5,
-					spotId = "counter_1",
-				},
-				kept = {
-					uid = "kept",
-					catId = "void",
-					caughtAt = 5,
-					level = 7,
-					xp = 30,
-					charm = 91,
-				},
-				wild = {
-					uid = "wild",
-					catId = "snow",
-					caughtAt = 5,
-					level = 99,
-					xp = -4,
-					charm = 1000,
-				},
-			}
-			local profile = ProfileSchema.migrate(raw, 100)
-			expect(profile.version).to.equal(2)
-			expect(profile.renovations).to.equal(0)
-			expect(profile.cats.old.level).to.equal(1)
-			expect(profile.cats.old.xp).to.equal(0)
-			expect(profile.cats.old.charm).to.equal(CatStats.DEFAULT_CHARM)
-			expect(profile.cats.kept.level).to.equal(7)
-			expect(profile.cats.kept.xp).to.equal(30)
-			expect(profile.cats.kept.charm).to.equal(91)
-			expect(profile.cats.wild.level).to.equal(Config.CatMaxLevel)
-			expect(profile.cats.wild.xp).to.equal(0)
-			expect(profile.cats.wild.charm).to.equal(100)
-		end)
+		it(
+			"migrate keeps charm, remaps levels from an old save, defaults missing ones and clamps nonsense",
+			function()
+				local raw: any = ProfileSchema.template(0)
+				raw.version = 1
+				raw.renovations = nil
+				raw.cats = {
+					old = {
+						uid = "old",
+						catId = "tabby",
+						variant = "base",
+						caughtAt = 5,
+						spotId = "counter_1",
+					},
+					kept = {
+						uid = "kept",
+						catId = "void",
+						caughtAt = 5,
+						level = 7,
+						xp = 30,
+						charm = 91,
+					},
+					wild = {
+						uid = "wild",
+						catId = "snow",
+						caughtAt = 5,
+						level = 99,
+						xp = -4,
+						charm = 1000,
+					},
+				}
+				local profile = ProfileSchema.migrate(raw, 100)
+				expect(profile.version).to.equal(ProfileSchema.VERSION)
+				expect((profile :: any).renovations).never.to.be.ok()
+				expect(profile.cats.old.level).to.equal(1)
+				expect(profile.cats.old.xp).to.equal(0)
+				expect(profile.cats.old.charm).to.equal(CatStats.DEFAULT_CHARM)
+				expect(profile.cats.kept.level).to.equal(16) -- v0.12: 1 + ceil(2.5 x 6), xp starts again
+				expect(profile.cats.kept.xp).to.equal(0)
+				expect(profile.cats.kept.charm).to.equal(91)
+				expect(profile.cats.wild.level).to.equal(24) -- clamped to the old cap of 10, then remapped
+				expect(profile.cats.wild.xp).to.equal(0)
+				expect(profile.cats.wild.charm).to.equal(100)
+			end
+		)
 	end)
 
-	-- Design v0.2: rescued cats tip more, and the gloves upgrade is now the net.
-	describe("rescued cats and the net (v0.2)", function()
-		it("gives only rescued == true the rescue multiplier", function()
-			expect(CatStats.rescuedMultiplier(true)).to.equal(Config.RescuedTipsMultiplier)
+	-- Design v0.3: a rescued cat keeps its flag for the book and analytics but pays no more (RescuedTipsMultiplier 1.0).
+	-- The gloves to net carry-over is a v1 and v2 save rule, so it lives in ProfileSchema.spec now.
+	describe("rescued cats (v0.3)", function()
+		it("rescuedMultiplier is 1 for everyone", function()
+			expect(Config.RescuedTipsMultiplier).to.equal(1)
+			expect(CatStats.rescuedMultiplier(true)).to.equal(1)
 			expect(CatStats.rescuedMultiplier(false)).to.equal(1)
 			expect(CatStats.rescuedMultiplier(nil)).to.equal(1)
 		end)
 
-		it("puts the rescue bonus inside the rating, so EquipBest and the cat card see it", function()
+		it("a rescued cat rates the same as a net cat and the view still shows the flag", function()
 			local plain = cat("tabby", 50, 1)
 			local rescued = cat("tabby", 50, 1)
 			rescued.rescued = true
-			expect(CatStats.rating(rescued)).to.be.near(CatStats.rating(plain) * Config.RescuedTipsMultiplier, 1e-9)
-			expect(CatStats.isBetter(rescued, plain)).to.equal(true)
+			expect(CatStats.rating(rescued)).to.equal(CatStats.rating(plain))
 			local view = CatStats.view(rescued)
 			expect(view.rescued).to.equal(true)
-			expect(view.rating).to.be.near(CatStats.rating(rescued), 1e-9)
+			expect(view.rating).to.equal(CatStats.rating(plain))
 			expect(CatStats.view(plain).rescued).to.equal(nil)
 		end)
 
@@ -339,31 +636,25 @@ return function()
 			expect(profile.cats.junk.rescued).to.equal(nil)
 			expect(profile.cats.plain.rescued).to.equal(nil)
 		end)
-
-		it("migrate carries a saved gloves level to the net", function()
-			expect(Catalog.renamedUpgrades.gloves).to.equal("net")
-			local raw: any = ProfileSchema.template(0)
-			raw.upgradeLevels = { gloves = 2 }
-			local profile = ProfileSchema.migrate(raw, 100)
-			expect(profile.upgradeLevels.net).to.equal(2)
-			expect(profile.upgradeLevels.gloves).to.equal(nil)
+	end)
+	describe("the cat lock (F62, section 4)", function()
+		it("gold, Legendary and Mythical cats arrive locked; the rest do not", function()
+			local seen: { [string]: boolean } = {}
+			for _, def in Catalog.cats do
+				local best = def.rarity == "Legendary" or def.rarity == "Mythical"
+				expect(CatStats.arrivesLocked(def.id, "base")).to.equal(best)
+				expect(CatStats.arrivesLocked(def.id, "gold")).to.equal(true)
+				seen[def.rarity] = true
+			end
+			expect(seen.Legendary and seen.Mythical and seen.Common).to.equal(true)
+			expect(CatStats.arrivesLocked("no_such_cat", "base")).to.equal(false)
 		end)
 
-		it("migrate keeps the saved net level when gloves was saved too", function()
-			local raw: any = ProfileSchema.template(0)
-			raw.upgradeLevels = { gloves = 3, net = 1 }
-			local profile = ProfileSchema.migrate(raw, 100)
-			expect(profile.upgradeLevels.net).to.equal(1)
-			expect(profile.upgradeLevels.gloves).to.equal(nil)
-		end)
-
-		it("migrate clamps a carried gloves level to the net's range", function()
-			local net = Catalog.getUpgrade("net")
-			expect(net).to.be.ok()
-			local raw: any = ProfileSchema.template(0)
-			raw.upgradeLevels = { gloves = 99 }
-			local profile = ProfileSchema.migrate(raw, 100)
-			expect(profile.upgradeLevels.net).to.equal(if net ~= nil then net.maxLevel else -1)
+		it("the view says whether it is locked, false when the field is missing", function()
+			local instance = CatStats.newInstance("u1", "tabby", 100)
+			expect(CatStats.view(instance).locked).to.equal(false)
+			instance.locked = true
+			expect(CatStats.view(instance).locked).to.equal(true)
 		end)
 	end)
 end

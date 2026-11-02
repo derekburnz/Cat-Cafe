@@ -1,26 +1,44 @@
 --!strict
--- Short messages that drop in under the cafe pill and fade out. Max four on screen.
+-- Short messages that drop in under the tier pill and travel row and fade out. Max four on screen.
+-- rainbow(text, rarity) is the rainbow stray's shout-out (F99, rainbow-coat.md section 2): the announce pill with a
+-- slowly turning rainbow edge (Components/Rainbow), silent as the sound is Sound-Agent's shimmer.
+-- prize(title, prize) is the prize toast (F94 rule 3, F100 camp extras): the line on the green pill with what it
+-- paid as at most two little pictures after it (Components/PrizeChips, outlined for the pill); it needs the catalog
+-- (setCatalog) for the crates' and potions' pictures. Silent: the moment that pays brings its own sound.
 
 local Create = require(script.Parent.Parent.Components.Create)
+local Outline = require(script.Parent.Parent.Components.Outline)
+local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
+local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
+local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 export type Toasts = {
 	screenGui: ScreenGui,
-	show: (self: Toasts, text: string, kind: Types.ToastKind?) -> (),
+	show: (self: Toasts, text: string, kind: Types.ToastKind?, quiet: boolean?) -> (),
+	announce: (self: Toasts, text: string, rarity: string?) -> (),
+	rainbow: (self: Toasts, text: string, rarity: string?) -> (),
+	prize: (self: Toasts, text: string, prize: Types.IndexPrize?) -> (),
+	setCatalog: (self: Toasts, catalog: Types.Catalog) -> (),
 	destroy: (self: Toasts) -> (),
 }
 
 local LIFETIME = 2.4
+local ANNOUNCE_LIFETIME = 4 -- server shout-outs stay a little longer
 local MAX_VISIBLE = 4
+local PRIZE_LIFETIME = 3.2 -- a prize toast stays long enough to read its pictures
+local PRIZE_TILE = 30
+local PRIZE_TEXT_MAX = 300 -- the line's widest on a prize toast, leaving room for the pictures
 
-local KIND_COLORS: { [string]: { bg: Color3, text: Color3 } } = {
-	info = { bg = Theme.colors.cocoaDeep, text = Theme.colors.paper },
-	good = { bg = Theme.colors.good, text = Theme.colors.goodText },
-	warn = { bg = Theme.colors.warn, text = Theme.colors.paper },
-	announce = { bg = Theme.colors.gold, text = Theme.colors.goldText },
+-- Every kind is white outlined text on a coloured pill with a dark border (simulator notifications).
+local KIND_COLORS: { [string]: Color3 } = {
+	info = Theme.colors.cocoaDeep,
+	good = Theme.colors.good,
+	warn = Theme.colors.warn,
+	announce = Theme.colors.gold,
 }
 
 local Toasts = {}
@@ -46,7 +64,7 @@ function Toasts.new(parent: Instance): Toasts
 		Name = "Stack",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 80),
+		Position = UDim2.new(0.5, 0, 0, 148), -- under the tier pill and the travel row
 		Size = UDim2.fromOffset(420, 300),
 		Parent = root,
 	}, {
@@ -58,36 +76,154 @@ function Toasts.new(parent: Instance): Toasts
 		}),
 	})
 	self.screenGui = screenGui
+	self._catalog = nil :: Types.Catalog?
 	self._order = 0
-	self._alive = {} :: { TextLabel }
+	self._alive = {} :: { Frame }
 	if parent then
 		screenGui.Parent = parent
 	end
 	return self :: Toasts
 end
 
-function Toasts.show(self: any, text: string, kind: Types.ToastKind?)
-	local colors = KIND_COLORS[kind or "info"] or KIND_COLORS.info
+-- Without the server's rarity, a shout-out takes the colour of the last rarity it names as a whole word: the
+-- message starts with a DisplayName, so "EpicGamer caught a Common Tabby" is Common (reviewer N58).
+local function announceColor(text: string): Color3?
+	local best: Color3? = nil
+	local bestAt = 0
+	for _, rarity in Theme.rarityOrder do
+		local from = 1
+		while true do
+			local at, finish = text:find("%f[%a]" .. rarity .. "%f[%A]", from)
+			if not at or not finish then
+				break
+			end
+			if at > bestAt then
+				best = Theme.rarityColor(rarity)
+				bestAt = at
+			end
+			from = finish + 1
+		end
+	end
+	return best
+end
+
+-- quiet skips the toast's own sound when the moment already has one (a miss hisses).
+function Toasts.show(self: any, text: string, kind: Types.ToastKind?, quiet: boolean?)
+	if kind == "announce" then
+		self:announce(text)
+		return
+	end
+	-- warn covers can't afford, not allowed and bumps: the gentle bonk; everything else the small pop
+	if not quiet then
+		Sound.play(if kind == "warn" then "uiError" else "uiToast")
+	end
+	self:_push(text, KIND_COLORS[kind or "info"] or KIND_COLORS.info, LIFETIME)
+end
+
+-- Server shout-outs (Pet Simulator 99 style) on the colour of the cat's rarity, a little longer than a toast.
+-- Silent: Audio plays the shout-out sting from the Announce remote itself.
+function Toasts.announce(self: any, text: string, rarity: string?)
+	local fill = if rarity and (Theme.rarity :: any)[rarity]
+		then Theme.rarityColor(rarity)
+		else announceColor(text) or KIND_COLORS.announce
+	self:_push(text, fill, ANNOUNCE_LIFETIME)
+end
+
+-- A rainbow stray's shout-out: the announce pill in the cat's rarity colour with the rainbow bands on its edge.
+function Toasts.rainbow(self: any, text: string, rarity: string?)
+	local fill = if rarity and (Theme.rarity :: any)[rarity]
+		then Theme.rarityColor(rarity)
+		else KIND_COLORS.announce
+	self:_push(text, fill, ANNOUNCE_LIFETIME, true)
+end
+
+function Toasts.setCatalog(self: any, catalog: Types.Catalog)
+	self._catalog = catalog
+end
+
+function Toasts.prize(self: any, text: string, prize: Types.IndexPrize?)
+	self:_push(text, KIND_COLORS.good, PRIZE_LIFETIME, false, prize)
+end
+
+function Toasts._push(
+	self: any,
+	text: string,
+	fill: Color3,
+	lifetime: number,
+	bands: boolean?,
+	prize: Types.IndexPrize?
+)
 	self._order += 1
-	local toast: TextLabel = Create("TextLabel", {
+	local toast: Frame = Create("Frame", {
 		Name = "Toast",
-		BackgroundColor3 = colors.bg,
+		BackgroundColor3 = fill,
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 38),
-		FontFace = Theme.fonts.bodyBold,
-		TextSize = Theme.sizes.textBody,
-		TextColor3 = colors.text,
-		TextTransparency = 1,
-		Text = text,
+		Size = UDim2.fromOffset(0, 40),
 		LayoutOrder = self._order,
 		Parent = self._stack,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 16), PaddingRight = UDim.new(0, 16) }),
-		Create("UISizeConstraint", { MaxSize = Vector2.new(420, 38) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 18), PaddingRight = UDim.new(0, 18) }),
+		Create(
+			"UISizeConstraint",
+			{ MaxSize = Vector2.new(if prize ~= nil then 540 else 460, 40) }
+		),
 	})
+	local border = Outline.border(toast)
+	border.Transparency = 1
+	if bands then
+		border.Thickness += 1
+		Rainbow.stroke(border)
+	end
+	local message: TextLabel = Create("TextLabel", {
+		Name = "Text",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromScale(0, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 1,
+		TextColor3 = Theme.colors.white,
+		TextTransparency = 1,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Text = text,
+		Parent = toast,
+	}, {
+		Create("UISizeConstraint", {
+			MaxSize = Vector2.new(if prize ~= nil then PRIZE_TEXT_MAX else 424, 40),
+		}),
+	})
+	local textOutline = Outline.text(message)
+	textOutline.Transparency = 1
+	local chips: PrizeChips.PrizeChips? = nil
+	if prize ~= nil then
+		-- the line, then the pictures on the same pill
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Parent = toast,
+		})
+		message.LayoutOrder = 1
+		local row = PrizeChips.new({
+			parent = toast,
+			name = "Prize",
+			tile = PRIZE_TILE,
+			textSize = Theme.sizes.textSmall,
+			outlined = true,
+			maxPictures = 2,
+			showBonus = false,
+			layoutOrder = 2,
+		})
+		local catalog: Types.Catalog? = self._catalog
+		if catalog then
+			row:setCatalog(catalog)
+		end
+		row:set(prize)
+		chips = row
+	end
 	table.insert(self._alive, toast)
 	while #self._alive > MAX_VISIBLE do
 		local oldest = table.remove(self._alive, 1)
@@ -95,17 +231,32 @@ function Toasts.show(self: any, text: string, kind: Types.ToastKind?)
 			oldest:Destroy()
 		end
 	end
-	Tween.to(toast, Tween.FAST, { BackgroundTransparency = 0.08, TextTransparency = 0 })
-	task.delay(LIFETIME, function()
+	Tween.to(toast, Tween.FAST, { BackgroundTransparency = 0 })
+	Tween.to(border, Tween.FAST, { Transparency = 0 })
+	Tween.to(message, Tween.FAST, { TextTransparency = 0 })
+	Tween.to(textOutline, Tween.FAST, { Transparency = 0 })
+	Tween.popIn(toast, 0.8)
+	task.delay(lifetime, function()
 		if not toast.Parent then
+			if chips then
+				chips:destroy()
+			end
 			return
 		end
-		local out =
-			Tween.to(toast, Tween.SETTLE, { BackgroundTransparency = 1, TextTransparency = 1 })
+		if chips then
+			chips.frame.Visible = false
+		end
+		Tween.to(border, Tween.SETTLE, { Transparency = 1 })
+		Tween.to(message, Tween.SETTLE, { TextTransparency = 1 })
+		Tween.to(textOutline, Tween.SETTLE, { Transparency = 1 })
+		local out = Tween.to(toast, Tween.SETTLE, { BackgroundTransparency = 1 })
 		out.Completed:Once(function()
 			local index = table.find(self._alive, toast)
 			if index then
 				table.remove(self._alive, index)
+			end
+			if chips then
+				chips:destroy()
 			end
 			toast:Destroy()
 		end)

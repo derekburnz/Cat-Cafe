@@ -53,7 +53,7 @@ def build_crate(mat):
     b = Builder()
     for x in (-0.68, 0.68):
         for y in (-0.68, 0.68):
-            b.box_base((x, y, 0), (0.15, 0.15, 1.5), "dark_wood", bevel=False)
+            b.box_base((x, y, 0), (0.15, 0.15, 1.48), "dark_wood", bevel=False)                   # tops hidden in the slats
     for z in (0.2, 0.65, 1.1):
         for sgn in (-1, 1):
             b.box((0, sgn * 0.72, z + 0.15), (1.5, 0.08, 0.3), "caramel_wood", bevel=False)
@@ -97,7 +97,65 @@ def build_puddle(mat):
     return [b.finalize("CatCafe_Alley_Puddle", mat)]
 
 
+def build_trash_bin(mat):
+    """Rescue trap (trash_bin): wheelie bin with the lid flung open. Pivot base center; the Lid is
+    its own part pivoting on the hinge so it can rattle. The stuck cat stands inside with head and
+    front paws over the rim (poses.STUCK_POSES)."""
+    b = Builder()
+    w, d, h = 1.9, 1.7, 2.4
+    b.box_base((0, 0, 0.15), (w, d, h - 0.15), "dumpster_green")
+    b.box_base((0, 0, h - 0.04), (w + 0.12, d + 0.12, 0.14), "concrete_dark")                 # rim
+    b.box((0, 0, h + 0.06), (w - 0.1, d - 0.1, 0.04), "fur_black", bevel=False)               # trash inside
+    b.box((0.45, 0.2, h + 0.12), (0.5, 0.45, 0.16), "cardboard", bevel=False, rot=(math.radians(25), "Z"))
+    lid = Builder()                                                                          # own part, pivot on the hinge
+    a = math.radians(75)                                                                     # flung back past upright
+    lid.box((0, 0.85 * math.cos(a), 0.85 * math.sin(a)), (w + 0.1, 1.7, 0.1), "concrete_dark", rot=(a, "X"))
+    b.box((0, d / 2 + 0.16, h - 0.25), (w * 0.8, 0.12, 0.12), "metal")                       # handle bar
+    for x in (-w * 0.35, w * 0.35):
+        b.box((x, d / 2 + 0.09, h - 0.25), (0.08, 0.2, 0.08), "metal", bevel=False)            # brackets to the bin
+    for x in (-0.7, 0.7):
+        b.cyl((x, d / 2 - 0.1, 0.2), 0.22, 0.18, "fur_black", segments=10, rot=(math.radians(90), "Y"))  # wheels
+    b.box((0, -d / 2 - 0.01, 1.3), (0.9, 0.02, 0.5), "offwhite", bevel=False)                  # faded label
+    b.box((-0.5, -d / 2 - 0.012, 0.6), (0.3, 0.02, 0.7), "rust", bevel=False)
+    return [b.finalize("CatCafe_Alley_TrashBin_Bin", mat),
+            lid.finalize("CatCafe_Alley_TrashBin_Lid", mat, location=(0, d / 2 + 0.06, h + 0.1))]
+
+
+def build_garbage_bags(mat):
+    """Rescue trap (garbage_bag): three tied bin bags slumped together. Pivot base center.
+    The stuck cat lies under the front-right bag with its head and front paws out (-Y)."""
+    b = Builder()
+    for (x, y, r, sx, sz, sw) in ((-0.85, 0.55, 0.75, 1.0, 0.9, "concrete_dark"), (1.15, 1.0, 0.55, 1.0, 0.9, "fur_black"),
+                                  (0.45, 0.35, 0.95, 1.05, 0.95, "fur_black")):        # last one hides the cat
+        b.ico((x, y, r * sz), r, sw, subdivisions=1, scale=(sx, 1.0, sz))
+        b.pyramid((x, y, r * sz * 2 - 0.08), 0.22, 0.26, sw)                                    # tied neck
+        b.box((x, y, r * sz * 2 + 0.2), (0.3, 0.06, 0.08), "metal", bevel=False)               # twist tie
+    b.box((-0.75, -0.45, 0.04), (0.5, 0.35, 0.06), "cardboard", bevel=False, rot=(math.radians(-15), "Z"))
+    b.box((1.2, -0.75, 0.05), (0.18, 0.12, 0.08), "fish_belly", bevel=False)                   # fish bone
+    return [b.finalize("CatCafe_Alley_GarbageBags", mat)]
+
+
+def build_shop_window(mat):
+    """Cafe street window that glows at night. Frame + Pane objects; the Pane is glass by
+    day (Transparency 0.5) and Neon lamp_warm at night. Pivot at the wall, back-bottom center."""
+    frame = Builder()
+    frame.box((0, -0.03, 1.75), (4.0, 0.06, 3.1), "night_sky", bevel=False)                  # back plate (hidden by the pane)
+    for c, sz in (((-2.1, -0.15, 1.75), (0.2, 0.3, 3.5)), ((2.1, -0.15, 1.75), (0.2, 0.3, 3.5)),
+                  ((0, -0.15, 0.1), (4.4, 0.3, 0.2)), ((0, -0.15, 3.4), (4.4, 0.3, 0.2))):
+        frame.box(c, sz, "dark_wood")                                                          # border
+    frame.box((0, -0.35, 0.04), (4.8, 0.7, 0.1), "cream")                                      # sill, under the border
+    frame.box((0, -0.3, 3.6), (4.8, 0.6, 0.2), "cream")                                        # lintel
+    frame.box((0, -0.24, 1.75), (0.12, 0.08, 3.1), "dark_wood", bevel=False)                   # mullion
+    frame.box((0, -0.24, 1.75), (4.0, 0.08, 0.12), "dark_wood", bevel=False)
+    pane = Builder()
+    pane.box((0, -0.12, 1.75), (4.0, 0.04, 3.1), "lamp_warm", bevel=False)
+    return [frame.finalize("CatCafe_Alley_ShopWindow_Frame", mat), pane.finalize("CatCafe_Alley_ShopWindow_Pane", mat)]
+
+
 ASSETS = {
+    "CatCafe_Alley_TrashBin": (build_trash_bin, 600),
+    "CatCafe_Alley_GarbageBags": (build_garbage_bags, 600),
+    "CatCafe_Alley_ShopWindow": (build_shop_window, 500),
     "CatCafe_Alley_Dumpster": (build_dumpster, 1200),
     "CatCafe_Alley_TrashCan": (build_trash_can, 800),
     "CatCafe_Alley_StreetLamp": (build_street_lamp, 800),

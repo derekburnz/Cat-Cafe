@@ -1,21 +1,18 @@
 --!strict
--- Catalog.luau against docs/design/cat-cafe/data-model.md sections 2, 3, 5, 6, 7, 8, 9.
+-- Catalog.luau against docs/design/cat-cafe/data-model.md v0.3.1 sections 1 to 9.
 -- If the designer changes a number in the doc, change it here in the same commit.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
 
-	local SPOT_TYPES: { [string]: boolean } = { counter = true, window = true, cushion = true, shelf = true, cattree = true, patio = true }
-	local AREAS = { alley = true, park = true, both = true }
-	local RARITIES = { "Common", "Rare", "Epic", "Legendary", "Secret" }
-
-	local function ids(list: { any }): { string }
-		local out = {}
-		for _, def in ipairs(list) do
-			table.insert(out, def.id)
-		end
-		return out
-	end
+	local ROLES = { "barista", "waiter", "greeter", "entertainer" }
+	local ROLE_SET: { [string]: boolean } =
+		{ barista = true, waiter = true, greeter = true, entertainer = true }
+	local AREA_ORDER = { "alley", "park", "neighbourhood", "woods", "sewer" }
+	local RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
+	-- Per area: four Common, two Rare, two Epic, one Legendary, one Mythical (section 3).
+	local PER_AREA: { [string]: number } =
+		{ Common = 4, Rare = 2, Epic = 2, Legendary = 1, Mythical = 1 }
 
 	local function assertUniqueSnakeCaseIds(list: { any })
 		local seen = {}
@@ -25,6 +22,25 @@ return function()
 			expect(seen[def.id]).never.to.be.ok()
 			seen[def.id] = true
 		end
+	end
+
+	local function oddsTotal(odds: any): number
+		local total = 0
+		for _, rarity in ipairs(RARITIES) do
+			total += odds[rarity]
+		end
+		return total
+	end
+
+	local function assertFiveRarityOdds(odds: any)
+		local keys = 0
+		for key, value in pairs(odds) do
+			keys += 1
+			expect(Catalog.rarityRank[key]).to.be.ok()
+			expect(value >= 0).to.equal(true)
+		end
+		expect(keys).to.equal(5)
+		expect(oddsTotal(odds)).to.be.near(100, 1e-9)
 	end
 
 	describe("conventions (section 1)", function()
@@ -37,97 +53,413 @@ return function()
 			assertUniqueSnakeCaseIds(Catalog.spots)
 		end)
 
-		it("rarity order and rank agree", function()
+		it("rarity order and rank agree, and Mythical replaces Secret", function()
 			expect(Catalog.rarityOrder).to.deepEqual(RARITIES)
 			for rank, rarity in ipairs(RARITIES) do
 				expect(Catalog.rarityRank[rarity]).to.equal(rank)
 			end
+			expect(Catalog.rarities.Secret).never.to.be.ok()
+			expect(Catalog.rarityRank.Secret).never.to.be.ok()
 		end)
 
-		it("model names derive from ids", function()
+		it("model names derive from ids, and catsByModelName reverses it", function()
 			expect(Catalog.catModelName("tabby")).to.equal("CatCafe_Cat_Tabby")
-			expect(Catalog.catModelName("void")).to.equal("CatCafe_Cat_Void")
+			expect(Catalog.catModelName("maine_coon")).to.equal("CatCafe_Cat_MaineCoon")
+			expect(Catalog.catModelName("forest_cat")).to.equal("CatCafe_Cat_ForestCat")
+			local count = 0
+			for modelName, def in pairs(Catalog.catsByModelName) do
+				count += 1
+				expect(Catalog.catModelName(def.id)).to.equal(modelName)
+			end
+			expect(count).to.equal(#Catalog.cats)
 		end)
+
+		it(
+			"a gold coat is its own model, the base name plus _Gold (v0.5 F42, renamed from shiny 2026-10-27)",
+			function()
+				expect(Catalog.goldModelName("tabby")).to.equal("CatCafe_Cat_Tabby_Gold")
+				expect(Catalog.goldModelName("maine_coon")).to.equal("CatCafe_Cat_MaineCoon_Gold")
+				for _, def in Catalog.cats do
+					expect(Catalog.catsByModelName[Catalog.goldModelName(def.id)]).never.to.be.ok()
+				end
+			end
+		)
+
+		it(
+			"a seated body (B) is the walking model's name plus _Sit, gold coats included",
+			function()
+				expect(Catalog.sitModelName(Catalog.catModelName("tabby"))).to.equal(
+					"CatCafe_Cat_Tabby_Sit"
+				)
+				expect(Catalog.sitModelName(Catalog.goldModelName("maine_coon"))).to.equal(
+					"CatCafe_Cat_MaineCoon_Gold_Sit"
+				)
+				for _, def in Catalog.cats do
+					expect(
+						Catalog.catsByModelName[Catalog.sitModelName(Catalog.catModelName(def.id))]
+					).never.to.be.ok()
+				end
+			end
+		)
 	end)
 
 	describe("rarities (section 2)", function()
 		local expected = {
-			Common = { incomePerSecond = 1, baseCatchChance = 0.90, fleesOnMiss = false, sellValue = 25, firstCatchReward = 50, color = "#8E97B2" },
-			Rare = { incomePerSecond = 3, baseCatchChance = 0.65, fleesOnMiss = true, sellValue = 150, firstCatchReward = 300, color = "#5FA8FF" },
-			Epic = { incomePerSecond = 8, baseCatchChance = 0.45, fleesOnMiss = true, sellValue = 600, firstCatchReward = 1500, color = "#C07CFF" },
-			Legendary = { incomePerSecond = 25, baseCatchChance = 0.25, fleesOnMiss = true, sellValue = 3000, firstCatchReward = 8000, color = "#FFC94D" },
-			Secret = { incomePerSecond = 60, baseCatchChance = 0.20, fleesOnMiss = true, sellValue = 10000, firstCatchReward = 25000, color = "#3FD0B5" },
+			-- v0.5: the fourth column is fleeStuds (the sprint after a miss), replacing the v0.4 patience; doubled in v0.8
+			-- (F57). F93 (catch-rework.md section 2): 3 to 7 circles, faster at every rarity, one more rescue hit.
+			Common = { 1, 3, 1.20, 24, 3, 25, 50, "#8E97B2" },
+			Rare = { 3, 4, 1.00, 32, 4, 150, 300, "#5FA8FF" },
+			Epic = { 8, 5, 0.82, 40, 5, 600, 1500, "#C07CFF" },
+			Legendary = { 25, 6, 0.68, 52, 6, 3000, 8000, "#FFC94D" },
+			Mythical = { 75, 7, 0.56, 64, 7, 12000, 30000, "#FF5E7E" },
 		}
 		for _, rarity in ipairs(RARITIES) do
 			it(rarity .. " matches the table", function()
-				expect(Catalog.rarities[rarity]).to.deepEqual(expected[rarity])
+				local def = Catalog.rarities[rarity]
+				expect(def).to.be.ok()
+				assert(def)
+				local row = expected[rarity]
+				expect(def.incomePerSecond).to.equal(row[1])
+				expect(def.circles).to.equal(row[2])
+				expect(def.shrinkSeconds).to.be.near(row[3] :: number, 1e-9)
+				expect(def.fleeStuds).to.equal(row[4])
+				expect((def :: any).patience).never.to.be.ok()
+				expect(def.rescueHits).to.equal(row[5])
+				expect(def.sellValue).to.equal(row[6])
+				expect(def.firstCatchReward).to.equal(row[7])
+				expect(def.color).to.equal(row[8])
 			end)
 		end
+
+		it(
+			"catchWindow scales the net 1.1 / 0.95 / 0.82 / 0.70 / 0.60 by rarity (v0.13.15 F83, F93)",
+			function()
+				local windows =
+					{ Common = 1.1, Rare = 0.95, Epic = 0.82, Legendary = 0.70, Mythical = 0.60 }
+				for _, rarity in ipairs(RARITIES) do
+					expect(Catalog.rarities[rarity].catchWindow).to.be.near(windows[rarity], 1e-12)
+				end
+			end
+		)
+
+		it("rarer means more circles, faster circles and more rescue hits", function()
+			for i = 2, #RARITIES do
+				local lower, higher =
+					Catalog.rarities[RARITIES[i - 1]], Catalog.rarities[RARITIES[i]]
+				expect(higher.circles > lower.circles).to.equal(true)
+				expect(higher.shrinkSeconds < lower.shrinkSeconds).to.equal(true)
+				expect(higher.rescueHits > lower.rescueHits).to.equal(true)
+				expect(higher.incomePerSecond > lower.incomePerSecond).to.equal(true)
+				expect(higher.catchWindow < lower.catchWindow).to.equal(true)
+			end
+		end)
 
 		it("colors are 6 digit hex", function()
 			for _, def in pairs(Catalog.rarities) do
 				expect(string.match(def.color, "^#%x%x%x%x%x%x$") ~= nil).to.equal(true)
 			end
 		end)
+
+		it("v0.3: baseCatchChance is gone, the circles decide the chance (F26)", function()
+			for _, def in pairs(Catalog.rarities) do
+				expect((def :: any).baseCatchChance).never.to.be.ok()
+			end
+		end)
 	end)
 
 	describe("cats (section 3)", function()
-		local expected: { [string]: { string } } = {
-			tabby = { "Common", "both", "counter" },
-			tuxedo = { "Common", "both", "window" },
-			ginger = { "Common", "both", "cushion" },
-			smoke = { "Common", "both", "shelf" },
-			snow = { "Common", "both", "window" },
-			calico = { "Rare", "both", "cushion" },
-			siamese = { "Rare", "both", "counter" },
-			tortie = { "Rare", "park", "shelf" },
-			bengal = { "Rare", "park", "cattree" },
-			sphynx = { "Epic", "both", "cushion" },
-			ragdoll = { "Epic", "park", "cattree" },
-			void = { "Legendary", "both", "shelf" },
+		-- Sections 3a and 3b: id -> { name, rarity, area, favoriteRole, description }
+		local slice: { [string]: { string } } = {
+			tabby = { "Tabby", "Common", "alley", "barista", "The starter. Stripes, snacks, naps." },
+			tuxedo = {
+				"Tuxedo",
+				"Common",
+				"alley",
+				"waiter",
+				"Dressed for dinner, waiting for it.",
+			},
+			ginger = { "Ginger", "Common", "alley", "greeter", "Warm, round, always in the sun." },
+			smoke = { "Smoke", "Common", "alley", "entertainer", "Grey as a rainy morning." },
+			binbag = {
+				"Garbage Bag Cat",
+				"Rare",
+				"alley",
+				"waiter",
+				"Found the comfiest bin bag in the alley and wears it everywhere.",
+			},
+			tortie = {
+				"Rocker Cat",
+				"Rare",
+				"alley",
+				"entertainer",
+				"Knows one chord and plays it very loudly.",
+			},
+			taxi = {
+				"Taxi Cat",
+				"Epic",
+				"alley",
+				"greeter",
+				"Picks up every customer right at the door.",
+			},
+			maine_coon = {
+				"Bandit Cat",
+				"Epic",
+				"alley",
+				"barista",
+				"Sneaks extra foam onto every latte.",
+			},
+			void = {
+				"Ninja Cat",
+				"Legendary",
+				"alley",
+				"waiter",
+				"Silent, fast and never spills a drop.",
+			},
+			neon = {
+				"Jazz Cat",
+				"Mythical",
+				"alley",
+				"barista",
+				"Plays a soft tune while the coffee brews.",
+			},
+			snow = { "Snow", "Common", "park", "waiter", "All white, hates the muddy paths." },
+			cream = {
+				"Cream",
+				"Common",
+				"park",
+				"barista",
+				"The color of a latte, and smells faintly of one.",
+			},
+			brownie = {
+				"Brownie",
+				"Common",
+				"park",
+				"entertainer",
+				"Chocolate stripes, chases every leaf.",
+			},
+			blue = { "Blue", "Common", "park", "greeter", "Silver-blue and very polite." },
+			birdwatch = {
+				"Birdwatcher Cat",
+				"Rare",
+				"park",
+				"barista",
+				"Watches the milk foam like it is a rare bird.",
+			},
+			bengal = {
+				"Explorer Cat",
+				"Rare",
+				"park",
+				"entertainer",
+				"Tells tall tales about the wild side of the Park.",
+			},
+			ragdoll = {
+				"Sleepy Cat",
+				"Epic",
+				"park",
+				"greeter",
+				"Says hello with an enormous yawn.",
+			},
+			duckling = {
+				"Duckling Cat",
+				"Epic",
+				"park",
+				"waiter",
+				"Brings a duckling along to every table.",
+			},
+			blossom = {
+				"Fairy Cat",
+				"Legendary",
+				"park",
+				"barista",
+				"Leaves a petal on every saucer.",
+			},
+			balloon = {
+				"Balloon Cat",
+				"Mythical",
+				"park",
+				"entertainer",
+				"Floats in on a bunch of balloons and makes everyone smile.",
+			},
+		}
+		-- Section 3c, provisional: id -> { name, rarity, area, favoriteRole }. Descriptions are placeholders.
+		local reserved: { [string]: { string } } = {
+			biscuit = { "Biscuit", "Common", "neighbourhood", "barista" },
+			pepper = { "Pepper", "Common", "neighbourhood", "waiter" },
+			socks = { "Socks", "Common", "neighbourhood", "greeter" },
+			butter = { "Butter", "Common", "neighbourhood", "entertainer" },
+			munchkin = { "Munchkin", "Rare", "neighbourhood", "entertainer" },
+			builder = { "Construction Cat", "Rare", "neighbourhood", "waiter" },
+			gardener = { "Gardener Cat", "Epic", "neighbourhood", "barista" },
+			postie = { "Postie", "Epic", "neighbourhood", "greeter" },
+			gnome = { "Gnome Cat", "Legendary", "neighbourhood", "waiter" },
+			comet = { "Comet", "Mythical", "neighbourhood", "entertainer" },
+			moss = { "Moss", "Common", "woods", "greeter" },
+			acorn = { "Acorn", "Common", "woods", "barista" },
+			bramble = { "Bramble", "Common", "woods", "waiter" },
+			fern = { "Fern", "Common", "woods", "entertainer" },
+			pinecone = { "Pinecone", "Rare", "woods", "barista" },
+			forest_cat = { "Forest Cat", "Rare", "woods", "greeter" },
+			toadstool = { "Toadstool", "Epic", "woods", "entertainer" },
+			firefly = { "Firefly", "Epic", "woods", "waiter" },
+			old_oak = { "Old Oak", "Legendary", "woods", "barista" },
+			wisp = { "Wisp", "Mythical", "woods", "greeter" },
+			rusty = { "Rusty", "Common", "sewer", "waiter" },
+			soot = { "Soot", "Common", "sewer", "barista" },
+			pipes = { "Pipes", "Common", "sewer", "entertainer" },
+			puddle = { "Puddle", "Common", "sewer", "greeter" },
+			plumber = { "Plumber Cat", "Rare", "sewer", "waiter" },
+			bubbles = { "Bubbles", "Rare", "sewer", "entertainer" },
+			gears = { "Gears", "Epic", "sewer", "barista" },
+			glimmer = { "Glimmer", "Epic", "sewer", "greeter" },
+			bottlecap = { "Bottlecap King", "Legendary", "sewer", "waiter" },
+			eclipse = { "Eclipse", "Mythical", "sewer", "barista" },
+		}
+		-- Section 3d (v0.13, F78): the ten cats the area-themed ones replaced, id -> { name, rarity, the area they
+		-- came from, favoriteRole }
+		local spares: { [string]: { string } } = {
+			calico = { "Pirate Cat", "Rare", "alley", "waiter" },
+			sphynx = { "DJ Cat", "Epic", "alley", "greeter" },
+			midnight = { "Wizard Cat", "Mythical", "alley", "barista" },
+			siamese = { "Nerd Cat", "Rare", "park", "barista" },
+			persian = { "Fancy Cat", "Epic", "park", "waiter" },
+			aurora = { "Astro Cat", "Mythical", "park", "entertainer" },
+			fold = { "Fold", "Rare", "neighbourhood", "waiter" },
+			chonk = { "Chonk", "Epic", "neighbourhood", "barista" },
+			marshmallow = { "Marshmallow", "Legendary", "neighbourhood", "waiter" },
+			lantern = { "Lantern", "Rare", "sewer", "waiter" },
 		}
 
-		it("has exactly the 12 slice cats", function()
-			expect(#Catalog.cats).to.equal(12)
+		it("has exactly 61 cats: the 20 slice cats, the 30 later ones, the 10 spare and the Bellhop Cat (F96)", function()
+			expect(#Catalog.cats).to.equal(61)
 			for _, def in ipairs(Catalog.cats) do
-				expect(expected[def.id]).to.be.ok()
+				expect(
+					slice[def.id] ~= nil
+						or reserved[def.id] ~= nil
+						or spares[def.id] ~= nil
+						or def.id == "bellhop_cat"
+				).to.equal(true)
 			end
-			for id in pairs(expected) do
+			for id in pairs(slice) do
+				expect(Catalog.getCat(id)).to.be.ok()
+			end
+			for id in pairs(reserved) do
+				expect(Catalog.getCat(id)).to.be.ok()
+			end
+			for id in pairs(spares) do
 				expect(Catalog.getCat(id)).to.be.ok()
 			end
 		end)
 
-		it("no Secret cats in the slice", function()
-			for _, def in ipairs(Catalog.cats) do
-				expect(def.rarity).never.to.equal("Secret")
+		it(
+			"keeps every spare cat as it was, in the spare pool, earning at the area it came from",
+			function()
+				for id, row in pairs(spares) do
+					local def = Catalog.getCat(id)
+					assert(def, id)
+					expect(def.name).to.equal(row[1])
+					expect(def.rarity).to.equal(row[2])
+					expect(def.area).to.equal("spare")
+					expect(def.incomeArea).to.equal(row[3])
+					expect(def.favoriteRole).to.equal(row[4])
+					local area = Catalog.getArea(row[3])
+					assert(area, id)
+					expect(def.incomePerSecond).to.equal(
+						Catalog.rarities[def.rarity].incomePerSecond * area.incomeMultiplier
+					)
+				end
 			end
-		end)
+		)
 
-		for id, row in pairs(expected) do
-			it(id .. " has the rarity, area and favorite spot from the table", function()
+		for id, row in pairs(slice) do
+			it(id .. " matches its row in section 3a or 3b", function()
 				local def = Catalog.getCat(id)
 				expect(def).to.be.ok()
 				assert(def)
-				expect(def.rarity).to.equal(row[1])
-				expect(def.area).to.equal(row[2])
-				expect(def.favoriteSpot).to.equal(row[3])
-				expect(def.incomePerSecond).to.equal(Catalog.rarities[def.rarity].incomePerSecond)
+				expect(def.name).to.equal(row[1])
+				expect(def.rarity).to.equal(row[2])
+				expect(def.area).to.equal(row[3])
+				expect(def.favoriteRole).to.equal(row[4])
+				expect(def.description).to.equal(row[5])
+				local area = Catalog.getArea(def.area)
+				assert(area)
+				expect(def.incomePerSecond).to.equal(
+					Catalog.rarities[def.rarity].incomePerSecond * area.incomeMultiplier
+				)
 			end)
 		end
 
-		it("every cat has display fields and a valid placeholder color", function()
-			for _, def in ipairs(Catalog.cats) do
-				expect(#def.name > 0).to.equal(true)
-				expect(#def.description > 0).to.equal(true)
-				expect(#def.pattern > 0).to.equal(true)
-				expect(SPOT_TYPES[def.favoriteSpot]).to.equal(true)
-				expect(AREAS[def.area]).to.equal(true)
-				expect(#def.color).to.equal(3)
-				for _, channel in ipairs(def.color) do
-					expect(channel >= 0 and channel <= 255 and channel == math.floor(channel)).to.equal(true)
+		it(
+			"the reserved section 3c ids have the rarity, area and favorite role from the table",
+			function()
+				for id, row in pairs(reserved) do
+					local def = Catalog.getCat(id)
+					assert(def, id)
+					expect(def.name).to.equal(row[1])
+					expect(def.rarity).to.equal(row[2])
+					expect(def.area).to.equal(row[3])
+					expect(def.favoriteRole).to.equal(row[4])
+					local area = Catalog.getArea(def.area)
+					assert(area, id)
+					expect(def.incomePerSecond).to.equal(
+						Catalog.rarities[def.rarity].incomePerSecond * area.incomeMultiplier
+					)
 				end
 			end
-		end)
+		)
+
+		it(
+			"each area has four Common, two Rare, two Epic, one Legendary and one Mythical",
+			function()
+				local counts: { [string]: { [string]: number } } = {}
+				for _, area in ipairs(AREA_ORDER) do
+					counts[area] = {}
+				end
+				for _, def in ipairs(Catalog.cats) do
+					if def.area == "spare" or def.area == "exclusive" then -- F96: the Bellhop Cat lives in no area
+						continue
+					end
+					local area = counts[def.area]
+					expect(area).to.be.ok()
+					assert(area)
+					area[def.rarity] = (area[def.rarity] or 0) + 1
+				end
+				for _, area in ipairs(AREA_ORDER) do
+					for rarity, n in pairs(PER_AREA) do
+						expect(counts[area][rarity]).to.equal(n)
+					end
+				end
+			end
+		)
+
+		it(
+			"every cat has display fields, one area, a role and a valid placeholder color",
+			function()
+				local areaSet: { [string]: boolean } = {}
+				for _, area in ipairs(AREA_ORDER) do
+					areaSet[area] = true
+				end
+				for _, def in ipairs(Catalog.cats) do
+					expect(#def.name > 0).to.equal(true)
+					expect(#def.description > 0).to.equal(true)
+					expect(#def.pattern > 0).to.equal(true)
+					expect(ROLE_SET[def.favoriteRole]).to.equal(true)
+					if def.exclusive == true then
+						expect(def.area).to.equal("exclusive") -- F96: never spawns, earns at the newest area
+					else
+						expect(
+							areaSet[if def.area == "spare" then def.incomeArea :: string else def.area]
+						).to.equal(true)
+					end
+					expect((def :: any).favoriteSpot).never.to.be.ok()
+					expect(#def.color).to.equal(3)
+					for _, channel in ipairs(def.color) do
+						expect(channel >= 0 and channel <= 255 and channel == math.floor(channel)).to.equal(
+							true
+						)
+					end
+				end
+			end
+		)
 
 		it("getCat returns nil for unknown ids", function()
 			expect(Catalog.getCat("golden")).never.to.be.ok()
@@ -135,92 +467,331 @@ return function()
 		end)
 	end)
 
-	describe("spots (section 5)", function()
-		it("opens the listed spots at the listed cafe levels", function()
+	describe("role slots (section 5)", function()
+		it("opens the listed slots at the listed tiers", function()
 			local expected: { [string]: { any } } = {
-				counter_1 = { "counter", 1 },
-				window_1 = { "window", 1 },
-				cushion_1 = { "cushion", 2 },
-				shelf_1 = { "shelf", 3 },
-				cattree_1 = { "cattree", 4 },
-				patio_1 = { "patio", 5 },
-				patio_2 = { "patio", 5 },
+				barista_1 = { "barista", 1 },
+				waiter_1 = { "waiter", 1 },
+				waiter_2 = { "waiter", 2 },
+				greeter_1 = { "greeter", 2 },
+				barista_2 = { "barista", 3 },
+				entertainer_1 = { "entertainer", 3 },
+				waiter_3 = { "waiter", 4 },
+				greeter_2 = { "greeter", 4 },
+				barista_3 = { "barista", 5 },
+				entertainer_2 = { "entertainer", 5 },
 			}
-			expect(#Catalog.spots).to.equal(7)
+			expect(#Catalog.spots).to.equal(10)
 			for id, row in pairs(expected) do
 				local spot = Catalog.getSpot(id)
 				expect(spot).to.be.ok()
 				assert(spot)
 				expect(spot.spotType).to.equal(row[1])
-				expect(spot.cafeLevel).to.equal(row[2])
+				expect(spot.tier).to.equal(row[2])
+				expect((spot :: any).cafeLevel).never.to.be.ok()
 				expect(string.match(id, "^" .. row[1] .. "_%d+$") ~= nil).to.equal(true)
+			end
+			expect(Catalog.getSpot("counter_1")).never.to.be.ok()
+			expect(Catalog.getSpot("window_1")).never.to.be.ok()
+		end)
+
+		it("slots are listed in opening order and each tier opens its slot count", function()
+			local lastTier = 0
+			for _, spot in ipairs(Catalog.spots) do
+				expect(spot.tier >= lastTier).to.equal(true)
+				lastTier = spot.tier
+			end
+			for _, tierDef in ipairs(Catalog.tiers) do
+				local open = 0
+				for _, spot in ipairs(Catalog.spots) do
+					if spot.tier <= tierDef.tier then
+						open += 1
+					end
+				end
+				expect(open).to.equal(tierDef.slots)
 			end
 		end)
 
-		it("every spot type has furniture and every favorite spot exists", function()
-			for spotType in pairs(SPOT_TYPES) do
-				local furniture: string = Catalog.spotFurniture[spotType]
-				expect(furniture).to.be.a("string")
+		it("every role has a slot and its favorite cats somewhere", function()
+			for _, role in ipairs(ROLES) do
+				local slot, fan = false, false
+				for _, spot in ipairs(Catalog.spots) do
+					slot = slot or spot.spotType == role
+				end
+				for _, def in ipairs(Catalog.cats) do
+					fan = fan or def.favoriteRole == role
+				end
+				expect(slot).to.equal(true)
+				expect(fan).to.equal(true)
+			end
+		end)
+
+		it("station furniture is keyed by role and names a furniture model", function()
+			for role, furniture in pairs(Catalog.spotFurniture) do
+				expect(ROLE_SET[role]).to.equal(true)
 				expect(string.sub(furniture, 1, 18)).to.equal("CatCafe_Furniture_")
 			end
-			for _, def in ipairs(Catalog.cats) do
-				local found = false
-				for _, spot in ipairs(Catalog.spots) do
-					if spot.spotType == def.favoriteSpot then
-						found = true
+		end)
+
+		it("every role has a two-piece outfit of distinct accessories (F25)", function()
+			local seen: { [string]: boolean } = {}
+			for _, role in ipairs(ROLES) do
+				local pieces = Catalog.roleOutfits[role]
+				expect(pieces).to.be.ok()
+				assert(pieces)
+				expect(#pieces).to.equal(2)
+				for _, piece in pieces do
+					expect(string.match(piece, "^%u%a+$") ~= nil).to.equal(true)
+					expect(seen[piece]).never.to.be.ok()
+					seen[piece] = true
+				end
+			end
+			for role in pairs(Catalog.roleOutfits) do
+				expect(ROLE_SET[role]).to.equal(true)
+			end
+			expect(Catalog.accessoryModelName("BaristaCap")).to.equal(
+				"CatCafe_Accessory_BaristaCap"
+			)
+		end)
+
+		it(
+			"a themed cat's prop slot drops at most one piece of any outfit (v0.5.2 section 3)",
+			function()
+				local pieceSet: { [string]: boolean } = {}
+				for _, pieces in pairs(Catalog.roleOutfits) do
+					for _, piece in pieces do
+						pieceSet[piece] = true
 					end
 				end
-				expect(found).to.equal(true)
+				for piece, slot in pairs(Catalog.outfitPieceSlots) do
+					expect(pieceSet[piece]).to.equal(true)
+					expect(slot == "Head" or slot == "Back").to.equal(true)
+				end
+				expect(Catalog.outfitPieceSlots.BaristaCap).to.equal("Head")
+				expect(Catalog.outfitPieceSlots.Boater).to.equal("Head")
+				expect(Catalog.outfitPieceSlots.PartyHat).to.equal("Head")
+				expect(Catalog.outfitPieceSlots.Cape).to.equal("Back")
+				-- Whatever the prop's slot, every role keeps at least one piece, so a working cat still reads as staff.
+				for _, propSlot in ipairs({ "Head", "Face", "Back" }) do
+					for _, role in ipairs(ROLES) do
+						local kept = 0
+						for _, piece in Catalog.roleOutfits[role] do
+							if Catalog.outfitPieceSlots[piece] ~= propSlot then
+								kept += 1
+							end
+						end
+						expect(kept >= 1).to.equal(true)
+					end
+				end
+			end
+		)
+	end)
+
+	describe("tiers (section 5b)", function()
+		-- tier -> { name, cost, distinctCats, needsRarity, needsRarityCount, slots, multiplier, area, caps }
+		local expected: { { any } } = {
+			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
+			{ "Cozy Cafe", 12000, 5, nil, nil, 4, 1.25, "park", { 4, 3, 2 } },
+			-- F95 v2 (economy-ladder.md section 3, after F97): 10,000, 500,000, 40M and 1.2B; v2.1 Tier 2 12,000
+			{ "Busy Cafe", 500000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
+			{ "Famous Cafe", 40000000, 20, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
+			{ "Grand Cafe", 1200000000, 30, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+		}
+
+		it("has five tiers matching the table", function()
+			expect(#Catalog.tiers).to.equal(5)
+			expect(Catalog.maxTier).to.equal(5)
+			for tier, row in ipairs(expected) do
+				local def = Catalog.getTier(tier)
+				expect(def).to.be.ok()
+				assert(def)
+				expect(def.tier).to.equal(tier)
+				expect(def.name).to.equal(row[1])
+				expect(def.cost).to.equal(row[2])
+				expect(def.distinctCats).to.equal(row[3])
+				expect(def.needsRarity).to.equal(row[4])
+				expect(def.needsRarityCount).to.equal(row[5])
+				expect(def.slots).to.equal(row[6])
+				expect(def.multiplier).to.be.near(row[7], 1e-9)
+				expect(def.area).to.equal(row[8])
+				expect(def.caps.tables).to.equal(row[9][1])
+				expect(def.caps.espresso).to.equal(row[9][2])
+				expect(def.caps.net).to.equal(row[9][3])
+			end
+			expect(Catalog.getTier(0)).never.to.be.ok()
+			expect(Catalog.getTier(6)).never.to.be.ok()
+		end)
+
+		it("each tier opens one new area, in the order of section 9", function()
+			for tier, def in ipairs(Catalog.tiers) do
+				expect(def.area).to.equal(AREA_ORDER[tier])
+			end
+		end)
+
+		it("every rank up is reachable from the areas the tier below has open", function()
+			for tier = 2, #Catalog.tiers do
+				local def = Catalog.tiers[tier]
+				local open: { [string]: boolean } = {}
+				for t = 1, tier - 1 do
+					open[Catalog.tiers[t].area] = true
+				end
+				local catsOpen, rarityOpen = 0, 0
+				for _, cat in ipairs(Catalog.cats) do
+					if open[cat.area] then
+						catsOpen += 1
+						if def.needsRarity ~= nil and cat.rarity == def.needsRarity then
+							rarityOpen += 1
+						end
+					end
+				end
+				expect(def.distinctCats <= catsOpen).to.equal(true)
+				if def.needsRarity ~= nil then
+					expect(rarityOpen >= (def.needsRarityCount or 1)).to.equal(true)
+				end
+			end
+		end)
+
+		it("costs, requirements, multipliers and caps never go down", function()
+			for tier = 2, #Catalog.tiers do
+				local lower, higher = Catalog.tiers[tier - 1], Catalog.tiers[tier]
+				expect(higher.cost > lower.cost).to.equal(true)
+				expect(higher.distinctCats > lower.distinctCats).to.equal(true)
+				expect(higher.multiplier > lower.multiplier).to.equal(true)
+				for _, id in ipairs({ "tables", "espresso", "net" }) do
+					expect((higher.caps :: any)[id] >= (lower.caps :: any)[id]).to.equal(true)
+				end
+			end
+		end)
+
+		it("the top tier's caps are each upgrade's max level, and no cap is above it", function()
+			for _, def in ipairs(Catalog.tiers) do
+				for id, cap in pairs(def.caps :: any) do
+					local upgrade = Catalog.getUpgrade(id)
+					assert(upgrade, id)
+					expect(cap <= upgrade.maxLevel).to.equal(true)
+					expect(cap >= upgrade.startLevel).to.equal(true)
+				end
+			end
+			local top = Catalog.tiers[Catalog.maxTier].caps :: any
+			for id, cap in pairs(top) do
+				local upgrade = Catalog.getUpgrade(id)
+				assert(upgrade)
+				expect(cap).to.equal(upgrade.maxLevel)
+			end
+		end)
+
+		it("tierForLevel gives the lowest tier whose cap allows a level", function()
+			local cases: { { any } } = {
+				{ "tables", 1, 1 },
+				{ "tables", 2, 1 },
+				{ "tables", 3, 2 },
+				{ "tables", 4, 2 },
+				{ "tables", 5, 3 },
+				{ "tables", 6, 3 },
+				{ "tables", 7, nil },
+				{ "espresso", 2, 1 },
+				{ "espresso", 3, 2 },
+				{ "espresso", 4, 3 },
+				{ "espresso", 5, 4 },
+				{ "net", 1, 1 },
+				{ "net", 2, 2 },
+				{ "net", 3, 3 },
+				{ "lure_bowl", 1, 1 },
+				{ "lure_bowl", 2, 2 },
+				{ "lure_bowl", 5, 5 },
+				{ "lure_bowl", 6, nil },
+				{ "nope", 1, nil },
+			}
+			for _, case in ipairs(cases) do
+				expect(Catalog.tierForLevel(case[1], case[2])).to.equal(case[3])
 			end
 		end)
 	end)
 
 	describe("upgrades (section 6)", function()
-		local expected: { [string]: { maxLevel: number, costs: { number }, startLevel: number, requiresCafeLevel: number? } } = {
-			cafe_level = { maxLevel = 5, costs = { 0, 250, 800, 2500, 8000 }, startLevel = 1, requiresCafeLevel = nil },
-			tables = { maxLevel = 6, costs = { 100, 250, 600, 1500, 3500, 8000 }, startLevel = 0, requiresCafeLevel = nil },
-			espresso = { maxLevel = 3, costs = { 0, 300, 1200, 4000, 12000 }, startLevel = 1, requiresCafeLevel = nil },
-			net = { maxLevel = 3, costs = { 500, 2500, 10000 }, startLevel = 0, requiresCafeLevel = nil },
-			lure_bowl = { maxLevel = 1, costs = { 400 }, startLevel = 0, requiresCafeLevel = 2 },
-			park_access = { maxLevel = 1, costs = { 1000 }, startLevel = 0, requiresCafeLevel = 3 },
-		}
+		local expected: {
+			[string]: {
+				name: string,
+				maxLevel: number,
+				costs: { number },
+				startLevel: number,
+				atLevel: { [number]: number }?,
+			},
+		} =
+			{
+				tables = {
+					name = "Tables",
+					maxLevel = 6,
+					costs = { 150, 600, 3000, 10000, 200000, 600000 }, -- F95 (economy-ladder.md section 4)
+					startLevel = 0,
+					atLevel = { [3] = 2, [4] = 2, [5] = 3, [6] = 3 },
+				},
+				espresso = {
+					name = "Espresso machine",
+					maxLevel = 5,
+					costs = { 0, 2000, 15000, 400000, 6000000 }, -- F95
+					startLevel = 1,
+					atLevel = { [3] = 2, [4] = 3, [5] = 4 },
+				},
+				net = {
+					name = "Net",
+					maxLevel = 3,
+					costs = { 2500, 25000, 800000 }, -- F95
+					startLevel = 0,
+					atLevel = { [2] = 2, [3] = 3 },
+				},
+				lure_bowl = {
+					name = "Bait bowl",
+					maxLevel = 5,
+					costs = { 600, 6000, 240000, 4000000, 50000000 }, -- F82, v0.13.15; F95 prices
+					startLevel = 0,
+					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 },
+				},
+				lucky_cat = { -- F88 (luck-and-rare-moments.md 1a): level n needs Tier n
+					name = "Lucky Cat",
+					maxLevel = 5,
+					costs = { 2000, 20000, 600000, 8000000, 80000000 },
+					startLevel = 0,
+					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 },
+				},
+			}
 
-		it("v0.2 names: the net replaces gloves, the lure bowl is shown as Bait bowl (ids keep lure_)", function()
-			expect(Catalog.getUpgrade("gloves")).never.to.be.ok()
-			local net = Catalog.getUpgrade("net")
-			local bowl = Catalog.getUpgrade("lure_bowl")
-			assert(net and bowl)
-			expect(net.name).to.equal("Net")
-			expect(bowl.name).to.equal("Bait bowl")
-		end)
-
-		it("has exactly the six slice upgrades", function()
-			expect(#Catalog.upgrades).to.equal(6)
-			for _, def in ipairs(Catalog.upgrades) do
-				expect(expected[def.id]).to.be.ok()
+		it(
+			"has the four v0.3 upgrades and the Lucky Cat (F88); cafe_level, park_access and gloves are gone",
+			function()
+				expect(#Catalog.upgrades).to.equal(5)
+				for _, def in ipairs(Catalog.upgrades) do
+					expect(expected[def.id]).to.be.ok()
+				end
+				expect(Catalog.getUpgrade("cafe_level")).never.to.be.ok()
+				expect(Catalog.getUpgrade("park_access")).never.to.be.ok()
+				expect(Catalog.getUpgrade("gloves")).never.to.be.ok()
+				expect(Catalog.renamedUpgrades.gloves).to.equal("net")
 			end
-		end)
+		)
 
 		for id, row in pairs(expected) do
-			it(id .. " matches the table", function()
+			it(id .. " matches the table, tier caps included", function()
 				local def = Catalog.getUpgrade(id)
 				expect(def).to.be.ok()
 				assert(def)
+				expect(def.name).to.equal(row.name)
 				expect(def.maxLevel).to.equal(row.maxLevel)
 				expect(def.costs).to.deepEqual(row.costs)
 				expect(def.startLevel).to.equal(row.startLevel)
-				expect(def.requiresCafeLevel).to.equal(row.requiresCafeLevel)
-				expect(#def.costs >= def.maxLevel).to.equal(true)
+				-- The Bait bowl opens at Tier 1 (section 5b), so nothing needs a tier for level 1.
+				expect(def.requiresTier).never.to.be.ok()
+				if row.atLevel == nil then
+					expect(def.requiresTierAtLevel).never.to.be.ok()
+				else
+					expect(def.requiresTierAtLevel :: any).to.deepEqual(row.atLevel)
+				end
+				expect(#def.costs).to.equal(def.maxLevel)
+				local raw = def :: any
+				expect(raw.requiresCafeLevel).never.to.be.ok()
+				expect(raw.requiresCafeLevelAtLevel).never.to.be.ok()
 			end)
 		end
-
-		it("espresso level 3 needs cafe level 3", function()
-			local def = Catalog.getUpgrade("espresso")
-			assert(def)
-			expect(def.requiresCafeLevelAtLevel).to.be.ok()
-			assert(def.requiresCafeLevelAtLevel)
-			expect(def.requiresCafeLevelAtLevel[3]).to.equal(3)
-		end)
 
 		it("costs rise with level and only start levels are free", function()
 			for _, def in ipairs(Catalog.upgrades) do
@@ -237,24 +808,36 @@ return function()
 	end)
 
 	describe("decor (section 7)", function()
-		local expected: { [string]: { cost: number, bonus: number, requiresCafeLevel: number?, asset: string } } = {
-			plants = { cost = 150, bonus = 0.05, requiresCafeLevel = nil, asset = "CatCafe_Decor_WindowPlants" },
-			rug = { cost = 400, bonus = 0.05, requiresCafeLevel = nil, asset = "CatCafe_Decor_Rug" },
-			neon_sign = { cost = 1500, bonus = 0.10, requiresCafeLevel = 4, asset = "CatCafe_Decor_NeonSign" },
-			fish_tank = { cost = 5000, bonus = 0.10, requiresCafeLevel = 4, asset = "CatCafe_Decor_FishTank" },
+		-- F97 (notes-10-28-to-10-30.md section 2): the coin shop closed; the four pieces are Classic Crate finds at
+		-- their rarity, with the same bonuses and models.
+		local expected: { [string]: { rarity: string, bonus: number, asset: string } } = {
+			plants = { rarity = "Common", bonus = 0.05, asset = "CatCafe_Decor_WindowPlants" },
+			rug = { rarity = "Common", bonus = 0.05, asset = "CatCafe_Decor_Rug" },
+			neon_sign = { rarity = "Rare", bonus = 0.10, asset = "CatCafe_Decor_NeonSign" },
+			fish_tank = { rarity = "Epic", bonus = 0.10, asset = "CatCafe_Decor_FishTank" },
 		}
 
-		it("has exactly the four slice decor items", function()
+		it("has exactly the four old shop pieces, now never sold and found in the Classic Crate", function()
 			expect(#Catalog.decor).to.equal(4)
+			local classic = assert(Catalog.getCrate("classic_crate"))
+			local inCrate: { [string]: boolean } = {}
+			for _, decorId in classic.pieces do
+				inCrate[decorId] = true
+			end
 			for id, row in pairs(expected) do
 				local def = Catalog.getDecor(id)
 				expect(def).to.be.ok()
 				assert(def)
-				expect(def.cost).to.equal(row.cost)
+				expect(def.cost).to.equal(0)
+				expect(def.source).to.equal("crate")
+				expect(def.crate).to.equal("classic")
+				expect(def.rarity).to.equal(row.rarity)
 				expect(def.bonus).to.be.near(row.bonus)
-				expect(def.requiresCafeLevel).to.equal(row.requiresCafeLevel)
+				expect(def.requiresTier).never.to.be.ok()
+				expect((def :: any).requiresCafeLevel).never.to.be.ok()
 				expect(def.asset).to.equal(row.asset)
 				expect(#def.effect > 0).to.equal(true)
+				expect(inCrate[id]).to.equal(true)
 			end
 		end)
 
@@ -266,36 +849,129 @@ return function()
 		end)
 	end)
 
-	describe("lures (section 8)", function()
-		local expected: { [string]: { cost: number, attracts: string, odds: { [string]: number } } } = {
-			kibble = { cost = 25, attracts = "Common", odds = { Common = 70, Rare = 26, Epic = 3.5, Legendary = 0.5 } },
-			tuna = { cost = 100, attracts = "Rare", odds = { Common = 45, Rare = 42, Epic = 11, Legendary = 2 } },
-			salmon = { cost = 500, attracts = "Epic", odds = { Common = 15, Rare = 50, Epic = 28, Legendary = 7 } },
-		}
+	describe("foods (sections 8 and 8b)", function()
+		local expected: {
+			[string]: {
+				cost: number,
+				sortOrder: number,
+				source: string,
+				attracts: string,
+				name: string,
+				odds: { [string]: number },
+			},
+		} =
+			{
+				kibble = {
+					name = "Kibble",
+					cost = 100, -- F97: about four times the old price
+					sortOrder = 1,
+					source = "shop",
+					attracts = "Common",
+					odds = { Common = 70, Rare = 25, Epic = 4, Legendary = 0.9, Mythical = 0.1 },
+				},
+				tuna = {
+					name = "Tuna",
+					cost = 500, -- F97: about four times the old price
+					sortOrder = 2,
+					source = "shop",
+					attracts = "Rare",
+					odds = { Common = 40, Rare = 45, Epic = 12, Legendary = 2.6, Mythical = 0.4 },
+				},
+				salmon = {
+					name = "Salmon",
+					cost = 2500, -- F97: about four times the old price
+					sortOrder = 4,
+					source = "shop",
+					attracts = "Epic",
+					odds = { Common = 15, Rare = 45, Epic = 30, Legendary = 8.5, Mythical = 1.5 },
+				},
+				sardines = {
+					name = "Moonlit Sardines",
+					cost = 4000, -- F97: about four times the old price
+					sortOrder = 3,
+					source = "dealer",
+					attracts = "Rare",
+					odds = { Common = 30, Rare = 45, Epic = 20, Legendary = 4.5, Mythical = 0.5 },
+				},
+				caviar = {
+					name = "Caviar",
+					cost = 15000, -- F97: about four times the old price
+					sortOrder = 5,
+					source = "dealer",
+					attracts = "Epic",
+					odds = { Common = 10, Rare = 35, Epic = 38, Legendary = 14, Mythical = 3 },
+				},
+				moon_milk = {
+					name = "Moon Milk",
+					cost = 50000, -- F97: about four times the old price
+					sortOrder = 6,
+					source = "dealer",
+					attracts = "Epic",
+					odds = { Common = 0, Rare = 20, Epic = 45, Legendary = 28, Mythical = 7 },
+				},
+				star_treat = {
+					name = "Star Treat",
+					cost = 200000, -- F97: about four times the old price
+					sortOrder = 7,
+					source = "dealer",
+					attracts = "Legendary",
+					odds = { Common = 0, Rare = 0, Epic = 40, Legendary = 45, Mythical = 15 },
+				},
+			}
 
-		it("has exactly the three slice lures with the table odds", function()
-			expect(#Catalog.lures).to.equal(3)
+		it("has the three shop foods and four dealer foods with the table odds", function()
+			expect(#Catalog.lures).to.equal(7)
 			for id, row in pairs(expected) do
 				local def = Catalog.getLure(id)
 				expect(def).to.be.ok()
 				assert(def)
+				expect(def.name).to.equal(row.name)
 				expect(def.cost).to.equal(row.cost)
+				expect(def.sortOrder).to.equal(row.sortOrder)
+				expect(def.source).to.equal(row.source)
 				expect(def.attracts).to.equal(row.attracts)
 				expect(def.odds :: any).to.deepEqual(row.odds)
+				expect(string.sub(def.asset, 1, 13)).to.equal("CatCafe_Item_")
+				expect(#def.description > 0).to.equal(true)
 			end
 		end)
 
-		it("odds are percentages that sum to 100 (paid random items rule)", function()
+		it("each food has its v0.10 grade (F69, data-model section 8)", function()
+			local grades: { [string]: string } = {
+				kibble = "Common",
+				tuna = "Rare",
+				sardines = "Rare",
+				salmon = "Epic",
+				caviar = "Epic",
+				moon_milk = "Legendary",
+				star_treat = "Mythical",
+			}
 			for _, def in ipairs(Catalog.lures) do
-				local total = def.odds.Common + def.odds.Rare + def.odds.Epic + def.odds.Legendary
-				expect(total).to.be.near(100, 1e-9)
-				for _, value in pairs(def.odds :: any) do
-					expect((value :: number) >= 0).to.equal(true)
+				expect(def.rarity).to.equal(grades[def.id])
+			end
+		end)
+
+		it("odds cover all five rarities and sum to 100 (paid random items rule)", function()
+			for _, def in ipairs(Catalog.lures) do
+				assertFiveRarityOdds(def.odds)
+			end
+		end)
+
+		it("a dealer food attracts its likeliest rarity", function()
+			for _, def in ipairs(Catalog.lures) do
+				if def.source == "dealer" then
+					local best, bestWeight = "", -1
+					for _, rarity in ipairs(RARITIES) do
+						if (def.odds :: any)[rarity] > bestWeight then
+							best, bestWeight = rarity, (def.odds :: any)[rarity]
+						end
+					end
+					expect(def.attracts).to.equal(best)
 				end
 			end
 		end)
 
-		it("attracts means: odds of that rarity or better are at least the free alley's (section 8)", function()
+		it("a shop food beats the free Alleyway on its rarity or better (section 8)", function()
 			local alley = Catalog.getArea("alley")
 			assert(alley)
 			local function orBetter(odds: any, rarity: string): number
@@ -307,38 +983,102 @@ return function()
 				end
 				return total
 			end
-			-- Numbers from the doc: kibble 100 vs 100, tuna 55 vs 25, salmon 35 vs 5.
-			local expected: { [string]: { number } } = { kibble = { 100, 100 }, tuna = { 55, 25 }, salmon = { 35, 5 } }
-			for _, def in ipairs(Catalog.lures) do
-				expect(Catalog.rarityRank[def.attracts]).to.be.ok()
-				local lure = orBetter(def.odds, def.attracts)
+			-- From the tables: kibble 100 vs 100, tuna 60 vs 28, salmon 40 vs 6.
+			local numbers: { [string]: { number } } =
+				{ kibble = { 100, 100 }, tuna = { 60, 28 }, salmon = { 40, 6 } }
+			for id, row in pairs(numbers) do
+				local def = Catalog.getLure(id)
+				assert(def)
+				local food = orBetter(def.odds, def.attracts)
 				local free = orBetter(alley.odds, def.attracts)
-				expect(lure >= free).to.equal(true)
-				local row = expected[def.id]
-				if row ~= nil then
-					expect(lure).to.be.near(row[1], 1e-9)
-					expect(free).to.be.near(row[2], 1e-9)
-				end
+				expect(food).to.be.near(row[1], 1e-9)
+				expect(free).to.be.near(row[2], 1e-9)
+				expect(food >= free).to.equal(true)
 			end
 		end)
+
+		it(
+			"dealer slot weights are the one v0.5 row of section 8b and name only dealer foods (F43)",
+			function()
+				expect(Catalog.dealerSlotWeights :: any).to.deepEqual({
+					sardines = 50,
+					caviar = 33,
+					moon_milk = 14,
+					star_treat = 3,
+				})
+				local total = 0
+				for id, weight in pairs(Catalog.dealerSlotWeights) do
+					local def = Catalog.getLure(id)
+					assert(def, id)
+					expect(def.source).to.equal("dealer")
+					total += weight
+				end
+				expect(total).to.be.near(100, 1e-9)
+			end
+		)
+
+		it(
+			"dealer amount weights are the v0.8 table of section 8b, 0 to 4 of each dealer food (F59)",
+			function()
+				expect(Catalog.dealerAmountWeights :: any).to.deepEqual({
+					sardines = { 15, 25, 30, 20, 10 },
+					caviar = { 35, 40, 20, 5, 0 },
+					moon_milk = { 60, 35, 5, 0, 0 },
+					star_treat = { 90, 10, 0, 0, 0 },
+				})
+				local averages =
+					{ sardines = 1.85, caviar = 0.95, moon_milk = 0.45, star_treat = 0.10 }
+				for id, weights in pairs(Catalog.dealerAmountWeights) do
+					local def = Catalog.getLure(id)
+					assert(def, id)
+					expect(def.source).to.equal("dealer")
+					local total, mean = 0, 0
+					for index, weight in weights do
+						total += weight
+						mean += (index - 1) * weight / 100
+					end
+					expect(total).to.be.near(100, 1e-9)
+					expect(mean).to.be.near(averages[id], 1e-9)
+				end
+			end
+		)
 	end)
 
 	describe("areas (section 9)", function()
-		it("alley and park match the table", function()
-			expect(#Catalog.areas).to.equal(2)
-			local alley = Catalog.getArea("alley")
-			local park = Catalog.getArea("park")
-			assert(alley and park)
-			expect(alley.unlock).never.to.be.ok()
-			expect(alley.spawnPoints).to.equal(8)
-			expect(alley.waveSize).to.equal(6)
-			expect(alley.rescueSpots).to.equal(2)
-			expect(alley.odds).to.deepEqual({ Common = 75, Rare = 20, Epic = 4.5, Legendary = 0.5 })
-			expect(park.unlock).to.equal("park_access")
-			expect(park.spawnPoints).to.equal(10)
-			expect(park.waveSize).to.equal(6)
-			expect(park.rescueSpots).to.equal(3)
-			expect(park.odds).to.deepEqual({ Common = 55, Rare = 32, Epic = 10, Legendary = 3 })
+		it(
+			"alley and park have the alley's v0.3 odds (every area since v0.13.7) and the tier that opens them",
+			function()
+				local alley = Catalog.getArea("alley")
+				local park = Catalog.getArea("park")
+				assert(alley and park)
+				expect(alley.tier).to.equal(1)
+				expect(alley.name).to.equal("Alleyway")
+				expect(alley.odds :: any).to.deepEqual({
+					Common = 72,
+					Rare = 22,
+					Epic = 5,
+					Legendary = 0.9,
+					Mythical = 0.1,
+				})
+				expect(park.tier).to.equal(2)
+				expect(park.name).to.equal("Park")
+				expect(park.odds :: any).to.deepEqual({
+					Common = 72,
+					Rare = 22,
+					Epic = 5,
+					Legendary = 0.9,
+					Mythical = 0.1,
+				})
+				expect((park :: any).unlock).never.to.be.ok()
+			end
+		)
+
+		it("each area's tier opens it in the tier table", function()
+			for _, area in ipairs(Catalog.areas) do
+				local tierDef = Catalog.getTier(area.tier)
+				assert(tierDef, area.id)
+				expect(tierDef.area).to.equal(area.id)
+			end
 		end)
 
 		it("v0.2: areas spawn in night waves, the trickle fields are gone", function()
@@ -350,7 +1090,7 @@ return function()
 			end
 		end)
 
-		it("a full wave fits on the spawn points and every area has a rescue spot", function()
+		it("a full wave fits on the spawn points and every area has a rescue trap", function()
 			for _, def in ipairs(Catalog.areas) do
 				expect(def.waveSize >= 1).to.equal(true)
 				expect(def.waveSize <= def.spawnPoints).to.equal(true)
@@ -358,35 +1098,214 @@ return function()
 			end
 		end)
 
-		it("area odds sum to 100 and unlock ids exist", function()
+		it("area odds cover all five rarities and sum to 100", function()
 			for _, def in ipairs(Catalog.areas) do
-				local total = def.odds.Common + def.odds.Rare + def.odds.Epic + def.odds.Legendary
-				expect(total).to.be.near(100, 1e-9)
-				if def.unlock ~= nil then
-					expect(Catalog.getUpgrade(def.unlock)).to.be.ok()
-				end
+				assertFiveRarityOdds(def.odds)
 			end
 		end)
 
-		it("lure spots: 2 in the alley, 3 in the park", function()
-			expect(Catalog.lureSpotsPerArea.alley).to.equal(2)
-			expect(Catalog.lureSpotsPerArea.park).to.equal(3)
-		end)
-
-		it("every area can spawn something of every non-Secret rarity it lists odds for", function()
+		it("every area has a cat of every rarity it lists odds for", function()
 			for _, area in ipairs(Catalog.areas) do
 				for rarity, weight in pairs(area.odds :: any) do
 					if (weight :: number) > 0 then
 						local found = false
 						for _, def in ipairs(Catalog.cats) do
-							if def.rarity == rarity and (def.area == "both" or def.area == area.id) then
-								found = true
-							end
+							found = found or (def.rarity == rarity and def.area == area.id)
 						end
 						expect(found).to.equal(true)
 					end
 				end
 			end
+		end)
+
+		it(
+			"five areas in tier order with the section 9 spawn points, wave sizes (v0.13.5), odds and income (v0.13.7)",
+			function()
+				-- id -> { name, tier, spawnPoints, odds, waveSize, incomeMultiplier }; v0.13.7: one set of odds everywhere
+				local same = { 72, 22, 5, 0.9, 0.1 }
+				local want = {
+					-- F95 (economy-ladder.md section 1): income 1, 3, 9, 27, 81
+					{ "alley", "Alleyway", 1, 32, same, 6, 1 }, -- v4 (F84, v0.13.18): 24 and the 8 near points
+					{ "park", "Park", 2, 48, same, 5, 3 }, -- F85's long set's cat spots (#799)
+					{ "neighbourhood", "Neighbourhood", 3, 74, same, 5, 9 }, -- F85's long set's cat spots (#810)
+					{ "woods", "Woods", 4, 72, same, 4, 27 }, -- F85's long set (#847) and the oak top
+					{ "sewer", "Sewer", 5, 60, same, 4, 81 }, -- F85's long set's cat spots (#860)
+				}
+				expect(#Catalog.areas).to.equal(#want)
+				for i, row in want do
+					local def = Catalog.areas[i]
+					expect(def.id).to.equal(row[1])
+					expect(def.name).to.equal(row[2])
+					expect(def.tier).to.equal(row[3])
+					expect(def.spawnPoints).to.equal(row[4])
+					expect(def.waveSize).to.equal(row[6]) -- data-model 9 v0.13.5 (was 10 each)
+					expect(def.incomeMultiplier).to.equal(row[7])
+					local odds = row[5] :: { number }
+					expect(def.odds :: any).to.deepEqual({
+						Common = odds[1],
+						Rare = odds[2],
+						Epic = odds[3],
+						Legendary = odds[4],
+						Mythical = odds[5],
+					})
+				end
+			end
+		)
+
+		it("the trap lists per area (F27)")
+	end)
+
+	describe("player-facing words (QA)", function()
+		-- Derek 2026-10-27 13:18: players see Gold, never Shiny. Any string the Catalog holds can reach a card, a
+		-- toast or the book, so none may say shiny. Asset names (CatCafe_...) are never shown and are left out.
+		it("no name, description or label in the Catalog says shiny", function()
+			local found: { string } = {}
+			local seen: { [any]: boolean } = {}
+			local function walk(value: any, path: string)
+				if type(value) == "string" then
+					local text = value :: string
+					local said = string.find(string.lower(text), "shiny", 1, true) ~= nil
+					if said and string.sub(text, 1, 8) ~= "CatCafe_" then
+						table.insert(found, path .. " = " .. text)
+					end
+				elseif type(value) == "table" and not seen[value] then
+					seen[value] = true
+					for key, child in value do
+						walk(key, path .. " (key)")
+						walk(child, path .. "." .. tostring(key))
+					end
+				end
+			end
+			walk(Catalog, "Catalog")
+			expect(found).to.deepEqual({})
+			expect((Catalog :: any).shinyModelName).never.to.be.ok()
+		end)
+	end)
+
+	describe("area income edges (QA, data-model v0.13.7)", function()
+		it("pays more in every area farther out, starting at 1 in the Alleyway", function()
+			expect(Catalog.areas[1].id).to.equal("alley")
+			expect(Catalog.areas[1].incomeMultiplier).to.equal(1)
+			for i = 2, #Catalog.areas do
+				local near, far = Catalog.areas[i - 1], Catalog.areas[i]
+				if not (far.incomeMultiplier > near.incomeMultiplier) then
+					error(
+						string.format(
+							"%s pays x%s, not more than %s's x%s",
+							far.id,
+							tostring(far.incomeMultiplier),
+							near.id,
+							tostring(near.incomeMultiplier)
+						)
+					)
+				end
+			end
+		end)
+
+		it(
+			"never pays a cat from a farther area less than the same rarity from a nearer one",
+			function()
+				expect(#Catalog.cats > 0).to.equal(true)
+				local tierOf: { [string]: number } = {}
+				for _, area in Catalog.areas do
+					tierOf[area.id] = area.tier
+				end
+				for _, def in Catalog.cats do
+					local tier = tierOf[(def :: any).incomeArea or def.area]
+					if tier ~= nil then
+						for _, other in Catalog.cats do
+							local otherTier = tierOf[(other :: any).incomeArea or other.area]
+							if
+								other.rarity == def.rarity
+								and otherTier ~= nil
+								and otherTier < tier
+							then
+								if def.incomePerSecond < other.incomePerSecond then
+									error(
+										string.format(
+											"%s (%s) earns less than %s (%s)",
+											def.id,
+											def.area,
+											other.id,
+											other.area
+										)
+									)
+								end
+							end
+						end
+					end
+				end
+			end
+		)
+
+		it("pays a spare cat by its incomeArea, never by the spare pool (F78)", function()
+			for _, def in Catalog.cats do
+				if def.area == "spare" then
+					local area = Catalog.getArea((def :: any).incomeArea)
+					if area == nil then
+						error(def.id .. " is a spare cat with no incomeArea")
+					end
+					expect(def.incomePerSecond).to.equal(
+						Catalog.rarities[def.rarity].incomePerSecond
+							* (area :: any).incomeMultiplier
+					)
+				end
+			end
+		end)
+	end)
+
+	describe("the menu (F90, cats-make-orders.md section 1)", function()
+		local TIER_ONE = { "coffee", "milk", "cake_slice", "paw_cookie" }
+		local MODELS = {
+			"Coffee",
+			"Milk",
+			"CakeSlice",
+			"PawCookie",
+			"Tea",
+			"FishBiscuit",
+			"KittyCupcake",
+			"HotCocoa",
+			"PancakeStack",
+			"Sundae",
+			"StrawberryRoll",
+			"RainbowCake",
+		}
+
+		it("has the twelve items in tier order, a drink 2 s and a bake 3 s", function()
+			expect(#Catalog.menu).to.equal(12)
+			local seen: { [string]: boolean } = {}
+			local lastTier = 1
+			for i, item in Catalog.menu do
+				expect(seen[item.id]).to.equal(nil)
+				seen[item.id] = true
+				expect(Catalog.getMenuItem(item.id)).to.equal(item)
+				expect(item.model).to.equal(MODELS[i])
+				expect(Catalog.menuModelName(item)).to.equal("CatCafe_Menu_" .. MODELS[i])
+				expect(item.tier >= lastTier and item.tier <= Catalog.maxTier).to.equal(true)
+				lastTier = item.tier
+				local stations = { espresso = 2, counter = 2, oven = 3 }
+				expect(stations[item.station]).to.equal(item.makeSeconds)
+				expect(#item.glyph > 0 and #item.name > 0).to.equal(true)
+			end
+		end)
+
+		it("opens Tier 1's four at Tier 1 and all twelve at Tier 5", function()
+			local ids: { string } = {}
+			for _, item in Catalog.menuFor(1) do
+				table.insert(ids, item.id)
+			end
+			expect(ids).to.deepEqual(TIER_ONE)
+			expect(#Catalog.menuFor(0)).to.equal(4) -- a cafe with no Tier yet serves Tier 1's
+			expect(#Catalog.menuFor(2)).to.equal(6)
+			expect(#Catalog.menuFor(3)).to.equal(8)
+			expect(#Catalog.menuFor(4)).to.equal(10)
+			expect(#Catalog.menuFor(5)).to.equal(12)
+		end)
+
+		it("gives the rich customer the newest item open", function()
+			expect(Catalog.newestMenuItem(1).id).to.equal("paw_cookie")
+			expect(Catalog.newestMenuItem(3).id).to.equal("hot_cocoa")
+			expect(Catalog.newestMenuItem(5).id).to.equal("rainbow_cake")
 		end)
 	end)
 end

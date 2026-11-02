@@ -1,41 +1,14 @@
-# Questions for Gavin (2026-10-26)
+# Set 4 questions (2026-10-27)
 
-Each question has our current plan in brackets so a "yes" is enough. Correct anything that is off.
+For Derek or Gavin. The same questions are in the Cat Cafe tab of the Game Ideas Google Doc under "Set 4 questions", each with a bullet under it for the answer. Earlier answers are saved word for word in [feedback/](feedback/) (round 4 in [answers-2026-10-27-round4.md](feedback/answers-2026-10-27-round4.md)). Each question has our plan in it, so a yes is enough.
 
-Alleys and spawns
-
-1. Night length: we plan 3 minutes of day and 2 minutes of night on a 5 minute loop, so every session includes a night. Good, or do you want longer days or nights?
-2. Leftovers: cats nobody caught vanish when the next night starts (yes in our plan). Can you still catch leftovers during the day? (Our plan: yes.)
-3. How many cats per night: 6 in the alley and 6 in the park, shared by everyone on the server, first to catch wins. Enough, or should it scale with the number of players?
-4. Other locations: our order is Park first, then Woods, Rooftops, Harbor. Any places you would rather have (beach, school, market, farm, sewers)?
-5. Can a Legendary appear in the alley at tiny odds (our plan: yes, 0.5%), or are the rare cats only in later areas?
-
-Catching
-
-6. Net: the net is the main catch tool with a timed swing, bought and upgraded in the shop (3 levels). A missed swing lets Rare and rarer cats run away, Commons stay. OK?
-7. Bait: food placed in a bowl pulls a cat to you after a short wait; better food gives better odds; the odds are shown before you buy. Any time of day or only at night? (Our plan: any time.)
-8. Rescue: what did you picture? Our guess: a cat stuck in a tree, a box or a drainpipe that needs a longer hold with no chance of failing, often rarer, and it earns a little more afterwards because it is grateful.
-9. Derek said no stealing for now. Are you fine with that for the first version, including no stealing from someone carrying a cat home?
-
-Income and cafe
-
-10. Does money stop at night when the cafe is closed, or keep flowing? (Our plan: keep flowing, customers leave and the sign flips to Closed, so the income number never drops to zero.)
-11. During the day, does the manager do anything hands-on beyond placing cats and buying upgrades (take orders, cook, restock, greet a VIP), or is watching the cafe run enough?
-12. Cat jobs: are placed cats just sitting in spots (counter, window, cushion) earning tips, or do they have roles like waiter, barista and greeter with different pay?
-13. Expansions and "other stuff": patio and second floor, cat toys, staff outfits, a daily special customer. Which of these matter to you, and what else did you mean?
-
-Cats
-
-14. How many cats: 12 in the first test, 40 at launch. More or fewer? Any must-have cats (colors, breeds, names)?
-15. Look: your two pictures show cube-headed collectible cats and an upright cat in a suit. Should strays walk on all fours and working cats stand up in uniforms (apron, bow tie, suit), or should every cat have the same body?
-16. Should players be able to name their cats? Do you want golden or rainbow versions and a way to merge duplicates? (Our plan: both, after the first test.)
-
-Loop and rebirth
-
-17. Main loop as we have it: by day you upgrade the cafe and place cats, by night you hunt, carry the cat home, repeat; a session is 10 to 15 minutes. Anything missing?
-18. Rebirth: our plan is "Renovate" at cafe level 5: reset money and upgrades, keep the cats, get a permanent +25% tips and a new look for the cafe. In the first version or later? What should be kept and what should reset?
-
-Other
-
-19. Name for the game (Purr Pot is a placeholder).
-20. Who is it for: younger kids, teens or everyone? This decides how harsh misses and timers can be.
+1. Shoved cats. A dropped cat now walks back to where it was caught, and anyone can pick it up on the way. A cat knocked loose by a shove still stays where it fell (round 3). Should a shoved-loose cat walk home too? Our plan: no, it stays put, so the old carrier can shove back and take it.
+2. Second props. A themed cat can now wear one or two props. Ideas for the later areas: Skater Cat a backwards cap, Painter Cat a paintbrush in its mouth, Chef Cat a curly moustache, Mail Cat a letter in its mouth, Super Cat a hero mask, Ice Cream Cat sprinkle sunglasses, Scout Cat a ranger hat, Lumberjack Cat a log bundle, Mushroom Cat tiny mushrooms on its back, Firefly Cat glowing antennae, Antler Cat a leaf cloak, Miner Cat a pickaxe, Bubble Cat a rubber duck on its head, Steampunk Cat a gear top hat, Diver Cat an air tank, King Cat a royal cape and Dragon Cat little horns (Unicorn Cat keeps just its horn). Which ones do you want? Our plan: all of them, and the Alleyway and Park cats get second props later the same way.
+3. Swaps. From the most popular cat costumes: Taco Cat or Pizza Cat in place of Painter Cat (Neighbourhood), Shark Cat (a shark fin hood) or Duck Cat (a rubber duck hood) in place of Diver Cat (Sewer) and Owl Cat in place of Lumberjack Cat (Woods). Any of these, or keep the 18 as they are? Our plan: keep them.
+4. Something to do in each area. In Pet Simulator 99 every area has one extra thing to do. Ideas for after the three areas are built: a yard sale in the Neighbourhood (two decor pieces for golden fish, new each day), the Fish Pond in the Woods (3 golden fish every 30 minutes) and a Lost and Found box in the Sewer (one free food a day). Want them?
+5. Daily Treat. Day 2 gives 2 Salmon, 15 golden fish and a spin, and day 4 a Caviar, a Classic Crate and a spin. Day 7 gives a Golden Classic Crate (Epic or better decor), a Star Treat (the best bait: a Legendary 45% or a Mythical 15% of the time), 50 golden fish and 3 spins. We picked a Star Treat over a cat crate so cats still only come from catching, rescue and bait. Good?
+6. Tip Jar. The 60 minute gift is now 10 minutes of your income, 10 golden fish and a spin. The 120 minute gift is a Caviar, a Classic Crate, 25 golden fish, 2 spins and a Tip Potion. Big enough to keep regulars on for 2 hours?
+7. Index bonuses. Each track now has its own forever bonus: the normal track more tips, the gold track gold luck (finding every gold cat takes the gold chance from 5% to 12.5%) and All Cats faster bait (up to 38% shorter waits). Finishing a track also pays extra crates. The trade off is that the whole Index now adds +35% tips instead of +148%. Good, or should the gold and All Cats tracks keep some tips too?
+8. Group code. Codes are letters and numbers only, so the group code would be "group" (no "!"). It turns on when the game moves to your group and gives members 30 minutes of income, 100 golden fish, 5 spins, a Classic Crate, 2 Caviar and a Tip Potion. Good?
+9. Potions. Potions come from the Mystery Visitor, the Tip Jar, the Daily Treat and codes. Should the Golden Fish Market also sell them for golden fish? Our plan: not yet, so they stay a nice surprise.
+10. Monetization agent. Should it start now, during the friends alpha, or wait until the game is close to going public? Our plan: wait, so it can use the alpha's playtime numbers.

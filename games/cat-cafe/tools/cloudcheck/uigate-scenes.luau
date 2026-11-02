@@ -247,6 +247,39 @@ local function rainbowCat()
 	}
 end
 
+-- an F98 LeaderboardSync: full top 50 lists with long names, this player (id 1) fourth on all time Money and off
+-- this week's list
+local function leaderboardSync()
+	local names = { "Mittens4Ever", "xX_CatQueen_Xx", "SuperLongDisplayName", "Biscuit", "TunaTycoon", "Pawsome" }
+	local function list(count, top, step, first)
+		local rows = {}
+		for rank = 1, count do
+			local userId = if rank == 4 and first then 1 else 1000 + rank
+			table.insert(rows, {
+				rank = rank,
+				userId = userId,
+				name = if userId == 1 then "You Player" else names[(rank - 1) % #names + 1] .. rank,
+				value = math.max(top - (rank - 1) * step, 1),
+				crown = rank <= 10,
+			})
+		end
+		return rows
+	end
+	return {
+		boards = {
+			index = { allTime = list(50, 68, 1) },
+			playtime = { allTime = list(50, 2472 * 4, 90), week = list(24, 1860, 60) },
+			money = { allTime = list(50, 1240000000, 22000000, true), week = list(50, 8400000, 150000) },
+		},
+		me = {
+			index = { value = 31 },
+			playtime = { rank = 37, value = 2472 },
+			money = { rank = 4, value = 1174000000 },
+		},
+		week = 2901,
+	}
+end
+
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
 -- "Daily.Quest2.Claim" walks down one name at a time
 local function press(windowName, name)
@@ -525,6 +558,20 @@ local SCENES = {
 		end
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
+	end },
+	-- F98 section 2: the Index's Top tab on the Index board, the top 50 with medals and crowns, "You: 31 cats" pinned
+	{ "IndexTop", function()
+		UI.leaderboards.sync(leaderboardSync())
+		UI.open("Collection")
+		press("Collection", "TopTab")
+	end },
+	-- the Money board's This week list: this player is not on it, so their line says so
+	{ "IndexTopWeek", function()
+		UI.leaderboards.sync(leaderboardSync())
+		UI.open("Collection")
+		press("Collection", "TopTab")
+		press("Collection", "Board_money")
+		press("Collection", "Window_week")
 	end },
 	{ "Potions", function()
 		UI.open("Potions")

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 09:07 UTC",
+  "generated": "2026-11-02 09:46 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -94326,6 +94326,867 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_Coffee",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_Coffee",
+        "CatCafe_Menu_Coffee_Plate"
+      ],
+      "triangles": 464,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 0.48
+      },
+      "size_roblox": [
+        1.13,
+        0.48,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        0.48
+      ],
+      "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_Coffee.model.json",
+      "rbx_parts": 28,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_Coffee.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_Coffee.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "464/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "180 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_Milk",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_Milk",
+        "CatCafe_Menu_Milk_Plate"
+      ],
+      "triangles": 396,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 1.03
+      },
+      "size_roblox": [
+        1.13,
+        1.03,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        1.03
+      ],
+      "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_Milk.model.json",
+      "rbx_parts": 23,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_Milk.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_Milk.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "396/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "154 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_CakeSlice",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_CakeSlice",
+        "CatCafe_Menu_CakeSlice_Plate"
+      ],
+      "triangles": 250,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 0.92
+      },
+      "size_roblox": [
+        1.13,
+        0.92,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        0.92
+      ],
+      "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_CakeSlice.model.json",
+      "rbx_parts": 14,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_CakeSlice.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_CakeSlice.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "250/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "122 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_PawCookie",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_PawCookie",
+        "CatCafe_Menu_PawCookie_Plate"
+      ],
+      "triangles": 440,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 0.36
+      },
+      "size_roblox": [
+        1.13,
+        0.36,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        0.36
+      ],
+      "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_PawCookie.model.json",
+      "rbx_parts": 14,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_PawCookie.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_PawCookie.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "440/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_Tea",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_Tea",
+        "CatCafe_Menu_Tea_Plate"
+      ],
+      "triangles": 484,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 0.45
+      },
+      "size_roblox": [
+        1.13,
+        0.45,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        0.45
+      ],
+      "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_Tea.model.json",
+      "rbx_parts": 31,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_Tea.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_Tea.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "484/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "188 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_FishBiscuit",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_FishBiscuit",
+        "CatCafe_Menu_FishBiscuit_Plate"
+      ],
+      "triangles": 452,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 0.26
+      },
+      "size_roblox": [
+        1.13,
+        0.26,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        0.26
+      ],
+      "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_FishBiscuit.model.json",
+      "rbx_parts": 19,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_FishBiscuit.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_FishBiscuit.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "452/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "222 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_KittyCupcake",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_KittyCupcake",
+        "CatCafe_Menu_KittyCupcake_Plate"
+      ],
+      "triangles": 444,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 0.74
+      },
+      "size_roblox": [
+        1.13,
+        0.74,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        0.74
+      ],
+      "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_KittyCupcake.model.json",
+      "rbx_parts": 24,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_KittyCupcake.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_KittyCupcake.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "444/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "168 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_HotCocoa",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_HotCocoa",
+        "CatCafe_Menu_HotCocoa_Plate"
+      ],
+      "triangles": 456,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 0.57
+      },
+      "size_roblox": [
+        1.13,
+        0.57,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        0.57
+      ],
+      "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_HotCocoa.model.json",
+      "rbx_parts": 36,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_HotCocoa.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_HotCocoa.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "456/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "190 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_PancakeStack",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_PancakeStack",
+        "CatCafe_Menu_PancakeStack_Plate"
+      ],
+      "triangles": 432,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 0.52
+      },
+      "size_roblox": [
+        1.13,
+        0.52,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        0.52
+      ],
+      "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_PancakeStack.model.json",
+      "rbx_parts": 14,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_PancakeStack.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_PancakeStack.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "432/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "150 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_Sundae",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_Sundae",
+        "CatCafe_Menu_Sundae_Plate"
+      ],
+      "triangles": 388,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 1.09
+      },
+      "size_roblox": [
+        1.13,
+        1.09,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        1.09
+      ],
+      "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_Sundae.model.json",
+      "rbx_parts": 21,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_Sundae.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_Sundae.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "388/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "202 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_StrawberryRoll",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_StrawberryRoll",
+        "CatCafe_Menu_StrawberryRoll_Plate"
+      ],
+      "triangles": 466,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 1.09
+      },
+      "size_roblox": [
+        1.13,
+        1.09,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        1.09
+      ],
+      "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_StrawberryRoll.model.json",
+      "rbx_parts": 24,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_StrawberryRoll.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_StrawberryRoll.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "466/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "207 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_RainbowCake",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_RainbowCake",
+        "CatCafe_Menu_RainbowCake_Plate"
+      ],
+      "triangles": 334,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 1.07
+      },
+      "size_roblox": [
+        1.13,
+        1.07,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        1.07
+      ],
+      "pivot": "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and pivot CatCafe_Menu_GoldPlate here for the rich customer)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_RainbowCake.model.json",
+      "rbx_parts": 24,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_RainbowCake.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_RainbowCake.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "334/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "167 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_GoldPlate",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_GoldPlate"
+      ],
+      "triangles": 148,
+      "budget": 200,
+      "size_studs": {
+        "x": 1.13,
+        "y": 1.16,
+        "z": 0.12
+      },
+      "size_roblox": [
+        1.13,
+        0.12,
+        1.16
+      ],
+      "bounds_min": [
+        -0.57,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.58,
+        0.12
+      ],
+      "pivot": "the base centre, the same as an item's _Plate",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_GoldPlate.model.json",
+      "rbx_parts": 3,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_GoldPlate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_GoldPlate.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "148/200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "46 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_Tray",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_Tray"
+      ],
+      "triangles": 240,
+      "budget": 400,
+      "size_studs": {
+        "x": 1.4,
+        "y": 1.4,
+        "z": 0.25
+      },
+      "size_roblox": [
+        1.4,
+        0.25,
+        1.4
+      ],
+      "bounds_min": [
+        -0.7,
+        -0.7,
+        0.0
+      ],
+      "bounds_max": [
+        0.7,
+        0.7,
+        0.25
+      ],
+      "pivot": "the underside centre (on a cat's Carry Attachment); an item's pivot goes on its Item Attachment",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_Tray.model.json",
+      "rbx_parts": 18,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_Tray.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_Tray.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "240/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "98 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Menu_CoinBag",
+      "category": "Menu",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Menu_CoinBag"
+      ],
+      "triangles": 420,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.64,
+        "y": 0.65,
+        "z": 0.92
+      },
+      "size_roblox": [
+        0.64,
+        0.92,
+        0.65
+      ],
+      "bounds_min": [
+        -0.32,
+        -0.33,
+        -0.0
+      ],
+      "bounds_max": [
+        0.32,
+        0.32,
+        0.92
+      ],
+      "pivot": "the base centre (on a cat's Carry Attachment)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Menu_CoinBag.model.json",
+      "rbx_parts": 12,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Menu_CoinBag.fbx",
+        "assets/cat-cafe/exports/CatCafe_Menu_CoinBag.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "420/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "174 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Cafe_Oven",
+      "category": "Cafe",
+      "module": "menu",
+      "objects": [
+        "CatCafe_Cafe_Oven",
+        "CatCafe_Cafe_Oven_Door"
+      ],
+      "triangles": 716,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.2,
+        "y": 2.86,
+        "z": 4.6
+      },
+      "size_roblox": [
+        3.2,
+        4.6,
+        2.86
+      ],
+      "bounds_min": [
+        -1.6,
+        -1.56,
+        0.0
+      ],
+      "bounds_max": [
+        1.6,
+        1.3,
+        4.6
+      ],
+      "pivot": "the base centre behind the counter (Layout.cafe), front -Z; _Door pivots on its bottom hinge",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Cafe_Oven_Door": [
+          -0.0,
+          -1.2,
+          0.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Cafe_Oven_Door": [
+          0.0,
+          0.6,
+          -1.2
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cafe_Oven.model.json",
+      "rbx_parts": 43,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cafe_Oven.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cafe_Oven.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "716/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "296 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.13"
         }
       }
     },

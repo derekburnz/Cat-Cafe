@@ -206,6 +206,14 @@ return function()
 		CrateReelRampSeconds = 0.3,
 		CrateReelStopSeconds = 0.8,
 		CrateReelHoldSeconds = 0.25,
+		RainbowChanceNet = 0.005, -- F99 (rainbow-coat.md section 5)
+		RainbowChanceBait = 0.005,
+		RainbowChanceRescue = 0.01,
+		RainbowMultiplier = 3,
+		RainbowLuckMax = 1.0,
+		CollectorRainbowMultiplier = 10,
+		RainbowAnimateMax = 10,
+		RainbowSpawnToastSeconds = 60,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 same target cooldown 20, v0.5.1 target immunity S45; v0.8 F56)
 		BumpEnabled = true,
 		BumpChance = 1.0, -- v0.8 F56: a shove always drops the cat
@@ -647,6 +655,16 @@ return function()
 			expect(#Config.ProfileStoreName > 0).to.equal(true)
 			expect(#Config.ProfileKeyPrefix > 0).to.equal(true)
 			expect(Config.MaxIdLength >= 20).to.equal(true)
+		end)
+	end)
+
+	describe("the rainbow coat (F99, rainbow-coat.md section 1)", function()
+		it("is a tenth of gold everywhere and earns twice a gold cat", function()
+			expect(Config.RainbowChanceNet).to.be.near(Config.GoldChanceNet / 10, 1e-9)
+			expect(Config.RainbowChanceBait).to.be.near(Config.GoldChanceBait / 10, 1e-9)
+			expect(Config.RainbowChanceRescue).to.be.near(Config.GoldChanceRescue / 10, 1e-9)
+			expect(Config.RainbowMultiplier).to.equal(2 * Config.GoldMultiplier)
+			expect(Config.CollectorRainbowMultiplier > Config.CollectorGoldMultiplier).to.equal(true)
 		end)
 	end)
 

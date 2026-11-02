@@ -295,6 +295,18 @@ def carry_at(spec, body="walk"):
     return (0.0, round(h["c"][1], 4), round(tip - 0.01, 4))
 
 
+def back_rise(spec):
+    """How far the coat's extras stand above the top of A's body box (_body_a, _coat_extras): a mane 0.09, star specks
+    0.07, sprinkles 0.045, stripes, patches, spots and petals 0.03. The walking back pieces cover it."""
+    if spec.get("mane"):
+        return 0.09
+    if spec.get("sparkle"):
+        return 0.07
+    if spec.get("sprinkles"):
+        return 0.045
+    return 0.03
+
+
 def pose_lift(spec, pose):
     """A CAT_POSES lift for this cat, unscaled: a short-legged cat's body is already nearer the floor, so it drops
     less to lie down."""

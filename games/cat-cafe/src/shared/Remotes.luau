@@ -102,7 +102,8 @@ Remotes.ClientToServer = {
 -- Server -> client.
 Remotes.ServerToClient = {
 	"ProfileSync", -- (state: Types.PlayerState)  full state; the client merges
-	"CatCaught", -- (catId: string, isNew: boolean)
+	"CatCaught", -- (catId: string, isNew: boolean, variant: string)  variant "base", "gold" or "rainbow" (F99), for the
+	-- Cat found card's coat
 	"OfflineEarnings", -- (amount: number, seconds: number)
 	"Toast", -- (text: string, kind: "info" | "good" | "warn")
 	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch. F89: a Legendary
@@ -111,6 +112,10 @@ Remotes.ServerToClient = {
 	-- (luck-and-rare-moments.md 2a): a Legendary, a Mythical or a gold Epic or better (and, F99, every rainbow cat)
 	-- checked in or tamed, to everyone: the owner's big pull card and the hop, spin, shockwave and stings; the first
 	-- Epic a player ever secures goes to that player alone for the small card. The toast is the Announce above
+	"RainbowSpawned", -- (areaId: string, catId: string, strayId: string, toast: boolean)  F99 (rainbow-coat.md
+	-- section 2): a rainbow stray spawned, to everyone for its beam (the stray model is named strayId in the Strays
+	-- folder, Variant "rainbow") and a nearby shimmer; toast is true at most once every RainbowSpawnToastSeconds per
+	-- server, for "A Rainbow Tabby is out in the Woods!" (Catching.rainbowSpawnText)
 	"FoundRareDecor", -- (userId: number, decorId: string)  F89 (2b): a Mythical crate piece, to everyone for the
 	-- toast ("Sam found the Mythical Midnight Sky!", RareMoments.decorText), at most once a minute a player
 	"PalArrived", -- (joinerUserId: number, palUserId: number, palArea: string?)  F92 (playing-together.md section 5),

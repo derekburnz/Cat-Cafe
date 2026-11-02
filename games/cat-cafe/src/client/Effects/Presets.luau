@@ -855,6 +855,24 @@ Presets.motion = {
 	-- and ears flat back `ears`, without the hiss: startled, then away at a run.
 	startle = { seconds = 0.4, hop = 0.8, lean = 10, tailUp = 35, ears = 40 },
 	barista = { tapEvery = 1.6, headDip = 12, paw = 35 },
+	-- The Barista's working bob while it makes an order (F90, cats-make-orders.md section 2: "two small hops and a head
+	-- tilt, on a loop"; Logic.makingBob and makingPose, drawn by Cats.luau while the cat's local Making attribute is
+	-- set): each `seconds` loop it hops `hops` times, `height` studs off its seat over `hopSeconds` each with its front
+	-- paws lifting `paws` degrees, pauses `tiltGap`, then tilts its head `tilt` degrees over `tiltSeconds`, the other
+	-- way the next loop; its tail is up `tail` throughout. It eases in and out over `ease` seconds. With Reduce Motion
+	-- only the tilt plays.
+	making = {
+		seconds = 1.5,
+		hops = 2,
+		hopSeconds = 0.24,
+		height = 0.1,
+		paws = 10,
+		tiltGap = 0.1,
+		tilt = 14,
+		tiltSeconds = 0.6,
+		tail = 15,
+		ease = 0.2,
+	},
 	-- A waiter watching the room from its station (Derek 2026-10-29 19:45: cats should move around the cafe, "not just
 	-- waddle back and fourth while sitting"; it used to rock side to side with a little hop): the head turns `look`
 	-- degrees from table to table over `lookSeconds`, and tilts `tilt` now and then, once every `tiltEvery`. Its walks
@@ -1086,6 +1104,21 @@ export type CatPose = { body: string, lift: number, turns: { [string]: { number 
 -- `range` studs. Getting up and sitting down cross-fade the seated body and the walking body over `fade` seconds; it
 -- turns at most `turn` degrees a second. Off with Reduce Motion. F90's orders (cats-make-orders.md) send the same
 -- walk with a tray, its underside on the walking body's Carry attachment at the ear tips (Model-Agent's #778).
+-- F90's animation (section 6, Logic.crouch, trayCarry, sweepPose, sweepScoop and bankNod):
+-- - `sit`: getting up, the walking copy rises out of a sit over `rise` seconds (the cross-fade runs over the first
+--   `fade` of them); sitting down it sinks into one, the cross-fade over the last `fade`. Down, its hindquarters
+--   are `drop` studs lower with the back legs tucked `tuck` degrees, the body `pitch` degrees nose up and the tail
+--   `tail` degrees down.
+-- - `carry`: with a tray on its head it eases into carrying over `ease` seconds, its chin `chin` degrees up and tail
+--   `tail` degrees higher, the head steady (Logic.gait's level); tall hats fade out over the same ease.
+-- - `sweep`: at a tip pile (Moments.TipSwept) it stops for `seconds`: rears up by `up` (a share of the sweep) with
+--   its body `rear` degrees back and `lift` studs higher, its left paw `reach` degrees out on the table edge, drags
+--   its right paw back `drag` degrees `swipes` times, and is back on all fours from `down` to the end, tail up
+--   `tail`. The tray with the coin bag waits where the pile was and hops onto its head between `scoop` and `land`,
+--   in an arc `arc` studs high.
+-- - `bank`: at the till (Moments.TipBanked) it stops for `seconds` and dips its shoulders `lean` and head `nod`
+--   degrees toward it as the bag tips off, tail up `tail`.
+-- Sweep and bank do not play with Reduce Motion: the bag goes straight onto the head and the walk goes on.
 Presets.cafeWalk = {
 	speed = 3,
 	turn = 300,
@@ -1097,6 +1130,23 @@ Presets.cafeWalk = {
 	range = 70,
 	trayLift = 0.08, -- studs a tray sits above the top of the head, on a body without a Carry attachment
 	tallAbove = 0.05, -- studs a head prop may rise above Carry before it steps aside under a tray
+	sit = { rise = 0.45, drop = 0.1, tuck = 40, pitch = 12, tail = 20 },
+	carry = { ease = 0.25, chin = 6, tail = 20 },
+	sweep = {
+		seconds = 1.1,
+		up = 0.18,
+		down = 0.72,
+		rear = 22,
+		lift = 0.12,
+		reach = 50,
+		drag = 40,
+		swipes = 2,
+		tail = 25,
+		scoop = 0.6,
+		land = 0.85,
+		arc = 0.8,
+	},
+	bank = { seconds = 0.45, lean = 10, nod = 25, tail = 15 },
 }
 
 -- The Bellhop Cat's five animations (F96, starter-cat.md section 1), on Model-Agent's #708 hinges: the cap (`_Prop`
@@ -2211,7 +2261,9 @@ Presets.orders = {
 		flicker = 0.12,
 		hz = 3.1,
 	},
-	door = { { 0, 0 }, { 0.14, -55 }, { 0.6, -55 }, { 0.95, 0 } },
+	-- 30 at most: the plot's Barista stands 2.65 studs in front of the oven (#781), and the 1.75 stud door would reach
+	-- it past that
+	door = { { 0, 0 }, { 0.12, -30 }, { 0.55, -30 }, { 0.85, 0 } },
 	waft = 6,
 	ding = {
 		sparkles = 10,

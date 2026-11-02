@@ -1989,8 +1989,9 @@ end
 
 -- Section 11b and golden-fish.md sections 5 and 5b (F54): every Index milestone, in order. An area page has the
 -- normal track (its cats) and the gold track (its gold cats), the All Cats page (area id "all") counts different
--- cats across every area, and a Decor Index page (area id "decor_<pool>") counts that crate's pieces owned. A page
--- shows the milestones it has a prize for.
+-- cats across every area, a Decor Index page (area id "decor_<pool>") counts that crate's pieces owned and the
+-- Rainbow page (area id "rainbow", F99) counts different rainbow cats across every area. A page shows the milestones
+-- it has a prize for.
 Catalog.indexMilestones = {
 	{ id = "cats3", track = "normal", needs = 3 },
 	{ id = "cats6", track = "normal", needs = 6 },
@@ -2014,6 +2015,12 @@ Catalog.indexMilestones = {
 	{ id = "decor5", track = "decor", needs = 5 },
 	-- every piece of the page: 12 since F80 (golden-fish.md 4b), and 16 on the Classic page since F97 (`whole`)
 	{ id = "decor10", track = "decor", needs = 12, whole = true },
+	-- F99 (rainbow-coat.md section 4): one track for the whole Index, since one rainbow Mythical can take weeks
+	{ id = "rainbow1", track = "rainbow", needs = 1 },
+	{ id = "rainbow3", track = "rainbow", needs = 3 },
+	{ id = "rainbow5", track = "rainbow", needs = 5 },
+	{ id = "rainbow10", track = "rainbow", needs = 10 },
+	{ id = "rainbow25", track = "rainbow", needs = 25 },
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server
@@ -2198,6 +2205,19 @@ Catalog.indexPrizes = {
 	decor_classic = {
 		decor5 = { fish = Config.DecorIndexHalfFish },
 		decor10 = { bonus = Config.DecorIndexBonus },
+	},
+	-- F99 (rainbow-coat.md section 4): the three luck steps add up to RainbowLuckMax (+100%)
+	rainbow = {
+		rainbow1 = { fish = 25, tag = "Rainbow Finder" },
+		rainbow3 = { fish = 50, crates = { classic_golden_crate = 1 } },
+		rainbow5 = { fish = 75, rainbowLuck = 0.2 },
+		rainbow10 = { fish = 100, crates = { classic_golden_crate = 2 }, rainbowLuck = 0.3 },
+		rainbow25 = {
+			fish = 150,
+			crates = { classic_golden_crate = 3 },
+			tag = "Rainbow Master",
+			rainbowLuck = 0.5,
+		},
 	},
 } :: { [string]: { [string]: Types.IndexPrize } }
 for _, prizes in Catalog.indexPrizes do
@@ -3047,5 +3067,156 @@ table.freeze(Catalog.freshCatch)
 function Catalog.getFreshCatchRow(id: string): Types.FreshCatchRow?
 	return Catalog.freshCatchById[id]
 end
+
+-- F90 (cats-make-orders.md section 1): the menu, which grows with the cafe's tier. A customer picks evenly among the
+-- items its cafe's tier has opened (menuFor); the rich customer orders the newest one (newestMenuItem) on the gold
+-- plate. A drink (espresso machine or counter) takes 2 s to make, a bake (oven) 3 s. Client only and cosmetic.
+Catalog.menu = {
+	{
+		id = "coffee",
+		name = "Coffee",
+		tier = 1,
+		station = "espresso",
+		makeSeconds = 2,
+		model = "Coffee",
+		glyph = "☕",
+	},
+	{
+		id = "milk",
+		name = "Milk",
+		tier = 1,
+		station = "counter",
+		makeSeconds = 2,
+		model = "Milk",
+		glyph = "🥛",
+	},
+	{
+		id = "cake_slice",
+		name = "Cake Slice",
+		tier = 1,
+		station = "oven",
+		makeSeconds = 3,
+		model = "CakeSlice",
+		glyph = "🍰",
+	},
+	{
+		id = "paw_cookie",
+		name = "Paw Cookie",
+		tier = 1,
+		station = "oven",
+		makeSeconds = 3,
+		model = "PawCookie",
+		glyph = "🍪",
+	},
+	{
+		id = "tea",
+		name = "Tea",
+		tier = 2,
+		station = "espresso",
+		makeSeconds = 2,
+		model = "Tea",
+		glyph = "🍵",
+	},
+	{
+		id = "fish_biscuit",
+		name = "Fish Biscuit",
+		tier = 2,
+		station = "oven",
+		makeSeconds = 3,
+		model = "FishBiscuit",
+		glyph = "🐟",
+	},
+	{
+		id = "kitty_cupcake",
+		name = "Kitty Cupcake",
+		tier = 3,
+		station = "oven",
+		makeSeconds = 3,
+		model = "KittyCupcake",
+		glyph = "🧁",
+	},
+	{
+		id = "hot_cocoa",
+		name = "Hot Cocoa",
+		tier = 3,
+		station = "espresso",
+		makeSeconds = 2,
+		model = "HotCocoa",
+		glyph = "☕",
+	},
+	{
+		id = "pancake_stack",
+		name = "Pancake Stack",
+		tier = 4,
+		station = "oven",
+		makeSeconds = 3,
+		model = "PancakeStack",
+		glyph = "🥞",
+	},
+	{
+		id = "sundae",
+		name = "Ice Cream Sundae",
+		tier = 4,
+		station = "counter",
+		makeSeconds = 2,
+		model = "Sundae",
+		glyph = "🍨",
+	},
+	{
+		id = "strawberry_roll",
+		name = "Strawberry Roll",
+		tier = 5,
+		station = "oven",
+		makeSeconds = 3,
+		model = "StrawberryRoll",
+		glyph = "🍓",
+	},
+	{
+		id = "rainbow_cake",
+		name = "Rainbow Cake",
+		tier = 5,
+		station = "oven",
+		makeSeconds = 3,
+		model = "RainbowCake",
+		glyph = "🎂",
+	},
+} :: { Types.MenuItem }
+Catalog.menuById = {} :: { [string]: Types.MenuItem }
+for _, item in Catalog.menu do
+	Catalog.menuById[item.id] = item
+	table.freeze(item)
+end
+table.freeze(Catalog.menu)
+
+function Catalog.getMenuItem(id: string): Types.MenuItem?
+	return Catalog.menuById[id]
+end
+
+-- The items a cafe of `tier` serves, in menu order (Tier 1's four at least).
+function Catalog.menuFor(tier: number): { Types.MenuItem }
+	local open: { Types.MenuItem } = {}
+	for _, item in Catalog.menu do
+		if item.tier <= math.max(1, tier) then
+			table.insert(open, item)
+		end
+	end
+	return open
+end
+
+-- The newest item a cafe of `tier` has opened: the rich customer's order.
+function Catalog.newestMenuItem(tier: number): Types.MenuItem
+	local open = Catalog.menuFor(tier)
+	return open[#open]
+end
+
+-- The asset of a menu item on its plate, and the plates and carriers around it (Model-Agent's F90 sheet).
+function Catalog.menuModelName(item: Types.MenuItem): string
+	return "CatCafe_Menu_" .. item.model
+end
+
+Catalog.menuGoldPlate = "CatCafe_Menu_GoldPlate"
+Catalog.menuTray = "CatCafe_Menu_Tray"
+Catalog.menuCoinBag = "CatCafe_Menu_CoinBag"
+Catalog.ovenModel = "CatCafe_Cafe_Oven"
 
 return Catalog

@@ -20,6 +20,7 @@ We picked **Rainbow**: every child knows it, and it reads as "more than gold" fr
 - Every food card and the Fish Market's odds card shows "Rainbow 0.5%" (with the player's rainbow luck in it) under the gold line.
 - **Earnings.** A rainbow cat earns RainbowMultiplier 3, twice a gold cat's 1.5. A rainbow Alleyway Common earns 3 a second, the same as a Park Common.
 - **The Cat Collector** values a rainbow cat at CollectorRainbowMultiplier 10 (gold is 3).
+- **Golden fish.** The first rainbow coat of each cat pays FishFirstRainbowMultiplier (5) times that rarity's first catch fish (Common 5, Rare 15, Epic 40, Legendary 100, Mythical 200), any way it was found, on top of the first catch fish when the cat is also new. A first gold coat stays at twice. A rainbow coat never counts as a first gold. The Rainbow track (section 4) pays on top. Added 2026-11-02 after the #795 review: without it a first rainbow paid less than a first gold although it is ten times rarer.
 
 ## 2. How it looks
 
@@ -57,8 +58,8 @@ The three luck steps add up to +100%, the RainbowLuckMax cap, so a Rainbow Maste
 
 ## 5. Contracts
 
-- Save: `variant` may be `"rainbow"`; the Index entry per cat gains `rainbow` (bool) next to `gold`; `stats.rainbowCatches`; the Rainbow track's claimed milestones sit with the other tracks' claims.
-- Config: `RainbowChanceNet` 0.005, `RainbowChanceBait` 0.005, `RainbowChanceRescue` 0.01, `RainbowMultiplier` 3, `RainbowLuckMax` 1.0, `CollectorRainbowMultiplier` 10, `RainbowAnimateMax` 10, `RainbowSpawnToastSeconds` 60.
+- Save: `variant` may be `"rainbow"`; the Index entry per cat gains `rainbow` (bool) next to `gold`, which is what makes a rainbow coat the first one (`GoldenFish.forCatch` gains `firstRainbow`); `stats.rainbowCatches`; the Rainbow track's claimed milestones sit with the other tracks' claims.
+- Config: `RainbowChanceNet` 0.005, `RainbowChanceBait` 0.005, `RainbowChanceRescue` 0.01, `RainbowMultiplier` 3, `RainbowLuckMax` 1.0, `CollectorRainbowMultiplier` 10, `FishFirstRainbowMultiplier` 5, `RainbowAnimateMax` 10, `RainbowSpawnToastSeconds` 60.
 - Prize shape: `rainbowLuck?` (a fraction) next to `goldLuck?`.
 - Remotes: `RainbowSpawned(areaId, catId)` to all clients (the toast and beam); `SecuredRare` gains `variant` so the big pull can say RAINBOW.
 - Attributes: `Variant` on cat models reads `"rainbow"` (strays, carried, working, resting) so every client draws the coat.
@@ -74,3 +75,4 @@ The three luck steps add up to +100%, the RainbowLuckMax cap, so a Rainbow Maste
 6. Twelve rainbow cats on screen on a phone: only ten animate and the frame rate holds.
 7. Claiming `rainbow5`, `rainbow10` and `rainbow25` lifts the food card's rainbow line to 0.6%, 0.75% and 1%.
 8. The Collector's offer for a rainbow cat is about ten times the base offer for the same cat.
+9. A first rainbow Common pays 5 golden fish (6 if the cat is also new); a second rainbow Common of the same cat by net pays the repeat amount only (none for a Common).

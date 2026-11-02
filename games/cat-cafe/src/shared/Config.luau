@@ -252,7 +252,7 @@ local Config = {
 	-- Tip piles (F61, data-model section 12, round 3 Q6): by day, every TipPileSeconds each earning cafe with a table
 	-- gets a pile worth TipPileRateSeconds of the day rate (at least $5). Since F97 (notes-10-28-to-10-30.md section 1)
 	-- a pile pays its owner the moment it appears, wherever they are; it shows on a table for TipPileShowSeconds and
-	-- at most TipPilesMax show at once (F90's Waiter will sweep them to the till instead).
+	-- at most TipPilesMax show at once (in your own cafe F90's Waiter sweeps them to the till).
 	TipPileSeconds = 30,
 	TipPileRateSeconds = 6,
 	TipPilesMax = 6,
@@ -372,6 +372,21 @@ local Config = {
 	-- up to. Gold rolls use chance x (1 + goldLuck); a bait wait is the wait x (1 - baitSpeed).
 	GoldLuckMax = 1.5,
 	BaitSpeedMax = 0.5,
+
+	-- The Rainbow coat (F99, rainbow-coat.md sections 1, 2 and 5): rolled before gold at the same moments (a net stray
+	-- at spawn, bait as the food goes in, a rescue at night start), so gold keeps its chance. Rainbow luck from the
+	-- Index's Rainbow track multiplies the chance by (1 + luck), the luck at most RainbowLuckMax; gold luck, Gold Rush
+	-- and Lucky Potions never touch it. A rainbow cat earns RainbowMultiplier (gold 1.5) and the Cat Collector values
+	-- it at CollectorRainbowMultiplier (gold 3). Clients animate the bands on at most RainbowAnimateMax rainbow cats
+	-- near the camera; a rainbow stray's server toast goes out at most once every RainbowSpawnToastSeconds.
+	RainbowChanceNet = 0.005,
+	RainbowChanceBait = 0.005,
+	RainbowChanceRescue = 0.01,
+	RainbowMultiplier = 3,
+	RainbowLuckMax = 1.0,
+	CollectorRainbowMultiplier = 10,
+	RainbowAnimateMax = 10,
+	RainbowSpawnToastSeconds = 60,
 
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
 	CodesCatRange = 12, -- RedeemCode from this close to a CodesCat station's pivot
@@ -525,6 +540,17 @@ local Config = {
 		CustomersMax = 24,
 		CustomersMaxLow = 12, -- on a phone or tablet (Effects.tier() "low"): each walker moves every frame
 		CustomerOrderSeconds = 2, -- standing at the counter before taking a seat
+		-- Cats make the orders (F90, cats-make-orders.md section 2), client only: at most OrderQueueMax orders wait or
+		-- are being made per cafe (a customer past that finds its dish on the table as it sits); with no Waiter in
+		-- your own cafe a customer waits up to OrderHandOverSeconds at the counter for the Barista to hand it over;
+		-- a Waiter trots at OrderWaiterSpeed; a left plate stays OrderPlateSeconds, then fades over
+		-- OrderPlateFadeSeconds; an idle Waiter or Greeter sweeps a tip pile TipSweepAfterSeconds after it appears.
+		OrderQueueMax = 3,
+		OrderHandOverSeconds = 8,
+		OrderWaiterSpeed = 5,
+		OrderPlateSeconds = 5,
+		OrderPlateFadeSeconds = 1,
+		TipSweepAfterSeconds = 6,
 	},
 }
 

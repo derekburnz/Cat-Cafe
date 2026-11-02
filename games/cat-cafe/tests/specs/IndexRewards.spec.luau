@@ -504,11 +504,11 @@ return function()
 				profile.goldCollection[def.id] = 1000
 				agree(profile)
 			end
-			-- Every cat page full: every cat milestone is reachable (a Decor Index page counts crate pieces, none
-			-- owned here); a claim ticks its own card, no other.
+			-- Every cat page full: every cat milestone is reachable (a Decor Index page counts crate pieces and the
+			-- Rainbow page, F99, rainbow coats, none owned here); a claim ticks its own card, no other.
 			local open = 0
 			for areaId, prizes in pairs(Catalog.indexPrizes) do
-				if string.sub(areaId, 1, 6) ~= "decor_" then
+				if string.sub(areaId, 1, 6) ~= "decor_" and areaId ~= "rainbow" then
 					for _ in pairs(prizes) do
 						open += 1
 					end

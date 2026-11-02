@@ -32,7 +32,7 @@ Every player in the server when a step is reached gets its prize, as long as the
 | step | prize |
 |---|---|
 | 25% | 5 golden fish |
-| 50% | 10 golden fish and a 15 minute Money Potion |
+| 50% | 10 golden fish and a Money Potion (`tip_potion`, 10 minutes, into the bag) |
 | 100% | a Rally Crate and 15 golden fish |
 
 - A player can earn prizes from at most RallyMaxLaps (4) laps a weekend, so it is a nice weekend goal and not an all-night grind. After that they still help the server's bar and see "You've done your laps this weekend" on the banner.

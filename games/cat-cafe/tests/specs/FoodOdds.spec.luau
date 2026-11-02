@@ -270,9 +270,8 @@ return function()
 	end)
 
 	describe("FoodOdds.extras", function()
-<<<<<<< Updated upstream
 		it(
-			"shows the shiny chance and the five charm star odds the server rolls with (QA)",
+			"shows the gold chance the server rolls with and no charm stars (F97 section 5)",
 			function()
 				local Config = require(
 					game:GetService("ReplicatedStorage")
@@ -280,43 +279,17 @@ return function()
 						:WaitForChild("Config")
 				) :: any
 				local text = FoodOdds.extras()
-				local shiny = text:match("^Gold ([%d%.]+)%% · Charm ")
+				local shiny = text:match("^Gold ([%d%.]+)%%$")
 				expect(shiny).to.be.ok()
 				-- data-model section 8: GoldChanceBait (was ShinyChanceBait), so the card says its percent
 				expect(tonumber(shiny or "") :: number).to.be.near(
 					Config.GoldChanceBait * 100,
 					1e-9
 				)
-				local shares: { number } = {}
-				local sum = 0
-				for count, share in text:gmatch("(%d)★ ([%d%.]+)%%") do
-					expect(tonumber(count)).to.equal(#shares + 1)
-					table.insert(shares, tonumber(share) :: number)
-					sum += tonumber(share) :: number
-				end
-				expect(#shares).to.equal(5)
-				expect(sum).to.be.near(100, 0.05)
-				if Config.CharmStarOdds then
-					for index, share in Config.CharmStarOdds do
-						expect(shares[index]).to.be.near(share, 0.005 + 1e-9)
-					end
-				end
+				expect(text:find("★", 1, true)).never.to.be.ok()
+				expect(text:find("Charm", 1, true)).never.to.be.ok()
 			end
 		)
-=======
-		it("shows the gold chance the server rolls with and no charm stars (F97 section 5)", function()
-			local Config = require(
-				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
-			) :: any
-			local text = FoodOdds.extras()
-			local shiny = text:match("^Gold ([%d%.]+)%%$")
-			expect(shiny).to.be.ok()
-			-- data-model section 8: GoldChanceBait (was ShinyChanceBait), so the card says its percent
-			expect(tonumber(shiny or "") :: number).to.be.near(Config.GoldChanceBait * 100, 1e-9)
-			expect(text:find("★", 1, true)).never.to.be.ok()
-			expect(text:find("Charm", 1, true)).never.to.be.ok()
-		end)
->>>>>>> Stashed changes
 	end)
 
 	describe("FoodOdds with the Index's forever bonuses (F54)", function()
@@ -335,63 +308,24 @@ return function()
 			expect(tonumber(capped or "") :: number).to.be.near(base * 2.5, 0.005)
 		end)
 
-<<<<<<< Updated upstream
 		it(
 			"adds a running potion's luck past the Index's cap and doubles for a Lucky Potion (F73)",
 			function()
 				local base = Config.GoldChanceBait * 100
 				local rush = FoodOdds.extras(9, 0.25)
-				local gold, luck = rush:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck%) · Charm ")
+				local gold, luck = rush:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck%)$")
 				-- BaitService: the Index's luck capped at GoldLuckMax, then the Gold Rush Potion's on top
 				expect(tonumber(gold or "") :: number).to.be.near(base * (2.5 + 0.25), 0.005)
 				expect(luck).to.equal("175")
 				local lucky = FoodOdds.extras(0.4, 0.25, 2)
 				local doubled, luck2 =
-					lucky:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck, Lucky Potion x2%) · Charm ")
+					lucky:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck, Lucky Potion x2%)$")
 				expect(tonumber(doubled or "") :: number).to.be.near(base * 1.65 * 2, 0.005)
 				expect(luck2).to.equal("65")
 				local onlyLucky = FoodOdds.extras(0, 0, 2)
-					:match("^Gold ([%d%.]+)%% %(Lucky Potion x2%) · Charm ")
+					:match("^Gold ([%d%.]+)%% %(Lucky Potion x2%)$")
 				expect(tonumber(onlyLucky or "") :: number).to.be.near(base * 2, 0.005)
 				expect(FoodOdds.extras(0, 0, 1)).to.equal(FoodOdds.extras())
-=======
-		it("adds a running potion's luck past the Index's cap and doubles for a Lucky Potion (F73)", function()
-			local base = Config.GoldChanceBait * 100
-			local rush = FoodOdds.extras(9, 0.25)
-			local gold, luck = rush:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck%)$")
-			-- BaitService: the Index's luck capped at GoldLuckMax, then the Gold Rush Potion's on top
-			expect(tonumber(gold or "") :: number).to.be.near(base * (2.5 + 0.25), 0.005)
-			expect(luck).to.equal("175")
-			local lucky = FoodOdds.extras(0.4, 0.25, 2)
-			local doubled, luck2 =
-				lucky:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck, Lucky Potion x2%)$")
-			expect(tonumber(doubled or "") :: number).to.be.near(base * 1.65 * 2, 0.005)
-			expect(luck2).to.equal("65")
-			local onlyLucky = FoodOdds.extras(0, 0, 2):match("^Gold ([%d%.]+)%% %(Lucky Potion x2%)$")
-			expect(tonumber(onlyLucky or "") :: number).to.be.near(base * 2, 0.005)
-			expect(FoodOdds.extras(0, 0, 1)).to.equal(FoodOdds.extras())
-		end)
-
-		it("shortens the bait wait by the faster bait, after the bowl level and the Big Bowl (F82)", function()
-			local wait = Config.LureWaitSeconds -- 600, a level 1 bowl's
-			expect(FoodOdds.waitSeconds(1, false, 0)).to.equal(wait)
-			expect(FoodOdds.waitSeconds(0, false, 0)).to.equal(wait) -- no bowl reads as a level 1 bowl
-			expect(FoodOdds.waitSeconds(1, true, nil)).to.equal(480)
-			expect(FoodOdds.waitSeconds(1, false, 0.38)).to.equal(math.floor(wait * 0.62))
-			expect(FoodOdds.waitSeconds(1, true, 0.9)).to.equal(240)
-			-- the summed Index percents carry float error; the server adds a hair before flooring, so 372, not 371
-			expect(FoodOdds.waitSeconds(1, false, 0.38000000000000012)).to.equal(372)
-			-- F73: the Index's 0.38 and a Quick Bait Potion's 0.25 together stay inside BaitSpeedMax
-			expect(FoodOdds.waitSeconds(1, false, 0.38 + 0.25)).to.equal(
-				FoodOdds.waitSeconds(1, false, Config.BaitSpeedMax or 0.5)
-			)
-			-- each level's wait, as shared Bait.waitSeconds and the server's Economy.baitWaitSeconds
-			local levels: { number } = Config.BowlWaitSeconds
-			expect(#levels).to.equal(5)
-			for level, seconds in levels do
-				expect(FoodOdds.waitSeconds(level, false, 0)).to.equal(seconds)
-				expect(FoodOdds.waitSeconds(level, true, 0)).to.equal(math.floor(seconds * 0.8 + 1e-6))
->>>>>>> Stashed changes
 			end
 		)
 

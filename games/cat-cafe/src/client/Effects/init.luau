@@ -5,9 +5,10 @@
 -- potion glows, the Mystery Visitor, cat level ups, the red "!" over stuck cats, the green flash on decor you put out,
 -- the rarity gems over strays, splashes in water, the intro's puff, the Cat Cannon's flight, clouds and camp
 -- check-in, the campfires' moving flames, the big confetti pull for a Legendary or Mythical, the clouds in the sky,
--- the rainbow coats, the Rescue Rally's pops and bunting and Trade done's flight, all on this client only. Effects
--- read replicated world state (tags and attributes) and this player's own events; they never fire a remote, never
--- change game state and never move a part the server moves for gameplay. Rules: .claude/skills/animation-vfx/SKILL.md.
+-- the rainbow coats, the Rescue Rally's pops and bunting, Trade done's flight and rare decor's moving parts, all on
+-- this client only. Effects read replicated world state (tags and attributes) and this player's own events; they
+-- never fire a remote, never change game state and never move a part the server moves for gameplay. Rules:
+-- .claude/skills/animation-vfx/SKILL.md.
 -- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
@@ -26,6 +27,7 @@ local Fish = require(script.Fish)
 local Intro = require(script.Intro)
 local Levels = require(script.Levels)
 local Market = require(script.Market)
+local Motion = require(script.Motion)
 local Mystery = require(script.Mystery)
 local Plots = require(script.Plots)
 local Potions = require(script.Potions)
@@ -83,6 +85,7 @@ function Effects.start()
 	Rainbow.start()
 	Rally.start()
 	Trade.start()
+	Motion.start()
 end
 
 -- "low" on a phone or tablet or in Low performance mode, "high" on a PC or console (Presets.budget).

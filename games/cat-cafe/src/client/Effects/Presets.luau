@@ -76,6 +76,7 @@ export type Budget = {
 	rainbowOutlines: number, -- of those, the nearest with a band-coloured outline (a Highlight each)
 	rallyPops: number, -- "+1" pops and paws flying into the Rally bar at once (F101)
 	pennants: number, -- bunting pennants fluttering at once (F101); 0 hangs them all still
+	decorMotion: number, -- rare decor's moving parts (_Swing, _Spin, _Bob) moving at once (F89 2c)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -107,6 +108,7 @@ Presets.budget = {
 		rainbowOutlines = 3,
 		rallyPops = 5,
 		pennants = 40,
+		decorMotion = 12,
 	},
 	high = {
 		animatedCats = 16,
@@ -133,6 +135,7 @@ Presets.budget = {
 		rainbowOutlines = 6,
 		rallyPops = 8,
 		pennants = 90,
+		decorMotion = 24,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -159,6 +162,7 @@ Presets.budget = {
 		rainbowOutlines = 0,
 		rallyPops = 3,
 		pennants = 0,
+		decorMotion = 0,
 	},
 } :: { [string]: Budget }
 
@@ -1821,6 +1825,20 @@ Presets.tradeFly = {
 	ringSeconds = 0.45,
 	sparkle = Color3.fromRGB(255, 244, 176),
 	ringColor = Color3.fromRGB(255, 249, 242),
+}
+
+-- Moving parts of rare decor (F89 2c, luck-and-rare-moments.md: a Legendary piece has "a moving part and a light"):
+-- Model-Agent marks each with a child Model named ending `_Swing` (swings side to side about its pivot's Z axis, the
+-- pivot at the hook: lanterns, a porch swing, wind chimes), `_Spin` (turns about its pivot's Y axis: a record, a little
+-- fan) or `_Bob` (rides up and down along its pivot's Y: a duck on the water), lights inside riding along. Its own
+-- `Angle` (degrees), `Seconds` (one cycle) and `Rise` (studs) attributes override the defaults here, held inside the
+-- ranges. The nearest budget.decorMotion within ambientRadius move at the budget's update rate, each started at a
+-- random point of its cycle; Reduce Motion and Low performance hold them all still as modelled.
+Presets.decorMotion = {
+	angle = { default = 10, least = 0, most = 45 },
+	seconds = { default = 2, least = 0.3, most = 30 },
+	rise = { default = 0.08, least = 0, most = 1 },
+	pick = 1, -- seconds between choosing which parts move
 }
 
 -- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to

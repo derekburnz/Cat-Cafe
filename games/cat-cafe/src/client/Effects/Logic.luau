@@ -1788,4 +1788,31 @@ function Logic.flutter(
 	return f.lean + f.swing * (0.65 * w1 + 0.35 * w2)
 end
 
+-- Moving parts of rare decor (F89 2c) ------------------------------------------------------------------------------
+
+-- A moving part's attribute `value` as a number, `default` when it is missing or not a number, held in `least` to
+-- `most`.
+function Logic.motionNumber(value: unknown, default: number, least: number, most: number): number
+	if type(value) ~= "number" or value ~= value then
+		return default
+	end
+	return math.clamp(value, least, most)
+end
+
+-- How far a `_Swing` part swings, in degrees, `t` seconds in: side to side up to `angle`, one swing there and back
+-- every `seconds`, started `offset` (0 to 1) of the way round so two pieces never swing in step.
+function Logic.swingAngle(t: number, seconds: number, angle: number, offset: number): number
+	return angle * math.sin(2 * math.pi * (t / seconds + offset))
+end
+
+-- How far round a `_Spin` part has turned, in degrees from 0 to 360, `t` seconds in: one turn every `seconds`.
+function Logic.spinAngle(t: number, seconds: number, offset: number): number
+	return ((t / seconds + offset) % 1) * 360
+end
+
+-- How high a `_Bob` part rides, in studs, `t` seconds in: up and down by `rise`, once every `seconds`.
+function Logic.bobRise(t: number, seconds: number, rise: number, offset: number): number
+	return rise * math.sin(2 * math.pi * (t / seconds + offset))
+end
+
 return Logic

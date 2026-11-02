@@ -31,6 +31,8 @@ local Format = require(script.Parent.Parent.Components.Format)
 local IndexBook = require(script.Parent.Parent.Components.IndexBook)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local IndexStrip = require(script.Parent.IndexStrip)
+local LeaderboardLogic = require(script.Parent.Parent.Components.LeaderboardLogic)
+local LeaderboardTop = require(script.Parent.LeaderboardTop)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
@@ -48,8 +50,8 @@ export type Callbacks = {
 	close: () -> (),
 }
 
--- "Index" is the Cats tab (the name init and the Index Boards already use)
-export type Tab = "Index" | "Gold" | "Decor"
+-- "Index" is the Cats tab (the name init and the Index Boards already use); "Top" is the leaderboards (F98)
+export type Tab = "Index" | "Gold" | "Top" | "Decor"
 
 export type CatCollection = {
 	frame: Frame,
@@ -58,6 +60,7 @@ export type CatCollection = {
 	showTab: (self: CatCollection, tab: Tab) -> (),
 	showArea: (self: CatCollection, areaId: string) -> (),
 	setNight: (self: CatCollection, night: boolean) -> (),
+	setLeaderboards: (self: CatCollection, sync: LeaderboardLogic.Sync?) -> (),
 	destroy: (self: CatCollection) -> (),
 }
 
@@ -203,7 +206,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._panel = panel
 	self.frame = panel.frame
 
-	-- tabs: Cats, Gold, Decor, then Claim all; tall enough for a finger on a phone and a 36 px face on a mouse
+	-- tabs: Cats, Gold, Top, Decor, then Claim all; tall enough for a finger on a phone and a 36 px face on a mouse
 	local tabH = Scale.tapHeight(TAB_HEIGHT + 1, Theme.sizes.buttonDepth)
 	local tabs: Frame = Create("Frame", {
 		Name = "Tabs",
@@ -239,8 +242,9 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		tabButton("IndexTab", "Cats", Theme.icons.cats, 1, "Index")
 	self._goldTab, self._goldBadge, self._goldBadgeCount =
 		tabButton("GoldTab", "Gold", "⭐", 2, "Gold")
+	self._topTab = tabButton("TopTab", "Top", "🏆", 3, "Top")
 	self._decorTab, self._decorBadge, self._decorBadgeCount =
-		tabButton("DecorTab", "Decor", Theme.icons.decor, 3, "Decor")
+		tabButton("DecorTab", "Decor", Theme.icons.decor, 4, "Decor")
 	self._decorTab.instance.Visible = false
 	self._claimAllAt = -math.huge -- os.clock() of the last Claim all press
 	self._claimAll = Button.new({
@@ -249,7 +253,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		style = "primary",
 		size = UDim2.fromOffset(CLAIM_ALL_W, tabH),
 		textSize = Theme.sizes.textBody,
-		layoutOrder = 4,
+		layoutOrder = 5,
 		parent = tabs,
 		onClick = function()
 			self:_pressClaimAll()
@@ -348,6 +352,17 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		Parent = panel.content,
 	})
 	self._decorIndex = DecorIndex.new(self._decor, { claim = callbacks.claimIndexReward })
+
+	-- Top: the three leaderboards on the dark page (Screens/LeaderboardTop, F98)
+	local topHolder: Frame = Create("Frame", {
+		Name = "TopPage",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, indexTop),
+		Size = UDim2.new(1, 0, 1, -indexTop),
+		Parent = panel.content,
+	})
+	self._topHolder = topHolder
+	self._top = LeaderboardTop.new(topHolder)
 
 	self:_buildDetail(panel.content)
 	self:_paintTabs()
@@ -468,17 +483,19 @@ function CatCollection._closeDetail(self: any)
 	self._cover.Visible = false
 end
 
--- The tabs' looks and the page behind them: dark for Cats and Gold, the light window body for Decor.
+-- The tabs' looks and the page behind them: dark for Cats, Gold and Top, the light window body for Decor.
 function CatCollection._paintTabs(self: any)
 	local tab: Tab = self._tab
 	self._indexTab:setStyle(if tab == "Index" then "gold" else "ghost")
 	self._goldTab:setStyle(if tab == "Gold" then "gold" else "ghost")
+	self._topTab:setStyle(if tab == "Top" then "gold" else "ghost")
 	self._decorTab:setStyle(if tab == "Decor" then "gold" else "ghost")
 	local dark = tab ~= "Decor"
 	self._panel.body.BackgroundColor3 = if dark then Theme.index.body else Theme.modal.panel
 	self._perksCaption.TextColor3 = if dark then Theme.index.subtext else Theme.modal.subtext
-	self._book.Visible = dark
-	self._decor.Visible = not dark
+	self._book.Visible = tab == "Index" or tab == "Gold"
+	self._decor.Visible = tab == "Decor"
+	self._top.frame.Visible = tab == "Top"
 end
 
 function CatCollection.showTab(self: any, tab: Tab)
@@ -1113,12 +1130,19 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 
 	if self._tab == "Decor" then
 		self._decorIndex:render(state)
+	elseif self._tab == "Top" then
+		self._top:render()
 	else
 		self:_renderBook(state)
 		if self._selected and self._cover.Visible then
 			self:_showDetail()
 		end
 	end
+end
+
+-- The server's leaderboards (UI.leaderboards.sync, F98); the Top tab redraws at once while it is open.
+function CatCollection.setLeaderboards(self: any, sync: LeaderboardLogic.Sync?)
+	self._top:setSync(sync)
 end
 
 -- Claim all shows while two or more rewards wait and the server has ClaimAll; a press reads "Claiming" until the sync.
@@ -1170,8 +1194,10 @@ function CatCollection.destroy(self: any)
 	self._detailArt:destroy()
 	self._detailClose:destroy()
 	self._decorIndex:destroy()
+	self._top:destroy()
 	self._indexTab:destroy()
 	self._goldTab:destroy()
+	self._topTab:destroy()
 	self._decorTab:destroy()
 	self._panel:destroy()
 end

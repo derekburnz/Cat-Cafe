@@ -189,6 +189,14 @@ Theme.rainbow = ColorSequence.new({
 	ColorSequenceKeypoint.new(1, Color3.fromHex("B46CFF")),
 })
 
+-- The leaderboards' top three rows (F98, leaderboards.md section 2) and the board faces' chalk.
+Theme.medals = {
+	gold = Color3.fromHex("FFC94D"),
+	silver = Color3.fromHex("C9D3DD"),
+	bronze = Color3.fromHex("D99A5B"),
+} :: { [string]: Color3 }
+Theme.chalk = Color3.fromHex("F4F1E6")
+
 -- Each area's colour, close to its ground in the world (style guide palette): area cards and title cards.
 Theme.areaColors = {
 	alley = Color3.fromHex("8A7B6E"),

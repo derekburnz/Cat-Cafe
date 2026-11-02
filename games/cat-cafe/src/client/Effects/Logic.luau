@@ -2261,4 +2261,37 @@ function Logic.marqueeFlash(t: number, flashes: number, hz: number): boolean?
 	return cycles % 1 < 0.5
 end
 
+-- Cats make the orders (F90, cats-make-orders.md section 4) ------------------------------------------------------
+
+-- Whether an order in a cafe `distance` studs away plays its puff, glow and ding: within `within`, and your own cafe
+-- always, another cafe's while fewer than `cap` of theirs play (`others`).
+function Logic.orderPlays(
+	own: boolean,
+	distance: number,
+	within: number,
+	others: number,
+	cap: number
+): boolean
+	if distance > within then
+		return false
+	end
+	return own or others < cap
+end
+
+-- An oven window's glow, 0 to 1, `dt` seconds on from `level`: up to full over `rise` seconds while it bakes (`on`),
+-- down to nothing over `fade` seconds once it stops.
+function Logic.glowStep(level: number, on: boolean, dt: number, rise: number, fade: number): number
+	if on then
+		return if rise > 0 then math.min(1, level + dt / rise) else 1
+	end
+	return if fade > 0 then math.max(0, level - dt / fade) else 0
+end
+
+-- How bright a glow at `level` shows `t` seconds in: a soft flicker of `flicker` either way on two waves at `hz`,
+-- never below 0.
+function Logic.glowFlicker(level: number, t: number, flicker: number, hz: number): number
+	local wave = math.sin(t * hz * 2 * math.pi) * 0.6 + math.sin(t * hz * 1.73 * 2 * math.pi) * 0.4
+	return math.max(0, level * (1 + flicker * wave))
+end
+
 return Logic

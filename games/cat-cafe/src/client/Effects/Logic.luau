@@ -1317,6 +1317,57 @@ function Logic.pawWave(t: number, level: number): number
 	return math.rad(p.degrees) * math.sin(t * 2 * math.pi / seconds)
 end
 
+-- Where the secured cat's happy hop (Presets.pullHop) has it `alpha` of the way through (0 to 1): studs off the
+-- floor and radians it has turned. On the floor until takeoff, a parabola `height` high to the landing while it turns
+-- `turns` full turns (easing in and out), then down and turned all the way round, facing where it began.
+function Logic.pullHop(alpha: number): (number, number)
+	local h = Presets.pullHop
+	local full = 2 * math.pi * h.turns
+	if alpha <= h.takeoff then
+		return 0, 0
+	elseif alpha >= h.land then
+		return 0, full
+	end
+	local k = (alpha - h.takeoff) / (h.land - h.takeoff)
+	return 4 * h.height * k * (1 - k), full * k * k * (3 - 2 * k)
+end
+
+-- The secured cat's body through its happy hop (Presets.pullHop), `alpha` 0 to 1: a crouch to spring, the leap with
+-- its tail up, front paws reaching and back paws kicking, nose up then down for the landing, a squash as it lands,
+-- then sitting up proud with its ears pricked.
+function Logic.pullHopPose(o: Offsets, alpha: number)
+	local h = Presets.pullHop
+	if alpha < 0 or alpha >= 1 then
+		return
+	end
+	if alpha < h.takeoff then
+		local c = math.sin(alpha / h.takeoff * math.pi)
+		o.bodyY -= h.crouch * c
+		o.bodyPitch -= math.rad(h.lean) * 0.5 * c
+	elseif alpha < h.land then
+		local k = (alpha - h.takeoff) / (h.land - h.takeoff)
+		local s = math.sin(k * math.pi)
+		o.tailPitch += math.rad(h.tailUp) * s
+		o.tailYaw *= 1 - s
+		o.pawFL += math.rad(h.reach) * s
+		o.pawFR += math.rad(h.reach) * s
+		o.pawBL -= math.rad(h.reach) * s
+		o.pawBR -= math.rad(h.reach) * s
+		o.bodyPitch += math.rad(h.lean) * math.sin(k * 2 * math.pi)
+		o.earL *= 1 - s
+		o.earR *= 1 - s
+	elseif alpha < h.settle then
+		local c = math.sin((alpha - h.land) / (h.settle - h.land) * math.pi)
+		o.bodyY -= h.squash * c
+	else
+		local k = Logic.envelope(alpha, h.settle, h.settle + 0.06, 0.96, 1)
+		o.headPitch += math.rad(h.proud) * k
+		o.tailPitch += math.rad(h.tailUp) * 0.5 * k
+		o.earL *= 1 - k
+		o.earR *= 1 - k
+	end
+end
+
 -- How much of a server jump is still drawn as distance left to travel: 1 at the jump, 0 on landing.
 function Logic.landing(alpha: number): number
 	local a = math.clamp(alpha, 0, 1)

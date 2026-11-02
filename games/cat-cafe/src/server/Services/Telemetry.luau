@@ -108,6 +108,8 @@ export type CustomEvent =
 	-- won, tier) and a Lucky Day's sunrise (value the players in the server; the area of a Mythical, or none)
 	| "luck_used"
 	| "lucky_day"
+	-- F89 (luck-and-rare-moments.md 2d): a big pull; rarity, gold yes or no, catch, bait or rescue
+	| "rare_secured"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.

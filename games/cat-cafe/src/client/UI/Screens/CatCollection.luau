@@ -874,6 +874,9 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 			state
 		)
 		section.title.Text = area.name
+		if area.exclusive then
+			section.hint.Text = IndexBook.EXCLUSIVE_NOTE -- F96: it counts toward nothing and has no rewards
+		end
 	end
 	-- the All cats line: the All Cats track, on the Cats tab only
 	local all = self._sections[ALL_AREA]
@@ -1030,7 +1033,15 @@ function CatCollection._showDetail(self: any)
 	if def.favoriteRole then
 		table.insert(meta, Format.lovesRole(def.favoriteRole, Theme.modal.text))
 	end
-	table.insert(meta, "lives in the " .. Format.areaName(def.area or IndexBook.FALLBACK_AREA))
+	if def.exclusive == true then
+		-- F95 and F96: never caught, so it lives nowhere
+		table.insert(
+			meta,
+			if def.source == "free" then "free at its stand in town" else "from the shop"
+		)
+	else
+		table.insert(meta, "lives in the " .. Format.areaName(def.area or IndexBook.FALLBACK_AREA))
+	end
 	self._detailMeta.Text = table.concat(meta, "  ·  ")
 	self._detailDesc.Text = if found then (def.description or "") else ""
 	if not self._cover.Visible then

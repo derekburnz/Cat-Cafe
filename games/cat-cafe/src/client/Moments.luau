@@ -76,6 +76,11 @@ local Moments = {
 	IntroShot = Signal.new() :: Signal.Signal<number>,
 	IntroCatSeated = Signal.new() :: Signal.Signal<Vector3, Model>,
 	IntroEnd = Signal.new() :: Signal.Signal<()>,
+	-- Rare moments (F89, luck-and-rare-moments.md 2a and 2b) from SecuredRare and FoundRareDecor on every client that
+	-- gets them: (userId, catId, rarity, gold, variant) a big pull, or this player's first Epic (rarity Epic, not
+	-- gold, userId this player's); (userId, decorId) a Mythical crate piece
+	SecuredRare = Signal.new() :: Signal.Signal<number, string, string, boolean, string>,
+	FoundRareDecor = Signal.new() :: Signal.Signal<number, string>,
 }
 
 return Moments

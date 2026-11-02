@@ -1076,6 +1076,29 @@ Presets.luckyPaw = {
 	seconds = { 2.4, 2.1, 1.8, 1.5, 1.2 },
 }
 
+-- The secured cat's happy hop with a full spin (F89, luck-and-rare-moments.md 2a: "the cat does a happy hop with a
+-- full spin at the door ... inside the existing catch beam"): on a big pull a copy of the cat on its walking body
+-- appears `ahead` studs in front of the player, facing them, crouches until `takeoff`, leaps `height` studs turning
+-- `turns` full turns until `land`, squashes `squash` studs on landing until `settle`, sits up proud and fades,
+-- `seconds` in all (each share is of that). It fades in over the first `fadeIn` share and out over the last `fadeOut`.
+Presets.pullHop = {
+	seconds = 1.6,
+	ahead = 1.5,
+	takeoff = 0.15,
+	land = 0.7,
+	settle = 0.82,
+	height = 2.5,
+	turns = 1,
+	crouch = 0.25,
+	squash = 0.2,
+	tailUp = 45,
+	reach = 30,
+	lean = 10,
+	proud = 12,
+	fadeIn = 0.06,
+	fadeOut = 0.15,
+}
+
 Presets.catPoses = {
 	sleep = {
 		body = "walk",

@@ -786,6 +786,13 @@ A tip shows once per account, the first time a player meets something: one line 
 
 **Engineer (F102):** forward the six events one to one to the trading.md remotes, call the four `UI.trade` functions from TradeController, and set the `Tier` and `Trading` attributes on each Player and `TradeMinTier` and `TradingOn` on the Workspace. The cat list reads `state.cats` and each cat's own `locked`.
 
+### Trading, part 2: the Trades page and Trade requests (built, F102, trading.md sections 1 and 5)
+
+- **Settings, Trading section** (`Screens/Settings.luau`), at the end of the list and hidden until TradeService runs (the Workspace has `TradingOn`): a **Trade requests** card, "Who can ask you to trade", with three buttons, Everyone, Friends only and Off, the saved one green (`settings.tradeRequests`, Everyone when missing). A press shows at once and fires `setSetting("tradeRequests", mode)` with `"everyone"`, `"friends"` or `"off"`; the server's ProfileSync settles it after up to 5 s, as the switches do. Under it a **Trades** row, "Your last 20 trades and who they were with", whose Open shows the Trades page.
+- **Trades page** (`Screens/TradeLog.luau`, rows from `TradeLogic.logRows` with a spec): a card per trade from `state.tradeLog`, newest first, at most 20: "With Sam" (their display name at the time), "12m ago", "Yesterday" or "4 days ago", and two lines of small cat cards, "Gave" and "Got", each card in the cat room look with its gold or rainbow edge (no level, too small), "Nothing" for an empty side. With no trades: "No trades yet. Tap 🤝 Trade at the top to swap cats with other players." Back returns to Settings. View only.
+
+**Engineer (F102):** accept `tradeRequests` with those three values in SetSetting and send `settings.tradeRequests` and `tradeLog` (up to 20 `{ id, at (os.time()), partnerName, gave, got }`, `gave` and `got` lists of `CatSummary`) in ProfileSync (agreed 2026-11-02).
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
@@ -826,7 +833,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `buyFishItem` | `itemId` | Buy on a Market treat or perk row. Forward as `BuyFishItem(itemId)` (F53). |
 | `redeemCode` | `code` | Redeem (or Enter) in the code box: letters, digits and `Codes.SYMBOLS`, 1 to `CodeMaxLength`. Forward as `RedeemCode(code)` (F65); the server answers `CodeResult`, passed to `UI.codes.result` (see Code box). |
 | `reportBug` | `text, kind, clientErrors` | Send on the Report a bug window: the trimmed text (3 to 500 bytes), `"bug"`, `"stuck"` or `"idea"`, and up to 3 client error lines of up to 200 bytes. Forward all three as `ReportBug`; the server answers with a toast (see Report a bug). |
-| `setSetting` | `key, value` | A Settings switch (`music`, `sfx`, `screenShake`, `lowPerformance`, `showOtherCats`, `markers`, `tutorialButton`) and its boolean, or a volume (`musicVolume`, `sfxVolume`) and 0 to 1 on release. Forward as `SetSetting`; the client follows `UI.settings.changed` (see Settings). The Tutorial tile's × sends `("tutorialButton", false)` (F72). |
+| `setSetting` | `key, value` | A Settings switch (`music`, `sfx`, `screenShake`, `lowPerformance`, `showOtherCats`, `markers`, `tutorialButton`) and its boolean, or a volume (`musicVolume`, `sfxVolume`) and 0 to 1 on release. Forward as `SetSetting`; the client follows `UI.settings.changed` (see Settings). The Tutorial tile's × sends `("tutorialButton", false)` (F72). Trade requests sends `("tradeRequests", "everyone" | "friends" | "off")` (F102). |
 | `introSkip` | `shot` | Skip or gamepad B during the intro, once per play once its bar is full, with the shot showing (1 to 10). End it, call `UI.intro.finish()` and fire `IntroDone(shot, replay)` (F72). |
 | `introReplay` | none | The HUD's Tutorial tile or Settings' Replay tutorial. Play the intro with `UI.intro.start({ replay = true })` (F72). |
 | `grabBegan` | `strayId, catId` | A press on a bound stray prompt. Forward as GrabBegin. |

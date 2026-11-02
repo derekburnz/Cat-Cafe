@@ -498,6 +498,7 @@ local function render()
 	end
 	if settingsScreen then
 		settingsScreen:render(state)
+		settingsScreen:showTrading(Workspace:GetAttribute("TradingOn") ~= nil) -- F102: once TradeService runs
 	end
 	if tipJarScreen then
 		tipJarScreen:render(state)
@@ -902,6 +903,13 @@ function UI.init(config: Types.InitConfig)
 		close = closeModal,
 		openFeedback = function()
 			UI.bugReport.open()
+		end,
+		-- F102: the Trading section, saved as settings.tradeRequests through SetSetting (Gameplay 2026-11-02)
+		setTradeRequests = function(mode: string)
+			UI.events.setSetting:Fire("tradeRequests", mode)
+		end,
+		openTrades = function()
+			UI.open("TradeLog")
 		end,
 		showTipsAgain = function()
 			UI.tips.reset()
@@ -4638,9 +4646,11 @@ end
 -- of locals.
 do
 	local Trade = require(script.Screens.Trade)
+	local TradeLog = require(script.Screens.TradeLog)
 	local TradeLogic = require(script.Components.TradeLogic)
 	local trading = {
 		screen = nil :: Trade.Trade?,
+		log = nil :: TradeLog.TradeLog?, -- the Trades page, opened from Settings
 		state = nil :: Types.TradeState?,
 		request = nil :: string?, -- the request card's id while it shows
 	}
@@ -4689,6 +4699,27 @@ do
 			screen:setCatalog(currentCatalog)
 		end
 		screen:setTrade(trading.state)
+
+		local log = TradeLog.new({
+			close = function()
+				if modalView:current() == "TradeLog" then
+					modalView:close()
+				end
+			end,
+			back = function()
+				UI.open("Settings")
+			end,
+		})
+		trading.log = log
+		modalView:register("TradeLog", {
+			frame = log.frame,
+			onOpen = function()
+				log:render(state)
+			end,
+		})
+		if currentCatalog then
+			log:setCatalog(currentCatalog)
+		end
 	end
 
 	function UI.trade.setCatalog(catalog: Types.Catalog)
@@ -4696,12 +4727,20 @@ do
 		if screen then
 			screen:setCatalog(catalog)
 		end
+		local log = trading.log
+		if log then
+			log:setCatalog(catalog)
+		end
 	end
 
 	function UI.trade.render(playerState: Types.PlayerState)
 		local screen = trading.screen
 		if screen then
 			screen:render(playerState)
+		end
+		local log = trading.log
+		if log then
+			log:render(playerState)
 		end
 	end
 
@@ -4783,6 +4822,11 @@ do
 			screen:destroy()
 		end
 		trading.screen = nil
+		local log = trading.log
+		if log then
+			log:destroy()
+		end
+		trading.log = nil
 	end
 end
 

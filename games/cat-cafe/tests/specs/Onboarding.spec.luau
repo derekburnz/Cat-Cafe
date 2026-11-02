@@ -130,6 +130,84 @@ return function()
 		end)
 	end)
 
+	describe("fromSave (QA S72)", function()
+		local function facts(over: { [string]: number }?): Onboarding.SaveFacts
+			local out =
+				{ catsCaught = 0, distinctCats = 0, tables = 0, bowl = 0, tier = 1, parkCats = 0 }
+			for key, value in over or {} do
+				(out :: any)[key] = value
+			end
+			return out
+		end
+
+		it("shows nothing for a fresh save", function()
+			expect(#Onboarding.fromSave(facts())).to.equal(0)
+		end)
+
+		it("lists what a save shows in step order", function()
+			expect(
+				Onboarding.fromSave(
+					facts({
+						catsCaught = 9,
+						distinctCats = 6,
+						tables = 2,
+						bowl = 1,
+						tier = 3,
+						parkCats = 1,
+					})
+				) :: any
+			).to.deepEqual({
+				"second_cat",
+				"first_table",
+				"bowl_bought",
+				"five_cats",
+				"rank_up_card_seen",
+				"rank_up_ready",
+				"tier_2",
+				"first_park_catch",
+				"tier_3",
+			})
+		end)
+
+		it("unsticks an alpha save past tier_2 that owns a Park cat but catches only beyond it", function()
+			-- v1 step 9 is tier_2 (v2 step 20) and the held v1 step 12 is tier_3 (v2 step 24)
+			local step, achieved = Onboarding.fromV1(9, { ["12"] = true })
+			local state = { onboardingStep = step, achieved = achieved, funnel = 2, firstDay = 0 }
+			local logged: { string } = {}
+			local save = facts({ catsCaught = 30, distinctCats = 12, tables = 4, bowl = 2, tier = 3, parkCats = 3 })
+			for _, name in Onboarding.fromSave(save) do
+				for _, done in Onboarding.reach(state, name) do
+					table.insert(logged, done)
+				end
+			end
+			-- first_park_catch logs; returned_next_day and first_offline_claim repeat in play, so tier_3 stays held
+			expect(logged :: any).to.deepEqual({ "first_park_catch" })
+			expect(state.achieved["24"]).to.equal(true)
+		end)
+
+		it("unsticks an alpha save moved to first_table that already owns the bowl", function()
+			local step, achieved = Onboarding.fromV1(6, { ["7"] = true })
+			local state = { onboardingStep = step, achieved = achieved, funnel = 2, firstDay = 0 }
+			expect(Onboarding.STEPS[state.onboardingStep]).to.equal("first_table")
+			local logged: { string } = {}
+			for _, name in Onboarding.fromSave(facts({ catsCaught = 4, tables = 1, bowl = 1 })) do
+				for _, done in Onboarding.reach(state, name) do
+					table.insert(logged, done)
+				end
+			end
+			-- bowl_bought fills the gap, so the held first_bait follows it
+			expect(logged :: any).to.deepEqual({ "bowl_bought", "first_bait" })
+			expect(Onboarding.STEPS[state.onboardingStep]).to.equal("first_bait")
+		end)
+
+		it("logs nothing twice on the next join", function()
+			local state = { onboardingStep = 12, achieved = {}, funnel = 2, firstDay = 0 }
+			for _, name in Onboarding.fromSave(facts({ catsCaught = 2, tables = 1, bowl = 1 })) do
+				expect(#Onboarding.reach(state, name)).to.equal(0)
+			end
+		end)
+	end)
+
 	describe("edges (QA)", function()
 		it("logs 1 to 24 once each and holds nothing, over 500 seeded orders", function()
 			local rng = Random.new(16)

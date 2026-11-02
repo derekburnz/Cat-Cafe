@@ -8,6 +8,7 @@
 --   D:Invoke("setFish", nil, 300)      -- 300 golden fish in the wallet (F52)
 --   D:Invoke("setPhase", "night")
 --   D:Invoke("baitReady")              -- the bowl's cat arrives now
+--   D:Invoke("baitReady", nil, "rainbow")   -- ... in a rainbow coat ("gold" or "base" too; QA A25, F99)
 --   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe, gone unpaid in 20 s
 --   D:Invoke("tipPiles", nil, 6)       -- 6 tip piles on your cafe's tables now, whatever the clock (F61)
 --   D:Invoke("knockLoose")             -- your carried cat drops as a knocked-loose stray (stand in an area)
@@ -399,12 +400,21 @@ function Debug.bugReports(count: number?, day: string?, studio: boolean?): { str
 end
 
 -- Brings the cat at the bait bowl now instead of after LureWaitSeconds (F28). Errors when the bowl is empty.
--- Returns the rolled cat id, so a test can check what the card shows.
-function Debug.baitReady(player: (Player | number | string)?): string
+-- `coat` ("gold", "rainbow" or "base") replaces the coat rolled when the food went in, the way nextCoat forces a
+-- stray's, so a test sees and hears a gold or rainbow arrival (QA A25, F99); nil keeps the roll. Returns the rolled
+-- cat id, so a test can check what the card shows.
+function Debug.baitReady(player: (Player | number | string)?, coat: string?): string
 	local p = resolve(player)
 	local profile = profileOf(p)
 	local bait = profile.bait
 	assert(bait ~= nil, "the bait bowl is empty")
+	if coat ~= nil then
+		assert(
+			coat == "gold" or coat == "rainbow" or coat == "base",
+			"the coat is gold, rainbow or base"
+		)
+		bait.variant = coat
+	end
 	bait.placedAt = os.time() - Config.LureWaitSeconds
 	bait.readyAt = os.time()
 	CafeService.refreshPlot(p)

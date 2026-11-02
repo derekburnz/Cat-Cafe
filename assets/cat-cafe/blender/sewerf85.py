@@ -7,18 +7,21 @@ across its -Z end, outside it, as in F84. The Sewer gate (CatCafe_Sewer_Gate) an
                          gate side -Z toward the camp, like every set. Walls at x +-60 and z +-285 (WorldBuilder's);
                          the way in is the gap in the low wall at x -16 to 16 on z -285.
 
-Six pieces cross the width with their gaps on alternating sides, so the far end is never in a straight line:
+Six pieces cross the width, their ways through wider and moving about (Derek 11-02: "the gaps also don't always
+have to be on the sides can be a bit wider ... don't want it feeling too tightly cramped"), so the far end is never
+in a straight line:
 
   z -211 to -199   the yard's canal, sunken between kerbs with guard rails, out through grates in both walls;
-                   crossed only on the brick bridge at x 38
-  z -150 to -147   the tunnel front, brick 24 high (tall), where the roof begins: its only open arch is at x -38,
-                   the other two barred
+                   crossed only on the brick bridge at x 38, 12 wide (8 until 11-02)
+  z -150 to -147   the tunnel front, brick 24 high (tall), where the roof begins: its only open arch is at x -49.5 to
+                   -26.5 (23 wide, 14 until 11-02), the other two barred
   z -78 to -72     the rubble where the roof came down, about 4 high, daylight through the hole above it; its gap at
-                   x 34 to 50 between the timber props holding up the cracked beam
+                   x 26 to 50 between the timber props holding up the cracked beam
   z -5 to 5        the channel, sunken between railed kerbs from wall to wall; crossed only on the steel catwalk at
-                   x -40
-  z 90 to 96       the vault wall, brick to the roof (tall): one deep vaulted arch at x 34 to 50, CAT TOWN over it
-  z 181 to 189     the pipe bank, three big pipes on concrete saddles, about 4.5 high; its gap at x -50 to -34
+                   x -40, 9 wide (5 until 11-02)
+  z 90 to 96       the vault wall, brick to the roof (tall): one deep vaulted arch at x 28 to 52, CAT TOWN over it
+  z 181 to 189     the pipe bank, three big pipes on concrete saddles, about 4.5 high; its gap in the middle, x -12
+                   to 12
 
 The low four let a hunter see a carrier coming but make them go round; each has a 30 high `_Barrier` on its line
 (on the guard rails' line for the water), and one stands in the wall band all round but the way in. The tunnel
@@ -29,7 +32,7 @@ throne on its dais in front of the pipe organ, and the culvert pouring out of th
 
 The way, camp to far end: across the yard to the brick bridge (east), back west to the walk-in arch, through the
 junk market to the rubble's gap (east), west through the pump room to the catwalk, east through the lost and found
-to the vault's arch, west past cat town to the pipe bank's gap, and east across the throne room to the throne.
+to the vault's arch, past cat town to the pipe bank's gap in the middle, and across the throne room to the throne.
 Shortest walk (walk check on the Part model) in area-sets.md (6b: about 750 camp to far end).
 
 Points (manifest points_roblox): [x, y, z, zone], zone "near" (the camp half, z < 0) or "deep" (the far half). The
@@ -57,12 +60,14 @@ OUT_X, OUT_Z = IN_X + WALL_D, IN_Z + WALL_D                     # 59.5, 284.5
 GATE_HALF = 16.0                        # clear of the Sewer gate model (31.1 wide)
 
 CANAL_Z, CANAL_HW, BRIDGE_X = -205.0, 5.0, 38.0      # the yard's canal (brick_bridge spans CANAL_HW 5), bridge east
+BRIDGE_D, CATWALK_W = 12.0, 9.0                      # the brick bridge and the catwalk wide (8 and 5 until 11-02)
 FRONT_Z, FRONT_T, WALK_X = -150.0, 3.0, -38.0        # the tunnel front's yard face, and its walk-in arch (west)
-RUBBLE_Z, GAP_R = -75.0, (34.0, 50.0)                # the rubble, gap east
+WALK_HW = 11.5                                       # half the walk-in arch and its barred twin (7 until 11-02)
+RUBBLE_Z, GAP_R = -75.0, (26.0, 50.0)                # the rubble, gap east (the gaps 24 wide since Derek 11-02)
 HOLE = (-44.0, 16.0, -88.0, -62.0)                   # where the roof came down, over the rubble
 CH_Z, CH_HW, CATWALK_X = 0.0, 4.0, -40.0             # the channel and its catwalk (west)
-VAULT_Z, VAULT_T, VAULT_GAP = 90.0, 6.0, (34.0, 50.0)   # the vault wall, its arch east
-PIPES_Z, GAP_P = 185.0, (-50.0, -34.0)               # the pipe bank, gap west
+VAULT_Z, VAULT_T, VAULT_GAP = 90.0, 6.0, (28.0, 52.0)   # the vault wall, its arch east (spring 3.5: CAT TOWN fits under the cornice)
+PIPES_Z, GAP_P = 185.0, (-12.0, 12.0)                # the pipe bank, gap in the middle
 POOL, POOL_R = (0.0, IN_Z - 14.5), 11.0              # the pool under the culvert, as v3.2 has them to the far wall
 DAIS = (34.0, 269.0)                                 # the throne's dais
 PILLAR_X = 28.0
@@ -130,12 +135,13 @@ def waterway(mat, name, zc, hw, cross_x, bridge):
     xk = IN_X - 0.7                                                # clear of the mouths' jambs
     for (za, zb) in ((z0 - KERB_W, z0), (z1, z1 + KERB_W)):
         if bridge:
-            for (x0, x1) in ((-xk, cross_x - 4.0), (cross_x + 4.0, xk)):
+            for (x0, x1) in ((-xk, cross_x - BRIDGE_D / 2), (cross_x + BRIDGE_D / 2, xk)):
                 _kerb(b, bar, x0, x1, za, zb)
         else:
-            _kerb(b, bar, -xk, xk, za, zb, gaps=[(cross_x - 2.5, cross_x + 2.5)])
+            _kerb(b, bar, -xk, xk, za, zb, gaps=[(cross_x - CATWALK_W / 2, cross_x + CATWALK_W / 2)])
     for sx in (-1, 1):
-        d0, d1 = (4.1, 4.7) if bridge else (2.6, 3.2)
+        hw_ = BRIDGE_D / 2 if bridge else CATWALK_W / 2
+        d0, d1 = hw_ + 0.1, hw_ + 0.7
         x0, x1 = sorted((cross_x + sx * d0, cross_x + sx * d1))
         span(bar, x0, x1, z0, z1, 0, BARRIER_H, "offwhite")
     return [b.finalize(N + name, mat), water.finalize(N + name + "_Water", mat),
@@ -605,20 +611,21 @@ def build_set(mat):
     s.put(waterway(mat, "Channel", CH_Z, CH_HW, CATWALK_X, False), 0, 0, 0)
     s.put(pool(mat), 0, 0, 0)
     s.put(front_wall(mat, "TunnelFront", FRONT_Z, FRONT_T,
-                     [(WALK_X - 7.0, WALK_X + 7.0, 9.0, "walk"), (-5.0, 5.0, 5.5, "bars"),
-                      (-WALK_X - 7.0, -WALK_X + 7.0, 9.0, "bars")],
+                     [(WALK_X - WALK_HW, WALK_X + WALK_HW, 7.0, "walk"), (-5.0, 5.0, 5.5, "bars"),
+                      (-WALK_X - WALK_HW, -WALK_X + WALK_HW, 7.0, "bars")],
                      piers=(-52.0, -24.0, -12.0, 12.0, 24.0, 52.0), sign=("THE SEWER", 0.0, 12.6), both=True,
                      yard=True), 0, 0, 0)
-    s.put(front_wall(mat, "VaultWall", VAULT_Z, VAULT_T, [(VAULT_GAP[0], VAULT_GAP[1], 7.0, "walk")],
-                     piers=(-48.0, -30.0, -12.0, 6.0, 22.0), sign=("CAT TOWN", 42.0, 16.6), both=True), 0, 0, 0)
+    s.put(front_wall(mat, "VaultWall", VAULT_Z, VAULT_T, [(VAULT_GAP[0], VAULT_GAP[1], 3.5, "walk")],
+                     piers=(-48.0, -30.0, -12.0, 6.0, 22.0), sign=("CAT TOWN", (VAULT_GAP[0] + VAULT_GAP[1]) / 2, 17.4),
+                     both=True), 0, 0, 0)
     s.put(roof(mat, [p for (p, _) in piers]), 0, 0, 0)
     s.put(rubble(mat, RUBBLE_Z, GAP_R), 0, 0, 0, FLOOR)
     s.put(timber_props(mat, RUBBLE_Z, GAP_R), 0, 0, 0, FLOOR)
     s.put(pipe_bank(mat, PIPES_Z, GAP_P), 0, 0, 0, FLOOR)
     put(culvert(mat), POOL[0], IN_Z - 1.5, 0)
-    put(brick_bridge(mat), BRIDGE_X, CANAL_Z, 0)
+    put(brick_bridge(mat, D=BRIDGE_D), BRIDGE_X, CANAL_Z, 0)
     _spot(s, "bridge", BRIDGE_X, CANAL_Z, h=2.4)
-    put(catwalk_bridge(mat), CATWALK_X, CH_Z, 0)
+    put(catwalk_bridge(mat, W=CATWALK_W), CATWALK_X, CH_Z, 0)
     _spot(s, "bridge", CATWALK_X, CH_Z, h=3.2)
     for i, ((x, z), rot) in enumerate(piers):                          # wall lanterns on every other pier
         if i % 2 == 0:
@@ -651,7 +658,7 @@ def build_set(mat):
     put(sw.glow_mushrooms(mat), -40, -226, 0)
     _spot(s, "glow_mushrooms", -40, -229.5)
     put(sw.steam_vent(mat), -16, -180, 0)
-    for (x, z) in ((-30, -160), (-27.6, -161.5)):
+    for (x, z) in ((-20, -160), (-17.6, -161.5)):                      # clear of the walk-in arch's way
         put(sw.barrel(mat), x, z, 0)
     put(sw.tyre_stack(mat), 52, -158, 0)
     put(alleyway.build_crate_stack(mat), 14, -172, -20)
@@ -790,7 +797,7 @@ def build_set(mat):
         _spot(s, "pool", x, z)
     for (x, z) in ((10, 230), (-20, 212)):
         _spot(s, "throne_room", x, z)
-    _spot(s, "pipes", (GAP_P[0] + GAP_P[1]) / 2, PIPES_Z + 9.0)
+    _spot(s, "pipes", -42.0, PIPES_Z + 9.0)                           # where the gap was until 11-02, in the open
     return s.finish(_ground(), mat), s
 
 

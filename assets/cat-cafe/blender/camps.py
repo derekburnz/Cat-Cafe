@@ -255,7 +255,8 @@ def _theme(s, mat, area, G, B, W, half):
         s.put(woods.log_bench(mat), 15, G - 6.5, 0)
         s.put(woods.log_bench(mat), 20.5, G - 11, 90)
         for sx in (1, -1):
-            s.put(woods.lantern(mat), sx * (half + 2), G - 1.5, 90 - 90 * sx)
+            # the west one stands past the Index Board (Layout: 4 beside the way out, 4 in, turned -20), clear of it
+            s.put(woods.lantern(mat), sx * (half + (2.0 if sx > 0 else 11.5)), G - 1.5, 90 - 90 * sx)
             s.put(woods.lantern(mat), sx * 9, cz, 90 - 90 * sx)
             for x in (x for x in (30, 50, 70, 90, 110) if x < W / 2 - 6):
                 s.put(woods.pine(mat, h=18.0), sx * x, B + 5, 0)

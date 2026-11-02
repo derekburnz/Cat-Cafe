@@ -7,16 +7,18 @@ so the long Woods keeps them.
                          gate side -Z toward the camp, like every set. Walls at x +-80 and z +-245 (WorldBuilder's);
                          the way in is a 24 stud opening (CampOpeningWidth) at x 0 on z -245.
 
-Five blockers cross the width with their gaps on alternating sides, so the far end is never in a straight line:
+Five blockers cross the width, their ways through 24 wide and moving about (Derek 11-02: "the gaps also don't always
+have to be on the sides can be a bit wider ... don't want it feeling too tightly cramped"), so the far end is never in
+a straight line:
 
   z -172 to -168   the fallen timber: big trunks end to end, a thinner one on every other, about 4 high; its gap at
-                   x 38 to 54 between two lanterns
+                   x 34 to 58 between two lanterns
   z -98 to -82     the stream from the waterfall at the east wall, log rails on its rock edges; crossed only on the
-                   log bridge at x -46
-  z -14 to -6      the tree line, a thicket 9 to 10 high with pines in it (tall); its gap at x 38 to 54
-  z 70 to 72       a dry stone wall about 4 high; its gap at x -54 to -38 between stone gateposts, the field gate
+                   log bridge at x -46, its deck 10 wide (6 until 11-02)
+  z -14 to -6      the tree line, a thicket 9 to 10 high with pines in it (tall); its gap in the middle, x -12 to 12
+  z 70 to 72       a dry stone wall about 4 high; its gap at x -58 to -34 between stone gateposts, the field gate
                    standing open
-  z 147 to 153     a mossy boulder ridge about 4.5 high; its gap at x 38 to 54 under the GREAT OAK arch
+  z 147 to 153     a mossy boulder ridge about 4.5 high; its gap at x 34 to 58 under the GREAT OAK arch
 
 The low four let a hunter see a carrier coming but make them go round; a `_Barrier` 30 high stands on each, on the
 stream's rails and in the wall band all round but the way in. The tree line is the tall piece that hides the far half
@@ -24,8 +26,8 @@ from the near. The far end is the Great Oak's clearing with the tree house and t
 landmark.
 
 The way, camp to far end: the dirt trail north-east from the gate past the berry meadow to the timber's gap, back west
-past the mushroom ring to the log bridge, east past the berry patch to the tree line's gap, west through the dell to
-the wall's field gate, east past the old campsite to the arch, and west into the clearing. Shortest walk from the pad
+past the mushroom ring to the log bridge, past the berry patch to the tree line's gap in the middle, west through the
+dell to the wall's field gate, east past the old campsite to the arch, and west into the clearing. Shortest walk from the pad
 (walk check on the Part model) in area-sets.md (6b: about 650 camp to far end).
 
 Points (manifest points_roblox): [x, y, z, zone], zone "near" (the camp half, z < 0) or "deep" (the far half). The
@@ -52,11 +54,12 @@ HALF_X, HALF_Z = 80.0, 245.0            # WorldBuilder's walls at +-80, +-245 (W
 IN_X, IN_Z = HALF_X - 0.5 - WALL_D, HALF_Z - 0.5 - WALL_D       # 76.5, 241.5
 GATE_HALF = 19.0                        # CatCafe_Woods_Gate is 36.2 wide, centred on the trail
 
-LOGS_Z, GAP_A = -170.0, (38.0, 54.0)    # the fallen timber, gap east
+LOGS_Z, GAP_A = -170.0, (34.0, 58.0)    # the fallen timber, gap east (the gaps 24 wide since Derek 11-02)
 STREAM_Z, BRIDGE_X = -90.0, -46.0       # the stream's centre line at the bridge, and the bridge (west)
-TREES_Z, GAP_C = -10.0, (38.0, 54.0)    # the tree line, gap east
-WALL_Z, GAP_D = 70.0, (-54.0, -38.0)    # the dry stone wall (its face), gap west
-RIDGE_Z, GAP_E = 150.0, (38.0, 54.0)    # the boulder ridge, gap east
+BRIDGE_W = 10.0                         # the log bridge's deck (6 until 11-02)
+TREES_Z, GAP_C = -10.0, (-12.0, 12.0)   # the tree line, gap in the middle
+WALL_Z, GAP_D = 70.0, (-58.0, -34.0)    # the dry stone wall (its face), gap west
+RIDGE_Z, GAP_E = 150.0, (34.0, 58.0)    # the boulder ridge, gap east
 WATERFALL_X = IN_X - 7.5                # as in v3.2: the pond's back against the east wall
 RAIL_END_E = IN_X - 13.5                # the rails stop short of the pond's rocks
 OAK = (-32.0, 206.0)                    # the Great Oak, in its clearing
@@ -66,8 +69,8 @@ RING = (-30.0, -146.0)                  # the mushroom ring
 
 TRAIL_IN = [(0, -IN_Z), (0, -232), (8, -222), (22, -208), (36, -194), (44, -184), (46, -176), (46, -164), (42, -154),
             (30, -144), (12, -134), (-8, -124), (-24, -116), (-36, -110), (-42, -106.5), (BRIDGE_X, -104.5)]
-TRAIL_ON = [(BRIDGE_X, -75.5), (-44, -70), (-36, -62), (-20, -52), (0, -42), (20, -32), (36, -24), (44, -18),
-            (46, -14), (46, -4), (42, 4), (28, 14), (8, 24), (-14, 34), (-32, 44), (-42, 54), (-46, 62), (-46, 78),
+TRAIL_ON = [(BRIDGE_X, -75.5), (-44, -70), (-36, -62), (-24, -50), (-12, -38), (-4, -28), (0, -20), (0, -4),
+            (-6, 6), (-16, 18), (-22, 34), (-34, 46), (-42, 54), (-46, 62), (-46, 78),
             (-42, 88), (-28, 98), (-8, 108), (14, 118), (32, 128), (42, 138), (46, 146), (46, 156), (40, 166),
             (24, 176), (4, 186), (-14, 192)]
 
@@ -313,9 +316,10 @@ def build_set(mat):
     ws._tree_line(s, mat, TREES_Z, GAP_C, half=IN_X)
     _stone_wall(s, mat, WALL_Z, GAP_D)
     _boulder_ridge(s, mat, RIDGE_Z, GAP_E)
-    put(trail_arch(mat), (GAP_E[0] + GAP_E[1]) / 2, RIDGE_Z, 0, r=0)
-    s.put(ws.stream(mat, half=IN_X, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E), 0, 0, 0)
-    put(log_bridge(mat), BRIDGE_X, STREAM_Z, 0, r=0)
+    put(trail_arch(mat, w=GAP_E[1] - GAP_E[0]), (GAP_E[0] + GAP_E[1]) / 2, RIDGE_Z, 0, r=0)
+    s.put(ws.stream(mat, half=IN_X, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E,
+                    bridge_hw=BRIDGE_W / 2 + 0.4), 0, 0, 0)
+    put(log_bridge(mat, w=BRIDGE_W), BRIDGE_X, STREAM_Z, 0, r=0)
     _spot(s, "bridge", BRIDGE_X - 5.5, STREAM_Z - 16.5)
     _spot(s, "bridge", BRIDGE_X + 5.5, STREAM_Z + 16.5)
     put(wd.waterfall(mat), WATERFALL_X, stream_z(WATERFALL_X), 90, r=9)

@@ -31,6 +31,7 @@ export type Plot = {
 	tables: Folder,
 	customerEntry: BasePart,
 	counter: Model, -- Counter; out of the plot while the For Rent set's dust-sheeted counter stands in for it
+	oven: Model?, -- Oven (F90), tagged CafeOven, when its art is in; out of the plot with the counter
 	espresso: BasePart,
 	luckyCat: BasePart, -- LuckyCatAnchor, in the front garden: where the Lucky Cat statue stands (F88)
 	backDoor: BasePart, -- the back door panel: shut on an empty plot, open from Tier 1; unseen under backDoorArt
@@ -301,7 +302,11 @@ function WorldBuilder.setDressing(plot: Plot, tier: number)
 	end
 	-- The For Rent set drapes its own dust sheet where the counter stands, so the real counter, whose pastry case
 	-- and till would poke through the sheet, waits out of the plot until the cafe opens.
-	plot.counter.Parent = if plot.dressing:FindFirstChild("ForRent") ~= nil then nil else plot.model
+	local open = plot.dressing:FindFirstChild("ForRent") == nil
+	plot.counter.Parent = if open then plot.model else nil
+	if plot.oven ~= nil then
+		(plot.oven :: Model).Parent = if open then plot.model else nil
+	end
 end
 
 -- The Closed sign with its moon (v0.5 F44) hangs in an owned cafe's front door at night: Dressing/ClosedSign at
@@ -650,6 +655,15 @@ local function buildPlot(index: number, parent: Instance): Plot
 	local counter =
 		place("CatCafe_Furniture_Counter", localCFrame(cframe, Layout.plot.counter), model)
 	counter.Name = "Counter"
+	-- F90: the oven the Baristas bake at, once its art is in (Model-Agent #775); out of the plot with the counter
+	-- while the For Rent set stands in (setDressing)
+	local oven: Model? = nil
+	if AssetRegistry.has(Catalog.ovenModel) then
+		oven = place(Catalog.ovenModel, localCFrame(cframe, Layout.plot.oven), model)
+		local placed = oven :: Model
+		placed.Name = "Oven"
+		CollectionService:AddTag(placed, "CafeOven") -- the client's Effects glow and puff at its DoorGlow
+	end
 	local espresso = anchor("EspressoAnchor", localCFrame(cframe, Layout.plot.espresso), model)
 	local luckyCat = anchor("LuckyCatAnchor", localCFrame(cframe, Layout.plot.luckyCat), model)
 
@@ -708,6 +722,11 @@ local function buildPlot(index: number, parent: Instance): Plot
 	local entry = anchor("Entry", localCFrame(cframe, Layout.plot.entry), waypoints)
 	anchor("Door", localCFrame(cframe, Layout.plot.door), waypoints)
 	anchor("Order", localCFrame(cframe, Layout.plot.orderPoint), waypoints)
+	-- F90 (cats-make-orders.md), for the client's orders: the counter spot a made dish waits on, where the Waiter
+	-- stands to take it and the till where a swept coin bag goes
+	anchor("Pass", localCFrame(cframe, Layout.plot.pass), waypoints)
+	anchor("Pickup", localCFrame(cframe, Layout.plot.pickup), waypoints)
+	anchor("TillStack", localCFrame(cframe, Layout.plot.tillStack), waypoints)
 
 	-- The bait bowl's anchors (data-model section 8). CafeService puts the bowl, the food and the cat in Bait/;
 	-- the owner's client makes the bowl's prompt itself, so nobody else sees one at this cafe.
@@ -744,6 +763,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		tables = folder("Tables", model),
 		customerEntry = entry,
 		counter = counter,
+		oven = oven,
 		espresso = espresso,
 		luckyCat = luckyCat,
 		backDoor = backDoor,

@@ -796,6 +796,12 @@ function Catalog.sitModelName(modelName: string): string
 	return modelName .. "_Sit"
 end
 
+-- The standing worker (body S, Model-Agent #826; Derek picked S on 2026-11-02) of a walking model, "CatCafe_Cat_Tabby"
+-- -> "CatCafe_Cat_Tabby_Work" and "CatCafe_Cat_Tabby_Gold" -> "CatCafe_Cat_Tabby_Gold_Work".
+function Catalog.workModelName(modelName: string): string
+	return modelName .. "_Work"
+end
+
 -- What a working cat wears at its station (features.md F25; Derek 2026-10-27: outfits by role, no collars on any
 -- cat). Each piece is the asset CatCafe_Accessory_<Piece>, and each seated cat model (the _Sit bodies) carries an
 -- Attachment named Outfit_<Piece> at that piece's slot (asset thread's sit_slots). Cats resting in the cat room wear

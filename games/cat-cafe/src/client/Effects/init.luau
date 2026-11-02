@@ -6,12 +6,13 @@
 -- the rarity gems over strays, splashes in water, the intro's puff, the Cat Cannon's flight, clouds and camp
 -- check-in, the campfires' moving flames, the big confetti pull for a Legendary or Mythical, the clouds in the sky,
 -- the rainbow coats, the Rescue Rally's pops and bunting, Trade done's flight, rare decor's moving parts, the net
--- swing's whoosh, the catch's result word and the rescue trap's shake, all on this client only. Effects read replicated world state (tags and attributes) and this player's own events; they
+-- swing's whoosh, the catch's result word, the rescue trap's shake and the Bellhop Cat's bell, cap and hop, all on this client only. Effects read replicated world state (tags and attributes) and this player's own events; they
 -- never fire a remote, never change game state and never move a part the server moves for gameplay. Rules:
 -- .claude/skills/animation-vfx/SKILL.md.
 -- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
+local Bellhop = require(script.Bellhop)
 local CafeWalk = require(script.CafeWalk)
 local Campfire = require(script.Campfire)
 local Cannon = require(script.Cannon)
@@ -58,6 +59,7 @@ function Effects.start()
 	Context.init()
 	Cats.start()
 	CafeWalk.start()
+	Bellhop.start()
 	Signature.start()
 	Catch.start()
 	Chase.start()

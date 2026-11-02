@@ -559,10 +559,12 @@ local Config = {
 		-- The hometown's back edge (v4, F84, hometown-cannon.md section 2): a fence at |x| TownEdgeX behind each row of
 		-- cafes' yards, where the back alleys began until v4.
 		TownEdgeX = 63,
-		-- The Alleyway's set (v4, F84, section 6a): its two lanes keep their v3.2 numbers, at |x| AlleyInnerX..AlleyOuterX
-		-- from AlleySouthZ to AlleyNorthZ in lane space, and the set stands in the wild with its middle at (AlleyCenterX,
-		-- AlleyCenterZ), each lane AlleyLaneShift nearer the middle than in lane space, so a 30 stud block of building
-		-- backs stands between them. Its camp is across both lanes' north ends.
+		-- The Alleyway's set (v4, F84, section 6a): laid out in lane space, the v3.2 back alleys' numbers (|x|
+		-- AlleyInnerX..AlleyOuterX from AlleySouthZ to AlleyNorthZ), and stood in the wild with its middle at
+		-- (AlleyCenterX, AlleyCenterZ), everything AlleyLaneShift nearer the middle than in lane space. Since F85
+		-- (Derek 2026-11-02: one big lane, not two) the block of building backs between the old lanes is gone, so the
+		-- Alleyway is one lane 2 * (AlleyOuterX - AlleyLaneShift) = 90 wide, its camp across the north end with one way
+		-- in, AlleyWayHalfWidth either side of the middle, under the street arch.
 		AlleyInnerX = 63,
 		AlleyOuterX = 93,
 		AlleySouthZ = -125.5,
@@ -570,7 +572,7 @@ local Config = {
 		AlleyCenterX = -1400,
 		AlleyCenterZ = -1400,
 		AlleyLaneShift = 48,
-		AlleyPassageDepth = 12, -- the way through the block between the lanes, at the far (south) end
+		AlleyWayHalfWidth = 20.3,
 		-- The wild areas (v4, F84, hometown-cannon.md section 6a): each v3.2 set moved WildAreaDistance out from the
 		-- Town Square in the same place, the Park south, the Neighbourhood north, the Woods west and the Sewer east, so
 		-- none is in view of the town or of another. Only the Cat Cannon reaches them. Each keeps its gate on its town

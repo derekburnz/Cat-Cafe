@@ -57,8 +57,11 @@ A state lives for one spec file, and the whole suite peaks at about 190 MB (abou
 
 ```
 npm run worldscan                               # node worldscan.mjs --assets, report in <system temp>/cat-cafe-worldscan
-node worldscan.mjs --out ./scan --tier 3        # cafes dressed at Tier 3 instead of 5; no per-model pass
+node --max-old-space-size=10000 worldscan.mjs --out ./scan --tier 3   # cafes at Tier 3 instead of 5; no per-model pass
 ```
+
+The world holds about 69,000 parts since F84 and F85, so node needs a heap above its 2 GB default (the npm scripts
+pass `--max-old-space-size=10000`; without it the scan runs out of memory after the build).
 
 Derek, 2026-10-30: "lots of models are not connected to each other and are floating or have gaps especially around
 the cafe", and "models with unfortunate placement clip into each other". This builds the real world and checks it.
@@ -68,6 +71,24 @@ the cafe", and "models with unfortunate placement clip into each other". This bu
 | `worldscan.mjs` | Loads all 453 models from `assets/cat-cafe/rbx/` as `ReplicatedStorage.Assets`, runs `WorldBuilder.build()`, dresses every cafe at the chosen tier with its patio open and back door art on (as `CafeService` does), dumps every part and writes the report. About 75 s, 150 s with `--assets`. |
 | `world-shim.luau` | A small Roblox with real geometry for the world code: `Vector3`, `CFrame` (all constructors, `*`, `Inverse`, `ToWorldSpace`/`ToObjectSpace`, `Lerp`), `Color3`, instances with parents, attributes, tags, `GetPivot`/`PivotTo`, `GetBoundingBox`, `ScaleTo`, `Clone` and `Workspace:Raycast` against boxes. `dumpParts(root)` writes one line per part. Separate from `roblox-shim.luau` on purpose: the tests' shim stays small. |
 | `worldscan-checks.mjs` | Every part as an oriented box (a cylinder or ball as the box round it, a SpecialMesh by its scale) and the separating axis test between neighbours. **Floating**: a drawn group with no chain of parts within 0.1 studs down to the ground. **Seams**: faces 0.05 to 0.6 studs apart, overlapping at least 0.3 studs each way, with at least 3 of 5 sample points in between open, and only where it shows (side by side, or a tall thing over a floor). **Clipping**: a drawn part of one placed model more than 0.12 studs into another model, leaving out props set into the floor and doors and windows set into walls. |
+
+### Cafe fit check (QA, 2026-11-02, for the bigger cafes)
+
+```
+npm run cafefit                                 # report in <system temp>/cat-cafe-cafefit/cafe-fit.md, about 60 s
+npm run cafefit -- --out ./fit --tiers 0,1,2,3,4,5,5,5 --pieces CatCafe_Decor_DuckFountain,CatCafe_Decor_PorchSwing
+```
+
+`cafefit.mjs` builds the world the same way, then `cafefit-dress.luau` dresses the eight cafes as owners have them:
+one per tier side by side (For Rent first), every table with both chairs and the customers' Aisle and Approach points
+as `CafeService` sets them, the top espresso machine, the Lucky Cat at level 5, every shop decor piece on its anchor,
+the big crate pieces (Duck Fountain, Bathtub Sofa, Hollow Log Booth, Picnic Table, Porch Swing by default) turned
+over the eight decor spots so eight cafes stand each at every spot, and a full front lawn through `LawnBuilder` with
+the path and fence changing from cafe to cafe. It scans the hometown as the world scan does (`world-scan.md` beside
+it) and adds: **dressed pieces clipping**, per cafe and tier; **customer routes**, each chair's walk as
+`CustomerController` makes it (Entry, Door, Order, Aisle, Approach, the seat) swept as a body 1.6 wide from 0.8 to
+4.5 studs up against every drawn part; **the back door's way** straight out across the yard to the fence that closes
+the old gate; and **the lawn fence's ends** against the cafe's walls in plot space.
 
 Output, positions in world studs (y up, the Town Square at the origin): `world-scan.md` (folded tables per Cafes,
 Town and Areas, then "Inside the model files"), `floating.csv`, `seams.csv`, `clipping.csv`, `models.csv` and

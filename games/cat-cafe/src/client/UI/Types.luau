@@ -343,6 +343,7 @@ export type ScreenName =
 	| "Quests"
 	| "DailyTreat"
 	| "YardSale" -- F100: the Yard Sale's card, opened by its prompt (UI.campExtras.openYardSale)
+	| "Trade" -- F102: the players to trade with, then the trade window (UI.trade)
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 
@@ -528,6 +529,56 @@ export type YardSaleCrate = SharedTypes.YardSaleCrate
 -- The Rescue Rally (F101, rescue-rally.md section 5) as RallyState sends it (shared/Types): active, endsAt (0 when
 -- none runs), startsAt, lap, goal, points, myPoints, lapsPaid and lapsDone.
 export type RallyState = SharedTypes.RallyState
+
+-- F102 trading (trading.md section 6), as Gameplay-Engineer agreed TradeState on 2026-11-02 before TradeService was
+-- built; re-export them from shared/Types once it lands. One cat in an offer, as the viewer sees it: `rateForMe` is
+-- what it earns a second in the viewer's cafe.
+export type TradeTile = {
+	uid: string,
+	catId: string,
+	rarity: string,
+	variant: string?, -- "gold", "rainbow" or nil
+	level: number,
+	charm: any?,
+	rateForMe: number,
+}
+
+export type TradeSide = {
+	userId: number,
+	name: string, -- the display name
+	ready: boolean,
+	confirmed: boolean,
+	cats: { TradeTile },
+}
+
+export type TradePhase = "offer" | "countdown" | "confirm"
+
+-- TradeState(state?): nil closes the window. `me` is the viewer's side, `them` the other player's. `version` goes up
+-- on every change and goes back with Ready and Confirm. `changed` is the last add or take away (server time), for the
+-- yellow flash. giveValue and getValue are the Collector's values; `lopsided` and `gift` are the server's warnings.
+export type TradeState = {
+	tradeId: string,
+	version: number,
+	phase: TradePhase,
+	countdownEndsAt: number?,
+	me: TradeSide,
+	them: TradeSide,
+	changed: { side: "me" | "them", uid: string, at: number }?,
+	giveValue: number,
+	getValue: number,
+	lopsided: boolean,
+	gift: boolean,
+	myRateNow: number, -- what my offered cats earn a second now
+	theirRateForMe: number, -- what their offered cats would earn a second in my cafe
+}
+
+-- A cat in TradeDone and in the trade log.
+export type TradeCat = {
+	catId: string,
+	rarity: string,
+	variant: string?,
+	level: number,
+}
 
 -- ModuleScripts must return a non-nil value.
 return {}

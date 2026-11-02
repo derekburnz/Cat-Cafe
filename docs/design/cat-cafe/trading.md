@@ -10,6 +10,8 @@ The layout follows the trade menus players already know from the big pet games: 
 - **Never:** coins, golden fish, potions, food, crates, spins or decor, and never exclusive cats (the Bellhop Cat, shop cats and anything bought with Robux). So nothing in a trade can be bought with Robux, and there is no way to turn Robux or coins into another player's cats. Decor can join later, once trades have run clean for a while.
 - **Locked cats cannot be offered.** Gold, rainbow, Legendary and Mythical cats arrive locked (F62), so a player has to unlock a good cat on its own card, outside the trade window, before they can trade it. That one step stops most rushed giveaways.
 - A traded cat keeps its rarity, coat, charm, level and rescued flag. Its custom name goes back to its kind's name. It arrives locked if it is gold, rainbow, Legendary or Mythical, and it counts as found in the new owner's Index pages (collection, gold and rainbow; source "trade"), so it can fill milestones, but it pays no golden fish, so passing cats back and forth cannot farm fish.
+- **Why traded cats count for the Index** (decided 2026-11-02 after the #854 security review): in the big pet games a traded pet fills the index, and that is a large part of why players trade, so we do the same. It does mean a group of friends can lend each other cats to fill their Index pages, Gold and Rainbow tabs and claim those milestones. We accept that: it is playing together, every milestone pays once per player, nothing in it is sold for Robux, the luck rewards are capped (GoldLuckMax, RainbowLuckMax), and TradesPerDay (50) with TradeMaxCats (9) bounds how fast it goes. If the ads week shows Index milestones being claimed far faster by traders than by catchers, the fix is a hold time before a traded cat counts, not taking trades out of the Index.
+- **Nothing pays per trade.** `stats.trades` is for the trade log and analytics only. No quest, achievement, milestone or prize may ever count trades, because two friends can swap one cat back and forth.
 
 ## 2. Who can trade, and where
 
@@ -73,3 +75,4 @@ Settings has a Trades page with the last 20 trades: when, with whom (their displ
 9. Trade requests set to Friends only refuse a request from a non-friend.
 10. The output has no user id, name or cat list from a trade.
 11. A traded cat new to the receiver shows in their Index (and Gold or Rainbow tab) and pays no golden fish.
+12. Ten trades of one cat back and forth between two accounts change nothing but `stats.trades` and the trade logs: no fish, no quest progress, no prize.

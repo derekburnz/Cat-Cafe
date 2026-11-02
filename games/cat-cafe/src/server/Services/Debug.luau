@@ -27,6 +27,7 @@
 --   D:Invoke("rally", nil, "force", true)    -- a Rescue Rally now (F101; false stops it, nil goes back to Config)
 --   D:Invoke("rally", nil, "points", 20)     -- 20 check-ins' points for you through the steps and prizes (F101)
 --   D:Invoke("rally", nil, "laps", 4)        -- your laps paid this weekend; returns the Rally's line either way
+--   D:Invoke("restartNotice", 300)     -- the restart countdown's 5 minute warning to everyone; returns its text
 --   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
@@ -70,6 +71,7 @@ local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local QuestService = require(script.Parent.QuestService)
 local RallyService = require(script.Parent.RallyService)
 local RescueService = require(script.Parent.RescueService)
+local RestartNoticeService = require(script.Parent.RestartNoticeService)
 local RichTipService = require(script.Parent.RichTipService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local ShoveService = require(script.Parent.ShoveService)
@@ -239,6 +241,13 @@ end
 -- F101 (rescue-rally.md section 6): `action` "force" (value true, false or nil for Config.RallyForce), "points" (value
 -- check-ins scored for the player) or "laps" (value the laps paid this weekend); returns the Rally as this player
 -- sees it, "active=true lap=1 points=20/90 mine=20 lapsPaid=1 lapsDone=false".
+-- The restart countdown's warning for `seconds` (0 to 600) to every player, as a MessagingService message would
+-- bring it. Returns the text, or nil for seconds the server would ignore.
+function Debug.restartNotice(seconds: unknown): string?
+	guard()
+	return RestartNoticeService.debugNotice(seconds)
+end
+
 function Debug.rally(player: (Player | number | string)?, action: string?, value: any): string
 	local p = resolve(player)
 	if action == "force" then

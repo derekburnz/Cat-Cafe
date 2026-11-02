@@ -35,6 +35,7 @@ local QuestService = require(script.Parent.Services.QuestService)
 local RallyService = require(script.Parent.Services.RallyService)
 local RareMomentService = require(script.Parent.Services.RareMomentService)
 local RescueService = require(script.Parent.Services.RescueService)
+local RestartNoticeService = require(script.Parent.Services.RestartNoticeService)
 local RichTipService = require(script.Parent.Services.RichTipService)
 local ShoveService = require(script.Parent.Services.ShoveService)
 local SpinService = require(script.Parent.Services.SpinService)
@@ -87,6 +88,7 @@ PalService.start() -- F92: pals; before Telemetry so pal_time goes out before it
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
+RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one
 Telemetry.start() -- after every service that registers leave work, so its own runs last
 DataService.start()
 

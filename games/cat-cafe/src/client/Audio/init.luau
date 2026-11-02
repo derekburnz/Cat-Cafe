@@ -605,10 +605,6 @@ local carryStop: (() -> ())? = nil
 local carrying = false
 local dealerStop: (() -> ())? = nil
 local rescueSpot: BasePart? = nil
-local ZONE_GAP = 4 -- seconds between zone chimes, so walking along an area's open edge plays one
-local TRAVEL_QUIET = 2 -- seconds after a trip with no zone chime: the travel sound already says where you went
-local lastZoneCueAt: number? = nil
-local lastTravelAt: number? = nil
 local lastCampCheckInAt: number? = nil -- F84: your own camp check-in, so its CheckIn rings no door bell
 local CAMP_QUIET = 1
 
@@ -1555,7 +1551,6 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	end,
 	-- Fast travel, the My Cafe button and the manholes, once the server says the trip worked.
 	Travel = function(destination: any)
-		lastTravelAt = os.clock()
 		-- F84: Home from a wild area is a cloud hop (its gap keeps CloudHopAt from playing it twice), the Cannon button
 		-- a poof (Logic.travelCue)
 		Audio.play(Logic.travelCue(destination, youInWild(), youHopping()))
@@ -1569,9 +1564,6 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	end,
 	CatSold = function()
 		Audio.play("catSold")
-	end,
-	CatLevelUp = function() -- F75, for the owner only, beside the toast and the sparkle
-		Audio.play("catLevelUp")
 	end,
 
 	CoinPop = function(position: any)
@@ -1707,21 +1699,11 @@ function Audio.setCarrying(isCarrying: boolean)
 end
 
 -- The zone the ambience follows: "Cafe", "Alley", "Park" (later "Neighbourhood", "Woods", "Sewer"); nil for none.
--- Walking between the safe street (nil or "Cafe") and a catching area also plays a chime with the Safe zone chip:
--- zoneArea in, zoneSafe out, one per ZONE_GAP and none right after a trip.
+-- Crossing between the safe street and a catching area is silent since 2026-11-02: its chimes went with the Safe
+-- zone chip and toast (Derek 2026-10-28: "no need for the safe area reached banner either", UI PR #669).
 function Audio.setZone(newZone: string?)
-	local cueId = Logic.zoneCue(zone, newZone)
 	zone = newZone
 	refreshAmbience()
-	local now = os.clock()
-	if
-		cueId ~= nil
-		and Logic.canPlay(lastZoneCueAt, now, ZONE_GAP)
-		and Logic.canPlay(lastTravelAt, now, TRAVEL_QUIET)
-	then
-		lastZoneCueAt = now
-		Audio.play(cueId)
-	end
 end
 
 -- Connects every moment Audio knows to its sounds. `moments` maps a moment name to a signal with :Connect

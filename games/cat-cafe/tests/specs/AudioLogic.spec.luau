@@ -216,20 +216,6 @@ return function()
 			expect(Logic.holdSpeed(0 / 0)).to.equal(nil)
 		end)
 
-		it("chimes only when crossing between the safe street and a catching area", function()
-			expect(Logic.zoneCue(nil, "Alley")).to.equal("zoneArea")
-			expect(Logic.zoneCue("Cafe", "Park")).to.equal("zoneArea")
-			expect(Logic.zoneCue("Alley", nil)).to.equal("zoneSafe")
-			expect(Logic.zoneCue("Park", "Cafe")).to.equal("zoneSafe")
-			expect(Logic.zoneCue(nil, "Cafe")).to.equal(nil)
-			expect(Logic.zoneCue("Cafe", nil)).to.equal(nil)
-			expect(Logic.zoneCue("Alley", "Park")).to.equal(nil)
-			expect(Logic.zoneCue("Alley", "Alley")).to.equal(nil)
-			expect(Logic.isSafeZone(nil)).to.equal(true)
-			expect(Logic.isSafeZone("Cafe")).to.equal(true)
-			expect(Logic.isSafeZone("Sewer")).to.equal(false)
-		end)
-
 		it("twinkles for Mythical strays only", function() -- Derek 2026-10-28: every other rarity and gold is quiet
 			expect(Logic.shimmers("Mythical")).to.equal(true)
 			expect(Logic.shimmers("mythical")).to.equal(true)
@@ -243,34 +229,8 @@ return function()
 	end)
 
 	describe("Audio.Logic hold, zones and gold edges (QA)", function()
-		-- The zone chime and the HUD's Safe zone chip (UI/Components/Wayfinding) each decide what is safe; a player
-		-- must never hear "safe" while the chip says "catching area", or the other way round.
-		it("agrees with the zone chip on every zone, and the chimes mirror each other", function()
-			local Components = Client:WaitForChild("UI"):WaitForChild("Components")
-			local Wayfinding = require(Components:WaitForChild("Wayfinding")) :: any
-			local Catalog = require(
-				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
-			) :: any
-			local zones: { string | false } = { false, "Cafe" }
-			for _, area in Catalog.areas do
-				-- WorldBuilder names each area's zone box with the id's first letter upper-cased ("alley" -> "Alley")
-				table.insert(
-					zones,
-					string.upper(string.sub(area.id, 1, 1)) .. string.sub(area.id, 2)
-				)
-			end
-			for _, a in zones do
-				local from = if a == false then nil else a
-				expect(Logic.isSafeZone(from)).to.equal(Wayfinding.isSafe(from))
-				for _, b in zones do
-					local to = if b == false then nil else b
-					local there, back = Logic.zoneCue(from, to), Logic.zoneCue(to, from)
-					expect(there == "zoneArea").to.equal(back == "zoneSafe")
-					expect(there == nil).to.equal(back == nil)
-				end
-			end
-		end)
-
+		-- The zone chimes went on 2026-11-02 with the Safe zone toast (UI PR #669), and with them their test against
+		-- the zone chip.
 		it("never fills the hold faster as the hold gets longer, and stays in 0.5 to 2", function()
 			local last = math.huge
 			for step = 1, 600 do

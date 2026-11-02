@@ -1589,7 +1589,7 @@ local function onTutorialAdvance(player: Player, rawStep: unknown)
 end
 
 -- The Settings screen (data-model section 14 `settings`): a switch takes a boolean, a volume a number it clamps
--- to 0 to 1 (shared/Settings). Unknown keys and values that do not fit are dropped.
+-- to 0 to 1, a choice one of its strings (shared/Settings). Unknown keys and values that do not fit are dropped.
 local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	local value = Settings.clean(rawKey, rawValue)
 	local profile = profileFor(player)

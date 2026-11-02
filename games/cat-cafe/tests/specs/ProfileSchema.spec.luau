@@ -135,6 +135,7 @@ return function()
 				markers = true,
 				tutorialButton = true,
 				shopAlerts = true,
+				tradeRequests = "everyone",
 			})
 		end)
 
@@ -422,6 +423,7 @@ return function()
 				markers = true,
 				tutorialButton = true,
 				shopAlerts = true,
+				tradeRequests = "everyone",
 			})
 			-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 			expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })

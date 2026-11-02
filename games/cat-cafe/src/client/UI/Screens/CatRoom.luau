@@ -34,6 +34,7 @@ local Format = require(script.Parent.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local KeepUp = require(script.Parent.Parent.Components.KeepUp)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local RenameDialog = require(script.Parent.RenameDialog)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
@@ -166,6 +167,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	self._selected = nil :: string? -- the picked cat's uid
 	self._placing = false -- Assign pressed: the next "+" tap puts the picked cat there
 	self._confirmSell = false
+	self._sellAgain = false -- F99: a rainbow cat's sell asks a second time
 	self._lockTaps = {} :: { [string]: CatLock.Tap } -- uid -> the player's last lock tap (F62)
 	self._lockLive = false -- the server sends `locked` on its cats
 	self._notice = nil :: string?
@@ -404,6 +406,11 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 	self._detailShiny = badge(body, "✨", Theme.colors.gold, Theme.colors.goldText)
 	self._detailShiny.Position = UDim2.fromOffset(4, 4)
 	self._detailShiny.Visible = false
+	-- F99: a rainbow cat's badge where a gold one has its sparkle
+	self._detailRainbow = badge(body, "🌈", Theme.colors.white, Theme.colors.ink)
+	self._detailRainbow.Name = "RainbowBadge"
+	self._detailRainbow.Position = UDim2.fromOffset(4, 4)
+	self._detailRainbow.Visible = false
 
 	local textLeft = DETAIL_ART + 14
 	self._textLeft = textLeft
@@ -760,6 +767,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 	local def: Types.CatDef? = self._catById[instance.catId]
 	local rarity = if def then def.rarity else "Common"
 	local shiny = CatVariant.isGold(instance.variant)
+	local rainbow = CatVariant.isRainbow(instance.variant)
 	local button: TextButton = Create("TextButton", {
 		Name = instance.uid,
 		Text = "",
@@ -778,13 +786,15 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 			),
 		}),
 	})
-	-- a gold cat's card has a thicker gold edge; the picked card a thick sky edge (set in render)
+	-- a gold cat's card has a thicker gold edge, a rainbow cat's a slowly turning rainbow one (F99); the picked card
+	-- a thick sky edge (set in render)
 	local stroke: UIStroke = Create("UIStroke", {
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = if shiny then Theme.colors.gold else Theme.rarityColor(rarity),
-		Thickness = Theme.sizes.stroke + (if shiny then 1 else 0),
+		Thickness = Theme.sizes.stroke + (if shiny or rainbow then 1 else 0),
 		Parent = button,
 	})
+	local edge: UIGradient? = if rainbow then Rainbow.stroke(stroke) else nil
 	local portrait = CatPortrait.new({
 		parent = button,
 		size = UDim2.fromOffset(CARD_ART, CARD_ART),
@@ -800,6 +810,11 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		local sparkle = badge(button, "✨", Theme.colors.gold, Theme.colors.goldText)
 		sparkle.AnchorPoint = Vector2.new(1, 0)
 		sparkle.Position = UDim2.new(1, -4, 0, 4)
+	elseif rainbow then
+		local bow = badge(button, "🌈", Theme.colors.white, Theme.colors.ink)
+		bow.Name = "RainbowBadge"
+		bow.AnchorPoint = Vector2.new(1, 0)
+		bow.Position = UDim2.new(1, -4, 0, 4)
 	end
 	-- F97 section 6: a spare cat (out of every area, F78) has no Index page any more, so its card says "Classic" on
 	-- the picture's top right, under the sparkle on a gold one
@@ -807,7 +822,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		local classic = badge(button, "Classic", Theme.areaColors.spare, Theme.colors.white)
 		classic.Name = "Classic"
 		classic.AnchorPoint = Vector2.new(1, 0)
-		classic.Position = UDim2.new(1, -4, 0, if shiny then 28 else 4)
+		classic.Position = UDim2.new(1, -4, 0, if shiny or rainbow then 28 else 4)
 	end
 	-- F62: on the picture's lower right corner while the cat is locked
 	local lock = badge(button, Theme.icons.lock, Theme.colors.cocoaDeep, Theme.colors.white)
@@ -856,6 +871,8 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		rate = rate,
 		def = def,
 		shiny = shiny,
+		rainbow = rainbow,
+		edge = edge,
 		rarity = rarity,
 	}
 	entry.connection = button.Activated:Connect(function()
@@ -1020,14 +1037,23 @@ function CatRoom._pressSell(self: any)
 	if def ~= nil and def.exclusive == true then
 		return -- F95 and F96: an exclusive cat is never sold; its Sell reads "Can't sell"
 	end
-	local needsConfirm = def ~= nil and rarityRank(def.rarity) >= CONFIRM_SELL_FROM
+	-- F99: a rainbow cat always asks, and asks twice
+	local rainbow = CatVariant.isRainbow(instance.variant)
+	local needsConfirm = rainbow or (def ~= nil and rarityRank(def.rarity) >= CONFIRM_SELL_FROM)
 	if needsConfirm and not self._confirmSell then
 		self._placing = false
 		self._confirmSell = true
+		self._sellAgain = false
+		self:_refresh()
+		return
+	end
+	if rainbow and not self._sellAgain then
+		self._sellAgain = true
 		self:_refresh()
 		return
 	end
 	self._confirmSell = false
+	self._sellAgain = false
 	self._callbacks.sellCat(uid)
 end
 
@@ -1168,11 +1194,15 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 		local picked = uid == selected
 		entry.stroke.Color = if picked
 			then Theme.colors.sky
+			elseif entry.rainbow then Theme.colors.white
 			elseif entry.shiny then Theme.colors.gold
 			else Theme.rarityColor(entry.rarity)
 		entry.stroke.Thickness = if picked
 			then 4
-			else Theme.sizes.stroke + (if entry.shiny then 1 else 0)
+			else Theme.sizes.stroke + (if entry.shiny or entry.rainbow then 1 else 0)
+		if entry.edge then
+			entry.edge.Enabled = not picked
+		end
 	end
 	self._empty.Visible = #shown == 0
 	self._empty.Text = if counts.all == 0
@@ -1285,6 +1315,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	local breed = if def then def.name else instance.catId
 	local rarity = if def then def.rarity else "Common"
 	local shiny = CatVariant.isGold(instance.variant)
+	local rainbow = CatVariant.isRainbow(instance.variant)
 
 	if self._detailArtFor ~= instance.uid then
 		self._detailArtFor = instance.uid
@@ -1292,10 +1323,11 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	end
 	self._detailGlow.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._detailShiny.Visible = shiny
+	self._detailRainbow.Visible = rainbow
 
 	local custom = instance.name
 	self._detailName.Text = if custom and custom ~= "" then custom else breed
-	self._detailBreed.Text = ("%s%s %s"):format(if shiny then "Gold " else "", rarity, breed)
+	self._detailBreed.Text = ("%s%s %s"):format(CatVariant.word(instance.variant), rarity, breed)
 	self._detailBreed.TextColor3 = Theme.rarityColor(rarity):Lerp(Theme.colors.ink, 0.25)
 	-- F97: charm as a plain percentage, no stars
 	local charm: number? = instance.charm
@@ -1332,6 +1364,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 				role = if role then Format.roleName(role) else nil,
 				favourite = favorite,
 				gold = shiny,
+				rainbow = rainbow,
 				level = instance.level,
 			}),
 			role
@@ -1339,6 +1372,18 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	end
 	self._detailInfo.Visible = not showBuffs
 	self._detailBuffs.Visible = showBuffs
+	-- F99: a rainbow cat's sell asks twice and says what it earns
+	if self._confirmSell and rainbow then
+		self._detailInfo.Text = if self._sellAgain
+			then "Really sell it? It can't be undone."
+			else ("Sell your Rainbow %s? It earns x%g"):format(
+				breed,
+				CatVariant.multiplier("rainbow")
+			)
+		self._detailInfo.TextColor3 = Theme.colors.warnDark
+		self._detailInfo.Visible = true
+		self._detailBuffs.Visible = false
+	end
 	self._detailDesc.Text = if def then def.description or "" else ""
 
 	-- F62: the Lock row, and Sell greyed while the cat is locked
@@ -1368,7 +1413,13 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 		self._rest:setText("Cancel")
 		self._rest:setEnabled(true)
 		self._rest.instance.Size = UDim2.new(1 / 3, -3, 1, 0)
-		self._sell:setText(if value > 0 then "Sell " .. Format.money(value) else "Confirm")
+		local again = rainbow and self._sellAgain
+		self._sell:setText(
+			if again
+				then "Yes, sell it"
+				elseif value > 0 then "Sell " .. Format.money(value)
+				else "Confirm"
+		)
 		self._sell:setStyle("gold")
 		self._sell:setEnabled(true)
 		self._sell.instance.Size = UDim2.new(2 / 3, -3, 1, 0)
@@ -1388,11 +1439,13 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	end
 end
 
--- Theme colours per chip: the favourite role in berry with a heart, gold in gold, level in sky, Likes on paper.
+-- Theme colours per chip: the favourite role in berry with a heart, gold in gold, rainbow on the turning bands (F99),
+-- level in sky, Likes on paper.
 local BUFF_LOOK: { [string]: { fill: Color3, text: Color3 } } = {
 	favourite = { fill = Theme.colors.berry, text = Theme.colors.white },
 	likes = { fill = Theme.colors.paper, text = Theme.modal.text },
 	gold = { fill = Theme.colors.gold, text = Theme.colors.goldText },
+	rainbow = { fill = Theme.colors.white, text = Theme.colors.ink },
 	level = { fill = Theme.colors.sky, text = Theme.colors.white },
 }
 
@@ -1442,6 +1495,9 @@ function CatRoom._renderBuffs(self: any, chips: { CatBuffs.Chip }, role: string?
 			Parent = label,
 		})
 		Outline.border(label, 1.5)
+		if chip.kind == "rainbow" then
+			Rainbow.fill(label)
+		end
 	end
 end
 

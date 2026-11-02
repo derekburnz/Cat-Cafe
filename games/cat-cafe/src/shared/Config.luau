@@ -350,6 +350,19 @@ local Config = {
 	},
 	FishMarketRange = 14, -- OpenCrate and BuyFishItem from this close to a FishMarket station
 	CrateOpenCooldownSeconds = 2,
+	-- The crate reel (F103, crate-reel.md section 4), shared so the UI's reel and VFX's counter crate time to the same
+	-- numbers: CrateReelTiles tiles slide under the marker and the won piece is tile CrateReelLandingTile; tiles
+	-- CrateReelProtectFrom to CrateReelProtectTo are never rarer than the prize; the reel eases in over
+	-- CrateReelRampSeconds to CrateReelTopSpeed tiles a second, slows over the last CrateReelStopSeconds and the marker
+	-- pulses CrateReelHoldSeconds at the stop (about 2.9 s to the stop). Display only: the server's CrateResult decides.
+	CrateReelTiles = 40,
+	CrateReelLandingTile = 34,
+	CrateReelProtectFrom = 26,
+	CrateReelProtectTo = 37,
+	CrateReelTopSpeed = 15,
+	CrateReelRampSeconds = 0.3,
+	CrateReelStopSeconds = 0.8,
+	CrateReelHoldSeconds = 0.25,
 	DecorSpots = { 2, 3, 4, 5, 6 } :: { number }, -- furniture and decorations in use, by tier
 	DecorIndexBonus = 0.05, -- every tip forever: a Decor Index page's decor10 prize (all twelve pieces since F80, F54)
 	DecorIndexHalfFish = 25, -- golden fish: a Decor Index page's decor5 prize (five of ten, F54)

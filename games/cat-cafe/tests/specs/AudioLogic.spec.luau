@@ -1,7 +1,8 @@
 --!strict
 -- Pure audio rules (src/client/Audio/Logic.luau) and the cue table (Cues.luau), sound list sections 2 to 6.
 return function()
-	local Client = game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
+	local Client =
+		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
 	local Audio = Client:WaitForChild("Audio")
 	local Logic = require(Audio:WaitForChild("Logic")) :: any
 	local Cues = require(Audio:WaitForChild("Cues")) :: any
@@ -175,7 +176,9 @@ return function()
 		end)
 
 		it("climbs one step per rarity in the catalog's order (QA)", function()
-			local Catalog = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog"))
+			local Catalog = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
+			)
 			for index, rarity in Catalog.rarityOrder do
 				expect(Logic.rarityStep(rarity)).to.equal(index)
 			end
@@ -216,16 +219,19 @@ return function()
 			expect(Logic.holdSpeed(0 / 0)).to.equal(nil)
 		end)
 
-		it("twinkles for Mythical strays only", function() -- Derek 2026-10-28: every other rarity and gold is quiet
-			expect(Logic.shimmers("Mythical")).to.equal(true)
-			expect(Logic.shimmers("mythical")).to.equal(true)
-			expect(Logic.shimmers("legendary")).to.equal(false)
-			expect(Logic.shimmers("Epic")).to.equal(false)
-			expect(Logic.shimmers("Rare")).to.equal(false)
-			expect(Logic.shimmers("Common")).to.equal(false)
-			expect(Logic.shimmers(3)).to.equal(false)
-			expect(Logic.shimmers(nil)).to.equal(false)
-		end)
+		it(
+			"twinkles for Mythical strays only",
+			function() -- Derek 2026-10-28: every other rarity and gold is quiet
+				expect(Logic.shimmers("Mythical")).to.equal(true)
+				expect(Logic.shimmers("mythical")).to.equal(true)
+				expect(Logic.shimmers("legendary")).to.equal(false)
+				expect(Logic.shimmers("Epic")).to.equal(false)
+				expect(Logic.shimmers("Rare")).to.equal(false)
+				expect(Logic.shimmers("Common")).to.equal(false)
+				expect(Logic.shimmers(3)).to.equal(false)
+				expect(Logic.shimmers(nil)).to.equal(false)
+			end
+		)
 	end)
 
 	describe("Audio.Logic hold, zones and gold edges (QA)", function()
@@ -246,16 +252,19 @@ return function()
 	-- QA for Sound-Agent's PR #268 (reviewer N131, N150): which resting cafe cat purrs. The server marks a cat on the
 	-- seated body with Pose "sit" (CafeService, PR #266); a lying cat purrs only while Effects shows it loafing.
 	describe("Audio.Logic resting purrs (QA)", function()
-		it("purrs on the sitting body all day, on the lying body only in a loaf, never at night", function()
-			expect(Logic.restingPurrs("sit", false, false)).to.equal(true)
-			expect(Logic.restingPurrs("sit", true, false)).to.equal(false)
-			expect(Logic.restingPurrs("sit", true, true)).to.equal(false)
-			expect(Logic.restingPurrs(nil, false, true)).to.equal(true)
-			expect(Logic.restingPurrs(nil, false, false)).to.equal(false)
-			expect(Logic.restingPurrs(nil, true, true)).to.equal(false)
-		end)
+		it(
+			"purrs on the sitting body all day, on the lying body only in a loaf, never at night",
+			function()
+				expect(Logic.restingPurrs("sit", false, false)).to.equal(true)
+				expect(Logic.restingPurrs("sit", true, false)).to.equal(false)
+				expect(Logic.restingPurrs("sit", true, true)).to.equal(false)
+				expect(Logic.restingPurrs(nil, false, true)).to.equal(true)
+				expect(Logic.restingPurrs(nil, false, false)).to.equal(false)
+				expect(Logic.restingPurrs(nil, true, true)).to.equal(false)
+			end
+		)
 
-		it("treats any pose but the exact \"sit\" like no pose, for every night and loaf", function()
+		it('treats any pose but the exact "sit" like no pose, for every night and loaf', function()
 			local poses: { any } = { "nap", "upright", "Sit", "sit ", "", 5, true, {} }
 			for _, pose in poses do
 				for _, night in { false, true } do
@@ -419,16 +428,19 @@ return function()
 	describe("Audio.Logic tackle sounds (QA)", function()
 		-- v0.11 F74: TackleAt and TackleMissAt sound only while under 0.6 s old (init.luau TACKLE_FRESH), so a join
 		-- or a respawn replays nothing; with no window a carry start keeps its 2 s.
-		it("a tackle's attribute sounds for 0.6 s and never later, whatever the default window", function()
-			local now = 1000
-			expect(Logic.freshStart(now, now, 0.6)).to.equal(true)
-			expect(Logic.freshStart(now - 0.59, now, 0.6)).to.equal(true)
-			expect(Logic.freshStart(now - 0.61, now, 0.6)).to.equal(false)
-			expect(Logic.freshStart(now - 1.5, now, 0.6)).to.equal(false)
-			expect(Logic.freshStart(now - 1.5, now)).to.equal(true)
-			expect(Logic.freshStart(now - 1.5, now, nil)).to.equal(true)
-			expect(Logic.freshStart(now - 2.01, now)).to.equal(false)
-		end)
+		it(
+			"a tackle's attribute sounds for 0.6 s and never later, whatever the default window",
+			function()
+				local now = 1000
+				expect(Logic.freshStart(now, now, 0.6)).to.equal(true)
+				expect(Logic.freshStart(now - 0.59, now, 0.6)).to.equal(true)
+				expect(Logic.freshStart(now - 0.61, now, 0.6)).to.equal(false)
+				expect(Logic.freshStart(now - 1.5, now, 0.6)).to.equal(false)
+				expect(Logic.freshStart(now - 1.5, now)).to.equal(true)
+				expect(Logic.freshStart(now - 1.5, now, nil)).to.equal(true)
+				expect(Logic.freshStart(now - 2.01, now)).to.equal(false)
+			end
+		)
 
 		it("a clock up to 1 s ahead counts as fresh at any window, and nothing past it", function()
 			local now = 1000
@@ -468,39 +480,45 @@ return function()
 			expect(noticed).to.equal(false)
 		end)
 
-		it("plays once per approach on a walk in, around and out, never twice without leaving past 45", function()
-			-- 0.5 stud steps: in from 60 to 0, out to 44, back in to 0, out to 60, in to 0
-			local legs = { { 60, 0 }, { 0, 44 }, { 44, 0 }, { 0, 60 }, { 60, 0 } }
-			local noticed, plays = false, 0
-			local playedAt: { number } = {}
-			for _, leg in legs do
-				local from, to = leg[1], leg[2]
-				local step = if to > from then 0.5 else -0.5
-				for distance = from, to, step do
-					local play
-					play, noticed = Logic.rareNotice(noticed, distance, NEAR, FAR)
-					if play then
-						plays += 1
-						table.insert(playedAt, distance)
+		it(
+			"plays once per approach on a walk in, around and out, never twice without leaving past 45",
+			function()
+				-- 0.5 stud steps: in from 60 to 0, out to 44, back in to 0, out to 60, in to 0
+				local legs = { { 60, 0 }, { 0, 44 }, { 44, 0 }, { 0, 60 }, { 60, 0 } }
+				local noticed, plays = false, 0
+				local playedAt: { number } = {}
+				for _, leg in legs do
+					local from, to = leg[1], leg[2]
+					local step = if to > from then 0.5 else -0.5
+					for distance = from, to, step do
+						local play
+						play, noticed = Logic.rareNotice(noticed, distance, NEAR, FAR)
+						if play then
+							plays += 1
+							table.insert(playedAt, distance)
+						end
 					end
 				end
+				-- the first approach, then nothing on the way back from 44, then the approach after 60
+				expect(plays).to.equal(2)
+				expect(playedAt[1]).to.equal(NEAR)
+				expect(playedAt[2]).to.equal(NEAR)
 			end
-			-- the first approach, then nothing on the way back from 44, then the approach after 60
-			expect(plays).to.equal(2)
-			expect(playedAt[1]).to.equal(NEAR)
-			expect(playedAt[2]).to.equal(NEAR)
-		end)
+		)
 
-		it("never plays for a distance it cannot read, and a stray it cannot see is forgotten", function()
-			for _, odd in { 0 / 0, math.huge } do
-				local play, noticed = Logic.rareNotice(false, odd, NEAR, FAR)
-				expect(play).to.equal(false)
-				expect(noticed).to.equal(false)
-				play, noticed = Logic.rareNotice(true, odd, NEAR, FAR)
-				expect(play).to.equal(false)
-				expect(noticed).to.equal(false)
+		it(
+			"never plays for a distance it cannot read, and a stray it cannot see is forgotten",
+			function()
+				for _, odd in { 0 / 0, math.huge } do
+					local play, noticed = Logic.rareNotice(false, odd, NEAR, FAR)
+					expect(play).to.equal(false)
+					expect(noticed).to.equal(false)
+					play, noticed = Logic.rareNotice(true, odd, NEAR, FAR)
+					expect(play).to.equal(false)
+					expect(noticed).to.equal(false)
+				end
 			end
-		end)
+		)
 	end)
 
 	-- F84 (hometown-cannon.md 6a and 6b, Sound-Agent PR #562): out in a wild area no door bell rings and a trip home
@@ -529,126 +547,178 @@ return function()
 			return list
 		end
 
-		it("never takes a spot in the hometown for the wild, back yards and backdrop ring included", function()
-			for _, distance in distances() do
-				for x = -200, 200, 10 do
-					for z = -200, 200, 10 do
-						if Logic.inWild(x, z, distance) then
-							error(string.format("(%d, %d) in town is wild at %d", x, z, distance))
+		it(
+			"never takes a spot in the hometown for the wild, back yards and backdrop ring included",
+			function()
+				for _, distance in distances() do
+					for x = -200, 200, 10 do
+						for z = -200, 200, 10 do
+							if Logic.inWild(x, z, distance) then
+								error(
+									string.format("(%d, %d) in town is wild at %d", x, z, distance)
+								)
+							end
 						end
 					end
 				end
 			end
-		end)
+		)
 
-		it("takes every corner of all five areas and the end nearest the town for the wild", function()
-			for _, distance in distances() do
-				for name, rect in AREAS do
-					local nearX, nearZ = math.clamp(0, rect[1], rect[2]), math.clamp(0, rect[3], rect[4])
-					local points = {
-						{ nearX, nearZ },
-						{ rect[1], rect[3] },
-						{ rect[1], rect[4] },
-						{ rect[2], rect[3] },
-						{ rect[2], rect[4] },
-					}
-					for _, point in points do
-						if not Logic.inWild(point[1], point[2], distance) then
-							error(string.format("%s (%g, %g) is not wild at %d", name, point[1], point[2], distance))
+		it(
+			"takes every corner of all five areas and the end nearest the town for the wild",
+			function()
+				for _, distance in distances() do
+					for name, rect in AREAS do
+						local nearX, nearZ =
+							math.clamp(0, rect[1], rect[2]), math.clamp(0, rect[3], rect[4])
+						local points = {
+							{ nearX, nearZ },
+							{ rect[1], rect[3] },
+							{ rect[1], rect[4] },
+							{ rect[2], rect[3] },
+							{ rect[2], rect[4] },
+						}
+						for _, point in points do
+							if not Logic.inWild(point[1], point[2], distance) then
+								error(
+									string.format(
+										"%s (%g, %g) is not wild at %d",
+										name,
+										point[1],
+										point[2],
+										distance
+									)
+								)
+							end
 						end
 					end
 				end
 			end
-		end)
+		)
 
-		it("draws the line at half the distance from the town's centre, in every direction", function()
-			expect(Logic.inWild(1000, 0, SPEC_DISTANCE)).to.equal(false)
-			expect(Logic.inWild(1000.01, 0, SPEC_DISTANCE)).to.equal(true)
-			expect(Logic.inWild(-600, 800, SPEC_DISTANCE)).to.equal(false) -- exactly 1000
-			expect(Logic.inWild(-601, 800, SPEC_DISTANCE)).to.equal(true)
-			expect(Logic.inWild(0, -1001, SPEC_DISTANCE)).to.equal(true)
-		end)
-
-		it("is never wild without a usable distance, so the town sounds as before the cannon", function()
-			expect(Logic.inWild(-1400, -1400, nil)).to.equal(false)
-			expect(Logic.inWild(-1400, -1400, "2000")).to.equal(false)
-			expect(Logic.inWild(-1400, -1400, {})).to.equal(false)
-			expect(Logic.inWild(-1400, -1400, 0)).to.equal(false)
-			expect(Logic.inWild(-1400, -1400, -2000)).to.equal(false)
-			expect(Logic.inWild(5, 5, 0)).to.equal(false)
-			expect(Logic.inWild(0, 0, -2000)).to.equal(false)
-			expect(Logic.inWild(-1400, -1400, 0 / 0)).to.equal(false)
-			-- a spot it cannot read is town
-			expect(Logic.inWild(0 / 0, 0, SPEC_DISTANCE)).to.equal(false)
-			if Config.World.WildAreaDistance == nil then
-				expect(Logic.inWild(-1400, -1400, Config.World.WildAreaDistance)).to.equal(false)
+		it(
+			"draws the line at half the distance from the town's centre, in every direction",
+			function()
+				expect(Logic.inWild(1000, 0, SPEC_DISTANCE)).to.equal(false)
+				expect(Logic.inWild(1000.01, 0, SPEC_DISTANCE)).to.equal(true)
+				expect(Logic.inWild(-600, 800, SPEC_DISTANCE)).to.equal(false) -- exactly 1000
+				expect(Logic.inWild(-601, 800, SPEC_DISTANCE)).to.equal(true)
+				expect(Logic.inWild(0, -1001, SPEC_DISTANCE)).to.equal(true)
 			end
-		end)
+		)
+
+		it(
+			"is never wild without a usable distance, so the town sounds as before the cannon",
+			function()
+				expect(Logic.inWild(-1400, -1400, nil)).to.equal(false)
+				expect(Logic.inWild(-1400, -1400, "2000")).to.equal(false)
+				expect(Logic.inWild(-1400, -1400, {})).to.equal(false)
+				expect(Logic.inWild(-1400, -1400, 0)).to.equal(false)
+				expect(Logic.inWild(-1400, -1400, -2000)).to.equal(false)
+				expect(Logic.inWild(5, 5, 0)).to.equal(false)
+				expect(Logic.inWild(0, 0, -2000)).to.equal(false)
+				expect(Logic.inWild(-1400, -1400, 0 / 0)).to.equal(false)
+				-- a spot it cannot read is town
+				expect(Logic.inWild(0 / 0, 0, SPEC_DISTANCE)).to.equal(false)
+				if Config.World.WildAreaDistance == nil then
+					expect(Logic.inWild(-1400, -1400, Config.World.WildAreaDistance)).to.equal(
+						false
+					)
+				end
+			end
+		)
 
 		-- PR #574: the Cannon button moves you at once to a cannon nearby, even in a wild area, so it poofs; Home from a
 		-- wild area is a cloud hop, known by where you were or by a fresh CloudHopAt once you have moved
-		it("poofs the Cannon button everywhere and hops every other trip out of a wild area (travelCue)", function()
-			local destinations: { any } = { "home", "cannon", "park", "alley", "Cannon", "", 5, false }
-			local function want(destination: any, wild: boolean, hopping: boolean): string
-				if hopping then
-					return "cloudHop"
-				elseif not wild then
-					return "travelPoof"
-				end
-				return if destination == "cannon" then "travelPoof" else "cloudHop"
-			end
-			for _, wild in { true, false } do
-				for _, hopping in { true, false } do
-					for _, destination in destinations do
-						local got = Logic.travelCue(destination, wild, hopping)
-						if got ~= want(destination, wild, hopping) then
-							error(
-								string.format(
-									"%s, wild %s, hopping %s: %s",
-									tostring(destination),
-									tostring(wild),
-									tostring(hopping),
-									tostring(got)
-								)
-							)
-						end
+		it(
+			"poofs the Cannon button everywhere and hops every other trip out of a wild area (travelCue)",
+			function()
+				local destinations: { any } =
+					{ "home", "cannon", "park", "alley", "Cannon", "", 5, false }
+				local function want(destination: any, wild: boolean, hopping: boolean): string
+					if hopping then
+						return "cloudHop"
+					elseif not wild then
+						return "travelPoof"
 					end
-					-- the sweep's home and a reply with no destination behave like Home
-					expect(Logic.travelCue(nil, wild, hopping)).to.equal(want(nil, wild, hopping))
+					return if destination == "cannon" then "travelPoof" else "cloudHop"
 				end
+				for _, wild in { true, false } do
+					for _, hopping in { true, false } do
+						for _, destination in destinations do
+							local got = Logic.travelCue(destination, wild, hopping)
+							if got ~= want(destination, wild, hopping) then
+								error(
+									string.format(
+										"%s, wild %s, hopping %s: %s",
+										tostring(destination),
+										tostring(wild),
+										tostring(hopping),
+										tostring(got)
+									)
+								)
+							end
+						end
+						-- the sweep's home and a reply with no destination behave like Home
+						expect(Logic.travelCue(nil, wild, hopping)).to.equal(
+							want(nil, wild, hopping)
+						)
+					end
+				end
+				expect(Cues.travelPoof ~= nil and Cues.cloudHop ~= nil).to.equal(true)
 			end
-			expect(Cues.travelPoof ~= nil and Cues.cloudHop ~= nil).to.equal(true)
-		end)
+		)
 	end)
 	describe("Audio.Logic release batch (F89, F99, F100, F103; review N274)", function()
-		it("plays a first sting, skips the same or a smaller one inside the window, replaces with a bigger one", function()
-			expect(Logic.stingAction(nil, nil, "jingleEpic", 10, 4)).to.equal("play")
-			expect(Logic.stingAction("jingleLegendary", 10, "jingleLegendary", 12, 4)).to.equal("skip")
-			expect(Logic.stingAction("jingleMythical", 10, "jingleEpic", 12, 4)).to.equal("skip")
-			expect(Logic.stingAction("jingleLegendary", 10, "jingleRainbow", 12, 4)).to.equal("replace")
-			expect(Logic.stingAction("jingleRainbow", 10, "jingleMythical", 12, 4)).to.equal("skip")
-			-- the window's edge: 3.99 s later still counts as together, 4 s later is a new sting
-			expect(Logic.stingAction("jingleLegendary", 10, "jingleLegendary", 13.99, 4)).to.equal("skip")
-			expect(Logic.stingAction("jingleLegendary", 10, "jingleLegendary", 14, 4)).to.equal("play")
-		end)
+		it(
+			"plays a first sting, skips the same or a smaller one inside the window, replaces with a bigger one",
+			function()
+				expect(Logic.stingAction(nil, nil, "jingleEpic", 10, 4)).to.equal("play")
+				expect(Logic.stingAction("jingleLegendary", 10, "jingleLegendary", 12, 4)).to.equal(
+					"skip"
+				)
+				expect(Logic.stingAction("jingleMythical", 10, "jingleEpic", 12, 4)).to.equal(
+					"skip"
+				)
+				expect(Logic.stingAction("jingleLegendary", 10, "jingleRainbow", 12, 4)).to.equal(
+					"replace"
+				)
+				expect(Logic.stingAction("jingleRainbow", 10, "jingleMythical", 12, 4)).to.equal(
+					"skip"
+				)
+				-- the window's edge: 3.99 s later still counts as together, 4 s later is a new sting
+				expect(Logic.stingAction("jingleLegendary", 10, "jingleLegendary", 13.99, 4)).to.equal(
+					"skip"
+				)
+				expect(Logic.stingAction("jingleLegendary", 10, "jingleLegendary", 14, 4)).to.equal(
+					"play"
+				)
+			end
+		)
 
-		it("gives a rainbow cat its own pull sting at any rarity and the rest theirs from Epic up", function()
-			expect(Logic.pullSting("Common", "rainbow")).to.equal("jingleRainbow")
-			expect(Logic.pullSting("Epic", nil)).to.equal("jingleEpic")
-			expect(Logic.pullSting("Legendary", "gold")).to.equal("jingleLegendary")
-			expect(Logic.pullSting("Mythical", nil)).to.equal("jingleMythical")
-			expect(Logic.pullSting("Rare", nil)).to.equal(nil)
-			expect(Logic.pullSting("Common", nil)).to.equal(nil)
-			expect(Logic.pullSting(nil, nil)).to.equal(nil)
-		end)
+		it(
+			"gives a rainbow cat its own pull sting at any rarity and the rest theirs from Epic up",
+			function()
+				expect(Logic.pullSting("Common", "rainbow")).to.equal("jingleRainbow")
+				expect(Logic.pullSting("Epic", nil)).to.equal("jingleEpic")
+				expect(Logic.pullSting("Legendary", "gold")).to.equal("jingleLegendary")
+				expect(Logic.pullSting("Mythical", nil)).to.equal("jingleMythical")
+				expect(Logic.pullSting("Rare", nil)).to.equal(nil)
+				expect(Logic.pullSting("Common", nil)).to.equal(nil)
+				expect(Logic.pullSting(nil, nil)).to.equal(nil)
+			end
+		)
 
-		it("picks rainbowNear for a rainbow stray, rareNear for a Mythical and nothing for the rest", function()
-			expect(Logic.strayNoticeCue("Common", "rainbow")).to.equal("rainbowNear")
-			expect(Logic.strayNoticeCue("Mythical", "rainbow")).to.equal("rainbowNear")
-			expect(Logic.strayNoticeCue("Mythical", nil)).to.equal("rareNear")
-			expect(Logic.strayNoticeCue("Legendary", "gold")).to.equal(nil)
-			expect(Logic.strayNoticeCue(nil, nil)).to.equal(nil)
-		end)
+		it(
+			"picks rainbowNear for a rainbow stray, rareNear for a Mythical and nothing for the rest",
+			function()
+				expect(Logic.strayNoticeCue("Common", "rainbow")).to.equal("rainbowNear")
+				expect(Logic.strayNoticeCue("Mythical", "rainbow")).to.equal("rainbowNear")
+				expect(Logic.strayNoticeCue("Mythical", nil)).to.equal("rareNear")
+				expect(Logic.strayNoticeCue("Legendary", "gold")).to.equal(nil)
+				expect(Logic.strayNoticeCue(nil, nil)).to.equal(nil)
+			end
+		)
 
 		it("times a sheet part by its region and speed, and refuses a bad region", function()
 			expect(Logic.regionSeconds({ 2, 5 }, 1)).to.equal(3)
@@ -671,16 +741,21 @@ return function()
 			end
 		end)
 
-		it("gives every sheet part a sheet row that exists and a region inside the file's order", function()
-			for name, cue in Cues do
-				if cue.sheet ~= nil then
-					expect(Cues[cue.sheet] ~= nil).to.equal(true)
-					expect(cue.region ~= nil and #cue.region == 2 and cue.region[2] > cue.region[1]).to.equal(true)
-					expect(#cue.ids).to.equal(0)
-					expect(type(name)).to.equal("string")
+		it(
+			"gives every sheet part a sheet row that exists and a region inside the file's order",
+			function()
+				for name, cue in Cues do
+					if cue.sheet ~= nil then
+						expect(Cues[cue.sheet] ~= nil).to.equal(true)
+						expect(
+							cue.region ~= nil and #cue.region == 2 and cue.region[2] > cue.region[1]
+						).to.equal(true)
+						expect(#cue.ids).to.equal(0)
+						expect(type(name)).to.equal("string")
+					end
 				end
 			end
-		end)
+		)
 	end)
 	describe("Audio.Logic rare decor sounds (F89)", function()
 		it("gives the seven Legendary and Mythical models a sheet cue, and nothing else", function()
@@ -701,7 +776,9 @@ return function()
 				expect(cue ~= nil and Cues[cue] ~= nil).to.equal(true)
 				expect(Cues[cue].sheet).to.equal("sheetDecor")
 				local def = Catalog.getDecor(id)
-				expect(def ~= nil and (def.rarity == "Legendary" or def.rarity == "Mythical")).to.equal(true)
+				expect(def ~= nil and (def.rarity == "Legendary" or def.rarity == "Mythical")).to.equal(
+					true
+				)
 			end
 			local _, part = Logic.decorSound("park_blossom_tree")
 			expect(part).to.equal("CatCafe_Decor_BlossomTree_Chime_Swing")
@@ -723,27 +800,100 @@ return function()
 	describe("Audio.Logic net swing result words (F93)", function()
 		it("names the word from the server's grades like catch-rework section 3", function()
 			expect(Logic.catchWord({ "perfect", "perfect", "perfect" }, true)).to.equal("purrfect")
-			expect(Logic.catchWord({ "perfect", "perfect", "good", "good" }, true)).to.equal("excellent")
+			expect(Logic.catchWord({ "perfect", "perfect", "good", "good" }, true)).to.equal(
+				"excellent"
+			)
 			expect(Logic.catchWord({ "perfect", "good", "good" }, true)).to.equal("great")
 			expect(Logic.catchWord({ "good", "good", "good" }, true)).to.equal("great")
 			expect(Logic.catchWord({ "perfect", "miss" }, false)).to.equal("close")
 			expect(Logic.catchWord({}, true)).to.equal("great")
 			expect(Logic.catchWord(nil, nil)).to.equal(nil)
 		end)
-		it("gives GREAT and EXCELLENT their Catch sheet cue and leaves the others to their moments", function()
-			for _, word in { "great", "excellent" } do
-				local cue = Logic.wordCue(word)
-				expect(cue ~= nil and Cues[cue] ~= nil).to.equal(true)
-				expect(Cues[cue].sheet).to.equal("sheetCatch")
+		it(
+			"gives GREAT and EXCELLENT their Catch sheet cue and leaves the others to their moments",
+			function()
+				for _, word in { "great", "excellent" } do
+					local cue = Logic.wordCue(word)
+					expect(cue ~= nil and Cues[cue] ~= nil).to.equal(true)
+					expect(Cues[cue].sheet).to.equal("sheetCatch")
+				end
+				expect(Logic.wordCue("purrfect")).to.equal(nil)
+				expect(Logic.wordCue("close")).to.equal(nil)
+				expect(Logic.wordCue(nil)).to.equal(nil)
 			end
-			expect(Logic.wordCue("purrfect")).to.equal(nil)
-			expect(Logic.wordCue("close")).to.equal(nil)
-			expect(Logic.wordCue(nil)).to.equal(nil)
-		end)
+		)
 		it("has the smack, bounce and hop in the Catch sheet", function()
 			for _, cue in { "netSmack", "netBounce", "strayHop" } do
 				expect(Cues[cue] ~= nil and Cues[cue].sheet == "sheetCatch").to.equal(true)
 			end
 		end)
+	end)
+
+	describe("Audio.Logic rescue sounds and Team Rescue (5.2, F92)", function()
+		it(
+			"plays every rescue moment and every trap's hit from the Rescue sheet, in the sheet's order",
+			function()
+				local order = {
+					"rescueStart",
+					"rescueHitBin",
+					"rescueHitBag",
+					"rescueHitTree",
+					"rescueHitCan",
+					"rescueHitTone",
+					"rescueMiss",
+					"rescueDrop",
+					"rescueFail",
+					"rescueDone",
+					"teamRescue",
+				}
+				local lastStop = -1
+				for _, name in order do
+					local cue = Cues[name]
+					expect(cue ~= nil and cue.sheet == "sheetRescue").to.equal(true)
+					expect(cue.region[1] > lastStop).to.equal(true)
+					lastStop = cue.region[2]
+				end
+				for _, trap in { "trash_bin", "garbage_bag", "tree", "trashcan" } do
+					local cue = Logic.trapCue(trap)
+					expect(cue ~= nil and Cues[cue].sheet == "sheetRescue").to.equal(true)
+				end
+			end
+		)
+		it("keeps the hit pip a friendly pitch up to a Mythical's seventh hit", function()
+			expect(Logic.scaleStep(1)).to.equal(1)
+			expect(Logic.scaleStep(6)).to.equal(2)
+			expect(Logic.scaleStep(7)).to.equal(2.25)
+		end)
+	end)
+
+	describe("Audio.Logic cafe orders (F90)", function()
+		it("pours only at the espresso machine", function()
+			expect(Logic.orderMakeCue("espresso")).to.equal("orderPour")
+			expect(Logic.orderMakeCue("oven")).to.equal(nil)
+			expect(Logic.orderMakeCue("counter")).to.equal(nil)
+			expect(Logic.orderMakeCue(nil)).to.equal(nil)
+		end)
+		it("rings the oven's ding lowest, a drink's a note up and the counter's two", function()
+			expect(Logic.orderDingStep("oven")).to.equal(1)
+			expect(Logic.orderDingStep("espresso")).to.equal(2)
+			expect(Logic.orderDingStep("counter")).to.equal(3)
+			expect(Logic.orderDingStep("grill")).to.equal(nil)
+			expect(Logic.orderDingStep(nil)).to.equal(nil)
+		end)
+		it(
+			"plays the pour, ding, clink and bag drop from the Cafe sheet and the sweep from the tip pile file",
+			function()
+				local lastStop = -1
+				for _, name in { "orderPour", "orderDing", "trayClink", "tipBank" } do
+					local cue = Cues[name]
+					expect(cue ~= nil and cue.sheet == "sheetCafe").to.equal(true)
+					expect(cue.range ~= nil).to.equal(true)
+					expect(cue.region[1] > lastStop).to.equal(true)
+					lastStop = cue.region[2]
+				end
+				expect(Cues.tipSweep.ids[1]).to.equal(Cues.tipPile.ids[1])
+				expect(Cues.tipSweep.range ~= nil).to.equal(true)
+			end
+		)
 	end)
 end

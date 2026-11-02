@@ -246,6 +246,8 @@ export type PlayerState = {
 	cats: { [string]: CatInstance }?, -- uid -> instance; fills the Cats screen
 	collection: { [string]: number }?, -- catId -> firstCaughtAt; drives silhouettes
 	goldCollection: { [string]: number }?, -- catId -> first gold cat caught at (was shinyCollection)
+	rainbowCollection: { [string]: number }?, -- F99: catId -> first rainbow cat caught at
+	rainbowLuck: number?, -- F99: the Index's rainbow luck, capped (RainbowLuckMax), as a fraction
 	carrying: string?, -- catId while carrying a stray home (HUD banner)
 	tutorialStep: number?,
 	settings: { [string]: boolean | number }?, -- profile.settings (shared/Settings): switches and 0 to 1 volumes
@@ -293,6 +295,8 @@ export type PartialState = {
 	cats: { [string]: CatInstance }?,
 	collection: { [string]: number }?,
 	goldCollection: { [string]: number }?,
+	rainbowCollection: { [string]: number }?,
+	rainbowLuck: number?,
 	carrying: string?,
 	tutorialStep: number?,
 	settings: { [string]: boolean | number }?,
@@ -354,6 +358,7 @@ export type CatchInfo = {
 	rescueSpotId: string?, -- RescueSpotId attribute; what RescueBegin and RescueEnd take
 	press: boolean?, -- v0.3: the prompt has HoldDuration 0, so one press starts the catch or rescue
 	shiny: boolean?, -- v0.3: the stray's Gold attribute (rescued cats hide it until freed)
+	rainbow: boolean?, -- F99: the stray's Variant attribute reads "rainbow"
 	-- v0.5: the stray's FleeingUntil (server time). Until then it is sprinting off after a miss and nobody can
 	-- grab it; the card reads "It's running!".
 	fleeingUntil: number?,
@@ -447,6 +452,7 @@ export type CarryInfo = {
 export type CatFoundExtra = {
 	stars: number?,
 	shiny: boolean?,
+	rainbow: boolean?, -- F99: a rainbow coat (RAINBOW in the banner, a turning rainbow edge)
 	charmGain: number?,
 	-- F96: a cat given, not caught (the free Bellhop Cat's claim card)
 	banner: string?, -- in place of "NEW RARE CAT!"

@@ -269,6 +269,17 @@ return function()
 		end)
 	end)
 
+	describe("FoodOdds.rainbow", function()
+		it("gives the rainbow chance with the Index's rainbow luck, capped (F99)", function()
+			expect(FoodOdds.rainbow(0, 0.005)).to.equal("Rainbow 0.5%")
+			expect(FoodOdds.rainbow(nil, 0.005)).to.equal("Rainbow 0.5%")
+			expect(FoodOdds.rainbow(0.2, 0.005)).to.equal("Rainbow 0.6% (+20% luck)")
+			expect(FoodOdds.rainbow(0.5, 0.005)).to.equal("Rainbow 0.75% (+50% luck)")
+			expect(FoodOdds.rainbow(9, 0.005)).to.equal("Rainbow 1% (+100% luck)")
+			expect(FoodOdds.rainbow(0.2, 0)).to.equal(nil)
+		end)
+	end)
+
 	describe("FoodOdds.extras", function()
 		it(
 			"shows the gold chance the server rolls with and no charm stars (F97 section 5)",

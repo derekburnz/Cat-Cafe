@@ -105,6 +105,11 @@ local Moments = {
 	-- position; (cat, position) it dropped the bag in the till at position. Cosmetic: the pile was paid as it appeared.
 	TipSwept = Signal.new() :: Signal.Signal<Model, Vector3>,
 	TipBanked = Signal.new() :: Signal.Signal<Model, Vector3>,
+	-- The crate reel (F103, crate-reel.md section 3), fired by the UI's reel in the Market window: CrateReelTick at each
+	-- tile line crossing the marker (Sound's ticks, at most one every 0.06 s), CrateReelLanded at the stop or on a tap
+	-- skip (the thunk, and VFX's lid pop on the counter crate).
+	CrateReelTick = Signal.new() :: Signal.Signal<()>,
+	CrateReelLanded = Signal.new() :: Signal.Signal<()>,
 }
 
 return Moments

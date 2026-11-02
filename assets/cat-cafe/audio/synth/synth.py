@@ -1631,6 +1631,181 @@ def word_excellent() -> np.ndarray:
     return finish(fade_tail(mix(d, (word_pop(931) * 0.5, 0.0), *notes, *glints), 0.2), -5)
 
 
+# --- Rescue minigames (sound-list 5.2) and F92 Team Rescue (2026-11-02). The rescue rows were written on 10-26 but
+# never made, so a rescue was silent apart from the rarity sting; they ship together with Team Rescue's chime in the
+# Rescue sheet (mono: the four trap hits and the drop play in 3D on the trap, the rest flat). The rescue tones sit in
+# C major so the done chime, the Team Rescue chime and the hit pips (C5 up the pentatonic) agree. --------------------
+
+
+def muffle(x: np.ndarray, centre: float = 900.0) -> np.ndarray:
+    """A voice heard from inside a bin or a bag: band-passed twice around `centre`, back to its own level."""
+    out = bandpass(bandpass(x, centre, 0.9), centre, 0.9)
+    return out / np.max(np.abs(out))
+
+
+def rescue_start() -> np.ndarray:
+    """A rescue bar opens: a curious, muffled "mew?" from inside the trap, then a small ready chime."""
+    d = 0.5
+    mew = muffle(cat_voice(0.2, 560, 640, 820, 0.0, 940), 1100) * 0.6
+    chime = bell(0.3, note("G6"), GLOCK) * 0.45
+    return finish(fade_tail(mix(d, (mew, 0.0), (chime, 0.2)), 0.1), -6)
+
+
+def rescue_hit_bin() -> np.ndarray:
+    """A bar hit on the trash bin: its metal lid lifts and rattles back down, light and tinny, never a crash."""
+    d = 0.32
+    rng = np.random.default_rng(941)
+    lid = ((1.0, 1.0, 0.05), (2.41, 0.6, 0.035), (3.87, 0.35, 0.02), (5.1, 0.2, 0.012))
+    taps = [(bell(0.1, 1250 * (0.95 + 0.1 * rng.random()), lid, attack=0.0004) * a, at)
+            for at, a in ((0.0, 0.8), (0.06, 0.5), (0.1, 0.4), (0.15, 0.3), (0.2, 0.2))]
+    scrape = bandpass(noise(0.08, 942), 3200, 2.0) * envelope(0.08, 0.002, 0.02)
+    return finish(fade_tail(mix(d, *taps, (scrape / np.max(np.abs(scrape)) * 0.2, 0.0)), 0.08), -5)
+
+
+def rescue_hit_bag() -> np.ndarray:
+    """A bar hit on the garbage bag: a quick plastic rustle and crinkle as the bag is tugged."""
+    d = 0.3
+    t = seconds(d)
+    crinkle = crackle(d, 943, 260, 4200) + 0.6 * crackle(d, 945, 180, 2600)
+    body = bandpass(bandpass(noise(d, 947), 1800, 0.9), 1800, 0.9)
+    shape = np.clip(t / 0.01, 0, 1) * np.exp(-t / 0.09)
+    x = (crinkle / np.max(np.abs(crinkle)) + 0.35 * body / np.max(np.abs(body))) * shape
+    return finish(fade_tail(x, 0.06), -5)
+
+
+def rescue_hit_tree() -> np.ndarray:
+    """A bar hit on the tree (the branch shake): leaves shaking in quick waves over a soft wooden creak."""
+    d = 0.4
+    t = seconds(d)
+    leaves = bandpass(bandpass(noise(d, 948), 2200, 1.0), 2200, 1.0)
+    leaves *= (0.55 + 0.45 * np.sin(2 * np.pi * 16 * t)) * np.clip(t / 0.015, 0, 1) * np.exp(-t / 0.13)
+    wood = creak(0.16, 949, 60, 140, 520) * 0.35
+    return finish(fade_tail(mix(d, (leaves / np.max(np.abs(leaves)), 0.0), (wood, 0.0)), 0.1), -5)
+
+
+def rescue_hit_can() -> np.ndarray:
+    """A bar hit on the park trashcan: a soft, round clang, a padded knock on a metal can that rings for a moment."""
+    d = 0.35
+    can = ((1.0, 1.0, 0.09), (2.31, 0.45, 0.06), (3.52, 0.25, 0.04), (4.9, 0.12, 0.025))
+    ring = bell(d, 410.0, can, attack=0.001)
+    knock = glide(0.06, 220, 150, 0.02) * envelope(0.06, 0.001, 0.015)
+    return finish(fade_tail(mix(d, (ring * 0.8, 0.0), (knock * 0.6, 0.0)), 0.1), -5)
+
+
+def rescue_hit_tone() -> np.ndarray:
+    """One rising pip per bar hit: a round C5 that Audio raises one note of the pentatonic per hit (C5 to D6)."""
+    d = 0.15
+    pip = glide(d, note("C5") * 0.97, note("C5"), 0.02) * envelope(d, 0.002, 0.04)
+    top = bell(d, note("C5"), ((2.0, 0.25, 0.03), (3.0, 0.1, 0.015)))
+    return finish(fade_tail(pip + top, 0.04), -6)
+
+
+def rescue_miss() -> np.ndarray:
+    """A press outside the zone uses a paw: a soft boop that drops a little and a tiny paw-print tick."""
+    d = 0.26
+    boop = glide(0.22, 520, 340, 0.08) * envelope(0.22, 0.003, 0.06)
+    tick = bandpass(noise(0.012, 950), 2600, 2.0) * envelope(0.012, 0.0005, 0.003)
+    return finish(fade_tail(mix(d, (boop, 0.0), (tick / np.max(np.abs(tick)) * 0.3, 0.12)), 0.06), -6)
+
+
+def rescue_drop() -> np.ndarray:
+    """The tree cat lets go: a leafy whoosh down out of the branches and a surprised "mew!"."""
+    d = 0.42
+    whoosh = swish(0.32, 3600, 900, 951)
+    leaves = crackle(0.3, 952, 90, 3400)
+    mew = cat_voice(0.16, 700, 980, 820, 0.2, 953) * 0.6
+    return finish(fade_tail(mix(d, (whoosh / np.max(np.abs(whoosh)) * 0.6, 0.0),
+                                (leaves / np.max(np.abs(leaves)) * 0.3, 0.02), (mew, 0.2)), 0.1), -5)
+
+
+def rescue_fail() -> np.ndarray:
+    """Out of paws (or the tree cat missed): a small "aww" down-tone, two soft felt notes leaning down. The cat is
+    still there, nothing is lost, so it stays gentle."""
+    d = 0.5
+    t = seconds(0.42)
+    bend = 1 - 0.03 * np.clip((t - 0.1) / 0.25, 0, 1)
+    lean = np.sin(2 * np.pi * np.cumsum(note("C5") * bend) / SR) * envelope(0.42, 0.01, 0.16)
+    first = bell(0.3, note("E5"), FELT, attack=0.01) * 0.55
+    return finish(fade_tail(mix(d, (first, 0.0), (lean * 0.6, 0.11)), 0.12), -8)
+
+
+def rescue_done() -> np.ndarray:
+    """The cat is free: a warm vibes chime up the C chord (C5, E5, G5, C6) and a grateful little purr-meow."""
+    d = 1.1
+    chime = [(vibe(0.9, note(n), i) * a, at)
+             for i, (n, at, a) in enumerate((("C5", 0.0, 0.5), ("E5", 0.06, 0.5), ("G5", 0.12, 0.5), ("C6", 0.2, 0.55)))]
+    meow = cat_voice(0.22, 560, 760, 600, 0.6, 954) * 0.45
+    rumble = purr_loop(955, 25.0, 0.35, 0.2)[: int(0.4 * SR)] * np.hanning(int(0.4 * SR)) * 0.5
+    return finish(fade_tail(mix(d, *chime, (meow, 0.32), (rumble, 0.5)), 0.25), -4)
+
+
+def team_rescue() -> np.ndarray:
+    """Team Rescue (F92), on both players' screens as the cat comes free: a light high-five clap and two bright
+    glockenspiel notes, one for each friend (G6 then C7). It lands with rescueDone, so it stays above its C chord."""
+    d = 0.8
+    notes = [(bell(0.65, note(n), GLOCK) * a, at) for n, at, a in (("G6", 0.03, 0.7), ("C7", 0.15, 0.85))]
+    under = bell(0.5, note("E6"), CELESTA) * 0.25
+    return finish(fade_tail(mix(d, (clap(956) * 0.45, 0.0), *notes, (under, 0.15)), 0.25), -5)
+
+
+# --- F90 cats make the orders (2026-11-02, cats-make-orders.md section 6): the espresso pour, the order's ding, the
+# Waiter's tray set down and the coin bag dropped in the till. The table sweep reuses tipPile's file. They live in
+# the Cafe sheet (mono, all 3D at the station, the table or the till). They repeat with every order, so each is
+# short and soft. ------------------------------------------------------------------------------------------------
+
+
+def order_pour() -> np.ndarray:
+    """A Barista starts a drink at the espresso machine: the pump's low hum, a thin stream filling a cup (its note
+    rising as the cup fills, a few small bubbles) and a little puff of steam to finish."""
+    d = 1.5
+    t = seconds(1.2)
+    pump = sum(np.sin(2 * np.pi * 95 * k * t) / k ** 1.5 for k in (1, 2, 3, 4))
+    pump *= np.clip(t / 0.15, 0, 1) * np.clip((1.2 - t) / 0.2, 0, 1) * 0.12
+    stream_t = seconds(1.0)
+    centre = sweep(1.0, 900, 1500)
+    stream = bandpass(bandpass(noise(1.0, 960), centre, 2.5), centre, 2.5)
+    stream *= (0.75 + 0.25 * np.sin(2 * np.pi * 11 * stream_t + 0.4)) * np.clip(stream_t / 0.06, 0, 1)
+    stream *= np.clip((1.0 - stream_t) / 0.15, 0, 1)
+    rng = np.random.default_rng(961)
+    bubbles = [(bubble(0.05, f, f * 1.6, 0.012) * (0.15 + 0.1 * rng.random()), at)
+               for f, at in zip(700 + 600 * rng.random(7), np.sort(0.25 + 0.8 * rng.random(7)))]
+    steam = swish(0.3, 5200, 3800, 962)
+    return finish(fade_tail(mix(d, (pump, 0.0), (stream / np.max(np.abs(stream)) * 0.5, 0.12), *bubbles,
+                                (steam / np.max(np.abs(steam)) * 0.2, 1.15)), 0.1), -8)
+
+
+def order_ding() -> np.ndarray:
+    """An order is ready ("ding!"): one strike of a small counter bell, bright and short. Audio raises it a note for
+    a drink and two for the counter, so the oven's ding is the lowest."""
+    d = 0.9
+    desk = ((1.0, 1.0, 0.45), (2.62, 0.35, 0.2), (4.1, 0.18, 0.1), (5.9, 0.08, 0.05))
+    strike = bell(d, note("E6"), desk, attack=0.0006)
+    tap = bandpass(noise(0.01, 963), 3500, 2.0) * envelope(0.01, 0.0003, 0.002)
+    return finish(fade_tail(mix(d, (strike, 0.0), (tap / np.max(np.abs(tap)) * 0.15, 0.0)), 0.3), -6)
+
+
+def tray_clink() -> np.ndarray:
+    """The Waiter sets a dish down at the table: a soft wooden tap and two small china clinks as the plate settles."""
+    d = 0.28
+    tap = glide(0.08, 260, 180, 0.03) * envelope(0.08, 0.001, 0.02)
+    tap += bandpass(noise(0.08, 964), 900, 1.2) * envelope(0.08, 0.0008, 0.012) * 0.3
+    china = ((1.0, 1.0, 0.05), (2.32, 0.5, 0.03), (3.7, 0.25, 0.015))
+    clinks = [(bell(0.15, f, china, attack=0.0004) * a, at) for f, at, a in ((2650.0, 0.005, 0.4), (3050.0, 0.07, 0.25))]
+    return finish(fade_tail(mix(d, (tap, 0.0), *clinks), 0.08), -7)
+
+
+def tip_bank() -> np.ndarray:
+    """A Waiter or Greeter drops its coin bag in the till: a soft cloth thump and a muffled jingle of the coins
+    settling inside."""
+    d = 0.4
+    thump = glide(0.12, 170, 110, 0.04) * envelope(0.12, 0.002, 0.03)
+    cloth = bandpass(bandpass(noise(0.1, 965), 700, 1.0), 700, 1.0) * envelope(0.1, 0.002, 0.025)
+    coins = [(bell(0.15, 2200.0 * (1 + 0.04 * ((i * 3) % 5 - 2)), COIN, attack=0.0005) * (0.3 - 0.05 * i),
+              0.02 + 0.04 * i) for i in range(4)]
+    jingle = muffle(mix(0.3, *coins), 1600) * 0.35
+    return finish(fade_tail(mix(d, (thump, 0.0), (cloth / np.max(np.abs(cloth)) * 0.3, 0.0), (jingle, 0.01)), 0.1), -7)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -1742,6 +1917,21 @@ SOUNDS = {
     "StrayHop": ("sheet-parts/sfx", "Sfx", stray_hop),
     "WordGreat": ("sheet-parts/sfx", "Sfx", word_great),
     "WordExcellent": ("sheet-parts/sfx", "Sfx", word_excellent),
+    "RescueStart": ("sheet-parts/sfx", "Sfx", rescue_start),
+    "RescueHitBin": ("sheet-parts/sfx", "Sfx", rescue_hit_bin),
+    "RescueHitBag": ("sheet-parts/sfx", "Sfx", rescue_hit_bag),
+    "RescueHitTree": ("sheet-parts/sfx", "Sfx", rescue_hit_tree),
+    "RescueHitCan": ("sheet-parts/sfx", "Sfx", rescue_hit_can),
+    "RescueHitTone": ("sheet-parts/sfx", "Sfx", rescue_hit_tone),
+    "RescueMiss": ("sheet-parts/sfx", "Sfx", rescue_miss),
+    "RescueDrop": ("sheet-parts/sfx", "Sfx", rescue_drop),
+    "RescueFail": ("sheet-parts/sfx", "Sfx", rescue_fail),
+    "RescueDone": ("sheet-parts/sfx", "Sfx", rescue_done),
+    "TeamRescue": ("sheet-parts/sfx", "Sfx", team_rescue),
+    "OrderPour": ("sheet-parts/sfx", "Sfx", order_pour),
+    "OrderDing": ("sheet-parts/sfx", "Sfx", order_ding),
+    "TrayClink": ("sheet-parts/sfx", "Sfx", tray_clink),
+    "TipBank": ("sheet-parts/sfx", "Sfx", tip_bank),
 }
 
 # Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the
@@ -1760,6 +1950,11 @@ SHEETS = {
                   "DecorJukebox", "DecorCatTree")),
     # F93's net swing (2026-11-02), mono: the smack, bounce and hop play in 3D, the two words flat
     "Catch": (1, ("NetSmack", "NetBounce", "StrayHop", "WordGreat", "WordExcellent")),
+    # the rescue minigames and F92's Team Rescue chime (2026-11-02), mono: the trap hits and the drop play in 3D
+    "Rescue": (1, ("RescueStart", "RescueHitBin", "RescueHitBag", "RescueHitTree", "RescueHitCan", "RescueHitTone",
+                   "RescueMiss", "RescueDrop", "RescueFail", "RescueDone", "TeamRescue")),
+    # F90's cafe orders (2026-11-02), mono, all 3D
+    "Cafe": (1, ("OrderPour", "OrderDing", "TrayClink", "TipBank")),
 }
 
 

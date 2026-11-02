@@ -27,6 +27,7 @@
 --   D:Invoke("mystery", nil, "potion")  -- a Mystery Visitor sits down at your cafe now, its gift of that kind (F64)
 --   D:Invoke("collector", nil, nil, 1)  -- the Cat Collector at your counter now, his value roll at its best (F63)
 --   D:Invoke("intro")                  -- the intro plays again on your next respawn or rejoin, as for a new player (F72)
+--   D:Invoke("tips")                   -- forget every context tip, the feedback ask and the help cards (F87)
 --   D:Invoke("bugReports", 50)         -- today's newest 50 bug reports (UTC), oldest first; needs API access on
 --   D:Invoke("bugReports", 10, nil, true)  -- the newest 10 sent from Studio playtests today (keys s_ not r_)
 
@@ -64,6 +65,7 @@ local SpinService = require(script.Parent.SpinService)
 local Telemetry = require(script.Parent.Telemetry)
 local TipJarService = require(script.Parent.TipJarService)
 local TipPileService = require(script.Parent.TipPileService)
+local TipService = require(script.Parent.TipService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Debug = {}
@@ -293,6 +295,13 @@ function Debug.intro(player: (Player | number | string)?): boolean
 	profile.introSeen = false
 	CafeService.sync(p)
 	return was
+end
+
+-- Forgets the player's context tips, like ask, feedback ask and "Need a hand?" cards, and which tips went out this
+-- session, so each shows again (F87, QA S72). Returns how many tips were forgotten.
+function Debug.tips(player: (Player | number | string)?): number
+	local p = resolve(player)
+	return TipService.debugReset(p, profileOf(p))
 end
 
 -- Forgets the player's redeemed codes and clears the wrong-code lock, so `playtest` can be redeemed again (F65).

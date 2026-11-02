@@ -26,6 +26,7 @@ local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local Telemetry = require(script.Parent.Telemetry)
+local TipService = require(script.Parent.TipService)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local ShoveService = {}
@@ -155,6 +156,7 @@ local function land(
 		-- v0.8 F56: anyone picks the cat up, and the old carrier can tackle back once that carry is 3 s old
 		Net.toast(player, "It dropped! Pick it up quick!", "good")
 		Net.toast(target, "You got tackled and dropped your cat! Grab it back!", "warn")
+		TipService.show(target, "dropped") -- F87 section 3: the first knock loose
 	elseif knock == "held" then
 		Net.toast(player, "It held on tight!", "info")
 		Net.toast(target, "It held on tight!", "good")

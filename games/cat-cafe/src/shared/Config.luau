@@ -210,6 +210,19 @@ local Config = {
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,
+	-- F87 (easy-start.md sections 2g, 3 and 4): the hint pulses after StuckNudgeSeconds on one tutorial step and the
+	-- "Need a hand?" card shows after StuckHelpSeconds (once per step per account); a context tip shows at most once
+	-- every TipGapSeconds, a camera cut lasts at most TipCutMaxSeconds, and the one slide-in feedback ask waits for
+	-- FeedbackAskMinutes of play in a session. The client times all of these. The server sends a tip that follows
+	-- from the save TipStartSeconds after a join at the earliest, and takes FeedbackSessionLimit SendFeedback calls a
+	-- session.
+	StuckNudgeSeconds = 40,
+	StuckHelpSeconds = 90,
+	TipGapSeconds = 60,
+	TipCutMaxSeconds = 4,
+	FeedbackAskMinutes = 12,
+	TipStartSeconds = 10,
+	FeedbackSessionLimit = 5,
 
 	-- Night income and rich customers (F31, data-model sections 11 and 12)
 	-- tips pay this share of the day rate at night; offline pay keeps the day rate. F60 (round 3 Q6): full pay, the

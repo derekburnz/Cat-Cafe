@@ -10,6 +10,7 @@ return function()
 	local Economy = require(Shared.Economy)
 	local EquipBest = require(Shared.EquipBest)
 	local ProfileSchema = require(Shared.ProfileSchema)
+	local Tips = require(Shared.Tips)
 
 	-- What version 2 charged per level (data-model v0.2 section 6), written out here so a change to the frozen
 	-- table in ProfileSchema fails a test.
@@ -88,10 +89,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 19 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 20 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(19)
-			expect(profile.version).to.equal(19)
+			expect(ProfileSchema.VERSION).to.equal(20)
+			expect(profile.version).to.equal(20)
 			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
 			expect(profile.stats.collectorTrades).to.equal(0)
 			expect(next(profile.potions)).never.to.be.ok()
@@ -231,8 +232,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 20 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 21 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 20 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 19 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 18 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 17 })).to.equal(false)
@@ -1429,7 +1431,7 @@ return function()
 			-- tier_2 (v1 9) reached, first_offline_claim (v1 11) held behind returned_next_day
 			raw.telemetry = { onboardingStep = 9, achieved = { ["11"] = true } }
 			local profile = ProfileSchema.migrate(raw, NOW)
-			expect(profile.version).to.equal(19)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.telemetry :: any).to.deepEqual({
 				onboardingStep = 20,
 				achieved = { ["23"] = true },
@@ -1461,6 +1463,67 @@ return function()
 
 		it("gives a new account today's day", function()
 			expect(ProfileSchema.migrate(nil, NOW).telemetry.firstDay).to.equal(DAY)
+		end)
+	end)
+
+	describe("migrate to version 20: context tips and the feedback ask (F87, easy-start.md section 6)", function()
+		it("starts a new account with no tips seen, the ask not shown and no help cards", function()
+			local profile = ProfileSchema.template(1000)
+			expect(next(profile.tipsSeen)).never.to.be.ok()
+			expect(profile.feedbackAsked).to.equal(false)
+			expect(next(profile.stuckHelpShown)).never.to.be.ok()
+			local migrated = ProfileSchema.migrate(nil, 1000)
+			expect(next(migrated.tipsSeen)).never.to.be.ok()
+			expect(migrated.feedbackAsked).to.equal(false)
+		end)
+
+		it("marks every tip seen on a version 19 save past the first loop, but not the like ask", function()
+			local raw: any = ProfileSchema.template(1000)
+			raw.version = 19
+			raw.tutorialStep = 5
+			raw.tipsSeen = nil
+			raw.feedbackAsked = nil
+			raw.stuckHelpShown = nil
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(profile.version).to.equal(20)
+			for _, def in Tips.LIST do
+				expect(profile.tipsSeen[def.id]).to.equal(true)
+			end
+			expect(profile.tipsSeen[Tips.LIKE_ASK]).never.to.be.ok()
+			expect(profile.feedbackAsked).to.equal(false)
+			expect(next(profile.stuckHelpShown)).never.to.be.ok()
+		end)
+
+		it("gives a version 19 save still in the tutorial every tip", function()
+			local raw: any = ProfileSchema.template(1000)
+			raw.version = 19
+			raw.tutorialStep = 4
+			raw.tipsSeen = nil
+			expect(next(ProfileSchema.migrate(raw, 1000).tipsSeen)).never.to.be.ok()
+		end)
+
+		it("keeps a version 20 save's tips, ask and help cards as they are, cleaned", function()
+			local raw: any = ProfileSchema.template(1000)
+			raw.tutorialStep = 5
+			raw.tipsSeen = { bowl = true, like_ask = true, night = false, nope = true, [3] = true }
+			raw.feedbackAsked = true
+			raw.stuckHelpShown = { ["0"] = true, ["2"] = true, ["7"] = true, ["3"] = 1 }
+			local profile = ProfileSchema.migrate(raw, 1000)
+			-- a version 20 save past the first loop is not a veteran: ClearTips stays cleared
+			expect(profile.tipsSeen :: any).to.deepEqual({ bowl = true, like_ask = true })
+			expect(profile.feedbackAsked).to.equal(true)
+			expect(profile.stuckHelpShown :: any).to.deepEqual({ ["0"] = true, ["2"] = true })
+		end)
+
+		it("drops damaged values", function()
+			local raw: any = ProfileSchema.template(1000)
+			raw.tipsSeen = "all"
+			raw.feedbackAsked = "yes"
+			raw.stuckHelpShown = 5
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(next(profile.tipsSeen)).never.to.be.ok()
+			expect(profile.feedbackAsked).to.equal(false)
+			expect(next(profile.stuckHelpShown)).never.to.be.ok()
 		end)
 	end)
 end

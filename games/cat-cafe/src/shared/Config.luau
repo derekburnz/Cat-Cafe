@@ -155,9 +155,6 @@ local Config = {
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
 	DealerRangeStuds = 12,
-	-- Retired by F94 (the stock no longer rolls every 5 minutes); only the UI's dealer screen still reads it, and it
-	-- goes once that screen drops its "Fresh stock in" line.
-	DealerWindowSeconds = 300,
 	-- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf at the Golden Fish Market, by day. Every window of
 	-- this many seconds rolls an amount of each Catalog.freshCatch row, the same on every server.
 	FreshCatchWindowSeconds = 300,

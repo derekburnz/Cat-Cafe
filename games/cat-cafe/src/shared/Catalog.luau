@@ -882,7 +882,7 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 10000, -- F95 v2 (economy-ladder.md section 3, after F97's Epic in every wave; was 8,000)
+		cost = 12000, -- F95 v2.1 (QA's Pace with cannon trips: 9.8 min, under the 10 min floor; was 10,000)
 		distinctCats = 5,
 		slots = 4,
 		multiplier = 1.25,
@@ -1980,7 +1980,7 @@ Catalog.areas = {
 		id = "sewer",
 		name = "Sewer",
 		tier = 5,
-		spawnPoints = 52, -- the v3.2 set's cat spots, 20 in the yard and the market and 32 deep (F81)
+		spawnPoints = 60, -- F85's long set's cat spots, 25 near the camp and 35 deep
 		waveSize = 4,
 		rescueSpots = 4, -- two grates and two drain pipes
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },

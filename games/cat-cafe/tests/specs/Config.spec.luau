@@ -81,6 +81,7 @@ return function()
 		TravelCooldownSeconds = 3, -- v0.4 (F19)
 		SyncIntervalSeconds = 10,
 		NormalWalkSpeed = 20, -- v0.4
+		CameraMaxZoomStuds = 60, -- Derek 2026-11-02, the zoom card
 		StrayWanderRadius = 5,
 		StrayWanderSpeed = 3,
 		CustomerCoinPopSeconds = 3,

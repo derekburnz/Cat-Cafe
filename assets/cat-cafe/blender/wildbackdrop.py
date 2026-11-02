@@ -45,7 +45,7 @@ KEEP = 3.0             # nothing stands nearer than this to the walls' outer fac
 
 # area: (half its width across, half its length from the gate line to the far wall, theme), Config.World v4 (F84)
 AREAS = {
-    "Alleyway": (45.0, 125.5, "city"),        # the two lanes and the block between, 90 x 251
+    "Alleyway": (45.0, 125.5, "city"),        # the one lane (two lanes and a block until 11-02), 90 x 251
     "Park": (80.0, 60.0, "park"),             # ParkWidth 160, ParkDepth 120
     "Neighbourhood": (140.0, 140.0, "houses"),
     "Woods": (120.0, 120.0, "forest"),        # turned a quarter: its depth runs across
@@ -455,8 +455,9 @@ def theme_city(f, P):
     road = P["road"]
     for (x0, x1, z0, z1) in _frame_rects(f, 0.0, MARGIN - 1.0):     # the plate under the city in asphalt
         road.span((x0, TOP + 0.05, z0), (x1, 0.08, z1), "fur_charcoal")
-    # the first row hard by the walls (the street behind the camp), the second taller behind it
-    for row, (d, step, h0, h1, depth) in enumerate(((1.6, 17.0, 16.0, 34.0, 20.0), (26.0, 21.0, 30.0, 58.0, 22.0))):
+    # the first row just past the alley buildings' backs (12 deep since 11-02, 10 past the walls), the second taller
+    # behind it; none on the camp's side (the street behind the camp)
+    for row, (d, step, h0, h1, depth) in enumerate(((11.6, 17.0, 16.0, 34.0, 20.0), (36.0, 21.0, 30.0, 58.0, 22.0))):
         for i, (x, z, nx, nz) in enumerate(f.around(d + depth / 2, step, 42 + row, corners=row == 1)):
             back = nz < -0.9
             if back and row == 0:

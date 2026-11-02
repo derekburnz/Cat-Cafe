@@ -1,0 +1,47 @@
+# Read or set the experience's name and description (the store page text) from games/cat-cafe/tools/opencloud/
+# store-page.txt on main, so the text is reviewed in a PR like any other change. Start it from the Actions tab
+# (store-page > Run workflow) or from any thread with the GitHub actions_run_trigger tool on main.
+# show reads what Roblox has now; set writes the file's name and description and reads them back. It never changes
+# who can join: the game stays private. Script: games/cat-cafe/tools/opencloud/store-page.sh.
+# Needs the repo secret ROBLOX_PUBLISH_KEY with universe:write and universe.place:write.
+name: store-page
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "show | set (set: the name and description in tools/opencloud/store-page.txt on main)"
+        type: choice
+        options: [show, set]
+        default: show
+
+permissions:
+  contents: read
+
+concurrency:
+  group: store-page
+  cancel-in-progress: false
+
+jobs:
+  store-page:
+    name: Store page text
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      ACTION: ${{ inputs.action }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          sparse-checkout: games/cat-cafe/tools/opencloud
+
+      - name: Check the key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      - name: Read or set the store page text
+        run: bash games/cat-cafe/tools/opencloud/store-page.sh "$ACTION"

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 03:34 UTC",
+  "generated": "2026-11-02 03:57 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -87860,30 +87860,30 @@
       "triangles": 688,
       "budget": 750,
       "size_studs": {
-        "x": 1.1,
-        "y": 1.17,
-        "z": 1.6
+        "x": 1.21,
+        "y": 0.91,
+        "z": 1.32
       },
       "size_roblox": [
-        1.1,
-        1.6,
-        1.17
+        1.21,
+        1.32,
+        0.91
       ],
       "bounds_min": [
-        -0.55,
-        -0.62,
+        -0.43,
+        -0.47,
         0.0
       ],
       "bounds_max": [
-        0.55,
-        0.55,
-        1.6
+        0.78,
+        0.43,
+        1.32
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_BigTip.png (icons.py).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_BigTip.model.json",
-      "rbx_parts": 13,
+      "rbx_parts": 25,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_BigTip.fbx",
         "assets/cat-cafe/exports/CatCafe_Prop_Potion_BigTip.glb"
@@ -87891,15 +87891,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
           "budget": "688/750 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "294 faces on swatch centers",
+          "uv": "288 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.04"
+          "centered": "footprint center x=0.17 y=-0.02"
         }
       }
     },

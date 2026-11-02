@@ -166,28 +166,29 @@ The Fish Pond (`CatCafe_Camp_Woods_FishPond`) keeps its place beside the way out
 The set's walls are the v3.2 Woods' runs of mossy cliff, thicket, dry stone under a thicket and now and then a log
 palisade, between old trees, just inside WorldBuilder's at x +-80 and z +245, the stream coming out of a cliff on
 each side; a 30 high `_Barrier` all round but the way in; on the camp side a split rail fence with bushes, open to the
-camp, with a lantern either side of the gate. Five blockers cross the width, their gaps on alternating sides, so the
-far end is never in a straight line. The low four are about 4 high, so a hunter sees a carrier coming but has to go
+camp, with a lantern either side of the gate. Five blockers cross the width, their ways through 24 wide and never in
+line, the tree line's in the middle (Derek 11-02), so the far end is never in a straight line. The low four are about 4 high, so a hunter sees a carrier coming but has to go
 round, each with a 30 high `_Barrier` on its own line; the tree line is the tall one and hides the far half:
 
 | z (set space) | Blocker | Gap |
 |---|---|---|
-| -172 to -168 | the fallen timber: big trunks end to end, a thinner log on every other, brush over the joins, about 4 high | x 38 to 54, a lantern either side |
-| -98 to -82 | the stream from the waterfall at the east wall, rock edges with log rails 3 high (as v3.2) | the log bridge at x -46 |
-| -14 to -6 | the tree line, a thicket 9 to 10 high with pines 18 to 24 in it (as v3.2) | x 38 to 54, a lantern either side |
-| 70 to 72 | a dry stone wall, 3.4 high under cap stones to about 3.9 | x -54 to -38 between stone gateposts 5.4 high, the field gate swung back |
-| 147 to 153 | a mossy boulder ridge about 3.6 high, stones and moss on top to about 4.8 | x 38 to 54 under the GREAT OAK arch |
+| -172 to -168 | the fallen timber: big trunks end to end, a thinner log on every other, brush over the joins, about 4 high | x 34 to 58, a lantern either side |
+| -98 to -82 | the stream from the waterfall at the east wall, rock edges with log rails 3 high (as v3.2) | the log bridge at x -46, deck 10 wide |
+| -14 to -6 | the tree line, a thicket 9 to 10 high with pines 18 to 24 in it (as v3.2) | x -12 to 12, the middle, a lantern either side |
+| 70 to 72 | a dry stone wall, 3.4 high under cap stones to about 3.9 | x -58 to -34 between stone gateposts 5.4 high, the field gate swung back |
+| 147 to 153 | a mossy boulder ridge about 3.6 high, stones and moss on top to about 4.8 | x 34 to 58 under the GREAT OAK arch (posts 24 apart) |
 
 The walk from the pad: the dirt trail north-east past the berry meadow to the timber's gap, west past the mushroom ring
-to the log bridge, east past the berry patch to the tree line's gap, west through the dell (a bramble trap by the
-west wall) to the wall's field gate, east past the old campsite (two tents, a campfire, log benches) to the arch, and
+to the log bridge, past the berry patch to the tree line's gap in the middle, west through the dell (a bramble trap by
+the west wall) to the wall's field gate, east past the old campsite (two tents, a campfire, log benches) to the arch, and
 west into the Great Oak's clearing, with the tree house (50, 210) and the lookout tower (12, 230) beside it. The
-shortest walk from the gate is about 655 to the oak and the tower and 718 to the far corner (walk check on the Part
-model, with the bridge's ramps), so about 670 and 735 from the pad (6b: about 650).
+shortest walk from the gate is about 585 to the oak and the tower and 650 to the far corner (walk check on the Part
+model, with the bridge's ramps), so about 600 and 665 from the pad (6b: about 650); the 24 wide gaps and the middle
+gap took about 70 off it.
 
 Stream centre line `z = -90 - 3 * (1 - cos(2 * pi * (x + 46) / 90))`, otherwise as v3.2: water 8 wide, rock edges
-1.3 high with log rails, grass banks, `CatCafe_Woods_Stream_Barrier` on both rails, open only at the bridge (deck 6
-wide at 2.0, a ramp at each end).
+1.3 high with log rails, grass banks, `CatCafe_Woods_Stream_Barrier` on both rails, open only at the bridge (deck 10
+wide at 2.0 on three logs, a ramp at each end).
 
 ## The Sewer (F85)
 

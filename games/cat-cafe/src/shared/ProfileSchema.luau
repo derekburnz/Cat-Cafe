@@ -52,7 +52,10 @@ local ProfileSchema = {}
 -- the first loop (tutorialStep 5) has seen every tip already (Tips.sanitizeSeen).
 -- Version 21 (F96, starter-cat.md section 4) adds starterCatClaimed: an older server would drop it and let the free
 -- Bellhop Cat be claimed again. A save that already holds a Bellhop Cat counts as claimed.
-ProfileSchema.VERSION = 21
+-- Version 22 (F96, starter-cat.md section 3) adds notifyAskAt, when the notification ask first showed: an older server
+-- would drop it and ask again sooner than the 30 days. The favorite and notification asks ride tipsSeen like the like
+-- ask (Tips.sanitizeSeen keeps them).
+ProfileSchema.VERSION = 22
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -189,6 +192,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		feedbackAsked = false,
 		stuckHelpShown = {},
 		starterCatClaimed = false,
+		notifyAskAt = 0,
 	}
 end
 
@@ -750,6 +754,9 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 			profile.starterCatClaimed = true
 		end
 	end
+
+	-- F96 (version 22): when the notification ask first showed, never in the future
+	profile.notifyAskAt = math.clamp(asInt(raw.notifyAskAt, 0), 0, now)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

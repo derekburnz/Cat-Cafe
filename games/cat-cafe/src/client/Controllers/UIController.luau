@@ -4,6 +4,7 @@
 -- carry marker and tutorial hints.
 
 local CollectionService = game:GetService("CollectionService")
+local ExperienceNotificationService = game:GetService("ExperienceNotificationService")
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -888,6 +889,89 @@ end
 
 local tipJarClaimed: { boolean }? = nil -- the claimed steps last shown, nil before this session's first state
 
+-- F96 (starter-cat.md section 3): an ask waits for a quiet moment, never in a catch, a rescue, a carry or the intro.
+local busyUntil = 0 -- os.clock(): a catch or rescue running, or just ended
+local inIntro = false
+local ASK_WAIT_SECONDS = 300 -- an ask with no quiet moment this long waits for another session
+local ASK_SETTLE_SECONDS = 3 -- after a catch or rescue ends, before an ask
+
+local function quiet(): boolean
+	return not inIntro and os.clock() >= busyUntil and (state == nil or state.carrying == nil)
+end
+
+local function trackBusy()
+	-- held at most this long each, in case the end never reaches this client (NetSwingController's holds)
+	Moments.CatchStart:Connect(function()
+		busyUntil = os.clock() + 30
+	end)
+	Moments.RescueStart:Connect(function()
+		busyUntil = os.clock() + 60
+	end)
+	for _, ended in
+		{
+			Moments.CatchSuccess,
+			Moments.CatchFail,
+			Moments.RescueDone,
+			Moments.RescueFail,
+			Moments.RescueCancel,
+		} :: { any }
+	do
+		ended:Connect(function()
+			busyUntil = os.clock() + ASK_SETTLE_SECONDS
+		end)
+	end
+	Moments.IntroStart:Connect(function()
+		inIntro = true
+	end)
+	Moments.IntroEnd:Connect(function()
+		inIntro = false
+	end)
+	player.CharacterAdded:Connect(function()
+		busyUntil = 0 -- a new character has nothing running
+	end)
+end
+
+-- The words of the asks that are toasts (section 3); the UI's optional UI.asks.show(id) -> boolean shows its own.
+local ASK_LINES: { [string]: string } = {
+	[Tips.FAVORITE_ASK] = "Favorite Cat Cafe to find it fast next time",
+	[Tips.LIKE_ASK] = "Having fun? A thumbs up helps other players find Cat Cafe.",
+}
+
+-- Shows an ask at the next quiet moment and answers TipSeen: the notification ask is Roblox's own opt-in prompt
+-- (players 13 and up; skipped when Roblox will not prompt), the favorite and like asks a toast or the UI's card.
+local function showAsk(id: string)
+	task.spawn(function()
+		local waited = 0
+		while not quiet() do
+			if waited >= ASK_WAIT_SECONDS then
+				return
+			end
+			waited += task.wait(1)
+		end
+		if id == Tips.NOTIFY_ASK then
+			local ok, can = pcall(function()
+				return ExperienceNotificationService:CanPromptOptInAsync()
+			end)
+			local prompted = ok
+				and can == true
+				and pcall(function()
+					ExperienceNotificationService:PromptOptIn()
+				end)
+			Net.fire("TipSeen", id, not prompted)
+			return
+		end
+		local asks: any = (UI :: any).asks
+		local shown = false
+		if asks ~= nil and type(asks.show) == "function" then
+			shown = (asks.show :: (string) -> unknown)(id) == true
+		end
+		if not shown then
+			UI.toast(ASK_LINES[id] or "", "info")
+		end
+		Net.fire("TipSeen", id, false)
+	end)
+end
+
 local function wireServerEvents()
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		applyState(s)
@@ -1004,21 +1088,23 @@ local function wireServerEvents()
 		UI.toast(text, "info")
 	end)
 	-- F87: a server-side context tip's moment (shared/Tips). The UI's tip queue times it and answers tipSeen; until
-	-- the UI has one, the like ask (a toast that needs no press, section 4) shows as a plain toast and the rest wait
-	-- unseen, so they still show once the cards land.
+	-- the UI has one the tips wait unseen, so they still show once the cards land. F96: the notification and favorite
+	-- asks are this controller's (showAsk); the like ask goes to the queue when there is one.
+	trackBusy()
 	Net.on("ShowTip", function(id: unknown)
 		if type(id) ~= "string" or not Tips.seenId(id) then
 			return
 		end
 		local tips: any = (UI :: any).tips
-		if tips ~= nil and type(tips.show) == "function" then
+		local queue = tips ~= nil and type(tips.show) == "function"
+		-- the like ask is a card in the UI's tip queue (#738), which times it and answers tipSeen; the notification
+		-- and favorite asks, and the like ask before the queue, are showAsk's
+		if Tips.isAsk(id) and not (queue and id == Tips.LIKE_ASK) then
+			showAsk(id)
+			return
+		end
+		if queue then
 			(tips.show :: (string) -> ())(id)
-		elseif id == Tips.LIKE_ASK then
-			UI.toast(
-				"Having fun? A thumbs up and a favorite help other players find Cat Cafe.",
-				"info"
-			)
-			Net.fire("TipSeen", id, false)
 		end
 	end)
 	Net.on("PlotOpened", function(position: Vector3, plotIndex: number)

@@ -767,13 +767,21 @@ local function step(dt: number)
 end
 
 -- Makes a stray spring up startled as a near miss sends it off (F93, HopAt), `lag` seconds into the spring. Like the
--- hiss, a cat that is not moving yet is picked up at once.
+-- hiss, a cat that is not moving yet is picked up at once, but only within budget.animRadius: near misses come far
+-- more often than hisses and every client sees every one, and a small spring further off would not show anyway.
 function Cats.startle(model: Model, lag: number?)
 	if hidden(model) or (lag or 0) >= Presets.motion.startle.seconds then
 		return
 	end
 	local entry: Entry? = active[model]
 	if entry == nil and model.Parent ~= nil then
+		local focus = Context.focus()
+		if
+			focus == nil
+			or (model:GetPivot().Position - focus).Magnitude > Context.budget.animRadius
+		then
+			return
+		end
 		entry = bind(model)
 	end
 	if entry ~= nil then

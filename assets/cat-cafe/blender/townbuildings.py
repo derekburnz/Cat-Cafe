@@ -4,12 +4,14 @@ colour, height, roof and details, with picture signs instead of words, to stand 
 (alleyway.py: WallWindows, WallDoor, FireEscape) stand now.
 
   CatCafe_Alley_Building_<Name>   Bakery, Townhouses, Warehouse, Grocer, Apartments, ClockHouse, MusicShop,
-                                  NarrowHouses. 30.6 wide like the backs they replace, so Layout's BACK_WIDTH and
-                                  slots hold. Pivot on the back plane at the bottom centre, -Z into the lane, like the
-                                  other wall pieces, but the body is 3 deep and stands over the 1 thick outer wall:
-                                  set the back plane (the line of the back sills and eaves) 2.25 behind the wall's
-                                  inner face; the body's back is then 2 behind, where the Woods' and the Sewer's own
-                                  walls start, and the facade 1 out into the lane, where the old backs' faces were.
+                                  NarrowHouses. 30.6 wide like the backs they replace (30.8 over the side windows'
+                                  sills), so Layout's BACK_WIDTH and slots hold. Pivot at the bottom centre, 2.25
+                                  behind the wall's inner face, -Z into the lane, like the other wall pieces. The body
+                                  is 12 deep (3 until Derek 11-02: "make sure the buildings with sides are fully
+                                  finished not just wall acting as a front of the house"): the facade 1 out into the
+                                  lane, where the old backs' faces were, over the 1 thick outer wall and 10 past it,
+                                  with windows down both sides above the wall, the roofs and cornices the full depth,
+                                  and the city backdrop's first row moved back to clear it (wildbackdrop.py).
                                   Its roof, chimneys and rooftop pieces sit on top; the lane side keeps within 3.5 of
                                   the facade (the Warehouse's fire escape 4, as before). The back faces the area
                                   behind with plain windows. `_Pane` holds the lit windows (glow at night),
@@ -30,10 +32,14 @@ from plot import arc, rot_x, rot_y, rot_z
 
 N = "CatCafe_Alley_Building_"
 HW = 15.0                    # half the body; eaves and cornices reach 15.3, the 30.6 of the backs they replace
-F, BK = -1.0, 2.0            # the facade's face toward the lane (-Z) and the back face, from the wall's inner face
-                             # (the alley kit's frame, which fire_escape_kit uses); _parts moves the pivot to the back
+F, BK = -1.0, 11.0           # the facade's face toward the lane (-Z) and the back face, from the wall's inner face
+                             # (the alley kit's frame, which fire_escape_kit uses). 12 deep since Derek 11-02 ("make
+                             # sure the buildings with sides are fully finished not just wall acting as a front of the
+                             # house"): the body runs 10 past the outer wall, with windows down its sides
+OLD_BK = 2.0                 # the 3 deep body's back: rooftop pieces (cupola, greenhouse, stair house) keep their size
+PIVOT = 2.25                 # the pivot's plane behind the wall's inner face, where Layout's slots put it
 BODY_Y = 0.05                # bodies start inside the plinth, so no face lies on the plinth's bottom
-BACK = BK + 0.25             # the back sills and eaves: the pivot's back plane, 2.25 behind the wall's inner face
+BACK = BK + 0.25             # the back sills and eaves
 
 
 # ---------------------------------------------------------------------------------------------- helpers --
@@ -225,6 +231,37 @@ def _back_windows(b, xs, ys, w=2.4, h=2.8):
             b.span((x - w / 2, y, BK), (x + w / 2, y + h, BK + 0.05), "fur_blue")
 
 
+def _side_win(b, panes, s, xs, z, y0, y1, w=2.4, frame="offwhite", sill="concrete", lit=False, glass="fur_blue"):
+    """A window on a side face (the plane x = xs, facing s * +X), centred at depth z: as _win's, turned."""
+    def o(d0, d1):
+        return sorted((xs + s * d0, xs + s * d1))
+    z0, z1 = z - w / 2, z + w / 2
+    xa, xb = o(0.0, 0.4)
+    b.span((xa, y0 - 0.3, z0 - 0.3), (xb, y0, z1 + 0.3), sill)
+    xa, xb = o(0.0, 0.2)
+    for za, zb in ((z0 - 0.2, z0), (z1, z1 + 0.2)):
+        b.span((xa, y0, za), (xb, y1, zb), frame)
+    b.span((xa, y1, z0 - 0.2), (xb, y1 + 0.35, z1 + 0.2), frame)
+    xa, xb = o(0.02, 0.06)
+    (panes if lit else b).span((xa, y0, z0), (xb, y1, z1), "glass" if lit else glass)
+    xa, xb = o(0.06, 0.12)
+    ym = (y0 + y1) / 2
+    b.span((xa, ym - 0.07, z0), (xb, ym + 0.07, z1), frame)
+    b.span((xa, y0, z - 0.07), (xb, y1, z + 0.07), frame)
+
+
+def _sides(b, panes, rows, x0=-HW, x1=HW, zs=(4.5, 8.5), lit=(), **kw):
+    """Windows down both sides of the body (x0 and x1; None skips one), on each floor in `rows` (y0, y1) above the
+    alley's wall, at the depths zs past it: the sides are a building's, not a cut-off front. `lit` holds the lit ones
+    as (side -1 or 1, row, k)."""
+    for s, xs in ((-1, x0), (1, x1)):
+        if xs is None:
+            continue
+        for r, (y0, y1) in enumerate(rows):
+            for k, z in enumerate(zs):
+                _side_win(b, panes, s, xs, z, y0, y1, lit=(s, r, k) in lit, **kw)
+
+
 def _chimney(b, x, z, y0, y1, sw="brick", cap="concrete", w=1.6):
     b.span((x - w / 2, y0, z - w / 2), (x + w / 2, y1, z + w / 2), sw)
     b.span((x - w / 2 - 0.2, y1, z - w / 2 - 0.2), (x + w / 2 + 0.2, y1 + 0.4, z + w / 2 + 0.2), cap)
@@ -234,8 +271,9 @@ def _chimney(b, x, z, y0, y1, sw="brick", cap="concrete", w=1.6):
 
 def _dormer(b, panes, x, z, y_slope, top, wall, roof, w=3.4, lit=False):
     """A dormer standing out of a roof slope: its face at depth z, from below the slope (y_slope there) to `top`."""
-    b.span((x - w / 2, y_slope - 0.6, z), (x + w / 2, top, BK - 0.3), wall)
-    b.span((x - w / 2 - 0.3, top, z - 0.35), (x + w / 2 + 0.3, top + 0.35, BK - 0.3), roof)
+    back = min(BK - 0.3, z + 3.0)                                       # into the slope, not along the whole roof
+    b.span((x - w / 2, y_slope - 0.6, z), (x + w / 2, top, back), wall)
+    b.span((x - w / 2 - 0.3, top, z - 0.35), (x + w / 2 + 0.3, top + 0.35, back), roof)
     gy0, gy1 = y_slope + 0.4, top - 0.45
     b.span((x - w / 2 + 0.3, gy0, z - 0.06), (x + w / 2 - 0.3, gy0 + 0.2, z), "offwhite")
     b.span((x - w / 2 + 0.3, gy1 - 0.2, z - 0.06), (x + w / 2 - 0.3, gy1, z), "offwhite")
@@ -268,8 +306,8 @@ def _parts(name, mat, b, panes, lamps=None, flowers=None):
         out.append(lamps.finalize(name + "_Lamp_Bulb", mat))
     if flowers is not None:
         out.append(flowers.finalize(name + "_Flowers", mat))
-    for ob in out:                           # the pivot onto the back plane
-        ob.matrix_world = Matrix.Translation(RB.p(0, 0, -BACK))
+    for ob in out:                           # the pivot 2.25 behind the wall's inner face
+        ob.matrix_world = Matrix.Translation(RB.p(0, 0, -PIVOT))
         bake_transform(ob)
     return out
 
@@ -299,6 +337,7 @@ def build_bakery(mat):
     b.cyl((13.6, 6.0, F - 0.1), 0.55, 0.2, "metal", axis="Z", segments=10)               # oven vent
     b.span((13.5, 6.6, F - 0.25), (13.7, 8.0, F - 0.05), "metal")
     _drainpipe(b, -14.2, h)
+    _sides(b, panes, ((9.4, 12.8),), lit={(1, 0, 0)})
     _back_windows(b, (-9.0, 0.0, 9.0), (3.0, 10.0))
     return _parts(name, mat, b, panes, lamps, flowers)
 
@@ -342,6 +381,7 @@ def build_townhouses(mat):
         _win(b, panes, x, 15.0, 18.4, w=2.4, shutters="offwhite" if x in (-11.0, 11.0) else None,
              lit=x == 0.0, curtain="pastel_lilac" if x == 0.0 else None)
     _drainpipe(b, 14.2, h)
+    _sides(b, panes, ((8.6, 12.4), (15.0, 18.4)), lit={(-1, 1, 1)})
     _back_windows(b, (-9.0, 0.0, 9.0), (3.0, 10.0, 16.0))
     return _parts(name, mat, b, panes, lamps, flowers)
 
@@ -408,6 +448,7 @@ def build_warehouse(mat):
     for yy in (ty + 5.0, ty + 7.4):
         b.cyl((tx, yy, tz), 1.76, 0.18, "metal", segments=12)
     b.cyl((tx, ty + 8.7, tz), 1.9, 1.2, "concrete_dark", r2=0.25, segments=12)
+    _sides(b, panes, ((10.0, 13.6), (18.0, 21.6)), w=3.0, frame="concrete_dark", lit={(1, 0, 1)})
     _back_windows(b, (-9.0, 0.0, 9.0), (3.0, 10.5, 18.5), w=3.0)
     return _parts(name, mat, b, panes, lamps, flowers)
 
@@ -457,12 +498,13 @@ def build_grocer(mat):
         flower_clump(flowers, x0 + 1.4, h + 1.05, F + 1.05, n=3, spread=0.3)
         flower_clump(flowers, x1 - 1.6, h + 1.05, F + 1.05, colours=("bowl_red", "sparkle", "blush"), n=3,
                      spread=0.3)
-    gx0, gx1, gz0, gz1, gy = -13.2, -5.0, F + 0.6, BK - 0.5, h
+    gx0, gx1, gz0, gz1, gy = -13.2, -5.0, F + 0.6, OLD_BK + 2.0, h
     panes.span((gx0, gy, gz0), (gx1, gy + 2.8, gz1), "glass")
     for xx in (gx0, (gx0 + gx1) / 2, gx1):
         b.span((xx - 0.1, gy, gz0 - 0.1), (xx + 0.1, gy + 2.8, gz1 + 0.1), "offwhite")
     b.span((gx0 - 0.1, gy + 2.8, gz0 - 0.1), (gx1 + 0.1, gy + 3.0, gz1 + 0.1), "offwhite")
     b.wedge(((gx0 + gx1) / 2, gy + 3.6, (gz0 + gz1) / 2), (gx1 - gx0 + 0.2, 1.2, gz1 - gz0 + 0.2), "glass")
+    _sides(b, panes, ((9.2, 12.4),), lit={(-1, 0, 0)})
     _back_windows(b, (-9.0, 0.0, 9.0), (3.0, 9.6))
     return _parts(name, mat, b, panes, lamps, flowers)
 
@@ -507,12 +549,13 @@ def build_apartments(mat):
     _drainpipe(b, 14.3, h)
     # roof: a stair hut and an aerial
     ry = h + 0.6
-    b.span((-11.0, ry, F + 0.6), (-6.5, ry + 3.0, BK - 0.6), "cream")
-    b.span((-11.3, ry + 3.0, F + 0.3), (-6.2, ry + 3.3, BK - 0.3), "terracotta")
+    b.span((-11.0, ry, F + 0.6), (-6.5, ry + 3.0, OLD_BK + 1.4), "cream")
+    b.span((-11.3, ry + 3.0, F + 0.3), (-6.2, ry + 3.3, OLD_BK + 1.7), "terracotta")
     b.span((-9.5, ry, F + 0.55), (-8.0, ry + 2.4, F + 0.6), "dark_wood")
     b.span((10.0, ry, 0.4), (10.2, ry + 5.5, 0.6), "metal")
     for yy, ww in ((ry + 3.6, 2.2), (ry + 4.4, 1.6), (ry + 5.1, 1.0)):
         b.span((10.1 - ww / 2, yy, 0.42), (10.1 + ww / 2, yy + 0.1, 0.58), "metal")
+    _sides(b, panes, ((8.9, 12.2), (15.4, 18.7), (21.9, 25.2)), lit={(1, 1, 0), (-1, 2, 1)})
     _back_windows(b, (-9.0, 0.0, 9.0), (3.0, 9.5, 16.0, 22.5))
     return _parts(name, mat, b, panes, lamps, flowers)
 
@@ -543,9 +586,9 @@ def build_clock_house(mat):
              curtain="pastel_butter" if x == 4.2 else None, flowers=flowers if abs(x) == 10.5 else None)
     # the clock cupola
     cy0, cy1 = h + 1.5, h + 8.0
-    b.span((-2.6, cy0 - 0.6, -0.3), (2.6, cy1, BK - 0.02), "concrete")                    # sunk in the roof
-    b.span((-2.8, cy1, -0.5), (2.8, cy1 + 0.4, BK + 0.2), "concrete_dark")
-    b.span((-2.8, cy0, -0.5), (2.8, cy0 + 0.4, BK - 0.04), "concrete_dark")
+    b.span((-2.6, cy0 - 0.6, -0.3), (2.6, cy1, OLD_BK - 0.02), "concrete")                # sunk in the roof
+    b.span((-2.8, cy1, -0.5), (2.8, cy1 + 0.4, OLD_BK + 0.2), "concrete_dark")
+    b.span((-2.8, cy0, -0.5), (2.8, cy0 + 0.4, OLD_BK - 0.04), "concrete_dark")
     ccy = (cy0 + cy1) / 2 + 0.2
     b.cyl((0, ccy, -0.4), 2.0, 0.2, "concrete_dark", axis="Z", segments=16)
     b.cyl((0, ccy, -0.55), 1.75, 0.1, "offwhite", axis="Z", segments=16)
@@ -567,6 +610,7 @@ def build_clock_house(mat):
     for ex in (0.86, 1.14):
         b.span((ex - 0.06, vy + 2.15, 0.78), (ex + 0.06, vy + 2.35, 0.92), "fur_black")
     b.box((-0.27, vy + 1.85, 0.85), (0.1, 0.7, 0.12), "fur_black", rot=rot_z(25))
+    _sides(b, panes, ((10.2, 13.6),), sill="concrete_dark", lit={(-1, 0, 1)})
     _back_windows(b, (-9.0, 0.0, 9.0), (3.0, 10.5))
     return _parts(name, mat, b, panes, lamps, flowers)
 
@@ -596,6 +640,7 @@ def build_music_shop(mat):
         _win(b, panes, x, 8.4, 11.6, w=2.6, frame="offwhite", flowers=flowers if fl else None,
              shutters="sign_teal" if not fl else None)
     _drainpipe(b, 14.3, h)
+    _sides(b, panes, ((8.4, 11.6),), lit={(1, 0, 1)})
     _back_windows(b, (-9.0, 0.0, 9.0), (2.8, 8.6))
     return _parts(name, mat, b, panes, lamps, flowers)
 
@@ -648,6 +693,8 @@ def build_narrow_houses(mat):
     for x in (3.8, 11.2):
         _win(b, panes, x, 8.4, 11.4, w=2.4, frame="offwhite", flowers=flowers)
     _chimney(b, 12.4, 1.15, h2 + 2.0, h2 + 6.6, "concrete_dark")                         # back off the gable's
+    _sides(b, panes, ((8.2, 11.2), (14.2, 17.2)), x1=None, lit={(-1, 0, 0)})
+    _sides(b, panes, ((8.4, 11.4),), x0=None)
     _back_windows(b, (-11.0, -4.0, 4.0, 11.0), (3.0, 9.5))
     return _parts(name, mat, b, panes, lamps, flowers)
 
@@ -656,4 +703,4 @@ BUILDERS = {"Bakery": build_bakery, "Townhouses": build_townhouses, "Warehouse":
             "Grocer": build_grocer, "Apartments": build_apartments, "ClockHouse": build_clock_house,
             "MusicShop": build_music_shop, "NarrowHouses": build_narrow_houses}
 ASSETS = {N + k: (f, 6000 if k == "Warehouse" else 5000) for k, f in BUILDERS.items()}
-LEDGES = {N + "Warehouse": {"landing_1": (0.0, 9.35, -2.8 - BACK), "landing_2": (-5.5, 17.35, -2.8 - BACK)}}
+LEDGES = {N + "Warehouse": {"landing_1": (0.0, 9.35, -2.8 - PIVOT), "landing_2": (-5.5, 17.35, -2.8 - PIVOT)}}

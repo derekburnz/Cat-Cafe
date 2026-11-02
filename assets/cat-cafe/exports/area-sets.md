@@ -286,6 +286,41 @@ All in lane space. The east lane's third row is at -88.025 rather than -53.675 b
 stack stands in that gap. Two lane spawn points sit near a row, (-86, -49) by the west Pallets and (86, -93) by the
 east short pair; both stay clear of the piles.
 
+## The Alleyway as one lane (11-02)
+
+Derek 11-02: "I don't think they should be separated into two lanes just make it one big one". The block down the
+middle goes and the Alleyway is one lane 90 wide: in set space the walls' inner faces stand at x +-45 and the lane
+runs z -125.5 to 125.5 with the camp at +z (lane space x +-78 maps to set space x +-30). Gameplay's Layout places
+the pieces; these are the art. The six piles above stay for any other use, and the one lane takes four whole rows
+(`alleyblockers.py` ROWS), each one model across the full width, built from the same piles end to end from the walls
+with a lamp post leaning over the way through:
+
+| Model | z (set space) | Way through (x) | Tris |
+|---|---|---|---|
+| `CatCafe_Alley_Blocker_RowCamp` | 88.025 | -13 to 13, the middle (26) | 8,840 |
+| `CatCafe_Alley_Blocker_RowVan` | 18.25 | -45 to -19, by the west buildings (26); the van hides the lane past it | 9,382 |
+| `CatCafe_Alley_Blocker_RowSkip` | -53.675 | 20 to 45, by the east buildings (25) | 8,916 |
+| `CatCafe_Alley_Blocker_RowFar` | -88.025 | -16.1 to 13, the middle (29) | 7,586 |
+
+Place each at (0, z) with rotY 0. Every pile carries its own `_Barrier` (30 high, invisible, CanCollide true,
+CanQuery false) from the wall to the way through, and RowFar adds a barrier-only span from x -45 to -40.6, where its
+west pile starts clear of the west Warehouse's crate stack. The east Warehouse's crate stack stands in RowSkip's way
+through, which leaves 21 to walk. Lane spawn points (+-22, z - 7) and (+-38, z + 9) and the nooks stay at least 3.4
+from every pile.
+
+`CatCafe_Alley_StringLightsWide` (poles 88 apart at the building fronts, sag 3, 48 bulbs, 1,244 tris) hangs at x 0 on
+the two gaps between buildings that have no row (z -18.25 and 53.675). The south end wall takes three buildings
+side by side at x -31, 0 and 31, turned 180 and 0.75 out (NarrowHouses, ClockHouse, Grocer); 31 between centres
+because the side windows' sills make them 30.8 wide.
+
+The buildings are finished all round: 12 deep (3 until Derek 11-02: "make sure the buildings with sides are fully
+finished not just wall acting as a front of the house"), so each runs 10 past the outer wall with windows down both
+sides on every floor above the wall, its roof and cornices the full depth and a back wall with windows. The pivot,
+width and facade line do not change, so Layout's slots hold. The city backdrop's first row moved back 10
+(`wildbackdrop.py`) to clear them. The camp (`CatCafe_Camp_Alleyway`) is one wide apron with walls out to the side
+walls, the Index Board spot at (-27.3, -2.5) in camp space, one wide string of lights across and flower beds along
+the camp line; one `CatCafe_Alley_ArchStreet` at x 0 on the camp line is the way in.
+
 ## The Woods (v3.2)
 
 `CatCafe_Woods_SetV32` is a new model, so the live game keeps `CatCafe_Woods_Set` (v3.1) until Gameplay moves the
@@ -491,6 +526,8 @@ the runs and sink into them by design, and the F85 Woods' blockers meet the side
 F85 Sewer the pipe bank runs into the side walls (0.5), the rubble meets the wall courses (0.34) and the timber props
 stand in it (1.2), and the tunnel front's end piers meet the roof's rim (0.25); no other pairs. The Sewer kit's
 stall caps, bunting caps, yarn balls and teapot spout and the v3.2 tunnel front's padlock now touch what they hang on,
-so the v3.1 and v3.2 Sewer sets list no floating parts either. The four Alleyway blockers pass the same QA (0 visible, 0 floating, z-fight
-0) and, placed in the whole lane layout with its buildings, crate stacks, string lights, laundry lines and loose props,
-touch none of them.
+so the v3.1 and v3.2 Sewer sets list no floating parts either. The Alleyway blockers and rows pass the same QA (0
+visible, 0 floating, z-fight 0) and, placed in the whole lane layout with its buildings, crate stacks, string lights,
+laundry lines and loose props, touch none of them; in the one lane composed whole (rows, 12 deep buildings, south end,
+camp, arch, backdrop) the only pairs are the ones already live, the two Warehouse crate stacks on their doorsteps
+(0.45) and a loose crate on the MusicShop's step (0.33).

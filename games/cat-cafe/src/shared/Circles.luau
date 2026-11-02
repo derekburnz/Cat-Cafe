@@ -2,8 +2,9 @@
 -- The net as closing circles (data-model section 10). Pure: times are numbers in server time
 -- (Workspace:GetServerTimeNow()) and random rolls come from a passed function, so tests are deterministic.
 --
--- GrabBegin builds a schedule: circles[rarity] circles, each shrinking for shrinkSeconds[rarity] x (1 + u) with u
--- uniform in [-jitter, +jitter] for the net level, separated by CircleGapMin to CircleGapMax. A circle's target is
+-- A net swing that hits a stray builds a schedule (F93): circles[rarity] circles, each shrinking for
+-- shrinkSeconds[rarity] x (1 + u) with u uniform in [-CircleJitter, +CircleJitter] on every net, separated by
+-- CircleGapMin to CircleGapMax, so a better net widens the bands but never changes the rhythm. A circle's target is
 -- startsAt + shrinkSeconds. The server stamps each CatchPress on arrival, takes off half the player's ping (capped
 -- at CatchLatencyCapSeconds) and grades |press - target|: within perfect Perfect, within good Good, else Miss.
 -- v0.13.15 (F83): a stray's perfect and good are its net's times its rarity's catchWindow (windowsFor).
@@ -51,11 +52,11 @@ function Circles.windows(netLevel: number): Types.NetWindows
 end
 
 -- The windows a cat of `rarity` is judged with (v0.13.15 F83): the net level's Perfect and Good times the rarity's
--- catchWindow, so the bands narrow the rarer the cat; the jitter stays the net's.
+-- catchWindow, so the bands narrow the rarer the cat.
 function Circles.windowsFor(netLevel: number, rarity: Types.Rarity): Types.NetWindows
 	local net = Circles.windows(netLevel)
 	local scale = Catalog.rarities[rarity].catchWindow
-	return { perfect = net.perfect * scale, good = net.good * scale, jitter = net.jitter }
+	return { perfect = net.perfect * scale, good = net.good * scale }
 end
 
 -- What CatchSchedule sends: the two half-widths the UI draws as bands.
@@ -63,15 +64,16 @@ function Circles.publicWindows(windows: Types.NetWindows): Types.CatchWindows
 	return { perfect = windows.perfect, good = windows.good }
 end
 
--- `roll` returns a number in [0, 1) each call (Random:NextNumber on the server).
+-- `roll` returns a number in [0, 1) each call (Random:NextNumber on the server). Since F93 the net level changes
+-- only the bands (windowsFor), never the circles; it stays an argument for the callers.
 function Circles.schedule(
 	rarity: Types.Rarity,
-	netLevel: number,
+	_netLevel: number,
 	now: number,
 	roll: () -> number
 ): { Types.CatchCircle }
 	local def = Catalog.rarities[rarity]
-	local jitter = Circles.windows(netLevel).jitter
+	local jitter = Config.CircleJitter
 	local circles: { Types.CatchCircle } = {}
 	local startsAt = now + Config.CircleLeadInSeconds
 	for i = 1, def.circles do

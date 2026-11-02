@@ -10,6 +10,7 @@ local FreshCatch = require(script.Parent.FreshCatch)
 local Onboarding = require(script.Parent.Onboarding)
 local Settings = require(script.Parent.Settings)
 local Spin = require(script.Parent.Spin)
+local StarterCat = require(script.Parent.StarterCat)
 local Tips = require(script.Parent.Tips)
 local Types = require(script.Parent.Types)
 
@@ -49,7 +50,9 @@ local ProfileSchema = {}
 -- Version 20 (F87, easy-start.md section 6) adds tipsSeen, feedbackAsked and stuckHelpShown: an older server would
 -- drop them and show every context tip and the one feedback ask again. A save from before version 20 that is past
 -- the first loop (tutorialStep 5) has seen every tip already (Tips.sanitizeSeen).
-ProfileSchema.VERSION = 20
+-- Version 21 (F96, starter-cat.md section 4) adds starterCatClaimed: an older server would drop it and let the free
+-- Bellhop Cat be claimed again. A save that already holds a Bellhop Cat counts as claimed.
+ProfileSchema.VERSION = 21
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -185,6 +188,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		tipsSeen = {},
 		feedbackAsked = false,
 		stuckHelpShown = {},
+		starterCatClaimed = false,
 	}
 end
 
@@ -739,6 +743,13 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 		Tips.sanitizeSeen(raw.tipsSeen, fromVersion < 20 and profile.tutorialStep >= 5)
 	profile.feedbackAsked = raw.feedbackAsked == true
 	profile.stuckHelpShown = Tips.sanitizeHelp(raw.stuckHelpShown)
+	-- F96 (version 21): the one free Bellhop Cat, kept claimed by the flag or by owning one
+	profile.starterCatClaimed = raw.starterCatClaimed == true
+	for _, instance in profile.cats do
+		if instance.catId == StarterCat.CAT_ID then
+			profile.starterCatClaimed = true
+		end
+	end
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

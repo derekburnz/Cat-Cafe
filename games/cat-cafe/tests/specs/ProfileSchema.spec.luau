@@ -89,10 +89,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 20 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 21 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(20)
-			expect(profile.version).to.equal(20)
+			expect(ProfileSchema.VERSION).to.equal(21)
+			expect(profile.version).to.equal(21)
 			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
 			expect(profile.stats.collectorTrades).to.equal(0)
 			expect(next(profile.potions)).never.to.be.ok()
@@ -232,8 +232,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 21 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 22 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 21 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 20 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 19 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 18 })).to.equal(false)
@@ -1440,7 +1441,7 @@ return function()
 			})
 		end)
 
-		it("keeps a v2 state as it is, clamped to 24 steps, with only held steps after the step", function()
+		it("keeps a v2 state as it is, clamped to the funnel's 25 steps, with only held steps after the step", function()
 			local raw: any = ProfileSchema.template(NOW)
 			raw.telemetry = { onboardingStep = 10, achieved = { ["4"] = true, ["12"] = true, ["30"] = true }, funnel = 2, firstDay = DAY - 3 }
 			expect(ProfileSchema.migrate(raw, NOW).telemetry :: any).to.deepEqual({
@@ -1450,7 +1451,7 @@ return function()
 				firstDay = DAY - 3,
 			})
 			raw.telemetry = { onboardingStep = 99, achieved = {}, funnel = 2, firstDay = DAY }
-			expect(ProfileSchema.migrate(raw, NOW).telemetry.onboardingStep).to.equal(24)
+			expect(ProfileSchema.migrate(raw, NOW).telemetry.onboardingStep).to.equal(25) -- F96 added starter_cat
 		end)
 
 		it("clamps a first day in the future to today and a bad one to 0", function()
@@ -1485,7 +1486,7 @@ return function()
 			raw.feedbackAsked = nil
 			raw.stuckHelpShown = nil
 			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.version).to.equal(20)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			for _, def in Tips.LIST do
 				expect(profile.tipsSeen[def.id]).to.equal(true)
 			end
@@ -1524,6 +1525,42 @@ return function()
 			expect(next(profile.tipsSeen)).never.to.be.ok()
 			expect(profile.feedbackAsked).to.equal(false)
 			expect(next(profile.stuckHelpShown)).never.to.be.ok()
+		end)
+	end)
+
+	describe("migrate to version 21: the free Bellhop Cat (F96, starter-cat.md section 4)", function()
+		local StarterCat = require(Shared.StarterCat)
+
+		it("starts a new account with the cat unclaimed", function()
+			expect(ProfileSchema.template(1000).starterCatClaimed).to.equal(false)
+			expect(ProfileSchema.migrate(nil, 1000).starterCatClaimed).to.equal(false)
+		end)
+
+		it("leaves a version 20 save unclaimed and keeps a claimed flag", function()
+			local raw: any = ProfileSchema.template(1000)
+			raw.version = 20
+			raw.starterCatClaimed = nil
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
+			expect(profile.starterCatClaimed).to.equal(false)
+			raw = ProfileSchema.template(1000)
+			raw.starterCatClaimed = true
+			expect(ProfileSchema.migrate(raw, 1000).starterCatClaimed).to.equal(true)
+		end)
+
+		it("counts an owned Bellhop Cat as claimed, so a lost flag never gives a second", function()
+			local raw: any = ProfileSchema.template(1000)
+			raw.starterCatClaimed = false
+			raw.cats.gift1 = CatStats.newInstance("gift1", StarterCat.CAT_ID, 900, Config.StarterCatCharm)
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(profile.cats.gift1 ~= nil).to.equal(true)
+			expect(profile.starterCatClaimed).to.equal(true)
+		end)
+
+		it("drops a damaged flag", function()
+			local raw: any = ProfileSchema.template(1000)
+			raw.starterCatClaimed = "yes"
+			expect(ProfileSchema.migrate(raw, 1000).starterCatClaimed).to.equal(false)
 		end)
 	end)
 end

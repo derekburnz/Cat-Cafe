@@ -62,6 +62,7 @@ local Shove = require(ReplicatedStorage.Shared.Shove)
 local ShoveService = require(script.Parent.ShoveService)
 local Spin = require(ReplicatedStorage.Shared.Spin)
 local SpinService = require(script.Parent.SpinService)
+local StarterCatService = require(script.Parent.StarterCatService)
 local Telemetry = require(script.Parent.Telemetry)
 local TipJarService = require(script.Parent.TipJarService)
 local TipPileService = require(script.Parent.TipPileService)
@@ -302,6 +303,13 @@ end
 function Debug.tips(player: (Player | number | string)?): number
 	local p = resolve(player)
 	return TipService.debugReset(p, profileOf(p))
+end
+
+-- Forgets the player's Bellhop Cat claim and sends their Bellhop Cats away, so the stand can be claimed again (F96,
+-- starter-cat.md section 5). Returns how many cats were removed.
+function Debug.starterCat(player: (Player | number | string)?): number
+	local p = resolve(player)
+	return StarterCatService.debugReset(p, profileOf(p))
 end
 
 -- Forgets the player's redeemed codes and clears the wrong-code lock, so `playtest` can be redeemed again (F65).

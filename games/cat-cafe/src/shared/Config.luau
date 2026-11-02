@@ -334,6 +334,14 @@ local Config = {
 	GroupId = 0, -- the community group a requiresGroup code needs; 0 while the game is on Derek's own account
 	GroupCheckSeconds = 60, -- how long a player's group membership answer is kept
 
+	-- The free Bellhop Cat (F96, starter-cat.md sections 2 and 4). Its stand's card opens and ClaimStarterCat is taken
+	-- within StarterCatRangeStuds (flat) of a BellhopStand's pivot. While GroupId is 0 a claim needs the first goals
+	-- (tutorialStep StarterCatTutorialStep: a cat home, a table bought and food in the bowl); once it is set, membership
+	-- of GroupId (IsInGroupAsync in a pcall, kept GroupCheckSeconds). The cat arrives with StarterCatCharm.
+	StarterCatRangeStuds = 12,
+	StarterCatTutorialStep = 5,
+	StarterCatCharm = 60,
+
 	-- Shove, a Tackle since v0.11 (F29 bump rules, v0.5 F41, v0.11 F74, data-model section 10c); the code keeps the
 	-- Bump and Shove names. Pure rules in Shove.
 	BumpEnabled = true, -- false turns the Tackle remote off and hides the button

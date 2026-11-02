@@ -329,12 +329,15 @@ return function()
 			lantern = { "Lantern", "Rare", "sewer", "waiter" },
 		}
 
-		it("has exactly 60 cats: the 20 slice cats, the 30 later ones and the 10 spare", function()
-			expect(#Catalog.cats).to.equal(60)
+		it("has exactly 61 cats: the 20 slice cats, the 30 later ones, the 10 spare and the Bellhop Cat (F96)", function()
+			expect(#Catalog.cats).to.equal(61)
 			for _, def in ipairs(Catalog.cats) do
-				expect(slice[def.id] ~= nil or reserved[def.id] ~= nil or spares[def.id] ~= nil).to.equal(
-					true
-				)
+				expect(
+					slice[def.id] ~= nil
+						or reserved[def.id] ~= nil
+						or spares[def.id] ~= nil
+						or def.id == "bellhop_cat"
+				).to.equal(true)
 			end
 			for id in pairs(slice) do
 				expect(Catalog.getCat(id)).to.be.ok()
@@ -412,7 +415,7 @@ return function()
 					counts[area] = {}
 				end
 				for _, def in ipairs(Catalog.cats) do
-					if def.area == "spare" then
+					if def.area == "spare" or def.area == "exclusive" then -- F96: the Bellhop Cat lives in no area
 						continue
 					end
 					local area = counts[def.area]
@@ -440,9 +443,13 @@ return function()
 					expect(#def.description > 0).to.equal(true)
 					expect(#def.pattern > 0).to.equal(true)
 					expect(ROLE_SET[def.favoriteRole]).to.equal(true)
-					expect(
-						areaSet[if def.area == "spare" then def.incomeArea :: string else def.area]
-					).to.equal(true)
+					if def.exclusive == true then
+						expect(def.area).to.equal("exclusive") -- F96: never spawns, earns at the newest area
+					else
+						expect(
+							areaSet[if def.area == "spare" then def.incomeArea :: string else def.area]
+						).to.equal(true)
+					end
 					expect((def :: any).favoriteSpot).never.to.be.ok()
 					expect(#def.color).to.equal(3)
 					for _, channel in ipairs(def.color) do

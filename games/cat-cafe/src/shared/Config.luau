@@ -562,11 +562,11 @@ local Config = {
 		SewerWidth = 180,
 		SewerDepth = 180,
 		SideGateHalfWidth = 12,
-		-- The Neighbourhood (v3.2: 280 x 280) with its camp on its south side.
+		-- The Neighbourhood (F85, hometown-cannon.md section 6b): long, 180 wide and 430 deep, its camp on its south side.
 		NeighbourhoodCenterX = 0,
 		NeighbourhoodCenterZ = 2000,
-		NeighbourhoodWidth = 280,
-		NeighbourhoodDepth = 280,
+		NeighbourhoodWidth = 180,
+		NeighbourhoodDepth = 430,
 		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
 		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
 		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its

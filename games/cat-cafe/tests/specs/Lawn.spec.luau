@@ -25,7 +25,8 @@ return function()
 	end
 
 	describe("the catalog (section 2)", function()
-		it("sells the sixteen pieces at the section 2 sizes, tiers and prices", function()
+		-- prices: section 2's, times 4 at Tier 3, 8 at Tier 4 and 16 at Tier 5 (economy-ladder.md section 4, which wins)
+		it("sells the sixteen pieces at their sizes, tiers and ladder prices", function()
 			local expected = {
 				{ "tulip_bed", "small", 1, 500 },
 				{ "sandwich_board", "small", 1, 500 },
@@ -36,13 +37,13 @@ return function()
 				{ "garden_gnome_cat", "small", 2, 5000 },
 				{ "bicycle_with_basket", "big", 2, 8000 },
 				{ "garden_bench", "big", 2, 8000 },
-				{ "umbrella_table", "big", 3, 25000 },
-				{ "little_fountain", "big", 3, 40000 },
-				{ "fairy_light_arch", "big", 4, 150000 },
-				{ "flower_cart", "big", 4, 200000 },
-				{ "balloon_bunch", "small", 4, 100000 },
-				{ "cat_tree_sign", "big", 5, 1000000 },
-				{ "golden_paw_statue", "big", 5, 3000000 },
+				{ "umbrella_table", "big", 3, 100000 },
+				{ "little_fountain", "big", 3, 160000 },
+				{ "fairy_light_arch", "big", 4, 1200000 },
+				{ "flower_cart", "big", 4, 1600000 },
+				{ "balloon_bunch", "small", 4, 800000 },
+				{ "cat_tree_sign", "big", 5, 16000000 },
+				{ "golden_paw_statue", "big", 5, 50000000 },
 			}
 			expect(#Catalog.lawn).to.equal(#expected)
 			for i, row in expected do
@@ -60,11 +61,11 @@ return function()
 				{ "grey_slabs", "path", 1, 0 },
 				{ "red_brick", "path", 1, 2000 },
 				{ "stepping_stones", "path", 2, 10000 },
-				{ "paw_print_path", "path", 3, 50000 },
+				{ "paw_print_path", "path", 3, 200000 },
 				{ "white_picket", "fence", 1, 2000 },
 				{ "low_hedge", "fence", 2, 10000 },
-				{ "iron_railing", "fence", 3, 50000 },
-				{ "flower_box_fence", "fence", 4, 200000 },
+				{ "iron_railing", "fence", 3, 200000 },
+				{ "flower_box_fence", "fence", 4, 1600000 },
 			}
 			expect(#Catalog.lawnStyles).to.equal(#expected)
 			for i, row in expected do

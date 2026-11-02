@@ -89,10 +89,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 22 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 23 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(22)
-			expect(profile.version).to.equal(22)
+			expect(ProfileSchema.VERSION).to.equal(23)
+			expect(profile.version).to.equal(23)
 			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
 			expect(profile.stats.collectorTrades).to.equal(0)
 			expect(next(profile.potions)).never.to.be.ok()
@@ -232,8 +232,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 23 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 24 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 23 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 22 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 21 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 20 })).to.equal(false)
@@ -1596,6 +1597,47 @@ return function()
 			raw.tipsSeen = { notify_ask = true, favorite_ask = true, like_ask = true }
 			local profile = ProfileSchema.migrate(raw, 1000)
 			expect(profile.tipsSeen :: any).to.deepEqual({ notify_ask = true, favorite_ask = true, like_ask = true })
+		end)
+	end)
+
+	describe("migrate to version 23: the leaderboards' best rate and this week (F98, leaderboards.md section 5)", function()
+		it("starts at 0 for a new account and a version 22 save", function()
+			local fresh = ProfileSchema.template(1000)
+			expect(fresh.stats.bestRate).to.equal(0)
+			expect(fresh.stats.weekPlay :: any).to.deepEqual({ week = 0, seconds = 0 })
+			expect(fresh.stats.weekBestRate :: any).to.deepEqual({ week = 0, rate = 0 })
+			local raw: any = ProfileSchema.template(1000)
+			raw.version = 22
+			raw.stats.bestRate = nil
+			raw.stats.weekPlay = nil
+			raw.stats.weekBestRate = nil
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
+			expect(profile.stats.bestRate).to.equal(0)
+			expect(profile.stats.weekPlay :: any).to.deepEqual({ week = 0, seconds = 0 })
+			expect(profile.stats.weekBestRate :: any).to.deepEqual({ week = 0, rate = 0 })
+		end)
+
+		it("keeps a rate's fractions and the week's numbers, and drops damaged ones", function()
+			local raw: any = ProfileSchema.template(1000)
+			raw.stats.bestRate = 12.75
+			raw.stats.weekPlay = { week = 2913, seconds = 3600.5 }
+			raw.stats.weekBestRate = { week = 2913, rate = 9.5 }
+			raw.stats.catsCaught = 7.9
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(profile.stats.bestRate).to.equal(12.75)
+			expect(profile.stats.weekPlay :: any).to.deepEqual({ week = 2913, seconds = 3600.5 })
+			expect(profile.stats.weekBestRate :: any).to.deepEqual({ week = 2913, rate = 9.5 })
+			expect(profile.stats.catsCaught).to.equal(7)
+			for _, junk in { -5, "fast", 0 / 0, math.huge, true, { 1 } } :: { any } do
+				raw.stats.bestRate = junk
+				raw.stats.weekPlay = junk
+				raw.stats.weekBestRate = { week = junk, rate = junk }
+				local migrated = ProfileSchema.migrate(raw, 1000)
+				expect(migrated.stats.bestRate).to.equal(0)
+				expect(migrated.stats.weekPlay :: any).to.deepEqual({ week = 0, seconds = 0 })
+				expect(migrated.stats.weekBestRate :: any).to.deepEqual({ week = 0, rate = 0 })
+			end
 		end)
 	end)
 end

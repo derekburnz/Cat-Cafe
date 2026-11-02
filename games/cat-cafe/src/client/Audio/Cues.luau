@@ -243,45 +243,105 @@ local Cues: { [string]: Cue } = {
 		range = 50,
 	}, -- v0.5 F40
 
-	-- Rescue minigames (5.2) --------------------------------------------------------------------------------
-	rescueStart = { ids = {}, group = "Sfx", volume = 0.6 },
+	-- Rescue minigames (5.2) and F92 Team Rescue: all in the Rescue sheet (2026-11-02; silent until then) -----------
+	sheetRescue = {
+		ids = { "rbxassetid://105628750022355" },
+		group = "Sfx",
+		volume = 1,
+		preload = true,
+	}, -- mono: the trap hits and the drop play in 3D on the trap, the rest flat
+	rescueStart = {
+		ids = {},
+		sheet = "sheetRescue",
+		region = { 0.000, 0.500 },
+		group = "Sfx",
+		volume = 0.6,
+	}, -- a muffled "mew?" from inside the trap and a small ready chime
 	rescueHitBin = {
 		ids = {},
+		sheet = "sheetRescue",
+		region = { 1.000, 1.320 },
 		group = "Sfx",
 		volume = 0.7,
 		pitch = { 0.95, 1.05 },
 		voices = 2,
 		range = 30,
-	},
+	}, -- the bin's tinny lid lifting and rattling down
 	rescueHitBag = {
 		ids = {},
+		sheet = "sheetRescue",
+		region = { 1.820, 2.120 },
 		group = "Sfx",
 		volume = 0.7,
 		pitch = { 0.95, 1.05 },
 		voices = 2,
 		range = 30,
-	},
+	}, -- a plastic rustle and crinkle
 	rescueHitTree = {
 		ids = {},
+		sheet = "sheetRescue",
+		region = { 2.620, 3.020 },
 		group = "Sfx",
 		volume = 0.7,
 		pitch = { 0.95, 1.05 },
 		voices = 2,
 		range = 30,
-	},
+	}, -- the branch shake: leaves in quick waves over a soft creak
 	rescueHitCan = {
 		ids = {},
+		sheet = "sheetRescue",
+		region = { 3.520, 3.870 },
 		group = "Sfx",
 		volume = 0.7,
 		pitch = { 0.95, 1.05 },
 		voices = 2,
 		range = 30,
-	},
-	rescueHitTone = { ids = {}, group = "Sfx", volume = 0.5, voices = 2 }, -- one scale step per hit
-	rescueMiss = { ids = {}, group = "Sfx", volume = 0.6 },
-	rescueDrop = { ids = {}, group = "Sfx", volume = 0.8, range = 30 },
-	rescueFail = { ids = {}, group = "Sfx", volume = 0.6 },
-	rescueDone = { ids = {}, group = "Sfx", volume = 0.8 },
+	}, -- a soft, round clang on the park can
+	rescueHitTone = {
+		ids = {},
+		sheet = "sheetRescue",
+		region = { 4.370, 4.520 },
+		group = "Sfx",
+		volume = 0.5,
+		voices = 2,
+	}, -- a C5 pip, one scale step per hit (C5 to D6 over 7 hits)
+	rescueMiss = {
+		ids = {},
+		sheet = "sheetRescue",
+		region = { 5.020, 5.280 },
+		group = "Sfx",
+		volume = 0.6,
+	}, -- a soft dropping boop and a paw-print tick
+	rescueDrop = {
+		ids = {},
+		sheet = "sheetRescue",
+		region = { 5.780, 6.200 },
+		group = "Sfx",
+		volume = 0.8,
+		range = 30,
+	}, -- a leafy whoosh down and a surprised "mew!"
+	rescueFail = {
+		ids = {},
+		sheet = "sheetRescue",
+		region = { 6.700, 7.200 },
+		group = "Sfx",
+		volume = 0.6,
+	}, -- a gentle "aww": two felt notes leaning down
+	rescueDone = {
+		ids = {},
+		sheet = "sheetRescue",
+		region = { 7.700, 8.800 },
+		group = "Sfx",
+		volume = 0.8,
+	}, -- a warm vibes chime up the C chord and a grateful purr-meow
+	teamRescue = {
+		ids = {},
+		sheet = "sheetRescue",
+		region = { 9.300, 10.100 },
+		group = "Sfx",
+		volume = 0.6,
+		minGap = 1,
+	}, -- F92: a high-five clap and two bright notes (G6, C7) over rescueDone, on both friends' screens
 
 	-- Carry, shoves and check-in (5.3; v0.5 Shove keeps the Bump names in code) ------------------------------
 	carryPurr = {

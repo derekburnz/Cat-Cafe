@@ -2,10 +2,11 @@
 -- The Cat Collector's card as plain rules (F63, data-model section 12b):
 --   prize(offer, area) -> IndexPrize?   his offer in the prize shape PrizeChips draws: a zone crate is `area`'s
 --                                       crate ("park_crate") and a golden crate its golden one ("park_golden_crate")
---   needsConfirm(rarity, variant)       Trade asks for a second tap from Rare up and for any gold cat, as Sell does
+--   needsConfirm(rarity, variant)       Trade asks for a second tap from Rare up and for any gold or rainbow cat
+--                                       (F99), as Sell does
 --   near(distance, wasNear)             the card opens at CollectorRangeStuds (12) from him and closes a stud past
 --                                       it, so it does not flicker at the edge
---   catLine(rarity, variant) -> "Gold Rare"
+--   catLine(rarity, variant) -> "Gold Rare", "Rainbow Epic"
 --   clock(seconds) -> "2:41"
 -- No Theme, Format or CFrame here, so the cloud test runner (no fonts, no CFrame) can load and test it.
 
@@ -67,7 +68,9 @@ function CollectorLogic.prize(offer: Types.CollectorOffer?, area: string?): Type
 end
 
 function CollectorLogic.needsConfirm(rarity: string?, variant: string?): boolean
-	return CatVariant.isGold(variant) or (rarity ~= nil and CONFIRM_RARITIES[rarity] == true)
+	return CatVariant.isGold(variant)
+		or CatVariant.isRainbow(variant)
+		or (rarity ~= nil and CONFIRM_RARITIES[rarity] == true)
 end
 
 function CollectorLogic.near(distance: number?, wasNear: boolean): boolean
@@ -78,8 +81,7 @@ function CollectorLogic.near(distance: number?, wasNear: boolean): boolean
 end
 
 function CollectorLogic.catLine(rarity: string?, variant: string?): string
-	local name = rarity or "Common"
-	return if CatVariant.isGold(variant) then "Gold " .. name else name
+	return CatVariant.word(variant) .. (rarity or "Common")
 end
 
 function CollectorLogic.clock(seconds: number): string

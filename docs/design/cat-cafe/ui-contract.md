@@ -686,6 +686,26 @@ A tip shows once per account, the first time a player meets something: one line 
 
 **Engineer (F89):** nothing more to send: `SecuredRare` and `FoundRareDecor` reach the hooks as they are, and `CrateResult` already carries the piece.
 
+### Leaderboards (built, F98, leaderboards.md sections 2 and 3)
+
+- **Rows** (`Components/LeaderboardRow.luau`, words and order in `Components/LeaderboardLogic.luau` with a spec): rank, the player's round head picture, their display name with a 👑 before it while they are in an all time top 10, and the value on the right ("68 cats", "41 h 12 m", "$1.24M/s" in the HUD's number style). Ranks 1 to 3 sit on gold, silver and bronze; this player's own row has a sky edge.
+- **Town boards** (`Screens/LeaderboardBoards.luau`): a SurfaceGui in the PlayerGui on every Model tagged `Leaderboard` under the Workspace, adorned to its Part named `Screen` (else a part named `*_Screen`), drawn on that part's Front unless the part's `Face` attribute says otherwise. The board comes from the Model's `Board` attribute (`"index"`, `"playtime"` or `"money"`), else its name's ending. Each face shows the top 10 in chalk white, "Loading the board..." before the first sync and "No one yet. Play to be first!" on an empty list, and this player's own line under the rows. Playtime and Money swap between All time and This week every 15 s (a gold "This week" ribbon); Index stays on All time. A face hides past 120 studs. The tagged template in ReplicatedStorage gets no face.
+- **Index Top tab** (`Screens/LeaderboardTop.luau`): a "Top" tab after Cats and Gold on the Index's dark page. Index, Playtime and Money buttons along its top, the All time and This week switch on the right (Playtime and Money only), the top 50 as rows in a scroll, and this player's line pinned at the bottom: "You: #23" in the top 50, else "You: 41 h 12 m", and on This week "You: not on this week's list yet". Decor moves one tab right.
+- **Crowns:** the 👑 over the head of anyone whose Player has `Crown` = true (`Screens/Crowns.luau`, a client BillboardGui on the Head, hidden past 80 studs), and before the owner's name on their cafe sign ("👑 Sam's Cafe", `Screens/CafeSigns.luau`, from the owner's Player, the sign part or the plot). Both follow the attribute as it changes and through respawns.
+- **`UI.leaderboards.sync(payload)`** (UIController's hook on `LeaderboardSync`): `{ boards = { index|playtime|money = { allTime = rows, week = rows } }, me = { [board] = { rank?, value, weekRank?, weekValue? } }, week }`, rows `{ rank, userId, name, value, crown }`; playtime in whole minutes, money as money a second. The last payload is kept, so a rebuilt UI shows it at once. Without `weekRank` or `weekValue`, This week's own line looks for the player in the week rows.
+
+**Engineer (F98):** UIController calls `UI.leaderboards.sync` on every `LeaderboardSync` (#773). Town boards are the row's child Models tagged `Leaderboard` with a lowercase `Board` attribute; the Screen part sits in each board's nested `<board>_Screen` Model.
+
+### Rainbow coats, part 1 (built, F99, rainbow-coat.md sections 1 to 3)
+
+- **Where a gold cat says Gold, a rainbow cat says Rainbow** (`Components/CatVariant`: `isRainbow`, `coat`, `word`, `multiplier`, `rainbowCollection`): the cat room card gets a 🌈 badge and a slowly turning rainbow edge, its detail reads "Rainbow Epic Tabby", the hover card has a "Rainbow x3" pill and a rainbow edge, the bait card a "🌈 RAINBOW" sticker, the catch header "Epic · Rainbow" with a rainbow edge, the found card "NEW RAINBOW EPIC CAT!" with a rainbow edge, and the Collector's line "Rainbow Epic". The bands are `Components/Rainbow` (a turning UIGradient of `Theme.rainbow`), standing still under Roblox's Reduce Motion. Portraits keep the base coat; the world model's bands are VFX-Agent's.
+- **Buff chip:** "Rainbow x3" on the turning bands in place of the gold chip (`CatBuffs`, `Config.RainbowMultiplier`, 3 by default).
+- **Selling** a rainbow cat always asks, and asks twice: "Sell your Rainbow Tabby? It earns x3" with "Sell $X", then "Really sell it? It can't be undone." with "Yes, sell it". The Collector's Trade asks a second tap for a rainbow cat, as for gold.
+- **Food cards:** "Rainbow 0.5%" under the gold line in the bait bowl and night dealer Details (`FoodOdds.rainbow`), with the Index's rainbow luck in it ("Rainbow 0.6% (+20% luck)", capped at `RainbowLuckMax`). It shows only once shared Config has `RainbowChanceBait`. The Fish Market has no cat food odds now, so nothing there.
+- Reads: `CatInstance.variant == "rainbow"`, the stray or cat model's `Variant` attribute, `state.rainbowCollection` and `state.rainbowLuck` (a fraction, capped), and `showCatFound`'s `extra.rainbow` (else read from the newest copy of the cat in state).
+
+**Engineer (F99):** send `variant = "rainbow"` on cats and the `Variant` attribute on their models (strays included), `rainbowCollection` and `rainbowLuck` in ProfileSync, and `RainbowChanceBait`, `RainbowLuckMax` and `RainbowMultiplier` in shared Config. Part 2 adds the Index's Rainbow tab and the Rainbow track.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |

@@ -18,6 +18,8 @@
 -- moves that arm (NetHold.arm, Avatar.smack), and a tackle's pose blends over that.
 -- The carry (Derek 2026-10-28) is a layer under the Tackle too: while the character carries a cat its arms fold
 -- across its chest (Avatar.carryArms, by Carry.weight, which also puts the cat on them).
+-- The pal wave (F92) goes over those and under the Tackle: when a player joins a pal at their front door, both
+-- characters within range wave with the left arm (PalWave.layer, Avatar.waveArm), the arms staying on a carried cat.
 -- The Cat Cannon flight (F84) goes over all of them, at any distance: the hop, the rolling ball and the landing
 -- (CannonGlide.frames).
 -- A staged character (tagged StagedCharacter, such as the intro's copy of you) gets the net hold and the carry like a
@@ -37,6 +39,7 @@ local Carry = require(script.Parent.Carry)
 local Context = require(script.Parent.Context)
 local Moments = require(script.Parent.Parent.Moments)
 local NetHold = require(script.Parent.NetHold)
+local PalWave = require(script.Parent.PalWave)
 local Presets = require(script.Parent.Presets)
 
 local Tackle = {}
@@ -213,7 +216,7 @@ end
 type Layer = { frames: { [Avatar.Joint]: CFrame }, weight: number }
 
 -- Writes this frame's layers into the joints: each over what the Animator played, in order (the net hold or the
--- carry, then the Tackle or the cannon flight). A joint this wrote last frame and no layer moves now goes back to the Animator.
+-- carry, the pal wave, then the Tackle or the cannon flight). A joint this wrote last frame and no layer moves now goes back to the Animator.
 local function apply(entry: Entry, layers: { Layer })
 	local moved: { [Avatar.Joint]: boolean } = {}
 	for _, layer in layers do
@@ -321,6 +324,12 @@ local function step(dt: number)
 		if not near then
 			apply(entry, layers)
 			continue
+		end
+		-- the pal wave (F92) with the free left arm; a cat in the arms keeps them on the cat
+		local wave, waving = PalWave.layer(userId :: number, entry.rig)
+		waving *= 1 - carrying
+		if wave ~= nil and waving > 0 then
+			table.insert(layers, { frames = wave, weight = waving })
 		end
 		local tackleAt = number(character, "TackleAt")
 		if mine and localPress ~= nil then

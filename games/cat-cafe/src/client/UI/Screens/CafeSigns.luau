@@ -4,6 +4,9 @@
 -- ("Cozy Cafe  ·  +$42/s"). At night the cafe closes but keeps earning the night share, so the line reads
 -- "🌙 Closed  ·  +$25/s" (data-model section 11). An empty plot reads FOR RENT. Your own cafe gets a gold edge so you can spot it down the street.
 --
+-- F98 (leaderboards.md section 3): a crown before the name while the owner is in an all time top 10, from the `Crown`
+-- attribute the server sets on the owner's Player (and on their sign part or plot).
+--
 -- Plots are the server's models tagged "Plot" with OwnerUserId, OwnerName, TierName and Rate attributes. The sign
 -- board is the shell's SignBoard part, else the code-built Sign part. This draws a local SurfaceGui on its street
 -- face and hides the server's plain SignGui on this client only, so the server's text stays as the fallback.
@@ -30,7 +33,8 @@ local TAG = "Plot"
 local BOARD_NAMES = { "SignBoard", "Sign" }
 local PIXELS_PER_STUD = 50
 local MAX_DISTANCE = 150
-local WATCHED = { "OwnerUserId", "OwnerName", "TierName", "Rate" }
+local WATCHED = { "OwnerUserId", "OwnerName", "TierName", "Rate", "Crown" }
+local CROWN = "👑"
 -- data-model NightIncomeMultiplier (1 since F60, 0.6 before): the night share of the day rate; Rate stays the day rate
 local NIGHT_TIPS: number = Config.NightIncomeMultiplier
 local MOON = "🌙"
@@ -123,6 +127,33 @@ function CafeSigns.new(parent: Instance): CafeSigns
 		self._connections,
 		CollectionService:GetInstanceRemovedSignal(TAG):Connect(function(plot: Instance)
 			self:_detach(plot)
+		end)
+	)
+
+	-- F98: a sign redraws when its owner's crown comes or goes
+	self._crownWatch = {} :: { [Player]: RBXScriptConnection }
+	local function watchCrown(player: Player)
+		if self._crownWatch[player] then
+			return
+		end
+		self._crownWatch[player] = player:GetAttributeChangedSignal("Crown"):Connect(function()
+			for _, sign in self._signs do
+				self:_render(sign)
+			end
+		end)
+	end
+	for _, player in Players:GetPlayers() do
+		watchCrown(player)
+	end
+	table.insert(self._connections, Players.PlayerAdded:Connect(watchCrown))
+	table.insert(
+		self._connections,
+		Players.PlayerRemoving:Connect(function(player: Player)
+			local watch = self._crownWatch[player]
+			if watch then
+				watch:Disconnect()
+				self._crownWatch[player] = nil
+			end
 		end)
 	)
 
@@ -271,7 +302,13 @@ function CafeSigns._render(self: any, sign: Sign)
 		local player = Players:GetPlayerByUserId(userId)
 		ownerName = if player then player.DisplayName else "Someone"
 	end
-	sign.name.Text = ("%s's Cafe"):format(ownerName :: string)
+	local owner = Players:GetPlayerByUserId(userId)
+	local board: BasePart? = sign.board
+	local crowned = plot:GetAttribute("Crown") == true
+		or (board ~= nil and board:GetAttribute("Crown") == true)
+		or (owner ~= nil and owner:GetAttribute("Crown") == true)
+	sign.name.Text = (if crowned then CROWN .. " " else "")
+		.. ("%s's Cafe"):format(ownerName :: string)
 
 	local tierName = plot:GetAttribute("TierName")
 	local rate = plot:GetAttribute("Rate")
@@ -315,6 +352,10 @@ function CafeSigns.destroy(self: any)
 		connection:Disconnect()
 	end
 	table.clear(self._connections)
+	for _, watch in self._crownWatch do
+		watch:Disconnect()
+	end
+	table.clear(self._crownWatch)
 	local plots = {}
 	for plot in self._signs do
 		table.insert(plots, plot)

@@ -3,7 +3,8 @@
 -- stars don't quite make sense on the menu now so remove that if not necessary and if cats have any specific buffs
 -- show that instead"). Charm stars show nowhere now; charm stays in the formula and the detail shows it as a percent.
 --   chips(cat)        up to three, in this order: "+50% as Barista" in its favourite role (kind "favourite", the
---                     screen adds a heart) or "Likes: Barista" anywhere else, "Gold +50%", "Lv 12 +22%" (above level 1)
+--                     screen adds a heart) or "Likes: Barista" anywhere else, "Gold +50%" (or "Rainbow x3" on a rainbow
+--                     cat, F99 rainbow-coat.md section 2), "Lv 12 +22%" (above level 1)
 --   charmText(charm)  "Charm +12%", "Charm -8%", "Charm +0%"
 -- The numbers come from Config and shared/CatStats, the server's own formula. Pure, so the cloud spec runner checks it.
 
@@ -13,12 +14,13 @@ local Config = require(Shared:WaitForChild("Config"))
 
 local CatBuffs = {}
 
-export type Chip = { kind: string, text: string } -- kind: "favourite", "likes", "gold" or "level"
+export type Chip = { kind: string, text: string } -- kind: "favourite", "likes", "gold", "rainbow" or "level"
 
 export type Cat = {
 	role: string?, -- the favourite role's display name ("Barista"), nil without one
 	favourite: boolean, -- working in that role now
 	gold: boolean,
+	rainbow: boolean?,
 	level: number?,
 }
 
@@ -41,7 +43,10 @@ function CatBuffs.chips(cat: Cat): { Chip }
 			table.insert(chips, { kind = "likes", text = "Likes: " .. role })
 		end
 	end
-	if cat.gold then
+	if cat.rainbow == true then
+		local times = tonumber((Config :: any).RainbowMultiplier) or 3
+		table.insert(chips, { kind = "rainbow", text = ("Rainbow x%g"):format(times) })
+	elseif cat.gold then
 		table.insert(
 			chips,
 			{ kind = "gold", text = "Gold " .. bonus(CatStats.variantMultiplier("gold")) }

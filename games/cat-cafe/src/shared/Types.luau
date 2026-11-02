@@ -542,6 +542,11 @@ export type FreshCatchStock = { window: number, restocksAt: number, stock: { Fre
 export type TelemetryState = {
 	onboardingStep: number,
 	achieved: { [string]: boolean },
+	-- F87 (easy-start.md sections 5 and 6): the onboarding funnel's version (2 since F87; Onboarding.fromV1 moves a 1)
+	-- and the UTC day number (os.time() // 86400) of the account's first join, 0 when it is not known (an account from
+	-- before version 19), for new_player_left
+	funnel: number,
+	firstDay: number,
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount

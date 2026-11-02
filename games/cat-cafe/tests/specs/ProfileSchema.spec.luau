@@ -88,10 +88,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 18 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 19 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(18)
-			expect(profile.version).to.equal(18)
+			expect(ProfileSchema.VERSION).to.equal(19)
+			expect(profile.version).to.equal(19)
 			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
 			expect(profile.stats.collectorTrades).to.equal(0)
 			expect(next(profile.potions)).never.to.be.ok()
@@ -178,18 +178,20 @@ return function()
 		it("has flags = { autoPress = false } (section 10, reviewer S23)", function()
 			expect(ProfileSchema.template(0).flags :: any).to.deepEqual({ autoPress = false })
 		end)
-		it("has telemetry = { onboardingStep = 0, achieved = {} } (growth analytics-plan)", function()
-			expect(ProfileSchema.template(0).telemetry :: any).to.deepEqual({ onboardingStep = 0, achieved = {} })
+		it("has telemetry = { onboardingStep = 0, achieved = {}, funnel = 2, firstDay } (growth analytics-plan, F87)", function()
+			expect(ProfileSchema.template(0).telemetry :: any).to.deepEqual({ onboardingStep = 0, achieved = {}, funnel = 2, firstDay = 0 })
+			expect(ProfileSchema.template(86400 * 20394 + 5).telemetry.firstDay).to.equal(20394)
 		end)
-		it("migrates telemetry: clamps the step, keeps only held steps after it (F16)", function()
+		it("migrates telemetry: clamps the step, keeps only held steps after it (F16), in the v2 numbering (F87)", function()
 			local raw = v2Save()
+			-- a v1 state: step 3 first_catch is v2 step 7, held 5 first_role is v2 step 9, held 2 saw_alley is behind it
 			raw.telemetry = { onboardingStep = 3, achieved = { ["2"] = true, ["5"] = true, ["99"] = true, x = 1 } }
 			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.telemetry :: any).to.deepEqual({ onboardingStep = 3, achieved = { ["5"] = true } })
+			expect(profile.telemetry :: any).to.deepEqual({ onboardingStep = 7, achieved = { ["9"] = true }, funnel = 2, firstDay = 0 })
 			raw.telemetry = { onboardingStep = 40 }
-			expect(ProfileSchema.migrate(raw, 1000).telemetry.onboardingStep).to.equal(12)
+			expect(ProfileSchema.migrate(raw, 1000).telemetry.onboardingStep).to.equal(24)
 			raw.telemetry = "junk"
-			expect(ProfileSchema.migrate(raw, 1000).telemetry :: any).to.deepEqual({ onboardingStep = 0, achieved = {} })
+			expect(ProfileSchema.migrate(raw, 1000).telemetry :: any).to.deepEqual({ onboardingStep = 0, achieved = {}, funnel = 2, firstDay = 0 })
 		end)
 		it("drops equippedLure, in the template and in the migration (F28)", function()
 			expect((ProfileSchema.template(0) :: any).equippedLure).never.to.be.ok()
@@ -228,8 +230,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 19 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 20 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 19 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 18 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 17 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 16 })).to.equal(false)
@@ -1373,7 +1376,7 @@ return function()
 			raw.freshCatch = nil
 			raw.dealer = { window = 5977152, bought = { caviar = 1 } }
 			local profile: any = ProfileSchema.migrate(raw, 500)
-			expect(profile.version).to.equal(18)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.freshCatch).to.deepEqual({ window = 0, bought = {}, alerted = 0 })
 			expect(profile.dealer).never.to.be.ok()
 		end)
@@ -1411,6 +1414,51 @@ return function()
 				bought = {},
 				alerted = 0,
 			})
+		end)
+	end)
+
+	describe("migrate to version 19: the onboarding funnel v2 (F87, easy-start.md section 5)", function()
+		local DAY = 20394 -- 2025-11-02 UTC
+		local NOW = DAY * 86400 + 3600
+
+		it("carries a version 18 save's v1 step and held steps to the same steps in v2", function()
+			local raw: any = ProfileSchema.template(NOW)
+			raw.version = 18
+			-- tier_2 (v1 9) reached, first_offline_claim (v1 11) held behind returned_next_day
+			raw.telemetry = { onboardingStep = 9, achieved = { ["11"] = true } }
+			local profile = ProfileSchema.migrate(raw, NOW)
+			expect(profile.version).to.equal(19)
+			expect(profile.telemetry :: any).to.deepEqual({
+				onboardingStep = 20,
+				achieved = { ["23"] = true },
+				funnel = 2,
+				firstDay = 0, -- not known for an account from before version 19
+			})
+		end)
+
+		it("keeps a v2 state as it is, clamped to 24 steps, with only held steps after the step", function()
+			local raw: any = ProfileSchema.template(NOW)
+			raw.telemetry = { onboardingStep = 10, achieved = { ["4"] = true, ["12"] = true, ["30"] = true }, funnel = 2, firstDay = DAY - 3 }
+			expect(ProfileSchema.migrate(raw, NOW).telemetry :: any).to.deepEqual({
+				onboardingStep = 10,
+				achieved = { ["12"] = true },
+				funnel = 2,
+				firstDay = DAY - 3,
+			})
+			raw.telemetry = { onboardingStep = 99, achieved = {}, funnel = 2, firstDay = DAY }
+			expect(ProfileSchema.migrate(raw, NOW).telemetry.onboardingStep).to.equal(24)
+		end)
+
+		it("clamps a first day in the future to today and a bad one to 0", function()
+			local raw: any = ProfileSchema.template(NOW)
+			raw.telemetry = { onboardingStep = 1, achieved = {}, funnel = 2, firstDay = DAY + 40 }
+			expect(ProfileSchema.migrate(raw, NOW).telemetry.firstDay).to.equal(DAY)
+			raw.telemetry = { onboardingStep = 1, achieved = {}, funnel = 2, firstDay = "soon" }
+			expect(ProfileSchema.migrate(raw, NOW).telemetry.firstDay).to.equal(0)
+		end)
+
+		it("gives a new account today's day", function()
+			expect(ProfileSchema.migrate(nil, NOW).telemetry.firstDay).to.equal(DAY)
 		end)
 	end)
 end

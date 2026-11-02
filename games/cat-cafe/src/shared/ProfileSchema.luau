@@ -42,7 +42,12 @@ local ProfileSchema = {}
 -- Version 18 (F94, rewards-and-shops.md section 6) adds freshCatch, the Fresh Catch shelf's counts and alert, and
 -- drops dealer, whose stock is now per server per night and kept in memory: an older server would drop freshCatch,
 -- letting a player buy a window's stock twice by hopping servers during a rollout.
-ProfileSchema.VERSION = 18
+-- Version 19 (F87, easy-start.md section 5) moves telemetry to the 24 step onboarding funnel v2 (`funnel` 2, with
+-- the old step carried over by Onboarding.fromV1) and adds telemetry.firstDay: an older server would read a v2 step
+-- as a v1 one and log the wrong steps.
+ProfileSchema.VERSION = 19
+
+local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -167,7 +172,12 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		tutorialStep = 0,
 		settings = Settings.defaults(),
 		flags = { autoPress = false },
-		telemetry = { onboardingStep = 0, achieved = {} },
+		telemetry = {
+			onboardingStep = 0,
+			achieved = {},
+			funnel = Onboarding.VERSION,
+			firstDay = now // DAY_SECONDS,
+		},
 	}
 end
 
@@ -551,20 +561,34 @@ local function sanitizeCodes(value: any): { [string]: number }
 	return out
 end
 
-local function sanitizeTelemetry(value: any): Types.TelemetryState
-	local telemetry: Types.TelemetryState = { onboardingStep = 0, achieved = {} }
+-- F87: a state saved before version 19 counts its steps in the 12 step funnel v1; Onboarding.fromV1 carries the
+-- step and the held steps over to v2. A first day in the future is clamped to today.
+local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
+	local telemetry: Types.TelemetryState =
+		{ onboardingStep = 0, achieved = {}, funnel = Onboarding.VERSION, firstDay = 0 }
 	if type(value) ~= "table" then
 		return telemetry
 	end
-	telemetry.onboardingStep = math.clamp(asInt(value.onboardingStep, 0), 0, Onboarding.COUNT)
+	local step = math.max(0, asInt(value.onboardingStep, 0))
+	local achieved: { [string]: boolean } = {}
 	if type(value.achieved) == "table" then
-		for step = telemetry.onboardingStep + 1, Onboarding.COUNT do
-			local key = tostring(step)
-			if value.achieved[key] == true then
-				telemetry.achieved[key] = true
+		for key, held in value.achieved do
+			if type(key) == "string" and held == true then
+				achieved[key] = true
 			end
 		end
 	end
+	if value.funnel ~= Onboarding.VERSION then
+		step, achieved = Onboarding.fromV1(math.min(step, #Onboarding.V1_STEPS), achieved)
+	end
+	telemetry.onboardingStep = math.clamp(step, 0, Onboarding.COUNT)
+	for later = telemetry.onboardingStep + 1, Onboarding.COUNT do
+		local key = tostring(later)
+		if achieved[key] == true then
+			telemetry.achieved[key] = true
+		end
+	end
+	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
 	return telemetry
 end
 
@@ -702,7 +726,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	if fromVersion >= 3 and type(raw.flags) == "table" then
 		profile.flags.autoPress = raw.flags.autoPress == true
 	end
-	profile.telemetry = sanitizeTelemetry(raw.telemetry)
+	profile.telemetry = sanitizeTelemetry(raw.telemetry, now)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

@@ -21,6 +21,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
@@ -69,6 +70,8 @@ local function targetRefusal(
 		targetBusy = CatService.inMinigame(target),
 		targetSafe = plot ~= nil
 			and WorldBuilder.inSafeZone(plot, position, Config.BumpSafeRadiusStuds),
+		targetInCamp = Layout.campAt(position.X, position.Z) ~= nil,
+		targetFlying = CatService.inFlight(target),
 		sinceShoveTarget = since((lastShoveOf[player] or {})[target.UserId], now),
 		sinceTargetShoved = since(lastShovedAt[target.UserId], now),
 	})
@@ -167,8 +170,9 @@ local function tackle(player: Player, forced: Shove.KnockResult?)
 	local area = Catalog.getArea(tackleArea)
 	local reason = Shove.tackleRefusal({
 		carrying = CatService.isCarrying(player),
-		busy = CatService.inMinigame(player),
+		busy = CatService.inMinigame(player) or CatService.inFlight(player),
 		area = if tackleArea ~= "" then tackleArea else nil,
+		inCamp = root ~= nil and Layout.campAt(root.Position.X, root.Position.Z) ~= nil,
 		areaUnlocked = area ~= nil and Economy.tier(profile) >= area.tier,
 		areasClosed = not ClockService.areasOpen(),
 		sinceTackle = since(lastTackleAt[player], now),

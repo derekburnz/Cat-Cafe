@@ -761,6 +761,8 @@ function WorldController.start()
 				if zone ~= nil and zone ~= "Cafe" then
 					UI.showAreaTitle(zone:lower())
 				end
+				-- F84: every catching area is a wild area, so its zone (camp included) hides the cannon hints
+				UI.cannon.setWild(if zone ~= nil and zone ~= "Cafe" then zone:lower() else nil)
 			end
 
 			if not sawAlley and state.tutorialStep == 0 and zone == "Alley" then

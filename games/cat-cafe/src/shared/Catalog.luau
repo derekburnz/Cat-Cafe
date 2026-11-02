@@ -1886,7 +1886,9 @@ Catalog.areas = {
 		id = "alley",
 		name = "Alleyway",
 		tier = 1,
-		spawnPoints = 24, -- two behind every cafe, two at each end of the back alleys (layout v3.1)
+		-- two on the lanes for each cafe's old place, eight nooks at the far end and eight `near` points by the camp for
+		-- the tutorial stray only (layout v3.1; v4, F84, data-model section 9 v0.13.18)
+		spawnPoints = 32,
 		waveSize = 6,
 		rescueSpots = 3,
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },

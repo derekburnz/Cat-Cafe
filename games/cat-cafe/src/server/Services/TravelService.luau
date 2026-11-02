@@ -1,20 +1,20 @@
 --!strict
--- Fast travel (features F19): the client's top row of Home and area buttons fires Travel(destination). The server
--- checks the destination is "home" or an area this player's tier opens, that they are not carrying a cat or
--- mid catch or rescue (leaving would be a Miss, reviewer N47) and that TravelCooldownSeconds have passed, then
--- moves the character to a landing point the server built. Every answer goes back as TravelResult. v0.9 (F66): the
--- areas are closed at night, and NightService sends anyone found in one home with sendHome.
+-- Fast travel (features F19; v4, F84, hometown-cannon.md section 5): the HUD's Home and Cannon buttons fire
+-- Travel(destination). "home" goes to the player's front door from anywhere, as a cloud hop from a wild area;
+-- "cannon" goes at once to the front of the nearest Cat Cannon, facing it: the Town Square's in town, the camp's in
+-- a wild area. Area travel is by cannon only (CannonService). The server checks the player is not carrying a cat,
+-- mid catch or rescue (leaving would be a Miss, reviewer N47) or in a flight, and that TravelCooldownSeconds have
+-- passed. Every answer goes back as TravelResult. At night NightService sends anyone in a wild area home with
+-- sendHome, the same cloud hop.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
-local Clock = require(ReplicatedStorage.Shared.Clock)
-local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
-local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
@@ -43,6 +43,27 @@ local function homeLanding(player: Player): CFrame?
 	return CFrame.lookAt(outside, Vector3.new(door.X, outside.Y, door.Z))
 end
 
+-- The wild area the player's character stands in (its camp included), or nil in the hometown.
+local function wildAreaOf(player: Player): string?
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if world == nil or root == nil or not root:IsA("BasePart") then
+		return nil
+	end
+	return WorldBuilder.areaAt(world :: WorldBuilder.World, (root :: BasePart).Position)
+end
+
+-- In front of the nearest cannon, facing it (section 5): the town's, or the camp cannon of the wild area `areaId`.
+local function cannonFront(areaId: string?): CFrame?
+	local id = if areaId ~= nil and Layout.cannonFronts[areaId] ~= nil then areaId else "town"
+	local front, cannon = Layout.cannonFronts[id], Layout.cannons[id]
+	if front == nil or cannon == nil then
+		return nil
+	end
+	local at = Vector3.new(front.x, front.y + 3, front.z)
+	return CFrame.lookAt(at, Vector3.new(cannon.x, at.Y, cannon.z))
+end
+
 -- Where `destination` puts this player, or nil and the reason it is refused.
 local function landingFor(player: Player, destination: string): (CFrame?, string?)
 	local profile = DataService.get(player)
@@ -53,24 +74,46 @@ local function landingFor(player: Player, destination: string): (CFrame?, string
 		local home = homeLanding(player)
 		return home, if home == nil then "You have no cafe yet" else nil
 	end
-	local area = Catalog.getArea(destination)
-	local info = if world ~= nil then (world :: WorldBuilder.World).areas[destination] else nil
-	if area == nil or info == nil then
-		return nil, "Unknown place"
+	if destination == "cannon" then
+		local front = cannonFront(wildAreaOf(player))
+		return front, if front == nil then "Still loading" else nil
 	end
-	if Economy.tier(profile) < area.tier then
-		return nil, string.format("%s opens at Tier %d", area.name, area.tier)
+	if Catalog.getArea(destination) ~= nil or destination == "alley" then
+		return nil, "Hop in the Cat Cannon to fly there"
 	end
-	if not ClockService.areasOpen() then
-		return nil, Clock.CLOSED_TEXT
+	return nil, "Unknown place"
+end
+
+-- A cloud hop (section 5): CloudHopAt (server time) and CloudHopTo ("home") on the character for CloudHopSeconds,
+-- so every client plays the clouds, with the move to `landing` at CloudHopMoveAtSeconds and `arrived` after it.
+-- Nothing happens if the character is gone or replaced by then.
+local function cloudHop(player: Player, landing: CFrame, arrived: (() -> ())?)
+	local character = player.Character
+	if character == nil then
+		return
 	end
-	-- The Alleyway lands inside the side arch on the side of the player's own cafe (v3.1), west without one.
-	local east = info.arrivalEast
-	local plot = PlotService.get(player)
-	if east ~= nil and plot ~= nil and plot.cframe.Position.X > 0 then
-		return east, nil
+	local startedAt = Workspace:GetServerTimeNow()
+	character:SetAttribute("CloudHopAt", startedAt)
+	character:SetAttribute("CloudHopTo", "home")
+	local function current(): boolean
+		return player.Character == character
+			and character.Parent ~= nil
+			and character:GetAttribute("CloudHopAt") == startedAt
 	end
-	return info.arrival, nil
+	task.delay(Config.CloudHopMoveAtSeconds, function()
+		if current() then
+			character:PivotTo(landing)
+			if arrived ~= nil then
+				arrived()
+			end
+		end
+	end)
+	task.delay(Config.CloudHopSeconds, function()
+		if current() then
+			character:SetAttribute("CloudHopAt", nil)
+			character:SetAttribute("CloudHopTo", nil)
+		end
+	end)
 end
 
 local function onTravel(player: Player, rawDestination: unknown)
@@ -100,10 +143,14 @@ local function onTravel(player: Player, rawDestination: unknown)
 		Net.fire(player, "TravelResult", destination, false, "Still loading")
 		return
 	end
-	character:PivotTo(landing :: CFrame)
 	lastTravel[player] = os.clock()
+	if destination == "home" and wildAreaOf(player) ~= nil then
+		cloudHop(player, landing :: CFrame)
+	else
+		character:PivotTo(landing :: CFrame)
+	end
 	Net.fire(player, "TravelResult", destination, true, nil)
-	Telemetry.custom(player, "travel", 1, { destination }) -- "home" or an area id: landingFor allowed it
+	Telemetry.custom(player, "travel", 1, { destination }) -- "home" or "cannon": landingFor allowed it
 end
 
 function TravelService.start(builtWorld: WorldBuilder.World)
@@ -114,16 +161,25 @@ function TravelService.start(builtWorld: WorldBuilder.World)
 	end)
 end
 
--- Night's sweep (v0.9, F66): the same move as Travel("home"), or to the street spawn without a cafe. No cooldown and
--- no busy check, since NightService waits for a catch or rescue to end first. False when there is no character.
-function TravelService.sendHome(player: Player): boolean
+-- Night's sweep (v0.9, F66; v4, F84): the same move as Travel("home"), a cloud hop from a wild area, or to the
+-- street spawn without a cafe; `arrived` runs once the character is there. No cooldown and no busy check, since
+-- NightService waits for a catch or rescue to end and skips flights. False when there is no character.
+function TravelService.sendHome(player: Player, arrived: (() -> ())?): boolean
 	local character = player.Character
 	if character == nil or character:FindFirstChild("HumanoidRootPart") == nil then
 		return false
 	end
 	local spawn = Layout.playerSpawn
-	character:PivotTo(homeLanding(player) or CFrame.new(spawn.x, spawn.y + 3, spawn.z))
+	local landing = homeLanding(player) or CFrame.new(spawn.x, spawn.y + 3, spawn.z)
 	Net.fire(player, "TravelResult", "home", true, nil)
+	if wildAreaOf(player) ~= nil then
+		cloudHop(player, landing, arrived)
+	else
+		character:PivotTo(landing)
+		if arrived ~= nil then
+			arrived()
+		end
+	end
 	return true
 end
 

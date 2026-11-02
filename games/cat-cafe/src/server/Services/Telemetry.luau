@@ -76,6 +76,10 @@ export type CustomEvent =
 	-- the tutorial step ("intro" while the intro has never finished) and where they were; the value is the session's
 	-- seconds
 	| "quit_point"
+	-- F84 (hometown-cannon.md section 7): a Cat Cannon flight, from cannon id to destination; a carried cat checked
+	-- in at a camp, the value its seconds carried, with area, rarity and times knocked loose
+	| "cannon_launch"
+	| "camp_checkin"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.

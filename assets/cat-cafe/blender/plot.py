@@ -833,7 +833,7 @@ def build_tier(n, mat):
             b.span((px - 0.1, 1.1, -13.2 + dz), (px + 0.1, 2.3, -13.0 + dz), "leaf_green")
         # back patio: deck path to the yard gate, pergola over the back door, planters, lights
         bd0, bd1 = BACK_DOOR[0], BACK_DOOR[1]
-        b.span((bd0 - 0.5, 0, BACK + 0.2), (bd1 + 0.5, 0.15, 24.8), "caramel_wood")
+        b.span((bd0 - 0.5, 0, BACK + 0.2), (bd1 + 0.5, 0.15, 24.5), "caramel_wood")   # stops short of the yard fence's posts (z 24.575)
         for k in range(12):
             z = BACK + 0.6 + k * 0.8
             b.span((bd0 - 0.5, 0.15, z - 0.04), (bd1 + 0.5, 0.17, z + 0.04), "kibble")

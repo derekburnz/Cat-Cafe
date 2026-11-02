@@ -335,7 +335,7 @@ function TradeBook.ready(
 end
 
 -- Moves a finished countdown on to the confirm screen: true when it did. A side with a warning (lopsided or gift)
--- gets confirmAt TradeConfirmWaitSeconds on; the other can confirm at once.
+-- gets confirmAt TradeConfirmWaitSeconds on; the other can confirm at once (0, so `view` sends it no wait: N336).
 function TradeBook.tick(trade: OpenTrade, now: number): boolean
 	local endsAt = trade.countdownEndsAt
 	if trade.phase ~= "countdown" or endsAt == nil or now < endsAt then
@@ -345,7 +345,7 @@ function TradeBook.tick(trade: OpenTrade, now: number): boolean
 	trade.countdownEndsAt = nil
 	for _, side in { trade.a, trade.b } do
 		local lopsided, gift = TradeBook.warnings(trade, side.userId)
-		side.confirmAt = if lopsided or gift then now + Config.TradeConfirmWaitSeconds else now
+		side.confirmAt = if lopsided or gift then now + Config.TradeConfirmWaitSeconds else 0
 	end
 	return true
 end

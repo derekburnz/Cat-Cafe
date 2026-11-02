@@ -157,7 +157,11 @@ return function()
 				expect(trade.phase).to.equal("confirm")
 				-- Sam gives 50 for 1: lopsided, so Sam waits; Alex can confirm at once
 				expect(trade.a.confirmAt).to.equal(endsAt + Config.TradeConfirmWaitSeconds)
-				expect(trade.b.confirmAt).to.equal(endsAt)
+				expect(trade.b.confirmAt).to.equal(0) -- N336: no wait, so the view sends none
+				expect((TradeBook.view(trade, 2, tile) :: any).confirmAt).never.to.be.ok()
+				expect((TradeBook.view(trade, 1, tile) :: any).confirmAt).to.equal(
+					endsAt + Config.TradeConfirmWaitSeconds
+				)
 				expect(TradeBook.confirm(trade, 1, 3, endsAt + 1)).to.equal(TradeBook.WAIT)
 				expect(TradeBook.confirm(trade, 1, 2, endsAt + 5)).to.equal(TradeBook.STALE)
 				expect(TradeBook.confirm(trade, 2, 3, endsAt)).never.to.be.ok()
@@ -262,7 +266,7 @@ return function()
 				TradeBook.commit(trade)
 				local swapping = TradeBook.view(trade, 2, tile) :: any
 				expect(swapping.phase).to.equal("confirm")
-				expect(swapping.confirmAt).to.equal(200)
+				expect(swapping.confirmAt).never.to.be.ok() -- a fair trade: no wait on either side (N336)
 			end
 		)
 	end)

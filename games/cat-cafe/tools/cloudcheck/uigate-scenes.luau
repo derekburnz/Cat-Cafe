@@ -463,6 +463,24 @@ local SCENES = {
 		UI.update({ tipsSeen = { stuck_cat = true, codes_cat = true } })
 		UI.showOfflineEarnings(48200, 3 * 3600)
 	end },
+	-- F87 section 2f: a brand new player's small HUD, the money, the hint strip, Home and the Cannon, the Tutorial
+	-- tile and Settings
+	{ "SmallHUD", function()
+		UI.update({ tutorialStep = 0, tier = 1, cats = {}, potions = {}, goldenFish = 0 })
+		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 0, tier = 1, cats = {}, upgradeLevels = {} }))
+	end },
+	-- the first loop done: every piece comes back, each button with its gold "New!" (from a new player's state to the
+	-- sample player again, at step 5)
+	{ "SmallHUDNew", function()
+		UI.update({ tutorialStep = 0, tier = 1, cats = {}, potions = {}, goldenFish = 0 })
+		local player = samplePlayer(os.time())
+		player.tutorialStep = 5
+		UI.update(player)
+	end },
+	-- F87 section 2g: "Need a hand?" after 90 s on one tutorial step
+	{ "HelpCard", function()
+		UI.tutorial.showHelp()
+	end },
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
 	end },
@@ -500,6 +518,12 @@ function Scenes.close()
 	UI.net.setEnabled(false)
 	UI.setZone(nil)
 	UI.tips.reset()
+	UI.tutorial.hide()
+	-- the help card waits for Got it
+	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+	if ask and ask:FindFirstChild("Choice_ok", true) and ask:FindFirstChild("Card", true).Visible then
+		press("CatCafeAsk", "Choice_ok")
+	end
 	-- the offline card waits for its Claim
 	local popups = UIShim.playerGui:FindFirstChild("CatCafePopups")
 	local offline = popups and popups:FindFirstChild("Offline", true)

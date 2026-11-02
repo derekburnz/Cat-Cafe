@@ -1,58 +1,76 @@
 --!strict
--- The one slide-in feedback ask (F87, easy-start.md section 4): once per account, after FeedbackAskMinutes of play
--- in a session and only between activities (init decides when, Components/FeedbackLogic.askDue), the three faces
--- slide up at the bottom centre over the travel row with "How is it so far?". A gold bar drains over
--- FeedbackLogic.ASK_SECONDS (10) and it slides away. A face tap sends at once (callbacks.send), says "Thanks!" and
--- slides away. Ignoring it is fine and it never comes back. No reward, so the answers stay honest.
---   show()        slides it up
+-- A small slide-in ask at the bottom centre, over the travel row (F87, easy-start.md sections 2g and 4): one title
+-- line, two or three buttons in a row and a gold bar that drains over the ask's seconds before it slides away.
+-- Ignoring it is always fine. It carries:
+--   * the one feedback faces ask, "How is it so far?" (init times it, Components/FeedbackLogic.askDue), which says
+--     "Thanks!" for a moment after a face
+--   * the "Need a hand?" card after StuckHelpSeconds on one tutorial step (Show me, Got it)
+--   * later, F96's styled asks (UI.asks.show)
+--   show(ask)      slides it up with these words and buttons; an ask already up is answered nil and replaced
+--   hide()         slides it away, answering nil
 --   isShowing() -> boolean
+-- An ask's answer(id) runs once: the id of the button pressed, or nil when it drained, was hidden or was replaced.
 
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
-local FeedbackLogic = require(script.Parent.Parent.Components.FeedbackLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 
+export type Choice = {
+	id: string,
+	label: string,
+	icon: string?,
+	style: Button.Style?, -- "ghost" by default
+}
+
+export type Ask = {
+	title: string,
+	choices: { Choice }, -- two or three
+	seconds: number, -- how long it stays with no answer
+	thanks: string?, -- said for THANKS_SECONDS after a press, in place of the title; nil slides away at once
+	answer: (id: string?) -> (),
+}
+
 export type Callbacks = {
-	send: (face: string) -> (),
 	lift: () -> number, -- the HUD's bottomTop(): the card's foot sits this far over the screen's bottom (negative)
 }
 
-export type FeedbackAsk = {
+export type AskCard = {
 	screenGui: ScreenGui,
-	show: (self: FeedbackAsk) -> (),
-	isShowing: (self: FeedbackAsk) -> boolean,
-	destroy: (self: FeedbackAsk) -> (),
+	show: (self: AskCard, ask: Ask) -> (),
+	hide: (self: AskCard) -> (),
+	isShowing: (self: AskCard) -> boolean,
+	destroy: (self: AskCard) -> (),
 }
 
 local CARD_W = 460
 local TITLE_H = 30
-local FACE_H = 50
+local CHOICE_H = 50
 local PAD = 12
 local GAP = 8
 local BAR_H = 5
 local THANKS_SECONDS = 1.5
 local SLIDE = TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local SLIDE_OUT = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-local TITLE = "How is it so far?"
 
-local FeedbackAsk = {}
-FeedbackAsk.__index = FeedbackAsk
+local AskCard = {}
+AskCard.__index = AskCard
 
-function FeedbackAsk.new(parent: Instance, callbacks: Callbacks): FeedbackAsk
-	local self = setmetatable({}, FeedbackAsk) :: any
+function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
+	local self = setmetatable({}, AskCard) :: any
 	self._callbacks = callbacks
 	self._token = 0
 	self._showing = false
+	self._ask = nil :: Ask?
 	self._buttons = {} :: { Button.Button }
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
-		Name = "CatCafeFeedbackAsk",
+		Name = "CatCafeAsk",
 		ResetOnSpawn = false,
 		ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
@@ -68,8 +86,8 @@ function FeedbackAsk.new(parent: Instance, callbacks: Callbacks): FeedbackAsk
 	})
 	self._uiScale = Scale.bind(root)
 
-	local faceH = Scale.tapHeight(FACE_H, Theme.sizes.buttonDepth)
-	local cardH = PAD + TITLE_H + 6 + faceH + PAD + BAR_H
+	local choiceH = Scale.tapHeight(CHOICE_H, Theme.sizes.buttonDepth)
+	local cardH = PAD + TITLE_H + 6 + choiceH + PAD + BAR_H
 	self._cardH = cardH
 	local card: Frame = Create("Frame", {
 		Name = "Card",
@@ -93,14 +111,14 @@ function FeedbackAsk.new(parent: Instance, callbacks: Callbacks): FeedbackAsk
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
 		TextColor3 = Theme.modal.text,
-		Text = TITLE,
+		Text = "",
 		Parent = card,
 	})
-	local row: Frame = Create("Frame", {
-		Name = "Faces",
+	self._row = Create("Frame", {
+		Name = "Choices",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(PAD, PAD + TITLE_H + 6),
-		Size = UDim2.new(1, -2 * PAD, 0, faceH),
+		Size = UDim2.new(1, -2 * PAD, 0, choiceH),
 		Parent = card,
 	}, {
 		Create("UIListLayout", {
@@ -109,27 +127,6 @@ function FeedbackAsk.new(parent: Instance, callbacks: Callbacks): FeedbackAsk
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
-	local count = #FeedbackLogic.FACES
-	for index, face in FeedbackLogic.FACES do
-		local id = face.id
-		table.insert(
-			self._buttons,
-			Button.new({
-				name = "Face_" .. id,
-				text = face.label,
-				icon = face.glyph,
-				style = "ghost",
-				textSize = Theme.sizes.textBody,
-				size = UDim2.new(1 / count, -GAP * (count - 1) / count, 1, 0),
-				layoutOrder = index,
-				parent = row,
-				sound = "uiToggle",
-				onClick = function()
-					self:_answer(id)
-				end,
-			})
-		)
-	end
 	local track: Frame = Create("Frame", {
 		Name = "Track",
 		BackgroundColor3 = Theme.colors.line,
@@ -150,35 +147,73 @@ function FeedbackAsk.new(parent: Instance, callbacks: Callbacks): FeedbackAsk
 		self:_fit()
 	end)
 	self:_fit()
-	return self :: FeedbackAsk
+	return self :: AskCard
 end
 
 -- CARD_W wide, or the screen less 16 px a side when narrower.
-function FeedbackAsk._fit(self: any)
+function AskCard._fit(self: any)
 	local scale = math.max(self._uiScale.Scale, 0.01)
 	local width = self._card.Parent.AbsoluteSize.X / scale
 	self._card.Size = UDim2.fromOffset(math.min(CARD_W, math.max(280, width - 32)), self._cardH)
 end
 
-function FeedbackAsk._place(self: any, shown: boolean): UDim2
+function AskCard._place(self: any, shown: boolean): UDim2
 	local lift = self._callbacks.lift()
 	return if shown then UDim2.new(0.5, 0, 1, lift) else UDim2.new(0.5, 0, 1, self._cardH + 24)
 end
 
-function FeedbackAsk.show(self: any)
+-- The ask's buttons, made again for each ask, sharing the row evenly.
+function AskCard._buildChoices(self: any, choices: { Choice })
+	for _, button: Button.Button in self._buttons do
+		button:destroy()
+	end
+	table.clear(self._buttons)
+	local count = math.max(1, #choices)
+	for index, choice in choices do
+		local id = choice.id
+		table.insert(
+			self._buttons,
+			Button.new({
+				name = "Choice_" .. id,
+				text = choice.label,
+				icon = choice.icon,
+				style = choice.style or "ghost",
+				textSize = Theme.sizes.textBody,
+				size = UDim2.new(1 / count, -GAP * (count - 1) / count, 1, 0),
+				layoutOrder = index,
+				parent = self._row,
+				sound = "uiToggle",
+				onClick = function()
+					self:_press(id)
+				end,
+			})
+		)
+	end
+end
+
+-- Runs the ask's answer once.
+function AskCard._answer(self: any, id: string?)
+	local ask: Ask? = self._ask
+	self._ask = nil
+	if ask ~= nil then
+		ask.answer(id)
+	end
+end
+
+function AskCard.show(self: any, ask: Ask)
 	if self._showing then
-		return
+		self:_answer(nil)
 	end
 	self._showing = true
+	self._ask = ask
 	self._token += 1
 	local token = self._token
-	self._title.Text = TITLE
-	for _, button: Button.Button in self._buttons do
-		button:setEnabled(true)
-	end
+	self._title.Text = ask.title
+	self:_buildChoices(ask.choices)
 	local card: Frame = self._card
+	local wasVisible = card.Visible
 	card.Visible = true
-	if GuiService.ReducedMotionEnabled then
+	if GuiService.ReducedMotionEnabled or wasVisible then
 		card.Position = self:_place(true)
 	else
 		card.Position = self:_place(false)
@@ -186,25 +221,30 @@ function FeedbackAsk.show(self: any)
 	end
 	Sound.play("uiHint")
 	local bar: Frame = self._bar
+	local old: Tween? = self._drain
+	if old then
+		old:Cancel()
+	end
 	bar.Size = UDim2.fromScale(1, 1)
 	local drain = TweenService:Create(
 		bar,
-		TweenInfo.new(FeedbackLogic.ASK_SECONDS, Enum.EasingStyle.Linear),
+		TweenInfo.new(ask.seconds, Enum.EasingStyle.Linear),
 		{ Size = UDim2.fromScale(0, 1) }
 	)
 	self._drain = drain
 	drain:Play()
-	task.delay(FeedbackLogic.ASK_SECONDS, function()
+	task.delay(ask.seconds, function()
 		if self._token == token then
-			self:_hide()
+			self:hide()
 		end
 	end)
 end
 
-function FeedbackAsk._answer(self: any, face: string)
-	if not self._showing then
+function AskCard._press(self: any, id: string)
+	if not self._showing or self._ask == nil then
 		return
 	end
+	local ask: Ask = self._ask
 	self._token += 1
 	local token = self._token
 	local drain: Tween? = self._drain
@@ -214,19 +254,25 @@ function FeedbackAsk._answer(self: any, face: string)
 	for _, button: Button.Button in self._buttons do
 		button:setEnabled(false)
 	end
-	self._title.Text = "Thanks!"
-	self._callbacks.send(face)
+	self:_answer(id)
+	local thanks = ask.thanks
+	if thanks == nil then
+		self:hide()
+		return
+	end
+	self._title.Text = thanks
 	task.delay(THANKS_SECONDS, function()
 		if self._token == token then
-			self:_hide()
+			self:hide()
 		end
 	end)
 end
 
-function FeedbackAsk._hide(self: any)
+function AskCard.hide(self: any)
 	if not self._showing then
 		return
 	end
+	self:_answer(nil)
 	self._showing = false
 	self._token += 1
 	local token = self._token
@@ -244,12 +290,13 @@ function FeedbackAsk._hide(self: any)
 	out:Play()
 end
 
-function FeedbackAsk.isShowing(self: any): boolean
+function AskCard.isShowing(self: any): boolean
 	return self._showing
 end
 
-function FeedbackAsk.destroy(self: any)
+function AskCard.destroy(self: any)
 	self._token += 1
+	self._ask = nil
 	self._resize:Disconnect()
 	for _, button: Button.Button in self._buttons do
 		button:destroy()
@@ -258,4 +305,4 @@ function FeedbackAsk.destroy(self: any)
 	self.screenGui:Destroy()
 end
 
-return FeedbackAsk
+return AskCard

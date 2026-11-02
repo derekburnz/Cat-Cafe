@@ -1,15 +1,16 @@
 --!strict
 -- The uploaded shop icons (Model-Agent's PRs #524 and #526, uploaded by Tools-Agent on 2026-10-28; the table is in
 -- /mnt/project-files/Tools-Agent/icon-ids-2026-10-28.md and the sources in assets/cat-cafe/exports/icons): the
--- crates by pool, plain and gold, the Star Treat, the Golden Fish Market perks, the three nets and the seven
+-- crates by pool, plain and gold, the Star Treat, the Golden Fish Market perks, the four nets and the seven
 -- potions, 512 px PNGs with an outline that still read at 48 px. Each is found by the game's own id, so an id the
 -- table does not know yet keeps its glyph:
 --   crate("park_crate"), crate("park_golden_crate")   Crate_Park, Crate_Park_Gold
 --   potion("gold_rush_potion")                        Potion_GoldRush
 --   perk("golden_espresso")                           Perk_GoldenEspresso
 --   food("star_treat")                                StarTreat (the Market's treat row; foods elsewhere show models)
---   net(level)                                        the net the Upgrades row offers next: Net_L1 at level 0, up to
---                                                     Net_L3, which stays at the top level
+--   net(level)                                        the net the Upgrades row offers next. Net levels are 0 Basic,
+--                                                     1 Sturdy, 2 Pro, 3 Master (Net_L1 to Net_L4, Model-Agent
+--                                                     #688), so level 0 offers Net_L2 and the top level keeps Net_L4
 --   image("Icon_Decor")                               the HUD's Decor pill
 -- A new upload draws blank until Roblox moderation approves it; IconArt.setImage keeps the glyph until the picture
 -- has loaded. Each upload is a new asset, so a changed icon gets a new id here, never a second upload of the same file.
@@ -34,9 +35,11 @@ local IDS: { [string]: string } = {
 	Perk_GoldenEspresso = "rbxassetid://132258611907175",
 	Perk_BigBowl = "rbxassetid://94394216447416",
 	Perk_ExtraDecorSpot = "rbxassetid://124769414540372",
-	Net_L1 = "rbxassetid://104509386957749",
-	Net_L2 = "rbxassetid://94191591906324",
-	Net_L3 = "rbxassetid://120155972260812",
+	-- F93 nets redrawn (Model-Agent #688, uploaded by Tools-Agent 2026-11-02)
+	Net_L1 = "rbxassetid://88249861079985", -- Basic
+	Net_L2 = "rbxassetid://109283262373376", -- Sturdy
+	Net_L3 = "rbxassetid://86969687070766", -- Pro
+	Net_L4 = "rbxassetid://110774936117621", -- Master
 	Potion_Tip = "rbxassetid://93263370812167",
 	Potion_Lucky = "rbxassetid://113720150794733",
 	Potion_Swift = "rbxassetid://73826039259143",
@@ -47,7 +50,7 @@ local IDS: { [string]: string } = {
 	-- the HUD's Decor pill: a cat-eared armchair and a potted plant (Model-Agent, Set 5 Q10; uploaded 2026-11-02)
 	Icon_Decor = "rbxassetid://132974074427583",
 }
-local NETS = 3
+local NETS = 4
 
 -- "gold_rush" -> "GoldRush", the asset names' way of writing an id
 local function pascal(id: string): string
@@ -89,7 +92,7 @@ end
 
 function ShopIcons.net(level: number?): string?
 	local owned = if type(level) == "number" and level == level then math.floor(level) else 0
-	return IDS["Net_L" .. math.clamp(owned + 1, 1, NETS)]
+	return IDS["Net_L" .. math.clamp(owned + 2, 1, NETS)] -- level n holds Net_L(n + 1) and offers the next
 end
 
 return ShopIcons

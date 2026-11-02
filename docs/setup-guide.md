@@ -204,3 +204,12 @@ The game's page on Roblox shows an icon (512 x 512) and a gallery of thumbnails 
 5. Nothing to try by hand: a thread runs **Actions > store-media > Run workflow** with `list`, and the log shows the icon and every thumbnail with its id.
 
 These endpoints are experimental on Roblox's side, so every change reads the pictures back and the log shows whether it took. A thumbnail taken off the page can be uploaded again from the repo.
+
+## 24. Let threads flip the trading kill switch (once, about 1 minute)
+Trading (F102) checks two switches in the `CatCafe_Flags` data store every minute: `trading` (false turns trading off in every server) and `tradeMinTier` (a live minimum cafe tier, for testing). The `flags` workflow (`tools/opencloud/flags.sh`) reads and writes them, so a thread can stop trading within a minute if something goes wrong, with no publish and no restart. Phone browser works, and it can go in the same edit as step 23.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > the **universe-datastores** row from step 17 (Cat Cafe): add the operations `universe-datastores.objects:create` and `universe-datastores.objects:update`, next to the list and read it has. Leave delete off; the workflow never deletes.
+3. **Save Changes**. Don't press Regenerate.
+4. Try it: **Actions > flags > Run workflow** with `show`. The log prints both switches (no entry yet means trading on and the minimum tier from Config).
+
+The key can then write any entry in the game's data stores, saves included, so it stays only in the GitHub secret. The workflow writes only the two `CatCafe_Flags` keys.

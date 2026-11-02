@@ -115,7 +115,7 @@ return function()
 			expect(g.seconds < g.every).to.equal(true)
 		end)
 
-		it("has the Entertainer nod on the beat with the mic tipping along, swaying and waving to it", function()
+		it("has the Entertainer nod on the beat with the mic tipping along, its free paw swinging at its side", function()
 			local e = w.entertainer
 			local down = Logic.idle("entertainer", e.beat / 2, "work")
 			expect(down.headPitch).to.be.near(-math.rad(e.nod), 1e-9)
@@ -125,8 +125,12 @@ return function()
 			expect(up.held).to.be.near(0, 1e-9)
 			local sway = Logic.idle("entertainer", e.beat / 2, "work")
 			expect(sway.bodyRoll).to.be.near(math.rad(e.sway), 1e-9)
-			expect(sway.waveL).to.be.near(math.rad(e.wave), 1e-9)
-			expect(sway.waveR).to.equal(0)
+			expect(sway.pawFL).to.be.near(math.rad(e.swing), 1e-9)
+			-- Derek 2026-11-02 19:34: no more waving while it holds the mic; the mic arm only tips the mic
+			for t = 0, 4, 0.05 do
+				local o = Logic.idle("entertainer", t, "work")
+				expect(o.waveL == 0 and o.waveR == 0 and o.pawFR == 0).to.equal(true)
+			end
 		end)
 
 		it("leaves the other bodies' role idles as they were, with no waves or held tips", function()

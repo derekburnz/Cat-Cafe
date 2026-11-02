@@ -6,9 +6,11 @@ local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
+local FreshCatch = require(script.Parent.FreshCatch)
 local Onboarding = require(script.Parent.Onboarding)
 local Settings = require(script.Parent.Settings)
 local Spin = require(script.Parent.Spin)
+local Tips = require(script.Parent.Tips)
 local Types = require(script.Parent.Types)
 
 local ProfileSchema = {}
@@ -38,7 +40,18 @@ local ProfileSchema = {}
 -- claim a quest or an achievement twice.
 -- Version 17 (F70) adds dailyTreat, the Daily Treat card: an older server would drop it, letting a stamp pay twice
 -- in a day and the card start again at day 1.
-ProfileSchema.VERSION = 17
+-- Version 18 (F94, rewards-and-shops.md section 6) adds freshCatch, the Fresh Catch shelf's counts and alert, and
+-- drops dealer, whose stock is now per server per night and kept in memory: an older server would drop freshCatch,
+-- letting a player buy a window's stock twice by hopping servers during a rollout.
+-- Version 19 (F87, easy-start.md section 5) moves telemetry to the 24 step onboarding funnel v2 (`funnel` 2, with
+-- the old step carried over by Onboarding.fromV1) and adds telemetry.firstDay: an older server would read a v2 step
+-- as a v1 one and log the wrong steps.
+-- Version 20 (F87, easy-start.md section 6) adds tipsSeen, feedbackAsked and stuckHelpShown: an older server would
+-- drop them and show every context tip and the one feedback ask again. A save from before version 20 that is past
+-- the first loop (tutorialStep 5) has seen every tip already (Tips.sanitizeSeen).
+ProfileSchema.VERSION = 20
+
+local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -139,7 +152,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		decorPlaced = {},
 		lures = {},
 		bait = nil,
-		dealer = { window = 0, bought = {} },
+		freshCatch = FreshCatch.fresh(),
 		cats = {
 			[STARTER_UID] = starter,
 		},
@@ -163,7 +176,15 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		tutorialStep = 0,
 		settings = Settings.defaults(),
 		flags = { autoPress = false },
-		telemetry = { onboardingStep = 0, achieved = {} },
+		telemetry = {
+			onboardingStep = 0,
+			achieved = {},
+			funnel = Onboarding.VERSION,
+			firstDay = now // DAY_SECONDS,
+		},
+		tipsSeen = {},
+		feedbackAsked = false,
+		stuckHelpShown = {},
 	}
 end
 
@@ -547,40 +568,35 @@ local function sanitizeCodes(value: any): { [string]: number }
 	return out
 end
 
-local function sanitizeTelemetry(value: any): Types.TelemetryState
-	local telemetry: Types.TelemetryState = { onboardingStep = 0, achieved = {} }
+-- F87: a state saved before version 19 counts its steps in the 12 step funnel v1; Onboarding.fromV1 carries the
+-- step and the held steps over to v2. A first day in the future is clamped to today.
+local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
+	local telemetry: Types.TelemetryState =
+		{ onboardingStep = 0, achieved = {}, funnel = Onboarding.VERSION, firstDay = 0 }
 	if type(value) ~= "table" then
 		return telemetry
 	end
-	telemetry.onboardingStep = math.clamp(asInt(value.onboardingStep, 0), 0, Onboarding.COUNT)
+	local step = math.max(0, asInt(value.onboardingStep, 0))
+	local achieved: { [string]: boolean } = {}
 	if type(value.achieved) == "table" then
-		for step = telemetry.onboardingStep + 1, Onboarding.COUNT do
-			local key = tostring(step)
-			if value.achieved[key] == true then
-				telemetry.achieved[key] = true
+		for key, held in value.achieved do
+			if type(key) == "string" and held == true then
+				achieved[key] = true
 			end
 		end
 	end
+	if value.funnel ~= Onboarding.VERSION then
+		step, achieved = Onboarding.fromV1(math.min(step, #Onboarding.V1_STEPS), achieved)
+	end
+	telemetry.onboardingStep = math.clamp(step, 0, Onboarding.COUNT)
+	for later = telemetry.onboardingStep + 1, Onboarding.COUNT do
+		local key = tostring(later)
+		if achieved[key] == true then
+			telemetry.achieved[key] = true
+		end
+	end
+	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
 	return telemetry
-end
-
-local function sanitizeDealer(value: any): Types.DealerState
-	local dealer: Types.DealerState = { window = 0, bought = {} }
-	if type(value) ~= "table" then
-		return dealer
-	end
-	dealer.window = asInt(value.window, 0)
-	-- F59: a count per dealer food, at most the largest amount a window can roll; the old per-slot marks ("1" to
-	-- "3") are dropped, and their window is always behind the first 300 second one anyway
-	if type(value.bought) == "table" then
-		for lureId, weights in Catalog.dealerAmountWeights do
-			local count = math.clamp(asInt(value.bought[lureId], 0), 0, #weights - 1)
-			if count > 0 then
-				dealer.bought[lureId] = count
-			end
-		end
-	end
-	return dealer
 end
 
 -- Takes whatever was loaded (any version up to this one, possibly damaged) and returns a valid current profile.
@@ -642,7 +658,6 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	end
 	if fromVersion >= 3 then
 		profile.bait = sanitizeBait(raw.bait)
-		profile.dealer = sanitizeDealer(raw.dealer)
 	end
 
 	sanitizeCats(raw, profile, fromVersion, now)
@@ -704,6 +719,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.quests = sanitizeQuests(raw.quests) -- F73; saves before version 16 have none and roll on load
 	profile.achievements = sanitizeAchievements(raw.achievements)
 	profile.dailyTreat = DailyTreat.sanitize(raw.dailyTreat, now) -- F70; saves before version 17 start a fresh card
+	-- F94; saves before version 18 have bought nothing on the shelf, and their dealer counts are dropped
+	profile.freshCatch = FreshCatch.sanitize(raw.freshCatch, now)
 
 	if type(raw.stats) == "table" then
 		local stats = profile.stats :: any
@@ -716,7 +733,12 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	if fromVersion >= 3 and type(raw.flags) == "table" then
 		profile.flags.autoPress = raw.flags.autoPress == true
 	end
-	profile.telemetry = sanitizeTelemetry(raw.telemetry)
+	profile.telemetry = sanitizeTelemetry(raw.telemetry, now)
+	-- F87 (version 20): an older save past the first loop has met everything the tips explain
+	profile.tipsSeen =
+		Tips.sanitizeSeen(raw.tipsSeen, fromVersion < 20 and profile.tutorialStep >= 5)
+	profile.feedbackAsked = raw.feedbackAsked == true
+	profile.stuckHelpShown = Tips.sanitizeHelp(raw.stuckHelpShown)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

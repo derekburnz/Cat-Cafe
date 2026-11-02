@@ -11,7 +11,8 @@
 -- running Gold Rush, Lucky or Quick Bait Potion's, as the server rolls food set now. F60: food set
 -- at night waits half, so by night the empty bowl's wait is the night one and a night bowl counts down behind a moon.
 -- F82: the odds row, the split and the wait are the bowl level's (shared Bait, as the server rolls), and the title
--- names the bowl you have, "Comfy Bowl" up to "Royal Bowl".
+-- names the bowl you have, "Comfy Bowl" up to "Royal Bowl". F97: Buy shows the food's price at the player's tier
+-- (shared Economy.foodPrice, as the server charges), and the foods run in rarity order (Components/FoodOrder).
 -- Opened by the bowl's prompt (UI.bait.openPicker), the HUD bowl chip or F.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -22,16 +23,19 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local FoodGrade = require(script.Parent.Parent.Components.FoodGrade)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
+local FoodOrder = require(script.Parent.Parent.Components.FoodOrder)
 local Format = require(script.Parent.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
+local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 local Bait = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Bait"))
+local Economy = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Economy"))
 
 export type Callbacks = {
 	useLure: (lureId: string) -> (),
@@ -53,6 +57,7 @@ export type BaitBowl = {
 local STATUS_HEIGHT = 92
 local ROW_HEIGHT = 132 -- room for the odds row to wrap onto a second line on a narrow screen
 local BUTTON = Vector2.new(112, Theme.sizes.touchMin)
+local DETAILS_H = 42 -- a 37 px face, over the 36 px a mouse needs (the UI gate's tap check)
 local ICON = 84 -- the food's picture, as in the dealer's list and the Grow a Garden seed shop
 local TEXT_LEFT = ICON + 28
 local TEXT_WIDTH = -(TEXT_LEFT + BUTTON.X * 2 + 32)
@@ -272,16 +277,12 @@ function BaitBowl._buildRows(self: any)
 		return
 	end
 	assert(catalog, "catalog not set; call UI.init first")
-	-- shop foods by price, then the night dealer's
-	local foods: { Types.LureDef } = table.clone(catalog.lures)
-	table.sort(foods, function(a: Types.LureDef, b: Types.LureDef): boolean
-		local aDealer = a.source == "dealer"
-		local bDealer = b.source == "dealer"
-		if aDealer ~= bDealer then
-			return bDealer
-		end
-		return a.cost < b.cost
-	end)
+	-- every food in rarity order, the night dealer's among the shop's (F97 section 3)
+	local foods: { Types.LureDef } = FoodOrder.defs(catalog.lures)
+	-- on a phone Use, Buy and Details grow to a 44 px face and the card's top with them, as in the dealer's list
+	local buttonH = Scale.tapHeight(BUTTON.Y, Theme.sizes.buttonDepth)
+	local detailsH = Scale.tapHeight(DETAILS_H, Theme.sizes.buttonDepth)
+	local topHeight = math.max(ROW_HEIGHT, 12 + buttonH + 10 + detailsH + 12)
 	for index, lure in foods do
 		local dealer = lure.source == "dealer"
 		local row: Frame = Create("Frame", {
@@ -304,7 +305,7 @@ function BaitBowl._buildRows(self: any)
 		local top: Frame = Create("Frame", {
 			Name = "Top",
 			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
+			Size = UDim2.new(1, 0, 0, topHeight),
 			LayoutOrder = 1,
 			Parent = row,
 		})
@@ -350,7 +351,7 @@ function BaitBowl._buildRows(self: any)
 		local odds = text({
 			Name = "Odds",
 			Position = UDim2.fromOffset(TEXT_LEFT, 60),
-			Size = UDim2.new(1, TEXT_WIDTH, 0, ROW_HEIGHT - 66),
+			Size = UDim2.new(1, TEXT_WIDTH, 0, topHeight - 66),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
 			TextWrapped = true,
@@ -364,7 +365,7 @@ function BaitBowl._buildRows(self: any)
 			name = "Use",
 			text = "Use",
 			style = "primary",
-			size = UDim2.fromOffset(BUTTON.X, BUTTON.Y),
+			size = UDim2.fromOffset(BUTTON.X, buttonH),
 			anchorPoint = Vector2.new(1, 0),
 			position = UDim2.new(1, -(BUTTON.X + 20), 0, 12),
 			textSize = Theme.sizes.textBody,
@@ -378,7 +379,7 @@ function BaitBowl._buildRows(self: any)
 			name = "Buy",
 			text = if dealer then "Night dealer" else Format.money(lure.cost),
 			style = "secondary",
-			size = UDim2.fromOffset(BUTTON.X, BUTTON.Y),
+			size = UDim2.fromOffset(BUTTON.X, buttonH),
 			anchorPoint = Vector2.new(1, 0),
 			position = UDim2.new(1, -12, 0, 12),
 			textSize = if dealer then Theme.sizes.textTiny else Theme.sizes.textBody,
@@ -394,9 +395,9 @@ function BaitBowl._buildRows(self: any)
 			name = "Details",
 			text = "Details",
 			style = "ghost",
-			size = UDim2.fromOffset(BUTTON.X * 2 + 8, 34),
+			size = UDim2.fromOffset(BUTTON.X * 2 + 8, detailsH),
 			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -12, 0, 12 + BUTTON.Y + 10),
+			position = UDim2.new(1, -12, 0, 12 + buttonH + 10),
 			textSize = Theme.sizes.textSmall,
 			parent = top,
 			onClick = function()
@@ -433,6 +434,7 @@ function BaitBowl._buildRows(self: any)
 			detail = detail,
 			odds = odds,
 			split = nil :: string?, -- the per-cat split for the tier and bowl last drawn
+			price = lure.cost, -- what Buy says: the food's price at the player's tier (render)
 			def = lure,
 			dealer = dealer,
 		}
@@ -530,7 +532,16 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 		end
 		row.use:setEnabled(owned and empty and have > 0)
 		if not row.dealer then
-			row.buy:setEnabled(state.money >= row.def.cost)
+			-- F97: the server charges Economy.foodPrice, the catalog cost times the tier's factor
+			local price = Economy.foodPrice(lureId, state.tier)
+			if price <= 0 then
+				price = row.def.cost
+			end
+			if price ~= row.price then
+				row.price = price
+				row.buy:setText(Format.money(price))
+			end
+			row.buy:setEnabled(state.money >= price)
 		end
 	end
 	self:_renderStatus()
@@ -600,7 +611,7 @@ function BaitBowl._renderStatus(self: any)
 			title = "A cat is at your bowl!"
 			sub = if self._catWaiting
 				then "Tame it or let it go. The food is used either way."
-				else "Go to your bowl by the door to see who came."
+				else "It is sitting down at your bowl now."
 			if self._catWaiting then
 				action = "cat"
 			end

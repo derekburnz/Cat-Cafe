@@ -4,9 +4,10 @@ escape, a laundry line, long string lights and the Sewer manhole. Laid out in Ro
 front -Z, sizes in studs.
 
   CatCafe_Alley_ArchStreet   36 stud opening between 2 stud posts, over the street's north end at (0, 123.5)
-  CatCafe_Alley_Arch         26 stud opening between 2 stud posts (30 overall), over each back alley at (+-78, 123.5)
-                             Both: pivot at the base centre of the opening, -Z face toward the street or back alley
-                             (reads ALLEY SQUARE), +Z face toward the square (reads CAFE STREET or BACK ALLEY).
+  CatCafe_Alley_Arch         26 stud opening between 2 stud posts (30 overall), over each lane's way out of the F84
+                             camp, both faces THE ALLEYWAY (the Alley Square it once named is gone)
+                             Both: pivot at the base centre of the opening. The street arch's -Z face reads ALLEY
+                             SQUARE, its +Z face CAFE STREET.
   CatCafe_Alley_WallWindows  Building backs, 30 wide, 1 thick plus whatever sticks out. Pivot on the back plane
   CatCafe_Alley_WallDoor     (local z 0) at the bottom centre: put it against the inner face of an alley wall with
   CatCafe_Alley_FireEscape   -Z facing into the alley. They are taller than the 10 stud walls, so the alley reads
@@ -134,7 +135,7 @@ def build_arch_street(mat):
 
 
 def build_arch(mat):
-    return _arch("CatCafe_Alley_Arch", mat, 26.0, "ALLEY SQUARE", "BACK ALLEY")
+    return _arch("CatCafe_Alley_Arch", mat, 26.0, "THE ALLEYWAY", "THE ALLEYWAY")
 
 
 # -------------------------------------------------------------------------------------- building backs --

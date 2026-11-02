@@ -64,7 +64,6 @@ return function()
 		LureWaitSeconds = 600,
 		LureWaitSecondsNight = 300, -- F60: night bait, half the wait
 		BaitBowlRangeStuds = 12,
-		BaitResolveRangeStuds = 20,
 		GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02)
 		GoldChanceNet = 0.05, -- F30, v0.5 F42 (was 0.02)
 		CarryWalkSpeed = 16, -- v0.4
@@ -89,6 +88,17 @@ return function()
 		SeatsPerTable = 2,
 		MaxIdLength = 40,
 		TutorialGuaranteedStrayStep = 2,
+		-- F87 (easy-start.md section 6); IntroAutoPlay is false, checked below
+		TutorialShrinkSeconds = 1.6,
+		TutorialWindowScale = 2,
+		TutorialRetrySeconds = 1.0,
+		StuckNudgeSeconds = 40,
+		StuckHelpSeconds = 90,
+		TipGapSeconds = 60,
+		TipCutMaxSeconds = 4,
+		FeedbackAskMinutes = 12,
+		TipStartSeconds = 10,
+		FeedbackSessionLimit = 5,
 		-- cat stats (data-model section 4b)
 		CatMaxLevel = 50, -- v0.12 (F75)
 		CatLevelBonus = 0.02,
@@ -100,7 +110,7 @@ return function()
 		GoldMultiplier = 1.5, -- v0.3 (F22)
 		-- the night dealer (F32, section 8b)
 		DealerRangeStuds = 12,
-		DealerWindowSeconds = 300, -- F59: every 5 minutes (was 600)
+		FreshCatchWindowSeconds = 300, -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf rolls every 5 minutes
 		-- night income and rich customers (F31, sections 11 and 12)
 		NightIncomeMultiplier = 1, -- F60: full pay at night (0.6 until v0.8)
 		RichCheckSeconds = 60,
@@ -109,6 +119,7 @@ return function()
 		TipPileSeconds = 30, -- F61: tip piles (section 12)
 		TipPileRateSeconds = 6,
 		TipPilesMax = 6,
+		TipPileShowSeconds = 90, -- F97 section 1: a paid pile shows this long
 		RichTipStaySeconds = 90,
 		-- the Mystery Visitor and potions (F64, section 12b)
 		MysteryCheckSeconds = 120,
@@ -230,6 +241,14 @@ return function()
 			end
 		)
 
+		it("FoodTierPriceFactor = 1, 1, 4, 8, 16 by tier (F97, notes-10-28-to-10-30.md section 3)", function()
+			expect(Config.FoodTierPriceFactor :: any).to.deepEqual({ 1, 1, 4, 8, 16 })
+		end)
+
+		it("IntroAutoPlay = false: the intro waits for the Tutorial tile (F87, easy-start.md section 2a)", function()
+			expect(Config.IntroAutoPlay).to.equal(false)
+		end)
+
 		it("has no extra top level tuning numbers the doc does not know about", function()
 			-- LureReserveSeconds: the doc now says a lured stray is reserved until despawn, so the constant is optional.
 			local known = {
@@ -242,12 +261,15 @@ return function()
 				ProfileKeyPrefix = true,
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
+				IntroAutoPlay = true, -- false, checked below
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
-				TipPileCollectRangeStuds = true, -- section 12 (F61): the client sends CollectTips within 8 studs
+				WaveMinRareRerollOdds = true, -- a table, checked in Catching.spec (F97 section 7)
+				FoodTierPriceFactor = true, -- a table, checked below (F97 section 3)
 				FishFirstCatch = true, -- a table, checked below
 				FishRepeatCatch = true, -- a table, checked below
 				FishRankUp = true, -- a table, checked below
 				CratePieceBonus = true, -- a table, checked below
+				FreshCatchAmountWeights = true, -- a table, checked in FreshCatch.spec
 				CrateDuplicateRefund = true, -- a table, checked below
 				DecorSpots = true, -- a table, checked below
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"
@@ -559,8 +581,8 @@ return function()
 			end
 		)
 
-		it("bait bowl: the card reaches further than Use, and gold is a probability", function()
-			expect(Config.BaitResolveRangeStuds >= Config.BaitBowlRangeStuds).to.equal(true)
+		it("bait bowl: gold is a probability (Tame and Let go work from anywhere since 2026-10-28)", function()
+			expect((Config :: any).BaitResolveRangeStuds).never.to.be.ok()
 			expect(Config.GoldChanceBait > 0 and Config.GoldChanceBait < 1).to.equal(true)
 		end)
 

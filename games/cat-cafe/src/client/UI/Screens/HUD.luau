@@ -1,7 +1,9 @@
 --!strict
 -- Always-on overlay in the simulator layout (docs/design/cat-cafe/ui-contract.md, HUD v3):
---   top left      the money with the rate beside the amount, the golden fish under it (F52); a tap on either shows
---                 the exact amount
+--   bottom left   the money with the rate beside the amount, then the golden fish (F52), one row in the corner
+--                 (Derek 2026-10-28); a tap on the money opens the boosts card (Components/BoostList: what lifts the
+--                 cafe's money, the exact amount on top), a tap on the golden fish shows its exact amount; the potion
+--                 timers sit over the row, or beside the menu's top on a short screen
 --   top right     small icon buttons (Tutorial, Gifts, Daily, Feedback, Settings, Invite), the day and night clock
 --                 under them,
 --                 the tier and next goal block (Screens/GoalCard) under that and the quest line under that (F73: the
@@ -10,9 +12,11 @@
 --   Lighter HUD (Derek 2026-10-28, after a look at popular Roblox HUDs): counters, the clock and the goal are outlined
 --   text with no box behind them; only things you press look like buttons, and the top centre is left clear.
 --   left          big pill buttons: Cats, Index, Quests, Upgrades, Decor, Potions, with key caps and red "!" dots,
---                 and an arrow tab under them that folds them off the edge. Quests (F73) shows once ProfileSync has
+--                 centred in the space over the counters, and an arrow tab under them (beside the last pill on a
+--                 short screen) that folds them off the edge. Quests (F73) shows once ProfileSync has
 --                 quests, with a red count of what is ready to claim
---   bottom centre Equip Best, the gold My Cafe teleport, Alley and Areas (an arrow tab folds the row away);
+--   bottom centre Equip Best, the gold My Cafe teleport, Alley and Areas (an arrow tab folds the row away), moved
+--                 right of the counters on a narrow screen;
 --                 above them the carry banner with
 --                 its red Drop button, and the tutorial strip above that
 --   bottom right  the bait bowl chip, once the Bait bowl upgrade is owned
@@ -28,6 +32,7 @@ local SocialService = game:GetService("SocialService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+local BoostList = require(script.Parent.Parent.Components.BoostList)
 local BuffChips = require(script.Parent.BuffChips)
 local Button = require(script.Parent.Parent.Components.Button)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
@@ -35,6 +40,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
@@ -42,6 +48,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
@@ -91,17 +98,19 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 
 local MARGIN = 16
--- the money and golden fish counters, one tidy column with no box behind them (the lighter HUD); the sizes are
--- their tap areas
+-- the money and golden fish counters, one row in the bottom left corner with no box behind them (the lighter HUD);
+-- each is as wide as its amount, the money at most MONEY_W, and MONEY_H tall
 local MONEY_W = 232
 local MONEY_H = 44
-local FISH_W = MONEY_W
-local FISH_H = MONEY_H
 local COUNTER_COIN = 36
 local COUNTER_TEXT = 30
-local FISH_TOP = MARGIN + MONEY_H + 2
-local BUFFS_GAP = 8 -- the potion timers sit this far under the lowest counter pill (F64)
-local EXACT_SECONDS = 2.5 -- how long a tapped counter's exact amount stays up
+local COUNTER_GAP = 14
+-- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
+local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
+local BUFFS_GAP = 8 -- the potion timers sit this far over the counters (F64)
+local EXACT_SECONDS = 2.5 -- how long a tapped golden fish's exact amount stays up
+local BOOSTS_W = 300 -- the money's boosts card
+local BOOST_ROW_H = 24
 -- F66: in the last DUSK_SECONDS of a day the clock turns orange and counts to night; CLOSED_TEXT is the Alley
 -- button while the areas are shut for the night
 local DUSK_SECONDS: number = (Config :: any).DuskWarningSeconds or 15
@@ -265,20 +274,57 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._root = root
 	self._uiScale = Scale.bind(root)
 
-	-- Money (top left)
-	local money = bare("Money", {
-		Position = UDim2.fromOffset(MARGIN, MARGIN),
-		Size = UDim2.fromOffset(MONEY_W, MONEY_H),
+	-- Money and golden fish (bottom left, Derek 2026-10-28: "The money and coins should be displayed in bottom left"):
+	-- one row in the corner, each counter a button that sizes itself to its amount. A tap on the money opens the boosts
+	-- card (what lifts the cafe's money, Components/BoostList); a tap on the golden fish shows the exact amount.
+	local counters: Frame = Create("Frame", {
+		Name = "Counters",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, MARGIN, 1, -MARGIN),
+		Size = UDim2.fromOffset(0, MONEY_H),
+		AutomaticSize = Enum.AutomaticSize.X,
 		Parent = root,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, COUNTER_GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
 	})
+	self._counters = counters
+	-- a phone's finger needs 44 px, so the counters' tap areas grow there (the amounts stay the same size)
+	local counterH = Scale.tapHeight(MONEY_H)
+	self._counterH = counterH
+	counters.Size = UDim2.fromOffset(0, counterH)
+	local function counter(name: string, order: number): TextButton
+		return Create("TextButton", {
+			Name = name,
+			Text = "",
+			AutoButtonColor = false,
+			BackgroundTransparency = 1,
+			Size = UDim2.fromOffset(0, counterH),
+			AutomaticSize = Enum.AutomaticSize.X,
+			LayoutOrder = order,
+			Parent = counters,
+		}, {
+			Create("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				Padding = UDim.new(0, 8),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+		})
+	end
+	local money = counter("Money", 1)
 	-- the gold coin badge, then the amount with the rate beside it on one line ("$610  +$1.7/s")
 	local coin: Frame = Create("Frame", {
 		Name = "Coin",
 		BackgroundColor3 = Theme.colors.gold,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, 0, 0.5, 0),
 		Size = UDim2.fromOffset(COUNTER_COIN, COUNTER_COIN),
+		LayoutOrder = 1,
 		Parent = money,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
@@ -295,9 +341,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	local line: Frame = Create("Frame", {
 		Name = "Line",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(COUNTER_COIN + 8, 0),
-		Size = UDim2.new(1, -(COUNTER_COIN + 8), 1, 0),
+		Size = UDim2.fromOffset(0, MONEY_H),
+		AutomaticSize = Enum.AutomaticSize.X,
 		ClipsDescendants = true,
+		LayoutOrder = 2,
 		Parent = money,
 	}, {
 		Create("UIListLayout", {
@@ -306,6 +353,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			Padding = UDim.new(0, 8),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
+		-- a very long amount and rate stop here, as the old fixed counter did
+		Create("UISizeConstraint", { MaxSize = Vector2.new(MONEY_W - COUNTER_COIN - 8, MONEY_H) }),
 	})
 	self._moneyText = label({
 		Name = "Amount",
@@ -329,40 +378,38 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = line,
 	})
 
-	-- Golden fish (F52): the rare currency's counter under the money, with the cat-face coin. Hidden until
+	-- Golden fish (F52): the rare currency's counter beside the money, with the gold fish (F97). Hidden until
 	-- ProfileSync sends goldenFish.
-	local fish = bare("Fish", {
-		Position = UDim2.fromOffset(MARGIN, FISH_TOP),
-		Size = UDim2.fromOffset(FISH_W, FISH_H),
-		Visible = false,
-		Parent = root,
-	})
+	local fish = counter("Fish", 2)
+	fish.Visible = false
 	self._fishPanel = fish
 	FishCoin.new({
 		parent = fish,
 		size = COUNTER_COIN,
-		position = UDim2.new(0, 0, 0.5, 0),
-		anchorPoint = Vector2.new(0, 0.5),
-	})
+		name = "Coin",
+	}).LayoutOrder = 1
 	self._fishText = label({
 		Name = "Amount",
-		Position = UDim2.fromOffset(COUNTER_COIN + 8, 0),
-		Size = UDim2.new(1, -(COUNTER_COIN + 8), 1, 0),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, MONEY_H),
 		TextSize = COUNTER_TEXT,
+		TextTruncate = Enum.TextTruncate.None,
 		TextColor3 = Theme.fish.text,
 		Text = "0",
+		LayoutOrder = 2,
 		Parent = fish,
 	})
 
-	-- Potion timers (F64): a chip per running potion under the counters; a tap opens the potion bag
+	-- Potion timers (F64): a chip per running potion over the counters (beside the menu's top on a short screen);
+	-- a tap opens the potion bag
 	self._buffs = BuffChips.new(root, MARGIN, function()
 		callbacks.openScreen("Potions")
 	end)
 
-	-- A tap on a counter shows its exact amount beside it for a moment (golden-fish.md section 1), since big
+	-- A tap on the golden fish shows its exact amount over it for a moment (golden-fish.md section 1), since big
 	-- numbers are cut down to "1.99M".
 	self._exact = hudPanel("Exact", {
-		AnchorPoint = Vector2.new(0, 0.5),
+		AnchorPoint = Vector2.new(0, 1),
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 36),
 		Visible = false,
@@ -383,22 +430,20 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		ZIndex = 5,
 		Parent = self._exact,
 	})
-	for _, counter in { money, fish } do
-		local tap: TextButton = Create("TextButton", {
-			Name = "ShowExact",
-			Text = "",
-			BackgroundTransparency = 1,
-			Size = UDim2.fromScale(1, 1),
-			ZIndex = 4,
-			Parent = counter,
-		})
-		table.insert(
-			self._connections,
-			tap.Activated:Connect(function()
-				self:_showExact(counter)
-			end)
-		)
-	end
+	-- The boosts card over the counters (built last, so it draws over the menu): a tap on the money opens and closes
+	-- it, a tap on the card closes it, and any window opening closes it.
+	table.insert(
+		self._connections,
+		money.Activated:Connect(function()
+			self:_toggleBoosts()
+		end)
+	)
+	table.insert(
+		self._connections,
+		fish.Activated:Connect(function()
+			self:_showExact()
+		end)
+	)
 
 	-- Icon row (top right): small square buttons like the calendar, mail and gear icons of popular simulators.
 	-- Tutorial replays the intro (F72), Gifts opens the Tip Jar (F47) and counts down to the next playtime gift,
@@ -691,7 +736,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		TextSize = Theme.sizes.textBody,
 		TextColor3 = Theme.colors.sky,
 		TextXAlignment = Enum.TextXAlignment.Right,
-		Text = "Tips " .. Format.percent(NIGHT_TIPS),
+		Text = "Money " .. Format.percent(NIGHT_TIPS), -- F94 section 5: "money", not "tips"
 		Visible = false,
 		Parent = root,
 	})
@@ -761,6 +806,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		key: string?,
 		style: Button.Style,
 		dot: Types.ScreenName?, -- the Notices screen whose news lights this pill's dot
+		image: string?, -- an uploaded picture in place of the icon sheet's (the glyph shows until it loads)
 		open: () -> (),
 	}
 	local menuItems: { MenuItem } = {
@@ -807,6 +853,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			key = "B",
 			style = "gold",
 			dot = "Decor",
+			-- Derek (Set 5 Q10): the Decor button needed an actual picture
+			image = ShopIcons.image("Icon_Decor"),
 			open = function()
 				callbacks.openScreen("Decor")
 			end,
@@ -821,20 +869,20 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			end,
 		},
 	}
+	-- placed by _layoutMenu in the space over the counters
+	local menuLayout: UIListLayout = Create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Vertical,
+		Padding = UDim.new(0, Theme.sizes.gap),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	})
+	self._menuLayout = menuLayout
 	local menu: Frame = Create("Frame", {
 		Name = "Menu",
 		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, MARGIN, 0.5, 0),
+		Position = UDim2.fromOffset(MARGIN, MARGIN),
 		Size = UDim2.fromOffset(PILL_W, #menuItems * PILL_H + (#menuItems - 1) * Theme.sizes.gap),
 		Parent = root,
-	}, {
-		Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Vertical,
-			Padding = UDim.new(0, Theme.sizes.gap),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		}),
-	})
+	}, { menuLayout :: Instance })
 	for index, item in menuItems do
 		local button = Button.new({
 			name = item.name,
@@ -849,6 +897,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			sound = false, -- the modal swish is the sound
 			onClick = item.open,
 		})
+		local picture = item.image
+		if picture and button.icon then
+			IconArt.setImage(button.icon, picture, 1.15)
+		end
 		local key = item.key
 		if showKeys and key then
 			keycap(button.face, key, UDim2.new(1, -8, 0.5, 0), Vector2.new(1, 0.5))
@@ -943,12 +995,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		text = "◀",
 		style = "ghost",
 		size = UDim2.fromOffset(FOLD_W, FOLD_H),
-		position = UDim2.new(
-			0,
-			MARGIN,
-			0.5,
-			(#menuItems * PILL_H + (#menuItems - 1) * Theme.sizes.gap) / 2 + Theme.sizes.gap + 4
-		),
 		textSize = Theme.sizes.textBody,
 		parent = root,
 		onClick = function()
@@ -957,7 +1003,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	table.insert(self._buttons, menuFold)
 	self._menuFold = menuFold
-	self:_layoutMenu()
+	self._menuTop = MARGIN
+	self._foldBeside = false
+	self._travelShift = 0
 	local foldDot: Frame = Create("Frame", {
 		Name = "Dot",
 		BackgroundColor3 = Theme.colors.red,
@@ -1231,6 +1279,15 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	)
 
 	self:_layoutBottom()
+	self:_buildBoosts(root)
+	self:_layoutMenu()
+	-- the left side follows the screen's size (a phone turned, a window resized)
+	table.insert(
+		self._connections,
+		root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			self:_layoutMenu()
+		end)
+	)
 
 	if parent then
 		screenGui.Parent = parent
@@ -1345,7 +1402,7 @@ function HUD.setCannonMode(self: any, on: boolean)
 	self._travelButtons.alley.instance.Visible = not on
 	local width = if on then 3 * TRAVEL_W + 2 * Theme.sizes.gap else TRAVEL_ROW_W
 	self._travelRow.Size = UDim2.fromOffset(width, TRAVEL_H)
-	self._travelFold.instance.Position = UDim2.new(0.5, width / 2 + Theme.sizes.gap, 1, -MARGIN)
+	self:_layoutMenu() -- the row and its arrow tab, kept clear of the counters
 	self._carrySub.Text = if on then CannonLogic.CARRY_SUB else CARRY_SUB
 	self._homeCarrying = nil -- the next render writes Home's text for the new mode
 	self:_renderTravel()
@@ -1393,8 +1450,9 @@ function HUD.setMenuFolded(self: any, folded: boolean)
 	self._menuFolded = folded
 	self._menuFold:setText(if folded then "▶" else "◀")
 	Tween.to(self._menu, Tween.POP, {
-		Position = UDim2.new(0, if folded then MENU_FOLDED_X else MARGIN, 0.5, 0),
+		Position = UDim2.new(0, if folded then MENU_FOLDED_X else MARGIN, 0, self._menuTop),
 	})
+	self:_placeMenuFold()
 	self:_renderFoldDot()
 end
 
@@ -1402,7 +1460,7 @@ function HUD.setTravelFolded(self: any, folded: boolean)
 	self._travelFolded = folded
 	self._travelFold:setText(if folded then "▲" else "▼")
 	Tween.to(self._travelRow, Tween.POP, {
-		Position = UDim2.new(0.5, 0, 1, if folded then TRAVEL_H + 24 else -MARGIN),
+		Position = UDim2.new(0.5, self._travelShift, 1, if folded then TRAVEL_H + 24 else -MARGIN),
 	})
 	self:_layoutBottom()
 end
@@ -1516,10 +1574,11 @@ function HUD.render(self: any, state: Types.PlayerState)
 		end
 	end
 	self._lastFish = fish
-	-- the potion timers under the lowest counter, and the bag's count on its pill (F64)
-	local counterBottom = if fish then FISH_TOP + FISH_H else MARGIN + MONEY_H
-	self._buffs:setTop(counterBottom + BUFFS_GAP)
+	-- the potion timers over the counters, and the bag's count on its pill (F64)
 	self._buffs:render(state)
+	if self._boosts.Visible then
+		self:_renderBoosts()
+	end
 	local potions = 0
 	local bag: { [string]: number } = state.potions or {}
 	for _, count in bag do
@@ -1720,19 +1779,6 @@ function HUD._layoutRight(self: any)
 	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, spinTop - lift)
 end
 
--- The left pills' column and the arrow tab under it, for the pills on show (Quests waits for its data, F73).
-function HUD._layoutMenu(self: any)
-	local shown = 0
-	for _, child in self._menu:GetChildren() do
-		if child:IsA("GuiObject") and child.Visible then
-			shown += 1
-		end
-	end
-	local height = shown * PILL_H + math.max(0, shown - 1) * Theme.sizes.gap
-	self._menu.Size = UDim2.fromOffset(PILL_W, height)
-	self._menuFold.instance.Position = UDim2.new(0, MARGIN, 0.5, height / 2 + Theme.sizes.gap + 4)
-end
-
 -- F73: the Quests pill (shown once ProfileSync has quests) with its count of what is ready to claim, and the quest
 -- line under the goal card once the tutorial is done.
 function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.Catalog?)
@@ -1889,6 +1935,9 @@ end
 -- no keys (its dot is the waiting rewards, in _renderDots), so it is left alone here.
 function HUD.screenOpened(self: any, name: string?)
 	self._openScreen = name
+	if name then
+		self:_hideBoosts() -- a window over the world closes the money's card
+	end
 	local candidates: Notices.Candidates? = self._candidates
 	if name and candidates and (candidates :: any)[name] then
 		Notices.markSeen((candidates :: any)[name], self._seen[name])
@@ -1912,20 +1961,314 @@ function HUD.setVisible(self: any, visible: boolean)
 	self.screenGui.Enabled = visible
 end
 
--- The exact amount behind a counter: "$1,999,999" or "1,234 golden fish", beside it for EXACT_SECONDS.
-function HUD._showExact(self: any, counter: Frame)
+-- The money's boosts card (Derek 2026-10-28: "clicking on it should show all active multipliers ... in a quick clean
+-- list"): over the counters, the exact money and rate, then one row per source from Components/BoostList, the empty
+-- ones grey, and "All together" at the foot. The whole card is a button that closes it.
+function HUD._buildBoosts(self: any, root: Frame)
+	self._boostsSaid = nil :: string? -- what the rows last said (_renderBoosts)
+	local card = hudPanel("Boosts", {
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
+		Size = UDim2.fromOffset(BOOSTS_W, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Visible = false,
+		ZIndex = 6,
+		Parent = root,
+	})
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 14),
+		PaddingRight = UDim.new(0, 14),
+		PaddingTop = UDim.new(0, 10),
+		PaddingBottom = UDim.new(0, 10),
+		Parent = card,
+	})
+	local list: Frame = Create("Frame", {
+		Name = "List",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		ZIndex = 6,
+		Parent = card,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Vertical,
+			Padding = UDim.new(0, 2),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	label({
+		Name = "Title",
+		Size = UDim2.new(1, 0, 0, 26),
+		TextSize = Theme.sizes.textBody + 2,
+		TextColor3 = Theme.colors.gold,
+		Text = "Money boosts",
+		LayoutOrder = 1,
+		ZIndex = 6,
+		Parent = list,
+	})
+	self._boostsExact = label({
+		Name = "Exact",
+		Size = UDim2.new(1, 0, 0, 26),
+		TextSize = 22,
+		LayoutOrder = 2,
+		ZIndex = 6,
+		Parent = list,
+	})
+	self._boostsRate = label({
+		Name = "Rate",
+		Size = UDim2.new(1, 0, 0, 20),
+		TextSize = Theme.sizes.textSmall + 1,
+		TextColor3 = Theme.hud.income,
+		LayoutOrder = 3,
+		ZIndex = 6,
+		Parent = list,
+	})
+	self._boostsRows = Create("Frame", {
+		Name = "Rows",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = 4,
+		ZIndex = 6,
+		Parent = list,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Vertical,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+		Create("UIPadding", { PaddingTop = UDim.new(0, 6) }),
+	})
+	label({
+		Name = "Hint",
+		Size = UDim2.new(1, 0, 0, 18),
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.hud.subtext,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "Tap to close",
+		LayoutOrder = 5,
+		ZIndex = 6,
+		Parent = list,
+	})
+	-- the card's whole content takes the closing tap; sized by scale alone, so the card's AutomaticSize stays put
+	local close: TextButton = Create("TextButton", {
+		Name = "Close",
+		Text = "",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 8,
+		Parent = card,
+	})
+	table.insert(
+		self._connections,
+		close.Activated:Connect(function()
+			self:_hideBoosts()
+		end)
+	)
+	self._boosts = card
+end
+
+function HUD._toggleBoosts(self: any)
+	if self._boosts.Visible then
+		self:_hideBoosts()
+		return
+	end
+	if self._state == nil then
+		return
+	end
+	self._exact.Visible = false
+	self:_renderBoosts()
+	self._boosts.Visible = true
+	Tween.popIn(self._boosts, 0.9)
+	Sound.play("uiClick")
+end
+
+function HUD._hideBoosts(self: any)
+	self._boosts.Visible = false
+end
+
+function HUD._renderBoosts(self: any)
 	local state: Types.PlayerState? = self._state
 	if state == nil then
 		return
 	end
-	local fishCounter = counter == self._fishPanel
-	self._exactText.Text = if fishCounter
-		then Format.commas(math.floor(state.goldenFish or 0)) .. " golden fish"
-		else Theme.currencySymbol .. Format.commas(math.floor(state.money))
-	self._exactText.TextColor3 = if fishCounter then Theme.fish.text else Theme.hud.text
-	local top = if fishCounter then FISH_TOP + FISH_H / 2 else MARGIN + MONEY_H / 2
-	local width = if fishCounter then FISH_W else MONEY_W
-	self._exact.Position = UDim2.fromOffset(MARGIN + width + 8, top)
+	self._boostsExact.Text = Theme.currencySymbol .. Format.commas(math.floor(state.money))
+	self._boostsRate.Text = Format.rate(state.incomePerSecond)
+	-- the money ticks five times a second while income flows (UIController's prediction), and each tick renders the
+	-- HUD; the rows are made again only when what they say changed
+	local rows = BoostList.rows(self._catalog, state, Workspace:GetServerTimeNow())
+	local said: { string } = {}
+	for _, row in rows do
+		table.insert(
+			said,
+			("%s=%s=%s=%s"):format(row.key, row.name, row.value, tostring(row.active))
+		)
+	end
+	local text = table.concat(said, ";")
+	if text == self._boostsSaid then
+		return
+	end
+	self._boostsSaid = text
+	local holder: Frame = self._boostsRows
+	for _, child in holder:GetChildren() do
+		if child:IsA("GuiObject") then
+			child:Destroy()
+		end
+	end
+	for order, row in rows do
+		local total = row.kind == "total"
+		local frame: Frame = Create("Frame", {
+			Name = row.key,
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, if total then BOOST_ROW_H + 8 else BOOST_ROW_H),
+			LayoutOrder = order,
+			ZIndex = 6,
+			Parent = holder,
+		})
+		local color = if total
+			then Theme.colors.gold
+			elseif row.active then Theme.hud.text
+			else Theme.hud.subtext
+		if total then
+			-- a thin line over the sum
+			Create("Frame", {
+				Name = "Rule",
+				BackgroundColor3 = Theme.hud.subtext,
+				BackgroundTransparency = 0.6,
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(0, 3),
+				Size = UDim2.new(1, 0, 0, 1),
+				ZIndex = 6,
+				Parent = frame,
+			})
+		end
+		label({
+			Name = "Name",
+			AnchorPoint = Vector2.new(0, 1),
+			Position = UDim2.fromScale(0, 1),
+			Size = UDim2.new(0.68, 0, 0, BOOST_ROW_H),
+			TextSize = if total then Theme.sizes.textBody + 1 else Theme.sizes.textSmall + 1,
+			TextColor3 = color,
+			TextTransparency = if row.active then 0 else 0.25,
+			Text = row.name,
+			ZIndex = 6,
+			Parent = frame,
+		})
+		label({
+			Name = "Value",
+			AnchorPoint = Vector2.new(1, 1),
+			Position = UDim2.fromScale(1, 1),
+			Size = UDim2.new(0.32, 0, 0, BOOST_ROW_H),
+			TextSize = if total then Theme.sizes.textBody + 2 else Theme.sizes.textBody,
+			TextColor3 = if total
+				then Theme.colors.gold
+				elseif row.active then Theme.hud.income
+				else Theme.hud.subtext,
+			TextTransparency = if row.active then 0 else 0.25,
+			TextXAlignment = Enum.TextXAlignment.Right,
+			Text = row.value,
+			ZIndex = 6,
+			Parent = frame,
+		})
+	end
+end
+
+-- The left side, laid out for the screen's height: the counters in the bottom left corner; the potion timers over
+-- them when there is room for those and the whole menu with its arrow tab under it, else (a phone) beside the top
+-- of the menu with the arrow tab beside the last pill; the menu centred in what is left above; and the bottom row
+-- moved right of the counters when the screen is too narrow for it to sit in the middle.
+function HUD._layoutMenu(self: any)
+	local scale = Scale.get()
+	local size = self._root.AbsoluteSize
+	local width, height = Scale.DESIGN.X, Scale.DESIGN.Y - 58
+	if scale > 0 and size.Y > 0 then
+		width, height = size.X / scale, size.Y / scale
+	end
+	local gap = Theme.sizes.gap
+	local shown = 0
+	for _, child in self._menu:GetChildren() do
+		if child:IsA("GuiObject") and child.Visible then
+			shown += 1
+		end
+	end
+	local spaces = math.max(0, shown - 1)
+	local pills = shown * PILL_H
+	local foldUnder = gap + 4 + FOLD_H
+	local bandBottom = height - MARGIN - self._counterH - gap
+	local buffsH = BuffChips.rowHeight()
+	local roomy = bandBottom - (buffsH + BUFFS_GAP) - MARGIN >= pills + spaces * gap + foldUnder
+	if roomy then
+		self._buffs:place(
+			UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
+			Vector2.new(0, 1)
+		)
+		bandBottom -= buffsH + BUFFS_GAP
+	end
+	local band = bandBottom - MARGIN
+	-- a short screen closes the gaps between the pills a little before anything overlaps
+	local padding = gap
+	if not roomy and spaces > 0 and pills + spaces * gap > band then
+		padding = math.max(4, math.floor((band - pills) / spaces))
+	end
+	self._menuLayout.Padding = UDim.new(0, padding)
+	local menuH = pills + spaces * padding
+	self._menu.Size = UDim2.fromOffset(PILL_W, menuH)
+	local block = if roomy then menuH + foldUnder else menuH
+	self._menuTop = MARGIN + math.max(0, math.floor((band - block) / 2))
+	self._foldBeside = not roomy
+	if not roomy then
+		-- level with the first pill, right of the menu
+		self._buffs:place(
+			UDim2.fromOffset(MARGIN + PILL_W + 12, self._menuTop + PILL_H / 2),
+			Vector2.new(0, 0.5)
+		)
+	end
+	self._menu.Position =
+		UDim2.new(0, if self._menuFolded then MENU_FOLDED_X else MARGIN, 0, self._menuTop)
+	self:_placeMenuFold()
+
+	-- the bottom row (and its arrow tab) keeps clear of the counters
+	local row: Frame? = self._travelRow
+	if row then
+		local rowW = row.Size.X.Offset
+		self._travelShift = math.max(0, MARGIN + CORNER_W + gap - (width / 2 - rowW / 2))
+		row.Position = UDim2.new(
+			0.5,
+			self._travelShift,
+			1,
+			if self._travelFolded then TRAVEL_H + 24 else -MARGIN
+		)
+		self._travelFold.instance.Position =
+			UDim2.new(0.5, self._travelShift + rowW / 2 + gap, 1, -MARGIN)
+	end
+end
+
+-- The menu's arrow tab: under the menu, or beside its last pill on a short screen; at the edge once folded.
+function HUD._placeMenuFold(self: any)
+	local fold = self._menuFold.instance
+	local menuH = self._menu.Size.Y.Offset
+	if self._foldBeside then
+		local x = if self._menuFolded then MARGIN else MARGIN + PILL_W + Theme.sizes.gap
+		fold.Position = UDim2.fromOffset(x, self._menuTop + menuH - (PILL_H + FOLD_H) / 2)
+	else
+		fold.Position = UDim2.fromOffset(MARGIN, self._menuTop + menuH + Theme.sizes.gap + 4)
+	end
+end
+
+-- The exact golden fish behind the counter, "1,234 golden fish", over it for EXACT_SECONDS.
+function HUD._showExact(self: any)
+	local state: Types.PlayerState? = self._state
+	if state == nil then
+		return
+	end
+	self:_hideBoosts()
+	self._exactText.Text = Format.commas(math.floor(state.goldenFish or 0)) .. " golden fish"
+	self._exactText.TextColor3 = Theme.fish.text
+	local scale = Scale.get()
+	local x = if scale > 0
+		then (self._fishPanel.AbsolutePosition.X - self._root.AbsolutePosition.X) / scale
+		else MARGIN
+	self._exact.Position =
+		UDim2.new(0, math.max(MARGIN, x), 1, -(MARGIN + self._counterH + BUFFS_GAP))
 	self._exact.Visible = true
 	Sound.play("uiClick")
 	self._exactToken += 1

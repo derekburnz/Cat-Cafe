@@ -56,6 +56,12 @@ export type Offsets = {
 	blink: number, -- 0 eyes open, 1 shut
 	earL: number, -- how far each ear is flicked back, radians
 	earR: number,
+	-- The Bellhop Cat's cap and bell (F96; Pose turns the head's `_Prop` and `_Bell` pieces about their own pivots):
+	-- radians the cap tips up at the front, how far it is pulled down over the eyes to sleep (0 to 1), and radians
+	-- the bell swings side to side. 0 leaves them riding the head as before, on every cat.
+	capTip: number,
+	capDown: number,
+	bell: number,
 }
 
 export type Candidate<K> = { key: K, distance: number }
@@ -616,6 +622,9 @@ function Logic.blank(): Offsets
 		blink = 0,
 		earL = 0,
 		earR = 0,
+		capTip = 0,
+		capDown = 0,
+		bell = 0,
 	}
 end
 
@@ -1221,6 +1230,80 @@ function Logic.startle(o: Offsets, alpha: number)
 	o.tailYaw *= 1 - arc
 	o.earL = math.max(o.earL, math.rad(s.ears) * arc)
 	o.earR = math.max(o.earR, math.rad(s.ears) * arc)
+end
+
+-- Asleep for the Bellhop Cat's sleepy cap: a nap or a doze.
+function Logic.asleep(style: Style): boolean
+	return style == "nap" or style == "doze"
+end
+
+-- The Bellhop Cat's bell ring (Presets.bellhop.ring), `alpha` 0 to 1 through it: a quick shake of the head and the
+-- bell swinging side to side, dying away to rest by the end.
+function Logic.bellRing(o: Offsets, alpha: number)
+	if alpha < 0 or alpha >= 1 then
+		return
+	end
+	local r = Presets.bellhop.ring
+	local fade = (1 - alpha) * (1 - alpha)
+	o.bell += math.rad(r.degrees) * math.sin(alpha * r.swings * 2 * math.pi) * fade
+	local shaking = r.shakeSeconds / r.seconds
+	if alpha < shaking then
+		local k = alpha / shaking
+		o.headRoll += math.rad(r.shake) * math.sin(k * 3 * math.pi) * (1 - k)
+	end
+end
+
+-- The Bellhop Cat tipping its cap (Presets.bellhop.tip), `alpha` 0 to 1: the cap lifts at the front with a small nod,
+-- holds a moment and settles back.
+function Logic.capTip(o: Offsets, alpha: number)
+	local t = Presets.bellhop.tip
+	local k = Logic.envelope(alpha, 0, 0.3, 0.55, 1)
+	o.capTip += math.rad(t.degrees) * k
+	o.headPitch -= math.rad(t.nod) * k
+end
+
+-- The Bellhop Cat's little bow as it is put in its place (Presets.bellhop.bow), `alpha` 0 to 1: it leans forward,
+-- head down and cap tipped, holds and sits back up, the tail still while it bows.
+function Logic.bow(o: Offsets, alpha: number)
+	local b = Presets.bellhop.bow
+	local k = Logic.envelope(alpha, 0, 0.35, 0.6, 1)
+	o.bodyPitch -= math.rad(b.lean) * k
+	o.headPitch -= math.rad(b.head) * k
+	o.capTip += math.rad(b.cap) * k
+	o.tailYaw *= 1 - k
+end
+
+-- The happy hop as the Bellhop Cat is claimed (Presets.bellhop.hop), `alpha` 0 to 1: a little bounce where it sits,
+-- then the leap with its nose and tail up, its front paws reaching ahead and its ears pricked. Where it is comes from
+-- Logic.hopArc.
+function Logic.happyHop(o: Offsets, alpha: number)
+	if alpha < 0 or alpha >= 1 then
+		return
+	end
+	local h = Presets.bellhop.hop
+	local arc
+	if alpha < h.bounce then
+		arc = math.sin(alpha / h.bounce * math.pi)
+		o.bodyY += h.bounceHeight * arc
+		o.tailPitch += math.rad(h.tailUp) * 0.5 * arc
+	else
+		arc = math.sin((alpha - h.bounce) / (1 - h.bounce) * math.pi)
+		o.bodyPitch += math.rad(h.lean) * arc
+		o.headPitch += math.rad(h.lean) * 0.5 * arc
+		o.tailPitch += math.rad(h.tailUp) * arc
+		o.pawFL += math.rad(h.reach) * arc
+		o.pawFR += math.rad(h.reach) * arc
+	end
+	o.tailYaw *= 1 - arc
+	o.earL *= 1 - arc
+	o.earR *= 1 - arc
+end
+
+-- Where the happy hop's leap is `alpha` of the way from `from` to `to` (0 to 1, clamped): straight across with a
+-- parabola `height` studs high on top, so it leaves from one point and lands on the other.
+function Logic.hopArc(from: Vector3, to: Vector3, height: number, alpha: number): Vector3
+	local k = math.clamp(alpha, 0, 1)
+	return from + (to - from) * k + Vector3.new(0, 4 * height * k * (1 - k), 0)
 end
 
 -- How much of a server jump is still drawn as distance left to travel: 1 at the jump, 0 on landing.

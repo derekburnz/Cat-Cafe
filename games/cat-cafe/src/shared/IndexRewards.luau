@@ -77,6 +77,16 @@ function IndexRewards.claimed(
 	return area ~= nil and area[milestoneId] == true
 end
 
+-- What the milestone needs on this page: its `needs`, or for a `whole` milestone (decor10) every piece of the Decor
+-- page, sixteen on the Classic page since F97.
+function IndexRewards.needs(areaId: string, milestone: Types.IndexMilestone): number
+	if milestone.whole == true and milestone.track == "decor" then
+		local pool = string.sub(areaId, #IndexRewards.DECOR_PREFIX + 1)
+		return math.max(milestone.needs, Crates.pageSize(pool))
+	end
+	return milestone.needs
+end
+
 -- Why the milestone cannot be claimed now, or nil when it can.
 function IndexRewards.blocker(
 	profile: Types.PlayerProfile,
@@ -90,7 +100,8 @@ function IndexRewards.blocker(
 	if IndexRewards.claimed(profile, areaId, milestoneId) then
 		return "Already claimed"
 	end
-	local left = milestone.needs - IndexRewards.count(profile, areaId, milestone)
+	local left = IndexRewards.needs(areaId, milestone)
+		- IndexRewards.count(profile, areaId, milestone)
 	if left <= 0 then
 		return nil
 	end

@@ -192,9 +192,14 @@ end
 function Scenes.setup()
 	Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog")
 	UI = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI")
-	-- Claim all in the Quests window shows once the server has ClaimAll (Gameplay-Engineer); the gate checks it now
-	UIShim.require("ReplicatedStorage.Shared.Config").QuestClaimAll = true
+	-- Claim all in the Quests window, the Index window and the Tip Jar shows once the server has ClaimAll
+	-- (Gameplay-Engineer); the gate checks the buttons now
+	local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+	Config.QuestClaimAll = true
+	Config.IndexClaimAll = true
+	Config.TipJarClaimAll = true
 	UI.init({ catalog = catalogLikeTheGame(), keybinds = true })
+	UI.cannon.setEnabled(true) -- the Cat Cannon is live (F84): Cannon in the bottom row, no Alley or Areas
 	local now = os.time()
 	UI.update(samplePlayer(now))
 	UI.tipJar.set({ sessionStartedAt = workspace:GetServerTimeNow() - 25 * 60, claimed = { [1] = true } })
@@ -251,6 +256,30 @@ local function rescueChallenge()
 	}
 end
 
+-- F93 catch circles: `count` circles from `first` seconds on, one every 0.7 s, each closing over `shrink` seconds,
+-- with the header of a named cat of `rarity`
+local function startCatch(strayId, rarity, count, first, shrink)
+	local t = workspace:GetServerTimeNow()
+	local list = {}
+	local spots = { { 0.2, 0.4 }, { 0.45, 0.65 }, { 0.7, 0.35 }, { 0.35, 0.2 }, { 0.8, 0.7 }, { 0.55, 0.3 }, { 0.15, 0.75 } }
+	for index = 1, count do
+		local spot = spots[(index - 1) % #spots + 1]
+		table.insert(list, { startsAt = t + first + (index - 1) * 0.7, shrinkSeconds = shrink, x = spot[1], y = spot[2] })
+	end
+	UI.catch.show({ strayId = strayId, catId = Catalog.cats[2].id, catName = "Mochi", rarity = rarity })
+	UI.catch.showCircles(strayId, list, { perfect = 0.037, good = 0.09 })
+	return list
+end
+
+-- a tap anywhere on the circles, as a finger does
+local function tapCircles()
+	local tap = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles"):FindFirstChild("Tap")
+	UIShim.fire(UIShim.eventOf(tap, "InputBegan"), {
+		UserInputType = Enum.UserInputType.Touch,
+		Position = Vector3.new(400, 300, 0),
+	})
+end
+
 -- name, how the game opens it
 local SCENES = {
 	{ "Upgrades", function()
@@ -284,6 +313,20 @@ local SCENES = {
 	{ "Dealer", function()
 		UI.dealer.open()
 	end },
+	{ "DealerNight", function()
+		-- F94: one stock all night, the countdown to sunrise
+		UI.dealer.setStock({
+			window = 20400,
+			restocksAt = workspace:GetServerTimeNow() + 7 * 60 + 12,
+			stock = {
+				{ lureId = "sardines", cost = 25000, amount = 3, bought = 1 },
+				{ lureId = "caviar", cost = 120000, amount = 1, bought = 1 },
+				{ lureId = "moon_milk", cost = 400000, amount = 0, bought = 0 },
+				{ lureId = "star_treat", cost = 2500000, amount = 2, bought = 0 },
+			},
+		})
+		UI.dealer.open()
+	end },
 	{ "Settings", function()
 		UI.open("Settings")
 	end },
@@ -299,6 +342,31 @@ local SCENES = {
 	end },
 	{ "Market", function()
 		UI.market.open()
+		press("FishMarket", "CratesTab")
+	end },
+	{ "MarketFresh", function()
+		-- F94: a window mid-way, one row sold out to this player, one not stocked, a crate row
+		UI.freshCatch.setStock({
+			window = 5900000,
+			restocksAt = workspace:GetServerTimeNow() + 192,
+			stock = {
+				{ itemId = "tip_potion", fish = 10, amount = 3, bought = 1 },
+				{ itemId = "swift_potion", fish = 6, amount = 2, bought = 2 },
+				{ itemId = "steady_potion", fish = 12, amount = 0, bought = 0 },
+				{ itemId = "quick_bait_potion", fish = 15, amount = 1, bought = 0 },
+				{ itemId = "big_tip_potion", fish = 25, amount = 1, bought = 0 },
+				{ itemId = "lucky_potion", fish = 25, amount = 0, bought = 0 },
+				{ itemId = "gold_rush_potion", fish = 30, amount = 1, bought = 0 },
+				{ itemId = "classic_crate", fish = 50, amount = 1, bought = 0 },
+			},
+		})
+		UI.market.open()
+		press("FishMarket", "FreshTab")
+	end },
+	{ "MarketFreshNight", function()
+		UI.freshCatch.setStock(nil)
+		UI.market.open()
+		press("FishMarket", "FreshTab")
 	end },
 	{ "Feedback", function()
 		UI.bugReport.open("bug")
@@ -357,8 +425,33 @@ local SCENES = {
 		UI.setZone("Alley")
 		UI.net.setEnabled(true)
 	end },
+	-- F93: a catch three circles in: Perfect, Good, Perfect, each cleared with its word, the pips filling
+	{ "Catch", function()
+		local list = startCatch("gate_stray", "Epic", 5, 0, 0.82)
+		local t0 = workspace:GetServerTimeNow()
+		for index, delay in { 0, 0.06, 0 } do
+			local target = list[index].startsAt + list[index].shrinkSeconds
+			task.delay(target - t0 + delay, tapCircles)
+		end
+	end },
+	-- F93: the result word over the strip once the server's grades land (three Perfects of four: EXCELLENT!)
+	{ "CatchResult", function()
+		startCatch("gate_stray", "Rare", 4, 1, 1)
+		task.delay(1.8, function()
+			UI.catch.showGrades("gate_stray", { "perfect", "good", "perfect", "perfect" }, true, 0)
+		end)
+	end },
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
+	end },
+	-- last, since no window closes it: the money's boosts card with a Money Potion running and some boosts bought
+	{ "HUDBoosts", function()
+		local t = workspace:GetServerTimeNow()
+		UI.update({
+			buffs = { tip_potion = t + 492, swift_potion = t + 130 },
+			fishPerks = { golden_espresso = 2 },
+		})
+		press("CatCafeHUD", "Counters.Money")
 	end },
 }
 
@@ -379,6 +472,8 @@ end
 
 function Scenes.close()
 	UI.close()
+	UI.catch.hideCircles()
+	UI.catch.hide()
 	UI.rescue.hide()
 	UI.net.setEnabled(false)
 	UI.setZone(nil)

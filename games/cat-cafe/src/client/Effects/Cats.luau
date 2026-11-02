@@ -4,8 +4,8 @@
 -- asleep there, F79, or on an older server asleep at its station: curled up, or dozing where it sits or stands in
 -- its outfit, F25 and PR #260), the resting cat's loaf now and then, stuck
 -- cats struggling in their traps, strays looking around, legs that walk and gallop with the cat's real speed, the
--- pant after a sprint, the hiss hop on a missed catch, the startled spring of a near miss (F93) and the Balloon Cat
--- bobbing as if it might float off (F78).
+-- pant after a sprint, the hiss hop on a missed catch, the startled spring of a near miss (F93), the Balloon Cat
+-- bobbing as if it might float off (F78) and the Bellhop Cat's bell, cap tip, bow and sleepy cap (F96, Bellhop.luau).
 -- Only the nearest few within range move (budget.animatedCats within budget.animRadius); the rest stand as the
 -- server placed them. Gold cats in range sparkle, a gold coat seen for the first time bursts with gold sparkles,
 -- and napping cats show floating z's.
@@ -19,6 +19,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local Bellhop = require(script.Parent.Bellhop)
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
@@ -51,6 +52,7 @@ type Entry = {
 	naps: { TextLabel }?,
 	napGui: BillboardGui?,
 	floats: boolean, -- a cat that bobs as if it might float off (motion.float.cats: Balloon Cat)
+	bellhop: boolean, -- the Bellhop Cat (F96): its bell, cap and bow on top (Bellhop.layer)
 }
 
 local ROLES: { [string]: Logic.Style } = {
@@ -221,6 +223,7 @@ local function watchPlot(plot: Instance)
 	plot.DescendantAdded:Connect(function(descendant: Instance)
 		if isPlotCat(descendant) then
 			consider(descendant)
+			Bellhop.placed(descendant :: Model) -- a Bellhop Cat put in its place bows (F96)
 		end
 	end)
 end
@@ -510,6 +513,7 @@ local function bind(model: Model): Entry?
 		naps = nil,
 		napGui = nil,
 		floats = canFloat(model),
+		bellhop = Bellhop.is(model),
 	}
 	active[model] = entry
 	dress(entry)
@@ -743,6 +747,9 @@ local function step(dt: number)
 			else
 				Logic.hiss(o, alpha)
 			end
+		end
+		if entry.bellhop then
+			Bellhop.layer(model, o, entry.style, now)
 		end
 		Pose.draw(rig, o, alpha)
 		local yarn, wand = entry.yarn, entry.wand

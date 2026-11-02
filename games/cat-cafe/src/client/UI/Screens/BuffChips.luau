@@ -1,6 +1,6 @@
 --!strict
 -- The HUD's potion timers (F64, data-model section 12b; quests.md section 7: "their timers show in the HUD buff
--- chips"): under the money and golden fish pills, one small chip per running potion, a round tile in the potion's
+-- chips"): over the money and golden fish counters in the bottom left (beside the menu's top on a phone), one small chip per running potion, a round tile in the potion's
 -- colour and its time left in outlined white ("8:12"), no dark panel behind them. A tap on any chip opens the
 -- potion bag. Each tile shows the potion's own bottle icon (Components/ShopIcons). The row hides with no potion running; while one runs it ticks once a second, and a chip goes when
 -- its time is up. Times come from ProfileSync `buffs` (endsAt in server time), so a rejoin shows what is left.
@@ -12,6 +12,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
+local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -20,17 +21,23 @@ export type BuffChips = {
 	frame: Frame,
 	setCatalog: (self: BuffChips, catalog: Types.Catalog) -> (),
 	render: (self: BuffChips, state: Types.PlayerState) -> (),
-	setTop: (self: BuffChips, y: number) -> (),
+	place: (self: BuffChips, position: UDim2, anchor: Vector2) -> (),
 	destroy: (self: BuffChips) -> (),
 }
 
-local HEIGHT = 30
+local HEIGHT = 30 -- the time label
 local TILE = 28
+local TAP_H = 36 -- each chip takes taps this tall round its 28 px tile (more on a phone, Scale.tapHeight)
 
-type Chip = { frame: Frame, time: TextLabel }
+type Chip = { frame: TextButton, time: TextLabel }
 
 local BuffChips = {}
 BuffChips.__index = BuffChips
+
+-- How tall the row is: a chip's tap height, so the HUD keeps that much free over the counters.
+function BuffChips.rowHeight(): number
+	return Scale.tapHeight(TAP_H)
+end
 
 function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 	local self = setmetatable({}, BuffChips) :: any
@@ -45,7 +52,7 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 		Name = "Potions",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(x, 0),
-		Size = UDim2.fromOffset(0, HEIGHT),
+		Size = UDim2.fromOffset(0, BuffChips.rowHeight()),
 		AutomaticSize = Enum.AutomaticSize.X,
 		Visible = false,
 		Parent = parent,
@@ -65,8 +72,10 @@ function BuffChips.setCatalog(self: any, catalog: Types.Catalog)
 	self:_draw()
 end
 
-function BuffChips.setTop(self: any, y: number)
-	self.frame.Position = UDim2.fromOffset(self.frame.Position.X.Offset, y)
+-- Where the row sits (the HUD's _layoutMenu: over the counters in the bottom left, or beside the menu's top).
+function BuffChips.place(self: any, position: UDim2, anchor: Vector2)
+	self.frame.AnchorPoint = anchor
+	self.frame.Position = position
 end
 
 function BuffChips.render(self: any, state: Types.PlayerState)
@@ -75,10 +84,13 @@ function BuffChips.render(self: any, state: Types.PlayerState)
 end
 
 function BuffChips._chip(self: any, potionId: string, order: number): Chip
-	local frame: Frame = Create("Frame", {
+	-- the whole chip is the tap target for the bag, taller than it looks so a finger finds it
+	local frame: TextButton = Create("TextButton", {
 		Name = potionId,
+		Text = "",
+		AutoButtonColor = false,
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(0, HEIGHT),
+		Size = UDim2.fromOffset(0, BuffChips.rowHeight()),
 		AutomaticSize = Enum.AutomaticSize.X,
 		LayoutOrder = order,
 		Parent = self.frame,
@@ -116,16 +128,7 @@ function BuffChips._chip(self: any, potionId: string, order: number): Chip
 		Parent = frame,
 	})
 	Outline.text(time, 2)
-	-- the whole chip is the tap target for the bag
-	local hit: TextButton = Create("TextButton", {
-		Name = "Open",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
-		Text = "",
-		ZIndex = 3,
-		Parent = frame,
-	})
-	hit.Activated:Connect(function()
+	frame.Activated:Connect(function()
 		self._onOpen()
 	end)
 	return { frame = frame, time = time }

@@ -1,58 +1,48 @@
 --!strict
--- Dealer.luau against data-model section 8b: the night dealer's stock, shared by every player on every server in
--- the same window since v0.5 F43, an amount of each dealer food from DealerAmountWeights since v0.8 F59, with bought
--- counts cleared only when the window moves forward (reviewer N32).
+-- Dealer.luau against data-model section 8b and rewards-and-shops.md section 4 (F94): each server rolls one stock at
+-- dusk with its own Random, an amount of each dealer food from DealerAmountWeights (v0.8 F59), and it holds all
+-- night. The 5 minute windows the dealer had from v0.5 F43 to F94 moved to the Fresh Catch shelf (FreshCatch.spec).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
-	local Config = require(Shared.Config)
 	local Dealer = require(Shared.Dealer)
 
-	describe("windows", function()
-		it("are DealerWindowSeconds long and restock at the next one", function()
-			local w = Config.DealerWindowSeconds
-			expect(Dealer.window(0)).to.equal(0)
-			expect(Dealer.window(w - 1)).to.equal(0)
-			expect(Dealer.window(w)).to.equal(1)
-			expect(Dealer.restocksAt(Dealer.window(w * 5 + 30))).to.equal(w * 6)
-		end)
-	end)
+	-- A roll function that hands out `values` in order, then 0.
+	local function rolls(values: { number }): () -> number
+		local n = 0
+		return function()
+			n += 1
+			return values[n] or 0
+		end
+	end
 
-	describe("stock", function()
-		it("is the same amount of every dealer food for everyone in a window (F59)", function()
-			local first = Dealer.stock(2900000)
-			local again = Dealer.stock(2900000)
-			expect(#first).to.equal(#Dealer.FOODS)
-			for index, food in first do
+	describe("one stock a night (F94)", function()
+		it("rolls an amount of every dealer food in order, one roll each", function()
+			local stock = Dealer.roll(rolls({ 0, 0.99, 0.5, 0.95 }))
+			expect(#stock).to.equal(#Dealer.FOODS)
+			for index, food in stock do
 				expect(food.lureId).to.equal(Dealer.FOODS[index])
-				expect(food.amount).to.equal(again[index].amount)
-				expect(food.amount >= 0 and food.amount <= 4).to.equal(true)
 				local def = Catalog.getLure(food.lureId)
 				expect(def).to.be.ok()
 				expect((def :: any).source).to.equal("dealer")
-				expect(Dealer.amountOf(2900000, food.lureId)).to.equal(food.amount)
 			end
-			expect(Dealer.amountOf(2900000, "kibble")).to.equal(0)
+			-- sardines { 15, 25, 30, 20, 10 } at 0, caviar { 35, 40, 20, 5, 0 } at 0.99, moon milk { 60, 35, 5 } at
+			-- 0.5, star treat { 90, 10 } at 0.95
+			expect(stock[1].amount).to.equal(0)
+			expect(stock[2].amount).to.equal(3)
+			expect(stock[3].amount).to.equal(0)
+			expect(stock[4].amount).to.equal(1)
 		end)
 
-		it("changes from window to window", function()
-			local differs = 0
-			for window = 2900000, 2900019 do
-				local a, b = Dealer.stock(window), Dealer.stock(window + 1)
-				for index = 1, #Dealer.FOODS do
-					if a[index].amount ~= b[index].amount then
-						differs += 1
-					end
-				end
-			end
-			expect(differs > 20).to.equal(true)
-		end)
-
-		it("follows DealerAmountWeights over many windows", function()
+		it("follows DealerAmountWeights over many nights", function()
 			local counts: { [string]: { number } } = {}
-			local windows = 6000
-			for window = 1, windows do
-				for _, food in Dealer.stock(2900000 + window * 7) do
+			local nights = 6000
+			local random = Random.new(94)
+			local function nextNumber(): number
+				return random:NextNumber()
+			end
+			for _ = 1, nights do
+				for _, food in Dealer.roll(nextNumber) do
 					local row = counts[food.lureId] or { 0, 0, 0, 0, 0 }
 					row[food.amount + 1] += 1
 					counts[food.lureId] = row
@@ -62,50 +52,35 @@ return function()
 				local row = counts[lureId]
 				assert(row, lureId)
 				for index, weight in weights do
-					expect(row[index] / windows).to.be.near(weight / 100, 0.03)
+					expect(row[index] / nights).to.be.near(weight / 100, 0.03)
 				end
 			end
 		end)
 
-		it("rolls each window afresh: a food matches the window before about as often as chance (QA)", function()
-			-- with fresh rolls, the chance a food's amount equals the one `lag` windows before is the sum of the
-			-- squared weights (Moon Milk 0.6^2 + 0.35^2 + 0.05^2 = 0.485), at every lag
-			local count = 70 * 288 -- 70 days of windows from 2026-10-28 (window 5977152)
-			local amounts: { [string]: { number } } = {}
-			for window = 5977152, 5977152 + count - 1 do
-				for _, food in Dealer.stock(window) do
-					local list = amounts[food.lureId] or {}
-					table.insert(list, food.amount)
-					amounts[food.lureId] = list
-				end
-			end
-			for _, lureId in Dealer.FOODS do
-				local chance = 0
-				for _, weight in Catalog.dealerAmountWeights[lureId] do
-					chance += (weight / 100) ^ 2
-				end
-				local list = amounts[lureId]
-				for lag = 1, 12 do
-					local same = 0
-					for index = lag + 1, count do
-						if list[index] == list[index - lag] then
-							same += 1
-						end
-					end
-					local share = same / (count - lag)
-					if math.abs(share - chance) > 0.03 then
-						error(
-							string.format(
-								"%s matches the window %d before %.3f of the time, chance is %.3f",
-								lureId,
-								lag,
-								share,
-								chance
-							)
-						)
+		it("gives two servers their own nights", function()
+			local a, b = Random.new(1), Random.new(2)
+			local differs = 0
+			for _ = 1, 20 do
+				local first = Dealer.roll(function()
+					return a:NextNumber()
+				end)
+				local second = Dealer.roll(function()
+					return b:NextNumber()
+				end)
+				for index = 1, #Dealer.FOODS do
+					if first[index].amount ~= second[index].amount then
+						differs += 1
 					end
 				end
 			end
+			expect(differs > 10).to.equal(true)
+		end)
+
+		it("reads a food's amount from a stock, 0 for a food the dealer does not sell", function()
+			local stock = Dealer.roll(rolls({ 0.99, 0.99, 0.99, 0.99 }))
+			expect(Dealer.amountIn(stock, "sardines")).to.equal(4)
+			expect(Dealer.amountIn(stock, "star_treat")).to.equal(1)
+			expect(Dealer.amountIn(stock, "kibble")).to.equal(0)
 		end)
 
 		it("pickAmount walks the weights from 0 and clamps the roll", function()
@@ -119,34 +94,7 @@ return function()
 		end)
 	end)
 
-	describe("refresh", function()
-		it("clears the bought marks only when the window moves forward", function()
-			local state = { window = 10, bought = { caviar = 2 } }
-			Dealer.refresh(state, 10)
-			expect(state.bought.caviar).to.equal(2)
-			Dealer.refresh(state, 9) -- another server a second behind at the edge
-			expect(state.window).to.equal(10)
-			expect(state.bought.caviar).to.equal(2)
-			Dealer.refresh(state, 11)
-			expect(state.window).to.equal(11)
-			expect(state.bought.caviar).never.to.be.ok()
-		end)
-
-		it("counts every food as bought out while the window is behind the saved one (N32)", function()
-			local state = { window = 10, bought = {} }
-			Dealer.refresh(state, 9)
-			expect(Dealer.behind(state, 9)).to.equal(true)
-			expect(Dealer.behind(state, 10)).to.equal(false)
-			Dealer.refresh(state, 11)
-			expect(Dealer.behind(state, 11)).to.equal(false)
-		end)
-	end)
-
 	describe("dealer amounts edges (QA, F59)", function()
-		-- the real windows from 2026-10-28 00:00 UTC for 70 days, 288 a day
-		local TODAY = Dealer.window(1793145600)
-		local DAYS = 70
-
 		it("the weights match the design: 0 to 4 of each, out of 100, Sardines most and Star Treat least", function()
 			local means = { sardines = 1.85, caviar = 0.95, moon_milk = 0.45, star_treat = 0.10 }
 			for _, lureId in Dealer.FOODS do
@@ -165,12 +113,16 @@ return function()
 			end
 		end)
 
-		it("never rolls an amount with no weight over the next 70 days of windows", function()
-			for window = TODAY, TODAY + DAYS * 288 - 1 do
-				for _, food in Dealer.stock(window) do
+		it("never rolls an amount with no weight, whatever the roll", function()
+			for step = 0, 1000 do
+				local roll = step / 1000
+				local function always(): number
+					return roll
+				end
+				for _, food in Dealer.roll(always) do
 					local weights = Catalog.dealerAmountWeights[food.lureId]
 					if weights[food.amount + 1] == 0 then
-						error(string.format("window %d rolled %d %s, a zero weight", window, food.amount, food.lureId))
+						error(string.format("roll %.3f gave %d %s, a zero weight", roll, food.amount, food.lureId))
 					end
 				end
 			end

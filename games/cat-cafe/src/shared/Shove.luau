@@ -31,6 +31,7 @@ export type TackleCheck = {
 	areaUnlocked: boolean, -- the tackler's tier opens `area`
 	areasClosed: boolean, -- night: the catching areas are closed (v0.9, F66)
 	sinceTackle: number?, -- since this tackler's last press that was not refused
+	newcomer: boolean?, -- F87: the tackler has not checked in a cat yet, so the shield works both ways (review N300)
 }
 
 -- What the server knows about one player in the lunge's reach.
@@ -41,6 +42,7 @@ export type TargetCheck = {
 	targetSafe: boolean, -- on its own plot or near one of its doors
 	targetInCamp: boolean?, -- F84: standing in a camp, a safe zone up to its gate line
 	targetFlying: boolean?, -- F84: mid Cat Cannon flight or cloud hop: the lunge passes through
+	targetNewcomer: boolean?, -- F87: has not checked in a cat yet (easy-start.md section 2c): nobody tackles them
 	sinceShoveTarget: number?, -- since this tackler last hit this player
 	sinceTargetShoved: number?, -- since anyone last hit this player (S45)
 }
@@ -82,6 +84,9 @@ function Shove.tackleRefusal(check: TackleCheck): string?
 	if check.busy then
 		return "Finish what you are doing first"
 	end
+	if check.newcomer == true then
+		return "Check in your first cat before you tackle"
+	end
 	if check.area == nil then
 		return "You can only tackle inside a catching area"
 	end
@@ -119,6 +124,9 @@ function Shove.targetRefusal(check: TargetCheck): string?
 	end
 	if check.targetFlying == true then
 		return "They're flying"
+	end
+	if check.targetNewcomer == true then
+		return "They're new here" -- the `newcomer` refusal (F87)
 	end
 	if check.sinceShoveTarget ~= nil and check.sinceShoveTarget < Config.BumpSameTargetSeconds then
 		return "Give them a break"

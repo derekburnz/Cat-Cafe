@@ -1,7 +1,7 @@
 --!strict
 -- The night dealer's stock as shop rows (data-model section 8b v0.8, F59). Every window the dealer stocks each of
 -- the four dealer foods with an amount from 0 to 4, the same on every server, and each player can buy up to that
--- many; one row per food in the server's order, like the Grow a Garden seed shop, "x2 Stock" while some are left,
+-- many; one row per food in rarity order (F97 section 3, Components/FoodOrder), like the Grow a Garden seed shop, "x2 Stock" while some are left,
 -- "Sold out" once this player bought them all and "None this time" for an amount of 0.
 --   normalize(raw) -> DealerStock?   the DealerStock remote's { window, restocksAt, stock = { { lureId, cost,
 --                                    amount, bought } } }, or the pre-F59 { slots = { { lureId, cost, bought } },
@@ -12,6 +12,7 @@
 --   clock(seconds) -> "4:12"
 -- Pure, so the cloud test runner checks it.
 
+local FoodOrder = require(script.Parent.FoodOrder)
 local Types = require(script.Parent.Parent.Types)
 
 export type Row = {
@@ -104,6 +105,9 @@ function DealerRows.group(stock: Types.DealerStock, lureById: { [string]: Types.
 			left = math.max(0, food.amount - food.bought),
 		})
 	end
+	FoodOrder.sort(rows, function(row: Row): (string, Types.LureDef?)
+		return row.lureId, row.def
+	end)
 	return rows
 end
 

@@ -88,7 +88,10 @@ PIVOT_NOTES = {
                              "pivot, the stones 0.02 above it. Square space is world space; place with no turn.",
     "CatCafe_Square_Signpost": "Post's foot at (-9, 0.1, -7.5) with no turn: each _Arm<Area> board is aimed in world "
                                "space at its gate, long along its own X, with an Area attribute.",
-    "CatCafe_Square_Bunting": "On the ground under the middle of the span; its ends sit inside two lamps 22 apart.",
+    "CatCafe_Square_Bunting": "On the ground under the middle of the span; its ends sit inside two lamps 22.5 "
+                              "apart.",
+    "CatCafe_Square_BuntingShort": "On the ground under the middle of the span; its ends sit inside two lamps 17 "
+                                   "apart (across each end of the lane).",
     "CatCafe_Square_Cannon": "The plinth's base centre on the square's floor (0, 0.1, 0), placed with no turn, front "
                              "-Z (south). The _Turret pivot is the turntable's top centre, the barrel at rest "
                              "along +Z.",
@@ -108,9 +111,7 @@ PIVOT_NOTES = {
     "CatCafe_Decor_DoorSign": "hook (geometry hangs below the pivot)",
     "CatCafe_Decor_StringLights": "left end of the strand seen from the front; it runs to the right (Roblox -X) and sags below the pivot",
     "CatCafe_Alley_ShopWindow": "wall: back-bottom center",
-    "CatCafe_Item_Net_L1": "grip end of the pole; the pole runs forward (Roblox -Z)",
-    "CatCafe_Item_Net_L2": "grip end of the pole; the pole runs forward (Roblox -Z)",
-    "CatCafe_Item_Net_L3": "grip end of the pole; the pole runs forward (Roblox -Z)",
+    **{f"CatCafe_Item_Net_L{n}": "grip end of the pole; the pole runs forward (Roblox -Z)" for n in (1, 2, 3, 4)},
     "CatCafe_Accessory_Glasses": "attachment point (see attach)",
     "CatCafe_Accessory_BowTie": "attachment point (see attach)",
     "CatCafe_Accessory_Apron": "attachment point (see attach)",
@@ -190,12 +191,11 @@ STUDIO_NOTES = {
     "CatCafe_Alley_ShopWindow": "Pane: day = Color glass, Material Glass, Transparency 0.5; night = Material Neon, Color lamp_warm, Transparency 0.3, plus a PointLight (Brightness 0.8, Range 10).",
     "CatCafe_Decor_DoorSign": "Show Open by day and Closed at night (Clock.Phase). Hang on the door at eye height.",
     "CatCafe_Decor_StringLights": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand (Brightness 0.8, Range 10); SmoothPlastic by day.",
-    "CatCafe_Item_Net_L1": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the "
-                           "Handle, the net's axes) is where the hand holds it.",
-    "CatCafe_Item_Net_L2": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the "
-                           "Handle, the net's axes) is where the hand holds it.",
-    "CatCafe_Item_Net_L3": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the "
-                           "Handle, the net's axes) is where the hand holds it.",
+    **{f"CatCafe_Item_Net_L{n}": f"The {items.NET_NAMES[n - 1]} Net (F93), held all the time by Effects' NetHold: the "
+                                 "Attachment Grip (mid wrap, on the Handle, the net's axes) goes in the hand. Child "
+                                 "Models _Hoop (the rim, its far edge the point farthest from the Grip) and _Bag (strands; "
+                                 "_Bag_Glass, the see-through netting cone, exports at Transparency 0.6)."
+       for n in (1, 2, 3, 4)},
     **{f"CatCafe_Plot_Cafe_{c}": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. "
                                  "The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the "
                                  "owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). "

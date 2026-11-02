@@ -1,7 +1,8 @@
 --!strict
 -- What an Index reward pays, as little pictures with amounts (Derek 2026-10-27: "showing little symbols of whatever
--- they are going to get as next reward and how much"): a coin tile "$300", golden fish "x10", the food's own model
--- with its grade gem (F69) "x2", a crate "x1", the wheel "x1" for spins, a name tag, and a pill for a forever bonus
+-- they are going to get as next reward and how much"): three gold coins "$300", the gold fish "x10", the food's
+-- picture with its grade gem (F69) "x2", a crate "x1", the wheel "x1" for spins (the pictures of F97 section 4,
+-- Components/ShopIcons), a name tag, and a pill for a forever bonus
 -- (golden-fish.md section 5, v0.10): gold "+2% tips forever", deep gold "+3% gold luck forever" and blue "+2% faster
 -- bait forever". One chip per part from IndexRewards.prizeParts, so whatever the designer puts in Catalog.indexPrizes
 -- shows without a UI change; a kind the UI does not know yet shows a gift.
@@ -19,7 +20,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CrateLogic = require(script.Parent.CrateLogic)
 local Create = require(script.Parent.Create)
-local FishCoin = require(script.Parent.FishCoin)
 local FoodGrade = require(script.Parent.FoodGrade)
 local Format = require(script.Parent.Format)
 local IndexRewards = require(script.Parent.IndexRewards)
@@ -221,12 +221,19 @@ function PrizeChips.setCatalog(self: any, catalog: Types.Catalog)
 	end
 end
 
--- The uploaded shop icon for a crate or potion part (Components/ShopIcons), drawn in place of its model.
+-- The uploaded picture for a part (Components/ShopIcons; the golden fish is Theme's), drawn in place of its model.
 local function partImage(part: IndexRewards.PrizePart): string?
-	if part.kind == "crate" then
+	local kind = part.kind
+	if kind == "crate" then
 		return ShopIcons.crate(part.id)
-	elseif part.kind == "potion" then
+	elseif kind == "potion" then
 		return ShopIcons.potion(part.id)
+	elseif kind == "coins" then
+		return ShopIcons.image("Coins")
+	elseif kind == "spins" then
+		return ShopIcons.image("Spin")
+	elseif kind == "fish" then
+		return Theme.textures.fishCoin
 	end
 	return nil
 end
@@ -242,7 +249,7 @@ function PrizeChips._partLook(
 	if kind == "coins" then
 		return nil, COIN_GLYPH, "Legendary", Format.money(part.amount)
 	elseif kind == "fish" then
-		return nil, "", "Legendary", amount -- the cat-face coin is drawn over the tile in set
+		return nil, Theme.icons.goldenFish, "Legendary", amount
 	elseif kind == "lure" then
 		local lure: Types.LureDef? = self._lures[part.id or ""]
 		return if lure then lure.asset else nil,
@@ -275,7 +282,7 @@ function PrizeChips._partLook(
 end
 
 local PERK_WORDS: { [string]: string } = {
-	bonus = "tips forever",
+	bonus = "money forever", -- F94 section 5
 	goldLuck = "gold luck forever",
 	baitSpeed = "faster bait forever",
 }
@@ -502,15 +509,6 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 				icon:setFood(self._lures[part.id or ""], part.id) -- F69: the food's grade gem
 			else
 				icon:set(asset, glyph, rarity, partImage(part))
-			end
-			if part.kind == "fish" then
-				FishCoin.new({
-					parent = icon.frame,
-					size = math.floor(tile * 0.62),
-					position = UDim2.fromScale(0.5, 0.58),
-					anchorPoint = Vector2.new(0.5, 0.5),
-					zIndex = 2,
-				})
 			end
 			table.insert(self._icons, icon)
 			if amount ~= "" then

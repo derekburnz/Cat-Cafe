@@ -1014,6 +1014,55 @@ Presets.cafeWalk = {
 	trayLift = 0.08, -- studs a tray sits above the top of the head
 }
 
+-- The Bellhop Cat's five animations (F96, starter-cat.md section 1), on Model-Agent's #708 hinges: the cap (`_Prop`
+-- in `_Head`) tips about its pivot at the back of its base, front up for plus; the bell (`_Bell`, in the collar
+-- `_Prop2`) swings side to side about its pivot's Z where it hangs.
+-- - `ring`: the head gives a quick shake over `shakeSeconds` (`shake` degrees of roll) and the bell swings `swings`
+--   times either way, `degrees` at first and dying away, over `seconds`. The stand rings once every `every` seconds
+--   (a random time between the two) by day; a cafe Bellhop rings in each customer who comes within `greet` studs
+--   before ordering, at most once every `gap` seconds, and tips its cap to them `tipAfter` seconds later.
+-- - `tip`: the cap lifts `degrees` at the front with a `nod` of the head and settles back, over `seconds`. The stand
+--   tips it to you as you walk within `walkUp` studs, at most once every `tipGap` seconds.
+-- - `bow`: put in its place (a new station model), it leans `lean` degrees forward with its head `head` degrees
+--   down and the cap tipped `cap`, over `seconds`, if it shows within `bowWindow` seconds of appearing.
+-- - `sleepCap`: asleep (a nap or doze) the cap turns `turn` degrees and moves `down` and `forward` studs, times the
+--   cat's scale, to sit over its eyes, sliding there or back over `seconds`.
+-- - `hop`: claimed at the stand, it bounces `bounceHeight` studs where it sits for the first `bounce` share of
+--   `seconds`, then leaps in an arc `height` studs high to `ahead` studs in front of you, its feet `lift` studs above
+--   the middle of your character (in your arms), nose up
+--   `lean`, tail up `tailUp` and front paws reaching `reach` degrees. It vanishes in a sparkle there and fades back
+--   onto the cart over `fade` seconds, `back` seconds later.
+-- `standScale`: the cart's cat is the sitting body (`sitModel`) at this scale (Model-Agent).
+Presets.bellhop = {
+	catId = "bellhop_cat",
+	ring = { seconds = 1.4, degrees = 30, swings = 4, shake = 7, shakeSeconds = 0.5 },
+	every = { 8, 12 },
+	greet = 7,
+	gap = 3,
+	tipAfter = 1.2,
+	tip = { seconds = 1, degrees = 20, nod = 8 },
+	walkUp = 12,
+	tipGap = 8,
+	bow = { seconds = 1.5, lean = 16, head = 18, cap = 8 },
+	bowWindow = 3,
+	sleepCap = { turn = -40, down = 0.17, forward = 0.3, seconds = 1.2 },
+	hop = {
+		seconds = 1.1,
+		bounce = 0.3,
+		bounceHeight = 0.6,
+		height = 3,
+		ahead = 1.8,
+		lift = -0.6,
+		lean = 14,
+		tailUp = 40,
+		reach = 35,
+		back = 3,
+		fade = 0.4,
+	},
+	standScale = 1.5,
+	sitModel = "CatCafe_Cat_BellhopCat_Sit",
+}
+
 Presets.catPoses = {
 	sleep = {
 		body = "walk",

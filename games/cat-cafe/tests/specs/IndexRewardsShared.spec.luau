@@ -36,6 +36,7 @@ return function()
 				expect(digits).to.equal(if milestone.id == "decor10" then 10 else milestone.needs)
 				if milestone.id == "decor10" then
 					expect(milestone.needs).to.equal(12)
+					expect(milestone.whole).to.equal(true) -- F97: the whole page, sixteen on the Classic page
 				end
 			end
 			expect(ids :: any).to.deepEqual({
@@ -497,6 +498,11 @@ return function()
 			for _, def in Catalog.crateDecor do
 				profile.decorOwned[def.id] = true
 			end
+			for _, def in Catalog.decor do -- F97: the Classic page's four old coin pieces
+				if def.crate ~= nil then
+					profile.decorOwned[def.id] = true
+				end
+			end
 			return profile
 		end
 
@@ -509,8 +515,10 @@ return function()
 		local function ownCount(profile: any, areaId: string, track: string): number
 			local n = 0
 			if track == "decor" then
-				for _, def in Catalog.crateDecor do
-					if "decor_" .. tostring(def.crate) == areaId and profile.decorOwned[def.id] then
+				-- a page's pieces are its crate's, the Classic page's four old coin pieces among them (F97)
+				local crate = Catalog.getCrate(string.sub(areaId, #"decor_" + 1) .. "_crate")
+				for _, id in if crate ~= nil then crate.pieces else {} do
+					if profile.decorOwned[id] then
 						n += 1
 					end
 				end
@@ -788,6 +796,11 @@ return function()
 							profile.decorOwned[def.id] = true
 						end
 					end
+					for _, def in Catalog.decor do -- F97: the Classic page's old coin pieces
+						if def.crate ~= nil and uniform() < keep then
+							profile.decorOwned[def.id] = true
+						end
+					end
 					local order = table.clone(all)
 					for i = #order, 2, -1 do
 						local j = 1 + math.floor(uniform() * i)
@@ -798,7 +811,13 @@ return function()
 						local areaId, milestoneId = pair[1], pair[2]
 						local milestone =
 							IndexRewards.milestone(milestoneId) :: Types.IndexMilestone
-						local left = milestone.needs - ownCount(profile, areaId, milestone.track)
+						-- F97: a `whole` milestone (decor10) needs every piece of its page, sixteen on the Classic page
+						local needs = milestone.needs
+						if milestone.whole == true then
+							local crate = Catalog.getCrate(string.sub(areaId, #"decor_" + 1) .. "_crate")
+							needs = math.max(needs, if crate ~= nil then #crate.pieces else 0)
+						end
+						local left = needs - ownCount(profile, areaId, milestone.track)
 						local blocker = IndexRewards.blocker(profile, areaId, milestoneId)
 						local at = areaId .. "." .. milestoneId .. ": "
 						if left > 0 then
@@ -969,10 +988,16 @@ return function()
 					end
 					expect(#older).to.equal(10)
 					assert(door and flap)
-					-- the ten pieces a page had before F80 leave decor10 two short, then one, then claimable
+					-- the ten pieces a page had before F80 leave decor10 two short, then one, then claimable (F97: the
+					-- Classic page's four old coin pieces owned too, since decor10 needs its whole sixteen)
 					local profile = ProfileSchema.template(1000) :: any
 					for _, def in older do
 						profile.decorOwned[def.id] = true
+					end
+					for _, def in Catalog.decor do
+						if def.crate == pool then
+							profile.decorOwned[def.id] = true
+						end
 					end
 					expect(IndexRewards.blocker(profile, page, "decor5")).never.to.be.ok()
 					expect(IndexRewards.blocker(profile, page, "decor10")).to.equal(
@@ -1013,13 +1038,19 @@ return function()
 						Config.DecorIndexBonus,
 						1e-9
 					)
-					-- the page's cards read "5 pieces" and "All 12" from the catalog's twelve
+					-- the page's cards read "5 pieces" and "All 12" from the catalog's twelve; the Classic page holds
+					-- sixteen with the old coin pieces (F97), and decor10 (`whole`) reads "All 16" there, as the server asks
+					local classic = pool == "classic"
 					local counts =
 						UIRewards.counts(Catalog, { decorOwned = before.decorOwned }, page)
-					expect(counts.total).to.equal(12)
+					expect(counts.total).to.equal(if classic then 16 else 12)
 					expect(counts.found).to.equal(10)
 					expect(UIRewards.needLabel(decor5, counts.total, page)).to.equal("5 pieces")
-					expect(UIRewards.needLabel(decor10, counts.total, page)).to.equal("All 12")
+					expect(UIRewards.needLabel(decor10, counts.total, page)).to.equal(
+						if classic then "All 16" else "All 12"
+					)
+					expect(IndexRewards.needs(page, decor10)).to.equal(if classic then 16 else 12)
+					expect(IndexRewards.needs(page, decor5)).to.equal(5)
 				end
 			end
 		)

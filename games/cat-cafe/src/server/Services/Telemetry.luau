@@ -41,6 +41,8 @@ export type CustomEvent =
 	| "session_end"
 	| "offline_claim"
 	| "dealer_buy"
+	-- F94 (rewards-and-shops.md section 6): a Fresh Catch buy, value the golden fish spent; the row id, tier
+	| "fresh_catch_buy"
 	| "rich_tip"
 	| "cat_sold"
 	| "cat_renamed"
@@ -86,6 +88,19 @@ export type CustomEvent =
 	-- F93 (catch-rework.md section 5): net swings rolled up per player (review S99), value the swings since the last
 	-- roll up; "hit", "miss_near" or "miss_empty", net level, device
 	| "net_swing"
+	-- F97 (notes-10-28-to-10-30.md section 7): a sunrise wave with no Epic or rarer stray rerolled its last one; area,
+	-- the rarity it got. A server event, logged under the first loaded player
+	| "wave_rare"
+	-- F87 (easy-start.md section 5): a new player leaving (their first UTC day of play, or tutorialStep below 5), value
+	-- the session's seconds; the furthest onboarding step, the session's bounce window, device. From the client: a
+	-- stuck nudge (tutorialStep, kind: pulse, help_shown or show_me) and where the intro was played from (tile, help)
+	| "new_player_left"
+	| "stuck_nudge"
+	| "intro_choice"
+	-- F87 (TipService): a context tip or the like ask shown (tip id, skipped yes or no), once per id until ClearTips;
+	-- a feedback face (love, ok or no; the chip or none; tier), FeedbackSessionLimit a session
+	| "tip_shown"
+	| "feedback"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -113,8 +128,16 @@ local LOG_SIZE = 200
 local DAY_SECONDS = 86400
 local DEVICE_WAIT_SECONDS = 10 -- the joined step waits this long for the client's device report
 local LEFT_AFTER_SHOVE_SECONDS = 120
-local REPORTS = { "device", "ui_opened" }
+local REPORTS = { "device", "ui_opened", "intro_choice", "stuck_nudge" }
 local DEVICES = { "phone", "tablet", "pc", "console" }
+-- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
+-- kind a session (the hint pulses every 40 s while it waits); an intro choice at most INTRO_CHOICES times a session.
+local INTRO_FROM = { "tile", "help" }
+local NUDGE_KINDS = { "pulse", "help_shown", "show_me" }
+local INTRO_CHOICES = 5
+local FIRST_MOVE_STUDS = 8 -- first_move: this far across the ground from where the character was first seen
+local WATCH_SECONDS = 1 -- how often first_move and rank_up_ready are looked for
+local NEW_PLAYER_STEP = 5 -- new_player_left is logged while tutorialStep is below this, or on the first day
 -- the UI's ScreenName (screenOpened) to the ui_opened field value
 local SCREENS: { [string]: string } = {
 	Upgrades = "upgrades",
@@ -144,6 +167,9 @@ type Session = {
 	knockedAt: number?, -- os.clock() of the last shove that knocked this player's cat loose
 	knockedRarity: string?,
 	swings: { [string]: { count: number, values: { string } } }, -- net swings not logged yet, by their fields
+	origin: Vector3?, -- F87: where the character's root was first seen this session, for first_move
+	nudges: { [string]: boolean }, -- F87: stuck_nudge already logged this session, by "<tutorialStep>:<kind>"
+	introChoices: number, -- F87: intro_choice events logged this session
 }
 
 local sessions: { [Player]: Session } = {}
@@ -286,6 +312,9 @@ end
 
 -- One onboarding step (analytics-plan section 3). Logged at once when it is the next step, along with any later
 -- steps already reached; held in profile.telemetry otherwise (Onboarding.reach). `values` go with this step only.
+-- F87 (easy-start.md section 5): the 24 step funnel v2 goes out as the funnel Onboarding.FUNNEL ("onboarding_v2")
+-- with the player's user id as its one funnel session, since LogOnboardingFunnelStepEvent has no name to keep it
+-- apart from the alpha's 12 step funnel.
 function Telemetry.onboarding(
 	player: Player,
 	profile: Profile,
@@ -297,7 +326,14 @@ function Telemetry.onboarding(
 		local fields = if name == stepName and values ~= nil then values else {}
 		remember(player, "onboarding", name, step, fields)
 		send("onboarding " .. name, function()
-			AnalyticsService:LogOnboardingFunnelStepEvent(player, step, name, customFields(fields))
+			AnalyticsService:LogFunnelStepEvent(
+				player,
+				Onboarding.FUNNEL,
+				tostring(player.UserId),
+				step,
+				name,
+				customFields(fields)
+			)
 		end)
 	end
 end
@@ -615,6 +651,9 @@ function Telemetry.rankedUp(player: Player, profile: Profile)
 		+ (if session ~= nil then math.max(0, os.time() - session.joinedAt) else 0)
 	Telemetry.custom(player, "rank_up", math.floor(seconds / 60), { tostring(tier) })
 	if tier == 2 then
+		-- RankUp is pressed on the Rank Up card with the needs met, so both steps before tier_2 happened (F87)
+		Telemetry.onboarding(player, profile, "rank_up_card_seen")
+		Telemetry.onboarding(player, profile, "rank_up_ready")
 		Telemetry.onboarding(player, profile, "tier_2")
 	elseif tier == 3 then
 		Telemetry.onboarding(player, profile, "tier_3")
@@ -653,6 +692,25 @@ local function logJoined(player: Player)
 	if session.returnedNextDay then
 		Telemetry.onboarding(player, profile, "returned_next_day")
 	end
+	-- steps the save already shows, so a converted save is never stuck behind a step it passed silently (QA S72)
+	local parkCats = 0
+	for catId in profile.collection do
+		local def = Catalog.getCat(catId)
+		if def ~= nil and (def.area == "park" or def.incomeArea == "park") then
+			parkCats += 1
+		end
+	end
+	local shown = Onboarding.fromSave({
+		catsCaught = profile.stats.catsCaught,
+		distinctCats = Economy.distinctCats(profile),
+		tables = Economy.level(profile, "tables"),
+		bowl = Economy.level(profile, "lure_bowl"),
+		tier = Economy.tier(profile),
+		parkCats = parkCats,
+	})
+	for _, name in shown do
+		Telemetry.onboarding(player, profile, name :: Onboarding.StepName)
+	end
 end
 
 local function onReport(player: Player, rawName: unknown, rawValue: unknown)
@@ -667,10 +725,31 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.device = device
 			logJoined(player)
 		end
+	elseif name == "intro_choice" then
+		local from = Guard.oneOf(rawValue, INTRO_FROM)
+		if from ~= nil and session.introChoices < INTRO_CHOICES then
+			session.introChoices += 1
+			Telemetry.custom(player, "intro_choice", 1, { from })
+		end
+	elseif name == "stuck_nudge" then
+		local kind = Guard.oneOf(rawValue, NUDGE_KINDS)
+		local profile = DataService.get(player)
+		if kind ~= nil and profile ~= nil then
+			local step = tostring(profile.tutorialStep)
+			local key = step .. ":" .. kind
+			if not session.nudges[key] then
+				session.nudges[key] = true
+				Telemetry.custom(player, "stuck_nudge", 1, { step, kind })
+			end
+		end
 	else
 		local screen = if type(rawValue) == "string" then SCREENS[rawValue] else nil
 		if screen ~= nil then
 			Telemetry.custom(player, "ui_opened", 1, { screen })
+			local profile = DataService.get(player)
+			if screen == "rank_up" and profile ~= nil and Economy.tier(profile) == 1 then
+				Telemetry.onboarding(player, profile, "rank_up_card_seen") -- Tier 2's needs showing (F87)
+			end
 		end
 	end
 end
@@ -691,6 +770,9 @@ local function onLoaded(player: Player, profile: Profile)
 		knockedAt = nil,
 		knockedRarity = nil,
 		swings = {},
+		origin = nil,
+		nudges = {},
+		introChoices = 0,
 	}
 	if firstSession then
 		-- the template's coins never pass through Economy.credit, so they are not in lifetimeCoins
@@ -805,6 +887,19 @@ local function onRelease(player: Player, profile: Profile)
 		tierText(profile),
 		session.device or "unknown",
 	})
+	-- F87: a new player leaving, in Roblox's bounce windows (easy-start.md section 5)
+	local played = math.max(0, now - session.joinedAt)
+	if
+		profile.tutorialStep < NEW_PLAYER_STEP
+		or profile.telemetry.firstDay == now // DAY_SECONDS
+	then
+		local furthest = Onboarding.STEPS[profile.telemetry.onboardingStep]
+		Telemetry.custom(player, "new_player_left", played, {
+			if furthest ~= nil then furthest else "none",
+			bucket(played, { 60, 180, 600 }, { "0-60s", "61-180s", "3-10m", "10m+" }),
+			session.device or "unknown",
+		})
+	end
 	if Economy.tier(profile) < 2 then
 		local reached = Onboarding.STEPS[profile.telemetry.onboardingStep]
 		Telemetry.custom(player, "quit_point", math.max(0, now - session.joinedAt), {
@@ -814,6 +909,38 @@ local function onRelease(player: Player, profile: Profile)
 		})
 	end
 	sessions[player] = nil
+end
+
+-- F87: the two onboarding steps nothing else announces. first_move once the character has gone FIRST_MOVE_STUDS
+-- across the ground from where it was first seen this session; rank_up_ready once a Tier 1 cafe meets Tier 2's needs
+-- (Economy.rankUpBlocker), which coins earned in the background can do between syncs.
+local function watchOnboarding(player: Player, session: Session)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	if not Onboarding.reached(profile.telemetry, "first_move") then
+		local character = player.Character
+		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+		if root ~= nil and root:IsA("BasePart") then
+			local at = (root :: BasePart).Position
+			local origin = session.origin
+			if origin == nil then
+				session.origin = at
+			elseif
+				Vector3.new(at.X - origin.X, 0, at.Z - origin.Z).Magnitude >= FIRST_MOVE_STUDS
+			then
+				Telemetry.onboarding(player, profile, "first_move")
+			end
+		end
+	end
+	if
+		Economy.tier(profile) == 1
+		and not Onboarding.reached(profile.telemetry, "rank_up_ready")
+		and Economy.rankUpBlocker(profile) == nil
+	then
+		Telemetry.onboarding(player, profile, "rank_up_ready")
+	end
 end
 
 function Telemetry.start()
@@ -836,6 +963,14 @@ function Telemetry.start()
 			task.wait(SWING_FLUSH_SECONDS)
 			for player in sessions do
 				flushSwings(player)
+			end
+		end
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(WATCH_SECONDS)
+			for player, session in sessions do
+				watchOnboarding(player, session)
 			end
 		end
 	end)

@@ -436,7 +436,7 @@ function IndexStrip._fill(
 		spinsBanked = look.spinsBanked,
 		tier = look.tier,
 	})
-	local need = IndexRewards.need(view.milestone)
+	local need = view.need or IndexRewards.need(view.milestone)
 	local toGo = IndexRewards.toGo(view)
 	local label = IndexRewards.needLabel(view.milestone, total, area)
 	card.need.Text = if isNext and view.state == "locked"

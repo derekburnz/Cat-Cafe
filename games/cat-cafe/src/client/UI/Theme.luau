@@ -103,8 +103,9 @@ Theme.fish = {
 Theme.textures = {
 	-- the faint L-shaped tile mark repeated over button faces (assets/cat-cafe/ui/textures/UI_ButtonTiles.png)
 	buttonTiles = "rbxassetid://79710930693221",
-	-- the golden fish coin with its cat face and ears (assets/cat-cafe/exports/icons/CatCafe_Icon_GoldenFish.png)
-	fishCoin = "rbxassetid://77287948377172",
+	-- the golden fish, one picture everywhere (F97 section 4: a shiny gold fish with a white glint; it replaced the
+	-- cat-face coin; assets/cat-cafe/exports/icons/CatCafe_Icon_GoldenFish.png, Model-Agent #690)
+	fishCoin = "rbxassetid://75310291409772",
 }
 
 -- HUD panels float over the 3D world, so they are dark and solid for contrast, with a thick dark outline
@@ -256,7 +257,7 @@ Theme.icons = {
 	sewer = "🕳️",
 	lock = "🔒",
 	unlock = "🔓",
-	food = "🐟",
+	food = "🍽️", -- a food with no picture or glyph of its own (🐟 is the golden fish's)
 	moon = "🌙",
 	cannon = "💥", -- F84: the Cat Cannon button and window badge
 	town = "🏡", -- F84: Town Square on a camp cannon's card
@@ -267,7 +268,7 @@ Theme.icons = {
 	feedback = "💬", -- the HUD's Feedback tile and the Feedback window's badge
 	gifts = "🎁",
 	spin = "🎡",
-	goldenFish = "🐟", -- in text only; tiles and the HUD draw the cat-face coin (Components/FishCoin)
+	goldenFish = "🐟", -- wherever IconArt draws it (buttons, badges) it is the golden fish picture (Theme.glyphImages)
 	crate = "📦",
 	tag = "🏷️",
 	potion = "🧪", -- v0.10 potions in prizes until the asset thread draws the bottles
@@ -304,6 +305,12 @@ Theme.iconSheet = {
 	} :: { [string]: Vector2 },
 }
 
+-- Glyphs drawn as a whole uploaded picture in place of the sheet (Components/IconArt.set): the golden fish on every
+-- price button and badge is the one gold fish picture (F97 section 4)
+Theme.glyphImages = {
+	[Theme.icons.goldenFish] = Theme.textures.fishCoin,
+} :: { [string]: string }
+
 -- A glyph per upgrade and per role for the Upgrades rows until the asset thread renders icons
 Theme.upgradeIcons = {
 	tables = "🪑",
@@ -335,7 +342,7 @@ Theme.foodIcons = {
 	kibble = "🥣",
 	tuna = "🥫",
 	salmon = "🍣",
-	sardines = "🐟",
+	sardines = "🐠", -- not 🐟, which draws the golden fish
 	caviar = "🦪",
 	moon_milk = "🥛",
 	star_treat = "⭐",

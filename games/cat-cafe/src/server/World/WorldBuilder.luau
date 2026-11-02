@@ -991,11 +991,10 @@ end
 -- emptied at night by the sweep, so the fence along the back alleys' inner edges went with them.
 local function buildNightFences(gates: { [string]: Model }, plots: { Plot }, parent: Instance)
 	for areaId, gate in gates do
-		local asset = "CatCafe_"
-			.. areaId:sub(1, 1):upper()
-			.. areaId:sub(2)
-			.. "_NightFence"
-			.. artSuffix(areaId)
+		local asset = "CatCafe_" .. areaId:sub(1, 1):upper() .. areaId:sub(2) .. "_NightFence"
+		if AssetRegistry.has(asset .. artSuffix(areaId)) then
+			asset ..= artSuffix(areaId) -- a long area's own fence; the Woods' v3.2 one already fits its opening
+		end
 		if AssetRegistry.has(asset) then
 			placeNightFence(asset, gate:GetPivot(), parent).Name = asset
 		end

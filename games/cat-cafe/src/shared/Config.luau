@@ -580,12 +580,13 @@ local Config = {
 		ParkCenterZ = -2000,
 		ParkWidth = 120,
 		ParkDepth = 310,
-		-- The Woods (v3.2: 240 x 240) with its camp on its east side, the Sewer (180 x 180) with its camp on its west. Their
-		-- gates keep the 24 wide openings they had in the back alleys' outer walls (SideGateHalfWidth either side).
+		-- The Woods (F85, hometown-cannon.md section 6b): long, 160 wide and 490 deep, its camp on its east side, so its
+		-- depth runs along world X. The Sewer (v3.2: 180 x 180) with its camp on its west. Their gates keep the 24 wide
+		-- openings they had in the back alleys' outer walls (SideGateHalfWidth either side).
 		WoodsCenterX = -2000,
 		WoodsCenterZ = 0,
-		WoodsWidth = 240,
-		WoodsDepth = 240,
+		WoodsWidth = 160,
+		WoodsDepth = 490,
 		SewerCenterX = 2000,
 		SewerCenterZ = 0,
 		SewerWidth = 180,

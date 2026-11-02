@@ -20,6 +20,33 @@ return function()
 			expect(BackDoor.wantsOpen(false, true, 0)).to.equal(false)
 			expect(BackDoor.wantsOpen(true, false, 0)).to.equal(false)
 		end)
+
+		-- Derek 2026-10-28: "walking through closed doors at night; the door should open for its owner"
+		it("opens at night only for the owner within OPEN_RANGE, never on an empty plot", function()
+			expect(BackDoor.wantsOpen(false, true, 0, 0)).to.equal(true)
+			expect(BackDoor.wantsOpen(false, true, 0, BackDoor.OPEN_RANGE)).to.equal(true)
+			expect(BackDoor.wantsOpen(false, true, 0, BackDoor.OPEN_RANGE + 0.1)).to.equal(false)
+			expect(BackDoor.wantsOpen(false, true, 0, nil)).to.equal(false)
+			expect(BackDoor.wantsOpen(false, false, 0, 0)).to.equal(false)
+			-- by day anyone near opens it, the owner or not
+			expect(BackDoor.wantsOpen(true, true, 2, nil)).to.equal(true)
+		end)
+	end)
+
+	describe("at night (Derek 2026-10-28)", function()
+		it("keeps a door set's front leaves open by day, and at night only while the owner is near", function()
+			expect(BackDoor.frontOpen(true, nil)).to.equal(true)
+			expect(BackDoor.frontOpen(false, nil)).to.equal(false)
+			expect(BackDoor.frontOpen(false, BackDoor.OPEN_RANGE)).to.equal(true)
+			expect(BackDoor.frontOpen(false, BackDoor.OPEN_RANGE + 0.1)).to.equal(false)
+		end)
+
+		it("makes an owned cafe's shut doors solid at night for everyone but the owner", function()
+			expect(BackDoor.solid(false, true, false)).to.equal(true)
+			expect(BackDoor.solid(false, true, true)).to.equal(false)
+			expect(BackDoor.solid(true, true, false)).to.equal(false)
+			expect(BackDoor.solid(false, false, false)).to.equal(false)
+		end)
 	end)
 
 	describe("frontTurn", function()

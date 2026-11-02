@@ -240,13 +240,21 @@ for (const plot of plots.values()) {
     const q = toLocal(plot.cf, part.c);
     return part.max[1] - plot.cf[1] < 0.4 && q[2] > door[2] + 2 && Math.abs(q[0] - door[0]) < 4 && part.size.some((v) => v > 6);
   });
-  const deckX = deck.length ? deck.map((part) => toLocal(plot.cf, part.c)[0]).reduce((a, b) => a + b, 0) / deck.length : null;
+  const strips = new Set(
+    deck
+      .filter((part) => !/^(Floor|Ground|Grass)$/.test(part.name))
+      .map((part) => {
+        const a = toLocal(plot.cf, part.min)[0], b = toLocal(plot.cf, part.max)[0];
+        return `${part.unit.split('.').pop()} x ${Math.min(a, b).toFixed(2)} to ${Math.max(a, b).toFixed(2)}`;
+      }),
+  );
+  const deckX = strips.size ? [...strips].join('; ') : null;
   doorRows.push({ p: plot.p, tier: plot.tier, door: door.map((v) => v.toFixed(2)).join(', '), fenceZ: fenceZ.toFixed(2), deckX, found });
 }
-report.push('| cafe (tier) | back door (plot space) | yard fence back z | deck path x | in the way |', '|---|---|---|---|---|');
+report.push('| cafe (tier) | back door (plot space) | yard fence back z | low strips out from the door | in the way |', '|---|---|---|---|---|');
 for (const r of doorRows) {
   const what = r.found.length === 0 ? 'clear' : r.found.map((h) => `${label(h.part)} at (${toLocal(plots.get(r.p).cf, h.part.c).map((v) => v.toFixed(1)).join(', ')}) ${h.depth.toFixed(2)}`).slice(0, 6).join('; ');
-  report.push(`| ${r.p} (T${r.tier}) | (${r.door}) | ${r.fenceZ} | ${r.deckX == null ? 'none' : r.deckX.toFixed(2)} | ${what} |`);
+  report.push(`| ${r.p} (T${r.tier}) | (${r.door}) | ${r.fenceZ} | ${r.deckX == null ? 'none' : r.deckX} | ${what} |`);
 }
 
 // 5. The lawn fence's ends against the cafe's front corners.

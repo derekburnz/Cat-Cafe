@@ -340,7 +340,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Area sets (v3.2) | 80,000 Park, 120,000 Woods, Sewer and Neighbourhood | a whole area as one Model of Parts; the part count is the real cost (Park 2,807, Woods 4,510, Sewer 4,471, Neighbourhood 5,478) |
 | Index Boards | 1,500 | one per area, at its entry inside the gate (section 14) |
 | Night pieces | 6,000 per gate fence | the short night (section 14): Alley_NightFenceSegment 2,000, Plot_BackDoorClosed 2,500 |
-| Street stations | 6,000 | the Codes Cat desk and the Golden Fish Market stall, each with its cat (section 14) |
+| Street stations | 6,000 | the Codes Cat desk and the Golden Fish Market stall, each with its cat (section 14); the stall 7,000 with its Fresh Catch board (F94) |
 | Currency props | 1,200 | the golden fish coin (`CatCafe_Prop_FishCoin`); its UI picture is rendered from it (section 14) |
 | Alleyway set pieces | 5,000 to 6,000 | arches, building backs and the town buildings (Warehouse 6,000); crate stack 3,000, laundry line 2,500, long string lights 1,500, manhole 2,500 |
 | Cafe plot set pieces | 12,000 shell, 8,000 interior, 4,000 For Rent, 3,000 per tier, 4,000 back door | built from blocks for the Part export (section 14); the FBX is the reference |
@@ -530,7 +530,7 @@ the part `CodesCircle` (the walk-in circle that opens the code box) and an Attac
 front; the cap is nested under `_Head`. The Golden Fish Market (`CatCafe_Street_FishMarket`, `market.py`): an
 Attachment named `PromptAnchor` on the counter front, 3 studs up (WorldBuilder hangs the Shop prompt there and adds the
 `FishMarket` tag), the coin on the counter front as `_Coin`, the sign lamp as `_Bulb`, the sou'wester nested under
-`_Head`. The golden fish coin (`CatCafe_Prop_FishCoin`, `coins.py`) is gold swatches, so Metal; its HUD picture is
+`_Head`. The Fresh Catch board (F94) stands on its own legs in front of the barrel, facing the street, its chalk face the object `_FreshCatch`: one Part whose Front (-Z) face, 1.7 by 1.45 studs, takes the UI's stock list (and "Back at sunrise" at night) under a cream header reading FRESH CATCH. The golden fish coin (`CatCafe_Prop_FishCoin`, `coins.py`) is gold swatches, so Metal; its HUD picture is
 `exports/icons/CatCafe_Icon_GoldenFish.png` from `icons.py` (front view, transparent, a 10 px dark gold outline at 512,
 readable down to 24 px), uploaded as `rbxassetid://77287948377172`. The crate furniture and decorations
 (`CatCafe_Decor_<Piece>`, `crate_decor.py`) stand on a decor spot 1.4 studs off a wall, so each keeps to about 4

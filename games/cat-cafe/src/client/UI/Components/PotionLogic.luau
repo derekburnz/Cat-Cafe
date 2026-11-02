@@ -64,7 +64,7 @@ local KNOWN: { Potion } = {
 		id = "lucky_potion",
 		name = "Lucky Potion",
 		minutes = 10,
-		effect = "Double gold chance on bait",
+		effect = "Luck +0.5 and double gold on bait", -- F88: Config.LuckyPotionLuck
 	},
 	{ id = "swift_potion", name = "Swift Potion", minutes = 5, effect = "+4 walk speed" },
 	{

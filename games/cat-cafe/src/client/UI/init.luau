@@ -3248,6 +3248,15 @@ function UI.clock.bind(clock: Instance)
 			UI.clock.clear()
 		end
 		UI.clock.setAreasOpen(NightClock.areasOpen(clock:GetAttribute("AreasOpen")))
+		-- F88: the next Lucky Day under the clock
+		if hud then
+			local day, nextDay = clock:GetAttribute("Day"), clock:GetAttribute("NextLuckyDay")
+			hud:setLuckyDay({
+				day = if type(day) == "number" then day else nil,
+				nextLuckyDay = if type(nextDay) == "number" then nextDay else nil,
+				luckyDay = clock:GetAttribute("LuckyDay") == true,
+			})
+		end
 	end
 	local queued = false
 	local function queueRead()
@@ -3260,7 +3269,7 @@ function UI.clock.bind(clock: Instance)
 			read()
 		end)
 	end
-	for _, name in { "Phase", "PhaseEndsAt", "AreasOpen" } do
+	for _, name in { "Phase", "PhaseEndsAt", "AreasOpen", "Day", "NextLuckyDay", "LuckyDay" } do
 		table.insert(clockConnections, clock:GetAttributeChangedSignal(name):Connect(queueRead))
 	end
 	read()
@@ -3273,14 +3282,40 @@ function UI.clock.unbind()
 	table.clear(clockConnections)
 end
 
+-- F88 (luck-and-rare-moments.md 1c): UIController's Lucky Day moments, with shared Luck's lines. "warning" comes
+-- LuckyDayWarnSeconds before its sunrise: a banner at once ("Lucky Day soon!" over the line). "start" comes as
+-- LuckyDay turns true at that sunrise: the banner ("Lucky Day!" over "Rare cats are twice as likely until night")
+-- waits until the sunrise banner has had its SUNRISE_HOLD, in step with Audio's chime after the sunrise sting. The
+-- HUD's Luck chip glows from the server's next sync.
+function UI.luckyDay(kind: string, line: string)
+	if type(line) ~= "string" then
+		return
+	end
+	if kind == "warning" then
+		if areaTitle then
+			areaTitle:banner("lucky_warning", "Lucky Day soon!", line, Theme.colors.gold, 4)
+		end
+		return
+	end
+	if kind ~= "start" then
+		return
+	end
+	local title, rest = line:match("^(.-!)%s+(.+)$")
+	task.delay(SUNRISE_HOLD + 0.4, function()
+		if areaTitle then
+			areaTitle:banner("lucky_day", title or line, rest, Theme.colors.gold, 4)
+		end
+	end)
+end
+
 ----------------------------------------------------------------------------------------------------
 -- Context tips (F87, easy-start.md section 3)
 ----------------------------------------------------------------------------------------------------
 
 -- A tip shows once per account, the first time a player meets something. The server sends ShowTip for the ones it
 -- can see (UIController calls UI.tips.show); this finds the ones only the client can see: a stuck cat within
--- 30 studs (`stuck_cat`), the Codes Cat within 20 (`codes_cat`) and the offline card's line after
--- Tips.OFFLINE_SECONDS away (`offline`). F88's `luck` waits for a luck source. Components/TipQueue times them: never
+-- 30 studs (`stuck_cat`), the Codes Cat within 20 (`codes_cat`), the offline card's line after
+-- Tips.OFFLINE_SECONDS away (`offline`) and F88's `luck` once the HUD's Luck chip shows (the first Luck source). Components/TipQueue times them: never
 -- during a catch, rescue, carry, the intro, a flight or a window, one every TipGapSeconds, three waiting at most.
 -- A card fires tipSeen as it shows; a camera cut fires it when it ends, skipped or not. The client-found tips wait
 -- for ProfileSync's tipsSeen, so nothing is shown again every session before the save says what was seen.
@@ -3450,6 +3485,10 @@ do
 	local function lookForTips()
 		if state.tipsSeen == nil then
 			return
+		end
+		-- F88 (luck-and-rare-moments.md 1d): the first Luck source shows the chip, and the chip the tip
+		if not tipKnown("luck") and hud ~= nil and hud:luckShown() then
+			UI.tips.show("luck")
 		end
 		local from = characterPosition()
 		if from == nil then

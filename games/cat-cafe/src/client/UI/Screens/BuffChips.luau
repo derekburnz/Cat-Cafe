@@ -4,6 +4,7 @@
 -- colour and its time left in outlined white ("8:12"), no dark panel behind them. A tap on any chip opens the
 -- potion bag. Each tile shows the potion's own bottle icon (Components/ShopIcons). The row hides with no potion running; while one runs it ticks once a second, and a chip goes when
 -- its time is up. Times come from ProfileSync `buffs` (endsAt in server time), so a rejoin shows what is left.
+-- F88: the HUD's Luck chip (Screens/LuckChip) leads the row; setLead keeps the row up while it shows.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -22,6 +23,7 @@ export type BuffChips = {
 	setCatalog: (self: BuffChips, catalog: Types.Catalog) -> (),
 	render: (self: BuffChips, state: Types.PlayerState) -> (),
 	place: (self: BuffChips, position: UDim2, anchor: Vector2) -> (),
+	setLead: (self: BuffChips, shown: boolean) -> (),
 	destroy: (self: BuffChips) -> (),
 }
 
@@ -47,6 +49,8 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 	self._loop = nil :: RBXScriptConnection?
 	self._clock = 0
 	self._onOpen = onOpen
+	self._lead = false -- F88: the Luck chip shows at the row's start
+	self._running = 0
 
 	self.frame = Create("Frame", {
 		Name = "Potions",
@@ -76,6 +80,12 @@ end
 function BuffChips.place(self: any, position: UDim2, anchor: Vector2)
 	self.frame.AnchorPoint = anchor
 	self.frame.Position = position
+end
+
+-- F88: whether the Luck chip (the row's first child, LayoutOrder 0) shows, so the row stays up for it alone.
+function BuffChips.setLead(self: any, shown: boolean)
+	self._lead = shown
+	self.frame.Visible = shown or self._running > 0
 end
 
 function BuffChips.render(self: any, state: Types.PlayerState)
@@ -154,7 +164,8 @@ function BuffChips._draw(self: any)
 			self._chips[id] = nil
 		end
 	end
-	self.frame.Visible = #running > 0
+	self._running = #running
+	self.frame.Visible = #running > 0 or self._lead
 	-- tick once a second while anything runs; stop when the last one ends
 	local loop: RBXScriptConnection? = self._loop
 	if #running > 0 and loop == nil then

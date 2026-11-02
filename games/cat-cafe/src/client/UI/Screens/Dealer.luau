@@ -25,6 +25,7 @@ local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local Format = require(script.Parent.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
@@ -119,6 +120,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._pending = {} :: { [string]: number } -- lureId -> os.clock() when the wait for DealerStock ends
 	self._tier = 0
 	self._bowlLevel = 0 -- lure_bowl (F82): the odds rows are this level's
+	self._luck = 1 -- F88: the player's Luck, in the odds rows and the split
 	self._extras = "" -- the gold and charm line the Details were written with
 	self._accumulator = 0
 
@@ -510,17 +512,20 @@ function Dealer._renderAll(self: any)
 	end
 	assert(state, "state")
 	local catalog: Types.Catalog? = self._catalog
-	-- the odds row and the split are the bowl level's (F82), the split the tier's areas too
+	-- the odds row and the split are the bowl level's (F82) at the player's Luck (F88), the split the tier's areas too
 	local bowlLevel: number = state.upgradeLevels.lure_bowl or 0
+	local playerLuck = LuckLogic.current(state, Workspace:GetServerTimeNow())
 	local oddsChanged = catalog ~= nil
-		and (state.tier ~= self._tier or bowlLevel ~= self._bowlLevel)
+		and (state.tier ~= self._tier or bowlLevel ~= self._bowlLevel or playerLuck ~= self._luck)
 	if catalog and oddsChanged then
 		self._tier = state.tier
 		self._bowlLevel = bowlLevel
+		self._luck = playerLuck
 		for _, row in self._rows do
 			local def: Types.LureDef = row.group.def
-			row.odds.Text = FoodOdds.rich(FoodOdds.atBowl(def.odds, bowlLevel), rarityHex)
-			row.split = FoodOdds.split(catalog, def, state.tier, bowlLevel)
+			row.odds.Text =
+				FoodOdds.rich(FoodOdds.atBowl(def.odds, bowlLevel, playerLuck), rarityHex)
+			row.split = FoodOdds.split(catalog, def, state.tier, bowlLevel, playerLuck)
 		end
 	end
 	-- Details: the food's line, the gold chance with the Index's gold luck (F54) and the running potions (F73) in

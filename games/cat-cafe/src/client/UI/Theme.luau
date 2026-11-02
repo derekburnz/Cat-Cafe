@@ -317,6 +317,7 @@ Theme.upgradeIcons = {
 	espresso = "☕",
 	net = "🥅",
 	lure_bowl = "🥣",
+	lucky_cat = "🐱", -- F88: the beckoning cat statue by the front door
 } :: { [string]: string }
 
 Theme.roleIcons = {

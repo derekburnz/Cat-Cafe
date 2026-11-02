@@ -6,10 +6,16 @@
 -- judges it. Grades drawn before showResult are hints from this device; showResult replaces them with
 -- the server's grades.
 --
--- Data-model section 10 step 5: the first Miss ends the catch and no Miss means caught. Each circle pops
--- PERFECT, GOOD or MISS at its ring; on a Miss the word wobbles, the circles left over vanish and the hint says
--- the cat got away (v0.5: it sprints off and tries are unlimited). The camera shake and the hiss are the
--- vfx-animator's and the sound-designer's.
+-- Data-model section 10 step 5: the first Miss ends the catch and no Miss means caught. F93 (catch-rework.md
+-- section 3), so nothing on screen can contradict the result:
+--   - each circle clears the moment it is judged: its rings pop away and its word (PERFECT! in gold, GOOD in mint,
+--     MISS in grey) shows on the spot for a moment, then fades
+--   - on the first Miss every circle still showing goes at once and presses stop, so no grade can flash after it
+--   - a strip of pips at the top of the screen, one per circle, fills with each grade's colour as it lands
+--   - when the server's result comes, one word slams in over the strip (Components/CatchWords: PURRFECT!,
+--     EXCELLENT!, GREAT! or "So close!"), then the strip and the word fade and the screen is clear by 1.2 s
+-- The result word is the TextLabel Root.ResultWord, Visible only while it shows: Effects/Catch bursts off it in its
+-- colour. The camera shake and the hiss are the vfx-animator's and the sound-designer's.
 --
 -- Bands: the closing circle moves at a constant speed, so a timing window of w seconds is a band of
 -- w x speed pixels either side of the ring. Good is the wide green band, Perfect the thin gold one.
@@ -19,6 +25,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local CatchWords = require(script.Parent.Parent.Components.CatchWords)
 local Create = require(script.Parent.Parent.Components.Create)
 local Motion = require(script.Parent.Parent.Components.Motion)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -67,15 +74,19 @@ type CircleView = {
 	target: number,
 	speed: number, -- design pixels per second the closer travels
 	holder: Frame,
-	scale: UIScale,
+	art: Frame, -- the bands, ring, closer and number: what pops away when the circle is judged
+	scale: UIScale, -- on art
 	closer: Frame,
 	closerStroke: UIStroke,
 	ring: Frame,
 	ringStroke: UIStroke,
 	number: TextLabel,
 	grade: TextLabel,
+	gradeStroke: UIStroke,
+	hint: Types.CircleGrade?, -- the grade drawn: this device's guess, then the server's
 	judged: boolean,
 	pressed: boolean,
+	fades: number, -- bumps on every new word, so an older fade leaves a newer word alone
 }
 
 local RING_RADIUS = 46 -- design pixels at 1280 x 720
@@ -86,22 +97,41 @@ local RING_THICKNESS = 4
 -- data-model CatchLatencyCapSeconds (0.15): the server stops waiting for a circle's press this long
 -- after the good window closes. Read from Config once the engineer adds it.
 local LATENCY_CAP: number = Config.CatchLatencyCapSeconds
-local RESULT_SECONDS = 1.6
-local MISS_SECONDS = 1 -- a miss closes faster so the player can chase the cat
+local RESULT_SECONDS = 1.2 -- the result word and the strip are gone by then, caught or not (F93)
+local RESULT_FADE_AT = 0.8 -- they start to fade here
+local RESULT_FADE =
+	TweenInfo.new(RESULT_SECONDS - RESULT_FADE_AT, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+local GRADE_HOLD = 0.45 -- a circle's word stays this long after it pops, then fades
+-- the strip steps back under the result word so the word reads, then both fade from RESULT_FADE_AT
+local UNDER_WORD = TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local GRADE_FADE = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+local CLEAR = TweenInfo.new(0.14, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+-- the progress strip at the top of the screen, over the header (which sits at 80; Roblox's buttons stop at 58 on
+-- the left only, so the middle of the top edge is free)
+local STRIP_TOP = 22
+local PIP = 18
+local PIP_GAP = 6
+local STRIP_PAD = 9
+local WORD_SIZE = Vector2.new(360, 60)
 local NO_RESULT_TIMEOUT = 4 -- hide if the server's result has not come this long after the last target
 local ACTION_NAME = "CatCafeCatchPress"
 -- E is not here: it is the hold-to-start key on the catch prompt, and letting go of it would land as a press
 local PRESS_KEYS = { Enum.KeyCode.Space, Enum.KeyCode.ButtonA, Enum.KeyCode.ButtonR2 }
 
-local GRADE_TEXT: { [string]: string } = { perfect = "PERFECT!", good = "GOOD", miss = "MISS" }
+local GRADE_TEXT: { [string]: string } = CatchWords.GRADE_TEXT
 local GRADE_COLOR: { [string]: Color3 } = {
 	perfect = Theme.colors.gold,
-	good = Theme.colors.good,
-	miss = Theme.colors.red,
+	good = Theme.colors.mint,
+	miss = Theme.colors.disabled, -- soft grey
+}
+local RESULT_COLOR: { [string]: Color3 } = {
+	purrfect = Theme.colors.gold,
+	excellent = Theme.colors.gold,
+	great = Theme.colors.mint,
+	close = Theme.colors.disabled,
 }
 local WOBBLE = { 9, -8, 6, -4, 0 } -- design pixels, the MISS word shaking its head
 local WOBBLE_STEP = TweenInfo.new(0.045, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-local VANISH = TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 
 local CatchCircles = {}
 CatchCircles.__index = CatchCircles
@@ -130,6 +160,15 @@ local function wobble(label: GuiObject)
 		end)
 	end
 	nextStep()
+end
+
+-- A judged circle's rings pop away; its word stays outside them.
+local function clearCircle(view: CircleView)
+	view.closer.Visible = false
+	local art = view.art
+	Tween.to(view.scale, CLEAR, { Scale = 0 }).Completed:Once(function()
+		art.Visible = false
+	end)
 end
 
 local function circleFrame(name: string, radius: number, parent: Instance): Frame
@@ -282,45 +321,46 @@ function CatchCircles.new(parent: Instance): CatchCircles
 		Parent = header,
 	})
 
-	-- Result banner on a catch: per-circle grades sit on the circles, the outcome and the charm sit here
-	local banner: Frame = Create("Frame", {
-		Name = "Result",
+	-- F93: the progress strip at the top, one pip per circle (built in show), and the result word over it
+	local strip: Frame = Create("Frame", {
+		Name = "Strip",
 		BackgroundColor3 = Theme.hud.panel,
 		BackgroundTransparency = Theme.hud.panelTransparency,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -110),
-		Size = UDim2.fromOffset(320, 74),
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, STRIP_TOP),
+		Size = UDim2.fromOffset(PIP + 2 * STRIP_PAD, PIP + 2 * STRIP_PAD),
 		Visible = false,
 		Parent = root,
 	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 2 }),
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, PIP_GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
 	})
-	self._banner = banner
-	self._outcome = Create("TextLabel", {
-		Name = "Outcome",
+	self._strip = strip
+	self._stripTransparency = strip.BackgroundTransparency
+	self._pips = {} :: { Frame }
+	local word: TextLabel = Create("TextLabel", {
+		Name = "ResultWord",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, 6),
-		Size = UDim2.new(1, 0, 0, 36),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0, STRIP_TOP + PIP / 2 + STRIP_PAD),
+		Size = UDim2.fromOffset(WORD_SIZE.X, WORD_SIZE.Y),
 		FontFace = Theme.fonts.display,
-		TextSize = 30,
-		TextColor3 = Theme.hud.text,
+		TextSize = 46,
+		TextColor3 = Theme.colors.gold,
 		Text = "",
-		Parent = banner,
+		Visible = false,
+		ZIndex = 5,
+		Parent = root,
 	})
-	Outline.text(self._outcome, 3)
-	self._detail = Create("TextLabel", {
-		Name = "Detail",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, 44),
-		Size = UDim2.new(1, 0, 0, 22),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.hud.subtext,
-		Text = "",
-		Parent = banner,
-	})
+	self._wordStroke = Outline.text(word, 4)
+	self._word = word
 
 	self._circleLayer = Create("Frame", {
 		Name = "Circles",
@@ -352,22 +392,24 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		ZIndex = 10 - index, -- earlier circles on top
 		Parent = self._circleLayer,
 	})
-	local scale: UIScale = Create("UIScale", { Parent = holder })
-	band("GoodBand", RING_RADIUS - good, RING_RADIUS + good, Theme.colors.good, 0.45, holder)
-	band(
-		"PerfectBand",
-		RING_RADIUS - perfect,
-		RING_RADIUS + perfect,
-		Theme.colors.gold,
-		0.1,
-		holder
-	)
-	local ring = circleFrame("Ring", RING_RADIUS - RING_THICKNESS / 2, holder)
+	-- the circle itself, which pops away when it is judged; the grade word sits outside it so it stays a moment
+	local art: Frame = Create("Frame", {
+		Name = "Art",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(0, 0),
+		Parent = holder,
+	})
+	local scale: UIScale = Create("UIScale", { Parent = art })
+	band("GoodBand", RING_RADIUS - good, RING_RADIUS + good, Theme.colors.good, 0.45, art)
+	band("PerfectBand", RING_RADIUS - perfect, RING_RADIUS + perfect, Theme.colors.gold, 0.1, art)
+	local ring = circleFrame("Ring", RING_RADIUS - RING_THICKNESS / 2, art)
 	local ringStroke: UIStroke = Create(
 		"UIStroke",
 		{ Color = Theme.colors.paper, Thickness = RING_THICKNESS, Parent = ring }
 	)
-	local closer = circleFrame("Closer", START_RADIUS, holder)
+	local closer = circleFrame("Closer", START_RADIUS, art)
 	local closerStroke: UIStroke = Create("UIStroke", {
 		Color = Theme.colors.paper,
 		Thickness = CLOSER_THICKNESS,
@@ -385,7 +427,7 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		TextStrokeColor3 = Theme.colors.ink,
 		TextStrokeTransparency = 0.4,
 		Text = tostring(index),
-		Parent = holder,
+		Parent = art,
 	})
 	local grade: TextLabel = Create("TextLabel", {
 		Name = "Grade",
@@ -400,12 +442,13 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		Visible = false,
 		Parent = holder,
 	})
-	Outline.text(grade, 3)
+	local gradeStroke = Outline.text(grade, 3)
 	return {
 		circle = circle,
 		target = circle.startsAt + shrink,
 		speed = speed,
 		holder = holder,
+		art = art,
 		scale = scale,
 		closer = closer,
 		closerStroke = closerStroke,
@@ -413,8 +456,11 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		ringStroke = ringStroke,
 		number = number,
 		grade = grade,
+		gradeStroke = gradeStroke,
+		hint = nil,
 		judged = false,
 		pressed = false,
+		fades = 0,
 	}
 end
 
@@ -432,6 +478,7 @@ function CatchCircles.show(
 	self._next = 1
 	self._active = true
 	self._awaitingResult = false
+	self._ended = false -- after this device's first Miss: the rest have gone and presses stop
 	self._lastTarget = 0
 
 	local info: Header = header or {}
@@ -448,13 +495,32 @@ function CatchCircles.show(
 				else "Press Space or click as each circle meets its ring"
 		)
 	self._header.UIStroke.Color = if info.shiny then Theme.colors.gold else Theme.hud.stroke
-	self._banner.Visible = false
 
 	for index, circle in circles do
 		local view = self:_buildView(index, circle)
 		table.insert(self._views, view)
 		self._lastTarget = math.max(self._lastTarget, view.target)
+		table.insert(
+			self._pips,
+			Create("Frame", {
+				Name = "Pip" .. index,
+				BackgroundColor3 = Theme.colors.cocoa,
+				BorderSizePixel = 0,
+				LayoutOrder = index,
+				Size = UDim2.fromOffset(PIP, PIP),
+				Parent = self._strip,
+			}, {
+				Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+				Create("UIStroke", { Color = Theme.hud.stroke, Thickness = 2 }),
+			})
+		)
 	end
+	local count = #circles
+	self._strip.Size = UDim2.fromOffset(
+		count * PIP + math.max(0, count - 1) * PIP_GAP + 2 * STRIP_PAD,
+		PIP + 2 * STRIP_PAD
+	)
+	self._strip.Visible = count > 0
 
 	ContextActionService:BindActionAtPriority(
 		ACTION_NAME,
@@ -471,6 +537,9 @@ function CatchCircles.show(
 
 	self.screenGui.Enabled = true
 	Tween.popIn(self._header, 0.9)
+	if count > 0 then
+		Tween.popIn(self._strip, 0.9)
+	end
 	self._loop = RunService.RenderStepped:Connect(function()
 		self:_step(now())
 	end)
@@ -514,23 +583,38 @@ end
 -- Circles whose press window has closed on the server's terms count as misses here too, so the next
 -- press goes to the next circle, the same order the server judges in.
 function CatchCircles._expire(self: any, t: number)
+	if self._ended then
+		return
+	end
 	local windows: Types.CatchWindows = self._windows
-	while true do
-		local view: CircleView? = self._views[self._next]
-		if not view then
-			return
+	local view: CircleView? = self._views[self._next]
+	if not view or t <= view.target + windows.good + LATENCY_CAP then
+		return
+	end
+	self:_showGrade(self._next, "miss", false)
+	self._next += 1
+	self:_endAfterMiss()
+end
+
+-- This device's first Miss (a press out of the bands or a circle nobody pressed): the server ends the catch on it
+-- too, so every circle still showing goes now and no later press can draw a grade (catch-rework.md section 3). The
+-- server's result then settles the words, the pips and the result word.
+function CatchCircles._endAfterMiss(self: any)
+	self._ended = true
+	for _, view in self._views :: { CircleView } do
+		if not view.judged then
+			view.judged = true
+			clearCircle(view)
 		end
-		if t <= view.target + windows.good + LATENCY_CAP then
-			return
-		end
-		self:_showGrade(self._next, "miss", false)
-		view.closer.Visible = false
-		self._next += 1
+	end
+	if not self._awaitingResult then
+		self._awaitingResult = true
+		self._hint.Text = "Waiting for the result..."
 	end
 end
 
 function CatchCircles._press(self: any)
-	if not self._active then
+	if not self._active or self._ended then
 		return
 	end
 	local t = now()
@@ -556,46 +640,66 @@ function CatchCircles._press(self: any)
 	if onPress then
 		onPress(index, grade)
 	end
+	if grade == "miss" then
+		self:_endAfterMiss()
+	end
 end
 
--- The word pops when it first appears and again if the server's grade differs from this device's hint.
+-- The circle clears and its word pops on the spot, then fades after GRADE_HOLD. It pops again only if the server's
+-- grade differs from this device's guess, so a right guess is not drawn twice. Its pip in the strip takes the colour.
 function CatchCircles._showGrade(self: any, index: number, grade: Types.CircleGrade, final: boolean)
 	local view: CircleView? = self._views[index]
 	if not view then
 		return
 	end
-	local changed = not view.grade.Visible or view.grade.Text ~= GRADE_TEXT[grade]
-	view.judged = true
-	view.grade.Text = GRADE_TEXT[grade]
-	view.grade.TextColor3 = GRADE_COLOR[grade]
-	view.grade.TextTransparency = if final then 0 else 0.15
-	view.grade.Visible = true
-	view.closerStroke.Color = GRADE_COLOR[grade]
-	view.ringStroke.Color = GRADE_COLOR[grade]
-	if changed then
-		Tween.popIn(view.grade, if grade == "perfect" then 0.4 else 0.6)
+	local changed = view.hint ~= grade
+	view.hint = grade
+	if not view.judged then
+		view.judged = true
+		clearCircle(view)
 	end
+	local pip: Frame? = self._pips[index]
+	if pip then
+		pip.BackgroundColor3 = GRADE_COLOR[grade]
+		if changed then
+			Tween.popIn(pip, 0.6)
+		end
+	end
+	if not changed then
+		return
+	end
+	local label = view.grade
+	label.Text = GRADE_TEXT[grade]
+	label.TextColor3 = GRADE_COLOR[grade]
+	label.TextTransparency = if final then 0 else 0.1
+	view.gradeStroke.Transparency = 0
+	label.Visible = true
+	Tween.popIn(label, if grade == "perfect" then 0.4 else 0.6)
+	if grade == "miss" then
+		wobble(label)
+	end
+	view.fades += 1
+	local fades = view.fades
+	local token = self._token
+	task.delay(GRADE_HOLD, function()
+		if self._token ~= token or view.fades ~= fades then
+			return
+		end
+		Tween.to(label, GRADE_FADE, { TextTransparency = 1 })
+		Tween.to(view.gradeStroke, GRADE_FADE, { Transparency = 1 })
+	end)
 end
 
 -- Local hint for a circle, or nil while it is open. Tests and the demo read it.
 function CatchCircles.gradeLocal(self: any, index: number): Types.CircleGrade?
 	local view: CircleView? = self._views[index]
-	if not view or not view.judged then
-		return nil
-	end
-	local text = view.grade.Text
-	for grade, label in GRADE_TEXT do
-		if label == text then
-			return grade :: Types.CircleGrade
-		end
-	end
-	return nil
+	return if view then view.hint else nil
 end
 
--- The server's verdict. Each graded circle shows the server's word; circles after a Miss vanish. A catch shows
--- the banner ("Caught!", or "PURRFECT!" when every circle was Perfect, with the charm it added) for 1.6 s; a
--- miss wobbles the MISS word, says the cat got away and closes after 1 s. onDone runs when the overlay
--- hides.
+-- The server's verdict. Each graded circle shows the server's grade (a word pops again only where this device
+-- guessed differently), circles after the Miss go, every pip takes its server colour, and the result word slams in
+-- over the strip (Components/CatchWords). The strip and the word fade from RESULT_FADE_AT and the overlay hides at
+-- RESULT_SECONDS, caught or not; onDone runs then.
 function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())?)
 	if not self._active then
 		if onDone then
@@ -606,51 +710,66 @@ function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())
 	self._token += 1
 	local token = self._token
 	self._awaitingResult = true
+	self._ended = true
 	ContextActionService:UnbindAction(ACTION_NAME)
 	local grades = outcome.grades
-	local perfects = 0
-	local missed: CircleView? = nil
 	for index, view in self._views :: { CircleView } do
 		view.pressed = true
-		view.closer.Visible = false
 		local grade: Types.CircleGrade? = grades[index]
-		if grade == nil then
+		if grade ~= nil then
+			self:_showGrade(index, grade, true)
+		elseif not view.judged then
 			-- after the Miss: the server never judged it
 			view.judged = true
-			Tween.to(view.scale, VANISH, { Scale = 0 })
-			continue
+			clearCircle(view)
 		end
-		self:_showGrade(index, grade, true)
-		if grade == "perfect" then
-			perfects += 1
-		elseif grade == "miss" and missed == nil then
-			missed = view
+	end
+	for index, pip in self._pips :: { Frame } do
+		if grades[index] == nil then
+			pip.BackgroundColor3 = Theme.colors.cocoa
+		end
+	end
+
+	-- the strip steps back so the word over it reads (its pips have their server colours by now)
+	Tween.to(self._strip, UNDER_WORD, { BackgroundTransparency = 0.85 })
+	for _, pip in self._pips :: { Frame } do
+		Tween.to(pip, UNDER_WORD, { BackgroundTransparency = 0.6 })
+		local stroke = pip:FindFirstChildOfClass("UIStroke")
+		if stroke then
+			Tween.to(stroke, UNDER_WORD, { Transparency = 0.7 })
 		end
 	end
 
 	local success = outcome.success
-	if success then
-		local purrfect = #grades > 0 and perfects == #grades
-		local charm = outcome.charmGain or 0
-		self._outcome.Text = if purrfect then "PURRFECT!" else "Caught!"
-		self._outcome.TextColor3 = if purrfect then Theme.colors.gold else Theme.colors.good
-		-- "Charm +8", or how many Perfects there were so the next catch has something to aim for
-		self._detail.Text = if charm > 0
-			then ("Charm +%d"):format(charm)
-			else ("%d/%d Perfect"):format(perfects, #grades)
-		self._detail.TextColor3 = if charm > 0 then Theme.colors.gold else Theme.hud.subtext
-		self._banner.UIStroke.Color = if purrfect then Theme.colors.gold else Theme.colors.good
-		self._banner.Visible = true
-		Tween.popIn(self._banner, 0.8)
-		self._hint.Text = "Carry it home to check in"
-	else
-		local view = missed
-		if view then
-			wobble(view.grade)
-		end
-		self._hint.Text = "It got away! Chase it!"
+	local result = CatchWords.result(grades, success)
+	local word: TextLabel = self._word
+	word.Text = CatchWords.TEXT[result]
+	word.TextColor3 = RESULT_COLOR[result]
+	word.TextTransparency = 0
+	self._wordStroke.Transparency = 0
+	word.Visible = true
+	Tween.popIn(word, if result == "close" then 0.8 else 0.45)
+	if result == "close" then
+		wobble(word)
 	end
-	task.delay(if success then RESULT_SECONDS else MISS_SECONDS, function()
+	self._hint.Text = if success then "Carry it home to check in" else "It got away! Chase it!"
+
+	task.delay(RESULT_FADE_AT, function()
+		if self._token ~= token then
+			return
+		end
+		Tween.to(word, RESULT_FADE, { TextTransparency = 1 })
+		Tween.to(self._wordStroke, RESULT_FADE, { Transparency = 1 })
+		Tween.to(self._strip, RESULT_FADE, { BackgroundTransparency = 1 })
+		for _, pip in self._pips :: { Frame } do
+			Tween.to(pip, RESULT_FADE, { BackgroundTransparency = 1 })
+			local stroke = pip:FindFirstChildOfClass("UIStroke")
+			if stroke then
+				Tween.to(stroke, RESULT_FADE, { Transparency = 1 })
+			end
+		end
+	end)
+	task.delay(RESULT_SECONDS, function()
 		if self._token ~= token then
 			return
 		end
@@ -680,7 +799,14 @@ function CatchCircles.hide(self: any)
 		view.holder:Destroy()
 	end
 	table.clear(self._views)
-	self._banner.Visible = false
+	for _, pip in self._pips :: { Frame } do
+		pip:Destroy()
+	end
+	table.clear(self._pips)
+	self._ended = false
+	self._strip.Visible = false
+	self._strip.BackgroundTransparency = self._stripTransparency
+	self._word.Visible = false
 	self.screenGui.Enabled = false
 end
 

@@ -251,6 +251,30 @@ local function rescueChallenge()
 	}
 end
 
+-- F93 catch circles: `count` circles from `first` seconds on, one every 0.7 s, each closing over `shrink` seconds,
+-- with the header of a named cat of `rarity`
+local function startCatch(strayId, rarity, count, first, shrink)
+	local t = workspace:GetServerTimeNow()
+	local list = {}
+	local spots = { { 0.2, 0.4 }, { 0.45, 0.65 }, { 0.7, 0.35 }, { 0.35, 0.2 }, { 0.8, 0.7 }, { 0.55, 0.3 }, { 0.15, 0.75 } }
+	for index = 1, count do
+		local spot = spots[(index - 1) % #spots + 1]
+		table.insert(list, { startsAt = t + first + (index - 1) * 0.7, shrinkSeconds = shrink, x = spot[1], y = spot[2] })
+	end
+	UI.catch.show({ strayId = strayId, catId = Catalog.cats[2].id, catName = "Mochi", rarity = rarity })
+	UI.catch.showCircles(strayId, list, { perfect = 0.037, good = 0.09 })
+	return list
+end
+
+-- a tap anywhere on the circles, as a finger does
+local function tapCircles()
+	local tap = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles"):FindFirstChild("Tap")
+	UIShim.fire(UIShim.eventOf(tap, "InputBegan"), {
+		UserInputType = Enum.UserInputType.Touch,
+		Position = Vector3.new(400, 300, 0),
+	})
+end
+
 -- name, how the game opens it
 local SCENES = {
 	{ "Upgrades", function()
@@ -357,6 +381,22 @@ local SCENES = {
 		UI.setZone("Alley")
 		UI.net.setEnabled(true)
 	end },
+	-- F93: a catch three circles in: Perfect, Good, Perfect, each cleared with its word, the pips filling
+	{ "Catch", function()
+		local list = startCatch("gate_stray", "Epic", 5, 0, 0.82)
+		local t0 = workspace:GetServerTimeNow()
+		for index, delay in { 0, 0.06, 0 } do
+			local target = list[index].startsAt + list[index].shrinkSeconds
+			task.delay(target - t0 + delay, tapCircles)
+		end
+	end },
+	-- F93: the result word over the strip once the server's grades land (three Perfects of four: EXCELLENT!)
+	{ "CatchResult", function()
+		startCatch("gate_stray", "Rare", 4, 1, 1)
+		task.delay(1.8, function()
+			UI.catch.showGrades("gate_stray", { "perfect", "good", "perfect", "perfect" }, true, 0)
+		end)
+	end },
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
 	end },
@@ -379,6 +419,8 @@ end
 
 function Scenes.close()
 	UI.close()
+	UI.catch.hideCircles()
+	UI.catch.hide()
 	UI.rescue.hide()
 	UI.net.setEnabled(false)
 	UI.setZone(nil)

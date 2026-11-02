@@ -18,7 +18,7 @@ import time
 import palette
 
 CATEGORIES = ("Cat", "NPC", "Furniture", "Decor", "Alley", "Park", "Item", "Accessory", "Prop", "Street", "Plot",
-              "Neighbourhood", "Woods", "Sewer", "Square", "Door", "CatFlap", "Camp", "Style", "Town",
+              "Neighbourhood", "Woods", "Sewer", "Square", "Door", "CatFlap", "Camp", "Lawn", "Style", "Town",
               "Alleyway", "Menu", "Cafe")
 FAIL_CHECKS = ("budget", "transforms", "material", "uv", "naming")
 WARN_CHECKS = ("pivot", "centered")

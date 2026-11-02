@@ -2497,4 +2497,16 @@ function Logic.glowFlicker(level: number, t: number, flicker: number, hz: number
 	return math.max(0, level * (1 + flicker * wave))
 end
 
+-- Whether a player's leaderboard crown was just earned (F98): their `Crown` going from false to true. `before` nil
+-- is the first value seen (they joined, or this client started), which sets no burst.
+function Logic.crownEarned(before: boolean?, now: boolean): boolean
+	return before == false and now
+end
+
+-- A Player's `Crown` attribute as Crown.luau keeps it: the boolean, or nil while the server has not set it yet (it
+-- sets it once the save loads, seconds after the player arrives), so a join is never read as off and then on.
+function Logic.crownSeen(value: unknown): boolean?
+	return if type(value) == "boolean" then value else nil
+end
+
 return Logic

@@ -20,6 +20,7 @@ local Workspace = game:GetService("Workspace")
 local ActionPill = require(script.Screens.ActionPill)
 local AreaTitle = require(script.Screens.AreaTitle)
 local Areas = require(script.Screens.Areas)
+local AskCard = require(script.Screens.AskCard)
 local BaitBowl = require(script.Screens.BaitBowl)
 local BaitCard = require(script.Screens.BaitCard)
 local BugReport = require(script.Screens.BugReport)
@@ -41,7 +42,6 @@ local DailyTreat = require(script.Screens.DailyTreat)
 local DailyTreatLogic = require(script.Components.DailyTreatLogic)
 local Dealer = require(script.Screens.Dealer)
 local DecorShop = require(script.Screens.DecorShop)
-local FeedbackAsk = require(script.Screens.FeedbackAsk)
 local FishMarket = require(script.Screens.FishMarket)
 local Format = require(script.Components.Format)
 local FreshCatchBoard = require(script.Screens.FreshCatchBoard)
@@ -166,6 +166,9 @@ UI.events = {
 	tipSeen = Signal.new(), -- (id, skipped?)   a shared/Tips id (or like_ask) shown: forward as TipSeen
 	clearTips = Signal.new(), -- ()   Show tips again in Settings: forward as ClearTips
 	sendFeedback = Signal.new(), -- (face, chip?)   one answer on the feedback faces (Tips.FACES, Tips.CHIPS): forward as SendFeedback
+	-- F87 (easy-start.md sections 2g and 5), analytics only: where the intro was played from, and each stuck nudge
+	introChoice = Signal.new(), -- (from)   "tile" (the Tutorial tile) or "help" (Show me on Need a hand?): forward as TelemetryReport("intro_choice", from)
+	stuckNudge = Signal.new(), -- (kind)   "pulse", "help_shown" or "show_me": forward as TelemetryReport("stuck_nudge", kind)
 }
 
 local state: Types.PlayerState = {
@@ -259,9 +262,11 @@ local tutorialLabel: string? = nil
 local tutorialText: string? = nil -- UI.tutorial.show's line, nil once hidden
 local applyTutorial: () -> ()
 local tipCard: TipCard.TipCard? = nil -- a context tip's card (F87, UI.tips)
-local tickTips: (dt: number) -> () -- the tip queue's clock and the client-found tips, with UI.tips
+-- the clocks on the Heartbeat (one table, as the module is short of locals): the tip queue and the client-found tips
+-- (with UI.tips), and the hint's input switch and the stuck nudges (F87 section 2g)
+local ticks: { tips: (dt: number) -> (), nudges: (dt: number) -> () } = {} :: any
 local tipsHeldUntil = 0 -- os.clock() until which no tip shows (a cannon flight and its landing)
-local feedbackAsk: FeedbackAsk.FeedbackAsk? = nil -- the one slide-in faces ask (F87 section 4, timed with UI.tips)
+local askCard: AskCard.AskCard? = nil -- the slide-in asks: the feedback faces (F87 section 4) and Need a hand? (2g)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure, Tame and Let go work from anywhere (Derek 2026-10-28: "tame or let go from anywhere";
@@ -415,6 +420,15 @@ local function render()
 	if not introLive and state.introSeen ~= nil then
 		introLive = true
 		renderTutorialButton()
+		-- F87 section 2a: the intro no longer plays by itself, so a first join glows the tile that plays it
+		if state.introSeen == false and not Config.IntroAutoPlay and not introGlowed then
+			introGlowed = true
+			task.delay(IntroLogic.OUT_SECONDS, function()
+				if hud then
+					hud:glowTutorial()
+				end
+			end)
+		end
 	end
 	if hud then
 		hud:render(state)
@@ -650,6 +664,7 @@ function UI.init(config: Types.InitConfig)
 			UI.events.dropCat:Fire()
 		end,
 		replayIntro = function()
+			UI.events.introChoice:Fire("tile")
 			UI.events.introReplay:Fire()
 		end,
 		hideTutorialButton = function()
@@ -1146,11 +1161,7 @@ function UI.init(config: Types.InitConfig)
 	toasts = Toasts.new(parent)
 	popups = Popups.new(parent)
 	tipCard = TipCard.new(parent)
-	feedbackAsk = FeedbackAsk.new(parent, {
-		send = function(face: string)
-			(state :: any).feedbackAsked = true
-			UI.events.sendFeedback:Fire(face, nil)
-		end,
+	askCard = AskCard.new(parent, {
 		lift = function()
 			return hudInstance:bottomTop() - Theme.sizes.gap
 		end,
@@ -1158,7 +1169,8 @@ function UI.init(config: Types.InitConfig)
 	table.insert(
 		connections,
 		RunService.Heartbeat:Connect(function(dt: number)
-			tickTips(dt)
+			ticks.tips(dt)
+			ticks.nudges(dt)
 		end)
 	)
 	introScreen = Intro.new(parent, {
@@ -1444,10 +1456,10 @@ function UI.destroy()
 		tipCard:destroy()
 	end
 	tipCard = nil
-	if feedbackAsk then
-		feedbackAsk:destroy()
+	if askCard then
+		askCard:destroy()
 	end
-	feedbackAsk = nil
+	askCard = nil
 	UI.tips.reset()
 	if carryMarker then
 		carryMarker:destroy()
@@ -2584,7 +2596,21 @@ do
 			return
 		end
 		local current = activeInfo
+		-- F87 (easy-start.md section 2b, review N301): a Miss on the local player's own tutorial stray costs nothing;
+		-- the server says "Try again! Tap as the circle closes." and starts the circle again, so no "It got away!" and
+		-- no wait (inline, as the module is short of locals)
 		if not outcome.success then
+			local me = Players.LocalPlayer
+			for _, instance in CollectionService:GetTagged("Stray") do
+				if instance:GetAttribute("StrayId") == strayId then
+					if me ~= nil and instance:GetAttribute("Beginner") == me.UserId then
+						outcome.hint = "Try again!"
+					end
+					break
+				end
+			end
+		end
+		if not outcome.success and outcome.hint == nil then
 			local now = Workspace:GetServerTimeNow()
 			for id, retry in retries do
 				if now - retry.missedAt > 120 and (retry.retryAt or 0) < now then
@@ -2597,7 +2623,7 @@ do
 				current.retryAt = retryAtFor(strayId, current.fleeingUntil)
 			end
 		end
-		if not outcome.success and toasts then
+		if not outcome.success and outcome.hint == nil and toasts then
 			toasts:show(SLIPPED_TEXT, "warn", true) -- quiet: the hiss is the miss sound
 		end
 		screen:showResult(outcome, function()
@@ -3329,7 +3355,7 @@ do
 			window = (modal ~= nil and modal:current() ~= nil)
 				or (popups ~= nil and popups:isShowing())
 				or (baitCard ~= nil and baitCard:isShowing())
-				or (feedbackAsk ~= nil and feedbackAsk:isShowing()),
+				or (askCard ~= nil and askCard:isShowing()),
 			hidden = not visible,
 			duskLeft = duskLeft,
 		}
@@ -3435,7 +3461,7 @@ do
 		return not tipBusy and TipQueue.free(tipMoment())
 	end
 
-	tickTips = function(dt: number)
+	ticks.tips = function(dt: number)
 		clocks.pump += dt
 		clocks.look += dt
 		if clocks.look >= TIP.LOOK_EVERY then
@@ -3506,9 +3532,24 @@ do
 	local sessionStart = os.clock()
 	local asked = false -- this session
 
-	local function openAsk(ask: FeedbackAsk.FeedbackAsk)
+	local function openAsk(card: AskCard.AskCard)
 		asked = true
-		ask:show()
+		local faces: { AskCard.Choice } = {}
+		for _, face in FeedbackLogic.FACES do
+			table.insert(faces, { id = face.id, label = face.label, icon = face.glyph })
+		end
+		card:show({
+			title = "How is it so far?",
+			choices = faces,
+			seconds = FeedbackLogic.ASK_SECONDS,
+			thanks = "Thanks!",
+			answer = function(face: string?)
+				if face ~= nil then
+					(state :: any).feedbackAsked = true
+					UI.events.sendFeedback:Fire(face, nil)
+				end
+			end,
+		})
 		local saved: any = state
 		saved.feedbackAsked = true
 		UI.events.tipSeen:Fire(Tips.FEEDBACK_ASK, false)
@@ -3516,22 +3557,184 @@ do
 
 	-- From the tips clock, once a second.
 	function UI.tips.lookForAsk()
-		local ask = feedbackAsk
-		if asked or ask == nil or ask:isShowing() then
+		local card = askCard
+		if asked or card == nil or card:isShowing() then
 			return
 		end
 		local played = os.clock() - sessionStart
 		if FeedbackLogic.askDue(state.feedbackAsked, played, UI.tips.quiet()) then
-			openAsk(ask)
+			openAsk(card)
 		end
 	end
 
 	-- The slide-in faces ask now, whatever the clock says (QA in Studio and the UI gate). It is saved as shown.
 	function UI.tips.showAsk()
-		local ask = feedbackAsk
-		if ask ~= nil and not ask:isShowing() then
-			openAsk(ask)
+		local card = askCard
+		if card ~= nil and not card:isShowing() then
+			openAsk(card)
 		end
+	end
+end
+
+-- F87 (easy-start.md sections 2e and 2g): the tutorial strip's device-aware words (UI.tutorial.hint), the nudges when
+-- a step stalls and the "Need a hand?" card. A step's clock runs only while its hint shows and nothing else goes on
+-- (UI.tips.quiet). After StuckNudgeSeconds (40) and every 40 s after, the strip pulses and the trail is drawn again
+-- from where the character stands; after StuckHelpSeconds (90) the card asks once per step per account (the server
+-- saves it in stuckHelpShown on TipSeen("stuck_help")). Show me plays the intro for steps 0 to 2 and opens the screen
+-- of steps 3 and 4. Each nudge fires events.stuckNudge. Its own block, as the module is short of locals.
+do
+	local TutorialHints = require(script.Components.TutorialHints)
+	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
+	local NUDGE = {
+		PULSE = ((Config :: any).StuckNudgeSeconds or 40) :: number,
+		HELP = ((Config :: any).StuckHelpSeconds or 90) :: number,
+		CARD_SECONDS = 12, -- the help card stays this long
+		EVERY = 0.25,
+	}
+	-- the controller's last state and the line it was given, so a switch of input can say it again
+	local hinted: { state: any, text: string?, device: TipQueue.Device? } = {}
+	local stall = { step = -1, seconds = 0, pulses = 0, asked = false, clock = 0 }
+
+	local function inputDevice(): TipQueue.Device
+		return TipQueue.device(UserInputService:GetLastInputType().Name, Scale.isTouch())
+	end
+
+	local function hintFor(s: any, device: TipQueue.Device): string?
+		local catalog = currentCatalog
+		local levels: { [string]: number } = s.upgradeLevels or {}
+		return TutorialHints.line({
+			step = s.tutorialStep or TutorialHints.DONE,
+			device = device,
+			resting = TutorialHints.resting(
+				s.cats,
+				if catalog then catalog.spots else nil,
+				s.tier or 1
+			),
+			bowl = (levels.lure_bowl or 0) >= 1,
+			baited = s.bait ~= nil,
+		})
+	end
+
+	-- UIController's tutorialLine: the strip's words for this state on the input the player used last, or nil from
+	-- step 5 (the controller then keeps its own line, and hides the strip).
+	function UI.tutorial.hint(s: any): string?
+		local device: TipQueue.Device = inputDevice()
+		local text = hintFor(s, device)
+		hinted.state, hinted.text, hinted.device = s, text, device
+		return text
+	end
+
+	-- The strip says its line again when the input changes (a pad picked up, a tap on a touch laptop).
+	local function followInput()
+		local s = hinted.state
+		if s == nil or hinted.text == nil or tutorialText ~= hinted.text then
+			return
+		end
+		local device: TipQueue.Device = inputDevice()
+		if device == hinted.device then
+			return
+		end
+		hinted.device = device
+		local text = hintFor(s, device)
+		if text ~= nil then
+			hinted.text = text
+			tutorialText = text
+			applyTutorial()
+		end
+	end
+
+	-- Show me on the help card.
+	local function showMe(step: number)
+		UI.events.stuckNudge:Fire("show_me")
+		local levels: { [string]: number } = state.upgradeLevels or {}
+		if step <= 2 then
+			UI.events.introChoice:Fire("help")
+			UI.events.introReplay:Fire()
+		elseif step == 4 and (levels.lure_bowl or 0) >= 1 then
+			UI.bait.openPicker()
+		elseif modal ~= nil then
+			modal:open("Upgrades")
+		end
+	end
+
+	-- The "Need a hand?" card for this step, saved as shown at once.
+	local function askHelp(step: number)
+		local card = askCard
+		if card == nil then
+			return
+		end
+		stall.asked = true
+		local key = tostring(math.clamp(step, 0, TutorialHints.DONE))
+		local shown: { [string]: boolean } = table.clone(state.stuckHelpShown or {})
+		shown[key] = true
+		(state :: any).stuckHelpShown = shown
+		UI.events.stuckNudge:Fire("help_shown")
+		UI.events.tipSeen:Fire(Tips.STUCK_HELP, false)
+		card:show({
+			title = "Need a hand?",
+			choices = {
+				{ id = "show", label = "Show me", icon = Theme.icons.tutorial, style = "gold" },
+				{ id = "ok", label = "Got it", style = "ghost" },
+			},
+			seconds = NUDGE.CARD_SECONDS,
+			answer = function(id: string?)
+				if id == "show" then
+					showMe(step)
+				end
+			end,
+		})
+	end
+
+	-- The strip pulses and the trail starts again from the character.
+	local function pulse()
+		stall.pulses += 1
+		if hud then
+			hud:pulseTutorial()
+		end
+		if tutorialTrail then
+			tutorialTrail:hide()
+		end
+		applyTutorial()
+		UI.events.stuckNudge:Fire("pulse")
+	end
+
+	ticks.nudges = function(dt: number)
+		stall.clock += dt
+		if stall.clock < NUDGE.EVERY then
+			return
+		end
+		local elapsed = stall.clock
+		stall.clock = 0
+		followInput()
+		local step = state.tutorialStep
+		if step == nil or step >= TutorialHints.DONE or not initialized then
+			return
+		end
+		if step ~= stall.step then
+			stall.step, stall.seconds, stall.pulses, stall.asked = step, 0, 0, false
+		end
+		if tutorialText == nil or not UI.tips.quiet() then
+			return
+		end
+		stall.seconds += elapsed
+		if stall.seconds >= NUDGE.PULSE * (stall.pulses + 1) then
+			pulse()
+		end
+		local seen: { [string]: boolean } = state.stuckHelpShown or {}
+		if
+			stall.seconds >= NUDGE.HELP
+			and not stall.asked
+			and state.stuckHelpShown ~= nil
+			and not seen[tostring(step)]
+		then
+			askHelp(step)
+		end
+	end
+
+	-- The help card now, for this step (QA in Studio and the UI gate). It is saved as shown.
+	function UI.tutorial.showHelp()
+		local step = state.tutorialStep or 0
+		askHelp(math.min(step, TutorialHints.DONE - 1))
 	end
 end
 

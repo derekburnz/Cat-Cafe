@@ -206,6 +206,7 @@ def prim_parts(name, kind, M4, swatch, extra):
 
 
 LOOKS = {}  # object name -> ([r, g, b] in 0..1, Material): a look from outside the palette (style_icons' samples)
+SWATCH_MATERIALS = {}  # asset -> {swatch: Material}: a statue cast in bronze or carved in jade (luckycat.py, F88)
 
 
 def _material(obname, swatch):
@@ -232,6 +233,7 @@ def _material(obname, swatch):
 
 def _props(p, asset, uid):
     material, transparency = _material(p["name"], p["swatch"])
+    material = SWATCH_MATERIALS.get(asset, {}).get(p["swatch"], material)
     see_through = material == "Glass" or p["swatch"] == "glass" or p["name"].endswith("_Glass")
     climb = p["name"].endswith(CLIMB_OBJECTS)
     thin_ok = (asset.startswith(OUTDOOR_PREFIXES) and not any(k in asset for k in THIN_SKIP)

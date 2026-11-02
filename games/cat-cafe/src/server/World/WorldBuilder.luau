@@ -1015,6 +1015,20 @@ local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
 		disc.CanTouch = false
 		disc.CastShadow = false
 	end
+	-- Model-Agent's backdrop ring round the area (#741), CatCafe_<Area>_Backdrop, when it is in: built in set space,
+	-- so it pivots as the camp set does, its ground starting at the Ground plate's edge below. Every part is
+	-- non-colliding, unqueried and shadowless. Persistent like the town's, so it never streams out behind a player.
+	local backdropName = "CatCafe_" .. campArtName(camp.area) .. "_Backdrop"
+	if AssetRegistry.has(backdropName) then
+		local backdrop = place(
+			backdropName,
+			CFrame.new(spec.center.x, floorY, spec.center.z)
+				* CFrame.Angles(0, math.rad(camp.turn), 0),
+			parent
+		)
+		backdrop.Name = "Backdrop"
+		backdrop.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	end
 	-- the area and its camp on their own ground, out to the backdrop ring
 	local x1, z1 =
 		math.min(rect.x1, spec.center.x - spec.halfWidth),

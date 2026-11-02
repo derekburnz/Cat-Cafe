@@ -14,6 +14,17 @@ Cannon.RANGE_SLACK = 2 -- studs on top of CannonRangeStuds, as for every check o
 Cannon.CARRY_TEXT = "Bring your cat to the camp first"
 Cannon.DUSK_TEXT = "Night is coming. The areas close soon."
 Cannon.OFF_PAD_STEP = 2 -- studs between the points tried off a full pad
+Cannon.DOWN_TEXT = "Get back on your feet first"
+
+-- The refusal for a player a tackle knocked down within TackledDownSeconds, or nil. LaunchCannon uses it, and so do
+-- the HUD's Home and Cannon buttons (TravelService), so a downed player cannot hop out of a chase (review N281,
+-- hometown-cannon.md section 5). `sinceTackled` is nil when no tackle ever hit the player.
+function Cannon.downRefusal(sinceTackled: number?): string?
+	if sinceTackled ~= nil and sinceTackled < Config.TackledDownSeconds then
+		return Cannon.DOWN_TEXT
+	end
+	return nil
+end
 
 -- What the server knows when a LaunchCannon arrives. Times since are nil when it never happened.
 export type LaunchCheck = {
@@ -51,8 +62,9 @@ function Cannon.launchRefusal(check: LaunchCheck): string?
 	if check.busy then
 		return "Finish what you are doing first"
 	end
-	if check.sinceTackled ~= nil and check.sinceTackled < Config.TackledDownSeconds then
-		return "Get back on your feet first"
+	local down = Cannon.downRefusal(check.sinceTackled)
+	if down ~= nil then
+		return down
 	end
 	if
 		check.distance == nil

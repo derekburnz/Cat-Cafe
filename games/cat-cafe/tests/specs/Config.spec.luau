@@ -218,6 +218,19 @@ return function()
 		CollectorRainbowMultiplier = 10,
 		RainbowAnimateMax = 10,
 		RainbowSpawnToastSeconds = 60,
+		-- F102 (trading.md section 6)
+		TradeMinTier = 3,
+		TradeMaxCats = 9,
+		TradeCountdownSeconds = 5,
+		TradeLopsidedRatio = 3,
+		TradeConfirmWaitSeconds = 2,
+		TradeRequestSeconds = 20,
+		TradeReaskSeconds = 60,
+		TradeCooldownSeconds = 10,
+		TradesPerDay = 50,
+		TradeFlagCheckSeconds = 60,
+		TradeLogMax = 20,
+		TradeIdsMax = 100,
 		PicnicEverySeconds = 21600, -- F100 (camp-extras.md section 4); LostFoundTable is checked in CampExtras.spec
 		PicnicHold = 2,
 		PicnicPotion = "tip_potion", -- Design-Agent 11-02: one 10 minute Money Potion a fill, not a 15 minute one

@@ -31,6 +31,7 @@ from mathutils import Euler, Matrix, Vector  # noqa: E402
 import accessories  # noqa: E402
 import alley  # noqa: E402
 import alleyway  # noqa: E402
+import backdrop  # noqa: E402
 import camps  # noqa: E402
 import cannon  # noqa: E402
 import areakit  # noqa: E402
@@ -80,7 +81,7 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
-           townbuildings, customers, cannon, camps, style_icons]
+           townbuildings, customers, cannon, camps, backdrop, style_icons]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "

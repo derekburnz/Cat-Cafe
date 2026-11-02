@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 06:07 UTC",
+  "generated": "2026-11-02 06:30 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -91985,6 +91985,67 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-106.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Town_Backdrop",
+      "category": "Town",
+      "module": "backdrop",
+      "objects": [
+        "CatCafe_Town_Backdrop",
+        "CatCafe_Town_Backdrop_Ground",
+        "CatCafe_Town_Backdrop_Hills",
+        "CatCafe_Town_Backdrop_HillsFar",
+        "CatCafe_Town_Backdrop_Flowers",
+        "CatCafe_Town_Backdrop_Hay",
+        "CatCafe_Town_Backdrop_Sails",
+        "CatCafe_Town_Backdrop_Bulbs"
+      ],
+      "triangles": 21638,
+      "budget": 60000,
+      "size_studs": {
+        "x": 860.0,
+        "y": 900.0,
+        "z": 242.51
+      },
+      "size_roblox": [
+        860.0,
+        242.51,
+        900.0
+      ],
+      "bounds_min": [
+        -430.0,
+        -450.0,
+        -178.0
+      ],
+      "bounds_max": [
+        430.0,
+        450.0,
+        64.51
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_Backdrop.model.json",
+      "rbx_parts": 961,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Town_Backdrop.fbx",
+        "assets/cat-cafe/exports/CatCafe_Town_Backdrop.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "21638/60000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "16275 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-178.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
         }
       }
     },

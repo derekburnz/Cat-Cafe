@@ -64,6 +64,7 @@ ELLIPSOID_FIT = 0.75                  # an ellipsoid's collision box, as a share
 #                                       back up), so players stop at the visible surface instead of its corners
 TOUCH_OBJECTS = ("_CodesCircle",)    # parts the game code may watch with Touched; every other part has CanTouch off
 MIN_COLLIDE = 0.35                # thinner parts (trim, handles, bulbs) never collide
+BACKDROP = "_Backdrop"            # scenery past an edge, out of reach (backdrop.py): no collision, shadow or raycast
 ALWAYS_LIT = ("HangingLamp",)     # matches WorldController: indoor lamps glow all day
 ROUND = 4
 
@@ -240,6 +241,8 @@ def _props(p, asset, uid):
                 and not p["name"].endswith(NO_COLLIDE_OBJECTS) and not see_through)
                or (asset.startswith("CatCafe_Plot_") and p["name"].endswith(("_Wall", "_Glass")))
                or p["name"].endswith("_Bars") or p["name"].endswith(BARRIER_OBJECTS) or climb)
+    if BACKDROP in asset:
+        collide = False
     size = [max(v, 0.01) for v in p["size"]]
     fit = 1.0
     if climb:                                     # a TrussPart's size comes in 2 stud steps
@@ -255,12 +258,14 @@ def _props(p, asset, uid):
         "Anchored": True,
         "CanCollide": bool(collide),
         "CanTouch": p["name"].endswith(TOUCH_OBJECTS),
-        "CastShadow": material != "ForceField" and not see_through and transparency < 1,
+        "CastShadow": material != "ForceField" and not see_through and transparency < 1 and BACKDROP not in asset,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
     }
     if transparency:
         props["Transparency"] = transparency
+    if BACKDROP in asset:
+        props["CanQuery"] = False
     look = LOOKS.get(p["name"])
     if look:
         props["Color"], props["Material"] = [_r(c) for c in look[0]], look[1]

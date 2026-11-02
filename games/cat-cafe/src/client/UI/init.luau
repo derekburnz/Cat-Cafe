@@ -112,7 +112,7 @@ UI.events = {
 	rescueCancelled = Signal.new(), -- (rescueSpotId)   Give up on the rescue bar: forward as RescueCancel (F27)
 	screenOpened = Signal.new(), -- (name or nil)
 	-- design v0.3
-	catchPressed = Signal.new(), -- (strayId, index, grade)   a press on circle `index` with this device's grade: forward strayId and index as CatchPress
+	catchPressed = Signal.new(), -- (strayId, index, grade?)   a press on circle `index` with this device's grade (nil after its first Miss): forward strayId and index as CatchPress
 	rankUp = Signal.new(), -- ()   Rank up pressed on the card with every requirement met: forward as RankUp
 	travel = Signal.new(), -- (destination)   "home" or an AreaId from the travel row or Areas panel: forward as Travel
 	useLure = Signal.new(), -- (lureId)   Use on a food in the Bait bowl screen: forward as UseLure (F28)
@@ -2442,7 +2442,7 @@ function UI.catch.showCircles(
 	if hud then
 		hud:setCatching(true)
 	end
-	screen:show(circleList, windows, header, function(index: number, grade: Types.CircleGrade)
+	screen:show(circleList, windows, header, function(index: number, grade: Types.CircleGrade?)
 		UI.events.catchPressed:Fire(strayId, index, grade)
 	end)
 end

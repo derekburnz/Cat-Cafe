@@ -52,5 +52,6 @@ def build_gold(name, mat, body="walk"):
     return cats.build_cat(name, mat, spec=gold_spec(name), base=f"CatCafe_Cat_{name}_Gold{cats.SUFFIX[body]}", body=body)
 
 
+# every roster cat but the exclusives (cats.has_gold: the Bellhop Cat, F96, is never gold)
 ASSETS = {f"CatCafe_Cat_{n}_Gold{cats.SUFFIX[bd]}": (lambda mat, n=n, bd=bd: build_gold(n, mat, bd), 1500)
-          for n in cats.ROSTER for bd in cats.BODIES}
+          for n in cats.ROSTER if cats.has_gold(n) for bd in cats.BODIES}

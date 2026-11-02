@@ -102,6 +102,8 @@ class Ctx:
     def __init__(self, spec, body, d):
         self.body, self.spec, self.d = body, spec, d
         self.main, self.glass = Builder(), Builder()
+        self.origin = Vector((0.0, 0.0, 0.0))        # the object's pivot in the ridden piece's space (pivot_at)
+        self.extra = {}                              # suffix -> (Builder, pivot), extra objects (piece)
         h = d["head"]
         self.h = h
         hs, kf = h["s"][0] / 0.92, h["k"] / 1.05
@@ -131,11 +133,31 @@ class Ctx:
 
     def pen(self, frame):
         at, R, s = self._frames[frame]
-        return Pen(self.main, at, R, s)
+        return Pen(self.main, Vector(at) - self.origin, R, s)
 
     def gpen(self, frame):
         at, R, s = self._frames[frame]
-        return Pen(self.glass, at, R, s)
+        return Pen(self.glass, Vector(at) - self.origin, R, s)
+
+    def point(self, frame, c):
+        """Point c of `frame` in the space of the piece the prop rides (the neck for Head and Face props)."""
+        at, R, s = self._frames[frame]
+        return Vector(at) + R @ (Vector(c) * s)
+
+    def pivot_at(self, frame, c):
+        """Pivot the prop's object at point c of `frame` (a hinge the animations turn it about) instead of at the
+        joint it rides. Call before drawing."""
+        assert not self.main.prims and not self.glass.prims, "pivot_at goes before the first primitive"
+        self.origin = self.point(frame, c)
+
+    def piece(self, suffix, frame, c):
+        """A Pen for an extra object of this prop, `<name>_<suffix>`, pivoted at point c of `frame` (a bell that
+        swings from it). It rides what the prop rides; PIECES names its host for the Roblox nesting."""
+        at = self.point(frame, c)
+        b = Builder()
+        self.extra[suffix] = (b, at)
+        _, R, s = self._frames[frame]
+        return Pen(b, Vector(self._frames[frame][0]) - at, R, s)
 
     def back_frame_offset(self):
         """Back props are in the Body's space (pivot at the model origin), head props relative to the neck."""
@@ -1411,6 +1433,64 @@ def dragon_horns(ctx):
 
 
 # name -> (slot, builder). data-model 3a (Alleyway), 3b (Park), 3c (Neighbourhood, Woods, Sewer).
+# ------------------------------------------------------------------------------- F96 the Bellhop Cat --
+CAP_R, CAP_H = 0.22, 0.28                  # the pillbox, head-frame units
+CAP_AT, CAP_ROLL = (0.0, -0.03, -0.04), 8  # its base centre (sunk into the head so the tilted cap leaves no gap), tilt
+STRAP_Y = 0.52                             # face-frame y of the chin strap: behind the ears, under the cap's back edge
+
+
+def _cap_q(q):
+    """A point on the Bellhop's cap (x across, y back, z up from its base centre) in the head frame."""
+    return tuple(Vector(CAP_AT) + _ry(CAP_ROLL) @ Vector(q))
+
+
+def bellhop_cap(ctx):
+    """F96 Bellhop Cat (starter-cat.md section 1): a red pillbox cap tilted a little to its left, a gold band round
+    the base, a modelled gold braid round the top edge (a gold cord with fourteen slanted brass twists on it), a
+    gold button on top and a gold paw badge on the front. The object pivots at the back of the cap's base, the
+    hinge for the cap tip and the sleepy cap-over-the-eyes (turn the _Prop Model about its pivot's X)."""
+    ctx.pivot_at("head", _cap_q((0, CAP_R, 0)))
+    P, R = ctx.pen("head"), _ry(CAP_ROLL)
+    P.cyl(_cap_q((0, 0, CAP_H / 2)), CAP_R, CAP_H, "shirt_red", rot=R, segments=14)                  # crown
+    P.cyl(_cap_q((0, 0, 0.05)), CAP_R + 0.015, 0.06, "rarity_legend", rot=R, segments=14)            # band
+    n, ro, zt = 14, CAP_R + 0.03, CAP_H - 0.018                   # the cord stands a hair proud of the top
+    P.ring(_cap_q((0, 0, zt)), ro, 0.05, 0.05, "rarity_legend", rot=R, segments=n)                    # braid cord
+    flat = ro * math.cos(math.pi / n)                                                                  # its flat faces
+    for i in range(n):                                                                                # the twists
+        a = 2 * math.pi * (i + 0.5) / n
+        P.box(_cap_q((flat * math.cos(a), flat * math.sin(a), zt)), (0.014, 0.075, 0.016), "brass",
+              rot=R @ _rz(math.degrees(a)) @ _rx(-40))
+    P.cyl(_cap_q((0, 0, CAP_H + 0.015)), 0.05, 0.04, "rarity_legend", rot=R, segments=8)              # button
+    fy = -CAP_R * math.cos(math.pi / 14) - 0.008                                                       # flat front face
+    P.box(_cap_q((0, fy, 0.135)), (0.085, 0.02, 0.065), "rarity_legend", rot=R)                       # paw badge
+    for x, z in ((-0.05, 0.18), (0.0, 0.195), (0.05, 0.18)):
+        P.box(_cap_q((x, fy, z)), (0.03, 0.02, 0.03), "rarity_legend", rot=R)
+
+
+def bellhop_collar(ctx):
+    """F96 Bellhop Cat's second prop: a red collar round the bottom of the head (the chibi cats' neck), proud of the
+    front and sides and stopping short of the back, where the Entertainer's cape collar sits; a gold tab at the front;
+    a black chin strap from under the cap's back edge, behind the ears, down each side into the collar. The brass
+    bell is its own object, `<name>_Bell`, pivoted where it hangs from the tab, to swing about its pivot."""
+    F = ctx.pen("face")
+    fw, fd, top, bot = ctx.fw, ctx.fd, ctx.ftop, ctx.fbot
+    lo, hi = bot - 0.008, bot + 0.05
+    F.box((0, 0.012, (lo + hi) / 2), (2 * fw + 0.03, 0.078, hi - lo), "shirt_red")                    # front
+    for sx in (-1, 1):
+        F.box((sx * (fw - 0.0175), (fd - 0.07 - 0.027) / 2, (lo + hi) / 2), (0.065, fd - 0.07 + 0.027, hi - lo),
+              "shirt_red")                                                                             # sides
+        F.box((sx * (0.12 + fw + 0.0125) / 2, STRAP_Y, top + 0.004), (fw + 0.0125 - 0.12, 0.045, 0.025),
+              "fur_black")                                                                             # strap
+        F.box((sx * (fw + 0.0045), STRAP_Y, (hi - 0.01 + top + 0.012) / 2), (0.025, 0.045, top + 0.012 - hi + 0.01),
+              "fur_black")
+    F.box((0, -0.03, bot - 0.012), (0.075, 0.04, 0.05), "rarity_legend")                              # tab
+    B = ctx.piece("Bell", "face", (0, -0.03, bot - 0.034))
+    B.ring((0, -0.03, bot - 0.07), 0.04, 0.016, 0.018, "brass", rot=_rx(90), segments=8)              # loop
+    B.sphere((0, -0.03, bot - 0.175), 0.088, "rarity_legend", segments=10, rings=6)                   # bell
+    B.ring((0, -0.03, bot - 0.168), 0.093, 0.014, 0.02, "brass", segments=10)                         # seam
+    B.box((0, -0.03, bot - 0.215), (0.12, 0.15, 0.02), "choco")                                      # slot
+
+
 PROPS = {
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
     "MaineCoon": ("Face", bandit_mask), "Void": ("Head", ninja_band), "Midnight": ("Head", wizard_hat),
@@ -1427,6 +1507,8 @@ PROPS = {
     "Birdwatch": ("Face", binoculars), "Duckling": ("Head", duckling), "Balloon": ("Back", balloons),
     "Builder": ("Head", hard_hat_pencil), "Gardener": ("Head", sun_hat), "Gnome": ("Head", gnome_hat),
     "Plumber": ("Head", work_cap),
+    # F96 the free Bellhop Cat
+    "BellhopCat": ("Head", bellhop_cap),
 }
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
@@ -1440,7 +1522,12 @@ PROPS2 = {
     "Firefly": ("Head", glow_antennae), "OldOak": ("Back", leaf_cloak), "Lantern": ("Back", pickaxe),
     "Bubbles": ("Head", rubber_duck), "Gears": ("Head", gear_top_hat), "Glimmer": ("Back", air_tank),
     "Bottlecap": ("Back", royal_cape), "Eclipse": ("Head", dragon_horns),
+    # F96: the Bellhop's collar sits at the chin, so it is a Face prop and no role piece comes off for it
+    "BellhopCat": ("Face", bellhop_collar),
 }
+# Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
+# rides, and their Roblox Model nests inside that prop's Model.
+PIECES = {"BellhopCat": {"Bell": "Prop2"}}
 
 
 # A cat with a second prop gets 1,800 triangles in place of 1,500 (style guide section 5): two props and a Mythical
@@ -1454,19 +1541,23 @@ for _table in (cats.ASSETS, gold.ASSETS):
 
 
 def build(name, spec, body, d):
-    """{object suffix: Builder} for one cat's props on one body: "Prop", plus "Prop_Glass" when it has clear parts,
-    and "Prop2" for a second prop. Head and Face props are drawn relative to the neck (the Head's pivot), Back props
-    in the model's space."""
+    """{object suffix: (Builder, pivot)} for one cat's props on one body: "Prop", plus "Prop_Glass" when it has clear
+    parts, "Prop2" for a second prop and any extra pieces (PIECES). Head and Face props are drawn relative to the neck
+    (the Head's pivot), Back props in the model's space; `pivot` is where the object pivots in that space, (0, 0, 0)
+    unless the prop set its own hinge (Ctx.pivot_at, Ctx.piece)."""
     out = {}
     for key, table in (("Prop", PROPS), ("Prop2", PROPS2)):
         if name not in table:
             continue
         ctx = Ctx(spec, body, d)
         table[name][1](ctx)
-        out[key] = ctx.main
+        out[key] = (ctx.main, tuple(ctx.origin))
         if ctx.glass.prims:
             assert key == "Prop", "second props have no clear parts"
-            out["Prop_Glass"] = ctx.glass
+            out["Prop_Glass"] = (ctx.glass, tuple(ctx.origin))
+        for suffix, (b, at) in ctx.extra.items():
+            assert PIECES.get(name, {}).get(suffix) == key, f"{name}: list {suffix} in PIECES"
+            out[suffix] = (b, tuple(at))
     return out
 
 
@@ -1479,7 +1570,8 @@ def slot2(name):
 
 
 def piece_slot(name, suffix):
-    """The slot of one of a cat's prop objects ("Prop", "Prop_Glass" or "Prop2")."""
+    """The slot of one of a cat's prop objects ("Prop", "Prop_Glass", "Prop2" or an extra piece's suffix)."""
+    suffix = PIECES.get(name, {}).get(suffix, suffix)
     return slot2(name) if suffix == "Prop2" else slot(name)
 
 

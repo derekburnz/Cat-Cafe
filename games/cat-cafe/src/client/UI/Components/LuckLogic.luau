@@ -16,10 +16,15 @@
 --                                          tomorrow", "Lucky Day in 3 days"; nil without the Clock's attributes
 --   statueLines(level, maxLevel)           the Lucky Cat's shop lines, what it gives now and next, then what Luck does
 --   text(luck) -> string                   shared Luck.text: "Luck x1.3"
+--   oddsRich(odds, hexOf) -> string        the card's odds for a RichText label: only the rarities that can come, a new
+--                                          line before one that would pass 36 letters ("Epic 71.56%   Legendary 23.44%"
+--                                          then "Mythical 5%"), each in its rarity's colour, so the 330 px card fits them
+--                                          without a wrap splitting a line
 -- Pure, so the cloud spec runner checks it.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local FoodOdds = require(script.Parent.FoodOdds)
 local MarketLogic = require(script.Parent.MarketLogic)
 local Types = require(script.Parent.Parent.Types)
 
@@ -37,6 +42,8 @@ local LUCK_MAX: number = (Config :: any).LuckMax or 3
 local PER_LEVEL: number = (Config :: any).LuckPerStatueLevel or 0.1
 local LUCKY_EVERY: number = (Config :: any).CrateLuckyEvery or 20
 local RARITIES: { string } = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
+local LINE_CHARS = 36 -- letters a line of the card's odds holds at textSmall in its 302 px
+local NBSP = utf8.char(0xA0) -- a no-break space, as FoodOdds.rich joins a name to its share
 
 export type Row = {
 	id: string, -- "statue" | "potion" | "lucky_day"
@@ -230,6 +237,36 @@ function LuckLogic.dayLine(view: DayView): string?
 		return if view.phase == "night" then "Lucky Day at sunrise" else "Lucky Day tomorrow"
 	end
 	return ("Lucky Day in %d days"):format(away)
+end
+
+function LuckLogic.oddsRich(odds: { [string]: number }?, hexOf: (rarity: string) -> string): string
+	if odds == nil then
+		return ""
+	end
+	local lines: { string } = {}
+	local line: { string } = {}
+	local letters = 0
+	for _, rarity in RARITIES do
+		local share = odds[rarity]
+		if type(share) == "number" and share > 0 then
+			local shown = FoodOdds.percent(share)
+			local width = #rarity + 1 + #shown
+			if #line > 0 and letters + 3 + width > LINE_CHARS then
+				table.insert(lines, table.concat(line, "   "))
+				line = {}
+				letters = 0
+			end
+			letters += (if #line > 0 then 3 else 0) + width
+			table.insert(
+				line,
+				('<font color="#%s">%s</font>'):format(hexOf(rarity), rarity .. NBSP .. shown)
+			)
+		end
+	end
+	if #line > 0 then
+		table.insert(lines, table.concat(line, "   "))
+	end
+	return table.concat(lines, "\n")
 end
 
 -- Level 0: "A beckoning cat by your front door" then "Each level: Luck +0.1, rarer bait cats and crate finds".

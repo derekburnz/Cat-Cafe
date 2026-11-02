@@ -168,6 +168,39 @@ return function()
 		end)
 	end)
 
+	describe("LuckLogic.oddsRich", function()
+		local function hex(rarity: string): string
+			return rarity:sub(1, 1):rep(6)
+		end
+		local function plain(text: string): string
+			return (text:gsub("<[^>]+>", ""):gsub(utf8.char(0xA0), " "))
+		end
+
+		it("leaves out the rarities that cannot come and colours each part", function()
+			local text = LuckLogic.oddsRich(
+				{ Common = 0, Rare = 0, Epic = 71.56, Legendary = 23.44, Mythical = 5 },
+				hex
+			)
+			expect(plain(text)).to.equal("Epic 71.56%   Legendary 23.44%\nMythical 5%")
+			expect(text:find('<font color="#EEEEEE">', 1, true)).to.be.ok()
+			expect(text:find("Common", 1, true)).to.equal(nil)
+		end)
+
+		it("keeps every line within 36 letters", function()
+			local text = LuckLogic.oddsRich(
+				{ Common = 43.1, Rare = 27, Epic = 23, Legendary = 5.75, Mythical = 1.15 },
+				hex
+			)
+			expect(plain(text)).to.equal(
+				"Common 43.1%   Rare 27%   Epic 23%\nLegendary 5.75%   Mythical 1.15%"
+			)
+			for line in plain(text):gmatch("[^\n]+") do
+				expect(#line <= 36).to.equal(true)
+			end
+			expect(LuckLogic.oddsRich(nil, hex)).to.equal("")
+		end)
+	end)
+
 	describe("LuckLogic.statueLines", function()
 		it("says what the Lucky Cat gives now and next", function()
 			local first, second = LuckLogic.statueLines(0, 5)

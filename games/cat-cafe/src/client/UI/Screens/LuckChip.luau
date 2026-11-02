@@ -5,8 +5,10 @@
 -- text turns gold and a gold ring pulses round the tile (a steady ring with Reduce Motion). A tap opens the card over
 -- the counters, as the money's boosts card does: the Luck and what it does, each source with its share and time
 -- left (Components/LuckLogic.rows), the food in your bag on your bowl and the next crate, both with the odds the roll
--- uses now (shared Bait.oddsFor then Luck.apply; MarketLogic.nextOdds with Luck). A tap on the card closes it, and
--- so does any window opening (HUD.screenOpened).
+-- uses now (shared Bait.oddsFor then Luck.apply; MarketLogic.nextOdds with Luck). The card opens next to its chip,
+-- over the row when the row sits low (over the counters on a computer) and under it when it sits high (level with
+-- the menu on a phone), so the chip stays in view. A tap on the card closes it, and so does any window opening
+-- (HUD.screenOpened).
 
 local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -40,6 +42,8 @@ export type LuckChip = {
 local TILE = 28 -- the potion chips' tile
 local CARD_W = 330
 local ROW_H = 24
+local GAP = 6 -- between the chip and its card
+local EDGE = 8 -- the card keeps this far from the screen's right edge
 local GREEN = Color3.fromHex("4FAE5C") -- the clover's tile
 local PULSE = TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 
@@ -74,7 +78,7 @@ local function rarityHex(rarity: string): string
 end
 
 -- `row`: the potion timers' row (BuffChips.frame), which the chip leads; `root`: the HUD's scaled root, for the
--- card; `cardPosition`: where the card's bottom left corner sits (over the counters, as the boosts card).
+-- card; `cardPosition`: where the card's bottom left corner sits before the chip has a place on screen.
 -- `onShown` hears when the chip shows or hides, `onOpen` when its card opens (the HUD closes the boosts card).
 function LuckChip.new(
 	row: Frame,
@@ -85,6 +89,8 @@ function LuckChip.new(
 ): LuckChip
 	local self = setmetatable({}, LuckChip) :: any
 	self._onOpen = onOpen
+	self._root = root
+	self._cardPosition = cardPosition
 	self._catalog = nil :: Types.Catalog?
 	self._state = nil :: Types.PlayerState?
 	self._shown = false
@@ -377,9 +383,38 @@ function LuckChip.toggle(self: any)
 	self._said = nil
 	self._onOpen()
 	self:_renderCard()
+	self:_place()
 	self.card.Visible = true
 	Tween.popIn(self.card, 0.9)
 	Sound.play("uiClick")
+end
+
+-- Beside the chip, in the root's design px (the root is scaled, so screen px divide by Scale.get(), as
+-- HUD._showExact does): its left edge on the chip's, above the chip when the chip is in the lower half of the screen,
+-- else below it.
+function LuckChip._place(self: any)
+	local card: Frame = self.card
+	local root: Frame = self._root
+	local chip: TextButton = self.chip
+	local scale = Scale.get()
+	if scale <= 0 or root.AbsoluteSize.Y <= 0 or chip.AbsoluteSize.Y <= 0 then
+		card.AnchorPoint = Vector2.new(0, 1)
+		card.Position = self._cardPosition
+		return
+	end
+	local width = root.AbsoluteSize.X / scale
+	local height = root.AbsoluteSize.Y / scale
+	local x = (chip.AbsolutePosition.X - root.AbsolutePosition.X) / scale
+	local top = (chip.AbsolutePosition.Y - root.AbsolutePosition.Y) / scale
+	local bottom = top + chip.AbsoluteSize.Y / scale
+	x = math.max(0, math.min(x, width - CARD_W - EDGE))
+	if top + bottom > height then
+		card.AnchorPoint = Vector2.new(0, 1)
+		card.Position = UDim2.fromOffset(x, top - GAP)
+	else
+		card.AnchorPoint = Vector2.new(0, 0)
+		card.Position = UDim2.fromOffset(x, bottom + GAP)
+	end
 end
 
 function LuckChip.hide(self: any)
@@ -412,9 +447,9 @@ function LuckChip._renderCard(self: any)
 			then ("%s on your %s"):format(food.name, Bait.bowlName(bowlLevel))
 			else ("%s in the Bait bowl"):format(food.name)
 	end
-	local foodText = if foodOdds then FoodOdds.rich(foodOdds, rarityHex) else ""
+	local foodText = LuckLogic.oddsRich(foodOdds :: any, rarityHex)
 	local crateTitle = if crate then "Next " .. crate.name else ""
-	local crateText = if crateOdds then FoodOdds.rich(crateOdds :: any, rarityHex) else ""
+	local crateText = LuckLogic.oddsRich(crateOdds, rarityHex)
 	table.insert(parts, foodTitle .. foodText .. crateTitle .. crateText)
 	local said = table.concat(parts, ";")
 	if said == self._said then

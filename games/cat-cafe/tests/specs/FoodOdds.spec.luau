@@ -451,7 +451,12 @@ return function()
 							if math.abs(shown[rarity] - rolled[rarity]) > 1e-9 then
 								table.insert(
 									off,
-									("%s level %d x%s %s"):format(lure.id, level, luck, rarity)
+									("%s level %d x%s %s"):format(
+										lure.id,
+										level,
+										tostring(luck),
+										rarity
+									)
 								)
 							end
 						end

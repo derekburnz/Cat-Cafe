@@ -37,6 +37,23 @@ return function()
 			local golden = { id = "alley_golden_crate", golden = true, odds = GOLDEN }
 			expect(MarketLogic.nextOdds(golden, 0, 20, GOLDEN)).to.equal(GOLDEN)
 		end)
+
+		it(
+			"puts the player's Luck in a plain crate's odds, not the lucky one's or a golden crate's (F88)",
+			function()
+				expect(MarketLogic.nextOdds(ALLEY, 3, 20, GOLDEN, 1)).to.equal(ODDS)
+				expect(MarketLogic.nextOdds(ALLEY, 3, 20, GOLDEN, nil)).to.equal(ODDS)
+				local lucky = MarketLogic.nextOdds(ALLEY, 3, 20, GOLDEN, 1.5)
+				expect(lucky.Epic).to.be.near(15, 1e-9)
+				expect(lucky.Legendary).to.be.near(3.75, 1e-9)
+				expect(lucky.Mythical).to.be.near(0.75, 1e-9)
+				expect(lucky.Rare).to.be.near(27, 1e-9)
+				expect(lucky.Common).to.be.near(53.5, 1e-9)
+				expect(MarketLogic.nextOdds(ALLEY, 19, 20, GOLDEN, 1.5)).to.equal(GOLDEN)
+				local golden = { id = "alley_golden_crate", golden = true, odds = GOLDEN }
+				expect(MarketLogic.nextOdds(golden, 0, 20, GOLDEN, 2)).to.equal(GOLDEN)
+			end
+		)
 	end)
 
 	describe("MarketLogic.rarityRows", function()
@@ -188,6 +205,15 @@ return function()
 					for luck = 0, every - 1 do
 						local odds = MarketLogic.nextOdds(crate, luck, every, golden)
 						expect(odds).to.deepEqual(Crates.oddsFor(crate, luck))
+						-- F88: with the player's Luck too, as the server rolls it
+						for _, playerLuck in { 1.3, 2, 3 } do
+							local shown =
+								MarketLogic.nextOdds(crate, luck, every, golden, playerLuck)
+							local rolled = Crates.oddsFor(crate, luck, playerLuck)
+							for _, rarity in MarketLogic.RARITIES do
+								expect(shown[rarity] or 0).to.be.near(rolled[rarity] or 0, 1e-9)
+							end
+						end
 						if not crate.golden then
 							expect(MarketLogic.luckLeft(luck, every) <= 1).to.equal(
 								Crates.isLucky(crate, luck)

@@ -116,9 +116,7 @@ local function opensList(
 		("Money x%s"):format((string.format("%.2f", nextTier.multiplier):gsub("0$", "")))
 	)
 	local caps = {}
-	local before: { tables: number, espresso: number, net: number, lure_bowl: number }? = if current
-		then current.caps
-		else nil
+	local before = if current then current.caps else nil
 	if not before or nextTier.caps.tables > before.tables then
 		table.insert(caps, ("tables to %d"):format(nextTier.caps.tables))
 	end
@@ -131,6 +129,12 @@ local function opensList(
 	-- F82: each tier opens one more bowl level
 	if not before or nextTier.caps.lure_bowl > before.lure_bowl then
 		table.insert(caps, ("bait bowl to %d"):format(nextTier.caps.lure_bowl))
+	end
+	-- F88: each tier opens one more Lucky Cat level
+	local lucky: number? = (nextTier.caps :: any).lucky_cat
+	local luckyBefore: number? = if before then (before :: any).lucky_cat else nil
+	if lucky ~= nil and lucky > 0 and lucky > (luckyBefore or 0) then
+		table.insert(caps, ("Lucky Cat to %d"):format(lucky))
 	end
 	if #caps > 0 then
 		local text = table.concat(caps, ", ")

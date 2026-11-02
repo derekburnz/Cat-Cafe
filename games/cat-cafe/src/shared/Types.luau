@@ -681,6 +681,9 @@ export type PlayerState = {
 	starterCatClaimed: boolean, -- F96: the Bellhop Cat's stand card reads "Already home with you"
 	luck: number, -- F88: the player's Luck now (shared/Luck), x1 to LuckMax; the HUD chip shows it above 1
 	luckSources: { LuckSource }, -- F88: what adds it, in order (statue, potion, lucky_day)
+	-- F95 (economy-ladder.md section 5): the Long Nap pass is owned, so the welcome back card says full pay up to
+	-- OfflineCapPassSeconds instead of half pay up to OfflineCapSeconds
+	longNap: boolean,
 	serverTime: number,
 }
 

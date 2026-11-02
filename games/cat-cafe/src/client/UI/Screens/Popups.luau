@@ -13,6 +13,9 @@
 -- for the description ("The Bellhop Cat joined your cafe!") and its rate (CatFoundExtra's banner, line and rate).
 -- F87 (easy-start.md section 3, tip `offline`): the first return after a long time away puts a gold ribbon on the
 -- offline card's top edge, "Your cats earned while you were away!" (showOffline's headline).
+-- F95 (economy-ladder.md section 5): the offline card is the welcome back card, "Welcome back!", "Your cats earned
+-- this in 7h 40m", the amount, what time away pays ("Half pay while away, up to 8 hours", showOffline's note from
+-- Components/WelcomeBack) and Collect.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
@@ -25,6 +28,7 @@ local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
+local WelcomeBack = require(script.Parent.Parent.Components.WelcomeBack)
 
 export type Popups = {
 	screenGui: ScreenGui,
@@ -39,7 +43,8 @@ export type Popups = {
 		amount: number,
 		seconds: number,
 		onClaim: () -> (),
-		headline: string?
+		headline: string?,
+		note: string?
 	) -> (),
 	showGift: (self: Popups, title: string, prize: Types.IndexPrize) -> (),
 	setCatalog: (self: Popups, catalog: Types.Catalog) -> (),
@@ -87,8 +92,13 @@ function Popups.new(parent: Instance): Popups
 	self._busy = false
 	self._held = false -- the intro is playing: new popups queue, nothing shows
 	-- the latest earnings
-	self._offline =
-		nil :: { amount: number, seconds: number, onClaim: () -> (), headline: string? }?
+	self._offline = nil :: {
+		amount: number,
+		seconds: number,
+		onClaim: () -> (),
+		headline: string?,
+		note: string?,
+	}?
 	self._offlineWaiting = false -- an offline card is showing or queued
 	self._token = 0
 	self._buttons = {} :: { any }
@@ -389,7 +399,7 @@ function Popups.new(parent: Instance): Popups
 		Size = UDim2.new(1, -32, 0, 30),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textTitle - 2,
-		Text = "While you were away",
+		Text = WelcomeBack.TITLE,
 		Parent = offlineCard,
 	})
 	self._offlineSub = text({
@@ -412,18 +422,18 @@ function Popups.new(parent: Instance): Popups
 		Parent = offlineCard,
 	})
 	Outline.text(self._offlineAmount, Theme.sizes.textOutline + 1)
-	text({
+	self._offlineNote = text({
 		Name = "Note",
 		Position = UDim2.fromOffset(16, 142),
 		Size = UDim2.new(1, -32, 0, 40),
-		TextSize = Theme.sizes.textTiny,
+		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.modal.subtext,
-		Text = "Your cats kept serving at a quarter speed, for up to an hour.",
+		Text = WelcomeBack.note(nil),
 		Parent = offlineCard,
 	})
 	self._claimButton = Button.new({
 		name = "Claim",
-		text = "Claim",
+		text = "Collect",
 		style = "gold",
 		-- a phone's finger needs 44 real px (the card's Note ends 78 px over its foot, room for the taller button)
 		size = UDim2.fromOffset(
@@ -699,17 +709,22 @@ function Popups.showOffline(
 	amount: number,
 	seconds: number,
 	onClaim: () -> (),
-	headline: string?
+	headline: string?,
+	note: string?
 )
 	-- a ribbon line once given stays for this card, though the second send of the same earnings has none
 	local before = self._offline
 	local ribbon = headline or (if self._offlineWaiting and before then before.headline else nil)
-	self._offline = { amount = amount, seconds = seconds, onClaim = onClaim, headline = ribbon }
+	self._offline =
+		{ amount = amount, seconds = seconds, onClaim = onClaim, headline = ribbon, note = note }
 	local function fill()
 		local latest = self._offline
 		if latest then
 			self._onClaim = latest.onClaim
-			self._offlineSub.Text = ("Gone for %s"):format(Format.duration(latest.seconds))
+			self._offlineSub.Text = ("Your cats earned this in %s"):format(
+				Format.duration(latest.seconds)
+			)
+			self._offlineNote.Text = latest.note or WelcomeBack.note(nil)
 			self._offlineAmount.Text = "+" .. Format.money(latest.amount)
 			self._ribbonText.Text = latest.headline or ""
 			self._ribbon.Visible = latest.headline ~= nil

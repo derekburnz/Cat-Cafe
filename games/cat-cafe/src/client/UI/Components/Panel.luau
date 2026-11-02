@@ -5,7 +5,10 @@
 -- badge sits over the top-left corner, and faint paw prints dot the body behind the content. Each screen picks
 -- its header colour and icon, so a window is known at a glance (Upgrades red, Decor gold, Cats sky).
 --
--- Roblox terms: `frame` is a see-through holder that does not clip, so the ears and badge can stick out of the
+-- On a touch screen the red X is finger sized (44 real px at the phone's 0.75 scale, review N313) and sits over the
+-- top-right corner like the badge on the left, poking out a little, since the header is too short for it.
+--
+-- Roblox terms: `frame` is a see-through holder that does not clip, so the ears, badge and touch X can stick out of the
 -- window; the window itself is its child `Body`, which clips the content to the rounded corners. A child
 -- GuiObject turns with its parent's Rotation, so each ear is one square turned 45 degrees with its pink inside.
 
@@ -14,6 +17,7 @@ local CatEars = require(script.Parent.CatEars)
 local Create = require(script.Parent.Create)
 local IconArt = require(script.Parent.IconArt)
 local Outline = require(script.Parent.Outline)
+local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type Props = {
@@ -42,6 +46,7 @@ local EAR_X = 0.17 -- each ear's centre, from either side
 local BADGE_SIZE = 60
 local BADGE_OVERHANG = 12 -- how far the badge sticks out past the window's top and left edges
 local BADGE_ART = 0.78 -- the drawn icon's share of the badge, inside its outline
+local CLOSE_OVERHANG = 10 -- on a touch screen: how far the X sticks out past the window's top and right edges
 -- faint paw prints behind the content: x and y scale, rotation
 local PAWS: { { number } } = {
 	{ 0.06, 0.3, -20 },
@@ -190,17 +195,25 @@ function Panel.new(props: Props): Panel
 
 	local closeButton: Button.Button? = nil
 	if props.onClose then
+		-- a touch X is a finger wide and tall above its lip: Scale.tapHeight's floor, in front of the body
+		local touch = Scale.isTouch()
+		local side = Theme.sizes.touchMin
+		local tall = Scale.tapHeight(side, Theme.sizes.buttonDepth)
+		local wide = math.max(side, tall - Theme.sizes.buttonDepth)
 		closeButton = Button.new({
 			name = "Close",
 			text = "X",
 			style = "close",
-			size = UDim2.fromOffset(Theme.sizes.touchMin, Theme.sizes.touchMin),
-			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -8, 0.5, -2),
+			size = if touch then UDim2.fromOffset(wide, tall) else UDim2.fromOffset(side, side),
+			anchorPoint = if touch then Vector2.new(1, 0) else Vector2.new(1, 0.5),
+			position = if touch
+				then UDim2.new(1, CLOSE_OVERHANG, 0, -CLOSE_OVERHANG)
+				else UDim2.new(1, -8, 0.5, -2),
 			textSize = Theme.sizes.textLarge + 2,
 			sound = false, -- the modal's close swish is the sound
 			onClick = props.onClose,
-			parent = header,
+			zIndex = if touch then 4 else nil,
+			parent = if touch then frame else header,
 		})
 	end
 

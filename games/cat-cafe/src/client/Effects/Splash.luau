@@ -88,10 +88,12 @@ local function surfaceUnder(foot: Vector3): Vector3?
 	return nil
 end
 
-local function ripple(at: Vector3, diameter: number)
+-- A ripple growing on the water at `at` to `diameter` studs across (from `from`, or the walking one's size) and fading;
+-- CampWater's drips and fish use it too.
+local function ripple(at: Vector3, diameter: number, from: number?)
 	local s = Presets.splash
-	local ring =
-		Context.effectPart("Ripple", Vector3.new(0.05, s.rippleFrom, s.rippleFrom), s.rippleColour)
+	local start = from or s.rippleFrom
+	local ring = Context.effectPart("Ripple", Vector3.new(0.05, start, start), s.rippleColour)
 	ring.Shape = Enum.PartType.Cylinder
 	ring.Transparency = s.rippleTransparency
 	ring.CFrame = CFrame.new(at + Vector3.new(0, 0.04, 0)) * CFrame.Angles(0, 0, math.pi / 2)
@@ -103,6 +105,8 @@ local function ripple(at: Vector3, diameter: number)
 	):Play()
 	Debris:AddItem(ring, s.rippleSeconds + 0.1)
 end
+
+Splash.ripple = ripple
 
 local function splash(at: Vector3, kind: string)
 	local s = Presets.splash

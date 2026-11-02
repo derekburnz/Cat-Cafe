@@ -471,7 +471,7 @@ def _line_y(x, half):
     return HOOK_Y - SAG * (1 - (x / half) ** 2)
 
 
-def build_bunting(mat, span=BUNTING_SPAN, name="CatCafe_Square_Bunting"):
+def build_bunting(mat, span=BUNTING_SPAN, name="CatCafe_Square_Bunting", flags=FLAGS):
     b = RB()
     half = span / 2
     n = 12
@@ -490,7 +490,7 @@ def build_bunting(mat, span=BUNTING_SPAN, name="CatCafe_Square_Bunting"):
         yl, yr = _line_y(xl, half) - 0.03, _line_y(xr, half) - 0.03
         ym = (yl + yr) / 2
         flag = RB()
-        flag.fan_z(0.0, (0, -1.05), [(xl - x, yl - ym), (xr - x, yr - ym)], 0.05, FLAGS[k % len(FLAGS)])
+        flag.fan_z(0.0, (0, -1.05), [(xl - x, yl - ym), (xr - x, yr - ym)], 0.05, flags[k % len(flags)])
         out.append(flag.finalize(f"{name}_Flag{k + 1:02d}_Pennant", mat, location=(x, ym, 0)))
     return out
 

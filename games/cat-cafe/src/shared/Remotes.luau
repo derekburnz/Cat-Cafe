@@ -102,7 +102,16 @@ Remotes.ServerToClient = {
 	"CatCaught", -- (catId: string, isNew: boolean)
 	"OfflineEarnings", -- (amount: number, seconds: number)
 	"Toast", -- (text: string, kind: "info" | "good" | "warn")
-	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch
+	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch. F89: a Legendary
+	-- or Mythical check-in shout-out at most once a minute a player (RareMomentService)
+	"SecuredRare", -- (userId: number, catId: string, rarity: Types.Rarity, gold: boolean, variant: string)  F89
+	-- (luck-and-rare-moments.md 2a): a Legendary, a Mythical or a gold Epic or better (and, F99, every rainbow cat)
+	-- checked in or tamed, to everyone: the owner's big pull card and the hop, spin, shockwave and stings; the first
+	-- Epic a player ever secures goes to that player alone for the small card. The toast is the Announce above
+	"FoundRareDecor", -- (userId: number, decorId: string)  F89 (2b): a Mythical crate piece, to everyone for the
+	-- toast ("Sam found the Mythical Midnight Sky!", RareMoments.decorText), at most once a minute a player
+	"PalsChanged", -- (userIds: { number })  F92 (playing-together.md 1): this player's pals on the server, every time
+	-- one comes or goes, for the HUD chip's headshots and "+10% with pals"; none sent while a player has never had one
 	"GrabResult", -- (id: string, ok: boolean, reason: string, retry: boolean)  id is a rescueSpotId; retry keeps the
 	-- prompt open. Since F93 a stray has no prompt: a swing's refusal is a toast and its outcome CatchResult.
 	"NetSwung", -- (userId: number, hit: boolean)  F93: a swing landed, to the swinger and every client within 150 studs,

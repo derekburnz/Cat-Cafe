@@ -104,10 +104,15 @@ export type CustomEvent =
 	| "feedback"
 	-- F96 (starter-cat.md section 4): the free Bellhop Cat taken home; the gate it passed, "task" or "group"
 	| "starter_cat"
+	-- F92 (playing-together.md 6): on leave, the minutes with at least one pal on the server (how the first pal was
+	-- linked: friend, invite, follow or private; tier)
+	| "pal_time"
 	-- F88 (luck-and-rare-moments.md 1f): a bait or crate roll with Luck above x1 (value the Luck; roll kind, rarity
 	-- won, tier) and a Lucky Day's sunrise (value the players in the server; the area of a Mythical, or none)
 	| "luck_used"
 	| "lucky_day"
+	-- F89 (luck-and-rare-moments.md 2d): a big pull; rarity, gold yes or no, catch, bait or rescue
+	| "rare_secured"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -312,7 +317,22 @@ local function flushTips(player: Player, profile: Profile, pending: number)
 		return
 	end
 	session.accounted += tips
-	logEconomy(player, profile, true, tips, profile.coins + pending, "Gameplay", "tips")
+	-- F92: the pal bonus's share of it goes out as its own source, pal_bonus
+	local pal = math.clamp(math.floor(Economy.takePalEarned(profile)), 0, tips)
+	if tips - pal >= 1 then
+		logEconomy(
+			player,
+			profile,
+			true,
+			tips - pal,
+			profile.coins + pending - pal,
+			"Gameplay",
+			"tips"
+		)
+	end
+	if pal >= 1 then
+		logEconomy(player, profile, true, pal, profile.coins + pending, "Gameplay", "pal_bonus")
+	end
 end
 
 -- Public API ---------------------------------------------------------------------------------------------------

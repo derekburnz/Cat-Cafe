@@ -22,6 +22,12 @@
 -- v0.13 (data-model section 3d, F78) moves ten replaced cats to a spare pool, `area = "spare"`: no area page or
 -- track counts them and the All Cats track stays 50. The Index's Spare page lists the spare cats the player has
 -- found (`counts(..., "spare")`), and `book` gives the "12 / 50" for the Index title and the HUD's Index pill.
+--
+-- F99 (rainbow-coat.md section 4) adds the Rainbow page (area id "rainbow", `RAINBOW_AREA`): one track (rainbow1 to
+-- rainbow25) counting different rainbow cats across every area from `rainbowCollection`, and the rainbow luck perk
+-- (`rainbowLuck`, capped at RainbowLuckMax) that lifts every rainbow roll. The pages across every area (All Cats and
+-- Rainbow) and `book` leave out the exclusive cats (F95, F96) as the server's IndexRewards.progress does, so the
+-- free Bellhop Cat never makes the Index "13 / 51".
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -65,19 +71,21 @@ export type PartKind =
 	| "bonus"
 	| "goldLuck"
 	| "baitSpeed"
+	| "rainbowLuck"
 	| "potion"
 	| "other"
 export type PrizePart = { kind: PartKind, id: string?, amount: number }
-export type Track = "normal" | "gold"
+export type Track = "normal" | "gold" | "rainbow"
 
--- A forever bonus, named as the prize field (v0.10): tips, gold luck or faster bait.
-export type Perk = "bonus" | "goldLuck" | "baitSpeed"
-export type Totals = { bonus: number, goldLuck: number, baitSpeed: number }
+-- A forever bonus, named as the prize field (v0.10): tips, gold luck, rainbow luck (F99) or faster bait.
+export type Perk = "bonus" | "goldLuck" | "rainbowLuck" | "baitSpeed"
+export type Totals = { bonus: number, goldLuck: number, rainbowLuck: number, baitSpeed: number }
 
 export type Counts = {
 	total: number, -- the area's cats in the catalog
 	found: number, -- of those, in collection
 	gold: number, -- of those, in goldCollection
+	rainbow: number, -- of those, in rainbowCollection (F99)
 }
 
 local FALLBACK_AREA = "alley" -- a cat without an area is an Alleyway cat, as in the Index
@@ -91,6 +99,7 @@ local KNOWN_FIELDS = {
 	crates = true,
 	bonus = true,
 	goldLuck = true,
+	rainbowLuck = true,
 	baitSpeed = true,
 	tag = true,
 	decorId = true,
@@ -101,12 +110,17 @@ local IndexRewards = {}
 
 IndexRewards.ALL_AREA = "all" -- the All Cats page: every area's cats together (F54)
 IndexRewards.SPARE_AREA = "spare" -- cats out of every area for now (F78); they count on no track
-local PERKS: { Perk } = { "bonus", "goldLuck", "baitSpeed" } -- the order they show in
+IndexRewards.EXCLUSIVE_AREA = "exclusive" -- given or sold cats (F95, F96): no page counts them
+IndexRewards.RAINBOW_AREA = "rainbow" -- the Rainbow page: rainbow cats of every area (F99, shared IndexRewards.RAINBOW)
+local PERKS: { Perk } = { "bonus", "goldLuck", "rainbowLuck", "baitSpeed" } -- the order they show in
 IndexRewards.PERKS = PERKS
 IndexRewards.GOLD_LUCK_MAX = (Config.GoldLuckMax or 1.5) :: number
+IndexRewards.RAINBOW_LUCK_MAX = (Config.RainbowLuckMax or 1) :: number
 IndexRewards.BAIT_SPEED_MAX = (Config.BaitSpeedMax or 0.5) :: number
 -- a net stray's or a bait cat's gold roll before luck
 IndexRewards.GOLD_CHANCE = (Config.GoldChanceNet or 0.05) :: number
+-- a net stray's or a bait cat's rainbow roll before luck (F99)
+IndexRewards.RAINBOW_CHANCE = (Config.RainbowChanceNet or 0.005) :: number
 
 -- How many cats a milestone needs: `needs` (F54) or `need` (F48).
 -- A milestone marked `whole` (F97, Design-Agent: decor10 needs the whole Decor page, "All 16" on the Classic page and
@@ -124,25 +138,42 @@ function IndexRewards.isGold(milestone: Milestone): boolean
 	return milestone.track == "gold" or milestone.gold == true
 end
 
+-- Whether a milestone counts rainbow cats: `track = "rainbow"` (F99).
+function IndexRewards.isRainbow(milestone: Milestone): boolean
+	return milestone.track == "rainbow"
+end
+
 function IndexRewards.track(milestone: Milestone): Track
+	if IndexRewards.isRainbow(milestone) then
+		return "rainbow"
+	end
 	return if IndexRewards.isGold(milestone) then "gold" else "normal"
 end
 
--- The area's cats in the catalog and how many are found and gold. The "all" page counts every area's cats (spare
--- ones left out), and a Decor Index page its crate's pieces and how many the player owns.
+-- Whether a cat counts on no page across every area: a spare cat (F78) or an exclusive one (F95, F96).
+local function outOfBook(def: Types.CatDef, area: string): boolean
+	return area == IndexRewards.SPARE_AREA
+		or area == IndexRewards.EXCLUSIVE_AREA
+		or (def :: any).exclusive == true
+end
+
+-- The area's cats in the catalog and how many are found, gold and rainbow. The "all" and "rainbow" pages count
+-- every area's cats (spare and exclusive ones left out), and a Decor Index page its crate's pieces and how many the
+-- player owns.
 function IndexRewards.counts(catalog: Catalog, state: State, areaId: string): Counts
 	local pool = DecorPieces.poolOf(areaId)
 	if pool then
 		local owned, total = DecorPieces.pageCounts(catalog, state, pool)
-		return { total = total, found = owned, gold = 0 }
+		return { total = total, found = owned, gold = 0, rainbow = 0 }
 	end
 	local collection: { [string]: number } = state.collection or {}
 	local gold = CatVariant.collection(state)
-	local counts: Counts = { total = 0, found = 0, gold = 0 }
-	local all = areaId == IndexRewards.ALL_AREA
+	local rainbow = CatVariant.rainbowCollection(state)
+	local counts: Counts = { total = 0, found = 0, gold = 0, rainbow = 0 }
+	local all = areaId == IndexRewards.ALL_AREA or areaId == IndexRewards.RAINBOW_AREA
 	for _, def in catalog.cats do
 		local area = def.area or FALLBACK_AREA
-		if if all then area == IndexRewards.SPARE_AREA else area ~= areaId then
+		if if all then outOfBook(def, area) else area ~= areaId then
 			continue
 		end
 		counts.total += 1
@@ -152,17 +183,21 @@ function IndexRewards.counts(catalog: Catalog, state: State, areaId: string): Co
 		if gold[def.id] ~= nil then
 			counts.gold += 1
 		end
+		if rainbow[def.id] ~= nil then
+			counts.rainbow += 1
+		end
 	end
 	return counts
 end
 
--- The Index's whole count: different cats found (in `collection` or owned) and all cats, spare ones left out.
+-- The Index's whole count: different cats found (in `collection` or owned) and all cats, spare and exclusive ones
+-- left out.
 function IndexRewards.book(catalog: Catalog, state: State): (number, number)
 	local collection: { [string]: number } = state.collection or {}
 	local owned: { [string]: any } = state.catsOwned or {}
 	local found, total = 0, 0
 	for _, def in catalog.cats do
-		if def.area == IndexRewards.SPARE_AREA then
+		if outOfBook(def, def.area or FALLBACK_AREA) then
 			continue
 		end
 		total += 1
@@ -194,7 +229,11 @@ function IndexRewards.views(catalog: Catalog, state: State, areaId: string): { V
 			continue
 		end
 		local need = IndexRewards.need(milestone, counts.total)
-		local count = if IndexRewards.isGold(milestone) then counts.gold else counts.found
+		local track = IndexRewards.track(milestone)
+		local count = if track == "gold"
+			then counts.gold
+			elseif track == "rainbow" then counts.rainbow
+			else counts.found
 		local claimed = IndexRewards.isClaimed(state, areaId, milestone.id)
 		local milestoneState: MilestoneState = if claimed
 			then "claimed"
@@ -232,12 +271,19 @@ function IndexRewards.claimable(catalog: Catalog, state: State): ({ [string]: nu
 end
 
 -- "3 cats", "All 10", "All 10 gold"; "5 gold" for a gold milestone short of the whole page.
--- "1 cat" for a milestone of one (the gold track starts at "1 gold"). On a Decor Index page "5 pieces".
+-- "1 cat" for a milestone of one (the gold track starts at "1 gold"). On a Decor Index page "5 pieces", on the
+-- Rainbow track "1 rainbow cat" and "5 rainbow cats" (F99).
 function IndexRewards.needLabel(milestone: Milestone, total: number, areaId: string?): string
 	local need = IndexRewards.need(milestone, total)
 	local all = total > 0 and need >= total
 	if areaId and DecorPieces.poolOf(areaId) then
 		return if all then ("All %d"):format(need) else ("%d pieces"):format(need)
+	end
+	if IndexRewards.isRainbow(milestone) then
+		return if all
+			then ("All %d rainbow"):format(need)
+			elseif need == 1 then "1 rainbow cat"
+			else ("%d rainbow cats"):format(need)
 	end
 	if IndexRewards.isGold(milestone) then
 		return if all then ("All %d gold"):format(need) else ("%d gold"):format(need)
@@ -373,7 +419,7 @@ end
 
 -- Whether a prize part is a forever bonus, shown as a pill rather than a picture.
 function IndexRewards.isPerk(kind: string): boolean
-	return kind == "bonus" or kind == "goldLuck" or kind == "baitSpeed"
+	return kind == "bonus" or kind == "goldLuck" or kind == "rainbowLuck" or kind == "baitSpeed"
 end
 
 -- The milestone's forever bonus and how much, or nil (a milestone has one kind; the first is taken if not).
@@ -390,11 +436,11 @@ function IndexRewards.perk(prize: Prize?): (Perk?, number)
 	return nil, 0
 end
 
--- Every claimed milestone's forever bonus added up: tips, and gold luck and faster bait up to their caps
--- (GoldLuckMax, BaitSpeedMax). The server sends goldLuck and baitSpeed in ProfileSync; when the state has them
--- they win, so the screens show what the server rolls with.
+-- Every claimed milestone's forever bonus added up: tips, and gold luck, rainbow luck and faster bait up to their
+-- caps (GoldLuckMax, RainbowLuckMax, BaitSpeedMax). The server sends goldLuck, rainbowLuck and baitSpeed in
+-- ProfileSync; when the state has them they win, so the screens show what the server rolls with.
 function IndexRewards.totals(catalog: Catalog, state: State): Totals
-	local totals: Totals = { bonus = 0, goldLuck = 0, baitSpeed = 0 }
+	local totals: Totals = { bonus = 0, goldLuck = 0, rainbowLuck = 0, baitSpeed = 0 }
 	local rewards: { [string]: { [string]: Prize } } = catalog.indexPrizes or {}
 	local claims: { [string]: { [string]: boolean } } = state.indexRewards or {}
 	for areaId, claimed in claims do
@@ -407,15 +453,21 @@ function IndexRewards.totals(catalog: Catalog, state: State): Totals
 			if prize then
 				totals.bonus += prize.bonus or 0
 				totals.goldLuck += prize.goldLuck or 0
+				totals.rainbowLuck += prize.rainbowLuck or 0
 				totals.baitSpeed += prize.baitSpeed or 0
 			end
 		end
 	end
 	totals.goldLuck = math.min(totals.goldLuck, IndexRewards.GOLD_LUCK_MAX)
+	totals.rainbowLuck = math.min(totals.rainbowLuck, IndexRewards.RAINBOW_LUCK_MAX)
 	totals.baitSpeed = math.min(totals.baitSpeed, IndexRewards.BAIT_SPEED_MAX)
 	local sentLuck = state.goldLuck
 	if type(sentLuck) == "number" then
 		totals.goldLuck = sentLuck
+	end
+	local sentRainbow = state.rainbowLuck
+	if type(sentRainbow) == "number" then
+		totals.rainbowLuck = sentRainbow
 	end
 	local sentSpeed = state.baitSpeed
 	if type(sentSpeed) == "number" then
@@ -429,8 +481,13 @@ function IndexRewards.goldChance(chance: number, goldLuck: number): number
 	return chance * (1 + math.clamp(goldLuck, 0, IndexRewards.GOLD_LUCK_MAX))
 end
 
--- The Index header's forever bonus pills: "+12% tips", "+40% gold luck (gold 7%)", "+20% faster bait"; nil for
--- a bonus the player has none of yet.
+-- A rainbow roll's chance with rainbow luck: chance x (1 + rainbowLuck), as shared IndexRewards.rainbowChance (F99).
+function IndexRewards.rainbowChance(chance: number, rainbowLuck: number): number
+	return chance * (1 + math.clamp(rainbowLuck, 0, IndexRewards.RAINBOW_LUCK_MAX))
+end
+
+-- The Index header's forever bonus pills: "+12% tips", "+40% gold luck (gold 7%)", "+20% rainbow luck (rainbow
+-- 0.6%)", "+20% faster bait"; nil for a bonus the player has none of yet.
 function IndexRewards.perkLabel(perk: string, amount: number): string?
 	if amount <= 0 then
 		return nil
@@ -443,6 +500,11 @@ function IndexRewards.perkLabel(perk: string, amount: number): string?
 	if perk == "goldLuck" then
 		local chance = IndexRewards.goldChance(IndexRewards.GOLD_CHANCE, amount)
 		return ("+%s gold luck (gold %s)"):format(percent(amount), percent(chance))
+	elseif perk == "rainbowLuck" then
+		-- the chance in hundredths, as the food card's line: "0.75%", not "0.8%"
+		local chance = IndexRewards.rainbowChance(IndexRewards.RAINBOW_CHANCE, amount)
+		local fine = string.format("%.2f", chance * 100):gsub("0+$", ""):gsub("%.$", "")
+		return ("+%s rainbow luck (rainbow %s%%)"):format(percent(amount), fine)
 	elseif perk == "baitSpeed" then
 		return ("+%s faster bait"):format(percent(amount))
 	end

@@ -2,9 +2,11 @@
 -- Index rewards (F48, F54; data-model section 11b, golden-fish.md sections 4, 5 and 5b). Every page of the Index
 -- has milestones counted from the profile: an area page's normal track from its cats in the collection and its gold
 -- track from its gold cats, the All Cats page (area id "all") from different cats across every area, and a Decor
--- Index page (area id "decor_<pool>") from that crate's pieces owned. A claimed milestone's permanent bonus counts
--- from the claim on: tips (`bonus`), gold luck (`goldLuck`, capped at GoldLuckMax) or faster bait (`baitSpeed`,
--- capped at BaitSpeedMax). Shared so the Index's reward bar and the server's ClaimIndexReward check agree. Pure.
+-- Index page (area id "decor_<pool>") from that crate's pieces owned, and the Rainbow page (area id "rainbow", F99)
+-- from different rainbow cats across every area. A claimed milestone's permanent bonus counts from the claim on: tips
+-- (`bonus`), gold luck (`goldLuck`, capped at GoldLuckMax), rainbow luck (`rainbowLuck`, capped at RainbowLuckMax;
+-- `rainbowLuck(profile)`, apart from `totals`) or faster bait (`baitSpeed`, capped at BaitSpeedMax). Shared so the
+-- Index's reward bar and the server's ClaimIndexReward check agree. Pure.
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
@@ -16,6 +18,7 @@ local IndexRewards = {}
 
 IndexRewards.ALL = "all" -- the All Cats page
 IndexRewards.DECOR_PREFIX = "decor_" -- a Decor Index page: "decor_" .. the crate pool
+IndexRewards.RAINBOW = "rainbow" -- the Rainbow page (F99, rainbow-coat.md section 4)
 
 export type Totals = { bonus: number, goldLuck: number, baitSpeed: number }
 
@@ -61,6 +64,9 @@ function IndexRewards.count(
 	if milestone.track == "decor" then
 		local pool = string.sub(areaId, #IndexRewards.DECOR_PREFIX + 1)
 		return Crates.pageCount(profile, pool)
+	end
+	if milestone.track == "rainbow" then
+		return IndexRewards.progress(profile.rainbowCollection or {}, IndexRewards.ALL)
 	end
 	local collection = if milestone.track == "gold"
 		then profile.goldCollection
@@ -111,7 +117,10 @@ function IndexRewards.blocker(
 	return string.format(
 		"Find %d more%s cat%s first",
 		left,
-		if milestone.track == "gold" then " gold" else "",
+		if milestone.track == "gold"
+			then " gold"
+			elseif milestone.track == "rainbow" then " rainbow"
+			else "",
 		if left == 1 then "" else "s"
 	)
 end
@@ -140,6 +149,44 @@ function IndexRewards.totals(profile: Types.PlayerProfile): Totals
 	totals.goldLuck = math.min(round6(totals.goldLuck), Config.GoldLuckMax)
 	totals.baitSpeed = math.min(round6(totals.baitSpeed), Config.BaitSpeedMax)
 	return totals
+end
+
+-- The rainbow luck of every claimed Rainbow track milestone (F99, rainbow-coat.md section 4), rounded to six
+-- decimals and capped at RainbowLuckMax. Kept apart from `totals`: gold luck, Gold Rush and Lucky Potions never touch
+-- a rainbow roll, and no potion adds rainbow luck.
+function IndexRewards.rainbowLuck(profile: Types.PlayerProfile): number
+	local luck = 0
+	for areaId, claims in profile.indexRewards do
+		for milestoneId, claimed in claims do
+			local prize = if claimed then IndexRewards.prize(areaId, milestoneId) else nil
+			if prize ~= nil then
+				luck += prize.rainbowLuck or 0
+			end
+		end
+	end
+	return math.min(round6(luck), Config.RainbowLuckMax)
+end
+
+-- A rainbow roll's chance: chance x (1 + rainbowLuck), the luck at most RainbowLuckMax (F99). The food card and the
+-- Fish Market's odds card show this (the UI's FoodOdds.rainbow matches it).
+function IndexRewards.rainbowChance(chance: number, rainbowLuck: number): number
+	return chance * (1 + math.clamp(rainbowLuck, 0, Config.RainbowLuckMax))
+end
+
+-- The rainbow luck a shared roll in an area uses (a net stray or a rescue trap): the highest among the players whose
+-- tier has the area open, 0 when nobody has, as for gold luck (golden-fish.md section 5, rainbow-coat.md section 1).
+function IndexRewards.bestRainbowLuck(
+	profiles: { Types.PlayerProfile },
+	areaTier: number,
+	tierOf: (Types.PlayerProfile) -> number
+): number
+	local best = 0
+	for _, profile in profiles do
+		if tierOf(profile) >= areaTier then
+			best = math.max(best, IndexRewards.rainbowLuck(profile))
+		end
+	end
+	return best
 end
 
 -- A gold roll's chance with the Index's gold luck: chance x (1 + goldLuck), the luck at most GoldLuckMax. The Index

@@ -15,6 +15,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local Catching = require(Shared:WaitForChild("Catching"))
 local Clock = require(Shared:WaitForChild("Clock"))
 local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
@@ -464,6 +465,8 @@ local function applyState(s: Types.PlayerState)
 		cats = s.cats :: any, -- the UI's CatInstance has optional fields; table props are invariant in Luau
 		collection = s.collection,
 		goldCollection = s.goldCollection,
+		rainbowCollection = s.rainbowCollection, -- F99: the Index's Rainbow tab
+		rainbowLuck = s.rainbowLuck, -- F99: the food card's "Rainbow 0.5%" line, capped
 		carrying = s.carrying,
 		tutorialStep = s.tutorialStep,
 		introSeen = s.introSeen, -- F72: the Tutorial tile and its Settings rows wait for this
@@ -662,6 +665,14 @@ local function wireIntents()
 			Net.fire("EquipBest")
 		end)
 	end
+	-- Equip Best on the Decor page (Derek 2026-10-28; shown once Config.DecorEquipBest is true), looked up loosely the
+	-- same way: the server puts out the best owned decor and answers with a toast and a sync.
+	local equipBestDecor = (UI.events :: any).equipBestDecor
+	if equipBestDecor ~= nil then
+		equipBestDecor:Connect(function()
+			Net.fire("EquipBestDecor")
+		end)
+	end
 	-- Drop cat: the carry banner's Drop button and the G key (UI thread, reviewer S53). Looked up loosely the same
 	-- way, so this lands before or after the UI build that adds the signal.
 	local dropCat = (UI.events :: any).dropCat
@@ -714,6 +725,11 @@ local function wireIntents()
 	end)
 	UI.events.claimAchievement:Connect(function(achievementId: string)
 		Net.fire("ClaimAchievement", achievementId)
+	end)
+	-- Claim all in the Quests window ("daily", "weekly", "achievements"), the Index ("index") and the Tip Jar
+	-- ("tipjar"): the server pays every ready one with one toast and a sync (QuestResult, TipJarState).
+	UI.events.claimAll:Connect(function(what: string)
+		Net.fire("ClaimAll", what)
 	end)
 	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
 	UI.events.claimDailyTreat:Connect(function()
@@ -1102,6 +1118,28 @@ local function wireServerEvents()
 			Moments.SecuredRare:Fire(userId, catId, rarity, gold, variant)
 		end
 	)
+	-- F99 (rainbow-coat.md section 2): a rainbow stray spawned. Moments.RainbowSpawned for VFX's beam and Sound's
+	-- shimmer; when the server marks it for the toast (once a minute), the UI's `UI.rainbowSpawned(areaId, catId)` once
+	-- it has one, else an announce line in the cat's rarity colour.
+	Net.on(
+		"RainbowSpawned",
+		function(areaId: string, catId: string, strayId: string, toast: boolean)
+			Moments.RainbowSpawned:Fire(areaId, catId, strayId)
+			if toast ~= true then
+				return
+			end
+			local hook: unknown = (UI :: any).rainbowSpawned
+			if type(hook) == "function" then
+				(hook :: (string, string) -> ())(areaId, catId)
+				return
+			end
+			local def = Catalog.getCat(catId)
+			local area = Catalog.getArea(areaId)
+			if def ~= nil and area ~= nil then
+				UI.announce(Catching.rainbowSpawnText(def, area.name), def.rarity)
+			end
+		end
+	)
 	-- A Mythical crate piece (2b): the toast for everyone else (the finder has the reel and the big card), from the
 	-- UI's `UI.foundRareDecor(userId, decorId)` once it has one, else a Mythical shout-out.
 	Net.on("FoundRareDecor", function(userId: number, decorId: string)
@@ -1177,10 +1215,16 @@ local function wireServerEvents()
 			)
 		end
 	)
-	Net.on("CatCaught", function(catId: string, isNew: boolean)
-		local extra: UITypes.CatFoundExtra? = if pendingCharmGain > 0
-			then { charmGain = pendingCharmGain }
-			else nil
+	Net.on("CatCaught", function(catId: string, isNew: boolean, variant: string?)
+		-- F99: the coat comes with the catch, so the card says RAINBOW or GOLD without looking for the new cat
+		local extra: UITypes.CatFoundExtra? = nil
+		if pendingCharmGain > 0 or variant ~= nil then
+			local info: UITypes.CatFoundExtra = {}
+			info.charmGain = if pendingCharmGain > 0 then pendingCharmGain else nil
+			info.shiny = if variant ~= nil then variant == "gold" else nil
+			info.rainbow = if variant ~= nil then variant == "rainbow" else nil
+			extra = info
+		end
 		pendingCharmGain = 0
 		UI.showCatFound(catId, isNew, extra)
 		-- CatCaught comes from a check-in or a tamed bait cat, so a bump that drops the carried cat plays no

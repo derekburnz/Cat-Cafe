@@ -855,12 +855,59 @@ Presets.motion = {
 	-- and ears flat back `ears`, without the hiss: startled, then away at a run.
 	startle = { seconds = 0.4, hop = 0.8, lean = 10, tailUp = 35, ears = 40 },
 	barista = { tapEvery = 1.6, headDip = 12, paw = 35 },
+	-- The Barista's working bob while it makes an order (F90, cats-make-orders.md section 2: "two small hops and a head
+	-- tilt, on a loop"; Logic.makingBob and makingPose, drawn by Cats.luau while the cat's local Making attribute is
+	-- set): each `seconds` loop it hops `hops` times, `height` studs off its seat over `hopSeconds` each with its front
+	-- paws lifting `paws` degrees, pauses `tiltGap`, then tilts its head `tilt` degrees over `tiltSeconds`, the other
+	-- way the next loop; its tail is up `tail` throughout. It eases in and out over `ease` seconds. With Reduce Motion
+	-- only the tilt plays.
+	making = {
+		seconds = 1.5,
+		hops = 2,
+		hopSeconds = 0.24,
+		height = 0.1,
+		paws = 10,
+		tiltGap = 0.1,
+		tilt = 14,
+		tiltSeconds = 0.6,
+		tail = 15,
+		ease = 0.2,
+	},
 	-- A waiter watching the room from its station (Derek 2026-10-29 19:45: cats should move around the cafe, "not just
 	-- waddle back and fourth while sitting"; it used to rock side to side with a little hop): the head turns `look`
 	-- degrees from table to table over `lookSeconds`, and tilts `tilt` now and then, once every `tiltEvery`. Its walks
 	-- round the tables are Presets.cafeWalk.
 	waiter = { look = 22, lookSeconds = 7, tilt = 8, tiltEvery = 5.5 },
 	greeter = { waveEvery = 3.2, wave = 70, tilt = 10 },
+	-- Working cats on the work body (S, Model-Agent #826; Derek 2026-11-02 12:02: "S: chibi holding the prop"),
+	-- standing at the station on their back legs with the role's arm pose already on the model (the server turns
+	-- each arm by cat_poses.work_<role>), so every turn here is small, none past about 15 degrees, and the held thing
+	-- stays where Model-Agent's clip sweep checked it (Logic.workIdle). Each shifts its weight from foot to foot, the
+	-- body rocking `sway` degrees over `swaySeconds`.
+	-- `barista`: holds its cup out to the customer and now and then (`every`) offers it over `seconds`: the arm
+	--   lifts `lift` degrees, the cup tips `held` towards them and the cat looks down at it `look`.
+	-- `waiter`: the tray held steady at its side (it rides the breath and the sway) while the head turns `look` from
+	--   table to table over `lookSeconds` and tilts `tilt` once every `tiltEvery`.
+	-- `greeter`: the raised paw waves side to side `wave` degrees `hz` times a second, in bursts of `seconds` once
+	--   every `every`, the head tilting `tilt` towards it; between bursts the paw drifts `rest` over `restSeconds`.
+	-- `entertainer`: sings into its mic: once a `beat` the head nods `nod` and the mic tips `mic` with it, the body
+	--   sways `sway` over two beats and the raised paw waves `wave` with the sway.
+	work = {
+		sway = 2.5,
+		swaySeconds = 4.8,
+		barista = { every = 2.6, seconds = 1, lift = 8, held = 10, look = 10 },
+		waiter = { look = 22, lookSeconds = 7, tilt = 8, tiltEvery = 5.5 },
+		greeter = {
+			every = 3.2,
+			seconds = 1.6,
+			wave = 14,
+			hz = 2,
+			tilt = 10,
+			rest = 3,
+			restSeconds = 3.7,
+		},
+		entertainer = { beat = 0.5, nod = 6, mic = 6, sway = 4, wave = 12 },
+	},
 	-- The entertainer bats a pom-pom on a springy wand stuck in its perch (Derek 2026-10-28 17:41: Comet's ball was
 	-- "kind of floating" and its foot "randomly" twitched; the old yarn ball slid about in mid air 2 studs past the
 	-- cat tree's top, which the paw never reached). The paws take turns once every `every` seconds: the paw comes
@@ -1085,7 +1132,22 @@ export type CatPose = { body: string, lift: number, turns: { [string]: { number 
 -- every `every` seconds (a random time between the two), at most `most` at once and only while the camera is within
 -- `range` studs. Getting up and sitting down cross-fade the seated body and the walking body over `fade` seconds; it
 -- turns at most `turn` degrees a second. Off with Reduce Motion. F90's orders (cats-make-orders.md) send the same
--- walk with a tray.
+-- walk with a tray, its underside on the walking body's Carry attachment at the ear tips (Model-Agent's #778).
+-- F90's animation (section 6, Logic.crouch, trayCarry, sweepPose, sweepScoop and bankNod):
+-- - `sit`: getting up, the walking copy rises out of a sit over `rise` seconds (the cross-fade runs over the first
+--   `fade` of them); sitting down it sinks into one, the cross-fade over the last `fade`. Down, its hindquarters
+--   are `drop` studs lower with the back legs tucked `tuck` degrees, the body `pitch` degrees nose up and the tail
+--   `tail` degrees down.
+-- - `carry`: with a tray on its head it eases into carrying over `ease` seconds, its chin `chin` degrees up and tail
+--   `tail` degrees higher, the head steady (Logic.gait's level); tall hats fade out over the same ease.
+-- - `sweep`: at a tip pile (Moments.TipSwept) it stops for `seconds`: rears up by `up` (a share of the sweep) with
+--   its body `rear` degrees back and `lift` studs higher, its left paw `reach` degrees out on the table edge, drags
+--   its right paw back `drag` degrees `swipes` times, and is back on all fours from `down` to the end, tail up
+--   `tail`. The tray with the coin bag waits where the pile was and hops onto its head between `scoop` and `land`,
+--   in an arc `arc` studs high.
+-- - `bank`: at the till (Moments.TipBanked) it stops for `seconds` and dips its shoulders `lean` and head `nod`
+--   degrees toward it as the bag tips off, tail up `tail`.
+-- Sweep and bank do not play with Reduce Motion: the bag goes straight onto the head and the walk goes on.
 Presets.cafeWalk = {
 	speed = 3,
 	turn = 300,
@@ -1095,7 +1157,30 @@ Presets.cafeWalk = {
 	reach = 12,
 	most = 2,
 	range = 70,
-	trayLift = 0.08, -- studs a tray sits above the top of the head
+	trayLift = 0.08, -- studs a tray sits above the top of the head, on a body without a Carry attachment
+	tallAbove = 0.05, -- studs a head prop may rise above Carry before it steps aside under a tray
+	sit = { rise = 0.45, drop = 0.1, tuck = 40, pitch = 12, tail = 20 },
+	-- A cat standing at its station on the work body (S, #826) gets up from standing instead: the walker starts
+	-- reared up on its back legs, nose up `pitch` degrees and `drop` studs (negative: lifted, so its back end stays
+	-- out of the floor), back legs tucked `tuck` and tail down `tail`, and drops onto all fours over sit.rise while
+	-- the station model fades out; coming home it rears back up as the station model fades in.
+	stand = { drop = -0.12, tuck = 30, pitch = 30, tail = 10 },
+	carry = { ease = 0.25, chin = 6, tail = 20 },
+	sweep = {
+		seconds = 1.1,
+		up = 0.18,
+		down = 0.72,
+		rear = 22,
+		lift = 0.12,
+		reach = 50,
+		drag = 40,
+		swipes = 2,
+		tail = 25,
+		scoop = 0.6,
+		land = 0.85,
+		arc = 0.8,
+	},
+	bank = { seconds = 0.45, lean = 10, nod = 25, tail = 15 },
 }
 
 -- The Bellhop Cat's five animations (F96, starter-cat.md section 1), on Model-Agent's #708 hinges: the cap (`_Prop`
@@ -1455,12 +1540,13 @@ Presets.palWave = {
 -- Avatar.Pose degrees (the legs stay the character's own): arms folded across the chest, the left forearm under the
 -- right, head tipped down to the cat; the wrists are held straight, so the hands keep still over the character's
 -- walk (16:51: "hands shake too much"). R6 has no elbows, so `arms6` reaches both arms forward and in to meet under
--- the cat. The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little) and
--- `forward` studs further out, clear of the chest, `loafSide` or `sitSide` studs to the right (negative: left).
--- Lying on the arms it turns `loafTurn` degrees, which puts it out at the character's left side with its face back
--- over the left shoulder: in front of the chest the body hid it from the game's camera behind the player (16:48:
--- "cat is missing from the arms"), and this way that camera sees its face peeking over the shoulder. Sitting up it
--- turns `sitTurn` (facing out). The arms ease in over `blendIn` and out over `blendOut` seconds. A HeldCat Pose
+-- the cat. The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little),
+-- `loafSide` or `sitSide` studs to the right of halfway between the forearms (negative: left) and `loafForward` or
+-- `forward` studs further out than them. Lying on the arms it turns `loafTurn` degrees: straight across the middle
+-- of the arms, head to the character's left (Derek 2026-11-02 12:01: "it should be straight across middle of arms";
+-- before, it lay out at the left side facing back over the shoulder, for the camera behind, which he found off
+-- centre). `loafForward` keeps its big head clear of the character's face, its back just in front of it, while it
+-- looks about. Sitting up it turns `sitTurn` (facing out), `forward` out. The arms ease in over `blendIn` and out over `blendOut` seconds. A HeldCat Pose
 -- cannot move part by part (still streaming in, or on Motor6D joints) stays on its weld and is tried again after
 -- `retry` seconds.
 Presets.carryPose = {
@@ -1479,8 +1565,9 @@ Presets.carryPose = {
 	arms6 = { sh = 80, sp = -30, neck = -12 } :: { [string]: number },
 	gap = -0.15,
 	forward = -0.6,
-	loafTurn = 150,
-	loafSide = -1.4,
+	loafForward = -1.15,
+	loafTurn = 90,
+	loafSide = 0,
 	sitTurn = 15,
 	sitSide = -0.55,
 	blendIn = 0.2,
@@ -2210,7 +2297,9 @@ Presets.orders = {
 		flicker = 0.12,
 		hz = 3.1,
 	},
-	door = { { 0, 0 }, { 0.14, -55 }, { 0.6, -55 }, { 0.95, 0 } },
+	-- 30 at most: the plot's Barista stands 2.65 studs in front of the oven (#781), and the 1.75 stud door would reach
+	-- it past that
+	door = { { 0, 0 }, { 0.12, -30 }, { 0.55, -30 }, { 0.85, 0 } },
 	waft = 6,
 	ding = {
 		sparkles = 10,

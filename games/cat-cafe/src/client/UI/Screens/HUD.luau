@@ -26,13 +26,16 @@
 -- gold "New!" on its button for NEW_SECONDS.
 -- Laid out in design pixels under one UIScale from Scale.bind.
 --
+-- F92 (playing-together.md sections 2 and 5): the pal chip (Screens/PalChip) closes the potion timers' row while pals
+-- are on the server, the boosts card gets their "Pals (2)" row, Invite sends Roblox's invite with this player's name
+-- in its launch data (Components/Invite), and a joiner whose pal is out in an area sees "Sam is in the Park" over the
+-- glowing Cannon (Screens/PalMarker).
+--
 -- Roblox terms: SocialService:PromptGameInvite opens Roblox's own invite-friends window; the game only asks.
 
 local GuiService = game:GetService("GuiService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local SocialService = game:GetService("SocialService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -47,15 +50,19 @@ local GoalCard = require(script.Parent.GoalCard)
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
+local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local PalChip = require(script.Parent.PalChip)
+local PalMarker = require(script.Parent.PalMarker)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
+local Signal = require(script.Parent.Parent.Components.Signal)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
@@ -83,6 +90,10 @@ export type HUD = {
 	setTutorial: (self: HUD, text: string?) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
 	setLuckyDay: (self: HUD, view: LuckLogic.DayView?) -> (),
+	-- F101: "🏁 Rescue Rally in 5h 20m" under the clock in the last hours before a Rally, nil hides it
+	setRallySoon: (self: HUD, line: string?) -> (),
+	-- F101: the potion timers' row (with the Luck and pal chips), which the Rally banner keeps clear of on a phone
+	buffRow: (self: HUD) -> GuiObject,
 	luckShown: (self: HUD) -> boolean,
 	setAreasOpen: (self: HUD, open: boolean) -> (),
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
@@ -92,6 +103,9 @@ export type HUD = {
 	isCarrying: (self: HUD) -> boolean,
 	bottomTop: (self: HUD) -> number,
 	setCatching: (self: HUD, active: boolean) -> (),
+	-- F101: fires (active) when a catch or rescue starts or ends, so the Rally banner gets out of its way
+	catchingChanged: Signal.Signal,
+	isCatching: (self: HUD) -> boolean,
 	setMenuFolded: (self: HUD, folded: boolean) -> (),
 	setTravelFolded: (self: HUD, folded: boolean) -> (),
 	screenOpened: (self: HUD, name: string?) -> (),
@@ -101,6 +115,10 @@ export type HUD = {
 	glowTutorial: (self: HUD) -> (),
 	pulseTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
+	-- F92: the pals on the server (PalsChanged), for the chip and the boosts card
+	setPals: (self: HUD, userIds: { number }) -> (),
+	-- F92: "Sam is in the Park" over the travel button to that area, glowing; nil text takes it away
+	palArrived: (self: HUD, palUserId: number, text: string?) -> (),
 	destroy: (self: HUD) -> (),
 }
 
@@ -513,6 +531,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._tutorialTile = tutorial
 	self._tutorialEnabled = true
 	self._catching = false
+	self.catchingChanged = Signal.new()
 	local hide: TextButton = Create("TextButton", {
 		Name = "Hide",
 		Text = "",
@@ -670,17 +689,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		layoutOrder = 6,
 		parent = icons,
 		onClick = function()
-			task.spawn(function()
-				local player = Players.LocalPlayer
-				local ok, canInvite = pcall(function()
-					return SocialService:CanSendGameInviteAsync(player)
-				end)
-				if ok and canInvite then
-					pcall(function()
-						SocialService:PromptGameInvite(player)
-					end)
-				end
-			end)
+			Invite.prompt() -- F92: with this player's name in the launch data
 		end,
 	})
 	table.insert(self._buttons, self._inviteTile)
@@ -771,6 +780,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = root,
 	})
 	self._luckyDay = nil :: LuckLogic.DayView?
+	-- F101 (rescue-rally.md section 1): the Friday countdown to the Rescue Rally, under the Lucky Day line
+	self._rallyLine = label({
+		Name = "RallySoon",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H),
+		Size = UDim2.fromOffset(LUCKY_LINE_W, NIGHT_LINE),
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Visible = false,
+		Parent = root,
+	})
+	self._rallySoon = nil :: string?
 
 	-- Tier and next goal (right, under the clock): the tier, the next tier's requirements as slim bars; a tap opens
 	-- rank up
@@ -1325,6 +1347,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			self._exact.Visible = false
 		end
 	)
+	-- F92: the pal chip closes the potion timers' row; a tap opens the boosts card with the pals' row
+	self._palIds = {} :: { number }
+	self._pals = PalChip.new(self._buffs.frame, function(shown: boolean)
+		self._buffs:setLead(shown, "pals")
+	end, function()
+		self:_toggleBoosts()
+	end)
+	self._palMarker = PalMarker.new()
 	self:_layoutMenu()
 	-- the left side follows the screen's size (a phone turned, a window resized)
 	table.insert(
@@ -1482,11 +1512,19 @@ end
 -- The server refuses a trip mid catch (N47) and the circles need the screen, so the bottom row steps aside
 -- until the catch ends.
 function HUD.setCatching(self: any, active: boolean)
+	local changed = self._catching ~= active
 	self._catching = active
 	self._travelRow.Visible = not active
 	self._travelFold.instance.Visible = not active
 	self:_layoutBottom()
 	self:_renderTutorialTile()
+	if changed then
+		self.catchingChanged:Fire(active)
+	end
+end
+
+function HUD.isCatching(self: any): boolean
+	return self._catching == true
 end
 
 -- The arrow tabs (Derek 2026-10-27): fold the left pills off the edge, or the bottom row below it, and back.
@@ -1898,6 +1936,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 		self._clock.Visible = false
 		self._nightTips.Visible = false
 		self._luckyLine.Visible = false
+		self._rallyLine.Visible = false
 		self._night = false
 		self._clockSeen = false
 		self:_renderBowl()
@@ -1919,6 +1958,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	self._clock.Visible = shown
 	self._nightTips.Visible = shown and isNight and NIGHT_TIPS < 1
 	self:_renderLuckyLine()
+	self._rallyLine.Visible = self._rallySoon ~= nil and shown
 	self:_layoutRight()
 	local function tick()
 		local remaining = current.phaseEndsAt - Workspace:GetServerTimeNow()
@@ -1962,6 +2002,23 @@ function HUD._renderLuckyLine(self: any)
 	end
 	self._luckyLine.Text = if line then LuckLogic.ICON .. " " .. line else ""
 	self._luckyLine.Visible = line ~= nil and self._clock.Visible
+end
+
+-- F101: the Rescue Rally countdown under the clock (RallyLogic.soon), shown with the clock; nil hides it.
+function HUD.setRallySoon(self: any, line: string?)
+	if line == self._rallySoon then
+		return
+	end
+	self._rallySoon = line
+	self._rallyLine.Text = if line ~= nil then "🏁 " .. line else ""
+	self._rallyLine.Visible = line ~= nil and self._clock.Visible
+	self:_layoutRight()
+end
+
+-- F101: the potion timers' row. On a phone it sits level with the menu's top, where a long row (Luck, potions,
+-- pals) can reach the top centre; the Rally banner moves down under it then.
+function HUD.buffRow(self: any): GuiObject
+	return self._buffs.frame
 end
 
 -- F88: the Luck chip shows (its first source came), for the `luck` context tip.
@@ -2009,6 +2066,11 @@ function HUD._layoutRight(self: any)
 	-- F88: the Lucky Day line under the clock (and under the night tips line when that shows)
 	self._luckyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
 	if self._luckyLine.Visible then
+		top += NIGHT_LINE
+	end
+	-- F101: the Rescue Rally countdown under those
+	self._rallyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
+	if self._rallyLine.Visible then
 		top += NIGHT_LINE
 	end
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
@@ -2341,7 +2403,7 @@ function HUD._renderBoosts(self: any)
 	self._boostsRate.Text = Format.rate(state.incomePerSecond)
 	-- the money ticks five times a second while income flows (UIController's prediction), and each tick renders the
 	-- HUD; the rows are made again only when what they say changed
-	local rows = BoostList.rows(self._catalog, state, Workspace:GetServerTimeNow())
+	local rows = BoostList.rows(self._catalog, state, Workspace:GetServerTimeNow(), #self._palIds)
 	local said: { string } = {}
 	for _, row in rows do
 		table.insert(
@@ -2528,8 +2590,36 @@ function HUD._showExact(self: any)
 	end)
 end
 
+-- F92 (playing-together.md section 2): the pals on the server, cleaned (Components/PalsLogic.list). The chip shows
+-- their faces and the bonus; an open boosts card gets their row; a marker for a pal who left goes.
+function HUD.setPals(self: any, userIds: { number })
+	self._palIds = table.clone(userIds)
+	self._pals:set(userIds)
+	if self._boosts.Visible then
+		self:_renderBoosts()
+	end
+	local marked: number? = self._palMarker:palId()
+	if marked ~= nil and not table.find(userIds, marked) then
+		self._palMarker:hide()
+	end
+end
+
+-- F92 (section 5): the joiner's marker, over the button that travels there (the Cannon, or Areas before the cannon),
+-- which glows until it is pressed. Nil text takes the marker away.
+function HUD.palArrived(self: any, palUserId: number, text: string?)
+	if text == nil then
+		self._palMarker:hide()
+		return
+	end
+	local button = if self._cannonMode
+		then self._travelButtons.cannon
+		else self._travelButtons.areas
+	self._palMarker:show(text, palUserId, button.instance)
+end
+
 function HUD.destroy(self: any)
 	self:_stopClock()
+	self.catchingChanged:DisconnectAll()
 	local spinTimer: thread? = self._spinTimer
 	if spinTimer then
 		task.cancel(spinTimer)
@@ -2546,6 +2636,8 @@ function HUD.destroy(self: any)
 	end
 	self._goal:destroy()
 	self._luck:destroy()
+	self._palMarker:destroy()
+	self._pals:destroy()
 	self._buffs:destroy()
 	self._scaleConnection:Disconnect()
 	Scale.unbind(self._uiScale)

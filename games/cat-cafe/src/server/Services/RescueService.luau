@@ -38,6 +38,7 @@ local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local PalService = require(script.Parent.PalService)
+local RallyService = require(script.Parent.RallyService)
 local Rescue = require(ReplicatedStorage.Shared.Rescue)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -54,7 +55,7 @@ type Stuck = {
 	trap: string, -- TrapType: "trash_bin", "garbage_bag", "tree", "trashcan" or a provisional trap
 	def: Types.CatDef,
 	charm: number, -- rolled at sunrise, kept here until the rescue succeeds (N30)
-	variant: string, -- "base" or "gold", likewise hidden until then
+	variant: string, -- "base", "gold" or "rainbow" (F99), likewise hidden until then
 	model: Model,
 	spot: BasePart,
 	lockedBy: number, -- the player whose attempt is running, else 0
@@ -222,8 +223,9 @@ local function spawnStuck(
 	return entry
 end
 
--- Rolls the cat, its charm and its gold chance now, at sunrise, from the area's rescue odds; the gold chance has the
--- best gold luck among the players with the area open (F54). On a Lucky Day (F88) the traps roll at
+-- Rolls the cat, its charm and its coat now, at sunrise, from the area's rescue odds; the gold chance has the best
+-- gold luck among the players with the area open (F54), the rainbow chance (F99, rolled first on the same roll) the
+-- best rainbow luck. On a Lucky Day (F88) the traps roll at
 -- LuckyDayWaveLuck, like the wave; nobody's own Luck touches them.
 local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePart): Stuck
 	local luck = if ClockService.luckyDay() then Config.LuckyDayWaveLuck else 1
@@ -231,9 +233,15 @@ local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePa
 		Catching.pickRarity(Luck.apply(Catching.rescueOdds(areaDef.odds), luck), rng:NextNumber())
 	local def = Catching.pickCat(rarity, areaDef.id, rng:NextNumber())
 	local charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber())
-	local chance =
+	local variant = Catching.rollCoat(
+		def,
+		rng:NextNumber(),
+		IndexRewards.rainbowChance(
+			Config.RainbowChanceRescue,
+			CatService.rainbowLuckFor(areaDef.id)
+		),
 		IndexRewards.rollChance(Config.GoldChanceRescue, CatService.goldLuckFor(areaDef.id))
-	local variant = if rng:NextNumber() < chance then "gold" else "base"
+	)
 	return spawnStuck(spotId, areaDef.id, spot, def, charm, variant)
 end
 
@@ -342,6 +350,9 @@ local function teamRescued(rescuer: Player, helper: Player, entry: Stuck, pals: 
 				CafeService.sync(helper)
 			end
 		end
+	end
+	if profile ~= nil then
+		RallyService.score(helper, "teamRescue") -- F101: the helper's points; the rescuer scores at check-in
 	end
 	local position = entry.spot.Position
 	Net.fire(rescuer, "TeamRescue", entry.spotId, rescuer.UserId, helper.UserId, position, 0)
@@ -805,8 +816,13 @@ function RescueService.stuckCount(): number
 end
 
 -- Studio-only test hook: puts a stuck cat at a trap (the first trap of the alley when none is given), replacing
--- any cat already there. `gold` forces the hidden roll. Returns the rescueSpotId.
-function RescueService.debugSpawnStuck(catId: string, spotId: string?, gold: boolean?): string
+-- any cat already there. `coat` forces the hidden roll: "gold" (or true) or "rainbow" (F99). Returns the
+-- rescueSpotId.
+function RescueService.debugSpawnStuck(
+	catId: string,
+	spotId: string?,
+	coat: (boolean | string)?
+): string
 	assert(RunService:IsStudio(), "debugSpawnStuck is Studio only")
 	local def = Catalog.getCat(catId)
 	assert(def ~= nil, "unknown cat")
@@ -825,7 +841,10 @@ function RescueService.debugSpawnStuck(catId: string, spotId: string?, gold: boo
 				spot,
 				def :: Types.CatDef,
 				charm,
-				if gold then "gold" else "base"
+				if coat == true or coat == "gold"
+					then "gold"
+					elseif coat == "rainbow" then "rainbow"
+					else "base"
 			)
 			return wanted
 		end

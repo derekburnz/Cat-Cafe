@@ -62,6 +62,9 @@ export type AreaSpec = {
 	-- above the floor where strays walk (the Sewer's tiles).
 	set: string?,
 	setLift: number?,
+	-- F85 (hometown-cannon.md section 6b): the suffix on a long area's camp, gate, night fence and backdrop models
+	-- (`CatCafe_Camp_ParkF85`, `CatCafe_Park_GateF85`, ...), which Model-Agent made with new names beside the old
+	artSuffix: string?,
 	rects: { Rect }?,
 	walls: { Rect }?, -- wall footprints for a rects area
 	roam: { Rect }?, -- where strays may walk when props line the walls; the floor pieces when nil
@@ -183,6 +186,17 @@ Layout.plot = {
 	counter = { x = 0, y = 0, z = halfD - 3 } :: Point,
 	-- On the counter's espresso plate (its top is 3 up); the level 3 machine fills it to the till.
 	espresso = { x = 3, y = 3, z = halfD - 3 } :: Point,
+	-- F90 (cats-make-orders.md section 3): the oven (CatCafe_Cafe_Oven, 3.2 wide, 2.9 deep, front -Z) against the
+	-- back wall past the counter's right end, x 4.5 to 7.7 and z 10.8 to the wall, under the back wall shelf; the
+	-- gap behind the counter itself is 1.5 deep. Barista 3 sits in front of it, clear of its door, and decor spots 5 and
+	-- 8 moved right.
+	oven = { x = 6.1, y = 0, z = halfD - 1.75 } :: Point,
+	-- F90 (section 2), client only: where a made dish waits for the Waiter (on the counter top in front of the till,
+	-- clear of the tip jar and the level 3 espresso machine), where the Waiter stands to take it (on the floor at the
+	-- counter's front, clear of the Cat Collector) and where a swept coin bag goes (on the till's keypad).
+	pass = { x = 1.2, y = 3, z = halfD - 3.75 } :: Point,
+	pickup = { x = 2.6, y = 0, z = halfD - 5.15 } :: Point,
+	tillStack = { x = 1.2, y = 3.45, z = halfD - 2.9 } :: Point,
 
 	-- Where a working cat sits, per role slot: baristas at the counter, waiters between the tables, greeters inside
 	-- the door, entertainers on the cat trees. A seated cat (the _Sit body) has its pivot on the point and fills from
@@ -194,7 +208,9 @@ Layout.plot = {
 	spots = {
 		barista_1 = { x = -0.2, y = 3, z = halfD - 2.55 },
 		barista_2 = { x = -5.2, y = 0, z = halfD - 3 },
-		barista_3 = { x = 5.2, y = 0, z = halfD - 3 },
+		-- F90: in front of the oven, clear of its door's swing (hinged 0.6 up at z 11.05, 1.75 long, so open flat it
+		-- reaches z 9.3; Model-Agent); was 5.2, halfD - 3
+		barista_3 = { x = 6.2, y = 0, z = halfD - 5.5 },
 		waiter_1 = { x = -4.5, y = 0, z = -2.5 },
 		waiter_2 = { x = 4.5, y = 0, z = -2.5 },
 		waiter_3 = { x = 4.5, y = 0, z = 3.5 }, -- beside the aisle, off the door to counter walk (was 0, 4.5)
@@ -234,10 +250,10 @@ Layout.plot = {
 		{ x = 9.5, y = 0, z = -halfD + 1.4, rotY = 180 }, -- front wall, right of the door
 		{ x = halfW - 1.4, y = 0, z = -6.5, rotY = 90 }, -- right wall, between the window corner and the bench
 		{ x = -halfW + 1.4, y = 0, z = -7.5, rotY = -90 }, -- left wall, between the window corner and the planter
-		{ x = 8, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the counter
+		{ x = 9.8, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the oven (F90; was x 8)
 		{ x = -12.6, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, left of the back door
 		{ x = -halfW + 1.4, y = 0, z = 4, rotY = -90 }, -- left wall, between the fish tank and the cat tree
-		{ x = 11.5, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the counter beyond the first
+		{ x = 13.4, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the oven beyond the first (F90; was 11.5)
 	} :: { Point },
 
 	-- Two columns of three, either side of the aisle from the front door to the counter (Derek 2026-10-28 01:27: the
@@ -319,13 +335,17 @@ Layout.plot = {
 	-- counts CollectorRangeStuds from here.
 	collectorSpot = { x = 4.5, y = 0, z = halfD - 6 } :: Point,
 
-	-- Where cats without a job nap, so the collection is on show (world-and-feel.md section 4, F37): the two
-	-- front window corners, beside the right cat tree and at the counter's right end. Highest rating first.
+	-- Where cats without a job nap, so the collection is on show (world-and-feel.md section 4, F37), highest rating
+	-- first. Each is a cat bed in an owned cafe (Derek's 10-28 to 10-30 notes: cats slept on the floor), placed by
+	-- Model-Agent's fit of 2026-11-02 clear of the shell, the F79 beds, decor spots, trees, tables and stations: under
+	-- the front window left of the door, the front right window corner, beside the right cat tree and at the
+	-- counter's right end. Each turns rotY degrees like the F79 beds so its front (-Z) and the cat on it face into the
+	-- room. WorldBuilder stands the bed on the point and moves the nap anchor up to the bed's Sleep point.
 	napSpots = {
-		{ x = -15.5, y = 0, z = -10, rotY = 45 },
-		{ x = 15.5, y = 0, z = -10, rotY = -45 },
-		{ x = 15.5, y = 0, z = 3.5, rotY = -90 },
-		{ x = 11, y = 0, z = 11, rotY = 180 },
+		{ x = -6.6, y = 0, z = -12.1, rotY = 180 },
+		{ x = 14.9, y = 0, z = -9.9, rotY = 135 },
+		{ x = 15.5, y = 0, z = 3.5, rotY = 90 },
+		{ x = 11, y = 0, z = 10, rotY = 0 },
 	} :: { Point },
 
 	-- The cat beds (F79, data-model 12c v0.13.13, Model-Agent's fit in #511): a CatCafe_Furniture_CatBed at each from
@@ -747,10 +767,13 @@ local function setPropTrap(
 	}
 end
 
--- The Park at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's set (#460, area-sets.md "The Park
--- (v3.2)") fills the 160 x 120 floor and brings its own fountain, trees and benches. The way in winds past two hedge
--- rows to the bandstand. Its cat spots are `near` on the gate half and `deep` on the far half, where Epic and rarer
--- strays wait (CatService). Its rescue trees and bins stand at the set's trap spots, three of the five deep.
+-- The long Park (F85, hometown-cannon.md section 6b; Model-Agent #799, area-sets.md "The Park (F85)"): a 120 x 310
+-- wild part with its camp 30 more in front of the gate, so the run home with a cat is long and in view. Its set,
+-- camp, gate, night fence and backdrop carry the F85 suffix (artSuffix). Four blockers cross the width with their
+-- gaps on alternating sides: a box hedge, a railing, the stream (crossed by the footbridge) and a second hedge, to
+-- the bandstand at the far end. Its cat spots are `near` on the camp half and `deep` on the far half, where Epic and
+-- rarer strays wait (CatService). Its rescue trees and bins stand at the set's trap spots, four of the five deep and
+-- none within 100 studs of the camp.
 local PX, PZ = 0, W.ParkCenterZ
 local PGATE = PZ + W.ParkDepth / 2 -- its north side, toward the town
 local PTURN = townTurn(PX, PZ, nil, PGATE)
@@ -760,52 +783,62 @@ Layout.park = {
 	halfWidth = W.ParkWidth / 2,
 	halfDepth = W.ParkDepth / 2,
 	gateZ = PGATE,
-	set = "CatCafe_Park_Set",
+	openingHalfWidth = W.CampOpeningWidth / 2,
+	set = "CatCafe_Park_SetF85",
+	artSuffix = "F85",
 	spawnPoints = (function(): { Point }
 		local points = setPoints(PX, PZ, PTURN, 0.1, {
-			{ -3.5, 0, -49.5 }, -- the plaza
-			{ 18, 0.62, -48.5 }, -- the flower beds
-			{ 30, 0.62, -45.5 },
-			{ 45, 0.62, -41 },
-			{ 51.6, 0, -42 }, -- the bench
-			{ -28.56, 0, -50.96 }, -- the picnic tables
-			{ -45.17, 0, -53.91 },
-			{ -42, 0.06, -40 }, -- a picnic blanket
-			{ -35, 0, -48.5 }, -- oaks
-			{ -34, 0, -29.5 },
-			{ 62, 0, -50.5 }, -- the blossom tree
-			{ 10, 1.2, -8 }, -- the jetty, on its boards
-			{ -15.56, 0, -18.9 }, -- the pond bank
-			{ -42, 0, -16 }, -- the willow
-			{ 46.5, 0, -16.5 }, -- the kiosk
-			{ -60, 0, -12 }, -- lawns
+			{ -4, 0, -145 }, -- plaza
+			{ 18, 0.62, -143 }, -- flowerbed
+			{ 32, 0.62, -136 },
+			{ 46, 0.62, -130 },
+			{ 49.6, 0, -141 }, -- bench
+			{ -24.56, 0, -146.96 }, -- picnic
+			{ -41.17, 0, -141.91 },
+			{ -45, 0.06, -124 }, -- blanket
+			{ -6, 0.06, -10 },
+			{ -44.5, 0, -147.5 }, -- oak (Model-Agent 11-02: moved from -44, -144, 3.5 from a picnic table's)
+			{ 42, 0, -148 }, -- blossom
+			{ 6, 1.2, -80 }, -- jetty
+			{ -19.56, 0, -90.9 }, -- bank
+			{ 2.5, 0, -62.15 },
+			{ -40, 0, -98 }, -- willow
+			{ 42.5, 0, -86.5 }, -- kiosk
+			{ -46, 0, -60 }, -- lawn
+			{ -27, 0.5, -28.3 }, -- glasshouse
+			{ -33, 0.5, -28.3 },
+			{ 29, 0, -37 }, -- orchard
 		}, "near")
 		for _, point in
 			setPoints(PX, PZ, PTURN, 0.1, {
-				{ 26, 0, 8 }, -- oaks
-				{ 6.5, 0, 9.85 }, -- the pond bank
-				{ -50, 0, 10 }, -- lawns
-				{ 50, 0, 6 },
-				{ 56, 0, 14 },
-				{ -60, 0, 24 }, -- by the second hedge row
-				{ -3, 1.15, 40.5 }, -- the bandstand
-				{ 3, 1.15, 41 },
-				{ 0, 1.15, 44 },
-				{ -9.75, 0, 53.93 }, -- the loop path
-				{ -15.97, 0, 45.81 },
-				{ -27, 0, 52 }, -- the slide
-				{ -46, 0, 45 }, -- the swings
-				{ -63.5, 0.55, 46.5 }, -- the sandbox
-				{ -44, 0, 30 }, -- the seesaw
-				{ -60, 0.72, 33 }, -- the roundabout
-				{ -36, 0, 39 }, -- the playground
-				{ 46, 0, 35.5 }, -- the fountain
-				{ 46, 0.57, 48.6 }, -- the rose beds
-				{ 56.74, 0, 33.8 },
-				{ 62.5, 0, 48 }, -- the topiary
-				{ 31, 0, 50 }, -- the flower garden
-				{ -40, 0, 54 }, -- the far end
-				{ 6, 0, 55 },
+				{ 54.4, 0, 36 }, -- bench
+				{ 31.31, 0, 80.06 }, -- picnic
+				{ 46.56, 0, 108.04 },
+				{ 24, 0.06, 100 }, -- blanket
+				{ -46, 0, 50 }, -- lawn
+				{ 40, 0, 66 },
+				{ 50, 0, 80 },
+				{ 16, 0, 20 }, -- stream
+				{ -40, 0, 20 },
+				{ 6, 0, 50.5 }, -- fountain
+				{ 12.36, 0.57, 52.36 }, -- roses
+				{ -3.05, 0, 55.05 },
+				{ 20, 0, 63 }, -- topiary
+				{ 44, 0, 46 }, -- sundial
+				{ -44, 0, 102 }, -- swings
+				{ -23, 0, 109 }, -- slide
+				{ -51.5, 0.55, 89.5 }, -- sandbox
+				{ -38, 0, 87 }, -- seesaw
+				{ -26, 0.72, 92 }, -- roundabout
+				{ -36, 0, 96 }, -- playground
+				{ 5, 1.15, 130.5 }, -- bandstand
+				{ 11, 1.15, 131 },
+				{ 8, 1.15, 134 },
+				{ 23.97, 0, 135.81 }, -- loop
+				{ -7.97, 0, 135.81 },
+				{ -30, 0, 146 }, -- far
+				{ 40, 0, 146 },
+				{ -14, 0, 132 },
 			}, "deep")
 		do
 			table.insert(points, point)
@@ -814,11 +847,11 @@ Layout.park = {
 	end)(),
 	-- a tree's branch points along its -X, a bin's open lid is at its back
 	rescueSpots = {
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -28, 0, -16 }, 180),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -18, 0, 27 }, 180),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 20, 0, 53 }, -90),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { 10, 0, -38.5 }, 0),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -14, 0, 23.5 }, 90),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, -24 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -46, 0, 30 }, 180),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, 98 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -8, 0, 64 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -46, 0, 140 }, 90),
 	},
 	props = {},
 } :: AreaSpec
@@ -827,11 +860,12 @@ Layout.park = {
 -- spots and their traps are built into the sets. Since v3.1 (F77) the Neighbourhood opens on its -Z side at the
 -- street's north end, the Woods on its +X side and the Sewer on its -X side, through the back alleys' outer walls.
 --
--- The Neighbourhood at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Neighbourhood_SetV32
--- (#505, area-sets.md "The Neighbourhood (v3.2)") fills the 280 x 280 floor behind the same gate. Whisker Lane winds
--- round two blocks of houses, each with one gap, past the village green to the playground hub, and Paw Crescent loops
--- round the far third to the corner shop, with the back gardens and the allotments behind it. Its cat spots are `near`
--- on the gate half and `deep` on the far half; its two sheds and two gutters are built into it, one of each deep.
+-- The long Neighbourhood (F85, hometown-cannon.md section 6b; Model-Agent #810, area-sets.md "The Neighbourhood
+-- (F85)"): a 180 x 430 wild part with its camp 30 more in front of the gate. Its set, camp, gate, night fence and
+-- backdrop carry the F85 suffix (artSuffix). Five blockers cross the width with their gaps on alternating sides: the
+-- first house block, the village green's fence, the road works, the second house block and the garden wall, to the
+-- corner shop and the playground at the far end. Its cat spots are `near` on the camp half and `deep` on the far half;
+-- its two sheds and two gutters are built into it, three of the four deep.
 local NX, NZ = W.NeighbourhoodCenterX, W.NeighbourhoodCenterZ
 local NGATE = NZ - W.NeighbourhoodDepth / 2 -- its south side
 local NTURN = townTurn(NX, NZ, nil, NGATE)
@@ -841,84 +875,88 @@ Layout.neighbourhood = {
 	halfWidth = W.NeighbourhoodWidth / 2,
 	halfDepth = W.NeighbourhoodDepth / 2,
 	gateZ = NGATE,
-	set = "CatCafe_Neighbourhood_SetV32",
+	openingHalfWidth = W.CampOpeningWidth / 2,
+	set = "CatCafe_Neighbourhood_SetF85",
+	artSuffix = "F85",
 	spawnPoints = (function(): { Point }
 		local points = setPoints(NX, NZ, NTURN, 0.1, {
-			{ -110.2, 1, -98.9 }, -- porch steps
-			{ -58.2, 1, -98.9 },
-			{ -1.7, 1, -98.9 },
-			{ 77.8, 1, -98.9 },
-			{ -89.8, 1, -59.1 },
-			{ -11.8, 1, -59.1 },
-			{ 14.2, 1, -59.1 },
-			{ 98.2, 1, -59.1 },
-			{ -98.2, 1, -32.9 },
-			{ 16.3, 1, -32.9 },
-			{ 63.8, 1, -32.9 },
-			{ 120.3, 1, -32.9 },
-			{ -77.5, 0.7, -102.2 }, -- flower beds
-			{ 23.5, 0.7, -102.2 },
-			{ 110.5, 0.7, -102.2 },
-			{ -122.5, 0.7, -55.8 },
-			{ -67.5, 0.7, -55.8 },
-			{ 68.5, 0.7, -55.8 },
-			{ -10.5, 0.7, -36.2 },
-			{ 93.5, 0.7, -36.2 },
-			{ 120, 0, -92 }, -- a front garden
-			{ -121.5, 0.29, -35 }, -- the parked cars
-			{ 73, 0.34, -119.2 },
-			{ -40, 1.65, -124.4 }, -- the bus stop
-			{ 16.2, 0, -128 }, -- the post box
-			{ 62, 0, -123.6 }, -- the verge benches
-			{ -78, 0, -123.6 },
-			{ -24, 0, -100.8 }, -- the bins
+			{ -67.2, 1, -166.9 }, -- porch
+			{ 10.8, 1, -166.9 },
+			{ 0.7, 1, -127.1 },
+			{ 46.2, 1, -127.1 },
+			{ -34.5, 0.7, -170.2 }, -- flowerbed
+			{ 55.5, 0.7, -170.2 },
+			{ -50.5, 0.7, -123.8 },
+			{ -18, 0.62, -100 },
+			{ -14.6, 1.65, -200 }, -- bus stop
+			{ 16.2, 0, -196 }, -- post box
+			{ -58, 0, -197.6 }, -- verge bench
+			{ 56, 0, -197.6 },
+			{ 44, 0, -207 }, -- bins
+			{ -40, 0.34, -187 }, -- car
+			{ -58.5, 0, -93 }, -- oak
+			{ -40.56, 0, -99.96 }, -- picnic
+			{ 44.69, 0, -99.94 },
+			{ -57.66, 0, -68.55 }, -- green bench
+			{ 36.5, 0, -82 }, -- birdbath
+			{ -47, 0.34, -107.4 }, -- van
+			{ -67.6, 0.6, -46 }, -- veg bed
+			{ 0.4, 0.6, -46 },
+			{ -39.6, 0.6, -8 },
+			{ -72, 0.52, -11 }, -- greenhouse
+			{ 27.5, 0, -41.5 }, -- scarecrow
+			{ 80.5, 0, -30 }, -- compost
+			{ -58.5, 0, -35.5 }, -- water butt
+			{ -30, 0, -24 }, -- allotments
+			{ -73.8, 0, -3.8 }, -- works hut
 		}, "near")
 		for _, point in
 			setPoints(NX, NZ, NTURN, 0.1, {
-				{ -59.1, 1, 12.8 }, -- porch steps
-				{ -59.1, 1, 48.8 },
-				{ 31.1, 1, 48.7 },
-				{ -53.88, 1, 92.28 },
-				{ -36.9, 1, 108.96 },
-				{ 29.34, 1, 82.79 },
-				{ 14.76, 0.7, 101.02 }, -- flower beds
-				{ -8, 0.62, 34 },
-				{ -78, 0, 132 }, -- a front garden
-				{ -27.5, 0.3, 110.8 }, -- the corner shop: its bench
-				{ -14, 0.4, 116.1 }, -- its step
-				{ -23, 0.3, 112.9 }, -- its fruit stall
-				{ -16.89, 0, 73.44 }, -- the playground: the tyre swing
-				{ -25.3, 4, 76.95 }, -- the slide's deck
-				{ -16, 0, 53.5 }, -- the swings
-				{ -0.61, 0.55, 65.97 }, -- the sandpit
-				{ -25, 0.72, 63 }, -- the roundabout
-				{ -5.25, 0, 79.7 }, -- the seesaw
-				{ -23.5, 0, 26.5 }, -- the village green: the oak
-				{ 1.31, 0, 18.06 }, -- a picnic table
-				{ -31, 0, 18.14 }, -- a bench
-				{ 26.6, 0.24, 40 }, -- the ice cream van
-				{ -118, 1.73, 14 }, -- the back gardens: the trampoline
-				{ -108, 0, 31.5 }, -- the washing line
-				{ -84, 0, 0.5 }, -- a deckchair
-				{ -80.5, 0, 21 }, -- the gnomes
-				{ -118, 0, 57 }, -- the paddling pool
-				{ -111.31, 0, 86.82 }, -- the playhouse
-				{ -77.6, 0, 70 }, -- a bench
-				{ -101.5, 0, 54 }, -- the bird bath
-				{ -118, 0.52, 120.5 }, -- the greenhouses
-				{ 101.4, 0.52, 80 },
-				{ 46.4, 0.6, 117 }, -- the allotments: the veg beds
-				{ 102.4, 0.6, 99 },
-				{ 64.4, 0.6, 59 },
-				{ 108.4, 0.6, 18 },
-				{ 80.5, 0, 74.5 }, -- the water butt
-				{ 57.5, 0, 96 }, -- the scarecrow
-				{ 47.5, 0, 70 }, -- the compost bins
-				{ 93.6, 0, 25.4 }, -- the potting bench
-				{ 44.5, 0, 24 }, -- the sunflowers
-				{ 96, 0, 130.4 }, -- a bench
-				{ 122, 0, 88 }, -- the plots
-				{ 60, 0, 4 },
+				{ -70.2, 1, 27.1 }, -- porch
+				{ -0.7, 1, 27.1 },
+				{ 72.8, 1, 27.1 },
+				{ -51.8, 1, 66.9 },
+				{ -10.8, 1, 66.9 },
+				{ 67.2, 1, 66.9 },
+				{ 51.3, 1, 179.1 },
+				{ -42.5, 0.7, 23.8 }, -- flowerbed
+				{ 24.5, 0.7, 23.8 },
+				{ 50.5, 0.7, 23.8 },
+				{ -82.5, 0.7, 70.2 },
+				{ 37.5, 0.7, 70.2 },
+				{ 6, 0.7, 96 },
+				{ 76.5, 0.7, 175.8 },
+				{ -60, 0, 156.8 }, -- verge bench
+				{ -60, 0.34, 87 }, -- car
+				{ 18.5, 0, 112 }, -- birdbath
+				{ 72, 0.52, 137 }, -- greenhouse
+				{ 50.5, 0, 2 }, -- sunflowers
+				{ -8, 0, 0.4 }, -- allot bench
+				{ 4, 0.34, 7.5 }, -- works
+				{ -62, 0.34, 20.5 },
+				{ -72, 1.73, 100 }, -- trampoline
+				{ -60, 0, 131.5 }, -- washing
+				{ -80, 0, 104.5 }, -- deckchair
+				{ -46, 0, 104 }, -- gnomes
+				{ -40, 0, 133 }, -- pool
+				{ 57.2, 0, 103 }, -- playhouse
+				{ -1.11, 0, 125.77 }, -- garden bench
+				{ -84, 0, 140 }, -- garden
+				{ 84, 0, 96 },
+				{ 74, 0, 154.5 }, -- verge
+				{ 0, 0.4, 198.3 }, -- shop step
+				{ -9, 0.3, 195.1 }, -- fruit stall
+				{ -12.5, 0.3, 188.3 }, -- shop bench
+				{ -78.89, 0, 199.44 }, -- tyre
+				{ -28, 4, 198 }, -- slide
+				{ -53, 0, 200.5 }, -- swings
+				{ -32.61, 0.55, 184.97 }, -- sandbox
+				{ -56, 0.72, 186 }, -- roundabout
+				{ -76, 0, 179.4 }, -- seesaw
+				{ -40, 0, 177.4 }, -- play bench
+				{ 22, 0, 180 }, -- lawn
+				{ -82, 0.05, 179 }, -- far
+				{ -6, 0.3, 176 },
 			}, "deep")
 		do
 			table.insert(points, point)
@@ -927,10 +965,10 @@ Layout.neighbourhood = {
 	end)(),
 	rescueSpots = {
 		-- a shed's door and a gutter's drainpipe face the piece's -Z; the gutters are on house corners, 7 up
-		setTrap(NX, NZ, NTURN, "shed", { 126.4, 0, -89.3 }),
-		setTrap(NX, NZ, NTURN, "shed", { 85.3, 0, 83.4 }, -90),
-		setTrap(NX, NZ, NTURN, "gutter", { -53.4, 7.05, -60.5 }, 180),
-		setTrap(NX, NZ, NTURN, "gutter", { 5.7, 7.05, 112.8 }, 34),
+		setTrap(NX, NZ, NTURN, "shed", { 65.4, 0, -33.3 }),
+		setTrap(NX, NZ, NTURN, "shed", { 76.7, 0, 108.6 }, 90),
+		setTrap(NX, NZ, NTURN, "gutter", { 36.4, 7.05, 28.5 }),
+		setTrap(NX, NZ, NTURN, "gutter", { 62.4, 7.05, 180.5 }),
 	},
 	props = {},
 } :: AreaSpec
@@ -1181,6 +1219,9 @@ Layout.townSquare = {
 	-- The finger signpost (v3.1, section 7d) in place of the ring's south-west bench: left of the cannon from the
 	-- spawn and off the cross. Its arms point the way the cannon fires to each area (v4).
 	signpost = { x = -9, y = 0.1, z = -7.5 } :: Point,
+	-- The Rescue Rally's board (F101, Model-Agent #759: `CatCafe_Square_RallyBoard`, front -Z), in the north-east
+	-- quarter facing the spawn, off the lane and the cannon's lines; WorldBuilder.setRally shows it while a Rally runs.
+	rallyBoard = { asset = "CatCafe_Square_RallyBoard", x = 15, y = 0.1, z = 12, rotY = 30 } :: Prop,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
 	-- street, then the edge (Derek 10-28, Model-Agent #726): twelve lamps on the brick border, eight long buntings
@@ -1360,6 +1401,30 @@ for id, spec in Layout.areas do
 			then { x = 0, y = 0, z = -4, rotY = 0 }
 			else { x = -(camp.openingHalfWidth + BOARD_OUT), y = 0, z = -4, rotY = -20 }
 	end
+end
+
+-- The camp extras (F100, camp-extras.md section 3; Model-Agent #750): where each model's pivot (its base centre,
+-- front -Z, no turn of its own) stands in its area's set space, the space the camp set is placed in (origin the area's
+-- centre on its floor, turned by the camp's turn): in the camp beside the way out, across from the Index Board.
+Layout.campExtras = {
+	park = { x = 19, y = 0, z = -160.5 }, -- F85: in the long camp, left of the flower bed (Model-Agent 11-02)
+	neighbourhood = { x = 22, y = 0, z = -220.5 }, -- F85: in the long camp, clear of its mailbox (Model-Agent)
+	woods = { x = 21.5, y = 0, z = -125 },
+	sewer = { x = 20, y = 0, z = -94.5 },
+} :: { [string]: Point }
+
+-- Where an area's camp extra stands in the world: x, the floor's y and z, the turn about Y (the camp's), or nil for an
+-- area with no extra or no camp.
+function Layout.campExtraAt(areaId: string): (number?, number?, number?, number?)
+	local at, spec, camp = Layout.campExtras[areaId], Layout.areas[areaId], Layout.camps[areaId]
+	if at == nil or spec == nil or camp == nil then
+		return nil, nil, nil, nil
+	end
+	local c, s = math.cos(math.rad(camp.turn)), math.sin(math.rad(camp.turn))
+	return spec.center.x + at.x * c + at.z * s,
+		spec.floorY,
+		spec.center.z - at.x * s + at.z * c,
+		camp.turn
 end
 
 -- The camp an x, z stands in, by its rect (edges included), or nil.

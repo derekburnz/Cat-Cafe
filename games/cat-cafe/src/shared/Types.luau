@@ -155,8 +155,10 @@ export type DecorDef = {
 
 -- Data-model section 11b and golden-fish.md sections 5 and 5b (F54): a milestone on an Index page, `needs` of what
 -- its track counts. "normal": different cats of the page's area (every area on the All Cats page, area id "all");
--- "gold": gold cats of the area; "decor": pieces of the Decor Index page's crate (area ids "decor_<pool>").
-export type IndexTrack = "normal" | "gold" | "decor"
+-- "gold": gold cats of the area; "decor": pieces of the Decor Index page's crate (area ids "decor_<pool>");
+-- "rainbow" (F99, rainbow-coat.md section 4): different rainbow cats across every area, on the Rainbow page (area id
+-- "rainbow").
+export type IndexTrack = "normal" | "gold" | "decor" | "rainbow"
 
 export type IndexMilestone = {
 	id: string,
@@ -169,8 +171,8 @@ export type IndexMilestone = {
 
 -- What one Index milestone pays (golden-fish.md section 8), any of it. `coins` is the minimum and `coinSeconds`
 -- (when set) pays max(coins, floor(dayRate x coinSeconds)). `crates` maps a crate id, or "highest" (the plain crate
--- of the player's highest open zone), to a count. `bonus` (tips), `goldLuck` and `baitSpeed` are permanent fractions
--- from the claim on; a milestone has one kind. `tag` names a title the prize unlocks.
+-- of the player's highest open zone), to a count. `bonus` (tips), `goldLuck`, `rainbowLuck` (F99) and `baitSpeed` are
+-- permanent fractions from the claim on; a milestone has one kind. `tag` names a title the prize unlocks.
 export type IndexPrize = {
 	coins: number?,
 	coinSeconds: number?,
@@ -181,6 +183,7 @@ export type IndexPrize = {
 	potions: { [string]: number }?, -- F64: potionId -> count (Tip Jar step 12, codes)
 	bonus: number?,
 	goldLuck: number?,
+	rainbowLuck: number?, -- F99: on every rainbow roll, the Rainbow track's sum capped at RainbowLuckMax
 	baitSpeed: number?,
 	tag: string?,
 }
@@ -261,7 +264,7 @@ export type LureDef = {
 export type CrateDef = {
 	id: string,
 	name: string,
-	area: string, -- its pool: a zone id or "classic"
+	area: string, -- its pool: a zone id, "classic" or "rally" (F101)
 	golden: boolean,
 	price: number?, -- golden fish at the Market; nil for a golden crate
 	odds: { [string]: number }, -- percent by rarity, adding up to 100; a piece's chance is its rarity's share
@@ -371,7 +374,7 @@ export type TierDef = {
 export type CatInstance = {
 	uid: string,
 	catId: string,
-	variant: string, -- "base" or "gold"
+	variant: string, -- "base", "gold" or "rainbow" (F99)
 	caughtAt: number,
 	spotId: string?, -- the role slot it works, nil when resting in the cat room
 	-- Stats (data-model section 4b). Readers go through CatStats, which defaults any missing field.
@@ -435,6 +438,7 @@ export type Stats = {
 	-- quests and full sets finished
 	rareCatches: number,
 	goldCatches: number,
+	rainbowCatches: number, -- F99: rainbow cats added by net, rescue or bait
 	tipPilesCollected: number,
 	dailyQuestsDone: number,
 	dailySetsDone: number,
@@ -562,8 +566,95 @@ export type FreshCatchState = {
 	alerted: number,
 }
 
+-- The camp extras (F100, camp-extras.md): one at each camp from the Park on, opening with its area. `kind` "collect"
+-- fills by itself and is taken with CollectCampExtra; "shop" (the Yard Sale) sells crates for golden fish.
+export type CampExtraDef = {
+	id: string, -- "picnic", "yardSale", "pond" or "lostFound"
+	area: string,
+	name: string,
+	model: string, -- CatCafe_Camp_<Area>_<Name> (Model-Agent #750)
+	kind: string, -- "collect" or "shop"
+}
+
+-- What the camp extras hold (section 4, save version 25), all times server os.time(): the Picnic Basket's potions
+-- and when the next started filling; the Yard Sale's UTC day number (os.time() // 86400) and the crates bought that
+-- day; the Fish Pond's fill start (its fish follow from the time); the Lost and Found's last settled UTC day and its
+-- prizes waiting. Settled on load and every few seconds (shared/CampExtras.settle).
+export type CampExtrasSave = {
+	picnic: { at: number, held: number },
+	yardSale: { day: number, bought: { [string]: boolean } },
+	pond: { at: number },
+	lostFound: { day: number, held: number },
+}
+
+-- One of the Yard Sale's crates today: its crate id, its price in golden fish and whether this player bought it.
+export type YardSaleCrate = { crateId: string, price: number, bought: boolean }
+
+-- One extra as CampExtrasState sends it: `open` when the player's tier has its area; `held` what waits (potions,
+-- golden fish, prizes; for the Yard Sale the crates left to buy today); `nextAt` (server time) the next fill or the
+-- next day's stock, nil while full or shut; `stock` the Yard Sale's crates today.
+export type CampExtraView = {
+	open: boolean,
+	held: number,
+	nextAt: number?,
+	stock: { YardSaleCrate }?,
+}
+
+-- CampExtrasState (server to client): every extra's view by id, and the UTC day it was worked out on.
+export type CampExtrasState = {
+	day: number,
+	picnic: CampExtraView,
+	yardSale: CampExtraView,
+	pond: CampExtraView,
+	lostFound: CampExtraView,
+}
+
+-- The Rescue Rally (F101, rescue-rally.md section 5). The save keeps the weekend number (Rally.weekend) and the laps
+-- this player has been paid prizes from in it, at most RallyMaxLaps; the bar itself is the server's.
+export type RallySave = {
+	weekend: number,
+	laps: number,
+}
+
+-- One step of the bar: at `share` of the goal (0.25, 0.5, 1) every player in the server who scored RallyMinPoints this
+-- lap gets `prize` (the Index prize shape).
+export type RallyStep = {
+	share: number,
+	prize: IndexPrize,
+}
+
+-- RallyState (server to client): `active` while a Rally runs, `endsAt` (os.time()) when it ends, 0 when not running;
+-- `startsAt` when the next one starts (the running one's start while active); the server's `lap` (1 up), its `goal`
+-- and `points`; this player's `myPoints` this lap, `lapsPaid` this weekend and `lapsDone`, true when they can earn
+-- nothing more this lap ("You've done your laps this weekend").
+export type RallyState = {
+	active: boolean,
+	endsAt: number,
+	startsAt: number,
+	lap: number,
+	goal: number,
+	points: number,
+	myPoints: number,
+	lapsPaid: number,
+	lapsDone: boolean,
+}
+
 -- One row of the Fresh Catch shelf (F94, section 3): a potion, or now and then a cheaper Classic Crate, for golden
 -- fish. `alert` rows send a ShopAlert when a window stocks them. The row's id is its potion's or crate's id.
+-- One item on the cafe menu (F90, cats-make-orders.md section 1): opened at `tier`, made at its station ("espresso",
+-- "oven" or "counter") in makeSeconds, shown as its model CatCafe_Menu_<model> on a plate and as `icon` (an
+-- rbxassetid once the render is uploaded) or `glyph` until then. Client only: the server never sees an order.
+export type MenuItem = {
+	id: string,
+	name: string,
+	tier: number,
+	station: string,
+	makeSeconds: number,
+	model: string,
+	icon: string?,
+	glyph: string,
+}
+
 export type FreshCatchRow = {
 	id: string,
 	kind: "potion" | "crate",
@@ -630,6 +721,7 @@ export type PlayerProfile = {
 	cats: { [string]: CatInstance },
 	collection: { [string]: number },
 	goldCollection: { [string]: number }, -- catId -> first gold caught at
+	rainbowCollection: { [string]: number }, -- F99: catId -> first rainbow caught at (save version 24)
 	indexRewards: { [string]: { [string]: boolean } }, -- areaId -> milestoneId -> claimed (F48)
 	spin: SpinState, -- F49
 	-- Golden fish (F52, golden-fish.md): the rare currency, earned only. Crates, their luck and the Market's perks
@@ -660,6 +752,8 @@ export type PlayerProfile = {
 	stuckHelpShown: { [string]: boolean },
 	starterCatClaimed: boolean, -- F96 (starter-cat.md section 4, save version 21): the free Bellhop Cat taken home
 	notifyAskAt: number, -- F96 (section 3, save version 22): os.time() the notification ask first showed, 0 before
+	campExtras: CampExtrasSave, -- F100 (camp-extras.md section 4, save version 25)
+	rally: RallySave, -- F101 (rescue-rally.md section 5, save version 26)
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
@@ -685,6 +779,7 @@ export type PlayerState = {
 	cats: { [string]: CatView },
 	collection: { [string]: number },
 	goldCollection: { [string]: number },
+	rainbowCollection: { [string]: number }, -- F99
 	indexRewards: { [string]: { [string]: boolean } }, -- F48
 	spin: SpinState, -- F49
 	goldenFish: number, -- F52
@@ -692,6 +787,7 @@ export type PlayerState = {
 	crateLuck: { [string]: number },
 	fishPerks: { [string]: number },
 	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
+	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
 	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax
 	plotIndex: number,
 	carrying: string?, -- catId while carrying a caught stray home

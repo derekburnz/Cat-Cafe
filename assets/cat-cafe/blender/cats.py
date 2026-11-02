@@ -5,19 +5,23 @@
                            are poses of A (body lowered, legs folded; poses.CAT_POSES), not extra models.
   CatCafe_Cat_<Name>_Sit   body B, sitting up: cats resting in the cafe, and working cats at their stations in
                            their role's outfit (accessories.SIT_SLOTS).
+  CatCafe_Cat_<Name>_Work  body S, standing at work (Derek 2026-11-02 12:02, row S of the worker sheet): B's chest on
+                           two short legs with A's bigger head, the front legs as arms, and the role's held thing
+                           (a cup, a tray with a cake, a microphone) riding an arm as its own Model; it wears the
+                           sitting role outfit, which fits the same chest.
 
 Roster and swatches follow docs/design/cat-cafe/data-model.md section 3. Each model is a Body (the Roblox
 PrimaryPart; pivot at the base centre on the floor, facing -Y in Blender, -Z in Roblox) and hinged pieces, each its
 own object pivoted at its joint so code can turn it without a rig: Head (neck), Tail (root), the legs (hip or
-shoulder: LegF1 LegF2 LegB1 LegB2 on A, LegF1 LegF2 on B; F front, B back, 1 the cat's left, Blender +X, 2 its
-right), and riding the Head, Eye1 and Eye2 (eye centre, for blinks) and EarL and EarR (ear base, for twitches). The
+shoulder: LegF1 LegF2 LegB1 LegB2 on A and S, LegF1 LegF2 on B; F front, B back, 1 the cat's left, Blender +X, 2
+its right; on S the front legs are the arms), and riding the Head, Eye1 and Eye2 (eye centre, for blinks) and EarL and EarR (ear base, for twitches). The
 Roblox models nest the eyes and ears in the Head Model (rbx_export.NEST). No collars (Derek, 2026-10-27): a working
 cat dresses for its role instead (accessories.ROLE_OUTFITS).
 """
 
 import math
 
-from mathutils import Matrix, Vector
+from mathutils import Euler, Matrix, Vector
 
 import palette
 from common import Builder, scale_mesh
@@ -195,11 +199,11 @@ def look(spec):
 
 
 # -------------------------------------------------------------------------------------------- skeleton --
-BODIES = ("walk", "sit")
-SUFFIX = {"walk": "", "sit": "_Sit"}
+BODIES = ("walk", "sit", "work")
+SUFFIX = {"walk": "", "sit": "_Sit", "work": "_Work"}
 SIT_SCALE = 0.95            # B is drawn a touch smaller, so a sitting cat is no taller than a walking one
 HEAD_PIECES = ("Eye1", "Eye2", "EarL", "EarR")
-LEGS = {"walk": ("LegF1", "LegF2", "LegB1", "LegB2"), "sit": ("LegF1", "LegF2")}
+LEGS = {"walk": ("LegF1", "LegF2", "LegB1", "LegB2"), "sit": ("LegF1", "LegF2"), "work": ("LegF1", "LegF2", "LegB1", "LegB2")}
 
 # Body A on all fours, unscaled studs. The belly is 0.33 off the floor and the legs reach up inside it to the hips.
 A_BODY_C, A_BODY_S = (0.0, 0.12, 0.62), (0.78, 0.95, 0.58)
@@ -217,11 +221,30 @@ B_NECK, B_TAIL = (0.0, -0.1, 1.02), (0.2, 0.54)   # the tail root (x, y); it lie
 HEADS = {"walk": dict(c=(0.0, -0.22, 0.32), s=(1.0, 0.8, 0.84), fz=0.26, k=1.15, eye_dx=0.22, ear_x=0.3, ear=(0.32, 0.3)),
          "sit": dict(c=(0.0, -0.14, 0.28), s=(0.92, 0.74, 0.76), fz=0.24, k=1.05, eye_dx=0.21, ear_x=0.28, ear=(0.3, 0.3))}
 EYE_H = 0.26
+# Body S standing at work: B's chest at B's height (so the sitting outfit and B's back props fit as they are) on two
+# short legs, A's head with its back over B's, and the front legs hanging from the shoulders as arms. Drawn at
+# SIT_SCALE like B, so a working cat is no taller than a sitting one.
+S_HIP_Z = 0.44
+S_LEG_XY = {"LegB1": (0.17, -0.06), "LegB2": (-0.17, -0.06)}
+S_SHOULDER = (0.475, -0.06, 0.82)             # LegF1's, the cat's left; LegF2 mirrors it
+S_PAW_Z = -0.36                               # the paw's centre below the shoulder, the arm hanging straight down
+S_TAIL = (0.0, B_CHEST_C[1] + B_CHEST_S[1] / 2 - 0.015, 0.5)
+HEADS["work"] = dict(HEADS["walk"], c=(0.0, -0.17, 0.32), arms=True)
+# Each role's held thing (HELD) rides one arm, and the role's pose turns the arms (Blender XYZ degrees about the
+# shoulders; poses.CAT_POSES work_<role>): the barista holds out a cup in the right paw, the waiter a tray with a
+# cake at its left side, the greeter waves its left paw, the entertainer holds a microphone up and waves.
+WORK_ARMS = {
+    "barista": {"LegF2": (-60, 25, 0), "LegF1": (-10, -6, 0)},
+    "waiter": {"LegF1": (-45, -40, 0), "LegF2": (-10, 6, 0)},
+    "greeter": {"LegF1": (-165, 60, 0), "LegF2": (-10, 6, 0)},
+    "entertainer": {"LegF2": (-50, 35, 0), "LegF1": (-150, 60, 0)},
+}
+HELD = {"barista": "LegF2", "waiter": "LegF1", "entertainer": "LegF2"}      # role -> the arm its Held_<Role> rides
 
 
 def scale_of(spec, body="walk"):
     """How much the built model is scaled: the cat's own scale, times SIT_SCALE for B."""
-    return spec.get("scale", 1.0) * (SIT_SCALE if body == "sit" else 1.0)
+    return spec.get("scale", 1.0) * (SIT_SCALE if body in ("sit", "work") else 1.0)
 
 
 def _body_scale(spec):
@@ -253,7 +276,8 @@ def _head_dims(spec, body):
 def dims(spec, body="walk"):
     """Every box and joint of one cat's body, unscaled (scale_of applies after)."""
     bs = _body_scale(spec)
-    d = {"head": _head_dims(spec, body), "leg_w": 0.2 if spec.get("sphynx") else 0.24 if body == "walk" else 0.2}
+    d = {"head": _head_dims(spec, body),
+         "leg_w": 0.2 if spec.get("sphynx") else 0.24 if body in ("walk", "work") else 0.2}
     tt = spec.get("tail_thick", 0.2) / 0.2
     tail_k = 0.7 if spec.get("sphynx") else 1 + (tt - 1) * 0.6
     if body == "walk":
@@ -266,6 +290,15 @@ def dims(spec, body="walk"):
         d["legs"] = {n: (x * bs[0], A_BODY_C[1] + (y - A_BODY_C[1]) * bs[1], A_HIP_Z + low)
                      for n, (x, y) in A_LEG_XY.items()}
         d["tail_chain"] = dict(angles=(35, 80), seg=0.3, thick=0.24 * tail_k, plane="X", taper=0.02,
+                               curl=bool(spec.get("curl")))
+    elif body == "work":
+        d["chest"] = (B_CHEST_C, B_CHEST_S)
+        d["haunch"] = ((B_HAUNCH_C[0], B_HAUNCH_C[1], B_HAUNCH_S[2] / 2), B_HAUNCH_S)   # B's: only for props.Ctx's frames
+        d["neck"] = B_NECK
+        d["tail"] = S_TAIL
+        sx, sy, sz = S_SHOULDER
+        d["legs"] = {"LegF1": S_SHOULDER, "LegF2": (-sx, sy, sz), **{n: (x, y, S_HIP_Z) for n, (x, y) in S_LEG_XY.items()}}
+        d["tail_chain"] = dict(angles=(-25, 25, 75), seg=0.3, thick=0.2 * tail_k, plane="X", taper=0.02,
                                curl=bool(spec.get("curl")))
     else:
         size = (B_HAUNCH_S[0] * bs[0], B_HAUNCH_S[1] * bs[1], B_HAUNCH_S[2] * bs[2])
@@ -311,6 +344,18 @@ def carry_at(spec, body="walk"):
     return (0.0, round(h["c"][1], 4), round(tip - 0.01, 4))
 
 
+def back_rise(spec):
+    """How far the coat's extras stand above the top of A's body box (_body_a, _coat_extras): a mane 0.09, star specks
+    0.07, sprinkles 0.045, stripes, patches, spots and petals 0.03. The walking back pieces cover it."""
+    if spec.get("mane"):
+        return 0.09
+    if spec.get("sparkle"):
+        return 0.07
+    if spec.get("sprinkles"):
+        return 0.045
+    return 0.03
+
+
 def pose_lift(spec, pose):
     """A CAT_POSES lift for this cat, unscaled: a short-legged cat's body is already nearer the floor, so it drops
     less to lie down."""
@@ -342,7 +387,8 @@ def _head(spec, c, h):
     elif pat == "points":                               # a small dark muzzle under the eyes, not a mask round them
         b.box((0, fy + 0.005, fz - 0.24), (0.3 * w, 0.05, 0.24), c["second"], bevel=False)
     elif pat == "gradient":                             # the back of the head fades into the second colour
-        b.box((0, cy + sy * 0.3, cz), (sx + 0.03, sy * 0.42, sz + 0.03), c["second"], bevel=False)
+        lift = 0.06 if h.get("arms") else 0.0           # S: the band's sharp lower corners keep off a waving arm
+        b.box((0, cy + sy * 0.3, cz + lift / 2), (sx + 0.03, sy * 0.42, sz + 0.03 - lift), c["second"], bevel=False)
     surf, under = fy, c["fur"]                          # the face the mouth is drawn on, and its colour
     if pat == "points":
         surf, under = fy - 0.02, c["second"]
@@ -640,9 +686,86 @@ def _body_b(spec, c, d):
     return b
 
 
+def _body_s(spec, c, d):
+    """S: B's chest alone, with B's chest markings, a little more of the pattern where B's haunches were."""
+    b = Builder()
+    (cx0, cy0, cz0), (csx, csy, csz) = d["chest"]
+    b.box(d["chest"][0], d["chest"][1], c["fur"])
+    front, bottom = cy0 - csy / 2, cz0 - csz / 2
+    pat = spec["pattern"]
+    if spec.get("tuxedo"):
+        b.box((0, front - 0.01, cz0), (0.42, 0.06, 0.6), c["second"], bevel=False)                   # bib
+        b.box((0, cy0, bottom - 0.01), (0.46, csy * 0.7, 0.04), c["second"], bevel=False)            # under the chest
+    elif c["belly"] and not spec.get("ruff"):
+        b.box((0, front - 0.01, cz0 + 0.02), (0.34, 0.06, 0.5), c["belly"], bevel=False)
+    if pat == "stripes":
+        for i, z in enumerate((0.5, 0.75, 1.0)):
+            b.box((0, cy0 + 0.05, z), (csx + 0.04, csy - 0.06, 0.1), _stripe(spec, c, i), bevel=False)
+    elif pat == "patches" and not spec.get("tuxedo"):
+        b.box((csx / 2 + 0.01, cy0 + 0.05, 0.85), (0.04, 0.3, 0.3), c["third"], bevel=False)          # left of the chest
+        b.box((-csx / 2 - 0.01, cy0 + 0.02, 0.58), (0.04, 0.34, 0.28), c["second"], bevel=False)      # right, lower
+        b.box((0.08, cy0 + csy / 2 + 0.01, 0.62), (0.3, 0.04, 0.3), c["third"], bevel=False)          # on the back
+    elif pat == "spots":
+        top_rot, side_rot, ls = (_rot(45, "Z"), _rot(45, "X"), 0.13) if spec.get("leafy") else (None, None, 0.16)
+        lw = ls * (1.6 if top_rot else 1)
+        for (side, y, z) in ((-1, cy0 + 0.1, 0.86), (-1, cy0 - 0.1, 0.56), (1, cy0 - 0.06, 0.86), (1, cy0 + 0.1, 0.6)):
+            b.box((side * (csx / 2 + 0.01), y, z), (0.04, lw, ls), c["second"], bevel=False, rot=side_rot)
+    elif pat == "gradient":                             # the chest in the fur, its lower part second, the bottom third
+        b.box_base((0, cy0, bottom - 0.015), (csx + 0.03, csy + 0.03, 0.3), c["second"], bevel=False)
+        b.box_base((0, cy0, bottom - 0.02), (csx + 0.04, csy + 0.04, 0.13), c["third"], bevel=False)
+    for side in (1, -1):                                # the shoulders the arms turn on (S_SHOULDER), in the fur
+        b.box((side * (csx / 2 + 0.06), S_SHOULDER[1], S_SHOULDER[2] - 0.03), (0.16, 0.17, 0.17), c["fur"])
+    _coat_extras(b, spec, c, d["chest"][0], d["chest"][1], top=False)
+    if spec.get("checker"):                             # along each side of the chest, over the stripes
+        for side in (-1, 1):
+            _checker(b, spec["checker"], side, csx / 2 + 0.02, cy0, csy * 0.8, 0.62, 0.14)
+    if spec.get("mane"):                                # down the back of the chest
+        for i in range(3):
+            b.box((0, cy0 + csy / 2 + 0.03 + 0.01 * (i % 2), 1.0 - i * 0.16), (0.16 + 0.02 * (i % 2), 0.1, 0.17),
+                  spec["mane"][(i + 5) % len(spec["mane"])], bevel=False)
+    return b
+
+
+def _arm(c, side, toe=None):
+    """S's front leg as an arm hanging from its shoulder pivot (the shoulder itself is on the Body, _body_s): the
+    arm, ending just over the pivot so it turns clear of the head, and a paw at its end (its front dipped in paint
+    when `toe` is set)."""
+    b = Builder()
+    b.box_base((0, 0, S_PAW_Z + 0.02), (0.15, 0.16, 0.04 - S_PAW_Z), c["leg"])     # ends inside the paw
+    paw = (0.18, 0.19, 0.13)
+    b.box((0, -0.01, S_PAW_Z), paw, c["paw"])
+    if toe:
+        _toe(b, (0, -0.01, S_PAW_Z - paw[2] / 2), paw, toe)
+    return b
+
+
+def _held(role, arm):
+    """A role's held thing, drawn standing up at the paw (the origin) as it is held in the role's pose, then turned
+    back by that arm's pose, so the arm Model carries it upright when the game turns the arm (WORK_ARMS)."""
+    from props import Pen                               # props imports this module
+    R = Euler([math.radians(a) for a in WORK_ARMS[role][arm]], "XYZ").to_matrix().inverted()
+    b = Builder()
+    P = Pen(b, (0.0, 0.0, 0.0), R, 1.0)                 # the object sits at the paw (build_cat at_)
+    if role == "barista":                               # a takeaway cup with a sleeve and a lid
+        P.cyl((0, -0.02, 0.1), 0.085, 0.2, "offwhite", r2=0.105, segments=10)
+        P.cyl((0, -0.02, 0.1), 0.098, 0.07, "dark_wood", r2=0.104, segments=10)
+        P.cyl((0, -0.02, 0.215), 0.112, 0.03, "choco", segments=10)
+    elif role == "waiter":                              # a round tray at the side with a cup and a slice of cake
+        t = (0.14, -0.04, 0.085)
+        P.cyl(t, 0.3, 0.03, "metal", segments=14)
+        P.cyl((t[0] - 0.12, t[1] + 0.06, t[2] + 0.08), 0.07, 0.13, "offwhite", r2=0.085, segments=10)
+        P.box((t[0] + 0.1, t[1] - 0.05, t[2] + 0.075), (0.18, 0.15, 0.12), "pastel_butter")
+        P.box((t[0] + 0.1, t[1] - 0.05, t[2] + 0.15), (0.19, 0.16, 0.035), "blush")
+        P.sphere((t[0] + 0.1, t[1] - 0.05, t[2] + 0.19), 0.035, "shirt_red", segments=8, rings=5)
+    elif role == "entertainer":                         # a microphone, gripped at the paw's outer side, clear of a wide head
+        P.cyl((-0.06, -0.03, 0.09), 0.035, 0.3, "fur_black", r2=0.045, segments=8)
+        P.sphere((-0.06, -0.03, 0.27), 0.075, "metal", segments=8, rings=5)
+    return b
+
+
 def build_cat(name, mat, spec=None, base=None, body="walk"):
     """One cat model. `spec` and `base` override the roster entry and the asset name (gold.py builds the gold cats
-    here); `body` is "walk" (A) or "sit" (B)."""
+    here); `body` is "walk" (A), "sit" (B) or "work" (S)."""
     spec = spec or ROSTER[name]
     base = base or f"CatCafe_Cat_{name}{SUFFIX[body]}"
     c = look(spec)
@@ -650,25 +773,35 @@ def build_cat(name, mat, spec=None, base=None, body="walk"):
     h = d["head"]
     k = scale_of(spec, body)
     w = d["leg_w"]
-    paw = (w + 0.03, w + 0.03, 0.11) if body == "walk" else (w + 0.04, w + 0.08, 0.11)
-    paw_y = -0.01 if body == "walk" else -0.05
-    pieces = [("Body", _body_a(spec, c, d) if body == "walk" else _body_b(spec, c, d)),
+    paw = {"walk": (w + 0.03, w + 0.03, 0.11), "sit": (w + 0.04, w + 0.08, 0.11), "work": (w + 0.03, w + 0.1, 0.11)}[body]
+    paw_y = {"walk": -0.01, "sit": -0.05, "work": -0.05}[body]
+    pieces = [("Body", {"walk": _body_a, "sit": _body_b, "work": _body_s}[body](spec, c, d)),
               ("Head", _head(spec, c, h)),
               ("Eye1", _eye(spec, c, h, 1)), ("Eye2", _eye(spec, c, h, -1)),
               ("EarL", _ear(spec, c, h, 1)), ("EarR", _ear(spec, c, h, -1)),
               ("Tail", _tail(c, d["tail_chain"]))]
     toes = spec.get("toes") or (None,) * 4
-    pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[i])) for i, n in enumerate(LEGS[body])]
+    rides, at_ = {}, {}
+    if body == "work":                                  # arms, then legs; each role's held thing rides its arm
+        pieces += [(n, _arm(c, 1 if n == "LegF1" else -1, toes[i])) for i, n in enumerate(("LegF1", "LegF2"))]
+        pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[2 + i])) for i, n in enumerate(("LegB1", "LegB2"))]
+        for role, arm in HELD.items():
+            piece = "Held_" + role.capitalize()
+            pieces.append((piece, _held(role, arm)))
+            rides[piece] = arm
+            at_[piece] = tuple(d["legs"][arm][i] + (0.0, -0.01, S_PAW_Z)[i] for i in range(3))
+    else:
+        pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[i])) for i, n in enumerate(LEGS[body])]
     import props                                        # themed cats' props (props imports this module)
-    rides, shift = {}, {}
-    if name in props.PROPS:
+    shift = {}
+    if name in props.PROPS:                             # S wears B's props: the same chest, its own head
         for suffix, (b, at) in props.build(name, spec, body, d).items():
             pieces.append((suffix, b))
             rides[suffix] = props.follows(props.piece_slot(name, suffix))
             shift[suffix] = at                          # a prop pivoted at its own hinge (the Bellhop's cap, its bell)
     objs = []
     for piece, b in pieces:
-        at = d["pivots"][rides.get(piece, piece)]
+        at = at_.get(piece) or d["pivots"][rides.get(piece, piece)]
         at = tuple(at[i] + shift.get(piece, (0.0, 0.0, 0.0))[i] for i in range(3))
         ob = b.finalize(f"{base}_{piece}", mat, location=tuple(v * k for v in at))
         if k != 1.0:
@@ -680,10 +813,10 @@ def build_cat(name, mat, spec=None, base=None, body="walk"):
 
 
 def parse(asset):
-    """CatCafe_Cat_<Name>[_Gold][_Sit] -> (name, gold, body)."""
+    """CatCafe_Cat_<Name>[_Gold][_Sit|_Work] -> (name, gold, body)."""
     rest = asset[len("CatCafe_Cat_"):]
-    body = "sit" if rest.endswith("_Sit") else "walk"
-    rest = rest.removesuffix("_Sit")
+    body = "sit" if rest.endswith("_Sit") else "work" if rest.endswith("_Work") else "walk"
+    rest = rest.removesuffix("_Sit").removesuffix("_Work")
     gold = rest.endswith("_Gold")
     return rest.removesuffix("_Gold"), gold, body
 
@@ -691,4 +824,5 @@ def parse(asset):
 ASSETS = {}
 for _n in ROSTER:
     for _body in BODIES:
-        ASSETS[f"CatCafe_Cat_{_n}{SUFFIX[_body]}"] = (lambda mat, n=_n, bd=_body: build_cat(n, mat, body=bd), 1500)
+        ASSETS[f"CatCafe_Cat_{_n}{SUFFIX[_body]}"] = (lambda mat, n=_n, bd=_body: build_cat(n, mat, body=bd),
+                                                      2400 if _body == "work" else 1500)

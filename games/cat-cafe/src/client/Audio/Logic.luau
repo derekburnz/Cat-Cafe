@@ -365,6 +365,20 @@ function Logic.campExtraCue(extraId: any): string?
 	return if type(extraId) == "string" then CAMP_EXTRA_CUES[extraId] else nil
 end
 
+-- F90 cats make the orders: the sound of a Barista starting on an order by station (only the espresso machine pours;
+-- the oven and the counter work quietly under their puffs), and the scale step of the "ding!" when it is ready, so
+-- the oven's is the lowest, a drink's a note up and the counter's two.
+local ORDER_MAKE_CUES: { [string]: string } = { espresso = "orderPour" }
+local ORDER_DING_STEPS: { [string]: number } = { oven = 1, espresso = 2, counter = 3 }
+
+function Logic.orderMakeCue(station: any): string?
+	return if type(station) == "string" then ORDER_MAKE_CUES[station] else nil
+end
+
+function Logic.orderDingStep(station: any): number?
+	return if type(station) == "string" then ORDER_DING_STEPS[station] else nil
+end
+
 -- Animation beats (Beats.hit) to sounds: the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100).
 local BEAT_CUES: { [string]: string } = {
 	bellRing = "bellhopBell",

@@ -23,9 +23,10 @@ export type Style =
 	| "stuckFlip"
 	| "held"
 
--- Which body a cat has (Pose finds it): "walk" and "sit" are the bodies with hinged pieces (PR #259: walking A,
--- sitting B), "parts" the placeholder and older Part cats, which lie down by folding their legs themselves.
-export type Body = "parts" | "walk" | "sit"
+-- Which body a cat has (Pose finds it): "walk", "sit" and "work" are the bodies with hinged pieces (PR #259: walking
+-- A, sitting B; #826: S, a working cat standing at its station on its back legs, its front legs arms holding the
+-- role's thing), "parts" the placeholder and older Part cats, which lie down by folding their legs themselves.
+export type Body = "parts" | "walk" | "sit" | "work"
 
 -- Turns and lifts for one cat at one moment. Pitch lifts the nose (or the front of the body), yaw turns left
 -- and right, roll tilts sideways. tailPitch lifts the tail, a paw value swings that leg forward from the hip.
@@ -43,6 +44,12 @@ export type Offsets = {
 	pawFR: number,
 	pawBL: number,
 	pawBR: number,
+	-- On the work body (S) the front legs are arms: radians each swings out to its own side about the shoulder, the
+	-- way a raised paw waves (`waveL` the cat's left, `waveR` its right), and radians the held thing tips about the
+	-- paw that holds it, its top towards the cat's front (`held`). 0 on every other body.
+	waveL: number,
+	waveR: number,
+	held: number,
 	sink: number, -- 0 standing, 1 lying on its belly (Pose turns it into studs from the cat's leg length)
 	-- The entertainer's pom-pom wand (Logic.toy places it): radians it leans off its rest to the cat's right
 	-- (`yarn`) and away from the cat (`yarnOut`).
@@ -613,6 +620,9 @@ function Logic.blank(): Offsets
 		pawFR = 0,
 		pawBL = 0,
 		pawBR = 0,
+		waveL = 0,
+		waveR = 0,
+		held = 0,
 		sink = 0,
 		yarn = 0,
 		yarnOut = 0,
@@ -658,16 +668,68 @@ local function face(o: Offsets, style: Style, t: number)
 	o.earR = math.rad(e.twitch) * Logic.pulse(t * pace + 2.3, e.everyR, e.seconds)
 end
 
+-- A working cat's idle on the work body (S, #826; Derek 2026-11-02 12:02: "S: chibi holding the prop"), on top of
+-- what Logic.idle already set (the breath, the tail swish, the blinks and ear flicks). The server has turned the arms
+-- into the role's pose (Model-Agent's cat_poses.work_<role>), so these are small turns on top, none past about 15
+-- degrees (motion.work), and the back legs it stands on never move. It shifts its weight from foot to foot; the
+-- Barista offers its cup now and then, the Waiter watches the room with its tray held steady, the Greeter waves its
+-- raised paw in bursts and the Entertainer sings into its mic, nodding on the beat and waving to it. True when the
+-- style is a role it has an idle for.
+function Logic.workIdle(o: Offsets, style: Style, t: number): boolean
+	local w = Presets.motion.work
+	if
+		style ~= "barista"
+		and style ~= "waiter"
+		and style ~= "greeter"
+		and style ~= "entertainer"
+	then
+		return false
+	end
+	o.bodyRoll = math.rad(w.sway) * wave(t, w.swaySeconds)
+	o.headRoll = -o.bodyRoll * 0.5 -- the head stays level as the weight shifts
+	if style == "barista" then
+		local b = w.barista
+		local offer = Logic.pulse(t, b.every, b.seconds)
+		o.pawFR = math.rad(b.lift) * offer
+		o.held = math.rad(b.held) * offer
+		o.headPitch = -math.rad(b.look) * offer
+	elseif style == "waiter" then
+		local a = w.waiter
+		o.headYaw = math.rad(a.look) * wave(t, a.lookSeconds)
+		o.headRoll += math.rad(a.tilt) * Logic.pulse(t, a.tiltEvery, 1.2)
+	elseif style == "greeter" then
+		local g = w.greeter
+		local burst = Logic.pulse(t, g.every, g.seconds)
+		local into = t % g.every
+		o.waveL = math.rad(g.wave) * math.sin(into * g.hz * 2 * math.pi) * burst
+			+ math.rad(g.rest) * wave(t, g.restSeconds) * (1 - burst)
+		o.headRoll += math.rad(g.tilt) * burst
+	else
+		local e = w.entertainer
+		local nod = 0.5 - 0.5 * math.cos(t / e.beat * 2 * math.pi) -- down and back up once a beat
+		local sway = wave(t, 2 * e.beat)
+		o.bodyRoll = math.rad(e.sway) * sway
+		o.headRoll = -o.bodyRoll * 0.5
+		o.headPitch = -math.rad(e.nod) * nod
+		o.held = math.rad(e.mic) * nod
+		o.waveL = math.rad(e.wave) * sway
+	end
+	return true
+end
+
 -- The idle for a style at time t on a body (Logic.Body; none means "parts"). Every cat breathes, swishes its tail,
 -- blinks and flicks its ears; the style adds the rest. On the bodies with hinged pieces a nap, loaf and paw lick
 -- are Model-Agent's piece poses (sleep, loaf, lick) with the idle on top; the "parts" cats fold their own legs.
 function Logic.idle(style: Style, t: number, body: Body?): Offsets
 	local m = Presets.motion
 	local o = Logic.blank()
-	local pieces = body == "walk" or body == "sit"
+	local pieces = body == "walk" or body == "sit" or body == "work"
 	o.bodyY = (wave(t, m.breathe.seconds) * 0.5 + 0.5) * m.breathe.studs
 	o.tailYaw = math.rad(m.tailSwish.degrees) * wave(t, m.tailSwish.seconds)
 	face(o, style, t)
+	if body == "work" and Logic.workIdle(o, style, t) then
+		return o -- standing at its station on the work body, the role's arm pose already on the model
+	end
 	if style == "nap" and pieces then
 		-- Curled up asleep (manifest sleep): the pose lays it down and turns its head and tail; only the belly
 		-- rising and falling with each slow breath and the tip of the tail move.
@@ -1022,11 +1084,15 @@ end
 -- gait.trotFrom it blends into a trot (diagonal legs together) and from gait.runFrom into a gallop (front legs
 -- together, back legs half a cycle behind) with the body rocking, the head stretched forward and down and the tail
 -- out straight behind.
-function Logic.gait(o: Offsets, speed: number, stride: number)
+--
+-- `level` (0 to 1, none for 0) is how steady it keeps its head for something balanced on it (a cafe tray, F90): at 1
+-- the head stops nodding with the steps and the body bobs half as much.
+function Logic.gait(o: Offsets, speed: number, stride: number, level: number?)
 	local g = Presets.motion.gait
 	if speed < g.moveFrom then
 		return
 	end
+	local steadyHead = 1 - math.clamp(level or 0, 0, 1)
 	local start = math.clamp((speed - g.moveFrom) / g.moveFrom, 0, 1) -- eases in from a standstill
 	local run = Logic.runFactor(speed)
 	local trot = math.clamp((speed - g.trotFrom) / (g.trotFull - g.trotFrom), 0, 1)
@@ -1046,14 +1112,14 @@ function Logic.gait(o: Offsets, speed: number, stride: number)
 	))
 	local stepBob = g.walkBob * (0.5 - 0.5 * math.cos(2 * phase)) -- two steps a cycle
 	local gallopBob = g.runBob * (0.5 + 0.5 * math.cos(phase))
-	o.bodyY += ((1 - run) * stepBob + run * gallopBob) * start
+	o.bodyY += ((1 - run) * stepBob * (0.5 + 0.5 * steadyHead) + run * gallopBob) * start
 	local rock = math.rad(g.runRock) * s * run
 	o.bodyPitch += rock
 	o.bodyRoll += math.rad(g.walkRoll) * s * walk * start
 	local steady = (1 - run) * start
 	o.headPitch += -rock * 0.6 - math.rad(g.runHead) * run + math.rad(g.walkNod) * math.sin(
 		2 * phase
-	) * steady
+	) * steady * steadyHead
 	o.headRoll -= math.rad(g.walkRoll) * s * walk * start * 0.6 -- the head stays level as the body sways
 	o.headYaw *= 1 - g.lookAhead * start -- on the move it mostly looks where it is going
 	o.tailPitch += math.rad(8) * run + math.rad(g.walkTail) * steady
@@ -1102,7 +1168,7 @@ end
 -- turn, and settles back. A seated cat is not going anywhere, so it does not stretch (Derek 2026-10-27). `weight`
 -- (1 if not given) scales it all, so a stray that sets off mid-stretch can let it go smoothly.
 function Logic.stretch(o: Offsets, alpha: number, body: Body?, weight: number?)
-	if alpha < 0 or alpha >= 1 or body == "sit" then
+	if alpha < 0 or alpha >= 1 or body == "sit" or body == "work" then
 		return
 	end
 	local s = Presets.motion.stretch
@@ -2097,6 +2163,151 @@ end
 -- sparkle: only a rise this client saw, to a statue (level 1 or more).
 function Logic.luckyLevelUp(before: number?, after: number): boolean
 	return before ~= nil and after > before and after >= 1
+end
+
+-- Cafe walks ------------------------------------------------------------------------------------------------------
+
+-- Half a box's height in the world: how far above its centre the top of a part `size` big reaches, turned so its own
+-- axes point along `right`, `up` and `look` (a CFrame's RightVector, UpVector and LookVector).
+function Logic.halfHeight(size: Vector3, right: Vector3, up: Vector3, look: Vector3): number
+	return 0.5 * (math.abs(right.Y) * size.X + math.abs(up.Y) * size.Y + math.abs(look.Y) * size.Z)
+end
+
+-- A walking body part way down into a sit (F90, cats-make-orders.md section 6: "get up and sit down at a station"),
+-- `k` 0 standing to 1 down (Presets.cafeWalk.sit): the hindquarters drop with the back legs tucked under, the body
+-- tips nose up with the front legs kept upright under it, the head stays near level and the tail lowers. With
+-- `standing` it is the way up onto the back legs instead, for a cat that stands at its station on the work body
+-- (Presets.cafeWalk.stand, #826): further nose up and lifted rather than dropped.
+function Logic.crouch(o: Offsets, k: number, standing: boolean?)
+	if k <= 0 then
+		return
+	end
+	local c: { drop: number, tuck: number, pitch: number, tail: number } = if standing
+		then Presets.cafeWalk.stand
+		else Presets.cafeWalk.sit
+	local pitch = math.rad(c.pitch) * k
+	o.bodyY -= c.drop * k
+	o.bodyPitch += pitch
+	o.headPitch -= pitch * 0.7
+	o.pawFL -= pitch
+	o.pawFR -= pitch
+	o.pawBL += math.rad(c.tuck) * k
+	o.pawBR += math.rad(c.tuck) * k
+	o.tailPitch -= math.rad(c.tail) * k
+end
+
+-- A cat with a tray on its head (F90 section 3, "a little tray balanced on its head"), `k` 0 to 1 of the way into
+-- carrying it (Presets.cafeWalk.carry): chin up a touch, eyes front with no look about or head tilt, ears pricked and
+-- tail held high. Logic.gait's `level` steadies the steps under it.
+function Logic.trayCarry(o: Offsets, k: number)
+	if k <= 0 then
+		return
+	end
+	local c = Presets.cafeWalk.carry
+	o.headPitch += math.rad(c.chin) * k
+	o.headYaw *= 1 - k
+	o.headRoll *= 1 - k
+	o.earL *= 1 - k
+	o.earR *= 1 - k
+	o.tailPitch += math.rad(c.tail) * k
+end
+
+-- The tip sweep (F90 section 5: an idle Waiter or Greeter "sweeps it into a little coin bag"), `alpha` 0 to 1 of
+-- Presets.cafeWalk.sweep.seconds: the cat rears up at the table, its left paw on the edge and its body tipped back
+-- with the back legs kept under it, and drags its right paw back toward itself `swipes` times; then it drops back
+-- onto all fours.
+function Logic.sweepPose(o: Offsets, alpha: number)
+	if alpha <= 0 or alpha >= 1 then
+		return
+	end
+	local s = Presets.cafeWalk.sweep
+	local up = Logic.envelope(alpha, 0, s.up, s.down, 1)
+	local rear = math.rad(s.rear) * up
+	o.bodyPitch += rear
+	o.bodyY += s.lift * up
+	o.headPitch -= rear * 0.8 -- looks across the table top, not at the ceiling
+	o.pawBL -= rear
+	o.pawBR -= rear
+	o.pawFL += math.rad(s.reach) * up
+	local k = math.clamp((alpha - s.up) / (s.down - s.up), 0, 1)
+	local drag = 0.5 - 0.5 * math.cos(2 * math.pi * s.swipes * k) -- 0 reached out, 1 pulled in
+	o.pawFR += (math.rad(s.reach) - math.rad(s.drag) * drag) * up
+	o.tailPitch += math.rad(s.tail) * up
+end
+
+-- Where the tray with the coin bag is through the sweep, `alpha` 0 to 1: the share of the way from the pile on the
+-- table to the top of the cat's head (0 until `scoop`, 1 from `land`, eased between) and how far above that straight
+-- line it is, in studs, an arc `arc` high at the middle.
+function Logic.sweepScoop(alpha: number): (number, number)
+	local s = Presets.cafeWalk.sweep
+	if alpha <= s.scoop then
+		return 0, 0
+	elseif alpha >= s.land then
+		return 1, 0
+	end
+	local k = (alpha - s.scoop) / (s.land - s.scoop)
+	return k * k * (3 - 2 * k), 4 * s.arc * k * (1 - k)
+end
+
+-- The drop at the till (F90 section 5, TipBanked), `alpha` 0 to 1 of Presets.cafeWalk.bank.seconds: a quick bob of
+-- the head and shoulders toward the till as the bag tips off, and back up.
+function Logic.bankNod(o: Offsets, alpha: number)
+	if alpha <= 0 or alpha >= 1 then
+		return
+	end
+	local b = Presets.cafeWalk.bank
+	local dip = math.sin(math.pi * alpha)
+	o.bodyPitch -= math.rad(b.lean) * dip
+	o.headPitch -= math.rad(b.nod) * dip
+	o.tailPitch += math.rad(b.tail) * dip
+end
+
+-- The Barista's working bob (F90 section 2: "two small hops and a head tilt, on a loop"), `t` seconds into its making
+-- (Presets.motion.making): how high its body is lifted off the seat, in studs, and its head's tilt in radians (to its
+-- right for plus; the side swaps each loop). Each loop is `hops` hops of `hopSeconds`, a `tiltGap` pause, the tilt
+-- over `tiltSeconds` and a rest to `seconds`.
+function Logic.makingBob(t: number): (number, number)
+	local m = Presets.motion.making
+	if t < 0 then
+		return 0, 0
+	end
+	local loop = math.floor(t / m.seconds)
+	local into = t - loop * m.seconds
+	local lift = 0
+	local hopsEnd = m.hops * m.hopSeconds
+	if into < hopsEnd then
+		local f = (into % m.hopSeconds) / m.hopSeconds
+		lift = m.height * math.sin(math.pi * f)
+	end
+	local tilt = 0
+	local from = hopsEnd + m.tiltGap
+	if into >= from and into < from + m.tiltSeconds then
+		local g = (into - from) / m.tiltSeconds
+		tilt = math.rad(m.tilt) * math.sin(math.pi * g) * (if loop % 2 == 0 then 1 else -1)
+	end
+	return lift, tilt
+end
+
+-- The working bob on a seated cat's pose, `weight` 0 to 1 as it eases in and out (Making set or cleared), `t` seconds
+-- into its making. The idle's paw tap and head dip give way to it (section 3: "no paw animation"); the front paws
+-- only lift a touch at the top of each hop. `still` (Reduce Motion) keeps the head tilt and drops the hops.
+function Logic.makingPose(o: Offsets, t: number, weight: number, still: boolean)
+	if weight <= 0 then
+		return
+	end
+	local m = Presets.motion.making
+	local lift, tilt = Logic.makingBob(t)
+	if still then
+		lift = 0
+	end
+	o.pawFL *= 1 - weight
+	o.headPitch *= 1 - weight
+	local up = lift / m.height
+	o.bodyY += lift * weight
+	o.headRoll += tilt * weight
+	o.pawFL += math.rad(m.paws) * up * weight
+	o.pawFR += math.rad(m.paws) * up * weight
+	o.tailPitch += math.rad(m.tail) * weight
 end
 
 -- Camp extras (F100, camp-extras.md section 3) --------------------------------------------------------------------

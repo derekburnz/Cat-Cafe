@@ -132,5 +132,19 @@ return function()
 				byKey(BoostList.rows(Catalog, state({ buffs = { tip_potion = NOW - 1 } }), NOW))
 			expect(ended.tip_potion).to.equal(nil)
 		end)
+
+		it("adds the pals' share on top of the potions, and shows no row alone (F92)", function()
+			expect(byKey(BoostList.rows(Catalog, state(), NOW, 0)).pals).to.equal(nil)
+			expect(byKey(BoostList.rows(Catalog, state(), NOW)).pals).to.equal(nil)
+			local one = byKey(BoostList.rows(Catalog, state(), NOW, 1))
+			expect(one.pals.name).to.equal("Pals (1)")
+			expect(one.pals.value).to.equal("+10%")
+			expect(one.total.value).to.equal("x1.1")
+			-- a full potion share and two pals: the pals still add, as Economy.tipMultiplier adds them past the cap
+			local s = state({ buffs = { tip_potion = NOW + 300, big_tip_potion = NOW + 300 } })
+			local two = byKey(BoostList.rows(Catalog, s, NOW, 2))
+			expect(two.pals.value).to.equal("+15%")
+			expect(two.total.value).to.equal("x1.9") -- 1 + 0.25 + 0.5 + 0.15
+		end)
 	end)
 end

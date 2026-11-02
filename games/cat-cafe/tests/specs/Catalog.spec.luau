@@ -1126,8 +1126,8 @@ return function()
 				local want = {
 					-- F95 (economy-ladder.md section 1): income 1, 3, 9, 27, 81
 					{ "alley", "Alleyway", 1, 32, same, 6, 1 }, -- v4 (F84, v0.13.18): 24 and the 8 near points
-					{ "park", "Park", 2, 40, same, 5, 3 }, -- the v3.2 set's cat spots (F81, #460)
-					{ "neighbourhood", "Neighbourhood", 3, 72, same, 5, 9 }, -- the v3.2 set's cat spots (F81, #505)
+					{ "park", "Park", 2, 48, same, 5, 3 }, -- F85's long set's cat spots (#799)
+					{ "neighbourhood", "Neighbourhood", 3, 74, same, 5, 9 }, -- F85's long set's cat spots (#810)
 					{ "woods", "Woods", 4, 65, same, 4, 27 }, -- the v3.2 set (#470) and the oak top
 					{ "sewer", "Sewer", 5, 52, same, 4, 81 }, -- the v3.2 set's cat spots (F81, #491)
 				}
@@ -1251,6 +1251,61 @@ return function()
 					)
 				end
 			end
+		end)
+	end)
+
+	describe("the menu (F90, cats-make-orders.md section 1)", function()
+		local TIER_ONE = { "coffee", "milk", "cake_slice", "paw_cookie" }
+		local MODELS = {
+			"Coffee",
+			"Milk",
+			"CakeSlice",
+			"PawCookie",
+			"Tea",
+			"FishBiscuit",
+			"KittyCupcake",
+			"HotCocoa",
+			"PancakeStack",
+			"Sundae",
+			"StrawberryRoll",
+			"RainbowCake",
+		}
+
+		it("has the twelve items in tier order, a drink 2 s and a bake 3 s", function()
+			expect(#Catalog.menu).to.equal(12)
+			local seen: { [string]: boolean } = {}
+			local lastTier = 1
+			for i, item in Catalog.menu do
+				expect(seen[item.id]).to.equal(nil)
+				seen[item.id] = true
+				expect(Catalog.getMenuItem(item.id)).to.equal(item)
+				expect(item.model).to.equal(MODELS[i])
+				expect(Catalog.menuModelName(item)).to.equal("CatCafe_Menu_" .. MODELS[i])
+				expect(item.tier >= lastTier and item.tier <= Catalog.maxTier).to.equal(true)
+				lastTier = item.tier
+				local stations = { espresso = 2, counter = 2, oven = 3 }
+				expect(stations[item.station]).to.equal(item.makeSeconds)
+				expect(#item.glyph > 0 and #item.name > 0).to.equal(true)
+			end
+		end)
+
+		it("opens Tier 1's four at Tier 1 and all twelve at Tier 5", function()
+			local ids: { string } = {}
+			for _, item in Catalog.menuFor(1) do
+				table.insert(ids, item.id)
+			end
+			expect(ids).to.deepEqual(TIER_ONE)
+			expect(#Catalog.menuFor(0)).to.equal(4) -- a cafe with no Tier yet serves Tier 1's
+			expect(#Catalog.menuFor(2)).to.equal(6)
+			expect(#Catalog.menuFor(3)).to.equal(8)
+			expect(#Catalog.menuFor(4)).to.equal(10)
+			expect(#Catalog.menuFor(5)).to.equal(12)
+		end)
+
+		it("gives the rich customer the newest item open", function()
+			expect(Catalog.newestMenuItem(1).id).to.equal("paw_cookie")
+			expect(Catalog.newestMenuItem(3).id).to.equal("hot_cocoa")
+			expect(Catalog.newestMenuItem(5).id).to.equal("rainbow_cake")
 		end)
 	end)
 end

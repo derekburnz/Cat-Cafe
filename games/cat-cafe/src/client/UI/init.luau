@@ -89,6 +89,9 @@ local WorldMarker = require(script.Components.WorldMarker)
 local WorldTags = require(script.Screens.WorldTags)
 
 local UI = {}
+UI.together = {} -- F92 playing together, filled at the end of the file
+UI.campExtras = {} -- F100 camp extras, filled at the end of the file
+UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 
 UI.Types = Types
 UI.Theme = Theme
@@ -172,6 +175,8 @@ UI.events = {
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
+	-- F100 (camp-extras.md section 3)
+	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
 }
 
 local state: Types.PlayerState = {
@@ -460,6 +465,7 @@ local function render()
 	if cannonScreen and hud then
 		cannonScreen:render(state, hud:isCarrying())
 	end
+	UI.campExtras.render(state)
 	if cannonHint() ~= hintShown then
 		applyTutorial()
 	end
@@ -580,6 +586,11 @@ local function setCatalog(newCatalog: Types.Catalog)
 	if catCard then
 		catCard:setCatalog(newCatalog)
 	end
+	if toasts then
+		toasts:setCatalog(newCatalog) -- the prize toast's pictures
+	end
+	-- cast: the old solver reads UI.campExtras before its block at the end of the file fills it
+	(UI.campExtras :: any).setCatalog(newCatalog)
 end
 
 -- Fill in fields the engineer may not send: tables from upgrade levels, catsOwned from cats.
@@ -1206,6 +1217,9 @@ function UI.init(config: Types.InitConfig)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
 	UI.leaderboards.start(parent) -- the town boards' faces and the crowns over heads (F98)
+	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
+	UI.campExtras.start() -- the Yard Sale card and the Cannon picker's camp extra strips (F100)
+	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	worldTags = WorldTags.new()
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
@@ -1303,6 +1317,9 @@ function UI.destroy()
 	UI.clock.unbind()
 	UI.bigPull.reset()
 	UI.leaderboards.reset()
+	UI.together.reset()
+	UI.campExtras.reset()
+	UI.rally.reset()
 	if hud then
 		hud:destroy()
 	end
@@ -1536,6 +1553,8 @@ function UI.setVisible(isVisible: boolean)
 	if toasts then
 		toasts.screenGui.Enabled = isVisible
 	end
+	-- cast: the old solver reads UI.rally before its block at the end of the file fills it
+	(UI.rally :: any).setVisible(isVisible)
 	if locationMarkers then
 		locationMarkers:setVisible(isVisible)
 	end
@@ -3555,7 +3574,12 @@ do
 	-- showAsk calls it at a quiet moment and answers TipSeen itself, so this does not fire tipSeen; it shows the card
 	-- and says true, or false (a tip or another card is up, or the id is not one of the two) for the toast instead.
 	-- The ask counts as this session's tip for the gap. The notification ask is Roblox's prompt, never this.
+	-- F92: the invite ask is the slide-in card with an Invite button instead (UI.together.inviteAsk).
 	function UI.asks.show(id: string): boolean
+		if id == Tips.INVITE_ASK then
+			local together: any = UI.together -- filled later in the file
+			return together.inviteAsk()
+		end
 		local card = tipCard
 		if
 			card == nil
@@ -4035,6 +4059,32 @@ do
 		UI.announce(RareMoments.decorText(finder.DisplayName, decor.name), "Mythical")
 	end
 
+	-- RainbowSpawned's toast (F99, rainbow-coat.md section 2), sent to everyone at most once a minute: "🌈 A Rainbow
+	-- Tabby is out in the Woods!" on the cat's rarity colour with a turning rainbow edge. The beam and shimmer are
+	-- VFX-Agent's and Sound-Agent's (Moments.RainbowSpawned).
+	function UI.rainbowSpawned(areaId: string, catId: string)
+		local def = lookupCat(catId)
+		local catalog: Types.Catalog? = currentCatalog
+		local areas: { Types.AreaDef } = {}
+		if catalog and catalog.areas then
+			areas = catalog.areas
+		end
+		local areaName: string? = nil
+		for _, area in areas do
+			if area.id == areaId then
+				areaName = area.name
+			end
+		end
+		local view = toasts
+		if def == nil or view == nil then
+			return
+		end
+		view:rainbow(
+			CatVariant.spawnLine(def.name, areaName or Format.areaName(areaId)),
+			def.rarity
+		)
+	end
+
 	-- A Legendary or Mythical crate piece's card, with onUse for "Use it" on a new style piece; any other piece plays
 	-- nothing.
 	function UI.bigPull.piece(decorId: string, onUse: (() -> ())?)
@@ -4131,6 +4181,436 @@ do
 			crowns:destroy()
 		end
 		boards.faces, boards.crowns = nil, nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Playing together (F92)
+----------------------------------------------------------------------------------------------------
+
+-- Pals, Team Rescue and invites (playing-together.md): UIController calls UI.pals(userIds) on every PalsChanged,
+-- UI.palArrived(palUserId, palArea?) when this player joined at a pal's door, and UI.teamRescue(rescuerUserId,
+-- helperUserId, coins) when a helped rescue freed its cat; UIController's showAsk shows the one invite nudge through
+-- UI.asks.show("invite_ask"). The pal list is kept, so a rebuilt UI shows the chip at once. Its own block, as the
+-- module is short of locals. (UI.together is declared at the top, as UI.destroy and UI.asks use it first.)
+do
+	local Invite = require(script.Components.Invite)
+	local PalsLogic = require(script.Components.PalsLogic)
+	local TeamRescuePop = require(script.Screens.TeamRescuePop)
+	local TAG_SECONDS = 120 -- the pal's tag on the Cannon picker card stays this long after they arrive
+	local ASK_SECONDS = 14 -- the invite nudge stays up this long with no answer
+	local together = {
+		ids = {} :: { number },
+		pop = nil :: TeamRescuePop.TeamRescuePop?,
+		tagToken = 0,
+		taggedPal = nil :: number?,
+	}
+
+	local function nameOf(userId: number): string?
+		local player = Players:GetPlayerByUserId(userId)
+		return if player then player.DisplayName else nil
+	end
+
+	local function clearTag()
+		together.tagToken += 1
+		together.taggedPal = nil
+		if cannonScreen then
+			cannonScreen:setPal(nil, nil)
+		end
+	end
+
+	-- UI.init: the pop's screen, and the chip as the last PalsChanged left it.
+	function UI.together.start(parent: Instance)
+		UI.together.reset()
+		together.pop = TeamRescuePop.new(parent)
+		if hud then
+			hud:setPals(together.ids)
+		end
+	end
+
+	-- PalsChanged(userIds): this player's pals on the server (never themselves); an empty list means none now.
+	function UI.pals(userIds: { number })
+		local ids = PalsLogic.list(userIds, Players.LocalPlayer.UserId)
+		together.ids = ids
+		if hud then
+			hud:setPals(ids)
+		end
+		local tagged = together.taggedPal
+		if tagged ~= nil and not table.find(ids, tagged) then
+			clearTag()
+		end
+	end
+
+	-- PalArrived for this player: a pal out in a catching area gets the marker "Sam is in the Park" over the glowing
+	-- Cannon and a tag on that area's picker card when the area is open to this player, else a toast. A pal at the
+	-- cafe this player spawned at (no area) needs neither.
+	function UI.palArrived(palUserId: number, palArea: string?)
+		if type(palUserId) ~= "number" or type(palArea) ~= "string" then
+			return
+		end
+		local catalog = currentCatalog
+		local areas: { Types.AreaDef } = if catalog and catalog.areas then catalog.areas else {}
+		local area: Types.AreaDef? = nil
+		for _, def in areas do
+			if def.id == palArea then
+				area = def
+			end
+		end
+		if area == nil then
+			return
+		end
+		local name = nameOf(palUserId)
+		local text = PalsLogic.arrived(name, area.name)
+		if text == nil then
+			return
+		end
+		local open = area.tier <= (state.tier or 1)
+		if open and hud then
+			hud:palArrived(palUserId, text)
+			if cannonScreen then
+				cannonScreen:setPal(area.id, name)
+			end
+			together.tagToken += 1
+			together.taggedPal = palUserId
+			local token = together.tagToken
+			task.delay(TAG_SECONDS, function()
+				if together.tagToken == token then
+					clearTag()
+				end
+			end)
+		elseif toasts then
+			toasts:show(text, "info")
+		end
+	end
+
+	-- TeamRescue on both players' screens: the pop with both faces, the helper's tip in the helper's line.
+	function UI.teamRescue(rescuerUserId: number, helperUserId: number, coins: number)
+		if type(rescuerUserId) ~= "number" or type(helperUserId) ~= "number" then
+			return
+		end
+		local line = PalsLogic.teamRescue(
+			Players.LocalPlayer.UserId,
+			rescuerUserId,
+			helperUserId,
+			if type(coins) == "number" then coins else 0,
+			nameOf
+		)
+		local pop = together.pop
+		if pop then
+			pop:show(rescuerUserId, helperUserId, line)
+		elseif toasts then
+			toasts:show(PalsLogic.TITLE .. " " .. line, "good")
+		end
+	end
+
+	-- The one invite nudge (section 5), on the slide-in ask card: the line, Invite (Roblox's invite window with this
+	-- player's launch data) and Not now. False while another ask is up, so UIController offers it again later.
+	function UI.together.inviteAsk(): boolean
+		local card = askCard
+		if card == nil or not initialized or card:isShowing() then
+			return false
+		end
+		card:show({
+			title = PalsLogic.inviteAsk(),
+			choices = {
+				{ id = "invite", label = "Invite", icon = Theme.icons.invite, style = "primary" },
+				{ id = "later", label = "Not now" },
+			},
+			seconds = ASK_SECONDS,
+			lines = 2,
+			answer = function(choice: string?)
+				if choice == "invite" then
+					Invite.prompt()
+				end
+			end,
+		})
+		return true
+	end
+
+	-- UI.destroy: the pop goes with the rest of the screens; the pal list stays for the next build.
+	function UI.together.reset()
+		local pop = together.pop
+		if pop then
+			pop:destroy()
+		end
+		together.pop = nil
+		together.tagToken += 1
+		together.taggedPal = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Camp extras (F100, camp-extras.md section 3)
+----------------------------------------------------------------------------------------------------
+
+-- Controllers/CampExtrasController calls these when present: update(state) with every CampExtrasState (the Cannon
+-- picker's strips and the Yard Sale card), openYardSale(view) from the Yard Sale's prompt, collected(extraId, paid,
+-- prize) after a collect or a buy (the prize toast) and refused(extraId) after a refusal, whose reason the server
+-- toasts. The prompts themselves are Custom style, so the action pill draws them. The last state is kept, so a
+-- rebuilt UI shows the strips at once. Its own block, as the module is short of locals.
+do
+	local CampExtrasLogic = require(script.Components.CampExtrasLogic)
+	local YardSale = require(script.Screens.YardSale)
+	local SharedConfig =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+	local CAMP_TAG = "CampExtra" -- shared/CampExtras.TAG: the placed models, with their ExtraId attribute
+	-- the card closes once the player walks this far from the Yard Sale (its prompt's reach and some slack)
+	local FAR_STUDS: number = (SharedConfig.CampExtraRangeStuds or 8) + 8
+	local camp = {
+		state = nil :: Types.CampExtrasState?,
+		yard = nil :: YardSale.YardSale?,
+	}
+
+	local function yardView(): Types.CampExtraView?
+		local current = camp.state
+		return if current ~= nil then current.yardSale else nil
+	end
+
+	-- Studs from this player's character to the Yard Sale's model, or nil while either is streamed out.
+	local function yardDistance(): number?
+		local character = Players.LocalPlayer.Character
+		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+		if root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		for _, model in CollectionService:GetTagged(CAMP_TAG) do
+			if
+				model:IsA("Model")
+				and model:GetAttribute("ExtraId") == CampExtrasLogic.YARD_SALE
+				and model:IsDescendantOf(Workspace)
+			then
+				return ((model :: Model):GetPivot().Position - (root :: BasePart).Position).Magnitude
+			end
+		end
+		return nil
+	end
+
+	-- UI.init: the Yard Sale card in the modal, the strips from the kept state.
+	function UI.campExtras.start()
+		UI.campExtras.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local yard = YardSale.new({
+			buy = function(crateId: string)
+				UI.events.buyYardSale:Fire(crateId)
+			end,
+			close = function()
+				if modalView:current() == "YardSale" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				local distance = yardDistance()
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		camp.yard = yard
+		modalView:register("YardSale", {
+			frame = yard.frame,
+			onOpen = function()
+				yard:render(state)
+				yard:opened()
+			end,
+			onClose = function()
+				yard:closed()
+			end,
+		})
+		if currentCatalog then
+			yard:setCatalog(currentCatalog)
+		end
+		yard:setView(yardView())
+		if cannonScreen then
+			cannonScreen:setExtras(camp.state)
+		end
+	end
+
+	function UI.campExtras.setCatalog(catalog: Types.Catalog)
+		local yard = camp.yard
+		if yard then
+			yard:setCatalog(catalog)
+			yard:setView(yardView())
+		end
+	end
+
+	function UI.campExtras.render(playerState: Types.PlayerState)
+		local yard = camp.yard
+		if yard then
+			yard:render(playerState)
+		end
+	end
+
+	-- CampExtrasState: each extra's open, held, nextAt and the Yard Sale's stock today.
+	function UI.campExtras.update(extras: Types.CampExtrasState)
+		if type(extras) ~= "table" then
+			return
+		end
+		camp.state = extras
+		if cannonScreen then
+			cannonScreen:setExtras(extras)
+		end
+		local yard = camp.yard
+		if yard then
+			yard:setView(extras.yardSale)
+		end
+	end
+
+	-- The Yard Sale's prompt: its card with today's crates.
+	function UI.campExtras.openYardSale(view: Types.CampExtraView?)
+		local yard = camp.yard
+		local modalView = modal
+		if yard == nil or modalView == nil then
+			return
+		end
+		yard:setView(if view ~= nil then view else yardView())
+		modalView:open("YardSale")
+	end
+
+	-- CampExtraResult ok: the prize toast, the extra's name and what it paid as at most two pictures ("Fish Pond" and
+	-- the gold fish "x14"); with no prize the server's words say it ("Fish Pond: +14 golden fish").
+	function UI.campExtras.collected(extraId: string, paid: { string }?, prize: Types.IndexPrize?)
+		if toasts then
+			toasts:prize(
+				CampExtrasLogic.prizeTitle(extraId, if prize ~= nil then nil else paid),
+				prize
+			)
+		end
+	end
+
+	-- CampExtraResult refused: the Yard Sale's "..." lifts (the server's toast says why).
+	function UI.campExtras.refused(extraId: string)
+		local yard = camp.yard
+		if yard and extraId == CampExtrasLogic.YARD_SALE then
+			yard:refused()
+		end
+	end
+
+	-- UI.destroy: the card goes with the modal; the state stays for the next build.
+	function UI.campExtras.reset()
+		local yard = camp.yard
+		if yard then
+			yard:destroy()
+		end
+		camp.yard = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Rescue Rally (F101, rescue-rally.md section 4)
+----------------------------------------------------------------------------------------------------
+
+-- Controllers/RallyController calls UI.rally.update(state) on every RallyState: the banner top centre while a Rally
+-- runs, the Town Square board's face, "🏁 Rescue Rally in 5h 20m" under the clock in the last 12 hours before one
+-- (the Friday chip) and the Cat Cannon cards' night tag. The pops are VFX's (Effects/Rally hooks RallyPoint and finds
+-- the banner's RallyBar) and the step prizes' toasts the server's. The state is kept, so a rebuilt UI shows it at
+-- once. Its own block, as the module is short of locals.
+do
+	local RallyBanner = require(script.Screens.RallyBanner)
+	local RallyBoards = require(script.Screens.RallyBoards)
+	local RallyLogic = require(script.Components.RallyLogic)
+	local SOON_SECONDS = 15 -- how often the clock line's countdown is worked out again
+	local rally = {
+		state = nil :: Types.RallyState?,
+		banner = nil :: RallyBanner.RallyBanner?,
+		boards = nil :: RallyBoards.RallyBoards?,
+		busy = nil :: Signal.Connection?, -- HUD.catchingChanged
+		token = 0,
+	}
+
+	local function paint()
+		local current = rally.state
+		local banner = rally.banner
+		if banner then
+			banner:set(current)
+		end
+		local boards = rally.boards
+		if boards then
+			boards:set(current)
+		end
+		if cannonScreen then
+			cannonScreen:setRally(current)
+		end
+		if hud then
+			hud:setRallySoon(RallyLogic.soon(current, Workspace:GetServerTimeNow()))
+		end
+	end
+
+	-- UI.init: the banner and the board faces, painted from the kept state.
+	function UI.rally.start(parent: Instance)
+		UI.rally.reset()
+		-- on a phone the potion timers' row can reach the top centre; the banner moves under it then
+		rally.banner = RallyBanner.new(parent, function(): { GuiObject }
+			local current = hud
+			if current == nil then
+				return {}
+			end
+			return { current:buffRow() }
+		end)
+		-- the banner steps aside while a catch or rescue runs, clear of their headers (review S113)
+		local hudNow = hud
+		if hudNow then
+			local banner = rally.banner
+			if banner then
+				banner:setBusy(hudNow:isCatching())
+			end
+			rally.busy = hudNow.catchingChanged:Connect(function(active: boolean)
+				local current = rally.banner
+				if current then
+					current:setBusy(active)
+				end
+			end)
+		end
+		rally.boards = RallyBoards.new(parent)
+		rally.token += 1
+		local token = rally.token
+		task.spawn(function()
+			while rally.token == token do
+				task.wait(SOON_SECONDS)
+				local current = hud
+				if rally.token == token and current ~= nil then
+					current:setRallySoon(RallyLogic.soon(rally.state, Workspace:GetServerTimeNow()))
+				end
+			end
+		end)
+		paint()
+	end
+
+	-- RallyState from the server.
+	function UI.rally.update(state: Types.RallyState)
+		if type(state) ~= "table" then
+			return
+		end
+		rally.state = state
+		paint()
+	end
+
+	-- UI.setVisible: the banner hides with the HUD.
+	function UI.rally.setVisible(isVisible: boolean)
+		local banner = rally.banner
+		if banner then
+			banner:setVisible(isVisible)
+		end
+	end
+
+	-- UI.destroy: the banner and the faces go; the state stays for the next build.
+	function UI.rally.reset()
+		rally.token += 1
+		local busy = rally.busy
+		if busy then
+			busy:Disconnect()
+		end
+		rally.busy = nil
+		local banner = rally.banner
+		if banner then
+			banner:destroy()
+		end
+		local boards = rally.boards
+		if boards then
+			boards:destroy()
+		end
+		rally.banner = nil
+		rally.boards = nil
 	end
 end
 

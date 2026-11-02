@@ -10,10 +10,12 @@
 --   Index rewards         +6%     the claimed milestones' money forever (IndexRewards.totals)
 --   Cafe tier 3           x1.5    the tier's multiplier
 --   Money Potion          +25%    each running potion with `tips`, all together at most Config.TimedTipsMax
---   All together          x4.3    (1 + the cafe's percents) x tier x (1 + potions)
--- A source at 0 stays on the list in grey ("+0%"), so a player sees what else could lift it. The game has no friend
--- bonus and the Money pass is not on sale yet, so neither has a row.
---   rows(catalog, state, now) -> { Row }
+--   Pals (2)              +15%    F92: shared Pals.bonus while pals are on the server (only then, so a solo player
+--                                 never sees a missing bonus), added to the potions as Economy.tipMultiplier does
+--   All together          x4.3    (1 + the cafe's percents) x tier x (1 + potions + pals)
+-- A source at 0 stays on the list in grey ("+0%"), so a player sees what else could lift it. The Money pass is not
+-- on sale yet, so it has no row.
+--   rows(catalog, state, now, pals?) -> { Row }   `pals`: how many pals PalsChanged last named
 --   percent(0.25) -> "+25%", times(1.5) -> "x1.5"
 -- Pure, so the cloud spec runner checks it.
 
@@ -23,6 +25,7 @@ local IndexRewards = require(script.Parent.IndexRewards)
 local Types = require(script.Parent.Parent.Types)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+local Pals = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Pals")) :: any
 
 local BoostList = {}
 
@@ -120,7 +123,12 @@ local function add(rows: { Row }, key: string, name: string, fraction: number)
 	})
 end
 
-function BoostList.rows(catalog: Types.Catalog?, state: Types.PlayerState, now: number): { Row }
+function BoostList.rows(
+	catalog: Types.Catalog?,
+	state: Types.PlayerState,
+	now: number,
+	pals: number?
+): { Row }
 	local rows: { Row } = {}
 	local tables = level(catalog, state, "tables")
 	add(rows, "tables", ("Tables (%d)"):format(tables), TABLE_BONUS * tables)
@@ -186,6 +194,13 @@ function BoostList.rows(catalog: Types.Catalog?, state: Types.PlayerState, now: 
 			math.min(potionTips[potionId] or KNOWN_TIPS[potionId], math.max(0, TIPS_MAX - tips))
 		tips += share
 		add(rows, potionId, potionNames[potionId] or POTION_NAMES[potionId] or potionId, share)
+	end
+	-- F92: the pals' share, on top of the potions' cap as the server's tipMultiplier adds it
+	local palCount = if type(pals) == "number" then math.max(0, math.floor(pals)) else 0
+	if palCount >= 1 then
+		local share: number = Pals.bonus(palCount)
+		tips += share
+		add(rows, "pals", ("Pals (%d)"):format(palCount), share)
 	end
 
 	local total = cafe * tierTimes * (1 + tips)

@@ -78,6 +78,7 @@ local function samplePlayer(now)
 	local cats = {}
 	local collection = {}
 	local goldCollection = {}
+	local rainbowCollection = {} -- F99: four rainbow cats, so rainbow1 and rainbow3 wait on the Rainbow track
 	local spots = {}
 	for _, spot in Catalog.spots do
 		if (spot.tier or 1) <= 3 then
@@ -90,6 +91,9 @@ local function samplePlayer(now)
 		end
 		if index % 9 == 1 then
 			goldCollection[def.id] = now - index * 300
+		end
+		if index % 12 == 2 and def.area ~= "spare" and def.exclusive ~= true then
+			rainbowCollection[def.id] = now - index * 200
 		end
 	end
 	local count = 0
@@ -163,6 +167,7 @@ local function samplePlayer(now)
 		cats = cats,
 		collection = collection,
 		goldCollection = goldCollection,
+		rainbowCollection = rainbowCollection,
 		tutorialStep = nil,
 		introSeen = true,
 		settings = UIShim.require("ReplicatedStorage.Shared.Settings").defaults(),
@@ -222,6 +227,84 @@ end
 
 local function localUserId()
 	return game:GetService("Players").LocalPlayer.UserId
+end
+
+-- F92: the first catching area the gate's Tier 1 player has open, for a pal who is out there
+-- F100: CampExtrasState for the Tier 3 sample player: the Picnic Basket holding `picnic` potions, the Yard Sale's
+-- two crates (`bought` today or not), the Pond and the Lost and Found shut; `open` false shuts all four.
+local function campExtras(picnic, bought, open)
+	local now = workspace:GetServerTimeNow()
+	local on = open ~= false
+	return {
+		day = math.floor(now / 86400),
+		picnic = { open = on, held = picnic, nextAt = if picnic < 2 then now + 7800 else nil },
+		yardSale = {
+			open = on,
+			held = if bought then 0 else 2,
+			nextAt = now + 3 * 3600,
+			stock = {
+				{ crateId = "classic_crate", price = 40, bought = bought },
+				{ crateId = "park_crate", price = 40, bought = bought },
+			},
+		},
+		pond = { open = false, held = 0 },
+		lostFound = { open = false, held = 0 },
+	}
+end
+
+-- F101: a RallyState, running for another day and 4 hours unless `fields` says otherwise.
+local function rallyState(fields)
+	local t = workspace:GetServerTimeNow()
+	local state = {
+		active = true,
+		endsAt = t + 28 * 3600,
+		startsAt = t - 20 * 3600,
+		lap = 1,
+		goal = 90,
+		points = 0,
+		myPoints = 0,
+		lapsPaid = 0,
+		lapsDone = false,
+	}
+	for key, value in fields do
+		state[key] = value
+	end
+	return state
+end
+
+local function firstArea()
+	for _, area in Catalog.areas do
+		if area.tier <= 1 then
+			return area.id
+		end
+	end
+	return Catalog.areas[1].id
+end
+
+-- F103: the crate reel plays once shared Config has its numbers (Gameplay-Engineer adds them); the reel scenes turn
+-- them on and Scenes.close turns them off again, so the other Market scenes keep the card reveal
+local REEL_CONFIG = {
+	CrateReelTiles = 40,
+	CrateReelLandingTile = 34,
+	CrateReelProtectFrom = 26,
+	CrateReelProtectTo = 37,
+	CrateReelTopSpeed = 15,
+	CrateReelRampSeconds = 0.3,
+	CrateReelStopSeconds = 0.8,
+	CrateReelHoldSeconds = 0.25,
+}
+local reelWasOn = nil
+local function reel(on)
+	local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+	if reelWasOn == nil then
+		reelWasOn = Config.CrateReelTiles ~= nil
+	end
+	if reelWasOn then
+		return -- the real Config has them: leave them be
+	end
+	for key, value in REEL_CONFIG do
+		Config[key] = if on then value else nil
+	end
 end
 
 -- an F99 rainbow cat for the cat room: the first Epic in the catalog, level 8, resting
@@ -573,6 +656,41 @@ local SCENES = {
 		press("Collection", "Board_money")
 		press("Collection", "Window_week")
 	end },
+	-- F99 section 3: the Index's Rainbow tab, the Rainbow cats line with its strip open on "Reward ready", rainbow
+	-- tiles on turning borders
+	{ "IndexRainbow", function()
+		UI.open("Collection")
+		press("Collection", "RainbowTab")
+		press("Collection", "rainbow.Header.Rewards")
+	end },
+	-- F99 section 4: three claimed, so the rainbow luck pill shows by the tabs and the milestones row has its band
+	{ "IndexRainbowLuck", function()
+		UI.update({
+			indexRewards = { rainbow = { rainbow1 = true, rainbow3 = true, rainbow5 = true } },
+			rainbowLuck = 0.2,
+		})
+		UI.open("Collection")
+		press("Collection", "RainbowTab")
+		press("Collection", "rainbow.Header.Rewards")
+		press("Collection", "rainbow.Expand")
+	end },
+	-- a found rainbow cat's card: "Rainbow" before its name, a rainbow edge
+	{ "IndexRainbowCat", function()
+		UI.open("Collection")
+		press("Collection", "RainbowTab")
+		local first
+		for index, def in Catalog.cats do
+			if index % 12 == 2 and def.area ~= "spare" and def.exclusive ~= true then
+				first = def.id
+				break
+			end
+		end
+		press("Collection", "Book." .. first)
+	end },
+	-- F99 section 2: a rainbow stray's once-a-minute toast on a turning rainbow edge
+	{ "RainbowSpawn", function()
+		UI.rainbowSpawned(firstArea(), Catalog.cats[10].id)
+	end },
 	{ "Potions", function()
 		UI.open("Potions")
 	end },
@@ -614,6 +732,37 @@ local SCENES = {
 			speed = 0.97,
 			zoneEndsAt = t + 5,
 		})
+	end },
+	-- F92: a Team Rescue helper's copy of the bar, two hits in: "Helping!" and the rescuer's paws
+	{ "RescueHelper", function()
+		local challenge = rescueChallenge()
+		challenge.helper = true
+		challenge.hits = 2
+		challenge.zone = 3
+		UI.rescue.show("gate_rescue", challenge)
+	end },
+	-- F92: the Team Rescue pop on the helper's screen, with the helper's tip
+	{ "TeamRescue", function()
+		UI.teamRescue(4242, localUserId(), 1240)
+	end },
+	-- F92: four pals on the server: three faces, "+1" and "+15% with pals" after the potion timer
+	{ "HUDPals", function()
+		local t = workspace:GetServerTimeNow()
+		UI.update({ buffs = { tip_potion = t + 492 } })
+		UI.pals({ 4242, 4343, 4444, 4545 })
+	end },
+	-- F92: a joiner whose pal is out in the first area: "Your pal is in the Alleyway" over the glowing Cannon
+	{ "PalArrived", function()
+		UI.palArrived(4242, firstArea())
+	end },
+	-- F92: the Cannon picker with that pal's tag on the area's card
+	{ "CannonPal", function()
+		UI.palArrived(4242, firstArea())
+		UI.cannon.open()
+	end },
+	-- F92: the one invite nudge on the slide-in ask card
+	{ "InviteAsk", function()
+		UI.asks.show("invite_ask")
 	end },
 	-- F93: the touch Net button, in a catching area while a swing could go (phones only)
 	{ "NetButton", function()
@@ -698,8 +847,28 @@ local SCENES = {
 			UI.market.result("classic_crate", "classic_gold_leaf", false, 0)
 		end)
 	end },
+	-- F103: a Classic Crate's reel 2.2 s in, slowing towards a Common on tile 34 under the gold marker
+	{ "CrateReel", function()
+		reel(true)
+		UI.market.open()
+		task.delay(0.3, function()
+			UI.market.result("classic_crate", "classic_latte_brown", false, 0)
+		end)
+	end },
+	-- a tap skips it: the landing, then the prize card with its buttons
+	{ "CrateReelSkip", function()
+		reel(true)
+		UI.market.open()
+		task.delay(0.3, function()
+			UI.market.result("classic_crate", "classic_latte_brown", false, 0)
+		end)
+		task.delay(0.6, function()
+			press("FishMarket", "ReelCover")
+		end)
+	end },
 	-- last, since no window closes it: the money's boosts card with a Money Potion running and some boosts bought
 	{ "HUDBoosts", function()
+		UI.pals({ 4242 }) -- F92: one pal on the server, so the card has the Pals row
 		local t = workspace:GetServerTimeNow()
 		UI.update({
 			buffs = { tip_potion = t + 492, swift_potion = t + 130 },
@@ -752,6 +921,73 @@ local SCENES = {
 		UI.clock.bind(clock)
 		UI.luckyDay("warning", "A Lucky Day starts at sunrise!")
 	end },
+	-- F100: the Cannon picker with the Tier 3 player's camp extras: the Picnic Basket ready (red dot), the Yard Sale's
+	-- new crates (no dot)
+	{ "CannonExtras", function()
+		UI.campExtras.update(campExtras(1, false))
+		UI.cannon.open()
+	end },
+	-- F100: the same picker with nothing ready: "Next in 2 h 10 m" and "New crates in 3 h"
+	{ "CannonExtrasWait", function()
+		UI.campExtras.update(campExtras(0, true))
+		UI.cannon.open()
+	end },
+	-- F100: the Yard Sale card, the Classic Crate bought today and the Park Crate for 40 golden fish
+	{ "YardSale", function()
+		local extras = campExtras(0, false)
+		extras.yardSale.stock[1].bought = true
+		extras.yardSale.held = 1
+		UI.campExtras.update(extras)
+		UI.campExtras.openYardSale(extras.yardSale)
+	end },
+	-- F100: the prize toast after the Lost and Found: the line and two pictures
+	{ "CampPrize", function()
+		UI.campExtras.collected(
+			"lostFound",
+			{ "1 Lucky Potion", "+10 golden fish" },
+			{ potions = { lucky_potion = 1 }, fish = 10 }
+		)
+	end },
+	-- F101: a Rescue Rally on its second lap, the bar past its first step, this player on 7 points
+	{ "RallyBanner", function()
+		UI.rally.update(rallyState({ lap = 2, points = 50, myPoints = 7 }))
+	end },
+	-- F101: this player's laps used up this weekend, the bar nearly full
+	{ "RallyBannerDone", function()
+		UI.rally.update(rallyState({ lap = 5, points = 85, myPoints = 12, lapsPaid = 4, lapsDone = true }))
+	end },
+	-- F101: the Cat Cannon at night during a Rally: every card's "Rally: rescues x3" tag over its night cover
+	{ "RallyCannonNight", function()
+		local t = workspace:GetServerTimeNow()
+		local clock = Instance.new("Folder")
+		clock.Name = "Clock"
+		clock:SetAttribute("Phase", "night")
+		clock:SetAttribute("PhaseEndsAt", t + 60)
+		clock:SetAttribute("AreasOpen", false)
+		clock:SetAttribute("Day", 3)
+		clock:SetAttribute("NextLuckyDay", 4)
+		clock:SetAttribute("LuckyDay", false)
+		UI.clock.bind(clock)
+		UI.rally.update(rallyState({ points = 12, myPoints = 0 }))
+		UI.cannon.open()
+	end },
+	-- F101: three potions running and the Luck chip: on the phone the row beside the menu reaches the top centre,
+	-- so the banner moves down under it
+	{ "RallyBannerPotions", function()
+		local t = workspace:GetServerTimeNow()
+		UI.update({ buffs = { tip_potion = t + 492, swift_potion = t + 130, lucky_potion = t + 492 } })
+		UI.rally.update(rallyState({ points = 30, myPoints = 2 }))
+	end },
+	-- F101 (review S113): a rescue during a Rally: the banner steps aside, so the rescue bar's header is clear
+	{ "RallyRescue", function()
+		UI.rally.update(rallyState({ lap = 2, points = 50, myPoints = 7 }))
+		UI.rescue.show("gate_rescue", rescueChallenge())
+	end },
+	-- F101: Friday, 5 h 20 m before the Rally: the countdown under the clock and no banner
+	{ "RallySoon", function()
+		local t = workspace:GetServerTimeNow()
+		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = t + 5 * 3600 + 1200 }))
+	end },
 }
 
 Scenes.names = {}
@@ -770,7 +1006,11 @@ function Scenes.open(name)
 end
 
 function Scenes.close()
+	reel(false)
 	UI.close()
+	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
+	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were
+	UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = workspace:GetServerTimeNow() + 3 * 86400 })) -- F101: no Rally
 	UI.catch.hideCircles()
 	UI.catch.hide()
 	UI.rescue.hide()
@@ -782,6 +1022,10 @@ function Scenes.close()
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 	if ask and ask:FindFirstChild("Choice_ok", true) and ask:FindFirstChild("Card", true).Visible then
 		press("CatCafeAsk", "Choice_ok")
+	end
+	-- F92: the invite nudge's Not now
+	if ask and ask:FindFirstChild("Choice_later", true) and ask:FindFirstChild("Card", true).Visible then
+		press("CatCafeAsk", "Choice_later")
 	end
 	-- the cat found card goes by itself after 5 s; Nice! now, so it is not over the next scene
 	local found = UIShim.playerGui:FindFirstChild("CatCafePopups")

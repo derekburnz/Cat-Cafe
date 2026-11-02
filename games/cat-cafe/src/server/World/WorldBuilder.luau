@@ -6,9 +6,11 @@
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerStorage = game:GetService("ServerStorage")
 local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.AssetRegistry)
+local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Layout = require(script.Parent.Layout)
@@ -31,13 +33,14 @@ export type Plot = {
 	tables: Folder,
 	customerEntry: BasePart,
 	counter: Model, -- Counter; out of the plot while the For Rent set's dust-sheeted counter stands in for it
+	oven: Model?, -- Oven (F90), tagged CafeOven, when its art is in; out of the plot with the counter
 	espresso: BasePart,
 	luckyCat: BasePart, -- LuckyCatAnchor, in the front garden: where the Lucky Cat statue stands (F88)
 	backDoor: BasePart, -- the back door panel: shut on an empty plot, open from Tier 1; unseen under backDoorArt
 	backDoorArt: Model?, -- BackDoorArt, CatCafe_Plot_BackDoor when the art is in: the door the client swings
 	backDoorZone: BasePart, -- check-in works here as well as at the front door
 	expansions: { Model }, -- Expansions/<n>, patio sections in the yard, hidden until the owner's tier opens them
-	napSpots: { BasePart }, -- NapSpots/<n>, where cats without a job nap, best first
+	napSpots: { BasePart }, -- NapSpots/<n>, where cats without a job nap, best first (on its nap bed's Sleep point)
 	dressing: Folder, -- Dressing/ForRent on an empty plot, Dressing/Tier<n> up to the owner's tier
 	baitBowl: BasePart, -- BaitBowl, in the front garden: range checks, and the owner's client puts its prompt here
 	baitCat: BasePart, -- BaitCat, where the cat that came to the bowl sits
@@ -272,7 +275,7 @@ end
 -- What a cafe shows from the street (F36, F38): tier 0 is an empty plot, dressed For Rent (shutters half down, the
 -- sign and dust sheets, and no cat); an owned cafe adds CatCafe_Plot_Tier1..n cumulatively up to its tier, and the
 -- cat beds of its tier (F79, Layout.plot.beds, named by bed id), where the working cats past the cat trees sleep at
--- night. Pieces whose art is not in ReplicatedStorage.Assets are skipped.
+-- night, and a nap bed under each nap spot. Pieces whose art is not in ReplicatedStorage.Assets are skipped.
 function WorldBuilder.setDressing(plot: Plot, tier: number)
 	local function show(name: string, asset: string, wanted: boolean)
 		local existing = plot.dressing:FindFirstChild(name)
@@ -299,9 +302,38 @@ function WorldBuilder.setDressing(plot: Plot, tier: number)
 			existing:Destroy()
 		end
 	end
+	-- The nap beds (Derek's 10-28 to 10-30 notes: the resting cats slept on the floor; beds in the corners and
+	-- sides): an owned cafe has a cat bed under each nap spot, NapBed_<n>, and the nap spot's anchor sits on the bed's
+	-- Sleep point, where the resting cat sits or lies (a lying cat's pose lowers it onto the cushion on the client, as
+	-- on the F79 beds). On the empty plot, or without the bed's art, the anchor is the nap spot on the floor.
+	-- SleepSpots reads only the F79 beds, so no working cat walks to these at night.
+	for n, point in Layout.plot.napSpots do
+		local name = "NapBed_" .. n
+		local floorAt = localCFrame(plot.cframe, point)
+		local bed: Instance? = plot.dressing:FindFirstChild(name)
+		if tier >= 1 and bed == nil and AssetRegistry.has(CAT_BED) then
+			local placed = place(CAT_BED, floorAt, plot.dressing)
+			placed.Name = name
+			bed = placed
+		elseif tier < 1 and bed ~= nil then
+			bed:Destroy()
+			bed = nil
+		end
+		local sleep: Instance? = if bed ~= nil then bed:FindFirstChild("Sleep", true) else nil
+		local napAnchor: BasePart? = plot.napSpots[n]
+		if napAnchor ~= nil then
+			napAnchor.CFrame = if sleep ~= nil and sleep:IsA("Attachment")
+				then (sleep :: Attachment).WorldCFrame
+				else floorAt
+		end
+	end
 	-- The For Rent set drapes its own dust sheet where the counter stands, so the real counter, whose pastry case
 	-- and till would poke through the sheet, waits out of the plot until the cafe opens.
-	plot.counter.Parent = if plot.dressing:FindFirstChild("ForRent") ~= nil then nil else plot.model
+	local open = plot.dressing:FindFirstChild("ForRent") == nil
+	plot.counter.Parent = if open then plot.model else nil
+	if plot.oven ~= nil then
+		(plot.oven :: Model).Parent = if open then plot.model else nil
+	end
 end
 
 -- The Closed sign with its moon (v0.5 F44) hangs in an owned cafe's front door at night: Dressing/ClosedSign at
@@ -650,6 +682,15 @@ local function buildPlot(index: number, parent: Instance): Plot
 	local counter =
 		place("CatCafe_Furniture_Counter", localCFrame(cframe, Layout.plot.counter), model)
 	counter.Name = "Counter"
+	-- F90: the oven the Baristas bake at, once its art is in (Model-Agent #775); out of the plot with the counter
+	-- while the For Rent set stands in (setDressing)
+	local oven: Model? = nil
+	if AssetRegistry.has(Catalog.ovenModel) then
+		oven = place(Catalog.ovenModel, localCFrame(cframe, Layout.plot.oven), model)
+		local placed = oven :: Model
+		placed.Name = "Oven"
+		CollectionService:AddTag(placed, "CafeOven") -- the client's Effects glow and puff at its DoorGlow
+	end
 	local espresso = anchor("EspressoAnchor", localCFrame(cframe, Layout.plot.espresso), model)
 	local luckyCat = anchor("LuckyCatAnchor", localCFrame(cframe, Layout.plot.luckyCat), model)
 
@@ -708,6 +749,11 @@ local function buildPlot(index: number, parent: Instance): Plot
 	local entry = anchor("Entry", localCFrame(cframe, Layout.plot.entry), waypoints)
 	anchor("Door", localCFrame(cframe, Layout.plot.door), waypoints)
 	anchor("Order", localCFrame(cframe, Layout.plot.orderPoint), waypoints)
+	-- F90 (cats-make-orders.md), for the client's orders: the counter spot a made dish waits on, where the Waiter
+	-- stands to take it and the till where a swept coin bag goes
+	anchor("Pass", localCFrame(cframe, Layout.plot.pass), waypoints)
+	anchor("Pickup", localCFrame(cframe, Layout.plot.pickup), waypoints)
+	anchor("TillStack", localCFrame(cframe, Layout.plot.tillStack), waypoints)
 
 	-- The bait bowl's anchors (data-model section 8). CafeService puts the bowl, the food and the cat in Bait/;
 	-- the owner's client makes the bowl's prompt itself, so nobody else sees one at this cafe.
@@ -744,6 +790,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		tables = folder("Tables", model),
 		customerEntry = entry,
 		counter = counter,
+		oven = oven,
 		espresso = espresso,
 		luckyCat = luckyCat,
 		backDoor = backDoor,
@@ -932,12 +979,23 @@ local function placeNightFence(asset: string, cframe: CFrame, parent: Instance):
 	return model
 end
 
+-- A long area's model suffix (F85, Layout's artSuffix: "F85"), "" for the rest, on its camp, gate, night fence and
+-- backdrop names.
+local function artSuffix(areaId: string): string
+	local spec = Layout.areas[areaId]
+	return if spec ~= nil and spec.artSuffix ~= nil then spec.artSuffix else ""
+end
+
 -- Every night fence: one behind each area gate's Bars and a closed back door in each plot (the client shows that one
 -- only on an owned cafe, whose back door is open by day). Since v4 (F84) the Alleyway is a wild area like the rest,
 -- emptied at night by the sweep, so the fence along the back alleys' inner edges went with them.
 local function buildNightFences(gates: { [string]: Model }, plots: { Plot }, parent: Instance)
 	for areaId, gate in gates do
-		local asset = "CatCafe_" .. areaId:sub(1, 1):upper() .. areaId:sub(2) .. "_NightFence"
+		local asset = "CatCafe_"
+			.. areaId:sub(1, 1):upper()
+			.. areaId:sub(2)
+			.. "_NightFence"
+			.. artSuffix(areaId)
 		if AssetRegistry.has(asset) then
 			placeNightFence(asset, gate:GetPivot(), parent).Name = asset
 		end
@@ -980,7 +1038,7 @@ local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
 	local base = CFrame.new(camp.origin.x, 0, camp.origin.z)
 		* CFrame.Angles(0, math.rad(camp.turn), 0)
 	local rect = camp.rect
-	local art = "CatCafe_Camp_" .. campArtName(camp.area)
+	local art = "CatCafe_Camp_" .. campArtName(camp.area) .. artSuffix(camp.area)
 	local hasArt = AssetRegistry.has(art)
 	if hasArt then
 		place(
@@ -1018,7 +1076,7 @@ local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
 	-- Model-Agent's backdrop ring round the area (#741), CatCafe_<Area>_Backdrop, when it is in: built in set space,
 	-- so it pivots as the camp set does, its ground starting at the Ground plate's edge below. Every part is
 	-- non-colliding, unqueried and shadowless. Persistent like the town's, so it never streams out behind a player.
-	local backdropName = "CatCafe_" .. campArtName(camp.area) .. "_Backdrop"
+	local backdropName = "CatCafe_" .. campArtName(camp.area) .. "_Backdrop" .. artSuffix(camp.area)
 	if AssetRegistry.has(backdropName) then
 		local backdrop = place(
 			backdropName,
@@ -1392,11 +1450,11 @@ local function buildGate(
 	parent: Instance
 ): Model
 	local pascal = def.id:sub(1, 1):upper() .. def.id:sub(2)
-	local gate = place(
-		"CatCafe_" .. pascal .. "_Gate",
-		CFrame.new(x, 0.1, z) * CFrame.Angles(0, turn, 0),
-		parent
-	)
+	local asset = "CatCafe_" .. pascal .. "_Gate" .. artSuffix(def.id)
+	if not AssetRegistry.known(asset) then
+		asset = "CatCafe_" .. pascal .. "_Gate" -- a long area's gate before its art is in: the placeholder
+	end
+	local gate = place(asset, CFrame.new(x, 0.1, z) * CFrame.Angles(0, turn, 0), parent)
 	gate.Name = pascal .. "Gate"
 	gate:SetAttribute("Area", def.id)
 	gate:SetAttribute("RequiresTier", def.tier)
@@ -1431,6 +1489,63 @@ local function buildIndexBoards(parent: Instance)
 			board:SetAttribute("Area", areaId)
 			CollectionService:AddTag(board, "IndexBoard")
 		end
+	end
+end
+
+-- The camp extras (F100, camp-extras.md section 3): each Catalog.campExtras model (Model-Agent #750) at
+-- Layout.campExtraAt, placed as the camp set is, tagged CampExtra with ExtraId and Area. Its hold-E prompt
+-- (CampExtras.PROMPT, Custom: the UI's action pill) sits at the model's PromptAnchor with CampExtraRangeStuds of
+-- reach; each client writes its own lines on it (Controllers/CampExtrasController) and CampExtraService checks the
+-- range again from the same anchor. Without the art a plain crate-sized block stands in. Atomic, as the Index Boards.
+local function buildCampExtras(parent: Instance)
+	for _, def in Catalog.campExtras do
+		local x, y, z, turn = Layout.campExtraAt(def.area)
+		if x == nil or y == nil or z == nil or turn == nil then
+			continue
+		end
+		local at = CFrame.new(x, y, z) * CFrame.Angles(0, math.rad(turn), 0)
+		local model: Model
+		if AssetRegistry.has(def.model) then
+			model = place(def.model, at, parent)
+		else
+			model = Instance.new("Model")
+			model.PrimaryPart = part(
+				"Body",
+				Vector3.new(3, 2, 2.2),
+				at * CFrame.new(0, 1, 0),
+				CARAMEL,
+				Enum.Material.WoodPlanks,
+				model
+			)
+			model.Parent = parent
+		end
+		model.Name = (def.name:gsub(" ", ""))
+		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+		model:SetAttribute("ExtraId", def.id)
+		model:SetAttribute("Area", def.area)
+		CollectionService:AddTag(model, CampExtras.TAG)
+		local anchor = model:FindFirstChild("PromptAnchor", true)
+		if anchor == nil or not anchor:IsA("Attachment") then
+			local host = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+			if host == nil then
+				continue
+			end
+			local float = Instance.new("Attachment")
+			float.Name = "PromptAnchor"
+			float.Parent = host
+			float.WorldPosition = (at * CFrame.new(0, 1.5, -2)).Position
+			anchor = float
+		end
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.Name = CampExtras.PROMPT
+		prompt.ObjectText = def.name
+		prompt.ActionText = if def.kind == "shop" then "See the crates" else "Collect"
+		prompt.HoldDuration = 0.3
+		prompt.MaxActivationDistance = Config.CampExtraRangeStuds
+		prompt.RequiresLineOfSight = false
+		prompt.Style = Enum.ProximityPromptStyle.Custom
+		prompt:SetAttribute("ExtraId", def.id)
+		prompt.Parent = anchor
 	end
 end
 
@@ -1600,8 +1715,89 @@ local SQUARE_PAVING = "CatCafe_Square_Paving"
 -- back alley with an arch in the middle into it, and the dressing Layout lists (art the AssetRegistry has, or its
 -- placeholder). The stations stand in its quarters (buildSpinWheel and the rest); the square is street, so it is
 -- safe (no catching area covers it).
+-- F101 (rescue-rally.md section 4): the Town Square's Rally dressing, swapped in by WorldBuilder.setRally while a
+-- Rescue Rally runs: the Rally colours' bunting at each edge bunting's spot (Model-Agent #759, the same pivots, spans
+-- and `_Pennant` models) and the Rally board (Layout.townSquare.rallyBoard), tagged RallyBoard for the UI's screen
+-- and VFX's marquee. Off, they wait in ServerStorage.RallyDressing.
+local RALLY_TWINS: { [string]: string } = {
+	CatCafe_Square_Bunting = "CatCafe_Square_RallyBunting",
+	CatCafe_Square_BuntingShort = "CatCafe_Square_RallyBuntingShort",
+}
+local RALLY_BOARD_TAG = "RallyBoard"
+
+type RallySwap = { plain: Instance?, rally: Instance, home: Instance }
+
+local rallySwaps: { RallySwap } = {}
+local rallyStore: Folder? = nil
+local rallyOn = false
+
+local function rallyHolder(): Folder
+	local holder = rallyStore
+	if holder == nil or holder.Parent == nil then
+		local made = Instance.new("Folder")
+		made.Name = "RallyDressing"
+		made.Parent = ServerStorage
+		rallyStore = made
+		return made
+	end
+	return holder
+end
+
+-- Builds the Rally twin of a placed square prop, when it has one and its model is in.
+local function placeRallyTwin(asset: string, at: CFrame, plain: Instance, home: Instance)
+	local twin = RALLY_TWINS[asset]
+	if twin == nil or not AssetRegistry.known(twin) then
+		return
+	end
+	local rally = place(twin, at, rallyHolder())
+	rally.Name = twin
+	local swap: RallySwap = { plain = plain, rally = rally, home = home }
+	table.insert(rallySwaps, swap)
+end
+
+local function placeRallyBoard(home: Instance)
+	local board = Layout.townSquare.rallyBoard
+	if not AssetRegistry.known(board.asset) then
+		return
+	end
+	local model = place(
+		board.asset,
+		CFrame.new(board.x, board.y or 0.1, board.z)
+			* CFrame.Angles(0, math.rad(board.rotY or 0), 0),
+		rallyHolder()
+	)
+	model.Name = board.asset
+	CollectionService:AddTag(model, RALLY_BOARD_TAG)
+	local swap: RallySwap = { plain = nil, rally = model, home = home }
+	table.insert(rallySwaps, swap)
+end
+
+-- Shows the Rally's bunting and board in place of the plain bunting (`on`), or puts them away again.
+function WorldBuilder.setRally(on: boolean)
+	if on == rallyOn then
+		return
+	end
+	rallyOn = on
+	local holder = rallyHolder()
+	for _, swap in rallySwaps do
+		local plain = swap.plain
+		if plain ~= nil then
+			plain.Parent = if on then holder else swap.home
+		end
+		swap.rally.Parent = if on then swap.home else holder
+	end
+end
+
 local function buildTownSquare(parent: Instance)
 	local square = folder("TownSquare", parent)
+	-- a rebuild starts the Rally dressing again, put away
+	local oldStore = rallyStore
+	if oldStore ~= nil then
+		oldStore:Destroy()
+	end
+	rallyStore = nil
+	rallyOn = false
+	table.clear(rallySwaps)
 	local spec = Layout.townSquare
 	local floor = spec.floor
 	-- The paving art brings its own slab and stones; the plain floor and lane marks would share their planes and
@@ -1646,15 +1842,14 @@ local function buildTownSquare(parent: Instance)
 	end
 	for _, prop in spec.props do
 		if AssetRegistry.known(prop.asset) then
-			place(
-				prop.asset,
-				CFrame.new(prop.x, prop.y or 0.1, prop.z)
-					* CFrame.Angles(0, math.rad(prop.rotY or 0), 0),
-				square
-			).Name =
-				prop.asset
+			local at = CFrame.new(prop.x, prop.y or 0.1, prop.z)
+				* CFrame.Angles(0, math.rad(prop.rotY or 0), 0)
+			local model = place(prop.asset, at, square)
+			model.Name = prop.asset
+			placeRallyTwin(prop.asset, at, model, square)
 		end
 	end
+	placeRallyBoard(square)
 end
 
 -- The finger signpost by the cannon (town-layout-v3.md section 7d, Layout.townSquare.signpost), tagged
@@ -2063,6 +2258,7 @@ function WorldBuilder.build(): World
 	end
 	buildPawPaths(root, sets)
 	buildIndexBoards(folder("IndexBoards", root))
+	buildCampExtras(folder("CampExtras", root))
 	local cannons: { [string]: Model } = {}
 	local cannonsFolder = folder("Cannons", root)
 	for id in Layout.cannons do

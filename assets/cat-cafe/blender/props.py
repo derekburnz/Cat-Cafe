@@ -101,6 +101,7 @@ class Ctx:
 
     def __init__(self, spec, body, d):
         self.body, self.spec, self.d = body, spec, d
+        self.work = False               # body S (the working pose) draws on B's frames; set by build
         self.main, self.glass = Builder(), Builder()
         self.origin = Vector((0.0, 0.0, 0.0))        # the object's pivot in the ridden piece's space (pivot_at)
         self.extra = {}                              # suffix -> (Builder, pivot), extra objects (piece)
@@ -264,7 +265,7 @@ def top_hat(ctx):
 def bubble_helmet(ctx):
     """Aurora, Astro Cat: a glass bubble round the whole head, ears and all, on a white collar with mint lights."""
     P, G = ctx.pen("head"), ctx.gpen("head")
-    cz = -ctx.hh / 2 + 0.1
+    cz = -ctx.hh / 2 + 0.1 + (0.11 if ctx.work else 0.0)     # S: up off the shoulders so the arms clear the collar
     G.sphere((0, -0.03, cz), 0.73, "glass", segments=14, rings=8)
     zc = cz - math.sqrt(0.73 ** 2 - 0.52 ** 2)
     P.ring((0, -0.03, zc), 0.56, 0.1, 0.12, "offwhite", segments=14)
@@ -1474,10 +1475,11 @@ def bellhop_collar(ctx):
     bell is its own object, `<name>_Bell`, pivoted where it hangs from the tab, to swing about its pivot."""
     F = ctx.pen("face")
     fw, fd, top, bot = ctx.fw, ctx.fd, ctx.ftop, ctx.fbot
+    rise = 0.025 if ctx.work else 0.0                   # S: the sides sit higher so a waving arm clears them
     lo, hi = bot - 0.008, bot + 0.05
     F.box((0, 0.012, (lo + hi) / 2), (2 * fw + 0.03, 0.078, hi - lo), "shirt_red")                    # front
     for sx in (-1, 1):
-        F.box((sx * (fw - 0.0175), (fd - 0.07 - 0.027) / 2, (lo + hi) / 2), (0.065, fd - 0.07 + 0.027, hi - lo),
+        F.box((sx * (fw - 0.0175), (fd - 0.07 - 0.027) / 2, (lo + hi) / 2 + rise), (0.065, fd - 0.07 + 0.027, hi - lo),
               "shirt_red")                                                                             # sides
         F.box((sx * (0.12 + fw + 0.0125) / 2, STRAP_Y, top + 0.004), (fw + 0.0125 - 0.12, 0.045, 0.025),
               "fur_black")                                                                             # strap
@@ -1544,12 +1546,13 @@ def build(name, spec, body, d):
     """{object suffix: (Builder, pivot)} for one cat's props on one body: "Prop", plus "Prop_Glass" when it has clear
     parts, "Prop2" for a second prop and any extra pieces (PIECES). Head and Face props are drawn relative to the neck
     (the Head's pivot), Back props in the model's space; `pivot` is where the object pivots in that space, (0, 0, 0)
-    unless the prop set its own hinge (Ctx.pivot_at, Ctx.piece)."""
+    unless the prop set its own hinge (Ctx.pivot_at, Ctx.piece). Body "work" (S) draws on the sitting frames."""
     out = {}
     for key, table in (("Prop", PROPS), ("Prop2", PROPS2)):
         if name not in table:
             continue
-        ctx = Ctx(spec, body, d)
+        ctx = Ctx(spec, "sit" if body == "work" else body, d)
+        ctx.work = body == "work"
         table[name][1](ctx)
         out[key] = (ctx.main, tuple(ctx.origin))
         if ctx.glass.prims:

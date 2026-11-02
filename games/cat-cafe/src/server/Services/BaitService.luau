@@ -25,6 +25,7 @@ local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local Potions = require(ReplicatedStorage.Shared.Potions)
+local RallyService = require(script.Parent.RallyService)
 local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Telemetry = require(script.Parent.Telemetry)
@@ -92,8 +93,8 @@ local function onUseLure(player: Player, rawLureId: unknown)
 		)
 	end
 	local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
-	-- the player's own gold luck and bait speed, fixed now (F54): a later claim never moves a filling bowl. A Lucky
-	-- Potion running now doubles the gold chance (F64).
+	-- the player's own gold luck, rainbow luck (F99) and bait speed, fixed now (F54): a later claim never moves a
+	-- filling bowl. A Lucky Potion running now doubles the gold chance (F64), never the rainbow one.
 	local totals = IndexRewards.totals(profile)
 	local now = os.time()
 	-- F60: food set at night comes in half the time, read from the phase now and fixed in readyAt, so a rejoin, a
@@ -116,7 +117,13 @@ local function onUseLure(player: Player, rawLureId: unknown)
 		readyAt = now + wait,
 		night = if night then true else nil,
 		catId = def.id,
-		variant = if rng:NextNumber() < goldChance then "gold" else "base",
+		-- F99: one roll, rainbow first and then gold, so the gold chance stays as it was (Catching.rollCoat)
+		variant = Catching.rollCoat(
+			def,
+			rng:NextNumber(),
+			IndexRewards.rainbowChance(Config.RainbowChanceBait, IndexRewards.rainbowLuck(profile)),
+			goldChance
+		),
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
 	}
 	profile.bait = bait
@@ -175,15 +182,16 @@ local function onResolveBait(player: Player, rawChoice: unknown)
 	if choice == "tame" and def ~= nil then
 		profile.stats.baitsTamed += 1
 		local hadEpicOrBetter = RareMoments.ownsEpicOrBetter(profile.collection) -- F89: the first Epic's card
-		local _, isNew =
+		local instance, isNew =
 			CafeService.addCaughtCat(player, def, true, nil, bait.charm, "bait", bait.variant)
-		Net.fire(player, "CatCaught", def.id, isNew)
+		Net.fire(player, "CatCaught", def.id, isNew, instance.variant)
 		RareMomentService.shoutOut(
 			player,
 			def.rarity,
 			Catching.shoutOut(player.DisplayName, "tamed", def, bait.variant, " at their bait bowl")
 		)
 		RareMomentService.secured(player, def, bait.variant, "bait", hadEpicOrBetter)
+		RallyService.score(player, "tame") -- F101
 		return
 	end
 	profile.stats.baitsLetGo += 1

@@ -37,7 +37,7 @@ return function()
 					end
 				end
 			end
-			expect(mythicals).to.equal(6)
+			expect(mythicals).to.equal(7) -- one a crate, the Rally Crate's since F101
 		end)
 
 		it("keeps the Mythical decor inside the steady emitter budget", function()

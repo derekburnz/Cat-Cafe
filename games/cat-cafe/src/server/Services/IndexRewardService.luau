@@ -1,6 +1,7 @@
 --!strict
 -- Index rewards (F48, F54; data-model section 11b, golden-fish.md sections 4, 5 and 5b). ClaimIndexReward(areaId,
--- milestoneId) pays a milestone on an Index page (an area, "all" or a Decor Index page "decor_<pool>") once the
+-- milestoneId) pays a milestone on an Index page (an area, "all", a Decor Index page "decor_<pool>" or, F99, the
+-- Rainbow page "rainbow") once the
 -- player has found enough and it has not been claimed. The claim is marked before anything is paid, so one
 -- milestone pays once. Payout pays the prize; the permanent bonuses are not paid, since IndexRewards.totals reads
 -- them from the claims. Nothing here can be bought.
@@ -19,10 +20,13 @@ local Types = require(ReplicatedStorage.Shared.Types)
 
 local IndexRewardService = {}
 
--- The page's name for the toast: the area's, "All Cats" or the Decor Index page's crate.
+-- The page's name for the toast: the area's, "All Cats", "Rainbow" (F99) or the Decor Index page's crate.
 local function pageName(areaId: string): string
 	if areaId == IndexRewards.ALL then
 		return "All Cats"
+	end
+	if areaId == IndexRewards.RAINBOW then
+		return "Rainbow"
 	end
 	local area = Catalog.getArea(areaId)
 	if area ~= nil then

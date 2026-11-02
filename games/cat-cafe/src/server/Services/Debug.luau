@@ -16,6 +16,9 @@
 --   D:Invoke("renameCat", nil, "Mochi")              -- RenameCat on your first working cat (or a uid as 4th arg)
 --   D:Invoke("tipJar", nil, 30)        -- the Tip Jar's session is 30 minutes older: steps 1 to 6 unlock now
 --   D:Invoke("fillIndex", nil, "alley", nil, true)     -- every Alleyway cat in your Index, gold too (F48)
+--   D:Invoke("fillIndex", nil, "alley", 5, "rainbow")  -- five Alleyway cats in your Index, rainbow coats too (F99)
+--   D:Invoke("spawnStray", "tabby", "park", "rainbow")  -- a rainbow Tabby stray in the Park (F99; true for gold)
+--   D:Invoke("nextCoat", "rainbow")    -- the next stray a wave or refill spawns is rainbow (F99; nil clears it)
 --   D:Invoke("spins", nil, 3, true)    -- 3 banked spins and today's free spin due again, no cooldown (F49)
 --   D:Invoke("spinSlice", nil, 4)      -- your next spin lands on slice 4 (F94, QA S63; nil goes back to random)
 --   D:Invoke("dailyTreat", nil, 6)     -- the Daily Treat card at 6 stamps and a stamp due now: Claim pays day 7 (F70)
@@ -407,12 +410,13 @@ function Debug.giveCat(
 end
 
 -- Fills the Index page of `areaId` (F48): the first `count` of its cats (all of them when nil) go into the
--- collection, and into the gold collection too when `gold` is set, without giving any cats. Returns the page's count.
+-- collection, and into the gold collection too when `gold` is true (the rainbow one when it is "rainbow", F99),
+-- without giving any cats. Returns the page's count.
 function Debug.fillIndex(
 	player: (Player | number | string)?,
 	areaId: string,
 	count: number?,
-	gold: boolean?
+	gold: (boolean | string)?
 ): number
 	local p = resolve(player)
 	local profile = profileOf(p)
@@ -422,7 +426,9 @@ function Debug.fillIndex(
 		if def.area == areaId and (count == nil or added < count) then
 			added += 1
 			profile.collection[def.id] = profile.collection[def.id] or os.time()
-			if gold then
+			if gold == "rainbow" then
+				profile.rainbowCollection[def.id] = profile.rainbowCollection[def.id] or os.time()
+			elseif gold then
 				profile.goldCollection[def.id] = profile.goldCollection[def.id] or os.time()
 			end
 		end
@@ -442,11 +448,18 @@ function Debug.setUpgrade(player: (Player | number | string)?, upgradeId: string
 	CafeService.sync(p)
 end
 
--- Spawns a stray of the given cat in an area (any Catalog.areas id, "alley" by default), gold when `gold` is
--- true. Returns its StrayId.
-function Debug.spawnStray(catId: string, areaId: string?, gold: boolean?): string
+-- Spawns a stray of the given cat in an area (any Catalog.areas id, "alley" by default), gold when `coat` is true
+-- or "gold", rainbow when it is "rainbow" (F99). Returns its StrayId.
+function Debug.spawnStray(catId: string, areaId: string?, coat: (boolean | string)?): string
 	guard()
-	return CatService.debugSpawnStray(catId, areaId or "alley", gold)
+	return CatService.debugSpawnStray(catId, areaId or "alley", coat)
+end
+
+-- F99 (rainbow-coat.md section 6, check 1): the next stray a wave or a refill spawns gets `coat` ("gold" or
+-- "rainbow"), with its beam and the server's toast; nil clears it.
+function Debug.nextCoat(coat: string?)
+	guard()
+	CatService.debugNextCoat(coat)
 end
 
 -- Drops the player's carried cat where they stand as a shove would, whatever the grace or immunity: a Dropped stray
@@ -546,10 +559,15 @@ function Debug.clock(): { phase: Types.ClockPhase, endsAt: number, secondsLeft: 
 end
 
 -- Puts a stuck cat at a rescue trap ("rescue_alley_1" when none is given; the park's trees are rescue_park_1 and
--- rescue_park_2). `gold` true forces the hidden gold roll. Returns the rescueSpotId.
-function Debug.spawnStuckCat(catId: string, rescueSpotId: string?, gold: boolean?): string
+-- rescue_park_2). `coat` forces the hidden roll: true or "gold" for gold, "rainbow" for rainbow (F99). Returns the
+-- rescueSpotId.
+function Debug.spawnStuckCat(
+	catId: string,
+	rescueSpotId: string?,
+	coat: (boolean | string)?
+): string
 	guard()
-	return RescueService.debugSpawnStuck(catId, rescueSpotId, gold)
+	return RescueService.debugSpawnStuck(catId, rescueSpotId, coat)
 end
 
 -- Number of strays in an area and of stuck cats across all rescue traps.

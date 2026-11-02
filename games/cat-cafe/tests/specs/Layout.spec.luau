@@ -121,15 +121,16 @@ return function()
 				park = "CatCafe_Park_SetF85", -- F85 (#799)
 				neighbourhood = "CatCafe_Neighbourhood_SetF85", -- F85 (#810)
 				woods = "CatCafe_Woods_SetF85", -- F85 (#847)
-				sewer = "CatCafe_Sewer_SetV32",
+				sewer = "CatCafe_Sewer_SetF85", -- F85 (#860)
 			}
 			for id, name in sets do
 				local spec = Layout.areas[id]
 				expect(spec.set).to.equal(name)
 				local turn = Layout.gateTurn(spec)
 				-- on the ground or a low perch (a porch, a rock, the catwalk), never a roof; the Woods' tree house
-				-- cushion and the Great Oak's top nook, up their ladders, are the high spots
-				local top = spec.floorY + (if id == "woods" then 18.5 else 4)
+				-- cushion and the Great Oak's top nook, up their ladders, are the high spots, and the Sewer's junk
+				-- throne seat up on its dais
+				local top = spec.floorY + (if id == "woods" then 18.5 elseif id == "sewer" then 4.5 else 4)
 				for i, point in spec.spawnPoints do
 					if point.y < spec.floorY or point.y > top then
 						fail("%s spawn point %d stands at y %g", id, i, point.y)
@@ -150,7 +151,7 @@ return function()
 				end
 				local pieceTurns: { number } = if id == "woods"
 					then { 20, -20, 0, 0, 87.21 }
-					elseif id == "sewer" then { 0, 0, 90, -90 }
+					elseif id == "sewer" then { 0, 0, -90, 90 }
 					elseif id == "neighbourhood" then { 0, 90, 0, 0 }
 					else {}
 				local built = 0
@@ -171,7 +172,7 @@ return function()
 				expect(gx).to.be.ok()
 				-- the Park's plaza at local (-4, -145) is near its gate side, the Neighbourhood's porch at local
 				-- (-67.2, -166.9) near its own, the Woods' berry bush at local (-30, -223.8) near its own, the Sewer's
-				-- canal bridge at local (44, -61) near its own
+				-- brick bridge at local (38, -205) near its own
 				local index = if id == "woods" then 4 else 1
 				local point = spec.spawnPoints[index]
 				local toGate =
@@ -192,9 +193,8 @@ return function()
 
 		-- F81 (town-layout-v3.md section 8d): a v3.2 set tags each cat spot near (the gate half) or deep (the far
 		-- half, where Epic and rarer strays wait), and some of its traps are in the far half. The Woods' Great Oak
-		-- top is "rare" (Catching.RARE_ZONE), in the far half too. The Sewer's zones go by region (#491): its near
-		-- spots are all in the gate half, but past the cross wall's arch is deep, the west hall's far chamber in the
-		-- gate half among it.
+		-- top is "rare" (Catching.RARE_ZONE), in the far half too. The Sewer's zones go by region (#491, #860): its
+		-- near spots are all in the gate half, and deep starts on the channel's catwalk, right on the middle line.
 		it(
 			"the v3.2 sets' spots are near their gates or deep in their far halves, with traps deep",
 			function()
@@ -216,11 +216,11 @@ return function()
 						byRegion = false,
 					},
 					{
-						id = "sewer",
-						near = 20,
-						deep = 32,
+						id = "sewer", -- F85 (#860): three of its four traps deep
+						near = 25,
+						deep = 35,
 						rare = 0,
-						deepTraps = 2,
+						deepTraps = 3,
 						byRegion = true,
 					},
 					{
@@ -1460,7 +1460,7 @@ return function()
 					park = { 0, W.ParkCenterZ + W.ParkDepth / 2, 180 },
 					neighbourhood = { 0, W.NeighbourhoodCenterZ - W.NeighbourhoodDepth / 2, 0 },
 					woods = { W.WoodsCenterX + W.WoodsDepth / 2, 0, -90 }, -- F85: its depth along X
-					sewer = { W.SewerCenterX - W.SewerWidth / 2, 0, 90 },
+					sewer = { W.SewerCenterX - W.SewerDepth / 2, 0, 90 }, -- F85: its depth along X too
 				} :: { [string]: { number } }
 				for id, spec in Layout.areas do
 					local x, z = Layout.gatePosition(spec)

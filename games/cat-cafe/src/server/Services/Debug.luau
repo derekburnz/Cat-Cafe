@@ -24,6 +24,9 @@
 --   D:Invoke("dailyTreat", nil, 6)     -- the Daily Treat card at 6 stamps and a stamp due now: Claim pays day 7 (F70)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
 --   D:Invoke("campExtras", nil, 7 * 3600)   -- 7 hours away for the camp extras: the pond full, one picnic (F100)
+--   D:Invoke("rally", nil, "force", true)    -- a Rescue Rally now (F101; false stops it, nil goes back to Config)
+--   D:Invoke("rally", nil, "points", 20)     -- 20 check-ins' points for you through the steps and prizes (F101)
+--   D:Invoke("rally", nil, "laps", 4)        -- your laps paid this weekend; returns the Rally's line either way
 --   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
@@ -65,6 +68,7 @@ local Net = require(script.Parent.Net)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local QuestService = require(script.Parent.QuestService)
+local RallyService = require(script.Parent.RallyService)
 local RescueService = require(script.Parent.RescueService)
 local RichTipService = require(script.Parent.RichTipService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
@@ -230,6 +234,21 @@ function Debug.campExtras(player: (Player | number | string)?, seconds: number?)
 		table.insert(parts, string.format("%s=%d", id, state[id].held))
 	end
 	return table.concat(parts, " ")
+end
+
+-- F101 (rescue-rally.md section 6): `action` "force" (value true, false or nil for Config.RallyForce), "points" (value
+-- check-ins scored for the player) or "laps" (value the laps paid this weekend); returns the Rally as this player
+-- sees it, "active=true lap=1 points=20/90 mine=20 lapsPaid=1 lapsDone=false".
+function Debug.rally(player: (Player | number | string)?, action: string?, value: any): string
+	local p = resolve(player)
+	if action == "force" then
+		RallyService.debugForce(if type(value) == "boolean" then value else nil)
+	elseif action == "points" then
+		RallyService.debugPoints(p, tonumber(value) or 1)
+	elseif action == "laps" then
+		RallyService.debugLaps(p, profileOf(p), tonumber(value) or 0)
+	end
+	return RallyService.debugSummary(p)
 end
 
 -- Forgets the player's Fresh Catch buys and heads up (F94, QA S63), so the shelf sells this window's stock again and

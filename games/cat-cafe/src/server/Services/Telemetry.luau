@@ -54,6 +54,8 @@ export type CustomEvent =
 	| "bait_resolved"
 	| "gold_found"
 	| "rainbow_found" -- F99 (rainbow-coat.md section 5): rarity, net, bait or rescue, first of the cat yes or no
+	| "rally_step" -- F101 (rescue-rally.md section 5): value the players in the server; the step (25, 50, 100), lap, paid
+	| "rally_points" -- F101: value a player's points this Rally on this server, at its end or their leave; laps paid
 	| "camp_extra" -- F100 (camp-extras.md section 4): value the fills taken or 1; the extra, what was taken, tier
 	| "shove"
 	| "drop_outcome"

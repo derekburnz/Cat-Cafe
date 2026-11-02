@@ -609,6 +609,36 @@ export type CampExtrasState = {
 	lostFound: CampExtraView,
 }
 
+-- The Rescue Rally (F101, rescue-rally.md section 5). The save keeps the weekend number (Rally.weekend) and the laps
+-- this player has been paid prizes from in it, at most RallyMaxLaps; the bar itself is the server's.
+export type RallySave = {
+	weekend: number,
+	laps: number,
+}
+
+-- One step of the bar: at `share` of the goal (0.25, 0.5, 1) every player in the server who scored RallyMinPoints this
+-- lap gets `prize` (the Index prize shape).
+export type RallyStep = {
+	share: number,
+	prize: IndexPrize,
+}
+
+-- RallyState (server to client): `active` while a Rally runs, `endsAt` (os.time()) when it ends, 0 when not running;
+-- `startsAt` when the next one starts (the running one's start while active); the server's `lap` (1 up), its `goal`
+-- and `points`; this player's `myPoints` this lap, `lapsPaid` this weekend and `lapsDone`, true when they can earn
+-- nothing more this lap ("You've done your laps this weekend").
+export type RallyState = {
+	active: boolean,
+	endsAt: number,
+	startsAt: number,
+	lap: number,
+	goal: number,
+	points: number,
+	myPoints: number,
+	lapsPaid: number,
+	lapsDone: boolean,
+}
+
 -- One row of the Fresh Catch shelf (F94, section 3): a potion, or now and then a cheaper Classic Crate, for golden
 -- fish. `alert` rows send a ShopAlert when a window stocks them. The row's id is its potion's or crate's id.
 -- One item on the cafe menu (F90, cats-make-orders.md section 1): opened at `tier`, made at its station ("espresso",
@@ -723,6 +753,7 @@ export type PlayerProfile = {
 	starterCatClaimed: boolean, -- F96 (starter-cat.md section 4, save version 21): the free Bellhop Cat taken home
 	notifyAskAt: number, -- F96 (section 3, save version 22): os.time() the notification ask first showed, 0 before
 	campExtras: CampExtrasSave, -- F100 (camp-extras.md section 4, save version 25)
+	rally: RallySave, -- F101 (rescue-rally.md section 5, save version 26)
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.

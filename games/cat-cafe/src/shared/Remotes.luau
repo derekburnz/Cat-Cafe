@@ -191,6 +191,9 @@ Remotes.ServerToClient = {
 	-- after the server's toast with the same words, for the Quests window's own claim effect
 	"CampExtrasState", -- (state: Types.CampExtrasState)  F100: each camp extra's open, held, nextAt and the Yard
 	-- Sale's stock today, on join and whenever it changes (a fill, a new UTC day, a rank up, a collect or a buy)
+	"RallyState", -- (state: Types.RallyState)  F101: the server's Rescue Rally bar and this player's part in it, on
+	-- join, at each step, lap, start and end, and at most every Config.RallyStateSeconds while points come in
+	"RallyPoint", -- (userId: number, amount: number)  F101: to every client for each score in the Rally, for the pops
 	"CampExtraResult", -- (extraId: string, ok: boolean, paid: { string }, prize: Types.IndexPrize?)  F100: the
 	-- answer to CollectCampExtra or BuyYardSale; paid is what it gave in Payout's words ("2 Money Potion", "+14 golden
 	-- fish", "1 Park Crate") and prize the same for the pictures, nil when refused (the server's toast says why)

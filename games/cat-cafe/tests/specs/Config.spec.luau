@@ -223,6 +223,13 @@ return function()
 		PondHold = 24,
 		LostFoundHold = 3,
 		CampExtraRangeStuds = 8,
+		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec
+		RallyHours = 48,
+		RallyPointsPerPlayer = 30,
+		RallyMinPlayers = 3,
+		RallyMinPoints = 3,
+		RallyMaxLaps = 4,
+		RallyStateSeconds = 0.5,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 same target cooldown 20, v0.5.1 target immunity S45; v0.8 F56)
 		BumpEnabled = true,
 		BumpChance = 1.0, -- v0.8 F56: a shove always drops the cat
@@ -341,6 +348,8 @@ return function()
 				MoneyPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ExtraSlotPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				LostFoundTable = true, -- F100 (camp-extras.md section 2): a table, checked in CampExtras.spec
+				RallyPoints = true, -- F101 (rescue-rally.md section 2): a table, checked in Rally.spec
+				RallyForce = true, -- F101: false, checked in Rally.spec (a false value reads as missing above)
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

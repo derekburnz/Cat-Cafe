@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 20:32 UTC",
+  "generated": "2026-11-02 20:42 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -525,30 +525,30 @@
       "parts": {
         "LegF2": {
           "xyz_deg_blender": [
-            -50,
-            35,
-            0
+            -2.76,
+            47.87,
+            82.24
           ],
           "angles_roblox_deg": [
-            44.3,
-            26.1,
-            24.2
+            18.0,
+            84.0,
+            30.0
           ]
         },
         "LegF1": {
           "xyz_deg_blender": [
-            -150,
-            60,
+            -10,
+            -6,
             0
           ],
           "angles_roblox_deg": [
-            163.9,
-            25.7,
-            -56.3
+            9.9,
+            -1.0,
+            -5.9
           ]
         }
       },
-      "note": "Standing at work, a microphone in the right paw (Held_Entertainer in LegF2), the left paw up and waving."
+      "note": "Standing at work, a microphone held up under the chin in the right paw (Held_Entertainer in LegF2, leaning in to the mouth), the left paw down at its side."
     }
   },
   "role_outfits": {
@@ -1519,17 +1519,17 @@
       "triangles": 1392,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -1859,7 +1859,7 @@
           "uv": "746 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -2641,17 +2641,17 @@
       "triangles": 1332,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -2981,7 +2981,7 @@
           "uv": "716 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -3763,17 +3763,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -4103,7 +4103,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -4885,17 +4885,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -5225,7 +5225,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -5999,17 +5999,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -6335,7 +6335,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -7135,17 +7135,17 @@
       "triangles": 1428,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.66,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.66
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.74,
         0.0
       ],
@@ -7482,7 +7482,7 @@
           "uv": "764 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -8279,17 +8279,17 @@
       "triangles": 1648,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.67,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.67
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.75,
         0.0
       ],
@@ -8623,7 +8623,7 @@
           "uv": "858 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -9425,17 +9425,17 @@
       "triangles": 1588,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -9772,7 +9772,7 @@
           "uv": "822 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -10572,17 +10572,17 @@
       "triangles": 1612,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.65,
         "z": 1.98
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.98,
         1.65
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -10919,7 +10919,7 @@
           "uv": "846 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -11711,17 +11711,17 @@
       "triangles": 1572,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.58,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.58
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.68,
         0.0
       ],
@@ -12054,7 +12054,7 @@
           "uv": "796 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.10"
+          "centered": "footprint center x=0.08 y=0.10"
         }
       }
     },
@@ -12854,17 +12854,17 @@
       "triangles": 1480,
       "budget": 2400,
       "size_studs": {
-        "x": 1.87,
+        "x": 1.84,
         "y": 1.94,
         "z": 2.7
       },
       "size_roblox": [
-        1.87,
+        1.84,
         2.7,
         1.94
       ],
       "bounds_min": [
-        -0.86,
+        -0.82,
         -0.84,
         0.0
       ],
@@ -13201,7 +13201,7 @@
           "uv": "774 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.13"
+          "centered": "footprint center x=0.10 y=0.13"
         }
       }
     },
@@ -13993,17 +13993,17 @@
       "triangles": 1416,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -14336,7 +14336,7 @@
           "uv": "758 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -15144,17 +15144,17 @@
       "triangles": 1552,
       "budget": 2400,
       "size_studs": {
-        "x": 1.87,
+        "x": 1.84,
         "y": 1.97,
         "z": 2.44
       },
       "size_roblox": [
-        1.87,
+        1.84,
         2.44,
         1.97
       ],
       "bounds_min": [
-        -0.86,
+        -0.82,
         -0.84,
         0.0
       ],
@@ -15495,7 +15495,7 @@
           "uv": "834 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.14"
+          "centered": "footprint center x=0.10 y=0.14"
         }
       }
     },
@@ -16287,17 +16287,17 @@
       "triangles": 1718,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.63,
         "z": 2.58
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.58,
         1.63
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.71,
         0.0
       ],
@@ -16630,7 +16630,7 @@
           "uv": "935 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.10"
+          "centered": "footprint center x=0.08 y=0.10"
         }
       }
     },
@@ -17412,17 +17412,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -17752,7 +17752,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -18534,17 +18534,17 @@
       "triangles": 1392,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -18874,7 +18874,7 @@
           "uv": "746 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -19648,17 +19648,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -19984,7 +19984,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -20778,17 +20778,17 @@
       "triangles": 1732,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.57,
         "z": 2.17
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.17,
         1.57
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.63,
         0.0
       ],
@@ -21121,7 +21121,7 @@
           "uv": "910 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.16"
+          "centered": "footprint center x=0.08 y=0.16"
         }
       }
     },
@@ -24246,17 +24246,17 @@
       "triangles": 1836,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.97
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.97,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -24604,7 +24604,7 @@
           "uv": "972 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -25421,17 +25421,17 @@
       "triangles": 1676,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.67,
         "z": 1.9
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.9,
         1.67
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.76,
         0.0
       ],
@@ -25775,7 +25775,7 @@
           "uv": "844 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -26592,17 +26592,17 @@
       "triangles": 1708,
       "budget": 2400,
       "size_studs": {
-        "x": 1.95,
+        "x": 1.92,
         "y": 2.05,
         "z": 2.95
       },
       "size_roblox": [
-        1.95,
+        1.92,
         2.95,
         2.05
       ],
       "bounds_min": [
-        -0.89,
+        -0.86,
         -0.91,
         0.0
       ],
@@ -26946,7 +26946,7 @@
           "uv": "938 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.09 y=0.12"
+          "centered": "footprint center x=0.10 y=0.12"
         }
       }
     },
@@ -27763,17 +27763,17 @@
       "triangles": 1604,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.65,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.65
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -28117,7 +28117,7 @@
           "uv": "820 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -28934,17 +28934,17 @@
       "triangles": 1760,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.64,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.64
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -29288,7 +29288,7 @@
           "uv": "964 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.12"
+          "centered": "footprint center x=0.08 y=0.12"
         }
       }
     },
@@ -30097,17 +30097,17 @@
       "triangles": 2220,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.68,
         "z": 2.57
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.57,
         1.68
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.76,
         0.0
       ],
@@ -30447,7 +30447,7 @@
           "uv": "1182 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -31264,17 +31264,17 @@
       "triangles": 1822,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.67,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.67
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.75,
         0.0
       ],
@@ -31618,7 +31618,7 @@
           "uv": "917 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -32443,17 +32443,17 @@
       "triangles": 2176,
       "budget": 2400,
       "size_studs": {
-        "x": 1.87,
+        "x": 1.84,
         "y": 2.02,
         "z": 2.44
       },
       "size_roblox": [
-        1.87,
+        1.84,
         2.44,
         2.02
       ],
       "bounds_min": [
-        -0.86,
+        -0.82,
         -0.89,
         0.0
       ],
@@ -32801,7 +32801,7 @@
           "uv": "1074 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.12"
+          "centered": "footprint center x=0.10 y=0.12"
         }
       }
     },
@@ -33620,17 +33620,17 @@
       "triangles": 2226,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.71,
         "z": 2.02
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.02,
         1.71
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.79,
         0.0
       ],
@@ -33974,7 +33974,7 @@
           "uv": "1171 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.06"
+          "centered": "footprint center x=0.08 y=0.06"
         }
       }
     },
@@ -34804,17 +34804,17 @@
       "triangles": 1876,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.23
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.23,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -35163,7 +35163,7 @@
           "uv": "1038 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -35980,17 +35980,17 @@
       "triangles": 1780,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.21
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.21,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -36334,7 +36334,7 @@
           "uv": "960 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -37126,17 +37126,17 @@
       "triangles": 1596,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.11
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.11,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -37469,7 +37469,7 @@
           "uv": "824 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -38286,17 +38286,17 @@
       "triangles": 1682,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.64,
         "z": 1.97
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.97,
         1.64
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -38640,7 +38640,7 @@
           "uv": "853 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -39464,17 +39464,17 @@
       "triangles": 2024,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 2.12,
         "z": 2.13
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.13,
         2.12
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -1.2,
         0.0
       ],
@@ -39819,7 +39819,7 @@
           "uv": "1166 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=-0.15"
+          "centered": "footprint center x=0.08 y=-0.15"
         }
       }
     },
@@ -40643,17 +40643,17 @@
       "triangles": 2364,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.7,
         "z": 2.11
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.11,
         1.7
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.79,
         0.0
       ],
@@ -40998,7 +40998,7 @@
           "uv": "1184 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.06"
+          "centered": "footprint center x=0.08 y=0.06"
         }
       }
     },
@@ -41822,17 +41822,17 @@
       "triangles": 1832,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.72,
         "z": 2.06
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.06,
         1.72
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.81,
         0.0
       ],
@@ -42177,7 +42177,7 @@
           "uv": "940 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.05"
+          "centered": "footprint center x=0.08 y=0.05"
         }
       }
     },
@@ -43002,17 +43002,17 @@
       "triangles": 2044,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -43360,7 +43360,7 @@
           "uv": "1026 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -45327,17 +45327,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -45675,7 +45675,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -46457,17 +46457,17 @@
       "triangles": 1404,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -46797,7 +46797,7 @@
           "uv": "752 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -47595,17 +47595,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -47943,7 +47943,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -48725,17 +48725,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -49065,7 +49065,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -49847,17 +49847,17 @@
       "triangles": 1332,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -50187,7 +50187,7 @@
           "uv": "720 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -50977,17 +50977,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -51321,7 +51321,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -52103,17 +52103,17 @@
       "triangles": 1392,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -52443,7 +52443,7 @@
           "uv": "746 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -53225,17 +53225,17 @@
       "triangles": 1392,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -53565,7 +53565,7 @@
           "uv": "746 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -54347,17 +54347,17 @@
       "triangles": 1380,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -54687,7 +54687,7 @@
           "uv": "740 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -55477,17 +55477,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -55821,7 +55821,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -56603,17 +56603,17 @@
       "triangles": 1392,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -56943,7 +56943,7 @@
           "uv": "746 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -57733,17 +57733,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -58077,7 +58077,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -58873,17 +58873,17 @@
       "triangles": 1804,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -59220,7 +59220,7 @@
           "uv": "972 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -60016,17 +60016,17 @@
       "triangles": 1872,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.98
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.98,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -60363,7 +60363,7 @@
           "uv": "986 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -61176,17 +61176,17 @@
       "triangles": 1828,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.95
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.95,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -61530,7 +61530,7 @@
           "uv": "908 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -62333,17 +62333,17 @@
       "triangles": 1892,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.96,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.96
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -1.05,
         0.0
       ],
@@ -62681,7 +62681,7 @@
           "uv": "956 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=-0.07"
+          "centered": "footprint center x=0.08 y=-0.07"
         }
       }
     },
@@ -63477,17 +63477,17 @@
       "triangles": 1754,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.14
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.14,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -63824,7 +63824,7 @@
           "uv": "965 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -64620,17 +64620,17 @@
       "triangles": 1926,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.72,
         "z": 2.39
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.39,
         1.72
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -64967,7 +64967,7 @@
           "uv": "1055 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.16"
+          "centered": "footprint center x=0.08 y=0.16"
         }
       }
     },
@@ -65771,17 +65771,17 @@
       "triangles": 1676,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.65,
         "z": 1.97
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.97,
         1.65
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -66122,7 +66122,7 @@
           "uv": "853 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -66945,17 +66945,17 @@
       "triangles": 2060,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.71,
         "z": 1.98
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.98,
         1.71
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.79,
         0.0
       ],
@@ -67303,7 +67303,7 @@
           "uv": "1042 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.06"
+          "centered": "footprint center x=0.08 y=0.06"
         }
       }
     },
@@ -68124,17 +68124,17 @@
       "triangles": 1862,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.7,
         "z": 2.32
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.32,
         1.7
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.77,
         0.0
       ],
@@ -68482,7 +68482,7 @@
           "uv": "1039 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -69313,17 +69313,17 @@
       "triangles": 1762,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.72,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.72
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.8,
         0.0
       ],
@@ -69675,7 +69675,7 @@
           "uv": "941 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.05"
+          "centered": "footprint center x=0.08 y=0.05"
         }
       }
     },
@@ -70541,17 +70541,17 @@
       "triangles": 2288,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.68,
         "z": 1.99
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.99,
         1.68
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.76,
         0.0
       ],
@@ -70920,7 +70920,7 @@
           "uv": "1188 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -71695,17 +71695,17 @@
       "triangles": 1368,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -72031,7 +72031,7 @@
           "uv": "734 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -72806,17 +72806,17 @@
       "triangles": 1332,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -73142,7 +73142,7 @@
           "uv": "716 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -73917,17 +73917,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -74253,7 +74253,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -75028,17 +75028,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -75364,7 +75364,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -76131,17 +76131,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -76463,7 +76463,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -77255,17 +77255,17 @@
       "triangles": 1428,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.66,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.66
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.74,
         0.0
       ],
@@ -77598,7 +77598,7 @@
           "uv": "764 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -78387,17 +78387,17 @@
       "triangles": 1648,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.67,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.67
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.75,
         0.0
       ],
@@ -78727,7 +78727,7 @@
           "uv": "858 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -79521,17 +79521,17 @@
       "triangles": 1588,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -79864,7 +79864,7 @@
           "uv": "822 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -80656,17 +80656,17 @@
       "triangles": 1588,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.65,
         "z": 1.98
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.98,
         1.65
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -80999,7 +80999,7 @@
           "uv": "834 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -81783,17 +81783,17 @@
       "triangles": 1572,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.58,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.58
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.68,
         0.0
       ],
@@ -82122,7 +82122,7 @@
           "uv": "796 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.10"
+          "centered": "footprint center x=0.08 y=0.10"
         }
       }
     },
@@ -82914,17 +82914,17 @@
       "triangles": 1480,
       "budget": 2400,
       "size_studs": {
-        "x": 1.87,
+        "x": 1.84,
         "y": 1.94,
         "z": 2.7
       },
       "size_roblox": [
-        1.87,
+        1.84,
         2.7,
         1.94
       ],
       "bounds_min": [
-        -0.86,
+        -0.82,
         -0.84,
         0.0
       ],
@@ -83257,7 +83257,7 @@
           "uv": "774 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.13"
+          "centered": "footprint center x=0.10 y=0.13"
         }
       }
     },
@@ -84041,17 +84041,17 @@
       "triangles": 1416,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -84380,7 +84380,7 @@
           "uv": "758 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -85180,17 +85180,17 @@
       "triangles": 1552,
       "budget": 2400,
       "size_studs": {
-        "x": 1.87,
+        "x": 1.84,
         "y": 1.97,
         "z": 2.44
       },
       "size_roblox": [
-        1.87,
+        1.84,
         2.44,
         1.97
       ],
       "bounds_min": [
-        -0.86,
+        -0.82,
         -0.84,
         0.0
       ],
@@ -85527,7 +85527,7 @@
           "uv": "834 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.14"
+          "centered": "footprint center x=0.10 y=0.14"
         }
       }
     },
@@ -86311,17 +86311,17 @@
       "triangles": 1718,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.63,
         "z": 2.58
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.58,
         1.63
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.71,
         0.0
       ],
@@ -86650,7 +86650,7 @@
           "uv": "935 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.10"
+          "centered": "footprint center x=0.08 y=0.10"
         }
       }
     },
@@ -87425,17 +87425,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -87761,7 +87761,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -88536,17 +88536,17 @@
       "triangles": 1368,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -88872,7 +88872,7 @@
           "uv": "734 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -89639,17 +89639,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -89971,7 +89971,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -90757,17 +90757,17 @@
       "triangles": 1732,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.57,
         "z": 2.17
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.17,
         1.57
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.63,
         0.0
       ],
@@ -91096,7 +91096,7 @@
           "uv": "910 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.16"
+          "centered": "footprint center x=0.08 y=0.16"
         }
       }
     },
@@ -94189,17 +94189,17 @@
       "triangles": 1836,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.97
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.97,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -94543,7 +94543,7 @@
           "uv": "972 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -95352,17 +95352,17 @@
       "triangles": 1652,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.67,
         "z": 1.9
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.9,
         1.67
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.76,
         0.0
       ],
@@ -95702,7 +95702,7 @@
           "uv": "832 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -96511,17 +96511,17 @@
       "triangles": 1708,
       "budget": 2400,
       "size_studs": {
-        "x": 1.95,
+        "x": 1.92,
         "y": 2.05,
         "z": 2.95
       },
       "size_roblox": [
-        1.95,
+        1.92,
         2.95,
         2.05
       ],
       "bounds_min": [
-        -0.89,
+        -0.86,
         -0.91,
         0.0
       ],
@@ -96861,7 +96861,7 @@
           "uv": "938 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.09 y=0.12"
+          "centered": "footprint center x=0.10 y=0.12"
         }
       }
     },
@@ -97670,17 +97670,17 @@
       "triangles": 1580,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.65,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.65
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -98020,7 +98020,7 @@
           "uv": "808 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -98829,17 +98829,17 @@
       "triangles": 1760,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.64,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.64
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -99179,7 +99179,7 @@
           "uv": "964 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.12"
+          "centered": "footprint center x=0.08 y=0.12"
         }
       }
     },
@@ -99980,17 +99980,17 @@
       "triangles": 2220,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.68,
         "z": 2.57
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.57,
         1.68
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.76,
         0.0
       ],
@@ -100326,7 +100326,7 @@
           "uv": "1182 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -101135,17 +101135,17 @@
       "triangles": 1798,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.67,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.67
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.75,
         0.0
       ],
@@ -101485,7 +101485,7 @@
           "uv": "905 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -102302,17 +102302,17 @@
       "triangles": 2176,
       "budget": 2400,
       "size_studs": {
-        "x": 1.87,
+        "x": 1.84,
         "y": 2.02,
         "z": 2.44
       },
       "size_roblox": [
-        1.87,
+        1.84,
         2.44,
         2.02
       ],
       "bounds_min": [
-        -0.86,
+        -0.82,
         -0.89,
         0.0
       ],
@@ -102656,7 +102656,7 @@
           "uv": "1074 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.08 y=0.12"
+          "centered": "footprint center x=0.10 y=0.12"
         }
       }
     },
@@ -103467,17 +103467,17 @@
       "triangles": 2226,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.71,
         "z": 2.02
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.02,
         1.71
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.79,
         0.0
       ],
@@ -103817,7 +103817,7 @@
           "uv": "1171 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.06"
+          "centered": "footprint center x=0.08 y=0.06"
         }
       }
     },
@@ -104639,17 +104639,17 @@
       "triangles": 1876,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.23
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.23,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -104994,7 +104994,7 @@
           "uv": "1038 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -105803,17 +105803,17 @@
       "triangles": 1780,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.21
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.21,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -106153,7 +106153,7 @@
           "uv": "960 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -106937,17 +106937,17 @@
       "triangles": 1596,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.11
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.11,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -107276,7 +107276,7 @@
           "uv": "824 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -108085,17 +108085,17 @@
       "triangles": 1658,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.64,
         "z": 1.97
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.97,
         1.64
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -108435,7 +108435,7 @@
           "uv": "841 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -109251,17 +109251,17 @@
       "triangles": 2000,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 2.12,
         "z": 2.13
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.13,
         2.12
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -1.2,
         0.0
       ],
@@ -109602,7 +109602,7 @@
           "uv": "1154 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=-0.15"
+          "centered": "footprint center x=0.08 y=-0.15"
         }
       }
     },
@@ -110418,17 +110418,17 @@
       "triangles": 2340,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.7,
         "z": 2.11
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.11,
         1.7
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.79,
         0.0
       ],
@@ -110769,7 +110769,7 @@
           "uv": "1172 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.06"
+          "centered": "footprint center x=0.08 y=0.06"
         }
       }
     },
@@ -111585,17 +111585,17 @@
       "triangles": 1808,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.72,
         "z": 2.06
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.06,
         1.72
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.81,
         0.0
       ],
@@ -111936,7 +111936,7 @@
           "uv": "928 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.05"
+          "centered": "footprint center x=0.08 y=0.05"
         }
       }
     },
@@ -112753,17 +112753,17 @@
       "triangles": 2020,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -113107,7 +113107,7 @@
           "uv": "1014 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -115055,17 +115055,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -115399,7 +115399,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -116174,17 +116174,17 @@
       "triangles": 1380,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -116510,7 +116510,7 @@
           "uv": "740 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -117301,17 +117301,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -117645,7 +117645,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -118420,17 +118420,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -118756,7 +118756,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -119531,17 +119531,17 @@
       "triangles": 1308,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.03
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.03,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -119867,7 +119867,7 @@
           "uv": "708 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -120650,17 +120650,17 @@
       "triangles": 1296,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -120990,7 +120990,7 @@
           "uv": "698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -121765,17 +121765,17 @@
       "triangles": 1368,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -122101,7 +122101,7 @@
           "uv": "734 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -122876,17 +122876,17 @@
       "triangles": 1368,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -123212,7 +123212,7 @@
           "uv": "734 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -123987,17 +123987,17 @@
       "triangles": 1380,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -124323,7 +124323,7 @@
           "uv": "740 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -125106,17 +125106,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -125446,7 +125446,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -126221,17 +126221,17 @@
       "triangles": 1368,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -126557,7 +126557,7 @@
           "uv": "734 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -127340,17 +127340,17 @@
       "triangles": 1320,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -127680,7 +127680,7 @@
           "uv": "710 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -128468,17 +128468,17 @@
       "triangles": 1780,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -128811,7 +128811,7 @@
           "uv": "960 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -129599,17 +129599,17 @@
       "triangles": 1848,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.98
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.98,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -129942,7 +129942,7 @@
           "uv": "974 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -130747,17 +130747,17 @@
       "triangles": 1828,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 1.95
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.95,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -131097,7 +131097,7 @@
           "uv": "908 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -131892,17 +131892,17 @@
       "triangles": 1868,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.96,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.96
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -1.05,
         0.0
       ],
@@ -132236,7 +132236,7 @@
           "uv": "944 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=-0.07"
+          "centered": "footprint center x=0.08 y=-0.07"
         }
       }
     },
@@ -133024,17 +133024,17 @@
       "triangles": 1754,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.62,
         "z": 2.14
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.14,
         1.62
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -133367,7 +133367,7 @@
           "uv": "965 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.11"
+          "centered": "footprint center x=0.08 y=0.11"
         }
       }
     },
@@ -134155,17 +134155,17 @@
       "triangles": 1926,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.72,
         "z": 2.39
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.39,
         1.72
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.7,
         0.0
       ],
@@ -134498,7 +134498,7 @@
           "uv": "1055 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.16"
+          "centered": "footprint center x=0.08 y=0.16"
         }
       }
     },
@@ -135294,17 +135294,17 @@
       "triangles": 1676,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.65,
         "z": 1.97
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.97,
         1.65
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.73,
         0.0
       ],
@@ -135641,7 +135641,7 @@
           "uv": "853 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.09"
+          "centered": "footprint center x=0.08 y=0.09"
         }
       }
     },
@@ -136456,17 +136456,17 @@
       "triangles": 2036,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.71,
         "z": 1.98
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.98,
         1.71
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.79,
         0.0
       ],
@@ -136810,7 +136810,7 @@
           "uv": "1030 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.06"
+          "centered": "footprint center x=0.08 y=0.06"
         }
       }
     },
@@ -137623,17 +137623,17 @@
       "triangles": 1862,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.7,
         "z": 2.32
       },
       "size_roblox": [
-        1.56,
+        1.53,
         2.32,
         1.7
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.77,
         0.0
       ],
@@ -137977,7 +137977,7 @@
           "uv": "1039 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.08"
+          "centered": "footprint center x=0.08 y=0.08"
         }
       }
     },
@@ -138800,17 +138800,17 @@
       "triangles": 1762,
       "budget": 2400,
       "size_studs": {
-        "x": 1.56,
+        "x": 1.53,
         "y": 1.72,
         "z": 1.93
       },
       "size_roblox": [
-        1.56,
+        1.53,
         1.93,
         1.72
       ],
       "bounds_min": [
-        -0.71,
+        -0.69,
         -0.8,
         0.0
       ],
@@ -139158,7 +139158,7 @@
           "uv": "941 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=0.05"
+          "centered": "footprint center x=0.08 y=0.05"
         }
       }
     },
@@ -145080,13 +145080,13 @@
       "budget": 3000,
       "size_studs": {
         "x": 27.52,
-        "y": 37.05,
+        "y": 36.75,
         "z": 8.85
       },
       "size_roblox": [
         27.52,
         8.85,
-        37.05
+        36.75
       ],
       "bounds_min": [
         -13.6,
@@ -145095,7 +145095,7 @@
       ],
       "bounds_max": [
         13.92,
-        24.8,
+        24.5,
         8.85
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
@@ -145120,7 +145120,7 @@
           "uv": "500 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.16 y=6.27"
+          "centered": "footprint center x=0.16 y=6.12"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_Tier4.png",

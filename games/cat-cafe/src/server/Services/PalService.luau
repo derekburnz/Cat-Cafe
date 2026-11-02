@@ -86,6 +86,12 @@ function PalService.count(player: Player): number
 	return #PalService.palIds(player)
 end
 
+-- Whether the two are pals right now (Team Rescue doubles the helper's tip between pals).
+function PalService.arePals(a: Player, b: Player): boolean
+	local mine = links[a]
+	return mine ~= nil and mine[b] ~= nil
+end
+
 -- Starts or stops the player's pal clock for pal_time and remembers how the first pal was linked.
 local function clock(player: Player, count: number)
 	local time = palTime[player]

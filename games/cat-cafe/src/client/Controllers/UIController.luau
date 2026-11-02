@@ -519,6 +519,61 @@ local dealerWindow: number? = nil
 -- The Fresh Catch shelf (F94): the window of the last FreshCatchStock, which a buy sends back when the screen has none.
 local freshWindow: number? = nil
 
+-- Team Rescue (F92, playing-together.md section 3). A stuck cat's model is tagged StuckCat and carries its trap's
+-- RescueSpotId, LockedBy (the rescuer, else 0) and HelpedBy (the helper while the attempt runs, else 0).
+local function stuckModel(rescueSpotId: string): Instance?
+	for _, model in CollectionService:GetTagged("StuckCat") do
+		if model:GetAttribute("RescueSpotId") == rescueSpotId then
+			return model
+		end
+	end
+	return nil
+end
+
+local function lockedByOther(model: Instance): boolean
+	local locked = model:GetAttribute("LockedBy")
+	return type(locked) == "number" and locked ~= 0 and locked ~= player.UserId
+end
+
+-- On this screen a stuck cat's prompt reads "Help" while someone else's bar runs with no helper yet, and hides once
+-- a helper has joined (one an attempt); otherwise it stays "Rescue". Only this client's copy of the prompt changes.
+local function bindHelpPrompts()
+	local function refresh(model: Instance)
+		local found = model:FindFirstChild("RescuePrompt", true)
+		if found == nil or not found:IsA("ProximityPrompt") then
+			return
+		end
+		local prompt = found :: ProximityPrompt
+		local helped = model:GetAttribute("HelpedBy")
+		local other = lockedByOther(model)
+		prompt.ActionText = if other then "Help" else "Rescue"
+		prompt.Enabled = not (
+			other
+			and type(helped) == "number"
+			and helped ~= 0
+			and helped ~= player.UserId
+		)
+	end
+	local function watch(model: Instance)
+		refresh(model)
+		model:GetAttributeChangedSignal("LockedBy"):Connect(function()
+			refresh(model)
+		end)
+		model:GetAttributeChangedSignal("HelpedBy"):Connect(function()
+			refresh(model)
+		end)
+		model.DescendantAdded:Connect(function(added: Instance)
+			if added.Name == "RescuePrompt" then
+				refresh(model)
+			end
+		end)
+	end
+	for _, model in CollectionService:GetTagged("StuckCat") do
+		watch(model)
+	end
+	CollectionService:GetInstanceAddedSignal("StuckCat"):Connect(watch)
+end
+
 local function wireIntents()
 	UI.events.setSetting:Connect(function(key: string, value: any)
 		if Settings.clean(key, value) ~= nil then
@@ -745,10 +800,15 @@ local function wireIntents()
 	)
 	-- Rescue minigames (data-model section 10b): one press on a stuck cat's prompt asks for the bar. The server
 	-- answers with RescueChallenge (or a GrabResult refusal). A press or Give up sends only the trap id: the
-	-- server stamps the time itself and judges where the marker was.
+	-- server stamps the time itself and judges where the marker was. F92: on a trap someone else is rescuing the
+	-- prompt reads "Help" and the press asks to join as their helper (RescueHelp); the bar works the same after.
 	UI.events.rescueBegan:Connect(function(rescueSpotId: string?, _catId: string?)
 		if rescueSpotId ~= nil then
-			Net.fire("RescueBegin", rescueSpotId)
+			local model = stuckModel(rescueSpotId)
+			local ask = if model ~= nil and lockedByOther(model)
+				then "RescueHelp"
+				else "RescueBegin"
+			Net.fire(ask, rescueSpotId)
 		end
 	end)
 	UI.events.rescuePressed:Connect(function(rescueSpotId: string)
@@ -1056,6 +1116,29 @@ local function wireServerEvents()
 			(hook :: ({ number }) -> ())(userIds)
 		end
 	end)
+	-- F92 Team Rescue: a helped rescue freed its cat. Moments.TeamRescue for the pop and the chime on both screens;
+	-- the UI's `UI.teamRescue(rescuerUserId, helperUserId, coins)` once it has one, else a toast with the helper's tip.
+	Net.on(
+		"TeamRescue",
+		function(
+			rescueSpotId: string,
+			rescuerId: number,
+			helperId: number,
+			position: Vector3,
+			coins: number
+		)
+			Moments.TeamRescue:Fire(rescueSpotId, rescuerId, helperId, position)
+			local hook: unknown = (UI :: any).teamRescue
+			if type(hook) == "function" then
+				(hook :: (number, number, number) -> ())(rescuerId, helperId, coins)
+				return
+			end
+			UI.toast(
+				if coins > 0 then string.format("Team Rescue! +$%d", coins) else "Team Rescue!",
+				"good"
+			)
+		end
+	)
 	Net.on("CatCaught", function(catId: string, isNew: boolean)
 		local extra: UITypes.CatFoundExtra? = if pendingCharmGain > 0
 			then { charmGain = pendingCharmGain }
@@ -1262,7 +1345,7 @@ local function wireServerEvents()
 			trap = trap,
 			rarity = rarity,
 			needed = challenge.hitsNeeded or 0,
-			hits = 0,
+			hits = challenge.hits or 0, -- F92: a helper joins a bar part way through
 			paws = challenge.paws or 0,
 		}
 		Moments.RescueStart:Fire(rescueSpotId)
@@ -1439,6 +1522,7 @@ function UIController.start()
 	wireServerEvents()
 	bindDealerCart()
 	bindStations()
+	bindHelpPrompts()
 	startPrediction()
 	Net.fire("RequestSync")
 	print(string.format("[CatCafe] client ready for %s", player.Name))

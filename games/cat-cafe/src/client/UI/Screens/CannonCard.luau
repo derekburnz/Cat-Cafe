@@ -249,6 +249,7 @@ end
 
 function CannonCard.destroy(self: any)
 	self._token += 1
+	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()
 end
 

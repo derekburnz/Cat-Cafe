@@ -787,6 +787,15 @@ function RescueBar.update(
 	self._hits = hits
 	self:_paintPips()
 	if bar ~= nil then
+		-- F92 Team Rescue: a helper joining moves the attempt's deadline later (bar.endsAt); the ring and "Too slow!"
+		-- read the kept challenge's endsAt, so it takes the new one. Read loosely until the shared type has it.
+		local endsAt: unknown = (bar :: any).endsAt
+		local challenge: Types.RescueChallenge? = self._challenge
+		if type(endsAt) == "number" and challenge ~= nil and challenge.endsAt ~= endsAt then
+			local moved = table.clone(challenge)
+			moved.endsAt = endsAt
+			self._challenge = moved
+		end
 		self._run = { startsAt = bar.startsAt, phase = bar.phase, speed = bar.speed }
 		if bar.zoneEndsAt ~= self._zoneEndsAt or nextZone ~= before then
 			self._zoneSince = math.min(now(), bar.zoneEndsAt)

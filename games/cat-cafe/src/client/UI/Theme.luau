@@ -179,6 +179,16 @@ Theme.rarity = {
 }
 Theme.rarityOrder = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
+-- The rainbow coat's bands (F99, rainbow-coat.md section 2) for a UIGradient: the big pull's word, edges and rays.
+Theme.rainbow = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromHex("FF5A5F")),
+	ColorSequenceKeypoint.new(0.2, Color3.fromHex("FF9F43")),
+	ColorSequenceKeypoint.new(0.4, Color3.fromHex("FFD93D")),
+	ColorSequenceKeypoint.new(0.6, Color3.fromHex("4CD38A")),
+	ColorSequenceKeypoint.new(0.8, Color3.fromHex("4AA8FF")),
+	ColorSequenceKeypoint.new(1, Color3.fromHex("B46CFF")),
+})
+
 -- Each area's colour, close to its ground in the world (style guide palette): area cards and title cards.
 Theme.areaColors = {
 	alley = Color3.fromHex("8A7B6E"),

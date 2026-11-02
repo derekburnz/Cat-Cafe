@@ -61,7 +61,18 @@ return function()
 	local TUTORIAL_CHECKIN = 51
 	local CANNON_WALK = 5 -- 6a: the cafe to the Town Square cannon (the Cannon button: at once)
 	local CANNON_HOP = 0.5 -- 6a: hopping in, before the flight's CannonLaunchSeconds
-	local WINDING = 1.25 -- 6b: the main path winds about 1.25 times the straight distance
+	-- How much longer the main path is than the straight way in, by area (6b: about 1.25 everywhere): the Alleyway's
+	-- one lane about 300 studs through its four ways through for 251 (QA's sum), and since Model-Agent's islands
+	-- (#905, area-sets.md's walk checks) a long area's shortest walk is 1.0 to 1.08 times its depth (the Park about
+	-- 315, the Neighbourhood 440 to 460, the Woods 480 to 500, the Sewer about 560 to the throne), so 1.1 for a player
+	-- who does not hug every corner. An area not here takes 6b's 1.25.
+	local WINDING: { [string]: number } = {
+		alley = 1.2,
+		park = 1.1,
+		neighbourhood = 1.1,
+		woods = 1.1,
+		sewer = 1.1,
+	}
 	local PAD_IN = 13 -- the landing pad, this far inside the camp from its gate line (CAMP_PAD)
 	local PRESS_SPREAD = 0.05 -- data-model 10 (v0.13.15): presses within about 50 ms
 	local MAX_TRIES = 200
@@ -139,7 +150,7 @@ return function()
 		local pool = Catching.spawnPool(slots, rarity)
 		local point = spec.spawnPoints[pool[1 + math.floor(roll * #pool)]]
 		local _, z = Layout.campLocal(camp, point.x, point.z)
-		local path = WINDING * (PAD_IN + math.max(z, 0))
+		local path = (WINDING[areaId] or 1.25) * (PAD_IN + math.max(z, 0))
 		local rush = math.min(path, Config.CatchRushWalkSpeed * Config.CatchRushSeconds)
 		local back = rush / Config.CatchRushWalkSpeed + (path - rush) / Config.CarryWalkSpeed
 		local flight = CANNON_WALK + CANNON_HOP + Config.CannonLaunchSeconds

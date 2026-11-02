@@ -17,6 +17,7 @@
 	  CHAIR p  table  seat  pivot (3)  aisle (3)  approach (3)
 	  WAY   p  Entry|Door|Order  position (3)   the customers' waypoints (CustomerWaypoints)
 	  BACKDOOR p  cframe (12)                     the back door panel
+  CAM   p  shot  cut  from|via|to  position (3)  look (3)   the intro's camera places (Intro.shots, new save)
 ]]
 
 local Shim, world, builder, options = ...
@@ -149,6 +150,38 @@ for p, plot in plots do
 			lawn = lawn,
 			lawnStyles = { path = paths[p % #paths + 1], fence = fences[p % #fences + 1] },
 		})
+	end
+end
+
+-- The intro's camera places for each cafe as a new save sees it (Intro.shots with the Codes Cat and the Alleyway's camp
+-- streamed in), for cafefit.mjs to check that no camera stands inside a part or looks through a wall.
+local Intro = require(find("ReplicatedStorage.Shared.Intro"))
+for p = 1, #plots do
+	local ok, shots = pcall(Intro.shots, Intro.plot(p), true, true)
+	if not ok then
+		table.insert(lines, string.format("CAMERR\t%d\t%s", p, tostring(shots)))
+		continue
+	end
+	for _, shot in shots do
+		for c, cut in shot.cuts do
+			for _, which in { "from", "via", "to" } do
+				local key = cut[which]
+				if key ~= nil then
+					table.insert(
+						lines,
+						string.format(
+							"CAM\t%d\t%d\t%d\t%s\t%s\t%s",
+							p,
+							shot.index,
+							c,
+							which,
+							v3(key.position),
+							v3(key.look)
+						)
+					)
+				end
+			end
+		end
 	end
 end
 

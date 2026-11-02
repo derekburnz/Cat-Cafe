@@ -568,6 +568,7 @@ export type Settings = {
 	showOtherCats: boolean,
 	markers: boolean, -- the location markers (Place icons)
 	tutorialButton: boolean, -- the HUD's Tutorial tile (F72)
+	shopAlerts: boolean, -- F94: the Fresh Catch's ShopAlert (FreshCatch.alertsOn)
 }
 
 export type PlayerProfile = {

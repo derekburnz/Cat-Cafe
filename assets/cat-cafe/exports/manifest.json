@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 03:57 UTC",
+  "generated": "2026-11-02 04:25 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -89220,7 +89220,7 @@
       "objects": [
         "CatCafe_NPC_Customer_D"
       ],
-      "triangles": 1344,
+      "triangles": 1368,
       "budget": 1600,
       "size_studs": {
         "x": 2.25,
@@ -89246,7 +89246,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cafe customer (F15; Rich is F31): pivot at the feet, front -Z, nothing collides. Walk it with PivotTo; at the chair swap to CatCafe_NPC_Customer_D_Sit.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_D.model.json",
-      "rbx_parts": 49,
+      "rbx_parts": 51,
       "files": [
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_D.fbx",
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_D.glb"
@@ -89256,10 +89256,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "1344/1600 tris",
+          "budget": "1368/1600 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "780 faces on swatch centers",
+          "uv": "792 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.02"
@@ -89275,7 +89275,7 @@
       "objects": [
         "CatCafe_NPC_Customer_D_Sit"
       ],
-      "triangles": 1416,
+      "triangles": 1440,
       "budget": 1600,
       "size_studs": {
         "x": 2.25,
@@ -89301,7 +89301,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Seated customer: swap to it when the customer reaches its chair, PivotTo the chair's pivot (same CFrame, front toward the table). Forearms rest on a round table 2.4 in front. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_D_Sit.model.json",
-      "rbx_parts": 47,
+      "rbx_parts": 49,
       "files": [
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_D_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_D_Sit.glb"
@@ -89313,10 +89313,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1416/1600 tris",
+          "budget": "1440/1600 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "828 faces on swatch centers",
+          "uv": "840 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.15"
@@ -89548,6 +89548,655 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_NPC_Customer_F_Sit.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_NPC_Customer_F_Sit.png"
+    },
+    {
+      "name": "CatCafe_NPC_Customer_G",
+      "category": "NPC",
+      "module": "customers",
+      "objects": [
+        "CatCafe_NPC_Customer_G"
+      ],
+      "triangles": 1228,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.65,
+        "y": 1.48,
+        "z": 4.07
+      },
+      "size_roblox": [
+        2.65,
+        4.07,
+        1.48
+      ],
+      "bounds_min": [
+        -1.33,
+        -0.76,
+        0.0
+      ],
+      "bounds_max": [
+        1.33,
+        0.72,
+        4.07
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe customer (F15; Rich is F31): pivot at the feet, front -Z, nothing collides. Walk it with PivotTo; at the chair swap to CatCafe_NPC_Customer_G_Sit.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_G.model.json",
+      "rbx_parts": 41,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_G.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_G.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1228/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "712 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Customer_G_Sit",
+      "category": "NPC",
+      "module": "customers",
+      "objects": [
+        "CatCafe_NPC_Customer_G_Sit"
+      ],
+      "triangles": 1268,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.65,
+        "y": 1.88,
+        "z": 4.12
+      },
+      "size_roblox": [
+        2.65,
+        4.12,
+        1.88
+      ],
+      "bounds_min": [
+        -1.33,
+        -1.04,
+        0.48
+      ],
+      "bounds_max": [
+        1.33,
+        0.84,
+        4.6
+      ],
+      "pivot": "the floor under a cafe chair's middle (CatCafe_Furniture_Chair's pivot), facing the table (-Z); the customer sits on the cushion at 1.58",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Seated customer: swap to it when the customer reaches its chair, PivotTo the chair's pivot (same CFrame, front toward the table). Forearms rest on a round table 2.4 in front. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_G_Sit.model.json",
+      "rbx_parts": 39,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_G_Sit.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_G_Sit.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "1268/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "738 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.48 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.10"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Customer_H",
+      "category": "NPC",
+      "module": "customers",
+      "objects": [
+        "CatCafe_NPC_Customer_H"
+      ],
+      "triangles": 1324,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.3,
+        "y": 2.2,
+        "z": 5.34
+      },
+      "size_roblox": [
+        2.3,
+        5.34,
+        2.2
+      ],
+      "bounds_min": [
+        -1.15,
+        -1.1,
+        0.0
+      ],
+      "bounds_max": [
+        1.15,
+        1.1,
+        5.34
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe customer (F15; Rich is F31): pivot at the feet, front -Z, nothing collides. Walk it with PivotTo; at the chair swap to CatCafe_NPC_Customer_H_Sit.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_H.model.json",
+      "rbx_parts": 45,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_H.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_H.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1324/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "768 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Customer_H_Sit",
+      "category": "NPC",
+      "module": "customers",
+      "objects": [
+        "CatCafe_NPC_Customer_H_Sit"
+      ],
+      "triangles": 1220,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.3,
+        "y": 2.38,
+        "z": 5.37
+      },
+      "size_roblox": [
+        2.3,
+        5.37,
+        2.38
+      ],
+      "bounds_min": [
+        -1.15,
+        -1.16,
+        0.0
+      ],
+      "bounds_max": [
+        1.15,
+        1.22,
+        5.37
+      ],
+      "pivot": "the floor under a cafe chair's middle (CatCafe_Furniture_Chair's pivot), facing the table (-Z); the customer sits on the cushion at 1.58",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Seated customer: swap to it when the customer reaches its chair, PivotTo the chair's pivot (same CFrame, front toward the table). Forearms rest on a round table 2.4 in front. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_H_Sit.model.json",
+      "rbx_parts": 39,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_H_Sit.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_H_Sit.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1220/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "706 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Customer_I",
+      "category": "NPC",
+      "module": "customers",
+      "objects": [
+        "CatCafe_NPC_Customer_I"
+      ],
+      "triangles": 1096,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.25,
+        "y": 1.56,
+        "z": 4.96
+      },
+      "size_roblox": [
+        2.25,
+        4.96,
+        1.56
+      ],
+      "bounds_min": [
+        -1.12,
+        -0.81,
+        0.0
+      ],
+      "bounds_max": [
+        1.12,
+        0.75,
+        4.96
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe customer (F15; Rich is F31): pivot at the feet, front -Z, nothing collides. Walk it with PivotTo; at the chair swap to CatCafe_NPC_Customer_I_Sit.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_I.model.json",
+      "rbx_parts": 46,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_I.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_I.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1096/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "620 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Customer_I_Sit",
+      "category": "NPC",
+      "module": "customers",
+      "objects": [
+        "CatCafe_NPC_Customer_I_Sit"
+      ],
+      "triangles": 1216,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.24,
+        "y": 2.03,
+        "z": 4.99
+      },
+      "size_roblox": [
+        2.24,
+        4.99,
+        2.03
+      ],
+      "bounds_min": [
+        -1.12,
+        -1.16,
+        0.0
+      ],
+      "bounds_max": [
+        1.12,
+        0.87,
+        4.99
+      ],
+      "pivot": "the floor under a cafe chair's middle (CatCafe_Furniture_Chair's pivot), facing the table (-Z); the customer sits on the cushion at 1.58",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Seated customer: swap to it when the customer reaches its chair, PivotTo the chair's pivot (same CFrame, front toward the table). Forearms rest on a round table 2.4 in front. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_I_Sit.model.json",
+      "rbx_parts": 48,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_I_Sit.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_I_Sit.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1216/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "692 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.15"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Customer_J",
+      "category": "NPC",
+      "module": "customers",
+      "objects": [
+        "CatCafe_NPC_Customer_J"
+      ],
+      "triangles": 1052,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.22,
+        "y": 1.85,
+        "z": 5.02
+      },
+      "size_roblox": [
+        2.22,
+        5.02,
+        1.85
+      ],
+      "bounds_min": [
+        -1.11,
+        -0.79,
+        0.0
+      ],
+      "bounds_max": [
+        1.11,
+        1.07,
+        5.02
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe customer (F15; Rich is F31): pivot at the feet, front -Z, nothing collides. Walk it with PivotTo; at the chair swap to CatCafe_NPC_Customer_J_Sit.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_J.model.json",
+      "rbx_parts": 43,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_J.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_J.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1052/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "590 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.14"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Customer_J_Sit",
+      "category": "NPC",
+      "module": "customers",
+      "objects": [
+        "CatCafe_NPC_Customer_J_Sit"
+      ],
+      "triangles": 1136,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.22,
+        "y": 2.34,
+        "z": 5.05
+      },
+      "size_roblox": [
+        2.22,
+        5.05,
+        2.34
+      ],
+      "bounds_min": [
+        -1.11,
+        -1.16,
+        0.0
+      ],
+      "bounds_max": [
+        1.11,
+        1.18,
+        5.05
+      ],
+      "pivot": "the floor under a cafe chair's middle (CatCafe_Furniture_Chair's pivot), facing the table (-Z); the customer sits on the cushion at 1.58",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Seated customer: swap to it when the customer reaches its chair, PivotTo the chair's pivot (same CFrame, front toward the table). Forearms rest on a round table 2.4 in front. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_J_Sit.model.json",
+      "rbx_parts": 40,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_J_Sit.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_J_Sit.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1136/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "656 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Customer_K",
+      "category": "NPC",
+      "module": "customers",
+      "objects": [
+        "CatCafe_NPC_Customer_K"
+      ],
+      "triangles": 1032,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.25,
+        "y": 1.76,
+        "z": 5.06
+      },
+      "size_roblox": [
+        2.25,
+        5.06,
+        1.76
+      ],
+      "bounds_min": [
+        -1.12,
+        -1.03,
+        0.0
+      ],
+      "bounds_max": [
+        1.12,
+        0.73,
+        5.06
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe customer (F15; Rich is F31): pivot at the feet, front -Z, nothing collides. Walk it with PivotTo; at the chair swap to CatCafe_NPC_Customer_K_Sit.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_K.model.json",
+      "rbx_parts": 41,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_K.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_K.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1032/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "589 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.15"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Customer_K_Sit",
+      "category": "NPC",
+      "module": "customers",
+      "objects": [
+        "CatCafe_NPC_Customer_K_Sit"
+      ],
+      "triangles": 1116,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.24,
+        "y": 2.01,
+        "z": 5.09
+      },
+      "size_roblox": [
+        2.24,
+        5.09,
+        2.01
+      ],
+      "bounds_min": [
+        -1.12,
+        -1.16,
+        0.0
+      ],
+      "bounds_max": [
+        1.12,
+        0.85,
+        5.09
+      ],
+      "pivot": "the floor under a cafe chair's middle (CatCafe_Furniture_Chair's pivot), facing the table (-Z); the customer sits on the cushion at 1.58",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Seated customer: swap to it when the customer reaches its chair, PivotTo the chair's pivot (same CFrame, front toward the table). Forearms rest on a round table 2.4 in front. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_K_Sit.model.json",
+      "rbx_parts": 40,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_K_Sit.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_K_Sit.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1116/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "643 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.15"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Customer_L",
+      "category": "NPC",
+      "module": "customers",
+      "objects": [
+        "CatCafe_NPC_Customer_L"
+      ],
+      "triangles": 964,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.22,
+        "y": 1.6,
+        "z": 5.02
+      },
+      "size_roblox": [
+        2.22,
+        5.02,
+        1.6
+      ],
+      "bounds_min": [
+        -1.11,
+        -0.79,
+        0.0
+      ],
+      "bounds_max": [
+        1.11,
+        0.81,
+        5.02
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe customer (F15; Rich is F31): pivot at the feet, front -Z, nothing collides. Walk it with PivotTo; at the chair swap to CatCafe_NPC_Customer_L_Sit.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_L.model.json",
+      "rbx_parts": 37,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_L.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_L.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "964/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "556 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Customer_L_Sit",
+      "category": "NPC",
+      "module": "customers",
+      "objects": [
+        "CatCafe_NPC_Customer_L_Sit"
+      ],
+      "triangles": 1088,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.22,
+        "y": 2.1,
+        "z": 5.05
+      },
+      "size_roblox": [
+        2.22,
+        5.05,
+        2.1
+      ],
+      "bounds_min": [
+        -1.11,
+        -1.16,
+        0.0
+      ],
+      "bounds_max": [
+        1.11,
+        0.94,
+        5.05
+      ],
+      "pivot": "the floor under a cafe chair's middle (CatCafe_Furniture_Chair's pivot), facing the table (-Z); the customer sits on the cushion at 1.58",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Seated customer: swap to it when the customer reaches its chair, PivotTo the chair's pivot (same CFrame, front toward the table). Forearms rest on a round table 2.4 in front. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Customer_L_Sit.model.json",
+      "rbx_parts": 36,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_L_Sit.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_L_Sit.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1088/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "632 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.11"
+        }
+      }
     },
     {
       "name": "CatCafe_NPC_Customer_Rich",

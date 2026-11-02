@@ -1268,7 +1268,7 @@
       "position": [
        -0.52,
        3.9115,
-       -0.5837
+       -0.565
       ],
       "orientation": [
        [
@@ -1292,7 +1292,7 @@
     "Size": [
      0.24,
      0.1,
-     0.0525
+     0.015
     ],
     "Color": [
      0.9098,
@@ -1464,7 +1464,7 @@
       "position": [
        0.52,
        3.9115,
-       -0.5837
+       -0.565
       ],
       "orientation": [
        [
@@ -1488,7 +1488,7 @@
     "Size": [
      0.24,
      0.1,
-     0.0525
+     0.015
     ],
     "Color": [
      0.9098,
@@ -1561,7 +1561,7 @@
      "CFrame": {
       "position": [
        0.0,
-       3.8433,
+       3.8315,
        -0.565
       ],
       "orientation": [
@@ -1585,7 +1585,7 @@
     },
     "Size": [
      0.16,
-     0.0735,
+     0.05,
      0.015
     ],
     "Color": [
@@ -1708,7 +1708,7 @@
      "CFrame": {
       "position": [
        0.0,
-       3.66,
+       3.61,
        -0.585
       ],
       "orientation": [
@@ -1731,8 +1731,8 @@
      }
     },
     "Size": [
-     1.1,
-     0.38,
+     0.62,
+     0.28,
      0.06
     ],
     "Color": [
@@ -1756,9 +1756,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.62,
-       3.93,
-       -0.355
+       -0.48,
+       3.65,
+       -0.585
       ],
       "orientation": [
        [
@@ -1780,9 +1780,9 @@
      }
     },
     "Size": [
-     0.3,
-     0.6,
-     0.45
+     0.38,
+     0.36,
+     0.06
     ],
     "Color": [
      0.5569,
@@ -1805,8 +1805,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.62,
-       3.93,
+       -0.72,
+       3.9,
        -0.355
       ],
       "orientation": [
@@ -1829,9 +1829,107 @@
      }
     },
     "Size": [
-     0.3,
-     0.6,
-     0.45
+     0.14,
+     0.66,
+     0.5
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Customer_D_Sit",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.48,
+       3.65,
+       -0.585
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.38,
+     0.36,
+     0.06
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Customer_D_Sit",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.72,
+       3.9,
+       -0.355
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.14,
+     0.66,
+     0.5
     ],
     "Color": [
      0.5569,

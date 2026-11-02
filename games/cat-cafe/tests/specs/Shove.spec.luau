@@ -339,7 +339,9 @@ return function()
 		local pressBroken: { { [string]: any } } = {
 			{ carrying = true },
 			{ busy = true },
+			{ newcomer = true }, -- F87
 			{ area = NONE },
+			{ inCamp = true }, -- F84
 			{ areaUnlocked = false },
 			{ areasClosed = true },
 			{ sinceTackle = 0 },
@@ -349,6 +351,9 @@ return function()
 			{ sameArea = false },
 			{ targetBusy = true },
 			{ targetSafe = true },
+			{ targetInCamp = true }, -- F84
+			{ targetFlying = true }, -- F84
+			{ targetNewcomer = true }, -- F87
 			{ sinceShoveTarget = 0 },
 			{ sinceTargetShoved = 0 },
 		}
@@ -402,6 +407,7 @@ return function()
 			{ dropped = false },
 			{ carrying = true },
 			{ busy = true },
+			{ inCamp = true }, -- F84
 			{ areaUnlocked = false },
 			{ areasClosed = true },
 			{ distance = 50 },

@@ -39,6 +39,7 @@ import math
 from mathutils import Matrix
 
 from alleyway import _crate, label
+from areakit import Set
 from common import RB
 
 N = "CatCafe_Alley_Blocker_"
@@ -65,6 +66,14 @@ def _barrier(name, mat, x1):
     bar = RB()
     bar.span((X0, 0.0, -0.25), (x1, BARRIER_H, 0.25), "concrete")
     return bar.finalize(name + "_Barrier", mat)
+
+
+def _out(b, bulb, name, mat, end):
+    """A piece's objects: the pile, its lamp's bulb if it has one, its barrier."""
+    out = [b.finalize(name, mat)]
+    if len(bulb.b.bm.faces):
+        out.append(bulb.finalize(name + "_Bulb", mat))
+    return out + [_barrier(name, mat, end)]
 
 
 def _lamp(b, bulb, x, y0=0.0, z=0.0):
@@ -106,6 +115,7 @@ def _bin(b, x, z, colour, y0):
 
 
 def _bins(name, mat, end, lamp, row, lid_bags, box_on=None):
+    """lamp: the lamp post's x, or None for none (a piece inside a row)."""
     b, bulb = RB(), RB()
     pad = 0.12
     b.span((PILE_END, 0.0, -1.25), (end - 0.02, pad, 1.25), "concrete")                               # bin store
@@ -127,20 +137,21 @@ def _bins(name, mat, end, lamp, row, lid_bags, box_on=None):
         t = tops[box_on]
         b.span((box_on - 0.55, t - 0.06, -0.55), (box_on + 0.5, t + 0.84, 0.45), "cardboard", rot=rz(6))
         b.span((box_on - 0.55, t + 0.84, -0.2), (box_on + 0.5, t + 0.86, 0.1), "offwhite", rot=rz(6))
-    _lamp(b, bulb, lamp, pad)
-    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat, end)]
+    if lamp is not None:
+        _lamp(b, bulb, lamp, pad)
+    return _out(b, bulb, name, mat, end)
 
 
-def build_bins(mat):
+def build_bins(mat, lamp=True):
     row = (("bin", -12.35, "dumpster_green"), ("bin", -10.3, "shirt_blue"), ("bags", -8.0, None),
            ("bin", -5.7, "dumpster_green"), ("bin", -3.65, "concrete"), ("bags", -1.35, None))
-    return _bins(N + "Bins", mat, LONG_END, LONG_LAMP, row,
+    return _bins(N + "Bins", mat, LONG_END, LONG_LAMP if lamp else None, row,
                  ((-12.35, 0.72, "fur_black"), (-5.7, 0.68, "concrete_dark")), box_on=-3.65)
 
 
-def build_bins_short(mat):
+def build_bins_short(mat, lamp=True):
     row = (("bin", -12.35, "shirt_blue"), ("bin", -10.3, "dumpster_green"), ("bags", -8.0, None))
-    return _bins(N + "BinsShort", mat, SHORT_END, SHORT_LAMP, row, ((-10.3, 0.7, "fur_black"),))
+    return _bins(N + "BinsShort", mat, SHORT_END, SHORT_LAMP if lamp else None, row, ((-10.3, 0.7, "fur_black"),))
 
 
 # ------------------------------------------------------------------------------------------------------ pallets --
@@ -179,7 +190,7 @@ def _tarp(b, x, t):
         b.span((x - 1.4, t - 0.9, dz - 0.05), (x + 1.4, t + 0.1, dz + 0.05), "cardboard")
 
 
-def build_pallets(mat):
+def build_pallets(mat, lamp=True):
     name = N + "Pallets"
     b, bulb = RB(), RB()
     xs = [PILE_END + PAL_W / 2 + k * PAL_W for k in range(5)]          # five stacks side by side, -12.05 to -1.65
@@ -190,11 +201,12 @@ def build_pallets(mat):
     _tarp(b, xs[3], tops[3])
     _box(b, xs[4], tops[4], 0.1, 1.6, 1.5, 1.2, 4)                                                     # 2.4 + 1.2
     _box(b, xs[4] + PAL_W / 2 + 0.35, 0.02, 0.1, 0.7, 1.1, 0.9, 0)                                    # -0.35 to 0.35
-    _lamp(b, bulb, LONG_LAMP, 0.0)
-    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat, LONG_END)]
+    if lamp:
+        _lamp(b, bulb, LONG_LAMP, 0.0)
+    return _out(b, bulb, name, mat, LONG_END)
 
 
-def build_pallets_short(mat):
+def build_pallets_short(mat, lamp=True):
     name = N + "PalletsShort"
     b, bulb = RB(), RB()
     xs = [PILE_END + PAL_W / 2 + k * PAL_W for k in range(2)]          # -12.05 and -9.45
@@ -203,8 +215,9 @@ def build_pallets_short(mat):
     _crate(b, xs[1], tops[1], 0.0, 2.6, stencil="FISH")
     _box(b, xs[1] + PAL_W / 2 + 0.5, 0.02, 0.0, 1.0, 1.1, 1.1, 0)                                    # -8.15 to -7.15
     _box(b, xs[1] + PAL_W / 2 + 0.45, 1.12, 0.05, 0.8, 0.8, 0.6, -9)
-    _lamp(b, bulb, SHORT_LAMP, 0.0)
-    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat, SHORT_END)]
+    if lamp:
+        _lamp(b, bulb, SHORT_LAMP, 0.0)
+    return _out(b, bulb, name, mat, SHORT_END)
 
 
 # --------------------------------------------------------------------------------------------------------- skip --
@@ -214,7 +227,7 @@ def _cone(b, x, y, z):
     b.b.cyl(RB.p(x, y + 0.9, z), 0.35, 0.26, "offwhite", segments=10, radius2=0.31, bevel=False)
 
 
-def build_skip(mat):
+def build_skip(mat, lamp=True):
     name = N + "Skip"
     b, bulb = RB(), RB()
     base = 0.12
@@ -271,12 +284,13 @@ def build_skip(mat):
     b.span((bx0 - 0.02, base + 1.0, 1.38), (bx1 + 0.02, base + 1.5, 1.42), "shirt_blue")
     _cone(b, -1.2, base, -2.0)
     _cone(b, -1.2, base, 2.0)
-    _lamp(b, bulb, LONG_LAMP, base)
-    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat, LONG_END)]
+    if lamp:
+        _lamp(b, bulb, LONG_LAMP, base)
+    return _out(b, bulb, name, mat, LONG_END)
 
 
 # ---------------------------------------------------------------------------------------------------------- van --
-def build_van(mat):
+def build_van(mat, lamp=True):
     """A box van parked nose to the wall: the cab and bonnet at -X, the cargo box behind, its back doors swung wide
     open at the rear (x -0.5) and a crate set down on the ground behind it."""
     name = N + "Van"
@@ -324,8 +338,73 @@ def build_van(mat):
     b.span((rear - 0.3, 0.7, -1.2), (rear + 0.35, 0.9, 1.2), "metal")                                 # back step
     _crate(b, 0.0, 0.0, 0.0, 0.8, stencil=None)                                                        # set down
     _box(b, 0.0, 0.8, 0.0, 0.6, 0.6, 0.45, 12)
-    _lamp(b, bulb, LONG_LAMP, 0.0)
-    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat, LONG_END)]
+    if lamp:
+        _lamp(b, bulb, LONG_LAMP, 0.0)
+    return _out(b, bulb, name, mat, LONG_END)
+
+
+# ------------------------------------------------------------------------------------------ one lane's rows --
+# Derek 11-02 17:44: "I don't think they should be separated into two lanes just make it one big one". The block
+# between the lanes is gone, so the Alleyway is one lane 90 wide (set space x -45 to 45, its outer walls' inner
+# faces), and each blocker is a whole row across it with one way through 24 to 26 wide, never in line with the next.
+# A row is the pieces above end to end (each from its wall end X0, 16 or 8.5 long, its barrier on the row's line),
+# with the row's own lamp post at the way through, leaning out over it. Pivot: the lane's middle (x 0) on the floor,
+# on the row's line; place every row at rotY 0.
+LANE_HALF = 45.0
+ROWS = {
+    # name: (pieces as (builder, x0 of its wall end, +1 runs toward +X or -1 toward -X), lamp x, lamp's lean,
+    # barrier-only spans (x0, x1))
+    "RowCamp": ([(build_bins, -45.0, 1), (build_pallets, -29.0, 1),                         # the way through in
+                 (build_pallets, 45.0, -1), (build_bins, 29.0, -1)], (-13.35, 13.35), (1, -1), ()),   # the middle
+    "RowVan": ([(build_pallets, 45.0, -1), (build_van, 29.0, -1), (build_skip, 13.0, -1),     # the way through
+                (build_bins, -3.0, -1)], (-18.65,), (-1,), ()),                               # west
+    "RowSkip": ([(build_bins, -45.0, 1), (build_skip, -29.0, 1), (build_pallets, -13.0, 1),  # the way through
+                 (build_bins_short, 3.0, 1), (build_pallets_short, 11.5, 1)], (19.65,), (1,), ()),   # east
+    # the way through in the middle; the west Warehouse's crate stack (x -43.65 to -40.75, its end at z 0.03 past
+    # the row's line) stands between the wall and the first pile, the barrier on the row's line behind it
+    "RowFar": ([(build_pallets, -40.6, 1), (build_bins_short, -24.6, 1),
+                (build_bins, 45.0, -1), (build_skip, 29.0, -1)], (-16.45, 13.35), (1, -1), ((-45.0, -40.6),)),
+}
+
+
+def _row(key, mat):
+    pieces, lamps, leans, walls = ROWS[key]
+    s = Set(N + key)
+    for builder, x0, d in pieces:
+        s.put(builder(mat, lamp=False), x0 + d * 15.0, 0.0, 0.0 if d > 0 else 180.0)
+    b, bulb = RB(), RB()
+    for x, lean in zip(lamps, leans):                    # the row's lamp posts, the lamp out over the way through
+        b.cyl((x, 0.2, 0.0), 0.35, 0.4, "concrete_dark")
+        b.cyl((x, 4.7, 0.0), 0.14, 8.6, "fur_black")
+        x1 = x + lean * 1.5
+        b.span((min(x, x1) - 0.1, 8.75, -0.1), (max(x, x1) + 0.1, 8.95, 0.1), "fur_black")                  # the arm
+        xm = x + lean * 1.5
+        b.span((xm - 0.45, 8.55, -0.45), (xm + 0.45, 9.05, 0.45), "fur_black")                            # the head
+        bulb.span((xm - 0.35, 8.3, -0.32), (xm + 0.35, 8.6, 0.32), "lamp_warm")
+    objs = s.finish(b, mat)
+    objs.insert(1, bulb.finalize(N + key + "_Bulb", mat))
+    if walls:
+        bar = RB()
+        for x0, x1 in walls:
+            bar.span((x0, 0.0, -0.25), (x1, BARRIER_H, 0.25), "concrete")
+        objs.append(bar.finalize(N + key + "_Barrier", mat))
+    return objs
+
+
+def build_row_camp(mat):
+    return _row("RowCamp", mat)
+
+
+def build_row_van(mat):
+    return _row("RowVan", mat)
+
+
+def build_row_skip(mat):
+    return _row("RowSkip", mat)
+
+
+def build_row_far(mat):
+    return _row("RowFar", mat)
 
 
 ASSETS = {
@@ -335,4 +414,8 @@ ASSETS = {
     N + "PalletsShort": (build_pallets_short, 6000),
     N + "Skip": (build_skip, 8000),
     N + "Van": (build_van, 8000),
+    N + "RowCamp": (build_row_camp, 20000),
+    N + "RowVan": (build_row_van, 24000),
+    N + "RowSkip": (build_row_skip, 24000),
+    N + "RowFar": (build_row_far, 24000),
 }

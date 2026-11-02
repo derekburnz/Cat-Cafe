@@ -190,7 +190,7 @@
       "position": [
        0.0,
        0.057,
-       0.5605
+       0.5653
       ],
       "orientation": [
        [
@@ -212,9 +212,303 @@
      }
     },
     "Size": [
-     0.209,
+     0.076,
+     0.076,
+     0.0475
+    ],
+    "Color": [
+     0.5608,
+     0.8275,
+     0.7569
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Apron",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1045,
+       0.076,
+       0.5605
+      ],
+      "orientation": [
+       [
+        0.9511,
+        0.309,
+        0.0
+       ],
+       [
+        -0.309,
+        0.9511,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1425,
      0.095,
-     0.038
+     0.0333
+    ],
+    "Color": [
+     0.5608,
+     0.8275,
+     0.7569
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Apron",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0997,
+       0.076,
+       0.5753
+      ],
+      "orientation": [
+       [
+        0.9511,
+        0.309,
+        0.0
+       ],
+       [
+        -0.309,
+        0.9511,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0665,
+     0.0475,
+     0.0637
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Apron",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1615,
+       -0.0095,
+       0.5557
+      ],
+      "orientation": [
+       [
+        0.8192,
+        0.5736,
+        0.0
+       ],
+       [
+        -0.5736,
+        0.8192,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.057,
+     0.1045,
+     0.0238
+    ],
+    "Color": [
+     0.5608,
+     0.8275,
+     0.7569
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Apron",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1045,
+       0.076,
+       0.5605
+      ],
+      "orientation": [
+       [
+        0.9511,
+        -0.309,
+        0.0
+       ],
+       [
+        0.309,
+        0.9511,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1425,
+     0.095,
+     0.0333
+    ],
+    "Color": [
+     0.5608,
+     0.8275,
+     0.7569
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Apron",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0997,
+       0.076,
+       0.5753
+      ],
+      "orientation": [
+       [
+        0.9511,
+        -0.309,
+        0.0
+       ],
+       [
+        0.309,
+        0.9511,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0665,
+     0.0475,
+     0.0637
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Apron",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1615,
+       -0.0095,
+       0.5557
+      ],
+      "orientation": [
+       [
+        0.8192,
+        -0.5736,
+        0.0
+       ],
+       [
+        0.5736,
+        0.8192,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.057,
+     0.1045,
+     0.0238
     ],
     "Color": [
      0.5608,

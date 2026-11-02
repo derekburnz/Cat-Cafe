@@ -282,17 +282,12 @@ return function()
 			end
 		)
 
-		it("uses the east lane's way out, on the camp line in the lane's middle", function()
+		it("uses the one way in, on the camp line in the middle (F85)", function()
 			local W = Config.World
 			local lx, lz = Layout.campLocal(Layout.camps.alley, CAMP.wayOut.X, CAMP.wayOut.Z)
 			expect(lz).to.be.near(0, 1e-6)
-			expect(CAMP.wayOut.X - W.AlleyCenterX).to.be.near(
-				(W.AlleyInnerX + W.AlleyOuterX) / 2 - W.AlleyLaneShift,
-				1e-6
-			)
-			expect(math.abs(lx) < Layout.camps.alley.halfAcross).to.equal(true)
-			-- on the town side: east of the set's middle, toward the town
-			expect(CAMP.wayOut.X > W.AlleyCenterX).to.equal(true)
+			expect(lx).to.be.near(0, 1e-6)
+			expect(CAMP.wayOut.X).to.be.near(W.AlleyCenterX, 1e-6)
 			local step = CAMP.wayOut + CAMP.u
 			local inLane = false
 			for _, rect in Layout.alley.rects :: any do

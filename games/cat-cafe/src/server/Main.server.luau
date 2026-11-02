@@ -1,8 +1,11 @@
 --!strict
 -- Cat Cafe server bootstrap. Order matters: remotes and the world exist before any player loads.
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 local AssetRegistry = require(script.Parent.World.AssetRegistry)
 local BaitService = require(script.Parent.Services.BaitService)
@@ -48,6 +51,15 @@ local TipService = require(script.Parent.Services.TipService)
 local TradeService = require(script.Parent.Services.TradeService)
 local TravelService = require(script.Parent.Services.TravelService)
 local WorldBuilder = require(script.Parent.World.WorldBuilder)
+
+local Config = require(ReplicatedStorage.Shared.Config)
+
+-- The camera zooms out at most Config.CameraMaxZoomStuds (Derek 2026-11-02; Roblox's default is 128). A player takes
+-- StarterPlayer's limit as they join; anyone already in (a Studio test can be) gets it here.
+StarterPlayer.CameraMaxZoomDistance = Config.CameraMaxZoomStuds
+for _, player in Players:GetPlayers() do
+	player.CameraMaxZoomDistance = Config.CameraMaxZoomStuds
+end
 
 local started = os.clock()
 local placeholders = AssetRegistry.ensurePlaceholders()

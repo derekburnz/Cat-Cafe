@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Print the first-session numbers from Roblox analytics (Open Cloud Analytics Query API, beta), so a thread reads
 # where new players quit without Creator Hub. Read only. Sections:
-#   1. every funnel, players per step: the onboarding funnels (src/shared/Onboarding.luau: onboarding_v2 since F87,
-#      and the alpha's twelve step one before it) and the recurring ones
-#      (docs/growth/analytics-plan.md section 4), with the share of step 1 left and the players lost since the step
-#      before; the biggest loss is the first thing to fix. Roblox lets FunnelName be a filter only, so the script
-#      asks which funnels were logged (dimension-values) and then reads each funnel on its own.
+#   1. every funnel, players (or runs, for catch_attempt and bait_cycle) per step: the onboarding funnels
+#      (src/shared/Onboarding.luau: onboarding_v2 since F87, and the alpha's twelve step one before it) and the
+#      recurring ones (docs/growth/analytics-plan.md section 4), with the share of step 1 left and how many were
+#      lost since the step before; the biggest loss is the first thing to fix. Roblox lets FunnelName be a filter
+#      only, so the script asks which funnels were logged (dimension-values) and then reads each funnel on its own.
 #   2. players per day, new and returning; average session length; day 1 retention
 #   3. how long new players' first sessions lasted (Roblox's session time buckets)
 #   4. the most logged custom events (tutorial_step, intro_cutscene, travel and the rest of Telemetry.custom), each
@@ -220,10 +220,17 @@ say "Roblox fills a day about a day late, and records only live servers (not Stu
 say ""
 
 # 1. Funnels. FunnelUserTotalCount by FunnelStep, one funnel at a time (FunnelName is a filter only, and a required
-# one): the players who reached each step in the window.
+# one): the funnel sessions that reached each step in the window. The onboarding funnels have one session per player,
+# so they count players; catch_attempt (a GUID per attempt) and bait_cycle (one per bait) count runs.
+# Funnels whose steps were renumbered under the same name: funnel -> "first clean day|what changed". Roblox keys steps
+# by number, so a window that starts before that day adds the old step N to the new step N.
+declare -A renumbered=(
+	[catch_attempt]="2026-11-03|F93 (live v87, 11-02 02:58 UTC) put swing_hit in as step 1; before it step 1 was engaged, 2 caught, 3 checked_in and 4 working, and old servers ran past the publish."
+)
 funnelTable() { # funnel: the table for one funnel, or its error
-	local funnel=$1 line step label users first=0 previous=0 share lost
+	local funnel=$1 line step label users first=0 previous=0 share lost unit=Runs change=
 	local -a lines=()
+	[[ ${funnel,,} != *onboarding* ]] || unit=Players
 	say "#### $funnel"
 	say ""
 	if ! query FunnelUserTotalCount None FunnelStep "$(only FunnelName "$funnel")"; then
@@ -241,7 +248,7 @@ funnelTable() { # funnel: the table for one funnel, or its error
 		say ""
 		return
 	fi
-	say "| Step | Name | Players | Of step 1 | Lost since the step before |"
+	say "| Step | Name | $unit | Of step 1 | Lost since the step before |"
 	say "|---:|---|---:|---:|---:|"
 	for line in "${lines[@]}"; do
 		IFS='|' read -r step label users <<<"$line"
@@ -253,9 +260,18 @@ funnelTable() { # funnel: the table for one funnel, or its error
 		previous=$users
 	done
 	say ""
+	if [ "$unit" = Runs ]; then
+		say "_Runs, not players: each attempt is its own funnel session, so one player counts many times._"
+		say ""
+	fi
+	change=${renumbered[$funnel]:-}
+	if [ -n "$change" ] && [[ ${start:0:10} < ${change%%|*} ]]; then
+		say "_Mixed numbering: ${change#*|} This window starts before ${change%%|*}, so old and new steps add up under one number and the losses between steps are wrong._"
+		say ""
+	fi
 }
 
-say "### Funnels: players per step"
+say "### Funnels: players (onboarding) or runs per step"
 say ""
 if values FunnelUserTotalCount FunnelName; then
 	# the onboarding funnels first, then the rest by name

@@ -993,7 +993,7 @@ local function buildNightFences(gates: { [string]: Model }, plots: { Plot }, par
 	for areaId, gate in gates do
 		local asset = "CatCafe_" .. areaId:sub(1, 1):upper() .. areaId:sub(2) .. "_NightFence"
 		if AssetRegistry.has(asset .. artSuffix(areaId)) then
-			asset ..= artSuffix(areaId) -- a long area's own fence; the Woods' v3.2 one already fits its opening
+			asset ..= artSuffix(areaId) -- a long area's own fence; the Woods' and Sewer's v3.2 ones fit already
 		end
 		if AssetRegistry.has(asset) then
 			placeNightFence(asset, gate:GetPivot(), parent).Name = asset

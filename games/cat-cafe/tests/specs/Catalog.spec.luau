@@ -1129,7 +1129,7 @@ return function()
 					{ "park", "Park", 2, 48, same, 5, 3 }, -- F85's long set's cat spots (#799)
 					{ "neighbourhood", "Neighbourhood", 3, 74, same, 5, 9 }, -- F85's long set's cat spots (#810)
 					{ "woods", "Woods", 4, 72, same, 4, 27 }, -- F85's long set (#847) and the oak top
-					{ "sewer", "Sewer", 5, 52, same, 4, 81 }, -- the v3.2 set's cat spots (F81, #491)
+					{ "sewer", "Sewer", 5, 60, same, 4, 81 }, -- F85's long set's cat spots (#860)
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do

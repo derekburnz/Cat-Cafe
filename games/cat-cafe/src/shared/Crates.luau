@@ -185,11 +185,18 @@ function Crates.styleInUse(profile: Types.PlayerProfile, kind: Types.DecorKind):
 	return nil
 end
 
--- Pieces of `pool` the player owns, out of its twelve.
+-- The pieces on `pool`'s Decor Index page: its crate's pieces (twelve, sixteen on the Classic page since F97 brought
+-- the old coin pieces in), so the server counts the same page the UI shows.
+local function pagePieces(pool: string): { string }
+	local crate = Catalog.getCrate(pool .. "_crate")
+	return if crate == nil then {} else crate.pieces
+end
+
+-- Pieces of `pool` the player owns, out of its page.
 function Crates.pageCount(profile: Types.PlayerProfile, pool: string): number
 	local n = 0
-	for _, def in Catalog.crateDecor do
-		if def.crate == pool and profile.decorOwned[def.id] then
+	for _, id in pagePieces(pool) do
+		if profile.decorOwned[id] then
 			n += 1
 		end
 	end
@@ -198,18 +205,10 @@ end
 
 -- Decor Index pages with every piece found.
 function Crates.fullPages(profile: Types.PlayerProfile): number
-	local owned: { [string]: number } = {}
-	local size: { [string]: number } = {}
-	for _, def in Catalog.crateDecor do
-		local pool = def.crate :: string
-		size[pool] = (size[pool] or 0) + 1
-		if profile.decorOwned[def.id] then
-			owned[pool] = (owned[pool] or 0) + 1
-		end
-	end
 	local full = 0
-	for pool, n in size do
-		if owned[pool] == n then
+	for pool in Catalog.cratePools do
+		local pieces = pagePieces(pool)
+		if #pieces > 0 and Crates.pageCount(profile, pool) == #pieces then
 			full += 1
 		end
 	end

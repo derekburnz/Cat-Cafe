@@ -973,7 +973,6 @@ function CafeService.addCaughtCat(
 				"good"
 			)
 		end
-		local stars = CatStats.starsText(CatStats.stars(CatStats.charm(instance)))
 		local spot = if instance.spotId ~= nil
 			then Catalog.getSpot(instance.spotId :: string)
 			else nil
@@ -990,17 +989,17 @@ function CafeService.addCaughtCat(
 				"good"
 			)
 		elseif spot ~= nil then
+			-- F97 section 5: no charm stars on any cat text now
 			Net.toast(
 				player,
-				string.format("%s %s is working as %s", stars, def.name, roleName(spot)),
+				string.format("%s is working as %s", def.name, roleName(spot)),
 				"info"
 			)
 		else
 			Net.toast(
 				player,
 				string.format(
-					"%s %s is in the cat room. Every role is taken; give it one from there.",
-					stars,
+					"%s is in the cat room. Every role is taken; give it one from there.",
 					def.name
 				),
 				"info"
@@ -1349,12 +1348,13 @@ local function onBuyLure(player: Player, rawId: unknown)
 			)
 		)
 	end
-	if not Economy.trySpend(profile, def.cost) then
+	local price = Economy.foodPrice(lureId, Economy.tier(profile)) -- F97: grows with the tier
+	if not Economy.trySpend(profile, price) then
 		Net.toast(player, "Not enough coins", "warn")
 		CafeService.sync(player)
 		return
 	end
-	Telemetry.sink(player, profile, def.cost, "Shop", lureId)
+	Telemetry.sink(player, profile, price, "Shop", lureId)
 	profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
 	Net.toast(player, string.format("Bought %s (%d)", def.name, profile.lures[lureId]), "good")
 	CafeService.sync(player)

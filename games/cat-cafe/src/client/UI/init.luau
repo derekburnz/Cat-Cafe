@@ -253,8 +253,14 @@ local tutorialText: string? = nil -- UI.tutorial.show's line, nil once hidden
 local applyTutorial: () -> ()
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
--- data-model section 8: ResolveBait within 20 studs of the bowl; UseLure works from anywhere (Derek 2026-10-28)
-local RESOLVE_RANGE: number = Config.BaitResolveRangeStuds
+-- data-model section 8: UseLure works from anywhere (Derek 2026-10-28), and so do Tame and Let go once the server drops
+-- BaitResolveRangeStuds (Derek 2026-10-28: "tame or let go from anywhere"); while Config has the range, the bait card
+-- greys its buttons beyond it as the server refuses there
+local resolveRange: unknown = (Config :: any).BaitResolveRangeStuds
+local RESOLVE_RANGE: number? = if type(resolveRange) == "number"
+		and resolveRange < math.huge
+	then resolveRange
+	else nil
 -- data-model section 8b: BuyDealerFood within 12 studs of the cart
 local CART_RANGE: number = Config.DealerRangeStuds
 
@@ -1056,7 +1062,9 @@ function UI.init(config: Types.InitConfig)
 			nearClock = 0
 			local distance = distanceTo(bowlPart)
 			if baitCard then
-				baitCard:setNear(if distance then distance <= RESOLVE_RANGE else nil)
+				baitCard:setNear(
+					if distance and RESOLVE_RANGE then distance <= RESOLVE_RANGE else nil
+				)
 			end
 			if dealerScreen then
 				local cart = distanceTo(cartPart)

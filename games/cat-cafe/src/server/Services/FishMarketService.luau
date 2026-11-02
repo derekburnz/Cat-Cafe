@@ -110,11 +110,15 @@ local function open(
 	else
 		profile.decorOwned[decorId] = true
 		-- a new furniture or decoration piece takes a free spot by itself; a new wallpaper, floor or paint waits for
-		-- the window's "Use it" (ToggleDecor)
+		-- the window's "Use it" (ToggleDecor). An old coin piece (F97: no kind, its own anchor, no spot) goes out at
+		-- once, as the shop's did.
 		local cap = Crates.spotCap(Economy.tier(profile), profile.fishPerks.extra_decor_spot or 0)
 		if
-			Crates.takesSpot(def)
-			and Crates.spotsUsed(profile, Economy.replacedDecor(profile)) < cap
+			def.kind == nil
+			or (
+				Crates.takesSpot(def)
+				and Crates.spotsUsed(profile, Economy.replacedDecor(profile)) < cap
+			)
 		then
 			profile.decorPlaced[decorId] = true
 			placed = true

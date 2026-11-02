@@ -794,47 +794,36 @@ return function()
 	end)
 
 	describe("decor (section 7)", function()
-		local expected: { [string]: { cost: number, bonus: number, requiresTier: number, asset: string } } =
-			{
-				plants = {
-					cost = 4000, -- v0.13.6
-					bonus = 0.05,
-					requiresTier = 2,
-					asset = "CatCafe_Decor_WindowPlants",
-				},
-				rug = { cost = 8000, bonus = 0.05, requiresTier = 2, asset = "CatCafe_Decor_Rug" },
-				neon_sign = {
-					cost = 240000, -- F95
-					bonus = 0.10,
-					requiresTier = 3,
-					asset = "CatCafe_Decor_NeonSign",
-				},
-				fish_tank = {
-					cost = 4000000, -- F95
-					bonus = 0.10,
-					requiresTier = 4,
-					asset = "CatCafe_Decor_FishTank",
-				},
-			}
+		-- F97 (notes-10-28-to-10-30.md section 2): the coin shop closed; the four pieces are Classic Crate finds at
+		-- their rarity, with the same bonuses and models.
+		local expected: { [string]: { rarity: string, bonus: number, asset: string } } = {
+			plants = { rarity = "Common", bonus = 0.05, asset = "CatCafe_Decor_WindowPlants" },
+			rug = { rarity = "Common", bonus = 0.05, asset = "CatCafe_Decor_Rug" },
+			neon_sign = { rarity = "Rare", bonus = 0.10, asset = "CatCafe_Decor_NeonSign" },
+			fish_tank = { rarity = "Epic", bonus = 0.10, asset = "CatCafe_Decor_FishTank" },
+		}
 
-		it("has exactly the four shop decor items with their tiers", function()
-			local shop = 0
-			for _, def in ipairs(Catalog.decor) do
-				if def.source == nil or def.source == "shop" then
-					shop += 1
-				end
+		it("has exactly the four old shop pieces, now never sold and found in the Classic Crate", function()
+			expect(#Catalog.decor).to.equal(4)
+			local classic = assert(Catalog.getCrate("classic_crate"))
+			local inCrate: { [string]: boolean } = {}
+			for _, decorId in classic.pieces do
+				inCrate[decorId] = true
 			end
-			expect(shop).to.equal(4)
 			for id, row in pairs(expected) do
 				local def = Catalog.getDecor(id)
 				expect(def).to.be.ok()
 				assert(def)
-				expect(def.cost).to.equal(row.cost)
+				expect(def.cost).to.equal(0)
+				expect(def.source).to.equal("crate")
+				expect(def.crate).to.equal("classic")
+				expect(def.rarity).to.equal(row.rarity)
 				expect(def.bonus).to.be.near(row.bonus)
-				expect(def.requiresTier).to.equal(row.requiresTier)
+				expect(def.requiresTier).never.to.be.ok()
 				expect((def :: any).requiresCafeLevel).never.to.be.ok()
 				expect(def.asset).to.equal(row.asset)
 				expect(#def.effect > 0).to.equal(true)
+				expect(inCrate[id]).to.equal(true)
 			end
 		end)
 
@@ -850,6 +839,7 @@ return function()
 		local expected: {
 			[string]: {
 				cost: number,
+				sortOrder: number,
 				source: string,
 				attracts: string,
 				name: string,
@@ -859,49 +849,56 @@ return function()
 			{
 				kibble = {
 					name = "Kibble",
-					cost = 30,
+					cost = 100, -- F97: about four times the old price
+					sortOrder = 1,
 					source = "shop",
 					attracts = "Common",
 					odds = { Common = 70, Rare = 25, Epic = 4, Legendary = 0.9, Mythical = 0.1 },
 				},
 				tuna = {
 					name = "Tuna",
-					cost = 125,
+					cost = 500, -- F97: about four times the old price
+					sortOrder = 2,
 					source = "shop",
 					attracts = "Rare",
 					odds = { Common = 40, Rare = 45, Epic = 12, Legendary = 2.6, Mythical = 0.4 },
 				},
 				salmon = {
 					name = "Salmon",
-					cost = 625,
+					cost = 2500, -- F97: about four times the old price
+					sortOrder = 4,
 					source = "shop",
 					attracts = "Epic",
 					odds = { Common = 15, Rare = 45, Epic = 30, Legendary = 8.5, Mythical = 1.5 },
 				},
 				sardines = {
 					name = "Moonlit Sardines",
-					cost = 1000,
+					cost = 4000, -- F97: about four times the old price
+					sortOrder = 3,
 					source = "dealer",
 					attracts = "Rare",
 					odds = { Common = 30, Rare = 45, Epic = 20, Legendary = 4.5, Mythical = 0.5 },
 				},
 				caviar = {
 					name = "Caviar",
-					cost = 3750,
+					cost = 15000, -- F97: about four times the old price
+					sortOrder = 5,
 					source = "dealer",
 					attracts = "Epic",
 					odds = { Common = 10, Rare = 35, Epic = 38, Legendary = 14, Mythical = 3 },
 				},
 				moon_milk = {
 					name = "Moon Milk",
-					cost = 12500,
+					cost = 50000, -- F97: about four times the old price
+					sortOrder = 6,
 					source = "dealer",
 					attracts = "Epic",
 					odds = { Common = 0, Rare = 20, Epic = 45, Legendary = 28, Mythical = 7 },
 				},
 				star_treat = {
 					name = "Star Treat",
-					cost = 50000,
+					cost = 200000, -- F97: about four times the old price
+					sortOrder = 7,
 					source = "dealer",
 					attracts = "Legendary",
 					odds = { Common = 0, Rare = 0, Epic = 40, Legendary = 45, Mythical = 15 },
@@ -916,6 +913,7 @@ return function()
 				assert(def)
 				expect(def.name).to.equal(row.name)
 				expect(def.cost).to.equal(row.cost)
+				expect(def.sortOrder).to.equal(row.sortOrder)
 				expect(def.source).to.equal(row.source)
 				expect(def.attracts).to.equal(row.attracts)
 				expect(def.odds :: any).to.deepEqual(row.odds)

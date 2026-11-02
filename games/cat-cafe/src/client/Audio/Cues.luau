@@ -510,7 +510,7 @@ local Cues: { [string]: Cue } = {
 		group = "Sfx",
 		volume = 0.6,
 		minGap = 0.3,
-	}, -- F61: the tip piles are collected
+	}, -- F61: the tip piles were collected; silent since F97 (#714) pays them as they appear, kept for its upload record
 	dealerArrive = { ids = {}, group = "Sfx", volume = 0.7, range = 60 },
 	dealerLeave = { ids = {}, group = "Sfx", volume = 0.6, range = 60 },
 

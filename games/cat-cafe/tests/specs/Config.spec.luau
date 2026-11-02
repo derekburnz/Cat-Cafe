@@ -64,7 +64,6 @@ return function()
 		LureWaitSeconds = 600,
 		LureWaitSecondsNight = 300, -- F60: night bait, half the wait
 		BaitBowlRangeStuds = 12,
-		BaitResolveRangeStuds = 20,
 		GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02)
 		GoldChanceNet = 0.05, -- F30, v0.5 F42 (was 0.02)
 		CarryWalkSpeed = 16, -- v0.4
@@ -120,6 +119,7 @@ return function()
 		TipPileSeconds = 30, -- F61: tip piles (section 12)
 		TipPileRateSeconds = 6,
 		TipPilesMax = 6,
+		TipPileShowSeconds = 90, -- F97 section 1: a paid pile shows this long
 		RichTipStaySeconds = 90,
 		-- the Mystery Visitor and potions (F64, section 12b)
 		MysteryCheckSeconds = 120,
@@ -241,6 +241,10 @@ return function()
 			end
 		)
 
+		it("FoodTierPriceFactor = 1, 1, 4, 8, 16 by tier (F97, notes-10-28-to-10-30.md section 3)", function()
+			expect(Config.FoodTierPriceFactor :: any).to.deepEqual({ 1, 1, 4, 8, 16 })
+		end)
+
 		it("IntroAutoPlay = false: the intro waits for the Tutorial tile (F87, easy-start.md section 2a)", function()
 			expect(Config.IntroAutoPlay).to.equal(false)
 		end)
@@ -259,7 +263,8 @@ return function()
 				LureReserveSeconds = true,
 				IntroAutoPlay = true, -- false, checked below
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
-				TipPileCollectRangeStuds = true, -- section 12 (F61): the client sends CollectTips within 8 studs
+				WaveMinRareRerollOdds = true, -- a table, checked in Catching.spec (F97 section 7)
+				FoodTierPriceFactor = true, -- a table, checked below (F97 section 3)
 				FishFirstCatch = true, -- a table, checked below
 				FishRepeatCatch = true, -- a table, checked below
 				FishRankUp = true, -- a table, checked below
@@ -576,8 +581,8 @@ return function()
 			end
 		)
 
-		it("bait bowl: the card reaches further than Use, and gold is a probability", function()
-			expect(Config.BaitResolveRangeStuds >= Config.BaitBowlRangeStuds).to.equal(true)
+		it("bait bowl: gold is a probability (Tame and Let go work from anywhere since 2026-10-28)", function()
+			expect((Config :: any).BaitResolveRangeStuds).never.to.be.ok()
 			expect(Config.GoldChanceBait > 0 and Config.GoldChanceBait < 1).to.equal(true)
 		end)
 

@@ -662,6 +662,15 @@ local function spawnWave(areaDef: Types.AreaDef)
 	for _ = 1, areaDef.waveSize do
 		table.insert(rarities, Catching.pickRarity(areaDef.odds, rng:NextNumber()))
 	end
+	-- F97 section 7: every wave has an Epic or rarer stray
+	local rerolled = Catching.waveRare(rarities, rng:NextNumber())
+	if rerolled ~= nil then
+		-- a server event with no player of its own: logged under the first player here, none in an empty server
+		local someone: Player? = DataService.loadedPlayers()[1]
+		if someone ~= nil then
+			Telemetry.custom(someone, "wave_rare", 1, { areaDef.id, rerolled })
+		end
+	end
 	table.sort(rarities, function(a, b)
 		return Catalog.rarityRank[a] > Catalog.rarityRank[b]
 	end)

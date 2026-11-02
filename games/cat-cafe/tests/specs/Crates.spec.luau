@@ -110,10 +110,11 @@ return function()
 			end
 		end)
 
-		it("leaves every crate piece out of the coin Decor shop list", function()
+		it("sells no decor for coins: the four old coin pieces are Classic Crate finds (F97)", function()
 			for _, def in Catalog.decor do
-				expect(def.source).never.to.be.ok()
-				expect(def.cost > 0).to.equal(true)
+				expect(def.source).to.equal("crate")
+				expect(def.crate).to.equal("classic")
+				expect(def.cost).to.equal(0)
 			end
 		end)
 
@@ -122,7 +123,8 @@ return function()
 				local crate = Catalog.getCrate(pool .. "_crate")
 				local golden = Catalog.getCrate(pool .. "_golden_crate")
 				assert(crate and golden)
-				expect(#crate.pieces).to.equal(12)
+				-- F97: the Classic page also holds the four old coin pieces
+				expect(#crate.pieces).to.equal(if pool == "classic" then 16 else 12)
 				expect(golden.pieces).to.equal(crate.pieces)
 				for _, decorId in crate.pieces do
 					expect((Catalog.getDecor(decorId) :: any).crate).to.equal(pool)
@@ -400,10 +402,8 @@ return function()
 			local base = Economy.cafeMultiplier(profile)
 			profile.fishPerks.golden_espresso = 3
 			expect(Economy.cafeMultiplier(profile)).to.be.near(base + 0.15, 1e-9)
-			for _, def in Catalog.crateDecor do
-				if def.crate == "classic" then
-					own(profile, def, false)
-				end
+			for _, decorId in (Catalog.getCrate("classic_crate") :: any).pieces do -- all sixteen since F97
+				own(profile, Catalog.getDecor(decorId), false)
 			end
 			expect(Crates.fullPages(profile)).to.equal(1)
 			expect(Economy.cafeMultiplier(profile)).to.be.near(base + 0.15, 1e-9) -- F54: the claim pays it
@@ -435,8 +435,11 @@ return function()
 			function()
 				-- A grid of rarity rolls and piece rolls stands in for the server's Random: the share of the grid each
 				-- piece gets is its real chance, to within one rarity step (1 / N).
-				local N, M = 1000, 60 -- 60 splits 1 to 5 pieces of a rarity evenly (5 Commons since F80)
+				local N = 1000
 				for _, crate in Catalog.crates do
+					-- 60 splits 1 to 5 pieces of a rarity evenly (5 Commons since F80); 420 also splits the Classic
+					-- page's 7 Commons (F97)
+					local M = if #crate.pieces > 12 then 420 else 60
 					for _, luck in { 0, Config.CrateLuckyEvery - 1 } do
 						local shown = Crates.pieceChances(crate, Crates.oddsFor(crate, luck))
 						local hits: { [string]: number } = {}
@@ -679,7 +682,11 @@ return function()
 				expect(total).to.be.near(100, 1e-9)
 				for _, id in { want.door, want.flap } do
 					local common = (id == want.door) == want.commonDoor
-					expect(plain[id]).to.be.near(if common then 12 else 6.75, 1e-9)
+					-- F97: the Classic Crate's Commons and Rares are shared with two and one old coin pieces
+					local chance = if pool == "classic"
+						then (if common then 60 / 7 else 27 / 5)
+						else (if common then 12 else 6.75)
+					expect(plain[id]).to.be.near(chance, 1e-9)
 					expect(lucky[id] or 0).to.equal(0)
 					expect(gold[id] or 0).to.equal(0)
 				end
@@ -766,13 +773,20 @@ return function()
 						own(profile, def, false)
 					end
 				end
-				expect(Crates.pageCount(profile, pool)).to.equal(10)
+				local extra = 0 -- F97: the Classic page's four old coin pieces
+				for _, def in Catalog.decor do
+					if def.crate == pool then
+						own(profile, def, false)
+						extra += 1
+					end
+				end
+				expect(Crates.pageCount(profile, pool)).to.equal(10 + extra)
 				expect(Crates.fullPages(profile)).to.equal(0)
 				own(profile, assert(Catalog.getDecor(want.door)), false)
-				expect(Crates.pageCount(profile, pool)).to.equal(11)
+				expect(Crates.pageCount(profile, pool)).to.equal(11 + extra)
 				expect(Crates.fullPages(profile)).to.equal(0)
 				own(profile, assert(Catalog.getDecor(want.flap)), false)
-				expect(Crates.pageCount(profile, pool)).to.equal(12)
+				expect(Crates.pageCount(profile, pool)).to.equal(12 + extra)
 				expect(Crates.fullPages(profile)).to.equal(1)
 			end
 		end)

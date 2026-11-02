@@ -24,6 +24,7 @@ import math
 from mathutils import Matrix, Vector
 
 import cats
+import gold
 from common import Builder
 
 B_BACK_Y = cats.B_CHEST_C[1] + cats.B_CHEST_S[1] / 2      # the back face of B's chest
@@ -150,14 +151,6 @@ def _strap_round(ctx, sw, at_y=0.0):
     for side in (-1, 1):                                # 0.01 into the fur, out past the coat patches
         P.box((side * (hx + 0.015), at_y, belly / 2), (0.05, 0.08, sz - 0.02), sw)
     P.box((0, at_y, belly - 0.015), (sx - 0.02, 0.08, 0.05), sw)
-
-
-def _shoulder_straps(ctx, sw, xs=(-0.2, 0.2)):
-    """B: two straps over the top of the chest from the back, ending under the head (clear of the role outfits)."""
-    P = ctx.pen("up")
-    for x in xs:
-        P.box((x, -0.11, 0.125), (0.09, 0.26, 0.04), sw)              # along the chest top (z 1.1), under the chin
-        P.box((x, 0.02, -0.02), (0.09, 0.05, 0.3), sw)                # down the back to the prop
 
 
 # ------------------------------------------------------------------------------------------------- Head --
@@ -492,11 +485,6 @@ def snorkel_mask(ctx):
 
 
 # ------------------------------------------------------------------------------------------------- Back --
-def _b_straps(ctx, sw):
-    if ctx.body == "sit":
-        _shoulder_straps(ctx, sw)
-
-
 def guitar(ctx):
     """Tortie, Rocker Cat: a red mini electric guitar slung across the back, neck toward the left shoulder."""
     P = ctx.pen("back")
@@ -504,7 +492,7 @@ def guitar(ctx):
     # head it hid under it); on B it goes up over the left shoulder.
     walk = ctx.body == "walk"
     R = _rz(-55 if walk else 55)
-    o, lift, d = 0.07, (0.0 if walk else -0.06), (-1 if walk else 1)
+    o, lift, d = (0.07, 0.0, -1) if walk else (0.115, -0.06, 1)     # B: the body's inner face B_CLEAR off the back
 
     def at(x, a, z=0.0):
         return tuple(R @ Vector((x, d * a + lift, 0)) + Vector((0, 0, o + z)))
@@ -520,12 +508,16 @@ def guitar(ctx):
     if ctx.body == "walk":
         _strap_round(ctx, "fur_black", at_y=0.1)
     else:
-        _shoulder_straps(ctx, "fur_black", xs=(0.2,))
+        _sling(ctx, "fur_black", xs=(0.2,))
 
 
 def fairy_wings(ctx):
-    """Blossom, Fairy Cat: two pairs of lilac and sky wings from the shoulders, tipped back a little."""
+    """Blossom, Fairy Cat: two pairs of lilac and sky wings from the shoulders, tipped back a little. On B they ride
+    a harness strap, B_CLEAR off the back."""
     U = ctx.pen("up")
+    if ctx.body == "sit":
+        U = Pen(U.b, tuple(Vector(U.at) + Vector((0, 0.07, 0))), U.R, U.s)
+        _sling(ctx, "fur_rose", xs=(0.0,), down=0.09)
     lean = _rx(-25 if ctx.body == "walk" else -15)
     for sx in (-1, 1):
         P = Pen(U.b, U.at, U.R @ lean, U.s * 1.3)
@@ -539,9 +531,10 @@ def skateboard(ctx):
     P = ctx.pen("back")
     R = Matrix.Identity(3) if ctx.body == "walk" else _rz(90)
     L = 0.4 if ctx.body == "walk" else 0.36
+    lift = 0.0 if ctx.body == "walk" else 0.05          # B: the deck's inner face B_CLEAR off the back
 
     def at(x, a, o):
-        return tuple(R @ Vector((x, a, o)))
+        return tuple(R @ Vector((x, a, o + lift)))
     P.box(at(0, 0, 0.05), (0.38, 2 * L, 0.05), "sign_teal", rot=R)
     for sa in (-1, 1):
         P.box(at(0, sa * (L + 0.07), 0.08), (0.38, 0.16, 0.05), "sign_teal", rot=R @ _rx(sa * 20))
@@ -552,7 +545,7 @@ def skateboard(ctx):
     if ctx.body == "walk":
         _strap_round(ctx, "fur_black", at_y=0.0)
     else:
-        _shoulder_straps(ctx, "fur_black")
+        _sling(ctx, "fur_black", down=0.175)
 
 
 def hero_cape(ctx):
@@ -599,13 +592,14 @@ def backpack(ctx):
             P.cyl((sx * 0.18, 0.1, 0.35), 0.118, 0.04, "dark_wood", rot=_ry(90), segments=10)
         _strap_round(ctx, "dark_wood", at_y=0.08)
     else:
-        P.box((0, -0.02, 0.11), (0.5, 0.42, 0.24), "leaf_dark", bevel=True)
-        P.box((0, -0.12, 0.24), (0.46, 0.2, 0.03), "leaf_green")
-        P.box((0, 0.1, 0.24), (0.3, 0.14, 0.03), "leaf_green")
-        P.cyl((0, -0.31, 0.16), 0.11, 0.6, "brick", rot=_ry(90), segments=10)
+        o = 0.08                                        # the pack's inner face B_CLEAR off the back
+        P.box((0, -0.02, 0.11 + o), (0.5, 0.42, 0.24), "leaf_dark", bevel=True)
+        P.box((0, -0.12, 0.24 + o), (0.46, 0.2, 0.03), "leaf_green")
+        P.box((0, 0.1, 0.24 + o), (0.3, 0.14, 0.03), "leaf_green")
+        P.cyl((0, -0.31, 0.16 + o), 0.11, 0.6, "brick", rot=_ry(90), segments=10)
         for sx in (-1, 1):
-            P.cyl((sx * 0.18, -0.31, 0.16), 0.118, 0.04, "dark_wood", rot=_ry(90), segments=10)
-        _shoulder_straps(ctx, "dark_wood")
+            P.cyl((sx * 0.18, -0.31, 0.16 + o), 0.118, 0.04, "dark_wood", rot=_ry(90), segments=10)
+        _sling(ctx, "dark_wood", down=0.135)
 
 
 def firefly_jar(ctx):
@@ -613,8 +607,8 @@ def firefly_jar(ctx):
     U, G = ctx.pen("up"), ctx.gpen("up")
     if ctx.body == "walk":
         at = (0, 0.25, -0.01)
-    else:                                               # against the back, resting on the haunches
-        at = (0, 0.205, ctx.haunch_top - 0.98 + 0.01)
+    else:                                               # B_CLEAR off the back, resting on the haunches
+        at = (0, 0.295, ctx.haunch_top - 0.98 + 0.01)
     x, y, z = at
     G.cyl((x, y, z + 0.25), 0.2, 0.44, "glass", segments=12)
     U.cyl((x, y, z + 0.49), 0.21, 0.07, "metal", segments=12)
@@ -626,12 +620,16 @@ def firefly_jar(ctx):
     if ctx.body == "walk":
         _strap_round(ctx, "dark_wood", at_y=0.25 - ctx.d["body"][1][1] * 0.22)
     else:
-        _shoulder_straps(ctx, "dark_wood")
+        _sling(ctx, "dark_wood", xs=(0.0,), down=0.09)
 
 
 def dragon_wings(ctx):
-    """Eclipse, Dragon Cat: two little bat-wing dragon wings from the shoulders, green membranes on mint bones."""
+    """Eclipse, Dragon Cat: two little bat-wing dragon wings from the shoulders, green membranes on mint bones. On B
+    they ride a harness strap, B_CLEAR off the back."""
     U = ctx.pen("up")
+    if ctx.body == "sit":
+        U = Pen(U.b, tuple(Vector(U.at) + Vector((0, 0.07, 0))), U.R, U.s)
+        _sling(ctx, "fur_emerald", xs=(0.0,), down=0.09)
     lean = _rx(-30 if ctx.body == "walk" else -20)
     tips = [(0.12, 0.42), (0.38, 0.4), (0.56, 0.22), (0.62, 0.0)]
     edge = [(0.12, 0.42), (0.22, 0.3), (0.38, 0.4), (0.44, 0.2), (0.56, 0.22), (0.54, 0.05), (0.62, 0.0), (0.4, -0.04),
@@ -1026,6 +1024,392 @@ def wrench(ctx):
         P.box((x, B_CLEAR + 0.03, z), (0.11, 0.08, 0.07), "dark_wood")                          # holding the wrench
 
 
+# ------------------------------------------------------------------- second props, later areas (Set 4 Q2) --
+# Derek 2026-10-29 ("All of them sound good"): a second prop for each Neighbourhood, Woods and Sewer themed cat
+# except the Unicorn Cat, each in the slot its first prop leaves free.
+def backwards_cap(ctx):
+    """Munchkin, Skater Cat's second prop: a teal baseball cap on backwards, the pink peak over the back of the
+    head, a button on top and a gold star on the front like the one on its skateboard."""
+    P = ctx.pen("head")
+    P.cyl((0, 0, 0.055), 0.31, 0.12, "sign_teal", segments=12)                                  # crown
+    P.sphere((0, 0, 0.115), 0.31, "sign_teal", scale=(1, 1, 0.5), segments=12, rings=4)        # its dome
+    P.cyl((0, 0, 0.275), 0.05, 0.03, "neon_pink", segments=8)                                   # button
+    P.box((0, 0.43, 0.035), (0.46, 0.3, 0.035), "neon_pink", rot=_rx(-10))                       # the peak, behind
+    P.star((0, -0.312, 0.075), 0.075, 0.032, 0.02, "rarity_legend", rot=_rx(90))               # a star on the front
+
+
+def paintbrush(ctx):
+    """Fold, Painter Cat's second prop: a paintbrush held across the mouth, a caramel handle with a red end, a
+    metal ferrule and flat bristles dipped in teal."""
+    F = ctx.pen("face")
+    a = 8                                               # the bristle end a little higher
+    d = Vector((math.cos(math.radians(a)), 0, math.sin(math.radians(a))))
+    c = Vector((0.0, -0.07, ctx.mouth_z - 0.01))
+    along, flat = _ry(90 - a), _ry(-a)
+
+    def at(u):
+        return tuple(c + d * u)
+    F.cyl(at(-0.17), 0.035, 0.72, "caramel_wood", rot=along, segments=8)                     # handle
+    F.cyl(at(-0.545), 0.038, 0.05, "bowl_red", rot=along, segments=8)                        # its painted end
+    F.cyl(at(0.24), 0.045, 0.12, "metal", rot=along, segments=8)                              # ferrule
+    F.box(at(0.36), (0.14, 0.06, 0.1), "cardboard", rot=flat)                                 # bristles
+    F.box(at(0.45), (0.07, 0.066, 0.104), "sign_teal", rot=flat)                              # dipped in teal
+    F.box(tuple(c + d * 0.43 + Vector((0, 0, -0.07))), (0.03, 0.03, 0.06), "sign_teal")      # a drip
+
+
+def curly_moustache(ctx):
+    """Chonk, Chef Cat's second prop: a big curly chef's moustache under the nose, sweeping out and curling up."""
+    F = ctx.pen("face")
+    y, col = -0.06, "choco"
+    F.box((0, y, -0.17), (0.16, 0.05, 0.07), col)                                             # under the nose
+    for sx in (-1, 1):
+        F.bar((sx * 0.06, y, -0.175), (sx * 0.23, y, -0.205), 0.075, 0.05, col, up=(0, -1, 0))  # sweeping out
+        F.bar((sx * 0.22, y, -0.215), (sx * 0.29, y, -0.165), 0.055, 0.045, col, up=(0, -1, 0))   # and up
+        F.ring((sx * 0.3, y, -0.205), 0.058, 0.03, 0.04, col, rot=_rx(90), segments=8)        # a curl, under the eye
+
+
+def letter(ctx):
+    """Postie, Mail Cat's second prop: a letter held in the mouth by its corner, a cream envelope with its flap
+    drawn on, a red seal and a teal stamp."""
+    F = ctx.pen("face")
+    R = _ry(-12)
+    c = Vector((0.2, -0.04, ctx.mouth_z - 0.1))
+    face, out = R @ _rx(90), tuple(R @ Vector((0, -1, 0)))
+
+    def at(u, w, v=0.0):
+        return tuple(c + R @ Vector((u, v, w)))
+    F.box(at(0, 0), (0.5, 0.03, 0.32), "offwhite", rot=R)                                     # the envelope
+    for su in (-1, 1):                                                                          # its flap, a V
+        F.bar(at(su * 0.235, 0.145, -0.018), at(0, -0.02, -0.018), 0.035, 0.008, "fur_grey", up=out)
+    F.cyl(at(0, -0.02, -0.023), 0.055, 0.014, "bowl_red", rot=face, segments=10)            # wax seal
+    F.box(at(0.17, -0.085, -0.019), (0.09, 0.008, 0.1), "sign_teal", rot=R)                 # stamp, under the flap
+    F.box(at(0.17, -0.085, -0.024), (0.05, 0.004, 0.06), "offwhite", rot=R)
+
+
+def hero_mask(ctx):
+    """Marshmallow, Super Cat's second prop: a red domino mask round both eyes with eye holes, pointed tips up at
+    the outer corners, on a strap; the cheeks' blush stays clear."""
+    F, ex, hw, hh = ctx.pen("face"), ctx.eye_x, ctx.eye_hw, ctx.eye_hh
+    y, t = -0.0135, 0.043
+    inner, outer = ex - hw + 0.015, ex + hw - 0.015
+    edge = outer + 0.11                                     # the mask's outer edge, short of the face side
+    F.box((0, y, hh + 0.04), (2 * edge, t, 0.1), "shirt_red")                                  # brow
+    F.box((0, y, -hh - 0.03), (2 * edge - 0.06, t, 0.08), "shirt_red")                         # under the eyes
+    F.box((0, y, 0), (2 * inner, t, 2 * hh + 0.06), "shirt_red")                               # between them
+    for sx in (-1, 1):
+        F.box((sx * (outer + edge) / 2, y, 0), (edge - outer, t, 2 * hh + 0.03), "shirt_red")
+        F.box((sx * (edge + 0.01), y - 0.003, hh + 0.09), (0.22, t - 0.004, 0.09), "shirt_red", rot=_ry(-sx * 32))  # flared tips
+        F.bar((sx * (edge - 0.02), y + 0.01, 0.03), (sx * (ctx.fw + 0.01), y + 0.02, 0.04), 0.05, 0.03, "shirt_red",
+              up=(0, -1, 0))                                                                     # strap to the side
+    _side_strap(ctx, 0.04, "shirt_red", hgt=0.05)
+
+
+def sprinkle_sunglasses(ctx):
+    """Comet, Ice Cream Cat's second prop: round strawberry pink sunglasses with dark lenses and sprinkles on the
+    frames, arms back to the ears."""
+    F, ex = ctx.pen("face"), ctx.eye_x
+    cols = ("sign_teal", "pastel_butter", "offwhite", "mint")
+    for sx in (-1, 1):
+        F.ring((sx * ex, -0.095, 0.0), 0.18, 0.045, 0.035, "neon_pink", rot=_rx(90), segments=10)
+        F.cyl((sx * ex, -0.1, 0.0), 0.142, 0.014, "night_sky", rot=_rx(90), segments=10)        # dark lens
+        for k, az in enumerate((30, 100, 170, 250, 320)):
+            a = math.radians(az)
+            F.box((sx * ex + 0.158 * math.cos(a), -0.115, 0.158 * math.sin(a)), (0.05, 0.012, 0.018),
+                  cols[(k + (sx > 0)) % len(cols)], rot=_ry(-az + 60 * (k % 2)))               # sprinkles
+        F.box((sx * (ctx.fw + 0.01), ctx.fd * 0.3 - 0.05, 0.03), (0.04, ctx.fd * 0.6 + 0.1, 0.04), "neon_pink")
+        F.bar((sx * (ex + 0.17), -0.095, 0.03), (sx * (ctx.fw + 0.01), -0.03, 0.03), 0.04, 0.04, "neon_pink",
+              up=(0, 0, 1))
+    F.box((0, -0.095, 0.03), (2 * ex - 0.34, 0.035, 0.04), "neon_pink")                        # bridge
+
+
+def ranger_hat(ctx):
+    """Pinecone, Scout Cat's second prop: a tan ranger hat with a flat brim, a pinched crown, a brown band and a
+    gold badge with a pine tree."""
+    P = ctx.pen("head")
+    P.cyl((0, 0, 0.0), 0.48, 0.035, "treat_tan", segments=14)                                  # brim
+    P.cyl((0, 0, 0.115), 0.26, 0.2, "treat_tan", r2=0.24, segments=12)                         # crown
+    P.pyramid((0, 0, 0.275), 0.34, 0.14, "treat_tan", rot=_rz(45))                             # the four-dent pinch
+    P.cyl((0, 0, 0.06), 0.27, 0.06, "dark_wood", r2=0.265, segments=12)                        # band
+    P.cyl((0, -0.272, 0.07), 0.055, 0.02, "rarity_legend", rot=_rx(90), segments=10)          # badge
+    P.box((0, -0.285, 0.075), (0.035, 0.012, 0.07), "leaf_dark")                              # its pine tree
+    P.box((0, -0.286, 0.06), (0.07, 0.012, 0.03), "leaf_dark")
+
+
+def log_bundle(ctx):
+    """ForestCat, Lumberjack Cat's second prop: a bundle of three logs tied with rope, across A's back and standing
+    up on B's haunches, cut ends showing their rings."""
+    walk = ctx.body == "walk"
+    if walk:
+        P, along = ctx.pen("back"), _ry(90)                  # logs across the back, two below and one on top
+        L, y0 = 0.62, 0.12
+        logs = [(Vector((0.0, y0 - 0.085, 0.075)), 0.085), (Vector((0.0, y0 + 0.085, 0.075)), 0.085),
+                (Vector((0.0, y0, 0.215)), 0.08)]
+        axis = Vector((1, 0, 0))
+    else:
+        P, along = ctx.pen("up"), Matrix.Identity(3)        # logs standing up, resting on the haunches
+        L = 0.6
+        zc = ctx.haunch_top - 0.98 - 0.005 + L / 2
+        yc = B_CLEAR + 0.1
+        logs = [(Vector((-0.17, yc, zc)), 0.085), (Vector((0.0, yc + 0.02, zc + 0.05)), 0.09),
+                (Vector((0.17, yc, zc - 0.02)), 0.085)]
+        axis = Vector((0, 0, 1))
+    for k, (c, r) in enumerate(logs):
+        ln = L - 0.04 * k
+        P.cyl(tuple(c), r, ln, "caramel_wood", rot=along, segments=8)                           # bark
+        for s in (-1, 1):
+            P.cyl(tuple(c + axis * s * (ln / 2 + 0.006)), r - 0.012, 0.014, "treat_tan", rot=along, segments=8)   # end
+            P.cyl(tuple(c + axis * s * (ln / 2 + 0.012)), r * 0.45, 0.004, "dark_wood", rot=along, segments=6)  # ring
+    mid = sum((c for c, _ in logs), Vector()) / len(logs)
+    for s in (-1, 1):                                                                             # two rope ties
+        if walk:
+            P.ring(tuple(mid + axis * s * 0.17), 0.2, 0.032, 0.05, "cardboard", rot=along, segments=12)
+        else:
+            P.box((0, yc + 0.1, mid.z + s * 0.17), (0.56, 0.03, 0.05), "cardboard")
+    if walk:
+        _strap_round(ctx, "dark_wood", at_y=0.12)
+    else:
+        _sling(ctx, "dark_wood", down=0.3)
+
+
+def back_mushrooms(ctx):
+    """Toadstool, Mushroom Cat's second prop: a patch of moss with four tiny toadstools growing out of it, red caps
+    with white spots and one brown, on A's back and on B's haunches."""
+    if ctx.body == "walk":
+        P, k = ctx.pen("back"), 1.0
+        base = Vector((0.0, 0.12, 0.0))
+    else:                                               # its inner edge B_CLEAR behind the chest
+        P, k = ctx.pen("up"), 0.7
+        base = Vector((0.0, B_CLEAR + 0.12, ctx.haunch_top - 0.98))
+    P.box(tuple(base + Vector((0, 0, 0.012))), (0.44, 0.34 * k, 0.04), "leaf_green")           # moss
+    P.box(tuple(base + Vector((0.1, -0.06 * k, 0.035))), (0.16, 0.12, 0.03), "leaf_dark", rot=_rz(20))
+    for (x, y, hgt, r, cap) in ((-0.1, -0.04, 0.2, 0.11, "bowl_red"), (0.1, 0.06, 0.15, 0.09, "bowl_red"),
+                                (-0.14, 0.11, 0.1, 0.07, "choco"), (0.13, -0.09, 0.09, 0.06, "bowl_red")):
+        o = base + Vector((x, y * k, 0.03))
+        P.cyl(tuple(o + Vector((0, 0, hgt / 2))), 0.032 + r * 0.1, hgt, "offwhite", segments=8)        # stem
+        P.cyl(tuple(o + Vector((0, 0, hgt + 0.02))), r, 0.06, cap, r2=r * 0.35, segments=10)          # cap
+        P.cyl(tuple(o + Vector((0, 0, hgt - 0.006))), r * 0.85, 0.012, "cream", segments=10)         # gills
+        if cap == "bowl_red":
+            for az in (30, 160, 270):
+                v = _rz(az) @ Vector((0, -r * 0.62, 0))
+                P.box(tuple(o + v + Vector((0, 0, hgt + 0.035))), (0.03, 0.03, 0.02), "offwhite", rot=_rz(az) @ _rx(25))
+
+
+def glow_antennae(ctx):
+    """Firefly, Firefly Cat's second prop: a black headband with two springy antennae, each tipped with a glowing
+    ball like a firefly's light."""
+    P, w = ctx.pen("head"), ctx.hw
+    y = -0.2
+    pts = [(w + 0.025, -0.3), (w + 0.025, -0.04), (w - 0.08, 0.025), (-(w - 0.08), 0.025), (-(w + 0.025), -0.04),
+           (-(w + 0.025), -0.3)]
+    for (xa, za), (xb, zb) in zip(pts, pts[1:]):
+        P.bar((xa, y, za), (xb, y, zb), 0.06, 0.06, "fur_black", up=(0, 1, 0))
+    for sx in (-1, 1):
+        a, m, t = Vector((sx * 0.13, y, 0.04)), Vector((sx * 0.2, y - 0.05, 0.25)), Vector((sx * 0.3, y - 0.02, 0.42))
+        P.bar(tuple(a), tuple(m + (m - a).normalized() * 0.015), 0.035, 0.035, "fur_black", up=(0, 1, 0))
+        P.bar(tuple(m), tuple(t), 0.035, 0.035, "fur_black", up=(0, 1, 0))
+        P.ico(tuple(t + (t - m).normalized() * 0.05), 0.075, "sparkle")
+
+
+def _cape_body(ctx, cloth, collar):
+    """hero_cape's shape (the same collar, back and flare) in another cloth, for the second-prop capes. Returns
+    what the trims need: on A the back pen and the body's half sizes; on B the up pen, the run down the back (a, b),
+    its outward normal and tilt, and the haunches' back and top in that frame."""
+    if ctx.body == "walk":
+        P = ctx.pen("back")
+        (x0, y0, zc), (sx, sy, sz) = ctx.d["body"]
+        hx, hy = sx / 2, sy / 2
+        P.box((0, -0.2, 0.06), (sx * 0.9, 0.16, 0.12), collar)                                  # collar
+        P.bar((0, -0.2, 0.04), (0, hy - 0.05, 0.03), sx + 0.08, 0.035, cloth, up=(0, 0, 1))
+        for side in (-1, 1):                                                                    # over the flanks
+            P.bar((side * (hx + 0.02), -0.12, 0.0), (side * (hx + 0.09), hy - 0.08, -0.16), 0.035, 0.22, cloth,
+                  up=(side, 0, 0))
+        P.bar((0, hy - 0.08, 0.03), (0, hy + 0.32, 0.12), sx + 0.2, 0.035, cloth, up=(0, 0, 1))   # lifting behind
+        return P, hx, hy, sx
+    U = ctx.pen("up")
+    hb, ht = ctx.haunch_back - B_BACK_Y, ctx.haunch_top - 0.98
+    U.box((0, 0.0, 0.08), (0.72, 0.12, 0.12), collar)                                             # collar
+    a, b = Vector((0, 0.06, 0.1)), Vector((0, hb - 0.16, ht + 0.02))
+    U.bar(tuple(a), tuple(b), 0.86, 0.04, cloth, up=(0, 1, 0))                                   # down the back
+    U.bar((0, hb - 0.18, ht + 0.025), (0, hb + 0.035, ht - 0.04), 0.9, 0.04, cloth, up=(0, 1, 1))   # over the haunches
+    U.bar((0, hb + 0.03, ht - 0.03), (0, hb + 0.07, 0.04 - 0.98), 0.94, 0.04, cloth, up=(0, 1, 0))  # to the floor
+    n = Vector((0, (b - a).z, -(b - a).y)).normalized()
+    if n.y < 0:
+        n = -n
+    tilt = math.degrees(math.atan2(n.z, n.y))
+    return U, a, b, n, tilt, hb, ht
+
+
+def royal_cape(ctx):
+    """Bottlecap, King Cat's second prop: a royal violet cape with an ermine collar and hem (white with black
+    specks) and a red bottle cap for its clasp."""
+    cloth, ermine, speck = "aurora_violet", "offwhite", "fur_black"
+    if ctx.body == "walk":
+        P, hx, hy, sx = _cape_body(ctx, cloth, ermine)
+        for x in (-0.24, -0.08, 0.08, 0.24):                                                   # specks on the collar
+            P.box((x * sx / 0.78, -0.2 + 0.03 * (x > 0), 0.123), (0.03, 0.05, 0.012), speck)
+        R = _rx(12.7)                                                                            # the lifted hem's slope
+        hem = Vector((0, hy + 0.29, 0.113))
+        P.box(tuple(hem), (sx + 0.24, 0.12, 0.06), ermine, rot=R)                               # ermine hem
+        for x in (-0.3, -0.1, 0.1, 0.3):
+            P.box(tuple(hem + R @ Vector((x * (sx + 0.2) / 0.8, 0.0, 0.034))), (0.03, 0.05, 0.012), speck, rot=R)
+        P.cyl((0, -0.29, 0.06), 0.07, 0.04, "bowl_red", rot=_rx(90), segments=10)              # bottle cap clasp
+        P.cyl((0, -0.312, 0.06), 0.04, 0.008, "offwhite", rot=_rx(90), segments=10)
+        return
+    U, a, b, n, tilt, hb, ht = _cape_body(ctx, cloth, ermine)
+    for x in (-0.24, -0.08, 0.08, 0.24):
+        U.box((x, 0.02 * (1 if x > 0 else -1), 0.143), (0.03, 0.05, 0.012), speck)
+    U.box((0, hb + 0.065, -0.875), (0.98, 0.07, 0.14), ermine)                                  # ermine hem
+    for x in (-0.36, -0.12, 0.12, 0.36):
+        U.box((x, hb + 0.1, -0.875), (0.03, 0.012, 0.05), speck)
+    U.cyl((0, -0.07, 0.08), 0.07, 0.04, "bowl_red", rot=_rx(90), segments=10)                  # clasp, at the front
+    U.cyl((0, -0.092, 0.08), 0.04, 0.008, "offwhite", rot=_rx(90), segments=10)
+
+
+def leaf_cloak(ctx):
+    """OldOak, Antler Cat's second prop: a cloak of leaves, dark green with overlapping green and autumn leaves on
+    it, a vine collar and a hem of leaf points."""
+    cloth, vine = "leaf_dark", "leaf_green"
+    cols = ("leaf_green", "caramel_wood", "leaf_green", "pastel_butter", "leaf_green")
+    if ctx.body == "walk":
+        P, hx, hy, sx = _cape_body(ctx, cloth, vine)
+        for i, (x, y) in enumerate(((-0.22, -0.02), (0.18, 0.04), (-0.02, 0.16), (0.26, 0.26), (-0.24, 0.3),
+                                    (0.04, 0.36))):
+            z = 0.04 + (0.03 - 0.04) * (y + 0.2) / (hy + 0.15) + 0.0175 + 0.009
+            P.box((x, y, z), (0.1, 0.17, 0.018), cols[i % len(cols)], rot=_rz(25 * (-1) ** i))     # leaves
+        R = _rx(12.7)
+        for x in (-0.36, -0.18, 0.0, 0.18, 0.36):                                              # leaf points at the hem
+            P.box(tuple(Vector((x * (sx + 0.2) / 0.88, hy + 0.32, 0.12)) + R @ Vector((0, 0.05, 0))),
+                  (0.11, 0.11, 0.03), cloth, rot=R @ _rz(45))
+        return
+    U, a, b, n, tilt, hb, ht = _cape_body(ctx, cloth, vine)
+    face = _rx(-90 + tilt)
+    for i, (x, f) in enumerate(((-0.25, 0.15), (0.2, 0.25), (-0.05, 0.45), (0.28, 0.62), (-0.3, 0.7), (0.05, 0.85))):
+        c = a + (b - a) * f + n * 0.027 + Vector((x, 0, 0))
+        U.box(tuple(c), (0.1, 0.17, 0.018), cols[i % len(cols)], rot=face @ _rz(25 * (-1) ** i))
+    for x in (-0.38, -0.19, 0.0, 0.19, 0.38):                                                   # leaf points at the hem
+        U.box((x, hb + 0.065, -0.89), (0.12, 0.05, 0.12), cloth, rot=_ry(45))
+
+
+def pickaxe(ctx):
+    """Lantern, Miner Cat's second prop: a miner's pickaxe slung on its back, a wooden handle with a dark grip and a
+    curved metal head, on a strap."""
+    walk = ctx.body == "walk"
+    if walk:
+        P = ctx.pen("back")
+        p0, R, L = _plane((0.22, 0.42, 0.018), (-0.17, -0.1, 0.018), (0, 0, 1))
+    else:
+        P = ctx.pen("up")
+        yc = B_CLEAR + 0.03
+        p0, R, L = _plane((0.25, yc, -0.32), (-0.17, yc, 0.3), (0, 1, 0))
+
+    def at(x, y, z=0.0):
+        return tuple(p0 + R @ Vector((x, y, z)))
+    P.box(at(0, L / 2), (0.07, L, 0.05), "caramel_wood", rot=R)                               # handle
+    P.box(at(0, 0.16), (0.085, 0.22, 0.06), "dark_wood", rot=R)                               # grip
+    P.box(at(0, L - 0.02), (0.11, 0.12, 0.075), "fur_black", rot=R)                           # the eye of the head
+    for sx in (-1, 1):
+        P.box(at(sx * 0.16, L - 0.035), (0.24, 0.07, 0.055), "metal", rot=R @ _rz(-sx * 12))  # arms of the pick
+        P.box(at(sx * 0.3, L - 0.085), (0.1, 0.05, 0.045), "metal", rot=R @ _rz(-sx * 32))    # points, curving down
+    if walk:
+        _strap_round(ctx, "dark_wood", at_y=(p0 + R @ Vector((0, L / 2, 0))).y)
+    else:
+        z = -0.1
+        x = 0.25 + (z + 0.32) / 0.62 * (-0.42)
+        _sling(ctx, "dark_wood", xs=(x,), down=0.155 - z + 0.03)
+        P.box((x, B_CLEAR + 0.03, z), (0.11, 0.08, 0.07), "dark_wood")
+
+
+def rubber_duck(ctx):
+    """Bubbles, Bubble Cat's second prop: a yellow rubber duck sitting on its head in a little heap of bath foam,
+    an orange beak, an upturned tail and shiny eyes."""
+    P = ctx.pen("head")
+    yel = "rarity_legend"
+    for (x, y, r) in ((-0.19, -0.06, 0.08), (0.18, 0.08, 0.085), (0.04, -0.22, 0.07), (-0.11, 0.2, 0.07),
+                      (0.21, -0.13, 0.06)):
+        P.ico((x, y, 0.025), r, "milk", scale=(1, 1, 0.7))                                     # bath foam
+    P.sphere((0, 0.03, 0.13), 0.19, yel, scale=(1, 1.25, 0.72), segments=12, rings=6)          # body
+    P.cyl((0, 0.25, 0.2), 0.085, 0.16, yel, r2=0.02, rot=_rx(-40), segments=8)                 # upturned tail
+    for sx in (-1, 1):
+        P.sphere((sx * 0.16, 0.06, 0.15), 0.09, "pastel_butter", scale=(0.4, 1.0, 0.6), segments=8, rings=4)  # wings
+    P.sphere((0, -0.12, 0.31), 0.13, yel, segments=12, rings=6)                                 # head
+    P.box((0, -0.265, 0.29), (0.15, 0.1, 0.045), "eye_copper")                                 # beak
+    for sx in (-1, 1):
+        P.box((sx * 0.06, -0.225, 0.35), (0.04, 0.03, 0.05), "fur_black")                     # eyes
+        P.box((sx * 0.06 + 0.01, -0.243, 0.362), (0.014, 0.008, 0.014), "milk")
+
+
+def gear_top_hat(ctx):
+    """Gears, Steampunk Cat's second prop: a brown top hat with a brass band and a brass gear on its side."""
+    P = ctx.pen("head")
+    P.cyl((0, 0, 0.005), 0.36, 0.05, "choco", segments=14)                                     # brim
+    P.cyl((0, 0, 0.22), 0.235, 0.4, "choco", segments=12)                                      # crown
+    P.cyl((0, 0, 0.09), 0.242, 0.07, "brass", segments=12)                                     # band
+    R = _rz(-30)                                                                                # front right
+    n = R @ Vector((0, -1, 0))
+    c = R @ Vector((0, -0.232, 0.26))
+    face = R @ _rx(90)
+    P.cyl(tuple(c), 0.075, 0.05, "bronze", rot=face, segments=8)                               # hub, half in the crown
+    P.ring(tuple(c + n * 0.035), 0.12, 0.04, 0.03, "brass", rot=face, segments=12)             # the gear
+    u, v = R @ Vector((1, 0, 0)), Vector((0, 0, 1))
+    for k in range(8):
+        a = math.radians(45 * k + 22.5)
+        P.box(tuple(c + n * 0.035 + (u * math.cos(a) + v * math.sin(a)) * 0.135), (0.045, 0.028, 0.04), "brass",
+              rot=R @ _ry(-math.degrees(a)))                                                     # its teeth
+    P.cyl(tuple(c + n * 0.05), 0.025, 0.012, "bronze", rot=face, segments=6)                   # a rivet
+
+
+def air_tank(ctx):
+    """Glimmer, Diver Cat's second prop: a yellow air tank with blue bands, a metal valve and a black hose, lying
+    along A's back and standing on B's haunches."""
+    yel, band = "rarity_legend", "shirt_blue"
+    if ctx.body == "walk":
+        P = ctx.pen("back")
+        r, zc, y0, y1 = 0.12, 0.115, -0.1, 0.36
+        along = _rx(90)
+        P.cyl((0, (y0 + y1) / 2, zc), r, y1 - y0, yel, rot=along, segments=10)                 # the tank
+        P.sphere((0, y1, zc), r, yel, scale=(1, 1, 1), segments=10, rings=5)                    # round back end
+        P.sphere((0, y0, zc), r, yel, scale=(1, 1, 1), segments=10, rings=5)                    # round front end
+        for y in (0.02, 0.24):
+            P.cyl((0, y, zc), r + 0.008, 0.05, band, rot=along, segments=10)
+        P.cyl((0, y0 - 0.15, zc), 0.035, 0.1, "metal", rot=along, segments=8)                   # valve
+        P.cyl((0, y0 - 0.17, zc + 0.045), 0.05, 0.03, "fur_black", segments=8)                  # its knob
+        h = [Vector((0.03, y0 - 0.17, zc)), Vector((0.25, y0 - 0.16, zc - 0.02)), Vector((0.42, y0 - 0.05, -0.05))]
+        for p, q in zip(h, h[1:]):
+            P.bar(tuple(p), tuple(q + (q - p).normalized() * 0.02), 0.05, 0.05, "fur_black")   # hose
+        _strap_round(ctx, "fur_black", at_y=0.13)
+        return
+    U = ctx.pen("up")
+    r, yc = 0.12, B_CLEAR + 0.13
+    z0 = ctx.haunch_top - 0.98 - 0.005
+    z1 = 0.1
+    U.cyl((0, yc, (z0 + z1) / 2), r, z1 - z0, yel, segments=10)
+    U.sphere((0, yc, z1), r, yel, scale=(1, 1, 0.55), segments=10, rings=5)
+    for z in (-0.3, -0.04):
+        U.cyl((0, yc, z), r + 0.008, 0.05, band, segments=10)
+    U.cyl((0, yc, z1 + 0.09), 0.035, 0.1, "metal", segments=8)                                 # valve
+    U.cyl((0, yc, z1 + 0.15), 0.05, 0.03, "fur_black", segments=8)
+    h = [Vector((0, yc, z1 + 0.1)), Vector((-0.22, yc - 0.03, z1 + 0.12)), Vector((-0.3, -0.06, 0.15))]
+    for p, q in zip(h, h[1:]):
+        U.bar(tuple(p), tuple(q + (q - p).normalized() * 0.02), 0.05, 0.05, "fur_black")         # hose over the shoulder
+    _sling(ctx, "fur_black", down=0.32)
+
+
+def dragon_horns(ctx):
+    """Eclipse, Dragon Cat's second prop: two little curved horns, cream with mint ridges, sweeping back between
+    the ears."""
+    P = ctx.pen("head")
+    for sx in (-1, 1):
+        at, a = Vector((sx * 0.13, -0.12, -0.02)), -25
+        for k, (r1, r2, hgt, turn) in enumerate(((0.095, 0.065, 0.19, 0), (0.065, 0.0, 0.22, -30))):
+            a += turn
+            R = _ry(sx * 16) @ _rx(a)
+            d = R @ Vector((0, 0, 1))
+            P.cyl(tuple(at + d * hgt / 2), r1, hgt, "cream", r2=r2, rot=R, segments=8)
+            if k == 0:
+                P.cyl(tuple(at + d * 0.08), r1 - 0.006, 0.035, "mint", rot=R, segments=8)  # a ridge
+            at = at + d * (hgt - 0.02)
+
+
 # name -> (slot, builder). data-model 3a (Alleyway), 3b (Park), 3c (Neighbourhood, Woods, Sewer).
 PROPS = {
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
@@ -1049,7 +1433,24 @@ PROPS = {
 PROPS2 = {
     "Neon": ("Back", saxophone), "Gardener": ("Back", watering_can), "Gnome": ("Face", gnome_beard),
     "Plumber": ("Back", wrench),
+    # Set 4 Q2 (Derek 2026-10-29): the Neighbourhood, Woods and Sewer cats; the Unicorn Cat keeps just its horn
+    "Munchkin": ("Head", backwards_cap), "Fold": ("Face", paintbrush), "Chonk": ("Face", curly_moustache),
+    "Postie": ("Face", letter), "Marshmallow": ("Face", hero_mask), "Comet": ("Face", sprinkle_sunglasses),
+    "Pinecone": ("Head", ranger_hat), "ForestCat": ("Back", log_bundle), "Toadstool": ("Back", back_mushrooms),
+    "Firefly": ("Head", glow_antennae), "OldOak": ("Back", leaf_cloak), "Lantern": ("Back", pickaxe),
+    "Bubbles": ("Head", rubber_duck), "Gears": ("Head", gear_top_hat), "Glimmer": ("Back", air_tank),
+    "Bottlecap": ("Back", royal_cape), "Eclipse": ("Head", dragon_horns),
 }
+
+
+# A cat with a second prop gets 1,800 triangles in place of 1,500 (style guide section 5): two props and a Mythical
+# coat do not fit the single-prop budget. Set here because cats.py cannot import this module at load time.
+# A cat wearing two props gets 1,800 triangles instead of 1,500 (style guide section 5), gold twins too.
+TWO_PROP_BUDGET = 1800
+for _table in (cats.ASSETS, gold.ASSETS):
+    for _asset, (_fn, _budget) in list(_table.items()):
+        if cats.parse(_asset)[0] in PROPS2:
+            _table[_asset] = (_fn, max(_budget, TWO_PROP_BUDGET))
 
 
 def build(name, spec, body, d):

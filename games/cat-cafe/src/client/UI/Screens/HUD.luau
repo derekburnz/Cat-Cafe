@@ -35,6 +35,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
@@ -42,6 +43,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
@@ -761,6 +763,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		key: string?,
 		style: Button.Style,
 		dot: Types.ScreenName?, -- the Notices screen whose news lights this pill's dot
+		image: string?, -- an uploaded picture in place of the icon sheet's (the glyph shows until it loads)
 		open: () -> (),
 	}
 	local menuItems: { MenuItem } = {
@@ -807,6 +810,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			key = "B",
 			style = "gold",
 			dot = "Decor",
+			-- Derek (Set 5 Q10): the Decor button needed an actual picture
+			image = ShopIcons.image("Icon_Decor"),
 			open = function()
 				callbacks.openScreen("Decor")
 			end,
@@ -849,6 +854,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			sound = false, -- the modal swish is the sound
 			onClick = item.open,
 		})
+		local picture = item.image
+		if picture and button.icon then
+			IconArt.setImage(button.icon, picture, 1.15)
+		end
 		local key = item.key
 		if showKeys and key then
 			keycap(button.face, key, UDim2.new(1, -8, 0.5, 0), Vector2.new(1, 0.5))

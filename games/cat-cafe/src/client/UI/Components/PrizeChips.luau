@@ -68,6 +68,8 @@ local COIN_GLYPH = "💰"
 local OTHER_GLYPH = "🎁"
 local LINE_GAP = 4 -- between wrapped lines
 local SPIN_BANK_CAP: number = Config.SpinBankCap or 20
+local FIT_DEAD_BAND = 0.03 -- a fitted row ignores scale changes smaller than this
+local FIT_ECHO = 0.08 -- a width within 8% of what our own scale change should give is that change coming back
 
 local PrizeChips = {}
 PrizeChips.__index = PrizeChips
@@ -109,14 +111,40 @@ function PrizeChips.new(props: Props): PrizeChips
 	local fitTo = props.fitTo
 	if fitTo and not wrap then
 		local scale: UIScale = Create("UIScale", { Parent = self.frame })
-		local function fit()
-			-- AbsoluteContentSize already includes the UIScale, so divide it back out for the row's own width
-			local natural = layout.AbsoluteContentSize.X / math.max(scale.Scale, 0.01)
+		-- Derek 2026-10-28: the weekly quest, Daily Treat day 2 and code prize rows were "spassing back and forth".
+		-- The row used to work out its full width from its own width under the UIScale. Text draws at whole pixel
+		-- sizes, so the width does not follow the scale exactly: each new scale gave a slightly different full width,
+		-- which gave a new scale, flipping every frame. Now the full width is only measured when the chips change,
+		-- the width our own scale change brings back is ignored, and a change under FIT_DEAD_BAND is left alone.
+		local natural = 0 -- the row's width at full size, in screen pixels
+		local echo: number? = nil -- the width our last scale change should bring back
+		local function apply()
 			local room = fitTo.AbsoluteSize.X - (props.fitPad or 0)
-			scale.Scale = if room > 0 and natural > room then room / natural else 1
+			local target = if room > 0 and natural > room then room / natural else 1
+			if
+				math.abs(target - scale.Scale) < FIT_DEAD_BAND
+				and not (target == 1 and scale.Scale ~= 1)
+			then
+				return
+			end
+			echo = natural * target
+			scale.Scale = target
 		end
-		table.insert(self._fit, layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fit))
-		table.insert(self._fit, fitTo:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit))
+		local function measure()
+			local width = layout.AbsoluteContentSize.X
+			if echo ~= nil and math.abs(width - echo) <= math.max(2, echo * FIT_ECHO) then
+				echo = nil -- our own scale change coming back
+				return
+			end
+			echo = nil
+			natural = width / math.max(scale.Scale, 0.01)
+			apply()
+		end
+		table.insert(
+			self._fit,
+			layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(measure)
+		)
+		table.insert(self._fit, fitTo:GetPropertyChangedSignal("AbsoluteSize"):Connect(apply))
 	end
 	return self :: PrizeChips
 end

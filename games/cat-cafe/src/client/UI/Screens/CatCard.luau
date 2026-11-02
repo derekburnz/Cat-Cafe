@@ -68,6 +68,10 @@ local OVER_TAG = 2.4
 local OVER_CAT = 0.5
 local PLOT_TAG = "Plot"
 local CATS = "Cats"
+-- Effects/CafeWalk walks a copy of a station cat round your own cafe (Workspace.ClientEffects, named CafeWalker,
+-- with the cat's Uid, never in a raycast) and hides the station model meanwhile; the card hangs over the walker then
+local EFFECTS = "ClientEffects"
+local WALKER = "CafeWalker"
 local WORKING = "WorkingCat"
 local HEART = "♥"
 local RESTING_ICON = "💤"
@@ -84,6 +88,40 @@ local function modeOf(inputType: Enum.UserInputType): Mode
 		return "gamepad"
 	end
 	return "mouse"
+end
+
+-- How far along `ray` it enters the box (`cf`, `size`), or nil when it misses: the slab test in the box's own space.
+local function rayIntoBox(ray: Ray, cf: CFrame, size: Vector3): number?
+	local origin = cf:PointToObjectSpace(ray.Origin)
+	local direction = cf:VectorToObjectSpace(ray.Direction)
+	local near, far = 0, 1
+	for _, axis in { "X", "Y", "Z" } do
+		local o: number = (origin :: any)[axis]
+		local d: number = (direction :: any)[axis]
+		local half: number = (size :: any)[axis] / 2
+		if math.abs(d) < 1e-9 then
+			if math.abs(o) > half then
+				return nil
+			end
+		else
+			local a, b = (-half - o) / d, (half - o) / d
+			if a > b then
+				a, b = b, a
+			end
+			near = math.max(near, a)
+			far = math.min(far, b)
+			if near > far then
+				return nil
+			end
+		end
+	end
+	return near
+end
+
+-- Whether a station model is hidden on this client (its cat is out walking).
+local function hidden(model: Model): boolean
+	local part = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	return part ~= nil and (part :: BasePart).LocalTransparencyModifier >= 0.99
 end
 
 -- The part the card hangs from and how far above its centre the model's top is (as WorldTags does).
@@ -144,6 +182,7 @@ function CatCard.new(parent: Instance, callbacks: Callbacks): CatCard
 	self._defs = {} :: { [string]: Types.CatDef }
 	self._spots = {} :: { [string]: Types.SpotDef }
 	self._model = nil :: Model?
+	self._anchorModel = nil :: Model? -- what the card hangs over: the cat, or its walker
 	self._shownUid = nil :: string? -- the cat the bar last showed, so a refresh tweens and a new cat jumps
 	self._touchUntil = 0
 	self._elapsed = 0
@@ -307,7 +346,9 @@ function CatCard.new(parent: Instance, callbacks: Callbacks): CatCard
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(track, 1.5, Theme.modal.cardStroke)
 	self._track = track
-	self._fill = Create("Frame", {
+	-- the bar's fill frame; not `_fill`, which is the method that fills the card (a field by that name hid it, so
+	-- every show errored before the card turned on: Derek 2026-10-28 "hover over my cat ... still missing")
+	self._barFill = Create("Frame", {
 		Name = "Fill",
 		BackgroundColor3 = Theme.colors.good,
 		BorderSizePixel = 0,
@@ -370,25 +411,54 @@ end
 
 -- Finding the cat ----------------------------------------------------------------------------------------------
 
--- The cat model the ray hits first, in any cafe.
-function CatCard._catAt(self: any, ray: Ray): Model?
+-- The cat model the ray hits first, in any cafe, and the model to hang the card over: the walker while the cat is
+-- out walking (the card reads the station model, which keeps every attribute), else the cat itself.
+function CatCard._catAt(self: any, ray: Ray): (Model?, Model?)
 	local folders: { Instance } = {}
+	local byUid: { [string]: Model } = {}
 	for _, plot in CollectionService:GetTagged(PLOT_TAG) do
 		local cats = plot:FindFirstChild(CATS)
 		if cats then
 			table.insert(folders, cats)
+			if plot:GetAttribute("OwnerUserId") == Players.LocalPlayer.UserId then
+				for _, cat in cats:GetChildren() do
+					if cat:IsA("Model") then
+						byUid[cat.Name] = cat :: Model
+					end
+				end
+			end
 		end
 	end
 	if #folders == 0 then
-		return nil
+		return nil, nil
 	end
+	local direction = ray.Direction.Unit * RAY_STUDS
 	self._params.FilterDescendantsInstances = folders
-	local hit = Workspace:Raycast(ray.Origin, ray.Direction * RAY_STUDS, self._params)
+	local hit = Workspace:Raycast(ray.Origin, direction, self._params)
 	local node: Instance? = if hit then hit.Instance else nil
 	while node and not (node:IsA("Model") and node:GetAttribute("Uid") ~= nil) do
 		node = node.Parent
 	end
-	return if node then node :: Model else nil
+	local best: Model? = if node and not hidden(node :: Model) then node :: Model else nil
+	local bestAnchor: Model? = best
+	local bestAt = if best and hit then hit.Distance / RAY_STUDS else math.huge
+	-- a walker is never in a raycast, so its bounding box is tested on its own
+	local effects = Workspace:FindFirstChild(EFFECTS)
+	if effects then
+		local long = Ray.new(ray.Origin, direction)
+		for _, child in effects:GetChildren() do
+			local uid = child:GetAttribute("Uid")
+			local station = if type(uid) == "string" then byUid[uid] else nil
+			if child.Name == WALKER and child:IsA("Model") and station then
+				local cf, size = (child :: Model):GetBoundingBox()
+				local at = rayIntoBox(long, cf, size)
+				if at and at < bestAt then
+					best, bestAnchor, bestAt = station, child :: Model, at
+				end
+			end
+		end
+	end
+	return best, bestAnchor
 end
 
 -- The nearest of the player's own cats within GAMEPAD_STUDS of their character.
@@ -421,7 +491,11 @@ function CatCard._check(self: any)
 		return
 	end
 	local shown: Model? = self._model
-	if shown and not shown:IsDescendantOf(Workspace) then
+	local hanging: Model? = self._anchorModel
+	if
+		shown
+		and not (shown:IsDescendantOf(Workspace) and hanging and hanging:IsDescendantOf(Workspace))
+	then
 		self:_hide()
 		shown = nil
 	end
@@ -432,18 +506,18 @@ function CatCard._check(self: any)
 		end
 		return
 	end
-	local found: Model? = nil
+	local found: Model?, anchor: Model? = nil, nil
 	if mode == "gamepad" then
 		found = self:_nearestOwn()
 	else
 		local camera = Workspace.CurrentCamera
 		if camera then
 			local at = UserInputService:GetMouseLocation()
-			found = self:_catAt(camera:ViewportPointToRay(at.X, at.Y))
+			found, anchor = self:_catAt(camera:ViewportPointToRay(at.X, at.Y))
 		end
 	end
 	if found then
-		self:_show(found)
+		self:_show(found, anchor)
 	else
 		self:_hide()
 	end
@@ -455,34 +529,45 @@ function CatCard._tap(self: any, position: Vector2?, processed: boolean)
 	if processed or position == nil or camera == nil or self._callbacks.blocked() then
 		return
 	end
-	local found = self:_catAt(camera:ScreenPointToRay(position.X, position.Y))
+	local found, anchor = self:_catAt(camera:ScreenPointToRay(position.X, position.Y))
 	if found == nil or found == self._model then
 		self:_hide()
 		return
 	end
 	self._touchUntil = os.clock() + CatCardLogic.TOUCH_SECONDS
-	self:_show(found)
+	self:_show(found, anchor)
 end
 
 -- Showing --------------------------------------------------------------------------------------------------------
 
-function CatCard._show(self: any, model: Model)
-	if self._model == model then
+-- `model` is the cat the card reads; `over` the model it hangs over (the walker while the cat walks), else the cat.
+function CatCard._show(self: any, model: Model, over: Model?)
+	local hangOver: Model = over or model
+	if self._model == model and self._anchorModel == hangOver then
 		return
 	end
-	self:_unwatch()
-	local part, height = anchorOf(model)
+	local part, height = anchorOf(hangOver)
 	if not part then
 		self:_hide()
 		return
 	end
+	if self._model == model then
+		-- the same cat set off or came back: move the card, keep it up
+		self._anchorModel = hangOver
+		self._height = height
+		self.billboard.Adornee = part
+		self:_fill()
+		return
+	end
+	self:_unwatch()
 	self._model = model
+	self._anchorModel = hangOver
 	self._height = height
 	self.billboard.Adornee = part
 	local function refresh()
 		self:_fill()
 	end
-	for _, attribute in { "Level", "Role", "Napping", "Rate", "DisplayName", "Gold" } do
+	for _, attribute in { "Level", "Role", "Napping", "Rate", "DisplayName", "Gold", "Asleep" } do
 		table.insert(self._watch, model:GetAttributeChangedSignal(attribute):Connect(refresh))
 	end
 	self:_fill()
@@ -496,6 +581,7 @@ function CatCard._hide(self: any)
 	end
 	self:_unwatch()
 	self._model = nil
+	self._anchorModel = nil
 	self._shownUid = nil
 	self.billboard.Enabled = false
 	self.billboard.Adornee = nil
@@ -628,7 +714,7 @@ function CatCard._fill(self: any)
 		role = if type(attribute) == "string" then attribute else nil
 	end
 	local loves: string? = if def then def.favoriteRole else nil
-	local roleText, favourite = CatCardLogic.role(role, loves)
+	local roleText, favourite = CatCardLogic.role(role, loves, model:GetAttribute("Asleep") == true)
 	self._roleGlyph.Text = if role then Theme.roleIcons[role] or "✓" else RESTING_ICON
 	self._role.TextColor3 = if role then Theme.modal.text else Theme.modal.subtext
 	self._role.Text = if favourite
@@ -663,13 +749,13 @@ function CatCard._fill(self: any)
 		self._xp.Text = text
 		self._xp.FontFace = if max then Theme.fonts.display else Theme.fonts.body
 		self._xp.TextColor3 = if max then Theme.colors.goldDark else Theme.modal.subtext
-		self._fill.BackgroundColor3 = if max then Theme.colors.gold else Theme.colors.good
+		self._barFill.BackgroundColor3 = if max then Theme.colors.gold else Theme.colors.good
 		local size = UDim2.fromScale(share, 1)
 		-- the same cat's bar slides up as XP comes in; a new cat, or a level up's reset, jumps
-		if self._shownUid == uid and share >= self._fill.Size.X.Scale then
-			Tween.to(self._fill, BAR_TWEEN, { Size = size })
+		if self._shownUid == uid and share >= self._barFill.Size.X.Scale then
+			Tween.to(self._barFill, BAR_TWEEN, { Size = size })
 		else
-			self._fill.Size = size
+			self._barFill.Size = size
 		end
 		self._shownUid = uid
 	end

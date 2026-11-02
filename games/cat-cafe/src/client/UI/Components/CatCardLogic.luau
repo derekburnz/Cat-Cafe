@@ -56,11 +56,17 @@ function CatCardLogic.xp(level: number, xp: number, xpToNext: number?): (string,
 end
 
 -- The role line and whether it is the cat's favourite role (the card adds a heart): "Barista", or "Resting".
-function CatCardLogic.role(role: string?, favoriteRole: string?): (string, boolean)
+-- F79 bedtime: a working cat asleep on its spot at night reads "Barista · Asleep".
+function CatCardLogic.role(
+	role: string?,
+	favoriteRole: string?,
+	asleep: boolean?
+): (string, boolean)
 	if role == nil or role == "" then
 		return "Resting", false
 	end
-	return roleName(role), role == favoriteRole
+	local name = roleName(role)
+	return if asleep then name .. " · Asleep" else name, role == favoriteRole
 end
 
 -- The key of the point nearest `from` within `radius` studs, or nil.

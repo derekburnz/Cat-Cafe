@@ -67,6 +67,13 @@ return function()
 			expect(notFavourite).to.equal(false)
 		end)
 
+		it("adds Asleep for a working cat asleep on its spot (F79)", function()
+			local text, favourite = CatCardLogic.role("barista", "barista", true)
+			expect(text).to.equal("Barista · Asleep")
+			expect(favourite).to.equal(true)
+			expect((CatCardLogic.role(nil, "barista", true))).to.equal("Resting")
+		end)
+
 		it("says Resting for a cat with no role", function()
 			local text, favourite = CatCardLogic.role(nil, "barista")
 			expect(text).to.equal("Resting")

@@ -43,9 +43,9 @@ return function()
 			for _, style in { "sit", "greeter", "waiter", "lick", "loaf", "stray" } do
 				expect(Logic.asleep(style)).to.equal(false)
 			end
-			expect(b.sleepCap.turn).to.equal(-40) -- Model-Agent's numbers for #708
-			expect(b.sleepCap.down).to.equal(0.17)
-			expect(b.sleepCap.forward).to.equal(0.3)
+			expect(b.sleepCap.turn).to.equal(-40) -- Model-Agent's numbers for #708's cap fix (2026-11-02 17:34)
+			expect(b.sleepCap.down).to.equal(-0.13) -- lifted, so the cap tips over the brow instead of into the face
+			expect(b.sleepCap.forward).to.equal(0.39)
 		end)
 
 		it("rings: the bell swings both ways and dies away, after a quick shake of the head", function()

@@ -75,6 +75,7 @@ import neighbourhoodf85  # noqa: E402
 import woodsf85  # noqa: E402
 import sewerf85  # noqa: E402
 import woodsset  # noqa: E402
+import yardfence  # noqa: E402
 import sewerset  # noqa: E402
 import neighbourhoodset  # noqa: E402
 import plot  # noqa: E402
@@ -94,7 +95,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
-           leaderboards, rally, rallycrate, menu, style_icons]
+           leaderboards, rally, rallycrate, menu, style_icons, yardfence]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -348,6 +349,12 @@ STUDIO_NOTES["CatCafe_NPC_MysteryVisitor"] = (
 STUDIO_NOTES["CatCafe_Item_MysteryGift"] = (
     "F64 Mystery Visitor's gift: pivot base centre, front -Z (the \"?\" tag), nothing collides; the client puts it "
     "on the bottom of the plot's MysteryGiftAnchor and tags it MysteryGift.")
+PIVOT_NOTES[yardfence.NAME] = "Plot.cframe: floor top centre of the cafe, as CatCafe_Plot_BackDoor; the yard is +Z"
+STUDIO_NOTES[yardfence.NAME] = (
+    "Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white "
+    "picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing "
+    "roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is "
+    "the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.")
 PIVOT_NOTES["CatCafe_NPC_Collector"] = "the floor under him, on the plot's CollectorSpot, facing into the room (-Z)"
 STUDIO_NOTES["CatCafe_NPC_Collector"] = (
     "F63 Cat Collector: the client pivots it on the plot's CollectorSpot (floor centre, front into the room) and tags "

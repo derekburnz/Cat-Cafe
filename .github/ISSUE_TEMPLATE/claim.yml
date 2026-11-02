@@ -9,7 +9,7 @@ body:
     id: who
     attributes:
       label: Whose project
-      options: [Derek's project, Gavin's project]
+      options: [Derek's project, Friend's project]
     validations:
       required: true
   - type: textarea

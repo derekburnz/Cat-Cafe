@@ -36,6 +36,7 @@ local IDS: { [string]: string } = {
 	Crate_Sewer_Gold = "rbxassetid://120879068594961",
 	Crate_Classic = "rbxassetid://133393182247275",
 	Crate_Classic_Gold = "rbxassetid://128067890373321",
+	Crate_Rally = "rbxassetid://98563574379030", -- F101 Rally Crate (Model-Agent #766), banked only and no golden twin
 	-- F97 sections 3 and 4: the seven foods, the treats and perks redrawn and the prize pictures (Model-Agent #690,
 	-- uploaded by Tools-Agent 2026-11-02)
 	Kibble = "rbxassetid://72655226790914",

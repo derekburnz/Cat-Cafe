@@ -1306,6 +1306,17 @@ function Logic.hopArc(from: Vector3, to: Vector3, height: number, alpha: number)
 	return from + (to - from) * k + Vector3.new(0, 4 * height * k * (1 - k), 0)
 end
 
+-- The Lucky Cat's paw at time t (Presets.luckyPaw), radians about its shoulder's X: a smooth beckon forward and back,
+-- one every seconds[level], faster at each level; level 0 (the empty plinth) or an unknown level rests at 0.
+function Logic.pawWave(t: number, level: number): number
+	local p = Presets.luckyPaw
+	local seconds: number? = p.seconds[math.floor(level)]
+	if seconds == nil then
+		return 0
+	end
+	return math.rad(p.degrees) * math.sin(t * 2 * math.pi / seconds)
+end
+
 -- How much of a server jump is still drawn as distance left to travel: 1 at the jump, 0 on landing.
 function Logic.landing(alpha: number): number
 	local a = math.clamp(alpha, 0, 1)

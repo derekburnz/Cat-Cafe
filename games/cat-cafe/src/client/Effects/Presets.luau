@@ -1067,6 +1067,15 @@ Presets.bellhop = {
 	sitModel = "CatCafe_Cat_BellhopCat_Sit",
 }
 
+-- The Lucky Cat statue's beckoning paw (F88, luck-and-rare-moments.md section 1a: "Its paw waves a little faster at
+-- each level"): the statue's `_Paw` piece (Model-Agent's #742, pivoted at the shoulder) tips forward and back about
+-- its pivot's X, `degrees` each way (clear of the head and ear), one beckon every `seconds[level]` for levels 1 to 5,
+-- on statues within budget.ambientRadius. Still with Reduce Motion.
+Presets.luckyPaw = {
+	degrees = 20,
+	seconds = { 2.4, 2.1, 1.8, 1.5, 1.2 },
+}
+
 Presets.catPoses = {
 	sleep = {
 		body = "walk",

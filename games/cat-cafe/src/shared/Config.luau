@@ -286,6 +286,13 @@ local Config = {
 	-- or more, on top of the potions; never offline pay
 	PalTipBonus = 0.10,
 	PalTipBonusMax = 0.15,
+	-- Team Rescue (F92, playing-together.md section 3): one helper an attempt, within TeamRescueRangeStuds of the trap; a
+	-- helped attempt runs TeamRescueExtraSeconds longer, and the helper's tip is HelperTipSeconds of their own day rate
+	-- (twice that between pals), at most once per TeamRescueTipCooldown seconds a player
+	TeamRescueRangeStuds = 10,
+	TeamRescueExtraSeconds = 5,
+	HelperTipSeconds = 60,
+	TeamRescueTipCooldown = 120,
 
 	-- Quests and achievements (F73, quests.md section 6). Pure rules in Quests. A day starts at 00:00 UTC; a week
 	-- at Monday 00:00 UTC, QuestWeekOffsetSeconds after the epoch's Thursday. Players in the game are checked for a

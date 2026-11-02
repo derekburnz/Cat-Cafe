@@ -4,7 +4,8 @@
 -- UseLure(lureId) puts one food in and rolls the cat in the same step (rarity from the food's odds at the bowl's
 -- level, F82, the cat among that rarity's cats in every area the tier opens, charm and gold), so a rejoin cannot
 -- reroll it. The cat arrives after the bowl's wait, online or not, and sits eating at the bowl. ResolveBait("tame") adds it to the cat room,
--- "letgo" sends it off; the food is used either way. CafeService draws the bowl and sends it in ProfileSync, which
+-- "letgo" sends it off; the food is used either way. Both work from anywhere (Derek 2026-10-28: "tame or let go
+-- from anywhere"), as UseLure does. CafeService draws the bowl and sends it in ProfileSync, which
 -- names the cat only once it has arrived (reviewer N30).
 
 local Players = game:GetService("Players")
@@ -22,7 +23,6 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Net = require(script.Parent.Net)
-local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -33,17 +33,6 @@ local CHOICES = { "tame", "letgo" }
 
 local rng = Random.new()
 local shownArrival: { [Player]: number } = {} -- placedAt of the bait whose arrival this player has been sent
-
--- Within `range` studs of the player's own bowl. No plot or no character is out of range.
-local function nearOwnBowl(player: Player, range: number): boolean
-	local plot = PlotService.get(player)
-	local character = player.Character
-	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
-	if plot == nil or root == nil or not root:IsA("BasePart") then
-		return false
-	end
-	return ((root :: BasePart).Position - plot.baitBowl.Position).Magnitude <= range
-end
 
 -- "10 minutes", "1 minute", "45 seconds"
 local function waitText(seconds: number): string
@@ -153,11 +142,6 @@ local function onResolveBait(player: Player, rawChoice: unknown)
 	local bait = profile.bait
 	if bait == nil or os.time() < CafeService.baitReadyAt(profile, bait) then
 		CafeService.sync(player) -- the card waits for a fresh bowl state
-		return
-	end
-	if not nearOwnBowl(player, Config.BaitResolveRangeStuds) then
-		Net.toast(player, "Walk to your bait bowl first.", "warn")
-		CafeService.sync(player)
 		return
 	end
 

@@ -64,7 +64,6 @@ return function()
 		LureWaitSeconds = 600,
 		LureWaitSecondsNight = 300, -- F60: night bait, half the wait
 		BaitBowlRangeStuds = 12,
-		BaitResolveRangeStuds = 20,
 		GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02)
 		GoldChanceNet = 0.05, -- F30, v0.5 F42 (was 0.02)
 		CarryWalkSpeed = 16, -- v0.4
@@ -582,8 +581,8 @@ return function()
 			end
 		)
 
-		it("bait bowl: the card reaches further than Use, and gold is a probability", function()
-			expect(Config.BaitResolveRangeStuds >= Config.BaitBowlRangeStuds).to.equal(true)
+		it("bait bowl: gold is a probability (Tame and Let go work from anywhere since 2026-10-28)", function()
+			expect((Config :: any).BaitResolveRangeStuds).never.to.be.ok()
 			expect(Config.GoldChanceBait > 0 and Config.GoldChanceBait < 1).to.equal(true)
 		end)
 

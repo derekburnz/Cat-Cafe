@@ -1559,21 +1559,20 @@ for id, camp in Layout.camps do
 end
 
 -- The welcome arches over the street's two ends (v4, section 2), where the Park and Neighbourhood gates stood, -Z
--- toward the square: the art's arch when it is there, else posts and a name board, with the end wall behind. The
--- board reads the final name like the art's arch (Model-Agent #885; Derek 2026-11-02).
+-- toward the square: the art's arch when it is there, else posts and a name board, with the end wall behind.
 Layout.townEnds = {
 	{
 		x = 0,
 		z = W.StreetSouthZ + 1,
 		span = W.StreetHalfWidth * 2,
-		label = "CATCH A CAT CAFE",
+		label = "CAT CAFE TOWN",
 		asset = "CatCafe_Town_WelcomeArch",
 	},
 	{
 		x = 0,
 		z = W.StreetNorthZ - 1,
 		span = W.StreetHalfWidth * 2,
-		label = "CATCH A CAT CAFE",
+		label = "CAT CAFE TOWN",
 		asset = "CatCafe_Town_WelcomeArch",
 	},
 } :: { Arch }

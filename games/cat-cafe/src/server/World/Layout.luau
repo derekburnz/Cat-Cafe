@@ -890,7 +890,7 @@ Layout.neighbourhood = {
 	artSuffix = "F85",
 	spawnPoints = (function(): { Point }
 		local points = setPoints(NX, NZ, NTURN, 0.1, {
-			{ -71.45, 1, -166.9 }, -- porch
+			{ -74.3, 0, -157 }, -- porch, on the ground beside its island (Model-Agent #905)
 			{ 5.05, 1, -166.9 },
 			{ -5.05, 1, -127.1 },
 			{ 48.2, 1, -127.1 },
@@ -922,17 +922,17 @@ Layout.neighbourhood = {
 		}, "near")
 		for _, point in
 			setPoints(NX, NZ, NTURN, 0.1, {
-				{ -72.2, 1, 27.1 }, -- porch
+				{ -75.05, 0, 37 }, -- porch, on the ground beside its island (Model-Agent #905)
 				{ 4.3, 1, 27.1 },
-				{ 71.8, 1, 27.1 },
+				{ 72.05, 0, 37 },
 				{ -53.8, 1, 66.9 },
 				{ -5.8, 1, 66.9 },
-				{ 66.2, 1, 66.9 },
+				{ 72.05, 0, 57 },
 				{ 51.3, 1, 179.1 },
 				{ -44.5, 0.7, 23.8 }, -- flowerbed
 				{ 27.5, 0.7, 23.8 },
 				{ 51.5, 0.7, 23.8 },
-				{ -84.5, 0.7, 70.2 },
+				{ -75.05, 0, 57 },
 				{ 38.5, 0.7, 70.2 },
 				{ 6, 0.7, 96 },
 				{ 76.5, 0.7, 175.8 },
@@ -1125,7 +1125,7 @@ Layout.sewer = {
 	setLift = 0.4, -- the set's tiled slab
 	spawnPoints = (function(): { Point }
 		local points = setPoints(SX, SZ, STURN, 0.1, {
-			{ 38, 2.8, -205 }, -- the brick bridge
+			{ -26, 2.8, -205 }, -- the brick bridge (at x -26 since #905)
 			{ -24, 0.4, -247 }, -- the puddle
 			{ 45, 0.4, -259 }, -- the barrel
 			{ 32, 0.4, -264 }, -- the tyres
@@ -1149,11 +1149,11 @@ Layout.sewer = {
 			{ -23.5, 2.2, -14.52 }, -- the raft
 			{ -20, 0.4, -44 }, -- the pump room
 			{ 24, 0.4, -20 },
-			{ -36, 0.4, -12 }, -- the catwalk's feet
+			{ 28, 0.4, -12 }, -- the catwalk's feet
 		}, "near")
 		for _, point in
 			setPoints(SX, SZ, STURN, 0.1, {
-				{ -40, 3.6, 0 }, -- the steel catwalk over the channel
+				{ 24, 3.6, 0 }, -- the steel catwalk over the channel (at x 24 since #905)
 				{ -46, 0.4, 273.5 }, -- the suitcases
 				{ 12, 0.4, 74.5 }, -- glow mushrooms
 				{ -44.5, 0.4, 24 },

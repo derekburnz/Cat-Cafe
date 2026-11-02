@@ -171,8 +171,8 @@ return function()
 				local gx, gz = Layout.gatePosition(spec)
 				expect(gx).to.be.ok()
 				-- the Park's plaza at local (-4, -145) is near its gate side, the Neighbourhood's porch at local
-				-- (-71.45, -166.9) near its own, the Woods' berry bush at local (-30, -223.8) near its own, the Sewer's
-				-- brick bridge at local (38, -205) near its own
+				-- (-74.3, -157) near its own, the Woods' berry bush at local (-30, -223.8) near its own, the Sewer's
+				-- brick bridge at local (-26, -205) near its own
 				local index = if id == "woods" then 4 else 1
 				local point = spec.spawnPoints[index]
 				local toGate =

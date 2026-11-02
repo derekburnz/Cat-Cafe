@@ -24,6 +24,8 @@ local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
+local LeaderboardService = require(script.Parent.LeaderboardService)
+local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
 local Leaderstats = require(script.Parent.Leaderstats)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local NameService = require(script.Parent.NameService)
@@ -845,6 +847,8 @@ function CafeService.sync(player: Player)
 	if profile == nil then
 		return
 	end
+	-- F98: the Money board's best rate, all time and this week, as of every sync
+	Leaderboards.noteRate(profile, Leaderboards.moneyRate(profile), os.time())
 	Net.fire(player, "ProfileSync", CafeService.buildState(player, profile))
 	-- the net upgrade bought, on the Player for the net in hand every client shows (Effects, #527); a set that
 	-- changes nothing does not replicate
@@ -1359,6 +1363,7 @@ local function onRankUp(player: Player)
 	print(string.format("[CafeService] %s ranked up to Tier %d", player.Name, def.tier))
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
+	LeaderboardService.rankedUp(player) -- F98: after the sync noted the new rate
 end
 
 local function onBuyDecor(player: Player, rawId: unknown)

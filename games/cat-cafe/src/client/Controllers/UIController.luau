@@ -52,6 +52,8 @@ type RescueRun = {
 local rescue: RescueRun? = nil
 
 UIController.state = nil :: Types.PlayerState?
+-- F98: the last LeaderboardSync, for a Top tab or board face that opens between syncs
+UIController.leaderboards = nil :: Types.LeaderboardSync?
 
 local function ownPlot(): Model?
 	if state == nil or state.plotIndex == 0 then
@@ -1106,6 +1108,16 @@ local function wireServerEvents()
 		local decor = Catalog.getDecor(decorId)
 		if finder ~= nil and finder ~= player and decor ~= nil then
 			UI.announce(RareMoments.decorText(finder.DisplayName, decor.name), "Mythical")
+		end
+	end)
+	-- F98 (leaderboards.md sections 2 and 5): every list's top 50 and this player's own line, on join, after each
+	-- refresh and after the player's own write. Kept on UIController.leaderboards and handed to the UI's
+	-- `UI.leaderboards.sync(data)` (the town boards' faces and the Index's Top tab) once it has one.
+	Net.on("LeaderboardSync", function(data: Types.LeaderboardSync)
+		UIController.leaderboards = data
+		local boards: any = (UI :: any).leaderboards
+		if type(boards) == "table" and type(boards.sync) == "function" then
+			(boards.sync :: (Types.LeaderboardSync) -> ())(data)
 		end
 	end)
 	-- F92 (playing-together.md 1 and 2): this player's pals on the server, for the HUD chip's headshots and "+10% with

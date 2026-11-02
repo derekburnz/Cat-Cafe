@@ -30,6 +30,8 @@
 --   D:Invoke("tips")                   -- forget every context tip, the feedback ask and the help cards (F87)
 --   D:Invoke("bugReports", 50)         -- today's newest 50 bug reports (UTC), oldest first; needs API access on
 --   D:Invoke("bugReports", 10, nil, true)  -- the newest 10 sent from Studio playtests today (keys s_ not r_)
+--   D:Invoke("leaderboardHide", 123)   -- hide user id 123 from every leaderboard (live store with API access; F98)
+--   D:Invoke("leaderboardHide", 123, true)  -- show them again
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -51,6 +53,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local FishMarketService = require(script.Parent.FishMarketService)
 local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local Layout = require(script.Parent.Parent.World.Layout)
+local LeaderboardService = require(script.Parent.LeaderboardService)
 local MysteryService = require(script.Parent.MysteryService)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
@@ -509,6 +512,14 @@ function Debug.setPhase(phase: Types.ClockPhase)
 	guard()
 	assert(phase == "day" or phase == "night", "phase is day or night")
 	ClockService.debugSetPhase(phase)
+end
+
+-- F98: adds a user id to the leaderboards' hidden list (or takes it off with `show`), in the live DataStore when
+-- Studio has API access; the next refresh drops them from every list. Returns how many are hidden.
+function Debug.leaderboardHide(userId: number, show: boolean?): number
+	guard()
+	assert(type(userId) == "number" and userId > 0, "a user id")
+	return LeaderboardService.debugHide(userId, show)
 end
 
 -- F88 (review N311): jumps the clock into the night before the next Lucky Day, `lead` seconds before its sunrise

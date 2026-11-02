@@ -51,6 +51,7 @@ export type Outcome = {
 	grades: { Types.CircleGrade },
 	success: boolean,
 	charmGain: number?,
+	hint: string?, -- the line under the word in place of the usual one (F87: "Try again!" on a tutorial stray)
 }
 
 export type CatchCircles = {
@@ -767,7 +768,8 @@ function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())
 	if result == "close" then
 		wobble(word)
 	end
-	self._hint.Text = if success then "Carry it home to check in" else "It got away! Chase it!"
+	self._hint.Text = outcome.hint
+		or (if success then "Carry it home to check in" else "It got away! Chase it!")
 
 	task.delay(RESULT_FADE_AT, function()
 		if self._token ~= token then

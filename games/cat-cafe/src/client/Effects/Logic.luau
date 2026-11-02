@@ -2024,4 +2024,28 @@ function Logic.trapShake(t: number, hits: number, needed: number, o: TrapShake):
 	return size * wave * fade, o.hop * (size / o.most) * math.abs(wave) * fade
 end
 
+-- Luck (F88, luck-and-rare-moments.md section 1) ------------------------------------------------------------------
+
+-- Whether the Lucky Day look is on: the Clock's `LuckyDay` is true and its `Phase` is not night (it is for the day).
+function Logic.luckyDayOn(luckyDay: unknown, phase: unknown): boolean
+	return luckyDay == true and phase ~= "night"
+end
+
+-- A Lucky Cat statue's level from its model's name (`CatCafe_Plot_LuckyCat_3` is 3), or nil when the name ends in no
+-- level from 0 to 5.
+function Logic.luckyCatLevel(name: string): number?
+	local digits = string.match(name, "_(%d+)$")
+	local level = if digits ~= nil then tonumber(digits) else nil
+	if level == nil or level < 0 or level > 5 then
+		return nil
+	end
+	return level
+end
+
+-- Whether a plot's statue going from `before` (nil when this client had not seen it) to `after` is a level up to
+-- sparkle: only a rise this client saw, to a statue (level 1 or more).
+function Logic.luckyLevelUp(before: number?, after: number): boolean
+	return before ~= nil and after > before and after >= 1
+end
+
 return Logic

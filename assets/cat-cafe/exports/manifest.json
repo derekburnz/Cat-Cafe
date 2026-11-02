@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 07:09 UTC",
+  "generated": "2026-11-02 07:50 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -76153,7 +76153,7 @@
         "CatCafe_Plot_Cafe_Mint_Paint",
         "CatCafe_Plot_Cafe_Mint_Wallpaper"
       ],
-      "triangles": 5600,
+      "triangles": 5544,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -76197,7 +76197,7 @@
       },
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Mint.model.json",
-      "rbx_parts": 519,
+      "rbx_parts": 516,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Mint.glb"
@@ -76210,10 +76210,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5600/12000 tris",
+          "budget": "5544/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2682 faces on swatch centers",
+          "uv": "2650 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -76242,7 +76242,7 @@
         "CatCafe_Plot_Cafe_Blush_Paint",
         "CatCafe_Plot_Cafe_Blush_Wallpaper"
       ],
-      "triangles": 5600,
+      "triangles": 5544,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -76286,7 +76286,7 @@
       },
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Blush.model.json",
-      "rbx_parts": 519,
+      "rbx_parts": 516,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Blush.glb"
@@ -76299,10 +76299,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5600/12000 tris",
+          "budget": "5544/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2682 faces on swatch centers",
+          "uv": "2650 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -76331,7 +76331,7 @@
         "CatCafe_Plot_Cafe_Butter_Paint",
         "CatCafe_Plot_Cafe_Butter_Wallpaper"
       ],
-      "triangles": 5600,
+      "triangles": 5544,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -76375,7 +76375,7 @@
       },
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Butter.model.json",
-      "rbx_parts": 519,
+      "rbx_parts": 516,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Butter.glb"
@@ -76388,10 +76388,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5600/12000 tris",
+          "budget": "5544/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2682 faces on swatch centers",
+          "uv": "2650 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -76420,7 +76420,7 @@
         "CatCafe_Plot_Cafe_Lilac_Paint",
         "CatCafe_Plot_Cafe_Lilac_Wallpaper"
       ],
-      "triangles": 5600,
+      "triangles": 5544,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -76464,7 +76464,7 @@
       },
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Lilac.model.json",
-      "rbx_parts": 519,
+      "rbx_parts": 516,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Cafe_Lilac.glb"
@@ -76477,10 +76477,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5600/12000 tris",
+          "budget": "5544/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2682 faces on swatch centers",
+          "uv": "2650 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -92345,6 +92345,460 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-166.92 (want 0)",
           "centered": "footprint center x=0.00 y=-15.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_LuckyCat_0",
+      "category": "Plot",
+      "module": "luckycat",
+      "objects": [
+        "CatCafe_Plot_LuckyCat_0"
+      ],
+      "triangles": 664,
+      "budget": 4000,
+      "size_studs": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 2.25
+      },
+      "size_roblox": [
+        1.5,
+        2.25,
+        1.5
+      ],
+      "bounds_min": [
+        -0.75,
+        -0.75,
+        0.0
+      ],
+      "bounds_max": [
+        0.75,
+        0.75,
+        2.25
+      ],
+      "pivot": "the plinth's base centre on the plot floor, front -Z to the street; plot space (-5.1, 0, -16.1), left of the door (luckycat.SPOT)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_LuckyCat_0.model.json",
+      "rbx_parts": 59,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_LuckyCat_0.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_LuckyCat_0.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "664/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "332 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_LuckyCat_1",
+      "category": "Plot",
+      "module": "luckycat",
+      "objects": [
+        "CatCafe_Plot_LuckyCat_1",
+        "CatCafe_Plot_LuckyCat_1_Paw"
+      ],
+      "triangles": 646,
+      "budget": 4000,
+      "size_studs": {
+        "x": 1.66,
+        "y": 1.5,
+        "z": 3.23
+      },
+      "size_roblox": [
+        1.66,
+        3.23,
+        1.5
+      ],
+      "bounds_min": [
+        -0.75,
+        -0.75,
+        0.0
+      ],
+      "bounds_max": [
+        0.91,
+        0.75,
+        3.23
+      ],
+      "pivot": "the plinth's base centre on the plot floor, front -Z to the street; plot space (-5.1, 0, -16.1), left of the door (luckycat.SPOT)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Plot_LuckyCat_1_Paw": [
+          0.64,
+          -0.12,
+          1.9
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Plot_LuckyCat_1_Paw": [
+          -0.64,
+          1.9,
+          -0.12
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_LuckyCat_1.model.json",
+      "rbx_parts": 52,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_LuckyCat_1.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_LuckyCat_1.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "646/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "353 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.08 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_LuckyCat_2",
+      "category": "Plot",
+      "module": "luckycat",
+      "objects": [
+        "CatCafe_Plot_LuckyCat_2",
+        "CatCafe_Plot_LuckyCat_2_Paw"
+      ],
+      "triangles": 646,
+      "budget": 4000,
+      "size_studs": {
+        "x": 1.66,
+        "y": 1.5,
+        "z": 3.23
+      },
+      "size_roblox": [
+        1.66,
+        3.23,
+        1.5
+      ],
+      "bounds_min": [
+        -0.75,
+        -0.75,
+        0.0
+      ],
+      "bounds_max": [
+        0.91,
+        0.75,
+        3.23
+      ],
+      "pivot": "the plinth's base centre on the plot floor, front -Z to the street; plot space (-5.1, 0, -16.1), left of the door (luckycat.SPOT)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Plot_LuckyCat_2_Paw": [
+          0.64,
+          -0.12,
+          1.9
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Plot_LuckyCat_2_Paw": [
+          -0.64,
+          1.9,
+          -0.12
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_LuckyCat_2.model.json",
+      "rbx_parts": 52,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_LuckyCat_2.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_LuckyCat_2.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "646/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "353 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.08 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_LuckyCat_3",
+      "category": "Plot",
+      "module": "luckycat",
+      "objects": [
+        "CatCafe_Plot_LuckyCat_3",
+        "CatCafe_Plot_LuckyCat_3_Paw"
+      ],
+      "triangles": 646,
+      "budget": 4000,
+      "size_studs": {
+        "x": 1.66,
+        "y": 1.5,
+        "z": 3.23
+      },
+      "size_roblox": [
+        1.66,
+        3.23,
+        1.5
+      ],
+      "bounds_min": [
+        -0.75,
+        -0.75,
+        0.0
+      ],
+      "bounds_max": [
+        0.91,
+        0.75,
+        3.23
+      ],
+      "pivot": "the plinth's base centre on the plot floor, front -Z to the street; plot space (-5.1, 0, -16.1), left of the door (luckycat.SPOT)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Plot_LuckyCat_3_Paw": [
+          0.64,
+          -0.12,
+          1.9
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Plot_LuckyCat_3_Paw": [
+          -0.64,
+          1.9,
+          -0.12
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_LuckyCat_3.model.json",
+      "rbx_parts": 52,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_LuckyCat_3.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_LuckyCat_3.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "646/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "353 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.08 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_LuckyCat_4",
+      "category": "Plot",
+      "module": "luckycat",
+      "objects": [
+        "CatCafe_Plot_LuckyCat_4",
+        "CatCafe_Plot_LuckyCat_4_Paw"
+      ],
+      "triangles": 726,
+      "budget": 4000,
+      "size_studs": {
+        "x": 1.66,
+        "y": 1.5,
+        "z": 3.23
+      },
+      "size_roblox": [
+        1.66,
+        3.23,
+        1.5
+      ],
+      "bounds_min": [
+        -0.75,
+        -0.75,
+        0.0
+      ],
+      "bounds_max": [
+        0.91,
+        0.75,
+        3.23
+      ],
+      "pivot": "the plinth's base centre on the plot floor, front -Z to the street; plot space (-5.1, 0, -16.1), left of the door (luckycat.SPOT)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Plot_LuckyCat_4_Paw": [
+          0.64,
+          -0.12,
+          1.9
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Plot_LuckyCat_4_Paw": [
+          -0.64,
+          1.9,
+          -0.12
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_LuckyCat_4.model.json",
+      "rbx_parts": 56,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_LuckyCat_4.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_LuckyCat_4.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "726/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "433 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.08 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_LuckyCat_5",
+      "category": "Plot",
+      "module": "luckycat",
+      "objects": [
+        "CatCafe_Plot_LuckyCat_5",
+        "CatCafe_Plot_LuckyCat_5_Paw"
+      ],
+      "triangles": 726,
+      "budget": 4000,
+      "size_studs": {
+        "x": 1.66,
+        "y": 1.5,
+        "z": 3.23
+      },
+      "size_roblox": [
+        1.66,
+        3.23,
+        1.5
+      ],
+      "bounds_min": [
+        -0.75,
+        -0.75,
+        0.0
+      ],
+      "bounds_max": [
+        0.91,
+        0.75,
+        3.23
+      ],
+      "pivot": "the plinth's base centre on the plot floor, front -Z to the street; plot space (-5.1, 0, -16.1), left of the door (luckycat.SPOT)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Plot_LuckyCat_5_Paw": [
+          0.64,
+          -0.12,
+          1.9
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Plot_LuckyCat_5_Paw": [
+          -0.64,
+          1.9,
+          -0.12
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_LuckyCat_5.model.json",
+      "rbx_parts": 56,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_LuckyCat_5.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_LuckyCat_5.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "726/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "433 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.08 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Town_WelcomeArch",
+      "category": "Town",
+      "module": "welcomearch",
+      "objects": [
+        "CatCafe_Town_WelcomeArch",
+        "CatCafe_Town_WelcomeArch_Flowers",
+        "CatCafe_Town_WelcomeArch_Lamp_Bulb",
+        "CatCafe_Town_WelcomeArch_Bulbs"
+      ],
+      "triangles": 6654,
+      "budget": 8000,
+      "size_studs": {
+        "x": 44.6,
+        "y": 4.5,
+        "z": 22.3
+      },
+      "size_roblox": [
+        44.6,
+        22.3,
+        4.5
+      ],
+      "bounds_min": [
+        -22.3,
+        -2.2,
+        -0.3
+      ],
+      "bounds_max": [
+        22.3,
+        2.3,
+        22.0
+      ],
+      "pivot": "the opening's base centre on the street top (world y 0.1), front -Z toward the Town Square; Layout.townEnds at (0, -123) turned 180 and (0, 123) unturned",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_WelcomeArch.model.json",
+      "rbx_parts": 548,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Town_WelcomeArch.fbx",
+        "assets/cat-cafe/exports/CatCafe_Town_WelcomeArch.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "6654/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "3335 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.30 (want 0)",
+          "centered": "footprint center x=0.00 y=0.05"
         }
       }
     },

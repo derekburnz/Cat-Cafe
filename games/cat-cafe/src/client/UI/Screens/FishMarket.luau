@@ -24,6 +24,11 @@
 -- Components/MarketLogic; walking out of range closes the window (as the wheel, N132).
 -- F89 (luck-and-rare-moments.md 2b): a Legendary or Mythical piece also plays the big pull card (callbacks.bigPull,
 -- Screens/BigPull) as the crate's lid blows open, with "Use it" on it for a new style piece.
+-- F103 (crate-reel.md): once shared Config has the CrateReel* numbers, every crate opens with the reel
+-- (Screens/CrateReel) instead of the growing card: the same length every time, landing dead centre on the won piece
+-- with nothing rarer near the end, a tap skipping to the landing; the prize card pops in with its buttons after the
+-- stop, and a Legendary or Mythical's big pull card follows the stop by the crate's shake. Reduce Motion keeps the
+-- short fade with no reel.
 
 local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
@@ -34,6 +39,8 @@ local Workspace = game:GetService("Workspace")
 
 local BigPullLogic = require(script.Parent.Parent.Components.BigPullLogic)
 local Button = require(script.Parent.Parent.Components.Button)
+local CrateReel = require(script.Parent.CrateReel)
+local CrateReelLogic = require(script.Parent.Parent.Components.CrateReelLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
@@ -810,6 +817,14 @@ function FishMarket._buildReveal(self: any, body: Frame)
 		done = done,
 		use = use,
 	}
+	-- F103: the reel plays over the window before the card. Closing the window mid reel skips it to the stop
+	-- (review N324), so its ticks end with the window and the toast says what was won at once.
+	self._reelView = CrateReel.new(body)
+	self.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not self.frame.Visible and self._reelView:playing() then
+			self._reelView:skip()
+		end
+	end)
 	-- a tap while it plays skips to the end; after that only the card's own buttons close it
 	cover.Activated:Connect(function()
 		if self._revealing then
@@ -836,7 +851,14 @@ end
 
 -- Plays the reveal for the won piece. Its rarity shows from the first frame: the band, the glow and the tile are
 -- that colour at once and nothing better is ever shown first (no near miss).
-function FishMarket._playReveal(self: any, decorId: string, duplicate: boolean, refund: number)
+-- After the reel (F103) the card pops in with its buttons at once, and the big pull already left from the stop.
+function FishMarket._playReveal(
+	self: any,
+	decorId: string,
+	duplicate: boolean,
+	refund: number,
+	afterReel: boolean?
+)
 	local reveal = self._reveal
 	local decor: Types.DecorDef? = self._decorById[decorId]
 	local piece = DecorPieces.info(decor)
@@ -864,7 +886,9 @@ function FishMarket._playReveal(self: any, decorId: string, duplicate: boolean, 
 		elseif offerUse then "New! Use it now, or later in Decor."
 		else "New! Find it in Decor."
 	reveal.status.TextColor3 = if duplicate then Theme.colors.goldDark else Theme.colors.goodDark
-	self:_bigPull(decorId, piece.rarity, offerUse)
+	if not afterReel then
+		self:_bigPull(decorId, piece.rarity, offerUse)
+	end
 	-- two buttons side by side when Use it is offered, else Nice! in the middle
 	reveal.done:setText(if offerUse then "Later" else "Nice!")
 	reveal.done:setStyle(if offerUse then "ghost" else "primary")
@@ -891,6 +915,14 @@ function FishMarket._playReveal(self: any, decorId: string, duplicate: boolean, 
 	Tween.to(reveal.sheet, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
 		Size = UDim2.fromOffset(300, self._revealH),
 	})
+	if afterReel then
+		-- the reel already built up to it: the card pops in ready to press
+		self._revealing = false
+		reveal.glow.Size = UDim2.fromOffset(300, 300)
+		reveal.done.instance.Visible = true
+		reveal.use.instance.Visible = offerUse
+		return
+	end
 	Tween.to(
 		reveal.glow,
 		TweenInfo.new(REVEAL_SECONDS, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
@@ -901,6 +933,51 @@ function FishMarket._playReveal(self: any, decorId: string, duplicate: boolean, 
 			self:_finishReveal()
 		end
 	end)
+end
+
+-- F103: the reel for a crate the server already rolled and paid. The strip is drawn here from the crate's own
+-- chances (its golden odds for a golden crate), display only. At the stop a Legendary or Mythical's big pull starts its
+-- wait for the lid; CrateReelHoldSeconds later the prize card pops in, or a toast when the window closed meanwhile.
+function FishMarket._playReel(
+	self: any,
+	crate: Types.CrateDef,
+	decorId: string,
+	duplicate: boolean,
+	refund: number,
+	timing: CrateReelLogic.Timing
+)
+	self:_hideReveal()
+	self._pullToken += 1 -- an older open's big pull card still waiting stays away
+	local function rarityOf(id: string): string?
+		return DecorPieces.info(self._decorById[id]).rarity
+	end
+	local pieces = MarketLogic.pieceChances(crate.pieces, rarityOf, crate.odds)
+	local won: CrateReelLogic.Tile = { id = decorId, rarity = rarityOf(decorId) or "Common" }
+	self._reelView:play({
+		tiles = CrateReelLogic.strip(pieces, won, Random.new(), timing),
+		timing = timing,
+		decorById = self._decorById,
+		onLanded = function()
+			if not self.frame.Visible then
+				return -- closed mid reel: the toast says it, as a result that lands while closed does
+			end
+			local piece = DecorPieces.info(self._decorById[decorId])
+			self:_bigPull(decorId, piece.rarity, not duplicate and DecorPieces.isStyle(piece.kind))
+		end,
+		onDone = function()
+			if self.frame.Visible then
+				self:_playReveal(decorId, duplicate, refund, true)
+				return
+			end
+			local decor: Types.DecorDef? = self._decorById[decorId]
+			local name = if decor then decor.name else decorId
+			self._callbacks.toast(
+				if duplicate
+					then ("%s again: +%s golden fish back"):format(name, Format.short(refund))
+					else ("New piece: %s! Find it in Decor."):format(name)
+			)
+		end,
+	})
 end
 
 -- F89: a Legendary or Mythical piece's big pull card lands with the crate's lid, BigPullLogic.CRATE_HOLD after the
@@ -1547,7 +1624,14 @@ function FishMarket.result(
 		return
 	end
 	self._oddsCover.Visible = false
-	self:_playReveal(decorId, duplicate, refund)
+	-- F103: the reel's shape from shared Config, nil until Config has the CrateReel* numbers
+	local reel: CrateReelLogic.Timing? = CrateReelLogic.timing(Config)
+	local crate: Types.CrateDef? = self._crateById[crateId]
+	if reel ~= nil and crate ~= nil and not GuiService.ReducedMotionEnabled then
+		self:_playReel(crate, decorId, duplicate, refund, reel)
+	else
+		self:_playReveal(decorId, duplicate, refund)
+	end
 	self:_refresh()
 end
 
@@ -1577,6 +1661,7 @@ function FishMarket.destroy(self: any)
 		entry.icon:destroy()
 		entry.buy:destroy()
 	end
+	self._reelView:destroy()
 	self._reveal.icon:destroy()
 	self._reveal.done:destroy()
 	self._reveal.use:destroy()

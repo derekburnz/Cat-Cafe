@@ -5,9 +5,10 @@
 --   owner's name for it after the server's filter, else the breed; F33) attributes; a napping cat shows no tag.
 --   At night (Clock Phase "night") the tag shows the night share behind a moon, "🌙 +$2/s", Rate x
 --   NightIncomeMultiplier, the same number as the cafe's name sign (reviewer N88): the cats curl up but still earn.
---   Order bubbles: a white bubble with the customer's order (coffee, cake or milk) over their head from the
---   counter on, which pops into a heart once they are served, then fades. Customers are this client's own models
---   in Workspace.LocalCustomers with Order and Served attributes (CustomerController).
+--   Order bubbles: a white bubble with the customer's order over their head from the counter on, which pops into a
+--   heart once they are served, then fades. Customers are this client's own models in Workspace.LocalCustomers with
+--   Order and Served attributes (CustomerController). F90 (cats-make-orders.md): Order is a menu id (coffee up to
+--   rainbow_cake) and the bubble shows the item's glyph from shared Catalog.getMenuItem, the dish pictures later.
 -- The labels are parented under the models themselves, so they go when the cat or the customer goes.
 --
 -- Roblox terms: a BillboardGui parented under a part draws over that part and always faces the camera; its Size
@@ -23,6 +24,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
+local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 
 export type WorldTags = {
@@ -36,7 +38,8 @@ local RATE_SIZE = Vector2.new(4, 1.1) -- studs
 local NAME_HEIGHT = 0.7 -- studs, the name line over the rate
 local BUBBLE_SIZE = 1.7 -- studs, square
 local HEART_SECONDS = 1.6 -- the heart stays this long, then fades
--- Emoji draw in colour in Roblox text, so the bubbles need no image upload.
+-- Emoji draw in colour in Roblox text, so the bubbles need no image upload. Before F90's menu the orders were these
+-- three; a menu id reads its glyph from the catalog (orderGlyph).
 local ORDER_ICONS: { [string]: string } = { coffee = "☕", cake = "🍰", milk = "🥛" }
 local HEART = "❤"
 local MOON = "🌙"
@@ -45,6 +48,15 @@ local NIGHT_TIPS: number = Config.NightIncomeMultiplier
 
 local WorldTags = {}
 WorldTags.__index = WorldTags
+
+-- F90: the menu item's glyph for an Order menu id, the old three's, or "?" for an id nobody knows.
+local function orderGlyph(order: string): string
+	local item = Catalog.getMenuItem(order)
+	if item ~= nil and item.glyph ~= "" then
+		return item.glyph
+	end
+	return ORDER_ICONS[order] or "?"
+end
 
 -- The part a label hangs from and how far above that part's centre the model's top is.
 local function anchorOf(model: Instance): (BasePart?, number)
@@ -254,7 +266,7 @@ function WorldTags._attachCustomer(self: any, customer: Instance)
 				end
 			end)
 		elseif not isServed then
-			icon.Text = ORDER_ICONS[order :: string] or "?"
+			icon.Text = orderGlyph(order :: string)
 			Tween.popIn(bubble, 0.6)
 		end
 	end

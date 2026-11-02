@@ -337,7 +337,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Alley props | 800 | Dumpster 1,200; rescue traps (TrashBin, GarbageBags) 600 |
 | Park props | 800 | Fountain 1,200; rescue traps (RescueTree, TrashCan) 900 |
 | Area gates | 6,000 | Park, Neighbourhood, Woods, Sewer: arches with a barrier (section 13) |
-| Area sets (v3.2) | 80,000 Park, 120,000 Woods, Sewer and Neighbourhood | a whole area as one Model of Parts; the part count is the real cost (Park 2,807, Woods 4,510, Sewer 4,471, Neighbourhood 5,478) |
+| Area sets (v3.2) | 80,000 Park, 120,000 Woods, Sewer and Neighbourhood | a whole area as one Model of Parts; the part count is the real cost (Park 2,758, Woods 5,466, Sewer 4,789, Neighbourhood 5,478) |
 | Index Boards | 1,500 | one per area, at its entry inside the gate (section 14) |
 | Night pieces | 6,000 per gate fence | the short night (section 14): Alley_NightFenceSegment 2,000, Plot_BackDoorClosed 2,500 |
 | Street stations | 6,000 | the Codes Cat desk and the Golden Fish Market stall, each with its cat (section 14); the stall 7,000 with its Fresh Catch board (F94) |
@@ -515,8 +515,14 @@ areas (Alley, Park, Street, Square, Neighbourhood, Woods, Sewer) thin parts coll
 at least 0.9 long, so planks, decks, rungs and rails hold players up. Round parts (ellipsoids) get a block collider
 75% of their size so it does not stick out past the curve. An object ending `_Climb` exports as an invisible
 TrussPart (sizes in 2-stud steps, top flush with the deck it reaches) behind a ladder's rungs so players climb it.
-An object ending `_Barrier` exports as invisible parts that always collide: walls nobody sees that keep players
-and cats out of water (the Park pond's kerb ring, open only at the jetty), and 30 high on every blocker and outer wall of a v3.2 area set, so nobody jumps a hedge or a wall (a default jump clears 7.2). `_Flowers` never collide.
+An object ending `_Barrier` exports as invisible parts that always collide, 30 high on every blocker and outer wall
+of a v3.2 area set, so nobody jumps a hedge or a wall (a default jump clears 7.2), and along the water a set's way in
+crosses only on its bridges (8c). A barrier always stands on something a player can see (Derek 2026-10-28: "in park
+there is a invisible barrier around the edge of the pond", 10-29: "lots of invisible barriers in sewer"): a wall, a
+hedge, the bars of a tunnel mouth, or a railing on the water's edge, the Sewer's kerbs a steel guard rail 3.2 high
+(yellow top rail, like its catwalks) and the Woods stream's rock edges a log rail 3.0 high, each with its barrier a
+0.5 thick wall on the rail's line, so a player walks up to the rail. Water that no way in crosses gets no barrier: the
+Park's duck pond is shallow and players and cats wade in it. `_Flowers` never collide.
 
 Names the game code reads, so keep them when an asset is rebuilt: `_Roof` (faded for the owner), a part named
 `SignBoard` (owner sign SurfaceGui), `Bars` (a gate barrier, ForceField), `Top` (round table, customers face it),

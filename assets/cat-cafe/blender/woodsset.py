@@ -9,8 +9,9 @@ The way in (8b) winds about 1.6 times the straight walk. The dirt trail leaves t
 the berry meadow (west) to the only gap in the tree line (east end), back west past the mushroom ring to the stream's
 only crossing, a log bridge (west), then east past the berry patch to the only gap in the rock ridge (east end), and
 on west to the Great Oak's clearing at the far end, with the tree house and the lookout tower beside it. The stream
-runs the whole width, sunken between rock edges and grass banks, from a waterfall at the east wall (8c), with an
-invisible `_Barrier` along each rock edge that only the bridge passes.
+runs the whole width, sunken between rock edges and grass banks, from a waterfall at the east wall (8c), with a log
+rail along each rock edge that only the bridge passes and its `_Barrier` wall on the rail's line (Derek 2026-10-28
+found the Park pond's and the Sewer's walls standing on nothing you could see; this stream's were the same).
 
 The set brings its own walls just inside WorldBuilder's (whose inner faces stand at +-119.5): the far and side walls
 are runs of mossy cliff, thicket, log palisade and dry stone under a thicket, 10 to 15 high, between old trees; the
@@ -40,6 +41,9 @@ GATE_HALF = 19.0                     # the Woods gate model is 36.2 wide, centre
 TRAIL_W = 7.0
 DIRT = "kibble"
 BARRIER_H = 30.0
+BAR_T = 0.5                          # a barrier on a rail's line: about as thick as the rail
+RAIL_H, RAIL_STEP = 3.0, 4.0         # the stream's log rails: post height over the rock edge, the most between posts
+RAIL_END_E = 103.0                   # the rails stop short of the waterfall pond's rocks (its rim from x 104)
 TREE_LINE_Z, GAP_A = -66.0, (36.0, 52.0)     # first blocker, gap at the east end
 RIDGE_Z, GAP_C = 46.0, (28.0, 44.0)          # rock ridge, gap at the east end
 STREAM_Z, BRIDGE_X = -6.0, -38.0             # the stream's centre line at the bridge, and the bridge
@@ -117,8 +121,10 @@ def _at(c, a, d):
 def stream(mat):
     """The stream across the whole width, from the waterfall at the east wall (Roblox +x) to the west wall: a dark
     bed under water 0.36 deep in look, a rock edge 1.3 high either side and a grass bank down to the floor. Every
-    other segment is 0.006 taller so the overlaps never share a face. Stream_Barrier: an invisible wall on each rock
-    edge, open only at the bridge, plus the walls along the bridge's sides."""
+    other segment is 0.006 taller so the overlaps never share a face. A log rail (dark posts, two split rails, like
+    the bridge's and the town fence's) runs along the middle of each rock edge, open only at the bridge, and stops
+    short of the waterfall pond, whose rocks close it. Stream_Barrier: an invisible wall on each rail's line, on to
+    the walls past the pond, plus the walls along the bridge's sides."""
     b, water, bar = Builder(), Builder(), Builder()
     xs = [-IN + 0.5 + k * (2 * IN - 1.0) / 58 for k in range(59)]          # its ends stop at the walls' faces
     for i, (x0, x1) in enumerate(zip(xs, xs[1:])):
@@ -135,20 +141,46 @@ def stream(mat):
             turn = Matrix.Rotation(a, 3, "Z") @ (Matrix.Rotation(PI, 3, "Z") if s > 0 else Matrix.Identity(3))
             b.wedge((*_at(c, a, d), EDGE_H / 2), (L * 1.12, BANK_W, EDGE_H - 0.01 * (i % 2)), "leaf_dark", bevel=False,
                     rot=turn)
-    # the barriers: chunks about 12 long along each rock edge, none across the bridge
     gaps = (BRIDGE_X - 3.4, BRIDGE_X + 3.4)
+    for (r0, r1) in ((-IN + 0.8, gaps[0] - 0.4), (gaps[1] + 0.4, RAIL_END_E)):   # the log rails
+        n = max(1, math.ceil((r1 - r0) / RAIL_STEP))
+        for s in (-1, 1):
+            pts = [_edge_point(r0 + (r1 - r0) * k / n, s * (WATER_HW + EDGE_W / 2)) for k in range(n + 1)]
+            log_rail(b, pts)
+    # the barriers: chunks about 12 long along each rail's line, none across the bridge
     for (r0, r1) in ((-IN, gaps[0]), (gaps[1], IN)):
         n = max(1, round((r1 - r0) / 12.0))
         for k in range(n):
             x0, x1 = r0 + (r1 - r0) * k / n, r0 + (r1 - r0) * (k + 1) / n
             c, a, L = _seg_frame(x0, x1)
             for s in (-1, 1):
-                bar.box_base((*_at(c, a, s * (WATER_HW + EDGE_W / 2)), 0), (L + 0.3, EDGE_W, BARRIER_H), "offwhite",
+                bar.box_base((*_at(c, a, s * (WATER_HW + EDGE_W / 2)), 0), (L + 0.3, BAR_T, BARRIER_H), "offwhite",
                              bevel=False, rot=(a, "Z"))
     for s in (-1, 1):                                                            # along the bridge's sides
         x, y, _ = bl(BRIDGE_X + s * 3.4, STREAM_Z)
         bar.box_base((x, y, 0), (0.6, 2 * (WATER_HW + EDGE_W) + 0.6, BARRIER_H), "offwhite", bevel=False)
     return [b.finalize(N + "Stream", mat), water.finalize(N + "Stream_Water", mat), bar.finalize(N + "Stream_Barrier", mat)]
+
+
+def _edge_point(x, d):
+    """The Builder point d across the stream's centre line at Roblox x (the side _at calls +Y)."""
+    c, a, _ = _seg_frame(x - 0.05, x + 0.05)
+    return _at(c, a, d)
+
+
+def log_rail(b, pts):
+    """A log rail through Builder points on a rock edge's top: a dark post RAIL_H high at each point, set a little
+    into the rock, and two split rails per bay, every other bay a hair thinner so the bays' ends never share a face."""
+    base = EDGE_H - 0.03
+    for (x, y) in pts:
+        b.box_base((x, y, base), (0.4, 0.4, RAIL_H), "dark_wood", bevel=False)
+    for k, (p, q) in enumerate(zip(pts, pts[1:])):
+        L = math.hypot(q[0] - p[0], q[1] - p[1])
+        rot = (math.atan2(q[1] - p[1], q[0] - p[0]), "Z")
+        c = ((p[0] + q[0]) / 2, (p[1] + q[1]) / 2)
+        t = 0.008 * (k % 2)
+        for z in (1.2, 2.5):
+            b.box((*c, base + z), (L, 0.24 + t, 0.32 + t), "caramel_wood", bevel=False, rot=rot)
 
 
 def log_bridge(mat):

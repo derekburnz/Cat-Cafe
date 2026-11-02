@@ -97,10 +97,17 @@ export type CustomEvent =
 	| "new_player_left"
 	| "stuck_nudge"
 	| "intro_choice"
-	-- F87 (TipService): a context tip or the like ask shown (tip id, skipped yes or no), once per id until ClearTips;
+	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
 	-- a feedback face (love, ok or no; the chip or none; tier), FeedbackSessionLimit a session
 	| "tip_shown"
+	| "ask_shown" -- F96: value 1; kind (notify, favorite or like), the session number
 	| "feedback"
+	-- F96 (starter-cat.md section 4): the free Bellhop Cat taken home; the gate it passed, "task" or "group"
+	| "starter_cat"
+	-- F88 (luck-and-rare-moments.md 1f): a bait or crate roll with Luck above x1 (value the Luck; roll kind, rarity
+	-- won, tier) and a Lucky Day's sunrise (value the players in the server; the area of a Mythical, or none)
+	| "luck_used"
+	| "lucky_day"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -707,6 +714,7 @@ local function logJoined(player: Player)
 		bowl = Economy.level(profile, "lure_bowl"),
 		tier = Economy.tier(profile),
 		parkCats = parkCats,
+		starterCat = profile.starterCatClaimed,
 	})
 	for _, name in shown do
 		Telemetry.onboarding(player, profile, name :: Onboarding.StepName)

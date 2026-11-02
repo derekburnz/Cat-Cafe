@@ -31,7 +31,7 @@ Remotes.ClientToServer = {
 	"ToggleDecor", -- (decorId: string, placed: boolean)
 	"BuyLure", -- (lureId: string)
 	"UseLure", -- (lureId: string)  bowl bought and empty, food in stock; from anywhere (2026-10-28)
-	"ResolveBait", -- (choice: "tame" | "letgo")  the bowl's cat has arrived, within 20 studs of own BaitBowl
+	"ResolveBait", -- (choice: "tame" | "letgo")  the bowl's cat has arrived; from anywhere (2026-10-28)
 	"ClaimOffline", -- ()
 	"TutorialAdvance", -- (step: number)
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)
@@ -64,6 +64,9 @@ Remotes.ClientToServer = {
 	"RedeemCode", -- (text: string)  within CodesCatRange of a CodesCat, at most 40 bytes, trimmed and lowercased to 1
 	-- to CodeMaxLength letters and digits, a known active code not yet redeemed (F65, shared/Codes); 1 per 2 s, locked
 	-- CodeLockSeconds after CodeWrongLimit wrong codes; answered with CodeResult
+	"ClaimStarterCat", -- ()  F96 (starter-cat.md section 4): within StarterCatRangeStuds of a BellhopStand, the
+	-- Bellhop Cat not yet claimed, and the first goals done (GroupId 0) or the player in GroupId; 1 per 2 s, answered
+	-- with StarterCatResult
 	"IntroDone", -- (shot: number, replay: boolean)  integer 0 to 10: 0 when the intro cutscene played to the end, else
 	-- the shot showing at Skip (F72, shared/Intro); 1 a second. The first non-replay call sets introSeen
 	"UsePotion", -- (potionId: string)  F64: a known potion in the bag whose minutes fit under PotionMaxMinutes with
@@ -83,10 +86,12 @@ Remotes.ClientToServer = {
 	-- of the card and answers with ProfileSync (`dailyTreat`)
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?)  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
-	"TipSeen", -- (id: string, skipped: boolean?)  F87 (easy-start.md section 6): a shared/Tips id or one of its three
-	-- asks, 1 a second. A tip or like_ask goes in tipsSeen (logged once as tip_shown, skipped true when a camera cut
-	-- was skipped), feedback_ask sets feedbackAsked, stuck_help sets stuckHelpShown for the current tutorialStep
-	"ClearTips", -- ()  F87: Settings' "Show tips again"; forgets tipsSeen but the like ask; 1 per 10 s; ProfileSync
+	"TipSeen", -- (id: string, skipped: boolean?)  F87 (easy-start.md section 6): a shared/Tips id or one of its
+	-- asks, 1 a second. A tip goes in tipsSeen (logged once as tip_shown, skipped true when a camera cut was skipped);
+	-- F96: an ask this session sent (notify_ask, favorite_ask, like_ask) goes in tipsSeen and logs ask_shown (the
+	-- notification ask's first showing only sets notifyAskAt; skipped true: Roblox would not prompt), feedback_ask
+	-- sets feedbackAsked, stuck_help sets stuckHelpShown for the current tutorialStep
+	"ClearTips", -- ()  F87: Settings' "Show tips again"; forgets tipsSeen but the asks; 1 per 10 s; ProfileSync
 	"SendFeedback", -- (face: string, chip: string?)  F87 (section 4): face in Tips.FACES, chip nil or in Tips.CHIPS;
 	-- 1 per 10 s and FeedbackSessionLimit (5) a session; logs `feedback` and sets feedbackAsked. Text goes by ReportBug
 }
@@ -127,12 +132,14 @@ Remotes.ServerToClient = {
 	-- (none until shared/Settings saves the key, review S100)
 	"TipJarState", -- (state: Types.TipJarState)  when the profile loads and after every claim (F47)
 	"ShowTip", -- (id: string)  F87 (easy-start.md section 3): a server-side context tip's moment came (shared/Tips:
-	-- `due` from the save and the clock, or its event); at most once a session per id until TipSeen. The client queues
-	-- and times it, then answers TipSeen
+	-- `due` from the save and the clock, or its event, or F96's `dueAsk`, one ask a session); at most once a session
+	-- per id until TipSeen. The client queues and times it, then answers TipSeen
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)
 	"CrateResult", -- (crateId: string, decorId: string, duplicate: boolean, refund: number)  the piece an OpenCrate
 	-- gave (its rarity and kind are on its DecorDef) and the golden fish a duplicate paid back; decorId "" when refused
+	"StarterCatResult", -- (ok: boolean, reason: string?)  F96: the answer to ClaimStarterCat; ok plays the happy hop,
+	-- a refusal's reason is the stand card's line ("Finish your first goals to take me home")
 	"CodeResult", -- (ok: boolean, message: string, prize: Types.IndexPrize?)  the answer to RedeemCode: the code box's
 	-- answer line and, when ok, the prize pictures (F65)
 	"ShoveResult", -- (outcome: "shove" | "loose" | "held" | "miss" | "refused", shoverUserId: number,

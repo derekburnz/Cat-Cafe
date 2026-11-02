@@ -3,7 +3,8 @@
 -- in the previous areas still hold decent value across areas and don't instantly become useless next area"): a
 -- Legendary or Mythical from an older area earns as if it came from the area one step behind the owner's newest.
 --   keepsUp(def, tier)  whether that lifts the cat above its own area's pay (CatStats.areaMultiplier with and
---                       without the tier), so the tag shows
+--                       without the tier), so the tag shows; never for an exclusive cat (F95 and F96), which always
+--                       earns like its rarity from the newest area and says so on its own
 --   tip(tier)           "Earns like a Woods cat now that you have reached the Sewer."
 -- The kept-up income itself is the server's CatView rating. Pure, so the cloud spec runner checks it.
 
@@ -18,7 +19,7 @@ local KeepUp = {}
 KeepUp.TAG = "Keeps up"
 
 function KeepUp.keepsUp(def: Types.CatDef?, tier: number?): boolean
-	if def == nil or tier == nil then
+	if def == nil or tier == nil or def.exclusive == true then
 		return false
 	end
 	return CatStats.areaMultiplier(def, tier) > CatStats.areaMultiplier(def) + 1e-9

@@ -25,6 +25,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Leaderstats = require(script.Parent.Leaderstats)
+local Luck = require(ReplicatedStorage.Shared.Luck)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local PassService = require(script.Parent.PassService)
@@ -36,7 +37,6 @@ local Settings = require(ReplicatedStorage.Shared.Settings)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
-local Tips = require(ReplicatedStorage.Shared.Tips)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -107,10 +107,29 @@ local function baitView(profile: Profile, now: number): Types.BaitView?
 	return view
 end
 
+-- F88: the player's Luck and its sources, each with when it ends (os.time()) where it ends, for the Luck chip.
+local function luckView(profile: Profile, now: number): (number, { Types.LuckSource })
+	local luckyDay = ClockService.luckyDay()
+	local sources: { Types.LuckSource } = {}
+	for _, source in Luck.sources(profile, now, luckyDay) do
+		local endsAt: number? = nil
+		if source.id == "potion" then
+			endsAt = now + Potions.left(profile, Potions.LUCKY, now)
+		elseif source.id == "lucky_day" then
+			endsAt = now + math.max(0, ClockService.phaseEndsAt() - Workspace:GetServerTimeNow())
+		end
+		local row: Types.LuckSource =
+			{ id = source.id :: string, value = source.value, endsAt = endsAt }
+		table.insert(sources, row)
+	end
+	return Luck.of(profile, now, luckyDay), sources
+end
+
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
 	local plot = PlotService.get(player)
 	local now = os.time()
 	local totals = IndexRewards.totals(profile)
+	local luck, luckSources = luckView(profile, now)
 	return {
 		money = math.floor(profile.coins),
 		incomePerSecond = currentRate(profile), -- drops at nightfall; the client predicts coins with it
@@ -151,6 +170,9 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		tipsSeen = table.clone(profile.tipsSeen), -- F87
 		feedbackAsked = profile.feedbackAsked,
 		stuckHelpShown = table.clone(profile.stuckHelpShown),
+		starterCatClaimed = profile.starterCatClaimed, -- F96
+		luck = luck, -- F88
+		luckSources = luckSources,
 		serverTime = now,
 	}
 end
@@ -594,6 +616,29 @@ local function refreshEspresso(plot: WorldBuilder.Plot, profile: Profile)
 	model.Parent = plot.model
 end
 
+-- The Lucky Cat statue in the front garden (F88, luck-and-rare-moments.md section 1): CatCafe_Plot_LuckyCat_<level>,
+-- level 0 a plinth and sign before the first level is bought, swapped when the level changes. Named LuckyCat and
+-- tagged LuckyCat, with its Level attribute, for the client's effects: the paw wave (the <asset>_Paw child) of
+-- levels 1 to 5 and the level up sparkle.
+local function refreshLuckyCat(plot: WorldBuilder.Plot, profile: Profile)
+	local level = math.clamp(Economy.level(profile, Luck.UPGRADE), 0, 5)
+	local assetName = "CatCafe_Plot_LuckyCat_" .. level
+	local existing = plot.model:FindFirstChild("LuckyCat")
+	if existing ~= nil and existing:GetAttribute("Asset") == assetName then
+		return
+	end
+	if existing ~= nil then
+		existing:Destroy()
+	end
+	local model = AssetRegistry.clone(assetName)
+	model.Name = "LuckyCat"
+	model:SetAttribute("Asset", assetName)
+	model:SetAttribute("Level", level)
+	CollectionService:AddTag(model, "LuckyCat")
+	model:PivotTo(plot.luckyCat.CFrame)
+	model.Parent = plot.model
+end
+
 -- The bait bowl in the front garden (data-model section 8): the bowl once the upgrade is bought, the food in it
 -- while a cat is on its way and the cat itself, eating, once it has arrived, so the street sees it. The item
 -- models are tiny, so they are scaled up to read from the path. BaitReadyAt is for display only.
@@ -668,6 +713,7 @@ function CafeService.refreshPlot(player: Player)
 	refreshSpots(plot, profile)
 	refreshExpansions(plot, profile)
 	refreshEspresso(plot, profile)
+	refreshLuckyCat(plot, profile)
 	refreshDecor(plot, profile) -- before the cats: at night they sleep on decor cat trees (F79, review S89)
 	refreshCats(player, plot, profile)
 	refreshTables(plot, profile)
@@ -942,16 +988,13 @@ function CafeService.addCaughtCat(
 
 	CafeService.refreshPlot(player)
 	if notify then
-		-- F87 context tips (easy-start.md sections 3 and 4): the first check-in ends the newcomer shield; a second cat
-		-- wants a job; a first Legendary or better is the like ask's moment
+		-- F87 context tips (easy-start.md section 3): the first check-in ends the newcomer shield; a second cat wants
+		-- a job. The like ask's moment (a first Legendary or better) is TipService's since F96 (Tips.dueAsk).
 		if firstCheckIn then
 			TipService.show(player, "tackle")
 		end
 		if profile.stats.catsCaught >= 2 then
 			TipService.show(player, "second_cat")
-		end
-		if def.rarity == "Legendary" or def.rarity == "Mythical" then
-			TipService.show(player, Tips.LIKE_ASK)
 		end
 		if isNew then
 			Net.toast(
@@ -1008,6 +1051,45 @@ function CafeService.addCaughtCat(
 		CafeService.sync(player)
 	end
 	return instance, isNew
+end
+
+-- F96 (starter-cat.md section 2): a cat given, not caught (the free Bellhop Cat): level 1, base coat and `charm`,
+-- method "starter". It joins the collection with no first-catch reward and counts toward no catch, quest or Index
+-- (an exclusive cat). It takes the first free open role slot, or rests in the cat room when none is free.
+function CafeService.addGiftCat(
+	player: Player,
+	profile: Profile,
+	def: Types.CatDef,
+	charm: number
+): Types.CatInstance
+	Economy.settle(profile, os.time(), ClockService.epoch())
+	local now = os.time()
+	local instance = CatStats.newInstance(newUid(), def.id, now, charm)
+	instance.method = "starter"
+	profile.cats[instance.uid] = instance
+	if profile.collection[def.id] == nil then
+		profile.collection[def.id] = now
+	end
+	for _, spot in Catalog.spots do
+		if Economy.spotIsOpen(profile, spot.id) and Economy.catOnSpot(profile, spot.id) == nil then
+			instance.spotId = spot.id
+			break
+		end
+	end
+	local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId :: string) else nil
+	Net.toast(
+		player,
+		if spot ~= nil
+			then string.format("The %s joined your cafe as your %s!", def.name, roleName(spot))
+			else string.format(
+				"The %s joined your cafe! It is resting in the cat room.",
+				def.name
+			),
+		"good"
+	)
+	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+	return instance
 end
 
 function CafeService.setCarrying(player: Player, catId: string?)
@@ -1163,6 +1245,15 @@ local function onSellCat(player: Player, rawUid: unknown)
 	if def == nil then
 		return
 	end
+	if def.exclusive == true then
+		-- F95 and F96: an exclusive cat can be locked but never sold
+		Net.toast(
+			player,
+			string.format("The %s stays with you. Exclusive cats cannot be sold.", def.name),
+			"warn"
+		)
+		return
+	end
 	profile.cats[uid] = nil
 	profile.stats.catsSold += 1
 	local value = Catalog.rarities[def.rarity].sellValue
@@ -1246,9 +1337,6 @@ local function onRankUp(player: Player)
 	Telemetry.sink(player, profile, def.cost, "Gameplay", "rank_up_" .. def.tier)
 	profile.tier = def.tier
 	Telemetry.rankedUp(player, profile)
-	if def.tier == 2 then
-		TipService.show(player, Tips.LIKE_ASK) -- F87 section 4: the one like ask, at the first rank up
-	end
 	local fish = GoldenFish.forRankUp(def.tier) -- F52
 	GoldenFish.credit(profile, fish)
 	Telemetry.fishSource(player, profile, fish, "Gameplay", "rank_up")

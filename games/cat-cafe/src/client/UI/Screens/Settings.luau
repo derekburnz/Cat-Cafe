@@ -15,6 +15,9 @@
 --
 -- F72 (intro-cutscene.md section 4): the Screen section ends with the Tutorial button switch and a Replay tutorial
 -- button row (callbacks.replayTutorial). Both stay hidden until showTutorial(true), once the intro is live.
+-- F87 (easy-start.md section 4): a Feedback row tops the list (callbacks.openFeedback, the Feedback window's faces).
+-- F87 (easy-start.md section 3): the Screen section ends with a Show tips again row (callbacks.showTipsAgain), which brings back the context
+-- tips; its button reads "Done" for a moment after a press.
 
 local UserInputService = game:GetService("UserInputService")
 
@@ -22,6 +25,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local Scale = require(script.Parent.Parent.Scale)
 local SettingsList = require(script.Parent.Parent.Components.SettingsList)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -32,6 +36,8 @@ export type Callbacks = {
 	changed: (key: string, value: boolean | number) -> (), -- the shown value moved (a tap, a drag or the server)
 	close: () -> (),
 	replayTutorial: (() -> ())?, -- the Screen section's Replay tutorial row (F72); no row without it
+	showTipsAgain: (() -> ())?, -- the Screen section's Show tips again row (F87); no row without it
+	openFeedback: (() -> ())?, -- the Feedback row on top (F87 section 4); no row without it
 }
 
 export type Settings = {
@@ -72,6 +78,8 @@ local TILE_COLORS: { [string]: Color3 } = {
 	markers = Theme.colors.good,
 	tutorialButton = Theme.colors.gold,
 	replayTutorial = Theme.colors.gold,
+	showTips = Theme.colors.sky,
+	feedback = Theme.colors.gold,
 	shopAlerts = Theme.colors.goldDark,
 }
 -- a volume row's switch: the slider greys while that switch is off
@@ -85,6 +93,21 @@ local REPLAY_ROW: ButtonRow = {
 	detail = "The quick tour of the town again",
 	button = "Play",
 }
+local TIPS_ROW: ButtonRow = {
+	key = "showTips",
+	icon = "💡",
+	name = "Show tips again",
+	detail = "The one-line tips you have already seen",
+	button = "Show",
+}
+local FEEDBACK_ROW: ButtonRow = {
+	key = "feedback",
+	icon = Theme.icons.feedback,
+	name = "Feedback",
+	detail = "Tell us how the game is going",
+	button = "Open",
+}
+local TIPS_DONE_SECONDS = 2 -- the button reads "Done" this long after a press
 -- the rows hidden until the intro is live (F72)
 local TUTORIAL_ROWS = { SettingsList.TUTORIAL_KEY, REPLAY_ROW.key }
 
@@ -168,6 +191,11 @@ function Settings.new(callbacks: Callbacks): Settings
 	self._list = list
 
 	local order = 0
+	local openFeedback = callbacks.openFeedback
+	if openFeedback then
+		order += 1
+		self:_buildButtonRow(FEEDBACK_ROW, order, openFeedback)
+	end
 	for _, section in SettingsList.SECTIONS do
 		order += 1
 		text({
@@ -188,6 +216,23 @@ function Settings.new(callbacks: Callbacks): Settings
 		if section.title == "Screen" and replayTutorial then
 			order += 1
 			self:_buildButtonRow(REPLAY_ROW, order, replayTutorial)
+		end
+		local showTipsAgain = callbacks.showTipsAgain
+		if section.title == "Screen" and showTipsAgain then
+			order += 1
+			local button: Button.Button
+			button = self:_buildButtonRow(TIPS_ROW, order, function()
+				Sound.play("uiClick")
+				showTipsAgain()
+				button:setText("Done")
+				button:setEnabled(false)
+				task.delay(TIPS_DONE_SECONDS, function()
+					if self._alive then
+						button:setText(TIPS_ROW.button)
+						button:setEnabled(true)
+					end
+				end)
+			end)
 		end
 	end
 	self:showTutorial(false)
@@ -380,24 +425,29 @@ end
 
 -- A button row (Report a bug, Replay tutorial): a row card like a switch row's, with a button where the switch
 -- would be.
-function Settings._buildButtonRow(self: any, row: ButtonRow, order: number, onClick: () -> ())
+function Settings._buildButtonRow(
+	self: any,
+	row: ButtonRow,
+	order: number,
+	onClick: () -> ()
+): Button.Button
 	local card = self:_buildCard(row.key, row.icon, order)
 	nameAndDetail(card, row.name, row.detail)
-	table.insert(
-		self._buttons,
-		Button.new({
-			name = "Open",
-			text = row.button,
-			style = "secondary",
-			size = UDim2.fromOffset(SWITCH.X, SWITCH.Y),
-			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -12, 0.5, -2),
-			textSize = Theme.sizes.textLarge,
-			parent = card,
-			sound = false, -- the window's open swish, or the intro, is the sound
-			onClick = onClick,
-		})
-	)
+	local button = Button.new({
+		name = "Open",
+		text = row.button,
+		style = "secondary",
+		-- a phone's finger needs 44 real px; the row card has room for the taller button
+		size = UDim2.fromOffset(SWITCH.X, Scale.tapHeight(SWITCH.Y, Theme.sizes.buttonDepth)),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -12, 0.5, -2),
+		textSize = Theme.sizes.textLarge,
+		parent = card,
+		sound = false, -- the window's open swish, or the intro, is the sound
+		onClick = onClick,
+	})
+	table.insert(self._buttons, button)
+	return button
 end
 
 -- The bar under a volume row's name: the track with its fill and a round knob at its end, under a clear band

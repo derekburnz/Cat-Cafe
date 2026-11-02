@@ -20,6 +20,7 @@ local Workspace = game:GetService("Workspace")
 local ActionPill = require(script.Screens.ActionPill)
 local AreaTitle = require(script.Screens.AreaTitle)
 local Areas = require(script.Screens.Areas)
+local AskCard = require(script.Screens.AskCard)
 local BaitBowl = require(script.Screens.BaitBowl)
 local BaitCard = require(script.Screens.BaitCard)
 local BugReport = require(script.Screens.BugReport)
@@ -77,7 +78,9 @@ local TackleBar = require(script.Screens.TackleBar)
 local TackleLogic = require(script.Components.TackleLogic)
 local Theme = require(script.Theme)
 local TillTipsButton = require(script.Screens.TillTipsButton)
+local TipCard = require(script.Screens.TipCard)
 local TipJar = require(script.Screens.TipJar)
+local TipQueue = require(script.Components.TipQueue)
 local Toasts = require(script.Screens.Toasts)
 local Types = require(script.Types)
 local UpgradeShop = require(script.Screens.UpgradeShop)
@@ -158,6 +161,17 @@ UI.events = {
 	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
 	-- F84
 	launchCannon = Signal.new(), -- (cannonId, destination)   Launch on a Cat Cannon card: forward as LaunchCannon
+	-- F87 (easy-start.md sections 3 and 6): a context tip shown (skipped true when its camera cut was skipped), and
+	-- Settings' "Show tips again"
+	tipSeen = Signal.new(), -- (id, skipped?)   a shared/Tips id (or like_ask) shown: forward as TipSeen
+	clearTips = Signal.new(), -- ()   Show tips again in Settings: forward as ClearTips
+	sendFeedback = Signal.new(), -- (face, chip?)   one answer on the feedback faces (Tips.FACES, Tips.CHIPS): forward as SendFeedback
+	-- F87 (easy-start.md sections 2g and 5), analytics only: where the intro was played from, and each stuck nudge
+	introChoice = Signal.new(), -- (from)   "tile" (the Tutorial tile) or "help" (Show me on Need a hand?): forward as TelemetryReport("intro_choice", from)
+	stuckNudge = Signal.new(), -- (kind)   "pulse", "help_shown" or "show_me": forward as TelemetryReport("stuck_nudge", kind)
+	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
+	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
+	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
 }
 
 local state: Types.PlayerState = {
@@ -250,6 +264,12 @@ local tutorialTarget: (BasePart | Attachment | Vector3)? = nil -- UI.tutorial.sh
 local tutorialLabel: string? = nil
 local tutorialText: string? = nil -- UI.tutorial.show's line, nil once hidden
 local applyTutorial: () -> ()
+local tipCard: TipCard.TipCard? = nil -- a context tip's card (F87, UI.tips)
+-- the clocks on the Heartbeat (one table, as the module is short of locals): the tip queue and the client-found tips
+-- (with UI.tips), and the hint's input switch and the stuck nudges (F87 section 2g)
+local ticks: { tips: (dt: number) -> (), nudges: (dt: number) -> () } = {} :: any
+local tipsHeldUntil = 0 -- os.clock() until which no tip shows (a cannon flight and its landing)
+local askCard: AskCard.AskCard? = nil -- the slide-in asks: the feedback faces (F87 section 4) and Need a hand? (2g)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure, Tame and Let go work from anywhere (Derek 2026-10-28: "tame or let go from anywhere";
@@ -403,6 +423,15 @@ local function render()
 	if not introLive and state.introSeen ~= nil then
 		introLive = true
 		renderTutorialButton()
+		-- F87 section 2a: the intro no longer plays by itself, so a first join glows the tile that plays it
+		if state.introSeen == false and not Config.IntroAutoPlay and not introGlowed then
+			introGlowed = true
+			task.delay(IntroLogic.OUT_SECONDS, function()
+				if hud then
+					hud:glowTutorial()
+				end
+			end)
+		end
 	end
 	if hud then
 		hud:render(state)
@@ -638,6 +667,7 @@ function UI.init(config: Types.InitConfig)
 			UI.events.dropCat:Fire()
 		end,
 		replayIntro = function()
+			UI.events.introChoice:Fire("tile")
 			UI.events.introReplay:Fire()
 		end,
 		hideTutorialButton = function()
@@ -649,7 +679,7 @@ function UI.init(config: Types.InitConfig)
 			UI.toast("Tutorial hidden. Replay it from Settings.", "info")
 		end,
 		openFeedback = function()
-			UI.bugReport.open("idea")
+			UI.bugReport.open() -- F87: the faces page first
 		end,
 	})
 	local hudInstance = hud :: HUD.HUD
@@ -848,6 +878,14 @@ function UI.init(config: Types.InitConfig)
 			UI.settings.changed:Fire(key, value)
 		end,
 		close = closeModal,
+		openFeedback = function()
+			UI.bugReport.open()
+		end,
+		showTipsAgain = function()
+			UI.tips.reset()
+			UI.events.clearTips:Fire()
+			UI.toast("Tips will show again as you play.", "good")
+		end,
 		replayTutorial = function()
 			if introBlocked() then
 				Sound.play("uiError")
@@ -874,6 +912,11 @@ function UI.init(config: Types.InitConfig)
 		end,
 		back = closeModal,
 		close = closeModal,
+		feedback = function(face: string, chip: string?)
+			-- an answer here counts as the one ask too (the server sets feedbackAsked), so it never slides in after
+			(state :: any).feedbackAsked = true
+			UI.events.sendFeedback:Fire(face, chip)
+		end,
 	})
 	local bugReportView = bugReportScreen :: BugReport.BugReport
 	modalInstance:register("BugReport", {
@@ -1120,6 +1163,19 @@ function UI.init(config: Types.InitConfig)
 	})
 	toasts = Toasts.new(parent)
 	popups = Popups.new(parent)
+	tipCard = TipCard.new(parent)
+	askCard = AskCard.new(parent, {
+		lift = function()
+			return hudInstance:bottomTop() - Theme.sizes.gap
+		end,
+	})
+	table.insert(
+		connections,
+		RunService.Heartbeat:Connect(function(dt: number)
+			ticks.tips(dt)
+			ticks.nudges(dt)
+		end)
+	)
 	introScreen = Intro.new(parent, {
 		skip = function(shot: number)
 			UI.events.introSkip:Fire(shot)
@@ -1399,6 +1455,15 @@ function UI.destroy()
 	if popups then
 		popups:destroy()
 	end
+	if tipCard then
+		tipCard:destroy()
+	end
+	tipCard = nil
+	if askCard then
+		askCard:destroy()
+	end
+	askCard = nil
+	UI.tips.reset()
 	if carryMarker then
 		carryMarker:destroy()
 	end
@@ -1514,6 +1579,9 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			stars = extra and extra.stars,
 			shiny = extra and extra.shiny,
 			charmGain = extra and extra.charmGain,
+			banner = extra and extra.banner,
+			line = extra and extra.line,
+			rate = extra and extra.rate,
 		}
 		local cats: { [string]: Types.CatInstance } = state.cats or {}
 		local newest: Types.CatInstance? = nil
@@ -1549,11 +1617,12 @@ end
 -- XP bar, which the next ProfileSync moves. Kept so the controller's call stays valid.
 function UI.catLevelUp(_uid: string, _level: number) end
 
+-- F87: the first return after Tips.OFFLINE_SECONDS or more away puts the `offline` tip's line on the card's top.
 function UI.showOfflineEarnings(amount: number, seconds: number)
 	if popups then
 		popups:showOffline(amount, seconds, function()
 			UI.events.claimOffline:Fire()
-		end)
+		end, UI.tips.offlineLine(seconds))
 	end
 end
 
@@ -1962,10 +2031,14 @@ UI.bugReport = {}
 
 -- Opens the Feedback window, on the `kind` chip ("bug", "stuck" or "idea") unless a draft is waiting. Players reach
 -- it from the HUD's Feedback tile (on Idea), the one way in since Settings lost its Report a bug row (2026-11-01).
+-- With a kind ("bug", "stuck", "idea") the report page on that chip; without one (the HUD's Feedback tile, Settings'
+-- Feedback row) the F87 faces page first.
 function UI.bugReport.open(kind: string?)
 	if modal then
 		if bugReportScreen and kind then
 			bugReportScreen:setKind(kind)
+		elseif bugReportScreen then
+			bugReportScreen:showFaces()
 		end
 		modal:open("BugReport")
 	end
@@ -2252,6 +2325,11 @@ end
 -- it too, for its staged flight to the Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts (card up
 -- 0.7 to 1.1 s in); while the intro plays only the card shows, so the first-flight hint still follows the intro.
 function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
+	-- no context tip pops up in the clouds or as the player lands (F87)
+	tipsHeldUntil = os.clock()
+		+ math.max(0, launchAt - Workspace:GetServerTimeNow())
+		+ (hold or 0)
+		+ 5
 	if not UI.intro.playing() then
 		if modal and modal:current() == "Cannon" then
 			modal:close()
@@ -2399,634 +2477,656 @@ function UI.showAreaTitle(areaId: string)
 	end
 end
 
-----------------------------------------------------------------------------------------------------
--- Catch prompt and closing circles
-----------------------------------------------------------------------------------------------------
-
+-- The catch, rescue and prompt code is one block, so its locals do not count against the module's 200 (Luau's
+-- limit for one function's locals; the module was at 196). Its tables are made out here, so every use of them
+-- type checks.
 UI.catch = {}
+UI.rescue = {}
+do
+	----------------------------------------------------------------------------------------------------
+	-- Catch prompt and closing circles
+	----------------------------------------------------------------------------------------------------
 
-local activePrompt: ProximityPrompt? = nil
-local activeInfo: Types.CatchInfo? = nil
-local promptConnections: { RBXScriptConnection } = {}
--- the active stray's FleeingUntil (v0.5), and its PickUp, Returning and Dropped (F67: a walking cat that gets home
--- turns back into one that needs the circles)
-local strayWatch: { RBXScriptConnection } = {}
--- v0.5.1 (reviewer S44), F57: when this player may try a stray again after their own miss. The server sends it with
--- CatchResult (3, 6, then 10 s after the stray stops, by misses in a row; only the server knows the streak, S87).
--- Without it (a server before F57) the wait is StraySelfRetrySeconds after the stop, from the miss time.
-local SELF_RETRY: number = Config.StraySelfRetrySeconds
-type Retry = { missedAt: number, retryAt: number? }
-local retries: { [string]: Retry } = {} -- strayId -> this player's last miss on it
+	local activePrompt: ProximityPrompt? = nil
+	local activeInfo: Types.CatchInfo? = nil
+	local promptConnections: { RBXScriptConnection } = {}
+	-- the active stray's FleeingUntil (v0.5), and its PickUp, Returning and Dropped (F67: a walking cat that gets home
+	-- turns back into one that needs the circles)
+	local strayWatch: { RBXScriptConnection } = {}
+	-- v0.5.1 (reviewer S44), F57: when this player may try a stray again after their own miss. The server sends it with
+	-- CatchResult (3, 6, then 10 s after the stray stops, by misses in a row; only the server knows the streak, S87).
+	-- Without it (a server before F57) the wait is StraySelfRetrySeconds after the stop, from the miss time.
+	local SELF_RETRY: number = Config.StraySelfRetrySeconds
+	type Retry = { missedAt: number, retryAt: number? }
+	local retries: { [string]: Retry } = {} -- strayId -> this player's last miss on it
 
--- When this player may try the stray again, or nil when they never missed it.
-local function retryAtFor(strayId: string?, fleeingUntil: number?): number?
-	local retry = if strayId then retries[strayId] else nil
-	if retry == nil then
-		return nil
+	-- When this player may try the stray again, or nil when they never missed it.
+	local function retryAtFor(strayId: string?, fleeingUntil: number?): number?
+		local retry = if strayId then retries[strayId] else nil
+		if retry == nil then
+			return nil
+		end
+		return retry.retryAt or math.max(fleeingUntil or 0, retry.missedAt) + SELF_RETRY
 	end
-	return retry.retryAt or math.max(fleeingUntil or 0, retry.missedAt) + SELF_RETRY
-end
 
-function UI.catch.show(info: Types.CatchInfo)
-	local def = lookupCat(info.catId)
-	activeInfo = {
-		catId = info.catId,
-		strayId = info.strayId,
-		catName = info.catName or (if def then def.name else nil),
-		rarity = info.rarity or (if def then def.rarity else nil),
-		holdDuration = info.holdDuration,
-		actionText = info.actionText,
-		keyCode = info.keyCode,
-		stars = info.stars,
-		charm = info.charm,
-		kind = info.kind,
-		rescueSpotId = info.rescueSpotId,
-		press = info.press,
-		shiny = info.shiny,
-		fleeingUntil = info.fleeingUntil,
-		retryAt = info.retryAt or retryAtFor(info.strayId, info.fleeingUntil),
-		ownerTurnUntil = info.ownerTurnUntil,
-	}
-	if catch then
-		catch:show(activeInfo :: Types.CatchInfo)
-	end
-end
-
--- retry = true keeps the prompt open (Commons, lured strays, a rescue turned down for now). Otherwise it
--- flashes and hides (the cat fled).
-function UI.catch.fail(reason: string?, retry: boolean?)
-	if catch then
-		catch:fail(reason, retry)
-	end
-end
-
-function UI.catch.hide()
-	if catch then
-		catch:hide()
-	end
-	activeInfo = nil
-end
-
-function UI.catch.getActivePrompt(): ProximityPrompt?
-	return activePrompt
-end
-
--- Net circles (F26, data-model section 10). CatchSchedule(strayId, circles, windows) -> showCircles: the prompt
--- card makes way for the circles and every press fires events.catchPressed(strayId, index, grade).
--- CatchResult(strayId, grades, success, charmGain, retryAt) -> showGrades: each circle shows the server's grade. A
--- catch shows "Caught!" or "PURRFECT!" with the charm it added; a miss closes the overlay after 1 s and toasts "It
--- got away! Chase it!" (v0.5: the cat sprints off and tries are unlimited), and the card comes back while the
--- player is in range. Call nothing else for a CatchResult; catch.fail stays for refusals.
-function UI.catch.showCircles(
-	strayId: string,
-	circleList: { Types.CatchCircle },
-	windows: Types.CatchWindows
-)
-	local screen = circles
-	if not screen then
-		return
-	end
-	local info = activeInfo
-	local header: CatchCircles.Header? = nil
-	if info and info.strayId == strayId then
-		local rarity: string? = info.rarity
-		local built: CatchCircles.Header = {
-			catName = info.catName,
-			rarity = rarity,
+	function UI.catch.show(info: Types.CatchInfo)
+		local def = lookupCat(info.catId)
+		activeInfo = {
+			catId = info.catId,
+			strayId = info.strayId,
+			catName = info.catName or (if def then def.name else nil),
+			rarity = info.rarity or (if def then def.rarity else nil),
+			holdDuration = info.holdDuration,
+			actionText = info.actionText,
+			keyCode = info.keyCode,
 			stars = info.stars,
+			charm = info.charm,
+			kind = info.kind,
+			rescueSpotId = info.rescueSpotId,
+			press = info.press,
 			shiny = info.shiny,
-			title = nil,
+			fleeingUntil = info.fleeingUntil,
+			retryAt = info.retryAt or retryAtFor(info.strayId, info.fleeingUntil),
+			ownerTurnUntil = info.ownerTurnUntil,
 		}
-		header = built
+		if catch then
+			catch:show(activeInfo :: Types.CatchInfo)
+		end
 	end
-	if catch then
-		catch:hide() -- activePrompt and activeInfo stay so the card can come back
-	end
-	if hud then
-		hud:setCatching(true)
-	end
-	screen:show(circleList, windows, header, function(index: number, grade: Types.CircleGrade?)
-		UI.events.catchPressed:Fire(strayId, index, grade)
-	end)
-end
 
--- The toast after a miss (data-model section 10 step 5, v0.5): the cat sprints off and can be tried again
-local SLIPPED_TEXT = "It got away! Chase it!"
-
--- The end of a catch: on a miss the toast, then the card comes back while the prompt is still up.
-local function finishCatch(strayId: string, outcome: CatchCircles.Outcome, retryAt: number?)
-	local screen = circles
-	if not screen then
-		return
+	-- retry = true keeps the prompt open (Commons, lured strays, a rescue turned down for now). Otherwise it
+	-- flashes and hides (the cat fled).
+	function UI.catch.fail(reason: string?, retry: boolean?)
+		if catch then
+			catch:fail(reason, retry)
+		end
 	end
-	local current = activeInfo
-	if not outcome.success then
-		local now = Workspace:GetServerTimeNow()
-		for id, retry in retries do
-			if now - retry.missedAt > 120 and (retry.retryAt or 0) < now then
-				retries[id] = nil
+
+	function UI.catch.hide()
+		if catch then
+			catch:hide()
+		end
+		activeInfo = nil
+	end
+
+	function UI.catch.getActivePrompt(): ProximityPrompt?
+		return activePrompt
+	end
+
+	-- Net circles (F26, data-model section 10). CatchSchedule(strayId, circles, windows) -> showCircles: the prompt
+	-- card makes way for the circles and every press fires events.catchPressed(strayId, index, grade).
+	-- CatchResult(strayId, grades, success, charmGain, retryAt) -> showGrades: each circle shows the server's grade. A
+	-- catch shows "Caught!" or "PURRFECT!" with the charm it added; a miss closes the overlay after 1 s and toasts "It
+	-- got away! Chase it!" (v0.5: the cat sprints off and tries are unlimited), and the card comes back while the
+	-- player is in range. Call nothing else for a CatchResult; catch.fail stays for refusals.
+	function UI.catch.showCircles(
+		strayId: string,
+		circleList: { Types.CatchCircle },
+		windows: Types.CatchWindows
+	)
+		local screen = circles
+		if not screen then
+			return
+		end
+		local info = activeInfo
+		local header: CatchCircles.Header? = nil
+		if info and info.strayId == strayId then
+			local rarity: string? = info.rarity
+			local built: CatchCircles.Header = {
+				catName = info.catName,
+				rarity = rarity,
+				stars = info.stars,
+				shiny = info.shiny,
+				title = nil,
+			}
+			header = built
+		end
+		if catch then
+			catch:hide() -- activePrompt and activeInfo stay so the card can come back
+		end
+		if hud then
+			hud:setCatching(true)
+		end
+		screen:show(circleList, windows, header, function(index: number, grade: Types.CircleGrade?)
+			UI.events.catchPressed:Fire(strayId, index, grade)
+		end)
+	end
+
+	-- The toast after a miss (data-model section 10 step 5, v0.5): the cat sprints off and can be tried again
+	local SLIPPED_TEXT = "It got away! Chase it!"
+
+	-- The end of a catch: on a miss the toast, then the card comes back while the prompt is still up.
+	local function finishCatch(strayId: string, outcome: CatchCircles.Outcome, retryAt: number?)
+		local screen = circles
+		if not screen then
+			return
+		end
+		local current = activeInfo
+		-- F87 (easy-start.md section 2b, review N301): a Miss on the local player's own tutorial stray costs nothing;
+		-- the server says "Try again! Tap as the circle closes." and starts the circle again, so no "It got away!" and
+		-- no wait (inline, as the module is short of locals)
+		if not outcome.success then
+			local me = Players.LocalPlayer
+			for _, instance in CollectionService:GetTagged("Stray") do
+				if instance:GetAttribute("StrayId") == strayId then
+					if me ~= nil and instance:GetAttribute("Beginner") == me.UserId then
+						outcome.hint = "Try again!"
+					end
+					break
+				end
 			end
 		end
-		local given = if type(retryAt) == "number" and retryAt == retryAt then retryAt else nil
-		retries[strayId] = { missedAt = now, retryAt = given }
-		if current and current.strayId == strayId then
-			current.retryAt = retryAtFor(strayId, current.fleeingUntil)
+		if not outcome.success and outcome.hint == nil then
+			local now = Workspace:GetServerTimeNow()
+			for id, retry in retries do
+				if now - retry.missedAt > 120 and (retry.retryAt or 0) < now then
+					retries[id] = nil
+				end
+			end
+			local given = if type(retryAt) == "number" and retryAt == retryAt then retryAt else nil
+			retries[strayId] = { missedAt = now, retryAt = given }
+			if current and current.strayId == strayId then
+				current.retryAt = retryAtFor(strayId, current.fleeingUntil)
+			end
+		end
+		if not outcome.success and outcome.hint == nil and toasts then
+			toasts:show(SLIPPED_TEXT, "warn", true) -- quiet: the hiss is the miss sound
+		end
+		screen:showResult(outcome, function()
+			if hud then
+				hud:setCatching(false)
+			end
+			local info = activeInfo
+			local card = catch
+			if not outcome.success and activePrompt ~= nil and info ~= nil and card ~= nil then
+				card:show(info)
+			end
+		end)
+	end
+
+	-- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss. retryAt (F57, miss only) is
+	-- the server time this player may try the stray again; the card reads "Catch your breath..." until then.
+	function UI.catch.showGrades(
+		strayId: string,
+		grades: { Types.CircleGrade },
+		success: boolean,
+		charmGain: number?,
+		retryAt: number?
+	)
+		finishCatch(strayId, {
+			grades = grades,
+			success = success,
+			charmGain = charmGain,
+		}, retryAt)
+	end
+
+	function UI.catch.hideCircles()
+		if circles then
+			circles:hide()
+		end
+		if hud then
+			hud:setCatching(false)
 		end
 	end
-	if not outcome.success and toasts then
-		toasts:show(SLIPPED_TEXT, "warn", true) -- quiet: the hiss is the miss sound
+
+	function UI.catch.circlesActive(): boolean
+		return circles ~= nil and (circles :: CatchCircles.CatchCircles):isActive()
 	end
-	screen:showResult(outcome, function()
+
+	----------------------------------------------------------------------------------------------------
+	-- Rescue minigames (F27, data-model section 10b)
+	----------------------------------------------------------------------------------------------------
+
+	local rescueTarget: string? = nil -- the trap of the attempt on screen
+	local rescueOnCircle = false -- a tree's falling cat is on the catch circles, not the bar
+
+	-- After the attempt: the travel row comes back, and on a fail the prompt card returns while the player is still
+	-- at the trap (the server makes them wait RescueSelfRetrySeconds before the next try).
+	local function endRescue(success: boolean)
+		rescueTarget = nil
+		rescueOnCircle = false
 		if hud then
 			hud:setCatching(false)
 		end
 		local info = activeInfo
 		local card = catch
-		if not outcome.success and activePrompt ~= nil and info ~= nil and card ~= nil then
+		if not success and activePrompt ~= nil and info ~= nil and card ~= nil then
 			card:show(info)
 		end
-	end)
-end
-
--- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss. retryAt (F57, miss only) is
--- the server time this player may try the stray again; the card reads "Catch your breath..." until then.
-function UI.catch.showGrades(
-	strayId: string,
-	grades: { Types.CircleGrade },
-	success: boolean,
-	charmGain: number?,
-	retryAt: number?
-)
-	finishCatch(strayId, {
-		grades = grades,
-		success = success,
-		charmGain = charmGain,
-	}, retryAt)
-end
-
-function UI.catch.hideCircles()
-	if circles then
-		circles:hide()
 	end
-	if hud then
-		hud:setCatching(false)
-	end
-end
 
-function UI.catch.circlesActive(): boolean
-	return circles ~= nil and (circles :: CatchCircles.CatchCircles):isActive()
-end
-
-----------------------------------------------------------------------------------------------------
--- Rescue minigames (F27, data-model section 10b)
-----------------------------------------------------------------------------------------------------
-
-UI.rescue = {}
-
-local rescueTarget: string? = nil -- the trap of the attempt on screen
-local rescueOnCircle = false -- a tree's falling cat is on the catch circles, not the bar
-
--- After the attempt: the travel row comes back, and on a fail the prompt card returns while the player is still
--- at the trap (the server makes them wait RescueSelfRetrySeconds before the next try).
-local function endRescue(success: boolean)
-	rescueTarget = nil
-	rescueOnCircle = false
-	if hud then
-		hud:setCatching(false)
-	end
-	local info = activeInfo
-	local card = catch
-	if not success and activePrompt ~= nil and info ~= nil and card ~= nil then
-		card:show(info)
-	end
-end
-
--- From RescueChallenge(rescueSpotId, challenge). "bar" and "shake_catch" draw the bar; "circle" (the tree's
--- falling cat, after the shakes) draws one catch circle whose press also goes to RescuePress.
-function UI.rescue.show(rescueSpotId: string, challenge: Types.RescueChallenge)
-	local bar = rescueBar
-	local circleScreen = circles
-	if not bar or not circleScreen then
-		return
-	end
-	-- a "circle" challenge without its circle changes nothing, so the HUD never sticks in catching mode (N75)
-	if challenge.kind == "circle" and challenge.circle == nil then
-		warn(("[CatCafeUI] rescue %q: circle challenge without its circle"):format(rescueSpotId))
-		return
-	end
-	local info = activeInfo
-	local own = info ~= nil and info.rescueSpotId == rescueSpotId
-	local catName: string? = if own and info then info.catName else nil
-	local rarity: string? = if own and info then info.rarity else nil
-	rescueTarget = rescueSpotId
-	if catch then
-		catch:hide() -- activePrompt and activeInfo stay so the card can come back
-	end
-	if hud then
-		hud:setCatching(true)
-	end
-	if challenge.kind == "circle" then
-		local circle = challenge.circle :: Types.CatchCircle
-		bar:hide()
-		rescueOnCircle = true
-		local header: CatchCircles.Header = {
-			catName = catName,
-			rarity = rarity,
-			title = "Catch it as it falls!",
-		}
-		circleScreen:show(
-			{ circle :: Types.CatchCircle },
-			challenge.windows or { perfect = 0.045, good = 0.11 },
-			header,
-			function()
+	-- From RescueChallenge(rescueSpotId, challenge). "bar" and "shake_catch" draw the bar; "circle" (the tree's
+	-- falling cat, after the shakes) draws one catch circle whose press also goes to RescuePress.
+	function UI.rescue.show(rescueSpotId: string, challenge: Types.RescueChallenge)
+		local bar = rescueBar
+		local circleScreen = circles
+		if not bar or not circleScreen then
+			return
+		end
+		-- a "circle" challenge without its circle changes nothing, so the HUD never sticks in catching mode (N75)
+		if challenge.kind == "circle" and challenge.circle == nil then
+			warn(
+				("[CatCafeUI] rescue %q: circle challenge without its circle"):format(rescueSpotId)
+			)
+			return
+		end
+		local info = activeInfo
+		local own = info ~= nil and info.rescueSpotId == rescueSpotId
+		local catName: string? = if own and info then info.catName else nil
+		local rarity: string? = if own and info then info.rarity else nil
+		rescueTarget = rescueSpotId
+		if catch then
+			catch:hide() -- activePrompt and activeInfo stay so the card can come back
+		end
+		if hud then
+			hud:setCatching(true)
+		end
+		if challenge.kind == "circle" then
+			local circle = challenge.circle :: Types.CatchCircle
+			bar:hide()
+			rescueOnCircle = true
+			local header: CatchCircles.Header = {
+				catName = catName,
+				rarity = rarity,
+				title = "Catch it as it falls!",
+			}
+			circleScreen:show(
+				{ circle :: Types.CatchCircle },
+				challenge.windows or { perfect = 0.045, good = 0.11 },
+				header,
+				function()
+					UI.events.rescuePressed:Fire(rescueSpotId)
+				end
+			)
+			return
+		end
+		rescueOnCircle = false
+		bar:show(challenge, { catName = catName, rarity = rarity }, {
+			press = function()
 				UI.events.rescuePressed:Fire(rescueSpotId)
-			end
-		)
-		return
+			end,
+			cancel = function()
+				UI.events.rescueCancelled:Fire(rescueSpotId)
+			end,
+			ended = function(success: boolean)
+				if rescueTarget == rescueSpotId then
+					endRescue(success)
+				end
+			end,
+		})
 	end
-	rescueOnCircle = false
-	bar:show(challenge, { catName = catName, rarity = rarity }, {
-		press = function()
-			UI.events.rescuePressed:Fire(rescueSpotId)
-		end,
-		cancel = function()
-			UI.events.rescueCancelled:Fire(rescueSpotId)
-		end,
-		ended = function(success: boolean)
-			if rescueTarget == rescueSpotId then
+
+	-- From RescueResult(rescueSpotId, hits, pawsLeft, done, success, bar?): the server's hit count, the paws left, and
+	-- whether the attempt is over. A success then moves the player to carry, as after a catch. F93: `bar` is how the
+	-- marker runs and which zone to hit from now (after a hit, or a zone that ran out unhit, which also costs a paw).
+	function UI.rescue.update(
+		rescueSpotId: string,
+		hits: number,
+		pawsLeft: number?,
+		done: boolean,
+		success: boolean,
+		bar: Types.RescueBar?
+	)
+		if rescueSpotId ~= rescueTarget then
+			return
+		end
+		if rescueOnCircle then
+			local screen = circles
+			if not done or not screen then
+				return
+			end
+			local guess = screen:gradeLocal(1)
+			local grade: Types.CircleGrade = if not success
+				then "miss"
+				elseif guess == "perfect" then "perfect"
+				else "good"
+			screen:showResult({ grades = { grade }, success = success }, function()
 				endRescue(success)
-			end
-		end,
-	})
-end
-
--- From RescueResult(rescueSpotId, hits, pawsLeft, done, success, bar?): the server's hit count, the paws left, and
--- whether the attempt is over. A success then moves the player to carry, as after a catch. F93: `bar` is how the
--- marker runs and which zone to hit from now (after a hit, or a zone that ran out unhit, which also costs a paw).
-function UI.rescue.update(
-	rescueSpotId: string,
-	hits: number,
-	pawsLeft: number?,
-	done: boolean,
-	success: boolean,
-	bar: Types.RescueBar?
-)
-	if rescueSpotId ~= rescueTarget then
-		return
-	end
-	if rescueOnCircle then
-		local screen = circles
-		if not done or not screen then
+			end)
 			return
 		end
-		local guess = screen:gradeLocal(1)
-		local grade: Types.CircleGrade = if not success
-			then "miss"
-			elseif guess == "perfect" then "perfect"
-			else "good"
-		screen:showResult({ grades = { grade }, success = success }, function()
-			endRescue(success)
+		if rescueBar then
+			rescueBar:update(hits, pawsLeft, done, success, bar)
+		end
+	end
+
+	-- Closes the bar or the circle without a result (the controller saw the attempt end some other way).
+	function UI.rescue.hide()
+		if rescueOnCircle and circles then
+			circles:hide()
+		end
+		if rescueBar then
+			rescueBar:hide()
+		end
+		if rescueTarget ~= nil then
+			endRescue(false)
+		end
+	end
+
+	function UI.rescue.isActive(): boolean
+		return rescueTarget ~= nil
+	end
+
+	local function promptAttribute(prompt: ProximityPrompt, name: string): any
+		local value = prompt:GetAttribute(name)
+		if value == nil then
+			local model = prompt:FindFirstAncestorOfClass("Model")
+			if model then
+				value = model:GetAttribute(name)
+			end
+		end
+		if value == nil and prompt.Parent then
+			value = (prompt.Parent :: Instance):GetAttribute(name)
+		end
+		return value
+	end
+
+	local function isCatPrompt(prompt: ProximityPrompt): boolean
+		return prompt.Style == Enum.ProximityPromptStyle.Custom
+			and promptAttribute(prompt, "CatId") ~= nil
+	end
+
+	-- Every other custom prompt (bait bowl, dealer cart, manhole, Bump) gets an action pill
+	local function isActionPrompt(prompt: ProximityPrompt): boolean
+		return prompt.Style == Enum.ProximityPromptStyle.Custom
+			and promptAttribute(prompt, "CatId") == nil
+	end
+
+	-- The plot a prompt sits in (its nearest ancestor tagged Plot), or nil
+	local function plotOf(prompt: ProximityPrompt): Instance?
+		local node: Instance? = prompt.Parent
+		while node do
+			if CollectionService:HasTag(node, "Plot") then
+				return node
+			end
+			node = node.Parent
+		end
+		return nil
+	end
+
+	-- GiftPrompts this client switched off on someone else's plot, each with the watch on the plot's owner that switches
+	-- it back on if the plot becomes this player's (a plot keeps its prompt across owners).
+	local mutedGifts: { [ProximityPrompt]: RBXScriptConnection } = {}
+
+	local function muteGift(prompt: ProximityPrompt, plot: Instance)
+		prompt.Enabled = false
+		if mutedGifts[prompt] then
+			return
+		end
+		local function release()
+			local watch = mutedGifts[prompt]
+			if watch then
+				watch:Disconnect()
+				mutedGifts[prompt] = nil
+			end
+		end
+		mutedGifts[prompt] = plot:GetAttributeChangedSignal("OwnerUserId"):Connect(function()
+			if plot:GetAttribute("OwnerUserId") == Players.LocalPlayer.UserId then
+				release()
+				if prompt.Parent then
+					prompt.Enabled = true
+				end
+			end
 		end)
-		return
+		prompt.Destroying:Once(release)
 	end
-	if rescueBar then
-		rescueBar:update(hits, pawsLeft, done, success, bar)
-	end
-end
 
--- Closes the bar or the circle without a result (the controller saw the attempt end some other way).
-function UI.rescue.hide()
-	if rescueOnCircle and circles then
-		circles:hide()
-	end
-	if rescueBar then
-		rescueBar:hide()
-	end
-	if rescueTarget ~= nil then
-		endRescue(false)
-	end
-end
-
-function UI.rescue.isActive(): boolean
-	return rescueTarget ~= nil
-end
-
-local function promptAttribute(prompt: ProximityPrompt, name: string): any
-	local value = prompt:GetAttribute(name)
-	if value == nil then
-		local model = prompt:FindFirstAncestorOfClass("Model")
-		if model then
-			value = model:GetAttribute(name)
+	-- F64: a Mystery gift's GiftPrompt opens only for the plot's owner. On anyone else's plot this client switches the
+	-- prompt off, so no pill shows and E does nothing, until the plot becomes this player's; the server checks the
+	-- owner too. The owner's pill carries the gift's chances under it, shown before opening.
+	local function giftNote(prompt: ProximityPrompt): (boolean, string?)
+		if prompt.Name ~= "GiftPrompt" then
+			return true, nil
 		end
-	end
-	if value == nil and prompt.Parent then
-		value = (prompt.Parent :: Instance):GetAttribute(name)
-	end
-	return value
-end
-
-local function isCatPrompt(prompt: ProximityPrompt): boolean
-	return prompt.Style == Enum.ProximityPromptStyle.Custom
-		and promptAttribute(prompt, "CatId") ~= nil
-end
-
--- Every other custom prompt (bait bowl, dealer cart, manhole, Bump) gets an action pill
-local function isActionPrompt(prompt: ProximityPrompt): boolean
-	return prompt.Style == Enum.ProximityPromptStyle.Custom
-		and promptAttribute(prompt, "CatId") == nil
-end
-
--- The plot a prompt sits in (its nearest ancestor tagged Plot), or nil
-local function plotOf(prompt: ProximityPrompt): Instance?
-	local node: Instance? = prompt.Parent
-	while node do
-		if CollectionService:HasTag(node, "Plot") then
-			return node
+		local plot = plotOf(prompt)
+		if plot and plot:GetAttribute("OwnerUserId") ~= Players.LocalPlayer.UserId then
+			muteGift(prompt, plot)
+			return false, nil
 		end
-		node = node.Parent
+		return true, PotionLogic.giftLine(PotionLogic.giftRows(currentCatalog), foodName)
 	end
-	return nil
-end
 
--- GiftPrompts this client switched off on someone else's plot, each with the watch on the plot's owner that switches
--- it back on if the plot becomes this player's (a plot keeps its prompt across owners).
-local mutedGifts: { [ProximityPrompt]: RBXScriptConnection } = {}
-
-local function muteGift(prompt: ProximityPrompt, plot: Instance)
-	prompt.Enabled = false
-	if mutedGifts[prompt] then
-		return
+	local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
+		local catId = promptAttribute(prompt, "CatId")
+		local def = lookupCat(if type(catId) == "string" then catId else nil)
+		local catName = promptAttribute(prompt, "CatName")
+		local rarity = promptAttribute(prompt, "Rarity")
+		local strayId = promptAttribute(prompt, "StrayId")
+		local stars = promptAttribute(prompt, "Stars")
+		local charm = promptAttribute(prompt, "Charm")
+		local rescue = promptAttribute(prompt, "Rescue")
+		local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
+		local gold = promptAttribute(prompt, "Gold") -- a gold cat (was Shiny before 2026-10-27)
+		local pickUp = promptAttribute(prompt, "PickUp") == true -- v0.8 F56: no circles, the hold picks it up
+		local returning = promptAttribute(prompt, "Returning") == true -- v0.10 F67: walking home
+		local kind: Types.PromptKind = if rescue == true
+			then "rescue"
+			elseif pickUp then "pickup"
+			else "swing"
+		local fleeingUntil = promptAttribute(prompt, "FleeingUntil")
+		-- v0.5 F41: a cat knocked loose by a shove waits for its old carrier first (reviewer N90)
+		local dropOwner = promptAttribute(prompt, "DropOwner")
+		local dropOwnerUntil = promptAttribute(prompt, "DropOwnerUntil")
+		local player = Players.LocalPlayer
+		local othersDrop = promptAttribute(prompt, "Dropped") == true
+			and type(dropOwner) == "number"
+			and (player == nil or dropOwner ~= player.UserId)
+			and not pickUp -- v0.8 F56: a pick up has no owner window
+		return {
+			fleeingUntil = if type(fleeingUntil) == "number" then fleeingUntil else nil,
+			ownerTurnUntil = if othersDrop and type(dropOwnerUntil) == "number"
+				then dropOwnerUntil
+				else nil,
+			press = prompt.HoldDuration <= 0,
+			shiny = gold == true,
+			kind = kind,
+			returning = pickUp and returning,
+			rescueSpotId = if type(rescueSpotId) == "string"
+				then rescueSpotId
+				elseif type(strayId) == "string" then strayId
+				else nil,
+			stars = if type(stars) == "number" then stars else nil,
+			charm = if type(charm) == "number" then charm else nil,
+			catId = if type(catId) == "string" then catId else nil,
+			strayId = if type(strayId) == "string" then strayId else nil,
+			catName = if type(catName) == "string"
+				then catName
+				elseif def then def.name
+				else prompt.ObjectText,
+			rarity = if type(rarity) == "string"
+				then rarity :: any
+				elseif def then def.rarity
+				else nil,
+			holdDuration = prompt.HoldDuration,
+			actionText = if prompt.ActionText ~= "" then prompt.ActionText else nil,
+			keyCode = prompt.KeyboardKeyCode,
+		}
 	end
-	local function release()
-		local watch = mutedGifts[prompt]
-		if watch then
-			watch:Disconnect()
-			mutedGifts[prompt] = nil
+
+	-- Drives the prompt UI from every ProximityPrompt with Style = Custom and a CatId attribute
+	-- (on the prompt, its model, or its parent). Cat prompts are held for HoldDuration (0.5 s since 2026-10-27; the
+	-- card and the CATCH button fill over the hold), and the trigger fires
+	-- events.grabBegan (a stray) or events.rescueBegan (a stuck cat, Rescue = true) and the server answers with
+	-- catch.showCircles, UI.rescue.show or catch.fail. A dropped cat with PickUp = true fires events.pickUpBegan
+	-- instead, and the carry starting (or catch.fail) is the answer. A press while the circles or the rescue bar are
+	-- up is theirs, so it never asks again.
+	-- Any other Style = Custom prompt (no CatId) gets an action pill (Screens/ActionPill) and raises no event: the
+	-- game handles its Triggered as it would a default prompt's.
+	-- v0.5: someone's miss sends the active stray running (its model's FleeingUntil changes). The card shows
+	-- "It's running!" at once; during the circles or the rescue bar only the stored info changes, so the card is right
+	-- when it comes back.
+	-- F67: a dropped cat's PickUp, Returning and Dropped change as it walks home and arrives, so the card follows them too.
+	local function watchStray(prompt: ProximityPrompt?)
+		for _, connection in strayWatch do
+			connection:Disconnect()
 		end
-	end
-	mutedGifts[prompt] = plot:GetAttributeChangedSignal("OwnerUserId"):Connect(function()
-		if plot:GetAttribute("OwnerUserId") == Players.LocalPlayer.UserId then
-			release()
-			if prompt.Parent then
-				prompt.Enabled = true
-			end
-		end
-	end)
-	prompt.Destroying:Once(release)
-end
-
--- F64: a Mystery gift's GiftPrompt opens only for the plot's owner. On anyone else's plot this client switches the
--- prompt off, so no pill shows and E does nothing, until the plot becomes this player's; the server checks the
--- owner too. The owner's pill carries the gift's chances under it, shown before opening.
-local function giftNote(prompt: ProximityPrompt): (boolean, string?)
-	if prompt.Name ~= "GiftPrompt" then
-		return true, nil
-	end
-	local plot = plotOf(prompt)
-	if plot and plot:GetAttribute("OwnerUserId") ~= Players.LocalPlayer.UserId then
-		muteGift(prompt, plot)
-		return false, nil
-	end
-	return true, PotionLogic.giftLine(PotionLogic.giftRows(currentCatalog), foodName)
-end
-
-local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
-	local catId = promptAttribute(prompt, "CatId")
-	local def = lookupCat(if type(catId) == "string" then catId else nil)
-	local catName = promptAttribute(prompt, "CatName")
-	local rarity = promptAttribute(prompt, "Rarity")
-	local strayId = promptAttribute(prompt, "StrayId")
-	local stars = promptAttribute(prompt, "Stars")
-	local charm = promptAttribute(prompt, "Charm")
-	local rescue = promptAttribute(prompt, "Rescue")
-	local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
-	local gold = promptAttribute(prompt, "Gold") -- a gold cat (was Shiny before 2026-10-27)
-	local pickUp = promptAttribute(prompt, "PickUp") == true -- v0.8 F56: no circles, the hold picks it up
-	local returning = promptAttribute(prompt, "Returning") == true -- v0.10 F67: walking home
-	local kind: Types.PromptKind = if rescue == true
-		then "rescue"
-		elseif pickUp then "pickup"
-		else "swing"
-	local fleeingUntil = promptAttribute(prompt, "FleeingUntil")
-	-- v0.5 F41: a cat knocked loose by a shove waits for its old carrier first (reviewer N90)
-	local dropOwner = promptAttribute(prompt, "DropOwner")
-	local dropOwnerUntil = promptAttribute(prompt, "DropOwnerUntil")
-	local player = Players.LocalPlayer
-	local othersDrop = promptAttribute(prompt, "Dropped") == true
-		and type(dropOwner) == "number"
-		and (player == nil or dropOwner ~= player.UserId)
-		and not pickUp -- v0.8 F56: a pick up has no owner window
-	return {
-		fleeingUntil = if type(fleeingUntil) == "number" then fleeingUntil else nil,
-		ownerTurnUntil = if othersDrop and type(dropOwnerUntil) == "number"
-			then dropOwnerUntil
-			else nil,
-		press = prompt.HoldDuration <= 0,
-		shiny = gold == true,
-		kind = kind,
-		returning = pickUp and returning,
-		rescueSpotId = if type(rescueSpotId) == "string"
-			then rescueSpotId
-			elseif type(strayId) == "string" then strayId
-			else nil,
-		stars = if type(stars) == "number" then stars else nil,
-		charm = if type(charm) == "number" then charm else nil,
-		catId = if type(catId) == "string" then catId else nil,
-		strayId = if type(strayId) == "string" then strayId else nil,
-		catName = if type(catName) == "string"
-			then catName
-			elseif def then def.name
-			else prompt.ObjectText,
-		rarity = if type(rarity) == "string" then rarity :: any elseif def then def.rarity else nil,
-		holdDuration = prompt.HoldDuration,
-		actionText = if prompt.ActionText ~= "" then prompt.ActionText else nil,
-		keyCode = prompt.KeyboardKeyCode,
-	}
-end
-
--- Drives the prompt UI from every ProximityPrompt with Style = Custom and a CatId attribute
--- (on the prompt, its model, or its parent). Cat prompts are held for HoldDuration (0.5 s since 2026-10-27; the
--- card and the CATCH button fill over the hold), and the trigger fires
--- events.grabBegan (a stray) or events.rescueBegan (a stuck cat, Rescue = true) and the server answers with
--- catch.showCircles, UI.rescue.show or catch.fail. A dropped cat with PickUp = true fires events.pickUpBegan
--- instead, and the carry starting (or catch.fail) is the answer. A press while the circles or the rescue bar are
--- up is theirs, so it never asks again.
--- Any other Style = Custom prompt (no CatId) gets an action pill (Screens/ActionPill) and raises no event: the
--- game handles its Triggered as it would a default prompt's.
--- v0.5: someone's miss sends the active stray running (its model's FleeingUntil changes). The card shows
--- "It's running!" at once; during the circles or the rescue bar only the stored info changes, so the card is right
--- when it comes back.
--- F67: a dropped cat's PickUp, Returning and Dropped change as it walks home and arrives, so the card follows them too.
-local function watchStray(prompt: ProximityPrompt?)
-	for _, connection in strayWatch do
-		connection:Disconnect()
-	end
-	table.clear(strayWatch)
-	if prompt == nil then
-		return
-	end
-	local holder: Instance? = prompt:FindFirstAncestorOfClass("Model") or prompt.Parent
-	if holder == nil then
-		return
-	end
-	local model = holder :: Instance
-	local function refresh()
-		if prompt ~= activePrompt then
+		table.clear(strayWatch)
+		if prompt == nil then
 			return
 		end
-		if not UI.rescue.isActive() and not UI.catch.circlesActive() then
+		local holder: Instance? = prompt:FindFirstAncestorOfClass("Model") or prompt.Parent
+		if holder == nil then
+			return
+		end
+		local model = holder :: Instance
+		local function refresh()
+			if prompt ~= activePrompt then
+				return
+			end
+			if not UI.rescue.isActive() and not UI.catch.circlesActive() then
+				UI.catch.show(infoFromPrompt(prompt))
+			end
+		end
+		table.insert(
+			strayWatch,
+			model:GetAttributeChangedSignal("FleeingUntil"):Connect(function()
+				if prompt ~= activePrompt then
+					return
+				end
+				local value = model:GetAttribute("FleeingUntil")
+				local info = activeInfo
+				if info then
+					info.fleeingUntil = if type(value) == "number" then value else nil
+					info.retryAt = retryAtFor(info.strayId, info.fleeingUntil)
+				end
+				refresh()
+			end)
+		)
+		for _, name in { "PickUp", "Returning", "Dropped" } do
+			table.insert(strayWatch, model:GetAttributeChangedSignal(name):Connect(refresh))
+		end
+	end
+
+	function UI.catch.bindProximityPrompts()
+		if #promptConnections > 0 or not catch then
+			return
+		end
+		local catchScreen = catch :: CatchPrompt.CatchPrompt
+
+		local function onShown(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInputType)
+			if isActionPrompt(prompt) then
+				local show, note = giftNote(prompt)
+				if show and actionPills then
+					actionPills:show(prompt, inputType, note)
+				end
+				return
+			end
+			if not isCatPrompt(prompt) then
+				return
+			end
+			activePrompt = prompt
+			watchStray(prompt)
 			UI.catch.show(infoFromPrompt(prompt))
 		end
+		table.insert(promptConnections, ProximityPromptService.PromptShown:Connect(onShown))
+		table.insert(
+			promptConnections,
+			ProximityPromptService.PromptHidden:Connect(function(prompt: ProximityPrompt)
+				if actionPills then
+					actionPills:hide(prompt)
+				end
+				if prompt ~= activePrompt then
+					return
+				end
+				activePrompt = nil
+				watchStray(nil)
+				UI.catch.hide()
+			end)
+		)
+		table.insert(
+			promptConnections,
+			ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt: ProximityPrompt)
+				if actionPills and actionPills:isShown(prompt) then
+					actionPills:holdBegan(prompt)
+				elseif prompt == activePrompt then
+					catchScreen:holdStart()
+				end
+			end)
+		)
+		table.insert(
+			promptConnections,
+			ProximityPromptService.PromptButtonHoldEnded:Connect(function(prompt: ProximityPrompt)
+				if actionPills and actionPills:isShown(prompt) then
+					actionPills:holdEnded(prompt)
+				elseif prompt == activePrompt then
+					catchScreen:holdStop()
+				end
+			end)
+		)
+		table.insert(
+			promptConnections,
+			ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt)
+				if actionPills and actionPills:isShown(prompt) then
+					-- the game's own Triggered handler does the work; the pill only answers the press
+					actionPills:triggered(prompt)
+					return
+				end
+				if prompt ~= activePrompt then
+					return
+				end
+				-- E or the CATCH button while the circles or the bar are up is a press on them, not a new ask
+				-- (the server would only answer "Keep going, the bar is up")
+				if UI.rescue.isActive() or UI.catch.circlesActive() then
+					return
+				end
+				-- one press asks the server to start: GrabBegin answers with the circles (catch.showCircles),
+				-- RescueBegin with the minigame (UI.rescue.show), a refusal with catch.fail
+				local info = activeInfo
+				-- v0.5: the server would only refuse ("It's running!", or the missing player's short wait), so say it
+				-- here and ask nothing
+				local blocked = if info and info.kind ~= "rescue"
+					then catchScreen:blockedText()
+					else nil
+				if blocked then
+					catchScreen:fail(blocked, true)
+					return
+				end
+				catchScreen:waiting()
+				if info and info.kind == "rescue" then
+					UI.events.rescueBegan:Fire(info.rescueSpotId, info.catId)
+				elseif info and info.kind == "pickup" then
+					UI.events.pickUpBegan:Fire(info.strayId, info.catId)
+				else
+					UI.events.grabBegan:Fire(
+						if info then info.strayId else nil,
+						if info then info.catId else nil
+					)
+				end
+			end)
+		)
+		-- the mobile CATCH button drives the real prompt, so nothing changes server side
+		table.insert(
+			promptConnections,
+			catchScreen.holdBegan:Connect(function()
+				local prompt = activePrompt
+				if prompt then
+					prompt:InputHoldBegin()
+				end
+			end) :: any
+		)
+		table.insert(
+			promptConnections,
+			catchScreen.holdEnded:Connect(function()
+				local prompt = activePrompt
+				if prompt then
+					prompt:InputHoldEnd()
+				end
+			end) :: any
+		)
 	end
-	table.insert(
-		strayWatch,
-		model:GetAttributeChangedSignal("FleeingUntil"):Connect(function()
-			if prompt ~= activePrompt then
-				return
-			end
-			local value = model:GetAttribute("FleeingUntil")
-			local info = activeInfo
-			if info then
-				info.fleeingUntil = if type(value) == "number" then value else nil
-				info.retryAt = retryAtFor(info.strayId, info.fleeingUntil)
-			end
-			refresh()
-		end)
-	)
-	for _, name in { "PickUp", "Returning", "Dropped" } do
-		table.insert(strayWatch, model:GetAttributeChangedSignal(name):Connect(refresh))
-	end
-end
 
-function UI.catch.bindProximityPrompts()
-	if #promptConnections > 0 or not catch then
-		return
-	end
-	local catchScreen = catch :: CatchPrompt.CatchPrompt
-
-	local function onShown(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInputType)
-		if isActionPrompt(prompt) then
-			local show, note = giftNote(prompt)
-			if show and actionPills then
-				actionPills:show(prompt, inputType, note)
-			end
-			return
+	function UI.catch.unbindProximityPrompts()
+		for _, connection in promptConnections do
+			(connection :: any):Disconnect()
 		end
-		if not isCatPrompt(prompt) then
-			return
+		table.clear(promptConnections)
+		for _, watch in mutedGifts do
+			watch:Disconnect()
 		end
-		activePrompt = prompt
-		watchStray(prompt)
-		UI.catch.show(infoFromPrompt(prompt))
+		table.clear(mutedGifts)
+		watchStray(nil)
+		activePrompt = nil
 	end
-	table.insert(promptConnections, ProximityPromptService.PromptShown:Connect(onShown))
-	table.insert(
-		promptConnections,
-		ProximityPromptService.PromptHidden:Connect(function(prompt: ProximityPrompt)
-			if actionPills then
-				actionPills:hide(prompt)
-			end
-			if prompt ~= activePrompt then
-				return
-			end
-			activePrompt = nil
-			watchStray(nil)
-			UI.catch.hide()
-		end)
-	)
-	table.insert(
-		promptConnections,
-		ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt: ProximityPrompt)
-			if actionPills and actionPills:isShown(prompt) then
-				actionPills:holdBegan(prompt)
-			elseif prompt == activePrompt then
-				catchScreen:holdStart()
-			end
-		end)
-	)
-	table.insert(
-		promptConnections,
-		ProximityPromptService.PromptButtonHoldEnded:Connect(function(prompt: ProximityPrompt)
-			if actionPills and actionPills:isShown(prompt) then
-				actionPills:holdEnded(prompt)
-			elseif prompt == activePrompt then
-				catchScreen:holdStop()
-			end
-		end)
-	)
-	table.insert(
-		promptConnections,
-		ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt)
-			if actionPills and actionPills:isShown(prompt) then
-				-- the game's own Triggered handler does the work; the pill only answers the press
-				actionPills:triggered(prompt)
-				return
-			end
-			if prompt ~= activePrompt then
-				return
-			end
-			-- E or the CATCH button while the circles or the bar are up is a press on them, not a new ask
-			-- (the server would only answer "Keep going, the bar is up")
-			if UI.rescue.isActive() or UI.catch.circlesActive() then
-				return
-			end
-			-- one press asks the server to start: GrabBegin answers with the circles (catch.showCircles),
-			-- RescueBegin with the minigame (UI.rescue.show), a refusal with catch.fail
-			local info = activeInfo
-			-- v0.5: the server would only refuse ("It's running!", or the missing player's short wait), so say it
-			-- here and ask nothing
-			local blocked = if info and info.kind ~= "rescue"
-				then catchScreen:blockedText()
-				else nil
-			if blocked then
-				catchScreen:fail(blocked, true)
-				return
-			end
-			catchScreen:waiting()
-			if info and info.kind == "rescue" then
-				UI.events.rescueBegan:Fire(info.rescueSpotId, info.catId)
-			elseif info and info.kind == "pickup" then
-				UI.events.pickUpBegan:Fire(info.strayId, info.catId)
-			else
-				UI.events.grabBegan:Fire(
-					if info then info.strayId else nil,
-					if info then info.catId else nil
-				)
-			end
-		end)
-	)
-	-- the mobile CATCH button drives the real prompt, so nothing changes server side
-	table.insert(
-		promptConnections,
-		catchScreen.holdBegan:Connect(function()
-			local prompt = activePrompt
-			if prompt then
-				prompt:InputHoldBegin()
-			end
-		end) :: any
-	)
-	table.insert(
-		promptConnections,
-		catchScreen.holdEnded:Connect(function()
-			local prompt = activePrompt
-			if prompt then
-				prompt:InputHoldEnd()
-			end
-		end) :: any
-	)
-end
-
-function UI.catch.unbindProximityPrompts()
-	for _, connection in promptConnections do
-		(connection :: any):Disconnect()
-	end
-	table.clear(promptConnections)
-	for _, watch in mutedGifts do
-		watch:Disconnect()
-	end
-	table.clear(mutedGifts)
-	watchStray(nil)
-	activePrompt = nil
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -3171,6 +3271,617 @@ function UI.clock.unbind()
 		connection:Disconnect()
 	end
 	table.clear(clockConnections)
+end
+
+----------------------------------------------------------------------------------------------------
+-- Context tips (F87, easy-start.md section 3)
+----------------------------------------------------------------------------------------------------
+
+-- A tip shows once per account, the first time a player meets something. The server sends ShowTip for the ones it
+-- can see (UIController calls UI.tips.show); this finds the ones only the client can see: a stuck cat within
+-- 30 studs (`stuck_cat`), the Codes Cat within 20 (`codes_cat`) and the offline card's line after
+-- Tips.OFFLINE_SECONDS away (`offline`). F88's `luck` waits for a luck source. Components/TipQueue times them: never
+-- during a catch, rescue, carry, the intro, a flight or a window, one every TipGapSeconds, three waiting at most.
+-- A card fires tipSeen as it shows; a camera cut fires it when it ends, skipped or not. The client-found tips wait
+-- for ProfileSync's tipsSeen, so nothing is shown again every session before the save says what was seen.
+--
+-- Camera cuts are the effects code's (section 7: ContextCut). Until a cut player is set (UI.tips.setCutPlayer), a cut
+-- tip shows as a card with its own line. The player is called as play(id, caption, seconds, done) and returns true
+-- when it moved the camera; it freezes controls, draws the caption, takes the skip after 1 s and calls done(skipped)
+-- once at the end. A false (the place has not streamed in) shows the card instead.
+
+export type CutPlayer = (
+	id: string,
+	caption: string,
+	seconds: number,
+	done: (skipped: boolean) -> ()
+) -> boolean
+
+-- one block, so its locals do not count against the module's 200 (Luau's limit per function)
+UI.tips = {}
+UI.asks = {}
+do
+	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
+
+	local cutSeconds: number = math.min(3, (Config :: any).TipCutMaxSeconds or 4)
+	-- one table, as the module is short of locals
+	local TIP = {
+		GAP = ((Config :: any).TipGapSeconds or 60) :: number,
+		CUT_SECONDS = cutSeconds,
+		CUT_TIMEOUT = cutSeconds + 3, -- a cut whose done never comes frees the queue after this
+		STUCK_RANGE = 30, -- studs from a stuck cat (section 3: "within 30 studs")
+		CODES_RANGE = 20,
+		CODES_TAG = "CodesCat", -- shared/Codes.TAG, the Codes Cat's station
+		PUMP_EVERY = 0.25,
+		LOOK_EVERY = 1,
+	}
+
+	local tipQueue = TipQueue.new(TIP.GAP)
+	local tipAnswered: { [string]: boolean } = {} -- tips shown this session, before ProfileSync's tipsSeen says so
+	local tipBusy = false -- a card or a cut is showing
+	local cutPlayer: CutPlayer? = nil
+	local clocks = { pump = 0, look = 0 }
+
+	-- Seen on the save or shown this session.
+	local function tipKnown(id: string): boolean
+		local seen: { [string]: boolean }? = state.tipsSeen
+		return tipAnswered[id] == true or (seen ~= nil and seen[id] == true)
+	end
+
+	local function answerTip(id: string, skipped: boolean)
+		tipAnswered[id] = true
+		UI.events.tipSeen:Fire(id, skipped)
+	end
+
+	local function tipDevice(): TipQueue.Device
+		return TipQueue.device(UserInputService:GetLastInputType().Name, Scale.isTouch())
+	end
+
+	-- The area the next rank up opens, for rank_up's line.
+	local function nextAreaName(): string?
+		for _, area in catalogAreas() do
+			if area.tier == state.tier + 1 then
+				return area.name
+			end
+		end
+		return nil
+	end
+
+	local function tipMoment(): TipQueue.Moment
+		local duskLeft: number? = nil
+		local endsAt = duskEndsAt
+		if endsAt ~= nil then
+			duskLeft = endsAt - Workspace:GetServerTimeNow()
+		end
+		return {
+			catching = UI.catch.circlesActive(),
+			rescuing = UI.rescue.isActive(),
+			carrying = hud ~= nil and hud:isCarrying(),
+			intro = UI.intro.playing(),
+			flying = os.clock() < tipsHeldUntil,
+			window = (modal ~= nil and modal:current() ~= nil)
+				or (popups ~= nil and popups:isShowing())
+				or (baitCard ~= nil and baitCard:isShowing())
+				or (askCard ~= nil and askCard:isShowing()),
+			hidden = not visible,
+			duskLeft = duskLeft,
+		}
+	end
+
+	-- Shows the next waiting tip when the moment is free and the gap has run.
+	local function pumpTips()
+		local card = tipCard
+		if card == nil or tipBusy or not initialized or tipQueue:size() == 0 then
+			return
+		end
+		if not TipQueue.free(tipMoment()) then
+			return
+		end
+		local now = os.clock()
+		local picked = tipQueue:take(now)
+		while picked ~= nil and tipKnown(picked) do
+			picked = tipQueue:take(now)
+		end
+		if picked == nil then
+			return
+		end
+		local id: string = picked -- closures below do not keep the refinement
+		tipQueue:shown(now)
+		local device: TipQueue.Device = tipDevice()
+		local area = nextAreaName()
+		local def = Tips.get(id)
+		local play = cutPlayer
+		if def ~= nil and def.kind == "cut" and play ~= nil then
+			local caption = TipQueue.line(id, device, true, area) or ""
+			local finished = false
+			local function done(skipped: boolean)
+				if finished then
+					return
+				end
+				finished = true
+				tipBusy = false
+				answerTip(id, skipped == true)
+			end
+			tipBusy = true
+			local ok, played = pcall(play, id, caption, TIP.CUT_SECONDS, done)
+			if ok and played == true then
+				task.delay(TIP.CUT_TIMEOUT, function()
+					done(false)
+				end)
+				return
+			end
+			finished = true
+			tipBusy = false
+		end
+		local text = TipQueue.line(id, device, false, area)
+		if text == nil then
+			return
+		end
+		tipBusy = true
+		answerTip(id, false)
+		card:show(text, TipQueue.icon(id), TipQueue.CARD_SECONDS, function()
+			tipBusy = false
+		end)
+	end
+
+	local function characterPosition(): Vector3?
+		local character = Players.LocalPlayer and Players.LocalPlayer.Character
+		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+		return if root ~= nil and root:IsA("BasePart") then (root :: BasePart).Position else nil
+	end
+
+	-- Whether any instance with `tag` in the world stands within `range` studs of `from`.
+	local function taggedNear(tag: string, from: Vector3, range: number): boolean
+		for _, instance in CollectionService:GetTagged(tag) do
+			if instance:IsDescendantOf(Workspace) then
+				local position: Vector3? = if instance:IsA("Model")
+					then (instance :: Model):GetPivot().Position
+					elseif instance:IsA("BasePart") then (instance :: BasePart).Position
+					else nil
+				if position ~= nil and (position - from).Magnitude <= range then
+					return true
+				end
+			end
+		end
+		return false
+	end
+
+	-- The client-found tips, once the save says which were seen.
+	local function lookForTips()
+		if state.tipsSeen == nil then
+			return
+		end
+		local from = characterPosition()
+		if from == nil then
+			return
+		end
+		if not tipKnown("stuck_cat") and taggedNear("StuckCat", from, TIP.STUCK_RANGE) then
+			UI.tips.show("stuck_cat")
+		end
+		if not tipKnown("codes_cat") and taggedNear(TIP.CODES_TAG, from, TIP.CODES_RANGE) then
+			UI.tips.show("codes_cat")
+		end
+	end
+
+	-- Nothing else is going on and no tip is showing: the one feedback ask may slide in.
+	function UI.tips.quiet(): boolean
+		return not tipBusy and TipQueue.free(tipMoment())
+	end
+
+	ticks.tips = function(dt: number)
+		clocks.pump += dt
+		clocks.look += dt
+		if clocks.look >= TIP.LOOK_EVERY then
+			clocks.look = 0
+			lookForTips()
+			local ask: any = UI.tips -- lookForAsk is set by the ask's block below
+			ask.lookForAsk()
+		end
+		if clocks.pump >= TIP.PUMP_EVERY then
+			clocks.pump = 0
+			pumpTips()
+		end
+	end
+
+	-- A tip's moment came: ShowTip from the server, or the client's own finds. Queued and timed; unknown ids, the two
+	-- asks the UI times itself (feedback_ask, stuck_help) and tips already seen are left alone.
+	function UI.tips.show(id: string)
+		if type(id) ~= "string" or (Tips.get(id) == nil and id ~= Tips.LIKE_ASK) then
+			return
+		end
+		if tipKnown(id) or tipQueue:has(id) then
+			return
+		end
+		tipQueue:push(id)
+		pumpTips()
+	end
+
+	-- F96 (starter-cat.md section 3): the favorite and like asks on the tip card, with a star or a thumb. UIController's
+	-- showAsk calls it at a quiet moment and answers TipSeen itself, so this does not fire tipSeen; it shows the card
+	-- and says true, or false (a tip or another card is up, or the id is not one of the two) for the toast instead.
+	-- The ask counts as this session's tip for the gap. The notification ask is Roblox's prompt, never this.
+	function UI.asks.show(id: string): boolean
+		local card = tipCard
+		if
+			card == nil
+			or tipBusy
+			or not initialized
+			or (id ~= Tips.FAVORITE_ASK and id ~= Tips.LIKE_ASK)
+			or not TipQueue.free(tipMoment())
+		then
+			return false
+		end
+		local text = TipQueue.line(id, tipDevice())
+		if text == nil then
+			return false
+		end
+		tipBusy = true
+		tipAnswered[id] = true -- so the queue never shows it again this session
+		tipQueue:shown(os.clock())
+		card:show(text, TipQueue.icon(id), TipQueue.ASK_SECONDS, function()
+			tipBusy = false
+		end)
+		return true
+	end
+
+	-- The effects code's camera cut player (see above), or nil to show cut tips as cards.
+	function UI.tips.setCutPlayer(play: CutPlayer?)
+		cutPlayer = play
+	end
+
+	-- The offline card's top line (`offline`) for a return after `seconds` away, sent as seen; nil when it has been seen
+	-- or the save has not said yet.
+	function UI.tips.offlineLine(seconds: number): string?
+		if
+			state.tipsSeen == nil
+			or seconds < (Tips.OFFLINE_SECONDS :: number)
+			or tipKnown("offline")
+		then
+			return nil
+		end
+		answerTip("offline", false)
+		return TipQueue.line("offline", tipDevice())
+	end
+
+	-- Forgets this session's tips and empties the queue (Show tips again, and UI.destroy). The server clears tipsSeen.
+	function UI.tips.reset()
+		table.clear(tipAnswered)
+		tipQueue:clear()
+		if state.tipsSeen ~= nil then
+			(state :: any).tipsSeen = Tips.cleared(state.tipsSeen)
+		end
+		local card = tipCard
+		if card ~= nil and card:isShowing() then
+			card:hide()
+		end
+		tipBusy = false
+	end
+end
+
+-- F87 section 4: the one slide-in faces ask, once per account, after FeedbackAskMinutes of this session's play and
+-- only between activities (UI.tips.quiet: no tip showing either). It waits for ProfileSync's feedbackAsked (false,
+-- not nil). Its own block, as the module is short of locals.
+do
+	local FeedbackLogic = require(script.Components.FeedbackLogic)
+	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
+	local sessionStart = os.clock()
+	local asked = false -- this session
+
+	local function openAsk(card: AskCard.AskCard)
+		asked = true
+		local faces: { AskCard.Choice } = {}
+		for _, face in FeedbackLogic.FACES do
+			table.insert(faces, { id = face.id, label = face.label, icon = face.glyph })
+		end
+		card:show({
+			title = "How is it so far?",
+			choices = faces,
+			seconds = FeedbackLogic.ASK_SECONDS,
+			thanks = "Thanks!",
+			answer = function(face: string?)
+				if face ~= nil then
+					(state :: any).feedbackAsked = true
+					UI.events.sendFeedback:Fire(face, nil)
+				end
+			end,
+		})
+		local saved: any = state
+		saved.feedbackAsked = true
+		UI.events.tipSeen:Fire(Tips.FEEDBACK_ASK, false)
+	end
+
+	-- From the tips clock, once a second.
+	function UI.tips.lookForAsk()
+		local card = askCard
+		if asked or card == nil or card:isShowing() then
+			return
+		end
+		local played = os.clock() - sessionStart
+		if FeedbackLogic.askDue(state.feedbackAsked, played, UI.tips.quiet()) then
+			openAsk(card)
+		end
+	end
+
+	-- The slide-in faces ask now, whatever the clock says (QA in Studio and the UI gate). It is saved as shown.
+	function UI.tips.showAsk()
+		local card = askCard
+		if card ~= nil and not card:isShowing() then
+			openAsk(card)
+		end
+	end
+end
+
+-- F87 (easy-start.md sections 2e and 2g): the tutorial strip's device-aware words (UI.tutorial.hint), the nudges when
+-- a step stalls and the "Need a hand?" card. A step's clock runs only while its hint shows and nothing else goes on
+-- (UI.tips.quiet). After StuckNudgeSeconds (40) and every 40 s after, the strip pulses and the trail is drawn again
+-- from where the character stands; after StuckHelpSeconds (90) the card asks once per step per account (the server
+-- saves it in stuckHelpShown on TipSeen("stuck_help")). Show me plays the intro for steps 0 to 2 and opens the screen
+-- of steps 3 and 4. Each nudge fires events.stuckNudge. Its own block, as the module is short of locals.
+do
+	local TutorialHints = require(script.Components.TutorialHints)
+	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
+	local NUDGE = {
+		PULSE = ((Config :: any).StuckNudgeSeconds or 40) :: number,
+		HELP = ((Config :: any).StuckHelpSeconds or 90) :: number,
+		CARD_SECONDS = 12, -- the help card stays this long
+		EVERY = 0.25,
+	}
+	-- the controller's last state and the line it was given, so a switch of input can say it again
+	local hinted: { state: any, text: string?, device: TipQueue.Device? } = {}
+	local stall = { step = -1, seconds = 0, pulses = 0, asked = false, clock = 0 }
+
+	local function inputDevice(): TipQueue.Device
+		return TipQueue.device(UserInputService:GetLastInputType().Name, Scale.isTouch())
+	end
+
+	local function hintFor(s: any, device: TipQueue.Device): string?
+		local catalog = currentCatalog
+		local levels: { [string]: number } = s.upgradeLevels or {}
+		return TutorialHints.line({
+			step = s.tutorialStep or TutorialHints.DONE,
+			device = device,
+			resting = TutorialHints.resting(
+				s.cats,
+				if catalog then catalog.spots else nil,
+				s.tier or 1
+			),
+			bowl = (levels.lure_bowl or 0) >= 1,
+			baited = s.bait ~= nil,
+		})
+	end
+
+	-- UIController's tutorialLine: the strip's words for this state on the input the player used last, or nil from
+	-- step 5 (the controller then keeps its own line, and hides the strip).
+	function UI.tutorial.hint(s: any): string?
+		local device: TipQueue.Device = inputDevice()
+		local text = hintFor(s, device)
+		hinted.state, hinted.text, hinted.device = s, text, device
+		return text
+	end
+
+	-- The strip says its line again when the input changes (a pad picked up, a tap on a touch laptop).
+	local function followInput()
+		local s = hinted.state
+		if s == nil or hinted.text == nil or tutorialText ~= hinted.text then
+			return
+		end
+		local device: TipQueue.Device = inputDevice()
+		if device == hinted.device then
+			return
+		end
+		hinted.device = device
+		local text = hintFor(s, device)
+		if text ~= nil then
+			hinted.text = text
+			tutorialText = text
+			applyTutorial()
+		end
+	end
+
+	-- Show me on the help card.
+	local function showMe(step: number)
+		UI.events.stuckNudge:Fire("show_me")
+		local levels: { [string]: number } = state.upgradeLevels or {}
+		if step <= 2 then
+			UI.events.introChoice:Fire("help")
+			UI.events.introReplay:Fire()
+		elseif step == 4 and (levels.lure_bowl or 0) >= 1 then
+			UI.bait.openPicker()
+		elseif modal ~= nil then
+			modal:open("Upgrades")
+		end
+	end
+
+	-- The "Need a hand?" card for this step, saved as shown at once.
+	local function askHelp(step: number)
+		local card = askCard
+		if card == nil then
+			return
+		end
+		stall.asked = true
+		local key = tostring(math.clamp(step, 0, TutorialHints.DONE))
+		local shown: { [string]: boolean } = table.clone(state.stuckHelpShown or {})
+		shown[key] = true
+		(state :: any).stuckHelpShown = shown
+		UI.events.stuckNudge:Fire("help_shown")
+		UI.events.tipSeen:Fire(Tips.STUCK_HELP, false)
+		card:show({
+			title = "Need a hand?",
+			choices = {
+				{ id = "show", label = "Show me", icon = Theme.icons.tutorial, style = "gold" },
+				{ id = "ok", label = "Got it", style = "ghost" },
+			},
+			seconds = NUDGE.CARD_SECONDS,
+			answer = function(id: string?)
+				if id == "show" then
+					showMe(step)
+				end
+			end,
+		})
+	end
+
+	-- The strip pulses and the trail starts again from the character.
+	local function pulse()
+		stall.pulses += 1
+		if hud then
+			hud:pulseTutorial()
+		end
+		if tutorialTrail then
+			tutorialTrail:hide()
+		end
+		applyTutorial()
+		UI.events.stuckNudge:Fire("pulse")
+	end
+
+	ticks.nudges = function(dt: number)
+		stall.clock += dt
+		if stall.clock < NUDGE.EVERY then
+			return
+		end
+		local elapsed = stall.clock
+		stall.clock = 0
+		followInput()
+		local step = state.tutorialStep
+		if step == nil or step >= TutorialHints.DONE or not initialized then
+			return
+		end
+		if step ~= stall.step then
+			stall.step, stall.seconds, stall.pulses, stall.asked = step, 0, 0, false
+		end
+		if tutorialText == nil or not UI.tips.quiet() then
+			return
+		end
+		stall.seconds += elapsed
+		if stall.seconds >= NUDGE.PULSE * (stall.pulses + 1) then
+			pulse()
+		end
+		local seen: { [string]: boolean } = state.stuckHelpShown or {}
+		if
+			stall.seconds >= NUDGE.HELP
+			and not stall.asked
+			and state.stuckHelpShown ~= nil
+			and not seen[tostring(step)]
+		then
+			askHelp(step)
+		end
+	end
+
+	-- The help card now, for this step (QA in Studio and the UI gate). It is saved as shown.
+	function UI.tutorial.showHelp()
+		local step = state.tutorialStep or 0
+		askHelp(math.min(step, TutorialHints.DONE - 1))
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- The free Bellhop Cat (F96, starter-cat.md section 2)
+----------------------------------------------------------------------------------------------------
+
+-- The stand card (Screens/StarterCat), built the first time it opens and registered with the window manager as
+-- "StarterCat". StarterCatController calls open(view) within StarterCatRangeStuds of a BellhopStand, close() a stud
+-- past it, update(view) every 0.2 s while open and result(ok, reason) from StarterCatResult. A claim that works
+-- closes the card and shows the claim card: the cat found card with "The Bellhop Cat joined your cafe!" (the
+-- server's toast says where it went). Its own block, as the module is short of locals.
+UI.starterCat = {}
+do
+	local StarterCatScreen = require(script.Screens.StarterCat)
+	local StarterCatRules =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StarterCat")) :: any
+	local stand = {
+		screen = nil :: StarterCatScreen.StarterCat?,
+		modal = nil :: Modal.Modal?, -- the window manager it is registered with; a new UI.init makes it again
+		view = nil :: StarterCatScreen.View?,
+	}
+
+	local function screenFor(): StarterCatScreen.StarterCat?
+		local manager = modal
+		if manager == nil then
+			return nil
+		end
+		local screen = stand.screen
+		if screen ~= nil and stand.modal == manager then
+			return screen
+		end
+		if screen ~= nil then
+			screen:destroy() -- the last UI.init's, whose windows are gone
+		end
+		local made = StarterCatScreen.new({
+			claim = function()
+				UI.events.claimStarterCat:Fire()
+			end,
+			join = function()
+				UI.events.joinGroup:Fire()
+			end,
+			close = function()
+				UI.starterCat.close()
+			end,
+		})
+		manager:register("StarterCat", {
+			frame = made.frame,
+			onOpen = function()
+				made:onOpen()
+			end,
+			onClose = function()
+				made:onClose()
+			end,
+		})
+		stand.screen, stand.modal = made, manager
+		return made
+	end
+
+	local function paint(view: StarterCatScreen.View)
+		stand.view = view
+		local screen = screenFor()
+		if screen ~= nil then
+			screen:show(view, lookupCat(StarterCatRules.CAT_ID))
+		end
+	end
+
+	-- Opens the card with this view, unless another window is open (the Codes Cat and the Spin Wheel stand near).
+	function UI.starterCat.open(view: StarterCatScreen.View)
+		paint(view)
+		if modal ~= nil and stand.screen ~= nil and modal:current() == nil then
+			modal:open("StarterCat")
+		end
+	end
+
+	-- Closes the card if it is the open window.
+	function UI.starterCat.close()
+		if modal ~= nil and modal:current() == "StarterCat" then
+			modal:close()
+		end
+	end
+
+	-- The view again while open; repaints only on a change.
+	function UI.starterCat.update(view: StarterCatScreen.View)
+		paint(view)
+	end
+
+	-- StarterCatResult(ok, reason): ok closes the card and shows the claim card; a refusal is the card's status line,
+	-- or a toast when the card was closed first.
+	function UI.starterCat.result(ok: boolean, reason: string?)
+		local screen = stand.screen
+		if screen ~= nil then
+			screen:result(ok, reason)
+		end
+		local open = modal ~= nil and modal:current() == "StarterCat"
+		if not ok then
+			if not open and reason ~= nil then
+				UI.toast(reason, "warn")
+			end
+			return
+		end
+		UI.starterCat.close()
+		local def = lookupCat(StarterCatRules.CAT_ID)
+		local view = stand.view
+		if def ~= nil and popups ~= nil then
+			popups:showCatFound(def, true, {
+				banner = "FREE " .. def.rarity:upper() .. " CAT!",
+				line = ("The %s joined your cafe!"):format(def.name),
+				rate = if view ~= nil then view.rate else nil,
+			})
+		end
+	end
 end
 
 ----------------------------------------------------------------------------------------------------

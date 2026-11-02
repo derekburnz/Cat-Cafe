@@ -78,6 +78,7 @@ export type Budget = {
 	pennants: number, -- bunting pennants fluttering at once (F101); 0 hangs them all still
 	decorMotion: number, -- rare decor's moving parts (_Swing, _Spin, _Bob) moving at once (F89 2c)
 	netTrails: number, -- nets drawing a whoosh trail at once (F93)
+	luckyShimmers: number, -- jade Lucky Cat statues shimmering at once (F88), a Highlight each
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -111,6 +112,7 @@ Presets.budget = {
 		pennants = 40,
 		decorMotion = 12,
 		netTrails = 3,
+		luckyShimmers = 2,
 	},
 	high = {
 		animatedCats = 16,
@@ -139,6 +141,7 @@ Presets.budget = {
 		pennants = 90,
 		decorMotion = 24,
 		netTrails = 6,
+		luckyShimmers = 4,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -167,6 +170,7 @@ Presets.budget = {
 		pennants = 0,
 		decorMotion = 0,
 		netTrails = 1,
+		luckyShimmers = 0,
 	},
 } :: { [string]: Budget }
 
@@ -1061,6 +1065,38 @@ Presets.bellhop = {
 	},
 	standScale = 1.5,
 	sitModel = "CatCafe_Cat_BellhopCat_Sit",
+}
+
+-- The Lucky Cat statue's beckoning paw (F88, luck-and-rare-moments.md section 1a: "Its paw waves a little faster at
+-- each level"): the statue's `_Paw` piece (Model-Agent's #742, pivoted at the shoulder) tips forward and back about
+-- its pivot's X, `degrees` each way (clear of the head and ear), one beckon every `seconds[level]` for levels 1 to 5,
+-- on statues within budget.ambientRadius. Still with Reduce Motion.
+Presets.luckyPaw = {
+	degrees = 20,
+	seconds = { 2.4, 2.1, 1.8, 1.5, 1.2 },
+}
+
+-- The secured cat's happy hop with a full spin (F89, luck-and-rare-moments.md 2a: "the cat does a happy hop with a
+-- full spin at the door ... inside the existing catch beam"): on a big pull a copy of the cat on its walking body
+-- appears `ahead` studs in front of the player, facing them, crouches until `takeoff`, leaps `height` studs turning
+-- `turns` full turns until `land`, squashes `squash` studs on landing until `settle`, sits up proud and fades,
+-- `seconds` in all (each share is of that). It fades in over the first `fadeIn` share and out over the last `fadeOut`.
+Presets.pullHop = {
+	seconds = 1.6,
+	ahead = 1.5,
+	takeoff = 0.15,
+	land = 0.7,
+	settle = 0.82,
+	height = 2.5,
+	turns = 1,
+	crouch = 0.25,
+	squash = 0.2,
+	tailUp = 45,
+	reach = 30,
+	lean = 10,
+	proud = 12,
+	fadeIn = 0.06,
+	fadeOut = 0.15,
 }
 
 Presets.catPoses = {
@@ -1966,6 +2002,48 @@ Presets.sky = {
 	density = 0.5,
 	color = Color3.fromRGB(255, 252, 247),
 	wind = Vector3.new(3, 0, 1.5),
+}
+
+-- A Lucky Day (F88, luck-and-rare-moments.md 1c: "The sky takes a warm gold tint for the day"): while the Clock's
+-- LuckyDay is on by day, the world takes a warm gold `tint` with a touch more `saturation` and `brightness` (a
+-- ColorCorrectionEffect of this client's own, over the place's, so the sky's day and night curve is untouched) and
+-- the clouds turn `clouds` gold, easing in and out over `seconds`. Joining during one shows it at once.
+Presets.luckyDay = {
+	tint = Color3.fromRGB(255, 240, 206),
+	saturation = 0.06,
+	brightness = 0.02,
+	clouds = Color3.fromRGB(255, 232, 178),
+	seconds = 4,
+}
+
+-- The Lucky Cat statue by each cafe's door (F88, 1a; Model-Agent's CatCafe_Plot_LuckyCat_0 to _5). When a plot's
+-- statue goes up a level while this client has it, sparkles in the new look's colour and some sparkle yellow burst
+-- `centre` studs over its base (the cushion is at 1.2, the head top about 3.2), a ring grows on the plinth and, from
+-- `confettiFrom` (gold and jade), confetti. Within `within` studs. The jade statue (`shimmerFrom`) shimmers: a faint
+-- Highlight over it drifts through the rainbow coat hues once every `period` seconds (`fill` transparent) and a
+-- `twinkle` of sparkles rises off it every `twinkleEvery` seconds; the nearest budget.luckyShimmers within
+-- `shimmerWithin` studs, chosen every `pick` seconds. Reduce Motion holds the shimmer at one hue with no twinkles.
+Presets.luckyCat = {
+	centre = 2.2,
+	sparkles = 14,
+	ring = 5,
+	ringSeconds = 0.6,
+	confettiFrom = 4,
+	within = 120,
+	colours = {
+		Color3.fromRGB(196, 122, 88), -- 1 clay (terracotta)
+		Color3.fromRGB(128, 86, 46), -- 2 bronze
+		Color3.fromRGB(205, 210, 218), -- 3 silver (fur_silver)
+		Color3.fromRGB(242, 193, 78), -- 4 gold (fur_golden)
+		Color3.fromRGB(46, 158, 107), -- 5 jade (fur_emerald)
+	},
+	shimmerFrom = 5,
+	shimmerWithin = 90,
+	period = 6,
+	fill = 0.82,
+	twinkle = 2,
+	twinkleEvery = 1.4,
+	pick = 1,
 }
 
 -- A big pull (F89, luck-and-rare-moments.md 2a and 2b; Derek 2026-10-30: "when securing something good leg/mythic

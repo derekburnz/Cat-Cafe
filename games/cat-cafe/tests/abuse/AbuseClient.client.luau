@@ -15,7 +15,8 @@
 	  = double spend    , travel            / tackle               \ rename         Insert telemetry
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
 	  J tip jar         K index rewards     L spin wheel           R bug report
-	  P fish market     O fresh catch       T codes             X tips              Backspace flood
+	  P fish market     O fresh catch       T codes             X tips              Z bellhop cat
+	  Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
@@ -5536,6 +5537,238 @@ case(
 	end
 )
 
+-- The free Bellhop Cat (F96 part 1, engineer PR #734, starter-cat.md sections 2, 4 and 5) ---------------------------
+
+-- The stand card's lines, from shared/StarterCat once it is on main, else starter-cat.md's words.
+local starterModule = Shared:FindFirstChild("StarterCat")
+local StarterCat: any = if starterModule ~= nil and starterModule:IsA("ModuleScript")
+	then require(starterModule :: any)
+	else nil
+local BELLHOP_ID: string = if StarterCat ~= nil then StarterCat.CAT_ID else "bellhop_cat"
+local BELLHOP_TAG: string = if StarterCat ~= nil then StarterCat.TAG else "BellhopStand"
+local BELLHOP_CLAIMED: string = if StarterCat ~= nil then StarterCat.CLAIMED else "Already home with you"
+local BELLHOP_TOO_FAR: string = if StarterCat ~= nil
+	then StarterCat.TOO_FAR
+	else "Walk up to my stand to take me home"
+local BELLHOP_GOALS: string = if StarterCat ~= nil
+	then StarterCat.NEEDS_GOALS
+	else "Finish your first goals to take me home"
+
+-- What StarterCatResult carries.
+type Claimed = { ok: boolean, reason: string? }
+
+-- The uids of my Bellhop Cats, in any slot or resting.
+local function bellhops(): { string }
+	local uids: { string } = {}
+	if state ~= nil then
+		for uid, instance in state.cats do
+			if instance.catId == BELLHOP_ID then
+				table.insert(uids, uid)
+			end
+		end
+	end
+	return uids
+end
+
+local function claimAnswers(startedAt: number): { Claimed }
+	local answers: { Claimed } = {}
+	for _, event in since(startedAt, "StarterCatResult") do
+		table.insert(answers, event.data :: Claimed)
+	end
+	return answers
+end
+
+case(
+	"starterCat",
+	Enum.KeyCode.Z,
+	"Bellhop Cat: a far claim, a flood of claims with junk, a claim again, SellCat it",
+	function()
+		if table.find(Remotes.ClientToServer, "ClaimStarterCat") == nil then
+			return "SKIP", "no ClaimStarterCat remote (engineer PR #734)"
+		end
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		if (state :: any).starterCatClaimed == nil then
+			return "SKIP", "the ProfileSync carries no starterCatClaimed (needs engineer PR #734)"
+		end
+		local stand = nearestTagged(BELLHOP_TAG)
+		if stand == nil then
+			return "SKIP", "no stand tagged " .. BELLHOP_TAG .. " in the world"
+		end
+		local range: number = (Config :: any).StarterCatRangeStuds or 12
+		local root = rootPart()
+		local home = if root ~= nil then root.Position else nil
+		local function done(verdict: Verdict, detail: string): (Verdict, string)
+			if home ~= nil then
+				teleportTo(home)
+			end
+			return verdict, detail
+		end
+		local claimedBefore = (state :: any).starterCatClaimed == true
+		local mineBefore = #bellhops()
+		local groupId: number = (Config :: any).GroupId or 0
+		local step: number = (Config :: any).StarterCatTutorialStep or 5
+		local early = not claimedBefore and groupId == 0 and state.tutorialStep < step
+		local verdict: Verdict = "PASS"
+		local notes: { string } = {}
+
+		-- 20 studs out: refused ("Already home with you" once claimed, else "Walk up to my stand ..."), no cat.
+		local far = standFromStation(stand, 20)
+		if far < range + 4 then
+			return done(
+				"CHECK",
+				string.format(
+					"could not stand 20 studs from the stand on any side (settled %.1f studs out); stand there and run again",
+					far
+				)
+			)
+		end
+		local farAt = os.clock()
+		fire("ClaimStarterCat")
+		local farAnswer = waitFor(farAt, "StarterCatResult", 2)
+		task.wait(0.5)
+		if #bellhops() ~= mineBefore then
+			return done("FAIL", string.format("a ClaimStarterCat from %.1f studs gave a Bellhop Cat", far))
+		end
+		local farExpected = if claimedBefore then BELLHOP_CLAIMED else BELLHOP_TOO_FAR
+		if farAnswer == nil then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, string.format("%.1f studs gave nothing but no StarterCatResult", far))
+		else
+			local answered = farAnswer.data :: Claimed
+			if answered.ok then
+				return done("FAIL", string.format("StarterCatResult(true) from %.1f studs", far))
+			end
+			if answered.reason ~= farExpected then
+				verdict = downgrade(verdict, "CHECK")
+			end
+			table.insert(notes, string.format('%.1f studs refused with "%s"', far, tostring(answered.reason)))
+		end
+		task.wait(math.max(0, farAt + 2.1 - os.clock()))
+
+		-- Beside the stand: five claims in one frame, four of them with junk arguments the server must ignore (1 per
+		-- 2 s, so at most one is read), then one more claim 2.1 s later. At most one cat, ever.
+		local near = standFromStation(stand, 5)
+		if near > range - 3 then
+			return done(
+				"CHECK",
+				string.format(
+					"%s; could not stand by the stand (settled %.1f studs out); stand there and run again",
+					table.concat(notes, ", "),
+					near
+				)
+			)
+		end
+		local floodAt = os.clock()
+		fire("ClaimStarterCat")
+		local junk: { { any } } = { { BELLHOP_ID }, { 1e9 }, { {} }, { true, BELLHOP_ID, string.rep("x", 5000) } }
+		for _, args in junk do
+			Remotes.event("ClaimStarterCat"):FireServer(table.unpack(args))
+		end
+		log("    -> ClaimStarterCat four more times in the same frame, with junk arguments")
+		task.wait(2.1)
+		local floodAnswers = claimAnswers(floodAt)
+		local againAt = os.clock()
+		fire("ClaimStarterCat")
+		local againAnswer = waitFor(againAt, "StarterCatResult", 2)
+		task.wait(0.5)
+		local mine = bellhops()
+		local gained = #mine - mineBefore
+		local paid = 0
+		for _, answered in claimAnswers(floodAt) do
+			paid += if answered.ok then 1 else 0
+		end
+		if gained > 1 or paid > 1 then
+			return done(
+				"FAIL",
+				string.format("%d Bellhop Cats and %d ok answers from one flood and one more claim", gained, paid)
+			)
+		end
+		if #floodAnswers > 1 then
+			verdict = downgrade(verdict, "FAIL")
+			table.insert(notes, string.format("%d answers to one frame's five claims (1 per 2 s)", #floodAnswers))
+		end
+		local again = if againAnswer ~= nil then againAnswer.data :: Claimed else nil
+
+		if claimedBefore or early then
+			-- Nothing to claim: every answer is the same refusal and no cat came.
+			local expected = if claimedBefore then BELLHOP_CLAIMED else BELLHOP_GOALS
+			if gained ~= 0 or paid ~= 0 then
+				return done("FAIL", string.format('a refused profile ("%s") got a Bellhop Cat', expected))
+			end
+			if again == nil or again.reason ~= expected then
+				verdict = downgrade(verdict, "CHECK")
+			end
+			table.insert(
+				notes,
+				string.format(
+					'beside it refused with "%s"',
+					if again ~= nil then tostring(again.reason) else "no answer"
+				)
+			)
+			local hint = if claimedBefore
+				then string.format('to see a claim, run %s("starterCat") on the server and run again', DEBUG)
+				else string.format("to see a claim, finish the first goals (tutorial step %d) and run again", step)
+			if #mine == 0 then
+				return done(verdict, table.concat(notes, ", ") .. "; " .. hint)
+			end
+			-- a claimed profile still has its cat, so the sale below runs too
+			table.insert(notes, hint)
+		else
+			-- Free to claim: exactly one cat, one ok answer, and the claim after it refused as already home.
+			if gained ~= 1 or paid ~= 1 then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(
+					notes,
+					string.format(
+						"an eligible profile got %d cats and %d ok answers (group id %d needs membership)",
+						gained,
+						paid,
+						groupId
+					)
+				)
+			else
+				table.insert(notes, "the flood gave exactly one Bellhop Cat")
+			end
+			if again == nil or again.ok or again.reason ~= BELLHOP_CLAIMED then
+				verdict = downgrade(verdict, if again ~= nil and again.ok then "FAIL" else "CHECK")
+			end
+			table.insert(
+				notes,
+				string.format(
+					'the claim after it: "%s"',
+					if again ~= nil then tostring(again.reason) else "no answer"
+				)
+			)
+			if (state :: any).starterCatClaimed ~= true then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, "starterCatClaimed still false in the ProfileSync")
+			end
+		end
+
+		-- SellCat the Bellhop Cat: refused with the exclusive toast, the cat stays and no coins beyond income.
+		mine = bellhops()
+		if #mine > 0 then
+			local uid = mine[1]
+			local w = freshWallet()
+			local sellAt = os.clock()
+			fire("SellCat", uid)
+			task.wait(1.5)
+			if state == nil or state.cats[uid] == nil or money() - w.money > incomeSince(w) then
+				return done("FAIL", "SellCat sold the Bellhop Cat; " .. table.concat(notes, ", "))
+			end
+			if toasted(sellAt, "cannot be sold") then
+				table.insert(notes, "SellCat refused with the exclusive toast")
+			else
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, "SellCat kept the cat but no toast said why")
+			end
+		end
+		return done(verdict, table.concat(notes, ", "))
+	end
+)
+
 -- Bug reports (engineer PR #265, docs/playtests/bug-reports.md) ------------------------------------------------
 
 -- ReportBug's toasts by their BugReport.Messages key.
@@ -5832,6 +6065,13 @@ Remotes.event("CodeResult").OnClientEvent
 		local answered: Answered = { ok = ok, message = message, prize = prize }
 		record("CodeResult", string.format("ok=%s %q", tostring(ok), message), nil, answered)
 	end)
+-- F96: only once the remote exists (engineer PR #734), so the client still loads on an older build.
+if table.find(Remotes.ServerToClient, "StarterCatResult") ~= nil then
+	Remotes.event("StarterCatResult").OnClientEvent:Connect(function(ok: boolean, reason: string?)
+		local answered: Claimed = { ok = ok, reason = reason }
+		record("StarterCatResult", string.format("ok=%s %q", tostring(ok), tostring(reason)), nil, answered)
+	end)
+end
 Remotes.event("FreshCatchStock").OnClientEvent:Connect(function(stock: Types.FreshCatchStock?)
 	freshStock = stock
 	record("FreshCatchStock", if stock ~= nil then string.format("window %d", stock.window) else "nil (night)")

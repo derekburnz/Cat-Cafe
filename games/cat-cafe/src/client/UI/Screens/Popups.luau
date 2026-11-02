@@ -9,6 +9,10 @@
 -- over the screen from the intro's end until the first cat found card had come and gone). There is one "While you
 -- were away" card at a time: the server sends the earnings when the profile loads and again on the client's first
 -- RequestSync, and a second card made Claim look like it needed two clicks (Derek 2026-10-28).
+-- F96: a cat given rather than caught (the free Bellhop Cat) brings its own banner ("FREE RARE CAT!"), a gold line
+-- for the description ("The Bellhop Cat joined your cafe!") and its rate (CatFoundExtra's banner, line and rate).
+-- F87 (easy-start.md section 3, tip `offline`): the first return after a long time away puts a gold ribbon on the
+-- offline card's top edge, "Your cats earned while you were away!" (showOffline's headline).
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
@@ -30,11 +34,18 @@ export type Popups = {
 		isNew: boolean?,
 		extra: Types.CatFoundExtra?
 	) -> (),
-	showOffline: (self: Popups, amount: number, seconds: number, onClaim: () -> ()) -> (),
+	showOffline: (
+		self: Popups,
+		amount: number,
+		seconds: number,
+		onClaim: () -> (),
+		headline: string?
+	) -> (),
 	showGift: (self: Popups, title: string, prize: Types.IndexPrize) -> (),
 	setCatalog: (self: Popups, catalog: Types.Catalog) -> (),
 	dismiss: (self: Popups) -> (),
 	setHeld: (self: Popups, held: boolean) -> (),
+	isShowing: (self: Popups) -> boolean,
 	destroy: (self: Popups) -> (),
 }
 
@@ -75,7 +86,9 @@ function Popups.new(parent: Instance): Popups
 	self._queue = {} :: { () -> () }
 	self._busy = false
 	self._held = false -- the intro is playing: new popups queue, nothing shows
-	self._offline = nil :: { amount: number, seconds: number, onClaim: () -> () }? -- the latest earnings
+	-- the latest earnings
+	self._offline =
+		nil :: { amount: number, seconds: number, onClaim: () -> (), headline: string? }?
 	self._offlineWaiting = false -- an offline card is showing or queued
 	self._token = 0
 	self._buttons = {} :: { any }
@@ -339,6 +352,37 @@ function Popups.new(parent: Instance): Popups
 		Create("UIStroke", { Color = Theme.colors.outline, Thickness = Theme.sizes.outline + 1 }),
 	})
 	self._offlineCard = offlineCard
+	-- F87: the offline tip's ribbon over the card's top edge, shown on the first long return only
+	local ribbon: Frame = Create("Frame", {
+		Name = "Ribbon",
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0),
+		Size = UDim2.fromOffset(0, 34),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Visible = false,
+		ZIndex = 3,
+		Parent = offlineCard,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 16), PaddingRight = UDim.new(0, 16) }),
+	})
+	Outline.border(ribbon, 2.5)
+	self._ribbon = ribbon
+	self._ribbonText = text({
+		Name = "Line",
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromScale(0, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.white,
+		TextTruncate = Enum.TextTruncate.None,
+		Text = "",
+		ZIndex = 4,
+		Parent = ribbon,
+	})
+	Outline.text(self._ribbonText, 2)
 	text({
 		Name = "Title",
 		Position = UDim2.fromOffset(16, 18),
@@ -381,7 +425,11 @@ function Popups.new(parent: Instance): Popups
 		name = "Claim",
 		text = "Claim",
 		style = "gold",
-		size = UDim2.fromOffset(180, Theme.sizes.touchMin + 4),
+		-- a phone's finger needs 44 real px (the card's Note ends 78 px over its foot, room for the taller button)
+		size = UDim2.fromOffset(
+			180,
+			Scale.tapHeight(Theme.sizes.touchMin + 4, Theme.sizes.buttonDepth)
+		),
 		anchorPoint = Vector2.new(0.5, 1),
 		position = UDim2.new(0.5, 0, 1, -14),
 		textSize = Theme.sizes.textBody + 2,
@@ -508,6 +556,11 @@ function Popups.setHeld(self: any, held: boolean)
 	end
 end
 
+-- A card is up (or the intro holds one back): a context tip waits for it (F87).
+function Popups.isShowing(self: any): boolean
+	return self._busy == true or (self._held == true and #self._queue > 0)
+end
+
 function Popups.dismiss(self: any)
 	if not self._busy then
 		return
@@ -546,9 +599,8 @@ function Popups.showCatFound(
 		local shiny = info.shiny == true
 		local rarityColor = Theme.rarityColor(rarity)
 		local label = (if shiny then "GOLD " else "") .. rarity:upper()
-		self._catBanner.Text = if isNew
-			then ("NEW %s CAT!"):format(label)
-			else ("%s CAT CAUGHT"):format(label)
+		self._catBanner.Text = info.banner
+			or if isNew then ("NEW %s CAT!"):format(label) else ("%s CAT CAUGHT"):format(label)
 		self._catBanner.BackgroundColor3 = rarityColor
 		self._catCard.UIStroke.Color = if shiny then Theme.colors.gold else rarityColor
 		self._catName.TextColor3 = rarityColor
@@ -575,11 +627,12 @@ function Popups.showCatFound(
 
 		self._catName.Text = def.name
 		local loves: string? = def.favoriteRole
-		self._catMeta.Text = Format.rate(def.incomePerSecond)
+		self._catMeta.Text = Format.rate(info.rate or def.incomePerSecond)
 			.. (if loves then "  ·  " .. Format.lovesRole(loves, Theme.modal.text) else "")
 		local charmGain = info.charmGain or 0
-		if charmGain > 0 then
-			self._catDesc.Text = ("Purrfect catch!  Charm +%d"):format(charmGain)
+		local line: string? = info.line
+		if line ~= nil or charmGain > 0 then
+			self._catDesc.Text = line or ("Purrfect catch!  Charm +%d"):format(charmGain)
 			self._catDesc.TextColor3 = Theme.colors.goldDark
 			self._catDesc.FontFace = Theme.fonts.display
 		else
@@ -587,6 +640,7 @@ function Popups.showCatFound(
 			self._catDesc.TextColor3 = Theme.modal.subtext
 			self._catDesc.FontFace = Theme.fonts.body
 		end
+		self._catDesc.TextSize = if line ~= nil then Theme.sizes.textBody else Theme.sizes.textSmall
 
 		-- F97 section 5 (Derek 2026-10-28): charm stars show nowhere now, so the row stays hidden and the text sits
 		-- up; the Purrfect line still names the charm a catch added
@@ -640,14 +694,25 @@ function Popups.showCatFound(
 	self:_show(run)
 end
 
-function Popups.showOffline(self: any, amount: number, seconds: number, onClaim: () -> ())
-	self._offline = { amount = amount, seconds = seconds, onClaim = onClaim }
+function Popups.showOffline(
+	self: any,
+	amount: number,
+	seconds: number,
+	onClaim: () -> (),
+	headline: string?
+)
+	-- a ribbon line once given stays for this card, though the second send of the same earnings has none
+	local before = self._offline
+	local ribbon = headline or (if self._offlineWaiting and before then before.headline else nil)
+	self._offline = { amount = amount, seconds = seconds, onClaim = onClaim, headline = ribbon }
 	local function fill()
 		local latest = self._offline
 		if latest then
 			self._onClaim = latest.onClaim
 			self._offlineSub.Text = ("Gone for %s"):format(Format.duration(latest.seconds))
 			self._offlineAmount.Text = "+" .. Format.money(latest.amount)
+			self._ribbonText.Text = latest.headline or ""
+			self._ribbon.Visible = latest.headline ~= nil
 		end
 	end
 	if self._offlineWaiting then

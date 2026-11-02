@@ -264,7 +264,8 @@ local function fireIndexRewards(old: Types.PlayerState, new: Types.PlayerState)
 	end
 end
 
--- Something bought since the last sync: an upgrade level, a decor item or a lure count went up.
+-- Something bought since the last sync: an upgrade level, a decor item, a lawn piece or style (F91, front-lawn.md
+-- section 3, which also sparkles the Tier 2 and 3 gifts) or a lure count went up.
 local function boughtSomething(old: Types.PlayerState, new: Types.PlayerState): boolean
 	for id, level in new.upgradeLevels do
 		if level > (old.upgradeLevels[id] or 0) then
@@ -273,6 +274,11 @@ local function boughtSomething(old: Types.PlayerState, new: Types.PlayerState): 
 	end
 	for id, owned in new.decorOwned do
 		if owned and not old.decorOwned[id] then
+			return true
+		end
+	end
+	for id, owned in new.lawnOwned do
+		if owned and not old.lawnOwned[id] then
 			return true
 		end
 	end
@@ -493,6 +499,11 @@ local function applyState(s: Types.PlayerState)
 		luck = s.luck,
 		luckSources = s.luckSources,
 		longNap = s.longNap, -- F95: the welcome back card's "Full pay, up to 16 hours"
+		-- F91: the Front lawn tab and edit view (ui-contract.md "Front lawn tab and edit view"); the tab stays hidden
+		-- until lawnStyles arrives
+		lawnOwned = s.lawnOwned,
+		lawn = s.lawn,
+		lawnStyles = s.lawnStyles,
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
@@ -629,6 +640,17 @@ local function wireIntents()
 	end)
 	UI.events.toggleDecor:Connect(function(decorId: string, placed: boolean)
 		Net.fire("ToggleDecor", decorId, placed)
+	end)
+	-- The front lawn (F91). The UI sends "" rather than nil to clear a spot, lay Grey Slabs or take the fence down, and
+	-- LawnService reads "" as no id. The answer is a toast and the next ProfileSync.
+	UI.events.buyLawn:Connect(function(id: string, spotId: string?)
+		Net.fire("BuyLawn", id, spotId)
+	end)
+	UI.events.setLawnSpot:Connect(function(spotId: string, pieceId: string)
+		Net.fire("SetLawnSpot", spotId, pieceId)
+	end)
+	UI.events.setLawnStyle:Connect(function(kind: string, id: string)
+		Net.fire("SetLawnStyle", kind, id)
 	end)
 	UI.events.buyLure:Connect(function(lureId: string)
 		Net.fire("BuyLure", lureId)

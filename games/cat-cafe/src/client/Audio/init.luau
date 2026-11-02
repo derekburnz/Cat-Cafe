@@ -605,10 +605,6 @@ local carryStop: (() -> ())? = nil
 local carrying = false
 local dealerStop: (() -> ())? = nil
 local rescueSpot: BasePart? = nil
-local ZONE_GAP = 4 -- seconds between zone chimes, so walking along an area's open edge plays one
-local TRAVEL_QUIET = 2 -- seconds after a trip with no zone chime: the travel sound already says where you went
-local lastZoneCueAt: number? = nil
-local lastTravelAt: number? = nil
 local lastCampCheckInAt: number? = nil -- F84: your own camp check-in, so its CheckIn rings no door bell
 local CAMP_QUIET = 1
 
@@ -807,6 +803,7 @@ end
 -- HissAt attribute, which the server sets on a Miss, and the sprint its FleeingUntil (design v0.5, F40), playing
 -- on the cat itself so it runs off with it. Each at most once per cat per second, like the Effects hiss.
 local STRAY_GAP = 1
+local HOP_FRESH = 0.5 -- seconds: a FleeingUntil this soon after HopAt belongs to the hop
 type StrayWatch = {
 	connections: { RBXScriptConnection },
 	last: { [string]: number },
@@ -838,13 +835,31 @@ local function watchStray(instance: Instance)
 			once("catHiss", false)
 		end)
 	)
+	-- F93: a near miss of the net makes a free stray hop away; HopAt (server time) is set as it goes
+	table.insert(
+		watch.connections,
+		instance:GetAttributeChangedSignal("HopAt"):Connect(function()
+			if instance:GetAttribute("HopAt") ~= nil then
+				once("strayHop", true)
+			end
+		end)
+	)
 	table.insert(
 		watch.connections,
 		instance:GetAttributeChangedSignal("FleeingUntil"):Connect(function()
-			local untilTime = instance:GetAttribute("FleeingUntil")
-			if type(untilTime) == "number" and untilTime > Workspace:GetServerTimeNow() then
-				once("straySprint", true)
-			end
+			-- a hop (F93) sets HopAt with its FleeingUntil and plays strayHop instead, so wait for the batch to land
+			-- and skip the sprint when HopAt is fresh (review N297)
+			task.defer(function()
+				local now = Workspace:GetServerTimeNow()
+				local untilTime = instance:GetAttribute("FleeingUntil")
+				if
+					type(untilTime) == "number"
+					and untilTime > now
+					and not Logic.freshStart(instance:GetAttribute("HopAt"), now, HOP_FRESH)
+				then
+					once("straySprint", true)
+				end
+			end)
 		end)
 	)
 end
@@ -1300,34 +1315,18 @@ local function rarityJingle(rarity: any)
 	end
 end
 
--- F89 and F99: your own big pull (the server's SecuredRare(userId, catId, rarity, gold, variant)) plays its sting.
--- Like Effects' Pull, it hooks the remote whenever it appears, since it only exists once the server has F89.
-local function followSecuredRare()
+-- Hooks a server-to-client remote whenever it appears, since some only exist once the server has their feature
+-- (like Effects' Pull).
+local function onRemote(name: string, handler: (...any) -> ())
 	local folder = Remotes.folder()
 	local function hook(child: Instance): boolean
-		if child.Name ~= "SecuredRare" or not child:IsA("RemoteEvent") then
+		if child.Name ~= name or not child:IsA("RemoteEvent") then
 			return false
 		end
-		(child :: RemoteEvent).OnClientEvent:Connect(
-			function(
-				userId: unknown,
-				_catId: unknown,
-				rarity: unknown,
-				_gold: unknown,
-				variant: unknown
-			)
-				if userId ~= Players.LocalPlayer.UserId then
-					return
-				end
-				local cue = Logic.pullSting(rarity, variant)
-				if cue ~= nil then
-					playSting(cue)
-				end
-			end
-		)
+		(child :: RemoteEvent).OnClientEvent:Connect(handler)
 		return true
 	end
-	local existing = folder:FindFirstChild("SecuredRare")
+	local existing = folder:FindFirstChild(name)
 	if existing ~= nil and hook(existing) then
 		return
 	end
@@ -1335,6 +1334,39 @@ local function followSecuredRare()
 	waiting = folder.ChildAdded:Connect(function(child: Instance)
 		if hook(child) and waiting ~= nil then
 			waiting:Disconnect()
+		end
+	end)
+end
+
+-- F89 and F99: your own big pull (the server's SecuredRare(userId, catId, rarity, gold, variant)) plays its sting.
+local function followSecuredRare()
+	onRemote(
+		"SecuredRare",
+		function(
+			userId: unknown,
+			_catId: unknown,
+			rarity: unknown,
+			_gold: unknown,
+			variant: unknown
+		)
+			if userId ~= Players.LocalPlayer.UserId then
+				return
+			end
+			local cue = Logic.pullSting(rarity, variant)
+			if cue ~= nil then
+				playSting(cue)
+			end
+		end
+	)
+end
+
+-- F93: GREAT and EXCELLENT get their word's sound from the server's grades (CatchResult goes only to the catcher),
+-- over the catch sparkle; PURRFECT and "So close!" keep the Purrfect and CatchFail moments' sounds.
+local function followCatchWords()
+	onRemote("CatchResult", function(_strayId: unknown, grades: unknown, success: unknown)
+		local cue = Logic.wordCue(Logic.catchWord(grades, success))
+		if cue ~= nil then
+			Audio.play(cue)
 		end
 	end)
 end
@@ -1358,6 +1390,30 @@ local function followBeats()
 	end)
 end
 
+-- F93 net swing (catch-rework.md section 1): the whoosh as the net comes over and the smack NetSmackDelay later, as
+-- it lands. Your own swing plays at the press (NetSmackPress); another player's when the server tells this client
+-- (NetSwung), which is when their smack animation starts. Only your own miss bounces.
+local NET_SMACK_DELAY = 0.15
+
+local function rootOf(userId: unknown): BasePart?
+	local player = if type(userId) == "number" then Players:GetPlayerByUserId(userId) else nil
+	local character = if player ~= nil then player.Character else nil
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	return if root ~= nil and root:IsA("BasePart") then root :: BasePart else nil
+end
+
+local function swingSounds(root: BasePart?)
+	if root == nil then
+		return
+	end
+	Audio.play("netSwing", root)
+	task.delay((Config :: any).NetSmackDelay or NET_SMACK_DELAY, function()
+		if root.Parent ~= nil then
+			Audio.play("netSmack", root)
+		end
+	end)
+end
+
 -- Moment name to sounds (sound list section 6). NightStart and DayStart are absent on purpose: the music already
 -- follows the clock attribute, so it also knows the phase on join. CarryStart is absent too: the purr follows the
 -- synced carrying state (Audio.setCarrying), so a missed moment can never leave it purring.
@@ -1371,6 +1427,16 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	end,
 	NetSwing = function()
 		Audio.play("netSwing", you())
+	end,
+	NetSmackPress = function()
+		swingSounds(you())
+	end,
+	NetSwung = function(userId: any, hit: any)
+		if userId ~= Players.LocalPlayer.UserId then
+			swingSounds(rootOf(userId))
+		elseif hit == false then
+			Audio.play("netBounce", you())
+		end
 	end,
 	CircleGrade = function(index: any, grade: any)
 		local cueId = Logic.gradeCue(str(grade))
@@ -1485,7 +1551,6 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	end,
 	-- Fast travel, the My Cafe button and the manholes, once the server says the trip worked.
 	Travel = function(destination: any)
-		lastTravelAt = os.clock()
 		-- F84: Home from a wild area is a cloud hop (its gap keeps CloudHopAt from playing it twice), the Cannon button
 		-- a poof (Logic.travelCue)
 		Audio.play(Logic.travelCue(destination, youInWild(), youHopping()))
@@ -1499,9 +1564,6 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	end,
 	CatSold = function()
 		Audio.play("catSold")
-	end,
-	CatLevelUp = function() -- F75, for the owner only, beside the toast and the sparkle
-		Audio.play("catLevelUp")
 	end,
 
 	CoinPop = function(position: any)
@@ -1588,6 +1650,7 @@ function Audio.start()
 	followPlots()
 	followBeats()
 	task.spawn(followSecuredRare)
+	task.spawn(followCatchWords)
 end
 
 -- Applies the player's settings (ProfileSync `settings`): music off silences Music; sound off silences Ambience,
@@ -1636,21 +1699,11 @@ function Audio.setCarrying(isCarrying: boolean)
 end
 
 -- The zone the ambience follows: "Cafe", "Alley", "Park" (later "Neighbourhood", "Woods", "Sewer"); nil for none.
--- Walking between the safe street (nil or "Cafe") and a catching area also plays a chime with the Safe zone chip:
--- zoneArea in, zoneSafe out, one per ZONE_GAP and none right after a trip.
+-- Crossing between the safe street and a catching area is silent since 2026-11-02: its chimes went with the Safe
+-- zone chip and toast (Derek 2026-10-28: "no need for the safe area reached banner either", UI PR #669).
 function Audio.setZone(newZone: string?)
-	local cueId = Logic.zoneCue(zone, newZone)
 	zone = newZone
 	refreshAmbience()
-	local now = os.clock()
-	if
-		cueId ~= nil
-		and Logic.canPlay(lastZoneCueAt, now, ZONE_GAP)
-		and Logic.canPlay(lastTravelAt, now, TRAVEL_QUIET)
-	then
-		lastZoneCueAt = now
-		Audio.play(cueId)
-	end
 end
 
 -- Connects every moment Audio knows to its sounds. `moments` maps a moment name to a signal with :Connect

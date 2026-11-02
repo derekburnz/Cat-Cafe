@@ -45,9 +45,12 @@ local ItemIcon = {}
 ItemIcon.__index = ItemIcon
 
 -- A copy of the asset with every script removed, or nil when Assets has no model by that name yet.
+-- A door set's models are `<asset>_Front` and `<asset>_Back` (F80), so the front stands in for the set.
 local function cloneModel(asset: string): Model?
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
-	local source = if assets then assets:FindFirstChild(asset) else nil
+	local source = if assets
+		then assets:FindFirstChild(asset .. "_Front") or assets:FindFirstChild(asset)
+		else nil
 	if not source then
 		return nil
 	end

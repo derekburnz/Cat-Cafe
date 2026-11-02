@@ -9,6 +9,13 @@
 -- The server sends where the marker starts, how fast it moves and every zone, so the bar is drawn from server
 -- time alone. Hits and misses drawn on a press are this device's guess; update() replaces them with the
 -- server's count.
+--
+-- F93 (catch-rework.md section 4), when the challenge carries `zone`: each zone stays for zonePasses sweeps, then
+-- costs a paw and moves on ("Too slow!"); every hit speeds the marker up by speedUpPerHit; RescueResult's last
+-- argument (Types.RescueBar) says how the marker runs and which zone is live from then on. The zone's bottom edge
+-- drains as its time runs out. Polish: the marker is a needle with a little paw on top, the hit pips sit above the
+-- bar and a ring round the bar runs down the attempt's deadline (it was a line under the bar). The trap's shake and
+-- the free burst are the vfx-animator's.
 
 local ContextActionService = game:GetService("ContextActionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -55,7 +62,8 @@ export type RescueBar = {
 		hits: number,
 		pawsLeft: number?,
 		done: boolean,
-		success: boolean
+		success: boolean,
+		bar: Types.RescueBar?
 	) -> (),
 	isActive: (self: RescueBar) -> boolean,
 	hide: (self: RescueBar) -> (),
@@ -63,8 +71,15 @@ export type RescueBar = {
 }
 
 local BAR = Vector2.new(560, 44) -- design pixels at 1280 x 720
-local MARKER = Vector2.new(14, 64)
+local NEEDLE = Vector2.new(6, 56) -- the marker's line, a little taller than the bar
+local PAW = 30 -- the paw on top of the needle
 local PIP = 22
+local BAR_TOP = PIP + 34 -- room for the paw between the pips and the bar
+local RING_PAD = 6 -- the deadline ring sits this far outside the bar
+local RING = 4 -- its thickness
+local LIFE = 4 -- the zone's draining bottom edge
+local GIVE_UP_H = 36 -- Give up's face on a mouse screen (Theme.sizes.tapMouse)
+local GIVE_UP_GAP = 14 -- between the ring and Give up
 -- data-model RescueTolerance (0.03 of the bar) and RescueAttemptMaxSeconds (15)
 local TOLERANCE: number = Config.RescueTolerance
 local MAX_SECONDS: number = Config.RescueAttemptMaxSeconds
@@ -80,11 +95,24 @@ local WOBBLE = { 10, -9, 7, -5, 0 }
 local WOBBLE_STEP = TweenInfo.new(0.045, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
 local ZONE_MOVE = TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
+type Run = { startsAt: number, phase: number, speed: number }
+
 local RescueBar = {}
 RescueBar.__index = RescueBar
 
 local function now(): number
 	return Workspace:GetServerTimeNow()
+end
+
+-- Where on the back-and-forth (0 to 2) the marker is at server time t, as shared/RescueMarker.phaseAt (F93): a
+-- faster marker after a hit starts again from the same spot, going the same way.
+local function phaseAt(run: Run, t: number): number
+	return (run.phase + run.speed * math.max(0, t - run.startsAt)) % 2
+end
+
+-- F93's fields on the challenge, when the server sends them (an older one does not)
+local function rules(challenge: Types.RescueChallenge): Types.RescueRules
+	return challenge :: any
 end
 
 -- A quick sideways shake, skipped when the player turned Screen shake off or asked for reduced motion.
@@ -133,6 +161,10 @@ function RescueBar.new(parent: Instance): RescueBar
 	self._callbacks = nil :: Callbacks?
 	self._loop = nil :: RBXScriptConnection?
 	self._pips = {} :: { Frame }
+	self._run = { startsAt = 0, phase = 0, speed = 1 } :: Run
+	self._zoneIndex = 1 -- zones[zoneIndex] is the one to hit
+	self._zoneSince = 0 -- server time the live zone came up (F93)
+	self._zoneEndsAt = nil :: number? -- server time it moves on unhit (F93); nil on an older server
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeRescueBar",
@@ -236,13 +268,16 @@ function RescueBar.new(parent: Instance): RescueBar
 		position = UDim2.new(1, -12, 0, 38),
 	})
 
-	-- The bar group, a little below the middle of the screen so the stuck cat stays in view above it
+	-- The bar group, a little below the middle of the screen so the stuck cat stays in view above it. Give up is a
+	-- finger tall on touch (its face, without the button's depth).
+	local depth: number = Theme.sizes.buttonDepth
+	local giveUpH = Scale.tapHeight(GIVE_UP_H + depth, depth)
 	local group: Frame = Create("Frame", {
 		Name = "BarGroup",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.62),
-		Size = UDim2.fromOffset(BAR.X, 150),
+		Size = UDim2.fromOffset(BAR.X, BAR_TOP + BAR.Y + RING_PAD + GIVE_UP_GAP + giveUpH),
 		Parent = root,
 	})
 	self._group = group
@@ -262,7 +297,7 @@ function RescueBar.new(parent: Instance): RescueBar
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
-	local barBase = UDim2.new(0, 0, 0, PIP + 22)
+	local barBase = UDim2.new(0, 0, 0, BAR_TOP)
 	local bar: Frame = Create("Frame", {
 		Name = "Bar",
 		BackgroundColor3 = Theme.colors.cocoaDeep,
@@ -291,52 +326,90 @@ function RescueBar.new(parent: Instance): RescueBar
 		}),
 	})
 	Outline.border(self._zone, 2, Theme.colors.goodDark)
+	-- F93: the zone's bottom edge drains as its zonePasses sweeps run out
+	self._life = Create("Frame", {
+		Name = "Life",
+		BackgroundColor3 = Theme.colors.white,
+		BackgroundTransparency = 0.15,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.fromScale(0, 1),
+		Size = UDim2.new(1, 0, 0, LIFE),
+		Visible = false,
+		ZIndex = 2,
+		Parent = self._zone,
+	})
+	-- the marker: a needle for the exact spot and a little paw on top of it (F93 polish)
 	self._marker = Create("Frame", {
 		Name = "Marker",
 		BackgroundColor3 = Theme.colors.white,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0, 0.5),
-		Size = UDim2.fromOffset(MARKER.X, MARKER.Y),
-		ZIndex = 2,
+		Size = UDim2.fromOffset(NEEDLE.X, NEEDLE.Y),
+		ZIndex = 3,
 		Parent = bar,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.border(self._marker, 3)
-	-- NICE! or MISS over the marker
+	Outline.border(self._marker, 2)
+	local paw: Frame = Create("Frame", {
+		Name = "Paw",
+		BackgroundColor3 = Theme.colors.white,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 0, 4),
+		Size = UDim2.fromOffset(PAW, PAW),
+		ZIndex = 4,
+		Parent = self._marker,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(paw, 2)
+	self._paw = paw
+	label({
+		Name = "Glyph",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = 18,
+		Text = "🐾",
+		ZIndex = 5,
+		Parent = paw,
+	})
+	-- NICE!, MISS or Too slow! over the marker
 	self._word = label({
 		Name = "Word",
 		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0, 0, 0, -6),
+		Position = UDim2.new(0, 0, 0, -(PAW + 2)),
 		Size = UDim2.fromOffset(160, 34),
 		TextSize = 28,
 		Visible = false,
-		ZIndex = 3,
+		ZIndex = 6,
 		Parent = bar,
 	})
 	Outline.text(self._word, 3)
-	-- time left, draining under the bar
-	local timeTrack: Frame = Create("Frame", {
-		Name = "Time",
-		BackgroundColor3 = Theme.colors.cocoa,
-		BorderSizePixel = 0,
-		Position = UDim2.new(0, 8, 0, PIP + 22 + BAR.Y + 10),
-		Size = UDim2.new(1, -16, 0, 6),
+	-- time left: a ring round the bar that runs down to the attempt's deadline (F93 polish), four edges filling
+	-- clockwise from the top left corner
+	local ring: Frame = Create("Frame", {
+		Name = "Ring",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(-RING_PAD, BAR_TOP - RING_PAD),
+		Size = UDim2.fromOffset(BAR.X + 2 * RING_PAD, BAR.Y + 2 * RING_PAD),
 		Parent = group,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	self._timeFill = Create("Frame", {
-		Name = "Fill",
-		BackgroundColor3 = Theme.colors.sky,
-		BorderSizePixel = 0,
-		Size = UDim2.fromScale(1, 1),
-		Parent = timeTrack,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	})
+	self._ringSize = Vector2.new(BAR.X + 2 * RING_PAD, BAR.Y + 2 * RING_PAD)
+	self._ringEdges = {} :: { Frame }
+	for index = 1, 4 do
+		local edge: Frame = Create("Frame", {
+			Name = "Edge" .. index,
+			BackgroundColor3 = Theme.colors.sky,
+			BorderSizePixel = 0,
+			Parent = ring,
+		})
+		table.insert(self._ringEdges, edge)
+	end
 	self._cancel = Button.new({
 		name = "GiveUp",
 		text = "Give up",
 		style = "ghost",
-		size = UDim2.fromOffset(120, 36),
+		size = UDim2.fromOffset(120, giveUpH),
 		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, 0, 0, PIP + 22 + BAR.Y + 26),
+		position = UDim2.new(1, 0, 0, BAR_TOP + BAR.Y + RING_PAD + GIVE_UP_GAP),
 		textSize = Theme.sizes.textSmall,
 		parent = group,
 		onClick = function()
@@ -411,14 +484,20 @@ function RescueBar._paintPips(self: any)
 	end
 end
 
--- The zone for the next hit, sliding to its new spot after a hit.
+-- The live zone's centre: zones[zoneIndex] (the next hit's on an older server, F93's `zone` on a newer one).
+function RescueBar._zoneCentre(self: any): number
+	local challenge: Types.RescueChallenge? = self._challenge
+	local zones: { number } = if challenge then challenge.zones or {} else {}
+	return zones[self._zoneIndex] or zones[#zones] or 0.5
+end
+
+-- The live zone, sliding to its new spot after a hit or when it runs out.
 function RescueBar._placeZone(self: any, animate: boolean)
 	local challenge: Types.RescueChallenge? = self._challenge
 	if not challenge then
 		return
 	end
-	local zones: { number } = challenge.zones or {}
-	local centre = zones[self._hits + 1] or zones[#zones] or 0.5
+	local centre = self:_zoneCentre()
 	local width = challenge.zoneWidth or 0.3
 	local position = UDim2.fromScale(math.clamp(centre, 0, 1), 0.5)
 	local size = UDim2.new(math.clamp(width, 0.02, 1), 0, 1, -8)
@@ -445,6 +524,14 @@ function RescueBar.show(
 	self._hits = 0
 	self._lastPress = 0
 	self._paws = challenge.paws
+	self._run = {
+		startsAt = challenge.startsAt,
+		phase = challenge.phase or 0,
+		speed = challenge.speed or 1,
+	}
+	self._zoneIndex = rules(challenge).zone or 1
+	self._zoneSince = challenge.startsAt
+	self._zoneEndsAt = rules(challenge).zoneEndsAt
 
 	local info: Header = header or {}
 	local rarity = info.rarity or "Common"
@@ -455,6 +542,7 @@ function RescueBar.show(
 	local shake = challenge.kind == "shake_catch"
 	self._hint.Text = if shake
 		then "Hit the green to shake the branch!"
+		elseif rules(challenge).zone ~= nil then "Hit the green before it moves!"
 		elseif Scale.isTouch() then "Tap when the bar is in the green!"
 		else "Press Space or click when the bar is in the green!"
 	self._pawRow:set(challenge.paws, challenge.paws)
@@ -497,8 +585,35 @@ local function deadline(challenge: Types.RescueChallenge): number
 end
 
 function RescueBar._markerAt(self: any, t: number): number
-	local challenge: Types.RescueChallenge = self._challenge
-	return RescueMarker.position(challenge.startsAt, challenge.phase or 0, challenge.speed or 1, t)
+	local run: Run = self._run
+	return RescueMarker.position(run.startsAt, run.phase, run.speed, t)
+end
+
+-- The deadline ring: `share` of its length left, drawn clockwise from the top left corner (top, right, bottom,
+-- left), sky blue and red in the last quarter.
+function RescueBar._drawRing(self: any, share: number)
+	local size: Vector2 = self._ringSize
+	local left = math.clamp(share, 0, 1) * 2 * (size.X + size.Y)
+	local color = if share <= 0.25 then Theme.colors.red else Theme.colors.sky
+	local edges: { Frame } = self._ringEdges
+	local function take(length: number): number
+		local used = math.clamp(left, 0, length)
+		left -= used
+		return used
+	end
+	local top, right, bottom, leftEdge = take(size.X), take(size.Y), take(size.X), take(size.Y)
+	edges[1].Position = UDim2.fromOffset(0, 0)
+	edges[1].Size = UDim2.fromOffset(top, RING)
+	edges[2].Position = UDim2.fromOffset(size.X - RING, 0)
+	edges[2].Size = UDim2.fromOffset(RING, right)
+	edges[3].Position = UDim2.fromOffset(size.X - bottom, size.Y - RING)
+	edges[3].Size = UDim2.fromOffset(bottom, RING)
+	edges[4].Position = UDim2.fromOffset(0, size.Y - leftEdge)
+	edges[4].Size = UDim2.fromOffset(RING, leftEdge)
+	for index, edge in edges do
+		edge.BackgroundColor3 = color
+		edge.Visible = ({ top, right, bottom, leftEdge })[index] > 0.5
+	end
 end
 
 function RescueBar._step(self: any, t: number)
@@ -510,15 +625,23 @@ function RescueBar._step(self: any, t: number)
 	if not self._done then
 		local position = self:_markerAt(t)
 		self._marker.Position = UDim2.fromScale(position, 0.5)
-		local zones: { number } = current.zones or {}
-		local centre = zones[self._hits + 1] or 0.5
-		local inside = RescueMarker.inZone(position, centre, current.zoneWidth or 0.3, 0)
+		local inside =
+			RescueMarker.inZone(position, self:_zoneCentre(), current.zoneWidth or 0.3, 0)
 		-- the marker lights up gold inside the zone, so the timing reads at a glance
-		self._marker.BackgroundColor3 = if inside then Theme.colors.gold else Theme.colors.white
+		local color = if inside then Theme.colors.gold else Theme.colors.white
+		self._marker.BackgroundColor3 = color
+		self._paw.BackgroundColor3 = color
+		-- F93: the zone's time left, as its bottom edge
+		local zoneEndsAt: number? = self._zoneEndsAt
+		self._life.Visible = zoneEndsAt ~= nil
+		if zoneEndsAt ~= nil then
+			local span = math.max(zoneEndsAt - self._zoneSince, 0.001)
+			self._life.Size = UDim2.new(math.clamp((zoneEndsAt - t) / span, 0, 1), 0, 0, LIFE)
+		end
 	end
 	local ends = deadline(current)
 	local total = math.max(ends - current.startsAt, 0.001)
-	self._timeFill.Size = UDim2.fromScale(math.clamp((ends - t) / total, 0, 1), 1)
+	self:_drawRing((ends - t) / total)
 	if not self._done and t >= ends then
 		self._done = true
 		self._hint.Text = "Too slow! It's still stuck."
@@ -559,13 +682,23 @@ function RescueBar._press(self: any)
 	end
 	self._lastPress = clock
 	local position = self:_markerAt(t)
-	local zones: { number } = current.zones or {}
-	local centre = zones[self._hits + 1] or 0.5
 	-- this device's guess; the server judges the press with the same numbers and RescueTolerance
-	if RescueMarker.inZone(position, centre, current.zoneWidth or 0.3, TOLERANCE) then
+	if RescueMarker.inZone(position, self:_zoneCentre(), current.zoneWidth or 0.3, TOLERANCE) then
 		self._hits += 1
 		self:_flash("NICE!", Theme.colors.good, position)
 		self:_paintPips()
+		local f93 = rules(current)
+		if f93.zone ~= nil then
+			-- F93: the next zone, and a faster marker from the same spot; RescueResult's bar corrects both
+			local run: Run = self._run
+			local speed = run.speed * (1 + (f93.speedUpPerHit or 0))
+			self._run = { startsAt = t, phase = phaseAt(run, t), speed = speed }
+			self._zoneIndex += 1
+			self._zoneSince = t
+			self._zoneEndsAt = t + (f93.zonePasses or 2) / math.max(speed, 0.01)
+		else
+			self._zoneIndex = self._hits + 1
+		end
 		self:_placeZone(true)
 	else
 		self:_flash("MISS", Theme.colors.red, position)
@@ -632,16 +765,36 @@ function RescueBar.update(
 	hits: number,
 	pawsLeft: number?,
 	done: boolean,
-	success: boolean
+	success: boolean,
+	bar: Types.RescueBar?
 )
 	if not self._active then
 		return
 	end
 	-- the server's count replaces this device's guesses
-	local zoneMoved = hits ~= self._hits
+	local before = self._zoneIndex
+	local nextZone = if bar ~= nil then bar.zone else hits + 1
+	-- F93: a zone that ran out unhit costs a paw and moves on with no press behind it
+	local tooSlow = bar ~= nil
+		and hits == self._hits
+		and nextZone ~= before
+		and pawsLeft ~= nil
+		and self._paws ~= nil
+		and pawsLeft < self._paws
+	if tooSlow and not done then
+		self:_flash("Too slow!", Theme.colors.warn, self:_zoneCentre())
+	end
 	self._hits = hits
 	self:_paintPips()
-	if zoneMoved then
+	if bar ~= nil then
+		self._run = { startsAt = bar.startsAt, phase = bar.phase, speed = bar.speed }
+		if bar.zoneEndsAt ~= self._zoneEndsAt or nextZone ~= before then
+			self._zoneSince = math.min(now(), bar.zoneEndsAt)
+		end
+		self._zoneEndsAt = bar.zoneEndsAt
+	end
+	self._zoneIndex = nextZone
+	if nextZone ~= before then
 		self:_placeZone(true)
 	end
 	if pawsLeft ~= nil and pawsLeft ~= self._paws then

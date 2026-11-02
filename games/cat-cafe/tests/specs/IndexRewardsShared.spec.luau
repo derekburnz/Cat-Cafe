@@ -93,37 +93,39 @@ return function()
 		end)
 
 		it("pays the Alleyway rows as the design table says", function()
+			-- F94 (rewards-and-shops.md section 2e): no shop food and no spins beside a crate
 			local alley = Catalog.indexPrizes.alley
 			expect(alley.cats3 :: any).to.deepEqual({
 				coins = 300,
 				coinSeconds = 300,
 				fish = 5,
-				spins = 1,
 			})
 			expect(alley.cats6 :: any).to.deepEqual({
-				lures = { tuna = 3 },
 				crates = { alley_crate = 1 },
+				fish = 5,
 				bonus = 0.02,
 			})
 			expect(alley.cats10 :: any).to.deepEqual({
-				lures = { salmon = 2 },
 				crates = { alley_crate = 2, alley_golden_crate = 1 },
 				fish = 25,
-				spins = 2,
 				bonus = 0.05,
 			})
 			expect(alley.gold1 :: any).to.deepEqual({
 				fish = 10,
-				spins = 1,
 				crates = { alley_crate = 1 },
 				goldLuck = 0.02,
+			})
+			expect(alley.gold6 :: any).to.deepEqual({
+				coins = 2000,
+				coinSeconds = 900,
+				fish = 50,
+				goldLuck = 0.05,
 			})
 			expect(alley.gold10 :: any).to.deepEqual({
 				coins = 5000,
 				coinSeconds = 1800,
 				crates = { alley_golden_crate = 2 },
 				fish = 100,
-				spins = 5,
 				tag = "Alleyway Gold Master",
 				goldLuck = 0.10,
 			})
@@ -176,7 +178,7 @@ return function()
 			expect(table.isfrozen(Catalog.indexPrizes)).to.equal(true)
 			expect(table.isfrozen(Catalog.indexPrizes.alley)).to.equal(true)
 			expect(table.isfrozen(Catalog.indexPrizes.alley.cats3)).to.equal(true)
-			expect(table.isfrozen(Catalog.indexPrizes.alley.cats6.lures :: any)).to.equal(true)
+			expect(table.isfrozen(Catalog.indexPrizes.neighbourhood.cats6.lures :: any)).to.equal(true)
 			expect(table.isfrozen(Catalog.indexPrizes.alley.cats6.crates :: any)).to.equal(true)
 			expect(pcall(function()
 				(Catalog.indexPrizes.alley :: any).cats3 = true

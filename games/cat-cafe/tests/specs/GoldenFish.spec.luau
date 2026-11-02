@@ -90,8 +90,8 @@ return function()
 	end)
 
 	describe("Tip Jar golden fish (v0.10 F68)", function()
-		it("gives 10 golden fish at step 9 and 25 at step 12; no other step gives fish", function()
-			local fish = { [9] = 10, [12] = 25 }
+		it("gives the F94 golden fish: 2, 2, 3, 10, 5 and 30 at steps 2, 4, 8, 9, 10 and 12", function()
+			local fish = { [2] = 2, [4] = 2, [8] = 3, [9] = 10, [10] = 5, [12] = 30 }
 			for _, def in Catalog.tipJar do
 				expect(def.prize.fish).to.equal(fish[def.step])
 			end

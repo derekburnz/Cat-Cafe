@@ -7,10 +7,15 @@
 
 local RescueMarker = {}
 
+-- Where on the back-and-forth (0 to 2) the marker is at server time t: the phase a faster marker starts again from
+-- after a rescue hit (F93), so it carries on from the same spot in the same direction.
+function RescueMarker.phaseAt(startsAt: number, phase: number, speed: number, t: number): number
+	return (phase + speed * math.max(0, t - startsAt)) % 2
+end
+
 -- The marker at server time t, from 0 (left end) to 1 (right end). Before startsAt it waits at its phase.
 function RescueMarker.position(startsAt: number, phase: number, speed: number, t: number): number
-	local travelled = phase + speed * math.max(0, t - startsAt)
-	local u = travelled % 2
+	local u = RescueMarker.phaseAt(startsAt, phase, speed, t)
 	return if u <= 1 then u else 2 - u
 end
 

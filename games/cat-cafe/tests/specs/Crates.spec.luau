@@ -628,7 +628,7 @@ return function()
 					expect(def.source).to.equal("crate")
 					expect(def.rarity).to.equal(if common then "Common" else "Rare")
 					expect(def.category).to.equal(if side == "door" then "Door" else "Cat flap")
-					expect(def.effect).to.equal(if common then "+2% tips while in use" else "+4% tips while in use")
+					expect(def.effect).to.equal(if common then "+2% money while in use" else "+4% money while in use") -- F94 section 5
 					expect(def.description ~= "").to.equal(true)
 					-- the model is named after the piece, less " Door" or " Flap" and anything not a letter or digit
 					expect(string.sub(def.name, -#suffix)).to.equal(suffix)

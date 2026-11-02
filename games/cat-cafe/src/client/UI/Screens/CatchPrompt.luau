@@ -1,6 +1,6 @@
 --!strict
 -- Catch prompt card for strays and stuck cats.
---   show(info)          "[E] Catch" card at the bottom centre with the cat's name, stars and rarity. v0.5: tries
+--   show(info)          "[E] Catch" card at the bottom centre with the cat's name and rarity (no stars, F97). v0.5: tries
 --                       are unlimited; while the cat sprints off after a miss (info.fleeingUntil) it reads "It's
 --                       running!", then "Catch your breath..." for the player who missed until info.retryAt, and
 --                       turns back to Catch when it can be tried. A cat knocked loose by a shove reads "Owner's
@@ -23,7 +23,6 @@
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
-local Format = require(script.Parent.Parent.Components.Format)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Theme = require(script.Parent.Parent.Theme)
@@ -329,11 +328,8 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self:_paintIdle(info.actionText)
 	self._grabLabel.Text = if rescue then "RESCUE" elseif pickUp then "PICK UP" else "CATCH"
 	self._holdDuration = info.holdDuration or 0
-	local nameText = info.catName or ""
-	if info.stars then
-		nameText = nameText .. "  " .. Format.stars(info.stars :: number)
-	end
-	self._catName.Text = nameText
+	-- no charm stars after the name (F97 section 5: stars show nowhere now)
+	self._catName.Text = info.catName or ""
 	local rarity: string = info.rarity or "Common"
 	self._rarity.Text = rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)

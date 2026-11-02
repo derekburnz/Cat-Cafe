@@ -97,18 +97,31 @@ local function strayModel(strayId: string): Instance?
 	return nil
 end
 
--- The lane spawn point right behind the own cafe, where the tutorial stray waits (alley point 2p - 1 for plot p).
+-- The Alleyway spawn point where this cafe's tutorial stray waits: plot p owns the p-th point of zone `near` by
+-- Index, just past the camp's way out (v4, F84; CatService.tutorialPoints). F87: it was alley point 2p - 1 before the
+-- cannon world, which is now a lane point, so the trail led to the wrong spot.
 local function tutorialStrayPoint(): BasePart?
-	if state == nil or state.plotIndex == 0 then
+	local plotIndex = if state ~= nil then state.plotIndex else 0
+	if plotIndex == 0 then
 		return nil
 	end
 	local world = Workspace:FindFirstChild("World")
 	local alley = if world ~= nil then world:FindFirstChild("Alley") else nil
 	local points = if alley ~= nil then alley:FindFirstChild("SpawnPoints") else nil
-	local point = if points ~= nil
-		then points:FindFirstChild("alley_" .. (2 * state.plotIndex - 1))
-		else nil
-	return if point ~= nil and point:IsA("BasePart") then point :: BasePart else nil
+	if points == nil then
+		return nil
+	end
+	local near: { BasePart } = {}
+	for _, child in points:GetChildren() do
+		if child:IsA("BasePart") and child:GetAttribute("Zone") == "near" then
+			table.insert(near, child :: BasePart)
+		end
+	end
+	table.sort(near, function(a: BasePart, b: BasePart): boolean
+		local ia, ib = a:GetAttribute("Index"), b:GetAttribute("Index")
+		return (if type(ia) == "number" then ia else 0) < (if type(ib) == "number" then ib else 0)
+	end)
+	return near[plotIndex]
 end
 
 local function hasRestingCatAndFreeSpot(s: Types.PlayerState): boolean

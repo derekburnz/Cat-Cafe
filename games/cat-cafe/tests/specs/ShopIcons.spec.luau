@@ -49,11 +49,13 @@ return function()
 		end)
 
 		it("offers the next net, staying on the top one", function()
-			expect(ShopIcons.net(0)).to.equal(ShopIcons.image("Net_L1"))
-			expect(ShopIcons.net(1)).to.equal(ShopIcons.image("Net_L2"))
-			expect(ShopIcons.net(2)).to.equal(ShopIcons.image("Net_L3"))
-			expect(ShopIcons.net(3)).to.equal(ShopIcons.image("Net_L3"))
-			expect(ShopIcons.net(nil)).to.equal(ShopIcons.image("Net_L1"))
+			-- levels 0 Basic, 1 Sturdy, 2 Pro, 3 Master: the row shows the net a buy gets
+			expect(ShopIcons.net(0)).to.equal(ShopIcons.image("Net_L2"))
+			expect(ShopIcons.net(1)).to.equal(ShopIcons.image("Net_L3"))
+			expect(ShopIcons.net(2)).to.equal(ShopIcons.image("Net_L4"))
+			expect(ShopIcons.net(3)).to.equal(ShopIcons.image("Net_L4"))
+			expect(ShopIcons.net(nil)).to.equal(ShopIcons.image("Net_L2"))
+			expect(ShopIcons.image("Net_L4")).to.be.ok()
 		end)
 
 		it("has the HUD's Decor picture", function()

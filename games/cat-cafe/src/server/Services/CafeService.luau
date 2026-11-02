@@ -910,8 +910,12 @@ function CafeService.addCaughtCat(
 			if isNew or firstGold then "first_catch" else "repeat_catch"
 		)
 	end
+	-- F87 (easy-start.md section 2d): the first check-in, before it moves the tutorial on
+	local firstCheckIn = profile.tutorialStep < Config.TutorialGuaranteedStrayStep
 	CafeService.advanceTutorial(player, profile, 2)
 
+	-- The first free open role slot (the Waiter's while the starter Tabby holds the Barista's): the first cat takes
+	-- its job by itself (F87 section 2d), as every cat since v0.2.
 	for _, spot in Catalog.spots do
 		if Economy.spotIsOpen(profile, spot.id) and Economy.catOnSpot(profile, spot.id) == nil then
 			instance.spotId = spot.id
@@ -922,6 +926,13 @@ function CafeService.addCaughtCat(
 	end
 	if instance.spotId == nil then
 		Telemetry.custom(player, "slots_full", 1, { tostring(Economy.tier(profile)) })
+	end
+	-- F87 funnel v2 (easy-start.md section 5): a second cat checked in, five different cats owned
+	if profile.stats.catsCaught >= 2 then
+		Telemetry.onboarding(player, profile, "second_cat")
+	end
+	if Economy.distinctCats(profile) >= 5 then
+		Telemetry.onboarding(player, profile, "five_cats")
 	end
 
 	CafeService.refreshPlot(player)
@@ -950,7 +961,19 @@ function CafeService.addCaughtCat(
 		local spot = if instance.spotId ~= nil
 			then Catalog.getSpot(instance.spotId :: string)
 			else nil
-		if spot ~= nil then
+		if spot ~= nil and firstCheckIn then
+			-- F87 section 2d: the first cat's card, with the cafe's new rate
+			Net.toast(
+				player,
+				string.format(
+					"Your first cat! %s is your %s now (%s)",
+					def.name,
+					roleName(spot),
+					rateText(Economy.incomePerSecond(profile))
+				),
+				"good"
+			)
+		elseif spot ~= nil then
 			Net.toast(
 				player,
 				string.format("%s %s is working as %s", stars, def.name, roleName(spot)),
@@ -1174,6 +1197,8 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 		-- a player who already baited the bowl has done step 5's task too (reviewer S48)
 		CafeService.advanceTutorial(player, profile, if profile.stats.luresUsed > 0 then 5 else 4)
 		Telemetry.onboarding(player, profile, "first_table")
+	elseif upgradeId == "lure_bowl" then
+		Telemetry.onboarding(player, profile, "bowl_bought") -- F87 funnel v2
 	end
 	local def = Catalog.getUpgrade(upgradeId) :: Types.UpgradeDef
 	Net.toast(

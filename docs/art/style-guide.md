@@ -530,9 +530,10 @@ the part `CodesCircle` (the walk-in circle that opens the code box) and an Attac
 front; the cap is nested under `_Head`. The Golden Fish Market (`CatCafe_Street_FishMarket`, `market.py`): an
 Attachment named `PromptAnchor` on the counter front, 3 studs up (WorldBuilder hangs the Shop prompt there and adds the
 `FishMarket` tag), the coin on the counter front as `_Coin`, the sign lamp as `_Bulb`, the sou'wester nested under
-`_Head`. The Fresh Catch board (F94) stands on its own legs in front of the barrel, facing the street, its chalk face the object `_FreshCatch`: one Part whose Front (-Z) face, 1.7 by 1.45 studs, takes the UI's stock list (and "Back at sunrise" at night) under a cream header reading FRESH CATCH. The golden fish coin (`CatCafe_Prop_FishCoin`, `coins.py`) is gold swatches, so Metal; its HUD picture is
-`exports/icons/CatCafe_Icon_GoldenFish.png` from `icons.py` (front view, transparent, a 10 px dark gold outline at 512,
-readable down to 24 px), uploaded as `rbxassetid://77287948377172`. The crate furniture and decorations
+`_Head`. The Fresh Catch board (F94) stands on its own legs in front of the barrel, facing the street, its chalk face the object `_FreshCatch`: one Part whose Front (-Z) face, 1.7 by 1.45 studs, takes the UI's stock list (and "Back at sunrise" at night) under a cream header reading FRESH CATCH. The golden fish coin (`CatCafe_Prop_FishCoin`, `coins.py`) is gold swatches, so Metal. Since F97 the currency has
+one picture everywhere, `exports/icons/CatCafe_Icon_GoldenFish.png`: a plump shiny gold fish side on with a happy
+closed eye, a pink cheek and a white glint (`icon_art.py`, front view, transparent, a 10 px dark gold outline at 512,
+readable down to 24 px); the cat-face coin picture (`rbxassetid://77287948377172`) retires with it. The crate furniture and decorations
 (`CatCafe_Decor_<Piece>`, `crate_decor.py`) stand on a decor spot 1.4 studs off a wall, so each keeps to about 4
 wide and 2.5 deep around a base-centre pivot, front -Z, and never collides; tall pieces are fine (the Cat Tree Tower
 is 10.6). Lamps and neon are `_Glow`, fountain water `_Water`, a window to look through `_Glass`, and the Blossom
@@ -545,8 +546,14 @@ the cafe's own included, and no flap reaches below the leaf's foot. The Cafe Cra
 `_Gold`, `crates.py`) never collide; the pivot is the base centre with the front -Z, and the lid is the child Model
 `_Lid`, pivoted on its back hinge, so the reveal turns it about the pivot's X (positive lifts the front, 105 is wide
 open). Golden twins keep the paw, ribbons and accents in colour and are Metal elsewhere. Their shop pictures are
-`exports/icons/CatCafe_Icon_Crate_<Pool>[_Gold].png`; the Star Treat, the three perks and the four nets have theirs too
-(`icons.py`). Each net's `_Handle` carries an Attachment named `Grip`, mid wrap with no turn, for the hand in the net
+`exports/icons/CatCafe_Icon_Crate_<Pool>[_Gold].png`; the four nets have theirs too (`icons.py`). The F97 pictures
+(`icon_art.py`, picture-only models) are the seven foods, each named for its game id (`CatCafe_Icon_Kibble`, `_Tuna`,
+`_Sardines`, `_Salmon`, `_Caviar`, `_MoonMilk`, `_StarTreat`) and drawn to read at 48 px on its rarity tile: a kibble
+bag with a cat face, a peeled tuna tin, an open night-blue sardine tin with a moon on its lid, a salmon fillet on a
+leaf, a tin of black pearls with a gold lid, a bottle of moon milk, a golden star biscuit; the three Golden Fish Market
+perks (a gold espresso with a paw in the foam, the big bowl with a "-2:00" tag, a dotted decor spot with a plus and a
+tiny plant); and the prize pictures `CatCafe_Icon_Coins` (three gold coins with a $) and `CatCafe_Icon_Spin` (the
+Spin Wheel's own wheel). Each net's `_Handle` carries an Attachment named `Grip`, mid wrap with no turn, for the hand in the net
 hold (the pole runs along -Z). The nets (F93, catch-rework.md section 1) get better with each level: L1 Basic, a
 plain wooden net; L2 Sturdy, a mint pole with steel bands and a steel hoop; L3 Pro, a blue pole and hoop with brass
 trims and sky blue netting; L4 Master, a dark wood pole with gold bands, a gold pommel and a pink gem, a gold hoop

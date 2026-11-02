@@ -437,7 +437,7 @@ function IndexRewards.perkLabel(perk: string, amount: number): string?
 	elseif perk == "baitSpeed" then
 		return ("+%s faster bait"):format(percent(amount))
 	end
-	return ("+%s tips"):format(percent(amount))
+	return ("+%s money"):format(percent(amount)) -- F94 section 5: "money", not "tips"
 end
 
 -- The line an Index Board shows while someone's gold luck helps the area's strays (golden-fish.md section 5):

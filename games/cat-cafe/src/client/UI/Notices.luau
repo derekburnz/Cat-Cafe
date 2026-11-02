@@ -44,8 +44,9 @@ end
 local function decorKeys(catalog: Types.Catalog, state: Types.PlayerState): { string }
 	local keys = {}
 	for _, def in DecorPieces.all(catalog) do
-		if DecorPieces.isPiece(def) then
-			-- a crate piece (F53) is never bought: a new one lights the dot until the Decor screen is opened
+		if DecorPieces.isPiece(def) or (def :: any).source == "crate" then
+			-- a crate piece (F53), or coin decor that F97 made a crate find (cost 0), is never bought: a new one
+			-- lights the dot until the Decor screen is opened
 			if state.decorOwned[def.id] then
 				table.insert(keys, "piece:" .. def.id)
 			end

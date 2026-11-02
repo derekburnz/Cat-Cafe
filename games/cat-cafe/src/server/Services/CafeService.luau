@@ -181,6 +181,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		luck = luck, -- F88
 		luckSources = luckSources,
 		longNap = Economy.passes(profile).longNap, -- F95: the welcome back card's line
+		tradeLog = table.clone(profile.tradeLog), -- F102: the Trades page
 		serverTime = now,
 	}
 end
@@ -923,11 +924,12 @@ function CafeService.addCaughtCat(
 		instance.rescued = true
 	end
 	local firstGold = false
+	local firstRainbow = false
 	if variant ~= nil then
 		instance.variant = variant
 		if variant == "rainbow" then
 			-- F99 (rainbow-coat.md section 5): the Rainbow page counts each cat's first rainbow coat
-			local firstRainbow = profile.rainbowCollection[def.id] == nil
+			firstRainbow = profile.rainbowCollection[def.id] == nil
 			if firstRainbow then
 				profile.rainbowCollection[def.id] = now
 			end
@@ -981,8 +983,9 @@ function CafeService.addCaughtCat(
 		)
 		Telemetry.collected(player, profile, def)
 	end
-	-- Golden fish (F52): a new Index entry, a first gold, or an Epic and better repeat by net or rescue
-	local fish = GoldenFish.forCatch(def.rarity, isNew, firstGold, how)
+	-- Golden fish (F52): a new Index entry, a first gold, a first rainbow (F99), or an Epic and better repeat by net
+	-- or rescue
+	local fish = GoldenFish.forCatch(def.rarity, isNew, firstGold, how, firstRainbow)
 	if fish > 0 then
 		GoldenFish.credit(profile, fish)
 		Telemetry.fishSource(

@@ -67,6 +67,7 @@ local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
+local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -150,8 +151,12 @@ local TRAVEL_ICON = 28
 local TRAVEL_W = 136
 local TRAVEL_H = 50 -- every bottom row button, My Cafe too (Derek 2026-10-27 22:26: no bigger, no ears)
 local TRAVEL_ROW_W = 4 * TRAVEL_W + 3 * Theme.sizes.gap
-local ICON = 58 -- top right icon buttons
-local ICON_ROW_W = 6 * ICON + 5 * Theme.sizes.gap -- Tutorial, Gifts, Daily (F70), Feedback, Settings and Invite
+-- top right icon buttons; on a phone a little bigger, so each face reaches a finger's 44 px under its lip (F102 took
+-- them out of the UI gate's baseline)
+local ICON = Scale.tapHeight(58)
+local ICON_H = Scale.tapHeight(58, Theme.sizes.buttonDepth)
+-- Tutorial, Gifts, Daily (F70), Feedback, Settings, Trade (F102, from TradeMinTier) and Invite
+local ICON_ROW_W = 7 * ICON + 6 * Theme.sizes.gap
 local HIDE_HIT = 30 -- the Tutorial tile's × takes taps this big round its 20 px red dot
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
 local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
@@ -169,7 +174,7 @@ local CARRY_SUB = "Walk home and check in at your door"
 -- F19: the server allows one trip per 3 s; the row greys for the same time so a double tap is not refused
 local TRAVEL_COOLDOWN: number = Config.TravelCooldownSeconds
 -- right column: icon row (58), the clock line, then the tier and next goal block; the night tips line pushes it down
-local CLOCK_TOP = MARGIN + ICON + Theme.sizes.gap
+local CLOCK_TOP = MARGIN + ICON_H + Theme.sizes.gap
 local CLOCK_H = 30
 local CLOCK_W = 200
 local GOAL_TOP = CLOCK_TOP + CLOCK_H + 6
@@ -494,7 +499,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -MARGIN, 0, MARGIN),
-		Size = UDim2.fromOffset(ICON_ROW_W, ICON),
+		Size = UDim2.fromOffset(ICON_ROW_W, ICON_H),
 		Parent = root,
 	}, {
 		Create("UIListLayout", {
@@ -516,7 +521,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		layout = "tile",
 		textSize = Theme.sizes.textTiny,
 		style = "gold",
-		size = UDim2.fromOffset(ICON, ICON),
+		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 1,
 		parent = icons,
 		onClick = function()
@@ -578,7 +583,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		layout = "tile",
 		textSize = Theme.sizes.textTiny,
 		style = "berry",
-		size = UDim2.fromOffset(ICON, ICON),
+		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 2,
 		parent = icons,
 		sound = false, -- the modal swish is the sound
@@ -620,7 +625,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		layout = "tile",
 		textSize = Theme.sizes.textTiny,
 		style = "primary",
-		size = UDim2.fromOffset(ICON, ICON),
+		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 3,
 		parent = icons,
 		sound = false, -- the modal swish is the sound
@@ -652,7 +657,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		layout = "tile",
 		textSize = Theme.sizes.textTiny,
 		style = "gold",
-		size = UDim2.fromOffset(ICON, ICON),
+		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 4,
 		parent = icons,
 		sound = false, -- the modal swish is the sound
@@ -670,7 +675,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			layout = "tile",
 			textSize = Theme.sizes.textTiny,
 			style = "ghost",
-			size = UDim2.fromOffset(ICON, ICON),
+			size = UDim2.fromOffset(ICON, ICON_H),
 			layoutOrder = 5,
 			parent = icons,
 			onClick = function()
@@ -685,14 +690,33 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		layout = "tile",
 		textSize = Theme.sizes.textTiny,
 		style = "secondary",
-		size = UDim2.fromOffset(ICON, ICON),
-		layoutOrder = 6,
+		size = UDim2.fromOffset(ICON, ICON_H),
+		layoutOrder = 7,
 		parent = icons,
 		onClick = function()
 			Invite.prompt() -- F92: with this player's name in the launch data
 		end,
 	})
 	table.insert(self._buttons, self._inviteTile)
+	-- F102 (trading.md section 3): the Trade window, from TradeMinTier (Workspace's live value, so a test server's
+	-- lower minimum shows it too); hidden below it
+	self._tradeTile = Button.new({
+		name = "Trade",
+		text = "Trade",
+		icon = TradeLogic.ICON,
+		layout = "tile",
+		textSize = Theme.sizes.textTiny,
+		style = "primary",
+		size = UDim2.fromOffset(ICON, ICON_H),
+		layoutOrder = 6,
+		parent = icons,
+		sound = false, -- the modal swish is the sound
+		onClick = function()
+			callbacks.openScreen("Trade")
+		end,
+	})
+	self._tradeTile.instance.Visible = false
+	table.insert(self._buttons, self._tradeTile)
 
 	-- Clock (top right, under the icon row): the sun or moon and the time to the next phase (F20), right-aligned
 	-- outlined text with no chip behind it ("☀ Day 3:29")
@@ -1652,6 +1676,11 @@ end
 
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
+	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
+	-- the Workspace's TradingOn; while that is false the window says trading is resting)
+	self._tradeTile.instance.Visible = self:_open("invite")
+		and Workspace:GetAttribute("TradingOn") ~= nil
+		and TradeLogic.shown(state.tier, TradeLogic.minTier(Workspace:GetAttribute("TradeMinTier")))
 
 	-- money with a little green flash when it goes up
 	self._moneyText.Text = Format.money(state.money)

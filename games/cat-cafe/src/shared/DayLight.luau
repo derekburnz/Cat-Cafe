@@ -123,12 +123,13 @@ DayLight.SUNSET = with(DayLight.DUSK, {
 })
 
 -- The night preset from the style guide (section 9, PR #239). Haze and Glare 0 as the place had them, so the night sky
--- looks as it did.
+-- looks as it did. Ambient was 30,35,55: a little lower, so the dimmer night lamps (WorldController, Derek's 10-30
+-- notes: night lights too bright) still stand out inside the cafe without washing it out.
 DayLight.NIGHT = {
 	ClockTime = 24.5,
 	Brightness = 0.6,
 	OutdoorAmbient = rgb(45, 55, 85),
-	Ambient = rgb(30, 35, 55),
+	Ambient = rgb(24, 28, 44),
 	ExposureCompensation = 0,
 	ColorShift_Top = rgb(150, 170, 220),
 	Density = 0.4,

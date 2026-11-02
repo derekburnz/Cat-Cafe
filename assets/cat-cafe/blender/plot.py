@@ -663,12 +663,10 @@ def _roller(b, shutter, x0, x1, top, bottom, z):
 
 # The cafe's round tables (furniture.build_table_round) at Layout.plot.tables, put away for the night: a For Rent
 # cafe keeps its tables with their two chairs turned up on top, and the painters' corner where one stood.
-TABLE_SPOTS = ((-10, -8.5), (10, -8.5), (-10, -2.25), (10, -2.25), (-10.5, 4), (10, 4))
+TABLE_SPOTS = tuple((round(xs(x), 2), round(zs(z), 2))          # today's spots spread with the room
+                    for x, z in ((-10, -8.5), (10, -8.5), (-10, -2.25), (10, -2.25), (-10.5, 4), (10, 4)))
 TABLE_TOP = 2.62
-SHEETED = (10, -2.25)
-if (IW, ID) != (36.0, 28.0):                       # a trial size: the tables spread with the room
-    TABLE_SPOTS = tuple((round(xs(x), 2), round(zs(z), 2)) for x, z in TABLE_SPOTS)
-    SHEETED = TABLE_SPOTS[3]
+SHEETED = TABLE_SPOTS[3]                                            # (10, -2.25) at today's size
 
 
 def _table(b, x, z):

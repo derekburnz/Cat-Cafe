@@ -765,7 +765,12 @@ local Cues: { [string]: Cue } = {
 	}, -- F102: "Trade done!" between players (uiTrade stays the Cat Collector's)
 
 	-- F89 rare decor (5.14): each Legendary and Mythical piece's small sound, once as you walk up to it
-	sheetDecor = { ids = {}, group = "Sfx", volume = 1, preload = true }, -- mono, plays in 3D
+	sheetDecor = {
+		ids = { "rbxassetid://120455178308557" },
+		group = "Sfx",
+		volume = 1,
+		preload = true,
+	}, -- mono, plays in 3D
 	decorBlossomTree = {
 		ids = {},
 		sheet = "sheetDecor",

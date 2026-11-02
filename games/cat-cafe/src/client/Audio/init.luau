@@ -897,9 +897,11 @@ local decorNoticed: { [Instance]: boolean } = {}
 
 local function decorSpot(model: Instance, partName: string?): BasePart?
 	if partName ~= nil then
-		local part = model:FindFirstChild(partName, true)
-		if part ~= nil and part:IsA("BasePart") then
-			return part :: BasePart
+		-- The moving bit is a child Model (suffix _Swing, _Spin or _Bob, Effects/Motion.luau) or a single part.
+		local found = model:FindFirstChild(partName, true)
+		local part = if found ~= nil then partOf(found) else nil
+		if part ~= nil then
+			return part
 		end
 	end
 	return partOf(model)

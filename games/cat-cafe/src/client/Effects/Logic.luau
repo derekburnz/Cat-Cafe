@@ -2497,4 +2497,10 @@ function Logic.glowFlicker(level: number, t: number, flicker: number, hz: number
 	return math.max(0, level * (1 + flicker * wave))
 end
 
+-- Whether a player's leaderboard crown was just earned (F98): their `Crown` going from false to true. `before` nil
+-- is the first value seen (they joined, or this client started), which sets no burst.
+function Logic.crownEarned(before: boolean?, now: boolean): boolean
+	return before == false and now
+end
+
 return Logic

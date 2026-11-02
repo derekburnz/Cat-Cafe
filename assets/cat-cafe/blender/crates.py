@@ -4,7 +4,8 @@ Golden Fish Market's shelf, open in the crate reveal and give the shop and inven
 
   CatCafe_Prop_Crate_<Pool>        Alley (a street slat crate), Park (a picnic hamper), Neighbourhood (a parcel),
                                    Woods (a log chest), Sewer (a steel utility crate with a rubber duck), Classic
-                                   (the cafe's own crate with a ribbon)
+                                   (the cafe's own crate with a ribbon), Rally (F101: a navy kit crate with a
+                                   red team stripe, a gold star and a chequered lid; no golden twin)
   CatCafe_Prop_Crate_<Pool>_Gold   the golden crate: the same crate in the three metal golds, its accents kept
 
 Each crate carries its zone's paw (paw_<zone>; Alley neon pink, Classic blush). Pivot base centre, front -Z, about
@@ -24,7 +25,7 @@ W, D, H = 1.2, 0.95, 1.6         # half width, half depth, body height
 HINGE = (0.0, H, D + 0.06)       # the lid turns about the back top edge
 
 PAW = {"Alley": "neon_pink", "Park": "paw_park", "Neighbourhood": "paw_neighbourhood", "Woods": "paw_woods",
-       "Sewer": "paw_sewer", "Classic": "blush"}
+       "Sewer": "paw_sewer", "Classic": "blush", "Rally": "rarity_legend"}
 
 
 def _paw(b, cx, cy, z, s, swatch, depth=0.02):
@@ -322,8 +323,51 @@ def classic(b, lid):
     lid.span((-0.1, H + 0.22, -0.1), (0.1, H + 0.42, 0.1), "nose_pink")
 
 
+def _star(b, x, y, z, s, swatch="rarity_legend", depth=0.04):
+    """A four-point star s across on the front face at depth z."""
+    b.box((x, y, z - depth / 2), (0.42 * s, 0.42 * s, depth), swatch, rot=rot_z(45))
+    b.span((x - 0.08 * s, y - 0.5 * s, z - depth), (x + 0.08 * s, y + 0.5 * s, z), swatch)
+    b.span((x - 0.5 * s, y - 0.08 * s, z - depth), (x + 0.5 * s, y + 0.08 * s, z), swatch)
+
+
+def rally(b, lid):
+    """The Rescue Rally's crate (F101): a navy kit crate with off-white corners and rails, a red team stripe edged in
+    white round it, a gold star and the gold paw on the front; a finish-line chequer across the lid and a gold
+    carry handle."""
+    b.span((-W + 0.06, 0.04, -D + 0.06), (W - 0.06, H - 0.02, D - 0.06), "pants_navy")
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            b.span((min(sx * W, sx * (W - 0.18)), 0.0, min(sz * D, sz * (D - 0.18))),
+                   (max(sx * W, sx * (W - 0.18)), H, max(sz * D, sz * (D - 0.18))), "offwhite")
+
+    def side(axis, sign):
+        half = (W if axis == "z" else D) - 0.18
+        out = (D if axis == "z" else W) - 0.06
+        _side_span(b, axis, sign, -half, half, 0.0, 0.16, out, out + 0.06, "offwhite")         # rails
+        _side_span(b, axis, sign, -half, half, H - 0.16, H, out, out + 0.06, "offwhite")
+        for y0, y1, sw in ((0.6, 0.67, "offwhite"), (0.67, 0.93, "shirt_red"), (0.93, 1.0, "offwhite")):
+            _side_span(b, axis, sign, -half, half, y0, y1, out, out + 0.04, sw)              # the team stripe
+    _faces(side)
+    zf = -(D - 0.06)
+    _star(b, 0.55, 1.22, zf, 0.4)
+    _paw(b, -0.55, 1.27, zf, 0.42, PAW["Rally"], depth=0.04)
+    # lid: an off-white rim, a navy top, a chequered band across it and a gold handle
+    lid.span((-W - 0.04, H, -D - 0.04), (W + 0.04, H + 0.08, D + 0.06), "offwhite")
+    lid.span((-W + 0.06, H + 0.08, -D + 0.06), (W - 0.06, H + 0.2, D - 0.04), "pants_navy")
+    n, x0 = 12, -W + 0.06
+    cw = 2 * (W - 0.06) / n
+    for k in range(n):
+        for row, (za, zb) in enumerate(((-0.2, 0.0), (0.0, 0.2))):
+            lid.span((x0 + k * cw, H + 0.2, za), (x0 + (k + 1) * cw, H + 0.24, zb),
+                     "fur_black" if (k + row) % 2 == 0 else "offwhite")
+    for x in (-0.42, 0.42):
+        lid.span((x - 0.05, H + 0.24, -0.05), (x + 0.05, H + 0.4, 0.05), "gold_mid")
+    lid.span((-0.5, H + 0.4, -0.06), (0.5, H + 0.48, 0.06), "gold_mid")
+
+
 POOLS = {"Alley": alley, "Park": park, "Neighbourhood": neighbourhood, "Woods": woods, "Sewer": sewer,
-         "Classic": classic}
+         "Classic": classic, "Rally": rally}
+NO_GOLD = {"Rally"}           # the Rally Crate only comes from the Rally (F101): no golden twin
 # accents a golden crate keeps, so it still reads as its zone's crate
 KEEP = {"Alley": ("neon_pink",), "Park": ("bowl_red",), "Neighbourhood": ("pastel_sky", "blush", "bowl_red"),
         "Woods": ("bowl_red", "leaf_green"), "Sewer": ("bowl_red",), "Classic": ("blush", "nose_pink")}
@@ -354,4 +398,4 @@ def build_crate(pool, mat, golden=False):
 
 
 ASSETS = {f"CatCafe_Prop_Crate_{p}{'_Gold' if g else ''}": ((lambda m, p=p, g=g: build_crate(p, m, g)), 1500)
-          for p in POOLS for g in (False, True)}
+          for p in POOLS for g in ((False,) if p in NO_GOLD else (False, True))}

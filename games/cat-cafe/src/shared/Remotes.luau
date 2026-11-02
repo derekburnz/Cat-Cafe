@@ -16,7 +16,10 @@ Remotes.ClientToServer = {
 	"CatchPress", -- (strayId: string, index: number)  no time is sent: the server stamps the press on arrival
 	"RescueBegin", -- (rescueSpotId: string)  trap holds a stuck cat, unlocked, past its retry waits, in range, not carrying
 	"RescuePress", -- (rescueSpotId: string)  no time is sent: the server stamps the press and judges the marker
-	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail
+	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail; a helper's only ends their help
+	"RescueHelp", -- (rescueSpotId: string)  F92 Team Rescue: join someone else's running bar as its one helper; within
+	-- TeamRescueRangeStuds, not carrying, the trap locked to another player with no helper yet. Answered with
+	-- RescueChallenge (helper = true) or a GrabResult refusal; the helper's presses are RescuePress
 	"CheckIn", -- ()  carrying and within CheckInRangeStuds of own plot Door
 	"DropCat", -- ()  carrying, areas open: puts the cat down to walk back to where it was caught (F67)
 	"PlaceCat", -- (uid: string, spotId: string)
@@ -124,7 +127,12 @@ Remotes.ServerToClient = {
 	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
 	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean,
 	-- bar: Types.RescueBar)  after every judged press, when a zone runs out (F93) and when the attempt ends; `bar` is
-	-- how the marker runs and which zone to hit from now. Refusals of RescueBegin come as GrabResult
+	-- how the marker runs and which zone to hit from now. Refusals of RescueBegin come as GrabResult. F92: a Team
+	-- Rescue helper gets these too (a done one that is not a success when they stop helping), and `bar.endsAt` is the
+	-- deadline, TeamRescueExtraSeconds later once a helper joins
+	"TeamRescue", -- (rescueSpotId: string, rescuerUserId: number, helperUserId: number, position: Vector3,
+	-- coins: number)  F92: a helped rescue freed its cat, to the rescuer and the helper for the "Team Rescue!" pop;
+	-- coins is the helper's tip this player got (0 for the rescuer, and on the TeamRescueTipCooldown)
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
 	"CannonLaunch", -- (destination: string, launchAt: number?)  F84: the caller's flight began at launchAt (server
 	-- time) and lands at the destination's pad CannonLaunchSeconds later; launchAt nil when the launch was refused

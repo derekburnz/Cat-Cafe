@@ -984,6 +984,9 @@ function UI.init(config: Types.InitConfig)
 		buyFresh = function(itemId: string, window: number?)
 			UI.events.buyFreshCatch:Fire(itemId, window)
 		end,
+		bigPull = function(decorId: string, onUse: (() -> ())?)
+			UI.bigPull.piece(decorId, onUse)
+		end,
 	})
 	freshBoard = FreshCatchBoard.new(parent)
 	local marketView = marketScreen :: FishMarket.FishMarket
@@ -1297,6 +1300,7 @@ function UI.destroy()
 	table.clear(connections)
 	UI.catch.unbindProximityPrompts()
 	UI.clock.unbind()
+	UI.bigPull.reset()
 	if hud then
 		hud:destroy()
 	end
@@ -3922,6 +3926,140 @@ do
 				rate = if view ~= nil then view.rate else nil,
 			})
 		end
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Rare moments (F89)
+----------------------------------------------------------------------------------------------------
+
+-- The big pull card (luck-and-rare-moments.md 2a and 2b, Screens/BigPull), built the first time it shows in the
+-- PlayerGui of the current UI.init. UIController calls securedRare from SecuredRare and foundRareDecor from
+-- FoundRareDecor; the Fish Market's reveal calls bigPull.piece for a Legendary or Mythical piece. Its own block, as
+-- the module is short of locals.
+UI.bigPull = {}
+do
+	local BigPullLogic = require(script.Components.BigPullLogic)
+	local BigPullScreen = require(script.Screens.BigPull)
+	local DecorPieces = require(script.Components.DecorPieces)
+	local RareMoments =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RareMoments")) :: any
+	local pull = {
+		screen = nil :: BigPullScreen.BigPull?,
+		parent = nil :: Instance?, -- the PlayerGui it was built in
+	}
+
+	local function screenFor(): BigPullScreen.BigPull?
+		local into = parentGui
+		if into == nil then
+			return nil
+		end
+		local screen = pull.screen
+		if screen ~= nil and pull.parent == into then
+			return screen
+		end
+		if screen ~= nil then
+			screen:destroy()
+		end
+		local made = BigPullScreen.new(into)
+		pull.screen, pull.parent = made, into
+		return made
+	end
+
+	local function findDecor(decorId: string): Types.DecorDef?
+		local catalog = currentCatalog
+		if catalog == nil then
+			return nil
+		end
+		for _, list in { catalog.decor, catalog.crateDecor or {} } :: { { Types.DecorDef } } do
+			for _, decor in list do
+				if decor.id == decorId then
+					return decor
+				end
+			end
+		end
+		return nil
+	end
+
+	-- SecuredRare(userId, catId, rarity, gold, variant), sent to every client: the card plays on the securing player's
+	-- screen only. Everyone else has the server's Announce toast ("Sam secured a Mythical Jazz Cat!"), so nothing here.
+	-- A first Epic comes to its owner alone, as a plain Epic, and gets the smaller card.
+	function UI.securedRare(
+		userId: number,
+		catId: string,
+		rarity: string,
+		gold: boolean?,
+		variant: string?
+	)
+		if not BigPullLogic.mine(userId, Players.LocalPlayer.UserId) then
+			return
+		end
+		local card: BigPullLogic.Card? = BigPullLogic.forCat(rarity, gold, variant)
+		local def = lookupCat(catId)
+		if card == nil or def == nil then
+			return
+		end
+		local screen = screenFor()
+		if screen == nil then
+			return
+		end
+		screen:show({
+			card = card,
+			rarity = rarity,
+			word = BigPullLogic.word(card, rarity, gold, variant),
+			tone = BigPullLogic.tone(gold, variant),
+			name = def.name, -- the cat's kind, never its nickname
+			cat = def,
+			shiny = gold == true or variant == "gold",
+		})
+	end
+
+	-- FoundRareDecor(userId, decorId), sent to every client for a Mythical crate piece: the finder has the reveal and
+	-- the big card, so everyone else gets the shout-out toast, "Sam found the Mythical Midnight Sky!".
+	function UI.foundRareDecor(userId: number, decorId: string)
+		local finder = Players:GetPlayerByUserId(userId)
+		local decor = findDecor(decorId)
+		if finder == nil or finder == Players.LocalPlayer or decor == nil then
+			return
+		end
+		UI.announce(RareMoments.decorText(finder.DisplayName, decor.name), "Mythical")
+	end
+
+	-- A Legendary or Mythical crate piece's card, with onUse for "Use it" on a new style piece; any other piece plays
+	-- nothing.
+	function UI.bigPull.piece(decorId: string, onUse: (() -> ())?)
+		local decor = findDecor(decorId)
+		local piece = DecorPieces.info(decor)
+		local rarity = piece.rarity
+		local card: BigPullLogic.Card? = BigPullLogic.forPiece(rarity)
+		if decor == nil or rarity == nil or card == nil then
+			return
+		end
+		local screen = screenFor()
+		if screen == nil then
+			return
+		end
+		screen:show({
+			card = card,
+			rarity = rarity,
+			word = BigPullLogic.word(card, rarity),
+			tone = "rarity",
+			name = decor.name,
+			piece = {
+				asset = decor.asset,
+				glyph = DecorPieces.kindIcon(piece.kind, Theme.icons.decor),
+			},
+			onUse = onUse,
+		})
+	end
+
+	-- UI.destroy: the card goes with the rest of the screens.
+	function UI.bigPull.reset()
+		local screen = pull.screen
+		if screen ~= nil then
+			screen:destroy()
+		end
+		pull.screen, pull.parent = nil, nil
 	end
 end
 

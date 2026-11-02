@@ -70,6 +70,10 @@ export type RescueChallenge = {
 	speedUpPerHit: number?,
 	circle: CatchCircle?, -- kind "circle"
 	windows: CatchWindows?, -- kind "circle"
+	-- F92 (playing-together.md section 3): a Team Rescue helper's copy of a running bar, from where it is now (startsAt,
+	-- phase, speed, zone and zoneEndsAt as the marker runs, paws left, hits so far). A helper's miss costs no paw.
+	helper: boolean?,
+	hits: number?,
 }
 
 -- How the rescue bar runs now (F93), RescueResult's last argument: the marker from server time startsAt at phase
@@ -81,6 +85,7 @@ export type RescueBar = {
 	phase: number,
 	speed: number,
 	zoneEndsAt: number,
+	endsAt: number?, -- F92: the attempt's deadline, TeamRescueExtraSeconds later once a helper joins
 }
 
 export type CatDef = {

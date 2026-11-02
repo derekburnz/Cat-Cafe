@@ -34,6 +34,8 @@ local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
+local RareMomentService = require(script.Parent.RareMomentService)
+local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -1571,6 +1573,9 @@ end
 -- carry has already ended, or never began: dusk checks a Dropped stray in for its last carrier this way.
 local function checkIn(player: Player, carry: Carry, notify: boolean, profile: Types.PlayerProfile?)
 	local def = carry.def
+	-- F89: whether the collection held an Epic or better before this cat, for the first Epic's card
+	local before = profile or DataService.get(player)
+	local hadEpicOrBetter = before ~= nil and RareMoments.ownsEpicOrBetter(before.collection)
 	local instance, isNew = CafeService.addCaughtCat(
 		player,
 		def,
@@ -1590,10 +1595,13 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 		end
 		Net.fire(player, "CatCaught", def.id, isNew)
 		local verb = if carry.method == "rescue" then "rescued" else "caught"
-		local text = Catching.shoutOut(player.DisplayName, verb, def, carry.variant)
-		if text ~= nil then
-			Net.fireAll("Announce", text, def.rarity) -- the shout-out chime rises with rarity
-		end
+		-- the shout-out chime rises with rarity; F89: a Legendary or Mythical one at most once a minute a player
+		RareMomentService.shoutOut(
+			player,
+			def.rarity,
+			Catching.shoutOut(player.DisplayName, verb, def, carry.variant)
+		)
+		RareMomentService.secured(player, def, carry.variant, carry.method, hadEpicOrBetter)
 	end
 end
 

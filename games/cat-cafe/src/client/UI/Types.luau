@@ -132,6 +132,14 @@ export type SpinRow = {
 }
 
 -- state.spin (F49): lastFreeDay is the UTC day number (floor(serverTime / 86400)) of the last free spin.
+-- F88: one source of the player's Luck (ProfileSync luckSources): the Lucky Cat statue, a running Lucky Potion or a
+-- Lucky Day, what it adds and, for the timed ones, when it ends (os.time seconds, as Workspace:GetServerTimeNow())
+export type LuckSource = {
+	id: string, -- "statue" | "potion" | "lucky_day"
+	value: number,
+	endsAt: number?,
+}
+
 export type SpinState = {
 	lastFreeDay: number,
 	banked: number,
@@ -249,6 +257,10 @@ export type PlayerState = {
 	fishPerks: { [string]: number }?, -- F53: Golden Fish Market perk id -> level
 	goldLuck: number?, -- F54: the Index's gold luck, capped (GoldLuckMax); nil adds it up from the claims
 	baitSpeed: number?, -- F54: the Index's faster bait, capped (BaitSpeedMax); nil adds it up from the claims
+	-- F88 (luck-and-rare-moments.md section 1): the player's Luck (1 to LuckMax) and what makes it up; the HUD's Luck
+	-- chip and card, and the odds every food and crate card shows (shared/Luck)
+	luck: number?,
+	luckSources: { LuckSource }?,
 	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
 	potions: { [string]: number }?, -- F64: potion id -> how many are in the bag
 	buffs: { [string]: number }?, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
@@ -260,6 +272,7 @@ export type PlayerState = {
 	tipsSeen: { [string]: boolean }?,
 	feedbackAsked: boolean?, -- F87: the one slide-in feedback ask has shown, or a face was sent
 	stuckHelpShown: { [string]: boolean }?, -- F87: tutorialStep ("0" to "5") to true once its help card showed
+	longNap: boolean?, -- F95: owns the Long Nap pass, for the welcome back card's line; nil reads as not owned
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -291,6 +304,8 @@ export type PartialState = {
 	fishPerks: { [string]: number }?,
 	goldLuck: number?,
 	baitSpeed: number?,
+	luck: number?,
+	luckSources: { LuckSource }?,
 	introSeen: boolean?,
 	potions: { [string]: number }?,
 	buffs: { [string]: number }?,
@@ -300,6 +315,7 @@ export type PartialState = {
 	tipsSeen: { [string]: boolean }?,
 	feedbackAsked: boolean?,
 	stuckHelpShown: { [string]: boolean }?,
+	longNap: boolean?,
 }
 
 export type ScreenName =

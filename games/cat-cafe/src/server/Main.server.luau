@@ -24,10 +24,12 @@ local MysteryService = require(script.Parent.Services.MysteryService)
 local NameService = require(script.Parent.Services.NameService)
 local Net = require(script.Parent.Services.Net)
 local NightService = require(script.Parent.Services.NightService)
+local PalService = require(script.Parent.Services.PalService)
 local PassService = require(script.Parent.Services.PassService)
 local PlotService = require(script.Parent.Services.PlotService)
 local PotionService = require(script.Parent.Services.PotionService)
 local QuestService = require(script.Parent.Services.QuestService)
+local RareMomentService = require(script.Parent.Services.RareMomentService)
 local RescueService = require(script.Parent.Services.RescueService)
 local RichTipService = require(script.Parent.Services.RichTipService)
 local ShoveService = require(script.Parent.Services.ShoveService)
@@ -71,10 +73,12 @@ SpinService.start()
 FishMarketService.start()
 CodeService.start()
 StarterCatService.start() -- F96: the free Bellhop Cat
+RareMomentService.start() -- F89: the toast clock
 IntroService.start()
 TipService.start() -- F87: context tips and feedback; before DataService so its onLoaded sees every join
 BugReportService.start(world)
 PassService.start() -- F95: purchases in game; DataService checks owned passes at each join
+PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work
 Telemetry.start() -- after every service that registers leave work, so its own runs last
 DataService.start()
 

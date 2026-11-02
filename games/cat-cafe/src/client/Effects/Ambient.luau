@@ -119,8 +119,11 @@ end
 local function classify(instance: Instance)
 	local name = instance.Name
 	local part = instance:IsA("BasePart")
+	-- an Attachment named just `Steam` too: the camp Picnic Basket's thermos (F100, Model-Agent's #750)
+	local attachment = instance:IsA("Attachment")
 	if
-		(part or instance:IsA("Model") or instance:IsA("Attachment")) and endsWith(name, "_Steam")
+		((part or instance:IsA("Model") or attachment) and endsWith(name, "_Steam"))
+		or (attachment and name == "Steam")
 	then
 		add("steam", instance, false)
 		return

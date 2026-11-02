@@ -4,23 +4,26 @@
 -- pencil on one with a piece, a lock and "Tier 3" on a spot the cafe has not opened yet. Tapping a ring opens the
 -- picker along the bottom: the piece on that spot, the other pieces of its size the player owns (Place, or Move here
 -- when it stands elsewhere), then the shop's (buying one puts it right there) and the ones a later tier sells. Clear
--- spot empties it and keeps the piece. Done goes back to the Decor screen; walking more than WALK_OFF studs away, or
--- the character going, ends the view without it. The HUD hides while the view is up.
+-- spot empties it and keeps the piece. Done goes back to the Decor screen; walking more than WALK_OFF studs away
+-- (keyboard or gamepad), or the character going, ends the view without it. The HUD and Roblox's touch controls (the
+-- thumbstick and jump button) hide while the view is up, so the picker's buttons are never under a thumb (review S121).
 --
 --   bind(plot)       the player's own plot (UI.richTip.bind passes it); its LawnSpots/<spotId> parts carry the rings
---   canStart()       true, or false and the line to toast (no plot yet, or too far from the cafe)
+--   canStart()       true, or false and the line to toast (no plot or character yet, or too far from the cafe)
 --   start()          the camera and rings; false when canStart says no
 --   pick(spotId)     opens the picker for a spot (a ring's tap)
 --   stop(reopen)     the camera back to the player; `reopen` asks for the Decor screen again (Done)
 --
 -- Roblox terms: a Scriptable camera stays where the script puts it until CameraType goes back to Custom, when
--- Roblox's own camera script follows the character again. Each ring is a BillboardGui (2D UI drawn at a 3D point)
+-- Roblox's own camera script follows the character again. UserInputService.ModalEnabled = true hides the phone's
+-- thumbstick and jump button until it is set back. Each ring is a BillboardGui (2D UI drawn at a 3D point)
 -- adorned to its spot's part, Active so its button takes taps.
 
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -102,6 +105,7 @@ function LawnEdit.new(parent: Instance, callbacks: Callbacks): LawnEdit
 	self._loop = nil :: RBXScriptConnection?
 	self._from = nil :: Vector3?
 	self._cameraType = Enum.CameraType.Custom
+	self._modalEnabled = false -- UserInputService.ModalEnabled before the view, put back by stop
 	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	self._parent = parent
 	-- the picker's header: room for Clear spot and the close X at a full tap height
@@ -383,8 +387,12 @@ function LawnEdit.canStart(self: any): (boolean, string?)
 	if middle == nil or state == nil then
 		return false, "Your lawn is not ready yet."
 	end
+	-- no character (respawning): the walk-off check has nowhere to measure from (review N342)
 	local root = rootPart()
-	if root ~= nil and (root.Position - middle).Magnitude > RANGE then
+	if root == nil then
+		return false, "Wait a moment, then try again."
+	end
+	if (root.Position - middle).Magnitude > RANGE then
 		return false, "Walk to your cafe to edit the lawn."
 	end
 	return true, nil
@@ -403,6 +411,9 @@ function LawnEdit.start(self: any): boolean
 	self._editing = true
 	local root = rootPart()
 	self._from = if root ~= nil then root.Position else nil
+	-- the phone's thumbstick and jump button hide, so the picker's buttons are clear of them; Done ends the view
+	self._modalEnabled = UserInputService.ModalEnabled
+	UserInputService.ModalEnabled = true
 	-- the camera: back toward the street and up, far enough that every spot fits the screen's width
 	local viewport = camera.ViewportSize
 	local aspect = if viewport.Y > 0 then viewport.X / viewport.Y else 16 / 9
@@ -435,11 +446,8 @@ function LawnEdit.start(self: any): boolean
 		end
 		waited = 0
 		local from: Vector3? = self._from
-		if from == nil then
-			return
-		end
 		local now = rootPart()
-		if now == nil or (now.Position - from).Magnitude > WALK_OFF then
+		if from == nil or now == nil or (now.Position - from).Magnitude > WALK_OFF then
 			self:stop(false)
 		end
 	end)
@@ -461,6 +469,7 @@ function LawnEdit.stop(self: any, reopen: boolean)
 		swing:Cancel()
 		self._swing = nil
 	end
+	UserInputService.ModalEnabled = self._modalEnabled
 	local camera = Workspace.CurrentCamera
 	if camera ~= nil then
 		camera.CameraType = if self._cameraType == Enum.CameraType.Scriptable

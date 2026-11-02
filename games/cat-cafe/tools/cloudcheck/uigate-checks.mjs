@@ -150,7 +150,8 @@ export function checkScene(profile, scene) {
     }
   }
 
-  if (profile.touch) {
+  // a view that hides Roblox's touch controls (UserInputService.ModalEnabled, the Edit lawn view) has none to check
+  if (profile.touch && scene.touchControls !== false) {
     // Roblox's own touch controls: thumbstick bottom left; the jump button 70 px at (W-95, H-90) on a small screen
     // (short side 500 or less), else 120 px at (W-170, H-210), as Components/NetButtonPlace.jump has it
     const small = Math.min(W, H) <= 500;
@@ -246,7 +247,7 @@ function sceneSvg(profile, result) {
     `<rect width="${W}" height="${H}" fill="#6d8a6a"/>`,
     `<rect width="${LIMITS.topbarLeft}" height="${profile.inset}" fill="#000" fill-opacity="0.35"/>`,
   ];
-  if (profile.touch) {
+  if (profile.touch && result.touchControls !== false) {
     parts.push(`<circle cx="100" cy="${H - 90}" r="60" fill="#fff" fill-opacity="0.18"/>`);
     parts.push(`<circle cx="${W - 60}" cy="${H - 55}" r="35" fill="#fff" fill-opacity="0.18"/>`);
   }

@@ -1992,6 +1992,7 @@ state[UserInputService].props.AccelerometerEnabled = profile.touch == true
 state[UserInputService].props.GyroscopeEnabled = false
 state[UserInputService].props.VREnabled = false
 state[UserInputService].props.MouseIconEnabled = true
+state[UserInputService].props.ModalEnabled = false -- true hides the phone's thumbstick and jump button
 state[UserInputService].props.PreferredInput = if profile.touch
 	then Enum.PreferredInput.Touch
 	else Enum.PreferredInput.KeyboardAndMouse
@@ -2350,6 +2351,11 @@ function UIShim.takeErrors()
 	table.clear(UIShim.errors)
 	table.clear(UIShim.warnings)
 	return table.concat(out, "\0\0")
+end
+
+-- whether Roblox's touch controls (thumbstick, jump button) are on screen: a view can hide them with ModalEnabled
+function UIShim.touchControls()
+	return state[UserInputService].props.ModalEnabled ~= true
 end
 
 function UIShim.screen()

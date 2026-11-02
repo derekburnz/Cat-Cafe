@@ -105,7 +105,8 @@ async function runProfile(profile) {
     const open = lua.createFunction(() => scenes.rawGet('open').call(name));
     run(open, 1.5);
     const jitter = watch();
-    results.push({ scene: name, nodes: snapshot(), errors: takeErrors(), jitter });
+    const touchControls = fn('touchControls').call()[0] !== false;
+    results.push({ scene: name, nodes: snapshot(), errors: takeErrors(), jitter, touchControls });
     run(scenes.rawGet('close'), 0.6);
     takeErrors();
   }
@@ -131,7 +132,7 @@ for (const profile of profiles) {
       seen.add(key);
       return true;
     });
-    all.push({ profile, scene: scene.scene, nodes: scene.nodes, errors: scene.errors, findings });
+    all.push({ profile, scene: scene.scene, nodes: scene.nodes, errors: scene.errors, findings, touchControls: scene.touchControls });
   }
   const nodes = scenes.reduce((n, s) => n + s.nodes.length, 0);
   console.log(

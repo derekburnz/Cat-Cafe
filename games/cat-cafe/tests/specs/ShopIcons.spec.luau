@@ -55,5 +55,9 @@ return function()
 			expect(ShopIcons.net(3)).to.equal(ShopIcons.image("Net_L3"))
 			expect(ShopIcons.net(nil)).to.equal(ShopIcons.image("Net_L1"))
 		end)
+
+		it("has the HUD's Decor picture", function()
+			expect(ShopIcons.image("Icon_Decor")).to.equal("rbxassetid://132974074427583")
+		end)
 	end)
 end

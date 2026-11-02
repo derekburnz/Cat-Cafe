@@ -10,6 +10,7 @@
 --   food("star_treat")                                StarTreat (the Market's treat row; foods elsewhere show models)
 --   net(level)                                        the net the Upgrades row offers next: Net_L1 at level 0, up to
 --                                                     Net_L3, which stays at the top level
+--   image("Icon_Decor")                               the HUD's Decor pill
 -- A new upload draws blank until Roblox moderation approves it; IconArt.setImage keeps the glyph until the picture
 -- has loaded. Each upload is a new asset, so a changed icon gets a new id here, never a second upload of the same file.
 -- Pure, so the cloud test runner checks it.
@@ -43,6 +44,8 @@ local IDS: { [string]: string } = {
 	Potion_BigTip = "rbxassetid://72358158442143",
 	Potion_GoldRush = "rbxassetid://120517326297613",
 	Potion_QuickBait = "rbxassetid://88867156736573",
+	-- the HUD's Decor pill: a cat-eared armchair and a potted plant (Model-Agent, Set 5 Q10; uploaded 2026-11-02)
+	Icon_Decor = "rbxassetid://132974074427583",
 }
 local NETS = 3
 

@@ -61,7 +61,7 @@ Gold cats (Gavin, Q16 and round 2; called shiny until Derek renamed them on 2026
 
 Names (Q16): players can name their cats. Names go through Roblox's text filter before anyone else can see them.
 
-Look (Q15, updated by Derek's body picks on 2026-10-27): strays walk on all fours (body A) and look like strays. A cat with a role sits at its station on the seated body (B) in that role's two-piece outfit: Barista apron and cap, Waiter bow tie and vest, Greeter sash and straw hat, Entertainer party hat and cape. It used to stand upright, but that pose looked bad. The cat room shows them relaxing without the outfit. All fifty share the two bodies with pattern, color and prop variants.
+Look (Q15, updated by Derek's body picks on 2026-10-27): strays walk on all fours (body A) and look like strays. A cat with a role sits at its station on the seated body (B) in that role's two-piece outfit: Barista apron and cap, Waiter bow tie and vest, Greeter sash and straw hat, Entertainer party hat and cape. It used to stand upright, but that pose looked bad. 2026-11-02: Derek picked a new standing work pose (S), so a working cat now stands at its station in its outfit holding its role's item (a cup, a tray, a microphone, or a wave for the greeter); data-model section 5. The cat room shows them relaxing without the outfit. All fifty share the two bodies with pattern, color and prop variants.
 
 ## The clock
 

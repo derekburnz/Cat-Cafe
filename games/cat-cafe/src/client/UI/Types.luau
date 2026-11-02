@@ -183,6 +183,7 @@ export type IndexPrize = {
 	crates: { [string]: number }?, -- crate id -> count
 	bonus: number?, -- tips forever, as a fraction (0.02)
 	goldLuck: number?, -- v0.10 gold track: gold luck forever, as a fraction
+	rainbowLuck: number?, -- F99 Rainbow track: rainbow luck forever, as a fraction
 	baitSpeed: number?, -- v0.10 All Cats track: faster bait forever, as a fraction
 	tag: string?, -- a name tag ("Cat Master")
 	decorId: string?,
@@ -341,6 +342,7 @@ export type ScreenName =
 	| "Potions"
 	| "Quests"
 	| "DailyTreat"
+	| "YardSale" -- F100: the Yard Sale's card, opened by its prompt (UI.campExtras.openYardSale)
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 
@@ -404,6 +406,10 @@ export type RescueChallenge = {
 	-- them as RescueRules, so the engineer's RescueChallenge fits with or without them
 	circle: CatchCircle?, -- kind "circle"
 	windows: CatchWindows?, -- kind "circle"
+	-- F92 Team Rescue (playing-together.md section 3): a helper's copy of a running bar, with the hits so far; a
+	-- helper's miss costs no paw
+	helper: boolean?,
+	hits: number?,
 }
 
 -- F93's extra RescueChallenge fields (catch-rework.md section 4): `zones` holds a spare zone per paw; `zone` is the
@@ -513,6 +519,15 @@ export type DealerStock = {
 	stock: { DealerFood }?, -- F59
 	slots: { DealerSlot }?, -- before F59
 }
+
+-- The camp extras (F100, camp-extras.md section 4) as CampExtrasState sends them (shared/Types): each extra's open,
+-- held, nextAt and the Yard Sale's stock today, by id ("picnic", "yardSale", "pond", "lostFound").
+export type CampExtraView = SharedTypes.CampExtraView
+export type CampExtrasState = SharedTypes.CampExtrasState
+export type YardSaleCrate = SharedTypes.YardSaleCrate
+-- The Rescue Rally (F101, rescue-rally.md section 5) as RallyState sends it (shared/Types): active, endsAt (0 when
+-- none runs), startsAt, lap, goal, points, myPoints, lapsPaid and lapsDone.
+export type RallyState = SharedTypes.RallyState
 
 -- ModuleScripts must return a non-nil value.
 return {}

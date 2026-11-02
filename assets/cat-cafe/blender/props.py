@@ -101,6 +101,7 @@ class Ctx:
 
     def __init__(self, spec, body, d):
         self.body, self.spec, self.d = body, spec, d
+        self.work = False               # body S (the working pose) draws on B's frames; set by build
         self.main, self.glass = Builder(), Builder()
         h = d["head"]
         self.h = h
@@ -242,7 +243,7 @@ def top_hat(ctx):
 def bubble_helmet(ctx):
     """Aurora, Astro Cat: a glass bubble round the whole head, ears and all, on a white collar with mint lights."""
     P, G = ctx.pen("head"), ctx.gpen("head")
-    cz = -ctx.hh / 2 + 0.1
+    cz = -ctx.hh / 2 + 0.1 + (0.11 if ctx.work else 0.0)     # S: up off the shoulders so the arms clear the collar
     G.sphere((0, -0.03, cz), 0.73, "glass", segments=14, rings=8)
     zc = cz - math.sqrt(0.73 ** 2 - 0.52 ** 2)
     P.ring((0, -0.03, zc), 0.56, 0.1, 0.12, "offwhite", segments=14)
@@ -1456,12 +1457,13 @@ for _table in (cats.ASSETS, gold.ASSETS):
 def build(name, spec, body, d):
     """{object suffix: Builder} for one cat's props on one body: "Prop", plus "Prop_Glass" when it has clear parts,
     and "Prop2" for a second prop. Head and Face props are drawn relative to the neck (the Head's pivot), Back props
-    in the model's space."""
+    in the model's space. Body "work" (S) draws on the sitting frames."""
     out = {}
     for key, table in (("Prop", PROPS), ("Prop2", PROPS2)):
         if name not in table:
             continue
-        ctx = Ctx(spec, body, d)
+        ctx = Ctx(spec, "sit" if body == "work" else body, d)
+        ctx.work = body == "work"
         table[name][1](ctx)
         out[key] = ctx.main
         if ctx.glass.prims:

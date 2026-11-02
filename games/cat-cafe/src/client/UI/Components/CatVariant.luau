@@ -10,6 +10,8 @@
 --                                Config's GoldMultiplier gold, 1 else
 --   collection(state)            state.goldCollection, else empty
 --   rainbowCollection(state)     state.rainbowCollection, else empty
+--   spawnLine(catName, areaName) the once-a-minute toast for a rainbow stray (rainbow-coat.md section 2): "🌈 A Rainbow
+--                                Tabby is out in the Woods!", shared Catching.rainbowSpawnText's words
 -- Pure, no Theme, so the cloud spec runner can load it.
 
 local Config = require(
@@ -65,6 +67,10 @@ function CatVariant.rainbowCollection(
 	state: { rainbowCollection: { [string]: number }? }
 ): { [string]: number }
 	return state.rainbowCollection or {}
+end
+
+function CatVariant.spawnLine(catName: string, areaName: string): string
+	return ("🌈 A Rainbow %s is out in the %s!"):format(catName, areaName)
 end
 
 return CatVariant

@@ -16,10 +16,18 @@
 --   D:Invoke("renameCat", nil, "Mochi")              -- RenameCat on your first working cat (or a uid as 4th arg)
 --   D:Invoke("tipJar", nil, 30)        -- the Tip Jar's session is 30 minutes older: steps 1 to 6 unlock now
 --   D:Invoke("fillIndex", nil, "alley", nil, true)     -- every Alleyway cat in your Index, gold too (F48)
+--   D:Invoke("fillIndex", nil, "alley", 5, "rainbow")  -- five Alleyway cats in your Index, rainbow coats too (F99)
+--   D:Invoke("spawnStray", "tabby", "park", "rainbow")  -- a rainbow Tabby stray in the Park (F99; true for gold)
+--   D:Invoke("nextCoat", "rainbow")    -- the next stray a wave or refill spawns is rainbow (F99; nil clears it)
 --   D:Invoke("spins", nil, 3, true)    -- 3 banked spins and today's free spin due again, no cooldown (F49)
 --   D:Invoke("spinSlice", nil, 4)      -- your next spin lands on slice 4 (F94, QA S63; nil goes back to random)
 --   D:Invoke("dailyTreat", nil, 6)     -- the Daily Treat card at 6 stamps and a stamp due now: Claim pays day 7 (F70)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
+--   D:Invoke("campExtras", nil, 7 * 3600)   -- 7 hours away for the camp extras: the pond full, one picnic (F100)
+--   D:Invoke("rally", nil, "force", true)    -- a Rescue Rally now (F101; false stops it, nil goes back to Config)
+--   D:Invoke("rally", nil, "points", 20)     -- 20 check-ins' points for you through the steps and prizes (F101)
+--   D:Invoke("rally", nil, "laps", 4)        -- your laps paid this weekend; returns the Rally's line either way
+--   D:Invoke("restartNotice", 300)     -- the restart countdown's 5 minute warning to everyone; returns its text
 --   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
@@ -40,6 +48,7 @@ local Workspace = game:GetService("Workspace")
 
 local BugReportService = require(script.Parent.BugReportService)
 local CafeService = require(script.Parent.CafeService)
+local CampExtraService = require(script.Parent.CampExtraService)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Clock = require(ReplicatedStorage.Shared.Clock)
@@ -60,7 +69,9 @@ local Net = require(script.Parent.Net)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local QuestService = require(script.Parent.QuestService)
+local RallyService = require(script.Parent.RallyService)
 local RescueService = require(script.Parent.RescueService)
+local RestartNoticeService = require(script.Parent.RestartNoticeService)
 local RichTipService = require(script.Parent.RichTipService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local ShoveService = require(script.Parent.ShoveService)
@@ -212,6 +223,41 @@ end
 function Debug.giveCrate(player: (Player | number | string)?, crateId: string, count: number?)
 	local p = resolve(player)
 	FishMarketService.debugGive(p, profileOf(p), crateId, count or 1)
+end
+
+-- F100 (camp-extras.md section 5, check 2): every camp extra's clock `seconds` (default 7 hours) into the past, as if
+-- the player had been away that long (a UTC day for each 86400 s on the Lost and Found and the Yard Sale). Returns
+-- "picnic=1 yardSale=2 pond=24 lostFound=0" (what each holds; shut extras show 0).
+function Debug.campExtras(player: (Player | number | string)?, seconds: number?): string
+	local p = resolve(player)
+	local state: any = CampExtraService.debugAway(p, profileOf(p), seconds or 7 * 3600)
+	local parts: { string } = {}
+	for _, id in { "picnic", "yardSale", "pond", "lostFound" } do
+		table.insert(parts, string.format("%s=%d", id, state[id].held))
+	end
+	return table.concat(parts, " ")
+end
+
+-- F101 (rescue-rally.md section 6): `action` "force" (value true, false or nil for Config.RallyForce), "points" (value
+-- check-ins scored for the player) or "laps" (value the laps paid this weekend); returns the Rally as this player
+-- sees it, "active=true lap=1 points=20/90 mine=20 lapsPaid=1 lapsDone=false".
+-- The restart countdown's warning for `seconds` (0 to 600) to every player, as a MessagingService message would
+-- bring it. Returns the text, or nil for seconds the server would ignore.
+function Debug.restartNotice(seconds: unknown): string?
+	guard()
+	return RestartNoticeService.debugNotice(seconds)
+end
+
+function Debug.rally(player: (Player | number | string)?, action: string?, value: any): string
+	local p = resolve(player)
+	if action == "force" then
+		RallyService.debugForce(if type(value) == "boolean" then value else nil)
+	elseif action == "points" then
+		RallyService.debugPoints(p, tonumber(value) or 1)
+	elseif action == "laps" then
+		RallyService.debugLaps(p, profileOf(p), tonumber(value) or 0)
+	end
+	return RallyService.debugSummary(p)
 end
 
 -- Forgets the player's Fresh Catch buys and heads up (F94, QA S63), so the shelf sells this window's stock again and
@@ -407,12 +453,13 @@ function Debug.giveCat(
 end
 
 -- Fills the Index page of `areaId` (F48): the first `count` of its cats (all of them when nil) go into the
--- collection, and into the gold collection too when `gold` is set, without giving any cats. Returns the page's count.
+-- collection, and into the gold collection too when `gold` is true (the rainbow one when it is "rainbow", F99),
+-- without giving any cats. Returns the page's count.
 function Debug.fillIndex(
 	player: (Player | number | string)?,
 	areaId: string,
 	count: number?,
-	gold: boolean?
+	gold: (boolean | string)?
 ): number
 	local p = resolve(player)
 	local profile = profileOf(p)
@@ -422,7 +469,9 @@ function Debug.fillIndex(
 		if def.area == areaId and (count == nil or added < count) then
 			added += 1
 			profile.collection[def.id] = profile.collection[def.id] or os.time()
-			if gold then
+			if gold == "rainbow" then
+				profile.rainbowCollection[def.id] = profile.rainbowCollection[def.id] or os.time()
+			elseif gold then
 				profile.goldCollection[def.id] = profile.goldCollection[def.id] or os.time()
 			end
 		end
@@ -442,11 +491,18 @@ function Debug.setUpgrade(player: (Player | number | string)?, upgradeId: string
 	CafeService.sync(p)
 end
 
--- Spawns a stray of the given cat in an area (any Catalog.areas id, "alley" by default), gold when `gold` is
--- true. Returns its StrayId.
-function Debug.spawnStray(catId: string, areaId: string?, gold: boolean?): string
+-- Spawns a stray of the given cat in an area (any Catalog.areas id, "alley" by default), gold when `coat` is true
+-- or "gold", rainbow when it is "rainbow" (F99). Returns its StrayId.
+function Debug.spawnStray(catId: string, areaId: string?, coat: (boolean | string)?): string
 	guard()
-	return CatService.debugSpawnStray(catId, areaId or "alley", gold)
+	return CatService.debugSpawnStray(catId, areaId or "alley", coat)
+end
+
+-- F99 (rainbow-coat.md section 6, check 1): the next stray a wave or a refill spawns gets `coat` ("gold" or
+-- "rainbow"), with its beam and the server's toast; nil clears it.
+function Debug.nextCoat(coat: string?)
+	guard()
+	CatService.debugNextCoat(coat)
 end
 
 -- Drops the player's carried cat where they stand as a shove would, whatever the grace or immunity: a Dropped stray
@@ -546,10 +602,15 @@ function Debug.clock(): { phase: Types.ClockPhase, endsAt: number, secondsLeft: 
 end
 
 -- Puts a stuck cat at a rescue trap ("rescue_alley_1" when none is given; the park's trees are rescue_park_1 and
--- rescue_park_2). `gold` true forces the hidden gold roll. Returns the rescueSpotId.
-function Debug.spawnStuckCat(catId: string, rescueSpotId: string?, gold: boolean?): string
+-- rescue_park_2). `coat` forces the hidden roll: true or "gold" for gold, "rainbow" for rainbow (F99). Returns the
+-- rescueSpotId.
+function Debug.spawnStuckCat(
+	catId: string,
+	rescueSpotId: string?,
+	coat: (boolean | string)?
+): string
 	guard()
-	return RescueService.debugSpawnStuck(catId, rescueSpotId, gold)
+	return RescueService.debugSpawnStuck(catId, rescueSpotId, coat)
 end
 
 -- Number of strays in an area and of stuck cats across all rescue traps.

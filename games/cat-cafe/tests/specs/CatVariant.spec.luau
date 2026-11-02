@@ -37,4 +37,12 @@ return function()
 			expect(next(CatVariant.rainbowCollection({}))).never.to.be.ok()
 		end)
 	end)
+
+	describe("CatVariant.spawnLine (F99)", function()
+		it("words the rainbow stray's toast as the server's shout-out", function()
+			expect(CatVariant.spawnLine("Tabby", "Woods")).to.equal(
+				"🌈 A Rainbow Tabby is out in the Woods!"
+			)
+		end)
+	end)
 end

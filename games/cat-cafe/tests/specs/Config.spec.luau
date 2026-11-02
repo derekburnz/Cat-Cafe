@@ -19,7 +19,7 @@ return function()
 		OfflineCapSeconds = 28800,
 		OfflineRatePass = 1.0,
 		OfflineCapPassSeconds = 57600,
-		LongNapPassId = 0, -- 0 until Tools-Agent makes the pass, which keeps it off
+		LongNapPassId = 2064345084, -- Tools-Agent made it 2026-11-02 (off sale until launch)
 		AutosaveSeconds = 60,
 		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and
 		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
@@ -133,6 +133,9 @@ return function()
 		QuestWeeklyCount = 3,
 		QuestWeekOffsetSeconds = 345600,
 		QuestRollCheckSeconds = 60,
+		QuestClaimAll = true,
+		IndexClaimAll = true,
+		TipJarClaimAll = true,
 		-- bedtime (F79, sections 12c and 17)
 		CafeCatWalkSpeed = 6,
 		BedtimeStaggerSeconds = 0.3,
@@ -157,6 +160,7 @@ return function()
 		FishMarketRange = 14,
 		CrateOpenCooldownSeconds = 2,
 		DecorIndexBonus = 0.05,
+		DecorEquipBest = true,
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
 		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
 		KeepUpStepsBehind = 1, -- section 17 (v0.13.16, F86): an older Legendary or Mythical earns one area behind
@@ -197,6 +201,39 @@ return function()
 		LeaderboardRateMax = 10000000,
 		LeaderboardCrownRank = 10,
 		LeaderboardFaceSwapSeconds = 15,
+		-- The crate reel (F103, crate-reel.md 4)
+		CrateReelTiles = 40,
+		CrateReelLandingTile = 34,
+		CrateReelProtectFrom = 26,
+		CrateReelProtectTo = 37,
+		CrateReelTopSpeed = 15,
+		CrateReelRampSeconds = 0.3,
+		CrateReelStopSeconds = 0.8,
+		CrateReelHoldSeconds = 0.25,
+		RainbowChanceNet = 0.005, -- F99 (rainbow-coat.md section 5)
+		RainbowChanceBait = 0.005,
+		RainbowChanceRescue = 0.01,
+		RainbowMultiplier = 3,
+		RainbowLuckMax = 1.0,
+		CollectorRainbowMultiplier = 10,
+		RainbowAnimateMax = 10,
+		RainbowSpawnToastSeconds = 60,
+		PicnicEverySeconds = 21600, -- F100 (camp-extras.md section 4); LostFoundTable is checked in CampExtras.spec
+		PicnicHold = 2,
+		PicnicPotion = "tip_potion", -- Design-Agent 11-02: one 10 minute Money Potion a fill, not a 15 minute one
+		YardSaleCratePrice = 40,
+		PondFishPerStep = 2,
+		PondStepSeconds = 1800,
+		PondHold = 24,
+		LostFoundHold = 3,
+		CampExtraRangeStuds = 8,
+		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec
+		RallyHours = 48,
+		RallyPointsPerPlayer = 30,
+		RallyMinPlayers = 3,
+		RallyMinPoints = 3,
+		RallyMaxLaps = 4,
+		RallyStateSeconds = 0.5,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 same target cooldown 20, v0.5.1 target immunity S45; v0.8 F56)
 		BumpEnabled = true,
 		BumpChance = 1.0, -- v0.8 F56: a shove always drops the cat
@@ -314,6 +351,9 @@ return function()
 				KeepUpRarities = true, -- F95: empty (was section 17's "Legendary, Mythical"), checked below
 				MoneyPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ExtraSlotPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
+				LostFoundTable = true, -- F100 (camp-extras.md section 2): a table, checked in CampExtras.spec
+				RallyPoints = true, -- F101 (rescue-rally.md section 2): a table, checked in Rally.spec
+				RallyForce = true, -- F101: false, checked in Rally.spec (a false value reads as missing above)
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -368,9 +408,15 @@ return function()
 		)
 
 		it("F95's pass ids and keep up (economy-ladder.md section 7)", function()
-			-- every id 0 until Tools-Agent makes the passes, which keeps their effects off
-			expect(Config.MoneyPassIds :: any).to.deepEqual({ [2] = 0, [3] = 0, [4] = 0 })
+			-- the ids Tools-Agent made on 2026-11-02 (tools/opencloud/passes.json); no extra slot pass yet, which keeps
+			-- its effect off
+			expect(Config.MoneyPassIds :: any).to.deepEqual({ [2] = 2064604577, [3] = 2064670602, [4] = 2064357148 })
 			expect(Config.ExtraSlotPassIds :: any).to.deepEqual({})
+			local ids: { [number]: boolean } = { [Config.LongNapPassId] = true }
+			for _, id in Config.MoneyPassIds do
+				expect(ids[id]).never.to.be.ok()
+				ids[id] = true
+			end
 			-- keep up is off: the shop-only cats use areaMultiplier instead, and it can come back by config
 			expect(next(Config.KeepUpRarities)).to.equal(nil)
 		end)
@@ -638,6 +684,27 @@ return function()
 			expect(#Config.ProfileStoreName > 0).to.equal(true)
 			expect(#Config.ProfileKeyPrefix > 0).to.equal(true)
 			expect(Config.MaxIdLength >= 20).to.equal(true)
+		end)
+	end)
+
+	describe("the rainbow coat (F99, rainbow-coat.md section 1)", function()
+		it("is a tenth of gold everywhere and earns twice a gold cat", function()
+			expect(Config.RainbowChanceNet).to.be.near(Config.GoldChanceNet / 10, 1e-9)
+			expect(Config.RainbowChanceBait).to.be.near(Config.GoldChanceBait / 10, 1e-9)
+			expect(Config.RainbowChanceRescue).to.be.near(Config.GoldChanceRescue / 10, 1e-9)
+			expect(Config.RainbowMultiplier).to.equal(2 * Config.GoldMultiplier)
+			expect(Config.CollectorRainbowMultiplier > Config.CollectorGoldMultiplier).to.equal(true)
+		end)
+	end)
+
+	describe("the crate reel (F103, crate-reel.md section 4)", function()
+		it("keeps the won tile inside the protected run and the stop's view on the strip", function()
+			local landing = Config.CrateReelLandingTile
+			expect(landing >= Config.CrateReelProtectFrom and landing <= Config.CrateReelProtectTo).to.equal(true)
+			-- the seven tiles in view at the stop (three either side of the won one) are all on the strip
+			expect(Config.CrateReelProtectTo <= Config.CrateReelTiles and landing + 3 <= Config.CrateReelTiles).to.equal(
+				true
+			)
 		end)
 	end)
 end

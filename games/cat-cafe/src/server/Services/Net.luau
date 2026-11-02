@@ -27,6 +27,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimOffline = RateLimiter.new(1, 2),
 	EquipBest = RateLimiter.new(1, 2), -- sorts, solves, rebuilds the plot and sends a full sync
 	UnequipAll = RateLimiter.new(1, 2), -- rebuilds the plot and sends a full sync, like EquipBest
+	EquipBestDecor = RateLimiter.new(1, 2), -- rebuilds the plot's decor and sends a full sync, like EquipBest
 	RankUp = RateLimiter.new(1, 2), -- data-model section 15: 1 per 2 s
 	TutorialAdvance = RateLimiter.new(1, 1),
 	Travel = RateLimiter.new(1, 1), -- a flood guard; TravelService answers TravelCooldownSeconds with a reason
@@ -55,11 +56,14 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimQuest = RateLimiter.new(2, 1), -- quests.md section 6: 2 a second
 	RerollQuest = RateLimiter.new(1, 1), -- 1 a second
 	ClaimAchievement = RateLimiter.new(2, 1), -- 2 a second
+	ClaimAll = RateLimiter.new(2, 2), -- 2 per 2 s, so daily then weekly both land; each pays every ready one and syncs
 	ClaimDailyTreat = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	TipSeen = RateLimiter.new(1, 1), -- F87 (easy-start.md section 6): 1 a second
 	ClearTips = RateLimiter.new(1, 10), -- F87: 1 per 10 s; each call sends a full sync
 	SendFeedback = RateLimiter.new(1, 10), -- F87: 1 per 10 s; TipService also holds FeedbackSessionLimit a session
 	ClaimStarterCat = RateLimiter.new(1, 2), -- F96 (starter-cat.md section 4): 1 per 2 s
+	CollectCampExtra = RateLimiter.new(1, 1), -- F100 (camp-extras.md section 4): 1 a second
+	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 

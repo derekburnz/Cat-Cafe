@@ -1,0 +1,99 @@
+# Change the store page pictures (icon, thumbnails, homepage thumbnails) from images in the repo, so new pictures of
+# each update go up without Creator Hub. Start it from the Actions tab (store-media > Run workflow) or from any thread
+# with the GitHub actions_run_trigger tool on main. list prints the icon, the thumbnails in page order and the
+# homepage thumbnails with their ids; every change reads them back, since these Open Cloud endpoints are experimental.
+# The pictures can come from an unmerged branch.
+# Needs the repo secret ROBLOX_PUBLISH_KEY with legacy-universe:manage and universe.thumbnail:read/write
+# (docs/setup-guide.md step 23).
+name: store-media
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "list | icon | thumbnails (add) | order | delete (one thumbnail) | alt | home (homepage upload) | home-delete | home-test"
+        type: choice
+        options: [list, icon, thumbnails, order, delete, alt, home, home-delete, home-test]
+        default: list
+      args:
+        description: "icon: one image path. thumbnails, home: image paths. order: thumbnail ids in page order. delete: one id. alt: id then text. home-delete: ids. home-test: 1 to 5 homepage ids"
+        required: false
+        default: ""
+      branch:
+        description: "Branch that holds the pictures (empty: the branch this run starts on)"
+        required: false
+        default: ""
+      language:
+        description: "Language of the icon and thumbnails (en is the game's own language)"
+        required: false
+        default: "en"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: store-media
+  cancel-in-progress: false
+
+jobs:
+  media:
+    name: Store pictures
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      ROBLOX_UNIVERSE_ID: "10773193456" # Cat Cafe
+      ACTION: ${{ inputs.action }}
+      ARGS: ${{ inputs.args }}
+      LANGUAGE_CODE: ${{ inputs.language }}
+      PICTURES_BRANCH: ${{ inputs.branch }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check the key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      # The inputs reach the script as environment variables, never pasted into the shell, so no input runs as code.
+      # Pictures from another branch replace only those files in this checkout; the script itself always comes from
+      # the branch this run starts on.
+      - name: Store pictures
+        run: |
+          read -r -a args <<<"$ARGS"
+          if [ -n "$PICTURES_BRANCH" ]; then
+            case "$ACTION" in
+            icon | thumbnails | home)
+              case "$PICTURES_BRANCH" in
+              -* | *[!A-Za-z0-9._/-]*)
+                echo "::error::not a branch name: $PICTURES_BRANCH"
+                exit 1
+                ;;
+              esac
+              git fetch --no-tags --depth 1 origin "$PICTURES_BRANCH"
+              for path in "${args[@]}"; do
+                case "$path" in
+                /* | *..*)
+                  echo "::error::image paths are from the repo root, without '..': $path"
+                  exit 1
+                  ;;
+                esac
+                mkdir -p "$(dirname "$path")"
+                if ! git show "FETCH_HEAD:$path" >"$path.upload"; then
+                  echo "::error::$path is not a file on $PICTURES_BRANCH"
+                  exit 1
+                fi
+                mv "$path.upload" "$path"
+                echo "Taking $path from $PICTURES_BRANCH ($(git rev-parse --short FETCH_HEAD))"
+              done
+              ;;
+            esac
+          fi
+          script=games/cat-cafe/tools/opencloud/store-media.sh
+          if [ "$ACTION" = alt ]; then
+            bash "$script" alt "${args[0]:-}" "${args[@]:1}"
+          else
+            bash "$script" "$ACTION" "${args[@]}"
+          fi

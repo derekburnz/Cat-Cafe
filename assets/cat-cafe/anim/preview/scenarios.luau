@@ -253,4 +253,48 @@ return {
 			{ style = "held", seconds = 2.6, speed = 16 },
 		},
 	},
+	-- Working cats standing on the work body (S, Model-Agent #826; Derek 2026-11-02 12:02 picked "S: chibi holding
+	-- the prop"), each in its role's outfit and arm pose as the server puts them on (`work`: the role's held thing
+	-- kept, the arms turned by the manifest's cat_poses.work_<role>), with Logic.workIdle on top.
+	workBarista = {
+		model = "CatCafe_Cat_Tabby_Work",
+		role = "barista",
+		work = true,
+		camera = "front",
+		attributes = { Pose = "work" },
+		segments = { { style = "barista", seconds = 5.2 } },
+	},
+	workWaiter = {
+		model = "CatCafe_Cat_Tabby_Work",
+		role = "waiter",
+		work = true,
+		camera = "three",
+		attributes = { Pose = "work" },
+		segments = { { style = "waiter", seconds = 5.5 } },
+	},
+	workGreeter = {
+		model = "CatCafe_Cat_Tabby_Work",
+		role = "greeter",
+		work = true,
+		camera = "front",
+		attributes = { Pose = "work" },
+		segments = { { style = "greeter", seconds = 3.2 } },
+	},
+	workEntertainer = {
+		model = "CatCafe_Cat_Tabby_Work",
+		role = "entertainer",
+		work = true,
+		camera = "front",
+		attributes = { Pose = "work" },
+		segments = { { style = "entertainer", seconds = 4 } },
+	},
+	-- Asleep on its feet at its station at night on an older server (no bedtime walk).
+	workDoze = {
+		model = "CatCafe_Cat_Tabby_Work",
+		role = "waiter",
+		work = true,
+		camera = "three",
+		attributes = { Pose = "work" },
+		segments = { { style = "doze", seconds = 7.2 } },
+	},
 }

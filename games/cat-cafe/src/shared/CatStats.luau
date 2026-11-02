@@ -87,9 +87,13 @@ function CatStats.rescuedMultiplier(rescued: boolean?): number
 	return if rescued == true then Config.RescuedTipsMultiplier else 1
 end
 
--- A gold cat earns GoldMultiplier (data-model section 4). "base" and anything unknown is 1x.
+-- A gold cat earns GoldMultiplier (data-model section 4), a rainbow cat RainbowMultiplier (F99, twice gold). "base"
+-- and anything unknown is 1x.
 function CatStats.variantMultiplier(variant: string?): number
-	return if variant == "gold" then Config.GoldMultiplier else 1
+	return if variant == "rainbow"
+		then Config.RainbowMultiplier
+		elseif variant == "gold" then Config.GoldMultiplier
+		else 1
 end
 
 -- Stars 1 to 5 for the UI: charm 0-19 one star, 20-39 two, 40-59 three, 60-79 four, 80-100 five.
@@ -276,10 +280,10 @@ function CatStats.newInstance(
 	}
 end
 
--- F62 (data-model section 4): gold, Legendary and Mythical cats arrive locked, so one quick tap never sells or
--- trades away a player's best cat. Version 14 locks the ones already owned the same way.
+-- F62 (data-model section 4): gold, rainbow (F99), Legendary and Mythical cats arrive locked, so one quick tap never
+-- sells or trades away a player's best cat. Version 14 locks the ones already owned the same way.
 function CatStats.arrivesLocked(catId: string, variant: string): boolean
-	if variant == "gold" then
+	if variant == "gold" or variant == "rainbow" then
 		return true
 	end
 	local def = Catalog.getCat(catId)

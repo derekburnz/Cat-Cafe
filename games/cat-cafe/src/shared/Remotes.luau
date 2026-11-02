@@ -32,6 +32,7 @@ Remotes.ClientToServer = {
 	"BuyDecor", -- (decorId: string)
 	"RankUp", -- ()  next tier's cost, different cats and rarity (Economy.rankUpBlocker); spends and raises the tier
 	"ToggleDecor", -- (decorId: string, placed: boolean)
+	"EquipBestDecor", -- ()  puts out the best owned decor for the most money (shared/DecorBest), the rest away
 	"BuyLure", -- (lureId: string)
 	"UseLure", -- (lureId: string)  bowl bought and empty, food in stock; from anywhere (2026-10-28)
 	"ResolveBait", -- (choice: "tame" | "letgo")  the bowl's cat has arrived; from anywhere (2026-10-28)
@@ -85,6 +86,9 @@ Remotes.ClientToServer = {
 	-- neither finished nor claimed; another eligible quest from the same pool, counting from now
 	"ClaimAchievement", -- (achievementId: string)  F73: a known achievement, met and unclaimed; answered with
 	-- QuestResult
+	"ClaimAll", -- (what: string)  shared/ClaimAll.KINDS: "daily", "weekly" or "achievements" (the Quests window),
+	-- "index" (every Index page) or "tipjar"; pays every one ready as its single Claim would, one toast and one sync
+	-- (and QuestResult for quests, TipJarState for the Tip Jar); nothing ready answers "Nothing to claim yet"
 	"ClaimDailyTreat", -- ()  F70: a Daily Treat stamp due (a later UTC day than the last claim); pays the next day
 	-- of the card and answers with ProfileSync (`dailyTreat`)
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?)  shared/BugReport: 3 to 500 bytes of
@@ -97,12 +101,18 @@ Remotes.ClientToServer = {
 	"ClearTips", -- ()  F87: Settings' "Show tips again"; forgets tipsSeen but the asks; 1 per 10 s; ProfileSync
 	"SendFeedback", -- (face: string, chip: string?)  F87 (section 4): face in Tips.FACES, chip nil or in Tips.CHIPS;
 	-- 1 per 10 s and FeedbackSessionLimit (5) a session; logs `feedback` and sets feedbackAsked. Text goes by ReportBug
+	"CollectCampExtra", -- (extraId: string)  F100 (camp-extras.md section 4): "picnic", "pond" or "lostFound", the
+	-- player's tier opens its area, within CampExtraRangeStuds (and a little slack) of its PromptAnchor, something held;
+	-- takes it all; 1 a second, answered with CampExtraResult and CampExtrasState
+	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), one of today's two crates
+	-- (CampExtras.yardStock) not yet bought today, YardSaleCratePrice golden fish; banked for the Market; 1 a second
 }
 
 -- Server -> client.
 Remotes.ServerToClient = {
 	"ProfileSync", -- (state: Types.PlayerState)  full state; the client merges
-	"CatCaught", -- (catId: string, isNew: boolean)
+	"CatCaught", -- (catId: string, isNew: boolean, variant: string)  variant "base", "gold" or "rainbow" (F99), for the
+	-- Cat found card's coat
 	"OfflineEarnings", -- (amount: number, seconds: number)
 	"Toast", -- (text: string, kind: "info" | "good" | "warn")
 	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch. F89: a Legendary
@@ -111,6 +121,10 @@ Remotes.ServerToClient = {
 	-- (luck-and-rare-moments.md 2a): a Legendary, a Mythical or a gold Epic or better (and, F99, every rainbow cat)
 	-- checked in or tamed, to everyone: the owner's big pull card and the hop, spin, shockwave and stings; the first
 	-- Epic a player ever secures goes to that player alone for the small card. The toast is the Announce above
+	"RainbowSpawned", -- (areaId: string, catId: string, strayId: string, toast: boolean)  F99 (rainbow-coat.md
+	-- section 2): a rainbow stray spawned, to everyone for its beam (the stray model is named strayId in the Strays
+	-- folder, Variant "rainbow") and a nearby shimmer; toast is true at most once every RainbowSpawnToastSeconds per
+	-- server, for "A Rainbow Tabby is out in the Woods!" (Catching.rainbowSpawnText)
 	"FoundRareDecor", -- (userId: number, decorId: string)  F89 (2b): a Mythical crate piece, to everyone for the
 	-- toast ("Sam found the Mythical Midnight Sky!", RareMoments.decorText), at most once a minute a player
 	"PalArrived", -- (joinerUserId: number, palUserId: number, palArea: string?)  F92 (playing-together.md section 5),
@@ -179,6 +193,14 @@ Remotes.ServerToClient = {
 	-- cat's area's) and the server time he leaves. catUid "" ends the visit, `traded` true when it ended in a trade
 	"QuestResult", -- (paid: { string })  F73: what a quest, a set or an achievement claim paid ("+$300", "2 spins"),
 	-- after the server's toast with the same words, for the Quests window's own claim effect
+	"CampExtrasState", -- (state: Types.CampExtrasState)  F100: each camp extra's open, held, nextAt and the Yard
+	-- Sale's stock today, on join and whenever it changes (a fill, a new UTC day, a rank up, a collect or a buy)
+	"RallyState", -- (state: Types.RallyState)  F101: the server's Rescue Rally bar and this player's part in it, on
+	-- join, at each step, lap, start and end, and at most every Config.RallyStateSeconds while points come in
+	"RallyPoint", -- (userId: number, amount: number)  F101: to every client for each score in the Rally, for the pops
+	"CampExtraResult", -- (extraId: string, ok: boolean, paid: { string }, prize: Types.IndexPrize?)  F100: the
+	-- answer to CollectCampExtra or BuyYardSale; paid is what it gave in Payout's words ("2 Money Potion", "+14 golden
+	-- fish", "1 Park Crate") and prize the same for the pictures, nil when refused (the server's toast says why)
 	"CatLevelUp", -- (uid: string, level: number)  one of this player's cats reached `level` (v0.12 F75): the toast,
 	-- the level up chime and, from the model's Level attribute, the sparkle; once per settle that raises it
 }

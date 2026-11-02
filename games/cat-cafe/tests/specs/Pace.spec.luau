@@ -27,7 +27,9 @@
 -- - with MONEY owns that Money pass (Economy.setPasses; 24 stands for owning every paid bonus);
 -- - has Luck (F88, shared/Luck): the Lucky Cat levels it buys from the shop go into each food's roll, fixed when the
 --   food goes in, and on a Lucky Day (the day phase of every LuckyDayEvery-th day of its server) the sunrise wave
---   rolls at LuckyDayWaveLuck and its food at LuckyDayPlayerLuck more.
+--   rolls at LuckyDayWaveLuck and its food at LuckyDayPlayerLuck more;
+-- - rolls each cat's coat as the game does (F99, Catching.rollCoat): rainbow first, then gold on the same roll, with
+--   the Rainbow track's luck from the Rainbow page it claims as well; a rainbow cat earns RainbowMultiplier.
 -- Spins, golden fish and their perks, crates, potions, quests, the Daily Treat, rescues, the night dealer and the lawn
 -- are left out, as in the economy-ladder.md section 3 model, so real players run a little faster.
 return function()
@@ -192,17 +194,21 @@ return function()
 			return assert(Catalog.getArea(assert(Catalog.getTier(Economy.tier(profile))).area))
 		end
 
-		-- A gold roll with the player's Index gold luck (the shared stray roll uses the best luck in the area, its own
-		-- when it plays alone).
-		local function gold(chance: number): string
-			local luck = IndexRewards.totals(profile).goldLuck
-			return if rng() < IndexRewards.rollChance(chance, luck) then "gold" else "base"
+		-- The coat roll (F99): rainbow first on the same roll, then gold, with the player's Index rainbow and gold luck
+		-- (the shared stray roll uses the best luck in the area, its own when it plays alone).
+		local function coat(def: Types.CatDef, rainbow: number, gold: number): string
+			return Catching.rollCoat(
+				def,
+				rng(),
+				IndexRewards.rainbowChance(rainbow, IndexRewards.rainbowLuck(profile)),
+				IndexRewards.rollChance(gold, IndexRewards.totals(profile).goldLuck)
+			)
 		end
 
 		-- Every milestone reached on the area's page and All Cats, claimed at once: coins at today's rate, food, and
 		-- the tips forever, bait speed and gold luck that count from the claim on (crates, fish and spins left out).
 		local function claimIndex(areaId: string)
-			for _, page in { areaId, IndexRewards.ALL } do
+			for _, page in { areaId, IndexRewards.ALL, IndexRewards.RAINBOW } do
 				for _, milestone in Catalog.indexMilestones do
 					if milestone.track ~= "decor" and IndexRewards.blocker(profile, page, milestone.id) == nil then
 						local claims = profile.indexRewards[page] or {}
@@ -250,6 +256,8 @@ return function()
 			end
 			if variant == "gold" and profile.goldCollection[def.id] == nil then
 				profile.goldCollection[def.id] = now
+			elseif variant == "rainbow" and profile.rainbowCollection[def.id] == nil then
+				profile.rainbowCollection[def.id] = now
 			end
 			placeBest(instance)
 			claimIndex(def.area)
@@ -438,7 +446,8 @@ return function()
 						if #wave > 0 then
 							rarity = table.remove(wave, 1 + math.floor(rng() * #wave))
 							def = Catching.pickCat(rarity :: Types.Rarity, area.id, rng())
-							variant = gold(Config.GoldChanceNet)
+							local caught = def :: Types.CatDef
+							variant = coat(caught, Config.RainbowChanceNet, Config.GoldChanceNet)
 							local extra = chase(rarity :: Types.Rarity)
 							if extra ~= nil and back + extra <= dusk then
 								back += extra
@@ -498,7 +507,7 @@ return function()
 						local rarity = Catching.pickRarity(odds, rng())
 						local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng())
 						profile.bait = nil
-						addCat(def, gold(Config.GoldChanceBait), now)
+						addCat(def, coat(def, Config.RainbowChanceBait, Config.GoldChanceBait), now)
 					end
 					if profile.bait == nil and Economy.level(profile, "lure_bowl") >= 1 then
 						if bestFood() == nil then

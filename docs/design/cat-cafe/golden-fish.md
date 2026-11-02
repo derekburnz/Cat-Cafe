@@ -29,6 +29,7 @@ Rules:
 |---|---|---|
 | First catch of a cat (any way: net, rescue, bait) | Common 1, Rare 3, Epic 8, Legendary 20, Mythical 40 | slice, with F52 |
 | First gold catch of a cat | twice the above | slice |
+| First rainbow catch of a cat (F99) | five times the first catch row (Common 5 up to Mythical 200) | F99, rainbow-coat.md section 1 |
 | Catching a cat you already have, by net or rescue (not bait) | Epic 1, Legendary 3, Mythical 8 | slice |
 | Rank up to Tier 2, 3, 4, 5 | 10, 25, 50, 100 | slice |
 | Index milestones | section 5 | slice |

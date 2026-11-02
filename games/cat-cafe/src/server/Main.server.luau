@@ -9,8 +9,10 @@ local BaitService = require(script.Parent.Services.BaitService)
 local BedtimeService = require(script.Parent.Services.BedtimeService)
 local BugReportService = require(script.Parent.Services.BugReportService)
 local CafeService = require(script.Parent.Services.CafeService)
+local CampExtraService = require(script.Parent.Services.CampExtraService)
 local CannonService = require(script.Parent.Services.CannonService)
 local CatService = require(script.Parent.Services.CatService)
+local ClaimAllService = require(script.Parent.Services.ClaimAllService)
 local ClockService = require(script.Parent.Services.ClockService)
 local CodeService = require(script.Parent.Services.CodeService)
 local CollectorService = require(script.Parent.Services.CollectorService)
@@ -30,8 +32,10 @@ local PassService = require(script.Parent.Services.PassService)
 local PlotService = require(script.Parent.Services.PlotService)
 local PotionService = require(script.Parent.Services.PotionService)
 local QuestService = require(script.Parent.Services.QuestService)
+local RallyService = require(script.Parent.Services.RallyService)
 local RareMomentService = require(script.Parent.Services.RareMomentService)
 local RescueService = require(script.Parent.Services.RescueService)
+local RestartNoticeService = require(script.Parent.Services.RestartNoticeService)
 local RichTipService = require(script.Parent.Services.RichTipService)
 local ShoveService = require(script.Parent.Services.ShoveService)
 local SpinService = require(script.Parent.Services.SpinService)
@@ -70,6 +74,7 @@ NameService.start()
 TipJarService.start()
 DailyTreatService.start()
 IndexRewardService.start()
+ClaimAllService.start() -- Claim all in the Quests window, the Index and the Tip Jar
 SpinService.start()
 FishMarketService.start()
 CodeService.start()
@@ -81,6 +86,9 @@ BugReportService.start(world)
 PassService.start() -- F95: purchases in game; DataService checks owned passes at each join
 PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
+CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
+RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
+RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one
 Telemetry.start() -- after every service that registers leave work, so its own runs last
 DataService.start()
 

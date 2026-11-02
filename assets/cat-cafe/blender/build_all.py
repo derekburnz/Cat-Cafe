@@ -71,6 +71,8 @@ import npc  # noqa: E402
 import palette  # noqa: E402
 import park  # noqa: E402
 import parkset  # noqa: E402
+import parkf85  # noqa: E402
+import neighbourhoodf85  # noqa: E402
 import woodsset  # noqa: E402
 import sewerset  # noqa: E402
 import neighbourhoodset  # noqa: E402
@@ -89,9 +91,9 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
-           townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch,
-           campextras, leaderboards, rally, rallycrate, menu, style_icons]
+           parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, doors, doorsets, crates, potions, mystery, collector,
+           townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
+           leaderboards, rally, rallycrate, menu, style_icons]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -150,10 +152,15 @@ PIVOT_NOTES = {
     "CatCafe_Accessory_Hat": "attachment point (see attach)",
     "CatCafe_Accessory_Sash": "attachment point (see attach_upright)",
     "CatCafe_Accessory_PartyHat": "attachment point (see attach_upright)",
+    **{f"CatCafe_Accessory_{n}_Walk": "the walking cat's Outfit_<Piece> slot on the back's middle line under the back "
+                                       "of the head; +Z runs back along the spine. CatDress uses this version on a "
+                                       "walking model (no _Sit)" for n in ("Vest", "Sash", "Apron")},
     "CatCafe_Neighbourhood_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Woods_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Sewer_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Park_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
+    "CatCafe_Park_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
+    "CatCafe_Neighbourhood_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
     "CatCafe_Woods_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Sewer_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Neighbourhood_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
@@ -169,6 +176,8 @@ PIVOT_NOTES = {
     "CatCafe_Alley_Arch": "base centre of the 26 stud opening; -Z faces the back alley",
     **{f"CatCafe_{a}_Gate": "base centre of the opening; -Z faces the side players come from" for a in
        ("Park", "Neighbourhood", "Woods", "Sewer")},
+    "CatCafe_Park_GateF85": "base centre of the 24 stud opening; -Z faces the camp (F85)",
+    "CatCafe_Neighbourhood_GateF85": "base centre of the 24 stud opening; -Z faces the camp (F85)",
     **{n: f"the pivot of {h}: place it there with no offset" for n, h in night.HOSTS.items()},
     "CatCafe_Alley_NightFenceSegment": "base centre of the 8 stud piece; -Z faces the cafe side",
     "CatCafe_Plot_BackDoorClosed": "Plot.cframe: floor top centre of the cafe",
@@ -277,6 +286,16 @@ STUDIO_NOTES = {
                                 "LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's "
                                 "Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90)."
        for n in cats.ROSTER},
+    **{f"CatCafe_Cat_{n}_Work": f"Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_{n}_Sit "
+                                 "for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> "
+                                 "Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and "
+                                 "LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and "
+                                 "ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a "
+                                 "Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer "
+                                 "(a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for "
+                                 "the cat's role and remove the others (the greeter holds nothing). Turn the arms "
+                                 "with the role's pose (manifest cat_poses work_<role>), which holds the thing upright."
+       for n in cats.ROSTER},
     **{f"CatCafe_Cat_{n}_Gold{sfx}": f"F42: clone this instead of CatCafe_Cat_{n}{sfx} when the cat is gold. Same "
                                       "parts, joints, attachments and poses; only the coat colours differ (style guide 2)."
        for n in cats.ROSTER for sfx in cats.SUFFIX.values()},
@@ -311,6 +330,13 @@ for _n in potions.ASSETS:                        # F64 and F73 potions: the bag,
                         + ".png (icons.py).")
 PIVOT_NOTES["CatCafe_NPC_MysteryVisitor"] = ("the floor under a cafe chair's seat centre, facing the table (-Z); the cat "
                                              "sits on the seat at 1.57")
+STUDIO_NOTES["CatCafe_Park_GateF85"] = STUDIO_NOTES["CatCafe_Park_Gate"].replace(
+    "Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
+    "F85: the long Park's gate over its 24 stud opening, -Z toward the camp, in place of CatCafe_Park_Gate.")
+STUDIO_NOTES["CatCafe_Neighbourhood_GateF85"] = STUDIO_NOTES["CatCafe_Neighbourhood_Gate"].replace(
+    "Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
+    "F85: the long Neighbourhood's gate over its 24 stud opening, -Z toward the camp, in place of "
+    "CatCafe_Neighbourhood_Gate.")
 STUDIO_NOTES["CatCafe_NPC_MysteryVisitor"] = (
     "F64 Mystery Visitor: the client pivots it at a MysteryTable chair's seat on the floor, looking at the table, and "
     "tags it MysteryVisitor. A sitting cat (scale 1.3) with the usual hinged pieces (Head, Eye1, Eye2, EarL, EarR, "
@@ -404,6 +430,8 @@ def cat_rbx_extras(name):
     pieces = {p for outfit in accessories.ROLE_OUTFITS.values() for p in outfit}
     if body == "walk":                      # walking staff wear only the pieces that fit A (accessories.WALK_PIECES)
         pieces &= set(accessories.WALK_PIECES)
+        if "Back" in (props.slot(cat), props.slot2(cat)):   # a Back prop: no back pieces (the cape is off too, F71)
+            pieces -= set(accessories.WALK_MESHES)
     for n, (part, off, r) in accessories.slots(spec, body).items():
         if n in pieces:
             turn = Euler([math.radians(a) for a in r], "XYZ").to_matrix().to_4x4()
@@ -564,7 +592,7 @@ def main():
             cat, is_gold, body = cats.parse(name)
             spec = cats.ROSTER[cat]
             entry["rarity"] = spec["rarity"]
-            entry["body"] = body                        # walk (A, on all fours) or sit (B, sitting up)
+            entry["body"] = body                        # walk (A, on all fours), sit (B, sitting up) or work (S)
             entry["gold"] = is_gold
             look = gold.gold_spec(cat) if is_gold else spec
             entry["pattern"] = look["pattern"]          # colors by field, as swatch and hex, for any future cat model
@@ -576,7 +604,7 @@ def main():
             entry["joints"] = {k: [round(v, 3) for v in j] for k, j in joints.items() if k != "Body"}
             entry["joints_roblox"] = {k: common.to_roblox(j) for k, j in joints.items() if k != "Body"}
             entry["attachments"] = {k: _slot_entry(p, o, r, s_) for k, (p, o, r) in accessories.slots(spec, body).items()}
-            k_ = cats.SIT_SCALE if body == "sit" else 1.0
+            k_ = cats.SIT_SCALE if body in ("sit", "work") else 1.0
             entry["attachments"]["Carry"] = _slot_entry("Head", [v * k_ for v in cats.carry_at(spec, body)], (0, 0, 0), s_)
             if props.slot(cat):
                 entry["prop"] = {"slot": props.slot(cat), "follows": props.follows(props.slot(cat)),
@@ -590,7 +618,10 @@ def main():
                                               for k, v in lifts.items()}
         if name.startswith("CatCafe_Accessory_"):
             n = name.split("_")[-1]
-            if n in accessories.SIT_SLOTS:
+            if n == "Walk":                         # a walking version: its slot on the walking Tabby
+                n = name.split("_")[-2]
+                entry["slot"] = dict(_slot_entry(*accessories.slots(cats.ROSTER["Tabby"], "walk")[n]), body="walk")
+            elif n in accessories.SIT_SLOTS:
                 entry["slot"] = dict(_slot_entry(*accessories.SIT_SLOTS[n]), body="sit")
             elif n in accessories.slots(cats.ROSTER["Tabby"], "walk"):
                 entry["slot"] = dict(_slot_entry(*accessories.slots(cats.ROSTER["Tabby"], "walk")[n]), body="walk")
@@ -604,7 +635,7 @@ def main():
         ledges = alleyway.LEDGES.get(name) or townbuildings.LEDGES.get(name)
         if ledges:
             entry["ledges_roblox"] = {k: list(v) for k, v in ledges.items()}
-        if name.endswith("_Gate") and name in areas.ASSETS:
+        if name.endswith(("_Gate", "_GateF85")) and name in areas.ASSETS:
             entry["sign_board_roblox"] = areas.SIGN_INFO
         if name.startswith("CatCafe_Plot_Cafe_"):
             entry["chimney_top_roblox"] = list(plot.CHIMNEY_TOP)
@@ -629,7 +660,7 @@ def main():
         if rbx_path:
             entry["rbx_model"] = os.path.relpath(rbx_path, ROOT)
             entry["rbx_parts"] = rbx_parts
-        if not args.no_export and not name.endswith(("_Gold", "_Gold_Sit")):    # gold cats are Part models only
+        if not args.no_export and not name.endswith(("_Gold", "_Gold_Sit", "_Gold_Work")):   # gold cats: Part models only
             entry["files"] = [os.path.relpath(p, ROOT) for p in common.export_asset(objs, name, args.out)]
         entry["gates"] = gates.check(objs, name, budget, tris, lo, hi, PIVOT_NOTES.get(name), mat)
         if args.render:

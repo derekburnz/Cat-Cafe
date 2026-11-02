@@ -8,11 +8,15 @@
 -- never drunk at once). RerollQuest(kind, slot) spends the day's or week's free swap on an unfinished quest.
 -- ClaimAchievement(id) pays a met achievement once. Every claim is marked before it pays, so it pays once. Nothing here
 -- is sold for Robux, and nothing skips a quest.
+-- Claim all (ClaimAllService): `claimAll(player, kind)` pays every finished quest of the daily or weekly set, and
+-- `claimAllAchievements(player)` every met achievement, each as its own Claim would, with one toast, one QuestResult
+-- and one sync.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local ClaimAll = require(ReplicatedStorage.Shared.ClaimAll)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -228,6 +232,59 @@ local function onClaimAchievement(player: Player, rawId: unknown)
 	local paid = Payout.pay(player, profile, Quests.achievementPrize(def), "achievement")
 	Telemetry.custom(player, "achievement_claimed", 1, { def.id, def.size })
 	answer(player, "Achievement " .. def.name, paid)
+end
+
+-- The title of a Claim all's toast: the one thing's own name, or how many ("3 daily quests").
+local function allTitle(count: number, one: string, many: string): string
+	return if count == 1 then one else string.format("%d %s", count, many)
+end
+
+-- Claim all on the Quests window's daily or weekly tab: every finished, unclaimed quest of the set in slot order,
+-- each marked before it pays and the set prize after the last, with one toast and one QuestResult.
+function QuestService.claimAll(player: Player, kind: Types.QuestKind)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	refresh(player, profile, os.time())
+	local slots = ClaimAll.quests(profile, kind)
+	if #slots == 0 then
+		refuse(player, ClaimAll.NOTHING)
+		return
+	end
+	local paid: { string } = {}
+	local first: string? = nil
+	for _, slot in slots do
+		local def = Catalog.getQuest(listOf(profile, kind)[slot].id)
+		first = first or (if def ~= nil then def.text else nil)
+		append(paid, payQuest(player, profile, kind, slot, false))
+	end
+	answer(player, allTitle(#slots, first or "Quest done", kind .. " quests"), ClaimAll.merge(paid))
+end
+
+-- Claim all on the Quests window's achievements tab: every met, unclaimed achievement in Catalog order.
+function QuestService.claimAllAchievements(player: Player)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	local ids = ClaimAll.achievements(profile)
+	if #ids == 0 then
+		refuse(player, ClaimAll.NOTHING)
+		return
+	end
+	local paid: { string } = {}
+	local first = ""
+	for _, achievementId in ids do
+		local def = Catalog.getAchievement(achievementId) :: Types.AchievementDef
+		profile.achievements[achievementId] = true
+		append(paid, (Payout.pay(player, profile, Quests.achievementPrize(def), "achievement")))
+		Telemetry.custom(player, "achievement_claimed", 1, { def.id, def.size })
+		if first == "" then
+			first = "Achievement " .. def.name
+		end
+	end
+	answer(player, allTitle(#ids, first, "achievements"), ClaimAll.merge(paid))
 end
 
 function QuestService.start()

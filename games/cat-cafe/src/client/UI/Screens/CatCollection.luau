@@ -1,5 +1,5 @@
 --!strict
--- The Index window (the Cats screen is its own window since 2026-10-27, Screens/MyCats). Three tabs:
+-- The Index window (the Cats screen is its own window since 2026-10-27, Screens/MyCats). Its tabs:
 --   Cats and Gold (Derek's Set 4 answer, 2026-11-01: "sorted into a normal and gold tab and a cleaner ui for
 --         navigating it looks so cluttered right now should be able to just swap between normal/gold and scroll
 --         through area's very simply showing rarity and what hasn't been found with a black filling and a darker
@@ -13,9 +13,15 @@
 --         The Rewards button opens the area's reward strip (Screens/IndexStrip, F48) under the header, on the tab's
 --         track; it turns green as Claim! with a red count while a reward waits. The Cats tab starts with an All
 --         cats line (the All Cats track, F54). The spare cats (F78) have no page (Derek 2026-10-28).
+--   Rainbow (F99, rainbow-coat.md sections 2 to 4): the same scroll counting rainbow cats, after Gold. A found
+--         rainbow cat's tile has a slowly turning rainbow border and its name in rainbow letters (Components/Rainbow);
+--         the rest stay silhouettes. It starts with a Rainbow cats line, the one Rainbow track for the whole Index
+--         (rainbow1 to rainbow25), whose prizes add rainbow luck. The tab shows once the catalog has the track.
+--   Top: the three leaderboards (F98, Screens/LeaderboardTop).
 --   Decor: the Decor Index (F53, Screens/DecorIndex): a page per crate with its twelve pieces and two rewards.
---   Beside the tabs, the forever bonuses the claimed rewards add up to (F54 v0.10): tips, gold luck with the gold
---   chance it gives, and faster bait, each in its track's colour (Components/IndexRewards.totals). Right of the tabs,
+--   In the title bar, the forever bonuses the claimed rewards add up to (F54 v0.10): tips, gold luck with the gold
+--   chance it gives, rainbow luck with the rainbow chance (F99, on the bands) and faster bait, each in its track's
+--   colour (Components/IndexRewards.totals). They sat beside the tabs until the Rainbow tab filled that row. Right of the tabs,
 --   "Claim all (5)" while two or more rewards wait on any page (Derek 2026-10-28: "more claim all buttons needed so
 --   many reward pop ups"): one ClaimAll("index"), one toast; shown once shared Config.IndexClaimAll is true.
 -- The Index opens on the first open area with cats still to find; an Index Board's prompt opens it on that area.
@@ -36,6 +42,7 @@ local LeaderboardTop = require(script.Parent.LeaderboardTop)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
+local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -51,7 +58,7 @@ export type Callbacks = {
 }
 
 -- "Index" is the Cats tab (the name init and the Index Boards already use); "Top" is the leaderboards (F98)
-export type Tab = "Index" | "Gold" | "Top" | "Decor"
+export type Tab = "Index" | "Gold" | "Rainbow" | "Top" | "Decor"
 
 export type CatCollection = {
 	frame: Frame,
@@ -73,11 +80,15 @@ local TAB_HEIGHT = 40
 local HEADER_HEIGHT = 52
 local REWARDS = Vector2.new(124, 40) -- an area's Rewards button
 local NAME_W = 220
+local HINT_W = 260 -- "Next reward at 10 rainbow · 5 to go"
 local BAR_H = 10
-local PERK_HEIGHT = 26 -- a forever bonus pill beside the tabs
+local PERK_HEIGHT = 26 -- a forever bonus pill in the title bar
+local PERKS_RIGHT = 64 -- the title bar's room for the X, right of the pills
 local DETAIL = Vector2.new(470, 216)
 local DETAIL_ART = 176
 local ALL_AREA = IndexRewards.ALL_AREA
+local RAINBOW_AREA = IndexRewards.RAINBOW_AREA -- the Rainbow cats line (F99)
+local RAINBOW_NAME = "Rainbow cats"
 local PORTRAITS_PER_FRAME = 10 -- a tab's 50-odd models are cloned over a few frames
 
 local CatCollection = {}
@@ -171,8 +182,38 @@ end
 local function trackOf(tab: Tab): IndexRewards.Track
 	if tab == "Gold" then
 		return "gold"
+	elseif tab == "Rainbow" then
+		return "rainbow"
 	end
 	return "normal"
+end
+
+-- The IndexBook tab a window tab lists.
+local function kindOf(tab: Tab): IndexBook.Tab
+	if tab == "Gold" then
+		return "gold"
+	elseif tab == "Rainbow" then
+		return "rainbow"
+	end
+	return "normal"
+end
+
+-- A tile's rainbow border and rainbow letters on its name (F99), made the first time the tile shows a found rainbow
+-- cat and switched off on the other tabs, so the bands' loop turns only what shows.
+local function paintBands(cell: any, on: boolean)
+	if on and cell.bands == nil then
+		cell.bands = { Rainbow.stroke(cell.border), Rainbow.text(cell.name) }
+	end
+	local bands: { UIGradient }? = cell.bands
+	if bands then
+		for _, gradient in bands do
+			gradient.Enabled = on
+		end
+	end
+	if on then
+		cell.border.Color = Theme.colors.white -- the bands tint it
+	end
+	cell.name.TextColor3 = Theme.colors.white
 end
 
 function CatCollection.new(callbacks: Callbacks): CatCollection
@@ -187,6 +228,9 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._selected = nil :: string? -- the cat on the detail card
 	self._detailId = nil :: string? -- the cat whose model the detail card holds
 	self._detailGold = false
+	self._detailBands = nil :: UIGradient? -- the rainbow edge, made the first time a rainbow cat shows (F99)
+	-- an area's Rewards button: a 36 px face on a mouse, a finger's on a phone
+	self._rewardsH = Scale.tapHeight(REWARDS.Y + 1, Theme.sizes.buttonDepth)
 	self._scrollTo = nil :: string? -- an area to bring to the top on the next render
 	self._opened = false -- the first render picks the area to open on
 	self._night = false
@@ -206,7 +250,8 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._panel = panel
 	self.frame = panel.frame
 
-	-- tabs: Cats, Gold, Top, Decor, then Claim all; tall enough for a finger on a phone and a 36 px face on a mouse
+	-- tabs: Cats, Gold, Rainbow, Top, Decor, then Claim all; tall enough for a finger on a phone and a 36 px face on
+	-- a mouse
 	local tabH = Scale.tapHeight(TAB_HEIGHT + 1, Theme.sizes.buttonDepth)
 	local tabs: Frame = Create("Frame", {
 		Name = "Tabs",
@@ -242,9 +287,12 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		tabButton("IndexTab", "Cats", Theme.icons.cats, 1, "Index")
 	self._goldTab, self._goldBadge, self._goldBadgeCount =
 		tabButton("GoldTab", "Gold", "⭐", 2, "Gold")
-	self._topTab = tabButton("TopTab", "Top", "🏆", 3, "Top")
+	self._rainbowTab, self._rainbowBadge, self._rainbowBadgeCount =
+		tabButton("RainbowTab", "Rainbow", "🌈", 3, "Rainbow")
+	self._rainbowTab.instance.Visible = false -- until the catalog has the Rainbow track
+	self._topTab = tabButton("TopTab", "Top", "🏆", 4, "Top")
 	self._decorTab, self._decorBadge, self._decorBadgeCount =
-		tabButton("DecorTab", "Decor", Theme.icons.decor, 4, "Decor")
+		tabButton("DecorTab", "Decor", Theme.icons.decor, 5, "Decor")
 	self._decorTab.instance.Visible = false
 	self._claimAllAt = -math.huge -- os.clock() of the last Claim all press
 	self._claimAll = Button.new({
@@ -253,7 +301,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		style = "primary",
 		size = UDim2.fromOffset(CLAIM_ALL_W, tabH),
 		textSize = Theme.sizes.textBody,
-		layoutOrder = 5,
+		layoutOrder = 6,
 		parent = tabs,
 		onClick = function()
 			self:_pressClaimAll()
@@ -261,16 +309,19 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	})
 	self._claimAll.instance.Visible = false
 
-	-- the forever bonuses, right of the tabs; shrinks to fit the room the tabs leave on a narrow screen
+	-- the forever bonuses, in the title bar right of the title and left of the X (F99: five tabs and Claim all fill
+	-- the tab row); shrinks to fit the room the title leaves on a narrow screen
+	local header = panel.body:FindFirstChild("Header") :: Frame
 	local perks: Frame = Create("Frame", {
 		Name = "Forever",
 		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromScale(1, 0),
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -PERKS_RIGHT, 0.5, -1),
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, tabH),
+		Size = UDim2.fromOffset(0, PERK_HEIGHT + 4),
 		Visible = false,
-		Parent = panel.content,
+		ZIndex = 3,
+		Parent = header,
 	})
 	local perksLayout: UIListLayout = Create("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
@@ -287,11 +338,12 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		Size = UDim2.fromOffset(0, PERK_HEIGHT),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.index.subtext,
+		TextColor3 = Theme.modal.headerText,
 		TextTruncate = Enum.TextTruncate.None,
 		Text = "Forever",
 		Parent = perks,
 	})
+	Outline.text(self._perksCaption, 1.5)
 	self._perks = perks
 	self._perkPills = {} :: { [string]: TextLabel }
 	for order, perk in IndexRewards.PERKS do
@@ -304,23 +356,28 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		label.Visible = false
 		Outline.border(label, 2)
 		Outline.text(label, 1.5)
+		PrizeChips.paintPerk(label, perk) -- rainbow luck on the turning bands
 		self._perkPills[perk] = label
 	end
-	local tabsLayout = tabs:FindFirstChildOfClass("UIListLayout")
+	local titleLabel = header:FindFirstChild("Title") :: TextLabel
+	local subtitleLabel = header:FindFirstChild("Subtitle") :: TextLabel
 	local function fitPerks()
-		-- AbsoluteContentSize already includes the UIScale, so divide it back out for the row's own width
+		-- AbsoluteContentSize already includes the UIScale, so divide it back out for the row's own width; the room
+		-- is the bar's width past the title's or the count's words, whichever is longer, and the X's corner
 		local natural = perksLayout.AbsoluteContentSize.X / math.max(perksScale.Scale, 0.01)
-		local used = if tabsLayout then tabsLayout.AbsoluteContentSize.X else 0
-		local room = panel.content.AbsoluteSize.X - used - Theme.sizes.gap
+		local words = math.max(titleLabel.TextBounds.X, subtitleLabel.TextBounds.X)
+		local left = titleLabel.AbsolutePosition.X - header.AbsolutePosition.X + words
+		local room = header.AbsoluteSize.X
+			- left
+			- PERKS_RIGHT * scaleOf(header)
+			- Theme.sizes.gap * 2
 		perksScale.Scale = if room > 0 and natural > room then room / natural else 1
 	end
 	perksLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fitPerks)
-	panel.content:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitPerks)
-	if tabsLayout then
-		tabsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fitPerks)
-	end
+	header:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitPerks)
+	subtitleLabel:GetPropertyChangedSignal("TextBounds"):Connect(fitPerks)
 
-	-- Cats and Gold: one scroll of areas
+	-- Cats, Gold and Rainbow: one scroll of areas
 	local indexTop = tabH + Theme.sizes.gap
 	self._book = Create("ScrollingFrame", {
 		Name = "Book",
@@ -455,11 +512,14 @@ function CatCollection._buildDetail(self: any, parent: Instance)
 		ZIndex = 42,
 		Parent = card,
 	})
+	-- a finger wide and tall on a phone, as the window's own X
+	local closeTall = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
+	local closeWide = math.max(Theme.sizes.touchMin, closeTall - Theme.sizes.buttonDepth)
 	self._detailClose = Button.new({
 		name = "Close",
 		text = "X",
 		style = "close",
-		size = UDim2.fromOffset(Theme.sizes.touchMin, Theme.sizes.touchMin),
+		size = UDim2.fromOffset(closeWide, closeTall),
 		anchorPoint = Vector2.new(1, 0),
 		position = UDim2.new(1, -8, 0, 8),
 		textSize = Theme.sizes.textLarge,
@@ -483,17 +543,17 @@ function CatCollection._closeDetail(self: any)
 	self._cover.Visible = false
 end
 
--- The tabs' looks and the page behind them: dark for Cats, Gold and Top, the light window body for Decor.
+-- The tabs' looks and the page behind them: dark for Cats, Gold, Rainbow and Top, the light window body for Decor.
 function CatCollection._paintTabs(self: any)
 	local tab: Tab = self._tab
 	self._indexTab:setStyle(if tab == "Index" then "gold" else "ghost")
 	self._goldTab:setStyle(if tab == "Gold" then "gold" else "ghost")
+	self._rainbowTab:setStyle(if tab == "Rainbow" then "gold" else "ghost")
 	self._topTab:setStyle(if tab == "Top" then "gold" else "ghost")
 	self._decorTab:setStyle(if tab == "Decor" then "gold" else "ghost")
 	local dark = tab ~= "Decor"
 	self._panel.body.BackgroundColor3 = if dark then Theme.index.body else Theme.modal.panel
-	self._perksCaption.TextColor3 = if dark then Theme.index.subtext else Theme.modal.subtext
-	self._book.Visible = tab == "Index" or tab == "Gold"
+	self._book.Visible = tab == "Index" or tab == "Gold" or tab == "Rainbow"
 	self._decor.Visible = tab == "Decor"
 	self._top.frame.Visible = tab == "Top"
 end
@@ -502,7 +562,7 @@ function CatCollection.showTab(self: any, tab: Tab)
 	if self._tab ~= tab then
 		self:_closeDetail()
 		self._book.CanvasPosition = Vector2.zero
-		self._opened = false -- the Cats and Gold tabs each open on their first area still to find
+		self._opened = false -- the Cats, Gold and Rainbow tabs each open on their first area still to find
 	end
 	self._tab = tab
 	self:_paintTabs()
@@ -562,7 +622,8 @@ function CatCollection._buildSection(
 	local header: Frame = Create("Frame", {
 		Name = "Header",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+		-- tall enough for the Rewards button's finger height on a phone
+		Size = UDim2.new(1, 0, 0, math.max(HEADER_HEIGHT, self._rewardsH + 4)),
 		LayoutOrder = 1,
 		Parent = frame,
 	})
@@ -590,7 +651,7 @@ function CatCollection._buildSection(
 		Name = "Hint",
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -(REWARDS.X + 12), 0, 6),
-		Size = UDim2.fromOffset(220, 20),
+		Size = UDim2.fromOffset(HINT_W, 20),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.index.subtext,
@@ -635,7 +696,7 @@ function CatCollection._buildSection(
 		name = "Rewards",
 		text = "Rewards",
 		style = "ghost",
-		size = UDim2.fromOffset(REWARDS.X, REWARDS.Y),
+		size = UDim2.fromOffset(REWARDS.X, self._rewardsH),
 		anchorPoint = Vector2.new(1, 0.5),
 		position = UDim2.new(1, 0, 0.5, 0),
 		textSize = Theme.sizes.textSmall + 1,
@@ -721,8 +782,12 @@ function CatCollection._buildIndex(self: any)
 	end
 	assert(catalog, "catalog not set; call UI.init first")
 
-	-- every area the catalog or its cats name, in tier order; the All cats line first
+	-- every area the catalog or its cats name, in tier order; the All cats line first (the Rainbow cats line takes
+	-- its place on the Rainbow tab)
 	self:_buildSection(ALL_AREA, Format.areaName(ALL_AREA), 0, false)
+	local rainbowLine = self:_buildSection(RAINBOW_AREA, RAINBOW_NAME, 0, false)
+	Rainbow.text(rainbowLine.title)
+	Rainbow.fill(rainbowLine.fill)
 	local empty: any = { tier = 0, catsOwned = {}, collection = {}, goldCollection = {} }
 	local order = 0
 	for _, area in IndexBook.sections(catalog, empty, "normal") do
@@ -788,6 +853,7 @@ function CatCollection._buildIndex(self: any)
 			name = name,
 			def = def,
 			connection = connection,
+			bands = nil :: { UIGradient }?, -- the rainbow border and name, made the first time it shows as rainbow
 		}
 	end
 end
@@ -796,8 +862,14 @@ function CatCollection.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
 	self:_buildIndex()
 	self._decorIndex:setCatalog(catalog)
-	-- the Decor tab shows once the catalog has crates to fill its pages
+	-- the Decor tab shows once the catalog has crates to fill its pages, the Rainbow tab once it has the track
 	self._decorTab.instance.Visible = #DecorPieces.pools(catalog) > 0
+	local prizes = catalog.indexPrizes
+	self._rainbowTab.instance.Visible = prizes ~= nil and prizes[RAINBOW_AREA] ~= nil
+	if self._tab == "Rainbow" and not self._rainbowTab.instance.Visible then
+		self._tab = "Index"
+		self:_paintTabs()
+	end
 	self._dirty = true
 end
 
@@ -814,6 +886,7 @@ function CatCollection._paintHeader(
 	state: Types.PlayerState
 )
 	local gold = self._tab == "Gold"
+	local rainbow = self._tab == "Rainbow"
 	local fraction = if total > 0 then have / total else 0
 	section.count.Text = countText
 	section.count.TextColor3 = if total > 0 and have >= total
@@ -821,8 +894,9 @@ function CatCollection._paintHeader(
 		elseif locked then Theme.index.subtext
 		else Theme.index.text
 	section.fill.Size = UDim2.fromScale(fraction, 1)
-	section.fill.BackgroundColor3 = if gold or have >= total
-		then Theme.colors.gold
+	section.fill.BackgroundColor3 = if areaId == RAINBOW_AREA
+		then Theme.colors.white -- under its rainbow bands
+		elseif gold or have >= total then Theme.colors.gold
 		else Theme.areaColors[areaId] or Theme.colors.mint
 	local rewards = section.rewards
 	rewards.instance.Visible = reward.state ~= "none"
@@ -833,7 +907,7 @@ function CatCollection._paintHeader(
 	elseif reward.state == "next" then
 		rewards:setText(if section.expanded then "Hide" else "Rewards")
 		rewards:setStyle("ghost")
-		local word = if gold then "gold" else "cats"
+		local word = if gold then "gold" elseif rainbow then "rainbow" else "cats"
 		section.hint.Text = ("Next reward at %d %s · %d to go"):format(
 			reward.need or 0,
 			word,
@@ -857,8 +931,9 @@ function CatCollection._paintHeader(
 	end
 end
 
--- The Cats or Gold tab: each area's header and tiles. A tile's model is cloned the first time its tab shows it
--- (a few per frame, _loadPortraits), and again on later renders until Assets has it.
+-- The Cats, Gold or Rainbow tab: each area's header and tiles. A tile's model is cloned the first time its tab shows
+-- it (a few per frame, _loadPortraits), and again on later renders until Assets has it. Rainbow tiles keep the base
+-- coat, as every rainbow portrait does; their border and name carry the bands.
 function CatCollection._renderBook(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
 	if not catalog then
@@ -867,7 +942,8 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 	assert(catalog, "catalog")
 	local tab: Tab = self._tab
 	local gold = tab == "Gold"
-	local kind: IndexBook.Tab = if gold then "gold" else "normal"
+	local rainbow = tab == "Rainbow"
+	local kind: IndexBook.Tab = kindOf(tab)
 	local track: IndexRewards.Track = trackOf(tab)
 	local sections = IndexBook.sections(catalog, state, kind)
 	local found = IndexBook.found(state, kind)
@@ -895,23 +971,24 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 			section.hint.Text = IndexBook.EXCLUSIVE_NOTE -- F96: it counts toward nothing and has no rewards
 		end
 	end
-	-- the All cats line: the All Cats track, on the Cats tab only
-	local all = self._sections[ALL_AREA]
-	if all and not gold then
-		local counts = IndexRewards.counts(catalog, state, ALL_AREA)
-		local views = IndexRewards.views(catalog, state, ALL_AREA)
-		local have, total = counts.found, counts.total
+	-- the line over the areas: the All Cats track on the Cats tab, the Rainbow track on the Rainbow tab, none on Gold
+	local lineId: string? = if tab == "Index" then ALL_AREA elseif rainbow then RAINBOW_AREA else nil
+	local line = if lineId then self._sections[lineId] else nil
+	if line and lineId then
+		local counts = IndexRewards.counts(catalog, state, lineId)
+		local views = IndexRewards.views(catalog, state, lineId)
+		local have, total = if rainbow then counts.rainbow else counts.found, counts.total
 		self:_paintHeader(
-			all,
+			line,
 			have,
 			total,
 			if total > 0 and have >= total then "Complete!" else ("%d / %d"):format(have, total),
-			IndexBook.reward(views, "normal"),
+			IndexBook.reward(views, track),
 			false,
-			ALL_AREA,
+			lineId,
 			state
 		)
-		shown[ALL_AREA] = true
+		shown[lineId] = true
 	end
 	for id, section in self._sections do
 		section.frame.Visible = shown[id] == true
@@ -930,8 +1007,10 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 			else color:Lerp(Color3.new(0, 0, 0), Theme.index.dim)
 		cell.portrait:setSilhouette(not isFound)
 		cell.name.Text = if isFound then def.name else def.rarity
+		local bright = (gold or rainbow) and isFound
 		cell.border.Color = if gold and isFound then Theme.colors.gold else Theme.colors.outline
-		cell.border.Thickness = Theme.sizes.outline + (if gold and isFound then 1 else 0)
+		cell.border.Thickness = Theme.sizes.outline + (if bright then 1 else 0)
+		paintBands(cell, rainbow and isFound)
 	end
 	self:_loadPortraits(toLoad, gold)
 
@@ -948,7 +1027,7 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 end
 
 -- Brings an area's header to the top of the scroll once the layout has placed it (the first area stays at 0, so
--- the All cats line shows above it).
+-- the All cats or Rainbow cats line shows above it).
 function CatCollection._scrollToSection(self: any, areaId: string)
 	local section = self._sections[areaId]
 	if not section then
@@ -960,6 +1039,7 @@ function CatCollection._scrollToSection(self: any, areaId: string)
 			each.frame.Visible
 			and each.frame.LayoutOrder < section.frame.LayoutOrder
 			and each.id ~= ALL_AREA
+			and each.id ~= RAINBOW_AREA
 		then
 			first = false
 			break
@@ -1030,7 +1110,8 @@ function CatCollection._showDetail(self: any)
 	end
 	assert(def and state, "detail")
 	local gold = self._tab == "Gold"
-	local found = IndexBook.found(state, if gold then "gold" else "normal")[def.id] == true
+	local found = IndexBook.found(state, kindOf(self._tab))[def.id] == true
+	local rainbow = self._tab == "Rainbow" and found
 	if self._detailId ~= def.id or self._detailGold ~= gold then
 		self._detailId = def.id
 		self._detailGold = gold
@@ -1038,10 +1119,20 @@ function CatCollection._showDetail(self: any)
 	end
 	self._detailArt:setSilhouette(not found)
 	local color = Theme.rarityColor(def.rarity)
-	self._detailStroke.Color = color
+	if rainbow and self._detailBands == nil then
+		self._detailBands = Rainbow.stroke(self._detailStroke) -- F99: the rainbow card's turning edge
+	end
+	local bands: UIGradient? = self._detailBands
+	if bands then
+		bands.Enabled = rainbow
+	end
+	self._detailStroke.Color = if rainbow then Theme.colors.white else color
 	self._detailDisc.BackgroundColor3 = color
 	local name = if found then def.name else "Not found yet"
-	self._detailName.Text = if gold and found then "Gold " .. name else name
+	self._detailName.Text = if gold and found
+		then "Gold " .. name
+		elseif rainbow then "Rainbow " .. name
+		else name
 	self._detailPill.Text = def.rarity
 	self._detailPill.BackgroundColor3 = color
 	self._detailPill.TextColor3 = Theme.rarityTextColor(def.rarity)
@@ -1075,12 +1166,12 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	end
 	self._dirty = false
 	local catalog: Types.Catalog? = self._catalog
-	local gold = self._tab == "Gold"
-	-- the title's "12 / 50" leaves the spare cats out (F78); the Gold tab counts gold cats
+	local kind: IndexBook.Tab = kindOf(self._tab)
+	-- the title's "12 / 50" leaves the spare cats out (F78); the Gold and Rainbow tabs count their coats
 	local foundCount, total = 0, 0
 	if catalog then
-		if gold then
-			for _, section in IndexBook.sections(catalog, state, "gold") do
+		if kind ~= "normal" then
+			for _, section in IndexBook.sections(catalog, state, kind) do
 				foundCount += section.have
 				total += section.total
 			end
@@ -1093,13 +1184,13 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 		("%d / %d %s  ·  %s"):format(
 			foundCount,
 			total,
-			if gold then "gold" else "found",
+			if kind == "normal" then "found" else kind,
 			Format.percent(if total > 0 then foundCount / total else 0)
 		)
 	)
 
 	-- each tab's badge counts the rewards waiting on its pages, whichever tab is open
-	local waiting, goldWaiting, decorWaiting = 0, 0, 0
+	local waiting, goldWaiting, rainbowWaiting, decorWaiting = 0, 0, 0, 0
 	local waitingAll = 0
 	if catalog then
 		local ready, all = IndexRewards.claimable(catalog, state)
@@ -1111,6 +1202,7 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 				local views = IndexRewards.views(catalog, state, areaId)
 				waiting += IndexBook.reward(views, "normal").ready
 				goldWaiting += IndexBook.reward(views, "gold").ready
+				rainbowWaiting += IndexBook.reward(views, "rainbow").ready
 			end
 		end
 	end
@@ -1123,6 +1215,7 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	end
 	setBadge(self._indexBadge, self._indexBadgeCount, waiting)
 	setBadge(self._goldBadge, self._goldBadgeCount, goldWaiting)
+	setBadge(self._rainbowBadge, self._rainbowBadgeCount, rainbowWaiting)
 	setBadge(self._decorBadge, self._decorBadgeCount, decorWaiting)
 	self._waitingAll = waitingAll
 	self:_syncClaimAll()
@@ -1197,6 +1290,7 @@ function CatCollection.destroy(self: any)
 	self._top:destroy()
 	self._indexTab:destroy()
 	self._goldTab:destroy()
+	self._rainbowTab:destroy()
 	self._topTab:destroy()
 	self._decorTab:destroy()
 	self._panel:destroy()

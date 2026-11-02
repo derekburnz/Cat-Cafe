@@ -183,6 +183,7 @@ export type IndexPrize = {
 	crates: { [string]: number }?, -- crate id -> count
 	bonus: number?, -- tips forever, as a fraction (0.02)
 	goldLuck: number?, -- v0.10 gold track: gold luck forever, as a fraction
+	rainbowLuck: number?, -- F99 Rainbow track: rainbow luck forever, as a fraction
 	baitSpeed: number?, -- v0.10 All Cats track: faster bait forever, as a fraction
 	tag: string?, -- a name tag ("Cat Master")
 	decorId: string?,

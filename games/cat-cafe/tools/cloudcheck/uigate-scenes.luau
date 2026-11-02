@@ -78,6 +78,7 @@ local function samplePlayer(now)
 	local cats = {}
 	local collection = {}
 	local goldCollection = {}
+	local rainbowCollection = {} -- F99: four rainbow cats, so rainbow1 and rainbow3 wait on the Rainbow track
 	local spots = {}
 	for _, spot in Catalog.spots do
 		if (spot.tier or 1) <= 3 then
@@ -90,6 +91,9 @@ local function samplePlayer(now)
 		end
 		if index % 9 == 1 then
 			goldCollection[def.id] = now - index * 300
+		end
+		if index % 12 == 2 and def.area ~= "spare" and def.exclusive ~= true then
+			rainbowCollection[def.id] = now - index * 200
 		end
 	end
 	local count = 0
@@ -163,6 +167,7 @@ local function samplePlayer(now)
 		cats = cats,
 		collection = collection,
 		goldCollection = goldCollection,
+		rainbowCollection = rainbowCollection,
 		tutorialStep = nil,
 		introSeen = true,
 		settings = UIShim.require("ReplicatedStorage.Shared.Settings").defaults(),
@@ -608,6 +613,41 @@ local SCENES = {
 		press("Collection", "TopTab")
 		press("Collection", "Board_money")
 		press("Collection", "Window_week")
+	end },
+	-- F99 section 3: the Index's Rainbow tab, the Rainbow cats line with its strip open on "Reward ready", rainbow
+	-- tiles on turning borders
+	{ "IndexRainbow", function()
+		UI.open("Collection")
+		press("Collection", "RainbowTab")
+		press("Collection", "rainbow.Header.Rewards")
+	end },
+	-- F99 section 4: three claimed, so the rainbow luck pill shows by the tabs and the milestones row has its band
+	{ "IndexRainbowLuck", function()
+		UI.update({
+			indexRewards = { rainbow = { rainbow1 = true, rainbow3 = true, rainbow5 = true } },
+			rainbowLuck = 0.2,
+		})
+		UI.open("Collection")
+		press("Collection", "RainbowTab")
+		press("Collection", "rainbow.Header.Rewards")
+		press("Collection", "rainbow.Expand")
+	end },
+	-- a found rainbow cat's card: "Rainbow" before its name, a rainbow edge
+	{ "IndexRainbowCat", function()
+		UI.open("Collection")
+		press("Collection", "RainbowTab")
+		local first
+		for index, def in Catalog.cats do
+			if index % 12 == 2 and def.area ~= "spare" and def.exclusive ~= true then
+				first = def.id
+				break
+			end
+		end
+		press("Collection", "Book." .. first)
+	end },
+	-- F99 section 2: a rainbow stray's once-a-minute toast on a turning rainbow edge
+	{ "RainbowSpawn", function()
+		UI.rainbowSpawned(firstArea(), Catalog.cats[10].id)
 	end },
 	{ "Potions", function()
 		UI.open("Potions")

@@ -399,6 +399,7 @@ local Config = {
 		StreetSouthZ = -124,
 		StreetNorthZ = 124, -- the street ends at the hometown's north welcome arch (v4)
 		-- v4 (F84, hometown-cannon.md section 2): the hometown's own ground round the town, and each wild area its own
+		-- CatCafe_Town_Backdrop (Model-Agent #733) is built against 260 by 300: tell Model-Agent when these change
 		TownGroundWidth = 260,
 		TownGroundDepth = 300,
 		WallHeight = 9,

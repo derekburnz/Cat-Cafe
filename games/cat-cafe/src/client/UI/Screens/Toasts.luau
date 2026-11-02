@@ -1,8 +1,11 @@
 --!strict
 -- Short messages that drop in under the tier pill and travel row and fade out. Max four on screen.
+-- rainbow(text, rarity) is the rainbow stray's shout-out (F99, rainbow-coat.md section 2): the announce pill with a
+-- slowly turning rainbow edge (Components/Rainbow), silent as the sound is Sound-Agent's shimmer.
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -13,6 +16,7 @@ export type Toasts = {
 	screenGui: ScreenGui,
 	show: (self: Toasts, text: string, kind: Types.ToastKind?, quiet: boolean?) -> (),
 	announce: (self: Toasts, text: string, rarity: string?) -> (),
+	rainbow: (self: Toasts, text: string, rarity: string?) -> (),
 	destroy: (self: Toasts) -> (),
 }
 
@@ -115,7 +119,15 @@ function Toasts.announce(self: any, text: string, rarity: string?)
 	self:_push(text, fill, ANNOUNCE_LIFETIME)
 end
 
-function Toasts._push(self: any, text: string, fill: Color3, lifetime: number)
+-- A rainbow stray's shout-out: the announce pill in the cat's rarity colour with the rainbow bands on its edge.
+function Toasts.rainbow(self: any, text: string, rarity: string?)
+	local fill = if rarity and (Theme.rarity :: any)[rarity]
+		then Theme.rarityColor(rarity)
+		else KIND_COLORS.announce
+	self:_push(text, fill, ANNOUNCE_LIFETIME, true)
+end
+
+function Toasts._push(self: any, text: string, fill: Color3, lifetime: number, bands: boolean?)
 	self._order += 1
 	local toast: Frame = Create("Frame", {
 		Name = "Toast",
@@ -133,6 +145,10 @@ function Toasts._push(self: any, text: string, fill: Color3, lifetime: number)
 	})
 	local border = Outline.border(toast)
 	border.Transparency = 1
+	if bands then
+		border.Thickness += 1
+		Rainbow.stroke(border)
+	end
 	local message: TextLabel = Create("TextLabel", {
 		Name = "Text",
 		BackgroundTransparency = 1,

@@ -40,7 +40,7 @@ Design: `docs/design/cat-cafe/luck-and-rare-moments.md` section 1a ("Its paw wav
 |---|---|---|
 | Beckoning paw | The paw tips forward and back about the shoulder, 20 degrees each way (clear of the head and ear), one beckon every 2.4, 2.1, 1.8, 1.5 and 1.2 s at levels 1 to 5; each statue starts at its own point in the beckon, so a street of cafes does not wave in step. Level 0, the empty plinth, has no paw | a plot's `LuckyCat` model within `budget.ambientRadius` |
 
-How it works: the server never moves the statue, so this client draws the turn over the paw's rest frames, found when the statue appears; out of range or with Reduce Motion the paw is put back at rest, and a statue the server moves or relevels binds again. Four cases are in `tests/specs/EffectsLuckyPaw.spec.luau`. Studio checks, once #742 and #743 are in: buy the first level and the clay statue's paw beckons; at level 5 it beckons twice as fast; a neighbour's statue waves too, out of step with yours; the plinth stays still. No new console errors.
+How it works: the server never moves the statue, so this client draws the turn over the paw's rest frames, found when the statue appears; out of range or with Reduce Motion the paw is put back at rest, and a statue the server moves or relevels binds again, as does one whose paw arrives late or whose parts stream out and back (review S110). Four cases are in `tests/specs/EffectsLuckyPaw.spec.luau`. Studio checks, once #742 and #743 are in: buy the first level and the clay statue's paw beckons; at level 5 it beckons twice as fast; a neighbour's statue waves too, out of step with yours; the plinth stays still. No new console errors.
 
 ## Bellhop Cat (F96, 2026-11-02)
 

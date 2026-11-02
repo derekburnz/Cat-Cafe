@@ -21,6 +21,7 @@ local SCAN_SECONDS = 0.5 -- how often statues are checked against the radius and
 
 type Statue = {
 	model: Model,
+	paw: Model,
 	level: number,
 	parts: { BasePart }, -- the paw's parts
 	rest: { CFrame }, -- each paw part where the statue left it
@@ -33,6 +34,9 @@ type Statue = {
 }
 
 local statues: { [Model]: Statue } = {}
+-- Every LuckyCat this client has seen, bound or not: with streaming its paw can arrive after the model, and its parts
+-- can stream out and come back as new instances, so the scan binds these again until they hold (review S110).
+local seen: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local rng = Random.new()
 local started = false
 local scanAt = 0
@@ -55,8 +59,36 @@ end
 local function rest(statue: Statue)
 	if statue.waving then
 		statue.waving = false
-		Workspace:BulkMoveTo(statue.parts, statue.rest, Enum.BulkMoveMode.FireCFrameChanged)
+		local parts: { BasePart } = {}
+		local frames: { CFrame } = {}
+		for i, part in statue.parts do
+			if part.Parent ~= nil then -- one that streamed out comes back as a new part at rest
+				table.insert(parts, part)
+				table.insert(frames, statue.rest[i])
+			end
+		end
+		Workspace:BulkMoveTo(parts, frames, Enum.BulkMoveMode.FireCFrameChanged)
 	end
+end
+
+-- The paw or the statue streamed out and back since it was bound (its parts are new instances), or the paw's parts
+-- were still arriving when it was bound.
+local function stale(statue: Statue): boolean
+	local anchor = statue.anchor
+	if
+		(anchor ~= nil and not anchor:IsDescendantOf(statue.model))
+		or not statue.parts[1]:IsDescendantOf(statue.model)
+		or not statue.paw:IsDescendantOf(statue.model)
+	then
+		return true
+	end
+	local count = 0
+	for _, descendant in statue.paw:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			count += 1
+		end
+	end
+	return count ~= #statue.parts
 end
 
 -- Finds the paw of a statue and the frames it rests at; nil for the plinth (no paw).
@@ -85,6 +117,7 @@ local function bind(model: Model): Statue?
 	end
 	return {
 		model = model,
+		paw = paw,
 		level = levelOf(model),
 		parts = parts,
 		rest = frames,
@@ -110,6 +143,7 @@ local function consider(child: Instance)
 		return
 	end
 	local model = child :: Model
+	seen[model] = true
 	forget(model)
 	local statue = bind(model)
 	if statue ~= nil then
@@ -127,11 +161,13 @@ local function watchPlot(plot: Instance)
 	plot.ChildRemoved:Connect(function(child: Instance)
 		if child:IsA("Model") then
 			statues[child :: Model] = nil
+			seen[child :: Model] = nil
 		end
 	end)
 end
 
--- Drops statues that are gone, binds again one the server moved or relevelled, and notes which are in range.
+-- Drops statues that are gone, binds again one the server moved or relevelled or that streamed back in, tries again
+-- for one whose paw had not arrived, and notes which are in range.
 local function scan()
 	local focus = Context.focus()
 	local radius = Context.budget.ambientRadius
@@ -144,7 +180,7 @@ local function scan()
 		end
 		local anchor = statue.anchor
 		local moved = anchor ~= nil and anchor.CFrame ~= statue.anchorAt
-		if moved or levelOf(model) ~= statue.level then
+		if moved or levelOf(model) ~= statue.level or stale(statue) then
 			table.insert(again, model)
 			continue
 		end
@@ -155,6 +191,13 @@ local function scan()
 			statue.waving = true
 		else
 			rest(statue)
+		end
+	end
+	for model in seen do
+		if model.Parent == nil then
+			seen[model] = nil
+		elseif statues[model] == nil and pawOf(model) ~= nil then
+			table.insert(again, model) -- its paw arrived since
 		end
 	end
 	for _, model in again do
@@ -174,8 +217,8 @@ local function step(dt: number)
 	end
 	elapsed = 0
 	for _, statue in statues do
-		if not statue.waving then
-			continue
+		if not statue.waving or statue.parts[1].Parent == nil then
+			continue -- streamed out: the scan binds it again when it is back
 		end
 		local turn = statue.pivot
 			* CFrame.Angles(Logic.pawWave(now + statue.phase, statue.level), 0, 0)

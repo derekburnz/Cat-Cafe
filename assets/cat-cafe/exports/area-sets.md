@@ -216,29 +216,30 @@ between brick piers, just inside WorldBuilder's at x +-60 and z +285: 18 high ro
 roof from the tunnel front on, with seven finished tunnel mouths in the side walls (iron bars or an iron door), a
 barred one in the far wall, the canal's water mouths and stone columns at the far corners; a 30 high `_Barrier` all
 round but the way in; on the camp side the town wall either side of the gate, as v3.2. Six pieces cross the width,
-their gaps on alternating sides, so the far end is never in a straight line. The low four are about 4 high (the water
+their ways through about 24 wide and moving about, one in the middle (Derek 11-02: wider, not always on the sides, not
+cramped), so the far end is never in a straight line. The low four are about 4 high (the water
 behind guard rails), so a hunter sees a carrier coming but has to go round, each with a 30 high `_Barrier` on its own
 line (on the guard rails' line for the water); the tunnel front and the vault wall are the tall ones and hide the
 halls behind them:
 
 | z (set space) | Blocker | Gap |
 |---|---|---|
-| -211 to -199 | the yard's canal, sunken between kerbs with guard rails, out through grates in both walls (as v3.2) | the brick bridge at x 38, steps and parapets |
-| -150 to -147 | the tunnel front, brick 24 high where the roof begins, "THE SEWER" over the barred middle arch | the walk-in arch at x -45 to -31, a lantern either side; the arch at x 31 to 45 is barred |
-| -78 to -72 | the rubble where the roof came down: broken slabs, brick lumps and rebar, about 4 high, daylight through the hole above | x 34 to 50 between timber props under the cracked beam |
-| -5 to 5 | the channel, sunken between railed kerbs from wall to wall (as v3.2) | the steel catwalk at x -40 |
-| 90 to 96 | the vault wall, brick to the roof, "CAT TOWN" over its arch | x 34 to 50 through the deep vaulted arch |
-| 181 to 189 | the pipe bank: three big pipes on the floor, about 4.5 high, flanged every 6 | x -50 to -34, the pipes' capped ends |
+| -211 to -199 | the yard's canal, sunken between kerbs with guard rails, out through grates in both walls (as v3.2) | the brick bridge at x 38, 12 wide (8 until 11-02), steps and parapets |
+| -150 to -147 | the tunnel front, brick 24 high where the roof begins, "THE SEWER" over the barred middle arch | the walk-in arch at x -49.5 to -26.5 (23 wide, 14 until 11-02), a lantern either side; its twin at x 26.5 to 49.5 is barred |
+| -78 to -72 | the rubble where the roof came down: broken slabs, brick lumps and rebar, about 4 high, daylight through the hole above | x 26 to 50 between timber props under the cracked beam |
+| -5 to 5 | the channel, sunken between railed kerbs from wall to wall (as v3.2) | the steel catwalk at x -40, 9 wide (5 until 11-02) |
+| 90 to 96 | the vault wall, brick to the roof, "CAT TOWN" over its arch | x 28 to 52 through the deep vaulted arch (springing at 3.5 so the sign fits under the cornice) |
+| 181 to 189 | the pipe bank: three big pipes on the floor, about 4.5 high, flanged every 6 | x -12 to 12 in the middle (x -50 to -34 until 11-02), the pipes' capped ends |
 
 The walk from the pad: across the yard (barrels, tyres, cones, suitcases) east to the brick bridge, back west along
 the bank to the walk-in arch, through the junk market (three stalls, a crate deck, the hanging sign, a grate trap) east
 to the rubble's gap, west through the pump room (the big pipe and its valve, the beached bathtub boat and raft) to the
 catwalk, east through the lost and found (the lounge, the yarn trolley, the pipe hammock, a drain pipe trap) to the
-vault's arch, west past cat town (can, teapot and box houses round a square, the cart on its rails, a grate trap) to
-the pipe bank's gap, and east across the throne room (a drain pipe trap by the east wall) to the junk throne on its dais (34, 270.5) in front of the pipe
-organ, with the culvert pouring out of the far wall into the pool at x 0. The shortest walk from the gate is about 755
-to the throne, 765 to the organ and 777 to the far corner (walk check on the Part model, over the bridges' steps), so
-about 770, 780 and 790 from the pad (6b: about 750).
+vault's arch, past cat town (can, teapot and box houses round a square, the cart on its rails, a grate trap) to
+the pipe bank's gap in the middle, and across the throne room (a drain pipe trap by the east wall) to the junk throne on its dais (34, 270.5) in front of the pipe
+organ, with the culvert pouring out of the far wall into the pool at x 0. The shortest walk from the gate is about 690
+to the throne, 700 to the organ and 710 to the far corner spots (walk check on the Part model, over the bridges' steps),
+so about 705, 715 and 725 from the pad (6b: about 750); the wider, moved gaps took about 65 off.
 
 The roof (24, 1.2 thick) starts at the tunnel front; the yard is open to the sky. Nine grated skylights and the hole
 over the rubble let the day in; brick beams cross the width on pillars at x +-28 (two pillars a beam, clear of the

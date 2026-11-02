@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 18:45 UTC",
+  "generated": "2026-11-02 19:03 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -155803,7 +155803,7 @@
         "CatCafe_Sewer_SetF85_164_DripPuddle",
         "CatCafe_Sewer_SetF85_164_DripPuddle_Water"
       ],
-      "triangles": 134420,
+      "triangles": 134304,
       "budget": 150000,
       "size_studs": {
         "x": 119.2,
@@ -156290,7 +156290,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_SetF85.model.json",
-      "rbx_parts": 7362,
+      "rbx_parts": 7348,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_SetF85.glb"
@@ -156302,10 +156302,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "134420/150000 tris",
+          "budget": "134304/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "69157 faces on swatch centers",
+          "uv": "69085 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.07"

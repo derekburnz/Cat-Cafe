@@ -555,12 +555,12 @@ def culvert(mat):
 
 
 # ---------------------------------------------------------------- bridges ---
-def brick_bridge(mat):
-    """The yard canal's only crossing: a brick arch bridge 8 wide along local Y, its deck 2.4 above the walkway with
-    two steps of 0.8 at each end (8c: rises of at most 1), brick parapets 3 high and a lamp on each end pier. Base on
-    the slab; its abutments reach down past the slab's cut edge to the area floor."""
+def brick_bridge(mat, D=8.0):
+    """The yard canal's only crossing: a brick arch bridge D wide (8 in v3.2) along local Y, its deck 2.4 above the
+    walkway with two steps of 0.8 at each end (8c: rises of at most 1), brick parapets 3 high and a lamp on each end
+    pier. Base on the slab; its abutments reach down past the slab's cut edge to the area floor."""
     b, lamp = Builder(), Builder()
-    D, half, H = 8.0, CANAL_HW + KERB_W, 2.4                                      # the deck spans water and kerbs
+    half, H = CANAL_HW + KERB_W, 2.4                                              # the deck spans water and kerbs
     b.box_base((0, 0, H - 0.8), (D, 2 * half, 0.8), "concrete", bevel=False)                     # the deck
     for s in (-1, 1):
         b.box_base((0, s * (half - KERB_W / 2), -FLOOR), (D, KERB_W, H - 0.8 + FLOOR), "brick", bevel=False)  # abutments
@@ -598,23 +598,24 @@ def brick_bridge(mat):
     return [b.finalize(N + "BrickBridge", mat), lamp.finalize(N + "BrickBridge_Bulb", mat)]
 
 
-def catwalk_bridge(mat):
-    """The channel's only crossing, at the far end: a steel catwalk 5 wide along local Y, deck 3.2 above the walkway
-    with three steps of 0.8 at each end, posts and rails 3.2 high (8c)."""
+def catwalk_bridge(mat, W=5.0):
+    """The channel's only crossing, at the far end: a steel catwalk W wide (5 in v3.2) along local Y, deck 3.2 above
+    the walkway with three steps of 0.8 at each end, posts and rails 3.2 high (8c)."""
     b = Builder()
-    half, H, W = 6.0, 3.2, 5.0
+    half, H = 6.0, 3.2
+    sx_ = W / 2 - 0.5                                                             # the stringers and legs
     b.box_base((0, 0, H - 0.25), (W, 2 * half, 0.25), "metal", bevel=False)
     for i in range(1, 12):
         b.box_base((0, -half + i * 2 * half / 12, H), (W - 0.1, 0.08, 0.03), "concrete_dark", bevel=False)
     for sx in (-1, 1):
-        b.box_base((sx * 2.0, 0, H - 0.95), (0.35, 2 * half, 0.7), IRON, bevel=False)            # stringers
+        b.box_base((sx * sx_, 0, H - 0.95), (0.35, 2 * half, 0.7), IRON, bevel=False)            # stringers
     for s in (-1, 1):
         for k in range(3):
             b.box_base((0, s * (half + 0.5 + k), 0), (W, 1.0, H - 0.8 * (k + 1)), "metal", bevel=False)
             b.box_base((0, s * (half + k + 0.08), H - 0.8 * (k + 1)), (W - 0.1, 0.16, 0.03), "rarity_legend",
                        bevel=False)
         for sx in (-1, 1):
-            b.box_base((sx * 2.0, s * (half - 0.2), 0), (0.4, 0.4, H - 0.95), IRON, bevel=False)    # legs
+            b.box_base((sx * sx_, s * (half - 0.2), 0), (0.4, 0.4, H - 0.95), IRON, bevel=False)    # legs
     for sx in (-1, 1):                                                            # railings 3.2 high
         x = sx * (W / 2 - 0.15)
         for k in range(5):

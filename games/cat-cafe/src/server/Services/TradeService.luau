@@ -335,6 +335,11 @@ local function stillGives(
 end
 
 -- Both confirmed: the swap (section 4). Runs in its own thread; the trade is "committing" and nothing changes it.
+-- Whether `player` is still in this server with the same profile session as `profile`.
+local function stillHere(player: Player, profile: Profile): boolean
+	return player.Parent == Players and DataService.get(player) == profile
+end
+
 local function finish(trade: TradeBook.OpenTrade)
 	local playerA, playerB = playerOf(trade.a.userId), playerOf(trade.b.userId)
 	local profileA = if playerA ~= nil then DataService.get(playerA) else nil
@@ -392,6 +397,18 @@ local function finish(trade: TradeBook.OpenTrade)
 	then
 		-- never decided: void it so no join ever applies it; a pointer left behind is cleared at that join
 		TradeVault.decide(record.id, "void")
+		endAll(trade, Trade.Ended.failed)
+		return
+	end
+	-- QA on #854: a player who left while the record and pointers were written may already have loaded on another
+	-- server before their pointer existed, so that join had nothing to settle and still holds the cats they gave. Only
+	-- players still here with the profile checked above can be committed for. Past this check, a join elsewhere finds
+	-- the pointer, and its void either wins (nothing moves here) or finds the commit and applies it.
+	if not (stillHere(playerA, profileA) and stillHere(playerB, profileB)) then
+		TradeVault.decide(record.id, "void")
+		-- only this function ever commits, so a record left pending after this is dead and its pointers can go
+		TradeVault.unpoint(record.a.userId, record.id)
+		TradeVault.unpoint(record.b.userId, record.id)
 		endAll(trade, Trade.Ended.failed)
 		return
 	end

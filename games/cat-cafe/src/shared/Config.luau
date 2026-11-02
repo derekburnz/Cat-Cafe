@@ -155,6 +155,9 @@ local Config = {
 	CharmStarOdds = { 7.84, 23.53, 35.67, 24.31, 8.65 } :: { number },
 	CarryWalkSpeed = 16,
 	NormalWalkSpeed = 20,
+	-- How far the camera zooms out (Derek 2026-11-02, the zoom card: "Cap it closer (60 studs)"; Roblox's default is
+	-- 128): it stays near the player, and the edges of the long areas and the backdrops stay out of view.
+	CameraMaxZoomStuds = 60,
 	-- The getaway after a net catch or a rescue (v0.8 F55, section 10c): every other player this close to the catcher
 	-- is pushed this far away (not a shove: no drop, no cooldown, never someone in a catch or rescue), and the catcher
 	-- walks at CatchRushWalkSpeed for CatchRushSeconds before carry speed. A picked-up cat gives neither.

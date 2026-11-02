@@ -22,6 +22,8 @@ return function()
 				end
 			end
 			expect(table.concat(missing, ",")).to.equal("")
+			expect(ShopIcons.crate("rally_crate")).to.equal(ShopIcons.image("Crate_Rally")) -- F101, banked only
+			expect(ShopIcons.crateModel("rally_crate")).to.equal("CatCafe_Prop_Crate_Rally")
 			expect(ShopIcons.crate("highest")).to.equal(nil)
 			expect(ShopIcons.crate(nil)).to.equal(nil)
 		end)

@@ -202,7 +202,7 @@ SHORT_LEGS = 0.12           # how much lower a short-legged cat's body is on A (
 # The haunches are a little narrower, shallower and further forward than the first B's (0.9 x 0.75 x 0.56 at y 0.18),
 # and a big cat's body_scale widens them by half as much, so the rump is no shelf from behind (Derek 11-02: "the butt's
 # look way too big" on a sitting Chonk).
-B_HAUNCH_C, B_HAUNCH_S = (0.0, 0.15, 0.25), (0.82, 0.68, 0.5)
+B_HAUNCH_C, B_HAUNCH_S = (0.0, 0.13, 0.23), (0.78, 0.64, 0.46)
 B_HAUNCH_BS = 0.5           # how much of a cat's body_scale over 1 its haunches take
 S_HAUNCH_FRAME = ((0.0, 0.18, 0.28), (0.9, 0.75, 0.56))   # S keeps the first B's haunches for its back props' frames
 B_CHEST_C, B_CHEST_S = (0.0, -0.06, 0.74), (0.7, 0.55, 0.72)

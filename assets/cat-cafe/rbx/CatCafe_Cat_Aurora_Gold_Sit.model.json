@@ -17,246 +17,6 @@
      "CFrame": {
       "position": [
        0.0,
-       0.2375,
-       0.1307
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.779,
-     0.475,
-     0.6225
-    ],
-    "Color": [
-     0.7882,
-     0.5608,
-     0.1647
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "PivotOffset": {
-     "CFrame": {
-      "position": [
-       0.0,
-       -0.2375,
-       -0.1307
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    }
-   },
-   "attributes": {
-    "Rojo_Id": "CatCafe_Cat_Aurora_Gold_Sit/0"
-   },
-   "children": [
-    {
-     "name": "Outfit_Apron",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.3895,
-         -0.4489
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    },
-    {
-     "name": "Outfit_BowTie",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.4655,
-         -0.4822
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    },
-    {
-     "name": "Outfit_Vest",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.3895,
-         -0.1877
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    },
-    {
-     "name": "Outfit_Sash",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.3895,
-         -0.1877
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    },
-    {
-     "name": "Outfit_Cape",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.6365,
-         0.0736
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    }
-   ]
-  },
-  {
-   "name": "CatCafe_Cat_Aurora_Gold_Sit_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
        0.703,
        -0.057
       ],
@@ -295,6 +55,246 @@
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.703,
+       0.057
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Cat_Aurora_Gold_Sit/0"
+   },
+   "children": [
+    {
+     "name": "Outfit_Apron",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.076,
+         -0.2612
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_BowTie",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         -0.2945
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Vest",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.076,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Sash",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.076,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Cape",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.171,
+         0.2613
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cat_Aurora_Gold_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.2185,
+       0.1115
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.741,
+     0.437,
+     0.5841
+    ],
+    "Color": [
+     0.7882,
+     0.5608,
+     0.1647
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
   },
@@ -305,7 +305,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.3135,
+       -0.2945,
        0.0617,
        -0.095
       ],
@@ -354,7 +354,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.3135,
+       0.2945,
        0.0617,
        -0.095
       ],
@@ -403,9 +403,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.0,
-       0.247,
-       0.1235
+       0.0,
+       0.228,
+       0.1045
       ],
       "orientation": [
        [
@@ -427,9 +427,9 @@
      }
     },
     "Size": [
-     0.959,
-     0.4845,
-     0.4005
+     0.9211,
+     0.4465,
+     0.377
     ],
     "Color": [
      0.949,
@@ -453,8 +453,8 @@
      "CFrame": {
       "position": [
        0.0,
-       0.2634,
-       0.3751
+       0.2444,
+       0.3424
       ],
       "orientation": [
        [
@@ -476,9 +476,9 @@
      }
     },
     "Size": [
-     0.8674,
-     0.5116,
-     0.1938
+     0.8295,
+     0.4737,
+     0.1824
     ],
     "Color": [
      0.9843,
@@ -501,9 +501,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.418,
-       0.3135,
-       0.2375
+       0.399,
+       0.2945,
+       0.2185
       ],
       "orientation": [
        [
@@ -550,9 +550,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.418,
-       0.1615,
-       0.0665
+       -0.399,
+       0.1425,
+       0.0475
       ],
       "orientation": [
        [
@@ -599,9 +599,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.418,
-       0.3515,
-       0.3895
+       -0.399,
+       0.3325,
+       0.3705
       ],
       "orientation": [
        [
@@ -649,8 +649,8 @@
      "CFrame": {
       "position": [
        -0.152,
-       0.5035,
-       0.3515
+       0.4655,
+       0.3325
       ],
       "orientation": [
        [
@@ -698,8 +698,8 @@
      "CFrame": {
       "position": [
        0.171,
-       0.5035,
-       -0.0095
+       0.4655,
+       -0.0285
       ],
       "orientation": [
        [
@@ -746,9 +746,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.418,
-       0.361,
-       -0.0581
+       0.399,
+       0.342,
+       -0.0665
       ],
       "orientation": [
        [
@@ -772,7 +772,7 @@
     "Size": [
      0.076,
      0.076,
-     0.0973
+     0.076
     ],
     "Color": [
      1.0,
@@ -795,9 +795,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.418,
-       0.399,
-       0.2375
+       -0.399,
+       0.38,
+       0.2185
       ],
       "orientation": [
        [
@@ -845,8 +845,8 @@
      "CFrame": {
       "position": [
        0.0,
-       0.5035,
-       0.1425
+       0.4655,
+       0.1235
       ],
       "orientation": [
        [
@@ -3848,7 +3848,7 @@
         "position": [
          -0.6673,
          0.1195,
-         0.1792
+         0.1412
         ],
         "orientation": [
          [
@@ -3926,7 +3926,7 @@
         "position": [
          -0.3462,
          0.1045,
-         0.5081
+         0.4701
         ],
         "orientation": [
          [
@@ -3975,7 +3975,7 @@
         "position": [
          -0.62,
          0.1045,
-         0.4474
+         0.4094
         ],
         "orientation": [
          [
@@ -4022,7 +4022,7 @@
       "position": [
        -0.19,
        0.1045,
-       0.4512
+       0.4132
       ],
       "orientation": [
        [

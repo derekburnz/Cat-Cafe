@@ -18,246 +18,6 @@
      "CFrame": {
       "position": [
        0.0,
-       0.2921,
-       0.171
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.9815,
-     0.5842,
-     0.7946
-    ],
-    "Color": [
-     0.949,
-     0.7569,
-     0.3059
-    ],
-    "Material": "Metal",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "PivotOffset": {
-     "CFrame": {
-      "position": [
-       0.0,
-       -0.2921,
-       -0.171
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    }
-   },
-   "attributes": {
-    "Rojo_Id": "CatCafe_Cat_ForestCat_Gold_Sit/0"
-   },
-   "children": [
-    {
-     "name": "Outfit_Apron",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.4603,
-         -0.5528
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    },
-    {
-     "name": "Outfit_BowTie",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.5515,
-         -0.5928
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    },
-    {
-     "name": "Outfit_Vest",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.4603,
-         -0.2394
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    },
-    {
-     "name": "Outfit_Sash",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.4603,
-         -0.2394
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    },
-    {
-     "name": "Outfit_Cape",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.7567,
-         0.0742
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    }
-   ]
-  },
-  {
-   "name": "CatCafe_Cat_ForestCat_Gold_Sit_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
        0.8436,
        -0.0684
       ],
@@ -296,6 +56,246 @@
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.8436,
+       0.0684
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Cat_ForestCat_Gold_Sit/0"
+   },
+   "children": [
+    {
+     "name": "Outfit_Apron",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.0912,
+         -0.3134
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_BowTie",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         -0.3534
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Vest",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.0912,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Sash",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.0912,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Cape",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.2052,
+         0.3136
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cat_ForestCat_Gold_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.2688,
+       0.1482
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.9337,
+     0.5375,
+     0.7478
+    ],
+    "Color": [
+     0.949,
+     0.7569,
+     0.3059
+    ],
+    "Material": "Metal",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
   },
@@ -306,7 +306,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.3996,
+       -0.3756,
        0.0741,
        -0.114
       ],
@@ -355,7 +355,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.3996,
+       0.3756,
        0.0741,
        -0.114
       ],
@@ -552,7 +552,7 @@
      "CFrame": {
       "position": [
        0.0,
-       0.2921,
+       0.2688,
        0.057
       ],
       "orientation": [
@@ -575,8 +575,8 @@
      }
     },
     "Size": [
-     1.0271,
-     0.4931,
+     0.9793,
+     0.4463,
      0.1368
     ],
     "Color": [
@@ -601,7 +601,7 @@
      "CFrame": {
       "position": [
        0.0,
-       0.2921,
+       0.2688,
        0.399
       ],
       "orientation": [
@@ -624,8 +624,8 @@
      }
     },
     "Size": [
-     1.0271,
-     0.4931,
+     0.9793,
+     0.4463,
      0.1368
     ],
     "Color": [
@@ -3839,7 +3839,7 @@
         "position": [
          -0.8236,
          0.165,
-         0.2247
+         0.1785
         ],
         "orientation": [
          [
@@ -3917,7 +3917,7 @@
         "position": [
          -0.4383,
          0.15,
-         0.6194
+         0.5733
         ],
         "orientation": [
          [
@@ -3966,7 +3966,7 @@
         "position": [
          -0.7668,
          0.15,
-         0.5466
+         0.5004
         ],
         "orientation": [
          [
@@ -4013,7 +4013,7 @@
       "position": [
        -0.2508,
        0.15,
-       0.5512
+       0.505
       ],
       "orientation": [
        [
@@ -4379,7 +4379,7 @@
        "CFrame": {
         "position": [
          0.0,
-         0.9776,
+         0.9308,
          0.4617
         ],
         "orientation": [
@@ -4422,7 +4422,7 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -0.9776,
+         -0.9308,
          0.0,
          -0.4617
         ],
@@ -4459,7 +4459,7 @@
        "CFrame": {
         "position": [
          0.1938,
-         0.9205,
+         0.8738,
          0.4389
         ],
         "orientation": [
@@ -4512,7 +4512,7 @@
        "CFrame": {
         "position": [
          0.1938,
-         0.5717,
+         0.525,
          0.4389
         ],
         "orientation": [
@@ -4565,7 +4565,7 @@
        "CFrame": {
         "position": [
          0.1938,
-         0.5649,
+         0.5181,
          0.4389
         ],
         "orientation": [
@@ -4618,7 +4618,7 @@
        "CFrame": {
         "position": [
          0.1938,
-         1.2845,
+         1.2377,
          0.4389
         ],
         "orientation": [
@@ -4641,7 +4641,7 @@
        }
       },
       "Size": [
-       0.0461,
+       0.0462,
        0.1664,
        0.1664
       ],
@@ -4671,7 +4671,7 @@
        "CFrame": {
         "position": [
          0.1938,
-         1.3044,
+         1.2577,
          0.4389
         ],
         "orientation": [
@@ -4694,7 +4694,7 @@
        }
       },
       "Size": [
-       0.0664,
+       0.0663,
        0.0872,
        0.0872
       ],
@@ -4724,113 +4724,7 @@
        "CFrame": {
         "position": [
          0.0,
-         0.6364,
-         0.4617
-        ],
-        "orientation": [
-         [
-          0.0,
-          -1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0461,
-       0.1778,
-       0.1778
-      ],
-      "Color": [
-       0.8902,
-       0.7176,
-       0.4784
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Shape": "Cylinder"
-     },
-     "attributes": {
-      "Follows": "Body"
-     }
-    },
-    {
-     "name": "CatCafe_Cat_ForestCat_Gold_Sit_Prop2",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.6316,
-         0.4617
-        ],
-        "orientation": [
-         [
-          0.0,
-          -1.0,
-          0.0
-         ],
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0362,
-       0.0923,
-       0.0923
-      ],
-      "Color": [
-       0.3686,
-       0.2745,
-       0.2039
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Shape": "Cylinder"
-     },
-     "attributes": {
-      "Follows": "Body"
-     }
-    },
-    {
-     "name": "CatCafe_Cat_ForestCat_Gold_Sit_Prop2",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         1.3187,
+         0.5897,
          0.4617
         ],
         "orientation": [
@@ -4883,7 +4777,7 @@
        "CFrame": {
         "position": [
          0.0,
-         1.3386,
+         0.5848,
          0.4617
         ],
         "orientation": [
@@ -4906,7 +4800,113 @@
        }
       },
       "Size": [
-       0.0664,
+       0.0361,
+       0.0923,
+       0.0923
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_ForestCat_Gold_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.2719,
+         0.4617
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0461,
+       0.1778,
+       0.1778
+      ],
+      "Color": [
+       0.8902,
+       0.7176,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_ForestCat_Gold_Sit_Prop2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.2918,
+         0.4617
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0663,
        0.0923,
        0.0923
       ],
@@ -4936,7 +4936,7 @@
        "CFrame": {
         "position": [
          -0.1938,
-         0.8978,
+         0.851,
          0.4389
         ],
         "orientation": [
@@ -4989,7 +4989,7 @@
        "CFrame": {
         "position": [
          -0.1938,
-         0.5945,
+         0.5478,
          0.4389
         ],
         "orientation": [
@@ -5042,7 +5042,7 @@
        "CFrame": {
         "position": [
          -0.1938,
-         0.5877,
+         0.5409,
          0.4389
         ],
         "orientation": [
@@ -5095,7 +5095,7 @@
        "CFrame": {
         "position": [
          -0.1938,
-         1.2161,
+         1.1694,
          0.4389
         ],
         "orientation": [
@@ -5118,7 +5118,7 @@
        }
       },
       "Size": [
-       0.0462,
+       0.0461,
        0.1664,
        0.1664
       ],
@@ -5148,7 +5148,7 @@
        "CFrame": {
         "position": [
          -0.1938,
-         1.236,
+         1.1893,
          0.4389
         ],
         "orientation": [
@@ -5201,7 +5201,7 @@
        "CFrame": {
         "position": [
          0.0,
-         0.7382,
+         0.6914,
          0.5529
         ],
         "orientation": [
@@ -5253,7 +5253,7 @@
        "CFrame": {
         "position": [
          0.0,
-         1.1257,
+         1.079,
          0.5529
         ],
         "orientation": [

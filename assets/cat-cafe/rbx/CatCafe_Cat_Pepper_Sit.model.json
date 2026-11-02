@@ -16,246 +16,6 @@
      "CFrame": {
       "position": [
        0.0,
-       0.2375,
-       0.1425
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.779,
-     0.475,
-     0.646
-    ],
-    "Color": [
-     0.4196,
-     0.4235,
-     0.451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "PivotOffset": {
-     "CFrame": {
-      "position": [
-       0.0,
-       -0.2375,
-       -0.1425
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    }
-   },
-   "attributes": {
-    "Rojo_Id": "CatCafe_Cat_Pepper_Sit/0"
-   },
-   "children": [
-    {
-     "name": "Outfit_Apron",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.3895,
-         -0.4607
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    },
-    {
-     "name": "Outfit_BowTie",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.4655,
-         -0.494
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    },
-    {
-     "name": "Outfit_Vest",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.3895,
-         -0.1995
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    },
-    {
-     "name": "Outfit_Sash",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.3895,
-         -0.1995
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    },
-    {
-     "name": "Outfit_Cape",
-     "className": "Attachment",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.6365,
-         0.0618
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     }
-    }
-   ]
-  },
-  {
-   "name": "CatCafe_Cat_Pepper_Sit_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
        0.703,
        -0.057
       ],
@@ -294,6 +54,246 @@
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.703,
+       0.057
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Cat_Pepper_Sit/0"
+   },
+   "children": [
+    {
+     "name": "Outfit_Apron",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.076,
+         -0.2612
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_BowTie",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         -0.2945
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Vest",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.076,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Sash",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.076,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Cape",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.171,
+         0.2613
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cat_Pepper_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.2185,
+       0.1235
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.741,
+     0.437,
+     0.608
+    ],
+    "Color": [
+     0.4196,
+     0.4235,
+     0.451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
   },
@@ -304,7 +304,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.3135,
+       -0.2945,
        0.0617,
        -0.095
       ],
@@ -353,7 +353,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.3135,
+       0.2945,
        0.0617,
        -0.095
       ],
@@ -451,9 +451,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.1798,
-       0.494,
-       0.2785
+       -0.171,
+       0.456,
+       0.2515
       ],
       "orientation": [
        [
@@ -500,9 +500,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.1598,
-       0.494,
-       0.0609
+       0.152,
+       0.456,
+       0.0467
       ],
       "orientation": [
        [
@@ -549,9 +549,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.0499,
-       0.494,
-       0.1561
+       -0.0475,
+       0.456,
+       0.1363
       ],
       "orientation": [
        [
@@ -598,9 +598,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.1997,
-       0.494,
-       0.3465
+       0.19,
+       0.456,
+       0.3155
       ],
       "orientation": [
        [
@@ -647,9 +647,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.1997,
-       0.494,
-       -0.0275
+       -0.19,
+       0.456,
+       -0.0365
       ],
       "orientation": [
        [
@@ -696,9 +696,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.399,
-       0.2945,
-       0.2445
+       -0.38,
+       0.2755,
+       0.2195
       ],
       "orientation": [
        [
@@ -745,9 +745,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.399,
-       0.1995,
-       0.0201
+       -0.38,
+       0.1805,
+       0.0083
       ],
       "orientation": [
        [
@@ -794,9 +794,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.399,
-       0.3135,
-       0.1765
+       0.38,
+       0.2945,
+       0.1555
       ],
       "orientation": [
        [
@@ -843,9 +843,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.399,
-       0.1805,
-       -0.0275
+       0.38,
+       0.1615,
+       -0.0365
       ],
       "orientation": [
        [
@@ -2879,7 +2879,7 @@
         "position": [
          -0.6673,
          0.1045,
-         0.1792
+         0.1412
         ],
         "orientation": [
          [
@@ -2957,7 +2957,7 @@
         "position": [
          -0.3462,
          0.1045,
-         0.5081
+         0.4701
         ],
         "orientation": [
          [
@@ -3006,7 +3006,7 @@
         "position": [
          -0.62,
          0.1045,
-         0.4474
+         0.4094
         ],
         "orientation": [
          [
@@ -3053,7 +3053,7 @@
       "position": [
        -0.19,
        0.1045,
-       0.4512
+       0.4132
       ],
       "orientation": [
        [

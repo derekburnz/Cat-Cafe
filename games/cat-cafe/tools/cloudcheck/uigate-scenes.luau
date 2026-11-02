@@ -255,6 +255,10 @@ local SCENES = {
 	{ "Spin", function()
 		UI.spin.open()
 	end },
+	{ "SpinOdds", function()
+		UI.spin.open()
+		press("SpinWheel", "Odds")
+	end },
 	{ "Market", function()
 		UI.market.open()
 	end },

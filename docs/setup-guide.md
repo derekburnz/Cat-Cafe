@@ -185,3 +185,12 @@ When a publish restarts the running servers (step 19), every server first shows 
 4. Nothing to try by hand: the next publish with `restart_servers` on shows "Warned every server: restart in 300 s" in its log. Until the permission is on, the run skips the countdown with a warning and restarts at once, as it does today.
 
 The permission only sends messages into our own game's servers. A publish with the countdown takes about 5 minutes longer; untick `warn_players` on the Run workflow form to restart straight away.
+
+## 22. Let threads make the game passes (once, about 1 minute)
+A game pass is a one-time Robux purchase a player keeps for good, such as 2x Money or Long Nap. Each pass has an id, and the game asks Roblox whether a player owns that id. The `game-passes` workflow makes the passes listed in `tools/opencloud/passes.json` (names, prices and descriptions from Monetization-Agent's shop plan), lists them and changes their prices, so nobody types them into Creator Hub, and launch week's half prices go on and come off with one run each. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > **Add API System**: **game-passes**, select the **Cat Cafe** experience, operations `game-pass:read` and `game-pass:write`.
+3. **Save Changes**. Don't press Regenerate.
+4. Nothing to try by hand: a thread runs **Actions > game-passes > Run workflow** with `create`, and the log lists each pass with its id.
+
+New passes start off sale, so nobody can buy one until release day puts them on sale. Passes cannot be deleted, only taken off sale, which is why the file only holds passes whose code is merged.

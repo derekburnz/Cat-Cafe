@@ -90,7 +90,7 @@ Intro.JOB_SPOT = "waiter_1"
 -- Layout.cafe.spots (a test checks). FLOOR_Y is the plot floor's top in the world.
 Intro.FLOOR_Y = 0.2
 Intro.cafe = {
-	waiterSpot = { x = -4.5, z = -2.5 },
+	waiterSpot = { x = -5.5, z = -3.04 }, -- the bigger cafes' (#917)
 }
 
 -- Shot 9, in seconds into the shot: dusk, a short night and sunrise on this screen only.
@@ -415,7 +415,9 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	local function local3(x: number, y: number, z: number): Vector3
 		return Intro.plotPoint(plot, x, y, z)
 	end
-	local aisle = local3(-6, 2, 6)
+	-- the cafe's half depth: the shots below keep their distance to its front wall as the cafes grow (#917)
+	local halfD = Config.World.PlotDepth / 2
+	local aisle = local3(-7.3, 2, 7.3)
 	-- shot 7: the Alleyway camp's board from its front left
 	local B, f = camp.board, camp.boardFacing
 	local l = rightOf(f) -- the left hand as you face the board, along -f
@@ -423,7 +425,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	local launchTilt = key(v(10, 7, -18), v(-6, 14, -6))
 	local town = v(0, 0, -20) -- shot 9 looks up the whole town from the south
 	local stations = v(-28, 4, 0) -- between the Spin Wheel and the Codes Cat
-	local shotFrom = key(v(px - 30 * s, 9, pz - 6), v(px - 14.3 * s, 7, pz))
+	local shotFrom = key(v(px - (halfD + 16) * s, 9, pz - 6), v(px - (halfD + 0.3) * s, 7, pz))
 	local camps: { Cut } = {}
 	local titles = { "THE PARK", "THE NEIGHBOURHOOD", "THE WOODS", "THE SEWER" }
 	for i, area in Intro.CAMP_CUTS do
@@ -523,8 +525,8 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 			cuts = {
 				{
 					-- inside your cafe with its roof on, just inside the front wall left of the front door
-					from = key(local3(-2, 7, -12.5), aisle),
-					to = key(local3(-2, 6.5, -10), aisle),
+					from = key(local3(-2, 7, -halfD + 1.5), aisle),
+					to = key(local3(-2, 6.5, -halfD + 4), aisle),
 					seconds = 2.8,
 				},
 			},

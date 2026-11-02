@@ -817,7 +817,7 @@ return function()
 				expect(path.x).to.equal(0)
 				expect(path.y).to.equal(0)
 				expect(path.z).to.be.near((plot.frontPath.z1 + plot.frontPath.z2) / 2, 1e-9)
-				expect(line.z).to.be.near(-19.85, 1e-9)
+				expect(line.z).to.be.near(-22.85, 1e-9)
 				expect(line.z > plot.frontGarden.z1 and line.z < plot.frontGarden.z1 + 0.5).to.equal(
 					true
 				)
@@ -1124,9 +1124,10 @@ return function()
 		local lanes = square.lanes :: { Rect }
 
 		it("puts plots 1 to 4 by the square and 5 to 8 one row out, west then east", function()
-			local want = { { -38, -58 }, { 38, -58 }, { -38, 58 }, { 38, 58 } }
+			-- the bigger cafes (44 x 34, #917)
+			local want = { { -41, -62 }, { 41, -62 }, { -41, 62 }, { 41, 62 } }
 			for n = 1, 4 do
-				want[n + 4] = { want[n][1], want[n][2] + (if want[n][2] < 0 then -44 else 44) }
+				want[n + 4] = { want[n][1], want[n][2] + (if want[n][2] < 0 then -52 else 52) }
 			end
 			for index, xz in want do
 				local placement = Layout.plotPlacement(index)

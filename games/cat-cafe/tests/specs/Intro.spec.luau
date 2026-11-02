@@ -125,8 +125,9 @@ return function()
 				local east, west = Intro.shots(EAST, true), Intro.shots(WEST, true)
 				expect(EAST.side).to.equal(1)
 				expect(WEST.side).to.equal(-1)
-				expect(east[1].cuts[1].from.position.X).to.be.near(EAST.x - 30, 1e-9)
-				expect(west[1].cuts[1].from.position.X).to.be.near(WEST.x + 30, 1e-9)
+				-- 16 studs out from the front wall, half the bigger cafe's 34 deep from its middle (#917)
+				expect(east[1].cuts[1].from.position.X).to.be.near(EAST.x - 33, 1e-9)
+				expect(west[1].cuts[1].from.position.X).to.be.near(WEST.x + 33, 1e-9)
 				for _, shots in { east, west } do
 					local cut = shots[1].cuts[1]
 					expect(near(cut.to.position, Vector3.new(10, 8, -18))).to.equal(true)

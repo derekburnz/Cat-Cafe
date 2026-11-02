@@ -1218,6 +1218,82 @@ return function()
 			end
 		end)
 
+		-- F85 (hometown-cannon.md section 6b; Model-Agent #864): three low blockers cross each lane on its middle
+		-- line, the way through (lane-local x 6 to 15, +X at rotY 0) on alternating sides, so no lane is a straight
+		-- run home. Each pile (local x -13.35 to 6 and its own half depth) stays clear of the lane spawn points by a
+		-- cat's half body and of the traps by 2.
+		it(
+			"crosses each lane three times with a low blocker, the ways through alternating",
+			function()
+				type Row = { z: number, gap: number, depth: number }
+				local prefix = "CatCafe_Alley_Blocker_"
+				local halfDepth: { [string]: number } =
+					{ Bins = 1, Pallets = 1.5, Skip = 2.7, Van = 3 }
+				for _, side in { -1, 1 } do
+					local rows: { Row } = {}
+					for _, prop in alley.props :: { Layout.Prop } do
+						if prop.asset:sub(1, #prefix) ~= prefix then
+							continue
+						end
+						local x, z = toLane(prop.x, prop.z)
+						if x * side <= 0 then
+							continue
+						end
+						expect(x).to.be.near(side * MID, 1e-9)
+						local turn = prop.rotY or 0
+						expect(turn == 0 or turn == 180).to.equal(true)
+						local depth = halfDepth[prop.asset:sub(#prefix + 1)]
+						expect(depth).to.be.ok()
+						table.insert(
+							rows,
+							{ z = z, gap = if turn == 0 then 1 else -1, depth = depth }
+						)
+					end
+					expect(#rows).to.equal(3)
+					table.sort(rows, function(a: Row, b: Row): boolean
+						return a.z > b.z
+					end)
+					for i = 2, #rows do
+						expect(rows[i].gap).to.equal(-rows[i - 1].gap)
+					end
+					for _, row in rows do
+						local mid = side * MID
+						local x1 = if row.gap == 1 then mid - 13.35 else mid - 6
+						local x2 = if row.gap == 1 then mid + 6 else mid + 13.35
+						local function clear(x: number, z: number, margin: number): boolean
+							return x < x1 - margin
+								or x > x2 + margin
+								or math.abs(z - row.z) > row.depth + margin
+						end
+						for i, point in alley.spawnPoints do
+							local x, z = toLane(point.x, point.z)
+							if not clear(x, z, 0.8) then
+								fail(
+									"spawn point %d at (%g, %g) is in the pile at z %g",
+									i,
+									x,
+									z,
+									row.z
+								)
+							end
+						end
+						for i, spot in alley.rescueSpots do
+							local x, z = toLane(spot.x, spot.z)
+							if not clear(x, z, 2) then
+								fail(
+									"rescue spot %d at (%g, %g) is by the pile at z %g",
+									i,
+									x,
+									z,
+									row.z
+								)
+							end
+						end
+					end
+				end
+			end
+		)
+
 		-- Model-Agent #535: eight full buildings in place of the repeated backs and the staff doors; v4 a seventh on
 		-- each outer wall where the Woods or Sewer gate stood.
 		it(

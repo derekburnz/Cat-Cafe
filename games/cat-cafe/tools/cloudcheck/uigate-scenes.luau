@@ -192,13 +192,16 @@ end
 function Scenes.setup()
 	Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog")
 	UI = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI")
+	-- Claim all in the Quests window shows once the server has ClaimAll (Gameplay-Engineer); the gate checks it now
+	UIShim.require("ReplicatedStorage.Shared.Config").QuestClaimAll = true
 	UI.init({ catalog = catalogLikeTheGame(), keybinds = true })
 	local now = os.time()
 	UI.update(samplePlayer(now))
 	UI.tipJar.set({ sessionStartedAt = workspace:GetServerTimeNow() - 25 * 60, claimed = { [1] = true } })
 end
 
--- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window
+-- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
+-- "Daily.Quest2.Claim" walks down one name at a time
 local function press(windowName, name)
 	local playerGui = UIShim.playerGui
 	-- windows sit in CatCafeModals.Root.Container; the HUD and the Index have pieces with the same names (Cats)
@@ -208,7 +211,10 @@ local function press(windowName, name)
 	local window = (container and container:FindFirstChild(windowName))
 		or playerGui:FindFirstChild(windowName, true)
 	assert(window, "uigate: no window " .. windowName)
-	local holder = window:FindFirstChild(name, true)
+	local holder = window
+	for part in string.gmatch(name, "[^%.]+") do
+		holder = holder and holder:FindFirstChild(part, true)
+	end
 	assert(holder, "uigate: no " .. name .. " in " .. windowName)
 	local button = if holder:IsA("GuiButton") then holder else holder:FindFirstChildWhichIsA("GuiButton", true)
 	assert(button, "uigate: " .. name .. " has no button")
@@ -293,6 +299,22 @@ local SCENES = {
 	{ "QuestsWeekly", function()
 		UI.open("Quests")
 		press("Quests", "WeeklyTab")
+	end },
+	{ "QuestsAchievements", function()
+		UI.open("Quests")
+		press("Quests", "AchievementsTab")
+	end },
+	-- a claim shows at once: the row reads Claimed and drops to the bottom (Derek 2026-10-29)
+	{ "QuestsClaimed", function()
+		UI.open("Quests")
+		press("Quests", "DailyTab")
+		press("Quests", "Daily.Quest2.Claim")
+	end },
+	-- Claim all on the Achievements tab (two met in the sample player)
+	{ "QuestsClaimAll", function()
+		UI.open("Quests")
+		press("Quests", "AchievementsTab")
+		press("Quests", "ClaimAll")
 	end },
 	{ "DailyTreat", function()
 		UI.open("DailyTreat")

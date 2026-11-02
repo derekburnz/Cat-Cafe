@@ -145,6 +145,7 @@ UI.events = {
 	claimQuest = Signal.new(), -- (kind, slot)   Claim on a finished quest, kind "daily" or "weekly": forward as ClaimQuest
 	rerollQuest = Signal.new(), -- (kind, slot)   Swap on an unfinished quest (the free reroll): forward as RerollQuest
 	claimAchievement = Signal.new(), -- (achievementId)   Claim on a met achievement: forward as ClaimAchievement
+	claimAll = Signal.new(), -- (what)   Claim all in the Quests window, "daily", "weekly" or "achievements": forward as ClaimAll (shown once Config.QuestClaimAll)
 	-- F63
 	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
 	-- F70
@@ -964,6 +965,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		claimAchievement = function(achievementId: string)
 			UI.events.claimAchievement:Fire(achievementId)
+		end,
+		claimAll = function(what: string)
+			UI.events.claimAll:Fire(what)
 		end,
 		close = closeModal,
 	})

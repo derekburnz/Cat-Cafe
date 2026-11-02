@@ -935,6 +935,51 @@ return function()
 		end)
 	end)
 
+	describe("Audio.Logic bait bowl (F28)", function()
+		local food = { lureId = "tuna", placedAt = 100, readyAt = 700 }
+		local waiting =
+			{ lureId = "tuna", placedAt = 100, readyAt = 700, cat = { variant = "base" } }
+
+		it("hears the food go in, the cat arrive and a let go", function()
+			expect(Logic.baitChange(nil, food, 3, 3)).to.equal("placed")
+			expect(Logic.baitChange(food, waiting, 3, 3)).to.equal("arrive")
+			expect(Logic.baitChange(waiting, nil, 3, 3)).to.equal("letgo")
+		end)
+
+		it("stays quiet for a tame, no change or an empty bowl", function()
+			expect(Logic.baitChange(waiting, nil, 3, 4)).to.equal(nil)
+			expect(Logic.baitChange(food, food, 3, 3)).to.equal(nil)
+			expect(Logic.baitChange(waiting, waiting, 3, 3)).to.equal(nil)
+			expect(Logic.baitChange(nil, nil, 3, 3)).to.equal(nil)
+			expect(Logic.baitChange(food, nil, 3, 3)).to.equal(nil)
+		end)
+
+		it("hears new food in place of old", function()
+			local fresh = { lureId = "kibble", placedAt = 900, readyAt = 1500 }
+			expect(Logic.baitChange(waiting, fresh, 3, 3)).to.equal("placed")
+		end)
+
+		it("reveals a gold or rainbow arrival", function()
+			expect(Logic.baitArriveCue("gold")).to.equal("goldReveal")
+			expect(Logic.baitArriveCue("rainbow")).to.equal("rainbowNear")
+			expect(Logic.baitArriveCue("base")).to.equal("baitArrive")
+			expect(Logic.baitArriveCue(nil)).to.equal("baitArrive")
+		end)
+
+		it("falls back to the bowl clink for a food with no file", function()
+			local has = function(name: string): boolean
+				local cue = Cues[name]
+				return cue ~= nil and (#cue.ids > 0 or cue.sheet ~= nil)
+			end
+			expect(Logic.foodCue("kibble", has)).to.equal("foodDealer")
+			expect(Logic.foodCue("star_treat", has)).to.equal("foodDealer")
+			expect(Cues.foodDealer.sheet).to.equal("sheetCafe")
+			expect(Cues.baitArrive.ids[1]).to.equal(Cues.catPlaced.ids[1])
+			expect(Cues.baitLetGo.ids[1]).to.equal(Cues.catDrop.ids[1])
+			expect(Cues.offlineClaim.ids[1]).to.equal(Cues.richTip.ids[1])
+		end)
+	end)
+
 	describe("Audio.Logic cafe orders (F90)", function()
 		it("pours only at the espresso machine", function()
 			expect(Logic.orderMakeCue("espresso")).to.equal("orderPour")

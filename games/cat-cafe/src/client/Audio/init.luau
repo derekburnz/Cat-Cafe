@@ -96,10 +96,6 @@ local function has(cueId: string): boolean
 	return cue ~= nil and #idsOf(cue) > 0
 end
 
-local function exists(cueId: string): boolean
-	return Cues[cueId] ~= nil
-end
-
 local function tweenVolume(sound: Sound, volume: number, seconds: number): Tween
 	local info = TweenInfo.new(seconds, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
 	local tween = TweenService:Create(sound, info, { Volume = volume })
@@ -1430,6 +1426,57 @@ local function followRally()
 	end)
 end
 
+local function countOf(map: any): number
+	local count = 0
+	if type(map) == "table" then
+		for _ in map do
+			count += 1
+		end
+	end
+	return count
+end
+
+-- F28, your own bait bowl, from each ProfileSync's `bait` (Logic.baitChange), so it needs no moment: the food going
+-- in clinks (its own food cue once it has one, else foodDealer), the cat arriving mrrps (a gold or rainbow one
+-- plays its reveal, Logic.baitArriveCue) and Let go plays the cat hopping off. A tame sounds with its check-in. The
+-- first sync Audio sees only sets where the bowl stands, so a rejoin with a cat already waiting stays quiet.
+local function followBait()
+	local seen = false
+	local last: any = nil
+	local lastCats = 0
+	onRemote("ProfileSync", function(state: any)
+		if type(state) ~= "table" then
+			return
+		end
+		local bait = state.bait
+		local cats = countOf(state.cats)
+		local change = if seen then Logic.baitChange(last, bait, lastCats, cats) else nil
+		seen, last, lastCats = true, bait, cats
+		if change == "placed" then
+			Audio.play(Logic.foodCue(str(bait.lureId), has), you())
+		elseif change == "arrive" then
+			Audio.play(Logic.baitArriveCue(bait.cat.variant))
+		elseif change == "letgo" then
+			Audio.play("baitLetGo")
+		end
+	end)
+end
+
+-- The remotes that also feed a controller's state (ProfileSync, TradeState, RallyState) are hooked only once the
+-- first ProfileSync has reached the UI (the first applySettings), when every controller is listening: a remote
+-- fired before anything listens holds its events for the first listener alone, and that must be the controller.
+local followingState = false
+
+local function followServerState()
+	if followingState then
+		return
+	end
+	followingState = true
+	task.spawn(followTrade)
+	task.spawn(followRally)
+	task.spawn(followBait)
+end
+
 -- Animation beats (Beats.hit from Effects): the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100),
 -- in 3D where the animation plays.
 local function followBeats()
@@ -1593,25 +1640,9 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		end
 	end,
 
-	BaitPlaced = function(lureId: any)
-		Audio.play(Logic.foodCue(str(lureId), exists), you())
-	end,
-	BaitArrive = function()
-		Audio.play("baitArrive")
-	end,
-	BaitTame = function(rarity: any)
-		Audio.play("baitTame")
-		rarityJingle(rarity)
-	end,
-	BaitLetGo = function()
-		Audio.play("baitLetGo")
-	end,
-
-	-- F42: a bait or rescue cat that turns out gold; a gold cat in your arms plays it by itself (watchHeld), and a
-	-- Mythical stray twinkles as you come near (noticeRareStrays), so RareStrayNearby is gone.
-	GoldReveal = function()
-		Audio.play("goldReveal")
-	end,
+	-- The bait bowl's food, arrival and Let go need no moment since 2026-11-02: Audio follows ProfileSync's `bait`
+	-- (followBait), and a gold or rainbow bait cat plays its reveal as it arrives. A gold cat in your arms plays
+	-- goldReveal by itself (watchHeld), and a Mythical stray twinkles as you come near (noticeRareStrays).
 	-- Drop (F45, the Drop button or G): the cat hops down at your feet.
 	CatDrop = function(position: any)
 		Audio.play("catDrop", vec(position) or you())
@@ -1669,9 +1700,7 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		end
 		Audio.play("dealerLeave", spot(taggedPart("DealerCart")))
 	end,
-	OfflineClaim = function()
-		Audio.play("offlineClaim")
-	end,
+	-- The welcome back card's Claim plays offlineClaim through the UI's playSound, so OfflineClaim needs no moment.
 	TipJarClaim = function() -- F47
 		Audio.play("giftClaim")
 	end,
@@ -1766,8 +1795,6 @@ function Audio.start()
 	followBeats()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)
-	task.spawn(followTrade)
-	task.spawn(followRally)
 end
 
 -- Applies the player's settings (ProfileSync `settings`): music off silences Music; sound off silences Ambience,
@@ -1796,6 +1823,7 @@ function Audio.applySettings(settings: Settings)
 		refreshMusic(false)
 		refreshAmbience()
 		refreshWorldLoops()
+		followServerState()
 		return
 	end
 	if enabled.Music ~= musicWas then

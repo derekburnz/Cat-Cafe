@@ -407,6 +407,37 @@ function Logic.rallyFrom(before: { lap: number, points: number }?, lap: any, act
 	return if lap > before.lap then 0 else nil
 end
 
+-- The bait bowl (F28) between two ProfileSyncs: `before` and `after` are the syncs' `bait` (nil for an empty bowl)
+-- and `catsBefore` and `catsAfter` how many cats each showed. "placed" when food went in, "arrive" when its cat came
+-- (the sync names the cat only once it is at the bowl), "letgo" when a bowl with a cat emptied and no cat joined.
+-- A tame adds its cat in the same sync and sounds with its check-in (CatCaught), so it is nil, like no change.
+function Logic.baitChange(before: any, after: any, catsBefore: number, catsAfter: number): string?
+	if type(after) == "table" then
+		if type(before) ~= "table" or before.placedAt ~= after.placedAt then
+			return "placed"
+		end
+		if before.cat == nil and type(after.cat) == "table" then
+			return "arrive"
+		end
+		return nil
+	end
+	if type(before) == "table" and before.cat ~= nil and catsAfter <= catsBefore then
+		return "letgo"
+	end
+	return nil
+end
+
+-- The arrival sound for a bait cat's coat: a gold one plays the gold reveal (F42), a rainbow one the rainbow shimmer
+-- (F99) and any other the arrival mrrp.
+function Logic.baitArriveCue(variant: any): string
+	if variant == "gold" then
+		return "goldReveal"
+	elseif variant == "rainbow" then
+		return "rainbowNear"
+	end
+	return "baitArrive"
+end
+
 -- Animation beats (Beats.hit) to sounds: the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100).
 local BEAT_CUES: { [string]: string } = {
 	bellRing = "bellhopBell",

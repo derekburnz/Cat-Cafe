@@ -1,32 +1,36 @@
 """F85 Alleyway blockers (hometown-cannon.md section 6b: "the F84 set, 90 x 281, with low blockers along the
 lanes"). The Alleyway is laid out by Layout.luau from kit pieces rather than as one set, so its blockers are prop
-models that Gameplay places in Layout.alley.props (lane space, through laneProp): three across each 30 stud lane,
-their gaps on alternating sides. Laid out in Roblox axes through common.RB, sizes in studs.
+models that Gameplay places in Layout.alley.props (lane space, through laneProp): three rows across each 30 stud
+lane. Laid out in Roblox axes through common.RB, sizes in studs.
 
-Every blocker pivots on the lane's middle line, on the floor. It spans local x -15 (a wall's face) to +6 and leaves
-the way through, local x 6 to 15 (9 studs), at its +X end: rotY 0 puts the gap at world +x and rotY 180 at world -x.
-Its `_Barrier` (30 high, invisible, solid, CanQuery off) runs along local z 0 over the piece from end to end, so
-nobody hops over and the barrier always stands on something you can see. A lamp post at the gap end leans its lamp
-out over the way through, so a player finds the gap from afar.
+Every blocker pivots on the lane's middle line, on the floor, with its pile against a wall at -X. Two lengths, so
+the way through moves about (Derek 11-02: "the gaps also don't always have to be on the sides can be a bit wider ...
+don't want it feeling too tightly cramped"):
+  long   the pile runs from x -13.35 to 1 and the way through is x 1 to 15 at +X (14 studs); rotY 180 puts it at -X.
+  short  the pile runs from x -13.35 to -6.5. Two at one spot, one at rotY 0 and one at rotY 180, leave a 13 stud
+         way through down the middle of the lane, x -6.5 to 6.5.
+Each `_Barrier` (30 high, invisible, solid, CanQuery off) runs along local z 0 from the wall (x -15) to the pile's
+end, so nobody hops over and the barrier always stands on something you can see. A lamp post at the pile's end
+leans its lamp out over the way through, so a player finds the gap from afar.
 
 Each row stands on the line of a CatCafe_Alley_StringLightsLong (Layout's alleyDressing hangs one across the lane in
-every gap between the buildings, poles at local x -14 and 14 on a 1 x 1 base). So the pile stops at x -13.35 and the
-light's wall pole stands between it and the wall (1.65 studs, too narrow to pass, and the barrier is there); its other
-pole stands in the way through, which leaves 7.5 studs to walk. The bulbs hang over the blocker.
+every gap between the buildings, poles at local x -14 and 14 on a 1 x 1 base). So every pile stops at x -13.35 and
+the light's wall pole stands between it and the wall (1.65 studs, too narrow to pass, and the barrier is there); in
+a side row the other pole stands in the way through, which leaves 12.5 studs to walk. The bulbs hang over the row.
 
-  CatCafe_Alley_Blocker_Bins     wheelie bins with bin bags on a bin-store slab, about 3.9 high, 2.5 deep
-  CatCafe_Alley_Blocker_Pallets  pallet stacks with crates and boxes, about 4 high, 2.8 deep
-  CatCafe_Alley_Blocker_Skip     a builder's skip of rubble and planks on scaffold boards, a bulk bag of sand and a
-                                 plank stack on trestles with cones, about 4.6 high, 5.4 deep
-  CatCafe_Alley_Blocker_Van      a parked FRESH FISH box van, 8.4 high (the tall one: it hides the lane past it), back
-                                 doors open, a ramp down to the crates it is unloading, 11.4 deep with the doors
-
-The bins and the pallets are thin; they take the rows whose gap is on the inner side, their pile against the outer
-wall's buildings. The skip and the van stand against the block of building backs, with the gap on the outer side.
+  CatCafe_Alley_Blocker_Bins          long: wheelie bins with bin bags on a bin-store slab, about 3.9 high
+  CatCafe_Alley_Blocker_BinsShort     short: two bins and a bag pile
+  CatCafe_Alley_Blocker_Pallets       long: pallet stacks with a FISH crate, a strap, a tarp and boxes, about 4 high
+  CatCafe_Alley_Blocker_PalletsShort  short: two stacks, a FISH crate and a box
+  CatCafe_Alley_Blocker_Skip          long: a builder's skip of rubble on scaffold boards, a bulk bag of sand, cones
+  CatCafe_Alley_Blocker_Van           long: a parked FRESH FISH box van, 8.4 high (the tall one, it hides the lane past
+                                      it), back doors open, a crate set down behind it
 
 Rows (lane space as in Layout.luau; side -1 west, 1 east; x = side * MID, MID 78; z on the gaps between buildings):
-  west x -78:  z 88.025 Bins rotY 0 (gap inner), z 18.25 Skip rotY 180 (gap outer), z -53.675 Pallets rotY 0 (inner)
-  east x 78:   z 88.025 Pallets rotY 180 (gap inner), z 18.25 Van rotY 0 (gap outer), z -88.025 Bins rotY 180 (inner)
+  west x -78:  z 88.025 BinsShort rotY 0 + PalletsShort rotY 180 (way through in the middle),
+               z 18.25 Skip rotY 180 (by the buildings), z -53.675 Pallets rotY 0 (by the block)
+  east x 78:   z 88.025 Pallets rotY 180 (by the block), z 18.25 Van rotY 0 (by the buildings),
+               z -88.025 PalletsShort rotY 0 + BinsShort rotY 180 (in the middle)
 The east lane's third row is at -88.025, not -53.675, because the east Warehouse's crate stack stands in that gap.
 """
 
@@ -38,9 +42,10 @@ from alleyway import _crate, label
 from common import RB
 
 N = "CatCafe_Alley_Blocker_"
-X0, X1 = -15.0, 6.0          # the piece, from a wall's face to the gap
+X0 = -15.0                   # a wall's face
 PILE_END = -13.35            # the pile's wall end: the string lights' pole base (x -14.5 to -13.5) stands past it
-LAMP_X = 5.4                 # the lamp post at the gap end
+LONG_END, SHORT_END = 1.0, -6.5
+LONG_LAMP, SHORT_LAMP = 0.65, -6.85     # lamp posts (base radius 0.35) at each pile's end
 BARRIER_H = 30.0
 
 
@@ -56,9 +61,9 @@ def ry(deg):
     return Matrix.Rotation(math.radians(deg), 3, "Y")
 
 
-def _barrier(name, mat):
+def _barrier(name, mat, x1):
     bar = RB()
-    bar.span((X0, 0.0, -0.25), (X1, BARRIER_H, 0.25), "concrete")
+    bar.span((X0, 0.0, -0.25), (x1, BARRIER_H, 0.25), "concrete")
     return bar.finalize(name + "_Barrier", mat)
 
 
@@ -100,17 +105,14 @@ def _bin(b, x, z, colour, y0):
     return y0 + h + 0.2
 
 
-def build_bins(mat):
-    name = N + "Bins"
+def _bins(name, mat, end, lamp, row, lid_bags, box_on=None):
     b, bulb = RB(), RB()
     pad = 0.12
-    b.span((PILE_END, 0.0, -1.25), (5.95, pad, 1.25), "concrete")                                     # bin store
-    for k in range(1, 8):                                                                             # slab joints
-        x = PILE_END + k * (5.95 - PILE_END) / 8
+    b.span((PILE_END, 0.0, -1.25), (end - 0.02, pad, 1.25), "concrete")                               # bin store
+    joints = max(2, round((end - PILE_END) / 2.3))
+    for k in range(1, joints):                                                                        # slab joints
+        x = PILE_END + k * (end - 0.02 - PILE_END) / joints
         b.span((x - 0.03, pad - 0.02, -1.26), (x + 0.03, pad + 0.005, 1.26), "concrete_dark")
-    row = (("bin", -12.35, "dumpster_green"), ("bin", -10.3, "shirt_blue"), ("bags", -8.0, None),
-           ("bin", -5.7, "dumpster_green"), ("bin", -3.65, "concrete"), ("bags", -1.35, None),
-           ("bin", 0.95, "shirt_blue"), ("bin", 3.0, "dumpster_green"))
     tops = {}
     for kind, x, colour in row:
         if kind == "bin":
@@ -119,14 +121,26 @@ def build_bins(mat):
             _bag(b, x - 0.55, pad, -0.25, 0.8, "fur_black")
             _bag(b, x + 0.6, pad, 0.3, 0.72, "concrete_dark")
             _bag(b, x, pad + 1.1, 0.0, 0.62, "fur_black")
-    for x, r, sw in ((-12.35, 0.72, "fur_black"), (-5.7, 0.68, "concrete_dark"), (0.95, 0.74, "fur_black"),
-                     (3.0, 0.66, "fur_black")):                                                       # bags on lids
+    for x, r, sw in lid_bags:                                                                         # bags on lids
         _bag(b, x, tops[x], 0.05, r, sw)
-    b.span((-4.2, tops[-3.65] - 0.06, -0.55), (-3.15, tops[-3.65] + 0.84, 0.45), "cardboard", rot=rz(6))  # a box
-    b.span((-4.2, tops[-3.65] + 0.84, -0.2), (-3.15, tops[-3.65] + 0.86, 0.1), "offwhite", rot=rz(6))
-    _bag(b, 4.55, pad, -0.2, 0.55, "concrete_dark")
-    _lamp(b, bulb, LAMP_X, pad)
-    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat)]
+    if box_on is not None:                                                                            # a box on a lid
+        t = tops[box_on]
+        b.span((box_on - 0.55, t - 0.06, -0.55), (box_on + 0.5, t + 0.84, 0.45), "cardboard", rot=rz(6))
+        b.span((box_on - 0.55, t + 0.84, -0.2), (box_on + 0.5, t + 0.86, 0.1), "offwhite", rot=rz(6))
+    _lamp(b, bulb, lamp, pad)
+    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat, end)]
+
+
+def build_bins(mat):
+    row = (("bin", -12.35, "dumpster_green"), ("bin", -10.3, "shirt_blue"), ("bags", -8.0, None),
+           ("bin", -5.7, "dumpster_green"), ("bin", -3.65, "concrete"), ("bags", -1.35, None))
+    return _bins(N + "Bins", mat, LONG_END, LONG_LAMP, row,
+                 ((-12.35, 0.72, "fur_black"), (-5.7, 0.68, "concrete_dark")), box_on=-3.65)
+
+
+def build_bins_short(mat):
+    row = (("bin", -12.35, "shirt_blue"), ("bin", -10.3, "dumpster_green"), ("bags", -8.0, None))
+    return _bins(N + "BinsShort", mat, SHORT_END, SHORT_LAMP, row, ((-10.3, 0.7, "fur_black"),))
 
 
 # ------------------------------------------------------------------------------------------------------ pallets --
@@ -157,29 +171,40 @@ def _box(b, x, y, z, w, d, h, turn=0.0):
            rot=ry(turn))
 
 
+def _tarp(b, x, t):
+    b.span((x - 1.36, t - 0.02, -1.46), (x + 1.36, t + 0.06, 1.46), "shirt_blue")
+    b.span((x - 1.36, t - 1.1, -1.46), (x + 1.36, t + 0.06, -1.38), "shirt_blue")
+    b.span((x - 1.36, t - 0.7, 1.38), (x + 1.36, t + 0.06, 1.46), "shirt_blue")
+    for dz in (-0.9, 0.9):                                                                             # its ropes
+        b.span((x - 1.4, t - 0.9, dz - 0.05), (x + 1.4, t + 0.1, dz + 0.05), "cardboard")
+
+
 def build_pallets(mat):
     name = N + "Pallets"
     b, bulb = RB(), RB()
-    xs = [PILE_END + PAL_W / 2 + k * PAL_W for k in range(6)]          # six stacks side by side, -12.05 to 0.95
-    tops = [_stack(b, x, n) for x, n in zip(xs, (11, 4, 13, 12, 5, 8))]
+    xs = [PILE_END + PAL_W / 2 + k * PAL_W for k in range(5)]          # five stacks side by side, -12.05 to -1.65
+    tops = [_stack(b, x, n) for x, n in zip(xs, (11, 4, 13, 12, 8))]
     _box(b, xs[0] - 0.3, tops[0], -0.2, 1.4, 1.3, 0.8, 8)                                              # on the 11
     _crate(b, xs[1], tops[1], 0.0, 2.6, stencil="FISH")                                                # 1.2 + 2.5
     b.span((xs[2] - 1.32, tops[2] - 0.5, -1.42), (xs[2] + 1.32, tops[2] - 0.4, 1.42), "shirt_red")     # strap
-    t = tops[3]                                                                                        # the tarp
-    b.span((xs[3] - 1.36, t - 0.02, -1.46), (xs[3] + 1.36, t + 0.06, 1.46), "shirt_blue")
-    b.span((xs[3] - 1.36, t - 1.1, -1.46), (xs[3] + 1.36, t + 0.06, -1.38), "shirt_blue")
-    b.span((xs[3] - 1.36, t - 0.7, 1.38), (xs[3] + 1.36, t + 0.06, 1.46), "shirt_blue")
-    for dz in (-0.9, 0.9):                                                                             # its ropes
-        b.span((xs[3] - 1.4, t - 0.9, dz - 0.05), (xs[3] + 1.4, t + 0.1, dz + 0.05), "cardboard")
-    _crate(b, xs[4], tops[4], 0.0, 2.6, stencil="MILK")                                                # 1.5 + 2.5
-    _box(b, xs[5], tops[5], 0.1, 1.6, 1.5, 1.2, 4)                                                     # 2.4 + 1.2
-    x7 = xs[5] + PAL_W / 2 + 0.95                                                                      # 3.2
-    _crate(b, x7, 0.0, 0.0, 1.9)
-    _box(b, x7 - 0.1, 1.8, 0.0, 1.2, 1.1, 0.8, 12)
-    _box(b, x7 + 1.55, 0.02, 0.1, 1.2, 1.1, 0.9, 0)                                                    # 4.15 to 5.35
-    _box(b, x7 + 1.5, 0.92, 0.05, 0.9, 0.8, 0.6, -9)
-    _lamp(b, bulb, LAMP_X, 0.0)
-    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat)]
+    _tarp(b, xs[3], tops[3])
+    _box(b, xs[4], tops[4], 0.1, 1.6, 1.5, 1.2, 4)                                                     # 2.4 + 1.2
+    _box(b, xs[4] + PAL_W / 2 + 0.35, 0.02, 0.1, 0.7, 1.1, 0.9, 0)                                    # -0.35 to 0.35
+    _lamp(b, bulb, LONG_LAMP, 0.0)
+    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat, LONG_END)]
+
+
+def build_pallets_short(mat):
+    name = N + "PalletsShort"
+    b, bulb = RB(), RB()
+    xs = [PILE_END + PAL_W / 2 + k * PAL_W for k in range(2)]          # -12.05 and -9.45
+    tops = [_stack(b, x, n) for x, n in zip(xs, (12, 4))]
+    _tarp(b, xs[0], tops[0])
+    _crate(b, xs[1], tops[1], 0.0, 2.6, stencil="FISH")
+    _box(b, xs[1] + PAL_W / 2 + 0.5, 0.02, 0.0, 1.0, 1.1, 1.1, 0)                                    # -8.15 to -7.15
+    _box(b, xs[1] + PAL_W / 2 + 0.45, 1.12, 0.05, 0.8, 0.8, 0.6, -9)
+    _lamp(b, bulb, SHORT_LAMP, 0.0)
+    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat, SHORT_END)]
 
 
 # --------------------------------------------------------------------------------------------------------- skip --
@@ -189,25 +214,14 @@ def _cone(b, x, y, z):
     b.b.cyl(RB.p(x, y + 0.9, z), 0.35, 0.26, "offwhite", segments=10, radius2=0.31, bevel=False)
 
 
-def _trestle(b, x, y0, top, half):
-    """An A-frame trestle: a top bar and two splayed pairs of legs, standing on y0, its bar `half` either way in z."""
-    b.span((x - 0.2, top - 0.2, -half), (x + 0.2, top, half), "caramel_wood")
-    h = top - 0.2 - y0
-    a = 12.0
-    for sz in (-1, 1):
-        for sx in (-1, 1):
-            c = (x + sx * h / 2 * math.tan(math.radians(a)), y0 + h / 2, sz * (half - 0.25))
-            b.box(c, (0.16, h / math.cos(math.radians(a)) + 0.1, 0.16), "caramel_wood", rot=rz(sx * a))
-
-
 def build_skip(mat):
     name = N + "Skip"
     b, bulb = RB(), RB()
     base = 0.12
-    b.span((PILE_END, 0.0, -2.7), (5.95, base, 2.7), "caramel_wood")                                  # boards
+    b.span((PILE_END, 0.0, -2.7), (LONG_END - 0.02, base, 2.7), "caramel_wood")                       # boards
     for k in range(1, 6):
         z = -2.7 + k * 5.4 / 6
-        b.span((PILE_END + 0.03, base - 0.02, z - 0.03), (5.92, base + 0.005, z + 0.03), "dark_wood")
+        b.span((PILE_END + 0.03, base - 0.02, z - 0.03), (LONG_END - 0.05, base + 0.005, z + 0.03), "dark_wood")
     # the skip: skids, floor, sloped ends and trapezoid sides, 10.3 long at the top and 7.3 at the floor
     top_x0, top_x1, bot_x0, bot_x1 = PILE_END, -3.05, PILE_END + 1.5, -4.55
     mid = (top_x0 + top_x1) / 2
@@ -245,7 +259,7 @@ def build_skip(mat):
     cx, cy, cz = -6.4, fill + 0.1, -0.2                                                                # the chair
     b.span((cx - 0.8, cy, cz - 0.8), (cx + 0.8, cy + 0.35, cz + 0.8), "terracotta", rot=rz(-14))
     b.span((cx - 0.8, cy + 0.2, cz + 0.55), (cx + 0.8, cy + 1.6, cz + 0.85), "terracotta", rot=rz(-14))
-    # past the skip: a bulk bag of sand, then planks on two trestles with cones
+    # past the skip: a bulk bag of sand with cones either side
     bx0, bx1 = -2.6, 0.2
     b.span((bx0, base, -1.4), (bx1, base + 2.6, 1.4), "offwhite")
     for x in (bx0 + 0.15, bx1 - 0.15):
@@ -255,30 +269,24 @@ def build_skip(mat):
     b.b.pyramid(RB.p((bx0 + bx1) / 2, base + 2.7, 0.0), 2.0, 0.5, "treat_tan")
     b.span((bx0 - 0.02, base + 1.0, -1.42), (bx1 + 0.02, base + 1.5, -1.38), "shirt_blue")             # its band
     b.span((bx0 - 0.02, base + 1.0, 1.38), (bx1 + 0.02, base + 1.5, 1.42), "shirt_blue")
-    top = base + 2.4
-    for x in (1.0, 4.2):
-        _trestle(b, x, base, top, 1.3)
-    for k, (z0, z1) in enumerate(((-1.2, -0.42), (-0.38, 0.38), (0.42, 1.2))):                        # planks
-        for j in range(2):
-            y = top + j * 0.22
-            b.span((bx1 - 0.05 if j == 0 else 0.4, y, z0), (4.9 - 0.3 * k, y + 0.22, z1), "caramel_wood")
-    _cone(b, 2.6, base, -2.0)
-    _cone(b, 2.6, base, 2.0)
-    _lamp(b, bulb, LAMP_X, base)
-    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat)]
+    _cone(b, -1.2, base, -2.0)
+    _cone(b, -1.2, base, 2.0)
+    _lamp(b, bulb, LONG_LAMP, base)
+    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat, LONG_END)]
 
 
 # ---------------------------------------------------------------------------------------------------------- van --
 def build_van(mat):
     """A box van parked nose to the wall: the cab and bonnet at -X, the cargo box behind, its back doors swung wide
-    open at the rear (x -0.6) and a ramp down to the crates."""
+    open at the rear (x -0.5) and a crate set down on the ground behind it."""
     name = N + "Van"
     b, bulb = RB(), RB()
     W = 3.0                                                                                            # half width
-    o = PILE_END + 14.95                                                                               # 1.6 off the wall
-    rear, cab0, cab1, nose = -0.6 + o, -14.0 + o, -10.0 + o, PILE_END
+    nose = PILE_END
+    cab0, rear = nose + 0.95, -0.5
+    cab1 = cab0 + 4.0
     floor_y, box_top, cab_top = 1.5, 8.4, 5.4
-    for x in (-12.4 + o, -3.4 + o):                                                                    # wheels
+    for x in (cab0 + 1.6, rear - 2.6):                                                                 # wheels
         for zc in (-W + 0.45, W - 0.45):
             b.cyl((x, 1.0, zc), 1.0, 0.8, "fur_black", axis="Z", segments=14)
             b.cyl((x, 1.0, zc), 0.45, 0.84, "metal", axis="Z", segments=10)
@@ -307,30 +315,24 @@ def build_van(mat):
     for s in (-1, 1):                                                                                  # lamps, grille
         b.span((nose + 0.3, 2.3, s * (W - 0.9) - 0.35), (nose + 0.4, 2.8, s * (W - 0.9) + 0.35), "lamp_warm")
     b.span((nose + 0.3, 1.9, -1.4), (nose + 0.4, 3.0, 1.4), "concrete_dark")
-    # the open back: a dark hold with a crate in it, the doors swung out flat to the sides, the ramp down
+    # the open back: a dark hold with a crate in it, the doors swung out flat to the sides, a step below
     b.span((rear - 0.05, floor_y + 0.15, -W + 0.25), (rear + 0.06, box_top - 0.25, W - 0.25), "night_sky")
     _crate(b, rear - 0.9, floor_y + 0.2, -1.2, 1.8)
     for s in (-1, 1):
         b.span((rear - 0.1, floor_y + 0.1, s * W), (rear + 0.05, box_top - 0.2, s * (W + 2.7)), "offwhite")
         b.span((rear + 0.05, 4.4, s * (W + 1.2)), (rear + 0.1, 5.4, s * (W + 1.6)), "metal")           # handle
-    ramp_end = 3.5
-    L = math.hypot(ramp_end - rear, floor_y)
-    b.box(((rear + ramp_end) / 2, floor_y / 2 + 0.09, 0.0), (L, 0.15, 3.0), "metal",
-          rot=rz(-math.degrees(math.atan2(floor_y, ramp_end - rear))))
-    for zc in (-1.38, 1.38):                                                                           # its rails
-        b.box(((rear + ramp_end) / 2, floor_y / 2 + 0.21, zc), (L, 0.2, 0.1), "concrete_dark",
-              rot=rz(-math.degrees(math.atan2(floor_y, ramp_end - rear))))
-    cx = 4.45                                                                                          # the crates
-    _crate(b, cx, 0.0, 0.0, 2.0)
-    _crate(b, cx - 0.1, 1.9, 0.05, 1.6, stencil=None)
-    _box(b, cx + 0.05, 3.4, 0.0, 1.1, 1.0, 0.7, 14)
-    _lamp(b, bulb, cx + 1.1, 0.0)
-    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat)]
+    b.span((rear - 0.3, 0.7, -1.2), (rear + 0.35, 0.9, 1.2), "metal")                                 # back step
+    _crate(b, 0.0, 0.0, 0.0, 0.8, stencil=None)                                                        # set down
+    _box(b, 0.0, 0.8, 0.0, 0.6, 0.6, 0.45, 12)
+    _lamp(b, bulb, LONG_LAMP, 0.0)
+    return [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), _barrier(name, mat, LONG_END)]
 
 
 ASSETS = {
     N + "Bins": (build_bins, 6000),
+    N + "BinsShort": (build_bins_short, 6000),
     N + "Pallets": (build_pallets, 8000),
+    N + "PalletsShort": (build_pallets_short, 6000),
     N + "Skip": (build_skip, 8000),
     N + "Van": (build_van, 8000),
 }

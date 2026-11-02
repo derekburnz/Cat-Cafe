@@ -109,7 +109,8 @@ widths, so about 10% either way), `overlap` (a pressable covering a quarter of a
 `thumbs` (on the phone, a pressable under Roblox's thumbstick or jump button) and `warning` (a `warn()` call).
 
 `uigate-baseline.json` holds the findings accepted when the gate started (203: mostly 29 to 35 px buttons and the
-phone's small tiles; 234 once the weekly quests and a code prize became scenes, with their shrunk prize text). One of them does not fail; a new one does. When a fix removes some, the run says so; run with
+phone's small tiles; 234 once the weekly quests and a code prize became scenes, with their shrunk prize text; 197
+once prize rows stopped shrinking text under 9 px). One of them does not fail; a new one does. When a fix removes some, the run says so; run with
 `--update-baseline` in that pull request so the list only shrinks. A run limited with `--scene` also passes a
 finding the baseline holds under another scene of the same size, since one scene alone cannot tell which window
 first showed a shared piece. A window added to the game goes in `SCENES` in

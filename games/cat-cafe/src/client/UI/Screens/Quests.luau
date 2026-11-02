@@ -391,6 +391,7 @@ function Quests._buildPage(
 		position = UDim2.fromScale(0, 0.5),
 		fitTo = chipArea,
 		fitPad = 4,
+		maxPictures = 3, -- F94: a quest set is a big prize
 	})
 	local setStatus = text({
 		Name = "Status",
@@ -457,6 +458,7 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		position = UDim2.fromScale(0, 0.5),
 		fitTo = chipArea,
 		fitPad = 2,
+		maxPictures = 2, -- F94: two pictures a quest
 	})
 	local actionPosition = UDim2.new(1, -10, 0.5, 0)
 	local claim = Button.new({
@@ -725,6 +727,11 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 	local catalog: Types.Catalog? = self._catalog
 	local prizes = if catalog then catalog.achievementPrizes else nil
 	local rows = QuestLogic.achievementRows(catalog, state.achievements)
+	-- F94: two pictures an achievement, three on an XL one
+	local small: PrizeChips.Look = table.clone(look)
+	small.maxPictures = 2
+	local big: PrizeChips.Look = table.clone(look)
+	big.maxPictures = 3
 	local ready = 0
 	for order, row in rows do
 		local entry: Card? = self._cards[row.def.id]
@@ -738,7 +745,10 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 			then Theme.colors.gold
 			else Theme.colors.good
 		entry.count.Text = ShortNumber.commas(row.progress) .. "/" .. ShortNumber.commas(needs)
-		entry.chips:set(if prizes then prizes[entry.size] else nil, look)
+		entry.chips:set(
+			if prizes then prizes[entry.size] else nil,
+			if entry.size == "XL" then big else small
+		)
 		local waiting = self:_waiting(row.def.id, row.def.id, row.claimed)
 		entry.claim.instance.Visible = row.ready
 		entry.claim:setText(if waiting then "..." else "Claim")

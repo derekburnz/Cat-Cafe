@@ -207,8 +207,7 @@ local function press(windowName, name)
 	assert(holder, "uigate: no " .. name .. " in " .. windowName)
 	local button = if holder:IsA("GuiButton") then holder else holder:FindFirstChildWhichIsA("GuiButton", true)
 	assert(button, "uigate: " .. name .. " has no button")
-	UIShim.fire(UIShim.eventOf(button, "MouseButton1Click"))
-	UIShim.fire(UIShim.eventOf(button, "Activated"))
+	UIShim.fire(UIShim.eventOf(button, "Activated")) -- Components/Button listens to Activated only
 end
 
 -- a code that pays a big prize (F94: up to three pictures)

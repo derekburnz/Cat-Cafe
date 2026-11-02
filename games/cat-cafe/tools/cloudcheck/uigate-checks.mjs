@@ -57,13 +57,13 @@ export function checkScene(profile, scene) {
   const W = profile.width;
   const H = profile.height;
   const findings = [];
-  const add = (check, node, message) =>
+  const add = (check, node, message, where) =>
     findings.push({
       profile: profile.name,
       scene: scene.scene,
       check,
       gated: GATED.has(check),
-      path: node ? node.path : '',
+      path: where ?? (node ? node.path : ''),
       box: node ? [node.x, node.y, node.w, node.h] : null,
       message,
     });
@@ -156,15 +156,7 @@ export function checkScene(profile, scene) {
   const boxes = new Map(scene.nodes.map((n) => [n.path, n]));
   for (const j of scene.jitter || []) {
     const owner = boxes.get(j.path) || boxes.get(j.path.split('/').slice(0, -1).join('/')) || null;
-    findings.push({
-      profile: profile.name,
-      scene: scene.scene,
-      check: 'jitter',
-      gated: true,
-      path: `${j.path}.${j.prop}`,
-      box: owner ? [owner.x, owner.y, owner.w, owner.h] : null,
-      message: `${j.prop} changed ${j.changes} times in 1 s between ${j.distinct} values`,
-    });
+    add('jitter', owner, `${j.prop} changed ${j.changes} times in 1 s between ${j.distinct} values`, `${j.path}.${j.prop}`);
   }
 
   for (const e of scene.errors) {

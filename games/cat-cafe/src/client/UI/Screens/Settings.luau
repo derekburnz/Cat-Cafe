@@ -73,12 +73,18 @@ local SWITCH = Vector2.new(108, 48)
 -- "−" and "+", small and side by side at the slider's right end, well clear of its knob (Derek 2026-10-27: they
 -- were too big and the knob ran into them)
 local STEP_BUTTON = Vector2.new(36, 32)
-local STEPS_W = STEP_BUTTON.X * 2 + 6
+-- on a touch screen each one's tap pad (Components/Button) is a finger wide, so they sit that far apart and a tap
+-- between them never lands on the wrong one
+local STEP_GAP = if Scale.isTouch()
+	then math.ceil(Scale.TAP / Scale.TOUCH_FLOOR) - STEP_BUTTON.X
+	else 6
+local STEPS_W = STEP_BUTTON.X * 2 + STEP_GAP
 local NUDGE = 0.1 -- what one "−" or "+" press moves a volume
 local NUDGE_PAUSE = 0.5 -- seconds after the last "−" or "+" before the volume is sent
 local KNOB = 28
 local SLIDER_Y = 54 -- the middle of a volume row's slider, in its card
-local SLIDER_HIT = 44 -- the band that takes presses and drags, taller than the track so the slider is easy to grab
+-- the band that takes presses and drags, taller than the track so the slider is easy to grab (a finger tall on a phone)
+local SLIDER_HIT = Scale.tapHeight(44)
 local SLIDER_RIGHT = 12 + STEPS_W + 14 -- the slider's band ends this far from the card's right edge
 local TEXT_LEFT = 12 + TILE + 12 -- a row's name and detail start right of its icon tile
 local TEXT_RIGHT = TEXT_LEFT + SWITCH.X + 24 -- and end left of its switch
@@ -423,7 +429,7 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 			style = "secondary",
 			size = UDim2.fromOffset(STEP_BUTTON.X, STEP_BUTTON.Y),
 			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -(12 + STEP_BUTTON.X + 6), 0, SLIDER_Y),
+			position = UDim2.new(1, -(12 + STEP_BUTTON.X + STEP_GAP), 0, SLIDER_Y),
 			textSize = Theme.sizes.textBody + 2,
 			parent = card,
 			sound = false, -- the slider's tick is the sound

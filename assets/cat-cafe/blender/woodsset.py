@@ -119,14 +119,15 @@ def _at(c, a, d):
     return (c[0] - d * math.sin(a), c[1] + d * math.cos(a))
 
 
-def stream(mat, half=IN, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E):
+def stream(mat, half=IN, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E, bridge_hw=3.4):
     """The stream across the whole width, from the waterfall at the east wall (Roblox +x) to the west wall: a dark
     bed under water 0.36 deep in look, a rock edge 1.3 high either side and a grass bank down to the floor. Every
     other segment is 0.006 taller so the overlaps never share a face. A log rail (dark posts, two split rails, like
     the bridge's and the town fence's) runs along the middle of each rock edge, open only at the bridge, and stops
     short of the waterfall pond, whose rocks close it. Stream_Barrier: an invisible wall on each rail's line, on to
     the walls past the pond, plus the walls along the bridge's sides. `half` is the walls' inner faces (x), `zfn`
-    the centre line, `bridge_x` the crossing (the line level there) and `rail_end` where the east rails stop."""
+    the centre line, `bridge_x` the crossing (the line level there), `bridge_hw` half the rails' opening there (the
+    bridge's deck half and 0.4) and `rail_end` where the east rails stop."""
     b, water, bar = Builder(), Builder(), Builder()
     xs = [-half + 0.5 + k * (2 * half - 1.0) / 58 for k in range(59)]      # its ends stop at the walls' faces
     for i, (x0, x1) in enumerate(zip(xs, xs[1:])):
@@ -143,7 +144,7 @@ def stream(mat, half=IN, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E):
             turn = Matrix.Rotation(a, 3, "Z") @ (Matrix.Rotation(PI, 3, "Z") if s > 0 else Matrix.Identity(3))
             b.wedge((*_at(c, a, d), EDGE_H / 2), (L * 1.12, BANK_W, EDGE_H - 0.01 * (i % 2)), "leaf_dark", bevel=False,
                     rot=turn)
-    gaps = (bridge_x - 3.4, bridge_x + 3.4)
+    gaps = (bridge_x - bridge_hw, bridge_x + bridge_hw)
     for (r0, r1) in ((-half + 0.8, gaps[0] - 0.4), (gaps[1] + 0.4, rail_end)):   # the log rails
         n = max(1, math.ceil((r1 - r0) / RAIL_STEP))
         for s in (-1, 1):
@@ -159,7 +160,7 @@ def stream(mat, half=IN, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E):
                 bar.box_base((*_at(c, a, s * (WATER_HW + EDGE_W / 2)), 0), (L + 0.3, BAR_T, BARRIER_H), "offwhite",
                              bevel=False, rot=(a, "Z"))
     for s in (-1, 1):                                                            # along the bridge's sides
-        x, y, _ = bl(bridge_x + s * 3.4, zfn(bridge_x))
+        x, y, _ = bl(bridge_x + s * bridge_hw, zfn(bridge_x))
         bar.box_base((x, y, 0), (0.6, 2 * (WATER_HW + EDGE_W) + 0.6, BARRIER_H), "offwhite", bevel=False)
     return [b.finalize(N + "Stream", mat), water.finalize(N + "Stream_Water", mat), bar.finalize(N + "Stream_Barrier", mat)]
 
@@ -185,33 +186,35 @@ def log_rail(b, pts):
             b.box((*c, base + z), (L, 0.24 + t, 0.32 + t), "caramel_wood", bevel=False, rot=rot)
 
 
-def log_bridge(mat):
-    """The stream's only crossing: a plank deck 6 wide at 2.0 on two big logs, a plank ramp at each end (22 degrees),
-    and log railings 3.4 high along the deck. Runs along local Y (Roblox Z)."""
+def log_bridge(mat, w=6.0):
+    """The stream's only crossing: a plank deck w wide (6 in v3.2) at 2.0 on big logs, a plank ramp at each end (22
+    degrees), and log railings 3.4 high along the deck. Runs along local Y (Roblox Z)."""
     b = Builder()
     L = 2 * DECK_HL
-    for x in (-2.0, 2.0):                                                           # the logs under it
+    hw = w / 2
+    logs = (-2.0, 2.0) if w <= 6.0 else (-(hw - 1.0), 0.0, hw - 1.0)
+    for x in logs:                                                                  # the logs under it
         b.cyl((x, 0, DECK_TOP - 1.0), 0.75, L + 1.0, "fur_brown", segments=10, rot=rx(90))
         for y in (-(L + 1.0) / 2 - 0.02, (L + 1.0) / 2 + 0.02):
             b.cyl((x, y, DECK_TOP - 1.0), 0.62, 0.06, "treat_tan", segments=10, rot=rx(90), bevel=False)
-    b.box_base((0, 0, DECK_TOP - 0.3), (6.0, L, 0.3), "caramel_wood", bevel=False)            # the deck
+    b.box_base((0, 0, DECK_TOP - 0.3), (w, L, 0.3), "caramel_wood", bevel=False)              # the deck
     for k in range(1, 15):                                                           # plank lines
         y = -DECK_HL + k * L / 15
-        b.box_base((0, y, DECK_TOP), (5.9, 0.08, 0.02), "dark_wood", bevel=False)
+        b.box_base((0, y, DECK_TOP), (w - 0.1, 0.08, 0.02), "dark_wood", bevel=False)
     slope = math.atan2(DECK_TOP, RAMP_L)
     rl = math.hypot(DECK_TOP, RAMP_L)
     for s in (-1, 1):                                                                # the ramps
         ym, zm = s * (DECK_HL + RAMP_L / 2), DECK_TOP / 2
         nz, ny = math.cos(slope), s * math.sin(slope)                               # the ramp's up direction
-        b.box((0, ym - ny * 0.15, zm - nz * 0.15), (6.0, rl + 0.25, 0.3), "caramel_wood", bevel=False,
+        b.box((0, ym - ny * 0.15, zm - nz * 0.15), (w, rl + 0.25, 0.3), "caramel_wood", bevel=False,
               rot=rx(-s * math.degrees(slope)))
         for k in range(1, 4):                                                        # cleats
             t = k / 4
-            b.box((0, s * (DECK_HL + RAMP_L * t) + ny * 0.06, DECK_TOP * (1 - t) + nz * 0.06), (5.6, 0.25, 0.12),
+            b.box((0, s * (DECK_HL + RAMP_L * t) + ny * 0.06, DECK_TOP * (1 - t) + nz * 0.06), (w - 0.4, 0.25, 0.12),
                   "dark_wood", bevel=False, rot=rx(-s * math.degrees(slope)))
-        for x in (-2.9, 2.9):                                                        # a short post at each foot
+        for x in (-(hw - 0.1), hw - 0.1):                                            # a short post at each foot
             b.cyl_base((x, s * (DECK_HL + RAMP_L - 0.4), 0), 0.25, 1.6, "fur_brown", segments=8)
-    for x in (-2.85, 2.85):                                                          # railings 3.4 high
+    for x in (-(hw - 0.15), hw - 0.15):                                              # railings 3.4 high
         for k in range(5):
             y = -DECK_HL + 0.35 + k * (L - 0.7) / 4
             b.cyl_base((x, y, DECK_TOP), 0.24, 3.4, "fur_brown", segments=8)

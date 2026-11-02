@@ -56,6 +56,19 @@ return function()
 			expect(g.transparency > 0 and g.transparency < 1).to.equal(true)
 		end)
 
+		it("serves, sweeps and banks with small bursts in the cafe's colours", function()
+			local o = Presets.orders
+			expect(Presets.emitters.coinGlint ~= nil).to.equal(true)
+			expect(Presets.emitters.coinGlint.rate).to.equal(0)
+			expect(Presets.emitters.coinGlint.acceleration.Y < 0).to.equal(true) -- coins fall back
+			for _, n in { o.served.sparkles, o.sweep.coins, o.bank.coins, o.bank.sparkles } do
+				expect(n > 0 and n <= Presets.budget.low.maxBurst).to.equal(true)
+			end
+			expect(o.served.ring < o.bank.ring).to.equal(true) -- the till's burst is the bigger one
+			expect(o.bank.colour).to.equal(Presets.palette.golden)
+			expect(o.plotReach >= 20 and o.plotReach <= o.within).to.equal(true)
+		end)
+
 		it("plays your own cafe always and others only on a PC or console", function()
 			local o = Presets.orders
 			expect(Logic.orderPlays(true, 10, o.within, 99, 0)).to.equal(true)

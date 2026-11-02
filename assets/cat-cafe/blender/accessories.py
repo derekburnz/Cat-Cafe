@@ -160,7 +160,12 @@ def build_apron(mat):
     f.box((0, fy, MID), (w * 0.62, 0.04, NECK_Z - Z0 - 0.04), "mint")                          # bib
     f.box((0, fy - 0.02, Z0 + 0.16), (w * 0.34, 0.03, 0.16), "cream", bevel=False)              # pocket
     f.band(Z0 + 0.3, Z0 + 0.34, "mint")                                                          # tie
-    f.box((0, Y1 + 0.04, Z0 + 0.32), (0.22, 0.04, 0.1), "mint", bevel=False)                    # bow at the back
+    bz, by = Z0 + 0.32, Y1 + 0.045                                                              # the bow at the back
+    f.box((0, by, bz), (0.08, 0.05, 0.08), "mint", bevel=False)                                 # knot
+    for sx in (-1, 1):
+        f.box((sx * 0.11, by - 0.005, bz + 0.02), (0.15, 0.035, 0.1), "mint", bevel=False, rot=_y(sx * 18))   # loop
+        f.box((sx * 0.105, by - 0.008, bz + 0.02), (0.07, 0.03, 0.05), "cream", bevel=False, rot=_y(sx * 18))
+        f.box((sx * 0.17, by - 0.01, bz - 0.07), (0.06, 0.025, 0.11), "mint", bevel=False, rot=_y(sx * 35))  # tail
     return f.finalize("CatCafe_Accessory_Apron", mat)
 
 
@@ -207,23 +212,52 @@ def build_vest(mat):
     f.box((0, front - 0.005, NECK_Z - 0.13), (2 * X1 * 0.3, 0.03, 0.26), "offwhite", bevel=False)     # shirt V
     for i in range(3):
         f.box((0, front - 0.012, NECK_Z - 0.32 - 0.12 * i), (0.06, 0.03, 0.06), "rarity_legend", bevel=False)
+    back = Y1 + pad
+    f.box((0, back + 0.005, (Z0 + NECK_Z) / 2 + 0.02), (2 * X1 * 0.78, 0.03, NECK_Z - Z0 - 0.16), "choco",
+          bevel=False)                                                                               # satin back
+    f.box((0, back + 0.02, Z0 + 0.27), (2 * X1 * 0.66, 0.03, 0.07), "dark_wood", bevel=False)           # cinch strap
+    f.box((0, back + 0.034, Z0 + 0.27), (0.12, 0.02, 0.1), "rarity_legend", bevel=False)               # buckle
+    f.box((0, back + 0.04, Z0 + 0.27), (0.06, 0.02, 0.05), "choco", bevel=False)
     return f.finalize("CatCafe_Accessory_Vest", mat)
 
 
 def build_cape(mat):
     """Entertainer's stage cape: teal outside, pink lining and gold stars, hung from a pink collar at the back of the
-    shoulders, with straps along the sides to two gold clasps at the front."""
+    shoulders, with straps along the sides to two gold clasps at the front. It is split up the back from the hem, the
+    lining turned back pink along the split, so a working cat's tail comes out through it (Derek 11-02: the cape
+    looked odd from behind, a board with the tail poking through), with a gold hem, a twinkle on each panel
+    and a big gold star above the split."""
+    from mathutils import Matrix, Vector
     f = _Fit("Cape")
     w, fy = 2 * X1, Y0 - 0.015
     cw, tall = w + 0.36, NECK_Z - Z0 + 0.3
-    f.box((0, Y1 + 0.06, MID - 0.08), (cw, 0.05, tall), "sign_teal", rot=_x(-8))
-    f.box((0, Y1 + 0.03, MID - 0.08), (cw - 0.06, 0.02, tall - 0.06), "neon_pink", bevel=False, rot=_x(-8))
+    C, R = Vector((0, Y1 + 0.06, MID - 0.08)), Matrix.Rotation(math.radians(-8), 3, "X")
+    hx, hz = cw / 2, tall / 2
+    s_top, sw = -hz + 0.5, 0.17                         # the split: up to here from the hem, this far either side
+
+    def box(c, size, swatch, bevel=True, rot=None):     # in the cape's own frame (x across, y out the back, z up)
+        f.box(tuple(C + R @ Vector(c)), size, swatch, bevel=bevel, rot=R if rot is None else R @ rot)
+
+    def star(c, outer, inner, swatch="rarity_legend"):  # standing up, one point up, facing out the back
+        f.b.star(f._p(tuple(C + R @ Vector(c))), outer, inner, 0.03, swatch, rot=R @ Matrix.Rotation(math.pi / 2, 3, "X"))
+
+    top0 = s_top - 0.04                                 # the upper part runs down into the panels' tops
+    box((0, 0, (top0 + hz) / 2), (cw, 0.05, hz - top0), "sign_teal")
+    box((0, -0.03, (top0 + 0.01 + hz - 0.03) / 2), (cw - 0.06, 0.02, hz - 0.04 - top0), "neon_pink", bevel=False)
+    for sx in (-1, 1):
+        x0, x1 = sw, hx - 0.004
+        box((sx * (x0 + x1) / 2, 0, (s_top - hz) / 2), (x1 - x0, 0.045, s_top + hz), "sign_teal", bevel=False)
+        box((sx * (x0 + x1) / 2, -0.03, (top0 + 0.03 - hz + 0.03) / 2), (x1 - x0 - 0.06, 0.018, top0 + 0.03 + hz - 0.03),
+            "neon_pink", bevel=False)
+        box((sx * (x0 + 0.026), 0.018, (top0 - 0.005 - hz + 0.065) / 2), (0.068, 0.02, top0 - 0.005 + hz - 0.065),
+            "neon_pink", bevel=False)                   # the lining turned back along the split
+        box((sx * (x0 + x1) / 2, 0, -hz + 0.03), (x1 - x0 + 0.006, 0.06, 0.07), "rarity_legend", bevel=False)   # hem
+        box((sx * 0.33, 0.02, -0.15), (0.09, 0.03, 0.09), "rarity_legend", bevel=False, rot=Matrix.Rotation(math.pi / 4, 3, "Y"))
+    star((0, 0.024, 0.24), 0.13, 0.055)
     f.box((0, Y1 + 0.02, NECK_Z + 0.04), (cw, 0.16, 0.12), "neon_pink", bevel=False)              # collar
     for sx in (-1, 1):
         f.box((sx * (X1 + 0.015), (fy + Y1) / 2, NECK_Z - 0.04), (0.03, Y1 - fy, 0.08), "sign_teal", bevel=False)
         f.box((sx * w * 0.36, fy - 0.01, NECK_Z - 0.04), (0.12, 0.04, 0.12), "rarity_legend", bevel=False)  # clasps
-    for (x, z) in ((-0.2, 0.15), (0.18, -0.05), (0.0, -0.3)):
-        f.box((x, Y1 + 0.095, MID + z), (0.09, 0.03, 0.09), "rarity_legend", bevel=False, rot=_y(45))
     return f.finalize("CatCafe_Accessory_Cape", mat)
 
 

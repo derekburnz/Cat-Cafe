@@ -2,10 +2,11 @@
 // UI gate (UI-Engineer, 2026-11-01; Derek picked "Skills and UI gate": "build a cloud check that fails tiny buttons,
 // small text and off-screen windows").
 //
-//   node uigate.mjs [--out dir] [--profile phone] [--scene Quests] [--update-baseline] [--verbose]
+//   node uigate.mjs [--out dir] [--devices] [--profile phone] [--scene Quests] [--update-baseline] [--verbose]
 //
 // Builds the real UI (src/client/UI) in the cloud at three screen sizes, the ones the ui-review skill names:
-// desktop 1280 x 720, laptop 1366 x 768 and a phone at 844 x 390 with touch. ui-shim.luau gives world-shim.luau a
+// desktop 1280 x 720, laptop 1366 x 768 and a phone at 844 x 390 with touch; --devices runs a tablet, a small phone
+// and a console instead (DEVICE_PROFILES), which CI leaves out to keep its time. ui-shim.luau gives world-shim.luau a
 // client (PlayerGui, camera, input), working signals on a virtual clock, and Roblox's 2D layout. uigate-scenes.luau
 // starts the UI as UIController does with a mid-game player, then opens each window the way the game does.
 // After each scene every GuiObject a player would see is read back in screen pixels and checked
@@ -28,7 +29,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Lua } from '@luau-rs/luau';
 import { buildTree, jsonToLuau } from './rojo-tree.mjs';
-import { PROFILES, checkScene, compareBaseline, writeReport } from './uigate-checks.mjs';
+import { DEVICE_PROFILES, PROFILES, checkScene, compareBaseline, writeReport } from './uigate-checks.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const gameRoot = path.resolve(here, '..', '..');
@@ -113,7 +114,10 @@ async function runProfile(profile) {
 
 const started = Date.now();
 const all = [];
-for (const profile of PROFILES) {
+// --devices runs the three device sizes on their own: more than three Luau states in one process runs the wasm out
+// of memory
+const profiles = args.devices ? DEVICE_PROFILES : args.profile ? [...PROFILES, ...DEVICE_PROFILES] : PROFILES;
+for (const profile of profiles) {
   if (args.profile && args.profile !== profile.name) continue;
   const t0 = Date.now();
   const scenes = await runProfile(profile);
@@ -140,9 +144,17 @@ const filtered = Boolean(args.profile || args.scene);
 const { fresh, fixed, counts } = compareBaseline(all, baseline, filtered);
 if (args.updateBaseline) {
   if (filtered) throw new Error('--update-baseline needs the full run (no --profile or --scene)');
-  const out = { note: 'UI gate findings accepted on 2026-11-01; fix them and shrink this file, never grow it by hand.', findings: counts };
+  // the sizes this run left out (the device sizes, or the usual three under --devices) keep their accepted findings
+  const ran = new Set(all.map((r) => r.profile.name));
+  const kept = {};
+  for (const [key, count] of Object.entries({ ...(baseline.findings || {}), ...counts })) {
+    if (key in counts || !ran.has(key.split('|')[0])) kept[key] = counts[key] ?? count;
+  }
+  const findings = {};
+  for (const key of Object.keys(kept).sort()) findings[key] = kept[key];
+  const out = { note: 'UI gate findings accepted on 2026-11-01; fix them and shrink this file, never grow it by hand.', findings };
   fs.writeFileSync(baselineFile, JSON.stringify(out, null, 2) + '\n');
-  console.log(`Wrote ${path.relative(process.cwd(), baselineFile)} (${Object.keys(counts).length} keys)`);
+  console.log(`Wrote ${path.relative(process.cwd(), baselineFile)} (${Object.keys(findings).length} keys)`);
 }
 fs.mkdirSync(path.join(outDir, 'scenes'), { recursive: true });
 for (const r of all) {
@@ -168,11 +180,12 @@ function parseArgs(argv) {
     const arg = argv[i];
     if (arg === '--out') out.out = argv[++i];
     else if (arg === '--profile') out.profile = argv[++i];
+    else if (arg === '--devices') out.devices = true;
     else if (arg === '--scene') out.scene = argv[++i];
     else if (arg === '--update-baseline') out.updateBaseline = true;
     else if (arg === '--verbose' || arg === '-v') out.verbose = true;
     else if (arg === '--help' || arg === '-h') {
-      console.log('usage: node uigate.mjs [--out dir] [--profile desktop|laptop|phone] [--scene Name] [--update-baseline] [--verbose]');
+      console.log('usage: node uigate.mjs [--out dir] [--devices] [--profile desktop|laptop|phone|tablet|smallphone|console] [--scene Name] [--update-baseline] [--verbose]');
       process.exit(0);
     } else throw new Error(`unknown argument ${arg}`);
   }

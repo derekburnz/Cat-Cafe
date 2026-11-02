@@ -77,6 +77,7 @@ import neighbourhoodf85  # noqa: E402
 import woodsf85  # noqa: E402
 import sewerf85  # noqa: E402
 import woodsset  # noqa: E402
+import yardfence  # noqa: E402
 import sewerset  # noqa: E402
 import neighbourhoodset  # noqa: E402
 import plot  # noqa: E402
@@ -96,7 +97,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            boards, night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
-           leaderboards, rally, rallycrate, menu, style_icons, bellhop]
+           leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -202,10 +203,10 @@ STUDIO_NOTES = {
                             "Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). "
                             "Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley."
        for a in ("Park", "Neighbourhood", "Woods", "Sewer")},
-    "CatCafe_Alley_ArchStreet": "Over the street's north end at (0, 123.5). Posts collide; ALLEY SQUARE reads from the "
-                                "street, CAFE STREET from the square.",
-    "CatCafe_Alley_Arch": "Over each back alley's north end at (+-78, 123.5). Posts collide; ALLEY SQUARE reads from the "
-                          "back alley, BACK ALLEY from the square.",
+    "CatCafe_Alley_ArchStreet": "Over the one-lane Alleyway's way out of the camp, at x 0 on the camp line turned 180. "
+                                "Posts collide; THE ALLEYWAY reads from both faces.",
+    "CatCafe_Alley_Arch": "Over each back alley's way out of the F84 camp. Posts collide; THE ALLEYWAY reads from both "
+                          "faces.",
     **{n: "Against the inner face of an alley wall, -Z into the alley; 30 wide, taller than the wall. _Pane parts glow "
           "at night." for n in ("CatCafe_Alley_WallWindows", "CatCafe_Alley_WallDoor", "CatCafe_Alley_Mural")},
     "CatCafe_Alley_FireEscape": "As the other wall pieces. Landings and the ladder rungs collide: landing_1 (top 9.35) "
@@ -215,6 +216,8 @@ STUDIO_NOTES = {
     "CatCafe_Alley_CrateStack": "Solid crates in steps of 2.6 (tops 0.5, 2.5, 5.1, 7.7 from -X to +X).",
     "CatCafe_Alley_LaundryLine": "Poles collide, the line and clothes (_Decor) do not. Lines at 9.5 to 10.5 studs.",
     "CatCafe_Alley_StringLightsLong": "Poles 28 apart, so it spans a 30 stud back alley; _Bulbs glow at night.",
+    "CatCafe_Alley_StringLightsWide": ("Poles 88 apart at the building fronts, so it spans the one-lane Alleyway (90 "
+                                       "wide); place it at x 0 on a gap between buildings; _Bulbs glow at night."),
     "CatCafe_Sewer_Manhole": "Slide or hide the child Model _Cover to open it; the requirement SurfaceGui goes on the "
                              "-Z face of the part named SignBoard on the post.",
     "CatCafe_Furniture_Counter": "CollisionFidelity Hull. Sit pad on the left end is the counter spot.",
@@ -357,7 +360,21 @@ STUDIO_NOTES["CatCafe_NPC_MysteryVisitor"] = (
 STUDIO_NOTES["CatCafe_Item_MysteryGift"] = (
     "F64 Mystery Visitor's gift: pivot base centre, front -Z (the \"?\" tag), nothing collides; the client puts it "
     "on the bottom of the plot's MysteryGiftAnchor and tags it MysteryGift.")
+PIVOT_NOTES[yardfence.NAME] = "Plot.cframe: floor top centre of the cafe, as CatCafe_Plot_BackDoor; the yard is +Z"
+STUDIO_NOTES[yardfence.NAME] = (
+    "Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white "
+    "picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing "
+    "roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is "
+    "the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.")
 for _n in alleyblockers.ASSETS:
+    if "_Row" in _n:                             # the one-lane Alleyway's whole rows (Derek 11-02)
+        PIVOT_NOTES[_n] = "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0"
+        STUDIO_NOTES[_n] = ("Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end "
+                            "to end from the walls with one way through 25 to 29 wide and the row's own lamp post at "
+                            "it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored "
+                            "(30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows "
+                            "at night and does not collide.")
+        continue
     _short = _n.endswith("Short")
     PIVOT_NOTES[_n] = ("the floor on the back alley lane's middle line (lane x +-78). " + (
         "A short pile: it spans local x -15 to -6.5; place two on one spot at rotY 0 and 180 (any pair) to leave "
@@ -389,8 +406,9 @@ for _n in townbuildings.ASSETS:                  # town buildings on the back al
     PIVOT_NOTES[_n] = "wall: back plane at the bottom centre; -Z faces into the alley"
     STUDIO_NOTES[_n] = (
         "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: "
-        "30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) "
-        "2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. "
+        "30 wide (30.8 over the side window sills), -Z into the lane. Its 12 deep body stands over the 1 thick wall "
+        "and 10 past it, windows down its sides: put the pivot 2.25 behind the wall's inner face, so the facade is 1 "
+        "out into the lane where the old backs' faces were. Side by side (the south end wall) keep 31 between centres. "
         "The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door "
         "lamp (Neon + a warm PointLight at night), _Flowers needs no collision.")
 STUDIO_NOTES[townbuildings.N + "Warehouse"] += (

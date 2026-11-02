@@ -954,7 +954,7 @@ local Cues: { [string]: Cue } = {
 
 	-- F90 cats make the orders (5.16): the Cafe sheet, all 3D; they repeat with every order, so each is short and soft
 	sheetCafe = {
-		ids = {},
+		ids = { "rbxassetid://100577291813581" },
 		group = "Sfx",
 		volume = 1,
 		preload = true,

@@ -1325,7 +1325,7 @@
       "position": [
        0.0,
        1.955,
-       0.9104
+       0.9
       ],
       "orientation": [
        [
@@ -1349,7 +1349,7 @@
     "Size": [
      1.7,
      0.13,
-     1.6209
+     1.6
     ],
     "Color": [
      0.9098,
@@ -10189,84 +10189,6 @@
        "CFrame": {
         "position": [
          0.0,
-         2.409,
-         1.1565
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.2825,
-       0.798,
-       1.0687
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "PivotOffset": {
-       "CFrame": {
-        "position": [
-         0.0,
-         -0.399,
-         -0.2565
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     },
-     "attributes": {
-      "Rojo_Id": "CatCafe_Street_CodesCat/5"
-     }
-    },
-    {
-     "name": "CatCafe_Street_CodesCat_Cat_Body",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
          3.0645,
          0.8145
         ],
@@ -10305,6 +10227,84 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -1.0545,
+         0.0855
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Street_CodesCat/5"
+     }
+    },
+    {
+     "name": "CatCafe_Street_CodesCat_Cat_Body",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.3377,
+         1.0852
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.1115,
+       0.6555,
+       0.912
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
     },
@@ -10315,7 +10315,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.5272,
+         -0.4417,
          2.1026,
          0.7575
         ],
@@ -10364,7 +10364,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.5272,
+         0.4417,
          2.1026,
          0.7575
         ],
@@ -12319,15 +12319,15 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.5195,
+         -1.001,
          2.1667,
-         1.5341
+         1.1118
         ],
         "orientation": [
          [
-          -0.5,
+          -0.9063,
           0.0,
-          -0.866
+          0.4226
          ],
          [
           0.0,
@@ -12335,22 +12335,22 @@
           0.0
          ],
          [
-          0.866,
+          -0.4226,
           0.0,
-          -0.5
+          -0.9063
          ]
         ]
        }
       },
       "Size": [
        0.2565,
-       0.2565,
-       0.627
+       0.3165,
+       0.5842
       ],
       "Color": [
-       1.0,
-       0.9765,
-       0.949
+       0.851,
+       0.4,
+       0.1804
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -12362,15 +12362,15 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
+         -0.8213,
          0.0,
-         0.0,
-         -0.2707
+         -0.0673
         ],
         "orientation": [
          [
-          -0.5,
+          -0.9063,
           0.0,
-          0.866
+          -0.4226
          ],
          [
           0.0,
@@ -12378,9 +12378,9 @@
           0.0
          ],
          [
-          -0.866,
+          0.4226,
           0.0,
-          -0.5
+          -0.9063
          ]
         ]
        }
@@ -12397,15 +12397,15 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.754,
+         -0.5193,
          2.1667,
-         1.128
+         1.6052
         ],
         "orientation": [
          [
-          -1.0,
+          0.342,
           0.0,
-          0.0
+          -0.9397
          ],
          [
           0.0,
@@ -12413,9 +12413,9 @@
           0.0
          ],
          [
+          0.9397,
           0.0,
-          0.0,
-          -1.0
+          0.342
          ]
         ]
        }
@@ -12423,7 +12423,7 @@
       "Size": [
        0.2565,
        0.2565,
-       0.627
+       0.5842
       ],
       "Color": [
        1.0,
@@ -12446,15 +12446,15 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.5195,
-         2.1817,
-         0.7219
+         -0.93,
+         2.1667,
+         1.5141
         ],
         "orientation": [
          [
-          -0.5,
+          -0.7071,
           0.0,
-          0.866
+          -0.7071
          ],
          [
           0.0,
@@ -12462,22 +12462,22 @@
           0.0
          ],
          [
-          -0.866,
+          0.7071,
           0.0,
-          -0.5
+          -0.7071
          ]
         ]
        }
       },
       "Size": [
        0.2565,
-       0.2865,
-       0.627
+       0.2565,
+       0.5842
       ],
       "Color": [
-       0.851,
-       0.4,
-       0.1804
+       1.0,
+       0.9765,
+       0.949
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -12495,7 +12495,7 @@
       "position": [
        -0.285,
        2.1667,
-       1.6695
+       1.5199
       ],
       "orientation": [
        [

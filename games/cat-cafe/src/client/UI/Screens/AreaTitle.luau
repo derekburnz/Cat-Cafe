@@ -48,7 +48,8 @@ function AreaTitle.new(parent: Instance): AreaTitle
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.3),
-		Size = UDim2.fromOffset(900, 120),
+		-- the screen's width less a margin, so a small phone keeps the whole line (the words are centred)
+		Size = UDim2.new(1, -32, 0, 120),
 		Visible = false,
 		Parent = root,
 	})

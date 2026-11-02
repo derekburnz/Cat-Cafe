@@ -57,8 +57,8 @@ local CARD: { [string]: Line } = {
 	codes_cat = "New codes come with updates. Tell the Codes Cat!",
 	luck = "Luck makes rare cats more likely. Tap the chip to see why",
 	offline = "Your cats earned while you were away!",
-	like_ask = "Having fun? A thumbs up helps other players find Cat Cafe.",
-	favorite_ask = "Favorite Cat Cafe to find it fast next time", -- F96, starter-cat.md section 3
+	like_ask = "Having fun? A thumbs up helps other players find Catch a Cat Cafe.",
+	favorite_ask = "Favorite Catch a Cat Cafe to find it fast next time", -- F96, starter-cat.md section 3
 }
 
 -- A camera cut's caption, said while the camera shows the place (section 3's table).

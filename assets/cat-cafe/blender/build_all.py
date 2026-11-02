@@ -36,6 +36,7 @@ import wildbackdrop  # noqa: E402
 import luckycat  # noqa: E402
 import welcomearch  # noqa: E402
 import campextras  # noqa: E402
+import rally  # noqa: E402
 import camps  # noqa: E402
 import cannon  # noqa: E402
 import areakit  # noqa: E402
@@ -85,9 +86,14 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
-           townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras, style_icons]
+           townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
+           rally, style_icons]
 
 PIVOT_NOTES = {
+    "CatCafe_Square_RallyBoard": "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
+                                 "rally.SPOT (15, 0.1, 12) turned 30, facing the player spawn",
+    **{n: "On the ground under the middle of the span, as the edge bunting it stands in for during the Rally: the "
+          "same placements" for n in ("CatCafe_Square_RallyBunting", "CatCafe_Square_RallyBuntingShort")},
     **{n: "the base centre on the camp's ground, front -Z toward the camp, no turn; area space at "
           "campextras.SPOTS (beside the way out, across from the Index Board)" for n in (
         "CatCafe_Camp_Park_PicnicBasket", "CatCafe_Camp_Neighbourhood_YardSale", "CatCafe_Camp_Woods_FishPond",

@@ -6,14 +6,17 @@ across its -Z end, outside it, as in F84.
                                  floor, gate side -Z toward the camp, like every set. Walls at x +-90 and z +-215
                                  (WorldBuilder's); the way in is a 24 stud opening (CampOpeningWidth) at x 0 on z -215.
 
-Five blockers cross the width with their gaps on alternating sides, so the far end is never in a straight line:
+Five blockers cross the width, their ways through 24 wide and moving about (Derek 11-02: "the gaps also don't always
+have to be on the sides can be a bit wider ... don't want it feeling too tightly cramped"), so the far end is never in
+a straight line:
 
-  z -172 to -122   the first house block, houses back to back (tall); Cat Lane runs through it at x 24 to 34
-  z -57 to -54     the village green's picket fence with a box hedge behind it, about 4 high; its gap at x -38 to -22
+  z -172 to -122   the first house block, houses back to back (tall); Cat Lane runs through it, x 15 to 39
+  z -57 to -54     the village green's picket fence with a box hedge behind it, about 4 high; its gap in the middle,
+                   x -12 to 12
   z 10.6 to 17.4   the road works dug along Paw Road, red and white barriers 3.7 high round a trench, spoil heaps,
-                   a digger and a skip; crossed only on the steel plates at x 22 to 38
-  z 22 to 72       the second house block (tall); Mitten Lane runs through it at x -34 to -24
-  z 149 to 152     the garden wall, brick under a hedge about 4 high; the Paw Parade arch at x 22 to 38
+                   a digger and a skip; crossed only on the steel plates at x 18 to 42
+  z 22 to 72       the second house block (tall); Mitten Lane runs through it, x -39 to -15
+  z 149 to 152     the garden wall, brick under a hedge about 4 high; the Paw Parade arch at x 18 to 42
 
 The low three let a hunter see a carrier coming but make them go round; a `_Barrier` 30 high on each stops anyone
 jumping one, and on each house block from the house fronts back. The far end is Paw Parade: the corner shop against the
@@ -22,8 +25,8 @@ far wall with the playground beside it and two houses across, the best of the Ne
 The way, camp to far end: Whisker Lane north from the gate, east along it to Cat Lane, through the first block to
 Green Side and the village green, through the fence's gap into the allotments, over the plated crossing of the road
 works, west along Paw Road to Mitten Lane, through the second block to Mitten Row and the back gardens, through the
-Paw Parade arch to the shop and the playground. Shortest walk from the pad (walk check on the Part model) about 550 to
-the shop and about 630 to the far corner (6b: about 575 camp to far end).
+Paw Parade arch to the shop and the playground. Shortest walk from the pad (walk check on the Part model) about 495 to
+the shop and about 575 to the far corner (6b: about 575 camp to far end); the 24 wide gaps took about 50 off it.
 
 Points (manifest points_roblox): [x, y, z, zone], zone "near" (the camp half, z < 0) or "deep" (the far half). The
 traps are built in, as in v3.2: `trap_shed` x2 (a garden shed with a jammed door, the door on the piece's -Z) and
@@ -57,17 +60,18 @@ ROAD_END = 76.0                         # the streets across end in turning head
 S1_Z = -180.0                           # Whisker Lane, across in front of the first block
 ROW1 = (-172.0, -122.0)                 # the first block's front fences: south on S1, north on S2
 S2_Z = -114.0                           # Green Side
-G1_X = 29.0                             # Cat Lane, through the first block
-R1W, R1E = (-IN_X, G1_X - 8.0), (G1_X + 8.0, IN_X)
-FENCE_Z, GAP_B = -57.0, (-38.0, -22.0)  # the green's picket fence (its face) and its gap
+G1_X = 27.0                             # Cat Lane, through the first block
+LANE_H = 12.0                           # half a lane between the blocks' ends: 24 (16 until Derek 11-02)
+R1W, R1E = (-IN_X, G1_X - LANE_H), (G1_X + LANE_H, IN_X)
+FENCE_Z, GAP_B = -57.0, (-12.0, 12.0)   # the green's picket fence (its face) and its gap, in the middle
 S3_Z = 14.0                             # Paw Road, dug up
 WORKS = (10.6, 17.4)                    # the works' barrier lines
-CROSS = (22.0, 38.0)                    # the plated crossing between them
+CROSS = (18.0, 42.0)                    # the plated crossing between them
 ROW2 = (22.0, 72.0)                     # the second block
 S4_Z = 80.0                             # Mitten Row
-G2_X = -29.0                            # Mitten Lane
-R2W, R2E = (-IN_X, G2_X - 8.0), (G2_X + 8.0, IN_X)
-WALL_Z, GAP_E = 149.0, (22.0, 38.0)     # the garden wall (its face) and the Paw Parade arch
+G2_X = -27.0                            # Mitten Lane
+R2W, R2E = (-IN_X, G2_X - LANE_H), (G2_X + LANE_H, IN_X)
+WALL_Z, GAP_E = 149.0, (18.0, 42.0)     # the garden wall (its face) and the Paw Parade arch
 S5_Z = 166.0                            # Paw Parade
 FAR_ROW = (31.0, IN_X)                  # the two houses across the parade
 SHOP = (0.0, IN_Z - SHOP_D / 2 - 0.4)   # the corner shop, its back to the far wall
@@ -83,10 +87,10 @@ HEADS = [(sx * ROAD_END, z, 8.0) for sx in (-1, 1) for z in (S1_Z, S2_Z, S4_Z, S
 PAVES = [(-8.0, -5.0, -IN_Z, S1_Z - 8), (5.0, 8.0, -IN_Z, S1_Z - 8),
          (-ROAD_END, ROAD_END, S1_Z - 8, S1_Z - 5),
          (-ROAD_END, ROAD_END, S1_Z + 5, S1_Z + 8),
-         (G1_X - 8, G1_X - 5, S1_Z + 8, S2_Z - 8), (G1_X + 5, G1_X + 8, S1_Z + 8, S2_Z - 8),
+         (G1_X - 9, G1_X - 5, S1_Z + 8, S2_Z - 8), (G1_X + 5, G1_X + 9, S1_Z + 8, S2_Z - 8),
          (-ROAD_END, ROAD_END, S2_Z - 8, S2_Z - 5), (-ROAD_END, ROAD_END, S2_Z + 5, S2_Z + 8),
          (-IN_X + 0.05, IN_X - 0.05, S3_Z - 8, S3_Z - 5), (-IN_X + 0.05, IN_X - 0.05, S3_Z + 5, S3_Z + 8),
-         (G2_X - 8, G2_X - 5, S3_Z + 8, S4_Z - 8), (G2_X + 5, G2_X + 8, S3_Z + 8, S4_Z - 8),
+         (G2_X - 9, G2_X - 5, S3_Z + 8, S4_Z - 8), (G2_X + 5, G2_X + 9, S3_Z + 8, S4_Z - 8),
          (-ROAD_END, ROAD_END, S4_Z - 8, S4_Z - 5), (-ROAD_END, ROAD_END, S4_Z + 5, S4_Z + 8),
          (-ROAD_END, ROAD_END, S5_Z - 8, S5_Z - 5), (-ROAD_END, ROAD_END, S5_Z + 5, S5_Z + 8)]
 GRAVEL = "paving_sand"
@@ -119,8 +123,8 @@ def _ground():
     dashes((G1_X, S1_Z + 6), (G1_X, S2_Z - 6))
     dashes((G2_X, S3_Z + 6), (G2_X, S4_Z - 6))
     # footpaths: across the green, through the allotments, through the back gardens
-    for pts in ([(G1_X, S2_Z + 8), (14.0, -88.0), (-30.0, -70.0), (-30.0, FENCE_Z)],
-                [(-30.0, FENCE_Z + 3.0), (-30.0, -40.0), (30.0, -16.0), (30.0, S3_Z - 8)],
+    for pts in ([(G1_X, S2_Z + 8), (16.0, -88.0), (0.0, -72.0), (0.0, FENCE_Z)],
+                [(0.0, FENCE_Z + 3.0), (0.0, -40.0), (30.0, -16.0), (30.0, S3_Z - 8)],
                 [(G2_X, S4_Z + 8), (-14.0, 104.0), (30.0, 128.0), (30.0, WALL_Z)]):
         for a, b in zip(pts, pts[1:]):
             _strip(g, a, b, 3.0, GRAVEL, 0.05)
@@ -201,27 +205,27 @@ def _block(s, g, mat, row, west, east, south, north, wplot, eplot):
 
 def _blocks(s, g, mat):
     _block(s, g, mat, ROW1, R1W, R1E,
-           ([(-70, "C2", "porch", ("bed",)), (-44, "A2", "flowerbed", ("bed", "mail")), (-18, "B2", None, ("hedge",)),
-             (8, "C", "porch", ("bed", "hedge"))],
-            [(49, "B", "flowerbed", ("bed",)), (73, "A3", None, ("mail",))]),
-           ([(-70, "A2", None, ("bed",)), (-44, "C", "flowerbed", ("bed",)), (-18, "B3", None, ("hedge", "mail")),
-             (8, "A", "porch", ("bed",))],
-            [(49, "C3", "porch", ("hedge",)), (73, "B2", None, ("bed",))]),
-           (PLOT, PLOT), (24.0, 24.0))
+           ([(-74.25, "C2", "porch", ("bed",)), (-48.75, "A2", "flowerbed", ("bed", "mail")),
+             (-23.25, "B2", None, ("hedge",)), (2.25, "C", "porch", ("bed", "hedge"))],
+            [(51, "B", "flowerbed", ("bed",)), (75, "A3", None, ("mail",))]),
+           ([(-74.25, "A2", None, ("bed",)), (-48.75, "C", "flowerbed", ("bed",)),
+             (-23.25, "B3", None, ("hedge", "mail")), (2.25, "A", "porch", ("bed",))],
+            [(51, "C3", "porch", ("hedge",)), (75, "B2", None, ("bed",))]),
+           (25.5, 25.5), (24.0, 24.0))       # 25.5: a flower bed reaches 12 from its house, the low hedge
     _block(s, g, mat, ROW2, R2W, R2E,
-           ([(-73, "B3", "porch", ("bed",)), (-49, "C", "flowerbed", ("bed", "mail"))],
-            [(-8, "A", "porch", ("hedge",)), (18, "C3", "flowerbed", ("bed",)), (44, "D2", "flowerbed", ("bed",)),
-             (70, "B", "porch", ("mail",))]),
-           ([(-73, "A3", "flowerbed", ("bed",)), (-49, "B2", "porch", ("hedge",))],
-            [(-8, "C2", "porch", ("bed", "mail")), (18, "A2", None, ("hedge",)), (44, "B", "flowerbed", ("bed",)),
-             (70, "C", "porch", ("bed",))]),
-           (24.0, 24.0), (PLOT, PLOT))
+           ([(-75, "B3", "porch", ("bed",)), (-51, "C", "flowerbed", ("bed", "mail"))],
+            [(-3, "A", "porch", ("hedge",)), (21, "C3", "flowerbed", ("bed",)), (45, "D2", "flowerbed", ("bed",)),
+             (69, "B", "porch", ("mail",))]),
+           ([(-75, "A3", "flowerbed", ("bed",)), (-51, "B2", "porch", ("hedge",))],
+            [(-3, "C2", "porch", ("bed", "mail")), (21, "A2", None, ("hedge",)), (45, "B", "flowerbed", ("bed",)),
+             (69, "C", "porch", ("bed",))]),
+           (24.0, 24.0), (24.0, 24.0))
     zs2 = ROW2[0] + FRONT
-    _spot(s, "trap_gutter", *turned(44, zs2, 0, *GUTTER_SPOT), y=GUTTER_Z, turn=0)          # the Mitten Row bungalow
+    _spot(s, "trap_gutter", *turned(45, zs2, 0, *GUTTER_SPOT), y=GUTTER_Z, turn=0)          # the Mitten Row bungalow
     # trees in the back gardens, over the roofs
     tb = Builder()
-    for (x, z, h, k) in ((-82, -147, 14, 0), (-31, -148, 15, 1), (16, -146, 14, 2), (62, -147, 15, 1),
-                         (-58, 47, 15, 2), (-4, 46, 14, 0), (31, 48, 16, 1), (80, 46, 14, 2)):
+    for (x, z, h, k) in ((-82, -147, 14, 0), (-36, -148, 15, 1), (9, -146, 14, 2), (63, -147, 15, 1),
+                         (-63, 47, 15, 2), (9, 46, 14, 0), (33, 48, 16, 1), (80, 46, 14, 2)):
         tree_round(tb, -x, z, 0, h=h, r=3.4 + 0.3 * k, leaf=("leaf_green", "leaf_dark", "mint")[k])
     s.put([tb.finalize(N + "BackTrees", mat)], 0, 0, 0)
 
@@ -448,7 +452,7 @@ def _works(s, mat):
     s.put(skip_(mat), 62.0, S3_Z + 1.4, 0, y=ROAD_Y)
     for x in (-76.0, -24.0, 8.0, 48.0, 80.0):
         s.put(sw.traffic_cone(mat), x, WORKS[0] + 0.9, 0, y=ROAD_Y)
-    s.put(works_sign(mat), 16.0, WORKS[0] - 2.8, 0, y=PAVE_Y)
+    s.put(works_sign(mat), 12.0, WORKS[0] - 2.8, 0, y=PAVE_Y)
     s.put(works_sign(mat, "FOOTPATH"), CROSS[1] + 4.0, WORKS[1] + 2.8, 180, y=PAVE_Y)
     s.put(site_hut(mat), -74.0, 0.0, 0)
     _spot(s, "works_hut", -73.8, -3.8)
@@ -504,7 +508,7 @@ def _near(s, g, mat):
 
     # the green: oaks, picnic tables, benches, beds, the village sign and the ice cream van on Green Side
     s.put(street_sign(mat, "GREEN SIDE"), -12.0, S2_Z + 7.0, 0)
-    for (x, z, r) in ((-62.0, -90.0, 30), (60.0, -78.0, 200), (8.0, -64.0, 100)):
+    for (x, z, r) in ((-62.0, -90.0, 30), (60.0, -78.0, 200), (-30.0, -74.0, 100)):
         s.put(pk.oak(mat), x, z, r)
     _spot(s, "oak", -58.5, -93.0)
     for i, (x, z, r) in enumerate(((-40.0, -96.0, 8), (44.0, -96.0, -10))):
@@ -525,12 +529,13 @@ def _near(s, g, mat):
 
     # the allotments: beds along grass and gravel paths, sheds, a greenhouse, a scarecrow
     beds = [(-80, -46, "cabbage"), (-66, -46, "beans"), (-52, -46, "carrot"), (-80, -22, "pumpkin"),
-            (-66, -22, "cabbage"), (-12, -46, "pumpkin"), (2, -46, "cabbage"), (16, -46, "beans"), (44, -46, "carrot"),
+            (-66, -22, "cabbage"), (-38, -46, "pumpkin"), (-24, -46, "cabbage"), (22, -46, "beans"),
+            (44, -46, "carrot"),
             (-2, -20, "carrot"), (14, -34, "beans"), (60, -6, "cabbage"), (74, -6, "pumpkin"), (-52, -8, "beans"),
             (-38, -8, "carrot"), (42, -28, "pumpkin")]
     for i, (x, z, crop) in enumerate(beds):
         s.put(veg_bed(mat, crop, i), x, z, 0)
-    for (x, z) in ((-66, -46), (2, -46), (-38, -8)):
+    for (x, z) in ((-66, -46), (-24, -46), (-38, -8)):
         _spot(s, "veg_bed", x - 1.6, z, y=BED_TOP)
     crops = Builder()
     for (x0, x1, z0, n) in ((-84.0, -60.0, -38.0, 3), (56.0, 82.0, -48.0, 4), (-20.0, 4.0, -12.0, 3)):
@@ -668,7 +673,7 @@ def _lamps_and_trees(s, mat):
     for (x, z) in ((-6.5, -206.0), (6.5, -188.5), (-46.0, -186.5), (40.0, -186.5), (-72.0, -174.0),
                    (G1_X - 6.5, -150.0), (G1_X + 6.5, -128.0),
                    (-50.0, -107.5), (20.0, -107.5), (72.0, -107.5),
-                   (-60.0, S3_Z - 6.5), (66.0, S3_Z + 6.5), (G2_X - 6.5, 40.0), (G2_X + 6.5, 60.0),
+                   (-60.0, S3_Z - 6.5), (60.0, S3_Z + 6.5), (G2_X - 6.5, 40.0), (G2_X + 6.5, 60.0),
                    (-70.0, S4_Z + 6.5), (10.0, S4_Z + 6.5), (66.0, S4_Z - 6.5),
                    (-36.0, S5_Z - 6.5), (40.0, S5_Z - 6.5)):
         s.put(nb.lamp_post(mat), x, z, 0, y=PAVE_Y)

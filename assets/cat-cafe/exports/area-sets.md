@@ -84,22 +84,24 @@ are where Layout's camp spots already are (pad 0, -13; cannon 0, -26.5; basket -
 
 The set's walls are the v3.2 Park's (hedge, brick, iron railing on a hedge, old stone) just inside WorldBuilder's at
 x +-60 and z +155, and on the camp side a plinth with a railing and flower boxes, open to the camp, with lantern
-pillars at x +-17.5 either side of the gate. Four blockers cross the width, their gaps on alternating sides, so the
-far end is never in a straight line. Each is low enough to see over and has a 30 high `_Barrier` on its own line:
+pillars at x +-17.5 either side of the gate. Four blockers cross the width, their gaps 24 wide and never in line, one
+of them in the middle (Derek 11-02: "the gaps also don't always have to be on the sides can be a bit wider ... don't
+want it feeling too tightly cramped"), so the far end is never in a straight line. Each is low enough to see over and
+has a 30 high `_Barrier` on its own line:
 
 | z (set space) | Blocker | Gap |
 |---|---|---|
-| -113 to -111 | a clipped box hedge, 3.4 to 4 high, an urn at each end of the gap | x 23 to 37 |
-| -50 to -47.6 | a plinth with a railing 4.6 high and flower boxes, lantern pillars at the gap | x -37 to -23 |
-| 8.2 to 15.8 | the stream, 6 wide between stone kerbs, an iron rail 3 high on each kerb | the footbridge at x 30 |
-| 73 to 75 | a second box hedge | x -37 to -23 |
+| -113 to -111 | a clipped box hedge, 3.4 to 4 high, an urn at each end of the gap | x 14 to 38 |
+| -50 to -47.6 | a plinth with a railing 4.6 high and flower boxes, lantern pillars at the gap | x -12 to 12, the middle |
+| 8.2 to 15.8 | the stream, 6 wide between stone kerbs, an iron rail 3 high on each kerb | the footbridge at x 30, deck 10 wide |
+| 73 to 75 | a second box hedge | x -44 to -20 |
 
-The footbridge spans z 3 to 21 at x 30: a deck 5.2 wide at 1.6 high, a ramp of 4 at each end (22 degrees), solid
+The footbridge spans z 3 to 21 at x 30: a deck 10 wide at 1.6 high, a ramp of 4 at each end (22 degrees), solid
 railings. The walk from the pad: the plaza and the picnic lawn, the first hedge gap, round the duck pond (players wade
 in it, as in v3.2), the railing gap, past the glasshouse (a tall piece, 15.6 high, with a barrier on its plinth) and
 the orchard, over the footbridge, through the rose garden, the second hedge gap, past the playground to the bandstand
-loop at the far end. The gravel path is about 485 studs; the shortest walk from the gate to the far corner is about
-415 (walk check on the Part model), so about 428 from the pad (6b: about 425).
+loop at the far end. The shortest walk from the gate to the far corner is about 375 (walk check on the Part model),
+so about 388 from the pad (6b: about 425); the 24 wide gaps took about 40 off it.
 
 ## The Neighbourhood (F85)
 
@@ -121,26 +123,26 @@ rect (x -89.5 to 89.5, z -246 to -216 in set space), the gate line z -216 and th
 
 The set's walls are the v3.2 Neighbourhood's runs of picket fence, hedge and brick just inside WorldBuilder's at
 x +-90 and z +215, with a 30 high `_Barrier` all round but the way in; on the camp side a low town hedge, open to the
-camp, with a street lamp either side of the gate. Five blockers cross the width, their gaps on alternating sides, so
-the far end is never in a straight line. The low ones are about 4 high, so a hunter sees a carrier coming but has to
+camp, with a street lamp either side of the gate. Five blockers cross the width, their ways through 24 wide and never
+in line, the green's fence's in the middle (Derek 11-02), so the far end is never in a straight line. The low ones are about 4 high, so a hunter sees a carrier coming but has to
 go round, and each has a 30 high `_Barrier` on its own line; the house blocks are the tall pieces, with a barrier from
 the house fronts back (the front gardens stay open):
 
 | z (set space) | Blocker | Gap |
 |---|---|---|
-| -172 to -122 | the first house block, 12 houses back to back | Cat Lane, x 21 to 37 |
-| -57 to -54 | the village green's picket fence with a box hedge behind, 3.6 to 4 high | x -38 to -22, by the ALLOTMENTS post |
-| 10.6 to 17.4 | road works dug along Paw Road: a trench behind red and white barriers 3.7 high, spoil heaps, a digger and a skip | the steel plates at x 22 to 38 |
-| 22 to 72 | the second house block, back to back, with a bungalow | Mitten Lane, x -37 to -21 |
-| 149 to 152 | the garden wall, brick under a hedge about 4 high | the Paw Parade arch, x 22 to 38 |
+| -172 to -122 | the first house block, 12 houses back to back | Cat Lane, x 15 to 39 |
+| -57 to -54 | the village green's picket fence with a box hedge behind, 3.6 to 4 high | x -12 to 12, the middle, by the ALLOTMENTS post |
+| 10.6 to 17.4 | road works dug along Paw Road: a trench behind red and white barriers 3.7 high, spoil heaps, a digger and a skip | the steel plates at x 18 to 42 |
+| 22 to 72 | the second house block, back to back, with a bungalow | Mitten Lane, x -39 to -15 |
+| 149 to 152 | the garden wall, brick under a hedge about 4 high | the Paw Parade arch, x 18 to 42 |
 
 The walk from the pad: Whisker Lane past the bus stop to Cat Lane, through the first block to Green Side and Whisker
 Green (picnic tables, the village sign, the ice cream van), through the fence's gap into the allotments, over the
 plated crossing of the road works, along Paw Road to Mitten Lane, through the second block to Mitten Row and the back
 gardens (trampoline, paddling pool, greenhouse), under the Paw Parade arch and over the last street to the far end:
 the corner shop against the far wall, the playground beside it and two houses across. The shortest walk from the gate
-is about 534 to the shop step and 615 to the far corner (walk check on the Part model), so about 550 and 630 from the
-pad (6b: about 575).
+is about 480 to the shop step and 560 to the far corner (walk check on the Part model), so about 495 and 575 from the
+pad (6b: about 575); the 24 wide gaps took about 50 off it.
 
 ## The Woods (F85)
 
@@ -164,28 +166,29 @@ The Fish Pond (`CatCafe_Camp_Woods_FishPond`) keeps its place beside the way out
 The set's walls are the v3.2 Woods' runs of mossy cliff, thicket, dry stone under a thicket and now and then a log
 palisade, between old trees, just inside WorldBuilder's at x +-80 and z +245, the stream coming out of a cliff on
 each side; a 30 high `_Barrier` all round but the way in; on the camp side a split rail fence with bushes, open to the
-camp, with a lantern either side of the gate. Five blockers cross the width, their gaps on alternating sides, so the
-far end is never in a straight line. The low four are about 4 high, so a hunter sees a carrier coming but has to go
+camp, with a lantern either side of the gate. Five blockers cross the width, their ways through 24 wide and never in
+line, the tree line's in the middle (Derek 11-02), so the far end is never in a straight line. The low four are about 4 high, so a hunter sees a carrier coming but has to go
 round, each with a 30 high `_Barrier` on its own line; the tree line is the tall one and hides the far half:
 
 | z (set space) | Blocker | Gap |
 |---|---|---|
-| -172 to -168 | the fallen timber: big trunks end to end, a thinner log on every other, brush over the joins, about 4 high | x 38 to 54, a lantern either side |
-| -98 to -82 | the stream from the waterfall at the east wall, rock edges with log rails 3 high (as v3.2) | the log bridge at x -46 |
-| -14 to -6 | the tree line, a thicket 9 to 10 high with pines 18 to 24 in it (as v3.2) | x 38 to 54, a lantern either side |
-| 70 to 72 | a dry stone wall, 3.4 high under cap stones to about 3.9 | x -54 to -38 between stone gateposts 5.4 high, the field gate swung back |
-| 147 to 153 | a mossy boulder ridge about 3.6 high, stones and moss on top to about 4.8 | x 38 to 54 under the GREAT OAK arch |
+| -172 to -168 | the fallen timber: big trunks end to end, a thinner log on every other, brush over the joins, about 4 high | x 34 to 58, a lantern either side |
+| -98 to -82 | the stream from the waterfall at the east wall, rock edges with log rails 3 high (as v3.2) | the log bridge at x -46, deck 10 wide |
+| -14 to -6 | the tree line, a thicket 9 to 10 high with pines 18 to 24 in it (as v3.2) | x -12 to 12, the middle, a lantern either side |
+| 70 to 72 | a dry stone wall, 3.4 high under cap stones to about 3.9 | x -58 to -34 between stone gateposts 5.4 high, the field gate swung back |
+| 147 to 153 | a mossy boulder ridge about 3.6 high, stones and moss on top to about 4.8 | x 34 to 58 under the GREAT OAK arch (posts 24 apart) |
 
 The walk from the pad: the dirt trail north-east past the berry meadow to the timber's gap, west past the mushroom ring
-to the log bridge, east past the berry patch to the tree line's gap, west through the dell (a bramble trap by the
-west wall) to the wall's field gate, east past the old campsite (two tents, a campfire, log benches) to the arch, and
+to the log bridge, past the berry patch to the tree line's gap in the middle, west through the dell (a bramble trap by
+the west wall) to the wall's field gate, east past the old campsite (two tents, a campfire, log benches) to the arch, and
 west into the Great Oak's clearing, with the tree house (50, 210) and the lookout tower (12, 230) beside it. The
-shortest walk from the gate is about 655 to the oak and the tower and 718 to the far corner (walk check on the Part
-model, with the bridge's ramps), so about 670 and 735 from the pad (6b: about 650).
+shortest walk from the gate is about 585 to the oak and the tower and 650 to the far corner (walk check on the Part
+model, with the bridge's ramps), so about 600 and 665 from the pad (6b: about 650); the 24 wide gaps and the middle
+gap took about 70 off it.
 
 Stream centre line `z = -90 - 3 * (1 - cos(2 * pi * (x + 46) / 90))`, otherwise as v3.2: water 8 wide, rock edges
-1.3 high with log rails, grass banks, `CatCafe_Woods_Stream_Barrier` on both rails, open only at the bridge (deck 6
-wide at 2.0, a ramp at each end).
+1.3 high with log rails, grass banks, `CatCafe_Woods_Stream_Barrier` on both rails, open only at the bridge (deck 10
+wide at 2.0 on three logs, a ramp at each end).
 
 ## The Sewer (F85)
 
@@ -213,29 +216,30 @@ between brick piers, just inside WorldBuilder's at x +-60 and z +285: 18 high ro
 roof from the tunnel front on, with seven finished tunnel mouths in the side walls (iron bars or an iron door), a
 barred one in the far wall, the canal's water mouths and stone columns at the far corners; a 30 high `_Barrier` all
 round but the way in; on the camp side the town wall either side of the gate, as v3.2. Six pieces cross the width,
-their gaps on alternating sides, so the far end is never in a straight line. The low four are about 4 high (the water
+their ways through about 24 wide and moving about, one in the middle (Derek 11-02: wider, not always on the sides, not
+cramped), so the far end is never in a straight line. The low four are about 4 high (the water
 behind guard rails), so a hunter sees a carrier coming but has to go round, each with a 30 high `_Barrier` on its own
 line (on the guard rails' line for the water); the tunnel front and the vault wall are the tall ones and hide the
 halls behind them:
 
 | z (set space) | Blocker | Gap |
 |---|---|---|
-| -211 to -199 | the yard's canal, sunken between kerbs with guard rails, out through grates in both walls (as v3.2) | the brick bridge at x 38, steps and parapets |
-| -150 to -147 | the tunnel front, brick 24 high where the roof begins, "THE SEWER" over the barred middle arch | the walk-in arch at x -45 to -31, a lantern either side; the arch at x 31 to 45 is barred |
-| -78 to -72 | the rubble where the roof came down: broken slabs, brick lumps and rebar, about 4 high, daylight through the hole above | x 34 to 50 between timber props under the cracked beam |
-| -5 to 5 | the channel, sunken between railed kerbs from wall to wall (as v3.2) | the steel catwalk at x -40 |
-| 90 to 96 | the vault wall, brick to the roof, "CAT TOWN" over its arch | x 34 to 50 through the deep vaulted arch |
-| 181 to 189 | the pipe bank: three big pipes on the floor, about 4.5 high, flanged every 6 | x -50 to -34, the pipes' capped ends |
+| -211 to -199 | the yard's canal, sunken between kerbs with guard rails, out through grates in both walls (as v3.2) | the brick bridge at x 38, 12 wide (8 until 11-02), steps and parapets |
+| -150 to -147 | the tunnel front, brick 24 high where the roof begins, "THE SEWER" over the barred middle arch | the walk-in arch at x -49.5 to -26.5 (23 wide, 14 until 11-02), a lantern either side; its twin at x 26.5 to 49.5 is barred |
+| -78 to -72 | the rubble where the roof came down: broken slabs, brick lumps and rebar, about 4 high, daylight through the hole above | x 26 to 50 between timber props under the cracked beam |
+| -5 to 5 | the channel, sunken between railed kerbs from wall to wall (as v3.2) | the steel catwalk at x -40, 9 wide (5 until 11-02) |
+| 90 to 96 | the vault wall, brick to the roof, "CAT TOWN" over its arch | x 28 to 52 through the deep vaulted arch (springing at 3.5 so the sign fits under the cornice) |
+| 181 to 189 | the pipe bank: three big pipes on the floor, about 4.5 high, flanged every 6 | x -12 to 12 in the middle (x -50 to -34 until 11-02), the pipes' capped ends |
 
 The walk from the pad: across the yard (barrels, tyres, cones, suitcases) east to the brick bridge, back west along
 the bank to the walk-in arch, through the junk market (three stalls, a crate deck, the hanging sign, a grate trap) east
 to the rubble's gap, west through the pump room (the big pipe and its valve, the beached bathtub boat and raft) to the
 catwalk, east through the lost and found (the lounge, the yarn trolley, the pipe hammock, a drain pipe trap) to the
-vault's arch, west past cat town (can, teapot and box houses round a square, the cart on its rails, a grate trap) to
-the pipe bank's gap, and east across the throne room (a drain pipe trap by the east wall) to the junk throne on its dais (34, 270.5) in front of the pipe
-organ, with the culvert pouring out of the far wall into the pool at x 0. The shortest walk from the gate is about 755
-to the throne, 765 to the organ and 777 to the far corner (walk check on the Part model, over the bridges' steps), so
-about 770, 780 and 790 from the pad (6b: about 750).
+vault's arch, past cat town (can, teapot and box houses round a square, the cart on its rails, a grate trap) to
+the pipe bank's gap in the middle, and across the throne room (a drain pipe trap by the east wall) to the junk throne on its dais (34, 270.5) in front of the pipe
+organ, with the culvert pouring out of the far wall into the pool at x 0. The shortest walk from the gate is about 690
+to the throne, 700 to the organ and 710 to the far corner spots (walk check on the Part model, over the bridges' steps),
+so about 705, 715 and 725 from the pad (6b: about 750); the wider, moved gaps took about 65 off.
 
 The roof (24, 1.2 thick) starts at the tunnel front; the yard is open to the sky. Nine grated skylights and the hole
 over the rubble let the day in; brick beams cross the width on pillars at x +-28 (two pillars a beam, clear of the

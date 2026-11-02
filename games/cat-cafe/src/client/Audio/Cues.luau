@@ -245,7 +245,7 @@ local Cues: { [string]: Cue } = {
 
 	-- Rescue minigames (5.2) and F92 Team Rescue: all in the Rescue sheet (2026-11-02; silent until then) -----------
 	sheetRescue = {
-		ids = {},
+		ids = { "rbxassetid://105628750022355" },
 		group = "Sfx",
 		volume = 1,
 		preload = true,

@@ -4,10 +4,14 @@
 -- of a new player on the real shared code: Economy's income, settle, XP, blockers, passes and offline pay, the Clock's
 -- day and night, the Catalog's prices, odds, first catch rewards, Tip Jar and Index prizes, Bait's bowl luck,
 -- EquipBest's placements, Catching's picks and CatStats' charm. The player:
--- - joins, watches the 25 s intro, then catches the tutorial Common behind the cafe and checks it in at 75 s;
--- - by day sets out on CATCHES trips into the newest area its tier opens at even times, each TRIP_SECONDS out and
---   back, a catch per trip from the sunrise wave while it lasts (a stray picked at random from the wave, which has
---   an Epic or better since F97, Catching.waveRare), and is home between trips and all night (areas closed);
+-- - joins, watches the 25 s intro, then flies to the Alleyway and checks the tutorial Common in at its camp at 51 s;
+-- - by day sets out on CATCHES trips into the newest area its tier opens at even times, a catch per trip from the
+--   sunrise wave while it lasts (a stray picked at random from the wave, which has an Epic or better since F97,
+--   Catching.waveRare), and is home between trips and all night (areas closed). A trip is the Cat Cannon's
+--   (hometown-cannon.md 6a, F84): the walk to the cannon, the hop and the flight, the walk from the camp's pad to a
+--   spawn point the stray's rarity may take in the area's set (Catching.spawnPool on Layout's points, so F85's long
+--   sets count as they land) along a path 1.25 times the straight line (6b), the carry back into the camp (the catch
+--   rush, then carry speed) and the cloud hop home;
 -- - nets each stray with presses that land PRESS_SPREAD seconds either side of the target (one standard deviation,
 --   ping wobble included; data-model 10, v0.13.15), graded by Circles on its net level's windows times the
 --   stray's `catchWindow` (F83). A miss costs the chase: the stray sprints and rests (Catching.fleeUntil), the
@@ -33,7 +37,9 @@
 -- Spins, golden fish and their perks, crates, potions, quests, the Daily Treat, rescues, the night dealer and the lawn
 -- are left out, as in the economy-ladder.md section 3 model, so real players run a little faster.
 return function()
+	local ServerScriptService = game:GetService("ServerScriptService")
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+	local Layout = require(ServerScriptService.Server.World.Layout)
 	local Bait = require(Shared.Bait)
 	local Catalog = require(Shared.Catalog)
 	local CatStats = require(Shared.CatStats)
@@ -50,8 +56,13 @@ return function()
 	local Types = require(Shared.Types)
 
 	local INTRO_SECONDS = 25
-	local TUTORIAL_CHECKIN = 75
-	local TRIP_SECONDS = 45
+	-- hometown-cannon.md 6a (F84): the intro, then about 26 s to fly out, net the tutorial stray waiting just past the
+	-- Alleyway's camp and walk it in (75 s through the back door before)
+	local TUTORIAL_CHECKIN = 51
+	local CANNON_WALK = 5 -- 6a: the cafe to the Town Square cannon (the Cannon button: at once)
+	local CANNON_HOP = 0.5 -- 6a: hopping in, before the flight's CannonLaunchSeconds
+	local WINDING = 1.25 -- 6b: the main path winds about 1.25 times the straight distance
+	local PAD_IN = 13 -- the landing pad, this far inside the camp from its gate line (CAMP_PAD)
 	local PRESS_SPREAD = 0.05 -- data-model 10 (v0.13.15): presses within about 50 ms
 	local MAX_TRIES = 200
 	local LIMIT = 3600 -- a Tier 2 run gives up after an hour
@@ -113,6 +124,27 @@ return function()
 			return studs / Config.StartledWalkSpeed
 		end
 		return Config.StartledSeconds + (studs - startled) / Config.NormalWalkSpeed
+	end
+
+	-- A trip's seconds, the chase left out (hometown-cannon.md 6a and 6b): the cannon out, the walk from the pad to a
+	-- spawn point a stray of `rarity` may take in the area's set as Catching.spawnPool picks in an empty area (`roll`
+	-- choosing among them), the carry back (CatchRushWalkSpeed for CatchRushSeconds, then CarryWalkSpeed) and the
+	-- cloud hop home. Distances are in the camp's space, where z is how far in from the gate line.
+	local function tripSeconds(areaId: string, rarity: Types.Rarity?, roll: number): number
+		local spec, camp = Layout.areas[areaId], assert(Layout.camps[areaId])
+		local slots: { Catching.SpawnSlot } = {}
+		for i, point in spec.spawnPoints do
+			slots[i] = { zone = point.zone, free = true }
+		end
+		local pool = Catching.spawnPool(slots, rarity)
+		local point = spec.spawnPoints[pool[1 + math.floor(roll * #pool)]]
+		local _, z = Layout.campLocal(camp, point.x, point.z)
+		local path = WINDING * (PAD_IN + math.max(z, 0))
+		local rush = math.min(path, Config.CatchRushWalkSpeed * Config.CatchRushSeconds)
+		local back = rush / Config.CatchRushWalkSpeed + (path - rush) / Config.CarryWalkSpeed
+		local flight = CANNON_WALK + CANNON_HOP + Config.CannonLaunchSeconds
+		local out = flight + path / Config.NormalWalkSpeed
+		return out + back + Config.CloudHopSeconds
 	end
 
 	-- Whether a tick from `clockT - step` to `clockT` passed a multiple of `every` (the server's pile and visitor
@@ -435,16 +467,22 @@ return function()
 					local due = if into >= 10
 						then math.min(options.catches, math.floor((into - 10) / interval) + 1)
 						else 0
-					if trip == nil and due > tripsStarted and into + TRIP_SECONDS > dusk then
+					local pick: number? = if trip == nil and due > tripsStarted and #wave > 0
+						then 1 + math.floor(rng() * #wave)
+						else nil
+					local seconds = if trip == nil and due > tripsStarted
+						then tripSeconds(area.id, if pick ~= nil then wave[pick] else nil, rng())
+						else 0
+					if trip == nil and due > tripsStarted and into + seconds > dusk then
 						tripsStarted = due
 					elseif trip == nil and due > tripsStarted then
 						tripsStarted = due
-						local back = into + TRIP_SECONDS
+						local back = into + seconds
 						local def: Types.CatDef? = nil
 						local variant = "base"
 						local rarity: Types.Rarity? = nil
-						if #wave > 0 then
-							rarity = table.remove(wave, 1 + math.floor(rng() * #wave))
+						if pick ~= nil then
+							rarity = table.remove(wave, pick) :: Types.Rarity
 							def = Catching.pickCat(rarity :: Types.Rarity, area.id, rng())
 							local caught = def :: Types.CatDef
 							variant = coat(caught, Config.RainbowChanceNet, Config.GoldChanceNet)

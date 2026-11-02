@@ -160,13 +160,38 @@ local function swingHint(): string
 	return "Click next to a cat"
 end
 
+-- The tutorial strip's line for this step and device (F87, easy-start.md section 2e): the UI's
+-- UI.tutorial.hint(s) once it has it (no letter keys on touch), nil keeping the line here. The trail's target and
+-- label stay this controller's.
+local function tutorialLine(s: Types.PlayerState, line: string): string
+	local tutorial: any = UI.tutorial
+	local hint: unknown = if tutorial ~= nil then tutorial.hint else nil
+	if type(hint) == "function" then
+		local text = (hint :: (Types.PlayerState) -> unknown)(s)
+		if type(text) == "string" and text ~= "" then
+			return text
+		end
+	end
+	return line
+end
+
+local function showTutorial(
+	s: Types.PlayerState,
+	line: string,
+	target: (BasePart | Attachment | Vector3)?,
+	label: string?
+)
+	UI.tutorial.show(tutorialLine(s, line), target, label)
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if s.carrying ~= nil then
 		UI.tutorial.hide()
 		return
 	end
 	if s.tutorialStep < 2 then
-		UI.tutorial.show(
+		showTutorial(
+			s,
 			string.format(
 				"Go out your back door to the alley. %s, then tap as each circle closes",
 				swingHint()
@@ -176,22 +201,23 @@ local function refreshTutorial(s: Types.PlayerState)
 		)
 	elseif s.tutorialStep == 2 then
 		if hasRestingCatAndFreeSpot(s) then
-			UI.tutorial.show("Open the Collection (C) and give your new cat a role")
+			showTutorial(s, "Open the Collection (C) and give your new cat a role")
 		else
-			UI.tutorial.show("Catch more cats in the alley, or buy a table in Upgrades (U)")
+			showTutorial(s, "Catch more cats in the alley, or buy a table in Upgrades (U)")
 		end
 	elseif s.tutorialStep == 3 then
-		UI.tutorial.show("Buy your first table in Upgrades (U): more money from every cat")
+		showTutorial(s, "Buy your first table in Upgrades (U): more money from every cat")
 	elseif s.tutorialStep == 4 then
 		-- gdd "The first ten minutes" beat 4: the bowl, then food in it (BaitService finishes the tutorial)
 		-- (the HUD strip shows about 50 characters on one line, reviewer N94)
 		if (s.upgradeLevels.lure_bowl or 0) < 1 then
-			UI.tutorial.show("Buy the Bait bowl in Upgrades (U)")
+			showTutorial(s, "Buy the Bait bowl in Upgrades (U)")
 		elseif s.bait ~= nil then
 			-- baited before the first table on an older save: the server moved new ones to 5 (S48)
-			UI.tutorial.show("A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
+			showTutorial(s, "A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
 		else
-			UI.tutorial.show(
+			showTutorial(
+				s,
 				"Put Kibble in your bowl on the back step (F)",
 				UIController.ownBaitBowl(),
 				"Bowl"
@@ -448,6 +474,11 @@ local function applyState(s: Types.PlayerState)
 		quests = s.quests :: any, -- F73: the Quests window's tabs and the HUD's quest line (the UI reads it loosely)
 		achievements = s.achievements :: any, -- F73: each achievement's progress and claim
 		dailyTreat = s.dailyTreat, -- F70: the Daily Treat card, whether a stamp is due and the day it pays
+		-- F87 (#705): the tips seen, the one feedback ask and the help cards shown, so a tip the client finds itself
+		-- (stuck_cat, codes_cat, offline), the help card and the ask never repeat each session
+		tipsSeen = s.tipsSeen,
+		feedbackAsked = s.feedbackAsked,
+		stuckHelpShown = s.stuckHelpShown,
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.

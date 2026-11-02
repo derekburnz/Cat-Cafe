@@ -5,7 +5,8 @@
 -- its outfit, F25 and PR #260), the resting cat's loaf now and then, stuck
 -- cats struggling in their traps, strays looking around, legs that walk and gallop with the cat's real speed, the
 -- pant after a sprint, the hiss hop on a missed catch, the startled spring of a near miss (F93), the Balloon Cat
--- bobbing as if it might float off (F78) and the Bellhop Cat's bell, cap tip, bow and sleepy cap (F96, Bellhop.luau).
+-- bobbing as if it might float off (F78), the Bellhop Cat's bell, cap tip, bow and sleepy cap (F96, Bellhop.luau)
+-- and a Barista's working bob while it makes an order (F90: its local Making attribute, set by CafeOrders).
 -- Only the nearest few within range move (budget.animatedCats within budget.animRadius); the rest stand as the
 -- server placed them. Gold cats in range sparkle, a gold coat seen for the first time bursts with gold sparkles,
 -- and napping cats show floating z's.
@@ -53,6 +54,8 @@ type Entry = {
 	napGui: BillboardGui?,
 	floats: boolean, -- a cat that bobs as if it might float off (motion.float.cats: Balloon Cat)
 	bellhop: boolean, -- the Bellhop Cat (F96): its bell, cap and bow on top (Bellhop.layer)
+	making: number, -- how far into the working bob it is (F90), 0 to 1, easing with its Making attribute
+	makingAt: number, -- os.clock() its current making started, for the bob's loop
 }
 
 local ROLES: { [string]: Logic.Style } = {
@@ -514,6 +517,8 @@ local function bind(model: Model): Entry?
 		napGui = nil,
 		floats = canFloat(model),
 		bellhop = Bellhop.is(model),
+		making = 0,
+		makingAt = 0,
 	}
 	active[model] = entry
 	dress(entry)
@@ -750,6 +755,18 @@ local function step(dt: number)
 		end
 		if entry.bellhop then
 			Bellhop.layer(model, o, entry.style, now)
+		end
+		-- F90: a Barista making an order bobs where it sits (CafeOrders sets Making on this client only)
+		local makingNow = model:GetAttribute("Making") ~= nil
+		if makingNow and entry.making <= 0 then
+			entry.makingAt = now
+		end
+		local makingStep = stepDt / Presets.motion.making.ease
+		entry.making =
+			math.clamp(entry.making + (if makingNow then makingStep else -makingStep), 0, 1)
+		if entry.making > 0 then
+			local eased = entry.making * entry.making * (3 - 2 * entry.making)
+			Logic.makingPose(o, now - entry.makingAt, eased, Context.reducedMotion())
 		end
 		Pose.draw(rig, o, alpha)
 		local yarn, wand = entry.yarn, entry.wand

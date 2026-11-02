@@ -13,6 +13,9 @@
 -- F97 section 2 (Derek 2026-10-28: "make it so decor is crate find only"): a coin piece the catalog marks
 -- `source = "crate"` shows only once owned and never with a price, like a crate piece, and the grid always ends
 -- with "Find more decor in crates" pointing to the Golden Fish Market.
+-- Equip Best (Derek 2026-10-28, server #828): a pink button right of the chips while Config.DecorEquipBest is true,
+-- like the HUD's. A press fires callbacks.equipBest and holds the button grey until the next sync (at most
+-- PRESS_HOLD seconds); the server puts out the best owned pieces and toasts what changed, or that nothing would.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -33,6 +36,7 @@ export type Callbacks = {
 	buyDecor: (decorId: string) -> (),
 	toggleDecor: (decorId: string, placed: boolean) -> (),
 	close: () -> (),
+	equipBest: (() -> ())?, -- Equip Best on the chips row; no button without it
 }
 
 export type DecorShop = {
@@ -48,6 +52,8 @@ local CHIP_HEIGHT = 44 -- was 36 with a 31 px face (Derek 2026-10-28: "squished"
 local CHIP_MIN_WIDTH = 96
 local CHIP_PAD = 40 -- px round a chip's words
 local CHIP_GAP = 10
+local EQUIP_W = 156 -- Equip Best, right of the chips
+local PRESS_HOLD = 3 -- seconds Equip Best stays grey after a press when no sync comes
 local FOOTER_HEIGHT = 56
 local STRIP_HEIGHT = 58
 local SLOT_WIDTH = 150 -- four slots fit a full-width window with the fifth peeking, so the strip reads as scrollable
@@ -113,11 +119,13 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self._panel = panel
 	self.frame = panel.frame
 
+	local equipBest = if Config.DecorEquipBest == true then callbacks.equipBest else nil
+	local chipsRight = if equipBest then EQUIP_W + CHIP_GAP else 0
 	self._chipRow = Create("ScrollingFrame", {
 		Name = "Chips",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, chipHeight),
+		Size = UDim2.new(1, -chipsRight, 0, chipHeight),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.X,
 		ScrollBarThickness = 0,
@@ -130,6 +138,32 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+
+	self._bestPressed = nil :: number? -- os.clock() of an Equip Best press not answered yet
+	if equipBest then
+		self._equipBest = Button.new({
+			name = "EquipBest",
+			text = Theme.icons.equipBest .. " Equip Best",
+			style = "berry", -- the HUD's Equip Best pink, apart from the gold chip that is picked
+			size = UDim2.fromOffset(EQUIP_W, chipHeight),
+			anchorPoint = Vector2.new(1, 0),
+			position = UDim2.new(1, 0, 0, 0),
+			textSize = Theme.sizes.textBody,
+			parent = panel.content,
+			onClick = function()
+				local at = os.clock()
+				self._bestPressed = at
+				self:_renderBest()
+				equipBest()
+				task.delay(PRESS_HOLD, function()
+					if self._bestPressed == at then
+						self._bestPressed = nil
+						self:_renderBest()
+					end
+				end)
+			end,
+		})
+	end
 
 	-- "Your cafe": the style slots and the decor spots, shown once the catalog has crate pieces
 	self._strip = Create("ScrollingFrame", {
@@ -595,8 +629,29 @@ function DecorShop.setCatalog(self: any, catalog: Types.Catalog)
 	self._dirty = true
 end
 
+-- Equip Best: grey while a press waits for the server, or with no decor owned at all.
+function DecorShop._renderBest(self: any)
+	local button: Button.Button? = self._equipBest
+	if button == nil then
+		return
+	end
+	local state: Types.PlayerState? = self._state
+	local owned = false
+	if state then
+		for _, isOwned in state.decorOwned do
+			if isOwned then
+				owned = true
+				break
+			end
+		end
+	end
+	button:setEnabled(owned and self._bestPressed == nil)
+end
+
 function DecorShop.render(self: any, state: Types.PlayerState)
 	self._state = state
+	self._bestPressed = nil -- the sync the server sends after Equip Best
+	self:_renderBest()
 	if not self.frame.Visible then
 		self._dirty = true
 		return
@@ -708,6 +763,10 @@ function DecorShop.destroy(self: any)
 	for _, slot in self._slots do
 		slot.icon:destroy()
 		slot.connection:Disconnect()
+	end
+	local equipBest: Button.Button? = self._equipBest
+	if equipBest then
+		equipBest:destroy()
 	end
 	self._panel:destroy()
 end

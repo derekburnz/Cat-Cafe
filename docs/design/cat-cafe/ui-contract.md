@@ -663,6 +663,18 @@ A tip shows once per account, the first time a player meets something: one line 
 
 **Engineer (F96):** StarterCatController and showAsk already call all of this; with `UI.starterCat` present the stand's fallback prompt is not made.
 
+### Luck and Lucky Days (built, F88, luck-and-rare-moments.md section 1)
+
+- **Luck chip** (`Screens/LuckChip.luau`, numbers in `Components/LuckLogic.luau` with a spec): it leads the potion timers' row over the money, in their look: a round green tile with 🍀 and "Luck x1.3" in outlined white. Hidden until the first Luck source (`luckSources` not empty), and the row stays up for it alone (`BuffChips.setLead`). On a Lucky Day the text turns gold and a gold ring pulses round the tile (steady with Reduce Motion). A timed source that runs out drops off the chip and every odds card before the next sync (`LuckLogic.current`: 1 plus every source whose `endsAt` has not passed, rounded and capped like shared `Luck.of`).
+- **Luck card:** a tap on the chip opens it beside the chip, above the row when the row sits low (over the counters on a computer) and below it when it sits high (level with the menu on a phone), so the chip stays in view; a tap closes it, any window opening closes it, and it and the money's boosts card close each other: "🍀 Luck x2.3", "Rarer cats from your bait and crates", each source with its share and time left ("Lucky Cat statue, level 3 +0.3", "Lucky Potion 8:12 +0.5", "Lucky Day 3:10 +0.5"), then the rarest food in your bag (else Kibble) on your bowl and the next crate (the first plain crate you own, else the Classic), each with the odds in its rarities' colours, only the rarities that can come, a new line before one that would pass 36 letters (`LuckLogic.oddsRich`).
+- **Odds with Luck:** every food card (Bait bowl and night dealer) shows `Luck.apply(Bait.oddsFor(odds, bowlLevel), luck)`, the table the server rolls for food set now (`FoodOdds.atBowl(odds, bowlLevel, luck)`), and its Details add "Your Luck x1.3 is in these odds: Epic and rarer cats are more likely." The bowl's own shift is "Comfy Bowl: rarer visitors. 4% of each rarity's chance moves up one rarity." (spec 1b: one thing is called Luck). The Fish Market's odds card and its piece chances use `MarketLogic.nextOdds(crate, opens, every, goldenOdds, luck)`, as shared `Crates.oddsFor(crate, crateLuck, luck)`: Luck on a plain crate, never on the lucky twentieth or a golden crate; its note adds "🍀 Luck x1.3". Specs check both against the server's functions at every bowl level, count and Luck.
+- **Lucky Day line:** under the clock in gold, "🍀 Lucky Day in 3 days", "Lucky Day tomorrow", "Lucky Day at sunrise" (the night before) or "Lucky Day now", from the Clock folder's `Day`, `NextLuckyDay` and `LuckyDay`, which `UI.clock.bind` now follows too. Shown with the clock.
+- **Banners:** `UI.luckyDay(kind, line)` (UIController's hook): "warning" shows "Lucky Day soon!" over the line at once; "start" shows "Lucky Day!" over "Rare cats are twice as likely until night" (split from `Luck.DAY_BANNER`) once the sunrise banner has had its 3 s, in step with Audio's chime.
+- **Shop and rank up:** the Lucky Cat row has 🐱 and two lines, "Luck +0.2 now, +0.3 next level" over "Rarer bait cats and crate finds" (level 0: "A beckoning cat by your front door" over "Each level: Luck +0.1, rarer bait cats and crate finds"). The rank up card's caps line adds "Lucky Cat to 3". The potion bag's Lucky Potion line reads "Luck +0.5 and double gold on bait".
+- **Tip:** the `luck` context tip ("Luck makes rare cats more likely. Tap the chip to see why", 🍀) shows once the chip does, through the tip queue.
+
+**Engineer (F88):** nothing more to send: ProfileSync's `luck` and `luckSources`, the Clock attributes and `UI.luckyDay` are all read as they are.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
@@ -762,6 +774,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     crateLuck: { [pool]: number }?,                                -- F53: opens since the last Epic or better, per zone or "classic"
     fishPerks: { [perkId]: number }?,                              -- F53: Golden Fish Market perk levels
     goldLuck: number?, baitSpeed: number?,                         -- F54: the Index's capped forever bonuses; nil adds them up from the claims
+    luck: number?, luckSources: { { id, value, endsAt? } }?,       -- F88: Luck x1 to LuckMax and its statue, potion and Lucky Day parts
     introSeen: boolean?,                                           -- F72: any value shows the Tutorial tile and Settings rows
     potions: { [potionId]: number }?,                              -- F64: potions in the bag
     buffs: { [potionId]: number }?,                                -- F64: each running potion's endsAt in GetServerTimeNow() time

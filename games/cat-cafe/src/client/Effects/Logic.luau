@@ -1207,6 +1207,22 @@ function Logic.hiss(o: Offsets, alpha: number)
 	o.tailYaw *= 1 - arc
 end
 
+-- The startled spring of a near miss (motion.startle), `alpha` 0 to 1 through it, layered on whatever the cat does:
+-- up and back down in one arc, nose up, tail up and ears flat back, all easing out by the landing.
+function Logic.startle(o: Offsets, alpha: number)
+	if alpha < 0 or alpha >= 1 then
+		return
+	end
+	local s = Presets.motion.startle
+	local arc = math.sin(alpha * math.pi)
+	o.bodyY += s.hop * arc
+	o.bodyPitch += math.rad(s.lean) * arc
+	o.tailPitch += math.rad(s.tailUp) * arc
+	o.tailYaw *= 1 - arc
+	o.earL = math.max(o.earL, math.rad(s.ears) * arc)
+	o.earR = math.max(o.earR, math.rad(s.ears) * arc)
+end
+
 -- How much of a server jump is still drawn as distance left to travel: 1 at the jump, 0 on landing.
 function Logic.landing(alpha: number): number
 	local a = math.clamp(alpha, 0, 1)

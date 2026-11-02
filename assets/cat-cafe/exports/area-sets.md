@@ -1,12 +1,12 @@
 # Area sets: how the world places them
 
-Built by `assets/cat-cafe/blender/{areakit,neighbourhood,woods,sewer,parkset,parkf85,neighbourhoodf85,woodsset,sewerset}.py` from the
+Built by `assets/cat-cafe/blender/{areakit,neighbourhood,woods,sewer,parkset,parkf85,neighbourhoodf85,woodsset,woodsf85,sewerset}.py` from the
 approved drafts in `/mnt/project-files/Model-Agent/area-drafts/`. The Park, `CatCafe_Woods_SetV32`,
 `CatCafe_Sewer_SetV32` and `CatCafe_Neighbourhood_SetV32` (neighbourhoodset.py) are sized for town layout v3.2
 (town-layout-v3.md section 8, F81); the v3.1 `CatCafe_Neighbourhood_Set`, `CatCafe_Woods_Set` and
-`CatCafe_Sewer_Set` are still sized for v3.1 (section 7). `CatCafe_Park_SetF85` and `CatCafe_Neighbourhood_SetF85`
-are F85's long Park and Neighbourhood (hometown-cannon.md section 6b), each with its own camp, gate, night fence and
-backdrop ring.
+`CatCafe_Sewer_Set` are still sized for v3.1 (section 7). `CatCafe_Park_SetF85`, `CatCafe_Neighbourhood_SetF85` and
+`CatCafe_Woods_SetF85` are F85's long Park, Neighbourhood and Woods (hometown-cannon.md section 6b), each with its own
+camp and backdrop ring (the Park and the Neighbourhood a new gate and night fence too).
 
 | Set | Footprint (studs) | Tris | Parts | Area in v3.1 |
 |---|---|---|---|---|
@@ -19,6 +19,7 @@ backdrop ring.
 | `CatCafe_Neighbourhood_SetV32` | 279.5 x 279.8 | 115,000 | 5,478 | v3.2: 280 x 280, centre (0, 266), gate z 125 |
 | `CatCafe_Park_SetF85` | 119.5 x 309.75 | 100,392 | 5,541 | F85: 120 x 310 wild part, the camp 30 more (340) |
 | `CatCafe_Neighbourhood_SetF85` | 179.5 x 429.8 | 118,148 | 6,129 | F85: 180 x 430 wild part, the camp 30 more (460) |
+| `CatCafe_Woods_SetF85` | 160 x 489.5 | 132,212 | 6,208 | F85: 160 x 490 wild part, the camp 30 more (520) |
 
 ## Placing a set
 
@@ -139,6 +140,51 @@ the corner shop against the far wall, the playground beside it and two houses ac
 is about 534 to the shop step and 615 to the far corner (walk check on the Part model), so about 550 and 630 from the
 pad (6b: about 575).
 
+## The Woods (F85)
+
+F85 (hometown-cannon.md section 6b) makes the Woods a long rectangle, 160 x 520 with its camp. Three new models, so
+the live Woods stays as it is until the game switches them together. The Woods gate already spans a 24 stud opening
+(CampOpeningWidth), so `CatCafe_Woods_Gate` and `CatCafe_Woods_NightFence` stay as they are:
+
+| Model | What | Place it |
+|---|---|---|
+| `CatCafe_Woods_SetF85` | the wild part, 160 x 490 | the area's centre on its floor, with the area's turn, as every set |
+| `CatCafe_Camp_WoodsF85` | the camp, 160 wide and 30 deep, across the set's -Z end | the same CFrame as the set |
+| `CatCafe_Woods_Gate` | the Woods gate over its 24 stud opening, as now | the gate position, z -245 in set space |
+| `CatCafe_Woods_BackdropF85` | the forest and mountain ring round 160 x 520 | the same CFrame as the set |
+
+It needs Config.World WoodsWidth 160 and WoodsDepth 490 (the wild part; the camp is CampDepth in front of it), with
+the Woods' `openingHalfWidth` 12 as now. The camp model's `camp` entry in the manifest gives its rect (x -79.5 to
+79.5, z -276 to -246 in set space), the gate line z -246 and the opening; its `pad` (0, -258), `cannon`
+(0, -270.5), `basket` (-11, -258) and `index_board` (-19, -247.5) are where the v3.2 camp's are, 125 further out.
+The Fish Pond (`CatCafe_Camp_Woods_FishPond`) keeps its place beside the way out: (21.5, -250) in set space.
+
+The set's walls are the v3.2 Woods' runs of mossy cliff, thicket, dry stone under a thicket and now and then a log
+palisade, between old trees, just inside WorldBuilder's at x +-80 and z +245, the stream coming out of a cliff on
+each side; a 30 high `_Barrier` all round but the way in; on the camp side a split rail fence with bushes, open to the
+camp, with a lantern either side of the gate. Five blockers cross the width, their gaps on alternating sides, so the
+far end is never in a straight line. The low four are about 4 high, so a hunter sees a carrier coming but has to go
+round, each with a 30 high `_Barrier` on its own line; the tree line is the tall one and hides the far half:
+
+| z (set space) | Blocker | Gap |
+|---|---|---|
+| -172 to -168 | the fallen timber: big trunks end to end, a thinner log on every other, brush over the joins, about 4 high | x 38 to 54, a lantern either side |
+| -98 to -82 | the stream from the waterfall at the east wall, rock edges with log rails 3 high (as v3.2) | the log bridge at x -46 |
+| -14 to -6 | the tree line, a thicket 9 to 10 high with pines 18 to 24 in it (as v3.2) | x 38 to 54, a lantern either side |
+| 70 to 72 | a dry stone wall, 3.4 high under cap stones to about 3.9 | x -54 to -38 between stone gateposts 5.4 high, the field gate swung back |
+| 147 to 153 | a mossy boulder ridge about 3.6 high, stones and moss on top to about 4.8 | x 38 to 54 under the GREAT OAK arch |
+
+The walk from the pad: the dirt trail north-east past the berry meadow to the timber's gap, west past the mushroom ring
+to the log bridge, east past the berry patch to the tree line's gap, west through the dell (a bramble trap by the
+west wall) to the wall's field gate, east past the old campsite (two tents, a campfire, log benches) to the arch, and
+west into the Great Oak's clearing, with the tree house (50, 210) and the lookout tower (12, 230) beside it. The
+shortest walk from the gate is about 655 to the oak and the tower and 718 to the far corner (walk check on the Part
+model, with the bridge's ramps), so about 670 and 735 from the pad (6b: about 650).
+
+Stream centre line `z = -90 - 3 * (1 - cos(2 * pi * (x + 46) / 90))`, otherwise as v3.2: water 8 wide, rock edges
+1.3 high with log rails, grass banks, `CatCafe_Woods_Stream_Barrier` on both rails, open only at the bridge (deck 6
+wide at 2.0, a ramp at each end).
+
 ## The Woods (v3.2)
 
 `CatCafe_Woods_SetV32` is a new model, so the live game keeps `CatCafe_Woods_Set` (v3.1) until Gameplay moves the
@@ -245,6 +291,12 @@ floor or seat for one cat: none is inside a colliding part.
   log 1, glow_mushrooms 3, log_pile 1, glade 2, oak_nook 3, treehouse 1 at y 10.3, treehouse_foot 1, tower 1,
   clearing 2, dell 1). As in v3.1, `nook_great_oak` (3, at y 18 and 18.3) is the rare-biased nook inside the oak's
   top, kept apart from the 64.
+- Woods F85 (`CatCafe_Woods_SetF85`, 71 spots, each `[x, y, z, zone]`, zone `near` for the camp half (z < 0) or
+  `deep`): near 28 (bridge 2, waterfall 1, berry_bush 6, leaf_pile 2, stump 4 at y 1.66, fern 4, log 1, mushroom_ring
+  1 at y 0.05, glow_mushrooms 1, rock 4 at y 2.0, log_pile 1, glade 1), deep 43 (berry_bush 5, leaf_pile 3, stump 2,
+  fern 5, log 1, glow_mushrooms 3, rock 4, log_pile 1, glade 2, dell 1, tent 2, log_bench 5 at y 2.06, old_camp 1,
+  oak_nook 3, treehouse 1 at y 10.3, treehouse_foot 1, tower 1, clearing 2). `nook_great_oak` (3, at y 18 and 18.3)
+  is kept apart from the 71, as in v3.2; Layout uses the third, on the cushion.
 - Woods v3.1: oak_nook 3, nook_great_oak 3 (inside the Great Oak's top, y 18: the rare-biased nook), bridge 1, tent 2,
   mushroom_ring 1, treehouse 1 (on the cabin cushion, y 10.3), tower 1, fern 2, berry_bush 1, rock 2, stump 1,
   leaf_pile 1, log 1.
@@ -303,7 +355,10 @@ the bungalow facing the second street, and (5.7, 7.05, 112.8, deep, 34), on the 
 the bungalow's front gutter, 7.05 up, by the downpipe at the house's corner). Neighbourhood F85 builds its traps in
 the same way, three of the four deep and none within 100 studs of the camp (6b): `trap_shed` (65.4, 0, -33.3, near, 0)
 in the allotments and (76.7, 0, 108.6, deep, 90) in a back garden; `trap_gutter` (36.4, 7.05, 28.5, deep, 0) on the
-second block's bungalow and (62.4, 7.05, 180.5, deep, 0) on the far row's bungalow.
+second block's bungalow and (62.4, 7.05, 180.5, deep, 0) on the far row's bungalow. Woods F85 builds its five in as
+v3.2 does, four deep and none within 100 studs of the camp (6b): `trap_hollow_log` (62, 0, -128, near, 20) between the
+timber and the stream and (-62, 0, 122, deep, -20) past the stone wall; `trap_bramble_bush` (-62, 0, 18, deep, 0) in
+the dell and (64, 0, 176, deep, 0) past the ridge; `trap_treehouse_branch` (54.16, 15.45, 215.11, deep, 87.21).
 
 The Park's trap props are placed by the world, not built into the set: each trap spot is `[x, y, z, zone, turn]`
 and the prop stands there turned `turn` degrees (CFrame.Angles(0, math.rad(turn), 0) in set space; a rescue
@@ -316,8 +371,10 @@ five deep and none within 100 studs of the camp (6b): `trap_tree` (46, 0, -24, n
 ## Checks
 
 All sets pass the build gate (budget 80,000, 120,000 for the v3.2 Woods, Sewer and Neighbourhood, 150,000 for the
-F85 Park and Neighbourhood; transforms, one material, swatch
+F85 Park, Neighbourhood and Woods; transforms, one material, swatch
 UVs, naming), the toolkit QA with 0 visible overlaps (`toolkit_qa.md`; the floating parts listed there stand on the
 world floor or are meant, such as a falling drip), and a part-overlap check between pieces (0 pairs sinking more
 than 0.15 studs into each other) plus a spot check (no spot inside a colliding part except trap spots, where the
-cat sits inside its trap, and the Woods' seats inside the oak and the tree house).
+cat sits inside its trap, and the Woods' seats inside the oak and the tree house). The Woods' old trees stand in the wall line between
+the runs and sink into them by design, and the F85 Woods' blockers meet the side walls' plants (up to 0.82); no other
+pairs.

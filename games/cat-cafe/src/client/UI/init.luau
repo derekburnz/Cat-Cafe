@@ -4514,6 +4514,7 @@ do
 		state = nil :: Types.RallyState?,
 		banner = nil :: RallyBanner.RallyBanner?,
 		boards = nil :: RallyBoards.RallyBoards?,
+		busy = nil :: Signal.Connection?, -- HUD.catchingChanged
 		token = 0,
 	}
 
@@ -4546,6 +4547,20 @@ do
 			end
 			return { current:buffRow() }
 		end)
+		-- the banner steps aside while a catch or rescue runs, clear of their headers (review S113)
+		local hudNow = hud
+		if hudNow then
+			local banner = rally.banner
+			if banner then
+				banner:setBusy(hudNow:isCatching())
+			end
+			rally.busy = hudNow.catchingChanged:Connect(function(active: boolean)
+				local current = rally.banner
+				if current then
+					current:setBusy(active)
+				end
+			end)
+		end
 		rally.boards = RallyBoards.new(parent)
 		rally.token += 1
 		local token = rally.token
@@ -4581,6 +4596,11 @@ do
 	-- UI.destroy: the banner and the faces go; the state stays for the next build.
 	function UI.rally.reset()
 		rally.token += 1
+		local busy = rally.busy
+		if busy then
+			busy:Disconnect()
+		end
+		rally.busy = nil
 		local banner = rally.banner
 		if banner then
 			banner:destroy()

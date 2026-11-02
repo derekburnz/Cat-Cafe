@@ -978,6 +978,11 @@ local SCENES = {
 		UI.update({ buffs = { tip_potion = t + 492, swift_potion = t + 130, lucky_potion = t + 492 } })
 		UI.rally.update(rallyState({ points = 30, myPoints = 2 }))
 	end },
+	-- F101 (review S113): a rescue during a Rally: the banner steps aside, so the rescue bar's header is clear
+	{ "RallyRescue", function()
+		UI.rally.update(rallyState({ lap = 2, points = 50, myPoints = 7 }))
+		UI.rescue.show("gate_rescue", rescueChallenge())
+	end },
 	-- F101: Friday, 5 h 20 m before the Rally: the countdown under the clock and no banner
 	{ "RallySoon", function()
 		local t = workspace:GetServerTimeNow()

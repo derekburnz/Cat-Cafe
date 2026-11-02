@@ -935,7 +935,7 @@ return function()
 	-- QA for Sound-Agent's PR #784: the order sounds repeat with every order, so each stays near its cafe, spaced out
 	-- and at most two at once, and only a real station name picks a sound.
 	describe("Audio.Logic cafe order edges (QA)", function()
-		it("keeps every order sound 3D within 35 studs, with a gap and at most two voices", function()
+		it("keeps every order sound 3D within 35 studs, gapped, two voices at most", function()
 			for _, name in { "orderPour", "orderDing", "trayClink", "tipSweep", "tipBank" } do
 				local cue = Cues[name]
 				expect(cue.range ~= nil and cue.range > 0 and cue.range <= 35).to.equal(true)
@@ -945,7 +945,8 @@ return function()
 		end)
 
 		it("picks no pour or ding step for anything but a station's exact name", function()
-			for _, bad in { "", "Espresso", "OVEN", " counter", "orderPour", 2, true, {} } :: { any } do
+			local junk: { any } = { "", "Espresso", "OVEN", " counter", "orderPour", 2, true, {} }
+			for _, bad in junk do
 				expect(Logic.orderMakeCue(bad)).to.equal(nil)
 				expect(Logic.orderDingStep(bad)).to.equal(nil)
 			end

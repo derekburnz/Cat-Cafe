@@ -2,7 +2,7 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-101 files: 101 PASS, 0 WARN, 0 FAIL.
+109 files: 109 PASS, 0 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -78,12 +78,20 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sheet-parts/sfx/CatCafe_Sfx_CampBasket.ogg` | sfx | 0.95 | 1 | 48000 | 13 | -14.8 | -4.7 | 4 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_CampRattle.ogg` | sfx | 0.70 | 1 | 48000 | 11 | -24.7 | -5.9 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_CampSplash.ogg` | sfx | 0.90 | 1 | 48000 | 10 | -26.4 | -5.1 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_DecorBathtubSofa.ogg` | sfx | 1.30 | 1 | 48000 | 9 | -14.3 | -5.3 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_DecorBlossomTree.ogg` | sfx | 2.40 | 1 | 48000 | 29 | -16.5 | -5.9 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_DecorCatTree.ogg` | sfx | 1.30 | 1 | 48000 | 15 | -23.5 | -6.3 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_DecorDuckFountain.ogg` | sfx | 1.60 | 1 | 48000 | 20 | -20.8 | -6.4 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_DecorHollowLog.ogg` | sfx | 1.80 | 1 | 48000 | 31 | -27.2 | -6.0 | 0 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_DecorIceCream.ogg` | sfx | 1.50 | 1 | 48000 | 14 | -15.7 | -6.0 | 1 | - | PASS |  |
+| `sheet-parts/sfx/CatCafe_Sfx_DecorJukebox.ogg` | sfx | 2.00 | 1 | 48000 | 31 | -22.1 | -6.1 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RainbowNear.ogg` | sfx | 1.60 | 1 | 48000 | 21 | -18.9 | -6.0 | 0 | - | PASS |  |
 | `sheet-parts/sfx/CatCafe_Sfx_RallyCheer.ogg` | sfx | 1.50 | 1 | 48000 | 24 | -17.6 | -4.2 | 0 | - | PASS |  |
 | `sheet-parts/ui/CatCafe_Ui_ReelStop.ogg` | ui | 0.40 | 1 | 48000 | 7 | - | -4.9 | 0 | - | PASS |  |
 | `sheet-parts/ui/CatCafe_Ui_ReelTick.ogg` | ui | 0.04 | 1 | 48000 | 4 | - | -9.9 | 0 | - | PASS |  |
 | `sheet-parts/ui/CatCafe_Ui_TradeDone.ogg` | ui | 1.30 | 1 | 48000 | 15 | -16.7 | -4.9 | 0 | - | PASS |  |
 | `sheet-parts/ui/CatCafe_Ui_TradeTick.ogg` | ui | 0.18 | 1 | 48000 | 5 | - | -7.9 | 0 | - | PASS |  |
+| `sheets/CatCafe_Sheet_Decor.ogg` | sheet | 14.90 | 1 | 48000 | 130 | -18.9 | -5.3 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_Moments.ogg` | sheet | 23.22 | 2 | 48000 | 266 | -16.3 | -5.9 | 0 | - | PASS |  |
 | `sheets/CatCafe_Sheet_World.ogg` | sheet | 7.15 | 1 | 48000 | 55 | -19.5 | -4.7 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Badge.ogg` | ui | 0.11 | 1 | 48000 | 4 | - | -11.0 | 0 | - | PASS |  |

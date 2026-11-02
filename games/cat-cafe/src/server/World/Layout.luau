@@ -686,6 +686,30 @@ Layout.alley = {
 					{ asset = "CatCafe_Alley_Crate", x = AO - 2.9, z = AN - 9.5 },
 					{ asset = "CatCafe_Alley_Puddle", x = AI + 17, z = -12 },
 					{ asset = "CatCafe_Alley_Puddle", x = AI + 12, z = 26 },
+					-- F85's low blockers (hometown-cannon.md section 6b; Model-Agent #864, area-sets.md "The Alleyway
+					-- blockers (F85)"): three rows across each lane on its middle line, each on a string lights line,
+					-- the way through never on the same side twice running. A long pile leaves 14 studs at one end
+					-- (rotY 0 at +X, 180 at -X); two short ones back to back leave 13 in the middle. Each brings its
+					-- own invisible _Barrier, so nobody jumps a pile; a stray's walk stops at the pile. The east
+					-- lane's third row is at -88.025, past the Warehouse's crate stack.
+					{ asset = "CatCafe_Alley_Blocker_BinsShort", x = -MID, z = 88.025, rotY = 0 },
+					{
+						asset = "CatCafe_Alley_Blocker_PalletsShort",
+						x = -MID,
+						z = 88.025,
+						rotY = 180,
+					},
+					{ asset = "CatCafe_Alley_Blocker_Skip", x = -MID, z = 18.25, rotY = 180 },
+					{ asset = "CatCafe_Alley_Blocker_Pallets", x = -MID, z = -53.675, rotY = 0 },
+					{ asset = "CatCafe_Alley_Blocker_Pallets", x = MID, z = 88.025, rotY = 180 },
+					{ asset = "CatCafe_Alley_Blocker_Van", x = MID, z = 18.25, rotY = 0 },
+					{
+						asset = "CatCafe_Alley_Blocker_PalletsShort",
+						x = MID,
+						z = -88.025,
+						rotY = 0,
+					},
+					{ asset = "CatCafe_Alley_Blocker_BinsShort", x = MID, z = -88.025, rotY = 180 },
 				} :: { Prop }
 			do
 				table.insert(props, prop)

@@ -1195,7 +1195,9 @@ Presets.cafeWalk = {
 -- - `bow`: put in its place (a new station model), it leans `lean` degrees forward with its head `head` degrees
 --   down and the cap tipped `cap`, over `seconds`, if it shows within `bowWindow` seconds of appearing.
 -- - `sleepCap`: asleep (a nap or doze) the cap turns `turn` degrees and moves `down` and `forward` studs, times the
---   cat's scale, to sit over its eyes, sliding there or back over `seconds`.
+--   cat's scale, to sit over its eyes, sliding there or back over `seconds`. Since #708's cap fix (Derek saw the old
+--   one sink into the face) `down` is negative: the cap lifts as it tips forward, so its back rises and its front rim
+--   rests on the tops of the eyes, outside the face.
 -- - `hop`: claimed at the stand, it bounces `bounceHeight` studs where it sits for the first `bounce` share of
 --   `seconds`, then leaps in an arc `height` studs high to `ahead` studs in front of you, its feet `lift` studs above
 --   the middle of your character (in your arms), nose up
@@ -1214,7 +1216,7 @@ Presets.bellhop = {
 	tipGap = 8,
 	bow = { seconds = 1.5, lean = 16, head = 18, cap = 8 },
 	bowWindow = 3,
-	sleepCap = { turn = -40, down = 0.17, forward = 0.3, seconds = 1.2 },
+	sleepCap = { turn = -40, down = -0.13, forward = 0.39, seconds = 1.2 },
 	hop = {
 		seconds = 1.1,
 		bounce = 0.3,

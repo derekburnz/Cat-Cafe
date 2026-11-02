@@ -3,9 +3,9 @@ end with a garden backdrop behind it"). One model serves both street ends (Layou
 
   CatCafe_Town_WelcomeArch   a 36 stud opening over the street and both sidewalks between two brick towers with
                              teal roofs, lit windows and paw medallions; a cream arch between them with bulbs along
-                             its top; a teal name board hung under it (CAT CAFE TOWN toward the square, WELCOME TO CAT
-                             CAFE TOWN on the outer face); a big ginger cat peeking over the top with its paws over the
-                             edge and its tail down the back; and a garden bed across the street's end (brick kerb,
+                             its top; a teal name board hung under it (CATCH A CAT CAFE toward the square, WELCOME TO
+                             CATCH A CAT CAFE on the outer face; CAT CAFE TOWN until the name, 11-02); a big ginger
+                             cat peeking over the top with its paws over the edge and its tail down the back; and a garden bed across the street's end (brick kerb,
                              a clipped hedge, flowers and potted topiary balls), so the street ends in a garden and not
                              at the town's end hedge.
     _Lamp_Bulb, _Bulbs       the lanterns and the bulbs along the arch, the tower windows: lit at night.
@@ -108,12 +108,12 @@ def board(b, bulbs):
     for k in range(9):                                                                        # bulbs along the bottom
         x = -w + 1.4 + k * (2 * w - 2.8) / 8
         bulbs.span((x - 0.17, y0 - 0.39, -0.17), (x + 0.17, y0 - 0.05, 0.17), "lamp_warm")
-    # toward the square (-Z): CAT CAFE TOWN between two paws; the outer face: WELCOME TO over CAT CAFE TOWN
-    label(b, "CAT CAFE TOWN", 0, 9.8, -0.3, 0.4, 0.08, "cream", -1)
+    # toward the square (-Z): CATCH A CAT CAFE between two paws; the outer face: WELCOME TO over CATCH A CAT CAFE
+    label(b, "CATCH A CAT CAFE", 0, 9.9, -0.3, 0.36, 0.08, "cream", -1)
     for s in (-1, 1):
-        _paw(b, s * 10.9, 10.8, -0.3, -1)
+        _paw(b, s * 11.45, 10.8, -0.3, -1)
     label(b, "WELCOME TO", 0, 11.35, 0.3, 0.25, 0.07, "pastel_butter", 1)
-    label(b, "CAT CAFE TOWN", 0, 9.3, 0.3, 0.36, 0.08, "cream", 1)
+    label(b, "CATCH A CAT CAFE", 0, 9.3, 0.3, 0.36, 0.08, "cream", 1)
 
 
 def _paw(b, x, y, z, facing):

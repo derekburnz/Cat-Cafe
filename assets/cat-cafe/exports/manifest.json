@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 18:44 UTC",
+  "generated": "2026-11-02 19:18 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -144294,7 +144294,7 @@
         "CatCafe_Alley_Mural",
         "CatCafe_Alley_Mural_Sun"
       ],
-      "triangles": 3032,
+      "triangles": 3482,
       "budget": 6000,
       "size_studs": {
         "x": 30.6,
@@ -144320,7 +144320,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Against the inner face of an alley wall, -Z into the alley; 30 wide, taller than the wall. _Pane parts glow at night.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Mural.model.json",
-      "rbx_parts": 261,
+      "rbx_parts": 301,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Mural.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Mural.glb"
@@ -144330,10 +144330,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "3032/6000 tris",
+          "budget": "3482/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1468 faces on swatch centers",
+          "uv": "1693 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-1.66"
@@ -149169,7 +149169,7 @@
         "CatCafe_Square_SignArch_Lamp_Bulb",
         "CatCafe_Square_SignArch_Bulbs"
       ],
-      "triangles": 3012,
+      "triangles": 3462,
       "budget": 6000,
       "size_studs": {
         "x": 41.6,
@@ -149208,7 +149208,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_SignArch.model.json",
-      "rbx_parts": 258,
+      "rbx_parts": 298,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_SignArch.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_SignArch.glb"
@@ -149218,10 +149218,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "3012/6000 tris",
+          "budget": "3462/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1484 faces on swatch centers",
+          "uv": "1709 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -165237,7 +165237,7 @@
         "CatCafe_Town_WelcomeArch_Lamp_Bulb",
         "CatCafe_Town_WelcomeArch_Bulbs"
       ],
-      "triangles": 6654,
+      "triangles": 6798,
       "budget": 8000,
       "size_studs": {
         "x": 44.6,
@@ -165262,7 +165262,7 @@
       "pivot": "the opening's base centre on the street top (world y 0.1), front -Z toward the Town Square; Layout.townEnds at (0, -123) turned 180 and (0, 123) unturned",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_WelcomeArch.model.json",
-      "rbx_parts": 548,
+      "rbx_parts": 560,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Town_WelcomeArch.fbx",
         "assets/cat-cafe/exports/CatCafe_Town_WelcomeArch.glb"
@@ -165274,10 +165274,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "6654/8000 tris",
+          "budget": "6798/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "3335 faces on swatch centers",
+          "uv": "3407 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=0.05"

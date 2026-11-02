@@ -24,7 +24,7 @@ goes on the square's floor top (y 0.1) unless the table says otherwise.
                             and caps are separate plain parts.
   CatCafe_Square_ArchAlley  the alley arch, 12 wide, for the side openings into the back alleys: THE ALLEYWAY on the
                             -Z face (the square side), TOWN SQUARE on the alley side.
-  CatCafe_Square_SignArch   the town's sign over the street at each end of the square: a 36 opening, CAT CAFE and
+  CatCafe_Square_SignArch   the town's sign over the street at each end of the square: a 36 opening, CATCH A CAT CAFE and
                             TOWN SQUARE on the -Z face (the street side), CAFE STREET on the +Z face (the square side).
   CatCafe_Square_Bench      4 studs long, teal slats on a black iron frame, seat at 1.35, front -Z.
   CatCafe_Square_Lamp       an 11 stud post with two lanterns (_Bulb) and a brass hook ring at 9.6 for the bunting.
@@ -497,7 +497,7 @@ def build_bunting(mat, span=BUNTING_SPAN, name="CatCafe_Square_Bunting", flags=F
 
 # -------------------------------------------------------------------------------------------------- arches --
 SIGN_INNER, SIGN_POST, SIGN_TOP = 36.0, 2.5, 13.0
-BOARD_W, BOARD_Y0, BOARD_Y1 = 22.0, 11.55, 17.0
+BOARD_W, BOARD_Y0, BOARD_Y1 = 26.0, 11.55, 17.0          # 26 wide for CATCH A CAT CAFE (22 until 11-02)
 
 
 def _cat_face(b, y, z):
@@ -552,7 +552,7 @@ def build_sign_arch(mat):
                              (-w2 - 0.25, -w2 + 0.05, BOARD_Y0 + 0.25, BOARD_Y1 - 0.25),
                              (w2 - 0.05, w2 + 0.25, BOARD_Y0 + 0.25, BOARD_Y1 - 0.25)):
         b.span((xa, ya, -0.38), (xb, yb, 0.38), "terracotta")
-    label(b, "CAT CAFE", 0, 13.75, -0.3, 0.6, 0.08, "dark_wood", -1)                           # street side
+    label(b, "CATCH A CAT CAFE", 0, 14.0, -0.3, 0.42, 0.08, "dark_wood", -1)                   # street side
     label(b, "TOWN SQUARE", 0, 12.05, -0.3, 0.26, 0.06, "terracotta", -1)
     label(b, "CAFE STREET", 0, 13.15, 0.3, 0.45, 0.08, "dark_wood", 1)                         # square side
     _cat_face(b, BOARD_Y1 + 1.4, 0)

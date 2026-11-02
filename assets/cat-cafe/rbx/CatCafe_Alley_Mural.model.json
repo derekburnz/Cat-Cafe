@@ -1854,8 +1854,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       4.74,
-       11.86,
+       6.98,
+       11.43,
        -1.195
       ],
       "orientation": [
@@ -1878,8 +1878,8 @@
      }
     },
     "Size": [
-     1.44,
-     0.48,
+     1.02,
+     0.34,
      0.05
     ],
     "Color": [
@@ -1903,8 +1903,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       5.22,
-       11.38,
+       7.32,
+       11.09,
        -1.195
       ],
       "orientation": [
@@ -1927,8 +1927,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -1952,8 +1952,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       5.22,
-       10.9,
+       7.32,
+       10.75,
        -1.195
       ],
       "orientation": [
@@ -1976,8 +1976,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2001,8 +2001,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       5.22,
-       10.42,
+       7.32,
+       10.41,
        -1.195
       ],
       "orientation": [
@@ -2025,8 +2025,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2050,8 +2050,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       4.74,
-       9.94,
+       6.98,
+       10.07,
        -1.195
       ],
       "orientation": [
@@ -2074,8 +2074,8 @@
      }
     },
     "Size": [
-     1.44,
-     0.48,
+     1.02,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2099,8 +2099,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.82,
-       11.86,
+       5.62,
+       11.43,
        -1.195
       ],
       "orientation": [
@@ -2123,8 +2123,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2148,8 +2148,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       3.3,
-       11.38,
+       5.96,
+       11.09,
        -1.195
       ],
       "orientation": [
@@ -2172,8 +2172,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2197,8 +2197,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.34,
-       11.38,
+       5.28,
+       11.09,
        -1.195
       ],
       "orientation": [
@@ -2221,8 +2221,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2246,8 +2246,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.82,
-       10.9,
+       5.62,
+       10.75,
        -1.195
       ],
       "orientation": [
@@ -2270,8 +2270,8 @@
      }
     },
     "Size": [
-     1.44,
-     0.48,
+     1.02,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2295,8 +2295,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       3.3,
-       10.42,
+       5.96,
+       10.41,
        -1.195
       ],
       "orientation": [
@@ -2319,8 +2319,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2344,8 +2344,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.34,
-       10.42,
+       5.28,
+       10.41,
        -1.195
       ],
       "orientation": [
@@ -2368,8 +2368,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2393,8 +2393,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       3.3,
-       9.94,
+       5.96,
+       10.07,
        -1.195
       ],
       "orientation": [
@@ -2417,8 +2417,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2442,8 +2442,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       2.34,
-       9.94,
+       5.28,
+       10.07,
        -1.195
       ],
       "orientation": [
@@ -2466,8 +2466,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2491,8 +2491,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.9,
-       11.86,
+       4.26,
+       11.43,
        -1.195
       ],
       "orientation": [
@@ -2515,8 +2515,8 @@
      }
     },
     "Size": [
-     1.44,
-     0.48,
+     1.02,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2540,8 +2540,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.9,
-       11.38,
+       4.26,
+       11.09,
        -1.195
       ],
       "orientation": [
@@ -2564,8 +2564,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2589,8 +2589,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.9,
-       10.9,
+       4.26,
+       10.75,
        -1.195
       ],
       "orientation": [
@@ -2613,8 +2613,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2638,8 +2638,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.9,
-       10.42,
+       4.26,
+       10.41,
        -1.195
       ],
       "orientation": [
@@ -2662,8 +2662,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2687,8 +2687,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.9,
-       9.94,
+       4.26,
+       10.07,
        -1.195
       ],
       "orientation": [
@@ -2711,8 +2711,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2736,8 +2736,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.98,
-       11.86,
+       2.9,
+       11.43,
        -1.195
       ],
       "orientation": [
@@ -2760,8 +2760,8 @@
      }
     },
     "Size": [
-     1.44,
-     0.48,
+     1.02,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2785,8 +2785,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.5,
-       11.38,
+       3.24,
+       11.09,
        -1.195
       ],
       "orientation": [
@@ -2809,8 +2809,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2834,8 +2834,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.5,
-       10.9,
+       3.24,
+       10.75,
        -1.195
       ],
       "orientation": [
@@ -2858,8 +2858,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2883,8 +2883,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.5,
-       10.42,
+       3.24,
+       10.41,
        -1.195
       ],
       "orientation": [
@@ -2907,8 +2907,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2932,8 +2932,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.98,
-       9.94,
+       2.9,
+       10.07,
        -1.195
       ],
       "orientation": [
@@ -2956,8 +2956,1086 @@
      }
     },
     "Size": [
-     1.44,
-     0.48,
+     1.02,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.88,
+       11.43,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.2,
+       11.43,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.88,
+       11.09,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.2,
+       11.09,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.54,
+       10.75,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.02,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.88,
+       10.41,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.2,
+       10.41,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.88,
+       10.07,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.2,
+       10.07,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5,
+       11.43,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.16,
+       11.09,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.84,
+       11.09,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5,
+       10.75,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.02,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.16,
+       10.41,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.84,
+       10.41,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.16,
+       10.07,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.84,
+       10.07,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.54,
+       11.43,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.02,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.2,
+       11.09,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.2,
+       10.75,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.2,
+       10.41,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -2.54,
+       10.07,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.02,
+     0.34,
      0.05
     ],
     "Color": [
@@ -2982,7 +4060,7 @@
      "CFrame": {
       "position": [
        -3.9,
-       11.86,
+       11.43,
        -1.195
       ],
       "orientation": [
@@ -3005,8 +4083,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3030,8 +4108,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.42,
-       11.38,
+       -3.56,
+       11.09,
        -1.195
       ],
       "orientation": [
@@ -3054,8 +4132,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3079,8 +4157,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -4.38,
-       11.38,
+       -4.24,
+       11.09,
        -1.195
       ],
       "orientation": [
@@ -3103,8 +4181,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3129,7 +4207,7 @@
      "CFrame": {
       "position": [
        -3.9,
-       10.9,
+       10.75,
        -1.195
       ],
       "orientation": [
@@ -3152,8 +4230,8 @@
      }
     },
     "Size": [
-     1.44,
-     0.48,
+     1.02,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3177,8 +4255,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.42,
-       10.42,
+       -3.56,
+       10.41,
        -1.195
       ],
       "orientation": [
@@ -3201,8 +4279,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3226,8 +4304,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -4.38,
-       10.42,
+       -4.24,
+       10.41,
        -1.195
       ],
       "orientation": [
@@ -3250,8 +4328,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3275,8 +4353,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -3.42,
-       9.94,
+       -3.56,
+       10.07,
        -1.195
       ],
       "orientation": [
@@ -3299,8 +4377,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3324,8 +4402,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -4.38,
-       9.94,
+       -4.24,
+       10.07,
        -1.195
       ],
       "orientation": [
@@ -3348,8 +4426,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3373,8 +4451,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.82,
-       11.86,
+       -5.26,
+       11.43,
        -1.195
       ],
       "orientation": [
@@ -3397,8 +4475,8 @@
      }
     },
     "Size": [
-     1.44,
-     0.48,
+     1.02,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3422,8 +4500,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.34,
-       11.38,
+       -5.26,
+       11.09,
        -1.195
       ],
       "orientation": [
@@ -3446,8 +4524,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3471,8 +4549,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.58,
-       10.9,
+       -5.26,
+       10.75,
        -1.195
       ],
       "orientation": [
@@ -3495,8 +4573,8 @@
      }
     },
     "Size": [
-     0.96,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3520,8 +4598,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.34,
-       10.42,
+       -5.26,
+       10.41,
        -1.195
       ],
       "orientation": [
@@ -3544,8 +4622,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3569,8 +4647,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -5.34,
-       9.94,
+       -5.26,
+       10.07,
        -1.195
       ],
       "orientation": [
@@ -3593,8 +4671,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3618,8 +4696,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.74,
-       11.86,
+       -7.3,
+       11.43,
        -1.195
       ],
       "orientation": [
@@ -3642,8 +4720,8 @@
      }
     },
     "Size": [
-     1.44,
-     0.48,
+     1.02,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3667,8 +4745,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.26,
-       11.38,
+       -6.96,
+       11.09,
        -1.195
       ],
       "orientation": [
@@ -3691,8 +4769,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3716,8 +4794,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.5,
-       10.9,
+       -6.96,
+       10.75,
        -1.195
       ],
       "orientation": [
@@ -3740,8 +4818,8 @@
      }
     },
     "Size": [
-     0.96,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3765,8 +4843,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.26,
-       10.42,
+       -6.96,
+       10.41,
        -1.195
       ],
       "orientation": [
@@ -3789,8 +4867,8 @@
      }
     },
     "Size": [
-     0.48,
-     0.48,
+     0.34,
+     0.34,
      0.05
     ],
     "Color": [
@@ -3814,8 +4892,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.74,
-       9.94,
+       -7.3,
+       10.07,
        -1.195
       ],
       "orientation": [
@@ -3838,8 +4916,890 @@
      }
     },
     "Size": [
-     1.44,
-     0.48,
+     1.02,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -8.66,
+       11.43,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -8.32,
+       11.09,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -9.0,
+       11.09,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -8.66,
+       10.75,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.02,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -8.32,
+       10.41,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -9.0,
+       10.41,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -8.32,
+       10.07,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -9.0,
+       10.07,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -10.02,
+       11.43,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.02,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -9.68,
+       11.09,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -9.85,
+       10.75,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.68,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -9.68,
+       10.41,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -9.68,
+       10.07,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -11.38,
+       11.43,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.02,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -11.04,
+       11.09,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -11.21,
+       10.75,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.68,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -11.04,
+       10.41,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.34,
+     0.05
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Alley_Mural",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -11.38,
+       10.07,
+       -1.195
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.02,
+     0.34,
      0.05
     ],
     "Color": [

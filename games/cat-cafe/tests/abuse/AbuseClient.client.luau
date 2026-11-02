@@ -51,6 +51,7 @@ local Codes = require(Shared:WaitForChild("Codes"))
 local Config = require(Shared:WaitForChild("Config"))
 local Crates = require(Shared:WaitForChild("Crates"))
 local FreshCatch = require(Shared:WaitForChild("FreshCatch"))
+local IndexRewards = require(Shared:WaitForChild("IndexRewards"))
 local NetSwing = require(Shared:WaitForChild("NetSwing"))
 local Prizes = require(Shared:WaitForChild("Prizes"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
@@ -3693,15 +3694,12 @@ local function pageCount(areaId: string, track: string): number
 	if s == nil then
 		return 0
 	end
-	local count = 0
 	if track == "decor" then
-		for _, def in Catalog.crateDecor do
-			if "decor_" .. tostring(def.crate) == areaId and s.decorOwned[def.id] then
-				count += 1
-			end
-		end
-		return count
+		-- the page's pieces as the server counts them (Crates.pageCount on the crate's pieces): sixteen on the
+		-- Classic page since F97 brought the coin pieces in, which Catalog.crateDecor does not list
+		return Crates.pageCount(s :: any, string.sub(areaId, #IndexRewards.DECOR_PREFIX + 1))
 	end
+	local count = 0
 	local collection = if track == "gold" then s.goldCollection else s.collection
 	for _, def in Catalog.cats do
 		if (areaId == "all" or def.area == areaId) and collection[def.id] ~= nil then
@@ -3760,6 +3758,16 @@ end
 
 type IndexMilestone = { areaId: string, id: string, left: number, track: string }
 
+-- What the server asks of a milestone on a page: IndexRewards.needs since engineer PR #727 (decor10 wants every piece
+-- of its Decor page, sixteen on Classic), else the milestone's own `needs`.
+local function milestoneNeeds(areaId: string, milestone: Types.IndexMilestone): number
+	local needs: unknown = (IndexRewards :: any).needs
+	if type(needs) == "function" then
+		return (needs :: any)(areaId, milestone)
+	end
+	return milestone.needs
+end
+
 -- The first unclaimed milestone, in page order, that has its cats or pieces (`ready` true) or is still short.
 local function indexMilestone(ready: boolean): IndexMilestone?
 	for _, areaId in indexPages() do
@@ -3768,7 +3776,7 @@ local function indexMilestone(ready: boolean): IndexMilestone?
 			if prizes[milestone.id] == nil or rewardClaimed(areaId, milestone.id) then
 				continue
 			end
-			local left = milestone.needs - pageCount(areaId, milestone.track)
+			local left = milestoneNeeds(areaId, milestone) - pageCount(areaId, milestone.track)
 			if (left <= 0) == ready then
 				return { areaId = areaId, id = milestone.id, left = left, track = milestone.track }
 			end

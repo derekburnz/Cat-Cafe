@@ -89,10 +89,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 21 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 22 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(21)
-			expect(profile.version).to.equal(21)
+			expect(ProfileSchema.VERSION).to.equal(22)
+			expect(profile.version).to.equal(22)
 			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
 			expect(profile.stats.collectorTrades).to.equal(0)
 			expect(next(profile.potions)).never.to.be.ok()
@@ -232,8 +232,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 22 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 23 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 22 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 21 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 20 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 19 })).to.equal(false)
@@ -1561,6 +1562,37 @@ return function()
 			local raw: any = ProfileSchema.template(1000)
 			raw.starterCatClaimed = "yes"
 			expect(ProfileSchema.migrate(raw, 1000).starterCatClaimed).to.equal(false)
+		end)
+	end)
+
+	describe("migrate to version 22: when the notification ask first showed (F96, starter-cat.md section 3)", function()
+		it("starts at 0 for a new account and a version 21 save", function()
+			expect(ProfileSchema.template(1000).notifyAskAt).to.equal(0)
+			local raw: any = ProfileSchema.template(1000)
+			raw.version = 21
+			raw.notifyAskAt = nil
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
+			expect(profile.notifyAskAt).to.equal(0)
+		end)
+
+		it("keeps a past time, whole, and never one in the future or a damaged one", function()
+			local raw: any = ProfileSchema.template(1000)
+			raw.notifyAskAt = 900.5
+			expect(ProfileSchema.migrate(raw, 1000).notifyAskAt).to.equal(900)
+			raw.notifyAskAt = 5000
+			expect(ProfileSchema.migrate(raw, 1000).notifyAskAt).to.equal(1000)
+			for _, junk in { -5, "soon", 0 / 0, math.huge, true } :: { any } do
+				raw.notifyAskAt = junk
+				expect(ProfileSchema.migrate(raw, 1000).notifyAskAt).to.equal(0)
+			end
+		end)
+
+		it("keeps the favorite and notification asks seen", function()
+			local raw: any = ProfileSchema.template(1000)
+			raw.tipsSeen = { notify_ask = true, favorite_ask = true, like_ask = true }
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(profile.tipsSeen :: any).to.deepEqual({ notify_ask = true, favorite_ask = true, like_ask = true })
 		end)
 	end)
 end

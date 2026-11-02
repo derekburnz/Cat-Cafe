@@ -8,10 +8,11 @@
 -- OfflineEarnings card comes after OFFLINE_SECONDS or more away). The client shows a tip by its own timing rules
 -- (never mid-catch, mid-carry or late in the dusk warning, one every TipGapSeconds, a queue of three) and then sends
 -- TipSeen(id, skipped?), which saves it in `tipsSeen`. ClearTips ("Show tips again") forgets the tips, not the asks.
--- Three more ids ride TipSeen: `like_ask` (the one unrewarded like ask, kept in tipsSeen and never cleared),
--- `feedback_ask` (the one slide-in faces ask: sets feedbackAsked) and `stuck_help` (the "Need a hand?" card: sets
--- stuckHelpShown for the current tutorialStep).
+-- More ids ride TipSeen: the three asks (`notify_ask`, `favorite_ask`, `like_ask`; F96, starter-cat.md section 3:
+-- unrewarded, kept in tipsSeen and never cleared, timed by `dueAsk`), `feedback_ask` (the one slide-in faces ask:
+-- sets feedbackAsked) and `stuck_help` (the "Need a hand?" card: sets stuckHelpShown for the current tutorialStep).
 
+local Catalog = require(script.Parent.Catalog)
 local Economy = require(script.Parent.Economy)
 local Types = require(script.Parent.Types)
 
@@ -49,6 +50,10 @@ Tips.LIST = table.freeze({
 Tips.OFFLINE_SECONDS = 600
 
 Tips.LIKE_ASK = "like_ask"
+Tips.FAVORITE_ASK = "favorite_ask" -- F96
+Tips.NOTIFY_ASK = "notify_ask" -- F96
+-- The asks in the order `dueAsk` offers them (starter-cat.md section 3's table).
+Tips.ASKS = table.freeze({ Tips.NOTIFY_ASK, Tips.FAVORITE_ASK, Tips.LIKE_ASK })
 Tips.FEEDBACK_ASK = "feedback_ask"
 Tips.STUCK_HELP = "stuck_help"
 
@@ -65,12 +70,14 @@ function Tips.get(id: string): TipDef?
 	return byId[id]
 end
 
--- Whether TipSeen may carry `id`: a tip or one of the three asks.
+-- Whether `id` is one of the asks (notify, favorite, like).
+function Tips.isAsk(id: string): boolean
+	return table.find(Tips.ASKS, id) ~= nil
+end
+
+-- Whether TipSeen may carry `id`: a tip, an ask, the feedback ask or the help card.
 function Tips.seenId(id: string): boolean
-	return byId[id] ~= nil
-		or id == Tips.LIKE_ASK
-		or id == Tips.FEEDBACK_ASK
-		or id == Tips.STUCK_HELP
+	return byId[id] ~= nil or Tips.isAsk(id) or id == Tips.FEEDBACK_ASK or id == Tips.STUCK_HELP
 end
 
 local function anyCount(counts: { [string]: number }): boolean
@@ -87,7 +94,7 @@ end
 export type Moment = { duskWarning: boolean, night: boolean }
 
 -- The server's tips whose moment follows from the saved state and the clock, not yet seen, in LIST order. The event
--- tips (second_cat, tackle, dropped) and the like ask are sent where they happen.
+-- tips (second_cat, tackle, dropped) are sent where they happen; the asks come from `dueAsk`.
 function Tips.due(profile: Types.PlayerProfile, moment: Moment): { string }
 	local tier = Economy.tier(profile)
 	local now: { [string]: boolean } = {
@@ -111,7 +118,50 @@ function Tips.due(profile: Types.PlayerProfile, moment: Moment): { string }
 	return out
 end
 
--- A saved tipsSeen: only known tips and the like ask, each true. `veteran` (a save from before version 20 that is
+-- The notification ask comes back once this long after it was first shown, while Roblox still lets the game prompt
+-- (section 3: "again at most once in 30 days if dismissed").
+Tips.NOTIFY_RETRY_SECONDS = 30 * 86400
+
+local function securedLegendary(profile: Types.PlayerProfile): boolean
+	for catId in profile.collection do
+		local def = Catalog.getCat(catId)
+		if def ~= nil and (def.rarity == "Legendary" or def.rarity == "Mythical") then
+			return true
+		end
+	end
+	return false
+end
+
+-- The ask whose moment has come, or nil (F96, starter-cat.md section 3), in ASKS order: none before the first loop
+-- (tutorialStep 5); the notification ask after the first bait cat is tamed, once, then again at most once
+-- NOTIFY_RETRY_SECONDS after `notifyAskAt` (os.time() when it first showed, 0 before); the favorite ask from Tier 2;
+-- the like ask once a Legendary or Mythical is in the collection or on a later UTC day (`day`, os.time() // 86400)
+-- than the account's first. The caller sends at most one a session; the client waits for a quiet moment.
+function Tips.dueAsk(profile: Types.PlayerProfile, now: number, day: number): string?
+	if profile.tutorialStep < 5 then
+		return nil
+	end
+	local seen = profile.tipsSeen
+	if
+		seen[Tips.NOTIFY_ASK] ~= true
+		and profile.stats.baitsTamed >= 1
+		and (profile.notifyAskAt <= 0 or now - profile.notifyAskAt >= Tips.NOTIFY_RETRY_SECONDS)
+	then
+		return Tips.NOTIFY_ASK
+	end
+	if seen[Tips.FAVORITE_ASK] ~= true and Economy.tier(profile) >= 2 then
+		return Tips.FAVORITE_ASK
+	end
+	if
+		seen[Tips.LIKE_ASK] ~= true
+		and (securedLegendary(profile) or day > profile.telemetry.firstDay)
+	then
+		return Tips.LIKE_ASK
+	end
+	return nil
+end
+
+-- A saved tipsSeen: only known tips and the asks, each true. `veteran` (a save from before version 20 that is
 -- past the first loop) has seen every tip, so an old account is not walked through what it already knows.
 function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 	local seen: { [string]: boolean } = {}
@@ -125,7 +175,7 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 			if
 				type(key) == "string"
 				and value == true
-				and (byId[key] ~= nil or key == Tips.LIKE_ASK)
+				and (byId[key] ~= nil or Tips.isAsk(key))
 			then
 				seen[key] = true
 			end
@@ -148,9 +198,15 @@ function Tips.sanitizeHelp(raw: any): { [string]: boolean }
 	return shown
 end
 
--- What ClearTips leaves: the like ask only.
+-- What ClearTips leaves: the asks only.
 function Tips.cleared(seen: { [string]: boolean }): { [string]: boolean }
-	return if seen[Tips.LIKE_ASK] == true then { [Tips.LIKE_ASK] = true } else {}
+	local kept: { [string]: boolean } = {}
+	for _, id in Tips.ASKS do
+		if seen[id] == true then
+			kept[id] = true
+		end
+	end
+	return kept
 end
 
 return Tips

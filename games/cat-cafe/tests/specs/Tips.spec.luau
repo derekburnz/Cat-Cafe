@@ -186,7 +186,8 @@ return function()
 		-- TipSeen goes through the server's Guard.id first (lowercase letters, digits, _ and -, 1 to MaxIdLength),
 		-- so an id outside it could never be saved.
 		it("every id TipSeen takes passes the server's id guard", function()
-			local ids: { string } = { Tips.LIKE_ASK, Tips.FEEDBACK_ASK, Tips.STUCK_HELP }
+			local ids: { string } =
+				{ Tips.LIKE_ASK, Tips.FAVORITE_ASK, Tips.NOTIFY_ASK, Tips.FEEDBACK_ASK, Tips.STUCK_HELP }
 			for _, def in Tips.LIST do
 				table.insert(ids, def.id)
 			end
@@ -235,6 +236,117 @@ return function()
 
 		it("Show tips again on a veteran's save leaves nothing, so every tip can show again", function()
 			expect(next(Tips.cleared(Tips.sanitizeSeen(nil, true)))).never.to.be.ok()
+		end)
+	end)
+
+	describe("the asks (F96, starter-cat.md section 3)", function()
+		local Catalog = require(Shared.Catalog)
+		local NOW = 100 * 86400 -- os.time(), UTC day 100
+		local TODAY = 100
+
+		local function legendaryId(): string
+			for _, def in Catalog.cats do
+				if def.rarity == "Legendary" then
+					return def.id
+				end
+			end
+			error("no Legendary cat")
+		end
+
+		-- past the first loop on its first day, nothing done that an ask waits for
+		local function settled(): any
+			local profile = fresh()
+			profile.tutorialStep = 5
+			profile.telemetry.firstDay = TODAY
+			return profile
+		end
+
+		-- every ask's moment has come
+		local function ready(): any
+			local profile = settled()
+			profile.stats.baitsTamed = 1
+			profile.tier = 2
+			profile.collection[legendaryId()] = NOW
+			return profile
+		end
+
+		it("are the notification, favorite and like asks, in that order, each taken on TipSeen", function()
+			expect(Tips.ASKS :: any).to.deepEqual({ "notify_ask", "favorite_ask", "like_ask" })
+			for _, id in Tips.ASKS do
+				expect(Tips.isAsk(id)).to.equal(true)
+				expect(Tips.seenId(id)).to.equal(true)
+				expect(Tips.get(id)).never.to.be.ok()
+			end
+			for _, id in { Tips.FEEDBACK_ASK, Tips.STUCK_HELP, "bowl", "notify", "" } do
+				expect(Tips.isAsk(id)).to.equal(false)
+			end
+		end)
+
+		it("asks nothing before the first loop is done, whatever is due", function()
+			local profile = ready()
+			profile.tutorialStep = 4
+			expect(Tips.dueAsk(profile, NOW, TODAY + 3)).to.equal(nil)
+			expect(Tips.dueAsk(settled(), NOW, TODAY)).to.equal(nil)
+		end)
+
+		it("offers one ask at a time in order, and nothing once all three are seen", function()
+			local profile = ready()
+			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(Tips.NOTIFY_ASK)
+			profile.tipsSeen[Tips.NOTIFY_ASK] = true
+			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(Tips.FAVORITE_ASK)
+			profile.tipsSeen[Tips.FAVORITE_ASK] = true
+			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(Tips.LIKE_ASK)
+			profile.tipsSeen[Tips.LIKE_ASK] = true
+			expect(Tips.dueAsk(profile, NOW, TODAY + 9)).to.equal(nil)
+		end)
+
+		it("asks for notifications after the first bait cat is tamed, and once more 30 days after", function()
+			local profile = settled()
+			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(nil)
+			profile.stats.baitsTamed = 1
+			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(Tips.NOTIFY_ASK)
+			-- shown once and dismissed: it waits the 30 days
+			profile.notifyAskAt = NOW
+			expect(Tips.NOTIFY_RETRY_SECONDS).to.equal(30 * 86400)
+			expect(Tips.dueAsk(profile, NOW + Tips.NOTIFY_RETRY_SECONDS - 1, TODAY)).to.equal(nil)
+			expect(Tips.dueAsk(profile, NOW + Tips.NOTIFY_RETRY_SECONDS, TODAY)).to.equal(Tips.NOTIFY_ASK)
+			-- the second showing puts it away
+			profile.tipsSeen[Tips.NOTIFY_ASK] = true
+			expect(Tips.dueAsk(profile, NOW + 99 * 86400, TODAY)).to.equal(nil)
+		end)
+
+		it("asks for a favorite from Tier 2", function()
+			local profile = settled()
+			profile.tier = 1
+			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(nil)
+			profile.tier = 2
+			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(Tips.FAVORITE_ASK)
+		end)
+
+		it("asks for a like after a first Legendary or better, or on a later day than the first", function()
+			local profile = settled()
+			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(nil)
+			expect(Tips.dueAsk(profile, NOW + 86400, TODAY + 1)).to.equal(Tips.LIKE_ASK)
+			profile.collection[legendaryId()] = NOW
+			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(Tips.LIKE_ASK)
+			local mythical = settled()
+			for _, def in Catalog.cats do
+				if def.rarity == "Mythical" then
+					mythical.collection[def.id] = NOW
+					break
+				end
+			end
+			expect(Tips.dueAsk(mythical, NOW, TODAY)).to.equal(Tips.LIKE_ASK)
+		end)
+
+		it("keeps the asks through a save and through Show tips again", function()
+			local raw: any = { notify_ask = true, favorite_ask = true, like_ask = true, bowl = true }
+			expect(Tips.sanitizeSeen(raw, false) :: any).to.deepEqual(raw)
+			expect(Tips.cleared(raw) :: any).to.deepEqual({
+				notify_ask = true,
+				favorite_ask = true,
+				like_ask = true,
+			})
 		end)
 	end)
 

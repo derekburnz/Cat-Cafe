@@ -621,12 +621,13 @@ export type PlayerProfile = {
 	settings: Settings,
 	flags: { autoPress: boolean }, -- for review only: set when the last 50 circles look scripted (section 10)
 	telemetry: TelemetryState,
-	-- F87 (easy-start.md section 6, save version 20): the context tips seen (tip id or "like_ask" to true; ClearTips
-	-- keeps only the like ask), the one slide-in feedback ask, and the "Need a hand?" card's tutorial steps ("0" to "5")
+	-- F87 (easy-start.md section 6, save version 20): the context tips seen (tip id or an ask's id to true; ClearTips
+	-- keeps only the asks), the one slide-in feedback ask, and the "Need a hand?" card's tutorial steps ("0" to "5")
 	tipsSeen: { [string]: boolean },
 	feedbackAsked: boolean,
 	stuckHelpShown: { [string]: boolean },
 	starterCatClaimed: boolean, -- F96 (starter-cat.md section 4, save version 21): the free Bellhop Cat taken home
+	notifyAskAt: number, -- F96 (section 3, save version 22): os.time() the notification ask first showed, 0 before
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.

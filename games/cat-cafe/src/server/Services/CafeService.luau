@@ -36,7 +36,6 @@ local Settings = require(ReplicatedStorage.Shared.Settings)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
-local Tips = require(ReplicatedStorage.Shared.Tips)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -943,16 +942,13 @@ function CafeService.addCaughtCat(
 
 	CafeService.refreshPlot(player)
 	if notify then
-		-- F87 context tips (easy-start.md sections 3 and 4): the first check-in ends the newcomer shield; a second cat
-		-- wants a job; a first Legendary or better is the like ask's moment
+		-- F87 context tips (easy-start.md section 3): the first check-in ends the newcomer shield; a second cat wants
+		-- a job. The like ask's moment (a first Legendary or better) is TipService's since F96 (Tips.dueAsk).
 		if firstCheckIn then
 			TipService.show(player, "tackle")
 		end
 		if profile.stats.catsCaught >= 2 then
 			TipService.show(player, "second_cat")
-		end
-		if def.rarity == "Legendary" or def.rarity == "Mythical" then
-			TipService.show(player, Tips.LIKE_ASK)
 		end
 		if isNew then
 			Net.toast(
@@ -1295,9 +1291,6 @@ local function onRankUp(player: Player)
 	Telemetry.sink(player, profile, def.cost, "Gameplay", "rank_up_" .. def.tier)
 	profile.tier = def.tier
 	Telemetry.rankedUp(player, profile)
-	if def.tier == 2 then
-		TipService.show(player, Tips.LIKE_ASK) -- F87 section 4: the one like ask, at the first rank up
-	end
 	local fish = GoldenFish.forRankUp(def.tier) -- F52
 	GoldenFish.credit(profile, fish)
 	Telemetry.fishSource(player, profile, fish, "Gameplay", "rank_up")

@@ -97,9 +97,10 @@ export type CustomEvent =
 	| "new_player_left"
 	| "stuck_nudge"
 	| "intro_choice"
-	-- F87 (TipService): a context tip or the like ask shown (tip id, skipped yes or no), once per id until ClearTips;
+	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
 	-- a feedback face (love, ok or no; the chip or none; tier), FeedbackSessionLimit a session
 	| "tip_shown"
+	| "ask_shown" -- F96: value 1; kind (notify, favorite or like), the session number
 	| "feedback"
 	-- F96 (starter-cat.md section 4): the free Bellhop Cat taken home; the gate it passed, "task" or "group"
 	| "starter_cat"

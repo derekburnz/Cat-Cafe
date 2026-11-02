@@ -46,6 +46,13 @@ export type Plot = {
 	baitCat: BasePart, -- BaitCat, where the cat that came to the bowl sits
 	bait: Folder, -- Bait/, the bowl, its food and the cat while the owner has the Bait bowl upgrade
 	richTipAnchor: BasePart, -- RichTipAnchor on table 1: the rich tip's coin pile, marker and claim range
+	-- F91 front lawn (LawnBuilder): Lawn/, the owner's pieces, path and fence; LawnSpots/<spotId>, each lawn spot's
+	-- base centre for the client's rings; the shell (Shell) and its own path (`<shell>_Path`), which LawnBuilder takes
+	-- out while a path style lies over it
+	lawn: Folder,
+	lawnSpots: { [string]: BasePart },
+	shell: Model?,
+	shellPath: Model?,
 }
 
 export type AreaInfo = {
@@ -83,6 +90,8 @@ local PATH = Color3.fromRGB(214, 200, 176)
 local BACK_DOOR_ART = "CatCafe_Plot_BackDoor" -- Model-Agent #509; its _Leaf, _Flap and _Sign models carry the name too
 local YARD_FENCE_ART = "CatCafe_Plot_YardFence" -- Model-Agent #886: the yard's picket fence, at the plot's pivot
 local CAT_BED = "CatCafe_Furniture_CatBed" -- F79, Model-Agent #511: a Sleep point for the cat and a Foot in front
+-- F91: the front lawn is live once its art is in (the default path stands for the set, Model-Agent #673)
+local LAWN_ART = "CatCafe_Lawn_Path_GreySlabs"
 local DECK = Color3.fromRGB(205, 160, 110)
 local HEDGE = Color3.fromRGB(70, 125, 60)
 -- the hometown's edges (v4, Layout.townEdges): a hedge this high, and the invisible collider over any jump
@@ -205,6 +214,28 @@ local function place(asset: string, cframe: CFrame, parent: Instance): Model
 	return model
 end
 
+-- True once the front lawn's art is in ReplicatedStorage.Assets (F91): LawnService sells and places pieces and
+-- LawnBuilder builds lawns only then, and the shell's fixed garden and the tier sets' bistros come out
+-- (front-lawn.md section 1b).
+function WorldBuilder.lawnLive(): boolean
+	return AssetRegistry.has(LAWN_ART)
+end
+
+-- F91 (front-lawn.md section 1b): once the lawn is live, the child Models of `model` that the lawn replaces come
+-- out: the shell's `_Garden` (beds, picket fence, bench, lamp post and the clumps on lawn spots) and a tier set's
+-- `_Bistro`. The shrubs, flower clumps and fireflies left on the shell keep a new cafe's front from looking bare.
+local function removeLawnClashes(model: Model)
+	if not WorldBuilder.lawnLive() then
+		return
+	end
+	for _, child in model:GetChildren() do
+		local name = child.Name
+		if child:IsA("Model") and (name:sub(-7) == "_Garden" or name:sub(-7) == "_Bistro") then
+			child:Destroy()
+		end
+	end
+end
+
 -- A closed expansion is invisible and walk-through; an open one is solid floor.
 function WorldBuilder.setExpansionOpen(expansion: Model, open: boolean)
 	expansion:SetAttribute("Open", open)
@@ -281,7 +312,9 @@ function WorldBuilder.setDressing(plot: Plot, tier: number)
 	local function show(name: string, asset: string, wanted: boolean)
 		local existing = plot.dressing:FindFirstChild(name)
 		if wanted and existing == nil and AssetRegistry.has(asset) then
-			place(asset, plot.cframe, plot.dressing).Name = name
+			local placed = place(asset, plot.cframe, plot.dressing)
+			placed.Name = name
+			removeLawnClashes(placed) -- F91: the Tier 2 and 3 bistro sets stood where lawn spots are
 		elseif not wanted and existing ~= nil then
 			existing:Destroy()
 		end
@@ -489,10 +522,16 @@ local function buildPlot(index: number, parent: Instance): Plot
 	-- the art, the code-built path, walls, windows and sign below stand in.
 	local shellName = "CatCafe_Plot_Cafe_" .. SHELL_COLORS[(index - 1) % #SHELL_COLORS + 1]
 	local shell: Model? = nil
+	local shellPath: Model? = nil
 	if AssetRegistry.has(shellName) then
 		local placed = place(shellName, cframe, model)
 		placed.Name = "Shell"
 		shell = placed
+		removeLawnClashes(placed) -- F91: the fixed garden goes once the lawn is live
+		local path = placed:FindFirstChild(shellName .. "_Path")
+		if path ~= nil and path:IsA("Model") then
+			shellPath = path :: Model
+		end
 		if AssetRegistry.has("CatCafe_Plot_Interior") then
 			place("CatCafe_Plot_Interior", cframe, model).Name = "Interior"
 		end
@@ -781,6 +820,16 @@ local function buildPlot(index: number, parent: Instance): Plot
 	for n, point in Layout.plot.decorSpots do
 		table.insert(decorSpots, anchor(tostring(n), localCFrame(cframe, point), decorSpotFolder))
 	end
+	-- F91: each lawn spot's base centre, with its size and tier, for the client's rings and the edit view
+	local lawnSpotFolder = folder("LawnSpots", model)
+	local lawnSpots: { [string]: BasePart } = {}
+	for _, spot in Layout.plot.lawnSpots do
+		local point: Layout.Point = { x = spot.x, y = spot.y, z = spot.z, rotY = spot.rotY }
+		local spotAnchor = anchor(spot.id, localCFrame(cframe, point), lawnSpotFolder)
+		spotAnchor:SetAttribute("Size", spot.size)
+		spotAnchor:SetAttribute("Tier", spot.tier)
+		lawnSpots[spot.id] = spotAnchor
+	end
 
 	local plot: Plot = {
 		index = index,
@@ -811,6 +860,10 @@ local function buildPlot(index: number, parent: Instance): Plot
 		baitCat = baitCat,
 		bait = folder("Bait", model),
 		richTipAnchor = richTipAnchor,
+		lawn = folder("Lawn", model),
+		lawnSpots = lawnSpots,
+		shell = shell,
+		shellPath = shellPath,
 	}
 	WorldBuilder.setDressing(plot, 0)
 	-- Shut as an empty plot's, and unseen under the real door: the panel was built in sight, and on a plot nobody had

@@ -107,6 +107,16 @@ Remotes.ClientToServer = {
 	-- takes it all; 1 a second, answered with CampExtraResult and CampExtrasState
 	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), one of today's two crates
 	-- (CampExtras.yardStock) not yet bought today, YardSaleCratePrice golden fish; banked for the Market; 1 a second
+	-- F91 front lawn (front-lawn.md section 5; LawnService, shared/Lawn): the caller's own cafe, once its art is in
+	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet, the
+	-- caller's tier at its tier and its price in coins (sink "lawn"); a style goes in use at once, a piece onto
+	-- `spotId` when it may stand there (Lawn.placeBlocker), else the first empty open spot of its size, if any; 2 a
+	-- second, answered with a toast and a ProfileSync
+	"SetLawnSpot", -- (spotId: string, pieceId: string?)  a Lawn.SPOTS spot open at the caller's tier; an owned piece
+	-- of the spot's size, taken off any other spot (the spot's old piece goes back to the player's pieces), or nil or
+	-- "" to clear it; 4 a second, answered with a ProfileSync
+	"SetLawnStyle", -- (kind: "path" | "fence", id: string)  an owned style of that kind; "" lays Grey Slabs or takes
+	-- the fence down; 2 a second, answered with a ProfileSync
 	-- F102 trading (trading.md section 6; TradeService): every one checked against the server's own trade
 	"TradeRequest", -- (userId: number)  another player here; both pass Trade.askRefusal (tier, kill switch, town or
 	-- camp, not busy, one request out, re-ask wait, cooldown, daily cap, the target's tradeRequests); 1 a second

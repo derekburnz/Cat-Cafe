@@ -6,6 +6,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local Lawn = require(ReplicatedStorage.Shared.Lawn)
+local Types = require(ReplicatedStorage.Shared.Types)
 
 -- zone tags a spawn point "lane" (behind a cafe) or "nook" (an end of a back alley, v3.1), or in a v3.2 side area
 -- "near" (the gate half) or "deep" (the far half); Epic and rarer strays take only "nook" or "deep" points.
@@ -299,6 +301,20 @@ Layout.plot = {
 	-- The Lucky Cat statue (F88, luck-and-rare-moments.md section 1): in the front garden left of the path, by the
 	-- door, its front to the street. CafeService stands CatCafe_Plot_LuckyCat_<level> here, level 0 a plinth and sign.
 	luckyCat = { x = -5.1, y = 0, z = -halfD - 2.1 } :: Point,
+	-- The front lawn (F91, front-lawn.md section 5; Model-Agent's numbers, style guide section 13). The six lawn spots
+	-- are shared (the client's rings need them too); LawnBuilder stands each spot's piece at its point. The path
+	-- style lies over the shell's own path, 7 wide by 5 deep with its centre at lawnPath on the floor's level; the
+	-- fence style runs along the sidewalk edge at fenceLine, both halves from the path's gap (x 3.9) to the plot's
+	-- edge (x 19), its pivot the gap's centre on the grass top.
+	lawnSpots = Lawn.SPOTS :: { Types.LawnSpot },
+	lawnPath = { x = 0, y = 0, z = -halfD - 1 - W.FrontGardenDepth / 2 } :: Point,
+	fenceLine = {
+		x = 0,
+		y = -0.05,
+		z = -halfD - 1 - W.FrontGardenDepth + 0.15,
+		gapHalfWidth = 3.9,
+		halfWidth = 19,
+	},
 
 	-- The bait bowl (data-model section 8; v0.5 F44, Gavin: "The bowl sits out side of your cafe") on the back
 	-- step, right of the back door and under the shell's back lamp, facing the yard gate and the Alleyway the strays

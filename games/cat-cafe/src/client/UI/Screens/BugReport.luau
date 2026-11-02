@@ -18,6 +18,13 @@
 -- even when the keyboard is taller than it says. It goes back a moment after the keyboard hides, so the tap that
 -- hid it still lands on the button under the finger.
 --
+-- F87 (easy-start.md section 4): the window opens on a faces page first (showFaces), "How is Cat Cafe so far?" with
+-- three big faces: Love it, It's OK, Not for me. A tap is enough. Then the page asks "What would help most?" with six
+-- chips (pick one), "Tell us more" (this report page on its Idea chip) and Done. Components/FeedbackLogic sends one
+-- callbacks.feedback(face, chip?) per answer: with the first chip tapped, or the face alone when the window closes,
+-- "Tell us more" is pressed or FeedbackLogic.WAIT_SECONDS pass. "Report a bug" under the faces goes to this page on
+-- its Bug chip. setKind (a report from somewhere that already knows its kind) opens the report page directly.
+--
 -- Roblox terms: a TextBox is an editable text field; MultiLine lets Enter start a new line. UserInputService's
 -- OnScreenKeyboardVisible and OnScreenKeyboardSize describe a phone's keyboard, when the device reports them.
 
@@ -27,6 +34,7 @@ local Workspace = game:GetService("Workspace")
 local BugReportLogic = require(script.Parent.Parent.Components.BugReportLogic)
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local FeedbackLogic = require(script.Parent.Parent.Components.FeedbackLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
@@ -36,6 +44,7 @@ export type Callbacks = {
 	send: (text: string, kind: string) -> (),
 	back: () -> (), -- Cancel: closes the window, keeping the draft
 	close: () -> (),
+	feedback: ((face: string, chip: string?) -> ())?, -- F87: one answer from the faces page; no faces page without it
 }
 
 export type BugReport = {
@@ -45,6 +54,7 @@ export type BugReport = {
 	result: (self: BugReport, ok: boolean) -> (),
 	-- picks a chip ("bug", "stuck", "idea") before opening, unless a draft or a Send is waiting
 	setKind: (self: BugReport, id: string) -> (),
+	showFaces: (self: BugReport) -> (), -- F87: the next open starts on the faces page
 	pending: (self: BugReport) -> boolean,
 	destroy: (self: BugReport) -> (),
 }
@@ -67,6 +77,14 @@ local GAP = Theme.sizes.gap
 local TOP_EDGE = 30 -- compact: room above the window for the panel's ears and badge
 local BOTTOM_EDGE = 8 -- compact: room between the window and the keyboard
 local COMPACT_MIN = 150 -- compact: the window never gets shorter, keyboard or not
+-- F87 faces page
+local FACES_TITLE = "How is Cat Cafe so far?"
+local CHIPS_TITLE = "Thanks! What would help most?"
+local THANKS_TITLE = "Thanks for telling us!"
+local TITLE_HEIGHT = 32
+local FACE_HEIGHT = 132
+local FACE_GLYPH = 56
+local FEEDBACK_CHIP_HEIGHT = 44
 
 local BugReport = {}
 BugReport.__index = BugReport
@@ -100,6 +118,13 @@ function BugReport.new(callbacks: Callbacks): BugReport
 	self._chips = {} :: { [string]: Button.Button }
 	self._connections = {} :: { RBXScriptConnection }
 	self._alive = true
+	self._answer = FeedbackLogic.answer()
+	self._page = "report" :: "faces" | "chips" | "report"
+	self._facesNext = false -- the next open starts on the faces page
+	self._faceButtons = {} :: { [string]: Button.Button }
+	self._chipButtons = {} :: { [string]: Button.Button }
+	self._waitToken = 0 -- one per face picked, so only the latest one's wait sends it alone
+	self._picked = nil :: string? -- the chip sent with this page's face
 
 	local panel = Panel.new({
 		name = "BugReport",
@@ -234,9 +259,218 @@ function BugReport.new(callbacks: Callbacks): BugReport
 		UserInputService:GetPropertyChangedSignal("OnScreenKeyboardSize"):Connect(keyboardMoved)
 	)
 
+	if callbacks.feedback then
+		self:_buildFaces(content)
+	end
 	self:_layout(false)
 	self:_refresh()
 	return self :: BugReport
+end
+
+-- F87: the faces page and its chips page, over the report page's place in the window.
+function BugReport._buildFaces(self: any, content: Frame)
+	local page: Frame = Create("Frame", {
+		Name = "Faces",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		Parent = content,
+	})
+	self._facesPage = page
+	self._facesTitle = text({
+		Name = "Title",
+		Size = UDim2.new(1, 0, 0, TITLE_HEIGHT),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = FACES_TITLE,
+		Parent = page,
+	})
+	local count = #FeedbackLogic.FACES
+	for index, face in FeedbackLogic.FACES do
+		local id = face.id
+		local button = Button.new({
+			name = "Face_" .. id,
+			text = face.label,
+			icon = face.glyph,
+			layout = "tile",
+			style = "ghost",
+			textSize = Theme.sizes.textBody,
+			size = UDim2.new(1 / count, -GAP * (count - 1) / count, 0, FACE_HEIGHT),
+			position = UDim2.new(
+				(index - 1) / count,
+				(index - 1) * GAP / count,
+				0,
+				TITLE_HEIGHT + GAP
+			),
+			parent = page,
+			sound = "uiToggle",
+			onClick = function()
+				self:_pickFace(id)
+			end,
+		})
+		if button.icon then
+			Create("UITextSizeConstraint", { MaxTextSize = FACE_GLYPH, Parent = button.icon })
+		end
+		self._faceButtons[id] = button
+	end
+	-- the chips page: two rows of three, tall enough for a finger on a phone
+	local chipH = Scale.tapHeight(FEEDBACK_CHIP_HEIGHT, Theme.sizes.buttonDepth)
+	self._chipH = chipH
+	local columns = 3
+	for index, chip in FeedbackLogic.CHIPS do
+		local id = chip.id
+		local column = (index - 1) % columns
+		local row = (index - 1) // columns
+		self._chipButtons[id] = Button.new({
+			name = "Chip_" .. id,
+			text = chip.label,
+			icon = chip.glyph,
+			style = "ghost",
+			textSize = Theme.sizes.textSmall + 2,
+			size = UDim2.new(1 / columns, -GAP * (columns - 1) / columns, 0, chipH),
+			position = UDim2.new(
+				column / columns,
+				column * GAP / columns,
+				0,
+				TITLE_HEIGHT + GAP + row * (chipH + GAP)
+			),
+			parent = page,
+			sound = "uiToggle",
+			onClick = function()
+				self:_pickChip(id)
+			end,
+		})
+	end
+	local footH = Scale.tapHeight(BUTTON_HEIGHT, Theme.sizes.buttonDepth)
+	-- under the faces "Report a bug"; under the chips "Tell us more"
+	self._facesLeft = Button.new({
+		name = "More",
+		text = "Report a bug",
+		style = "ghost",
+		anchorPoint = Vector2.new(0, 1),
+		position = UDim2.fromScale(0, 1),
+		size = UDim2.new(0.5, -GAP / 2, 0, footH),
+		parent = page,
+		onClick = function()
+			self:_leaveFaces()
+		end,
+	})
+	self._facesDone = Button.new({
+		name = "Done",
+		text = "Done",
+		style = "primary",
+		anchorPoint = Vector2.new(1, 1),
+		position = UDim2.fromScale(1, 1),
+		size = UDim2.new(0.5, -GAP / 2, 0, footH),
+		parent = page,
+		sound = false, -- the window's close swish
+		onClick = function()
+			self._callbacks.close()
+		end,
+	})
+end
+
+-- One answer to callbacks.feedback, when there is one to send.
+function BugReport._sendAnswer(self: any, face: string?, chip: string?)
+	local callbacks: Callbacks = self._callbacks
+	local send = callbacks.feedback
+	if face == nil or send == nil then
+		return
+	end
+	send(face, chip)
+end
+
+-- The face alone, if one waits unsent.
+function BugReport._flushFace(self: any)
+	self:_sendAnswer(self._answer:flush())
+end
+
+function BugReport._pickFace(self: any, face: string)
+	if self._answer:face() ~= nil and not self._answer:sent() then
+		self:_flushFace() -- a second face on the same open: the first one counts as it was
+	end
+	self._answer:pick(face, os.clock())
+	self._waitToken += 1
+	local token = self._waitToken
+	task.delay(FeedbackLogic.WAIT_SECONDS, function()
+		if self._alive and token == self._waitToken then
+			self:_sendAnswer(self._answer:due(os.clock()))
+		end
+	end)
+	self:_showPage("chips")
+end
+
+function BugReport._pickChip(self: any, chip: string)
+	local face, picked = self._answer:chip(chip)
+	if face ~= nil then
+		self:_sendAnswer(face, picked)
+		self._picked = chip
+		self:_refreshFaces()
+	end
+end
+
+-- "Report a bug" (faces) or "Tell us more" (chips): the report page, on its Bug or Idea chip.
+function BugReport._leaveFaces(self: any)
+	local fromChips = self._page == "chips"
+	self:_flushFace()
+	if not self._pending and self._box.Text == "" then
+		self._kind = if fromChips then "idea" else "bug"
+	end
+	self:_showPage("report")
+	if not Scale.isTouch() and not self._pending then
+		self._box:CaptureFocus()
+	end
+end
+
+function BugReport._showPage(self: any, page: "faces" | "chips" | "report")
+	if self._facesPage == nil then
+		page = "report"
+	end
+	self._page = page
+	if page == "faces" then
+		self._picked = nil
+	end
+	local report = page == "report"
+	for _, chip: Button.Button in self._chips do
+		chip.instance.Visible = report
+	end
+	self._prompt.Visible = report and not self._compact
+	self._note.Visible = report and not self._compact
+	self._counter.Visible = report and not self._compact
+	self._box.Visible = report
+	self._cancel.instance.Visible = report
+	self._send.instance.Visible = report
+	if self._facesPage then
+		self._facesPage.Visible = not report
+		self:_refreshFaces()
+	end
+	self:_refresh()
+end
+
+function BugReport._refreshFaces(self: any)
+	if self._facesPage == nil then
+		return
+	end
+	local chips = self._page == "chips"
+	local picked: string? = self._picked
+	for _, button: Button.Button in self._faceButtons do
+		button.instance.Visible = not chips
+	end
+	for id, button: Button.Button in self._chipButtons do
+		button.instance.Visible = chips
+		button:setStyle(if id == picked then "secondary" else "ghost")
+		button:setEnabled(picked == nil or id == picked)
+	end
+	self._facesTitle.Text = if not chips
+		then FACES_TITLE
+		elseif picked ~= nil then THANKS_TITLE
+		else CHIPS_TITLE
+	self._facesLeft:setText(if chips then "Tell us more" else "Report a bug")
+	self._facesDone.instance.Visible = chips
+	self._facesLeft.instance.Size = if chips
+		then UDim2.new(0.5, -GAP / 2, 0, self._facesLeft.instance.Size.Y.Offset)
+		else UDim2.new(1, 0, 0, self._facesLeft.instance.Size.Y.Offset)
 end
 
 -- Places everything for the normal window, or the compact one above a phone's keyboard.
@@ -356,11 +590,19 @@ function BugReport._refresh(self: any)
 end
 
 function BugReport.setKind(self: any, id: string)
+	self._facesNext = false
+	if self._open and self._page ~= "report" then
+		self:_showPage("report")
+	end
 	if self._pending or self._box.Text ~= "" or self._chips[id] == nil then
 		return
 	end
 	self._kind = id
 	self:_refresh()
+end
+
+function BugReport.showFaces(self: any)
+	self._facesNext = self._facesPage ~= nil
 end
 
 function BugReport._submit(self: any)
@@ -410,6 +652,15 @@ end
 
 function BugReport.onOpen(self: any)
 	self._open = true
+	if self._facesNext then
+		self._facesNext = false
+		self:_showPage("faces")
+	elseif self._page ~= "chips" then
+		self:_showPage("report")
+	end
+	if self._page ~= "report" then
+		return
+	end
 	self:_refresh()
 	-- a phone's keyboard waits for a tap on the box; on a PC the box is ready to type in
 	if not Scale.isTouch() and not self._pending then
@@ -420,6 +671,10 @@ end
 
 function BugReport.onClose(self: any)
 	self._open = false
+	self:_flushFace()
+	if self._page == "chips" then
+		self._page = "faces" -- an answered page does not come back on the next open
+	end
 	if self._box:IsFocused() then
 		self._box:ReleaseFocus()
 	end
@@ -438,6 +693,16 @@ function BugReport.destroy(self: any)
 	table.clear(self._chips)
 	self._cancel:destroy()
 	self._send:destroy()
+	for _, button: Button.Button in self._faceButtons do
+		button:destroy()
+	end
+	for _, button: Button.Button in self._chipButtons do
+		button:destroy()
+	end
+	if self._facesLeft then
+		self._facesLeft:destroy()
+		self._facesDone:destroy()
+	end
 	self._panel:destroy()
 end
 

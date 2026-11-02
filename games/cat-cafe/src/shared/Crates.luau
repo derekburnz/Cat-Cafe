@@ -9,6 +9,7 @@
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
+local Luck = require(script.Parent.Luck)
 local Types = require(script.Parent.Types)
 
 local Crates = {}
@@ -68,9 +69,20 @@ function Crates.isLucky(crate: Types.CrateDef, luck: number): boolean
 	return not crate.golden and luck >= Config.CrateLuckyEvery - 1
 end
 
--- The rarity odds this open uses, in percent.
-function Crates.oddsFor(crate: Types.CrateDef, luck: number): { [string]: number }
-	return if Crates.isLucky(crate, luck) then GOLDEN_ODDS else crate.odds
+-- The rarity odds this open uses, in percent. F88: the player's Luck (`playerLuck`, shared/Luck, 1 or nil for none)
+-- multiplies a plain open's Epic and rarer chances; the lucky twentieth and a golden crate keep their own odds.
+function Crates.oddsFor(
+	crate: Types.CrateDef,
+	luck: number,
+	playerLuck: number?
+): { [string]: number }
+	if Crates.isLucky(crate, luck) then
+		return GOLDEN_ODDS
+	end
+	if crate.golden or playerLuck == nil or playerLuck <= 1 then
+		return crate.odds
+	end
+	return Luck.applyMap(crate.odds, playerLuck)
 end
 
 -- Each piece's chance in percent under `odds`: its rarity's share split equally among that rarity's pieces. The
@@ -99,14 +111,16 @@ end
 
 -- The piece one open gives: `rarityRoll` picks the rarity by its odds (rarest last, as Catalog.rarityOrder), then
 -- `pieceRoll` one of that rarity's pieces. Both rolls are in [0, 1). Also whether it was the lucky twentieth.
+-- `playerLuck` as in oddsFor.
 function Crates.roll(
 	crate: Types.CrateDef,
 	luck: number,
 	rarityRoll: number,
-	pieceRoll: number
+	pieceRoll: number,
+	playerLuck: number?
 ): (string, boolean)
 	local lucky = Crates.isLucky(crate, luck)
-	local odds = Crates.oddsFor(crate, luck)
+	local odds = Crates.oddsFor(crate, luck, playerLuck)
 	local total = 0
 	for _, rarity in Catalog.rarityOrder do
 		total += odds[rarity] or 0

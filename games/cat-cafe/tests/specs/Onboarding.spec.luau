@@ -14,14 +14,15 @@ return function()
 	end
 
 	describe("steps", function()
-		it("are the 24 of funnel v2, numbered by position, logged as onboarding_v2", function()
-			expect(Onboarding.COUNT).to.equal(24)
+		it("are the 25 of funnel v2, numbered by position, logged as onboarding_v2", function()
+			expect(Onboarding.COUNT).to.equal(25) -- F96: starter_cat is step 25
 			expect(Onboarding.VERSION).to.equal(2)
 			expect(Onboarding.FUNNEL).to.equal("onboarding_v2")
 			expect(Onboarding.STEPS[1]).to.equal("joined")
 			expect(Onboarding.STEPS[2]).to.equal("first_move")
 			expect(Onboarding.STEPS[13]).to.equal("first_bait")
 			expect(Onboarding.STEPS[24]).to.equal("tier_3")
+			expect(Onboarding.STEPS[25]).to.equal("starter_cat")
 			expect(Onboarding.index("first_bait_resolved")).to.equal(16)
 		end)
 
@@ -123,7 +124,7 @@ return function()
 					table.insert(logged, Onboarding.index(name))
 				end
 			end
-			expect(#logged).to.equal(24)
+			expect(#logged).to.equal(Onboarding.COUNT)
 			for i, step in logged do
 				expect(step).to.equal(i)
 			end
@@ -132,7 +133,7 @@ return function()
 
 	describe("fromSave (QA S72)", function()
 		local function facts(over: { [string]: number }?): Onboarding.SaveFacts
-			local out =
+			local out: Onboarding.SaveFacts =
 				{ catsCaught = 0, distinctCats = 0, tables = 0, bowl = 0, tier = 1, parkCats = 0 }
 			for key, value in over or {} do
 				(out :: any)[key] = value
@@ -280,6 +281,7 @@ return function()
 				"returned_next_day",
 				"first_offline_claim",
 				"tier_3",
+				"starter_cat", -- F96 (starter-cat.md section 4)
 			})
 		end)
 	end)

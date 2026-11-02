@@ -40,6 +40,7 @@ local BugReportService = require(script.Parent.BugReportService)
 local CafeService = require(script.Parent.CafeService)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local CodeService = require(script.Parent.CodeService)
 local CollectorService = require(script.Parent.CollectorService)
@@ -62,6 +63,7 @@ local Shove = require(ReplicatedStorage.Shared.Shove)
 local ShoveService = require(script.Parent.ShoveService)
 local Spin = require(ReplicatedStorage.Shared.Spin)
 local SpinService = require(script.Parent.SpinService)
+local StarterCatService = require(script.Parent.StarterCatService)
 local Telemetry = require(script.Parent.Telemetry)
 local TipJarService = require(script.Parent.TipJarService)
 local TipPileService = require(script.Parent.TipPileService)
@@ -304,6 +306,13 @@ function Debug.tips(player: (Player | number | string)?): number
 	return TipService.debugReset(p, profileOf(p))
 end
 
+-- Forgets the player's Bellhop Cat claim and sends their Bellhop Cats away, so the stand can be claimed again (F96,
+-- starter-cat.md section 5). Returns how many cats were removed.
+function Debug.starterCat(player: (Player | number | string)?): number
+	local p = resolve(player)
+	return StarterCatService.debugReset(p, profileOf(p))
+end
+
 -- Forgets the player's redeemed codes and clears the wrong-code lock, so `playtest` can be redeemed again (F65).
 -- Returns how many codes were forgotten.
 function Debug.codes(player: (Player | number | string)?): number
@@ -500,6 +509,18 @@ function Debug.setPhase(phase: Types.ClockPhase)
 	guard()
 	assert(phase == "day" or phase == "night", "phase is day or night")
 	ClockService.debugSetPhase(phase)
+end
+
+-- F88 (review N311): jumps the clock into the night before the next Lucky Day, `lead` seconds before its sunrise
+-- (LuckyDayWarnSeconds + 5 when none is given, so the warning, the banner and the x2 wave all play). Returns that
+-- Lucky Day's number.
+function Debug.toLuckyDay(lead: number?): number
+	guard()
+	local day = Clock.nextLuckyDay(ClockService.day())
+	local before =
+		math.clamp(lead or (Config.LuckyDayWarnSeconds + 5), 1, Config.NightLengthSeconds)
+	ClockService.debugSetTime(Clock.sunriseOf(day) - before)
+	return day
 end
 
 -- The clock as the server sees it: phase, server time it ends at, and seconds left.

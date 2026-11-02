@@ -4,6 +4,7 @@
 -- carry marker and tutorial hints.
 
 local CollectionService = game:GetService("CollectionService")
+local ExperienceNotificationService = game:GetService("ExperienceNotificationService")
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,8 +15,11 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local Clock = require(Shared:WaitForChild("Clock"))
+local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
+local Luck = require(Shared:WaitForChild("Luck"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Settings = require(Shared:WaitForChild("Settings"))
@@ -160,13 +164,38 @@ local function swingHint(): string
 	return "Click next to a cat"
 end
 
+-- The tutorial strip's line for this step and device (F87, easy-start.md section 2e): the UI's
+-- UI.tutorial.hint(s) once it has it (no letter keys on touch), nil keeping the line here. The trail's target and
+-- label stay this controller's.
+local function tutorialLine(s: Types.PlayerState, line: string): string
+	local tutorial: any = UI.tutorial
+	local hint: unknown = if tutorial ~= nil then tutorial.hint else nil
+	if type(hint) == "function" then
+		local text = (hint :: (Types.PlayerState) -> unknown)(s)
+		if type(text) == "string" and text ~= "" then
+			return text
+		end
+	end
+	return line
+end
+
+local function showTutorial(
+	s: Types.PlayerState,
+	line: string,
+	target: (BasePart | Attachment | Vector3)?,
+	label: string?
+)
+	UI.tutorial.show(tutorialLine(s, line), target, label)
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if s.carrying ~= nil then
 		UI.tutorial.hide()
 		return
 	end
 	if s.tutorialStep < 2 then
-		UI.tutorial.show(
+		showTutorial(
+			s,
 			string.format(
 				"Go out your back door to the alley. %s, then tap as each circle closes",
 				swingHint()
@@ -176,22 +205,23 @@ local function refreshTutorial(s: Types.PlayerState)
 		)
 	elseif s.tutorialStep == 2 then
 		if hasRestingCatAndFreeSpot(s) then
-			UI.tutorial.show("Open the Collection (C) and give your new cat a role")
+			showTutorial(s, "Open the Collection (C) and give your new cat a role")
 		else
-			UI.tutorial.show("Catch more cats in the alley, or buy a table in Upgrades (U)")
+			showTutorial(s, "Catch more cats in the alley, or buy a table in Upgrades (U)")
 		end
 	elseif s.tutorialStep == 3 then
-		UI.tutorial.show("Buy your first table in Upgrades (U): more money from every cat")
+		showTutorial(s, "Buy your first table in Upgrades (U): more money from every cat")
 	elseif s.tutorialStep == 4 then
 		-- gdd "The first ten minutes" beat 4: the bowl, then food in it (BaitService finishes the tutorial)
 		-- (the HUD strip shows about 50 characters on one line, reviewer N94)
 		if (s.upgradeLevels.lure_bowl or 0) < 1 then
-			UI.tutorial.show("Buy the Bait bowl in Upgrades (U)")
+			showTutorial(s, "Buy the Bait bowl in Upgrades (U)")
 		elseif s.bait ~= nil then
 			-- baited before the first table on an older save: the server moved new ones to 5 (S48)
-			UI.tutorial.show("A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
+			showTutorial(s, "A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
 		else
-			UI.tutorial.show(
+			showTutorial(
+				s,
 				"Put Kibble in your bowl on the back step (F)",
 				UIController.ownBaitBowl(),
 				"Bowl"
@@ -448,6 +478,14 @@ local function applyState(s: Types.PlayerState)
 		quests = s.quests :: any, -- F73: the Quests window's tabs and the HUD's quest line (the UI reads it loosely)
 		achievements = s.achievements :: any, -- F73: each achievement's progress and claim
 		dailyTreat = s.dailyTreat, -- F70: the Daily Treat card, whether a stamp is due and the day it pays
+		-- F87 (#705): the tips seen, the one feedback ask and the help cards shown, so a tip the client finds itself
+		-- (stuck_cat, codes_cat, offline), the help card and the ask never repeat each session
+		tipsSeen = s.tipsSeen,
+		feedbackAsked = s.feedbackAsked,
+		stuckHelpShown = s.stuckHelpShown,
+		-- F88: the player's Luck and what makes it, for the HUD chip and its card (luck-and-rare-moments.md section 1)
+		luck = s.luck,
+		luckSources = s.luckSources,
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
@@ -654,6 +692,28 @@ local function wireIntents()
 			Net.fire("SendFeedback", face, chip)
 		end)
 	end
+	-- F87 part 3 (UI #745), analytics only: the intro's choice ("tile" or "help") and the stuck nudges ("pulse",
+	-- "help_shown", "show_me") as TelemetryReport, which allowlists both with their session caps. A nudge goes once
+	-- per tutorial step and kind, as the server logs it, so a repeating pulse never reaches the remote's limit.
+	if events.introChoice ~= nil then
+		events.introChoice:Connect(function(from: string)
+			Net.fire("TelemetryReport", "intro_choice", from)
+		end)
+	end
+	if events.stuckNudge ~= nil then
+		local nudged: { [string]: boolean } = {}
+		events.stuckNudge:Connect(function(kind: string)
+			local key = string.format(
+				"%s:%s",
+				tostring(if state ~= nil then state.tutorialStep else nil),
+				kind
+			)
+			if not nudged[key] then
+				nudged[key] = true
+				Net.fire("TelemetryReport", "stuck_nudge", kind)
+			end
+		end)
+	end
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
 	UI.events.travel:Connect(function(destination: string)
 		Net.fire("Travel", destination)
@@ -857,6 +917,89 @@ end
 
 local tipJarClaimed: { boolean }? = nil -- the claimed steps last shown, nil before this session's first state
 
+-- F96 (starter-cat.md section 3): an ask waits for a quiet moment, never in a catch, a rescue, a carry or the intro.
+local busyUntil = 0 -- os.clock(): a catch or rescue running, or just ended
+local inIntro = false
+local ASK_WAIT_SECONDS = 300 -- an ask with no quiet moment this long waits for another session
+local ASK_SETTLE_SECONDS = 3 -- after a catch or rescue ends, before an ask
+
+local function quiet(): boolean
+	return not inIntro and os.clock() >= busyUntil and (state == nil or state.carrying == nil)
+end
+
+local function trackBusy()
+	-- held at most this long each, in case the end never reaches this client (NetSwingController's holds)
+	Moments.CatchStart:Connect(function()
+		busyUntil = os.clock() + 30
+	end)
+	Moments.RescueStart:Connect(function()
+		busyUntil = os.clock() + 60
+	end)
+	for _, ended in
+		{
+			Moments.CatchSuccess,
+			Moments.CatchFail,
+			Moments.RescueDone,
+			Moments.RescueFail,
+			Moments.RescueCancel,
+		} :: { any }
+	do
+		ended:Connect(function()
+			busyUntil = os.clock() + ASK_SETTLE_SECONDS
+		end)
+	end
+	Moments.IntroStart:Connect(function()
+		inIntro = true
+	end)
+	Moments.IntroEnd:Connect(function()
+		inIntro = false
+	end)
+	player.CharacterAdded:Connect(function()
+		busyUntil = 0 -- a new character has nothing running
+	end)
+end
+
+-- The words of the asks that are toasts (section 3); the UI's optional UI.asks.show(id) -> boolean shows its own.
+local ASK_LINES: { [string]: string } = {
+	[Tips.FAVORITE_ASK] = "Favorite Cat Cafe to find it fast next time",
+	[Tips.LIKE_ASK] = "Having fun? A thumbs up helps other players find Cat Cafe.",
+}
+
+-- Shows an ask at the next quiet moment and answers TipSeen: the notification ask is Roblox's own opt-in prompt
+-- (players 13 and up; skipped when Roblox will not prompt), the favorite and like asks a toast or the UI's card.
+local function showAsk(id: string)
+	task.spawn(function()
+		local waited = 0
+		while not quiet() do
+			if waited >= ASK_WAIT_SECONDS then
+				return
+			end
+			waited += task.wait(1)
+		end
+		if id == Tips.NOTIFY_ASK then
+			local ok, can = pcall(function()
+				return ExperienceNotificationService:CanPromptOptInAsync()
+			end)
+			local prompted = ok
+				and can == true
+				and pcall(function()
+					ExperienceNotificationService:PromptOptIn()
+				end)
+			Net.fire("TipSeen", id, not prompted)
+			return
+		end
+		local asks: any = (UI :: any).asks
+		local shown = false
+		if asks ~= nil and type(asks.show) == "function" then
+			shown = (asks.show :: (string) -> unknown)(id) == true
+		end
+		if not shown then
+			UI.toast(ASK_LINES[id] or "", "info")
+		end
+		Net.fire("TipSeen", id, false)
+	end)
+end
+
 local function wireServerEvents()
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		applyState(s)
@@ -973,21 +1116,23 @@ local function wireServerEvents()
 		UI.toast(text, "info")
 	end)
 	-- F87: a server-side context tip's moment (shared/Tips). The UI's tip queue times it and answers tipSeen; until
-	-- the UI has one, the like ask (a toast that needs no press, section 4) shows as a plain toast and the rest wait
-	-- unseen, so they still show once the cards land.
+	-- the UI has one the tips wait unseen, so they still show once the cards land. F96: the notification and favorite
+	-- asks are this controller's (showAsk); the like ask goes to the queue when there is one.
+	trackBusy()
 	Net.on("ShowTip", function(id: unknown)
 		if type(id) ~= "string" or not Tips.seenId(id) then
 			return
 		end
 		local tips: any = (UI :: any).tips
-		if tips ~= nil and type(tips.show) == "function" then
+		local queue = tips ~= nil and type(tips.show) == "function"
+		-- the like ask is a card in the UI's tip queue (#738), which times it and answers tipSeen; the notification
+		-- and favorite asks, and the like ask before the queue, are showAsk's
+		if Tips.isAsk(id) and not (queue and id == Tips.LIKE_ASK) then
+			showAsk(id)
+			return
+		end
+		if queue then
 			(tips.show :: (string) -> ())(id)
-		elseif id == Tips.LIKE_ASK then
-			UI.toast(
-				"Having fun? A thumbs up and a favorite help other players find Cat Cafe.",
-				"info"
-			)
-			Net.fire("TipSeen", id, false)
 		end
 	end)
 	Net.on("PlotOpened", function(position: Vector3, plotIndex: number)
@@ -1157,6 +1302,52 @@ local function startPrediction()
 	end)
 end
 
+-- F88 (luck-and-rare-moments.md 1c): a Lucky Day's two moments, read off the server's Clock folder. "warning" comes
+-- LuckyDayWarnSeconds before a sunrise that starts a Lucky Day (at night Day is the day that ended, so the sunrise
+-- starts Day + 1), to whoever is still in the server; "start" comes when LuckyDay turns true at that sunrise. Joining
+-- in the middle of one shows neither: the Luck chip and the sky say so then. The UI's own banner, `UI.luckyDay(kind,
+-- line)`, once it has one, else a gold shout-out.
+local function bindLuckyDay(clock: Instance)
+	local function show(kind: string, line: string)
+		local hook: unknown = (UI :: any).luckyDay
+		if type(hook) == "function" then
+			(hook :: (string, string) -> ())(kind, line)
+		else
+			UI.announce(line, "Legendary")
+		end
+	end
+	clock:GetAttributeChangedSignal("LuckyDay"):Connect(function()
+		if clock:GetAttribute("LuckyDay") == true then
+			show("start", Luck.DAY_BANNER)
+		end
+	end)
+	task.spawn(function()
+		local warned = 0 -- the Lucky Day already warned of
+		while clock.Parent ~= nil do
+			local day = clock:GetAttribute("Day")
+			local endsAt = clock:GetAttribute("PhaseEndsAt")
+			if
+				clock:GetAttribute("Phase") == "night"
+				and type(day) == "number"
+				and type(endsAt) == "number"
+			then
+				local coming = day + 1
+				local left = endsAt - Workspace:GetServerTimeNow()
+				if
+					Clock.isLuckyDay(coming)
+					and warned ~= coming
+					and left > 0
+					and left <= Config.LuckyDayWarnSeconds
+				then
+					warned = coming
+					show("warning", Luck.DAY_WARNING)
+				end
+			end
+			task.wait(1)
+		end
+	end)
+end
+
 function UIController.start()
 	-- Same shapes as UI/Types.luau, but our catalogs use literal unions (rarity, area, role) where the
 	-- UI declares string; Luau table properties are invariant, so the catalog is handed over as any.
@@ -1196,7 +1387,9 @@ function UIController.start()
 	UI.catch.bindProximityPrompts()
 	-- The HUD clock chip reads Phase and PhaseEndsAt off the server's Clock folder and follows its changes.
 	task.spawn(function()
-		UI.clock.bind(ReplicatedStorage:WaitForChild("Clock"))
+		local clock = ReplicatedStorage:WaitForChild("Clock")
+		UI.clock.bind(clock)
+		bindLuckyDay(clock)
 	end)
 	wireIntents()
 	wireServerEvents()

@@ -371,12 +371,71 @@ local SCENES = {
 	{ "Feedback", function()
 		UI.bugReport.open("bug")
 	end },
+	-- F87: the Feedback tile opens on the three faces, and a face brings the chips
+	{ "FeedbackFaces", function()
+		UI.bugReport.open()
+	end },
+	{ "FeedbackChips", function()
+		UI.bugReport.open()
+		press("BugReport", "Face_love")
+	end },
+	-- F87: the one slide-in faces ask over the travel row
+	{ "FeedbackAsk", function()
+		UI.tips.showAsk()
+	end },
 	{ "Codes", function()
 		UI.codes.open()
 	end },
 	{ "CodesPrize", function()
 		UI.codes.open()
 		UI.codes.result(true, "Code redeemed!", CODE_PRIZE)
+	end },
+	-- F96: the Bellhop Cat's stand card before the first goals are done, Take me home greyed
+	{ "Bellhop", function()
+		UI.starterCat.open({
+			claimed = false,
+			gate = "task",
+			line = "Finish your first goals to take me home",
+			rate = 3,
+		})
+	end },
+	-- once the game is in a group: Join the group beside Take me home, and the server's refusal
+	{ "BellhopGroup", function()
+		UI.starterCat.open({ claimed = false, gate = "group", rate = 243 })
+		press("StarterCat", "TakeMeHome")
+		UI.starterCat.result(false, "Join the Cat Cafe group to take me home")
+	end },
+	{ "BellhopHome", function()
+		UI.starterCat.open({ claimed = true, gate = "group", line = "Already home with you", rate = 98765.4 })
+	end },
+	-- F96 section 3: the favorite ask on the tip card
+	{ "FavoriteAsk", function()
+		UI.asks.show("favorite_ask")
+	end },
+	-- the Index's Exclusive page, after every area
+	{ "IndexExclusive", function()
+		UI.openIndex("exclusive")
+	end },
+	-- an exclusive cat in the cat room reads "Can't sell"
+	{ "CatsBellhop", function()
+		local player = samplePlayer(os.time())
+		player.cats.gate_bellhop = {
+			uid = "gate_bellhop",
+			catId = "bellhop_cat",
+			variant = "base",
+			caughtAt = os.time() - 60,
+			level = 1,
+			xp = 0,
+			xpToNext = 40,
+			charm = 60,
+			stars = 3,
+			rating = 243,
+		}
+		UI.update({ cats = player.cats })
+		UI.open("Cats")
+		task.delay(0.2, function()
+			press("Cats", "gate_bellhop")
+		end)
 	end },
 	{ "Potions", function()
 		UI.open("Potions")
@@ -441,8 +500,42 @@ local SCENES = {
 			UI.catch.showGrades("gate_stray", { "perfect", "good", "perfect", "perfect" }, true, 0)
 		end)
 	end },
+	-- F87: a context tip's card at the top centre, its bar draining
+	{ "TipCard", function()
+		UI.tips.show("second_cat")
+	end },
+	-- F87: the first long return, the offline tip's ribbon on the card (the client tips marked seen, so no stuck cat
+	-- or Codes Cat tip pops up in later scenes)
+	{ "OfflineTip", function()
+		UI.update({ tipsSeen = { stuck_cat = true, codes_cat = true } })
+		UI.showOfflineEarnings(48200, 3 * 3600)
+	end },
+	-- F87 section 2f: a brand new player's small HUD, the money, the hint strip, Home and the Cannon, the Tutorial
+	-- tile and Settings
+	{ "SmallHUD", function()
+		UI.update({ tutorialStep = 0, tier = 1, cats = {}, potions = {}, goldenFish = 0 })
+		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 0, tier = 1, cats = {}, upgradeLevels = {} }))
+	end },
+	-- the first loop done: every piece comes back, each button with its gold "New!" (from a new player's state to the
+	-- sample player again, at step 5)
+	{ "SmallHUDNew", function()
+		UI.update({ tutorialStep = 0, tier = 1, cats = {}, potions = {}, goldenFish = 0 })
+		local player = samplePlayer(os.time())
+		player.tutorialStep = 5
+		UI.update(player)
+	end },
+	-- F87 section 2g: "Need a hand?" after 90 s on one tutorial step
+	{ "HelpCard", function()
+		UI.tutorial.showHelp()
+	end },
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
+	end },
+	-- F96: a Bellhop claim that works: the card closes and the claim card shows (after CatFound, which first shows the
+	-- card's pieces)
+	{ "BellhopClaim", function()
+		UI.starterCat.open({ claimed = false, gate = "task", rate = 3 })
+		UI.starterCat.result(true)
 	end },
 	-- last, since no window closes it: the money's boosts card with a Money Potion running and some boosts bought
 	{ "HUDBoosts", function()
@@ -477,6 +570,25 @@ function Scenes.close()
 	UI.rescue.hide()
 	UI.net.setEnabled(false)
 	UI.setZone(nil)
+	UI.tips.reset()
+	UI.tutorial.hide()
+	-- the help card waits for Got it
+	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+	if ask and ask:FindFirstChild("Choice_ok", true) and ask:FindFirstChild("Card", true).Visible then
+		press("CatCafeAsk", "Choice_ok")
+	end
+	-- the cat found card goes by itself after 5 s; Nice! now, so it is not over the next scene
+	local found = UIShim.playerGui:FindFirstChild("CatCafePopups")
+	found = found and found:FindFirstChild("CatFound", true)
+	if found and found.Visible then
+		press("CatCafePopups", "CatFound.Ok")
+	end
+	-- the offline card waits for its Claim
+	local popups = UIShim.playerGui:FindFirstChild("CatCafePopups")
+	local offline = popups and popups:FindFirstChild("Offline", true)
+	if offline and offline.Visible then
+		press("CatCafePopups", "Offline.Claim")
+	end
 end
 
 return Scenes

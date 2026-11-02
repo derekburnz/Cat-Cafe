@@ -4,8 +4,11 @@
 
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical"
 export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer"
--- A cat's area: one of the five, or the spare pool of cats an area-themed cat replaced (data-model 3d, F78).
-export type CatArea = Area | "spare"
+-- A cat's area: one of the five, the spare pool of cats an area-themed cat replaced (data-model 3d, F78), or
+-- "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
+export type CatArea = Area | "spare" | "exclusive"
+-- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux.
+export type CatSource = "free" | "shop"
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
@@ -90,6 +93,7 @@ export type CatDef = {
 	-- F95: a shop-only cat (the starter, Royal, Grand and season cats): it earns at the owner's newest area's
 	-- multiplier and counts toward no "different cats", Index page or Index milestone
 	exclusive: boolean?,
+	source: CatSource?, -- F96: how an exclusive cat is had
 	favoriteRole: Role, -- earns FavoriteMultiplier in a slot of this role
 	description: string,
 	pattern: string,
@@ -355,7 +359,8 @@ export type TierDef = {
 	slots: number, -- role slots open at this tier
 	multiplier: number, -- tierMultiplier in the income formula
 	area: Area, -- the area this tier opens
-	caps: { tables: number, espresso: number, net: number, lure_bowl: number }, -- highest shop level allowed at this tier
+	-- highest shop level allowed at this tier (lucky_cat: F88, level n at Tier n)
+	caps: { tables: number, espresso: number, net: number, lure_bowl: number, lucky_cat: number },
 }
 
 export type CatInstance = {
@@ -617,14 +622,20 @@ export type PlayerProfile = {
 	settings: Settings,
 	flags: { autoPress: boolean }, -- for review only: set when the last 50 circles look scripted (section 10)
 	telemetry: TelemetryState,
-	-- F87 (easy-start.md section 6, save version 20): the context tips seen (tip id or "like_ask" to true; ClearTips
-	-- keeps only the like ask), the one slide-in feedback ask, and the "Need a hand?" card's tutorial steps ("0" to "5")
+	-- F87 (easy-start.md section 6, save version 20): the context tips seen (tip id or an ask's id to true; ClearTips
+	-- keeps only the asks), the one slide-in feedback ask, and the "Need a hand?" card's tutorial steps ("0" to "5")
 	tipsSeen: { [string]: boolean },
 	feedbackAsked: boolean,
 	stuckHelpShown: { [string]: boolean },
+	starterCatClaimed: boolean, -- F96 (starter-cat.md section 4, save version 21): the free Bellhop Cat taken home
+	notifyAskAt: number, -- F96 (section 3, save version 22): os.time() the notification ask first showed, 0 before
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
+-- F88 (luck-and-rare-moments.md 1d): a source of Luck for the chip's card: "statue", "potion" or "lucky_day", what it
+-- adds, and when it ends (os.time()) for the potion and the Lucky Day.
+export type LuckSource = { id: string, value: number, endsAt: number? }
+
 export type PlayerState = {
 	money: number,
 	incomePerSecond: number,
@@ -667,6 +678,9 @@ export type PlayerState = {
 	tipsSeen: { [string]: boolean },
 	feedbackAsked: boolean,
 	stuckHelpShown: { [string]: boolean },
+	starterCatClaimed: boolean, -- F96: the Bellhop Cat's stand card reads "Already home with you"
+	luck: number, -- F88: the player's Luck now (shared/Luck), x1 to LuckMax; the HUD chip shows it above 1
+	luckSources: { LuckSource }, -- F88: what adds it, in order (statue, potion, lucky_day)
 	serverTime: number,
 }
 

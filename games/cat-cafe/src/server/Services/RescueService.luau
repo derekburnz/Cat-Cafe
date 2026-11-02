@@ -569,7 +569,9 @@ local function onRescueHelp(player: Player, rawSpotId: unknown)
 	end
 	local attempt = entry.attempt
 	if attempt == nil or entry.lockedBy == 0 then
-		refuse(player, spotId, "Nobody needs a hand here now")
+		-- the attempt ended while the Help press was on its way: the trap is free, so this is a plain rescue now
+		-- (review N317), with all of RescueBegin's checks and waits
+		onRescueBegin(player, spotId)
 		return
 	end
 	if entry.lockedBy == player.UserId or entry.helper == player then

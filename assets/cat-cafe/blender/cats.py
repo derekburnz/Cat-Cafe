@@ -385,8 +385,10 @@ def _head(spec, c, h):
     if pat == "points":
         surf, under = fy - 0.02, c["second"]
     if c.get("muzzle") and c["muzzle"] != c["fur"]:
-        b.box((0, fy + 0.01, fz - 0.15 * k), (0.36 * k, 0.08, 0.2 * k), c["muzzle"], bevel=False)
-        surf, under = fy - 0.03, c["muzzle"]
+        # 0.02 proud like the points muzzle, so its front keeps 0.025 behind the eyes': on B and S (drawn at 0.95)
+        # 0.015 came out under rbx_zfight's reach, which pushed the muzzle out over the nose and mouth (Derek 11-02)
+        b.box((0, fy + 0.015, fz - 0.15 * k), (0.36 * k, 0.07, 0.2 * k), c["muzzle"], bevel=False)
+        surf, under = fy - 0.02, c["muzzle"]
     b.box((0, fy - 0.025, fz - 0.11 * k), (0.1 * k, 0.06, 0.07 * k), c["nose"], bevel=False)
     _mouth(b, surf, fz - 0.145 * k, k, "fur_grey" if palette.lstar(under) < 35 else "fur_black")
     for side in (-1, 1):

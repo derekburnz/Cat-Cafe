@@ -109,6 +109,7 @@ UI.events = {
 	lockCat = Signal.new(), -- (uid, locked)   the Lock row in the cat room: forward as LockCat (F62)
 	renameCat = Signal.new(), -- (uid, name)   Rename in the cat room, trimmed and checked with Shared.CatName: forward as RenameCat (F33)
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
+	equipBestDecor = Signal.new(), -- ()   Equip Best on the Decor page: forward as EquipBestDecor (#828)
 	unequipAll = Signal.new(), -- ()   Unequip All in the cat room: every working cat rests; forward as UnequipAll
 	claimOffline = Signal.new(), -- ()
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
@@ -720,6 +721,9 @@ function UI.init(config: Types.InitConfig)
 			UI.events.toggleDecor:Fire(decorId, placed)
 		end,
 		close = closeModal,
+		equipBest = function()
+			UI.events.equipBestDecor:Fire()
+		end,
 	})
 	collection = CatCollection.new({
 		claimIndexReward = function(areaId: string, milestoneId: string)

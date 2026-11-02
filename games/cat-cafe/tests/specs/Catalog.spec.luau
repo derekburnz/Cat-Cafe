@@ -1126,7 +1126,7 @@ return function()
 				local want = {
 					-- F95 (economy-ladder.md section 1): income 1, 3, 9, 27, 81
 					{ "alley", "Alleyway", 1, 32, same, 6, 1 }, -- v4 (F84, v0.13.18): 24 and the 8 near points
-					{ "park", "Park", 2, 40, same, 5, 3 }, -- the v3.2 set's cat spots (F81, #460)
+					{ "park", "Park", 2, 48, same, 5, 3 }, -- F85's long set's cat spots (#799)
 					{ "neighbourhood", "Neighbourhood", 3, 72, same, 5, 9 }, -- the v3.2 set's cat spots (F81, #505)
 					{ "woods", "Woods", 4, 65, same, 4, 27 }, -- the v3.2 set (#470) and the oak top
 					{ "sewer", "Sewer", 5, 52, same, 4, 81 }, -- the v3.2 set's cat spots (F81, #491)

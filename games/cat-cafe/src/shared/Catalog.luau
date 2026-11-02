@@ -1944,7 +1944,7 @@ Catalog.areas = {
 		id = "park",
 		name = "Park",
 		tier = 2,
-		spawnPoints = 40, -- the v3.2 set's cat spots, 16 near the gate and 24 deep (F81)
+		spawnPoints = 48, -- F85's long set's cat spots, 20 near the camp and 28 deep
 		waveSize = 5,
 		rescueSpots = 5,
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },

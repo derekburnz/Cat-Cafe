@@ -323,7 +323,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | category | budget per asset | notes |
 |---|---|---|
 | Cat (every piece, either body) | 1,500 total; 1,800 with a second prop | plain coats land at 650 to 950 on A and B; themed cats with their prop at 800 to 1,380, with two props at 976 to 1,760 (`props.TWO_PROP_BUDGET`, gold twins the same) |
-| Accessory | 200 to 300 | glasses, hat, and the role outfit pieces: apron, barista cap, bow tie, vest, sash, boater, party hat, cape |
+| Accessory | 200 to 300 | glasses, hat, and the role outfit pieces: apron, barista cap, bow tie, vest, sash, boater, party hat, cape; the walking vest 124, sash 224 and apron 116 |
 | Held net (F93) | 600, 750, 900, 1,100 | Basic, Sturdy, Pro, Master (`CatCafe_Item_Net_L1` to `L4`); they land at 496 to 968 triangles and 28 to 42 Parts |
 | Potion bottles (F64, F73) | 700, Big Tip 750 | `potions.py`: they land at 468 to 688 |
 | Cafe Crates (F53) | 1,500 | `crates.py`, body and `_Lid` together, golden twin the same: they land at 384 (Neighbourhood) to 1,146 (Park) |

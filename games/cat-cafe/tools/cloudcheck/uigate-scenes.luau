@@ -441,6 +441,16 @@ local SCENES = {
 			UI.catch.showGrades("gate_stray", { "perfect", "good", "perfect", "perfect" }, true, 0)
 		end)
 	end },
+	-- F87: a context tip's card at the top centre, its bar draining
+	{ "TipCard", function()
+		UI.tips.show("second_cat")
+	end },
+	-- F87: the first long return, the offline tip's ribbon on the card (the client tips marked seen, so no stuck cat
+	-- or Codes Cat tip pops up in later scenes)
+	{ "OfflineTip", function()
+		UI.update({ tipsSeen = { stuck_cat = true, codes_cat = true } })
+		UI.showOfflineEarnings(48200, 3 * 3600)
+	end },
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
 	end },
@@ -477,6 +487,13 @@ function Scenes.close()
 	UI.rescue.hide()
 	UI.net.setEnabled(false)
 	UI.setZone(nil)
+	UI.tips.reset()
+	-- the offline card waits for its Claim
+	local popups = UIShim.playerGui:FindFirstChild("CatCafePopups")
+	local offline = popups and popups:FindFirstChild("Offline", true)
+	if offline and offline.Visible then
+		press("CatCafePopups", "Offline.Claim")
+	end
 end
 
 return Scenes

@@ -608,6 +608,22 @@ Every catching area, the Alleyway included, is reached by the Cat Cannon in the 
 
 **Engineer (F84):** in UIController, call `UI.cannon.setEnabled(true)` once the cannon is live; `UI.cannon.setCannon(townCannonPart)`; `UI.cannon.setWild(areaId or nil)` as the character enters and leaves a wild area (camp included); `UI.cannon.open(cannonId)` when the "Hop in" hold completes; `UI.cannon.flight(destination, launchAt)` on `CannonLaunch`; `UI.cannon.result(false, destination)` on a refused launch; `UI.cannon.checkedIn(catName)` on the player's own `CampCheckIn`; pass `camp = <camp landing pad>` in `UI.setCarrying` while carrying in a wild area; forward `UI.events.launchCannon(cannonId, destination)` as `LaunchCannon` and `events.travel("cannon")` as `Travel("cannon")`. The onboarding line for tutorialStep 0 and 1 should no longer say "Go out your back door to the alley"; the cannon hint covers the town, and in the Alleyway it can read "Press E on a cat, then tap as each circle closes".
 
+### Context tips (built, F87 part 1, easy-start.md section 3)
+
+A tip shows once per account, the first time a player meets something: one line on a card, or a camera cut of 3 seconds with one caption. Ids, kinds and who finds each are `shared/Tips`; the words and timing are `Components/TipQueue.luau` (with a spec).
+
+- **The card** (`Screens/TipCard.luau`, ScreenGui `CatCafeTips`, DisplayOrder 11): slides down at the top centre under Roblox's top bar, 460 px wide (the screen less 16 px a side when narrower), a gold disc with the tip's glyph and the line. It needs no press: a gold bar along its foot drains over 5 s and it slides away, or a tap anywhere on it sends it away. Plays `uiHint`.
+- **Timing:** never during a catch, a rescue, a carry, the intro, a cannon flight (until 5 s after landing) or with a window, a centre popup or the bait card up, and never in the dusk warning's last 5 seconds; at most one every `Config.TipGapSeconds` (60). A tip that cannot show yet waits in a queue of three, the oldest dropping (the server sends it again next session, since it was never seen).
+- **Device-aware lines:** the input the player last used. "Open Cats (C) to give your new cat a job" on a keyboard, "Tap Cats to give your new cat a job" on touch, "Open Cats ..." on a gamepad; "Hold E", "Tap and hold" or "Hold X" by a stuck cat. On touch no line names a letter key.
+- **Server tips:** `UI.tips.show(id)` from `ShowTip(id)` (UIController already calls it when present). Ids outside shared/Tips' list and the like ask are ignored, and so are tips seen on the save or shown this session. A card fires `events.tipSeen(id, false)` as it shows.
+- **Client tips:** `stuck_cat` when a `StuckCat`-tagged model is within 30 studs, `codes_cat` when the `CodesCat` station is within 20, `offline` on the offline card (below). F88's `luck` waits for a luck source. These wait for ProfileSync's `tipsSeen`, so nothing repeats each session before the save says what was seen.
+- **Offline:** `UI.showOfflineEarnings(amount, seconds)` with `seconds` at or over `Tips.OFFLINE_SECONDS` (600) and `offline` unseen puts a gold ribbon on the card's top edge, "Your cats earned while you were away!", and fires `tipSeen("offline", false)`.
+- **Like ask:** `like_ask` shows as a card through the same queue ("Having fun? A thumbs up and a favorite help other players find Cat Cafe."), no press, no reward.
+- **Camera cuts** (`bowl`, `rank_up`, `golden_fish`, `dealer`, `spin_wheel`) are the effects code's (section 7, `ContextCut`). `UI.tips.setCutPlayer(play)` sets the player: `play(id, caption, seconds, done) -> boolean`, called with the caption ("Put food in your bowl. A cat comes to eat it!") and 3 s; it returns true when it moved the camera, freezes controls, draws the caption, takes any press as a skip after 1 s and calls `done(skipped)` once at the end, which fires `tipSeen(id, skipped)`. False (the place has not streamed in) or no player shows the card instead with the card line ("Put food in your bowl on the back step. A cat comes to eat it!"). A cut whose `done` never comes frees the queue after 6 s.
+- **Show tips again:** a row at the end of Settings' Screen section, "Show tips again" with Show (reads "Done" for 2 s). A press forgets this session's tips, empties the queue, fires `events.clearTips()` and toasts "Tips will show again as you play."
+
+**Engineer (F87):** pass `tipsSeen`, `feedbackAsked` and `stuckHelpShown` from ProfileSync in `UI.update`; forward `events.tipSeen(id, skipped)` as `TipSeen` and `events.clearTips()` as `ClearTips` (both already wired in UIController). **Effects (F87 section 7):** register the cut player with `UI.tips.setCutPlayer` once `ContextCut` exists; until then cut tips show as cards.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
@@ -670,6 +686,8 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `screenOpened` | `name or nil` | Modal opened or closed |
 | `catchPressed` | `strayId, index, grade` | A press on circle `index` (1-based) with the device's grade hint. Forward `strayId, index` as CatchPress; `grade` is for the instant NetSwing and CircleGrade sounds only. |
 | `rankUp` | none | v0.3: Rank up pressed with every requirement met. Forward as RankUp. |
+| `tipSeen` | `id, skipped` | A context tip shown (F87): a card as it shows (`skipped` false), a camera cut at its end (`skipped` true when the player skipped it). `id` is a shared/Tips id or `like_ask`. Forward as `TipSeen(id, skipped)` |
+| `clearTips` | none | Show tips again in Settings (F87). Forward as `ClearTips()`; ProfileSync then sends the cleared `tipsSeen` |
 | `launchCannon` | `cannonId, destination` | Launch on a Cat Cannon card (F84): `cannonId` "town" or a camp's area id, `destination` "town" or an area id. Forward as `LaunchCannon(cannonId, destination)`; pass a refusal to `UI.cannon.result(false, destination)` |
 
 ## State shape (`Types.PlayerState`)
@@ -705,6 +723,8 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     buffs: { [potionId]: number }?,                                -- F64: each running potion's endsAt in GetServerTimeNow() time
     quests: QuestsView?, achievements: { [id]: AchievementView }?, -- F73: the Quests window, its pill and the HUD's quest line
     dailyTreat: { stamp, lastDay, due, nextDay }?,                 -- F70: the Daily Treat card and the HUD's Daily tile
+    tipsSeen: { [tipId]: true }?, feedbackAsked: boolean?,          -- F87: context tips seen; the one feedback ask shown
+    stuckHelpShown: { [step]: true }?,                             -- F87: "Need a hand?" shown, by tutorialStep "0" to "5"
 }
 ```
 

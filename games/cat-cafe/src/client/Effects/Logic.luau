@@ -2099,4 +2099,76 @@ function Logic.luckyLevelUp(before: number?, after: number): boolean
 	return before ~= nil and after > before and after >= 1
 end
 
+-- Camp extras' water (F100, camp-extras.md section 3) --------------------------------------------------------
+
+-- A drip `t` seconds after it starts forming at a pipe's mouth: how grown it is (0 to 1, eased, full at `swell`
+-- seconds) and how far it has fallen since (studs, from rest under `gravity` studs a second squared).
+function Logic.dripAt(t: number, swell: number, gravity: number): (number, number)
+	if t <= 0 then
+		return 0, 0
+	elseif t < swell then
+		return smoothstep(t / swell), 0
+	end
+	local falling = t - swell
+	return 1, 0.5 * gravity * falling * falling
+end
+
+-- Seconds a drip takes to fall `height` studs from rest under `gravity`.
+function Logic.dripFall(height: number, gravity: number): number
+	if height <= 0 or gravity <= 0 then
+		return 0
+	end
+	return math.sqrt(2 * height / gravity)
+end
+
+-- A fish's jump `u` (0 to 1) of the way through, from where it rests `depth` studs under the water to `peak` studs
+-- above it and back down `length` studs on: how far forward and up it is from where it started, and its pitch in
+-- radians (nose up while it climbs, down as it dives), along the arc.
+function Logic.fishArc(
+	u: number,
+	length: number,
+	depth: number,
+	peak: number
+): (number, number, number)
+	local k = math.clamp(u, 0, 1)
+	local high = math.max(0, depth) + math.max(0, peak)
+	local up = 4 * high * k * (1 - k)
+	local pitch = math.atan2(4 * high * (1 - 2 * k), math.max(length, 1e-3))
+	return length * k, up, pitch
+end
+
+-- Where in its jump (0 to 1) a fish resting `depth` studs under the water leaves it and comes back in.
+function Logic.fishSurface(depth: number, peak: number): (number, number)
+	local high = math.max(0, depth) + math.max(0, peak)
+	if depth <= 0 or high <= 0 then
+		return 0, 1
+	end
+	local out = (1 - math.sqrt(math.max(0, 1 - depth / high))) / 2
+	return out, 1 - out
+end
+
+-- A fish swimming back under the water to where it rests, `u` (0 to 1) of the way: how far forward of its rest it
+-- still is (from `length` down to 0), its turn in radians about its up (half way round over the first `turn` of the
+-- swim, so it heads home, and the rest of the way over the last, so it rests as modelled) and its pitch, levelling
+-- out from `dive` (the pitch it came into the water at) over that first turn.
+function Logic.fishReturn(
+	u: number,
+	length: number,
+	turn: number,
+	dive: number
+): (number, number, number)
+	local k = math.clamp(u, 0, 1)
+	local share = math.clamp(turn, 0.01, 0.5)
+	local yaw: number
+	if k < share then
+		yaw = math.pi * smoothstep(k / share)
+	elseif k > 1 - share then
+		yaw = math.pi + math.pi * smoothstep((k - (1 - share)) / share)
+	else
+		yaw = math.pi
+	end
+	local along = smoothstep((k - share / 2) / (1 - share))
+	return length * (1 - along), yaw, dive * (1 - smoothstep(k / share))
+end
+
 return Logic

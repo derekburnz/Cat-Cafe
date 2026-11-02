@@ -6,7 +6,10 @@
 -- from the client is trusted for any of that. Records go to the BugReports_v1 DataStore under a day prefix
 -- (BugReport.key; Studio playtests save under s_ instead of r_) for the team to read with Debug.bugReports or Open
 -- Cloud. In Studio each is also printed as one [BugReport] <json> line, so a run with API access off still shows
--- it. The text is never shown to another player.
+-- it. The text is never shown to another player. Each record also keeps the text through Roblox's broadcast filter
+-- (`filteredText`; decisions.md 2026-11-01): the Actions logs that print reports are public on this repo, and once the
+-- game is public the reporters are strangers, many of them young (rule 10), so bug-reports.sh prints only that copy.
+-- The raw text stays in the data store for Derek and Studio.
 --
 -- Roblox terms: a DataStore is Roblox's key-value storage for an experience; SetAsync writes one key and can fail
 -- (budget, outage, API access off in Studio), so it runs in pcall. LogService.MessageOut is the server's output.
@@ -17,6 +20,7 @@ local LogService = game:GetService("LogService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TextService = game:GetService("TextService")
 
 local BugReport = require(ReplicatedStorage.Shared.BugReport)
 local CatService = require(script.Parent.CatService)
@@ -36,8 +40,9 @@ local SERVER_CAP = 200 -- reports per server session
 local LIST_PAGE = 100
 
 export type Record = {
-	v: number,
+	v: number, -- 2 since filteredText
 	text: string,
+	filteredText: string?, -- `text` through the broadcast filter; nil when filtering failed
 	kind: string,
 	clientErrors: { string },
 	serverErrors: { string },
@@ -97,7 +102,7 @@ local function record(player: Player, text: string, kind: string, clientErrors: 
 		end
 	end
 	return {
-		v = 1,
+		v = 2,
 		text = text,
 		kind = kind,
 		clientErrors = clientErrors,
@@ -120,6 +125,16 @@ local function record(player: Player, text: string, kind: string, clientErrors: 
 	}
 end
 
+-- `text` through Roblox's broadcast filter as `player` wrote it (as NameService filters cat names), or nil when the
+-- filter failed.
+local function filtered(player: Player, text: string): string?
+	local ok, result = pcall(function(): string
+		return TextService:FilterStringAsync(text, player.UserId)
+			:GetNonChatStringForBroadcastAsync()
+	end)
+	return if ok and type(result) == "string" then result else nil
+end
+
 local function onReportBug(player: Player, rawText: unknown, rawKind: unknown, rawErrors: unknown)
 	local text = BugReport.text(rawText)
 	if text == nil then
@@ -138,6 +153,7 @@ local function onReportBug(player: Player, rawText: unknown, rawKind: unknown, r
 	sentBy[userId] = (sentBy[userId] or 0) + 1
 	sentTotal += 1
 	local report = record(player, text, BugReport.kind(rawKind), BugReport.clientErrors(rawErrors))
+	report.filteredText = filtered(player, text)
 	if RunService:IsStudio() then
 		print("[BugReport] " .. HttpService:JSONEncode(report))
 	end

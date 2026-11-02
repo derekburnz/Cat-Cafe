@@ -1067,6 +1067,11 @@ local SCENES = {
 		local t = workspace:GetServerTimeNow()
 		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = t + 5 * 3600 + 1200 }))
 	end },
+	-- F102: TradeService runs, so the HUD's top row holds seven tiles with Trade before Invite (review N334)
+	{ "HUDTrade", function()
+		workspace:SetAttribute("TradingOn", true)
+		UI.update({ tier = 3 })
+	end },
 	-- F102: the Trade window's players: Sam to ask, Alex under the minimum tier, Mia busy in a trade
 	{ "TradePlayers", function()
 		addTradePlayer("Sam", 4242, 4, false)
@@ -1133,7 +1138,10 @@ function Scenes.close()
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were
 	UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = workspace:GetServerTimeNow() + 3 * 86400 })) -- F101: no Rally
 	UI.trade.state(nil) -- F102: no trade, no TradeService, and the other players leave
-	workspace:SetAttribute("TradingOn", nil)
+	if workspace:GetAttribute("TradingOn") ~= nil then
+		workspace:SetAttribute("TradingOn", nil)
+		UI.update({}) -- the HUD drops its Trade tile again
+	end
 	for _, player in tradePlayers do
 		player:Destroy()
 	end

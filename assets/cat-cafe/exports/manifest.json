@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 04:34 UTC",
+  "generated": "2026-11-02 05:29 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -82030,7 +82030,6 @@
         "CatCafe_Park_Set_072_Pond_Water",
         "CatCafe_Park_Set_072_Pond_Decor",
         "CatCafe_Park_Set_072_Pond_Bulb",
-        "CatCafe_Park_Set_072_Pond_Barrier",
         "CatCafe_Park_Set_073_Bench",
         "CatCafe_Park_Set_074_Bench",
         "CatCafe_Park_Set_075_Bench",
@@ -82108,7 +82107,7 @@
         "CatCafe_Park_Set_126_Poplar",
         "CatCafe_Park_Set_127_Poplar"
       ],
-      "triangles": 54766,
+      "triangles": 54178,
       "budget": 80000,
       "size_studs": {
         "x": 159.5,
@@ -82130,7 +82129,7 @@
         59.75,
         30.0
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "points_roblox": {
         "plaza": [
@@ -82466,7 +82465,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_Set.model.json",
-      "rbx_parts": 2807,
+      "rbx_parts": 2758,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_Set.glb"
@@ -82479,10 +82478,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "54766/80000 tris",
+          "budget": "54178/80000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "33500 faces on swatch centers",
+          "uv": "33206 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.05 (want 0)",
           "centered": "footprint center x=0.00 y=-0.12"
@@ -82735,7 +82734,7 @@
         "CatCafe_Woods_SetV32_208_PineTall",
         "CatCafe_Woods_SetV32_209_PineTall"
       ],
-      "triangles": 111376,
+      "triangles": 115312,
       "budget": 120000,
       "size_studs": {
         "x": 240.0,
@@ -83249,7 +83248,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetV32.model.json",
-      "rbx_parts": 5138,
+      "rbx_parts": 5466,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.glb"
@@ -83261,10 +83260,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "111376/120000 tris",
+          "budget": "115312/120000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "69231 faces on swatch centers",
+          "uv": "71199 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.84 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -83436,7 +83435,7 @@
         "CatCafe_Sewer_SetV32_113_Barrel",
         "CatCafe_Sewer_SetV32_114_Barrel"
       ],
-      "triangles": 89268,
+      "triangles": 93096,
       "budget": 120000,
       "size_studs": {
         "x": 179.2,
@@ -83867,7 +83866,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_SetV32.model.json",
-      "rbx_parts": 4470,
+      "rbx_parts": 4789,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_SetV32.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_SetV32.glb"
@@ -83879,10 +83878,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "89268/120000 tris",
+          "budget": "93096/120000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "46631 faces on swatch centers",
+          "uv": "48545 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.08"

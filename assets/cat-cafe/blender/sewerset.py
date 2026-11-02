@@ -15,9 +15,10 @@ houses after it. Two steel catwalks cross the channel (8b): one in the yard by t
 bank, and one at the far end, the only way into the west hall: the junk throne by the far wall, and the far
 chamber with the boat, the raft and the hammock. About 280 studs gate to throne, 330 to the far chamber,
 against 180 straight. Every tunnel mouth in the walls is finished (Derek 01:41): a stone frame, an arch, depth, and
-iron bars, an iron door or a water grate. Water is only crossed on the three bridges (8c): `_Barrier` walls stand on
-every kerb and round the pool, open only at the bridges, and a 30 high `_Barrier` stands in the wall band all round
-but the gate.
+iron bars, an iron door or a water grate. Water is only crossed on the three bridges (8c): a steel guard rail runs
+along every kerb and round the pool, open only at the bridges, with its `_Barrier` wall on the rail's line (Derek
+2026-10-29: "lots of invisible barriers in sewer"; the wall used to stand on the bare kerbs, so nothing showed where
+it was), and a 30 high `_Barrier` stands in the wall band all round but the gate.
 
 Points (manifest points_roblox): [x, y, z, zone]. Zone "near" is the yard and the market (the first half of the walk
 from the gate), "deep" is the rest. The trap spots (trap_grate, trap_drain_pipe, built into the set as in v3.1) add a
@@ -46,6 +47,8 @@ YARD_H = 18.0                        # the open yard's walls
 ROOF_T = 1.2
 GATE_HALF = 16.0                     # clear of the Sewer gate model (31.1 wide)
 BARRIER_H = 30.0
+BAR_T = 0.5                          # a barrier on a guard rail's line: about as thick as the rail
+RAIL_H, RAIL_STEP = 3.2, 3.0         # the kerbs' guard rails: post height over the kerb, and the most between posts
 FACADE_Z, FACADE_T = -40.0, 3.0      # the tunnel front: yard face at -40
 CANAL_Z, CANAL_HW = -61.0, 5.0       # the yard's canal, water z -66..-56
 KERB_W, KERB_H = 1.2, 1.6            # kerbs stand on the area floor, 1.2 above the slab
@@ -103,6 +106,41 @@ def rects_minus(rects, holes):
     for h in holes:
         rects = [p for r in rects for p in _rect_minus(r, h)]
     return [r for r in rects if r[1] - r[0] > 0.05 and r[3] - r[2] > 0.05]
+
+
+def rail_path(b, pts, posts=(True, True), straight=True):
+    """A guard rail through Builder points (x, y) on a kerb's top: steel posts RAIL_H high at the points (the ends
+    only where posts says), a yellow top rail and a steel middle rail. Posts stand a little into the kerb's yellow
+    edge, so no face lies on another. A straight rail is one top and one middle rail end to end; a bent one (the
+    pool's ring) has a pair per bay, every other bay a hair thinner so the bays' ends never share a face. An end
+    without a post stops 0.1 short of the corner post it meets (that post belongs to the other rail)."""
+    base = KERB_H + 0.03
+    for i, (x, y) in enumerate(pts):
+        if (i == 0 and not posts[0]) or (i == len(pts) - 1 and not posts[1]):
+            continue
+        b.box_base((x, y, base), (0.25, 0.25, RAIL_H), "metal", bevel=False)
+    pts = list(pts)
+    for (i, j, ok) in ((0, 1, posts[0]), (-1, -2, posts[1])):
+        if not ok:
+            (x, y), (u, v) = pts[i], pts[j]
+            d = math.hypot(u - x, v - y)
+            pts[i] = (x + 0.1 * (u - x) / d, y + 0.1 * (v - y) / d)
+    bays = [(pts[0], pts[-1])] if straight else list(zip(pts, pts[1:]))
+    for k, (p, q) in enumerate(bays):
+        L = math.hypot(q[0] - p[0], q[1] - p[1])
+        rot = (math.atan2(q[1] - p[1], q[0] - p[0]), "Z")
+        c = ((p[0] + q[0]) / 2, (p[1] + q[1]) / 2)
+        t = 0.008 if (straight or k % 2) else 0.0                 # the ring's ends are thin: the channel's are not
+        b.box((*c, base + RAIL_H - 0.1), (L, 0.172 + t, 0.172 + t), "rarity_legend", bevel=False, rot=rot)
+        b.box((*c, base + RAIL_H / 2), (L, 0.132 + t, 0.132 + t), "metal", bevel=False, rot=rot)
+
+
+def rail(b, along_x, m, a0, a1, p0=True, p1=True):
+    """A straight guard rail along a kerb's middle line m (area z when along_x, else area x), from a0 to a1 along it,
+    posts at most RAIL_STEP apart."""
+    n = max(1, math.ceil(abs(a1 - a0) / RAIL_STEP))
+    pts = [bl(a0 + (a1 - a0) * i / n, m)[:2] if along_x else bl(m, a0 + (a1 - a0) * i / n)[:2] for i in range(n + 1)]
+    rail_path(b, pts, (p0, p1))
 
 
 # the footprints cut out of the slab: the canal, the channel, the branch (water and kerbs), the inner walls
@@ -371,8 +409,9 @@ def corner_column(mat, sx):
 def canals(mat):
     """The yard's canal across the whole width (out under the side walls' grates), the central channel from the
     canal to the pool, the west hall's branch and the pool itself, each with a dark bed, water (Derek: `_Water`) and
-    kerbs 1.2 above the walkway with a yellow edge; `_Barrier` walls on every kerb and round the pool, open only at
-    the three bridges, and along the bridges' sides."""
+    kerbs 1.2 above the walkway with a yellow edge. A guard rail (RAIL_H, posts at most RAIL_STEP apart, a yellow
+    top rail like the catwalks') runs along the middle of every kerb and round the pool, open only at the three
+    bridges, and the `_Barrier` wall stands on its line, so a player walks up to a railing, not into thin air."""
     b, water, bar = Builder(), Builder(), Builder()
     cz0, cz1 = CANAL_Z - CANAL_HW, CANAL_Z + CANAL_HW
     ch0, ch1 = cz1, POOL[1] - POOL_R                              # the channel's water, canal to the weir
@@ -384,36 +423,52 @@ def canals(mat):
     span(b, -CH_HW, CH_HW, ch1 - 0.6, ch1, 0, 0.8, "concrete")                # the weir under the pool's lip
     span(water, -CH_HW + 0.2, CH_HW - 0.2, ch1 - 0.62, ch1 - 0.5, 0.3, 0.78, "fish_blue")    # spilling over it
     span(b, -CH_HW + 0.2, CH_HW - 0.2, ch1 - 1.4, ch1 - 0.62, 0.3, 0.36, "fish_belly")       # its foam
+    px, pz = POOL
+    rr = POOL_R + KERB_W / 2                                      # the pool kerb's middle, where its rail stands
+    zj = pz - math.sqrt(rr * rr - (CH_HW + KERB_W / 2) ** 2)      # where the channel's rails meet the ring's
 
-    def kerb(x0, x1, z0, z1, gaps=()):
-        """A kerb with its yellow edge; each gap (a0, a1) along its length leaves the barrier open there."""
+    def kerb(x0, x1, z0, z1, gaps=(), ext=(0.0, 0.0), posts=(True, True), bar_ext=(0.0, 0.0)):
+        """A kerb with its yellow edge and its guard rail. Each gap (a0, a1) along its length leaves the rail and the
+        barrier open there. ext carries the rail's ends on along the kerb's line into a corner, where the other
+        kerb's rail meets it; posts says which ends get a post (a corner's post belongs to one of its two rails);
+        bar_ext carries the barrier on the same way."""
         span(b, x0, x1, z0, z1, 0, KERB_H, "concrete_dark")
         along_x = (x1 - x0) > (z1 - z0)
+        m = (z0 + z1) / 2 if along_x else (x0 + x1) / 2
+        lo, hi = (x0, x1) if along_x else (z0, z1)
         if along_x:
-            zm = (z0 + z1) / 2
-            span(b, x0, x1, zm - 0.2, zm + 0.2, KERB_H, KERB_H + 0.05, "rarity_legend")
+            span(b, x0, x1, m - 0.2, m + 0.2, KERB_H, KERB_H + 0.05, "rarity_legend")
         else:
-            xm = (x0 + x1) / 2
-            span(b, xm - 0.2, xm + 0.2, z0, z1, KERB_H, KERB_H + 0.05, "rarity_legend")
-        pieces = [(x0, x1, z0, z1)]
-        if gaps:
-            pieces = rects_minus(pieces, [(g[0], g[1], -1e9, 1e9) if along_x else (-1e9, 1e9, g[0], g[1])
-                                          for g in gaps])
-        for (a0, a1, c0, c1) in pieces:
-            L = (a1 - a0) if along_x else (c1 - c0)
-            n = max(1, round(L / 24.0))
+            span(b, m - 0.2, m + 0.2, z0, z1, KERB_H, KERB_H + 0.05, "rarity_legend")
+        # the runs between gaps: (start, end, post at start, post at end, inset at start, inset at end)
+        runs = [[lo - ext[0], hi + ext[1], posts[0], posts[1], 0.0 if ext[0] else 0.3, 0.0 if ext[1] else 0.3]]
+        for (g0, g1) in sorted(gaps):
+            r = runs.pop()
+            runs += [[r[0], g0, r[2], True, r[4], 0.4], [g1, r[1], True, r[3], 0.4, r[5]]]
+        for (a0, a1, p0, p1, i0, i1) in runs:
+            rail(b, along_x, m, a0 + i0, a1 - i1, p0, p1)
+        blo, bhi = lo - bar_ext[0], hi + bar_ext[1]
+        pieces = [(blo, bhi)]
+        for (g0, g1) in sorted(gaps):
+            q = pieces.pop()
+            pieces += [(q[0], g0), (g1, q[1])]
+        for (a0, a1) in pieces:
+            n = max(1, round((a1 - a0) / 24.0))
             for i in range(n):
+                c0, c1 = a0 + (a1 - a0) * i / n, a0 + (a1 - a0) * (i + 1) / n
                 if along_x:
-                    span(bar, a0 + (a1 - a0) * i / n, a0 + (a1 - a0) * (i + 1) / n, c0, c1, 0, BARRIER_H, "offwhite")
+                    span(bar, c0, c1, m - BAR_T / 2, m + BAR_T / 2, 0, BARRIER_H, "offwhite")
                 else:
-                    span(bar, a0, a1, c0 + (c1 - c0) * i / n, c0 + (c1 - c0) * (i + 1) / n, 0, BARRIER_H, "offwhite")
+                    span(bar, m - BAR_T / 2, m + BAR_T / 2, c0, c1, 0, BARRIER_H, "offwhite")
 
     xk = IN - 0.7                                                               # clear of the mouths' jambs
     b1 = (B1X - 4.0, B1X + 4.0)
+    corner = KERB_W / 2                                                         # a kerb's middle from its edge
     for (z0, z1) in ((cz0 - KERB_W, cz0), (cz1, cz1 + KERB_W)):
         if z0 > CANAL_Z:                                                        # far kerb: the channel opens off it
-            for (x0, x1) in ((-xk, -CH_HW), (CH_HW, B1X - 4.0), (B1X + 4.0, xk)):
-                kerb(x0, x1, z0, z1)
+            kerb(-xk, -CH_HW, z0, z1, ext=(0, -corner))                         # its rails own the corner posts
+            kerb(CH_HW, B1X - 4.0, z0, z1, ext=(-corner, 0))
+            kerb(B1X + 4.0, xk, z0, z1)
         else:
             for (x0, x1) in ((-xk, B1X - 4.0), (B1X + 4.0, xk)):
                 kerb(x0, x1, z0, z1)
@@ -425,23 +480,26 @@ def canals(mat):
         x0, x1 = sorted((sx * CH_HW, sx * (CH_HW + KERB_W)))
         z0 = cz1 + KERB_W
         if sx < 0:                                                              # the branch opens off the west kerb
-            for (a, c) in ((z0, BRANCH_Z - BRANCH_HW), (BRANCH_Z + BRANCH_HW, kz)):
-                kerb(x0, x1, a, c, gaps=[g for g in gaps if a < g[0] < c])
+            kerb(x0, x1, z0, BRANCH_Z - BRANCH_HW, gaps=[g for g in gaps if z0 < g[0] < BRANCH_Z],
+                 ext=(corner, -corner), posts=(False, True), bar_ext=(corner, 0))
+            kerb(x0, x1, BRANCH_Z + BRANCH_HW, kz, gaps=[g for g in gaps if g[0] > BRANCH_Z],
+                 ext=(-corner, zj - kz), bar_ext=(0, zj - kz + 0.3))
         else:
-            kerb(x0, x1, z0, kz, gaps=gaps)
+            kerb(x0, x1, z0, kz, gaps=gaps, ext=(corner, zj - kz), posts=(False, True),
+                 bar_ext=(corner, zj - kz + 0.3))
     for z in (FB_Z, B2Z):                                                       # along the catwalks' sides
         for sz in (-1, 1):
             span(bar, -CH_HW, CH_HW, z + sz * 2.9 - 0.3, z + sz * 2.9 + 0.3, 0, BARRIER_H, "offwhite")
     for sz in (-1, 1):                                                          # the branch's kerbs and its end
         z0, z1 = sorted((BRANCH_Z + sz * BRANCH_HW, BRANCH_Z + sz * (BRANCH_HW + KERB_W)))
-        kerb(BRANCH_END - KERB_W, -CH_HW - KERB_W, z0, z1)
-    kerb(BRANCH_END - KERB_W, BRANCH_END, BRANCH_Z - BRANCH_HW, BRANCH_Z + BRANCH_HW)
-    # the pool: bed and water on the slab, a ring of kerb blocks open toward the channel, a barrier on the ring
-    px, pz = POOL
+        kerb(BRANCH_END - KERB_W, -CH_HW - KERB_W, z0, z1, ext=(-corner, corner), posts=(True, False),
+             bar_ext=(0, corner))
+    kerb(BRANCH_END - KERB_W, BRANCH_END, BRANCH_Z - BRANCH_HW, BRANCH_Z + BRANCH_HW, ext=(corner, corner),
+         posts=(False, False), bar_ext=(corner, corner))
+    # the pool: bed and water on the slab, a ring of kerb blocks open toward the channel, its rail and barrier
     b.cyl_base(bl(px, pz, FLOOR), POOL_R + 0.1, 0.04, "fur_ink", segments=28, bevel=False)
     water.cyl_base(bl(px, pz, FLOOR + 0.04), POOL_R + 0.1, 0.36, "fish_blue", segments=28, bevel=False)
     n = 32
-    rr = POOL_R + KERB_W / 2
     chord = 2 * (POOL_R + KERB_W) * math.sin(PI / n) * 1.04
     gap = math.degrees(math.asin((CH_HW + KERB_W / 2) / rr)) + 1.0
     for k in range(n):
@@ -453,7 +511,15 @@ def canals(mat):
                    rot=(a, "Z"))
         b.box_base((c[0], c[1], KERB_H + 0.006 * (k % 2)), (0.4, chord, 0.05), "rarity_legend", bevel=False,
                    rot=(a, "Z"))
-        bar.box_base((c[0], c[1], 0), (KERB_W, chord, BARRIER_H), "offwhite", bevel=False, rot=(a, "Z"))
+        bar.box_base((c[0], c[1], 0), (BAR_T, 2 * rr * math.sin(PI / n) * 1.04, BARRIER_H), "offwhite", bevel=False,
+                     rot=(a, "Z"))
+    # the ring's rail, from the east channel rail's last post round the far side to the west one's (Builder angles)
+    aj = math.asin((CH_HW + KERB_W / 2) / rr)
+    a0, a1 = 1.5 * PI + aj, 3.5 * PI - aj
+    m = math.ceil((a1 - a0) * rr / RAIL_STEP) | 1                 # odd: both end bays are the thin ones
+    pts = [(bl(px, pz)[0] + rr * math.cos(a0 + (a1 - a0) * i / m), pz + rr * math.sin(a0 + (a1 - a0) * i / m))
+           for i in range(m + 1)]
+    rail_path(b, pts, posts=(False, False), straight=False)
     span(bar, -0.5, 0.5, pz + POOL_R + KERB_W - 0.6, IN - 1.5, 0, 5.5, "offwhite")       # ring to the culvert, under its pipe
     return [b.finalize(N + "Canals", mat), water.finalize(N + "Canals_Water", mat),
             bar.finalize(N + "Canals_Barrier", mat)]

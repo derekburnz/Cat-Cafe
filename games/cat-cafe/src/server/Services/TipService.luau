@@ -7,7 +7,8 @@
 --                                       at a check-in, dropped on a knock loose, the like ask at Tier 2 or a first
 --                                       Legendary or better). Each id goes at most once a session until it is seen.
 --   TipSeen(id, skipped?)       C -> S  1 a second: a tip or the like ask shown (saved in tipsSeen and logged once as
---                                       tip_shown), the slide-in ask shown (feedbackAsked) or the help card shown
+--                                       tip_shown, at most #LIST + 1 a session), the slide-in ask shown (feedbackAsked)
+--                                       or the help card shown
 --                                       (stuckHelpShown for the current tutorialStep)
 --   ClearTips()                 C -> S  1 per 10 s: Settings' "Show tips again" (Tips.cleared keeps the like ask)
 --   SendFeedback(face, chip?)   C -> S  1 per 10 s and FeedbackSessionLimit a session: logs `feedback`
@@ -39,7 +40,11 @@ type Session = {
 	loadedAt: number, -- os.clock()
 	sent: { [string]: boolean }, -- ids sent this session and not seen yet
 	feedback: number, -- SendFeedback calls taken this session
+	logged: number, -- tip_shown events logged this session (review S103: ClearTips must not refill the budget)
 }
+
+-- tip_shown events a session: every tip and the like ask once. Past it tips are still saved, just not logged.
+local TIP_LOGS_PER_SESSION = #Tips.LIST + 1
 
 local sessions: { [Player]: Session } = {}
 
@@ -102,6 +107,10 @@ local function onTipSeen(player: Player, rawId: unknown, rawSkipped: unknown)
 		return -- logged once
 	end
 	profile.tipsSeen[id] = true
+	if session.logged >= TIP_LOGS_PER_SESSION then
+		return
+	end
+	session.logged += 1
 	local skipped = Guard.bool(rawSkipped) == true
 	Telemetry.custom(player, "tip_shown", 1, { id, if skipped then "yes" else "no" })
 end
@@ -152,6 +161,7 @@ function TipService.debugReset(player: Player, profile: Profile): number
 	if session ~= nil then
 		session.sent = {}
 		session.feedback = 0
+		session.logged = 0
 	end
 	TipService.changed:Fire(player)
 	return n
@@ -159,7 +169,7 @@ end
 
 function TipService.start()
 	DataService.onLoaded:Connect(function(player: Player)
-		sessions[player] = { loadedAt = os.clock(), sent = {}, feedback = 0 }
+		sessions[player] = { loadedAt = os.clock(), sent = {}, feedback = 0, logged = 0 }
 	end)
 	Players.PlayerRemoving:Connect(function(player: Player)
 		sessions[player] = nil

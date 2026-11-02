@@ -327,11 +327,13 @@ say ""
 say "### How long new players' first sessions lasted"
 say ""
 if query TotalSessionsEndedInBucket None SessionTimeBucket; then
-	say "| Session length | Sessions |"
-	say "|---|---:|"
+	# each bucket comes back as one point stamped with the window's start, so keep only its value
+	say "| Session length bucket (s) | Sessions |"
+	say "|---:|---:|"
 	while IFS=$'\t' read -r bucket count; do
+		count=${count#*=}
 		say "| $bucket | ${count%.*} |"
-	done < <(rows)
+	done < <(rows | sort -t$'\t' -k1,1n)
 	say ""
 else
 	failed

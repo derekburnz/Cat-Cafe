@@ -81,6 +81,7 @@ local GRASS = Color3.fromRGB(110, 170, 90)
 local PICKET = Color3.fromRGB(250, 246, 236)
 local PATH = Color3.fromRGB(214, 200, 176)
 local BACK_DOOR_ART = "CatCafe_Plot_BackDoor" -- Model-Agent #509; its _Leaf, _Flap and _Sign models carry the name too
+local YARD_FENCE_ART = "CatCafe_Plot_YardFence" -- Model-Agent #886: the yard's picket fence, at the plot's pivot
 local CAT_BED = "CatCafe_Furniture_CatBed" -- F79, Model-Agent #511: a Sleep point for the cat and a Foot in front
 local DECK = Color3.fromRGB(205, 160, 110)
 local HEDGE = Color3.fromRGB(70, 125, 60)
@@ -562,28 +563,35 @@ local function buildPlot(index: number, parent: Instance): Plot
 
 	-- The patio yard's low fence: both sides and the back. Since v4 (F84) the back fence is closed all along: the
 	-- yard gate opened onto the back alley, which moved out of town. The side fences stand on the grass, 0.2 below
-	-- the plot's floor, and 0.4 out, clear of the shell's walls (QA world scan G4).
-	local yard = Layout.plot.yard
-	local fenceH = Layout.plot.fenceHeight
-	local fence = folder("YardFence", model)
-	for _, x in { yard.x1 + 0.1, yard.x2 - 0.1 } do
+	-- the plot's floor, and 0.4 out, clear of the shell's walls (QA world scan G4). Model-Agent's picket fence art
+	-- (#886: posts, pickets, roses on the back corners and a bird house) stands on the same lines at the plot's
+	-- pivot, and its invisible _Barrier is these three parts to the stud, so the yard collides the same either way;
+	-- the code-built parts are the fallback while the art is missing.
+	if AssetRegistry.has(YARD_FENCE_ART) then
+		place(YARD_FENCE_ART, cframe, model).Name = "YardFence"
+	else
+		local yard = Layout.plot.yard
+		local fenceH = Layout.plot.fenceHeight
+		local fence = folder("YardFence", model)
+		for _, x in { yard.x1 + 0.1, yard.x2 - 0.1 } do
+			part(
+				"FenceSide",
+				Vector3.new(0.4, fenceH + 0.2, yard.z2 - yard.z1),
+				cframe * CFrame.new(x, fenceH / 2 - 0.1, (yard.z1 + yard.z2) / 2),
+				PICKET,
+				Enum.Material.WoodPlanks,
+				fence
+			)
+		end
 		part(
-			"FenceSide",
-			Vector3.new(0.4, fenceH + 0.2, yard.z2 - yard.z1),
-			cframe * CFrame.new(x, fenceH / 2 - 0.1, (yard.z1 + yard.z2) / 2),
+			"FenceBack",
+			Vector3.new(yard.x2 - yard.x1, fenceH, 0.4),
+			cframe * CFrame.new((yard.x1 + yard.x2) / 2, fenceH / 2, yard.z2 - 0.2),
 			PICKET,
 			Enum.Material.WoodPlanks,
 			fence
 		)
 	end
-	part(
-		"FenceBack",
-		Vector3.new(yard.x2 - yard.x1, fenceH, 0.4),
-		cframe * CFrame.new((yard.x1 + yard.x2) / 2, fenceH / 2, yard.z2 - 0.2),
-		PICKET,
-		Enum.Material.WoodPlanks,
-		fence
-	)
 	if codeBuilt then
 		part(
 			"WallLeft",

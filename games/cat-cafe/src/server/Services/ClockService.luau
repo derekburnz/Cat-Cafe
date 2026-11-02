@@ -120,4 +120,12 @@ function ClockService.debugSetPhase(phase: Types.ClockPhase)
 	tick()
 end
 
+-- Jumps the clock to `seconds` since the server started, mid phase if so (F88: Debug.toLuckyDay, review N311).
+function ClockService.debugSetTime(seconds: number)
+	assert(RunService:IsStudio(), "debugSetTime is Studio only")
+	startedAt = os.clock() - math.max(0, seconds)
+	published = false
+	tick()
+end
+
 return ClockService

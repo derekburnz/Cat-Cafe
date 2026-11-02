@@ -209,6 +209,17 @@ return function()
 			end
 		end)
 
+		it("starts each day at its sunrise, the night before it ending there", function()
+			expect(Clock.sunriseOf(1)).to.equal(0)
+			for n = 2, 9 do
+				local sunrise = Clock.sunriseOf(n)
+				expect(Clock.dayAt(sunrise)).to.equal(n)
+				expect((Clock.phaseAt(sunrise))).to.equal("day")
+				expect(Clock.dayAt(sunrise - 1)).to.equal(n - 1)
+				expect((Clock.phaseAt(sunrise - 1))).to.equal("night")
+			end
+		end)
+
 		it("names the next Lucky Day after this one", function()
 			expect(Clock.nextLuckyDay(0)).to.equal(4)
 			expect(Clock.nextLuckyDay(1)).to.equal(4)
@@ -271,6 +282,161 @@ return function()
 				return hits / steps
 			end
 			expect(rareShare(2) > rareShare(1)).to.equal(true)
+		end)
+	end)
+
+	describe("Luck edges (QA)", function()
+		local TOP = { "Epic", "Legendary", "Mythical" }
+
+		-- Every odds table a Luck roll touches in play: the areas' waves and traps (a Lucky Day's LuckyDayWaveLuck),
+		-- the bait foods on every bowl and the plain crates (a player's Luck up to LuckMax).
+		local function tables(): { { name: string, odds: { [string]: number } } }
+			local out = {}
+			for _, area in Catalog.areas do
+				table.insert(out, { name = area.id .. " wave", odds = area.odds :: any })
+				table.insert(out, { name = area.id .. " traps", odds = Catching.rescueOdds(area.odds) :: any })
+			end
+			for _, lure in Catalog.lures do
+				for bowl = 1, #Config.BowlLuck do
+					local odds: any = Bait.oddsFor(lure.odds, bowl)
+					table.insert(out, { name = lure.id .. " bowl " .. bowl, odds = odds })
+				end
+			end
+			for _, crate in Catalog.crates do
+				if not crate.golden then
+					table.insert(out, { name = crate.id, odds = crate.odds })
+				end
+			end
+			return out
+		end
+
+		it("keeps every table whole and in order as Luck rises: rarer up, Common down, shares kept", function()
+			for _, entry in tables() do
+				local base = Luck.applyMap(entry.odds, 1)
+				local before = base
+				for step = 0, math.floor((Config.LuckMax - 1) * 20 + 0.5) do
+					local luck = 1 + step / 20
+					local odds = Luck.applyMap(entry.odds, luck)
+					local where = string.format("%s at x%.2f", entry.name, luck)
+					expect(math.abs(total(odds) - total(base)) < 1e-6 or error(where .. ": total moved")).to.equal(true)
+					for _, rarity in RARITIES do
+						local value = odds[rarity]
+						expect(value == value and value >= 0 or error(where .. ": " .. rarity .. " not a chance"))
+							.to.equal(true)
+						-- a rarity the table never had never appears
+						if (entry.odds[rarity] or 0) == 0 then
+							expect(value == 0 or error(where .. ": " .. rarity .. " appeared")).to.equal(true)
+						end
+					end
+					for _, rarity in TOP do
+						expect(odds[rarity] >= before[rarity] - 1e-9 or error(where .. ": " .. rarity .. " fell"))
+							.to.equal(true)
+					end
+					expect(odds.Common <= before.Common + 1e-9 or error(where .. ": Common rose")).to.equal(true)
+					-- Luck multiplies the three alike, so their shares of each other stay as they were
+					local top = odds.Epic + odds.Legendary + odds.Mythical
+					local baseTop = base.Epic + base.Legendary + base.Mythical
+					if baseTop > 0 then
+						for _, rarity in TOP do
+							local drift = math.abs(odds[rarity] / top - base[rarity] / baseTop)
+							expect(drift < 1e-9 or error(where .. ": " .. rarity .. "'s share moved")).to.equal(true)
+						end
+					end
+					before = odds
+				end
+			end
+		end)
+
+		it("gives only pieces a crate holds, at every Luck up to LuckMax", function()
+			for _, crate in Catalog.crates do
+				local held: { [string]: boolean } = {}
+				for _, id in crate.pieces do
+					held[id] = true
+				end
+				for _, luck in { 1, 1.1, 1.5, 2, 2.5, Config.LuckMax } do
+					for i = 0, 199 do
+						for _, pieceRoll in { 0, 0.5, 0.999999 } do
+							local decorId = Crates.roll(crate, 0, (i + 0.5) / 200, pieceRoll, luck)
+							local where = string.format("%s gave %s at x%.1f", crate.id, decorId, luck)
+							expect(held[decorId] == true or error(where)).to.equal(true)
+						end
+					end
+				end
+			end
+		end)
+
+		it("is a Luck from x1 to LuckMax for any statue level a save could hold", function()
+			for _, level in { 0 / 0, -3, 0.5, 2.7, 5, 6, 1e9, math.huge, -math.huge, "5" :: any, true :: any } do
+				for _, luckyDay in { false, true } do
+					local profile = fresh()
+					profile.upgradeLevels[Luck.UPGRADE] = level
+					local luck = Luck.of(profile, NOW, luckyDay)
+					local where = string.format(
+						"level %s, Lucky Day %s: x%s",
+						tostring(level),
+						tostring(luckyDay),
+						tostring(luck)
+					)
+					expect(luck == luck and luck >= 1 and luck <= Config.LuckMax or error(where)).to.equal(true)
+				end
+			end
+			-- a broken level counts as none
+			local profile = fresh()
+			profile.upgradeLevels[Luck.UPGRADE] = 0 / 0
+			expect(Luck.of(profile, NOW, false)).to.equal(1)
+		end)
+
+		it("reads every Luck the sources can add up to back as the same number", function()
+			for level = 0, 5 do
+				for _, potion in { false, true } do
+					for _, luckyDay in { false, true } do
+						local profile = fresh()
+						profile.upgradeLevels[Luck.UPGRADE] = level
+						if potion then
+							profile.buffs[Potions.LUCKY] = 600
+						end
+						local luck = Luck.of(profile, NOW, luckyDay)
+						local text = Luck.text(luck)
+						expect(string.match(text, "^Luck x%d%.%d%d?$") ~= nil or error(text)).to.equal(true)
+						expect(math.abs((tonumber(string.sub(text, 7)) :: number) - luck) < 1e-9 or error(text))
+							.to.equal(true)
+					end
+				end
+			end
+		end)
+
+		it("turns the day number over exactly at sunrise, and a Lucky Day is one whole day phase", function()
+			local cycle = Config.DayLengthSeconds + Config.NightLengthSeconds
+			local first = Config.ServerStartDaySeconds + Config.NightLengthSeconds -- day 2's sunrise
+			-- at every sunrise, a hair before is the night of the day that ended and a hair after the new day
+			for k = 0, 400 do
+				local sunrise = first + k * cycle
+				for _, t in { sunrise - 1e-6, sunrise - sunrise * 2 ^ -50, sunrise, sunrise + 1e-6 } do
+					local phase = Clock.phaseAt(t)
+					local day = Clock.dayAt(t)
+					local where = string.format("t %.9f (sunrise %d): %s, day %d", t, k + 2, phase, day)
+					if phase == "day" then
+						expect(day == k + 2 or error(where)).to.equal(true)
+					else
+						expect(day == k + 1 or error(where)).to.equal(true)
+					end
+				end
+			end
+			-- eight days and nights at half a second: Lucky only in the day phase of days 4 and 8, whole each time
+			local lucky, lastDay = 0, 1
+			for i = 0, (Config.ServerStartDaySeconds + 8 * cycle) * 2 - 1 do
+				local t = i / 2
+				local day = Clock.dayAt(t)
+				expect(day >= lastDay or error("the day number went back at " .. t)).to.equal(true)
+				lastDay = day
+				if Clock.phaseAt(t) == "day" and Clock.isLuckyDay(day) then
+					lucky += 0.5
+				end
+			end
+			expect(lucky).to.equal(2 * Config.DayLengthSeconds)
+			-- the warning before a Lucky Day's sunrise comes in the night before it
+			local warn = Config.LuckyDayWarnSeconds
+			expect(warn > 0 and warn <= Config.NightLengthSeconds).to.equal(true)
 		end)
 	end)
 end

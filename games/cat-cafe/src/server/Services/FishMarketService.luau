@@ -40,6 +40,8 @@ FishMarketService.TAG = "FishMarket"
 
 local random = Random.new()
 local lastOpenAt: { [Player]: number } = {} -- os.clock() of each player's last crate, for the cooldown
+local luckLogs: { [Player]: number } = {} -- F88: luck_used crate events this session
+local LUCK_LOGS_PER_SESSION = 20
 local freshSent: { [Player]: string } = {} -- the Fresh Catch stock this player was last sent, so it is not resent
 local CLOSED = "closed"
 
@@ -137,7 +139,10 @@ local function open(
 		1,
 		{ crate.id, rarity .. " " .. (def.kind or "unknown"), outcome }
 	)
-	if playerLuck > 1 and not lucky and not crate.golden then
+	-- at most LUCK_LOGS_PER_SESSION a session: an open is 1 a second, and on a Lucky Day every open qualifies (S109)
+	local logged = luckLogs[player] or 0
+	if playerLuck > 1 and not lucky and not crate.golden and logged < LUCK_LOGS_PER_SESSION then
+		luckLogs[player] = logged + 1
 		Telemetry.custom(
 			player,
 			"luck_used",
@@ -390,6 +395,7 @@ function FishMarketService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		lastOpenAt[player] = nil
 		freshSent[player] = nil
+		luckLogs[player] = nil
 	end)
 	Net.on("OpenCrate", onOpenCrate)
 	Net.on("BuyFishItem", onBuyFishItem)

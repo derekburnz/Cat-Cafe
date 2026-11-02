@@ -692,6 +692,28 @@ local function wireIntents()
 			Net.fire("SendFeedback", face, chip)
 		end)
 	end
+	-- F87 part 3 (UI #745), analytics only: the intro's choice ("tile" or "help") and the stuck nudges ("pulse",
+	-- "help_shown", "show_me") as TelemetryReport, which allowlists both with their session caps. A nudge goes once
+	-- per tutorial step and kind, as the server logs it, so a repeating pulse never reaches the remote's limit.
+	if events.introChoice ~= nil then
+		events.introChoice:Connect(function(from: string)
+			Net.fire("TelemetryReport", "intro_choice", from)
+		end)
+	end
+	if events.stuckNudge ~= nil then
+		local nudged: { [string]: boolean } = {}
+		events.stuckNudge:Connect(function(kind: string)
+			local key = string.format(
+				"%s:%s",
+				tostring(if state ~= nil then state.tutorialStep else nil),
+				kind
+			)
+			if not nudged[key] then
+				nudged[key] = true
+				Net.fire("TelemetryReport", "stuck_nudge", kind)
+			end
+		end)
+	end
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
 	UI.events.travel:Connect(function(destination: string)
 		Net.fire("Travel", destination)

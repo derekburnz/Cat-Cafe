@@ -118,7 +118,9 @@ local function luckView(profile: Profile, now: number): (number, { Types.LuckSou
 		elseif source.id == "lucky_day" then
 			endsAt = now + math.max(0, ClockService.phaseEndsAt() - Workspace:GetServerTimeNow())
 		end
-		table.insert(sources, { id = source.id, value = source.value, endsAt = endsAt })
+		local row: Types.LuckSource =
+			{ id = source.id :: string, value = source.value, endsAt = endsAt }
+		table.insert(sources, row)
 	end
 	return Luck.of(profile, now, luckyDay), sources
 end

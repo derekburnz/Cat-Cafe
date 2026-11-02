@@ -54,6 +54,15 @@ function Clock.dayAt(t: number): number
 	return 2 + math.floor((time - Config.ServerStartDaySeconds - Config.NightLengthSeconds) / cycle)
 end
 
+-- Seconds since the server started at which day `day` begins: 0 for the first, a sunrise for every later one.
+function Clock.sunriseOf(day: number): number
+	if day <= 1 then
+		return 0
+	end
+	local cycle = Config.NightLengthSeconds + Config.DayLengthSeconds
+	return Config.ServerStartDaySeconds + Config.NightLengthSeconds + (math.floor(day) - 2) * cycle
+end
+
 -- Every LuckyDayEvery-th day of a server is a Lucky Day: days 4, 8, 12 and on.
 function Clock.isLuckyDay(day: number): boolean
 	return day >= 1 and day % Config.LuckyDayEvery == 0

@@ -34,6 +34,7 @@ import alleyway  # noqa: E402
 import backdrop  # noqa: E402
 import wildbackdrop  # noqa: E402
 import luckycat  # noqa: E402
+import campextras  # noqa: E402
 import camps  # noqa: E402
 import cannon  # noqa: E402
 import areakit  # noqa: E402
@@ -83,9 +84,13 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
-           townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, style_icons]
+           townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, campextras, style_icons]
 
 PIVOT_NOTES = {
+    **{n: "the base centre on the camp's ground, front -Z toward the camp, no turn; area space at "
+          "campextras.SPOTS (beside the way out, across from the Index Board)" for n in (
+        "CatCafe_Camp_Park_PicnicBasket", "CatCafe_Camp_Neighbourhood_YardSale", "CatCafe_Camp_Woods_FishPond",
+        "CatCafe_Camp_Sewer_LostFound")},
     **{f"CatCafe_Plot_LuckyCat_{n}": "the plinth's base centre on the plot floor, front -Z to the street; plot space "
                                       "(-5.1, 0, -16.1), left of the door (luckycat.SPOT)" for n in range(6)},
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -482,6 +487,8 @@ def main():
             extra = {"attachments": cannon.rbx_attachments(name), "nest": cannon.NEST}
         if name in camps.ATTACHMENTS:             # F84: the carrier basket's Drop
             extra = {"attachments": camps.rbx_attachments(name)}
+        if name in campextras.ATTACHMENTS:          # F100: PromptAnchor, and Steam, FishJump or Drip
+            extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about
             extra = {"attachments": luckycat.hinge_attachments(name)}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)

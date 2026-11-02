@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 07:32 UTC",
+  "generated": "2026-11-02 08:02 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -92742,6 +92742,279 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Park_PicnicBasket",
+      "category": "Camp",
+      "module": "campextras",
+      "objects": [
+        "CatCafe_Camp_Park_PicnicBasket"
+      ],
+      "triangles": 1052,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.4,
+        "y": 3.6,
+        "z": 1.66
+      },
+      "size_roblox": [
+        4.4,
+        1.66,
+        3.6
+      ],
+      "bounds_min": [
+        -2.2,
+        -1.8,
+        0.0
+      ],
+      "bounds_max": [
+        2.2,
+        1.8,
+        1.66
+      ],
+      "pivot": "the base centre on the camp's ground, front -Z toward the camp, no turn; area space at campextras.SPOTS (beside the way out, across from the Index Board)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Park_PicnicBasket.model.json",
+      "rbx_parts": 65,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Park_PicnicBasket.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Park_PicnicBasket.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1052/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "470 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Neighbourhood_YardSale",
+      "category": "Camp",
+      "module": "campextras",
+      "objects": [
+        "CatCafe_Camp_Neighbourhood_YardSale",
+        "CatCafe_Camp_Neighbourhood_YardSale_Sign_Swing"
+      ],
+      "triangles": 1722,
+      "budget": 3000,
+      "size_studs": {
+        "x": 5.7,
+        "y": 2.2,
+        "z": 3.36
+      },
+      "size_roblox": [
+        5.7,
+        3.36,
+        2.2
+      ],
+      "bounds_min": [
+        -3.4,
+        -1.2,
+        0.0
+      ],
+      "bounds_max": [
+        2.3,
+        1.0,
+        3.36
+      ],
+      "pivot": "the base centre on the camp's ground, front -Z toward the camp, no turn; area space at campextras.SPOTS (beside the way out, across from the Index Board)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Neighbourhood_YardSale_Sign_Swing": [
+          -2.55,
+          0.0,
+          2.55
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Neighbourhood_YardSale_Sign_Swing": [
+          2.55,
+          2.55,
+          0.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Neighbourhood_YardSale.model.json",
+      "rbx_parts": 144,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_YardSale.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_YardSale.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1722/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "859 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.55 y=-0.10"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Woods_FishPond",
+      "category": "Camp",
+      "module": "campextras",
+      "objects": [
+        "CatCafe_Camp_Woods_FishPond",
+        "CatCafe_Camp_Woods_FishPond_Water",
+        "CatCafe_Camp_Woods_FishPond_Rod",
+        "CatCafe_Camp_Woods_FishPond_Fish"
+      ],
+      "triangles": 1036,
+      "budget": 3000,
+      "size_studs": {
+        "x": 6.56,
+        "y": 5.7,
+        "z": 2.98
+      },
+      "size_roblox": [
+        6.56,
+        2.98,
+        5.7
+      ],
+      "bounds_min": [
+        -3.22,
+        -2.7,
+        -0.29
+      ],
+      "bounds_max": [
+        3.34,
+        3.0,
+        2.69
+      ],
+      "pivot": "the base centre on the camp's ground, front -Z toward the camp, no turn; area space at campextras.SPOTS (beside the way out, across from the Index Board)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Woods_FishPond_Rod": [
+          -0.45,
+          -0.55,
+          1.0
+        ],
+        "CatCafe_Camp_Woods_FishPond_Fish": [
+          1.0,
+          0.6,
+          0.16
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Woods_FishPond_Rod": [
+          0.45,
+          1.0,
+          -0.55
+        ],
+        "CatCafe_Camp_Woods_FishPond_Fish": [
+          -1.0,
+          0.16,
+          0.6
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Woods_FishPond.model.json",
+      "rbx_parts": 61,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Woods_FishPond.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Woods_FishPond.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "1036/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "658 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.29 (want 0)",
+          "centered": "footprint center x=0.06 y=0.15"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Sewer_LostFound",
+      "category": "Camp",
+      "module": "campextras",
+      "objects": [
+        "CatCafe_Camp_Sewer_LostFound",
+        "CatCafe_Camp_Sewer_LostFound_Lid"
+      ],
+      "triangles": 1848,
+      "budget": 3000,
+      "size_studs": {
+        "x": 4.05,
+        "y": 3.15,
+        "z": 3.72
+      },
+      "size_roblox": [
+        4.05,
+        3.72,
+        3.15
+      ],
+      "bounds_min": [
+        -1.9,
+        -1.35,
+        -0.02
+      ],
+      "bounds_max": [
+        2.15,
+        1.8,
+        3.7
+      ],
+      "pivot": "the base centre on the camp's ground, front -Z toward the camp, no turn; area space at campextras.SPOTS (beside the way out, across from the Index Board)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Sewer_LostFound_Lid": [
+          -0.0,
+          0.8,
+          1.4
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Sewer_LostFound_Lid": [
+          0.0,
+          1.4,
+          0.8
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Sewer_LostFound.model.json",
+      "rbx_parts": 137,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Sewer_LostFound.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Sewer_LostFound.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "1848/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "888 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.02 (want 0)",
+          "centered": "footprint center x=0.13 y=0.23"
         }
       }
     },

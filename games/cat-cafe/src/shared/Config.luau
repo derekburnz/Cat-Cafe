@@ -316,6 +316,11 @@ local Config = {
 	QuestWeeklyCount = 3,
 	QuestWeekOffsetSeconds = 345600,
 	QuestRollCheckSeconds = 60,
+	-- Claim all (Derek 2026-10-28 and 10-29): the server has ClaimAll (ClaimAllService), so the UI shows its Claim all
+	-- buttons in the Quests window, the Index and the Tip Jar
+	QuestClaimAll = true,
+	IndexClaimAll = true,
+	TipJarClaimAll = true,
 
 	-- Bedtime (F79, data-model sections 12c and 17): at night the working cats walk from their stations to the cat
 	-- trees and beds and sleep, and walk back at sunrise. Pure rules in Bedtime, the walk in BedtimeService.

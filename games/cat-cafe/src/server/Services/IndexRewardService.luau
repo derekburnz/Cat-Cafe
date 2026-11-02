@@ -5,11 +5,14 @@
 -- player has found enough and it has not been claimed. The claim is marked before anything is paid, so one
 -- milestone pays once. Payout pays the prize; the permanent bonuses are not paid, since IndexRewards.totals reads
 -- them from the claims. Nothing here can be bought.
+-- Claim all (ClaimAllService): `claimAll(player)` pays every reward the Index window shows as ready, on every page,
+-- each as its own Claim would, with one toast and one sync.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local ClaimAll = require(ReplicatedStorage.Shared.ClaimAll)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
@@ -37,6 +40,25 @@ local function pageName(areaId: string): string
 	return if crate ~= nil then crate.name else areaId
 end
 
+-- Marks the milestone claimed, then pays it; returns what it paid. The caller has checked IndexRewards.blocker.
+local function claim(
+	player: Player,
+	profile: Types.PlayerProfile,
+	areaId: string,
+	milestoneId: string
+): { string }
+	local prize = IndexRewards.prize(areaId, milestoneId) :: Types.IndexPrize
+	local claims = profile.indexRewards[areaId]
+	if claims == nil then
+		claims = {}
+		profile.indexRewards[areaId] = claims
+	end
+	claims[milestoneId] = true
+	local paid, coins = Payout.pay(player, profile, prize, "index_reward")
+	Telemetry.custom(player, "index_reward", coins, { areaId, milestoneId })
+	return paid
+end
+
 local function onClaimIndexReward(player: Player, rawArea: unknown, rawMilestone: unknown)
 	local areaId, milestoneId = Guard.id(rawArea), Guard.id(rawMilestone)
 	local profile = DataService.get(player)
@@ -49,18 +71,39 @@ local function onClaimIndexReward(player: Player, rawArea: unknown, rawMilestone
 		CafeService.sync(player)
 		return
 	end
-	local prize = IndexRewards.prize(areaId, milestoneId) :: Types.IndexPrize
-	local claims = profile.indexRewards[areaId]
-	if claims == nil then
-		claims = {}
-		profile.indexRewards[areaId] = claims
-	end
-	claims[milestoneId] = true
-	local paid, coins = Payout.pay(player, profile, prize, "index_reward")
-	Telemetry.custom(player, "index_reward", coins, { areaId, milestoneId })
+	local paid = claim(player, profile, areaId, milestoneId)
 	Net.toast(
 		player,
 		string.format("%s Index reward: %s", pageName(areaId), table.concat(paid, ", ")),
+		"good"
+	)
+	CafeService.sync(player)
+end
+
+-- Claim all in the Index window: every ready reward on every page (ClaimAll.index), one toast, one sync.
+function IndexRewardService.claimAll(player: Player)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	local ready = ClaimAll.index(profile)
+	if #ready == 0 then
+		Net.toast(player, ClaimAll.NOTHING, "warn")
+		CafeService.sync(player)
+		return
+	end
+	local paid: { string } = {}
+	for _, item in ready do
+		for _, line in claim(player, profile, item.areaId, item.milestoneId) do
+			table.insert(paid, line)
+		end
+	end
+	local title = if #ready == 1
+		then pageName(ready[1].areaId) .. " Index reward"
+		else string.format("%d Index rewards", #ready)
+	Net.toast(
+		player,
+		string.format("%s: %s", title, table.concat(ClaimAll.merge(paid), ", ")),
 		"good"
 	)
 	CafeService.sync(player)

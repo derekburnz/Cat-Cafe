@@ -270,4 +270,178 @@ return function()
 			end
 		)
 	end)
+
+	describe("TradeBook edges (QA)", function()
+		-- Seeded play (QA, trading.md section 4): both players and an outsider press anything in any order, with the
+		-- version on the table or an old or made-up one, and the rules that stop a swap-at-the-last-moment scam hold
+		-- after every call.
+		local VALUES = { 0, 1, 3, 8, 20, 50, 150, 500 }
+		local STEPS = { 0, 0.1, 0.5, 1, 1.9, 2, 3, 5, 6 }
+		local OPS = { "add", "add", "add", "remove", "ready", "ready", "ready", "tick", "tick" }
+		for _ = 1, 3 do
+			table.insert(OPS, "confirm")
+		end
+
+		local function snapshot(trade: any): string
+			local parts = { tostring(trade.version), trade.phase, tostring(trade.countdownEndsAt) }
+			for _, side in { trade.a, trade.b } do
+				table.insert(parts, table.concat(side.cats, ","))
+				local flags = { tostring(side.ready), tostring(side.confirmed) }
+				table.insert(flags, tostring(side.confirmAt))
+				table.insert(parts, table.concat(flags, " "))
+			end
+			return table.concat(parts, "|")
+		end
+
+		-- the press that moves the trade on, so half the presses push toward a swap and the seeds reach many
+		local function onward(trade: any): string
+			if trade.phase == "countdown" then
+				return "tick"
+			elseif trade.phase == "confirm" then
+				return "confirm"
+			end
+			return if #trade.a.cats + #trade.b.cats == 0 then "add" else "ready"
+		end
+
+		local function total(values: { [string]: number }): number
+			local sum = 0
+			for _, value in values do
+				sum += value
+			end
+			return sum
+		end
+
+		local function keys(values: { [string]: number }): { string }
+			local list: { string } = {}
+			for uid in values do
+				table.insert(list, uid)
+			end
+			table.sort(list)
+			return list
+		end
+
+		it("never swaps an offer either side has not Readied and Confirmed as it stands", function()
+			local swaps, waits, stale = 0, 0, 0
+			for seed = 1, 400 do
+				local rng = Random.new(seed)
+				local book = TradeBook.new()
+				local trade = TradeBook.open(book, "t" .. seed, SAM, ALEX, 0)
+				local now, changes = 0, 0
+				local values: { [number]: { [string]: number } } = { {}, {} }
+				local readyOn: { [number]: number } = {}
+				local confirmedOn: { [number]: number } = {}
+				local countdownFrom, screenAt = 0, 0
+				local frozen: string? = nil
+				for _ = 1, 80 do
+					now += STEPS[rng:NextInteger(1, #STEPS)]
+					local who = if rng:NextInteger(1, 6) == 6 then 3 else rng:NextInteger(1, 2)
+					local version = trade.version
+					if rng:NextInteger(1, 4) == 1 then
+						version = rng:NextInteger(1, trade.version + 2)
+					end
+					local op = OPS[rng:NextInteger(1, #OPS)]
+					if rng:NextInteger(1, 2) == 1 then
+						op = onward(trade)
+					end
+					local uid = "c" .. rng:NextInteger(1, 12)
+					local before, phase = snapshot(trade), trade.phase
+					local took, why = false, nil
+					if op == "add" then
+						local value = VALUES[rng:NextInteger(1, #VALUES)]
+						took = TradeBook.add(trade, who, uid, value, now)
+						if took and who ~= 3 then
+							changes += 1
+							values[who][uid] = value
+						end
+					elseif op == "remove" then
+						took = TradeBook.remove(trade, who, uid, now)
+						if took and who ~= 3 then
+							changes += 1
+							values[who][uid] = nil
+						end
+					elseif op == "ready" then
+						local ready = rng:NextInteger(1, 4) > 1
+						why = TradeBook.ready(trade, who, version, ready, now)
+						took = why == nil
+						if took and ready then
+							-- a Ready only takes on the offer as it stands
+							expect(version).to.equal(trade.version)
+							readyOn[who] = version
+						end
+					elseif op == "tick" then
+						took = TradeBook.tick(trade, now)
+					else
+						why = TradeBook.confirm(trade, who, version, now)
+						took = why == nil
+					end
+					if why == TradeBook.WAIT then
+						waits += 1
+					elseif why == TradeBook.STALE then
+						stale += 1
+					end
+					if who == 3 and op ~= "tick" then
+						-- someone outside the trade changes nothing
+						expect(took).to.equal(false)
+						expect(snapshot(trade)).to.equal(before)
+					end
+					if frozen ~= nil then
+						-- once the swap begins nothing on the trade moves
+						expect(took).to.equal(false)
+						expect(snapshot(trade)).to.equal(frozen)
+						continue
+					end
+					expect(trade.version).to.equal(1 + changes)
+					for index, side in { trade.a, trade.b } do
+						expect(table.concat(keys(values[index]), ",")).to.equal(
+							table.concat(keys(side.values), ",")
+						)
+						expect(#side.cats).to.equal(#keys(values[index]))
+						expect(#side.cats <= Config.TradeMaxCats).to.equal(true)
+						if side.confirmed then
+							expect(trade.phase).to.equal("confirm")
+						end
+					end
+					if trade.phase == "countdown" then
+						expect(trade.a.ready and trade.b.ready).to.equal(true)
+						if phase ~= "countdown" then
+							countdownFrom = now
+						end
+					end
+					if trade.phase == "confirm" and phase ~= "confirm" then
+						-- only a tick opens the confirm screen, and only after the whole countdown
+						expect(phase).to.equal("countdown")
+						expect(op).to.equal("tick")
+						expect(now >= countdownFrom + Config.TradeCountdownSeconds).to.equal(true)
+						screenAt = now
+					end
+					if op == "confirm" and took then
+						expect(version).to.equal(trade.version)
+						local give, get = total(values[who]), total(values[3 - who])
+						local gift = next(values[3 - who]) == nil
+						local lopsided = give > 0 and give >= Config.TradeLopsidedRatio * get
+						local warned = gift or lopsided
+						local from = screenAt
+							+ (if warned then Config.TradeConfirmWaitSeconds else 0)
+							- TradeBook.CONFIRM_SLACK
+						expect(now >= from - 1e-6).to.equal(true)
+						confirmedOn[who] = version
+					end
+					if TradeBook.bothConfirmed(trade) then
+						-- both Readied and Confirmed this very offer, and it has not changed since
+						for side = 1, 2 do
+							expect(readyOn[side]).to.equal(trade.version)
+							expect(confirmedOn[side]).to.equal(trade.version)
+						end
+						TradeBook.commit(trade)
+						frozen = snapshot(trade)
+						swaps += 1
+					end
+				end
+			end
+			-- the seeds reach every refusal and plenty of swaps, so the checks above ran
+			expect(swaps >= 200).to.equal(true)
+			expect(waits >= 30).to.equal(true)
+			expect(stale >= 500).to.equal(true)
+		end)
+	end)
 end

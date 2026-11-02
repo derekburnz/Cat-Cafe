@@ -14,6 +14,7 @@ local Settings = require(script.Parent.Settings)
 local Spin = require(script.Parent.Spin)
 local StarterCat = require(script.Parent.StarterCat)
 local Tips = require(script.Parent.Tips)
+local Trade = require(script.Parent.Trade)
 local Types = require(script.Parent.Types)
 
 local ProfileSchema = {}
@@ -67,7 +68,10 @@ local ProfileSchema = {}
 -- hopping servers during a rollout. A save from before version 25 starts with one fill waiting at each open extra.
 -- Version 26 (F101, rescue-rally.md section 5) adds rally, the weekend and the laps paid in it: an older server would
 -- drop it, and a player could take more than RallyMaxLaps laps of prizes by hopping servers during a rollout.
-ProfileSchema.VERSION = 26
+-- Version 27 (F102, trading.md section 6) adds tradeLog, tradeIds, stats.trades, stats.tradesToday and the "trade"
+-- method: an older server would drop the applied trade ids, so a trade still
+-- pending after a shutdown (section 4) could be applied twice, and it would read a traded cat's method as none.
+ProfileSchema.VERSION = 27
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -134,6 +138,8 @@ local function newStats(): Types.Stats
 		bestRate = 0, -- F98
 		weekPlay = { week = 0, seconds = 0 },
 		weekBestRate = { week = 0, rate = 0 },
+		trades = 0, -- F102
+		tradesToday = { day = 0, count = 0 },
 	}
 end
 
@@ -219,6 +225,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		notifyAskAt = 0,
 		campExtras = CampExtras.fresh(now),
 		rally = Rally.fresh(now),
+		tradeLog = {},
+		tradeIds = {},
 	}
 end
 
@@ -326,7 +334,13 @@ local function sanitizeName(value: any): string?
 end
 
 local function sanitizeMethod(value: any): Types.CatchMethod?
-	if value == "net" or value == "rescue" or value == "bait" or value == "starter" then
+	if
+		value == "net"
+		or value == "rescue"
+		or value == "bait"
+		or value == "starter"
+		or value == "trade"
+	then
 		return value
 	end
 	return nil
@@ -777,6 +791,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 		stats.bestRate = asNumber(raw.stats.bestRate, 0)
 		stats.weekPlay = sanitizeWeekly(raw.stats.weekPlay, "seconds")
 		stats.weekBestRate = sanitizeWeekly(raw.stats.weekBestRate, "rate")
+		-- F102 (version 27)
+		stats.tradesToday = Trade.sanitizeToday(raw.stats.tradesToday)
 	end
 	profile.settings = Settings.sanitize(raw.settings)
 
@@ -803,6 +819,9 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.campExtras = CampExtras.sanitize(raw.campExtras, now)
 	-- F101 (version 26): the Rescue Rally laps this weekend
 	profile.rally = Rally.sanitize(raw.rally, now)
+	-- F102 (version 27): the Trades page and the trades this save has applied
+	profile.tradeLog = Trade.sanitizeLog(raw.tradeLog)
+	profile.tradeIds = Trade.sanitizeIds(raw.tradeIds)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

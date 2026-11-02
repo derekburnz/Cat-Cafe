@@ -12,7 +12,7 @@ export type CatSource = "free" | "shop"
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
-export type CatchMethod = "net" | "rescue" | "bait" | "starter"
+export type CatchMethod = "net" | "rescue" | "bait" | "starter" | "trade" -- "trade": F102, from another player
 export type LureSource = "shop" | "dealer"
 -- How one closing circle was judged (data-model section 10).
 export type CircleGrade = "perfect" | "good" | "miss"
@@ -449,10 +449,66 @@ export type Stats = {
 	bestRate: number,
 	weekPlay: WeekPlay,
 	weekBestRate: WeekRate,
+	-- F102 (trading.md section 6): trades done, and today's count for TradesPerDay (the day is a UTC day number)
+	trades: number,
+	tradesToday: TradesToday,
 }
 
 export type WeekPlay = { week: number, seconds: number }
 export type WeekRate = { week: number, rate: number }
+export type TradesToday = { day: number, count: number }
+
+-- F102 trading (trading.md; shapes agreed with the UI thread 2026-11-02). One cat as a trade's log and its done card
+-- show it.
+export type CatSummary = { catId: string, rarity: string, variant: string?, level: number }
+-- One of the last TradeLogMax trades, newest first: its id, when (os.time()), the partner's display name then, and
+-- both sides.
+export type TradeLogEntry = {
+	id: string,
+	at: number,
+	partnerName: string,
+	gave: { CatSummary },
+	got: { CatSummary },
+}
+-- One cat on offer, as TradeState shows it to one player: `rateForMe` is what it earns (or would earn) per second in
+-- that player's cafe.
+export type TradeTile = {
+	uid: string,
+	catId: string,
+	rarity: string,
+	variant: string?, -- "gold" or "rainbow"; nil for the base coat
+	level: number,
+	charm: number?,
+	rateForMe: number,
+}
+export type TradeSide = {
+	userId: number,
+	name: string, -- the display name
+	ready: boolean,
+	confirmed: boolean,
+	cats: { TradeTile },
+}
+-- The last change to an offer, for the yellow flash and "Changed!" (section 3): whose side, which cat, when (server
+-- time).
+export type TradeChange = { side: string, uid: string, at: number }
+-- TradeState(state?) for one player: nil closes the window.
+export type TradeStateView = {
+	tradeId: string,
+	version: number,
+	phase: string, -- "offer", "countdown" or "confirm"
+	countdownEndsAt: number?, -- server time, while counting down
+	me: TradeSide,
+	them: TradeSide,
+	changed: TradeChange?,
+	giveValue: number, -- the Collector's values (Trade.value) of my cats on offer
+	getValue: number, -- and of theirs
+	lopsided: boolean, -- I give at least TradeLopsidedRatio times what I get
+	gift: boolean, -- I get nothing back
+	myRateNow: number, -- what my cats on offer earn in my cafe now, per second
+	theirRateForMe: number, -- what their cats would earn in my cafe, per second
+	confirmAt: number?, -- server time from which my Confirm counts (TradeConfirmWaitSeconds after a lopsided or gift
+	-- confirm screen opens); nil when there is no wait
+}
 
 -- F98: one row of a leaderboard list as LeaderboardSync sends it: the player's display name, the list's whole-number
 -- value (entries, minutes played, money per second) and whether they wear the crown (top 10 of any all-time board).
@@ -754,6 +810,10 @@ export type PlayerProfile = {
 	notifyAskAt: number, -- F96 (section 3, save version 22): os.time() the notification ask first showed, 0 before
 	campExtras: CampExtrasSave, -- F100 (camp-extras.md section 4, save version 25)
 	rally: RallySave, -- F101 (rescue-rally.md section 5, save version 26)
+	-- F102 (trading.md sections 4 and 5, save version 27): the last TradeLogMax trades for the Trades page, and the ids
+	-- of the last TradeIdsMax trades applied to this save, so a trade pending after a shutdown is applied only once
+	tradeLog: { TradeLogEntry },
+	tradeIds: { string },
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
@@ -811,6 +871,7 @@ export type PlayerState = {
 	-- F95 (economy-ladder.md section 5): the Long Nap pass is owned, so the welcome back card says full pay up to
 	-- OfflineCapPassSeconds instead of half pay up to OfflineCapSeconds
 	longNap: boolean,
+	tradeLog: { TradeLogEntry }, -- F102: the Trades page, newest first
 	serverTime: number,
 }
 

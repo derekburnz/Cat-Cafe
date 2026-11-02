@@ -403,6 +403,27 @@ local Config = {
 	-- 200), any way it was found, on top of a new cat's fish (section 1, added after the #795 review)
 	FishFirstRainbowMultiplier = 5,
 
+	-- Trading (F102, trading.md section 6; Derek 2026-10-30: from Tier 3, secure, nothing to scam). Cats only, up to
+	-- TradeMaxCats a side, both players at TradeMinTier or higher (CatCafeDebug tradeMinTier lowers it in one server).
+	-- A request waits TradeRequestSeconds; declined or timed out, the asker waits TradeReaskSeconds to ask that player
+	-- again. TradeCountdownSeconds after both press Ready the confirm screen opens; a lopsided trade (one side gives at
+	-- least TradeLopsidedRatio times the Collector value it gets) or a gift holds that side's Confirm for
+	-- TradeConfirmWaitSeconds. TradeCooldownSeconds between a player's trades, TradesPerDay a UTC day. The Trades page
+	-- keeps TradeLogMax trades, the save TradeIdsMax applied trade ids. Every server reads the CatCafe_Flags kill switch
+	-- every TradeFlagCheckSeconds.
+	TradeMinTier = 3,
+	TradeMaxCats = 9,
+	TradeCountdownSeconds = 5,
+	TradeLopsidedRatio = 3,
+	TradeConfirmWaitSeconds = 2,
+	TradeRequestSeconds = 20,
+	TradeReaskSeconds = 60,
+	TradeCooldownSeconds = 10,
+	TradesPerDay = 50,
+	TradeFlagCheckSeconds = 60,
+	TradeLogMax = 20,
+	TradeIdsMax = 100,
+
 	-- The camp extras (F100, camp-extras.md sections 2 and 4), each filling while the player is away up to its hold.
 	-- The Picnic Basket (Park) bags one PicnicPotion (Design-Agent 11-02: the 10 minute Money Potion) every
 	-- PicnicEverySeconds; the Yard Sale (Neighbourhood) sells the Classic Crate and one zone crate a UTC day at

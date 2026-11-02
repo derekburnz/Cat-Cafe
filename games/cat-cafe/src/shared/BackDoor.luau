@@ -45,6 +45,17 @@ function BackDoor.solid(areasOpen: boolean, owned: boolean, isOwner: boolean): b
 	return owned and not areasOpen and not isOwner
 end
 
+-- Whether the back door's panel blocks this client's character: as `solid`, but not while its leaf stands open for
+-- the owner (review N328), so a friend walking in behind them follows them through, as through the front leaves.
+function BackDoor.panelSolid(
+	areasOpen: boolean,
+	owned: boolean,
+	isOwner: boolean,
+	leafOpen: boolean
+): boolean
+	return BackDoor.solid(areasOpen, owned, isOwner) and not leafOpen
+end
+
 -- Which way a door set's front leaf named `name` turns to open (Model-Agent, F80: `_LeafL` -90 about its hinge's Y
 -- and `_LeafR` +90, both into the cafe), or nil for any other part of the model.
 function BackDoor.frontTurn(name: string): number?

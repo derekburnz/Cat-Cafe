@@ -335,13 +335,17 @@ Layout.plot = {
 	-- counts CollectorRangeStuds from here.
 	collectorSpot = { x = 4.5, y = 0, z = halfD - 6 } :: Point,
 
-	-- Where cats without a job nap, so the collection is on show (world-and-feel.md section 4, F37): the two
-	-- front window corners, beside the right cat tree and at the counter's right end. Highest rating first.
+	-- Where cats without a job nap, so the collection is on show (world-and-feel.md section 4, F37), highest rating
+	-- first. Each is a cat bed in an owned cafe (Derek's 10-28 to 10-30 notes: cats slept on the floor), placed by
+	-- Model-Agent's fit of 2026-11-02 clear of the shell, the F79 beds, decor spots, trees, tables and stations: under
+	-- the front window left of the door, the front right window corner, beside the right cat tree and at the
+	-- counter's right end. Each turns rotY degrees like the F79 beds so its front (-Z) and the cat on it face into the
+	-- room. WorldBuilder stands the bed on the point and moves the nap anchor up to the bed's Sleep point.
 	napSpots = {
-		{ x = -15.5, y = 0, z = -10, rotY = 45 },
-		{ x = 15.5, y = 0, z = -10, rotY = -45 },
-		{ x = 15.5, y = 0, z = 3.5, rotY = -90 },
-		{ x = 11, y = 0, z = 11, rotY = 180 },
+		{ x = -6.6, y = 0, z = -12.1, rotY = 180 },
+		{ x = 14.9, y = 0, z = -9.9, rotY = 135 },
+		{ x = 15.5, y = 0, z = 3.5, rotY = 90 },
+		{ x = 11, y = 0, z = 10, rotY = 0 },
 	} :: { Point },
 
 	-- The cat beds (F79, data-model 12c v0.13.13, Model-Agent's fit in #511): a CatCafe_Furniture_CatBed at each from

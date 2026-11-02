@@ -737,6 +737,22 @@ A tip shows once per account, the first time a player meets something: one line 
 
 **Engineer (F92):** nothing new: UIController already calls these hooks when they exist (#760, #763, #771), and the Help prompt's label and `RescueHelp` stay UIController's.
 
+### Camp extras (built, F100, camp-extras.md section 3)
+
+- **Cat Cannon strip** (`Screens/Cannon.luau`, words in `Components/CampExtrasLogic.luau` with a spec): an area whose camp extra is open gets a cream strip under "7/10 cats" with the extra's icon (🧺 Picnic Basket, 🏷️ Yard Sale, 🎣 Fish Pond, 📦 Lost and Found), its name and what waits under it, from shared `CampExtras.pickerLine`: "1 ready", "14 fish", "2 to claim" in green with a red "!" dot when something is ready to claim, else "Next in 2 h 10 m", "New crates" or "New crates in 3 h" in grey. The Yard Sale never has the dot, since buying is not claiming. The strip sits below the picture, clear of the night cover, so an area at night still shows it. The cards grow 40 px only while a strip shows, so a Tier 1 picker looks as before. The strips count down with the picker's one second redraw.
+- **Yard Sale card** (`Screens/YardSale.luau`, modal `"YardSale"`): opened by the Yard Sale's prompt through `UI.campExtras.openYardSale(view)`. Today's two crates side by side, each with its picture, name, "60 at the Market" for comparison and a green Buy with the gold fish and "40"; "Bought" and grey once taken today, grey too when the player's golden fish fall short. A press fires `events.buyYardSale(crateId)` and shows "..." until the next `CampExtrasState`, a refusal (the button wobbles; the server's toast says why) or 5 s. Under the crates: "You have 1,234 golden fish · New crates in 3 h" and "Bought crates open free at the Golden Fish Market". Walking more than `CampExtraRangeStuds` + 8 studs from the Yard Sale closes it.
+- **Prize toast** (`Toasts:prize`): after a collect or a buy, `UI.campExtras.collected(extraId, paid, prize)` shows the extra's name on the green pill with the prize as at most two pictures (F94 rule 3, `PrizeChips`): "Fish Pond" and the gold fish "x14", "Lost and Found" with "x10" fish and the Lucky Potion. Without a prize the server's words show ("Fish Pond: +14 golden fish"). Silent: the splash, creak and rattle come from `Moments.CampExtraCollect`.
+- The prompts are `Style = Custom` (`CampExtraPrompt`), so the action pill already draws them, with `CampExtrasController`'s lines ("Fish Pond" / "Collect 14 fish").
+
+| API | Purpose |
+|---|---|
+| `UI.campExtras.update(state)` | From `CampExtrasState`: each extra's `open`, `held`, `nextAt` and the Yard Sale's `stock`. Kept, so a rebuilt UI shows the strips at once. |
+| `UI.campExtras.openYardSale(view?)` | The Yard Sale's prompt: opens its card (with the kept view when nil). |
+| `UI.campExtras.collected(extraId, paid, prize?)` | `CampExtraResult` ok: the prize toast. |
+| `UI.campExtras.refused(extraId)` | `CampExtraResult` refused: the Yard Sale's "..." lifts. |
+
+**Engineer (F100):** nothing new: `CampExtrasController` (#801) already calls these hooks when they exist and forwards `events.buyYardSale` as `BuyYardSale`; with the card in, its fallback (the prompt buying the next crate) no longer runs.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
@@ -806,6 +822,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `stuckNudge` | `kind` | A stuck nudge (F87 section 2g, analytics only): "pulse", "help_shown" or "show_me". Forward as `TelemetryReport("stuck_nudge", kind)` |
 | `claimStarterCat` | | Take me home on the Bellhop Cat's stand card (F96). Forward as `ClaimStarterCat()`; the answer goes to `UI.starterCat.result`. |
 | `joinGroup` | | Join the group on the stand card, shown only once `Config.GroupId` is set. `GroupService:PromptJoinAsync(Config.GroupId)` (StarterCatController). |
+| `buyYardSale` | `crateId` | Buy on the Yard Sale card (F100), only for a crate in today's stock not bought and covered by the golden fish. Forward as `BuyYardSale(crateId)` (CampExtrasController). |
 | `launchCannon` | `cannonId, destination` | Launch on a Cat Cannon card (F84): `cannonId` "town" or a camp's area id, `destination` "town" or an area id. Forward as `LaunchCannon(cannonId, destination)`; pass a refusal to `UI.cannon.result(false, destination)` |
 
 ## State shape (`Types.PlayerState`)

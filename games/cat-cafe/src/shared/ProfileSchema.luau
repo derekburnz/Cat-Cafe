@@ -9,6 +9,7 @@ local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
 local FreshCatch = require(script.Parent.FreshCatch)
 local Onboarding = require(script.Parent.Onboarding)
+local Rally = require(script.Parent.Rally)
 local Settings = require(script.Parent.Settings)
 local Spin = require(script.Parent.Spin)
 local StarterCat = require(script.Parent.StarterCat)
@@ -64,7 +65,9 @@ local ProfileSchema = {}
 -- Version 25 (F100, camp-extras.md section 4) adds campExtras, what the four camp extras hold and the Yard Sale's
 -- buys today: an older server would drop it, letting a player collect the same fill or buy the same crate twice by
 -- hopping servers during a rollout. A save from before version 25 starts with one fill waiting at each open extra.
-ProfileSchema.VERSION = 25
+-- Version 26 (F101, rescue-rally.md section 5) adds rally, the weekend and the laps paid in it: an older server would
+-- drop it, and a player could take more than RallyMaxLaps laps of prizes by hopping servers during a rollout.
+ProfileSchema.VERSION = 26
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -215,6 +218,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		starterCatClaimed = false,
 		notifyAskAt = 0,
 		campExtras = CampExtras.fresh(now),
+		rally = Rally.fresh(now),
 	}
 end
 
@@ -797,6 +801,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.notifyAskAt = math.clamp(asInt(raw.notifyAskAt, 0), 0, now)
 	-- F100 (version 25): the camp extras, settled for the tier by CampExtraService once the profile loads
 	profile.campExtras = CampExtras.sanitize(raw.campExtras, now)
+	-- F101 (version 26): the Rescue Rally laps this weekend
+	profile.rally = Rally.sanitize(raw.rally, now)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

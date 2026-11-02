@@ -118,8 +118,8 @@ return function()
 		-- logs, drain pipes, sheds and gutters turned in the set as well.
 		it("the area sets' cat spots stand on the set's ground, clear of its traps", function()
 			local sets: { [string]: string } = {
-				park = "CatCafe_Park_Set",
-				neighbourhood = "CatCafe_Neighbourhood_SetV32",
+				park = "CatCafe_Park_SetF85", -- F85 (#799)
+				neighbourhood = "CatCafe_Neighbourhood_SetF85", -- F85 (#810)
 				woods = "CatCafe_Woods_SetV32",
 				sewer = "CatCafe_Sewer_SetV32",
 			}
@@ -151,7 +151,7 @@ return function()
 				local pieceTurns: { number } = if id == "woods"
 					then { 20, -20, 0, 0, -106.26 }
 					elseif id == "sewer" then { 0, 0, 90, -90 }
-					elseif id == "neighbourhood" then { 0, -90, 180, 34 }
+					elseif id == "neighbourhood" then { 0, 90, 0, 0 }
 					else {}
 				local built = 0
 				for _, spot in spec.rescueSpots do
@@ -169,8 +169,8 @@ return function()
 				local spec = Layout.areas[id]
 				local gx, gz = Layout.gatePosition(spec)
 				expect(gx).to.be.ok()
-				-- the Park's plaza at local (-3.5, -49.5) is near its gate side, the Neighbourhood's porch at local
-				-- (-110.2, -98.9) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
+				-- the Park's plaza at local (-4, -145) is near its gate side, the Neighbourhood's porch at local
+				-- (-67.2, -166.9) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
 				-- canal bridge at local (44, -61) near its own
 				local index = if id == "woods" then 8 else 1
 				local point = spec.spawnPoints[index]
@@ -200,11 +200,11 @@ return function()
 			function()
 				local rows = {
 					{
-						id = "park",
-						near = 16,
-						deep = 24,
+						id = "park", -- F85 (#799): four of its five traps deep
+						near = 20,
+						deep = 28,
 						rare = 0,
-						deepTraps = 3,
+						deepTraps = 4,
 						byRegion = false,
 					},
 					{
@@ -224,11 +224,11 @@ return function()
 						byRegion = true,
 					},
 					{
-						id = "neighbourhood",
-						near = 28,
-						deep = 44,
+						id = "neighbourhood", -- F85 (#810): three of its four traps deep
+						near = 29,
+						deep = 45,
 						rare = 0,
-						deepTraps = 2,
+						deepTraps = 3,
 						byRegion = false,
 					},
 				}
@@ -272,12 +272,12 @@ return function()
 					end
 					expect(deep).to.equal(row.deepTraps)
 				end
-				-- the Park's traps are the world's trees and bins, the first a prop turned 180 in the set, which is
-				-- turned 180 itself
+				-- the Park's traps are the world's trees and bins, the first (F85) a prop with no turn in the set, which
+				-- is turned 180 itself
 				for _, spot in Layout.park.rescueSpots do
 					expect(spot.prop).to.be.ok()
 				end
-				expect(Layout.park.rescueSpots[1].rotY).to.equal(0)
+				expect(Layout.park.rescueSpots[1].rotY).to.equal(180)
 			end
 		)
 
@@ -1409,6 +1409,44 @@ return function()
 				expect(dot).to.be.near(1, 1e-9)
 			end
 			expect(Layout.cannonAim("town")).to.equal(0)
+		end)
+
+		it("stands the Rally board in the north-east quarter facing the spawn, off the cross and the stations (F101)", function()
+			local board = square.rallyBoard
+			expect(board.asset).to.equal("CatCafe_Square_RallyBoard")
+			expect(board.x > 0 and board.z > 0).to.equal(true)
+			-- its face is about 11 by 1.5 (Model-Agent #759); every corner of that, turned, stays off the cross
+			local yaw = math.rad(board.rotY or 0)
+			local cos, sin = math.cos(yaw), math.sin(yaw)
+			for _, corner in { { -5.5, -0.75 }, { 5.5, -0.75 }, { -5.5, 0.75 }, { 5.5, 0.75 } } do
+				local x = board.x + corner[1] * cos + corner[2] * sin
+				local z = board.z - corner[1] * sin + corner[2] * cos
+				expect(inside(x, z, square.floor, 4)).to.equal(true)
+				for _, lane in lanes do
+					expect(inside(x, z, lane, -0.5)).to.equal(false)
+				end
+				expect(math.sqrt(x ^ 2 + z ^ 2) > square.fountainRadius + 3).to.equal(true)
+			end
+			-- front -Z turned toward the spawn on the street's line
+			local spawn = Layout.playerSpawn
+			local toX, toZ = spawn.x - board.x, spawn.z - board.z
+			local length = math.sqrt(toX ^ 2 + toZ ^ 2)
+			expect((-sin * toX - cos * toZ) / length > 0.95).to.equal(true)
+			for name, point in
+				{
+					spinWheel = Layout.spinWheel,
+					fishMarket = Layout.fishMarket,
+					codesCat = Layout.codesCat,
+					dealerCart = Layout.dealerCart,
+					bellhopStand = Layout.bellhopStand,
+					leaderboards = Layout.leaderboards,
+					signpost = square.signpost,
+				} :: { [string]: Point }
+			do
+				if math.sqrt((point.x - board.x) ^ 2 + (point.z - board.z) ^ 2) < 9 then
+					fail("the Rally board stands on the %s", name)
+				end
+			end
 		end)
 
 		it("stands the signpost by the cannon's plinth, south-west and off the cross", function()

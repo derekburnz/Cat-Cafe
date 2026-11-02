@@ -7,7 +7,7 @@ The Rally is the group content: for two days, everyone in a server fills one bar
 ## 1. When
 
 - **Every weekend,** from Saturday 00:00 to Monday 00:00 UTC. It falls inside the ads week whatever day the game launches.
-- **Friday:** a "Rescue Rally tomorrow!" line on the What's New board and a countdown chip on the HUD clock for the last 12 hours. Players who turned on experience notifications (13 and up) get one notification when it starts. Notifications never gate anything.
+- **Friday:** a "Rescue Rally tomorrow!" line on the What's New board and a countdown chip on the HUD clock for the last 12 hours. Players who turned on experience notifications (13 and up) get one notification when it starts; this waits on the Open Cloud notifications permission and was not in #809. Notifications never gate anything.
 - `Config.RallyForce` turns it on at any time for testing.
 
 ## 2. The bar
@@ -22,6 +22,7 @@ The Rally is the group content: for two days, everyone in a server fills one bar
 | a Team Rescue (F92) | 3 to the rescuer and 3 to each helper |
 
 So two friends doing Team Rescues together fill it twice as fast as one player alone, and a rescue at night is worth three catches.
+- **As built (#809):** a rescued cat scores the rescuer its 3 when it is checked in, in place of the check-in's 1, so a rescue never scores 4. A Team Rescue helper scores their 3 when the cat is freed, since their part ends there.
 - **The goal** is RallyPointsPerPlayer (30) times the number of players in the server, never fewer than 3 players' worth (90). It is fixed when the lap starts, so a player leaving does not move it. With 8 players a lap takes about an hour.
 - **Steps** at 25%, 50% and 100%. At 100% the bar empties and the next lap starts ("Rally 2", "Rally 3").
 
@@ -35,8 +36,8 @@ Every player in the server when a step is reached gets its prize, as long as the
 | 50% | 10 golden fish and a Money Potion (`tip_potion`, 10 minutes, into the bag) |
 | 100% | a Rally Crate and 15 golden fish |
 
-- A player can earn prizes from at most RallyMaxLaps (4) laps a weekend, so it is a nice weekend goal and not an all-night grind. After that they still help the server's bar and see "You've done your laps this weekend" on the banner.
-- **The Rally Crate** holds twelve pieces made for it (two of each kind, plus a door set and a cat flap, like every crate): pennant wallpaper, a running-track floor, team-stripe paint, a trophy shelf, cheer bunting, a medal door and so on, at the Classic Crate's rarity odds. It only comes from the Rally and comes back every weekend, so nothing is truly limited (the shop rule recorded 2026-11-01). It has its own page in the Decor Index.
+- A player can earn prizes from at most RallyMaxLaps (4) laps a weekend (a lap counts toward the 4 the first time it pays that player, so its later steps still pay them), so it is a nice weekend goal and not an all-night grind. After that they still help the server's bar and see "You've done your laps this weekend" on the banner.
+- **The Rally Crate** holds twelve pieces made for it (two of each kind, plus a door set and a cat flap, like every crate): pennant wallpaper, a running-track floor, team-stripe paint, a trophy shelf, cheer bunting, a medal door and so on, at the Classic Crate's rarity odds. It only comes from the Rally and comes back every weekend, so nothing is truly limited (the shop rule recorded 2026-11-01). It has its own page in the Decor Index with the same prizes as the other pages: `decor5` (5 pieces) pays 25 golden fish and `decor10` (all 12) adds +5% money forever, so a full Decor Index is +70% (as built in #804, kept 2026-11-02: the crate only comes from weekends, so the page is as hard to fill as any other).
 - Nothing about the Rally is sold for Robux, and nothing skips or speeds the bar.
 
 ## 4. What players see

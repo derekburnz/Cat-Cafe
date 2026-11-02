@@ -25,6 +25,7 @@ local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local Potions = require(ReplicatedStorage.Shared.Potions)
+local RallyService = require(script.Parent.RallyService)
 local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Telemetry = require(script.Parent.Telemetry)
@@ -190,6 +191,7 @@ local function onResolveBait(player: Player, rawChoice: unknown)
 			Catching.shoutOut(player.DisplayName, "tamed", def, bait.variant, " at their bait bowl")
 		)
 		RareMomentService.secured(player, def, bait.variant, "bait", hadEpicOrBetter)
+		RallyService.score(player, "tame") -- F101
 		return
 	end
 	profile.stats.baitsLetGo += 1

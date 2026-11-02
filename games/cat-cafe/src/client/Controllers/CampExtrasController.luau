@@ -5,7 +5,8 @@
 -- extra's prompt (CampExtras.PROMPT on the model's PromptAnchor, made by WorldBuilder) carries this player's lines
 -- from CampExtras.promptText, refreshed every second. Pressing it sends CollectCampExtra; at the Yard Sale it opens
 -- the UI's card, `UI.campExtras.openYardSale(view)`, whose buys come back as `UI.events.buyYardSale(crateId)`, and
--- until the UI has the card it buys the next crate on sale, the prompt naming it and its price. CampExtraResult ok
+-- until the UI has the card it buys the next crate on sale, the prompt naming it and its price and held for
+-- YARD_SALE_HOLD seconds rather than WorldBuilder's 0.3, so a buy is never a tap (review N325). CampExtraResult ok
 -- fires Moments.CampExtraCollect(extraId, anchor position) and shows what it paid with
 -- `UI.campExtras.collected(extraId, paid, prize)`, else a toast; a refusal's toast comes from the server.
 
@@ -26,8 +27,10 @@ local CampExtrasController = {}
 CampExtrasController.state = nil :: Types.CampExtrasState?
 
 local LABEL_SECONDS = 1
+local YARD_SALE_HOLD = 1 -- seconds held to buy at the Yard Sale while it buys at once (no UI card yet)
 
 local prompts: { [ProximityPrompt]: string } = {} -- each extra's prompt on this client and its extra id
+local holds: { [ProximityPrompt]: number } = {} -- each prompt's HoldDuration as the server made it
 
 -- The UI's camp extras hooks come with its picker lines and Yard Sale card; until then the module may not have them.
 local function cardUI(): any
@@ -57,10 +60,18 @@ local function label(prompt: ProximityPrompt, extraId: string)
 		return
 	end
 	local object, action = CampExtras.promptText(extraId, view, Workspace:GetServerTimeNow())
-	if extraId == CampExtras.YARD_SALE and view.open and hook("openYardSale") == nil then
-		local crate = CampExtras.nextYardCrate(view)
-		if crate ~= nil then
-			action = string.format("Buy %s, %d fish", crateName(crate.crateId), crate.price)
+	if extraId == CampExtras.YARD_SALE then
+		local buysAtOnce = hook("openYardSale") == nil
+		if view.open and buysAtOnce then
+			local crate = CampExtras.nextYardCrate(view)
+			if crate ~= nil then
+				action = string.format("Buy %s, %d fish", crateName(crate.crateId), crate.price)
+			end
+		end
+		local made = holds[prompt] or prompt.HoldDuration
+		local hold = if buysAtOnce then math.max(made, YARD_SALE_HOLD) else made
+		if prompt.HoldDuration ~= hold then
+			prompt.HoldDuration = hold
 		end
 	end
 	if prompt.ObjectText ~= object then
@@ -141,6 +152,7 @@ local function track(instance: Instance)
 		return
 	end
 	prompts[found] = extraId
+	holds[found] = found.HoldDuration
 	label(found, extraId)
 	found.Triggered:Connect(function()
 		onTriggered(extraId)
@@ -148,6 +160,7 @@ local function track(instance: Instance)
 	found.AncestryChanged:Connect(function()
 		if not found:IsDescendantOf(Workspace) then
 			prompts[found] = nil
+			holds[found] = nil
 		end
 	end)
 end

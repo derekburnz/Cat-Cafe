@@ -19,7 +19,7 @@ return function()
 		OfflineCapSeconds = 28800,
 		OfflineRatePass = 1.0,
 		OfflineCapPassSeconds = 57600,
-		LongNapPassId = 0, -- 0 until Tools-Agent makes the pass, which keeps it off
+		LongNapPassId = 2064345084, -- Tools-Agent made it 2026-11-02 (off sale until launch)
 		AutosaveSeconds = 60,
 		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and
 		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
@@ -223,6 +223,13 @@ return function()
 		PondHold = 24,
 		LostFoundHold = 3,
 		CampExtraRangeStuds = 8,
+		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec
+		RallyHours = 48,
+		RallyPointsPerPlayer = 30,
+		RallyMinPlayers = 3,
+		RallyMinPoints = 3,
+		RallyMaxLaps = 4,
+		RallyStateSeconds = 0.5,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 same target cooldown 20, v0.5.1 target immunity S45; v0.8 F56)
 		BumpEnabled = true,
 		BumpChance = 1.0, -- v0.8 F56: a shove always drops the cat
@@ -341,6 +348,8 @@ return function()
 				MoneyPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ExtraSlotPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				LostFoundTable = true, -- F100 (camp-extras.md section 2): a table, checked in CampExtras.spec
+				RallyPoints = true, -- F101 (rescue-rally.md section 2): a table, checked in Rally.spec
+				RallyForce = true, -- F101: false, checked in Rally.spec (a false value reads as missing above)
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -395,9 +404,15 @@ return function()
 		)
 
 		it("F95's pass ids and keep up (economy-ladder.md section 7)", function()
-			-- every id 0 until Tools-Agent makes the passes, which keeps their effects off
-			expect(Config.MoneyPassIds :: any).to.deepEqual({ [2] = 0, [3] = 0, [4] = 0 })
+			-- the ids Tools-Agent made on 2026-11-02 (tools/opencloud/passes.json); no extra slot pass yet, which keeps
+			-- its effect off
+			expect(Config.MoneyPassIds :: any).to.deepEqual({ [2] = 2064604577, [3] = 2064670602, [4] = 2064357148 })
 			expect(Config.ExtraSlotPassIds :: any).to.deepEqual({})
+			local ids: { [number]: boolean } = { [Config.LongNapPassId] = true }
+			for _, id in Config.MoneyPassIds do
+				expect(ids[id]).never.to.be.ok()
+				ids[id] = true
+			end
 			-- keep up is off: the shop-only cats use areaMultiplier instead, and it can come back by config
 			expect(next(Config.KeepUpRarities)).to.equal(nil)
 		end)

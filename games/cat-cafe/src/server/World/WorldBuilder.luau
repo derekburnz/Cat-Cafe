@@ -6,6 +6,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerStorage = game:GetService("ServerStorage")
 local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.AssetRegistry)
@@ -953,12 +954,23 @@ local function placeNightFence(asset: string, cframe: CFrame, parent: Instance):
 	return model
 end
 
+-- A long area's model suffix (F85, Layout's artSuffix: "F85"), "" for the rest, on its camp, gate, night fence and
+-- backdrop names.
+local function artSuffix(areaId: string): string
+	local spec = Layout.areas[areaId]
+	return if spec ~= nil and spec.artSuffix ~= nil then spec.artSuffix else ""
+end
+
 -- Every night fence: one behind each area gate's Bars and a closed back door in each plot (the client shows that one
 -- only on an owned cafe, whose back door is open by day). Since v4 (F84) the Alleyway is a wild area like the rest,
 -- emptied at night by the sweep, so the fence along the back alleys' inner edges went with them.
 local function buildNightFences(gates: { [string]: Model }, plots: { Plot }, parent: Instance)
 	for areaId, gate in gates do
-		local asset = "CatCafe_" .. areaId:sub(1, 1):upper() .. areaId:sub(2) .. "_NightFence"
+		local asset = "CatCafe_"
+			.. areaId:sub(1, 1):upper()
+			.. areaId:sub(2)
+			.. "_NightFence"
+			.. artSuffix(areaId)
 		if AssetRegistry.has(asset) then
 			placeNightFence(asset, gate:GetPivot(), parent).Name = asset
 		end
@@ -1001,7 +1013,7 @@ local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
 	local base = CFrame.new(camp.origin.x, 0, camp.origin.z)
 		* CFrame.Angles(0, math.rad(camp.turn), 0)
 	local rect = camp.rect
-	local art = "CatCafe_Camp_" .. campArtName(camp.area)
+	local art = "CatCafe_Camp_" .. campArtName(camp.area) .. artSuffix(camp.area)
 	local hasArt = AssetRegistry.has(art)
 	if hasArt then
 		place(
@@ -1039,7 +1051,7 @@ local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
 	-- Model-Agent's backdrop ring round the area (#741), CatCafe_<Area>_Backdrop, when it is in: built in set space,
 	-- so it pivots as the camp set does, its ground starting at the Ground plate's edge below. Every part is
 	-- non-colliding, unqueried and shadowless. Persistent like the town's, so it never streams out behind a player.
-	local backdropName = "CatCafe_" .. campArtName(camp.area) .. "_Backdrop"
+	local backdropName = "CatCafe_" .. campArtName(camp.area) .. "_Backdrop" .. artSuffix(camp.area)
 	if AssetRegistry.has(backdropName) then
 		local backdrop = place(
 			backdropName,
@@ -1413,11 +1425,11 @@ local function buildGate(
 	parent: Instance
 ): Model
 	local pascal = def.id:sub(1, 1):upper() .. def.id:sub(2)
-	local gate = place(
-		"CatCafe_" .. pascal .. "_Gate",
-		CFrame.new(x, 0.1, z) * CFrame.Angles(0, turn, 0),
-		parent
-	)
+	local asset = "CatCafe_" .. pascal .. "_Gate" .. artSuffix(def.id)
+	if not AssetRegistry.known(asset) then
+		asset = "CatCafe_" .. pascal .. "_Gate" -- a long area's gate before its art is in: the placeholder
+	end
+	local gate = place(asset, CFrame.new(x, 0.1, z) * CFrame.Angles(0, turn, 0), parent)
 	gate.Name = pascal .. "Gate"
 	gate:SetAttribute("Area", def.id)
 	gate:SetAttribute("RequiresTier", def.tier)
@@ -1678,8 +1690,89 @@ local SQUARE_PAVING = "CatCafe_Square_Paving"
 -- back alley with an arch in the middle into it, and the dressing Layout lists (art the AssetRegistry has, or its
 -- placeholder). The stations stand in its quarters (buildSpinWheel and the rest); the square is street, so it is
 -- safe (no catching area covers it).
+-- F101 (rescue-rally.md section 4): the Town Square's Rally dressing, swapped in by WorldBuilder.setRally while a
+-- Rescue Rally runs: the Rally colours' bunting at each edge bunting's spot (Model-Agent #759, the same pivots, spans
+-- and `_Pennant` models) and the Rally board (Layout.townSquare.rallyBoard), tagged RallyBoard for the UI's screen
+-- and VFX's marquee. Off, they wait in ServerStorage.RallyDressing.
+local RALLY_TWINS: { [string]: string } = {
+	CatCafe_Square_Bunting = "CatCafe_Square_RallyBunting",
+	CatCafe_Square_BuntingShort = "CatCafe_Square_RallyBuntingShort",
+}
+local RALLY_BOARD_TAG = "RallyBoard"
+
+type RallySwap = { plain: Instance?, rally: Instance, home: Instance }
+
+local rallySwaps: { RallySwap } = {}
+local rallyStore: Folder? = nil
+local rallyOn = false
+
+local function rallyHolder(): Folder
+	local holder = rallyStore
+	if holder == nil or holder.Parent == nil then
+		local made = Instance.new("Folder")
+		made.Name = "RallyDressing"
+		made.Parent = ServerStorage
+		rallyStore = made
+		return made
+	end
+	return holder
+end
+
+-- Builds the Rally twin of a placed square prop, when it has one and its model is in.
+local function placeRallyTwin(asset: string, at: CFrame, plain: Instance, home: Instance)
+	local twin = RALLY_TWINS[asset]
+	if twin == nil or not AssetRegistry.known(twin) then
+		return
+	end
+	local rally = place(twin, at, rallyHolder())
+	rally.Name = twin
+	local swap: RallySwap = { plain = plain, rally = rally, home = home }
+	table.insert(rallySwaps, swap)
+end
+
+local function placeRallyBoard(home: Instance)
+	local board = Layout.townSquare.rallyBoard
+	if not AssetRegistry.known(board.asset) then
+		return
+	end
+	local model = place(
+		board.asset,
+		CFrame.new(board.x, board.y or 0.1, board.z)
+			* CFrame.Angles(0, math.rad(board.rotY or 0), 0),
+		rallyHolder()
+	)
+	model.Name = board.asset
+	CollectionService:AddTag(model, RALLY_BOARD_TAG)
+	local swap: RallySwap = { plain = nil, rally = model, home = home }
+	table.insert(rallySwaps, swap)
+end
+
+-- Shows the Rally's bunting and board in place of the plain bunting (`on`), or puts them away again.
+function WorldBuilder.setRally(on: boolean)
+	if on == rallyOn then
+		return
+	end
+	rallyOn = on
+	local holder = rallyHolder()
+	for _, swap in rallySwaps do
+		local plain = swap.plain
+		if plain ~= nil then
+			plain.Parent = if on then holder else swap.home
+		end
+		swap.rally.Parent = if on then swap.home else holder
+	end
+end
+
 local function buildTownSquare(parent: Instance)
 	local square = folder("TownSquare", parent)
+	-- a rebuild starts the Rally dressing again, put away
+	local oldStore = rallyStore
+	if oldStore ~= nil then
+		oldStore:Destroy()
+	end
+	rallyStore = nil
+	rallyOn = false
+	table.clear(rallySwaps)
 	local spec = Layout.townSquare
 	local floor = spec.floor
 	-- The paving art brings its own slab and stones; the plain floor and lane marks would share their planes and
@@ -1724,15 +1817,14 @@ local function buildTownSquare(parent: Instance)
 	end
 	for _, prop in spec.props do
 		if AssetRegistry.known(prop.asset) then
-			place(
-				prop.asset,
-				CFrame.new(prop.x, prop.y or 0.1, prop.z)
-					* CFrame.Angles(0, math.rad(prop.rotY or 0), 0),
-				square
-			).Name =
-				prop.asset
+			local at = CFrame.new(prop.x, prop.y or 0.1, prop.z)
+				* CFrame.Angles(0, math.rad(prop.rotY or 0), 0)
+			local model = place(prop.asset, at, square)
+			model.Name = prop.asset
+			placeRallyTwin(prop.asset, at, model, square)
 		end
 	end
+	placeRallyBoard(square)
 end
 
 -- The finger signpost by the cannon (town-layout-v3.md section 7d, Layout.townSquare.signpost), tagged

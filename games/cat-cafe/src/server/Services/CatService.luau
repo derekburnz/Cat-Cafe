@@ -34,6 +34,7 @@ local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
+local RallyService = require(script.Parent.RallyService)
 local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Shove = require(ReplicatedStorage.Shared.Shove)
@@ -1652,6 +1653,8 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 			Catching.shoutOut(player.DisplayName, verb, def, carry.variant)
 		)
 		RareMomentService.secured(player, def, carry.variant, carry.method, hadEpicOrBetter)
+		-- F101: a check-in scores for the Rescue Rally, a rescued cat three times (the rescue's points)
+		RallyService.score(player, if carry.method == "rescue" then "rescue" else "checkIn")
 	end
 end
 

@@ -90,6 +90,7 @@ local WorldTags = require(script.Screens.WorldTags)
 
 local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
+UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 
 UI.Types = Types
 UI.Theme = Theme
@@ -173,6 +174,8 @@ UI.events = {
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
+	-- F100 (camp-extras.md section 3)
+	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
 }
 
 local state: Types.PlayerState = {
@@ -461,6 +464,7 @@ local function render()
 	if cannonScreen and hud then
 		cannonScreen:render(state, hud:isCarrying())
 	end
+	UI.campExtras.render(state)
 	if cannonHint() ~= hintShown then
 		applyTutorial()
 	end
@@ -581,6 +585,11 @@ local function setCatalog(newCatalog: Types.Catalog)
 	if catCard then
 		catCard:setCatalog(newCatalog)
 	end
+	if toasts then
+		toasts:setCatalog(newCatalog) -- the prize toast's pictures
+	end
+	-- cast: the old solver reads UI.campExtras before its block at the end of the file fills it
+	(UI.campExtras :: any).setCatalog(newCatalog)
 end
 
 -- Fill in fields the engineer may not send: tables from upgrade levels, catsOwned from cats.
@@ -1208,6 +1217,7 @@ function UI.init(config: Types.InitConfig)
 	cafeSigns = CafeSigns.new(parent)
 	UI.leaderboards.start(parent) -- the town boards' faces and the crowns over heads (F98)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
+	UI.campExtras.start() -- the Yard Sale card and the Cannon picker's camp extra strips (F100)
 	worldTags = WorldTags.new()
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
@@ -1306,6 +1316,7 @@ function UI.destroy()
 	UI.bigPull.reset()
 	UI.leaderboards.reset()
 	UI.together.reset()
+	UI.campExtras.reset()
 	if hud then
 		hud:destroy()
 	end
@@ -4320,6 +4331,163 @@ do
 		together.pop = nil
 		together.tagToken += 1
 		together.taggedPal = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Camp extras (F100, camp-extras.md section 3)
+----------------------------------------------------------------------------------------------------
+
+-- Controllers/CampExtrasController calls these when present: update(state) with every CampExtrasState (the Cannon
+-- picker's strips and the Yard Sale card), openYardSale(view) from the Yard Sale's prompt, collected(extraId, paid,
+-- prize) after a collect or a buy (the prize toast) and refused(extraId) after a refusal, whose reason the server
+-- toasts. The prompts themselves are Custom style, so the action pill draws them. The last state is kept, so a
+-- rebuilt UI shows the strips at once. Its own block, as the module is short of locals.
+do
+	local CampExtrasLogic = require(script.Components.CampExtrasLogic)
+	local YardSale = require(script.Screens.YardSale)
+	local SharedConfig =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+	local CAMP_TAG = "CampExtra" -- shared/CampExtras.TAG: the placed models, with their ExtraId attribute
+	-- the card closes once the player walks this far from the Yard Sale (its prompt's reach and some slack)
+	local FAR_STUDS: number = (SharedConfig.CampExtraRangeStuds or 8) + 8
+	local camp = {
+		state = nil :: Types.CampExtrasState?,
+		yard = nil :: YardSale.YardSale?,
+	}
+
+	local function yardView(): Types.CampExtraView?
+		local current = camp.state
+		return if current ~= nil then current.yardSale else nil
+	end
+
+	-- Studs from this player's character to the Yard Sale's model, or nil while either is streamed out.
+	local function yardDistance(): number?
+		local character = Players.LocalPlayer.Character
+		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+		if root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		for _, model in CollectionService:GetTagged(CAMP_TAG) do
+			if
+				model:IsA("Model")
+				and model:GetAttribute("ExtraId") == CampExtrasLogic.YARD_SALE
+				and model:IsDescendantOf(Workspace)
+			then
+				return ((model :: Model):GetPivot().Position - (root :: BasePart).Position).Magnitude
+			end
+		end
+		return nil
+	end
+
+	-- UI.init: the Yard Sale card in the modal, the strips from the kept state.
+	function UI.campExtras.start()
+		UI.campExtras.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local yard = YardSale.new({
+			buy = function(crateId: string)
+				UI.events.buyYardSale:Fire(crateId)
+			end,
+			close = function()
+				if modalView:current() == "YardSale" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				local distance = yardDistance()
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		camp.yard = yard
+		modalView:register("YardSale", {
+			frame = yard.frame,
+			onOpen = function()
+				yard:render(state)
+				yard:opened()
+			end,
+			onClose = function()
+				yard:closed()
+			end,
+		})
+		if currentCatalog then
+			yard:setCatalog(currentCatalog)
+		end
+		yard:setView(yardView())
+		if cannonScreen then
+			cannonScreen:setExtras(camp.state)
+		end
+	end
+
+	function UI.campExtras.setCatalog(catalog: Types.Catalog)
+		local yard = camp.yard
+		if yard then
+			yard:setCatalog(catalog)
+			yard:setView(yardView())
+		end
+	end
+
+	function UI.campExtras.render(playerState: Types.PlayerState)
+		local yard = camp.yard
+		if yard then
+			yard:render(playerState)
+		end
+	end
+
+	-- CampExtrasState: each extra's open, held, nextAt and the Yard Sale's stock today.
+	function UI.campExtras.update(extras: Types.CampExtrasState)
+		if type(extras) ~= "table" then
+			return
+		end
+		camp.state = extras
+		if cannonScreen then
+			cannonScreen:setExtras(extras)
+		end
+		local yard = camp.yard
+		if yard then
+			yard:setView(extras.yardSale)
+		end
+	end
+
+	-- The Yard Sale's prompt: its card with today's crates.
+	function UI.campExtras.openYardSale(view: Types.CampExtraView?)
+		local yard = camp.yard
+		local modalView = modal
+		if yard == nil or modalView == nil then
+			return
+		end
+		yard:setView(if view ~= nil then view else yardView())
+		modalView:open("YardSale")
+	end
+
+	-- CampExtraResult ok: the prize toast, the extra's name and what it paid as at most two pictures ("Fish Pond" and
+	-- the gold fish "x14"); with no prize the server's words say it ("Fish Pond: +14 golden fish").
+	function UI.campExtras.collected(extraId: string, paid: { string }?, prize: Types.IndexPrize?)
+		if toasts then
+			toasts:prize(
+				CampExtrasLogic.prizeTitle(extraId, if prize ~= nil then nil else paid),
+				prize
+			)
+		end
+	end
+
+	-- CampExtraResult refused: the Yard Sale's "..." lifts (the server's toast says why).
+	function UI.campExtras.refused(extraId: string)
+		local yard = camp.yard
+		if yard and extraId == CampExtrasLogic.YARD_SALE then
+			yard:refused()
+		end
+	end
+
+	-- UI.destroy: the card goes with the modal; the state stays for the next build.
+	function UI.campExtras.reset()
+		local yard = camp.yard
+		if yard then
+			yard:destroy()
+		end
+		camp.yard = nil
 	end
 end
 

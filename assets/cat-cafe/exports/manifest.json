@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 12:59 UTC",
+  "generated": "2026-11-02 13:20 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -142909,6 +142909,78 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Neighbourhood_Gate.png"
     },
     {
+      "name": "CatCafe_Neighbourhood_GateF85",
+      "category": "Neighbourhood",
+      "module": "areas",
+      "objects": [
+        "CatCafe_Neighbourhood_GateF85",
+        "CatCafe_Neighbourhood_GateF85_Bars",
+        "CatCafe_Neighbourhood_GateF85_SignBoard",
+        "CatCafe_Neighbourhood_GateF85_Lamp_Bulb",
+        "CatCafe_Neighbourhood_GateF85_Flowers"
+      ],
+      "triangles": 3660,
+      "budget": 6000,
+      "size_studs": {
+        "x": 36.62,
+        "y": 7.15,
+        "z": 15.9
+      },
+      "size_roblox": [
+        36.62,
+        15.9,
+        7.15
+      ],
+      "bounds_min": [
+        -18.82,
+        -5.2,
+        0.0
+      ],
+      "bounds_max": [
+        17.8,
+        1.95,
+        15.9
+      ],
+      "pivot": "base centre of the 24 stud opening; -Z faces the camp (F85)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          10.0,
+          2.5
+        ],
+        "centre": [
+          0.0,
+          9.65,
+          -0.85
+        ]
+      },
+      "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). F85: the long Neighbourhood's gate over its 24 stud opening, -Z toward the camp, in place of CatCafe_Neighbourhood_Gate.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_GateF85.model.json",
+      "rbx_parts": 317,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_GateF85.fbx",
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_GateF85.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3660/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1898 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.51 y=-1.62"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Woods_Gate",
       "category": "Woods",
       "module": "areas",
@@ -145040,6 +145112,72 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Neighbourhood_NightFence.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Neighbourhood_NightFence.png"
+    },
+    {
+      "name": "CatCafe_Neighbourhood_NightFenceF85",
+      "category": "Neighbourhood",
+      "module": "night",
+      "objects": [
+        "CatCafe_Neighbourhood_NightFenceF85",
+        "CatCafe_Neighbourhood_NightFenceF85_Moon_Bulb"
+      ],
+      "triangles": 2566,
+      "budget": 6000,
+      "size_studs": {
+        "x": 24.06,
+        "y": 0.93,
+        "z": 8.64
+      },
+      "size_roblox": [
+        24.06,
+        8.64,
+        0.93
+      ],
+      "bounds_min": [
+        -12.03,
+        -0.05,
+        0.0
+      ],
+      "bounds_max": [
+        12.03,
+        0.88,
+        8.64
+      ],
+      "pivot": "the pivot of CatCafe_Neighbourhood_GateF85: place it there with no offset",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placement": {
+        "relative_to": "CatCafe_Neighbourhood_GateF85",
+        "offset_roblox": [
+          0,
+          0,
+          0
+        ],
+        "turn_y_deg": 0,
+        "use": "host:GetPivot()"
+      },
+      "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Neighbourhood_GateF85. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_NightFenceF85.model.json",
+      "rbx_parts": 303,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_NightFenceF85.fbx",
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_NightFenceF85.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2566/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1391 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.41"
+        }
+      }
     },
     {
       "name": "CatCafe_Woods_NightFence",
@@ -153038,6 +153176,1146 @@
       }
     },
     {
+      "name": "CatCafe_Neighbourhood_SetF85",
+      "category": "Neighbourhood",
+      "module": "neighbourhoodf85",
+      "objects": [
+        "CatCafe_Neighbourhood_SetF85",
+        "CatCafe_Neighbourhood_SetF85_000_WallFence",
+        "CatCafe_Neighbourhood_SetF85_001_Pier",
+        "CatCafe_Neighbourhood_SetF85_002_WallHedge",
+        "CatCafe_Neighbourhood_SetF85_003_Pier",
+        "CatCafe_Neighbourhood_SetF85_004_WallBrick",
+        "CatCafe_Neighbourhood_SetF85_005_Pier",
+        "CatCafe_Neighbourhood_SetF85_006_WallFence",
+        "CatCafe_Neighbourhood_SetF85_007_Pier",
+        "CatCafe_Neighbourhood_SetF85_008_WallHedge",
+        "CatCafe_Neighbourhood_SetF85_009_Pier",
+        "CatCafe_Neighbourhood_SetF85_010_WallBrick",
+        "CatCafe_Neighbourhood_SetF85_011_WallBrick",
+        "CatCafe_Neighbourhood_SetF85_012_Pier",
+        "CatCafe_Neighbourhood_SetF85_013_WallFence",
+        "CatCafe_Neighbourhood_SetF85_014_Pier",
+        "CatCafe_Neighbourhood_SetF85_015_WallHedge",
+        "CatCafe_Neighbourhood_SetF85_016_Pier",
+        "CatCafe_Neighbourhood_SetF85_017_WallBrick",
+        "CatCafe_Neighbourhood_SetF85_018_Pier",
+        "CatCafe_Neighbourhood_SetF85_019_WallFence",
+        "CatCafe_Neighbourhood_SetF85_020_Pier",
+        "CatCafe_Neighbourhood_SetF85_021_WallHedge",
+        "CatCafe_Neighbourhood_SetF85_022_Pier",
+        "CatCafe_Neighbourhood_SetF85_023_WallBrick",
+        "CatCafe_Neighbourhood_SetF85_024_Pier",
+        "CatCafe_Neighbourhood_SetF85_025_WallFence",
+        "CatCafe_Neighbourhood_SetF85_026_Pier",
+        "CatCafe_Neighbourhood_SetF85_027_WallHedge",
+        "CatCafe_Neighbourhood_SetF85_028_Pier",
+        "CatCafe_Neighbourhood_SetF85_029_WallBrick",
+        "CatCafe_Neighbourhood_SetF85_030_Pier",
+        "CatCafe_Neighbourhood_SetF85_031_WallFence",
+        "CatCafe_Neighbourhood_SetF85_032_Pier",
+        "CatCafe_Neighbourhood_SetF85_033_WallHedge",
+        "CatCafe_Neighbourhood_SetF85_034_Pier",
+        "CatCafe_Neighbourhood_SetF85_035_WallBrick",
+        "CatCafe_Neighbourhood_SetF85_036_Pier",
+        "CatCafe_Neighbourhood_SetF85_037_WallFence",
+        "CatCafe_Neighbourhood_SetF85_038_WallHedge",
+        "CatCafe_Neighbourhood_SetF85_039_Pier",
+        "CatCafe_Neighbourhood_SetF85_040_WallBrick",
+        "CatCafe_Neighbourhood_SetF85_041_Pier",
+        "CatCafe_Neighbourhood_SetF85_042_WallFence",
+        "CatCafe_Neighbourhood_SetF85_043_Pier",
+        "CatCafe_Neighbourhood_SetF85_044_WallHedge",
+        "CatCafe_Neighbourhood_SetF85_045_Pier",
+        "CatCafe_Neighbourhood_SetF85_046_WallBrick",
+        "CatCafe_Neighbourhood_SetF85_047_Pier",
+        "CatCafe_Neighbourhood_SetF85_048_WallFence",
+        "CatCafe_Neighbourhood_SetF85_049_Pier",
+        "CatCafe_Neighbourhood_SetF85_050_WallHedge",
+        "CatCafe_Neighbourhood_SetF85_051_Pier",
+        "CatCafe_Neighbourhood_SetF85_052_WallBrick",
+        "CatCafe_Neighbourhood_SetF85_053_Pier",
+        "CatCafe_Neighbourhood_SetF85_054_WallFence",
+        "CatCafe_Neighbourhood_SetF85_055_Pier",
+        "CatCafe_Neighbourhood_SetF85_056_WallHedge",
+        "CatCafe_Neighbourhood_SetF85_057_Pier",
+        "CatCafe_Neighbourhood_SetF85_058_WallBrick",
+        "CatCafe_Neighbourhood_SetF85_059_Pier",
+        "CatCafe_Neighbourhood_SetF85_060_WallFence",
+        "CatCafe_Neighbourhood_SetF85_061_Pier",
+        "CatCafe_Neighbourhood_SetF85_062_WallHedge",
+        "CatCafe_Neighbourhood_SetF85_063_Pier",
+        "CatCafe_Neighbourhood_SetF85_064_WallBrick",
+        "CatCafe_Neighbourhood_SetF85_065_Pier",
+        "CatCafe_Neighbourhood_SetF85_066_Pier",
+        "CatCafe_Neighbourhood_SetF85_067_TownHedge",
+        "CatCafe_Neighbourhood_SetF85_068_LampPost",
+        "CatCafe_Neighbourhood_SetF85_068_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_069_Pier",
+        "CatCafe_Neighbourhood_SetF85_070_Pier",
+        "CatCafe_Neighbourhood_SetF85_071_TownHedge",
+        "CatCafe_Neighbourhood_SetF85_072_LampPost",
+        "CatCafe_Neighbourhood_SetF85_072_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_073_Walls_Barrier",
+        "CatCafe_Neighbourhood_SetF85_074_HouseFrontC",
+        "CatCafe_Neighbourhood_SetF85_074_HouseFrontC_Pane",
+        "CatCafe_Neighbourhood_SetF85_074_HouseFrontC_Bulb",
+        "CatCafe_Neighbourhood_SetF85_075_PicketFence",
+        "CatCafe_Neighbourhood_SetF85_076_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_076_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_077_HouseFrontA",
+        "CatCafe_Neighbourhood_SetF85_077_HouseFrontA_Pane",
+        "CatCafe_Neighbourhood_SetF85_077_HouseFrontA_Bulb",
+        "CatCafe_Neighbourhood_SetF85_078_GardenWall",
+        "CatCafe_Neighbourhood_SetF85_079_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_079_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_080_Mailbox",
+        "CatCafe_Neighbourhood_SetF85_081_HouseFrontB",
+        "CatCafe_Neighbourhood_SetF85_081_HouseFrontB_Pane",
+        "CatCafe_Neighbourhood_SetF85_081_HouseFrontB_Bulb",
+        "CatCafe_Neighbourhood_SetF85_082_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_083_Hedge",
+        "CatCafe_Neighbourhood_SetF85_084_HouseFrontC",
+        "CatCafe_Neighbourhood_SetF85_084_HouseFrontC_Pane",
+        "CatCafe_Neighbourhood_SetF85_084_HouseFrontC_Bulb",
+        "CatCafe_Neighbourhood_SetF85_085_PicketFence",
+        "CatCafe_Neighbourhood_SetF85_086_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_086_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_087_Hedge",
+        "CatCafe_Neighbourhood_SetF85_088_SideFence",
+        "CatCafe_Neighbourhood_SetF85_089_SideFence",
+        "CatCafe_Neighbourhood_SetF85_090_SideFence",
+        "CatCafe_Neighbourhood_SetF85_091_SideFence",
+        "CatCafe_Neighbourhood_SetF85_092_SideFence",
+        "CatCafe_Neighbourhood_SetF85_093_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_094_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_095_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_096_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_097_HouseFrontB",
+        "CatCafe_Neighbourhood_SetF85_097_HouseFrontB_Pane",
+        "CatCafe_Neighbourhood_SetF85_097_HouseFrontB_Bulb",
+        "CatCafe_Neighbourhood_SetF85_098_GardenWall",
+        "CatCafe_Neighbourhood_SetF85_099_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_099_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_100_HouseFrontA",
+        "CatCafe_Neighbourhood_SetF85_100_HouseFrontA_Pane",
+        "CatCafe_Neighbourhood_SetF85_100_HouseFrontA_Bulb",
+        "CatCafe_Neighbourhood_SetF85_101_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_102_Mailbox",
+        "CatCafe_Neighbourhood_SetF85_103_SideFence",
+        "CatCafe_Neighbourhood_SetF85_104_SideFence",
+        "CatCafe_Neighbourhood_SetF85_105_SideFence",
+        "CatCafe_Neighbourhood_SetF85_106_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_107_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_108_HouseFrontA",
+        "CatCafe_Neighbourhood_SetF85_108_HouseFrontA_Pane",
+        "CatCafe_Neighbourhood_SetF85_108_HouseFrontA_Bulb",
+        "CatCafe_Neighbourhood_SetF85_109_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_110_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_110_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_111_HouseFrontC",
+        "CatCafe_Neighbourhood_SetF85_111_HouseFrontC_Pane",
+        "CatCafe_Neighbourhood_SetF85_111_HouseFrontC_Bulb",
+        "CatCafe_Neighbourhood_SetF85_112_PicketFence",
+        "CatCafe_Neighbourhood_SetF85_113_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_113_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_114_HouseFrontB",
+        "CatCafe_Neighbourhood_SetF85_114_HouseFrontB_Pane",
+        "CatCafe_Neighbourhood_SetF85_114_HouseFrontB_Bulb",
+        "CatCafe_Neighbourhood_SetF85_115_GardenWall",
+        "CatCafe_Neighbourhood_SetF85_116_Hedge",
+        "CatCafe_Neighbourhood_SetF85_117_Mailbox",
+        "CatCafe_Neighbourhood_SetF85_118_HouseFrontA",
+        "CatCafe_Neighbourhood_SetF85_118_HouseFrontA_Pane",
+        "CatCafe_Neighbourhood_SetF85_118_HouseFrontA_Bulb",
+        "CatCafe_Neighbourhood_SetF85_119_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_120_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_120_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_121_SideFence",
+        "CatCafe_Neighbourhood_SetF85_122_SideFence",
+        "CatCafe_Neighbourhood_SetF85_123_SideFence",
+        "CatCafe_Neighbourhood_SetF85_124_SideFence",
+        "CatCafe_Neighbourhood_SetF85_125_SideFence",
+        "CatCafe_Neighbourhood_SetF85_126_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_127_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_128_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_129_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_130_HouseFrontC",
+        "CatCafe_Neighbourhood_SetF85_130_HouseFrontC_Pane",
+        "CatCafe_Neighbourhood_SetF85_130_HouseFrontC_Bulb",
+        "CatCafe_Neighbourhood_SetF85_131_GardenWall",
+        "CatCafe_Neighbourhood_SetF85_132_Hedge",
+        "CatCafe_Neighbourhood_SetF85_133_HouseFrontB",
+        "CatCafe_Neighbourhood_SetF85_133_HouseFrontB_Pane",
+        "CatCafe_Neighbourhood_SetF85_133_HouseFrontB_Bulb",
+        "CatCafe_Neighbourhood_SetF85_134_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_135_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_135_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_136_SideFence",
+        "CatCafe_Neighbourhood_SetF85_137_SideFence",
+        "CatCafe_Neighbourhood_SetF85_138_SideFence",
+        "CatCafe_Neighbourhood_SetF85_139_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_140_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_141_SideFence",
+        "CatCafe_Neighbourhood_SetF85_142_SideFence",
+        "CatCafe_Neighbourhood_SetF85_143_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_144_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_145_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_146_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_147_HouseFrontB",
+        "CatCafe_Neighbourhood_SetF85_147_HouseFrontB_Pane",
+        "CatCafe_Neighbourhood_SetF85_147_HouseFrontB_Bulb",
+        "CatCafe_Neighbourhood_SetF85_148_PicketFence",
+        "CatCafe_Neighbourhood_SetF85_149_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_149_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_150_HouseFrontC",
+        "CatCafe_Neighbourhood_SetF85_150_HouseFrontC_Pane",
+        "CatCafe_Neighbourhood_SetF85_150_HouseFrontC_Bulb",
+        "CatCafe_Neighbourhood_SetF85_151_GardenWall",
+        "CatCafe_Neighbourhood_SetF85_152_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_152_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_153_Mailbox",
+        "CatCafe_Neighbourhood_SetF85_154_SideFence",
+        "CatCafe_Neighbourhood_SetF85_155_SideFence",
+        "CatCafe_Neighbourhood_SetF85_156_SideFence",
+        "CatCafe_Neighbourhood_SetF85_157_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_158_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_159_HouseFrontA",
+        "CatCafe_Neighbourhood_SetF85_159_HouseFrontA_Pane",
+        "CatCafe_Neighbourhood_SetF85_159_HouseFrontA_Bulb",
+        "CatCafe_Neighbourhood_SetF85_160_GardenWall",
+        "CatCafe_Neighbourhood_SetF85_161_Hedge",
+        "CatCafe_Neighbourhood_SetF85_162_HouseFrontC",
+        "CatCafe_Neighbourhood_SetF85_162_HouseFrontC_Pane",
+        "CatCafe_Neighbourhood_SetF85_162_HouseFrontC_Bulb",
+        "CatCafe_Neighbourhood_SetF85_163_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_164_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_164_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_165_Bungalow",
+        "CatCafe_Neighbourhood_SetF85_165_Bungalow_Pane",
+        "CatCafe_Neighbourhood_SetF85_165_Bungalow_Bulb",
+        "CatCafe_Neighbourhood_SetF85_166_PicketFence",
+        "CatCafe_Neighbourhood_SetF85_167_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_167_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_168_HouseFrontB",
+        "CatCafe_Neighbourhood_SetF85_168_HouseFrontB_Pane",
+        "CatCafe_Neighbourhood_SetF85_168_HouseFrontB_Bulb",
+        "CatCafe_Neighbourhood_SetF85_169_GardenWall",
+        "CatCafe_Neighbourhood_SetF85_170_Mailbox",
+        "CatCafe_Neighbourhood_SetF85_171_SideFence",
+        "CatCafe_Neighbourhood_SetF85_172_SideFence",
+        "CatCafe_Neighbourhood_SetF85_173_SideFence",
+        "CatCafe_Neighbourhood_SetF85_174_SideFence",
+        "CatCafe_Neighbourhood_SetF85_175_SideFence",
+        "CatCafe_Neighbourhood_SetF85_176_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_177_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_178_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_179_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_180_HouseFrontA",
+        "CatCafe_Neighbourhood_SetF85_180_HouseFrontA_Pane",
+        "CatCafe_Neighbourhood_SetF85_180_HouseFrontA_Bulb",
+        "CatCafe_Neighbourhood_SetF85_181_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_182_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_182_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_183_HouseFrontB",
+        "CatCafe_Neighbourhood_SetF85_183_HouseFrontB_Pane",
+        "CatCafe_Neighbourhood_SetF85_183_HouseFrontB_Bulb",
+        "CatCafe_Neighbourhood_SetF85_184_PicketFence",
+        "CatCafe_Neighbourhood_SetF85_185_Hedge",
+        "CatCafe_Neighbourhood_SetF85_186_SideFence",
+        "CatCafe_Neighbourhood_SetF85_187_SideFence",
+        "CatCafe_Neighbourhood_SetF85_188_SideFence",
+        "CatCafe_Neighbourhood_SetF85_189_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_190_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_191_HouseFrontC",
+        "CatCafe_Neighbourhood_SetF85_191_HouseFrontC_Pane",
+        "CatCafe_Neighbourhood_SetF85_191_HouseFrontC_Bulb",
+        "CatCafe_Neighbourhood_SetF85_192_GardenWall",
+        "CatCafe_Neighbourhood_SetF85_193_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_193_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_194_Mailbox",
+        "CatCafe_Neighbourhood_SetF85_195_HouseFrontA",
+        "CatCafe_Neighbourhood_SetF85_195_HouseFrontA_Pane",
+        "CatCafe_Neighbourhood_SetF85_195_HouseFrontA_Bulb",
+        "CatCafe_Neighbourhood_SetF85_196_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_197_Hedge",
+        "CatCafe_Neighbourhood_SetF85_198_HouseFrontB",
+        "CatCafe_Neighbourhood_SetF85_198_HouseFrontB_Pane",
+        "CatCafe_Neighbourhood_SetF85_198_HouseFrontB_Bulb",
+        "CatCafe_Neighbourhood_SetF85_199_PicketFence",
+        "CatCafe_Neighbourhood_SetF85_200_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_200_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_201_HouseFrontC",
+        "CatCafe_Neighbourhood_SetF85_201_HouseFrontC_Pane",
+        "CatCafe_Neighbourhood_SetF85_201_HouseFrontC_Bulb",
+        "CatCafe_Neighbourhood_SetF85_202_GardenWall",
+        "CatCafe_Neighbourhood_SetF85_203_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_203_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_204_SideFence",
+        "CatCafe_Neighbourhood_SetF85_205_SideFence",
+        "CatCafe_Neighbourhood_SetF85_206_SideFence",
+        "CatCafe_Neighbourhood_SetF85_207_SideFence",
+        "CatCafe_Neighbourhood_SetF85_208_SideFence",
+        "CatCafe_Neighbourhood_SetF85_209_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_210_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_211_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_212_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_213_SideFence",
+        "CatCafe_Neighbourhood_SetF85_214_SideFence",
+        "CatCafe_Neighbourhood_SetF85_215_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_216_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_217_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_218_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_219_BackTrees",
+        "CatCafe_Neighbourhood_SetF85_220_BusStop",
+        "CatCafe_Neighbourhood_SetF85_220_BusStop_Glass",
+        "CatCafe_Neighbourhood_SetF85_221_PostBox",
+        "CatCafe_Neighbourhood_SetF85_222_Bench",
+        "CatCafe_Neighbourhood_SetF85_223_Bench",
+        "CatCafe_Neighbourhood_SetF85_224_RecyclingBins",
+        "CatCafe_Neighbourhood_SetF85_225_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_225_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_226_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_226_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_227_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_227_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_228_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_228_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_229_StreetSign",
+        "CatCafe_Neighbourhood_SetF85_230_StreetSign",
+        "CatCafe_Neighbourhood_SetF85_231_Car",
+        "CatCafe_Neighbourhood_SetF85_231_Car_Glass",
+        "CatCafe_Neighbourhood_SetF85_232_Car",
+        "CatCafe_Neighbourhood_SetF85_232_Car_Glass",
+        "CatCafe_Neighbourhood_SetF85_233_Car",
+        "CatCafe_Neighbourhood_SetF85_233_Car_Glass",
+        "CatCafe_Neighbourhood_SetF85_234_StreetSign",
+        "CatCafe_Neighbourhood_SetF85_235_Oak",
+        "CatCafe_Neighbourhood_SetF85_236_Oak",
+        "CatCafe_Neighbourhood_SetF85_237_Oak",
+        "CatCafe_Neighbourhood_SetF85_238_PicnicTable",
+        "CatCafe_Neighbourhood_SetF85_239_PicnicTable",
+        "CatCafe_Neighbourhood_SetF85_240_Bench",
+        "CatCafe_Neighbourhood_SetF85_241_Bench",
+        "CatCafe_Neighbourhood_SetF85_242_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_242_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_243_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_243_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_244_VillageSign",
+        "CatCafe_Neighbourhood_SetF85_244_VillageSignText",
+        "CatCafe_Neighbourhood_SetF85_245_BirdBath",
+        "CatCafe_Neighbourhood_SetF85_245_BirdBath_Water",
+        "CatCafe_Neighbourhood_SetF85_246_IceCreamVan",
+        "CatCafe_Neighbourhood_SetF85_246_IceCreamVan_Glass",
+        "CatCafe_Neighbourhood_SetF85_247_GreenFence",
+        "CatCafe_Neighbourhood_SetF85_247_GreenFence_Barrier",
+        "CatCafe_Neighbourhood_SetF85_248_Fingerpost",
+        "CatCafe_Neighbourhood_SetF85_249_VegBed",
+        "CatCafe_Neighbourhood_SetF85_249_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_250_VegBed",
+        "CatCafe_Neighbourhood_SetF85_250_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_251_VegBed",
+        "CatCafe_Neighbourhood_SetF85_251_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_252_VegBed",
+        "CatCafe_Neighbourhood_SetF85_252_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_253_VegBed",
+        "CatCafe_Neighbourhood_SetF85_253_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_254_VegBed",
+        "CatCafe_Neighbourhood_SetF85_254_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_255_VegBed",
+        "CatCafe_Neighbourhood_SetF85_255_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_256_VegBed",
+        "CatCafe_Neighbourhood_SetF85_256_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_257_VegBed",
+        "CatCafe_Neighbourhood_SetF85_257_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_258_VegBed",
+        "CatCafe_Neighbourhood_SetF85_258_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_259_VegBed",
+        "CatCafe_Neighbourhood_SetF85_259_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_260_VegBed",
+        "CatCafe_Neighbourhood_SetF85_260_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_261_VegBed",
+        "CatCafe_Neighbourhood_SetF85_261_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_262_VegBed",
+        "CatCafe_Neighbourhood_SetF85_262_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_263_VegBed",
+        "CatCafe_Neighbourhood_SetF85_263_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_264_VegBed",
+        "CatCafe_Neighbourhood_SetF85_264_VegBed_Decor",
+        "CatCafe_Neighbourhood_SetF85_265_CropRows_Decor",
+        "CatCafe_Neighbourhood_SetF85_266_GardenShed",
+        "CatCafe_Neighbourhood_SetF85_266_GardenShed_Glass",
+        "CatCafe_Neighbourhood_SetF85_267_WaterButt",
+        "CatCafe_Neighbourhood_SetF85_268_Greenhouse",
+        "CatCafe_Neighbourhood_SetF85_268_Greenhouse_Glass",
+        "CatCafe_Neighbourhood_SetF85_268_Greenhouse_Decor",
+        "CatCafe_Neighbourhood_SetF85_269_Scarecrow",
+        "CatCafe_Neighbourhood_SetF85_269_Scarecrow_Decor",
+        "CatCafe_Neighbourhood_SetF85_270_CompostBin",
+        "CatCafe_Neighbourhood_SetF85_271_PottingShed",
+        "CatCafe_Neighbourhood_SetF85_272_WaterButt",
+        "CatCafe_Neighbourhood_SetF85_273_Sunflowers_Flowers",
+        "CatCafe_Neighbourhood_SetF85_274_Bench",
+        "CatCafe_Neighbourhood_SetF85_275_Works",
+        "CatCafe_Neighbourhood_SetF85_275_Works_Bulb",
+        "CatCafe_Neighbourhood_SetF85_275_Works_Decor",
+        "CatCafe_Neighbourhood_SetF85_275_Works_Barrier",
+        "CatCafe_Neighbourhood_SetF85_276_Digger",
+        "CatCafe_Neighbourhood_SetF85_276_Digger_Glass",
+        "CatCafe_Neighbourhood_SetF85_277_Skip",
+        "CatCafe_Neighbourhood_SetF85_278_TrafficCone",
+        "CatCafe_Neighbourhood_SetF85_279_TrafficCone",
+        "CatCafe_Neighbourhood_SetF85_280_TrafficCone",
+        "CatCafe_Neighbourhood_SetF85_281_TrafficCone",
+        "CatCafe_Neighbourhood_SetF85_282_TrafficCone",
+        "CatCafe_Neighbourhood_SetF85_283_WorksSign",
+        "CatCafe_Neighbourhood_SetF85_283_WorksSignText",
+        "CatCafe_Neighbourhood_SetF85_284_WorksSign",
+        "CatCafe_Neighbourhood_SetF85_284_WorksSignText",
+        "CatCafe_Neighbourhood_SetF85_285_SiteHut",
+        "CatCafe_Neighbourhood_SetF85_285_SiteHut_Pane",
+        "CatCafe_Neighbourhood_SetF85_285_SiteHut_Bulb",
+        "CatCafe_Neighbourhood_SetF85_286_StreetSign",
+        "CatCafe_Neighbourhood_SetF85_287_Car",
+        "CatCafe_Neighbourhood_SetF85_287_Car_Glass",
+        "CatCafe_Neighbourhood_SetF85_288_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_289_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_290_Trampoline",
+        "CatCafe_Neighbourhood_SetF85_291_WashingLine",
+        "CatCafe_Neighbourhood_SetF85_291_WashingLine_Decor",
+        "CatCafe_Neighbourhood_SetF85_292_DeckChair",
+        "CatCafe_Neighbourhood_SetF85_293_DeckChair",
+        "CatCafe_Neighbourhood_SetF85_294_BBQGrill",
+        "CatCafe_Neighbourhood_SetF85_295_GardenGnome",
+        "CatCafe_Neighbourhood_SetF85_296_GardenGnome",
+        "CatCafe_Neighbourhood_SetF85_297_KiddiePool",
+        "CatCafe_Neighbourhood_SetF85_297_KiddiePool_Water",
+        "CatCafe_Neighbourhood_SetF85_298_Playhouse",
+        "CatCafe_Neighbourhood_SetF85_298_Playhouse_Flowers",
+        "CatCafe_Neighbourhood_SetF85_299_BirdBath",
+        "CatCafe_Neighbourhood_SetF85_299_BirdBath_Water",
+        "CatCafe_Neighbourhood_SetF85_300_Greenhouse",
+        "CatCafe_Neighbourhood_SetF85_300_Greenhouse_Glass",
+        "CatCafe_Neighbourhood_SetF85_300_Greenhouse_Decor",
+        "CatCafe_Neighbourhood_SetF85_301_GardenShed",
+        "CatCafe_Neighbourhood_SetF85_301_GardenShed_Glass",
+        "CatCafe_Neighbourhood_SetF85_302_PottingShed",
+        "CatCafe_Neighbourhood_SetF85_303_Bench",
+        "CatCafe_Neighbourhood_SetF85_304_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_304_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_305_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_305_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_306_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_306_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_307_GardenWall",
+        "CatCafe_Neighbourhood_SetF85_307_GardenWall_Bulb",
+        "CatCafe_Neighbourhood_SetF85_307_GardenWall_Barrier",
+        "CatCafe_Neighbourhood_SetF85_307_GardenWallSign",
+        "CatCafe_Neighbourhood_SetF85_308_StreetSign",
+        "CatCafe_Neighbourhood_SetF85_309_Bench",
+        "CatCafe_Neighbourhood_SetF85_310_Bench",
+        "CatCafe_Neighbourhood_SetF85_311_CornerShop",
+        "CatCafe_Neighbourhood_SetF85_311_CornerShop_Pane",
+        "CatCafe_Neighbourhood_SetF85_311_CornerShop_Bulb",
+        "CatCafe_Neighbourhood_SetF85_311_CornerShop_Decor",
+        "CatCafe_Neighbourhood_SetF85_311_CornerShopSign",
+        "CatCafe_Neighbourhood_SetF85_312_Bench",
+        "CatCafe_Neighbourhood_SetF85_313_Bicycle",
+        "CatCafe_Neighbourhood_SetF85_314_PostBox",
+        "CatCafe_Neighbourhood_SetF85_315_Planter",
+        "CatCafe_Neighbourhood_SetF85_315_Planter_Flowers",
+        "CatCafe_Neighbourhood_SetF85_316_LampPost",
+        "CatCafe_Neighbourhood_SetF85_316_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_317_Planter",
+        "CatCafe_Neighbourhood_SetF85_317_Planter_Flowers",
+        "CatCafe_Neighbourhood_SetF85_318_LampPost",
+        "CatCafe_Neighbourhood_SetF85_318_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_319_TyreSwingOak",
+        "CatCafe_Neighbourhood_SetF85_320_Slide",
+        "CatCafe_Neighbourhood_SetF85_320_Slide_Climb",
+        "CatCafe_Neighbourhood_SetF85_321_Swings",
+        "CatCafe_Neighbourhood_SetF85_322_Sandbox",
+        "CatCafe_Neighbourhood_SetF85_323_Roundabout",
+        "CatCafe_Neighbourhood_SetF85_324_Seesaw",
+        "CatCafe_Neighbourhood_SetF85_325_SpringRider",
+        "CatCafe_Neighbourhood_SetF85_326_SpringRider",
+        "CatCafe_Neighbourhood_SetF85_327_Bench",
+        "CatCafe_Neighbourhood_SetF85_328_Bench",
+        "CatCafe_Neighbourhood_SetF85_329_HouseFrontA",
+        "CatCafe_Neighbourhood_SetF85_329_HouseFrontA_Pane",
+        "CatCafe_Neighbourhood_SetF85_329_HouseFrontA_Bulb",
+        "CatCafe_Neighbourhood_SetF85_330_PicketFence",
+        "CatCafe_Neighbourhood_SetF85_331_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_331_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_332_Bungalow",
+        "CatCafe_Neighbourhood_SetF85_332_Bungalow_Pane",
+        "CatCafe_Neighbourhood_SetF85_332_Bungalow_Bulb",
+        "CatCafe_Neighbourhood_SetF85_333_GardenWall",
+        "CatCafe_Neighbourhood_SetF85_334_FlowerBed",
+        "CatCafe_Neighbourhood_SetF85_334_FlowerBed_Flowers",
+        "CatCafe_Neighbourhood_SetF85_335_Mailbox",
+        "CatCafe_Neighbourhood_SetF85_336_SideFence",
+        "CatCafe_Neighbourhood_SetF85_337_SideFence",
+        "CatCafe_Neighbourhood_SetF85_338_SideFence",
+        "CatCafe_Neighbourhood_SetF85_339_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_340_BoxHedge",
+        "CatCafe_Neighbourhood_SetF85_341_SideFence",
+        "CatCafe_Neighbourhood_SetF85_342_LowHedge",
+        "CatCafe_Neighbourhood_SetF85_343_FarTrees",
+        "CatCafe_Neighbourhood_SetF85_344_LampPost",
+        "CatCafe_Neighbourhood_SetF85_344_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_345_LampPost",
+        "CatCafe_Neighbourhood_SetF85_345_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_346_LampPost",
+        "CatCafe_Neighbourhood_SetF85_346_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_347_LampPost",
+        "CatCafe_Neighbourhood_SetF85_347_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_348_LampPost",
+        "CatCafe_Neighbourhood_SetF85_348_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_349_LampPost",
+        "CatCafe_Neighbourhood_SetF85_349_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_350_LampPost",
+        "CatCafe_Neighbourhood_SetF85_350_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_351_LampPost",
+        "CatCafe_Neighbourhood_SetF85_351_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_352_LampPost",
+        "CatCafe_Neighbourhood_SetF85_352_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_353_LampPost",
+        "CatCafe_Neighbourhood_SetF85_353_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_354_LampPost",
+        "CatCafe_Neighbourhood_SetF85_354_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_355_LampPost",
+        "CatCafe_Neighbourhood_SetF85_355_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_356_LampPost",
+        "CatCafe_Neighbourhood_SetF85_356_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_357_LampPost",
+        "CatCafe_Neighbourhood_SetF85_357_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_358_LampPost",
+        "CatCafe_Neighbourhood_SetF85_358_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_359_LampPost",
+        "CatCafe_Neighbourhood_SetF85_359_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_360_LampPost",
+        "CatCafe_Neighbourhood_SetF85_360_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_361_LampPost",
+        "CatCafe_Neighbourhood_SetF85_361_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_362_LampPost",
+        "CatCafe_Neighbourhood_SetF85_362_LampPost_Bulb",
+        "CatCafe_Neighbourhood_SetF85_363_Trees",
+        "CatCafe_Neighbourhood_SetF85_364_Blocks_Barrier"
+      ],
+      "triangles": 118148,
+      "budget": 150000,
+      "size_studs": {
+        "x": 179.5,
+        "y": 429.8,
+        "z": 30.08
+      },
+      "size_roblox": [
+        179.5,
+        30.08,
+        429.8
+      ],
+      "bounds_min": [
+        -89.75,
+        -215.05,
+        -0.08
+      ],
+      "bounds_max": [
+        89.75,
+        214.75,
+        30.0
+      ],
+      "pivot": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "porch": [
+          [
+            -67.2,
+            1.0,
+            -166.9,
+            "near"
+          ],
+          [
+            10.8,
+            1.0,
+            -166.9,
+            "near"
+          ],
+          [
+            0.7,
+            1.0,
+            -127.1,
+            "near"
+          ],
+          [
+            46.2,
+            1.0,
+            -127.1,
+            "near"
+          ],
+          [
+            -70.2,
+            1.0,
+            27.1,
+            "deep"
+          ],
+          [
+            -0.7,
+            1.0,
+            27.1,
+            "deep"
+          ],
+          [
+            72.8,
+            1.0,
+            27.1,
+            "deep"
+          ],
+          [
+            -51.8,
+            1.0,
+            66.9,
+            "deep"
+          ],
+          [
+            -10.8,
+            1.0,
+            66.9,
+            "deep"
+          ],
+          [
+            67.2,
+            1.0,
+            66.9,
+            "deep"
+          ],
+          [
+            51.3,
+            1.0,
+            179.1,
+            "deep"
+          ]
+        ],
+        "flowerbed": [
+          [
+            -34.5,
+            0.7,
+            -170.2,
+            "near"
+          ],
+          [
+            55.5,
+            0.7,
+            -170.2,
+            "near"
+          ],
+          [
+            -50.5,
+            0.7,
+            -123.8,
+            "near"
+          ],
+          [
+            -42.5,
+            0.7,
+            23.8,
+            "deep"
+          ],
+          [
+            24.5,
+            0.7,
+            23.8,
+            "deep"
+          ],
+          [
+            50.5,
+            0.7,
+            23.8,
+            "deep"
+          ],
+          [
+            -82.5,
+            0.7,
+            70.2,
+            "deep"
+          ],
+          [
+            37.5,
+            0.7,
+            70.2,
+            "deep"
+          ],
+          [
+            -18.0,
+            0.62,
+            -100.0,
+            "near"
+          ],
+          [
+            6.0,
+            0.7,
+            96.0,
+            "deep"
+          ],
+          [
+            76.5,
+            0.7,
+            175.8,
+            "deep"
+          ]
+        ],
+        "trap_gutter": [
+          [
+            36.4,
+            7.05,
+            28.5,
+            "deep",
+            0
+          ],
+          [
+            62.4,
+            7.05,
+            180.5,
+            "deep",
+            0
+          ]
+        ],
+        "bus_stop": [
+          [
+            -14.6,
+            1.65,
+            -200.0,
+            "near"
+          ]
+        ],
+        "post_box": [
+          [
+            16.2,
+            0.0,
+            -196.0,
+            "near"
+          ]
+        ],
+        "verge_bench": [
+          [
+            -58.0,
+            0.0,
+            -197.6,
+            "near"
+          ],
+          [
+            56.0,
+            0.0,
+            -197.6,
+            "near"
+          ],
+          [
+            -60.0,
+            0.0,
+            156.8,
+            "deep"
+          ]
+        ],
+        "bins": [
+          [
+            44.0,
+            0.0,
+            -207.0,
+            "near"
+          ]
+        ],
+        "car": [
+          [
+            -40.0,
+            0.34,
+            -187.0,
+            "near"
+          ],
+          [
+            -60.0,
+            0.34,
+            87.0,
+            "deep"
+          ]
+        ],
+        "oak": [
+          [
+            -58.5,
+            0.0,
+            -93.0,
+            "near"
+          ]
+        ],
+        "picnic": [
+          [
+            -40.56,
+            0.0,
+            -99.96,
+            "near"
+          ],
+          [
+            44.69,
+            0.0,
+            -99.94,
+            "near"
+          ]
+        ],
+        "green_bench": [
+          [
+            -57.66,
+            0.0,
+            -68.55,
+            "near"
+          ]
+        ],
+        "birdbath": [
+          [
+            36.5,
+            0.0,
+            -82.0,
+            "near"
+          ],
+          [
+            18.5,
+            0.0,
+            112.0,
+            "deep"
+          ]
+        ],
+        "van": [
+          [
+            -47.0,
+            0.34,
+            -107.4,
+            "near"
+          ]
+        ],
+        "veg_bed": [
+          [
+            -67.6,
+            0.6,
+            -46,
+            "near"
+          ],
+          [
+            0.4,
+            0.6,
+            -46,
+            "near"
+          ],
+          [
+            -39.6,
+            0.6,
+            -8,
+            "near"
+          ]
+        ],
+        "trap_shed": [
+          [
+            65.4,
+            0.0,
+            -33.3,
+            "near",
+            0
+          ],
+          [
+            76.7,
+            0.0,
+            108.6,
+            "deep",
+            90
+          ]
+        ],
+        "greenhouse": [
+          [
+            -72.0,
+            0.52,
+            -11.0,
+            "near"
+          ],
+          [
+            72.0,
+            0.52,
+            137.0,
+            "deep"
+          ]
+        ],
+        "scarecrow": [
+          [
+            27.5,
+            0.0,
+            -41.5,
+            "near"
+          ]
+        ],
+        "compost": [
+          [
+            80.5,
+            0.0,
+            -30.0,
+            "near"
+          ]
+        ],
+        "water_butt": [
+          [
+            -58.5,
+            0.0,
+            -35.5,
+            "near"
+          ]
+        ],
+        "sunflowers": [
+          [
+            50.5,
+            0.0,
+            2.0,
+            "deep"
+          ]
+        ],
+        "allot_bench": [
+          [
+            -8.0,
+            0.0,
+            0.4,
+            "deep"
+          ]
+        ],
+        "allotments": [
+          [
+            -30.0,
+            0.0,
+            -24.0,
+            "near"
+          ]
+        ],
+        "works_hut": [
+          [
+            -73.8,
+            0.0,
+            -3.8,
+            "near"
+          ]
+        ],
+        "works": [
+          [
+            4.0,
+            0.34,
+            7.5,
+            "deep"
+          ],
+          [
+            -62.0,
+            0.34,
+            20.5,
+            "deep"
+          ]
+        ],
+        "trampoline": [
+          [
+            -72.0,
+            1.73,
+            100.0,
+            "deep"
+          ]
+        ],
+        "washing": [
+          [
+            -60.0,
+            0.0,
+            131.5,
+            "deep"
+          ]
+        ],
+        "deckchair": [
+          [
+            -80.0,
+            0.0,
+            104.5,
+            "deep"
+          ]
+        ],
+        "gnomes": [
+          [
+            -46.0,
+            0.0,
+            104.0,
+            "deep"
+          ]
+        ],
+        "pool": [
+          [
+            -40.0,
+            0.0,
+            133.0,
+            "deep"
+          ]
+        ],
+        "playhouse": [
+          [
+            57.2,
+            0.0,
+            103.0,
+            "deep"
+          ]
+        ],
+        "garden_bench": [
+          [
+            -1.11,
+            0.0,
+            125.77,
+            "deep"
+          ]
+        ],
+        "garden": [
+          [
+            -84.0,
+            0.0,
+            140.0,
+            "deep"
+          ],
+          [
+            84.0,
+            0.0,
+            96.0,
+            "deep"
+          ]
+        ],
+        "verge": [
+          [
+            74.0,
+            0.0,
+            154.5,
+            "deep"
+          ]
+        ],
+        "shop_step": [
+          [
+            0.0,
+            0.4,
+            198.3,
+            "deep"
+          ]
+        ],
+        "fruit_stall": [
+          [
+            -9.0,
+            0.3,
+            195.1,
+            "deep"
+          ]
+        ],
+        "shop_bench": [
+          [
+            -12.5,
+            0.3,
+            188.3,
+            "deep"
+          ]
+        ],
+        "tyre": [
+          [
+            -78.89,
+            0.0,
+            199.44,
+            "deep"
+          ]
+        ],
+        "slide": [
+          [
+            -28.0,
+            4.0,
+            198.0,
+            "deep"
+          ]
+        ],
+        "swings": [
+          [
+            -53.0,
+            0.0,
+            200.5,
+            "deep"
+          ]
+        ],
+        "sandbox": [
+          [
+            -32.61,
+            0.55,
+            184.97,
+            "deep"
+          ]
+        ],
+        "roundabout": [
+          [
+            -56.0,
+            0.72,
+            186.0,
+            "deep"
+          ]
+        ],
+        "seesaw": [
+          [
+            -76.0,
+            0.0,
+            179.4,
+            "deep"
+          ]
+        ],
+        "play_bench": [
+          [
+            -40.0,
+            0.0,
+            177.4,
+            "deep"
+          ]
+        ],
+        "lawn": [
+          [
+            22.0,
+            0.0,
+            180.0,
+            "deep"
+          ]
+        ],
+        "far": [
+          [
+            -82.0,
+            0.05,
+            179.0,
+            "deep"
+          ],
+          [
+            -6.0,
+            0.3,
+            176.0,
+            "deep"
+          ]
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_SetF85.model.json",
+      "rbx_parts": 6129,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_SetF85.fbx",
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_SetF85.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "118148/150000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "71027 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.08 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.15"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Plot_BackDoor",
       "category": "Plot",
       "module": "doors",
@@ -159975,6 +161253,131 @@
       }
     },
     {
+      "name": "CatCafe_Camp_NeighbourhoodF85",
+      "category": "Camp",
+      "module": "camps",
+      "objects": [
+        "CatCafe_Camp_NeighbourhoodF85",
+        "CatCafe_Camp_NeighbourhoodF85_000_Basket",
+        "CatCafe_Camp_NeighbourhoodF85_001_Mailbox",
+        "CatCafe_Camp_NeighbourhoodF85_002_RecyclingBins",
+        "CatCafe_Camp_NeighbourhoodF85_003_LampPost",
+        "CatCafe_Camp_NeighbourhoodF85_003_LampPost_Bulb",
+        "CatCafe_Camp_NeighbourhoodF85_004_PicketFence",
+        "CatCafe_Camp_NeighbourhoodF85_005_PicketFence",
+        "CatCafe_Camp_NeighbourhoodF85_006_PicketFence",
+        "CatCafe_Camp_NeighbourhoodF85_007_PicketFence",
+        "CatCafe_Camp_NeighbourhoodF85_008_FlowerBed",
+        "CatCafe_Camp_NeighbourhoodF85_008_FlowerBed_Decor",
+        "CatCafe_Camp_NeighbourhoodF85_009_FlowerBed",
+        "CatCafe_Camp_NeighbourhoodF85_009_FlowerBed_Decor",
+        "CatCafe_Camp_NeighbourhoodF85_010_Tree",
+        "CatCafe_Camp_NeighbourhoodF85_011_Hedge",
+        "CatCafe_Camp_NeighbourhoodF85_012_LampPost",
+        "CatCafe_Camp_NeighbourhoodF85_012_LampPost_Bulb",
+        "CatCafe_Camp_NeighbourhoodF85_013_PicketFence",
+        "CatCafe_Camp_NeighbourhoodF85_014_PicketFence",
+        "CatCafe_Camp_NeighbourhoodF85_015_PicketFence",
+        "CatCafe_Camp_NeighbourhoodF85_016_PicketFence",
+        "CatCafe_Camp_NeighbourhoodF85_017_FlowerBed",
+        "CatCafe_Camp_NeighbourhoodF85_017_FlowerBed_Decor",
+        "CatCafe_Camp_NeighbourhoodF85_018_FlowerBed",
+        "CatCafe_Camp_NeighbourhoodF85_018_FlowerBed_Decor",
+        "CatCafe_Camp_NeighbourhoodF85_019_Tree",
+        "CatCafe_Camp_NeighbourhoodF85_020_Hedge",
+        "CatCafe_Camp_NeighbourhoodF85_Barrier"
+      ],
+      "triangles": 8960,
+      "budget": 20000,
+      "size_studs": {
+        "x": 182.0,
+        "y": 32.0,
+        "z": 31.0
+      },
+      "size_roblox": [
+        182.0,
+        31.0,
+        32.0
+      ],
+      "bounds_min": [
+        -91.0,
+        -247.0,
+        -1.0
+      ],
+      "bounds_max": [
+        91.0,
+        -215.0,
+        30.0
+      ],
+      "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "pad": [
+          [
+            0,
+            0.0,
+            -228.0
+          ]
+        ],
+        "cannon": [
+          [
+            0,
+            0.0,
+            -240.5
+          ]
+        ],
+        "basket": [
+          [
+            -11.0,
+            0.0,
+            -228.0
+          ]
+        ],
+        "index_board": [
+          [
+            -19.0,
+            0.0,
+            -217.5
+          ]
+        ]
+      },
+      "camp": {
+        "rect_roblox": [
+          -89.5,
+          -246.0,
+          89.5,
+          -216.0
+        ],
+        "gate_line_z": -216.0,
+        "opening_half_width": 12.0,
+        "pad_radius": 8.0,
+        "depth": 30.0
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_NeighbourhoodF85.model.json",
+      "rbx_parts": 461,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_NeighbourhoodF85.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_NeighbourhoodF85.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "8960/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "5112 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-231.00"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Camp_Woods",
       "category": "Camp",
       "module": "camps",
@@ -160631,6 +162034,67 @@
           "uv": "17507 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-164.24 (want 0)",
+          "centered": "footprint center x=0.00 y=-15.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Neighbourhood_BackdropF85",
+      "category": "Neighbourhood",
+      "module": "wildbackdrop",
+      "objects": [
+        "CatCafe_Neighbourhood_BackdropF85",
+        "CatCafe_Neighbourhood_BackdropF85_Ground",
+        "CatCafe_Neighbourhood_BackdropF85_Hills",
+        "CatCafe_Neighbourhood_BackdropF85_HillsFar",
+        "CatCafe_Neighbourhood_BackdropF85_Flowers",
+        "CatCafe_Neighbourhood_BackdropF85_Bulbs",
+        "CatCafe_Neighbourhood_BackdropF85_Road"
+      ],
+      "triangles": 23588,
+      "budget": 60000,
+      "size_studs": {
+        "x": 860.0,
+        "y": 1140.0,
+        "z": 230.39
+      },
+      "size_roblox": [
+        860.0,
+        230.39,
+        1140.0
+      ],
+      "bounds_min": [
+        -430.0,
+        -585.0,
+        -167.52
+      ],
+      "bounds_max": [
+        430.0,
+        555.0,
+        62.87
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_BackdropF85.model.json",
+      "rbx_parts": 1152,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_BackdropF85.fbx",
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_BackdropF85.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "23588/60000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "17498 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-167.52 (want 0)",
           "centered": "footprint center x=0.00 y=-15.00"
         }
       }

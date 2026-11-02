@@ -19,8 +19,10 @@ local Config = {
 	OfflineCapPassSeconds = 57600,
 	-- Game pass ids for F95's hooks (section 6); 0 until Tools-Agent makes the pass, which turns its effect off. The
 	-- Money passes by the income they multiply by (the highest owned counts); each extra slot pass adds a role slot.
-	LongNapPassId = 0,
-	MoneyPassIds = { [2] = 0, [3] = 0, [4] = 0 } :: { [number]: number },
+	-- Tools-Agent made the four in tools/opencloud/passes.json on 2026-11-02 (off sale until launch); no extra slot
+	-- pass exists yet.
+	LongNapPassId = 2064345084,
+	MoneyPassIds = { [2] = 2064604577, [3] = 2064670602, [4] = 2064357148 } :: { [number]: number },
 	ExtraSlotPassIds = {} :: { number },
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)
@@ -411,6 +413,20 @@ local Config = {
 	} :: { { chance: number, fish: number?, potion: string?, crate: string? } },
 	CampExtraRangeStuds = 8,
 
+	-- The Rescue Rally weekend (F101, rescue-rally.md; shared/Rally, Catalog.rallySteps). From RallyStartWeekday (0 is
+	-- Sunday) 00:00 UTC for RallyHours, or at any time with RallyForce, each server fills one bar together. The goal is
+	-- RallyPointsPerPlayer times the players (never fewer than RallyMinPlayers' worth), fixed when the lap starts; a
+	-- step pays everyone in the server who scored RallyMinPoints this lap, from at most RallyMaxLaps laps a weekend.
+	RallyStartWeekday = 6,
+	RallyHours = 48,
+	RallyPointsPerPlayer = 30,
+	RallyMinPlayers = 3,
+	RallyMinPoints = 3,
+	RallyMaxLaps = 4,
+	RallyPoints = { checkIn = 1, tame = 1, rescue = 3, teamRescue = 3 } :: { [string]: number },
+	RallyForce = false,
+	RallyStateSeconds = 0.5, -- RallyState goes out at most this often while points come in (steps go at once)
+
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
 	CodesCatRange = 12, -- RedeemCode from this close to a CodesCat station's pivot
 	CodesCircleRadius = 4, -- the code box opens within this flat distance of the CodesCircle, closes past it + 1
@@ -526,10 +542,10 @@ local Config = {
 		-- none is in view of the town or of another. Only the Cat Cannon reaches them. Each keeps its gate on its town
 		-- side as its camp's way out, with the camp (CampDepth deep, across the area's whole width) in front of it.
 		WildAreaDistance = 2000,
-		-- The Park at its v3.2 size (F81, town-layout-v3.md section 8e): 160 x 120, its camp on its north side.
+		-- The Park (F85, hometown-cannon.md section 6b): long, 120 wide and 310 deep, its camp on its north side.
 		ParkCenterZ = -2000,
-		ParkWidth = 160,
-		ParkDepth = 120,
+		ParkWidth = 120,
+		ParkDepth = 310,
 		-- The Woods (v3.2: 240 x 240) with its camp on its east side, the Sewer (180 x 180) with its camp on its west. Their
 		-- gates keep the 24 wide openings they had in the back alleys' outer walls (SideGateHalfWidth either side).
 		WoodsCenterX = -2000,
@@ -541,11 +557,11 @@ local Config = {
 		SewerWidth = 180,
 		SewerDepth = 180,
 		SideGateHalfWidth = 12,
-		-- The Neighbourhood (v3.2: 280 x 280) with its camp on its south side.
+		-- The Neighbourhood (F85, hometown-cannon.md section 6b): long, 180 wide and 430 deep, its camp on its south side.
 		NeighbourhoodCenterX = 0,
 		NeighbourhoodCenterZ = 2000,
-		NeighbourhoodWidth = 280,
-		NeighbourhoodDepth = 280,
+		NeighbourhoodWidth = 180,
+		NeighbourhoodDepth = 430,
 		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
 		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
 		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its

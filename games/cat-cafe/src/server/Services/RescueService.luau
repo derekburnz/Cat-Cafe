@@ -38,6 +38,7 @@ local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local PalService = require(script.Parent.PalService)
+local RallyService = require(script.Parent.RallyService)
 local Rescue = require(ReplicatedStorage.Shared.Rescue)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -349,6 +350,9 @@ local function teamRescued(rescuer: Player, helper: Player, entry: Stuck, pals: 
 				CafeService.sync(helper)
 			end
 		end
+	end
+	if profile ~= nil then
+		RallyService.score(helper, "teamRescue") -- F101: the helper's points; the rescuer scores at check-in
 	end
 	local position = entry.spot.Position
 	Net.fire(rescuer, "TeamRescue", entry.spotId, rescuer.UserId, helper.UserId, position, 0)

@@ -1944,7 +1944,7 @@ Catalog.areas = {
 		id = "park",
 		name = "Park",
 		tier = 2,
-		spawnPoints = 40, -- the v3.2 set's cat spots, 16 near the gate and 24 deep (F81)
+		spawnPoints = 48, -- F85's long set's cat spots, 20 near the camp and 28 deep
 		waveSize = 5,
 		rescueSpots = 5,
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
@@ -1954,7 +1954,7 @@ Catalog.areas = {
 		id = "neighbourhood",
 		name = "Neighbourhood",
 		tier = 3,
-		spawnPoints = 72, -- the v3.2 set's cat spots, 28 near the gate and 44 deep (F81)
+		spawnPoints = 74, -- F85's long set's cat spots, 29 near the camp and 45 deep
 		waveSize = 5,
 		rescueSpots = 4, -- two sheds and two gutters
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
@@ -3122,6 +3122,15 @@ end
 function Catalog.getCrate(id: string): Types.CrateDef?
 	return Catalog.cratesById[id]
 end
+
+-- The Rescue Rally's steps (F101, rescue-rally.md section 3), in order: at a quarter of the goal 5 golden fish, at half
+-- 10 and a Money Potion for the bag, at the full bar a Rally Crate for the Market and 15. The bar then empties for the
+-- next lap.
+Catalog.rallySteps = {
+	{ share = 0.25, prize = { fish = 5 } },
+	{ share = 0.5, prize = { fish = 10, potions = { tip_potion = 1 } } },
+	{ share = 1, prize = { fish = 15, crates = { rally_crate = 1 } } },
+} :: { Types.RallyStep }
 
 -- The Golden Fish Market (F53, golden-fish.md section 3): what golden fish buy. Crates open at once; a perk is
 -- forever: Golden Espresso +5% tips a level, Big Bowl a shorter bait wait, Extra Decor Spot one more decor spot a

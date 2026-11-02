@@ -834,6 +834,63 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 		range = 30,
 	}, -- claws on the sisal post, the toy's bell and a paw landing
+
+	-- F93 net swing (5.15): the whoosh is netSwing; the smack lands NetSmackDelay later, a miss bounces, a near miss
+	-- makes a stray hop, and GREAT and EXCELLENT get their word (PURRFECT keeps purrfectChime, "So close!" catchMiss)
+	sheetCatch = {
+		ids = { "rbxassetid://104211245998996" },
+		group = "Sfx",
+		volume = 1,
+		preload = true,
+	}, -- mono, plays in 3D
+	netSmack = {
+		ids = {},
+		sheet = "sheetCatch",
+		region = { 0.000, 0.350 },
+		group = "Sfx",
+		volume = 0.6,
+		pitch = { 0.95, 1.05 },
+		minGap = 0.05,
+		voices = 3,
+		range = 40,
+	}, -- the net slapping down: mesh, a padded thump and the hoop's tok
+	netBounce = {
+		ids = {},
+		sheet = "sheetCatch",
+		region = { 0.850, 1.350 },
+		group = "Sfx",
+		volume = 0.45,
+		pitch = { 0.97, 1.03 },
+		minGap = 0.3,
+		range = 30,
+	}, -- your swing hit nothing: a rubbery boing and one more tap
+	strayHop = {
+		ids = {},
+		sheet = "sheetCatch",
+		region = { 1.850, 2.350 },
+		group = "Sfx",
+		volume = 0.75,
+		pitch = { 0.94, 1.06 },
+		minGap = 0.2,
+		voices = 2,
+		range = 40,
+	}, -- a startled stray's fur puff, take-off scrabble and two paws landing (no voice)
+	wordGreat = {
+		ids = {},
+		sheet = "sheetCatch",
+		region = { 2.850, 3.450 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 1,
+	}, -- GREAT!: the word's pop and two marimba notes
+	wordExcellent = {
+		ids = {},
+		sheet = "sheetCatch",
+		region = { 3.950, 4.850 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 1,
+	}, -- EXCELLENT!: the pop and a four note vibes fanfare
 }
 
 return Cues

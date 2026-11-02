@@ -435,4 +435,37 @@ function Logic.decorSound(decorId: any): (string?, string?)
 	return entry.cue, entry.part
 end
 
+-- F93 (catch-rework.md section 3): the result word a finished catch shows, from the server's grades: every circle
+-- Perfect is PURRFECT, at least half Perfect EXCELLENT, any other success GREAT, and a miss "So close!".
+function Logic.catchWord(grades: any, success: any): ("purrfect" | "excellent" | "great" | "close")?
+	if success ~= true then
+		return if success == false then "close" else nil
+	end
+	if type(grades) ~= "table" or #grades == 0 then
+		return "great"
+	end
+	local perfect = 0
+	for _, grade in grades do
+		if grade == "perfect" then
+			perfect += 1
+		end
+	end
+	if perfect == #grades then
+		return "purrfect"
+	elseif perfect * 2 >= #grades then
+		return "excellent"
+	end
+	return "great"
+end
+
+-- The word's own sound; PURRFECT already has purrfectChime (the Purrfect moment) and "So close!" catchMiss.
+function Logic.wordCue(word: string?): string?
+	if word == "excellent" then
+		return "wordExcellent"
+	elseif word == "great" then
+		return "wordGreat"
+	end
+	return nil
+end
+
 return Logic

@@ -121,12 +121,13 @@ return function()
 			for _, spot in Lawn.SPOTS do
 				at[spot.id] = { spot.x, spot.z }
 			end
-			expect(at.small1 :: any).to.deepEqual({ -5, -18.3 })
-			expect(at.small2 :: any).to.deepEqual({ 5, -18.3 })
-			expect(at.big1 :: any).to.deepEqual({ -14, -17.8 })
-			expect(at.big2 :: any).to.deepEqual({ 14, -17.8 })
-			expect(at.small3 :: any).to.deepEqual({ -8.5, -17.3 })
-			expect(at.small4 :: any).to.deepEqual({ 8.5, -17.3 })
+			-- the bigger cafes' front lawn (44 x 34, #917)
+			expect(at.small1 :: any).to.deepEqual({ -5, -21.3 })
+			expect(at.small2 :: any).to.deepEqual({ 5, -21.3 })
+			expect(at.big1 :: any).to.deepEqual({ -18, -20.8 })
+			expect(at.big2 :: any).to.deepEqual({ 18, -20.8 })
+			expect(at.small3 :: any).to.deepEqual({ -10.5, -20.3 })
+			expect(at.small4 :: any).to.deepEqual({ 10.5, -20.3 })
 		end)
 
 		it("names each spot's plot attribute", function()

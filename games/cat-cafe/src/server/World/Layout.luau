@@ -167,17 +167,24 @@ function Layout.sidePassages(): { number }
 	return passages
 end
 
-local halfW = W.PlotWidth / 2 -- 18
-local halfD = W.PlotDepth / 2 -- 14
-local yardZ1, yardZ2 = halfD + 1, halfD + 1 + W.YardDepth -- 15, 25
+local halfW = W.PlotWidth / 2 -- 22
+local halfD = W.PlotDepth / 2 -- 17
+local yardZ1, yardZ2 = halfD + 1, halfD + 1 + W.YardDepth -- 18, 28
+
+-- Bigger cafes (Derek 2026-11-02 21:52; Model-Agent #917, gameplay-handoff-44x34.md): the room is 44 x 34 inside, from
+-- 36 x 28. Furniture, cats and decor keep their sizes and the space between them grows: a piece against a side wall
+-- keeps its distance to it, the counter, espresso machine, oven, baristas and back door keep their x, and the rest
+-- spreads with the room. Model-Agent's fit check found no clash at these points with every Tier 5 piece and every
+-- crate decor piece at every decor spot. Saves hold spot ids, never positions.
 local yardMid = (yardZ1 + yardZ2) / 2
 
 -- Index decor spots (F48): each area's piece and its gold piece share one, since the gold one stands in for it.
 local INDEX_SPOTS: { [string]: Point } = {
-	alley = { x = 13, y = 3.8, z = halfD - 0.2 }, -- the print, on the back wall right of the counter, above the wall rail
-	park = { x = halfW - 1.2, y = 0, z = -2, rotY = 90 }, -- the bench, against the right wall facing the tables
-	neighbourhood = { x = -halfW + 1.2, y = 0, z = -3.5 }, -- the planter, left wall between the window and the tank
-	woods = { x = -halfW + 1.2, y = 0, z = halfD - 1.2 }, -- the lamp, in the back left corner
+	alley = { x = 17, y = 3.8, z = halfD - 0.2 }, -- the print, on the back wall right of the counter, above the wall rail
+	park = { x = halfW - 1.2, y = 0, z = -2.43, rotY = 90 }, -- the bench, against the right wall facing the tables
+	neighbourhood = { x = -halfW + 1.2, y = 0, z = -4.25 }, -- the planter, left wall between the window and the tank
+	-- the lamp, in the back left corner (0.15 further out since #917: its cap touched the wainscot's rail)
+	woods = { x = -halfW + 1.35, y = 0, z = halfD - 1.35 },
 	sewer = { x = halfW - 1.4, y = 0, z = halfD - 1.4 }, -- the fountain, in the back right corner
 }
 
@@ -213,28 +220,28 @@ Layout.plot = {
 		-- F90: in front of the oven, clear of its door's swing (hinged 0.6 up at z 11.05, 1.75 long, so open flat it
 		-- reaches z 9.3; Model-Agent); was 5.2, halfD - 3
 		barista_3 = { x = 6.2, y = 0, z = halfD - 5.5 },
-		waiter_1 = { x = -4.5, y = 0, z = -2.5 },
-		waiter_2 = { x = 4.5, y = 0, z = -2.5 },
-		waiter_3 = { x = 4.5, y = 0, z = 3.5 }, -- beside the aisle, off the door to counter walk (was 0, 4.5)
+		waiter_1 = { x = -5.5, y = 0, z = -3.04 },
+		waiter_2 = { x = 5.5, y = 0, z = -3.04 },
+		waiter_3 = { x = 5.5, y = 0, z = 4.25 }, -- beside the aisle, off the door to counter walk (was 0, 4.5)
 		greeter_1 = { x = -4, y = 0, z = -halfD + 2.5 },
 		greeter_2 = { x = 4, y = 0, z = -halfD + 2.5 },
 		-- the cat tree's top cushion, at its sit point (-0.5, 4.47, -0.4 from the tree's pivot)
-		entertainer_1 = { x = -14.5, y = 4.47, z = 7.6 },
-		entertainer_2 = { x = 13.5, y = 4.47, z = 7.6 },
+		entertainer_1 = { x = -17.61, y = 4.47, z = 9.31 },
+		entertainer_2 = { x = 16.61, y = 4.47, z = 9.31 },
 	} :: { [string]: Point },
 
 	-- Station furniture under a slot, for the roles that have one (Catalog.spotFurniture)
 	spotFurniture = {
-		entertainer_1 = { x = -14, y = 0, z = 8 },
-		entertainer_2 = { x = 14, y = 0, z = 8 },
+		entertainer_1 = { x = -17.11, y = 0, z = 9.71 },
+		entertainer_2 = { x = 17.11, y = 0, z = 9.71 },
 	} :: { [string]: Point },
 
 	decorAnchors = {
-		plants = { x = 11, y = 1, z = -halfD + 0.7 }, -- on the right window's sill, clear of its curtain
-		rug = { x = 0, y = 0, z = -2 },
+		plants = { x = 15, y = 1, z = -halfD + 0.7 }, -- on the right window's sill (its centre halfW - 7), clear of its curtain
+		rug = { x = 0, y = 0, z = -2.43 },
 		-- flat on the back wall over the Alleyway print, right of the counter: in front of the menu board it hid the
 		-- menu and stood 0.7 off the wall (Derek's 10-30 playtest); the sign's back is its pivot plane
-		neon_sign = { x = 13, y = 6.2, z = halfD - 0.2 },
+		neon_sign = { x = 17, y = 6.2, z = halfD - 0.2 },
 		fish_tank = { x = -halfW + 2, y = 0, z = 0, rotY = 90 },
 		index_alley = INDEX_SPOTS.alley,
 		index_park = INDEX_SPOTS.park,
@@ -246,37 +253,39 @@ Layout.plot = {
 	-- Decor spots (F53, golden-fish.md section 4): where crate furniture and decorations stand, filled in order, so
 	-- the first two are the Tier 1 ones (DecorSpots 2, 3, 4, 5, 6 by tier, plus 2 from the Extra Decor Spot perk).
 	-- Against the walls clear of the tables, the cat spots, the nap spots and the back door, facing into the room;
-	-- a piece's pivot is its base centre with its front toward -Z. The F48 Index pieces keep their own spots.
+	-- a piece's pivot is its base centre with its front toward -Z. The F48 Index pieces keep their own spots. Since #917
+	-- they stand 1.6 off their wall (the big pieces touched the wainscot rail at 1.4) and the front two sit between the
+	-- door and the windows, not over the sills.
 	decorSpots = {
-		{ x = -9.5, y = 0, z = -halfD + 1.4, rotY = 180 }, -- front wall, left of the door
-		{ x = 9.5, y = 0, z = -halfD + 1.4, rotY = 180 }, -- front wall, right of the door
-		{ x = halfW - 1.4, y = 0, z = -6.5, rotY = 90 }, -- right wall, between the window corner and the bench
-		{ x = -halfW + 1.4, y = 0, z = -7.5, rotY = -90 }, -- left wall, between the window corner and the planter
-		{ x = 9.8, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the oven (F90; was x 8)
-		{ x = -12.6, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, left of the back door
-		{ x = -halfW + 1.4, y = 0, z = 4, rotY = -90 }, -- left wall, between the fish tank and the cat tree
-		{ x = 13.4, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the oven beyond the first (F90; was 11.5)
+		{ x = -7.2, y = 0, z = -halfD + 1.6, rotY = 180 }, -- front wall, between the door and the left window
+		{ x = 7.2, y = 0, z = -halfD + 1.6, rotY = 180 }, -- front wall, between the door and the right window
+		{ x = halfW - 1.6, y = 0, z = -7.89, rotY = 90 }, -- right wall, between the window corner and the bench
+		{ x = -halfW + 1.6, y = 0, z = -9.11, rotY = -90 }, -- left wall, between the window corner and the planter
+		{ x = 10.62, y = 0, z = halfD - 1.6, rotY = 0 }, -- back wall, right of the oven (F90)
+		{ x = -14.6, y = 0, z = halfD - 1.6, rotY = 0 }, -- back wall, left of the back door
+		{ x = -halfW + 1.6, y = 0, z = 4.86, rotY = -90 }, -- left wall, between the fish tank and the cat tree
+		{ x = 15.61, y = 0, z = halfD - 1.6, rotY = 0 }, -- back wall, right of the oven beyond the first (F90)
 	} :: { Point },
 
 	-- Two columns of three, either side of the aisle from the front door to the counter (Derek 2026-10-28 01:27: the
 	-- second table stood in the doorway where everyone walks): a table and its two chairs reach 3.7 either side of
-	-- its x and 2.1 in front and behind, so the aisle is clear from x -6.3 to 6.3. The back left table sits half a
+	-- its x and 2.1 in front and behind, so the aisle is clear from x -8.52 to 8.52. The back left table sits half a
 	-- stud further out, so the walk from the back door to the front door passes its chair a stud clear (review N237). Filled in order, two a tier: front row, middle row, back
 	-- row. Each row's `lane` is the walkway between it and the next row, which customers take to the outer chair.
 	tables = {
-		{ x = -10, y = 0, z = -8.5, lane = -5.4 },
-		{ x = 10, y = 0, z = -8.5, lane = -5.4 },
-		{ x = -10, y = 0, z = -2.25, lane = 0.9 },
-		{ x = 10, y = 0, z = -2.25, lane = 0.9 },
-		{ x = -10.5, y = 0, z = 4, lane = 0.9 },
-		{ x = 10, y = 0, z = 4, lane = 0.9 },
+		{ x = -12.22, y = 0, z = -10.32, lane = -6.56 },
+		{ x = 12.22, y = 0, z = -10.32, lane = -6.56 },
+		{ x = -12.22, y = 0, z = -2.73, lane = 1.09 },
+		{ x = 12.22, y = 0, z = -2.73, lane = 1.09 },
+		{ x = -12.83, y = 0, z = 4.86, lane = 1.09 },
+		{ x = 12.22, y = 0, z = 4.86, lane = 1.09 },
 	} :: { TableSpot },
-	-- How far either side of the aisle's middle customers walk to and from a lane, clear of the waiters at 4.5.
+	-- How far either side of the aisle's middle customers walk to and from a lane, clear of the waiters at 5.5.
 	aisleX = 2,
 
 	-- The rich customer's coin pile (data-model section 12): on top of table 1 (2.6 tall), where the rich customer
 	-- sits. The UI's gold marker floats over it and ClaimRichTip measures range from it.
-	richTip = { x = -10, y = 2.7, z = -8.5 } :: Point,
+	richTip = { x = -12.22, y = 2.7, z = -10.32 } :: Point,
 
 	-- The back door, between the counter and the left cat tree, opens from Tier 1 onto the yard; the yard's gate
 	-- lines up with it so the way out to the back alley is straight.
@@ -305,7 +314,7 @@ Layout.plot = {
 	-- are shared (the client's rings need them too); LawnBuilder stands each spot's piece at its point. The path
 	-- style lies over the shell's own path, 7 wide by 5 deep with its centre at lawnPath on the floor's level; the
 	-- fence style runs along the sidewalk edge at fenceLine, both halves from the path's gap (x 3.9) to the plot's
-	-- edge (x 19), its pivot the gap's centre on the grass top.
+	-- edge (x 23), its pivot the gap's centre on the grass top.
 	lawnSpots = Lawn.SPOTS :: { Types.LawnSpot },
 	lawnPath = { x = 0, y = 0, z = -halfD - 1 - W.FrontGardenDepth / 2 } :: Point,
 	fenceLine = {
@@ -313,7 +322,7 @@ Layout.plot = {
 		y = -0.05,
 		z = -halfD - 1 - W.FrontGardenDepth + 0.15,
 		gapHalfWidth = 3.9,
-		halfWidth = 19,
+		halfWidth = 23,
 	},
 
 	-- The bait bowl (data-model section 8; v0.5 F44, Gavin: "The bowl sits out side of your cafe") on the back
@@ -358,22 +367,22 @@ Layout.plot = {
 	-- counter's right end. Each turns rotY degrees like the F79 beds so its front (-Z) and the cat on it face into the
 	-- room. WorldBuilder stands the bed on the point and moves the nap anchor up to the bed's Sleep point.
 	napSpots = {
-		{ x = -6.6, y = 0, z = -12.1, rotY = 180 },
-		{ x = 14.9, y = 0, z = -9.9, rotY = 135 },
-		{ x = 15.5, y = 0, z = 3.5, rotY = 90 },
-		{ x = 11, y = 0, z = 10, rotY = 0 },
+		{ x = -13.5, y = 0, z = -15.1, rotY = 180 }, -- under the front left window (swapped with decor spot 1, #917)
+		{ x = 18.9, y = 0, z = -12.9, rotY = 135 },
+		{ x = 19.5, y = 0, z = 5.47, rotY = 90 },
+		{ x = 12.28, y = 0, z = 12.4, rotY = 0 }, -- 0.6 further out, clear of a big piece on decor spot 5
 	} :: { Point },
 
 	-- The cat beds (F79, data-model 12c v0.13.13, Model-Agent's fit in #511): a CatCafe_Furniture_CatBed at each from
 	-- its tier, out by day as furniture, turned rotY degrees so its front (-Z) faces into the room. Two at Tier 3,
 	-- four at Tier 4 and six at Tier 5, exactly where the working slots outrun the cat trees' four pedestals.
 	beds = {
-		{ id = "bed_1", x = -16.3, y = 0, z = -12.4, rotY = -135, tier = 3 },
-		{ id = "bed_2", x = 16.3, y = 0, z = -12.4, rotY = 135, tier = 3 },
-		{ id = "bed_3", x = -13.6, y = 0, z = -12.4, rotY = 180, tier = 4 },
-		{ id = "bed_4", x = 16.4, y = 0, z = -1.5, rotY = 90, tier = 4 },
-		{ id = "bed_5", x = -16.4, y = 0, z = 8.5, rotY = -90, tier = 5 },
-		{ id = "bed_6", x = 16.4, y = 0, z = 8.5, rotY = 90, tier = 5 },
+		{ id = "bed_1", x = -20.3, y = 0, z = -15.4, rotY = -135, tier = 3 },
+		{ id = "bed_2", x = 20.3, y = 0, z = -15.4, rotY = 135, tier = 3 },
+		{ id = "bed_3", x = -17.6, y = 0, z = -15.4, rotY = 180, tier = 4 },
+		{ id = "bed_4", x = 20.4, y = 0, z = 1.57, rotY = 90, tier = 4 }, -- past the Park bench's end
+		{ id = "bed_5", x = -20.4, y = 0, z = 10.32, rotY = -90, tier = 5 },
+		{ id = "bed_6", x = 20.4, y = 0, z = 10.32, rotY = 90, tier = 5 },
 	} :: { BedSpot },
 }
 
@@ -418,13 +427,18 @@ local function fromMiddle(x: number): number
 end
 -- the outer lane points of the cafes nearest the camp end stop this far in, 4 or more studs clear of the near points
 local LANE_NORTH_MAX = AN - NEAR_IN[2] - 3.5
+-- The |z| of the v3 cafe rows (36 wide with 8 stud passages: 58 by the square, 102 one row out), which the lane points
+-- keep in lane space: the Alleyway left the town in v4 and its set and dressing are laid out round those old places,
+-- so the bigger cafes (#917) move nothing here.
+local LANE_ROW_Z = { 58, 102 }
 local function alleySpawnPoints(): { Point }
 	local points: { Point } = {}
 	for index = 1, W.PlotCount do
 		local placement = Layout.plotPlacement(index)
 		local side = placement.side
-		table.insert(points, { x = side * (AI + 7), y = 0.1, z = placement.z - 7, zone = "lane" })
-		local z = math.min(placement.z + 9, LANE_NORTH_MAX)
+		local plotZ = math.sign(placement.z) * LANE_ROW_Z[math.floor((index - 1) / 4) + 1]
+		table.insert(points, { x = side * (AI + 7), y = 0.1, z = plotZ - 7, zone = "lane" })
+		local z = math.min(plotZ + 9, LANE_NORTH_MAX)
 		table.insert(points, { x = side * (AO - 7), y = 0.1, z = z, zone = "lane" })
 	end
 	for _, side in { -1, 1 } do
@@ -1317,10 +1331,10 @@ Layout.townSquare = {
 		{ asset = "CatCafe_Square_Bench", x = 45.4, y = 0.1, z = -19.75, rotY = 90 },
 		{ asset = "CatCafe_Square_Bench", x = 35.75, y = 0.1, z = 29.4 },
 		{ asset = "CatCafe_Square_Bench", x = 45.4, y = 0.1, z = 19.75, rotY = 90 },
-		{ asset = "CatCafe_Square_Garden", x = -55.5, y = 0.1, z = -19.5, rotY = -90 },
-		{ asset = "CatCafe_Square_Garden", x = -55.5, y = 0.1, z = 19.5, rotY = -90 },
-		{ asset = "CatCafe_Square_Garden", x = 55.5, y = 0.1, z = -19.5, rotY = 90 },
-		{ asset = "CatCafe_Square_Garden", x = 55.5, y = 0.1, z = 19.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Garden", x = -58.5, y = 0.1, z = -19.5, rotY = -90 },
+		{ asset = "CatCafe_Square_Garden", x = -58.5, y = 0.1, z = 19.5, rotY = -90 },
+		{ asset = "CatCafe_Square_Garden", x = 58.5, y = 0.1, z = -19.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Garden", x = 58.5, y = 0.1, z = 19.5, rotY = 90 },
 	} :: { Prop },
 }
 

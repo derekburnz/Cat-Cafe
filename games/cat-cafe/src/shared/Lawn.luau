@@ -13,13 +13,14 @@ local Lawn = {}
 -- Section 1b with Model-Agent's numbers (#673, style guide section 13), plot space: the base centre of the piece on
 -- the grass top, front -Z to the street. Tier 1 opens the two small spots beside the path, Tier 2 the two big ones
 -- under the windows, Tier 3 the two small ones by the front wall. Odd numbers are on the plot's -X side.
+-- Moved 3 studs out with the bigger cafes' front wall (44 x 34, #917), the big ones 4 further to the sides.
 Lawn.SPOTS = {
-	{ id = "small1", size = "small", tier = 1, x = -5, y = -0.05, z = -18.3, rotY = 0 },
-	{ id = "small2", size = "small", tier = 1, x = 5, y = -0.05, z = -18.3, rotY = 0 },
-	{ id = "big1", size = "big", tier = 2, x = -14, y = -0.05, z = -17.8, rotY = 0 },
-	{ id = "big2", size = "big", tier = 2, x = 14, y = -0.05, z = -17.8, rotY = 0 },
-	{ id = "small3", size = "small", tier = 3, x = -8.5, y = -0.05, z = -17.3, rotY = 0 },
-	{ id = "small4", size = "small", tier = 3, x = 8.5, y = -0.05, z = -17.3, rotY = 0 },
+	{ id = "small1", size = "small", tier = 1, x = -5, y = -0.05, z = -21.3, rotY = 0 },
+	{ id = "small2", size = "small", tier = 1, x = 5, y = -0.05, z = -21.3, rotY = 0 },
+	{ id = "big1", size = "big", tier = 2, x = -18, y = -0.05, z = -20.8, rotY = 0 },
+	{ id = "big2", size = "big", tier = 2, x = 18, y = -0.05, z = -20.8, rotY = 0 },
+	{ id = "small3", size = "small", tier = 3, x = -10.5, y = -0.05, z = -20.3, rotY = 0 },
+	{ id = "small4", size = "small", tier = 3, x = 10.5, y = -0.05, z = -20.3, rotY = 0 },
 } :: { Types.LawnSpot }
 
 Lawn.spotsById = {} :: { [string]: Types.LawnSpot }

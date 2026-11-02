@@ -536,20 +536,22 @@ local Config = {
 	-- outer walls straight across from the square's side arches.
 	World = {
 		PlotCount = 8,
-		PlotWidth = 36, -- along the street (Z)
-		PlotDepth = 28, -- away from the street (X)
+		-- Bigger cafes (Derek 2026-11-02 21:52, Model-Agent #917): 44 x 34 inside, from 36 x 28, so decor fits and the
+		-- room reads less cluttered; the town grows round them (TownEdgeX, the street's ends, the town ground)
+		PlotWidth = 44, -- along the street (Z)
+		PlotDepth = 34, -- away from the street (X)
 		PlotRowGap = 8, -- a side passage from the street to the back alley between neighbouring cafes
 		FrontGardenDepth = 5, -- path, bench and chalkboard between the sidewalk and the front wall
 		YardDepth = 10, -- the patio yard between the back wall and the back alley
 		-- Town layout v3 (F76, town-layout-v3.md, Derek 2026-10-27: "the main town should be wider so that it can have
 		-- a central middle area"): a 32 wide street with the Town Square in its middle, two rows of cafes either side.
 		StreetHalfWidth = 16,
-		StreetSouthZ = -124,
-		StreetNorthZ = 124, -- the street ends at the hometown's north welcome arch (v4)
+		StreetSouthZ = -140,
+		StreetNorthZ = 140, -- the street ends at the hometown's north welcome arch (v4)
 		-- v4 (F84, hometown-cannon.md section 2): the hometown's own ground round the town, and each wild area its own
-		-- CatCafe_Town_Backdrop (Model-Agent #733) is built against 260 by 300: tell Model-Agent when these change
-		TownGroundWidth = 260,
-		TownGroundDepth = 300,
+		-- CatCafe_Town_Backdrop (Model-Agent #733) is built against 272 by 332 (#917): tell Model-Agent when these change
+		TownGroundWidth = 272,
+		TownGroundDepth = 332,
 		WallHeight = 9,
 		DoorWidth = 7,
 		-- The Town Square: paved, centred on the origin across the street, with the stations round the Cat Cannon (the
@@ -561,7 +563,7 @@ local Config = {
 		TownSquareCrossHalfWidth = 6, -- the east to west lane
 		-- The hometown's back edge (v4, F84, hometown-cannon.md section 2): a fence at |x| TownEdgeX behind each row of
 		-- cafes' yards, where the back alleys began until v4.
-		TownEdgeX = 63,
+		TownEdgeX = 69,
 		-- The Alleyway's set (v4, F84, section 6a): laid out in lane space, the v3.2 back alleys' numbers (|x|
 		-- AlleyInnerX..AlleyOuterX from AlleySouthZ to AlleyNorthZ), and stood in the wild with its middle at
 		-- (AlleyCenterX, AlleyCenterZ), everything AlleyLaneShift nearer the middle than in lane space. Since F85

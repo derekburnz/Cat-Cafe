@@ -5949,9 +5949,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.36,
-       0.06
+       0.168,
+       0.4,
+       0.12
       ],
       "Color": [
        0.2431,
@@ -5965,7 +5965,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Index",
@@ -5998,14 +6007,14 @@
        }
       },
       "Size": [
-       0.15,
-       0.33,
-       0.06
+       0.1579,
+       0.376,
+       0.1128
       ],
       "Color": [
-       0.3725,
-       0.7216,
-       0.3529
+       0.149,
+       0.4392,
+       0.251
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -6014,7 +6023,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Index",
@@ -6047,9 +6065,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.3,
-       0.06
+       0.1478,
+       0.352,
+       0.1056
       ],
       "Color": [
        0.2431,
@@ -6063,7 +6081,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Index",
@@ -6096,14 +6123,14 @@
        }
       },
       "Size": [
-       0.15,
-       0.27,
-       0.06
+       0.1378,
+       0.328,
+       0.0984
       ],
       "Color": [
-       0.3725,
-       0.7216,
-       0.3529
+       0.149,
+       0.4392,
+       0.251
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -6112,7 +6139,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Index",
@@ -6145,9 +6181,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.24,
-       0.06
+       0.1277,
+       0.304,
+       0.0912
       ],
       "Color": [
        0.2431,
@@ -6161,7 +6197,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Index",
@@ -6194,9 +6239,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.36,
-       0.06
+       0.168,
+       0.4,
+       0.12
       ],
       "Color": [
        0.2431,
@@ -6210,7 +6255,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Index",
@@ -6243,14 +6297,14 @@
        }
       },
       "Size": [
-       0.15,
-       0.33,
-       0.06
+       0.1579,
+       0.376,
+       0.1128
       ],
       "Color": [
-       0.3725,
-       0.7216,
-       0.3529
+       0.149,
+       0.4392,
+       0.251
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -6259,7 +6313,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Index",
@@ -6292,9 +6355,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.3,
-       0.06
+       0.1478,
+       0.352,
+       0.1056
       ],
       "Color": [
        0.2431,
@@ -6308,7 +6371,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Index",
@@ -6341,14 +6413,14 @@
        }
       },
       "Size": [
-       0.15,
-       0.27,
-       0.06
+       0.1378,
+       0.328,
+       0.0984
       ],
       "Color": [
-       0.3725,
-       0.7216,
-       0.3529
+       0.149,
+       0.4392,
+       0.251
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -6357,7 +6429,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Index",
@@ -6390,9 +6471,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.24,
-       0.06
+       0.1277,
+       0.304,
+       0.0912
       ],
       "Color": [
        0.2431,
@@ -6406,7 +6487,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Index",
@@ -11332,9 +11422,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.36,
-       0.06
+       0.168,
+       0.4,
+       0.12
       ],
       "Color": [
        0.2431,
@@ -11348,7 +11438,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Playtime",
@@ -11381,14 +11480,14 @@
        }
       },
       "Size": [
-       0.15,
-       0.33,
-       0.06
+       0.1579,
+       0.376,
+       0.1128
       ],
       "Color": [
-       0.3725,
-       0.7216,
-       0.3529
+       0.149,
+       0.4392,
+       0.251
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -11397,7 +11496,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Playtime",
@@ -11430,9 +11538,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.3,
-       0.06
+       0.1478,
+       0.352,
+       0.1056
       ],
       "Color": [
        0.2431,
@@ -11446,7 +11554,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Playtime",
@@ -11479,14 +11596,14 @@
        }
       },
       "Size": [
-       0.15,
-       0.27,
-       0.06
+       0.1378,
+       0.328,
+       0.0984
       ],
       "Color": [
-       0.3725,
-       0.7216,
-       0.3529
+       0.149,
+       0.4392,
+       0.251
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -11495,7 +11612,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Playtime",
@@ -11528,9 +11654,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.24,
-       0.06
+       0.1277,
+       0.304,
+       0.0912
       ],
       "Color": [
        0.2431,
@@ -11544,7 +11670,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Playtime",
@@ -11577,9 +11712,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.36,
-       0.06
+       0.168,
+       0.4,
+       0.12
       ],
       "Color": [
        0.2431,
@@ -11593,7 +11728,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Playtime",
@@ -11626,14 +11770,14 @@
        }
       },
       "Size": [
-       0.15,
-       0.33,
-       0.06
+       0.1579,
+       0.376,
+       0.1128
       ],
       "Color": [
-       0.3725,
-       0.7216,
-       0.3529
+       0.149,
+       0.4392,
+       0.251
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -11642,7 +11786,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Playtime",
@@ -11675,9 +11828,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.3,
-       0.06
+       0.1478,
+       0.352,
+       0.1056
       ],
       "Color": [
        0.2431,
@@ -11691,7 +11844,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Playtime",
@@ -11724,14 +11886,14 @@
        }
       },
       "Size": [
-       0.15,
-       0.27,
-       0.06
+       0.1378,
+       0.328,
+       0.0984
       ],
       "Color": [
-       0.3725,
-       0.7216,
-       0.3529
+       0.149,
+       0.4392,
+       0.251
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -11740,7 +11902,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Playtime",
@@ -11773,9 +11944,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.24,
-       0.06
+       0.1277,
+       0.304,
+       0.0912
       ],
       "Color": [
        0.2431,
@@ -11789,7 +11960,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Playtime",
@@ -17034,9 +17214,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.36,
-       0.06
+       0.168,
+       0.4,
+       0.12
       ],
       "Color": [
        0.2431,
@@ -17050,7 +17230,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Money",
@@ -17083,14 +17272,14 @@
        }
       },
       "Size": [
-       0.15,
-       0.33,
-       0.06
+       0.1579,
+       0.376,
+       0.1128
       ],
       "Color": [
-       0.3725,
-       0.7216,
-       0.3529
+       0.149,
+       0.4392,
+       0.251
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -17099,7 +17288,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Money",
@@ -17132,9 +17330,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.3,
-       0.06
+       0.1478,
+       0.352,
+       0.1056
       ],
       "Color": [
        0.2431,
@@ -17148,7 +17346,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Money",
@@ -17181,14 +17388,14 @@
        }
       },
       "Size": [
-       0.15,
-       0.27,
-       0.06
+       0.1378,
+       0.328,
+       0.0984
       ],
       "Color": [
-       0.3725,
-       0.7216,
-       0.3529
+       0.149,
+       0.4392,
+       0.251
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -17197,7 +17404,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Money",
@@ -17230,9 +17446,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.24,
-       0.06
+       0.1277,
+       0.304,
+       0.0912
       ],
       "Color": [
        0.2431,
@@ -17246,7 +17462,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Money",
@@ -17279,9 +17504,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.36,
-       0.06
+       0.168,
+       0.4,
+       0.12
       ],
       "Color": [
        0.2431,
@@ -17295,7 +17520,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Money",
@@ -17328,14 +17562,14 @@
        }
       },
       "Size": [
-       0.15,
-       0.33,
-       0.06
+       0.1579,
+       0.376,
+       0.1128
       ],
       "Color": [
-       0.3725,
-       0.7216,
-       0.3529
+       0.149,
+       0.4392,
+       0.251
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -17344,7 +17578,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Money",
@@ -17377,9 +17620,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.3,
-       0.06
+       0.1478,
+       0.352,
+       0.1056
       ],
       "Color": [
        0.2431,
@@ -17393,7 +17636,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Money",
@@ -17426,14 +17678,14 @@
        }
       },
       "Size": [
-       0.15,
-       0.27,
-       0.06
+       0.1378,
+       0.328,
+       0.0984
       ],
       "Color": [
-       0.3725,
-       0.7216,
-       0.3529
+       0.149,
+       0.4392,
+       0.251
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -17442,7 +17694,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Money",
@@ -17475,9 +17736,9 @@
        }
       },
       "Size": [
-       0.15,
-       0.24,
-       0.06
+       0.1277,
+       0.304,
+       0.0912
       ],
       "Color": [
        0.2431,
@@ -17491,7 +17752,16 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
-     }
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Town_LeaderboardRow_Money",
@@ -17500,8 +17770,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.67,
-         10.97,
+         -6.72,
+         10.92,
          -0.43
         ],
         "orientation": [
@@ -17550,8 +17820,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.67,
-         10.97,
+         -6.72,
+         10.92,
          -0.48
         ],
         "orientation": [
@@ -17600,8 +17870,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.67,
-         10.87,
+         -6.72,
+         10.82,
          -0.505
         ],
         "orientation": [
@@ -17650,8 +17920,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.5,
-         11.1,
+         -6.55,
+         11.0,
          -0.505
         ],
         "orientation": [
@@ -17700,8 +17970,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.61,
-         11.19,
+         -6.66,
+         11.09,
          -0.505
         ],
         "orientation": [
@@ -17750,8 +18020,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.73,
-         11.19,
+         -6.78,
+         11.09,
          -0.505
         ],
         "orientation": [
@@ -17800,8 +18070,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -6.84,
-         11.1,
+         -6.89,
+         11.0,
          -0.505
         ],
         "orientation": [
@@ -17850,19 +18120,19 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.22,
-         10.31,
-         -0.48
+         -7.27,
+         11.34,
+         -0.41
         ],
         "orientation": [
          [
-          1.0,
-          0.0,
+          0.7071,
+          -0.7071,
           0.0
          ],
          [
-          0.0,
-          1.0,
+          0.7071,
+          0.7071,
           0.0
          ],
          [
@@ -17874,16 +18144,16 @@
        }
       },
       "Size": [
-       0.48,
-       0.1,
-       0.12
+       0.11,
+       0.11,
+       0.04
       ],
       "Color": [
-       0.7882,
-       0.5608,
-       0.1647
+       1.0,
+       0.9569,
+       0.6902
       ],
-      "Material": "Metal",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
@@ -17899,9 +18169,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.2,
-         10.41,
-         -0.48
+         -7.27,
+         11.34,
+         -0.415
         ],
         "orientation": [
          [
@@ -17923,16 +18193,16 @@
        }
       },
       "Size": [
-       0.44,
-       0.1,
-       0.12
+       0.0495,
+       0.264,
+       0.03
       ],
       "Color": [
-       0.949,
-       0.7569,
-       0.3059
+       1.0,
+       0.9569,
+       0.6902
       ],
-      "Material": "Metal",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
@@ -17948,19 +18218,19 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.22,
-         10.51,
-         -0.48
+         -6.12,
+         10.52,
+         -0.41
         ],
         "orientation": [
          [
-          1.0,
-          0.0,
+          0.7071,
+          -0.7071,
           0.0
          ],
          [
-          0.0,
-          1.0,
+          0.7071,
+          0.7071,
           0.0
          ],
          [
@@ -17972,16 +18242,16 @@
        }
       },
       "Size": [
-       0.48,
-       0.1,
-       0.12
+       0.08,
+       0.08,
+       0.04
       ],
       "Color": [
-       0.7882,
-       0.5608,
-       0.1647
+       1.0,
+       0.9569,
+       0.6902
       ],
-      "Material": "Metal",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,
@@ -17997,9 +18267,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -7.22,
-         10.575,
-         -0.49
+         -6.12,
+         10.52,
+         -0.415
         ],
         "orientation": [
          [
@@ -18021,16 +18291,16 @@
        }
       },
       "Size": [
-       0.42,
-       0.03,
-       0.12
+       0.036,
+       0.192,
+       0.03
       ],
       "Color": [
-       0.9843,
-       0.8941,
-       0.6039
+       1.0,
+       0.9569,
+       0.6902
       ],
-      "Material": "Metal",
+      "Material": "SmoothPlastic",
       "Anchored": true,
       "CanCollide": false,
       "CanTouch": false,

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 08:20 UTC",
+  "generated": "2026-11-02 08:27 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -93090,8 +93090,8 @@
         "CatCafe_Town_LeaderboardRow_Money",
         "CatCafe_Town_LeaderboardRow_Money_Screen"
       ],
-      "triangles": 5010,
-      "budget": 6000,
+      "triangles": 5250,
+      "budget": 8000,
       "size_studs": {
         "x": 23.78,
         "y": 2.72,
@@ -93189,10 +93189,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "5010/6000 tris",
+          "budget": "5250/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2483 faces on swatch centers",
+          "uv": "2903 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"

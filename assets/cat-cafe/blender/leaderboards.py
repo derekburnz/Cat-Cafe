@@ -91,7 +91,7 @@ def _frame(b, screen, plank, ink, name):
 
 
 def _crest(b, colour):
-    """The round crest on top: a gold ring with a green laurel round its lower half and a disc in the board's
+    """The round crest on top: a gold ring with a dark green laurel round its lower half and a disc in the board's
     colour, its back plain."""
     b.cyl((0, CY, -0.18), 0.97, 0.26, "gold_mid", axis="Z", segments=16)
     b.cyl((0, CY, -0.35), 0.84, 0.1, colour, axis="Z", segments=16)
@@ -100,8 +100,7 @@ def _crest(b, colour):
         for k, a in enumerate((-72, -48, -24, 0, 24)):
             t = math.radians(a)
             x, y = s * 0.98 * math.cos(t), CY + 0.98 * math.sin(t)
-            b.box((x, y, -0.35), (0.15, 0.36 - 0.03 * k, 0.06), "leaf_green" if k % 2 else "leaf_dark",
-                  rot=rot_z(s * (a + 30)))
+            b.leaf((x, y, -0.35), 0.2 - 0.012 * k, "paw_woods" if k % 2 else "leaf_dark", rot_z(s * (a + 30)))
 
 
 def _sleeper(b):
@@ -157,17 +156,15 @@ def _clock(b):
 
 
 def _coin(b):
-    """A gold coin with a paw on it and a little stack of coins in front, low on the viewer's right."""
-    b.cyl((0.05, CY + 0.05, ZI - 0.03), 0.56, 0.08, "gold_dark", axis="Z", segments=16)
-    b.cyl((0.05, CY + 0.05, ZI - 0.08), 0.47, 0.04, "gold_mid", axis="Z", segments=16)
-    b.cyl((0.05, CY - 0.05, ZI - 0.105), 0.16, 0.03, "gold_dark", axis="Z", segments=10)
-    for (dx, dy) in ((0.17, 0.13), (0.06, 0.22), (-0.06, 0.22), (-0.17, 0.13)):
-        b.cyl((0.05 + dx, CY + 0.05 + dy, ZI - 0.105), 0.065, 0.03, "gold_dark", axis="Z", segments=8)
-    for k, (hw, sw) in enumerate(((0.24, "gold_dark"), (0.22, "gold_mid"), (0.24, "gold_dark"))):
-        x = -0.5 + 0.02 * (k % 2)
-        y = CY - 0.66 + 0.1 * k
-        b.span((x - hw, y, ZI - 0.14), (x + hw, y + 0.1, ZI - 0.02), sw)
-    b.span((-0.71, CY - 0.36, ZI - 0.15), (-0.29, CY - 0.33, ZI - 0.03), "gold_light")          # the top coin's rim
+    """A gold coin with a paw on it, and two sparkles."""
+    b.cyl((0, CY, ZI - 0.03), 0.56, 0.08, "gold_dark", axis="Z", segments=16)
+    b.cyl((0, CY, ZI - 0.08), 0.47, 0.04, "gold_mid", axis="Z", segments=16)
+    b.cyl((0, CY - 0.1, ZI - 0.105), 0.16, 0.03, "gold_dark", axis="Z", segments=10)
+    for (dx, dy) in ((0.17, 0.08), (0.06, 0.17), (-0.06, 0.17), (-0.17, 0.08)):
+        b.cyl((dx, CY + dy, ZI - 0.105), 0.065, 0.03, "gold_dark", axis="Z", segments=8)
+    for (x, y, r) in ((-0.55, CY + 0.42, 0.11), (0.6, CY - 0.4, 0.08)):                    # +X is the viewer's left
+        b.box((x, y, ZI - 0.01), (r, r, 0.04), "sparkle", rot=rot_z(45))
+        b.box((x, y, ZI - 0.015), (r * 0.45, r * 2.4, 0.03), "sparkle")
 
 
 ICONS = {"Index": _book, "Playtime": _clock, "Money": _coin}
@@ -196,6 +193,10 @@ class _At:
 
     def text(self, s, origin, px, depth, swatch, right=(1, 0, 0), up=(0, 1, 0)):
         return self.rb.text(s, self._p(origin), px, depth, swatch, right, up)
+
+    def leaf(self, c, r, swatch, rot):
+        """A flat ellipsoid leaf r * 2 long along its own Y, turned by rot (an ellipsoid Part in Roblox)."""
+        self.rb.b.ico(RB.p(*self._p(c)), r, swatch, scale=(0.42, 0.3, 1.0), rot=RB._rot(rot))
 
 
 def board(name, mat):
@@ -241,5 +242,5 @@ def build(mat):
     return objs
 
 
-ASSETS = {N: (build, 6000)}
+ASSETS = {N: (build, 8000)}
 NEST = {"_Screen": ""}       # each Screen rides its board's Model

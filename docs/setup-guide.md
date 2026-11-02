@@ -194,3 +194,13 @@ A game pass is a one-time Robux purchase a player keeps for good, such as 2x Mon
 4. Nothing to try by hand: a thread runs **Actions > game-passes > Run workflow** with `create`, and the log lists each pass with its id.
 
 New passes start off sale, so nobody can buy one until release day puts them on sale. Passes cannot be deleted, only taken off sale, which is why the file only holds passes whose code is merged.
+
+## 23. Let threads change the store page pictures (once, about 1 minute)
+The game's page on Roblox shows an icon (512 x 512) and a gallery of thumbnails (1920 x 1080 pictures). The Home page can also show its own homepage thumbnails, which Roblox tests against each other. The `store-media` workflow (`tools/opencloud/store-media.sh`) lists all three, sets the icon, adds, orders and removes thumbnails and uploads homepage thumbnails from pictures in the repo, so new pictures of each update go up without Creator Hub. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > **Add API System**: **legacy-universe**, select the **Cat Cafe** experience, operation `legacy-universe:manage` (icon and thumbnails).
+3. **Add API System**: **universe** (or **thumbnail**), select **Cat Cafe**, operations `universe.thumbnail:read` and `universe.thumbnail:write` (homepage thumbnails).
+4. **Save Changes**. Don't press Regenerate.
+5. Nothing to try by hand: a thread runs **Actions > store-media > Run workflow** with `list`, and the log shows the icon and every thumbnail with its id.
+
+These endpoints are experimental on Roblox's side, so every change reads the pictures back and the log shows whether it took. A thumbnail taken off the page can be uploaded again from the repo.

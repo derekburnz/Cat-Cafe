@@ -866,6 +866,41 @@ return function()
 		end)
 	end)
 
+	-- QA for Sound-Agent's PR #765: the pip follows the catalog's hit counts, so a rarity given more hits later cannot
+	-- push it shrill unnoticed, and a hit sound is only ever a trap's own.
+	describe("Audio.Logic rescue edges (QA)", function()
+		local Catalog = require(
+			game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
+		) :: any
+
+		it("climbs a step a hit to each rarity's last hit, never past a Mythical's 2.25", function()
+			for _, rarity in Catalog.rarityOrder do
+				local hits = Catalog.rarities[rarity].rescueHits
+				expect(hits >= 1).to.equal(true)
+				local last = 0
+				for hit = 1, hits do
+					local step = Logic.scaleStep(hit)
+					expect(step > last).to.equal(true)
+					last = step
+				end
+				expect(last <= 2.25).to.equal(true)
+			end
+		end)
+
+		it("gives a hit sound only to the four traps, and each its own", function()
+			local seen = {}
+			for _, trap in { "trash_bin", "garbage_bag", "tree", "trashcan" } do
+				local cue = Logic.trapCue(trap)
+				expect(cue ~= nil and seen[cue] == nil).to.equal(true)
+				seen[cue] = true
+			end
+			expect(Logic.trapCue(nil)).to.equal(nil)
+			for _, bad in { "", "Tree", "trash bin", "rescueHitBin", "sheetRescue" } do
+				expect(Logic.trapCue(bad)).to.equal(nil)
+			end
+		end)
+	end)
+
 	describe("Audio.Logic cafe orders (F90)", function()
 		it("pours only at the espresso machine", function()
 			expect(Logic.orderMakeCue("espresso")).to.equal("orderPour")
@@ -895,5 +930,26 @@ return function()
 				expect(Cues.tipSweep.range ~= nil).to.equal(true)
 			end
 		)
+	end)
+
+	-- QA for Sound-Agent's PR #784: the order sounds repeat with every order, so each stays near its cafe, spaced out
+	-- and at most two at once, and only a real station name picks a sound.
+	describe("Audio.Logic cafe order edges (QA)", function()
+		it("keeps every order sound 3D within 35 studs, gapped, two voices at most", function()
+			for _, name in { "orderPour", "orderDing", "trayClink", "tipSweep", "tipBank" } do
+				local cue = Cues[name]
+				expect(cue.range ~= nil and cue.range > 0 and cue.range <= 35).to.equal(true)
+				expect((cue.minGap or 0) > 0).to.equal(true)
+				expect((cue.voices or 1) <= 2).to.equal(true)
+			end
+		end)
+
+		it("picks no pour or ding step for anything but a station's exact name", function()
+			local junk: { any } = { "", "Espresso", "OVEN", " counter", "orderPour", 2, true, {} }
+			for _, bad in junk do
+				expect(Logic.orderMakeCue(bad)).to.equal(nil)
+				expect(Logic.orderDingStep(bad)).to.equal(nil)
+			end
+		end)
 	end)
 end

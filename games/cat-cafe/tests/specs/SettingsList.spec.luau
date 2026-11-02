@@ -130,11 +130,25 @@ return function()
 		it("has a row per saved setting, each starting at the saved default", function()
 			local saved = ProfileSchema.template(0).settings :: any
 			for key, value in saved do
-				expect(SettingsList.isKey(key)).to.equal(true)
-				expect(SettingsList.shown(nil, {}, key, 0)).to.equal(value)
+				if not SettingsList.OTHER_KEYS[key] then
+					expect(SettingsList.isKey(key)).to.equal(true)
+					expect(SettingsList.shown(nil, {}, key, 0)).to.equal(value)
+				end
 			end
 			for _, row in SettingsList.ROWS do
 				expect(saved[row.key] ~= nil).to.equal(true)
+			end
+		end)
+
+		-- F102: Trade requests is the Trading section's three-way choice, not a row; once the server saves it, it
+		-- starts at "everyone", which is what the section shows with nothing saved
+		it("leaves Trade requests to the Trading section, saved default everyone (F102)", function()
+			local key = SettingsList.TRADE_REQUESTS_KEY
+			expect(SettingsList.OTHER_KEYS[key]).to.equal(true)
+			expect(SettingsList.isKey(key)).to.equal(false)
+			local saved = ProfileSchema.template(0).settings :: any
+			if saved[key] ~= nil then
+				expect(saved[key]).to.equal("everyone")
 			end
 		end)
 

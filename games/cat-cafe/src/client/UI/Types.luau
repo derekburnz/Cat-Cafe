@@ -251,7 +251,8 @@ export type PlayerState = {
 	rainbowLuck: number?, -- F99: the Index's rainbow luck, capped (RainbowLuckMax), as a fraction
 	carrying: string?, -- catId while carrying a stray home (HUD banner)
 	tutorialStep: number?,
-	settings: { [string]: boolean | number }?, -- profile.settings (shared/Settings): switches and 0 to 1 volumes
+	settings: { [string]: boolean | number | string }?, -- profile.settings (shared/Settings): switches, 0 to 1 volumes, tradeRequests
+	tradeLog: { TradeLogEntry }?, -- F102: the last 20 trades, for the Trades page
 	indexRewards: { [string]: { [string]: boolean } }?, -- F48: area id -> milestone id -> true once claimed
 	spin: SpinState?, -- F49: the free spin and the banked ones
 	goldenFish: number?, -- F52: the rare currency; nil hides its HUD counter
@@ -300,7 +301,8 @@ export type PartialState = {
 	rainbowLuck: number?,
 	carrying: string?,
 	tutorialStep: number?,
-	settings: { [string]: boolean | number }?,
+	settings: { [string]: boolean | number | string }?,
+	tradeLog: { TradeLogEntry }?,
 	indexRewards: { [string]: { [string]: boolean } }?,
 	spin: SpinState?,
 	goldenFish: number?,
@@ -344,6 +346,7 @@ export type ScreenName =
 	| "DailyTreat"
 	| "YardSale" -- F100: the Yard Sale's card, opened by its prompt (UI.campExtras.openYardSale)
 	| "Trade" -- F102: the players to trade with, then the trade window (UI.trade)
+	| "TradeLog" -- F102: the last 20 trades, opened from Settings
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 
@@ -578,6 +581,15 @@ export type TradeCat = {
 	rarity: string,
 	variant: string?,
 	level: number,
+}
+
+-- F102 (trading.md section 5): one trade on the Trades page; `at` is os.time(), `partnerName` their display name then.
+export type TradeLogEntry = {
+	id: string,
+	at: number,
+	partnerName: string,
+	gave: { TradeCat },
+	got: { TradeCat },
 }
 
 -- ModuleScripts must return a non-nil value.

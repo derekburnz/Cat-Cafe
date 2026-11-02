@@ -28,7 +28,7 @@ export type Props = {
 export type View = {
 	def: Types.CatDef,
 	variant: string?, -- "gold", "rainbow" or nil
-	level: number,
+	level: number?, -- nil hides the "Lv 4" badge (the Trades page's small cards)
 	rate: string?, -- the foot line; nil hides it
 	good: boolean?, -- the rate in green (their cats, earning for you)
 	status: ("locked" | "offered")?,
@@ -220,8 +220,9 @@ function TradeTile.set(self: any, view: View?)
 			stroke.Color = Theme.colors.white
 		end
 	end
-	self._level.Text = string.format("Lv %d", view.level)
-	self._level.Visible = true
+	local level = view.level
+	self._level.Text = if level then string.format("Lv %d", level) else ""
+	self._level.Visible = level ~= nil
 	self._coat.Visible = gold or rainbow
 	self._coat.Text = if rainbow then "🌈" else "✨"
 	self._coat.BackgroundColor3 = if rainbow then Theme.colors.white else Theme.colors.gold

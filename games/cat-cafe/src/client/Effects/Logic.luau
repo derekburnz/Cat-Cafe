@@ -712,7 +712,7 @@ function Logic.workIdle(o: Offsets, style: Style, t: number): boolean
 		o.headRoll = -o.bodyRoll * 0.5
 		o.headPitch = -math.rad(e.nod) * nod
 		o.held = math.rad(e.mic) * nod
-		o.waveL = math.rad(e.wave) * sway
+		o.pawFL = math.rad(e.swing) * sway -- the free paw at its side keeps time
 	end
 	return true
 end

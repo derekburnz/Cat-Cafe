@@ -29,6 +29,7 @@ local CatchWords = require(script.Parent.Parent.Components.CatchWords)
 local Create = require(script.Parent.Parent.Components.Create)
 local Motion = require(script.Parent.Parent.Components.Motion)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -42,6 +43,7 @@ export type Header = {
 	rarity: string?,
 	stars: number?,
 	shiny: boolean?,
+	rainbow: boolean?, -- F99: "Epic · Rainbow" and a turning rainbow edge
 	title: string?, -- replaces the hint line, e.g. "Catch it as it falls!" on a tree rescue
 }
 
@@ -280,6 +282,8 @@ function CatchCircles.new(parent: Instance): CatchCircles
 		),
 	})
 	self._header = header
+	self._headerRainbow = Rainbow.stroke(header:FindFirstChildOfClass("UIStroke") :: UIStroke)
+	self._headerRainbow.Enabled = false
 	self._name = Create("TextLabel", {
 		Name = "CatName",
 		BackgroundTransparency = 1,
@@ -486,7 +490,10 @@ function CatchCircles.show(
 	local rarity = info.rarity or "Common"
 	-- no charm stars after the name (F97 section 5: stars show nowhere now)
 	self._name.Text = info.catName or "Stray cat"
-	self._rarity.Text = if info.shiny then rarity .. "  ·  Gold" else rarity
+	self._rarity.Text = if info.rainbow
+		then rarity .. "  ·  Rainbow"
+		elseif info.shiny then rarity .. "  ·  Gold"
+		else rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
 	self._hint.Text = info.title
@@ -495,7 +502,11 @@ function CatchCircles.show(
 				then "Tap anywhere as each circle meets its ring"
 				else "Press Space or click as each circle meets its ring"
 		)
-	self._header.UIStroke.Color = if info.shiny then Theme.colors.gold else Theme.hud.stroke
+	self._header.UIStroke.Color = if info.rainbow
+		then Theme.colors.white
+		elseif info.shiny then Theme.colors.gold
+		else Theme.hud.stroke
+	self._headerRainbow.Enabled = info.rainbow == true
 
 	for index, circle in circles do
 		local view = self:_buildView(index, circle)

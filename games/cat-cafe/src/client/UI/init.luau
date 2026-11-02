@@ -1576,7 +1576,7 @@ function UI.announce(text: string, rarity: string?)
 	end
 end
 
--- `extra` is optional: { stars, shiny, charmGain }. Missing stars and shiny are read from the newest copy of the
+-- `extra` is optional: { stars, shiny, rainbow, charmGain }. Missing stars, shiny and rainbow are read from the newest copy of the
 -- cat in state.cats when ProfileSync already carries it (caught in the last 30 s).
 function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundExtra?)
 	local def = lookupCat(catId)
@@ -1584,6 +1584,7 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		local info: Types.CatFoundExtra = {
 			stars = extra and extra.stars,
 			shiny = extra and extra.shiny,
+			rainbow = extra and extra.rainbow,
 			charmGain = extra and extra.charmGain,
 			banner = extra and extra.banner,
 			line = extra and extra.line,
@@ -1606,6 +1607,9 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			info.stars = info.stars or newest.stars
 			if info.shiny == nil then
 				info.shiny = CatVariant.isGold(newest.variant)
+			end
+			if info.rainbow == nil then
+				info.rainbow = CatVariant.isRainbow(newest.variant)
 			end
 		end
 		popups:showCatFound(def, isNew, info)
@@ -2533,6 +2537,7 @@ do
 			rescueSpotId = info.rescueSpotId,
 			press = info.press,
 			shiny = info.shiny,
+			rainbow = info.rainbow,
 			fleeingUntil = info.fleeingUntil,
 			retryAt = info.retryAt or retryAtFor(info.strayId, info.fleeingUntil),
 			ownerTurnUntil = info.ownerTurnUntil,
@@ -2585,6 +2590,7 @@ do
 				rarity = rarity,
 				stars = info.stars,
 				shiny = info.shiny,
+				rainbow = info.rainbow,
 				title = nil,
 			}
 			header = built
@@ -2905,6 +2911,7 @@ do
 		local rescue = promptAttribute(prompt, "Rescue")
 		local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
 		local gold = promptAttribute(prompt, "Gold") -- a gold cat (was Shiny before 2026-10-27)
+		local variant = promptAttribute(prompt, "Variant") -- F99: "rainbow" on a rainbow stray
 		local pickUp = promptAttribute(prompt, "PickUp") == true -- v0.8 F56: no circles, the hold picks it up
 		local returning = promptAttribute(prompt, "Returning") == true -- v0.10 F67: walking home
 		local kind: Types.PromptKind = if rescue == true
@@ -2927,6 +2934,7 @@ do
 				else nil,
 			press = prompt.HoldDuration <= 0,
 			shiny = gold == true,
+			rainbow = variant == "rainbow",
 			kind = kind,
 			returning = pickUp and returning,
 			rescueSpotId = if type(rescueSpotId) == "string"

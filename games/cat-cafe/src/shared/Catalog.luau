@@ -2206,6 +2206,10 @@ Catalog.indexPrizes = {
 		decor5 = { fish = Config.DecorIndexHalfFish },
 		decor10 = { bonus = Config.DecorIndexBonus },
 	},
+	decor_rally = { -- F101: the Rally Crate's own page
+		decor5 = { fish = Config.DecorIndexHalfFish },
+		decor10 = { bonus = Config.DecorIndexBonus },
+	},
 	-- F99 (rainbow-coat.md section 4): the three luck steps add up to RainbowLuckMax (+100%)
 	rainbow = {
 		rainbow1 = { fish = 25, tag = "Rainbow Finder" },
@@ -2300,14 +2304,19 @@ local CRATE_ODDS =
 	{ Common = 60, Rare = 27, Epic = 10, Legendary = 2.5, Mythical = 0.5 } :: { [string]: number }
 local GOLDEN_CRATE_ODDS =
 	{ Common = 0, Rare = 0, Epic = 80, Legendary = 17.5, Mythical = 2.5 } :: { [string]: number }
-local CRATE_POOLS = {
+-- F101: the Rally Crate is never sold and has no golden twin (`sold` and `golden` false).
+local CRATE_POOLS: { { area: string, name: string, sold: boolean?, golden: boolean? } } = {
 	{ area = "alley", name = "Alley" },
 	{ area = "park", name = "Park" },
 	{ area = "neighbourhood", name = "Neighbourhood" },
 	{ area = "woods", name = "Woods" },
 	{ area = "sewer", name = "Sewer" },
 	{ area = "classic", name = "Classic" },
+	{ area = "rally", name = "Rally", sold = false, golden = false },
 }
+
+-- The Rescue Rally's crate pool (F101): open from Tier 1 like the Classic Crate, banked by the Rally's 100% step.
+Catalog.RALLY_POOL = "rally"
 -- The pieces in each pool (F53, golden-fish.md section 4): ten, two of each kind, 4 Common, 3 Rare and one each of
 -- Epic, Legendary and Mythical, then since F80 (section 4b) a door set and a cat flap, one Common and one Rare, so
 -- twelve with 5 Common and 4 Rare. A wallpaper, floor or paint is a colour and a material on the cafe's tagged shell
@@ -2919,6 +2928,106 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			description = "A pastel flap with a tiny gold bell on top.",
 		},
 	},
+	-- The Rally Crate (F101, rescue-rally.md section 3; Model-Agent #759 and #766): the Rescue Rally's own twelve, in
+	-- the Rally's red, navy, blue and gold, at the Classic Crate's rarity odds. It only comes from the Rally.
+	rally = {
+		{
+			id = "rally_pennant_wall",
+			name = "Pennant Wall",
+			kind = "wallpaper",
+			rarity = "Common",
+			color = Color3.fromRGB(217, 72, 59),
+			material = Enum.Material.Fabric,
+			description = "Red felt like a team pennant.",
+		},
+		{
+			id = "rally_team_banner",
+			name = "Team Banner",
+			kind = "wallpaper",
+			rarity = "Rare",
+			color = Color3.fromRGB(47, 62, 92),
+			material = Enum.Material.Fabric,
+			description = "Deep navy banner cloth for the big game.",
+		},
+		{
+			id = "rally_running_track",
+			name = "Running Track",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(196, 84, 62),
+			material = Enum.Material.Rubber,
+			description = "Springy red track, made for zoomies.",
+		},
+		{
+			id = "rally_gym_floor",
+			name = "Gym Floor",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(214, 170, 110),
+			material = Enum.Material.WoodPlanks,
+			description = "Polished boards that squeak under paws.",
+		},
+		{
+			id = "rally_team_stripes",
+			name = "Team Stripes",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(60, 125, 217),
+			material = Enum.Material.SmoothPlastic,
+			description = "Bright blue trim in the team colours.",
+		},
+		{
+			id = "rally_trophy_gold",
+			name = "Trophy Gold",
+			kind = "paint",
+			rarity = "Mythical",
+			color = Color3.fromRGB(255, 201, 77),
+			material = Enum.Material.Foil,
+			description = "Shines like a first-place cup.",
+		},
+		{
+			id = "rally_bleacher_bench",
+			name = "Bleacher Bench",
+			kind = "furniture",
+			rarity = "Rare",
+			description = "Tiered seats for the home crowd.",
+		},
+		{
+			id = "rally_trophy_shelf",
+			name = "Trophy Shelf",
+			kind = "furniture",
+			rarity = "Epic",
+			description = "A shelf of bright cups and ribbons.",
+		},
+		{
+			id = "rally_cheer_bunting",
+			name = "Cheer Bunting",
+			kind = "decoration",
+			rarity = "Rare",
+			description = "Red and blue flags strung up for the big day.",
+		},
+		{
+			id = "rally_victory_podium",
+			name = "Victory Podium",
+			kind = "decoration",
+			rarity = "Legendary",
+			description = "First, second and third, with a cup that spins.",
+		},
+		{
+			id = "rally_medal_door",
+			name = "Medal Door",
+			kind = "door",
+			rarity = "Common",
+			description = "A team door with a gold medal on it.",
+		},
+		{
+			id = "rally_finish_line_flap",
+			name = "Finish Line Flap",
+			kind = "catflap",
+			rarity = "Rare",
+			description = "A checked flap for a winning dash.",
+		},
+	},
 }
 
 local KIND_CATEGORY: { [string]: string } = {
@@ -2985,10 +3094,13 @@ for _, pool in CRATE_POOLS do
 		name = pool.name .. " Crate",
 		area = pool.area,
 		golden = false,
-		price = Config.CratePrice,
+		price = if pool.sold == false then nil else Config.CratePrice,
 		odds = CRATE_ODDS,
 		pieces = poolPieces[pool.area],
 	})
+	if pool.golden == false then
+		continue
+	end
 	table.insert(Catalog.crates, {
 		id = pool.area .. "_golden_crate",
 		name = "Golden " .. pool.name .. " Crate",
@@ -3001,7 +3113,7 @@ for _, pool in CRATE_POOLS do
 end
 
 Catalog.cratesById = {} :: { [string]: Types.CrateDef }
-Catalog.cratePools = {} :: { [string]: boolean } -- the zone ids and "classic": crateLuck's keys
+Catalog.cratePools = {} :: { [string]: boolean } -- the zone ids, "classic" and "rally": crateLuck's keys
 for _, def in Catalog.crates do
 	Catalog.cratesById[def.id] = def
 	Catalog.cratePools[def.area] = true

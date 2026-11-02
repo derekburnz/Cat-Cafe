@@ -101,7 +101,7 @@ return function()
 
 	describe("Catalog crates and the Golden Fish Market (F53 rows in save version 7)", function()
 		it("has a crate and a golden crate for each zone and the Classic pool", function()
-			expect(#Catalog.crates).to.equal(12)
+			expect(#Catalog.crates).to.equal(13) -- and F101's Rally Crate, with no golden twin
 			for _, pool in { "alley", "park", "neighbourhood", "woods", "sewer", "classic" } do
 				expect(Catalog.cratePools[pool]).to.equal(true)
 				local crate = Catalog.getCrate(pool .. "_crate")
@@ -137,7 +137,7 @@ return function()
 			function()
 				for _, def in Catalog.crates do
 					local row = Catalog.getFishShopRow(def.id)
-					if def.golden then
+					if def.golden or def.area == Catalog.RALLY_POOL then -- F101: the Rally Crate comes from the Rally
 						expect(row).never.to.be.ok()
 					else
 						assert(row)
@@ -321,7 +321,7 @@ return function()
 				extra_decor_spot = { 100, 250 },
 			}
 			for _, def in Catalog.crates do
-				if not def.golden then
+				if not def.golden and def.area ~= Catalog.RALLY_POOL then
 					want[def.id] = { 60 }
 				end
 			end

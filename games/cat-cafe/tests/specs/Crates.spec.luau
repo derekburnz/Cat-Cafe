@@ -1,5 +1,6 @@
 --!strict
--- shared/Crates.luau and the 72 crate pieces (F53 and F80, golden-fish.md sections 3, 4, 4b and 8): the rolls, the
+-- shared/Crates.luau and the 84 crate pieces (F53, F80 and F101, golden-fish.md sections 3, 4, 4b and 8, rescue-rally.md
+-- section 3): the rolls, the
 -- lucky twentieth, refunds, decor spots, style slots, Decor Index pages, what opens and what the Market sells, and
 -- the income they add.
 return function()
@@ -10,7 +11,8 @@ return function()
 	local Economy = require(Shared.Economy)
 	local ProfileSchema = require(Shared.ProfileSchema)
 
-	local POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "classic" }
+	local POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "classic" } -- sold, each with a golden twin
+	local ALL_POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "classic", "rally" } -- and F101's Rally Crate
 	local KINDS = { "wallpaper", "floor", "paint", "furniture", "decoration" } -- two of each a pool
 	local MODEL_KINDS = { "door", "catflap" } -- one of each a pool since F80
 	local PER_RARITY: { [string]: number } = { Common = 5, Rare = 4, Epic = 1, Legendary = 1, Mythical = 1 }
@@ -36,10 +38,10 @@ return function()
 		end
 	end
 
-	describe("the 72 pieces (sections 4 and 4b)", function()
+	describe("the 84 pieces (sections 4 and 4b)", function()
 		it("gives each pool twelve pieces: two of each kind, a door set and a cat flap, rarities 5, 4, 1, 1, 1", function()
-			expect(#Catalog.crateDecor).to.equal(72)
-			for _, pool in POOLS do
+			expect(#Catalog.crateDecor).to.equal(84)
+			for _, pool in ALL_POOLS do
 				local kinds: { [string]: number } = {}
 				local rarities: { [string]: number } = {}
 				for _, def in Catalog.crateDecor do
@@ -516,7 +518,8 @@ return function()
 		it("opens what section 4 says for every crate, tier, bank and wallet", function()
 			for _, crate in Catalog.crates do
 				local area = Catalog.getArea(crate.area)
-				local opensAt = if crate.area == "classic" then 1 else (assert(area)).tier
+				local anyTier = crate.area == "classic" or crate.area == Catalog.RALLY_POOL
+				local opensAt = if anyTier then 1 else (assert(area)).tier
 				for tier = 1, 6 do
 					for _, banked in { 0, 1 } do
 						for _, fish in { 0, 59, 60, 1000 } do
@@ -532,6 +535,8 @@ return function()
 								want = nil
 							elseif crate.golden then
 								want = "Golden crates come from the Index"
+							elseif crate.area == Catalog.RALLY_POOL then
+								want = "Rally Crates come from the Rescue Rally"
 							elseif fish < 60 then
 								want = "Not enough golden fish"
 							end
@@ -602,6 +607,7 @@ return function()
 			woods = { door = "woods_log_cabin_door", flap = "woods_tree_stump_flap", commonDoor = true },
 			sewer = { door = "sewer_porthole_hatch_door", flap = "sewer_pipe_ring_flap", commonDoor = false },
 			classic = { door = "classic_paned_glass_door", flap = "classic_bell_flap", commonDoor = true },
+			rally = { door = "rally_medal_door", flap = "rally_finish_line_flap", commonDoor = true }, -- F101
 		}
 		local ALL_KINDS = { "wallpaper", "floor", "paint", "door", "catflap", "furniture", "decoration" }
 
@@ -618,7 +624,7 @@ return function()
 		it("has section 4b's door set and cat flap in every crate, with its rarity, bonus and model name", function()
 			expect(Config.CratePieceBonus.Common).to.be.near(0.02, 1e-9)
 			expect(Config.CratePieceBonus.Rare).to.be.near(0.04, 1e-9)
-			for _, pool in POOLS do
+			for _, pool in ALL_POOLS do
 				local want = DESIGN[pool]
 				for _, side in { "door", "flap" } do
 					local def = Catalog.getDecor(if side == "door" then want.door else want.flap) :: any
@@ -647,13 +653,13 @@ return function()
 				listed[want.flap] = true
 			end
 			local pieces = modelPieces()
-			expect(#pieces).to.equal(12)
+			expect(#pieces).to.equal(14)
 			for _, def in pieces do
 				expect(listed[def.id]).to.equal(true)
 			end
 		end)
 
-		it("gives every one of the 72 pieces its own id and its own model", function()
+		it("gives every one of the 84 pieces its own id and its own model", function()
 			local ids: { [string]: boolean } = {}
 			local assets: { [string]: string } = {}
 			for _, def in Catalog.crateDecor do
@@ -789,6 +795,77 @@ return function()
 				expect(Crates.pageCount(profile, pool)).to.equal(12 + extra)
 				expect(Crates.fullPages(profile)).to.equal(1)
 			end
+		end)
+	end)
+
+	describe("the Rally Crate (F101, rescue-rally.md section 3)", function()
+		local RALLY = Catalog.RALLY_POOL
+
+		it("is one crate of twelve Rally pieces at the Classic odds, never sold and with no golden twin", function()
+			expect(RALLY).to.equal("rally")
+			local crate = assert(Catalog.getCrate("rally_crate"))
+			local classic = assert(Catalog.getCrate("classic_crate"))
+			expect(crate.name).to.equal("Rally Crate")
+			expect(crate.area).to.equal(RALLY)
+			expect(crate.golden).to.equal(false)
+			expect(crate.price).never.to.be.ok()
+			expect(crate.odds :: any).to.deepEqual(classic.odds)
+			expect(Catalog.getCrate("rally_golden_crate")).never.to.be.ok()
+			expect(Catalog.getFishShopRow("rally_crate")).never.to.be.ok()
+			expect(Catalog.cratePools[RALLY]).to.equal(true)
+			expect(#crate.pieces).to.equal(12)
+			expect(Crates.pageSize(RALLY)).to.equal(12)
+			for _, id in crate.pieces do
+				local def = assert(Catalog.getDecor(id))
+				expect(def.crate).to.equal(RALLY)
+				expect(def.source).to.equal("crate")
+				expect(string.sub(id, 1, 6)).to.equal("rally_")
+			end
+		end)
+
+		it("opens only from the bank, at any tier, and says where it comes from", function()
+			for tier = 1, 6 do
+				local profile = fresh()
+				profile.goldenFish = 1000
+				expect(Crates.openBlocker(profile, tier, "rally_crate")).to.equal(
+					"Rally Crates come from the Rescue Rally"
+				)
+				profile.crates.rally_crate = 1
+				expect(Crates.openBlocker(profile, tier, "rally_crate")).never.to.be.ok()
+			end
+		end)
+
+		it("rolls only Rally pieces, a door set or cat flap at 12% or 6.75%", function()
+			local crate = assert(Catalog.getCrate("rally_crate"))
+			local chances = Crates.pieceChances(crate, Crates.oddsFor(crate, 0))
+			local total = 0
+			for id, chance in chances do
+				expect((assert(Catalog.getDecor(id))).crate).to.equal(RALLY)
+				total += chance
+			end
+			expect(total).to.be.near(100, 1e-9)
+			expect(chances.rally_medal_door).to.be.near(12, 1e-9)
+			expect(chances.rally_finish_line_flap).to.be.near(6.75, 1e-9)
+			expect(chances.rally_trophy_gold).to.be.near(0.5, 1e-9)
+			for _, roll in { 0, 0.25, 0.5, 0.75, 0.999 } do
+				local decorId = Crates.roll(crate, 0, roll, roll)
+				expect((assert(Catalog.getDecor(decorId))).crate).to.equal(RALLY)
+			end
+		end)
+
+		it("fills its own Decor Index page, paying like the others", function()
+			local page = assert(Catalog.indexPrizes.decor_rally)
+			local classic = assert(Catalog.indexPrizes.decor_classic)
+			expect(page :: any).to.deepEqual(classic)
+			local profile = fresh()
+			local crate = assert(Catalog.getCrate("rally_crate"))
+			for index, id in crate.pieces do
+				expect(Crates.pageCount(profile, RALLY)).to.equal(index - 1)
+				expect(Crates.fullPages(profile)).to.equal(0)
+				own(profile, assert(Catalog.getDecor(id)), false)
+			end
+			expect(Crates.pageCount(profile, RALLY)).to.equal(12)
+			expect(Crates.fullPages(profile)).to.equal(1)
 		end)
 	end)
 

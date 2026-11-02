@@ -404,6 +404,10 @@ export type RescueChallenge = {
 	-- them as RescueRules, so the engineer's RescueChallenge fits with or without them
 	circle: CatchCircle?, -- kind "circle"
 	windows: CatchWindows?, -- kind "circle"
+	-- F92 Team Rescue (playing-together.md section 3): a helper's copy of a running bar, with the hits so far; a
+	-- helper's miss costs no paw
+	helper: boolean?,
+	hits: number?,
 }
 
 -- F93's extra RescueChallenge fields (catch-rework.md section 4): `zones` holds a spare zone per paw; `zone` is the

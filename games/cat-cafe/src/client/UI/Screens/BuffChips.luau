@@ -4,7 +4,8 @@
 -- colour and its time left in outlined white ("8:12"), no dark panel behind them. A tap on any chip opens the
 -- potion bag. Each tile shows the potion's own bottle icon (Components/ShopIcons). The row hides with no potion running; while one runs it ticks once a second, and a chip goes when
 -- its time is up. Times come from ProfileSync `buffs` (endsAt in server time), so a rejoin shows what is left.
--- F88: the HUD's Luck chip (Screens/LuckChip) leads the row; setLead keeps the row up while it shows.
+-- F88: the HUD's Luck chip (Screens/LuckChip) leads the row; setLead keeps the row up while it shows. F92: the pal
+-- chip (Screens/PalChip) closes the row and keeps it up the same way, under its own key.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -23,7 +24,7 @@ export type BuffChips = {
 	setCatalog: (self: BuffChips, catalog: Types.Catalog) -> (),
 	render: (self: BuffChips, state: Types.PlayerState) -> (),
 	place: (self: BuffChips, position: UDim2, anchor: Vector2) -> (),
-	setLead: (self: BuffChips, shown: boolean) -> (),
+	setLead: (self: BuffChips, shown: boolean, key: string?) -> (), -- key "luck" (the default) or "pals"
 	destroy: (self: BuffChips) -> (),
 }
 
@@ -49,7 +50,7 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 	self._loop = nil :: RBXScriptConnection?
 	self._clock = 0
 	self._onOpen = onOpen
-	self._lead = false -- F88: the Luck chip shows at the row's start
+	self._leads = {} :: { [string]: boolean } -- F88: the Luck chip at the row's start; F92: the pal chip at its end
 	self._running = 0
 
 	self.frame = Create("Frame", {
@@ -82,10 +83,11 @@ function BuffChips.place(self: any, position: UDim2, anchor: Vector2)
 	self.frame.Position = position
 end
 
--- F88: whether the Luck chip (the row's first child, LayoutOrder 0) shows, so the row stays up for it alone.
-function BuffChips.setLead(self: any, shown: boolean)
-	self._lead = shown
-	self.frame.Visible = shown or self._running > 0
+-- F88: whether the Luck chip (the row's first child, LayoutOrder 0) shows, so the row stays up for it alone. F92: the
+-- pal chip (LayoutOrder 100) says the same under the key "pals".
+function BuffChips.setLead(self: any, shown: boolean, key: string?)
+	self._leads[key or "luck"] = if shown then true else nil
+	self.frame.Visible = next(self._leads) ~= nil or self._running > 0
 end
 
 function BuffChips.render(self: any, state: Types.PlayerState)
@@ -165,7 +167,7 @@ function BuffChips._draw(self: any)
 		end
 	end
 	self._running = #running
-	self.frame.Visible = #running > 0 or self._lead
+	self.frame.Visible = #running > 0 or next(self._leads) ~= nil
 	-- tick once a second while anything runs; stop when the last one ends
 	local loop: RBXScriptConnection? = self._loop
 	if #running > 0 and loop == nil then

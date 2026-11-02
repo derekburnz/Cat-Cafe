@@ -26,13 +26,16 @@
 -- gold "New!" on its button for NEW_SECONDS.
 -- Laid out in design pixels under one UIScale from Scale.bind.
 --
+-- F92 (playing-together.md sections 2 and 5): the pal chip (Screens/PalChip) closes the potion timers' row while pals
+-- are on the server, the boosts card gets their "Pals (2)" row, Invite sends Roblox's invite with this player's name
+-- in its launch data (Components/Invite), and a joiner whose pal is out in an area sees "Sam is in the Park" over the
+-- glowing Cannon (Screens/PalMarker).
+--
 -- Roblox terms: SocialService:PromptGameInvite opens Roblox's own invite-friends window; the game only asks.
 
 local GuiService = game:GetService("GuiService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local SocialService = game:GetService("SocialService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -47,11 +50,14 @@ local GoalCard = require(script.Parent.GoalCard)
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
+local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local PalChip = require(script.Parent.PalChip)
+local PalMarker = require(script.Parent.PalMarker)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
@@ -101,6 +107,10 @@ export type HUD = {
 	glowTutorial: (self: HUD) -> (),
 	pulseTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
+	-- F92: the pals on the server (PalsChanged), for the chip and the boosts card
+	setPals: (self: HUD, userIds: { number }) -> (),
+	-- F92: "Sam is in the Park" over the travel button to that area, glowing; nil text takes it away
+	palArrived: (self: HUD, palUserId: number, text: string?) -> (),
 	destroy: (self: HUD) -> (),
 }
 
@@ -670,17 +680,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		layoutOrder = 6,
 		parent = icons,
 		onClick = function()
-			task.spawn(function()
-				local player = Players.LocalPlayer
-				local ok, canInvite = pcall(function()
-					return SocialService:CanSendGameInviteAsync(player)
-				end)
-				if ok and canInvite then
-					pcall(function()
-						SocialService:PromptGameInvite(player)
-					end)
-				end
-			end)
+			Invite.prompt() -- F92: with this player's name in the launch data
 		end,
 	})
 	table.insert(self._buttons, self._inviteTile)
@@ -1325,6 +1325,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			self._exact.Visible = false
 		end
 	)
+	-- F92: the pal chip closes the potion timers' row; a tap opens the boosts card with the pals' row
+	self._palIds = {} :: { number }
+	self._pals = PalChip.new(self._buffs.frame, function(shown: boolean)
+		self._buffs:setLead(shown, "pals")
+	end, function()
+		self:_toggleBoosts()
+	end)
+	self._palMarker = PalMarker.new()
 	self:_layoutMenu()
 	-- the left side follows the screen's size (a phone turned, a window resized)
 	table.insert(
@@ -2341,7 +2349,7 @@ function HUD._renderBoosts(self: any)
 	self._boostsRate.Text = Format.rate(state.incomePerSecond)
 	-- the money ticks five times a second while income flows (UIController's prediction), and each tick renders the
 	-- HUD; the rows are made again only when what they say changed
-	local rows = BoostList.rows(self._catalog, state, Workspace:GetServerTimeNow())
+	local rows = BoostList.rows(self._catalog, state, Workspace:GetServerTimeNow(), #self._palIds)
 	local said: { string } = {}
 	for _, row in rows do
 		table.insert(
@@ -2528,6 +2536,33 @@ function HUD._showExact(self: any)
 	end)
 end
 
+-- F92 (playing-together.md section 2): the pals on the server, cleaned (Components/PalsLogic.list). The chip shows
+-- their faces and the bonus; an open boosts card gets their row; a marker for a pal who left goes.
+function HUD.setPals(self: any, userIds: { number })
+	self._palIds = table.clone(userIds)
+	self._pals:set(userIds)
+	if self._boosts.Visible then
+		self:_renderBoosts()
+	end
+	local marked: number? = self._palMarker:palId()
+	if marked ~= nil and not table.find(userIds, marked) then
+		self._palMarker:hide()
+	end
+end
+
+-- F92 (section 5): the joiner's marker, over the button that travels there (the Cannon, or Areas before the cannon),
+-- which glows until it is pressed. Nil text takes the marker away.
+function HUD.palArrived(self: any, palUserId: number, text: string?)
+	if text == nil then
+		self._palMarker:hide()
+		return
+	end
+	local button = if self._cannonMode
+		then self._travelButtons.cannon
+		else self._travelButtons.areas
+	self._palMarker:show(text, palUserId, button.instance)
+end
+
 function HUD.destroy(self: any)
 	self:_stopClock()
 	local spinTimer: thread? = self._spinTimer
@@ -2546,6 +2581,8 @@ function HUD.destroy(self: any)
 	end
 	self._goal:destroy()
 	self._luck:destroy()
+	self._palMarker:destroy()
+	self._pals:destroy()
 	self._buffs:destroy()
 	self._scaleConnection:Disconnect()
 	Scale.unbind(self._uiScale)

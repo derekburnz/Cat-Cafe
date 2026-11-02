@@ -412,8 +412,14 @@ local DECOR_SOUNDS: { [string]: { cue: string, part: string? } } = {
 		cue = "decorHollowLog",
 		part = "CatCafe_Decor_HollowLogBooth_Lantern_Swing",
 	},
-	neighbourhood_ice_cream_counter = { cue = "decorIceCream" },
-	park_duck_fountain = { cue = "decorDuckFountain" },
+	neighbourhood_ice_cream_counter = {
+		cue = "decorIceCream",
+		part = "CatCafe_Decor_IceCreamCounter_Sign_Spin",
+	},
+	park_duck_fountain = {
+		cue = "decorDuckFountain",
+		part = "CatCafe_Decor_DuckFountain_Ducklings_Spin",
+	},
 	alley_retro_jukebox = { cue = "decorJukebox" },
 	classic_cat_tree_tower = { cue = "decorCatTree" },
 }

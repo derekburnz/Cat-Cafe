@@ -94,6 +94,10 @@ export type CustomEvent =
 	| "new_player_left"
 	| "stuck_nudge"
 	| "intro_choice"
+	-- F87 (TipService): a context tip or the like ask shown (tip id, skipped yes or no), once per id until ClearTips;
+	-- a feedback face (love, ok or no; the chip or none; tier), FeedbackSessionLimit a session
+	| "tip_shown"
+	| "feedback"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.

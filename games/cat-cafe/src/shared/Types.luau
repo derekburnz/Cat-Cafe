@@ -611,6 +611,11 @@ export type PlayerProfile = {
 	settings: Settings,
 	flags: { autoPress: boolean }, -- for review only: set when the last 50 circles look scripted (section 10)
 	telemetry: TelemetryState,
+	-- F87 (easy-start.md section 6, save version 20): the context tips seen (tip id or "like_ask" to true; ClearTips
+	-- keeps only the like ask), the one slide-in feedback ask, and the "Need a hand?" card's tutorial steps ("0" to "5")
+	tipsSeen: { [string]: boolean },
+	feedbackAsked: boolean,
+	stuckHelpShown: { [string]: boolean },
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
@@ -652,6 +657,10 @@ export type PlayerState = {
 	achievements: { [string]: AchievementView }, -- F73: every Catalog.achievements id
 	dailyTreat: DailyTreatView, -- F70: the Daily Treat window's card and the HUD button's dot
 	stats: Stats, -- F73
+	-- F87: the client skips a tip, the slide-in ask or the help card it finds here (section 3, 4 and 2g)
+	tipsSeen: { [string]: boolean },
+	feedbackAsked: boolean,
+	stuckHelpShown: { [string]: boolean },
 	serverTime: number,
 }
 

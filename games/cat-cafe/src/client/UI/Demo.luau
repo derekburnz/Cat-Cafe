@@ -389,7 +389,7 @@ local DECOR_BONUS: { [string]: number } =
 	{ plants = 0.05, rug = 0.05, neon_sign = 0.10, fish_tank = 0.10 }
 -- the bait bowl's wait, short so the demo shows the cat arriving (the design's LureWaitSeconds is 600)
 local DEMO_BAIT_SECONDS = 20
--- the night dealer's stock window, short so one restock shows each night (DealerWindowSeconds is 300 since F59)
+-- the night dealer's stock window, short so one restock shows each night (the server restocks once a night since F94)
 local DEMO_DEALER_WINDOW = 20
 
 local SELL_VALUE: { [string]: number } =

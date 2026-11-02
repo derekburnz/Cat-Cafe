@@ -1,5 +1,5 @@
 --!strict
--- UI/Components/ShopIcons.luau: the uploaded crate, treat, perk, net and potion icons found by the game's ids.
+-- UI/Components/ShopIcons.luau: the uploaded crate, food, perk, net, potion and prize icons found by the game's ids.
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
@@ -27,7 +27,9 @@ return function()
 		end)
 
 		it("has a bottle for every potion in the catalog", function()
-			expect(ShopIcons.potion("gold_rush_potion")).to.equal(ShopIcons.image("Potion_GoldRush"))
+			expect(ShopIcons.potion("gold_rush_potion")).to.equal(
+				ShopIcons.image("Potion_GoldRush")
+			)
 			local missing: { string } = {}
 			for _, potion in Catalog.potions do
 				if ShopIcons.potion(potion.id) == nil then
@@ -38,14 +40,28 @@ return function()
 			expect(ShopIcons.potion("moon_potion")).to.equal(nil)
 		end)
 
-		it("draws the Market's perks and the Star Treat, and nothing for other foods", function()
+		it("draws the Market's perks and every food in the catalog (F97)", function()
 			for _, row in Catalog.fishShop do
 				if row.kind == "perk" then
 					expect(ShopIcons.perk(row.id)).to.be.ok()
 				end
 			end
-			expect(ShopIcons.food("star_treat")).to.equal(ShopIcons.image("StarTreat"))
-			expect(ShopIcons.food("tuna")).to.equal(nil)
+			expect(ShopIcons.food("star_treat")).to.equal("rbxassetid://84410663358335")
+			expect(ShopIcons.food("moon_milk")).to.equal(ShopIcons.image("MoonMilk"))
+			local missing: { string } = {}
+			for _, lure in Catalog.lures do
+				if ShopIcons.food(lure.id) == nil then
+					table.insert(missing, lure.id)
+				end
+			end
+			expect(table.concat(missing, ",")).to.equal("")
+			expect(ShopIcons.food("pizza")).to.equal(nil)
+			expect(ShopIcons.food(nil)).to.equal(nil)
+		end)
+
+		it("has the prize pictures for coins and spins (F97 section 4)", function()
+			expect(ShopIcons.image("Coins")).to.equal("rbxassetid://114567888385946")
+			expect(ShopIcons.image("Spin")).to.equal("rbxassetid://109715715479737")
 		end)
 
 		it("offers the next net, staying on the top one", function()

@@ -1,15 +1,17 @@
 """The F84 camps (docs/design/cat-cafe/hometown-cannon.md sections 4 and 6a): each wild area's safe landing camp,
 added in front of its moved v3.2 set. In F84 the old gate is the camp's way out and its arch the name arch, so a
 camp is the ground, low side and back walls, the landing pad, a carrier basket and a few props in the area's theme.
+The Alleyway's camp lies across both back alleys' north ends, with the block of building backs between them.
 
   CatCafe_Camp_<Area>   in area space (areakit): place it with the same CFrame as the area's set, at the area's centre
                         on its floor with -Z toward the camp. The gate line is z G = -(depth / 2 + 1); the camp is
                         the whole width between the side walls and 30 deep, from G back to the back wall's inner face
-                        at G - 30. On the ground: a path from the way out to the cannon, a red SAFE ZONE stripe just
-                        inside the gate line across the opening with SAFE ZONE painted behind it, the landing pad
-                        (cannon.landing_pad, the area's colour) 12 in from the gate line, and the theme props. Low
-                        walls (3.5) at the sides and the back, with invisible `_Barrier` walls above them to 30 so
-                        nobody jumps out. Everything solid collides; the pad and the paint are walk-on.
+                        at G - 30. On the ground: a path from the way out to the cannon, the landing pad
+                        (cannon.landing_pad, the area's colour) 12 in from the gate line, and the theme props. The
+                        red SAFE ZONE line and words are the game's own paint (WorldBuilder), across the gate line
+                        on every camp, so the set leaves them out. Low walls (3.5) at the sides and the back, with
+                        invisible `_Barrier` walls above them to 30 so nobody jumps out. Everything solid collides;
+                        the pad is walk-on.
     _Basket             the carrier basket by the pad (a wicker cat carrier, lid open, a cushion inside), tagged
                         CampBasket, with a `Drop` Attachment over its opening (UpVector up) for the cat's hop in.
 
@@ -17,15 +19,20 @@ Spots (manifest points_roblox, area space [x, height, z]): `pad` (the pad's cent
 CatCafe_Camp_Cannon_<Area> stands, barrel at rest +Z), `basket`, `index_board` (the area's Index Board beside the way
 out, front -Z into the camp). The manifest's `camp` entry has the rect and the opening.
 
-Theme props: Park benches, lamps, trees and flower beds; Neighbourhood a mailbox, picket fences, lamp posts, flower
+Theme props: the Alleyway a brick building end on the block between the two ways out (windows with shutters and
+flower boxes either side of the Index Board that stands in front of it), string lights over both ways out, a
+dumpster, bin bags, trash cans, crates, boxes and puddles, benches, lamps and flower beds; Park benches, lamps,
+trees and flower beds; Neighbourhood a mailbox, picket fences, lamp posts, flower
 beds and recycling bins; Woods a tent, a campfire with log benches, lanterns and pines; Sewer a manhole, a big pipe,
 wall lanterns, barrels, cones and tyres.
 """
 
 import math
 
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
+import alley
+import alleyway
 import neighbourhood as nb
 import park
 import sewer as sw
@@ -33,15 +40,20 @@ import square
 import woods
 from areakit import Set
 from cannon import frame_at, landing_pad
-from common import RB, text_width
+from common import RB
 from plot import rot_x, rot_y
 
 DEPTH = 30.0
 WALL_H, BARRIER_H = 3.5, 30.0
 PAD_IN, CANNON_IN = 12.0, 24.5          # the pad's centre and the cannon's spot, in from the gate line
+BLOCK_K = 0.92                           # the Alleyway block end's scale: 28.2 wide on the 30 stud block
 BASKET_X = -11.0
 # width, depth (the v3.2 set), the way out's half width, ground, path, wall, wall top, the area's colour
 AREAS = {
+    # two 30 stud back alleys (x 15 to 45 either side) and the 30 stud block of building backs between them; the
+    # set's floor ends at the lanes' north ends (z -D / 2), where the game's gate line and the lane arches stand
+    "Alleyway": dict(W=90.0, D=251.0, half=15.0, ground="concrete", path="paving_sand", wall="brick",
+                     top="concrete", trim="neon_pink", lanes=(-30.0, 30.0)),
     "Park": dict(W=160.0, D=120.0, half=16.0, ground="leaf_green", path="paving_sand", wall="paving_grout",
                  top="leaf_dark", trim="paw_park"),
     "Neighbourhood": dict(W=280.0, D=280.0, half=16.0, ground="leaf_green", path="paving_light", wall="brick",
@@ -136,13 +148,13 @@ def build_camp(area):
         s = Set(name)
         g, bar = RB(), RB()
         g.span((-W / 2 - 1, -1, B - 1), (W / 2 + 1, 0, near), look["ground"])               # the camp's ground
-        g.span((-14, 0, G - PAD_IN - 9), (14, 0.02, near), look["path"])                     # the way in, round the pad
+        if "lanes" in look:                                                # an apron in front of both ways out
+            g.span((-W / 2 + 0.5, 0, G - 5), (W / 2 - 0.5, 0.02, near), look["path"])
+            g.span((-14, 0, G - PAD_IN - 9), (14, 0.02, G - 5), look["path"])                # round the pad
+        else:
+            g.span((-14, 0, G - PAD_IN - 9), (14, 0.02, near), look["path"])                 # the way in, round the pad
         g.span((-6.5, 0, B), (6.5, 0.02, G - PAD_IN - 9), look["path"])                      # to the cannon
         landing_pad(g, 0, 0, G - PAD_IN, trim)
-        g.span((-half, 0, G - 0.6), (half, 0.05, G - 0.1), "bowl_red")                       # the SAFE ZONE stripe
-        px = 0.45
-        tw = text_width("SAFE ZONE", px)
-        g.text("SAFE ZONE", (-tw / 2, 0.02, G - 1.4), px, 0.03, "milk", right=(1, 0, 0), up=(0, 0, -1))
         _wall(g, bar, -W / 2 - 1, B - 1, W / 2 + 1, B, look)                                  # back wall
         for sx in (1, -1):
             _wall(g, bar, min(sx * (W / 2 - 0.5), sx * (W / 2 + 0.5)), B - 1,
@@ -161,7 +173,10 @@ def build_camp(area):
         s.mark("pad", 0, G - PAD_IN)
         s.mark("cannon", 0, B + (DEPTH - CANNON_IN))
         s.mark("basket", bx, bz)
-        s.mark("index_board", -(half + 7), G - 1.5)
+        if "lanes" in look:                       # between the two ways out, in front of the block (Layout)
+            s.mark("index_board", 0, near - 4)
+        else:
+            s.mark("index_board", -(half + 7), G - 1.5)
         _theme(s, mat, area, G, B, W, half)
         objs = s.finish(g, mat)
         objs.append(bar.finalize(name + "_Barrier", mat))
@@ -171,9 +186,54 @@ def build_camp(area):
     return build
 
 
+def _block_end(mat):
+    """The end of the block of building backs between the Alleyway's two lanes, facing the camp: a brick building end
+    (alleyway._facade) with two shuttered windows and flower boxes either side of the middle, where the Index Board
+    stands 4 out, and two small windows above them. Pivot on the back plane (local z 0) at the bottom centre, front
+    -Z; built 30 wide and scaled by BLOCK_K so its cornice stays clear of the lane arches' posts."""
+    name = "CatCafe_Alley_BlockEnd"
+    b, flowers = RB(), RB()
+    alleyway._facade(b, 12.0)
+    for sx in (1, -1):
+        alleyway._window(b, None, sx * 10.0, 3.8, 7.4, curtain="blush", shutters="sign_teal", flowers=flowers)
+        alleyway._window(b, None, sx * 10.0, 9.0, 10.9, w=2.6, curtain="pastel_butter")
+    alleyway._drainpipe(b, -12.9, 12.0)
+    return [b.finalize(name, mat), flowers.finalize(name + "_Flowers", mat)]
+
+
+def _scaled(objs, k):
+    """Objects a piece builder returned, scaled by k about the piece's pivot before Set.put places them."""
+    for ob in objs:
+        ob.matrix_world = Matrix.Diagonal((k, k, k, 1.0)) @ ob.matrix_world
+    return objs
+
+
 def _theme(s, mat, area, G, B, W, half):
     cz = B + (DEPTH - CANNON_IN)                                           # the cannon's z
-    if area == "Park":
+    if area == "Alleyway":
+        near = G + 1                                                       # the lanes' ends and the block's face
+        s.put(_scaled(_block_end(mat), BLOCK_K), 0, near, 0)               # the block's end, behind the board
+        for sx in (1, -1):
+            s.put(alleyway.build_string_lights_long(mat), sx * 29.5, G - 6, 0)   # over each way out
+            s.put(square.build_lamp(mat), sx * 9, cz, 0)
+            s.put(park.build_park_bench(mat), sx * 16, G - PAD_IN - 2, 90 * sx)
+            s.put(nb.flowerbed(mat), sx * 22, B + 2.5, 180)
+        s.put(alley.build_dumpster(mat), -36, B + 2.1, 180)
+        s.put(alley.build_garbage_bags(mat), -30.5, B + 1.8, 160)
+        for x in (34.0, 36.3):
+            s.put(alley.build_trash_can(mat), x, B + 1.3, 0)
+        s.put(alley.build_crate(mat), 40.6, B + 1.6, 0)
+        s.put(alley.build_crate(mat), 40.6, B + 1.6, 12, y=1.48)
+        s.put(alley.build_crate(mat), 40.6, B + 3.4, 0)
+        s.put(alley.build_cardboard_box(mat), 29.8, B + 1.6, 20)
+        s.put(alley.build_cardboard_box(mat), 31.7, B + 1.3, -8)
+        s.put(alley.build_cardboard_box(mat), -41.6, G - 16, 0)
+        s.put(alley.build_cardboard_box(mat), -41.4, G - 14.1, 25)
+        s.put(alley.build_puddle(mat), 24, G - 20, 0)
+        s.put(alley.build_puddle(mat), -25, G - 24, 70)
+        for sx in (1, -1):
+            s.put(nb.flowerbed(mat), sx * 41.5, G - 22, -90 * sx)
+    elif area == "Park":
         for sx in (1, -1):
             s.put(park.build_park_bench(mat), sx * 16, G - PAD_IN - 2, 90 * sx)
             s.put(square.build_lamp(mat), sx * 9, cz, 0)

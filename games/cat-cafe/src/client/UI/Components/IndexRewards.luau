@@ -27,6 +27,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CatVariant = require(script.Parent.CatVariant)
 local DecorPieces = require(script.Parent.DecorPieces)
+local FoodOrder = require(script.Parent.FoodOrder)
 local Types = require(script.Parent.Parent.Types)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
@@ -497,15 +498,16 @@ function IndexRewards.unlockLabel(milestone: Milestone, areaName: string, total:
 	)
 end
 
--- A prize's foods in a steady order (the map has none), for the card's text.
+-- A prize's foods in rarity order (the map has none; F97 section 3), for the card's text and pictures. The ids'
+-- grades come from FoodGrade's design table, as the prize has no catalog defs.
 function IndexRewards.lureList(prize: Prize): { LureEntry }
 	local list: { LureEntry } = {}
 	local lures: { [string]: number } = prize.lures or {}
 	for id, count in lures do
 		table.insert(list, { id = id, count = count })
 	end
-	table.sort(list, function(a: LureEntry, b: LureEntry): boolean
-		return a.id < b.id
+	FoodOrder.sort(list, function(entry: LureEntry): (string, Types.LureDef?)
+		return entry.id, nil
 	end)
 	return list
 end

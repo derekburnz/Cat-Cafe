@@ -84,6 +84,12 @@ Remotes.ClientToServer = {
 	-- of the card and answers with ProfileSync (`dailyTreat`)
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?)  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
+	"TipSeen", -- (id: string, skipped: boolean?)  F87 (easy-start.md section 6): a shared/Tips id or one of its three
+	-- asks, 1 a second. A tip or like_ask goes in tipsSeen (logged once as tip_shown, skipped true when a camera cut
+	-- was skipped), feedback_ask sets feedbackAsked, stuck_help sets stuckHelpShown for the current tutorialStep
+	"ClearTips", -- ()  F87: Settings' "Show tips again"; forgets tipsSeen but the like ask; 1 per 10 s; ProfileSync
+	"SendFeedback", -- (face: string, chip: string?)  F87 (section 4): face in Tips.FACES, chip nil or in Tips.CHIPS;
+	-- 1 per 10 s and FeedbackSessionLimit (5) a session; logs `feedback` and sets feedbackAsked. Text goes by ReportBug
 }
 
 -- Server -> client.
@@ -121,6 +127,9 @@ Remotes.ServerToClient = {
 	-- and this player has the golden fish for it; at most once a window per player, only with settings.shopAlerts on
 	-- (none until shared/Settings saves the key, review S100)
 	"TipJarState", -- (state: Types.TipJarState)  when the profile loads and after every claim (F47)
+	"ShowTip", -- (id: string)  F87 (easy-start.md section 3): a server-side context tip's moment came (shared/Tips:
+	-- `due` from the save and the clock, or its event); at most once a session per id until TipSeen. The client queues
+	-- and times it, then answers TipSeen
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)
 	"CrateResult", -- (crateId: string, decorId: string, duplicate: boolean, refund: number)  the piece an OpenCrate

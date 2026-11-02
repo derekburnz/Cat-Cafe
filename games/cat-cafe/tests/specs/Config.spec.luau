@@ -93,6 +93,13 @@ return function()
 		TutorialShrinkSeconds = 1.6,
 		TutorialWindowScale = 2,
 		TutorialRetrySeconds = 1.0,
+		StuckNudgeSeconds = 40,
+		StuckHelpSeconds = 90,
+		TipGapSeconds = 60,
+		TipCutMaxSeconds = 4,
+		FeedbackAskMinutes = 12,
+		TipStartSeconds = 10,
+		FeedbackSessionLimit = 5,
 		-- cat stats (data-model section 4b)
 		CatMaxLevel = 50, -- v0.12 (F75)
 		CatLevelBonus = 0.02,

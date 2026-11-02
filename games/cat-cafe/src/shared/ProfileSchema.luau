@@ -10,6 +10,7 @@ local FreshCatch = require(script.Parent.FreshCatch)
 local Onboarding = require(script.Parent.Onboarding)
 local Settings = require(script.Parent.Settings)
 local Spin = require(script.Parent.Spin)
+local Tips = require(script.Parent.Tips)
 local Types = require(script.Parent.Types)
 
 local ProfileSchema = {}
@@ -45,7 +46,10 @@ local ProfileSchema = {}
 -- Version 19 (F87, easy-start.md section 5) moves telemetry to the 24 step onboarding funnel v2 (`funnel` 2, with
 -- the old step carried over by Onboarding.fromV1) and adds telemetry.firstDay: an older server would read a v2 step
 -- as a v1 one and log the wrong steps.
-ProfileSchema.VERSION = 19
+-- Version 20 (F87, easy-start.md section 6) adds tipsSeen, feedbackAsked and stuckHelpShown: an older server would
+-- drop them and show every context tip and the one feedback ask again. A save from before version 20 that is past
+-- the first loop (tutorialStep 5) has seen every tip already (Tips.sanitizeSeen).
+ProfileSchema.VERSION = 20
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -178,6 +182,9 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			funnel = Onboarding.VERSION,
 			firstDay = now // DAY_SECONDS,
 		},
+		tipsSeen = {},
+		feedbackAsked = false,
+		stuckHelpShown = {},
 	}
 end
 
@@ -727,6 +734,11 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 		profile.flags.autoPress = raw.flags.autoPress == true
 	end
 	profile.telemetry = sanitizeTelemetry(raw.telemetry, now)
+	-- F87 (version 20): an older save past the first loop has met everything the tips explain
+	profile.tipsSeen =
+		Tips.sanitizeSeen(raw.tipsSeen, fromVersion < 20 and profile.tutorialStep >= 5)
+	profile.feedbackAsked = raw.feedbackAsked == true
+	profile.stuckHelpShown = Tips.sanitizeHelp(raw.stuckHelpShown)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

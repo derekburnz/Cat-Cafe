@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 16:50 UTC",
+  "generated": "2026-11-02 18:22 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -143961,7 +143961,7 @@
         "CatCafe_Alley_ArchStreet_Lamp_Bulb",
         "CatCafe_Alley_ArchStreet_Bulbs"
       ],
-      "triangles": 2666,
+      "triangles": 2888,
       "budget": 5000,
       "size_studs": {
         "x": 40.6,
@@ -143985,9 +143985,9 @@
       ],
       "pivot": "base centre of the 36 stud opening; -Z faces the street",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Over the street's north end at (0, 123.5). Posts collide; ALLEY SQUARE reads from the street, CAFE STREET from the square.",
+      "studio": "Over the one-lane Alleyway's way out of the camp, at x 0 on the camp line turned 180. Posts collide; THE ALLEYWAY reads from both faces.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_ArchStreet.model.json",
-      "rbx_parts": 224,
+      "rbx_parts": 246,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_ArchStreet.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_ArchStreet.glb"
@@ -143997,10 +143997,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "2666/5000 tris",
+          "budget": "2888/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1303 faces on swatch centers",
+          "uv": "1414 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -144043,7 +144043,7 @@
       ],
       "pivot": "base centre of the 26 stud opening; -Z faces the back alley",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Over each back alley's north end at (+-78, 123.5). Posts collide; ALLEY SQUARE reads from the back alley, BACK ALLEY from the square.",
+      "studio": "Over each back alley's way out of the F84 camp. Posts collide; THE ALLEYWAY reads from both faces.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Arch.model.json",
       "rbx_parts": 246,
       "files": [
@@ -144477,6 +144477,61 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_StringLightsLong.png"
     },
     {
+      "name": "CatCafe_Alley_StringLightsWide",
+      "category": "Alley",
+      "module": "alleyway",
+      "objects": [
+        "CatCafe_Alley_StringLightsWide",
+        "CatCafe_Alley_StringLightsWide_Decor",
+        "CatCafe_Alley_StringLightsWide_Bulbs"
+      ],
+      "triangles": 1244,
+      "budget": 4000,
+      "size_studs": {
+        "x": 89.0,
+        "y": 1.0,
+        "z": 12.1
+      },
+      "size_roblox": [
+        89.0,
+        12.1,
+        1.0
+      ],
+      "bounds_min": [
+        -44.5,
+        -0.5,
+        0.0
+      ],
+      "bounds_max": [
+        44.5,
+        0.5,
+        12.1
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Poles 88 apart at the building fronts, so it spans the one-lane Alleyway (90 wide); place it at x 0 on a gap between buildings; _Bulbs glow at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_StringLightsWide.model.json",
+      "rbx_parts": 101,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_StringLightsWide.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_StringLightsWide.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1244/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "614 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Sewer_Manhole",
       "category": "Sewer",
       "module": "alleyway",
@@ -144568,9 +144623,9 @@
         1.26,
         30.0
       ],
-      "pivot": "the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.",
+      "pivot": "the floor on the back alley lane's middle line (lane x +-78). A long pile: it spans local x -15 to 1 and leaves a 14 stud walk-past gap at +X (x 1 to 15). RotY 180 puts the gap at -X.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
+      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 16 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Bins.model.json",
       "rbx_parts": 86,
       "files": [
@@ -144625,9 +144680,9 @@
         1.26,
         30.0
       ],
-      "pivot": "the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.",
+      "pivot": "the floor on the back alley lane's middle line (lane x +-78). A short pile: it spans local x -15 to -6.5; place two on one spot at rotY 0 and 180 (any pair) to leave a 13 stud walk-through gap in the middle of the lane.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
+      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 8.5 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_BinsShort.model.json",
       "rbx_parts": 45,
       "files": [
@@ -144682,9 +144737,9 @@
         1.46,
         30.0
       ],
-      "pivot": "the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.",
+      "pivot": "the floor on the back alley lane's middle line (lane x +-78). A long pile: it spans local x -15 to 1 and leaves a 14 stud walk-past gap at +X (x 1 to 15). RotY 180 puts the gap at -X.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
+      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 16 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Pallets.model.json",
       "rbx_parts": 295,
       "files": [
@@ -144739,9 +144794,9 @@
         1.46,
         30.0
       ],
-      "pivot": "the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.",
+      "pivot": "the floor on the back alley lane's middle line (lane x +-78). A short pile: it spans local x -15 to -6.5; place two on one spot at rotY 0 and 180 (any pair) to leave a 13 stud walk-through gap in the middle of the lane.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
+      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 8.5 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_PalletsShort.model.json",
       "rbx_parts": 132,
       "files": [
@@ -144796,9 +144851,9 @@
         2.7,
         30.0
       ],
-      "pivot": "the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.",
+      "pivot": "the floor on the back alley lane's middle line (lane x +-78). A long pile: it spans local x -15 to 1 and leaves a 14 stud walk-past gap at +X (x 1 to 15). RotY 180 puts the gap at -X.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
+      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 16 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Skip.model.json",
       "rbx_parts": 226,
       "files": [
@@ -144853,9 +144908,9 @@
         5.7,
         30.0
       ],
-      "pivot": "the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.",
+      "pivot": "the floor on the back alley lane's middle line (lane x +-78). A long pile: it spans local x -15 to 1 and leaves a 14 stud walk-past gap at +X (x 1 to 15). RotY 180 puts the gap at -X.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
+      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 16 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Van.model.json",
       "rbx_parts": 189,
       "files": [
@@ -144876,6 +144931,265 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
           "centered": "footprint center x=6.20 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Blocker_RowCamp",
+      "category": "Alley",
+      "module": "alleyblockers",
+      "objects": [
+        "CatCafe_Alley_Blocker_RowCamp",
+        "CatCafe_Alley_Blocker_RowCamp_Bulb",
+        "CatCafe_Alley_Blocker_RowCamp_000_Blocker_Bins",
+        "CatCafe_Alley_Blocker_RowCamp_000_Blocker_Bins_Barrier",
+        "CatCafe_Alley_Blocker_RowCamp_001_Blocker_Pallets",
+        "CatCafe_Alley_Blocker_RowCamp_001_Blocker_Pallets_Barrier",
+        "CatCafe_Alley_Blocker_RowCamp_002_Blocker_Pallets",
+        "CatCafe_Alley_Blocker_RowCamp_002_Blocker_Pallets_Barrier",
+        "CatCafe_Alley_Blocker_RowCamp_003_Blocker_Bins",
+        "CatCafe_Alley_Blocker_RowCamp_003_Blocker_Bins_Barrier"
+      ],
+      "triangles": 8888,
+      "budget": 20000,
+      "size_studs": {
+        "x": 90.0,
+        "y": 2.92,
+        "z": 30.0
+      },
+      "size_roblox": [
+        90.0,
+        30.0,
+        2.92
+      ],
+      "bounds_min": [
+        -45.0,
+        -1.46,
+        0.0
+      ],
+      "bounds_max": [
+        45.0,
+        1.46,
+        30.0
+      ],
+      "pivot": "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {},
+      "studio": "Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end to end from the walls with one way through 25 to 29 wide and the row's own lamp post at it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows at night and does not collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_RowCamp.model.json",
+      "rbx_parts": 752,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowCamp.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowCamp.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "8888/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "4476 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Blocker_RowVan",
+      "category": "Alley",
+      "module": "alleyblockers",
+      "objects": [
+        "CatCafe_Alley_Blocker_RowVan",
+        "CatCafe_Alley_Blocker_RowVan_Bulb",
+        "CatCafe_Alley_Blocker_RowVan_000_Blocker_Pallets",
+        "CatCafe_Alley_Blocker_RowVan_000_Blocker_Pallets_Barrier",
+        "CatCafe_Alley_Blocker_RowVan_001_Blocker_Van",
+        "CatCafe_Alley_Blocker_RowVan_001_Blocker_Van_Barrier",
+        "CatCafe_Alley_Blocker_RowVan_002_Blocker_Skip",
+        "CatCafe_Alley_Blocker_RowVan_002_Blocker_Skip_Barrier",
+        "CatCafe_Alley_Blocker_RowVan_003_Blocker_Bins",
+        "CatCafe_Alley_Blocker_RowVan_003_Blocker_Bins_Barrier"
+      ],
+      "triangles": 9430,
+      "budget": 24000,
+      "size_studs": {
+        "x": 65.6,
+        "y": 11.4,
+        "z": 30.01
+      },
+      "size_roblox": [
+        65.6,
+        30.01,
+        11.4
+      ],
+      "bounds_min": [
+        -45.0,
+        -5.7,
+        -0.01
+      ],
+      "bounds_max": [
+        20.6,
+        5.7,
+        30.0
+      ],
+      "pivot": "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {},
+      "studio": "Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end to end from the walls with one way through 25 to 29 wide and the row's own lamp post at it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows at night and does not collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_RowVan.model.json",
+      "rbx_parts": 781,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowVan.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowVan.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "9430/24000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "4741 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=-12.20 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Blocker_RowSkip",
+      "category": "Alley",
+      "module": "alleyblockers",
+      "objects": [
+        "CatCafe_Alley_Blocker_RowSkip",
+        "CatCafe_Alley_Blocker_RowSkip_Bulb",
+        "CatCafe_Alley_Blocker_RowSkip_000_Blocker_Bins",
+        "CatCafe_Alley_Blocker_RowSkip_000_Blocker_Bins_Barrier",
+        "CatCafe_Alley_Blocker_RowSkip_001_Blocker_Skip",
+        "CatCafe_Alley_Blocker_RowSkip_001_Blocker_Skip_Barrier",
+        "CatCafe_Alley_Blocker_RowSkip_002_Blocker_Pallets",
+        "CatCafe_Alley_Blocker_RowSkip_002_Blocker_Pallets_Barrier",
+        "CatCafe_Alley_Blocker_RowSkip_003_Blocker_BinsShort",
+        "CatCafe_Alley_Blocker_RowSkip_003_Blocker_BinsShort_Barrier",
+        "CatCafe_Alley_Blocker_RowSkip_004_Blocker_PalletsShort",
+        "CatCafe_Alley_Blocker_RowSkip_004_Blocker_PalletsShort_Barrier"
+      ],
+      "triangles": 8976,
+      "budget": 24000,
+      "size_studs": {
+        "x": 66.6,
+        "y": 5.4,
+        "z": 30.0
+      },
+      "size_roblox": [
+        66.6,
+        30.0,
+        5.4
+      ],
+      "bounds_min": [
+        -21.6,
+        -2.7,
+        0.0
+      ],
+      "bounds_max": [
+        45.0,
+        2.7,
+        30.0
+      ],
+      "pivot": "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {},
+      "studio": "Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end to end from the walls with one way through 25 to 29 wide and the row's own lamp post at it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows at night and does not collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_RowSkip.model.json",
+      "rbx_parts": 764,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowSkip.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowSkip.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "8976/24000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "4554 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=11.70 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Blocker_RowFar",
+      "category": "Alley",
+      "module": "alleyblockers",
+      "objects": [
+        "CatCafe_Alley_Blocker_RowFar",
+        "CatCafe_Alley_Blocker_RowFar_Bulb",
+        "CatCafe_Alley_Blocker_RowFar_000_Blocker_Pallets",
+        "CatCafe_Alley_Blocker_RowFar_000_Blocker_Pallets_Barrier",
+        "CatCafe_Alley_Blocker_RowFar_001_Blocker_BinsShort",
+        "CatCafe_Alley_Blocker_RowFar_001_Blocker_BinsShort_Barrier",
+        "CatCafe_Alley_Blocker_RowFar_002_Blocker_Bins",
+        "CatCafe_Alley_Blocker_RowFar_002_Blocker_Bins_Barrier",
+        "CatCafe_Alley_Blocker_RowFar_003_Blocker_Skip",
+        "CatCafe_Alley_Blocker_RowFar_003_Blocker_Skip_Barrier",
+        "CatCafe_Alley_Blocker_RowFar_Barrier"
+      ],
+      "triangles": 7646,
+      "budget": 24000,
+      "size_studs": {
+        "x": 90.0,
+        "y": 5.4,
+        "z": 30.0
+      },
+      "size_roblox": [
+        90.0,
+        30.0,
+        5.4
+      ],
+      "bounds_min": [
+        -45.0,
+        -2.7,
+        0.0
+      ],
+      "bounds_max": [
+        45.0,
+        2.7,
+        30.0
+      ],
+      "pivot": "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {},
+      "studio": "Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end to end from the walls with one way through 25 to 29 wide and the row's own lamp post at it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows at night and does not collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_RowFar.model.json",
+      "rbx_parts": 643,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowFar.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowFar.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "7646/24000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "3873 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
         }
       }
     },
@@ -160087,33 +160401,33 @@
         "CatCafe_Alley_Building_Bakery_Lamp_Bulb",
         "CatCafe_Alley_Building_Bakery_Flowers"
       ],
-      "triangles": 2006,
+      "triangles": 2342,
       "budget": 5000,
       "size_studs": {
-        "x": 30.6,
-        "y": 6.25,
+        "x": 30.8,
+        "y": 15.25,
         "z": 24.3
       },
       "size_roblox": [
-        30.6,
+        30.8,
         24.3,
-        6.25
+        15.25
       ],
       "bounds_min": [
-        -15.3,
+        -15.4,
         -6.25,
         0.0
       ],
       "bounds_max": [
-        15.3,
-        0.0,
+        15.4,
+        9.0,
         24.3
       ],
       "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_Bakery.model.json",
-      "rbx_parts": 164,
+      "rbx_parts": 192,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Building_Bakery.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Building_Bakery.glb"
@@ -160121,15 +160435,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "pivot"
+        ],
         "checks": {
-          "budget": "2006/5000 tris",
+          "budget": "2342/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "988 faces on swatch centers",
+          "uv": "1156 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "back plane at y=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-3.12"
+          "pivot": "back plane at y=9.00 (want 0)",
+          "centered": "footprint center x=0.00 y=1.38"
         }
       }
     },
@@ -160143,33 +160459,33 @@
         "CatCafe_Alley_Building_Townhouses_Lamp_Bulb",
         "CatCafe_Alley_Building_Townhouses_Flowers"
       ],
-      "triangles": 2986,
+      "triangles": 3658,
       "budget": 5000,
       "size_studs": {
-        "x": 30.6,
-        "y": 5.45,
+        "x": 30.8,
+        "y": 14.45,
         "z": 30.1
       },
       "size_roblox": [
-        30.6,
+        30.8,
         30.1,
-        5.45
+        14.45
       ],
       "bounds_min": [
-        -15.3,
+        -15.4,
         -5.45,
         0.0
       ],
       "bounds_max": [
-        15.3,
-        0.0,
+        15.4,
+        9.0,
         30.1
       ],
       "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_Townhouses.model.json",
-      "rbx_parts": 241,
+      "rbx_parts": 297,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Building_Townhouses.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Building_Townhouses.glb"
@@ -160177,15 +160493,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "pivot"
+        ],
         "checks": {
-          "budget": "2986/5000 tris",
+          "budget": "3658/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1500 faces on swatch centers",
+          "uv": "1836 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "back plane at y=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-2.72"
+          "pivot": "back plane at y=9.00 (want 0)",
+          "centered": "footprint center x=0.00 y=1.78"
         }
       }
     },
@@ -160199,26 +160517,26 @@
         "CatCafe_Alley_Building_Warehouse_Lamp_Bulb",
         "CatCafe_Alley_Building_Warehouse_Flowers"
       ],
-      "triangles": 3674,
+      "triangles": 4346,
       "budget": 6000,
       "size_studs": {
-        "x": 30.3,
-        "y": 7.3,
+        "x": 30.8,
+        "y": 16.3,
         "z": 33.6
       },
       "size_roblox": [
-        30.3,
+        30.8,
         33.6,
-        7.3
+        16.3
       ],
       "bounds_min": [
-        -15.15,
+        -15.4,
         -7.3,
         0.0
       ],
       "bounds_max": [
-        15.15,
-        0.0,
+        15.4,
+        9.0,
         33.6
       ],
       "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
@@ -160237,7 +160555,7 @@
       },
       "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision. The fire escape is CatCafe_Alley_FireEscape's, at the same place on the facade: landings and ladder rungs collide, landing_1 (top 9.35) is reached from CatCafe_Alley_CrateStack (top 7.7) just past its open left end (local x -8), stairs lead to landing_2 (17.35). See ledges_roblox (in this model's frame).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_Warehouse.model.json",
-      "rbx_parts": 291,
+      "rbx_parts": 347,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Building_Warehouse.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Building_Warehouse.glb"
@@ -160245,15 +160563,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "pivot"
+        ],
         "checks": {
-          "budget": "3674/6000 tris",
+          "budget": "4346/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1787 faces on swatch centers",
+          "uv": "2123 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "back plane at y=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-3.65"
+          "pivot": "back plane at y=9.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.85"
         }
       }
     },
@@ -160267,33 +160587,33 @@
         "CatCafe_Alley_Building_Grocer_Lamp_Bulb",
         "CatCafe_Alley_Building_Grocer_Flowers"
       ],
-      "triangles": 2582,
+      "triangles": 2918,
       "budget": 5000,
       "size_studs": {
-        "x": 30.3,
-        "y": 6.25,
+        "x": 30.8,
+        "y": 15.25,
         "z": 18.2
       },
       "size_roblox": [
-        30.3,
+        30.8,
         18.2,
-        6.25
+        15.25
       ],
       "bounds_min": [
-        -15.15,
+        -15.4,
         -6.25,
         0.0
       ],
       "bounds_max": [
-        15.15,
-        0.0,
+        15.4,
+        9.0,
         18.2
       ],
       "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_Grocer.model.json",
-      "rbx_parts": 209,
+      "rbx_parts": 237,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Building_Grocer.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Building_Grocer.glb"
@@ -160301,15 +160621,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "pivot"
+        ],
         "checks": {
-          "budget": "2582/5000 tris",
+          "budget": "2918/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1422 faces on swatch centers",
+          "uv": "1590 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "back plane at y=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-3.12"
+          "pivot": "back plane at y=9.00 (want 0)",
+          "centered": "footprint center x=0.00 y=1.38"
         }
       }
     },
@@ -160323,33 +160645,33 @@
         "CatCafe_Alley_Building_Apartments_Lamp_Bulb",
         "CatCafe_Alley_Building_Apartments_Flowers"
       ],
-      "triangles": 3734,
+      "triangles": 4742,
       "budget": 5000,
       "size_studs": {
-        "x": 30.6,
-        "y": 5.1,
+        "x": 30.8,
+        "y": 14.1,
         "z": 32.6
       },
       "size_roblox": [
-        30.6,
+        30.8,
         32.6,
-        5.1
+        14.1
       ],
       "bounds_min": [
-        -15.3,
+        -15.4,
         -5.1,
         0.0
       ],
       "bounds_max": [
-        15.3,
-        0.0,
+        15.4,
+        9.0,
         32.6
       ],
       "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_Apartments.model.json",
-      "rbx_parts": 301,
+      "rbx_parts": 385,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Building_Apartments.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Building_Apartments.glb"
@@ -160357,15 +160679,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "pivot"
+        ],
         "checks": {
-          "budget": "3734/5000 tris",
+          "budget": "4742/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1831 faces on swatch centers",
+          "uv": "2335 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "back plane at y=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-2.55"
+          "pivot": "back plane at y=9.00 (want 0)",
+          "centered": "footprint center x=0.00 y=1.95"
         }
       }
     },
@@ -160379,33 +160703,33 @@
         "CatCafe_Alley_Building_ClockHouse_Lamp_Bulb",
         "CatCafe_Alley_Building_ClockHouse_Flowers"
       ],
-      "triangles": 2144,
+      "triangles": 2480,
       "budget": 5000,
       "size_studs": {
-        "x": 30.6,
-        "y": 4.75,
+        "x": 30.8,
+        "y": 13.75,
         "z": 30.75
       },
       "size_roblox": [
-        30.6,
+        30.8,
         30.75,
-        4.75
+        13.75
       ],
       "bounds_min": [
-        -15.3,
+        -15.4,
         -4.75,
         0.0
       ],
       "bounds_max": [
-        15.3,
-        0.0,
+        15.4,
+        9.0,
         30.75
       ],
       "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_ClockHouse.model.json",
-      "rbx_parts": 260,
+      "rbx_parts": 288,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Building_ClockHouse.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Building_ClockHouse.glb"
@@ -160413,15 +160737,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "pivot"
+        ],
         "checks": {
-          "budget": "2144/5000 tris",
+          "budget": "2480/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1112 faces on swatch centers",
+          "uv": "1280 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "back plane at y=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-2.37"
+          "pivot": "back plane at y=9.00 (want 0)",
+          "centered": "footprint center x=0.00 y=2.12"
         }
       }
     },
@@ -160435,33 +160761,33 @@
         "CatCafe_Alley_Building_MusicShop_Lamp_Bulb",
         "CatCafe_Alley_Building_MusicShop_Flowers"
       ],
-      "triangles": 1892,
+      "triangles": 2228,
       "budget": 5000,
       "size_studs": {
-        "x": 30.6,
-        "y": 6.25,
+        "x": 30.8,
+        "y": 15.25,
         "z": 21.5
       },
       "size_roblox": [
-        30.6,
+        30.8,
         21.5,
-        6.25
+        15.25
       ],
       "bounds_min": [
-        -15.3,
+        -15.4,
         -6.25,
         0.0
       ],
       "bounds_max": [
-        15.3,
-        0.0,
+        15.4,
+        9.0,
         21.5
       ],
       "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_MusicShop.model.json",
-      "rbx_parts": 164,
+      "rbx_parts": 192,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Building_MusicShop.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Building_MusicShop.glb"
@@ -160469,15 +160795,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "pivot"
+        ],
         "checks": {
-          "budget": "1892/5000 tris",
+          "budget": "2228/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "926 faces on swatch centers",
+          "uv": "1094 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "back plane at y=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-3.12"
+          "pivot": "back plane at y=9.00 (want 0)",
+          "centered": "footprint center x=0.00 y=1.38"
         }
       }
     },
@@ -160491,33 +160819,33 @@
         "CatCafe_Alley_Building_NarrowHouses_Lamp_Bulb",
         "CatCafe_Alley_Building_NarrowHouses_Flowers"
       ],
-      "triangles": 2662,
+      "triangles": 3166,
       "budget": 5000,
       "size_studs": {
-        "x": 30.61,
-        "y": 5.1,
+        "x": 30.8,
+        "y": 14.1,
         "z": 28.5
       },
       "size_roblox": [
-        30.61,
+        30.8,
         28.5,
-        5.1
+        14.1
       ],
       "bounds_min": [
-        -15.31,
+        -15.4,
         -5.1,
         0.0
       ],
       "bounds_max": [
-        15.3,
-        0.0,
+        15.4,
+        9.0,
         28.5
       ],
       "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: 30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) 2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door lamp (Neon + a warm PointLight at night), _Flowers needs no collision.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Building_NarrowHouses.model.json",
-      "rbx_parts": 223,
+      "rbx_parts": 265,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Building_NarrowHouses.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Building_NarrowHouses.glb"
@@ -160525,15 +160853,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "pivot"
+        ],
         "checks": {
-          "budget": "2662/5000 tris",
+          "budget": "3166/5000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1320 faces on swatch centers",
+          "uv": "1572 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "back plane at y=0.00 (want 0)",
-          "centered": "footprint center x=-0.00 y=-2.55"
+          "pivot": "back plane at y=9.00 (want 0)",
+          "centered": "footprint center x=0.00 y=1.95"
         }
       }
     },
@@ -162742,46 +163072,51 @@
       "objects": [
         "CatCafe_Camp_Alleyway",
         "CatCafe_Camp_Alleyway_000_Basket",
-        "CatCafe_Camp_Alleyway_001_BlockEnd",
-        "CatCafe_Camp_Alleyway_001_BlockEnd_Flowers",
-        "CatCafe_Camp_Alleyway_002_StringLightsLong",
-        "CatCafe_Camp_Alleyway_002_StringLightsLong_Decor",
-        "CatCafe_Camp_Alleyway_002_StringLightsLong_Bulbs",
-        "CatCafe_Camp_Alleyway_003_Lamp",
-        "CatCafe_Camp_Alleyway_003_Lamp_Bulb",
-        "CatCafe_Camp_Alleyway_003_Lamp_Flowers",
-        "CatCafe_Camp_Alleyway_004_Bench",
+        "CatCafe_Camp_Alleyway_001_StringLightsWide",
+        "CatCafe_Camp_Alleyway_001_StringLightsWide_Decor",
+        "CatCafe_Camp_Alleyway_001_StringLightsWide_Bulbs",
+        "CatCafe_Camp_Alleyway_002_FlowerBed",
+        "CatCafe_Camp_Alleyway_002_FlowerBed_Decor",
+        "CatCafe_Camp_Alleyway_003_FlowerBed",
+        "CatCafe_Camp_Alleyway_003_FlowerBed_Decor",
+        "CatCafe_Camp_Alleyway_004_FlowerBed",
+        "CatCafe_Camp_Alleyway_004_FlowerBed_Decor",
         "CatCafe_Camp_Alleyway_005_FlowerBed",
         "CatCafe_Camp_Alleyway_005_FlowerBed_Decor",
-        "CatCafe_Camp_Alleyway_006_StringLightsLong",
-        "CatCafe_Camp_Alleyway_006_StringLightsLong_Decor",
-        "CatCafe_Camp_Alleyway_006_StringLightsLong_Bulbs",
+        "CatCafe_Camp_Alleyway_006_FlowerBed",
+        "CatCafe_Camp_Alleyway_006_FlowerBed_Decor",
         "CatCafe_Camp_Alleyway_007_Lamp",
         "CatCafe_Camp_Alleyway_007_Lamp_Bulb",
         "CatCafe_Camp_Alleyway_007_Lamp_Flowers",
         "CatCafe_Camp_Alleyway_008_Bench",
         "CatCafe_Camp_Alleyway_009_FlowerBed",
         "CatCafe_Camp_Alleyway_009_FlowerBed_Decor",
-        "CatCafe_Camp_Alleyway_010_Dumpster",
-        "CatCafe_Camp_Alleyway_011_GarbageBags",
-        "CatCafe_Camp_Alleyway_012_TrashCan",
-        "CatCafe_Camp_Alleyway_013_TrashCan",
-        "CatCafe_Camp_Alleyway_014_Crate",
-        "CatCafe_Camp_Alleyway_015_Crate",
-        "CatCafe_Camp_Alleyway_016_Crate",
-        "CatCafe_Camp_Alleyway_017_CardboardBox",
-        "CatCafe_Camp_Alleyway_018_CardboardBox",
-        "CatCafe_Camp_Alleyway_019_CardboardBox",
+        "CatCafe_Camp_Alleyway_010_Lamp",
+        "CatCafe_Camp_Alleyway_010_Lamp_Bulb",
+        "CatCafe_Camp_Alleyway_010_Lamp_Flowers",
+        "CatCafe_Camp_Alleyway_011_Bench",
+        "CatCafe_Camp_Alleyway_012_FlowerBed",
+        "CatCafe_Camp_Alleyway_012_FlowerBed_Decor",
+        "CatCafe_Camp_Alleyway_013_Dumpster",
+        "CatCafe_Camp_Alleyway_014_GarbageBags",
+        "CatCafe_Camp_Alleyway_015_TrashCan",
+        "CatCafe_Camp_Alleyway_016_TrashCan",
+        "CatCafe_Camp_Alleyway_017_Crate",
+        "CatCafe_Camp_Alleyway_018_Crate",
+        "CatCafe_Camp_Alleyway_019_Crate",
         "CatCafe_Camp_Alleyway_020_CardboardBox",
-        "CatCafe_Camp_Alleyway_021_Puddle",
-        "CatCafe_Camp_Alleyway_022_Puddle",
-        "CatCafe_Camp_Alleyway_023_FlowerBed",
-        "CatCafe_Camp_Alleyway_023_FlowerBed_Decor",
-        "CatCafe_Camp_Alleyway_024_FlowerBed",
-        "CatCafe_Camp_Alleyway_024_FlowerBed_Decor",
+        "CatCafe_Camp_Alleyway_021_CardboardBox",
+        "CatCafe_Camp_Alleyway_022_CardboardBox",
+        "CatCafe_Camp_Alleyway_023_CardboardBox",
+        "CatCafe_Camp_Alleyway_024_Puddle",
+        "CatCafe_Camp_Alleyway_025_Puddle",
+        "CatCafe_Camp_Alleyway_026_FlowerBed",
+        "CatCafe_Camp_Alleyway_026_FlowerBed_Decor",
+        "CatCafe_Camp_Alleyway_027_FlowerBed",
+        "CatCafe_Camp_Alleyway_027_FlowerBed_Decor",
         "CatCafe_Camp_Alleyway_Barrier"
       ],
-      "triangles": 12306,
+      "triangles": 14014,
       "budget": 20000,
       "size_studs": {
         "x": 92.0,
@@ -162829,9 +163164,9 @@
         ],
         "index_board": [
           [
-            0,
+            -27.3,
             0.0,
-            -129.5
+            -128.0
           ]
         ]
       },
@@ -162843,12 +163178,12 @@
           -126.5
         ],
         "gate_line_z": -126.5,
-        "opening_half_width": 15.0,
+        "opening_half_width": 20.3,
         "pad_radius": 8.0,
         "depth": 30.0
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Alleyway.model.json",
-      "rbx_parts": 706,
+      "rbx_parts": 789,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Alleyway.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Alleyway.glb"
@@ -162861,10 +163196,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "12306/20000 tris",
+          "budget": "14014/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "6593 faces on swatch centers",
+          "uv": "8229 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-141.50"
@@ -163931,7 +164266,7 @@
         "CatCafe_Alleyway_Backdrop_Bulbs",
         "CatCafe_Alleyway_Backdrop_Road"
       ],
-      "triangles": 16860,
+      "triangles": 17308,
       "budget": 60000,
       "size_studs": {
         "x": 770.0,
@@ -163956,7 +164291,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alleyway_Backdrop.model.json",
-      "rbx_parts": 1166,
+      "rbx_parts": 1200,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alleyway_Backdrop.fbx",
         "assets/cat-cafe/exports/CatCafe_Alleyway_Backdrop.glb"
@@ -163969,10 +164304,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "16860/60000 tris",
+          "budget": "17308/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "9579 faces on swatch centers",
+          "uv": "9805 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-167.40 (want 0)",
           "centered": "footprint center x=0.00 y=-15.00"

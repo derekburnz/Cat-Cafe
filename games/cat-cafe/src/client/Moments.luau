@@ -81,6 +81,12 @@ local Moments = {
 	-- gold, userId this player's); (userId, decorId) a Mythical crate piece
 	SecuredRare = Signal.new() :: Signal.Signal<number, string, string, boolean, string>,
 	FoundRareDecor = Signal.new() :: Signal.Signal<number, string>,
+	-- Team Rescue (F92, playing-together.md section 3): a rescue this player helped or was helped on freed its cat, to
+	-- both: (rescueSpotId, rescuerUserId, helperUserId, position) for the "Team Rescue!" pop and its two-note chime
+	TeamRescue = Signal.new() :: Signal.Signal<string, number, number, Vector3>,
+	-- F92 (section 5): a player who joined through a pal's invite or by following them stands at that pal's front door,
+	-- on every client: (joinerUserId, palUserId) for the wave from both characters
+	PalArrived = Signal.new() :: Signal.Signal<number, number>,
 }
 
 return Moments

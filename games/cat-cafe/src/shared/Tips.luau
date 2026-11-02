@@ -8,8 +8,8 @@
 -- OfflineEarnings card comes after OFFLINE_SECONDS or more away). The client shows a tip by its own timing rules
 -- (never mid-catch, mid-carry or late in the dusk warning, one every TipGapSeconds, a queue of three) and then sends
 -- TipSeen(id, skipped?), which saves it in `tipsSeen`. ClearTips ("Show tips again") forgets the tips, not the asks.
--- More ids ride TipSeen: the three asks (`notify_ask`, `favorite_ask`, `like_ask`; F96, starter-cat.md section 3:
--- unrewarded, kept in tipsSeen and never cleared, timed by `dueAsk`), `feedback_ask` (the one slide-in faces ask:
+-- More ids ride TipSeen: the asks (`notify_ask`, `favorite_ask`, `like_ask`; F96, starter-cat.md section 3; and F92's
+-- `invite_ask`, playing-together.md section 5: unrewarded, kept in tipsSeen and never cleared, timed by `dueAsk`), `feedback_ask` (the one slide-in faces ask:
 -- sets feedbackAsked) and `stuck_help` (the "Need a hand?" card: sets stuckHelpShown for the current tutorialStep).
 
 local Catalog = require(script.Parent.Catalog)
@@ -52,8 +52,9 @@ Tips.OFFLINE_SECONDS = 600
 Tips.LIKE_ASK = "like_ask"
 Tips.FAVORITE_ASK = "favorite_ask" -- F96
 Tips.NOTIFY_ASK = "notify_ask" -- F96
--- The asks in the order `dueAsk` offers them (starter-cat.md section 3's table).
-Tips.ASKS = table.freeze({ Tips.NOTIFY_ASK, Tips.FAVORITE_ASK, Tips.LIKE_ASK })
+Tips.INVITE_ASK = "invite_ask" -- F92: the one invite nudge, after the first rank up
+-- The asks in the order `dueAsk` offers them (starter-cat.md section 3's table, then F92's invite nudge).
+Tips.ASKS = table.freeze({ Tips.NOTIFY_ASK, Tips.FAVORITE_ASK, Tips.LIKE_ASK, Tips.INVITE_ASK })
 Tips.FEEDBACK_ASK = "feedback_ask"
 Tips.STUCK_HELP = "stuck_help"
 
@@ -136,7 +137,8 @@ end
 -- (tutorialStep 5); the notification ask after the first bait cat is tamed, once, then again at most once
 -- NOTIFY_RETRY_SECONDS after `notifyAskAt` (os.time() when it first showed, 0 before); the favorite ask from Tier 2;
 -- the like ask once a Legendary or Mythical is in the collection or on a later UTC day (`day`, os.time() // 86400)
--- than the account's first. The caller sends at most one a session; the client waits for a quiet moment.
+-- than the account's first; F92's invite nudge from Tier 2, after the others. The caller sends at most one a session;
+-- the client waits for a quiet moment.
 function Tips.dueAsk(profile: Types.PlayerProfile, now: number, day: number): string?
 	if profile.tutorialStep < 5 then
 		return nil
@@ -157,6 +159,11 @@ function Tips.dueAsk(profile: Types.PlayerProfile, now: number, day: number): st
 		and (securedLegendary(profile) or day > profile.telemetry.firstDay)
 	then
 		return Tips.LIKE_ASK
+	end
+	-- F92 (playing-together.md section 5): "Playing with a friend gives you both +10% tips. Invite one?", once an
+	-- account after the first rank up; no reward for inviting
+	if seen[Tips.INVITE_ASK] ~= true and Economy.tier(profile) >= 2 then
+		return Tips.INVITE_ASK
 	end
 	return nil
 end

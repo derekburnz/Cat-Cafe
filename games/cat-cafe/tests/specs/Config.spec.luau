@@ -184,6 +184,10 @@ return function()
 		-- Pals (F92, playing-together.md 6)
 		PalTipBonus = 0.10,
 		PalTipBonusMax = 0.15,
+		TeamRescueRangeStuds = 10,
+		TeamRescueExtraSeconds = 5,
+		HelperTipSeconds = 60,
+		TeamRescueTipCooldown = 120,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 same target cooldown 20, v0.5.1 target immunity S45; v0.8 F56)
 		BumpEnabled = true,
 		BumpChance = 1.0, -- v0.8 F56: a shove always drops the cat

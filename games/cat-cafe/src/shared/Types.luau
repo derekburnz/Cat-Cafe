@@ -153,6 +153,9 @@ export type IndexMilestone = {
 	id: string,
 	track: IndexTrack,
 	needs: number,
+	-- F97: every piece of the Decor page, whatever its size (decor10: sixteen on the Classic page, twelve elsewhere);
+	-- `needs` is then the least it asks
+	whole: boolean?,
 }
 
 -- What one Index milestone pays (golden-fish.md section 8), any of it. `coins` is the minimum and `coinSeconds`
@@ -235,6 +238,9 @@ export type LureDef = {
 	attracts: Rarity, -- the rarity it is known for (the dealer foods: their likeliest rarity)
 	rarity: Rarity, -- v0.10 (F69): how good the food is, shown as a badge and border in the cat rarity colours
 	source: LureSource, -- "shop" foods are bought with BuyLure, "dealer" foods only from the night dealer
+	-- F97 (notes-10-28-to-10-30.md section 3): `cost` is the base price at Tiers 1 and 2 (Economy.foodPrice), and
+	-- every food list runs by sortOrder: Kibble, Tuna, Moonlit Sardines, Salmon, Caviar, Moon Milk, Star Treat
+	sortOrder: number,
 	description: string,
 	odds: LureOdds, -- percentages summing to 100, shown before purchase
 	asset: string, -- food model shown in the bowl while the lure is active
@@ -511,25 +517,50 @@ export type BaitView = {
 	cat: { catId: string, variant: string, charm: number, stars: number }?,
 }
 
--- What the night dealer sold this player (section 8b): bought counts are keyed on the dealer window
--- floor(os.time() / DealerWindowSeconds). v0.8 F59: how many of each dealer food, by lureId (was a mark per slot).
-export type DealerState = {
+-- What the Fresh Catch shelf sold this player (F94, rewards-and-shops.md section 6; the shape the night dealer saved
+-- before F94): how many of each row, by row id, in the window floor(os.time() / FreshCatchWindowSeconds), and the
+-- last window a ShopAlert went to them, so a rejoin in the same window never alerts twice.
+export type FreshCatchState = {
 	window: number,
 	bought: { [string]: number },
+	alerted: number,
 }
+
+-- One row of the Fresh Catch shelf (F94, section 3): a potion, or now and then a cheaper Classic Crate, for golden
+-- fish. `alert` rows send a ShopAlert when a window stocks them. The row's id is its potion's or crate's id.
+export type FreshCatchRow = {
+	id: string,
+	kind: "potion" | "crate",
+	potionId: string?,
+	crateId: string?,
+	fish: number,
+	alert: boolean?,
+}
+
+-- One player's Fresh Catch stock as FreshCatchStock sends it (F94, section 6): every row in shelf order with the
+-- window's amount and how many of it this player bought; `window` is what BuyFreshCatch sends back, restocksAt is
+-- os.time().
+export type FreshCatchItem = { itemId: string, fish: number, amount: number, bought: number }
+export type FreshCatchStock = { window: number, restocksAt: number, stock: { FreshCatchItem } }
 
 -- The onboarding funnel's place (data-model section 14, growth analytics-plan 3.2): the last step logged, and later
 -- steps already done but held back until every step before them is logged. Keys are "1" to "12" (JSON-shaped).
 export type TelemetryState = {
 	onboardingStep: number,
 	achieved: { [string]: boolean },
+	-- F87 (easy-start.md sections 5 and 6): the onboarding funnel's version (2 since F87; Onboarding.fromV1 moves a 1)
+	-- and the UTC day number (os.time() // 86400) of the account's first join, 0 when it is not known (an account from
+	-- before version 19), for new_player_left
+	funnel: number,
+	firstDay: number,
 }
 
--- One player's dealer stock as DealerStock sends it (v0.8 F59): every dealer food in Dealer.FOODS order with the
--- window's amount (0 shows "None this time") and how many of it this player bought; `window` is what
--- BuyDealerFood sends back, restocksAt is os.time().
+-- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount
+-- (0 shows "None this time") and how many of it this player bought tonight. F94 (rewards-and-shops.md section 4):
+-- one stock per server per night; `night` is the server's night count, which BuyDealerFood sends back (was a 5
+-- minute `window` and its `restocksAt`).
 export type DealerFood = { lureId: string, cost: number, amount: number, bought: number }
-export type DealerStock = { window: number, restocksAt: number, stock: { DealerFood } }
+export type DealerStock = { night: number, stock: { DealerFood } }
 
 -- Saved per player (data-model section 14). JSON-safe values only.
 -- The player's settings (data-model section 14; shared/Settings validates them). Volumes run from 0 to 1.
@@ -543,6 +574,7 @@ export type Settings = {
 	showOtherCats: boolean,
 	markers: boolean, -- the location markers (Place icons)
 	tutorialButton: boolean, -- the HUD's Tutorial tile (F72)
+	shopAlerts: boolean, -- F94: the Fresh Catch's ShopAlert (FreshCatch.alertsOn)
 }
 
 export type PlayerProfile = {
@@ -558,7 +590,7 @@ export type PlayerProfile = {
 	decorPlaced: { [string]: boolean },
 	lures: { [string]: number },
 	bait: BaitState?,
-	dealer: DealerState,
+	freshCatch: FreshCatchState, -- F94 (save version 18; the dealer's saved counts went with it)
 	cats: { [string]: CatInstance },
 	collection: { [string]: number },
 	goldCollection: { [string]: number }, -- catId -> first gold caught at
@@ -585,6 +617,11 @@ export type PlayerProfile = {
 	settings: Settings,
 	flags: { autoPress: boolean }, -- for review only: set when the last 50 circles look scripted (section 10)
 	telemetry: TelemetryState,
+	-- F87 (easy-start.md section 6, save version 20): the context tips seen (tip id or "like_ask" to true; ClearTips
+	-- keeps only the like ask), the one slide-in feedback ask, and the "Need a hand?" card's tutorial steps ("0" to "5")
+	tipsSeen: { [string]: boolean },
+	feedbackAsked: boolean,
+	stuckHelpShown: { [string]: boolean },
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
@@ -626,6 +663,10 @@ export type PlayerState = {
 	achievements: { [string]: AchievementView }, -- F73: every Catalog.achievements id
 	dailyTreat: DailyTreatView, -- F70: the Daily Treat window's card and the HUD button's dot
 	stats: Stats, -- F73
+	-- F87: the client skips a tip, the slide-in ask or the help card it finds here (section 3, 4 and 2g)
+	tipsSeen: { [string]: boolean },
+	feedbackAsked: boolean,
+	stuckHelpShown: { [string]: boolean },
 	serverTime: number,
 }
 

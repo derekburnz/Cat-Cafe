@@ -6,9 +6,9 @@ feedback route, "tons of test checks to see where/what step people are getting s
 super easy to understand, short context tutorials instead of one long one).
 
 Other threads took parts of the same notes, and this plan builds on them rather than repeating them:
-- **Easy start (F87, `docs/design/cat-cafe/easy-start.md`, proposed):** the onboarding funnel v2 with 24 steps,
-  `new_player_left`, `stuck_nudge`, stuck nudges at 40 s and a help card at 90 s, fourteen one-time context tips
-  (Derek's food bowl example is the first), and a Feedback page with three faces.
+- **Easy start (F87, `docs/design/cat-cafe/easy-start.md`; parts 1 and 2 merged 2026-11-02 in #687 and #691):**
+  the onboarding funnel v2 with 24 steps, `new_player_left`, `stuck_nudge`, stuck nudges at 40 s and a help card at
+  90 s, fourteen one-time context tips (Derek's food bowl example is the first), and a Feedback page with three faces.
 - **Feedback tile (#594, merged 2026-11-01):** a gold Feedback tile on the HUD's top right row opens the report
   window, which used to sit three taps deep under Settings > Help and got zero reports there.
 - **analytics.yml (Tools-Agent, 2026-11-01):** threads read players per funnel step, the loss at each step,
@@ -64,11 +64,11 @@ build is live: the back door and the walk home today (S3, S5), the cannon and th
 
 | # | Do | Pass when | Funnel v2 step |
 |---|---|---|---|
-| 1 | Join | Within 10 s the first hint and its trail show (and the intro, while it still plays by itself, skips after its 5 s bar); the HUD shows `$50` and the rate within 5 s | joined |
+| 1 | Join (`Debug.resetProfile()` and rejoin for a fresh account) | Within 10 s the first hint and its trail show and no intro plays (F87; the "?" tile plays it); the HUD shows `$50` and the rate within 5 s | joined |
 | 2 | Go to the Alleyway | out of the back door, or Cannon, launch, 3 s of clouds and the camp pad | first_move, saw_alley |
-| 3 | Catch the tutorial Common | its "!" shows from the spawn; a swing of the net (click, R2 or the Net button, F93) from a few studs away facing it starts the circles, and good presses catch it (a sure catch once F87 is in) | near_stray, catch_started, first_circle_hit, first_catch |
-| 4 | Bring it home | Cat found popup, `+50`, the cat is in the cat room | first_checkin |
-| 5 | Give it a job | Collection (C), Assign, Waiter (by itself once F87 is in): the rate rises | first_role |
+| 3 | Catch the tutorial Common | its "!" shows from the spawn; a swing of the net (click, R2 or the Net button, F93) from a few studs away facing it starts one slow circle (F87: 1.6 s, bands twice a Common's); a late press keeps the cat and the circle comes back after 1 s, and a good press catches it | near_stray, catch_started, first_circle_hit, first_catch |
+| 4 | Bring it home | Cat found popup, `+50`, and "Your first cat! <name> is your Waiter now" (F87) | first_checkin |
+| 5 | Check its job | Collection (C): the first cat is the Waiter by itself (F87) and the rate rose at the check-in | first_role |
 | 6 | Buy Table 1 | `$150`, rate x1.10, the table stands clear of the door path | first_table |
 | 7 | Buy the bowl, put Kibble in | `$600` and `$30`; the countdown shows | bowl_bought, first_bait |
 | 8 | Rescue a stuck Common (`Debug.spawnStuckCat`) | the rescue frees it and it counts as caught | first_rescue_started, first_rescue_done |

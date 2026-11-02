@@ -15,8 +15,12 @@
 --         cats line (the All Cats track, F54). The spare cats (F78) have no page (Derek 2026-10-28).
 --   Decor: the Decor Index (F53, Screens/DecorIndex): a page per crate with its twelve pieces and two rewards.
 --   Beside the tabs, the forever bonuses the claimed rewards add up to (F54 v0.10): tips, gold luck with the gold
---   chance it gives, and faster bait, each in its track's colour (Components/IndexRewards.totals).
+--   chance it gives, and faster bait, each in its track's colour (Components/IndexRewards.totals). Right of the tabs,
+--   "Claim all (5)" while two or more rewards wait on any page (Derek 2026-10-28: "more claim all buttons needed so
+--   many reward pop ups"): one ClaimAll("index"), one toast; shown once shared Config.IndexClaimAll is true.
 -- The Index opens on the first open area with cats still to find; an Index Board's prompt opens it on that area.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
@@ -30,13 +34,17 @@ local IndexStrip = require(script.Parent.IndexStrip)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
+local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+
 export type Callbacks = {
 	claimIndexReward: (areaId: string, milestoneId: string) -> (),
+	claimAll: (() -> ())?, -- every waiting reward on every page, cats and Decor
 	close: () -> (),
 }
 
@@ -56,6 +64,8 @@ export type CatCollection = {
 local TILE = Vector2.new(104, 128)
 local PORTRAIT = 84
 local TAB_W = 112
+local CLAIM_ALL_W = 150
+local CLAIM_ALL_HOLD = 3 -- seconds Claim all reads "Claiming" unless the sync clears the rewards first
 local TAB_HEIGHT = 40
 local HEADER_HEIGHT = 52
 local REWARDS = Vector2.new(124, 40) -- an area's Rewards button
@@ -193,11 +203,12 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._panel = panel
 	self.frame = panel.frame
 
-	-- tabs: Cats, Gold, Decor
+	-- tabs: Cats, Gold, Decor, then Claim all; tall enough for a finger on a phone and a 36 px face on a mouse
+	local tabH = Scale.tapHeight(TAB_HEIGHT + 1, Theme.sizes.buttonDepth)
 	local tabs: Frame = Create("Frame", {
 		Name = "Tabs",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, TAB_HEIGHT),
+		Size = UDim2.new(1, 0, 0, tabH),
 		Parent = panel.content,
 	}, {
 		Create("UIListLayout", {
@@ -212,7 +223,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 			text = label,
 			icon = icon,
 			style = "ghost",
-			size = UDim2.fromOffset(TAB_W, TAB_HEIGHT),
+			size = UDim2.fromOffset(TAB_W, tabH),
 			textSize = Theme.sizes.textBody,
 			layoutOrder = order,
 			parent = tabs,
@@ -231,6 +242,20 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._decorTab, self._decorBadge, self._decorBadgeCount =
 		tabButton("DecorTab", "Decor", Theme.icons.decor, 3, "Decor")
 	self._decorTab.instance.Visible = false
+	self._claimAllAt = -math.huge -- os.clock() of the last Claim all press
+	self._claimAll = Button.new({
+		name = "ClaimAll",
+		text = "Claim all",
+		style = "primary",
+		size = UDim2.fromOffset(CLAIM_ALL_W, tabH),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 4,
+		parent = tabs,
+		onClick = function()
+			self:_pressClaimAll()
+		end,
+	})
+	self._claimAll.instance.Visible = false
 
 	-- the forever bonuses, right of the tabs; shrinks to fit the room the tabs leave on a narrow screen
 	local perks: Frame = Create("Frame", {
@@ -239,7 +264,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.fromScale(1, 0),
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, TAB_HEIGHT),
+		Size = UDim2.fromOffset(0, tabH),
 		Visible = false,
 		Parent = panel.content,
 	})
@@ -292,7 +317,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	end
 
 	-- Cats and Gold: one scroll of areas
-	local indexTop = TAB_HEIGHT + Theme.sizes.gap
+	local indexTop = tabH + Theme.sizes.gap
 	self._book = Create("ScrollingFrame", {
 		Name = "Book",
 		BackgroundTransparency = 1,
@@ -1047,8 +1072,10 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 
 	-- each tab's badge counts the rewards waiting on its pages, whichever tab is open
 	local waiting, goldWaiting, decorWaiting = 0, 0, 0
+	local waitingAll = 0
 	if catalog then
-		local ready = IndexRewards.claimable(catalog, state)
+		local ready, all = IndexRewards.claimable(catalog, state)
+		waitingAll = all
 		for areaId, count in ready do
 			if DecorPieces.poolOf(areaId) then
 				decorWaiting += count
@@ -1069,6 +1096,8 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	setBadge(self._indexBadge, self._indexBadgeCount, waiting)
 	setBadge(self._goldBadge, self._goldBadgeCount, goldWaiting)
 	setBadge(self._decorBadge, self._decorBadgeCount, decorWaiting)
+	self._waitingAll = waitingAll
+	self:_syncClaimAll()
 	self:_renderPerks(state)
 
 	if self._tab == "Decor" then
@@ -1079,6 +1108,32 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 			self:_showDetail()
 		end
 	end
+end
+
+-- Claim all shows while two or more rewards wait and the server has ClaimAll; a press reads "Claiming" until the sync.
+function CatCollection._syncClaimAll(self: any)
+	local count: number = self._waitingAll or 0
+	local can = (Config :: any).IndexClaimAll == true and self._callbacks.claimAll ~= nil
+	local pending = os.clock() - self._claimAllAt < CLAIM_ALL_HOLD
+	self._claimAll.instance.Visible = can and count >= 2
+	self._claimAll:setEnabled(not pending)
+	self._claimAll:setText(if pending then "Claiming" else ("Claim all (%d)"):format(count))
+end
+
+function CatCollection._pressClaimAll(self: any)
+	local callbacks: Callbacks = self._callbacks
+	local claimAll = callbacks.claimAll
+	if claimAll == nil or os.clock() - self._claimAllAt < CLAIM_ALL_HOLD then
+		return
+	end
+	self._claimAllAt = os.clock()
+	claimAll()
+	self:_syncClaimAll()
+	task.delay(CLAIM_ALL_HOLD, function()
+		if self._claimAll.instance.Parent ~= nil then
+			self:_syncClaimAll()
+		end
+	end)
 end
 
 -- The forever bonuses beside the tabs, on every tab, once the player has any.
@@ -1100,6 +1155,7 @@ end
 
 function CatCollection.destroy(self: any)
 	self:_clear()
+	self._claimAll:destroy()
 	self._detailArt:destroy()
 	self._detailClose:destroy()
 	self._decorIndex:destroy()

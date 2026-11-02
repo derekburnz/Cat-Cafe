@@ -75,7 +75,7 @@ local DEMO_SHOTS: { { seconds: number, caption: string, cards: { string }? } } =
 	{ seconds = 3.5, caption = "Catch stray cats behind your cafe!" },
 	{ seconds = 2.5, caption = "Tap as each circle closes!" },
 	{ seconds = 2.0, caption = "Carry it home to your cafe!" },
-	{ seconds = 2.8, caption = "Give it a job. Working cats earn tips!" },
+	{ seconds = 2.8, caption = "Give it a job. Working cats earn money!" },
 	{ seconds = 2.7, caption = "Rank up your cafe to open new areas" },
 	{
 		seconds = 1.8,
@@ -389,7 +389,7 @@ local DECOR_BONUS: { [string]: number } =
 	{ plants = 0.05, rug = 0.05, neon_sign = 0.10, fish_tank = 0.10 }
 -- the bait bowl's wait, short so the demo shows the cat arriving (the design's LureWaitSeconds is 600)
 local DEMO_BAIT_SECONDS = 20
--- the night dealer's stock window, short so one restock shows each night (DealerWindowSeconds is 300 since F59)
+-- the night dealer's stock window, short so one restock shows each night (the server restocks once a night since F94)
 local DEMO_DEALER_WINDOW = 20
 
 local SELL_VALUE: { [string]: number } =
@@ -570,15 +570,16 @@ function Demo.run(UI: any): () -> ()
 			if prize == nil or claimed[milestoneId] then
 				return
 			end
+			-- the page's count as the client shows it: cats (or gold cats), or a Decor Index page's pieces
+			local counts = IndexRewards.counts(CATALOG, UI.getState(), areaId)
 			local milestones: { Types.IndexMilestone } = CATALOG.indexMilestones or {}
 			local need, gold = math.huge, false
 			for _, milestone in milestones do
 				if milestone.id == milestoneId then
-					need, gold = IndexRewards.need(milestone), IndexRewards.isGold(milestone)
+					need, gold =
+						IndexRewards.need(milestone, counts.total), IndexRewards.isGold(milestone)
 				end
 			end
-			-- the page's count as the client shows it: cats (or gold cats), or a Decor Index page's pieces
-			local counts = IndexRewards.counts(CATALOG, UI.getState(), areaId)
 			local have = if gold then counts.gold else counts.found
 			if have < need then
 				UI.toast("Find more first", "warn")

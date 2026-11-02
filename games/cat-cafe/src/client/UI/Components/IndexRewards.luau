@@ -27,6 +27,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CatVariant = require(script.Parent.CatVariant)
 local DecorPieces = require(script.Parent.DecorPieces)
+local FoodOrder = require(script.Parent.FoodOrder)
 local Types = require(script.Parent.Parent.Types)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
@@ -42,6 +43,7 @@ export type View = {
 	milestone: Milestone,
 	prize: Prize,
 	state: MilestoneState,
+	need: number, -- IndexRewards.need with the page's total
 	have: number, -- toward `need`, never above it
 }
 
@@ -107,8 +109,14 @@ IndexRewards.BAIT_SPEED_MAX = (Config.BaitSpeedMax or 0.5) :: number
 IndexRewards.GOLD_CHANCE = (Config.GoldChanceNet or 0.05) :: number
 
 -- How many cats a milestone needs: `needs` (F54) or `need` (F48).
-function IndexRewards.need(milestone: Milestone): number
-	return milestone.needs or milestone.need or 0
+-- A milestone marked `whole` (F97, Design-Agent: decor10 needs the whole Decor page, "All 16" on the Classic page and
+-- "All 12" elsewhere) needs the page's `total` when that is more, as the server asks max(needs, page size).
+function IndexRewards.need(milestone: Milestone, total: number?): number
+	local base = milestone.needs or milestone.need or 0
+	if milestone.whole == true and total ~= nil and total > base then
+		return total
+	end
+	return base
 end
 
 -- Whether a milestone counts gold cats: `track = "gold"` (F54) or `gold = true` (F48).
@@ -185,7 +193,7 @@ function IndexRewards.views(catalog: Catalog, state: State, areaId: string): { V
 		if prize == nil then
 			continue
 		end
-		local need = IndexRewards.need(milestone)
+		local need = IndexRewards.need(milestone, counts.total)
 		local count = if IndexRewards.isGold(milestone) then counts.gold else counts.found
 		local claimed = IndexRewards.isClaimed(state, areaId, milestone.id)
 		local milestoneState: MilestoneState = if claimed
@@ -196,6 +204,7 @@ function IndexRewards.views(catalog: Catalog, state: State, areaId: string): { V
 			milestone = milestone,
 			prize = prize,
 			state = milestoneState,
+			need = need,
 			have = math.min(count, need),
 		})
 	end
@@ -225,7 +234,7 @@ end
 -- "3 cats", "All 10", "All 10 gold"; "5 gold" for a gold milestone short of the whole page.
 -- "1 cat" for a milestone of one (the gold track starts at "1 gold"). On a Decor Index page "5 pieces".
 function IndexRewards.needLabel(milestone: Milestone, total: number, areaId: string?): string
-	local need = IndexRewards.need(milestone)
+	local need = IndexRewards.need(milestone, total)
 	local all = total > 0 and need >= total
 	if areaId and DecorPieces.poolOf(areaId) then
 		return if all then ("All %d"):format(need) else ("%d pieces"):format(need)
@@ -262,7 +271,7 @@ end
 
 -- How many more cats (or gold cats) the milestone needs.
 function IndexRewards.toGo(view: View): number
-	return math.max(0, IndexRewards.need(view.milestone) - view.have)
+	return math.max(0, (view.need or IndexRewards.need(view.milestone)) - view.have)
 end
 
 -- The coins a prize pays at this day rate: max(coins, floor(dayRate * coinSeconds)), the Tip Jar's rule, so the
@@ -437,7 +446,7 @@ function IndexRewards.perkLabel(perk: string, amount: number): string?
 	elseif perk == "baitSpeed" then
 		return ("+%s faster bait"):format(percent(amount))
 	end
-	return ("+%s tips"):format(percent(amount))
+	return ("+%s money"):format(percent(amount)) -- F94 section 5: "money", not "tips"
 end
 
 -- The line an Index Board shows while someone's gold luck helps the area's strays (golden-fish.md section 5):
@@ -488,7 +497,7 @@ end
 
 -- What unlocks an Index decor piece, for its Decor shop card: "All 10 Alleyway cats", "All 10 Alleyway cats as gold".
 function IndexRewards.unlockLabel(milestone: Milestone, areaName: string, total: number): string
-	local need = IndexRewards.need(milestone)
+	local need = IndexRewards.need(milestone, total)
 	local count = if total > 0 and need >= total then ("All %d"):format(need) else tostring(need)
 	return ("%s %s cats%s"):format(
 		count,
@@ -497,15 +506,16 @@ function IndexRewards.unlockLabel(milestone: Milestone, areaName: string, total:
 	)
 end
 
--- A prize's foods in a steady order (the map has none), for the card's text.
+-- A prize's foods in rarity order (the map has none; F97 section 3), for the card's text and pictures. The ids'
+-- grades come from FoodGrade's design table, as the prize has no catalog defs.
 function IndexRewards.lureList(prize: Prize): { LureEntry }
 	local list: { LureEntry } = {}
 	local lures: { [string]: number } = prize.lures or {}
 	for id, count in lures do
 		table.insert(list, { id = id, count = count })
 	end
-	table.sort(list, function(a: LureEntry, b: LureEntry): boolean
-		return a.id < b.id
+	FoodOrder.sort(list, function(entry: LureEntry): (string, Types.LureDef?)
+		return entry.id, nil
 	end)
 	return list
 end

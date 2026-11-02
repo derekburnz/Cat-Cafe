@@ -851,7 +851,7 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 8000,
+		cost = 10000, -- F95 v2 (economy-ladder.md section 3, after F97's Epic in every wave; was 8,000)
 		distinctCats = 5,
 		slots = 4,
 		multiplier = 1.25,
@@ -861,7 +861,7 @@ Catalog.tiers = {
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 350000, -- F95 (economy-ladder.md section 3; was 80,000)
+		cost = 500000, -- F95 v2 (was 350,000; 80,000 before F95)
 		distinctCats = 12,
 		needsRarity = "Epic",
 		needsRarityCount = 1,
@@ -873,7 +873,7 @@ Catalog.tiers = {
 	{
 		tier = 4,
 		name = "Famous Cafe",
-		cost = 27000000, -- F95 (was 700,000)
+		cost = 40000000, -- F95 v2 (was 27,000,000; 700,000 before F95)
 		distinctCats = 20,
 		needsRarity = "Legendary",
 		needsRarityCount = 1,
@@ -885,7 +885,7 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 800000000, -- F95 (was 5,000,000)
+		cost = 1200000000, -- F95 v2 (was 800,000,000; 5,000,000 before F95)
 		distinctCats = 30,
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
@@ -978,52 +978,62 @@ end
 -- Upgrade ids renamed before launch, old id -> new id. ProfileSchema.migrate carries saved levels across.
 Catalog.renamedUpgrades = { gloves = "net" } :: { [string]: string }
 
--- Section 7: the coin Decor shop (no `source`). Crate pieces (F53), the F48 Index pieces among them, are in
+-- Section 7: the four pieces of the old coin Decor shop. Since F97 (notes-10-28-to-10-30.md section 2) they are
+-- found only in the Classic Crate, at their rarity, and keep their bonuses and their own anchors (no decor spot);
+-- players who bought them keep them. The crate pieces (F53), the F48 Index pieces among them, are in
 -- Catalog.crateDecor below.
 Catalog.decor = {
 	{
 		id = "plants",
 		name = "Window plants",
-		cost = 4000,
+		cost = 0, -- F97: never sold
 		category = "Plants",
 		effect = "+5% money",
 		description = "Green in the window, warmth in the room.",
-		requiresTier = 2,
 		bonus = 0.05,
 		asset = "CatCafe_Decor_WindowPlants",
+		source = "crate",
+		crate = "classic",
+		rarity = "Common",
 	},
 	{
 		id = "rug",
 		name = "Cozy rug",
-		cost = 8000,
+		cost = 0, -- F97: never sold
 		category = "Floor",
 		effect = "+5% money",
 		description = "Warm paws, generous customers.",
-		requiresTier = 2,
 		bonus = 0.05,
 		asset = "CatCafe_Decor_Rug",
+		source = "crate",
+		crate = "classic",
+		rarity = "Common",
 	},
 	{
 		id = "neon_sign",
 		name = "Neon cat sign",
-		cost = 240000, -- F95 (was 60,000)
+		cost = 0, -- F97: never sold
 		category = "Wall",
 		effect = "+10% money",
 		description = "Seen from the far end of the street.",
-		requiresTier = 3,
 		bonus = 0.10,
 		asset = "CatCafe_Decor_NeonSign",
+		source = "crate",
+		crate = "classic",
+		rarity = "Rare",
 	},
 	{
 		id = "fish_tank",
 		name = "Fish tank",
-		cost = 4000000, -- F95 (was 500,000)
+		cost = 0, -- F97: never sold
 		category = "Furniture",
 		effect = "+10% money, cats stare at it",
 		description = "The fish are fine. Probably.",
-		requiresTier = 4,
 		bonus = 0.10,
 		asset = "CatCafe_Decor_FishTank",
+		source = "crate",
+		crate = "classic",
+		rarity = "Epic",
 	},
 } :: { Types.DecorDef }
 
@@ -1042,7 +1052,8 @@ Catalog.lures = {
 	{
 		id = "kibble",
 		name = "Kibble",
-		cost = 30,
+		cost = 100, -- F97: about four times 30; Economy.foodPrice grows it by tier
+		sortOrder = 1,
 		attracts = "Common",
 		rarity = "Common",
 		source = "shop",
@@ -1053,7 +1064,8 @@ Catalog.lures = {
 	{
 		id = "tuna",
 		name = "Tuna",
-		cost = 125,
+		cost = 500, -- F97: about four times 125; Economy.foodPrice grows it by tier
+		sortOrder = 2,
 		attracts = "Rare",
 		rarity = "Rare",
 		source = "shop",
@@ -1064,7 +1076,8 @@ Catalog.lures = {
 	{
 		id = "salmon",
 		name = "Salmon",
-		cost = 625,
+		cost = 2500, -- F97: about four times 625; Economy.foodPrice grows it by tier
+		sortOrder = 4,
 		attracts = "Epic",
 		rarity = "Epic",
 		source = "shop",
@@ -1075,7 +1088,8 @@ Catalog.lures = {
 	{
 		id = "sardines",
 		name = "Moonlit Sardines",
-		cost = 1000,
+		cost = 4000, -- F97: about four times 1000; Economy.foodPrice grows it by tier
+		sortOrder = 3,
 		attracts = "Rare",
 		rarity = "Rare",
 		source = "dealer",
@@ -1086,7 +1100,8 @@ Catalog.lures = {
 	{
 		id = "caviar",
 		name = "Caviar",
-		cost = 3750,
+		cost = 15000, -- F97: about four times 3750; Economy.foodPrice grows it by tier
+		sortOrder = 5,
 		attracts = "Epic",
 		rarity = "Epic",
 		source = "dealer",
@@ -1097,7 +1112,8 @@ Catalog.lures = {
 	{
 		id = "moon_milk",
 		name = "Moon Milk",
-		cost = 12500,
+		cost = 50000, -- F97: about four times 12500; Economy.foodPrice grows it by tier
+		sortOrder = 6,
 		attracts = "Epic",
 		rarity = "Legendary",
 		source = "dealer",
@@ -1108,7 +1124,8 @@ Catalog.lures = {
 	{
 		id = "star_treat",
 		name = "Star Treat",
-		cost = 50000,
+		cost = 200000, -- F97: about four times 50000; Economy.foodPrice grows it by tier
+		sortOrder = 7,
 		attracts = "Legendary",
 		rarity = "Mythical",
 		source = "dealer",
@@ -1861,8 +1878,9 @@ table.freeze(Catalog.collectorOffers)
 Catalog.dealerSlotWeights =
 	{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 } :: { [string]: number }
 
--- Section 8b v0.8 (F59, round 3 Q5): the chance in percent that a window stocks 0, 1, 2, 3 or 4 of each dealer
--- food. Averages 1.85, 0.95, 0.45 and 0.10: a Star Treat turns up about one window in ten.
+-- Section 8b v0.8 (F59, round 3 Q5): the chance in percent that a stock holds 0, 1, 2, 3 or 4 of each dealer food.
+-- Averages 1.85, 0.95, 0.45 and 0.10: a Star Treat turns up about one night in ten. F94 (rewards-and-shops.md
+-- section 4): each server rolls one stock at dusk that holds all night (was every 5 minutes).
 Catalog.dealerAmountWeights = {
 	sardines = { 15, 25, 30, 20, 10 },
 	caviar = { 35, 40, 20, 5, 0 },
@@ -1960,7 +1978,8 @@ Catalog.indexMilestones = {
 	{ id = "total45", track = "normal", needs = 45 },
 	{ id = "total50", track = "normal", needs = 50 },
 	{ id = "decor5", track = "decor", needs = 5 },
-	{ id = "decor10", track = "decor", needs = 12 }, -- every piece of the page: 12 since F80 (golden-fish.md 4b)
+	-- every piece of the page: 12 since F80 (golden-fish.md 4b), and 16 on the Classic page since F97 (`whole`)
+	{ id = "decor10", track = "decor", needs = 12, whole = true },
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server
@@ -2896,6 +2915,14 @@ for _, pool in CRATE_POOLS do
 	end
 	poolPieces[pool.area] = ids
 end
+-- F97 section 2: the old coin pieces join the Classic Crate's rows at their rarity, so its Decor Index page has
+-- sixteen pieces (decor10 still needs twelve). They are not in Catalog.crateDecor: no `kind` (their own anchors, no
+-- decor spot) and their old bonuses, not CratePieceBonus.
+for _, def in Catalog.decor do
+	if def.crate ~= nil then
+		table.insert(poolPieces[def.crate], def.id)
+	end
+end
 
 Catalog.crates = {} :: { Types.CrateDef }
 for _, pool in CRATE_POOLS do
@@ -2954,6 +2981,37 @@ end
 
 function Catalog.getFishShopRow(id: string): Types.FishShopRow?
 	return Catalog.fishShopById[id]
+end
+
+-- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf at the Golden Fish Market, sold by day for golden fish
+-- in this order, each row's amount in a window rolled from Config.FreshCatchAmountWeights (shared/FreshCatch). A
+-- row's id is its potion's or crate's id. The Classic Crate is 10 fish off its Market price and goes to the banked
+-- crates. The Gold Rush Potion and the crate send a ShopAlert. Earned only: golden fish are never sold for Robux.
+Catalog.freshCatch = {
+	{ id = "tip_potion", kind = "potion", potionId = "tip_potion", fish = 10 },
+	{ id = "swift_potion", kind = "potion", potionId = "swift_potion", fish = 6 },
+	{ id = "steady_potion", kind = "potion", potionId = "steady_potion", fish = 12 },
+	{ id = "quick_bait_potion", kind = "potion", potionId = "quick_bait_potion", fish = 15 },
+	{ id = "big_tip_potion", kind = "potion", potionId = "big_tip_potion", fish = 25 },
+	{ id = "lucky_potion", kind = "potion", potionId = "lucky_potion", fish = 25 },
+	{
+		id = "gold_rush_potion",
+		kind = "potion",
+		potionId = "gold_rush_potion",
+		fish = 30,
+		alert = true,
+	},
+	{ id = "classic_crate", kind = "crate", crateId = "classic_crate", fish = 50, alert = true },
+} :: { Types.FreshCatchRow }
+Catalog.freshCatchById = {} :: { [string]: Types.FreshCatchRow }
+for _, row in Catalog.freshCatch do
+	Catalog.freshCatchById[row.id] = row
+	table.freeze(row)
+end
+table.freeze(Catalog.freshCatch)
+
+function Catalog.getFreshCatchRow(id: string): Types.FreshCatchRow?
+	return Catalog.freshCatchById[id]
 end
 
 return Catalog

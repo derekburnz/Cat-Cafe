@@ -4,7 +4,7 @@ Each is `CatCafe_Prop_Potion_<Name>`, the id without "_potion" in PascalCase (ti
 is BigTip), so the code can build the name from the id. The liquid is the potion's own colour (UI
 Theme.potionColors and the Effects glow), so the bag tile, the drink pop and the bottle agree. Every bottle has a
 glass neck, a cork or cap and a badge on its front that says what it does: a coin for tips, a clover for luck,
-wings for speed, a paw for steady paws, a coin pair and a gold cap for the big tip, a star for gold luck and a fish
+wings for speed, a paw for steady paws, a coin stack on a handled jug for the big tip, a star for gold luck and a fish
 with a clock for quicker bait. Pivot base centre, front -Z, nothing collides; about 1.2 to 1.6 tall.
 """
 
@@ -120,18 +120,20 @@ def steady(b):
 
 
 def big_tip(b):
-    """Big Tip Potion: the Tip flask grown bigger, amber, with a gold stopper and two coins on its badge."""
-    _sphere(b, (0, 0.57, 0), 0.55, "eye_amber", seg=12, rings=8)
-    b.cyl((0, 0.03, 0), 0.3, 0.06, "gold_mid", segments=12)
-    b.cyl((0, 1.15, 0), 0.16, 0.3, "glass", segments=12)
-    b.cyl((0, 1.3, 0), 0.2, 0.07, "gold_mid", segments=12)
-    b.cyl((0, 1.39, 0), 0.13, 0.12, "gold_mid", segments=12)
-    _sphere(b, (0, 1.5, 0), 0.1, "gold_light", seg=10, rings=6)
-    _disc(b, 0, 0.55, -0.46, -0.57, 0.26, "cream", seg=16)
-    _coin(b, 0.07, 0.61, -0.595, 0.13)
-    _coin(b, -0.09, 0.47, -0.61, 0.11, depth=0.045)
-    b.box((0.28, 0.85, -0.4), (0.06, 0.18, 0.06), "milk", rot=_zrot(-38))                  # glint
-    b.box((0.37, 0.7, -0.4), (0.06, 0.06, 0.06), "milk")
+    """Big Tip Potion: a big amber jug with a loop handle, a gold screw cap and a stack of coins on its cream label,
+    so its outline reads apart from the round Tip flask even as a small picture (Derek 10-28)."""
+    r = 0.42
+    top = _bottle(b, r, 0.05, 0.86, "eye_amber", label=(0.22, 0.72, "cream"), shoulder=0.18, seg=16)
+    b.cyl((0, top + 0.05, 0), 0.2, 0.14, "glass", segments=12)                             # neck
+    b.cyl((0, top + 0.16, 0), 0.25, 0.12, "gold_mid", segments=12)                         # screw cap
+    b.cyl((0, top + 0.25, 0), 0.13, 0.07, "gold_light", segments=10)
+    b.b.ring(RB.p(-(r + 0.1), 0.56, 0), 0.26, 0.09, 0.12, "eye_amber", segments=12, bevel=False,
+             rot=(math.radians(90), "X"))                                                   # handle, picture right
+    zf = -(r + 0.012)                                                                       # the label's face
+    for k, dx in enumerate((0.02, -0.03, 0.01)):                                            # three coins, edge on
+        b.box((dx, 0.33 + 0.07 * k, zf - 0.015), (0.27, 0.06, 0.03), "gold_mid")
+    _coin(b, 0.0, 0.6, zf - 0.03, 0.1)                                                      # one more on top
+    b.box((0.2, 0.83, -0.37), (0.05, 0.12, 0.05), "milk", rot=_zrot(-30))                  # glint
 
 
 def gold_rush(b):

@@ -26,6 +26,7 @@ local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local Telemetry = require(script.Parent.Telemetry)
+local TipService = require(script.Parent.TipService)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local ShoveService = {}
@@ -55,6 +56,13 @@ local function areaAt(position: Vector3): string?
 	return WorldBuilder.areaAt(PlotService.world(), position)
 end
 
+-- F87 (easy-start.md section 2c): a player who has not checked in a cat yet cannot be tackled, carrying or not. The
+-- first check-in moves tutorialStep to TutorialGuaranteedStrayStep, which ends the shield.
+local function newcomer(target: Player): boolean
+	local profile = DataService.get(target)
+	return profile ~= nil and profile.tutorialStep < Config.TutorialGuaranteedStrayStep
+end
+
 -- Why the lunge passes through `target` standing at `position`, or nil when it would hit them.
 local function targetRefusal(
 	player: Player,
@@ -72,6 +80,7 @@ local function targetRefusal(
 			and WorldBuilder.inSafeZone(plot, position, Config.BumpSafeRadiusStuds),
 		targetInCamp = Layout.campAt(position.X, position.Z) ~= nil,
 		targetFlying = CatService.inFlight(target),
+		targetNewcomer = newcomer(target),
 		sinceShoveTarget = since((lastShoveOf[player] or {})[target.UserId], now),
 		sinceTargetShoved = since(lastShovedAt[target.UserId], now),
 	})
@@ -147,6 +156,7 @@ local function land(
 		-- v0.8 F56: anyone picks the cat up, and the old carrier can tackle back once that carry is 3 s old
 		Net.toast(player, "It dropped! Pick it up quick!", "good")
 		Net.toast(target, "You got tackled and dropped your cat! Grab it back!", "warn")
+		TipService.show(target, "dropped") -- F87 section 3: the first knock loose
 	elseif knock == "held" then
 		Net.toast(player, "It held on tight!", "info")
 		Net.toast(target, "It held on tight!", "good")
@@ -176,6 +186,7 @@ local function tackle(player: Player, forced: Shove.KnockResult?)
 		areaUnlocked = area ~= nil and Economy.tier(profile) >= area.tier,
 		areasClosed = not ClockService.areasOpen(),
 		sinceTackle = since(lastTackleAt[player], now),
+		newcomer = newcomer(player),
 	})
 	if reason ~= nil or root == nil then
 		-- a refusal spends nothing; the button is hidden or greyed in these states anyway

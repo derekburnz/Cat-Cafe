@@ -9,9 +9,11 @@
 -- split are the player's bowl level's (shared Bait, as the server rolls). What is for sale comes
 -- only from UI.dealer.setStock (the DealerStock remote); the screen never guesses stock, and the server recomputes
 -- it on every BuyDealerFood.
+-- F94 (rewards-and-shops.md section 4): one stock per server per night, so the strip counts down to sunrise, when
+-- the cart leaves, instead of a 5 minute restock (UIController hands the night as the window and sunrise as
+-- restocksAt). F94 is live, so the pre-F94 5 minute wording and Config.DealerWindowSeconds are gone.
 -- Opened by the cart's prompt (UI.dealer.open).
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -26,10 +28,9 @@ local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
+local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
-
-local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 
 export type Callbacks = {
 	-- the food's row, the food and the window the screen showed, so a Buy that lands after a restock is refused (S42)
@@ -53,11 +54,11 @@ local STRIP_HEIGHT = 84
 local ROW_HEIGHT = 132
 local ICON = 84
 local BUTTON = Vector2.new(128, Theme.sizes.touchMin + 4)
+local DETAILS_H = 42 -- a 37 px face with a mouse; Scale.tapHeight makes Buy and Details 44 px faces on a phone
 local TEXT_LEFT = ICON + 28
 local TEXT_RIGHT = BUTTON.X + 28
 -- a Buy waits this long for the next DealerStock before the button comes back
 local PENDING_SECONDS = 5
-local WINDOW_MINUTES = math.max(1, math.floor(Config.DealerWindowSeconds / 60)) -- F59: 5
 
 local Dealer = {}
 Dealer.__index = Dealer
@@ -241,6 +242,10 @@ function Dealer._buildRows(self: any)
 		return
 	end
 	assert(stock, "stock")
+	-- on a phone Buy and Details grow to a 44 px face and the row with them
+	local buyH = Scale.tapHeight(BUTTON.Y, Theme.sizes.buttonDepth)
+	local detailsH = Scale.tapHeight(DETAILS_H, Theme.sizes.buttonDepth)
+	local topHeight = math.max(ROW_HEIGHT, 12 + buyH + 10 + detailsH + 12)
 	for index, group in DealerRows.group(stock, self._lureById) do
 		local def = group.def
 		local row: Frame = Create("Frame", {
@@ -263,7 +268,7 @@ function Dealer._buildRows(self: any)
 		local top: Frame = Create("Frame", {
 			Name = "Top",
 			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
+			Size = UDim2.new(1, 0, 0, topHeight),
 			LayoutOrder = 1,
 			Parent = row,
 		})
@@ -348,7 +353,7 @@ function Dealer._buildRows(self: any)
 			name = "Buy",
 			text = Format.money(group.cost),
 			style = "primary",
-			size = UDim2.fromOffset(BUTTON.X, BUTTON.Y),
+			size = UDim2.fromOffset(BUTTON.X, buyH),
 			anchorPoint = Vector2.new(1, 0),
 			position = UDim2.new(1, -12, 0, 12),
 			textSize = Theme.sizes.textBody + 2,
@@ -361,9 +366,9 @@ function Dealer._buildRows(self: any)
 			name = "Details",
 			text = "Details",
 			style = "ghost",
-			size = UDim2.fromOffset(BUTTON.X, 34),
+			size = UDim2.fromOffset(BUTTON.X, detailsH),
 			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -12, 0, 12 + BUTTON.Y + 10),
+			position = UDim2.new(1, -12, 0, 12 + buyH + 10),
 			textSize = Theme.sizes.textSmall,
 			parent = top,
 			onClick = function()
@@ -566,7 +571,7 @@ function Dealer._renderAll(self: any)
 	self._empty.Visible = #self._rows == 0
 	self._empty.Text = if stock == nil
 		then "The dealer is unpacking his cart..."
-		else "Nothing left on the cart this time. Fresh stock is on the way."
+		else "Nothing left on the cart tonight. He brings new stock tomorrow night."
 end
 
 -- The strip's states: closed by day, unpacking, restocking, away from the cart, and open with the countdown.
@@ -582,17 +587,15 @@ function Dealer._renderStrip(self: any)
 		title = "Opening the cart..."
 		sub = "His stock shows in a moment."
 	elseif reason == "restocking" then
-		title = "Fresh stock coming..."
-		sub = "The dealer is restocking. New foods show in a moment."
+		title = "Packing up..."
+		sub = "The dealer leaves at sunrise."
 	else
 		local current = stock :: Types.DealerStock
-		title = "Fresh stock in "
-			.. DealerRows.clock(current.restocksAt - Workspace:GetServerTimeNow())
+		local clock = DealerRows.clock(current.restocksAt - Workspace:GetServerTimeNow())
+		title = "Here until sunrise · " .. clock
 		sub = if reason == "away"
 			then "Walk back to the cart to buy."
-			else ("New stock every %d minutes, the same on every server. Dealer food goes in your bait bowl."):format(
-				WINDOW_MINUTES
-			)
+			else "One stock all night on this server. Dealer food goes in your bait bowl."
 	end
 	self._stripTitle.Text = title
 	self._stripSub.Text = sub

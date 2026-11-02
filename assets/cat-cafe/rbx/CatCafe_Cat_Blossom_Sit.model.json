@@ -3193,7 +3193,7 @@
         "position": [
          0.4446,
          1.2729,
-         0.3598
+         0.4263
         ],
         "orientation": [
          [
@@ -3234,9 +3234,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -1.1228,
-         -0.8284,
-         -0.0181
+         -1.1327,
+         -0.8425,
+         -0.0823
         ],
         "orientation": [
          [
@@ -3279,9 +3279,113 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         0.0,
+         1.0592,
+         0.1852
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0855,
+       0.038,
+       0.2185
+      ],
+      "Color": [
+       0.949,
+       0.749,
+       0.7961
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Blossom_Sit_Prop",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.0355,
+         0.2755
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0855,
+       0.0855,
+       0.038
+      ],
+      "Color": [
+       0.949,
+       0.749,
+       0.7961
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Blossom_Sit_Prop",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          0.3705,
          0.9086,
-         0.2878
+         0.3543
         ],
         "orientation": [
          [
@@ -3342,7 +3446,7 @@
         "position": [
          -0.4446,
          1.2729,
-         0.3598
+         0.4263
         ],
         "orientation": [
          [
@@ -3403,7 +3507,7 @@
         "position": [
          -0.3705,
          0.9086,
-         0.2878
+         0.3543
         ],
         "orientation": [
          [
@@ -3464,7 +3568,7 @@
         "position": [
          0.0,
          1.007,
-         0.2612
+         0.3277
         ],
         "orientation": [
          [

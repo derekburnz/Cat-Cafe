@@ -129,7 +129,11 @@ local Config = {
 	BowlLuck = { 0, 0.04, 0.08, 0.12, 0.16 } :: { number },
 	BigBowlWaitCutSeconds = 120,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
-	BaitResolveRangeStuds = 20, -- Tame or Let go from this close
+	-- F97 (notes-10-28-to-10-30.md section 3): a food's price is its Catalog base times this factor at the buyer's
+	-- tier (Economy.foodPrice), the same growth as the later shop items (economy-ladder.md section 4)
+	FoodTierPriceFactor = { 1, 1, 4, 8, 16 } :: { number },
+	-- F97 section 7: a sunrise wave with no Epic or rarer stray rerolls its last one from these odds (Catching.waveRare)
+	WaveMinRareRerollOdds = { Common = 0, Rare = 0, Epic = 83, Legendary = 15, Mythical = 2 },
 	GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02): rolled when the food goes in, revealed when the cat arrives
 	GoldChanceNet = 0.05, -- v0.5 F42 (was 0.02): rolled when a stray spawns, shown as its gold coat and sparkle
 	-- The chance of 1 to 5 charm stars from CatStats.rollCharm and CatStats.stars, in percent, shown on every food
@@ -152,10 +156,23 @@ local Config = {
 	StraySpawnSpacingStuds = 12,
 	StrayWanderSpeed = 3,
 	AnnounceMinRarity = "Epic",
-	-- The night dealer (data-model section 8b): buy from this close to the cart; the stock rerolls every window
-	-- (F59: every 5 minutes, was 10).
+	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
+	-- each server rolls its stock once at dusk and it holds all night.
 	DealerRangeStuds = 12,
-	DealerWindowSeconds = 300,
+	-- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf at the Golden Fish Market, by day. Every window of
+	-- this many seconds rolls an amount of each Catalog.freshCatch row, the same on every server.
+	FreshCatchWindowSeconds = 300,
+	-- The chance in percent that a window stocks 0, 1, 2 or 3 of each Fresh Catch row, by the row's id.
+	FreshCatchAmountWeights = {
+		tip_potion = { 10, 30, 40, 20 },
+		swift_potion = { 10, 30, 40, 20 },
+		steady_potion = { 30, 45, 25, 0 },
+		quick_bait_potion = { 40, 45, 15, 0 },
+		big_tip_potion = { 60, 35, 5, 0 },
+		lucky_potion = { 60, 35, 5, 0 },
+		gold_rush_potion = { 75, 25, 0, 0 },
+		classic_crate = { 90, 10, 0, 0 },
+	} :: { [string]: { number } },
 
 	-- Rescue minigames (data-model section 10b)
 	RescueSpawnChance = 0.6, -- per trap at each night start
@@ -189,6 +206,27 @@ local Config = {
 	RescuedTipsMultiplier = 1.0, -- v0.3: a rescue pays no more; its reward is the higher gold chance
 
 	TutorialGuaranteedStrayStep = 2, -- players below this tutorialStep always find a Common stray at alley point 1
+	-- F87 (easy-start.md section 2): the intro waits for the Tutorial tile instead of playing by itself (true restores
+	-- the F72 behaviour), and a player below TutorialGuaranteedStrayStep catches their own tutorial stray on one slow
+	-- circle with bands TutorialWindowScale times as wide; a Miss brings the circle back after TutorialRetrySeconds
+	-- with no sprint, and nobody else can catch it. Below TutorialGuaranteedStrayStep nobody can tackle them either.
+	IntroAutoPlay = false,
+	TutorialShrinkSeconds = 1.6,
+	TutorialWindowScale = 2,
+	TutorialRetrySeconds = 1.0,
+	-- F87 (easy-start.md sections 2g, 3 and 4): the hint pulses after StuckNudgeSeconds on one tutorial step and the
+	-- "Need a hand?" card shows after StuckHelpSeconds (once per step per account); a context tip shows at most once
+	-- every TipGapSeconds, a camera cut lasts at most TipCutMaxSeconds, and the one slide-in feedback ask waits for
+	-- FeedbackAskMinutes of play in a session. The client times all of these. The server sends a tip that follows
+	-- from the save TipStartSeconds after a join at the earliest, and takes FeedbackSessionLimit SendFeedback calls a
+	-- session.
+	StuckNudgeSeconds = 40,
+	StuckHelpSeconds = 90,
+	TipGapSeconds = 60,
+	TipCutMaxSeconds = 4,
+	FeedbackAskMinutes = 12,
+	TipStartSeconds = 10,
+	FeedbackSessionLimit = 5,
 
 	-- Night income and rich customers (F31, data-model sections 11 and 12)
 	-- tips pay this share of the day rate at night; offline pay keeps the day rate. F60 (round 3 Q6): full pay, the
@@ -200,12 +238,13 @@ local Config = {
 	RichTipStaySeconds = 90, -- unclaimed, it is gone after this (Derek 2026-10-28: "if you miss it you miss it")
 	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the plot's RichTipAnchor
 	-- Tip piles (F61, data-model section 12, round 3 Q6): by day, every TipPileSeconds each earning cafe with a table
-	-- gets a pile worth TipPileRateSeconds of the day rate (at least $5), up to TipPilesMax waiting. Only CollectTips
-	-- at the cafe pays them; the owner's client sends it within TipPileCollectRangeStuds of a pile.
+	-- gets a pile worth TipPileRateSeconds of the day rate (at least $5). Since F97 (notes-10-28-to-10-30.md section 1)
+	-- a pile pays its owner the moment it appears, wherever they are; it shows on a table for TipPileShowSeconds and
+	-- at most TipPilesMax show at once (F90's Waiter will sweep them to the till instead).
 	TipPileSeconds = 30,
 	TipPileRateSeconds = 6,
 	TipPilesMax = 6,
-	TipPileCollectRangeStuds = 8,
+	TipPileShowSeconds = 90,
 
 	-- The Mystery Visitor and potions (F64, data-model section 12b). Potions are earned only, never sold.
 	MysteryCheckSeconds = 120, -- by day, how often each earning cafe rolls for a Mystery Visitor

@@ -9,6 +9,12 @@ its own, and a seated twin for the chairs.
                                   D  ginger curls and beard, striped sky sweater, a terracotta tote
                                   E  puffs, blush hoodie and headphones
                                   F  teal beanie, denim overalls, a scarf and a book
+                                  G  a kid with pigtails, a lilac top and a pink skirt, an ice cream cone
+                                  H  long blonde hair under a straw sun hat, a rose dress, a bunch of flowers
+                                  I  short black hair and black glasses, a navy cardigan, a laptop under the arm
+                                  J  a ginger ponytail, a yellow raincoat, red wellies and a furled teal umbrella
+                                  K  an elder with a flat cap, a silver moustache, a green cardigan, a newspaper
+                                  L  long black hair, a butter top, a navy skirt and a teal tote
                                   Rich  top hat, monocle, moustache, tails, gold bow tie and cane
   CatCafe_NPC_Customer_<V>_Sit    the same customer sitting: the pivot is the floor under the middle of a cafe chair
                                   (CatCafe_Furniture_Chair's own pivot), front -Z toward the table, the seat of the
@@ -16,7 +22,8 @@ its own, and a seated twin for the chairs.
                                   its top (a cafe chair stands 2.4 from its table's middle); no cane, cup, tote or
                                   backpack. The kid's feet dangle.
 
-One object each, nothing collides (the client moves them with PivotTo). Adults are 5 studs to the top of the head,
+D's beard frames the face: a chin piece under the smile and sideburns at the head's sides, so the mouth and the
+cheeks show (Derek 10-28). One object each, nothing collides (the client moves them with PivotTo). Adults are 5 studs to the top of the head,
 the kid 4.1, so the coin text 5.5 above the pivot clears every hat but the Rich customer's top hat.
 """
 
@@ -46,11 +53,23 @@ LOOKS = {
               shoes="offwhite", phones="mint"),
     "F": dict(body=ADULT, skin="skin_tan", hair="hair_brown", style="beanie", beanie="sign_teal", top="pastel_butter",
               overalls="fur_puddle", scarf="fur_strawberry", shoes="dark_wood", book="galaxy_blue", brows=True),
+    "G": dict(body=KID, skin="skin_deep", hair="choco", style="pigtails", ties="fur_strawberry", top="pastel_lilac",
+              skirt="fur_strawberry", legs="skin_deep", shoes="offwhite", cone="fur_strawberry", brows=True),
+    "H": dict(body=ADULT, skin="skin_light", hair="fur_golden", style="long", sunhat="treat_tan", band="blush",
+              top="fur_rose", skirt="fur_rose", legs="skin_light", shoes="caramel_wood", flowers=True),
+    "I": dict(body=ADULT, skin="skin_tan", hair="fur_black", style="short", top="offwhite", cardigan="galaxy_blue",
+              pants="fur_ink", shoes="dark_wood", glasses="fur_black", laptop="metal", brows=True),
+    "J": dict(body=ADULT, skin="skin_light", hair="fur_ginger", style="ponytail", top="rarity_legend", hood=True,
+              pants="galaxy_blue", shoes="shirt_red", umbrella="sign_teal", brows=True),
+    "K": dict(body=ADULT, skin="skin_tan", hair="fur_silver", style="flatcap", flatcap="fur_puddle", top="offwhite",
+              cardigan="leaf_dark", pants="fur_puddle", shoes="dark_wood", moustache=True, paper=True, brows=True),
+    "L": dict(body=ADULT, skin="skin_deep", hair="fur_black", style="long", top="pastel_butter", skirt="galaxy_blue",
+              legs="fur_ink", shoes="fur_black", tote="sign_teal", brows=True),
     "Rich": dict(body=ADULT, skin="skin_light", hair="hair_brown", style="short", top="fur_black", suit=True,
                  pants="fur_black", shoes="fur_black", moustache=True, monocle=True, top_hat=True, cane="fur_black",
                  knob="rarity_legend", brows=True),
 }
-EVERYDAY = ("A", "B", "C", "D", "E", "F")
+EVERYDAY = ("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L")
 
 
 def _ry(deg):
@@ -211,6 +230,33 @@ def _arms(b, f, look):
         b.box((x - 0.14, f.back, hand - 0.62), (0.02, 0.3, 0.28), "offwhite", bevel=False)        # a paw print
         for dy in (-0.2, 0.2):
             b.box_base((x, f.back + dy, hand - 0.24), (0.08, 0.08, 0.3), look["tote"], bevel=False)  # handles
+    if look.get("cone"):                                      # an ice cream, held up
+        b.cyl((x, f.back - 0.36, hand + 0.12), 0.05, 0.5, "treat_tan", segments=8, radius2=0.17, bevel=False)
+        b.sphere((x, f.back - 0.36, hand + 0.46), 0.2, look["cone"], segments=10, rings=6)
+        b.sphere((x, f.back - 0.36, hand + 0.68), 0.06, "shirt_red", segments=6, rings=4)
+    if look.get("flowers"):                                   # a bunch in a paper cone
+        b.cyl((x, f.back - 0.38, hand + 0.12), 0.06, 0.55, "offwhite", segments=8, radius2=0.2, bevel=False)
+        for (dx, dy, dz, sw) in ((0.0, 0.0, 0.5, "fur_strawberry"), (0.12, 0.08, 0.44, "pastel_butter"),
+                                 (-0.12, 0.06, 0.45, "pastel_lilac"), (0.0, -0.12, 0.42, "nose_pink")):
+            b.sphere((x + dx, f.back - 0.38 + dy, hand + dz), 0.12, sw, segments=8, rings=5)
+        for dx in (-0.16, 0.16):
+            b.box((x + dx, f.back - 0.38, hand + 0.36), (0.06, 0.12, 0.2), "leaf_green", bevel=False)
+    if look.get("laptop"):                                    # under the arm
+        b.box((x - 0.02, f.back - 0.4, hand + 0.08), (0.12, 0.82, 0.6), look["laptop"])
+        b.box((x - 0.09, f.back - 0.4, hand + 0.12), (0.02, 0.18, 0.18), "fur_strawberry", bevel=False)    # sticker
+    if look.get("paper"):                                     # a folded newspaper under the arm
+        b.box((x - 0.02, f.back - 0.42, hand + 0.08), (0.1, 0.6, 0.72), "offwhite")
+        b.box((x - 0.08, f.back - 0.42, hand + 0.32), (0.02, 0.46, 0.1), "fur_ink", bevel=False)           # headline
+        for dz in (0.12, -0.02, -0.16):
+            b.box((x - 0.08, f.back - 0.42, hand + dz), (0.02, 0.46, 0.04), "fur_grey", bevel=False)
+    if look.get("umbrella"):                                  # furled, held by its hook on the right
+        cx = d["tw"] / 2 + 0.2
+        b.cyl_base((cx, f.back - 0.34, 0.0), 0.03, 0.2, "metal", segments=6, bevel=False)                  # tip
+        b.cyl_base((cx, f.back - 0.34, 0.2), 0.05, hand - 0.35, look["umbrella"], segments=8, radius2=0.16,
+                   bevel=False)
+        b.box((cx, f.back - 0.34, hand - 0.5), (0.3, 0.3, 0.08), "offwhite", bevel=False)                # its strap
+        b.cyl_base((cx, f.back - 0.34, hand - 0.15), 0.04, 0.3, "dark_wood", segments=6, bevel=False)
+        b.box((cx, f.back - 0.24, hand + 0.15), (0.1, 0.24, 0.1), "dark_wood", bevel=False)              # hook
     if look.get("cane"):
         cx = d["tw"] / 2 + 0.2
         b.cyl_base((cx, f.back - 0.34, 0), 0.07, hand + 0.05, look["cane"], segments=8)
@@ -235,10 +281,12 @@ def _face(b, f, look):
         b.box((0, y - 0.01, mz), (0.16, 0.015, 0.05), "nose_brick", bevel=False)                 # a smile
         for sx in (1, -1):
             b.box((sx * 0.1, y - 0.01, mz + 0.03), (0.05, 0.015, 0.07), "nose_brick", bevel=False)
-    if look.get("beard"):
-        b.box((0, y - 0.03, f.head0 + 0.18), (1.1, 0.06, 0.38), look["hair"], bevel=False)
+    if look.get("beard"):                     # under the smile and along the jaw, clear of the mouth and cheeks
+        hb = look["hair"]
+        b.box((0, y - 0.03, f.head0 + 0.13), (0.62, 0.06, 0.28), hb, bevel=False)                   # chin, to +0.27
         for sx in (1, -1):
-            b.box((sx * 0.62, y + 0.2, f.head0 + 0.45), (0.3, 0.45, 0.6), look["hair"], bevel=False)
+            b.box((sx * 0.48, y - 0.03, f.head0 + 0.17), (0.38, 0.06, 0.36), hb, bevel=False)      # jaw, to +0.35
+            b.box((sx * 0.72, y + 0.2, f.head0 + 0.42), (0.14, 0.5, 0.66), hb, bevel=False)        # sideburns
     if look.get("glasses"):
         g = look["glasses"]
         for sx in (1, -1):
@@ -258,9 +306,10 @@ def _hair(b, f, look):
     hw, hd, top, h0 = d["hw"], d["hd"], f.head1, f.head0
     by, fy, hc = f.back, f.face, look["hair"]
     style = look["style"]
-    if style in ("bob", "short", "bun", "curls", "puffs"):
+    if style in ("bob", "short", "bun", "curls", "puffs", "long", "pigtails", "ponytail"):
         b.box_base((0, by, top - 0.3), (hw + 0.12, hd + 0.12, 0.42 if style != "short" else 0.36), hc)  # crown
-        drop = {"bob": 0.95, "short": 0.45, "bun": 0.6, "curls": 0.6, "puffs": 0.55}[style]
+        drop = {"bob": 0.95, "short": 0.45, "bun": 0.6, "curls": 0.6, "puffs": 0.55, "long": 1.1, "pigtails": 0.5,
+                "ponytail": 0.5}[style]
         b.box_base((0, by + hd / 2 - 0.05, top - 0.1 - drop), (hw + 0.12, 0.24, drop), hc)                # back
         for sx in (1, -1):                                                                                 # sides
             b.box_base((sx * (hw / 2 + 0.03), by + 0.12, top - 0.1 - drop * 0.85), (0.12, hd - 0.2, drop * 0.85), hc)
@@ -270,6 +319,16 @@ def _hair(b, f, look):
         b.box((0, by + hd / 2 + 0.02, top - 1.0), (hw + 0.16, 0.28, 0.12), hc)                         # its hem
         for sx in (1, -1):
             b.box((sx * (hw / 2 + 0.05), by + 0.1, top - 1.0), (0.16, hd - 0.1, 0.12), hc)
+    if style == "long":                  # down the back to the shoulder blades; seated, it ends above the chair back
+        lo = h0 - (0.4 if f.sit else 0.55)
+        b.box_base((0, by + hd / 2 + 0.03, lo), (hw + 0.04, 0.22, top - 0.1 - 1.1 - lo + 0.02), hc)
+    if style == "pigtails":
+        for sx in (1, -1):
+            b.box((sx * (hw / 2 + 0.03), by + 0.15, h0 + 0.62), (0.1, 0.24, 0.24), look["ties"], bevel=False)
+            b.sphere((sx * (hw / 2 + 0.34), by + 0.15, h0 + 0.62), 0.28, hc, segments=10, rings=6)
+    if style == "ponytail":
+        b.box((0, by + hd / 2 + 0.1, top - 0.45), (0.34, 0.12, 0.26), "shirt_red", bevel=False)          # the tie
+        b.box_base((0, by + hd / 2 + 0.24, h0 + 0.05), (0.36, 0.3, top - 0.45 - h0 - 0.05), hc)          # the tail
     if style == "bun":
         b.sphere((0, by + hd / 2 - 0.05, top - 0.05), 0.4, hc, segments=10, rings=6)                    # the bun
     if style == "curls":
@@ -284,11 +343,25 @@ def _hair(b, f, look):
         b.box((0, fy - 0.3, top - 0.18), (hw - 0.1, 0.65, 0.08), look["cap"], bevel=False)               # peak
         b.box_base((0, by + 0.05, top + 0.16), (0.18, 0.18, 0.08), "offwhite", bevel=False)            # button
         b.box_base((0, by + hd / 2 - 0.02, top - 0.7), (hw + 0.06, 0.16, 0.5), hc)                       # hair below
+    if style == "flatcap":
+        b.box_base((0, by + hd / 2 - 0.02, top - 0.75), (hw + 0.06, 0.16, 0.55), hc)                     # hair below
+        for sx in (1, -1):
+            b.box_base((sx * (hw / 2 + 0.03), by + 0.2, top - 0.75), (0.08, hd - 0.4, 0.5), hc)
+        b.box_base((0, by + 0.02, top - 0.2), (hw + 0.12, hd + 0.08, 0.32), look["flatcap"])
+        b.wedge((0, fy - 0.17, top - 0.07), (hw - 0.05, 0.36, 0.18), look["flatcap"], bevel=False)       # peak
+        b.box_base((0, by + 0.02, top + 0.12), (0.18, 0.18, 0.04), "offwhite", bevel=False)            # button
     if style == "beanie":
         b.box_base((0, by + 0.06, h0 + 0.35), (hw + 0.1, hd - 0.06, 0.6), hc)                             # hair below
         b.box_base((0, by, top - 0.38), (hw + 0.14, hd + 0.14, 0.62), look["beanie"])
         b.box_base((0, by, top - 0.42), (hw + 0.2, hd + 0.2, 0.2), look["beanie"])                       # fold
         b.sphere((0, by, top + 0.36), 0.24, "offwhite", segments=8, rings=5)                           # pom-pom
+    if look.get("sunhat"):                                                  # sits on the hair's crown
+        b.box_base((0, by, top + 0.11), (2.3, 2.2, 0.07), look["sunhat"])                               # brim
+        b.box_base((0, by, top + 0.18), (hw + 0.06, hd + 0.06, 0.26), look["sunhat"])
+        b.box_base((0, by, top + 0.2), (hw + 0.1, hd + 0.1, 0.1), look["band"], bevel=False)            # its band
+        yf = by - (hd + 0.1) / 2                                                                          # band front
+        b.box((0.42, yf - 0.02, top + 0.25), (0.24, 0.04, 0.24), "offwhite", bevel=False, rot=_ry(45))  # a daisy
+        b.box((0.42, yf - 0.05, top + 0.25), (0.1, 0.02, 0.1), "pastel_butter", bevel=False)
     if look.get("top_hat"):
         b.box_base((0, by, top + 0.1), (1.9, 1.75, 0.1), "fur_black")                                    # brim
         b.box_base((0, by, top + 0.18), (1.25, 1.2, 1.15), "fur_black")

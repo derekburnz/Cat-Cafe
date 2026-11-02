@@ -113,7 +113,7 @@ local function opensList(
 	end
 	table.insert(
 		lines,
-		("Tips x%s"):format((string.format("%.2f", nextTier.multiplier):gsub("0$", "")))
+		("Money x%s"):format((string.format("%.2f", nextTier.multiplier):gsub("0$", "")))
 	)
 	local caps = {}
 	local before: { tables: number, espresso: number, net: number, lure_bowl: number }? = if current

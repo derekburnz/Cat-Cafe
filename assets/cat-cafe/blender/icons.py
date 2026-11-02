@@ -4,12 +4,15 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
 
     python icons.py [--only GoldenFish]
 
-  CatCafe_Icon_GoldenFish   the golden fish coin's cat face (coins.py), for the HUD counter, prize chips and prices
+  CatCafe_Icon_GoldenFish   the one Golden Fish picture (F97): a shiny gold fish (icon_art.py), for the HUD counter,
+                            prices, prize chips, toasts and the Market badge
   CatCafe_Icon_Crate_<Pool>[_Gold]   each Cafe Crate and golden crate (crates.py), three-quarter view
-  CatCafe_Icon_StarTreat    the Star Treat (items.py), the Golden Fish Market's food
-  CatCafe_Icon_Perk_<Perk>  the market perks: GoldenEspresso (a gold espresso), BigBowl (a heaped bowl and a quick
-                            clock), ExtraDecorSpot (a plant on a new decor spot with a plus)
-  CatCafe_Icon_Net_L<n>     the catching net at each level (items.py)
+  CatCafe_Icon_<Food>       the seven foods by game id: Kibble, Tuna, Sardines, Salmon, Caviar, MoonMilk, StarTreat
+                            (icon_art.py, F97 section 3)
+  CatCafe_Icon_Perk_<Perk>  the Golden Fish Market perks: GoldenEspresso (a paw in the foam), BigBowl (a "-2:00" tag),
+                            ExtraDecorSpot (a dotted square, a plus and a tiny plant) (icon_art.py)
+  CatCafe_Icon_Coins, _Spin the prize pictures: a stack of three gold coins and the Spin Wheel's wheel (icon_art.py)
+  CatCafe_Icon_Net_L<n>     the catching net at each level, L1 Basic to L4 Master (items.py)
   CatCafe_Icon_Decor        the HUD's Decor button: a cat-eared armchair and a potted plant (Set 5 Q10)
 """
 import argparse
@@ -25,9 +28,9 @@ import bpy  # noqa: E402
 import numpy as np  # noqa: E402
 from mathutils import Vector  # noqa: E402
 
-import coins  # noqa: E402
 import common  # noqa: E402
 import crates  # noqa: E402
+import icon_art  # noqa: E402
 import items  # noqa: E402
 import potions  # noqa: E402
 from common import RB  # noqa: E402
@@ -35,54 +38,6 @@ from common import RB  # noqa: E402
 OUT = os.path.join(ROOT, "assets", "cat-cafe", "exports", "icons")
 INK, GOLD_INK = (0.24, 0.16, 0.12), (0.42, 0.24, 0.04)
 QUARTER = (-32.0, 24.0)          # (yaw, pitch) in degrees: the front and the right side, from a little above
-
-
-def _perk_golden_espresso(mat):
-    """A gold espresso cup on its saucer, steaming, with two glints."""
-    b = RB()
-    b.cyl((0, 0.05, 0), 0.8, 0.1, "gold_mid", segments=16)
-    b.cyl((0, 0.13, 0), 0.6, 0.06, "gold_light", segments=16)
-    b.cyl((0, 0.5, 0), 0.4, 0.7, "gold_light", r2=0.5, segments=16)
-    b.cyl((0, 0.86, 0), 0.44, 0.02, "choco", segments=16)
-    b.b.ring(RB.p(0.56, 0.52, 0), 0.2, 0.07, 0.1, "gold_mid", segments=10, bevel=False, rot=(math.radians(90), "X"))
-    for (x, y, r) in ((-0.12, 1.12, 0.14), (0.08, 1.34, 0.12), (-0.06, 1.55, 0.1)):
-        b.ball((x, y, 0), r, "offwhite")
-    for (x, y) in ((-0.38, 0.62), (0.3, 0.3)):
-        b.box((x, y, -0.5), (0.08, 0.08, 0.02), "sparkle")
-    return [b.finalize("CatCafe_IconArt_GoldenEspresso", mat)]
-
-
-def _perk_big_bowl(mat):
-    """A wide red bowl heaped with kibble and a little clock that says the wait is short."""
-    b = RB()
-    b.cyl((0, 0.06, 0), 0.85, 0.12, "bowl_red", segments=16)
-    b.b.ring(RB.p(0, 0.3, 0), 1.05, 0.2, 0.5, "bowl_red", segments=16, bevel=False)
-    b.b.ring(RB.p(0, 0.44, 0), 1.08, 0.08, 0.08, "offwhite", segments=16, bevel=False)
-    b.cyl((0, 0.5, 0), 0.88, 0.1, "kibble", segments=16)
-    for k, (r, n, y) in enumerate(((0.62, 9, 0.62), (0.32, 6, 0.74), (0.0, 1, 0.84))):
-        for i in range(n):
-            a = 2 * math.pi * i / n + 0.4 * k
-            b.ball((r * math.cos(a), y, r * math.sin(a)), 0.17, "kibble" if (i + k) % 2 else "treat_tan")
-    b.cyl((-0.9, 1.05, -0.62), 0.4, 0.1, "mint", axis="Z", segments=16)
-    b.cyl((-0.9, 1.05, -0.68), 0.32, 0.02, "offwhite", axis="Z", segments=16)
-    b.span((-0.92, 1.03, -0.71), (-0.88, 1.29, -0.69), "fur_black")
-    b.span((-1.1, 1.03, -0.71), (-0.88, 1.07, -0.69), "fur_black")
-    return [b.finalize("CatCafe_IconArt_BigBowl", mat)]
-
-
-def _perk_extra_decor_spot(mat):
-    """A potted plant standing on a fresh decor spot, a plus floating beside it."""
-    b = RB()
-    b.span((-0.95, 0.0, -0.95), (0.95, 0.06, 0.95), "mint")
-    b.span((-0.8, 0.06, -0.8), (0.8, 0.09, 0.8), "sparkle")
-    b.cyl((0, 0.4, 0), 0.32, 0.62, "terracotta", r2=0.4, segments=12)
-    b.cyl((0, 0.74, 0), 0.34, 0.04, "choco", segments=12)
-    for (x, y, z, r) in ((0, 1.1, 0, 0.32), (-0.26, 0.95, -0.1, 0.22), (0.27, 0.98, 0.05, 0.24), (0.05, 1.38, -0.05, 0.2)):
-        b.ball((x, y, z), r, "leaf_green" if r > 0.21 else "leaf_dark")
-    b.span((-0.95, 1.12, -0.52), (-0.75, 1.72, -0.36), "rarity_legend")  # the arms abut the upright, one depth,
-    for x0, x1 in ((-1.15, -0.95), (-0.75, -0.55)):                         # so no outline crosses the middle
-        b.span((x0, 1.32, -0.52), (x1, 1.52, -0.36), "rarity_legend")
-    return [b.finalize("CatCafe_IconArt_ExtraDecorSpot", mat)]
 
 
 def _hud_decor(mat):
@@ -113,16 +68,24 @@ def _hud_decor(mat):
 
 # icon -> (builder, outline colour, outline width in pixels at 512, (yaw, pitch) of the view)
 ICONS = {
-    "CatCafe_Icon_GoldenFish": (coins.build_fish_coin, GOLD_INK, 10, (0.0, 0.0)),
+    "CatCafe_Icon_GoldenFish": (icon_art.golden_fish, GOLD_INK, 10, (0.0, 8.0)),
     **{f"CatCafe_Icon_Crate_{p}{'_Gold' if g else ''}": ((lambda m, p=p, g=g: crates.build_crate(p, m, g)),
                                                          GOLD_INK if g else INK, 10, QUARTER)
        for p in crates.POOLS for g in (False, True)},
-    "CatCafe_Icon_StarTreat": (items.build_star_treat, INK, 10, (-20.0, 12.0)),
-    "CatCafe_Icon_Perk_GoldenEspresso": (_perk_golden_espresso, GOLD_INK, 10, (-20.0, 22.0)),
-    "CatCafe_Icon_Perk_BigBowl": (_perk_big_bowl, INK, 10, (-20.0, 28.0)),
-    "CatCafe_Icon_Perk_ExtraDecorSpot": (_perk_extra_decor_spot, INK, 10, (-28.0, 26.0)),
+    "CatCafe_Icon_Kibble": (icon_art.kibble, INK, 10, (-24.0, 20.0)),
+    "CatCafe_Icon_Tuna": (icon_art.tuna, INK, 10, (-18.0, 30.0)),
+    "CatCafe_Icon_Sardines": (icon_art.sardines, INK, 10, (-16.0, 34.0)),
+    "CatCafe_Icon_Salmon": (icon_art.salmon, INK, 10, (-16.0, 42.0)),
+    "CatCafe_Icon_Caviar": (icon_art.caviar, INK, 10, (-18.0, 32.0)),
+    "CatCafe_Icon_MoonMilk": (icon_art.moon_milk, INK, 10, (-14.0, 12.0)),
+    "CatCafe_Icon_StarTreat": (icon_art.star_treat, INK, 10, (-16.0, 8.0)),
+    "CatCafe_Icon_Perk_GoldenEspresso": (icon_art.golden_espresso, GOLD_INK, 10, (-20.0, 34.0)),
+    "CatCafe_Icon_Perk_BigBowl": (icon_art.big_bowl, INK, 10, (-18.0, 26.0)),
+    "CatCafe_Icon_Perk_ExtraDecorSpot": (icon_art.extra_decor_spot, INK, 10, (-26.0, 40.0)),
+    "CatCafe_Icon_Coins": (icon_art.coins, GOLD_INK, 10, (-16.0, 34.0)),
+    "CatCafe_Icon_Spin": (icon_art.spin_wheel, INK, 10, (-12.0, 6.0)),
     "CatCafe_Icon_Decor": (_hud_decor, INK, 10, (-24.0, 16.0)),
-    **{f"CatCafe_Icon_Net_L{n}": ((lambda m, n=n: items.build_net(n, m)), INK, 10, (-62.0, 40.0)) for n in (1, 2, 3)},
+    **{f"CatCafe_Icon_Net_L{n}": ((lambda m, n=n: items.build_net(n, m)), INK, 10, (-62.0, 40.0)) for n in (1, 2, 3, 4)},
     **{f"CatCafe_Icon_Potion_{k}": ((lambda m, k=k: potions.build_potion(k, m)), INK, 10, (8.0, 10.0))
        for k in potions.POTIONS},
 }

@@ -35,6 +35,8 @@ local Quests = require(ReplicatedStorage.Shared.Quests)
 local Settings = require(ReplicatedStorage.Shared.Settings)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local Telemetry = require(script.Parent.Telemetry)
+local TipService = require(script.Parent.TipService)
+local Tips = require(ReplicatedStorage.Shared.Tips)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -146,6 +148,9 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		achievements = Quests.achievementsView(profile),
 		dailyTreat = DailyTreat.view(profile.dailyTreat, now), -- F70
 		stats = table.clone(profile.stats),
+		tipsSeen = table.clone(profile.tipsSeen), -- F87
+		feedbackAsked = profile.feedbackAsked,
+		stuckHelpShown = table.clone(profile.stuckHelpShown),
 		serverTime = now,
 	}
 end
@@ -910,8 +915,12 @@ function CafeService.addCaughtCat(
 			if isNew or firstGold then "first_catch" else "repeat_catch"
 		)
 	end
+	-- F87 (easy-start.md section 2d): the first check-in, before it moves the tutorial on
+	local firstCheckIn = profile.tutorialStep < Config.TutorialGuaranteedStrayStep
 	CafeService.advanceTutorial(player, profile, 2)
 
+	-- The first free open role slot (the Waiter's while the starter Tabby holds the Barista's): the first cat takes
+	-- its job by itself (F87 section 2d), as every cat since v0.2.
 	for _, spot in Catalog.spots do
 		if Economy.spotIsOpen(profile, spot.id) and Economy.catOnSpot(profile, spot.id) == nil then
 			instance.spotId = spot.id
@@ -923,9 +932,27 @@ function CafeService.addCaughtCat(
 	if instance.spotId == nil then
 		Telemetry.custom(player, "slots_full", 1, { tostring(Economy.tier(profile)) })
 	end
+	-- F87 funnel v2 (easy-start.md section 5): a second cat checked in, five different cats owned
+	if profile.stats.catsCaught >= 2 then
+		Telemetry.onboarding(player, profile, "second_cat")
+	end
+	if Economy.distinctCats(profile) >= 5 then
+		Telemetry.onboarding(player, profile, "five_cats")
+	end
 
 	CafeService.refreshPlot(player)
 	if notify then
+		-- F87 context tips (easy-start.md sections 3 and 4): the first check-in ends the newcomer shield; a second cat
+		-- wants a job; a first Legendary or better is the like ask's moment
+		if firstCheckIn then
+			TipService.show(player, "tackle")
+		end
+		if profile.stats.catsCaught >= 2 then
+			TipService.show(player, "second_cat")
+		end
+		if def.rarity == "Legendary" or def.rarity == "Mythical" then
+			TipService.show(player, Tips.LIKE_ASK)
+		end
 		if isNew then
 			Net.toast(
 				player,
@@ -946,22 +973,33 @@ function CafeService.addCaughtCat(
 				"good"
 			)
 		end
-		local stars = CatStats.starsText(CatStats.stars(CatStats.charm(instance)))
 		local spot = if instance.spotId ~= nil
 			then Catalog.getSpot(instance.spotId :: string)
 			else nil
-		if spot ~= nil then
+		if spot ~= nil and firstCheckIn then
+			-- F87 section 2d: the first cat's card, with the cafe's new rate
 			Net.toast(
 				player,
-				string.format("%s %s is working as %s", stars, def.name, roleName(spot)),
+				string.format(
+					"Your first cat! %s is your %s now (%s)",
+					def.name,
+					roleName(spot),
+					rateText(Economy.incomePerSecond(profile))
+				),
+				"good"
+			)
+		elseif spot ~= nil then
+			-- F97 section 5: no charm stars on any cat text now
+			Net.toast(
+				player,
+				string.format("%s is working as %s", def.name, roleName(spot)),
 				"info"
 			)
 		else
 			Net.toast(
 				player,
 				string.format(
-					"%s %s is in the cat room. Every role is taken; give it one from there.",
-					stars,
+					"%s is in the cat room. Every role is taken; give it one from there.",
 					def.name
 				),
 				"info"
@@ -1174,6 +1212,8 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 		-- a player who already baited the bowl has done step 5's task too (reviewer S48)
 		CafeService.advanceTutorial(player, profile, if profile.stats.luresUsed > 0 then 5 else 4)
 		Telemetry.onboarding(player, profile, "first_table")
+	elseif upgradeId == "lure_bowl" then
+		Telemetry.onboarding(player, profile, "bowl_bought") -- F87 funnel v2
 	end
 	local def = Catalog.getUpgrade(upgradeId) :: Types.UpgradeDef
 	Net.toast(
@@ -1206,6 +1246,9 @@ local function onRankUp(player: Player)
 	Telemetry.sink(player, profile, def.cost, "Gameplay", "rank_up_" .. def.tier)
 	profile.tier = def.tier
 	Telemetry.rankedUp(player, profile)
+	if def.tier == 2 then
+		TipService.show(player, Tips.LIKE_ASK) -- F87 section 4: the one like ask, at the first rank up
+	end
 	local fish = GoldenFish.forRankUp(def.tier) -- F52
 	GoldenFish.credit(profile, fish)
 	Telemetry.fishSource(player, profile, fish, "Gameplay", "rank_up")
@@ -1305,12 +1348,13 @@ local function onBuyLure(player: Player, rawId: unknown)
 			)
 		)
 	end
-	if not Economy.trySpend(profile, def.cost) then
+	local price = Economy.foodPrice(lureId, Economy.tier(profile)) -- F97: grows with the tier
+	if not Economy.trySpend(profile, price) then
 		Net.toast(player, "Not enough coins", "warn")
 		CafeService.sync(player)
 		return
 	end
-	Telemetry.sink(player, profile, def.cost, "Shop", lureId)
+	Telemetry.sink(player, profile, price, "Shop", lureId)
 	profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
 	Net.toast(player, string.format("Bought %s (%d)", def.name, profile.lures[lureId]), "good")
 	CafeService.sync(player)
@@ -1418,6 +1462,7 @@ function CafeService.start()
 		CafeService.refreshPlot(player)
 		CafeService.sync(player)
 	end)
+	TipService.changed:Connect(CafeService.sync) -- F87: "Show tips again" sends the cleared tipsSeen
 	Players.PlayerRemoving:Connect(function(player)
 		carrying[player] = nil
 		knownLevels[player] = nil

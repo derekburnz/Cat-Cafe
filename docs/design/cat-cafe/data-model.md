@@ -836,8 +836,8 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | BuyDecor | event | decorId | in catalog, not owned, requiresTier met, affordable | owned and placed |
 | ToggleDecor | event | decorId, placed | owned | sets placed |
 | BuyLure | event | lureId | shop food (source shop), affordable | count + 1. No PolicyService gate (section 8 and the monetization notes) |
-| UseLure | event | lureId | lure_bowl owned, bowl empty, count above 0, 12 studs of own BaitBowl | consumes, rolls and saves `bait`, sets BaitReadyAt |
-| ResolveBait | event | choice (`tame` or `letgo`) | bait exists, ready, owner within 20 studs of own BaitBowl | tame adds the cat; both empty the bowl |
+| UseLure | event | lureId | lure_bowl owned, bowl empty, count above 0; from anywhere since 2026-10-28 (Derek: "should be able to add food to bait bowl through F menu"), no range check | consumes, rolls and saves `bait`, sets BaitReadyAt |
+| ResolveBait | event | choice (`tame` or `letgo`) | bait exists and ready; from anywhere since #720 (Derek 2026-10-28: "tame or let go from anywhere"), no range check and no `BaitResolveRangeStuds` | tame adds the cat; both empty the bowl |
 | BuyDealerFood | event | lureId, window | v0.8 (section 8b): night, 12 studs of the cart, a dealer food, `window` is the current window, `bought[lureId]` below its rolled amount, affordable; the amount recomputed from the seed (S42) | count + 1, `bought[lureId]` + 1; sends DealerStock either way |
 | ClaimRichTip | event | none | own plot has an unexpired tip, 12 studs of RichTipAnchor | adds the tip, clears it |
 | CollectTips | event | none | v0.8 (section 12): the caller stands inside their own plot, at least one pile waits; 2 per second | pays every waiting pile, clears them |
@@ -915,7 +915,7 @@ Changed or new in v0.3 (everything not listed keeps its v0.2 value):
 | RescueAttemptMaxSeconds | 15 | new | CatService |
 | RescuedTipsMultiplier | 1.0 | 1.10 | CatStats |
 | LureWaitSeconds | 600 | 45 | CafeService |
-| BaitBowlRangeStuds | 12 | new | CafeService |
+| BaitBowlRangeStuds | 12 | new | CafeService; since 2026-10-28 only how close the bowl's own prompt shows, no remote checks it |
 | BumpEnabled | true | new | CatService |
 | BumpRangeStuds | 6 | new | CatService |
 | BumpChance | 0.5 | new | CatService |

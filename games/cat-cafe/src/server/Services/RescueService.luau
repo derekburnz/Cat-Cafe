@@ -295,6 +295,7 @@ local function finish(
 		clearStuck(entry)
 		if profile ~= nil then
 			profile.stats.rescues += 1
+			Telemetry.onboarding(player, profile, "first_rescue_done") -- F87 funnel v2
 		end
 		-- the spot it was stuck at, so a Drop walks it back near the trap (F67)
 		CatService.startCarry(player, def, "rescue", charm, variant, funnel, entry.spot.Position)
@@ -430,6 +431,7 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 	profile.stats.rescueAttempts += 1
 	Net.fire(player, "RescueChallenge", spotId, challenge)
 	entry.funnel = Telemetry.catchEngaged(player, entry.def.rarity, "rescue", entry.area)
+	Telemetry.onboarding(player, profile, "first_rescue_started") -- F87 funnel v2
 	watch(player, entry, attempt)
 end
 

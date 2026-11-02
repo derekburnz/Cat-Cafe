@@ -36,6 +36,7 @@ local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
@@ -622,7 +623,8 @@ function SpinWheel._build(self: any)
 	self:_refresh()
 end
 
--- A tile's picture: coins, golden fish, the crate it pays now, or the food with its grade gem (F69).
+-- A tile's picture: coins, golden fish, the crate it pays now, or the food with its grade gem (F69), each the
+-- uploaded picture of F97 section 4.
 function SpinWheel._paint(self: any, tile: Tile)
 	local row = tile.row
 	local icon: ItemIcon.ItemIcon = tile.icon
@@ -634,7 +636,7 @@ function SpinWheel._paint(self: any, tile: Tile)
 	elseif row.kind == "lure" then
 		icon:setFood(if row.lureId then self._lureById[row.lureId] else nil, row.lureId)
 	else
-		icon:set(nil, COIN_GLYPH, "Legendary")
+		icon:set(nil, COIN_GLYPH, "Legendary", ShopIcons.image("Coins")) -- F97 section 4: three gold coins
 	end
 end
 

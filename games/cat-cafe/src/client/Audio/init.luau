@@ -1239,9 +1239,10 @@ local function followCharacters()
 	end
 end
 
--- F61, F63 and F64 on your own plot, from its display attributes (Logic.plotCue): the tip piles being collected, the
--- Cat Collector arriving, the Mystery Visitor's gift appearing. A plot that streams out and back in is watched once.
-local PLOT_ATTRIBUTES = { "TipPiles", "CollectorUntil", "MysteryGiftAt" }
+-- F63 and F64 on your own plot, from its display attributes (Logic.plotCue): the Cat Collector arriving and the
+-- Mystery Visitor's gift appearing. A plot that streams out and back in is watched once. The tip piles went quiet
+-- with F97 (#714): they pay as they appear, which plays coinPop, and the count only drops when old piles are swept.
+local PLOT_ATTRIBUTES = { "CollectorUntil", "MysteryGiftAt" }
 local plotWatches: { [Instance]: { RBXScriptConnection } } = {}
 
 local function watchPlot(plot: Instance)
@@ -1381,11 +1382,14 @@ local function followBeats()
 		end
 		if typeof(at) == "Vector3" then
 			Audio.play(cue, at :: Vector3)
-		elseif
-			typeof(at) == "Instance"
-			and ((at :: Instance):IsA("BasePart") or (at :: Instance):IsA("Attachment"))
-		then
+		elseif typeof(at) == "Instance" and (at :: Instance):IsA("Attachment") then
 			Audio.play(cue, at :: any)
+		elseif typeof(at) == "Instance" then
+			-- a part, or a moving bit that is its own Model (the Bellhop Cat's <cat>_Bell, PR #708): its first part
+			local part = partOf(at :: Instance)
+			if part ~= nil then
+				Audio.play(cue, part)
+			end
 		end
 	end)
 end

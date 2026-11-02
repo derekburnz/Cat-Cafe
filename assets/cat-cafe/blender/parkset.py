@@ -7,7 +7,9 @@ The way in (8b) winds about 1.6 times the straight walk. The gravel path leaves 
 east past flower beds to the only gap in the first hedge row (east end), comes back to the duck pond and rounds it on
 both sides, leaves it to the north-west for the only gap in the second hedge row (west end), and ends on the loop
 round the bandstand, the far landmark. The playground (west) and the rose garden (east) hang off the loop. The pond is
-sunken behind a stone kerb and a grass bank, with an invisible `_Barrier` ring that only the jetty passes (8c).
+a shallow duck pond behind a grass bank and a stone kerb 1 high, and players and cats may wade in it (Derek 2026-10-28:
+"in park there is a invisible barrier around the edge of the pond"; 8c walls off only the channels a set's way in
+crosses, and the path already rounds the pond, so its ring is gone). Its water splashes underfoot (Effects).
 
 The set brings its own walls just inside WorldBuilder's (whose inner faces stand at +-79.5 and +-59.5): the far and
 side walls are runs of hedge, brick, iron railing and old stone 9 to 10 high between stone pillars; the town side is
@@ -284,10 +286,10 @@ def _hedge_row(s, mat, z, gap, urns=True):
 
 # ------------------------------------------------------------ the pond -------
 def pond(mat):
-    """Sunken duck pond at the origin: a grass bank (wedges) up to a stone kerb 1 high round water 0.35 deep in
-    look, an island with a duck house, and a jetty out from the east (Blender -x). Pond_Barrier: an invisible wall
-    on the kerb with a gap only for the jetty, which has its own side and end walls."""
-    b, water, decor, bulb, bar = Builder(), Builder(), Builder(), Builder(), Builder()
+    """Shallow duck pond at the origin: a grass bank (wedges) up to a stone kerb 1 high (a step, so anyone can wade
+    in) round water 0.35 deep in look, an island with a duck house, and a jetty out from the east (Blender -x) with
+    rails along its sides and end. No barrier: the bed is the floor (Derek 2026-10-28)."""
+    b, water, decor, bulb = Builder(), Builder(), Builder(), Builder()
     for k in range(32):                                                                       # the bank
         a = 2 * PI * (k + 0.5) / 32
         r = 16.2
@@ -349,21 +351,8 @@ def pond(mat):
     b.box_base((rx1, hw - 0.12, top + 3.1), (0.2, 0.2, 1.5), "dark_wood", bevel=False)          # lantern post
     b.box((rx1, hw - 0.12 - 0.45, top + 4.45), (0.15, 0.9, 0.12), "fur_black", bevel=False)
     bulb.box((rx1, hw - 0.12 - 0.75, top + 4.39 - 0.325), (0.45, 0.45, 0.65), "lamp_warm", bevel=False)
-    # the barrier: a ring on the kerb (gap for the jetty), and walls along the jetty's sides and end
-    n = 48
-    chord = 2 * 14.3 * math.sin(PI / n) * 1.04
-    for k in range(n):
-        a = 2 * PI * (k + 0.5) / n
-        if math.cos(a) < 0 and abs(14.3 * math.sin(a)) < hw + 0.25:
-            continue
-        bar.box_base((14.3 * math.cos(a), 14.3 * math.sin(a), 0), (0.6, chord, 10.0), "offwhite", bevel=False,
-                     rot=(a, "Z"))
-    for s in (-1, 1):
-        bar.box_base(((-15.0 + x1 + 0.45) / 2, s * (hw + 0.25), 0), (x1 + 0.45 + 15.0, 0.4, 10.0), "offwhite",
-                     bevel=False)
-    bar.box_base((x1 + 0.25, 0, 0), (0.4, 2 * hw + 0.9, 10.0), "offwhite", bevel=False)
     return [b.finalize(N + "Pond", mat), water.finalize(N + "Pond_Water", mat), decor.finalize(N + "Pond_Decor", mat),
-            bulb.finalize(N + "Pond_Bulb", mat), bar.finalize(N + "Pond_Barrier", mat)]
+            bulb.finalize(N + "Pond_Bulb", mat)]
 
 
 # --------------------------------------------------------- the bandstand ----

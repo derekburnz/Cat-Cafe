@@ -6,18 +6,21 @@
 -- EquipBest's placements, Catching's picks and CatStats' charm. The player:
 -- - joins, watches the 25 s intro, then catches the tutorial Common behind the cafe and checks it in at 75 s;
 -- - by day sets out on CATCHES trips into the newest area its tier opens at even times, each TRIP_SECONDS out and
---   back, a catch per trip while the sunrise wave lasts, and is home between trips and all night (areas closed);
+--   back, a catch per trip from the sunrise wave while it lasts (a stray picked at random from the wave, which has
+--   an Epic or better since F97, Catching.waveRare), and is home between trips and all night (areas closed);
 -- - nets each stray with presses that land PRESS_SPREAD seconds either side of the target (one standard deviation,
 --   ping wobble included; data-model 10, v0.13.15), graded by Circles on its net level's windows times the
 --   stray's `catchWindow` (F83). A miss costs the chase: the stray sprints and rests (Catching.fleeUntil), the
 --   misser waits its growing step longer (Catching.selfRetrySeconds) and walks over, startled at first. A trip
 --   that runs late delays the next one, and a stray still loose at the dusk banner is left behind;
--- - at home collects every tip pile, claims a waiting rich visitor, tames a ready bait cat and puts food in an
---   empty bowl, buying the best shop food that costs at most FOOD_SECONDS of income (Kibble at least) when out;
+-- - is paid each tip pile the moment it appears, wherever it is (F97); at home claims a waiting rich visitor, tames a
+--   ready bait cat and puts food in an empty bowl, buying the best shop food whose price at its tier
+--   (Economy.foodPrice, F97) is at most FOOD_SECONDS of income (Kibble at least) when out;
 --   claims Tip Jar coins when due and every Index milestone it reaches on the area pages and All Cats (their coins,
 --   food, tips forever, bait speed and gold luck); places the best cats after every new one and every rank up;
--- - ranks up the moment `rankUpBlocker` allows, otherwise buys the cheapest open shop item, upgrades and the coin
---   decor shop (the data-model 11 pace model's player), or with SAVER only the tables and the bait bowl;
+-- - ranks up the moment `rankUpBlocker` allows, otherwise buys the cheapest open shop item (the data-model 11 pace
+--   model's player: upgrades, and the coin decor shop until F97 moved it into the Classic Crate), or with SAVER only
+--   the tables and the bait bowl;
 -- - plays in one go, or SESSION seconds a day (F95): away the rest of the day, it is paid Economy.offlineGain at the
 --   next join (half its day rate for up to 8 hours), its bowl keeps counting, and it joins a running server at a
 --   random point of its day with a fresh wave and a new Tip Jar;
@@ -260,17 +263,32 @@ return function()
 			return best
 		end
 
-		-- Out of food: the best shop food that costs at most FOOD_SECONDS of income, Kibble at least.
+		-- Out of food: the best shop food whose price at this tier (Economy.foodPrice, F97) is at most FOOD_SECONDS of
+		-- income, Kibble at least.
 		local function buyFood()
+			local tier = Economy.tier(profile)
 			local pick = Catalog.luresById.kibble
+			local price = Economy.foodPrice(pick.id, tier)
 			for _, def in Catalog.lures do
-				if def.source == "shop" and def.cost > pick.cost and def.cost <= FOOD_SECONDS * rate() then
-					pick = def
+				local cost = Economy.foodPrice(def.id, tier)
+				if def.source == "shop" and cost > price and cost <= FOOD_SECONDS * rate() then
+					pick, price = def, cost
 				end
 			end
-			if Economy.trySpend(profile, pick.cost) then
+			if Economy.trySpend(profile, price) then
 				profile.lures[pick.id] = (profile.lures[pick.id] or 0) + 1
 			end
+		end
+
+		-- A sunrise wave (F66): the area's waveSize strays rolled on its odds, the last one rerolled to Epic or better
+		-- when none is (F97, Catching.waveRare).
+		local function rollWave(area: Types.AreaDef): { Types.Rarity }
+			local wave: { Types.Rarity } = {}
+			for _ = 1, area.waveSize do
+				table.insert(wave, Catching.pickRarity(area.odds, rng()))
+			end
+			Catching.waveRare(wave, rng())
+			return wave
 		end
 
 		-- The cheapest open shop item, affordable or not: an upgrade's next level or a coin decor piece (bought and
@@ -324,12 +342,11 @@ return function()
 			end
 			profile.lastTick = joined -- DataService.load: time away settles nothing
 			local area = newestArea()
-			local waveLeft = area.waveSize
-			local piles: { number } = {}
+			local wave = rollWave(area)
 			local rich: { amount: number, leaves: number }? = nil
 			local tipJarPaid: { [number]: boolean } = {}
 			local tripsStarted = 0 -- today's trips, by their place in the day's schedule
-			local trip: { back: number, def: Types.CatDef?, variant: string }? = nil
+			local trip: { back: number, def: Types.CatDef?, variant: string, rarity: Types.Rarity? }? = nil
 			local intro = if session == 1 then INTRO_SECONDS else 0
 			local length = math.min(sessionLength, limit - played)
 			local r = 0 -- the rate at the last settle; a cat placed after it counts from the next
@@ -356,11 +373,14 @@ return function()
 					dirty = false
 				end
 
-				-- the server's ticks: tip piles every 30 s and rich visitors every 60 s, by day, at cafes that earn
+				-- the server's ticks: tip piles every 30 s, paid at once wherever the player is (F97), and rich
+				-- visitors every 60 s, by day, at cafes that earn
 				local tables = Economy.level(profile, "tables")
 				if day and tables >= 1 and r > 0 then
-					if crossed(clockT, step, Config.TipPileSeconds) and #piles < Config.TipPilesMax then
-						table.insert(piles, Economy.tipPileAmount(r))
+					if crossed(clockT, step, Config.TipPileSeconds) then
+						local amount = Economy.tipPileAmount(r)
+						Economy.credit(profile, amount)
+						run.coinsFromPiles += amount
 					end
 					if
 						crossed(clockT, step, Config.RichCheckSeconds)
@@ -375,7 +395,7 @@ return function()
 					rich = nil -- gone unpaid: it left at its time or at nightfall
 				end
 				if day and Config.DayLengthSeconds - left < step then
-					waveLeft = area.waveSize -- the sunrise wave
+					wave = rollWave(area) -- the sunrise wave
 					tripsStarted = 0
 				end
 				if not day then
@@ -400,30 +420,35 @@ return function()
 						local back = into + TRIP_SECONDS
 						local def: Types.CatDef? = nil
 						local variant = "base"
-						if waveLeft > 0 then
-							local rarity = Catching.pickRarity(area.odds, rng())
-							def = Catching.pickCat(rarity, area.id, rng())
+						local rarity: Types.Rarity? = nil
+						if #wave > 0 then
+							rarity = table.remove(wave, 1 + math.floor(rng() * #wave))
+							def = Catching.pickCat(rarity :: Types.Rarity, area.id, rng())
 							variant = gold(Config.GoldChanceNet)
-							local extra = chase(rarity)
+							local extra = chase(rarity :: Types.Rarity)
 							if extra ~= nil and back + extra <= dusk then
 								back += extra
 								run.chaseSeconds += extra
 							else
-								def = nil -- still loose at the dusk banner: left behind
+								def = nil -- still loose at the dusk banner: left behind, still in the wave
 								run.leftBehind += 1
 								back = math.max(back, dusk)
+								table.insert(wave, rarity :: Types.Rarity)
+								rarity = nil
 							end
 						end
-						trip = { back = math.ceil(back), def = def, variant = variant }
+						trip = { back = math.ceil(back), def = def, variant = variant, rarity = rarity }
 					end
 					local current = trip
 					if current ~= nil then
 						home = false
 						if into >= current.back then
 							trip = nil
-							if current.def ~= nil and tutorialDone and waveLeft > 0 then
-								waveLeft -= 1
+							local unclaimed = current.rarity
+							if current.def ~= nil and tutorialDone then
 								addCat(current.def, current.variant, now)
+							elseif unclaimed ~= nil then
+								table.insert(wave, unclaimed :: Types.Rarity) -- not counted before the tutorial cat is in
 							end
 						end
 					end
@@ -446,15 +471,6 @@ return function()
 				end
 
 				if home then
-					local collected = 0
-					for _, amount in piles do
-						collected += amount
-					end
-					piles = {}
-					if collected > 0 then
-						Economy.credit(profile, collected)
-						run.coinsFromPiles += collected
-					end
 					if rich ~= nil then
 						Economy.credit(profile, rich.amount)
 						run.coinsFromRich += rich.amount
@@ -507,7 +523,7 @@ return function()
 					end
 					placeBest(nil) -- the new role slots
 					area = newestArea()
-					waveLeft = area.waveSize
+					wave = rollWave(area)
 					dirty = true
 				else
 					local id, cost, isDecor = cheapestItem()

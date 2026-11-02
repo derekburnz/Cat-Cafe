@@ -20,12 +20,14 @@
 --   D:Invoke("spinSlice", nil, 4)      -- your next spin lands on slice 4 (F94, QA S63; nil goes back to random)
 --   D:Invoke("dailyTreat", nil, 6)     -- the Daily Treat card at 6 stamps and a stamp due now: Claim pays day 7 (F70)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
+--   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
 --   D:Invoke("potionLeft", nil, "tip_potion", 30)   -- the running Tip Potion has 30 s left (0 ends it)
 --   D:Invoke("mystery", nil, "potion")  -- a Mystery Visitor sits down at your cafe now, its gift of that kind (F64)
 --   D:Invoke("collector", nil, nil, 1)  -- the Cat Collector at your counter now, his value roll at its best (F63)
 --   D:Invoke("intro")                  -- the intro plays again on your next respawn or rejoin, as for a new player (F72)
+--   D:Invoke("tips")                   -- forget every context tip, the feedback ask and the help cards (F87)
 --   D:Invoke("bugReports", 50)         -- today's newest 50 bug reports (UTC), oldest first; needs API access on
 --   D:Invoke("bugReports", 10, nil, true)  -- the newest 10 sent from Studio playtests today (keys s_ not r_)
 
@@ -46,6 +48,7 @@ local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local FishMarketService = require(script.Parent.FishMarketService)
+local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local Layout = require(script.Parent.Parent.World.Layout)
 local MysteryService = require(script.Parent.MysteryService)
 local NameService = require(script.Parent.NameService)
@@ -62,6 +65,7 @@ local SpinService = require(script.Parent.SpinService)
 local Telemetry = require(script.Parent.Telemetry)
 local TipJarService = require(script.Parent.TipJarService)
 local TipPileService = require(script.Parent.TipPileService)
+local TipService = require(script.Parent.TipService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Debug = {}
@@ -205,6 +209,19 @@ function Debug.giveCrate(player: (Player | number | string)?, crateId: string, c
 	FishMarketService.debugGive(p, profileOf(p), crateId, count or 1)
 end
 
+-- Forgets the player's Fresh Catch buys and heads up (F94, QA S63), so the shelf sells this window's stock again and
+-- the alert can come again. Returns the window and its stock, "<window>: <itemId>=<amount> ..." in shelf order.
+function Debug.freshCatch(player: (Player | number | string)?): string
+	local profile = profileOf(resolve(player))
+	profile.freshCatch = FreshCatch.fresh()
+	local window = FreshCatch.window(os.time())
+	local parts: { string } = {}
+	for _, item in FreshCatch.stock(window) do
+		table.insert(parts, string.format("%s=%d", item.itemId, item.amount))
+	end
+	return string.format("%d: %s", window, table.concat(parts, " "))
+end
+
 -- Puts `count` (default 1) of a potion in the bag, or of every potion when `potionId` is nil (F64).
 function Debug.givePotion(player: (Player | number | string)?, potionId: string?, count: number?)
 	local p = resolve(player)
@@ -278,6 +295,13 @@ function Debug.intro(player: (Player | number | string)?): boolean
 	profile.introSeen = false
 	CafeService.sync(p)
 	return was
+end
+
+-- Forgets the player's context tips, like ask, feedback ask and "Need a hand?" cards, and which tips went out this
+-- session, so each shows again (F87, QA S72). Returns how many tips were forgotten.
+function Debug.tips(player: (Player | number | string)?): number
+	local p = resolve(player)
+	return TipService.debugReset(p, profileOf(p))
 end
 
 -- Forgets the player's redeemed codes and clears the wrong-code lock, so `playtest` can be redeemed again (F65).

@@ -34,7 +34,6 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	UseLure = RateLimiter.new(1, 1), -- rolls a cat and rebuilds the bowl
 	ResolveBait = RateLimiter.new(1, 1), -- the card retries after 6 s at most
 	ClaimRichTip = RateLimiter.new(1, 1), -- the Collect button waits 3 s for an answer
-	CollectTips = RateLimiter.new(2, 1), -- data-model section 15: 2 a second (walking past the piles, the till)
 	Tackle = RateLimiter.new(2, 1), -- a flood guard; ShoveService holds TackleCooldownSeconds from each press
 	LockCat = RateLimiter.new(4, 1), -- data-model section 15: 4 a second (tapping the lock icon on cat cards)
 	RenameCat = RateLimiter.new(1, 1), -- a flood guard; NameService answers RenameCooldownSeconds with a reason
@@ -45,6 +44,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SpinWheel = RateLimiter.new(2, 1), -- SpinService also holds each player to SpinCooldownSeconds between spins
 	OpenCrate = RateLimiter.new(1, 1), -- golden-fish.md section 8: 1 a second; FishMarketService holds 2 s between opens
 	BuyFishItem = RateLimiter.new(2, 1), -- golden-fish.md section 8: 2 a second
+	BuyFreshCatch = RateLimiter.new(2, 1), -- F94 (rewards-and-shops.md section 6): answers with FreshCatchStock every time
 	RedeemCode = RateLimiter.new(1, 2), -- data-model section 11d: 1 per 2 s; CodeService locks after wrong codes
 	IntroDone = RateLimiter.new(1, 1), -- intro-cutscene.md section 3: 1 a second; each call logs one event
 	ReportBug = RateLimiter.new(1, 1), -- a flood guard; BugReportService answers its own 1 per 20 s with a toast
@@ -55,6 +55,9 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	RerollQuest = RateLimiter.new(1, 1), -- 1 a second
 	ClaimAchievement = RateLimiter.new(2, 1), -- 2 a second
 	ClaimDailyTreat = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
+	TipSeen = RateLimiter.new(1, 1), -- F87 (easy-start.md section 6): 1 a second
+	ClearTips = RateLimiter.new(1, 10), -- F87: 1 per 10 s; each call sends a full sync
+	SendFeedback = RateLimiter.new(1, 10), -- F87: 1 per 10 s; TipService also holds FeedbackSessionLimit a session
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 

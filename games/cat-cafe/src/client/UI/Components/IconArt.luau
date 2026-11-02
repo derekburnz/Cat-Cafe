@@ -6,7 +6,8 @@
 -- The emoji stays the fallback: it shows until the picture has loaded (a new upload draws blank until Roblox
 -- moderation approves it), for glyphs the sheet has no picture of, and with no sheet id at all.
 --
---   IconArt.set(label, glyph, scale?)        the label's glyph changed (or was just made); scale shrinks the picture
+--   IconArt.set(label, glyph, scale?)        the label's glyph changed (or was just made); scale shrinks the picture.
+--                                            A glyph in Theme.glyphImages (the golden fish) draws that whole picture
 --   IconArt.setImage(label, image, scale?)   a whole uploaded picture instead of a sheet cell (the shop icons of
 --                                            Components/ShopIcons); nil goes back to the glyph
 --   IconArt.setTransparency(label, value)    fade or grey the icon, picture or emoji, whichever shows
@@ -84,6 +85,11 @@ local function artFor(label: TextLabel, image: string?, scale: number?): ImageLa
 end
 
 function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
+	local whole = if glyph then Theme.glyphImages[glyph] else nil
+	if whole and whole ~= "" then
+		IconArt.setImage(label, whole, scale)
+		return
+	end
 	local cell = IconArt.cell(glyph)
 	local picture = artFor(label, if cell then Theme.iconSheet.image else nil, scale)
 	if picture and cell then

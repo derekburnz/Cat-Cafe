@@ -3,9 +3,9 @@
 --   ClaimStarterCat()                     C -> S  1 per 2 s: within StarterCatRangeStuds (flat) of a BellhopStand under
 --                                                 Workspace, not claimed yet, and the first goals done while
 --                                                 Config.GroupId is 0 (tutorialStep StarterCatTutorialStep), else a
---                                                 member of the group (IsInGroupAsync in a pcall, kept
---                                                 GroupCheckSeconds; a failed call is not kept and answers "Try again
---                                                 in a moment"). The cat (level 1, base coat, StarterCatCharm) takes a
+--                                                 member of the group (IsInGroupAsync in a pcall, a yes kept
+--                                                 GroupCheckSeconds, a no asked again; a failed call answers "Try
+--                                                 again in a moment"). The cat (level 1, base coat, StarterCatCharm) takes a
 --                                                 free role slot or rests (CafeService.addGiftCat); starterCatClaimed
 --                                                 is saved before the answer, so one claim per account.
 --   StarterCatResult(ok, reason?)         S -> C  ok plays the happy hop; a refusal's reason is the card's line.
@@ -54,7 +54,9 @@ local function nearStand(player: Player): boolean
 	return false
 end
 
--- Whether the player is in Config.GroupId, kept GroupCheckSeconds; nil when the call failed (not kept). Yields.
+-- Whether the player is in Config.GroupId; nil when the call failed. Only a yes is kept, for GroupCheckSeconds: a
+-- no is asked again on the next claim, so "Join the group" then "Take me home" works at once (review S108; the
+-- 1 per 2 s limit bounds the calls). Yields.
 local function inGroup(player: Player): boolean?
 	local kept = answers[player]
 	if kept ~= nil and os.clock() - kept.at < Config.GroupCheckSeconds then
@@ -66,7 +68,9 @@ local function inGroup(player: Player): boolean?
 	if not ok then
 		return nil
 	end
-	answers[player] = { member = member == true, at = os.clock() }
+	if member == true then
+		answers[player] = { member = true, at = os.clock() }
+	end
 	return member == true
 end
 

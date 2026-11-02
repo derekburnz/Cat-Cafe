@@ -10,7 +10,8 @@
     "analyze": "node analyze.mjs",
     "analyze:tests": "node analyze.mjs --tests",
     "check": "node analyze.mjs --tests && node run-tests.mjs && node uigate.mjs",
-    "worldscan": "node worldscan.mjs --assets",
+    "worldscan": "node --max-old-space-size=10000 worldscan.mjs --assets",
+    "cafefit": "node --max-old-space-size=10000 cafefit.mjs",
     "uigate": "node uigate.mjs",
     "plancoverage": "node plan-coverage.mjs"
   },

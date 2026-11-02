@@ -41,6 +41,7 @@ local Settings = require(ReplicatedStorage.Shared.Settings)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
+local Trade = require(ReplicatedStorage.Shared.Trade)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -54,6 +55,10 @@ local carrying: { [Player]: string? } = {} -- catId while walking a caught stray
 -- Each player's cat levels at their last sync (v0.12 F75), so a level gained in any settle sends one CatLevelUp
 local knownLevels: { [Player]: { [string]: number } } = {}
 local rng = Random.new() -- charm rolls for caught cats
+-- F102: TradeService says whether a cat is on offer in an open trade (set at its start; nothing is on offer before)
+local offerCheck: (player: Player, uid: string) -> boolean = function()
+	return false
+end
 
 -- Settled profile or nil when not loaded yet.
 local function profileFor(player: Player): Profile?
@@ -1127,6 +1132,17 @@ function CafeService.addGiftCat(
 	return instance
 end
 
+-- F102: TradeService registers how to tell a cat on offer in an open trade (selling, locking and the Cat Collector
+-- wait for it).
+function CafeService.setOfferCheck(check: (player: Player, uid: string) -> boolean)
+	offerCheck = check
+end
+
+-- Whether `uid` is on offer in `player`'s open trade.
+function CafeService.isOffered(player: Player, uid: string): boolean
+	return offerCheck(player, uid)
+end
+
 function CafeService.setCarrying(player: Player, catId: string?)
 	carrying[player] = catId
 	CafeService.sync(player)
@@ -1276,6 +1292,10 @@ local function onSellCat(player: Player, rawUid: unknown)
 		Net.toast(player, "This cat is locked. Unlock it to sell it.", "warn")
 		return
 	end
+	if offerCheck(player, uid) then
+		Net.toast(player, Trade.Messages.catInTrade, "warn") -- F102: take it off the offer first
+		return
+	end
 	local def = Catalog.getCat(instance.catId)
 	if def == nil then
 		return
@@ -1309,6 +1329,11 @@ local function onLockCat(player: Player, rawUid: unknown, rawLocked: unknown)
 	end
 	local instance = profile.cats[uid]
 	if instance == nil then
+		return
+	end
+	if rawLocked and offerCheck(player, uid) then
+		Net.toast(player, Trade.Messages.catInTrade, "warn") -- F102: a locked cat cannot be on offer
+		CafeService.sync(player)
 		return
 	end
 	instance.locked = if rawLocked then true else nil

@@ -244,6 +244,18 @@ return function()
 				).to.equal(Trade.Messages.daily)
 				expect(
 					Trade.askRefusal(
+						facts(),
+						facts({ today = Config.TradesPerDay }),
+						3,
+						true,
+						false,
+						0,
+						"everyone",
+						false
+					)
+				).to.equal(string.format(Trade.Messages.theirDaily, "Sam"))
+				expect(
+					Trade.askRefusal(
 						facts({ busy = true }),
 						facts(),
 						3,
@@ -362,6 +374,36 @@ return function()
 			expect(p.stats.tradesToday :: any).to.deepEqual({ day = 12, count = 3 })
 			expect(p.cats.traded.method).to.equal("trade")
 		end)
+
+		it(
+			"cleans a stored trade's cat as a save's cat: no spot, stats in range, unknown kinds refused",
+			function()
+				local clean: any = ProfileSchema.cleanCat({
+					uid = "u1",
+					catId = catOf("Common"),
+					variant = "gold",
+					level = 99999,
+					charm = 99999,
+					xp = 5,
+					spotId = "barista_1",
+					locked = true,
+					name = 5,
+					method = "trade",
+				}, 100)
+				expect(clean).to.be.ok()
+				expect(clean.uid).to.equal("u1")
+				expect(clean.spotId).never.to.be.ok()
+				expect(clean.level).to.equal(Config.CatMaxLevel)
+				expect(clean.charm).to.equal(CatStats.MAX_CHARM)
+				expect(clean.variant).to.equal("gold")
+				expect(clean.locked).to.equal(true)
+				expect(clean.name).never.to.be.ok()
+				expect(clean.method).to.equal("trade")
+				expect(ProfileSchema.cleanCat({ uid = "u2", catId = "no_such_cat" }, 100)).never.to.be.ok()
+				expect(ProfileSchema.cleanCat({ catId = catOf("Common") }, 100)).never.to.be.ok()
+				expect(ProfileSchema.cleanCat("tabby", 100)).never.to.be.ok()
+			end
+		)
 
 		it("gives a version 26 save no trades", function()
 			local raw: any = ProfileSchema.template(1000)

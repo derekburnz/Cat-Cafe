@@ -19,6 +19,8 @@ local CatService = require(script.Parent.CatService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Net = require(script.Parent.Net)
+local Trade = require(ReplicatedStorage.Shared.Trade)
+local TradeService = require(script.Parent.TradeService)
 
 local ResetSaveService = {}
 
@@ -57,6 +59,7 @@ local function onResetSave(player: Player)
 		return -- still loading
 	end
 	local busy = CatService.busyReason(player)
+		or (if TradeService.isTrading(player) then Trade.Messages.finishTrade else nil)
 	if busy ~= nil then
 		Net.toast(player, busy, "warn")
 		return

@@ -63,6 +63,7 @@ type ConfirmCard = { tile: TradeTile.TradeTile, frame: Frame, name: TextLabel, r
 local MAX_SIZE = Vector2.new(760, 420)
 local GRID_GAP = 6
 local CONFIRM_TILE = 60
+local CONFIRM_TITLE_W = 76 -- "You give" beside its row on the confirm face
 local COLUMN_W = 220
 local ROW_H = 56
 local HEADER_H = 24
@@ -552,13 +553,15 @@ function Trade._buildConfirm(self: any, content: Frame)
 	})
 	self._confirmFace = confirm
 	local cardH = CONFIRM_TILE + 34
+	-- each row's title sits on its left, so both rows and the red line fit the phone's short panel
 	local function row(name: string, y: number, title: string): (ScrollingFrame, TextLabel)
 		text({
 			Name = name .. "Title",
 			Position = UDim2.fromOffset(0, y),
-			Size = UDim2.new(1, 0, 0, 22),
+			Size = UDim2.fromOffset(CONFIRM_TITLE_W - GAP, cardH),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody + 1,
+			TextWrapped = true,
 			Text = title,
 			Parent = confirm,
 		})
@@ -566,8 +569,8 @@ function Trade._buildConfirm(self: any, content: Frame)
 			Name = name,
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(0, y + 24),
-			Size = UDim2.new(1, 0, 0, cardH + 8),
+			Position = UDim2.fromOffset(CONFIRM_TITLE_W, y),
+			Size = UDim2.new(1, -CONFIRM_TITLE_W, 0, cardH + 8),
 			CanvasSize = UDim2.new(),
 			AutomaticCanvasSize = Enum.AutomaticSize.X,
 			ScrollingDirection = Enum.ScrollingDirection.X,
@@ -583,9 +586,10 @@ function Trade._buildConfirm(self: any, content: Frame)
 		})
 		local nothing = text({
 			Name = "Nothing",
-			Position = UDim2.fromOffset(0, y + 24),
-			Size = UDim2.new(1, 0, 0, cardH),
+			Position = UDim2.fromOffset(CONFIRM_TITLE_W, y),
+			Size = UDim2.new(1, -CONFIRM_TITLE_W, 0, cardH),
 			TextColor3 = Theme.modal.subtext,
+			TextXAlignment = Enum.TextXAlignment.Left,
 			Text = "Nothing",
 			Visible = false,
 			Parent = confirm,
@@ -593,7 +597,7 @@ function Trade._buildConfirm(self: any, content: Frame)
 		return scroll, nothing
 	end
 	local give, giveNothing = row("Give", 0, "You give")
-	local get, getNothing = row("Get", cardH + 36, "You get")
+	local get, getNothing = row("Get", cardH + 12, "You get")
 	self._confirmRows = {
 		give = { scroll = give, nothing = giveNothing, cards = {} :: { ConfirmCard } },
 		get = { scroll = get, nothing = getNothing, cards = {} :: { ConfirmCard } },
@@ -639,6 +643,7 @@ function Trade._confirmCard(_self: any, row: any, index: number): ConfirmCard
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textTiny,
 		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.AtEnd,
 		Parent = frame,
 	})
 	local rarity = text({
@@ -902,7 +907,7 @@ function Trade._renderConfirm(self: any, trade: Types.TradeState)
 					elseif cat.variant == "gold" then "Gold "
 					else ""
 			) .. cat.rarity
-			card.rarity.TextColor3 = Theme.rarityTextColor(cat.rarity)
+			card.rarity.TextColor3 = Theme.rarityInk(cat.rarity) -- the darker rarity colour that reads on cream
 		end
 		for index = #cats + 1, #row.cards do
 			row.cards[index].frame.Visible = false

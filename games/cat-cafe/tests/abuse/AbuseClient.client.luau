@@ -8,15 +8,21 @@
 
 	In a Play Solo or Clients and Servers session:
 	  press ` (backquote) to arm it, the menu prints, then one key per case:
-	  1 fake stray      2 far grab          3 press without begin  4 bad presses   5 press with a time
-	  6 no press        7 scripted perfect  8 far press            [ second grab   ; retry after a miss
+	  1 fake stray      2 far swing         3 press without begin  4 bad presses   5 press with a time
+	  6 no press        7 scripted perfect  8 far press            [ second swing  ; retry after a miss
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
+	  I swing flood
 	  = double spend    , travel            / tackle               \ rename         Insert telemetry
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
 	  J tip jar         K index rewards     L spin wheel           R bug report
 	  P fish market     T codes             Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
+
+	Since F93 (catch-rework.md section 1) a catch starts with a net swing: SwingNet() with no arguments, judged where
+	the character stands and faces when the net lands. The cases stand SWING_STUDS from a stray, facing it, and read
+	the NetSwung the server sends back; a refused swing (carrying, mid catch, flying, in a camp, inside the cooldown)
+	gets no NetSwung at all.
 
 	Every line starts with [Abuse]. RESULT lines say PASS, FAIL, SKIP or CHECK. After a run, read the SERVER
 	output too: any "[Net] <remote> handler failed" line means the server errored on bad input, a major ticket
@@ -44,6 +50,7 @@ local Circles = require(Shared:WaitForChild("Circles"))
 local Codes = require(Shared:WaitForChild("Codes"))
 local Config = require(Shared:WaitForChild("Config"))
 local Crates = require(Shared:WaitForChild("Crates"))
+local NetSwing = require(Shared:WaitForChild("NetSwing"))
 local Prizes = require(Shared:WaitForChild("Prizes"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Spin = require(Shared:WaitForChild("Spin"))
@@ -81,7 +88,7 @@ local state: Types.PlayerState? = nil
 local tipJar: Types.TipJarState? = nil -- the newest TipJarState (F47)
 local running: string? = nil
 local lastSyncAt = 0 -- os.clock() of the newest ProfileSync
-local lastGrabAt = -math.huge -- os.clock() of the newest GrabBegin this script fired
+local lastSwingAt = -math.huge -- os.clock() of the newest SwingNet this script fired
 local lastTravelAt = -math.huge -- os.clock() of the newest Travel this script fired
 
 local function log(text: string)
@@ -126,8 +133,8 @@ end
 
 local function fire(name: string, ...: any)
 	log(string.format("    -> %s(%s)", name, describe(...)))
-	if name == "GrabBegin" then
-		lastGrabAt = os.clock()
+	if name == "SwingNet" then
+		lastSwingAt = os.clock()
 	elseif name == "Travel" then
 		lastTravelAt = os.clock()
 	end
@@ -240,11 +247,21 @@ local function teleportTo(position: Vector3)
 	end
 end
 
+-- Like teleportTo, facing `lookAt` on the ground plane: the server judges a swing from the root's facing (F93).
+local function teleportFacing(position: Vector3, lookAt: Vector3)
+	local root = rootPart()
+	if root ~= nil then
+		local from = position + Vector3.new(0, 3, 0)
+		root.CFrame = CFrame.lookAt(from, Vector3.new(lookAt.X, from.Y, lookAt.Z))
+		task.wait(0.3)
+	end
+end
+
 type StrayInfo = { id: string, model: Model, rarity: Types.Rarity }
 
 -- Nearest stray nobody holds or reserved, of those `accept` takes. The server marks every stray model with these
--- attributes. A Dropped stray has no circles (v0.8 F56: it is picked up with PickUpCat), so the catch cases never
--- pick one; the drop case finds its own with droppedStray.
+-- attributes. A Dropped stray has no circles (v0.8 F56; since F93 a swing that lands on it picks it up), so the catch
+-- cases never pick one; the drop case finds its own with droppedStray.
 local function nearestStray(accept: ((StrayInfo) -> boolean)?): StrayInfo?
 	local root = rootPart()
 	local origin = if root ~= nil then root.Position else Vector3.zero
@@ -279,8 +296,14 @@ local function nearestStray(accept: ((StrayInfo) -> boolean)?): StrayInfo?
 	return best
 end
 
+-- How far from a stray the cases stand to swing at it: well inside NetReachStuds (7, plus NetSlackStuds), with room
+-- for a stray that wanders a step while the teleport replicates.
+local SWING_STUDS = 4
+
+-- Stands SWING_STUDS from the stray, facing it, so a swing lands on it.
 local function standNextTo(stray: StrayInfo)
-	teleportTo(stray.model:GetPivot().Position + Vector3.new(4, 0, 0))
+	local at = stray.model:GetPivot().Position
+	teleportFacing(at + Vector3.new(SWING_STUDS, 0, 0), at)
 end
 
 local function ownDoor(): BasePart?
@@ -294,7 +317,7 @@ local function ownDoor(): BasePart?
 	return if door ~= nil and door:IsA("BasePart") then door :: BasePart else nil
 end
 
--- A carrying player cannot grab, so the grab loops check the cat in between attempts.
+-- A carrying player's swing is refused, so the catch loops check the cat in between attempts.
 local function checkInIfCarrying(): boolean
 	if state == nil or state.carrying == nil then
 		return true
@@ -321,7 +344,7 @@ type Case = { name: string, key: Enum.KeyCode, title: string, run: () -> (Verdic
 -- The Debug hooks, from the command bar in Server view: never a require there, which gets unstarted copies (PR #50).
 local DEBUG = "game.ServerStorage.CatCafeDebug:Invoke"
 
--- Since F66 the strays come in one wave at sunrise and the areas close at night, where GrabBegin is refused, so a
+-- Since F66 the strays come in one wave at sunrise and the areas close at night, where a swing lands on nothing, so a
 -- run wants a fresh day first.
 local NO_STRAY = string.format(
 	'no free stray nearby; on the server run %s("spawnStray", "tabby") or %s("setPhase", "day") for a fresh wave',
@@ -385,51 +408,67 @@ local function toasted(startedAt: number, text: string): boolean
 	return false
 end
 
--- GrabBegin allows one call per 2 s and the server spaces a player's catch starts GrabCooldownSeconds apart, so a
--- case waits both out before a GrabBegin it means to land.
-local function grabReady()
-	local spacing = math.max(Config.GrabRateLimitSeconds, Config.GrabCooldownSeconds) + 0.15
-	local left = lastGrabAt + spacing - os.clock()
+-- The server holds NetSwingCooldown between a player's swings and GrabCooldownSeconds between two catch starts, so a
+-- case waits both out before a swing it means to land.
+local function swingReady()
+	local spacing = math.max(Config.NetSwingCooldown, Config.GrabCooldownSeconds) + 0.15
+	local left = lastSwingAt + spacing - os.clock()
 	if left > 0 then
 		task.wait(left)
 	end
 end
 
--- The server's first answer to a GrabBegin on `id`: a CatchSchedule, or the GrabResult that refused it.
-local function answerTo(startedAt: number, id: string, timeout: number): Event?
-	local deadline = os.clock() + timeout
-	while os.clock() < deadline do
-		for _, event in since(startedAt) do
-			if event.id == id and (event.name == "CatchSchedule" or event.name == "GrabResult") then
-				return event
-			end
-		end
-		task.wait(0.05)
-	end
-	return nil
+-- My NetSwungs since `startedAt`: one for each swing of mine that landed (F93), none for a refused one.
+local function swungSince(startedAt: number): { Event }
+	return since(startedAt, "NetSwung")
 end
 
--- GrabBegin next to the stray. Returns the schedule the server sent (or nil and why not) and when it fired. A stray
--- that wandered on while the teleport replicated gets one more try from beside it (laptop run 2026-10-27).
+-- How the server answered a swing fired at `startedAt`, once its NetSwung came (NetSmackDelay after it arrived): the
+-- CatchSchedule it started, the warn toast that refused the stray it landed on, or the NetSwung itself when it hit
+-- nothing. Nil when no NetSwung came: the server refused the swing and says nothing.
+local function swingAnswer(startedAt: number, timeout: number): Event?
+	local landed = waitFor(startedAt, "NetSwung", timeout)
+	if landed == nil then
+		return nil
+	end
+	for _, event in since(startedAt) do
+		if
+			event.name == "CatchSchedule"
+			or (event.name == "Toast" and string.find(event.text, "[warn]", 1, true) ~= nil)
+		then
+			return event
+		end
+	end
+	return landed
+end
+
+-- A swing at the stray from SWING_STUDS away, facing it. Returns the schedule the server sent (or nil and why not)
+-- and when it fired. A stray that wandered off while the teleport replicated gets one more swing (laptop run
+-- 2026-10-27).
 local function beginCatch(stray: StrayInfo): (Schedule?, string, number)
 	local why, startedAt = "", os.clock()
 	for _ = 1, 2 do
-		grabReady()
+		swingReady()
 		standNextTo(stray)
 		startedAt = os.clock()
-		fire("GrabBegin", stray.id)
-		local answer = answerTo(startedAt, stray.id, 2)
+		fire("SwingNet")
+		local answer = swingAnswer(startedAt, 2)
 		if answer == nil then
-			return nil, "no CatchSchedule or GrabResult within 2 s of GrabBegin", startedAt
+			return nil,
+				"no NetSwung within 2 s of SwingNet: the swing was refused (carrying, mid catch, in a camp?)",
+				startedAt
 		end
-		if answer.name ~= "GrabResult" then
+		if answer.name == "CatchSchedule" then
+			if answer.id ~= stray.id then
+				return nil, "the swing landed on another stray, " .. tostring(answer.id), startedAt
+			end
 			return answer.data :: Schedule, answer.text, startedAt
 		end
-		why = "GrabBegin refused: " .. answer.text
-		if answer.text ~= "Too far away" then
-			break
+		if answer.name == "Toast" then
+			return nil, "the swing landed but the catch was refused: " .. answer.text, startedAt
 		end
-		log("    the stray moved off; standing next to it again")
+		why = "the swing hit nothing (NetSwung hit=false)"
+		log("    the stray moved off; standing by it again")
 	end
 	return nil, why, startedAt
 end
@@ -516,7 +555,7 @@ local function downgrade(current: Verdict, level: Verdict): Verdict
 	return current
 end
 
--- Commons have one circle; a catch that outlasts the 2 s GrabBegin limit wants a Rare or rarer stray.
+-- A catch that outlasts the 2 s between catch starts wants a Rare or rarer stray (F93: Common 3 circles, Rare 4).
 local function longCatch(info: StrayInfo): boolean
 	return circlesOf(info.rarity) >= 2
 end
@@ -526,51 +565,98 @@ local NO_LONG_STRAY = string.format('spawn a Rare with %s("spawnStray", "calico"
 case(
 	"fakeStray",
 	Enum.KeyCode.One,
-	"Fake stray: GrabBegin and CatchPress on an id that does not exist",
+	"Fake stray: CatchPress on an id that does not exist (F93: a swing names no stray, so there is no id to fake)",
 	function()
-		grabReady()
 		local startedAt = os.clock()
-		fire("GrabBegin", "not_a_stray")
 		fire("CatchPress", "not_a_stray", 1)
+		fire("CatchPress", "not_a_stray", 2)
 		task.wait(1)
 		local reactions = #since(startedAt, "GrabResult")
 			+ #since(startedAt, "CatchSchedule")
 			+ #since(startedAt, "CatchResult")
 			+ #since(startedAt, "Toast")
 		if reactions == 0 then
-			return "PASS", "ignored, no GrabResult, schedule, result or toast"
+			return "PASS", "ignored, no schedule, result or toast"
 		end
 		return "FAIL", string.format("%d reaction(s) to a fake id", reactions)
 	end
 )
 
-case("farGrab", Enum.KeyCode.Two, "Far grab: GrabBegin from 200 studs away", function()
-	local stray = nearestStray()
-	if stray == nil then
-		return "SKIP", NO_STRAY
+-- F93 reach: a swing lands on a stray within NetReachStuds plus NetSlackStuds (8.5) of the root and within
+-- NetArcDegrees (60) of its facing. A swing that lands on nothing makes free strays within NetMissHopStuds (12) hop,
+-- unless the player has not caught a cat yet, so each probe waits for the stray to stand still again.
+case(
+	"farSwing",
+	Enum.KeyCode.Two,
+	"Far swing: from 200 studs, 4 studs behind facing away and 9 studs ahead; none lands, the near misses make it hop",
+	function()
+		if not checkInIfCarrying() then
+			return "SKIP", "carrying a cat that could not be checked in"
+		end
+		local stray = nearestStray()
+		if stray == nil then
+			return "SKIP", NO_STRAY
+		end
+		local root = rootPart()
+		if root == nil then
+			return "SKIP", "no character"
+		end
+		local home = root.Position
+		local verdict: Verdict = "PASS"
+		local notes = {}
+		local probes: { { name: string, offset: number, facing: boolean, near: boolean } } = {
+			{ name = "200 studs off", offset = 200, facing = true, near = false },
+			{ name = "4 studs behind", offset = 4, facing = false, near = true },
+			{ name = "9 studs ahead", offset = 9, facing = true, near = true },
+		}
+		for _, probe in probes do
+			if stray.model.Parent == nil then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, probe.name .. ": skipped, the stray left")
+				break
+			end
+			task.wait(fleeLeft(stray.model) + 0.2) -- a hopping cat cannot be hit anyway
+			swingReady()
+			local at = stray.model:GetPivot().Position
+			local stand = at + Vector3.new(probe.offset, 0, 0)
+			teleportFacing(stand, if probe.facing then at else stand + Vector3.new(probe.offset, 0, 0))
+			local hopBefore = stray.model:GetAttribute("HopAt")
+			local startedAt = os.clock()
+			fire("SwingNet")
+			local answer = swingAnswer(startedAt, 1.5)
+			task.wait(0.3)
+			if answer == nil then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, probe.name .. ": no NetSwung (refused? read the server output)")
+			elseif answer.name == "CatchSchedule" then
+				outcomeOf(startedAt, tostring(answer.id), answer.data :: Schedule)
+				teleportTo(home)
+				return "FAIL",
+					string.format(
+						"a swing %s started a catch on %s",
+						probe.name,
+						tostring(answer.id)
+					)
+			else
+				local hopped = stray.model:GetAttribute("HopAt") ~= hopBefore
+				local text = probe.name .. ": hit nothing"
+				if probe.near and not hopped then
+					-- right before the first catch, and for a cat up on a perch
+					verdict = downgrade(verdict, "CHECK")
+					text ..= ", but the stray did not hop (expected unless I have caught no cat yet or it is perched)"
+				elseif not probe.near and hopped then
+					verdict = downgrade(verdict, "FAIL")
+					text ..= ", but the stray hopped from a swing 200 studs off"
+				elseif hopped then
+					text ..= ", it hopped"
+				end
+				table.insert(notes, text)
+			end
+		end
+		teleportTo(home)
+		return verdict, table.concat(notes, "; ")
 	end
-	local root = rootPart()
-	if root == nil then
-		return "SKIP", "no character"
-	end
-	local home = root.Position
-	grabReady()
-	teleportTo(stray.model:GetPivot().Position + Vector3.new(200, 0, 0))
-	local startedAt = os.clock()
-	fire("GrabBegin", stray.id)
-	local answer = answerTo(startedAt, stray.id, 1.5)
-	teleportTo(home)
-	if answer == nil then
-		return "CHECK", "no answer at all; expected GrabResult Too far away. Read the server output"
-	end
-	if answer.name == "CatchSchedule" then
-		return "FAIL", "the server started circles for a player 200 studs away"
-	end
-	if string.find(answer.text, "Too far", 1, true) ~= nil then
-		return "PASS", "refused with Too far away, no schedule"
-	end
-	return "CHECK", "refused, but not as Too far away: " .. answer.text
-end)
+)
 
 case(
 	"pressWithoutBegin",
@@ -721,7 +807,7 @@ case(
 	end
 )
 
-case("noPress", Enum.KeyCode.Six, "No press: GrabBegin and never press", function()
+case("noPress", Enum.KeyCode.Six, "No press: swing and never press", function()
 	if not checkInIfCarrying() then
 		return "SKIP", "carrying a cat that could not be checked in"
 	end
@@ -954,159 +1040,56 @@ case(
 )
 
 case(
-	"secondGrab",
+	"secondSwing",
 	Enum.KeyCode.LeftBracket,
-	"Second grab: another stray at once, the same stray again after 2 s, another stray after 2 s",
+	"Second swing: at once and after 2 s while a catch runs; neither lands, nothing restarts, one CatchResult",
 	function()
 		if not checkInIfCarrying() then
 			return "SKIP", "carrying a cat that could not be checked in"
 		end
-		local root = rootPart()
-		if root == nil then
-			return "SKIP", "no character"
-		end
-		local home = root.Position
 		local notes = {}
 		local verdict: Verdict = "PASS"
-
-		-- Catch 1: a GrabBegin on another stray within 2 s is dropped by the rate limit; the same stray again
-		-- after 2 s, while its circles run, is refused and never restarts them. The circles are pressed on target
-		-- in the background, since an unpressed circle would end the catch at its deadline (v0.4).
+		-- F93: a player in a catch cannot swing (NetSwing.refusal "busy"), so neither swing gets a NetSwung, the
+		-- circles never restart and no other stray starts a catch. The circles are pressed on target in the
+		-- background, since an unpressed circle would end the catch at its deadline (v0.4).
 		local stray = nearestStray(longCatch) or nearestStray()
 		if stray == nil then
 			return "SKIP", NO_STRAY
 		end
-		local first = stray
-		local other = nearestStray(function(info)
-			return info.id ~= first.id
-		end)
 		local schedule, why, startedAt = beginCatch(stray)
 		if schedule == nil then
 			return "CHECK", why
 		end
 		pressAllOnTarget(stray.id, schedule)
-		if other ~= nil then
-			local otherAt = os.clock()
-			fire("GrabBegin", other.id)
-			task.wait(1)
-			local answer = answerTo(otherAt, other.id, 0.1)
-			if answer ~= nil and answer.name == "CatchSchedule" then
-				verdict = downgrade(verdict, "FAIL")
-				table.insert(notes, "a second catch started at once on another stray")
-			elseif answer ~= nil then
-				verdict = downgrade(verdict, "CHECK")
-				table.insert(
-					notes,
-					"another stray within 1 s got an answer, so the GrabBegin limit let it through: "
-						.. answer.text
-				)
-			else
-				table.insert(notes, "another stray within 1 s: no answer (rate limit)")
-			end
-		else
-			table.insert(notes, "at-once check skipped: no second stray")
-		end
-		task.wait(math.max(0, startedAt + Config.GrabRateLimitSeconds + 0.15 - os.clock()))
+		task.wait(0.3) -- the catch's own NetSwung has come
+		local midAt = os.clock()
+		fire("SwingNet")
+		task.wait(math.max(0, startedAt + Config.GrabCooldownSeconds + 0.15 - os.clock()))
 		if serverNow() > endsAt(schedule) - 0.3 then
 			verdict = downgrade(verdict, "CHECK")
-			table.insert(
-				notes,
-				"same-stray check skipped: the catch ended inside 2 s; " .. NO_LONG_STRAY
-			)
+			table.insert(notes, "the swing after 2 s skipped: the catch ended inside 2 s; " .. NO_LONG_STRAY)
 		else
-			local againAt = os.clock()
-			fire("GrabBegin", stray.id)
-			local answer = waitFor(againAt, "GrabResult", 1.5, about(stray.id))
-			if countAbout(againAt, "CatchSchedule", stray.id) > 0 then
-				verdict = downgrade(verdict, "FAIL")
-				table.insert(notes, "a second GrabBegin on the same stray restarted the circles")
-			elseif answer ~= nil and string.find(answer.text, "Keep going", 1, true) ~= nil then
-				table.insert(notes, "same stray after 2 s: Keep going, no new schedule")
-			else
-				verdict = downgrade(verdict, "CHECK")
-				table.insert(
-					notes,
-					"same stray after 2 s: " .. (if answer ~= nil then answer.text else "no answer")
-				)
-			end
+			fire("SwingNet")
 		end
 		outcomeOf(startedAt, stray.id, schedule)
 		task.wait(0.3)
+		local swung = #swungSince(midAt)
+		local schedules = #since(midAt, "CatchSchedule")
 		local results = countAbout(startedAt, "CatchResult", stray.id)
+		if schedules > 0 then
+			verdict = downgrade(verdict, "FAIL")
+			table.insert(notes, string.format("%d CatchSchedule(s) from swings during the catch", schedules))
+		end
+		if swung > 0 then
+			verdict = downgrade(verdict, "FAIL")
+			table.insert(notes, string.format("%d swing(s) during the catch landed (NetSwung)", swung))
+		else
+			table.insert(notes, "swings during the catch: no NetSwung, refused")
+		end
 		if results ~= 1 then
 			verdict = downgrade(verdict, "FAIL")
-			table.insert(notes, string.format("%d CatchResults for catch 1", results))
+			table.insert(notes, string.format("%d CatchResults for one catch", results))
 		end
-		checkInIfCarrying()
-
-		-- Catch 2: one catch at a time. After 2 s, stand by another stray and GrabBegin it while catch 2 runs.
-		local second = nearestStray(longCatch) or nearestStray()
-		if second == nil then
-			verdict = downgrade(verdict, "CHECK")
-			table.insert(notes, "one-at-a-time check skipped: no stray for catch 2")
-			teleportTo(home)
-			return verdict, table.concat(notes, "; ")
-		end
-		local secondId = second.id
-		local schedule2, why2, startedAt2 = beginCatch(second)
-		local third = nearestStray(function(info)
-			return info.id ~= secondId
-		end)
-		if schedule2 == nil then
-			verdict = downgrade(verdict, "CHECK")
-			table.insert(notes, "catch 2 did not start: " .. why2)
-		elseif third == nil then
-			verdict = downgrade(verdict, "CHECK")
-			table.insert(notes, "one-at-a-time check skipped: no other stray")
-			pressAllOnTarget(secondId, schedule2)
-			outcomeOf(startedAt2, secondId, schedule2)
-		else
-			pressAllOnTarget(secondId, schedule2)
-			-- Just before the limit allows the GrabBegin, stand where both strays are in grab range if they are close
-			-- enough, so catch 2 is not forfeit by its range check (a forfeit is a Miss); else by the third stray.
-			task.wait(math.max(0, startedAt2 + Config.GrabRateLimitSeconds - 0.3 - os.clock()))
-			local secondPosition = second.model:GetPivot().Position
-			local thirdPosition = third.model:GetPivot().Position
-			if horizontal(secondPosition, thirdPosition) <= 2 * (Config.GrabRangeStuds - 1) then
-				teleportTo((secondPosition + thirdPosition) / 2)
-			else
-				standNextTo(third)
-				table.insert(
-					notes,
-					"catch 2 may be forfeit as too far away (the other stray is not close by)"
-				)
-			end
-			task.wait(math.max(0, startedAt2 + Config.GrabRateLimitSeconds + 0.15 - os.clock()))
-			if serverNow() > endsAt(schedule2) - 0.3 then
-				verdict = downgrade(verdict, "CHECK")
-				table.insert(
-					notes,
-					"one-at-a-time check skipped: catch 2 ended inside 2 s; " .. NO_LONG_STRAY
-				)
-			else
-				local thirdAt = os.clock()
-				fire("GrabBegin", third.id)
-				local answer = answerTo(thirdAt, third.id, 1.5)
-				if answer ~= nil and answer.name == "CatchSchedule" then
-					verdict = downgrade(verdict, "FAIL")
-					table.insert(notes, "a second catch started while catch 2 was running")
-				elseif
-					answer ~= nil
-					and string.find(answer.text, "Finish this catch", 1, true) ~= nil
-				then
-					table.insert(notes, "another stray during catch 2: Finish this catch first")
-				else
-					verdict = downgrade(verdict, "CHECK")
-					table.insert(
-						notes,
-						"another stray during catch 2: "
-							.. (if answer ~= nil then answer.text else "no answer")
-					)
-				end
-			end
-			outcomeOf(startedAt2, secondId, schedule2)
-		end
-		teleportTo(home)
 		checkInIfCarrying()
 		return verdict, table.concat(notes, "; ")
 	end
@@ -1115,7 +1098,7 @@ case(
 case(
 	"retry",
 	Enum.KeyCode.Semicolon,
-	"Retry: miss a Common, GrabBegin it while it runs; miss it again, GrabBegin it in my extra second; then catch it",
+	"Retry: miss a Common, swing at it while it runs; miss it again, swing at it in my extra second; then catch it",
 	function()
 		if not checkInIfCarrying() then
 			return "SKIP", "carrying a cat that could not be checked in"
@@ -1127,9 +1110,10 @@ case(
 			return "SKIP",
 				string.format('no free Common nearby; %s("spawnStray", "tabby") and rerun', DEBUG)
 		end
-		-- v0.5 (F40, S44): after a miss GrabBegin is "It's running!" for everyone until FleeingUntil, and the player
-		-- who missed waits StraySelfRetrySeconds more. GrabBegin takes one call per 2 s, too few for both checks
-		-- after one miss, so the running check follows miss 1 and the extra-second check follows miss 2.
+		-- v0.5 (F40, S44): after a miss the stray runs and rests until FleeingUntil, and the player who missed waits
+		-- StraySelfRetrySeconds more. F93: a swing at a running stray lands on nothing (NetSwung hit=false, no toast);
+		-- one in my extra second lands and is refused with "Catch your breath". Catch starts are 2 s apart, too few
+		-- for both checks after one miss, so the running check follows miss 1 and the extra-second check miss 2.
 		local notes = {}
 		local verdict: Verdict = "PASS"
 		for round = 1, 2 do
@@ -1153,10 +1137,10 @@ case(
 			if stray.model.Parent == nil then
 				return "FAIL", "the Common despawned after a miss"
 			end
-			-- The stray stands still while it catches its breath, so stand by it and wait out the GrabBegin limit.
+			-- The stray stands still while it catches its breath, so stand by it and wait out the swing spacing.
 			waitForSprint(stray.model)
 			standNextTo(stray)
-			grabReady()
+			swingReady()
 			local probe: string
 			if round == 1 then
 				probe = "while it ran"
@@ -1174,10 +1158,14 @@ case(
 				table.insert(notes, probe .. ": skipped, too little of the window left to probe")
 			else
 				local probeAt = os.clock()
-				fire("GrabBegin", stray.id)
-				local answer = answerTo(probeAt, stray.id, 1.5)
-				local expected = if round == 1 then "It's running!" else "Catch your breath"
-				if answer ~= nil and answer.name == "CatchSchedule" then
+				fire("SwingNet")
+				local answer = swingAnswer(probeAt, 1.5)
+				local expected = if round == 1 then "hit=false" else "Catch your breath"
+				if answer ~= nil and answer.name == "CatchSchedule" and answer.id ~= stray.id then
+					outcomeOf(probeAt, tostring(answer.id), answer.data)
+					verdict = downgrade(verdict, "CHECK")
+					table.insert(notes, probe .. ": the swing landed on another stray nearby, so not probed")
+				elseif answer ~= nil and answer.name == "CatchSchedule" then
 					outcomeOf(probeAt, stray.id, answer.data)
 					return "FAIL",
 						string.format(
@@ -1223,7 +1211,7 @@ case(
 case(
 	"pressSpam",
 	Enum.KeyCode.Quote,
-	"Press spam: CatchPress every 0.1 s from GrabBegin, moving on once a circle has started",
+	"Press spam: CatchPress every 0.1 s from the swing, moving on once a circle has started",
 	function()
 		if not checkInIfCarrying() then
 			return "SKIP", "carrying a cat that could not be checked in"
@@ -1277,7 +1265,7 @@ case(
 case(
 	"unlimitedTries",
 	Enum.KeyCode.Period,
-	"Unlimited tries: miss one stray three times, each after it stops running; every GrabBegin starts a catch",
+	"Unlimited tries: miss one stray three times, each after it stops running; every swing starts a catch",
 	function()
 		if not checkInIfCarrying() then
 			return "SKIP", "carrying a cat that could not be checked in"
@@ -1333,6 +1321,124 @@ case(
 				stray.rarity,
 				misses
 			)
+	end
+)
+
+-- The nearest camp's landing pad (F84): a camp is a safe zone, where a swing is refused.
+local function campPad(): BasePart?
+	local root = rootPart()
+	local origin = if root ~= nil then root.Position else Vector3.zero
+	local best: BasePart? = nil
+	local bestDistance = math.huge
+	for _, instance in Workspace:GetDescendants() do
+		if instance.Name == "LandingPad" and instance:IsA("BasePart") then
+			local pad = instance :: BasePart
+			local distance = (pad.Position - origin).Magnitude
+			if distance < bestDistance then
+				best, bestDistance = pad, distance
+			end
+		end
+	end
+	return best
+end
+
+case(
+	"swingFlood",
+	Enum.KeyCode.I,
+	"Swing flood: 10 SwingNet in a frame, one every 0.2 s for 3 s with junk arguments at my door, one in a camp",
+	function()
+		if not checkInIfCarrying() then
+			return "SKIP", "carrying a cat that could not be checked in"
+		end
+		local door = ownDoor()
+		if door == nil then
+			return "SKIP", "no own door found (no plot yet?)"
+		end
+		local root = rootPart()
+		local home = if root ~= nil then root.Position else door.Position
+		local notes = {}
+		local verdict: Verdict = "PASS"
+		-- In town, where no stray is: every swing that lands hits nothing. The server keeps NetSwingCooldown (0.8 s,
+		-- less 0.1 of slack) between a player's swings and its limiter takes 3 a second, so ten in a frame land once.
+		teleportTo(door.Position + Vector3.new(0, 0, 6))
+		swingReady()
+		local burstAt = os.clock()
+		for _ = 1, 10 do
+			Remotes.event("SwingNet"):FireServer()
+		end
+		lastSwingAt = os.clock()
+		log("    -> SwingNet() x10 in one frame")
+		task.wait(1)
+		local burst = #swungSince(burstAt)
+		if burst ~= 1 then
+			verdict = downgrade(verdict, if burst > 1 then "FAIL" else "CHECK")
+		end
+		table.insert(notes, string.format("ten in one frame: %d landed", burst))
+
+		-- One every 0.2 s for 3 s, every other one with a junk argument: at most one lands per 0.7 s.
+		local junk: { any } = { "x", 1e9, 0 / 0, {}, true, string.rep("a", 300), Vector3.zero }
+		local streamAt = os.clock()
+		local sent = 0
+		while os.clock() < streamAt + 3 do
+			sent += 1
+			if sent % 2 == 0 then
+				Remotes.event("SwingNet"):FireServer(junk[(sent // 2 - 1) % #junk + 1])
+			else
+				Remotes.event("SwingNet"):FireServer()
+			end
+			task.wait(0.2)
+		end
+		lastSwingAt = os.clock()
+		log(string.format("    -> SwingNet(...) x%d, one every 0.2 s, junk in every other", sent))
+		task.wait(0.5)
+		local stream = swungSince(streamAt)
+		local most = 1 + math.ceil(3 / (Config.NetSwingCooldown - NetSwing.COOLDOWN_SLACK))
+		local closest = math.huge
+		for index = 2, #stream do
+			closest = math.min(closest, stream[index].server - stream[index - 1].server)
+		end
+		if #stream > most then
+			verdict = downgrade(verdict, "FAIL")
+		elseif #stream == 0 then
+			verdict = downgrade(verdict, "CHECK")
+		end
+		if closest < Config.NetSwingCooldown - NetSwing.COOLDOWN_SLACK - 0.15 then
+			verdict = downgrade(verdict, "FAIL")
+		end
+		table.insert(
+			notes,
+			string.format(
+				"%d over 3 s: %d landed (at most %d), the closest two %s apart",
+				sent,
+				#stream,
+				most,
+				if closest == math.huge then "-" else string.format("%.2f s", closest)
+			)
+		)
+
+		-- In a camp, a safe zone: refused, no NetSwung.
+		local pad = campPad()
+		if pad == nil then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, "camp swing skipped: no LandingPad in the world (a build before F84)")
+		else
+			teleportTo(pad.Position)
+			swingReady()
+			local campAt = os.clock()
+			fire("SwingNet")
+			task.wait(1)
+			if #swungSince(campAt) > 0 then
+				verdict = downgrade(verdict, "FAIL")
+				table.insert(notes, "a swing in a camp landed")
+			else
+				table.insert(notes, "a swing in a camp: refused")
+			end
+		end
+		teleportTo(home)
+		return verdict,
+			table.concat(notes, "; ")
+				.. ". Read the server output: a [Net] SwingNet handler failed line is a major."
+				.. " A swing in a flight is S62's, by hand"
 	end
 )
 
@@ -2155,8 +2261,8 @@ local function dropToasts(startedAt: number): number
 	return count
 end
 
--- The nearest Dropped stray (v0.8 F56: Dropped and PickUp set, picked up with PickUpCat) of cat `catId` within
--- `radius` studs of me, and its StrayId.
+-- The nearest Dropped stray (v0.8 F56: Dropped and PickUp set; F93: a swing that lands on it picks it up) of cat
+-- `catId` within `radius` studs of me, and its StrayId.
 local function droppedStray(catId: string?, radius: number): (Model?, string?)
 	local root = rootPart()
 	if root == nil then
@@ -2180,18 +2286,6 @@ local function droppedStray(catId: string?, radius: number): (Model?, string?)
 		end
 	end
 	return best, bestId
-end
-
--- The GrabResult reasons for `id` since `startedAt`.
-local function grabReasons(startedAt: number, id: string): { string }
-	local reasons: { string } = {}
-	for _, event in since(startedAt, "GrabResult") do
-		if event.id == id then
-			local reason = string.match(event.text, 'reason="(.-)"')
-			table.insert(reasons, reason or event.text)
-		end
-	end
-	return reasons
 end
 
 case(
@@ -2259,10 +2353,11 @@ case(
 			)
 		end
 		-- 3. In the alley, away from where it was caught: the cat lands at my feet as a Dropped stray with no circles
-		-- that anyone picks up with PickUpCat (v0.8 F56). Since F67 (engineer PR #502) it walks back to where it was
-		-- caught at DropReturnWalkSpeed, so the drop is made DROP_AWAY studs along the back alley from there and every
-		-- check below reads where the cat is now. GrabBegin on it is refused, bad ids and a call from too far pick up
-		-- nothing, and ten PickUpCat in one frame start one carry of the same cat.
+		-- that a swing picks up (v0.8 F56, F93). Since F67 (engineer PR #502) it walks back to where it was caught
+		-- at DropReturnWalkSpeed, so the drop is made DROP_AWAY studs along the back alley from there and every check
+		-- below reads where the cat is now. Swings from too far, with junk arguments or all together in one frame
+		-- beside it start one carry of the same cat at most, a miss never makes a Dropped cat hop, and with the cat
+		-- in my arms a swing is refused.
 		why = catchOne()
 		if why ~= "" then
 			table.insert(notes, "alley drop skipped: " .. why)
@@ -2336,104 +2431,88 @@ case(
 			return downgrade(verdict, "CHECK"), table.concat(notes, "; ")
 		end
 
-		-- GrabBegin on it: no circles, only "Hold to pick it up".
-		grabReady()
+		-- From too far, facing it (GrabRangeStuds plus 8, past the swing's reach), with no arguments, then with
+		-- junk ones a cooldown apart (quick, while the cat walks home): SwingNet takes none, so each is a swing that
+		-- lands on nothing, and a Dropped cat never hops (F93).
 		if not stillDropped() then
-			return tooLate("the GrabBegin check")
-		end
-		local grabAt = os.clock()
-		fire("GrabBegin", strayId)
-		local answer = answerTo(grabAt, strayId, 2)
-		if
-			answer == nil
-			or answer.name ~= "GrabResult"
-			or string.find(answer.text, "Hold to pick it up", 1, true) == nil
-		then
-			verdict = "FAIL"
-			table.insert(
-				notes,
-				string.format(
-					'GrabBegin on the Dropped stray answered %s, not GrabResult "Hold to pick it up"',
-					if answer ~= nil then answer.name .. " " .. answer.text else "nothing"
-				)
-			)
-		end
-
-		-- Bad ids, 0.55 s apart (PickUpCat takes 2 calls a second): nothing is picked up and the cat stays.
-		local badIds: { any } =
-			{ "nil", 5, 0 / 0, {}, true, "", string.rep("a", 300), strayId .. "x" }
-		local badAt = os.clock()
-		for _, value in badIds do
-			fire("PickUpCat", if value == "nil" then nil else value)
-			task.wait(0.55)
-		end
-		task.wait(0.5)
-		if (state ~= nil and state.carrying ~= nil) or droppedModel.Parent == nil then
-			return "FAIL",
-				table.concat(notes, "; ")
-					.. "; a bad PickUpCat id picked up the Dropped cat or another one"
-		end
-		local badAnswers = #since(badAt, "GrabResult")
-		table.insert(
-			notes,
-			string.format("%d bad pick up ids took nothing (%d GrabResult)", #badIds, badAnswers)
-		)
-
-		-- From too far (GrabRangeStuds plus 2 of slack): "Too far away", nothing taken.
-		if not stillDropped() then
-			return tooLate("the far pick up")
+			return tooLate("the far swings")
 		end
 		local spot = here()
-		teleportTo(spot + Vector3.new(Config.GrabRangeStuds + 8, 0, 0))
+		teleportFacing(spot + Vector3.new(Config.GrabRangeStuds + 8, 0, 0), spot)
 		local root = rootPart()
 		local farOff = if root ~= nil then horizontal(root.Position, here()) else 0
-		if farOff <= Config.GrabRangeStuds + 4 then
+		if farOff <= NetSwing.reach() + 2 then
 			verdict = downgrade(verdict, "CHECK")
 			table.insert(
 				notes,
 				string.format(
-					"could not stand far from the cat (settled %.1f studs out), far pick up not tried",
+					"could not stand far from the cat (settled %.1f studs out), far swings not tried",
 					farOff
 				)
 			)
 		else
 			local farAt = os.clock()
-			fire("PickUpCat", strayId)
-			task.wait(1)
-			local reasons = grabReasons(farAt, strayId)
+			local junk: { any } = { "none", strayId, 0 / 0, {} }
+			swingReady()
+			for index, value in junk do
+				if index > 1 then
+					task.wait(Config.NetSwingCooldown + 0.15)
+				end
+				if value == "none" then
+					fire("SwingNet")
+				else
+					fire("SwingNet", value)
+				end
+			end
+			task.wait(0.6)
 			if (state ~= nil and state.carrying ~= nil) or droppedModel.Parent == nil then
 				return "FAIL",
-					table.concat(notes, "; ") .. string.format(
-						"; PickUpCat from %.1f studs picked the cat up",
-						farOff
-					)
+					table.concat(notes, "; ")
+						.. string.format("; a swing from %.1f studs picked the cat up", farOff)
 			end
-			if reasons[1] ~= "Too far away" then
+			local swung = #swungSince(farAt)
+			if swung ~= #junk then
 				verdict = downgrade(verdict, "CHECK")
 				table.insert(
 					notes,
 					string.format(
-						'far pick up from %.1f studs refused with %q, not "Too far away"',
+						"%d swings a cooldown apart from %.1f studs, %d NetSwung (read the server output for a"
+							.. " [Net] SwingNet handler failed line)",
+						#junk,
 						farOff,
-						reasons[1] or "nothing"
+						swung
 					)
 				)
 			else
-				table.insert(notes, string.format("far pick up from %.1f studs refused", farOff))
+				table.insert(
+					notes,
+					string.format(
+						"%d far swings from %.1f studs, junk arguments in 3, picked nothing up",
+						#junk,
+						farOff
+					)
+				)
+			end
+			if droppedModel:GetAttribute("HopAt") ~= nil then
+				verdict = "FAIL"
+				table.insert(notes, "the Dropped cat hopped from a swing that missed")
 			end
 		end
 
-		-- Beside it: ten PickUpCat in one frame start one carry of the same cat, and the stray is gone.
+		-- Beside it, facing it: ten SwingNet in one frame start one carry of the same cat, the stray is gone, and only
+		-- one of them lands (the cooldown refuses the rest without a word).
 		if not stillDropped() then
 			return tooLate("the pick up")
 		end
-		teleportTo(here() + Vector3.new(3, 0, 0))
-		task.wait(0.3)
+		swingReady()
+		local near = here()
+		teleportFacing(near + Vector3.new(SWING_STUDS, 0, 0), near)
 		local pickAt = os.clock()
 		for _ = 1, 10 do
-			Remotes.event("PickUpCat"):FireServer(strayId)
+			Remotes.event("SwingNet"):FireServer()
 		end
-		log(string.format("    -> PickUpCat(%q) x10", strayId))
+		lastSwingAt = os.clock()
+		log("    -> SwingNet() x10")
 		waitFor(pickAt, "ProfileSync", 3, function()
 			return state ~= nil and state.carrying ~= nil
 		end)
@@ -2451,8 +2530,7 @@ case(
 		local carried = if state ~= nil then state.carrying else nil
 		if carried == nil then
 			return "FAIL",
-				table.concat(notes, "; ")
-					.. "; ten PickUpCat beside the Dropped cat picked nothing up"
+				table.concat(notes, "; ") .. "; ten swings beside the Dropped cat picked nothing up"
 		end
 		if catId ~= nil and carried ~= catId then
 			return "FAIL",
@@ -2466,14 +2544,31 @@ case(
 			verdict = "FAIL"
 			table.insert(
 				notes,
-				string.format('%d "You picked up" toasts from ten PickUpCat in one frame', picked)
+				string.format('%d "You picked up" toasts from ten swings in one frame', picked)
 			)
+		end
+		local landed = #swungSince(pickAt)
+		if landed ~= 1 then
+			verdict = "FAIL"
+			table.insert(notes, string.format("%d of ten swings in one frame landed (NetSwung)", landed))
 		end
 		if droppedModel:IsDescendantOf(Workspace) then
 			verdict = "FAIL"
 			table.insert(notes, "the Dropped stray is still in the world after the pick up")
 		end
-		table.insert(notes, string.format("ten PickUpCat in one frame carried %s once", carried))
+		table.insert(notes, string.format("ten swings in one frame carried %s once", carried))
+
+		-- With the cat in my arms the net is away: a swing gets no NetSwung.
+		swingReady()
+		local armsAt = os.clock()
+		fire("SwingNet")
+		task.wait(1)
+		if #swungSince(armsAt) > 0 then
+			verdict = "FAIL"
+			table.insert(notes, "a swing while carrying landed")
+		else
+			table.insert(notes, "a swing while carrying: refused")
+		end
 
 		-- 4. F67: let go again and it walks all the way home, to where it was first caught (a pick up keeps that),
 		-- and is a normal stray there: not Dropped, not Returning, no Pick up prompt.
@@ -5128,13 +5223,13 @@ local function run(name: string): (Verdict, string)
 	end
 	running = chosen.name
 	log(string.format("CASE %s: %s", chosen.name, chosen.title))
-	-- A case can end with a cat in the arms, and the server answers a carrying player's GrabBegin with a toast only,
-	-- so every later catch case saw no answer (laptop run 2026-10-27). Check it in, then come back.
+	-- A case can end with a cat in the arms, and the server refuses a carrying player's swing without a word, so
+	-- every later catch case would see no answer (laptop run 2026-10-27). Check it in, then come back.
 	if state ~= nil and state.carrying ~= nil then
 		local root = rootPart()
 		local back = if root ~= nil then root.Position else nil
 		if not checkInIfCarrying() then
-			log("    still carrying after a check-in try; this case may see no GrabResult")
+			log("    still carrying after a check-in try; this case's swings may get no NetSwung")
 		end
 		if back ~= nil then
 			teleportTo(back)
@@ -5264,6 +5359,12 @@ Remotes.event("GrabResult").OnClientEvent
 			id
 		)
 	end)
+-- F93: every landed swing within 150 studs; only mine are kept. A refused swing gets none.
+Remotes.event("NetSwung").OnClientEvent:Connect(function(userId: number, hit: boolean)
+	if userId == player.UserId then
+		record("NetSwung", "hit=" .. tostring(hit), nil, hit)
+	end
+end)
 Remotes.event("CatchSchedule").OnClientEvent
 	:Connect(function(strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
 		local schedule: Schedule = { circles = circles, windows = windows }

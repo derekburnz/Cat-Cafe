@@ -564,6 +564,20 @@ export type FreshCatchState = {
 
 -- One row of the Fresh Catch shelf (F94, section 3): a potion, or now and then a cheaper Classic Crate, for golden
 -- fish. `alert` rows send a ShopAlert when a window stocks them. The row's id is its potion's or crate's id.
+-- One item on the cafe menu (F90, cats-make-orders.md section 1): opened at `tier`, made at its station ("espresso",
+-- "oven" or "counter") in makeSeconds, shown as its model CatCafe_Menu_<model> on a plate and as `icon` (an
+-- rbxassetid once the render is uploaded) or `glyph` until then. Client only: the server never sees an order.
+export type MenuItem = {
+	id: string,
+	name: string,
+	tier: number,
+	station: string,
+	makeSeconds: number,
+	model: string,
+	icon: string?,
+	glyph: string,
+}
+
 export type FreshCatchRow = {
 	id: string,
 	kind: "potion" | "crate",

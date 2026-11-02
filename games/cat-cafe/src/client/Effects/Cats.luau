@@ -4,7 +4,8 @@
 -- asleep there, F79, or on an older server asleep at its station: curled up, or dozing where it sits or stands in
 -- its outfit, F25 and PR #260), the resting cat's loaf now and then, stuck
 -- cats struggling in their traps, strays looking around, legs that walk and gallop with the cat's real speed, the
--- pant after a sprint, the hiss hop on a missed catch and the Balloon Cat bobbing as if it might float off (F78).
+-- pant after a sprint, the hiss hop on a missed catch, the startled spring of a near miss (F93) and the Balloon Cat
+-- bobbing as if it might float off (F78).
 -- Only the nearest few within range move (budget.animatedCats within budget.animRadius); the rest stand as the
 -- server placed them. Gold cats in range sparkle, a gold coat seen for the first time bursts with gold sparkles,
 -- and napping cats show floating z's.
@@ -34,6 +35,7 @@ type Entry = {
 	changedAt: number,
 	phase: number,
 	hissAt: number?,
+	startleAt: number?, -- os.clock() of a near miss's spring (HopAt), until it lands
 	head: BasePart?,
 	dustAt: number,
 	huffAt: number,
@@ -154,6 +156,14 @@ local function consider(instance: Instance)
 		model:GetAttributeChangedSignal("Gold"):Connect(goldChanged)
 		model:GetAttributeChangedSignal("Shiny"):Connect(goldChanged)
 		watchHidden(model)
+		-- A near miss sends a stray off with a startled spring (F93): HopAt is the server time it set off, so the spring
+		-- starts that far in, and one already over by the time it replicates plays nothing.
+		model:GetAttributeChangedSignal("HopAt"):Connect(function()
+			local at = model:GetAttribute("HopAt")
+			if type(at) == "number" then
+				Cats.startle(model, math.max(0, Workspace:GetServerTimeNow() - at))
+			end
+		end)
 		-- Stood up or put back on all fours (F25): the joints and axes change, so it binds again at the next pick.
 		model:GetAttributeChangedSignal("Pose"):Connect(function()
 			local entry: Entry? = active[model]
@@ -484,6 +494,7 @@ local function bind(model: Model): Entry?
 		changedAt = 0,
 		phase = rng:NextNumber(0, 20),
 		hissAt = nil,
+		startleAt = nil,
 		head = partNamed(model, "Head"),
 		dustAt = 0,
 		huffAt = 0,
@@ -583,7 +594,11 @@ local function pick()
 		end
 	end
 	for model, entry in active do
-		if model.Parent == nil or hidden(model) or (not keep[model] and entry.hissAt == nil) then
+		if
+			model.Parent == nil
+			or hidden(model)
+			or (not keep[model] and entry.hissAt == nil and entry.startleAt == nil)
+		then
 			drop(model, entry)
 		else
 			local style: Logic.Style = styleOf(model)
@@ -709,6 +724,15 @@ local function step(dt: number)
 			Particles.burst("kick", Pose.floor(rig).Position, gait.dust)
 		end
 		stretch(entry, o, now, serverNow, stepDt, fleeing)
+		local startleAt = entry.startleAt
+		if startleAt ~= nil then
+			local k = (now - startleAt) / motion.startle.seconds
+			if k >= 1 then
+				entry.startleAt = nil
+			else
+				Logic.startle(o, k)
+			end
+		end
 		local alpha = -1
 		local hissAt = entry.hissAt
 		if hissAt ~= nil then
@@ -739,6 +763,29 @@ local function step(dt: number)
 		if naps ~= nil then
 			animateNaps(naps, t, Logic.breathSeconds(entry.style))
 		end
+	end
+end
+
+-- Makes a stray spring up startled as a near miss sends it off (F93, HopAt), `lag` seconds into the spring. Like the
+-- hiss, a cat that is not moving yet is picked up at once, but only within budget.animRadius: near misses come far
+-- more often than hisses and every client sees every one, and a small spring further off would not show anyway.
+function Cats.startle(model: Model, lag: number?)
+	if hidden(model) or (lag or 0) >= Presets.motion.startle.seconds then
+		return
+	end
+	local entry: Entry? = active[model]
+	if entry == nil and model.Parent ~= nil then
+		local focus = Context.focus()
+		if
+			focus == nil
+			or (model:GetPivot().Position - focus).Magnitude > Context.budget.animRadius
+		then
+			return
+		end
+		entry = bind(model)
+	end
+	if entry ~= nil then
+		entry.startleAt = os.clock() - (lag or 0)
 	end
 end
 

@@ -1,6 +1,7 @@
 --!strict
 -- The cat hover card's words and numbers (F75, data-model section 4b v0.12): the name lines, the role line, the
--- level and XP line, the level up toast and the gamepad's nearest cat. Pure, so the cloud spec runner checks it.
+-- level and XP line and the gamepad's nearest cat. Pure, so the cloud spec runner checks it. The level up toast went
+-- on 2026-11-02 (Derek: "no need for that").
 -- Levels and XP come from shared/CatStats and Config, so the card follows the engineer's CatMaxLevel (50 in v0.12).
 -- No Theme or Format here (Theme builds Fonts, which the spec runner has not got), so the two text helpers are local.
 
@@ -14,8 +15,6 @@ local CatCardLogic = {}
 
 CatCardLogic.GAMEPAD_STUDS = 8 -- on gamepad the card shows for the nearest own cat this close
 CatCardLogic.TOUCH_SECONDS = 4 -- a tapped card closes by itself after this long
-
-export type LevelUp = { name: string, level: number }
 
 -- 1440 -> "1,440" (Format.commas, for whole numbers 0 and up)
 local function commas(n: number): string
@@ -62,24 +61,6 @@ function CatCardLogic.role(role: string?, favoriteRole: string?): (string, boole
 		return "Resting", false
 	end
 	return roleName(role), role == favoriteRole
-end
-
--- One toast for the level ups that land together: "Biscuit reached level 12!", or "Biscuit and 2 more cats reached
--- a new level!" when several cats level in the same moment (a whole room of resting cats can).
-function CatCardLogic.levelUpToast(levelUps: { LevelUp }): string?
-	local first = levelUps[1]
-	if first == nil then
-		return nil
-	end
-	local more = #levelUps - 1
-	if more == 0 then
-		return ("%s reached level %d!"):format(first.name, first.level)
-	end
-	return ("%s and %d more %s reached a new level!"):format(
-		first.name,
-		more,
-		if more == 1 then "cat" else "cats"
-	)
 end
 
 -- The key of the point nearest `from` within `radius` studs, or nil.

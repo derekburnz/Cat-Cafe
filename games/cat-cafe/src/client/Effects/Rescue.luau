@@ -10,16 +10,26 @@
 --
 -- Source: the StuckCat tag RescueService puts on the cat model in a trap, and that model's `LockedBy` and `Rarity`; the camera
 -- and a ray from it to the mark for "in view". Listening only. Numbers in Presets.stuckMark.
+--
+-- Your own rescue (F93, catch-rework.md section 4): on every hit the trap shakes, tipping side to side about its base
+-- and hopping, a little more each hit (Logic.trapShake, Presets.trapShake), and when the cat comes free it pops in its
+-- rarity colour over its spot (Catch.pop), the ring on the ground below. The trap is WorldBuilder's `<rescueSpotId>_Trap`
+-- model beside the spot's `RescueSpot` anchor; a trap built into an area's set has none and keeps still. Sources: the
+-- UIController's Moments.RescueStart, RescueHit and RescueDone. Reduce Motion keeps the trap still.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local Catch = require(script.Parent.Catch)
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
+local Moments = require(script.Parent.Parent.Moments)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
+local Pull = require(script.Parent.Pull)
 local Rarity = require(script.Parent.Rarity)
 
 local Rescue = {}
@@ -33,7 +43,18 @@ type Mark = {
 	shown: boolean,
 }
 
+type Shaking = {
+	placed: CFrame, -- where the trap stands still
+	base: CFrame, -- its base centre, what it tips about
+	began: number,
+	hits: number,
+	needed: number,
+}
+
 local marks: { [Model]: Mark } = {}
+local rescuing: string? = nil -- the rescue spot of your own rescue now (RescueStart)
+local shaking: { [Model]: Shaking } = {}
+local shakeLoop: RBXScriptConnection? = nil
 local seen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any -- os.clock() each was last in view
 local started = false
 local sight = RaycastParams.new()
@@ -285,12 +306,130 @@ local function check()
 	end
 end
 
+-- The `RescueSpot` anchor of rescue spot `id` in Workspace.
+local function spotOf(id: string): BasePart?
+	for _, spot in CollectionService:GetTagged("RescueSpot") do
+		if
+			spot:IsA("BasePart")
+			and spot:GetAttribute("RescueSpotId") == id
+			and spot:IsDescendantOf(Workspace)
+		then
+			return spot :: BasePart
+		end
+	end
+	return nil
+end
+
+-- The trap model beside it, `<rescueSpotId>_Trap`, or nil for a trap built into the area's set.
+local function trapOf(id: string): Model?
+	local spot = spotOf(id)
+	local folder = if spot ~= nil then spot.Parent else nil
+	local found = if folder ~= nil then folder:FindFirstChild(id .. "_Trap") else nil
+	return if found ~= nil and found:IsA("Model") then found :: Model else nil
+end
+
+local function stepShakes()
+	local o = Presets.trapShake
+	local now = os.clock()
+	for model, s in shaking do
+		local t = now - s.began
+		if model.Parent == nil or t >= o.seconds then
+			if model.Parent ~= nil then
+				model:PivotTo(s.placed)
+			end
+			shaking[model] = nil
+			continue
+		end
+		local tip, hop = Logic.trapShake(t, s.hits, s.needed, o)
+		model:PivotTo(
+			s.base
+				* CFrame.new(0, hop, 0)
+				* CFrame.Angles(0, 0, math.rad(tip))
+				* s.base:Inverse()
+				* s.placed
+		)
+	end
+	if next(shaking) == nil and shakeLoop ~= nil then
+		shakeLoop:Disconnect()
+		shakeLoop = nil
+	end
+end
+
+-- Your rescue's `hits`-th hit of `needed`: its trap shakes, harder than the hit before. A hit while it still shakes
+-- starts again from where it stands still, so it never drifts.
+local function hit(hits: unknown, needed: unknown)
+	local id = rescuing
+	if
+		id == nil
+		or type(hits) ~= "number"
+		or type(needed) ~= "number"
+		or Context.reducedMotion()
+	then
+		return
+	end
+	local trap = trapOf(id)
+	if trap == nil then
+		return
+	end
+	local s = shaking[trap]
+	if s == nil then
+		local placed = trap:GetPivot()
+		local box, size = trap:GetBoundingBox()
+		s = {
+			placed = placed,
+			base = box * CFrame.new(0, -size.Y / 2, 0),
+			began = 0,
+			hits = 0,
+			needed = 0,
+		}
+		shaking[trap] = s
+	end
+	local entry = s :: Shaking
+	entry.began, entry.hits, entry.needed = os.clock(), hits, needed
+	if shakeLoop == nil then
+		shakeLoop = RunService.RenderStepped:Connect(stepShakes)
+	end
+end
+
+-- Your rescue freed its cat: a pop in its rarity colour over the spot, the ring on the ground under it.
+local function freed(id: unknown, rarity: unknown)
+	rescuing = nil
+	if type(id) ~= "string" then
+		return
+	end
+	local spot = spotOf(id)
+	if spot == nil then
+		return
+	end
+	local at = spot.Position + Vector3.new(0, Presets.rescueFree.above, 0)
+	local ignore: { Instance } = {}
+	local trap = trapOf(id)
+	if trap ~= nil then
+		table.insert(ignore, trap)
+	end
+	local ground = Pull.floorBelow(spot.Position, ignore, Presets.rescueFree.depth) or spot.Position
+	Catch.pop(at, ground, if type(rarity) == "string" then rarity else "Common")
+end
+
 function Rescue.start()
 	if started then
 		return
 	end
 	started = true
 	CollectionService:GetInstanceRemovedSignal("StuckCat"):Connect(remove) -- rescued: gone at once
+	Moments.RescueStart:Connect(function(id: string)
+		rescuing = id
+	end)
+	Moments.RescueHit:Connect(function(hits: number, needed: number)
+		hit(hits, needed)
+	end)
+	Moments.RescueDone:Connect(freed)
+	Moments.RescueFail:Connect(function()
+		rescuing = nil
+	end)
+	Moments.RescueCancel:Connect(function()
+		rescuing = nil
+	end)
 	task.spawn(function()
 		while true do
 			check()

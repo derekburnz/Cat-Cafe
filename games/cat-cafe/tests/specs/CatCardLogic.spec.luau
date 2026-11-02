@@ -74,31 +74,6 @@ return function()
 		end)
 	end)
 
-	describe("CatCardLogic.levelUpToast", function()
-		it("names one cat and its new level", function()
-			local text = CatCardLogic.levelUpToast({ { name = "Biscuit", level = 12 } })
-			expect(text).to.equal("Biscuit reached level 12!")
-		end)
-
-		it("counts the others when several level together", function()
-			local two = CatCardLogic.levelUpToast({
-				{ name = "Biscuit", level = 12 },
-				{ name = "Tabby", level = 3 },
-			})
-			expect(two).to.equal("Biscuit and 1 more cat reached a new level!")
-			local three = CatCardLogic.levelUpToast({
-				{ name = "Biscuit", level = 12 },
-				{ name = "Tabby", level = 3 },
-				{ name = "Mochi", level = 7 },
-			})
-			expect(three).to.equal("Biscuit and 2 more cats reached a new level!")
-		end)
-
-		it("says nothing with no level ups", function()
-			expect(CatCardLogic.levelUpToast({})).never.to.be.ok()
-		end)
-	end)
-
 	describe("CatCardLogic.nearest", function()
 		local function at(x: number): Vector3
 			return Vector3.new(x, 0, 0)

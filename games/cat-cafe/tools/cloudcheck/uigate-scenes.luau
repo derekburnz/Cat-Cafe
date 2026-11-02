@@ -192,16 +192,16 @@ end
 function Scenes.setup()
 	Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog")
 	UI = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI")
+	-- Claim all in the Quests window shows once the server has ClaimAll (Gameplay-Engineer); the gate checks it now
+	UIShim.require("ReplicatedStorage.Shared.Config").QuestClaimAll = true
 	UI.init({ catalog = catalogLikeTheGame(), keybinds = true })
 	local now = os.time()
 	UI.update(samplePlayer(now))
-	UI.tipJar.set({
-		sessionStartedAt = workspace:GetServerTimeNow() - 25 * 60,
-		claimed = { [1] = true },
-	})
+	UI.tipJar.set({ sessionStartedAt = workspace:GetServerTimeNow() - 25 * 60, claimed = { [1] = true } })
 end
 
--- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window
+-- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
+-- "Daily.Quest2.Claim" walks down one name at a time
 local function press(windowName, name)
 	local playerGui = UIShim.playerGui
 	-- windows sit in CatCafeModals.Root.Container; the HUD and the Index have pieces with the same names (Cats)
@@ -211,11 +211,12 @@ local function press(windowName, name)
 	local window = (container and container:FindFirstChild(windowName))
 		or playerGui:FindFirstChild(windowName, true)
 	assert(window, "uigate: no window " .. windowName)
-	local holder = window:FindFirstChild(name, true)
+	local holder = window
+	for part in string.gmatch(name, "[^%.]+") do
+		holder = holder and holder:FindFirstChild(part, true)
+	end
 	assert(holder, "uigate: no " .. name .. " in " .. windowName)
-	local button = if holder:IsA("GuiButton")
-		then holder
-		else holder:FindFirstChildWhichIsA("GuiButton", true)
+	local button = if holder:IsA("GuiButton") then holder else holder:FindFirstChildWhichIsA("GuiButton", true)
 	assert(button, "uigate: " .. name .. " has no button")
 	UIShim.fire(UIShim.eventOf(button, "Activated")) -- Components/Button listens to Activated only
 end
@@ -252,168 +253,112 @@ end
 
 -- name, how the game opens it
 local SCENES = {
-	{
-		"Upgrades",
-		function()
-			UI.open("Upgrades")
-		end,
-	},
-	{
-		"Decor",
-		function()
-			UI.open("Decor")
-		end,
-	},
-	{
-		"Index",
-		function()
-			UI.open("Collection")
-		end,
-	},
-	{
-		"Cats",
-		function()
-			UI.open("Cats")
-		end,
-	},
-	{
-		"CatsPicked",
-		function()
-			UI.open("Cats")
-			-- the cards build on the next frame; the gold cat, level 13, at work: favourite or Likes, Gold and level chips
-			task.delay(0.2, function()
-				press("Cats", "gate_3")
-			end)
-		end,
-	},
-	{
-		"RankUp",
-		function()
-			UI.open("RankUp")
-		end,
-	},
-	{
-		"Cannon",
-		function()
-			UI.cannon.open()
-		end,
-	},
-	{
-		"Bait",
-		function()
-			UI.bait.openPicker()
-		end,
-	},
-	{
-		"Dealer",
-		function()
-			UI.dealer.open()
-		end,
-	},
-	{
-		"Settings",
-		function()
-			UI.open("Settings")
-		end,
-	},
-	{
-		"TipJar",
-		function()
-			UI.tipJar.open()
-		end,
-	},
-	{
-		"Spin",
-		function()
-			UI.spin.open()
-		end,
-	},
-	{
-		"SpinOdds",
-		function()
-			UI.spin.open()
-			press("SpinWheel", "Odds")
-		end,
-	},
-	{
-		"Market",
-		function()
-			UI.market.open()
-		end,
-	},
-	{
-		"Feedback",
-		function()
-			UI.bugReport.open("bug")
-		end,
-	},
-	{
-		"Codes",
-		function()
-			UI.codes.open()
-		end,
-	},
-	{
-		"CodesPrize",
-		function()
-			UI.codes.open()
-			UI.codes.result(true, "Code redeemed!", CODE_PRIZE)
-		end,
-	},
-	{
-		"Potions",
-		function()
-			UI.open("Potions")
-		end,
-	},
-	{
-		"Quests",
-		function()
-			UI.open("Quests")
-		end,
-	},
-	{
-		"QuestsWeekly",
-		function()
-			UI.open("Quests")
-			press("Quests", "WeeklyTab")
-		end,
-	},
-	{
-		"DailyTreat",
-		function()
-			UI.open("DailyTreat")
-		end,
-	},
-	-- F93: the rescue bar with its paw marker, draining zone and deadline ring, after one hit
-	{
-		"Rescue",
-		function()
-			UI.rescue.show("gate_rescue", rescueChallenge())
-			local t = workspace:GetServerTimeNow()
-			UI.rescue.update("gate_rescue", 1, 3, false, false, {
-				zone = 2,
-				startsAt = t,
-				phase = 0.6,
-				speed = 0.97,
-				zoneEndsAt = t + 2,
-			})
-		end,
-	},
+	{ "Upgrades", function()
+		UI.open("Upgrades")
+	end },
+	{ "Decor", function()
+		UI.open("Decor")
+	end },
+	{ "Index", function()
+		UI.open("Collection")
+	end },
+	{ "Cats", function()
+		UI.open("Cats")
+	end },
+	{ "CatsPicked", function()
+		UI.open("Cats")
+		-- the cards build on the next frame; the gold cat, level 13, at work: favourite or Likes, Gold and level chips
+		task.delay(0.2, function()
+			press("Cats", "gate_3")
+		end)
+	end },
+	{ "RankUp", function()
+		UI.open("RankUp")
+	end },
+	{ "Cannon", function()
+		UI.cannon.open()
+	end },
+	{ "Bait", function()
+		UI.bait.openPicker()
+	end },
+	{ "Dealer", function()
+		UI.dealer.open()
+	end },
+	{ "Settings", function()
+		UI.open("Settings")
+	end },
+	{ "TipJar", function()
+		UI.tipJar.open()
+	end },
+	{ "Spin", function()
+		UI.spin.open()
+	end },
+	{ "SpinOdds", function()
+		UI.spin.open()
+		press("SpinWheel", "Odds")
+	end },
+	{ "Market", function()
+		UI.market.open()
+	end },
+	{ "Feedback", function()
+		UI.bugReport.open("bug")
+	end },
+	{ "Codes", function()
+		UI.codes.open()
+	end },
+	{ "CodesPrize", function()
+		UI.codes.open()
+		UI.codes.result(true, "Code redeemed!", CODE_PRIZE)
+	end },
+	{ "Potions", function()
+		UI.open("Potions")
+	end },
+	{ "Quests", function()
+		UI.open("Quests")
+	end },
+	{ "QuestsWeekly", function()
+		UI.open("Quests")
+		press("Quests", "WeeklyTab")
+	end },
+	{ "QuestsAchievements", function()
+		UI.open("Quests")
+		press("Quests", "AchievementsTab")
+	end },
+	-- a claim shows at once: the row reads Claimed and drops to the bottom (Derek 2026-10-29)
+	{ "QuestsClaimed", function()
+		UI.open("Quests")
+		press("Quests", "DailyTab")
+		press("Quests", "Daily.Quest2.Claim")
+	end },
+	-- Claim all on the Achievements tab (two met in the sample player)
+	{ "QuestsClaimAll", function()
+		UI.open("Quests")
+		press("Quests", "AchievementsTab")
+		press("Quests", "ClaimAll")
+	end },
+	{ "DailyTreat", function()
+		UI.open("DailyTreat")
+	end },
+	-- F93: the rescue bar after one hit, the zone moved on and the marker sped up
+	{ "Rescue", function()
+		UI.rescue.show("gate_rescue", rescueChallenge())
+		local t = workspace:GetServerTimeNow()
+		UI.rescue.update("gate_rescue", 1, 3, false, false, {
+			zone = 2,
+			startsAt = t,
+			phase = 0.6,
+			speed = 0.97,
+			zoneEndsAt = t + 2,
+		})
+	end },
 	-- F93: the touch Net button, in a catching area while a swing could go (phones only)
-	{
-		"NetButton",
-		function()
-			UI.setZone("Alley")
-			UI.net.setEnabled(true)
-		end,
-	},
-	{
-		"CatFound",
-		function()
-			UI.showCatFound(Catalog.cats[2].id, true)
-		end,
-	},
+	{ "NetButton", function()
+		UI.setZone("Alley")
+		UI.net.setEnabled(true)
+	end },
+	{ "CatFound", function()
+		UI.showCatFound(Catalog.cats[2].id, true)
+	end },
 }
 
 Scenes.names = {}

@@ -6,6 +6,8 @@
 --   setPrize(catalog, kind) -> IndexPrize?       what finishing all of them pays (dailySet, weeklySet)
 --   doneCount(quests) -> number                  finished ones, claimed or not ("3 of 5 done")
 --   claimable(state, catalog) -> number          quests and achievements ready to claim: the Quests pill's dot
+--   readyCount(quests) -> number                 finished and unclaimed quests in one set (Claim All shows at 2)
+--   rowOrder(slot, claimed) -> number            a quest row's LayoutOrder: claimed ones drop to the bottom
 --   isCoins(catalog, id) -> boolean              a coins quest, whose progress reads as money
 --   resetText(seconds) -> string                 "New quests in 5 h"
 --   achievementRows(catalog, views) -> rows      ready to claim first, then the closest to done, claimed last
@@ -68,7 +70,7 @@ function QuestLogic.doneCount(quests: { Types.QuestView }?): number
 	return count
 end
 
-local function readyQuests(quests: { Types.QuestView }?): number
+function QuestLogic.readyCount(quests: { Types.QuestView }?): number
 	local count = 0
 	local list: { Types.QuestView } = quests or {}
 	for _, quest in list do
@@ -79,11 +81,17 @@ local function readyQuests(quests: { Types.QuestView }?): number
 	return count
 end
 
+-- Derek 2026-10-29: claimed quests drop to the bottom. The window's head and set strip sit at 1 and 2, the rows in
+-- slot order after them, the claimed ones after all of those, still in slot order.
+function QuestLogic.rowOrder(slot: number, claimed: boolean): number
+	return (if claimed then 100 else 10) + slot
+end
+
 function QuestLogic.claimable(state: Types.PlayerState, catalog: Types.Catalog?): number
 	local count = 0
 	local quests = state.quests
 	if quests then
-		count += readyQuests(quests.daily) + readyQuests(quests.weekly)
+		count += QuestLogic.readyCount(quests.daily) + QuestLogic.readyCount(quests.weekly)
 	end
 	local views = state.achievements
 	local defs = if catalog then catalog.achievements else nil

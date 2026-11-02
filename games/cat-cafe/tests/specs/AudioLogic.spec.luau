@@ -760,4 +760,31 @@ return function()
 			expect(Logic.decorSound(nil)).to.equal(nil)
 		end)
 	end)
+
+	describe("Audio.Logic net swing result words (F93)", function()
+		it("names the word from the server's grades like catch-rework section 3", function()
+			expect(Logic.catchWord({ "perfect", "perfect", "perfect" }, true)).to.equal("purrfect")
+			expect(Logic.catchWord({ "perfect", "perfect", "good", "good" }, true)).to.equal("excellent")
+			expect(Logic.catchWord({ "perfect", "good", "good" }, true)).to.equal("great")
+			expect(Logic.catchWord({ "good", "good", "good" }, true)).to.equal("great")
+			expect(Logic.catchWord({ "perfect", "miss" }, false)).to.equal("close")
+			expect(Logic.catchWord({}, true)).to.equal("great")
+			expect(Logic.catchWord(nil, nil)).to.equal(nil)
+		end)
+		it("gives GREAT and EXCELLENT their Catch sheet cue and leaves the others to their moments", function()
+			for _, word in { "great", "excellent" } do
+				local cue = Logic.wordCue(word)
+				expect(cue ~= nil and Cues[cue] ~= nil).to.equal(true)
+				expect(Cues[cue].sheet).to.equal("sheetCatch")
+			end
+			expect(Logic.wordCue("purrfect")).to.equal(nil)
+			expect(Logic.wordCue("close")).to.equal(nil)
+			expect(Logic.wordCue(nil)).to.equal(nil)
+		end)
+		it("has the smack, bounce and hop in the Catch sheet", function()
+			for _, cue in { "netSmack", "netBounce", "strayHop" } do
+				expect(Cues[cue] ~= nil and Cues[cue].sheet == "sheetCatch").to.equal(true)
+			end
+		end)
+	end)
 end

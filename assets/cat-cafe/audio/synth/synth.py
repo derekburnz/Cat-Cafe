@@ -1564,6 +1564,73 @@ def decor_cat_tree() -> np.ndarray:
     return finish(fade_tail(mix(d, *rakes, *jingle, (thump, 0.95)), 0.2), -6)
 
 
+# --- F93 net swing (2026-11-02, catch-rework.md): the smack as the net lands, its bounce on a miss, a stray's
+# startled hop and the GREAT and EXCELLENT result words. The whoosh is the existing NetSwing. They live in the Catch
+# sheet (mono, 3D for the first three). -----------------------------------------------------------------------
+
+
+def net_smack() -> np.ndarray:
+    """The net lands (F93): the mesh slaps down with a soft rustle, a padded thump on the ground and a light tok of
+    the hoop. Cartoon soft, never a hit."""
+    d = 0.35
+    mesh = bandpass(bandpass(noise(0.09, 900), sweep(0.09, 2200, 1100), 1.1), 1500, 0.9) * envelope(0.09, 0.002, 0.025)
+    thump = glide(0.2, 150, 80, 0.06) * envelope(0.2, 0.002, 0.05)
+    hoop = bell(0.12, 620.0, ((1.0, 1.0, 0.03), (2.7, 0.3, 0.012)), attack=0.0005)
+    settle = bandpass(bandpass(noise(0.14, 901), 900, 1.0), 900, 1.0) * envelope(0.14, 0.01, 0.04)
+    return finish(fade_tail(mix(d, (mesh / np.max(np.abs(mesh)) * 0.7, 0.0), (thump, 0.004), (hoop * 0.3, 0.006),
+                                (settle / np.max(np.abs(settle)) * 0.2, 0.05)), 0.1), -4)
+
+
+def net_bounce() -> np.ndarray:
+    """A swing that lands on nothing (F93): the net springs back up with a little rubbery boing and taps down once
+    more, a friendly "missed it" that never scolds."""
+    d = 0.5
+    t = seconds(0.32)
+    wobble = 1 + 0.18 * np.exp(-t / 0.09) * np.sin(2 * np.pi * 13 * t)
+    freq = 330 * (1 + 0.35 * np.clip(t / 0.05, 0, 1)) * wobble
+    phase = np.cumsum(freq) / SR
+    boing = (np.sin(2 * np.pi * phase) + 0.25 * np.sin(4 * np.pi * phase)) * envelope(0.32, 0.004, 0.09)
+    tap = glide(0.1, 140, 90, 0.03) * envelope(0.1, 0.002, 0.025)
+    rustle = bandpass(bandpass(noise(0.06, 910), 1400, 1.2), 1400, 1.2) * envelope(0.06, 0.002, 0.015)
+    return finish(fade_tail(mix(d, (boing * 0.6, 0.0), (tap * 0.5, 0.3), (rustle / np.max(np.abs(rustle)) * 0.25, 0.3)),
+                            0.1), -6)
+
+
+def stray_hop() -> np.ndarray:
+    """A stray startled by a near miss (F93) hops a few studs away: a quick fur puff, the scrabble of the take-off
+    and two soft paws landing. No voice."""
+    d = 0.5
+    puff = swish(0.08, 2400, 4200, 920) * 0.5
+    scrabble = bandpass(bandpass(noise(0.07, 921), 2600, 1.5), 2600, 1.5) * envelope(0.07, 0.002, 0.02)
+    lands = [(pad_step(922 + i, 1100 + 200 * i) * a, at) for i, (at, a) in enumerate(((0.3, 0.6), (0.34, 0.45)))]
+    return finish(fade_tail(mix(d, (puff, 0.0), (scrabble / np.max(np.abs(scrabble)) * 0.35, 0.04), *lands), 0.1), -5)
+
+
+def word_pop(seed: int) -> np.ndarray:
+    """The pop of a result word slamming in: a round cork blip with a tiny click."""
+    blip = glide(0.06, 520, 1100, 0.03) * envelope(0.06, 0.001, 0.015)
+    click = bandpass(noise(0.02, seed), 2500, 1.5) * envelope(0.02, 0.0005, 0.004)
+    return mix(0.06, (blip, 0.0), (click / np.max(np.abs(click)) * 0.2, 0.0))
+
+
+def word_great() -> np.ndarray:
+    """GREAT! (F93, every circle Good or better): the word's pop and two warm marimba notes rising a fifth, in the
+    catch sparkle's key (A) and under its register, mint and calm."""
+    d = 0.6
+    notes = [(bell(0.45, note(n), MARIMBA, attack=0.002) * a, at) for n, at, a in (("A5", 0.05, 0.6), ("E6", 0.14, 0.7))]
+    return finish(fade_tail(mix(d, (word_pop(930) * 0.5, 0.0), *notes), 0.15), -6)
+
+
+def word_excellent() -> np.ndarray:
+    """EXCELLENT! (F93, at least half the circles Perfect): the pop and a quick four note vibes fanfare up the A
+    major chord, gold but a step below PURRFECT's chime."""
+    d = 0.9
+    notes = [(bell(0.6, note(n), VIBES, attack=0.002) * a, at)
+             for n, at, a in (("A5", 0.04, 0.5), ("C#6", 0.11, 0.55), ("E6", 0.18, 0.6), ("A6", 0.26, 0.7))]
+    glints = [(bell(0.25, f, ((1.0, 1.0, 0.05),)) * 0.12, at) for f, at in ((3520.0, 0.3), (4434.9, 0.36))]
+    return finish(fade_tail(mix(d, (word_pop(931) * 0.5, 0.0), *notes, *glints), 0.2), -5)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -1670,6 +1737,11 @@ SOUNDS = {
     "DecorDuckFountain": ("sheet-parts/sfx", "Sfx", decor_duck_fountain),
     "DecorJukebox": ("sheet-parts/sfx", "Sfx", decor_jukebox),
     "DecorCatTree": ("sheet-parts/sfx", "Sfx", decor_cat_tree),
+    "NetSmack": ("sheet-parts/sfx", "Sfx", net_smack),
+    "NetBounce": ("sheet-parts/sfx", "Sfx", net_bounce),
+    "StrayHop": ("sheet-parts/sfx", "Sfx", stray_hop),
+    "WordGreat": ("sheet-parts/sfx", "Sfx", word_great),
+    "WordExcellent": ("sheet-parts/sfx", "Sfx", word_excellent),
 }
 
 # Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the
@@ -1686,6 +1758,8 @@ SHEETS = {
     # F89's rare decor (2026-11-02), mono for 3D
     "Decor": (1, ("DecorBlossomTree", "DecorBathtubSofa", "DecorHollowLog", "DecorIceCream", "DecorDuckFountain",
                   "DecorJukebox", "DecorCatTree")),
+    # F93's net swing (2026-11-02), mono: the smack, bounce and hop play in 3D, the two words flat
+    "Catch": (1, ("NetSmack", "NetBounce", "StrayHop", "WordGreat", "WordExcellent")),
 }
 
 

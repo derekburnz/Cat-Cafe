@@ -100,13 +100,16 @@ export type CustomEvent =
 	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
 	-- a feedback face (love, ok or no; the chip or none; tier), FeedbackSessionLimit a session
 	| "tip_shown"
-	| "ask_shown" -- F96: value 1; kind (notify, favorite or like), the session number
+	| "ask_shown" -- F96: value 1; kind (notify, favorite, like or F92's invite), the session number
 	| "feedback"
 	-- F96 (starter-cat.md section 4): the free Bellhop Cat taken home; the gate it passed, "task" or "group"
 	| "starter_cat"
 	-- F92 (playing-together.md 6): on leave, the minutes with at least one pal on the server (how the first pal was
 	-- linked: friend, invite, follow or private; tier)
 	| "pal_time"
+	-- F92 (playing-together.md 6): a rescue attempt a helper joined, as it ends (rarity, freed yes or no, pals yes or
+	-- no); the helper's tip is the economy source helper_tip
+	| "team_rescue"
 	-- F88 (luck-and-rare-moments.md 1f): a bait or crate roll with Luck above x1 (value the Luck; roll kind, rarity
 	-- won, tier) and a Lucky Day's sunrise (value the players in the server; the area of a Mythical, or none)
 	| "luck_used"

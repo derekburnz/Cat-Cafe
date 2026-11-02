@@ -1374,6 +1374,27 @@ Presets.netSmack = {
 	},
 }
 
+-- The pal wave (F92, playing-together.md section 5: "a little wave from both characters" when an invited or
+-- following player spawns at a pal's front door): the left arm comes up over `raise` seconds, raised `sh` degrees
+-- forward and `sp` out to the side with the elbow bent `el` so the forearm stands up by the head, turns `twist`
+-- degrees in and out about the upper arm `waves` times (one every `every` seconds) and goes back down over `lower`
+-- seconds, 1.9 s in all. The right arm keeps the net. R6, with no elbow, raises the whole arm `sh6` and sways it
+-- `sway6` degrees either side of `sp6` out. The pal waves back `palDelay` seconds after the joiner starts.
+Presets.palWave = {
+	raise = 0.25,
+	waves = 3,
+	every = 0.45,
+	lower = 0.3,
+	sh = 125,
+	sp = 20,
+	el = 60,
+	twist = 25,
+	sh6 = 160,
+	sp6 = 15,
+	sway6 = 15,
+	palDelay = 0.35,
+}
+
 -- The carry (Derek 2026-10-28: "hold it in your arms crossed arms", the cat "awake loafing or sitting in your
 -- arms"), drawn by Tackle.luau on the carrier and by Carry.luau on the HeldCat. `arms` is the upper body's pose in
 -- Avatar.Pose degrees (the legs stay the character's own): arms folded across the chest, the left forearm under the

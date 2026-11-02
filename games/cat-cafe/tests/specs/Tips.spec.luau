@@ -271,7 +271,7 @@ return function()
 		end
 
 		it("are the notification, favorite and like asks, in that order, each taken on TipSeen", function()
-			expect(Tips.ASKS :: any).to.deepEqual({ "notify_ask", "favorite_ask", "like_ask" })
+			expect(Tips.ASKS :: any).to.deepEqual({ "notify_ask", "favorite_ask", "like_ask", "invite_ask" })
 			for _, id in Tips.ASKS do
 				expect(Tips.isAsk(id)).to.equal(true)
 				expect(Tips.seenId(id)).to.equal(true)
@@ -297,6 +297,8 @@ return function()
 			profile.tipsSeen[Tips.FAVORITE_ASK] = true
 			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(Tips.LIKE_ASK)
 			profile.tipsSeen[Tips.LIKE_ASK] = true
+			expect(Tips.dueAsk(profile, NOW, TODAY + 9)).to.equal(Tips.INVITE_ASK) -- F92
+			profile.tipsSeen[Tips.INVITE_ASK] = true
 			expect(Tips.dueAsk(profile, NOW, TODAY + 9)).to.equal(nil)
 		end)
 

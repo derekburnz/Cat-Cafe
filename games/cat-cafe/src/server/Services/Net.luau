@@ -21,6 +21,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SwingNet = RateLimiter.new(3, 1), -- F93: a flood guard; CatService holds NetSwingCooldown from each swing
 	RescueBegin = RateLimiter.new(1, 1),
 	RescueCancel = RateLimiter.new(1, 1),
+	RescueHelp = RateLimiter.new(1, 1), -- F92 (playing-together.md section 6): 1 a second
 	DropCat = RateLimiter.new(1, 1),
 	RequestSync = RateLimiter.new(1, 2),
 	ClaimOffline = RateLimiter.new(1, 2),

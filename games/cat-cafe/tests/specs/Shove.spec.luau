@@ -59,6 +59,10 @@ return function()
 			expect(Shove.tackleRefusal(press({ busy = true }))).to.be.ok()
 		end)
 
+		it("a newcomer cannot tackle either: the shield works both ways (F87, review N300)", function()
+			expect(Shove.tackleRefusal(press({ newcomer = true }))).to.equal("Check in your first cat before you tackle")
+		end)
+
 		it("only inside a catching area", function()
 			expect(Shove.tackleRefusal(press({ area = NONE }))).to.be.ok()
 		end)
@@ -102,6 +106,11 @@ return function()
 
 		it("passes through a player near their own cafe", function()
 			expect(Shove.targetRefusal(target({ targetSafe = true }))).to.be.ok()
+		end)
+
+		it("passes through a player who has not checked in a cat yet, carrying or not (F87 newcomer)", function()
+			expect(Shove.targetRefusal(target({ targetNewcomer = true }))).to.equal("They're new here")
+			expect(Shove.targetRefusal(target({ targetNewcomer = false }))).never.to.be.ok()
 		end)
 
 		it("BumpSameTargetSeconds before this tackler hits the same player again", function()

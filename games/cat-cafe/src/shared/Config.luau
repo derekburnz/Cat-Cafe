@@ -205,6 +205,14 @@ local Config = {
 	RescuedTipsMultiplier = 1.0, -- v0.3: a rescue pays no more; its reward is the higher gold chance
 
 	TutorialGuaranteedStrayStep = 2, -- players below this tutorialStep always find a Common stray at alley point 1
+	-- F87 (easy-start.md section 2): the intro waits for the Tutorial tile instead of playing by itself (true restores
+	-- the F72 behaviour), and a player below TutorialGuaranteedStrayStep catches their own tutorial stray on one slow
+	-- circle with bands TutorialWindowScale times as wide; a Miss brings the circle back after TutorialRetrySeconds
+	-- with no sprint, and nobody else can catch it. Below TutorialGuaranteedStrayStep nobody can tackle them either.
+	IntroAutoPlay = false,
+	TutorialShrinkSeconds = 1.6,
+	TutorialWindowScale = 2,
+	TutorialRetrySeconds = 1.0,
 
 	-- Night income and rich customers (F31, data-model sections 11 and 12)
 	-- tips pay this share of the day rate at night; offline pay keeps the day rate. F60 (round 3 Q6): full pay, the

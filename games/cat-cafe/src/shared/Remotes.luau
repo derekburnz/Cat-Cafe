@@ -16,7 +16,10 @@ Remotes.ClientToServer = {
 	"CatchPress", -- (strayId: string, index: number)  no time is sent: the server stamps the press on arrival
 	"RescueBegin", -- (rescueSpotId: string)  trap holds a stuck cat, unlocked, past its retry waits, in range, not carrying
 	"RescuePress", -- (rescueSpotId: string)  no time is sent: the server stamps the press and judges the marker
-	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail
+	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail; a helper's only ends their help
+	"RescueHelp", -- (rescueSpotId: string)  F92 Team Rescue: join someone else's running bar as its one helper; within
+	-- TeamRescueRangeStuds, not carrying, the trap locked to another player with no helper yet. Answered with
+	-- RescueChallenge (helper = true) or a GrabResult refusal; the helper's presses are RescuePress
 	"CheckIn", -- ()  carrying and within CheckInRangeStuds of own plot Door
 	"DropCat", -- ()  carrying, areas open: puts the cat down to walk back to where it was caught (F67)
 	"PlaceCat", -- (uid: string, spotId: string)
@@ -110,6 +113,10 @@ Remotes.ServerToClient = {
 	-- Epic a player ever secures goes to that player alone for the small card. The toast is the Announce above
 	"FoundRareDecor", -- (userId: number, decorId: string)  F89 (2b): a Mythical crate piece, to everyone for the
 	-- toast ("Sam found the Mythical Midnight Sky!", RareMoments.decorText), at most once a minute a player
+	"PalArrived", -- (joinerUserId: number, palUserId: number, palArea: string?)  F92 (playing-together.md section 5),
+	-- to everyone: a player who joined through a pal's invite or by following them now stands at that pal's front
+	-- door, for the wave from both characters; palArea is the catching area the pal is in (nil in town or a cafe),
+	-- for the joiner's "Sam is in the Park" marker
 	"PalsChanged", -- (userIds: { number })  F92 (playing-together.md 1): this player's pals on the server, every time
 	-- one comes or goes, for the HUD chip's headshots and "+10% with pals"; none sent while a player has never had one
 	"GrabResult", -- (id: string, ok: boolean, reason: string, retry: boolean)  id is a rescueSpotId; retry keeps the
@@ -124,7 +131,12 @@ Remotes.ServerToClient = {
 	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
 	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean,
 	-- bar: Types.RescueBar)  after every judged press, when a zone runs out (F93) and when the attempt ends; `bar` is
-	-- how the marker runs and which zone to hit from now. Refusals of RescueBegin come as GrabResult
+	-- how the marker runs and which zone to hit from now. Refusals of RescueBegin come as GrabResult. F92: a Team
+	-- Rescue helper gets these too (a done one that is not a success when they stop helping), and `bar.endsAt` is the
+	-- deadline, TeamRescueExtraSeconds later once a helper joins
+	"TeamRescue", -- (rescueSpotId: string, rescuerUserId: number, helperUserId: number, position: Vector3,
+	-- coins: number)  F92: a helped rescue freed its cat, to the rescuer and the helper for the "Team Rescue!" pop;
+	-- coins is the helper's tip this player got (0 for the rescuer, and on the TeamRescueTipCooldown)
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
 	"CannonLaunch", -- (destination: string, launchAt: number?)  F84: the caller's flight began at launchAt (server
 	-- time) and lands at the destination's pad CannonLaunchSeconds later; launchAt nil when the launch was refused

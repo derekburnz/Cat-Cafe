@@ -39,6 +39,7 @@ import campextras  # noqa: E402
 import leaderboards  # noqa: E402
 import rally  # noqa: E402
 import menu  # noqa: E402
+import rallycrate  # noqa: E402
 import camps  # noqa: E402
 import cannon  # noqa: E402
 import areakit  # noqa: E402
@@ -89,7 +90,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
-           leaderboards, rally, menu, style_icons]
+           leaderboards, rally, rallycrate, menu, style_icons]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -288,7 +289,7 @@ STUDIO_NOTES = {
 }
 
 
-for _n in crate_decor.ASSETS:                   # F53 crate pieces: the server clones them onto decor spots
+for _n in {**crate_decor.ASSETS, **rallycrate.ASSETS}:   # F53 crate pieces (F101 Rally's too): on decor spots
     _index = _n.endswith(("MailboxPlanter", "MushroomLamp", "PipeFountain"))
     STUDIO_NOTES[_n] = ("F53 crate piece: " + ("its zone's Epic, on the Index anchor or a decor spot" if _index
                         else "on a decor spot, 1.4 studs off the wall") + "; pivot base centre, front -Z, no "

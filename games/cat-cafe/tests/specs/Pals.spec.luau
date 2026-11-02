@@ -111,4 +111,46 @@ return function()
 			end
 		end)
 	end)
+
+	describe("the invite nudge (section 5)", function()
+		local Tips = require(Shared.Tips)
+		local TODAY = NOW // 86400
+
+		-- past the first loop, every other ask seen, on its first day
+		local function settled(tier: number): any
+			local profile: any = ProfileSchema.template(NOW)
+			profile.tutorialStep = 5
+			profile.tier = tier
+			profile.telemetry.firstDay = TODAY
+			for _, id in { Tips.NOTIFY_ASK, Tips.FAVORITE_ASK, Tips.LIKE_ASK } do
+				profile.tipsSeen[id] = true
+			end
+			return profile
+		end
+
+		it("comes once an account after the first rank up, as the last ask", function()
+			expect(Tips.ASKS[#Tips.ASKS]).to.equal(Tips.INVITE_ASK)
+			expect(Tips.isAsk(Tips.INVITE_ASK)).to.equal(true)
+			expect(Tips.dueAsk(settled(1), NOW, TODAY)).to.equal(nil)
+			local ranked = settled(2)
+			expect(Tips.dueAsk(ranked, NOW, TODAY)).to.equal(Tips.INVITE_ASK)
+			ranked.tipsSeen[Tips.INVITE_ASK] = true
+			expect(Tips.dueAsk(ranked, NOW, TODAY + 30)).to.equal(nil)
+		end)
+
+		it("waits behind the other asks and the first loop", function()
+			local profile = settled(3)
+			profile.tipsSeen[Tips.FAVORITE_ASK] = nil
+			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(Tips.FAVORITE_ASK)
+			profile.tipsSeen[Tips.FAVORITE_ASK] = true
+			profile.tutorialStep = 4
+			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(nil)
+		end)
+
+		it("stays put through a save and Show tips again", function()
+			local raw: any = { invite_ask = true }
+			expect(Tips.sanitizeSeen(raw, false) :: any).to.deepEqual(raw)
+			expect(Tips.cleared(raw) :: any).to.deepEqual(raw)
+		end)
+	end)
 end

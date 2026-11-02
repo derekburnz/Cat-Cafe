@@ -86,6 +86,26 @@ function PalService.count(player: Player): number
 	return #PalService.palIds(player)
 end
 
+-- The pal a player joined through (F92 section 5): whoever invited them, else whoever they followed in, when that
+-- player is on this server; nil otherwise.
+function PalService.joinedVia(player: Player): Player?
+	local inviter = inviters[player] or inviterOf(player)
+	local pal = if inviter ~= nil then Players:GetPlayerByUserId(inviter) else nil
+	if pal == nil and player.FollowUserId ~= 0 then
+		pal = Players:GetPlayerByUserId(player.FollowUserId)
+	end
+	if pal == nil or pal == player then
+		return nil
+	end
+	return pal
+end
+
+-- Whether the two are pals right now (Team Rescue doubles the helper's tip between pals).
+function PalService.arePals(a: Player, b: Player): boolean
+	local mine = links[a]
+	return mine ~= nil and mine[b] ~= nil
+end
+
 -- Starts or stops the player's pal clock for pal_time and remembers how the first pal was linked.
 local function clock(player: Player, count: number)
 	local time = palTime[player]

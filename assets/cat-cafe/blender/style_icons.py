@@ -12,6 +12,10 @@ The style's own colour and material come from the parts named <asset>_Swatch, re
 games/cat-cafe/src/shared/Catalog.luau at build time (`color = Color3.fromRGB(r, g, b)`, `material =
 Enum.Material.X`), so a sample always matches what the cafe shows. A row the parser cannot read stops the build.
 Nothing in game places these models; they are pictures only.
+
+PENDING holds the styles of a crate whose catalog rows are not written yet (F101's Rally Crate, proposed to
+Gameplay-Engineer with these colours and materials), so its samples ship with its models; a catalog row with the same
+id wins as soon as it exists, so the samples follow the catalog after the next build.
 """
 import os
 import re
@@ -23,6 +27,16 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CATALOG = os.path.join(HERE, "..", "..", "..", "games", "cat-cafe", "src", "shared", "Catalog.luau")
 STYLED = ("wallpaper", "floor", "paint")
 ROW = re.compile(r'\{\s*id = "([^"]+)",\s*name = "([^"]+)",\s*kind = "([^"]+)",(.*?)\n\t\t\}', re.S)
+
+
+PENDING = [                               # (id, name, kind, (r, g, b), material), until Catalog.luau has them
+    ("rally_pennant_wall", "Pennant Wall", "wallpaper", (217, 72, 59), "Fabric"),
+    ("rally_team_banner", "Team Banner", "wallpaper", (47, 62, 92), "Fabric"),
+    ("rally_running_track", "Running Track", "floor", (196, 84, 62), "Rubber"),
+    ("rally_gym_floor", "Gym Floor", "floor", (214, 170, 110), "WoodPlanks"),
+    ("rally_team_stripes", "Team Stripes", "paint", (60, 125, 217), "SmoothPlastic"),
+    ("rally_trophy_gold", "Trophy Gold", "paint", (255, 201, 77), "Foil"),
+]
 
 
 def _rows():
@@ -42,7 +56,8 @@ def _rows():
         rows.append((pid, name, kind, tuple(int(v) for v in c.groups()), mt.group(1) if mt else "SmoothPlastic"))
     if len(rows) < 30:
         raise ValueError(f"style_icons: read only {len(rows)} styled rows from Catalog.luau")
-    return rows
+    have = {r[0] for r in rows}
+    return rows + [r for r in PENDING if r[0] not in have]
 
 
 def asset_name(name):

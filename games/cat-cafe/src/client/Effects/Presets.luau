@@ -1374,6 +1374,27 @@ Presets.netSmack = {
 	},
 }
 
+-- The pal wave (F92, playing-together.md section 5: "a little wave from both characters" when an invited or
+-- following player spawns at a pal's front door): the left arm comes up over `raise` seconds, raised `sh` degrees
+-- forward and `sp` out to the side with the elbow bent `el` so the forearm stands up by the head, turns `twist`
+-- degrees in and out about the upper arm `waves` times (one every `every` seconds) and goes back down over `lower`
+-- seconds, 1.9 s in all. The right arm keeps the net. R6, with no elbow, raises the whole arm `sh6` and sways it
+-- `sway6` degrees either side of `sp6` out. The pal waves back `palDelay` seconds after the joiner starts.
+Presets.palWave = {
+	raise = 0.25,
+	waves = 3,
+	every = 0.45,
+	lower = 0.3,
+	sh = 125,
+	sp = 20,
+	el = 60,
+	twist = 25,
+	sh6 = 160,
+	sp6 = 15,
+	sway6 = 15,
+	palDelay = 0.35,
+}
+
 -- The carry (Derek 2026-10-28: "hold it in your arms crossed arms", the cat "awake loafing or sitting in your
 -- arms"), drawn by Tackle.luau on the carrier and by Carry.luau on the HeldCat. `arms` is the upper body's pose in
 -- Avatar.Pose degrees (the legs stay the character's own): arms folded across the chest, the left forearm under the
@@ -2071,6 +2092,31 @@ Presets.catchWord = {
 -- keeps it still. When the cat comes free it pops in its rarity colour (Catch.pop) `above` studs over its spot.
 Presets.trapShake = { least = 1.5, most = 5, seconds = 0.35, hz = 12, hop = 0.08 }
 Presets.rescueFree = { above = 1.2, depth = 20 } -- `depth`: how far under the spot the ring looks for the ground
+
+-- Team Rescue (F92, playing-together.md section 3: "Both players see a small "Team Rescue!" pop when the cat comes
+-- free"): on the rescuer's and the helper's screens, `text` pops up `above` studs over the trap's spot, `width` by
+-- `height` studs, growing in over `popIn` s with a small overshoot, then rises `rise` studs and fades over the last
+-- half of `seconds`, seen within `maxDistance` studs. `sparkles` catch sparkles in each of `colours` burst there, a
+-- ring of each grows `ring` studs across over `ringSeconds`, `ringGap` s apart, and a share `confetti` of the budget's
+-- confetti falls in them. Reduce Motion keeps the word where it popped, skips the rings and halves the confetti.
+Presets.teamRescue = {
+	text = "Team Rescue!",
+	above = 2.4,
+	width = 5,
+	height = 1.2,
+	popIn = 0.18,
+	seconds = 1.8,
+	rise = 1.2,
+	maxDistance = 80,
+	textColour = palette.golden,
+	stroke = Color3.fromRGB(94, 70, 52), -- palette 2 dark wood, the UI's outline
+	colours = { palette.mint, palette.golden },
+	sparkles = 10,
+	ring = 4,
+	ringSeconds = 0.6,
+	ringGap = 0.15,
+	confetti = 0.4,
+}
 
 -- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to
 -- 1, how much of the sky it hides) and `density` (how thick each cloud looks), tinted `color`, drifting on `wind`

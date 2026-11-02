@@ -179,15 +179,17 @@ local function tilesFor(
 		local rate = if ownerId == viewer.UserId
 			then Economy.catRate(instance, viewerProfile.tier) * scale(viewerProfile)
 			else CatStats.rating(instance, viewerProfile.tier) * scale(viewerProfile)
-		return {
+		local rarity: string = def.rarity
+		local shown: Types.TradeTile = {
 			uid = uid,
 			catId = instance.catId,
-			rarity = def.rarity,
+			rarity = rarity,
 			variant = variantOf(instance),
 			level = CatStats.level(instance),
 			charm = CatStats.charm(instance),
 			rateForMe = rate,
 		}
+		return shown
 	end
 end
 
@@ -612,7 +614,25 @@ local function onConfirm(player: Player, rawTradeId: unknown, rawVersion: unknow
 	if TradeBook.bothConfirmed(trade) then
 		TradeBook.commit(trade)
 		sendState(trade)
-		task.spawn(finish, trade)
+		task.spawn(function()
+			local ok, err = pcall(function()
+				finish(trade)
+			end)
+			if ok then
+				return
+			end
+			-- a bug mid swap: whether it was decided is unknown here, so both rejoin and their joins settle it
+			warn("[TradeService] swap failed:", err)
+			if book.trades[trade.id] == trade then
+				TradeBook.close(book, trade, now(), false)
+			end
+			for _, side in { trade.a, trade.b } do
+				local p = playerOf(side.userId)
+				if p ~= nil then
+					p:Kick(TradeService.KICK_TEXT)
+				end
+			end
+		end)
 		return
 	end
 	sendState(trade)
@@ -789,7 +809,9 @@ function TradeService.start()
 	task.spawn(function()
 		while true do
 			task.wait(TradeService.STEP_SECONDS)
-			local ok, err = pcall(step)
+			local ok, err = pcall(function()
+				step()
+			end)
 			if not ok then
 				warn("[TradeService] step failed:", err)
 			end

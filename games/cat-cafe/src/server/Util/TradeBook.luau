@@ -448,10 +448,11 @@ function TradeBook.view(
 	local lopsided, gift = TradeBook.warnings(trade, userId)
 	local change = trade.changed
 	local confirming = trade.phase == "confirm" or trade.phase == "committing"
-	return {
+	local phase: string = if trade.phase == "committing" then "confirm" else trade.phase
+	local view: Types.TradeStateView = {
 		tradeId = trade.id,
 		version = trade.version,
-		phase = if trade.phase == "committing" then "confirm" else trade.phase,
+		phase = phase,
 		countdownEndsAt = trade.countdownEndsAt,
 		me = me,
 		them = them,
@@ -470,6 +471,7 @@ function TradeBook.view(
 		theirRateForMe = theirRate,
 		confirmAt = if confirming and mine.confirmAt > 0 then mine.confirmAt else nil,
 	}
+	return view
 end
 
 return TradeBook

@@ -56,7 +56,10 @@ local carrying: { [Player]: string? } = {} -- catId while walking a caught stray
 local knownLevels: { [Player]: { [string]: number } } = {}
 local rng = Random.new() -- charm rolls for caught cats
 -- F102: TradeService says whether a cat is on offer in an open trade (set at its start; nothing is on offer before)
-local offerCheck: (player: Player, uid: string) -> boolean = function()
+local offerCheck: (player: Player, uid: string) -> boolean = function(
+	_player: Player,
+	_uid: string
+): boolean
 	return false
 end
 

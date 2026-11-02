@@ -26,12 +26,13 @@ import math
 import rbx_export
 from alleyway import flower_clump
 from common import RB
-from plot import rot_y, rot_z
+from plot import STREET_END_Z, TOWN_EDGE_X, rot_y, rot_z
 
 N = "CatCafe_Town_Backdrop"
-TOWN_X, TOWN_Z = 64.0, 126.5          # the hedges round the town (Layout.townEdges), outer faces
-PLATE_X, PLATE_Z = 130.0, 150.0       # the town's ground plate (Config.World.TownGroundWidth and Depth halves)
-GROUND_X, GROUND_Z = 430.0, 450.0     # the backdrop's ground reaches this far
+TOWN_X, TOWN_Z = TOWN_EDGE_X + 1, STREET_END_Z + 2.5   # the hedges round the town (Layout.townEdges), outer faces
+DX, DZ = TOWN_X - 64.0, TOWN_Z - 126.5               # how far the town grew past 64 x 126.5: everything moves out by it
+PLATE_X, PLATE_Z = TOWN_X + 66, TOWN_Z + 23.5         # the town's ground plate (Config.World.TownGroundWidth and Depth halves)
+GROUND_X, GROUND_Z = 430.0 + DX, 450.0 + DZ          # the backdrop's ground reaches this far
 GRASS_RGB = (110, 170, 90)            # WorldBuilder's GRASS, so the ground and near hills meet the plate seamlessly
 LOOK = {
     N + "_Ground": (GRASS_RGB, "Grass"),
@@ -113,14 +114,14 @@ def _low_on_the_line(hills):
     """Hills on the street's line past either arch stay low, so the view down the street opens onto the far ring."""
     out = []
     for h in hills:
-        if abs(h.x) < 50 and abs(h.z) > 150:
+        if abs(h.x) < 50 and abs(h.z) > 150 + DZ:
             h = Hill(h.x, h.z, h.a * 0.8, h.c * 0.8, h.rise * 0.45, h.turn)
         out.append(h)
     return out
 
 
-NEAR = _low_on_the_line(_ring(134.0, 182.0, 60.0, 46.0, (44.0, 30.0, 9.0, 19.0), 1))
-FAR = _ring(238.0, 282.0, 110.0, 72.0, (66.0, 48.0, 24.0, 44.0), 2)
+NEAR = _low_on_the_line(_ring(134.0 + DX, 182.0 + DZ, 60.0, 46.0, (44.0, 30.0, 9.0, 19.0), 1))
+FAR = _ring(238.0 + DX, 282.0 + DZ, 110.0, 72.0, (66.0, 48.0, 24.0, 44.0), 2)
 
 
 def ground_y(x, z):
@@ -239,20 +240,20 @@ def north_end(rb, flowers, lit, sails):
     xs = (-74.0, -52.0, -31.0, 31.0, 52.0, 74.0)
     for k, x in enumerate(xs):
         w, d, h = 9.0 + 2 * _hash(k, 1), 8.0, 6.0 + 1.5 * _hash(k, 2)
-        z = 140.0 + 2.5 * _hash(k, 3)
+        z = 140.0 + DZ + 2.5 * _hash(k, 3)
         cottage(rb, lit, x, z, w, d, h, WALLS[k % len(WALLS)], ROOFS[k % len(ROOFS)], k)
         hedge(rb, x - w / 2 - 1.5, x + w / 2 + 1.5, z - d / 2 - 3.8, 1.6, 0.8)
         for j in range(2):
             tuft(rb, flowers, x - w / 2 + 2.0 + j * (w - 4), z - d / 2 - 1.2, 0.6)
         tree(rb, x + w / 2 + 4.5, z + 3.0, 1.0, LEAVES[k % 3], y=0.0)
-    windmill(rb, lit, sails, 0.0, 190.0)
+    windmill(rb, lit, sails, 0.0, 190.0 + DZ)
 
 
 def south_end(rb, flowers):
     """Past the south arch: a garden behind a low brick wall, with clipped hedges, round topiaries, flower beds,
     trees and a white bandstand on the street's line."""
-    z0 = -131.0
-    for x0, x1 in ((-78.0, -10.0), (10.0, 78.0)):                     # the wall, open on the line
+    z0 = -131.0 - DZ
+    for x0, x1 in ((-78.0 - DX, -10.0), (10.0, 78.0 + DX)):           # the wall, open on the line
         rb.span((x0, 0, z0 - 0.5), (x1, 2.2, z0 + 0.5), "brick")
         rb.span((x0 - 0.1, 2.2, z0 - 0.65), (x1 + 0.1, 2.5, z0 + 0.65), "cream")
         n = round((x1 - x0) / 11)
@@ -269,7 +270,7 @@ def south_end(rb, flowers):
                 flower_clump(flowers, x - 3.0 + j * 3.0, 0.5, z0 - 3.2, n=3, spread=0.6)
             rb.ball((x + 7.5, 1.6, z0 - 6.5), 1.6, "leaf_dark")
             rb.ball((x + 7.5, 3.7, z0 - 6.5), 1.0, "leaf_dark")
-        hedge(rb, min(s * 12.0, s * 74.0), max(s * 12.0, s * 74.0), z0 - 9.75, 2.4, 1.5)   # a clipped hedge behind
+        hedge(rb, min(s * 12.0, s * (74.0 + DX)), max(s * 12.0, s * (74.0 + DX)), z0 - 9.75, 2.4, 1.5)   # a clipped hedge behind
     # the bandstand: a white octagon with a blush dome, on the line, 12 behind the wall
     bx, bz = 0.0, z0 - 14.0
     rb.cyl((bx, 0.4, bz), 6.0, 0.8, "cream", segments=16)
@@ -286,7 +287,7 @@ def south_end(rb, flowers):
 
 def east_side(rb, hay):
     """The east meadow: a red barn with a silo and hay bales."""
-    x, z = 88.0, -40.0
+    x, z = 88.0 + DX, -40.0
     w, d, h = 16.0, 12.0, 8.0
     rb.span((x - d / 2, 0, z - w / 2), (x + d / 2, h, z + w / 2), "bowl_red")
     rise = 6.0
@@ -297,14 +298,14 @@ def east_side(rb, hay):
     rb.span((x - d / 2 - 0.25, 2.9, z - 3.0), (x - d / 2 - 0.15, 3.1, z + 3.0), "bowl_red")
     rb.cyl((x + 2.0, 8.0, z + w / 2 + 3.5), 3.0, 16.0, "metal", segments=12)            # silo
     rb.ball((x + 2.0, 16.0, z + w / 2 + 3.5), 3.0, "fur_charcoal", scale=(1.0, 0.6, 1.0))
-    for i, (bx, bz) in enumerate(((76.0, -60.0), (74.0, -18.0), (80.0, 8.0), (88.0, 30.0))):
+    for i, (bx, bz) in enumerate(((76.0 + DX, -60.0), (74.0 + DX, -18.0), (80.0 + DX, 8.0), (88.0 + DX, 30.0))):
         hay.cyl((bx, 1.4, bz), 1.4, 2.4, "fur_sand", axis="X", segments=10)               # bales in twos
         hay.cyl((bx + 0.6, 1.4, bz + 2.75), 1.4, 2.4, "fur_sand", axis="X", segments=10)
 
 
 def west_side(rb):
     """The west meadow: a pond with a sandy rim, reeds and a little jetty."""
-    x, z = -84.0, 28.0
+    x, z = -84.0 - DX, 28.0
     rb.cyl((x, 0.05, z), 12.5, 0.1, "fur_sand", segments=20)
     rb.cyl((x, 0.12, z), 11.0, 0.1, "pastel_sky", segments=20)
     rb.span((x + 8.0, 0.5, z - 1.2), (x + 15.0, 0.8, z + 1.2), "caramel_wood")
@@ -322,13 +323,13 @@ def meadow(rb, flowers):
     spots = []
     for k in range(40):
         x = (TOWN_X + 6) + 40 * _hash(k, 11)
-        z = -170 + 340 * _hash(k, 12)
+        z = -(170 + DZ) + (340 + 2 * DZ) * _hash(k, 12)
         side = -1 if k % 2 else 1
         spots.append((side * x, z))
     for k, (x, z) in enumerate(spots):
         if ground_y(x, z) > 1.0 or not _clear_of_town(x, z, 6):
             continue
-        if (70 < x < 100 and -70 < z < -14) or (-100 < x < -68 and 12 < z < 44):
+        if (70 + DX < x < 100 + DX and -70 < z < -14) or (-100 - DX < x < -68 - DX and 12 < z < 44):
             continue                                                   # the barn and the pond
         r = _hash(k, 13)
         if r < 0.5:
@@ -350,7 +351,7 @@ def build_backdrop(mat):
         h.add(near, "leaf_green")
     for h in FAR:
         h.add(far, "leaf_green")
-    keep = ((-20, 20, 150, 240), (-20, 20, -240, -150))                # the street's line past both arches
+    keep = ((-20, 20, 150 + DZ, 240 + DZ), (-20, 20, -240 - DZ, -150 - DZ))   # the street's line past both arches
     _scatter_trees(rb, NEAR, 3, 5, 1.6, keep)
     _scatter_trees(rb, FAR, 2, 6, 2.6, plant=far_tree)
     north_end(rb, flowers, lit, sails)

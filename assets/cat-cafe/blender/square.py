@@ -50,12 +50,13 @@ import math
 
 from alleyway import _arch, flower_clump, label, lantern
 from common import RB
-from plot import rot_x, rot_y, rot_z
+from plot import TOWN_EDGE_X, rot_x, rot_y, rot_z
 
 SQ_W, SQ_D = 48.0, 32.0                        # the square's half width (x) and half depth (z)
 LANE, CROSS = 8.0, 6.0                         # half widths of the street's line and the east to west lane
-GARDEN_X, ALLEY_X, GATE_X = 62.9, 63.6, 92.8   # the garden path ends under the arch, the crossing starts past the
-#                                                safe zone stripe (x 63.05 to 63.55) and stops at the gate's wall
+GARDEN_X, ALLEY_X = TOWN_EDGE_X - 0.1, TOWN_EDGE_X + 0.6   # 62.9 and 63.6 at today's size: the garden path ends under
+GATE_X = 92.8 + TOWN_EDGE_X - 63                            # the arch, the crossing starts past the safe zone stripe
+#                                                             (x 63.05 to 63.55) and stops at the gate's wall
 BORDER, KERB = 2.0, 0.6
 TILE_X, TILE_Z, JOINT = 3.8, 4.0, 0.14
 PAVER_L, PAVER_W = 3.7, 2.0                    # across the walk, along the walk

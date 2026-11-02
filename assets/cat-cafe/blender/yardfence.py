@@ -17,11 +17,13 @@ import math
 from mathutils import Matrix
 
 from common import RB
+from plot import BACK, HW, YARD
 
 NAME = "CatCafe_Plot_YardFence"
-SIDE_X = 18.9
-BACK_Z = 24.8
-FIRST_Z = 15.7               # the side fences' first post, clear of the shell's corner trim (z 15.4)
+SIDE_X = HW - 0.1            # 18.9 at today's 36 wide cafe
+BACK_Z = BACK + YARD - 0.2   # 24.8 at today's 28 deep cafe
+FIRST_Z = BACK + 0.7         # the side fences' first post, clear of the shell's corner trim (z 15.4)
+BACK_SPANS = round(2 * SIDE_X / 3.78)                                   # 10 at 36 wide: a post every 3.8 or so
 POST, POST_TOP = 0.45, 3.1
 PICKET_W, PICKET_T, PICKET_TOP, PITCH = 0.36, 0.12, 2.7, 0.62
 RAILS = ((0.55, 0.8), (2.05, 2.3))
@@ -96,7 +98,7 @@ def _bird_house(b, x, z):
 
 def build_yard_fence(mat):
     b, bar = RB(), RB()
-    back_xs = [-SIDE_X + k * (2 * SIDE_X) / 10 for k in range(11)]
+    back_xs = [-SIDE_X + k * (2 * SIDE_X) / BACK_SPANS for k in range(BACK_SPANS + 1)]
     side_zs = [FIRST_Z + k * (BACK_Z - FIRST_Z) / 3 for k in range(4)]
     for x in back_xs:
         _post(b, x, BACK_Z)
@@ -111,8 +113,8 @@ def build_yard_fence(mat):
     _roses(b, SIDE_X, BACK_Z, -1, -1)
     _bird_house(b, 0.0, BACK_Z)
     for sx in (-1, 1):                                                   # the code fence's parts, to the stud
-        bar.span((sx * SIDE_X - 0.2, -0.2, 15.0), (sx * SIDE_X + 0.2, 3.0, 25.0), "offwhite")
-    bar.span((-19.0, 0.0, 24.6), (19.0, 3.0, 25.0), "offwhite")
+        bar.span((sx * SIDE_X - 0.2, -0.2, BACK), (sx * SIDE_X + 0.2, 3.0, BACK + YARD), "offwhite")
+    bar.span((-HW, 0.0, BACK + YARD - 0.4), (HW, 3.0, BACK + YARD), "offwhite")
     return [b.finalize(NAME, mat), bar.finalize(NAME + "_Barrier", mat)]
 
 

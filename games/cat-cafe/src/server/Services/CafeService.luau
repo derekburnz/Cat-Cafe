@@ -927,6 +927,13 @@ function CafeService.addCaughtCat(
 	if instance.spotId == nil then
 		Telemetry.custom(player, "slots_full", 1, { tostring(Economy.tier(profile)) })
 	end
+	-- F87 funnel v2 (easy-start.md section 5): a second cat checked in, five different cats owned
+	if profile.stats.catsCaught >= 2 then
+		Telemetry.onboarding(player, profile, "second_cat")
+	end
+	if Economy.distinctCats(profile) >= 5 then
+		Telemetry.onboarding(player, profile, "five_cats")
+	end
 
 	CafeService.refreshPlot(player)
 	if notify then
@@ -1190,6 +1197,8 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 		-- a player who already baited the bowl has done step 5's task too (reviewer S48)
 		CafeService.advanceTutorial(player, profile, if profile.stats.luresUsed > 0 then 5 else 4)
 		Telemetry.onboarding(player, profile, "first_table")
+	elseif upgradeId == "lure_bowl" then
+		Telemetry.onboarding(player, profile, "bowl_bought") -- F87 funnel v2
 	end
 	local def = Catalog.getUpgrade(upgradeId) :: Types.UpgradeDef
 	Net.toast(

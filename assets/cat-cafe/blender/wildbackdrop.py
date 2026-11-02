@@ -53,9 +53,11 @@ AREAS = {
     "ParkF85": (60.0, 155.0, "park"),         # F85's long Park, 120 x 310 (parkf85.py)
     "NeighbourhoodF85": (90.0, 215.0, "houses"),   # F85's long Neighbourhood, 180 x 430 (neighbourhoodf85.py)
     "WoodsF85": (80.0, 245.0, "forest"),      # F85's long Woods, 160 x 490 (woodsf85.py)
+    "SewerF85": (60.0, 285.0, "works"),       # F85's long Sewer, 120 x 570 (sewerf85.py)
 }
 NAMES = {"ParkF85": "CatCafe_Park_BackdropF85", "NeighbourhoodF85": "CatCafe_Neighbourhood_BackdropF85",
-         "WoodsF85": "CatCafe_Woods_BackdropF85"}   # an F85 ring keeps its area's name, so WorldBuilder can pick it
+         "WoodsF85": "CatCafe_Woods_BackdropF85",
+         "SewerF85": "CatCafe_Sewer_BackdropF85"}   # an F85 ring keeps its area's name, so WorldBuilder can pick it
 
 ASPHALT_RGB = (70, 70, 75)                     # WorldBuilder's ASPHALT
 PALE_RGB = (150, 186, 128)                     # the far hills, as in the hometown's

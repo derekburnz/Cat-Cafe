@@ -74,6 +74,7 @@ import parkset  # noqa: E402
 import parkf85  # noqa: E402
 import neighbourhoodf85  # noqa: E402
 import woodsf85  # noqa: E402
+import sewerf85  # noqa: E402
 import woodsset  # noqa: E402
 import sewerset  # noqa: E402
 import neighbourhoodset  # noqa: E402
@@ -92,7 +93,7 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, alleyblockers,
            boards, night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, doors, doorsets, crates, potions, mystery, collector,
+           parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons]
 
@@ -163,6 +164,7 @@ PIVOT_NOTES = {
     "CatCafe_Park_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
     "CatCafe_Neighbourhood_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
     "CatCafe_Woods_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
+    "CatCafe_Sewer_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
     "CatCafe_Woods_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Sewer_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Neighbourhood_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",

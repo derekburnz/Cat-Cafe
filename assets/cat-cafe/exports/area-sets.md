@@ -1,12 +1,13 @@
 # Area sets: how the world places them
 
-Built by `assets/cat-cafe/blender/{areakit,neighbourhood,woods,sewer,parkset,parkf85,neighbourhoodf85,woodsset,woodsf85,sewerset}.py` from the
+Built by `assets/cat-cafe/blender/{areakit,neighbourhood,woods,sewer,parkset,parkf85,neighbourhoodf85,woodsset,woodsf85,sewerset,sewerf85}.py` from the
 approved drafts in `/mnt/project-files/Model-Agent/area-drafts/`. The Park, `CatCafe_Woods_SetV32`,
 `CatCafe_Sewer_SetV32` and `CatCafe_Neighbourhood_SetV32` (neighbourhoodset.py) are sized for town layout v3.2
 (town-layout-v3.md section 8, F81); the v3.1 `CatCafe_Neighbourhood_Set`, `CatCafe_Woods_Set` and
-`CatCafe_Sewer_Set` are still sized for v3.1 (section 7). `CatCafe_Park_SetF85`, `CatCafe_Neighbourhood_SetF85` and
-`CatCafe_Woods_SetF85` are F85's long Park, Neighbourhood and Woods (hometown-cannon.md section 6b), each with its own
-camp and backdrop ring (the Park and the Neighbourhood a new gate and night fence too).
+`CatCafe_Sewer_Set` are still sized for v3.1 (section 7). `CatCafe_Park_SetF85`, `CatCafe_Neighbourhood_SetF85`,
+`CatCafe_Woods_SetF85` and `CatCafe_Sewer_SetF85` are F85's long Park, Neighbourhood, Woods and Sewer
+(hometown-cannon.md section 6b), each with its own camp and backdrop ring (the Park and the Neighbourhood a new gate
+and night fence too).
 
 | Set | Footprint (studs) | Tris | Parts | Area in v3.1 |
 |---|---|---|---|---|
@@ -20,6 +21,7 @@ camp and backdrop ring (the Park and the Neighbourhood a new gate and night fenc
 | `CatCafe_Park_SetF85` | 119.5 x 309.75 | 100,392 | 5,541 | F85: 120 x 310 wild part, the camp 30 more (340) |
 | `CatCafe_Neighbourhood_SetF85` | 179.5 x 429.8 | 118,148 | 6,129 | F85: 180 x 430 wild part, the camp 30 more (460) |
 | `CatCafe_Woods_SetF85` | 160 x 489.5 | 132,212 | 6,208 | F85: 160 x 490 wild part, the camp 30 more (520) |
+| `CatCafe_Sewer_SetF85` | 119.2 x 569.15 | 134,420 | 7,362 | F85: 120 x 570 wild part, the camp 30 more (600) |
 
 ## Placing a set
 
@@ -185,6 +187,61 @@ Stream centre line `z = -90 - 3 * (1 - cos(2 * pi * (x + 46) / 90))`, otherwise 
 1.3 high with log rails, grass banks, `CatCafe_Woods_Stream_Barrier` on both rails, open only at the bridge (deck 6
 wide at 2.0, a ramp at each end).
 
+## The Sewer (F85)
+
+F85 (hometown-cannon.md section 6b) makes the Sewer a long rectangle, 120 x 600 with its camp, the longest run home
+of the five. Three new models, so the live Sewer stays as it is until the game switches them together. The Sewer gate
+already spans a 24 stud opening (CampOpeningWidth), so `CatCafe_Sewer_Gate` and `CatCafe_Sewer_NightFence` stay as
+they are:
+
+| Model | What | Place it |
+|---|---|---|
+| `CatCafe_Sewer_SetF85` | the wild part, 120 x 570 | the area's centre on its floor, with the area's turn, as every set |
+| `CatCafe_Camp_SewerF85` | the camp, 120 wide and 30 deep, across the set's -Z end | the same CFrame as the set |
+| `CatCafe_Sewer_Gate` | the Sewer gate over its 24 stud opening, as now | the gate position, z -285 in set space |
+| `CatCafe_Sewer_BackdropF85` | the town works ring round 120 x 600 | the same CFrame as the set |
+
+It needs Config.World SewerWidth 120 and SewerDepth 570 (the wild part; the camp is CampDepth in front of it), with
+the Sewer's `openingHalfWidth` 12 as now. The camp model's `camp` entry in the manifest gives its rect (x -59.5 to
+59.5, z -316 to -286 in set space), the gate line z -286 and the opening; its `pad` (0, -298), `cannon`
+(0, -310.5), `basket` (-11, -298) and `index_board` (-19, -287.5) are where the v3.2 camp's are, 195 further out.
+The Lost and Found (`CatCafe_Camp_Sewer_LostFound`, Layout.campExtras.sewer) keeps its place 3.5 inside the gate
+line: (20, -289.5) in set space.
+
+The set's walls are the v3.2 Sewer's runs of brick, blind arcade, white tile under a teal band, pipe runs and stone
+between brick piers, just inside WorldBuilder's at x +-60 and z +285: 18 high round the open yard, 24 high under the
+roof from the tunnel front on, with seven finished tunnel mouths in the side walls (iron bars or an iron door), a
+barred one in the far wall, the canal's water mouths and stone columns at the far corners; a 30 high `_Barrier` all
+round but the way in; on the camp side the town wall either side of the gate, as v3.2. Six pieces cross the width,
+their gaps on alternating sides, so the far end is never in a straight line. The low four are about 4 high (the water
+behind guard rails), so a hunter sees a carrier coming but has to go round, each with a 30 high `_Barrier` on its own
+line (on the guard rails' line for the water); the tunnel front and the vault wall are the tall ones and hide the
+halls behind them:
+
+| z (set space) | Blocker | Gap |
+|---|---|---|
+| -211 to -199 | the yard's canal, sunken between kerbs with guard rails, out through grates in both walls (as v3.2) | the brick bridge at x 38, steps and parapets |
+| -150 to -147 | the tunnel front, brick 24 high where the roof begins, "THE SEWER" over the barred middle arch | the walk-in arch at x -45 to -31, a lantern either side; the arch at x 31 to 45 is barred |
+| -78 to -72 | the rubble where the roof came down: broken slabs, brick lumps and rebar, about 4 high, daylight through the hole above | x 34 to 50 between timber props under the cracked beam |
+| -5 to 5 | the channel, sunken between railed kerbs from wall to wall (as v3.2) | the steel catwalk at x -40 |
+| 90 to 96 | the vault wall, brick to the roof, "CAT TOWN" over its arch | x 34 to 50 through the deep vaulted arch |
+| 181 to 189 | the pipe bank: three big pipes on the floor, about 4.5 high, flanged every 6 | x -50 to -34, the pipes' capped ends |
+
+The walk from the pad: across the yard (barrels, tyres, cones, suitcases) east to the brick bridge, back west along
+the bank to the walk-in arch, through the junk market (three stalls, a crate deck, the hanging sign, a grate trap) east
+to the rubble's gap, west through the pump room (the big pipe and its valve, the beached bathtub boat and raft) to the
+catwalk, east through the lost and found (the lounge, the yarn trolley, the pipe hammock, a drain pipe trap) to the
+vault's arch, west past cat town (can, teapot and box houses round a square, the cart on its rails, a grate trap) to
+the pipe bank's gap, and east across the throne room (a drain pipe trap by the east wall) to the junk throne on its dais (34, 270.5) in front of the pipe
+organ, with the culvert pouring out of the far wall into the pool at x 0. The shortest walk from the gate is about 755
+to the throne, 765 to the organ and 777 to the far corner (walk check on the Part model, over the bridges' steps), so
+about 770, 780 and 790 from the pad (6b: about 750).
+
+The roof (24, 1.2 thick) starts at the tunnel front; the yard is open to the sky. Nine grated skylights and the hole
+over the rubble let the day in; brick beams cross the width on pillars at x +-28 (two pillars a beam, clear of the
+way), with cage lamps (`_Bulb`) hanging from them, pipe runs along both walls under the roof, and wall lanterns on
+every other pier. As in v3.2, if the halls read too dark in game, PointLights on the cage lamps would fix it.
+
 ## The Woods (v3.2)
 
 `CatCafe_Woods_SetV32` is a new model, so the live game keeps `CatCafe_Woods_Set` (v3.1) until Gameplay moves the
@@ -309,6 +366,13 @@ floor or seat for one cat: none is inside a colliding part.
   square 2, cart 1 at y 3.65, valve 1, pipe_end 1, catwalk_foot 2, pool 1, throne 1 at y 3.3, organ 1, toy_pile 1,
   sofa 1 at y 1.88, trolley 1 at y 1.0, throne_room 2, boat 1 at y 1.82, raft 1 at y 2.2, hammock 1 at y 2.4,
   chamber 2). Floor spots are at y 0.4.
+- Sewer F85 (`CatCafe_Sewer_SetF85`, 60 spots, each `[x, y, z, zone]`, zone `near` for the camp half (z < 0) or
+  `deep`; floor spots at y 0.4): near 25 (bridge 1 at y 2.8, puddle 1, barrel 1, tyres 1, cones 1, crates 1,
+  suitcases 1, glow_mushrooms 3, bank 2, arch 1, stall 3, deck 1 at y 2.55, market 1, pipe_end 1, valve 1, boat 1 at
+  y 1.82, raft 1 at y 2.2, pump_room 2, catwalk_foot 1), deep 35 (bridge 1 at y 3.6 on the catwalk, suitcases 1,
+  glow_mushrooms 6, deck 1 at y 2.55, pipe_end 1, catwalk_foot 1, sofa 1 at y 1.88, trolley 1 at y 1.0, hammock 1 at
+  y 2.4, lost_found 2, house 4, square 2, cart 1 at y 3.65, town 3, throne 1 at y 4.5 on the dais, organ 1, dais 1,
+  toy_pile 1, pool 2, throne_room 2, pipes 1).
 - Park (v3.2, 40 spots, each `[x, y, z, zone]`, zone `near` for the gate half (z < 0) or `deep`): near 16 (plaza 1,
   flowerbed 3 at y 0.62, bench 1, picnic 2, blanket 1, oak 2, blossom 1, jetty 1 at y 1.2, bank 1, willow 1,
   kiosk 1, lawn 1), deep 24 (bank 1, oak 1, lawn 3, hedge 1, bandstand 3 at y 1.15, loop 2, slide 1, swings 1,
@@ -359,6 +423,9 @@ second block's bungalow and (62.4, 7.05, 180.5, deep, 0) on the far row's bungal
 v3.2 does, four deep and none within 100 studs of the camp (6b): `trap_hollow_log` (62, 0, -128, near, 20) between the
 timber and the stream and (-62, 0, 122, deep, -20) past the stone wall; `trap_bramble_bush` (-62, 0, 18, deep, 0) in
 the dell and (64, 0, 176, deep, 0) past the ridge; `trap_treehouse_branch` (54.16, 15.45, 215.11, deep, 87.21).
+Sewer F85 builds its four in as v3.2 does, three deep and none within 100 studs of the camp (6b): `trap_grate`
+(-34, 0.4, -92, near, 0) in the junk market and (-36, 0.4, 112, deep, 0) in cat town; `trap_drain_pipe`
+(-51.7, 0.4, 49, deep, -90) in the lost and found and (51.7, 0.4, 256, deep, 90) in the throne room.
 
 The Park's trap props are placed by the world, not built into the set: each trap spot is `[x, y, z, zone, turn]`
 and the prop stands there turned `turn` degrees (CFrame.Angles(0, math.rad(turn), 0) in set space; a rescue
@@ -371,10 +438,13 @@ five deep and none within 100 studs of the camp (6b): `trap_tree` (46, 0, -24, n
 ## Checks
 
 All sets pass the build gate (budget 80,000, 120,000 for the v3.2 Woods, Sewer and Neighbourhood, 150,000 for the
-F85 Park, Neighbourhood and Woods; transforms, one material, swatch
+F85 Park, Neighbourhood, Woods and Sewer; transforms, one material, swatch
 UVs, naming), the toolkit QA with 0 visible overlaps (`toolkit_qa.md`; the floating parts listed there stand on the
 world floor or are meant, such as a falling drip), and a part-overlap check between pieces (0 pairs sinking more
 than 0.15 studs into each other) plus a spot check (no spot inside a colliding part except trap spots, where the
 cat sits inside its trap, and the Woods' seats inside the oak and the tree house). The Woods' old trees stand in the wall line between
-the runs and sink into them by design, and the F85 Woods' blockers meet the side walls' plants (up to 0.82); no other
-pairs.
+the runs and sink into them by design, and the F85 Woods' blockers meet the side walls' plants (up to 0.82); in the
+F85 Sewer the pipe bank runs into the side walls (0.5), the rubble meets the wall courses (0.34) and the timber props
+stand in it (1.2), and the tunnel front's end piers meet the roof's rim (0.25); no other pairs. The Sewer kit's
+stall caps, bunting caps, yarn balls and teapot spout and the v3.2 tunnel front's padlock now touch what they hang on,
+so the v3.1 and v3.2 Sewer sets list no floating parts either.

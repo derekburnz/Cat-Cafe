@@ -1,0 +1,66 @@
+# Read or change the live switches in the CatCafe_Flags data store, so trading can be turned off (or its minimum tier
+# changed for a test) in every running server within about a minute, with no publish and no restart. Start it from
+# the Actions tab (flags > Run workflow) or from any thread with the GitHub actions_run_trigger tool on main.
+# show reads both keys; set and clear write one and read both back. Script: games/cat-cafe/tools/opencloud/flags.sh.
+# Needs the repo secret ROBLOX_PUBLISH_KEY with universe-datastores.objects:read, :create and :update
+# (docs/setup-guide.md step 24).
+name: flags
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "show | set | clear (clear: back to the default, trading on and Config's minimum tier)"
+        type: choice
+        options: [show, set, clear]
+        default: show
+      key:
+        description: "Which switch (set and clear)"
+        type: choice
+        options: [trading, tradeMinTier]
+        default: trading
+      value:
+        description: "set only: true or false for trading, 0 to 99 for tradeMinTier"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flags
+  cancel-in-progress: false
+
+env:
+  UNIVERSE_ID: "10773193456" # the Cat Cafe experience
+
+jobs:
+  flags:
+    name: Live switches
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      ACTION: ${{ inputs.action }}
+      KEY: ${{ inputs.key }}
+      VALUE: ${{ inputs.value }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: games/cat-cafe/tools/opencloud
+
+      - name: Check the key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      - name: Read or change the switches
+        run: |
+          script=games/cat-cafe/tools/opencloud/flags.sh
+          case "$ACTION" in
+          show) bash "$script" show ;;
+          set) bash "$script" set "$KEY" "$VALUE" ;;
+          clear) bash "$script" clear "$KEY" ;;
+          esac

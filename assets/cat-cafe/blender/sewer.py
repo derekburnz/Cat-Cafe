@@ -279,7 +279,7 @@ def junk_stall(mat):
     for (x, sw) in ((-2.2, "metal"), (-1.6, "bowl_red"), (-0.6, "fish_blue"), (0.6, "rarity_legend"), (1.6, "mint")):
         b.cyl_base((x, -0.3, 2.2), 0.25, 0.5, sw, segments=8)                                 # tins and jars
     for k in range(5):
-        _cap(b, -2.4 + k * 0.5, 0.5, 2.3, 0.2, CAPS[k])
+        _cap(b, -2.4 + k * 0.5, 0.5, 2.24, 0.2, CAPS[k])                                    # on the board
     b.cyl_base((0, 0.9, 0), 0.12, 6.2, "dark_wood", segments=6)                               # umbrella pole
     for k in range(8):                                                                       # striped umbrella
         a = 2 * PI * (k + 0.5) / 8
@@ -328,7 +328,7 @@ def teapot_house(mat):
     b.cyl_base((0, 0, 3.45), 1.1, 0.3, "offwhite", segments=12)                                 # lid
     b.sphere((0, 0, 4.0), 0.35, "blush", segments=8, rings=5)
     for k in range(4):                                                                       # spout
-        b.cyl((2.0 + k * 0.45, 0, 1.5 + k * 0.45), 0.42 - k * 0.06, 0.72, "mint", segments=10, rot=ry(-45 - k * 6))
+        b.cyl((2.0 + k * 0.4, 0, 1.5 + k * 0.4), 0.42 - k * 0.05, 0.72, "mint", segments=10, rot=ry(-45 - k * 6))
     for k in range(6):                                                                       # handle
         a = -PI / 2 + PI * k / 5
         b.box((-2.0 - 0.9 * math.cos(a), 0, 1.9 + 0.9 * math.sin(a)), (0.35, 0.35, 0.55), "mint",
@@ -350,7 +350,7 @@ def cap_bunting(mat, length=16.0, sag=1.2, hooks=False):
         b.box(((x0 + x1) / 2, 0, (z0 + z1) / 2), (length / n * 1.02, 0.05, 0.05), "dark_wood", bevel=False,
               rot=ry(-math.degrees(math.atan2(z1 - z0, x1 - x0))))
         if k % 2 == 0:
-            _cap(b, x0, 0, z0 - 0.35, 0.28, CAPS[(k // 2) % 6], rot=rx(90))
+            _cap(b, x0, 0, z0 - 0.3, 0.28, CAPS[(k // 2) % 6], rot=rx(90))                  # hung on the string
     if hooks:                                                                                # into the walls
         for sx in (-1, 1):
             b.box((sx * (length / 2 - 0.2), 0, 0), (0.6, 0.3, 0.3), "metal", bevel=False)
@@ -548,7 +548,7 @@ def yarn_trolley(mat):
     for s in (-1, 1):
         b.box((s * 0.9, 2.1, 2.12), (0.08, 0.7, 0.08), "metal", bevel=False, rot=rx(30))     # rising to the handle
     for (x, y, z, sw) in ((-0.5, -0.9, 1.1, "neon_pink"), (0.5, -0.6, 1.1, "mint"), (-0.3, 0.4, 1.1, "pastel_lilac"),
-                          (0.5, 0.9, 1.1, "rarity_legend"), (0.0, -0.2, 1.8, "fish_blue"), (-0.2, 1.0, 1.8, "bowl_red")):
+                          (0.5, 0.9, 1.1, "rarity_legend"), (0.0, -0.2, 1.68, "fish_blue"), (-0.2, 1.0, 1.68, "bowl_red")):
         yarn.ico((x, y, z - 0.08), 0.5, sw, subdivisions=1)
     return [b.finalize(N + "YarnTrolley", mat), yarn.finalize(N + "YarnTrolley_Decor", mat)]
 

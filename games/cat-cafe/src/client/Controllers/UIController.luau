@@ -150,7 +150,7 @@ local function refreshTutorial(s: Types.PlayerState)
 			UI.tutorial.show("Catch more cats in the alley, or buy a table in Upgrades (U)")
 		end
 	elseif s.tutorialStep == 3 then
-		UI.tutorial.show("Buy your first table in Upgrades (U): more tips from every cat")
+		UI.tutorial.show("Buy your first table in Upgrades (U): more money from every cat")
 	elseif s.tutorialStep == 4 then
 		-- gdd "The first ten minutes" beat 4: the bowl, then food in it (BaitService finishes the tutorial)
 		-- (the HUD strip shows about 50 characters on one line, reviewer N94)

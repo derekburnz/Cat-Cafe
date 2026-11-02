@@ -11,7 +11,8 @@ return function()
 
 	local AREAS = { "alley", "park", "neighbourhood", "woods", "sewer" }
 	local POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "classic" }
-	local AREA_MILESTONES = { "cats3", "cats6", "cats10", "gold1", "gold2", "gold4", "gold6", "gold8", "gold10" }
+	local AREA_MILESTONES =
+		{ "cats3", "cats6", "cats10", "gold1", "gold2", "gold4", "gold6", "gold8", "gold10" }
 
 	local function sum(prizes: { [string]: any }, field: string): number
 		local total = 0
@@ -26,7 +27,9 @@ return function()
 			local ids: { string } = {}
 			for _, milestone in Catalog.indexMilestones do
 				table.insert(ids, milestone.id)
-				expect(table.find({ "normal", "gold", "decor" }, milestone.track) ~= nil).to.equal(true)
+				expect(table.find({ "normal", "gold", "decor" }, milestone.track) ~= nil).to.equal(
+					true
+				)
 				expect(milestone.needs > 0).to.equal(true)
 				local digits = tonumber(string.match(milestone.id, "%d+$"))
 				-- decor10 keeps its id but needs all twelve pieces since F80 (golden-fish.md 4b)
@@ -72,10 +75,17 @@ return function()
 				local want = table.clone(AREA_MILESTONES)
 				table.sort(want)
 				expect(ids :: any).to.deepEqual(want)
-				expect(sum({ cats3 = prizes.cats3, cats6 = prizes.cats6, cats10 = prizes.cats10 }, "bonus")).to.be.near(0.07, 1e-9)
+				expect(
+					sum(
+						{ cats3 = prizes.cats3, cats6 = prizes.cats6, cats10 = prizes.cats10 },
+						"bonus"
+					)
+				).to.be.near(0.07, 1e-9)
 				expect(sum(prizes, "goldLuck")).to.be.near(0.30, 1e-9)
 				expect(sum(prizes, "baitSpeed")).to.equal(0)
-				expect(prizes.gold10.tag).to.equal(((Catalog.getArea(areaId) :: any).name) .. " Gold Master")
+				expect(prizes.gold10.tag).to.equal(
+					(Catalog.getArea(areaId) :: any).name .. " Gold Master"
+				)
 				-- the finishing prizes (v0.10): the area's Golden Crate at cats10, two at gold10
 				expect((prizes.cats10.crates :: any)[areaId .. "_golden_crate"]).to.equal(1)
 				expect((prizes.gold10.crates :: any)[areaId .. "_golden_crate"]).to.equal(2)
@@ -84,7 +94,12 @@ return function()
 
 		it("pays the Alleyway rows as the design table says", function()
 			local alley = Catalog.indexPrizes.alley
-			expect(alley.cats3 :: any).to.deepEqual({ coins = 300, coinSeconds = 600, fish = 5, spins = 1 })
+			expect(alley.cats3 :: any).to.deepEqual({
+				coins = 300,
+				coinSeconds = 300,
+				fish = 5,
+				spins = 1,
+			})
 			expect(alley.cats6 :: any).to.deepEqual({
 				lures = { tuna = 3 },
 				crates = { alley_crate = 1 },
@@ -105,7 +120,7 @@ return function()
 			})
 			expect(alley.gold10 :: any).to.deepEqual({
 				coins = 5000,
-				coinSeconds = 3600,
+				coinSeconds = 1800,
 				crates = { alley_golden_crate = 2 },
 				fish = 100,
 				spins = 5,
@@ -135,20 +150,24 @@ return function()
 			})
 		end)
 
-		it("gives each Decor Index page 25 fish at five pieces and +5% tips forever at all twelve", function()
-			for _, pool in POOLS do
-				local page = Catalog.indexPrizes["decor_" .. pool]
-				assert(page)
-				expect(page.decor5 :: any).to.deepEqual({ fish = Config.DecorIndexHalfFish })
-				expect(page.decor10 :: any).to.deepEqual({ bonus = Config.DecorIndexBonus })
+		it(
+			"gives each Decor Index page 25 fish at five pieces and +5% tips forever at all twelve",
+			function()
+				for _, pool in POOLS do
+					local page = Catalog.indexPrizes["decor_" .. pool]
+					assert(page)
+					expect(page.decor5 :: any).to.deepEqual({ fish = Config.DecorIndexHalfFish })
+					expect(page.decor10 :: any).to.deepEqual({ bonus = Config.DecorIndexBonus })
+				end
 			end
-		end)
+		)
 
 		it("has no page beyond the areas, All Cats and the six Decor Index pages", function()
 			for pageId in pairs(Catalog.indexPrizes) do
 				local known = table.find(AREAS, pageId) ~= nil
 					or pageId == "all"
-					or table.find(POOLS, string.sub(pageId, 7)) ~= nil and string.sub(pageId, 1, 6) == "decor_"
+					or table.find(POOLS, string.sub(pageId, 7)) ~= nil
+						and string.sub(pageId, 1, 6) == "decor_"
 				expect(known).to.equal(true)
 			end
 		end)
@@ -173,7 +192,9 @@ return function()
 						expect(count > 0).to.equal(true)
 					end
 					for crateId, count in pairs(prize.crates or {}) do
-						expect(crateId == Prizes.HIGHEST or Catalog.getCrate(crateId) ~= nil).to.equal(true)
+						expect(crateId == Prizes.HIGHEST or Catalog.getCrate(crateId) ~= nil).to.equal(
+							true
+						)
 						expect(count > 0).to.equal(true)
 					end
 					local kinds = (if prize.bonus then 1 else 0)
@@ -260,7 +281,9 @@ return function()
 				"Find 2 more cats first"
 			)
 			profile.collection.tabby = 1000
-			expect(IndexRewards.blocker(profile, "alley", "cats3")).to.equal("Find 1 more cat first")
+			expect(IndexRewards.blocker(profile, "alley", "cats3")).to.equal(
+				"Find 1 more cat first"
+			)
 			profile.collection.ginger = 1000
 			expect(IndexRewards.blocker(profile, "alley", "cats3")).never.to.be.ok()
 			profile.indexRewards.alley = { cats3 = true }
@@ -269,13 +292,19 @@ return function()
 			expect(IndexRewards.claimed(profile, "park", "cats3")).to.equal(false)
 		end)
 
-		it("F78: a spare cat counts toward no area page and not toward All Cats (data-model 3d)", function()
-			local profile = profileWith({ "calico", "sphynx", "midnight", "tabby" }, { "calico" })
-			expect(IndexRewards.progress(profile.collection, "alley")).to.equal(1)
-			expect(IndexRewards.progress(profile.collection, IndexRewards.ALL)).to.equal(1)
-			expect(IndexRewards.progress(profile.goldCollection, IndexRewards.ALL)).to.equal(0)
-			expect(IndexRewards.progress(profile.collection, "spare")).to.equal(0)
-		end)
+		it(
+			"F78: a spare cat counts toward no area page and not toward All Cats (data-model 3d)",
+			function()
+				local profile = profileWith(
+					{ "calico", "sphynx", "midnight", "tabby" },
+					{ "calico" }
+				)
+				expect(IndexRewards.progress(profile.collection, "alley")).to.equal(1)
+				expect(IndexRewards.progress(profile.collection, IndexRewards.ALL)).to.equal(1)
+				expect(IndexRewards.progress(profile.goldCollection, IndexRewards.ALL)).to.equal(0)
+				expect(IndexRewards.progress(profile.collection, "spare")).to.equal(0)
+			end
+		)
 
 		it("gold10 counts the gold collection", function()
 			local profile = profileWith(ALLEY_CATS, { "tabby", "tuxedo" })
@@ -312,7 +341,9 @@ return function()
 			profile.goldCollection.tabby = 1000 -- a gold cat is not a second entry
 			expect(IndexRewards.progress(profile.collection, IndexRewards.ALL)).to.equal(5)
 			expect(IndexRewards.blocker(profile, "all", "total5")).never.to.be.ok()
-			expect(IndexRewards.blocker(profile, "all", "total10")).to.equal("Find 5 more cats first")
+			expect(IndexRewards.blocker(profile, "all", "total10")).to.equal(
+				"Find 5 more cats first"
+			)
 			expect(IndexRewards.blocker(profile, "all", "cats3")).to.equal("Unknown reward")
 			expect(IndexRewards.blocker(profile, "alley", "total5")).to.equal("Unknown reward")
 		end)
@@ -327,8 +358,12 @@ return function()
 				end
 			end
 			expect(IndexRewards.blocker(profile, "decor_park", "decor5")).never.to.be.ok()
-			expect(IndexRewards.blocker(profile, "decor_park", "decor10")).to.equal("Find 7 more pieces first")
-			expect(IndexRewards.blocker(profile, "decor_woods", "decor5")).to.equal("Find 5 more pieces first")
+			expect(IndexRewards.blocker(profile, "decor_park", "decor10")).to.equal(
+				"Find 7 more pieces first"
+			)
+			expect(IndexRewards.blocker(profile, "decor_woods", "decor5")).to.equal(
+				"Find 5 more pieces first"
+			)
 			expect(IndexRewards.blocker(profile, "decor_park", "gold1")).to.equal("Unknown reward")
 		end)
 
@@ -336,7 +371,8 @@ return function()
 			local profile = fresh()
 			local totals = IndexRewards.totals(profile)
 			expect(totals :: any).to.deepEqual({ bonus = 0, goldLuck = 0, baitSpeed = 0 })
-			profile.indexRewards.alley = { cats6 = true, cats10 = true, gold1 = true, gold10 = true }
+			profile.indexRewards.alley =
+				{ cats6 = true, cats10 = true, gold1 = true, gold10 = true }
 			profile.indexRewards.all = { total5 = true, total50 = true }
 			profile.indexRewards.decor_classic = { decor10 = true }
 			totals = IndexRewards.totals(profile)
@@ -380,9 +416,15 @@ return function()
 				return profile.tier
 			end
 			-- an Alleyway stray (Tier 1): everyone has it open, the best luck wins
-			expect(IndexRewards.bestGoldLuck({ low, high, locked }, 1, tierOf)).to.be.near(0.15, 1e-9)
+			expect(IndexRewards.bestGoldLuck({ low, high, locked }, 1, tierOf)).to.be.near(
+				0.15,
+				1e-9
+			)
 			-- a Park stray (Tier 2): the Tier 1 player's luck does not count
-			expect(IndexRewards.bestGoldLuck({ low, high, locked }, 2, tierOf)).to.be.near(0.10, 1e-9)
+			expect(IndexRewards.bestGoldLuck({ low, high, locked }, 2, tierOf)).to.be.near(
+				0.10,
+				1e-9
+			)
 			expect(IndexRewards.bestGoldLuck({ low, locked }, 2, tierOf)).to.be.near(0.02, 1e-9)
 			expect(IndexRewards.bestGoldLuck({ low, high, locked }, 4, tierOf)).to.equal(0)
 			expect(IndexRewards.bestGoldLuck({}, 1, tierOf)).to.equal(0)
@@ -476,7 +518,11 @@ return function()
 				then profile.goldCollection
 				else profile.collection
 			for _, def in Catalog.cats do
-				if collection[def.id] ~= nil and def.area ~= "spare" and (areaId == "all" or def.area == areaId) then
+				if
+					collection[def.id] ~= nil
+					and def.area ~= "spare"
+					and (areaId == "all" or def.area == areaId)
+				then
 					n += 1
 				end
 			end
@@ -809,7 +855,7 @@ return function()
 						profile.fishPerks.big_bowl = 1
 					end
 					local base = if bowl == 1
-						then Config.LureWaitSeconds * Config.BigBowlWaitMultiplier
+						then Config.LureWaitSeconds - Config.BigBowlWaitCutSeconds
 						else Config.LureWaitSeconds
 					expect(Economy.baitWaitSeconds(profile)).to.equal(base)
 					local off = 0
@@ -833,111 +879,147 @@ return function()
 
 		-- F60 (data-model v0.13.10): food set at night waits half the player's own day wait, Big Bowl and faster bait
 		-- included, and the bowl's screen promises the wait the server fixes
-		it("halves the night wait with every claim and the Big Bowl, and the bowl's screen agrees (F60)", function()
-			local FoodOdds = require(Components:WaitForChild("FoodOdds")) :: any
-			local order = milestonesOf("all")
-			table.sort(order, function(a: string, b: string): boolean
-				local ma = IndexRewards.milestone(a) :: Types.IndexMilestone
-				local mb = IndexRewards.milestone(b) :: Types.IndexMilestone
-				return ma.needs < mb.needs
-			end)
-			for _, bowl in { 0, 1 } do
-				local profile: any = ProfileSchema.template(1000)
-				if bowl == 1 then
-					profile.fishPerks.big_bowl = 1
-				end
-				local day = Economy.lureWaitSeconds(profile, false)
-				local night = Economy.lureWaitSeconds(profile, true)
-				expect(night).to.equal(if bowl == 1 then 240 else 300)
-				expect(night).to.equal(math.floor(day / 2))
-				local function same(at: string)
-					local speed = UIRewards.totals(Catalog, { indexRewards = profile.indexRewards }).baitSpeed
-					for _, isNight in { false, true } do
-						local server = Economy.baitWaitSeconds(profile, isNight)
-						local shown = FoodOdds.waitSeconds(profile.upgradeLevels.lure_bowl or 0, bowl == 1, speed, isNight)
-						local label = string.format("%s, bowl %d, night %s: ", at, bowl, tostring(isNight))
-						expect(label .. shown).to.equal(label .. server)
+		it(
+			"halves the night wait with every claim and the Big Bowl, and the bowl's screen agrees (F60)",
+			function()
+				local FoodOdds = require(Components:WaitForChild("FoodOdds")) :: any
+				local order = milestonesOf("all")
+				table.sort(order, function(a: string, b: string): boolean
+					local ma = IndexRewards.milestone(a) :: Types.IndexMilestone
+					local mb = IndexRewards.milestone(b) :: Types.IndexMilestone
+					return ma.needs < mb.needs
+				end)
+				for _, bowl in { 0, 1 } do
+					local profile: any = ProfileSchema.template(1000)
+					if bowl == 1 then
+						profile.fishPerks.big_bowl = 1
 					end
-					expect(Economy.baitWaitSeconds(profile, true) <= Economy.baitWaitSeconds(profile, false)).to.equal(
-						true
+					local day = Economy.lureWaitSeconds(profile, false)
+					local night = Economy.lureWaitSeconds(profile, true)
+					expect(night).to.equal(if bowl == 1 then 240 else 300)
+					expect(night).to.equal(math.floor(day / 2))
+					local function same(at: string)
+						local speed = UIRewards.totals(
+							Catalog,
+							{ indexRewards = profile.indexRewards }
+						).baitSpeed
+						for _, isNight in { false, true } do
+							local server = Economy.baitWaitSeconds(profile, isNight)
+							local shown = FoodOdds.waitSeconds(
+								profile.upgradeLevels.lure_bowl or 0,
+								bowl == 1,
+								speed,
+								isNight
+							)
+							local label = string.format(
+								"%s, bowl %d, night %s: ",
+								at,
+								bowl,
+								tostring(isNight)
+							)
+							expect(label .. shown).to.equal(label .. server)
+						end
+						expect(
+							Economy.baitWaitSeconds(profile, true)
+								<= Economy.baitWaitSeconds(profile, false)
+						).to.equal(true)
+					end
+					same("no claims")
+					local off = 0
+					for _, milestoneId in order do
+						off += math.floor(
+							(Catalog.indexPrizes.all[milestoneId].baitSpeed :: number) * 100 + 0.5
+						)
+						claim(profile, "all", milestoneId)
+						local want = math.floor(night * (100 - off) / 100)
+						expect(milestoneId .. " " .. Economy.baitWaitSeconds(profile, true)).to.equal(
+							milestoneId .. " " .. want
+						)
+						same(milestoneId)
+					end
+					-- the full All Cats track: 3:06 by night, 2:28 with the Big Bowl
+					expect(Economy.baitWaitSeconds(profile, true)).to.equal(
+						if bowl == 1 then 148 else 186
 					)
 				end
-				same("no claims")
-				local off = 0
-				for _, milestoneId in order do
-					off += math.floor((Catalog.indexPrizes.all[milestoneId].baitSpeed :: number) * 100 + 0.5)
-					claim(profile, "all", milestoneId)
-					local want = math.floor(night * (100 - off) / 100)
-					expect(milestoneId .. " " .. Economy.baitWaitSeconds(profile, true)).to.equal(
-						milestoneId .. " " .. want
-					)
-					same(milestoneId)
-				end
-				-- the full All Cats track: 3:06 by night, 2:28 with the Big Bowl
-				expect(Economy.baitWaitSeconds(profile, true)).to.equal(if bowl == 1 then 148 else 186)
 			end
-		end)
+		)
 
-		it("keeps a Decor page's claims through F80: twelve pieces for decor10, an earlier claim kept", function()
-			local decor10 = assert(IndexRewards.milestone("decor10"))
-			local decor5 = assert(IndexRewards.milestone("decor5"))
-			for _, pool in POOLS do
-				local page = "decor_" .. pool
-				local older: { any } = {}
-				local door: any, flap: any = nil, nil
-				for _, def in Catalog.crateDecor do
-					if def.crate ~= pool then
-						continue
-					elseif def.kind == "door" then
-						door = def
-					elseif def.kind == "catflap" then
-						flap = def
-					else
-						table.insert(older, def)
+		it(
+			"keeps a Decor page's claims through F80: twelve pieces for decor10, an earlier claim kept",
+			function()
+				local decor10 = assert(IndexRewards.milestone("decor10"))
+				local decor5 = assert(IndexRewards.milestone("decor5"))
+				for _, pool in POOLS do
+					local page = "decor_" .. pool
+					local older: { any } = {}
+					local door: any, flap: any = nil, nil
+					for _, def in Catalog.crateDecor do
+						if def.crate ~= pool then
+							continue
+						elseif def.kind == "door" then
+							door = def
+						elseif def.kind == "catflap" then
+							flap = def
+						else
+							table.insert(older, def)
+						end
 					end
+					expect(#older).to.equal(10)
+					assert(door and flap)
+					-- the ten pieces a page had before F80 leave decor10 two short, then one, then claimable
+					local profile = ProfileSchema.template(1000) :: any
+					for _, def in older do
+						profile.decorOwned[def.id] = true
+					end
+					expect(IndexRewards.blocker(profile, page, "decor5")).never.to.be.ok()
+					expect(IndexRewards.blocker(profile, page, "decor10")).to.equal(
+						"Find 2 more pieces first"
+					)
+					profile.decorOwned[door.id] = true
+					expect(IndexRewards.blocker(profile, page, "decor10")).to.equal(
+						"Find 1 more piece first"
+					)
+					profile.decorOwned[flap.id] = true
+					expect(IndexRewards.blocker(profile, page, "decor10")).never.to.be.ok()
+					-- a door set and a cat flap count toward decor5 like any piece
+					local early = ProfileSchema.template(1000) :: any
+					early.decorOwned[door.id] = true
+					early.decorOwned[flap.id] = true
+					for i = 1, 3 do
+						early.decorOwned[older[i].id] = true
+					end
+					expect(IndexRewards.blocker(early, page, "decor5")).never.to.be.ok()
+					early.decorOwned[older[3].id] = nil
+					expect(IndexRewards.blocker(early, page, "decor5")).to.equal(
+						"Find 1 more piece first"
+					)
+					-- section 4b: a page claimed at ten before F80 keeps its claim and its +5%
+					local before = ProfileSchema.template(1000) :: any
+					for _, def in older do
+						before.decorOwned[def.id] = true
+					end
+					before.indexRewards[page] = { decor10 = true }
+					expect(IndexRewards.blocker(before, page, "decor10")).to.equal(
+						"Already claimed"
+					)
+					expect(IndexRewards.totals(before).bonus).to.be.near(
+						Config.DecorIndexBonus,
+						1e-9
+					)
+					expect(UIRewards.totals(Catalog, { indexRewards = before.indexRewards }).bonus).to.be.near(
+						Config.DecorIndexBonus,
+						1e-9
+					)
+					-- the page's cards read "5 pieces" and "All 12" from the catalog's twelve
+					local counts =
+						UIRewards.counts(Catalog, { decorOwned = before.decorOwned }, page)
+					expect(counts.total).to.equal(12)
+					expect(counts.found).to.equal(10)
+					expect(UIRewards.needLabel(decor5, counts.total, page)).to.equal("5 pieces")
+					expect(UIRewards.needLabel(decor10, counts.total, page)).to.equal("All 12")
 				end
-				expect(#older).to.equal(10)
-				assert(door and flap)
-				-- the ten pieces a page had before F80 leave decor10 two short, then one, then claimable
-				local profile = ProfileSchema.template(1000) :: any
-				for _, def in older do
-					profile.decorOwned[def.id] = true
-				end
-				expect(IndexRewards.blocker(profile, page, "decor5")).never.to.be.ok()
-				expect(IndexRewards.blocker(profile, page, "decor10")).to.equal("Find 2 more pieces first")
-				profile.decorOwned[door.id] = true
-				expect(IndexRewards.blocker(profile, page, "decor10")).to.equal("Find 1 more piece first")
-				profile.decorOwned[flap.id] = true
-				expect(IndexRewards.blocker(profile, page, "decor10")).never.to.be.ok()
-				-- a door set and a cat flap count toward decor5 like any piece
-				local early = ProfileSchema.template(1000) :: any
-				early.decorOwned[door.id] = true
-				early.decorOwned[flap.id] = true
-				for i = 1, 3 do
-					early.decorOwned[older[i].id] = true
-				end
-				expect(IndexRewards.blocker(early, page, "decor5")).never.to.be.ok()
-				early.decorOwned[older[3].id] = nil
-				expect(IndexRewards.blocker(early, page, "decor5")).to.equal("Find 1 more piece first")
-				-- section 4b: a page claimed at ten before F80 keeps its claim and its +5%
-				local before = ProfileSchema.template(1000) :: any
-				for _, def in older do
-					before.decorOwned[def.id] = true
-				end
-				before.indexRewards[page] = { decor10 = true }
-				expect(IndexRewards.blocker(before, page, "decor10")).to.equal("Already claimed")
-				expect(IndexRewards.totals(before).bonus).to.be.near(Config.DecorIndexBonus, 1e-9)
-				expect(UIRewards.totals(Catalog, { indexRewards = before.indexRewards }).bonus).to.be.near(
-					Config.DecorIndexBonus,
-					1e-9
-				)
-				-- the page's cards read "5 pieces" and "All 12" from the catalog's twelve
-				local counts = UIRewards.counts(Catalog, { decorOwned = before.decorOwned }, page)
-				expect(counts.total).to.equal(12)
-				expect(counts.found).to.equal(10)
-				expect(UIRewards.needLabel(decor5, counts.total, page)).to.equal("5 pieces")
-				expect(UIRewards.needLabel(decor10, counts.total, page)).to.equal("All 12")
 			end
-		end)
+		)
 	end)
 end

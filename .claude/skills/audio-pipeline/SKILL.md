@@ -55,6 +55,7 @@ Roblox upload limits: `.mp3`, `.ogg`, `.wav` or `.flac`, under 20 MB, under 7 mi
 | `ambience` | stereo | 20 to 120 s, seamless loop | about -26 LUFS | -3 dBTP | no fade at either end |
 | `music` | stereo | 30 to 240 s, seamless loop | about -18 LUFS | -1 dBTP | loop starts and ends on the beat |
 | `music`, named `Jingle*` or `Sting*` (gate kind `stinger`) | stereo | 0.5 to 6 s, no loop | by ear against `jingleCatFound` | -1 dBTP | at most 20 ms of silence before the sound |
+| `sheets` (gate kind `sheet`): a sound sheet, short sounds joined with 0.5 s of silence, each cue playing its own `region` | mono for 3D parts, stereo for flat ones | 0.5 to 120 s | each part by its own kind, gated under `sheet-parts/<kind>/` | -1 dBTP | at most 20 ms of silence before the first part |
 
 LUFS is perceived loudness over the whole file; dBTP is the loudest instant. Master files close to these so the SoundGroup volumes do the mixing, not per-file fixes. Short sounds are too short for LUFS, so match them by ear against the reference cue. Seamless loop: the end flows into the start with no click, gap or fade.
 

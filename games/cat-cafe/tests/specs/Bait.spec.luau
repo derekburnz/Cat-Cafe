@@ -69,26 +69,32 @@ return function()
 			end
 		end
 
-		it("every food at every level still adds to 100, and Mythical never loses its own share", function()
-			for _, def in Catalog.lures do
-				for level = 1, Bait.MAX_LEVEL do
-					local odds: any = Bait.oddsFor(def.odds, level)
-					expect(total(odds)).to.be.near(100, 1e-9)
-					expect(odds.Mythical >= def.odds.Mythical).to.equal(true)
+		it(
+			"every food at every level still adds to 100, and Mythical never loses its own share",
+			function()
+				for _, def in Catalog.lures do
+					for level = 1, Bait.MAX_LEVEL do
+						local odds: any = Bait.oddsFor(def.odds, level)
+						expect(total(odds)).to.be.near(100, 1e-9)
+						expect(odds.Mythical >= def.odds.Mythical).to.equal(true)
+					end
 				end
 			end
-		end)
+		)
 
-		it("level 1 and no bowl leave the odds as they are; past the top reads as the Royal Bowl", function()
-			local salmon: any = (Catalog.getLure("salmon") :: any).odds
-			for _, level in { 0, 1 } do
-				local odds: any = Bait.oddsFor(salmon, level)
-				for _, rarity in Catalog.rarityOrder do
-					expect(odds[rarity]).to.equal(salmon[rarity])
+		it(
+			"level 1 and no bowl leave the odds as they are; past the top reads as the Royal Bowl",
+			function()
+				local salmon: any = (Catalog.getLure("salmon") :: any).odds
+				for _, level in { 0, 1 } do
+					local odds: any = Bait.oddsFor(salmon, level)
+					for _, rarity in Catalog.rarityOrder do
+						expect(odds[rarity]).to.equal(salmon[rarity])
+					end
 				end
+				expect((Bait.oddsFor(salmon, 9) :: any).Legendary).to.be.near(11.94, 1e-9)
 			end
-			expect((Bait.oddsFor(salmon, 9) :: any).Legendary).to.be.near(11.94, 1e-9)
-		end)
+		)
 
 		it("the upgrade card's example: Salmon Legendary 8.5% to 9.36% at level 2", function()
 			local salmon: any = (Catalog.getLure("salmon") :: any).odds
@@ -116,9 +122,9 @@ return function()
 			expect(Bait.MAX_LEVEL).to.equal(Catalog.upgradesById.lure_bowl.maxLevel)
 		end)
 
-		it("day waits 10:00 to 8:00, the Big Bowl a fifth off, night half", function()
+		it("day waits 10:00 to 8:00, the Big Bowl two minutes off (F95), night half", function()
 			local day = { 600, 570, 540, 510, 480 }
-			local big = { 480, 456, 432, 408, 384 }
+			local big = { 480, 450, 420, 390, 360 }
 			for level = 1, 5 do
 				expect(Bait.waitSeconds(level, false)).to.equal(day[level])
 				expect(Bait.waitSeconds(level, true)).to.equal(big[level])
@@ -133,7 +139,9 @@ return function()
 			for level = 1, 5 do
 				table.insert(names, Bait.bowlName(level))
 			end
-			expect(table.concat(names, ", ")).to.equal("Bait Bowl, Comfy Bowl, Fancy Bowl, Deluxe Bowl, Royal Bowl")
+			expect(table.concat(names, ", ")).to.equal(
+				"Bait Bowl, Comfy Bowl, Fancy Bowl, Deluxe Bowl, Royal Bowl"
+			)
 			expect(Bait.bowlName(0)).to.equal("Bait Bowl")
 		end)
 	end)

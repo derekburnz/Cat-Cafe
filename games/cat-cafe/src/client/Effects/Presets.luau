@@ -72,6 +72,11 @@ export type Budget = {
 	cloudPuffs: number, -- puffs in the full-screen clouds of a cannon flight or a cloud hop (F84)
 	campfires: number, -- campfires whose flame moves, with embers and a light, at once
 	pullConfetti: number, -- confetti pieces on screen in a big pull (F89)
+	rainbowCats: number, -- rainbow cats whose bands flow, with a glow and a trail, at once (F99)
+	rainbowOutlines: number, -- of those, the nearest with a band-coloured outline (a Highlight each)
+	rallyPops: number, -- "+1" pops and paws flying into the Rally bar at once (F101)
+	pennants: number, -- bunting pennants fluttering at once (F101); 0 hangs them all still
+	decorMotion: number, -- rare decor's moving parts (_Swing, _Spin, _Bob) moving at once (F89 2c)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -99,6 +104,11 @@ Presets.budget = {
 		cloudPuffs = 10,
 		campfires = 2,
 		pullConfetti = 20,
+		rainbowCats = 6,
+		rainbowOutlines = 3,
+		rallyPops = 5,
+		pennants = 40,
+		decorMotion = 12,
 	},
 	high = {
 		animatedCats = 16,
@@ -121,6 +131,11 @@ Presets.budget = {
 		cloudPuffs = 16,
 		campfires = 3,
 		pullConfetti = 40,
+		rainbowCats = 10,
+		rainbowOutlines = 6,
+		rallyPops = 8,
+		pennants = 90,
+		decorMotion = 24,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -143,6 +158,11 @@ Presets.budget = {
 		cloudPuffs = 6,
 		campfires = 1,
 		pullConfetti = 13,
+		rainbowCats = 3,
+		rainbowOutlines = 0,
+		rallyPops = 3,
+		pennants = 0,
+		decorMotion = 0,
 	},
 } :: { [string]: Budget }
 
@@ -437,6 +457,25 @@ Presets.emitters = {
 		lightEmission = 0.8,
 	},
 	-- Mythical decor (F53): a glint now and then over Glimmer Canal's floor or a Gold Leaf front, tinted by the piece.
+	-- Rainbow cat sparkles dropping behind it as it moves (F99), shifting through the hues as they fade in 0.8 s.
+	rainbowTrail = {
+		texture = Presets.textures.sparkle,
+		colors = {
+			Color3.fromRGB(255, 72, 88),
+			Color3.fromRGB(255, 222, 60),
+			Color3.fromRGB(84, 214, 112),
+			Color3.fromRGB(72, 182, 255),
+			Color3.fromRGB(168, 108, 255),
+		},
+		size = { 0.3, 0 },
+		transparency = { 0, 0.6 },
+		lifetime = { 0.6, 0.8 },
+		speed = { 0, 0.3 },
+		spread = 180,
+		rate = 8,
+		lightEmission = 0.8,
+		rotSpeed = { -120, 120 },
+	},
 	decorGlint = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.offwhite, Presets.palette.sparkle },
@@ -724,9 +763,38 @@ Presets.motion = {
 		jumpStuds = 3, -- a server move longer than this during a hiss is drawn as part of the hop
 	},
 	barista = { tapEvery = 1.6, headDip = 12, paw = 35 },
-	waiter = { sway = 5, swaySeconds = 1.8, step = 0.05 },
+	-- A waiter watching the room from its station (Derek 2026-10-29 19:45: cats should move around the cafe, "not just
+	-- waddle back and fourth while sitting"; it used to rock side to side with a little hop): the head turns `look`
+	-- degrees from table to table over `lookSeconds`, and tilts `tilt` now and then, once every `tiltEvery`. Its walks
+	-- round the tables are Presets.cafeWalk.
+	waiter = { look = 22, lookSeconds = 7, tilt = 8, tiltEvery = 5.5 },
 	greeter = { waveEvery = 3.2, wave = 70, tilt = 10 },
-	entertainer = { swatEvery = 1.4, swat = 55, yarnStuds = 1.2 },
+	-- The entertainer bats a pom-pom on a springy wand stuck in its perch (Derek 2026-10-28 17:41: Comet's ball was
+	-- "kind of floating" and its foot "randomly" twitched; the old yarn ball slid about in mid air 2 studs past the
+	-- cat tree's top, which the paw never reached). The paws take turns once every `every` seconds: the paw comes
+	-- up over `windup`, faster and faster, meets the pom-pom from behind raised `reach` degrees, holds it `hold`, and
+	-- goes down again over `back`. A paw is one stiff piece, so it never lifts over the pom-pom, which would pass
+	-- through it. The pom-pom rests just ahead of that paw's pad, `pom` studs across, on a `wand` thick wand from
+	-- `wandBase` (studs ahead of the cat, on the perch). Each bat sends it away `tilt` degrees, `side` of that off to
+	-- the far side, and it springs back and wobbles at `hz` a second, dying away `decay` times a second. The head
+	-- looks down `look` degrees at it and turns after it by `follow` of its sway; the body leans into each bat `lean`.
+	entertainer = {
+		every = 1.6,
+		windup = 0.22,
+		reach = 70,
+		hold = 0.06,
+		back = 0.38,
+		pom = 0.3,
+		wand = 0.05,
+		wandBase = 0.55,
+		tilt = 30,
+		side = 0.45,
+		hz = 1.8,
+		decay = 2.6,
+		look = 10,
+		follow = 0.8,
+		lean = 4,
+	},
 	-- Stuck in a rescue trap (Derek 2026-10-28: a different animation "for whatever cat is stuck in it", "like tail
 	-- sticking out or butt", "make the butt sticking out for a lot of the rescue's", "flip the cats upside for some
 	-- rescue missions where fit"). Each TrapType wriggles one of two ways (`kinds`), in bursts once every `every`
@@ -918,6 +986,26 @@ Presets.motion = {
 -- numbers here when the manifest changes. In the sleep and the loaf the folded legs also turn out to the sides (the
 -- last angle, front 30 degrees, back 26), so the paws peek out a little (Derek 2026-10-27; in the manifest since #296).
 export type CatPose = { body: string, lift: number, turns: { [string]: { number } } }
+-- Cafe cats on the move (CafeWalk.luau; Derek 2026-10-29 19:45: "make the cats move around cafe not just waddle
+-- back and fourth while sitting"). In your own cafe by day, a waiter at its station now and then gets up, walks
+-- `speed` studs a second onto the nearest lane and along it to a chair within `reach` studs (the chair's Approach
+-- point, where customers walk to sit), looks over the table for `pause` seconds and walks back to sit again, once
+-- every `every` seconds (a random time between the two), at most `most` at once and only while the camera is within
+-- `range` studs. Getting up and sitting down cross-fade the seated body and the walking body over `fade` seconds; it
+-- turns at most `turn` degrees a second. Off with Reduce Motion. F90's orders (cats-make-orders.md) send the same
+-- walk with a tray.
+Presets.cafeWalk = {
+	speed = 3,
+	turn = 300,
+	fade = 0.3,
+	every = { 16, 32 },
+	pause = { 2.5, 4.5 },
+	reach = 12,
+	most = 2,
+	range = 70,
+	trayLift = 0.08, -- studs a tray sits above the top of the head
+}
+
 Presets.catPoses = {
 	sleep = {
 		body = "walk",
@@ -1645,7 +1733,127 @@ Presets.market = {
 -- The opened crate on the counter (crates.py's models, about 2.5 by 2 by 2 studs at full size): scaled down to sit on
 -- the stall's ice, the lid swung up `lidDegrees` (crates.py: 105 is wide open with no clipping) over `lidSeconds`,
 -- held for `hold` seconds from the open and faded over `fade`.
-Presets.marketCrate = { scale = 0.6, lidDegrees = 105, lidSeconds = 0.3, hold = 1.8, fade = 0.4 }
+-- While the Market window's crate reel runs (F103, crate-reel.md), the lid knocks on its hinge as hard as the reel is
+-- fast (Logic.crateReelPace): up to `reelRattle` degrees and `reelHop` studs, `reelHz` knocks a second, the same for
+-- every prize. The lid opens at the stop: the time Config's CrateReel* numbers give (Logic.crateReelStop), or the
+-- UI's CrateReelLanded moment (a tap skips), in which case the stop plus `reelSafety` seconds is only the fallback.
+Presets.marketCrate = {
+	scale = 0.6,
+	lidDegrees = 105,
+	lidSeconds = 0.3,
+	hold = 1.8,
+	fade = 0.4,
+	reelRattle = 3,
+	reelHop = 0.04,
+	reelHz = 9,
+	reelSafety = 1.5,
+}
+
+-- Rainbow coats (F99, rainbow-coat.md section 2): a rainbow cat's own parts in `hues`, each part's colour drifting
+-- round them with its phase set by how far back from the nose it sits, so bands flow nose to tail, one lap every
+-- `period` seconds and `spread` laps along the cat; a part keeps `least` to all of its band's brightness by how light
+-- its own colour was, so stripes still show. Only the `pieces` named here change (not the eyes, props or outfits),
+-- and in them a part shorter than `keepShare` of its piece's biggest part (the nose, the mouth, the blush) keeps its
+-- colour. The nearest budget.rainbowCats within `within` studs (no more than Config.RainbowAnimateMax) flow at `hz`
+-- updates a second, glow (`glow`) and drop `trail` sparkles while they move faster than `moving` studs a second; the
+-- nearest budget.rainbowOutlines of those also get an outline in the band colour. The rest show still bands. When a
+-- rainbow stray spawns (`RainbowSpawned`), a bundle of six thin beams, one per hue, rises from it (`beam`) for
+-- anyone within `beam.within`. Reduce Motion stills the bands and drops the trail and beam; glow and outline stay.
+Presets.rainbow = {
+	hues = {
+		Color3.fromRGB(255, 72, 88), -- red
+		Color3.fromRGB(255, 150, 48), -- orange
+		Color3.fromRGB(255, 222, 60), -- yellow
+		Color3.fromRGB(84, 214, 112), -- green
+		Color3.fromRGB(72, 182, 255), -- sky blue
+		Color3.fromRGB(168, 108, 255), -- violet
+	},
+	period = 3,
+	spread = 1,
+	least = 0.7,
+	keepShare = 0.2,
+	pieces = { "Body", "Head", "EarL", "EarR", "Tail", "LegF1", "LegF2", "LegB1", "LegB2" },
+	within = 120,
+	hz = 20,
+	pick = 0.25, -- seconds between choosing which cats flow
+	glow = { color = Color3.new(1, 1, 1), range = 6, brightness = 0.6 },
+	outline = 0.25, -- outline transparency
+	moving = 0.6,
+	beam = { width = 0.5, height = 50, seconds = 3, ring = 0.55, within = 400 },
+}
+
+-- The Rescue Rally (F101, rescue-rally.md section 4) on this player's screen, over the UI's banner bar (`RallyBar`):
+-- each point anyone scores pops a "+N" in `text` up from just under the bar into the end of its fill, and this
+-- player's own points fly a paw with the "+N" up from the bottom middle of the screen. Each flies `seconds`, popping
+-- in over `popIn` and shrinking to `land` as it arrives, with a small sparkle there; no more than the budget's
+-- rallyPops at once, the rest skipped. Each step of the bar (`steps`) runs `stepSparkles` sparkles along the filled
+-- bar, twice as many in gold for the full bar. Reduce Motion drops the pops and halves the step sparkles.
+Presets.rally = {
+	displayOrder = 11, -- over the HUD (10), under the area title (12) and the modals (20)
+	steps = { 0.25, 0.5, 1 },
+	seconds = 0.65,
+	popIn = 0.14,
+	land = 0.55,
+	below = { 34, 64 }, -- pixels under the bar the "+N" pops at
+	spreadX = 46, -- pixels either side of the fill end
+	lift = { 0.12, 0.28 }, -- how far a flight bends, a share of its length, to either side
+	textSize = 26,
+	ownSize = 44, -- the paw's size in pixels
+	text = Color3.fromRGB(255, 249, 242),
+	stroke = Color3.fromRGB(217, 102, 40),
+	paw = Color3.fromRGB(255, 166, 77),
+	sparkle = Color3.fromRGB(255, 244, 176),
+	arrive = 5, -- sparkles where a pop lands
+	stepSparkles = 14,
+	stepSeconds = 0.8,
+	full = Color3.fromRGB(242, 193, 78),
+}
+
+-- Bunting pennants (F101: the Town Square's Rally bunting, the Rally Crate's cheer bunting): every Model or part whose
+-- name ends `_Pennant` inside a Model whose name has `Bunting` in it swings about its top edge, out of its hanging
+-- plane, leaning `lean` degrees downwind and fluttering `swing` degrees on two waves (`hz1`, `hz2`) that run across
+-- the square with the wind every `wavelength` studs. The nearest budget.pennants within ambientRadius move at the
+-- budget's update rate; the rest, and all of them with Reduce Motion, hang as modelled.
+Presets.bunting = {
+	lean = 7,
+	swing = 13,
+	hz1 = 0.9,
+	hz2 = 1.6,
+	wavelength = 18,
+	pick = 1, -- seconds between choosing which pennants move
+}
+
+-- Trade done (F102, trading.md section 3 step 6): the UI's "You get" pictures (tag `TradeGot`) fly off the confirm
+-- screen into the HUD's Cats pill, the cat room, one after another `stagger` seconds apart, in an arc that bends up
+-- by `lift` of the way, shrinking to `land` of the pill's height over `seconds`; each lands with `arrive` sparkles and
+-- a ring round the pill. With Reduce Motion nothing flies: the pill gets half the sparkles and no ring.
+Presets.tradeFly = {
+	displayOrder = 21, -- over the trade window (a modal, 20), under the bait card (35) and toasts (30)
+	seconds = 0.75,
+	stagger = 0.09,
+	lift = 0.22,
+	land = 0.8,
+	popIn = 0.12,
+	arrive = 6,
+	ring = 1.6, -- the ring grows to this many times the pill's height
+	ringSeconds = 0.45,
+	sparkle = Color3.fromRGB(255, 244, 176),
+	ringColor = Color3.fromRGB(255, 249, 242),
+}
+
+-- Moving parts of rare decor (F89 2c, luck-and-rare-moments.md: a Legendary piece has "a moving part and a light"):
+-- Model-Agent marks each with a child Model named ending `_Swing` (swings side to side about its pivot's Z axis, the
+-- pivot at the hook: lanterns, a porch swing, wind chimes), `_Spin` (turns about its pivot's Y axis: a record, a little
+-- fan) or `_Bob` (rides up and down along its pivot's Y: a duck on the water), lights inside riding along. Its own
+-- `Angle` (degrees), `Seconds` (one cycle) and `Rise` (studs) attributes override the defaults here, held inside the
+-- ranges. The nearest budget.decorMotion within ambientRadius move at the budget's update rate, each started at a
+-- random point of its cycle; Reduce Motion and Low performance hold them all still as modelled.
+Presets.decorMotion = {
+	angle = { default = 10, least = 0, most = 45 },
+	seconds = { default = 2, least = 0.3, most = 30 },
+	rise = { default = 0.08, least = 0, most = 1 },
+	pick = 1, -- seconds between choosing which parts move
+}
 
 -- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to
 -- 1, how much of the sky it hides) and `density` (how thick each cloud looks), tinted `color`, drifting on `wind`

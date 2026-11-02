@@ -4,12 +4,15 @@
 -- players' tackle poses, the spin wheel, the Codes Cat's circle, crate openings, golden fish, the Mythical cafe styles,
 -- potion glows, the Mystery Visitor, cat level ups, the red "!" over stuck cats, the green flash on decor you put out,
 -- the rarity gems over strays, splashes in water, the intro's puff, the Cat Cannon's flight, clouds and camp
--- check-in, the campfires' moving flames, the big confetti pull for a Legendary or Mythical and the clouds in the sky, all on
--- this client only. Effects read replicated world state (tags and attributes) and this player's own
--- events; they never fire a remote, never change game state and never move a part the server moves for gameplay. Rules: .claude/skills/animation-vfx/SKILL.md.
+-- check-in, the campfires' moving flames, the big confetti pull for a Legendary or Mythical, the clouds in the sky,
+-- the rainbow coats, the Rescue Rally's pops and bunting, Trade done's flight and rare decor's moving parts, all on
+-- this client only. Effects read replicated world state (tags and attributes) and this player's own events; they
+-- never fire a remote, never change game state and never move a part the server moves for gameplay. Rules:
+-- .claude/skills/animation-vfx/SKILL.md.
 -- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
+local CafeWalk = require(script.CafeWalk)
 local Campfire = require(script.Campfire)
 local Cannon = require(script.Cannon)
 local CannonGlide = require(script.CannonGlide)
@@ -24,10 +27,13 @@ local Fish = require(script.Fish)
 local Intro = require(script.Intro)
 local Levels = require(script.Levels)
 local Market = require(script.Market)
+local Motion = require(script.Motion)
 local Mystery = require(script.Mystery)
 local Plots = require(script.Plots)
 local Potions = require(script.Potions)
 local Pull = require(script.Pull)
+local Rainbow = require(script.Rainbow)
+local Rally = require(script.Rally)
 local Rarity = require(script.Rarity)
 local Rescue = require(script.Rescue)
 local Shove = require(script.Shove)
@@ -35,6 +41,7 @@ local Signature = require(script.Signature)
 local Sky = require(script.Sky)
 local Splash = require(script.Splash)
 local Tackle = require(script.Tackle)
+local Trade = require(script.Trade)
 local Wheel = require(script.Wheel)
 
 local Effects = {}
@@ -49,6 +56,7 @@ function Effects.start()
 	started = true
 	Context.init()
 	Cats.start()
+	CafeWalk.start()
 	Signature.start()
 	Catch.start()
 	Chase.start()
@@ -74,6 +82,10 @@ function Effects.start()
 	Cannon.start()
 	Campfire.start()
 	Sky.start()
+	Rainbow.start()
+	Rally.start()
+	Trade.start()
+	Motion.start()
 end
 
 -- "low" on a phone or tablet or in Low performance mode, "high" on a PC or console (Presets.budget).

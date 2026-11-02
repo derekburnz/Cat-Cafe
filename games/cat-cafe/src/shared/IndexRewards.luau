@@ -34,7 +34,8 @@ function IndexRewards.prize(areaId: string, milestoneId: string): Types.IndexPri
 end
 
 -- Different cats of the area in `collection` (a collection or a gold collection: catId -> first caught at), or of
--- every area when `areaId` is "all". A spare cat (data-model 3d) counts toward neither, so All Cats stays 50.
+-- every area when `areaId` is "all". A spare cat (data-model 3d) counts toward neither, so All Cats stays 50, and
+-- nor does a shop-only cat (`exclusive`, F95).
 function IndexRewards.progress(collection: { [string]: number }, areaId: string): number
 	local n = 0
 	for catId in collection do
@@ -42,6 +43,7 @@ function IndexRewards.progress(collection: { [string]: number }, areaId: string)
 		if
 			def ~= nil
 			and def.area ~= "spare"
+			and def.exclusive ~= true
 			and (areaId == IndexRewards.ALL or def.area == areaId)
 		then
 			n += 1

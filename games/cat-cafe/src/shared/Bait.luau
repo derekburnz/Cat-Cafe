@@ -4,8 +4,8 @@
 -- the roll, Mythical keeping its own. Pure, so UseLure's roll and every food card read the same odds and waits.
 --   oddsFor(odds, bowlLevel) -> LureOdds   a food's odds in a bowl of that level, adding to the same total
 --   luck(bowlLevel) -> number              the bowl's luck, 0 for level 1 or no bowl
---   waitSeconds(bowlLevel, bigBowl, night?) -> number   the day wait by level, a fifth off with the Big Bowl perk
---                                          (BigBowlWaitMultiplier), the LureWaitSecondsNight share of it at night;
+--   waitSeconds(bowlLevel, bigBowl, night?) -> number   the day wait by level, 2 minutes off with the Big Bowl perk
+--                                          (BigBowlWaitCutSeconds, F95), the LureWaitSecondsNight share of it at night;
 --                                          the Index's and potions' baitSpeed come off after (Economy.baitWaitSeconds)
 --   bowlName(bowlLevel) -> string          "Bait Bowl" to "Royal Bowl"
 
@@ -48,7 +48,7 @@ end
 function Bait.waitSeconds(bowlLevel: number, bigBowl: boolean, night: boolean?): number
 	local wait = Config.BowlWaitSeconds[clampLevel(bowlLevel)]
 	if bigBowl then
-		wait *= Config.BigBowlWaitMultiplier
+		wait = math.max(0, wait - Config.BigBowlWaitCutSeconds)
 	end
 	if night then
 		wait = wait * Config.LureWaitSecondsNight / Config.LureWaitSeconds

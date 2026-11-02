@@ -5,7 +5,9 @@
 -- (golden-fish.md section 5, v0.10): gold "+2% tips forever", deep gold "+3% gold luck forever" and blue "+2% faster
 -- bait forever". One chip per part from IndexRewards.prizeParts, so whatever the designer puts in Catalog.indexPrizes
 -- shows without a UI change; a kind the UI does not know yet shows a gift.
---   PrizeChips.new(props)   a row that sizes itself to its chips, or wraps them inside its width (props.wrap)
+--   PrizeChips.new(props)   a row that sizes itself to its chips, or wraps them inside its width (props.wrap); with
+--                           props.fitTo it shrinks to fit, never below 9 px text (ui-review), and past that the last
+--                           pictures fold into a "+2" chip
 --   chips:setCatalog(catalog)   foods, decor and crates by id, for their names and models
 --   chips:set(prize, look?)   look.dayRate prices coins that grow with the cafe, look.spinsBanked marks spins that
 --                             would not fit the Spin Wheel bank, look.gold tints a decor tile gold, look.tier names
@@ -26,6 +28,7 @@ local Outline = require(script.Parent.Outline)
 local ShopIcons = require(script.Parent.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
+local ViewScale = require(script.Parent.Parent.Scale)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
@@ -40,6 +43,7 @@ export type Props = {
 	showBonus: boolean?, -- false leaves the forever pills out, for a card that shows them on a band of its own
 	fitTo: GuiObject?, -- without wrap: shrink the whole row to fit inside this frame's width (a big prize on a board)
 	fitPad: number?, -- px of fitTo's width kept clear
+	maxPictures: number?, -- F94 rule 3: at most two pictures a prize, three on the big ones; the rest show as "+N"
 	name: string?,
 	position: UDim2?,
 	anchorPoint: Vector2?,
@@ -52,6 +56,7 @@ export type Look = {
 	dayRate: number?, -- prices coinSeconds; without it coins shows the least it pays
 	spinsBanked: number?, -- spins already banked; spins over SpinBankCap read "Full"
 	tier: number?, -- the player's tier: a "highest" crate shows the crate of the highest area it opens
+	maxPictures: number?, -- in place of props.maxPictures for this prize (an XL achievement shows three)
 }
 
 export type PrizeChips = {
@@ -68,9 +73,18 @@ local COIN_GLYPH = "💰"
 local OTHER_GLYPH = "🎁"
 local LINE_GAP = 4 -- between wrapped lines
 local SPIN_BANK_CAP: number = Config.SpinBankCap or 20
+local FIT_DEAD_BAND = 0.03 -- a fitted row ignores scale changes smaller than this
+local FIT_ECHO = 0.08 -- a width within 8% of what our own scale change should give is that change coming back
+local MIN_TEXT = 9.05 -- a fitted row never shrinks its text below 9 px (ui-review, the UI gate's text check)
+local UNFOLD_SLACK = 2 -- px of spare room a folded picture needs before it comes back, so it never flips
 
 local PrizeChips = {}
 PrizeChips.__index = PrizeChips
+
+-- a forever pill's text, a little smaller than the amounts
+local function pillTextSize(textSize: number): number
+	return math.max(12, textSize - 2)
+end
 
 function PrizeChips.new(props: Props): PrizeChips
 	local self = setmetatable({}, PrizeChips) :: any
@@ -85,6 +99,12 @@ function PrizeChips.new(props: Props): PrizeChips
 	self._look = nil :: Look?
 	self._shape = "" -- the kinds and ids on show; a change rebuilds the chips, an amount change only relabels
 	self._fit = {} :: { RBXScriptConnection }
+	self._cap = nil :: number? -- a fitted row too wide at its smallest: how many pictures still show
+	self._needs = {} :: { [number]: number } -- the row's full width with n pictures, measured before folding one
+	self._fullShape = "" -- the parts before folding; a new prize unfolds them
+	self._hasPill = false
+	self._pictures = 0 -- picture parts in the whole prize (forever pills are not pictures)
+	self._showing = 0 -- picture chips on show
 	local wrap = props.wrap == true
 	local layout: UIListLayout = Create("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
@@ -109,14 +129,77 @@ function PrizeChips.new(props: Props): PrizeChips
 	local fitTo = props.fitTo
 	if fitTo and not wrap then
 		local scale: UIScale = Create("UIScale", { Parent = self.frame })
-		local function fit()
-			-- AbsoluteContentSize already includes the UIScale, so divide it back out for the row's own width
-			local natural = layout.AbsoluteContentSize.X / math.max(scale.Scale, 0.01)
+		-- Derek 2026-10-28: the weekly quest, Daily Treat day 2 and code prize rows were "spassing back and forth".
+		-- The row used to work out its full width from its own width under the UIScale. Text draws at whole pixel
+		-- sizes, so the width does not follow the scale exactly: each new scale gave a slightly different full width,
+		-- which gave a new scale, flipping every frame. Now the full width is only measured when the chips change,
+		-- the width our own scale change brings back is ignored, and a change under FIT_DEAD_BAND is left alone.
+		-- Review S96 (2026-11-02): the text never goes under 9 px; past that the last pictures fold into "+N".
+		local natural = 0 -- the row's width at full size, in screen pixels
+		local echo: number? = nil -- the width our last scale change should bring back
+		local textSize = props.textSize or Theme.sizes.textBody
+		local function apply()
 			local room = fitTo.AbsoluteSize.X - (props.fitPad or 0)
-			scale.Scale = if room > 0 and natural > room then room / natural else 1
+			local height = self.frame.AbsoluteSize.Y
+			if room <= 0 or height <= 0 or natural <= 0 then
+				return
+			end
+			-- widths compare in the row's own pixels, before the scales above it (the screen's, a pop-in), so a
+			-- window popping open changes nothing here
+			local above = height / (props.tile * scale.Scale)
+			local roomHere = room / above
+			local needHere = natural / above
+			-- the 9 px floor counts the screen's scale only (the phone's smaller windows), not a pop-in
+			local smallest = if self._hasPill
+				then math.min(textSize, pillTextSize(textSize))
+				else textSize
+			local floor = math.min(1, MIN_TEXT / (smallest * ViewScale.get()))
+			local shown = self._showing
+			local wider = self._needs[shown + 1]
+			if wider ~= nil and wider * floor <= roomHere - UNFOLD_SLACK then
+				-- room again for the picture folded last (a bigger screen)
+				self._cap = shown + 1
+				echo = nil
+				self:_rebuild()
+				return
+			end
+			local target = math.min(1, roomHere / needHere)
+			if target < floor then
+				if shown > 1 then
+					-- too wide even with the text at 9 px: the last picture folds into the "+N" chip
+					self._needs[shown] = needHere
+					self._cap = shown - 1
+					echo = nil
+					self:_rebuild()
+					return
+				end
+				target = floor
+			end
+			if
+				scale.Scale >= floor
+				and math.abs(target - scale.Scale) < FIT_DEAD_BAND
+				and not (target == 1 and scale.Scale ~= 1)
+			then
+				return
+			end
+			echo = natural * target
+			scale.Scale = target
 		end
-		table.insert(self._fit, layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fit))
-		table.insert(self._fit, fitTo:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit))
+		local function measure()
+			local width = layout.AbsoluteContentSize.X
+			if echo ~= nil and math.abs(width - echo) <= math.max(2, echo * FIT_ECHO) then
+				echo = nil -- our own scale change coming back
+				return
+			end
+			echo = nil
+			natural = width / math.max(scale.Scale, 0.01)
+			apply()
+		end
+		table.insert(
+			self._fit,
+			layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(measure)
+		)
+		table.insert(self._fit, fitTo:GetPropertyChangedSignal("AbsoluteSize"):Connect(apply))
 	end
 	return self :: PrizeChips
 end
@@ -255,7 +338,7 @@ function PrizeChips._bonusPill(self: any, chip: Frame, text: string, perk: strin
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, math.floor(props.tile * 0.7)),
 		FontFace = Theme.fonts.display,
-		TextSize = math.max(12, (props.textSize or Theme.sizes.textBody) - 2),
+		TextSize = pillTextSize(props.textSize or Theme.sizes.textBody),
 		TextColor3 = Theme.colors.white,
 		Text = text,
 		Parent = chip,
@@ -268,6 +351,36 @@ function PrizeChips._bonusPill(self: any, chip: Frame, text: string, perk: strin
 	return pill
 end
 
+-- The "+2" chip for pictures a fitted row had no room for.
+function PrizeChips._morePill(self: any, chip: Frame, text: string): TextLabel
+	local props: Props = self._props
+	local pill: TextLabel = Create("TextLabel", {
+		Name = "More",
+		BackgroundColor3 = Theme.colors.paper,
+		BorderSizePixel = 0,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, math.floor(props.tile * 0.7)),
+		FontFace = Theme.fonts.display,
+		TextSize = props.textSize or Theme.sizes.textBody,
+		TextColor3 = Theme.modal.text,
+		Text = text,
+		Parent = chip,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }),
+	})
+	Outline.border(pill, 2)
+	return pill
+end
+
+-- Builds the chips again (a fitted row folding or unfolding pictures).
+function PrizeChips._rebuild(self: any)
+	self._shape = ""
+	if self._prize ~= nil then
+		self:set(self._prize, self._look)
+	end
+end
+
 function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 	local props: Props = self._props
 	local shown: Look = look or {}
@@ -275,10 +388,13 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 	self._look = look
 	if prize == nil then
 		self._shape = ""
+		self._fullShape = ""
+		self._cap = nil
+		table.clear(self._needs)
 		self:_clear()
 		return
 	end
-	local parts: { IndexRewards.PrizePart } = {}
+	local all: { IndexRewards.PrizePart } = {}
 	for _, raw in IndexRewards.prizeParts(prize, shown.dayRate) do
 		local part: IndexRewards.PrizePart = raw
 		if raw.kind == "crate" then
@@ -289,14 +405,52 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 			part = resolved
 		end
 		if not IndexRewards.isPerk(part.kind) or props.showBonus ~= false then
-			table.insert(parts, part)
+			table.insert(all, part)
 		end
 	end
 	local keys: { string } = {}
-	for _, part in parts do
+	local pictures = 0
+	local hasPill = false
+	for _, part in all do
 		table.insert(keys, part.kind .. ":" .. (part.id or ""))
+		if IndexRewards.isPerk(part.kind) then
+			hasPill = true
+		else
+			pictures += 1
+		end
 	end
-	local shape = table.concat(keys, ",") .. (if shown.gold then "|gold" else "")
+	local fullShape = table.concat(keys, ",") .. (if shown.gold then "|gold" else "")
+	if fullShape ~= self._fullShape then
+		self._fullShape = fullShape
+		self._cap = nil -- a new prize: every picture gets a try
+		table.clear(self._needs)
+	end
+	self._pictures = pictures
+	self._hasPill = hasPill
+	-- keep the first `cap` pictures and count the rest in "+N": the F94 limit, or fewer in a fitted row that has no
+	-- room for them even at 9 px text
+	local parts: { IndexRewards.PrizePart } = all
+	local cap: number? = self._cap
+	local most: number? = shown.maxPictures or props.maxPictures
+	if most ~= nil and (cap == nil or most < cap) then
+		cap = math.max(1, most)
+	end
+	self._showing = if cap ~= nil then math.min(cap, pictures) else pictures
+	if cap ~= nil and cap < pictures then
+		parts = {}
+		local kept = 0
+		for _, part in all do
+			if IndexRewards.isPerk(part.kind) then
+				table.insert(parts, part)
+			elseif kept < cap then
+				kept += 1
+				table.insert(parts, part)
+			end
+		end
+		local more: IndexRewards.PrizePart = { kind = "more" :: any, amount = pictures - cap }
+		table.insert(parts, more)
+	end
+	local shape = fullShape .. "|" .. tostring(cap)
 	if shape == self._shape and #self._chips == #parts then
 		-- the same pictures: only the amounts can have changed (a coin estimate, a fuller spin bank)
 		for index, part in parts do
@@ -305,6 +459,7 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 				local _, _, _, amount = self:_partLook(part, shown)
 				label.Text = if IndexRewards.isPerk(part.kind)
 					then bonusText(part.amount, part.kind)
+					elseif (part.kind :: string) == "more" then "+" .. part.amount
 					else amount
 			end
 		end
@@ -333,6 +488,8 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 		local entry: Chip = { frame = chip, label = nil }
 		if IndexRewards.isPerk(part.kind) then
 			entry.label = self:_bonusPill(chip, bonusText(part.amount, part.kind), part.kind)
+		elseif (part.kind :: string) == "more" then
+			entry.label = self:_morePill(chip, "+" .. part.amount)
 		else
 			local asset, glyph, rarity, amount = self:_partLook(part, shown)
 			local icon = ItemIcon.new({

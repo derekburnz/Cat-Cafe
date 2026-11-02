@@ -7,8 +7,10 @@
 -- mixes gold in. Everyone near sees the catch pop of that rarity where the cat was secured (its beam from Legendary
 -- up), and a Mythical's ground shockwave. Reduce Motion halves the confetti and drops the shake and the shockwave.
 --
--- Source: the server's `SecuredRare(userId, catId, rarity, gold)` to every client after the check-in, hooked when the
--- remote appears; the player's character for where. Numbers in Presets.bigPull and the budget's pullConfetti.
+-- Source: the server's `SecuredRare(userId, catId, rarity, gold, variant)` to every client after the check-in, hooked
+-- when the remote appears; the player's character for where. A rainbow cat (`variant` "rainbow", F99) is always a
+-- big pull, with confetti in the six rainbow hues and Rainbow.beam. Numbers in Presets.bigPull and the budget's
+-- pullConfetti.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -22,6 +24,7 @@ local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
+local Rainbow = require(script.Parent.Rainbow)
 
 local Pull = {}
 
@@ -94,7 +97,7 @@ end
 
 -- Confetti from both edges for this player's own pull of `rarity`, and a Mythical's sparkles. A new pull replaces one
 -- still on screen.
-function Pull.screen(rarity: string, gold: boolean)
+function Pull.screen(rarity: string, gold: boolean, rainbow: boolean?)
 	stop()
 	local made = screen()
 	if made == nil then
@@ -111,6 +114,11 @@ function Pull.screen(rarity: string, gold: boolean)
 		for _, shade in c.gold do
 			table.insert(colours, shade)
 		end
+	end
+	if rainbow == true then
+		-- a rainbow cat (F99): the six hues and white, whatever its rarity
+		colours = table.clone(Presets.rainbow.hues)
+		table.insert(colours, Presets.palette.offwhite)
 	end
 	local camera = Workspace.CurrentCamera
 	local view = if camera ~= nil then camera.ViewportSize else Vector2.new(1280, 720)
@@ -221,12 +229,13 @@ function Pull.world(at: Vector3, ground: Vector3, rarity: string, floor: Vector3
 end
 
 -- SecuredRare: the big pull for the securing player's screen, and its world side for anyone near.
-local function secured(userId: unknown, rarity: unknown, gold: unknown)
+local function secured(userId: unknown, rarity: unknown, gold: unknown, variant: unknown)
 	if type(userId) ~= "number" or type(rarity) ~= "string" then
 		return
 	end
 	local shiny = gold == true
-	if not Logic.bigPull(rarity, shiny) then
+	local rainbow = variant == "rainbow"
+	if not Logic.bigPull(rarity, shiny, rainbow) then
 		return
 	end
 	local player = Players:GetPlayerByUserId(userId)
@@ -234,7 +243,7 @@ local function secured(userId: unknown, rarity: unknown, gold: unknown)
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
 	local mine = player == Players.LocalPlayer
 	if mine then
-		Pull.screen(rarity, shiny)
+		Pull.screen(rarity, shiny, rainbow)
 	end
 	if character == nil or root == nil or not root:IsA("BasePart") then
 		return
@@ -245,6 +254,9 @@ local function secured(userId: unknown, rarity: unknown, gold: unknown)
 	end
 	local ground = Pull.floorBelow(at, { character }, 10) or at - Vector3.new(0, 3, 0)
 	Pull.world(at + Vector3.new(0, 1.5, 0), ground, rarity)
+	if rainbow then
+		Rainbow.beam(ground)
+	end
 end
 
 function Pull.start()
@@ -252,8 +264,8 @@ function Pull.start()
 		return
 	end
 	started = true
-	-- SecuredRare(userId, catId, rarity, gold). Net.on waits for the remote with no end, and it only exists once the
-	-- server has F89, so this hooks it up whenever it appears instead.
+	-- SecuredRare(userId, catId, rarity, gold, variant). Net.on waits for the remote with no end, and it only exists
+	-- once the server has F89, so this hooks it up whenever it appears instead.
 	task.spawn(function()
 		local folder = Remotes.folder()
 		local function hook(child: Instance): boolean
@@ -261,8 +273,14 @@ function Pull.start()
 				return false
 			end
 			(child :: RemoteEvent).OnClientEvent:Connect(
-				function(userId: unknown, _catId: unknown, rarity: unknown, gold: unknown)
-					secured(userId, rarity, gold)
+				function(
+					userId: unknown,
+					_catId: unknown,
+					rarity: unknown,
+					gold: unknown,
+					variant: unknown
+				)
+					secured(userId, rarity, gold, variant)
 				end
 			)
 			return true

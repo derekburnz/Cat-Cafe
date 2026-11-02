@@ -9,8 +9,9 @@ environment (never on a shared or cloud machine where the key would sit in a fil
     export ROBLOX_CREATOR_USER_ID=...    # or ROBLOX_CREATOR_GROUP_ID when a Group owns the game
     python assets/cat-cafe/audio/upload.py [--dry-run] [--only CatCafe_Sfx_NetSwing,...]
 
-What it does, for every upload-ready .ogg under assets/cat-cafe/audio/{ui,sfx,music,ambience}
-that is not in uploaded.json yet, P0 sounds first:
+What it does, for every upload-ready .ogg under assets/cat-cafe/audio/{ui,sfx,music,ambience,sheets}
+that is not in uploaded.json yet, P0 sounds first (a sound sheet's parts under sheet-parts/ are never
+uploaded on their own; the sheet is, and its row in Cues.luau, sheetWorld or sheetMoments, gets the id):
   1. uploads it with the Open Cloud Assets API (asset type Audio, private to the creator),
   2. waits for the asset id and records it in assets/cat-cafe/audio/uploaded.json at once,
   3. at the end writes "rbxassetid://<id>" into the cue's ids in
@@ -47,7 +48,7 @@ CUES = REPO / "games" / "cat-cafe" / "src" / "client" / "Audio" / "Cues.luau"
 LOG = AUDIO / "README.md"
 RECORD = AUDIO / "uploaded.json"
 API = "https://apis.roblox.com/assets/v1"
-FOLDERS = ("ui", "sfx", "music", "ambience")
+FOLDERS = ("ui", "sfx", "music", "ambience", "sheets")
 CONTENT_TYPES = {".ogg": "audio/ogg", ".mp3": "audio/mpeg", ".wav": "audio/wav", ".flac": "audio/flac"}
 # Uploaded first, so a small monthly allowance still covers the playtest essentials (sound list P0).
 PRIORITY = (
@@ -61,17 +62,18 @@ PRIORITY = (
     "uiCodeRedeem", "visitorCollector", "uiTrade", "visitorMystery", "giftOpen", "potionDrink",
     "musicDayA", "musicNightA", "musicDayB", "tackleLunge", "tackleMiss", "catLevelUp",
     "uiDailyStamp", "jingleDailyCard", "waterStep", "cannonLaunch", "cannonLand", "cannonClouds", "cloudHop",
-    "campCheckIn", "uiSpinBusy",
+    "campCheckIn", "uiSpinBusy", "sheetMoments", "sheetWorld", "sheetDecor",
 )
 
 
 def cue_for(stem: str) -> str:
     """CatCafe_Ui_Click -> uiClick, CatCafe_Amb_CafeDay -> ambCafeDay, CatCafe_Amb_LoopCafeDoor -> loopCafeDoor,
-    CatCafe_Sfx_NetSwing -> netSwing, CatCafe_Music_DayA -> musicDayA (jingles and stings keep their own names)."""
+    CatCafe_Sfx_NetSwing -> netSwing, CatCafe_Music_DayA -> musicDayA (jingles and stings keep their own names),
+    CatCafe_Sheet_World -> sheetWorld (a sound sheet's own row)."""
     _, bus, name = stem.split("_", 2)
     name = name.replace("_", "")
-    if bus == "Ui":
-        return "ui" + name
+    if bus in ("Ui", "Sheet"):
+        return bus.lower() + name
     if bus == "Music" and not name.startswith(("Jingle", "Sting")):
         return "music" + name
     if bus == "Amb":

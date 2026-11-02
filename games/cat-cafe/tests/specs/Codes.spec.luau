@@ -16,23 +16,29 @@ return function()
 	end
 
 	describe("normalize (codes are not case sensitive)", function()
-		it("trims spaces and lowercases, so PlayTest, playtest and PLAYTEST are one code", function()
-			expect(Codes.normalize("PlayTest")).to.equal("playtest")
-			expect(Codes.normalize("playtest")).to.equal("playtest")
-			expect(Codes.normalize("  PLAYTEST \t")).to.equal("playtest")
-			expect(Codes.normalize("likes1000")).to.equal("likes1000")
-		end)
-
-		it("takes the symbols in Codes.SYMBOLS, so group! and Play-Test.2 are codes (Set 4 answer 8)", function()
-			expect(Codes.normalize("Group!")).to.equal("group!")
-			expect(Codes.normalize(" Play-Test.2 ")).to.equal("play-test.2")
-			expect(Codes.normalize("cats&dogs?")).to.equal("cats&dogs?")
-			expect(Codes.normalize("#1_cat*$@")).to.equal("#1_cat*$@")
-			for i = 1, #Codes.SYMBOLS do
-				local symbol = string.sub(Codes.SYMBOLS, i, i)
-				expect(Codes.normalize("a" .. symbol)).to.equal("a" .. symbol)
+		it(
+			"trims spaces and lowercases, so PlayTest, playtest and PLAYTEST are one code",
+			function()
+				expect(Codes.normalize("PlayTest")).to.equal("playtest")
+				expect(Codes.normalize("playtest")).to.equal("playtest")
+				expect(Codes.normalize("  PLAYTEST \t")).to.equal("playtest")
+				expect(Codes.normalize("likes1000")).to.equal("likes1000")
 			end
-		end)
+		)
+
+		it(
+			"takes the symbols in Codes.SYMBOLS, so group! and Play-Test.2 are codes (Set 4 answer 8)",
+			function()
+				expect(Codes.normalize("Group!")).to.equal("group!")
+				expect(Codes.normalize(" Play-Test.2 ")).to.equal("play-test.2")
+				expect(Codes.normalize("cats&dogs?")).to.equal("cats&dogs?")
+				expect(Codes.normalize("#1_cat*$@")).to.equal("#1_cat*$@")
+				for i = 1, #Codes.SYMBOLS do
+					local symbol = string.sub(Codes.SYMBOLS, i, i)
+					expect(Codes.normalize("a" .. symbol)).to.equal("a" .. symbol)
+				end
+			end
+		)
 
 		it("refuses anything that is not 1 to CodeMaxLength letters, digits and symbols", function()
 			local cases: { any } = {
@@ -96,28 +102,35 @@ return function()
 			expect(Codes.expired(ended, NOW)).to.equal(true)
 		end)
 
-		it("a group code has expired while Config.GroupId is 0 and needs membership after", function()
-			local profile = fresh()
-			expect(Config.GroupId).to.equal(0)
-			expect(Codes.refusal(profile, "group", NOW, true)).to.equal(Codes.EXPIRED)
-			local open: Types.CodeDef = { id = "g", active = true, requiresGroup = true, prize = {} }
-			expect(Codes.expired(open, NOW)).to.equal(true) -- GroupId 0
-		end)
+		it(
+			"a group code has expired while Config.GroupId is 0 and needs membership after",
+			function()
+				local profile = fresh()
+				expect(Config.GroupId).to.equal(0)
+				expect(Codes.refusal(profile, "group", NOW, true)).to.equal(Codes.EXPIRED)
+				local open: Types.CodeDef =
+					{ id = "g", active = true, requiresGroup = true, prize = {} }
+				expect(Codes.expired(open, NOW)).to.equal(true) -- GroupId 0
+			end
+		)
 	end)
 
 	describe("the wrong-code lock", function()
-		it("locks on the CodeWrongLimit-th wrong code inside the window, for CodeLockSeconds", function()
-			local guard = Codes.newGuard()
-			for i = 1, Config.CodeWrongLimit - 1 do
-				expect(Codes.noteWrong(guard, 100 + i)).to.equal(false)
-				expect(Codes.locked(guard, 100 + i)).to.equal(false)
+		it(
+			"locks on the CodeWrongLimit-th wrong code inside the window, for CodeLockSeconds",
+			function()
+				local guard = Codes.newGuard()
+				for i = 1, Config.CodeWrongLimit - 1 do
+					expect(Codes.noteWrong(guard, 100 + i)).to.equal(false)
+					expect(Codes.locked(guard, 100 + i)).to.equal(false)
+				end
+				expect(Codes.noteWrong(guard, 110)).to.equal(true)
+				expect(Codes.locked(guard, 110 + Config.CodeLockSeconds - 1)).to.equal(true)
+				expect(Codes.locked(guard, 110 + Config.CodeLockSeconds)).to.equal(false)
+				-- the count starts again after a lock
+				expect(Codes.noteWrong(guard, 200)).to.equal(false)
 			end
-			expect(Codes.noteWrong(guard, 110)).to.equal(true)
-			expect(Codes.locked(guard, 110 + Config.CodeLockSeconds - 1)).to.equal(true)
-			expect(Codes.locked(guard, 110 + Config.CodeLockSeconds)).to.equal(false)
-			-- the count starts again after a lock
-			expect(Codes.noteWrong(guard, 200)).to.equal(false)
-		end)
+		)
 
 		it("forgets wrong codes older than the window", function()
 			local guard = Codes.newGuard()
@@ -161,35 +174,43 @@ return function()
 			})
 		end)
 
-		it("playtest2 gives two of each potion, for testers who redeemed playtest before F64 (11d)", function()
-			local def = Catalog.codes.playtest2
-			expect(def.active).to.equal(true)
-			expect(def.id).to.equal("playtest2")
-			expect(def.prize :: any).to.deepEqual({
-				potions = { tip_potion = 2, lucky_potion = 2, swift_potion = 2, steady_potion = 2 },
-			})
-			for _, code in Catalog.codes do
-				local potions: { [string]: number } = code.prize.potions or {}
-				for potionId in potions do
-					expect(Catalog.getPotion(potionId) ~= nil).to.equal(true)
+		it(
+			"playtest2 gives two of each potion, for testers who redeemed playtest before F64 (11d)",
+			function()
+				local def = Catalog.codes.playtest2
+				expect(def.active).to.equal(true)
+				expect(def.id).to.equal("playtest2")
+				expect(def.prize :: any).to.deepEqual({
+					potions = {
+						tip_potion = 2,
+						lucky_potion = 2,
+						swift_potion = 2,
+						steady_potion = 2,
+					},
+				})
+				for _, code in Catalog.codes do
+					local potions: { [string]: number } = code.prize.potions or {}
+					for potionId in potions do
+						expect(Catalog.getPotion(potionId) ~= nil).to.equal(true)
+					end
 				end
+				local groupPotions: { [string]: number } = Catalog.codes.group.prize.potions or {}
+				expect(groupPotions.tip_potion).to.equal(1)
 			end
-			local groupPotions: { [string]: number } = Catalog.codes.group.prize.potions or {}
-			expect(groupPotions.tip_potion).to.equal(1)
-		end)
+		)
 
 		it("launch and group wait to be switched on, and group needs the group", function()
 			expect(Catalog.codes.launch.active).to.equal(false)
 			expect(Catalog.codes.launch.prize :: any).to.deepEqual({
 				coins = 1000,
-				coinSeconds = 600,
+				coinSeconds = 300,
 				fish = 25,
 				spins = 2,
 				lures = { tuna = 3 },
 			})
 			expect(Catalog.codes.group.active).to.equal(false)
 			expect(Catalog.codes.group.requiresGroup).to.equal(true)
-			expect(Catalog.codes.group.prize.coinSeconds).to.equal(1800)
+			expect(Catalog.codes.group.prize.coinSeconds).to.equal(900) -- F95: half
 			expect(Catalog.codes.group.prize.coins).to.equal(2500)
 		end)
 
@@ -218,7 +239,11 @@ return function()
 			}
 			local profile = ProfileSchema.migrate(raw, 2000)
 			expect(profile.version).to.equal(ProfileSchema.VERSION)
-			expect(profile.codesRedeemed :: any).to.deepEqual({ playtest = 1234, oldcode = 50, huge = 0 })
+			expect(profile.codesRedeemed :: any).to.deepEqual({
+				playtest = 1234,
+				oldcode = 50,
+				huge = 0,
+			})
 		end)
 	end)
 

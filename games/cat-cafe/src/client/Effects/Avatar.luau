@@ -863,6 +863,45 @@ function Avatar.cannon(
 	return out, weight, if hidden then nil else centre
 end
 
+-- The Cat Cannon flight on a staged copy (the intro's copy of you, F72; Gameplay-Engineer's IntroController moves and
+-- spins its root itself, so this is the pose alone), as seconds into Avatar.flight: `phase` "hop" from `since` 0 (the
+-- hop into the barrel over cannonPose.hop, then the ball in the barrel), "ball" (curled up for the arc), or "land" with
+-- `since` counted from the feet touching the pad (the ball opening just before, then the crouch, the bounce and up
+-- standing on cannonPose's own timing). Nil when there is nothing to show: before the hop, after the landing or for a
+-- phase it does not know.
+function Avatar.stagedSeconds(phase: string, since: number): number?
+	local c = Presets.cannonPose
+	if phase == "hop" then
+		return if since >= 0 then math.min(since, c.hop) else nil
+	elseif phase == "ball" then
+		return c.hop
+	elseif phase == "land" then
+		local seconds = math.max(c.drop, c.touch + since)
+		return if seconds < c.ends + c.blendOut then seconds else nil
+	end
+	return nil
+end
+
+-- A staged copy's flight joint Transforms and how much of them shows (Avatar.stagedSeconds). In the "ball" phase the
+-- ball's middle sits on the root, so the intro's spin of the root rolls it about its middle; in the others the feet
+-- (or the bottom of the ball) stay where the copy's feet would be, so the intro's drop lands it on its feet. Nil and 0
+-- when there is nothing to show.
+function Avatar.stagedCannon(rig: Rig, phase: string, since: number): ({ [Joint]: CFrame }?, number)
+	local seconds = Avatar.stagedSeconds(phase, since)
+	if seconds == nil then
+		return nil, 0
+	end
+	local pose, _, _, _, weight = Avatar.flight(seconds, nil, nil)
+	if pose == nil then
+		return nil, 0
+	end
+	local at = if phase == "ball"
+		then -Avatar.middle(rig, Avatar.solve(rig, pose))
+		else Vector3.zero
+	local out = moved(rig, pose, at, 0, 0, 0)
+	return out, weight
+end
+
 -- The cloud cutscene's flyer `seconds` after CannonLaunchAt (Presets.cannonGlide), in its ViewportFrame's space: the
 -- pose, where the body is, its heading, its forward roll and its bank (radians). Before the clouds it waits below the
 -- frame as the ball; nil once it has dived out. It is in view for `span` seconds from cannonPose's `gone` (its `drop`

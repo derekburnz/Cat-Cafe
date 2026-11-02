@@ -1,8 +1,8 @@
 --!strict
 -- The short night (data-model section 9, v0.9, F66). ClockService keeps the time and sets the Clock folder's
 -- AreasOpen, which closes the fences on the clients; this service does the closing and opening on the server. At
--- dusk every stray and rescue trap clears (CatService, RescueService) and anyone standing in a catching area is sent
--- home, then again every NightSweepSeconds, a carried cat checked in on arrival. A player mid catch or rescue
+-- dusk every stray and rescue trap clears (CatService, RescueService) and anyone standing in a wild area is clouded
+-- home (v4, F84), then again every NightSweepSeconds, a carried cat checked in on arrival. A player mid catch or rescue
 -- finishes it first. At sunrise each area gets its wave and its traps. The dusk warning and sunrise banners and the
 -- dusk bell are the client's own, from the Clock attributes.
 
@@ -34,15 +34,38 @@ local function areaOf(player: Player): string?
 	return WorldBuilder.areaAt(world, (root :: BasePart).Position)
 end
 
--- Everyone in a catching area goes home, unless their catch or rescue is still running; the next sweep gets them.
+-- Everyone in a wild area goes home by cloud hop (v4, F84), unless their catch or rescue is still running or they
+-- are mid flight or hop; the next sweep gets them. A carried cat is checked in on arrival.
 local function sweep()
 	for _, player in Players:GetPlayers() do
-		if areaOf(player) == nil or CatService.inMinigame(player) then
+		if
+			areaOf(player) == nil
+			or CatService.inMinigame(player)
+			or CatService.inFlight(player)
+		then
 			continue
 		end
-		if TravelService.sendHome(player) then
-			Net.toast(player, Clock.SENT_HOME_TEXT, "info")
+		local sent = TravelService.sendHome(player, function()
 			CatService.forceCheckIn(player)
+		end)
+		if sent then
+			Net.toast(player, Clock.SENT_HOME_TEXT, "info")
+		end
+	end
+end
+
+-- F84 (section 5): a flight that lands in a wild area after night start is swept the moment it lands.
+function NightService.landed(player: Player)
+	if
+		not ClockService.areasOpen()
+		and areaOf(player) ~= nil
+		and not CatService.inMinigame(player)
+	then
+		local sent = TravelService.sendHome(player, function()
+			CatService.forceCheckIn(player)
+		end)
+		if sent then
+			Net.toast(player, Clock.SENT_HOME_TEXT, "info")
 		end
 	end
 end

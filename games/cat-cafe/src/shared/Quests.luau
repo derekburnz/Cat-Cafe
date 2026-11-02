@@ -58,12 +58,13 @@ local function count(map: { [string]: any }): number
 	return n
 end
 
--- A quest counter's value now: a Stats key, "lifetimeCoins" or "distinctCats" (the entries in collection).
+-- A quest counter's value now: a Stats key, "lifetimeCoins" or "distinctCats" (Economy.distinctCats: the entries in
+-- collection, less shop-only cats).
 function Quests.value(profile: Types.PlayerProfile, stat: string): number
 	if stat == "lifetimeCoins" then
 		return math.floor(profile.lifetimeCoins)
 	elseif stat == "distinctCats" then
-		return count(profile.collection)
+		return Economy.distinctCats(profile)
 	end
 	local value = (profile.stats :: any)[stat]
 	return if type(value) == "number" then value else 0
@@ -332,7 +333,7 @@ function Quests.measure(profile: Types.PlayerProfile, measure: string): number
 		local n = 0
 		for catId in profile.collection do
 			local def = Catalog.getCat(catId)
-			if def ~= nil and def.rarity == "Mythical" then
+			if def ~= nil and def.rarity == "Mythical" and def.exclusive ~= true then
 				n += 1
 			end
 		end

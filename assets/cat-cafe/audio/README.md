@@ -7,6 +7,8 @@ music/      CatCafe_Music_<Name>.ogg     stereo seamless loops and stingers
 ambience/   CatCafe_Amb_<Name>.ogg       stereo seamless beds; CatCafe_Amb_Loop<Name>.ogg mono 3D loops (none since 2026-10-27)
 sfx/        CatCafe_Sfx_<Name>.ogg       mono, 3D or 2D game sounds
 ui/         CatCafe_Ui_<Name>.ogg        mono interface sounds
+sheets/     CatCafe_Sheet_<Name>.ogg     sound sheets: several short sounds in one upload (sound list 5.13); World mono, Moments stereo
+sheet-parts/<kind>/CatCafe_*.ogg         each sheet's parts, gated one by one and never uploaded on their own
 gates.md    written by audio_gate.py; never edit by hand
 synth/      synth.py (effects and jingles), music.py (the music beds) and ambience.py (retired beds): our own sounds made from code; rerun to rebuild
 upload.py   uploads every file here to Roblox (Open Cloud) and writes the ids into Cues.luau and this log
@@ -113,3 +115,6 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `cannonLand` | `sfx/CatCafe_Sfx_CannonLand.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 110709007201936 | 2026-10-28 |
 | `cloudHop` | `sfx/CatCafe_Sfx_CloudHop.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 115354802839165 | 2026-10-28 |
 | `campCheckIn` | `sfx/CatCafe_Sfx_CampCheckIn.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 123523380344527 | 2026-10-28 |
+| `sheetWorld` | `sheets/CatCafe_Sheet_World.ogg` | synthesized by `synth/synth.py` (parts: `bellhopBell`, `rainbowNear`, `campSplash`, `campBasket`, `campRattle`) | original (Cat Cafe) | sound-designer | this repo | 117195695201052 | 2026-11-01 |
+| `sheetMoments` | `sheets/CatCafe_Sheet_Moments.ogg` | synthesized by `synth/synth.py` (parts: `jingleEpic`, `jingleLegendary`, `jingleMythical`, `jingleRainbow`, `jingleLuckyDay`, `rallyCheer`, `uiReelTick`, `uiReelStop`, `uiTradeTick`, `uiTradeDone`) | original (Cat Cafe) | sound-designer | this repo | 137051883099106 | 2026-11-01 |
+| `sheetDecor` | `sheets/CatCafe_Sheet_Decor.ogg` | synthesized by `synth/synth.py` (parts: `decorBlossomTree`, `decorBathtubSofa`, `decorHollowLog`, `decorIceCream`, `decorDuckFountain`, `decorJukebox`, `decorCatTree`) | original (Cat Cafe) | sound-designer | this repo | 120455178308557 | 2026-11-02 |

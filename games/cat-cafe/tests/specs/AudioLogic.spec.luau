@@ -661,4 +661,101 @@ return function()
 			expect(Cues.travelPoof ~= nil and Cues.cloudHop ~= nil).to.equal(true)
 		end)
 	end)
+	describe("Audio.Logic release batch (F89, F99, F100, F103; review N274)", function()
+		it("plays a first sting, skips the same or a smaller one inside the window, replaces with a bigger one", function()
+			expect(Logic.stingAction(nil, nil, "jingleEpic", 10, 4)).to.equal("play")
+			expect(Logic.stingAction("jingleLegendary", 10, "jingleLegendary", 12, 4)).to.equal("skip")
+			expect(Logic.stingAction("jingleMythical", 10, "jingleEpic", 12, 4)).to.equal("skip")
+			expect(Logic.stingAction("jingleLegendary", 10, "jingleRainbow", 12, 4)).to.equal("replace")
+			expect(Logic.stingAction("jingleRainbow", 10, "jingleMythical", 12, 4)).to.equal("skip")
+			-- the window's edge: 3.99 s later still counts as together, 4 s later is a new sting
+			expect(Logic.stingAction("jingleLegendary", 10, "jingleLegendary", 13.99, 4)).to.equal("skip")
+			expect(Logic.stingAction("jingleLegendary", 10, "jingleLegendary", 14, 4)).to.equal("play")
+		end)
+
+		it("gives a rainbow cat its own pull sting at any rarity and the rest theirs from Epic up", function()
+			expect(Logic.pullSting("Common", "rainbow")).to.equal("jingleRainbow")
+			expect(Logic.pullSting("Epic", nil)).to.equal("jingleEpic")
+			expect(Logic.pullSting("Legendary", "gold")).to.equal("jingleLegendary")
+			expect(Logic.pullSting("Mythical", nil)).to.equal("jingleMythical")
+			expect(Logic.pullSting("Rare", nil)).to.equal(nil)
+			expect(Logic.pullSting("Common", nil)).to.equal(nil)
+			expect(Logic.pullSting(nil, nil)).to.equal(nil)
+		end)
+
+		it("picks rainbowNear for a rainbow stray, rareNear for a Mythical and nothing for the rest", function()
+			expect(Logic.strayNoticeCue("Common", "rainbow")).to.equal("rainbowNear")
+			expect(Logic.strayNoticeCue("Mythical", "rainbow")).to.equal("rainbowNear")
+			expect(Logic.strayNoticeCue("Mythical", nil)).to.equal("rareNear")
+			expect(Logic.strayNoticeCue("Legendary", "gold")).to.equal(nil)
+			expect(Logic.strayNoticeCue(nil, nil)).to.equal(nil)
+		end)
+
+		it("times a sheet part by its region and speed, and refuses a bad region", function()
+			expect(Logic.regionSeconds({ 2, 5 }, 1)).to.equal(3)
+			expect(math.abs(Logic.regionSeconds({ 2, 5 }, 1.03) - 3 / 1.03) < 1e-9).to.equal(true)
+			expect(Logic.regionSeconds(nil, 1)).to.equal(nil)
+			expect(Logic.regionSeconds({ 5, 2 }, 1)).to.equal(nil)
+			expect(Logic.regionSeconds({ 2 }, 1)).to.equal(nil)
+		end)
+
+		it("maps camp extras and animation beats to cues the table has", function()
+			expect(Logic.campExtraCue("pond")).to.equal("campSplash")
+			expect(Logic.campExtraCue("picnic")).to.equal("campBasket")
+			expect(Logic.campExtraCue("lostFound")).to.equal("campRattle")
+			expect(Logic.campExtraCue("yardSale")).to.equal(nil)
+			expect(Logic.beatCue("bellRing")).to.equal("bellhopBell")
+			expect(Logic.beatCue("lidRattle")).to.equal("campRattle")
+			expect(Logic.beatCue("wave")).to.equal(nil)
+			for _, beat in { "bellRing", "fishJump", "rodCast", "basketOpen", "lidRattle" } do
+				expect(Cues[Logic.beatCue(beat)] ~= nil).to.equal(true)
+			end
+		end)
+
+		it("gives every sheet part a sheet row that exists and a region inside the file's order", function()
+			for name, cue in Cues do
+				if cue.sheet ~= nil then
+					expect(Cues[cue.sheet] ~= nil).to.equal(true)
+					expect(cue.region ~= nil and #cue.region == 2 and cue.region[2] > cue.region[1]).to.equal(true)
+					expect(#cue.ids).to.equal(0)
+					expect(type(name)).to.equal("string")
+				end
+			end
+		end)
+	end)
+	describe("Audio.Logic rare decor sounds (F89)", function()
+		it("gives the seven Legendary and Mythical models a sheet cue, and nothing else", function()
+			local Catalog = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
+			) :: any
+			local ids = {
+				"park_blossom_tree",
+				"sewer_bathtub_sofa",
+				"woods_hollow_log_booth",
+				"neighbourhood_ice_cream_counter",
+				"park_duck_fountain",
+				"alley_retro_jukebox",
+				"classic_cat_tree_tower",
+			}
+			for _, id in ids do
+				local cue = Logic.decorSound(id)
+				expect(cue ~= nil and Cues[cue] ~= nil).to.equal(true)
+				expect(Cues[cue].sheet).to.equal("sheetDecor")
+				local def = Catalog.getDecor(id)
+				expect(def ~= nil and (def.rarity == "Legendary" or def.rarity == "Mythical")).to.equal(true)
+			end
+			local _, part = Logic.decorSound("park_blossom_tree")
+			expect(part).to.equal("CatCafe_Decor_BlossomTree_Chime_Swing")
+			local _, lantern = Logic.decorSound("woods_hollow_log_booth")
+			expect(lantern).to.equal("CatCafe_Decor_HollowLogBooth_Lantern_Swing")
+			local _, sign = Logic.decorSound("neighbourhood_ice_cream_counter")
+			expect(sign).to.equal("CatCafe_Decor_IceCreamCounter_Sign_Spin")
+			local _, ducklings = Logic.decorSound("park_duck_fountain")
+			expect(ducklings).to.equal("CatCafe_Decor_DuckFountain_Ducklings_Spin")
+			local _, record = Logic.decorSound("alley_retro_jukebox")
+			expect(record).to.equal("CatCafe_Decor_RetroJukebox_Record_Spin")
+			expect(Logic.decorSound("park_bench")).to.equal(nil)
+			expect(Logic.decorSound(nil)).to.equal(nil)
+		end)
+	end)
 end

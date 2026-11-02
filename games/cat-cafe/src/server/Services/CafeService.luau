@@ -27,6 +27,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local Leaderstats = require(script.Parent.Leaderstats)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
+local PassService = require(script.Parent.PassService)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
@@ -1326,10 +1327,15 @@ local function onClaimOffline(player: Player)
 	end
 	Economy.credit(profile, amount)
 	Telemetry.source(player, profile, amount, "TimedReward", "offline")
-	local away = if seconds >= Config.OfflineCapSeconds
+	local cap = if Economy.passes(profile).longNap
+		then Config.OfflineCapPassSeconds
+		else Config.OfflineCapSeconds
+	-- F95 raised the cap from an hour to 8 (16 with Long Nap), so an hour or more uncapped is "60+"
+	local away = if seconds >= cap
 		then "capped"
 		elseif seconds < 15 * 60 then "0-14"
-		else "15-59"
+		elseif seconds < 60 * 60 then "15-59"
+		else "60+"
 	Telemetry.custom(player, "offline_claim", amount, { away })
 	Telemetry.onboarding(player, profile, "first_offline_claim")
 	Net.toast(player, string.format("Welcome back! +$%d while you were away", amount), "good")
@@ -1400,6 +1406,14 @@ end
 
 function CafeService.start()
 	DataService.onLoaded:Connect(onLoaded)
+	PassService.changed:Connect(function(player: Player, passes: Economy.Passes)
+		-- a pass bought in game (F95): what was earned so far settles at the old rate, then the new one shows
+		local profile = profileFor(player)
+		if profile ~= nil then
+			Economy.setPasses(profile, passes)
+			CafeService.sync(player)
+		end
+	end)
 	NameService.changed:Connect(function(player: Player)
 		CafeService.refreshPlot(player)
 		CafeService.sync(player)

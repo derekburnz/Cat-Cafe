@@ -131,12 +131,16 @@ return function()
 			end)
 		end
 
-		it("catchWindow narrows the net 0.9 / 0.8 / 0.7 / 0.6 / 0.5 by rarity (v0.13.15 F83)", function()
-			local windows = { Common = 0.9, Rare = 0.8, Epic = 0.7, Legendary = 0.6, Mythical = 0.5 }
-			for _, rarity in ipairs(RARITIES) do
-				expect(Catalog.rarities[rarity].catchWindow).to.be.near(windows[rarity], 1e-12)
+		it(
+			"catchWindow narrows the net 0.9 / 0.8 / 0.7 / 0.6 / 0.5 by rarity (v0.13.15 F83)",
+			function()
+				local windows =
+					{ Common = 0.9, Rare = 0.8, Epic = 0.7, Legendary = 0.6, Mythical = 0.5 }
+				for _, rarity in ipairs(RARITIES) do
+					expect(Catalog.rarities[rarity].catchWindow).to.be.near(windows[rarity], 1e-12)
+				end
 			end
-		end)
+		)
 
 		it("rarer means more circles, faster circles and more rescue hits", function()
 			for i = 2, #RARITIES do
@@ -328,7 +332,9 @@ return function()
 		it("has exactly 60 cats: the 20 slice cats, the 30 later ones and the 10 spare", function()
 			expect(#Catalog.cats).to.equal(60)
 			for _, def in ipairs(Catalog.cats) do
-				expect(slice[def.id] ~= nil or reserved[def.id] ~= nil or spares[def.id] ~= nil).to.equal(true)
+				expect(slice[def.id] ~= nil or reserved[def.id] ~= nil or spares[def.id] ~= nil).to.equal(
+					true
+				)
 			end
 			for id in pairs(slice) do
 				expect(Catalog.getCat(id)).to.be.ok()
@@ -341,22 +347,25 @@ return function()
 			end
 		end)
 
-		it("keeps every spare cat as it was, in the spare pool, earning at the area it came from", function()
-			for id, row in pairs(spares) do
-				local def = Catalog.getCat(id)
-				assert(def, id)
-				expect(def.name).to.equal(row[1])
-				expect(def.rarity).to.equal(row[2])
-				expect(def.area).to.equal("spare")
-				expect(def.incomeArea).to.equal(row[3])
-				expect(def.favoriteRole).to.equal(row[4])
-				local area = Catalog.getArea(row[3])
-				assert(area, id)
-				expect(def.incomePerSecond).to.equal(
-					Catalog.rarities[def.rarity].incomePerSecond * area.incomeMultiplier
-				)
+		it(
+			"keeps every spare cat as it was, in the spare pool, earning at the area it came from",
+			function()
+				for id, row in pairs(spares) do
+					local def = Catalog.getCat(id)
+					assert(def, id)
+					expect(def.name).to.equal(row[1])
+					expect(def.rarity).to.equal(row[2])
+					expect(def.area).to.equal("spare")
+					expect(def.incomeArea).to.equal(row[3])
+					expect(def.favoriteRole).to.equal(row[4])
+					local area = Catalog.getArea(row[3])
+					assert(area, id)
+					expect(def.incomePerSecond).to.equal(
+						Catalog.rarities[def.rarity].incomePerSecond * area.incomeMultiplier
+					)
+				end
 			end
-		end)
+		)
 
 		for id, row in pairs(slice) do
 			it(id .. " matches its row in section 3a or 3b", function()
@@ -431,7 +440,9 @@ return function()
 					expect(#def.description > 0).to.equal(true)
 					expect(#def.pattern > 0).to.equal(true)
 					expect(ROLE_SET[def.favoriteRole]).to.equal(true)
-					expect(areaSet[if def.area == "spare" then def.incomeArea :: string else def.area]).to.equal(true)
+					expect(
+						areaSet[if def.area == "spare" then def.incomeArea :: string else def.area]
+					).to.equal(true)
 					expect((def :: any).favoriteSpot).never.to.be.ok()
 					expect(#def.color).to.equal(3)
 					for _, channel in ipairs(def.color) do
@@ -574,9 +585,10 @@ return function()
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
 			{ "Cozy Cafe", 8000, 5, nil, nil, 4, 1.25, "park", { 4, 3, 2 } },
-			{ "Busy Cafe", 80000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
-			{ "Famous Cafe", 700000, 20, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
-			{ "Grand Cafe", 5000000, 30, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			-- F95 (economy-ladder.md section 3): 350,000, 27M and 800M
+			{ "Busy Cafe", 350000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
+			{ "Famous Cafe", 27000000, 20, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
+			{ "Grand Cafe", 800000000, 30, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 		}
 
 		it("has five tiers matching the table", function()
@@ -703,28 +715,28 @@ return function()
 				tables = {
 					name = "Tables",
 					maxLevel = 6,
-					costs = { 150, 600, 3000, 10000, 50000, 150000 }, -- v0.13.6
+					costs = { 150, 600, 3000, 10000, 200000, 600000 }, -- F95 (economy-ladder.md section 4)
 					startLevel = 0,
 					atLevel = { [3] = 2, [4] = 2, [5] = 3, [6] = 3 },
 				},
 				espresso = {
 					name = "Espresso machine",
 					maxLevel = 5,
-					costs = { 0, 2000, 15000, 100000, 800000 },
+					costs = { 0, 2000, 15000, 400000, 6000000 }, -- F95
 					startLevel = 1,
 					atLevel = { [3] = 2, [4] = 3, [5] = 4 },
 				},
 				net = {
 					name = "Net",
 					maxLevel = 3,
-					costs = { 2500, 25000, 200000 },
+					costs = { 2500, 25000, 800000 }, -- F95
 					startLevel = 0,
 					atLevel = { [2] = 2, [3] = 3 },
 				},
 				lure_bowl = {
 					name = "Bait bowl",
 					maxLevel = 5,
-					costs = { 600, 6000, 60000, 500000, 3000000 }, -- F82, v0.13.15
+					costs = { 600, 6000, 240000, 4000000, 50000000 }, -- F82, v0.13.15; F95 prices
 					startLevel = 0,
 					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 },
 				},
@@ -792,13 +804,13 @@ return function()
 				},
 				rug = { cost = 8000, bonus = 0.05, requiresTier = 2, asset = "CatCafe_Decor_Rug" },
 				neon_sign = {
-					cost = 60000,
+					cost = 240000, -- F95
 					bonus = 0.10,
 					requiresTier = 3,
 					asset = "CatCafe_Decor_NeonSign",
 				},
 				fish_tank = {
-					cost = 500000,
+					cost = 4000000, -- F95
 					bonus = 0.10,
 					requiresTier = 4,
 					asset = "CatCafe_Decor_FishTank",
@@ -993,54 +1005,61 @@ return function()
 			end
 		)
 
-		it("dealer amount weights are the v0.8 table of section 8b, 0 to 4 of each dealer food (F59)", function()
-			expect(Catalog.dealerAmountWeights :: any).to.deepEqual({
-				sardines = { 15, 25, 30, 20, 10 },
-				caviar = { 35, 40, 20, 5, 0 },
-				moon_milk = { 60, 35, 5, 0, 0 },
-				star_treat = { 90, 10, 0, 0, 0 },
-			})
-			local averages = { sardines = 1.85, caviar = 0.95, moon_milk = 0.45, star_treat = 0.10 }
-			for id, weights in pairs(Catalog.dealerAmountWeights) do
-				local def = Catalog.getLure(id)
-				assert(def, id)
-				expect(def.source).to.equal("dealer")
-				local total, mean = 0, 0
-				for index, weight in weights do
-					total += weight
-					mean += (index - 1) * weight / 100
+		it(
+			"dealer amount weights are the v0.8 table of section 8b, 0 to 4 of each dealer food (F59)",
+			function()
+				expect(Catalog.dealerAmountWeights :: any).to.deepEqual({
+					sardines = { 15, 25, 30, 20, 10 },
+					caviar = { 35, 40, 20, 5, 0 },
+					moon_milk = { 60, 35, 5, 0, 0 },
+					star_treat = { 90, 10, 0, 0, 0 },
+				})
+				local averages =
+					{ sardines = 1.85, caviar = 0.95, moon_milk = 0.45, star_treat = 0.10 }
+				for id, weights in pairs(Catalog.dealerAmountWeights) do
+					local def = Catalog.getLure(id)
+					assert(def, id)
+					expect(def.source).to.equal("dealer")
+					local total, mean = 0, 0
+					for index, weight in weights do
+						total += weight
+						mean += (index - 1) * weight / 100
+					end
+					expect(total).to.be.near(100, 1e-9)
+					expect(mean).to.be.near(averages[id], 1e-9)
 				end
-				expect(total).to.be.near(100, 1e-9)
-				expect(mean).to.be.near(averages[id], 1e-9)
 			end
-		end)
+		)
 	end)
 
 	describe("areas (section 9)", function()
-		it("alley and park have the alley's v0.3 odds (every area since v0.13.7) and the tier that opens them", function()
-			local alley = Catalog.getArea("alley")
-			local park = Catalog.getArea("park")
-			assert(alley and park)
-			expect(alley.tier).to.equal(1)
-			expect(alley.name).to.equal("Alleyway")
-			expect(alley.odds :: any).to.deepEqual({
-				Common = 72,
-				Rare = 22,
-				Epic = 5,
-				Legendary = 0.9,
-				Mythical = 0.1,
-			})
-			expect(park.tier).to.equal(2)
-			expect(park.name).to.equal("Park")
-			expect(park.odds :: any).to.deepEqual({
-				Common = 72,
-				Rare = 22,
-				Epic = 5,
-				Legendary = 0.9,
-				Mythical = 0.1,
-			})
-			expect((park :: any).unlock).never.to.be.ok()
-		end)
+		it(
+			"alley and park have the alley's v0.3 odds (every area since v0.13.7) and the tier that opens them",
+			function()
+				local alley = Catalog.getArea("alley")
+				local park = Catalog.getArea("park")
+				assert(alley and park)
+				expect(alley.tier).to.equal(1)
+				expect(alley.name).to.equal("Alleyway")
+				expect(alley.odds :: any).to.deepEqual({
+					Common = 72,
+					Rare = 22,
+					Epic = 5,
+					Legendary = 0.9,
+					Mythical = 0.1,
+				})
+				expect(park.tier).to.equal(2)
+				expect(park.name).to.equal("Park")
+				expect(park.odds :: any).to.deepEqual({
+					Common = 72,
+					Rare = 22,
+					Epic = 5,
+					Legendary = 0.9,
+					Mythical = 0.1,
+				})
+				expect((park :: any).unlock).never.to.be.ok()
+			end
+		)
 
 		it("each area's tier opens it in the tier table", function()
 			for _, area in ipairs(Catalog.areas) do
@@ -1093,11 +1112,12 @@ return function()
 				-- id -> { name, tier, spawnPoints, odds, waveSize, incomeMultiplier }; v0.13.7: one set of odds everywhere
 				local same = { 72, 22, 5, 0.9, 0.1 }
 				local want = {
-					{ "alley", "Alleyway", 1, 24, same, 6, 1 }, -- v0.4 layout: 24 spawn points
-					{ "park", "Park", 2, 40, same, 5, 1.5 }, -- the v3.2 set's cat spots (F81, #460)
-					{ "neighbourhood", "Neighbourhood", 3, 72, same, 5, 2.25 }, -- the v3.2 set's cat spots (F81, #505)
-					{ "woods", "Woods", 4, 65, same, 4, 3.5 }, -- the v3.2 set (#470) and the oak top
-					{ "sewer", "Sewer", 5, 52, same, 4, 5 }, -- the v3.2 set's cat spots (F81, #491)
+					-- F95 (economy-ladder.md section 1): income 1, 3, 9, 27, 81
+					{ "alley", "Alleyway", 1, 32, same, 6, 1 }, -- v4 (F84, v0.13.18): 24 and the 8 near points
+					{ "park", "Park", 2, 40, same, 5, 3 }, -- the v3.2 set's cat spots (F81, #460)
+					{ "neighbourhood", "Neighbourhood", 3, 72, same, 5, 9 }, -- the v3.2 set's cat spots (F81, #505)
+					{ "woods", "Woods", 4, 65, same, 4, 27 }, -- the v3.2 set (#470) and the oak top
+					{ "sewer", "Sewer", 5, 52, same, 4, 81 }, -- the v3.2 set's cat spots (F81, #491)
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do
@@ -1157,31 +1177,54 @@ return function()
 			for i = 2, #Catalog.areas do
 				local near, far = Catalog.areas[i - 1], Catalog.areas[i]
 				if not (far.incomeMultiplier > near.incomeMultiplier) then
-					error(string.format("%s pays x%s, not more than %s's x%s", far.id, tostring(far.incomeMultiplier), near.id, tostring(near.incomeMultiplier)))
+					error(
+						string.format(
+							"%s pays x%s, not more than %s's x%s",
+							far.id,
+							tostring(far.incomeMultiplier),
+							near.id,
+							tostring(near.incomeMultiplier)
+						)
+					)
 				end
 			end
 		end)
 
-		it("never pays a cat from a farther area less than the same rarity from a nearer one", function()
-			expect(#Catalog.cats > 0).to.equal(true)
-			local tierOf: { [string]: number } = {}
-			for _, area in Catalog.areas do
-				tierOf[area.id] = area.tier
-			end
-			for _, def in Catalog.cats do
-				local tier = tierOf[(def :: any).incomeArea or def.area]
-				if tier ~= nil then
-					for _, other in Catalog.cats do
-						local otherTier = tierOf[(other :: any).incomeArea or other.area]
-						if other.rarity == def.rarity and otherTier ~= nil and otherTier < tier then
-							if def.incomePerSecond < other.incomePerSecond then
-								error(string.format("%s (%s) earns less than %s (%s)", def.id, def.area, other.id, other.area))
+		it(
+			"never pays a cat from a farther area less than the same rarity from a nearer one",
+			function()
+				expect(#Catalog.cats > 0).to.equal(true)
+				local tierOf: { [string]: number } = {}
+				for _, area in Catalog.areas do
+					tierOf[area.id] = area.tier
+				end
+				for _, def in Catalog.cats do
+					local tier = tierOf[(def :: any).incomeArea or def.area]
+					if tier ~= nil then
+						for _, other in Catalog.cats do
+							local otherTier = tierOf[(other :: any).incomeArea or other.area]
+							if
+								other.rarity == def.rarity
+								and otherTier ~= nil
+								and otherTier < tier
+							then
+								if def.incomePerSecond < other.incomePerSecond then
+									error(
+										string.format(
+											"%s (%s) earns less than %s (%s)",
+											def.id,
+											def.area,
+											other.id,
+											other.area
+										)
+									)
+								end
 							end
 						end
 					end
 				end
 			end
-		end)
+		)
 
 		it("pays a spare cat by its incomeArea, never by the spare pool (F78)", function()
 			for _, def in Catalog.cats do
@@ -1191,7 +1234,8 @@ return function()
 						error(def.id .. " is a spare cat with no incomeArea")
 					end
 					expect(def.incomePerSecond).to.equal(
-						Catalog.rarities[def.rarity].incomePerSecond * (area :: any).incomeMultiplier
+						Catalog.rarities[def.rarity].incomePerSecond
+							* (area :: any).incomeMultiplier
 					)
 				end
 			end

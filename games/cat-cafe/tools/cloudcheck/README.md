@@ -10,7 +10,8 @@ npm test                       # tests/specs/*.spec.luau through tests/StudioRun
 npm run test:verbose           # one line per test
 npm run analyze                # strict type check + lint of src/, Roblox API types included
 npm run analyze:tests          # the same over src/ and tests/ (specs, TestKit, the abuse client)
-npm run check                  # analyze:tests, then the tests (what CI runs)
+npm run check                  # analyze:tests, the tests, then the UI gate (what CI runs)
+npm run uigate                 # only the UI gate (below)
 node run-tests.mjs --filter Economy --json report.json
 node run-tests.mjs --shared   # every spec in one Luau state (the old way; see below)
 CLOUDCHECK_DUMP_DIR=/tmp/dump node analyze.mjs   # writes each module as the checker sees it, for debugging the rewrites
@@ -76,3 +77,58 @@ Limits: boxes only, so a round or wedge part can show a gap or overlap its real 
 is at least that wide); Terrain, Studio-placed parts and anything built after join at runtime (customers, cats,
 effects) are not in it; the area sets are checked in place, not on their own. It reads the code and models on disk,
 so run it on the branch you want checked.
+
+## UI gate: tiny buttons, small text, windows off the screen (UI-Engineer, 2026-11-01)
+
+```
+npm run uigate                                  # all three screens; report in <system temp>/cat-cafe-uigate
+node uigate.mjs --profile phone --scene Quests  # one screen size, one window
+node uigate.mjs --out ./ui --verbose            # report next to you, with the UI's own print output
+node uigate.mjs --update-baseline               # accept today's findings (after fixing some, to shrink the list)
+```
+
+Derek picked "Skills and UI gate" on 2026-11-01: "a cloud check that fails tiny buttons, small text and off-screen
+windows". This builds the real UI (`src/client/UI`) as `Controllers/UIController` starts it, with a mid-game player
+(a 10-digit money count, a 20-letter cat name, quests half done, crates and potions), at the ui-review skill's three
+sizes: desktop 1280 x 720, laptop 1366 x 768 and a phone at 844 x 390 with touch. It looks at the HUD, then opens
+every window the way the game does and reads back each piece a player would see, in real screen pixels after the
+window's UIScale. About 50 s for all three.
+
+| Check | Fails the run when new |
+|---|---|
+| `tap` | Something pressable under 44 px on the phone or 36 px with a mouse, either way. |
+| `text` | Text that renders under 9 px (the tag size, 12, at the phone's 0.75 scale). |
+| `offscreen` | A button, text or scroll list more than 2 px past the screen edge. Something fully off screen is parked (slid out or waiting to tween in) and passes. |
+| `topbar` | A button or text under Roblox's menu buttons, the top left 184 x 58. |
+| `fonts` | A third font family besides Fredoka One and Nunito (emoji and symbols do not count). |
+| `jitter` | Once the scene has settled, a property that changes 6 or more times in a second between only two or three values (Derek 2026-10-28: prize rows "spassing back and forth"). A bob or a countdown takes many values or changes rarely, so it passes. |
+| `error` | A script error while the scene was built, with its stack. |
+
+Warnings, in the report only: `fit` (a word clearly wider or taller than its box; text measures from average glyph
+widths, so about 10% either way), `overlap` (a pressable covering a quarter of another in the same screen),
+`thumbs` (on the phone, a pressable under Roblox's thumbstick or jump button) and `warning` (a `warn()` call).
+
+`uigate-baseline.json` holds the findings accepted when the gate started (203: mostly 29 to 35 px buttons and the
+phone's small tiles; 234 once the weekly quests and a code prize became scenes, with their shrunk prize text; 197
+once prize rows stopped shrinking text under 9 px). One of them does not fail; a new one does. When a fix removes some, the run says so; run with
+`--update-baseline` in that pull request so the list only shrinks. A run limited with `--scene` also passes a
+finding the baseline holds under another scene of the same size, since one scene alone cannot tell which window
+first showed a shared piece. A window added to the game goes in `SCENES` in
+`uigate-scenes.luau`; the gate builds it at every size from then on.
+
+| File | What |
+|---|---|
+| `uigate.mjs` | One fresh Luau state per screen size: world-shim, then ui-shim, then the scenes. Snapshot after each scene, checks, baseline, report. |
+| `ui-shim.luau` | Sits on `world-shim.luau` (which exports its internals for this) and adds the client: `Players.LocalPlayer` with a `PlayerGui`, camera `ViewportSize`, `GuiService`, `UserInputService` set for touch or mouse, `TextService`. Signals that fire, property and attribute changed signals, a virtual clock (`task.wait`, `task.delay`, `Heartbeat` and tweens run on it, so a 3 s settle takes milliseconds) and Roblox's 2D layout: scale and offset, `AnchorPoint`, `UIScale`, `UIPadding`, `UIListLayout`, `UIGridLayout`, size and aspect constraints, `AutomaticSize`, `ScrollingFrame` canvases, `ClipsDescendants` and `TextScaled` with `UITextSizeConstraint`. The layout is incremental (only what changed is placed again). |
+| `uigate-scenes.luau` | The catalog as `UIController` builds it, the sample player, and the list of windows and how each opens. |
+| `uigate-checks.mjs` | The checks, the baseline compare and the report. |
+
+Output in `<out>`: `index.html` (a picture of every scene with each finding boxed: red new, orange in the baseline,
+blue a warning; hover a box for its finding), `report.md`, `findings.json`, one SVG per scene and `scenes/*.json`
+(every piece with its box, colours, text and rendered text size).
+
+Limits: pictures from asset ids are not downloaded, so an image shows as a tinted box; text sizes come from average
+glyph widths per font, not the font files, and snap to whole pixels as Roblox draws them (which is what made the
+prize rows shake, and what lets the jitter check see it); `UIFlexItem`, `UIPageLayout` and `UITableLayout` are not laid out; the
+phone has no notch. The pictures are for finding a box, not for judging the look: check that in Studio.
+

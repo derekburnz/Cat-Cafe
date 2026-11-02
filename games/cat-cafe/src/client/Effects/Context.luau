@@ -10,6 +10,8 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+local Remotes = require(ReplicatedStorage.Shared.Remotes)
+
 local Logic = require(script.Parent.Logic)
 local Presets = require(script.Parent.Presets)
 
@@ -142,6 +144,31 @@ function Context.positionOf(instance: Instance): Vector3?
 		return (instance :: Attachment).WorldPosition
 	end
 	return nil
+end
+
+-- Calls `connect` with the RemoteEvent `name` as soon as it exists, now or whenever the server adds it: Net.on waits
+-- with no end, and a feature's remotes only exist once the server has that feature.
+function Context.whenRemote(name: string, connect: (RemoteEvent) -> ())
+	task.spawn(function()
+		local remotes = Remotes.folder()
+		local function hook(child: Instance): boolean
+			if child.Name ~= name or not child:IsA("RemoteEvent") then
+				return false
+			end
+			connect(child :: RemoteEvent)
+			return true
+		end
+		local existing = remotes:FindFirstChild(name)
+		if existing ~= nil and hook(existing) then
+			return
+		end
+		local waiting: RBXScriptConnection? = nil
+		waiting = remotes.ChildAdded:Connect(function(child: Instance)
+			if hook(child) and waiting ~= nil then
+				waiting:Disconnect()
+			end
+		end)
+	end)
 end
 
 return Context

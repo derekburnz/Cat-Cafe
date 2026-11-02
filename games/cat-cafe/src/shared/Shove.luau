@@ -27,6 +27,7 @@ export type TackleCheck = {
 	carrying: boolean,
 	busy: boolean, -- the tackler holds a catch or rescue lock (N85)
 	area: string?, -- the catching area the tackler stands in, nil outside every area
+	inCamp: boolean?, -- F84: the tackler stands in a camp, a safe zone
 	areaUnlocked: boolean, -- the tackler's tier opens `area`
 	areasClosed: boolean, -- night: the catching areas are closed (v0.9, F66)
 	sinceTackle: number?, -- since this tackler's last press that was not refused
@@ -38,6 +39,8 @@ export type TargetCheck = {
 	sameArea: boolean, -- standing in the tackler's catching area
 	targetBusy: boolean, -- holds a catch or rescue lock
 	targetSafe: boolean, -- on its own plot or near one of its doors
+	targetInCamp: boolean?, -- F84: standing in a camp, a safe zone up to its gate line
+	targetFlying: boolean?, -- F84: mid Cat Cannon flight or cloud hop: the lunge passes through
 	sinceShoveTarget: number?, -- since this tackler last hit this player
 	sinceTargetShoved: number?, -- since anyone last hit this player (S45)
 }
@@ -64,6 +67,7 @@ export type PickUpCheck = {
 	dropped: boolean, -- the stray is Dropped
 	carrying: boolean, -- the caller carries a cat
 	busy: boolean, -- the caller holds a catch or rescue lock
+	inCamp: boolean?, -- F84: the caller stands in a camp
 	areaUnlocked: boolean, -- the caller's tier opens the stray's area
 	areasClosed: boolean, -- night (v0.9, F66)
 	distance: number?, -- from the caller to the cat; nil without a character
@@ -80,6 +84,9 @@ function Shove.tackleRefusal(check: TackleCheck): string?
 	end
 	if check.area == nil then
 		return "You can only tackle inside a catching area"
+	end
+	if check.inCamp == true then
+		return "The camp is a safe zone"
 	end
 	if not check.areaUnlocked then
 		return "This area opens at a higher tier"
@@ -106,6 +113,12 @@ function Shove.targetRefusal(check: TargetCheck): string?
 	end
 	if check.targetSafe then
 		return "They're safe by their own cafe"
+	end
+	if check.targetInCamp == true then
+		return "They're safe in the camp"
+	end
+	if check.targetFlying == true then
+		return "They're flying"
 	end
 	if check.sinceShoveTarget ~= nil and check.sinceShoveTarget < Config.BumpSameTargetSeconds then
 		return "Give them a break"
@@ -188,6 +201,9 @@ function Shove.pickUpRefusal(check: PickUpCheck): string?
 	end
 	if check.busy then
 		return "Finish what you are doing first"
+	end
+	if check.inCamp == true then
+		return "Step out of the camp to pick it up"
 	end
 	if not check.areaUnlocked then
 		return "This area opens at a higher tier"

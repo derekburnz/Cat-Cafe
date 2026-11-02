@@ -56,7 +56,13 @@ return function()
 
 	describe("Catalog.quests and Catalog.achievements (section 6)", function()
 		it("has five daily slots and three weekly ones, as Config says", function()
-			expect(Quests.DAILY_POOLS :: any).to.deepEqual({ "streets", "streets", "cafe", "extra", "big" })
+			expect(Quests.DAILY_POOLS :: any).to.deepEqual({
+				"streets",
+				"streets",
+				"cafe",
+				"extra",
+				"big",
+			})
 			expect(Quests.WEEKLY_POOLS :: any).to.deepEqual({ "a", "b", "c" })
 			expect(#Quests.pools("daily")).to.equal(Config.QuestDailyCount)
 			expect(#Quests.pools("weekly")).to.equal(Config.QuestWeeklyCount)
@@ -65,8 +71,18 @@ return function()
 		end)
 
 		it("has the design's rows in each pool", function()
-			expect(ids(rows("daily", "streets")) :: any).to.deepEqual({ "d_catch5", "d_perfect10", "d_rescue2", "d_rare1" })
-			expect(ids(rows("daily", "cafe")) :: any).to.deepEqual({ "d_coins", "d_tips6", "d_bait1", "d_food2" })
+			expect(ids(rows("daily", "streets")) :: any).to.deepEqual({
+				"d_catch5",
+				"d_perfect10",
+				"d_rescue2",
+				"d_rare1",
+			})
+			expect(ids(rows("daily", "cafe")) :: any).to.deepEqual({
+				"d_coins",
+				"d_tips6",
+				"d_bait1",
+				"d_food2",
+			})
 			expect(ids(rows("daily", "extra")) :: any).to.deepEqual({
 				"d_spin1",
 				"d_tipjar3",
@@ -81,73 +97,98 @@ return function()
 				"d_perfect30",
 				"d_coinsbig",
 			})
-			expect(ids(rows("weekly", "a")) :: any).to.deepEqual({ "w_catch60", "w_perfect150", "w_rescue15" })
-			expect(ids(rows("weekly", "b")) :: any).to.deepEqual({ "w_coins", "w_bait10", "w_tips60" })
-			expect(ids(rows("weekly", "c")) :: any).to.deepEqual({ "w_new2", "w_gold2", "w_daily15", "w_sets3" })
+			expect(ids(rows("weekly", "a")) :: any).to.deepEqual({
+				"w_catch60",
+				"w_perfect150",
+				"w_rescue15",
+			})
+			expect(ids(rows("weekly", "b")) :: any).to.deepEqual({
+				"w_coins",
+				"w_bait10",
+				"w_tips60",
+			})
+			expect(ids(rows("weekly", "c")) :: any).to.deepEqual({
+				"w_new2",
+				"w_gold2",
+				"w_daily15",
+				"w_sets3",
+			})
 		end)
 
-		it("indexes every row once, counts a counter the save has, and gives every pool a row anyone can do", function()
-			local stats = ProfileSchema.template(0).stats :: any
-			local seen: { [string]: boolean } = {}
-			for _, kind in { "daily", "weekly" } do
-				for pool, list in (Catalog.quests :: any)[kind] do
-					local open = false
-					for _, row in list do
-						expect(seen[row.id]).to.equal(nil)
-						seen[row.id] = true
-						expect(Catalog.getQuest(row.id)).to.equal(row)
-						expect(Catalog.questPools[row.id]).to.equal(pool)
-						expect(#row.text > 0).to.equal(true)
-						local known = stats[row.stat] ~= nil or row.stat == "lifetimeCoins" or row.stat == "distinctCats"
-						if not known then
-							error("quest " .. row.id .. " counts an unknown stat " .. row.stat)
+		it(
+			"indexes every row once, counts a counter the save has, and gives every pool a row anyone can do",
+			function()
+				local stats = ProfileSchema.template(0).stats :: any
+				local seen: { [string]: boolean } = {}
+				for _, kind in { "daily", "weekly" } do
+					for pool, list in (Catalog.quests :: any)[kind] do
+						local open = false
+						for _, row in list do
+							expect(seen[row.id]).to.equal(nil)
+							seen[row.id] = true
+							expect(Catalog.getQuest(row.id)).to.equal(row)
+							expect(Catalog.questPools[row.id]).to.equal(pool)
+							expect(#row.text > 0).to.equal(true)
+							local known = stats[row.stat] ~= nil
+								or row.stat == "lifetimeCoins"
+								or row.stat == "distinctCats"
+							if not known then
+								error("quest " .. row.id .. " counts an unknown stat " .. row.stat)
+							end
+							expect((row.needs ~= nil) ~= (row.needsSeconds ~= nil)).to.equal(true)
+							open = open or row.requires == nil
 						end
-						expect((row.needs ~= nil) ~= (row.needsSeconds ~= nil)).to.equal(true)
-						open = open or row.requires == nil
-					end
-					if not open then
-						error(kind .. " pool " .. pool .. " has no row without a requirement")
+						if not open then
+							error(kind .. " pool " .. pool .. " has no row without a requirement")
+						end
 					end
 				end
+				expect(Catalog.getQuest("nope")).to.equal(nil)
 			end
-			expect(Catalog.getQuest("nope")).to.equal(nil)
-		end)
+		)
 
-		it("has 44 achievements, each measuring something real, with a prize for its size", function()
-			expect(#Catalog.achievements).to.equal(44)
-			local stats = ProfileSchema.template(0).stats :: any
-			local special = {
-				lifetimeCoins = true,
-				tier = true,
-				distinctCats = true,
-				goldCats = true,
-				mythicalCats = true,
-				decorOwned = true,
-				topCatLevel = true,
-			}
-			local seen: { [string]: boolean } = {}
-			for _, def in Catalog.achievements do
-				expect(seen[def.id]).to.equal(nil)
-				seen[def.id] = true
-				expect(Catalog.getAchievement(def.id)).to.equal(def)
-				expect(#def.name > 0 and #def.text > 0 and def.needs > 0).to.equal(true)
-				local upgrade = string.match(def.measure, "^upgrade:(.+)$")
-				local known = stats[def.measure] ~= nil
-					or special[def.measure] == true
-					or (upgrade ~= nil and Catalog.getUpgrade(upgrade) ~= nil)
-				if not known then
-					error("achievement " .. def.id .. " measures an unknown " .. def.measure)
+		it(
+			"has 44 achievements, each measuring something real, with a prize for its size",
+			function()
+				expect(#Catalog.achievements).to.equal(44)
+				local stats = ProfileSchema.template(0).stats :: any
+				local special = {
+					lifetimeCoins = true,
+					tier = true,
+					distinctCats = true,
+					goldCats = true,
+					mythicalCats = true,
+					decorOwned = true,
+					topCatLevel = true,
+				}
+				local seen: { [string]: boolean } = {}
+				for _, def in Catalog.achievements do
+					expect(seen[def.id]).to.equal(nil)
+					seen[def.id] = true
+					expect(Catalog.getAchievement(def.id)).to.equal(def)
+					expect(#def.name > 0 and #def.text > 0 and def.needs > 0).to.equal(true)
+					local upgrade = string.match(def.measure, "^upgrade:(.+)$")
+					local known = stats[def.measure] ~= nil
+						or special[def.measure] == true
+						or (upgrade ~= nil and Catalog.getUpgrade(upgrade) ~= nil)
+					if not known then
+						error("achievement " .. def.id .. " measures an unknown " .. def.measure)
+					end
+					expect(Quests.achievementPrize(def)).to.be.ok()
 				end
-				expect(Quests.achievementPrize(def)).to.be.ok()
+				expect(Catalog.getAchievement("nope")).to.equal(nil)
 			end
-			expect(Catalog.getAchievement("nope")).to.equal(nil)
-		end)
+		)
 
 		it("pays the design's quest, set and achievement prizes", function()
-			expect(Catalog.questPrizes.daily :: any).to.deepEqual({ coins = 200, coinSeconds = 180, fish = 2 })
+			expect(Catalog.questPrizes.daily :: any).to.deepEqual({
+				coins = 200,
+				coinSeconds = 90,
+				fish = 2,
+			})
 			expect(Catalog.questPrizes.dailyBig :: any).to.deepEqual({
 				coins = 400,
-				coinSeconds = 300,
+				coinSeconds = 150,
 				fish = 4,
 				lures = { tuna = 1 },
 			})
@@ -203,7 +244,12 @@ return function()
 			local p = fresh()
 			p.stats.catsCaught = 7
 			local entry = Quests.entry(p, Catalog.getQuest("d_catch5") :: any, 0)
-			expect(entry :: any).to.deepEqual({ id = "d_catch5", base = 7, needs = 5, claimed = false })
+			expect(entry :: any).to.deepEqual({
+				id = "d_catch5",
+				base = 7,
+				needs = 5,
+				claimed = false,
+			})
 			expect(Quests.progress(p, entry)).to.equal(0)
 			p.stats.catsCaught = 10
 			expect(Quests.progress(p, entry)).to.equal(3)
@@ -305,7 +351,12 @@ return function()
 			local left = open
 			for _, def in Catalog.cats do
 				local area = Catalog.getArea(def.area)
-				if left > 1 and area ~= nil and area.tier <= p.tier and p.collection[def.id] == nil then
+				if
+					left > 1
+					and area ~= nil
+					and area.tier <= p.tier
+					and p.collection[def.id] == nil
+				then
 					p.collection[def.id] = 1
 					left -= 1
 				end
@@ -320,7 +371,8 @@ return function()
 			expect((Quests.pick(p, "daily", 1, {}, avoid, 0) :: any).id).to.equal("d_perfect10")
 			local all = { d_catch5 = true, d_perfect10 = true, d_rescue2 = true, d_rare1 = true }
 			expect((Quests.pick(p, "daily", 1, {}, all, 0) :: any).id).to.equal("d_catch5")
-			local set = Quests.rollSet(p, "daily", 0, { d_catch5 = true, d_perfect10 = true }, fixed(0))
+			local set =
+				Quests.rollSet(p, "daily", 0, { d_catch5 = true, d_perfect10 = true }, fixed(0))
 			expect(set[1].id).to.equal("d_rescue2")
 			expect(set[2].id).to.equal("d_rare1")
 		end)
@@ -339,22 +391,30 @@ return function()
 			expect(p.quests.daily :: any).to.deepEqual(before)
 		end)
 
-		it("gives an unknown or misplaced id a fresh pick from its slot's pool, and fills missing slots", function()
-			local p = fresh()
-			p.quests.daily = {
-				{ id = "d_catch5", base = 0, needs = 5, claimed = true },
-				{ id = "removed_quest", base = 0, needs = 3, claimed = false },
-				{ id = "w_catch60", base = 0, needs = 60, claimed = false },
-			}
-			expect(Quests.repair(p, "daily", 0, fixed(0))).to.equal(true)
-			local daily = p.quests.daily
-			expect(#daily).to.equal(5)
-			expect(daily[1] :: any).to.deepEqual({ id = "d_catch5", base = 0, needs = 5, claimed = true })
-			expect(daily[2].id).to.equal("d_perfect10") -- not catsCaught again
-			for slot, entry in daily do
-				expect(Catalog.questPools[entry.id]).to.equal(Quests.DAILY_POOLS[slot])
+		it(
+			"gives an unknown or misplaced id a fresh pick from its slot's pool, and fills missing slots",
+			function()
+				local p = fresh()
+				p.quests.daily = {
+					{ id = "d_catch5", base = 0, needs = 5, claimed = true },
+					{ id = "removed_quest", base = 0, needs = 3, claimed = false },
+					{ id = "w_catch60", base = 0, needs = 60, claimed = false },
+				}
+				expect(Quests.repair(p, "daily", 0, fixed(0))).to.equal(true)
+				local daily = p.quests.daily
+				expect(#daily).to.equal(5)
+				expect(daily[1] :: any).to.deepEqual({
+					id = "d_catch5",
+					base = 0,
+					needs = 5,
+					claimed = true,
+				})
+				expect(daily[2].id).to.equal("d_perfect10") -- not catsCaught again
+				for slot, entry in daily do
+					expect(Catalog.questPools[entry.id]).to.equal(Quests.DAILY_POOLS[slot])
+				end
 			end
-		end)
+		)
 
 		it("drops slots past the set", function()
 			local p = fresh()
@@ -392,7 +452,9 @@ return function()
 			expect(Quests.rerollBlocker(p, "daily", 2)).to.equal("You've used today's free swap")
 			expect(Quests.rerollBlocker(p, "weekly", 1)).to.equal(nil)
 			p.quests.weeklyReroll = true
-			expect(Quests.rerollBlocker(p, "weekly", 1)).to.equal("You've used this week's free swap")
+			expect(Quests.rerollBlocker(p, "weekly", 1)).to.equal(
+				"You've used this week's free swap"
+			)
 		end)
 
 		it("swaps in a different quest, never the one it replaces", function()
@@ -402,7 +464,9 @@ return function()
 			for step = 0, 99 do
 				local def = Quests.pick(p, "daily", 1, p.quests.daily, {}, step / 100) :: any
 				expect(def.id ~= old).to.equal(true)
-				expect(def.stat ~= (Catalog.getQuest(p.quests.daily[2].id) :: any).stat).to.equal(true)
+				expect(def.stat ~= (Catalog.getQuest(p.quests.daily[2].id) :: any).stat).to.equal(
+					true
+				)
 			end
 		end)
 
@@ -423,35 +487,38 @@ return function()
 	end)
 
 	describe("achievements", function()
-		it("measures tier, upgrades, gold and Mythical cats found, decor owned and the top cat level", function()
-			local p = fresh()
-			p.tier = 3
-			p.upgradeLevels.net = 2
-			p.goldCollection = { a = 1, b = 2 }
-			p.decorOwned = { lamp = true, rug = false, plant = true }
-			p.lifetimeCoins = 99.5
-			p.stats.rescues = 4
-			expect(Quests.measure(p, "tier")).to.equal(3)
-			expect(Quests.measure(p, "upgrade:net")).to.equal(2)
-			expect(Quests.measure(p, "goldCats")).to.equal(2)
-			expect(Quests.measure(p, "decorOwned")).to.equal(2)
-			expect(Quests.measure(p, "lifetimeCoins")).to.equal(99)
-			expect(Quests.measure(p, "rescues")).to.equal(4)
-			local mythical = 0
-			for _, def in Catalog.cats do
-				if def.rarity == "Mythical" and mythical < 2 then
-					p.collection[def.id] = 1
-					mythical += 1
+		it(
+			"measures tier, upgrades, gold and Mythical cats found, decor owned and the top cat level",
+			function()
+				local p = fresh()
+				p.tier = 3
+				p.upgradeLevels.net = 2
+				p.goldCollection = { a = 1, b = 2 }
+				p.decorOwned = { lamp = true, rug = false, plant = true }
+				p.lifetimeCoins = 99.5
+				p.stats.rescues = 4
+				expect(Quests.measure(p, "tier")).to.equal(3)
+				expect(Quests.measure(p, "upgrade:net")).to.equal(2)
+				expect(Quests.measure(p, "goldCats")).to.equal(2)
+				expect(Quests.measure(p, "decorOwned")).to.equal(2)
+				expect(Quests.measure(p, "lifetimeCoins")).to.equal(99)
+				expect(Quests.measure(p, "rescues")).to.equal(4)
+				local mythical = 0
+				for _, def in Catalog.cats do
+					if def.rarity == "Mythical" and mythical < 2 then
+						p.collection[def.id] = 1
+						mythical += 1
+					end
 				end
+				expect(Quests.measure(p, "mythicalCats")).to.equal(mythical)
+				local top = 0
+				for _, instance in p.cats do
+					instance.level = 7
+					top = 7
+				end
+				expect(Quests.measure(p, "topCatLevel")).to.equal(top)
 			end
-			expect(Quests.measure(p, "mythicalCats")).to.equal(mythical)
-			local top = 0
-			for _, instance in p.cats do
-				instance.level = 7
-				top = 7
-			end
-			expect(Quests.measure(p, "topCatLevel")).to.equal(top)
-		end)
+		)
 
 		it("claims a met achievement once", function()
 			local p = fresh()
@@ -487,28 +554,31 @@ return function()
 	end)
 
 	describe("view", function()
-		it("sends each quest's text, progress and needs with the resets and the swap and set flags", function()
-			local p = fresh()
-			p.quests.daily = Quests.rollSet(p, "daily", 0, {}, fixed(0))
-			p.quests.weekly = Quests.rollSet(p, "weekly", 0, {}, fixed(0))
-			p.quests.daily[1] = Quests.entry(p, Catalog.getQuest("d_catch5") :: any, 0)
-			p.stats.catsCaught += 2
-			p.quests.dailyReroll = true
-			local view = Quests.view(p, MONDAY + 60)
-			expect(view.daily[1] :: any).to.deepEqual({
-				id = "d_catch5",
-				text = "Catch 5 cats",
-				progress = 2,
-				needs = 5,
-				claimed = false,
-			})
-			expect(#view.daily).to.equal(5)
-			expect(#view.weekly).to.equal(3)
-			expect(view.dailyResetsAt).to.equal(MONDAY + 86400)
-			expect(view.weeklyResetsAt).to.equal(MONDAY + 7 * 86400)
-			expect(view.dailyRerollUsed).to.equal(true)
-			expect(view.weeklyRerollUsed).to.equal(false)
-			expect(view.dailySetClaimed).to.equal(false)
-		end)
+		it(
+			"sends each quest's text, progress and needs with the resets and the swap and set flags",
+			function()
+				local p = fresh()
+				p.quests.daily = Quests.rollSet(p, "daily", 0, {}, fixed(0))
+				p.quests.weekly = Quests.rollSet(p, "weekly", 0, {}, fixed(0))
+				p.quests.daily[1] = Quests.entry(p, Catalog.getQuest("d_catch5") :: any, 0)
+				p.stats.catsCaught += 2
+				p.quests.dailyReroll = true
+				local view = Quests.view(p, MONDAY + 60)
+				expect(view.daily[1] :: any).to.deepEqual({
+					id = "d_catch5",
+					text = "Catch 5 cats",
+					progress = 2,
+					needs = 5,
+					claimed = false,
+				})
+				expect(#view.daily).to.equal(5)
+				expect(#view.weekly).to.equal(3)
+				expect(view.dailyResetsAt).to.equal(MONDAY + 86400)
+				expect(view.weeklyResetsAt).to.equal(MONDAY + 7 * 86400)
+				expect(view.dailyRerollUsed).to.equal(true)
+				expect(view.weeklyRerollUsed).to.equal(false)
+				expect(view.dailySetClaimed).to.equal(false)
+			end
+		)
 	end)
 end

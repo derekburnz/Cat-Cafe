@@ -863,6 +863,19 @@ function Pose.floor(rig: Rig): CFrame
 	return if joint ~= nil then bodyBase * joint else bodyBase
 end
 
+-- Where the front legs are hinged in the floor's space (Pose.floor: -Z ahead, Y up), halfway between the two, on
+-- a body whose front legs are hinged pieces; nil on any other.
+function Pose.frontHinge(rig: Rig): Vector3?
+	local body: CFrame? = rig.joints.body
+	local left: CFrame? = rig.joints.pawFL
+	local right: CFrame? = rig.joints.pawFR
+	if rig.usesMotors or body == nil or left == nil or right == nil then
+		return nil
+	end
+	local inverse = body:Inverse()
+	return ((inverse * left).Position + (inverse * right).Position) / 2
+end
+
 -- Puts every part back where the server has it.
 function Pose.release(rig: Rig)
 	if rig.usesMotors then

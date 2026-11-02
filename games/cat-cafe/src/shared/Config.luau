@@ -11,8 +11,17 @@ local Config = {
 	FavoriteMultiplier = 1.5,
 	TableBonus = 0.10,
 	EspressoBonus = 0.15,
-	OfflineRate = 0.25,
-	OfflineCapSeconds = 3600,
+	-- Coming back (F95, economy-ladder.md section 5; Derek 2026-11-01 22:32: "do 50% offline and pass makes it 100% and
+	-- up to 16h"): half the day rate for up to 8 hours away, the full rate for up to 16 with the Long Nap pass.
+	OfflineRate = 0.5,
+	OfflineCapSeconds = 28800,
+	OfflineRatePass = 1.0,
+	OfflineCapPassSeconds = 57600,
+	-- Game pass ids for F95's hooks (section 6); 0 until Tools-Agent makes the pass, which turns its effect off. The
+	-- Money passes by the income they multiply by (the highest owned counts); each extra slot pass adds a role slot.
+	LongNapPassId = 0,
+	MoneyPassIds = { [2] = 0, [3] = 0, [4] = 0 } :: { [number]: number },
+	ExtraSlotPassIds = {} :: { number },
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)
 
@@ -26,8 +35,10 @@ local Config = {
 	CharmSpread = 0.20, -- charm 0 earns 1 - spread, charm 100 earns 1 + spread
 	GoldMultiplier = 1.5, -- a gold cat's rating (data-model section 4)
 	-- Keep up (v0.13.16, F86, data-model 4b): a cat of these rarities from an older area earns with the incomeMultiplier
-	-- of the area opened KeepUpStepsBehind tiers before the owner's newest, never below its own area's.
-	KeepUpRarities = { Legendary = true, Mythical = true } :: { [string]: boolean },
+	-- of the area opened KeepUpStepsBehind tiers before the owner's newest, never below its own area's. F95
+	-- (economy-ladder.md section 2): none, since the area ladder itself makes an older Mythical worth a newer Legendary;
+	-- the code stays for the shop-only cats and for config.
+	KeepUpRarities = {} :: { [string]: boolean },
 	KeepUpStepsBehind = 1,
 
 	-- The clock (data-model section 9): a server-wide loop of day then night. v0.9 (F66, Derek 2026-10-27): night is a
@@ -60,6 +71,15 @@ local Config = {
 	StartledSeconds = 2,
 	GrabCooldownSeconds = 2, -- per player, between two catches started
 	TravelCooldownSeconds = 3, -- per player, between two fast travels (features F19)
+	-- The Cat Cannon (F84, hometown-cannon.md section 3b): a flight takes CannonLaunchSeconds from LaunchCannon to
+	-- control, the server moving the anchored character onto the landing pad at CannonTeleportAtSeconds, inside the
+	-- clouds; then CannonCooldownSeconds from landing before the next launch. Home from a wild area is a cloud hop
+	-- (section 5): CloudHopSeconds long, the move at CloudHopMoveAtSeconds.
+	CannonLaunchSeconds = 3.0,
+	CannonTeleportAtSeconds = 1.9,
+	CannonCooldownSeconds = 3,
+	CloudHopSeconds = 1.6,
+	CloudHopMoveAtSeconds = 0.6,
 
 	-- The net: closing circles judged on the server (data-model section 10)
 	CircleLeadInSeconds = 0.6, -- from GrabBegin to the first circle starting to shrink
@@ -90,10 +110,11 @@ local Config = {
 	-- share (half: 240 s), fixed in bait.readyAt at placement
 	LureWaitSecondsNight = 300,
 	-- F82 bowl levels (v0.13.15): the day wait and the bowl luck by lure_bowl level, read by shared/Bait. Luck is the
-	-- share of each rarity's chance moved up one rarity before the roll. The Big Bowl perk takes a fifth off any level.
+	-- share of each rarity's chance moved up one rarity before the roll. The Big Bowl perk takes BigBowlWaitCutSeconds
+	-- off any level's day wait, before night halves it (F95 section 6b, Derek 2026-10-28 17:39: "lower it by 2 min perma").
 	BowlWaitSeconds = { 600, 570, 540, 510, 480 } :: { number },
 	BowlLuck = { 0, 0.04, 0.08, 0.12, 0.16 } :: { number },
-	BigBowlWaitMultiplier = 0.8,
+	BigBowlWaitCutSeconds = 120,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	BaitResolveRangeStuds = 20, -- Tame or Let go from this close
 	GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02): rolled when the food goes in, revealed when the cat arrives
@@ -188,7 +209,7 @@ local Config = {
 	CollectorRollMin = 0.8,
 	CollectorRollMax = 1.5,
 	CollectorRangeStuds = 12, -- AnswerCollector from this close to him (his card opens there)
-	PotionMaxMinutes = 60, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8)
+	PotionMaxMinutes = 1440, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8; F95: 24 h, Derek 2026-10-28 17:36)
 	TipPotionBonus = 0.25, -- tip_potion: +25% on income, the tip piles and rich visitors
 	SwiftPotionSpeed = 4, -- swift_potion: added to walk and carry speed
 	LuckyPotionGoldScale = 2, -- lucky_potion: food set in the bowl rolls gold at this times the chance
@@ -320,49 +341,70 @@ local Config = {
 		-- a central middle area"): a 32 wide street with the Town Square in its middle, two rows of cafes either side.
 		StreetHalfWidth = 16,
 		StreetSouthZ = -124,
-		StreetNorthZ = 124, -- the street ends at the Neighbourhood gate
-		GroundSize = 880, -- v3.2 (8e): reaches past the bigger areas' far walls (the Woods' at x -335)
+		StreetNorthZ = 124, -- the street ends at the hometown's north welcome arch (v4)
+		-- v4 (F84, hometown-cannon.md section 2): the hometown's own ground round the town, and each wild area its own
+		TownGroundWidth = 260,
+		TownGroundDepth = 300,
 		WallHeight = 9,
 		DoorWidth = 7,
-		-- The Town Square: paved, centred on the origin across the street, with the stations round a fountain and a
-		-- cross of open paving (the street's line and an east to west lane to the two side arches into the back
-		-- alleys). Its gardens fill the rest of the width out to the back alleys.
+		-- The Town Square: paved, centred on the origin across the street, with the stations round the Cat Cannon (the
+		-- fountain until v4) and a cross of open paving (the street's line and an east to west lane, which led to the
+		-- side arches into the back alleys until v4 closed them). Its gardens fill the rest of the width out to the yards.
 		TownSquareHalfWidth = 48,
 		TownSquareHalfDepth = 32,
 		TownSquareLaneHalfWidth = 8, -- the street's line through the square
 		TownSquareCrossHalfWidth = 6, -- the east to west lane
-		TownSquareArchWidth = 12, -- each side arch from the gardens into a back alley, as wide as the east to west lane
-		-- The Alleyway: back alleys at |x| AlleyInnerX..AlleyOuterX from AlleySouthZ to AlleyNorthZ, closed at both
-		-- ends (v3.1: the Alley Square is gone).
+		-- The hometown's back edge (v4, F84, hometown-cannon.md section 2): a fence at |x| TownEdgeX behind each row of
+		-- cafes' yards, where the back alleys began until v4.
+		TownEdgeX = 63,
+		-- The Alleyway's set (v4, F84, section 6a): its two lanes keep their v3.2 numbers, at |x| AlleyInnerX..AlleyOuterX
+		-- from AlleySouthZ to AlleyNorthZ in lane space, and the set stands in the wild with its middle at (AlleyCenterX,
+		-- AlleyCenterZ), each lane AlleyLaneShift nearer the middle than in lane space, so a 30 stud block of building
+		-- backs stands between them. Its camp is across both lanes' north ends.
 		AlleyInnerX = 63,
 		AlleyOuterX = 93,
 		AlleySouthZ = -125.5,
 		AlleyNorthZ = 125.5,
-		-- The Park at its v3.2 size (F81, town-layout-v3.md section 8e): 160 x 120 behind the same gate, so its far
-		-- half is a long walk in.
-		ParkCenterZ = -186,
+		AlleyCenterX = -1400,
+		AlleyCenterZ = -1400,
+		AlleyLaneShift = 48,
+		AlleyPassageDepth = 12, -- the way through the block between the lanes, at the far (south) end
+		-- The wild areas (v4, F84, hometown-cannon.md section 6a): each v3.2 set moved WildAreaDistance out from the
+		-- Town Square in the same place, the Park south, the Neighbourhood north, the Woods west and the Sewer east, so
+		-- none is in view of the town or of another. Only the Cat Cannon reaches them. Each keeps its gate on its town
+		-- side as its camp's way out, with the camp (CampDepth deep, across the area's whole width) in front of it.
+		WildAreaDistance = 2000,
+		-- The Park at its v3.2 size (F81, town-layout-v3.md section 8e): 160 x 120, its camp on its north side.
+		ParkCenterZ = -2000,
 		ParkWidth = 160,
 		ParkDepth = 120,
-		ParkGateZ = -125,
-		-- The Woods west and the Sewer east of the back alleys (v3.1), each with its gate on its town side, in the back
-		-- alley's outer wall straight across from the square's side arch: SideGateHalfWidth either side of z 0.
-		WoodsCenterX = -215, -- v3.2 (F81, 8e): 240 x 240 behind the same gate
+		-- The Woods (v3.2: 240 x 240) with its camp on its east side, the Sewer (180 x 180) with its camp on its west. Their
+		-- gates keep the 24 wide openings they had in the back alleys' outer walls (SideGateHalfWidth either side).
+		WoodsCenterX = -2000,
 		WoodsCenterZ = 0,
 		WoodsWidth = 240,
 		WoodsDepth = 240,
-		WoodsGateX = -94,
-		SewerCenterX = 185, -- v3.2 (F81, 8e): 180 x 180 behind the same gate
+		SewerCenterX = 2000,
 		SewerCenterZ = 0,
 		SewerWidth = 180,
 		SewerDepth = 180,
-		SewerGateX = 94,
 		SideGateHalfWidth = 12,
-		-- At the street's north end since v3.1; 280 x 280 behind the same gate since v3.2 (F81, 8e).
+		-- The Neighbourhood (v3.2: 280 x 280) with its camp on its south side.
 		NeighbourhoodCenterX = 0,
-		NeighbourhoodCenterZ = 266,
+		NeighbourhoodCenterZ = 2000,
 		NeighbourhoodWidth = 280,
 		NeighbourhoodDepth = 280,
-		NeighbourhoodGateZ = 125,
+		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
+		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
+		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its
+		-- edge. CampOpeningWidth is the F85 fence's opening (F84 camps keep their gates' widths).
+		CampDepth = 30,
+		CampOpeningWidth = 24,
+		LandingPadRadius = 8,
+		LandingClearStuds = 3,
+		CannonRangeStuds = 10,
+		CampDropMarginStuds = 2,
+		CampDropOutStuds = 3,
 		-- Cafe life (world-and-feel.md section 4, F37): each client walks customers into every running cafe within
 		-- this range of its camera, up to CustomersMax at once across the street.
 		CafeLifeRangeStuds = 80,

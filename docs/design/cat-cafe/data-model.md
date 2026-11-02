@@ -490,6 +490,7 @@ v0.13.17, camps (F84, [hometown-cannon.md](hometown-cannon.md) sections 4 and 5)
 - **Safe zone:** each camp rect is a safe zone in the tackle, catch, rescue and pick-up checks. Its wild edge is the fence line (the old gate line until F85), the same rect as the check-in, so a carrier is never tackled inside it. A drop point within 2 studs of a camp rect moves straight out to 3 studs past the fence, and a Returning cat's path never enters a camp. Strays never enter a camp.
 - **Carrying:** in a wild area Home, the Cannon button and every cannon are refused while carrying ("Bring your cat to the camp first"); the carry banner reads "Bring it to the camp!". A carrier's death drops the cat where it died, as before, and the respawn is on the camp's pad. Leaving the game still checks the cat in.
 - **During a flight** the character is anchored and `Launching`: tackles pass through them, Travel and every minigame are refused, and a second `LaunchCannon` is refused.
+- **While knocked down** (the TackledDownSeconds, 0.8, after a landed tackle), `Travel` to `home` or `cannon` is refused with the same refusal and toast as `LaunchCannon`, so the Home and Cannon buttons cannot hop a downed player out of a chase (Review-Agent N281 on #643, decided 2026-11-02 by the game-designer thread).
 
 ## 11. Income and offline
 
@@ -885,7 +886,7 @@ v0.4 addition, `Travel(destination)` (engineer's F19, the shape is theirs): `hom
 
 The plan is the growth thread's [analytics-plan.md](../../growth/analytics-plan.md). v0.3 asks it to add: onboarding steps `first_role`, `first_bait`, `first_bait_resolved`, `tier_2`; custom events `catch_circles` (rarity, net level, perfect count; per-circle error goes to the exploit check), `rescue_attempt` (trap type, rarity, success), `bait_resolved` (food, rarity, tame or letgo), `bump` (success, rarity, area), `rank_up` (tier, minutes played), `dealer_buy` (food, tier), `rich_tip` (claimed or auto), `cat_renamed`, `gold_found` (method, rarity); progression `tier` 1 to 5 in place of `cafe_level`. Sinks add `rank_up` and `dealer`. The growth thread also added `bump`, `drop_outcome` and `left_after_bump` to judge griefing in the alpha (analytics-plan.md, PR #33). v0.4 asks for `catch_circles` to add `missed`, `purrfect` and `charmGain` (v0.5 drops `pawsLeft` and adds `tryNumber`, the player's tries on that stray), `shove` (knocked loose or not, area) in place of `bump`, a custom event `autopress_flag` (set or cleared), and `travel` (destination) to see whether players still walk. F72 adds the custom event `intro_cutscene` (finished or skipped, the shot, replay) so the growth thread can see where new players skip the intro.
 
-v0.13.17 (F84) adds `cannon_launch` (from, to) and `camp_checkin` (area, rarity, seconds carried, times knocked loose).
+v0.13.17 (F84) adds `cannon_launch` (from, to) and `camp_checkin` (area, rarity, seconds carried, times knocked loose). As built in #643: `cannon_launch` has value 1 with the fields `cannonId` and `destination`; `camp_checkin` has the seconds carried as its value with the fields `campId`, `rarity` and `knocks`; `intro_cutscene` values read `3:N` for the v3 reshoot.
 
 ## 17. Tuning constants (`src/shared/Config.luau`)
 

@@ -44,7 +44,10 @@ export type Offsets = {
 	pawBL: number,
 	pawBR: number,
 	sink: number, -- 0 standing, 1 lying on its belly (Pose turns it into studs from the cat's leg length)
-	yarn: number, -- the entertainer's yarn ball, -1 (left) to 1 (right) in front of the cat
+	-- The entertainer's pom-pom wand (Logic.toy places it): radians it leans off its rest to the cat's right
+	-- (`yarn`) and away from the cat (`yarnOut`).
+	yarn: number,
+	yarnOut: number,
 	-- How far into each of Model-Agent's piece poses (Presets.catPoses) the cat is, 0 to 1, on the bodies with
 	-- hinged pieces. The idle's own turns ride on top.
 	sleep: number,
@@ -519,6 +522,76 @@ function Logic.pulse(t: number, every: number, length: number): number
 	return math.sin(into / length * math.pi)
 end
 
+-- How far up the entertainer's batting paw is, 0 to 1 of motion.entertainer.reach, `c` seconds after it meets the
+-- pom-pom (before that, negative): it comes up over `windup`, faster and faster so it strikes, holds the pom-pom
+-- for `hold`, then goes down smoothly over `back`.
+function Logic.bat(c: number): number
+	local e = Presets.motion.entertainer
+	if c < -e.windup or c >= e.hold + e.back then
+		return 0
+	elseif c < 0 then
+		local u = (c + e.windup) / e.windup
+		return u * u
+	elseif c < e.hold then
+		return 1
+	end
+	return 1 - smoothstep((c - e.hold) / e.back)
+end
+
+-- How the pom-pom wand leans `since` seconds after a bat sent it toward `toward` (1 the cat's right, -1 its left):
+-- radians away from the cat, then radians to its right. It springs away and wobbles back, dying away, and is still
+-- again by the next bat (it settles over the next paw's windup), so the next paw always meets it at rest.
+function Logic.toySway(since: number, toward: number): (number, number)
+	local e = Presets.motion.entertainer
+	if since < 0 or since >= e.every then
+		return 0, 0
+	end
+	local settle = 1 - smoothstep((since - (e.every - e.windup)) / e.windup)
+	local out = math.rad(e.tilt)
+		* math.exp(-e.decay * since)
+		* math.sin(since * e.hz * 2 * math.pi)
+		* settle
+	return out, out * e.side * toward
+end
+
+-- Where the entertainer's pom-pom rests, up and ahead (negative) of the cat's floor point in studs, for front paws
+-- hinged `hingeY` up and `hingeZ` ahead at the cat's `scale`: against the pad of a paw raised `reach` degrees.
+-- The pad sits at the bottom of the leg, PAD_AHEAD of the hinge; raised, it faces forward and a little down.
+local PAD_AHEAD = 0.05
+function Logic.toyRest(hingeY: number, hingeZ: number, scale: number): (number, number)
+	local e = Presets.motion.entertainer
+	local a = math.rad(e.reach)
+	local ahead = PAD_AHEAD * scale
+	local r = e.pom * scale / 2
+	-- the pad's centre with the leg swung forward `a` about the hinge, then out along the leg by the pom-pom's radius
+	local y = hingeY - hingeY * math.cos(a) + ahead * math.sin(a) - r * math.cos(a)
+	local z = hingeZ - hingeY * math.sin(a) - ahead * math.cos(a) - r * math.sin(a)
+	return y, z
+end
+
+-- The pom-pom and its wand in the cat's floor space for offsets `o` (`yarn`, `yarnOut`), resting at
+-- (0, restY, restZ) for a cat at `scale`: the pom-pom's centre, the wand's foot (`wandBase` ahead, on the perch)
+-- and its tip under the pom-pom. The wand leans about its foot, away from the cat by `yarnOut`, then to its right
+-- by `yarn`, so the pom-pom swings on an arc and never leaves it.
+function Logic.toy(
+	o: Offsets,
+	restY: number,
+	restZ: number,
+	scale: number
+): (Vector3, Vector3, Vector3)
+	local e = Presets.motion.entertainer
+	local foot = Vector3.new(0, 0, -e.wandBase * scale)
+	local y, z = restY, restZ - foot.Z
+	-- to the right about the wand's forward axis, then away about its sideways one
+	local x = y * math.sin(o.yarn)
+	y *= math.cos(o.yarn)
+	local away = -o.yarnOut
+	y, z = y * math.cos(away) - z * math.sin(away), y * math.sin(away) + z * math.cos(away)
+	local arm = Vector3.new(x, y, z)
+	local length = math.max(arm.Magnitude - e.pom * scale / 2, 0.05)
+	return foot + arm, foot, foot + arm.Unit * length
+end
+
 function Logic.blank(): Offsets
 	return {
 		bodyY = 0,
@@ -536,6 +609,7 @@ function Logic.blank(): Offsets
 		pawBR = 0,
 		sink = 0,
 		yarn = 0,
+		yarnOut = 0,
 		sleep = 0,
 		loaf = 0,
 		lick = 0,
@@ -730,18 +804,28 @@ function Logic.idle(style: Style, t: number, body: Body?): Offsets
 		o.headPitch = -math.rad(m.barista.headDip) * tap
 		o.pawFL = math.rad(m.barista.paw) * tap
 	elseif style == "waiter" then
-		local sway = wave(t, m.waiter.swaySeconds)
-		o.bodyRoll = math.rad(m.waiter.sway) * sway
-		o.bodyY += math.abs(sway) * m.waiter.step
-		o.headRoll = -o.bodyRoll * 0.6
+		-- watching the room: the head turns from table to table and tilts now and then, the body still
+		local w = m.waiter
+		o.headYaw = math.rad(w.look) * wave(t, w.lookSeconds)
+		o.headRoll = math.rad(w.tilt) * Logic.pulse(t, w.tiltEvery, 1.2)
 	elseif style == "greeter" then
 		local greet = Logic.pulse(t, m.greeter.waveEvery, 1.2)
 		o.pawFR = math.rad(m.greeter.wave) * greet * (0.75 + 0.25 * math.sin(t * 16))
 		o.headRoll = math.rad(m.greeter.tilt) * greet
 	elseif style == "entertainer" then
-		o.pawFL = math.rad(m.entertainer.swat) * Logic.pulse(t, m.entertainer.swatEvery, 0.35)
-		o.yarn = wave(t, m.entertainer.swatEvery * 2)
-		o.headYaw = math.rad(18) * o.yarn
+		-- the paws take turns batting the pom-pom: the last one going back down, the next one coming up for its bat
+		local e = m.entertainer
+		local beat = math.floor(t / e.every)
+		local since = t - beat * e.every
+		local last = Logic.bat(since)
+		local coming = Logic.bat(since - e.every)
+		local leftLast = beat % 2 == 0
+		o.pawFL = math.rad(e.reach) * (if leftLast then last else coming)
+		o.pawFR = math.rad(e.reach) * (if leftLast then coming else last)
+		o.yarnOut, o.yarn = Logic.toySway(since, if leftLast then 1 else -1)
+		o.headPitch = -math.rad(e.look)
+		o.headYaw = -e.follow * o.yarn
+		o.bodyPitch = -math.rad(e.lean) * math.max(last, coming)
 	else
 		o.headYaw = math.rad(m.headLook.degrees * 0.6) * wave(t, m.headLook.seconds)
 	end
@@ -1268,6 +1352,53 @@ function Logic.lidAngle(elapsed: number, seconds: number, degrees: number): numb
 	return degrees * (1 - (1 - x) * (1 - x))
 end
 
+-- The crate reel (F103, crate-reel.md) in the Market window, from Config's CrateReel* numbers: it starts with tile 1
+-- under the marker and stops on the centre of tile `landing`, speeding up evenly to `topSpeed` tiles a second over
+-- `rampSeconds`, running flat out, then slowing to a stop over `stopSeconds` with an ease-out cubic. That cubic sets
+-- off at three times its average pace, so meeting the top speed it covers topSpeed * stopSeconds / 3 tiles (4 with
+-- the spec's numbers). How many seconds after CrateResult it stops (about 2.9 with the defaults), and when the slow
+-- down starts.
+function Logic.crateReelStop(
+	landing: number,
+	topSpeed: number,
+	rampSeconds: number,
+	stopSeconds: number
+): (number, number)
+	local ramp = math.max(rampSeconds, 0)
+	local slowTiles = math.max(topSpeed, 0) * math.max(stopSeconds, 0) / 3
+	local cruise = 0
+	if topSpeed > 0 then
+		cruise = math.max(landing - 1 - topSpeed * ramp / 2 - slowTiles, 0) / topSpeed
+	end
+	local slowFrom = ramp + cruise
+	return slowFrom + math.max(stopSeconds, 0), slowFrom
+end
+
+-- How fast the reel runs `t` seconds in, from 0 (still) to 1 (flat out): up evenly over `rampSeconds`, flat until
+-- `slowFrom`, then the ease-out cubic's slowing over `stopSeconds`, still from the stop on. The counter crate's lid
+-- rattles this hard, the same for every prize.
+function Logic.crateReelPace(
+	t: number,
+	rampSeconds: number,
+	slowFrom: number,
+	stopSeconds: number
+): number
+	if t <= 0 then
+		return 0
+	end
+	if t < rampSeconds then
+		return t / rampSeconds
+	end
+	if t < slowFrom then
+		return 1
+	end
+	if stopSeconds <= 0 then
+		return 0
+	end
+	local left = 1 - math.clamp((t - slowFrom) / stopSeconds, 0, 1)
+	return left * left
+end
+
 -- Campfires ---------------------------------------------------------------------------------------------------
 
 -- How one tongue of a campfire's flame moves `t` seconds in, `phase` radians apart from its neighbours: its stretch
@@ -1362,7 +1493,10 @@ end
 
 -- True when securing something of `rarity` plays the big pull (luck-and-rare-moments.md 2a, 2b): a Legendary, a
 -- Mythical, or a gold Epic. Crate pieces are never gold.
-function Logic.bigPull(rarity: unknown, gold: boolean): boolean
+function Logic.bigPull(rarity: unknown, gold: boolean, rainbow: boolean?): boolean
+	if rainbow == true and type(rarity) == "string" then
+		return true -- a rainbow cat of any rarity (F99)
+	end
 	if rarity == "Legendary" or rarity == "Mythical" then
 		return true
 	end
@@ -1466,6 +1600,266 @@ function Logic.colourMoved(a: Color3, b: Color3, tolerance: number): boolean
 	return math.abs(a.R - b.R) > tolerance
 		or math.abs(a.G - b.G) > tolerance
 		or math.abs(a.B - b.B) > tolerance
+end
+
+-- Rainbow coats (F99) ---------------------------------------------------------------------------------------------
+
+-- The colour `u` of the way round a rainbow's hues (any number; it wraps), each hue blending into the next.
+function Logic.rainbowAt(hues: { Color3 }, u: number): Color3
+	local n = #hues
+	if n == 0 then
+		return Color3.new(1, 1, 1)
+	end
+	local x = (u % 1) * n
+	local i = math.floor(x)
+	return hues[i % n + 1]:Lerp(hues[(i + 1) % n + 1], x - i)
+end
+
+-- Where a coat part sits from the nose (0) to the tail tip (1): `z` back along the cat, the nose at `front` and the
+-- tail tip at `back`.
+function Logic.rainbowPhase(z: number, front: number, back: number): number
+	if back - front <= 1e-6 then
+		return 0
+	end
+	return math.clamp((z - front) / (back - front), 0, 1)
+end
+
+-- How far round the hues a part at `phase` is `t` seconds in: the bands flow from nose to tail, one lap every
+-- `period` seconds, `spread` laps along the cat. A still coat passes t = 0.
+function Logic.rainbowHue(t: number, phase: number, period: number, spread: number): number
+	return phase * spread - (if period > 0 then t / period else 0)
+end
+
+-- A coat colour's lightness (0 to 1).
+function Logic.lightness(colour: Color3): number
+	return 0.299 * colour.R + 0.587 * colour.G + 0.114 * colour.B
+end
+
+-- How bright a part's band is, from `least` to 1: its own colour's lightness against the lightest coat part's, so
+-- stripes and patches still show as darker bands.
+function Logic.rainbowShade(light: number, lightest: number, least: number): number
+	if lightest <= 1e-6 then
+		return 1
+	end
+	return least + (1 - least) * math.clamp(light / lightest, 0, 1)
+end
+
+-- True for a face detail a rainbow coat leaves as it is (the nose, the mouth, the blush): a part whose longest side
+-- is under `share` of its piece's biggest part's.
+function Logic.rainbowKeeps(longest: number, biggest: number, share: number): boolean
+	return longest < biggest * share
+end
+
+-- Cafe walks (CafeWalk.luau, Presets.cafeWalk). A waiter's way from its station to a chair's Approach point
+-- (CafeService: Aisle is beside the middle aisle at the chair's row lane, Approach on that lane in line with the
+-- chair): square onto the lane first, then along it, so it never cuts across a table. The lane point is where the
+-- station meets the lane square on, kept between Aisle and Approach; a station already on the lane (or in line with
+-- the Approach point) walks straight there. Every point is at the station's height (the cafe floor).
+function Logic.strollRoute(station: Vector3, aisle: Vector3, approach: Vector3): { Vector3 }
+	local function floor(point: Vector3): Vector3
+		return Vector3.new(point.X, station.Y, point.Z)
+	end
+	local lane = floor(approach) - floor(aisle)
+	local length = lane.Magnitude
+	local route: { Vector3 } = {}
+	if length > 1e-3 then
+		local along = lane / length
+		local onto = floor(aisle)
+			+ along * math.clamp((station - floor(aisle)):Dot(along), 0, length)
+		if (onto - station).Magnitude > 0.3 and (onto - floor(approach)).Magnitude > 0.3 then
+			table.insert(route, onto)
+		end
+	end
+	table.insert(route, floor(approach))
+	return route
+end
+
+-- How long a walk through `points` is, in studs.
+function Logic.routeLength(points: { Vector3 }): number
+	local total = 0
+	for i = 2, #points do
+		total += (points[i] - points[i - 1]).Magnitude
+	end
+	return total
+end
+
+-- Where a walk through `points` is once it has gone `travelled` studs from the first: the position, the way it is
+-- going (a flat unit vector; the last leg's way once it has arrived) and whether it has arrived.
+function Logic.along(points: { Vector3 }, travelled: number): (Vector3, Vector3, boolean)
+	local left = math.max(travelled, 0)
+	local heading = Vector3.new(0, 0, -1)
+	for i = 2, #points do
+		local leg = points[i] - points[i - 1]
+		local flat = Vector3.new(leg.X, 0, leg.Z)
+		local length = leg.Magnitude
+		if length > 1e-6 then
+			if flat.Magnitude > 1e-6 then
+				heading = flat.Unit
+			end
+			if left < length then
+				return points[i - 1] + leg * (left / length), heading, false
+			end
+			left -= length
+		end
+	end
+	return points[#points], heading, true
+end
+
+-- The turn about Y (radians) that faces a model, which looks along -Z, along the flat direction `way`.
+function Logic.yawOf(way: Vector3): number
+	return math.atan2(-way.X, -way.Z)
+end
+
+-- `yaw` turned toward `target` by at most `step` radians, the short way round.
+function Logic.turnToward(yaw: number, target: number, step: number): number
+	local d = (target - yaw + math.pi) % (2 * math.pi) - math.pi
+	if math.abs(d) <= step then
+		return target
+	end
+	return yaw + (if d > 0 then step else -step)
+end
+
+-- Rescue Rally, bunting and Trade done (F101, F102) -----------------------------------------------------------------
+
+-- How full the Rally bar is, 0 to 1, with `points` of `goal` (empty for a goal of 0).
+function Logic.rallyFill(points: number, goal: number): number
+	if goal <= 0 then
+		return 0
+	end
+	return math.clamp(points / goal, 0, 1)
+end
+
+-- The steps (shares of the bar, 1 the full bar) a Rally state crossed going from `beforeFill` in lap `beforeLap` to
+-- `afterFill` in lap `afterLap`, in order. A new lap crossed every step the old one had left, the full bar always;
+-- laps skipped in between are not played again. Nothing when the lap goes back (a new weekend or a fresh server).
+function Logic.rallySteps(
+	beforeFill: number,
+	beforeLap: number,
+	afterFill: number,
+	afterLap: number,
+	steps: { number }
+): { number }
+	local crossed: { number } = {}
+	if afterLap < beforeLap then
+		return crossed
+	end
+	local from = beforeFill
+	if afterLap > beforeLap then
+		for _, step in steps do
+			if step >= 1 or step > beforeFill then
+				table.insert(crossed, step)
+			end
+		end
+		from = 0
+	end
+	for _, step in steps do
+		if step < 1 and step > from and step <= afterFill then
+			table.insert(crossed, step)
+		end
+	end
+	return crossed
+end
+
+-- Smooth in and out, 0 to 1.
+function Logic.easeInOut(u: number): number
+	local k = math.clamp(u, 0, 1)
+	return k * k * (3 - 2 * k)
+end
+
+-- The bend of a flight from `from` to `to` on the screen (pixels, y down): the middle, pushed sideways by `lift` of
+-- the distance (to the left of the way it goes when `lift` is above 0, so a flight to the left arcs up).
+function Logic.flyBend(from: Vector2, to: Vector2, lift: number): Vector2
+	local d = to - from
+	return (from + to) / 2 + Vector2.new(-d.Y, d.X) * lift
+end
+
+-- Where a flight is `u` (0 to 1) of the way along the curve from `from` past `bend` to `to`.
+function Logic.curve(from: Vector2, bend: Vector2, to: Vector2, u: number): Vector2
+	local v = 1 - u
+	return from * (v * v) + bend * (2 * v * u) + to * (u * u)
+end
+
+-- How big a flying pop is `t` seconds into its `seconds`: it pops in with a small overshoot over `popIn`, then
+-- shrinks to `land` as it arrives.
+function Logic.popScale(t: number, seconds: number, popIn: number, land: number): number
+	if t < popIn then
+		local k = t / popIn - 1
+		return math.max(0, 1 + 2.70158 * k * k * k + 1.70158 * k * k)
+	end
+	local u = math.clamp((t - popIn) / math.max(seconds - popIn, 1e-6), 0, 1)
+	return 1 + (land - 1) * u * u
+end
+
+-- A hanging pennant's hinge from its box's unit axes and size: the thinnest axis is its face's normal and, of the
+-- other two, the more upright one hangs it. Returns the axis along its string, its up axis turned toward the sky and
+-- half its height along that axis (the top edge is that far above its middle).
+function Logic.pennantHinge(
+	right: Vector3,
+	up: Vector3,
+	back: Vector3,
+	size: Vector3
+): (Vector3, Vector3, number)
+	local a, b, ha, hb = up, back, size.Y, size.Z
+	if size.Y < size.X and size.Y <= size.Z then
+		a, b, ha, hb = right, back, size.X, size.Z
+	elseif size.Z < size.X and size.Z < size.Y then
+		a, b, ha, hb = right, up, size.X, size.Y
+	end
+	local hang, along, height = a, b, ha
+	if math.abs(b.Y) > math.abs(a.Y) then
+		hang, along, height = b, a, hb
+	end
+	if hang.Y < 0 then
+		hang = -hang
+	end
+	return along, hang, height / 2
+end
+
+-- How far along the wind `at` sits, as a phase in radians every `wavelength` studs, so a gust runs across the bunting
+-- the way the wind blows (along X when there is no wind to speak of).
+function Logic.windPhase(at: Vector3, wind: Vector3, wavelength: number): number
+	local flat = Vector3.new(wind.X, 0, wind.Z)
+	local way = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(1, 0, 0)
+	return 2 * math.pi * at:Dot(way) / wavelength
+end
+
+-- How far a pennant swings out of its hanging plane, in degrees, `t` seconds in at `phase`: a lean of `lean` plus two
+-- waves of `swing` degrees at `hz1` and `hz2` that never line up.
+function Logic.flutter(
+	t: number,
+	phase: number,
+	f: { lean: number, swing: number, hz1: number, hz2: number }
+): number
+	local w1 = math.sin(2 * math.pi * f.hz1 * t - phase)
+	local w2 = math.sin(2 * math.pi * f.hz2 * t - 1.7 * phase + 0.9)
+	return f.lean + f.swing * (0.65 * w1 + 0.35 * w2)
+end
+
+-- Moving parts of rare decor (F89 2c) ------------------------------------------------------------------------------
+
+-- A moving part's attribute `value` as a number, `default` when it is missing or not a number, held in `least` to
+-- `most`.
+function Logic.motionNumber(value: unknown, default: number, least: number, most: number): number
+	if type(value) ~= "number" or value ~= value then
+		return default
+	end
+	return math.clamp(value, least, most)
+end
+
+-- How far a `_Swing` part swings, in degrees, `t` seconds in: side to side up to `angle`, one swing there and back
+-- every `seconds`, started `offset` (0 to 1) of the way round so two pieces never swing in step.
+function Logic.swingAngle(t: number, seconds: number, angle: number, offset: number): number
+	return angle * math.sin(2 * math.pi * (t / seconds + offset))
+end
+
+-- How far round a `_Spin` part has turned, in degrees from 0 to 360, `t` seconds in: one turn every `seconds`.
+function Logic.spinAngle(t: number, seconds: number, offset: number): number
+	return ((t / seconds + offset) % 1) * 360
+end
+
+-- How high a `_Bob` part rides, in studs, `t` seconds in: up and down by `rise`, once every `seconds`.
+function Logic.bobRise(t: number, seconds: number, rise: number, offset: number): number
+	return rise * math.sin(2 * math.pi * (t / seconds + offset))
 end
 
 return Logic

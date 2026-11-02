@@ -13,6 +13,34 @@ local Types = require(script.Parent.Types)
 
 local Economy = {}
 
+-- What the player's game passes give (F95, economy-ladder.md section 6): `money` the Money pass multiplier (1, or 2,
+-- 3 or 4, the highest owned), `longNap` the Long Nap pass's offline rate and cap, `slots` the extra role slots.
+-- PassService checks ownership on the server at join and after a purchase; nothing is saved, so it lives in a
+-- weak table keyed by the profile and a profile without an entry (the specs, the client) has no passes.
+export type Passes = { money: number, longNap: boolean, slots: number }
+
+local NO_PASSES: Passes = { money = 1, longNap = false, slots = 0 } -- shared; never changed
+local passesByProfile: { [Types.PlayerProfile]: Passes } = setmetatable({}, { __mode = "k" }) :: any
+
+-- Holds a copy, so the caller's table can change after. Nil clears them.
+function Economy.setPasses(profile: Types.PlayerProfile, passes: Passes?)
+	if passes == nil then
+		passesByProfile[profile] = nil
+		return
+	end
+	local p = passes :: Passes
+	passesByProfile[profile] = { money = p.money, longNap = p.longNap, slots = p.slots }
+end
+
+function Economy.passes(profile: Types.PlayerProfile): Passes
+	return passesByProfile[profile] or NO_PASSES
+end
+
+-- The Money pass multiplier on all cafe income, 1 without one.
+function Economy.passMultiplier(profile: Types.PlayerProfile): number
+	return math.max(1, Economy.passes(profile).money)
+end
+
 function Economy.level(profile: Types.PlayerProfile, upgradeId: string): number
 	local def = Catalog.getUpgrade(upgradeId)
 	local lvl = profile.upgradeLevels[upgradeId]
@@ -69,7 +97,7 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 end
 
 -- How long the bait bowl's cat takes to come (data-model section 8): the bowl level's wait (F82: 600 down to 480), a
--- fifth off with the Big Bowl perk (F53), and for food set at night LureWaitSecondsNight's share of it (F60: half).
+-- BigBowlWaitCutSeconds off with the Big Bowl perk (F53; F95: 2 minutes), and for food set at night LureWaitSecondsNight's share of it (F60: half).
 function Economy.lureWaitSeconds(profile: Types.PlayerProfile, night: boolean?): number
 	return Bait.waitSeconds(
 		Economy.level(profile, "lure_bowl"),
@@ -114,14 +142,19 @@ function Economy.variantMultiplier(variant: string): number
 	return CatStats.variantMultiplier(variant)
 end
 
--- incomePerSecond = sum over working cats of (rating x favorite) x cafeMultiplier x tierMultiplier.
--- The whole income formula lives here, so the night multiplier and a customer-driven model change one function.
+-- incomePerSecond = sum over working cats of (rating x favorite) x cafeMultiplier x tierMultiplier x passMultiplier
+-- (F95). The whole income formula lives here, so the night multiplier and a customer-driven model change one
+-- function. The pass multiplies whatever the potions add in settle, so 4x with a Big Money Potion is 6x, and the
+-- tip piles, rich visitors and coin prizes that read the day rate scale with it.
 function Economy.incomePerSecond(profile: Types.PlayerProfile): number
 	local total = 0
 	for _, instance in profile.cats do
 		total += Economy.catRate(instance, profile.tier)
 	end
-	return total * Economy.cafeMultiplier(profile) * Economy.tierMultiplier(profile)
+	return total
+		* Economy.cafeMultiplier(profile)
+		* Economy.tierMultiplier(profile)
+		* Economy.passMultiplier(profile)
 end
 
 -- XP a second for one owned cat (data-model section 4b, v0.12 F75): a working cat earns CatXpPerSecondPlaced, times
@@ -247,9 +280,19 @@ function Economy.tipPileAmount(dayRate: number): number
 	return math.max(5, math.floor(dayRate * Config.TipPileRateSeconds))
 end
 
-function Economy.offlineGain(rateAtLogout: number, lastSeen: number, now: number): (number, number)
-	local seconds = math.clamp(now - lastSeen, 0, Config.OfflineCapSeconds)
-	return math.floor(rateAtLogout * Config.OfflineRate * seconds), seconds
+-- Offline pay at join (F95, economy-ladder.md section 5): the day rate at logout (no potions, the Money pass in)
+-- times OfflineRate for up to OfflineCapSeconds away, or with the Long Nap pass OfflineRatePass for up to
+-- OfflineCapPassSeconds. Returns the coins and the seconds counted.
+function Economy.offlineGain(
+	rateAtLogout: number,
+	lastSeen: number,
+	now: number,
+	longNap: boolean?
+): (number, number)
+	local rate = if longNap then Config.OfflineRatePass else Config.OfflineRate
+	local cap = if longNap then Config.OfflineCapPassSeconds else Config.OfflineCapSeconds
+	local seconds = math.clamp(now - lastSeen, 0, cap)
+	return math.floor(rateAtLogout * rate * seconds), seconds
 end
 
 function Economy.canAfford(profile: Types.PlayerProfile, cost: number): boolean
@@ -328,11 +371,15 @@ function Economy.decorBlocker(profile: Types.PlayerProfile, decorId: string): st
 	return nil
 end
 
--- Different cats ever caught: entries in the collection (a gold cat is not a second entry).
+-- Different cats ever caught: entries in the collection (a gold cat is not a second entry). A shop-only cat
+-- (`exclusive`, F95) is not one, so ranking up still needs catching.
 function Economy.distinctCats(profile: Types.PlayerProfile): number
 	local n = 0
-	for _ in profile.collection do
-		n += 1
+	for catId in profile.collection do
+		local def = Catalog.getCat(catId)
+		if def == nil or def.exclusive ~= true then
+			n += 1
+		end
 	end
 	return n
 end
@@ -343,7 +390,7 @@ function Economy.distinctCatsAtLeast(profile: Types.PlayerProfile, rarity: Types
 	local n = 0
 	for catId in profile.collection do
 		local def = Catalog.getCat(catId)
-		if def ~= nil and Catching.rarityAtLeast(def.rarity, rarity) then
+		if def ~= nil and def.exclusive ~= true and Catching.rarityAtLeast(def.rarity, rarity) then
 			n += 1
 		end
 	end

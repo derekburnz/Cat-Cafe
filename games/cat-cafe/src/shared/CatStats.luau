@@ -160,17 +160,29 @@ end
 
 -- The area income multiplier a cat earns with for an owner at `tier` (data-model 4b, v0.13.16 F86). Its own area's
 -- incomeMultiplier (a spare cat's `incomeArea`), or for a KeepUpRarities cat the larger of that and the multiplier
--- of the area opened at the owner's tier minus KeepUpStepsBehind (never below the first area's). Nil tier: its own.
+-- of the area opened at the owner's tier minus KeepUpStepsBehind (never below the first area's). An exclusive
+-- (shop-only) cat takes the newest area's at the owner's tier, the largest of the areas opened by then (F95). Nil
+-- tier: its own.
 function CatStats.areaMultiplier(def: Types.CatDef, tier: number?): number
 	local base = Catalog.rarities[def.rarity].incomePerSecond
 	local own = if base > 0 then def.incomePerSecond / base else 1
-	if tier == nil or Config.KeepUpRarities[def.rarity] ~= true then
+	if tier == nil then
 		return own
 	end
-	local behind = math.max(math.floor(tier) - Config.KeepUpStepsBehind, 1)
+	local opened: number
+	if def.exclusive == true then
+		opened = math.floor(tier)
+	elseif Config.KeepUpRarities[def.rarity] == true then
+		opened = math.max(math.floor(tier) - Config.KeepUpStepsBehind, 1)
+	else
+		return own
+	end
 	local best = own
 	for _, area in Catalog.areas do
-		if area.tier == behind and area.incomeMultiplier > best then
+		if
+			(if def.exclusive == true then area.tier <= opened else area.tier == opened)
+			and area.incomeMultiplier > best
+		then
 			best = area.incomeMultiplier
 		end
 	end

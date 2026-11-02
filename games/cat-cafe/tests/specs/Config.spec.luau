@@ -14,8 +14,12 @@ return function()
 		FavoriteMultiplier = 1.5,
 		TableBonus = 0.10,
 		EspressoBonus = 0.15,
-		OfflineRate = 0.25,
-		OfflineCapSeconds = 3600,
+		-- F95 (economy-ladder.md sections 5 and 7): half pay for up to 8 hours away, the Long Nap pass full pay for 16
+		OfflineRate = 0.5,
+		OfflineCapSeconds = 28800,
+		OfflineRatePass = 1.0,
+		OfflineCapPassSeconds = 57600,
+		LongNapPassId = 0, -- 0 until Tools-Agent makes the pass, which keeps it off
 		AutosaveSeconds = 60,
 		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and
 		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
@@ -111,7 +115,7 @@ return function()
 		MysteryChance = 0.08,
 		MysteryStaySeconds = 120,
 		MysteryGiftKeepSeconds = 600,
-		PotionMaxMinutes = 60,
+		PotionMaxMinutes = 1440, -- F95 (economy-ladder.md section 6b): potions stack to 24 hours
 		-- quests and achievements and their potions (F73, quests.md section 6)
 		TimedTipsMax = 1.0,
 		QuestDailyCount = 5,
@@ -143,7 +147,7 @@ return function()
 		CrateOpenCooldownSeconds = 2,
 		DecorIndexBonus = 0.05,
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
-		BigBowlWaitMultiplier = 0.8, -- section 17 (v0.13.15): the Big Bowl takes a fifth off any bowl level's wait
+		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
 		KeepUpStepsBehind = 1, -- section 17 (v0.13.16, F86): an older Legendary or Mythical earns one area behind
 		DecorIndexHalfFish = 25, -- F54: a Decor Index page's decor5 prize
 		GoldLuckMax = 1.5, -- F54 (v0.10): the cap on summed Index gold luck
@@ -177,6 +181,12 @@ return function()
 		TackleHitRecoverSeconds = 0.4,
 		TackleMissRecoverSeconds = 1.2,
 		TackledDownSeconds = 0.8,
+		-- the Cat Cannon (F84, section 17 v0.13.17)
+		CannonLaunchSeconds = 3.0,
+		CannonTeleportAtSeconds = 1.9,
+		CannonCooldownSeconds = 3,
+		CloudHopSeconds = 1.6,
+		CloudHopMoveAtSeconds = 0.6,
 		-- naming cats (F33, section 4)
 		CatNameMaxLength = 20,
 		RenameCooldownSeconds = 5,
@@ -241,7 +251,9 @@ return function()
 				StraySelfRetrySteps = true, -- section 17's StraySelfRetrySeconds {3, 6, 10}, checked below
 				BowlWaitSeconds = true, -- a table, checked below (F82)
 				BowlLuck = true, -- a table, checked below (F82)
-				KeepUpRarities = true, -- section 17's "Legendary, Mythical", checked in CatStats.spec (F86)
+				KeepUpRarities = true, -- F95: empty (was section 17's "Legendary, Mythical"), checked below
+				MoneyPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
+				ExtraSlotPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -259,38 +271,62 @@ return function()
 
 	describe("internal consistency", function()
 		it("golden fish by rarity and rank (F52, golden-fish.md section 2)", function()
-			expect(Config.FishFirstCatch :: any).to.deepEqual({ Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 40 })
-			expect(Config.FishRepeatCatch :: any).to.deepEqual({ Epic = 1, Legendary = 3, Mythical = 8 })
+			expect(Config.FishFirstCatch :: any).to.deepEqual({
+				Common = 1,
+				Rare = 3,
+				Epic = 8,
+				Legendary = 20,
+				Mythical = 40,
+			})
+			expect(Config.FishRepeatCatch :: any).to.deepEqual({
+				Epic = 1,
+				Legendary = 3,
+				Mythical = 8,
+			})
 			expect(Config.FishRankUp :: any).to.deepEqual({ 10, 25, 50, 100 })
 		end)
 
-		it("crate bonuses, refunds and decor spots (F53, golden-fish.md sections 4 and 8)", function()
-			expect(Config.CratePieceBonus :: any).to.deepEqual({
-				Common = 0.02,
-				Rare = 0.04,
-				Epic = 0.08,
-				Legendary = 0.15,
-				Mythical = 0.25,
-			})
-			expect(Config.CrateDuplicateRefund :: any).to.deepEqual({
-				Common = 10,
-				Rare = 20,
-				Epic = 40,
-				Legendary = 80,
-				Mythical = 150,
-			})
-			expect(Config.DecorSpots :: any).to.deepEqual({ 2, 3, 4, 5, 6 })
+		it(
+			"crate bonuses, refunds and decor spots (F53, golden-fish.md sections 4 and 8)",
+			function()
+				expect(Config.CratePieceBonus :: any).to.deepEqual({
+					Common = 0.02,
+					Rare = 0.04,
+					Epic = 0.08,
+					Legendary = 0.15,
+					Mythical = 0.25,
+				})
+				expect(Config.CrateDuplicateRefund :: any).to.deepEqual({
+					Common = 10,
+					Rare = 20,
+					Epic = 40,
+					Legendary = 80,
+					Mythical = 150,
+				})
+				expect(Config.DecorSpots :: any).to.deepEqual({ 2, 3, 4, 5, 6 })
+			end
+		)
+
+		it("F95's pass ids and keep up (economy-ladder.md section 7)", function()
+			-- every id 0 until Tools-Agent makes the passes, which keeps their effects off
+			expect(Config.MoneyPassIds :: any).to.deepEqual({ [2] = 0, [3] = 0, [4] = 0 })
+			expect(Config.ExtraSlotPassIds :: any).to.deepEqual({})
+			-- keep up is off: the shop-only cats use areaMultiplier instead, and it can come back by config
+			expect(next(Config.KeepUpRarities)).to.equal(nil)
 		end)
 
-		it("bowl levels (F82, section 8 v0.13.15): waits from 10:00 to 8:00 and luck from 0 to 16%", function()
-			expect(Config.BowlWaitSeconds :: any).to.deepEqual({ 600, 570, 540, 510, 480 })
-			expect(Config.BowlLuck :: any).to.deepEqual({ 0, 0.04, 0.08, 0.12, 0.16 })
-			expect(Config.BowlWaitSeconds[1]).to.equal(Config.LureWaitSeconds)
-			-- section 3's Big Bowl wait of 8:00 on a level 1 bowl
-			expect(Config.BowlWaitSeconds[1] * Config.BigBowlWaitMultiplier).to.equal(480)
-			expect(#Config.BowlLuck).to.equal(Catalog.upgradesById.lure_bowl.maxLevel)
-			expect(#Config.BowlWaitSeconds).to.equal(Catalog.upgradesById.lure_bowl.maxLevel)
-		end)
+		it(
+			"bowl levels (F82, section 8 v0.13.15): waits from 10:00 to 8:00 and luck from 0 to 16%",
+			function()
+				expect(Config.BowlWaitSeconds :: any).to.deepEqual({ 600, 570, 540, 510, 480 })
+				expect(Config.BowlLuck :: any).to.deepEqual({ 0, 0.04, 0.08, 0.12, 0.16 })
+				expect(Config.BowlWaitSeconds[1]).to.equal(Config.LureWaitSeconds)
+				-- section 3's Big Bowl wait of 8:00 on a level 1 bowl, 2 minutes off any bowl since F95
+				expect(Config.BowlWaitSeconds[1] - Config.BigBowlWaitCutSeconds).to.equal(480)
+				expect(#Config.BowlLuck).to.equal(Catalog.upgradesById.lure_bowl.maxLevel)
+				expect(#Config.BowlWaitSeconds).to.equal(Catalog.upgradesById.lure_bowl.maxLevel)
+			end
+		)
 
 		it("NetWindows matches the section 10 net table, levels 0 to 3", function()
 			local expectedWindows = {
@@ -344,17 +380,23 @@ return function()
 			expect(Config.CircleScoreGood > 0 and Config.CircleScoreGood < 1).to.equal(true)
 		end)
 
-		it("v0.5 chase: a missed stray outruns a walking player and the one who missed waits a little longer", function()
-			expect(Config.StrayFleeSpeed > Config.NormalWalkSpeed).to.equal(true)
-			expect(Config.StrayRestSeconds > 0).to.equal(true)
-			expect(Config.StraySelfRetrySeconds > 0).to.equal(true)
-		end)
+		it(
+			"v0.5 chase: a missed stray outruns a walking player and the one who missed waits a little longer",
+			function()
+				expect(Config.StrayFleeSpeed > Config.NormalWalkSpeed).to.equal(true)
+				expect(Config.StrayRestSeconds > 0).to.equal(true)
+				expect(Config.StraySelfRetrySeconds > 0).to.equal(true)
+			end
+		)
 
-		it("v0.8 F57: the wait after a miss grows 3, 6, then 10 s, and a Startled player walks slower", function()
-			expect(Config.StraySelfRetrySteps :: any).to.deepEqual({ 3, 6, 10 })
-			expect(Config.StraySelfRetrySeconds).to.equal(Config.StraySelfRetrySteps[1])
-			expect(Config.StartledWalkSpeed < Config.NormalWalkSpeed).to.equal(true)
-		end)
+		it(
+			"v0.8 F57: the wait after a miss grows 3, 6, then 10 s, and a Startled player walks slower",
+			function()
+				expect(Config.StraySelfRetrySteps :: any).to.deepEqual({ 3, 6, 10 })
+				expect(Config.StraySelfRetrySeconds).to.equal(Config.StraySelfRetrySteps[1])
+				expect(Config.StartledWalkSpeed < Config.NormalWalkSpeed).to.equal(true)
+			end
+		)
 
 		it("v0.5 chase: the v0.4 wary wait and jump back are gone (F40)", function()
 			local config = Config :: any
@@ -390,10 +432,13 @@ return function()
 			expect(Config.CarryWalkSpeed / Config.NormalWalkSpeed).to.be.near(0.8, 0.02)
 		end)
 
-		it("the Catch Rush outruns a walking player and the burst stays inside its own radius (F55)", function()
-			expect(Config.CatchRushWalkSpeed > Config.NormalWalkSpeed).to.equal(true)
-			expect(Config.CatchBurstStuds <= Config.CatchBurstRadiusStuds).to.equal(true)
-		end)
+		it(
+			"the Catch Rush outruns a walking player and the burst stays inside its own radius (F55)",
+			function()
+				expect(Config.CatchRushWalkSpeed > Config.NormalWalkSpeed).to.equal(true)
+				expect(Config.CatchBurstStuds <= Config.CatchBurstRadiusStuds).to.equal(true)
+			end
+		)
 
 		it(
 			"the lock covers the late-press allowance, so nobody can take a stray mid-catch",
@@ -477,26 +522,29 @@ return function()
 			end
 		)
 
-		it("the rescue bar matches the section 10b table: rarer is faster and narrower (v0.13.15 F83)", function()
-			local rows = {
-				Common = { 1.0, 0.26 },
-				Rare = { 1.2, 0.20 },
-				Epic = { 1.4, 0.15 },
-				Legendary = { 1.6, 0.12 },
-				Mythical = { 1.8, 0.10 },
-			}
-			local previous: { number }? = nil
-			for _, rarity in Catalog.rarityOrder do
-				local row = rows[rarity]
-				expect(Config.RescueBarSpeed[rarity]).to.be.near(row[1], 1e-9)
-				expect(Config.RescueZoneWidth[rarity]).to.be.near(row[2], 1e-9)
-				if previous ~= nil then
-					expect(row[1] > previous[1]).to.equal(true)
-					expect(row[2] < previous[2]).to.equal(true)
+		it(
+			"the rescue bar matches the section 10b table: rarer is faster and narrower (v0.13.15 F83)",
+			function()
+				local rows = {
+					Common = { 1.0, 0.26 },
+					Rare = { 1.2, 0.20 },
+					Epic = { 1.4, 0.15 },
+					Legendary = { 1.6, 0.12 },
+					Mythical = { 1.8, 0.10 },
+				}
+				local previous: { number }? = nil
+				for _, rarity in Catalog.rarityOrder do
+					local row = rows[rarity]
+					expect(Config.RescueBarSpeed[rarity]).to.be.near(row[1], 1e-9)
+					expect(Config.RescueZoneWidth[rarity]).to.be.near(row[2], 1e-9)
+					if previous ~= nil then
+						expect(row[1] > previous[1]).to.equal(true)
+						expect(row[2] < previous[2]).to.equal(true)
+					end
+					previous = row
 				end
-				previous = row
 			end
-		end)
+		)
 
 		it("bait bowl: the card reaches further than Use, and gold is a probability", function()
 			expect(Config.BaitResolveRangeStuds >= Config.BaitBowlRangeStuds).to.equal(true)

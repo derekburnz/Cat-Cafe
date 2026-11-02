@@ -591,8 +591,8 @@ return function()
 		-- tier -> { name, cost, distinctCats, needsRarity, needsRarityCount, slots, multiplier, area, caps }
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
-			{ "Cozy Cafe", 10000, 5, nil, nil, 4, 1.25, "park", { 4, 3, 2 } },
-			-- F95 v2 (economy-ladder.md section 3, after F97): 10,000, 500,000, 40M and 1.2B
+			{ "Cozy Cafe", 12000, 5, nil, nil, 4, 1.25, "park", { 4, 3, 2 } },
+			-- F95 v2 (economy-ladder.md section 3, after F97): 10,000, 500,000, 40M and 1.2B; v2.1 Tier 2 12,000
 			{ "Busy Cafe", 500000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
 			{ "Famous Cafe", 40000000, 20, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
 			{ "Grand Cafe", 1200000000, 30, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },

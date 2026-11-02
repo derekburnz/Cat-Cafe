@@ -56,6 +56,10 @@ local KEY = 38
 local NOTE_H = 22 -- the note line under the pill
 local NOTE_W = 600
 local TAP = "👆" -- the key cap on touch, where there is no key to name
+-- Studs a prompt's pill floats over its point, by prompt name. The night dealer's prompt sits at the cart's head
+-- height, right on the dealer's cat (Derek 2026-10-28: "make the night dealer text popup be out of the cats face so
+-- they can see it"), so its pill goes above the 6.35 stud cart. A prompt's own PillLift attribute (studs) wins.
+local LIFT: { [string]: number } = { DealerPrompt = 3 }
 
 local ActionPill = {}
 ActionPill.__index = ActionPill
@@ -107,9 +111,14 @@ local function build(
 	-- a note makes the billboard taller below the pill, so the pill itself stays where it was
 	local height = if note then HEIGHT + NOTE_H * 2 else HEIGHT
 
+	local ownLift = prompt:GetAttribute("PillLift")
+	local lift = if type(ownLift) == "number" and ownLift == ownLift
+		then ownLift
+		else LIFT[prompt.Name] or 0
 	local billboard: BillboardGui = Create("BillboardGui", {
 		Name = "CatCafeActionPill",
 		Adornee = adornee,
+		StudsOffsetWorldSpace = Vector3.new(0, lift, 0),
 		AlwaysOnTop = true,
 		Active = clickable, -- a BillboardGui only passes taps and clicks to its children when Active
 		LightInfluence = 0,

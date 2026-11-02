@@ -92,6 +92,7 @@ local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
+UI.trade = {} -- F102 trading, filled at the end of the file
 
 UI.Types = Types
 UI.Theme = Theme
@@ -177,6 +178,13 @@ UI.events = {
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
 	-- F100 (camp-extras.md section 3)
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
+	-- F102 (trading.md section 6): the client only asks; TradeState answers
+	requestTrade = Signal.new(), -- (userId)   Trade on a players list row: forward as TradeRequest
+	respondTrade = Signal.new(), -- (requestId, accept)   Accept or Decline on the request card: forward as TradeRespond
+	tradeOffer = Signal.new(), -- (tradeId, "add" | "remove", catUid)   forward as TradeOffer
+	tradeReady = Signal.new(), -- (tradeId, version, ready)   forward as TradeReady
+	tradeConfirm = Signal.new(), -- (tradeId, version)   forward as TradeConfirm
+	tradeCancel = Signal.new(), -- (tradeId)   Cancel or the X during a trade: forward as TradeCancel
 }
 
 local state: Types.PlayerState = {
@@ -466,6 +474,7 @@ local function render()
 		cannonScreen:render(state, hud:isCarrying())
 	end
 	UI.campExtras.render(state)
+	UI.trade.render(state)
 	if cannonHint() ~= hintShown then
 		applyTutorial()
 	end
@@ -590,6 +599,8 @@ local function setCatalog(newCatalog: Types.Catalog)
 		toasts:setCatalog(newCatalog) -- the prize toast's pictures
 	end
 	-- cast: the old solver reads UI.campExtras before its block at the end of the file fills it
+	local tradeUi: any = UI.trade -- F102, filled at the end of the file
+	tradeUi.setCatalog(newCatalog);
 	(UI.campExtras :: any).setCatalog(newCatalog)
 end
 
@@ -1220,6 +1231,7 @@ function UI.init(config: Types.InitConfig)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
 	UI.campExtras.start() -- the Yard Sale card and the Cannon picker's camp extra strips (F100)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
+	UI.trade.start() -- the Trade window in the modal (F102)
 	worldTags = WorldTags.new()
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
@@ -1320,6 +1332,7 @@ function UI.destroy()
 	UI.together.reset()
 	UI.campExtras.reset()
 	UI.rally.reset()
+	UI.trade.reset()
 	if hud then
 		hud:destroy()
 	end
@@ -4611,6 +4624,175 @@ do
 		end
 		rally.banner = nil
 		rally.boards = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Trading (F102, trading.md sections 2 and 3)
+----------------------------------------------------------------------------------------------------
+
+-- The trade controller calls these when present: asked(requestId, fromUserId, fromName, expiresAt) from TradeAsked
+-- (the request card), state(tradeState?) from every TradeState (nil ends it), done(tradeId, gave, got) from TradeDone
+-- and ended(tradeId, reason) from TradeEnded. The window opens by itself when a trade starts and closes when it
+-- ends; the cats flying home are VFX's and the ticks and chime Sound-Agent's. Its own block, as the module is short
+-- of locals.
+do
+	local Trade = require(script.Screens.Trade)
+	local TradeLogic = require(script.Components.TradeLogic)
+	local trading = {
+		screen = nil :: Trade.Trade?,
+		state = nil :: Types.TradeState?,
+		request = nil :: string?, -- the request card's id while it shows
+	}
+
+	-- UI.init: the window in the modal, with the kept trade.
+	function UI.trade.start()
+		UI.trade.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local screen = Trade.new({
+			close = function()
+				if modalView:current() == "Trade" then
+					modalView:close()
+				end
+			end,
+			request = function(userId: number)
+				UI.events.requestTrade:Fire(userId)
+			end,
+			offer = function(tradeId: string, action: "add" | "remove", uid: string)
+				UI.events.tradeOffer:Fire(tradeId, action, uid)
+			end,
+			ready = function(tradeId: string, version: number, ready: boolean)
+				UI.events.tradeReady:Fire(tradeId, version, ready)
+			end,
+			confirm = function(tradeId: string, version: number)
+				UI.events.tradeConfirm:Fire(tradeId, version)
+			end,
+			cancel = function(tradeId: string)
+				UI.events.tradeCancel:Fire(tradeId)
+			end,
+		})
+		trading.screen = screen
+		modalView:register("Trade", {
+			frame = screen.frame,
+			onOpen = function()
+				screen:render(state)
+				screen:opened()
+			end,
+			onClose = function()
+				screen:closed()
+			end,
+		})
+		if currentCatalog then
+			screen:setCatalog(currentCatalog)
+		end
+		screen:setTrade(trading.state)
+	end
+
+	function UI.trade.setCatalog(catalog: Types.Catalog)
+		local screen = trading.screen
+		if screen then
+			screen:setCatalog(catalog)
+		end
+	end
+
+	function UI.trade.render(playerState: Types.PlayerState)
+		local screen = trading.screen
+		if screen then
+			screen:render(playerState)
+		end
+	end
+
+	-- TradeAsked: "Sam wants to trade" with Accept and Decline until the request runs out. Letting it drain says
+	-- nothing; the server times the request out itself.
+	function UI.trade.asked(
+		requestId: string,
+		_fromUserId: number,
+		fromName: string,
+		expiresAt: number
+	)
+		local card = askCard
+		if card == nil or type(requestId) ~= "string" then
+			return
+		end
+		trading.request = requestId
+		card:show({
+			title = TradeLogic.askTitle(
+				if type(fromName) == "string" then fromName else "A player"
+			),
+			choices = {
+				{ id = "accept", label = "Accept", style = "primary" },
+				{ id = "decline", label = "Decline" },
+			},
+			seconds = math.max(1, (tonumber(expiresAt) or 0) - Workspace:GetServerTimeNow()),
+			answer = function(id: string?)
+				if trading.request == requestId then
+					trading.request = nil
+				end
+				if id == "accept" or id == "decline" then
+					UI.events.respondTrade:Fire(requestId, id == "accept")
+				end
+			end,
+		})
+	end
+
+	-- TradeState: the window follows it, opening when a new trade starts; nil ends it and closes the window.
+	function UI.trade.state(tradeState: Types.TradeState?)
+		local before = trading.state
+		trading.state = if type(tradeState) == "table" then tradeState else nil
+		local now = trading.state
+		local screen = trading.screen
+		if screen then
+			screen:setTrade(now)
+		end
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		if now ~= nil and (before == nil or before.tradeId ~= now.tradeId) then
+			local card = askCard
+			if card and trading.request ~= nil then
+				card:hide() -- the request this trade answered
+			end
+			modalView:open("Trade")
+		elseif now == nil and before ~= nil and modalView:current() == "Trade" then
+			modalView:close()
+		end
+	end
+
+	-- TradeDone: "Trade done! 2 new cats"; the cats fly home with VFX's effect.
+	-- TradeDone and TradeEnded also close the window on that trade (review S114), should no nil TradeState follow.
+	local function over(tradeId: string)
+		local current = trading.state
+		if current ~= nil and current.tradeId == tradeId then
+			UI.trade.state(nil)
+		end
+	end
+
+	function UI.trade.done(tradeId: string, _gave: { Types.TradeCat }?, got: { Types.TradeCat }?)
+		over(tradeId)
+		if toasts then
+			toasts:show(TradeLogic.doneLine(got), "good")
+		end
+	end
+
+	-- TradeEnded: the server's words ("Sam left", "Trade cancelled", "Out of the safe zone").
+	function UI.trade.ended(tradeId: string, reason: string?)
+		over(tradeId)
+		if toasts and type(reason) == "string" and reason ~= "" then
+			toasts:show(reason, "info")
+		end
+	end
+
+	-- UI.destroy: the window goes with the modal; the trade stays for the next build.
+	function UI.trade.reset()
+		local screen = trading.screen
+		if screen then
+			screen:destroy()
+		end
+		trading.screen = nil
 	end
 end
 

@@ -768,6 +768,24 @@ A tip shows once per account, the first time a player meets something: one line 
 
 **Engineer (F101):** nothing new: `RallyController` (#809) already calls `UI.rally.update` when it exists, and the board is the tagged `CatCafe_Square_RallyBoard` (#759) with its `Screen` part.
 
+### Trading, part 1 (built, F102, trading.md sections 2 and 3)
+
+- **HUD tile:** a green 🤝 Trade tile in the menu grid before Invite, shown once TradeService runs (the Workspace has a `TradingOn` attribute) and the player's `Tier` reaches `Workspace.TradeMinTier` (else `Config.TradeMinTier`, 3). It opens the Trade window. On touch every menu tile is now 44 pixels or more on the phone (they were 43.5 x 39.8).
+- **Players face** (`Screens/Trade.luau`, words in `Components/TradeLogic.luau` with a spec): a row for every other player in the server with their headshot, display name and "Tier 4", and a Trade button that reads "Asked" for `TradeReaskSeconds` (60, the wait before a re-ask) after a press, "Busy" while their `Trading` attribute is true and "Tier 3 needed" under the minimum. With `Workspace.TradingOn` false the rule line turns red: "Trading is resting for now. Try again later!" A press fires `requestTrade(userId)`.
+- **Request card:** "Sam wants to trade" on the ask card with Accept and Decline and the seconds left from `expiresAt`. Either fires `respondTrade(requestId, accept)`; the card goes when the window opens or the time runs out.
+- **Offer face:** "You give" and "Sam gives" side by side, each a 3 x 3 grid of cat cards (the cat room look: rarity wash and edge, a gold or rainbow edge, "Lv 4", the earnings at the foot, green on their side), a "✓ Ready" chip, and "Changed!" with the changed card flashing gold for 2 s after `changed`. Your cats sit beside the grids, rarest first; a press adds one (`tradeOffer(tradeId, "add", uid)`), a press on your grid takes it back (`"remove"`). Locked cats show 🔒 and say "Unlock it on its card to trade", exclusive ones "This cat can't be traded", and a full grid "Up to 9 cats a trade". The subtitle walks the phases ("Add cats, then press Ready", "Sam is ready. Press Ready when you are", "Both ready! Trading in 3..." with a big gold 3). The foot holds Cancel, "Your cats: $184/s now" over "Their cats: +$1,490/s in your cafe", and Ready / Not ready (`tradeReady(tradeId, version, ready)`), greyed while both grids are empty.
+- **Confirm face:** "You give" and "You get" rows of cards with each cat's name and rarity ("Gold Epic"), "Nothing" in red on a gift, and the red line "You get nothing back" or "You're giving much more than you get. Are you sure?". Confirm fires `tradeConfirm(tradeId, version)`; on a warning it is red and reads "Confirm (2)" for its first 2 s, and after a press it reads "Waiting for Sam".
+- Every press waits for the server: a button stays grey for up to 3 s or until the next `TradeState`. The X and Cancel during a trade fire `tradeCancel(tradeId)`; when another window covers it (Esc, a prompt), the trade goes on and the Trade tile brings it back. `TradeDone` toasts "Trade done! 2 new cats" and `TradeEnded` its words, and either closes the window on that trade should no nil `TradeState` follow. The UI never decides a trade; every number on it is the server's.
+
+| API | Purpose |
+|---|---|
+| `UI.trade.asked(requestId, fromUserId, fromName, expiresAt)` | From `TradeAsked`. `expiresAt` is server time (`workspace:GetServerTimeNow()`). |
+| `UI.trade.state(state?)` | From `TradeState`: `Types.TradeState` (`tradeId`, `version`, `phase` "offer", "countdown" or "confirm", `countdownEndsAt?`, `me` and `them` as `TradeSide` { `userId`, `name`, `ready`, `confirmed`, `cats` of `TradeTile` { `uid`, `catId`, `rarity`, `variant?`, `level`, `charm?`, `rateForMe` } }, `changed?` { `side`, `uid`, `at` }, `giveValue`, `getValue`, `lopsided`, `gift`, `myRateNow`, `theirRateForMe`). A new `tradeId` opens the window; nil closes it. |
+| `UI.trade.done(tradeId, gave, got)` | From `TradeDone`; `got` is a list of `CatSummary`. |
+| `UI.trade.ended(tradeId, reason)` | From `TradeEnded`; `reason` is shown as it is. |
+
+**Engineer (F102):** forward the six events one to one to the trading.md remotes, call the four `UI.trade` functions from TradeController, and set the `Tier` and `Trading` attributes on each Player and `TradeMinTier` and `TradingOn` on the Workspace. The cat list reads `state.cats` and each cat's own `locked`.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
@@ -839,6 +857,12 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `joinGroup` | | Join the group on the stand card, shown only once `Config.GroupId` is set. `GroupService:PromptJoinAsync(Config.GroupId)` (StarterCatController). |
 | `buyYardSale` | `crateId` | Buy on the Yard Sale card (F100), only for a crate in today's stock not bought and covered by the golden fish. Forward as `BuyYardSale(crateId)` (CampExtrasController). |
 | `launchCannon` | `cannonId, destination` | Launch on a Cat Cannon card (F84): `cannonId` "town" or a camp's area id, `destination` "town" or an area id. Forward as `LaunchCannon(cannonId, destination)`; pass a refusal to `UI.cannon.result(false, destination)` |
+| `requestTrade` | `userId` | Trade on a players row (F102). Forward as `RequestTrade(userId)`. |
+| `respondTrade` | `requestId, accept` | Accept (true) or Decline (false) on a trade request card (F102). Forward as `RespondTrade(requestId, accept)`. |
+| `tradeOffer` | `tradeId, action, uid` | A press on your cat (`"add"`) or on your grid (`"remove"`) in the Trade window (F102). Forward as `TradeOffer(tradeId, action, uid)`. |
+| `tradeReady` | `tradeId, version, ready` | Ready or Not ready (F102). Forward as `TradeReady(tradeId, version, ready)`; a stale `version` is refused. |
+| `tradeConfirm` | `tradeId, version` | Confirm on the confirm face (F102). Forward as `TradeConfirm(tradeId, version)`. |
+| `tradeCancel` | `tradeId` | Cancel or the X on the Trade window during a trade (F102). Forward as `TradeCancel(tradeId)`. |
 
 ## State shape (`Types.PlayerState`)
 

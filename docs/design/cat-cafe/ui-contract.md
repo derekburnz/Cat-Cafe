@@ -686,6 +686,16 @@ A tip shows once per account, the first time a player meets something: one line 
 
 **Engineer (F89):** nothing more to send: `SecuredRare` and `FoundRareDecor` reach the hooks as they are, and `CrateResult` already carries the piece.
 
+### Rainbow coats, part 1 (built, F99, rainbow-coat.md sections 1 to 3)
+
+- **Where a gold cat says Gold, a rainbow cat says Rainbow** (`Components/CatVariant`: `isRainbow`, `coat`, `word`, `multiplier`, `rainbowCollection`): the cat room card gets a 🌈 badge and a slowly turning rainbow edge, its detail reads "Rainbow Epic Tabby", the hover card has a "Rainbow x3" pill and a rainbow edge, the bait card a "🌈 RAINBOW" sticker, the catch header "Epic · Rainbow" with a rainbow edge, the found card "NEW RAINBOW EPIC CAT!" with a rainbow edge, and the Collector's line "Rainbow Epic". The bands are `Components/Rainbow` (a turning UIGradient of `Theme.rainbow`), standing still under Roblox's Reduce Motion. Portraits keep the base coat; the world model's bands are VFX-Agent's.
+- **Buff chip:** "Rainbow x3" on the turning bands in place of the gold chip (`CatBuffs`, `Config.RainbowMultiplier`, 3 by default).
+- **Selling** a rainbow cat always asks, and asks twice: "Sell your Rainbow Tabby? It earns x3" with "Sell $X", then "Really sell it? It can't be undone." with "Yes, sell it". The Collector's Trade asks a second tap for a rainbow cat, as for gold.
+- **Food cards:** "Rainbow 0.5%" under the gold line in the bait bowl and night dealer Details (`FoodOdds.rainbow`), with the Index's rainbow luck in it ("Rainbow 0.6% (+20% luck)", capped at `RainbowLuckMax`). It shows only once shared Config has `RainbowChanceBait`. The Fish Market has no cat food odds now, so nothing there.
+- Reads: `CatInstance.variant == "rainbow"`, the stray or cat model's `Variant` attribute, `state.rainbowCollection` and `state.rainbowLuck` (a fraction, capped), and `showCatFound`'s `extra.rainbow` (else read from the newest copy of the cat in state).
+
+**Engineer (F99):** send `variant = "rainbow"` on cats and the `Variant` attribute on their models (strays included), `rainbowCollection` and `rainbowLuck` in ProfileSync, and `RainbowChanceBait`, `RainbowLuckMax` and `RainbowMultiplier` in shared Config. Part 2 adds the Index's Rainbow tab and the Rainbow track.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |

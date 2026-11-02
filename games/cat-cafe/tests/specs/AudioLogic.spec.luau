@@ -865,4 +865,39 @@ return function()
 			expect(Logic.scaleStep(7)).to.equal(2.25)
 		end)
 	end)
+
+	-- QA for Sound-Agent's PR #765: the pip follows the catalog's hit counts, so a rarity given more hits later cannot
+	-- push it shrill unnoticed, and a hit sound is only ever a trap's own.
+	describe("Audio.Logic rescue edges (QA)", function()
+		local Catalog = require(
+			game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
+		) :: any
+
+		it("climbs a step a hit to each rarity's last hit, never past a Mythical's 2.25", function()
+			for _, rarity in Catalog.rarityOrder do
+				local hits = Catalog.rarities[rarity].rescueHits
+				expect(hits >= 1).to.equal(true)
+				local last = 0
+				for hit = 1, hits do
+					local step = Logic.scaleStep(hit)
+					expect(step > last).to.equal(true)
+					last = step
+				end
+				expect(last <= 2.25).to.equal(true)
+			end
+		end)
+
+		it("gives a hit sound only to the four traps, and each its own", function()
+			local seen = {}
+			for _, trap in { "trash_bin", "garbage_bag", "tree", "trashcan" } do
+				local cue = Logic.trapCue(trap)
+				expect(cue ~= nil and seen[cue] == nil).to.equal(true)
+				seen[cue] = true
+			end
+			expect(Logic.trapCue(nil)).to.equal(nil)
+			for _, bad in { "", "Tree", "trash bin", "rescueHitBin", "sheetRescue" } do
+				expect(Logic.trapCue(bad)).to.equal(nil)
+			end
+		end)
+	end)
 end

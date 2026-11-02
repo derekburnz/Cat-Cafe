@@ -1978,7 +1978,8 @@ Catalog.indexMilestones = {
 	{ id = "total45", track = "normal", needs = 45 },
 	{ id = "total50", track = "normal", needs = 50 },
 	{ id = "decor5", track = "decor", needs = 5 },
-	{ id = "decor10", track = "decor", needs = 12 }, -- every piece of the page: 12 since F80 (golden-fish.md 4b)
+	-- every piece of the page: 12 since F80 (golden-fish.md 4b), and 16 on the Classic page since F97 (`whole`)
+	{ id = "decor10", track = "decor", needs = 12, whole = true },
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server

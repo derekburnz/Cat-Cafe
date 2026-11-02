@@ -192,6 +192,11 @@ local function pagePieces(pool: string): { string }
 	return if crate == nil then {} else crate.pieces
 end
 
+-- How many pieces `pool`'s Decor Index page holds.
+function Crates.pageSize(pool: string): number
+	return #pagePieces(pool)
+end
+
 -- Pieces of `pool` the player owns, out of its page.
 function Crates.pageCount(profile: Types.PlayerProfile, pool: string): number
 	local n = 0

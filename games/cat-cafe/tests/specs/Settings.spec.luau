@@ -19,6 +19,7 @@ return function()
 					showOtherCats = true,
 					markers = true,
 					tutorialButton = true,
+					shopAlerts = true,
 				})
 				for key in pairs(Settings.defaults() :: any) do
 					expect(Settings.kinds[key]).to.be.ok()
@@ -36,6 +37,10 @@ return function()
 			expect(Settings.clean("showOtherCats", nil)).never.to.be.ok()
 			expect(Settings.clean("tutorialButton", false)).to.equal(false)
 			expect(Settings.clean("tutorialButton", "off")).never.to.be.ok()
+			-- F94: the Fresh Catch shop alerts, on unless switched off
+			expect(Settings.kinds.shopAlerts).to.equal("switch")
+			expect(Settings.defaults().shopAlerts).to.equal(true)
+			expect(Settings.clean("shopAlerts", false)).to.equal(false)
 		end)
 
 		it("a volume takes a number, clamped to 0 to 1 and kept to two decimals", function()
@@ -80,6 +85,7 @@ return function()
 				showOtherCats = true,
 				markers = true,
 				tutorialButton = true,
+				shopAlerts = true,
 			})
 		end)
 

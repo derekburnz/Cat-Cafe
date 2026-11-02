@@ -7,9 +7,9 @@
 -- check-in, the campfires' moving flames, the big confetti pull for a Legendary or Mythical, the clouds in the sky,
 -- the rainbow coats, the Rescue Rally's pops and bunting, Trade done's flight, rare decor's moving parts, the net
 -- swing's whoosh, the catch's result word, the rescue trap's shake, the Bellhop Cat's bell, cap and hop, the Lucky
--- Cat statue and its beckoning paw, the Lucky Day's gold tint, the big pull's happy hop, the camp pipe's drips and
--- the pond's jumping fish, all on this client only. Effects read replicated world state (tags and attributes) and
--- this player's own events; they
+-- Cat statue and its beckoning paw, the Lucky Day's gold tint, the big pull's happy hop, the camp extras' rod and
+-- lid, the camp pipe's drips and the pond's jumping fish, all on this client only. Effects read replicated world
+-- state (tags and attributes) and this player's own events; they
 -- never fire a remote, never change game state and never move a part the server moves for gameplay. Rules:
 -- .claude/skills/animation-vfx/SKILL.md.
 -- Wiring and file map: README.md next to this file.
@@ -17,6 +17,7 @@
 local Ambient = require(script.Ambient)
 local Bellhop = require(script.Bellhop)
 local CafeWalk = require(script.CafeWalk)
+local CampExtras = require(script.CampExtras)
 local CampWater = require(script.CampWater)
 local Campfire = require(script.Campfire)
 local Cannon = require(script.Cannon)
@@ -69,6 +70,7 @@ function Effects.start()
 	Bellhop.start()
 	LuckyPaw.start()
 	PullHop.start()
+	CampExtras.start()
 	Signature.start()
 	Catch.start()
 	Chase.start()

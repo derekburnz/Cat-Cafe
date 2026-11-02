@@ -37,6 +37,7 @@ local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local FreshCatchLogic = require(script.Parent.Parent.Components.FreshCatchLogic)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local MarketLogic = require(script.Parent.Parent.Components.MarketLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
@@ -606,7 +607,10 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 	end
 	local state: Types.PlayerState? = self._state
 	local luck = if state and state.crateLuck then state.crateLuck[crate.area] else nil
-	local odds = MarketLogic.nextOdds(crate, luck, LUCKY_EVERY, self._goldenOdds[crate.area])
+	-- F88: a plain crate's odds with the player's Luck in them, as shared Crates.oddsFor rolls the next open
+	local playerLuck = if state then LuckLogic.current(state, Workspace:GetServerTimeNow()) else 1
+	local odds =
+		MarketLogic.nextOdds(crate, luck, LUCKY_EVERY, self._goldenOdds[crate.area], playerLuck)
 	-- N167: the same test nextOdds makes, not a comparison of the odds tables
 	local lucky = not crate.golden
 		and self._goldenOdds[crate.area] ~= nil
@@ -615,6 +619,9 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 	self._oddsNote.Text = if crate.golden
 		then "Epic or better every time"
 		elseif lucky then "Lucky! Your next crate opens on these golden odds"
+		elseif playerLuck > 1 then MarketLogic.luckText(
+			MarketLogic.luckLeft(luck, LUCKY_EVERY)
+		) .. ". " .. LuckLogic.ICON .. " " .. LuckLogic.text(playerLuck)
 		else MarketLogic.luckText(MarketLogic.luckLeft(luck, LUCKY_EVERY))
 	self._oddsNote.TextColor3 = if lucky then Theme.colors.goldDark else Theme.modal.subtext
 	local order = 0

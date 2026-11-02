@@ -3,9 +3,10 @@
 --   bottom left   the money with the rate beside the amount, then the golden fish (F52), one row in the corner
 --                 (Derek 2026-10-28); a tap on the money opens the boosts card (Components/BoostList: what lifts the
 --                 cafe's money, the exact amount on top), a tap on the golden fish shows its exact amount; the potion
---                 timers sit over the row, or beside the menu's top on a short screen
+--                 timers sit over the row, or beside the menu's top on a short screen, led by the Luck chip (F88,
+--                 Screens/LuckChip: "🍀 Luck x1.3" from the first Luck source, a tap opens its card)
 --   top right     small icon buttons (Tutorial, Gifts, Daily, Feedback, Settings, Invite), the day and night clock
---                 under them,
+--                 under them with the next Lucky Day under it (F88: "🍀 Lucky Day in 2 days"),
 --                 the tier and next goal block (Screens/GoalCard) under that and the quest line under that (F73: the
 --                 closest unfinished daily, "📜 Catch 5 cats 3/5", or "📜 2 ready to claim"; a tap opens Quests), and
 --                 under it "🎡 Free spin at the Town Square" while today's free spin waits (F49)
@@ -46,6 +47,8 @@ local GoalCard = require(script.Parent.GoalCard)
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
+local LuckChip = require(script.Parent.LuckChip)
+local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -79,6 +82,8 @@ export type HUD = {
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
+	setLuckyDay: (self: HUD, view: LuckLogic.DayView?) -> (),
+	luckShown: (self: HUD) -> boolean,
 	setAreasOpen: (self: HUD, open: boolean) -> (),
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
 	pressTravel: (self: HUD, destination: string) -> boolean,
@@ -151,6 +156,7 @@ local CLOCK_H = 30
 local CLOCK_W = 200
 local GOAL_TOP = CLOCK_TOP + CLOCK_H + 6
 local NIGHT_LINE = 20
+local LUCKY_LINE_W = 260 -- F88: the Lucky Day line under the clock
 -- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
 -- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
 -- (GuiService.TopbarInset) runs over the column, the column moves up into it. TOPBAR_SLACK is how far short of the
@@ -751,6 +757,20 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Visible = false,
 		Parent = root,
 	})
+	-- F88 (luck-and-rare-moments.md 1c): the next Lucky Day under the clock, in gold, from the Clock folder's Day,
+	-- NextLuckyDay and LuckyDay (LuckLogic.dayLine); shown with the clock
+	self._luckyLine = label({
+		Name = "LuckyDay",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H),
+		Size = UDim2.fromOffset(LUCKY_LINE_W, NIGHT_LINE),
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Visible = false,
+		Parent = root,
+	})
+	self._luckyDay = nil :: LuckLogic.DayView?
 
 	-- Tier and next goal (right, under the clock): the tier, the next tier's requirements as slim bars; a tap opens
 	-- rank up
@@ -1291,6 +1311,20 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	self:_layoutBottom()
 	self:_buildBoosts(root)
+	-- F88: the Luck chip leads the potion timers' row; its card opens over the counters as the boosts card does (built
+	-- after the menu, so it draws over it)
+	self._luck = LuckChip.new(
+		self._buffs.frame,
+		root,
+		UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
+		function(shown: boolean)
+			self._buffs:setLead(shown)
+		end,
+		function()
+			self:_hideBoosts()
+			self._exact.Visible = false
+		end
+	)
 	self:_layoutMenu()
 	-- the left side follows the screen's size (a phone turned, a window resized)
 	table.insert(
@@ -1575,6 +1609,7 @@ function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
 	self:_renderBowl()
 	self._buffs:setCatalog(catalog)
+	self._luck:setCatalog(catalog)
 end
 
 function HUD.render(self: any, state: Types.PlayerState)
@@ -1602,6 +1637,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	self._lastFish = fish
 	-- the potion timers over the counters, and the bag's count on its pill (F64)
 	self._buffs:render(state)
+	self._luck:render(state) -- F88: the Luck chip at the row's start, and its card when open
 	if self._boosts.Visible then
 		self:_renderBoosts()
 	end
@@ -1861,6 +1897,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	if not clock then
 		self._clock.Visible = false
 		self._nightTips.Visible = false
+		self._luckyLine.Visible = false
 		self._night = false
 		self._clockSeen = false
 		self:_renderBowl()
@@ -1881,6 +1918,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	local shown = self:_open("clock") -- the small HUD keeps it hidden until step 5 (F87)
 	self._clock.Visible = shown
 	self._nightTips.Visible = shown and isNight and NIGHT_TIPS < 1
+	self:_renderLuckyLine()
 	self:_layoutRight()
 	local function tick()
 		local remaining = current.phaseEndsAt - Workspace:GetServerTimeNow()
@@ -1899,6 +1937,36 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 			tick()
 		end
 	end)
+end
+
+-- F88 (luck-and-rare-moments.md 1c): the Clock folder's Day, NextLuckyDay and LuckyDay, for the line under the
+-- clock. nil hides it.
+function HUD.setLuckyDay(self: any, view: LuckLogic.DayView?)
+	self._luckyDay = view
+	self:_renderLuckyLine()
+	self:_layoutRight()
+end
+
+-- "🍀 Lucky Day in 2 days" under the clock while the clock shows; the phase is the clock's own.
+function HUD._renderLuckyLine(self: any)
+	local view: LuckLogic.DayView? = self._luckyDay
+	local clock: Types.ClockState? = self._clockState
+	local line: string? = nil
+	if view ~= nil and clock ~= nil then
+		line = LuckLogic.dayLine({
+			day = view.day,
+			nextLuckyDay = view.nextLuckyDay,
+			luckyDay = view.luckyDay,
+			phase = clock.phase,
+		})
+	end
+	self._luckyLine.Text = if line then LuckLogic.ICON .. " " .. line else ""
+	self._luckyLine.Visible = line ~= nil and self._clock.Visible
+end
+
+-- F88: the Luck chip shows (its first source came), for the `luck` context tip.
+function HUD.luckShown(self: any): boolean
+	return self._luck:isShown()
 end
 
 -- F66: the catching areas close from dusk to sunrise. The Alley button greys and reads "🌙 Closed", and a key bind
@@ -1936,6 +2004,11 @@ function HUD._layoutRight(self: any)
 	self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H - lift)
 	local top = if self._clock.Visible then GOAL_TOP else CLOCK_TOP
 	if self._nightTips.Visible then
+		top += NIGHT_LINE
+	end
+	-- F88: the Lucky Day line under the clock (and under the night tips line when that shows)
+	self._luckyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
+	if self._luckyLine.Visible then
 		top += NIGHT_LINE
 	end
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
@@ -2108,6 +2181,7 @@ function HUD.screenOpened(self: any, name: string?)
 	self._openScreen = name
 	if name then
 		self:_hideBoosts() -- a window over the world closes the money's card
+		self._luck:hide() -- and the Luck card (F88)
 	end
 	local candidates: Notices.Candidates? = self._candidates
 	if name and candidates and (candidates :: any)[name] then
@@ -2247,6 +2321,7 @@ function HUD._toggleBoosts(self: any)
 		return
 	end
 	self._exact.Visible = false
+	self._luck:hide()
 	self:_renderBoosts()
 	self._boosts.Visible = true
 	Tween.popIn(self._boosts, 0.9)
@@ -2433,6 +2508,7 @@ function HUD._showExact(self: any)
 		return
 	end
 	self:_hideBoosts()
+	self._luck:hide()
 	self._exactText.Text = Format.commas(math.floor(state.goldenFish or 0)) .. " golden fish"
 	self._exactText.TextColor3 = Theme.fish.text
 	local scale = Scale.get()
@@ -2469,6 +2545,7 @@ function HUD.destroy(self: any)
 		button:destroy()
 	end
 	self._goal:destroy()
+	self._luck:destroy()
 	self._buffs:destroy()
 	self._scaleConnection:Disconnect()
 	Scale.unbind(self._uiScale)

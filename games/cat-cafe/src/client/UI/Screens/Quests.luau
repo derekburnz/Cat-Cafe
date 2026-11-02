@@ -96,8 +96,17 @@ type Card = {
 }
 
 -- A press waiting for the server. `source` is the state's quests (or achievements) table at the press: every
--- ProfileSync brings a new one, so a sync that still shows the old state means the server said no.
-type Pending = { at: number, id: string, claimed: boolean, source: any, action: string }
+-- ProfileSync brings a new one, so a sync that still shows the old state means the server said no. The first new
+-- table within SYNC_GRACE of the press may have left the server before the press reached it (the 10 s sync, a
+-- catch), so it only moves `source` on (`moved`); the next one decides (review N293).
+type Pending = {
+	at: number,
+	id: string,
+	claimed: boolean,
+	source: any,
+	action: string,
+	moved: boolean?,
+}
 
 local TABS: { Tab } = { "Daily", "Weekly", "Achievements" }
 local MAX_SIZE = Vector2.new(660, 560)
@@ -115,6 +124,7 @@ local CARD_CHIP = 26
 local GAP = Theme.sizes.gap
 local PENDING_SECONDS = 2 -- ClaimQuest and ClaimAchievement take 2 a second, RerollQuest 1
 local CLAIM_HOLD = 4 -- how long a claim shows as done with no sync before it goes back to Claim
+local SYNC_GRACE = 0.5 -- a sync this soon after a press may predate it (one round trip)
 local CLAIM_ALL_W = 150 -- fits right of the three tabs at the window's narrowest (636 px of tab row)
 local TICK_SECONDS = 1 -- the reset times, while the window is open
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
@@ -687,12 +697,17 @@ function Quests._waiting(
 		return nil
 	end
 	local hold = if pending.action == "claim" then CLAIM_HOLD else PENDING_SECONDS
-	if
-		pending.id ~= id
-		or pending.claimed ~= claimed
-		or pending.source ~= source
-		or os.clock() - pending.at >= hold
-	then
+	local age = os.clock() - pending.at
+	if pending.id ~= id or pending.claimed ~= claimed or age >= hold then
+		self._pending[key] = nil
+		return nil
+	end
+	if pending.source ~= source then
+		if age < SYNC_GRACE and not pending.moved then
+			pending.source = source
+			pending.moved = true
+			return pending
+		end
 		self._pending[key] = nil
 		return nil
 	end

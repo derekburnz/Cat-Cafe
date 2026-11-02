@@ -93,6 +93,26 @@ function Circles.schedule(
 	return circles
 end
 
+-- F87 (easy-start.md section 2b): a beginner's own tutorial stray, a Common, is caught on one circle that shrinks
+-- for TutorialShrinkSeconds with no jitter, judged with the Common's bands for `netLevel` made TutorialWindowScale
+-- times as wide.
+function Circles.tutorialWindows(netLevel: number): Types.NetWindows
+	local common = Circles.windowsFor(netLevel, "Common")
+	local scale = Config.TutorialWindowScale
+	return { perfect = common.perfect * scale, good = common.good * scale }
+end
+
+function Circles.tutorialSchedule(now: number, roll: () -> number): { Types.CatchCircle }
+	return {
+		{
+			startsAt = now + Config.CircleLeadInSeconds,
+			shrinkSeconds = Config.TutorialShrinkSeconds,
+			x = SCREEN_MIN_X + roll() * (SCREEN_MAX_X - SCREEN_MIN_X),
+			y = SCREEN_MIN_Y + roll() * (SCREEN_MAX_Y - SCREEN_MIN_Y),
+		},
+	}
+end
+
 function Circles.target(circle: Types.CatchCircle): number
 	return circle.startsAt + circle.shrinkSeconds
 end

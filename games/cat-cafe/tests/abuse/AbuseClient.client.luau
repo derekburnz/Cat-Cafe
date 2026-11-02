@@ -15,7 +15,7 @@
 	  = double spend    , travel            / tackle               \ rename         Insert telemetry
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
 	  J tip jar         K index rewards     L spin wheel           R bug report
-	  P fish market     T codes             Backspace flood
+	  P fish market     O fresh catch       T codes             Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
@@ -50,6 +50,7 @@ local Circles = require(Shared:WaitForChild("Circles"))
 local Codes = require(Shared:WaitForChild("Codes"))
 local Config = require(Shared:WaitForChild("Config"))
 local Crates = require(Shared:WaitForChild("Crates"))
+local FreshCatch = require(Shared:WaitForChild("FreshCatch"))
 local NetSwing = require(Shared:WaitForChild("NetSwing"))
 local Prizes = require(Shared:WaitForChild("Prizes"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
@@ -86,6 +87,7 @@ type Shoved = {
 local events: { Event } = {}
 local state: Types.PlayerState? = nil
 local tipJar: Types.TipJarState? = nil -- the newest TipJarState (F47)
+local freshStock: Types.FreshCatchStock? = nil -- the newest FreshCatchStock (F94), nil at night
 local running: string? = nil
 local lastSyncAt = 0 -- os.clock() of the newest ProfileSync
 local lastSwingAt = -math.huge -- os.clock() of the newest SwingNet this script fired
@@ -4736,6 +4738,285 @@ local function codePaid(
 		string.format("%s, %s, %d banked spins", coinsText, holdingsText(holdings()), bankedSpins())
 end
 
+-- The Fresh Catch shelf (F94, rewards-and-shops.md section 3, engineer PR #679): potions and now and then a cheap
+-- Classic Crate for golden fish, by day, at the Golden Fish Market, each row up to its amount per player per stock
+-- window. BuyFreshCatch(itemId, window) sends back the window the player saw; the server answers every call that gets
+-- past its argument checks with a FreshCatchStock, and refuses with a warn toast.
+
+local function freshWindow(): number
+	local stock = freshStock
+	return if stock ~= nil then stock.window else FreshCatch.window(math.floor(serverNow()))
+end
+
+-- Potions in the bag and crates in the bank, what a Fresh Catch buy adds to.
+local function freshHeld(): string
+	local s: any = state
+	if s == nil then
+		return "no ProfileSync"
+	end
+	local potions = 0
+	for _, count in s.potions or {} do
+		potions += count
+	end
+	local crates = 0
+	for _, count in s.crates or {} do
+		crates += count
+	end
+	return string.format("%d potions, %d crates, %d golden fish", potions, crates, fish())
+end
+
+-- This window's amount and my buys of `itemId`, from the newest FreshCatchStock.
+local function freshRow(itemId: string): (number, number)
+	local stock = freshStock
+	if stock == nil then
+		return FreshCatch.amountOf(freshWindow(), itemId), 0
+	end
+	for _, item in stock.stock do
+		if item.itemId == itemId then
+			return item.amount, item.bought
+		end
+	end
+	return 0, 0
+end
+
+case(
+	"freshCatch",
+	Enum.KeyCode.O,
+	"Fresh Catch: far, bad ids and windows, a stale window, past the amount, without the fish, 5 in a frame, at night",
+	function()
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		local stall = nearestTagged("FishMarket")
+		if stall == nil then
+			return "SKIP", "no stall tagged FishMarket in the world"
+		end
+		local root = rootPart()
+		local home = if root ~= nil then root.Position else nil
+		local notes = {}
+		local verdict: Verdict = "PASS"
+		local function done(level: Verdict, detail: string?): (Verdict, string)
+			if detail ~= nil then
+				table.insert(notes, detail)
+			end
+			if home ~= nil then
+				teleportTo(home)
+			end
+			return downgrade(verdict, level), table.concat(notes, "; ")
+		end
+		local clock = ReplicatedStorage:FindFirstChild("Clock")
+		local night = clock ~= nil and clock:GetAttribute("Phase") == "night"
+		local window = freshWindow()
+		-- a row in stock this window, the cheapest first
+		local pick: Types.FreshCatchRow? = nil
+		for _, row in Catalog.freshCatch do
+			if FreshCatch.amountOf(window, row.id) > 0 and (pick == nil or row.fish < (pick :: any).fish) then
+				pick = row
+			end
+		end
+		local itemId = if pick ~= nil then pick.id else Catalog.freshCatch[1].id
+
+		-- 24 studs out (FishMarketRange is 14): refused, nothing bought.
+		local far = standFromStation(stall, 24)
+		if far < Config.FishMarketRange + 4 then
+			return done("CHECK", string.format("could not stand 24 studs from the stall (settled %.1f studs out)", far))
+		end
+		local held = freshHeld()
+		local farAt = os.clock()
+		fire("BuyFreshCatch", itemId, window)
+		task.wait(1)
+		if freshHeld() ~= held then
+			return done(
+				"FAIL",
+				string.format("a buy from %.1f studs went through: %s, then %s", far, held, freshHeld())
+			)
+		end
+		local farText = if night then "The Fresh Catch is back at sunrise" else "Walk to the Golden Fish Market first"
+		if toastCount(farAt, farText) ~= 1 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, string.format('far buy: no "%s" toast', farText))
+		else
+			table.insert(notes, string.format("far buy from %.1f studs refused", far))
+		end
+
+		local near = standFromStation(stall, 6)
+		if near > Config.FishMarketRange - 4 then
+			return done("CHECK", string.format("could not stand by the stall (settled %.1f studs out)", near))
+		end
+
+		-- At night every buy is refused; the rest needs the day.
+		if night then
+			local nightAt = os.clock()
+			held = freshHeld()
+			fire("BuyFreshCatch", itemId, window)
+			task.wait(1)
+			if freshHeld() ~= held then
+				return done("FAIL", "a Fresh Catch buy went through at night")
+			end
+			if toastCount(nightAt, "back at sunrise") ~= 1 then
+				return done("CHECK", 'night buy: refused, but no "back at sunrise" toast')
+			end
+			return done(
+				"CHECK",
+				string.format(
+					'night buy refused; run again by day for the rest (%s("setPhase", "day"))',
+					DEBUG
+				)
+			)
+		end
+
+		-- Bad ids and bad windows, 0.55 s apart (2 calls a second): nothing bought. Malformed arguments get only a
+		-- FreshCatchStock; a well-formed id off the board gets "That isn't on the Fresh Catch board."
+		local bad: { { any } } = {
+			{},
+			{ "" },
+			{ "GOLD_RUSH_POTION" },
+			{ "kibble" },
+			{ string.rep("a", 300) },
+			{ 7 },
+			{ 0 / 0 },
+			{ {} },
+			{ true },
+			{ itemId },
+			{ itemId, "x" },
+			{ itemId, -1 },
+			{ itemId, 1.5 },
+			{ itemId, 2 ^ 41 },
+			{ itemId, 0 / 0 },
+		}
+		held = freshHeld()
+		local badAt = os.clock()
+		for _, args in bad do
+			fire("BuyFreshCatch", table.unpack(args))
+			task.wait(0.55)
+		end
+		task.wait(0.5)
+		if freshHeld() ~= held then
+			return done("FAIL", string.format("a bad id or window bought something: %s, then %s", held, freshHeld()))
+		end
+		local offBoard = toastCount(badAt, "isn't on the Fresh Catch board")
+		table.insert(
+			notes,
+			string.format("%d bad ids and windows bought nothing (%d off the board toasts)", #bad, offBoard)
+		)
+
+		-- A stale window: the stock the player saw has rolled over.
+		local staleAt = os.clock()
+		fire("BuyFreshCatch", itemId, freshWindow() - 1)
+		task.wait(0.8)
+		if freshHeld() ~= held then
+			return done("FAIL", "a buy with last window's number went through")
+		end
+		if toastCount(staleAt, "A fresh catch just came in") ~= 1 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, 'stale window: refused, but no "A fresh catch just came in" toast')
+		else
+			table.insert(notes, "stale window refused")
+		end
+
+		-- Five in one frame: at most two answered (2 a second).
+		local burstAt = os.clock()
+		for _ = 1, 5 do
+			Remotes.event("BuyFreshCatch"):FireServer("kibble", freshWindow())
+		end
+		log('    -> BuyFreshCatch("kibble", window) x5 in one frame')
+		task.wait(1.2)
+		local answered = toastCount(burstAt, "isn't on the Fresh Catch board")
+		if answered > 2 then
+			verdict = downgrade(verdict, "FAIL")
+			table.insert(notes, string.format("%d of 5 in one frame answered; the limit is 2 a second", answered))
+		else
+			table.insert(notes, string.format("5 in one frame: %d answered", answered))
+		end
+
+		-- Past the amount: buy the cheapest row in stock up to its amount, then once more; with too few fish for it,
+		-- "Not enough golden fish" and nothing bought.
+		if pick == nil then
+			return done("CHECK", "no row in stock this window, so the amount checks wait for the next one")
+		end
+		local row = pick :: Types.FreshCatchRow
+		local amount, bought = freshRow(row.id)
+		local left = amount - bought
+		if fish() < row.fish then
+			local poorAt = os.clock()
+			held = freshHeld()
+			fire("BuyFreshCatch", row.id, freshWindow())
+			task.wait(0.8)
+			if freshHeld() ~= held then
+				return done(
+					"FAIL",
+					string.format("bought %s with %d golden fish (it costs %d)", row.id, fish(), row.fish)
+				)
+			end
+			if toastCount(poorAt, "Not enough golden fish") ~= 1 then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, 'too few fish: refused, but no "Not enough golden fish" toast')
+			else
+				table.insert(notes, string.format("%s with %d golden fish refused", row.id, fish()))
+			end
+			return done(
+				"CHECK",
+				string.format(
+					'for the amount checks, %s("setFish", nil, %d) and run again',
+					DEBUG,
+					row.fish * (left + 1)
+				)
+			)
+		end
+		local fishBefore = fish()
+		local boughtNow = 0
+		for _ = 1, left do
+			if fish() < row.fish then
+				break
+			end
+			local buyAt = os.clock()
+			fire("BuyFreshCatch", row.id, freshWindow())
+			waitFor(buyAt, "FreshCatchStock", 1.5)
+			task.wait(0.55) -- 2 a second
+			if toastCount(buyAt, "Bought a") == 1 then
+				boughtNow += 1
+			end
+		end
+		local overAt = os.clock()
+		held = freshHeld()
+		fire("BuyFreshCatch", row.id, freshWindow())
+		task.wait(0.8)
+		if boughtNow == left and freshHeld() ~= held then
+			return done("FAIL", string.format("bought %s past its amount of %d", row.id, amount))
+		end
+		local spent = fishBefore - fish()
+		if spent ~= boughtNow * row.fish then
+			verdict = downgrade(verdict, "FAIL")
+			table.insert(
+				notes,
+				string.format(
+					"%d buys of %s cost %d golden fish, not %d",
+					boughtNow,
+					row.id,
+					spent,
+					boughtNow * row.fish
+				)
+			)
+		end
+		if boughtNow == left and toastCount(overAt, "You bought") ~= 1 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, 'past the amount: refused, but no "You bought ... this time" toast')
+		end
+		table.insert(
+			notes,
+			string.format(
+				"%s: %d left of %d this window, bought %d for %d fish, the next refused",
+				row.id,
+				left,
+				amount,
+				boughtNow,
+				spent
+			)
+		)
+		return done(verdict)
+	end
+)
+
 case(
 	"codes",
 	Enum.KeyCode.T,
@@ -5341,6 +5622,10 @@ Remotes.event("CodeResult").OnClientEvent
 		local answered: Answered = { ok = ok, message = message, prize = prize }
 		record("CodeResult", string.format("ok=%s %q", tostring(ok), message), nil, answered)
 	end)
+Remotes.event("FreshCatchStock").OnClientEvent:Connect(function(stock: Types.FreshCatchStock?)
+	freshStock = stock
+	record("FreshCatchStock", if stock ~= nil then string.format("window %d", stock.window) else "nil (night)")
+end)
 Remotes.event("TipJarState").OnClientEvent:Connect(function(jar: Types.TipJarState)
 	tipJar = jar
 	local claimed = 0

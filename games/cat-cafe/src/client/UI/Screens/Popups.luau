@@ -669,7 +669,7 @@ function Popups.setCatalog(self: any, catalog: Types.Catalog)
 	self._giftChips:setCatalog(catalog)
 end
 
--- What a Mystery gift held (MysteryGiftResult, F64): its picture and name ("Tip Potion", "2 Salmon"). It closes by
+-- What a Mystery gift held (MysteryGiftResult, F64): its picture and name ("Money Potion", "2 Salmon"). It closes by
 -- itself after GIFT_AUTO_CLOSE seconds, and plays giftOpen when it shows (sound list 5.11).
 function Popups.showGift(self: any, title: string, prize: Types.IndexPrize)
 	self:_show(function()

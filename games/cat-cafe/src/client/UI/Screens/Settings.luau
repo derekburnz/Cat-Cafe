@@ -72,6 +72,7 @@ local TILE_COLORS: { [string]: Color3 } = {
 	markers = Theme.colors.good,
 	tutorialButton = Theme.colors.gold,
 	replayTutorial = Theme.colors.gold,
+	shopAlerts = Theme.colors.goldDark,
 }
 -- a volume row's switch: the slider greys while that switch is off
 local VOLUME_SWITCH: { [string]: string } = { musicVolume = "music", sfxVolume = "sfx" }

@@ -89,6 +89,10 @@ return function()
 		SeatsPerTable = 2,
 		MaxIdLength = 40,
 		TutorialGuaranteedStrayStep = 2,
+		-- F87 (easy-start.md section 6); IntroAutoPlay is false, checked below
+		TutorialShrinkSeconds = 1.6,
+		TutorialWindowScale = 2,
+		TutorialRetrySeconds = 1.0,
 		-- cat stats (data-model section 4b)
 		CatMaxLevel = 50, -- v0.12 (F75)
 		CatLevelBonus = 0.02,
@@ -231,6 +235,10 @@ return function()
 			end
 		)
 
+		it("IntroAutoPlay = false: the intro waits for the Tutorial tile (F87, easy-start.md section 2a)", function()
+			expect(Config.IntroAutoPlay).to.equal(false)
+		end)
+
 		it("has no extra top level tuning numbers the doc does not know about", function()
 			-- LureReserveSeconds: the doc now says a lured stray is reserved until despawn, so the constant is optional.
 			local known = {
@@ -243,6 +251,7 @@ return function()
 				ProfileKeyPrefix = true,
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
+				IntroAutoPlay = true, -- false, checked below
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
 				TipPileCollectRangeStuds = true, -- section 12 (F61): the client sends CollectTips within 8 studs
 				FishFirstCatch = true, -- a table, checked below

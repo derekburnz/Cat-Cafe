@@ -237,6 +237,44 @@ return function()
 		end)
 	end)
 
+	describe("the tutorial stray (F87, easy-start.md section 2b)", function()
+		it("is one circle shrinking for TutorialShrinkSeconds with no jitter", function()
+			for seed = 1, 20 do
+				local circles = Circles.tutorialSchedule(NOW, lcg(seed))
+				expect(#circles).to.equal(1)
+				expect(circles[1].shrinkSeconds).to.equal(Config.TutorialShrinkSeconds)
+				expect(circles[1].startsAt).to.be.near(NOW + Config.CircleLeadInSeconds, 1e-9)
+				expect(circles[1].x >= 0.25 and circles[1].x <= 0.75).to.equal(true)
+				expect(circles[1].y >= 0.3 and circles[1].y <= 0.7).to.equal(true)
+			end
+		end)
+
+		it("is slower than a Common's circles", function()
+			local common = Catalog.rarities.Common.shrinkSeconds * (1 + Config.CircleJitter)
+			expect(Config.TutorialShrinkSeconds > common).to.equal(true)
+		end)
+
+		it("doubles a Common's bands on every net", function()
+			for level = 0, 3 do
+				local common = Circles.windowsFor(level, "Common")
+				local tutorial = Circles.tutorialWindows(level)
+				expect(Config.TutorialWindowScale).to.equal(2)
+				expect(tutorial.perfect).to.be.near(common.perfect * 2, 1e-9)
+				expect(tutorial.good).to.be.near(common.good * 2, 1e-9)
+			end
+		end)
+
+		it("catches on a press 0.2 s off on a Basic Net, which misses a Common", function()
+			local circles = Circles.tutorialSchedule(NOW, constant(0.5))
+			local attempt = Circles.newAttempt(circles, Circles.tutorialWindows(0))
+			local at = Circles.target(circles[1]) + 0.2
+			expect(Circles.press(attempt, 1, at, at)).to.equal("good")
+			expect(Circles.succeeded(attempt)).to.equal(true)
+			local common = Circles.windowsFor(0, "Common")
+			expect(Circles.grade(0.2, common)).to.equal("miss")
+		end)
+	end)
+
 	describe("latency (section 10 flow step 3)", function()
 		it("takes off half the round trip, capped at CatchLatencyCapSeconds (0.15)", function()
 			expect(Config.CatchLatencyCapSeconds).to.be.near(0.15, 1e-9)

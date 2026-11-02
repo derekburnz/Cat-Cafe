@@ -136,6 +136,13 @@ local function done()
 		return
 	end
 	local target, height = catRoom(gui)
+	-- a picture the UI tagged on an earlier trade and shows again keeps its tag, and re-tagging it fires nothing
+	local now = os.clock()
+	for _, instance in CollectionService:GetTagged(TAG) do
+		if instance:IsA("GuiObject") and ScreenFx.shown(instance :: GuiObject) then
+			taggedAt[instance] = now
+		end
+	end
 	if Context.reducedMotion() then
 		ScreenFx.sparkle(
 			gui,

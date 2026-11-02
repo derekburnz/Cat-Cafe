@@ -1987,4 +1987,31 @@ function Shim.assetNames()
 	return out
 end
 
+-- For tools built on this shim (uigate.mjs with ui-shim.luau): the pieces they extend rather than copy. Nothing here
+-- changes how the world scan runs.
+Shim.internals = {
+	state = state,
+	methods = methods,
+	InstanceMT = InstanceMT,
+	newInstance = newInstance,
+	setParent = setParent,
+	findChild = findChild,
+	isA = isA,
+	SUPER = SUPER,
+	EVENTS = EVENTS,
+	DEFAULTS = DEFAULTS,
+	env = baseEnv,
+	values = {
+		Vector2 = Vector2,
+		Vector3 = Vector3,
+		CFrame = CFrame,
+		Color3 = Color3,
+		UDim = UDim,
+		UDim2 = UDim2,
+		Font = Font,
+		Enum = Enum,
+		Instance = Instance,
+	},
+}
+
 return Shim

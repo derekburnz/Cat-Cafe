@@ -350,6 +350,8 @@ local function rest(p: Pennant)
 		p.moving = false
 		if p.target.Parent ~= nil and not movedOff(p) then
 			place(p, p.base)
+		else
+			p.bound = false -- moved off: read it again where it is next time
 		end
 		p.written = nil
 	end

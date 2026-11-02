@@ -42,7 +42,10 @@ type Entry = {
 	stretchSeen: number?, -- the last StretchAt the server set on this cat, so each plays once
 	stretchWeight: number, -- 1, or less while a stray that set off mid-stretch lets it go
 	nextStretch: number, -- when a stray standing still next stretches
-	yarn: BasePart?,
+	yarn: BasePart?, -- the entertainer's pom-pom, on its wand
+	wand: BasePart?,
+	toyRest: Vector3, -- where the pom-pom rests in the cat's floor space (Logic.toyRest)
+	toyScale: number,
 	naps: { TextLabel }?,
 	napGui: BillboardGui?,
 	floats: boolean, -- a cat that bobs as if it might float off (motion.float.cats: Balloon Cat)
@@ -392,16 +395,37 @@ local function animateNaps(labels: { TextLabel }, t: number, seconds: number)
 	end
 end
 
--- The entertainer's yarn ball, a client-only prop it bats back and forth.
+-- The entertainer's toy, client-only: a pom-pom on a springy wand stood on its perch just ahead of it, resting
+-- against the pad of a raised front paw so each bat meets it (Logic.toyRest; the front legs' hinges from Pose, or
+-- the sitting body's where the body has no hinged legs). It never leaves the perch.
+local SIT_HINGE = Vector3.new(0, 0.59, -0.28) -- the sitting body's front leg hinges at Scale 1
 local function addYarn(entry: Entry)
 	if entry.yarn ~= nil then
 		return
 	end
-	local ball = Context.effectPart("Yarn", Vector3.new(0.6, 0.6, 0.6), Presets.palette.aurora)
+	local model = entry.rig.model
+	local attribute = model:GetAttribute("Scale")
+	local scale = (if type(attribute) == "number" and attribute > 0 then attribute else 1)
+		* model:GetScale()
+	local hinge = Pose.frontHinge(entry.rig) or SIT_HINGE * scale
+	local restY, restZ = Logic.toyRest(hinge.Y, hinge.Z, scale)
+	entry.toyRest = Vector3.new(0, restY, restZ)
+	entry.toyScale = scale
+	local e = Presets.motion.entertainer
+	local pom = e.pom * scale
+	local ball = Context.effectPart("Yarn", Vector3.new(pom, pom, pom), Presets.palette.aurora)
 	ball.Shape = Enum.PartType.Ball
 	ball.Material = Enum.Material.Fabric
 	ball.Parent = Context.folder()
 	entry.yarn = ball
+	local wand = Context.effectPart(
+		"YarnWand",
+		Vector3.new(1, e.wand * scale, e.wand * scale),
+		Presets.palette.goldDark
+	)
+	wand.Shape = Enum.PartType.Cylinder
+	wand.Parent = Context.folder()
+	entry.wand = wand
 end
 
 local function removeYarn(entry: Entry)
@@ -409,6 +433,11 @@ local function removeYarn(entry: Entry)
 	if yarn ~= nil then
 		yarn:Destroy()
 		entry.yarn = nil
+	end
+	local wand = entry.wand
+	if wand ~= nil then
+		wand:Destroy()
+		entry.wand = nil
 	end
 end
 
@@ -464,6 +493,9 @@ local function bind(model: Model): Entry?
 		stretchWeight = 1,
 		nextStretch = os.clock() + rng:NextNumber(0.3, 1) * Presets.motion.stretch.everyMax,
 		yarn = nil,
+		wand = nil,
+		toyRest = Vector3.zero,
+		toyScale = 1,
 		naps = nil,
 		napGui = nil,
 		floats = canFloat(model),
@@ -689,11 +721,19 @@ local function step(dt: number)
 			end
 		end
 		Pose.draw(rig, o, alpha)
-		local yarn = entry.yarn
-		if yarn ~= nil then
-			yarn.CFrame = Pose.floor(entry.rig)
-				* CFrame.new(o.yarn * Presets.motion.entertainer.yarnStuds, 0.3, -2)
-				* CFrame.Angles(0, 0, -o.yarn * 3)
+		local yarn, wand = entry.yarn, entry.wand
+		if yarn ~= nil and wand ~= nil then
+			local floor = Pose.floor(entry.rig)
+			local pom, foot, tip = Logic.toy(o, entry.toyRest.Y, entry.toyRest.Z, entry.toyScale)
+			yarn.CFrame = floor * CFrame.new(pom)
+			local length = (tip - foot).Magnitude
+			if math.abs(wand.Size.X - length) > 0.005 then
+				wand.Size = Vector3.new(length, wand.Size.Y, wand.Size.Z)
+			end
+			-- a cylinder's length runs along its X axis
+			wand.CFrame = floor
+				* CFrame.lookAt((foot + tip) / 2, tip)
+				* CFrame.Angles(0, math.pi / 2, 0)
 		end
 		local naps = entry.naps
 		if naps ~= nil then

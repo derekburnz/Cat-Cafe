@@ -411,4 +411,327 @@ return function()
 			expect(profile.lawnStyles :: any).to.deepEqual({ path = "grey_slabs" })
 		end)
 	end)
+
+	-- QA edges (front-lawn.md sections 5 and 6): what a forged or repeated call can do to a lawn. The remotes reach a
+	-- piece or a spot only through Guard.id, and every move LawnService allows goes through the blockers here, so a
+	-- lawn built by any run of allowed moves must be one a reload (ProfileSchema.migrate's Lawn.sanitize) keeps as it
+	-- is: nothing a player paid for vanishes on rejoin, and a piece never stands on two spots.
+	describe("Lawn edges (QA)", function()
+		local ServerScriptService = game:GetService("ServerScriptService")
+		local Guard = require(ServerScriptService.Server.Util.Guard)
+		local Types = require(Shared.Types)
+
+		local pieceIds: { string } = {}
+		for _, piece in Catalog.lawn do
+			table.insert(pieceIds, piece.id)
+		end
+		local styleIds: { string } = {}
+		for _, style in Catalog.lawnStyles do
+			table.insert(styleIds, style.id)
+		end
+		local spotIds: { string } = {}
+		for _, spot in Lawn.SPOTS do
+			table.insert(spotIds, spot.id)
+		end
+
+		local function fail(pattern: string, ...: any)
+			error(string.format(pattern, ...), 2)
+		end
+
+		local function snapshot(profile: any): string
+			local parts: { string } = {}
+			for _, id in pieceIds do
+				table.insert(parts, if profile.lawnOwned[id] then id else "-")
+			end
+			for _, id in styleIds do
+				table.insert(parts, if profile.lawnOwned[id] then id else "-")
+			end
+			for _, id in spotIds do
+				table.insert(parts, tostring(profile.lawn[id]))
+			end
+			table.insert(parts, tostring(profile.lawnStyles.path))
+			table.insert(parts, tostring(profile.lawnStyles.fence))
+			return table.concat(parts, " ")
+		end
+
+		-- Fails unless the lawn is valid at the profile's tier and a reload keeps it as it is.
+		local function checkLawn(profile: any, label: string)
+			local tier = profile.tier
+			local seen: { [string]: string } = {}
+			for spotId, pieceId in profile.lawn do
+				local spot = Lawn.getSpot(spotId)
+				local piece = Catalog.getLawn(pieceId)
+				if spot == nil or piece == nil then
+					fail("%s: %s holds %s", label, tostring(spotId), tostring(pieceId))
+					return
+				end
+				if seen[pieceId] ~= nil then
+					fail("%s: %s stands on %s and %s", label, pieceId, seen[pieceId], spotId)
+				end
+				seen[pieceId] = spotId
+				if not Lawn.owns(profile, pieceId) then
+					fail("%s: %s on %s is not owned", label, pieceId, spotId)
+				end
+				if piece.spot ~= spot.size then
+					fail("%s: %s (%s) on %s (%s)", label, pieceId, piece.spot, spotId, spot.size)
+				end
+				if spot.tier > tier then
+					fail("%s: %s holds %s at Tier %d", label, spotId, pieceId, tier)
+				end
+			end
+			local path = Catalog.getLawnStyle(profile.lawnStyles.path)
+			if path == nil or path.kind ~= "path" or not Lawn.owns(profile, path.id) then
+				fail("%s: the path is %s", label, tostring(profile.lawnStyles.path))
+			end
+			local fenceId = profile.lawnStyles.fence
+			if fenceId ~= nil then
+				local fence = Catalog.getLawnStyle(fenceId)
+				if fence == nil or fence.kind ~= "fence" or not Lawn.owns(profile, fenceId) then
+					fail("%s: the fence is %s", label, tostring(fenceId))
+				end
+			end
+			local owned, placed, styles =
+				Lawn.sanitize(profile.lawnOwned, profile.lawn, profile.lawnStyles, tier)
+			local reloaded = { lawnOwned = owned, lawn = placed, lawnStyles = styles }
+			if snapshot(reloaded) ~= snapshot(profile) then
+				fail("%s: a reload changes %s to %s", label, snapshot(profile), snapshot(reloaded))
+			end
+		end
+
+		it(
+			"lets every lawn piece, style and spot id through Guard.id, so a client can name it",
+			function()
+				for _, list in { pieceIds, styleIds, spotIds } do
+					for _, id in list do
+						if Guard.id(id) ~= id then
+							fail("Guard.id drops %q, so no remote can reach it", id)
+						end
+					end
+				end
+			end
+		)
+
+		it("sells each piece and style from its own tier up and never twice", function()
+			for tier = 1, Catalog.maxTier do
+				for _, list in { pieceIds, styleIds } do
+					for _, id in list do
+						local row: any = Catalog.getLawn(id) or Catalog.getLawnStyle(id)
+						local profile = profileAt(tier)
+						local blocker = Lawn.buyBlocker(profile, id)
+						local free = row.price == 0
+						if (blocker == nil) ~= (row.tier <= tier and not free) then
+							fail("%s at Tier %d: %s", id, tier, tostring(blocker))
+						end
+						if blocker == nil then
+							profile.lawnOwned[id] = true
+							if Lawn.buyBlocker(profile, id) == nil then
+								fail("%s sells twice at Tier %d", id, tier)
+							end
+						end
+					end
+				end
+			end
+		end)
+
+		-- A seeded run of LawnService's moves, the tier rising as rank ups do (with their gifts) and a save and load
+		-- now and then: every move a blocker refuses changes nothing, and after each move the lawn is valid and a
+		-- reload keeps it.
+		it(
+			"keeps any run of allowed moves valid through a reload, refused moves changing nothing",
+			function()
+				local random = Random.new(91)
+				local moves = 0
+				for run = 1, 40 do
+					local profile = profileAt(1)
+					for step = 1, 150 do
+						local label = string.format("run %d step %d", run, step)
+						local before = snapshot(profile)
+						local roll = random:NextInteger(1, 20)
+						if roll == 1 and profile.tier < Catalog.maxTier then
+							profile.tier += 1
+							Lawn.grantTierGifts(profile)
+						elseif roll <= 7 then
+							-- BuyLawn(id, spotId?) as LawnService does it
+							local all = if random:NextNumber() < 0.7 then pieceIds else styleIds
+							local id = all[random:NextInteger(1, #all)]
+							local spotId: string? = if random:NextNumber() < 0.5
+								then spotIds[random:NextInteger(1, #spotIds)]
+								else nil
+							if Lawn.buyBlocker(profile, id) ~= nil then
+								if snapshot(profile) ~= before then
+									fail("%s: a refused buy of %s changed the lawn", label, id)
+								end
+							else
+								profile.lawnOwned[id] = true
+								local piece, style = Catalog.getLawn(id), Catalog.getLawnStyle(id)
+								if style ~= nil then
+									Lawn.setStyle(profile, style.kind, id)
+								elseif piece ~= nil then
+									local target: string? = Lawn.firstFreeSpot(profile, piece.spot)
+									if
+										spotId ~= nil
+										and Lawn.placeBlocker(profile, spotId, id) == nil
+									then
+										target = spotId
+									end
+									if target ~= nil then
+										Lawn.place(profile, target, id)
+									end
+								end
+								moves += 1
+							end
+						elseif roll <= 15 then
+							-- SetLawnSpot(spotId, pieceId?)
+							local spotId = spotIds[random:NextInteger(1, #spotIds)]
+							local pieceId: string? = if random:NextNumber() < 0.85
+								then pieceIds[random:NextInteger(1, #pieceIds)]
+								else nil
+							if Lawn.placeBlocker(profile, spotId, pieceId) ~= nil then
+								if snapshot(profile) ~= before then
+									fail("%s: a refused move changed the lawn", label)
+								end
+							else
+								Lawn.place(profile, spotId, pieceId)
+								moves += 1
+							end
+						elseif roll <= 19 then
+							-- SetLawnStyle(kind, id or "")
+							local kind: Types.LawnStyleKind = if random:NextNumber() < 0.5
+								then "path"
+								else "fence"
+							local id: string? = if random:NextNumber() < 0.8
+								then styleIds[random:NextInteger(1, #styleIds)]
+								else nil
+							if Lawn.styleBlocker(profile, kind, id) ~= nil then
+								if snapshot(profile) ~= before then
+									fail("%s: a refused style changed the lawn", label)
+								end
+							else
+								Lawn.setStyle(profile, kind, id)
+								moves += 1
+							end
+						else
+							-- a save and load
+							local raw = ProfileSchema.template(T) :: any
+							raw.tier = profile.tier
+							raw.lawnOwned = table.clone(profile.lawnOwned)
+							raw.lawn = table.clone(profile.lawn)
+							raw.lawnStyles = table.clone(profile.lawnStyles)
+							local loaded = ProfileSchema.migrate(raw, T)
+							if snapshot(loaded) ~= snapshot(profile) then
+								fail(
+									"%s: a save and load changed %s to %s",
+									label,
+									before,
+									snapshot(loaded)
+								)
+							end
+							Lawn.grantTierGifts(loaded) -- as CafeService's load does
+							if snapshot(loaded) ~= before then
+								fail(
+									"%s: the load's gifts changed %s to %s",
+									label,
+									before,
+									snapshot(loaded)
+								)
+							end
+						end
+						checkLawn(profile, label)
+					end
+				end
+				-- enough allowed moves that the run means something
+				expect(moves > 1500).to.equal(true)
+			end
+		)
+
+		-- A damaged or hand-edited save (DataStore junk, an older or newer server's fields) never errors, and what it
+		-- loads to is a valid lawn that the next load keeps as it is.
+		it("loads any junk to a valid lawn the next load keeps", function()
+			local random = Random.new(902)
+			local names: { any } = {
+				"tulip_bed",
+				"garden_bench",
+				"golden_paw_statue",
+				"red_brick",
+				"white_picket",
+				"grey_slabs",
+				"small1",
+				"big2",
+				"path",
+				"fence",
+				"TULIP_BED",
+				"rug",
+				"",
+				string.rep("a", 300),
+			}
+			local function junk(depth: number): any
+				local roll = random:NextInteger(1, 10)
+				if roll == 1 then
+					return nil
+				elseif roll == 2 then
+					return random:NextNumber() < 0.5
+				elseif roll == 3 then
+					return ({ 0, -1, 0 / 0, math.huge, 1e308, 2.5 })[random:NextInteger(1, 6)]
+				elseif roll <= 7 or depth >= 2 then
+					return names[random:NextInteger(1, #names)]
+				end
+				local map: { [any]: any } = {}
+				for _ = 1, random:NextInteger(0, 6) do
+					local key = if random:NextNumber() < 0.8
+						then names[random:NextInteger(1, #names)]
+						else random:NextInteger(1, 3)
+					if key ~= nil then
+						map[key] = junk(depth + 1)
+					end
+				end
+				return map
+			end
+			-- a save that is nearly right: real ids, but pieces not owned, the wrong size, on closed spots or twice
+			local all = table.clone(pieceIds)
+			table.move(styleIds, 1, #styleIds, #all + 1, all)
+			local function nearlyRight(): (any, any, any)
+				local owned: { [any]: any } = {}
+				for _, id in all do
+					local roll = random:NextNumber()
+					owned[id] = if roll < 0.5 then true elseif roll < 0.6 then junk(1) else nil
+				end
+				local placed: { [any]: any } = {}
+				for _, spotId in spotIds do
+					if random:NextNumber() < 0.8 then
+						placed[spotId] = pieceIds[random:NextInteger(1, #pieceIds)]
+					end
+				end
+				local styles = {
+					path = all[random:NextInteger(1, #all)],
+					fence = if random:NextNumber() < 0.8
+						then all[random:NextInteger(1, #all)]
+						else nil,
+				}
+				return owned, placed, styles
+			end
+			for round = 1, 3000 do
+				local label = string.format("round %d", round)
+				local tier = random:NextInteger(1, Catalog.maxTier)
+				local rawOwned, rawLawn, rawStyles = junk(0), junk(0), junk(0)
+				if round % 2 == 0 then
+					rawOwned, rawLawn, rawStyles = nearlyRight()
+				end
+				local owned, placed, styles = Lawn.sanitize(rawOwned, rawLawn, rawStyles, tier)
+				-- only a saved `true` owns anything: junk never hands out a piece for free
+				for id in owned do
+					if type(rawOwned) ~= "table" or rawOwned[id] ~= true then
+						fail(
+							"%s: %s owned from a saved %s",
+							label,
+							id,
+							tostring(if type(rawOwned) == "table" then rawOwned[id] else rawOwned)
+						)
+					end
+				end
+				local profile =
+					{ tier = tier, lawnOwned = owned, lawn = placed, lawnStyles = styles }
+				checkLawn(profile, label)
+			end
+		end)
+	end)
 end

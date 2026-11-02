@@ -570,7 +570,7 @@ local Cues: { [string]: Cue } = {
 		group = "Sfx",
 		volume = 0.6,
 		minGap = 0.3,
-	}, -- F61: the tip piles were collected; silent since F97 (#714) pays them as they appear, kept for its upload record
+	}, -- F61: the tip piles were collected; silent since F97 (#714) pays them as they appear; F90 plays its file as tipSweep
 	dealerArrive = { ids = {}, group = "Sfx", volume = 0.7, range = 60 },
 	dealerLeave = { ids = {}, group = "Sfx", volume = 0.6, range = 60 },
 
@@ -951,6 +951,64 @@ local Cues: { [string]: Cue } = {
 		volume = 0.5,
 		minGap = 1,
 	}, -- EXCELLENT!: the pop and a four note vibes fanfare
+
+	-- F90 cats make the orders (5.16): the Cafe sheet, all 3D; they repeat with every order, so each is short and soft
+	sheetCafe = {
+		ids = {},
+		group = "Sfx",
+		volume = 1,
+		preload = true,
+	}, -- mono, plays in 3D
+	orderPour = {
+		ids = {},
+		sheet = "sheetCafe",
+		region = { 0.000, 1.500 },
+		group = "Sfx",
+		volume = 0.4,
+		pitch = { 0.96, 1.04 },
+		minGap = 0.3,
+		voices = 2,
+		range = 30,
+	}, -- the espresso pump's hum, a stream filling the cup and a puff of steam
+	orderDing = {
+		ids = {},
+		sheet = "sheetCafe",
+		region = { 2.000, 2.900 },
+		group = "Sfx",
+		volume = 0.35,
+		pitch = { 0.98, 1.02 },
+		minGap = 0.25,
+		voices = 2,
+		range = 35,
+	}, -- "ding!": one strike of a small counter bell, a note up for a drink and two for the counter
+	trayClink = {
+		ids = {},
+		sheet = "sheetCafe",
+		region = { 3.400, 3.680 },
+		group = "Sfx",
+		volume = 0.45,
+		pitch = { 0.94, 1.06 },
+		minGap = 0.15,
+		voices = 2,
+		range = 30,
+	}, -- the dish set down: a wooden tap and two china clinks
+	tipBank = {
+		ids = {},
+		sheet = "sheetCafe",
+		region = { 4.180, 4.580 },
+		group = "Sfx",
+		volume = 0.4,
+		minGap = 0.3,
+		range = 30,
+	}, -- the coin bag dropped in the till: a cloth thump and a muffled jingle
+	tipSweep = { -- the tipPile file: coins scooped off a table into the Waiter's bag (your own cafe)
+		ids = { "rbxassetid://131031584416450" },
+		group = "Sfx",
+		volume = 0.35,
+		pitch = { 0.95, 1.05 },
+		minGap = 0.3,
+		range = 30,
+	},
 }
 
 return Cues

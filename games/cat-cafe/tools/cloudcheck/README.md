@@ -78,6 +78,18 @@ is at least that wide); Terrain, Studio-placed parts and anything built after jo
 effects) are not in it; the area sets are checked in place, not on their own. It reads the code and models on disk,
 so run it on the branch you want checked.
 
+## Test plan coverage (QA, 2026-11-02)
+
+```
+npm run plancoverage               # node plan-coverage.mjs: specs the test plan never names, and names it keeps for specs now gone
+node plan-coverage.mjs --rows      # also a draft section 3.1 row per unnamed spec, from its header comment
+```
+
+Every `tests/specs/<Name>.spec.luau` should be named in `docs/playtests/test-plan.md` as `` `<Name>.spec` ``. A thread that
+adds a spec cannot write the plan, so this is a report for QA and never part of `npm run check`; `--strict` exits 1 when
+anything is listed, for QA's own use. Specs the plan still names as replaced (`ShoveTarget.spec`, `SlotLabelState.spec`)
+are left out of the "gone" list.
+
 ## UI gate: tiny buttons, small text, windows off the screen (UI-Engineer, 2026-11-01)
 
 ```

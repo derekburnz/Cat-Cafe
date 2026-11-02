@@ -504,6 +504,7 @@ function BigPull.destroy(self: any)
 	self._portrait:destroy()
 	self._icon:destroy()
 	self._use:destroy()
+	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()
 end
 

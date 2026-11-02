@@ -1,0 +1,34 @@
+# Claim board for the two Claude projects working in this repo (CLAUDE.md rule 15).
+# Open one before work that takes more than one PR or touches shared files; close it when its last PR merges.
+name: Claim work
+description: Say which feature and files you're working on, so the other project's threads leave them alone
+title: "Claim: "
+labels: [claim]
+body:
+  - type: dropdown
+    id: who
+    attributes:
+      label: Whose project
+      options: [Derek's project, Gavin's project]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What you're building or fixing
+      description: One feature or fix. Link the spec or GDD section if there is one.
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Folders and files you'll touch
+      description: One per line, for example games/cat-cafe/src/server/Catching/ or docs/design/cat-cafe/gdd.md section 4.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: until
+    attributes:
+      label: Expected done (optional)
+      placeholder: "2026-11-05"

@@ -253,6 +253,123 @@ local function campExtras(picnic, bought, open)
 end
 
 -- F101: a RallyState, running for another day and 4 hours unless `fields` says otherwise.
+-- F102: other players in the server for the Trade window's list (removed again by Scenes.close)
+local tradePlayers = {}
+local function addTradePlayer(name, userId, tier, busy)
+	local player = Instance.new("Player")
+	player.Name = name
+	player.DisplayName = name
+	player.UserId = userId
+	workspace:SetAttribute("TradingOn", true) -- TradeService is live, so the HUD shows the Trade tile
+	player:SetAttribute("Tier", tier)
+	player:SetAttribute("Trading", busy == true)
+	player.Parent = game:GetService("Players")
+	table.insert(tradePlayers, player)
+end
+
+-- F102: the Trades page's log: three trades (one a gift from me, one with nine cats each way), newest first
+local function tradeLog(now)
+	local function pick(rarity, index)
+		local found = 0
+		for _, def in Catalog.cats do
+			if def.rarity == rarity and def.exclusive ~= true then
+				found += 1
+				if found == index then
+					return def.id
+				end
+			end
+		end
+		return Catalog.cats[1].id
+	end
+	local nine = {}
+	for index = 1, 9 do
+		local rarity = if index % 3 == 0 then "Epic" elseif index % 2 == 0 then "Rare" else "Common"
+		table.insert(nine, { catId = pick(rarity, 1 + index % 2), rarity = rarity, level = index + 2 })
+	end
+	return {
+		{
+			id = "log_1",
+			at = now - 12 * 60,
+			partnerName = "Sam",
+			gave = { { catId = pick("Common", 1), rarity = "Common", level = 11 } },
+			got = { { catId = pick("Epic", 1), rarity = "Epic", variant = "gold", level = 18 } },
+		},
+		{
+			id = "log_2",
+			at = now - 26 * 3600,
+			partnerName = "Mia",
+			gave = { { catId = pick("Rare", 1), rarity = "Rare", variant = "rainbow", level = 7 } },
+			got = {},
+		},
+		{ id = "log_3", at = now - 4 * 86400, partnerName = "Alexandria_Longname", gave = nine, got = nine },
+	}
+end
+
+-- F102: a TradeState with Sam: my offer from the sample player's cats (gate_1, the gold gate_3, gate_5), Sam's an
+-- Epic and a rainbow Rare from the catalog; `fields` overrides
+local function tradeState(fields)
+	workspace:SetAttribute("TradingOn", true)
+	local function firstOf(rarity, skip)
+		for _, def in Catalog.cats do
+			if def.rarity == rarity and def.exclusive ~= true and def.id ~= skip then
+				return def.id
+			end
+		end
+		return Catalog.cats[1].id
+	end
+	local function mine(uid, rate)
+		local cat = samplePlayer(workspace:GetServerTimeNow()).cats[uid]
+		local def = Catalog.getCat(cat.catId)
+		return {
+			uid = uid,
+			catId = cat.catId,
+			rarity = def and def.rarity or "Common",
+			variant = if cat.variant == "gold" then "gold" else nil,
+			level = cat.level,
+			rateForMe = rate,
+		}
+	end
+	local state = {
+		tradeId = "gate_trade",
+		version = 3,
+		phase = "offer",
+		me = {
+			userId = 1,
+			name = "Tester",
+			ready = false,
+			confirmed = false,
+			cats = { mine("gate_1", 12), mine("gate_3", 110), mine("gate_5", 62) },
+		},
+		them = {
+			userId = 4242,
+			name = "Sam",
+			ready = true,
+			confirmed = false,
+			cats = {
+				{ uid = "sam_1", catId = firstOf("Epic"), rarity = "Epic", level = 18, rateForMe = 240 },
+				{
+					uid = "sam_2",
+					catId = firstOf("Rare"),
+					rarity = "Rare",
+					variant = "rainbow",
+					level = 7,
+					rateForMe = 1250,
+				},
+			},
+		},
+		giveValue = 12,
+		getValue = 41,
+		lopsided = false,
+		gift = false,
+		myRateNow = 184,
+		theirRateForMe = 1490,
+	}
+	for key, value in fields or {} do
+		state[key] = value
+	end
+	return state
+end
+
 local function rallyState(fields)
 	local t = workspace:GetServerTimeNow()
 	local state = {
@@ -988,6 +1105,93 @@ local SCENES = {
 		local t = workspace:GetServerTimeNow()
 		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = t + 5 * 3600 + 1200 }))
 	end },
+	-- F102: TradeService runs, so the HUD's top row holds seven tiles with Trade before Invite (review N334)
+	{ "HUDTrade", function()
+		workspace:SetAttribute("TradingOn", true)
+		UI.update({ tier = 3 })
+	end },
+	-- F102: the Trade window's players: Sam to ask, Alex under the minimum tier, Mia busy in a trade
+	{ "TradePlayers", function()
+		addTradePlayer("Sam", 4242, 4, false)
+		addTradePlayer("Alex", 4343, 2, false)
+		addTradePlayer("Mia", 4444, 5, true)
+		UI.open("Trade")
+	end },
+	-- F102: Sam's request card
+	{ "TradeAsk", function()
+		UI.trade.asked("gate_request", 4242, "Sam", workspace:GetServerTimeNow() + 20)
+	end },
+	-- F102: the offer: three of my cats against Sam's Epic and rainbow Rare, Sam ready; my cats on the right with the
+	-- locked gate_2 and the offered ones dimmed
+	{ "TradeOffer", function()
+		UI.trade.state(tradeState())
+	end },
+	-- F102: Sam just added a cat: "Changed!" over Sam's side, the new tile flashing, both Ready cleared
+	{ "TradeChanged", function()
+		local state = tradeState()
+		state.them.ready = false
+		-- half a second in the future so the 2 s flash is still on when the picture is taken
+		state.changed = { side = "them", uid = "sam_2", at = workspace:GetServerTimeNow() + 1.5 }
+		UI.trade.state(state)
+	end },
+	-- F102: both ready, the countdown over the grids
+	{ "TradeCountdown", function()
+		local state = tradeState({ phase = "countdown", countdownEndsAt = workspace:GetServerTimeNow() + 4 })
+		state.me.ready = true
+		UI.trade.state(state)
+	end },
+	-- F102: the confirm screen of a lopsided trade: the red line and Confirm waiting
+	{ "TradeConfirm", function()
+		local state = tradeState({ phase = "confirm", lopsided = true })
+		state.me.ready = true
+		UI.trade.state(state)
+	end },
+	-- F102: a gift: "Nothing" in red under You get and "You get nothing back"
+	{ "TradeGift", function()
+		local state = tradeState({ phase = "confirm", gift = true, theirRateForMe = 0, getValue = 0 })
+		state.them.cats = {}
+		UI.trade.state(state)
+	end },
+	-- F102 part 2: Settings ends with the Trading section once TradeService runs: Friends only picked, then Trades
+	{ "SettingsTrading", function()
+		workspace:SetAttribute("TradingOn", true)
+		local settings = UIShim.require("ReplicatedStorage.Shared.Settings").defaults()
+		settings.tradeRequests = "friends"
+		UI.update({ settings = settings })
+		UI.open("Settings")
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local panel = modals and modals:FindFirstChild("Settings", true)
+		local list = panel and panel:FindFirstChild("List", true)
+		if list and list:IsA("ScrollingFrame") then
+			list.CanvasPosition = Vector2.new(0, 100000) -- scrolled to the end, where the section is
+		end
+	end },
+	-- F102 part 2: the Trades page: a trade 12 minutes ago, a gift yesterday, nine cats each way 4 days ago
+	{ "TradeLog", function()
+		UI.update({ tradeLog = tradeLog(os.time()) })
+		UI.open("TradeLog")
+	end },
+	{ "TradeLogEmpty", function()
+		UI.update({ tradeLog = {} })
+		UI.open("TradeLog")
+	end },
+	-- testers (Derek's notes): Settings' Testers section with Reset my save, scrolled to the end where it sits, and
+	-- the confirm card its Reset opens
+	{ "SettingsTester", function()
+		game:GetService("Players").LocalPlayer:SetAttribute("Tester", true)
+		UI.open("Settings")
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local panel = modals and modals:FindFirstChild("Settings", true)
+		local list = panel and panel:FindFirstChild("List", true)
+		if list and list:IsA("ScrollingFrame") then
+			list.CanvasPosition = Vector2.new(0, 100000)
+		end
+	end },
+	{ "SettingsResetConfirm", function()
+		game:GetService("Players").LocalPlayer:SetAttribute("Tester", true)
+		UI.open("Settings")
+		press("Settings", "resetSave.Open")
+	end },
 }
 
 Scenes.names = {}
@@ -1011,6 +1215,17 @@ function Scenes.close()
 	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were
 	UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = workspace:GetServerTimeNow() + 3 * 86400 })) -- F101: no Rally
+	UI.trade.state(nil) -- F102: no trade, no TradeService, and the other players leave
+	if workspace:GetAttribute("TradingOn") ~= nil then
+		workspace:SetAttribute("TradingOn", nil)
+		-- the HUD drops its Trade tile again, and Trade requests (SettingsTrading) goes back to its default; only
+		-- the TradeLog scenes read tradeLog, and each sets its own
+		UI.update({ settings = UIShim.require("ReplicatedStorage.Shared.Settings").defaults() })
+	end
+	for _, player in tradePlayers do
+		player:Destroy()
+	end
+	table.clear(tradePlayers)
 	UI.catch.hideCircles()
 	UI.catch.hide()
 	UI.rescue.hide()
@@ -1018,6 +1233,10 @@ function Scenes.close()
 	UI.setZone(nil)
 	UI.tips.reset()
 	UI.tutorial.hide()
+	local me = game:GetService("Players").LocalPlayer
+	if me:GetAttribute("Tester") ~= nil then
+		me:SetAttribute("Tester", nil) -- the Testers section hides again
+	end
 	-- the help card waits for Got it
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 	if ask and ask:FindFirstChild("Choice_ok", true) and ask:FindFirstChild("Card", true).Visible then

@@ -973,189 +973,211 @@ Layout.neighbourhood = {
 	props = {},
 } :: AreaSpec
 
--- The Woods at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Woods_SetV32 (#470, area-sets.md
--- "The Woods (v3.2)") fills the 240 x 240 floor, its trail winding through the one gap in the tree line, over the one
--- log bridge and through the one gap in the rock ridge to the Great Oak. Its cat spots are `near` on the gate half and
--- `deep` on the far half, and the Great Oak's top nook is `rare` (Catching.RARE_ZONE: only a Rare or better waits
--- there, and one goes there first). Its hollow logs and bramble bushes are built into the set, each turned in it, two
--- of the four deep, and a cat can get stuck up the tree house's branch.
+-- The long Woods (F85, hometown-cannon.md section 6b; Model-Agent #847, area-sets.md "The Woods (F85)"): a 160 x 490
+-- wild part with its camp 30 more in front of the gate, on its east side, so the set's long axis runs along world X:
+-- the floor is WoodsDepth across X and WoodsWidth along Z. Its set, camp and backdrop carry the F85 suffix
+-- (artSuffix); its gate and night fence are the v3.2 ones, which already span the 24 stud opening. Five blockers
+-- cross the width with their gaps on alternating sides: the fallen timber, the stream with its one log bridge, the
+-- tree line, the dry stone wall and the mossy boulder ridge under the Great Oak arch, to the Great Oak's clearing with
+-- the tree house and the lookout tower at the far end. Its cat spots are `near` on the camp half and `deep` on the far
+-- half, and the Great Oak's top nook is `rare` (Catching.RARE_ZONE: only a Rare or better waits there, and one goes
+-- there first). Its hollow logs and bramble bushes are built into the set, each turned in it, four of the five traps
+-- deep, and a cat can get stuck up the tree house's branch.
 local WX, WZ = W.WoodsCenterX, W.WoodsCenterZ
-local WGATE = WX + W.WoodsWidth / 2 -- its east side
+local WGATE = WX + W.WoodsDepth / 2 -- its east side
 local WTURN = townTurn(WX, WZ, WGATE, nil)
 Layout.woods = {
 	floorY = 0.1,
 	center = { x = WX, y = 0, z = WZ },
-	halfWidth = W.WoodsWidth / 2,
-	halfDepth = W.WoodsDepth / 2,
+	halfWidth = W.WoodsDepth / 2, -- world X, the set's long axis (a quarter turn)
+	halfDepth = W.WoodsWidth / 2,
 	gateX = WGATE,
 	openingHalfWidth = W.SideGateHalfWidth,
-	set = "CatCafe_Woods_SetV32",
+	set = "CatCafe_Woods_SetF85",
+	artSuffix = "F85",
 	spawnPoints = (function(): { Point }
 		local points = setPoints(WX, WZ, WTURN, 0.1, {
-			{ -43.5, 0, -22.5 }, -- the log bridge
-			{ 104, 0, -23.51 }, -- the waterfall
-			{ 75.61, 0, -103.84 }, -- the tents
-			{ 84.61, 0, -102.05 },
-			{ 74, 2.06, -95 }, -- log benches
-			{ 86, 2.06, -94 },
-			{ 80.5, 0, -88.5 }, -- the campfire
-			{ -30, 0, -99.8 }, -- berry bushes
-			{ -48, 0, -107.8 },
-			{ -62, 0, -93.8 },
-			{ 100, 0, -79.8 },
-			{ -16, 0, -84 }, -- leaf piles
-			{ -100, 0, -42 },
-			{ -82, 1.66, -100 }, -- stumps
-			{ -40, 1.66, -80 },
-			{ 86, 1.66, -58 },
-			{ -94, 2, -82 }, -- mossy rocks
-			{ 66, 2, -38 },
-			{ -70, 2, -30 },
-			{ -72, 0, -76 }, -- ferns
-			{ 24, 0, -30 },
-			{ -22, 0, -50 },
-			{ 90, 0, -48 },
-			{ -93.1, 0, -106.36 }, -- fallen logs
-			{ 61.56, 0, -56.89 },
-			{ 0, 0.05, -56 }, -- the mushroom ring
+			{ -51.5, 0, -106.5 }, -- the log bridge
+			{ -40.5, 0, -73.5 },
+			{ 64, 0, -102.48 }, -- the waterfall
+			{ -30, 0, -223.8 }, -- berry bushes
+			{ -48, 0, -213.8 },
+			{ -62, 0, -227.8 },
+			{ -56, 0, -61.8 },
+			{ -8, 0, -63.8 },
+			{ 10, 0, -53.8 },
+			{ -16, 0, -204 }, -- leaf piles
+			{ 30, 0, -54 },
+			{ -60, 1.66, -192 }, -- stumps
+			{ -34, 1.66, -186 },
+			{ 8, 1.66, -112 },
+			{ -16, 1.66, -76 },
+			{ 60, 0, -230 }, -- ferns
+			{ 16, 0, -156 },
+			{ 40, 0, -118 },
+			{ -34, 0, -30 },
+			{ 58.9, 0, -208.36 }, -- fallen logs
+			{ -30, 0.05, -146 }, -- the mushroom ring
+			{ -62, 0, -139.5 }, -- glow mushrooms
+			{ 64, 2, -156 }, -- mossy rocks
+			{ -64, 2, -116 },
+			{ -64, 2, -40 },
+			{ 64, 2, -60 },
+			{ -58.05, 0, -163.38 }, -- the log pile
+			{ 14, 0, -20 }, -- glades
 		}, "near")
 		for _, point in
 			setPoints(WX, WZ, WTURN, 0.1, {
-				{ -32.5, 0, 10.5 }, -- the log bridge
-				{ -20, 2.06, 100 }, -- log benches
-				{ -56, 2.06, 100 },
-				{ -24, 2.06, 72 },
-				{ -14, 0, 30.2 }, -- berry bushes
-				{ 6, 0, 35.2 },
-				{ 22, 0, 22.2 },
-				{ -30, 0, 28.2 },
-				{ 104, 0, 76.2 },
-				{ 34, 0, 14 }, -- leaf piles
-				{ 28, 0, 84 },
-				{ -104, 1.66, 34 }, -- stumps
-				{ 44, 1.66, 100 },
-				{ 70, 2, 34 }, -- mossy rocks
-				{ -96, 2, 10 },
-				{ 64, 2, 80 },
-				{ 96, 2, 66 },
-				{ 100, 0, 6 }, -- ferns
-				{ -50, 0, 36 },
-				{ 8, 0, 14 },
-				{ 80, 0, 100 },
-				{ 52, 0, 66 },
-				{ 83.49, 0, 81.87 }, -- fallen logs
-				{ 50, 0, 18.5 }, -- glow mushrooms
-				{ -98, 0, 88.5 },
-				{ 66, 0, 100.5 },
-				{ -60.05, 0, 14.62 }, -- the log pile
-				{ -78, 0, 6 }, -- glades
-				{ -6, 0, 18 },
-				{ -44.71, 0, 86.88 }, -- in the Great Oak's roots
-				{ -42.32, 0, 93.25 },
-				{ -35.39, 0, 94.28 },
-				{ -87.22, 10.3, 71.77 }, -- the tree house's cushion, up its ladder
-				{ -79.64, 0, 78.98 }, -- at the foot of the tree house
-				{ 2, 0, 102 }, -- the lookout tower
-				{ -58, 0, 64 }, -- the oak's clearing
-				{ -78, 0, 104 },
-				{ 84, 0, 54 }, -- the dell
+				{ 20, 0, 34.2 }, -- berry bushes
+				{ -6, 0, 48.2 },
+				{ -34, 0, 76.2 },
+				{ 8, 0, 132.2 },
+				{ 28, 0, 222.2 },
+				{ -52, 0, 32 }, -- leaf piles
+				{ -56, 0, 92 },
+				{ 66, 0, 236 },
+				{ -24, 1.66, 58 }, -- stumps
+				{ 2, 1.66, 88 },
+				{ 58, 0, 28 }, -- ferns
+				{ 2, 0, 6 },
+				{ 28, 0, 96 },
+				{ -66, 0, 142 },
+				{ 30, 0, 198 },
+				{ 59.75, 0, 10.7 }, -- fallen logs
+				{ 40, 0, 50.5 }, -- glow mushrooms
+				{ -40, 0, 136.5 },
+				{ -66, 0, 214.5 },
+				{ 66, 2, 46 }, -- mossy rocks
+				{ -40, 2, 8 },
+				{ -20, 2, 132 },
+				{ -64, 2, 166 },
+				{ -63.33, 0, 48.34 }, -- the log pile
+				{ -26, 0, 16 }, -- glades
+				{ 16, 0, 56 },
+				{ 54, 0, 40 }, -- the dell
+				{ 49.61, 0, 101.84 }, -- the old campsite's tents
+				{ 58.61, 0, 100.05 },
+				{ 48, 2.06, 93 }, -- log benches
+				{ 60, 2.06, 92 },
+				{ -14, 2.06, 218 },
+				{ -50, 2.06, 218 },
+				{ -44, 2.06, 188 },
+				{ 52, 0, 86.5 }, -- the campfire
+				{ -38.74, 0, 206.93 }, -- in the Great Oak's roots
+				{ -34.56, 0, 212.3 },
+				{ -27.64, 0, 211.22 },
+				{ 51.71, 10.3, 211.89 }, -- the tree house's cushion, up its ladder
+				{ 42.66, 0, 206.64 }, -- at the foot of the tree house
+				{ 12, 0, 230 }, -- the lookout tower
+				{ -62, 0, 186 }, -- the oak's clearing
+				{ -58, 0, 230 },
 			}, "deep")
 		do
 			table.insert(points, point)
 		end
 		-- up the ladder inside the Great Oak to its top nook (Derek 2026-10-28 01:35: a higher rare chance there)
-		table.insert(points, setPoints(WX, WZ, WTURN, 0.1, { { -36.31, 18.3, 87.37 } }, "rare")[1])
+		table.insert(points, setPoints(WX, WZ, WTURN, 0.1, { { -30.58, 18.3, 204.89 } }, "rare")[1])
 		return points
 	end)(),
 	rescueSpots = {
 		-- a hollow log's open end faces its own +X; a bramble is round
-		setTrap(WX, WZ, WTURN, "hollow_log", { 78, 0, -40 }, 20),
-		setTrap(WX, WZ, WTURN, "hollow_log", { 92, 0, 26 }, -20),
-		setTrap(WX, WZ, WTURN, "bramble_bush", { -84, 0, -50 }),
-		setTrap(WX, WZ, WTURN, "bramble_bush", { -86, 0, 30 }),
+		setTrap(WX, WZ, WTURN, "hollow_log", { 62, 0, -128 }, 20),
+		setTrap(WX, WZ, WTURN, "hollow_log", { -62, 0, 122 }, -20),
+		setTrap(WX, WZ, WTURN, "bramble_bush", { -62, 0, 18 }),
+		setTrap(WX, WZ, WTURN, "bramble_bush", { 64, 0, 176 }),
 		-- up the tree house's branch (Derek 01:34), reached from its deck: shaken down and caught like a Park tree,
 		-- the cat lying across the branch (which points along the piece's -X) as on a Park tree
-		setTrap(WX, WZ, WTURN, "tree", { -88.85, 15.45, 68.06 }, -106.26),
+		setTrap(WX, WZ, WTURN, "tree", { 54.16, 15.45, 215.11 }, 87.21),
 	},
 	props = {},
 } :: AreaSpec
 
--- The Sewer at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Sewer_SetV32 (#491, area-sets.md
--- "The Sewer (v3.2)") fills the 180 x 180 floor, roofed from the tunnel front back. The way in winds from the storm
--- drain yard over the canal's one brick bridge, through the walk-in arch and the east hall's market to the cross
--- wall's one archway, then over the far catwalk into the west hall and the junk throne. Its cat spots are tagged by
--- region, not by half: `near` the yard and the market, `deep` everything past the cross wall's arch, the west hall's
--- far chamber in the gate half among them. Its grates and drain pipes are built into the set, each turned in it, two
--- of the four deep.
+-- The long Sewer (F85, hometown-cannon.md section 6b; Model-Agent #860, area-sets.md "The Sewer (F85)"): a 120 x 570
+-- wild part with its camp 30 more in front of the gate, on its west side, so the set's long axis runs along world X as
+-- the Woods' does. Its set, camp and backdrop carry the F85 suffix (artSuffix); its gate and night fence are the v3.2
+-- ones, which already span the 24 stud opening. Six blockers cross the width with their gaps on alternating sides:
+-- the yard's canal under its brick bridge, the tunnel front's walk-in arch, the rubble under the cracked beam, the
+-- channel's steel catwalk, the vault wall's arch into cat town and the pipe bank, to the throne room with the junk
+-- throne and the pipe organ at the far end. Its cat spots are `near` up to the channel and `deep` from its catwalk on,
+-- and its grates and drain pipes are built into the set, each turned in it, three of the four deep.
 local SX, SZ = W.SewerCenterX, W.SewerCenterZ
-local SGATE = SX - W.SewerWidth / 2 -- its west side
+local SGATE = SX - W.SewerDepth / 2 -- its west side
 local STURN = townTurn(SX, SZ, SGATE, nil)
 Layout.sewer = {
 	floorY = 0.1,
 	center = { x = SX, y = 0, z = SZ },
-	halfWidth = W.SewerWidth / 2,
-	halfDepth = W.SewerDepth / 2,
+	halfWidth = W.SewerDepth / 2, -- world X, the set's long axis (a quarter turn)
+	halfDepth = W.SewerWidth / 2,
 	gateX = SGATE,
 	openingHalfWidth = W.SideGateHalfWidth,
-	set = "CatCafe_Sewer_SetV32",
+	set = "CatCafe_Sewer_SetF85",
+	artSuffix = "F85",
 	setLift = 0.4, -- the set's tiled slab
 	spawnPoints = (function(): { Point }
 		local points = setPoints(SX, SZ, STURN, 0.1, {
-			{ 44, 2.8, -61 }, -- the bridge
-			{ -24, 0.4, -73 }, -- the puddle
-			{ 73, 0.4, -79 }, -- the barrel
-			{ 60, 0.4, -78 }, -- the tyres
-			{ 30, 0.4, -76 }, -- the cones
-			{ -66, 0.4, -78 }, -- the crates
-			{ -78, 0.4, -72.5 }, -- the suitcases
-			{ -56, 0.4, -76.5 }, -- glow mushrooms
-			{ 12, 0.4, -26.5 },
-			{ 20, 0.4, -46 }, -- the canal banks
-			{ -20, 0.4, -47 },
-			{ -66, 0.4, -47 },
-			{ 72, 0.4, -46 },
-			{ -44, 0.4, -44.5 }, -- the barred arch
-			{ 20, 0.4, -4 }, -- the market stalls
-			{ 34, 0.4, -4 },
-			{ 48, 0.4, -4 },
-			{ 74.04, 2.55, -23.33 }, -- the deck
-			{ 24, 0.4, -22 }, -- the market
-			{ 56, 0.4, -12 },
+			{ 38, 2.8, -205 }, -- the brick bridge
+			{ -24, 0.4, -247 }, -- the puddle
+			{ 45, 0.4, -259 }, -- the barrel
+			{ 32, 0.4, -264 }, -- the tyres
+			{ 14, 0.4, -232 }, -- the cones
+			{ -40, 0.4, -262 }, -- the crates
+			{ -48, 0.4, -240.5 }, -- the suitcases
+			{ -40, 0.4, -229.5 }, -- glow mushrooms
+			{ 6, 0.4, -95.5 },
+			{ -48, 0.4, -26.5 },
+			{ 20, 0.4, -193 }, -- the canal banks
+			{ -20, 0.4, -193 },
+			{ -38, 0.4, -154.5 }, -- the walk-in arch
+			{ -47.4, 0.4, -130 }, -- the market stalls
+			{ -47.4, 0.4, -114 },
+			{ 10, 0.4, -135.4 },
+			{ 44.04, 2.55, -131.33 }, -- the market's crate deck
+			{ -16, 0.4, -124 }, -- the market
+			{ 44, 0.4, -22.35 }, -- a pipe end
+			{ 51.9, 0.4, -47 }, -- the valve
+			{ -14, 1.82, -12 }, -- the bathtub boat
+			{ -23.5, 2.2, -14.52 }, -- the raft
+			{ -20, 0.4, -44 }, -- the pump room
+			{ 24, 0.4, -20 },
+			{ -36, 0.4, -12 }, -- the catwalk's feet
 		}, "near")
 		for _, point in
 			setPoints(SX, SZ, STURN, 0.1, {
-				{ 0, 3.6, 50 }, -- the bridge
-				{ -76, 0.4, 79.5 }, -- the suitcases
-				{ 20, 0.4, 66.5 }, -- glow mushrooms
-				{ 72, 0.4, 17.5 },
-				{ -15.5, 0.4, 30 },
-				{ -60, 0.4, -2.5 },
-				{ -17.5, 0.4, -32 },
-				{ -38.49, 2.55, -21.54 }, -- the deck
-				{ 32.34, 0.4, 32.73 }, -- the cat houses
-				{ 51.66, 0.4, 32.73 },
-				{ 30.73, 0.4, 53.66 },
-				{ 53.45, 0.4, 55.45 },
-				{ 42, 0.4, 38 }, -- the square
-				{ 36, 0.4, 46 },
-				{ 80, 3.65, 64 }, -- the mine cart
-				{ 34, 0.4, 81.9 }, -- the valve
-				{ 73.6, 0.4, 78 }, -- a pipe end
-				{ 12, 0.4, 46 }, -- the far catwalk's feet
-				{ -12, 0.4, 54 },
-				{ 14, 0.4, 74 }, -- the pool
-				{ -46, 3.3, 80.1 }, -- the junk throne
-				{ -32, 0.4, 82.7 }, -- the pipe organ
-				{ -62, 0.4, 74 }, -- the toy pile
-				{ -67.2, 1.88, 45.3 }, -- the sofa
-				{ -30, 1, 40 }, -- the trolley
-				{ -46, 0.4, 66 }, -- the throne room
-				{ -20, 0.4, 70 },
-				{ -28, 1.82, 4 }, -- the boat
-				{ -39.5, 2.2, 2.98 }, -- the raft
-				{ -82, 2.4, -25.7 }, -- the hammock
-				{ -46, 0.4, -18 }, -- the far chamber
-				{ -60, 0.4, 20 },
+				{ -40, 3.6, 0 }, -- the steel catwalk over the channel
+				{ -46, 0.4, 273.5 }, -- the suitcases
+				{ 12, 0.4, 74.5 }, -- glow mushrooms
+				{ -44.5, 0.4, 24 },
+				{ -8, 0.4, 104.5 },
+				{ 50.5, 0.4, 172 },
+				{ 16, 0.4, 272.5 },
+				{ -44.5, 0.4, 206 },
+				{ 19.51, 2.55, 20.46 }, -- the deck
+				{ -6.35, 0.4, 166 }, -- a pipe end
+				{ -44, 0.4, 12 }, -- the catwalk's feet
+				{ 38.8, 1.88, 71.3 }, -- the sofa
+				{ -14, 1, 44 }, -- the yarn trolley
+				{ -52, 2.4, 70.3 }, -- the pipe hammock
+				{ 0, 0.4, 40 }, -- the lost and found
+				{ 34, 0.4, 50 },
+				{ 20.6, 0.4, 128.49 }, -- the cat houses
+				{ 39.4, 0.4, 128.49 },
+				{ 20.6, 0.4, 146.51 },
+				{ 39.4, 0.4, 146.51 },
+				{ 30, 0.4, 132 }, -- cat town's square
+				{ 26, 0.4, 143 },
+				{ -50.5, 3.65, 164 }, -- the mine cart
+				{ -36, 0.4, 104 }, -- cat town
+				{ -4, 0.4, 156 },
+				{ -40, 0.4, 172 },
+				{ 34, 4.5, 270.6 }, -- the junk throne
+				{ 34, 0.4, 277.7 }, -- the pipe organ
+				{ 24, 0.4, 263 }, -- the dais
+				{ -30, 0.4, 266 }, -- the toy pile
+				{ -16, 0.4, 256 }, -- the pool
+				{ 16, 0.4, 252 },
+				{ 10, 0.4, 230 }, -- the throne room
+				{ -20, 0.4, 212 },
+				{ -42, 0.4, 194 }, -- the pipe bank
 			}, "deep")
 		do
 			table.insert(points, point)
@@ -1164,10 +1186,10 @@ Layout.sewer = {
 	end)(),
 	rescueSpots = {
 		-- a grate is square; a drain pipe's mouth faces the piece's -Z
-		setTrap(SX, SZ, STURN, "grate", { -38, 0.4, -78 }),
-		setTrap(SX, SZ, STURN, "grate", { 70, 0.4, 40 }),
-		setTrap(SX, SZ, STURN, "drain_pipe", { 81.7, 0.4, -77 }, 90),
-		setTrap(SX, SZ, STURN, "drain_pipe", { -81.7, 0.4, 22 }, -90),
+		setTrap(SX, SZ, STURN, "grate", { -34, 0.4, -92 }), -- in the junk market
+		setTrap(SX, SZ, STURN, "grate", { -36, 0.4, 112 }), -- in cat town
+		setTrap(SX, SZ, STURN, "drain_pipe", { -51.7, 0.4, 49 }, -90), -- in the lost and found
+		setTrap(SX, SZ, STURN, "drain_pipe", { 51.7, 0.4, 256 }, 90), -- in the throne room
 	},
 	props = {},
 } :: AreaSpec
@@ -1409,8 +1431,8 @@ end
 Layout.campExtras = {
 	park = { x = 19, y = 0, z = -160.5 }, -- F85: in the long camp, left of the flower bed (Model-Agent 11-02)
 	neighbourhood = { x = 22, y = 0, z = -220.5 }, -- F85: in the long camp, clear of its mailbox (Model-Agent)
-	woods = { x = 21.5, y = 0, z = -125 },
-	sewer = { x = 20, y = 0, z = -94.5 },
+	woods = { x = 21.5, y = 0, z = -250 }, -- F85: the Fish Pond beside the long camp's way out (Model-Agent)
+	sewer = { x = 20, y = 0, z = -289.5 }, -- F85: the Lost and Found 3.5 inside the long camp's gate line (Model-Agent)
 } :: { [string]: Point }
 
 -- Where an area's camp extra stands in the world: x, the floor's y and z, the turn about Y (the camp's), or nil for an

@@ -689,7 +689,7 @@ def tunnel_front(mat):
             span(b, ba + 0.05, bc - 0.05, z0 + 0.95, z0 + 1.31, lo + h - 0.15, lo + h + 0.15, IRON)
         span(bar, ba, bc, z0 + 0.8, z0 + 1.5, KERB_H if kind == "channel" else 0, spring + r, "offwhite")
         if kind == "bars":
-            span(b, cx - 0.4, cx + 0.4, z0 + 0.6, z0 + 0.95, 2.0, 2.8, "brass")
+            span(b, cx - 0.4, cx + 0.4, z0 + 0.6, z0 + 1.02, 2.0, 2.8, "brass")    # a padlock on the bars
     for x in (-74.0, -60.0, -24.0, -14.0, 14.0, 24.0, 62.0, 76.0):                # stone piers on the yard face
         span(b, x - 1.0, x + 1.0, z0 - 0.7, z0, 0, WALL_H - 1.2, "concrete")
         span(b, x - 1.2, x + 1.2, z0 - 0.9, z0, 0, 1.6, "concrete_dark")

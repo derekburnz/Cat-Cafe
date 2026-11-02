@@ -107,9 +107,10 @@ def _ground():
 
 
 # ---------------------------------------------------------------- stream -----
-def _seg_frame(x0, x1):
-    """Centre (Builder), angle (Blender, about Z) and length of the stream segment from x0 to x1 (Roblox)."""
-    (ax, ay, _), (bx, by, _) = bl(x0, stream_z(x0)), bl(x1, stream_z(x1))
+def _seg_frame(x0, x1, zfn=stream_z):
+    """Centre (Builder), angle (Blender, about Z) and length of the stream segment from x0 to x1 (Roblox), its
+    centre line zfn(x)."""
+    (ax, ay, _), (bx, by, _) = bl(x0, zfn(x0)), bl(x1, zfn(x1))
     return ((ax + bx) / 2, (ay + by) / 2), math.atan2(by - ay, bx - ax), math.hypot(bx - ax, by - ay)
 
 
@@ -118,17 +119,18 @@ def _at(c, a, d):
     return (c[0] - d * math.sin(a), c[1] + d * math.cos(a))
 
 
-def stream(mat):
+def stream(mat, half=IN, zfn=stream_z, bridge_x=BRIDGE_X, rail_end=RAIL_END_E):
     """The stream across the whole width, from the waterfall at the east wall (Roblox +x) to the west wall: a dark
     bed under water 0.36 deep in look, a rock edge 1.3 high either side and a grass bank down to the floor. Every
     other segment is 0.006 taller so the overlaps never share a face. A log rail (dark posts, two split rails, like
     the bridge's and the town fence's) runs along the middle of each rock edge, open only at the bridge, and stops
     short of the waterfall pond, whose rocks close it. Stream_Barrier: an invisible wall on each rail's line, on to
-    the walls past the pond, plus the walls along the bridge's sides."""
+    the walls past the pond, plus the walls along the bridge's sides. `half` is the walls' inner faces (x), `zfn`
+    the centre line, `bridge_x` the crossing (the line level there) and `rail_end` where the east rails stop."""
     b, water, bar = Builder(), Builder(), Builder()
-    xs = [-IN + 0.5 + k * (2 * IN - 1.0) / 58 for k in range(59)]          # its ends stop at the walls' faces
+    xs = [-half + 0.5 + k * (2 * half - 1.0) / 58 for k in range(59)]      # its ends stop at the walls' faces
     for i, (x0, x1) in enumerate(zip(xs, xs[1:])):
-        c, a, L = _seg_frame(x0, x1)
+        c, a, L = _seg_frame(x0, x1, zfn)
         e = 0.006 * (i % 2)
         rot = (a, "Z")
         b.box_base((*c, 0), (L * 1.06, 2 * WATER_HW + 0.4, 0.03 + e), "choco", bevel=False, rot=rot)
@@ -141,30 +143,30 @@ def stream(mat):
             turn = Matrix.Rotation(a, 3, "Z") @ (Matrix.Rotation(PI, 3, "Z") if s > 0 else Matrix.Identity(3))
             b.wedge((*_at(c, a, d), EDGE_H / 2), (L * 1.12, BANK_W, EDGE_H - 0.01 * (i % 2)), "leaf_dark", bevel=False,
                     rot=turn)
-    gaps = (BRIDGE_X - 3.4, BRIDGE_X + 3.4)
-    for (r0, r1) in ((-IN + 0.8, gaps[0] - 0.4), (gaps[1] + 0.4, RAIL_END_E)):   # the log rails
+    gaps = (bridge_x - 3.4, bridge_x + 3.4)
+    for (r0, r1) in ((-half + 0.8, gaps[0] - 0.4), (gaps[1] + 0.4, rail_end)):   # the log rails
         n = max(1, math.ceil((r1 - r0) / RAIL_STEP))
         for s in (-1, 1):
-            pts = [_edge_point(r0 + (r1 - r0) * k / n, s * (WATER_HW + EDGE_W / 2)) for k in range(n + 1)]
+            pts = [_edge_point(r0 + (r1 - r0) * k / n, s * (WATER_HW + EDGE_W / 2), zfn) for k in range(n + 1)]
             log_rail(b, pts)
     # the barriers: chunks about 12 long along each rail's line, none across the bridge
-    for (r0, r1) in ((-IN, gaps[0]), (gaps[1], IN)):
+    for (r0, r1) in ((-half, gaps[0]), (gaps[1], half)):
         n = max(1, round((r1 - r0) / 12.0))
         for k in range(n):
             x0, x1 = r0 + (r1 - r0) * k / n, r0 + (r1 - r0) * (k + 1) / n
-            c, a, L = _seg_frame(x0, x1)
+            c, a, L = _seg_frame(x0, x1, zfn)
             for s in (-1, 1):
                 bar.box_base((*_at(c, a, s * (WATER_HW + EDGE_W / 2)), 0), (L + 0.3, BAR_T, BARRIER_H), "offwhite",
                              bevel=False, rot=(a, "Z"))
     for s in (-1, 1):                                                            # along the bridge's sides
-        x, y, _ = bl(BRIDGE_X + s * 3.4, STREAM_Z)
+        x, y, _ = bl(bridge_x + s * 3.4, zfn(bridge_x))
         bar.box_base((x, y, 0), (0.6, 2 * (WATER_HW + EDGE_W) + 0.6, BARRIER_H), "offwhite", bevel=False)
     return [b.finalize(N + "Stream", mat), water.finalize(N + "Stream_Water", mat), bar.finalize(N + "Stream_Barrier", mat)]
 
 
-def _edge_point(x, d):
+def _edge_point(x, d, zfn=stream_z):
     """The Builder point d across the stream's centre line at Roblox x (the side _at calls +Y)."""
-    c, a, _ = _seg_frame(x - 0.05, x + 0.05)
+    c, a, _ = _seg_frame(x - 0.05, x + 0.05, zfn)
     return _at(c, a, d)
 
 
@@ -227,13 +229,13 @@ def _pine_into(b, x, y, h, base=0.0):
                    bevel=False)
 
 
-def _tree_line(s, mat, z, gap):
-    """A dense thicket across the area, one gap (x0, x1): a row of big overlapping bush masses about 9.5 high round a
-    narrow solid core, smaller bushes at their feet and pines standing in it. A barrier 30 high on its footprint, so
-    the gap is the only way through."""
+def _tree_line(s, mat, z, gap, half=IN):
+    """A dense thicket across the area (walls' inner faces at x +-half), one gap (x0, x1): a row of big overlapping
+    bush masses about 9.5 high round a narrow solid core, smaller bushes at their feet and pines standing in it. A
+    barrier 30 high on its footprint, so the gap is the only way through."""
     b, bar = Builder(), Builder()
     greens = ("leaf_dark", "paw_woods", "dumpster_green", "leaf_dark", "shirt_green")
-    for (a0, a1) in ((-IN, gap[0]), (gap[1], IN)):
+    for (a0, a1) in ((-half, gap[0]), (gap[1], half)):
         n = max(1, round((a1 - a0) / 6.5))
         step = (a1 - a0) / n
         x, y, _ = bl((a0 + a1) / 2, z)

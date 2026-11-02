@@ -28,7 +28,8 @@ wall lanterns, barrels, cones and tyres.
 
 CatCafe_Camp_ParkF85 is the Park's camp for F85's long Park (parkf85.py, CatCafe_Park_SetF85, 120 x 310): the same
 camp 120 wide, in front of the 24 stud way out, placed with the long set's CFrame. CatCafe_Camp_NeighbourhoodF85 is
-the same for the long Neighbourhood (neighbourhoodf85.py, 180 x 430).
+the same for the long Neighbourhood (neighbourhoodf85.py, 180 x 430), CatCafe_Camp_WoodsF85 for the long Woods
+(woodsf85.py, 160 x 490) and CatCafe_Camp_SewerF85 for the long Sewer (sewerf85.py, 120 x 570).
 """
 
 import math
@@ -69,9 +70,15 @@ AREAS = {
     "NeighbourhoodF85": dict(W=180.0, D=430.0, half=12.0, ground="leaf_green", path="paving_light", wall="brick",
                              top="offwhite", trim="paw_neighbourhood", theme="Neighbourhood"),
     "Woods": dict(W=240.0, D=240.0, half=12.0, ground="fur_moss", path="fur_sand", wall="caramel_wood",
-                  top="dark_wood", trim="paw_woods"),
+                  top="dark_wood", trim="paw_woods", theme="Woods"),
+    # F85: the long Woods, 160 x 490 behind its 24 stud gate
+    "WoodsF85": dict(W=160.0, D=490.0, half=12.0, ground="fur_moss", path="fur_sand", wall="caramel_wood",
+                     top="dark_wood", trim="paw_woods", theme="Woods"),
     "Sewer": dict(W=180.0, D=180.0, half=12.0, ground="concrete_dark", path="concrete", wall="brick",
-                  top="concrete", trim="paw_sewer"),
+                  top="concrete", trim="paw_sewer", theme="Sewer"),
+    # F85: the long Sewer, 120 x 570 behind its 24 stud gate
+    "SewerF85": dict(W=120.0, D=570.0, half=12.0, ground="concrete_dark", path="concrete", wall="brick",
+                     top="concrete", trim="paw_sewer", theme="Sewer"),
 }
 CAMPS = {}               # asset -> the manifest's camp entry
 ATTACHMENTS = {}         # asset -> [(object suffix, name, Roblox point, Roblox rotation)]
@@ -127,7 +134,7 @@ def _wall(g, bar, x0, z0, x1, z1, look):
     if look.get("theme") == "Park":                                      # a stone base under a clipped hedge
         g.span((x0, 0, z0), (x1, 1.2, z1), wall)
         g.span((x0 + 0.05, 1.2, z0 + 0.05), (x1 - 0.05, WALL_H, z1 - 0.05), top)
-    elif look is AREAS["Woods"]:                                          # planks, a capping rail
+    elif look.get("theme") == "Woods":                                    # planks, a capping rail
         g.span((x0 + 0.1, 0, z0 + 0.1), (x1 - 0.1, WALL_H - 0.3, z1 - 0.1), wall)
         g.span((x0, WALL_H - 0.3, z0), (x1, WALL_H, z1), top)
     else:                                                                 # brick under a coping
@@ -169,7 +176,7 @@ def build_camp(area):
         for sx in (1, -1):
             _wall(g, bar, min(sx * (W / 2 - 0.5), sx * (W / 2 + 0.5)), B - 1,
                   max(sx * (W / 2 - 0.5), sx * (W / 2 + 0.5)), near, look)                     # side walls
-        if area == "Woods":
+        if look.get("theme") == "Woods":
             _posts(g, -W / 2 + 1, B, W / 2 - 1, B, 6.0, (0, 1))
             for sx in (1, -1):
                 _posts(g, sx * (W / 2 - 0.5), B + 2, sx * (W / 2 - 0.5), near - 1, 6.0, (-sx, 0))
@@ -264,7 +271,7 @@ def _theme(s, mat, area, G, B, W, half):
             for x in (x for x in (60, 90, 120) if x < W / 2 - 6):
                 s.put(park.build_tree(mat), sx * x, B + 8, 0)
             s.put(nb.hedge(mat, 6.0), sx * (W / 2 - 4), G - 10, 90)
-    elif area == "Woods":
+    elif AREAS[area].get("theme") == "Woods":
         s.put(woods.tent(mat, "fur_orange"), 20, G - 21, 112)
         s.put(woods.campfire(mat), 15, G - 11, 0)
         s.put(woods.log_bench(mat), 15, G - 6.5, 0)
@@ -272,12 +279,12 @@ def _theme(s, mat, area, G, B, W, half):
         for sx in (1, -1):
             s.put(woods.lantern(mat), sx * (half + 2), G - 1.5, 90 - 90 * sx)
             s.put(woods.lantern(mat), sx * 9, cz, 90 - 90 * sx)
-            for x in (30, 50, 70, 90, 110):
+            for x in (x for x in (30, 50, 70, 90, 110) if x < W / 2 - 6):
                 s.put(woods.pine(mat, h=18.0), sx * x, B + 5, 0)
         s.put(woods.stump(mat), -22, G - 20, 0)
         s.put(woods.fern(mat), -26, G - 8, 0)
         s.put(woods.fern(mat), 28, G - 4, 40)
-    elif area == "Sewer":
+    elif AREAS[area].get("theme") == "Sewer":
         s.put(_manhole(mat), 18, G - 8, 0)
         s.put(sw.pipe_large(mat), -30, B + 3, 0)
         for sx in (1, -1):

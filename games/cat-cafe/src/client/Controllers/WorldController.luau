@@ -171,15 +171,23 @@ local SKY_NAME = "CatCafe_Sky" -- a simple sky under ReplicatedStorage.Assets re
 
 -- Parts that glow at night (style guide section 9): any part under the World folder whose name ends in _Bulb,
 -- _Bulbs, _Pane or _Tube, placeholder or real model. By day each keeps the look it was built with; at night it
--- turns Neon in lamp_warm (neon_pink for a sign's tube) and its light comes on. HangingLamp bulbs are indoors
--- and lit all day, so they stay as built. A window pane stays partly see-through at night and the lights are
+-- turns Neon in a dimmed lamp_warm (neon_pink for a sign's tube) and its light comes on. HangingLamp bulbs are
+-- indoors and lit all day, so they stay as built. A window pane stays partly see-through at night and the lights are
 -- soft, because solid Neon panes and bright lights washed the cafe inside out to white (laptop playtest, #184).
-local LAMP_WARM = Color3.fromRGB(255, 217, 168)
+-- Derek's 10-30 notes still found the night lights too bright (a yard washed out to white); Model-Agent found no
+-- night-lit part over about 1 stud square, so the glow comes from the Neon colour, the lights and bloom, and gave
+-- these starting numbers (were 255,217,168 Neon, panes 0.3, PointLight 0.8 over 10, street SpotLight 3 over 30).
+local LAMP_WARM = Color3.fromRGB(220, 165, 110)
 local NEON_PINK = Color3.fromRGB(255, 107, 129)
 local NIGHT_SUFFIXES = { "_Bulb", "_Bulbs", "_Pane", "_Tube" }
-local PANE_NIGHT_TRANSPARENCY = 0.3
-local GLOW_LIGHT_BRIGHTNESS = 0.8
-local GLOW_LIGHT_RANGE = 10
+local PANE_NIGHT_TRANSPARENCY = 0.55
+local GLOW_LIGHT_BRIGHTNESS = 0.5
+local GLOW_LIGHT_RANGE = 8
+local STREET_LIGHT_BRIGHTNESS = 1.5
+local STREET_LIGHT_RANGE = 24
+-- The place's Bloom (style guide: low) makes Neon glow, so at night it drops to this share of the place's own
+-- Intensity and comes back by day (Model-Agent's read of the 10-30 white-out).
+local NIGHT_BLOOM_SCALE = 0.6
 
 type DayLook = { material: Enum.Material, color: Color3, transparency: number, light: Light }
 
@@ -222,8 +230,8 @@ local function lightFor(part: BasePart): Light
 		local spot = Instance.new("SpotLight")
 		spot.Face = Enum.NormalId.Bottom
 		spot.Angle = 100
-		spot.Range = 30
-		spot.Brightness = 3
+		spot.Range = STREET_LIGHT_RANGE
+		spot.Brightness = STREET_LIGHT_BRIGHTNESS
 		spot.Color = Color3.fromRGB(255, 200, 150)
 		light = spot
 	else
@@ -273,8 +281,27 @@ local function track(instance: Instance)
 	setGlow(part, look)
 end
 
+-- Each Bloom in Lighting at the place's own Intensity by day and NIGHT_BLOOM_SCALE of it at night. The day value is
+-- read the first time a bloom is seen, which is before this client ever changes it.
+local dayBloom: { [BloomEffect]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+local function setBloom(night: boolean)
+	for _, child in Lighting:GetChildren() do
+		if child:IsA("BloomEffect") then
+			local bloom = child :: BloomEffect
+			local day = dayBloom[bloom]
+			if day == nil then
+				day = bloom.Intensity
+				dayBloom[bloom] = day
+			end
+			bloom.Intensity = if night then day * NIGHT_BLOOM_SCALE else day
+		end
+	end
+end
+
 local function setNight(night: boolean)
 	isNight = night
+	setBloom(night)
 	local world = Workspace:FindFirstChild("World")
 	if world ~= nil then
 		for _, descendant in world:GetDescendants() do

@@ -12,6 +12,10 @@
 #   count   the newest this many reports of that day (default 50), printed oldest first
 #   studio  read the Studio playtests' reports (s_ keys) instead of the players' (r_ keys)
 # Prints one line per report, as Debug.bugReports does, then every record as one JSON line.
+# The report text printed is only the copy BugReportService kept through Roblox's broadcast filter (filteredText,
+# record v 2, decisions.md 2026-11-01), since every Actions log on this public repo is public and once the game is
+# public the reporters are strangers, many of them young. A v 1 record (before the filter) or one whose filtering
+# failed shows a placeholder instead; its raw text stays in the data store, for Debug.bugReports in Studio.
 #   MASK=1  for the daily scheduled run, whose log is public like every Actions log on this repo: each name shrinks
 #           to its first letter and each user id to its last three digits, and the JSON records are left out of
 #           the log and the summary. Manual runs print in full, as before.
@@ -91,7 +95,11 @@ fi
 records=()
 for key in "${keys[@]}"; do
 	get "$entries/$key"
-	records+=("$(jq -c '.value' <<<"$body")")
+	# the raw text never leaves this script: filteredText stands in for it, or a placeholder
+	records+=("$(jq -c '.value | .text = (if (.filteredText | type) == "string" then .filteredText
+		elif (.v // 1) < 2 then "(v1 report from before the filter: read it with Debug.bugReports in Studio)"
+		else "(the filter failed on this one: read it with Debug.bugReports in Studio)" end) | del(.filteredText)' \
+		<<<"$body")")
 done
 
 echo "== $total reports under $prefix in $STORE; showing the newest ${#records[@]}"

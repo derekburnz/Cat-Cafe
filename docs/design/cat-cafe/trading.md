@@ -9,7 +9,9 @@ The layout follows the trade menus players already know from the big pet games: 
 - **Cats only, at first.** Any cat the player owns, with its rarity, coat (base, gold or rainbow), charm and level. Up to TradeMaxCats (9) on each side.
 - **Never:** coins, golden fish, potions, food, crates, spins or decor, and never exclusive cats (the Bellhop Cat, shop cats and anything bought with Robux). So nothing in a trade can be bought with Robux, and there is no way to turn Robux or coins into another player's cats. Decor can join later, once trades have run clean for a while.
 - **Locked cats cannot be offered.** Gold, rainbow, Legendary and Mythical cats arrive locked (F62), so a player has to unlock a good cat on its own card, outside the trade window, before they can trade it. That one step stops most rushed giveaways.
-- A traded cat keeps its rarity, coat, charm, level and rescued flag. Its custom name goes back to its kind's name. It arrives locked if it is gold, rainbow, Legendary or Mythical, and it counts as found in the new owner's Index (source "trade").
+- A traded cat keeps its rarity, coat, charm, level and rescued flag. Its custom name goes back to its kind's name. It arrives locked if it is gold, rainbow, Legendary or Mythical, and it counts as found in the new owner's Index pages (collection, gold and rainbow; source "trade"), so it can fill milestones, but it pays no golden fish, so passing cats back and forth cannot farm fish.
+- **Why traded cats count for the Index** (decided 2026-11-02 after the #854 security review): in the big pet games a traded pet fills the index, and that is a large part of why players trade, so we do the same. It does mean a group of friends can lend each other cats to fill their Index pages, Gold and Rainbow tabs and claim those milestones. We accept that: it is playing together, every milestone pays once per player, nothing in it is sold for Robux, the luck rewards are capped (GoldLuckMax, RainbowLuckMax), and TradesPerDay (50) with TradeMaxCats (9) bounds how fast it goes. If the ads week shows Index milestones being claimed far faster by traders than by catchers, the fix is a hold time before a traded cat counts, not taking trades out of the Index.
+- **Nothing pays per trade.** `stats.trades` is for the trade log and analytics only. No quest, achievement, milestone or prize may ever count trades, because two friends can swap one cat back and forth.
 
 ## 2. Who can trade, and where
 
@@ -25,7 +27,7 @@ The layout follows the trade menus players already know from the big pet games: 
 3. **Any change resets both.** Adding or taking away a cat clears both players' Ready, stops any countdown, flashes the changed tile yellow for 2 seconds and shows "Changed!" over that side. Nobody can swap a cat out at the last moment unseen.
 4. **Ready, then a countdown.** When both press Ready, a TradeCountdownSeconds (5) countdown runs on both screens. Any change cancels it.
 5. **Confirm screen.** After the countdown both see the summary: "You give" and "You get" in big pictures with names and rarities.
-   - **Lopsided warning.** If what you give is worth at least TradeLopsidedRatio (3) times what you get (by the Collector's values: Common 1, Rare 3, Epic 8, Legendary 20, Mythical 50, gold x3, rainbow x10), a red line says "You're giving much more than you get. Are you sure?" and Confirm stays off for 2 seconds.
+   - **Lopsided warning.** If what you give is worth at least TradeLopsidedRatio (3) times what you get (by the Collector's values: Common 1, Rare 3, Epic 8, Legendary 20, Mythical 50, gold x3, rainbow x10), a red line says "You're giving much more than you get. Are you sure?" and Confirm stays off for TradeConfirmWaitSeconds (2), shown as "Confirm (2)". The server refuses a Confirm sent sooner too.
    - **Gift.** If you get nothing back, it says "You get nothing back" in red, with the same 2 second wait. Gifts to friends are allowed.
 6. **Both press Confirm** and the server makes the trade. Both see "Trade done!" with the cats flying into their cat room, and a short chime.
 
@@ -38,9 +40,9 @@ Leaving the server, walking out of the safe zone or either player's Cancel ends 
 - **Checked again at the end.** Just before the swap the server checks that both players are still in the server and in safe zones, that every cat is still owned, unlocked, not exclusive and in no other trade, and that both versions match.
 - **Nothing doubles and nothing vanishes,** even if the server shuts down mid-trade:
   1. The server writes the trade (both players, both sides' full cat data, state "pending") to the `CatCafe_Trades` DataStore and a pointer to it under each player's id in `CatCafe_TradePending`.
-  2. It applies both sides to both profiles in memory and adds the trade id to each profile's `tradeLog`.
+  2. It applies both sides to both profiles in memory and adds the trade id to each profile's `tradeIds` (the last 100 applied trade ids) and its `tradeLog`.
   3. It saves both profiles at once, then marks the trade "done" and clears the two pointers.
-  4. On every profile load, if a pointer is still there, the server finishes that player's side from the stored trade unless the profile's `tradeLog` already has it, then clears the pointer.
+  4. On every profile load, if a pointer is still there, the server finishes that player's side from the stored trade unless the profile's `tradeIds` already has it, then clears the pointer. `tradeIds` is the check, not the 20 entry `tradeLog`, so a finished trade never pays twice.
   The reviewer checks this path and QA runs it with a forced shutdown between steps 2 and 3.
 - **Rate limits:** 5 trade calls a second per player, one request out at a time.
 - **A kill switch.** `CatCafe_Flags.trading`, a DataStore flag every server reads every 60 seconds, turns trading off everywhere without a publish if something goes wrong. With it off, the Trade button says "Trading is resting for now".
@@ -53,8 +55,8 @@ Settings has a Trades page with the last 20 trades: when, with whom (their displ
 
 ## 6. Contracts
 
-- Save: `tradeLog` (up to 20 entries of `{ id, at, partnerName, gave: {CatSummary}, got: {CatSummary} }`), `settings.tradeRequests` (`"everyone"`, `"friends"` or `"off"`), `stats.trades`, `stats.tradesToday = { day, count }`.
-- Config: `TradeMinTier` 3, `TradeMaxCats` 9, `TradeCountdownSeconds` 5, `TradeLopsidedRatio` 3, `TradeRequestSeconds` 20, `TradeReaskSeconds` 60, `TradeCooldownSeconds` 10, `TradesPerDay` 50, `TradeFlagCheckSeconds` 60.
+- Save: `tradeIds` (the last 100 applied trade ids, the no-double-pay check), `tradeLog` (up to 20 entries of `{ id, at, partnerName, gave: {CatSummary}, got: {CatSummary} }`), `settings.tradeRequests` (`"everyone"`, `"friends"` or `"off"`), `stats.trades`, `stats.tradesToday = { day, count }`.
+- Config: `TradeMinTier` 3, `TradeMaxCats` 9, `TradeCountdownSeconds` 5, `TradeLopsidedRatio` 3, `TradeRequestSeconds` 20, `TradeReaskSeconds` 60, `TradeCooldownSeconds` 10, `TradeConfirmWaitSeconds` 2, `TradesPerDay` 50, `TradeFlagCheckSeconds` 60.
 - Remotes, client to server: `TradeRequest(userId)`, `TradeRespond(requestId, accept)`, `TradeOffer(tradeId, "add" | "remove", catUid)`, `TradeReady(tradeId, version, ready)`, `TradeConfirm(tradeId, version)`, `TradeCancel(tradeId)`. Server to client: `TradeAsked`, `TradeState` (both offers with tile info, version, Ready and countdown state, the totals and the lopsided flag), `TradeDone`, `TradeEnded(reason)`.
 - DataStores: `CatCafe_Trades`, `CatCafe_TradePending`, `CatCafe_Flags`.
 - Analytics: `trade_done` with the number of cats each side and the rarities, never who.
@@ -67,8 +69,10 @@ Settings has a Trades page with the last 20 trades: when, with whom (their displ
 3. Adding a cat during the countdown stops it and clears both Ready.
 4. A Confirm sent with an old version number is refused and nothing moves.
 5. Selling a cat that is in an open trade is refused, or ends the trade before the sale.
-6. A Mythical for one Common shows the lopsided warning; a gift shows "You get nothing back"; Confirm waits 2 seconds in both.
+6. A Mythical for one Common shows the lopsided warning; a gift shows "You get nothing back"; Confirm waits 2 seconds in both, and a Confirm fired at the server inside those 2 seconds is refused.
 7. Forcing a server shutdown after step 2 of section 4 and rejoining both accounts leaves each cat with exactly one owner.
 8. With the kill switch on, new trades are refused within 60 seconds in a running server.
 9. Trade requests set to Friends only refuse a request from a non-friend.
 10. The output has no user id, name or cat list from a trade.
+11. A traded cat new to the receiver shows in their Index (and Gold or Rainbow tab) and pays no golden fish.
+12. Ten trades of one cat back and forth between two accounts change nothing but `stats.trades` and the trade logs: no fish, no quest progress, no prize.

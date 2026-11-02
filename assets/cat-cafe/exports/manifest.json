@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 14:11 UTC",
+  "generated": "2026-11-02 17:31 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -69686,11 +69686,11 @@
       "size_studs": {
         "x": 1.04,
         "y": 2.04,
-        "z": 1.9
+        "z": 1.92
       },
       "size_roblox": [
         1.04,
-        1.9,
+        1.92,
         2.04
       ],
       "bounds_min": [
@@ -69701,7 +69701,7 @@
       "bounds_max": [
         0.52,
         0.98,
-        1.9
+        1.92
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -70136,11 +70136,11 @@
       "size_studs": {
         "x": 1.22,
         "y": 1.27,
-        "z": 1.87
+        "z": 1.89
       },
       "size_roblox": [
         1.22,
-        1.87,
+        1.89,
         1.27
       ],
       "bounds_min": [
@@ -70151,7 +70151,7 @@
       "bounds_max": [
         0.75,
         0.57,
-        1.87
+        1.89
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -70525,11 +70525,11 @@
       "size_studs": {
         "x": 1.56,
         "y": 1.61,
-        "z": 1.97
+        "z": 1.99
       },
       "size_roblox": [
         1.56,
-        1.97,
+        1.99,
         1.61
       ],
       "bounds_min": [
@@ -70540,7 +70540,7 @@
       "bounds_max": [
         0.85,
         0.85,
-        1.97
+        1.99
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -145783,6 +145783,348 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Sewer_Manhole.png"
     },
     {
+      "name": "CatCafe_Alley_Blocker_Bins",
+      "category": "Alley",
+      "module": "alleyblockers",
+      "objects": [
+        "CatCafe_Alley_Blocker_Bins",
+        "CatCafe_Alley_Blocker_Bins_Bulb",
+        "CatCafe_Alley_Blocker_Bins_Barrier"
+      ],
+      "triangles": 1176,
+      "budget": 6000,
+      "size_studs": {
+        "x": 17.6,
+        "y": 2.52,
+        "z": 30.0
+      },
+      "size_roblox": [
+        17.6,
+        30.0,
+        2.52
+      ],
+      "bounds_min": [
+        -2.6,
+        -1.26,
+        0.0
+      ],
+      "bounds_max": [
+        15.0,
+        1.26,
+        30.0
+      ],
+      "pivot": "the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Bins.model.json",
+      "rbx_parts": 86,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Bins.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Bins.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1176/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "604 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=6.20 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Blocker_BinsShort",
+      "category": "Alley",
+      "module": "alleyblockers",
+      "objects": [
+        "CatCafe_Alley_Blocker_BinsShort",
+        "CatCafe_Alley_Blocker_BinsShort_Bulb",
+        "CatCafe_Alley_Blocker_BinsShort_Barrier"
+      ],
+      "triangles": 644,
+      "budget": 6000,
+      "size_studs": {
+        "x": 10.1,
+        "y": 2.52,
+        "z": 30.0
+      },
+      "size_roblox": [
+        10.1,
+        30.0,
+        2.52
+      ],
+      "bounds_min": [
+        4.9,
+        -1.26,
+        0.0
+      ],
+      "bounds_max": [
+        15.0,
+        1.26,
+        30.0
+      ],
+      "pivot": "the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_BinsShort.model.json",
+      "rbx_parts": 45,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_BinsShort.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_BinsShort.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "644/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "322 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=9.95 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Blocker_Pallets",
+      "category": "Alley",
+      "module": "alleyblockers",
+      "objects": [
+        "CatCafe_Alley_Blocker_Pallets",
+        "CatCafe_Alley_Blocker_Pallets_Bulb",
+        "CatCafe_Alley_Blocker_Pallets_Barrier"
+      ],
+      "triangles": 3392,
+      "budget": 8000,
+      "size_studs": {
+        "x": 17.6,
+        "y": 2.92,
+        "z": 30.0
+      },
+      "size_roblox": [
+        17.6,
+        30.0,
+        2.92
+      ],
+      "bounds_min": [
+        -2.6,
+        -1.46,
+        0.0
+      ],
+      "bounds_max": [
+        15.0,
+        1.46,
+        30.0
+      ],
+      "pivot": "the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Pallets.model.json",
+      "rbx_parts": 295,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Pallets.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Pallets.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3392/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1680 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=6.20 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Blocker_PalletsShort",
+      "category": "Alley",
+      "module": "alleyblockers",
+      "objects": [
+        "CatCafe_Alley_Blocker_PalletsShort",
+        "CatCafe_Alley_Blocker_PalletsShort_Bulb",
+        "CatCafe_Alley_Blocker_PalletsShort_Barrier"
+      ],
+      "triangles": 1590,
+      "budget": 6000,
+      "size_studs": {
+        "x": 10.1,
+        "y": 2.92,
+        "z": 30.0
+      },
+      "size_roblox": [
+        10.1,
+        30.0,
+        2.92
+      ],
+      "bounds_min": [
+        4.9,
+        -1.46,
+        0.0
+      ],
+      "bounds_max": [
+        15.0,
+        1.46,
+        30.0
+      ],
+      "pivot": "the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_PalletsShort.model.json",
+      "rbx_parts": 132,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_PalletsShort.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_PalletsShort.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1590/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "779 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=9.95 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Blocker_Skip",
+      "category": "Alley",
+      "module": "alleyblockers",
+      "objects": [
+        "CatCafe_Alley_Blocker_Skip",
+        "CatCafe_Alley_Blocker_Skip_Bulb",
+        "CatCafe_Alley_Blocker_Skip_Barrier"
+      ],
+      "triangles": 2670,
+      "budget": 8000,
+      "size_studs": {
+        "x": 17.6,
+        "y": 5.4,
+        "z": 30.0
+      },
+      "size_roblox": [
+        17.6,
+        30.0,
+        5.4
+      ],
+      "bounds_min": [
+        -2.6,
+        -2.7,
+        0.0
+      ],
+      "bounds_max": [
+        15.0,
+        2.7,
+        30.0
+      ],
+      "pivot": "the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Skip.model.json",
+      "rbx_parts": 226,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Skip.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Skip.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2670/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1353 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=6.20 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Alley_Blocker_Van",
+      "category": "Alley",
+      "module": "alleyblockers",
+      "objects": [
+        "CatCafe_Alley_Blocker_Van",
+        "CatCafe_Alley_Blocker_Van_Bulb",
+        "CatCafe_Alley_Blocker_Van_Barrier"
+      ],
+      "triangles": 2564,
+      "budget": 8000,
+      "size_studs": {
+        "x": 17.6,
+        "y": 11.4,
+        "z": 30.01
+      },
+      "size_roblox": [
+        17.6,
+        30.01,
+        11.4
+      ],
+      "bounds_min": [
+        -2.6,
+        -5.7,
+        -0.01
+      ],
+      "bounds_max": [
+        15.0,
+        5.7,
+        30.0
+      ],
+      "pivot": "the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Van.model.json",
+      "rbx_parts": 189,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Van.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Van.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2564/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1242 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=6.20 y=0.00"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Alley_IndexBoard",
       "category": "Alley",
       "module": "boards",
@@ -155561,6 +155903,1668 @@
       }
     },
     {
+      "name": "CatCafe_Woods_SetF85",
+      "category": "Woods",
+      "module": "woodsf85",
+      "objects": [
+        "CatCafe_Woods_SetF85",
+        "CatCafe_Woods_SetF85_000_WallCliff",
+        "CatCafe_Woods_SetF85_001_OldTree",
+        "CatCafe_Woods_SetF85_002_WallThicket",
+        "CatCafe_Woods_SetF85_003_OldTree",
+        "CatCafe_Woods_SetF85_004_WallPalisade",
+        "CatCafe_Woods_SetF85_005_OldTree",
+        "CatCafe_Woods_SetF85_006_WallDrystone",
+        "CatCafe_Woods_SetF85_007_OldTree",
+        "CatCafe_Woods_SetF85_008_WallCliff",
+        "CatCafe_Woods_SetF85_009_WallThicket",
+        "CatCafe_Woods_SetF85_010_OldTree",
+        "CatCafe_Woods_SetF85_011_WallDrystone",
+        "CatCafe_Woods_SetF85_012_OldTree",
+        "CatCafe_Woods_SetF85_013_WallPalisade",
+        "CatCafe_Woods_SetF85_014_OldTree",
+        "CatCafe_Woods_SetF85_015_WallThicket",
+        "CatCafe_Woods_SetF85_016_OldTree",
+        "CatCafe_Woods_SetF85_017_WallCliff",
+        "CatCafe_Woods_SetF85_018_OldTree",
+        "CatCafe_Woods_SetF85_019_WallDrystone",
+        "CatCafe_Woods_SetF85_020_OldTree",
+        "CatCafe_Woods_SetF85_021_WallThicket",
+        "CatCafe_Woods_SetF85_022_OldTree",
+        "CatCafe_Woods_SetF85_023_WallCliff",
+        "CatCafe_Woods_SetF85_024_OldTree",
+        "CatCafe_Woods_SetF85_025_WallDrystone",
+        "CatCafe_Woods_SetF85_026_OldTree",
+        "CatCafe_Woods_SetF85_027_WallThicket",
+        "CatCafe_Woods_SetF85_028_OldTree",
+        "CatCafe_Woods_SetF85_029_WallCliff",
+        "CatCafe_Woods_SetF85_030_OldTree",
+        "CatCafe_Woods_SetF85_031_WallDrystone",
+        "CatCafe_Woods_SetF85_032_OldTree",
+        "CatCafe_Woods_SetF85_033_WallThicket",
+        "CatCafe_Woods_SetF85_034_OldTree",
+        "CatCafe_Woods_SetF85_035_WallCliff",
+        "CatCafe_Woods_SetF85_036_OldTree",
+        "CatCafe_Woods_SetF85_037_WallPalisade",
+        "CatCafe_Woods_SetF85_038_WallPalisade",
+        "CatCafe_Woods_SetF85_039_OldTree",
+        "CatCafe_Woods_SetF85_040_WallCliff",
+        "CatCafe_Woods_SetF85_041_OldTree",
+        "CatCafe_Woods_SetF85_042_WallThicket",
+        "CatCafe_Woods_SetF85_043_OldTree",
+        "CatCafe_Woods_SetF85_044_WallDrystone",
+        "CatCafe_Woods_SetF85_045_OldTree",
+        "CatCafe_Woods_SetF85_046_WallCliff",
+        "CatCafe_Woods_SetF85_047_OldTree",
+        "CatCafe_Woods_SetF85_048_WallThicket",
+        "CatCafe_Woods_SetF85_049_OldTree",
+        "CatCafe_Woods_SetF85_050_WallDrystone",
+        "CatCafe_Woods_SetF85_051_OldTree",
+        "CatCafe_Woods_SetF85_052_WallCliff",
+        "CatCafe_Woods_SetF85_053_OldTree",
+        "CatCafe_Woods_SetF85_054_WallThicket",
+        "CatCafe_Woods_SetF85_055_OldTree",
+        "CatCafe_Woods_SetF85_056_WallDrystone",
+        "CatCafe_Woods_SetF85_057_OldTree",
+        "CatCafe_Woods_SetF85_058_WallCliff",
+        "CatCafe_Woods_SetF85_059_OldTree",
+        "CatCafe_Woods_SetF85_060_WallThicket",
+        "CatCafe_Woods_SetF85_061_OldTree",
+        "CatCafe_Woods_SetF85_062_WallDrystone",
+        "CatCafe_Woods_SetF85_063_OldTree",
+        "CatCafe_Woods_SetF85_064_WallPalisade",
+        "CatCafe_Woods_SetF85_065_OldTree",
+        "CatCafe_Woods_SetF85_066_WallCliff",
+        "CatCafe_Woods_SetF85_067_OldTree",
+        "CatCafe_Woods_SetF85_068_MossyRock",
+        "CatCafe_Woods_SetF85_069_RailFence",
+        "CatCafe_Woods_SetF85_070_Lantern",
+        "CatCafe_Woods_SetF85_070_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_071_OldTree",
+        "CatCafe_Woods_SetF85_072_MossyRock",
+        "CatCafe_Woods_SetF85_073_RailFence",
+        "CatCafe_Woods_SetF85_074_Lantern",
+        "CatCafe_Woods_SetF85_074_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_075_Walls_Barrier",
+        "CatCafe_Woods_SetF85_076_FallenTimber",
+        "CatCafe_Woods_SetF85_076_FallenTimber_Barrier",
+        "CatCafe_Woods_SetF85_077_Lantern",
+        "CatCafe_Woods_SetF85_077_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_078_Lantern",
+        "CatCafe_Woods_SetF85_078_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_079_TreeLine",
+        "CatCafe_Woods_SetF85_079_TreeLine_Barrier",
+        "CatCafe_Woods_SetF85_080_StoneWall",
+        "CatCafe_Woods_SetF85_080_StoneWall_Barrier",
+        "CatCafe_Woods_SetF85_081_FieldGate",
+        "CatCafe_Woods_SetF85_082_Lantern",
+        "CatCafe_Woods_SetF85_082_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_083_Lantern",
+        "CatCafe_Woods_SetF85_083_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_084_BoulderRidge",
+        "CatCafe_Woods_SetF85_084_BoulderRidge_Barrier",
+        "CatCafe_Woods_SetF85_085_TrailArch",
+        "CatCafe_Woods_SetF85_085_TrailArchText",
+        "CatCafe_Woods_SetF85_086_Stream",
+        "CatCafe_Woods_SetF85_086_Stream_Water",
+        "CatCafe_Woods_SetF85_086_Stream_Barrier",
+        "CatCafe_Woods_SetF85_087_LogBridge",
+        "CatCafe_Woods_SetF85_088_WaterfallPond",
+        "CatCafe_Woods_SetF85_088_WaterfallPond_Water",
+        "CatCafe_Woods_SetF85_089_Signpost",
+        "CatCafe_Woods_SetF85_090_BerryBush",
+        "CatCafe_Woods_SetF85_091_BerryBush",
+        "CatCafe_Woods_SetF85_092_BerryBush",
+        "CatCafe_Woods_SetF85_093_LeafPile_Decor",
+        "CatCafe_Woods_SetF85_094_Stump",
+        "CatCafe_Woods_SetF85_095_Stump",
+        "CatCafe_Woods_SetF85_096_MossyRock",
+        "CatCafe_Woods_SetF85_097_Fern",
+        "CatCafe_Woods_SetF85_098_Fern",
+        "CatCafe_Woods_SetF85_099_FallenLog",
+        "CatCafe_Woods_SetF85_100_MushroomSmall",
+        "CatCafe_Woods_SetF85_101_MushroomRing",
+        "CatCafe_Woods_SetF85_101_MushroomRing_Bulb",
+        "CatCafe_Woods_SetF85_102_MushroomGlowing",
+        "CatCafe_Woods_SetF85_102_MushroomGlowing_Bulb",
+        "CatCafe_Woods_SetF85_103_MossyRock",
+        "CatCafe_Woods_SetF85_104_MossyRock",
+        "CatCafe_Woods_SetF85_105_Fern",
+        "CatCafe_Woods_SetF85_106_Fern",
+        "CatCafe_Woods_SetF85_107_Fern",
+        "CatCafe_Woods_SetF85_108_Stump",
+        "CatCafe_Woods_SetF85_109_LogPile",
+        "CatCafe_Woods_SetF85_110_Lantern",
+        "CatCafe_Woods_SetF85_110_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_111_Lantern",
+        "CatCafe_Woods_SetF85_111_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_112_HollowLog",
+        "CatCafe_Woods_SetF85_113_BerryBush",
+        "CatCafe_Woods_SetF85_114_BerryBush",
+        "CatCafe_Woods_SetF85_115_BerryBush",
+        "CatCafe_Woods_SetF85_116_LeafPile_Decor",
+        "CatCafe_Woods_SetF85_117_MossyRock",
+        "CatCafe_Woods_SetF85_118_MossyRock",
+        "CatCafe_Woods_SetF85_119_Fern",
+        "CatCafe_Woods_SetF85_120_Fern",
+        "CatCafe_Woods_SetF85_121_Stump",
+        "CatCafe_Woods_SetF85_122_MushroomSmall",
+        "CatCafe_Woods_SetF85_123_Lantern",
+        "CatCafe_Woods_SetF85_123_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_124_Lantern",
+        "CatCafe_Woods_SetF85_124_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_125_Lantern",
+        "CatCafe_Woods_SetF85_125_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_126_Lantern",
+        "CatCafe_Woods_SetF85_126_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_127_BrambleBush",
+        "CatCafe_Woods_SetF85_128_BerryBush",
+        "CatCafe_Woods_SetF85_129_BerryBush",
+        "CatCafe_Woods_SetF85_130_MossyRock",
+        "CatCafe_Woods_SetF85_131_MossyRock",
+        "CatCafe_Woods_SetF85_132_Fern",
+        "CatCafe_Woods_SetF85_133_Fern",
+        "CatCafe_Woods_SetF85_134_MushroomGlowing",
+        "CatCafe_Woods_SetF85_134_MushroomGlowing_Bulb",
+        "CatCafe_Woods_SetF85_135_FallenLog",
+        "CatCafe_Woods_SetF85_136_LeafPile_Decor",
+        "CatCafe_Woods_SetF85_137_Stump",
+        "CatCafe_Woods_SetF85_138_LogPile",
+        "CatCafe_Woods_SetF85_139_Lantern",
+        "CatCafe_Woods_SetF85_139_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_140_Lantern",
+        "CatCafe_Woods_SetF85_140_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_141_Tent",
+        "CatCafe_Woods_SetF85_142_Tent",
+        "CatCafe_Woods_SetF85_143_Campfire",
+        "CatCafe_Woods_SetF85_143_Campfire_Glow",
+        "CatCafe_Woods_SetF85_144_LogBench",
+        "CatCafe_Woods_SetF85_145_LogBench",
+        "CatCafe_Woods_SetF85_146_LogPile",
+        "CatCafe_Woods_SetF85_147_HollowLog",
+        "CatCafe_Woods_SetF85_148_LeafPile_Decor",
+        "CatCafe_Woods_SetF85_149_MossyRock",
+        "CatCafe_Woods_SetF85_150_Fern",
+        "CatCafe_Woods_SetF85_151_Fern",
+        "CatCafe_Woods_SetF85_152_MushroomGlowing",
+        "CatCafe_Woods_SetF85_152_MushroomGlowing_Bulb",
+        "CatCafe_Woods_SetF85_153_Stump",
+        "CatCafe_Woods_SetF85_154_BerryBush",
+        "CatCafe_Woods_SetF85_155_BerryBush",
+        "CatCafe_Woods_SetF85_156_Lantern",
+        "CatCafe_Woods_SetF85_156_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_157_Lantern",
+        "CatCafe_Woods_SetF85_157_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_158_GreatOak",
+        "CatCafe_Woods_SetF85_158_GreatOak_Pane",
+        "CatCafe_Woods_SetF85_158_GreatOak_Bulb",
+        "CatCafe_Woods_SetF85_158_GreatOak_Climb",
+        "CatCafe_Woods_SetF85_159_LogBench",
+        "CatCafe_Woods_SetF85_160_LogBench",
+        "CatCafe_Woods_SetF85_161_LogBench",
+        "CatCafe_Woods_SetF85_162_Campfire",
+        "CatCafe_Woods_SetF85_162_Campfire_Glow",
+        "CatCafe_Woods_SetF85_163_Treehouse",
+        "CatCafe_Woods_SetF85_163_Treehouse_Pane",
+        "CatCafe_Woods_SetF85_163_Treehouse_Climb",
+        "CatCafe_Woods_SetF85_164_LookoutTower",
+        "CatCafe_Woods_SetF85_164_LookoutTower_Climb",
+        "CatCafe_Woods_SetF85_165_Signpost",
+        "CatCafe_Woods_SetF85_166_Lantern",
+        "CatCafe_Woods_SetF85_166_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_167_Lantern",
+        "CatCafe_Woods_SetF85_167_Lantern_Bulb",
+        "CatCafe_Woods_SetF85_168_BrambleBush",
+        "CatCafe_Woods_SetF85_169_MushroomGlowing",
+        "CatCafe_Woods_SetF85_169_MushroomGlowing_Bulb",
+        "CatCafe_Woods_SetF85_170_MossyRock",
+        "CatCafe_Woods_SetF85_171_Fern",
+        "CatCafe_Woods_SetF85_172_BerryBush",
+        "CatCafe_Woods_SetF85_173_LeafPile_Decor",
+        "CatCafe_Woods_SetF85_174_MushroomSmall",
+        "CatCafe_Woods_SetF85_175_PineTall",
+        "CatCafe_Woods_SetF85_176_PineTall",
+        "CatCafe_Woods_SetF85_177_PineTall",
+        "CatCafe_Woods_SetF85_178_PineTall",
+        "CatCafe_Woods_SetF85_179_PineTall",
+        "CatCafe_Woods_SetF85_180_PineTall",
+        "CatCafe_Woods_SetF85_181_PineTall",
+        "CatCafe_Woods_SetF85_182_PineTall",
+        "CatCafe_Woods_SetF85_183_PineTall",
+        "CatCafe_Woods_SetF85_184_PineTall",
+        "CatCafe_Woods_SetF85_185_OakRound",
+        "CatCafe_Woods_SetF85_186_PineTall",
+        "CatCafe_Woods_SetF85_187_PineTall",
+        "CatCafe_Woods_SetF85_188_OakRound",
+        "CatCafe_Woods_SetF85_189_PineTall",
+        "CatCafe_Woods_SetF85_190_OakRound",
+        "CatCafe_Woods_SetF85_191_PineTall",
+        "CatCafe_Woods_SetF85_192_PineTall",
+        "CatCafe_Woods_SetF85_193_OakRound",
+        "CatCafe_Woods_SetF85_194_PineTall",
+        "CatCafe_Woods_SetF85_195_PineTall",
+        "CatCafe_Woods_SetF85_196_PineTall",
+        "CatCafe_Woods_SetF85_197_PineTall",
+        "CatCafe_Woods_SetF85_198_PineTall",
+        "CatCafe_Woods_SetF85_199_PineTall",
+        "CatCafe_Woods_SetF85_200_PineTall",
+        "CatCafe_Woods_SetF85_201_PineTall",
+        "CatCafe_Woods_SetF85_202_PineTall",
+        "CatCafe_Woods_SetF85_203_OakRound",
+        "CatCafe_Woods_SetF85_204_PineTall",
+        "CatCafe_Woods_SetF85_205_PineTall",
+        "CatCafe_Woods_SetF85_206_PineTall",
+        "CatCafe_Woods_SetF85_207_PineTall",
+        "CatCafe_Woods_SetF85_208_PineTall",
+        "CatCafe_Woods_SetF85_209_PineTall",
+        "CatCafe_Woods_SetF85_210_PineTall",
+        "CatCafe_Woods_SetF85_211_PineTall",
+        "CatCafe_Woods_SetF85_212_PineTall",
+        "CatCafe_Woods_SetF85_213_PineTall",
+        "CatCafe_Woods_SetF85_214_PineTall",
+        "CatCafe_Woods_SetF85_215_OakRound",
+        "CatCafe_Woods_SetF85_216_PineTall",
+        "CatCafe_Woods_SetF85_217_OakRound",
+        "CatCafe_Woods_SetF85_218_PineTall",
+        "CatCafe_Woods_SetF85_219_PineTall",
+        "CatCafe_Woods_SetF85_220_PineTall",
+        "CatCafe_Woods_SetF85_221_OakRound",
+        "CatCafe_Woods_SetF85_222_PineTall",
+        "CatCafe_Woods_SetF85_223_PineTall",
+        "CatCafe_Woods_SetF85_224_PineTall",
+        "CatCafe_Woods_SetF85_225_PineTall",
+        "CatCafe_Woods_SetF85_226_OakRound",
+        "CatCafe_Woods_SetF85_227_PineTall",
+        "CatCafe_Woods_SetF85_228_PineTall",
+        "CatCafe_Woods_SetF85_229_PineTall",
+        "CatCafe_Woods_SetF85_230_OakRound",
+        "CatCafe_Woods_SetF85_231_PineTall",
+        "CatCafe_Woods_SetF85_232_PineTall",
+        "CatCafe_Woods_SetF85_233_OakRound",
+        "CatCafe_Woods_SetF85_234_PineTall",
+        "CatCafe_Woods_SetF85_235_PineTall",
+        "CatCafe_Woods_SetF85_236_PineTall",
+        "CatCafe_Woods_SetF85_237_PineTall",
+        "CatCafe_Woods_SetF85_238_PineTall",
+        "CatCafe_Woods_SetF85_239_PineTall",
+        "CatCafe_Woods_SetF85_240_PineTall",
+        "CatCafe_Woods_SetF85_241_PineTall",
+        "CatCafe_Woods_SetF85_242_PineTall",
+        "CatCafe_Woods_SetF85_243_PineTall",
+        "CatCafe_Woods_SetF85_244_OakRound",
+        "CatCafe_Woods_SetF85_245_PineTall",
+        "CatCafe_Woods_SetF85_246_PineTall",
+        "CatCafe_Woods_SetF85_247_OakRound",
+        "CatCafe_Woods_SetF85_248_PineTall",
+        "CatCafe_Woods_SetF85_249_PineTall",
+        "CatCafe_Woods_SetF85_250_OakRound",
+        "CatCafe_Woods_SetF85_251_PineTall",
+        "CatCafe_Woods_SetF85_252_PineTall",
+        "CatCafe_Woods_SetF85_253_PineTall",
+        "CatCafe_Woods_SetF85_254_OakRound",
+        "CatCafe_Woods_SetF85_255_PineTall",
+        "CatCafe_Woods_SetF85_256_PineTall",
+        "CatCafe_Woods_SetF85_257_PineTall",
+        "CatCafe_Woods_SetF85_258_PineTall",
+        "CatCafe_Woods_SetF85_259_OakRound",
+        "CatCafe_Woods_SetF85_260_PineTall",
+        "CatCafe_Woods_SetF85_261_PineTall",
+        "CatCafe_Woods_SetF85_262_PineTall",
+        "CatCafe_Woods_SetF85_263_PineTall",
+        "CatCafe_Woods_SetF85_264_PineTall",
+        "CatCafe_Woods_SetF85_265_PineTall",
+        "CatCafe_Woods_SetF85_266_OakRound",
+        "CatCafe_Woods_SetF85_267_PineTall",
+        "CatCafe_Woods_SetF85_268_PineTall",
+        "CatCafe_Woods_SetF85_269_PineTall",
+        "CatCafe_Woods_SetF85_270_PineTall",
+        "CatCafe_Woods_SetF85_271_PineTall",
+        "CatCafe_Woods_SetF85_272_OakRound",
+        "CatCafe_Woods_SetF85_273_OakRound"
+      ],
+      "triangles": 132212,
+      "budget": 150000,
+      "size_studs": {
+        "x": 160.0,
+        "y": 489.5,
+        "z": 44.48
+      },
+      "size_roblox": [
+        160.0,
+        44.48,
+        489.5
+      ],
+      "bounds_min": [
+        -80.0,
+        -244.5,
+        -0.98
+      ],
+      "bounds_max": [
+        80.0,
+        245.0,
+        43.5
+      ],
+      "pivot": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "bridge": [
+          [
+            -51.5,
+            0.0,
+            -106.5,
+            "near"
+          ],
+          [
+            -40.5,
+            0.0,
+            -73.5,
+            "near"
+          ]
+        ],
+        "waterfall": [
+          [
+            64.0,
+            0.0,
+            -102.48,
+            "near"
+          ]
+        ],
+        "berry_bush": [
+          [
+            -30,
+            0.0,
+            -223.8,
+            "near"
+          ],
+          [
+            -48,
+            0.0,
+            -213.8,
+            "near"
+          ],
+          [
+            -62,
+            0.0,
+            -227.8,
+            "near"
+          ],
+          [
+            -56,
+            0.0,
+            -61.8,
+            "near"
+          ],
+          [
+            -8,
+            0.0,
+            -63.8,
+            "near"
+          ],
+          [
+            10,
+            0.0,
+            -53.8,
+            "near"
+          ],
+          [
+            20,
+            0.0,
+            34.2,
+            "deep"
+          ],
+          [
+            -6,
+            0.0,
+            48.2,
+            "deep"
+          ],
+          [
+            -34,
+            0.0,
+            76.2,
+            "deep"
+          ],
+          [
+            8,
+            0.0,
+            132.2,
+            "deep"
+          ],
+          [
+            28,
+            0.0,
+            222.2,
+            "deep"
+          ]
+        ],
+        "leaf_pile": [
+          [
+            -16,
+            0.0,
+            -204,
+            "near"
+          ],
+          [
+            30,
+            0.0,
+            -54,
+            "near"
+          ],
+          [
+            -52,
+            0.0,
+            32,
+            "deep"
+          ],
+          [
+            -56,
+            0.0,
+            92,
+            "deep"
+          ],
+          [
+            66,
+            0.0,
+            236,
+            "deep"
+          ]
+        ],
+        "stump": [
+          [
+            -60,
+            1.66,
+            -192,
+            "near"
+          ],
+          [
+            -34,
+            1.66,
+            -186,
+            "near"
+          ],
+          [
+            8,
+            1.66,
+            -112,
+            "near"
+          ],
+          [
+            -16,
+            1.66,
+            -76,
+            "near"
+          ],
+          [
+            -24,
+            1.66,
+            58,
+            "deep"
+          ],
+          [
+            2,
+            1.66,
+            88,
+            "deep"
+          ]
+        ],
+        "fern": [
+          [
+            60,
+            0.0,
+            -230,
+            "near"
+          ],
+          [
+            16,
+            0.0,
+            -156,
+            "near"
+          ],
+          [
+            40,
+            0.0,
+            -118,
+            "near"
+          ],
+          [
+            -34,
+            0.0,
+            -30,
+            "near"
+          ],
+          [
+            58,
+            0.0,
+            28,
+            "deep"
+          ],
+          [
+            2,
+            0.0,
+            6,
+            "deep"
+          ],
+          [
+            28,
+            0.0,
+            96,
+            "deep"
+          ],
+          [
+            -66,
+            0.0,
+            142,
+            "deep"
+          ],
+          [
+            30,
+            0.0,
+            198,
+            "deep"
+          ]
+        ],
+        "log": [
+          [
+            58.9,
+            0.0,
+            -208.36,
+            "near"
+          ],
+          [
+            59.75,
+            0.0,
+            10.7,
+            "deep"
+          ]
+        ],
+        "mushroom_ring": [
+          [
+            -30.0,
+            0.05,
+            -146.0,
+            "near"
+          ]
+        ],
+        "glow_mushrooms": [
+          [
+            -62,
+            0.0,
+            -139.5,
+            "near"
+          ],
+          [
+            40,
+            0.0,
+            50.5,
+            "deep"
+          ],
+          [
+            -40,
+            0.0,
+            136.5,
+            "deep"
+          ],
+          [
+            -66,
+            0.0,
+            214.5,
+            "deep"
+          ]
+        ],
+        "rock": [
+          [
+            64,
+            2.0,
+            -156,
+            "near"
+          ],
+          [
+            -64,
+            2.0,
+            -116,
+            "near"
+          ],
+          [
+            -64,
+            2.0,
+            -40,
+            "near"
+          ],
+          [
+            64,
+            2.0,
+            -60,
+            "near"
+          ],
+          [
+            66,
+            2.0,
+            46,
+            "deep"
+          ],
+          [
+            -40,
+            2.0,
+            8,
+            "deep"
+          ],
+          [
+            -20,
+            2.0,
+            132,
+            "deep"
+          ],
+          [
+            -64,
+            2.0,
+            166,
+            "deep"
+          ]
+        ],
+        "log_pile": [
+          [
+            -58.05,
+            0.0,
+            -163.38,
+            "near"
+          ],
+          [
+            -63.33,
+            0.0,
+            48.34,
+            "deep"
+          ]
+        ],
+        "trap_hollow_log": [
+          [
+            62,
+            0.0,
+            -128,
+            "near",
+            20
+          ],
+          [
+            -62,
+            0.0,
+            122,
+            "deep",
+            -20
+          ]
+        ],
+        "glade": [
+          [
+            14,
+            0.0,
+            -20,
+            "near"
+          ],
+          [
+            -26,
+            0.0,
+            16,
+            "deep"
+          ],
+          [
+            16,
+            0.0,
+            56,
+            "deep"
+          ]
+        ],
+        "trap_bramble_bush": [
+          [
+            -62,
+            0.0,
+            18,
+            "deep",
+            0
+          ],
+          [
+            64,
+            0.0,
+            176,
+            "deep",
+            0
+          ]
+        ],
+        "dell": [
+          [
+            54,
+            0.0,
+            40,
+            "deep"
+          ]
+        ],
+        "tent": [
+          [
+            49.61,
+            0.0,
+            101.84,
+            "deep"
+          ],
+          [
+            58.61,
+            0.0,
+            100.05,
+            "deep"
+          ]
+        ],
+        "log_bench": [
+          [
+            48.0,
+            2.06,
+            93.0,
+            "deep"
+          ],
+          [
+            60.0,
+            2.06,
+            92.0,
+            "deep"
+          ],
+          [
+            -14,
+            2.06,
+            218,
+            "deep"
+          ],
+          [
+            -50,
+            2.06,
+            218,
+            "deep"
+          ],
+          [
+            -44,
+            2.06,
+            188,
+            "deep"
+          ]
+        ],
+        "old_camp": [
+          [
+            52.0,
+            0.0,
+            86.5,
+            "deep"
+          ]
+        ],
+        "oak_nook": [
+          [
+            -38.74,
+            0.0,
+            206.93,
+            "deep"
+          ],
+          [
+            -34.56,
+            0.0,
+            212.3,
+            "deep"
+          ],
+          [
+            -27.64,
+            0.0,
+            211.22,
+            "deep"
+          ]
+        ],
+        "nook_great_oak": [
+          [
+            -29.4,
+            18.0,
+            206.89,
+            "deep"
+          ],
+          [
+            -32.23,
+            18.0,
+            203.26,
+            "deep"
+          ],
+          [
+            -30.58,
+            18.3,
+            204.89,
+            "deep"
+          ]
+        ],
+        "treehouse": [
+          [
+            51.71,
+            10.3,
+            211.89,
+            "deep"
+          ]
+        ],
+        "trap_treehouse_branch": [
+          [
+            54.16,
+            15.45,
+            215.11,
+            "deep",
+            87.21
+          ]
+        ],
+        "treehouse_foot": [
+          [
+            42.66,
+            0.0,
+            206.64,
+            "deep"
+          ]
+        ],
+        "tower": [
+          [
+            12.0,
+            0.0,
+            230.0,
+            "deep"
+          ]
+        ],
+        "clearing": [
+          [
+            -62,
+            0.0,
+            186,
+            "deep"
+          ],
+          [
+            -58,
+            0.0,
+            230,
+            "deep"
+          ]
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetF85.model.json",
+      "rbx_parts": 6208,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Woods_SetF85.fbx",
+        "assets/cat-cafe/exports/CatCafe_Woods_SetF85.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "132212/150000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "83191 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.98 (want 0)",
+          "centered": "footprint center x=0.00 y=0.25"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Sewer_SetF85",
+      "category": "Sewer",
+      "module": "sewerf85",
+      "objects": [
+        "CatCafe_Sewer_SetF85",
+        "CatCafe_Sewer_SetF85_000_TunnelMouth",
+        "CatCafe_Sewer_SetF85_000_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetF85_000_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetF85_001_Wall",
+        "CatCafe_Sewer_SetF85_002_Wall",
+        "CatCafe_Sewer_SetF85_003_TunnelMouth",
+        "CatCafe_Sewer_SetF85_003_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetF85_003_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetF85_004_TunnelMouth",
+        "CatCafe_Sewer_SetF85_004_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetF85_004_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetF85_005_TunnelMouth",
+        "CatCafe_Sewer_SetF85_005_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetF85_005_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetF85_006_TunnelMouth",
+        "CatCafe_Sewer_SetF85_006_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetF85_006_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetF85_007_Wall",
+        "CatCafe_Sewer_SetF85_008_Wall",
+        "CatCafe_Sewer_SetF85_009_Wall",
+        "CatCafe_Sewer_SetF85_010_Wall",
+        "CatCafe_Sewer_SetF85_011_Wall",
+        "CatCafe_Sewer_SetF85_012_Wall",
+        "CatCafe_Sewer_SetF85_013_CornerPier",
+        "CatCafe_Sewer_SetF85_014_CornerColumn",
+        "CatCafe_Sewer_SetF85_015_TunnelMouth",
+        "CatCafe_Sewer_SetF85_015_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetF85_015_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetF85_016_Wall",
+        "CatCafe_Sewer_SetF85_017_Wall",
+        "CatCafe_Sewer_SetF85_018_TunnelMouth",
+        "CatCafe_Sewer_SetF85_018_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetF85_018_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetF85_019_TunnelMouth",
+        "CatCafe_Sewer_SetF85_019_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetF85_019_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetF85_020_TunnelMouth",
+        "CatCafe_Sewer_SetF85_020_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetF85_020_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetF85_021_TunnelMouth",
+        "CatCafe_Sewer_SetF85_021_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetF85_021_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetF85_022_TunnelMouth",
+        "CatCafe_Sewer_SetF85_022_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetF85_022_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetF85_023_Wall",
+        "CatCafe_Sewer_SetF85_024_Wall",
+        "CatCafe_Sewer_SetF85_025_Wall",
+        "CatCafe_Sewer_SetF85_026_Wall",
+        "CatCafe_Sewer_SetF85_027_Wall",
+        "CatCafe_Sewer_SetF85_028_Wall",
+        "CatCafe_Sewer_SetF85_029_Wall",
+        "CatCafe_Sewer_SetF85_030_CornerPier",
+        "CatCafe_Sewer_SetF85_031_CornerColumn",
+        "CatCafe_Sewer_SetF85_032_TunnelMouth",
+        "CatCafe_Sewer_SetF85_032_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetF85_032_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetF85_033_Wall",
+        "CatCafe_Sewer_SetF85_034_Wall",
+        "CatCafe_Sewer_SetF85_035_Wall",
+        "CatCafe_Sewer_SetF85_036_TownWall",
+        "CatCafe_Sewer_SetF85_037_TownWall",
+        "CatCafe_Sewer_SetF85_038_Walls_Barrier",
+        "CatCafe_Sewer_SetF85_039_Canal",
+        "CatCafe_Sewer_SetF85_039_Canal_Water",
+        "CatCafe_Sewer_SetF85_039_Canal_Barrier",
+        "CatCafe_Sewer_SetF85_040_Channel",
+        "CatCafe_Sewer_SetF85_040_Channel_Water",
+        "CatCafe_Sewer_SetF85_040_Channel_Barrier",
+        "CatCafe_Sewer_SetF85_041_Pool",
+        "CatCafe_Sewer_SetF85_041_Pool_Water",
+        "CatCafe_Sewer_SetF85_041_Pool_Barrier",
+        "CatCafe_Sewer_SetF85_042_TunnelFront",
+        "CatCafe_Sewer_SetF85_042_TunnelFront_Bulb",
+        "CatCafe_Sewer_SetF85_042_TunnelFront_Barrier",
+        "CatCafe_Sewer_SetF85_043_VaultWall",
+        "CatCafe_Sewer_SetF85_043_VaultWall_Bulb",
+        "CatCafe_Sewer_SetF85_043_VaultWall_Barrier",
+        "CatCafe_Sewer_SetF85_044_Roof",
+        "CatCafe_Sewer_SetF85_044_Roof_Bulb",
+        "CatCafe_Sewer_SetF85_045_Rubble",
+        "CatCafe_Sewer_SetF85_045_Rubble_Barrier",
+        "CatCafe_Sewer_SetF85_046_TimberProps",
+        "CatCafe_Sewer_SetF85_047_PipeBank",
+        "CatCafe_Sewer_SetF85_047_PipeBank_Barrier",
+        "CatCafe_Sewer_SetF85_048_Culvert",
+        "CatCafe_Sewer_SetF85_048_Culvert_Water",
+        "CatCafe_Sewer_SetF85_048_Culvert_Glow",
+        "CatCafe_Sewer_SetF85_048_Culvert_Decor",
+        "CatCafe_Sewer_SetF85_049_BrickBridge",
+        "CatCafe_Sewer_SetF85_049_BrickBridge_Bulb",
+        "CatCafe_Sewer_SetF85_050_CatwalkBridge",
+        "CatCafe_Sewer_SetF85_051_WallLantern",
+        "CatCafe_Sewer_SetF85_051_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_052_WallLantern",
+        "CatCafe_Sewer_SetF85_052_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_053_WallLantern",
+        "CatCafe_Sewer_SetF85_053_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_054_WallLantern",
+        "CatCafe_Sewer_SetF85_054_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_055_WallLantern",
+        "CatCafe_Sewer_SetF85_055_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_056_WallLantern",
+        "CatCafe_Sewer_SetF85_056_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_057_WallLantern",
+        "CatCafe_Sewer_SetF85_057_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_058_WallLantern",
+        "CatCafe_Sewer_SetF85_058_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_059_WallLantern",
+        "CatCafe_Sewer_SetF85_059_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_060_WallLantern",
+        "CatCafe_Sewer_SetF85_060_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_061_WallLantern",
+        "CatCafe_Sewer_SetF85_061_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_062_WallLantern",
+        "CatCafe_Sewer_SetF85_062_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_063_WallLantern",
+        "CatCafe_Sewer_SetF85_063_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_064_WallLantern",
+        "CatCafe_Sewer_SetF85_064_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_065_WallLantern",
+        "CatCafe_Sewer_SetF85_065_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_066_WallLantern",
+        "CatCafe_Sewer_SetF85_066_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_067_WallLantern",
+        "CatCafe_Sewer_SetF85_067_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_068_WallLantern",
+        "CatCafe_Sewer_SetF85_068_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_069_WallLantern",
+        "CatCafe_Sewer_SetF85_069_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_070_WallLantern",
+        "CatCafe_Sewer_SetF85_070_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_071_WallLantern",
+        "CatCafe_Sewer_SetF85_071_WallLantern_Bulb",
+        "CatCafe_Sewer_SetF85_072_DripPuddle",
+        "CatCafe_Sewer_SetF85_072_DripPuddle_Water",
+        "CatCafe_Sewer_SetF85_073_DripPuddle",
+        "CatCafe_Sewer_SetF85_073_DripPuddle_Water",
+        "CatCafe_Sewer_SetF85_074_Barrel",
+        "CatCafe_Sewer_SetF85_075_Barrel",
+        "CatCafe_Sewer_SetF85_076_TyreStack",
+        "CatCafe_Sewer_SetF85_077_TrafficCone",
+        "CatCafe_Sewer_SetF85_078_TrafficCone",
+        "CatCafe_Sewer_SetF85_079_TrafficCone",
+        "CatCafe_Sewer_SetF85_080_CrateStack",
+        "CatCafe_Sewer_SetF85_081_SuitcaseStack",
+        "CatCafe_Sewer_SetF85_082_SteamVent",
+        "CatCafe_Sewer_SetF85_083_GlowMushrooms",
+        "CatCafe_Sewer_SetF85_083_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetF85_084_SteamVent",
+        "CatCafe_Sewer_SetF85_085_Barrel",
+        "CatCafe_Sewer_SetF85_086_Barrel",
+        "CatCafe_Sewer_SetF85_087_TyreStack",
+        "CatCafe_Sewer_SetF85_088_CrateStack",
+        "CatCafe_Sewer_SetF85_089_GlowMushrooms",
+        "CatCafe_Sewer_SetF85_089_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetF85_090_HangingSign",
+        "CatCafe_Sewer_SetF85_091_JunkStall",
+        "CatCafe_Sewer_SetF85_092_JunkStall",
+        "CatCafe_Sewer_SetF85_093_JunkStall",
+        "CatCafe_Sewer_SetF85_094_CrateDeck",
+        "CatCafe_Sewer_SetF85_095_CapBunting",
+        "CatCafe_Sewer_SetF85_096_Grate",
+        "CatCafe_Sewer_SetF85_097_Barrel",
+        "CatCafe_Sewer_SetF85_098_Barrel",
+        "CatCafe_Sewer_SetF85_099_SuitcaseStack",
+        "CatCafe_Sewer_SetF85_100_CrateStack",
+        "CatCafe_Sewer_SetF85_101_TyreStack",
+        "CatCafe_Sewer_SetF85_102_SteamVent",
+        "CatCafe_Sewer_SetF85_103_GlowMushrooms",
+        "CatCafe_Sewer_SetF85_103_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetF85_104_PipeLarge",
+        "CatCafe_Sewer_SetF85_105_ValveWheel",
+        "CatCafe_Sewer_SetF85_106_BathtubBoat",
+        "CatCafe_Sewer_SetF85_107_CrateRaft",
+        "CatCafe_Sewer_SetF85_108_RubberDucks",
+        "CatCafe_Sewer_SetF85_109_PipeElbow",
+        "CatCafe_Sewer_SetF85_110_SteamVent",
+        "CatCafe_Sewer_SetF85_111_DripPuddle",
+        "CatCafe_Sewer_SetF85_111_DripPuddle_Water",
+        "CatCafe_Sewer_SetF85_112_TyreStack",
+        "CatCafe_Sewer_SetF85_113_Barrel",
+        "CatCafe_Sewer_SetF85_114_Barrel",
+        "CatCafe_Sewer_SetF85_115_CrateStack",
+        "CatCafe_Sewer_SetF85_116_GlowMushrooms",
+        "CatCafe_Sewer_SetF85_116_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetF85_117_LostLounge",
+        "CatCafe_Sewer_SetF85_117_LostLounge_Bulb",
+        "CatCafe_Sewer_SetF85_118_YarnTrolley",
+        "CatCafe_Sewer_SetF85_118_YarnTrolley_Decor",
+        "CatCafe_Sewer_SetF85_119_PipeHammock",
+        "CatCafe_Sewer_SetF85_120_CrateDeck",
+        "CatCafe_Sewer_SetF85_121_DrainPipe",
+        "CatCafe_Sewer_SetF85_121_DrainPipe_Glow",
+        "CatCafe_Sewer_SetF85_122_CapBunting",
+        "CatCafe_Sewer_SetF85_123_GlowMushrooms",
+        "CatCafe_Sewer_SetF85_123_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetF85_124_GlowMushrooms",
+        "CatCafe_Sewer_SetF85_124_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetF85_125_SteamVent",
+        "CatCafe_Sewer_SetF85_126_DripPuddle",
+        "CatCafe_Sewer_SetF85_126_DripPuddle_Water",
+        "CatCafe_Sewer_SetF85_127_Barrel",
+        "CatCafe_Sewer_SetF85_128_Barrel",
+        "CatCafe_Sewer_SetF85_129_TyreStack",
+        "CatCafe_Sewer_SetF85_130_SuitcaseStack",
+        "CatCafe_Sewer_SetF85_131_CanHouse",
+        "CatCafe_Sewer_SetF85_132_TeapotHouse",
+        "CatCafe_Sewer_SetF85_133_BoxHouse",
+        "CatCafe_Sewer_SetF85_134_CanHouse",
+        "CatCafe_Sewer_SetF85_135_TeapotHouse",
+        "CatCafe_Sewer_SetF85_136_BoxHouse",
+        "CatCafe_Sewer_SetF85_137_CapBunting",
+        "CatCafe_Sewer_SetF85_138_Rails",
+        "CatCafe_Sewer_SetF85_139_MaintenanceCart",
+        "CatCafe_Sewer_SetF85_140_Grate",
+        "CatCafe_Sewer_SetF85_141_PipeLarge",
+        "CatCafe_Sewer_SetF85_142_GlowMushrooms",
+        "CatCafe_Sewer_SetF85_142_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetF85_143_GlowMushrooms",
+        "CatCafe_Sewer_SetF85_143_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetF85_144_SteamVent",
+        "CatCafe_Sewer_SetF85_145_DripPuddle",
+        "CatCafe_Sewer_SetF85_145_DripPuddle_Water",
+        "CatCafe_Sewer_SetF85_146_Barrel",
+        "CatCafe_Sewer_SetF85_147_Barrel",
+        "CatCafe_Sewer_SetF85_148_TyreStack",
+        "CatCafe_Sewer_SetF85_149_CrateStack",
+        "CatCafe_Sewer_SetF85_150_ThroneDais",
+        "CatCafe_Sewer_SetF85_151_BottlecapThrone",
+        "CatCafe_Sewer_SetF85_152_PipeOrgan",
+        "CatCafe_Sewer_SetF85_153_CapBunting",
+        "CatCafe_Sewer_SetF85_154_LostToyPile_Decor",
+        "CatCafe_Sewer_SetF85_155_SuitcaseStack",
+        "CatCafe_Sewer_SetF85_156_Barrel",
+        "CatCafe_Sewer_SetF85_157_Barrel",
+        "CatCafe_Sewer_SetF85_158_TyreStack",
+        "CatCafe_Sewer_SetF85_159_CrateStack",
+        "CatCafe_Sewer_SetF85_160_DrainPipe",
+        "CatCafe_Sewer_SetF85_160_DrainPipe_Glow",
+        "CatCafe_Sewer_SetF85_161_GlowMushrooms",
+        "CatCafe_Sewer_SetF85_161_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetF85_162_GlowMushrooms",
+        "CatCafe_Sewer_SetF85_162_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetF85_163_SteamVent",
+        "CatCafe_Sewer_SetF85_164_DripPuddle",
+        "CatCafe_Sewer_SetF85_164_DripPuddle_Water"
+      ],
+      "triangles": 134420,
+      "budget": 150000,
+      "size_studs": {
+        "x": 119.2,
+        "y": 569.15,
+        "z": 30.4
+      },
+      "size_roblox": [
+        119.2,
+        30.4,
+        569.15
+      ],
+      "bounds_min": [
+        -59.6,
+        -284.65,
+        0.0
+      ],
+      "bounds_max": [
+        59.6,
+        284.5,
+        30.4
+      ],
+      "pivot": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "bridge": [
+          [
+            38.0,
+            2.8,
+            -205.0,
+            "near"
+          ],
+          [
+            -40.0,
+            3.6,
+            0.0,
+            "deep"
+          ]
+        ],
+        "puddle": [
+          [
+            -24,
+            0.4,
+            -247,
+            "near"
+          ]
+        ],
+        "barrel": [
+          [
+            45,
+            0.4,
+            -259,
+            "near"
+          ]
+        ],
+        "tyres": [
+          [
+            32,
+            0.4,
+            -264,
+            "near"
+          ]
+        ],
+        "cones": [
+          [
+            14,
+            0.4,
+            -232,
+            "near"
+          ]
+        ],
+        "crates": [
+          [
+            -40,
+            0.4,
+            -262,
+            "near"
+          ]
+        ],
+        "suitcases": [
+          [
+            -48,
+            0.4,
+            -240.5,
+            "near"
+          ],
+          [
+            -46,
+            0.4,
+            273.5,
+            "deep"
+          ]
+        ],
+        "glow_mushrooms": [
+          [
+            -40,
+            0.4,
+            -229.5,
+            "near"
+          ],
+          [
+            6,
+            0.4,
+            -95.5,
+            "near"
+          ],
+          [
+            -48,
+            0.4,
+            -26.5,
+            "near"
+          ],
+          [
+            12,
+            0.4,
+            74.5,
+            "deep"
+          ],
+          [
+            -44.5,
+            0.4,
+            24,
+            "deep"
+          ],
+          [
+            -8,
+            0.4,
+            104.5,
+            "deep"
+          ],
+          [
+            50.5,
+            0.4,
+            172,
+            "deep"
+          ],
+          [
+            16,
+            0.4,
+            272.5,
+            "deep"
+          ],
+          [
+            -44.5,
+            0.4,
+            206,
+            "deep"
+          ]
+        ],
+        "bank": [
+          [
+            20,
+            0.4,
+            -193,
+            "near"
+          ],
+          [
+            -20,
+            0.4,
+            -193,
+            "near"
+          ]
+        ],
+        "arch": [
+          [
+            -38.0,
+            0.4,
+            -154.5,
+            "near"
+          ]
+        ],
+        "stall": [
+          [
+            -47.4,
+            0.4,
+            -130.0,
+            "near"
+          ],
+          [
+            -47.4,
+            0.4,
+            -114.0,
+            "near"
+          ],
+          [
+            10.0,
+            0.4,
+            -135.4,
+            "near"
+          ]
+        ],
+        "deck": [
+          [
+            44.04,
+            2.55,
+            -131.33,
+            "near"
+          ],
+          [
+            19.51,
+            2.55,
+            20.46,
+            "deep"
+          ]
+        ],
+        "trap_grate": [
+          [
+            -34,
+            0.4,
+            -92,
+            "near",
+            0
+          ],
+          [
+            -36,
+            0.4,
+            112,
+            "deep",
+            0
+          ]
+        ],
+        "market": [
+          [
+            -16,
+            0.4,
+            -124,
+            "near"
+          ]
+        ],
+        "pipe_end": [
+          [
+            44.0,
+            0.4,
+            -22.35,
+            "near"
+          ],
+          [
+            -6.35,
+            0.4,
+            166.0,
+            "deep"
+          ]
+        ],
+        "valve": [
+          [
+            51.9,
+            0.4,
+            -47.0,
+            "near"
+          ]
+        ],
+        "boat": [
+          [
+            -14,
+            1.82,
+            -12,
+            "near"
+          ]
+        ],
+        "raft": [
+          [
+            -23.5,
+            2.2,
+            -14.52,
+            "near"
+          ]
+        ],
+        "pump_room": [
+          [
+            -20,
+            0.4,
+            -44,
+            "near"
+          ],
+          [
+            24,
+            0.4,
+            -20,
+            "near"
+          ]
+        ],
+        "catwalk_foot": [
+          [
+            -36.0,
+            0.4,
+            -12,
+            "near"
+          ],
+          [
+            -44.0,
+            0.4,
+            12,
+            "deep"
+          ]
+        ],
+        "sofa": [
+          [
+            38.8,
+            1.88,
+            71.3,
+            "deep"
+          ]
+        ],
+        "trolley": [
+          [
+            -14,
+            1.0,
+            44,
+            "deep"
+          ]
+        ],
+        "hammock": [
+          [
+            -52.0,
+            2.4,
+            70.3,
+            "deep"
+          ]
+        ],
+        "trap_drain_pipe": [
+          [
+            -51.7,
+            0.4,
+            49.0,
+            "deep",
+            -90
+          ],
+          [
+            51.7,
+            0.4,
+            256.0,
+            "deep",
+            90
+          ]
+        ],
+        "lost_found": [
+          [
+            0,
+            0.4,
+            40,
+            "deep"
+          ],
+          [
+            34,
+            0.4,
+            50,
+            "deep"
+          ]
+        ],
+        "house": [
+          [
+            20.6,
+            0.4,
+            128.49,
+            "deep"
+          ],
+          [
+            39.4,
+            0.4,
+            128.49,
+            "deep"
+          ],
+          [
+            20.6,
+            0.4,
+            146.51,
+            "deep"
+          ],
+          [
+            39.4,
+            0.4,
+            146.51,
+            "deep"
+          ]
+        ],
+        "square": [
+          [
+            30,
+            0.4,
+            132,
+            "deep"
+          ],
+          [
+            26,
+            0.4,
+            143,
+            "deep"
+          ]
+        ],
+        "cart": [
+          [
+            -50.5,
+            3.65,
+            164,
+            "deep"
+          ]
+        ],
+        "town": [
+          [
+            -36,
+            0.4,
+            104,
+            "deep"
+          ],
+          [
+            -4,
+            0.4,
+            156,
+            "deep"
+          ],
+          [
+            -40,
+            0.4,
+            172,
+            "deep"
+          ]
+        ],
+        "throne": [
+          [
+            34.0,
+            4.5,
+            270.6,
+            "deep"
+          ]
+        ],
+        "organ": [
+          [
+            34.0,
+            0.4,
+            277.7,
+            "deep"
+          ]
+        ],
+        "dais": [
+          [
+            24.0,
+            0.4,
+            263.0,
+            "deep"
+          ]
+        ],
+        "toy_pile": [
+          [
+            -30,
+            0.4,
+            266,
+            "deep"
+          ]
+        ],
+        "pool": [
+          [
+            -16,
+            0.4,
+            256,
+            "deep"
+          ],
+          [
+            16,
+            0.4,
+            252,
+            "deep"
+          ]
+        ],
+        "throne_room": [
+          [
+            10,
+            0.4,
+            230,
+            "deep"
+          ],
+          [
+            -20,
+            0.4,
+            212,
+            "deep"
+          ]
+        ],
+        "pipes": [
+          [
+            -42.0,
+            0.4,
+            194.0,
+            "deep"
+          ]
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_SetF85.model.json",
+      "rbx_parts": 7362,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Sewer_SetF85.fbx",
+        "assets/cat-cafe/exports/CatCafe_Sewer_SetF85.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "134420/150000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "69157 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.07"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Plot_BackDoor",
       "category": "Plot",
       "module": "doors",
@@ -162748,6 +164752,127 @@
       }
     },
     {
+      "name": "CatCafe_Camp_WoodsF85",
+      "category": "Camp",
+      "module": "camps",
+      "objects": [
+        "CatCafe_Camp_WoodsF85",
+        "CatCafe_Camp_WoodsF85_000_Basket",
+        "CatCafe_Camp_WoodsF85_001_Tent",
+        "CatCafe_Camp_WoodsF85_002_Campfire",
+        "CatCafe_Camp_WoodsF85_002_Campfire_Glow",
+        "CatCafe_Camp_WoodsF85_003_LogBench",
+        "CatCafe_Camp_WoodsF85_004_LogBench",
+        "CatCafe_Camp_WoodsF85_005_Lantern",
+        "CatCafe_Camp_WoodsF85_005_Lantern_Bulb",
+        "CatCafe_Camp_WoodsF85_006_Lantern",
+        "CatCafe_Camp_WoodsF85_006_Lantern_Bulb",
+        "CatCafe_Camp_WoodsF85_007_PineTall",
+        "CatCafe_Camp_WoodsF85_008_PineTall",
+        "CatCafe_Camp_WoodsF85_009_PineTall",
+        "CatCafe_Camp_WoodsF85_010_Lantern",
+        "CatCafe_Camp_WoodsF85_010_Lantern_Bulb",
+        "CatCafe_Camp_WoodsF85_011_Lantern",
+        "CatCafe_Camp_WoodsF85_011_Lantern_Bulb",
+        "CatCafe_Camp_WoodsF85_012_PineTall",
+        "CatCafe_Camp_WoodsF85_013_PineTall",
+        "CatCafe_Camp_WoodsF85_014_PineTall",
+        "CatCafe_Camp_WoodsF85_015_Stump",
+        "CatCafe_Camp_WoodsF85_016_Fern",
+        "CatCafe_Camp_WoodsF85_017_Fern",
+        "CatCafe_Camp_WoodsF85_Barrier"
+      ],
+      "triangles": 7228,
+      "budget": 20000,
+      "size_studs": {
+        "x": 162.0,
+        "y": 32.0,
+        "z": 31.0
+      },
+      "size_roblox": [
+        162.0,
+        31.0,
+        32.0
+      ],
+      "bounds_min": [
+        -81.0,
+        -277.0,
+        -1.0
+      ],
+      "bounds_max": [
+        81.0,
+        -245.0,
+        30.0
+      ],
+      "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "pad": [
+          [
+            0,
+            0.0,
+            -258.0
+          ]
+        ],
+        "cannon": [
+          [
+            0,
+            0.0,
+            -270.5
+          ]
+        ],
+        "basket": [
+          [
+            -11.0,
+            0.0,
+            -258.0
+          ]
+        ],
+        "index_board": [
+          [
+            -19.0,
+            0.0,
+            -247.5
+          ]
+        ]
+      },
+      "camp": {
+        "rect_roblox": [
+          -79.5,
+          -276.0,
+          79.5,
+          -246.0
+        ],
+        "gate_line_z": -246.0,
+        "opening_half_width": 12.0,
+        "pad_radius": 8.0,
+        "depth": 30.0
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_WoodsF85.model.json",
+      "rbx_parts": 380,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_WoodsF85.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_WoodsF85.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "7228/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "3282 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-261.00"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Camp_Sewer",
       "category": "Camp",
       "module": "camps",
@@ -162860,6 +164985,122 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.00 (want 0)",
           "centered": "footprint center x=0.00 y=-106.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_SewerF85",
+      "category": "Camp",
+      "module": "camps",
+      "objects": [
+        "CatCafe_Camp_SewerF85",
+        "CatCafe_Camp_SewerF85_000_Basket",
+        "CatCafe_Camp_SewerF85_001_Manhole",
+        "CatCafe_Camp_SewerF85_002_PipeLarge",
+        "CatCafe_Camp_SewerF85_003_WallLantern",
+        "CatCafe_Camp_SewerF85_003_WallLantern_Bulb",
+        "CatCafe_Camp_SewerF85_004_WallLantern",
+        "CatCafe_Camp_SewerF85_004_WallLantern_Bulb",
+        "CatCafe_Camp_SewerF85_005_Barrel",
+        "CatCafe_Camp_SewerF85_006_TrafficCone",
+        "CatCafe_Camp_SewerF85_007_WallLantern",
+        "CatCafe_Camp_SewerF85_007_WallLantern_Bulb",
+        "CatCafe_Camp_SewerF85_008_WallLantern",
+        "CatCafe_Camp_SewerF85_008_WallLantern_Bulb",
+        "CatCafe_Camp_SewerF85_009_Barrel",
+        "CatCafe_Camp_SewerF85_010_TrafficCone",
+        "CatCafe_Camp_SewerF85_011_Barrel",
+        "CatCafe_Camp_SewerF85_012_TyreStack",
+        "CatCafe_Camp_SewerF85_013_TrafficCone",
+        "CatCafe_Camp_SewerF85_Barrier"
+      ],
+      "triangles": 6596,
+      "budget": 20000,
+      "size_studs": {
+        "x": 122.0,
+        "y": 32.0,
+        "z": 31.0
+      },
+      "size_roblox": [
+        122.0,
+        31.0,
+        32.0
+      ],
+      "bounds_min": [
+        -61.0,
+        -317.0,
+        -1.0
+      ],
+      "bounds_max": [
+        61.0,
+        -285.0,
+        30.0
+      ],
+      "pivot": "The area's centre on its floor, -Z toward the camp: place it with the area's set CFrame.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "pad": [
+          [
+            0,
+            0.0,
+            -298.0
+          ]
+        ],
+        "cannon": [
+          [
+            0,
+            0.0,
+            -310.5
+          ]
+        ],
+        "basket": [
+          [
+            -11.0,
+            0.0,
+            -298.0
+          ]
+        ],
+        "index_board": [
+          [
+            -19.0,
+            0.0,
+            -287.5
+          ]
+        ]
+      },
+      "camp": {
+        "rect_roblox": [
+          -59.5,
+          -316.0,
+          59.5,
+          -286.0
+        ],
+        "gate_line_z": -286.0,
+        "opening_half_width": 12.0,
+        "pad_radius": 8.0,
+        "depth": 30.0
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_SewerF85.model.json",
+      "rbx_parts": 223,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_SewerF85.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_SewerF85.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "6596/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2978 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-301.00"
         }
       }
     },
@@ -163340,6 +165581,125 @@
           "uv": "17498 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-167.52 (want 0)",
+          "centered": "footprint center x=0.00 y=-15.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Woods_BackdropF85",
+      "category": "Woods",
+      "module": "wildbackdrop",
+      "objects": [
+        "CatCafe_Woods_BackdropF85",
+        "CatCafe_Woods_BackdropF85_Ground",
+        "CatCafe_Woods_BackdropF85_Hills",
+        "CatCafe_Woods_BackdropF85_HillsFar",
+        "CatCafe_Woods_BackdropF85_Snow"
+      ],
+      "triangles": 32336,
+      "budget": 60000,
+      "size_studs": {
+        "x": 840.0,
+        "y": 1200.0,
+        "z": 500.87
+      },
+      "size_roblox": [
+        840.0,
+        500.87,
+        1200.0
+      ],
+      "bounds_min": [
+        -420.0,
+        -615.0,
+        -398.57
+      ],
+      "bounds_max": [
+        420.0,
+        585.0,
+        102.3
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_BackdropF85.model.json",
+      "rbx_parts": 1237,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Woods_BackdropF85.fbx",
+        "assets/cat-cafe/exports/CatCafe_Woods_BackdropF85.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "32336/60000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "27164 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-398.57 (want 0)",
+          "centered": "footprint center x=0.00 y=-15.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Sewer_BackdropF85",
+      "category": "Sewer",
+      "module": "wildbackdrop",
+      "objects": [
+        "CatCafe_Sewer_BackdropF85",
+        "CatCafe_Sewer_BackdropF85_Ground",
+        "CatCafe_Sewer_BackdropF85_Hills",
+        "CatCafe_Sewer_BackdropF85_HillsFar",
+        "CatCafe_Sewer_BackdropF85_Bulbs",
+        "CatCafe_Sewer_BackdropF85_Road"
+      ],
+      "triangles": 33324,
+      "budget": 60000,
+      "size_studs": {
+        "x": 800.0,
+        "y": 1280.0,
+        "z": 232.05
+      },
+      "size_roblox": [
+        800.0,
+        232.05,
+        1280.0
+      ],
+      "bounds_min": [
+        -400.0,
+        -655.0,
+        -167.36
+      ],
+      "bounds_max": [
+        400.0,
+        625.0,
+        64.69
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_BackdropF85.model.json",
+      "rbx_parts": 1620,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Sewer_BackdropF85.fbx",
+        "assets/cat-cafe/exports/CatCafe_Sewer_BackdropF85.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "33324/60000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "22023 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-167.36 (want 0)",
           "centered": "footprint center x=0.00 y=-15.00"
         }
       }
@@ -168216,7 +170576,7 @@
         "CatCafe_Street_BellhopStand_Cat_Prop": [
           0.0,
           -0.07,
-          4.91
+          4.95
         ],
         "CatCafe_Street_BellhopStand_Cat_Prop2": [
           0.0,
@@ -168277,7 +170637,7 @@
         ],
         "CatCafe_Street_BellhopStand_Cat_Prop": [
           0.0,
-          4.91,
+          4.95,
           -0.07
         ],
         "CatCafe_Street_BellhopStand_Cat_Prop2": [

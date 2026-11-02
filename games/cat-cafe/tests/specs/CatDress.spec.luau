@@ -68,6 +68,10 @@ return function()
 			expect(CatDress.isWalking(body("cat_7f3a", "sit"))).to.equal(false)
 			expect(CatDress.isWalking(body("CatCafe_Cat_Tabby_Sit"))).to.equal(false)
 			expect(CatDress.isWalking(body("CatCafe_Cat_Tabby_Gold_Sit"))).to.equal(false)
+			-- the standing worker (S) has the seated body's chest, so it wears the seated cuts
+			expect(CatDress.isWalking(body("cat_7f3a", "work"))).to.equal(false)
+			expect(CatDress.isWalking(body("CatCafe_Cat_Tabby_Work"))).to.equal(false)
+			expect(CatDress.isWalking(body("CatCafe_Cat_Tabby_Gold_Work"))).to.equal(false)
 		end)
 
 		it("tries the walking cut first on a walking body and only the plain piece on a seated one", function()
@@ -75,6 +79,38 @@ return function()
 				"CatCafe_Accessory_Vest_Walk,CatCafe_Accessory_Vest"
 			)
 			expect(table.concat(CatDress.assetNames("Vest", false), ",")).to.equal("CatCafe_Accessory_Vest")
+		end)
+	end)
+
+	-- Model-Agent #826, Derek's pick of 2026-11-02: working cats stand on the worker body (S), posed by the manifest's
+	-- cat_poses.work_<role>, each holding its role's thing.
+	describe("the standing worker", function()
+		local Catalog = require(Shared.Catalog)
+
+		it("poses both front legs of every role, in the manifest's numbers", function()
+			for role in Catalog.roleOutfits do
+				local arms = CatDress.WORK_ARMS[role]
+				expect(arms).to.be.ok()
+				for _, leg in { "LegF1", "LegF2" } do
+					expect(#arms[leg]).to.equal(3)
+				end
+			end
+			expect(table.concat(CatDress.WORK_ARMS.barista.LegF2, ",")).to.equal("57.5,21.5,13.1")
+			expect(table.concat(CatDress.WORK_ARMS.waiter.LegF1, ",")).to.equal("37.5,-27,-30.7")
+			expect(table.concat(CatDress.WORK_ARMS.greeter.LegF1, ",")).to.equal("172.4,13,-59.1")
+			expect(table.concat(CatDress.WORK_ARMS.entertainer.LegF1, ",")).to.equal("163.9,25.7,-56.3")
+		end)
+
+		it("keeps only the role's own held thing, and none for a greeter", function()
+			expect(table.concat(CatDress.heldOff("barista"), ",")).to.equal("Held_Waiter,Held_Entertainer")
+			expect(table.concat(CatDress.heldOff("waiter"), ",")).to.equal("Held_Barista,Held_Entertainer")
+			expect(table.concat(CatDress.heldOff("entertainer"), ",")).to.equal("Held_Barista,Held_Waiter")
+			expect(table.concat(CatDress.heldOff("greeter"), ",")).to.equal("Held_Barista,Held_Waiter,Held_Entertainer")
+		end)
+
+		it("names the worker after the walking model", function()
+			expect(Catalog.workModelName("CatCafe_Cat_Tabby")).to.equal("CatCafe_Cat_Tabby_Work")
+			expect(Catalog.workModelName("CatCafe_Cat_Tabby_Gold")).to.equal("CatCafe_Cat_Tabby_Gold_Work")
 		end)
 	end)
 end

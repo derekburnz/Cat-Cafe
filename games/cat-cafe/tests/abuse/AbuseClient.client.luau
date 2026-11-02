@@ -16,6 +16,7 @@
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
 	  J tip jar         K index rewards     L spin wheel           R bug report
 	  P fish market     O fresh catch       T codes             X tips              Z bellhop cat
+	  V trade (two clients)
 	  Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
@@ -57,6 +58,7 @@ local NetSwing = require(Shared:WaitForChild("NetSwing"))
 local Prizes = require(Shared:WaitForChild("Prizes"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Spin = require(Shared:WaitForChild("Spin"))
+local Trade = require(Shared:WaitForChild("Trade"))
 local Types = require(Shared:WaitForChild("Types"))
 
 local player = Players.LocalPlayer
@@ -5807,6 +5809,369 @@ end
 
 -- Every report this case sends starts with "[QA abuse]". From Studio they save under s_ keys, apart from the
 -- testers' reports (BugReport.prefix).
+-- F102 trading (trading.md sections 3 and 4; TradeService, engineer PR #854) ------------------------------------
+
+type TradeView = Types.TradeStateView
+
+-- A uid in the cats' shape that no save holds, and a GUID-shaped trade or request id nobody holds.
+local FAKE_UID = "0000beef-abc"
+local FAKE_TRADE = "00000000-0000-0000-0000-000000000000"
+
+local function tradeText(view: TradeView?): string
+	if view == nil then
+		return "closed"
+	end
+	local mine: { string } = {}
+	for _, tile in view.me.cats do
+		table.insert(mine, tile.uid)
+	end
+	return string.format(
+		"v%d %s mine=[%s] ready=%s confirmed=%s",
+		view.version,
+		view.phase,
+		table.concat(mine, ","),
+		tostring(view.me.ready),
+		tostring(view.me.confirmed)
+	)
+end
+
+-- The newest TradeState since `startedAt` that holds a trade, or nil.
+local function lastTrade(startedAt: number): TradeView?
+	local found: TradeView? = nil
+	for _, event in since(startedAt, "TradeState") do
+		found = event.data
+	end
+	return found
+end
+
+-- My cats that may go on offer (unlocked, not exclusive), and one locked and one exclusive cat if I have them.
+local function tradeCats(): ({ string }, string?, string?)
+	local open: { string } = {}
+	local locked, exclusive = nil, nil
+	if state ~= nil then
+		for uid, cat in state.cats do
+			local def = Catalog.getCat(cat.catId)
+			if def ~= nil and (def :: any).exclusive == true then
+				exclusive = uid
+			elseif cat.locked then
+				locked = uid
+			else
+				table.insert(open, uid)
+			end
+		end
+	end
+	table.sort(open)
+	return open, locked, exclusive
+end
+
+local function toastsLike(startedAt: number, text: string): number
+	local count = 0
+	for _, event in since(startedAt, "Toast") do
+		if string.find(event.text, text, 1, true) ~= nil then
+			count += 1
+		end
+	end
+	return count
+end
+
+case(
+	"trade",
+	Enum.KeyCode.V,
+	"Trading: junk, yourself, a request flood, other cats, stale versions, the confirm wait",
+	function()
+		if table.find(Remotes.ClientToServer, "TradeRequest") == nil then
+			return "SKIP", "no TradeRequest remote (engineer PR #854)"
+		end
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		local verdict: Verdict = "PASS"
+		local notes: { string } = {}
+		local catsBefore = catCount()
+
+		-- Alone: junk on every trade remote, 1.1 s apart for the 1 a second limits. Nothing opens and nothing moves.
+		-- `false` stands in for nil, which a table cannot hold in the middle.
+		local junk: { { any } } = {
+			{ "TradeRequest" },
+			{ "TradeRequest", "1" },
+			{ "TradeRequest", 0 },
+			{ "TradeRequest", -5 },
+			{ "TradeRequest", 0 / 0 },
+			{ "TradeRequest", 1e20 },
+			{ "TradeRequest", 4.5 },
+			{ "TradeRequest", {} },
+			{ "TradeRespond", FAKE_TRADE, true },
+			{ "TradeRespond", "not a guid", true },
+			{ "TradeRespond", string.rep("a", 41), true },
+			{ "TradeRespond", FAKE_TRADE, "yes" },
+			{ "TradeOffer", FAKE_TRADE, "add", FAKE_UID },
+			{ "TradeOffer", false, "add", FAKE_UID },
+			{ "TradeOffer", FAKE_TRADE, "steal", FAKE_UID },
+			{ "TradeOffer", FAKE_TRADE, "ADD", string.rep("z", 300) },
+			{ "TradeReady", FAKE_TRADE, 1, true },
+			{ "TradeReady", FAKE_TRADE, 0 / 0, true },
+			{ "TradeReady", FAKE_TRADE, "1", "true" },
+			{ "TradeConfirm", FAKE_TRADE, 1 },
+			{ "TradeConfirm", FAKE_TRADE, -1 },
+			{ "TradeCancel", FAKE_TRADE },
+			{ "TradeCancel", 5 },
+		}
+		local junkAt = os.clock()
+		for _, args in junk do
+			fire(table.unpack(args))
+			task.wait(1.1)
+		end
+		local selfAt = os.clock()
+		fire("TradeRequest", player.UserId)
+		waitFor(selfAt, "Toast", 2)
+		task.wait(0.3)
+		for _, name in { "TradeState", "TradeAsked", "TradeDone" } do
+			if #since(junkAt, name) > 0 then
+				return "FAIL", string.format("junk or a request to myself got a %s back", name)
+			end
+		end
+		if catCount() ~= catsBefore then
+			return "FAIL", "junk trade calls changed my cats"
+		end
+		if toastsLike(selfAt, Trade.Messages.self) == 0 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, "asking myself was refused but no toast said why")
+		end
+		table.insert(notes, string.format("%d junk calls and asking myself opened nothing", #junk))
+
+		-- With a second player: the rest needs one to accept (and later press Ready) on their own client.
+		local partner: Player? = nil
+		for _, other in Players:GetPlayers() do
+			if other ~= player then
+				partner = other
+				break
+			end
+		end
+		if partner == nil then
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ")
+					.. "; join a second client (Clients and Servers) for the two-player half"
+		end
+		local minTier = Workspace:GetAttribute("TradeMinTier")
+		if type(minTier) == "number" and state.tier < minTier then
+			return downgrade(verdict, "CHECK"),
+				string.format(
+					'%s; Tier %d is under the minimum %d: run %s("tradeMinTier", 0) on the server',
+					table.concat(notes, "; "),
+					state.tier,
+					minTier,
+					DEBUG
+				)
+		end
+		local open, locked, exclusive = tradeCats()
+		if #open < 2 then
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ")
+					.. "; needs two unlocked cats (one stays back): unlock or catch one"
+		end
+		local door = ownDoor()
+		if door ~= nil then
+			teleportTo(door.Position + Vector3.new(0, 0, 4)) -- the street: a safe zone
+		end
+
+		-- Five requests in one frame: one is read (1 a second, one request out at a time).
+		local askAt = os.clock()
+		for _ = 1, 5 do
+			Remotes.event("TradeRequest"):FireServer(partner.UserId)
+		end
+		log(string.format("    -> TradeRequest(%d) five times in one frame", partner.UserId))
+		task.wait(1.5)
+		local sent = toastsLike(askAt, "Asked ")
+		if sent > 1 then
+			return "FAIL", string.format("five requests in one frame sent %d asks", sent)
+		elseif sent == 0 then
+			local answer = waitFor(askAt, "Toast", 0.1)
+			return downgrade(verdict, "CHECK"),
+				string.format(
+					'%s; the request was refused with "%s" (both in town, by day, not busy?)',
+					table.concat(notes, "; "),
+					if answer ~= nil then answer.text else "no toast"
+				)
+		end
+		local who = partner.DisplayName
+		log(string.format("    on %s's client press Accept on the trade card (20 s)", who))
+		local first = waitFor(askAt, "TradeState", 22, function(event: Event): boolean
+			return event.data ~= nil
+		end)
+		if first == nil then
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ") .. "; asked once but no trade opened (accept within 20 s)"
+		end
+		local tradeId = (first.data :: TradeView).tradeId
+		local function current(): TradeView?
+			return lastTrade(askAt)
+		end
+		local function version(): number
+			local view = current()
+			return if view ~= nil then view.version else -1
+		end
+
+		-- Cats that are not mine to offer: a made-up uid, a locked cat, an exclusive cat. Nothing changes.
+		local refusals: { { string } } = { { FAKE_UID, Trade.Messages.notOwned } }
+		if locked ~= nil then
+			table.insert(refusals, { locked, Trade.Messages.locked })
+		end
+		if exclusive ~= nil then
+			table.insert(refusals, { exclusive, Trade.Messages.exclusive })
+		end
+		for _, pair in refusals do
+			local v0 = version()
+			local at = os.clock()
+			fire("TradeOffer", tradeId, "add", pair[1])
+			waitFor(at, "Toast", 2)
+			task.wait(0.3)
+			if version() ~= v0 then
+				local moved = string.format("TradeOffer of %s moved it to v%d", pair[1], version())
+				return "FAIL", moved
+			end
+			if toastsLike(at, pair[2]) == 0 then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, string.format('%s refused without "%s"', pair[1], pair[2]))
+			end
+		end
+
+		-- My cat twice in one frame: one change, one new version.
+		local uid = open[1]
+		local v0 = version()
+		local addAt = os.clock()
+		fire("TradeOffer", tradeId, "add", uid)
+		Remotes.event("TradeOffer"):FireServer(tradeId, "add", uid)
+		waitFor(addAt, "TradeState", 2)
+		task.wait(0.5)
+		if version() ~= v0 + 1 then
+			local moved = string.format("one cat added twice in a frame: v%d to v%d", v0, version())
+			return "FAIL", moved
+		end
+
+		-- Ready on an old and a made-up version: refused. On the version on the table: taken.
+		for _, stale in { v0, version() + 3 } do
+			local at = os.clock()
+			fire("TradeReady", tradeId, stale, true)
+			waitFor(at, "TradeState", 2)
+			task.wait(0.3)
+			local view = current()
+			if view ~= nil and view.me.ready then
+				local took = string.format("Ready on v%d took with v%d out", stale, view.version)
+				return "FAIL", took
+			end
+		end
+		local readyAt = os.clock()
+		fire("TradeReady", tradeId, version(), true)
+		waitFor(readyAt, "TradeState", 2)
+		task.wait(0.3)
+		local readied = current()
+		if readied == nil or not readied.me.ready then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, "Ready on the version on the table did not show as ready")
+		end
+
+		-- A change after Ready: a new version and nobody ready. Then Confirm on the offers: refused.
+		local vReady = version()
+		local removeAt = os.clock()
+		fire("TradeOffer", tradeId, "remove", uid)
+		waitFor(removeAt, "TradeState", 2)
+		task.wait(0.3)
+		local after = current()
+		if after == nil or after.version ~= vReady + 1 or after.me.ready or after.them.ready then
+			return "FAIL", "a cat off after Ready kept a Ready or the version: " .. tradeText(after)
+		end
+		fire("TradeOffer", tradeId, "add", uid)
+		task.wait(0.5)
+		local confirmAt = os.clock()
+		fire("TradeConfirm", tradeId, version())
+		task.wait(0.6)
+		local offered = current()
+		if offered ~= nil and offered.me.confirmed then
+			return "FAIL", "Confirm took on the offers, before a countdown: " .. tradeText(offered)
+		end
+		if #since(confirmAt, "TradeDone") > 0 then
+			return "FAIL", "Confirm on the offers swapped the cats"
+		end
+
+		-- A gift (they offer nothing): Ready on both sides, the countdown, then my Confirm inside the wait is refused.
+		fire("TradeReady", tradeId, version(), true)
+		log(
+			string.format(
+				"    on %s's client press Ready without adding a cat (25 s); the countdown follows",
+				partner.DisplayName
+			)
+		)
+		local wait = 25 + Config.TradeCountdownSeconds
+		local screen = waitFor(confirmAt, "TradeState", wait, function(event: Event): boolean
+			local view = event.data :: TradeView?
+			return view ~= nil and view.phase == "confirm"
+		end)
+		if screen == nil then
+			table.insert(notes, "no confirm screen (Ready on the other client): wait untested")
+			verdict = downgrade(verdict, "CHECK")
+		else
+			local view = screen.data :: TradeView
+			if #view.them.cats > 0 then
+				table.insert(notes, "they offered a cat, so no gift: the wait check is skipped")
+				verdict = downgrade(verdict, "CHECK")
+			elseif view.confirmAt == nil or not view.gift then
+				return "FAIL", "a gift's confirm screen came with no wait: " .. tradeText(view)
+			else
+				local early = os.clock()
+				fire("TradeConfirm", tradeId, view.version)
+				Remotes.event("TradeConfirm"):FireServer(tradeId, view.version)
+				task.wait(0.4)
+				local held = current()
+				if held ~= nil and held.me.confirmed or #since(early, "TradeDone") > 0 then
+					return "FAIL",
+						string.format(
+							"a Confirm %.1f s before confirmAt took",
+							view.confirmAt - serverNow()
+						)
+				end
+				waitUntilServer(view.confirmAt + 0.3)
+				local staleAt = os.clock()
+				fire("TradeConfirm", tradeId, view.version - 1)
+				task.wait(0.6)
+				local still = current()
+				if still ~= nil and still.me.confirmed or #since(staleAt, "TradeDone") > 0 then
+					return "FAIL", "a Confirm on an old version took after the wait"
+				end
+				table.insert(
+					notes,
+					"a gift's Confirm inside the wait and one on an old version were refused"
+				)
+			end
+		end
+
+		-- Five Cancels in one frame: one end, nothing moved; the old trade id does nothing after.
+		local cancelAt = os.clock()
+		for _ = 1, 5 do
+			Remotes.event("TradeCancel"):FireServer(tradeId)
+		end
+		log("    -> TradeCancel five times in one frame")
+		waitFor(cancelAt, "TradeEnded", 2)
+		task.wait(0.5)
+		local ended = #since(cancelAt, "TradeEnded")
+		if ended ~= 1 or #since(cancelAt, "TradeDone") > 0 then
+			return "FAIL", string.format("five Cancels ended the trade %d times", ended)
+		end
+		local lateAt = os.clock()
+		fire("TradeOffer", tradeId, "add", open[2])
+		task.wait(0.6)
+		if #since(lateAt, "TradeState") > 0 then
+			return "FAIL", "a TradeOffer on the ended trade's id opened or changed a trade"
+		end
+		if catCount() ~= catsBefore then
+			local count = catCount()
+			return "FAIL", string.format("%d cats before, %d after, no swap", catsBefore, count)
+		end
+		table.insert(notes, "others' cats refused, a double add one change, stale Ready refused")
+		table.insert(notes, "five Cancels ended it once")
+		return verdict, table.concat(notes, "; ")
+	end
+)
+
 case("reportBug", Enum.KeyCode.R, "Bug reports: bad texts, huge, flood, 21 s on", function()
 	if table.find(Remotes.ClientToServer, "ReportBug") == nil then
 		return "SKIP", "no ReportBug remote (engineer PR #265)"
@@ -6065,6 +6430,21 @@ Remotes.event("CodeResult").OnClientEvent
 		local answered: Answered = { ok = ok, message = message, prize = prize }
 		record("CodeResult", string.format("ok=%s %q", tostring(ok), message), nil, answered)
 	end)
+-- F102: only once TradeService exists (engineer PR #854).
+if table.find(Remotes.ServerToClient, "TradeState") ~= nil then
+	Remotes.event("TradeState").OnClientEvent:Connect(function(view: Types.TradeStateView?)
+		record("TradeState", tradeText(view), if view ~= nil then view.tradeId else nil, view)
+	end)
+	Remotes.event("TradeEnded").OnClientEvent:Connect(function(tradeId: string, reason: string)
+		record("TradeEnded", string.format("%q", reason), tradeId)
+	end)
+	Remotes.event("TradeDone").OnClientEvent:Connect(function(tradeId: string)
+		record("TradeDone", tradeId, tradeId)
+	end)
+	Remotes.event("TradeAsked").OnClientEvent:Connect(function(requestId: string, from: number)
+		record("TradeAsked", string.format("%s from %d", requestId, from), requestId)
+	end)
+end
 -- F96: only once the remote exists (engineer PR #734), so the client still loads on an older build.
 if table.find(Remotes.ServerToClient, "StarterCatResult") ~= nil then
 	Remotes.event("StarterCatResult").OnClientEvent:Connect(function(ok: boolean, reason: string?)

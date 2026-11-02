@@ -673,6 +673,14 @@ local function wireIntents()
 			Net.fire("EquipBestDecor")
 		end)
 	end
+	-- Reset my save (Derek's notes: for testing): the Settings row shown while the Player attribute Tester is true,
+	-- after its own confirm; the server checks the tester again, then saves a fresh save and kicks.
+	local resetSave = (UI.events :: any).resetSave
+	if resetSave ~= nil then
+		resetSave:Connect(function()
+			Net.fire("ResetSave")
+		end)
+	end
 	-- Drop cat: the carry banner's Drop button and the G key (UI thread, reviewer S53). Looked up loosely the same
 	-- way, so this lands before or after the UI build that adds the signal.
 	local dropCat = (UI.events :: any).dropCat

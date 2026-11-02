@@ -1436,7 +1436,9 @@ def dragon_horns(ctx):
 # name -> (slot, builder). data-model 3a (Alleyway), 3b (Park), 3c (Neighbourhood, Woods, Sewer).
 # ------------------------------------------------------------------------------- F96 the Bellhop Cat --
 CAP_R, CAP_H = 0.22, 0.28                  # the pillbox, head-frame units
-CAP_AT, CAP_ROLL = (0.0, -0.03, -0.04), 8  # its base centre (sunk into the head so the tilted cap leaves no gap), tilt
+# its base centre and tilt: the low side 0.025 into the head and the high side 0.005, so the tilted cap leaves no gap
+# and does not sink into the head (Derek 11-02: the cap was "colliding with top of head")
+CAP_AT, CAP_ROLL = (0.0, -0.03, -0.01), 4
 STRAP_Y = 0.52                             # face-frame y of the chin strap: behind the ears, under the cap's back edge
 
 
@@ -1449,7 +1451,9 @@ def bellhop_cap(ctx):
     """F96 Bellhop Cat (starter-cat.md section 1): a red pillbox cap tilted a little to its left, a gold band round
     the base, a modelled gold braid round the top edge (a gold cord with fourteen slanted brass twists on it), a
     gold button on top and a gold paw badge on the front. The object pivots at the back of the cap's base, the
-    hinge for the cap tip and the sleepy cap-over-the-eyes (turn the _Prop Model about its pivot's X)."""
+    hinge for the cap tip and the sleepy cap-over-the-eyes (turn the _Prop Model about its pivot's X: the tip about
+    +20 degrees, front up; asleep -40 degrees, then move it 0.13 up and 0.39 forward times the cat's scale, so it tips
+    over the brow edge, outside the face)."""
     ctx.pivot_at("head", _cap_q((0, CAP_R, 0)))
     P, R = ctx.pen("head"), _ry(CAP_ROLL)
     P.cyl(_cap_q((0, 0, CAP_H / 2)), CAP_R, CAP_H, "shirt_red", rot=R, segments=14)                  # crown

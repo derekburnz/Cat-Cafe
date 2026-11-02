@@ -191,11 +191,13 @@ function Intro.camp(area: string): Camp?
 			0,
 			W.CampOpeningWidth / 2
 	elseif area == "woods" then
+		-- F85: the long Woods' depth runs along world X, its camp on its east side
 		ox, oz, turn, opening =
-			W.WoodsCenterX + W.WoodsWidth / 2, W.WoodsCenterZ, -90, W.SideGateHalfWidth
+			W.WoodsCenterX + W.WoodsDepth / 2, W.WoodsCenterZ, -90, W.SideGateHalfWidth
 	elseif area == "sewer" then
+		-- F85: the long Sewer's depth runs along world X too, its camp on its west side
 		ox, oz, turn, opening =
-			W.SewerCenterX - W.SewerWidth / 2, W.SewerCenterZ, 90, W.SideGateHalfWidth
+			W.SewerCenterX - W.SewerDepth / 2, W.SewerCenterZ, 90, W.SideGateHalfWidth
 	else
 		return nil
 	end

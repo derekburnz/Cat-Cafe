@@ -21,6 +21,7 @@ local RallyController = require(script.Parent.Controllers.RallyController)
 local ShoveController = require(script.Parent.Controllers.ShoveController)
 local StarterCatController = require(script.Parent.Controllers.StarterCatController)
 local StyleController = require(script.Parent.Controllers.StyleController)
+local TradeController = require(script.Parent.Controllers.TradeController)
 local UIController = require(script.Parent.Controllers.UIController)
 local WorldController = require(script.Parent.Controllers.WorldController)
 
@@ -36,6 +37,7 @@ NetSwingController.start() -- F93: the net swing, after the UI whose Net button 
 CannonController.start() -- F84: after the UI, whose cannon picker it opens
 CampExtrasController.start() -- F100: the camp extras' prompts, after the UI whose hooks it uses
 RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
+TradeController.start() -- F102: trading, after the UI whose trade window it feeds
 CodesController.start()
 StarterCatController.start() -- F96: the Bellhop Cat's stand card
 CustomerController.start()

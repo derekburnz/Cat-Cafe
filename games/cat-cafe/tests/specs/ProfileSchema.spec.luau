@@ -89,10 +89,15 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 26 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 27 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(26)
-			expect(profile.version).to.equal(26)
+			expect(ProfileSchema.VERSION).to.equal(27)
+			expect(profile.version).to.equal(27)
+			-- F102 (version 27): no trades yet
+			expect(#profile.tradeLog).to.equal(0)
+			expect(#profile.tradeIds).to.equal(0)
+			expect(profile.stats.trades).to.equal(0)
+			expect(profile.stats.tradesToday :: any).to.deepEqual({ day = 0, count = 0 })
 			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
 			expect(profile.stats.collectorTrades).to.equal(0)
 			expect(next(profile.potions)).never.to.be.ok()
@@ -130,6 +135,7 @@ return function()
 				markers = true,
 				tutorialButton = true,
 				shopAlerts = true,
+				tradeRequests = "everyone",
 			})
 		end)
 
@@ -232,8 +238,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 27 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 28 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 27 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 26 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 25 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 24 })).to.equal(false)
@@ -416,6 +423,7 @@ return function()
 				markers = true,
 				tutorialButton = true,
 				shopAlerts = true,
+				tradeRequests = "everyone",
 			})
 			-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 			expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })

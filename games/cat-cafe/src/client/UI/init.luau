@@ -589,7 +589,7 @@ function UI.init(config: Types.InitConfig)
 	local inReach = (Moments :: any).NetInReach
 	if inReach ~= nil then
 		reachConnection = inReach:Connect(function(model: Model?)
-			NetGlow.set(model)
+			UI.net.setInReach(model)
 		end)
 	end
 
@@ -1976,8 +1976,9 @@ end
 UI.net = {}
 
 -- From NetSwingController whenever a swing becomes possible or not (carrying, a minigame, the intro, a flight, a
--- camp). The touch Net button shows while this is on, the player stands in a catching area (UI.setZone) and no
--- circles or rescue bar are up; a press fires events.netSwing.
+-- camp). The touch Net button shows while this is on, the player stands in a catching area (UI.setZone) or has a
+-- stray in reach (a dropped cat on the street, reviewer N298), and no circles or rescue bar are up; a press fires
+-- events.netSwing.
 function UI.net.setEnabled(on: boolean)
 	if netButton then
 		netButton:setEnabled(on)
@@ -1987,6 +1988,9 @@ end
 -- The stray a swing would land on right now, or nil: a soft glow on it (Moments.NetInReach calls this too).
 function UI.net.setInReach(model: Model?)
 	NetGlow.set(model)
+	if netButton then
+		netButton:setInReach(model ~= nil)
+	end
 end
 
 -- One short line on how to swing on this device, for the tutorial strip and hints: "Tap NET next to a cat",

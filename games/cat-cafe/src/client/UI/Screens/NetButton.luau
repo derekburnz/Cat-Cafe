@@ -3,12 +3,14 @@
 -- jump button (Components/NetButtonPlace) that swings the net, since a phone has no mouse click or R2. It fires
 -- swing() (UI.events.netSwing, NetSwingController sends SwingNet) and greys while the net comes back
 -- (Config.NetSwingCooldown, 0.8 s), refilling from the bottom. It shows only on a touch screen, inside a catching
--- area, while the controller says a swing could go (UI.net.setEnabled: not carrying, not in a minigame, the intro,
--- a flight or a camp) and while blocked() is false (the catch circles or the rescue bar up). With a mouse a click in
--- the world swings and with a gamepad R2, so no button shows there.
+-- area or with a stray in reach (a dropped cat on the street, reviewer N298), while the controller says a swing
+-- could go (UI.net.setEnabled: not carrying, not in a minigame, the intro, a flight or a camp) and while blocked()
+-- is false (the catch circles or the rescue bar up). With a mouse a click in the world swings and with a gamepad
+-- R2, so no button shows there.
 --
 --   setEnabled(on)   a swing could go now (the controller's canSwing)
 --   setInArea(on)    the player stands in a catching area (UI.setZone)
+--   setInReach(on)   a stray is in reach of a swing (UI.net.setInReach)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -37,6 +39,7 @@ export type NetButton = {
 	screenGui: ScreenGui,
 	setEnabled: (self: NetButton, on: boolean) -> (),
 	setInArea: (self: NetButton, on: boolean) -> (),
+	setInReach: (self: NetButton, on: boolean) -> (),
 	destroy: (self: NetButton) -> (),
 }
 
@@ -49,6 +52,7 @@ function NetButton.new(parent: Instance, callbacks: Callbacks): NetButton
 	self._touch = Scale.isTouch()
 	self._enabled = false
 	self._inArea = false
+	self._inReach = false
 	self._coolUntil = 0 -- os.clock()
 	self._loop = nil :: RBXScriptConnection?
 	self._connections = {} :: { RBXScriptConnection }
@@ -178,7 +182,10 @@ function NetButton._drawCool(self: any)
 end
 
 function NetButton._tick(self: any)
-	local show = self._touch and self._enabled and self._inArea and not self._callbacks.blocked()
+	local show = self._touch
+		and self._enabled
+		and (self._inArea or self._inReach)
+		and not self._callbacks.blocked()
 	if show and not self.screenGui.Enabled then
 		Tween.popIn(self._button, 0.85)
 	end
@@ -187,7 +194,7 @@ function NetButton._tick(self: any)
 end
 
 function NetButton._watch(self: any)
-	local on = self._touch and self._enabled and self._inArea
+	local on = self._touch and self._enabled and (self._inArea or self._inReach)
 	local loop: RBXScriptConnection? = self._loop
 	if not on then
 		if loop then
@@ -222,6 +229,13 @@ end
 function NetButton.setInArea(self: any, on: boolean)
 	if self._inArea ~= on then
 		self._inArea = on
+		self:_watch()
+	end
+end
+
+function NetButton.setInReach(self: any, on: boolean)
+	if self._inReach ~= on then
+		self._inReach = on
 		self:_watch()
 	end
 end

@@ -512,12 +512,12 @@ F93 polish (catch-rework.md section 4): the marker is a needle with a paw on top
 
 ### Net swing (F93 part 1, catch-rework.md section 1)
 
-A swing of the net starts a catch: a click in the world with a mouse, R2 on a gamepad, and on touch the round orange Net button (`Screens/NetButton.luau`), 64 px just above and left of Roblox's jump button on a phone and 96 px above the bigger one on a tablet (`Components/NetButtonPlace.luau`, with a spec), in screen pixels so it lines up with the jump button whatever the UI scale. It shows only on a touch screen, inside a catching area (`UI.setZone`), while `UI.net.setEnabled(true)` and while neither the catch circles nor the rescue bar are up. A press fires `events.netSwing()` and greys the button from the top for `Config.NetSwingCooldown` (0.8 s), refilling as the net comes back. The stray a swing would hit right now gets a soft gold glow with a white edge (`Components/NetGlow.luau`, one `Highlight` named `CatCafeNetGlow` inside the stray's model, this client only).
+A swing of the net starts a catch: a click in the world with a mouse, R2 on a gamepad, and on touch the round orange Net button (`Screens/NetButton.luau`), 64 px just above and left of Roblox's jump button on a phone and 96 px above the bigger one on a tablet (`Components/NetButtonPlace.luau`, with a spec), in screen pixels so it lines up with the jump button whatever the UI scale. It shows only on a touch screen, inside a catching area (`UI.setZone`) or with a stray in reach (a dropped cat on the street, reviewer N298), while `UI.net.setEnabled(true)` and while neither the catch circles nor the rescue bar are up. A press fires `events.netSwing()` and greys the button from the top for `Config.NetSwingCooldown` (0.8 s), refilling as the net comes back. The stray a swing would hit right now gets a soft gold glow with a white edge (`Components/NetGlow.luau`, one `Highlight` named `CatCafeNetGlow` inside the stray's model, this client only).
 
 | API | Purpose |
 |---|---|
 | `UI.net.setEnabled(on)` | A swing could go now: the controller's canSwing (not carrying, not in a minigame, the intro, a flight or a camp). Shows or hides the Net button with the area and minigame rules above. |
-| `UI.net.setInReach(model?)` | Glow on this stray's model, or none. The UI also follows `Moments.NetInReach` when the controller fires it, so either way works. |
+| `UI.net.setInReach(model?)` | Glow on this stray's model, or none, and show the Net button outside an area while a stray is in reach. The UI also follows `Moments.NetInReach` when the controller fires it, so either way works. |
 | `UI.net.hint()` | The tutorial line for this device: "Tap NET next to a cat", "Press R2 next to a cat" or "Click next to a cat", for the tutorial strip in place of "press E on a cat". |
 
 ### Tackle (built, F74, data-model section 10c v0.11; was the Shove, F41)

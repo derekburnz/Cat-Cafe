@@ -201,6 +201,8 @@ function Scenes.setup()
 	Config.QuestClaimAll = true
 	Config.IndexClaimAll = true
 	Config.TipJarClaimAll = true
+	-- F99: the food cards' "Rainbow 0.5%" line shows once the server has rainbow rolls (Gameplay-Engineer)
+	Config.RainbowChanceBait = Config.RainbowChanceBait or 0.005
 	UI.init({ catalog = catalogLikeTheGame(), keybinds = true })
 	UI.cannon.setEnabled(true) -- the Cat Cannon is live (F84): Cannon in the bottom row, no Alley or Areas
 	local now = os.time()
@@ -246,6 +248,29 @@ local function reel(on)
 	for key, value in REEL_CONFIG do
 		Config[key] = if on then value else nil
 	end
+end
+
+-- an F99 rainbow cat for the cat room: the first Epic in the catalog, level 8, resting
+local function rainbowCat()
+	local catId = Catalog.cats[1].id
+	for _, def in Catalog.cats do
+		if def.rarity == "Epic" then
+			catId = def.id
+			break
+		end
+	end
+	return {
+		uid = "gate_rainbow",
+		catId = catId,
+		variant = "rainbow",
+		caughtAt = os.time() - 20,
+		level = 8,
+		xp = 0,
+		xpToNext = 400,
+		charm = 70,
+		stars = 4,
+		rating = 900,
+	}
 end
 
 -- an F98 LeaderboardSync: full top 50 lists with long names, this player (id 1) fourth on all time Money and off
@@ -513,6 +538,28 @@ local SCENES = {
 			press("Cats", "gate_bellhop")
 		end)
 	end },
+	-- F99: a rainbow Epic in the cat room: the turning rainbow edge and badge, "Rainbow Epic ..." and its x3 chip
+	{ "CatsRainbow", function()
+		local player = samplePlayer(os.time())
+		player.cats.gate_rainbow = rainbowCat()
+		UI.update({ cats = player.cats })
+		UI.open("Cats")
+		task.delay(0.2, function()
+			press("Cats", "gate_rainbow")
+		end)
+	end },
+	-- its sell asks twice: "Sell your Rainbow ...? It earns x3", then "Really sell it?"
+	{ "CatsRainbowSell", function()
+		local player = samplePlayer(os.time())
+		player.cats.gate_rainbow = rainbowCat()
+		UI.update({ cats = player.cats })
+		UI.open("Cats")
+		task.delay(0.2, function()
+			press("Cats", "gate_rainbow")
+			press("Cats", "Sell")
+			press("Cats", "Sell")
+		end)
+	end },
 	-- F97 section 6: two spare cats (no Index page) with their "Classic" tag, one gold under its sparkle
 	{ "CatsClassic", function()
 		local player = samplePlayer(os.time())
@@ -645,6 +692,10 @@ local SCENES = {
 	end },
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
+	end },
+	-- F99: a rainbow cat's card: NEW RAINBOW ... CAT! and a turning rainbow edge
+	{ "CatFoundRainbow", function()
+		UI.showCatFound(Catalog.cats[2].id, true, { rainbow = true })
 	end },
 	-- F96: a Bellhop claim that works: the card closes and the claim card shows (after CatFound, which first shows the
 	-- card's pieces)

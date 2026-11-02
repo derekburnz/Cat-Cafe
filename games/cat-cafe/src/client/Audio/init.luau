@@ -328,7 +328,7 @@ local function stopAtRegionEnd(voice: Voice, region: { number }, startedAt: numb
 end
 
 -- Plays a cue once. `at` makes it 3D (a part, an attachment or a point); nil plays it flat. `step` raises the
--- pitch one note of the pentatonic scale per step (circle 1 to 5, rescue hit 1 to 6). Returns the Sound, or nil
+-- pitch one note of the pentatonic scale per step (circle 1 to 5, rescue hit 1 to 7). Returns the Sound, or nil
 -- when the cue is silent (no file yet, or played again inside its minGap).
 function Audio.play(cueId: string, at: Target?, step: number?): Sound?
 	local cue = Cues[cueId]
@@ -1498,6 +1498,11 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	RescueCancel = function()
 		duckForCatch(false)
 		Audio.play("rescueFail")
+	end,
+	-- F92: a helped rescue freed its cat (rescueSpotId, rescuerUserId, helperUserId, position), on both friends'
+	-- screens just after their RescueDone; the two bright notes sit above the done chime
+	TeamRescue = function()
+		Audio.play("teamRescue")
 	end,
 
 	-- Shove (v0.5, F41; Bump in code): every landed shove, then the knock-loose roll's result when the target

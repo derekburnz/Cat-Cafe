@@ -29,6 +29,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local KeepUp = require(script.Parent.Parent.Components.KeepUp)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -224,7 +225,11 @@ function CatCard.new(parent: Instance, callbacks: Callbacks): CatCard
 		BorderSizePixel = 0,
 		Parent = holder,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
-	Outline.border(card, Theme.sizes.outline)
+	local border = Outline.border(card, Theme.sizes.outline)
+	self._border = border
+	-- F99: a rainbow cat's card turns its edge through the rainbow
+	self._rainbowEdge = Rainbow.stroke(border)
+	self._rainbowEdge.Enabled = false
 	self._card = card
 
 	local disc: Frame = Create("Frame", {
@@ -272,6 +277,12 @@ function CatCard.new(parent: Instance, callbacks: Callbacks): CatCard
 	self._gold.BackgroundColor3 = Theme.colors.gold
 	self._gold.TextColor3 = Theme.colors.goldText
 	self._gold.Text = "Gold"
+	-- F99: "Rainbow x3" on the turning bands where a gold cat says Gold
+	self._rainbow = pill(tags, "Rainbow", 3)
+	self._rainbow.TextColor3 = Theme.colors.ink
+	self._rainbow.Text = ("Rainbow x%g"):format(CatVariant.multiplier("rainbow"))
+	self._rainbow.Visible = false
+	Rainbow.fill(self._rainbow)
 
 	local roleIcon: Frame = Create("Frame", {
 		Name = "RoleIcon",
@@ -567,7 +578,9 @@ function CatCard._show(self: any, model: Model, over: Model?)
 	local function refresh()
 		self:_fill()
 	end
-	for _, attribute in { "Level", "Role", "Napping", "Rate", "DisplayName", "Gold", "Asleep" } do
+	for _, attribute in
+		{ "Level", "Role", "Napping", "Rate", "DisplayName", "Gold", "Variant", "Asleep" }
+	do
 		table.insert(self._watch, model:GetAttributeChangedSignal(attribute):Connect(refresh))
 	end
 	self:_fill()
@@ -693,7 +706,13 @@ function CatCard._fill(self: any)
 	local gold = if instance
 		then CatVariant.isGold(instance.variant)
 		else model:GetAttribute("Gold") == true
-	self._gold.Visible = gold
+	local rainbow = if instance
+		then CatVariant.isRainbow(instance.variant)
+		else model:GetAttribute("Variant") == "rainbow"
+	self._gold.Visible = gold and not rainbow
+	self._rainbow.Visible = rainbow
+	self._rainbowEdge.Enabled = rainbow
+	self._border.Color = if rainbow then Theme.colors.white else Theme.colors.outline
 
 	-- the head: the gold coat's own model for a gold cat, rebuilt only when the cat or its coat changes
 	self._headDisc.BackgroundColor3 = Theme.rarityColor(rarity):Lerp(Theme.colors.paper, 0.7)

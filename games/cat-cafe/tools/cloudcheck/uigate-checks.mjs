@@ -22,7 +22,7 @@ export const LIMITS = {
 };
 
 // gate: fails the run when new; warn: in the report only
-const GATED = new Set(['tap', 'text', 'offscreen', 'topbar', 'fonts', 'error']);
+const GATED = new Set(['tap', 'text', 'offscreen', 'topbar', 'fonts', 'jitter', 'error']);
 
 function visibleRect(node) {
   let x1 = node.x;
@@ -57,13 +57,13 @@ export function checkScene(profile, scene) {
   const W = profile.width;
   const H = profile.height;
   const findings = [];
-  const add = (check, node, message) =>
+  const add = (check, node, message, where) =>
     findings.push({
       profile: profile.name,
       scene: scene.scene,
       check,
       gated: GATED.has(check),
-      path: node ? node.path : '',
+      path: where ?? (node ? node.path : ''),
       box: node ? [node.x, node.y, node.w, node.h] : null,
       message,
     });
@@ -152,6 +152,13 @@ export function checkScene(profile, scene) {
     }
   }
 
+  // a settled screen that keeps changing between the same few values shakes (Derek 2026-10-28, reward rows)
+  const boxes = new Map(scene.nodes.map((n) => [n.path, n]));
+  for (const j of scene.jitter || []) {
+    const owner = boxes.get(j.path) || boxes.get(j.path.split('/').slice(0, -1).join('/')) || null;
+    add('jitter', owner, `${j.prop} changed ${j.changes} times in 1 s between ${j.distinct} values`, `${j.path}.${j.prop}`);
+  }
+
   for (const e of scene.errors) {
     if (e.kind === 'error') add('error', null, e.text.split('\n').slice(0, 6).join(' | '));
     else add('warning', null, e.text.split('\n')[0]);
@@ -162,7 +169,9 @@ export function checkScene(profile, scene) {
 const keyOf = (f) => `${f.profile}|${f.scene}|${f.check}|${f.path || f.message.slice(0, 80)}`;
 
 // New findings are the ones over the baseline's count for their key; fixed are baseline keys with fewer now.
-export function compareBaseline(results, baseline) {
+// A run limited to one scene cannot tell which earlier window first showed a shared piece (the window frame, the
+// HUD behind it), so there a finding the baseline holds under any scene of the same size passes (review N275).
+export function compareBaseline(results, baseline, filtered = false) {
   const counts = {};
   const byKey = new Map();
   for (const r of results) {
@@ -175,9 +184,19 @@ export function compareBaseline(results, baseline) {
     }
   }
   const accepted = baseline.findings || {};
+  const anyScene = new Map();
+  for (const [key, count] of Object.entries(accepted)) {
+    const [profile, , check, ...rest] = key.split('|');
+    const loose = `${profile}|${check}|${rest.join('|')}`;
+    anyScene.set(loose, (anyScene.get(loose) || 0) + count);
+  }
   const fresh = [];
   for (const [key, list] of byKey) {
-    const allowed = accepted[key] || 0;
+    let allowed = accepted[key] || 0;
+    if (filtered && allowed === 0) {
+      const [profile, , check, ...rest] = key.split('|');
+      allowed = anyScene.get(`${profile}|${check}|${rest.join('|')}`) || 0;
+    }
     for (const f of list.slice(allowed)) {
       f.fresh = true;
       fresh.push(f);

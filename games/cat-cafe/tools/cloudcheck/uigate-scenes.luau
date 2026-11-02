@@ -198,6 +198,28 @@ function Scenes.setup()
 	UI.tipJar.set({ sessionStartedAt = workspace:GetServerTimeNow() - 25 * 60, claimed = { [1] = true } })
 end
 
+-- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window
+local function press(windowName, name)
+	local playerGui = UIShim.playerGui
+	local window = playerGui:FindFirstChild(windowName, true)
+	assert(window, "uigate: no window " .. windowName)
+	local holder = window:FindFirstChild(name, true)
+	assert(holder, "uigate: no " .. name .. " in " .. windowName)
+	local button = if holder:IsA("GuiButton") then holder else holder:FindFirstChildWhichIsA("GuiButton", true)
+	assert(button, "uigate: " .. name .. " has no button")
+	UIShim.fire(UIShim.eventOf(button, "Activated")) -- Components/Button listens to Activated only
+end
+
+-- a code that pays a big prize (F94: up to three pictures)
+local CODE_PRIZE = {
+	coins = 5000,
+	coinSeconds = 600,
+	fish = 25,
+	spins = 2,
+	lures = { caviar = 1 },
+	crates = { classic_crate = 1 },
+}
+
 -- name, how the game opens it
 local SCENES = {
 	{ "Upgrades", function()
@@ -242,11 +264,19 @@ local SCENES = {
 	{ "Codes", function()
 		UI.codes.open()
 	end },
+	{ "CodesPrize", function()
+		UI.codes.open()
+		UI.codes.result(true, "Code redeemed!", CODE_PRIZE)
+	end },
 	{ "Potions", function()
 		UI.open("Potions")
 	end },
 	{ "Quests", function()
 		UI.open("Quests")
+	end },
+	{ "QuestsWeekly", function()
+		UI.open("Quests")
+		press("Quests", "WeeklyTab")
 	end },
 	{ "DailyTreat", function()
 		UI.open("DailyTreat")

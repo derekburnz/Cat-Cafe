@@ -101,6 +101,7 @@ window's UIScale. About 50 s for all three.
 | `offscreen` | A button, text or scroll list more than 2 px past the screen edge. Something fully off screen is parked (slid out or waiting to tween in) and passes. |
 | `topbar` | A button or text under Roblox's menu buttons, the top left 184 x 58. |
 | `fonts` | A third font family besides Fredoka One and Nunito (emoji and symbols do not count). |
+| `jitter` | Once the scene has settled, a property that changes 6 or more times in a second between only two or three values (Derek 2026-10-28: prize rows "spassing back and forth"). A bob or a countdown takes many values or changes rarely, so it passes. |
 | `error` | A script error while the scene was built, with its stack. |
 
 Warnings, in the report only: `fit` (a word clearly wider or taller than its box; text measures from average glyph
@@ -108,8 +109,11 @@ widths, so about 10% either way), `overlap` (a pressable covering a quarter of a
 `thumbs` (on the phone, a pressable under Roblox's thumbstick or jump button) and `warning` (a `warn()` call).
 
 `uigate-baseline.json` holds the findings accepted when the gate started (203: mostly 29 to 35 px buttons and the
-phone's small tiles). One of them does not fail; a new one does. When a fix removes some, the run says so; run with
-`--update-baseline` in that pull request so the list only shrinks. A window added to the game goes in `SCENES` in
+phone's small tiles; 234 once the weekly quests and a code prize became scenes, with their shrunk prize text; 197
+once prize rows stopped shrinking text under 9 px). One of them does not fail; a new one does. When a fix removes some, the run says so; run with
+`--update-baseline` in that pull request so the list only shrinks. A run limited with `--scene` also passes a
+finding the baseline holds under another scene of the same size, since one scene alone cannot tell which window
+first showed a shared piece. A window added to the game goes in `SCENES` in
 `uigate-scenes.luau`; the gate builds it at every size from then on.
 
 | File | What |
@@ -124,6 +128,7 @@ blue a warning; hover a box for its finding), `report.md`, `findings.json`, one 
 (every piece with its box, colours, text and rendered text size).
 
 Limits: pictures from asset ids are not downloaded, so an image shows as a tinted box; text sizes come from average
-glyph widths per font, not the font files; `UIFlexItem`, `UIPageLayout` and `UITableLayout` are not laid out; the
+glyph widths per font, not the font files, and snap to whole pixels as Roblox draws them (which is what made the
+prize rows shake, and what lets the jitter check see it); `UIFlexItem`, `UIPageLayout` and `UITableLayout` are not laid out; the
 phone has no notch. The pictures are for finding a box, not for judging the look: check that in Studio.
 

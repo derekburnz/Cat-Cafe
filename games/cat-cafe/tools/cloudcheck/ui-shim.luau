@@ -949,7 +949,10 @@ local function renderedTextSize(self, w, h, k)
 	if constraint then
 		size = math.clamp(size, (rawProp(constraint, "MinTextSize") or 1) * k, (rawProp(constraint, "MaxTextSize") or 100) * k)
 	end
-	return size
+	-- text draws at whole pixel sizes, so under a UIScale a row's width does not shrink smoothly with the scale. Code
+	-- that resizes from its own width can then flip between two sizes every frame (the prize rows Derek saw shake
+	-- on 2026-10-28); the jitter check catches that only if the shim snaps too.
+	return math.max(1, math.floor(size + 0.5))
 end
 
 local function textExtent(self, size, maxWidth)
@@ -1501,6 +1504,36 @@ local NO_GEOMETRY = {
 	DisplayOrder = true,
 }
 
+-- set while UIShim.watch runs: instance -> property -> { changes, values, distinct, last }
+local recording = nil
+
+local function valueKey(value)
+	local kind = type(value)
+	if kind == "number" then
+		return string.format("%.3f", value)
+	elseif kind == "table" then
+		local mt = getmetatable(value)
+		if mt and mt.__tostring then
+			return tostring(value)
+		end
+		local parts = {}
+		for _, field in { "X", "Y", "Z", "R", "G", "B", "Scale", "Offset" } do
+			local part = rawget(value, field)
+			if part == nil then
+				local ok, got = pcall(function()
+					return value[field]
+				end)
+				part = if ok then got else nil
+			end
+			if part ~= nil then
+				table.insert(parts, field .. "=" .. valueKey(part))
+			end
+		end
+		return if #parts > 0 then table.concat(parts, ",") else tostring(value)
+	end
+	return tostring(value)
+end
+
 local function markDirty(node)
 	layoutDirty = true
 	while node ~= nil do
@@ -1519,6 +1552,29 @@ InstanceMT.__newindex = function(self, key, value)
 		old = s.props[key]
 	end
 	worldNewIndex(self, key, value)
+	if recording and old ~= value then
+		local perInstance = recording[self]
+		if perInstance == nil then
+			perInstance = {}
+			recording[self] = perInstance
+		end
+		local entry = perInstance[key]
+		if entry == nil then
+			entry = { changes = 0, values = {}, distinct = 0, last = valueKey(old) }
+			entry.values[entry.last] = true
+			entry.distinct = 1
+			perInstance[key] = entry
+		end
+		local shown = valueKey(value)
+		if shown ~= entry.last then
+			entry.changes += 1
+			entry.last = shown
+		end
+		if not entry.values[shown] then
+			entry.values[shown] = true
+			entry.distinct += 1
+		end
+	end
 	if key == "Parent" then
 		if old ~= nil then
 			markDirty(old)
@@ -1998,6 +2054,45 @@ function UIShim.advance(seconds)
 		computeAll()
 		fireComputed()
 	end
+end
+
+-- runs the clock `seconds` while recording every property write under the PlayerGui, then lists what kept
+-- changing back and forth: at least `minChanges` changes between only two or three values. Steady animations
+-- (a bob, a countdown, a slow blink) take many values or change rarely, and writing the same value again is no
+-- change, so they pass. One line per finding: path TAB property TAB changes TAB distinct values
+function UIShim.watch(seconds, minChanges)
+	recording = {}
+	UIShim.advance(seconds)
+	local found = {}
+	for instance, props in recording do
+		local s = state[instance]
+		if s == nil or s.destroyed then
+			continue
+		end
+		local inGui, node, names = false, instance, {}
+		while node ~= nil do
+			if node == playerGui then
+				inGui = true
+				break
+			end
+			table.insert(names, 1, state[node].Name)
+			node = state[node].Parent
+		end
+		if not inGui then
+			continue
+		end
+		for key, entry in props do
+			if entry.changes >= (minChanges or 6) and entry.distinct <= 3 then
+				table.insert(
+					found,
+					table.concat(names, "/") .. "\t" .. key .. "\t" .. entry.changes .. "\t" .. entry.distinct
+				)
+			end
+		end
+	end
+	recording = nil
+	table.sort(found)
+	return table.concat(found, "\n")
 end
 
 function UIShim.now()

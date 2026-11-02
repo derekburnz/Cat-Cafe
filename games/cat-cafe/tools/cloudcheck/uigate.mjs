@@ -14,6 +14,8 @@
 //   text     text that renders under 9 px
 //   offscreen  a button, text or scroll list partly past the screen edge or under Roblox's top bar
 //   fonts    more than two font families on screen
+//   jitter   a property that flips between two or three values every few frames once the scene has settled
+//            (Derek 2026-10-28: reward rows "spassing back and forth")
 //   error    a script error or warning while the scene built
 // Warnings only (in the report, never a fail): pressables that overlap, and on the phone anything pressable under
 // the thumbstick or the jump button.
@@ -82,16 +84,27 @@ async function runProfile(profile) {
       .filter(Boolean)
       .map((line) => JSON.parse(line));
 
+  // one settled second with every property write recorded: what flips back and forth is jitter
+  const watch = () =>
+    String(fn('watch').call(1, 6)[0])
+      .split('\n')
+      .filter(Boolean)
+      .map((line) => {
+        const [where, prop, changes, distinct] = line.split('\t');
+        return { path: where, prop, changes: Number(changes), distinct: Number(distinct) };
+      });
   const results = [];
   run(scenes.rawGet('setup'), 3);
   run(scenes.rawGet('close'), 0.6); // a window the login opens by itself (a Daily Treat that is due)
-  results.push({ scene: 'HUD', nodes: snapshot(), errors: takeErrors() });
+  const hudJitter = watch();
+  results.push({ scene: 'HUD', nodes: snapshot(), errors: takeErrors(), jitter: hudJitter });
   const names = scenes.rawGet('names').toArray().map(String);
   for (const name of names) {
     if (args.scene && args.scene !== name) continue;
     const open = lua.createFunction(() => scenes.rawGet('open').call(name));
     run(open, 1.5);
-    results.push({ scene: name, nodes: snapshot(), errors: takeErrors() });
+    const jitter = watch();
+    results.push({ scene: name, nodes: snapshot(), errors: takeErrors(), jitter });
     run(scenes.rawGet('close'), 0.6);
     takeErrors();
   }
@@ -124,7 +137,7 @@ for (const profile of PROFILES) {
 
 const baseline = fs.existsSync(baselineFile) ? JSON.parse(fs.readFileSync(baselineFile, 'utf8')) : { findings: {} };
 const filtered = Boolean(args.profile || args.scene);
-const { fresh, fixed, counts } = compareBaseline(all, baseline);
+const { fresh, fixed, counts } = compareBaseline(all, baseline, filtered);
 if (args.updateBaseline) {
   if (filtered) throw new Error('--update-baseline needs the full run (no --profile or --scene)');
   const out = { note: 'UI gate findings accepted on 2026-11-01; fix them and shrink this file, never grow it by hand.', findings: counts };

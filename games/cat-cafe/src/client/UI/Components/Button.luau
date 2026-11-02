@@ -5,12 +5,16 @@
 -- with a thick dark outline and an optional icon, press squash and hover grow (mouse only).
 -- Works with mouse, touch and gamepad through GuiButton.Activated. A press plays uiClick (or the `sound` prop's cue);
 -- a press on a greyed button plays uiError so the player hears why nothing happened.
+-- On a touch screen an invisible pad (Hit) over the button takes its taps and reaches out to a finger's 44 px when the
+-- button is drawn smaller, so the look stays and the target grows (Derek 2026-11-02: "make sure the ui is fine for all
+-- devices").
 
 local UserInputService = game:GetService("UserInputService")
 
 local Create = require(script.Parent.Create)
 local IconArt = require(script.Parent.IconArt)
 local Outline = require(script.Parent.Outline)
+local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Tween)
@@ -305,6 +309,47 @@ function Button.new(props: Props): Button
 
 	local uiScale: UIScale = Create("UIScale", { Parent = root })
 
+	-- The thing a finger presses: the face, or on a touch screen the pad over the whole button. The pad reaches a
+	-- finger's 44 real px at the screen's UI scale on each side the button is sized in design px (a side sized as a
+	-- share of its parent, a third of a card, is wide already), never smaller than the button; it follows the scale
+	-- and the button's Size, not its size on screen, so it costs nothing while the button squashes or a window pops.
+	-- The face stops taking input so the pad is the one button there.
+	local connections: { RBXScriptConnection } = {}
+	local target: GuiButton = face
+	if Scale.isTouch() then
+		local pad: TextButton = Create("TextButton", {
+			Name = "Hit",
+			Text = "",
+			AutoButtonColor = false,
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(1, 1),
+			ZIndex = (props.zIndex or 1) + 3,
+			Parent = root,
+		})
+		face.Interactable = false
+		local function fit()
+			local reach = (Scale.TAP + 1) / math.max(Scale.get(), 0.01)
+			local size = root.Size
+			local function grow(side: UDim): number
+				return if side.Scale == 0 then math.max(0, math.ceil(reach - side.Offset)) else 0
+			end
+			pad.Size = UDim2.new(1, grow(size.X), 1, grow(size.Y))
+		end
+		table.insert(connections, root:GetPropertyChangedSignal("Size"):Connect(fit))
+		local scaled = Scale.changed:Connect(fit)
+		table.insert(
+			connections,
+			root.Destroying:Connect(function()
+				scaled:Disconnect()
+			end)
+		)
+		table.insert(connections, scaled :: any)
+		fit()
+		target = pad
+	end
+
 	local self = setmetatable({}, Button) :: any
 	self.instance = root
 	self.face = face
@@ -317,7 +362,7 @@ function Button.new(props: Props): Button
 	self._scale = uiScale
 	self._style = style
 	self._enabled = enabled
-	self._connections = {} :: { RBXScriptConnection }
+	self._connections = connections
 	self._onClick = props.onClick
 	self._sound = if props.sound == nil then "uiClick" else props.sound
 
@@ -355,7 +400,7 @@ function Button.new(props: Props): Button
 
 	table.insert(
 		self._connections,
-		face.InputBegan:Connect(function(input: InputObject)
+		target.InputBegan:Connect(function(input: InputObject)
 			if not self._enabled then
 				return
 			end
@@ -369,7 +414,7 @@ function Button.new(props: Props): Button
 	)
 	table.insert(
 		self._connections,
-		face.InputEnded:Connect(function(input: InputObject)
+		target.InputEnded:Connect(function(input: InputObject)
 			if
 				input.UserInputType == Enum.UserInputType.MouseButton1
 				or input.UserInputType == Enum.UserInputType.Touch
@@ -380,7 +425,7 @@ function Button.new(props: Props): Button
 	)
 	table.insert(
 		self._connections,
-		face.MouseEnter:Connect(function()
+		target.MouseEnter:Connect(function()
 			if self._enabled and UserInputService.MouseEnabled then
 				hovered = true
 				gradient.Color = fill(STYLES[self._style], 0.12)
@@ -392,7 +437,7 @@ function Button.new(props: Props): Button
 	)
 	table.insert(
 		self._connections,
-		face.MouseLeave:Connect(function()
+		target.MouseLeave:Connect(function()
 			hovered = false
 			setPressed(false)
 			Tween.to(uiScale, Tween.FAST, { Scale = 1 })
@@ -401,7 +446,7 @@ function Button.new(props: Props): Button
 	)
 	table.insert(
 		self._connections,
-		face.Activated:Connect(function()
+		target.Activated:Connect(function()
 			-- A greyed button stays Active so a tap on it bonks; a drag that starts on it (a phone scroll) never
 			-- fires Activated, so scrolling past "can't afford" rows stays quiet (reviewer N57).
 			if not self._enabled then

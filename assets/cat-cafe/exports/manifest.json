@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-01 23:17 UTC",
+  "generated": "2026-11-01 23:47 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -75897,17 +75897,17 @@
       "budget": 8000,
       "size_studs": {
         "x": 36.02,
-        "y": 28.02,
+        "y": 28.03,
         "z": 12.8
       },
       "size_roblox": [
         36.02,
         12.8,
-        28.02
+        28.03
       ],
       "bounds_min": [
         -18.01,
-        -14.01,
+        -14.02,
         0.0
       ],
       "bounds_max": [
@@ -75935,7 +75935,7 @@
           "uv": "2156 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
+          "centered": "footprint center x=0.00 y=-0.01"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_Interior.png",

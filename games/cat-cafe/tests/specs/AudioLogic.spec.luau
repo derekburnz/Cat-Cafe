@@ -865,4 +865,35 @@ return function()
 			expect(Logic.scaleStep(7)).to.equal(2.25)
 		end)
 	end)
+
+	describe("Audio.Logic cafe orders (F90)", function()
+		it("pours only at the espresso machine", function()
+			expect(Logic.orderMakeCue("espresso")).to.equal("orderPour")
+			expect(Logic.orderMakeCue("oven")).to.equal(nil)
+			expect(Logic.orderMakeCue("counter")).to.equal(nil)
+			expect(Logic.orderMakeCue(nil)).to.equal(nil)
+		end)
+		it("rings the oven's ding lowest, a drink's a note up and the counter's two", function()
+			expect(Logic.orderDingStep("oven")).to.equal(1)
+			expect(Logic.orderDingStep("espresso")).to.equal(2)
+			expect(Logic.orderDingStep("counter")).to.equal(3)
+			expect(Logic.orderDingStep("grill")).to.equal(nil)
+			expect(Logic.orderDingStep(nil)).to.equal(nil)
+		end)
+		it(
+			"plays the pour, ding, clink and bag drop from the Cafe sheet and the sweep from the tip pile file",
+			function()
+				local lastStop = -1
+				for _, name in { "orderPour", "orderDing", "trayClink", "tipBank" } do
+					local cue = Cues[name]
+					expect(cue ~= nil and cue.sheet == "sheetCafe").to.equal(true)
+					expect(cue.range ~= nil).to.equal(true)
+					expect(cue.region[1] > lastStop).to.equal(true)
+					lastStop = cue.region[2]
+				end
+				expect(Cues.tipSweep.ids[1]).to.equal(Cues.tipPile.ids[1])
+				expect(Cues.tipSweep.range ~= nil).to.equal(true)
+			end
+		)
+	end)
 end

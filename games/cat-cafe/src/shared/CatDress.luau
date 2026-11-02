@@ -60,11 +60,75 @@ function CatDress.plan(role: string, propSlot: string?, propSlot2: string?): ({ 
 	return wear, offProp
 end
 
--- Whether `model` is a walking body (A) rather than a seated one (B): a seated body carries Pose "sit" (CafeService
--- and the intro set it on the _Sit clones they dress) or still has its asset's _Sit name. A working cat whose seat
--- is not exported yet sits on its walking body, so it gets the walking cut too, which is the one its slots fit.
+-- Whether `model` is a walking body (A) rather than a seated one (B) or a standing worker (S): a seated body carries
+-- Pose "sit" (CafeService and the intro set it on the _Sit clones they dress) or still has its asset's _Sit name, a
+-- worker Pose "work" or its _Work name; S has B's chest, so it wears the seated cuts. A working cat whose seat is not
+-- exported yet sits on its walking body, so it gets the walking cut too, which is the one its slots fit.
 function CatDress.isWalking(model: Instance): boolean
-	return model:GetAttribute("Pose") ~= "sit" and string.find(model.Name, "_Sit", 1, true) == nil
+	local pose = model:GetAttribute("Pose")
+	return pose ~= "sit"
+		and pose ~= "work"
+		and string.find(model.Name, "_Sit", 1, true) == nil
+		and string.find(model.Name, "_Work", 1, true) == nil
+end
+
+-- The standing worker at work (Model-Agent #826; Derek picked S on 2026-11-02): each role's front legs turn in their
+-- own axes by the manifest's cat_poses.work_<role> angles_roblox_deg (degrees about X, Y and Z, applied as
+-- CFrame.Angles), and copy new numbers from there when Model-Agent poses them again. The client's Effects add small
+-- idles on top, so a far cat, which gets none, still shows the pose.
+CatDress.WORK_ARMS = {
+	barista = { LegF2 = { 57.5, 21.5, 13.1 }, LegF1 = { 9.9, -1.0, -5.9 } },
+	waiter = { LegF1 = { 37.5, -27.0, -30.7 }, LegF2 = { 9.9, 1.0, 5.9 } },
+	greeter = { LegF1 = { 172.4, 13.0, -59.1 }, LegF2 = { 9.9, 1.0, 5.9 } },
+	entertainer = { LegF2 = { 44.3, 26.1, 24.2 }, LegF1 = { 163.9, 25.7, -56.3 } },
+} :: { [string]: { [string]: { number } } }
+
+-- What each worker carries in its paws, an object Model named <asset>_Held_<Role>: the barista's cup and the
+-- entertainer's microphone in LegF2, the waiter's tray in LegF1. Every worker model has all three; a greeter holds
+-- none.
+CatDress.HELD = { "Held_Barista", "Held_Waiter", "Held_Entertainer" }
+CatDress.WORK_HELD = {
+	barista = "Held_Barista",
+	waiter = "Held_Waiter",
+	entertainer = "Held_Entertainer",
+} :: { [string]: string }
+
+-- The held things that come off a worker in `role`: every one but its own.
+function CatDress.heldOff(role: string): { string }
+	local keep = CatDress.WORK_HELD[role]
+	local off: { string } = {}
+	for _, held in CatDress.HELD do
+		if held ~= keep then
+			table.insert(off, held)
+		end
+	end
+	return off
+end
+
+-- Poses a worker for `role`: the other roles' held things come off and each front leg turns about its own pivot
+-- (WORK_ARMS), which carries what it holds, so this works before or after the model is pivoted to its station and at
+-- any Scale. A model without the legs (a placeholder) is left as it is.
+function CatDress.workPose(model: Model, role: string)
+	for _, held in CatDress.heldOff(role) do
+		local tail = "_" .. held
+		for _, descendant in model:GetDescendants() do
+			if descendant:IsA("Model") and descendant.Name:sub(-#tail) == tail then
+				descendant:Destroy()
+			end
+		end
+	end
+	local arms = CatDress.WORK_ARMS[role]
+	if arms == nil then
+		return
+	end
+	for legName, angles in arms do
+		local leg = objectModel(model, legName)
+		if leg ~= nil then
+			local turn =
+				CFrame.Angles(math.rad(angles[1]), math.rad(angles[2]), math.rad(angles[3]))
+			leg:PivotTo(leg:GetPivot() * turn)
+		end
+	end
 end
 
 -- The assets to try for `piece`, in order: on a walking body its walking cut and then the plain piece (the cut is
@@ -92,8 +156,12 @@ end
 
 -- Puts `role`'s outfit on a cat (CatDress.plan), each piece a copy from `clone(assetName)` (nil while that asset is
 -- missing), its walking cut on a walking body (CatDress.assetNames). A piece is skipped while its assets or the cat's
--- Outfit_<Piece> slot are missing, so new pieces and new cats can land in either order. Returns how many went on.
+-- Outfit_<Piece> slot are missing, so new pieces and new cats can land in either order. A worker (Pose "work") is
+-- posed for the role first (workPose). Returns how many pieces went on.
 function CatDress.dress(model: Model, role: string, clone: (assetName: string) -> Model?): number
+	if model:GetAttribute("Pose") == "work" then
+		CatDress.workPose(model, role)
+	end
 	local propSlot = model:GetAttribute("PropSlot")
 	local propSlot2 = model:GetAttribute("PropSlot2")
 	local pieces, offProp = CatDress.plan(

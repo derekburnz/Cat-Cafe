@@ -11,12 +11,12 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "list | icon | thumbnails (add) | order | delete (one thumbnail) | alt | home (homepage upload) | home-delete"
+        description: "list | icon | thumbnails (add) | order | delete (one thumbnail) | alt | home (homepage upload) | home-delete | home-test"
         type: choice
-        options: [list, icon, thumbnails, order, delete, alt, home, home-delete]
+        options: [list, icon, thumbnails, order, delete, alt, home, home-delete, home-test]
         default: list
       args:
-        description: "icon: one image path. thumbnails, home: image paths. order: thumbnail ids in page order. delete: one id. alt: id then text. home-delete: ids"
+        description: "icon: one image path. thumbnails, home: image paths. order: thumbnail ids in page order. delete: one id. alt: id then text. home-delete: ids. home-test: 1 to 5 homepage ids"
         required: false
         default: ""
       branch:

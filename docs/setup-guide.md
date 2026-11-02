@@ -213,3 +213,12 @@ Trading (F102) checks two switches in the `CatCafe_Flags` data store every minut
 4. Try it: **Actions > flags > Run workflow** with `show`. The log prints both switches (no entry yet means trading on and the minimum tier from Config).
 
 The key can then write any entry in the game's data stores, saves included, so it stays only in the GitHub secret. The workflow writes only the two `CatCafe_Flags` keys.
+
+## 25. Let threads share the sounds and pictures with the game (once, about 1 minute)
+The game's sounds and pictures (139 ids today) were uploaded under your user. When the game moves to the group, Roblox treats it as the group's, and audio your user owns plays only in experiences it is shared with. The `asset-permissions` workflow (`tools/opencloud/asset-permissions.sh`) shares every id the code uses with the Cat Cafe experience in one run, before the move, so nothing goes quiet or blank on transfer day and nobody opens 139 asset pages. The experience keeps its id through the transfer, so the share carries over. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > **Add API System**: **asset-permissions**, operation `asset-permissions:write`. If it asks for an experience, pick **Cat Cafe**.
+3. **Save Changes**. Don't press Regenerate.
+4. Nothing to try by hand: a thread runs **Actions > asset-permissions > Run workflow** with `grant`, and the log counts the ids shared.
+
+Roblox cannot take a share back through the API, which is fine: the only thing it shares with is our own game. Run `grant` again after new sounds or pictures land.

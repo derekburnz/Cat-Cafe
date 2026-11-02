@@ -63,20 +63,69 @@ function PassService.fromOwned(set: { [number]: boolean }): Economy.Passes
 	}
 end
 
--- Looks up every made pass for `player` (yields; a failed lookup counts as not owned for this session and warns)
--- and returns what they give. DataService calls it once at join.
+-- Seconds between the tries again for a lookup that failed at join (review S97): a passing Marketplace outage
+-- should not keep a paid pass off for the whole session.
+local RETRY_SECONDS = { 5, 15, 45 }
+
+-- Whether `player` owns pass `id`, or nil when the lookup failed (warned).
+local function lookup(player: Player, id: number): boolean?
+	local ok, result =
+		pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, id)
+	if ok then
+		return result == true
+	end
+	warn("[PassService] pass lookup failed for", player.UserId, id, result)
+	return nil
+end
+
+-- Tries the failed ids again on RETRY_SECONDS while the player stays and this join's set is still theirs, and
+-- fires `changed` when one turns out owned. Offline pay was already worked out at join, so a Long Nap found here
+-- counts from the next join.
+local function retry(player: Player, set: { [number]: boolean }, failed: { number })
+	local left = failed
+	for _, seconds in RETRY_SECONDS do
+		task.wait(seconds)
+		if owned[player] ~= set or player.Parent ~= Players then
+			return
+		end
+		local still: { number } = {}
+		local gained = false
+		for _, id in left do
+			local result = lookup(player, id)
+			if result == nil then
+				table.insert(still, id)
+			elseif result and not set[id] then
+				set[id] = true
+				gained = true
+			end
+		end
+		if gained then
+			PassService.changed:Fire(player, PassService.fromOwned(set))
+		end
+		left = still
+		if #left == 0 then
+			return
+		end
+	end
+end
+
+-- Looks up every made pass for `player` (yields) and returns what they give. DataService calls it once at join; a
+-- failed lookup counts as not owned until `retry` gets an answer.
 function PassService.check(player: Player): Economy.Passes
 	local set: { [number]: boolean } = {}
+	local failed: { number } = {}
 	for _, id in passIds() do
-		local ok, result =
-			pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, id)
-		if ok then
-			set[id] = result == true
+		local result = lookup(player, id)
+		if result == nil then
+			table.insert(failed, id)
 		else
-			warn("[PassService] pass lookup failed for", player.UserId, id, result)
+			set[id] = result
 		end
 	end
 	owned[player] = set
+	if #failed > 0 then
+		task.spawn(retry, player, set, failed)
+	end
 	return PassService.fromOwned(set)
 end
 

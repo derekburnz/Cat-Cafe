@@ -229,4 +229,87 @@ return function()
 			expect(profile.version).to.equal(24)
 		end)
 	end)
+
+	-- QA for engineer PR #795 (rainbow-coat.md sections 1 and 4): rainbow luck has one source, gold keeps its share at
+	-- every rainbow luck, and the food card shows the chance the server rolls (odds shown are the odds used).
+	describe("Rainbow coat edges (QA)", function()
+		local Potions = require(Shared.Potions)
+		local Scripts = game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts")
+		local UI = Scripts:WaitForChild("Client"):WaitForChild("UI")
+		local FoodOdds = require(UI:WaitForChild("Components"):WaitForChild("FoodOdds")) :: any
+
+		-- every milestone on every page claimed, the Rainbow page's only when `rainbow` is true
+		local function claimedAll(rainbow: boolean): any
+			local profile: any = ProfileSchema.template(100)
+			for page, prizes in Catalog.indexPrizes do
+				if page ~= IndexRewards.RAINBOW or rainbow then
+					local claims: { [string]: boolean } = {}
+					for milestoneId in prizes do
+						claims[milestoneId] = true
+					end
+					profile.indexRewards[page] = claims
+				end
+			end
+			return profile
+		end
+
+		it("takes rainbow luck only from the Rainbow track, never gold luck or a potion", function()
+			local profile = claimedAll(false)
+			profile.buffs[Potions.GOLD_RUSH] = 600
+			profile.buffs[Potions.LUCKY] = 600
+			expect(IndexRewards.totals(profile).goldLuck > 0).to.equal(true)
+			expect(IndexRewards.rainbowLuck(profile)).to.equal(0)
+			local full = IndexRewards.rainbowLuck(claimedAll(true))
+			expect(full).to.be.near(Config.RainbowLuckMax, 1e-9)
+		end)
+
+		it("keeps gold's share at every rainbow luck and caps the rainbow chance", function()
+			local goldChance = IndexRewards.rollChance(Config.GoldChanceBait, 0)
+			for _, luck in { 0, 0.2, 0.5, 1, 3, -1 } do
+				local rainbowChance = IndexRewards.rainbowChance(Config.RainbowChanceBait, luck)
+				local held = math.clamp(luck, 0, Config.RainbowLuckMax)
+				expect(rainbowChance).to.be.near(Config.RainbowChanceBait * (1 + held), 1e-12)
+				local rainbow, gold = 0, 0
+				for i = 1, 20000 do
+					local roll = (i - 0.5) / 20000
+					local coat = Catching.rollCoat(common, roll, rainbowChance, goldChance)
+					if coat == "rainbow" then
+						rainbow += 1
+					elseif coat == "gold" then
+						gold += 1
+					end
+				end
+				expect(rainbow / 20000).to.be.near(rainbowChance, 1e-9)
+				expect(gold / 20000).to.be.near(goldChance, 1e-9)
+			end
+			local bases =
+				{ Config.RainbowChanceNet, Config.RainbowChanceBait, Config.RainbowChanceRescue }
+			for _, base in bases do
+				local most = IndexRewards.rainbowChance(base, math.huge)
+				expect(most <= base * 2 + 1e-12).to.equal(true)
+			end
+		end)
+
+		it("shows the food card's rainbow line as the chance the server rolls", function()
+			local claims: { [string]: boolean } = {}
+			local function shown(luck: number): number
+				local line: string = FoodOdds.rainbow(luck)
+				return tonumber(string.match(line, "^Rainbow ([%d%.]+)%%")) :: number / 100
+			end
+			local function check(profile: any)
+				local luck = IndexRewards.rainbowLuck(profile)
+				local rolled = IndexRewards.rainbowChance(Config.RainbowChanceBait, luck)
+				expect(shown(luck)).to.be.near(rolled, 0.00005)
+			end
+			local profile: any = ProfileSchema.template(100)
+			check(profile)
+			for _, id in { "rainbow1", "rainbow3", "rainbow5", "rainbow10", "rainbow25" } do
+				claims[id] = true
+				profile.indexRewards = { [IndexRewards.RAINBOW] = table.clone(claims) }
+				check(profile)
+			end
+			local capped = IndexRewards.rainbowChance(Config.RainbowChanceBait, 5)
+			expect(shown(5)).to.be.near(capped, 0.00005)
+		end)
+	end)
 end

@@ -282,9 +282,20 @@ function sceneSvg(profile, result) {
       const outline = n.ts2
         ? ` stroke="#${n.ts2[0]}" stroke-width="${px(n.ts2[1] * 2)}" stroke-opacity="${n.ts2[2]}" paint-order="stroke" stroke-linejoin="round"`
         : '';
-      parts.push(
-        `<text x="${px(tx)}" y="${px(n.y + n.h / 2)}" dominant-baseline="central" text-anchor="${anchor}" font-size="${px(n.ts)}" fill="#${n.tc}" fill-opacity="${n.ta ?? 1}"${outline} style="font-family:${FONT_CSS[n.font] || 'sans-serif'}"${open}>${esc(n.text)}</text>`,
-      );
+      // wrapped text: one line under the other, from the top, the middle or the bottom as the label aligns it
+      const rows = n.lines || [n.text];
+      const step = n.lines ? n.th / rows.length : n.th || n.ts;
+      const top =
+        n.ty === 'Center' || n.ty === undefined
+          ? n.y + n.h / 2 - (step * (rows.length - 1)) / 2
+          : n.ty === 'Top'
+            ? n.y + step / 2
+            : n.y + n.h - n.th + step / 2;
+      rows.forEach((row, i) => {
+        parts.push(
+          `<text x="${px(tx)}" y="${px(top + i * step)}" dominant-baseline="central" text-anchor="${anchor}" font-size="${px(n.ts)}" fill="#${n.tc}" fill-opacity="${n.ta ?? 1}"${outline} style="font-family:${FONT_CSS[n.font] || 'sans-serif'}"${open}>${esc(row)}</text>`,
+        );
+      });
     }
   }
   for (const f of result.findings) {

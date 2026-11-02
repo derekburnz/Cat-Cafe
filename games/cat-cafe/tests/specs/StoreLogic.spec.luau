@@ -45,7 +45,7 @@ return function()
 			expect(rows[1].owned).to.equal(false)
 			expect(rows[2].key).to.equal("longNap")
 			expect(rows[2].effect).to.equal(
-				"Away money at 100% for up to 16 hours, in place of 50% for 8."
+				"Away money at 100% for up to 16 h.\nWithout it: 50% for up to 8 h."
 			)
 			expect(rows[2].owned).to.equal(false)
 		end)

@@ -883,15 +883,17 @@ local function lineWidth(line, size, em)
 end
 
 -- the lines a text breaks into at `size` within `maxWidth` (nil: no wrapping), and the widest line
+-- the line count, the widest line's width and the lines themselves (the pictures draw wrapped text line by line)
 local function wrapText(text, size, em, maxWidth)
 	local lines, widest = 0, 0
+	local rows = {}
 	for paragraph in string.gmatch(text .. "\n", "(.-)\n") do
 		if maxWidth == nil then
 			lines += 1
 			widest = math.max(widest, lineWidth(paragraph, size, em))
+			table.insert(rows, paragraph)
 		else
 			local current = ""
-			local any = false
 			for word in string.gmatch(paragraph, "%S+") do
 				local candidate = if current == "" then word else current .. " " .. word
 				if lineWidth(candidate, size, em) <= maxWidth or current == "" then
@@ -899,16 +901,16 @@ local function wrapText(text, size, em, maxWidth)
 				else
 					lines += 1
 					widest = math.max(widest, lineWidth(current, size, em))
+					table.insert(rows, current)
 					current = word
 				end
-				any = true
 			end
 			lines += 1
 			widest = math.max(widest, lineWidth(current, size, em))
-			local _ = any
+			table.insert(rows, current)
 		end
 	end
-	return lines, widest
+	return lines, widest, rows
 end
 
 local function textConstraint(self)
@@ -961,8 +963,8 @@ local function textExtent(self, size, maxWidth)
 		return 0, 0
 	end
 	local em = GLYPH[familyName(self)] or 0.5
-	local lines, widest = wrapText(text, size, em, maxWidth)
-	return widest, lines * size * (rawProp(self, "LineHeight") or 1)
+	local lines, widest, rows = wrapText(text, size, em, maxWidth)
+	return widest, lines * size * (rawProp(self, "LineHeight") or 1), rows
 end
 
 local function isTextObject(self)
@@ -2307,7 +2309,7 @@ function UIShim.snapshot()
 						local pl, pr, pt, pb = padding(child, box.w, box.h, box.k)
 						local iw, ih = math.max(0, box.w - pl - pr), math.max(0, box.h - pt - pb)
 						local size = renderedTextSize(child, iw, ih, box.k)
-						local tw, th = textExtent(child, size, if rawProp(child, "TextWrapped") then iw else nil)
+						local tw, th, rows = textExtent(child, size, if rawProp(child, "TextWrapped") then iw else nil)
 						table.insert(fields, '"text":' .. jsonString(string.sub(text, 1, 120)))
 						table.insert(fields, '"ts":' .. num(size))
 						table.insert(fields, '"font":' .. jsonString(familyName(child)))
@@ -2321,6 +2323,15 @@ function UIShim.snapshot()
 						end
 						if rawProp(child, "TextWrapped") then
 							table.insert(fields, '"wrap":true')
+							-- where wrapped text sits and its lines, for the pictures
+							table.insert(fields, '"ty":' .. jsonString(enumName(rawProp(child, "TextYAlignment"))))
+							if #rows > 1 and not rawProp(child, "TextScaled") then
+								local quoted = {}
+								for _, row in rows do
+									table.insert(quoted, jsonString(row))
+								end
+								table.insert(fields, '"lines":[' .. table.concat(quoted, ",") .. "]")
+							end
 						end
 						local truncate = enumName(rawProp(child, "TextTruncate"))
 						if truncate ~= nil and truncate ~= "None" then

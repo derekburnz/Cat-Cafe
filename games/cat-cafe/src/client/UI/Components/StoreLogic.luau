@@ -119,7 +119,7 @@ function StoreLogic.rows(config: any, owned: { [number]: boolean }, longNap: boo
 			passId = nap,
 			name = "Long Nap",
 			icon = NAP_ICON,
-			effect = ("Away money at %d%% for up to %d hours, in place of %d%% for %d."):format(
+			effect = ("Away money at %d%% for up to %d h.\nWithout it: %d%% for up to %d h."):format(
 				math.floor((config.OfflineRatePass or 1) * 100 + 0.5),
 				hours(config.OfflineCapPassSeconds or 57600),
 				math.floor((config.OfflineRate or 0.5) * 100 + 0.5),

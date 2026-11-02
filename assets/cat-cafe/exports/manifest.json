@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 02:27 UTC",
+  "generated": "2026-11-02 02:47 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -78019,6 +78019,7 @@
       "objects": [
         "CatCafe_Street_FishMarket",
         "CatCafe_Street_FishMarket_Bulb",
+        "CatCafe_Street_FishMarket_FreshCatch",
         "CatCafe_Street_FishMarket_Coin",
         "CatCafe_Street_FishMarket_Cat_Body",
         "CatCafe_Street_FishMarket_Cat_Head",
@@ -78031,21 +78032,21 @@
         "CatCafe_Street_FishMarket_Cat_LegF2",
         "CatCafe_Street_FishMarket_Cat_Prop"
       ],
-      "triangles": 5738,
-      "budget": 6000,
+      "triangles": 6652,
+      "budget": 7000,
       "size_studs": {
-        "x": 10.94,
-        "y": 4.25,
+        "x": 11.89,
+        "y": 5.01,
         "z": 9.5
       },
       "size_roblox": [
-        10.94,
+        11.89,
         9.5,
-        4.25
+        5.01
       ],
       "bounds_min": [
-        -5.42,
-        -2.03,
+        -6.37,
+        -2.8,
         0.0
       ],
       "bounds_max": [
@@ -78176,7 +78177,7 @@
       ],
       "studio": "F53: the Golden Fish Market in the street plaza (x -8.5, z 64, rotY -90); WorldBuilder tags it FishMarket and hangs the Shop prompt on the Attachment PromptAnchor (counter front, 3 up). The shopkeeper cat's sou'wester rides its Head Model; the sign Bulb is lit at night.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_FishMarket.model.json",
-      "rbx_parts": 506,
+      "rbx_parts": 585,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Street_FishMarket.fbx",
         "assets/cat-cafe/exports/CatCafe_Street_FishMarket.glb"
@@ -78188,13 +78189,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "5738/6000 tris",
+          "budget": "6652/7000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "3037 faces on swatch centers",
+          "uv": "3522 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.05 y=0.09"
+          "centered": "footprint center x=-0.42 y=-0.29"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_FishMarket.png",

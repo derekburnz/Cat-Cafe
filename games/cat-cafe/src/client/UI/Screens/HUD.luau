@@ -1676,8 +1676,10 @@ end
 
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
-	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD
+	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
+	-- the Workspace's TradingOn; while that is false the window says trading is resting)
 	self._tradeTile.instance.Visible = self:_open("invite")
+		and Workspace:GetAttribute("TradingOn") ~= nil
 		and TradeLogic.shown(state.tier, TradeLogic.minTier(Workspace:GetAttribute("TradeMinTier")))
 
 	-- money with a little green flash when it goes up

@@ -260,6 +260,7 @@ local function addTradePlayer(name, userId, tier, busy)
 	player.Name = name
 	player.DisplayName = name
 	player.UserId = userId
+	workspace:SetAttribute("TradingOn", true) -- TradeService is live, so the HUD shows the Trade tile
 	player:SetAttribute("Tier", tier)
 	player:SetAttribute("Trading", busy == true)
 	player.Parent = game:GetService("Players")
@@ -269,6 +270,7 @@ end
 -- F102: a TradeState with Sam: my offer from the sample player's cats (gate_1, the gold gate_3, gate_5), Sam's an
 -- Epic and a rainbow Rare from the catalog; `fields` overrides
 local function tradeState(fields)
+	workspace:SetAttribute("TradingOn", true)
 	local function firstOf(rarity, skip)
 		for _, def in Catalog.cats do
 			if def.rarity == rarity and def.exclusive ~= true and def.id ~= skip then
@@ -1130,7 +1132,8 @@ function Scenes.close()
 	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were
 	UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = workspace:GetServerTimeNow() + 3 * 86400 })) -- F101: no Rally
-	UI.trade.state(nil) -- F102: no trade, and the other players leave
+	UI.trade.state(nil) -- F102: no trade, no TradeService, and the other players leave
+	workspace:SetAttribute("TradingOn", nil)
 	for _, player in tradePlayers do
 		player:Destroy()
 	end

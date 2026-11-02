@@ -49,9 +49,11 @@ type Walk = {
 	rig: Pose.Rig,
 	head: BasePart?,
 	hidden: { BasePart }, -- the station model's parts, faded out on this client
+	cover: number, -- how far they are faded out now, for a part that arrives mid walk
 	shown: { BasePart }, -- the walker's parts
 	tags: { [BillboardGui]: Instance? }, -- the station's rate tags, moved onto the walker, with their own Adornee
 	paused: { [Instance]: boolean }, -- the station's sparkles, switched off, with whether each was on
+	watch: RBXScriptConnection?, -- the station model's DescendantAdded, so what arrives mid walk is taken too
 	state: State,
 	stateAt: number,
 	position: Vector3,
@@ -136,7 +138,7 @@ local function makeWalker(station: Model, home: CFrame): Model?
 	end
 	local walker = (template :: Model):Clone() :: Model
 	walker.Name = "CafeWalker"
-	for _, key in { "Uid", "CatId", "Gold", "Rarity" } do
+	for _, key in { "Uid", "CatId", "Gold", "Rarity", "Variant" } do -- Variant: a rainbow coat flows on it too
 		walker:SetAttribute(key, station:GetAttribute(key))
 	end
 	local role = station:GetAttribute("Role")
@@ -192,9 +194,42 @@ local function setRoute(walk: Walk, points: { Vector3 })
 	walk.travelled = 0
 end
 
+-- Fades the station model's parts out by `k` (1 hidden).
+local function cover(walk: Walk, k: number)
+	walk.cover = k
+	setFade(walk.hidden, k)
+end
+
+-- Takes one of the station model's pieces for the walk: a part fades with the rest, a rate tag rides over the walker,
+-- a sparkle pauses.
+local function take(walk: Walk, descendant: Instance)
+	if descendant:IsA("BasePart") then
+		local part = descendant :: BasePart
+		table.insert(walk.hidden, part)
+		part.LocalTransparencyModifier = walk.cover
+	elseif descendant:IsA("BillboardGui") then
+		local gui = descendant :: BillboardGui
+		walk.tags[gui] = gui.Adornee
+		gui.Adornee = walk.rig.body
+	elseif
+		descendant:IsA("ParticleEmitter")
+		or descendant:IsA("Beam")
+		or descendant:IsA("Trail")
+		or descendant:IsA("Light")
+	then
+		walk.paused[descendant] = (descendant :: any).Enabled;
+		(descendant :: any).Enabled = false
+	end
+end
+
 -- Gives the station model back: shown, its tags and sparkles where they were, the walker gone.
 local function finish(walk: Walk)
 	walks[walk.station] = nil
+	local watch = walk.watch
+	walk.watch = nil
+	if watch ~= nil then
+		watch:Disconnect()
+	end
 	setFade(walk.hidden, 0)
 	for gui, adornee in walk.tags do
 		if gui.Parent ~= nil then
@@ -254,10 +289,12 @@ local function begin(cat: Model, idle: boolean): Walk?
 		walker = walker,
 		rig = rig,
 		head = headOf(walker),
-		hidden = partsOf(cat),
+		hidden = {},
+		cover = 0,
 		shown = partsOf(walker),
 		tags = {},
 		paused = {},
+		watch = nil,
 		state = "up",
 		stateAt = os.clock(),
 		position = home.Position,
@@ -277,20 +314,11 @@ local function begin(cat: Model, idle: boolean): Walk?
 		standUntil = math.huge,
 	}
 	for _, descendant in cat:GetDescendants() do
-		if descendant:IsA("BillboardGui") then
-			local gui = descendant :: BillboardGui
-			walk.tags[gui] = gui.Adornee
-			gui.Adornee = rig.body
-		elseif
-			descendant:IsA("ParticleEmitter")
-			or descendant:IsA("Beam")
-			or descendant:IsA("Trail")
-			or descendant:IsA("Light")
-		then
-			walk.paused[descendant] = (descendant :: any).Enabled;
-			(descendant :: any).Enabled = false
-		end
+		take(walk, descendant)
 	end
+	walk.watch = cat.DescendantAdded:Connect(function(descendant: Instance)
+		take(walk, descendant)
+	end)
 	walks[cat] = walk
 	return walk
 end
@@ -471,7 +499,7 @@ local function advance(walk: Walk, now: number, dt: number)
 	local target = 0
 	if walk.state == "up" then
 		local k = math.clamp((now - walk.stateAt) / c.fade, 0, 1)
-		setFade(walk.hidden, k)
+		cover(walk, k)
 		setFade(walk.shown, 1 - k)
 		if k >= 1 then
 			walk.state = if #walk.route > 1 then "walk" else "stand"
@@ -527,7 +555,7 @@ local function advance(walk: Walk, now: number, dt: number)
 	elseif walk.state == "down" then
 		local k = math.clamp((now - walk.stateAt) / c.fade, 0, 1)
 		setFade(walk.shown, k)
-		setFade(walk.hidden, 1 - k)
+		cover(walk, 1 - k)
 		if k >= 1 then
 			finish(walk)
 			return

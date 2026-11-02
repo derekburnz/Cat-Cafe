@@ -20,6 +20,7 @@ local Workspace = game:GetService("Workspace")
 local Config = require(ReplicatedStorage.Shared.Config)
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 
+local CafeWalk = require(script.Parent.CafeWalk)
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
@@ -305,7 +306,13 @@ local function pick()
 			cat = again
 		end
 		local root = cat.root
-		if model:GetAttribute("HiddenLocal") ~= true and root ~= nil and root.Parent ~= nil then
+		-- not a cat hidden by Show other cats, nor a waiter's seated model while its copy walks (CafeWalk)
+		if
+			model:GetAttribute("HiddenLocal") ~= true
+			and not CafeWalk.isAway(model)
+			and root ~= nil
+			and root.Parent ~= nil
+		then
 			table.insert(candidates, { key = cat, distance = Context.distance(root.Position) })
 		end
 	end

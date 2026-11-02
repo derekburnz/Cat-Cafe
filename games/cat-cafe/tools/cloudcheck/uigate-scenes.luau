@@ -496,7 +496,18 @@ local function press(windowName, name)
 		holder = holder and holder:FindFirstChild(part, true)
 	end
 	assert(holder, "uigate: no " .. name .. " in " .. windowName)
-	local button = if holder:IsA("GuiButton") then holder else holder:FindFirstChildWhichIsA("GuiButton", true)
+	-- on a touch screen a Components/Button's face stops taking input and its Hit pad takes the tap
+	local button = nil
+	if holder:IsA("GuiButton") and holder.Interactable ~= false then
+		button = holder
+	else
+		for _, piece in holder:GetDescendants() do
+			if piece:IsA("GuiButton") and piece.Interactable ~= false then
+				button = piece
+				break
+			end
+		end
+	end
 	assert(button, "uigate: " .. name .. " has no button")
 	UIShim.fire(UIShim.eventOf(button, "Activated")) -- Components/Button listens to Activated only
 end

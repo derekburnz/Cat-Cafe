@@ -1047,6 +1047,14 @@ local function wireServerEvents()
 			UI.announce(RareMoments.decorText(finder.DisplayName, decor.name), "Mythical")
 		end
 	end)
+	-- F92 (playing-together.md 1 and 2): this player's pals on the server, for the HUD chip's headshots and "+10% with
+	-- pals", once the UI has `UI.pals(userIds)`; the bonus itself is in Economy.tipMultiplier and settle.
+	Net.on("PalsChanged", function(userIds: { number })
+		local hook: unknown = (UI :: any).pals
+		if type(hook) == "function" then
+			(hook :: ({ number }) -> ())(userIds)
+		end
+	end)
 	Net.on("CatCaught", function(catId: string, isNew: boolean)
 		local extra: UITypes.CatFoundExtra? = if pendingCharmGain > 0
 			then { charmGain = pendingCharmGain }

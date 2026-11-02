@@ -282,6 +282,10 @@ local Config = {
 	SwiftPotionSpeed = 4, -- swift_potion: added to walk and carry speed
 	LuckyPotionGoldScale = 2, -- lucky_potion: food set in the bowl rolls gold at this times the chance
 	TimedTipsMax = 1.0, -- F73: every running tip potion together adds at most +100% (a Tip and a Big Tip: +75%)
+	-- Pals (F92, playing-together.md section 2): tips earn this much more with one pal on the server, the Max with two
+	-- or more, on top of the potions; never offline pay
+	PalTipBonus = 0.10,
+	PalTipBonusMax = 0.15,
 
 	-- Quests and achievements (F73, quests.md section 6). Pure rules in Quests. A day starts at 00:00 UTC; a week
 	-- at Monday 00:00 UTC, QuestWeekOffsetSeconds after the epoch's Thursday. Players in the game are checked for a

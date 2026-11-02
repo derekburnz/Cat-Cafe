@@ -28,8 +28,8 @@ wall lanterns, barrels, cones and tyres.
 
 CatCafe_Camp_ParkF85 is the Park's camp for F85's long Park (parkf85.py, CatCafe_Park_SetF85, 120 x 310): the same
 camp 120 wide, in front of the 24 stud way out, placed with the long set's CFrame. CatCafe_Camp_NeighbourhoodF85 is
-the same for the long Neighbourhood (neighbourhoodf85.py, 180 x 430), and CatCafe_Camp_WoodsF85 for the long Woods
-(woodsf85.py, 160 x 490).
+the same for the long Neighbourhood (neighbourhoodf85.py, 180 x 430), CatCafe_Camp_WoodsF85 for the long Woods
+(woodsf85.py, 160 x 490) and CatCafe_Camp_SewerF85 for the long Sewer (sewerf85.py, 120 x 570).
 """
 
 import math
@@ -75,7 +75,10 @@ AREAS = {
     "WoodsF85": dict(W=160.0, D=490.0, half=12.0, ground="fur_moss", path="fur_sand", wall="caramel_wood",
                      top="dark_wood", trim="paw_woods", theme="Woods"),
     "Sewer": dict(W=180.0, D=180.0, half=12.0, ground="concrete_dark", path="concrete", wall="brick",
-                  top="concrete", trim="paw_sewer"),
+                  top="concrete", trim="paw_sewer", theme="Sewer"),
+    # F85: the long Sewer, 120 x 570 behind its 24 stud gate
+    "SewerF85": dict(W=120.0, D=570.0, half=12.0, ground="concrete_dark", path="concrete", wall="brick",
+                     top="concrete", trim="paw_sewer", theme="Sewer"),
 }
 CAMPS = {}               # asset -> the manifest's camp entry
 ATTACHMENTS = {}         # asset -> [(object suffix, name, Roblox point, Roblox rotation)]
@@ -281,7 +284,7 @@ def _theme(s, mat, area, G, B, W, half):
         s.put(woods.stump(mat), -22, G - 20, 0)
         s.put(woods.fern(mat), -26, G - 8, 0)
         s.put(woods.fern(mat), 28, G - 4, 40)
-    elif area == "Sewer":
+    elif AREAS[area].get("theme") == "Sewer":
         s.put(_manhole(mat), 18, G - 8, 0)
         s.put(sw.pipe_large(mat), -30, B + 3, 0)
         for sx in (1, -1):

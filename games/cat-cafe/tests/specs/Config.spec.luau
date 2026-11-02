@@ -133,6 +133,9 @@ return function()
 		QuestWeeklyCount = 3,
 		QuestWeekOffsetSeconds = 345600,
 		QuestRollCheckSeconds = 60,
+		QuestClaimAll = true,
+		IndexClaimAll = true,
+		TipJarClaimAll = true,
 		-- bedtime (F79, sections 12c and 17)
 		CafeCatWalkSpeed = 6,
 		BedtimeStaggerSeconds = 0.3,

@@ -55,6 +55,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimQuest = RateLimiter.new(2, 1), -- quests.md section 6: 2 a second
 	RerollQuest = RateLimiter.new(1, 1), -- 1 a second
 	ClaimAchievement = RateLimiter.new(2, 1), -- 2 a second
+	ClaimAll = RateLimiter.new(2, 2), -- 2 per 2 s, so daily then weekly both land; each pays every ready one and syncs
 	ClaimDailyTreat = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	TipSeen = RateLimiter.new(1, 1), -- F87 (easy-start.md section 6): 1 a second
 	ClearTips = RateLimiter.new(1, 10), -- F87: 1 per 10 s; each call sends a full sync

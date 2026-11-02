@@ -380,7 +380,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		Size = UDim2.new(1, -(BACK_WIDTH + 16), 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.modal.subtext,
-		Text = "Likeliest first, the same chances as on the wheel. Together they make 100%.",
+		Text = "Every slice of the wheel, likeliest first. Together they make 100%.",
 		Parent = odds,
 	})
 	self._oddsBack = Button.new({

@@ -1954,7 +1954,7 @@ Catalog.areas = {
 		id = "neighbourhood",
 		name = "Neighbourhood",
 		tier = 3,
-		spawnPoints = 72, -- the v3.2 set's cat spots, 28 near the gate and 44 deep (F81)
+		spawnPoints = 74, -- F85's long set's cat spots, 29 near the camp and 45 deep
 		waveSize = 5,
 		rescueSpots = 4, -- two sheds and two gutters
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },

@@ -6,7 +6,8 @@
   "Scale": {
    "Float64": 1.25
   },
-  "PropSlot": "Head"
+  "PropSlot": "Head",
+  "PropSlot2": "Face"
  },
  "children": [
   {
@@ -2094,6 +2095,1162 @@
       }
      },
      "name": "CatCafe_Cat_Chonk_Gold_Prop"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Chonk_Gold/12"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1985,
+           1.2361,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            -0.1738,
+            0.0,
+            0.9848
+           ],
+           [
+            -0.9848,
+            0.0,
+            -0.1738
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1027,
+         0.0685,
+         0.2363
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0984,
+           -0.8571,
+           -0.1842
+          ],
+          "orientation": [
+           [
+            -0.1738,
+            -0.9848,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           [
+            0.9848,
+            -0.1738,
+            0.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Chonk_Gold/12",
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.2635,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.219,
+         0.0958,
+         0.0685
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3491,
+           1.2361,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            0.5812,
+            0.0,
+            0.8137
+           ],
+           [
+            -0.8137,
+            0.0,
+            0.5812
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0753,
+         0.0616,
+         0.1178
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3563,
+           1.2381,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            0.9239,
+            0.0,
+            0.3827
+           ],
+           [
+            -0.3827,
+            0.0,
+            0.9239
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3882,
+           1.27,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            0.3827,
+            0.0,
+            0.9239
+           ],
+           [
+            -0.9239,
+            0.0,
+            0.3827
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4332,
+           1.27,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            -0.3827,
+            0.0,
+            0.9239
+           ],
+           [
+            -0.9239,
+            0.0,
+            -0.3827
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4651,
+           1.2381,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            -0.9239,
+            0.0,
+            0.3827
+           ],
+           [
+            -0.3827,
+            0.0,
+            -0.9239
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4651,
+           1.1931,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            -0.9239,
+            0.0,
+            -0.3827
+           ],
+           [
+            0.3827,
+            0.0,
+            -0.9239
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4332,
+           1.1612,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            -0.3827,
+            0.0,
+            -0.9239
+           ],
+           [
+            0.9239,
+            0.0,
+            -0.3827
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3882,
+           1.1612,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            0.3827,
+            0.0,
+            -0.9239
+           ],
+           [
+            0.9239,
+            0.0,
+            0.3827
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3563,
+           1.1931,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            0.9239,
+            0.0,
+            -0.3827
+           ],
+           [
+            0.3827,
+            0.0,
+            0.9239
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1985,
+           1.2361,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            -0.1738,
+            0.0,
+            -0.9848
+           ],
+           [
+            0.9848,
+            0.0,
+            -0.1738
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1027,
+         0.0685,
+         0.2363
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3491,
+           1.2361,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            0.5812,
+            0.0,
+            -0.8137
+           ],
+           [
+            0.8137,
+            0.0,
+            0.5812
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0753,
+         0.0616,
+         0.1178
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4651,
+           1.2381,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            0.9239,
+            0.0,
+            0.3827
+           ],
+           [
+            -0.3827,
+            0.0,
+            0.9239
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4332,
+           1.27,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            0.3827,
+            0.0,
+            0.9239
+           ],
+           [
+            -0.9239,
+            0.0,
+            0.3827
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3882,
+           1.27,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            -0.3827,
+            0.0,
+            0.9239
+           ],
+           [
+            -0.9239,
+            0.0,
+            -0.3827
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3563,
+           1.2381,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            -0.9239,
+            0.0,
+            0.3827
+           ],
+           [
+            -0.3827,
+            0.0,
+            -0.9239
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3563,
+           1.1931,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            -0.9239,
+            0.0,
+            -0.3827
+           ],
+           [
+            0.3827,
+            0.0,
+            -0.9239
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3882,
+           1.1612,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            -0.3827,
+            0.0,
+            -0.9239
+           ],
+           [
+            0.9239,
+            0.0,
+            -0.3827
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4332,
+           1.1612,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            0.3827,
+            0.0,
+            -0.9239
+           ],
+           [
+            0.9239,
+            0.0,
+            0.3827
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Chonk_Gold_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4651,
+           1.1931,
+           -1.2618
+          ],
+          "orientation": [
+           [
+            0.9239,
+            0.0,
+            -0.3827
+           ],
+           [
+            0.3827,
+            0.0,
+            0.9239
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0411,
+         0.0548,
+         0.0656
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         1.1712,
+         -0.4047
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Chonk_Gold_Prop2"
     }
    ],
    "properties": {

@@ -71,6 +71,7 @@ import palette  # noqa: E402
 import park  # noqa: E402
 import parkset  # noqa: E402
 import parkf85  # noqa: E402
+import neighbourhoodf85  # noqa: E402
 import woodsset  # noqa: E402
 import sewerset  # noqa: E402
 import neighbourhoodset  # noqa: E402
@@ -89,7 +90,7 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           parkf85, woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
+           parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons]
 
@@ -158,6 +159,7 @@ PIVOT_NOTES = {
     "CatCafe_Sewer_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Park_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Park_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
+    "CatCafe_Neighbourhood_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
     "CatCafe_Woods_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Sewer_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Neighbourhood_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
@@ -174,6 +176,7 @@ PIVOT_NOTES = {
     **{f"CatCafe_{a}_Gate": "base centre of the opening; -Z faces the side players come from" for a in
        ("Park", "Neighbourhood", "Woods", "Sewer")},
     "CatCafe_Park_GateF85": "base centre of the 24 stud opening; -Z faces the camp (F85)",
+    "CatCafe_Neighbourhood_GateF85": "base centre of the 24 stud opening; -Z faces the camp (F85)",
     **{n: f"the pivot of {h}: place it there with no offset" for n, h in night.HOSTS.items()},
     "CatCafe_Alley_NightFenceSegment": "base centre of the 8 stud piece; -Z faces the cafe side",
     "CatCafe_Plot_BackDoorClosed": "Plot.cframe: floor top centre of the cafe",
@@ -319,6 +322,10 @@ PIVOT_NOTES["CatCafe_NPC_MysteryVisitor"] = ("the floor under a cafe chair's sea
 STUDIO_NOTES["CatCafe_Park_GateF85"] = STUDIO_NOTES["CatCafe_Park_Gate"].replace(
     "Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
     "F85: the long Park's gate over its 24 stud opening, -Z toward the camp, in place of CatCafe_Park_Gate.")
+STUDIO_NOTES["CatCafe_Neighbourhood_GateF85"] = STUDIO_NOTES["CatCafe_Neighbourhood_Gate"].replace(
+    "Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
+    "F85: the long Neighbourhood's gate over its 24 stud opening, -Z toward the camp, in place of "
+    "CatCafe_Neighbourhood_Gate.")
 STUDIO_NOTES["CatCafe_NPC_MysteryVisitor"] = (
     "F64 Mystery Visitor: the client pivots it at a MysteryTable chair's seat on the floor, looking at the table, and "
     "tags it MysteryVisitor. A sitting cat (scale 1.3) with the usual hinged pieces (Head, Eye1, Eye2, EarL, EarR, "

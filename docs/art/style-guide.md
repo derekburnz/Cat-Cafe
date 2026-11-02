@@ -339,7 +339,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Park props | 800 | Fountain 1,200; rescue traps (RescueTree, TrashCan) 900 |
 | Area gates | 6,000 | Park, Neighbourhood, Woods, Sewer: arches with a barrier (section 13) |
 | Area sets (v3.2) | 80,000 Park, 120,000 Woods, Sewer and Neighbourhood | a whole area as one Model of Parts; the part count is the real cost (Park 2,758, Woods 5,466, Sewer 4,789, Neighbourhood 5,478) |
-| Long area sets (F85) | 150,000 | the long Park 100,392 triangles in 5,541 Parts for 120 x 310, its camp 9,340 and its backdrop ring 22,114 |
+| Long area sets (F85) | 150,000 | the long Park 100,392 triangles in 5,541 Parts for 120 x 310, its camp 9,340 and its backdrop ring 22,114; the long Neighbourhood 118,148 in 6,129 Parts for 180 x 430, its camp 8,960 and its ring 23,588 |
 | Index Boards | 1,500 | one per area, at its entry inside the gate (section 14) |
 | Night pieces | 6,000 per gate fence | the short night (section 14): Alley_NightFenceSegment 2,000, Plot_BackDoorClosed 2,500 |
 | Street stations | 6,000 | the Codes Cat desk and the Golden Fish Market stall, each with its cat (section 14); the stall 7,000 with its Fresh Catch board (F94) |
@@ -553,11 +553,15 @@ hedge, the bars of a tunnel mouth, or a railing on the water's edge, the Sewer's
 0.5 thick wall on the rail's line, so a player walks up to the rail. Water that no way in crosses gets no barrier: the
 Park's duck pond is shallow and players and cats wade in it. `_Flowers` never collide.
 
-F85's long areas (hometown-cannon.md 6b; `parkf85.py` first) keep each area's look and make the run home long and in
-view: blockers across the width with gaps on alternating sides, most about 4 high so a hunter sees a carrier coming
-over them (a box hedge, a plinth with a railing, a stream with an iron rail 3 high on each kerb), each with its barrier
-on its own line, and now and then a tall piece that hides the far end (the Park's glasshouse, a white-framed palm
-house 15.6 high, its willows and oaks). The far end keeps the area's best landmark (the Park's bandstand).
+F85's long areas (hometown-cannon.md 6b; `parkf85.py`, `neighbourhoodf85.py`) keep each area's look and make the run
+home long and in view: blockers across the width with gaps on alternating sides, most about 4 high so a hunter sees a
+carrier coming over them (a box hedge, a plinth with a railing, a stream with an iron rail 3 high on each kerb, a
+picket fence with a box hedge behind, road works behind red and white barriers, a brick garden wall under a hedge),
+each with its barrier on its own line, and now and then a tall piece that hides the far end (the Park's glasshouse, a
+white-framed palm house 15.6 high, its willows and oaks; the Neighbourhood's two house blocks, back to back, with a
+lane through each). A way through a low blocker is marked so a player finds it from afar (lantern pillars, a
+fingerpost, the steel plates and a ROAD WORKS board, the Paw Parade arch). The far end keeps the area's best landmark
+(the Park's bandstand; the Neighbourhood's corner shop and playground).
 
 Names the game code reads, so keep them when an asset is rebuilt: `_Roof` (faded for the owner), a part named
 `SignBoard` (owner sign SurfaceGui), `Bars` (a gate barrier, ForceField), `Top` (round table, customers face it),

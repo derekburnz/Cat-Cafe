@@ -35,6 +35,7 @@ GATES = {
     "park": ("CatCafe_Park_NightFence", "CatCafe_Park_Gate", 32.0, 0.0),
     "park_f85": ("CatCafe_Park_NightFenceF85", "CatCafe_Park_GateF85", 24.0, 0.0),    # F85's long Park
     "neighbourhood": ("CatCafe_Neighbourhood_NightFence", "CatCafe_Neighbourhood_Gate", 32.0, 0.0),
+    "neighbourhood_f85": ("CatCafe_Neighbourhood_NightFenceF85", "CatCafe_Neighbourhood_GateF85", 24.0, 0.0),
     "woods": ("CatCafe_Woods_NightFence", "CatCafe_Woods_Gate", 30.0, 0.0),
     "sewer": ("CatCafe_Sewer_NightFence", "CatCafe_Sewer_Gate", 30.0, 0.0),
     # the arch has no Bars and hangs flower baskets in its opening, so its fence stands behind the posts and their

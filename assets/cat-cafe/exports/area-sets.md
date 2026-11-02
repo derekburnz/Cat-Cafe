@@ -1,11 +1,12 @@
 # Area sets: how the world places them
 
-Built by `assets/cat-cafe/blender/{areakit,neighbourhood,woods,sewer,parkset,parkf85,woodsset,sewerset}.py` from the
+Built by `assets/cat-cafe/blender/{areakit,neighbourhood,woods,sewer,parkset,parkf85,neighbourhoodf85,woodsset,sewerset}.py` from the
 approved drafts in `/mnt/project-files/Model-Agent/area-drafts/`. The Park, `CatCafe_Woods_SetV32`,
 `CatCafe_Sewer_SetV32` and `CatCafe_Neighbourhood_SetV32` (neighbourhoodset.py) are sized for town layout v3.2
 (town-layout-v3.md section 8, F81); the v3.1 `CatCafe_Neighbourhood_Set`, `CatCafe_Woods_Set` and
-`CatCafe_Sewer_Set` are still sized for v3.1 (section 7). `CatCafe_Park_SetF85` is F85's long Park
-(hometown-cannon.md section 6b), with its own camp, gate, night fence and backdrop ring.
+`CatCafe_Sewer_Set` are still sized for v3.1 (section 7). `CatCafe_Park_SetF85` and `CatCafe_Neighbourhood_SetF85`
+are F85's long Park and Neighbourhood (hometown-cannon.md section 6b), each with its own camp, gate, night fence and
+backdrop ring.
 
 | Set | Footprint (studs) | Tris | Parts | Area in v3.1 |
 |---|---|---|---|---|
@@ -17,6 +18,7 @@ approved drafts in `/mnt/project-files/Model-Agent/area-drafts/`. The Park, `Cat
 | `CatCafe_Sewer_SetV32` | 179.2 x 179.15 | 89,112 | 4,471 | v3.2: 180 x 180, centre (185, 0), gate x 94 |
 | `CatCafe_Neighbourhood_SetV32` | 279.5 x 279.8 | 115,000 | 5,478 | v3.2: 280 x 280, centre (0, 266), gate z 125 |
 | `CatCafe_Park_SetF85` | 119.5 x 309.75 | 100,392 | 5,541 | F85: 120 x 310 wild part, the camp 30 more (340) |
+| `CatCafe_Neighbourhood_SetF85` | 179.5 x 429.8 | 118,148 | 6,129 | F85: 180 x 430 wild part, the camp 30 more (460) |
 
 ## Placing a set
 
@@ -95,6 +97,47 @@ in it, as in v3.2), the railing gap, past the glasshouse (a tall piece, 15.6 hig
 the orchard, over the footbridge, through the rose garden, the second hedge gap, past the playground to the bandstand
 loop at the far end. The gravel path is about 485 studs; the shortest walk from the gate to the far corner is about
 415 (walk check on the Part model), so about 428 from the pad (6b: about 425).
+
+## The Neighbourhood (F85)
+
+F85 (hometown-cannon.md section 6b) makes the Neighbourhood a long rectangle, 180 x 460 with its camp. Five new
+models, so the live Neighbourhood stays as it is until the game switches all five together:
+
+| Model | What | Place it |
+|---|---|---|
+| `CatCafe_Neighbourhood_SetF85` | the wild part, 180 x 430 | the area's centre on its floor, with the area's turn, as every set |
+| `CatCafe_Camp_NeighbourhoodF85` | the camp, 180 wide and 30 deep, across the set's -Z end | the same CFrame as the set |
+| `CatCafe_Neighbourhood_GateF85` | the Neighbourhood gate over a 24 stud opening (CampOpeningWidth) | the gate position, z -215 in set space |
+| `CatCafe_Neighbourhood_NightFenceF85` | its night fence, 24 wide | the gate's pivot, no offset |
+| `CatCafe_Neighbourhood_BackdropF85` | the backdrop ring round 180 x 460 | the same CFrame as the set |
+
+It needs Config.World NeighbourhoodWidth 180 and NeighbourhoodDepth 430 (the wild part; the camp is CampDepth in
+front of it) and the Neighbourhood's `openingHalfWidth` 12. The camp model's `camp` entry in the manifest gives its
+rect (x -89.5 to 89.5, z -246 to -216 in set space), the gate line z -216 and the opening; its `pad`, `cannon`,
+`basket` and `index_board` spots are where Layout's camp spots already are.
+
+The set's walls are the v3.2 Neighbourhood's runs of picket fence, hedge and brick just inside WorldBuilder's at
+x +-90 and z +215, with a 30 high `_Barrier` all round but the way in; on the camp side a low town hedge, open to the
+camp, with a street lamp either side of the gate. Five blockers cross the width, their gaps on alternating sides, so
+the far end is never in a straight line. The low ones are about 4 high, so a hunter sees a carrier coming but has to
+go round, and each has a 30 high `_Barrier` on its own line; the house blocks are the tall pieces, with a barrier from
+the house fronts back (the front gardens stay open):
+
+| z (set space) | Blocker | Gap |
+|---|---|---|
+| -172 to -122 | the first house block, 12 houses back to back | Cat Lane, x 21 to 37 |
+| -57 to -54 | the village green's picket fence with a box hedge behind, 3.6 to 4 high | x -38 to -22, by the ALLOTMENTS post |
+| 10.6 to 17.4 | road works dug along Paw Road: a trench behind red and white barriers 3.7 high, spoil heaps, a digger and a skip | the steel plates at x 22 to 38 |
+| 22 to 72 | the second house block, back to back, with a bungalow | Mitten Lane, x -37 to -21 |
+| 149 to 152 | the garden wall, brick under a hedge about 4 high | the Paw Parade arch, x 22 to 38 |
+
+The walk from the pad: Whisker Lane past the bus stop to Cat Lane, through the first block to Green Side and Whisker
+Green (picnic tables, the village sign, the ice cream van), through the fence's gap into the allotments, over the
+plated crossing of the road works, along Paw Road to Mitten Lane, through the second block to Mitten Row and the back
+gardens (trampoline, paddling pool, greenhouse), under the Paw Parade arch and over the last street to the far end:
+the corner shop against the far wall, the playground beside it and two houses across. The shortest walk from the gate
+is about 534 to the shop step and 615 to the far corner (walk check on the Part model), so about 550 and 630 from the
+pad (6b: about 575).
 
 ## The Woods (v3.2)
 
@@ -224,6 +267,15 @@ floor or seat for one cat: none is inside a colliding part.
   at y 1.2, bank 2, willow 1, kiosk 1, lawn 1, glasshouse 2 at y 0.5 on its steps, orchard 1), deep 28 (bench 1,
   picnic 2, blanket 1 at y 0.06, lawn 3, stream 2, fountain 1, roses 2 (one at y 0.57), topiary 1, sundial 1, swings 1,
   slide 1, sandbox 1 at y 0.55, seesaw 1, roundabout 1 at y 0.72, playground 1, bandstand 3 at y 1.15, loop 2, far 3).
+- Neighbourhood F85 (`CatCafe_Neighbourhood_SetF85`, 74 spots, each `[x, y, z, zone]`, zone `near` for the camp half
+  (z < 0) or `deep`): near 29 (porch 4 at y 1.0, flowerbed 4 at y 0.62 and 0.7, bus_stop 1 at y 1.65, post_box 1,
+  verge_bench 2, bins 1, car 1 at y 0.34, oak 1, picnic 2, green_bench 1, birdbath 1, van 1 at y 0.34, veg_bed 3 at
+  y 0.6, greenhouse 1 at y 0.52, scarecrow 1, compost 1, water_butt 1, allotments 1, works_hut 1), deep 45 (porch 7 at
+  y 1.0, flowerbed 7 at y 0.7, verge_bench 1, car 1 at y 0.34, birdbath 1, greenhouse 1 at y 0.52, sunflowers 1,
+  allot_bench 1, works 2 at y 0.34, trampoline 1 at y 1.73, washing 1, deckchair 1, gnomes 1,
+  pool 1, playhouse 1, garden_bench 1, garden 2, verge 1, shop_step 1 at y 0.4, fruit_stall 1 and shop_bench 1 at
+  y 0.3, tyre 1, slide 1 at y 4.0 on the deck, swings 1, sandbox 1 at y 0.55, roundabout 1 at y 0.72, seesaw 1,
+  play_bench 1, lawn 1, far 2 at y 0.05 and 0.3).
 - Neighbourhood v3.2 (`CatCafe_Neighbourhood_SetV32`, 72 spots, each `[x, y, z, zone]`, zone `near` for the gate half
   (z < 0) or `deep`): near 28 (porch 12 at y 1.0, flowerbed 8 at y 0.7, garden 1, car 2 at y 0.29 and 0.34,
   bus_stop 1 at y 1.65, post_box 1, verge_bench 2, bins 1), deep 44 (porch 6 at y 1.0, flowerbed 2 at y 0.62 and
@@ -248,7 +300,10 @@ Neighbourhood v3.2 builds its traps in, each with the piece's turn: `trap_shed` 
 corner garden at the first block's east end, and (85.3, 0, 83.4, deep, -90), in the allotments (a garden shed with a
 jammed door on the piece's -Z; the spot is just inside the door); `trap_gutter` (-53.4, 7.05, -60.5, near, 180), on
 the bungalow facing the second street, and (5.7, 7.05, 112.8, deep, 34), on the crescent's bungalow (the cat lies in
-the bungalow's front gutter, 7.05 up, by the downpipe at the house's corner).
+the bungalow's front gutter, 7.05 up, by the downpipe at the house's corner). Neighbourhood F85 builds its traps in
+the same way, three of the four deep and none within 100 studs of the camp (6b): `trap_shed` (65.4, 0, -33.3, near, 0)
+in the allotments and (76.7, 0, 108.6, deep, 90) in a back garden; `trap_gutter` (36.4, 7.05, 28.5, deep, 0) on the
+second block's bungalow and (62.4, 7.05, 180.5, deep, 0) on the far row's bungalow.
 
 The Park's trap props are placed by the world, not built into the set: each trap spot is `[x, y, z, zone, turn]`
 and the prop stands there turned `turn` degrees (CFrame.Angles(0, math.rad(turn), 0) in set space; a rescue
@@ -261,7 +316,7 @@ five deep and none within 100 studs of the camp (6b): `trap_tree` (46, 0, -24, n
 ## Checks
 
 All sets pass the build gate (budget 80,000, 120,000 for the v3.2 Woods, Sewer and Neighbourhood, 150,000 for the
-F85 Park; transforms, one material, swatch
+F85 Park and Neighbourhood; transforms, one material, swatch
 UVs, naming), the toolkit QA with 0 visible overlaps (`toolkit_qa.md`; the floating parts listed there stand on the
 world floor or are meant, such as a falling drip), and a part-overlap check between pieces (0 pairs sinking more
 than 0.15 studs into each other) plus a spot check (no spot inside a colliding part except trap spots, where the

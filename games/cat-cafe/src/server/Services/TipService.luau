@@ -5,8 +5,8 @@
 --   ShowTip(id)                 S -> C  a tip whose moment came: once a second from `Tips.due` (the save and the
 --                                       clock), and at their events through `TipService.show` (second_cat and tackle
 --                                       at a check-in, dropped on a knock loose). F96 (starter-cat.md section 3): an
---                                       ask (notify, favorite or like) from `Tips.dueAsk`, at most one a session. Each
---                                       id goes at most once a session until it is seen.
+--                                       ask (notify, favorite, like or F92's invite) from `Tips.dueAsk`, one a
+--                                       session. Each id goes at most once a session until it is seen.
 --   TipSeen(id, skipped?)       C -> S  1 a second: a tip shown (saved in tipsSeen and logged once as tip_shown, at
 --                                       most #LIST a session), an ask this session sent (saved in tipsSeen and logged
 --                                       as ask_shown; the notification ask's first showing only sets notifyAskAt, and

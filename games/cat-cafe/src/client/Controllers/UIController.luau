@@ -1027,6 +1027,7 @@ end
 local ASK_LINES: { [string]: string } = {
 	[Tips.FAVORITE_ASK] = "Favorite Cat Cafe to find it fast next time",
 	[Tips.LIKE_ASK] = "Having fun? A thumbs up helps other players find Cat Cafe.",
+	[Tips.INVITE_ASK] = "Playing with a friend gives you both +10% tips. Invite one?", -- F92
 }
 
 -- Shows an ask at the next quiet moment and answers TipSeen: the notification ask is Roblox's own opt-in prompt
@@ -1056,6 +1057,12 @@ local function showAsk(id: string)
 		local shown = false
 		if asks ~= nil and type(asks.show) == "function" then
 			shown = (asks.show :: (string) -> unknown)(id) == true
+		end
+		if not shown and id == Tips.INVITE_ASK then
+			-- Review N320: the invite ask is only worth its card (which opens Roblox's invite prompt). Until the UI
+			-- has one, leave it unanswered so the server offers it again in a later session instead of a toast
+			-- using it up for good.
+			return
 		end
 		if not shown then
 			UI.toast(ASK_LINES[id] or "", "info")
@@ -1126,6 +1133,25 @@ local function wireServerEvents()
 		local hook: unknown = (UI :: any).pals
 		if type(hook) == "function" then
 			(hook :: ({ number }) -> ())(userIds)
+		end
+	end)
+	-- F92 (playing-together.md section 5): a player arrived at a pal's front door. Moments.PalArrived on every client
+	-- for the wave; the joiner's own HUD gets `UI.palArrived(palUserId, palArea)` once the UI has it (the marker and
+	-- the glowing travel button), else a toast when the pal is out in an area.
+	Net.on("PalArrived", function(joinerId: number, palId: number, palArea: string?)
+		Moments.PalArrived:Fire(joinerId, palId)
+		if joinerId ~= player.UserId then
+			return
+		end
+		local hook: unknown = (UI :: any).palArrived
+		if type(hook) == "function" then
+			(hook :: (number, string?) -> ())(palId, palArea)
+			return
+		end
+		local pal = Players:GetPlayerByUserId(palId)
+		local area = if palArea ~= nil then Catalog.getArea(palArea) else nil
+		if pal ~= nil and area ~= nil then
+			UI.toast(string.format("%s is in the %s", pal.DisplayName, area.name), "info")
 		end
 	end)
 	-- F92 Team Rescue: a helped rescue freed its cat. Moments.TeamRescue for the pop and the chime on both screens;
@@ -1256,7 +1282,7 @@ local function wireServerEvents()
 	end)
 	-- F87: a server-side context tip's moment (shared/Tips). The UI's tip queue times it and answers tipSeen; until
 	-- the UI has one the tips wait unseen, so they still show once the cards land. F96: the notification and favorite
-	-- asks are this controller's (showAsk); the like ask goes to the queue when there is one.
+	-- asks (and F92's invite nudge) are this controller's (showAsk); the like ask goes to the queue when there is one.
 	trackBusy()
 	Net.on("ShowTip", function(id: unknown)
 		if type(id) ~= "string" or not Tips.seenId(id) then

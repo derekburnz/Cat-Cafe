@@ -308,6 +308,20 @@ local SCENES = {
 	{ "Dealer", function()
 		UI.dealer.open()
 	end },
+	{ "DealerNight", function()
+		-- F94: one stock all night, the countdown to sunrise
+		UI.dealer.setStock({
+			window = 20400,
+			restocksAt = os.time() + 7 * 60 + 12,
+			stock = {
+				{ lureId = "sardines", cost = 25000, amount = 3, bought = 1 },
+				{ lureId = "caviar", cost = 120000, amount = 1, bought = 1 },
+				{ lureId = "moon_milk", cost = 400000, amount = 0, bought = 0 },
+				{ lureId = "star_treat", cost = 2500000, amount = 2, bought = 0 },
+			},
+		})
+		UI.dealer.open()
+	end },
 	{ "Settings", function()
 		UI.open("Settings")
 	end },
@@ -323,6 +337,31 @@ local SCENES = {
 	end },
 	{ "Market", function()
 		UI.market.open()
+		press("FishMarket", "CratesTab")
+	end },
+	{ "MarketFresh", function()
+		-- F94: a window mid-way, one row sold out to this player, one not stocked, a crate row
+		UI.freshCatch.setStock({
+			window = 5900000,
+			restocksAt = os.time() + 192,
+			stock = {
+				{ itemId = "tip_potion", fish = 10, amount = 3, bought = 1 },
+				{ itemId = "swift_potion", fish = 6, amount = 2, bought = 2 },
+				{ itemId = "steady_potion", fish = 12, amount = 0, bought = 0 },
+				{ itemId = "quick_bait_potion", fish = 15, amount = 1, bought = 0 },
+				{ itemId = "big_tip_potion", fish = 25, amount = 1, bought = 0 },
+				{ itemId = "lucky_potion", fish = 25, amount = 0, bought = 0 },
+				{ itemId = "gold_rush_potion", fish = 30, amount = 1, bought = 0 },
+				{ itemId = "classic_crate", fish = 50, amount = 1, bought = 0 },
+			},
+		})
+		UI.market.open()
+		press("FishMarket", "FreshTab")
+	end },
+	{ "MarketFreshNight", function()
+		UI.freshCatch.setStock(nil)
+		UI.market.open()
+		press("FishMarket", "FreshTab")
 	end },
 	{ "Feedback", function()
 		UI.bugReport.open("bug")

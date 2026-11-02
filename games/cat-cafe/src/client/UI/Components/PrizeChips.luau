@@ -275,7 +275,7 @@ function PrizeChips._partLook(
 end
 
 local PERK_WORDS: { [string]: string } = {
-	bonus = "tips forever",
+	bonus = "money forever", -- F94 section 5
 	goldLuck = "gold luck forever",
 	baitSpeed = "faster bait forever",
 }

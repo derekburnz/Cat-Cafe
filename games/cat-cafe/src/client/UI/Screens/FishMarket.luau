@@ -7,6 +7,11 @@
 --   Open buys one for its price. A zone crate opens with its zone ("Opens at Tier 3"); golden crates show only
 --   while owned, since they are never sold.
 --   Treats: the Star Treat and the perks, each with what it does, its level and what the next level costs.
+--   Fresh Catch (F94, rewards-and-shops.md section 3): by day potions, and now and then a cheaper Classic Crate, for
+--   golden fish, from a stock that rolls every 5 minutes, the same on every server (setFreshStock, from
+--   FreshCatchStock). Each row shows how many are left for you, its chance of being in stock and Buy; the top card
+--   counts down "Fresh catch in 3:12". At night (no stock) it reads "Back at sunrise". Buy fires
+--   callbacks.buyFresh(itemId, window). The tab shows only once the shelf is on the server (Config.FreshCatchWindowSeconds).
 -- Odds shows each rarity's chance and every piece's chance before opening (monetization-policy section 2), and
 -- says when the next crate opens on the golden odds. Open fires events.openCrate(crateId); the server rolls with
 -- its own Random, pays at once and answers CrateResult(crateId, decorId, duplicate, refund), which plays the
@@ -29,10 +34,13 @@ local Create = require(script.Parent.Parent.Components.Create)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
+local FreshCatchLogic = require(script.Parent.Parent.Components.FreshCatchLogic)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local MarketLogic = require(script.Parent.Parent.Components.MarketLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
+local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -47,12 +55,14 @@ export type Callbacks = {
 	useDecor: (decorId: string) -> (), -- "Use it" on a new style piece in the reveal
 	toast: (text: string) -> (), -- a crate result that lands while the window is closed
 	close: () -> (),
+	buyFresh: ((itemId: string, window: number?) -> ())?, -- Buy on a Fresh Catch row (F94)
 }
 
 export type FishMarket = {
 	frame: Frame,
 	setCatalog: (self: FishMarket, catalog: Types.Catalog) -> (),
 	render: (self: FishMarket, state: Types.PlayerState) -> (),
+	setFreshStock: (self: FishMarket, stock: FreshCatchLogic.Stock?) -> (),
 	result: (
 		self: FishMarket,
 		crateId: string,
@@ -83,7 +93,21 @@ type ItemRow = {
 	seen: number?, -- the perk level or food count at the last render, to tell when a buy has landed
 }
 
+type FreshRow = {
+	itemId: string,
+	frame: Frame,
+	icon: ItemIcon.ItemIcon,
+	name: TextLabel,
+	blurb: TextLabel,
+	stock: TextLabel,
+	buy: Button.Button,
+}
+
 local TAG = "FishMarket"
+-- the Fresh Catch shelf is on this server (F94): Gameplay-Engineer's #679 adds its Config
+local FRESH_ON = Config.FreshCatchWindowSeconds ~= nil
+local FRESH_HEAD = 58
+local FRESH_MINUTES = math.max(1, math.floor((Config.FreshCatchWindowSeconds or 300) / 60))
 local RANGE: number = Config.FishMarketRange or 14
 local CLOSE_SLACK = 2 -- studs past the server's range before the window closes
 local LUCKY_EVERY: number = Config.CrateLuckyEvery or 20
@@ -92,6 +116,7 @@ local REVEAL_SECONDS = 2
 local CARD = Vector2.new(196, 244)
 local ROW_HEIGHT = 76
 local TOP_HEIGHT = 44
+local TAB_H = 42 -- a tab or Buy face of 37 px with a mouse; Scale.tapHeight makes it 44 on a phone
 
 -- The Market's own goods: names and what they do, so the window reads without a catalog change.
 local ITEMS: { [string]: { name: string, icon: string, blurb: string } } = {
@@ -103,7 +128,7 @@ local ITEMS: { [string]: { name: string, icon: string, blurb: string } } = {
 	golden_espresso = {
 		name = "Golden Espresso",
 		icon = "☕",
-		blurb = "+5% tips a level, forever.",
+		blurb = "+5% money a level, forever.", -- F94 section 5: "money", not "tips"
 	},
 	big_bowl = {
 		name = "Big Bowl",
@@ -185,6 +210,11 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self._crateCards = {} :: { CrateCard }
 	self._itemRows = {} :: { ItemRow }
 	self._pending = {} :: { [string]: number } -- crate or item id -> os.clock() of the press
+	self._potionById = {} :: { [string]: PotionLogic.Potion }
+	self._crateById = {} :: { [string]: Types.CrateDef }
+	self._fresh = nil :: FreshCatchLogic.Stock?
+	self._freshRows = {} :: { FreshRow }
+	self._freshKey = "" -- the row ids the Fresh Catch list was built for
 	self._tab = "Crates"
 	self._revealToken = 0
 
@@ -201,11 +231,16 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self._panel = panel
 	self.frame = panel.frame
 
-	-- the top bar: two tabs on the left, the player's golden fish on the right
+	-- the top bar: the tabs on the left, the player's golden fish on the right; on a phone the tabs and the Buy
+	-- buttons grow to a 44 px face and the bar with them
+	local tabH = Scale.tapHeight(TAB_H, Theme.sizes.buttonDepth)
+	local topHeight = math.max(TOP_HEIGHT, tabH + 2)
+	self._buyH = tabH
+	self._rowH = ROW_HEIGHT + tabH - TAB_H -- room for the stock line over a taller Buy
 	local top: Frame = Create("Frame", {
 		Name = "Top",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, TOP_HEIGHT),
+		Size = UDim2.new(1, 0, 0, topHeight),
 		Parent = panel.content,
 	})
 	local tabs: Frame = Create("Frame", {
@@ -225,7 +260,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 		text = "Crates",
 		icon = Theme.icons.crate,
 		style = "gold",
-		size = UDim2.fromOffset(132, 40),
+		size = UDim2.fromOffset(132, tabH),
 		textSize = Theme.sizes.textBody,
 		layoutOrder = 1,
 		parent = tabs,
@@ -239,7 +274,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 		text = "Treats and perks",
 		icon = "⭐",
 		style = "ghost",
-		size = UDim2.fromOffset(196, 40),
+		size = UDim2.fromOffset(196, tabH),
 		textSize = Theme.sizes.textBody,
 		layoutOrder = 2,
 		parent = tabs,
@@ -248,6 +283,21 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 			self:_showTab("Treats")
 		end,
 	})
+	self._freshTab = Button.new({
+		name = "FreshTab",
+		text = "Fresh Catch",
+		icon = Theme.icons.potion,
+		style = "ghost",
+		size = UDim2.fromOffset(164, tabH),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 3,
+		parent = tabs,
+		sound = "uiTab",
+		onClick = function()
+			self:_showTab("Fresh")
+		end,
+	})
+	self._freshTab.instance.Visible = FRESH_ON
 	local balance = card({
 		Name = "Balance",
 		AnchorPoint = Vector2.new(1, 0),
@@ -273,7 +323,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 		Parent = balance,
 	})
 
-	local listTop = TOP_HEIGHT + Theme.sizes.gap
+	local listTop = topHeight + Theme.sizes.gap
 	local function scroller(name: string): ScrollingFrame
 		return Create("ScrollingFrame", {
 			Name = name,
@@ -320,6 +370,41 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 		Parent = self._itemList,
 	})
 
+	-- F94: the Fresh Catch shelf, a countdown card on top and a row per item in the window
+	self._freshList = scroller("Fresh")
+	self._freshList.Visible = false
+	Create("UIListLayout", {
+		Padding = UDim.new(0, Theme.sizes.gap),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = self._freshList,
+	})
+	local head = card({
+		Name = "Head",
+		LayoutOrder = 0,
+		BackgroundColor3 = Theme.colors.cocoa,
+		Size = UDim2.new(1, 0, 0, FRESH_HEAD),
+		Parent = self._freshList,
+	})
+	self._freshTitle = text({
+		Name = "Title",
+		Position = UDim2.fromOffset(14, 6),
+		Size = UDim2.new(1, -28, 0, 26),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = Theme.colors.paper,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = head,
+	})
+	self._freshSub = text({
+		Name = "Sub",
+		Position = UDim2.fromOffset(14, 32),
+		Size = UDim2.new(1, -28, 0, 20),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.cream,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = head,
+	})
+
 	self:_buildOdds(panel.body)
 	self:_buildReveal(panel.body)
 
@@ -344,8 +429,13 @@ function FishMarket._showTab(self: any, tab: string)
 	self._tab = tab
 	self._crateList.Visible = tab == "Crates"
 	self._itemList.Visible = tab == "Treats"
+	self._freshList.Visible = tab == "Fresh"
 	self._cratesTab:setStyle(if tab == "Crates" then "gold" else "ghost")
 	self._treatsTab:setStyle(if tab == "Treats" then "gold" else "ghost")
+	self._freshTab:setStyle(if tab == "Fresh" then "gold" else "ghost")
+	if tab == "Fresh" then
+		self:_renderFresh()
+	end
 end
 
 -- The odds card: a sheet over the window with the rarity table and every piece's chance.
@@ -553,7 +643,7 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 			order,
 			piece.rarity,
 			if decor then decor.name else piece.id,
-			("%s · +%s tips while in use"):format(kindName, Format.percent(bonus)),
+			("%s · +%s money while in use"):format(kindName, Format.percent(bonus)),
 			piece.percent
 		)
 	end
@@ -734,7 +824,7 @@ function FishMarket._playReveal(self: any, decorId: string, duplicate: boolean, 
 		piece.rarity
 	)
 	reveal.name.Text = if decor then decor.name else decorId
-	reveal.detail.Text = ("%s · +%s tips while in use"):format(
+	reveal.detail.Text = ("%s · +%s money while in use"):format(
 		DecorPieces.kindName(piece.kind),
 		Format.percent(bonus)
 	)
@@ -801,13 +891,21 @@ function FishMarket.setCatalog(self: any, catalog: Types.Catalog)
 		self._lureById[lure.id] = lure
 	end
 	table.clear(self._goldenOdds)
+	table.clear(self._crateById)
 	local crates: { Types.CrateDef } = catalog.crates or {}
 	for _, crate in crates do
+		self._crateById[crate.id] = crate
 		if crate.golden then
 			self._goldenOdds[crate.area] = crate.odds
 		end
 	end
+	table.clear(self._potionById)
+	for _, potion in PotionLogic.list(catalog) do
+		self._potionById[potion.id] = potion
+	end
 	self:_build()
+	self._freshKey = "" -- names and pictures may have changed: rebuild the Fresh Catch rows
+	self:_renderFresh()
 end
 
 function FishMarket._build(self: any)
@@ -939,7 +1037,7 @@ function FishMarket._build(self: any)
 		local frame = card({
 			Name = row.id,
 			LayoutOrder = index,
-			Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
+			Size = UDim2.new(1, 0, 0, self._rowH),
 			Parent = self._itemList,
 		})
 		local icon = ItemIcon.new({
@@ -998,7 +1096,7 @@ function FishMarket._build(self: any)
 			text = "Buy",
 			icon = Theme.icons.goldenFish,
 			style = "gold",
-			size = UDim2.fromOffset(150, 40),
+			size = UDim2.fromOffset(150, self._buyH),
 			anchorPoint = Vector2.new(1, 1),
 			position = UDim2.new(1, -10, 1, -8),
 			textSize = Theme.sizes.textBody + 1,
@@ -1130,6 +1228,214 @@ function FishMarket._refresh(self: any)
 			entry.buy:setEnabled(not pending and fish >= cost)
 		end
 	end
+	if self._tab == "Fresh" then
+		self:_renderFresh()
+	end
+end
+
+-- Fresh Catch (F94) ---------------------------------------------------------------------------------------------
+
+-- FreshCatchStock from the server: this player's stock by day, nil at night. It answers every buy, so it also ends
+-- the row's wait.
+function FishMarket.setFreshStock(self: any, stock: FreshCatchLogic.Stock?)
+	self._fresh = stock
+	if stock then
+		for _, item in stock.stock do
+			self._pending["fresh:" .. item.itemId] = nil
+		end
+	end
+	self:_renderFresh()
+end
+
+function FishMarket._freshName(self: any, itemId: string): string
+	local potion: PotionLogic.Potion? = self._potionById[itemId]
+	if potion then
+		return potion.name
+	end
+	local crate: Types.CrateDef? = self._crateById[itemId]
+	return if crate then crate.name else itemId
+end
+
+-- What a row does: the potion's effect and how long it runs, or the crate and its discount off the Market price.
+function FishMarket._freshBlurb(self: any, item: FreshCatchLogic.Item): string
+	local potion: PotionLogic.Potion? = self._potionById[item.itemId]
+	local line: string
+	if potion then
+		line = ("%s for %d min"):format(potion.effect, potion.minutes)
+	else
+		local crate: Types.CrateDef? = self._crateById[item.itemId]
+		local off = if crate and crate.price then crate.price - item.fish else 0
+		line = if off > 0
+			then ("%d golden fish off the Market price"):format(off)
+			else "A crate for your bank"
+	end
+	local weights = if Config.FreshCatchAmountWeights
+		then Config.FreshCatchAmountWeights[item.itemId]
+		else nil
+	local chance = FreshCatchLogic.chanceText(FreshCatchLogic.inStock(weights))
+	return if chance then line .. " · " .. chance else line
+end
+
+function FishMarket._clearFresh(self: any)
+	for _, row: FreshRow in self._freshRows do
+		row.icon:destroy()
+		row.buy:destroy()
+		row.frame:Destroy()
+	end
+	table.clear(self._freshRows)
+end
+
+function FishMarket._buildFresh(self: any, stock: FreshCatchLogic.Stock)
+	self:_clearFresh()
+	for index, item in stock.stock do
+		local itemId = item.itemId
+		local frame = card({
+			Name = itemId,
+			LayoutOrder = index,
+			Size = UDim2.new(1, 0, 0, self._rowH),
+			Parent = self._freshList,
+		})
+		local icon = ItemIcon.new({
+			parent = frame,
+			size = UDim2.fromOffset(ROW_HEIGHT - 16, ROW_HEIGHT - 16),
+			anchorPoint = Vector2.new(0, 0.5),
+			position = UDim2.new(0, 8, 0.5, 0),
+		})
+		local potion: PotionLogic.Potion? = self._potionById[itemId]
+		icon:set(
+			nil,
+			if potion then Theme.icons.potion else Theme.icons.crate,
+			if potion then "Rare" else "Common",
+			if potion then ShopIcons.potion(itemId) else ShopIcons.crate(itemId)
+		)
+		local name = text({
+			Name = "Name",
+			Position = UDim2.fromOffset(ROW_HEIGHT, 8),
+			Size = UDim2.new(1, -(ROW_HEIGHT + 170), 0, 22),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textBody + 1,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Text = self:_freshName(itemId),
+			Parent = frame,
+		})
+		local blurb = text({
+			Name = "Blurb",
+			Position = UDim2.fromOffset(ROW_HEIGHT, 30),
+			Size = UDim2.new(1, -(ROW_HEIGHT + 170), 0, 36),
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.modal.subtext,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextYAlignment = Enum.TextYAlignment.Top,
+			TextWrapped = true,
+			TextTruncate = Enum.TextTruncate.None,
+			Text = self:_freshBlurb(item),
+			Parent = frame,
+		})
+		local stockLabel = text({
+			Name = "Stock",
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -10, 0, 6),
+			Size = UDim2.fromOffset(150, 18),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textTiny + 1,
+			TextColor3 = Theme.modal.subtext,
+			Parent = frame,
+		})
+		local buy = Button.new({
+			name = "Buy",
+			text = "Buy",
+			icon = Theme.icons.goldenFish,
+			style = "gold",
+			size = UDim2.fromOffset(150, self._buyH),
+			anchorPoint = Vector2.new(1, 1),
+			position = UDim2.new(1, -10, 1, -8),
+			textSize = Theme.sizes.textBody + 1,
+			parent = frame,
+			onClick = function()
+				self:_buyFresh(itemId)
+			end,
+		})
+		table.insert(self._freshRows, {
+			itemId = itemId,
+			frame = frame,
+			icon = icon,
+			name = name,
+			blurb = blurb,
+			stock = stockLabel,
+			buy = buy,
+		})
+	end
+end
+
+function FishMarket._buyFresh(self: any, itemId: string)
+	local key = "fresh:" .. itemId
+	local stock: FreshCatchLogic.Stock? = self._fresh
+	if stock == nil or self:_pendingFor(key) then
+		return
+	end
+	local buy: ((itemId: string, window: number?) -> ())? = self._callbacks.buyFresh
+	if buy then
+		self._pending[key] = os.clock()
+		buy(itemId, stock.window)
+		self:_renderFresh()
+	end
+end
+
+-- The countdown card and every row: what is left for you, Buy while you can afford it. At night only the card shows.
+function FishMarket._renderFresh(self: any)
+	if not self.frame.Visible or self._tab ~= "Fresh" then
+		return
+	end
+	local stock: FreshCatchLogic.Stock? = self._fresh
+	if stock == nil then
+		self:_clearFresh()
+		self._freshKey = ""
+		self._freshTitle.Text = "Back at sunrise"
+		self._freshSub.Text = "The Fresh Catch sells by day. At night the dealer's cart is in town."
+		return
+	end
+	local current = stock :: FreshCatchLogic.Stock
+	local ids: { string } = {}
+	for _, item in current.stock do
+		table.insert(ids, item.itemId)
+	end
+	local key = table.concat(ids, ",")
+	if key ~= self._freshKey then
+		self._freshKey = key
+		self:_buildFresh(current)
+	end
+	local left = current.restocksAt - os.time()
+	self._freshTitle.Text = if left > 0
+		then FreshCatchLogic.countdown(left)
+		else "Fresh catch coming..."
+	self._freshSub.Text = ("The same stock on every server. New stock every %d minutes."):format(
+		FRESH_MINUTES
+	)
+	local state: Types.PlayerState? = self._state
+	local fish = if state then math.floor(state.goldenFish or 0) else 0
+	for index, row: FreshRow in self._freshRows do
+		local item = current.stock[index]
+		if item == nil then
+			continue
+		end
+		local can = FreshCatchLogic.left(item)
+		local none = item.amount == 0
+		row.stock.Text = if none
+			then "None this time"
+			elseif can > 0 then ("x%d left"):format(can)
+			else ("You bought %d"):format(item.bought)
+		row.stock.TextColor3 = if can > 0 then Theme.colors.goodDark else Theme.modal.subtext
+		row.blurb.Text = self:_freshBlurb(item)
+		local pending = self:_pendingFor("fresh:" .. item.itemId)
+		row.buy:setText(
+			if pending
+				then "..."
+				elseif none then "None"
+				elseif can == 0 then "Sold out"
+				else Format.short(item.fish)
+		)
+		row.buy:setEnabled(not pending and can > 0 and fish >= item.fish and left > 0)
+	end
 end
 
 -- CrateResult from the server: the reveal for a piece, or a refusal ("" and no refund) that frees the button.
@@ -1192,6 +1498,8 @@ function FishMarket.destroy(self: any)
 	self._oddsDone:destroy()
 	self._cratesTab:destroy()
 	self._treatsTab:destroy()
+	self._freshTab:destroy()
+	self:_clearFresh()
 	self._panel:destroy()
 end
 

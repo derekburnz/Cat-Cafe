@@ -113,6 +113,20 @@ if Settings.kinds[SettingsList.TUTORIAL_KEY] then
 	table.insert(SettingsList.SECTIONS[2].rows, row)
 end
 
+-- F94 (rewards-and-shops.md section 3): the Fresh Catch heads up ("Gold Rush Potions at the Fish Market!"), once
+-- shared/Settings saves its key (default on). The server sends ShopAlert only while it is on.
+SettingsList.SHOP_ALERTS_KEY = "shopAlerts"
+if Settings.kinds[SettingsList.SHOP_ALERTS_KEY] then
+	local row: Row = {
+		key = SettingsList.SHOP_ALERTS_KEY,
+		kind = "switch",
+		icon = "📣",
+		name = "Shop alerts",
+		detail = "A heads up when the Fish Market stocks something rare",
+	}
+	table.insert(SettingsList.SECTIONS[2].rows, row)
+end
+
 -- Every row in screen order.
 SettingsList.ROWS = {} :: { Row }
 for _, section in SettingsList.SECTIONS do

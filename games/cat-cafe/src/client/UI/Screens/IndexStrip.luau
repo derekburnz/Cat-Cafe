@@ -10,7 +10,8 @@
 -- opens on the first NEXT card; the button carries a red count of the other rewards waiting. The sums live in
 -- Components/IndexRewards; the strip hides itself when the catalog has no prizes for the area.
 -- setTrack("normal" | "gold") keeps one track's milestones (the Index's Cats and Gold tabs, 2026-11-01); nil shows
--- both, as before.
+-- both, as before. "rainbow" is the Rainbow track (F99, rainbow-coat.md section 4), whose cards' bars and NEXT
+-- sticker and the rainbow luck band turn on the rainbow bands (Components/Rainbow).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -19,6 +20,8 @@ local Create = require(script.Parent.Parent.Components.Create)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
+local Rainbow = require(script.Parent.Parent.Components.Rainbow)
+local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Types = require(script.Parent.Parent.Types)
@@ -70,6 +73,31 @@ local function text(props: { [string]: any }): TextLabel
 		merged[key] = value
 	end
 	return Create("TextLabel", merged)
+end
+
+-- A card's bar and NEXT sticker in its track's colours: mint and green, gold on the gold track, the turning rainbow
+-- bands on the Rainbow track (made the first time a card shows a rainbow milestone, then switched with Enabled).
+local function paintTrack(card: any, track: IndexRewards.Track)
+	local rainbow = track == "rainbow"
+	if rainbow and card.fillBands == nil then
+		card.fillBands = Rainbow.fill(card.fill)
+		card.stickerBands = Rainbow.fill(card.sticker)
+	end
+	if card.fillBands then
+		card.fillBands.Enabled = rainbow
+		card.stickerBands.Enabled = rainbow
+	end
+	card.gold = track == "gold"
+	card.rainbow = rainbow
+	card.fill.BackgroundColor3 = if rainbow
+		then Theme.colors.white
+		elseif card.gold then Theme.colors.gold
+		else Theme.colors.mint
+	card.sticker.BackgroundColor3 = if rainbow
+		then Theme.colors.white
+		elseif card.gold then Theme.colors.gold
+		else Theme.colors.good
+	card.sticker.TextColor3 = if rainbow then Theme.colors.ink else Theme.colors.white
 end
 
 function IndexStrip.new(parent: Instance, callbacks: Callbacks): IndexStrip
@@ -128,7 +156,7 @@ function IndexStrip.new(parent: Instance, callbacks: Callbacks): IndexStrip
 		name = "Expand",
 		text = "Expand milestones",
 		style = "secondary",
-		size = UDim2.fromOffset(EXPAND.X, EXPAND.Y),
+		size = UDim2.fromOffset(EXPAND.X, Scale.tapHeight(EXPAND.Y + 1, Theme.sizes.buttonDepth)),
 		textSize = Theme.sizes.textSmall,
 		layoutOrder = 2,
 		parent = top,
@@ -204,9 +232,7 @@ function IndexStrip.setCatalog(self: any, catalog: Types.Catalog)
 	for order, milestone in milestones do
 		local card = self:_buildCard(self._row, false, order)
 		card.milestoneId = milestone.id
-		card.gold = IndexRewards.isGold(milestone)
-		card.fill.BackgroundColor3 = if card.gold then Theme.colors.gold else Theme.colors.mint
-		card.sticker.BackgroundColor3 = if card.gold then Theme.colors.gold else Theme.colors.good
+		paintTrack(card, IndexRewards.track(milestone))
 		card.frame.Name = milestone.id
 		self._cards[milestone.id] = card
 	end
@@ -372,15 +398,20 @@ function IndexStrip._buildCard(self: any, parent: Instance, big: boolean, order:
 		fill = fill,
 		done = done,
 		gold = false,
+		rainbow = false,
+		fillBands = nil :: UIGradient?,
+		stickerBands = nil :: UIGradient?,
 		big = big,
 		milestoneId = nil :: string?,
 	}
+	-- the big card's Claim: a 36 px face on a mouse, a finger's on a phone, within its right column
+	local claimH = Scale.tapHeight(41, Theme.sizes.buttonDepth)
 	card.claim = Button.new({
 		name = "Claim",
 		text = "Claim",
 		style = "primary",
-		size = if big then UDim2.new(1, 0, 0, 36) else UDim2.new(1, -PAD * 2, 0, 28),
-		position = if big then UDim2.new(0, 0, 1, -46) else UDim2.new(0, PAD, 1, -34),
+		size = if big then UDim2.new(1, 0, 0, claimH) else UDim2.new(1, -PAD * 2, 0, 28),
+		position = if big then UDim2.new(0, 0, 1, -(claimH + 8)) else UDim2.new(0, PAD, 1, -34),
 		textSize = if big then Theme.sizes.textBody else Theme.sizes.textSmall,
 		parent = right,
 		onClick = function()
@@ -447,7 +478,7 @@ function IndexStrip._fill(
 	local perk, amount = IndexRewards.perk(view.prize)
 	card.band.Visible = perk ~= nil
 	card.band.Text = if perk then "★ " .. PrizeChips.bonusText(amount, perk) else ""
-	card.band.BackgroundColor3 = PrizeChips.perkColor(perk)
+	PrizeChips.paintPerk(card.band, perk)
 	local pressedAt: number? = self._pending[area .. ":" .. view.milestone.id]
 	local pending = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
 	local ready = view.state == "ready"
@@ -489,6 +520,7 @@ function IndexStrip._refresh(self: any)
 	self._total = IndexRewards.counts(catalog, state, area).total
 	local nextNormal = IndexRewards.nextView(views, "normal")
 	local nextGold = IndexRewards.nextView(views, "gold")
+	local nextRainbow = IndexRewards.nextView(views, "rainbow")
 	local look: PrizeChips.Look = {
 		dayRate = TipJarLogic.dayRate(state.incomePerSecond, self._night, NIGHT_SHARE),
 		spinsBanked = if state.spin then state.spin.banked else nil,
@@ -503,10 +535,7 @@ function IndexStrip._refresh(self: any)
 	local nextView = IndexRewards.nextView(views)
 	local shown = nextView or views[#views]
 	local featured = self._featured
-	local gold = IndexRewards.isGold(shown.milestone)
-	featured.gold = gold
-	featured.fill.BackgroundColor3 = if gold then Theme.colors.gold else Theme.colors.mint
-	featured.sticker.BackgroundColor3 = if gold then Theme.colors.gold else Theme.colors.good
+	paintTrack(featured, IndexRewards.track(shown.milestone))
 	self:_fill(featured, shown, look, nextView ~= nil)
 	local lead = if shown.state == "ready" then "Reward ready · " else "Next reward · "
 	featured.need.Text = if nextView then lead .. featured.need.Text else "Every reward claimed"
@@ -533,7 +562,7 @@ function IndexStrip._refresh(self: any)
 			continue
 		end
 		card.frame.Visible = true
-		self:_fill(card, view, look, view == nextNormal or view == nextGold)
+		self:_fill(card, view, look, view == nextNormal or view == nextGold or view == nextRainbow)
 	end
 	self:_scrollToNext(views, area, nextView)
 end

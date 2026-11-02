@@ -5,8 +5,10 @@
 -- order, its cats rarest last. The spare cats (F78) have no page (Derek 2026-10-28: "No need for a spare part of
 -- the index has no use"). The exclusive cats (F95 and F96: given or sold, never caught, like the free Bellhop Cat)
 -- have their own Exclusive page after the areas, on the Cats tab only (they are never gold), with no count toward
--- the Index and no rewards.
---   found(state, tab)                    which cats count as found on the tab: met or owned, or found in gold
+-- the Index and no rewards. The Rainbow tab (F99, rainbow-coat.md section 3) lists the same areas counting rainbow
+-- cats, with no Exclusive page either (an exclusive cat is never caught, so never rainbow).
+--   found(state, tab)                    which cats count as found on the tab: met or owned, or found in gold or
+--                                        in rainbow
 --   sections(catalog, state, tab)        the areas to scroll through, each with its cats and counts
 --   count(section)                       the line beside an area's name: "7 / 10", "Complete!" or "Tier 3"
 --   reward(views, track)                 the area's reward button: "ready" with how many, "next", "done" or "none"
@@ -18,7 +20,7 @@ local CatVariant = require(script.Parent.CatVariant)
 local IndexRewards = require(script.Parent.IndexRewards)
 local Types = require(script.Parent.Parent.Types)
 
-export type Tab = "normal" | "gold"
+export type Tab = "normal" | "gold" | "rainbow"
 
 export type Section = {
 	id: string, -- an area id
@@ -59,8 +61,12 @@ end
 
 function IndexBook.found(state: Types.PlayerState, tab: Tab): { [string]: boolean }
 	local out: { [string]: boolean } = {}
-	if tab == "gold" then
-		for catId in CatVariant.collection(state) do
+	if tab == "gold" or tab == "rainbow" then
+		local coats: { [string]: number } = CatVariant.collection(state)
+		if tab == "rainbow" then
+			coats = CatVariant.rainbowCollection(state)
+		end
+		for catId in coats do
 			out[catId] = true
 		end
 		return out
@@ -119,8 +125,8 @@ function IndexBook.sections(catalog: Types.Catalog, state: Types.PlayerState, ta
 		if areaId == SPARE then
 			continue
 		elseif def.exclusive == true or areaId == IndexBook.EXCLUSIVE then
-			if tab == "gold" then
-				continue -- never gold
+			if tab ~= "normal" then
+				continue -- never gold or rainbow
 			end
 			section = exclusive
 		else

@@ -4043,6 +4043,32 @@ do
 		UI.announce(RareMoments.decorText(finder.DisplayName, decor.name), "Mythical")
 	end
 
+	-- RainbowSpawned's toast (F99, rainbow-coat.md section 2), sent to everyone at most once a minute: "🌈 A Rainbow
+	-- Tabby is out in the Woods!" on the cat's rarity colour with a turning rainbow edge. The beam and shimmer are
+	-- VFX-Agent's and Sound-Agent's (Moments.RainbowSpawned).
+	function UI.rainbowSpawned(areaId: string, catId: string)
+		local def = lookupCat(catId)
+		local catalog: Types.Catalog? = currentCatalog
+		local areas: { Types.AreaDef } = {}
+		if catalog and catalog.areas then
+			areas = catalog.areas
+		end
+		local areaName: string? = nil
+		for _, area in areas do
+			if area.id == areaId then
+				areaName = area.name
+			end
+		end
+		local view = toasts
+		if def == nil or view == nil then
+			return
+		end
+		view:rainbow(
+			CatVariant.spawnLine(def.name, areaName or Format.areaName(areaId)),
+			def.rarity
+		)
+	end
+
 	-- A Legendary or Mythical crate piece's card, with onUse for "Use it" on a new style piece; any other piece plays
 	-- nothing.
 	function UI.bigPull.piece(decorId: string, onUse: (() -> ())?)

@@ -193,4 +193,55 @@ return function()
 			expect(IndexBook.reward({}, "gold").state).to.equal("none")
 		end)
 	end)
+
+	describe("IndexBook's Rainbow tab (F99)", function()
+		local WITH = table.clone(CATALOG)
+		WITH.cats = table.clone(CATALOG.cats)
+		table.insert(
+			WITH.cats,
+			1,
+			{ id = "bellhop", area = "exclusive", rarity = "Rare", exclusive = true }
+		)
+
+		it("counts rainbow cats in each area, with no Exclusive or spare page", function()
+			local s = state({
+				collection = { tabby = 1, ginger = 1, corgi = 1 },
+				goldCollection = { tabby = 1, ginger = 1 },
+				rainbowCollection = { ginger = 1, calico = 1 },
+			})
+			local sections = IndexBook.sections(WITH, s, "rainbow")
+			expect(ids(sections)).to.equal("alley,park")
+			expect(sections[1].have).to.equal(1)
+			expect(sections[1].total).to.equal(4)
+			expect(sections[2].have).to.equal(0)
+			local found = IndexBook.found(s, "rainbow")
+			expect(found.ginger).to.equal(true)
+			expect(found.tabby).to.equal(nil)
+			expect(IndexBook.count(sections[1])).to.equal("1 / 4")
+		end)
+
+		it("reads no rainbow cats from a save without the collection", function()
+			expect(next(IndexBook.found(state({}), "rainbow"))).to.equal(nil)
+		end)
+
+		it("counts the Rainbow track's rewards on its own tab", function()
+			local views = {
+				{
+					milestone = { id = "rainbow1", track = "rainbow", needs = 1 },
+					prize = {},
+					state = "ready",
+					have = 1,
+				},
+				{
+					milestone = { id = "rainbow3", track = "rainbow", needs = 3 },
+					prize = {},
+					state = "locked",
+					have = 1,
+					need = 3,
+				},
+			}
+			expect(IndexBook.reward(views, "rainbow").ready).to.equal(1)
+			expect(IndexBook.reward(views, "normal").state).to.equal("none")
+		end)
+	end)
 end

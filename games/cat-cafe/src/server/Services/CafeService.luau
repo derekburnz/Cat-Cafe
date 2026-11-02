@@ -173,6 +173,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		starterCatClaimed = profile.starterCatClaimed, -- F96
 		luck = luck, -- F88
 		luckSources = luckSources,
+		longNap = Economy.passes(profile).longNap, -- F95: the welcome back card's line
 		serverTime = now,
 	}
 end

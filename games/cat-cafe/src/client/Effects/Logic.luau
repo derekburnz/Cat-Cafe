@@ -1352,6 +1352,51 @@ function Logic.lidAngle(elapsed: number, seconds: number, degrees: number): numb
 	return degrees * (1 - (1 - x) * (1 - x))
 end
 
+-- The crate reel (F103, crate-reel.md) in the Market window, from Config's CrateReel* numbers: it starts with tile 1
+-- under the marker and stops on the centre of tile `landing`, speeding up evenly to `topSpeed` tiles a second over
+-- `rampSeconds`, running flat out, then slowing over the last `slowTiles` tiles in `stopSeconds` with an ease-out
+-- cubic. How many seconds after CrateResult it stops (about 2.9 with the defaults), and when the slow down starts.
+function Logic.crateReelStop(
+	landing: number,
+	topSpeed: number,
+	rampSeconds: number,
+	stopSeconds: number,
+	slowTiles: number
+): (number, number)
+	local ramp = math.max(rampSeconds, 0)
+	local cruise = 0
+	if topSpeed > 0 then
+		cruise = math.max(landing - 1 - topSpeed * ramp / 2 - slowTiles, 0) / topSpeed
+	end
+	local slowFrom = ramp + cruise
+	return slowFrom + math.max(stopSeconds, 0), slowFrom
+end
+
+-- How fast the reel runs `t` seconds in, from 0 (still) to 1 (flat out): up evenly over `rampSeconds`, flat until
+-- `slowFrom`, then the ease-out cubic's slowing over `stopSeconds`, still from the stop on. The counter crate's lid
+-- rattles this hard, the same for every prize.
+function Logic.crateReelPace(
+	t: number,
+	rampSeconds: number,
+	slowFrom: number,
+	stopSeconds: number
+): number
+	if t <= 0 then
+		return 0
+	end
+	if t < rampSeconds then
+		return t / rampSeconds
+	end
+	if t < slowFrom then
+		return 1
+	end
+	if stopSeconds <= 0 then
+		return 0
+	end
+	local left = 1 - math.clamp((t - slowFrom) / stopSeconds, 0, 1)
+	return left * left
+end
+
 -- Campfires ---------------------------------------------------------------------------------------------------
 
 -- How one tongue of a campfire's flame moves `t` seconds in, `phase` radians apart from its neighbours: its stretch

@@ -1733,7 +1733,23 @@ Presets.market = {
 -- The opened crate on the counter (crates.py's models, about 2.5 by 2 by 2 studs at full size): scaled down to sit on
 -- the stall's ice, the lid swung up `lidDegrees` (crates.py: 105 is wide open with no clipping) over `lidSeconds`,
 -- held for `hold` seconds from the open and faded over `fade`.
-Presets.marketCrate = { scale = 0.6, lidDegrees = 105, lidSeconds = 0.3, hold = 1.8, fade = 0.4 }
+-- While the Market window's crate reel runs (F103, crate-reel.md), the lid knocks on its hinge as hard as the reel is
+-- fast (Logic.crateReelPace): up to `reelRattle` degrees and `reelHop` studs, `reelHz` knocks a second, the same for
+-- every prize. The lid opens at the stop: Config's CrateReel* numbers with the reel slowing over `reelSlowTiles`
+-- tiles, or the UI's CrateReelLanded moment (a tap skips), in which case the stop plus `reelSafety` seconds is only
+-- the fallback.
+Presets.marketCrate = {
+	scale = 0.6,
+	lidDegrees = 105,
+	lidSeconds = 0.3,
+	hold = 1.8,
+	fade = 0.4,
+	reelRattle = 3,
+	reelHop = 0.04,
+	reelHz = 9,
+	reelSlowTiles = 4,
+	reelSafety = 1.5,
+}
 
 -- Rainbow coats (F99, rainbow-coat.md section 2): a rainbow cat's own parts in `hues`, each part's colour drifting
 -- round them with its phase set by how far back from the nose it sits, so bands flow nose to tail, one lap every

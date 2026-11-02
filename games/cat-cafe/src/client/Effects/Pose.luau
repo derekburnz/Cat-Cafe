@@ -1,12 +1,13 @@
 --!strict
 -- Moves a cat's body, head, tail, legs, eyes and ears on this client only. Parts are found by name (Body, Head,
 -- Tail, or names ending _Body, _Head, _Tail, plus ears, eyes and legs named EarL, Eye1, LegF1 and so on, or ending
--- so), so one set of idles fits every breed. On the bodies with hinged pieces (PR #259: walking A and sitting B)
--- each piece is a Model pivoted at its joint, the eyes and ears nested in the head's, and every piece turns about
--- its own pivot: Model-Agent's piece poses (Presets.catPoses) exactly as the manifest gives them, the idles on top,
--- an eye squashed flat to blink and an ear flicked back. A working cat stood upright at its station (Pose
--- "upright", F25) turns in the floor's axes instead of its turned model's, and outfit parts ride what their
--- Follows attribute names. Two ways in, picked per model:
+-- so), so one set of idles fits every breed. On the bodies with hinged pieces (PR #259: walking A and sitting B;
+-- #826: S, the work body) each piece is a Model pivoted at its joint, the eyes and ears nested in the head's, and
+-- every piece turns about its own pivot: Model-Agent's piece poses (Presets.catPoses) exactly as the manifest gives
+-- them, the idles on top, an eye squashed flat to blink and an ear flicked back. On S the front legs are arms that
+-- also swing out to the side (a wave), and the role's held thing (a `_Held_` Model in an arm) rides its arm and tips
+-- about the paw. A working cat stood upright at its station (Pose "upright", F25) turns in the floor's axes instead
+-- of its turned model's, and outfit parts ride what their Follows attribute names. Two ways in, picked per model:
 -- - Anchored parts (the placeholder cats and today's Part cats): each part is drawn at its server CFrame times a
 --   small turn around its joint. The server's CFrame is read again whenever it changes, so a walking stray keeps
 --   walking and only the turn is ours. A client's write to a server part stays on that client.
@@ -25,7 +26,8 @@ local Pose = {}
 
 -- "body", "head", "tail", "pawFL", "pawFR", "pawBL", "pawBR", "eye1", "eye2", "earL" or "earR", or "cap" and "bell"
 -- for a hat (`_Prop` in the head) and a collar bell (`_Bell`) that turn about their own pivots (the Bellhop Cat,
--- F96). A plain string so it can key tables.
+-- F96), or "heldL" and "heldR" for what the work body holds in its left and right paw (`_Held_` Models, #826). A
+-- plain string so it can key tables.
 export type Group = string
 
 export type Rig = {
@@ -112,6 +114,26 @@ end
 
 local function isLeg(group: Group): boolean
 	return string.sub(group, 1, 3) == "paw"
+end
+
+-- A thing the work body holds in a paw (#826): a Model named <Cat>_Work_Held_<Role>, nested in its arm's Model.
+local function isHeld(instance: Instance): boolean
+	return instance:IsA("Model") and string.find(instance.Name, "_Held_", 1, true) ~= nil
+end
+
+-- What a held Model rides: "heldL" in the left arm (LegF1), "heldR" in the right (LegF2), nil anywhere else.
+local function heldGroupOf(held: Model): Group?
+	local holder = held.Parent
+	while holder ~= nil and holder:IsA("Model") do
+		local group = pieceGroup(holder)
+		if group == "pawFL" then
+			return "heldL"
+		elseif group == "pawFR" then
+			return "heldR"
+		end
+		holder = holder.Parent
+	end
+	return nil
 end
 
 local function findPart(model: Model, name: string): BasePart?
@@ -288,14 +310,15 @@ local function newRig(model: Model, body: BasePart): Rig
 	}
 end
 
--- Which body a cat has: "walk" with hinged back legs (body A), "sit" with hinged front legs only (body B), or
--- "parts" with no hinged pieces (the placeholder and older Part cats). The pieces are the model's own children.
+-- Which body a cat has: "walk" with hinged back legs (body A), "work" with hinged back legs it stands on and arms
+-- (body S, #826, its pieces named <Cat>_Work_<Piece>), "sit" with hinged front legs only (body B), or "parts" with
+-- no hinged pieces (the placeholder and older Part cats). The pieces are the model's own children.
 function Pose.kindOf(model: Model): Logic.Body
 	local front = false
 	for _, child in model:GetChildren() do
 		if child:IsA("Model") then
 			if isNamed(child, "LegB1") then
-				return "walk"
+				return if string.find(child.Name, "_Work_", 1, true) ~= nil then "work" else "walk"
 			elseif isNamed(child, "LegF1") then
 				front = true
 			end
@@ -411,8 +434,16 @@ function Pose.bind(model: Model): Rig?
 	local namedLegs = false
 	local cap: Model? = nil -- a hat in the head that can tip (`_Prop`), and a bell that can swing (`_Bell`)
 	local bell: Model? = nil
+	local helds: { [Model]: Group } = {} -- what the work body holds, and the paw each rides
+	local heldPivots: { [Group]: Model } = {} -- the first held Model in each paw, whose pivot is the paw
 	for _, descendant in model:GetDescendants() do
-		if descendant:IsA("Model") then
+		if isHeld(descendant) then
+			local group = heldGroupOf(descendant :: Model)
+			if group ~= nil then
+				helds[descendant :: Model] = group
+				heldPivots[group] = heldPivots[group] or descendant :: Model
+			end
+		elseif descendant:IsA("Model") then
 			local group = pieceGroup(descendant)
 			local found: Model? = if group ~= nil then pieces[group] else nil
 			if group ~= nil and found == nil then
@@ -442,6 +473,12 @@ function Pose.bind(model: Model): Rig?
 				group = "bell"
 			elseif cap ~= nil and part:IsDescendantOf(cap) then
 				group = "cap"
+			end
+			for held, heldGroup in helds do
+				if part:IsDescendantOf(held) then
+					group = heldGroup
+					break
+				end
 			end
 			-- An outfit piece says what it rides (Follows), so only an unmarked part of the body can be a leg, and
 			-- only on a cat whose legs are not named (the exported cats before PR #259 named every part like the body).
@@ -494,8 +531,9 @@ function Pose.bind(model: Model): Rig?
 		rig.restDrop = math.max(0, (-body.Size.Y / 2 - floorY) * 0.8)
 	end
 
-	-- A seated cat (the sitting body, or Pose "sit" at its station, PR #260) never lies down either.
-	if rig.kind == "sit" or model:GetAttribute("Pose") == "sit" then
+	-- A seated cat (the sitting body, or Pose "sit" at its station, PR #260) never lies down either, nor one standing
+	-- at its station on the work body (#826): at night it dozes on its feet.
+	if rig.kind == "sit" or rig.kind == "work" or model:GetAttribute("Pose") == "sit" then
 		rig.restDrop = 0
 	end
 	-- A cat stood upright turns in the floor's axes about the floor under its body, and never lies down: at night
@@ -539,6 +577,10 @@ function Pose.bind(model: Model): Rig?
 	end
 	if bell ~= nil then
 		rig.joints.bell = bodyBase:ToObjectSpace(bell:GetPivot())
+	end
+	-- a held thing tips about the paw that holds it, its Model's pivot, in the model's axes like the arm
+	for group, held in heldPivots do
+		rig.joints[group] = joint(held:GetPivot().Position)
 	end
 	for k, index in rig.eyes do
 		rig.eyeAxes[k] = axisAlong(rig.base[index], axes.UpVector)
@@ -811,10 +853,21 @@ function Pose.draw(rig: Rig, o: Logic.Offsets, hopAlpha: number)
 			"tail",
 			posed(rig, o, "tail", CFrame.Angles(-o.tailPitch, o.tailYaw, 0))
 		)
+	-- a raised paw on the work body also swings out to its own side (o.waveL, waveR; 0 on the other bodies)
 	moves.pawFL = bodyMove
-		* around(joints, bodyBase, "pawFL", posed(rig, o, "pawFL", CFrame.Angles(o.pawFL, 0, 0)))
+		* around(
+			joints,
+			bodyBase,
+			"pawFL",
+			posed(rig, o, "pawFL", CFrame.Angles(o.pawFL, 0, o.waveL))
+		)
 	moves.pawFR = bodyMove
-		* around(joints, bodyBase, "pawFR", posed(rig, o, "pawFR", CFrame.Angles(o.pawFR, 0, 0)))
+		* around(
+			joints,
+			bodyBase,
+			"pawFR",
+			posed(rig, o, "pawFR", CFrame.Angles(o.pawFR, 0, -o.waveR))
+		)
 	moves.pawBL = bodyMove
 		* around(joints, bodyBase, "pawBL", posed(rig, o, "pawBL", CFrame.Angles(o.pawBL, 0, 0)))
 	moves.pawBR = bodyMove
@@ -828,6 +881,14 @@ function Pose.draw(rig: Rig, o: Logic.Offsets, hopAlpha: number)
 			moves[group] = CFrame.new(rise * share) * moves[group]
 		end
 	end
+	-- what the work body holds rides its arm and tips about the paw, its top towards the cat's front (#826)
+	local tip = CFrame.Angles(-o.held, 0, 0)
+	moves.heldL = if o.held ~= 0
+		then moves.pawFL * around(joints, bodyBase, "heldL", tip)
+		else moves.pawFL
+	moves.heldR = if o.held ~= 0
+		then moves.pawFR * around(joints, bodyBase, "heldR", tip)
+		else moves.pawFR
 	-- the eyes and ears ride the head; an ear flicks back and out about its base
 	moves.eye1 = moves.head
 	moves.eye2 = moves.head

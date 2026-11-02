@@ -330,7 +330,7 @@ function Trade._row(self: any, player: Player): Row
 		textSize = Theme.sizes.textSmall,
 		parent = frame,
 		onClick = function()
-			self._asked[userId] = os.clock() + TradeLogic.REQUEST_SECONDS
+			self._asked[userId] = os.clock() + TradeLogic.REASK_SECONDS
 			self._callbacks.request(userId)
 			self:_renderPlayers()
 		end,
@@ -991,7 +991,7 @@ function Trade._pressGo(self: any)
 		self._callbacks.confirm(trade.tradeId, trade.version)
 	else
 		local ready = TradeLogic.readyButton(trade)
-		self._callbacks.ready(trade.tradeId, trade.version, ready.text == "Ready")
+		self._callbacks.ready(trade.tradeId, trade.version, ready.ready == true)
 	end
 end
 

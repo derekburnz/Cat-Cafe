@@ -110,6 +110,7 @@ UI.events = {
 	lockCat = Signal.new(), -- (uid, locked)   the Lock row in the cat room: forward as LockCat (F62)
 	renameCat = Signal.new(), -- (uid, name)   Rename in the cat room, trimmed and checked with Shared.CatName: forward as RenameCat (F33)
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
+	equipBestDecor = Signal.new(), -- ()   Equip Best on the Decor page: forward as EquipBestDecor (#828)
 	unequipAll = Signal.new(), -- ()   Unequip All in the cat room: every working cat rests; forward as UnequipAll
 	claimOffline = Signal.new(), -- ()
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
@@ -732,6 +733,9 @@ function UI.init(config: Types.InitConfig)
 			UI.events.toggleDecor:Fire(decorId, placed)
 		end,
 		close = closeModal,
+		equipBest = function()
+			UI.events.equipBestDecor:Fire()
+		end,
 	})
 	collection = CatCollection.new({
 		claimIndexReward = function(areaId: string, milestoneId: string)
@@ -4802,14 +4806,24 @@ do
 	end
 
 	-- TradeDone: "Trade done! 2 new cats"; the cats fly home with VFX's effect.
-	function UI.trade.done(_tradeId: string, _gave: { Types.TradeCat }?, got: { Types.TradeCat }?)
+	-- TradeDone and TradeEnded also close the window on that trade (review S114), should no nil TradeState follow.
+	local function over(tradeId: string)
+		local current = trading.state
+		if current ~= nil and current.tradeId == tradeId then
+			UI.trade.state(nil)
+		end
+	end
+
+	function UI.trade.done(tradeId: string, _gave: { Types.TradeCat }?, got: { Types.TradeCat }?)
+		over(tradeId)
 		if toasts then
 			toasts:show(TradeLogic.doneLine(got), "good")
 		end
 	end
 
 	-- TradeEnded: the server's words ("Sam left", "Trade cancelled", "Out of the safe zone").
-	function UI.trade.ended(_tradeId: string, reason: string?)
+	function UI.trade.ended(tradeId: string, reason: string?)
+		over(tradeId)
 		if toasts and type(reason) == "string" and reason ~= "" then
 			toasts:show(reason, "info")
 		end

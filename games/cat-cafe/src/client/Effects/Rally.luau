@@ -173,13 +173,15 @@ local function pop(amount: number, mine: boolean)
 	loop = RunService.RenderStepped:Connect(function()
 		local t = os.clock() - began
 		local to = if track.Parent ~= nil then fillEnd(gui, track) else target
-		if t >= r.seconds or holder.Parent == nil then
+		-- the banner hides while a catch or a rescue shows (UI #827): a pop still flying stops where it is
+		local gone = holder.Parent == nil or not ScreenFx.shown(track)
+		if t >= r.seconds or gone then
 			if loop ~= nil then
 				loop:Disconnect()
 			end
 			holder:Destroy()
 			flying -= 1
-			if t >= r.seconds and gui.Parent ~= nil then
+			if t >= r.seconds and not gone and gui.Parent ~= nil then
 				local spots = table.create(r.arrive, to)
 				ScreenFx.sparkle(
 					gui,

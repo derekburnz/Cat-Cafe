@@ -17,7 +17,8 @@
 --   changed(state, now) -> Changed?      the tile that changed in the last CHANGED_SECONDS, for the yellow flash
 --   myCats(cats, defOf, offered) -> { Pick }   your cats under the grids: rarest first, each with why it cannot go
 --   pickHint(pick, full) -> string?      "Unlock it on its card to trade", "This cat can't be traded", ...
---   playerButton(row, minTier) -> ButtonView   a players list row: Trade, Asked, Busy or "Tier 3 needed"
+--   playerButton(row, minTier) -> ButtonView   a players list row: Trade, Asked (for REASK_SECONDS), Busy or
+--                                        "Tier 3 needed"
 --   doneLine(got) -> string              "Trade done! 2 new cats"
 -- Part 2 (trading.md sections 1 and 5): the Trade requests setting and the Trades page.
 --   REQUEST_MODES, modeLabel(mode)       "everyone", "friends", "off" and "Everyone", "Friends only", "Off"
@@ -32,7 +33,12 @@ local ShortNumber = require(script.Parent.ShortNumber)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
-export type ButtonView = { text: string, enabled: boolean, style: "primary" | "ghost" | "danger" }
+export type ButtonView = {
+	text: string,
+	enabled: boolean,
+	style: "primary" | "ghost" | "danger",
+	ready: boolean?, -- readyButton: the Ready value a press sends
+}
 
 export type Changed = { side: "me" | "them", uid: string }
 
@@ -67,7 +73,7 @@ export type LogRow = {
 export type PlayerRow = {
 	tier: number?, -- the Player's Tier attribute, nil before the server sends it
 	trading: boolean?, -- the Player's Trading attribute
-	asked: boolean, -- this player asked them in the last TradeRequestSeconds
+	asked: boolean, -- this player asked them in the last TradeReaskSeconds
 }
 
 -- the cats the window reads (UI Types' CatInstance and TradeState, kept loose so this loads on its own)
@@ -91,6 +97,8 @@ TradeLogic.CHANGED_SECONDS = 2 -- how long a changed tile flashes and its side s
 TradeLogic.CONFIRM_WAIT = 2 -- Confirm stays off this long on a gift or a lopsided trade
 TradeLogic.MAX_CATS = (Config.TradeMaxCats or 9) :: number
 TradeLogic.REQUEST_SECONDS = (Config.TradeRequestSeconds or 20) :: number
+-- a declined or lapsed ask cannot be repeated this long, so a players row says "Asked" for it (review N332)
+TradeLogic.REASK_SECONDS = (Config.TradeReaskSeconds or 60) :: number
 
 local MIN_TIER: number = Config.TradeMinTier or 3
 -- Theme.rarityOrder, kept here so this module loads without Theme's fonts (the cloud test runner has no Font)
@@ -178,10 +186,10 @@ end
 
 function TradeLogic.readyButton(state: any): ButtonView
 	if state.me.ready or state.phase == "countdown" then
-		return { text = "Not ready", enabled = true, style = "ghost" }
+		return { text = "Not ready", enabled = true, style = "ghost", ready = false }
 	end
 	local empty = #state.me.cats == 0 and #state.them.cats == 0
-	return { text = "Ready", enabled = not empty, style = "primary" }
+	return { text = "Ready", enabled = not empty, style = "primary", ready = true }
 end
 
 function TradeLogic.warning(state: any): string?

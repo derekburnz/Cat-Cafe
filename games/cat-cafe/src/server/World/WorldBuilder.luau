@@ -40,7 +40,7 @@ export type Plot = {
 	backDoorArt: Model?, -- BackDoorArt, CatCafe_Plot_BackDoor when the art is in: the door the client swings
 	backDoorZone: BasePart, -- check-in works here as well as at the front door
 	expansions: { Model }, -- Expansions/<n>, patio sections in the yard, hidden until the owner's tier opens them
-	napSpots: { BasePart }, -- NapSpots/<n>, where cats without a job nap, best first
+	napSpots: { BasePart }, -- NapSpots/<n>, where cats without a job nap, best first (on its nap bed's Sleep point)
 	dressing: Folder, -- Dressing/ForRent on an empty plot, Dressing/Tier<n> up to the owner's tier
 	baitBowl: BasePart, -- BaitBowl, in the front garden: range checks, and the owner's client puts its prompt here
 	baitCat: BasePart, -- BaitCat, where the cat that came to the bowl sits
@@ -275,7 +275,7 @@ end
 -- What a cafe shows from the street (F36, F38): tier 0 is an empty plot, dressed For Rent (shutters half down, the
 -- sign and dust sheets, and no cat); an owned cafe adds CatCafe_Plot_Tier1..n cumulatively up to its tier, and the
 -- cat beds of its tier (F79, Layout.plot.beds, named by bed id), where the working cats past the cat trees sleep at
--- night. Pieces whose art is not in ReplicatedStorage.Assets are skipped.
+-- night, and a nap bed under each nap spot. Pieces whose art is not in ReplicatedStorage.Assets are skipped.
 function WorldBuilder.setDressing(plot: Plot, tier: number)
 	local function show(name: string, asset: string, wanted: boolean)
 		local existing = plot.dressing:FindFirstChild(name)
@@ -300,6 +300,31 @@ function WorldBuilder.setDressing(plot: Plot, tier: number)
 			place(CAT_BED, localCFrame(plot.cframe, point), plot.dressing).Name = bed.id
 		elseif tier < bed.tier and existing ~= nil then
 			existing:Destroy()
+		end
+	end
+	-- The nap beds (Derek's 10-28 to 10-30 notes: the resting cats slept on the floor; beds in the corners and
+	-- sides): an owned cafe has a cat bed under each nap spot, NapBed_<n>, and the nap spot's anchor sits on the bed's
+	-- Sleep point, where the resting cat sits or lies (a lying cat's pose lowers it onto the cushion on the client, as
+	-- on the F79 beds). On the empty plot, or without the bed's art, the anchor is the nap spot on the floor.
+	-- SleepSpots reads only the F79 beds, so no working cat walks to these at night.
+	for n, point in Layout.plot.napSpots do
+		local name = "NapBed_" .. n
+		local floorAt = localCFrame(plot.cframe, point)
+		local bed: Instance? = plot.dressing:FindFirstChild(name)
+		if tier >= 1 and bed == nil and AssetRegistry.has(CAT_BED) then
+			local placed = place(CAT_BED, floorAt, plot.dressing)
+			placed.Name = name
+			bed = placed
+		elseif tier < 1 and bed ~= nil then
+			bed:Destroy()
+			bed = nil
+		end
+		local sleep: Instance? = if bed ~= nil then bed:FindFirstChild("Sleep", true) else nil
+		local napAnchor: BasePart? = plot.napSpots[n]
+		if napAnchor ~= nil then
+			napAnchor.CFrame = if sleep ~= nil and sleep:IsA("Attachment")
+				then (sleep :: Attachment).WorldCFrame
+				else floorAt
 		end
 	end
 	-- The For Rent set drapes its own dust sheet where the counter stands, so the real counter, whose pastry case

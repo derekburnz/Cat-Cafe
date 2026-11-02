@@ -64,7 +64,9 @@ jobs:
   cloudcheck:
     name: Luau unit tests and strict type check (WebAssembly Luau)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # 8 to 10 minutes on main by 11-02 (2402 tests plus the UI gate's 82 scenes on desktop, laptop and phone), so 10
+    # cut the phone pass off (#830); 20 leaves room while the UI gate grows
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: games/cat-cafe/tools/cloudcheck

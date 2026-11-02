@@ -1821,6 +1821,47 @@ return function()
 				end
 			end
 		)
+
+		it(
+			"stands a nap bed on each nap spot inside the walls, facing into the room, clear of everything but its cat",
+			function()
+				expect(#plot.napSpots).to.equal(4)
+				for n, spot in plot.napSpots do
+					local bed = { x = spot.x, z = spot.z }
+					local function check(what: string, x: number, z: number)
+						if apart(bed, x, z) < CLEAR then
+							fail("nap spot %d is %.2f studs from %s", n, apart(bed, x, z), what)
+						end
+					end
+					expect(spot.y).to.equal(0)
+					expect(math.abs(spot.x) <= halfW - 1.5 and math.abs(spot.z) <= halfD - 1.5).to.equal(true)
+					local angle = math.rad(spot.rotY or 0)
+					if -math.sin(angle) * -spot.x + -math.cos(angle) * -spot.z <= 0 then
+						fail("nap spot %d faces the wall", n)
+					end
+					for k, decor in plot.decorSpots do
+						check("decor spot " .. k, decor.x, decor.z)
+					end
+					for k, tableSpot in plot.tables do
+						check("table " .. k, tableSpot.x, tableSpot.z)
+					end
+					for id, station in plot.spots do
+						check(id, station.x, station.z)
+					end
+					for id, tree in plot.spotFurniture do
+						check(id .. "'s cat tree", tree.x, tree.z)
+					end
+					for k, other in plot.napSpots do
+						if k ~= n then
+							check("nap spot " .. k, other.x, other.z)
+						end
+					end
+					for _, f79 in plot.beds do
+						check(f79.id, f79.x, f79.z)
+					end
+				end
+			end
+		)
 	end)
 
 	describe("cats make the orders (F90, cats-make-orders.md section 3)", function()

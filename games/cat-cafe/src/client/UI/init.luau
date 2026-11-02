@@ -51,8 +51,11 @@ local Intro = require(script.Screens.Intro)
 local IntroLogic = require(script.Components.IntroLogic)
 local LocationMarkers = require(script.Screens.LocationMarkers)
 local Modal = require(script.Components.Modal)
+local Moments = require(script.Parent.Moments)
 local Motion = require(script.Components.Motion)
 local MyCats = require(script.Screens.MyCats)
+local NetButton = require(script.Screens.NetButton)
+local NetGlow = require(script.Components.NetGlow)
 local NightClock = require(script.Components.NightClock)
 local Popups = require(script.Screens.Popups)
 local PotionLogic = require(script.Components.PotionLogic)
@@ -120,6 +123,7 @@ UI.events = {
 	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
 	-- design v0.5
 	tackle = Signal.new(), -- ()   the Tackle button or Q: lunge and forward as Tackle (F74, no target)
+	netSwing = Signal.new(), -- ()   the Net button on a touch screen (F93): swing, as a click in the world or R2 (NetSwingController)
 	-- 2026-10-27 HUD v3
 	dropCat = Signal.new(), -- ()   Drop on the carry banner or G while carrying: forward as DropCat
 	-- 2026-10-27 wave 2
@@ -168,6 +172,7 @@ local catById: { [string]: Types.CatDef } = {}
 local initialized = false
 local visible = true
 local connections: { RBXScriptConnection } = {}
+local reachConnection: any = nil -- Moments.NetInReach (F93), once NetSwingController fires it
 
 local hud: HUD.HUD? = nil
 local modal: Modal.Modal? = nil
@@ -205,6 +210,7 @@ local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not c
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
 local tillTips: TillTipsButton.TillTipsButton? = nil -- the till's Collect for tip piles (F61, UI.richTip.bind)
 local tackleBar: TackleBar.TackleBar? = nil -- the Tackle inside catching areas (UI.shove, F74)
+local netButton: NetButton.NetButton? = nil -- the touch Net button inside catching areas (UI.net, F93)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -579,6 +585,13 @@ function UI.init(config: Types.InitConfig)
 	Scale.start()
 	Sound.set(config.playSound)
 	ClientErrors.start() -- the newest client errors ride along with a bug report
+	-- F93: the stray a swing would land on glows (NetSwingController fires NetInReach; older clients have none)
+	local inReach = (Moments :: any).NetInReach
+	if inReach ~= nil then
+		reachConnection = inReach:Connect(function(model: Model?)
+			UI.net.setInReach(model)
+		end)
+	end
 
 	local player = Players.LocalPlayer
 	local parent: Instance = config.parent or player:WaitForChild("PlayerGui")
@@ -1087,6 +1100,14 @@ function UI.init(config: Types.InitConfig)
 			return hudInstance:bottomTop()
 		end,
 	})
+	netButton = NetButton.new(parent, {
+		swing = function()
+			UI.events.netSwing:Fire()
+		end,
+		blocked = function()
+			return UI.catch.circlesActive() or UI.rescue.isActive()
+		end,
+	})
 	toasts = Toasts.new(parent)
 	popups = Popups.new(parent)
 	introScreen = Intro.new(parent, {
@@ -1350,6 +1371,14 @@ function UI.destroy()
 	if tackleBar then
 		tackleBar:destroy()
 	end
+	if netButton then
+		netButton:destroy()
+	end
+	NetGlow.set(nil)
+	if reachConnection ~= nil then
+		reachConnection:Disconnect()
+		reachConnection = nil
+	end
 	if toasts then
 		toasts:destroy()
 	end
@@ -1372,7 +1401,7 @@ function UI.destroy()
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
 	cafeSigns, worldTags, actionPills, richTipScreen, tillTips = nil, nil, nil, nil, nil
 	catCard = nil
-	tackleBar = nil
+	tackleBar, netButton = nil, nil
 	Scale.stop()
 	Sound.set(nil)
 	initialized = false
@@ -1941,6 +1970,41 @@ function UI.shove.result(ok: boolean, outcome: string?, targetUserId: number?)
 end
 
 ----------------------------------------------------------------------------------------------------
+-- The net swing (F93, catch-rework.md section 1)
+----------------------------------------------------------------------------------------------------
+
+UI.net = {}
+
+-- From NetSwingController whenever a swing becomes possible or not (carrying, a minigame, the intro, a flight, a
+-- camp). The touch Net button shows while this is on, the player stands in a catching area (UI.setZone) or has a
+-- stray in reach (a dropped cat on the street, reviewer N298), and no circles or rescue bar are up; a press fires
+-- events.netSwing.
+function UI.net.setEnabled(on: boolean)
+	if netButton then
+		netButton:setEnabled(on)
+	end
+end
+
+-- The stray a swing would land on right now, or nil: a soft glow on it (Moments.NetInReach calls this too).
+function UI.net.setInReach(model: Model?)
+	NetGlow.set(model)
+	if netButton then
+		netButton:setInReach(model ~= nil)
+	end
+end
+
+-- One short line on how to swing on this device, for the tutorial strip and hints: "Tap NET next to a cat",
+-- "Press R2 next to a cat" or "Click next to a cat".
+function UI.net.hint(): string
+	if Scale.isTouch() then
+		return "Tap NET next to a cat"
+	elseif UserInputService.GamepadEnabled and not UserInputService.MouseEnabled then
+		return "Press R2 next to a cat"
+	end
+	return "Click next to a cat"
+end
+
+----------------------------------------------------------------------------------------------------
 -- Carry indicator and tutorial hooks
 ----------------------------------------------------------------------------------------------------
 
@@ -2234,6 +2298,9 @@ end
 function UI.setZone(zone: string?)
 	currentZone = zone
 	showDusk() -- walking into an area during the dusk warning
+	if netButton then
+		netButton:setInArea(not Wayfinding.isSafe(zone))
+	end
 end
 
 -- Area title card (F39 P1): the area's name in big letters for two seconds. Call it when the player walks into
@@ -2530,14 +2597,16 @@ function UI.rescue.show(rescueSpotId: string, challenge: Types.RescueChallenge)
 	})
 end
 
--- From RescueResult(rescueSpotId, hits, pawsLeft, done, success): the server's hit count, the paws left, and
--- whether the attempt is over. A success then moves the player to carry, as after a catch.
+-- From RescueResult(rescueSpotId, hits, pawsLeft, done, success, bar?): the server's hit count, the paws left, and
+-- whether the attempt is over. A success then moves the player to carry, as after a catch. F93: `bar` is how the
+-- marker runs and which zone to hit from now (after a hit, or a zone that ran out unhit, which also costs a paw).
 function UI.rescue.update(
 	rescueSpotId: string,
 	hits: number,
 	pawsLeft: number?,
 	done: boolean,
-	success: boolean
+	success: boolean,
+	bar: Types.RescueBar?
 )
 	if rescueSpotId ~= rescueTarget then
 		return
@@ -2558,7 +2627,7 @@ function UI.rescue.update(
 		return
 	end
 	if rescueBar then
-		rescueBar:update(hits, pawsLeft, done, success)
+		rescueBar:update(hits, pawsLeft, done, success, bar)
 	end
 end
 

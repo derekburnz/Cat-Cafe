@@ -97,13 +97,26 @@ local Config = {
 	AutoPressClearRate = 0.85,
 	CatchLatencyCapSeconds = 0.15, -- most of a player's ping taken off a press (half the round trip, capped)
 	-- Per net level (0 Basic, 1 Sturdy, 2 Pro, 3 Master): perfect and good are half-widths in seconds either side of
-	-- the target; jitter spreads each circle's shrink time by up to that fraction either way.
+	-- the target. F93 (catch-rework.md section 2): a net only widens the bands; the number and speed of the circles
+	-- come from the stray's rarity, and every circle's shrink time wobbles by up to CircleJitter either way.
 	NetWindows = {
-		[0] = { perfect = 0.045, good = 0.11, jitter = 0.30 },
-		[1] = { perfect = 0.055, good = 0.13, jitter = 0.20 },
-		[2] = { perfect = 0.065, good = 0.155, jitter = 0.10 },
-		[3] = { perfect = 0.08, good = 0.18, jitter = 0 },
-	} :: { [number]: { perfect: number, good: number, jitter: number } },
+		[0] = { perfect = 0.045, good = 0.11 },
+		[1] = { perfect = 0.055, good = 0.13 },
+		[2] = { perfect = 0.065, good = 0.155 },
+		[3] = { perfect = 0.08, good = 0.18 },
+	} :: { [number]: { perfect: number, good: number } },
+	CircleJitter = 0.10,
+	-- The net swing (F93, catch-rework.md section 1): one SwingNet per NetSwingCooldown. NetSmackDelay after it
+	-- arrives, when the net lands, the server looks for the nearest free stray within NetReachStuds plus
+	-- NetSlackStuds of the root and within NetArcDegrees either side of its facing. A swing that hits nothing makes
+	-- every free stray within NetMissHopStuds hop NetMissHopShare of its rarity's fleeStuds away.
+	NetSwingCooldown = 0.8,
+	NetSmackDelay = 0.15,
+	NetReachStuds = 7,
+	NetSlackStuds = 1.5,
+	NetArcDegrees = 60,
+	NetMissHopStuds = 12,
+	NetMissHopShare = 0.25,
 	-- The bait bowl (data-model section 8): a cat comes LureWaitSeconds after the food goes in, online or not.
 	LureWaitSeconds = 600,
 	-- F60 (round 3 Q6): food that goes in while the server is in night waits this instead, the Big Bowl's in the same
@@ -180,6 +193,10 @@ local Config = {
 		Mythical = 0.10,
 	} :: { [string]: number },
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
+	-- F93 (catch-rework.md section 4): a zone not hit within RescueZonePasses sweeps of the marker across the bar
+	-- costs a paw and moves on, and the marker gets RescueSpeedUpPerHit faster after every hit
+	RescueZonePasses = 2,
+	RescueSpeedUpPerHit = 0.08,
 	RescuePatience = 3, -- misses one attempt can take
 	RescueRetrySeconds = 3, -- after a failed attempt, before anyone else can try that trap
 	RescueSelfRetrySeconds = 6, -- and before the player who failed can try it again

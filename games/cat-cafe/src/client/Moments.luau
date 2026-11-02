@@ -12,6 +12,13 @@ local Moments = {
 	CircleAppear = Signal.new() :: Signal.Signal<number, number>, -- (index, shrinkSeconds) a circle starts closing,
 	-- at its startsAt in server time; none after CatchResult
 	NetSwing = Signal.new() :: Signal.Signal<number>, -- (index) a press on a circle, the instant it lands
+	-- The net swing (F93, catch-rework.md section 1), from Controllers/NetSwingController: NetSmackPress on this
+	-- player's own screen at the press, before the server hears of it; NetSwung (userId, hit) on every nearby client
+	-- when the server judged a swing, hit true when it started a catch or a pick up; NetInReach (stray model or nil)
+	-- whenever the stray this player's swing would land on right now changes, for the glow
+	NetSmackPress = Signal.new() :: Signal.Signal<()>,
+	NetSwung = Signal.new() :: Signal.Signal<number, boolean>,
+	NetInReach = Signal.new() :: Signal.Signal<Model?>,
 	CircleGrade = Signal.new() :: Signal.Signal<number, string>, -- (index, "perfect" | "good" | "miss") this
 	-- device's estimate at press time; the server's grades come with CatchSuccess or CatchFail
 	CatchSuccess = Signal.new() :: Signal.Signal<string, string?>, -- (strayId, rarity)

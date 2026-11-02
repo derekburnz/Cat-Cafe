@@ -191,6 +191,17 @@ return function()
 		-- naming cats (F33, section 4)
 		CatNameMaxLength = 20,
 		RenameCooldownSeconds = 5,
+		-- the net swing and rescue rework (F93, catch-rework.md section 5)
+		CircleJitter = 0.10,
+		NetSwingCooldown = 0.8,
+		NetSmackDelay = 0.15,
+		NetReachStuds = 7,
+		NetSlackStuds = 1.5,
+		NetArcDegrees = 60,
+		NetMissHopStuds = 12,
+		NetMissHopShare = 0.25,
+		RescueZonePasses = 2,
+		RescueSpeedUpPerHit = 0.08,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
@@ -330,12 +341,12 @@ return function()
 			end
 		)
 
-		it("NetWindows matches the section 10 net table, levels 0 to 3", function()
+		it("NetWindows matches the section 10 net table, levels 0 to 3, with no jitter column (F93)", function()
 			local expectedWindows = {
-				[0] = { perfect = 0.045, good = 0.11, jitter = 0.30 },
-				[1] = { perfect = 0.055, good = 0.13, jitter = 0.20 },
-				[2] = { perfect = 0.065, good = 0.155, jitter = 0.10 },
-				[3] = { perfect = 0.08, good = 0.18, jitter = 0 },
+				[0] = { perfect = 0.045, good = 0.11 },
+				[1] = { perfect = 0.055, good = 0.13 },
+				[2] = { perfect = 0.065, good = 0.155 },
+				[3] = { perfect = 0.08, good = 0.18 },
 			}
 			local levels = 0
 			for level, row in pairs(Config.NetWindows) do
@@ -345,7 +356,7 @@ return function()
 				assert(want)
 				expect(row.perfect).to.be.near(want.perfect, 1e-9)
 				expect(row.good).to.be.near(want.good, 1e-9)
-				expect(row.jitter).to.be.near(want.jitter, 1e-9)
+				expect((row :: any).jitter).never.to.be.ok()
 			end
 			expect(levels).to.equal(4)
 			local net = Catalog.getUpgrade("net")
@@ -362,16 +373,18 @@ return function()
 					local previous = Config.NetWindows[level - 1]
 					expect(windows.perfect >= previous.perfect).to.equal(true)
 					expect(windows.good >= previous.good).to.equal(true)
-					expect(windows.jitter <= previous.jitter).to.equal(true)
 				end
 			end
 		end)
 
 		it("S24: CircleGapMin is above the widest good window plus the latency cap", function()
-			-- Otherwise a late press for one circle could land on the next. Widening good means raising the gap.
+			-- Otherwise a late press for one circle could land on the next. Widening good means raising the gap. Since
+			-- F93 a Common's catchWindow (1.1) widens the net's Good, so the widest is the Master Net Common's.
 			local widest = 0
 			for _, row in pairs(Config.NetWindows) do
-				widest = math.max(widest, row.good)
+				for _, rarity in pairs(Catalog.rarities) do
+					widest = math.max(widest, row.good * rarity.catchWindow)
+				end
 			end
 			expect(Config.CircleGapMin > widest + Config.CatchLatencyCapSeconds).to.equal(true)
 			expect(Config.CircleGapMin <= Config.CircleGapMax).to.equal(true)
@@ -426,7 +439,7 @@ return function()
 			local most = Config.PerfectCharmBonus
 				* Catalog.rarities.Mythical.circles
 				* Config.PurrfectCharmMultiplier
-			expect(most).to.equal(40)
+			expect(most).to.equal(56) -- F93: seven circles
 			expect(most < 100).to.equal(true)
 		end)
 

@@ -5,6 +5,9 @@
 -- stamps them on arrival and takes off half the player's ping; enough hits free the cat into the player's arms, out
 -- of paws, out of time, walking away, Give up, dying or leaving ends the attempt and the cat stays stuck. A failed
 -- attempt never loses the cat. The cat's charm and gold roll stay here until it is free (reviewer N30).
+-- F93 (catch-rework.md section 4): a zone not hit within RescueZonePasses sweeps costs a paw and moves on (the watch
+-- loop and every press move past them, shared/Rescue.advance), every hit makes the marker faster, and each
+-- RescueResult carries the bar as it now runs (Types.RescueBar).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -245,7 +248,8 @@ local function sendResult(player: Player, entry: Stuck, attempt: Rescue.Attempt)
 		attempt.hits,
 		attempt.paws,
 		done,
-		done and attempt.success
+		done and attempt.success,
+		Rescue.barState(attempt)
 	)
 end
 
@@ -305,7 +309,14 @@ local function finish(
 	end
 end
 
--- Watches an attempt until it ends: its deadline, the player walking more than LEAVE_RANGE_STUDS away or dying.
+-- The stage after a press or a tick moved it on. A call, so the checker does not keep the stage it narrowed before.
+local function stageOf(attempt: Rescue.Attempt): Rescue.Stage
+	return attempt.stage
+end
+
+-- Watches an attempt until it ends: its deadline, the player walking more than LEAVE_RANGE_STUDS away or dying. A
+-- zone that ran out moves on here once a late press for it could no longer arrive (CatchLatencyCapSeconds), and the
+-- player hears of the lost paw and the new zone (F93).
 local function watch(player: Player, entry: Stuck, attempt: Rescue.Attempt)
 	task.spawn(function()
 		while entry.attempt == attempt do
@@ -313,7 +324,18 @@ local function watch(player: Player, entry: Stuck, attempt: Rescue.Attempt)
 			if entry.attempt ~= attempt then
 				return
 			end
-			if Rescue.expire(attempt, serverNow()) then
+			local now = serverNow()
+			if
+				stageOf(attempt) == "bar"
+				and Rescue.advance(attempt, now - Config.CatchLatencyCapSeconds) > 0
+			then
+				if stageOf(attempt) == "done" then
+					finish(player, entry, attempt, nil) -- out of paws: the bar shows it on its own clock
+					return
+				end
+				sendResult(player, entry, attempt)
+			end
+			if Rescue.expire(attempt, now) then
 				finish(player, entry, attempt, nil) -- the bar shows "Too slow!" on its own clock
 				return
 			end
@@ -431,11 +453,6 @@ local function logPress(player: Player, entry: Stuck, result: string, marker: nu
 	)
 end
 
--- The stage after a press moved it on. A call, so the checker does not keep the stage it narrowed before.
-local function stageOf(attempt: Rescue.Attempt): Rescue.Stage
-	return attempt.stage
-end
-
 local function onRescuePress(player: Player, rawSpotId: unknown)
 	local spotId = Guard.id(rawSpotId)
 	if spotId == nil then
@@ -453,16 +470,24 @@ local function onRescuePress(player: Player, rawSpotId: unknown)
 	local pressTime = arrival - Circles.latency(player:GetNetworkPing())
 	local stage = stageOf(attempt)
 	if stage == "bar" then
-		local zone = (attempt.challenge.zones or {})[attempt.hits + 1]
+		local zoneBefore, pawsBefore = attempt.zone, attempt.paws
 		local result = Rescue.pressBar(attempt, pressTime)
 		if result == "ignored" then
-			-- too early, or arriving after the deadline: end it now rather than at the next watch tick
-			if Rescue.expire(attempt, arrival) then
+			-- too early, or arriving after the deadline or the last paw's zone ran out: end it now rather than at the
+			-- next watch tick
+			if stageOf(attempt) == "done" or Rescue.expire(attempt, arrival) then
 				finish(player, entry, attempt, nil)
+			elseif attempt.zone ~= zoneBefore or attempt.paws ~= pawsBefore then
+				sendResult(player, entry, attempt)
 			end
 			return
 		end
-		logPress(player, entry, result, Rescue.markerAt(attempt.challenge, pressTime), zone)
+		local judged = attempt.lastPressAt
+		local zone = if result == "hit"
+			then (attempt.challenge.zones or {})[attempt.zone - 1]
+			else Rescue.currentZone(attempt)
+		-- a hit restarts the marker from the spot it was judged at, so this is where the server saw it either way
+		logPress(player, entry, result, Rescue.marker(attempt, judged), zone)
 		local after = stageOf(attempt)
 		if after == "falling" then
 			-- The last shake: the bar's count first, then the falling cat's circle.

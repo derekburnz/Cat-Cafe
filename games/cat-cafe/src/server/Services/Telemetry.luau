@@ -85,6 +85,9 @@ export type CustomEvent =
 	-- F95 (economy-ladder.md section 7): on a returning join, the value the minutes away; tier, the minutes offline
 	-- pays for (inside the cap) and "long_nap" or "free"
 	| "offline_return"
+	-- F93 (catch-rework.md section 5): net swings rolled up per player (review S99), value the swings since the last
+	-- roll up; "hit", "miss_near" or "miss_empty", net level, device
+	| "net_swing"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -104,6 +107,10 @@ local Telemetry = {}
 local CURRENCY = "coins"
 local FISH_CURRENCY = "golden_fish" -- F52
 local FLUSH_SECONDS = 60
+-- Net swings are counted and logged as one net_swing event per result, net level and device this often and on leave:
+-- one event per swing would spend the server's analytics budget (120 + 20 per player a minute) at 75 a minute per
+-- hunter (review S99).
+local SWING_FLUSH_SECONDS = 300
 local LOG_SIZE = 200
 local DAY_SECONDS = 86400
 local DEVICE_WAIT_SECONDS = 10 -- the joined step waits this long for the client's device report
@@ -138,6 +145,7 @@ type Session = {
 	waitingForRole: { [string]: CatchFunnel }, -- checked-in cats whose funnel waits for step 4 (uid -> funnel)
 	knockedAt: number?, -- os.clock() of the last shove that knocked this player's cat loose
 	knockedRarity: string?,
+	swings: { [string]: { count: number, values: { string } } }, -- net swings not logged yet, by their fields
 }
 
 local sessions: { [Player]: Session } = {}
@@ -373,6 +381,36 @@ function Telemetry.custom(player: Player, name: CustomEvent, value: number, valu
 	end)
 end
 
+-- Logs the net swings counted since the last roll up, one net_swing event per result, net level and device.
+local function flushSwings(player: Player)
+	local session = sessions[player]
+	if session == nil or next(session.swings) == nil then
+		return
+	end
+	local swings = session.swings
+	session.swings = {}
+	for _, entry in swings do
+		Telemetry.custom(player, "net_swing", entry.count, entry.values)
+	end
+end
+
+-- Counts one net swing (F93): `result` is NetSwing.result's "hit", "miss_near" or "miss_empty". Logged rolled up
+-- every SWING_FLUSH_SECONDS and on leave (review S99).
+function Telemetry.netSwing(player: Player, result: string, netLevel: number)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	local values = { result, tostring(netLevel), session.device or "unknown" }
+	local key = table.concat(values, "|")
+	local entry = session.swings[key]
+	if entry == nil then
+		session.swings[key] = { count = 1, values = values }
+	else
+		entry.count += 1
+	end
+end
+
 local function funnelStep(
 	player: Player,
 	funnel: string,
@@ -394,25 +432,39 @@ local function funnelStep(
 	end)
 end
 
--- catch_attempt step 1: GrabBegin sent the circles, or RescueBegin sent the challenge. `method` is net, rescue or
+-- catch_attempt step 1 (F93, catch-rework.md section 5): a net swing landed on a stray. `method` is net, rescue or
 -- net_dropped (a knocked-loose cat).
-function Telemetry.catchEngaged(
+function Telemetry.swingHit(
 	player: Player,
 	rarity: string,
 	method: string,
 	area: string
 ): CatchFunnel
 	local funnel = { id = HttpService:GenerateGUID(false), values = { rarity, method, area } }
-	funnelStep(player, "catch_attempt", funnel.id, 1, "engaged", funnel.values)
+	funnelStep(player, "catch_attempt", funnel.id, 1, "swing_hit", funnel.values)
 	return funnel
 end
 
--- Step 2: the cat is in the player's arms.
-function Telemetry.catchCaught(player: Player, funnel: CatchFunnel)
-	funnelStep(player, "catch_attempt", funnel.id, 2, "caught", funnel.values)
+-- Step 2: the circles went out after that swing, or RescueBegin sent the challenge. A rescue has no swing, so with no
+-- `funnel` this opens one and logs step 1 with it: the hold on the trap is where a rescue reaches its cat.
+function Telemetry.catchEngaged(
+	player: Player,
+	rarity: string,
+	method: string,
+	area: string,
+	funnel: CatchFunnel?
+): CatchFunnel
+	local current = funnel or Telemetry.swingHit(player, rarity, method, area)
+	funnelStep(player, "catch_attempt", current.id, 2, "engaged", current.values)
+	return current
 end
 
--- Step 3, and step 4 at once when the cat went straight to a role; otherwise step 4 waits for PlaceCat or Equip
+-- Step 3: the cat is in the player's arms.
+function Telemetry.catchCaught(player: Player, funnel: CatchFunnel)
+	funnelStep(player, "catch_attempt", funnel.id, 3, "caught", funnel.values)
+end
+
+-- Step 4, and step 5 at once when the cat went straight to a role; otherwise step 5 waits for PlaceCat or Equip
 -- best to give that uid a role (`catWorking`).
 function Telemetry.catchCheckedIn(
 	player: Player,
@@ -420,9 +472,9 @@ function Telemetry.catchCheckedIn(
 	uid: string,
 	working: boolean
 )
-	funnelStep(player, "catch_attempt", funnel.id, 3, "checked_in", funnel.values)
+	funnelStep(player, "catch_attempt", funnel.id, 4, "checked_in", funnel.values)
 	if working then
-		funnelStep(player, "catch_attempt", funnel.id, 4, "working", funnel.values)
+		funnelStep(player, "catch_attempt", funnel.id, 5, "working", funnel.values)
 		return
 	end
 	local session = sessions[player]
@@ -438,7 +490,7 @@ function Telemetry.catWorking(player: Player, uid: string)
 		return
 	end
 	session.waitingForRole[uid] = nil
-	funnelStep(player, "catch_attempt", funnel.id, 4, "working", funnel.values)
+	funnelStep(player, "catch_attempt", funnel.id, 5, "working", funnel.values)
 end
 
 -- bait_cycle (analytics-plan 4.2): one persistent session id per bowl of food, because the timer runs offline.
@@ -640,6 +692,7 @@ local function onLoaded(player: Player, profile: Profile)
 		waitingForRole = {},
 		knockedAt = nil,
 		knockedRarity = nil,
+		swings = {},
 	}
 	if firstSession then
 		-- the template's coins never pass through Economy.credit, so they are not in lifetimeCoins
@@ -747,6 +800,7 @@ local function onRelease(player: Player, profile: Profile)
 			if os.clock() - knockedAt < 30 then "under_30" else "30-120",
 		})
 	end
+	flushSwings(player)
 	local caught = profile.stats.catsCaught - session.caughtAtJoin
 	Telemetry.custom(player, "session_end", math.max(0, now - session.joinedAt), {
 		bucket(caught, { 0, 2, 5 }, { "0", "1-2", "3-5", "6+" }),
@@ -776,6 +830,14 @@ function Telemetry.start()
 				if profile ~= nil then
 					flushTips(player, profile, 0)
 				end
+			end
+		end
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(SWING_FLUSH_SECONDS)
+			for player in sessions do
+				flushSwings(player)
 			end
 		end
 	end)

@@ -94,7 +94,7 @@ return function()
 	local function windowsFor(netLevel: number, rarity: Types.Rarity): Types.NetWindows
 		local windows = Circles.windows(netLevel)
 		local scale = (Catalog.rarities[rarity] :: any).catchWindow or 1
-		return { perfect = windows.perfect * scale, good = windows.good * scale, jitter = windows.jitter }
+		return { perfect = windows.perfect * scale, good = windows.good * scale }
 	end
 
 	-- Seconds to cover `studs` on foot after a miss: StartledWalkSpeed for StartledSeconds, then NormalWalkSpeed.

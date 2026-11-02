@@ -10,8 +10,14 @@ sou'wester. A crate of fish and a barrel stand at the sides.
   CatCafe_Street_FishMarket_Bulb          the sign lamp, lit at night
   CatCafe_Street_FishMarket_Cat_<Piece>   the shopkeeper, the same hinged pieces as every sitting cat; its hat
                                           (_Cat_Prop) rides inside the Head Model
+  CatCafe_Street_FishMarket_FreshCatch    the blank chalk face of the Fresh Catch board (F94, rewards-and-shops.md
+                                          section 3): one Part whose Front (-Z) face, 1.7 by 1.45 studs, takes the
+                                          UI's stock list by day and "Back at sunrise" at night
 
-Pivot at the base centre, the counter front (-Z) toward the players. Footprint about 11 x 4.5 studs. The server
+The Fresh Catch board stands on its own legs in front of the barrel, facing the street: a navy frame with ball caps,
+a cream header reading FRESH and CATCH over the chalk, and a little golden fish on top.
+
+Pivot at the base centre, the counter front (-Z) toward the players. Footprint about 12.5 x 5 studs. The server
 places it at street plaza x -8.5, z 64, turned -90 degrees, and tags it FishMarket.
 """
 
@@ -165,14 +171,46 @@ def _sides(b):
     _fish_flat(b, bx, 1.34, bz, -1, FISH[0], s=0.75)
 
 
+BOARD_X, BOARD_Z = 5.25, -2.35                       # the Fresh Catch board's centre on the ground
+CHALK = (0.85, 1.0, 2.45)                            # the chalk face: half width, bottom, top
+
+
+def _fresh_catch(b, chalk):
+    """The Fresh Catch board (F94): a navy frame on two legs with feet and gold ball caps, a cream header with
+    FRESH over CATCH in blue, the chalk face (its own object, for the UI) and a small golden fish on top."""
+    x, z = BOARD_X, BOARD_Z
+    hw, lo, hi = CHALK
+    for sx in (-1, 1):                                                              # legs, feet and caps
+        lx = x + sx * (hw + 0.17)
+        b.span((lx - 0.08, 0, z - 0.08), (lx + 0.08, 3.45, z + 0.08), "pants_navy")
+        b.span((lx - 0.1, 0, z - 0.45), (lx + 0.1, 0.14, z + 0.45), "pants_navy")
+        b.ball((lx, 3.52, z), 0.11, "rarity_legend")
+    b.span((x - hw - 0.1, lo - 0.1, z - 0.06), (x + hw + 0.1, 3.3, z + 0.06), "pants_navy")      # the frame's board
+    chalk.span((x - hw, lo, z - 0.075), (x + hw, hi, z - 0.059), "fur_black")                # chalk face
+    b.span((x - hw, hi + 0.08, z - 0.075), (x + hw, 3.22, z - 0.059), "offwhite")            # header
+    px = 0.045
+    label(b, "FRESH", x, 2.92, z - 0.074, px, 0.035, "shirt_blue", -1)
+    label(b, "CATCH", x, 2.6, z - 0.074, px, 0.035, "shirt_blue", -1)
+    _fish_flat_upright(b, x, 3.3, z)
+
+
+def _fish_flat_upright(b, x, y, z):
+    """A small golden fish standing on the board's top edge, side on to the street, tail to the right."""
+    b.ball((x, y + 0.2, z), 0.3, "rarity_legend", scale=(1.0, 0.62, 0.3))
+    b.fan_z(z, (x + 0.24, y + 0.2), [(x + 0.46, y + 0.38), (x + 0.36, y + 0.2), (x + 0.46, y + 0.02)], 0.06,
+            "rarity_legend")                                                        # tail
+    b.cyl((x - 0.17, y + 0.25, z - 0.085), 0.035, 0.03, "fur_black", axis="Z", segments=8)
+
+
 def build_fish_market(mat):
     name = "CatCafe_Street_FishMarket"
-    b, bulb = RB(), RB()
+    b, bulb, chalk = RB(), RB(), RB()
     _counter(b)
     _ice(b)
     _back(b, bulb)
     _sides(b)
-    out = [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat)]
+    _fresh_catch(b, chalk)
+    out = [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), chalk.finalize(name + "_FreshCatch", mat)]
     coin = coins.build_fish_coin(mat, name + "_Coin")[0]                                # on the counter front
     scale_mesh(coin, COIN_K)
     coin.location = coin.location + Vector(RB.p(0, 0.55, C_FRONT - coins.T * COIN_K / 2 + 0.01))
@@ -197,5 +235,5 @@ def prompt_attachment():
 
 
 ASSETS = {
-    "CatCafe_Street_FishMarket": (build_fish_market, 6000),
+    "CatCafe_Street_FishMarket": (build_fish_market, 7000),       # 6,000 for a station, plus the Fresh Catch board
 }

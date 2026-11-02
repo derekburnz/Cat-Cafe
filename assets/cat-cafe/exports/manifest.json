@@ -92746,6 +92746,63 @@
       }
     },
     {
+      "name": "CatCafe_Town_WelcomeArch",
+      "category": "Town",
+      "module": "welcomearch",
+      "objects": [
+        "CatCafe_Town_WelcomeArch",
+        "CatCafe_Town_WelcomeArch_Flowers",
+        "CatCafe_Town_WelcomeArch_Lamp_Bulb",
+        "CatCafe_Town_WelcomeArch_Bulbs"
+      ],
+      "triangles": 6654,
+      "budget": 8000,
+      "size_studs": {
+        "x": 44.6,
+        "y": 4.5,
+        "z": 22.3
+      },
+      "size_roblox": [
+        44.6,
+        22.3,
+        4.5
+      ],
+      "bounds_min": [
+        -22.3,
+        -2.2,
+        -0.3
+      ],
+      "bounds_max": [
+        22.3,
+        2.3,
+        22.0
+      ],
+      "pivot": "the opening's base centre on the street top (world y 0.1), front -Z toward the Town Square; Layout.townEnds at (0, -123) turned 180 and (0, 123) unturned",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_WelcomeArch.model.json",
+      "rbx_parts": 548,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Town_WelcomeArch.fbx",
+        "assets/cat-cafe/exports/CatCafe_Town_WelcomeArch.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "6654/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "3335 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.30 (want 0)",
+          "centered": "footprint center x=0.00 y=0.05"
+        }
+      }
+    },
+    {
       "name": "CatCafe_Camp_Park_PicnicBasket",
       "category": "Camp",
       "module": "campextras",

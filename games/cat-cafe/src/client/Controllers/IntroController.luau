@@ -108,6 +108,7 @@ type Run = {
 	characterHidden: boolean, -- the real character is hidden (shots 1 to 4)
 	cannon: TownCannon?,
 	flying: boolean, -- Effects/Cannon's staged flight is on your copy
+	boomAt: number, -- the BOOM's Workspace:GetServerTimeNow(), set at the fuse
 	muzzle: Vector3, -- where the ball leaves the barrel, at the BOOM
 	aim: Vector3, -- the flat way it fires
 	demo: Model?, -- the demo Tuxedo, at the stray point and then in your arms
@@ -822,10 +823,19 @@ local function stageLaunch(r: Run, t: number)
 	end
 	local ladder = if cannon ~= nil then cannon.ladder else NO_LADDER
 	local seat = if cannon ~= nil then cannon.seat else CFrame.new(Intro.NO_CANNON_MUZZLE)
+	if t >= Intro.CLIMB_AT and not r.done.hop then
+		-- Animation-Engineer's hop pose (crouch, arms up, curl into the ball) runs from StagedFlightAt, in server time
+		r.done.hop = true
+		you.model:SetAttribute(
+			"StagedFlightAt",
+			Workspace:GetServerTimeNow() - (t - Intro.CLIMB_AT)
+		)
+		you.model:SetAttribute("StagedFlight", "hop")
+	end
 	if t < Intro.CLIMB_AT then
 		placeYou(you, ladder, toward(ladder, seat.Position))
 	elseif t < Intro.CLIMB_AT + Intro.CLIMB_SECONDS then
-		-- until Animation-Engineer's hop in lands: a plain hop up into the barrel
+		-- the root's path up into the barrel; the body's pose comes from StagedFlight
 		local k = (t - Intro.CLIMB_AT) / Intro.CLIMB_SECONDS
 		local from = ladder + Vector3.new(0, you.height, 0)
 		local at = from:Lerp(seat.Position, Intro.ease("Out", k))
@@ -839,6 +849,7 @@ local function stageLaunch(r: Run, t: number)
 		-- the fuse fizzes BOOM_LEAD before the BOOM at the start of shot 2, on Effects/Cannon's staged beats
 		r.done.fuse = true
 		local boomAt = Workspace:GetServerTimeNow() + Intro.BOOM_LEAD
+		r.boomAt = boomAt
 		local flight = r.shots[r.shot + 1]
 		local stage = if r.alleyStreamed or flight == nil then nil else heldStage(flight.seconds)
 		CannonFx.playStaged(
@@ -868,6 +879,7 @@ local function stageFlight(r: Run, t: number)
 			else Intro.NO_CANNON_MUZZLE
 		local turn = math.rad(Intro.cannonAim())
 		r.aim = Vector3.new(math.sin(turn), 0, math.cos(turn))
+		you.model:SetAttribute("StagedFlight", "ball") -- curled, its middle on the root, so the spin rolls it
 	end
 	if t < Intro.PUFF_AT then
 		showYou(r, you, true)
@@ -881,6 +893,12 @@ local function stageFlight(r: Run, t: number)
 		showYou(r, you, false) -- gone in the cloud puff, waiting over the pad
 		placeYou(you, r.camp.pad + Vector3.new(0, Intro.DROP_HEIGHT, 0), r.camp.u)
 		return
+	end
+	if not r.done.land then
+		-- the curled fall, opening just before LAND_AT, then the crouch, bounce and stand (the pose's, not the root's)
+		r.done.land = true
+		you.model:SetAttribute("StagedFlightAt", r.boomAt + Intro.LAND_AT)
+		you.model:SetAttribute("StagedFlight", "land")
 	end
 	showYou(r, you, true)
 	placeYou(you, r.camp.pad + Vector3.new(0, height :: number, 0), r.camp.u)
@@ -1185,6 +1203,7 @@ function IntroController.play(replay: boolean)
 		characterHidden = false,
 		cannon = townCannon(),
 		flying = false,
+		boomAt = 0,
 		muzzle = Intro.NO_CANNON_MUZZLE,
 		aim = Vector3.new(0, 0, 1),
 		demo = nil,

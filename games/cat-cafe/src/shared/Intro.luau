@@ -62,8 +62,7 @@ Intro.ARC_OUT = 14 -- studs out along the aim at the puff
 Intro.DROP_FROM = 1.25
 Intro.LAND_AT = 1.55
 Intro.STAND_AT = 1.9
-Intro.DROP_HEIGHT = 14
-Intro.CROUCH = 0.6 -- studs the root dips in the landing crouch
+Intro.DROP_HEIGHT = 14 -- the root holds at 0 from LAND_AT: the landing crouch is Animation-Engineer's StagedFlight pose
 
 -- Shot 3's demo catch, in seconds into the shot: the ring closes to PERFECT, then the cat hops into your arms.
 Intro.DEMO_PERFECT = 1.3
@@ -331,8 +330,8 @@ function Intro.arcPoint(muzzle: Vector3, aim: Vector3, t: number): Vector3
 	return muzzle + out * (Intro.ARC_OUT * k) + v(0, (Intro.ARC_UP - muzzle.Y) * rise, 0)
 end
 
--- How far above the pad your copy's feet are `t` seconds into shot 2, from the drop to standing: falling as if
--- dropped, then the landing crouch (negative, the root dipping) and back up by STAND_AT. Nil before the drop.
+-- How far above the pad your copy's feet are `t` seconds into shot 2: falling as if dropped, then 0 from LAND_AT (the
+-- crouch and stand by STAND_AT are the StagedFlight "land" pose's, which lowers the body itself). Nil before the drop.
 function Intro.dropHeight(t: number): number?
 	if t < Intro.DROP_FROM then
 		return nil
@@ -340,8 +339,7 @@ function Intro.dropHeight(t: number): number?
 		local k = (t - Intro.DROP_FROM) / (Intro.LAND_AT - Intro.DROP_FROM)
 		return Intro.DROP_HEIGHT * (1 - k * k)
 	end
-	local k = math.clamp((t - Intro.LAND_AT) / (Intro.STAND_AT - Intro.LAND_AT), 0, 1)
-	return -Intro.CROUCH * math.sin(math.pi * k)
+	return 0
 end
 
 -- The waiter spot your demo cat takes in shot 5, in the world, on the cafe floor.

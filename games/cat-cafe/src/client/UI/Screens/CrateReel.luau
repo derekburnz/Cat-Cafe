@@ -9,8 +9,8 @@
 --
 -- The server rolled and paid before the reel starts; this only shows it and sends nothing. It fires the client's
 -- Moments.CrateReelTick at each tile line that passes the marker (at most one every 0.06 s, Sound-Agent's ticks) and
--- Moments.CrateReelLanded at the stop or the skip (Effects/Market opens the counter crate's lid then), when Moments
--- has them.
+-- Moments.CrateReelLanded(rarity) at the stop or the skip with the won piece's rarity (Effects/Market opens the
+-- counter crate's lid then; Audio plays the rarity sting for Epic and up), when Moments has them.
 
 local RunService = game:GetService("RunService")
 
@@ -55,10 +55,10 @@ local Z = 36 -- over the Market's cards (up to 23), under the prize card's cover
 local CrateReel = {}
 CrateReel.__index = CrateReel
 
-local function fire(name: string)
+local function fire(name: string, ...: any)
 	local moment = Moments[name]
 	if moment ~= nil then
-		moment:Fire()
+		moment:Fire(...)
 	end
 end
 
@@ -291,7 +291,7 @@ function CrateReel._land(self: any, token: number)
 			glow.Thickness = 5
 		end
 	end
-	fire("CrateReelLanded")
+	fire("CrateReelLanded", if won then won.rarity else nil)
 	play.onLanded()
 	task.delay(timing.hold, function()
 		if self._token == token and self._play == play then

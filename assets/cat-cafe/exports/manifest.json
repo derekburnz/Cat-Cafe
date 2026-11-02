@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 20:07 UTC",
+  "generated": "2026-11-02 20:37 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -142593,7 +142593,7 @@
         ],
         "CatCafe_Street_DealerCart_Cat_Tail": [
           0.19,
-          0.96,
+          0.86,
           2.98
         ],
         "CatCafe_Street_DealerCart_Cat_LegF1": [
@@ -142646,7 +142646,7 @@
         "CatCafe_Street_DealerCart_Cat_Tail": [
           -0.19,
           2.98,
-          0.96
+          0.86
         ],
         "CatCafe_Street_DealerCart_Cat_LegF1": [
           -0.16,
@@ -146269,7 +146269,7 @@
         ],
         "CatCafe_Street_CodesCat_Cat_Tail": [
           0.28,
-          1.67,
+          1.52,
           2.17
         ],
         "CatCafe_Street_CodesCat_Cat_LegF1": [
@@ -146322,7 +146322,7 @@
         "CatCafe_Street_CodesCat_Cat_Tail": [
           -0.28,
           2.17,
-          1.67
+          1.52
         ],
         "CatCafe_Street_CodesCat_Cat_LegF1": [
           -0.24,
@@ -146517,7 +146517,7 @@
         ],
         "CatCafe_Street_FishMarket_Cat_Tail": [
           0.28,
-          1.72,
+          1.57,
           2.37
         ],
         "CatCafe_Street_FishMarket_Cat_LegF1": [
@@ -146575,7 +146575,7 @@
         "CatCafe_Street_FishMarket_Cat_Tail": [
           -0.28,
           2.37,
-          1.72
+          1.57
         ],
         "CatCafe_Street_FishMarket_Cat_LegF1": [
           -0.24,
@@ -148810,7 +148810,7 @@
         ],
         "CatCafe_Street_SpinWheel_Cat_Tail": [
           -5.07,
-          0.02,
+          -0.13,
           2.4
         ],
         "CatCafe_Street_SpinWheel_Cat_LegF1": [
@@ -148873,7 +148873,7 @@
         "CatCafe_Street_SpinWheel_Cat_Tail": [
           5.07,
           2.4,
-          0.02
+          -0.13
         ],
         "CatCafe_Street_SpinWheel_Cat_LegF1": [
           5.11,
@@ -159998,14 +159998,14 @@
       "triangles": 1636,
       "budget": 2600,
       "size_studs": {
-        "x": 1.51,
-        "y": 1.6,
+        "x": 1.79,
+        "y": 1.63,
         "z": 2.64
       },
       "size_roblox": [
-        1.51,
+        1.79,
         2.64,
-        1.6
+        1.63
       ],
       "bounds_min": [
         -0.75,
@@ -160013,8 +160013,8 @@
         1.57
       ],
       "bounds_max": [
-        0.76,
-        0.59,
+        1.04,
+        0.63,
         4.21
       ],
       "pivot": "the floor under a cafe chair's seat centre, facing the table (-Z); the cat sits on the seat at 1.57",
@@ -160052,7 +160052,7 @@
         ],
         "CatCafe_NPC_MysteryVisitor_Tail": [
           0.25,
-          0.52,
+          0.39,
           1.71
         ],
         "CatCafe_NPC_MysteryVisitor_LegF1": [
@@ -160110,7 +160110,7 @@
         "CatCafe_NPC_MysteryVisitor_Tail": [
           -0.25,
           1.71,
-          0.52
+          0.39
         ],
         "CatCafe_NPC_MysteryVisitor_LegF1": [
           -0.21,
@@ -160154,7 +160154,7 @@
           "uv": "919 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=1.57 (want 0)",
-          "centered": "footprint center x=0.01 y=-0.20"
+          "centered": "footprint center x=0.15 y=-0.19"
         }
       }
     },
@@ -160232,14 +160232,14 @@
       "triangles": 1856,
       "budget": 2600,
       "size_studs": {
-        "x": 1.56,
-        "y": 1.99,
+        "x": 1.87,
+        "y": 2.01,
         "z": 2.7
       },
       "size_roblox": [
-        1.56,
+        1.87,
         2.7,
-        1.99
+        2.01
       ],
       "bounds_min": [
         -0.71,
@@ -160247,8 +160247,8 @@
         -0.0
       ],
       "bounds_max": [
-        0.85,
-        0.85,
+        1.16,
+        0.87,
         2.7
       ],
       "pivot": "the floor under him, on the plot's CollectorSpot, facing into the room (-Z)",
@@ -160281,7 +160281,7 @@
         ],
         "CatCafe_NPC_Collector_Tail": [
           0.28,
-          0.74,
+          0.6,
           0.15
         ],
         "CatCafe_NPC_Collector_LegF1": [
@@ -160334,7 +160334,7 @@
         "CatCafe_NPC_Collector_Tail": [
           -0.28,
           0.15,
-          0.74
+          0.6
         ],
         "CatCafe_NPC_Collector_LegF1": [
           -0.23,
@@ -160377,7 +160377,7 @@
           "uv": "951 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.07 y=-0.14"
+          "centered": "footprint center x=0.23 y=-0.14"
         }
       }
     },
@@ -169560,6 +169560,63 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-0.46 y=-0.19"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_YardFence",
+      "category": "Plot",
+      "module": "yardfence",
+      "objects": [
+        "CatCafe_Plot_YardFence",
+        "CatCafe_Plot_YardFence_Barrier"
+      ],
+      "triangles": 3584,
+      "budget": 8000,
+      "size_studs": {
+        "x": 38.4,
+        "y": 10.17,
+        "z": 4.38
+      },
+      "size_roblox": [
+        38.4,
+        4.38,
+        10.17
+      ],
+      "bounds_min": [
+        -19.2,
+        15.0,
+        -0.2
+      ],
+      "bounds_max": [
+        19.2,
+        25.17,
+        4.18
+      ],
+      "pivot": "Plot.cframe: floor top centre of the cafe, as CatCafe_Plot_BackDoor; the yard is +Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Every cafe, at the Plot pivot, in place of WorldBuilder's YardFence parts (FenceSide x2, FenceBack): a white picket fence on the same lines (sides x +-18.9 from z 15.7, back z 24.8), posts with caps and finials, climbing roses on the back corners and a bird house on the middle back post. Only the posts collide; its _Barrier is the code fence's three parts to the stud (invisible, solid), so the fence stops players where it did.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_YardFence.model.json",
+      "rbx_parts": 264,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_YardFence.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_YardFence.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "3584/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2276 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.20 (want 0)",
+          "centered": "footprint center x=0.00 y=20.09"
         }
       }
     }

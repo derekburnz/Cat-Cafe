@@ -200,7 +200,7 @@ def _stream_end(b, bar, lip, zfn):
         bx, by = out(dx, dz)
         b.ico((bx, by, r * 0.5), r, sw, subdivisions=1, scale=(1.2, 1.0, 0.8))
         b.ico((bx, by, r * 1.15), r * 0.55, "fur_moss", subdivisions=1, scale=(1.3, 1.1, 0.4))
-    for (dx, dz) in ((4.2, -1.8), (3.9, 2.6)):
+    for (dx, dz) in ((3.0, -1.3), (3.4, 2.4)):                  # ferns against the middle boulder, so none floats
         bx, by = out(dx, dz)
         b.ico((bx, by, 0.7), 1.1, "leaf_green", subdivisions=1, scale=(1.4, 0.9, 0.75))
     bar.box_base((*c, 0), (BAR_T, 2 * (WATER_HW + EDGE_W / 2) + BAR_T, BARRIER_H), "offwhite", bevel=False,

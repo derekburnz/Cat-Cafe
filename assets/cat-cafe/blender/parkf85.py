@@ -183,9 +183,9 @@ def _stream(s, mat):
         for (a0, a1) in runs:
             b.box_base(bl((a0 + a1) / 2, zc), (a1 - a0, 0.8, 0.7 + 0.006 * i), "concrete", bevel=False)
     b.box_base(bl(E + 0.4, STREAM_Z), (0.8, 6.0, 0.7), "concrete", bevel=False)                  # the end kerb
-    b.box_base(bl(E - 1.2, STREAM_Z, 0.02), (2.0, 4.4, 0.33), "concrete_dark", bevel=False)      # the drain's sill
+    b.box_base(bl(E - 1.2, STREAM_Z, 0.02), (2.0, 4.4, 0.36), "concrete_dark", bevel=False)      # the drain's sill, 0.03 proud of the water
     for k in range(7):                                                                            # its grate
-        b.box_base(bl(E - 1.2, STREAM_Z - 1.8 + 0.6 * k, 0.35), (1.8, 0.14, 0.06), "metal", bevel=False)
+        b.box_base(bl(E - 1.2, STREAM_Z - 1.8 + 0.6 * k, 0.36), (1.8, 0.14, 0.06), "metal", bevel=False)
     for (dx, dz, r) in ((-2.6, -2.0, 0.45), (-3.4, 2.1, 0.35), (-1.0, 2.3, 0.3)):                  # stones by it
         decor.ico(bl(E + dx, STREAM_Z + dz, 0.3), r, "concrete", subdivisions=1, scale=(1.2, 1, 0.7))
     for sx in (-1,):                                                                              # the culvert

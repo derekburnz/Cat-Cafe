@@ -222,7 +222,7 @@ def _stone_wall(s, mat, z, runs):
             b.ico((x, y, 0.7), 1.1, ("leaf_green", "leaf_dark")[i % 2], subdivisions=1, scale=(1.5, 0.6, 0.75))
         x, y, _ = bl((a0 + a1) / 2, z + 0.9)
         bar.box_base((x, y, 0), (L, 2.0, BARRIER_H), "offwhite", bevel=False)
-    for gx in [e for (a0, a1) in runs for e in (a0 + 0.8, a1 - 0.8)]:                      # end piers
+    for gx in [e for (a0, a1) in runs for e in (a0 + 0.6, a1 - 0.6)]:      # end piers, 0.2 past the stretch's end
         x, y, _ = bl(gx, z + 0.9)
         b.box_base((x, y, 0), (1.6, 2.2, 5.0), "fur_grey")
         b.box_base((x, y, 5.0), (2.0, 2.6, 0.4), "concrete_dark", bevel=False)

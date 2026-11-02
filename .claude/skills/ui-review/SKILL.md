@@ -29,7 +29,7 @@ The house rules for Cat Cafe screens, in one place. Use it with:
 
 ## 3. Sizes and fit
 
-Check every changed screen at 1280 x 720, 1366 x 768 and a phone at 844 x 390, after the window's UIScale has shrunk it. The UI gate (`npm run uigate` in `games/cat-cafe/tools/cloudcheck`, part of CI) builds every window at those three sizes and fails a new tap target, small text or piece off the screen; its report has a picture of each window with the findings boxed.
+Check every changed screen at 1280 x 720, 1366 x 768 and a phone at 844 x 390, after the window's UIScale has shrunk it. The UI gate (`npm run uigate` in `games/cat-cafe/tools/cloudcheck`, part of CI) builds every window at those three sizes and fails a new tap target, small text or piece off the screen; its report has a picture of each window with the findings boxed. Before a layout change ships, run it once more with `--devices`: a tablet (1180 x 820), a small phone (667 x 375) and a 1080p console (CI leaves them out to keep its time). On touch a `Components/Button` reaches 44 px through its invisible `Hit` pad; other pressables (TextButtons, TextBoxes, sliders) need the size themselves (`Scale.tapHeight`).
 
 - Anything pressable is at least `Theme.sizes.touchMin` (44) real pixels in both directions on a phone, and at least 36 with a mouse. The X on a window too.
 - Body text stays at `Theme.sizes.textSmall` (14) or more after scaling; `textTiny` (12) only for a tag on a tile. Nothing renders under 9 real pixels (12 at the phone's 0.75 scale). TextScaled labels get a `UITextSizeConstraint` with a sensible minimum.

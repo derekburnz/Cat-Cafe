@@ -280,7 +280,7 @@ row 15 stay free.
 - Flat shading, flat colors. No gradients, no normal maps, no baked lighting, no photo textures. Shading comes from the scene lights.
 - Cylinders use 12 segments (16 for anything over 1.5 studs across). Spheres use 10 segments and 6 rings, or an icosphere with 1 subdivision.
 - No floating geometry smaller than a nose. Details that would be under 0.15 stud (whiskers, stitching, screws) are left out.
-- Cat faces: big glossy eyes, a pink nose, blush cheeks and the W mouth on every cat (Derek, 2026-10-27, option 2 of the mouth drafts): a short line down from the nose into two little u curves, standing 0.02 proud of the muzzle. It is `fur_black` on light fur or a light muzzle and `fur_grey` on dark fur (CIE L* under 35, `palette.lstar`). The blep and the open smile come later as expression swaps.
+- Cat faces: big glossy eyes, a pink nose, blush cheeks and the W mouth on every cat (Derek, 2026-10-27, option 2 of the mouth drafts): a short line down from the nose into two little u curves, standing 0.02 proud of the muzzle. The muzzle itself stands 0.02 proud of the face, 0.025 behind the eyes' front, so the exporter's z-fight pass (`rbx_zfight`, reach 0.015) never pushes it out over the nose and mouth on the bodies drawn at 0.95 (sitting and working; it did until 2026-11-02, when it stood 0.03 proud). It is `fur_black` on light fur or a light muzzle and `fur_grey` on dark fur (CIE L* under 35, `palette.lstar`). The blep and the open smile come later as expression swaps.
 
 ## 4. Scale and placement
 

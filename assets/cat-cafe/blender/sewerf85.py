@@ -412,7 +412,8 @@ def rubble(mat, z, runs):
     L = math.hypot(tx - fx, th - fh)
     phi = math.atan2(th - fh, tx - fx)
     bx, by, _ = bl((fx + tx) / 2, z)
-    b.box((bx, by, (fh + th) / 2), (L, 1.4, 1.4), "brick", bevel=False, rot=Matrix.Rotation(-phi, 3, "Y"))
+    b.box((bx, by, (fh + th) / 2), (L + 0.8, 1.4, 1.4), "brick", bevel=False,          # 0.4 into the heap and the
+          rot=Matrix.Rotation(-phi, 3, "Y"))                                       # beam, so it rests on both
     return [b.finalize(N + "Rubble", mat), bar.finalize(N + "Rubble_Barrier", mat)]
 
 

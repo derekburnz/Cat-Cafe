@@ -31,6 +31,7 @@ from mathutils import Euler, Matrix, Vector  # noqa: E402
 import accessories  # noqa: E402
 import alley  # noqa: E402
 import alleyway  # noqa: E402
+import alleyblockers  # noqa: E402
 import backdrop  # noqa: E402
 import wildbackdrop  # noqa: E402
 import luckycat  # noqa: E402
@@ -89,8 +90,8 @@ import vfx  # noqa: E402
 import woods  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
-           night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
+MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, alleyblockers,
+           boards, night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons]
@@ -346,6 +347,13 @@ STUDIO_NOTES["CatCafe_NPC_MysteryVisitor"] = (
 STUDIO_NOTES["CatCafe_Item_MysteryGift"] = (
     "F64 Mystery Visitor's gift: pivot base centre, front -Z (the \"?\" tag), nothing collides; the client puts it "
     "on the bottom of the plot's MysteryGiftAnchor and tags it MysteryGift.")
+for _n in alleyblockers.ASSETS:
+    PIVOT_NOTES[_n] = ("the floor on the back alley lane's middle line (lane x +-78); the pile spans local x -15 to 6 "
+                       "and leaves the walk-past gap at +X (x 6 to 15). RotY 180 puts the gap at -X.")
+    STUDIO_NOTES[_n] = ("F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives "
+                        "invisible, CanCollide true, CanQuery false and anchored (a 21 x 30 x 0.5 wall on the pile's "
+                        "line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at "
+                        "night and does not collide.")
 PIVOT_NOTES["CatCafe_NPC_Collector"] = "the floor under him, on the plot's CollectorSpot, facing into the room (-Z)"
 STUDIO_NOTES["CatCafe_NPC_Collector"] = (
     "F63 Cat Collector: the client pivots it on the plot's CollectorSpot (floor centre, front into the room) and tags "

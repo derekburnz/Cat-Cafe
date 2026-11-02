@@ -33,6 +33,7 @@ import alley  # noqa: E402
 import alleyway  # noqa: E402
 import backdrop  # noqa: E402
 import wildbackdrop  # noqa: E402
+import luckycat  # noqa: E402
 import welcomearch  # noqa: E402
 import camps  # noqa: E402
 import cannon  # noqa: E402
@@ -83,11 +84,13 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
-           townbuildings, customers, cannon, camps, backdrop, wildbackdrop, welcomearch, style_icons]
+           townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, style_icons]
 
 PIVOT_NOTES = {
     "CatCafe_Town_WelcomeArch": "the opening's base centre on the street top (world y 0.1), front -Z toward the "
                                 "Town Square; Layout.townEnds at (0, -123) turned 180 and (0, 123) unturned",
+    **{f"CatCafe_Plot_LuckyCat_{n}": "the plinth's base centre on the plot floor, front -Z to the street; plot space "
+                                      "(-5.1, 0, -16.1), left of the door (luckycat.SPOT)" for n in range(6)},
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
                              "pivot, the stones 0.02 above it. Square space is world space; place with no turn.",
     "CatCafe_Square_Signpost": "Post's foot at (-9, 0.1, -7.5) with no turn: each _Arm<Area> board is aimed in world "
@@ -482,6 +485,8 @@ def main():
             extra = {"attachments": cannon.rbx_attachments(name), "nest": cannon.NEST}
         if name in camps.ATTACHMENTS:             # F84: the carrier basket's Drop
             extra = {"attachments": camps.rbx_attachments(name)}
+        if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about
+            extra = {"attachments": luckycat.hinge_attachments(name)}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)
         tris = common.tri_count(objs)
         lo, hi = common.bounds(objs)

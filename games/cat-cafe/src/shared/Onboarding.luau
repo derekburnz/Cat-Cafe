@@ -156,11 +156,13 @@ export type SaveFacts = {
 	tables: number, -- shop levels
 	bowl: number,
 	tier: number,
+	parkCats: number, -- cats owned from the Park (a spare cat counts by its old area)
 }
 
 -- The steps a save already shows, in step order (QA S72). Logged on every join, so a step the save passed without
--- its event (an alpha save fromV1 moved to first_table that already owned the bowl, whose bowl_bought would never
--- come) is reached anyway; steps already reached log nothing and steps ahead are held as usual.
+-- its event is reached anyway: an alpha save fromV1 moved to first_table that already owned the bowl, whose
+-- bowl_bought would never come, or one past tier_2 that now catches only beyond the Park. Steps already reached log
+-- nothing and steps ahead are held as usual.
 function Onboarding.fromSave(facts: SaveFacts): { StepName }
 	local out: { StepName } = {}
 	local function add(name: StepName)
@@ -183,6 +185,9 @@ function Onboarding.fromSave(facts: SaveFacts): { StepName }
 		add("rank_up_card_seen")
 		add("rank_up_ready")
 		add("tier_2")
+	end
+	if facts.parkCats >= 1 then
+		add("first_park_catch")
 	end
 	if facts.tier >= 3 then
 		add("tier_3")

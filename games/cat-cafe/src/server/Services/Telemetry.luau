@@ -686,16 +686,23 @@ local function logJoined(player: Player)
 		Telemetry.onboarding(player, profile, "returned_next_day")
 	end
 	-- steps the save already shows, so a converted save is never stuck behind a step it passed silently (QA S72)
-	for _, name in
-		Onboarding.fromSave({
-			catsCaught = profile.stats.catsCaught,
-			distinctCats = Economy.distinctCats(profile),
-			tables = Economy.level(profile, "tables"),
-			bowl = Economy.level(profile, "lure_bowl"),
-			tier = Economy.tier(profile),
-		})
-	do
-		Telemetry.onboarding(player, profile, name)
+	local parkCats = 0
+	for catId in profile.collection do
+		local def = Catalog.getCat(catId)
+		if def ~= nil and (def.area == "park" or def.incomeArea == "park") then
+			parkCats += 1
+		end
+	end
+	local shown = Onboarding.fromSave({
+		catsCaught = profile.stats.catsCaught,
+		distinctCats = Economy.distinctCats(profile),
+		tables = Economy.level(profile, "tables"),
+		bowl = Economy.level(profile, "lure_bowl"),
+		tier = Economy.tier(profile),
+		parkCats = parkCats,
+	})
+	for _, name in shown do
+		Telemetry.onboarding(player, profile, name :: Onboarding.StepName)
 	end
 end
 

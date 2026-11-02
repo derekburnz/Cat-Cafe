@@ -20,6 +20,8 @@
 #   store-media.sh alt <id> <text>...         set a thumbnail's alt text
 #   store-media.sh home <path>...             upload homepage thumbnails (they show once a homepage test uses them)
 #   store-media.sh home-delete <id>...        delete homepage thumbnails (ids from list)
+#   store-media.sh home-test <id>...          the homepage thumbnails (1 to 5, ids from list) Roblox tests on Home:
+#                                             updates the active test, or starts one when none is active
 # Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -201,6 +203,19 @@ show_home() {
 	done
 }
 
+# need_home_ids id...: homepage thumbnail ids are GUIDs, so letters, digits and dashes only
+need_home_ids() {
+	local id
+	for id in "$@"; do
+		case "$id" in
+		'' | *[!A-Za-z0-9-]*)
+			echo "homepage thumbnail ids are letters, digits and dashes, got: $id" >&2
+			exit 2
+			;;
+		esac
+	done
+}
+
 case "$ACTION" in
 list)
 	show_icon
@@ -291,21 +306,35 @@ home-delete)
 		echo "home-delete needs at least one homepage thumbnail id (run list for the ids)" >&2
 		exit 2
 	}
-	for id in "$@"; do
-		case "$id" in
-		'' | *[!A-Za-z0-9-]*)
-			echo "homepage thumbnail ids are letters, digits and dashes, got: $id" >&2
-			exit 2
-			;;
-		esac
-	done
+	need_home_ids "$@"
 	query=$(printf 'homepageThumbnailIds=%s&' "$@")
 	call "$HOME_API/thumbnails?${query%&}" -X DELETE || exit 1
 	echo "Roblox answered HTTP $status: $body"
 	show_home
 	;;
+home-test)
+	[ $# -ge 1 ] && [ $# -le 5 ] || {
+		echo "home-test takes 1 to 5 homepage thumbnail ids (run list for the ids)" >&2
+		exit 2
+	}
+	need_home_ids "$@"
+	ids=$(printf '%s\n' "$@" | jq -Rsc 'split("\n") | map(select(. != ""))')
+	call "$HOME_API/personalization?status=Active&limit=10" || exit 1
+	active=$(jq -r '(.personalizedConfigs // [])[0].id // empty' <<<"$body")
+	if [ -n "$active" ]; then
+		echo "Updating the active homepage test $active"
+		call "$HOME_API/personalization/update" -X POST -H 'Content-Type: application/json' \
+			-d "$(jq -nc --arg id "$active" --argjson ids "$ids" '{id: $id, homepageThumbnailIds: $ids}')" || exit 1
+	else
+		echo "No active homepage test; starting one"
+		send "$HOME_API/personalization/create" -X POST -H 'Content-Type: application/json' \
+			-d "$(jq -nc --argjson ids "$ids" '{homepageThumbnailIds: $ids}')"
+	fi
+	echo "Roblox answered HTTP $status: $body"
+	show_home
+	;;
 *)
-	echo "unknown action: $ACTION (list, icon, thumbnails, order, delete, alt, home, home-delete)" >&2
+	echo "unknown action: $ACTION (list, icon, thumbnails, order, delete, alt, home, home-delete, home-test)" >&2
 	exit 2
 	;;
 esac

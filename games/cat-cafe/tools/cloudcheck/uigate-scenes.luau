@@ -400,6 +400,18 @@ end
 
 -- F103: the crate reel plays once shared Config has its numbers (Gameplay-Engineer adds them); the reel scenes turn
 -- them on and Scenes.close turns them off again, so the other Market scenes keep the card reveal
+-- the Store's prices as Roblox would answer them: the plan's money ladder (R$5, R$15, R$25) and Long Nap (R$199)
+local function storePrices(forSale)
+	local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+	local robux = { [2] = 5, [3] = 15, [4] = 25 }
+	local prices = {}
+	for multiplier, id in Config.MoneyPassIds do
+		prices[id] = { robux = robux[multiplier] or 25, forSale = forSale }
+	end
+	prices[Config.LongNapPassId] = { robux = 199, forSale = forSale }
+	return prices
+end
+
 local REEL_CONFIG = {
 	CrateReelTiles = 40,
 	CrateReelLandingTile = 34,
@@ -1129,6 +1141,27 @@ local SCENES = {
 	{ "HUDMenu", function()
 		press("CatCafeHUD", "Icons.Menu")
 	end },
+	-- the Store (Derek 2026-11-02 20:01): passes on sale, so the HUD's gold Store tile shows at the top of the left grid
+	{ "HUDStore", function()
+		UI.store.preview(storePrices(true), {})
+	end },
+	-- the Store window for a new player: 2x Money at R$5 and Long Nap at R$199
+	{ "Store", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+	end },
+	-- 2x Money and Long Nap owned: the ladder's next rung (3x, in place of x2) and Long Nap marked Owned
+	{ "StoreOwned", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[2]] = true, [Config.LongNapPassId] = true })
+		UI.open("Store")
+	end },
+	-- the passes off sale (a Studio preview with StoreOpen): every card says Soon
+	{ "StoreSoon", function()
+		workspace:SetAttribute("StoreOpen", true)
+		UI.store.preview(storePrices(false), {})
+		UI.open("Store")
+	end },
 	-- F102: the Trade window's players: Sam to ask, Alex under the minimum tier, Mia busy in a trade
 	{ "TradePlayers", function()
 		addTradePlayer("Sam", 4242, 4, false)
@@ -1235,6 +1268,8 @@ function Scenes.close()
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were
 	UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = workspace:GetServerTimeNow() + 3 * 86400 })) -- F101: no Rally
 	UI.trade.state(nil) -- F102: no trade, no TradeService, and the other players leave
+	UI.store.preview({}, {}) -- no pass on sale or owned, so the HUD's Store tile hides again
+	workspace:SetAttribute("StoreOpen", nil)
 	if workspace:GetAttribute("TradingOn") ~= nil then
 		workspace:SetAttribute("TradingOn", nil)
 		-- the HUD drops its Trade tile again, and Trade requests (SettingsTrading) goes back to its default; only

@@ -93,6 +93,7 @@ UI.together = {} -- F92 playing together, filled at the end of the file
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
+UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
 
 UI.Types = Types
 UI.Theme = Theme
@@ -479,6 +480,7 @@ local function render()
 	end
 	UI.campExtras.render(state)
 	UI.trade.render(state)
+	UI.store.render()
 	if cannonHint() ~= hintShown then
 		applyTutorial()
 	end
@@ -1259,6 +1261,7 @@ function UI.init(config: Types.InitConfig)
 	UI.campExtras.start() -- the Yard Sale card and the Cannon picker's camp extra strips (F100)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	UI.trade.start() -- the Trade window in the modal (F102)
+	UI.store.start() -- the Store window and the HUD's Store tile, once a pass is on sale
 	worldTags = WorldTags.new()
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
@@ -1360,6 +1363,7 @@ function UI.destroy()
 	UI.campExtras.reset()
 	UI.rally.reset()
 	UI.trade.reset()
+	UI.store.reset()
 	if hud then
 		hud:destroy()
 	end
@@ -4861,6 +4865,116 @@ do
 			log:destroy()
 		end
 		trading.log = nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Store
+----------------------------------------------------------------------------------------------------
+
+-- The Store window (Derek 2026-11-02: "store still needs to be added"; Monetization-Agent's shop-and-pass-plan). The
+-- HUD's gold Store tile shows once Roblox says any of our passes is on sale (they are off sale until launch), or
+-- while the Workspace has StoreOpen = true for a preview. Each pass's card reads its price from Roblox and opens
+-- Roblox's own purchase window (Components/PassShop); the server's PassService turns a bought pass on. Its own
+-- block, as the module is short of locals.
+do
+	local PassShop = require(script.Components.PassShop)
+	local Store = require(script.Screens.Store)
+	local StoreLogic = require(script.Components.StoreLogic)
+	local shop = {
+		screen = nil :: Store.Store?,
+		changed = nil :: Signal.Connection?,
+		preview = nil :: RBXScriptConnection?,
+		open = false, -- whether the HUD's tile shows
+	}
+
+	local function rows(): { StoreLogic.Row }
+		return StoreLogic.rows(Config, PassShop.owned(), state.longNap)
+	end
+
+	-- The window's cards when it is up, and the HUD's tile when its open state changes.
+	local function refresh()
+		local screen = shop.screen
+		if screen and modal and modal:current() == "Store" then
+			screen:render(rows(), PassShop.prices())
+		end
+		local open = StoreLogic.anyForSale(PassShop.prices())
+			or Workspace:GetAttribute("StoreOpen") == true
+		if open ~= shop.open and hud then
+			shop.open = open
+			hud:setStore(if open
+				then function()
+					if modal then
+						modal:toggle("Store")
+					end
+				end
+				else nil)
+		end
+	end
+
+	-- UI.init: the window in the modal, and the passes looked up.
+	function UI.store.start()
+		UI.store.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local screen = Store.new({
+			buy = function(passId: number)
+				PassShop.prompt(passId)
+			end,
+			close = function()
+				if modalView:current() == "Store" then
+					modalView:close()
+				end
+			end,
+		})
+		shop.screen = screen
+		modalView:register("Store", {
+			frame = screen.frame,
+			onOpen = function()
+				screen:render(rows(), PassShop.prices())
+			end,
+		})
+		shop.changed = PassShop.changed:Connect(refresh)
+		shop.preview = Workspace:GetAttributeChangedSignal("StoreOpen"):Connect(refresh)
+		PassShop.start(StoreLogic.passIds(Config))
+		refresh()
+	end
+
+	-- Every state update: Long Nap from ProfileSync marks its card Owned.
+	function UI.store.render()
+		refresh()
+	end
+
+	function UI.store.open()
+		if modal then
+			modal:open("Store")
+		end
+	end
+
+	-- The UI gate's and a Studio preview's answers in place of Roblox's: pass id to { robux, forSale }, and pass id
+	-- to true for the passes owned. preview({}, {}) clears them.
+	function UI.store.preview(prices: { [number]: StoreLogic.Price }, owned: { [number]: boolean })
+		PassShop.preview(prices, owned)
+	end
+
+	-- UI.destroy.
+	function UI.store.reset()
+		if shop.changed then
+			shop.changed:Disconnect()
+			shop.changed = nil
+		end
+		if shop.preview then
+			shop.preview:Disconnect()
+			shop.preview = nil
+		end
+		if shop.screen then
+			shop.screen:destroy()
+			shop.screen = nil
+		end
+		shop.open = false
+		PassShop.stop()
 	end
 end
 

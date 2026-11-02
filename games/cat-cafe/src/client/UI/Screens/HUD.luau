@@ -114,7 +114,7 @@ export type HUD = {
 	screenOpened: (self: HUD, name: string?) -> (),
 	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
-	-- the gold Store tile at the top of the left menu, hidden until a Store window exists to open
+	-- the gold Store tile at the top of the left menu, hidden until a pass is on sale (init's Store block)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
@@ -866,7 +866,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Menu (left, vertically centred): square symbol tiles two to a row, the "Shop / Index" grid of popular
 	-- simulators (Derek 2026-11-02: "group some of the buttons into less screen clutter"; they were wide pills). A small
 	-- key cap shows the keyboard shortcut and a red "!" dot says the screen has something new. The gold Store tile
-	-- leads the grid once a Store window exists (setStore); Potions moved to a symbol in the bottom right corner.
+	-- leads the grid once a pass is on sale (setStore); Potions moved to a symbol in the bottom right corner.
 	local showKeys = UserInputService.KeyboardEnabled
 	type MenuItem = {
 		name: string,
@@ -2308,9 +2308,6 @@ function HUD._pressMenu(self: any)
 	end
 end
 
--- The gold Store tile at the top of the left menu: shown with the function that opens the Store window, hidden
--- with nil. Nothing sells yet, so nothing calls it; the grid keeps its place (Derek 2026-11-02: "store still needs
--- to be added").
 -- The rows a list holds now, in order: id, icon, style and what pressing it does.
 type PopRow = { id: string, icon: string, style: Button.Style, press: () -> () }
 function HUD._popRowsFor(self: any, kind: string): { PopRow }
@@ -2434,6 +2431,9 @@ function HUD._closePop(self: any)
 	table.clear(self._popRows)
 end
 
+-- The gold Store tile at the top of the left menu (Derek 2026-11-02: "store still needs to be added"): shown with
+-- the function that opens the Store window, hidden with nil. init's Store block calls it once Roblox says a pass is on
+-- sale, or while the Workspace has StoreOpen for a preview; hidden, the grid closes up (review N341: moved here).
 function HUD.setStore(self: any, open: (() -> ())?)
 	self._storeOpen = open
 	local tile: Button.Button = self._storeTile

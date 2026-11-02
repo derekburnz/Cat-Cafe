@@ -2,7 +2,7 @@
 
 Six 1920 x 1080 thumbnails built on Research-Agent's thumbnail study of 33 trending Roblox games (`/mnt/project-files/Research-Agent/thumbnail-study-2026-11-02.md` in the project files). What the study found and what these follow:
 
-- One big hero, 50 to 60% of the image height, caught mid-action with an open-mouthed reaction. Derek first chose a cat for the reacting hero (J to M). At 15:12 he asked for the trending games' other pattern too, a default-style Roblox player doing the game's action, so N and O have a blocky player in the classic yellow, blue and green colours, built for these renders (no Roblox avatar asset is used).
+- One big hero, 50 to 60% of the image height, caught mid-action with an open-mouthed reaction. Derek first chose a cat for the reacting hero (J to M). At 15:12 he asked for the trending games' other pattern too, a default-style Roblox player doing the game's action, and at 15:29 he picked the "bacon hair" default look the popular games use (not the yellow, blue and green one). So N and O have a blocky player with messy brown hair swept over the forehead, light skin, a plain dark tee, jeans and dark shoes, built for these renders from boxes (no Roblox avatar asset is used).
 - One big hook in the top third: a real rarity, real odds or a real income figure, in gold or rainbow gradient with a thick dark outline.
 - "CAT CAFE" only on the first image; at most 2 or 3 more words.
 - Warm cats on cool, flat backgrounds; a different rare cat on each image.

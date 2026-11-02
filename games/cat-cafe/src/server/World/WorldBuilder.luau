@@ -1838,6 +1838,8 @@ function WorldBuilder.cannonSeat(model: Model): CFrame
 	return CFrame.lookAt(at, at + facing)
 end
 
+local TOWN_BACKDROP = "CatCafe_Town_Backdrop"
+
 function WorldBuilder.build(): World
 	local existing = Workspace:FindFirstChild("World")
 	if existing ~= nil then
@@ -1907,6 +1909,15 @@ function WorldBuilder.build(): World
 		)
 		block.Transparency = 1
 		block.CastShadow = false
+	end
+	-- The hometown's backdrop past the hedges (Model-Agent #733): meadows, cottages, a windmill and rolling hills,
+	-- built round the origin against TownGroundWidth and TownGroundDepth. Every part has CanCollide, CanQuery and
+	-- CastShadow off (the exporter's _Backdrop rule), so nothing walks into it or hits it with a ray, and its night
+	-- windows are _Bulbs for the night look. Persistent, so streaming never drops the skyline.
+	if AssetRegistry.known(TOWN_BACKDROP) then
+		local backdrop = place(TOWN_BACKDROP, CFrame.new(0, 0, 0), root)
+		backdrop.Name = TOWN_BACKDROP
+		backdrop.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	end
 	-- the welcome arches over the street's ends, front (-Z) toward the square
 	for _, arch in Layout.townEnds do

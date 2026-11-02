@@ -6,14 +6,15 @@ is long and in view. The set is the wild part, 120 x 310; the camp (CatCafe_Camp
                         gate side -Z toward the camp, like every set. Walls at x +-60 and z +-155 (WorldBuilder's);
                         the way in is a 24 stud opening (CampOpeningWidth) at x 0 on z -155, where the gate stands.
 
-Four blockers run across the width with their gaps on alternating sides, so the far end is never in a straight line:
-a low box hedge (z -112, gap east), a low railing on a plinth with flower boxes (z -50, gap west), a stream crossed
-only on its footbridge (z 9 to 15, bridge east) and a second low hedge (z 74, gap west). They are about 4 high, so a
+Four blockers run across the width with their gaps 24 wide (Derek 11-02: wider, not always at the sides, not
+cramped) and never in line, so the far end is never in a straight line: a low box hedge (z -112, gap east), a low
+railing on a plinth with flower boxes (z -50, gap in the middle), a stream crossed only on its footbridge (z 9 to 15,
+bridge east, deck 10 wide) and a second low hedge (z 74, gap west). They are about 4 high, so a
 hunter sees a carrier coming over them but has to go round; a `_Barrier` 30 high on each stops anyone jumping one.
 The tall pieces that break the view now and then are the willow and the kiosk by the duck pond, the glasshouse past
 the railing, the oaks and the bandstand, the far landmark.
 
-From the camp's pad the gravel path runs about 485 studs and the shortest walk about 415 (6b: about 425): the plaza and
+From the camp's pad the shortest walk is about 375 (6b: about 425; the 24 wide gaps took about 40 off): the plaza and
 the picnic lawn, the hedge gap, round the duck pond, the railing gap, past the glasshouse and the orchard, over the
 footbridge, through the rose garden, the second hedge gap, past the playground to the bandstand loop.
 
@@ -41,21 +42,23 @@ HALF_X, HALF_Z = 60.0, 155.0          # WorldBuilder's walls at +-60, +-155 (Par
 IN_X, IN_Z = HALF_X - 0.5 - WALL_D, HALF_Z - 0.5 - WALL_D
 GATE_HALF = 17.5                      # CatCafe_Park_GateF85 is 32.95 wide, centred on the path
 PLAZA = (0.0, -140.0)
-HEDGE_A, GAP_A = -112.0, (23.0, 37.0)
+HEDGE_A, GAP_A = -112.0, (14.0, 38.0)        # gaps 24 wide (Derek 11-02: wider, not cramped)
 POND, RING_R = (-4.0, -80.0), 20.5
-FENCE_B, GAP_B = -50.0, (-37.0, -23.0)
+FENCE_B, GAP_B = -50.0, (-12.0, 12.0)        # the railing's gap in the middle
 GLASS = (-30.0, -20.0)                # the glasshouse, front -Z
 STREAM_Z, BRIDGE_X = 12.0, 30.0       # the stream's middle line and the footbridge
+BRIDGE_W = 10.0                       # its deck (5.2 until Derek 11-02: not cramped)
+BRIDGE_HX = BRIDGE_W / 2 + 0.3        # the kerbs and rails stop this far either side of it
 GARDEN = (6.0, 46.0)
-HEDGE_D, GAP_D = 74.0, (-37.0, -23.0)
+HEDGE_D, GAP_D = 74.0, (-44.0, -20.0)
 PLAY = (-36.0, 98.0, 36.0, 24.0)      # the playground mat's centre and size
 BAND, LOOP_R = (8.0, 130.0), 13.5
 
-RING_IN, RING_OUT = ring_point(POND, RING_R, -40), ring_point(POND, RING_R, 140)
+RING_IN, RING_OUT = ring_point(POND, RING_R, -40), ring_point(POND, RING_R, 100)
 LOOP_IN = ring_point(BAND, LOOP_R, 225)
 PATH_1 = [(0, -155), PLAZA, (14, -133), (30, -124), (30, -104), (22, -100), RING_IN]
-PATH_2 = [RING_OUT, (-30, -58), (-30, -33)]
-PATH_3 = [(-30, -33), (-14, -30), (8, -20), (30, -6), (30, 3.2)]
+PATH_2 = [RING_OUT, (-5, -52), (0, -45)]
+PATH_3 = [(0, -45), (6, -34), (18, -20), (30, -8), (30, 3.2)]
 PATH_4 = [(30, 20.8), (30, 23), (18, 30), (GARDEN[0], 33.5)]
 PATH_5 = [(GARDEN[0] - 12.5, GARDEN[1]), (-22, 52), (-30, 62), (-30, 80), (-12, 88), (-6, 106), LOOP_IN]
 
@@ -162,7 +165,7 @@ def _stream(s, mat):
     b.box_base(bl(0, STREAM_Z), (L, 6.0, 0.02), "concrete_dark", bevel=False)                    # the bed
     water.box_base(bl(0, STREAM_Z, 0.02), (L, 6.0, 0.33), "fish_blue", bevel=False)
     for i, zc in enumerate((z0 - 0.4, z1 + 0.4)):                        # the kerbs, broken by the bridge's abutments
-        for (a0, a1) in ((-IN_X, BRIDGE_X - 2.9), (BRIDGE_X + 2.9, IN_X)):
+        for (a0, a1) in ((-IN_X, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, IN_X)):
             b.box_base(bl((a0 + a1) / 2, zc), (a1 - a0, 0.8, 0.7 + 0.006 * i), "concrete", bevel=False)
     for sx in (-1, 1):                                                                            # the culverts
         x = sx * IN_X
@@ -173,7 +176,7 @@ def _stream(s, mat):
         b.box_base(bl(x - sx * 0.5, STREAM_Z), (0.2, 6.0, 0.3), "concrete_dark", bevel=False, rot=None)
     for k in range(14):                                                                           # lily pads, reeds
         x = -IN_X + 5.0 + k * (2 * IN_X - 10.0) / 13
-        if abs(x - BRIDGE_X) < 6.0:
+        if abs(x - BRIDGE_X) < BRIDGE_HX + 3.0:
             continue
         dz = (-1.6, 1.2, -0.4, 1.9)[k % 4]
         decor.cyl_base(bl(x, STREAM_Z + dz, 0.35), 0.5 + 0.1 * (k % 3), 0.03, "leaf_green", segments=8, bevel=False)
@@ -192,25 +195,25 @@ def _stream(s, mat):
                   bevel=False, rot=(-a, "Z"))
     for i, zc in enumerate((z0 - 0.4, z1 + 0.4)):      # an iron rail on each kerb, its barrier a wall on the rail's line
         kt = 0.7 + 0.006 * i
-        for (a0, a1) in ((-IN_X + 0.45, BRIDGE_X - 2.9), (BRIDGE_X + 2.9, IN_X - 0.45)):    # clear of the culverts
+        for (a0, a1) in ((-IN_X + 0.45, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, IN_X - 0.45)):    # clear of the culverts
             n = max(1, round((a1 - a0 - 0.6) / 2.0))
             for k in range(n + 1):
                 b.box_base(bl(a0 + 0.3 + (a1 - a0 - 0.6) * k / n, zc, kt), (0.16, 0.16, 3.0 - kt), "fur_black",
                            bevel=False)
             for (h, t) in ((1.6, 0.14), (2.85, 0.2)):
                 b.box(bl((a0 + a1) / 2, zc, h), (a1 - a0 - 0.4, 0.12, t), "fur_black", bevel=False)
-        for (a0, a1) in ((-IN_X, BRIDGE_X - 2.9), (BRIDGE_X + 2.9, IN_X)):
+        for (a0, a1) in ((-IN_X, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, IN_X)):
             bar.box_base(bl((a0 + a1) / 2, zc), (a1 - a0, 0.5, BARRIER_H), "offwhite", bevel=False)
     s.put([b.finalize(N + "Stream", mat), water.finalize(N + "Stream_Water", mat),
            decor.finalize(N + "Stream_Decor", mat), bar.finalize(N + "Stream_Barrier", mat)], 0, 0, 0)
 
 
 def footbridge(mat):
-    """The timber footbridge over the stream, pivot at its middle on the ground, its length along Z: a deck 5.2 wide
+    """The timber footbridge over the stream, pivot at its middle on the ground, its length along Z: a deck 10 wide
     at 1.6 over 10 studs, a ramp of 4 at each end (22 degrees), stone abutments on the kerb lines, and solid railings
     3 high along the deck and both ramps, with a lantern on each deck-end post."""
     b, bulb = Builder(), Builder()
-    W, top, half, ramp = 5.2, 1.6, 5.0, 4.0
+    W, top, half, ramp = BRIDGE_W, 1.6, 5.0, 4.0
     b.box_base((0, 0, top - 0.35), (W, 2 * half, 0.35), "caramel_wood", bevel=False)
     for i in range(12):
         b.box_base((0, -half + (i + 0.5) * 2 * half / 12, top), (W - 0.3, 0.06, 0.012), "dark_wood", bevel=False)
@@ -218,8 +221,8 @@ def footbridge(mat):
         b.wedge((0, sy * (half + ramp / 2), top / 2), (W, ramp, top), "caramel_wood", bevel=False,
                 rot=None if sy < 0 else (PI, "Z"))
         b.box_base((0, sy * 3.4, 0), (W + 0.6, 1.2, top - 0.35), "concrete", bevel=False)     # abutments
-    for sx in (-1, 1):
-        b.box_base((sx * (W / 2 - 0.4), 0, top - 0.95), (0.5, 2 * half - 0.2, 0.6), "dark_wood", bevel=False)
+    for x in (-(W / 2 - 0.4), 0.0, W / 2 - 0.4):                                                   # the stringers
+        b.box_base((x, 0, top - 0.95), (0.5, 2 * half - 0.2, 0.6), "dark_wood", bevel=False)
 
     def surf(y):
         return top if abs(y) <= half else top * (half + ramp - abs(y)) / ramp
@@ -453,7 +456,7 @@ def build_set(mat):
     _spot(s, "orchard", 29, -37)
     s.put(blanket(mat), -6, -10, -20)
     _spot(s, "blanket", -6, -10, y=0.06)
-    s.put(bench(mat), -2, -36, face(-2, -36, -14, -30))
+    s.put(bench(mat), -6, -32, face(-6, -32, -30, -24))
     for (x, z) in ((-52, -10), (52, -10)):
         s.put(poplar(mat), x, z, 0)
 
@@ -483,7 +486,7 @@ def build_set(mat):
     s.put(oak(mat), 48, 60, 200)
     s.put(bench(mat), -50, 40, -90)
     s.put(lamp(mat), -16, 60, 0)
-    s.put(lamp(mat), -40, 70, 0)
+    s.put(lamp(mat), -48, 70, 0)
     s.put(bin_(mat), -46, 66, 0)
 
     # past the second hedge: the playground (west) and the picnic lawn (east)
@@ -533,7 +536,7 @@ def build_set(mat):
         s.put(oak(mat), x, z, r)
     s.put(oak(mat, blossom=True), 30, 64, 150)
     s.put(beehives(mat), 52, -54, 180)
-    for i, (x, z) in enumerate(((4, -42), (-8, -24), (20, -50), (30, 44), (-30, 36), (34, 96), (24, 120),
+    for i, (x, z) in enumerate(((-10, -40), (-8, -24), (22, -56), (30, 44), (-30, 36), (34, 96), (24, 120),
                                 (-12, 142), (-48, -132), (48, 70), (-54, 100), (40, -10))):
         s.put(flower_patch(mat, i), x, z, 0)
 

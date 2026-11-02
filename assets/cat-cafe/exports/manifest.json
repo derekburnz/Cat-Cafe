@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 06:00 UTC",
+  "generated": "2026-11-02 06:07 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -80446,7 +80446,7 @@
         "CatCafe_Woods_Set_049_Thicket",
         "CatCafe_Woods_Set_050_Stream_Water"
       ],
-      "triangles": 26858,
+      "triangles": 27222,
       "budget": 80000,
       "size_studs": {
         "x": 119.0,
@@ -80490,14 +80490,14 @@
         ],
         "nook_great_oak": [
           [
-            1.6,
+            2.3,
             18.0,
-            5.4
+            4.5
           ],
           [
-            -1.6,
+            -2.3,
             18.0,
-            5.4
+            4.5
           ],
           [
             -0.0,
@@ -80620,7 +80620,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_Set.model.json",
-      "rbx_parts": 1189,
+      "rbx_parts": 1206,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_Set.glb"
@@ -80632,10 +80632,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "26858/80000 tris",
+          "budget": "27222/80000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "15486 faces on swatch centers",
+          "uv": "15688 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.40 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -83016,7 +83016,7 @@
         "CatCafe_Woods_SetV32_208_PineTall",
         "CatCafe_Woods_SetV32_209_PineTall"
       ],
-      "triangles": 115312,
+      "triangles": 115676,
       "budget": 120000,
       "size_studs": {
         "x": 240.0,
@@ -83455,15 +83455,15 @@
         ],
         "nook_great_oak": [
           [
-            -36.88,
+            -35.79,
             18.0,
-            89.29,
+            89.63,
             "deep"
           ],
           [
-            -38.0,
+            -37.4,
             18.0,
-            86.29,
+            85.32,
             "deep"
           ],
           [
@@ -83530,7 +83530,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetV32.model.json",
-      "rbx_parts": 5466,
+      "rbx_parts": 5483,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.glb"
@@ -83542,10 +83542,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "115312/120000 tris",
+          "budget": "115676/120000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "71199 faces on swatch centers",
+          "uv": "71401 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.84 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"

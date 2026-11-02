@@ -153,7 +153,7 @@ function IndexBook.reward(views: { IndexRewards.View }, track: IndexRewards.Trac
 		return {
 			state = "next",
 			ready = 0,
-			need = IndexRewards.need(next.milestone),
+			need = next.need or IndexRewards.need(next.milestone),
 			toGo = IndexRewards.toGo(next),
 		}
 	end

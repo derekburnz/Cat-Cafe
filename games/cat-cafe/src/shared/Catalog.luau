@@ -851,7 +851,7 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 8000,
+		cost = 10000, -- F95 v2 (economy-ladder.md section 3, after F97's Epic in every wave; was 8,000)
 		distinctCats = 5,
 		slots = 4,
 		multiplier = 1.25,
@@ -861,7 +861,7 @@ Catalog.tiers = {
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 350000, -- F95 (economy-ladder.md section 3; was 80,000)
+		cost = 500000, -- F95 v2 (was 350,000; 80,000 before F95)
 		distinctCats = 12,
 		needsRarity = "Epic",
 		needsRarityCount = 1,
@@ -873,7 +873,7 @@ Catalog.tiers = {
 	{
 		tier = 4,
 		name = "Famous Cafe",
-		cost = 27000000, -- F95 (was 700,000)
+		cost = 40000000, -- F95 v2 (was 27,000,000; 700,000 before F95)
 		distinctCats = 20,
 		needsRarity = "Legendary",
 		needsRarityCount = 1,
@@ -885,7 +885,7 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 800000000, -- F95 (was 5,000,000)
+		cost = 1200000000, -- F95 v2 (was 800,000,000; 5,000,000 before F95)
 		distinctCats = 30,
 		needsRarity = "Legendary",
 		needsRarityCount = 2,

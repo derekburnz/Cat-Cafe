@@ -148,6 +148,30 @@ return function()
 			expect(total).to.equal(1)
 		end)
 
+		it("asks a whole-page milestone for every piece on the page (F97)", function()
+			local whole: any = table.clone(catalog)
+			whole.indexMilestones = { { id = "decor10", needs = 2, whole = true } }
+			whole.indexPrizes = { decor_alley = { decor10 = { bonus = 0.05 } } }
+			local two = { decorOwned = { brick = true, sky = true }, indexRewards = {} }
+			local views = IndexRewards.views(whole, two, "decor_alley")
+			expect(views[1].need).to.equal(3)
+			expect(views[1].state).to.equal("locked")
+			expect(IndexRewards.toGo(views[1])).to.equal(1)
+			local all =
+				{ decorOwned = { brick = true, stools = true, sky = true }, indexRewards = {} }
+			expect(IndexRewards.views(whole, all, "decor_alley")[1].state).to.equal("ready")
+			expect(
+				IndexRewards.needLabel(
+					{ id = "decor10", needs = 12, whole = true },
+					16,
+					"decor_classic"
+				)
+			).to.equal("All 16")
+			-- the floor stands on a smaller page, and a plain milestone ignores the page
+			expect(IndexRewards.need({ id = "decor10", needs = 12, whole = true }, 10)).to.equal(12)
+			expect(IndexRewards.need({ id = "decor10", needs = 12 }, 16)).to.equal(12)
+		end)
+
 		it("names a page's need in pieces", function()
 			expect(IndexRewards.needLabel({ id = "decor5", needs = 5 }, 10, "decor_alley")).to.equal(
 				"5 pieces"

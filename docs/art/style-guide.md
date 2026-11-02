@@ -517,6 +517,9 @@ areas (Alley, Park, Street, Square, Neighbourhood, Woods, Sewer) thin parts coll
 at least 0.9 long, so planks, decks, rungs and rails hold players up. Round parts (ellipsoids) get a block collider
 75% of their size so it does not stick out past the curve. An object ending `_Climb` exports as an invisible
 TrussPart (sizes in 2-stud steps, top flush with the deck it reaches) behind a ladder's rungs so players climb it.
+A ladder is 2.6 between its rails (2.4 clear), its opening at the top at least that wide, and nothing over the
+climber's side of it (Derek 2026-10-28: the Great Oak was "just a little too tight to walk around inside and up
+ladders").
 An object ending `_Barrier` exports as invisible parts that always collide, 30 high on every blocker and outer wall
 of a v3.2 area set, so nobody jumps a hedge or a wall (a default jump clears 7.2), and along the water a set's way in
 crosses only on its bridges (8c). A barrier always stands on something a player can see (Derek 2026-10-28: "in park

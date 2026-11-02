@@ -5,6 +5,9 @@
 -- potions, 512 px PNGs with an outline that still read at 48 px. Each is found by the game's own id, so an id the
 -- table does not know yet keeps its glyph:
 --   crate("park_crate"), crate("park_golden_crate")   Crate_Park, Crate_Park_Gold
+--   crateModel("park_crate")                          CatCafe_Prop_Crate_Park (ReplicatedStorage.Assets, Model-Agent's
+--                                                     crates.py; _Gold for a golden crate), the 3D crate under its
+--                                                     picture until the picture loads (ItemIcon)
 --   potion("gold_rush_potion")                        Potion_GoldRush
 --   perk("golden_espresso")                           Perk_GoldenEspresso
 --   food("moon_milk")                                 MoonMilk: every food's picture on its rarity tile (F97 section 3,
@@ -77,16 +80,33 @@ function ShopIcons.image(name: string): string?
 	return IDS[name]
 end
 
-function ShopIcons.crate(crateId: string?): string?
+-- The crate's pool in PascalCase and whether it is the golden twin, or nil for an id that is not a crate.
+local function cratePool(crateId: string?): (string?, boolean)
 	if type(crateId) ~= "string" then
-		return nil
+		return nil, false
 	end
 	local golden = crateId:match("^(.+)_golden_crate$")
 	local area = golden or crateId:match("^(.+)_crate$")
 	if area == nil then
+		return nil, false
+	end
+	return pascal(area), golden ~= nil
+end
+
+function ShopIcons.crate(crateId: string?): string?
+	local pool, golden = cratePool(crateId)
+	if pool == nil then
 		return nil
 	end
-	return IDS["Crate_" .. pascal(area) .. (if golden then "_Gold" else "")]
+	return IDS["Crate_" .. pool .. (if golden then "_Gold" else "")]
+end
+
+function ShopIcons.crateModel(crateId: string?): string?
+	local pool, golden = cratePool(crateId)
+	if pool == nil then
+		return nil
+	end
+	return "CatCafe_Prop_Crate_" .. pool .. (if golden then "_Gold" else "")
 end
 
 function ShopIcons.potion(potionId: string?): string?

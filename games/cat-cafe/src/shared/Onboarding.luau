@@ -149,4 +149,50 @@ function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { St
 	return toLog
 end
 
+-- What a save shows it has done, for fromSave.
+export type SaveFacts = {
+	catsCaught: number,
+	distinctCats: number,
+	tables: number, -- shop levels
+	bowl: number,
+	tier: number,
+	parkCats: number, -- cats owned from the Park (a spare cat counts by its old area)
+}
+
+-- The steps a save already shows, in step order (QA S72). Logged on every join, so a step the save passed without
+-- its event is reached anyway: an alpha save fromV1 moved to first_table that already owned the bowl, whose
+-- bowl_bought would never come, or one past tier_2 that now catches only beyond the Park. Steps already reached log
+-- nothing and steps ahead are held as usual.
+function Onboarding.fromSave(facts: SaveFacts): { StepName }
+	local out: { StepName } = {}
+	local function add(name: StepName)
+		table.insert(out, name)
+	end
+	if facts.catsCaught >= 2 then
+		add("second_cat")
+	end
+	if facts.tables >= 1 then
+		add("first_table")
+	end
+	if facts.bowl >= 1 then
+		add("bowl_bought")
+	end
+	if facts.distinctCats >= 5 then
+		add("five_cats")
+	end
+	if facts.tier >= 2 then
+		-- a cafe past Tier 1 saw the Rank Up card with its needs met
+		add("rank_up_card_seen")
+		add("rank_up_ready")
+		add("tier_2")
+	end
+	if facts.parkCats >= 1 then
+		add("first_park_catch")
+	end
+	if facts.tier >= 3 then
+		add("tier_3")
+	end
+	return out
+end
+
 return Onboarding

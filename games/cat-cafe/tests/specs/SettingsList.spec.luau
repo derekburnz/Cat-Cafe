@@ -95,7 +95,24 @@ return function()
 				expect(SettingsList.kind(SettingsList.TUTORIAL_KEY)).to.equal("switch")
 				local screen = SettingsList.SECTIONS[2]
 				expect(screen.title).to.equal("Screen")
-				expect(screen.rows[#screen.rows].key).to.equal(SettingsList.TUTORIAL_KEY)
+				-- in the Screen section (the Shop alerts switch, F94, follows it once its key is saved too)
+				local found = false
+				for _, row in screen.rows do
+					found = found or row.key == SettingsList.TUTORIAL_KEY
+				end
+				expect(found).to.equal(true)
+			end
+		end)
+
+		it("has the Shop alerts switch exactly when the server saves its key (F94)", function()
+			local key = SettingsList.SHOP_ALERTS_KEY
+			local saves = Settings.kinds[key] ~= nil
+			expect(SettingsList.isKey(key)).to.equal(saves)
+			if saves then
+				expect(SettingsList.kind(key)).to.equal("switch")
+				local screen = SettingsList.SECTIONS[2]
+				expect(screen.rows[#screen.rows].key).to.equal(key)
+				expect(SettingsList.default(key)).to.equal(true)
 			end
 		end)
 

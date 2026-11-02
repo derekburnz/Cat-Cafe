@@ -41,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          # the script, and Onboarding.luau for the onboarding funnel's step names
+          # the script, and Onboarding.luau for the onboarding funnels' step names (v2 and the alpha's v1)
           sparse-checkout: |
             games/cat-cafe/tools/opencloud
             games/cat-cafe/src/shared

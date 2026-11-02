@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Print the first-session numbers from Roblox analytics (Open Cloud Analytics Query API, beta), so a thread reads
 # where new players quit without Creator Hub. Read only. Sections:
-#   1. every funnel, players per step: the onboarding funnel (src/shared/Onboarding.luau) and the recurring ones
+#   1. every funnel, players per step: the onboarding funnels (src/shared/Onboarding.luau: onboarding_v2 since F87,
+#      and the alpha's twelve step one before it) and the recurring ones
 #      (docs/growth/analytics-plan.md section 4), with the share of step 1 left and the players lost since the step
 #      before; the biggest loss is the first thing to fix
 #   2. players per day, new and returning; average session length; day 1 retention
@@ -118,24 +119,40 @@ rows() {
 say() { printf '%s\n' "$*" >>"$out"; }
 failed() { say "_${result//|/\\|}_" && say ""; }
 
-# Step names: the onboarding funnel's from Onboarding.STEPS (names never change once shipped), the recurring ones'
-# from Telemetry.luau. Roblox labels a step with its name when it has one, which wins.
+# Step names: the onboarding funnels' from Onboarding.luau (names never change once shipped), the recurring ones'
+# from Telemetry.luau. Roblox labels a step with its name when it has one, which wins. Since F87 (#691) the funnel
+# named Onboarding.FUNNEL (onboarding_v2) numbers its 24 steps by Onboarding.STEPS; the alpha's funnel before it went
+# through Roblox's own onboarding call and numbers its twelve by Onboarding.V1_STEPS.
 declare -A names=(
 	[catch_attempt.1]=engaged [catch_attempt.2]=caught [catch_attempt.3]=checked_in [catch_attempt.4]=working
 	[bait_cycle.1]=set [bait_cycle.2]=seen [bait_cycle.3]=tamed
 )
+onboardingFunnel=onboarding_v2
 onboardingSteps=()
+onboardingV1Steps=()
 if [ -f "$onboarding" ]; then
-	mapfile -t onboardingSteps < <(sed -n '/^Onboarding.STEPS = {/,/^}/p' "$onboarding" | grep -o '"[a-z0-9_]*"' | tr -d '"')
+	luaNames() { sed -n "/^Onboarding\.$1 = {/,/^}/p" "$onboarding" | grep -o '"[a-z0-9_]*"' | tr -d '"'; }
+	mapfile -t onboardingSteps < <(luaNames STEPS)
+	mapfile -t onboardingV1Steps < <(luaNames V1_STEPS)
+	funnelName=$(sed -n 's/^Onboarding\.FUNNEL = "\([A-Za-z0-9_]*\)".*/\1/p' "$onboarding")
+	onboardingFunnel=${funnelName:-$onboardingFunnel}
 fi
 stepName() { # funnel step label
 	local funnel=$1 step=$2 label=$3
+	local -a list=()
 	if [ -n "$label" ] && [ "$label" != "$step" ]; then
 		printf '%s' "$label"
 	elif [ -n "${names[$funnel.$step]:-}" ]; then
 		printf '%s' "${names[$funnel.$step]}"
-	elif [[ ${funnel,,} == *onboarding* ]] && [[ $step =~ ^[0-9]+$ ]] && [ "$step" -ge 1 ] && [ "$step" -le "${#onboardingSteps[@]}" ]; then
-		printf '%s' "${onboardingSteps[step - 1]}"
+	elif [[ $step =~ ^[0-9]+$ ]] && [ "$step" -ge 1 ]; then
+		if [[ ${funnel,,} == *"${onboardingFunnel,,}"* ]]; then
+			list=("${onboardingSteps[@]}")
+		elif [[ ${funnel,,} == *onboarding* ]]; then
+			list=("${onboardingV1Steps[@]}")
+		fi
+		if [ "$step" -le "${#list[@]}" ]; then
+			printf '%s' "${list[step - 1]}"
+		fi
 	fi
 }
 

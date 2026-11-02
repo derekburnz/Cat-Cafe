@@ -136,7 +136,8 @@ local ITEMS: { [string]: { name: string, icon: string, blurb: string } } = {
 	big_bowl = {
 		name = "Big Bowl",
 		icon = "🥣",
-		blurb = "Food in the bait bowl is ready in 8 minutes instead of 10, forever.",
+		-- F95 section 6b (Derek 2026-10-28 17:39: "lower it by 2 min perma"): Config.BigBowlWaitCutSeconds off any bowl
+		blurb = "2 minutes off every bait wait, forever.",
 	},
 	extra_decor_spot = {
 		name = "Extra Decor Spot",

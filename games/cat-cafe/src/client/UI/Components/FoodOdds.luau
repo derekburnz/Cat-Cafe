@@ -11,7 +11,7 @@
 --          The charm star odds left with F97 section 5 (stars show nowhere now)
 --   atBowl a food's odds in the player's bowl (F82): shared Bait.oddsFor at the lure_bowl level, then the player's
 --          Luck (F88, shared/Luck.apply), as the server rolls food set now
---   waitSeconds how long the bowl's cat takes: the bowl level's wait (F82), a fifth off with the Big Bowl perk, half
+--   waitSeconds how long the bowl's cat takes: the bowl level's wait (F82), 2 minutes off with the Big Bowl perk, half
 --          for food set at night (F60), less the faster bait (the Index's, F54, plus a running Quick Bait Potion's,
 --          F73, the two inside BaitSpeedMax), whole seconds as the server's Economy.baitWaitSeconds
 --   bowlStep the bait bowl's two shop lines: the next bowl and its wait, and one food's rarer cats (F82)
@@ -203,9 +203,9 @@ function FoodOdds.extras(goldLuck: number?, potionLuck: number?, goldScale: numb
 end
 
 -- The bait wait for food going in now, as the server's Economy.baitWaitSeconds: shared Bait.waitSeconds for the
--- bowl's level (F82: 600 s down to 480), a fifth off with the Big Bowl perk, LureWaitSecondsNight's share of it at
--- night (F60: half), then less the faster bait. The server adds a hair before flooring for the summed percents' float
--- error, so this does too (372 s, not 371).
+-- bowl's level (F82: 600 s down to 480), BigBowlWaitCutSeconds (120) off with the Big Bowl perk (F95),
+-- LureWaitSecondsNight's share of it at night (F60: half), then less the faster bait. The server adds a hair before
+-- flooring for the summed percents' float error, so this does too (372 s, not 371).
 function FoodOdds.waitSeconds(
 	bowlLevel: number,
 	bigBowl: boolean,
@@ -244,7 +244,7 @@ end
 --   "Next: Comfy Bowl · 9m 30s wait"
 --   "Rarer bait cats: Salmon Legendary 8.5% to 9.36%", the rarity one up from what the food attracts
 -- With no bowl the second line is nil, so the row keeps the catalog's description; at the top level the first line
--- names the bowl you have. The wait is the day wait, with the Big Bowl perk's fifth off when owned.
+-- names the bowl you have. The wait is the day wait, with the Big Bowl perk's 2 minutes off when owned (F95).
 function FoodOdds.bowlStep(
 	catalog: Types.Catalog,
 	level: number,

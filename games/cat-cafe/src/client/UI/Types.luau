@@ -272,6 +272,7 @@ export type PlayerState = {
 	tipsSeen: { [string]: boolean }?,
 	feedbackAsked: boolean?, -- F87: the one slide-in feedback ask has shown, or a face was sent
 	stuckHelpShown: { [string]: boolean }?, -- F87: tutorialStep ("0" to "5") to true once its help card showed
+	longNap: boolean?, -- F95: owns the Long Nap pass, for the welcome back card's line; nil reads as not owned
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -314,6 +315,7 @@ export type PartialState = {
 	tipsSeen: { [string]: boolean }?,
 	feedbackAsked: boolean?,
 	stuckHelpShown: { [string]: boolean }?,
+	longNap: boolean?,
 }
 
 export type ScreenName =

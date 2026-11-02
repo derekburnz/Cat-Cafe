@@ -158,10 +158,12 @@ local Config = {
 	-- The getaway after a net catch or a rescue (v0.8 F55, section 10c): every other player this close to the catcher
 	-- is pushed this far away (not a shove: no drop, no cooldown, never someone in a catch or rescue), and the catcher
 	-- walks at CatchRushWalkSpeed for CatchRushSeconds before carry speed. A picked-up cat gives neither.
+	-- CatchRushSeconds was 5; Derek's 10-28 to 10-30 notes asked for a longer boost now the areas are bigger (F85's
+	-- Park and Neighbourhood run 430 studs deep), so 10 s takes a carrier 240 studs before carry speed.
 	CatchBurstRadiusStuds = 10,
 	CatchBurstStuds = 8,
 	CatchRushWalkSpeed = 24,
-	CatchRushSeconds = 5,
+	CatchRushSeconds = 10,
 	-- A carrier this near either own door, or whose path passes this near it, checks the cat in (Derek 01:22: was 8)
 	CheckInRangeStuds = 10,
 	StrayWanderRadius = 5,
@@ -372,6 +374,8 @@ local Config = {
 	CrateReelHoldSeconds = 0.25,
 	DecorSpots = { 2, 3, 4, 5, 6 } :: { number }, -- furniture and decorations in use, by tier
 	DecorEquipBest = true, -- the server has EquipBestDecor (Derek 2026-10-28), so the Decor page shows Equip Best
+	-- Reset my save for testers (ResetSaveService): once the game is group-owned, this group rank and up may use it
+	ResetSaveGroupRank = 254,
 	DecorIndexBonus = 0.05, -- every tip forever: a Decor Index page's decor10 prize (all twelve pieces since F80, F54)
 	DecorIndexHalfFish = 25, -- golden fish: a Decor Index page's decor5 prize (five of ten, F54)
 	GoldenEspressoBonus = 0.05, -- every tip, per Golden Espresso level
@@ -395,6 +399,9 @@ local Config = {
 	CollectorRainbowMultiplier = 10,
 	RainbowAnimateMax = 10,
 	RainbowSpawnToastSeconds = 60,
+	-- golden fish for each cat's first rainbow coat: this times the rarity's FishFirstCatch (Common 5 to Mythical
+	-- 200), any way it was found, on top of a new cat's fish (section 1, added after the #795 review)
+	FishFirstRainbowMultiplier = 5,
 
 	-- The camp extras (F100, camp-extras.md sections 2 and 4), each filling while the player is away up to its hold.
 	-- The Picnic Basket (Park) bags one PicnicPotion (Design-Agent 11-02: the 10 minute Money Potion) every

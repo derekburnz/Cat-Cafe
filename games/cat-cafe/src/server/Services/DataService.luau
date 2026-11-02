@@ -28,6 +28,7 @@ type Session = {
 	pendingOffline: number,
 	pendingOfflineSeconds: number,
 	policy: { [string]: any }?,
+	resetOnRelease: boolean?, -- a tester's Reset my save (ResetSaveService): a fresh save goes in at release
 }
 
 local DataService = {}
@@ -162,6 +163,10 @@ local function release(player: Player)
 	if not ok then
 		warn("[DataService] finalize failed:", err)
 	end
+	if session.resetOnRelease then
+		-- after the leave hooks, so nothing they save (a carried cat, a tip) lands in the fresh save
+		session.store.Data = ProfileSchema.template(os.time()) :: any
+	end
 	sessions[player] = nil
 	session.store:EndSession()
 end
@@ -207,6 +212,15 @@ end
 -- Register work to run on the profile right before it is saved on leave or shutdown (e.g. save a carried cat).
 function DataService.beforeRelease(fn: (player: Player, profile: Profile) -> ())
 	table.insert(finalizers, fn)
+end
+
+-- A tester's Reset my save (ResetSaveService): when this player's session ends, a fresh save is stored in place of
+-- theirs, after every beforeRelease hook has run on the old one. Nothing happens for a player without a session.
+function DataService.resetOnLeave(player: Player)
+	local session = sessions[player]
+	if session ~= nil then
+		session.resetOnRelease = true
+	end
 end
 
 -- os.time() the player's session began (F98: the leaderboards add the time since to the saved play time), or nil.

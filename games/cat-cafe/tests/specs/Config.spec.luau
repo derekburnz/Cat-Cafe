@@ -70,7 +70,7 @@ return function()
 		CatchBurstRadiusStuds = 10, -- v0.8 F55
 		CatchBurstStuds = 8,
 		CatchRushWalkSpeed = 24,
-		CatchRushSeconds = 5,
+		CatchRushSeconds = 10, -- Derek's notes: longer for the bigger areas (was 5)
 		CheckInRangeStuds = 10,
 		CustomerSpawnSeconds = 6,
 		CustomerStayMin = 20,
@@ -161,6 +161,7 @@ return function()
 		CrateOpenCooldownSeconds = 2,
 		DecorIndexBonus = 0.05,
 		DecorEquipBest = true,
+		ResetSaveGroupRank = 254, -- testers' Reset my save once the game is group-owned
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
 		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
 		KeepUpStepsBehind = 1, -- section 17 (v0.13.16, F86): an older Legendary or Mythical earns one area behind
@@ -218,6 +219,7 @@ return function()
 		CollectorRainbowMultiplier = 10,
 		RainbowAnimateMax = 10,
 		RainbowSpawnToastSeconds = 60,
+		FishFirstRainbowMultiplier = 5, -- F99 section 1: a first rainbow pays five first catches
 		PicnicEverySeconds = 21600, -- F100 (camp-extras.md section 4); LostFoundTable is checked in CampExtras.spec
 		PicnicHold = 2,
 		PicnicPotion = "tip_potion", -- Design-Agent 11-02: one 10 minute Money Potion a fill, not a 15 minute one

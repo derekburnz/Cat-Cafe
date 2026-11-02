@@ -1827,9 +1827,16 @@ function methods.GetPlayerByUserId(_, userId)
 	end
 	return nil
 end
+-- every Player under Players: the tester first, then any a scene parents there (F102's players list)
 function methods.GetPlayers(self)
 	if classOf(self) == "Players" then
-		return { UIShim.player }
+		local list = { UIShim.player }
+		for _, child in childrenOf(self) do
+			if child ~= UIShim.player and classOf(child) == "Player" then
+				table.insert(list, child)
+			end
+		end
+		return list
 	end
 	return {}
 end

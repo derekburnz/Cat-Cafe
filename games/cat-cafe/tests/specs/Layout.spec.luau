@@ -1856,6 +1856,9 @@ return function()
 							check("nap spot " .. k, other.x, other.z)
 						end
 					end
+					for _, f79 in plot.beds do
+						check(f79.id, f79.x, f79.z)
+					end
 				end
 			end
 		)

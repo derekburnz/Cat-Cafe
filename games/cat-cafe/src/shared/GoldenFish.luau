@@ -9,14 +9,17 @@ local Types = require(script.Parent.Types)
 local GoldenFish = {}
 
 -- Fish for one cat added to the cafe. `isNew` when its id was not in the Index yet, `firstGold` when it is the
--- first gold one of that id (both can be true: a first catch that is gold fills both pages and pays both). A cat
--- already in the Index pays only for Epic and better and only by net or rescue: bait never pays a repeat, so food
--- bought with coins cannot be farmed into fish.
+-- first gold one of that id (both can be true: a first catch that is gold fills both pages and pays both), and
+-- `firstRainbow` (F99, rainbow-coat.md section 1) when it is the first rainbow one of that id, which pays
+-- FishFirstRainbowMultiplier times the first catch fish, any way it was found, on top of a new cat's (a rainbow
+-- coat is never a first gold). A cat already in the Index pays only for Epic and better and only by net or rescue:
+-- bait never pays a repeat, so food bought with coins cannot be farmed into fish.
 function GoldenFish.forCatch(
 	rarity: string,
 	isNew: boolean,
 	firstGold: boolean,
-	method: Types.CatchMethod
+	method: Types.CatchMethod,
+	firstRainbow: boolean?
 ): number
 	local first = Config.FishFirstCatch[rarity] or 0
 	local fish = 0
@@ -25,6 +28,9 @@ function GoldenFish.forCatch(
 	end
 	if firstGold then
 		fish += 2 * first
+	end
+	if firstRainbow then
+		fish += Config.FishFirstRainbowMultiplier * first
 	end
 	if fish == 0 and (method == "net" or method == "rescue") then
 		fish = Config.FishRepeatCatch[rarity] or 0

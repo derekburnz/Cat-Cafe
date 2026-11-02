@@ -53,6 +53,17 @@ return function()
 			expect(KeepUp.keepsUp(find("alley", "Legendary"), nil)).to.equal(false)
 			expect(KeepUp.keepsUp(nil, 5)).to.equal(false)
 		end)
+
+		it(
+			"never tags an exclusive cat, which earns like its rarity from the newest area (F96)",
+			function()
+				local bellhop = Catalog.getCat("bellhop_cat")
+				expect(bellhop ~= nil and bellhop.exclusive == true).to.equal(true)
+				for tier = 1, 5 do
+					expect(KeepUp.keepsUp(bellhop, tier)).to.equal(false)
+				end
+			end
+		)
 	end)
 
 	describe("KeepUp.tip", function()

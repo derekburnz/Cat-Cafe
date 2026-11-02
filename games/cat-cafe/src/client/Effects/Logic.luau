@@ -1306,6 +1306,68 @@ function Logic.hopArc(from: Vector3, to: Vector3, height: number, alpha: number)
 	return from + (to - from) * k + Vector3.new(0, 4 * height * k * (1 - k), 0)
 end
 
+-- The Lucky Cat's paw at time t (Presets.luckyPaw), radians about its shoulder's X: a smooth beckon forward and back,
+-- one every seconds[level], faster at each level; level 0 (the empty plinth) or an unknown level rests at 0.
+function Logic.pawWave(t: number, level: number): number
+	local p = Presets.luckyPaw
+	local seconds: number? = p.seconds[math.floor(level)]
+	if seconds == nil then
+		return 0
+	end
+	return math.rad(p.degrees) * math.sin(t * 2 * math.pi / seconds)
+end
+
+-- Where the secured cat's happy hop (Presets.pullHop) has it `alpha` of the way through (0 to 1): studs off the
+-- floor and radians it has turned. On the floor until takeoff, a parabola `height` high to the landing while it turns
+-- `turns` full turns (easing in and out), then down and turned all the way round, facing where it began.
+function Logic.pullHop(alpha: number): (number, number)
+	local h = Presets.pullHop
+	local full = 2 * math.pi * h.turns
+	if alpha <= h.takeoff then
+		return 0, 0
+	elseif alpha >= h.land then
+		return 0, full
+	end
+	local k = (alpha - h.takeoff) / (h.land - h.takeoff)
+	return 4 * h.height * k * (1 - k), full * k * k * (3 - 2 * k)
+end
+
+-- The secured cat's body through its happy hop (Presets.pullHop), `alpha` 0 to 1: a crouch to spring, the leap with
+-- its tail up, front paws reaching and back paws kicking, nose up then down for the landing, a squash as it lands,
+-- then sitting up proud with its ears pricked.
+function Logic.pullHopPose(o: Offsets, alpha: number)
+	local h = Presets.pullHop
+	if alpha < 0 or alpha >= 1 then
+		return
+	end
+	if alpha < h.takeoff then
+		local c = math.sin(alpha / h.takeoff * math.pi)
+		o.bodyY -= h.crouch * c
+		o.bodyPitch -= math.rad(h.lean) * 0.5 * c
+	elseif alpha < h.land then
+		local k = (alpha - h.takeoff) / (h.land - h.takeoff)
+		local s = math.sin(k * math.pi)
+		o.tailPitch += math.rad(h.tailUp) * s
+		o.tailYaw *= 1 - s
+		o.pawFL += math.rad(h.reach) * s
+		o.pawFR += math.rad(h.reach) * s
+		o.pawBL -= math.rad(h.reach) * s
+		o.pawBR -= math.rad(h.reach) * s
+		o.bodyPitch += math.rad(h.lean) * math.sin(k * 2 * math.pi)
+		o.earL *= 1 - s
+		o.earR *= 1 - s
+	elseif alpha < h.settle then
+		local c = math.sin((alpha - h.land) / (h.settle - h.land) * math.pi)
+		o.bodyY -= h.squash * c
+	else
+		local k = Logic.envelope(alpha, h.settle, h.settle + 0.06, 0.96, 1)
+		o.headPitch += math.rad(h.proud) * k
+		o.tailPitch += math.rad(h.tailUp) * 0.5 * k
+		o.earL *= 1 - k
+		o.earR *= 1 - k
+	end
+end
+
 -- How much of a server jump is still drawn as distance left to travel: 1 at the jump, 0 on landing.
 function Logic.landing(alpha: number): number
 	local a = math.clamp(alpha, 0, 1)
@@ -2011,6 +2073,30 @@ function Logic.trapShake(t: number, hits: number, needed: number, o: TrapShake):
 	fade *= fade
 	local wave = math.sin(2 * math.pi * o.hz * t)
 	return size * wave * fade, o.hop * (size / o.most) * math.abs(wave) * fade
+end
+
+-- Luck (F88, luck-and-rare-moments.md section 1) ------------------------------------------------------------------
+
+-- Whether the Lucky Day look is on: the Clock's `LuckyDay` is true and its `Phase` is not night (it is for the day).
+function Logic.luckyDayOn(luckyDay: unknown, phase: unknown): boolean
+	return luckyDay == true and phase ~= "night"
+end
+
+-- A Lucky Cat statue's level from its model's name (`CatCafe_Plot_LuckyCat_3` is 3), or nil when the name ends in no
+-- level from 0 to 5.
+function Logic.luckyCatLevel(name: string): number?
+	local digits = string.match(name, "_(%d+)$")
+	local level = if digits ~= nil then tonumber(digits) else nil
+	if level == nil or level < 0 or level > 5 then
+		return nil
+	end
+	return level
+end
+
+-- Whether a plot's statue going from `before` (nil when this client had not seen it) to `after` is a level up to
+-- sparkle: only a rise this client saw, to a statue (level 1 or more).
+function Logic.luckyLevelUp(before: number?, after: number): boolean
+	return before ~= nil and after > before and after >= 1
 end
 
 return Logic

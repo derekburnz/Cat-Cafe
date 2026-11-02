@@ -12,6 +12,7 @@ local AssetRegistry = require(script.Parent.AssetRegistry)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Layout = require(script.Parent.Layout)
+local StarterCat = require(ReplicatedStorage.Shared.StarterCat)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 export type Plot = {
@@ -31,6 +32,7 @@ export type Plot = {
 	customerEntry: BasePart,
 	counter: Model, -- Counter; out of the plot while the For Rent set's dust-sheeted counter stands in for it
 	espresso: BasePart,
+	luckyCat: BasePart, -- LuckyCatAnchor, in the front garden: where the Lucky Cat statue stands (F88)
 	backDoor: BasePart, -- the back door panel: shut on an empty plot, open from Tier 1; unseen under backDoorArt
 	backDoorArt: Model?, -- BackDoorArt, CatCafe_Plot_BackDoor when the art is in: the door the client swings
 	backDoorZone: BasePart, -- check-in works here as well as at the front door
@@ -649,6 +651,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		place("CatCafe_Furniture_Counter", localCFrame(cframe, Layout.plot.counter), model)
 	counter.Name = "Counter"
 	local espresso = anchor("EspressoAnchor", localCFrame(cframe, Layout.plot.espresso), model)
+	local luckyCat = anchor("LuckyCatAnchor", localCFrame(cframe, Layout.plot.luckyCat), model)
 
 	local spotsFolder = folder("Spots", model)
 	local furnitureFolder = folder("SpotFurniture", model)
@@ -742,6 +745,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		customerEntry = entry,
 		counter = counter,
 		espresso = espresso,
+		luckyCat = luckyCat,
 		backDoor = backDoor,
 		backDoorArt = backDoorArt,
 		backDoorZone = backDoorZone,
@@ -1010,6 +1014,20 @@ local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
 		disc.CanQuery = false
 		disc.CanTouch = false
 		disc.CastShadow = false
+	end
+	-- Model-Agent's backdrop ring round the area (#741), CatCafe_<Area>_Backdrop, when it is in: built in set space,
+	-- so it pivots as the camp set does, its ground starting at the Ground plate's edge below. Every part is
+	-- non-colliding, unqueried and shadowless. Persistent like the town's, so it never streams out behind a player.
+	local backdropName = "CatCafe_" .. campArtName(camp.area) .. "_Backdrop"
+	if AssetRegistry.has(backdropName) then
+		local backdrop = place(
+			backdropName,
+			CFrame.new(spec.center.x, floorY, spec.center.z)
+				* CFrame.Angles(0, math.rad(camp.turn), 0),
+			parent
+		)
+		backdrop.Name = "Backdrop"
+		backdrop.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	end
 	-- the area and its camp on their own ground, out to the backdrop ring
 	local x1, z1 =
@@ -1526,6 +1544,24 @@ local function buildCodesCat(parent: Instance): Model
 	return model
 end
 
+-- The free Bellhop Cat's stand (F96, starter-cat.md section 2, Model-Agent #708): `CatCafe_Street_BellhopStand`
+-- tagged BellhopStand (StarterCat.TAG) at Layout.bellhopStand, with the cat baked onto its luggage cart. No prompt:
+-- walking within StarterCatRangeStuds opens its card on the client, and StarterCatService measures the same range
+-- from the pivot. Persistent, so the card and the claim find it from anywhere in the square.
+local function buildBellhopStand(parent: Instance): Model
+	local spec = Layout.bellhopStand
+	local model = place(
+		"CatCafe_Street_BellhopStand",
+		CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0),
+		parent
+	)
+	model.Name = "BellhopStand"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	model:SetAttribute("CatId", StarterCat.CAT_ID)
+	CollectionService:AddTag(model, StarterCat.TAG)
+	return model
+end
+
 local SQUARE_PAVING = "CatCafe_Square_Paving"
 
 -- The Town Square (F76, Layout.townSquare): its paving and the lighter open cross, the gardens' wall along each
@@ -1838,6 +1874,8 @@ function WorldBuilder.cannonSeat(model: Model): CFrame
 	return CFrame.lookAt(at, at + facing)
 end
 
+local TOWN_BACKDROP = "CatCafe_Town_Backdrop"
+
 function WorldBuilder.build(): World
 	local existing = Workspace:FindFirstChild("World")
 	if existing ~= nil then
@@ -1907,6 +1945,15 @@ function WorldBuilder.build(): World
 		)
 		block.Transparency = 1
 		block.CastShadow = false
+	end
+	-- The hometown's backdrop past the hedges (Model-Agent #733): meadows, cottages, a windmill and rolling hills,
+	-- built round the origin against TownGroundWidth and TownGroundDepth. Every part has CanCollide, CanQuery and
+	-- CastShadow off (the exporter's _Backdrop rule), so nothing walks into it or hits it with a ray, and its night
+	-- windows are _Bulbs for the night look. Persistent, so streaming never drops the skyline.
+	if AssetRegistry.known(TOWN_BACKDROP) then
+		local backdrop = place(TOWN_BACKDROP, CFrame.new(0, 0, 0), root)
+		backdrop.Name = TOWN_BACKDROP
+		backdrop.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	end
 	-- the welcome arches over the street's ends, front (-Z) toward the square
 	for _, arch in Layout.townEnds do
@@ -1993,6 +2040,7 @@ function WorldBuilder.build(): World
 	buildSpinWheel(root)
 	buildFishMarket(root)
 	buildCodesCat(root)
+	buildBellhopStand(root)
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"

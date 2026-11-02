@@ -128,6 +128,18 @@ local Config = {
 	BowlWaitSeconds = { 600, 570, 540, 510, 480 } :: { number },
 	BowlLuck = { 0, 0.04, 0.08, 0.12, 0.16 } :: { number },
 	BigBowlWaitCutSeconds = 120,
+	-- F88 Luck (luck-and-rare-moments.md section 1): one number from x1.0 that multiplies the Epic, Legendary and
+	-- Mythical chances of your bait and crate rolls (shared/Luck), at most LuckMax. The Lucky Cat statue adds
+	-- LuckPerStatueLevel a level, a Lucky Potion LuckyPotionLuck while it runs, a Lucky Day LuckyDayPlayerLuck to
+	-- everyone in the server until dusk. Every LuckyDayEvery-th day of a server is a Lucky Day: its sunrise wave and
+	-- traps roll at LuckyDayWaveLuck, and LuckyDayWarnSeconds before its sunrise the players still in are told.
+	LuckPerStatueLevel = 0.1,
+	LuckMax = 3,
+	LuckyPotionLuck = 0.5,
+	LuckyDayEvery = 4,
+	LuckyDayWaveLuck = 2,
+	LuckyDayPlayerLuck = 0.5,
+	LuckyDayWarnSeconds = 15,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	-- F97 (notes-10-28-to-10-30.md section 3): a food's price is its Catalog base times this factor at the buyer's
 	-- tier (Economy.foodPrice), the same growth as the later shop items (economy-ladder.md section 4)
@@ -334,6 +346,14 @@ local Config = {
 	GroupId = 0, -- the community group a requiresGroup code needs; 0 while the game is on Derek's own account
 	GroupCheckSeconds = 60, -- how long a player's group membership answer is kept
 
+	-- The free Bellhop Cat (F96, starter-cat.md sections 2 and 4). Its stand's card opens and ClaimStarterCat is taken
+	-- within StarterCatRangeStuds (flat) of a BellhopStand's pivot. While GroupId is 0 a claim needs the first goals
+	-- (tutorialStep StarterCatTutorialStep: a cat home, a table bought and food in the bowl); once it is set, membership
+	-- of GroupId (IsInGroupAsync in a pcall, kept GroupCheckSeconds). The cat arrives with StarterCatCharm.
+	StarterCatRangeStuds = 12,
+	StarterCatTutorialStep = 5,
+	StarterCatCharm = 60,
+
 	-- Shove, a Tackle since v0.11 (F29 bump rules, v0.5 F41, v0.11 F74, data-model section 10c); the code keeps the
 	-- Bump and Shove names. Pure rules in Shove.
 	BumpEnabled = true, -- false turns the Tackle remote off and hides the button
@@ -399,6 +419,7 @@ local Config = {
 		StreetSouthZ = -124,
 		StreetNorthZ = 124, -- the street ends at the hometown's north welcome arch (v4)
 		-- v4 (F84, hometown-cannon.md section 2): the hometown's own ground round the town, and each wild area its own
+		-- CatCafe_Town_Backdrop (Model-Agent #733) is built against 260 by 300: tell Model-Agent when these change
 		TownGroundWidth = 260,
 		TownGroundDepth = 300,
 		WallHeight = 9,

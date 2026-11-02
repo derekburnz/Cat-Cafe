@@ -120,6 +120,16 @@ local function spare(def: Types.CatDef): Types.CatDef
 	return def
 end
 
+-- F95 and F96: a cat that never spawns (no wave, bait, rescue or prize) and is only given or sold. It earns like a
+-- cat of its rarity from the owner's newest area (CatStats.areaMultiplier), counts toward no "different cats", Index
+-- page or Index milestone, and cannot be sold or offered to the Cat Collector.
+local function exclusive(def: Types.CatDef, source: Types.CatSource): Types.CatDef
+	def.area = "exclusive"
+	def.exclusive = true
+	def.source = source
+	return def
+end
+
 -- Section 3: 50 cats, 10 per area (four Common, two Rare, two Epic, one Legendary, one Mythical), then the ten of
 -- the spare pool (3d). Each lives in exactly one area. Colors are the placeholder body's {r, g, b}. Rares and up in the Alleyway and the Park are
 -- themed cats with a signature prop (v0.5.2, Derek 2026-10-27); their ids keep the old breed names so saves and
@@ -749,6 +759,21 @@ Catalog.cats = {
 			"Found down in the Sewer. More soon."
 		)
 	),
+	-- The free Bellhop Cat (F96, starter-cat.md): one per account from its stand in the Town Square, at the Rare
+	-- rate (3 a second at Tier 1, 243 at Tier 5), never gold. Its models are CatCafe_Cat_BellhopCat and _Sit.
+	exclusive(
+		cat(
+			"bellhop_cat",
+			"Bellhop Cat",
+			"Rare",
+			"alley",
+			"greeter",
+			"socks", -- ginger and white, white socks
+			{ 232, 150, 80 },
+			"Rings its bell for every customer and tips its cap as they pass."
+		),
+		"free"
+	),
 } :: { Types.CatDef }
 
 -- "tabby" -> "CatCafe_Cat_Tabby", "maine_coon" -> "CatCafe_Cat_MaineCoon"
@@ -846,7 +871,7 @@ Catalog.tiers = {
 		slots = 2,
 		multiplier = 1.00,
 		area = "alley",
-		caps = { tables = 2, espresso = 2, net = 1, lure_bowl = 1 },
+		caps = { tables = 2, espresso = 2, net = 1, lure_bowl = 1, lucky_cat = 1 },
 	},
 	{
 		tier = 2,
@@ -856,7 +881,7 @@ Catalog.tiers = {
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
-		caps = { tables = 4, espresso = 3, net = 2, lure_bowl = 2 },
+		caps = { tables = 4, espresso = 3, net = 2, lure_bowl = 2, lucky_cat = 2 },
 	},
 	{
 		tier = 3,
@@ -868,7 +893,7 @@ Catalog.tiers = {
 		slots = 6,
 		multiplier = 1.50,
 		area = "neighbourhood",
-		caps = { tables = 6, espresso = 4, net = 3, lure_bowl = 3 },
+		caps = { tables = 6, espresso = 4, net = 3, lure_bowl = 3, lucky_cat = 3 },
 	},
 	{
 		tier = 4,
@@ -880,7 +905,7 @@ Catalog.tiers = {
 		slots = 8,
 		multiplier = 1.75,
 		area = "woods",
-		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 4 },
+		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 4, lucky_cat = 4 },
 	},
 	{
 		tier = 5,
@@ -892,7 +917,7 @@ Catalog.tiers = {
 		slots = 10,
 		multiplier = 2.00,
 		area = "sewer",
-		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 5 },
+		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 5, lucky_cat = 5 },
 	},
 } :: { Types.TierDef }
 
@@ -902,7 +927,7 @@ function Catalog.getTier(tier: number): Types.TierDef?
 	return Catalog.tiers[tier]
 end
 
--- Lowest tier whose shop cap allows `level` of a capped upgrade (tables, espresso, net, lure_bowl); nil when no tier
+-- Lowest tier whose shop cap allows `level` of a capped upgrade (tables, espresso, net, lure_bowl, lucky_cat); nil when no tier
 -- does.
 function Catalog.tierForLevel(upgradeId: string, level: number): number?
 	for _, def in Catalog.tiers do
@@ -947,6 +972,15 @@ Catalog.upgrades = {
 		description = "A bowl on your back step. Each level brings bait cats sooner and rarer",
 		maxLevel = 5,
 		costs = { 600, 6000, 240000, 4000000, 50000000 }, -- F95: Fancy, Deluxe and Royal Bowls
+		startLevel = 0,
+	},
+	{
+		id = "lucky_cat", -- F88 (luck-and-rare-moments.md 1a): the statue by the front door, shared/Luck
+		name = "Lucky Cat",
+		description = "A beckoning cat by your front door. Each level adds x0.1 Luck: rarer bait cats and crate finds",
+		maxLevel = 5,
+		-- level n needs Tier n; levels 3 to 5 at economy-ladder.md section 4's prices
+		costs = { 2000, 20000, 600000, 8000000, 80000000 },
 		startLevel = 0,
 	},
 } :: { Types.UpgradeDef }
@@ -1220,7 +1254,7 @@ Catalog.potions = {
 		id = "lucky_potion",
 		name = "Lucky Potion",
 		minutes = 10,
-		effect = "Double gold chance on bait",
+		effect = "Luck +0.5 and double gold chance on bait", -- F88: Config.LuckyPotionLuck
 	},
 	{ id = "swift_potion", name = "Swift Potion", minutes = 5, effect = "+4 walk speed" },
 	{

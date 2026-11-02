@@ -390,8 +390,8 @@ def _garden(b, bulbs, flowers, fireflies):
             b.span((lx + dx - 0.05, 6.5, lz + dz - 0.05), (lx + dx + 0.05, 7.3, lz + dz + 0.05), "fur_black")
     bulbs.span((lx - 0.3, 6.5, lz - 0.3), (lx + 0.3, 7.25, lz + 0.3), "lamp_warm")          # stands on the plate
     b.b.pyramid(RB.p(lx, 7.3, lz), 1.1, 0.6, "fur_black")
-    # potted shrubs by the door and a round bush
-    for x in (DOOR[0] - 1.6, DOOR[1] + 1.6):
+    # a potted shrub right of the door (the Lucky Cat's plinth stands left of it, F88 luckycat.SPOT) and a round bush
+    for x in (DOOR[1] + 1.6,):
         b.cyl((x, 0.45, -16.0), 0.55, 0.9, "terracotta", r2=0.65, segments=10)
         b.ball((x, 1.55, -16.0), 0.8, "leaf_dark")
     b.ball((6.6, 0.8, -18.6), 0.9, "leaf_green", scale=(1.2, 0.9, 1.0))

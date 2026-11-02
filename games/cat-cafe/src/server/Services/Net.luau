@@ -46,6 +46,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SpinWheel = RateLimiter.new(2, 1), -- SpinService also holds each player to SpinCooldownSeconds between spins
 	OpenCrate = RateLimiter.new(1, 1), -- golden-fish.md section 8: 1 a second; FishMarketService holds 2 s between opens
 	BuyFishItem = RateLimiter.new(2, 1), -- golden-fish.md section 8: 2 a second
+	BuyFreshCatch = RateLimiter.new(2, 1), -- F94 (rewards-and-shops.md section 6): answers with FreshCatchStock every time
 	RedeemCode = RateLimiter.new(1, 2), -- data-model section 11d: 1 per 2 s; CodeService locks after wrong codes
 	IntroDone = RateLimiter.new(1, 1), -- intro-cutscene.md section 3: 1 a second; each call logs one event
 	ReportBug = RateLimiter.new(1, 1), -- a flood guard; BugReportService answers its own 1 per 20 s with a toast

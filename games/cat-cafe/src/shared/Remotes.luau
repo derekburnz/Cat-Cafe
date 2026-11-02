@@ -41,8 +41,12 @@ Remotes.ClientToServer = {
 	-- area id within CannonRangeStuds; `town` or another area with a camp, the area opened by the caller's tier, open
 	-- and not in the dusk warning; not carrying, no lock, not flying or tackled down, off CannonCooldownSeconds;
 	-- 1 a second. Answered with CannonLaunch
-	"BuyDealerFood", -- (lureId: string, window: number)  F59: night, near the cart, a dealer food, `window` the
-	-- current one (a buy sent across a roll is refused, S42), fewer bought this window than its amount
+	"BuyDealerFood", -- (lureId: string, night: number)  night, near the cart, a dealer food, `night` the server's
+	-- current night count (F94; was the 5 minute window: a buy sent as the cart leaves is refused, S42), fewer bought
+	-- tonight than its amount
+	"BuyFreshCatch", -- (itemId: string, window: number)  F94 (rewards-and-shops.md section 6): day, within
+	-- FishMarketRange of a FishMarket station, a Catalog.freshCatch row, `window` the current one, fewer bought this
+	-- window than its amount, enough golden fish; 2 a second; answered with FreshCatchStock, bought or refused
 	"Tackle", -- ()  v0.11 F74 (data-model section 10c, shared/Shove): in an unlocked catching area, areas open, not
 	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
@@ -106,8 +110,12 @@ Remotes.ServerToClient = {
 	"CampCheckIn", -- (userId: number, campId: string)  F84: fired to everyone in the frame a carrier walks into a
 	-- camp, before the carried cat is removed, so each client hops its copy into the camp's basket
 	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
-	"DealerStock", -- (stock: Types.DealerStock?)  this player's amounts and buys of each food at night (F59), nil by
-	-- day; after every buy
+	"DealerStock", -- (stock: Types.DealerStock?)  this player's amounts and buys of each food tonight (F94: one stock
+	-- per server per night, `night` its count), nil by day; after every buy
+	"FreshCatchStock", -- (stock: Types.FreshCatchStock?)  F94: this player's Fresh Catch amounts and buys by day,
+	-- nil at night ("Back at sunrise"); at sunrise, at each new window, on join and after every BuyFreshCatch
+	"ShopAlert", -- (itemId: string)  F94: a Gold Rush Potion or the cheap Classic Crate is on the Fresh Catch shelf
+	-- and this player has the golden fish for it; at most once a window per player, never with settings.shopAlerts off
 	"TipJarState", -- (state: Types.TipJarState)  when the profile loads and after every claim (F47)
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)

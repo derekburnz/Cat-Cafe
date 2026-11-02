@@ -88,10 +88,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 17 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 18 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(17)
-			expect(profile.version).to.equal(17)
+			expect(ProfileSchema.VERSION).to.equal(18)
+			expect(profile.version).to.equal(18)
 			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
 			expect(profile.stats.collectorTrades).to.equal(0)
 			expect(next(profile.potions)).never.to.be.ok()
@@ -151,7 +151,8 @@ return function()
 		it("has the new v0.3 fields and none of the removed ones", function()
 			local profile: any = ProfileSchema.template(1000)
 			expect(profile.bait).never.to.be.ok()
-			expect(profile.dealer).to.deepEqual({ window = 0, bought = {} })
+			expect(profile.dealer).never.to.be.ok() -- F94: the dealer's stock is per server per night, kept in memory
+			expect(profile.freshCatch).to.deepEqual({ window = 0, bought = {}, alerted = 0 })
 			expect(profile.goldCollection).to.deepEqual({})
 			expect(profile.shinyCollection).never.to.be.ok() -- renamed gold in version 4
 			expect(profile.renovations).never.to.be.ok()
@@ -227,8 +228,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 18 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 19 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 18 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 17 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 16 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 15 })).to.equal(false)
@@ -418,7 +420,7 @@ return function()
 			expect(profile.stats.bumpsTaken).to.equal(0)
 			expect(profile.renovations).never.to.be.ok()
 			expect(profile.bait).never.to.be.ok()
-			expect(profile.dealer).to.deepEqual({ window = 0, bought = {} })
+			expect(profile.freshCatch).to.deepEqual({ window = 0, bought = {}, alerted = 0 })
 		end)
 	end)
 
@@ -589,8 +591,8 @@ return function()
 			local bait = table.clone(raw.bait)
 			bait.variant = "gold"
 			expect(before.bait :: any).to.deepEqual(bait)
-			-- F59: the old per-slot marks are dropped (that window is long gone anyway)
-			expect(before.dealer :: any).to.deepEqual({ window = raw.dealer.window, bought = {} })
+			-- F94: the dealer's saved counts are dropped (its stock is per server per night now)
+			expect((before :: any).dealer).never.to.be.ok()
 			expect(before.goldCollection :: any).to.deepEqual({ bengal = 95 })
 			expect((before :: any).shinyCollection).never.to.be.ok()
 			-- and loading the result again changes nothing
@@ -746,18 +748,10 @@ return function()
 			expect(ProfileSchema.migrate(v2, 1000).flags.autoPress).to.equal(false)
 		end)
 
-		it("keeps a dealer count per dealer food, at most 4, and drops the old slot marks (F59)", function()
+		it("drops the dealer's saved counts (F94: one stock per server per night, kept in memory)", function()
 			local raw = v3Save()
-			raw.dealer = {
-				window = 77.9,
-				bought = { sardines = 2, caviar = 9, moon_milk = 0, star_treat = "1", kibble = 3, ["1"] = true },
-			}
-			expect(ProfileSchema.migrate(raw, 500).dealer :: any).to.deepEqual({
-				window = 77,
-				bought = { sardines = 2, caviar = 4 },
-			})
-			raw.dealer = "junk"
-			expect(ProfileSchema.migrate(raw, 500).dealer :: any).to.deepEqual({ window = 0, bought = {} })
+			raw.dealer = { window = 77, bought = { sardines = 2 } }
+			expect((ProfileSchema.migrate(raw, 500) :: any).dealer).never.to.be.ok()
 		end)
 	end)
 
@@ -1355,7 +1349,7 @@ return function()
 			raw.version = 16
 			raw.dailyTreat = nil
 			local profile = ProfileSchema.migrate(raw, NOW)
-			expect(profile.version).to.equal(17)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
 		end)
 
@@ -1369,6 +1363,46 @@ return function()
 			expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
 			raw.dailyTreat = "junk"
 			expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
+		end)
+	end)
+
+	describe("migrate to version 18: the Fresh Catch shelf (F94)", function()
+		it("starts an older save with nothing bought and no alert, and drops its dealer counts", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.version = 17
+			raw.freshCatch = nil
+			raw.dealer = { window = 5977152, bought = { caviar = 1 } }
+			local profile: any = ProfileSchema.migrate(raw, 500)
+			expect(profile.version).to.equal(18)
+			expect(profile.freshCatch).to.deepEqual({ window = 0, bought = {}, alerted = 0 })
+			expect(profile.dealer).never.to.be.ok()
+		end)
+
+		it("keeps whole counts of shelf rows, at most the most a window rolls, and drops the rest", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.freshCatch = {
+				window = 5977152.7,
+				alerted = 5977150,
+				bought = {
+					tip_potion = 2,
+					gold_rush_potion = 7, -- at most 1 a window
+					classic_crate = 1,
+					steady_potion = 0,
+					swift_potion = "1",
+					kibble = 3,
+				},
+			}
+			expect(ProfileSchema.migrate(raw, 500).freshCatch :: any).to.deepEqual({
+				window = 5977152,
+				alerted = 5977150,
+				bought = { tip_potion = 2, gold_rush_potion = 1, classic_crate = 1 },
+			})
+			raw.freshCatch = "junk"
+			expect(ProfileSchema.migrate(raw, 500).freshCatch :: any).to.deepEqual({
+				window = 0,
+				bought = {},
+				alerted = 0,
+			})
 		end)
 	end)
 end

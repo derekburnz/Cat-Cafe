@@ -493,12 +493,31 @@ export type BaitView = {
 	cat: { catId: string, variant: string, charm: number, stars: number }?,
 }
 
--- What the night dealer sold this player (section 8b): bought counts are keyed on the dealer window
--- floor(os.time() / DealerWindowSeconds). v0.8 F59: how many of each dealer food, by lureId (was a mark per slot).
-export type DealerState = {
+-- What the Fresh Catch shelf sold this player (F94, rewards-and-shops.md section 6; the shape the night dealer saved
+-- before F94): how many of each row, by row id, in the window floor(os.time() / FreshCatchWindowSeconds), and the
+-- last window a ShopAlert went to them, so a rejoin in the same window never alerts twice.
+export type FreshCatchState = {
 	window: number,
 	bought: { [string]: number },
+	alerted: number,
 }
+
+-- One row of the Fresh Catch shelf (F94, section 3): a potion, or now and then a cheaper Classic Crate, for golden
+-- fish. `alert` rows send a ShopAlert when a window stocks them. The row's id is its potion's or crate's id.
+export type FreshCatchRow = {
+	id: string,
+	kind: "potion" | "crate",
+	potionId: string?,
+	crateId: string?,
+	fish: number,
+	alert: boolean?,
+}
+
+-- One player's Fresh Catch stock as FreshCatchStock sends it (F94, section 6): every row in shelf order with the
+-- window's amount and how many of it this player bought; `window` is what BuyFreshCatch sends back, restocksAt is
+-- os.time().
+export type FreshCatchItem = { itemId: string, fish: number, amount: number, bought: number }
+export type FreshCatchStock = { window: number, restocksAt: number, stock: { FreshCatchItem } }
 
 -- The onboarding funnel's place (data-model section 14, growth analytics-plan 3.2): the last step logged, and later
 -- steps already done but held back until every step before them is logged. Keys are "1" to "12" (JSON-shaped).
@@ -507,11 +526,12 @@ export type TelemetryState = {
 	achieved: { [string]: boolean },
 }
 
--- One player's dealer stock as DealerStock sends it (v0.8 F59): every dealer food in Dealer.FOODS order with the
--- window's amount (0 shows "None this time") and how many of it this player bought; `window` is what
--- BuyDealerFood sends back, restocksAt is os.time().
+-- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount
+-- (0 shows "None this time") and how many of it this player bought tonight. F94 (rewards-and-shops.md section 4):
+-- one stock per server per night; `night` is the server's night count, which BuyDealerFood sends back (was a 5
+-- minute `window` and its `restocksAt`).
 export type DealerFood = { lureId: string, cost: number, amount: number, bought: number }
-export type DealerStock = { window: number, restocksAt: number, stock: { DealerFood } }
+export type DealerStock = { night: number, stock: { DealerFood } }
 
 -- Saved per player (data-model section 14). JSON-safe values only.
 -- The player's settings (data-model section 14; shared/Settings validates them). Volumes run from 0 to 1.
@@ -540,7 +560,7 @@ export type PlayerProfile = {
 	decorPlaced: { [string]: boolean },
 	lures: { [string]: number },
 	bait: BaitState?,
-	dealer: DealerState,
+	freshCatch: FreshCatchState, -- F94 (save version 18; the dealer's saved counts went with it)
 	cats: { [string]: CatInstance },
 	collection: { [string]: number },
 	goldCollection: { [string]: number }, -- catId -> first gold caught at

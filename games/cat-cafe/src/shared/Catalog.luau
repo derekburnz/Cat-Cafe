@@ -1859,8 +1859,9 @@ table.freeze(Catalog.collectorOffers)
 Catalog.dealerSlotWeights =
 	{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 } :: { [string]: number }
 
--- Section 8b v0.8 (F59, round 3 Q5): the chance in percent that a window stocks 0, 1, 2, 3 or 4 of each dealer
--- food. Averages 1.85, 0.95, 0.45 and 0.10: a Star Treat turns up about one window in ten.
+-- Section 8b v0.8 (F59, round 3 Q5): the chance in percent that a stock holds 0, 1, 2, 3 or 4 of each dealer food.
+-- Averages 1.85, 0.95, 0.45 and 0.10: a Star Treat turns up about one night in ten. F94 (rewards-and-shops.md
+-- section 4): each server rolls one stock at dusk that holds all night (was every 5 minutes).
 Catalog.dealerAmountWeights = {
 	sardines = { 15, 25, 30, 20, 10 },
 	caviar = { 35, 40, 20, 5, 0 },
@@ -2952,6 +2953,37 @@ end
 
 function Catalog.getFishShopRow(id: string): Types.FishShopRow?
 	return Catalog.fishShopById[id]
+end
+
+-- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf at the Golden Fish Market, sold by day for golden fish
+-- in this order, each row's amount in a window rolled from Config.FreshCatchAmountWeights (shared/FreshCatch). A
+-- row's id is its potion's or crate's id. The Classic Crate is 10 fish off its Market price and goes to the banked
+-- crates. The Gold Rush Potion and the crate send a ShopAlert. Earned only: golden fish are never sold for Robux.
+Catalog.freshCatch = {
+	{ id = "tip_potion", kind = "potion", potionId = "tip_potion", fish = 10 },
+	{ id = "swift_potion", kind = "potion", potionId = "swift_potion", fish = 6 },
+	{ id = "steady_potion", kind = "potion", potionId = "steady_potion", fish = 12 },
+	{ id = "quick_bait_potion", kind = "potion", potionId = "quick_bait_potion", fish = 15 },
+	{ id = "big_tip_potion", kind = "potion", potionId = "big_tip_potion", fish = 25 },
+	{ id = "lucky_potion", kind = "potion", potionId = "lucky_potion", fish = 25 },
+	{
+		id = "gold_rush_potion",
+		kind = "potion",
+		potionId = "gold_rush_potion",
+		fish = 30,
+		alert = true,
+	},
+	{ id = "classic_crate", kind = "crate", crateId = "classic_crate", fish = 50, alert = true },
+} :: { Types.FreshCatchRow }
+Catalog.freshCatchById = {} :: { [string]: Types.FreshCatchRow }
+for _, row in Catalog.freshCatch do
+	Catalog.freshCatchById[row.id] = row
+	table.freeze(row)
+end
+table.freeze(Catalog.freshCatch)
+
+function Catalog.getFreshCatchRow(id: string): Types.FreshCatchRow?
+	return Catalog.freshCatchById[id]
 end
 
 return Catalog

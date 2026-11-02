@@ -139,10 +139,26 @@ local Config = {
 	StraySpawnSpacingStuds = 12,
 	StrayWanderSpeed = 3,
 	AnnounceMinRarity = "Epic",
-	-- The night dealer (data-model section 8b): buy from this close to the cart; the stock rerolls every window
-	-- (F59: every 5 minutes, was 10).
+	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
+	-- each server rolls its stock once at dusk and it holds all night.
 	DealerRangeStuds = 12,
+	-- Retired by F94 (the stock no longer rolls every 5 minutes); only the UI's dealer screen still reads it, and it
+	-- goes once that screen drops its "Fresh stock in" line.
 	DealerWindowSeconds = 300,
+	-- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf at the Golden Fish Market, by day. Every window of
+	-- this many seconds rolls an amount of each Catalog.freshCatch row, the same on every server.
+	FreshCatchWindowSeconds = 300,
+	-- The chance in percent that a window stocks 0, 1, 2 or 3 of each Fresh Catch row, by the row's id.
+	FreshCatchAmountWeights = {
+		tip_potion = { 10, 30, 40, 20 },
+		swift_potion = { 10, 30, 40, 20 },
+		steady_potion = { 30, 45, 25, 0 },
+		quick_bait_potion = { 40, 45, 15, 0 },
+		big_tip_potion = { 60, 35, 5, 0 },
+		lucky_potion = { 60, 35, 5, 0 },
+		gold_rush_potion = { 75, 25, 0, 0 },
+		classic_crate = { 90, 10, 0, 0 },
+	} :: { [string]: { number } },
 
 	-- Rescue minigames (data-model section 10b)
 	RescueSpawnChance = 0.6, -- per trap at each night start

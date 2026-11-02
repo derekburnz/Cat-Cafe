@@ -108,7 +108,6 @@ local COUNTER_GAP = 14
 -- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
 local BUFFS_GAP = 8 -- the potion timers sit this far over the counters (F64)
-local BUFFS_H = 30
 local EXACT_SECONDS = 2.5 -- how long a tapped golden fish's exact amount stays up
 local BOOSTS_W = 300 -- the money's boosts card
 local BOOST_ROW_H = 24
@@ -883,7 +882,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Position = UDim2.fromOffset(MARGIN, MARGIN),
 		Size = UDim2.fromOffset(PILL_W, #menuItems * PILL_H + (#menuItems - 1) * Theme.sizes.gap),
 		Parent = root,
-	}, { menuLayout })
+	}, { menuLayout :: Instance })
 	for index, item in menuItems do
 		local button = Button.new({
 			name = item.name,
@@ -1966,6 +1965,7 @@ end
 -- list"): over the counters, the exact money and rate, then one row per source from Components/BoostList, the empty
 -- ones grey, and "All together" at the foot. The whole card is a button that closes it.
 function HUD._buildBoosts(self: any, root: Frame)
+	self._boostsSaid = nil :: string? -- what the rows last said (_renderBoosts)
 	local card = hudPanel("Boosts", {
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
@@ -2049,12 +2049,12 @@ function HUD._buildBoosts(self: any, root: Frame)
 		ZIndex = 6,
 		Parent = list,
 	})
+	-- the card's whole content takes the closing tap; sized by scale alone, so the card's AutomaticSize stays put
 	local close: TextButton = Create("TextButton", {
 		Name = "Close",
 		Text = "",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(-14, -10),
-		Size = UDim2.new(1, 28, 1, 20),
+		Size = UDim2.fromScale(1, 1),
 		ZIndex = 8,
 		Parent = card,
 	})
@@ -2093,13 +2093,28 @@ function HUD._renderBoosts(self: any)
 	end
 	self._boostsExact.Text = Theme.currencySymbol .. Format.commas(math.floor(state.money))
 	self._boostsRate.Text = Format.rate(state.incomePerSecond)
+	-- the money ticks five times a second while income flows (UIController's prediction), and each tick renders the
+	-- HUD; the rows are made again only when what they say changed
+	local rows = BoostList.rows(self._catalog, state, Workspace:GetServerTimeNow())
+	local said: { string } = {}
+	for _, row in rows do
+		table.insert(
+			said,
+			("%s=%s=%s=%s"):format(row.key, row.name, row.value, tostring(row.active))
+		)
+	end
+	local text = table.concat(said, ";")
+	if text == self._boostsSaid then
+		return
+	end
+	self._boostsSaid = text
 	local holder: Frame = self._boostsRows
 	for _, child in holder:GetChildren() do
 		if child:IsA("GuiObject") then
 			child:Destroy()
 		end
 	end
-	for order, row in BoostList.rows(self._catalog, state, Workspace:GetServerTimeNow()) do
+	for order, row in rows do
 		local total = row.kind == "total"
 		local frame: Frame = Create("Frame", {
 			Name = row.key,
@@ -2179,15 +2194,20 @@ function HUD._layoutMenu(self: any)
 	local pills = shown * PILL_H
 	local foldUnder = gap + 4 + FOLD_H
 	local bandBottom = height - MARGIN - self._counterH - gap
-	local roomy = bandBottom - (BUFFS_H + BUFFS_GAP) - MARGIN >= pills + spaces * gap + foldUnder
+	local buffsH = BuffChips.rowHeight()
+	local roomy = bandBottom - (buffsH + BUFFS_GAP) - MARGIN >= pills + spaces * gap + foldUnder
 	if roomy then
 		self._buffs:place(
 			UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
 			Vector2.new(0, 1)
 		)
-		bandBottom -= BUFFS_H + BUFFS_GAP
+		bandBottom -= buffsH + BUFFS_GAP
 	else
-		self._buffs:place(UDim2.fromOffset(MARGIN + PILL_W + 12, MARGIN), Vector2.zero)
+		-- level with the first pill, right of the menu
+		self._buffs:place(
+			UDim2.fromOffset(MARGIN + PILL_W + 12, MARGIN + PILL_H / 2),
+			Vector2.new(0, 0.5)
+		)
 	end
 	local band = bandBottom - MARGIN
 	-- a short screen closes the gaps between the pills a little before anything overlaps

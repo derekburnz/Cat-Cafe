@@ -25,7 +25,7 @@ export type BuffChips = {
 	destroy: (self: BuffChips) -> (),
 }
 
-local HEIGHT = 30
+local HEIGHT = 30 -- the time label
 local TILE = 28
 local TAP_H = 36 -- each chip takes taps this tall round its 28 px tile (more on a phone, Scale.tapHeight)
 
@@ -33,6 +33,11 @@ type Chip = { frame: TextButton, time: TextLabel }
 
 local BuffChips = {}
 BuffChips.__index = BuffChips
+
+-- How tall the row is: a chip's tap height, so the HUD keeps that much free over the counters.
+function BuffChips.rowHeight(): number
+	return Scale.tapHeight(TAP_H)
+end
 
 function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 	local self = setmetatable({}, BuffChips) :: any
@@ -47,7 +52,7 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 		Name = "Potions",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(x, 0),
-		Size = UDim2.fromOffset(0, HEIGHT),
+		Size = UDim2.fromOffset(0, BuffChips.rowHeight()),
 		AutomaticSize = Enum.AutomaticSize.X,
 		Visible = false,
 		Parent = parent,
@@ -85,7 +90,7 @@ function BuffChips._chip(self: any, potionId: string, order: number): Chip
 		Text = "",
 		AutoButtonColor = false,
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(0, Scale.tapHeight(TAP_H)),
+		Size = UDim2.fromOffset(0, BuffChips.rowHeight()),
 		AutomaticSize = Enum.AutomaticSize.X,
 		LayoutOrder = order,
 		Parent = self.frame,

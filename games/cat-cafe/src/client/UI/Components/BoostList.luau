@@ -68,7 +68,8 @@ local function level(catalog: Types.Catalog?, state: Types.PlayerState, upgradeI
 	if type(own) == "number" then
 		return own
 	end
-	for _, def in if catalog then catalog.upgrades else {} do
+	local upgrades: { Types.UpgradeDef } = if catalog then catalog.upgrades else {}
+	for _, def in upgrades do
 		if def.id == upgradeId and type(def.startLevel) == "number" then
 			return def.startLevel
 		end
@@ -82,7 +83,8 @@ local function decorBonus(catalog: Types.Catalog?, state: Types.PlayerState): (n
 		for _, def in catalog.decor do
 			byId[def.id] = def
 		end
-		for _, def in catalog.crateDecor or {} do
+		local crateDecor: { Types.DecorDef } = catalog.crateDecor or {}
+		for _, def in crateDecor do
 			byId[def.id] = def
 		end
 	end

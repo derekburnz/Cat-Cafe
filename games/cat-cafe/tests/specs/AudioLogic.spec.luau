@@ -900,4 +900,55 @@ return function()
 			end
 		end)
 	end)
+
+	describe("Audio.Logic cafe orders (F90)", function()
+		it("pours only at the espresso machine", function()
+			expect(Logic.orderMakeCue("espresso")).to.equal("orderPour")
+			expect(Logic.orderMakeCue("oven")).to.equal(nil)
+			expect(Logic.orderMakeCue("counter")).to.equal(nil)
+			expect(Logic.orderMakeCue(nil)).to.equal(nil)
+		end)
+		it("rings the oven's ding lowest, a drink's a note up and the counter's two", function()
+			expect(Logic.orderDingStep("oven")).to.equal(1)
+			expect(Logic.orderDingStep("espresso")).to.equal(2)
+			expect(Logic.orderDingStep("counter")).to.equal(3)
+			expect(Logic.orderDingStep("grill")).to.equal(nil)
+			expect(Logic.orderDingStep(nil)).to.equal(nil)
+		end)
+		it(
+			"plays the pour, ding, clink and bag drop from the Cafe sheet and the sweep from the tip pile file",
+			function()
+				local lastStop = -1
+				for _, name in { "orderPour", "orderDing", "trayClink", "tipBank" } do
+					local cue = Cues[name]
+					expect(cue ~= nil and cue.sheet == "sheetCafe").to.equal(true)
+					expect(cue.range ~= nil).to.equal(true)
+					expect(cue.region[1] > lastStop).to.equal(true)
+					lastStop = cue.region[2]
+				end
+				expect(Cues.tipSweep.ids[1]).to.equal(Cues.tipPile.ids[1])
+				expect(Cues.tipSweep.range ~= nil).to.equal(true)
+			end
+		)
+	end)
+
+	-- QA for Sound-Agent's PR #784: the order sounds repeat with every order, so each stays near its cafe, spaced out
+	-- and at most two at once, and only a real station name picks a sound.
+	describe("Audio.Logic cafe order edges (QA)", function()
+		it("keeps every order sound 3D within 35 studs, with a gap and at most two voices", function()
+			for _, name in { "orderPour", "orderDing", "trayClink", "tipSweep", "tipBank" } do
+				local cue = Cues[name]
+				expect(cue.range ~= nil and cue.range > 0 and cue.range <= 35).to.equal(true)
+				expect((cue.minGap or 0) > 0).to.equal(true)
+				expect((cue.voices or 1) <= 2).to.equal(true)
+			end
+		end)
+
+		it("picks no pour or ding step for anything but a station's exact name", function()
+			for _, bad in { "", "Espresso", "OVEN", " counter", "orderPour", 2, true, {} } :: { any } do
+				expect(Logic.orderMakeCue(bad)).to.equal(nil)
+				expect(Logic.orderDingStep(bad)).to.equal(nil)
+			end
+		end)
+	end)
 end

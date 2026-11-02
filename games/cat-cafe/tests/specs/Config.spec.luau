@@ -197,6 +197,15 @@ return function()
 		LeaderboardRateMax = 10000000,
 		LeaderboardCrownRank = 10,
 		LeaderboardFaceSwapSeconds = 15,
+		-- The crate reel (F103, crate-reel.md 4)
+		CrateReelTiles = 40,
+		CrateReelLandingTile = 34,
+		CrateReelProtectFrom = 26,
+		CrateReelProtectTo = 37,
+		CrateReelTopSpeed = 15,
+		CrateReelRampSeconds = 0.3,
+		CrateReelStopSeconds = 0.8,
+		CrateReelHoldSeconds = 0.25,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 same target cooldown 20, v0.5.1 target immunity S45; v0.8 F56)
 		BumpEnabled = true,
 		BumpChance = 1.0, -- v0.8 F56: a shove always drops the cat
@@ -638,6 +647,17 @@ return function()
 			expect(#Config.ProfileStoreName > 0).to.equal(true)
 			expect(#Config.ProfileKeyPrefix > 0).to.equal(true)
 			expect(Config.MaxIdLength >= 20).to.equal(true)
+		end)
+	end)
+
+	describe("the crate reel (F103, crate-reel.md section 4)", function()
+		it("keeps the won tile inside the protected run and the stop's view on the strip", function()
+			local landing = Config.CrateReelLandingTile
+			expect(landing >= Config.CrateReelProtectFrom and landing <= Config.CrateReelProtectTo).to.equal(true)
+			-- the seven tiles in view at the stop (three either side of the won one) are all on the strip
+			expect(Config.CrateReelProtectTo <= Config.CrateReelTiles and landing + 3 <= Config.CrateReelTiles).to.equal(
+				true
+			)
 		end)
 	end)
 end

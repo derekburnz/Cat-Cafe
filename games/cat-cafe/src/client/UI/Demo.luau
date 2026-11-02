@@ -570,15 +570,16 @@ function Demo.run(UI: any): () -> ()
 			if prize == nil or claimed[milestoneId] then
 				return
 			end
+			-- the page's count as the client shows it: cats (or gold cats), or a Decor Index page's pieces
+			local counts = IndexRewards.counts(CATALOG, UI.getState(), areaId)
 			local milestones: { Types.IndexMilestone } = CATALOG.indexMilestones or {}
 			local need, gold = math.huge, false
 			for _, milestone in milestones do
 				if milestone.id == milestoneId then
-					need, gold = IndexRewards.need(milestone), IndexRewards.isGold(milestone)
+					need, gold =
+						IndexRewards.need(milestone, counts.total), IndexRewards.isGold(milestone)
 				end
 			end
-			-- the page's count as the client shows it: cats (or gold cats), or a Decor Index page's pieces
-			local counts = IndexRewards.counts(CATALOG, UI.getState(), areaId)
 			local have = if gold then counts.gold else counts.found
 			if have < need then
 				UI.toast("Find more first", "warn")

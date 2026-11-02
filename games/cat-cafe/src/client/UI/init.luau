@@ -146,7 +146,7 @@ UI.events = {
 	-- F64
 	usePotion = Signal.new(), -- (potionId)   Use on a potion in the potion bag: forward as UsePotion
 	-- F61
-	collectTips = Signal.new(), -- ()   Collect on the till's tip button in your cafe: forward as CollectTips
+	collectTips = Signal.new(), -- ()   the till's Collect (F61); unbound since F97 pays tip piles on arrival
 	-- F73
 	claimQuest = Signal.new(), -- (kind, slot)   Claim on a finished quest, kind "daily" or "weekly": forward as ClaimQuest
 	rerollQuest = Signal.new(), -- (kind, slot)   Swap on an unfinished quest (the free reroll): forward as RerollQuest
@@ -1998,17 +1998,14 @@ UI.richTip = {}
 -- os.time()) show a tip, with Collect firing events.claimRichTip within 12 studs. When a claimed tip clears
 -- (RichTipOutcome "claimed") "+$X" rises from the coin pile and a toast says so, so the server needs no Notify for
 -- it; a missed one only toasts "Rich tip missed".
--- F61: the same plot's tip piles too. While its TipPiles is above 0 and the player stands on the plot, a green
--- "💰 Collect $120" pill floats over the till and fires events.collectTips.
 -- F63: the same plot's CollectorSpot, where the Cat Collector's tag and card follow UI.collector.offer.
 -- Call it again when the player gets a new plot; nil stops watching.
 function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then
 		richTipScreen:bind(plot)
 	end
-	if tillTips then
-		tillTips:bind(plot)
-	end
+	-- F97: tip piles pay the moment they appear (Gameplay-Engineer #714), so the till's Collect pill stays unbound
+	-- until F90's Waiter gives the till a job
 	if collectorScreen then
 		collectorScreen:bind(plot)
 	end

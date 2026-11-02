@@ -62,7 +62,7 @@ PRIORITY = (
     "uiCodeRedeem", "visitorCollector", "uiTrade", "visitorMystery", "giftOpen", "potionDrink",
     "musicDayA", "musicNightA", "musicDayB", "tackleLunge", "tackleMiss", "catLevelUp",
     "uiDailyStamp", "jingleDailyCard", "waterStep", "cannonLaunch", "cannonLand", "cannonClouds", "cloudHop",
-    "campCheckIn", "uiSpinBusy", "sheetMoments", "sheetWorld",
+    "campCheckIn", "uiSpinBusy", "sheetMoments", "sheetWorld", "sheetDecor",
 )
 
 

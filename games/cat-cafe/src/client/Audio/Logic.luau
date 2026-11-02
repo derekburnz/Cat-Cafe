@@ -403,4 +403,27 @@ function Logic.regionSeconds(region: { number }?, speed: number): number?
 	return (region[2] - region[1]) / math.max(speed, 0.01)
 end
 
+-- F89: each Legendary and Mythical decor piece's small sound (luck-and-rare-moments.md 2c), by its DecorId, and the
+-- name of the moving part it comes from once Model-Agent's rework has one (nil plays it at the model).
+local DECOR_SOUNDS: { [string]: { cue: string, part: string? } } = {
+	park_blossom_tree = { cue = "decorBlossomTree", part = "CatCafe_Decor_BlossomTree_Chime_Swing" },
+	sewer_bathtub_sofa = { cue = "decorBathtubSofa", part = "CatCafe_Decor_BathtubSofa_Duck_Bob" },
+	woods_hollow_log_booth = {
+		cue = "decorHollowLog",
+		part = "CatCafe_Decor_HollowLogBooth_Lantern_Swing",
+	},
+	neighbourhood_ice_cream_counter = { cue = "decorIceCream" },
+	park_duck_fountain = { cue = "decorDuckFountain" },
+	alley_retro_jukebox = { cue = "decorJukebox" },
+	classic_cat_tree_tower = { cue = "decorCatTree" },
+}
+
+function Logic.decorSound(decorId: any): (string?, string?)
+	local entry = if type(decorId) == "string" then DECOR_SOUNDS[decorId] else nil
+	if entry == nil then
+		return nil, nil
+	end
+	return entry.cue, entry.part
+end
+
 return Logic

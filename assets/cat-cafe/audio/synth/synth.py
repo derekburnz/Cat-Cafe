@@ -1442,6 +1442,128 @@ def camp_rattle() -> np.ndarray:
     return finish(fade_tail(mix(d, (thud, 0.0), *knocks, (thud * 0.5, 0.42)), 0.15), -6)
 
 
+# --- F89 rare decor (2026-11-02): each Legendary and Mythical piece's "small sound when used", played once as you
+# walk up to it. Model-Agent's rework gives each a moving part; the sound is a short touch of that part. They live
+# in the Decor sheet (mono, 3D). -------------------------------------------------------------------------------
+
+CHIME_TUBE = ((1.0, 1.0, 1.1), (2.76, 0.35, 0.45), (5.40, 0.15, 0.22), (8.93, 0.06, 0.1))
+
+
+def decor_blossom_tree() -> np.ndarray:
+    """The Blossom Tree (Mythical): a breeze sets the wind chime between its paper lanterns ringing, six soft tubes
+    in a pentatonic so any order sounds sweet."""
+    d = 2.4
+    t = seconds(d)
+    breeze = bandpass(noise(d, 800), 900, 0.6) * np.sin(np.pi * np.clip(t / 1.8, 0, 1)) ** 2
+    strikes = (("D6", 0.0, 0.8), ("A6", 0.17, 0.6), ("E6", 0.31, 0.7), ("B6", 0.52, 0.5), ("G6", 0.7, 0.55),
+               ("D7", 0.93, 0.4), ("A6", 1.18, 0.3))
+    tubes = [(bell(d, note(n), CHIME_TUBE, attack=0.001) * amp, at) for n, at, amp in strikes]
+    return finish(fade_tail(mix(d, (breeze / np.max(np.abs(breeze)) * 0.06, 0.0), *tubes), 0.7), -6)
+
+
+def squeak(d: float, f: float, seed: int) -> np.ndarray:
+    """A rubber duck squeezed: a whistle that jumps up, wobbles and falls back, with a little reedy buzz."""
+    t = seconds(d)
+    rng = np.random.default_rng(seed)
+    shape = np.sin(np.pi * np.clip(t / d, 0, 1))
+    freq = f * (0.8 + 0.3 * shape) * (1 + 0.02 * np.sin(2 * np.pi * 28 * t + rng.random()))
+    phase = np.cumsum(freq) / SR
+    tone = np.sin(2 * np.pi * phase) + 0.35 * np.sin(4 * np.pi * phase) + 0.12 * np.sin(6 * np.pi * phase)
+    return tone * np.clip(t / 0.01, 0, 1) * np.clip((d - t) / 0.02, 0, 1)
+
+
+def decor_bathtub_sofa() -> np.ndarray:
+    """The Bathtub Sofa (Legendary): a few bath bubbles bloop up and its rubber duck squeaks twice as it bobs."""
+    d = 1.3
+    bubbles = [(bubble(0.09, f, f * 2.2, 0.03) * a, at)
+               for f, at, a in ((320, 0.0, 0.5), (420, 0.08, 0.4), (360, 0.17, 0.45), (500, 0.25, 0.35), (440, 0.34, 0.3))]
+    squeaks = [(squeak(0.14, 1500, 810) * 0.5, 0.45), (squeak(0.11, 1750, 811) * 0.4, 0.66)]
+    return finish(fade_tail(mix(d, *bubbles, *squeaks), 0.3), -6)
+
+
+def cricket(d: float, f: float) -> np.ndarray:
+    """One cricket chirp: three quick pulses of a high, pure tone."""
+    out = np.zeros(int(d * SR))
+    for k in range(3):
+        at = 0.028 * k
+        out += np.sin(2 * np.pi * f * seconds(d)) * envelope(d, 0.003, 0.006, at) * (1 - 0.15 * k)
+    return out
+
+
+def decor_hollow_log() -> np.ndarray:
+    """The Hollow Log Booth (Legendary): its lantern's little flame crackles and two crickets chirp in the dark
+    wood, a cosy night sound."""
+    d = 1.8
+    t = seconds(d)
+    hush = bandpass(bandpass(noise(d, 820), 380, 1.0), 380, 1.0) * (0.6 + 0.4 * np.sin(np.pi * np.clip(t / d, 0, 1)))
+    pops = crackle(d, 821, 22, 1900) * 0.5
+    chirps = [(cricket(0.12, f) * a, at) for f, at, a in ((4600, 0.18, 0.5), (4400, 0.62, 0.4), (4600, 1.05, 0.45),
+                                                          (4400, 1.4, 0.3))]
+    return finish(fade_tail(mix(d, (hush / np.max(np.abs(hush)) * 0.12, 0.0), (pops, 0.0), *chirps), 0.4), -6)
+
+
+MUSIC_BOX = ((1.0, 1.0, 0.45), (3.0, 0.25, 0.12), (5.2, 0.08, 0.05))
+
+
+def decor_ice_cream() -> np.ndarray:
+    """The Ice Cream Counter (Legendary): a scoop scrapes through the tub, a soft plop on the cone, and a little
+    music box tune like the counter is happy to serve."""
+    d = 1.5
+    ts = seconds(0.16)
+    scrape = bandpass(noise(0.16, 830), sweep(0.16, 1300, 2800), 2.0) * np.sin(np.pi * np.clip(ts / 0.16, 0, 1))
+    plop = glide(0.12, 320, 150, 0.04) * envelope(0.12, 0.002, 0.03)
+    tune = [(bell(d, note(n), MUSIC_BOX, attack=0.001) * 0.45, at)
+            for n, at in (("G6", 0.32), ("E6", 0.44), ("C7", 0.56), ("G6", 0.72))]
+    return finish(fade_tail(mix(d, (scrape / np.max(np.abs(scrape)) * 0.4, 0.0), (plop * 0.6, 0.17), *tune), 0.4), -6)
+
+
+def decor_duck_fountain() -> np.ndarray:
+    """The Duck Fountain (Legendary): water burbles from the duck's beak into the bowl, a few plips, and one small
+    squeak from the duck on top."""
+    d = 1.6
+    t = seconds(d)
+    rng = np.random.default_rng(840)
+    trickle = bandpass(bandpass(noise(d, 841), 1800, 1.4), 1800, 1.4) * (0.5 + 0.5 * np.sin(np.pi * np.clip(t / 1.3, 0, 1)))
+    burble = [(bubble(0.07, f, f * 1.9, 0.02) * (0.25 + 0.2 * rng.random()), at)
+              for f, at in zip(rng.uniform(600, 1300, 10), np.sort(rng.uniform(0.0, 1.0, 10)))]
+    return finish(fade_tail(mix(d, (trickle / np.max(np.abs(trickle)) * 0.12, 0.0), (bubble(0.08, 650, 1400, 0.025) * 0.5, 0.0),
+                                *burble, (squeak(0.12, 1900, 842) * 0.3, 1.05)), 0.35), -6)
+
+
+def organ(d: float, f: float) -> np.ndarray:
+    """A soft retro combo organ note: a few even harmonics with a gentle tremolo."""
+    t = seconds(d)
+    tone = sum(np.sin(2 * np.pi * f * k * t) / k**1.6 for k in (1, 2, 3, 4, 6))
+    return tone * (1 - 0.15 * (0.5 + 0.5 * np.sin(2 * np.pi * 6 * t))) * np.clip(t / 0.01, 0, 1) * np.clip((d - t) / 0.05, 0, 1)
+
+
+def decor_jukebox() -> np.ndarray:
+    """The Retro Jukebox (Legendary): a coin drops in, the arm clunks the record down, the needle crackles and a
+    short bouncy organ riff plays."""
+    d = 2.0
+    coin = bell(0.3, 2500.0, COIN, attack=0.0005) * 0.5
+    clink = bell(0.2, 3300.0, COIN, attack=0.0005) * 0.3
+    clunk = glide(0.15, 170, 110, 0.04) * envelope(0.15, 0.002, 0.035) + bandpass(noise(0.15, 850), 700, 1.0) * envelope(0.15, 0.001, 0.02) * 0.4
+    needle = crackle(1.4, 851, 35, 3200) * 0.6
+    riff = [(organ(dur, note(n)) * 0.4, at) for n, at, dur in
+            (("C5", 0.62, 0.14), ("E5", 0.78, 0.14), ("G5", 0.94, 0.14), ("A5", 1.1, 0.2), ("G5", 1.34, 0.5))]
+    bass = [(organ(0.3, note(n)) * 0.25, at) for n, at in (("C3", 0.62), ("G3", 0.94), ("C3", 1.34))]
+    return finish(fade_tail(mix(d, (coin, 0.0), (clink, 0.07), (clunk * 0.6, 0.3), (needle, 0.42), *riff, *bass), 0.35), -6)
+
+
+def decor_cat_tree() -> np.ndarray:
+    """The Cat Tree Tower (Legendary): claws rake the sisal post three times, the dangling toy's bell jingles and a
+    soft thump as a paw lands on the top platform."""
+    d = 1.3
+    t = seconds(0.12)
+    rake = bandpass(noise(0.12, 860), 3000, 1.5) * np.sin(np.pi * t / 0.12) ** 0.8 * (1 + 0.5 * np.sin(2 * np.pi * 70 * t))
+    rakes = [(rake * a, at) for at, a in ((0.0, 0.5), (0.16, 0.45), (0.3, 0.4))]
+    jingle = [(bell(0.3, f, ((1.0, 1.0, 0.06), (2.4, 0.4, 0.03)), attack=0.0005) * 0.25, at)
+              for f, at in ((4800, 0.5), (5300, 0.56), (4600, 0.63), (5100, 0.71), (4900, 0.82))]
+    thump = glide(0.15, 180, 120, 0.04) * envelope(0.15, 0.002, 0.03) * 0.5
+    return finish(fade_tail(mix(d, *rakes, *jingle, (thump, 0.95)), 0.2), -6)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -1541,6 +1663,13 @@ SOUNDS = {
     "ReelStop": ("sheet-parts/ui", "Ui", ui_reel_stop),
     "TradeTick": ("sheet-parts/ui", "Ui", ui_trade_tick),
     "TradeDone": ("sheet-parts/ui", "Ui", ui_trade_done),
+    "DecorBlossomTree": ("sheet-parts/sfx", "Sfx", decor_blossom_tree),
+    "DecorBathtubSofa": ("sheet-parts/sfx", "Sfx", decor_bathtub_sofa),
+    "DecorHollowLog": ("sheet-parts/sfx", "Sfx", decor_hollow_log),
+    "DecorIceCream": ("sheet-parts/sfx", "Sfx", decor_ice_cream),
+    "DecorDuckFountain": ("sheet-parts/sfx", "Sfx", decor_duck_fountain),
+    "DecorJukebox": ("sheet-parts/sfx", "Sfx", decor_jukebox),
+    "DecorCatTree": ("sheet-parts/sfx", "Sfx", decor_cat_tree),
 }
 
 # Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the
@@ -1554,6 +1683,9 @@ SHEETS = {
     "World": (1, ("BellhopBell", "RainbowNear", "CampSplash", "CampBasket", "CampRattle")),
     "Moments": (2, ("JingleEpic", "JingleLegendary", "JingleMythical", "JingleRainbow", "JingleLuckyDay",
                     "RallyCheer", "ReelTick", "ReelStop", "TradeTick", "TradeDone")),
+    # F89's rare decor (2026-11-02), mono for 3D
+    "Decor": (1, ("DecorBlossomTree", "DecorBathtubSofa", "DecorHollowLog", "DecorIceCream", "DecorDuckFountain",
+                  "DecorJukebox", "DecorCatTree")),
 }
 
 

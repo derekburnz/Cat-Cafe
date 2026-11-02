@@ -186,6 +186,9 @@ UI.events = {
 	tradeReady = Signal.new(), -- (tradeId, version, ready)   forward as TradeReady
 	tradeConfirm = Signal.new(), -- (tradeId, version)   forward as TradeConfirm
 	tradeCancel = Signal.new(), -- (tradeId)   Cancel or the X during a trade: forward as TradeCancel
+	-- testers (Derek's notes): Reset on the confirm card of Settings' Reset my save, shown only while the Player
+	-- attribute Tester is true
+	resetSave = Signal.new(), -- ()   forward as ResetSave; the server checks the tester again, then kicks or toasts
 }
 
 local state: Types.PlayerState = {
@@ -929,6 +932,9 @@ function UI.init(config: Types.InitConfig)
 			modalInstance:close()
 			UI.events.introReplay:Fire()
 		end,
+		resetSave = function()
+			UI.events.resetSave:Fire()
+		end,
 	})
 	local settingsView = settingsScreen :: Settings.Settings
 	Motion.screenShake = settingsView:value("screenShake")
@@ -939,7 +945,16 @@ function UI.init(config: Types.InitConfig)
 		onOpen = function()
 			settingsView:render(state)
 		end,
+		onClose = function()
+			settingsView:cancelReset()
+		end,
 	})
+	-- the Testers section follows the Player attribute Tester (ResetSaveService sets it once its check answers)
+	local function renderTester()
+		settingsView:showTester(player:GetAttribute("Tester") == true)
+	end
+	table.insert(connections, player:GetAttributeChangedSignal("Tester"):Connect(renderTester))
+	renderTester()
 	bugReportScreen = BugReport.new({
 		send = function(text: string, kind: string)
 			UI.events.reportBug:Fire(text, kind, ClientErrors.recent())

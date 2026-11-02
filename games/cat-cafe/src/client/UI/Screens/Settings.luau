@@ -21,6 +21,11 @@
 -- F102 (trading.md sections 1 and 5): a Trading section at the end, hidden until showTrading(true) (TradeService
 -- runs): Trade requests with Everyone, Friends only and Off (callbacks.setTradeRequests, saved as
 -- settings.tradeRequests) and a Trades row that opens the last 20 trades (callbacks.openTrades).
+-- Testers (Derek's 10-28 to 10-30 notes: "reset character (wipe save) option for testing"): a Testers section at the
+-- end with one row, Reset my save, shown only while showTester(true) (the Player attribute Tester, which the server
+-- sets in Studio and for the game's owner). Its Reset button swaps the list for a confirm card; the card's Reset
+-- calls callbacks.resetSave once, and the row reads "Resetting your save..." with the button grey until the server
+-- kicks the player to rejoin, or after RESET_HOLD_SECONDS when it refused (its toast says why).
 
 local UserInputService = game:GetService("UserInputService")
 
@@ -45,6 +50,7 @@ export type Callbacks = {
 	-- F102: the Trading section; no section without both
 	setTradeRequests: ((mode: string) -> ())?, -- "everyone", "friends" or "off"
 	openTrades: (() -> ())?,
+	resetSave: (() -> ())?, -- the Testers section's Reset my save, after its confirm card; no section without it
 }
 
 export type Settings = {
@@ -55,6 +61,8 @@ export type Settings = {
 	set: (self: Settings, key: string, value: boolean | number) -> (),
 	showTutorial: (self: Settings, shown: boolean) -> (),
 	showTrading: (self: Settings, shown: boolean) -> (),
+	showTester: (self: Settings, shown: boolean) -> (),
+	cancelReset: (self: Settings) -> (),
 	destroy: (self: Settings) -> (),
 }
 
@@ -91,6 +99,7 @@ local TILE_COLORS: { [string]: Color3 } = {
 	shopAlerts = Theme.colors.goldDark,
 	tradeRequests = Theme.colors.mintDark,
 	trades = Theme.colors.mintDark,
+	resetSave = Theme.colors.warn,
 }
 -- a volume row's switch: the slider greys while that switch is off
 local VOLUME_SWITCH: { [string]: string } = { musicVolume = "music", sfxVolume = "sfx" }
@@ -124,6 +133,17 @@ local TRADES_ROW: ButtonRow = {
 	detail = "Your last 20 trades and who they were with",
 	button = "Open",
 }
+local RESET_ROW: ButtonRow = {
+	key = "resetSave",
+	icon = "🧪",
+	name = "Reset my save",
+	detail = "Start again as a brand new player",
+	button = "Reset",
+}
+local RESET_QUESTION = "Start over from a brand new save? Everything but game passes is lost."
+local RESET_WAIT = "Resetting your save..."
+local RESET_HOLD_SECONDS = 5 -- the server kicks at once; still here after this, it refused and toasted why
+local CONFIRM_W = 380 -- the reset confirm card's widest
 local TIPS_DONE_SECONDS = 2 -- the button reads "Done" this long after a press
 -- the rows hidden until the intro is live (F72)
 local TUTORIAL_ROWS = { SettingsList.TUTORIAL_KEY, REPLAY_ROW.key }
@@ -257,8 +277,13 @@ function Settings.new(callbacks: Callbacks): Settings
 	if setTradeRequests and openTrades then
 		order = self:_buildTrading(order, setTradeRequests, openTrades)
 	end
+	local resetSave = callbacks.resetSave
+	if resetSave then
+		self:_buildTester(order + 1, panel.content, resetSave)
+	end
 	self:showTutorial(false)
 	self:showTrading(false)
+	self:showTester(false)
 
 	-- a drag keeps following the finger off the track, and ends wherever it lets go. A touch drag follows only
 	-- its own finger (the same InputObject); a mouse drag follows the mouse and ends on its button.
@@ -562,6 +587,147 @@ function Settings.showTrading(self: any, shown: boolean)
 		if card then
 			card.Visible = shown
 		end
+	end
+end
+
+-- The Testers section: its header, the Reset my save row and the confirm card its Reset opens over the list.
+function Settings._buildTester(self: any, order: number, content: Instance, resetSave: () -> ())
+	self._testerHeader = text({
+		Name = "Testers",
+		LayoutOrder = order,
+		Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = Theme.modal.subtext,
+		Text = "Testers",
+		Parent = self._list,
+	})
+	local rowButton = self:_buildButtonRow(RESET_ROW, order + 1, function()
+		self:_askReset()
+	end)
+	rowButton:setStyle("danger")
+	self._resetButton = rowButton
+	self._resetting = false
+
+	-- the confirm card, centred where the list was (the list hides while it shows, so nothing under it takes a tap)
+	local buttonH = Scale.tapHeight(SWITCH.Y, Theme.sizes.buttonDepth)
+	local pad = 16
+	local questionH = 66 -- three lines of the question on a phone's narrow card
+	local cardH = pad + 28 + 6 + questionH + 12 + buttonH + pad
+	local card: Frame = Create("Frame", {
+		Name = "ResetConfirm",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, -24, 0, cardH),
+		BackgroundColor3 = Theme.modal.card,
+		BorderSizePixel = 0,
+		Visible = false,
+		Parent = content,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UISizeConstraint", { MaxSize = Vector2.new(CONFIRM_W, cardH) }),
+	})
+	Outline.border(card, 3)
+	self._resetConfirm = card
+	text({
+		Name = "Title",
+		Position = UDim2.fromOffset(pad, pad),
+		Size = UDim2.new(1, -pad * 2, 0, 28),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		Text = "Reset my save?",
+		Parent = card,
+	})
+	text({
+		Name = "Question",
+		Position = UDim2.fromOffset(pad, pad + 28 + 6),
+		Size = UDim2.new(1, -pad * 2, 0, questionH),
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		Text = RESET_QUESTION,
+		Parent = card,
+	})
+	local cancel = Button.new({
+		name = "Cancel",
+		text = "Cancel",
+		style = "secondary",
+		size = UDim2.new(0.5, -(pad + 4), 0, buttonH),
+		anchorPoint = Vector2.new(0, 1),
+		position = UDim2.new(0, pad, 1, -pad),
+		textSize = Theme.sizes.textLarge,
+		parent = card,
+		onClick = function()
+			self:cancelReset()
+		end,
+	})
+	local confirm = Button.new({
+		name = "Confirm",
+		text = "Reset",
+		style = "danger",
+		size = UDim2.new(0.5, -(pad + 4), 0, buttonH),
+		anchorPoint = Vector2.new(1, 1),
+		position = UDim2.new(1, -pad, 1, -pad),
+		textSize = Theme.sizes.textLarge,
+		parent = card,
+		onClick = function()
+			self:_confirmReset(resetSave)
+		end,
+	})
+	table.insert(self._buttons, cancel)
+	table.insert(self._buttons, confirm)
+end
+
+function Settings._askReset(self: any)
+	if self._resetting then
+		return
+	end
+	self._list.Visible = false
+	self._resetConfirm.Visible = true
+end
+
+-- The confirm card's Reset: sent once, then the row waits for the kick.
+function Settings._confirmReset(self: any, resetSave: () -> ())
+	self:cancelReset()
+	if self._resetting then
+		return
+	end
+	self._resetting = true
+	local button: Button.Button = self._resetButton
+	local detail = self._cards[RESET_ROW.key]:FindFirstChild("Detail") :: TextLabel
+	button:setEnabled(false)
+	detail.Text = RESET_WAIT
+	resetSave()
+	task.delay(RESET_HOLD_SECONDS, function()
+		if self._alive then
+			self._resetting = false
+			button:setEnabled(true)
+			detail.Text = RESET_ROW.detail
+		end
+	end)
+end
+
+-- Puts the list back in place of the confirm card (Cancel, Reset, the window closing or the row hiding).
+function Settings.cancelReset(self: any)
+	local card: Frame? = self._resetConfirm
+	if card then
+		card.Visible = false
+	end
+	self._list.Visible = true
+end
+
+-- The Testers section, shown while the Player attribute Tester is true.
+function Settings.showTester(self: any, shown: boolean)
+	local header: TextLabel? = self._testerHeader
+	if header then
+		header.Visible = shown
+	end
+	local card: Frame? = self._cards[RESET_ROW.key]
+	if card then
+		card.Visible = shown
+	end
+	if not shown then
+		self:cancelReset()
 	end
 end
 

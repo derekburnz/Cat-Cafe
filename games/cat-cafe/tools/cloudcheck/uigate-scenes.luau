@@ -1175,6 +1175,23 @@ local SCENES = {
 		UI.update({ tradeLog = {} })
 		UI.open("TradeLog")
 	end },
+	-- testers (Derek's notes): Settings' Testers section with Reset my save, scrolled to the end where it sits, and
+	-- the confirm card its Reset opens
+	{ "SettingsTester", function()
+		game:GetService("Players").LocalPlayer:SetAttribute("Tester", true)
+		UI.open("Settings")
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local panel = modals and modals:FindFirstChild("Settings", true)
+		local list = panel and panel:FindFirstChild("List", true)
+		if list and list:IsA("ScrollingFrame") then
+			list.CanvasPosition = Vector2.new(0, 100000)
+		end
+	end },
+	{ "SettingsResetConfirm", function()
+		game:GetService("Players").LocalPlayer:SetAttribute("Tester", true)
+		UI.open("Settings")
+		press("Settings", "resetSave.Open")
+	end },
 }
 
 Scenes.names = {}
@@ -1216,6 +1233,10 @@ function Scenes.close()
 	UI.setZone(nil)
 	UI.tips.reset()
 	UI.tutorial.hide()
+	local me = game:GetService("Players").LocalPlayer
+	if me:GetAttribute("Tester") ~= nil then
+		me:SetAttribute("Tester", nil) -- the Testers section hides again
+	end
 	-- the help card waits for Got it
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 	if ask and ask:FindFirstChild("Choice_ok", true) and ask:FindFirstChild("Card", true).Visible then

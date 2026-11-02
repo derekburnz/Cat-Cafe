@@ -46,6 +46,23 @@ return function()
 		it("pays nothing for an unknown rarity", function()
 			expect(GoldenFish.forCatch("Shiny", true, true, "net")).to.equal(0)
 		end)
+
+		-- F99 (rainbow-coat.md section 1 and test 9): five first catches for a cat's first rainbow coat
+		it("pays five first catches for a first rainbow, on top of a new cat, any way it was found", function()
+			local paid: { [string]: number } =
+				{ Common = 5, Rare = 15, Epic = 40, Legendary = 100, Mythical = 200 }
+			for rarity, fish in paid do
+				for _, method in { "net", "rescue", "bait" } do
+					expect(GoldenFish.forCatch(rarity, false, false, method :: any, true)).to.equal(fish)
+				end
+			end
+			expect(GoldenFish.forCatch("Common", true, false, "net", true)).to.equal(6)
+		end)
+
+		it("pays a repeat rainbow like any repeat", function()
+			expect(GoldenFish.forCatch("Common", false, false, "net", false)).to.equal(0)
+			expect(GoldenFish.forCatch("Epic", false, false, "net", false)).to.equal(1)
+		end)
 	end)
 
 	describe("GoldenFish.forRankUp", function()

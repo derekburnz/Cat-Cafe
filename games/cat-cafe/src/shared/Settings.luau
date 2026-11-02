@@ -21,6 +21,8 @@ Settings.kinds = {
 	showOtherCats = "switch", -- other players' cats in their cafes and in their arms
 	markers = "switch", -- the location markers (the Settings screen's Place icons)
 	tutorialButton = "switch", -- the HUD's Tutorial tile that replays the intro (F72); its x turns this off
+	-- F94 (rewards-and-shops.md section 3): the Fresh Catch's ShopAlert for a Gold Rush Potion or the cheap crate
+	shopAlerts = "switch",
 } :: { [string]: Kind }
 
 function Settings.defaults(): Types.Settings
@@ -34,6 +36,7 @@ function Settings.defaults(): Types.Settings
 		showOtherCats = true,
 		markers = true,
 		tutorialButton = true,
+		shopAlerts = true,
 	}
 end
 

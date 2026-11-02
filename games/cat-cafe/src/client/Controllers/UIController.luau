@@ -1049,8 +1049,8 @@ end
 
 -- The words of the asks that are toasts (section 3); the UI's optional UI.asks.show(id) -> boolean shows its own.
 local ASK_LINES: { [string]: string } = {
-	[Tips.FAVORITE_ASK] = "Favorite Cat Cafe to find it fast next time",
-	[Tips.LIKE_ASK] = "Having fun? A thumbs up helps other players find Cat Cafe.",
+	[Tips.FAVORITE_ASK] = "Favorite Catch a Cat Cafe to find it fast next time",
+	[Tips.LIKE_ASK] = "Having fun? A thumbs up helps other players find Catch a Cat Cafe.",
 	[Tips.INVITE_ASK] = "Playing with a friend gives you both +10% tips. Invite one?", -- F92
 }
 

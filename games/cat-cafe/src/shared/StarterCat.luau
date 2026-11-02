@@ -15,7 +15,7 @@ StarterCat.TAG = "BellhopStand" -- the stand, CatCafe_Street_BellhopStand; only 
 StarterCat.CLAIMED = "Already home with you"
 StarterCat.TOO_FAR = "Walk up to my stand to take me home"
 StarterCat.NEEDS_GOALS = "Finish your first goals to take me home"
-StarterCat.NEEDS_GROUP = "Join the Cat Cafe group to take me home"
+StarterCat.NEEDS_GROUP = "Join our group to take me home"
 StarterCat.TRY_AGAIN = "Try again in a moment"
 
 -- What a claim is checked against: the first goals ("task") while the game has no group, the group after.

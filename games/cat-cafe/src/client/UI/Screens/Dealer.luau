@@ -533,6 +533,10 @@ function Dealer._renderAll(self: any)
 	local luck = if catalog then IndexRewards.totals(catalog, state).goldLuck else 0
 	local boosts = PotionLogic.boosts(catalog, state, Workspace:GetServerTimeNow())
 	local extras = FoodOdds.extras(luck, boosts.goldLuck, boosts.goldScale)
+	local rainbow = FoodOdds.rainbow(state.rainbowLuck) -- F99: under the gold line once rainbow rolls exist
+	if rainbow then
+		extras ..= "\n" .. rainbow
+	end
 	if oddsChanged or extras ~= self._extras then
 		self._extras = extras
 		local amounts = if catalog then catalog.dealerAmountWeights else nil

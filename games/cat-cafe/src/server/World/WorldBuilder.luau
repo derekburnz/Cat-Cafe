@@ -1562,6 +1562,38 @@ local function buildBellhopStand(parent: Instance): Model
 	return model
 end
 
+-- The leaderboards (F98, leaderboards.md section 2; Model-Agent #758): CatCafe_Town_LeaderboardRow at
+-- Layout.leaderboards, facing the cannon. Its three boards are child Models tagged Leaderboard, each with a Screen
+-- part for the UI's SurfaceGui; each gets attribute Board ("index", "playtime" or "money") from its name's ending,
+-- so the UI need not parse names. Persistent, so the faces fill from anywhere in the square. Left out while the art
+-- is missing (it has no placeholder).
+local LEADERBOARD_ROW = "CatCafe_Town_LeaderboardRow"
+local LEADERBOARD_BOARDS: { [string]: string } =
+	{ _Index = "index", _Playtime = "playtime", _Money = "money" }
+
+local function buildLeaderboards(parent: Instance): Model?
+	if not AssetRegistry.known(LEADERBOARD_ROW) then
+		return nil
+	end
+	local spec = Layout.leaderboards
+	local model = place(
+		LEADERBOARD_ROW,
+		CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0),
+		parent
+	)
+	model.Name = "Leaderboards"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	for _, child in model:GetChildren() do
+		for ending, board in LEADERBOARD_BOARDS do
+			if child:IsA("Model") and child.Name:sub(-#ending) == ending then
+				child:SetAttribute("Board", board)
+				CollectionService:AddTag(child, "Leaderboard")
+			end
+		end
+	end
+	return model
+end
+
 local SQUARE_PAVING = "CatCafe_Square_Paving"
 
 -- The Town Square (F76, Layout.townSquare): its paving and the lighter open cross, the gardens' wall along each
@@ -2041,6 +2073,7 @@ function WorldBuilder.build(): World
 	buildFishMarket(root)
 	buildCodesCat(root)
 	buildBellhopStand(root)
+	buildLeaderboards(root)
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"

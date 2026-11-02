@@ -9,6 +9,8 @@
 --   extras the gold chance (with the Index's gold luck in it, v0.10, and a running Gold Rush or Lucky Potion's,
 --          F73), because it changes what the cat earns; under the card's Details since 2026-10-28, with the split.
 --          The charm star odds left with F97 section 5 (stars show nowhere now)
+--   rainbow the rainbow chance under it (F99, rainbow-coat.md section 1): "Rainbow 0.5%", with the Index's rainbow
+--          luck in it, once the server's Config has RainbowChanceBait
 --   atBowl a food's odds in the player's bowl (F82): shared Bait.oddsFor at the lure_bowl level, then the player's
 --          Luck (F88, shared/Luck.apply), as the server rolls food set now
 --   waitSeconds how long the bowl's cat takes: the bowl level's wait (F82), 2 minutes off with the Big Bowl perk, half
@@ -200,6 +202,24 @@ function FoodOdds.extras(goldLuck: number?, potionLuck: number?, goldScale: numb
 		gold ..= " (" .. table.concat(notes, ", ") .. ")"
 	end
 	return "Gold " .. gold
+end
+
+-- "Rainbow 0.5%" under the gold line (F99, rainbow-coat.md section 1): RainbowChanceBait x (1 + rainbow luck), the
+-- luck capped at RainbowLuckMax, so a Rainbow Master reads "Rainbow 1% (+100% luck)". Gold luck, Gold Rush and Lucky
+-- Potions never touch it. Nil while the server has no rainbow roll (no RainbowChanceBait in Config); `chance` stands
+-- in for the Config's in the spec.
+function FoodOdds.rainbow(rainbowLuck: number?, chance: number?): string?
+	local base = chance or tonumber((Config :: any).RainbowChanceBait)
+	if base == nil or base <= 0 then
+		return nil
+	end
+	local most = tonumber((Config :: any).RainbowLuckMax) or 1
+	local luck = math.clamp(rainbowLuck or 0, 0, most)
+	local line = "Rainbow " .. percent(base * (1 + luck) * 100)
+	if luck > 0 then
+		line ..= (" (+%s luck)"):format(percent(luck * 100))
+	end
+	return line
 end
 
 -- The bait wait for food going in now, as the server's Economy.baitWaitSeconds: shared Bait.waitSeconds for the

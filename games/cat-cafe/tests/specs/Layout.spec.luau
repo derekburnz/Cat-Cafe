@@ -1128,6 +1128,25 @@ return function()
 			end
 		)
 
+		it("stands the leaderboards at the lane's east end, facing the cannon, clear of the edge and the stations (F98)", function()
+			local row = Layout.leaderboards
+			local HALF_LONG, HALF_DEEP = 11.9, 1.35 -- the row turned: 23.8 along z, 2.7 along x
+			expect(row.x > 0).to.equal(true)
+			expect(row.x + HALF_DEEP < W.TownSquareHalfWidth - 5).to.equal(true) -- in front of the edge lamps
+			expect(math.abs(row.z) + HALF_LONG < W.TownSquareHalfDepth).to.equal(true)
+			expect(row.x - HALF_DEEP > W.TownSquareLaneHalfWidth).to.equal(true) -- the street's line stays open
+			local yaw = math.rad(row.rotY or 0)
+			local lookX, lookZ = -math.sin(yaw), -math.cos(yaw)
+			local length = math.sqrt(row.x * row.x + row.z * row.z)
+			expect((lookX * -row.x + lookZ * -row.z) / length > 0.999).to.equal(true)
+			for name, point in stations do
+				local dx, dz = math.abs(point.x - row.x), math.abs(point.z - row.z)
+				if dx < HALF_DEEP + 4 and dz < HALF_LONG + 4 then
+					fail("the leaderboards stand on the %s", name)
+				end
+			end
+		end)
+
 		it(
 			"spawns players on the street's line in the square, looking north at the fountain",
 			function()

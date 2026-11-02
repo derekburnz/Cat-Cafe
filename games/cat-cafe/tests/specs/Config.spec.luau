@@ -188,6 +188,15 @@ return function()
 		TeamRescueExtraSeconds = 5,
 		HelperTipSeconds = 60,
 		TeamRescueTipCooldown = 120,
+		-- Leaderboards (F98, leaderboards.md 5)
+		LeaderboardWrites = true,
+		LeaderboardWriteSeconds = 300,
+		LeaderboardRefreshSeconds = 120,
+		LeaderboardSize = 50,
+		LeaderboardBoardRows = 10,
+		LeaderboardRateMax = 10000000,
+		LeaderboardCrownRank = 10,
+		LeaderboardFaceSwapSeconds = 15,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 same target cooldown 20, v0.5.1 target immunity S45; v0.8 F56)
 		BumpEnabled = true,
 		BumpChance = 1.0, -- v0.8 F56: a shove always drops the cat

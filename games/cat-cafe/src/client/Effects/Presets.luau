@@ -82,6 +82,7 @@ export type Budget = {
 	campDrips: number, -- camp pipes dripping at once (F100), a drop part each
 	campFish: number, -- camp pond fish jumping now and then (F100); 0 holds them all still
 	rallyBoards: number, -- Rally boards running their marquee at once (F101); 0 leaves them as built
+	cafeOrders: number, -- orders in other cafes showing their puff, oven glow and ding at once (F90); your own always
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -119,6 +120,7 @@ Presets.budget = {
 		campDrips = 1,
 		campFish = 1,
 		rallyBoards = 1,
+		cafeOrders = 0,
 	},
 	high = {
 		animatedCats = 16,
@@ -151,6 +153,7 @@ Presets.budget = {
 		campDrips = 2,
 		campFish = 2,
 		rallyBoards = 1,
+		cafeOrders = 3,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -183,6 +186,7 @@ Presets.budget = {
 		campDrips = 1,
 		campFish = 0,
 		rallyBoards = 0,
+		cafeOrders = 0,
 	},
 } :: { [string]: Budget }
 
@@ -685,6 +689,57 @@ Presets.emitters = {
 		rate = 40,
 		drag = 2,
 		lightEmission = 0.7,
+		rotSpeed = { -180, 180 },
+	},
+	-- Cats make the orders (F90, Effects/Orders): steam over the espresso machine while a drink is made, a flour puff
+	-- over the oven while a bake is made, a few cool twinkles at the counter for the milk and the sundae, and the
+	-- "ding" sparkle over the finished item.
+	orderSteam = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite },
+		size = { 0.3, 1.2 },
+		transparency = { 0.4, 1 },
+		lifetime = { 0.7, 1.1 },
+		speed = { 2, 3.5 },
+		spread = 15,
+		rate = 0,
+		acceleration = Vector3.new(0.2, 0.8, 0),
+		drag = 1.5,
+	},
+	flourPuff = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite, Presets.palette.cream },
+		size = { 0.25, 0.9 },
+		transparency = { 0.3, 1 },
+		lifetime = { 0.5, 0.8 },
+		speed = { 1.5, 3 },
+		spread = 60,
+		rate = 0,
+		acceleration = Vector3.new(0, 0.4, 0),
+		drag = 3,
+	},
+	counterTwinkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite, Presets.palette.pastelSky },
+		size = { 0.25, 0 },
+		transparency = { 0, 1 },
+		lifetime = { 0.35, 0.6 },
+		speed = { 0.5, 1.5 },
+		spread = 180,
+		rate = 0,
+		lightEmission = 0.4,
+	},
+	dingSparkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite, Presets.palette.sparkle }, -- tinted gold on the rich customer's plate
+		size = { 0.5, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.4, 0.7 },
+		speed = { 3, 6 },
+		spread = 180,
+		rate = 0,
+		drag = 4,
+		lightEmission = 0.6,
 		rotSpeed = { -180, 180 },
 	},
 } :: { [string]: EmitterPreset }
@@ -1372,6 +1427,27 @@ Presets.netSmack = {
 		landed = { sh = 32, tw = 0, sp = 4, el = 5, sh6 = 0, waist = 15 },
 		bounced = { sh = 60, tw = 0, sp = 6, el = 20, sh6 = 45, waist = 10 },
 	},
+}
+
+-- The pal wave (F92, playing-together.md section 5: "a little wave from both characters" when an invited or
+-- following player spawns at a pal's front door): the left arm comes up over `raise` seconds, raised `sh` degrees
+-- forward and `sp` out to the side with the elbow bent `el` so the forearm stands up by the head, turns `twist`
+-- degrees in and out about the upper arm `waves` times (one every `every` seconds) and goes back down over `lower`
+-- seconds, 1.9 s in all. The right arm keeps the net. R6, with no elbow, raises the whole arm `sh6` and sways it
+-- `sway6` degrees either side of `sp6` out. The pal waves back `palDelay` seconds after the joiner starts.
+Presets.palWave = {
+	raise = 0.25,
+	waves = 3,
+	every = 0.45,
+	lower = 0.3,
+	sh = 125,
+	sp = 20,
+	el = 60,
+	twist = 25,
+	sh6 = 160,
+	sp6 = 15,
+	sway6 = 15,
+	palDelay = 0.35,
 }
 
 -- The carry (Derek 2026-10-28: "hold it in your arms crossed arms", the cat "awake loafing or sitting in your
@@ -2097,6 +2173,56 @@ Presets.teamRescue = {
 	confetti = 0.4,
 }
 
+-- Cats make the orders (F90, cats-make-orders.md section 2 step 2 and section 4; Model-Agent's oven in #775). While a
+-- Barista makes an order a puff plays at its station every `every` seconds: `count` steam puffs off one of the
+-- espresso machine's `_Steam` parts (else `rise` over its top) for a drink, `count` flour puffs `above` studs over the
+-- oven's top and `forward` studs toward its front for a bake, `count` cool twinkles `above` the counter spot for the
+-- milk and the sundae. A bake also lights the oven's door window: a warm Neon cover `pad` studs proud of the window
+-- part by the `DoorGlow` attachment (`window` studs across when there is none), with a light inside, coming up over
+-- `rise` s, flickering by `flicker` at `hz` and fading over `fade` s once the oven has nothing left to bake; brighter
+-- by `night` after dark. When the item appears, `sparkles` ding sparkles burst `above` studs over it and a ring
+-- `ring` studs across opens round its plate over `ringSeconds`, both gold with `goldSparkles` on the rich customer's
+-- gold-rimmed plate; a bake's oven door (its `_Door` child Model, pivoted on the bottom hinge) swings out by `door`
+-- (keys of { seconds, degrees }, negative opens it toward the front) with `waft` steam puffs out of it. Orders within
+-- `within` studs play: your own cafe's always, other cafes' while fewer than the budget's `cafeOrders` play. A make
+-- with no OrderReady stops on its own `grace` s after its seconds. Reduce Motion keeps the door shut and the glow
+-- steady; Low performance leaves out the light.
+Presets.orders = {
+	within = 150,
+	grace = 1.5,
+	steam = { every = 0.35, count = 3, rise = 0.3 },
+	flour = { every = 0.55, count = 4, above = 0.35, forward = 0.4 },
+	counter = { every = 0.5, count = 3, above = 0.6 },
+	glow = {
+		rise = 0.6,
+		fade = 0.4,
+		colour = Color3.fromRGB(255, 170, 84),
+		transparency = 0.3, -- the cover's, fully lit
+		pad = 0.035,
+		thick = 0.02,
+		margin = 0.02, -- studs past the window part's edges
+		window = Vector2.new(1.5, 0.74),
+		reach = 0.5, -- studs from DoorGlow the window part can be
+		light = Color3.fromRGB(255, 176, 102),
+		range = 7,
+		brightness = 1.2,
+		night = 1.5,
+		flicker = 0.12,
+		hz = 3.1,
+	},
+	door = { { 0, 0 }, { 0.14, -55 }, { 0.6, -55 }, { 0.95, 0 } },
+	waft = 6,
+	ding = {
+		sparkles = 10,
+		goldSparkles = 14,
+		above = 0.25,
+		ring = 1.6,
+		ringSeconds = 0.45,
+		colour = Presets.palette.sparkle,
+		gold = Presets.palette.golden,
+	},
+}
+
 -- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to
 -- 1, how much of the sky it hides) and `density` (how thick each cloud looks), tinted `color`, drifting on `wind`
 -- studs a second when the place has no wind of its own. Off in Low performance.
@@ -2288,6 +2414,14 @@ Presets.decor = {
 		colors = { palette.milk, palette.pastelSky },
 	},
 	classic_gold_leaf = {
+		look = "goldLeaf",
+		on = "Paint",
+		emitter = "decorGlint",
+		colors = { palette.offwhite, palette.goldLight },
+	},
+	-- The Rally Crate's Mythical paint (F101, Model-Agent's #766: gold 255, 201, 77 Foil on the Paint parts, its
+	-- `_Trim` trims with #660), with Gold Leaf's look: the glints over the front and, once trims are in, their sweep.
+	rally_trophy_gold = {
 		look = "goldLeaf",
 		on = "Paint",
 		emitter = "decorGlint",

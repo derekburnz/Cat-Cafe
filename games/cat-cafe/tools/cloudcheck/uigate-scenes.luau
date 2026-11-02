@@ -201,6 +201,8 @@ function Scenes.setup()
 	Config.QuestClaimAll = true
 	Config.IndexClaimAll = true
 	Config.TipJarClaimAll = true
+	-- F99: the food cards' "Rainbow 0.5%" line shows once the server has rainbow rolls (Gameplay-Engineer)
+	Config.RainbowChanceBait = Config.RainbowChanceBait or 0.005
 	UI.init({ catalog = catalogLikeTheGame(), keybinds = true })
 	UI.cannon.setEnabled(true) -- the Cat Cannon is live (F84): Cannon in the bottom row, no Alley or Areas
 	local now = os.time()
@@ -220,6 +222,62 @@ end
 
 local function localUserId()
 	return game:GetService("Players").LocalPlayer.UserId
+end
+
+-- an F99 rainbow cat for the cat room: the first Epic in the catalog, level 8, resting
+local function rainbowCat()
+	local catId = Catalog.cats[1].id
+	for _, def in Catalog.cats do
+		if def.rarity == "Epic" then
+			catId = def.id
+			break
+		end
+	end
+	return {
+		uid = "gate_rainbow",
+		catId = catId,
+		variant = "rainbow",
+		caughtAt = os.time() - 20,
+		level = 8,
+		xp = 0,
+		xpToNext = 400,
+		charm = 70,
+		stars = 4,
+		rating = 900,
+	}
+end
+
+-- an F98 LeaderboardSync: full top 50 lists with long names, this player (id 1) fourth on all time Money and off
+-- this week's list
+local function leaderboardSync()
+	local names = { "Mittens4Ever", "xX_CatQueen_Xx", "SuperLongDisplayName", "Biscuit", "TunaTycoon", "Pawsome" }
+	local function list(count, top, step, first)
+		local rows = {}
+		for rank = 1, count do
+			local userId = if rank == 4 and first then 1 else 1000 + rank
+			table.insert(rows, {
+				rank = rank,
+				userId = userId,
+				name = if userId == 1 then "You Player" else names[(rank - 1) % #names + 1] .. rank,
+				value = math.max(top - (rank - 1) * step, 1),
+				crown = rank <= 10,
+			})
+		end
+		return rows
+	end
+	return {
+		boards = {
+			index = { allTime = list(50, 68, 1) },
+			playtime = { allTime = list(50, 2472 * 4, 90), week = list(24, 1860, 60) },
+			money = { allTime = list(50, 1240000000, 22000000, true), week = list(50, 8400000, 150000) },
+		},
+		me = {
+			index = { value = 31 },
+			playtime = { rank = 37, value = 2472 },
+			money = { rank = 4, value = 1174000000 },
+		},
+		week = 2901,
+	}
 end
 
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
@@ -454,6 +512,28 @@ local SCENES = {
 			press("Cats", "gate_bellhop")
 		end)
 	end },
+	-- F99: a rainbow Epic in the cat room: the turning rainbow edge and badge, "Rainbow Epic ..." and its x3 chip
+	{ "CatsRainbow", function()
+		local player = samplePlayer(os.time())
+		player.cats.gate_rainbow = rainbowCat()
+		UI.update({ cats = player.cats })
+		UI.open("Cats")
+		task.delay(0.2, function()
+			press("Cats", "gate_rainbow")
+		end)
+	end },
+	-- its sell asks twice: "Sell your Rainbow ...? It earns x3", then "Really sell it?"
+	{ "CatsRainbowSell", function()
+		local player = samplePlayer(os.time())
+		player.cats.gate_rainbow = rainbowCat()
+		UI.update({ cats = player.cats })
+		UI.open("Cats")
+		task.delay(0.2, function()
+			press("Cats", "gate_rainbow")
+			press("Cats", "Sell")
+			press("Cats", "Sell")
+		end)
+	end },
 	-- F97 section 6: two spare cats (no Index page) with their "Classic" tag, one gold under its sparkle
 	{ "CatsClassic", function()
 		local player = samplePlayer(os.time())
@@ -478,6 +558,20 @@ local SCENES = {
 		end
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
+	end },
+	-- F98 section 2: the Index's Top tab on the Index board, the top 50 with medals and crowns, "You: 31 cats" pinned
+	{ "IndexTop", function()
+		UI.leaderboards.sync(leaderboardSync())
+		UI.open("Collection")
+		press("Collection", "TopTab")
+	end },
+	-- the Money board's This week list: this player is not on it, so their line says so
+	{ "IndexTopWeek", function()
+		UI.leaderboards.sync(leaderboardSync())
+		UI.open("Collection")
+		press("Collection", "TopTab")
+		press("Collection", "Board_money")
+		press("Collection", "Window_week")
 	end },
 	{ "Potions", function()
 		UI.open("Potions")
@@ -572,6 +666,10 @@ local SCENES = {
 	end },
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
+	end },
+	-- F99: a rainbow cat's card: NEW RAINBOW ... CAT! and a turning rainbow edge
+	{ "CatFoundRainbow", function()
+		UI.showCatFound(Catalog.cats[2].id, true, { rainbow = true })
 	end },
 	-- F96: a Bellhop claim that works: the card closes and the claim card shows (after CatFound, which first shows the
 	-- card's pieces)

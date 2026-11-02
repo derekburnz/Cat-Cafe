@@ -294,6 +294,19 @@ local Config = {
 	HelperTipSeconds = 60,
 	TeamRescueTipCooldown = 120,
 
+	-- Leaderboards (F98, leaderboards.md section 5): each player's values written every LeaderboardWriteSeconds (and on
+	-- join, rank up and leave, when changed), never in Studio or with LeaderboardWrites off; every list's top
+	-- LeaderboardSize read every LeaderboardRefreshSeconds; the town boards show LeaderboardBoardRows and swap to the
+	-- week every LeaderboardFaceSwapSeconds; the top LeaderboardCrownRank of an all-time board wear the crown
+	LeaderboardWrites = true,
+	LeaderboardWriteSeconds = 300,
+	LeaderboardRefreshSeconds = 120,
+	LeaderboardSize = 50,
+	LeaderboardBoardRows = 10,
+	LeaderboardRateMax = 10000000,
+	LeaderboardCrownRank = 10,
+	LeaderboardFaceSwapSeconds = 15,
+
 	-- Quests and achievements (F73, quests.md section 6). Pure rules in Quests. A day starts at 00:00 UTC; a week
 	-- at Monday 00:00 UTC, QuestWeekOffsetSeconds after the epoch's Thursday. Players in the game are checked for a
 	-- new day or week every QuestRollCheckSeconds.

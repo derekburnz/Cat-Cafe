@@ -4,9 +4,9 @@
 -- the end of its fill, and this player's own points fly a paw with its "+N" up from the bottom middle of the screen,
 -- each landing with a small sparkle. Each step of the bar (25%, 50%, the full bar) runs sparkles along what is
 -- filled, gold and twice as many for the full bar. In the world, the bunting (any Model or part ending `_Pennant`
--- inside a Model with `Bunting` in its name: the Town Square's Rally bunting, the Rally Crate's cheer bunting)
--- flutters in the wind, a gust running across it the way the wind blows. Reduce Motion stops the pops and the
--- flutter and halves the step sparkles; the bar still fills (the UI's). The Rally board's marquee is RallyBoard.luau,
+-- inside a Model with `Bunting` in its name, or with it in its own name: the Town Square's Rally bunting, the Rally
+-- Crate's cheer bunting placed in a cafe) flutters in the wind, a gust running across it the way the wind blows.
+-- Reduce Motion stops the pops and the flutter and halves the step sparkles; the bar still fills (the UI's). The Rally board's marquee is RallyBoard.luau,
 -- told here when the Rally is on, each point and each step.
 --
 -- Source: the server's `RallyState({ active, endsAt, lap, goal, points, myPoints, lapsPaid })` and
@@ -264,7 +264,12 @@ end
 
 -- Bunting ---------------------------------------------------------------------------------------------------------
 
+-- A pennant counts when it or a Model holding it has `Bunting` in its name: a placed decor piece's model is renamed
+-- to its decor id (CafeService), so the Cheer Bunting's flags carry it in their own names instead.
 local function inBunting(instance: Instance): boolean
+	if string.find(instance.Name, "Bunting", 1, true) ~= nil then
+		return true
+	end
 	local world: Instance = Workspace
 	local holder = instance.Parent
 	while holder ~= nil and holder ~= world do

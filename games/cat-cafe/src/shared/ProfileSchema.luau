@@ -55,7 +55,9 @@ local ProfileSchema = {}
 -- Version 22 (F96, starter-cat.md section 3) adds notifyAskAt, when the notification ask first showed: an older server
 -- would drop it and ask again sooner than the 30 days. The favorite and notification asks ride tipsSeen like the like
 -- ask (Tips.sanitizeSeen keeps them).
-ProfileSchema.VERSION = 22
+-- Version 23 (F98, leaderboards.md section 5) adds stats.bestRate, stats.weekPlay and stats.weekBestRate: an older
+-- server would drop them, and the Money board would forget the player's best rate.
+ProfileSchema.VERSION = 23
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -118,7 +120,17 @@ local function newStats(): Types.Stats
 		dailySetsDone = 0,
 		weeklyQuestsDone = 0,
 		weeklySetsDone = 0,
+		bestRate = 0, -- F98
+		weekPlay = { week = 0, seconds = 0 },
+		weekBestRate = { week = 0, rate = 0 },
 	}
+end
+
+-- F98: a saved { week, <field> } pair of whole week number and non-negative amount, else week 0 and 0.
+local function sanitizeWeekly(raw: any, field: string): any
+	local week = if type(raw) == "table" then asInt(raw.week, 0) else 0
+	local amount = if type(raw) == "table" then asNumber(raw[field], 0) else 0
+	return { week = week, [field] = amount }
 end
 
 -- No quests yet (F73): day and week 0, so QuestService rolls both when the profile loads.
@@ -732,9 +744,15 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 
 	if type(raw.stats) == "table" then
 		local stats = profile.stats :: any
-		for key in newStats() :: any do
-			stats[key] = asInt(raw.stats[key], 0)
+		for key, default in newStats() :: any do
+			if type(default) == "number" then
+				stats[key] = asInt(raw.stats[key], 0)
+			end
 		end
+		-- F98 (version 23): a rate keeps its fractions; older saves have none of the three
+		stats.bestRate = asNumber(raw.stats.bestRate, 0)
+		stats.weekPlay = sanitizeWeekly(raw.stats.weekPlay, "seconds")
+		stats.weekBestRate = sanitizeWeekly(raw.stats.weekBestRate, "rate")
 	end
 	profile.settings = Settings.sanitize(raw.settings)
 

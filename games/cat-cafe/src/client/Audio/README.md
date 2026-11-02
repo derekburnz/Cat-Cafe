@@ -54,6 +54,8 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every effect a
 
    The net swing (F93, sound list 5.15): `NetSmackPress` plays your own `netSwing` whoosh and, `Config.NetSmackDelay` (0.15 s) later, the `netSmack`; another player's `NetSwung` plays theirs on their character, and your own `NetSwung` with hit false plays `netBounce`. A stray's `HopAt` plays `strayHop` on the cat. The `CatchResult` remote's grades pick the result word (`Logic.catchWord`): GREAT plays `wordGreat`, EXCELLENT `wordExcellent`; PURRFECT and "So close!" keep their moments' sounds.
 
+   Rescues (sound list 5.2) and F92 Team Rescue: the rescue moments play their rows from the Rescue sheet (they had no files before 2026-11-02); a trap hit plays at the trap and the pip climbs one scale step per hit. `TeamRescue` (rescueSpotId, rescuerUserId, helperUserId, position) plays `teamRescue` flat on both friends' screens, just after their `rescueDone`.
+
    Sound sheets: a cue with `sheet` plays its sheet's file, and `region` makes its Sounds play only that stretch (`PlaybackRegionsEnabled` and `PlaybackRegion`); a timed stop just after the region, counted from when the file loads, backs it up. The sheet's own row holds the id and is preloaded.
 
    The nearest resting cafe cat within 14 studs purrs too, by day (`Logic.restingPurrs`): the Napping children of each `Plot`'s `Cats` folder, one sitting on the seated body (`Pose` "sit", PR #266) the whole day, one on the lying body only while `Effects.isLoafing(model)` (vfx-animator PR #222). Only one, so it is always a cat Effects is animating (reviewer N131, N150).

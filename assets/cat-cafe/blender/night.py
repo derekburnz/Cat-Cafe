@@ -33,6 +33,7 @@ INK = "offwhite"                 # sign letters
 # area id -> (asset, gate or arch it closes, opening width, half width the fence spans, depth offset)
 GATES = {
     "park": ("CatCafe_Park_NightFence", "CatCafe_Park_Gate", 32.0, 0.0),
+    "park_f85": ("CatCafe_Park_NightFenceF85", "CatCafe_Park_GateF85", 24.0, 0.0),    # F85's long Park
     "neighbourhood": ("CatCafe_Neighbourhood_NightFence", "CatCafe_Neighbourhood_Gate", 32.0, 0.0),
     "woods": ("CatCafe_Woods_NightFence", "CatCafe_Woods_Gate", 30.0, 0.0),
     "sewer": ("CatCafe_Sewer_NightFence", "CatCafe_Sewer_Gate", 30.0, 0.0),

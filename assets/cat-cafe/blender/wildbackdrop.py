@@ -21,7 +21,8 @@ CFrame.new(spec.center.x, 0, spec.center.z) * CFrame.Angles(0, math.rad(camp.tur
 Themes: the Alleyway in city blocks, the Park in hills and parkland with a lake, the Neighbourhood in house rows along
 a road, the Woods in deep forest under mountains, the Sewer in brick works with chimneys. Nothing collides, casts a
 shadow or takes a raycast (rbx_export BACKDROP), and every piece keeps KEEP clear of the area's walls and its camp set.
-Built against Config.World's v4 (F84) sizes; F85's long rectangles need a rebuild with their numbers in AREAS.
+Built against Config.World's v4 (F84) sizes; each F85 long rectangle gets its own ring with its numbers in AREAS
+(CatCafe_Park_BackdropF85 round the 120 x 310 Park).
 """
 
 import math
@@ -48,7 +49,9 @@ AREAS = {
     "Neighbourhood": (140.0, 140.0, "houses"),
     "Woods": (120.0, 120.0, "forest"),        # turned a quarter: its depth runs across
     "Sewer": (90.0, 90.0, "works"),
+    "ParkF85": (60.0, 155.0, "park"),         # F85's long Park, 120 x 310 (parkf85.py)
 }
+NAMES = {"ParkF85": "CatCafe_Park_BackdropF85"}   # an F85 ring keeps its area's name, so WorldBuilder can pick it
 
 ASPHALT_RGB = (70, 70, 75)                     # WorldBuilder's ASPHALT
 PALE_RGB = (150, 186, 128)                     # the far hills, as in the hometown's
@@ -304,6 +307,12 @@ def block(t, rb, lit, w, d, h, wall, k, grid=True, tank=False, bands=True, shop=
 
 
 # ---------------------------------------------------------------------------------------------------- themes --
+def _on_bed(f, x, z, r):
+    """Whether a disc of radius r at (x, z) meets one of theme_park's flower beds behind the camp."""
+    bz = f.ez0 - 12.0
+    return any(abs(x - bx) < 5.0 + r and abs(z - bz) < 2.0 + r for bx in (-36.0, -18.0, 0.0, 18.0, 36.0))
+
+
 def theme_park(f, P):
     lake = (0.0, f.ez1 + 26.0, 30.0, 11.0)                        # x, z, half along x, half along z
     lx, lz, la, lc = lake
@@ -323,6 +332,8 @@ def theme_park(f, P):
         if f.out(x, z) < KEEP + 2 or (abs(x - lake[0]) < lake[2] + 6 and abs(z - lake[1]) < lake[3] + 6):
             continue
         r = _hash(i, 16)
+        if r >= 0.8 and any(_on_bed(f, tx, tz, tr) for tx, tz, tr in ((x, z, 1.3), (x + 1.9, z + 0.8, 1.2))):
+            continue                                                       # a tuft would lie on a flower bed
         if r < 0.55:
             tree(rb, f, x, z, 1.1 + 0.5 * r, LEAVES[i % 3] if _hash(i, 17) < 0.85 else "blush")
         elif r < 0.8:
@@ -576,7 +587,7 @@ THEMES = {"park": theme_park, "forest": theme_forest, "houses": theme_houses, "c
 
 
 def builder(area, A, H, theme):
-    n = f"CatCafe_{area}_Backdrop"
+    n = NAMES.get(area, f"CatCafe_{area}_Backdrop")
     city = theme == "city"
     _look(n + "_Ground", ASPHALT_RGB if city else GRASS_RGB, "Asphalt" if city else "Grass")
     _look(n + "_Hills", FOREST_RGB if theme == "forest" else GRASS_RGB, "Grass")
@@ -599,4 +610,5 @@ def builder(area, A, H, theme):
     return build
 
 
-ASSETS = {f"CatCafe_{area}_Backdrop": (builder(area, A, H, theme), 60000) for area, (A, H, theme) in AREAS.items()}
+ASSETS = {NAMES.get(area, f"CatCafe_{area}_Backdrop"): (builder(area, A, H, theme), 60000)
+          for area, (A, H, theme) in AREAS.items()}

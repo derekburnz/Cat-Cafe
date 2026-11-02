@@ -25,6 +25,9 @@ dumpster, bin bags, trash cans, crates, boxes and puddles, benches, lamps and fl
 trees and flower beds; Neighbourhood a mailbox, picket fences, lamp posts, flower
 beds and recycling bins; Woods a tent, a campfire with log benches, lanterns and pines; Sewer a manhole, a big pipe,
 wall lanterns, barrels, cones and tyres.
+
+CatCafe_Camp_ParkF85 is the Park's camp for F85's long Park (parkf85.py, CatCafe_Park_SetF85, 120 x 310): the same
+camp 120 wide, in front of the 24 stud way out, placed with the long set's CFrame.
 """
 
 import math
@@ -55,7 +58,10 @@ AREAS = {
     "Alleyway": dict(W=90.0, D=251.0, half=15.0, ground="concrete", path="paving_sand", wall="brick",
                      top="concrete", trim="neon_pink", lanes=(-30.0, 30.0)),
     "Park": dict(W=160.0, D=120.0, half=16.0, ground="leaf_green", path="paving_sand", wall="paving_grout",
-                 top="leaf_dark", trim="paw_park"),
+                 top="leaf_dark", trim="paw_park", theme="Park"),
+    # F85 (hometown-cannon.md 6b): the long Park, 120 x 310 behind a 24 stud opening (Config.World.CampOpeningWidth)
+    "ParkF85": dict(W=120.0, D=310.0, half=12.0, ground="leaf_green", path="paving_sand", wall="paving_grout",
+                    top="leaf_dark", trim="paw_park", theme="Park"),
     "Neighbourhood": dict(W=280.0, D=280.0, half=16.0, ground="leaf_green", path="paving_light", wall="brick",
                           top="offwhite", trim="paw_neighbourhood"),
     "Woods": dict(W=240.0, D=240.0, half=12.0, ground="fur_moss", path="fur_sand", wall="caramel_wood",
@@ -114,7 +120,7 @@ def _manhole(mat):
 def _wall(g, bar, x0, z0, x1, z1, look):
     """A low wall from (x0, z0) to (x1, z1) (an axis-aligned rect), its top in the area's look, and a barrier."""
     wall, top = look["wall"], look["top"]
-    if look is AREAS["Park"]:                                             # a stone base under a clipped hedge
+    if look.get("theme") == "Park":                                      # a stone base under a clipped hedge
         g.span((x0, 0, z0), (x1, 1.2, z1), wall)
         g.span((x0 + 0.05, 1.2, z0 + 0.05), (x1 - 0.05, WALL_H, z1 - 0.05), top)
     elif look is AREAS["Woods"]:                                          # planks, a capping rail
@@ -233,11 +239,11 @@ def _theme(s, mat, area, G, B, W, half):
         s.put(alley.build_puddle(mat), -25, G - 24, 70)
         for sx in (1, -1):
             s.put(nb.flowerbed(mat), sx * 41.5, G - 22, -90 * sx)
-    elif area == "Park":
+    elif AREAS[area].get("theme") == "Park":
         for sx in (1, -1):
             s.put(park.build_park_bench(mat), sx * 16, G - PAD_IN - 2, 90 * sx)
             s.put(square.build_lamp(mat), sx * 9, cz, 0)
-            for x in (24, 44, 64):
+            for x in (x for x in (24, 44, 64) if x < W / 2 - 6):
                 s.put(park.build_tree(mat), sx * x, B + 7, 0)
             for x in (18, 32, 52):
                 s.put(nb.flowerbed(mat), sx * x, B + 2.5, 180)

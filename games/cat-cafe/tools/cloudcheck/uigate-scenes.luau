@@ -174,6 +174,9 @@ local function samplePlayer(now)
 		fishPerks = {},
 		potions = potions,
 		buffs = {},
+		-- F88: the Lucky Cat at level 3, so the Luck chip shows and every odds card has Luck x1.3 in it
+		luck = 1.3,
+		luckSources = { { id = "statue", value = 0.3 } },
 		quests = {
 			daily = questRows(Catalog.quests.daily, 4),
 			weekly = questRows(Catalog.quests.weekly, 3),
@@ -545,6 +548,51 @@ local SCENES = {
 			fishPerks = { golden_espresso = 2 },
 		})
 		press("CatCafeHUD", "Counters.Money")
+	end },
+	-- F88: a Lucky Day with a Lucky Potion running: the Luck chip glowing at the start of the potion row, its card
+	-- open over the counters (closing the boosts card), and "Lucky Day now" under the clock
+	{ "HUDLuck", function()
+		local t = workspace:GetServerTimeNow()
+		UI.update({
+			luck = 2.3,
+			luckSources = {
+				{ id = "statue", value = 0.3 },
+				{ id = "potion", value = 0.5, endsAt = t + 492 },
+				{ id = "lucky_day", value = 0.5, endsAt = t + 190 },
+			},
+			buffs = { tip_potion = t + 492, swift_potion = t + 130, lucky_potion = t + 492 },
+		})
+		local clock = Instance.new("Folder")
+		clock.Name = "Clock"
+		clock:SetAttribute("Phase", "day")
+		clock:SetAttribute("PhaseEndsAt", t + 190)
+		clock:SetAttribute("AreasOpen", true)
+		clock:SetAttribute("Day", 4)
+		clock:SetAttribute("NextLuckyDay", 8)
+		clock:SetAttribute("LuckyDay", true)
+		UI.clock.bind(clock)
+		press("CatCafeHUD", "Luck")
+	end },
+	-- F88: the night before a Lucky Day, LuckyDayWarnSeconds before sunrise: the warning banner and "Lucky Day at
+	-- sunrise" under the clock, the Luck card from the scene before closed
+	{ "LuckyDaySoon", function()
+		local t = workspace:GetServerTimeNow()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local card = hud and hud:FindFirstChild("LuckCard", true)
+		if card and card.Visible then
+			press("CatCafeHUD", "LuckCard.Close")
+		end
+		UI.update({ luck = 1.3, luckSources = { { id = "statue", value = 0.3 } } })
+		local clock = Instance.new("Folder")
+		clock.Name = "Clock"
+		clock:SetAttribute("Phase", "night")
+		clock:SetAttribute("PhaseEndsAt", t + 60)
+		clock:SetAttribute("AreasOpen", false)
+		clock:SetAttribute("Day", 3)
+		clock:SetAttribute("NextLuckyDay", 4)
+		clock:SetAttribute("LuckyDay", false)
+		UI.clock.bind(clock)
+		UI.luckyDay("warning", "A Lucky Day starts at sunrise!")
 	end },
 }
 

@@ -8,6 +8,7 @@ local Catching = require(script.Parent.Catching)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
 local IndexRewards = require(script.Parent.IndexRewards)
+local Pals = require(script.Parent.Pals)
 local Potions = require(script.Parent.Potions)
 local Types = require(script.Parent.Types)
 
@@ -34,6 +35,42 @@ end
 
 function Economy.passes(profile: Types.PlayerProfile): Passes
 	return passesByProfile[profile] or NO_PASSES
+end
+
+-- Pals on the server (F92, playing-together.md section 2), from PalService, held per profile for the session like
+-- the passes (worked out each session, never saved). The caller settles before the count changes, so a window pays
+-- one count throughout. `palEarned` keeps the coins the bonus added since Telemetry last took them (pal_bonus).
+local palsByProfile: { [Types.PlayerProfile]: number } = setmetatable({}, { __mode = "k" }) :: any
+local palEarnedByProfile: { [Types.PlayerProfile]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+function Economy.setPals(profile: Types.PlayerProfile, count: number)
+	if count > 0 then
+		palsByProfile[profile] = math.floor(count)
+	else
+		palsByProfile[profile] = nil
+	end
+end
+
+function Economy.pals(profile: Types.PlayerProfile): number
+	return palsByProfile[profile] or 0
+end
+
+-- The tip share the pals add: PalTipBonus with one, PalTipBonusMax with two or more.
+function Economy.palBonus(profile: Types.PlayerProfile): number
+	return Pals.bonus(Economy.pals(profile))
+end
+
+-- The coins the pal bonus paid since the last call, for Telemetry's pal_bonus source; resets to 0.
+function Economy.takePalEarned(profile: Types.PlayerProfile): number
+	local earned = palEarnedByProfile[profile] or 0
+	palEarnedByProfile[profile] = nil
+	return earned
+end
+
+-- Everything on top of the cafe's rate at `now`: the running tip potions (Potions.tipMultiplier, at most
+-- TimedTipsMax) plus the pal bonus. Income, the tip piles and rich visitors use it; offline pay does not.
+function Economy.tipMultiplier(profile: Types.PlayerProfile, now: number): number
+	return Potions.tipMultiplier(profile, now) + Economy.palBonus(profile)
 end
 
 -- The Money pass multiplier on all cafe income, 1 without one.
@@ -264,14 +301,21 @@ end
 -- F64: a running Tip Potion pays TipPotionBonus more over the start of the window it covers, split where it ends
 -- like a phase change, and every potion timer counts down by the window (play time only: DataService.load resets
 -- lastTick, so time away settles nothing and the timers pause). F73: every potion with `tips` (the Big Tip Potion
--- too) pays its own share the same way, the shares together at most TimedTipsMax at any moment.
+-- too) pays its own share the same way, the shares together at most TimedTipsMax at any moment. F92: with pals on
+-- the server the window pays palBonus more on top, counted for Telemetry's pal_bonus.
 function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: number?): number
 	local elapsed = math.max(0, now - profile.lastTick)
 	local earned = 0
 	if elapsed > 0 then
-		local paidSeconds = paidSecondsFrom(profile.lastTick, elapsed, clockEpoch)
-			+ tipBonusSeconds(profile, elapsed, clockEpoch)
-		earned = Economy.incomePerSecond(profile) * paidSeconds
+		local base = paidSecondsFrom(profile.lastTick, elapsed, clockEpoch)
+		local paidSeconds = base + tipBonusSeconds(profile, elapsed, clockEpoch)
+		local rate = Economy.incomePerSecond(profile)
+		-- F92: the pal bonus over the whole window; the caller settled when the pal count last changed
+		local palCoins = rate * base * Economy.palBonus(profile)
+		earned = rate * paidSeconds + palCoins
+		if palCoins > 0 then
+			palEarnedByProfile[profile] = (palEarnedByProfile[profile] or 0) + palCoins
+		end
 		profile.coins += earned
 		profile.lifetimeCoins += earned
 		Economy.grantXp(profile, elapsed)

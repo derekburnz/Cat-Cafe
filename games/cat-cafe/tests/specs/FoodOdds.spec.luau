@@ -425,11 +425,55 @@ return function()
 			expect(comfy:find("\nLegendary 9.36%: ", 1, true)).to.be.ok()
 			expect(
 				comfy:find(
-					"Your Comfy Bowl moves 4% of each rarity's chance up one rarity.",
+					"Comfy Bowl: rarer visitors. 4% of each rarity's chance moves up one rarity.",
 					1,
 					true
 				)
 			).to.be.ok()
+		end)
+
+		it("shows a food's odds at the player's Luck, the table the server rolls (F88)", function()
+			local Luck = require(Shared:WaitForChild("Luck")) :: any
+			expect(FoodOdds.atBowl(salmon.odds, 2, 1).Legendary).to.be.near(9.36, 1e-9)
+			expect(FoodOdds.atBowl(salmon.odds, 2, nil).Legendary).to.be.near(9.36, 1e-9)
+			local kibble = Catalog.luresById.kibble
+			local lucky = FoodOdds.atBowl(kibble.odds, 1, 1.5)
+			expect(lucky.Common).to.be.near(67.5, 1e-9)
+			expect(lucky.Epic).to.be.near(6, 1e-9)
+			expect(lucky.Mythical).to.be.near(0.15, 1e-9)
+			local off: { string } = {}
+			for level = 0, 5 do
+				for _, lure in Catalog.lures do
+					for _, luck in { 1.1, 1.5, 2.3, 3 } do
+						local shown = FoodOdds.atBowl(lure.odds, level, luck)
+						local rolled = Luck.apply(Bait.oddsFor(lure.odds, level), luck)
+						for _, rarity in Catalog.rarityOrder do
+							if math.abs(shown[rarity] - rolled[rarity]) > 1e-9 then
+								table.insert(
+									off,
+									("%s level %d x%s %s"):format(
+										lure.id,
+										level,
+										tostring(luck),
+										rarity
+									)
+								)
+							end
+						end
+					end
+				end
+			end
+			expect(table.concat(off, "; ")).to.equal("")
+			local split: string = FoodOdds.split(catalog, kibble, 1, 1, 1.5)
+			expect(split:find("\nEpic 6%: ", 1, true)).to.be.ok()
+			expect(
+				split:find(
+					"Your Luck x1.5 is in these odds: Epic and rarer cats are more likely.",
+					1,
+					true
+				)
+			).to.be.ok()
+			expect(FoodOdds.split(catalog, kibble, 1, 1, 1):find("Luck", 1, true)).never.to.be.ok()
 		end)
 
 		it("names the next bowl, its wait and the Salmon's rarer cats on the shop row", function()

@@ -37,6 +37,7 @@ import luckycat  # noqa: E402
 import welcomearch  # noqa: E402
 import campextras  # noqa: E402
 import leaderboards  # noqa: E402
+import rally  # noqa: E402
 import rallycrate  # noqa: E402
 import camps  # noqa: E402
 import cannon  # noqa: E402
@@ -88,9 +89,13 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
-           leaderboards, rallycrate, style_icons]
+           leaderboards, rally, rallycrate, style_icons]
 
 PIVOT_NOTES = {
+    "CatCafe_Square_RallyBoard": "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
+                                 "rally.SPOT (15, 0.1, 12) turned 30, facing the player spawn",
+    **{n: "On the ground under the middle of the span, as the edge bunting it stands in for during the Rally: the "
+          "same placements" for n in ("CatCafe_Square_RallyBunting", "CatCafe_Square_RallyBuntingShort")},
     "CatCafe_Town_LeaderboardRow": "the plinth's base centre on the paving (world y 0.1), front -Z toward the Cat "
                                    "Cannon; Layout.leaderboards (40, 0.1, 0) turned 90, at the lane's east end",
     **{n: "the base centre on the camp's ground, front -Z toward the camp, no turn; area space at "

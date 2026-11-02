@@ -11,6 +11,8 @@
 -- step with the sparkle VFX plays where the upgrade shows in the cafe (Reduce Motion keeps only the colour flash).
 -- F82: the Bait bowl's row has two lines in place of its effect line, the next bowl and its wait, then one food's
 -- rarer cats ("Rarer bait cats: Salmon Legendary 8.5% to 9.36%", Components/FoodOdds.bowlStep).
+-- F88: the Lucky Cat's row has two lines too, the Luck it gives now and next, then what Luck does
+-- (Components/LuckLogic.statueLines).
 
 local GuiService = game:GetService("GuiService")
 
@@ -19,6 +21,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local Format = require(script.Parent.Parent.Components.Format)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
+local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local RankUp = require(script.Parent.RankUp)
@@ -327,8 +330,8 @@ function UpgradeShop._buildRows(self: any)
 			Outline.text(star, 1.5)
 			table.insert(stars, star)
 		end
-		-- the Bait bowl's two lines (F82) start a little higher to fit
-		local twoLines = upgrade.id == "lure_bowl"
+		-- the Bait bowl's two lines (F82) and the Lucky Cat's (F88) start a little higher to fit
+		local twoLines = upgrade.id == "lure_bowl" or upgrade.id == LuckLogic.UPGRADE
 		local description = text({
 			Name = "Description",
 			Position = UDim2.fromOffset(TEXT_LEFT, if twoLines then 62 else 64),
@@ -531,6 +534,10 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 				local first, second = FoodOdds.bowlStep(catalog, level, bigBowl)
 				row.description.Text = first .. "\n" .. (second or def.description)
 			end
+		end
+		if upgradeId == LuckLogic.UPGRADE and level ~= before then
+			local first, second = LuckLogic.statueLines(level, def.maxLevel)
+			row.description.Text = first .. "\n" .. second
 		end
 		if before ~= nil and level > before then
 			self:_celebrate(row, before, level)

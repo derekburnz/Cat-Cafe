@@ -23,7 +23,6 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
-local Potions = require(ReplicatedStorage.Shared.Potions)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -174,7 +173,7 @@ local function roll()
 			continue
 		end
 		if rng:NextNumber() < Config.RichChance then
-			open(player, plot, dayRate * Potions.tipMultiplier(profile, now), now, dusk)
+			open(player, plot, dayRate * Economy.tipMultiplier(profile, now), now, dusk)
 		end
 	end
 end

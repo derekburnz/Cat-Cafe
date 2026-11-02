@@ -65,6 +65,13 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimStarterCat = RateLimiter.new(1, 2), -- F96 (starter-cat.md section 4): 1 per 2 s
 	CollectCampExtra = RateLimiter.new(1, 1), -- F100 (camp-extras.md section 4): 1 a second
 	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second
+	-- F102 (trading.md section 4): 5 trade calls a second, one request out at a time (TradeBook)
+	TradeRequest = RateLimiter.new(1, 1),
+	TradeRespond = RateLimiter.new(2, 1),
+	TradeOffer = RateLimiter.new(5, 1),
+	TradeReady = RateLimiter.new(2, 1),
+	TradeConfirm = RateLimiter.new(2, 1),
+	TradeCancel = RateLimiter.new(1, 1),
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 

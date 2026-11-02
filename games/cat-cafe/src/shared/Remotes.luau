@@ -107,11 +107,30 @@ Remotes.ClientToServer = {
 	-- takes it all; 1 a second, answered with CampExtraResult and CampExtrasState
 	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), one of today's two crates
 	-- (CampExtras.yardStock) not yet bought today, YardSaleCratePrice golden fish; banked for the Market; 1 a second
+	-- F102 trading (trading.md section 6; TradeService): every one checked against the server's own trade
+	"TradeRequest", -- (userId: number)  another player here; both pass Trade.askRefusal (tier, kill switch, town or
+	-- camp, not busy, one request out, re-ask wait, cooldown, daily cap, the target's tradeRequests); 1 a second
+	"TradeRespond", -- (requestId: string, accept: boolean)  a running request to the caller;
+	-- an accept checks both again and opens the trade
+	"TradeOffer", -- (tradeId: string, action: "add" | "remove", uid: string)  the caller's open trade; add: their
+	-- cat, unlocked, not exclusive, up to TradeMaxCats, one cat kept back; any change resets both sides; 5 a second
+	"TradeReady", -- (tradeId: string, version: number, ready: boolean)  the version on the table, not with both
+	-- offers empty; both Ready starts the countdown
+	"TradeConfirm", -- (tradeId: string, version: number)  on the confirm screen, the version on the table, after
+	-- the side's confirmAt; both confirmed swaps the cats (section 4)
+	"TradeCancel", -- (tradeId: string)  ends the caller's open trade with nothing moved, unless it is swapping
 }
 
 -- Server -> client.
 Remotes.ServerToClient = {
 	"ProfileSync", -- (state: Types.PlayerState)  full state; the client merges
+	-- F102 trading (TradeService)
+	"TradeAsked", -- (requestId: string, fromUserId: number, fromName: string, expiresAt: number)  someone asks the
+	-- receiver to trade; expiresAt is server time (Workspace:GetServerTimeNow())
+	"TradeState", -- (state: Types.TradeStateView?)  the receiver's view of their open trade after every change; nil
+	-- closes the window
+	"TradeDone", -- (tradeId: string, gave: { Types.CatSummary }, got: { Types.CatSummary })  the swap happened
+	"TradeEnded", -- (tradeId: string, reason: string)  ended with nothing moved, in words ("Sam left")
 	"CatCaught", -- (catId: string, isNew: boolean, variant: string)  variant "base", "gold" or "rainbow" (F99), for the
 	-- Cat found card's coat
 	"OfflineEarnings", -- (amount: number, seconds: number)

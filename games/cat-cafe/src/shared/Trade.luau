@@ -35,11 +35,19 @@ Trade.Messages = {
 	reask = "Wait a moment before asking %s again",
 	cooldown = "Wait a moment before your next trade",
 	daily = "That's all the trades for today",
+	theirDaily = "%s has traded enough for today", -- review N335: a line of its own, not theirBusy
 	notOwned = "That cat isn't yours",
 	locked = "Unlock it on its card to trade",
 	exclusive = "This cat can't be traded",
 	full = "Up to %d cats each",
 	self = "You can't trade with yourself",
+	-- part 2 (TradeService)
+	sent = "Asked %s to trade",
+	declined = "%s said no thanks",
+	noAnswer = "%s didn't answer",
+	lastCat = "Keep at least one cat",
+	catInTrade = "This cat is in a trade",
+	finishTrade = "Finish your trade first",
 }
 
 -- What a trade ends with (TradeEnded's words).
@@ -285,7 +293,7 @@ function Trade.askRefusal(
 	elseif not to.safe then
 		return string.format(Trade.Messages.theirNotSafe, to.name)
 	elseif to.today >= Config.TradesPerDay then
-		return string.format(Trade.Messages.theirBusy, to.name)
+		return string.format(Trade.Messages.theirDaily, to.name)
 	end
 	return nil
 end

@@ -3,12 +3,13 @@
 -- volume, screen shake and the like). One table of keys says what each holds, so SetSetting, the save migration
 -- and the client all validate the same way. Pure.
 -- Switches are booleans. Volumes are numbers from 0 to 1, kept to two decimals so a slider cannot bloat the save.
+-- Choices are one of a short list of strings (Settings.choices).
 
 local Types = require(script.Parent.Types)
 
 local Settings = {}
 
-export type Kind = "switch" | "volume"
+export type Kind = "switch" | "volume" | "choice"
 
 -- key -> what it holds; every key the profile saves
 Settings.kinds = {
@@ -23,7 +24,14 @@ Settings.kinds = {
 	tutorialButton = "switch", -- the HUD's Tutorial tile that replays the intro (F72); its x turns this off
 	-- F94 (rewards-and-shops.md section 3): the Fresh Catch's ShopAlert for a Gold Rush Potion or the cheap crate
 	shopAlerts = "switch",
+	-- F102 (trading.md section 2): who may ask to trade (TradeService reads it on each request)
+	tradeRequests = "choice",
 } :: { [string]: Kind }
+
+-- A choice key -> the strings it takes, the default first.
+Settings.choices = {
+	tradeRequests = { "everyone", "friends", "off" },
+} :: { [string]: { string } }
 
 function Settings.defaults(): Types.Settings
 	return {
@@ -37,14 +45,22 @@ function Settings.defaults(): Types.Settings
 		markers = true,
 		tutorialButton = true,
 		shopAlerts = true,
+		tradeRequests = "everyone",
 	}
 end
 
 -- The value to save for `key`, or nil when the key is unknown or the value does not fit it. A volume is clamped to
--- 0 to 1 and rounded to two decimals; NaN and infinities are refused.
-function Settings.clean(key: unknown, value: unknown): (boolean | number)?
+-- 0 to 1 and rounded to two decimals; NaN and infinities are refused. A choice takes one of its strings exactly.
+function Settings.clean(key: unknown, value: unknown): (boolean | number | string)?
 	local kind = if type(key) == "string" then Settings.kinds[key] else nil
-	if kind == "switch" then
+	if kind == "choice" then
+		local options = Settings.choices[key :: string]
+		return if type(value) == "string"
+				and options ~= nil
+				and table.find(options, value) ~= nil
+			then value
+			else nil
+	elseif kind == "switch" then
 		return if type(value) == "boolean" then value else nil
 	elseif kind == "volume" then
 		if

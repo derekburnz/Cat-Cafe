@@ -356,6 +356,50 @@ local function legacyMethod(uid: string, entry: any): Types.CatchMethod
 	return "net"
 end
 
+-- One saved cat as this version keeps it (`entry` already has a known catId); `spotId` checked by the caller.
+local function catFrom(
+	uid: string,
+	entry: any,
+	fromVersion: number,
+	now: number,
+	spotId: string?
+): Types.CatInstance
+	local instance: Types.CatInstance = {
+		uid = uid,
+		catId = entry.catId,
+		-- Golden and Galaxy were never handed out; only "shiny" survives, and it is "gold" now.
+		variant = variantOf(entry.variant),
+		caughtAt = asInt(entry.caughtAt, now),
+		spotId = spotId,
+		-- Version 1 cats had no stats: they become level 1 with neutral charm (a 1.0x rate). Before version 12 the
+		-- cap was 10 at 5% a level: the level moves onto the 50-level curve and the xp toward it starts again.
+		level = if fromVersion >= 12
+			then math.clamp(
+				asInt(entry.level, CatStats.MIN_LEVEL),
+				CatStats.MIN_LEVEL,
+				Config.CatMaxLevel
+			)
+			else CatStats.remapLevel(asInt(entry.level, CatStats.MIN_LEVEL)),
+		xp = if fromVersion >= 12 then asNumber(entry.xp, 0) else 0,
+		charm = math.clamp(
+			asInt(entry.charm, CatStats.DEFAULT_CHARM),
+			CatStats.MIN_CHARM,
+			CatStats.MAX_CHARM
+		),
+		rescued = if entry.rescued == true then true else nil,
+		name = if fromVersion >= 3 then sanitizeName(entry.name) else nil,
+		method = if fromVersion >= 3
+			then sanitizeMethod(entry.method)
+			else legacyMethod(uid, entry),
+	}
+	-- F62: the saved lock; a save from before version 14 locks its gold, Legendary and Mythical cats
+	local locked = if fromVersion >= 14
+		then entry.locked == true
+		else CatStats.arrivesLocked(instance.catId, instance.variant)
+	instance.locked = if locked then true else nil
+	return instance
+end
+
 local function sanitizeCats(
 	raw: any,
 	profile: Types.PlayerProfile,
@@ -385,40 +429,7 @@ local function sanitizeCats(
 				usedSpots[spot.id] = true
 			end
 		end
-		local instance: Types.CatInstance = {
-			uid = uid,
-			catId = entry.catId,
-			-- Golden and Galaxy were never handed out; only "shiny" survives, and it is "gold" now.
-			variant = variantOf(entry.variant),
-			caughtAt = asInt(entry.caughtAt, now),
-			spotId = spotId,
-			-- Version 1 cats had no stats: they become level 1 with neutral charm (a 1.0x rate). Before version 12 the
-			-- cap was 10 at 5% a level: the level moves onto the 50-level curve and the xp toward it starts again.
-			level = if fromVersion >= 12
-				then math.clamp(
-					asInt(entry.level, CatStats.MIN_LEVEL),
-					CatStats.MIN_LEVEL,
-					Config.CatMaxLevel
-				)
-				else CatStats.remapLevel(asInt(entry.level, CatStats.MIN_LEVEL)),
-			xp = if fromVersion >= 12 then asNumber(entry.xp, 0) else 0,
-			charm = math.clamp(
-				asInt(entry.charm, CatStats.DEFAULT_CHARM),
-				CatStats.MIN_CHARM,
-				CatStats.MAX_CHARM
-			),
-			rescued = if entry.rescued == true then true else nil,
-			name = if fromVersion >= 3 then sanitizeName(entry.name) else nil,
-			method = if fromVersion >= 3
-				then sanitizeMethod(entry.method)
-				else legacyMethod(uid, entry),
-		}
-		-- F62: the saved lock; a save from before version 14 locks its gold, Legendary and Mythical cats
-		local locked = if fromVersion >= 14
-			then entry.locked == true
-			else CatStats.arrivesLocked(instance.catId, instance.variant)
-		instance.locked = if locked then true else nil
-		profile.cats[uid] = instance
+		profile.cats[uid] = catFrom(uid, entry, fromVersion, now, spotId)
 	end
 end
 
@@ -829,6 +840,21 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 
 	profile.version = ProfileSchema.VERSION
 	return profile
+end
+
+-- F102: a cat from outside the save (a stored trade record on the recovery path) made whole as a cat of this version
+-- is, with no spot; nil unless it has a string uid and a known catId.
+function ProfileSchema.cleanCat(entry: any, now: number): Types.CatInstance?
+	if
+		type(entry) ~= "table"
+		or type(entry.uid) ~= "string"
+		or #entry.uid == 0
+		or type(entry.catId) ~= "string"
+		or Catalog.getCat(entry.catId) == nil
+	then
+		return nil
+	end
+	return catFrom(entry.uid, entry, ProfileSchema.VERSION, now, nil)
 end
 
 function ProfileSchema.catCount(profile: Types.PlayerProfile): number

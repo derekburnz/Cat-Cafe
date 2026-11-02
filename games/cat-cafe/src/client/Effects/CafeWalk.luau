@@ -160,8 +160,9 @@ local function makeWalker(station: Model, home: CFrame): Model?
 	local role = station:GetAttribute("Role")
 	local folder = assets()
 	if type(role) == "string" and folder ~= nil then
-		-- the walking body has slots for the head pieces, the bow tie and the cape (Model-Agent's #778); a piece it has
-		-- no slot for (the apron, the vest, the sash) is left off until the walking meshes exist
+		-- the walking body has slots for the head pieces, the bow tie and the cape (Model-Agent's #778) and for the
+		-- walking cuts of the vest, the sash and the apron (#787; CatDress picks the _Walk cut, #789), none of them on a
+		-- cat with a Back prop
 		CatDress.dress(walker, role, function(name: string): Model?
 			local found = folder:FindFirstChild(name)
 			return if found ~= nil and found:IsA("Model")

@@ -155,10 +155,13 @@ local function campOf(player: Player): string?
 	return if root ~= nil then Layout.campAt(root.X, root.Z) else nil
 end
 
--- F84 (section 4): a drop spot in a camp or at its edge moves out into the wild part (Layout.outOfCamp).
+-- F84 (section 4): a drop spot in a camp or at its edge moves out into the wild part (Layout.outOfCamp), then onto
+-- that area's roam floor, since straight out from the Alleyway camp's middle can meet the building backs (N279).
 local function outOfCamp(position: Vector3): Vector3
-	local x, z = Layout.outOfCamp(position.X, position.Z)
-	return Vector3.new(x, position.Y, z)
+	local x, z, campId = Layout.outOfCamp(position.X, position.Z)
+	local out = Vector3.new(x, position.Y, z)
+	local area = if campId ~= nil then world.areas[campId] else nil
+	return if area ~= nil then WorldBuilder.clampToArea(area, out, 2) else out
 end
 
 local function areaUnlocked(profile: Types.PlayerProfile, areaId: string): boolean
@@ -1425,15 +1428,13 @@ local function checkInPassing()
 	local seen: { [Player]: Vector3 } = {}
 	for player in carrying do
 		local position = rootPosition(player)
-		local campId: string? = if position ~= nil
-			then Layout.campAt(position.X, position.Z)
-			else nil
-		if campId ~= nil then
-			campCheckIn(player, campId :: string)
-			continue
-		end
 		local plot = PlotService.get(player)
 		if position == nil or plot == nil then
+			continue -- no cafe to check a cat in to, at a camp or a door (review N280)
+		end
+		local campId = Layout.campAt(position.X, position.Z)
+		if campId ~= nil then
+			campCheckIn(player, campId)
 			continue
 		end
 		local from = lastCarrierAt[player] or position

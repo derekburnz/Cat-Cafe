@@ -1349,17 +1349,20 @@ end
 
 -- Where a cat dropped at x, z lands (section 4): a spot in a camp or within CampDropMarginStuds of its rect moves
 -- straight out into the wild part, CampDropOutStuds past the gate line and at least 2 in from the camp's sides;
--- anywhere else stays put.
-function Layout.outOfCamp(x: number, z: number): (number, number)
+-- anywhere else stays put. The third value is the camp's id (its area's) when it moved, so the caller can put the
+-- spot on that area's floor (review N279).
+function Layout.outOfCamp(x: number, z: number): (number, number, string?)
 	local margin = W.CampDropMarginStuds
-	for _, camp in Layout.camps do
+	for id, camp in Layout.camps do
 		local lx, lz = Layout.campLocal(camp, x, z)
 		if math.abs(lx) <= camp.halfAcross + margin and lz >= -CD - margin and lz < margin then
 			local inside = camp.halfAcross - 2
-			return Layout.campPoint(camp, math.clamp(lx, -inside, inside), W.CampDropOutStuds)
+			local ox, oz =
+				Layout.campPoint(camp, math.clamp(lx, -inside, inside), W.CampDropOutStuds)
+			return ox, oz, id
 		end
 	end
-	return x, z
+	return x, z, nil
 end
 
 -- The Cat Cannons (section 3): `town` on the Town Square's plinth and one in each camp, by id (`town` or the camp's

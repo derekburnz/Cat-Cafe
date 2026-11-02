@@ -542,10 +542,10 @@ local Config = {
 		-- none is in view of the town or of another. Only the Cat Cannon reaches them. Each keeps its gate on its town
 		-- side as its camp's way out, with the camp (CampDepth deep, across the area's whole width) in front of it.
 		WildAreaDistance = 2000,
-		-- The Park at its v3.2 size (F81, town-layout-v3.md section 8e): 160 x 120, its camp on its north side.
+		-- The Park (F85, hometown-cannon.md section 6b): long, 120 wide and 310 deep, its camp on its north side.
 		ParkCenterZ = -2000,
-		ParkWidth = 160,
-		ParkDepth = 120,
+		ParkWidth = 120,
+		ParkDepth = 310,
 		-- The Woods (v3.2: 240 x 240) with its camp on its east side, the Sewer (180 x 180) with its camp on its west. Their
 		-- gates keep the 24 wide openings they had in the back alleys' outer walls (SideGateHalfWidth either side).
 		WoodsCenterX = -2000,

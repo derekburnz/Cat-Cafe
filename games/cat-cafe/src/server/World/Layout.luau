@@ -62,6 +62,9 @@ export type AreaSpec = {
 	-- above the floor where strays walk (the Sewer's tiles).
 	set: string?,
 	setLift: number?,
+	-- F85 (hometown-cannon.md section 6b): the suffix on a long area's camp, gate, night fence and backdrop models
+	-- (`CatCafe_Camp_ParkF85`, `CatCafe_Park_GateF85`, ...), which Model-Agent made with new names beside the old
+	artSuffix: string?,
 	rects: { Rect }?,
 	walls: { Rect }?, -- wall footprints for a rects area
 	roam: { Rect }?, -- where strays may walk when props line the walls; the floor pieces when nil
@@ -760,10 +763,13 @@ local function setPropTrap(
 	}
 end
 
--- The Park at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's set (#460, area-sets.md "The Park
--- (v3.2)") fills the 160 x 120 floor and brings its own fountain, trees and benches. The way in winds past two hedge
--- rows to the bandstand. Its cat spots are `near` on the gate half and `deep` on the far half, where Epic and rarer
--- strays wait (CatService). Its rescue trees and bins stand at the set's trap spots, three of the five deep.
+-- The long Park (F85, hometown-cannon.md section 6b; Model-Agent #799, area-sets.md "The Park (F85)"): a 120 x 310
+-- wild part with its camp 30 more in front of the gate, so the run home with a cat is long and in view. Its set,
+-- camp, gate, night fence and backdrop carry the F85 suffix (artSuffix). Four blockers cross the width with their
+-- gaps on alternating sides: a box hedge, a railing, the stream (crossed by the footbridge) and a second hedge, to
+-- the bandstand at the far end. Its cat spots are `near` on the camp half and `deep` on the far half, where Epic and
+-- rarer strays wait (CatService). Its rescue trees and bins stand at the set's trap spots, four of the five deep and
+-- none within 100 studs of the camp.
 local PX, PZ = 0, W.ParkCenterZ
 local PGATE = PZ + W.ParkDepth / 2 -- its north side, toward the town
 local PTURN = townTurn(PX, PZ, nil, PGATE)
@@ -773,52 +779,62 @@ Layout.park = {
 	halfWidth = W.ParkWidth / 2,
 	halfDepth = W.ParkDepth / 2,
 	gateZ = PGATE,
-	set = "CatCafe_Park_Set",
+	openingHalfWidth = W.CampOpeningWidth / 2,
+	set = "CatCafe_Park_SetF85",
+	artSuffix = "F85",
 	spawnPoints = (function(): { Point }
 		local points = setPoints(PX, PZ, PTURN, 0.1, {
-			{ -3.5, 0, -49.5 }, -- the plaza
-			{ 18, 0.62, -48.5 }, -- the flower beds
-			{ 30, 0.62, -45.5 },
-			{ 45, 0.62, -41 },
-			{ 51.6, 0, -42 }, -- the bench
-			{ -28.56, 0, -50.96 }, -- the picnic tables
-			{ -45.17, 0, -53.91 },
-			{ -42, 0.06, -40 }, -- a picnic blanket
-			{ -35, 0, -48.5 }, -- oaks
-			{ -34, 0, -29.5 },
-			{ 62, 0, -50.5 }, -- the blossom tree
-			{ 10, 1.2, -8 }, -- the jetty, on its boards
-			{ -15.56, 0, -18.9 }, -- the pond bank
-			{ -42, 0, -16 }, -- the willow
-			{ 46.5, 0, -16.5 }, -- the kiosk
-			{ -60, 0, -12 }, -- lawns
+			{ -4, 0, -145 }, -- plaza
+			{ 18, 0.62, -143 }, -- flowerbed
+			{ 32, 0.62, -136 },
+			{ 46, 0.62, -130 },
+			{ 49.6, 0, -141 }, -- bench
+			{ -24.56, 0, -146.96 }, -- picnic
+			{ -41.17, 0, -141.91 },
+			{ -45, 0.06, -124 }, -- blanket
+			{ -6, 0.06, -10 },
+			{ -44.5, 0, -147.5 }, -- oak (Model-Agent 11-02: moved from -44, -144, 3.5 from a picnic table's)
+			{ 42, 0, -148 }, -- blossom
+			{ 6, 1.2, -80 }, -- jetty
+			{ -19.56, 0, -90.9 }, -- bank
+			{ 2.5, 0, -62.15 },
+			{ -40, 0, -98 }, -- willow
+			{ 42.5, 0, -86.5 }, -- kiosk
+			{ -46, 0, -60 }, -- lawn
+			{ -27, 0.5, -28.3 }, -- glasshouse
+			{ -33, 0.5, -28.3 },
+			{ 29, 0, -37 }, -- orchard
 		}, "near")
 		for _, point in
 			setPoints(PX, PZ, PTURN, 0.1, {
-				{ 26, 0, 8 }, -- oaks
-				{ 6.5, 0, 9.85 }, -- the pond bank
-				{ -50, 0, 10 }, -- lawns
-				{ 50, 0, 6 },
-				{ 56, 0, 14 },
-				{ -60, 0, 24 }, -- by the second hedge row
-				{ -3, 1.15, 40.5 }, -- the bandstand
-				{ 3, 1.15, 41 },
-				{ 0, 1.15, 44 },
-				{ -9.75, 0, 53.93 }, -- the loop path
-				{ -15.97, 0, 45.81 },
-				{ -27, 0, 52 }, -- the slide
-				{ -46, 0, 45 }, -- the swings
-				{ -63.5, 0.55, 46.5 }, -- the sandbox
-				{ -44, 0, 30 }, -- the seesaw
-				{ -60, 0.72, 33 }, -- the roundabout
-				{ -36, 0, 39 }, -- the playground
-				{ 46, 0, 35.5 }, -- the fountain
-				{ 46, 0.57, 48.6 }, -- the rose beds
-				{ 56.74, 0, 33.8 },
-				{ 62.5, 0, 48 }, -- the topiary
-				{ 31, 0, 50 }, -- the flower garden
-				{ -40, 0, 54 }, -- the far end
-				{ 6, 0, 55 },
+				{ 54.4, 0, 36 }, -- bench
+				{ 31.31, 0, 80.06 }, -- picnic
+				{ 46.56, 0, 108.04 },
+				{ 24, 0.06, 100 }, -- blanket
+				{ -46, 0, 50 }, -- lawn
+				{ 40, 0, 66 },
+				{ 50, 0, 80 },
+				{ 16, 0, 20 }, -- stream
+				{ -40, 0, 20 },
+				{ 6, 0, 50.5 }, -- fountain
+				{ 12.36, 0.57, 52.36 }, -- roses
+				{ -3.05, 0, 55.05 },
+				{ 20, 0, 63 }, -- topiary
+				{ 44, 0, 46 }, -- sundial
+				{ -44, 0, 102 }, -- swings
+				{ -23, 0, 109 }, -- slide
+				{ -51.5, 0.55, 89.5 }, -- sandbox
+				{ -38, 0, 87 }, -- seesaw
+				{ -26, 0.72, 92 }, -- roundabout
+				{ -36, 0, 96 }, -- playground
+				{ 5, 1.15, 130.5 }, -- bandstand
+				{ 11, 1.15, 131 },
+				{ 8, 1.15, 134 },
+				{ 23.97, 0, 135.81 }, -- loop
+				{ -7.97, 0, 135.81 },
+				{ -30, 0, 146 }, -- far
+				{ 40, 0, 146 },
+				{ -14, 0, 132 },
 			}, "deep")
 		do
 			table.insert(points, point)
@@ -827,11 +843,11 @@ Layout.park = {
 	end)(),
 	-- a tree's branch points along its -X, a bin's open lid is at its back
 	rescueSpots = {
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -28, 0, -16 }, 180),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -18, 0, 27 }, 180),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 20, 0, 53 }, -90),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { 10, 0, -38.5 }, 0),
-		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -14, 0, 23.5 }, 90),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, -24 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -46, 0, 30 }, 180),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, 98 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -8, 0, 64 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -46, 0, 140 }, 90),
 	},
 	props = {},
 } :: AreaSpec
@@ -1382,7 +1398,7 @@ end
 -- front -Z, no turn of its own) stands in its area's set space, the space the camp set is placed in (origin the area's
 -- centre on its floor, turned by the camp's turn): in the camp beside the way out, across from the Index Board.
 Layout.campExtras = {
-	park = { x = 23, y = 0, z = -65.5 },
+	park = { x = 19, y = 0, z = -160.5 }, -- F85: in the long camp, left of the flower bed (Model-Agent 11-02)
 	neighbourhood = { x = 26, y = 0, z = -145.5 },
 	woods = { x = 21.5, y = 0, z = -125 },
 	sewer = { x = 20, y = 0, z = -94.5 },

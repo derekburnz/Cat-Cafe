@@ -118,7 +118,7 @@ return function()
 		-- logs, drain pipes, sheds and gutters turned in the set as well.
 		it("the area sets' cat spots stand on the set's ground, clear of its traps", function()
 			local sets: { [string]: string } = {
-				park = "CatCafe_Park_Set",
+				park = "CatCafe_Park_SetF85", -- F85 (#799)
 				neighbourhood = "CatCafe_Neighbourhood_SetV32",
 				woods = "CatCafe_Woods_SetV32",
 				sewer = "CatCafe_Sewer_SetV32",
@@ -169,7 +169,7 @@ return function()
 				local spec = Layout.areas[id]
 				local gx, gz = Layout.gatePosition(spec)
 				expect(gx).to.be.ok()
-				-- the Park's plaza at local (-3.5, -49.5) is near its gate side, the Neighbourhood's porch at local
+				-- the Park's plaza at local (-4, -145) is near its gate side, the Neighbourhood's porch at local
 				-- (-110.2, -98.9) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
 				-- canal bridge at local (44, -61) near its own
 				local index = if id == "woods" then 8 else 1
@@ -200,11 +200,11 @@ return function()
 			function()
 				local rows = {
 					{
-						id = "park",
-						near = 16,
-						deep = 24,
+						id = "park", -- F85 (#799): four of its five traps deep
+						near = 20,
+						deep = 28,
 						rare = 0,
-						deepTraps = 3,
+						deepTraps = 4,
 						byRegion = false,
 					},
 					{
@@ -272,12 +272,12 @@ return function()
 					end
 					expect(deep).to.equal(row.deepTraps)
 				end
-				-- the Park's traps are the world's trees and bins, the first a prop turned 180 in the set, which is
-				-- turned 180 itself
+				-- the Park's traps are the world's trees and bins, the first (F85) a prop with no turn in the set, which
+				-- is turned 180 itself
 				for _, spot in Layout.park.rescueSpots do
 					expect(spot.prop).to.be.ok()
 				end
-				expect(Layout.park.rescueSpots[1].rotY).to.equal(0)
+				expect(Layout.park.rescueSpots[1].rotY).to.equal(180)
 			end
 		)
 

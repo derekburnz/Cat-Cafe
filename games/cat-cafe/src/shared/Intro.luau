@@ -181,7 +181,8 @@ function Intro.camp(area: string): Camp?
 		ox, oz, turn, opening = W.AlleyCenterX, W.AlleyCenterZ + W.AlleyNorthZ, 180, nil
 		wayOutRight = (W.AlleyInnerX + W.AlleyOuterX) / 2 - W.AlleyLaneShift
 	elseif area == "park" then
-		ox, oz, turn, opening = 0, W.ParkCenterZ + W.ParkDepth / 2, 180, W.StreetHalfWidth
+		-- F85: the long Park's camp opens CampOpeningWidth wide
+		ox, oz, turn, opening = 0, W.ParkCenterZ + W.ParkDepth / 2, 180, W.CampOpeningWidth / 2
 	elseif area == "neighbourhood" then
 		ox, oz, turn, opening =
 			W.NeighbourhoodCenterX,

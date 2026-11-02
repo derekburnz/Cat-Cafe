@@ -954,12 +954,23 @@ local function placeNightFence(asset: string, cframe: CFrame, parent: Instance):
 	return model
 end
 
+-- A long area's model suffix (F85, Layout's artSuffix: "F85"), "" for the rest, on its camp, gate, night fence and
+-- backdrop names.
+local function artSuffix(areaId: string): string
+	local spec = Layout.areas[areaId]
+	return if spec ~= nil and spec.artSuffix ~= nil then spec.artSuffix else ""
+end
+
 -- Every night fence: one behind each area gate's Bars and a closed back door in each plot (the client shows that one
 -- only on an owned cafe, whose back door is open by day). Since v4 (F84) the Alleyway is a wild area like the rest,
 -- emptied at night by the sweep, so the fence along the back alleys' inner edges went with them.
 local function buildNightFences(gates: { [string]: Model }, plots: { Plot }, parent: Instance)
 	for areaId, gate in gates do
-		local asset = "CatCafe_" .. areaId:sub(1, 1):upper() .. areaId:sub(2) .. "_NightFence"
+		local asset = "CatCafe_"
+			.. areaId:sub(1, 1):upper()
+			.. areaId:sub(2)
+			.. "_NightFence"
+			.. artSuffix(areaId)
 		if AssetRegistry.has(asset) then
 			placeNightFence(asset, gate:GetPivot(), parent).Name = asset
 		end
@@ -1002,7 +1013,7 @@ local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
 	local base = CFrame.new(camp.origin.x, 0, camp.origin.z)
 		* CFrame.Angles(0, math.rad(camp.turn), 0)
 	local rect = camp.rect
-	local art = "CatCafe_Camp_" .. campArtName(camp.area)
+	local art = "CatCafe_Camp_" .. campArtName(camp.area) .. artSuffix(camp.area)
 	local hasArt = AssetRegistry.has(art)
 	if hasArt then
 		place(
@@ -1040,7 +1051,7 @@ local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
 	-- Model-Agent's backdrop ring round the area (#741), CatCafe_<Area>_Backdrop, when it is in: built in set space,
 	-- so it pivots as the camp set does, its ground starting at the Ground plate's edge below. Every part is
 	-- non-colliding, unqueried and shadowless. Persistent like the town's, so it never streams out behind a player.
-	local backdropName = "CatCafe_" .. campArtName(camp.area) .. "_Backdrop"
+	local backdropName = "CatCafe_" .. campArtName(camp.area) .. "_Backdrop" .. artSuffix(camp.area)
 	if AssetRegistry.has(backdropName) then
 		local backdrop = place(
 			backdropName,
@@ -1414,11 +1425,11 @@ local function buildGate(
 	parent: Instance
 ): Model
 	local pascal = def.id:sub(1, 1):upper() .. def.id:sub(2)
-	local gate = place(
-		"CatCafe_" .. pascal .. "_Gate",
-		CFrame.new(x, 0.1, z) * CFrame.Angles(0, turn, 0),
-		parent
-	)
+	local asset = "CatCafe_" .. pascal .. "_Gate" .. artSuffix(def.id)
+	if not AssetRegistry.known(asset) then
+		asset = "CatCafe_" .. pascal .. "_Gate" -- a long area's gate before its art is in: the placeholder
+	end
+	local gate = place(asset, CFrame.new(x, 0.1, z) * CFrame.Angles(0, turn, 0), parent)
 	gate.Name = pascal .. "Gate"
 	gate:SetAttribute("Area", def.id)
 	gate:SetAttribute("RequiresTier", def.tier)

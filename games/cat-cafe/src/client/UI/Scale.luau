@@ -29,6 +29,17 @@ function Scale.isTouch(): boolean
 		and not UserInputService.MouseEnabled
 end
 
+Scale.TAP = 44 -- px a finger needs on screen (ui-review; the UI gate's tap check)
+
+-- A button's height in design pixels that still gives a 44 px face on the smallest phone scale (TOUCH_FLOOR), less
+-- `depth` px of lip under the face; `height` unchanged with a mouse or when it is already enough.
+function Scale.tapHeight(height: number, depth: number?): number
+	if not Scale.isTouch() then
+		return height
+	end
+	return math.max(height, math.ceil(Scale.TAP / Scale.TOUCH_FLOOR) + (depth or 0))
+end
+
 function Scale.compute(viewport: Vector2): number
 	local s = math.min(viewport.X / Scale.DESIGN.X, viewport.Y / Scale.DESIGN.Y)
 	s = math.clamp(s, Scale.MIN, Scale.MAX)

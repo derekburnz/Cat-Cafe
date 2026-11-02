@@ -323,7 +323,8 @@ def meadow(rb, flowers):
     spots = []
     for k in range(40):
         x = (TOWN_X + 6) + 40 * _hash(k, 11)
-        z = -(170 + DZ) + (340 + 2 * DZ) * _hash(k, 12)
+        z = -170 + 340 * _hash(k, 12)                              # at 36 x 28; beside the town spread with it,
+        z = z * (150 + DZ) / 150 if abs(z) <= 150 else z + math.copysign(DZ, z)   # past it keep the plate gap
         side = -1 if k % 2 else 1
         spots.append((side * x, z))
     for k, (x, z) in enumerate(spots):

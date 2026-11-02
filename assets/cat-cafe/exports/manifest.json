@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 22:46 UTC",
+  "generated": "2026-11-02 23:14 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -167091,7 +167091,7 @@
         "CatCafe_Town_Backdrop_Sails",
         "CatCafe_Town_Backdrop_Bulbs"
       ],
-      "triangles": 22598,
+      "triangles": 22558,
       "budget": 60000,
       "size_studs": {
         "x": 872.0,
@@ -167116,7 +167116,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_Backdrop.model.json",
-      "rbx_parts": 1003,
+      "rbx_parts": 1001,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Town_Backdrop.fbx",
         "assets/cat-cafe/exports/CatCafe_Town_Backdrop.glb"
@@ -167128,10 +167128,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "22598/60000 tris",
+          "budget": "22558/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "17019 faces on swatch centers",
+          "uv": "16979 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-178.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"

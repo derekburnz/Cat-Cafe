@@ -1,7 +1,7 @@
 --!strict
--- Builds the whole graybox world from code at server start: ground, street, the Town Square in its middle, 8 plots
--- with front gardens and patio yards, the Alleyway behind them, four more areas and their gates (layout v3, F76,
--- data-model section 9).
+-- Builds the whole graybox world from code at server start: ground, street, the Town Square in its middle with the
+-- Cat Cannon, 8 plots with front gardens and patio yards, the Alleyway behind them, and four wild areas far out with
+-- their camps, gates and camp cannons (layout v3, F76; v4, F84; data-model section 9).
 -- Everything with a name in features.md is a named Part or a clone from AssetRegistry so art swaps in by name.
 
 local CollectionService = game:GetService("CollectionService")
@@ -52,15 +52,16 @@ export type AreaInfo = {
 	bounds: { minX: number, maxX: number, minZ: number, maxZ: number }, -- the bounding box, 2 studs in
 	rects: { Layout.Rect }, -- the floor pieces (one zone box each)
 	roam: { Layout.Rect }, -- where strays stay (WorldBuilder.clampToArea): the floors, less any dressed wall strip
-	arrival: CFrame, -- where fast travel puts a player: just inside the entrance, facing in
-	arrivalEast: CFrame?, -- the Alleyway's landing for a player whose cafe is on the east side (v3.1)
+	arrival: CFrame, -- the camp's landing pad, facing into the area (v4, F84)
+	camp: Layout.Camp?, -- a wild area's camp (v4, F84): rects include its floor, roam leaves it out
 }
 
 export type World = {
 	folder: Folder,
 	plots: { Plot },
 	areas: { [string]: AreaInfo },
-	gates: { [string]: Model }, -- area id -> its tier gate (every area but the Tier 1 alley)
+	gates: { [string]: Model }, -- area id -> its gate, its camp's way out (every area but the Tier 1 alley)
+	cannons: { [string]: Model }, -- cannon id (`town` or a camp's area id) -> its Cat Cannon (v4, F84)
 }
 
 local WorldBuilder = {}
@@ -77,6 +78,10 @@ local PATH = Color3.fromRGB(214, 200, 176)
 local BACK_DOOR_ART = "CatCafe_Plot_BackDoor" -- Model-Agent #509; its _Leaf, _Flap and _Sign models carry the name too
 local CAT_BED = "CatCafe_Furniture_CatBed" -- F79, Model-Agent #511: a Sleep point for the cat and a Foot in front
 local DECK = Color3.fromRGB(205, 160, 110)
+local HEDGE = Color3.fromRGB(70, 125, 60)
+-- the hometown's edges (v4, Layout.townEdges): a hedge this high, and the invisible collider over any jump
+local TOWN_EDGE_HEIGHT = 4
+local TOWN_EDGE_BLOCK = 16
 -- The cafe shell's facade pastel, by plot number (world-and-feel.md section 3).
 local SHELL_COLORS = { "Mint", "Blush", "Butter", "Lilac" }
 
@@ -521,30 +526,30 @@ local function buildPlot(index: number, parent: Instance): Plot
 		then buildBackDoorArt(cframe, model)
 		else nil
 
-	-- The patio yard's low fence: both sides and the back, with a gate gap in line with the back door.
-	local yard, gate = Layout.plot.yard, Layout.plot.yardGate
+	-- The patio yard's low fence: both sides and the back. Since v4 (F84) the back fence is closed all along: the
+	-- yard gate opened onto the back alley, which moved out of town. The side fences stand on the grass, 0.2 below
+	-- the plot's floor, and 0.4 out, clear of the shell's walls (QA world scan G4).
+	local yard = Layout.plot.yard
 	local fenceH = Layout.plot.fenceHeight
 	local fence = folder("YardFence", model)
-	for _, x in { yard.x1 + 0.5, yard.x2 - 0.5 } do
+	for _, x in { yard.x1 + 0.1, yard.x2 - 0.1 } do
 		part(
 			"FenceSide",
-			Vector3.new(0.4, fenceH, yard.z2 - yard.z1),
-			cframe * CFrame.new(x, fenceH / 2, (yard.z1 + yard.z2) / 2),
+			Vector3.new(0.4, fenceH + 0.2, yard.z2 - yard.z1),
+			cframe * CFrame.new(x, fenceH / 2 - 0.1, (yard.z1 + yard.z2) / 2),
 			PICKET,
 			Enum.Material.WoodPlanks,
 			fence
 		)
 	end
-	for _, span in { { yard.x1, gate.x1 }, { gate.x2, yard.x2 } } do
-		part(
-			"FenceBack",
-			Vector3.new(span[2] - span[1], fenceH, 0.4),
-			cframe * CFrame.new((span[1] + span[2]) / 2, fenceH / 2, yard.z2 - 0.2),
-			PICKET,
-			Enum.Material.WoodPlanks,
-			fence
-		)
-	end
+	part(
+		"FenceBack",
+		Vector3.new(yard.x2 - yard.x1, fenceH, 0.4),
+		cframe * CFrame.new((yard.x1 + yard.x2) / 2, fenceH / 2, yard.z2 - 0.2),
+		PICKET,
+		Enum.Material.WoodPlanks,
+		fence
+	)
 	if codeBuilt then
 		part(
 			"WallLeft",
@@ -876,124 +881,6 @@ local function safeWords(at: Vector3, walking: Vector3, width: number, parent: I
 	gui.Parent = plate
 end
 
--- Every way from the cafe district into a catching area: the back alleys' inner edges (yard gates, the side
--- passages between cafes and the Town Square's side arches), and the Park and Neighbourhood gates at the street's
--- ends (v3.1). The Woods and Sewer gates are reached only through the back alleys, which are already outside.
-local function buildSafeZoneMarks(parent: Instance)
-	local marks = folder("SafeZone", parent)
-	local alleyTop = Layout.alley.floorY + 0.03
-	local streetTop = 0.13 -- the street's surface is at 0.1
-	local groundTop = 0.03 -- grass in the side passages
-	for _, side in { -1, 1 } do
-		local x = side * (W.AlleyInnerX + 0.3)
-		safeStripe(
-			Vector3.new(x, alleyTop, W.AlleySouthZ),
-			Vector3.new(x, alleyTop, W.AlleyNorthZ),
-			marks
-		)
-		-- the side passages between neighbouring cafes (and beside the Town Square's gardens), at their alley end
-		for _, z in Layout.sidePassages() do
-			safeWords(
-				Vector3.new(side * (W.AlleyInnerX - 2.5), groundTop, z),
-				Vector3.new(-side, 0, 0),
-				W.PlotRowGap - 3, -- inside the gap between two yard fences
-				marks
-			)
-		end
-		-- the Town Square's side arch, on the garden side, over the garden path's stones (their tops at 0.12)
-		safeWords(
-			Vector3.new(side * (W.AlleyInnerX - 3.5), streetTop, 0),
-			Vector3.new(-side, 0, 0),
-			W.TownSquareArchWidth - 3,
-			marks
-		)
-	end
-	-- On each end area's floor just inside its near wall (1 stud thick, centred on the area's edge), so the stripe
-	-- is on the area side like the others (reviewer S54); each gate is as wide as the street it closes (32 studs).
-	local half = W.StreetHalfWidth
-	for _, spec in { Layout.park, Layout.neighbourhood } do
-		local toward = if spec.center.z < 0 then 1 else -1 -- from the area toward the street
-		local edge = spec.center.z + toward * (spec.halfDepth - 0.8)
-		local top = spec.floorY + 0.03
-		safeStripe(Vector3.new(-half, top, edge), Vector3.new(half, top, edge), marks)
-		local gateZ = spec.gateZ :: number
-		safeWords(
-			Vector3.new(0, streetTop, gateZ + toward * 4),
-			Vector3.new(0, 0, toward),
-			12,
-			marks
-		)
-	end
-end
-
--- The Alleyway has no tier gate, so at night (v0.9, F66) a fence closes it along the same lines as the safe zone
--- stripes. This plain one stands in while the night fence art is missing (buildNightFences): both back alleys'
--- inner edges, the bars across each side arch carrying a "Closed until sunrise" sign toward the square (v3.1).
--- `AlleyNightFence` under World.Gates, `Area` alley and `RequiresTier` 1, but no AreaGate tag (no gate sign or
--- unlock effect): the client treats its Bars like a gate's and closes them while the Clock's AreasOpen is false.
--- CanCollide stays off here, so the server's rays and the strays never meet it.
-local NIGHT_FENCE_WOOD = Color3.fromRGB(92, 64, 51)
-local NIGHT_FENCE_HEIGHT = 8 -- over a default jump
-local NIGHT_FENCE_SEGMENT = 8 -- studs along the line per CatCafe_Alley_NightFenceSegment (8.1 wide, posts overlap)
-
-local function nightFenceBars(from: Vector3, to: Vector3, parent: Instance): Part
-	local length = (to - from).Magnitude
-	local mid = (from + to) / 2 + Vector3.new(0, NIGHT_FENCE_HEIGHT / 2, 0)
-	local bars = part(
-		"Bars",
-		Vector3.new(0.4, NIGHT_FENCE_HEIGHT, length),
-		CFrame.lookAt(mid, Vector3.new(to.X, mid.Y, to.Z)),
-		NIGHT_FENCE_WOOD,
-		Enum.Material.WoodPlanks,
-		parent
-	)
-	bars.CanCollide = false
-	bars.CanQuery = false
-	bars.CanTouch = false
-	return bars
-end
-
-local function buildAlleyNightFence(parent: Instance): Model
-	local fence = Instance.new("Model")
-	fence.Name = "AlleyNightFence"
-	fence.ModelStreamingMode = Enum.ModelStreamingMode.Persistent -- never streams back in with its day look (N165)
-	fence:SetAttribute("Area", "alley")
-	fence:SetAttribute("RequiresTier", 1)
-	local floor = Layout.alley.floorY
-	local arch = W.TownSquareArchWidth / 2
-	for _, side in { -1, 1 } do
-		local x = side * (W.AlleyInnerX + 0.3)
-		nightFenceBars(Vector3.new(x, floor, W.AlleySouthZ), Vector3.new(x, floor, -arch), fence)
-		nightFenceBars(Vector3.new(x, floor, arch), Vector3.new(x, floor, W.AlleyNorthZ), fence)
-		local across =
-			nightFenceBars(Vector3.new(x, floor, -arch), Vector3.new(x, floor, arch), fence)
-		-- the bars' own faces are Left and Right as built; the sign reads from the square on either
-		for _, face in { Enum.NormalId.Left, Enum.NormalId.Right } do
-			local gui = Instance.new("SurfaceGui")
-			gui.Name = "ClosedSign"
-			gui.Face = face
-			gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-			gui.PixelsPerStud = 20
-			gui.LightInfluence = 0
-			local text = Instance.new("TextLabel")
-			text.AnchorPoint = Vector2.new(0.5, 0.5)
-			text.Position = UDim2.fromScale(0.5, 0.5)
-			text.Size = UDim2.fromScale(0.9, 0.35)
-			text.BackgroundTransparency = 1
-			text.Font = Enum.Font.FredokaOne
-			text.TextScaled = true
-			text.TextColor3 = SAFE_WORDS
-			text.TextStrokeColor3 = NIGHT_FENCE_WOOD
-			text.TextStrokeTransparency = 0
-			text.Text = "Closed until sunrise"
-			text.Parent = gui
-			gui.Parent = across
-		end
-	end
-	fence.Parent = parent
-	return fence
-end
-
 -- The night fence art (F66, Model-Agent #318): models tagged NightFence that show only while the areas are closed.
 -- Each is built hidden and walk-through here, with every part's own look and collision kept in attributes
 -- (NightTransparency, NightCollide; NightEnabled on lights, GUIs, emitters, beams and trails), and the client shows
@@ -1041,16 +928,10 @@ local function placeNightFence(asset: string, cframe: CFrame, parent: Instance):
 	return model
 end
 
--- Every night fence: one behind each area gate's Bars, segments tiled along both back alleys' inner edges (front
--- toward the cafes, across the Town Square's side arches too), and a closed back door in each plot (the client shows
--- that one only on an owned cafe, whose back door is open by day). False when the Alleyway's segment art is missing,
--- so the code-built AlleyNightFence closes it instead. v3.1 took away the street arch the Alleyway's big night
--- fence stood in, so CatCafe_Alley_NightFence is no longer placed.
-local function buildNightFences(
-	gates: { [string]: Model },
-	plots: { Plot },
-	parent: Instance
-): boolean
+-- Every night fence: one behind each area gate's Bars and a closed back door in each plot (the client shows that one
+-- only on an owned cafe, whose back door is open by day). Since v4 (F84) the Alleyway is a wild area like the rest,
+-- emptied at night by the sweep, so the fence along the back alleys' inner edges went with them.
+local function buildNightFences(gates: { [string]: Model }, plots: { Plot }, parent: Instance)
 	for areaId, gate in gates do
 		local asset = "CatCafe_" .. areaId:sub(1, 1):upper() .. areaId:sub(2) .. "_NightFence"
 		if AssetRegistry.has(asset) then
@@ -1066,28 +947,166 @@ local function buildNightFences(
 				"BackDoorClosed"
 		end
 	end
-	if not AssetRegistry.has("CatCafe_Alley_NightFenceSegment") then
-		return false
+end
+
+-- A wild area's camp (v4, F84, hometown-cannon.md section 4 and 6a; Layout.camps): its ground with low walls on its
+-- two sides and its back, its own ground plate under the whole area out to the backdrop, the landing pad, the carrier
+-- basket and the SAFE ZONE stripe and words on the camp side of the gate line. The gate stands across the way out
+-- (WorldBuilder.build) and the camp cannon at the back wall (buildCannon). Model-Agent's CatCafe_Camp_<Area> set,
+-- when it is there, brings the camp's ground, pad, basket (tagged CampBasket with a Drop attachment) and theme props:
+-- it pivots on the area set's own pivot, so it stands where the set does, and the code-built floor and pad stay out
+-- while the walls only block.
+local CAMP_WALL_HEIGHT = 4
+local CAMP_WALL_BLOCK = 14 -- the walls' invisible collider reaches this high, over any jump
+local CAMP_GROUND_MARGIN = 80 -- the ground plate reaches this far past the area's walls, under its backdrop
+local PAD_COLOR = Color3.fromRGB(246, 214, 140)
+
+-- An area's name as Model-Agent's camp and cannon models carry it: Alleyway, Park, Neighbourhood, Woods, Sewer.
+local function campArtName(areaId: string): string
+	if areaId == "alley" then
+		return "Alleyway"
 	end
-	local floor = Layout.alley.floorY
-	-- the end posts clear the end walls' pieces (Model-Agent, after #375)
-	local from, to = W.AlleySouthZ + 2.1, W.AlleyNorthZ - 2.1
-	local count = math.ceil((to - from) / NIGHT_FENCE_SEGMENT)
-	local step = (to - from) / count
+	return areaId:sub(1, 1):upper() .. areaId:sub(2)
+end
+
+local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
+	local folderCamp = folder("Camp", parent)
+	local floorY = camp.origin.y
+	local spec = Layout.areas[camp.area]
+	local base = CFrame.new(camp.origin.x, 0, camp.origin.z)
+		* CFrame.Angles(0, math.rad(camp.turn), 0)
+	local rect = camp.rect
+	local art = "CatCafe_Camp_" .. campArtName(camp.area)
+	local hasArt = AssetRegistry.has(art)
+	if hasArt then
+		place(
+			art,
+			CFrame.new(spec.center.x, floorY, spec.center.z)
+				* CFrame.Angles(0, math.rad(camp.turn), 0),
+			folderCamp
+		).Name =
+			"CampSet"
+	else
+		part(
+			"CampFloor",
+			Vector3.new(rect.x2 - rect.x1, 0.2, rect.z2 - rect.z1),
+			CFrame.new((rect.x1 + rect.x2) / 2, 0, (rect.z1 + rect.z2) / 2),
+			look.floor,
+			look.floorMaterial,
+			folderCamp
+		)
+		-- the landing pad: a round paw print the size of LandingPadRadius, flat on the floor
+		local pad = camp.pad
+		local disc = part(
+			"LandingPad",
+			Vector3.new(0.04, W.LandingPadRadius * 2, W.LandingPadRadius * 2),
+			CFrame.new(pad.x, floorY + 0.03, pad.z) * CFrame.Angles(0, 0, math.rad(90)),
+			PAD_COLOR,
+			Enum.Material.SmoothPlastic,
+			folderCamp
+		)
+		disc.Shape = Enum.PartType.Cylinder
+		disc.CanCollide = false
+		disc.CanQuery = false
+		disc.CanTouch = false
+		disc.CastShadow = false
+	end
+	-- the area and its camp on their own ground, out to the backdrop ring
+	local x1, z1 =
+		math.min(rect.x1, spec.center.x - spec.halfWidth),
+		math.min(rect.z1, spec.center.z - spec.halfDepth)
+	local x2, z2 =
+		math.max(rect.x2, spec.center.x + spec.halfWidth),
+		math.max(rect.z2, spec.center.z + spec.halfDepth)
+	part(
+		"Ground",
+		Vector3.new(x2 - x1 + CAMP_GROUND_MARGIN * 2, 1, z2 - z1 + CAMP_GROUND_MARGIN * 2),
+		CFrame.new((x1 + x2) / 2, -0.6, (z1 + z2) / 2),
+		GRASS,
+		Enum.Material.Grass,
+		folderCamp
+	)
+	-- low walls on the camp's two sides and its back, 1 thick on its edges, in camp space; with the camp's set they
+	-- only block, up to CAMP_WALL_BLOCK
+	local depth, across = W.CampDepth, camp.halfAcross
+	local height = if hasArt then CAMP_WALL_BLOCK else CAMP_WALL_HEIGHT
+	local function wall(name: string, at: CFrame, size: Vector3)
+		local piece = part(name, size, at, look.wall, Enum.Material.Brick, folderCamp)
+		if hasArt then
+			piece.Transparency = 1
+			piece.CastShadow = false
+			return
+		end
+		local centre, extent = piece.Position, piece.CFrame:VectorToWorldSpace(size)
+		wallCap(
+			name,
+			centre.X - math.abs(extent.X) / 2,
+			centre.Z - math.abs(extent.Z) / 2,
+			centre.X + math.abs(extent.X) / 2,
+			centre.Z + math.abs(extent.Z) / 2,
+			height,
+			folderCamp
+		)
+	end
+	wall(
+		"CampWallBack",
+		base * CFrame.new(0, height / 2, -depth),
+		Vector3.new(across * 2 + 1, height, 1)
+	)
 	for _, side in { -1, 1 } do
-		local x = side * (W.AlleyInnerX + 0.3)
-		local turn = math.rad(90 * side) -- the front (-Z) toward the cafes, which lie toward x = 0
-		for n = 1, count do
-			local z = from + (n - 0.5) * step
-			placeNightFence(
-				"CatCafe_Alley_NightFenceSegment",
-				CFrame.new(x, floor, z) * CFrame.Angles(0, turn, 0),
-				parent
-			).Name =
-				"CatCafe_Alley_NightFenceSegment"
+		wall(
+			"CampWallSide",
+			base * CFrame.new(side * across, height / 2, -depth / 2),
+			Vector3.new(1, height, depth)
+		)
+	end
+	local tagged = false
+	for _, piece in folderCamp:GetDescendants() do
+		if piece:IsA("Model") and CollectionService:HasTag(piece, "CampBasket") then
+			piece:SetAttribute("Area", camp.area)
+			tagged = true
 		end
 	end
-	return true
+	if not tagged then
+		local spot = camp.basket
+		local at = CFrame.new(spot.x, floorY, spot.z)
+			* CFrame.Angles(0, math.rad(spot.rotY or 0), 0)
+		local basket = Instance.new("Model")
+		basket.Name = "CampBasket"
+		basket.PrimaryPart = part(
+			"Basket",
+			Vector3.new(3, 2, 2.2),
+			at * CFrame.new(0, 1, 0),
+			CARAMEL,
+			Enum.Material.Fabric,
+			basket
+		)
+		local drop = Instance.new("Attachment")
+		drop.Name = "Drop"
+		drop.Parent = basket.PrimaryPart
+		drop.WorldPosition = at.Position + Vector3.new(0, 2.2, 0)
+		basket:SetAttribute("Area", camp.area)
+		basket.Parent = folderCamp
+		CollectionService:AddTag(basket, "CampBasket")
+	end
+	-- SAFE ZONE: the red stripe just inside the camp along the gate line, across the camp's whole width, and the
+	-- words on the camp side of each way out, reading for a player walking in from the wild part
+	local top = floorY + 0.03
+	safeStripe(
+		(base * CFrame.new(-across, top, -0.8)).Position,
+		(base * CFrame.new(across, top, -0.8)).Position,
+		folderCamp
+	)
+	local lane = (W.AlleyInnerX + W.AlleyOuterX) / 2 - W.AlleyLaneShift -- the Alleyway's two ways out
+	local ways: { number } = if spec.rects ~= nil then { -lane, lane } else { 0 }
+	for _, x in ways do
+		safeWords(
+			(base * CFrame.new(x, top, -4)).Position,
+			base:VectorToWorldSpace(Vector3.new(0, 0, -1)),
+			12,
+			folderCamp
+		)
+	end
 end
 
 local function buildArea(
@@ -1100,21 +1119,24 @@ local function buildArea(
 	local model = Instance.new("Model")
 	model.Name = id:sub(1, 1):upper() .. id:sub(2)
 	model:SetAttribute("Area", id)
+	local camp = Layout.camps[id]
 
 	local cx, cz = spec.center.x, spec.center.z
 	local hw, hd = spec.halfWidth, spec.halfDepth
 	local walls = folder("Walls", model)
 	local rects: { Layout.Rect }
 	local arrival: CFrame
-	local arrivalEast: CFrame? = nil
 	-- The area's kit set when its art is there (Layout.AreaSpec.set): it brings the ground dressing, buildings and
 	-- trees, so the graybox paths and props stay out.
 	local set = spec.set
 	local hasSet = set ~= nil and AssetRegistry.known(set)
 	local specRects = spec.rects
 	if specRects ~= nil then
-		-- The Alleyway: its floor pieces, wall footprints and archways as listed.
-		rects = specRects
+		-- The Alleyway: its floor pieces, wall footprints and archways as listed, and its camp's floor (v4).
+		rects = table.clone(specRects)
+		if camp ~= nil then
+			table.insert(rects, camp.rect)
+		end
 		for n, rect in specRects do
 			part(
 				"Floor" .. n,
@@ -1140,18 +1162,25 @@ local function buildArea(
 		end
 		local arches: { Layout.Arch } = spec.arches or {}
 		for _, arch in arches do
-			buildArch(arch.x, arch.z, arch.span, arch.label, arch.asset, wallColor, model)
+			buildArch(
+				arch.x,
+				arch.z,
+				arch.span,
+				arch.label,
+				arch.asset,
+				wallColor,
+				model,
+				arch.rotY
+			)
 		end
 		local at = spec.arrival or spec.center
 		arrival = CFrame.new(at.x, spec.floorY + 3, at.z)
 			* CFrame.Angles(0, math.rad(at.rotY or 0), 0)
-		local east = spec.arrivalEast
-		if east ~= nil then
-			arrivalEast = CFrame.new(east.x, spec.floorY + 3, east.z)
-				* CFrame.Angles(0, math.rad(east.rotY or 0), 0)
-		end
 	else
 		rects = { { x1 = cx - hw, z1 = cz - hd, x2 = cx + hw, z2 = cz + hd } }
+		if camp ~= nil then
+			table.insert(rects, camp.rect)
+		end
 		part(
 			"Floor",
 			Vector3.new(hw * 2, 0.2, hd * 2),
@@ -1173,7 +1202,8 @@ local function buildArea(
 			wallCap(name, x1, z1, x2, z2, wallH, walls)
 		end
 		-- Three closed sides; the side facing the town has an opening as wide as the street, or as the gate for the
-		-- Woods and the Sewer, whose town side is an X side since v3.1. Walls are 1 thick, centred on the edges.
+		-- Woods and the Sewer, whose town side is an X side since v3.1. Walls are 1 thick, centred on the edges. Since
+		-- v4 (F84) the opening leads into the camp (buildCamp), and arrival is the camp's landing pad.
 		local openingHalf = spec.openingHalfWidth or W.StreetHalfWidth
 		local gateX = spec.gateX
 		if gateX ~= nil then
@@ -1204,6 +1234,11 @@ local function buildArea(
 				Vector3.new(cx, spec.floorY + 3, nearZ - streetSide * 6),
 				Vector3.new(cx, spec.floorY + 3, cz)
 			)
+		end
+		if camp ~= nil then
+			local pad = camp.pad
+			arrival = CFrame.new(pad.x, spec.floorY + 3, pad.z)
+				* CFrame.Angles(0, math.rad(pad.rotY or 0), 0)
 		end
 		if set ~= nil and hasSet then
 			-- Pivot at the area's centre on the floor's top, its gate side (-Z) turned toward the town. The wall
@@ -1308,6 +1343,10 @@ local function buildArea(
 		rescueSpots[name] = spot
 	end
 
+	if camp ~= nil then
+		buildCamp(camp, look, model)
+	end
+
 	model.Parent = parent
 	return {
 		id = id,
@@ -1317,9 +1356,10 @@ local function buildArea(
 		rescueSpots = rescueSpots,
 		bounds = { minX = cx - hw + 2, maxX = cx + hw - 2, minZ = cz - hd + 2, maxZ = cz + hd - 2 },
 		rects = rects,
-		roam = spec.roam or rects,
+		-- strays keep to the wild part: a camp is outside their roam (section 4)
+		roam = spec.roam or (if camp ~= nil then { rects[1] } else rects),
 		arrival = arrival,
-		arrivalEast = arrivalEast,
+		camp = camp,
 	}
 end
 
@@ -1346,27 +1386,22 @@ local function buildGate(
 	return gate
 end
 
--- The Index Boards (F50): CatCafe_<Area>_IndexBoard inside each area's entrance at Layout.indexBoards, in the
--- space of the area's gate or, for the Alleyway, of each of the Town Square's side arches (v3.1), turned as
--- buildTownSquare turns them. The model comes tagged IndexBoard with Area; the UI draws that area's Index on its
+-- The Index Boards (F50): CatCafe_<Area>_IndexBoard at Layout.indexBoards, in its area's camp space (v4, F84:
+-- beside the way out, or for the Alleyway between its two ways out). The model comes tagged IndexBoard with Area; the UI draws that area's Index on its
 -- Screen part and adds its own hold-E prompt. It streams whole (Atomic, as cats do: reviewer S37), so the Screen
 -- never arrives without its board. Skipped while an asset is missing.
-local function buildIndexBoards(gates: { [string]: Model }, parent: Instance)
+local function buildIndexBoards(parent: Instance)
 	for areaId, at in Layout.indexBoards do
 		local pascal = areaId:sub(1, 1):upper() .. areaId:sub(2)
 		local asset = "CatCafe_" .. pascal .. "_IndexBoard"
 		local hosts: { CFrame } = {}
-		local gate: Model? = gates[areaId]
-		if gate ~= nil then
-			table.insert(hosts, gate:GetPivot())
-		elseif areaId == "alley" then
-			for _, arch in Layout.townSquare.arches do
-				local side = if arch.x < 0 then -1 else 1
-				table.insert(
-					hosts,
-					CFrame.new(arch.x, 0.1, arch.z) * CFrame.Angles(0, math.rad(side * 90), 0)
-				)
-			end
+		local camp = Layout.camps[areaId]
+		if camp ~= nil then
+			table.insert(
+				hosts,
+				CFrame.new(camp.origin.x, camp.origin.y, camp.origin.z)
+					* CFrame.Angles(0, math.rad(camp.turn), 0)
+			)
 		end
 		if not AssetRegistry.has(asset) then
 			continue
@@ -1528,25 +1563,18 @@ local function buildTownSquare(parent: Instance)
 		mark.CanQuery = false
 		mark.CanTouch = false
 	end
+	-- the garden wall along each garden's outer edge, closed all along since v4 (the side arch into the back alley
+	-- stood in its middle), 0.5 nearer the garden than it was so it meets it (QA world scan G5)
 	local wallHeight = 5
-	for _, arch in spec.arches do
-		local side = if arch.x < 0 then -1 else 1
-		local x = arch.x
-		-- the garden wall either side of the arch's opening, along the gardens' alley edge
-		for _, half in { -1, 1 } do
-			local near = arch.z + half * arch.span / 2
-			local far = half * floor.z2
-			part(
-				"GardenWall",
-				Vector3.new(1, wallHeight, math.abs(far - near)),
-				CFrame.new(x, wallHeight / 2, (near + far) / 2),
-				BRICK,
-				Enum.Material.Brick,
-				square
-			)
-		end
-		-- -Z toward the square: turned a quarter so it faces +X on the west side and -X on the east
-		buildArch(x, arch.z, arch.span, arch.label, arch.asset, BRICK, square, side * 90)
+	for _, side in { -1, 1 } do
+		part(
+			"GardenWall",
+			Vector3.new(1, wallHeight, floor.z2 - floor.z1),
+			CFrame.new(side * (W.TownEdgeX - 1), wallHeight / 2, (floor.z1 + floor.z2) / 2),
+			BRICK,
+			Enum.Material.Brick,
+			square
+		)
 	end
 	for _, prop in spec.props do
 		if AssetRegistry.known(prop.asset) then
@@ -1561,7 +1589,7 @@ local function buildTownSquare(parent: Instance)
 	end
 end
 
--- The finger signpost by the fountain (town-layout-v3.md section 7d, Layout.townSquare.signpost), tagged
+-- The finger signpost by the cannon (town-layout-v3.md section 7d, Layout.townSquare.signpost), tagged
 -- TownSignpost: each client draws its arms' names, icons and tier locks (ui-contract.md "Town signpost"). The art
 -- when the AssetRegistry has it, placed with no turn so the arms it aims are in world space; until then a post and
 -- an arm for each gated area, a board along its own X with the area's id in its Area attribute, aimed at the gate.
@@ -1666,6 +1694,150 @@ local function buildPawPaths(parent: Instance, sets: { Instance })
 	end
 end
 
+-- The Cat Cannons (v4, F84, hometown-cannon.md section 3; Layout.cannons): CatCafe_Square_Cannon on the Town
+-- Square's plinth and CatCafe_Camp_Cannon at each camp's back wall, else a graybox plinth and barrel. Tagged
+-- CatCannon with CannonId (`town` or the camp's area id) and FireTurn, the model's turn: its barrel (+Z) turned by it
+-- is the way it fires at rest. The town cannon's turret (a child model named ..._Turret, pivot on the turntable's
+-- centre) turns about Y to the area it fires at (WorldBuilder.aimCannon, AimTurn). The hold-E "Hop in" prompt
+-- (Custom: the UI's action pill) sits at the model's PromptAnchor, else above the pivot, and opens the picker on the
+-- client; CannonService measures CannonRangeStuds from the pivot. A launching character is anchored at the barrel's
+-- Seat attachment, and the effects play at Muzzle and Fuse. Persistent, so the prompt and the effects always find it.
+local CANNON_TEAL = Color3.fromRGB(70, 170, 170)
+local CANNON_GOLD = Color3.fromRGB(230, 185, 80)
+local CANNON_TILT = 50 -- degrees up from flat, at rest
+local turretRest: { [Model]: CFrame } = {}
+
+local function cannonTurret(model: Model): Model?
+	for _, child in model:GetChildren() do
+		if child:IsA("Model") and child.Name:sub(-7) == "_Turret" then
+			return child :: Model
+		end
+	end
+	return nil
+end
+
+local function buildCannon(id: string, parent: Instance): Model
+	local spec = Layout.cannons[id]
+	local asset = if id == "town"
+		then "CatCafe_Square_Cannon"
+		else "CatCafe_Camp_Cannon_" .. campArtName(id)
+	local base = CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0)
+	local model: Model
+	if AssetRegistry.has(asset) then
+		model = place(asset, base, parent)
+	else
+		model = Instance.new("Model")
+		local radius = if id == "town" then Layout.townSquare.fountainRadius else 3
+		local length = if id == "town" then 10 else 7
+		local plinth = part(
+			"Plinth",
+			Vector3.new(1.2, radius * 2, radius * 2),
+			base * CFrame.new(0, 0.6, 0) * CFrame.Angles(0, 0, math.rad(90)),
+			CREAM,
+			Enum.Material.Concrete,
+			model
+		)
+		plinth.Shape = Enum.PartType.Cylinder
+		model.PrimaryPart = plinth
+		local turret = Instance.new("Model")
+		turret.Name = asset .. "_Turret"
+		local turntable = part(
+			"Turntable",
+			Vector3.new(0.6, radius, radius),
+			base * CFrame.new(0, 1.5, 0) * CFrame.Angles(0, 0, math.rad(90)),
+			CANNON_GOLD,
+			Enum.Material.Metal,
+			turret
+		)
+		turntable.Shape = Enum.PartType.Cylinder
+		turret.PrimaryPart = turntable
+		-- lookAt aims -Z along the barrel; a quarter turn about Y puts the cylinder's axis (its X) there instead
+		local breech = base * CFrame.new(0, 2.4, 0)
+		local along = base:VectorToWorldSpace(
+			Vector3.new(0, math.sin(math.rad(CANNON_TILT)), math.cos(math.rad(CANNON_TILT)))
+		)
+		local middle = breech.Position + along * (length / 2)
+		local barrel = part(
+			"Barrel",
+			Vector3.new(length, 3, 3),
+			CFrame.lookAt(middle, middle + along) * CFrame.Angles(0, math.rad(90), 0),
+			CANNON_TEAL,
+			Enum.Material.SmoothPlastic,
+			turret
+		)
+		barrel.Shape = Enum.PartType.Cylinder
+		local points: { [string]: Vector3 } = {
+			Seat = breech.Position + Vector3.new(0, 3, 0),
+			Muzzle = breech.Position + along * length,
+			Fuse = breech.Position - along * 0.5 + Vector3.new(0, 1.6, 0),
+		}
+		for name, at in points do
+			local point = Instance.new("Attachment")
+			point.Name = name
+			point.Parent = barrel
+			point.WorldPosition = at
+		end
+		turret.Parent = model
+	end
+	model.Name = if id == "town"
+		then "TownCannon"
+		else id:sub(1, 1):upper() .. id:sub(2) .. "Cannon"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	model:SetAttribute("CannonId", id)
+	model:SetAttribute("FireTurn", spec.rotY or 0)
+	model:SetAttribute("AimTurn", 0)
+	CollectionService:AddTag(model, "CatCannon")
+	local turret = cannonTurret(model)
+	if turret ~= nil then
+		turretRest[model] = turret:GetPivot()
+	end
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "CannonPrompt"
+	prompt.ActionText = "Hop in"
+	prompt.ObjectText = "Cat Cannon"
+	prompt.HoldDuration = Config.CatchHoldSeconds
+	prompt.MaxActivationDistance = W.CannonRangeStuds
+	prompt.RequiresLineOfSight = false
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	local anchorPoint = model:FindFirstChild("PromptAnchor", true)
+	if anchorPoint ~= nil and anchorPoint:IsA("Attachment") then
+		prompt.Parent = anchorPoint
+	else
+		local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		if found ~= nil then
+			local float = Instance.new("Attachment")
+			float.Name = "PromptAnchor"
+			float.Parent = found
+			float.WorldPosition = (model:GetPivot() * CFrame.new(0, 3, 0)).Position
+			prompt.Parent = float
+		end
+	end
+	return model
+end
+
+-- Turns a cannon's turret `turn` degrees about Y from its rest (Layout.cannonAim) and records it in AimTurn, so
+-- the Seat attachment and Muzzle follow the barrel. A cannon without a turret only records it.
+function WorldBuilder.aimCannon(model: Model, turn: number)
+	model:SetAttribute("AimTurn", turn)
+	local turret, rest: CFrame? = cannonTurret(model), turretRest[model]
+	if turret ~= nil and rest ~= nil then
+		turret:PivotTo(rest * CFrame.Angles(0, math.rad(turn), 0))
+	end
+end
+
+-- Where a launching character's root goes (section 7): at the barrel's Seat attachment, or 3 studs over the
+-- pivot's breech without one, upright and facing the way the cannon fires.
+function WorldBuilder.cannonSeat(model: Model): CFrame
+	local seat = model:FindFirstChild("Seat", true)
+	local at = if seat ~= nil and seat:IsA("Attachment")
+		then (seat :: Attachment).WorldPosition
+		else (model:GetPivot() * CFrame.new(0, 5.4, 0)).Position
+	local turn = (model:GetAttribute("FireTurn") :: number? or 0)
+		+ (model:GetAttribute("AimTurn") :: number? or 0)
+	local facing = Vector3.new(math.sin(math.rad(turn)), 0, math.cos(math.rad(turn)))
+	return CFrame.lookAt(at, at + facing)
+end
+
 function WorldBuilder.build(): World
 	local existing = Workspace:FindFirstChild("World")
 	if existing ~= nil then
@@ -1673,17 +1845,18 @@ function WorldBuilder.build(): World
 	end
 	local root = folder("World", Workspace)
 
+	-- the hometown's own ground (v4); each wild area has its own under its camp (buildCamp)
 	local ground = part(
 		"Ground",
-		Vector3.new(W.GroundSize, 1, W.GroundSize),
+		Vector3.new(W.TownGroundWidth, 1, W.TownGroundDepth),
 		CFrame.new(0, -0.5, 0),
 		GRASS,
 		Enum.Material.Grass,
 		root
 	)
 	ground.Name = "Ground"
-	-- The street runs from the Park gate to the Neighbourhood gate, in two halves either side of the Town Square,
-	-- which paves the middle.
+	-- The street runs from the south welcome arch to the north one (the Park and Neighbourhood gates until v4), in
+	-- two halves either side of the Town Square, which paves the middle.
 	for _, half in { -1, 1 } do
 		local from = half * W.TownSquareHalfDepth
 		local to = if half < 0 then W.StreetSouthZ else W.StreetNorthZ
@@ -1710,6 +1883,44 @@ function WorldBuilder.build(): World
 	end
 	buildTownSquare(root)
 	buildSignpost(root)
+	-- the hometown's edges (v4): a low hedge fence behind the yards and a wall across each end, each with an
+	-- invisible collider over any jump, so nobody walks out of town into the gap round it
+	local edges = folder("TownEdges", root)
+	for _, rect in Layout.townEdges do
+		local size = Vector3.new(rect.x2 - rect.x1, TOWN_EDGE_HEIGHT, rect.z2 - rect.z1)
+		local at = Vector3.new((rect.x1 + rect.x2) / 2, 0, (rect.z1 + rect.z2) / 2)
+		part(
+			"TownHedge",
+			size,
+			CFrame.new(at + Vector3.new(0, size.Y / 2, 0)),
+			HEDGE,
+			Enum.Material.Grass,
+			edges
+		)
+		local block = part(
+			"TownEdgeBlock",
+			Vector3.new(size.X, TOWN_EDGE_BLOCK, size.Z),
+			CFrame.new(at + Vector3.new(0, TOWN_EDGE_BLOCK / 2, 0)),
+			HEDGE,
+			Enum.Material.Grass,
+			edges
+		)
+		block.Transparency = 1
+		block.CastShadow = false
+	end
+	-- the welcome arches over the street's ends, front (-Z) toward the square
+	for _, arch in Layout.townEnds do
+		buildArch(
+			arch.x,
+			arch.z,
+			arch.span,
+			arch.label,
+			arch.asset,
+			BRICK,
+			root,
+			if arch.z < 0 then 180 else 0
+		)
+	end
 
 	-- A Model set to Persistent so streaming never drops a far zone the client checks against.
 	local zones = Instance.new("Model")
@@ -1755,9 +1966,10 @@ function WorldBuilder.build(): World
 				zones
 			)
 		end
-		-- The gate's front (-Z, its sign) faces the way players come from (alley kit notes, reviewer N68).
+		-- The gate's front (-Z, its sign) faces the way players come from (alley kit notes, reviewer N68): since v4
+		-- (F84) it stands across its camp's way out, its front toward the camp.
 		local gateX, gateZ = Layout.gatePosition(spec)
-		if gateX ~= nil and gateZ ~= nil then
+		if gateX ~= nil and gateZ ~= nil and spec.rects == nil then
 			gates[def.id] =
 				buildGate(def, gateX, gateZ, math.rad(Layout.gateTurn(spec)), gatesFolder)
 		end
@@ -1771,11 +1983,13 @@ function WorldBuilder.build(): World
 		end
 	end
 	buildPawPaths(root, sets)
-	buildIndexBoards(gates, folder("IndexBoards", root))
-	if not buildNightFences(gates, plots, folder("NightFences", root)) then
-		buildAlleyNightFence(gatesFolder)
+	buildIndexBoards(folder("IndexBoards", root))
+	local cannons: { [string]: Model } = {}
+	local cannonsFolder = folder("Cannons", root)
+	for id in Layout.cannons do
+		cannons[id] = buildCannon(id, cannonsFolder)
 	end
-	buildSafeZoneMarks(root)
+	buildNightFences(gates, plots, folder("NightFences", root))
 	buildSpinWheel(root)
 	buildFishMarket(root)
 	buildCodesCat(root)
@@ -1796,7 +2010,7 @@ function WorldBuilder.build(): World
 	spawn.Duration = 0
 	spawn.Parent = root
 
-	return { folder = root, plots = plots, areas = areas, gates = gates }
+	return { folder = root, plots = plots, areas = areas, gates = gates, cannons = cannons }
 end
 
 return WorldBuilder

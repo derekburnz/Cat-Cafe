@@ -21,7 +21,10 @@ local Moments = {
 	CheckIn = Signal.new() :: Signal.Signal<()>, -- the carried cat went into the cafe
 	CatDrop = Signal.new() :: Signal.Signal<Vector3>, -- (position) this player pressed Drop or G while carrying, at
 	-- the press (like NetSwing); position is the character's root
-	Travel = Signal.new() :: Signal.Signal<string>, -- (destination) the server allowed a Travel: "home" or an area id
+	Travel = Signal.new() :: Signal.Signal<string>, -- (destination) the server allowed a Travel: "home" or "cannon"
+	-- (F84; an area id before it)
+	CampCheckIn = Signal.new() :: Signal.Signal<number, string>, -- (userId, campId) F84: a carrier walked into a
+	-- camp and their cat is being checked in there, fired before the cat leaves their arms; CheckIn follows for your own
 	CatPlaced = Signal.new() :: Signal.Signal<string, string>, -- (uid, role) a sync shows a cat newly in a role, or
 	-- moved to another one
 	UnplaceCat = Signal.new() :: Signal.Signal<string>, -- (uid) a sync shows a cat off its role; Unequip all fires
@@ -60,8 +63,8 @@ local Moments = {
 	TacklePress = Signal.new() :: Signal.Signal<Vector3>,
 	TackleRefused = Signal.new() :: Signal.Signal<()>, -- a "refused" ShoveResult ended this player's lunge
 	-- The intro cutscene (F72) on this screen: started (replay), each shot as it starts (1 to 10, shot 6 once), and
-	-- ended, played out or skipped, once everything is back. IntroCatSeated is shot 4's job: the demo cat leaves your
-	-- arms at the position and appears seated at the waiter spot as the model, for a small puff.
+	-- ended, played out or skipped, once everything is back. IntroCatSeated is shot 5's job (v3, F84): the demo cat
+	-- appears seated at the waiter spot (the position) as the model, for a small puff.
 	IntroStart = Signal.new() :: Signal.Signal<boolean>,
 	IntroShot = Signal.new() :: Signal.Signal<number>,
 	IntroCatSeated = Signal.new() :: Signal.Signal<Vector3, Model>,

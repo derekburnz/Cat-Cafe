@@ -60,6 +60,15 @@ local Config = {
 	StartledSeconds = 2,
 	GrabCooldownSeconds = 2, -- per player, between two catches started
 	TravelCooldownSeconds = 3, -- per player, between two fast travels (features F19)
+	-- The Cat Cannon (F84, hometown-cannon.md section 3b): a flight takes CannonLaunchSeconds from LaunchCannon to
+	-- control, the server moving the anchored character onto the landing pad at CannonTeleportAtSeconds, inside the
+	-- clouds; then CannonCooldownSeconds from landing before the next launch. Home from a wild area is a cloud hop
+	-- (section 5): CloudHopSeconds long, the move at CloudHopMoveAtSeconds.
+	CannonLaunchSeconds = 3.0,
+	CannonTeleportAtSeconds = 1.9,
+	CannonCooldownSeconds = 3,
+	CloudHopSeconds = 1.6,
+	CloudHopMoveAtSeconds = 0.6,
 
 	-- The net: closing circles judged on the server (data-model section 10)
 	CircleLeadInSeconds = 0.6, -- from GrabBegin to the first circle starting to shrink
@@ -320,49 +329,70 @@ local Config = {
 		-- a central middle area"): a 32 wide street with the Town Square in its middle, two rows of cafes either side.
 		StreetHalfWidth = 16,
 		StreetSouthZ = -124,
-		StreetNorthZ = 124, -- the street ends at the Neighbourhood gate
-		GroundSize = 880, -- v3.2 (8e): reaches past the bigger areas' far walls (the Woods' at x -335)
+		StreetNorthZ = 124, -- the street ends at the hometown's north welcome arch (v4)
+		-- v4 (F84, hometown-cannon.md section 2): the hometown's own ground round the town, and each wild area its own
+		TownGroundWidth = 260,
+		TownGroundDepth = 300,
 		WallHeight = 9,
 		DoorWidth = 7,
-		-- The Town Square: paved, centred on the origin across the street, with the stations round a fountain and a
-		-- cross of open paving (the street's line and an east to west lane to the two side arches into the back
-		-- alleys). Its gardens fill the rest of the width out to the back alleys.
+		-- The Town Square: paved, centred on the origin across the street, with the stations round the Cat Cannon (the
+		-- fountain until v4) and a cross of open paving (the street's line and an east to west lane, which led to the
+		-- side arches into the back alleys until v4 closed them). Its gardens fill the rest of the width out to the yards.
 		TownSquareHalfWidth = 48,
 		TownSquareHalfDepth = 32,
 		TownSquareLaneHalfWidth = 8, -- the street's line through the square
 		TownSquareCrossHalfWidth = 6, -- the east to west lane
-		TownSquareArchWidth = 12, -- each side arch from the gardens into a back alley, as wide as the east to west lane
-		-- The Alleyway: back alleys at |x| AlleyInnerX..AlleyOuterX from AlleySouthZ to AlleyNorthZ, closed at both
-		-- ends (v3.1: the Alley Square is gone).
+		-- The hometown's back edge (v4, F84, hometown-cannon.md section 2): a fence at |x| TownEdgeX behind each row of
+		-- cafes' yards, where the back alleys began until v4.
+		TownEdgeX = 63,
+		-- The Alleyway's set (v4, F84, section 6a): its two lanes keep their v3.2 numbers, at |x| AlleyInnerX..AlleyOuterX
+		-- from AlleySouthZ to AlleyNorthZ in lane space, and the set stands in the wild with its middle at (AlleyCenterX,
+		-- AlleyCenterZ), each lane AlleyLaneShift nearer the middle than in lane space, so a 30 stud block of building
+		-- backs stands between them. Its camp is across both lanes' north ends.
 		AlleyInnerX = 63,
 		AlleyOuterX = 93,
 		AlleySouthZ = -125.5,
 		AlleyNorthZ = 125.5,
-		-- The Park at its v3.2 size (F81, town-layout-v3.md section 8e): 160 x 120 behind the same gate, so its far
-		-- half is a long walk in.
-		ParkCenterZ = -186,
+		AlleyCenterX = -1400,
+		AlleyCenterZ = -1400,
+		AlleyLaneShift = 48,
+		AlleyPassageDepth = 12, -- the way through the block between the lanes, at the far (south) end
+		-- The wild areas (v4, F84, hometown-cannon.md section 6a): each v3.2 set moved WildAreaDistance out from the
+		-- Town Square in the same place, the Park south, the Neighbourhood north, the Woods west and the Sewer east, so
+		-- none is in view of the town or of another. Only the Cat Cannon reaches them. Each keeps its gate on its town
+		-- side as its camp's way out, with the camp (CampDepth deep, across the area's whole width) in front of it.
+		WildAreaDistance = 2000,
+		-- The Park at its v3.2 size (F81, town-layout-v3.md section 8e): 160 x 120, its camp on its north side.
+		ParkCenterZ = -2000,
 		ParkWidth = 160,
 		ParkDepth = 120,
-		ParkGateZ = -125,
-		-- The Woods west and the Sewer east of the back alleys (v3.1), each with its gate on its town side, in the back
-		-- alley's outer wall straight across from the square's side arch: SideGateHalfWidth either side of z 0.
-		WoodsCenterX = -215, -- v3.2 (F81, 8e): 240 x 240 behind the same gate
+		-- The Woods (v3.2: 240 x 240) with its camp on its east side, the Sewer (180 x 180) with its camp on its west. Their
+		-- gates keep the 24 wide openings they had in the back alleys' outer walls (SideGateHalfWidth either side).
+		WoodsCenterX = -2000,
 		WoodsCenterZ = 0,
 		WoodsWidth = 240,
 		WoodsDepth = 240,
-		WoodsGateX = -94,
-		SewerCenterX = 185, -- v3.2 (F81, 8e): 180 x 180 behind the same gate
+		SewerCenterX = 2000,
 		SewerCenterZ = 0,
 		SewerWidth = 180,
 		SewerDepth = 180,
-		SewerGateX = 94,
 		SideGateHalfWidth = 12,
-		-- At the street's north end since v3.1; 280 x 280 behind the same gate since v3.2 (F81, 8e).
+		-- The Neighbourhood (v3.2: 280 x 280) with its camp on its south side.
 		NeighbourhoodCenterX = 0,
-		NeighbourhoodCenterZ = 266,
+		NeighbourhoodCenterZ = 2000,
 		NeighbourhoodWidth = 280,
 		NeighbourhoodDepth = 280,
-		NeighbourhoodGateZ = 125,
+		-- Camps (section 4): CampDepth deep across the area's whole width; the landing pad in its middle with
+		-- seventeen spots inside LandingPadRadius, a spot free with no character within LandingClearStuds; the cannon
+		-- prompt's reach. A dropped cat within CampDropMarginStuds of a camp moves out to CampDropOutStuds past its
+		-- edge. CampOpeningWidth is the F85 fence's opening (F84 camps keep their gates' widths).
+		CampDepth = 30,
+		CampOpeningWidth = 24,
+		LandingPadRadius = 8,
+		LandingClearStuds = 3,
+		CannonRangeStuds = 10,
+		CampDropMarginStuds = 2,
+		CampDropOutStuds = 3,
 		-- Cafe life (world-and-feel.md section 4, F37): each client walks customers into every running cafe within
 		-- this range of its camera, up to CustomersMax at once across the street.
 		CafeLifeRangeStuds = 80,

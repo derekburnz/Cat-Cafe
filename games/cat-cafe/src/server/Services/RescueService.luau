@@ -353,6 +353,13 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 		refuse(player, spotId, "Check in the cat you are carrying first")
 		return
 	end
+	if CatService.inFlight(player) then
+		return -- mid flight or hop (F84)
+	end
+	if CatService.campOf(player) ~= nil then
+		refuse(player, spotId, "Step out of the camp to rescue it")
+		return
+	end
 	if not areaUnlocked(profile, entry.area) then
 		refuse(player, spotId, "This area opens at a higher tier. Rank up to rescue cats here")
 		return

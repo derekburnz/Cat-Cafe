@@ -177,6 +177,12 @@ return function()
 		TackleHitRecoverSeconds = 0.4,
 		TackleMissRecoverSeconds = 1.2,
 		TackledDownSeconds = 0.8,
+		-- the Cat Cannon (F84, section 17 v0.13.17)
+		CannonLaunchSeconds = 3.0,
+		CannonTeleportAtSeconds = 1.9,
+		CannonCooldownSeconds = 3,
+		CloudHopSeconds = 1.6,
+		CloudHopMoveAtSeconds = 0.6,
 		-- naming cats (F33, section 4)
 		CatNameMaxLength = 20,
 		RenameCooldownSeconds = 5,

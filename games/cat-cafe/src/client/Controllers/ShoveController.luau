@@ -98,11 +98,20 @@ local function release()
 	setControls(true)
 end
 
--- True while this player stands inside a catching area their tier opens (the server's rule, checked again there).
+-- True while this player stands inside a catching area their tier opens, out of its camp (F84: the server's
+-- `Camp` attribute), and is not flying: the server's rule, checked again there.
 local function inOpenArea(): boolean
 	local root = rootPart()
 	local state = UIController.state
-	if not Config.BumpEnabled or root == nil or state == nil then
+	local character = player.Character
+	if not Config.BumpEnabled or root == nil or state == nil or character == nil then
+		return false
+	end
+	if
+		character:GetAttribute("Camp") ~= nil
+		or character:GetAttribute("Launching") == true
+		or character:GetAttribute("CloudHopAt") ~= nil
+	then
 		return false
 	end
 	local zone = WorldController.zoneAt(root.Position)

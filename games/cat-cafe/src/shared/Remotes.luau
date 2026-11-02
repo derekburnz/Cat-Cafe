@@ -35,7 +35,12 @@ Remotes.ClientToServer = {
 	"ClaimOffline", -- ()
 	"TutorialAdvance", -- (step: number)
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)
-	"Travel", -- (destination: string)  "home" or an AreaId the player's tier opens; not while carrying or mid catch
+	"Travel", -- (destination: string)  "home" (a cloud hop from a wild area) or "cannon" (the front of the nearest
+	-- Cat Cannon, F84); not while carrying, mid catch or rescue, or in a flight
+	"LaunchCannon", -- (cannonId: string, destination: string)  F84 (hometown-cannon.md section 7): `town` or a camp's
+	-- area id within CannonRangeStuds; `town` or another area with a camp, the area opened by the caller's tier, open
+	-- and not in the dusk warning; not carrying, no lock, not flying or tackled down, off CannonCooldownSeconds;
+	-- 1 a second. Answered with CannonLaunch
 	"BuyDealerFood", -- (lureId: string, window: number)  F59: night, near the cart, a dealer food, `window` the
 	-- current one (a buy sent across a roll is refused, S42), fewer bought this window than its amount
 	"Tackle", -- ()  v0.11 F74 (data-model section 10c, shared/Shove): in an unlocked catching area, areas open, not
@@ -95,6 +100,11 @@ Remotes.ServerToClient = {
 	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean)
 	-- after every judged press and when the attempt ends; refusals of RescueBegin come as GrabResult
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
+	"CannonLaunch", -- (destination: string, launchAt: number?)  F84: the caller's flight began at launchAt (server
+	-- time) and lands at the destination's pad CannonLaunchSeconds later; launchAt nil when the launch was refused
+	-- (the server's toast says why)
+	"CampCheckIn", -- (userId: number, campId: string)  F84: fired to everyone in the frame a carrier walks into a
+	-- camp, before the carried cat is removed, so each client hops its copy into the camp's basket
 	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
 	"DealerStock", -- (stock: Types.DealerStock?)  this player's amounts and buys of each food at night (F59), nil by
 	-- day; after every buy

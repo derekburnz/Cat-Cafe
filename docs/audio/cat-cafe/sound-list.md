@@ -171,7 +171,7 @@ Traps: Alleyway trash bin and garbage bag, Park tree and trashcan. The bar kind 
 | `shuttersUp` | PlotOpened (a For Rent plot becomes a player's cafe) | 3D on the shop front | 1.5 s | shutters rattling up, with `signFlip` as the sign turns to OPEN | P1 |
 | `richArrive` | RichArrive (a rich customer at your cafe; F61 makes them richer and more common) | 2D | 1.1 s | posh little two-note "ding-dong" and a coin pile settling | P1 |
 | `richTip` | RichTipClaim (claimed or auto-collected) | 2D | 1.3 s | big coin cascade and a bright chime | P1 |
-| `tipPile` | your plot's `TipPiles` goes down (F61: `CollectTips`, walking near a pile or Collect on the till) | 2D | 0.5 s | a short clink of coins scooped off the tables, once per collect however many piles | P1 |
+| `tipPile` | your plot's `TipPiles` went down (F61: `CollectTips`, walking near a pile or Collect on the till). Silent since F97 (#714): a pile pays the moment it appears, which plays `coinPop`, and the count only drops when old piles are swept | 2D | 0.5 s | a short clink of coins scooped off the tables, once per collect however many piles | P1 |
 | `dealerArrive` | DealerArrive | 3D on the cart | 1.5 s | cart wheels rolling in and a lantern bell | P1 |
 | `dealerLeave` | DealerLeave | 3D on the cart | 1.5 s | wheels rolling away | P2 |
 | `announce` | Announce, the server shout-out (Epic and up, every gold cat, rank ups to Tier 3 and up) | 2D | 1 s | two-note chime under the banner, one note higher per rarity step | P1 |

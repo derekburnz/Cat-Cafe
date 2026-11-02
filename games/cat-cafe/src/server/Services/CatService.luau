@@ -1378,7 +1378,10 @@ local function landSwing(player: Player)
 		for id, stray in strays do
 			if swingable(stray, player, now) then
 				table.insert(targets, { id = id, position = stray.body.Position })
-				if NetSwing.nearMiss(origin, stray.body.Position) then
+				-- only the strays a miss would make hop count as near (review N294)
+				if
+					hoppable(stray, player, now) and NetSwing.nearMiss(origin, stray.body.Position)
+				then
 					near += 1
 				end
 			end
@@ -1408,11 +1411,7 @@ local function landSwing(player: Player)
 		end
 	end
 	announceSwing(player, origin, started)
-	Telemetry.custom(player, "net_swing", 1, {
-		NetSwing.result(stray ~= nil, near),
-		tostring(Economy.level(profile, "net")),
-		Telemetry.device(player) or "unknown",
-	})
+	Telemetry.netSwing(player, NetSwing.result(stray ~= nil, near), Economy.level(profile, "net"))
 end
 
 -- SwingNet() (F93): no arguments; one per NetSwingCooldown (the limiter in Net is the flood guard). The swing is

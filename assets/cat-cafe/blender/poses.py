@@ -90,8 +90,8 @@ CAT_POSES = {
     "work_greeter": dict(body="work", parts=dict(cats_work_arms("greeter")),
                          note="Standing at work, waving the left paw up and out; nothing held."),
     "work_entertainer": dict(body="work", parts=dict(cats_work_arms("entertainer")),
-                             note="Standing at work, a microphone in the right paw (Held_Entertainer in LegF2), the "
-                                  "left paw up and waving."),
+                             note="Standing at work, a microphone held up under the chin in the right paw "
+                                  "(Held_Entertainer in LegF2, leaning in to the mouth), the left paw down at its side."),
 }
 
 

@@ -237,13 +237,18 @@ S_TAIL = (0.0, B_CHEST_C[1] + B_CHEST_S[1] / 2 - 0.015, 0.5)
 HEADS["work"] = dict(HEADS["walk"], c=(0.0, -0.17, 0.32), arms=True)
 # Each role's held thing (HELD) rides one arm, and the role's pose turns the arms (Blender XYZ degrees about the
 # shoulders; poses.CAT_POSES work_<role>): the barista holds out a cup in the right paw, the waiter a tray with a
-# cake at its left side, the greeter waves its left paw, the entertainer holds a microphone up and waves.
+# cake at its left side, the greeter waves its left paw, the entertainer holds a microphone up under its chin in the
+# right paw with the left paw down at its side (Derek 11-02 picked Animation-Engineer's option A: Roblox angles
+# LegF2 18, 84, 30 and LegF1 9.9, -1, -5.9, the barista's free paw).
 WORK_ARMS = {
     "barista": {"LegF2": (-60, 25, 0), "LegF1": (-10, -6, 0)},
     "waiter": {"LegF1": (-45, -40, 0), "LegF2": (-10, 6, 0)},
     "greeter": {"LegF1": (-165, 60, 0), "LegF2": (-10, 6, 0)},
-    "entertainer": {"LegF2": (-50, 35, 0), "LegF1": (-150, 60, 0)},
+    "entertainer": {"LegF2": (-2.76, 47.87, 82.24), "LegF1": (-10, -6, 0)},
 }
+# How far a held thing leans from upright in its pose (Blender XYZ degrees, world): the microphone tips 15 toward
+# the cat's middle, to the mouth; at 20 it touches the head or the cape's collar on some cats
+HELD_LEAN = {"entertainer": (0, 15, 0)}
 HELD = {"barista": "LegF2", "waiter": "LegF1", "entertainer": "LegF2"}      # role -> the arm its Held_<Role> rides
 
 
@@ -758,9 +763,11 @@ def _arm(c, side, toe=None):
 
 def _held(role, arm):
     """A role's held thing, drawn standing up at the paw (the origin) as it is held in the role's pose, then turned
-    back by that arm's pose, so the arm Model carries it upright when the game turns the arm (WORK_ARMS)."""
+    back by that arm's pose, so the arm Model carries it upright (or leaning by HELD_LEAN) when the game turns the arm
+    (WORK_ARMS)."""
     from props import Pen                               # props imports this module
-    R = Euler([math.radians(a) for a in WORK_ARMS[role][arm]], "XYZ").to_matrix().inverted()
+    R = Euler([math.radians(a) for a in WORK_ARMS[role][arm]], "XYZ").to_matrix().inverted() @ \
+        Euler([math.radians(a) for a in HELD_LEAN.get(role, (0, 0, 0))], "XYZ").to_matrix()
     b = Builder()
     P = Pen(b, (0.0, 0.0, 0.0), R, 1.0)                 # the object sits at the paw (build_cat at_)
     if role == "barista":                               # a takeaway cup with a sleeve and a lid
@@ -774,9 +781,9 @@ def _held(role, arm):
         P.box((t[0] + 0.1, t[1] - 0.05, t[2] + 0.075), (0.18, 0.15, 0.12), "pastel_butter")
         P.box((t[0] + 0.1, t[1] - 0.05, t[2] + 0.15), (0.19, 0.16, 0.035), "blush")
         P.sphere((t[0] + 0.1, t[1] - 0.05, t[2] + 0.19), 0.035, "shirt_red", segments=8, rings=5)
-    elif role == "entertainer":                         # a microphone, gripped at the paw's outer side, clear of a wide head
-        P.cyl((-0.06, -0.03, 0.09), 0.035, 0.3, "fur_black", r2=0.045, segments=8)
-        P.sphere((-0.06, -0.03, 0.27), 0.075, "metal", segments=8, rings=5)
+    elif role == "entertainer":                         # a microphone, gripped at the paw's outer side, clear of a wide head;
+        P.cyl((-0.06, -0.03, 0.055), 0.035, 0.23, "fur_black", r2=0.045, segments=8)   # a short handle keeps the ball
+        P.sphere((-0.06, -0.03, 0.2), 0.075, "metal", segments=8, rings=5)          # under the chin, clear of the head
     return b
 
 

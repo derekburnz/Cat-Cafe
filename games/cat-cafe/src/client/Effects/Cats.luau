@@ -2,11 +2,12 @@
 -- Which cats move on this client and how (design v0.4 sections 1 and 4, v0.5 F40 and F44): role idles at the
 -- cafe stations, naps (and at night, when the cafe is closed, every working cat walking to a cat tree or bed and
 -- asleep there, F79, or on an older server asleep at its station: curled up, or dozing where it sits or stands in
--- its outfit, F25 and PR #260), the resting cat's loaf now and then, stuck
--- cats struggling in their traps, strays looking around, legs that walk and gallop with the cat's real speed, the
--- pant after a sprint, the hiss hop on a missed catch, the startled spring of a near miss (F93), the Balloon Cat
--- bobbing as if it might float off (F78), the Bellhop Cat's bell, cap tip, bow and sleepy cap (F96, Bellhop.luau)
--- and a Barista's working bob while it makes an order (F90: its local Making attribute, set by CafeOrders).
+-- its outfit, F25 and PR #260), the resting cat's loaf now and then, stuck cats struggling in their traps, strays
+-- looking around, working cats standing at their stations on the work body (S, #826: the role's arm pose is the
+-- server's, the idles on top), legs that walk and gallop with the cat's real speed, the pant after a sprint, the
+-- hiss hop on a missed catch, the startled spring of a near miss (F93), the Balloon Cat bobbing as if it might
+-- float off (F78), the Bellhop Cat's bell, cap tip, bow and sleepy cap (F96, Bellhop.luau) and a Barista's working
+-- bob while it makes an order (F90: its local Making attribute, set by CafeOrders).
 -- Only the nearest few within range move (budget.animatedCats within budget.animRadius); the rest stand as the
 -- server placed them. Gold cats in range sparkle, a gold coat seen for the first time bursts with gold sparkles,
 -- and napping cats show floating z's.
@@ -301,8 +302,9 @@ local function styleOf(model: Model): Logic.Style
 		or pose == "nap"
 		or (night and isWorking(model)) -- the cafe is closed at night (F44)
 	then
-		-- A cat stood upright (F25) or seated (PR #260) at its station dozes where it is; one on all fours curls up.
-		if pose == "upright" then
+		-- A cat stood upright (F25), standing on the work body (#826) or seated (PR #260) at its station dozes where
+		-- it is; one on all fours curls up.
+		if pose == "upright" or pose == "work" or Pose.kindOf(model) == "work" then
 			return "doze"
 		elseif seated(model) then
 			if night or isWorking(model) then
@@ -466,9 +468,10 @@ local function removeNaps(entry: Entry)
 	end
 end
 
--- The props that go with a style: the yarn ball for the entertainer, the z's for a nap.
+-- The props that go with a style: the yarn ball for the entertainer (not on the work body, whose entertainer sings
+-- into the mic in its paw, #826), the z's for a nap.
 local function dress(entry: Entry)
-	if entry.style == "entertainer" then
+	if entry.style == "entertainer" and entry.rig.kind ~= "work" then
 		addYarn(entry)
 	else
 		removeYarn(entry)

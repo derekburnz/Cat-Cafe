@@ -18,6 +18,9 @@
 -- F87 (easy-start.md section 4): a Feedback row tops the list (callbacks.openFeedback, the Feedback window's faces).
 -- F87 (easy-start.md section 3): the Screen section ends with a Show tips again row (callbacks.showTipsAgain), which brings back the context
 -- tips; its button reads "Done" for a moment after a press.
+-- F102 (trading.md sections 1 and 5): a Trading section at the end, hidden until showTrading(true) (TradeService
+-- runs): Trade requests with Everyone, Friends only and Off (callbacks.setTradeRequests, saved as
+-- settings.tradeRequests) and a Trades row that opens the last 20 trades (callbacks.openTrades).
 -- Testers (Derek's 10-28 to 10-30 notes: "reset character (wipe save) option for testing"): a Testers section at the
 -- end with one row, Reset my save, shown only while showTester(true) (the Player attribute Tester, which the server
 -- sets in Studio and for the game's owner). Its Reset button swaps the list for a confirm card; the card's Reset
@@ -34,6 +37,7 @@ local Scale = require(script.Parent.Parent.Scale)
 local SettingsList = require(script.Parent.Parent.Components.SettingsList)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
+local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
 local Types = require(script.Parent.Parent.Types)
 
 export type Callbacks = {
@@ -43,6 +47,9 @@ export type Callbacks = {
 	replayTutorial: (() -> ())?, -- the Screen section's Replay tutorial row (F72); no row without it
 	showTipsAgain: (() -> ())?, -- the Screen section's Show tips again row (F87); no row without it
 	openFeedback: (() -> ())?, -- the Feedback row on top (F87 section 4); no row without it
+	-- F102: the Trading section; no section without both
+	setTradeRequests: ((mode: string) -> ())?, -- "everyone", "friends" or "off"
+	openTrades: (() -> ())?,
 	resetSave: (() -> ())?, -- the Testers section's Reset my save, after its confirm card; no section without it
 }
 
@@ -53,6 +60,7 @@ export type Settings = {
 	volume: (self: Settings, key: string) -> number,
 	set: (self: Settings, key: string, value: boolean | number) -> (),
 	showTutorial: (self: Settings, shown: boolean) -> (),
+	showTrading: (self: Settings, shown: boolean) -> (),
 	showTester: (self: Settings, shown: boolean) -> (),
 	cancelReset: (self: Settings) -> (),
 	destroy: (self: Settings) -> (),
@@ -89,6 +97,8 @@ local TILE_COLORS: { [string]: Color3 } = {
 	showTips = Theme.colors.sky,
 	feedback = Theme.colors.gold,
 	shopAlerts = Theme.colors.goldDark,
+	tradeRequests = Theme.colors.mintDark,
+	trades = Theme.colors.mintDark,
 	resetSave = Theme.colors.warn,
 }
 -- a volume row's switch: the slider greys while that switch is off
@@ -114,6 +124,13 @@ local FEEDBACK_ROW: ButtonRow = {
 	icon = Theme.icons.feedback,
 	name = "Feedback",
 	detail = "Tell us how the game is going",
+	button = "Open",
+}
+local TRADES_ROW: ButtonRow = {
+	key = "trades",
+	icon = "📜",
+	name = "Trades",
+	detail = "Your last 20 trades and who they were with",
 	button = "Open",
 }
 local RESET_ROW: ButtonRow = {
@@ -255,11 +272,17 @@ function Settings.new(callbacks: Callbacks): Settings
 			end)
 		end
 	end
+	local setTradeRequests = callbacks.setTradeRequests
+	local openTrades = callbacks.openTrades
+	if setTradeRequests and openTrades then
+		order = self:_buildTrading(order, setTradeRequests, openTrades)
+	end
 	local resetSave = callbacks.resetSave
 	if resetSave then
 		self:_buildTester(order + 1, panel.content, resetSave)
 	end
 	self:showTutorial(false)
+	self:showTrading(false)
 	self:showTester(false)
 
 	-- a drag keeps following the finger off the track, and ends wherever it lets go. A touch drag follows only
@@ -473,6 +496,98 @@ function Settings._buildButtonRow(
 	})
 	table.insert(self._buttons, button)
 	return button
+end
+
+-- F102: the Trading header, the Trade requests card (three choices under its name) and the Trades row.
+function Settings._buildTrading(
+	self: any,
+	start: number,
+	setTradeRequests: (mode: string) -> (),
+	openTrades: () -> ()
+): number
+	local order = start + 1
+	self._tradingHeader = text({
+		Name = "Trading",
+		LayoutOrder = order,
+		Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = Theme.modal.subtext,
+		Text = "Trading",
+		Parent = self._list,
+	})
+	order += 1
+	local card = self:_buildCard("tradeRequests", TradeLogic.ICON, order)
+	local choiceH = Scale.tapHeight(44, Theme.sizes.buttonDepth)
+	card.Size = UDim2.new(1, 0, 0, 76 + choiceH + 12)
+	nameAndDetail(card, "Trade requests", "Who can ask you to trade")
+	local choices: Frame = Create("Frame", {
+		Name = "Choices",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(TEXT_LEFT, 76),
+		Size = UDim2.new(1, -(TEXT_LEFT + 12), 0, choiceH),
+		Parent = card,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._modeButtons = {} :: { [string]: Button.Button }
+	self._modeTap = nil :: TradeLogic.Tap?
+	for index, mode in TradeLogic.REQUEST_MODES do
+		local button = Button.new({
+			name = mode,
+			text = TradeLogic.modeLabel(mode),
+			style = "ghost",
+			size = UDim2.new(1 / 3, -4, 1, 0),
+			layoutOrder = index,
+			textSize = Theme.sizes.textBody,
+			parent = choices,
+			sound = "uiToggle",
+			onClick = function()
+				self._modeTap = { value = mode, at = os.clock() }
+				setTradeRequests(mode)
+				self:_refreshTrading()
+				self:_refreshLater()
+			end,
+		})
+		self._modeButtons[mode] = button
+		table.insert(self._buttons, button)
+	end
+	order += 1
+	self:_buildButtonRow(TRADES_ROW, order, openTrades)
+	self:_refreshTrading()
+	return order
+end
+
+-- The Trade requests choice: the pressed one in green, the others plain.
+function Settings._refreshTrading(self: any)
+	local buttons: { [string]: Button.Button }? = self._modeButtons
+	if buttons == nil then
+		return
+	end
+	local settings = self._settings
+	local saved = if settings then settings.tradeRequests else nil
+	local mode = TradeLogic.requestsMode(saved, self._modeTap, os.clock())
+	for key, button in buttons do
+		button:setStyle(if key == mode then "primary" else "ghost")
+	end
+end
+
+-- The Trading section, hidden until TradeService runs (F102).
+function Settings.showTrading(self: any, shown: boolean)
+	local header: TextLabel? = self._tradingHeader
+	if header then
+		header.Visible = shown
+	end
+	for _, key in { "tradeRequests", TRADES_ROW.key } do
+		local card: Frame? = self._cards[key]
+		if card then
+			card.Visible = shown
+		end
+	end
 end
 
 -- The Testers section: its header, the Reset my save row and the confirm card its Reset opens over the list.
@@ -743,6 +858,7 @@ function Settings._refreshLater(self: any)
 	task.delay(SettingsList.HOLD_SECONDS + 0.1, function()
 		if self._alive then
 			self:_refresh()
+			self:_refreshTrading()
 		end
 	end)
 end
@@ -783,6 +899,7 @@ end
 function Settings.render(self: any, state: Types.PlayerState)
 	self._settings = (state :: any).settings
 	self:_refresh()
+	self:_refreshTrading()
 end
 
 -- What a switch shows now (its default until the server or the player says otherwise).

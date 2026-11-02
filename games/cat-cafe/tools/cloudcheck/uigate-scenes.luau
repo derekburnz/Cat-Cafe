@@ -267,6 +267,44 @@ local function addTradePlayer(name, userId, tier, busy)
 	table.insert(tradePlayers, player)
 end
 
+-- F102: the Trades page's log: three trades (one a gift from me, one with nine cats each way), newest first
+local function tradeLog(now)
+	local function pick(rarity, index)
+		local found = 0
+		for _, def in Catalog.cats do
+			if def.rarity == rarity and def.exclusive ~= true then
+				found += 1
+				if found == index then
+					return def.id
+				end
+			end
+		end
+		return Catalog.cats[1].id
+	end
+	local nine = {}
+	for index = 1, 9 do
+		local rarity = if index % 3 == 0 then "Epic" elseif index % 2 == 0 then "Rare" else "Common"
+		table.insert(nine, { catId = pick(rarity, 1 + index % 2), rarity = rarity, level = index + 2 })
+	end
+	return {
+		{
+			id = "log_1",
+			at = now - 12 * 60,
+			partnerName = "Sam",
+			gave = { { catId = pick("Common", 1), rarity = "Common", level = 11 } },
+			got = { { catId = pick("Epic", 1), rarity = "Epic", variant = "gold", level = 18 } },
+		},
+		{
+			id = "log_2",
+			at = now - 26 * 3600,
+			partnerName = "Mia",
+			gave = { { catId = pick("Rare", 1), rarity = "Rare", variant = "rainbow", level = 7 } },
+			got = {},
+		},
+		{ id = "log_3", at = now - 4 * 86400, partnerName = "Alexandria_Longname", gave = nine, got = nine },
+	}
+end
+
 -- F102: a TradeState with Sam: my offer from the sample player's cats (gate_1, the gold gate_3, gate_5), Sam's an
 -- Epic and a rainbow Rare from the catalog; `fields` overrides
 local function tradeState(fields)
@@ -1114,6 +1152,29 @@ local SCENES = {
 		state.them.cats = {}
 		UI.trade.state(state)
 	end },
+	-- F102 part 2: Settings ends with the Trading section once TradeService runs: Friends only picked, then Trades
+	{ "SettingsTrading", function()
+		workspace:SetAttribute("TradingOn", true)
+		local settings = UIShim.require("ReplicatedStorage.Shared.Settings").defaults()
+		settings.tradeRequests = "friends"
+		UI.update({ settings = settings })
+		UI.open("Settings")
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local panel = modals and modals:FindFirstChild("Settings", true)
+		local list = panel and panel:FindFirstChild("List", true)
+		if list and list:IsA("ScrollingFrame") then
+			list.CanvasPosition = Vector2.new(0, 100000) -- scrolled to the end, where the section is
+		end
+	end },
+	-- F102 part 2: the Trades page: a trade 12 minutes ago, a gift yesterday, nine cats each way 4 days ago
+	{ "TradeLog", function()
+		UI.update({ tradeLog = tradeLog(os.time()) })
+		UI.open("TradeLog")
+	end },
+	{ "TradeLogEmpty", function()
+		UI.update({ tradeLog = {} })
+		UI.open("TradeLog")
+	end },
 	-- testers (Derek's notes): Settings' Testers section with Reset my save, scrolled to the end where it sits, and
 	-- the confirm card its Reset opens
 	{ "SettingsTester", function()
@@ -1157,7 +1218,9 @@ function Scenes.close()
 	UI.trade.state(nil) -- F102: no trade, no TradeService, and the other players leave
 	if workspace:GetAttribute("TradingOn") ~= nil then
 		workspace:SetAttribute("TradingOn", nil)
-		UI.update({}) -- the HUD drops its Trade tile again
+		-- the HUD drops its Trade tile again, and Trade requests (SettingsTrading) goes back to its default; only
+		-- the TradeLog scenes read tradeLog, and each sets its own
+		UI.update({ settings = UIShim.require("ReplicatedStorage.Shared.Settings").defaults() })
 	end
 	for _, player in tradePlayers do
 		player:Destroy()

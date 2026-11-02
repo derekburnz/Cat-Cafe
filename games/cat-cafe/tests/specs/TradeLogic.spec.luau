@@ -264,6 +264,98 @@ return function()
 		end)
 	end)
 
+	describe("TradeLogic.requestsMode", function()
+		it("shows the saved choice, else Everyone", function()
+			expect(TradeLogic.requestsMode("friends", nil, 0)).to.equal("friends")
+			expect(TradeLogic.requestsMode("off", nil, 0)).to.equal("off")
+			expect(TradeLogic.requestsMode(nil, nil, 0)).to.equal("everyone")
+			expect(TradeLogic.requestsMode("nonsense", nil, 0)).to.equal("everyone")
+			expect(TradeLogic.requestsMode(true, nil, 0)).to.equal("everyone")
+		end)
+
+		it("holds a fresh press until the server agrees or the hold runs out", function()
+			local tap = { value = "off", at = 10 }
+			expect(TradeLogic.requestsMode("everyone", tap, 11)).to.equal("off")
+			expect(TradeLogic.requestsMode("everyone", tap, 10 + TradeLogic.HOLD_SECONDS)).to.equal("everyone")
+			expect(TradeLogic.requestsMode("off", tap, 11)).to.equal("off")
+			expect(TradeLogic.requestsMode(nil, tap, 999)).to.equal("off")
+		end)
+
+		it("labels the three choices", function()
+			local labels: { string } = {}
+			for _, mode in TradeLogic.REQUEST_MODES do
+				local label: string = TradeLogic.modeLabel(mode)
+				table.insert(labels, label)
+			end
+			expect(table.concat(labels, ",")).to.equal("Everyone,Friends only,Off")
+		end)
+	end)
+
+	describe("TradeLogic.ago", function()
+		it("reads minutes, hours, yesterday, days, then weeks", function()
+			expect(TradeLogic.ago(NOW - 20, NOW)).to.equal("Just now")
+			expect(TradeLogic.ago(NOW + 30, NOW)).to.equal("Just now")
+			expect(TradeLogic.ago(NOW - 12 * 60, NOW)).to.equal("12m ago")
+			expect(TradeLogic.ago(NOW - 3 * 3600 - 59, NOW)).to.equal("3h ago")
+			expect(TradeLogic.ago(NOW - 30 * 3600, NOW)).to.equal("Yesterday")
+			expect(TradeLogic.ago(NOW - 4 * 86400, NOW)).to.equal("4 days ago")
+			expect(TradeLogic.ago(NOW - 21 * 86400, NOW)).to.equal("3 weeks ago")
+		end)
+	end)
+
+	describe("TradeLogic.logRows", function()
+		local BIG = 10000000
+
+		it("lists the newest first with who and when", function()
+			local rows = TradeLogic.logRows({
+				{ id = "a", at = BIG - 7200, partnerName = "Sam", gave = { { catId = "tabby", rarity = "Common", level = 2 } }, got = {} },
+				{
+					id = "b",
+					at = BIG - 60,
+					partnerName = "Mia",
+					gave = {},
+					got = { { catId = "moon", rarity = "Epic", variant = "gold", level = 5 } },
+				},
+			}, BIG)
+			expect(#rows).to.equal(2)
+			expect(rows[1].id).to.equal("b")
+			expect(rows[1].partner).to.equal("With Mia")
+			expect(rows[1].when).to.equal("1m ago")
+			expect(#rows[1].gave).to.equal(0)
+			expect(rows[1].got[1].variant).to.equal("gold")
+			expect(rows[2].partner).to.equal("With Sam")
+			expect(rows[2].when).to.equal("2h ago")
+			expect(rows[2].gave[1].level).to.equal(2)
+		end)
+
+		it("keeps the last 20 and drops broken entries and cats", function()
+			local log: { any } = {}
+			for index = 1, 25 do
+				table.insert(log, { id = "t" .. index, at = BIG - index, partnerName = "Sam", gave = {}, got = {} })
+			end
+			table.insert(log, { at = BIG, partnerName = "No id" })
+			table.insert(log, { id = "no_time", partnerName = "No time" })
+			table.insert(log, "junk")
+			table.insert(log, {
+				id = "odd",
+				at = BIG - 100,
+				partnerName = "",
+				gave = { { rarity = "Rare" }, { catId = "tabby" }, "junk" },
+				got = "junk",
+			})
+			local rows = TradeLogic.logRows(log, BIG)
+			expect(#rows).to.equal(TradeLogic.LOG_MAX)
+			expect(rows[1].id).to.equal("t1")
+			local odd = TradeLogic.logRows({ log[#log] }, BIG)[1]
+			expect(odd.partner).to.equal("With a player")
+			expect(#odd.gave).to.equal(1)
+			expect(odd.gave[1].rarity).to.equal("Common")
+			expect(odd.gave[1].level).to.equal(1)
+			expect(#odd.got).to.equal(0)
+			expect(#TradeLogic.logRows(nil, BIG)).to.equal(0)
+		end)
+	end)
+
 	describe("TradeLogic.askTitle and doneLine", function()
 		it("words the request card and the done toast", function()
 			expect(TradeLogic.askTitle("Sam")).to.equal("Sam wants to trade")

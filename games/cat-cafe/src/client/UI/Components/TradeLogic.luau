@@ -20,6 +20,12 @@
 --   playerButton(row, minTier) -> ButtonView   a players list row: Trade, Asked (for REASK_SECONDS), Busy or
 --                                        "Tier 3 needed"
 --   doneLine(got) -> string              "Trade done! 2 new cats"
+-- Part 2 (trading.md sections 1 and 5): the Trade requests setting and the Trades page.
+--   REQUEST_MODES, modeLabel(mode)       "everyone", "friends", "off" and "Everyone", "Friends only", "Off"
+--   requestsMode(saved, tap, now)        what the setting shows: a fresh press for HOLD_SECONDS, else the saved
+--                                        value, else Everyone
+--   ago(at, now) -> string               "Just now", "12m ago", "3h ago", "Yesterday", "4 days ago", "3 weeks ago"
+--   logRows(log, now) -> { LogRow }      the Trades page, newest first, at most LOG_MAX
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -47,6 +53,21 @@ export type Pick = {
 	level: number,
 	rating: number,
 	status: PickStatus,
+}
+
+export type RequestMode = "everyone" | "friends" | "off"
+
+export type Tap = { value: string, at: number } -- a press on one of REQUEST_MODES
+
+-- a cat on the Trades page (UI Types' TradeCat)
+export type LogCat = { catId: string, rarity: string, variant: string?, level: number }
+
+export type LogRow = {
+	id: string,
+	partner: string, -- "With Sam"
+	when: string, -- "3h ago"
+	gave: { LogCat },
+	got: { LogCat },
 }
 
 export type PlayerRow = {
@@ -296,6 +317,110 @@ function TradeLogic.doneLine(got: { any }?): string
 		return "Trade done!"
 	end
 	return string.format("Trade done! %d new %s", count, if count == 1 then "cat" else "cats")
+end
+
+local REQUEST_MODES: { RequestMode } = { "everyone", "friends", "off" }
+TradeLogic.REQUEST_MODES = REQUEST_MODES
+TradeLogic.HOLD_SECONDS = 5 -- a press shows this long while the server has not agreed (SettingsList.HOLD_SECONDS)
+TradeLogic.LOG_MAX = 20
+
+local MODE_LABELS: { [string]: string } =
+	{ everyone = "Everyone", friends = "Friends only", off = "Off" }
+
+function TradeLogic.modeLabel(mode: string): string
+	return MODE_LABELS[mode] or mode
+end
+
+local function asMode(value: unknown): string?
+	if value == "everyone" or value == "friends" or value == "off" then
+		return value :: string
+	end
+	return nil
+end
+
+-- "everyone", "friends" or "off"
+function TradeLogic.requestsMode(saved: unknown, tap: Tap?, now: number): string
+	local mode = asMode(saved)
+	if
+		tap ~= nil
+		and (mode == nil or (tap.value ~= mode and now - tap.at < TradeLogic.HOLD_SECONDS))
+	then
+		return tap.value
+	end
+	return mode or "everyone"
+end
+
+function TradeLogic.ago(at: number, now: number): string
+	local seconds = math.max(0, now - at)
+	if seconds < 60 then
+		return "Just now"
+	elseif seconds < 3600 then
+		return string.format("%dm ago", math.floor(seconds / 60))
+	elseif seconds < 86400 then
+		return string.format("%dh ago", math.floor(seconds / 3600))
+	elseif seconds < 2 * 86400 then
+		return "Yesterday"
+	elseif seconds < 14 * 86400 then
+		return string.format("%d days ago", math.floor(seconds / 86400))
+	end
+	return string.format("%d weeks ago", math.floor(seconds / (7 * 86400)))
+end
+
+local function cats(list: unknown): { LogCat }
+	local out: { LogCat } = {}
+	if type(list) ~= "table" then
+		return out
+	end
+	for _, cat in list :: { any } do
+		if type(cat) == "table" and type(cat.catId) == "string" then
+			local variant: string? = if cat.variant == "gold" or cat.variant == "rainbow"
+				then cat.variant
+				else nil
+			local entry: LogCat = {
+				catId = cat.catId,
+				rarity = if type(cat.rarity) == "string" then cat.rarity else "Common",
+				variant = variant,
+				level = if type(cat.level) == "number" then cat.level else 1,
+			}
+			table.insert(out, entry)
+		end
+	end
+	return out
+end
+
+-- The Trades page's rows from ProfileSync's tradeLog: newest first, at most LOG_MAX, entries without an id or a
+-- time left out.
+function TradeLogic.logRows(log: { any }?, now: number): { LogRow }
+	local entries: { any } = {}
+	local all: { any } = log or {}
+	for _, entry in all do
+		if type(entry) == "table" and type(entry.id) == "string" and type(entry.at) == "number" then
+			table.insert(entries, entry)
+		end
+	end
+	table.sort(entries, function(a: any, b: any): boolean
+		if a.at ~= b.at then
+			return a.at > b.at
+		end
+		return a.id < b.id
+	end)
+	local rows: { LogRow } = {}
+	for index, entry in entries do
+		if index > TradeLogic.LOG_MAX then
+			break
+		end
+		local name = if type(entry.partnerName) == "string" and entry.partnerName ~= ""
+			then entry.partnerName
+			else "a player"
+		table.insert(rows, {
+			id = entry.id,
+			partner = "With " .. name,
+			when = TradeLogic.ago(entry.at, now),
+			gave = cats(entry.gave),
+			got = cats(entry.got),
+		})
+	end
+	return rows
 end
 
 return TradeLogic

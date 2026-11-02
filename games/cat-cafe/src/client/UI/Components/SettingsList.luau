@@ -127,6 +127,12 @@ if Settings.kinds[SettingsList.SHOP_ALERTS_KEY] then
 	table.insert(SettingsList.SECTIONS[2].rows, row)
 end
 
+-- Saved keys the Settings screen shows outside these rows. F102: Trade requests is a three-way choice ("everyone",
+-- "friends" or "off", default "everyone") in the Trading section (Screens/Settings, TradeLogic.requestsMode), so the
+-- server can save its key without a switch row here.
+SettingsList.TRADE_REQUESTS_KEY = "tradeRequests"
+SettingsList.OTHER_KEYS = { [SettingsList.TRADE_REQUESTS_KEY] = true } :: { [string]: boolean }
+
 -- Every row in screen order.
 SettingsList.ROWS = {} :: { Row }
 for _, section in SettingsList.SECTIONS do

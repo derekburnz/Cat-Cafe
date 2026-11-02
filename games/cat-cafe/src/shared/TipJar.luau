@@ -32,18 +32,27 @@ function TipJar.coins(def: Types.TipJarStep, dayRate: number): number
 	return Prizes.coins(prize.coins, prize.coinSeconds, dayRate)
 end
 
--- What a step pays, for analytics: "coins" or "lure" for a step of only that, "mixed" for one that pays several
--- kinds of thing (v0.10 steps 9 and 12).
+-- What a step pays, for analytics: "coins", "lure", "fish" or "spin" for a step of only that, "mixed" for one that
+-- pays several kinds of thing (v0.10 steps 9 and 12; F94 gives the food steps golden fish and step 6 a spin).
 function TipJar.kind(def: Types.TipJarStep): string
 	local prize = def.prize
-	local coins = prize.coins ~= nil or prize.coinSeconds ~= nil
-	local others = prize.fish ~= nil or prize.spins ~= nil or prize.crates ~= nil
-	if coins and prize.lures == nil and not others then
-		return "coins"
-	elseif prize.lures ~= nil and not coins and not others then
-		return "lure"
+	local found: { string } = {}
+	if prize.coins ~= nil or prize.coinSeconds ~= nil then
+		table.insert(found, "coins")
 	end
-	return "mixed"
+	if prize.lures ~= nil then
+		table.insert(found, "lure")
+	end
+	if prize.fish ~= nil then
+		table.insert(found, "fish")
+	end
+	if prize.spins ~= nil then
+		table.insert(found, "spin")
+	end
+	if prize.crates ~= nil or prize.potions ~= nil then
+		table.insert(found, "other")
+	end
+	return if #found == 1 and found[1] ~= "other" then found[1] else "mixed"
 end
 
 -- A fresh session's claimed flags, one per step.

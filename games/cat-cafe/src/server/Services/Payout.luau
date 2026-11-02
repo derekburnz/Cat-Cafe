@@ -18,7 +18,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local Payout = {}
 
 -- Pays the prize and returns what it paid, for the toast ("+$300", "2 Tuna", "+25 golden fish", "2 spins",
--- "1 Alley Crate", "+2% tips forever"), and the coins. `sku` names the source in analytics ("index_reward", "code",
+-- "1 Alley Crate", "+2% money forever"), and the coins. `sku` names the source in analytics ("index_reward", "code",
 -- "tip_jar", "mystery_gift") and `transaction` its kind, "Gameplay" unless given (the Tip Jar's is "TimedReward").
 function Payout.pay(
 	player: Player,
@@ -85,7 +85,7 @@ function Payout.pay(
 		local what = if prize.goldLuck ~= nil
 			then "gold luck"
 			elseif prize.baitSpeed ~= nil then "faster bait"
-			else "tips"
+			else "money"
 		table.insert(paid, string.format("+%d%% %s forever", math.floor(forever * 100 + 0.5), what))
 	end
 	if prize.tag ~= nil then

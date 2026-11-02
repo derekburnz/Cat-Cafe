@@ -25,27 +25,25 @@ return function()
 
 		it("pays the data-model's prizes", function()
 			expect(DailyTreat.prize(1) :: any).to.deepEqual({ coins = 300, coinSeconds = 150 })
+			-- F94 (rewards-and-shops.md section 2c): no shop food, day 7 without its spins
 			expect(DailyTreat.prize(2) :: any).to.deepEqual({
-				lures = { salmon = 2 },
 				fish = 15,
 				spins = 1,
 			})
 			expect(DailyTreat.prize(3) :: any).to.deepEqual({ coins = 600, coinSeconds = 300 })
 			expect(DailyTreat.prize(4) :: any).to.deepEqual({
-				lures = { caviar = 1 },
 				crates = { classic_crate = 1 },
 				spins = 1,
 			})
 			expect(DailyTreat.prize(5) :: any).to.deepEqual({ coins = 1000, coinSeconds = 450 })
 			expect(DailyTreat.prize(6) :: any).to.deepEqual({
-				lures = { tuna = 3 },
 				potions = { lucky_potion = 1 },
+				fish = 10,
 			})
 			expect(DailyTreat.prize(7) :: any).to.deepEqual({
 				crates = { classic_golden_crate = 1 },
 				lures = { star_treat = 1 },
 				fish = 50,
-				spins = 3,
 			})
 		end)
 

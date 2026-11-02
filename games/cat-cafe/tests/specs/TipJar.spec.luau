@@ -8,29 +8,21 @@ return function()
 	describe("Catalog.tipJar (section 11b table, v0.10 F68)", function()
 		-- step -> { minutes, prize }
 		local expected: { { any } } = {
+			-- F94 (rewards-and-shops.md section 2a): golden fish and a spin in place of the shop food
 			{ 2, { coins = 50, coinSeconds = 15 } },
-			{ 5, { lures = { kibble = 2 } } },
+			{ 5, { fish = 2 } },
 			{ 10, { coins = 100, coinSeconds = 30 } },
-			{ 15, { lures = { tuna = 1 } } },
+			{ 15, { fish = 2 } },
 			{ 20, { coins = 150, coinSeconds = 45 } },
-			{ 30, { lures = { tuna = 2 } } },
+			{ 30, { spins = 1 } },
 			{ 40, { coins = 250, coinSeconds = 60 } },
-			{ 50, { lures = { salmon = 1 } } },
+			{ 50, { fish = 3 } },
 			-- the pretty good gift at an hour (round 4 Q10)
-			{ 60, { coins = 1000, coinSeconds = 300, fish = 10, spins = 1 } },
-			{ 75, { lures = { sardines = 1 } } },
+			{ 60, { coins = 1000, coinSeconds = 300, fish = 10 } },
+			{ 75, { fish = 5 } },
 			{ 90, { coins = 600, coinSeconds = 150, spins = 1 } },
-			-- and the really good one at two hours, with its Tip Potion since F64
-			{
-				120,
-				{
-					lures = { caviar = 1 },
-					crates = { classic_crate = 1 },
-					fish = 25,
-					spins = 2,
-					potions = { tip_potion = 1 },
-				},
-			},
+			-- and the really good one at two hours
+			{ 120, { crates = { classic_crate = 1 }, fish = 30 } },
 		}
 
 		it(
@@ -67,24 +59,28 @@ return function()
 			end
 			expect(kinds :: any).to.deepEqual({
 				"coins",
-				"lure",
+				"fish",
 				"coins",
-				"lure",
+				"fish",
 				"coins",
-				"lure",
+				"spin",
 				"coins",
-				"lure",
+				"fish",
 				"mixed",
-				"lure",
+				"fish",
 				"mixed",
 				"mixed",
 			})
+			expect(TipJar.kind({ step = 0, minutes = 0, prize = { lures = { caviar = 1 } } } :: any)).to.equal("lure")
+			expect(TipJar.kind({ step = 0, minutes = 0, prize = { crates = { classic_crate = 1 } } } :: any)).to.equal(
+				"mixed"
+			)
 		end)
 	end)
 
 	describe("TipJar rules", function()
 		local first = Catalog.tipJar[1] -- 2 minutes, 30 s of day rate, at least 50
-		local last = Catalog.tipJar[12] -- 120 minutes, Caviar, a crate, fish and spins
+		local last = Catalog.tipJar[12] -- 120 minutes, a crate and 30 golden fish (F94)
 
 		it("a step is ready once the session has run its minutes", function()
 			expect(TipJar.unlocksAfter(first)).to.equal(120)

@@ -8,6 +8,7 @@ ReplicatedStorage:WaitForChild("Shared")
 ReplicatedStorage:WaitForChild("Remotes")
 
 local Audio = require(script.Parent.Audio)
+local CampExtrasController = require(script.Parent.Controllers.CampExtrasController)
 local CannonController = require(script.Parent.Controllers.CannonController)
 local CodesController = require(script.Parent.Controllers.CodesController)
 local CustomerController = require(script.Parent.Controllers.CustomerController)
@@ -32,6 +33,7 @@ StyleController.start()
 ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to
 CannonController.start() -- F84: after the UI, whose cannon picker it opens
+CampExtrasController.start() -- F100: the camp extras' prompts, after the UI whose hooks it uses
 CodesController.start()
 StarterCatController.start() -- F96: the Bellhop Cat's stand card
 CustomerController.start()

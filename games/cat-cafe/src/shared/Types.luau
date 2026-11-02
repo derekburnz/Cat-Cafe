@@ -566,6 +566,49 @@ export type FreshCatchState = {
 	alerted: number,
 }
 
+-- The camp extras (F100, camp-extras.md): one at each camp from the Park on, opening with its area. `kind` "collect"
+-- fills by itself and is taken with CollectCampExtra; "shop" (the Yard Sale) sells crates for golden fish.
+export type CampExtraDef = {
+	id: string, -- "picnic", "yardSale", "pond" or "lostFound"
+	area: string,
+	name: string,
+	model: string, -- CatCafe_Camp_<Area>_<Name> (Model-Agent #750)
+	kind: string, -- "collect" or "shop"
+}
+
+-- What the camp extras hold (section 4, save version 25), all times server os.time(): the Picnic Basket's potions
+-- and when the next started filling; the Yard Sale's UTC day number (os.time() // 86400) and the crates bought that
+-- day; the Fish Pond's fill start (its fish follow from the time); the Lost and Found's last settled UTC day and its
+-- prizes waiting. Settled on load and every few seconds (shared/CampExtras.settle).
+export type CampExtrasSave = {
+	picnic: { at: number, held: number },
+	yardSale: { day: number, bought: { [string]: boolean } },
+	pond: { at: number },
+	lostFound: { day: number, held: number },
+}
+
+-- One of the Yard Sale's crates today: its crate id, its price in golden fish and whether this player bought it.
+export type YardSaleCrate = { crateId: string, price: number, bought: boolean }
+
+-- One extra as CampExtrasState sends it: `open` when the player's tier has its area; `held` what waits (potions,
+-- golden fish, prizes; for the Yard Sale the crates left to buy today); `nextAt` (server time) the next fill or the
+-- next day's stock, nil while full or shut; `stock` the Yard Sale's crates today.
+export type CampExtraView = {
+	open: boolean,
+	held: number,
+	nextAt: number?,
+	stock: { YardSaleCrate }?,
+}
+
+-- CampExtrasState (server to client): every extra's view by id, and the UTC day it was worked out on.
+export type CampExtrasState = {
+	day: number,
+	picnic: CampExtraView,
+	yardSale: CampExtraView,
+	pond: CampExtraView,
+	lostFound: CampExtraView,
+}
+
 -- One row of the Fresh Catch shelf (F94, section 3): a potion, or now and then a cheaper Classic Crate, for golden
 -- fish. `alert` rows send a ShopAlert when a window stocks them. The row's id is its potion's or crate's id.
 -- One item on the cafe menu (F90, cats-make-orders.md section 1): opened at `tier`, made at its station ("espresso",
@@ -679,6 +722,7 @@ export type PlayerProfile = {
 	stuckHelpShown: { [string]: boolean },
 	starterCatClaimed: boolean, -- F96 (starter-cat.md section 4, save version 21): the free Bellhop Cat taken home
 	notifyAskAt: number, -- F96 (section 3, save version 22): os.time() the notification ask first showed, 0 before
+	campExtras: CampExtrasSave, -- F100 (camp-extras.md section 4, save version 25)
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.

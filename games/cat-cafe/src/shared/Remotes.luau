@@ -97,6 +97,11 @@ Remotes.ClientToServer = {
 	"ClearTips", -- ()  F87: Settings' "Show tips again"; forgets tipsSeen but the asks; 1 per 10 s; ProfileSync
 	"SendFeedback", -- (face: string, chip: string?)  F87 (section 4): face in Tips.FACES, chip nil or in Tips.CHIPS;
 	-- 1 per 10 s and FeedbackSessionLimit (5) a session; logs `feedback` and sets feedbackAsked. Text goes by ReportBug
+	"CollectCampExtra", -- (extraId: string)  F100 (camp-extras.md section 4): "picnic", "pond" or "lostFound", the
+	-- player's tier opens its area, within CampExtraRangeStuds (and a little slack) of its PromptAnchor, something held;
+	-- takes it all; 1 a second, answered with CampExtraResult and CampExtrasState
+	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), one of today's two crates
+	-- (CampExtras.yardStock) not yet bought today, YardSaleCratePrice golden fish; banked for the Market; 1 a second
 }
 
 -- Server -> client.
@@ -184,6 +189,11 @@ Remotes.ServerToClient = {
 	-- cat's area's) and the server time he leaves. catUid "" ends the visit, `traded` true when it ended in a trade
 	"QuestResult", -- (paid: { string })  F73: what a quest, a set or an achievement claim paid ("+$300", "2 spins"),
 	-- after the server's toast with the same words, for the Quests window's own claim effect
+	"CampExtrasState", -- (state: Types.CampExtrasState)  F100: each camp extra's open, held, nextAt and the Yard
+	-- Sale's stock today, on join and whenever it changes (a fill, a new UTC day, a rank up, a collect or a buy)
+	"CampExtraResult", -- (extraId: string, ok: boolean, paid: { string }, prize: Types.IndexPrize?)  F100: the
+	-- answer to CollectCampExtra or BuyYardSale; paid is what it gave in Payout's words ("2 Money Potion", "+14 golden
+	-- fish", "1 Park Crate") and prize the same for the pictures, nil when refused (the server's toast says why)
 	"CatLevelUp", -- (uid: string, level: number)  one of this player's cats reached `level` (v0.12 F75): the toast,
 	-- the level up chime and, from the model's Level attribute, the sparkle; once per settle that raises it
 }

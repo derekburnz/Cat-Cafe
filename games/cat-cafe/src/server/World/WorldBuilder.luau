@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.AssetRegistry)
+local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Layout = require(script.Parent.Layout)
@@ -1454,6 +1455,63 @@ local function buildIndexBoards(parent: Instance)
 	end
 end
 
+-- The camp extras (F100, camp-extras.md section 3): each Catalog.campExtras model (Model-Agent #750) at
+-- Layout.campExtraAt, placed as the camp set is, tagged CampExtra with ExtraId and Area. Its hold-E prompt
+-- (CampExtras.PROMPT, Custom: the UI's action pill) sits at the model's PromptAnchor with CampExtraRangeStuds of
+-- reach; each client writes its own lines on it (Controllers/CampExtrasController) and CampExtraService checks the
+-- range again from the same anchor. Without the art a plain crate-sized block stands in. Atomic, as the Index Boards.
+local function buildCampExtras(parent: Instance)
+	for _, def in Catalog.campExtras do
+		local x, y, z, turn = Layout.campExtraAt(def.area)
+		if x == nil or y == nil or z == nil or turn == nil then
+			continue
+		end
+		local at = CFrame.new(x, y, z) * CFrame.Angles(0, math.rad(turn), 0)
+		local model: Model
+		if AssetRegistry.has(def.model) then
+			model = place(def.model, at, parent)
+		else
+			model = Instance.new("Model")
+			model.PrimaryPart = part(
+				"Body",
+				Vector3.new(3, 2, 2.2),
+				at * CFrame.new(0, 1, 0),
+				CARAMEL,
+				Enum.Material.WoodPlanks,
+				model
+			)
+			model.Parent = parent
+		end
+		model.Name = (def.name:gsub(" ", ""))
+		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+		model:SetAttribute("ExtraId", def.id)
+		model:SetAttribute("Area", def.area)
+		CollectionService:AddTag(model, CampExtras.TAG)
+		local anchor = model:FindFirstChild("PromptAnchor", true)
+		if anchor == nil or not anchor:IsA("Attachment") then
+			local host = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+			if host == nil then
+				continue
+			end
+			local float = Instance.new("Attachment")
+			float.Name = "PromptAnchor"
+			float.Parent = host
+			float.WorldPosition = (at * CFrame.new(0, 1.5, -2)).Position
+			anchor = float
+		end
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.Name = CampExtras.PROMPT
+		prompt.ObjectText = def.name
+		prompt.ActionText = if def.kind == "shop" then "See the crates" else "Collect"
+		prompt.HoldDuration = 0.3
+		prompt.MaxActivationDistance = Config.CampExtraRangeStuds
+		prompt.RequiresLineOfSight = false
+		prompt.Style = Enum.ProximityPromptStyle.Custom
+		prompt:SetAttribute("ExtraId", def.id)
+		prompt.Parent = anchor
+	end
+end
+
 -- The Spin Wheel station (F49) in the Town Square (Layout.spinWheel), tagged SpinWheel: SpinService measures its
 -- range from the pivot and sets LastSpinAt, which turns the Wheel on every client. Its hold-E "Spin" prompt (Custom:
 -- the UI's action pill) sits at the model's PromptAnchor and opens the Spin window. Persistent, so the square's
@@ -2083,6 +2141,7 @@ function WorldBuilder.build(): World
 	end
 	buildPawPaths(root, sets)
 	buildIndexBoards(folder("IndexBoards", root))
+	buildCampExtras(folder("CampExtras", root))
 	local cannons: { [string]: Model } = {}
 	local cannonsFolder = folder("Cannons", root)
 	for id in Layout.cannons do

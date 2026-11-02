@@ -3331,4 +3331,46 @@ Catalog.menuTray = "CatCafe_Menu_Tray"
 Catalog.menuCoinBag = "CatCafe_Menu_CoinBag"
 Catalog.ovenModel = "CatCafe_Cafe_Oven"
 
+-- The camp extras (F100, camp-extras.md section 2), one at each camp from the Park on, in tier order. Model-Agent's
+-- models (#750) stand at Layout.campExtras; shared/CampExtras holds their rules.
+Catalog.campExtras = {
+	{
+		id = "picnic",
+		area = "park",
+		name = "Picnic Basket",
+		model = "CatCafe_Camp_Park_PicnicBasket",
+		kind = "collect",
+	},
+	{
+		id = "yardSale",
+		area = "neighbourhood",
+		name = "Yard Sale",
+		model = "CatCafe_Camp_Neighbourhood_YardSale",
+		kind = "shop",
+	},
+	{
+		id = "pond",
+		area = "woods",
+		name = "Fish Pond",
+		model = "CatCafe_Camp_Woods_FishPond",
+		kind = "collect",
+	},
+	{
+		id = "lostFound",
+		area = "sewer",
+		name = "Lost and Found",
+		model = "CatCafe_Camp_Sewer_LostFound",
+		kind = "collect",
+	},
+} :: { Types.CampExtraDef }
+
+Catalog.campExtrasById = {} :: { [string]: Types.CampExtraDef }
+for _, def in Catalog.campExtras do
+	Catalog.campExtrasById[def.id] = def
+end
+
+function Catalog.getCampExtra(id: string): Types.CampExtraDef?
+	return Catalog.campExtrasById[id]
+end
+
 return Catalog

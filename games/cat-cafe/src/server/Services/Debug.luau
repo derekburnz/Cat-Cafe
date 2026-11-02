@@ -23,6 +23,7 @@
 --   D:Invoke("spinSlice", nil, 4)      -- your next spin lands on slice 4 (F94, QA S63; nil goes back to random)
 --   D:Invoke("dailyTreat", nil, 6)     -- the Daily Treat card at 6 stamps and a stamp due now: Claim pays day 7 (F70)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
+--   D:Invoke("campExtras", nil, 7 * 3600)   -- 7 hours away for the camp extras: the pond full, one picnic (F100)
 --   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
@@ -43,6 +44,7 @@ local Workspace = game:GetService("Workspace")
 
 local BugReportService = require(script.Parent.BugReportService)
 local CafeService = require(script.Parent.CafeService)
+local CampExtraService = require(script.Parent.CampExtraService)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Clock = require(ReplicatedStorage.Shared.Clock)
@@ -215,6 +217,19 @@ end
 function Debug.giveCrate(player: (Player | number | string)?, crateId: string, count: number?)
 	local p = resolve(player)
 	FishMarketService.debugGive(p, profileOf(p), crateId, count or 1)
+end
+
+-- F100 (camp-extras.md section 5, check 2): every camp extra's clock `seconds` (default 7 hours) into the past, as if
+-- the player had been away that long (a UTC day for each 86400 s on the Lost and Found and the Yard Sale). Returns
+-- "picnic=1 yardSale=2 pond=24 lostFound=0" (what each holds; shut extras show 0).
+function Debug.campExtras(player: (Player | number | string)?, seconds: number?): string
+	local p = resolve(player)
+	local state: any = CampExtraService.debugAway(p, profileOf(p), seconds or 7 * 3600)
+	local parts: { string } = {}
+	for _, id in { "picnic", "yardSale", "pond", "lostFound" } do
+		table.insert(parts, string.format("%s=%d", id, state[id].held))
+	end
+	return table.concat(parts, " ")
 end
 
 -- Forgets the player's Fresh Catch buys and heads up (F94, QA S63), so the shelf sells this window's stock again and

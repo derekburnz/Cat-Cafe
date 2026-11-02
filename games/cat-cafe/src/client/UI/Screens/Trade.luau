@@ -941,7 +941,7 @@ function Trade._tick(self: any)
 	)
 	if trade.phase == "confirm" then
 		local view =
-			TradeLogic.confirmButton(trade, os.clock() - (self._confirmSince or os.clock()))
+			TradeLogic.confirmButton(trade, os.clock() - (self._confirmSince or os.clock()), now)
 		self._go:setText(view.text)
 		self._go:setStyle(view.style)
 		self._go:setEnabled(view.enabled and pressed == nil)

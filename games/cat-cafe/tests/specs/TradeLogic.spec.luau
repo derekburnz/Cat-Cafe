@@ -164,6 +164,25 @@ return function()
 			expect(later.style).to.equal("danger")
 		end)
 
+		it("follows the server's confirmAt over the screen's own clock (#850)", function()
+			local state = trade({ phase = "confirm", gift = true })
+			state.confirmAt = 1000
+			local early = TradeLogic.confirmButton(state, 5, 998.5)
+			expect(early.text).to.equal("Confirm (2)")
+			expect(early.enabled).to.equal(false)
+			expect(early.style).to.equal("danger")
+			local open = TradeLogic.confirmButton(state, 0, 1000)
+			expect(open.text).to.equal("Confirm")
+			expect(open.enabled).to.equal(true)
+			-- an odd confirmAt far ahead still waits at most CONFIRM_WAIT; NaN falls back to the screen's clock
+			state.confirmAt = 1e9
+			expect(TradeLogic.confirmButton(state, 0, 1000).text).to.equal(
+				string.format("Confirm (%d)", TradeLogic.CONFIRM_WAIT)
+			)
+			state.confirmAt = 0 / 0
+			expect(TradeLogic.confirmButton(state, TradeLogic.CONFIRM_WAIT, 1000).enabled).to.equal(true)
+		end)
+
 		it("lets a fair trade confirm at once, then waits on the other player", function()
 			local fair = TradeLogic.confirmButton(trade({ phase = "confirm" }), 0)
 			expect(fair.enabled).to.equal(true)

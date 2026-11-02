@@ -533,64 +533,18 @@ export type YardSaleCrate = SharedTypes.YardSaleCrate
 -- none runs), startsAt, lap, goal, points, myPoints, lapsPaid and lapsDone.
 export type RallyState = SharedTypes.RallyState
 
--- F102 trading (trading.md section 6), as Gameplay-Engineer agreed TradeState on 2026-11-02 before TradeService was
--- built; re-export them from shared/Types once it lands. One cat in an offer, as the viewer sees it: `rateForMe` is
--- what it earns a second in the viewer's cafe.
-export type TradeTile = {
-	uid: string,
-	catId: string,
-	rarity: string,
-	variant: string?, -- "gold", "rainbow" or nil
-	level: number,
-	charm: any?,
-	rateForMe: number,
-}
-
-export type TradeSide = {
-	userId: number,
-	name: string, -- the display name
-	ready: boolean,
-	confirmed: boolean,
-	cats: { TradeTile },
-}
-
-export type TradePhase = "offer" | "countdown" | "confirm"
-
--- TradeState(state?): nil closes the window. `me` is the viewer's side, `them` the other player's. `version` goes up
--- on every change and goes back with Ready and Confirm. `changed` is the last add or take away (server time), for the
--- yellow flash. giveValue and getValue are the Collector's values; `lopsided` and `gift` are the server's warnings.
-export type TradeState = {
-	tradeId: string,
-	version: number,
-	phase: TradePhase,
-	countdownEndsAt: number?,
-	me: TradeSide,
-	them: TradeSide,
-	changed: { side: "me" | "them", uid: string, at: number }?,
-	giveValue: number,
-	getValue: number,
-	lopsided: boolean,
-	gift: boolean,
-	myRateNow: number, -- what my offered cats earn a second now
-	theirRateForMe: number, -- what their offered cats would earn a second in my cafe
-}
-
--- A cat in TradeDone and in the trade log.
-export type TradeCat = {
-	catId: string,
-	rarity: string,
-	variant: string?,
-	level: number,
-}
-
--- F102 (trading.md section 5): one trade on the Trades page; `at` is os.time(), `partnerName` their display name then.
-export type TradeLogEntry = {
-	id: string,
-	at: number,
-	partnerName: string,
-	gave: { TradeCat },
-	got: { TradeCat },
-}
+-- F102 trading (trading.md section 6), from shared/Types since TradeService landed (#850). TradeTile: one cat in an
+-- offer as the viewer sees it (`rateForMe` is what it earns a second in the viewer's cafe). TradeSide: one player's
+-- side (`name` is the display name). TradeState is what TradeState(state?) sends, nil closing the window: `me` is the
+-- viewer's side, `version` goes up on every change and goes back with Ready and Confirm, `changed` is the last add or
+-- take away (server time) for the yellow flash, giveValue and getValue are the Collector's values, `lopsided` and
+-- `gift` the server's warnings and `confirmAt` the server time from which the viewer's Confirm counts. TradeCat is a
+-- cat in TradeDone and the trade log; TradeLogEntry one trade on the Trades page (`at` is os.time()).
+export type TradeTile = SharedTypes.TradeTile
+export type TradeSide = SharedTypes.TradeSide
+export type TradeState = SharedTypes.TradeStateView
+export type TradeCat = SharedTypes.CatSummary
+export type TradeLogEntry = SharedTypes.TradeLogEntry
 
 -- ModuleScripts must return a non-nil value.
 return {}

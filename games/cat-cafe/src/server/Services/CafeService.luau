@@ -181,6 +181,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		luck = luck, -- F88
 		luckSources = luckSources,
 		longNap = Economy.passes(profile).longNap, -- F95: the welcome back card's line
+		tradeLog = table.clone(profile.tradeLog), -- F102: the Trades page
 		serverTime = now,
 	}
 end

@@ -340,7 +340,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Park props | 800 | Fountain 1,200; rescue traps (RescueTree, TrashCan) 900 |
 | Area gates | 6,000 | Park, Neighbourhood, Woods, Sewer: arches with a barrier (section 13) |
 | Area sets (v3.2) | 80,000 Park, 120,000 Woods, Sewer and Neighbourhood | a whole area as one Model of Parts; the part count is the real cost (Park 2,758, Woods 5,466, Sewer 4,789, Neighbourhood 5,478) |
-| Long area sets (F85) | 150,000 | the long Park 100,392 triangles in 5,541 Parts for 120 x 310, its camp 9,340 and its backdrop ring 22,114; the long Neighbourhood 118,148 in 6,129 Parts for 180 x 430, its camp 8,960 and its ring 23,588 |
+| Long area sets (F85) | 150,000 | the long Park 100,392 triangles in 5,541 Parts for 120 x 310, its camp 9,340 and its backdrop ring 22,114; the long Neighbourhood 118,148 in 6,129 Parts for 180 x 430, its camp 8,960 and its ring 23,588; the long Woods 132,212 in 6,208 Parts for 160 x 490, its camp 7,228 and its ring 32,336 (log palisades are the dearest wall run, so the long Woods keeps two a side) |
 | Index Boards | 1,500 | one per area, at its entry inside the gate (section 14) |
 | Night pieces | 6,000 per gate fence | the short night (section 14): Alley_NightFenceSegment 2,000, Plot_BackDoorClosed 2,500 |
 | Street stations | 6,000 | the Codes Cat desk and the Golden Fish Market stall, each with its cat (section 14); the stall 7,000 with its Fresh Catch board (F94) |
@@ -405,7 +405,7 @@ Lighting.Technology Future, Bloom low, ColorCorrection Saturation +0.05, Contras
 | ClockTime | 6.4 | 8.6 | 12.5 | 16.2 | 17.7 | 18.3 | 0.5 |
 | Brightness | 0.9 | 1.3 | 1.5 | 1.35 | 0.95 | 0.75 | 0.6 |
 | OutdoorAmbient | 150,125,120 | 142,134,128 | 138,132,126 | 148,132,116 | 125,105,115 | 90,85,110 | 45,55,85 |
-| Ambient | 95,85,85 | 98,94,90 | 100,96,92 | 100,96,92 | 85,78,85 | 60,58,78 | 30,35,55 |
+| Ambient | 95,85,85 | 98,94,90 | 100,96,92 | 100,96,92 | 85,78,85 | 60,58,78 | 24,28,44 |
 | ExposureCompensation | -0.1 | -0.2 | -0.2 | -0.2 | -0.1 | 0 | 0 |
 | ColorShift_Top | 255,190,150 | 255,225,195 | 255,245,232 | 255,210,160 | 255,170,140 | 200,165,190 | 150,170,220 |
 | Atmosphere Density | 0.3 | 0.3 | 0.3 | 0.3 | 0.3 | 0.3 | 0.4 |
@@ -414,7 +414,7 @@ Lighting.Technology Future, Bloom low, ColorCorrection Saturation +0.05, Contras
 
 The brightest the day gets is midday at Brightness 1.5 and exposure -0.2; the old day look (Brightness 2, OutdoorAmbient 170,160,150, exposure 0) was too bright. Exposure +0.25 at night washed the lit cafe out to white (PR #239), so the night stays at 0. Change the numbers in `DayLight.luau` and here together.
 
-Parts that switch at night (all exported as their own object, suffix `_Bulb`, `_Bulbs`, `_Pane` or `_Tube`): StreetLamp Bulb, ShopWindow Pane, StringLights Bulbs, HangingLamp Bulb, NeonSign Tube. Day: SmoothPlastic in their palette color (the window pane is Glass, Transparency 0.5). Night: Material Neon, Color lamp_warm (neon_pink for the sign); bulbs and tubes are solid, window panes keep Transparency 0.3 so you can see into the cafe. The child light is enabled: street lamp SpotLight 255,200,150 Brightness 3 Range 30 Angle 100; window, string light and sign tube PointLight 255,214,170 Brightness 0.8 Range 10; hanging lamp PointLight Brightness 1.2 Range 14 (on by day too, indoors). Stronger window and string lights (the old 1.5 and 16) wash the cafe interior out to white, so keep new lights at or under these values (PR #239, playtest #184). The cafe door sign shows `DoorSign_Open` by day and `DoorSign_Closed` at night. From v0.5 (F44) cafes close at night and customers leave: owned cafes hang `CatCafe_Plot_ClosedSign` in the front door, a night_sky board with CLOSED on both faces, two stars and a crescent moon (`_Moon_Bulb`, so it glows lamp_warm). The `vignette_alley_night.png` concept image is the target look.
+Parts that switch at night (all exported as their own object, suffix `_Bulb`, `_Bulbs`, `_Pane` or `_Tube`): StreetLamp Bulb, ShopWindow Pane, StringLights Bulbs, HangingLamp Bulb, NeonSign Tube. Day: SmoothPlastic in their palette color (the window pane is Glass, Transparency 0.5). Night: Material Neon, Color 220,165,110 (a warmer, dimmer amber than lamp_warm; sign tubes keep neon_pink); bulbs and tubes are solid, window panes keep Transparency 0.55 so you can see into the cafe. The child light is enabled: street lamp SpotLight 255,200,150 Brightness 1.5 Range 24 Angle 100; window, string light and sign tube PointLight 255,214,170 Brightness 0.5 Range 8; hanging lamp PointLight Brightness 1.2 Range 14 (on by day too, indoors). At night Lighting's BloomEffect drops to 0.6 of the place's Intensity and comes back at sunrise; the low performance setting still turns the lights and bloom off. These are the 2026-11-02 numbers (PR #838: Derek's 10-28 to 10-30 notes and a 10-30 screenshot of a yard washed out to white; no night-lit part is over about 1 stud square, so the glow came from the Neon colour, the lights and bloom). Brighter lights (the old 3 over 30, 0.8 over 10, and before that 1.5 over 16) wash the cafe and yard out to white, so keep new lights at or under these values (PRs #239 and #838, playtest #184). The cafe door sign shows `DoorSign_Open` by day and `DoorSign_Closed` at night. From v0.5 (F44) cafes close at night and customers leave: owned cafes hang `CatCafe_Plot_ClosedSign` in the front door, a night_sky board with CLOSED on both faces, two stars and a crescent moon (`_Moon_Bulb`, so it glows with the bulbs). The `vignette_alley_night.png` concept image is the target look.
 
 Sky: `CatCafe_Sky`, a Sky instance in Assets (built by `blender/sky.py`) that the client clones into Lighting in place of the Roblox default (Derek, 2026-10-27). Pale blue overhead (#88BDE6), light blue at 32 degrees up (#AACFEA), a warm cream horizon (#EFDDC1) and a sandy haze below it. It stays off pure white so the sky never out-glows the lit cafes. No clouds, sun or moon are painted in: Roblox draws the sun, moon and stars over it, and the lighting presets above set the time of day. Every face comes from one gradient by height in the sky, so the faces meet with no seams and the four sides share one image. To change it, edit `STOPS` in `sky.py`, run it, upload each changed image once with the upload-image workflow and put the new ids in `IDS`; the model is only written when every id matches its image. Preview: `previews/CatCafe_Sky.png`.
 
@@ -556,15 +556,19 @@ hedge, the bars of a tunnel mouth, or a railing on the water's edge, the Sewer's
 0.5 thick wall on the rail's line, so a player walks up to the rail. Water that no way in crosses gets no barrier: the
 Park's duck pond is shallow and players and cats wade in it. `_Flowers` never collide.
 
-F85's long areas (hometown-cannon.md 6b; `parkf85.py`, `neighbourhoodf85.py`) keep each area's look and make the run
-home long and in view: blockers across the width with gaps on alternating sides, most about 4 high so a hunter sees a
-carrier coming over them (a box hedge, a plinth with a railing, a stream with an iron rail 3 high on each kerb, a
-picket fence with a box hedge behind, road works behind red and white barriers, a brick garden wall under a hedge),
-each with its barrier on its own line, and now and then a tall piece that hides the far end (the Park's glasshouse, a
-white-framed palm house 15.6 high, its willows and oaks; the Neighbourhood's two house blocks, back to back, with a
-lane through each). A way through a low blocker is marked so a player finds it from afar (lantern pillars, a
-fingerpost, the steel plates and a ROAD WORKS board, the Paw Parade arch). The far end keeps the area's best landmark
-(the Park's bandstand; the Neighbourhood's corner shop and playground).
+F85's long areas (hometown-cannon.md 6b; `parkf85.py`, `neighbourhoodf85.py`, `woodsf85.py`) keep each area's look
+and make the run home long and in view: blockers across the width with gaps on alternating sides, most about 4 high
+so a hunter sees a carrier coming over them (a box hedge, a plinth with a railing, a stream with an iron rail 3 high on
+each kerb, a picket fence with a box hedge behind, road works behind red and white barriers, a brick garden wall under
+a hedge, fallen trunks with brush over the joins, a dry stone wall, a mossy boulder ridge), each with its barrier on
+its own line, and now and then a tall piece that hides the far end (the Park's glasshouse, a white-framed palm house
+15.6 high, its willows and oaks; the Neighbourhood's two house blocks, back to back, with a lane through each; the
+Woods' tree line). A way through a low blocker is marked so a player finds it from afar (lantern pillars, a
+fingerpost, the steel plates and a ROAD WORKS board, the Paw Parade arch; in the Woods lanterns either side, stone
+gateposts with the field gate swung back, a timber arch with the GREAT OAK board). Filler trees in a long area stand
+a little further apart than in v3.2 (12 between crowns, 10 clear of the trail), so a hunter sees along the trail's
+legs. The far end keeps the area's best landmark (the Park's bandstand; the Neighbourhood's corner shop and
+playground; the Woods' Great Oak clearing with the tree house and the lookout tower).
 
 Names the game code reads, so keep them when an asset is rebuilt: `_Roof` (faded for the owner), a part named
 `SignBoard` (owner sign SurfaceGui), `Bars` (a gate barrier, ForceField), `Top` (round table, customers face it),

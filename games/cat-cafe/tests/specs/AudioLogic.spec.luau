@@ -746,6 +746,8 @@ return function()
 			end
 			local _, part = Logic.decorSound("park_blossom_tree")
 			expect(part).to.equal("CatCafe_Decor_BlossomTree_Chime_Swing")
+			local _, lantern = Logic.decorSound("woods_hollow_log_booth")
+			expect(lantern).to.equal("CatCafe_Decor_HollowLogBooth_Lantern_Swing")
 			expect(Logic.decorSound("park_bench")).to.equal(nil)
 			expect(Logic.decorSound(nil)).to.equal(nil)
 		end)

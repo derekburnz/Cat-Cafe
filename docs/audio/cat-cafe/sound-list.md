@@ -286,7 +286,7 @@ Each Legendary and Mythical furniture or decoration model has "a small sound whe
 |---|---|---|---|---|
 | `decorBlossomTree` | Blossom Tree (Mythical, Park), at `CatCafe_Decor_BlossomTree_Chime_Swing` | 2.4 s | a breeze sets the wind chime between the paper lanterns ringing, soft pentatonic tubes | P1 |
 | `decorBathtubSofa` | Bathtub Sofa (Sewer), at `CatCafe_Decor_BathtubSofa_Duck_Bob` | 1.3 s | bath bubbles bloop up and the rubber duck squeaks twice | P1 |
-| `decorHollowLog` | Hollow Log Booth (Woods) | 1.8 s | the lantern's little flame crackles and two crickets chirp | P1 |
+| `decorHollowLog` | Hollow Log Booth (Woods), at `CatCafe_Decor_HollowLogBooth_Lantern_Swing` | 1.8 s | the lantern's little flame crackles and two crickets chirp | P1 |
 | `decorIceCream` | Ice Cream Counter (Neighbourhood) | 1.5 s | a scoop scrapes the tub, a soft plop, a four-note music box tune | P1 |
 | `decorDuckFountain` | Duck Fountain (Park) | 1.6 s | water burbling from the duck's beak, a few plips, one small squeak | P1 |
 | `decorJukebox` | Retro Jukebox (Alleyway) | 2.0 s | a coin drops in, the record clunks down, the needle crackles, a short bouncy organ riff | P1 |

@@ -408,7 +408,10 @@ end
 local DECOR_SOUNDS: { [string]: { cue: string, part: string? } } = {
 	park_blossom_tree = { cue = "decorBlossomTree", part = "CatCafe_Decor_BlossomTree_Chime_Swing" },
 	sewer_bathtub_sofa = { cue = "decorBathtubSofa", part = "CatCafe_Decor_BathtubSofa_Duck_Bob" },
-	woods_hollow_log_booth = { cue = "decorHollowLog" },
+	woods_hollow_log_booth = {
+		cue = "decorHollowLog",
+		part = "CatCafe_Decor_HollowLogBooth_Lantern_Swing",
+	},
 	neighbourhood_ice_cream_counter = { cue = "decorIceCream" },
 	park_duck_fountain = { cue = "decorDuckFountain" },
 	alley_retro_jukebox = { cue = "decorJukebox" },

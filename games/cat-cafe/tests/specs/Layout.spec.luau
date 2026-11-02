@@ -1264,6 +1264,8 @@ return function()
 							{ z = z, x1 = math.min(a, b), x2 = math.max(a, b), depth = depth }
 						)
 						if short then
+							-- never a short in a long's row (N337)
+							expect(ways[z] == nil or ways[z] == 0).to.equal(true)
 							shorts[z] = (shorts[z] or 0) + flip
 							ways[z] = 0
 						else

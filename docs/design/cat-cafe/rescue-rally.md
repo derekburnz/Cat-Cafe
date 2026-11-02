@@ -36,7 +36,7 @@ Every player in the server when a step is reached gets its prize, as long as the
 | 100% | a Rally Crate and 15 golden fish |
 
 - A player can earn prizes from at most RallyMaxLaps (4) laps a weekend, so it is a nice weekend goal and not an all-night grind. After that they still help the server's bar and see "You've done your laps this weekend" on the banner.
-- **The Rally Crate** holds twelve pieces made for it (two of each kind, plus a door set and a cat flap, like every crate): pennant wallpaper, a running-track floor, team-stripe paint, a trophy shelf, cheer bunting, a medal door and so on, at the Classic Crate's rarity odds. It only comes from the Rally and comes back every weekend, so nothing is truly limited (the shop rule recorded 2026-11-01). It has its own page in the Decor Index.
+- **The Rally Crate** holds twelve pieces made for it (two of each kind, plus a door set and a cat flap, like every crate): pennant wallpaper, a running-track floor, team-stripe paint, a trophy shelf, cheer bunting, a medal door and so on, at the Classic Crate's rarity odds. It only comes from the Rally and comes back every weekend, so nothing is truly limited (the shop rule recorded 2026-11-01). It has its own page in the Decor Index with the same prizes as the other pages: `decor5` (5 pieces) pays 25 golden fish and `decor10` (all 12) adds +5% money forever, so a full Decor Index is +70% (as built in #804, kept 2026-11-02: the crate only comes from weekends, so the page is as hard to fill as any other).
 - Nothing about the Rally is sold for Robux, and nothing skips or speeds the bar.
 
 ## 4. What players see

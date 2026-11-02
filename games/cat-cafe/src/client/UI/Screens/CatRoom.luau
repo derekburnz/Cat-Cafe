@@ -17,6 +17,7 @@
 --   Keeps up    (F86) an older Legendary or Mythical earning like a newer area's cat has a "Keeps up" tag on its
 --               card and its detail; the detail's tag says why when pressed (Components/KeepUp). The rate shown is
 --               the server's kept-up rating.
+--   Classic     (F97 section 6) a spare cat (F78), which has no Index page, has a small "Classic" tag on its card.
 -- Phone   on a short touch screen (under COMPACT_H design px of room) the grid takes the whole width and the
 --          picked cat's detail opens over the window as a sheet with Back to the grid, its buttons a finger tall
 --          (Scale.tapHeight); Assign drops the sheet so a "+" in the crew strip can be tapped, and it comes back after.
@@ -30,6 +31,7 @@ local CatRoomList = require(script.Parent.Parent.Components.CatRoomList)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local KeepUp = require(script.Parent.Parent.Components.KeepUp)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RenameDialog = require(script.Parent.RenameDialog)
@@ -798,6 +800,14 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		local sparkle = badge(button, "✨", Theme.colors.gold, Theme.colors.goldText)
 		sparkle.AnchorPoint = Vector2.new(1, 0)
 		sparkle.Position = UDim2.new(1, -4, 0, 4)
+	end
+	-- F97 section 6: a spare cat (out of every area, F78) has no Index page any more, so its card says "Classic" on
+	-- the picture's top right, under the sparkle on a gold one
+	if def ~= nil and def.area == IndexRewards.SPARE_AREA then
+		local classic = badge(button, "Classic", Theme.areaColors.spare, Theme.colors.white)
+		classic.Name = "Classic"
+		classic.AnchorPoint = Vector2.new(1, 0)
+		classic.Position = UDim2.new(1, -4, 0, if shiny then 28 else 4)
 	end
 	-- F62: on the picture's lower right corner while the cat is locked
 	local lock = badge(button, Theme.icons.lock, Theme.colors.cocoaDeep, Theme.colors.white)

@@ -15,6 +15,11 @@
 -- the marker across the bar; one not hit by then costs a paw and the next zone takes over from that moment, so the
 -- challenge holds one spare zone per paw. Every hit makes the marker RescueSpeedUpPerHit faster from where it is, and
 -- a press in the zone is always a hit. RescueResult carries the RescueBar (barState) so the client draws the same.
+--
+-- F92 (playing-together.md section 3): Team Rescue. One helper can join a running bar (addHelper): the attempt gets
+-- TeamRescueExtraSeconds on its deadline, the helper's hits count like the rescuer's and a helper's miss costs no paw
+-- (pressBar's `helper`), so a helper can never make a rescue fail. The helper's tip is helperTip, once per
+-- TeamRescueTipCooldown (helperTipReady).
 
 local Catalog = require(script.Parent.Catalog)
 local Circles = require(script.Parent.Circles)
@@ -48,6 +53,7 @@ export type Attempt = {
 	zone: number,
 	zoneEndsAt: number,
 	lastPressAt: number,
+	helped: boolean?, -- F92: a helper has joined (one an attempt, even after they left)
 }
 
 -- A tree is shaken then caught; every other trap is a plain bar.
@@ -112,6 +118,7 @@ function Rescue.barState(attempt: Attempt): Types.RescueBar
 		phase = attempt.markerPhase,
 		speed = attempt.speed,
 		zoneEndsAt = attempt.zoneEndsAt,
+		endsAt = attempt.challenge.endsAt, -- F92: later once a helper joins
 	}
 end
 
@@ -194,8 +201,9 @@ end
 -- outside the bar stage. Zones that ran out before the press move on first (advance), which can end the attempt. A
 -- hit restarts the marker from where it is RescueSpeedUpPerHit faster and moves to the next zone; a hit that
 -- completes a tree's shakes moves the attempt to "falling": the caller then starts the circle with
--- Rescue.startCircle. A miss costs a paw and leaves the zone where it is.
-function Rescue.pressBar(attempt: Attempt, pressTime: number): Press
+-- Rescue.startCircle. A miss costs a paw and leaves the zone where it is, unless the press is a Team Rescue helper's
+-- (F92): theirs costs nothing.
+function Rescue.pressBar(attempt: Attempt, pressTime: number, helper: boolean?): Press
 	local challenge = attempt.challenge
 	if attempt.stage ~= "bar" or pressTime < challenge.startsAt then
 		return "ignored"
@@ -230,11 +238,62 @@ function Rescue.pressBar(attempt: Attempt, pressTime: number): Press
 		end
 		return "hit"
 	end
+	if helper == true then
+		return "miss"
+	end
 	attempt.paws = math.max(0, attempt.paws - 1)
 	if attempt.paws == 0 then
 		attempt.stage = "done"
 	end
 	return "miss"
+end
+
+-- F92: a helper joins the running bar. Refused (false) once the attempt has had a helper, or past the bar stage (a
+-- tree's falling cat is the rescuer's to catch). The deadline moves TeamRescueExtraSeconds later.
+function Rescue.addHelper(attempt: Attempt): boolean
+	if attempt.helped == true or attempt.stage ~= "bar" then
+		return false
+	end
+	attempt.helped = true
+	local challenge = attempt.challenge
+	if challenge.endsAt ~= nil then
+		challenge.endsAt = (challenge.endsAt :: number) + Config.TeamRescueExtraSeconds
+	end
+	return true
+end
+
+-- F92: what RescueChallenge sends a helper: the same bar as it runs now (the marker from its last restart, the zone
+-- to hit, paws left, hits so far, the later deadline), marked `helper`.
+function Rescue.helperChallenge(attempt: Attempt): Types.RescueChallenge
+	local challenge = attempt.challenge
+	return {
+		kind = challenge.kind,
+		startsAt = attempt.markerAt,
+		phase = attempt.markerPhase,
+		speed = attempt.speed,
+		zoneWidth = challenge.zoneWidth,
+		zones = challenge.zones,
+		hitsNeeded = challenge.hitsNeeded,
+		paws = attempt.paws,
+		endsAt = challenge.endsAt,
+		zone = attempt.zone,
+		zoneEndsAt = attempt.zoneEndsAt,
+		zonePasses = challenge.zonePasses,
+		speedUpPerHit = challenge.speedUpPerHit,
+		helper = true,
+		hits = attempt.hits,
+	}
+end
+
+-- F92: the helper's tip for a freed cat, HelperTipSeconds of the helper's own day rate, twice that between pals.
+function Rescue.helperTip(dayRate: number, pals: boolean): number
+	local seconds = Config.HelperTipSeconds * (if pals then 2 else 1)
+	return math.floor(math.max(dayRate, 0) * seconds)
+end
+
+-- F92: whether a helper's tip may pay at `now`, TeamRescueTipCooldown after the last one (nil: never paid).
+function Rescue.helperTipReady(lastTipAt: number?, now: number): boolean
+	return lastTipAt == nil or now - lastTipAt >= Config.TeamRescueTipCooldown
 end
 
 -- The tree's cat drops: one Common circle with the Pro Net's windows times the stuck cat's catchWindow (F83; since

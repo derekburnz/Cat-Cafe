@@ -1120,6 +1120,36 @@ Presets.pullHop = {
 	fadeOut = 0.15,
 }
 
+-- The camp extras' moving touches (F100, camp-extras.md section 3), drawn by CampExtras.luau. Each turn is about the
+-- pivot's X of Model-Agent's child Model (#750): the Fish Pond's `_Rod` at its butt in the holder (below 0 lifts the
+-- tip, above 0 dips it toward the water), the Lost and Found's `_Lid` at its back hinge (above 0 lifts the front).
+-- Nothing moves with Reduce Motion. VFX-Agent draws the fish jump, the thermos steam and the pipe drips.
+Presets.campExtras = {
+	rod = {
+		-- the fish landed at a pond collect, { seconds, degrees }: a tug at the bite, the tip lifted high to swing the
+		-- fish in, a pause, the cast back out past rest so the bobber plops in (the rodCast beat), and a settle
+		keys = {
+			{ 0, 0 },
+			{ 0.12, 6 },
+			{ 0.45, -35 },
+			{ 0.9, -32 },
+			{ 1.15, 8 },
+			{ 1.4, -3 },
+			{ 1.65, 1 },
+			{ 1.85, 0 },
+		},
+		hangBeyond = 1.2, -- studs out from the butt past which an upright part (the line, the bobber) hangs from the tip
+		within = 30, -- studs from the collect's position to the rod it plays on
+	},
+	lid = {
+		every = { 3.5, 6.5 }, -- seconds between rattles while a prize waits, each with the lidRattle beat
+		rattle = { seconds = 0.55, degrees = 5, knocks = 4 }, -- quick lifts of the front edge, each smaller
+		-- the lid at a Lost and Found collect, { seconds, degrees }: up to let the prize out, a pause, shut with a bounce
+		pop = { { 0, 0 }, { 0.18, 28 }, { 0.55, 26 }, { 0.8, 0 }, { 0.9, 4 }, { 1, 0 } },
+		within = 30, -- studs from the collect's position to the lid it plays on
+	},
+}
+
 Presets.catPoses = {
 	sleep = {
 		body = "walk",

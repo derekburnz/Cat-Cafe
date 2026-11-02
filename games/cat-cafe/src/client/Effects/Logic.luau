@@ -2099,6 +2099,66 @@ function Logic.luckyLevelUp(before: number?, after: number): boolean
 	return before ~= nil and after > before and after >= 1
 end
 
+-- Camp extras (F100, camp-extras.md section 3) --------------------------------------------------------------------
+
+-- A keyed turn `t` seconds in, in degrees: `keys` lists { seconds, degrees } in time order; between two keys it eases
+-- in and out from one to the next, and before the first or after the last it holds that key's value.
+function Logic.keyed(keys: { { number } }, t: number): number
+	local first = keys[1]
+	if first == nil then
+		return 0
+	end
+	if t <= first[1] then
+		return first[2]
+	end
+	for i = 2, #keys do
+		local b = keys[i]
+		if t < b[1] then
+			local a = keys[i - 1]
+			local span = b[1] - a[1]
+			return a[2] + (b[2] - a[2]) * Logic.easeInOut(if span > 0 then (t - a[1]) / span else 1)
+		end
+	end
+	return keys[#keys][2]
+end
+
+-- How long a keyed turn lasts: its last key's time.
+function Logic.keyedSeconds(keys: { { number } }): number
+	local last = keys[#keys]
+	return if last ~= nil then last[1] else 0
+end
+
+-- The Lost and Found lid's rattle `t` seconds in (Presets.campExtras.lid.rattle), radians about its back hinge's X:
+-- `knocks` quick lifts of the front edge, each smaller than the last, and 0 outside the rattle. Never below 0, so the
+-- lid never dips into the box.
+function Logic.lidRattle(t: number): number
+	local r = Presets.campExtras.lid.rattle
+	local k = t / r.seconds
+	if k <= 0 or k >= 1 then
+		return 0
+	end
+	return math.rad(r.degrees) * math.abs(math.sin(math.pi * r.knocks * k)) * (1 - k)
+end
+
+-- Whether a part of the pond's rod hangs from its tip (the line and the bobber) instead of turning with it: it stands
+-- upright in the rod's pivot space (`offset` is its frame there) and sits more than `beyond` studs out from the butt
+-- across the ground. A hanging part follows the tip and stays upright.
+function Logic.hangs(offset: CFrame, beyond: number): boolean
+	local across = Vector2.new(offset.Position.X, offset.Position.Z).Magnitude
+	return math.abs(offset.UpVector.Y) > 0.99 and across > beyond
+end
+
+-- How many prizes wait in a camp extra, from the server's CampExtrasState: `state[extraId]` as a count, or a table
+-- whose `held` is the count. Anything else is 0.
+function Logic.campHeld(state: unknown, extraId: string): number
+	if type(state) ~= "table" then
+		return 0
+	end
+	local entry = (state :: any)[extraId]
+	local held = if type(entry) == "table" then entry.held else entry
+	return if type(held) == "number" and held > 0 then held else 0
+end
+
 -- Camp extras' water (F100, camp-extras.md section 3) --------------------------------------------------------
 
 -- A drip `t` seconds after it starts forming at a pipe's mouth: how grown it is (0 to 1, eased, full at `swell`

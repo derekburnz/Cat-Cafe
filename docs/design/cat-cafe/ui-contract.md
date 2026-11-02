@@ -618,11 +618,20 @@ A tip shows once per account, the first time a player meets something: one line 
 - **Server tips:** `UI.tips.show(id)` from `ShowTip(id)` (UIController already calls it when present). Ids outside shared/Tips' list and the like ask are ignored, and so are tips seen on the save or shown this session. A card fires `events.tipSeen(id, false)` as it shows.
 - **Client tips:** `stuck_cat` when a `StuckCat`-tagged model is within 30 studs, `codes_cat` when the `CodesCat` station is within 20, `offline` on the offline card (below). F88's `luck` waits for a luck source. These wait for ProfileSync's `tipsSeen`, so nothing repeats each session before the save says what was seen.
 - **Offline:** `UI.showOfflineEarnings(amount, seconds)` with `seconds` at or over `Tips.OFFLINE_SECONDS` (600) and `offline` unseen puts a gold ribbon on the card's top edge, "Your cats earned while you were away!", and fires `tipSeen("offline", false)`.
-- **Like ask:** `like_ask` shows as a card through the same queue ("Having fun? A thumbs up and a favorite help other players find Cat Cafe."), no press, no reward.
+- **Like ask:** `like_ask` shows as a card through the same queue ("Having fun? A thumbs up helps other players find Cat Cafe."), no press, no reward.
 - **Camera cuts** (`bowl`, `rank_up`, `golden_fish`, `dealer`, `spin_wheel`) are the effects code's (section 7, `ContextCut`). `UI.tips.setCutPlayer(play)` sets the player: `play(id, caption, seconds, done) -> boolean`, called with the caption ("Put food in your bowl. A cat comes to eat it!") and 3 s; it returns true when it moved the camera, freezes controls, draws the caption, takes any press as a skip after 1 s and calls `done(skipped)` once at the end, which fires `tipSeen(id, skipped)`. False (the place has not streamed in) or no player shows the card instead with the card line ("Put food in your bowl on the back step. A cat comes to eat it!"). A cut whose `done` never comes frees the queue after 6 s.
 - **Show tips again:** a row at the end of Settings' Screen section, "Show tips again" with Show (reads "Done" for 2 s). A press forgets this session's tips, empties the queue, fires `events.clearTips()` and toasts "Tips will show again as you play."
 
 **Engineer (F87):** pass `tipsSeen`, `feedbackAsked` and `stuckHelpShown` from ProfileSync in `UI.update`; forward `events.tipSeen(id, skipped)` as `TipSeen` and `events.clearTips()` as `ClearTips` (both already wired in UIController). **Effects (F87 section 7):** register the cut player with `UI.tips.setCutPlayer` once `ContextCut` exists; until then cut tips show as cards.
+
+### Feedback faces and the one ask (built, F87 part 2, easy-start.md section 4)
+
+- **Faces page:** the HUD's Feedback tile and a new Feedback row at the top of Settings call `UI.bugReport.open()` with no kind, which opens the Feedback window on "How is Cat Cafe so far?" with three big faces (😍 Love it, 🙂 It's OK, 🙁 Not for me) and "Report a bug" under them (the report page on its Bug chip). A face tap is enough. The page then reads "Thanks! What would help most?" with six chips (Too hard, Confusing, Boring, Laggy, Want more cats, Something else; pick one), "Tell us more" (the report page on its Idea chip, sent as today's `reportBug(text, "idea")`) and Done. `UI.bugReport.open(kind)` with a kind still opens the report page directly.
+- **One send per answer** (`Components/FeedbackLogic.luau`, with a spec): `events.sendFeedback(face, chip)` fires with the first chip tapped, or `sendFeedback(face, nil)` once the window closes, "Tell us more" is pressed or 20 s pass, so analytics count each answer once and stay under the remote's 1 per 10 s. Values are shared/Tips' `FACES` and `CHIPS`.
+- **The one ask** (`Screens/FeedbackAsk.luau`, ScreenGui `CatCafeFeedbackAsk`, DisplayOrder 11): once per account, after `Config.FeedbackAskMinutes` (12) of this session's play, while nothing else is going on (the tips' quiet moments and no tip card), the faces slide up over the travel row with "How is it so far?" and a gold bar draining over 10 s. A face sends `sendFeedback(face, nil)` at once, says "Thanks!" and slides away. Showing it fires `tipSeen("feedback_ask", false)`, which sets `feedbackAsked`. It waits for ProfileSync's `feedbackAsked` to be false (nil waits), and any answer from the window counts as the ask too. `UI.tips.showAsk()` shows it now (QA in Studio).
+- The HUD's Feedback tile shows from tutorial step 5 once the small HUD (F87 part 3) lands.
+
+**Engineer (F87):** forward `events.sendFeedback(face, chip)` as `SendFeedback` (already wired in UIController).
 
 ### Planned in the next UI pull requests
 
@@ -687,6 +696,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `catchPressed` | `strayId, index, grade` | A press on circle `index` (1-based) with the device's grade hint. Forward `strayId, index` as CatchPress; `grade` is for the instant NetSwing and CircleGrade sounds only. |
 | `rankUp` | none | v0.3: Rank up pressed with every requirement met. Forward as RankUp. |
 | `tipSeen` | `id, skipped` | A context tip shown (F87): a card as it shows (`skipped` false), a camera cut at its end (`skipped` true when the player skipped it). `id` is a shared/Tips id or `like_ask`. Forward as `TipSeen(id, skipped)` |
+| `sendFeedback` | `face, chip` | One answer on the feedback faces (F87): `face` in shared/Tips `FACES` ("love", "ok", "no"), `chip` nil or in `CHIPS`. Fired once per answer (see Feedback faces above). Forward as `SendFeedback(face, chip)` |
 | `clearTips` | none | Show tips again in Settings (F87). Forward as `ClearTips()`; ProfileSync then sends the cleared `tipsSeen` |
 | `launchCannon` | `cannonId, destination` | Launch on a Cat Cannon card (F84): `cannonId` "town" or a camp's area id, `destination` "town" or an area id. Forward as `LaunchCannon(cannonId, destination)`; pass a refusal to `UI.cannon.result(false, destination)` |
 

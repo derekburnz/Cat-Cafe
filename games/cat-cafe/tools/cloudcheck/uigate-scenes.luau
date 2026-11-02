@@ -371,6 +371,18 @@ local SCENES = {
 	{ "Feedback", function()
 		UI.bugReport.open("bug")
 	end },
+	-- F87: the Feedback tile opens on the three faces, and a face brings the chips
+	{ "FeedbackFaces", function()
+		UI.bugReport.open()
+	end },
+	{ "FeedbackChips", function()
+		UI.bugReport.open()
+		press("BugReport", "Face_love")
+	end },
+	-- F87: the one slide-in faces ask over the travel row
+	{ "FeedbackAsk", function()
+		UI.tips.showAsk()
+	end },
 	{ "Codes", function()
 		UI.codes.open()
 	end },

@@ -2445,6 +2445,69 @@ Presets.campWater = {
 	pick = 1,
 }
 
+-- One camp extra's collect burst (Presets.campCollect): `count` particles of `emitter`, tinted when `tint` is given.
+export type CampBurst = { emitter: string, count: number, tint: Color3? }
+export type CampCollect = {
+	delay: number, -- seconds after the press, so it meets Animation-Engineer's turn
+	above: number, -- studs over the spot the bursts pop at
+	bursts: { CampBurst },
+	colour: Color3, -- the ring's
+	ring: number, -- studs across
+}
+
+-- The camp extras' collect bursts (F100, camp-extras.md section 2: "Collecting is one press. The prize flies to the
+-- HUD with F94's prize toast"; Effects/CampCollect). When you collect one, a small burst in its own colours pops
+-- `above` studs over it and a ring `ring` studs across opens on its ground over `ringSeconds`, `delay` seconds after
+-- the press so it meets Animation-Engineer's turn (Presets.campExtras: the pond's rod tugs at the bite at 0.12 s and
+-- the Lost and Found's lid is up at 0.18 s). The spot is the top of the extra's model, the pond's `FishJump` water
+-- (its ring on the water) and the Lost and Found's `_Lid`. Picnic Basket: warm sparkles and a few gold coin glints
+-- for the Money Potion, a mint ring on the blanket. Fish Pond: drops off the water and gold glints rising, a fish-blue
+-- ripple. Lost and Found: a grey puff of dust out of the battered box and bright sparkles, a sparkle ring. Yard
+-- Sale (a crate bought for golden fish): sparkles over the boxes in gold and a blush ring. Your own collects only
+-- (the server answers only you), within `within` studs; the model is looked for within `reach` studs of the prompt.
+-- The golden fish landing in your wallet sparkle round you as ever (Fish.luau).
+Presets.campCollect = {
+	within = 40,
+	reach = 12,
+	ringSeconds = 0.5,
+	extras = {
+		picnic = {
+			delay = 0,
+			above = 0.3,
+			bursts = {
+				{ emitter = "dingSparkle", count = 8 },
+				{ emitter = "coinGlint", count = 5 },
+			},
+			colour = Presets.palette.mint,
+			ring = 3,
+		},
+		pond = {
+			delay = 0.12,
+			above = 0.1,
+			bursts = { { emitter = "splashDrops", count = 8 }, { emitter = "fishRise", count = 6 } },
+			colour = Presets.palette.fishBlue,
+			ring = 2.4,
+		},
+		lostFound = {
+			delay = 0.18,
+			above = 0.2,
+			bursts = {
+				{ emitter = "dust", count = 3, tint = Presets.palette.furGrey },
+				{ emitter = "dingSparkle", count = 10 },
+			},
+			colour = Presets.palette.sparkle,
+			ring = 2.6,
+		},
+		yardSale = {
+			delay = 0,
+			above = 0.3,
+			bursts = { { emitter = "dingSparkle", count = 8, tint = Presets.palette.golden } },
+			colour = Presets.palette.blush,
+			ring = 3,
+		},
+	} :: { [string]: CampCollect },
+}
+
 -- A big pull (F89, luck-and-rare-moments.md 2a and 2b; Derek 2026-10-30: "when securing something good leg/mythic
 -- decor or cats possibly consider a bigger VFX"): when this player secures a Legendary, a Mythical or a gold Epic cat,
 -- or opens a Legendary or Mythical crate piece, confetti in the rarity colour (gold mixed in for a gold cat) bursts

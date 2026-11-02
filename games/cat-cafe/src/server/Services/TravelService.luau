@@ -3,14 +3,15 @@
 -- Travel(destination). "home" goes to the player's front door from anywhere, as a cloud hop from a wild area;
 -- "cannon" goes at once to the front of the nearest Cat Cannon, facing it: the Town Square's in town, the camp's in
 -- a wild area. Area travel is by cannon only (CannonService). The server checks the player is not carrying a cat,
--- mid catch or rescue (leaving would be a Miss, reviewer N47) or in a flight, and that TravelCooldownSeconds have
--- passed. Every answer goes back as TravelResult. At night NightService sends anyone in a wild area home with
+-- mid catch or rescue (leaving would be a Miss, reviewer N47), in a flight or knocked down by a tackle (the same
+-- TackledDownSeconds refusal as the cannon, N281), and that TravelCooldownSeconds have passed. Every answer goes back as TravelResult. At night NightService sends anyone in a wild area home with
 -- sendHome, the same cloud hop.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -141,6 +142,16 @@ local function onTravel(player: Player, rawDestination: unknown)
 	local character = player.Character
 	if character == nil or character:FindFirstChild("HumanoidRootPart") == nil then
 		Net.fire(player, "TravelResult", destination, false, "Still loading")
+		return
+	end
+	-- ShovedAt is the server time a tackle last hit this character (ShoveService, server set)
+	local shovedAt = character:GetAttribute("ShovedAt")
+	local down = Cannon.downRefusal(
+		if type(shovedAt) == "number" then Workspace:GetServerTimeNow() - shovedAt else nil
+	)
+	if down ~= nil then
+		Net.fire(player, "TravelResult", destination, false, down)
+		Net.toast(player, down, "warn")
 		return
 	end
 	lastTravel[player] = os.clock()

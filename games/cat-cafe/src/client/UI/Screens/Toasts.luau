@@ -2,9 +2,13 @@
 -- Short messages that drop in under the tier pill and travel row and fade out. Max four on screen.
 -- rainbow(text, rarity) is the rainbow stray's shout-out (F99, rainbow-coat.md section 2): the announce pill with a
 -- slowly turning rainbow edge (Components/Rainbow), silent as the sound is Sound-Agent's shimmer.
+-- prize(title, prize) is the prize toast (F94 rule 3, F100 camp extras): the line on the green pill with what it
+-- paid as at most two little pictures after it (Components/PrizeChips, outlined for the pill); it needs the catalog
+-- (setCatalog) for the crates' and potions' pictures. Silent: the moment that pays brings its own sound.
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
@@ -17,12 +21,17 @@ export type Toasts = {
 	show: (self: Toasts, text: string, kind: Types.ToastKind?, quiet: boolean?) -> (),
 	announce: (self: Toasts, text: string, rarity: string?) -> (),
 	rainbow: (self: Toasts, text: string, rarity: string?) -> (),
+	prize: (self: Toasts, text: string, prize: Types.IndexPrize?) -> (),
+	setCatalog: (self: Toasts, catalog: Types.Catalog) -> (),
 	destroy: (self: Toasts) -> (),
 }
 
 local LIFETIME = 2.4
 local ANNOUNCE_LIFETIME = 4 -- server shout-outs stay a little longer
 local MAX_VISIBLE = 4
+local PRIZE_LIFETIME = 3.2 -- a prize toast stays long enough to read its pictures
+local PRIZE_TILE = 30
+local PRIZE_TEXT_MAX = 300 -- the line's widest on a prize toast, leaving room for the pictures
 
 -- Every kind is white outlined text on a coloured pill with a dark border (simulator notifications).
 local KIND_COLORS: { [string]: Color3 } = {
@@ -67,6 +76,7 @@ function Toasts.new(parent: Instance): Toasts
 		}),
 	})
 	self.screenGui = screenGui
+	self._catalog = nil :: Types.Catalog?
 	self._order = 0
 	self._alive = {} :: { Frame }
 	if parent then
@@ -127,7 +137,22 @@ function Toasts.rainbow(self: any, text: string, rarity: string?)
 	self:_push(text, fill, ANNOUNCE_LIFETIME, true)
 end
 
-function Toasts._push(self: any, text: string, fill: Color3, lifetime: number, bands: boolean?)
+function Toasts.setCatalog(self: any, catalog: Types.Catalog)
+	self._catalog = catalog
+end
+
+function Toasts.prize(self: any, text: string, prize: Types.IndexPrize?)
+	self:_push(text, KIND_COLORS.good, PRIZE_LIFETIME, false, prize)
+end
+
+function Toasts._push(
+	self: any,
+	text: string,
+	fill: Color3,
+	lifetime: number,
+	bands: boolean?,
+	prize: Types.IndexPrize?
+)
 	self._order += 1
 	local toast: Frame = Create("Frame", {
 		Name = "Toast",
@@ -141,7 +166,10 @@ function Toasts._push(self: any, text: string, fill: Color3, lifetime: number, b
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 18), PaddingRight = UDim.new(0, 18) }),
-		Create("UISizeConstraint", { MaxSize = Vector2.new(460, 40) }),
+		Create(
+			"UISizeConstraint",
+			{ MaxSize = Vector2.new(if prize ~= nil then 540 else 460, 40) }
+		),
 	})
 	local border = Outline.border(toast)
 	border.Transparency = 1
@@ -161,9 +189,41 @@ function Toasts._push(self: any, text: string, fill: Color3, lifetime: number, b
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = text,
 		Parent = toast,
-	}, { Create("UISizeConstraint", { MaxSize = Vector2.new(424, 40) }) })
+	}, {
+		Create("UISizeConstraint", {
+			MaxSize = Vector2.new(if prize ~= nil then PRIZE_TEXT_MAX else 424, 40),
+		}),
+	})
 	local textOutline = Outline.text(message)
 	textOutline.Transparency = 1
+	local chips: PrizeChips.PrizeChips? = nil
+	if prize ~= nil then
+		-- the line, then the pictures on the same pill
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Parent = toast,
+		})
+		message.LayoutOrder = 1
+		local row = PrizeChips.new({
+			parent = toast,
+			name = "Prize",
+			tile = PRIZE_TILE,
+			textSize = Theme.sizes.textSmall,
+			outlined = true,
+			maxPictures = 2,
+			showBonus = false,
+			layoutOrder = 2,
+		})
+		local catalog: Types.Catalog? = self._catalog
+		if catalog then
+			row:setCatalog(catalog)
+		end
+		row:set(prize)
+		chips = row
+	end
 	table.insert(self._alive, toast)
 	while #self._alive > MAX_VISIBLE do
 		local oldest = table.remove(self._alive, 1)
@@ -178,7 +238,13 @@ function Toasts._push(self: any, text: string, fill: Color3, lifetime: number, b
 	Tween.popIn(toast, 0.8)
 	task.delay(lifetime, function()
 		if not toast.Parent then
+			if chips then
+				chips:destroy()
+			end
 			return
+		end
+		if chips then
+			chips.frame.Visible = false
 		end
 		Tween.to(border, Tween.SETTLE, { Transparency = 1 })
 		Tween.to(message, Tween.SETTLE, { TextTransparency = 1 })
@@ -188,6 +254,9 @@ function Toasts._push(self: any, text: string, fill: Color3, lifetime: number, b
 			local index = table.find(self._alive, toast)
 			if index then
 				table.remove(self._alive, index)
+			end
+			if chips then
+				chips:destroy()
 			end
 			toast:Destroy()
 		end)

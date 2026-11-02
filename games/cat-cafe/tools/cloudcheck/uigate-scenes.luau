@@ -230,6 +230,28 @@ local function localUserId()
 end
 
 -- F92: the first catching area the gate's Tier 1 player has open, for a pal who is out there
+-- F100: CampExtrasState for the Tier 3 sample player: the Picnic Basket holding `picnic` potions, the Yard Sale's
+-- two crates (`bought` today or not), the Pond and the Lost and Found shut; `open` false shuts all four.
+local function campExtras(picnic, bought, open)
+	local now = workspace:GetServerTimeNow()
+	local on = open ~= false
+	return {
+		day = math.floor(now / 86400),
+		picnic = { open = on, held = picnic, nextAt = if picnic < 2 then now + 7800 else nil },
+		yardSale = {
+			open = on,
+			held = if bought then 0 else 2,
+			nextAt = now + 3 * 3600,
+			stock = {
+				{ crateId = "classic_crate", price = 40, bought = bought },
+				{ crateId = "park_crate", price = 40, bought = bought },
+			},
+		},
+		pond = { open = false, held = 0 },
+		lostFound = { open = false, held = 0 },
+	}
+end
+
 local function firstArea()
 	for _, area in Catalog.areas do
 		if area.tier <= 1 then
@@ -879,6 +901,33 @@ local SCENES = {
 		UI.clock.bind(clock)
 		UI.luckyDay("warning", "A Lucky Day starts at sunrise!")
 	end },
+	-- F100: the Cannon picker with the Tier 3 player's camp extras: the Picnic Basket ready (red dot), the Yard Sale's
+	-- new crates (no dot)
+	{ "CannonExtras", function()
+		UI.campExtras.update(campExtras(1, false))
+		UI.cannon.open()
+	end },
+	-- F100: the same picker with nothing ready: "Next in 2 h 10 m" and "New crates in 3 h"
+	{ "CannonExtrasWait", function()
+		UI.campExtras.update(campExtras(0, true))
+		UI.cannon.open()
+	end },
+	-- F100: the Yard Sale card, the Classic Crate bought today and the Park Crate for 40 golden fish
+	{ "YardSale", function()
+		local extras = campExtras(0, false)
+		extras.yardSale.stock[1].bought = true
+		extras.yardSale.held = 1
+		UI.campExtras.update(extras)
+		UI.campExtras.openYardSale(extras.yardSale)
+	end },
+	-- F100: the prize toast after the Lost and Found: the line and two pictures
+	{ "CampPrize", function()
+		UI.campExtras.collected(
+			"lostFound",
+			{ "1 Lucky Potion", "+10 golden fish" },
+			{ potions = { lucky_potion = 1 }, fish = 10 }
+		)
+	end },
 }
 
 Scenes.names = {}
@@ -900,6 +949,7 @@ function Scenes.close()
 	reel(false)
 	UI.close()
 	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
+	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were
 	UI.catch.hideCircles()
 	UI.catch.hide()
 	UI.rescue.hide()

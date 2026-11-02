@@ -97,6 +97,15 @@ local function panelOf(door: Door): BasePart?
 	return if panel ~= nil and panel:IsA("BasePart") then panel :: BasePart else nil
 end
 
+-- The back door panel's collision on this client (BackDoor.panelSolid): an empty plot's panel is the server's.
+local function setPanelSolid(door: Door, open: boolean)
+	local panel = panelOf(door)
+	local solid = BackDoor.panelSolid(open, door.owned, door.isOwner, door.wantsOpen)
+	if panel ~= nil and door.owned and panel.CanCollide ~= solid then
+		panel.CanCollide = solid
+	end
+end
+
 local function childModel(parent: Instance?, name: string): Model?
 	local found = if parent ~= nil then parent:FindFirstChild(name) else nil
 	return if found ~= nil and found:IsA("Model") then found :: Model else nil
@@ -300,13 +309,10 @@ local function readState(door: Door, open: boolean)
 	end
 	door.flapSwings = flapHinge(door) ~= nil
 	-- at night an owned cafe's shut doors block everyone but its owner (the closed back door art used to block the
-	-- back door for everyone); an empty plot's panel is shut anyway
-	local solid = BackDoor.solid(open, door.owned, door.isOwner)
-	local panel = panelOf(door)
-	if panel ~= nil and door.owned and panel.CanCollide ~= solid then
-		panel.CanCollide = solid
-	end
-	setFrontSolid(door, solid)
+	-- back door for everyone), but the back door lets anyone through while it stands open for the owner (sense);
+	-- an empty plot's panel is shut anyway
+	setPanelSolid(door, open)
+	setFrontSolid(door, BackDoor.solid(open, door.owned, door.isOwner))
 end
 
 local function rootOf(player: Player): BasePart?
@@ -390,6 +396,7 @@ local function sense(door: Door, open: boolean, camera: Vector3?)
 	if not door.active then
 		door.wantsOpen = false
 		door.push = nil
+		setPanelSolid(door, open)
 		return
 	end
 	door.wantsOpen = BackDoor.wantsOpen(
@@ -398,6 +405,7 @@ local function sense(door: Door, open: boolean, camera: Vector3?)
 		if open then nearestPlayer(doorway) else nil,
 		if open then nil else ownerDistance(door, doorway)
 	)
+	setPanelSolid(door, open)
 	local front = door.front
 	door.frontWants = if open or front == nil
 		then open

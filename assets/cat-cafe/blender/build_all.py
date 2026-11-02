@@ -38,6 +38,7 @@ import welcomearch  # noqa: E402
 import campextras  # noqa: E402
 import leaderboards  # noqa: E402
 import rally  # noqa: E402
+import menu  # noqa: E402
 import camps  # noqa: E402
 import cannon  # noqa: E402
 import areakit  # noqa: E402
@@ -88,9 +89,15 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
-           leaderboards, rally, style_icons]
+           leaderboards, rally, menu, style_icons]
 
 PIVOT_NOTES = {
+    **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
+                            "pivot CatCafe_Menu_GoldPlate here for the rich customer)" for n in menu.ITEMS},
+    "CatCafe_Menu_GoldPlate": "the base centre, the same as an item's _Plate",
+    "CatCafe_Menu_Tray": "the underside centre (on a cat's Carry Attachment); an item's pivot goes on its Item Attachment",
+    "CatCafe_Menu_CoinBag": "the base centre (on a cat's Carry Attachment)",
+    menu.OVEN: "the base centre behind the counter (Layout.cafe), front -Z; _Door pivots on its bottom hinge",
     "CatCafe_Square_RallyBoard": "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
                                  "rally.SPOT (15, 0.1, 12) turned 30, facing the player spawn",
     **{n: "On the ground under the middle of the span, as the edge bunting it stands in for during the Rally: the "
@@ -501,6 +508,8 @@ def main():
             extra = {"attachments": camps.rbx_attachments(name)}
         if name == leaderboards.N:                # F98: each board's Screen rides its board's Model
             extra = {"nest": leaderboards.NEST}
+        if name in menu.ATTACHMENTS:              # F90: the tray's Item spot, the oven's DoorGlow
+            extra = {"attachments": menu.rbx_attachments(name)}
         if name in campextras.ATTACHMENTS:          # F100: PromptAnchor, and Steam, FishJump or Drip
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about

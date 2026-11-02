@@ -130,8 +130,7 @@ local function reelTiming(): Reel?
 	if Context.reducedMotion() then
 		return nil
 	end
-	local stop, slowFrom =
-		Logic.crateReelStop(landing, top, ramp, slow, Presets.marketCrate.reelSlowTiles)
+	local stop, slowFrom = Logic.crateReelStop(landing, top, ramp, slow)
 	return { stop = stop, ramp = ramp, slowFrom = slowFrom, slow = slow }
 end
 

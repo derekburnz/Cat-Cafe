@@ -1354,16 +1354,18 @@ end
 
 -- The crate reel (F103, crate-reel.md) in the Market window, from Config's CrateReel* numbers: it starts with tile 1
 -- under the marker and stops on the centre of tile `landing`, speeding up evenly to `topSpeed` tiles a second over
--- `rampSeconds`, running flat out, then slowing over the last `slowTiles` tiles in `stopSeconds` with an ease-out
--- cubic. How many seconds after CrateResult it stops (about 2.9 with the defaults), and when the slow down starts.
+-- `rampSeconds`, running flat out, then slowing to a stop over `stopSeconds` with an ease-out cubic. That cubic sets
+-- off at three times its average pace, so meeting the top speed it covers topSpeed * stopSeconds / 3 tiles (4 with
+-- the spec's numbers). How many seconds after CrateResult it stops (about 2.9 with the defaults), and when the slow
+-- down starts.
 function Logic.crateReelStop(
 	landing: number,
 	topSpeed: number,
 	rampSeconds: number,
-	stopSeconds: number,
-	slowTiles: number
+	stopSeconds: number
 ): (number, number)
 	local ramp = math.max(rampSeconds, 0)
+	local slowTiles = math.max(topSpeed, 0) * math.max(stopSeconds, 0) / 3
 	local cruise = 0
 	if topSpeed > 0 then
 		cruise = math.max(landing - 1 - topSpeed * ramp / 2 - slowTiles, 0) / topSpeed

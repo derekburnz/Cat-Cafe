@@ -32,8 +32,7 @@ return function()
 
 	describe("Effects crate reel counter crate", function()
 		it("stops about 2.9 s after CrateResult, slowing from about 2.08 s", function()
-			local stop: number, slowFrom: number =
-				Logic.crateReelStop(LANDING, TOP, RAMP, SLOW, Presets.marketCrate.reelSlowTiles)
+			local stop: number, slowFrom: number = Logic.crateReelStop(LANDING, TOP, RAMP, SLOW)
 			expect(near(stop, 2.8833, 0.001)).to.equal(true)
 			expect(near(slowFrom, 2.0833, 0.001)).to.equal(true)
 			expect(near(stop - slowFrom, SLOW, 1e-9)).to.equal(true)
@@ -42,8 +41,7 @@ return function()
 		it(
 			"travels the 33 tiles from tile 1 to the landing tile's centre by the stop, and no further",
 			function()
-				local stop: number, slowFrom: number =
-					Logic.crateReelStop(LANDING, TOP, RAMP, SLOW, Presets.marketCrate.reelSlowTiles)
+				local stop: number, slowFrom: number = Logic.crateReelStop(LANDING, TOP, RAMP, SLOW)
 				expect(near(travelled(slowFrom, stop), LANDING - 1, 0.01)).to.equal(true)
 				expect(near(travelled(slowFrom, stop + 1), LANDING - 1, 0.01)).to.equal(true)
 				-- the last 4 tiles go by in the slow down
@@ -54,8 +52,7 @@ return function()
 		)
 
 		it("eases in, runs flat out, then settles to still at the stop with no jump", function()
-			local stop: number, slowFrom: number =
-				Logic.crateReelStop(LANDING, TOP, RAMP, SLOW, Presets.marketCrate.reelSlowTiles)
+			local stop: number, slowFrom: number = Logic.crateReelStop(LANDING, TOP, RAMP, SLOW)
 			local function pace(t: number): number
 				return Logic.crateReelPace(t, RAMP, slowFrom, SLOW)
 			end
@@ -80,10 +77,10 @@ return function()
 		end)
 
 		it("never runs backwards or waits a negative time on odd numbers", function()
-			local stop: number, slowFrom: number = Logic.crateReelStop(2, 15, 0.3, 0.8, 4)
+			local stop: number, slowFrom: number = Logic.crateReelStop(2, 15, 0.3, 0.8)
 			expect(near(slowFrom, 0.3, 1e-9)).to.equal(true)
 			expect(near(stop, 1.1, 1e-9)).to.equal(true)
-			local still: number, still2: number = Logic.crateReelStop(34, 0, 0.3, 0.8, 4)
+			local still: number, still2: number = Logic.crateReelStop(34, 0, 0.3, 0.8)
 			expect(near(still2, 0.3, 1e-9)).to.equal(true)
 			expect(near(still, 1.1, 1e-9)).to.equal(true)
 			expect(Logic.crateReelPace(1, 0.3, 2, 0)).to.equal(1)
@@ -96,8 +93,6 @@ return function()
 			expect(c.reelHop > 0 and c.reelHop <= 0.1).to.equal(true)
 			expect(c.reelHz > 0).to.equal(true)
 			expect(c.reelSafety > 0).to.equal(true)
-			-- an ease-out cubic leaves at three times its average pace, so the slow down meets the top speed
-			expect(near(3 * c.reelSlowTiles / SLOW, TOP, 1e-9)).to.equal(true)
 		end)
 
 		it(
@@ -110,10 +105,8 @@ return function()
 				local top: number = Config.CrateReelTopSpeed
 				local ramp: number = Config.CrateReelRampSeconds
 				local slow: number = Config.CrateReelStopSeconds
-				local stop: number =
-					Logic.crateReelStop(landing, top, ramp, slow, Presets.marketCrate.reelSlowTiles)
+				local stop: number = Logic.crateReelStop(landing, top, ramp, slow)
 				expect(stop > 2 and stop < 4).to.equal(true)
-				expect(near(3 * Presets.marketCrate.reelSlowTiles / slow, top, 1e-6)).to.equal(true)
 			end
 		)
 	end)

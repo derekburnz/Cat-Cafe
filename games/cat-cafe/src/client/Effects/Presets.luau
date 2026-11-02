@@ -1735,9 +1735,8 @@ Presets.market = {
 -- held for `hold` seconds from the open and faded over `fade`.
 -- While the Market window's crate reel runs (F103, crate-reel.md), the lid knocks on its hinge as hard as the reel is
 -- fast (Logic.crateReelPace): up to `reelRattle` degrees and `reelHop` studs, `reelHz` knocks a second, the same for
--- every prize. The lid opens at the stop: Config's CrateReel* numbers with the reel slowing over `reelSlowTiles`
--- tiles, or the UI's CrateReelLanded moment (a tap skips), in which case the stop plus `reelSafety` seconds is only
--- the fallback.
+-- every prize. The lid opens at the stop: the time Config's CrateReel* numbers give (Logic.crateReelStop), or the
+-- UI's CrateReelLanded moment (a tap skips), in which case the stop plus `reelSafety` seconds is only the fallback.
 Presets.marketCrate = {
 	scale = 0.6,
 	lidDegrees = 105,
@@ -1747,7 +1746,6 @@ Presets.marketCrate = {
 	reelRattle = 3,
 	reelHop = 0.04,
 	reelHz = 9,
-	reelSlowTiles = 4,
 	reelSafety = 1.5,
 }
 

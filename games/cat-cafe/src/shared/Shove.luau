@@ -31,6 +31,7 @@ export type TackleCheck = {
 	areaUnlocked: boolean, -- the tackler's tier opens `area`
 	areasClosed: boolean, -- night: the catching areas are closed (v0.9, F66)
 	sinceTackle: number?, -- since this tackler's last press that was not refused
+	newcomer: boolean?, -- F87: the tackler has not checked in a cat yet, so the shield works both ways (review N300)
 }
 
 -- What the server knows about one player in the lunge's reach.
@@ -82,6 +83,9 @@ function Shove.tackleRefusal(check: TackleCheck): string?
 	end
 	if check.busy then
 		return "Finish what you are doing first"
+	end
+	if check.newcomer == true then
+		return "Check in your first cat before you tackle"
 	end
 	if check.area == nil then
 		return "You can only tackle inside a catching area"

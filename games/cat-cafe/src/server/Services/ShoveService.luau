@@ -184,6 +184,7 @@ local function tackle(player: Player, forced: Shove.KnockResult?)
 		areaUnlocked = area ~= nil and Economy.tier(profile) >= area.tier,
 		areasClosed = not ClockService.areasOpen(),
 		sinceTackle = since(lastTackleAt[player], now),
+		newcomer = newcomer(player),
 	})
 	if reason ~= nil or root == nil then
 		-- a refusal spends nothing; the button is hidden or greyed in these states anyway

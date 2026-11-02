@@ -624,7 +624,13 @@ local function tutorialTick()
 		local strayId = occupied[own]
 		local stray = if strayId ~= nil then strays[strayId] else nil
 		if stray ~= nil and stray.alive and stray.def.rarity == "Common" then
-			if stray.beginner ~= player.UserId and (stray.lockedBy == 0 or lockExpired(stray)) then
+			-- never a Dropped cat or one walking home, which belongs to whoever picks it up (review N302)
+			if
+				stray.beginner ~= player.UserId
+				and stray.drop == nil
+				and not stray.returning
+				and (stray.lockedBy == 0 or lockExpired(stray))
+			then
 				reserve(stray, player.UserId)
 			end
 		elseif strayId == nil then

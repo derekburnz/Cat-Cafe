@@ -59,6 +59,10 @@ return function()
 			expect(Shove.tackleRefusal(press({ busy = true }))).to.be.ok()
 		end)
 
+		it("a newcomer cannot tackle either: the shield works both ways (F87, review N300)", function()
+			expect(Shove.tackleRefusal(press({ newcomer = true }))).to.equal("Check in your first cat before you tackle")
+		end)
+
 		it("only inside a catching area", function()
 			expect(Shove.tackleRefusal(press({ area = NONE }))).to.be.ok()
 		end)

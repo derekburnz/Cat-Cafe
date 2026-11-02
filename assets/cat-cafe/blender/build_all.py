@@ -32,6 +32,7 @@ import accessories  # noqa: E402
 import alley  # noqa: E402
 import alleyway  # noqa: E402
 import backdrop  # noqa: E402
+import wildbackdrop  # noqa: E402
 import luckycat  # noqa: E402
 import camps  # noqa: E402
 import cannon  # noqa: E402
@@ -82,7 +83,7 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
-           townbuildings, customers, cannon, camps, backdrop, luckycat, style_icons]
+           townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, style_icons]
 
 PIVOT_NOTES = {
     **{f"CatCafe_Plot_LuckyCat_{n}": "the plinth's base centre on the plot floor, front -Z to the street; plot space "

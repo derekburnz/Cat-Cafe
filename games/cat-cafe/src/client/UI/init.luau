@@ -41,6 +41,7 @@ local DailyTreat = require(script.Screens.DailyTreat)
 local DailyTreatLogic = require(script.Components.DailyTreatLogic)
 local Dealer = require(script.Screens.Dealer)
 local DecorShop = require(script.Screens.DecorShop)
+local FeedbackAsk = require(script.Screens.FeedbackAsk)
 local FishMarket = require(script.Screens.FishMarket)
 local Format = require(script.Components.Format)
 local FreshCatchBoard = require(script.Screens.FreshCatchBoard)
@@ -164,6 +165,7 @@ UI.events = {
 	-- Settings' "Show tips again"
 	tipSeen = Signal.new(), -- (id, skipped?)   a shared/Tips id (or like_ask) shown: forward as TipSeen
 	clearTips = Signal.new(), -- ()   Show tips again in Settings: forward as ClearTips
+	sendFeedback = Signal.new(), -- (face, chip?)   one answer on the feedback faces (Tips.FACES, Tips.CHIPS): forward as SendFeedback
 }
 
 local state: Types.PlayerState = {
@@ -259,6 +261,7 @@ local applyTutorial: () -> ()
 local tipCard: TipCard.TipCard? = nil -- a context tip's card (F87, UI.tips)
 local tickTips: (dt: number) -> () -- the tip queue's clock and the client-found tips, with UI.tips
 local tipsHeldUntil = 0 -- os.clock() until which no tip shows (a cannon flight and its landing)
+local feedbackAsk: FeedbackAsk.FeedbackAsk? = nil -- the one slide-in faces ask (F87 section 4, timed with UI.tips)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure, Tame and Let go work from anywhere (Derek 2026-10-28: "tame or let go from anywhere";
@@ -658,7 +661,7 @@ function UI.init(config: Types.InitConfig)
 			UI.toast("Tutorial hidden. Replay it from Settings.", "info")
 		end,
 		openFeedback = function()
-			UI.bugReport.open("idea")
+			UI.bugReport.open() -- F87: the faces page first
 		end,
 	})
 	local hudInstance = hud :: HUD.HUD
@@ -857,6 +860,9 @@ function UI.init(config: Types.InitConfig)
 			UI.settings.changed:Fire(key, value)
 		end,
 		close = closeModal,
+		openFeedback = function()
+			UI.bugReport.open()
+		end,
 		showTipsAgain = function()
 			UI.tips.reset()
 			UI.events.clearTips:Fire()
@@ -888,6 +894,11 @@ function UI.init(config: Types.InitConfig)
 		end,
 		back = closeModal,
 		close = closeModal,
+		feedback = function(face: string, chip: string?)
+			-- an answer here counts as the one ask too (the server sets feedbackAsked), so it never slides in after
+			(state :: any).feedbackAsked = true
+			UI.events.sendFeedback:Fire(face, chip)
+		end,
 	})
 	local bugReportView = bugReportScreen :: BugReport.BugReport
 	modalInstance:register("BugReport", {
@@ -1135,6 +1146,15 @@ function UI.init(config: Types.InitConfig)
 	toasts = Toasts.new(parent)
 	popups = Popups.new(parent)
 	tipCard = TipCard.new(parent)
+	feedbackAsk = FeedbackAsk.new(parent, {
+		send = function(face: string)
+			(state :: any).feedbackAsked = true
+			UI.events.sendFeedback:Fire(face, nil)
+		end,
+		lift = function()
+			return hudInstance:bottomTop() - Theme.sizes.gap
+		end,
+	})
 	table.insert(
 		connections,
 		RunService.Heartbeat:Connect(function(dt: number)
@@ -1424,6 +1444,10 @@ function UI.destroy()
 		tipCard:destroy()
 	end
 	tipCard = nil
+	if feedbackAsk then
+		feedbackAsk:destroy()
+	end
+	feedbackAsk = nil
 	UI.tips.reset()
 	if carryMarker then
 		carryMarker:destroy()
@@ -1989,10 +2013,14 @@ UI.bugReport = {}
 
 -- Opens the Feedback window, on the `kind` chip ("bug", "stuck" or "idea") unless a draft is waiting. Players reach
 -- it from the HUD's Feedback tile (on Idea), the one way in since Settings lost its Report a bug row (2026-11-01).
+-- With a kind ("bug", "stuck", "idea") the report page on that chip; without one (the HUD's Feedback tile, Settings'
+-- Feedback row) the F87 faces page first.
 function UI.bugReport.open(kind: string?)
 	if modal then
 		if bugReportScreen and kind then
 			bugReportScreen:setKind(kind)
+		elseif bugReportScreen then
+			bugReportScreen:showFaces()
 		end
 		modal:open("BugReport")
 	end
@@ -3219,7 +3247,7 @@ end
 
 -- A tip shows once per account, the first time a player meets something. The server sends ShowTip for the ones it
 -- can see (UIController calls UI.tips.show); this finds the ones only the client can see: a stuck cat within
--- STUCK_RANGE (`stuck_cat`), the Codes Cat within CODES_RANGE (`codes_cat`) and the offline card's line after
+-- 30 studs (`stuck_cat`), the Codes Cat within 20 (`codes_cat`) and the offline card's line after
 -- Tips.OFFLINE_SECONDS away (`offline`). F88's `luck` waits for a luck source. Components/TipQueue times them: never
 -- during a catch, rescue, carry, the intro, a flight or a window, one every TipGapSeconds, three waiting at most.
 -- A card fires tipSeen as it shows; a camera cut fires it when it ends, skipped or not. The client-found tips wait
@@ -3242,20 +3270,24 @@ UI.tips = {}
 do
 	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
 
-	local TIP_GAP: number = (Config :: any).TipGapSeconds or 60
-	local CUT_SECONDS: number = math.min(3, (Config :: any).TipCutMaxSeconds or 4)
-	local CUT_TIMEOUT = CUT_SECONDS + 3 -- a cut whose done never comes frees the queue after this
-	local STUCK_RANGE = 30 -- studs from a stuck cat (section 3: "within 30 studs")
-	local CODES_RANGE = 20
-	local CODES_TAG = "CodesCat" -- shared/Codes.TAG, the Codes Cat's station
-	local PUMP_EVERY = 0.25
-	local LOOK_EVERY = 1
+	local cutSeconds: number = math.min(3, (Config :: any).TipCutMaxSeconds or 4)
+	-- one table, as the module is short of locals
+	local TIP = {
+		GAP = ((Config :: any).TipGapSeconds or 60) :: number,
+		CUT_SECONDS = cutSeconds,
+		CUT_TIMEOUT = cutSeconds + 3, -- a cut whose done never comes frees the queue after this
+		STUCK_RANGE = 30, -- studs from a stuck cat (section 3: "within 30 studs")
+		CODES_RANGE = 20,
+		CODES_TAG = "CodesCat", -- shared/Codes.TAG, the Codes Cat's station
+		PUMP_EVERY = 0.25,
+		LOOK_EVERY = 1,
+	}
 
-	local tipQueue = TipQueue.new(TIP_GAP)
+	local tipQueue = TipQueue.new(TIP.GAP)
 	local tipAnswered: { [string]: boolean } = {} -- tips shown this session, before ProfileSync's tipsSeen says so
 	local tipBusy = false -- a card or a cut is showing
 	local cutPlayer: CutPlayer? = nil
-	local pumpClock, lookClock = 0, 0
+	local clocks = { pump = 0, look = 0 }
 
 	-- Seen on the save or shown this session.
 	local function tipKnown(id: string): boolean
@@ -3296,7 +3328,8 @@ do
 			flying = os.clock() < tipsHeldUntil,
 			window = (modal ~= nil and modal:current() ~= nil)
 				or (popups ~= nil and popups:isShowing())
-				or (baitCard ~= nil and baitCard:isShowing()),
+				or (baitCard ~= nil and baitCard:isShowing())
+				or (feedbackAsk ~= nil and feedbackAsk:isShowing()),
 			hidden = not visible,
 			duskLeft = duskLeft,
 		}
@@ -3337,9 +3370,9 @@ do
 				answerTip(id, skipped == true)
 			end
 			tipBusy = true
-			local ok, played = pcall(play, id, caption, CUT_SECONDS, done)
+			local ok, played = pcall(play, id, caption, TIP.CUT_SECONDS, done)
 			if ok and played == true then
-				task.delay(CUT_TIMEOUT, function()
+				task.delay(TIP.CUT_TIMEOUT, function()
 					done(false)
 				end)
 				return
@@ -3389,23 +3422,30 @@ do
 		if from == nil then
 			return
 		end
-		if not tipKnown("stuck_cat") and taggedNear("StuckCat", from, STUCK_RANGE) then
+		if not tipKnown("stuck_cat") and taggedNear("StuckCat", from, TIP.STUCK_RANGE) then
 			UI.tips.show("stuck_cat")
 		end
-		if not tipKnown("codes_cat") and taggedNear(CODES_TAG, from, CODES_RANGE) then
+		if not tipKnown("codes_cat") and taggedNear(TIP.CODES_TAG, from, TIP.CODES_RANGE) then
 			UI.tips.show("codes_cat")
 		end
 	end
 
+	-- Nothing else is going on and no tip is showing: the one feedback ask may slide in.
+	function UI.tips.quiet(): boolean
+		return not tipBusy and TipQueue.free(tipMoment())
+	end
+
 	tickTips = function(dt: number)
-		pumpClock += dt
-		lookClock += dt
-		if lookClock >= LOOK_EVERY then
-			lookClock = 0
+		clocks.pump += dt
+		clocks.look += dt
+		if clocks.look >= TIP.LOOK_EVERY then
+			clocks.look = 0
 			lookForTips()
+			local ask: any = UI.tips -- lookForAsk is set by the ask's block below
+			ask.lookForAsk()
 		end
-		if pumpClock >= PUMP_EVERY then
-			pumpClock = 0
+		if clocks.pump >= TIP.PUMP_EVERY then
+			clocks.pump = 0
 			pumpTips()
 		end
 	end
@@ -3454,6 +3494,44 @@ do
 			card:hide()
 		end
 		tipBusy = false
+	end
+end
+
+-- F87 section 4: the one slide-in faces ask, once per account, after FeedbackAskMinutes of this session's play and
+-- only between activities (UI.tips.quiet: no tip showing either). It waits for ProfileSync's feedbackAsked (false,
+-- not nil). Its own block, as the module is short of locals.
+do
+	local FeedbackLogic = require(script.Components.FeedbackLogic)
+	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
+	local sessionStart = os.clock()
+	local asked = false -- this session
+
+	local function openAsk(ask: FeedbackAsk.FeedbackAsk)
+		asked = true
+		ask:show()
+		local saved: any = state
+		saved.feedbackAsked = true
+		UI.events.tipSeen:Fire(Tips.FEEDBACK_ASK, false)
+	end
+
+	-- From the tips clock, once a second.
+	function UI.tips.lookForAsk()
+		local ask = feedbackAsk
+		if asked or ask == nil or ask:isShowing() then
+			return
+		end
+		local played = os.clock() - sessionStart
+		if FeedbackLogic.askDue(state.feedbackAsked, played, UI.tips.quiet()) then
+			openAsk(ask)
+		end
+	end
+
+	-- The slide-in faces ask now, whatever the clock says (QA in Studio and the UI gate). It is saved as shown.
+	function UI.tips.showAsk()
+		local ask = feedbackAsk
+		if ask ~= nil and not ask:isShowing() then
+			openAsk(ask)
+		end
 	end
 end
 

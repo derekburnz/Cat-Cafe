@@ -53,6 +53,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
+local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -149,6 +150,8 @@ local PILL_H = 54
 local PILL_ICON = 36 -- the pictures on the pills and the bottom row are bigger than their text (Derek 2026-10-27)
 local TRAVEL_ICON = 28
 local TRAVEL_W = 136
+local BOWL_W = 150 -- the bait bowl chip, bottom right (moved clear of Roblox's jump button on a phone: _placeBowl)
+local BOWL_H = 64
 local TRAVEL_H = 50 -- every bottom row button, My Cafe too (Derek 2026-10-27 22:26: no bigger, no ears)
 local TRAVEL_ROW_W = 4 * TRAVEL_W + 3 * Theme.sizes.gap
 -- top right icon buttons; on a phone a little bigger, so each face reaches a finger's 44 px under its lip (F102 took
@@ -1100,7 +1103,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 1),
 		Position = UDim2.new(1, -MARGIN, 1, -MARGIN),
-		Size = UDim2.fromOffset(150, 64),
+		Size = UDim2.fromOffset(BOWL_W, BOWL_H),
 		Parent = root,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
@@ -2562,6 +2565,45 @@ function HUD._layoutMenu(self: any)
 		self._travelFold.instance.Position =
 			UDim2.new(0.5, self._travelShift + rowW / 2 + gap, 1, -MARGIN)
 	end
+	self:_placeBowl()
+end
+
+-- The bait bowl chip sits in the bottom right corner, except where Roblox's touch jump button would cover it (a phone:
+-- the jump button is drawn in screen pixels, Components/NetButtonPlace). There it moves up and left, its right edge
+-- left of where the Net button shows and its foot over the bottom row, so a thumb on jump or Net never lands on it.
+-- A tablet's bigger jump button sits higher, over the chip, so the corner stays.
+function HUD._placeBowl(self: any)
+	local bowl: TextButton = self._bowlSlot
+	local corner = UDim2.new(1, -MARGIN, 1, -MARGIN)
+	local camera = Workspace.CurrentCamera
+	local root: Frame = self._root
+	local scale = Scale.get()
+	if not Scale.isTouch() or camera == nil or scale <= 0 or root.AbsoluteSize.Y <= 0 then
+		bowl.Position = corner
+		return
+	end
+	-- the root's corner in screen pixels (GUI space starts under the top bar inset)
+	local inset = GuiService:GetGuiInset()
+	local left = root.AbsolutePosition.X + inset.X
+	local top = root.AbsolutePosition.Y + inset.Y
+	local width = root.AbsoluteSize.X / scale
+	local height = root.AbsoluteSize.Y / scale
+	local viewport = camera.ViewportSize
+	local jumpAt, jumpSize = NetButtonPlace.jump(viewport)
+	local chipX = left + (width - MARGIN - BOWL_W) * scale
+	local chipY = top + (height - MARGIN - BOWL_H) * scale
+	local covered = chipX < jumpAt.X + jumpSize
+		and chipX + BOWL_W * scale > jumpAt.X
+		and chipY < jumpAt.Y + jumpSize
+		and chipY + BOWL_H * scale > jumpAt.Y
+	if not covered then
+		bowl.Position = corner
+		return
+	end
+	local netAt = NetButtonPlace.place(viewport)
+	local right = (netAt.X - NetButtonPlace.GAP - left) / scale -- design px from the root's left edge
+	local foot = height - MARGIN - TRAVEL_H - Theme.sizes.gap
+	bowl.Position = UDim2.fromOffset(math.floor(right), math.floor(foot))
 end
 
 -- The menu's arrow tab: under the menu, or beside its last pill on a short screen; at the edge once folded.

@@ -22,6 +22,7 @@ export type LeaderboardTop = {
 }
 
 local BOARD_W = 132
+local BOARD_MIN = 96 -- the board buttons narrow to this on a small Index window, so the switch never covers Money
 local WINDOW_W = 112
 local BAR_H = 41 -- the Index tabs' height: a 36 px face on a mouse, taller on touch
 local ROW_H = 36
@@ -104,6 +105,7 @@ function LeaderboardTop.new(parent: Instance): LeaderboardTop
 		}),
 	})
 	self._switch = switch
+	self._barH = barH
 	self._windowButtons = {} :: { [string]: Button.Button }
 	for order, pair in { { "allTime", "All time" }, { "week", "This week" } } do
 		local window = pair[1] :: LeaderboardLogic.Window
@@ -173,7 +175,25 @@ function LeaderboardTop.new(parent: Instance): LeaderboardTop
 		Visible = false,
 		Parent = frame,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, 6) }) })
+	self._resize = frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		self:_fit()
+	end)
 	return self :: LeaderboardTop
+end
+
+-- Review N323: on an Index window too narrow for the three board buttons and the switch side by side, the board
+-- buttons give up width (down to BOARD_MIN) rather than sit under the switch.
+function LeaderboardTop._fit(self: any)
+	local width = self.frame.AbsoluteSize.X
+	if width <= 0 then
+		return
+	end
+	local gap = Theme.sizes.gap
+	local switchW = if self._switch.Visible then WINDOW_W * 2 + gap * 2 else 0
+	local each = math.clamp(math.floor((width - switchW - gap * 2) / 3), BOARD_MIN, BOARD_W)
+	for _, button in self._boardButtons do
+		button.instance.Size = UDim2.fromOffset(each, self._barH)
+	end
 end
 
 function LeaderboardTop.setSync(self: any, sync: LeaderboardLogic.Sync?)
@@ -191,6 +211,7 @@ function LeaderboardTop.render(self: any)
 	end
 	local weekly = LeaderboardLogic.hasWeek(board)
 	self._switch.Visible = weekly
+	self:_fit()
 	for id, button in self._windowButtons do
 		button:setStyle(if id == window then "primary" else "ghost")
 	end
@@ -216,6 +237,7 @@ function LeaderboardTop.render(self: any)
 end
 
 function LeaderboardTop.destroy(self: any)
+	self._resize:Disconnect()
 	for _, row in self._rows do
 		row:destroy()
 	end

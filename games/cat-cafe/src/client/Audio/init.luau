@@ -1381,11 +1381,14 @@ local function followBeats()
 		end
 		if typeof(at) == "Vector3" then
 			Audio.play(cue, at :: Vector3)
-		elseif
-			typeof(at) == "Instance"
-			and ((at :: Instance):IsA("BasePart") or (at :: Instance):IsA("Attachment"))
-		then
+		elseif typeof(at) == "Instance" and (at :: Instance):IsA("Attachment") then
 			Audio.play(cue, at :: any)
+		elseif typeof(at) == "Instance" then
+			-- a part, or a moving bit that is its own Model (the Bellhop Cat's <cat>_Bell, PR #708): its first part
+			local part = partOf(at :: Instance)
+			if part ~= nil then
+				Audio.play(cue, part)
+			end
 		end
 	end)
 end

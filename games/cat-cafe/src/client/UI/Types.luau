@@ -342,6 +342,7 @@ export type ScreenName =
 	| "Potions"
 	| "Quests"
 	| "DailyTreat"
+	| "YardSale" -- F100: the Yard Sale's card, opened by its prompt (UI.campExtras.openYardSale)
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 
@@ -518,6 +519,12 @@ export type DealerStock = {
 	stock: { DealerFood }?, -- F59
 	slots: { DealerSlot }?, -- before F59
 }
+
+-- The camp extras (F100, camp-extras.md section 4) as CampExtrasState sends them (shared/Types): each extra's open,
+-- held, nextAt and the Yard Sale's stock today, by id ("picnic", "yardSale", "pond", "lostFound").
+export type CampExtraView = SharedTypes.CampExtraView
+export type CampExtrasState = SharedTypes.CampExtrasState
+export type YardSaleCrate = SharedTypes.YardSaleCrate
 
 -- ModuleScripts must return a non-nil value.
 return {}

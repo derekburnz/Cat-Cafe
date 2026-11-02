@@ -685,6 +685,18 @@ local function logJoined(player: Player)
 	if session.returnedNextDay then
 		Telemetry.onboarding(player, profile, "returned_next_day")
 	end
+	-- steps the save already shows, so a converted save is never stuck behind a step it passed silently (QA S72)
+	for _, name in
+		Onboarding.fromSave({
+			catsCaught = profile.stats.catsCaught,
+			distinctCats = Economy.distinctCats(profile),
+			tables = Economy.level(profile, "tables"),
+			bowl = Economy.level(profile, "lure_bowl"),
+			tier = Economy.tier(profile),
+		})
+	do
+		Telemetry.onboarding(player, profile, name)
+	end
 end
 
 local function onReport(player: Player, rawName: unknown, rawValue: unknown)

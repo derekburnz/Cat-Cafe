@@ -267,6 +267,10 @@ Layout.plot = {
 	-- game"; CannonService): just inside the back door, 3 studs in from the back wall, facing it. y is the root's
 	-- height above the floor, as homeLanding's.
 	respawnSpot = { x = -8, y = 3, z = halfD - 3 } :: Point,
+	-- F92 (playing-together.md section 5): where a player who joined through a pal's invite or by following them
+	-- first stands, on the path 2.5 studs out from that pal's front door, facing the street (CannonService). y as
+	-- respawnSpot's.
+	palArrival = { x = 0, y = 3, z = -halfD - 2.5 } :: Point,
 
 	-- The front garden strip between the sidewalk and the front wall, and the path through it to the door.
 	frontGarden = {
@@ -1237,6 +1241,11 @@ Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- end of the lane, which leads nowhere since the side arches closed (v4). Out at x -38 its 12 stud card stays clear
 -- of the Codes circle, and its 9.2 stud dais leaves the lane open from the street to x -33. Its sign faces the cannon.
 Layout.bellhopStand = station(-38, 0)
+
+-- The leaderboards (F98, leaderboards.md section 2; Model-Agent #758): CatCafe_Town_LeaderboardRow, three chalkboards
+-- in a row 23.8 long and 2.7 deep, at the lane's east end, mirroring the Bellhop stand, facing the cannon. Turned, the
+-- row runs z -11.9 to 11.9 and x 38.6 to 41.4, clear of the edge lamps at x 47.
+Layout.leaderboards = station(40, 0)
 
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,
 -- hometown-cannon.md section 4), in camp space (Layout.campPoint), filled in with the camps below.

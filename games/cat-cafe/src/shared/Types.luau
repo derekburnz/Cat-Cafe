@@ -440,6 +440,32 @@ export type Stats = {
 	dailySetsDone: number,
 	weeklyQuestsDone: number,
 	weeklySetsDone: number,
+	-- F98 (leaderboards.md section 5): the best money per second the cafe has reached (shared/Leaderboards.moneyRate),
+	-- and this week's play time and best rate (the week is Quests.week's)
+	bestRate: number,
+	weekPlay: WeekPlay,
+	weekBestRate: WeekRate,
+}
+
+export type WeekPlay = { week: number, seconds: number }
+export type WeekRate = { week: number, rate: number }
+
+-- F98: one row of a leaderboard list as LeaderboardSync sends it: the player's display name, the list's whole-number
+-- value (entries, minutes played, money per second) and whether they wear the crown (top 10 of any all-time board).
+export type LeaderboardRow = {
+	rank: number,
+	userId: number,
+	name: string,
+	value: number,
+	crown: boolean,
+}
+
+-- F98: LeaderboardSync's payload. boards[board].week only on playtime and money; me[board] is the receiving player's
+-- own line: their all-time rank (nil off the top 50) and value, and on the weekly boards weekRank and weekValue.
+export type LeaderboardSync = {
+	boards: { [string]: { allTime: { LeaderboardRow }, week: { LeaderboardRow }? } },
+	me: { [string]: { rank: number?, value: number, weekRank: number?, weekValue: number? } },
+	week: number,
 }
 
 -- Quests and achievements (F73, quests.md section 6). A quest row in Catalog.quests: `stat` is the counter it

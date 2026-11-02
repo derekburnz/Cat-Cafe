@@ -1205,6 +1205,7 @@ function UI.init(config: Types.InitConfig)
 	areaTitle = AreaTitle.new(parent)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
+	UI.leaderboards.start(parent) -- the town boards' faces and the crowns over heads (F98)
 	worldTags = WorldTags.new()
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
@@ -1301,6 +1302,7 @@ function UI.destroy()
 	UI.catch.unbindProximityPrompts()
 	UI.clock.unbind()
 	UI.bigPull.reset()
+	UI.leaderboards.reset()
 	if hud then
 		hud:destroy()
 	end
@@ -1574,7 +1576,7 @@ function UI.announce(text: string, rarity: string?)
 	end
 end
 
--- `extra` is optional: { stars, shiny, charmGain }. Missing stars and shiny are read from the newest copy of the
+-- `extra` is optional: { stars, shiny, rainbow, charmGain }. Missing stars, shiny and rainbow are read from the newest copy of the
 -- cat in state.cats when ProfileSync already carries it (caught in the last 30 s).
 function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundExtra?)
 	local def = lookupCat(catId)
@@ -1582,6 +1584,7 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		local info: Types.CatFoundExtra = {
 			stars = extra and extra.stars,
 			shiny = extra and extra.shiny,
+			rainbow = extra and extra.rainbow,
 			charmGain = extra and extra.charmGain,
 			banner = extra and extra.banner,
 			line = extra and extra.line,
@@ -1604,6 +1607,9 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			info.stars = info.stars or newest.stars
 			if info.shiny == nil then
 				info.shiny = CatVariant.isGold(newest.variant)
+			end
+			if info.rainbow == nil then
+				info.rainbow = CatVariant.isRainbow(newest.variant)
 			end
 		end
 		popups:showCatFound(def, isNew, info)
@@ -2531,6 +2537,7 @@ do
 			rescueSpotId = info.rescueSpotId,
 			press = info.press,
 			shiny = info.shiny,
+			rainbow = info.rainbow,
 			fleeingUntil = info.fleeingUntil,
 			retryAt = info.retryAt or retryAtFor(info.strayId, info.fleeingUntil),
 			ownerTurnUntil = info.ownerTurnUntil,
@@ -2583,6 +2590,7 @@ do
 				rarity = rarity,
 				stars = info.stars,
 				shiny = info.shiny,
+				rainbow = info.rainbow,
 				title = nil,
 			}
 			header = built
@@ -2903,6 +2911,7 @@ do
 		local rescue = promptAttribute(prompt, "Rescue")
 		local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
 		local gold = promptAttribute(prompt, "Gold") -- a gold cat (was Shiny before 2026-10-27)
+		local variant = promptAttribute(prompt, "Variant") -- F99: "rainbow" on a rainbow stray
 		local pickUp = promptAttribute(prompt, "PickUp") == true -- v0.8 F56: no circles, the hold picks it up
 		local returning = promptAttribute(prompt, "Returning") == true -- v0.10 F67: walking home
 		local kind: Types.PromptKind = if rescue == true
@@ -2925,6 +2934,7 @@ do
 				else nil,
 			press = prompt.HoldDuration <= 0,
 			shiny = gold == true,
+			rainbow = variant == "rainbow",
 			kind = kind,
 			returning = pickUp and returning,
 			rescueSpotId = if type(rescueSpotId) == "string"
@@ -4060,6 +4070,67 @@ do
 			screen:destroy()
 		end
 		pull.screen, pull.parent = nil, nil
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Leaderboards (F98)
+----------------------------------------------------------------------------------------------------
+
+-- The three leaderboards (leaderboards.md): the faces on the town's boards (Screens/LeaderboardBoards), the Index's
+-- Top tab (Screens/LeaderboardTop) and the crown over an all time top 10 player's head (Screens/Crowns). UI.init
+-- starts the faces and crowns; UIController calls UI.leaderboards.sync with each LeaderboardSync payload. The last
+-- payload is kept, so a rebuilt UI shows it at once. Its own block, as the module is short of locals.
+UI.leaderboards = {}
+do
+	local LeaderboardBoards = require(script.Screens.LeaderboardBoards)
+	local Crowns = require(script.Screens.Crowns)
+	local LeaderboardLogic = require(script.Components.LeaderboardLogic)
+	local boards = {
+		faces = nil :: LeaderboardBoards.LeaderboardBoards?,
+		crowns = nil :: Crowns.Crowns?,
+		last = nil :: LeaderboardLogic.Sync?,
+	}
+
+	-- UI.init: the faces hang on every tagged board, including ones that stream in later.
+	function UI.leaderboards.start(parent: Instance)
+		UI.leaderboards.reset()
+		local faces = LeaderboardBoards.new(parent)
+		boards.faces = faces
+		boards.crowns = Crowns.new()
+		faces:setSync(boards.last)
+		if collection then
+			collection:setLeaderboards(boards.last)
+		end
+	end
+
+	-- LeaderboardSync { boards = { [board] = { allTime = rows, week = rows } }, me = { [board] = { rank?, value,
+	-- weekRank?, weekValue? } }, week }: the server's top 50 lists and this player's own places.
+	function UI.leaderboards.sync(payload: any)
+		if type(payload) ~= "table" then
+			return
+		end
+		local sync = payload :: LeaderboardLogic.Sync
+		boards.last = sync
+		local faces = boards.faces
+		if faces then
+			faces:setSync(sync)
+		end
+		if collection then
+			collection:setLeaderboards(sync)
+		end
+	end
+
+	-- UI.destroy: the faces and crowns go with the rest of the screens.
+	function UI.leaderboards.reset()
+		local faces, crowns = boards.faces, boards.crowns
+		if faces then
+			faces:destroy()
+		end
+		if crowns then
+			crowns:destroy()
+		end
+		boards.faces, boards.crowns = nil, nil
 	end
 end
 

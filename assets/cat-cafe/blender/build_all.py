@@ -38,6 +38,7 @@ import welcomearch  # noqa: E402
 import campextras  # noqa: E402
 import leaderboards  # noqa: E402
 import rally  # noqa: E402
+import menu  # noqa: E402
 import rallycrate  # noqa: E402
 import camps  # noqa: E402
 import cannon  # noqa: E402
@@ -90,9 +91,17 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch,
-           campextras, leaderboards, rally, rallycrate, style_icons]
+           campextras, leaderboards, rally, rallycrate, menu, style_icons]
 
 PIVOT_NOTES = {
+    **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
+                            "pivot CatCafe_Menu_GoldPlate here for the rich customer)" for n in menu.ITEMS},
+    "CatCafe_Menu_GoldPlate": "the base centre, the same as an item's _Plate",
+    "CatCafe_Menu_Tray": "the underside centre on a cat's Carry Attachment (it rests on the ear tips); a dish's or the "
+                         "coin bag's pivot goes on its Item Attachment",
+    "CatCafe_Menu_CoinBag": "the base centre, on the tray's Item Attachment like a dish (a round bag cannot rest on the "
+                            "ear tips by itself)",
+    menu.OVEN: "the base centre behind the counter (Layout.cafe), front -Z; _Door pivots on its bottom hinge",
     "CatCafe_Square_RallyBoard": "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
                                  "rally.SPOT (15, 0.1, 12) turned 30, facing the player spawn",
     **{n: "On the ground under the middle of the span, as the edge bunting it stands in for during the Rally: the "
@@ -265,7 +274,8 @@ STUDIO_NOTES = {
     **{f"CatCafe_Cat_{n}_Sit": f"Body B, sitting up: clone this instead of CatCafe_Cat_{n} for a cat resting in the "
                                 "cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> "
                                 "Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, "
-                                "LegF2) are Models pivoted at the joint, for poses (manifest cat_poses)."
+                                "LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's "
+                                "Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90)."
        for n in cats.ROSTER},
     **{f"CatCafe_Cat_{n}_Gold{sfx}": f"F42: clone this instead of CatCafe_Cat_{n}{sfx} when the cat is gold. Same "
                                       "parts, joints, attachments and poses; only the coat colours differ (style guide 2)."
@@ -378,23 +388,27 @@ for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): N
 
 
 def cat_rbx_extras(name):
-    """A cat's Part model carries its Scale and, on a sitting model (where working cats wear their outfits), one
-    Attachment per role outfit piece (Outfit_<Piece>) at that piece's slot, times the scale, in the Body or Head part,
-    so the game needs no manifest at runtime. A themed cat also carries PropSlot (Head, Face or Back) and its prop's
+    """A cat's Part model carries its Scale, the Attachment Carry in the Head part (cats.carry_at) and one Attachment
+    per role outfit piece (Outfit_<Piece>) at that piece's slot, times the scale, in the Body or Head part: every
+    piece on the sitting model, the pieces that fit the walking body on the walking one (accessories.WALK_PIECES), so
+    the game needs no manifest at runtime. A themed cat also carries PropSlot (Head, Face or Back) and its prop's
     parts carry Follows (Head or Body); a Head or Face prop's Model rides inside the Head Model. A second prop adds
     PropSlot2 and `_Prop2` parts the same way."""
     cat, _gold, body = cats.parse(name)
     spec = cats.ROSTER[cat]
     s = spec.get("scale", 1.0)
-    attachments = []
-    if body == "sit":
-        joints = cats.joints(spec, body)
-        pieces = {p for outfit in accessories.ROLE_OUTFITS.values() for p in outfit}
-        for n, (part, off, r) in accessories.slots(spec, body).items():
-            if n in pieces:
-                turn = Euler([math.radians(a) for a in r], "XYZ").to_matrix().to_4x4()
-                attachments.append(("_" + part, "Outfit_" + n,
-                                    Matrix.Translation(Vector(joints[part]) + Vector(off) * s) @ turn))
+    joints = cats.joints(spec, body)
+    # F90: where a carried tray or coin bag rests, above the ears, in the Head part so it follows head turns
+    attachments = [("_Head", "Carry", Matrix.Translation(Vector(joints["Head"]) +
+                                                         Vector(cats.carry_at(spec, body)) * cats.scale_of(spec, body)))]
+    pieces = {p for outfit in accessories.ROLE_OUTFITS.values() for p in outfit}
+    if body == "walk":                      # walking staff wear only the pieces that fit A (accessories.WALK_PIECES)
+        pieces &= set(accessories.WALK_PIECES)
+    for n, (part, off, r) in accessories.slots(spec, body).items():
+        if n in pieces:
+            turn = Euler([math.radians(a) for a in r], "XYZ").to_matrix().to_4x4()
+            attachments.append(("_" + part, "Outfit_" + n,
+                                Matrix.Translation(Vector(joints[part]) + Vector(off) * s) @ turn))
     extras = {"attachments": attachments, "attributes": {"Scale": {"Float64": float(s)}}}
     slot = props.slot(cat)
     if slot:                                # a themed cat's prop: its slot, and which piece its parts follow
@@ -507,6 +521,8 @@ def main():
                 extra["attachments"] = furniture.spot_attachments(name, lawn.SPOTS[name])
         if name == leaderboards.N:                # F98: each board's Screen rides its board's Model
             extra = {"nest": leaderboards.NEST}
+        if name in menu.ATTACHMENTS:              # F90: the tray's Item spot, the oven's DoorGlow
+            extra = {"attachments": menu.rbx_attachments(name)}
         if name in campextras.ATTACHMENTS:          # F100: PromptAnchor, and Steam, FishJump or Drip
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about
@@ -560,6 +576,8 @@ def main():
             entry["joints"] = {k: [round(v, 3) for v in j] for k, j in joints.items() if k != "Body"}
             entry["joints_roblox"] = {k: common.to_roblox(j) for k, j in joints.items() if k != "Body"}
             entry["attachments"] = {k: _slot_entry(p, o, r, s_) for k, (p, o, r) in accessories.slots(spec, body).items()}
+            k_ = cats.SIT_SCALE if body == "sit" else 1.0
+            entry["attachments"]["Carry"] = _slot_entry("Head", [v * k_ for v in cats.carry_at(spec, body)], (0, 0, 0), s_)
             if props.slot(cat):
                 entry["prop"] = {"slot": props.slot(cat), "follows": props.follows(props.slot(cat)),
                                  "objects": [o.name for o in objs if o.name.endswith(("_Prop", "_Prop_Glass"))]}

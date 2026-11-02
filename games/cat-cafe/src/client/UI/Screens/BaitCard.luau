@@ -13,6 +13,7 @@ local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -178,6 +179,28 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 		{ CornerRadius = UDim.new(0, Theme.sizes.radiusSmall), Parent = self._shiny }
 	)
 	Outline.border(self._shiny, 2)
+	-- F99: a rainbow cat's sticker, RAINBOW on the turning bands where a gold one says GOLD
+	self._rainbow = text({
+		Name = "Rainbow",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 66, 0, ART_Y - 54),
+		Size = UDim2.fromOffset(124, 30),
+		Rotation = 12,
+		BackgroundTransparency = 0,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 2,
+		TextColor3 = Theme.colors.ink,
+		Text = "🌈 RAINBOW",
+		Visible = false,
+		ZIndex = 4,
+		Parent = card,
+	})
+	Create(
+		"UICorner",
+		{ CornerRadius = UDim.new(0, Theme.sizes.radiusSmall), Parent = self._rainbow }
+	)
+	Outline.border(self._rainbow, 2)
+	Rainbow.fill(self._rainbow)
 
 	self._name = text({
 		Name = "Name",
@@ -266,6 +289,7 @@ function BaitCard.show(self: any, def: Types.CatDef, cat: Types.BaitCat, foodNam
 	self._border.Color = color
 	self._portrait:set(def, CatVariant.isGold(cat.variant))
 	self._shiny.Visible = CatVariant.isGold(cat.variant)
+	self._rainbow.Visible = CatVariant.isRainbow(cat.variant)
 	self._name.Text = cat.name or def.name
 	self._name.TextColor3 = if rarity == "Common" then Theme.colors.white else color
 	self._stars.Visible = false -- F97 section 5: no charm stars; charm shows as a percent in the line below

@@ -279,6 +279,22 @@ def joints(spec, body="walk"):
     return {p: tuple(v * k for v in at) for p, at in dims(spec, body)["pivots"].items()}
 
 
+def carry_at(spec, body="walk"):
+    """Where a carried thing rests on the head (F90: the Waiter's tray, the tip coin bag), relative to the neck and
+    unscaled: over the middle of the head, at the ear tips (a Maine Coon's tufts too), so a tray pivoted at its
+    underside rests flat on the ears. The cat models carry it as the Attachment `Carry` in the Head part."""
+    h = dims(spec, body)["head"]
+    ew, eh = h["ear"]
+    if spec.get("fold_ears"):                           # tipped forward (_ear): the highest corner of the folded ear
+        fold = Matrix.Rotation(math.radians(14), 3, "Y") @ Matrix.Rotation(math.radians(62), 3, "X")
+        mid = fold @ Vector((0, 0, eh / 2))
+        pts = [(sx * ew / 2, sy * ew / 2, -eh / 2) for sx in (1, -1) for sy in (1, -1)] + [(0, 0, eh / 2)]
+        tip = h["top"] - 0.03 + max((mid + fold @ Vector(p)).z for p in pts)
+    else:
+        tip = h["top"] - 0.03 + eh + (0.12 if spec.get("ear_tufts") else 0.0)
+    return (0.0, round(h["c"][1], 4), round(tip - 0.01, 4))
+
+
 def pose_lift(spec, pose):
     """A CAT_POSES lift for this cat, unscaled: a short-legged cat's body is already nearer the floor, so it drops
     less to lie down."""

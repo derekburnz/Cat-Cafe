@@ -1,0 +1,1277 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Menu_Milk/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.37,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.42,
+     0.28,
+     0.28
+    ],
+    "Color": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       -0.37,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Menu_Milk/0"
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.14,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.36,
+     0.36
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6,
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1545,
+       0.41,
+       0.0414
+      ],
+      "orientation": [
+       [
+        0.9659,
+        0.0,
+        0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2588,
+        0.0,
+        0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5,
+     0.1006
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1131,
+       0.41,
+       0.1131
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5,
+     0.1006
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0414,
+       0.41,
+       0.1545
+      ],
+      "orientation": [
+       [
+        0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5,
+     0.1006
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0414,
+       0.41,
+       0.1545
+      ],
+      "orientation": [
+       [
+        -0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        -0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5,
+     0.1006
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1131,
+       0.41,
+       0.1131
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5,
+     0.1006
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1545,
+       0.41,
+       0.0414
+      ],
+      "orientation": [
+       [
+        -0.9659,
+        0.0,
+        0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2588,
+        0.0,
+        -0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5,
+     0.1006
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1545,
+       0.41,
+       -0.0414
+      ],
+      "orientation": [
+       [
+        -0.9659,
+        0.0,
+        -0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2588,
+        0.0,
+        -0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5,
+     0.1006
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1131,
+       0.41,
+       -0.1131
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        0.0,
+        -0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.7071,
+        0.0,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5,
+     0.1006
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0414,
+       0.41,
+       -0.1545
+      ],
+      "orientation": [
+       [
+        -0.2588,
+        0.0,
+        -0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9659,
+        0.0,
+        -0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5,
+     0.1006
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0414,
+       0.41,
+       -0.1545
+      ],
+      "orientation": [
+       [
+        0.2588,
+        0.0,
+        -0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9659,
+        0.0,
+        0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5,
+     0.1006
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1131,
+       0.41,
+       -0.1131
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        -0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5,
+     0.1006
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1545,
+       0.41,
+       -0.0414
+      ],
+      "orientation": [
+       [
+        0.9659,
+        0.0,
+        -0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2588,
+        0.0,
+        0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5,
+     0.1006
+    ],
+    "Color": [
+     0.8118,
+     0.9137,
+     0.8902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": false,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Transparency": 0.6
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0106,
+       0.4976,
+       0.02
+      ],
+      "orientation": [
+       [
+        0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        -0.2419,
+        0.9703,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.06
+    ],
+    "Color": [
+     0.851,
+     0.2824,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0184,
+       0.6141,
+       0.02
+      ],
+      "orientation": [
+       [
+        0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        -0.2419,
+        0.9703,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.06
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0474,
+       0.7305,
+       0.02
+      ],
+      "orientation": [
+       [
+        0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        -0.2419,
+        0.9703,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.06
+    ],
+    "Color": [
+     0.851,
+     0.2824,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0764,
+       0.8469,
+       0.02
+      ],
+      "orientation": [
+       [
+        0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        -0.2419,
+        0.9703,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.06
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1055,
+       0.9634,
+       0.02
+      ],
+      "orientation": [
+       [
+        0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        -0.2419,
+        0.9703,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.06
+    ],
+    "Color": [
+     0.851,
+     0.2824,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Menu_Milk",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1852,
+       0.9822,
+       0.02
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.18,
+     0.06,
+     0.06
+    ],
+    "Color": [
+     0.851,
+     0.2824,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Menu_Milk/1"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Menu_Milk_Plate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.08,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.08,
+       1.1,
+       1.1
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -0.08,
+         0.0,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Menu_Milk/1"
+     }
+    },
+    {
+     "name": "CatCafe_Menu_Milk_Plate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.02,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.04,
+       0.76,
+       0.76
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Menu_Milk_Plate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0775,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.035,
+       1.16,
+       1.16
+      ],
+      "Color": [
+       0.5608,
+       0.8275,
+       0.7569
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Menu_Milk_Plate"
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

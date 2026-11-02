@@ -23,6 +23,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
+local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -146,6 +147,9 @@ function Popups.new(parent: Instance): Popups
 		Create("UISizeConstraint", { MaxSize = CARD }),
 	})
 	self._catCard = catCard
+	-- F99: a rainbow cat's card turns its edge through the rainbow
+	self._catRainbow = Rainbow.stroke(catCard:FindFirstChildOfClass("UIStroke") :: UIStroke)
+	self._catRainbow.Enabled = false
 	-- slow spinning light rays behind the portrait, the classic simulator reveal
 	local rays: Frame = Create("Frame", {
 		Name = "Rays",
@@ -606,13 +610,19 @@ function Popups.showCatFound(
 		local token = self:_open(self._catCard)
 		local rarity = def.rarity
 		local info: Types.CatFoundExtra = extra or {}
-		local shiny = info.shiny == true
+		local rainbow = info.rainbow == true -- F99
+		local shiny = info.shiny == true and not rainbow
 		local rarityColor = Theme.rarityColor(rarity)
-		local label = (if shiny then "GOLD " else "") .. rarity:upper()
+		local label = (if rainbow then "RAINBOW " elseif shiny then "GOLD " else "")
+			.. rarity:upper()
 		self._catBanner.Text = info.banner
 			or if isNew then ("NEW %s CAT!"):format(label) else ("%s CAT CAUGHT"):format(label)
 		self._catBanner.BackgroundColor3 = rarityColor
-		self._catCard.UIStroke.Color = if shiny then Theme.colors.gold else rarityColor
+		self._catCard.UIStroke.Color = if rainbow
+			then Theme.colors.white
+			elseif shiny then Theme.colors.gold
+			else rarityColor
+		self._catRainbow.Enabled = rainbow
 		self._catName.TextColor3 = rarityColor
 		-- rays in the rarity colour, pure gold for a gold cat
 		for _, ray in self._rays:GetChildren() do

@@ -7,7 +7,8 @@ Role outfits (data-model section 5): working cats sit at their stations on body 
 engineer, 2026-10-27) in their role's two pieces, so the pieces are built to fit B's chest and head, which are the
 same on every cat (cats.B_CHEST_*, cats.HEADS["sit"]), each around its slot in SIT_SLOTS. The sitting models carry
 one Outfit_<Piece> Attachment per piece at those slots. Cats wear no collar (Derek, 2026-10-27), so the outfit is
-what marks a cat as staff. Glasses and Hat are the first generic accessories, on the walking head (slots()).
+what marks a cat as staff. Glasses and Hat are the first generic accessories, on the walking head (slots()). Walking
+staff (F90) wear the pieces that fit A (WALK_PIECES), so the walking models carry those Outfit_<Piece> slots too.
 """
 
 import math
@@ -49,8 +50,27 @@ def slots(spec, body="sit"):
         return dict(SIT_SLOTS)
     h = cats.dims(spec, "walk")["head"]
     return {"Glasses": ("Head", (0.0, round(h["fy"] - 0.05, 4), h["fz"]), (0, 0, 0)),
-            "Hat": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0))}
+            "Hat": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)), **walk_slots(spec)}
 
+
+# Role pieces that fit the walking body A as built for B (Animation-Engineer, 2026-11-02): the three hats, the bow tie
+# and the cape. The apron, waistcoat and sash wrap B's upright chest and would be buried in A's wider level body, so
+# A has no slot for them yet and CatDress leaves them off a walking cat.
+WALK_PIECES = ("BaristaCap", "Boater", "PartyHat", "BowTie", "Cape")
+
+
+def walk_slots(spec):
+    """(part, offset, rotation) of each WALK_PIECES slot on one cat's walking model before its Scale. The hats sit on
+    the head top as on B; the bow tie hangs under the chin from the Head, since A's chest is tucked under the head;
+    the cape is turned 90 about X so it lies along the back from just behind the head instead of hanging down."""
+    d = cats.dims(spec, "walk")
+    h, (bc, bs), n = d["head"], d["body"], d["neck"]
+    hat = (0.0, round(h["c"][1] - 0.06, 4), round(h["top"] - 0.01, 4))
+    chin = (0.0, round(h["fy"] + 0.12, 4), round(h["c"][2] - h["s"][2] / 2 - 0.05, 4))
+    back = (0.0, round(n[1] + h["c"][1] + h["s"][1] / 2 + 0.06, 4), round(bc[2] + bs[2] / 2 - 0.02, 4))
+    return {"BaristaCap": ("Head", hat, (0, 0, 0)), "Boater": ("Head", hat, (0, 0, 0)),
+            "PartyHat": ("Head", hat, (0, 0, 0)), "BowTie": ("Head", chin, (0, 0, 0)),
+            "Cape": ("Body", back, (90, 0, 0))}
 
 def _x(deg):
     return (math.radians(deg), "X")

@@ -647,6 +647,46 @@ function Avatar.netHand(rig: Rig): (BasePart?, CFrame)
 			* CFrame.Angles(0, 0, math.rad(h.roll))
 end
 
+-- How long the pal wave lasts (Presets.palWave): the raise, the waves and the lowering.
+function Avatar.waveSeconds(): number
+	local w = Presets.palWave
+	return w.raise + w.waves * w.every + w.lower
+end
+
+-- The pal wave `seconds` after it starts: how much of it shows (0 to 1, eased up over the raise and down over the
+-- lowering) and where the hand is in its wave (-1 to 1, a sine through `waves` waves, 0 while the arm goes up or
+-- down). Both 0 outside the wave.
+function Avatar.waveAt(seconds: number): (number, number)
+	local w = Presets.palWave
+	local waving = w.waves * w.every
+	if seconds <= 0 or seconds >= Avatar.waveSeconds() then
+		return 0, 0
+	elseif seconds < w.raise then
+		return smooth(seconds / w.raise), 0
+	elseif seconds < w.raise + waving then
+		return 1, math.sin(2 * math.pi * (seconds - w.raise) / w.every)
+	end
+	return smooth(1 - (seconds - w.raise - waving) / w.lower), 0
+end
+
+-- The pal wave's left arm with the hand at `swing` (-1 to 1) of its wave (Presets.palWave): raised forward and out
+-- with the forearm standing up, the upper arm turned in and out about its length so the hand waves side to side, the
+-- wrist straight; on R6 the whole arm raised and swayed out and in. The rest of the body stays the character's own.
+function Avatar.waveArm(rig: Rig, swing: number): { [Joint]: CFrame }
+	local w = Presets.palWave
+	local rad = math.rad
+	local out: { [Joint]: CFrame } = {}
+	local set = setter(rig, out)
+	if rig.joints.LeftElbow ~= nil then
+		set("LeftShoulder", CFrame.Angles(rad(w.sh), rad(-w.twist * swing), rad(-w.sp)))
+		set("LeftElbow", CFrame.Angles(rad(w.el), 0, 0))
+		set("LeftWrist", CFrame.identity)
+	else
+		set("LeftShoulder", CFrame.Angles(rad(w.sh6), 0, rad(-(w.sp6 + w.sway6 * swing))))
+	end
+	return out
+end
+
 -- Whether a character carries a cat in its arms: a `CarryingCatId` (CatService sets it while the HeldCat is on) and
 -- alive.
 function Avatar.carrying(carryingCatId: unknown, alive: boolean): boolean

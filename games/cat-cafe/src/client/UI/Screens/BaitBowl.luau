@@ -519,6 +519,10 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 	-- stars, then the split
 	local extras =
 		FoodOdds.extras(if totals then totals.goldLuck else 0, boosts.goldLuck, boosts.goldScale)
+	local rainbow = FoodOdds.rainbow(state.rainbowLuck) -- F99: under the gold line once rainbow rolls exist
+	if rainbow then
+		extras ..= "\n" .. rainbow
+	end
 	if oddsChanged or extras ~= self._extras then
 		self._extras = extras
 		for _, row in self._rows do

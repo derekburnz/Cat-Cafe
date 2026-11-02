@@ -158,10 +158,12 @@ local Config = {
 	-- The getaway after a net catch or a rescue (v0.8 F55, section 10c): every other player this close to the catcher
 	-- is pushed this far away (not a shove: no drop, no cooldown, never someone in a catch or rescue), and the catcher
 	-- walks at CatchRushWalkSpeed for CatchRushSeconds before carry speed. A picked-up cat gives neither.
+	-- CatchRushSeconds was 5; Derek's 10-28 to 10-30 notes asked for a longer boost now the areas are bigger (F85's
+	-- Park and Neighbourhood run 430 studs deep), so 10 s takes a carrier 240 studs before carry speed.
 	CatchBurstRadiusStuds = 10,
 	CatchBurstStuds = 8,
 	CatchRushWalkSpeed = 24,
-	CatchRushSeconds = 5,
+	CatchRushSeconds = 10,
 	-- A carrier this near either own door, or whose path passes this near it, checks the cat in (Derek 01:22: was 8)
 	CheckInRangeStuds = 10,
 	StrayWanderRadius = 5,

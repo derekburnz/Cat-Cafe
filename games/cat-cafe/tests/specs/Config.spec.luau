@@ -70,7 +70,7 @@ return function()
 		CatchBurstRadiusStuds = 10, -- v0.8 F55
 		CatchBurstStuds = 8,
 		CatchRushWalkSpeed = 24,
-		CatchRushSeconds = 5,
+		CatchRushSeconds = 10, -- Derek's notes: longer for the bigger areas (was 5)
 		CheckInRangeStuds = 10,
 		CustomerSpawnSeconds = 6,
 		CustomerStayMin = 20,

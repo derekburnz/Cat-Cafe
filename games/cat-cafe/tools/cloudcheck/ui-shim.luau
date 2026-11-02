@@ -1982,6 +1982,7 @@ state[GuiService].props.PreferredTextSize = Enum.PreferredTextSize.Medium
 state[GuiService].props.MenuIsOpen = false
 state[GuiService].props.TopbarInset = Rect.new(Vector2.new(184, 0), Vector2.new(profile.width - 16, INSET))
 state[GuiService].props.ViewportDisplaySize = Enum.DisplaySize.Medium
+state[GuiService].props.TouchControlsEnabled = true -- false hides the phone's thumbstick and jump button
 
 local UserInputService = World.service("UserInputService")
 state[UserInputService].props.TouchEnabled = profile.touch == true
@@ -1992,7 +1993,6 @@ state[UserInputService].props.AccelerometerEnabled = profile.touch == true
 state[UserInputService].props.GyroscopeEnabled = false
 state[UserInputService].props.VREnabled = false
 state[UserInputService].props.MouseIconEnabled = true
-state[UserInputService].props.ModalEnabled = false -- true hides the phone's thumbstick and jump button
 state[UserInputService].props.PreferredInput = if profile.touch
 	then Enum.PreferredInput.Touch
 	else Enum.PreferredInput.KeyboardAndMouse
@@ -2353,9 +2353,10 @@ function UIShim.takeErrors()
 	return table.concat(out, "\0\0")
 end
 
--- whether Roblox's touch controls (thumbstick, jump button) are on screen: a view can hide them with ModalEnabled
+-- whether Roblox's touch controls (thumbstick, jump button) are on screen: a view can hide them with
+-- GuiService.TouchControlsEnabled
 function UIShim.touchControls()
-	return state[UserInputService].props.ModalEnabled ~= true
+	return state[GuiService].props.TouchControlsEnabled ~= false
 end
 
 function UIShim.screen()

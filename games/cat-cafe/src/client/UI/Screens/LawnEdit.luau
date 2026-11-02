@@ -15,7 +15,7 @@
 --   stop(reopen)     the camera back to the player; `reopen` asks for the Decor screen again (Done)
 --
 -- Roblox terms: a Scriptable camera stays where the script puts it until CameraType goes back to Custom, when
--- Roblox's own camera script follows the character again. UserInputService.ModalEnabled = true hides the phone's
+-- Roblox's own camera script follows the character again. GuiService.TouchControlsEnabled = false hides the phone's
 -- thumbstick and jump button until it is set back. Each ring is a BillboardGui (2D UI drawn at a 3D point)
 -- adorned to its spot's part, Active so its button takes taps.
 
@@ -23,7 +23,6 @@ local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -105,7 +104,7 @@ function LawnEdit.new(parent: Instance, callbacks: Callbacks): LawnEdit
 	self._loop = nil :: RBXScriptConnection?
 	self._from = nil :: Vector3?
 	self._cameraType = Enum.CameraType.Custom
-	self._modalEnabled = false -- UserInputService.ModalEnabled before the view, put back by stop
+	self._touchControls = true -- GuiService.TouchControlsEnabled before the view, put back by stop
 	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	self._parent = parent
 	-- the picker's header: room for Clear spot and the close X at a full tap height
@@ -412,8 +411,8 @@ function LawnEdit.start(self: any): boolean
 	local root = rootPart()
 	self._from = if root ~= nil then root.Position else nil
 	-- the phone's thumbstick and jump button hide, so the picker's buttons are clear of them; Done ends the view
-	self._modalEnabled = UserInputService.ModalEnabled
-	UserInputService.ModalEnabled = true
+	self._touchControls = GuiService.TouchControlsEnabled
+	GuiService.TouchControlsEnabled = false
 	-- the camera: back toward the street and up, far enough that every spot fits the screen's width
 	local viewport = camera.ViewportSize
 	local aspect = if viewport.Y > 0 then viewport.X / viewport.Y else 16 / 9
@@ -469,7 +468,7 @@ function LawnEdit.stop(self: any, reopen: boolean)
 		swing:Cancel()
 		self._swing = nil
 	end
-	UserInputService.ModalEnabled = self._modalEnabled
+	GuiService.TouchControlsEnabled = self._touchControls
 	local camera = Workspace.CurrentCamera
 	if camera ~= nil then
 		camera.CameraType = if self._cameraType == Enum.CameraType.Scriptable

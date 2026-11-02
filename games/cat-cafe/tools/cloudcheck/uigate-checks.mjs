@@ -150,7 +150,7 @@ export function checkScene(profile, scene) {
     }
   }
 
-  // a view that hides Roblox's touch controls (UserInputService.ModalEnabled, the Edit lawn view) has none to check
+  // a view that hides Roblox's touch controls (GuiService.TouchControlsEnabled, the Edit lawn view) has none to check
   if (profile.touch && scene.touchControls !== false) {
     // Roblox's own touch controls: thumbstick bottom left; the jump button 70 px at (W-95, H-90) on a small screen
     // (short side 500 or less), else 120 px at (W-170, H-210), as Components/NetButtonPlace.jump has it

@@ -132,10 +132,22 @@ local function show(b: Board, i: number, look: Look)
 	b.looks[i] = look
 end
 
-local function moved(b: Board): boolean
+-- Placed again, or more of its bulbs streamed in since the covers were laid: lay them again.
+local function stale(b: Board): boolean
 	local now = b.model:GetPivot()
-	return (now.Position - b.pivot.Position).Magnitude > 0.01
+	if
+		(now.Position - b.pivot.Position).Magnitude > 0.01
 		or now.LookVector:Dot(b.pivot.LookVector) < 0.9999
+	then
+		return true
+	end
+	local count = 0
+	for _, descendant in b.model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			count += 1
+		end
+	end
+	return count ~= #b.bulbs
 end
 
 local function pick()
@@ -160,8 +172,8 @@ local function pick()
 		end
 	end
 	for _, b in boards do
-		if b.on and chosen[b] and moved(b) then
-			stopBoard(b) -- placed again: lay the covers where the bulbs are now
+		if b.on and chosen[b] and stale(b) then
+			stopBoard(b) -- lay the covers again where the bulbs are now, all of them
 		end
 		if chosen[b] and not b.on then
 			startBoard(b)

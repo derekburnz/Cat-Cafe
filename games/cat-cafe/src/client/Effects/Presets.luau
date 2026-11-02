@@ -2072,6 +2072,31 @@ Presets.catchWord = {
 Presets.trapShake = { least = 1.5, most = 5, seconds = 0.35, hz = 12, hop = 0.08 }
 Presets.rescueFree = { above = 1.2, depth = 20 } -- `depth`: how far under the spot the ring looks for the ground
 
+-- Team Rescue (F92, playing-together.md section 3: "Both players see a small "Team Rescue!" pop when the cat comes
+-- free"): on the rescuer's and the helper's screens, `text` pops up `above` studs over the trap's spot, `width` by
+-- `height` studs, growing in over `popIn` s with a small overshoot, then rises `rise` studs and fades over the last
+-- half of `seconds`, seen within `maxDistance` studs. `sparkles` catch sparkles in each of `colours` burst there, a
+-- ring of each grows `ring` studs across over `ringSeconds`, `ringGap` s apart, and a share `confetti` of the budget's
+-- confetti falls in them. Reduce Motion keeps the word where it popped, skips the rings and halves the confetti.
+Presets.teamRescue = {
+	text = "Team Rescue!",
+	above = 2.4,
+	width = 5,
+	height = 1.2,
+	popIn = 0.18,
+	seconds = 1.8,
+	rise = 1.2,
+	maxDistance = 80,
+	textColour = palette.golden,
+	stroke = Color3.fromRGB(94, 70, 52), -- palette 2 dark wood, the UI's outline
+	colours = { palette.mint, palette.golden },
+	sparkles = 10,
+	ring = 4,
+	ringSeconds = 0.6,
+	ringGap = 0.15,
+	confetti = 0.4,
+}
+
 -- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to
 -- 1, how much of the sky it hides) and `density` (how thick each cloud looks), tinted `color`, drifting on `wind`
 -- studs a second when the place has no wind of its own. Off in Low performance.

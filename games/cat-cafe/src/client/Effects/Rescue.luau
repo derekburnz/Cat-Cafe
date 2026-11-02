@@ -16,6 +16,11 @@
 -- rarity colour over its spot (Catch.pop), the ring on the ground below. The trap is WorldBuilder's `<rescueSpotId>_Trap`
 -- model beside the spot's `RescueSpot` anchor; a trap built into an area's set has none and keeps still. Sources: the
 -- UIController's Moments.RescueStart, RescueHit and RescueDone. Reduce Motion keeps the trap still.
+--
+-- Team Rescue (F92, playing-together.md section 3): when a helped rescue frees its cat, the rescuer and the helper
+-- both see "Team Rescue!" pop up over the trap's spot with sparkles, two rings and a little confetti in mint and
+-- gold. Source: Gameplay-Engineer's Moments.TeamRescue(rescueSpotId, rescuerUserId, helperUserId, position) on
+-- those two clients (#763), hooked when it exists. Numbers in Presets.teamRescue.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -411,6 +416,79 @@ local function freed(id: unknown, rarity: unknown)
 	Catch.pop(at, ground, if type(rarity) == "string" then rarity else "Common")
 end
 
+-- The "Team Rescue!" word over `at`: pops in, then rises and fades (still with Reduce Motion).
+local function teamWord(at: Vector3)
+	local t = Presets.teamRescue
+	local anchor = Particles.anchor("EffectsTeamRescue", at)
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "EffectsTeamRescue"
+	gui.Adornee = anchor
+	gui.Size = UDim2.fromScale(t.width * 0.3, t.height * 0.3) -- studs
+	gui.AlwaysOnTop = true
+	gui.LightInfluence = 0
+	gui.MaxDistance = t.maxDistance
+	local label = Instance.new("TextLabel")
+	label.BackgroundTransparency = 1
+	label.Size = UDim2.fromScale(1, 1)
+	label.Font = Enum.Font.FredokaOne
+	label.Text = t.text
+	label.TextScaled = true
+	label.TextColor3 = t.textColour
+	label.TextStrokeColor3 = t.stroke
+	label.TextStrokeTransparency = 0
+	label.Parent = gui
+	gui.Parent = Context.folder()
+	TweenService:Create(
+		gui,
+		TweenInfo.new(t.popIn, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+		{ Size = UDim2.fromScale(t.width, t.height) }
+	):Play()
+	local half = t.seconds * 0.5
+	local fade = TweenInfo.new(half, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, half)
+	if not Context.reducedMotion() then
+		TweenService:Create(gui, fade, { StudsOffsetWorldSpace = Vector3.new(0, t.rise, 0) }):Play()
+	end
+	TweenService:Create(label, fade, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	task.delay(t.seconds + 0.1, function()
+		gui:Destroy()
+		anchor:Destroy()
+	end)
+end
+
+-- Moments.TeamRescue: the pop where the helped rescue freed its cat.
+local function teamFreed(id: unknown, _rescuer: unknown, _helper: unknown, position: unknown)
+	local t = Presets.teamRescue
+	local spot = if type(id) == "string" then spotOf(id) else nil
+	local base: Vector3? = if typeof(position) == "Vector3"
+		then position :: Vector3
+		elseif spot ~= nil then spot.Position
+		else nil
+	if base == nil then
+		return
+	end
+	local ignore: { Instance } = {}
+	local trap = if type(id) == "string" then trapOf(id) else nil
+	if trap ~= nil then
+		table.insert(ignore, trap)
+	end
+	local ground = Pull.floorBelow(base, ignore, Presets.rescueFree.depth) or base
+	local at = base + Vector3.new(0, Presets.rescueFree.above, 0)
+	teamWord(base + Vector3.new(0, t.above, 0))
+	for _, colour in t.colours do
+		Particles.burst("catchSparkle", at, t.sparkles, colour)
+	end
+	for i, colour in t.colours do
+		task.delay((i - 1) * t.ringGap, function()
+			Particles.ring(ground + Vector3.new(0, 0.1, 0), colour, t.ring, t.ringSeconds)
+		end)
+	end
+	local count =
+		Logic.pullCount(math.ceil(Context.budget.confetti * t.confetti), Context.reducedMotion())
+	local confetti: { Color3 } = table.clone(t.colours)
+	table.insert(confetti, Presets.palette.sparkle)
+	Particles.confetti(at, count, confetti)
+end
+
 function Rescue.start()
 	if started then
 		return
@@ -424,6 +502,10 @@ function Rescue.start()
 		hit(hits, needed)
 	end)
 	Moments.RescueDone:Connect(freed)
+	local team = (Moments :: any).TeamRescue -- F92, Gameplay-Engineer's #763
+	if team ~= nil then
+		team:Connect(teamFreed)
+	end
 	Moments.RescueFail:Connect(function()
 		rescuing = nil
 	end)

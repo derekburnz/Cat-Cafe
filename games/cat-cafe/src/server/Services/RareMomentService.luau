@@ -63,12 +63,8 @@ function RareMomentService.secured(
 		return
 	end
 	Net.fireAll("SecuredRare", player.UserId, def.id, def.rarity, gold, coat)
-	Telemetry.custom(
-		player,
-		"rare_secured",
-		1,
-		{ def.rarity, if gold then "yes" else "no", RareMoments.how(method) }
-	)
+	local fields: { string } = { def.rarity, if gold then "yes" else "no", RareMoments.how(method) }
+	Telemetry.custom(player, "rare_secured", 1, fields)
 end
 
 -- `player` opened `decor` from a crate: a Mythical piece toasts the server, at most once a minute.

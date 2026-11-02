@@ -62,6 +62,7 @@ import furniture  # noqa: E402
 import gold  # noqa: E402
 import gates  # noqa: E402
 import items  # noqa: E402
+import lawn  # noqa: E402
 import style_icons  # noqa: E402
 import neighbourhood  # noqa: E402
 import night  # noqa: E402
@@ -96,7 +97,7 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, alleyblockers,
            boards, night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
-           townbuildings, customers, cannon, camps, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
+           townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop]
 
 PIVOT_NOTES = {
@@ -579,7 +580,7 @@ def main():
         if name == "CatCafe_Decor_CatTreeTower":
             extra = {"attachments": furniture.spot_attachments(name, crate_decor.TOWER_SPOTS)}
         if name.startswith("CatCafe_Plot_Cafe_"):  # the roof's trims ride the roof (it fades while you are inside)
-            extra = {"nest": {"_Roof_Trim": "_Roof"}}
+            extra = {"nest": {"_Roof_Trim": "_Roof", "_LampPost_Bulb": "_Garden", "_Flowers": "_Garden"}}
         if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
         if name.startswith("CatCafe_Item_Net_L"):  # the hand's spot for the net hold (Animation-Engineer)
@@ -594,6 +595,10 @@ def main():
             extra = {"attachments": cannon.rbx_attachments(name), "nest": cannon.NEST}
         if name in camps.ATTACHMENTS:             # F84: the carrier basket's Drop
             extra = {"attachments": camps.rbx_attachments(name)}
+        if name in lawn.ASSETS:                   # F91: lanterns' lights ride their swing; nap and seat spots
+            extra = {"nest": lawn.NEST}
+            if name in lawn.SPOTS:
+                extra["attachments"] = furniture.spot_attachments(name, lawn.SPOTS[name])
         if name == leaderboards.N:                # F98: each board's Screen rides its board's Model
             extra = {"nest": leaderboards.NEST}
         if name in menu.ATTACHMENTS:              # F90: the tray's Item spot, the oven's DoorGlow

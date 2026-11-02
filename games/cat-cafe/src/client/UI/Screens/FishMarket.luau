@@ -1216,10 +1216,8 @@ function FishMarket._refresh(self: any)
 		entry.owned.Text = "x" .. Format.short(count)
 		local tier = MarketLogic.openTier(crate, areas)
 		entry.tier.Visible = tier ~= nil
-		entry.tier.Text = if tier == nil
-			then ""
-			elseif open then ("Tier %d"):format(tier)
-			else ("%s Tier %d"):format(Theme.icons.lock, tier)
+		-- grey once locked; the Locked button says the rest (a lock here covered the crate's picture, N306)
+		entry.tier.Text = if tier then ("Tier %d"):format(tier) else ""
 		entry.tier.BackgroundColor3 = if open then Theme.colors.good else Theme.colors.muted
 		local price = crate.price or 0
 		local pending = self:_pendingFor(crate.id)

@@ -490,6 +490,7 @@ v0.13.17, camps (F84, [hometown-cannon.md](hometown-cannon.md) sections 4 and 5)
 - **Safe zone:** each camp rect is a safe zone in the tackle, catch, rescue and pick-up checks. Its wild edge is the fence line (the old gate line until F85), the same rect as the check-in, so a carrier is never tackled inside it. A drop point within 2 studs of a camp rect moves straight out to 3 studs past the fence, and a Returning cat's path never enters a camp. Strays never enter a camp.
 - **Carrying:** in a wild area Home, the Cannon button and every cannon are refused while carrying ("Bring your cat to the camp first"); the carry banner reads "Bring it to the camp!". A carrier's death drops the cat where it died, as before, and the respawn is on the camp's pad. Leaving the game still checks the cat in.
 - **During a flight** the character is anchored and `Launching`: tackles pass through them, Travel and every minigame are refused, and a second `LaunchCannon` is refused.
+- **While knocked down** (the TackledDownSeconds, 0.8, after a landed tackle), `Travel` to `home` or `cannon` is refused with the same refusal and toast as `LaunchCannon`, so the Home and Cannon buttons cannot hop a downed player out of a chase (Review-Agent N281 on #643, decided 2026-11-02 by the game-designer thread).
 
 ## 11. Income and offline
 

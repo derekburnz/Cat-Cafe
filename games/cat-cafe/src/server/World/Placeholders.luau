@@ -1652,6 +1652,81 @@ builders.CatCafe_Street_BellhopStand = function()
 	return finish(model, dais)
 end
 
+-- The Lucky Cat statue (F88) by the cafe door, until the asset thread's models are in: level 0 a plinth and its
+-- LUCKY CAT sign, levels 1 to 5 a seated cat on it, cream to gold, with its raised left paw as the child Model
+-- <asset>_Paw (its pivot at the shoulder, (-0.64, 1.9, -0.12) as Model-Agent's #742, so a wave turns it about its own
+-- X) and Attachment PawHinge on the body at the same point.
+local function luckyCat(level: number): Model
+	local name = "CatCafe_Plot_LuckyCat_" .. level
+	local model = newModel(name)
+	local plinth = addPart(model, {
+		name = "Plinth",
+		size = Vector3.new(1.5, 1, 1.5),
+		offset = Vector3.new(0, 0.5, 0),
+		color = Color3.fromRGB(150, 145, 140),
+		material = Enum.Material.Slate,
+		collide = true,
+	})
+	if level == 0 then
+		local sign = addPart(model, {
+			name = "Sign",
+			size = Vector3.new(1.6, 0.6, 0.1),
+			offset = Vector3.new(0, 1.4, 0),
+			color = CREAM,
+		})
+		local gui = Instance.new("SurfaceGui")
+		gui.Face = Enum.NormalId.Front
+		gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		gui.PixelsPerStud = 40
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.fromScale(1, 1)
+		label.BackgroundTransparency = 1
+		label.TextScaled = true
+		label.Font = Enum.Font.FredokaOne
+		label.TextColor3 = DARK
+		label.Text = "LUCKY CAT"
+		label.Parent = gui
+		gui.Parent = sign
+		return finish(model, plinth)
+	end
+	local color = CREAM:Lerp(Color3.fromRGB(232, 184, 64), (level - 1) / 4)
+	local body = addPart(model, {
+		name = "Body",
+		size = Vector3.new(1.2, 1.4, 1),
+		offset = Vector3.new(0, 1.7, 0),
+		color = color,
+		material = if level >= 3 then Enum.Material.Metal else Enum.Material.SmoothPlastic,
+	})
+	addPart(model, {
+		name = "Head",
+		size = Vector3.new(1, 0.9, 0.9),
+		offset = Vector3.new(0, 2.85, -0.05),
+		color = color,
+		material = body.Material,
+	})
+	local hinge = Instance.new("Attachment")
+	hinge.Name = "PawHinge"
+	hinge.Position = Vector3.new(-0.64, 0.2, -0.12) -- the shoulder, from the body's centre (0, 1.7, 0)
+	hinge.Parent = body
+	local paw = newModel(name .. "_Paw")
+	local pawPart = addPart(paw, {
+		name = "Paw",
+		size = Vector3.new(0.35, 0.9, 0.35),
+		offset = Vector3.new(-0.75, 2.35, -0.12),
+		color = color,
+		material = body.Material,
+	})
+	paw.PrimaryPart = pawPart
+	pawPart.PivotOffset = pawPart.CFrame:Inverse() * CFrame.new(-0.64, 1.9, -0.12)
+	paw.Parent = model
+	return finish(model, plinth)
+end
+for level = 0, 5 do
+	builders["CatCafe_Plot_LuckyCat_" .. level] = function()
+		return luckyCat(level)
+	end
+end
+
 function Placeholders.names(): { string }
 	local names: { string } = {}
 	for _, def in Catalog.cats do

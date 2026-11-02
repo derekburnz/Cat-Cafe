@@ -747,12 +747,19 @@ return function()
 					startLevel = 0,
 					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 },
 				},
+				lucky_cat = { -- F88 (luck-and-rare-moments.md 1a): level n needs Tier n
+					name = "Lucky Cat",
+					maxLevel = 5,
+					costs = { 2000, 20000, 600000, 8000000, 80000000 },
+					startLevel = 0,
+					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 },
+				},
 			}
 
 		it(
-			"has exactly the four v0.3 upgrades; cafe_level, park_access and gloves are gone",
+			"has the four v0.3 upgrades and the Lucky Cat (F88); cafe_level, park_access and gloves are gone",
 			function()
-				expect(#Catalog.upgrades).to.equal(4)
+				expect(#Catalog.upgrades).to.equal(5)
 				for _, def in ipairs(Catalog.upgrades) do
 					expect(expected[def.id]).to.be.ok()
 				end

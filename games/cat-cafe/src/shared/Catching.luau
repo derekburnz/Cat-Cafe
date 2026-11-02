@@ -172,15 +172,21 @@ end
 
 -- F58 (data-model section 9, v0.8): the server-wide line when a wave spawns a Mythical stray, naming the area and
 -- not the cat, so finding it is still a surprise: "A Mythical cat appeared in the Woods!", "A gold Mythical cat..."
--- when it is gold. Nil for any other rarity.
-function Catching.waveShoutOut(rarity: Types.Rarity, variant: string?, areaName: string): string?
+-- when it is gold, "... in the Woods on a Lucky Day!" on a Lucky Day's wave (F88). Nil for any other rarity.
+function Catching.waveShoutOut(
+	rarity: Types.Rarity,
+	variant: string?,
+	areaName: string,
+	luckyDay: boolean?
+): string?
 	if rarity ~= "Mythical" then
 		return nil
 	end
 	return string.format(
-		"A %sMythical cat appeared in the %s!",
+		"A %sMythical cat appeared in the %s%s!",
 		if variant == "gold" then "gold " else "",
-		areaName
+		areaName,
+		if luckyDay == true then " on a Lucky Day" else ""
 	)
 end
 

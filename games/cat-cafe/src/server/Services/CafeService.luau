@@ -25,6 +25,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Leaderstats = require(script.Parent.Leaderstats)
+local Luck = require(ReplicatedStorage.Shared.Luck)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local PassService = require(script.Parent.PassService)
@@ -106,10 +107,29 @@ local function baitView(profile: Profile, now: number): Types.BaitView?
 	return view
 end
 
+-- F88: the player's Luck and its sources, each with when it ends (os.time()) where it ends, for the Luck chip.
+local function luckView(profile: Profile, now: number): (number, { Types.LuckSource })
+	local luckyDay = ClockService.luckyDay()
+	local sources: { Types.LuckSource } = {}
+	for _, source in Luck.sources(profile, now, luckyDay) do
+		local endsAt: number? = nil
+		if source.id == "potion" then
+			endsAt = now + Potions.left(profile, Potions.LUCKY, now)
+		elseif source.id == "lucky_day" then
+			endsAt = now + math.max(0, ClockService.phaseEndsAt() - Workspace:GetServerTimeNow())
+		end
+		local row: Types.LuckSource =
+			{ id = source.id :: string, value = source.value, endsAt = endsAt }
+		table.insert(sources, row)
+	end
+	return Luck.of(profile, now, luckyDay), sources
+end
+
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
 	local plot = PlotService.get(player)
 	local now = os.time()
 	local totals = IndexRewards.totals(profile)
+	local luck, luckSources = luckView(profile, now)
 	return {
 		money = math.floor(profile.coins),
 		incomePerSecond = currentRate(profile), -- drops at nightfall; the client predicts coins with it
@@ -151,6 +171,8 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		feedbackAsked = profile.feedbackAsked,
 		stuckHelpShown = table.clone(profile.stuckHelpShown),
 		starterCatClaimed = profile.starterCatClaimed, -- F96
+		luck = luck, -- F88
+		luckSources = luckSources,
 		serverTime = now,
 	}
 end
@@ -594,6 +616,29 @@ local function refreshEspresso(plot: WorldBuilder.Plot, profile: Profile)
 	model.Parent = plot.model
 end
 
+-- The Lucky Cat statue in the front garden (F88, luck-and-rare-moments.md section 1): CatCafe_Plot_LuckyCat_<level>,
+-- level 0 a plinth and sign before the first level is bought, swapped when the level changes. Named LuckyCat and
+-- tagged LuckyCat, with its Level attribute, for the client's effects: the paw wave (the <asset>_Paw child) of
+-- levels 1 to 5 and the level up sparkle.
+local function refreshLuckyCat(plot: WorldBuilder.Plot, profile: Profile)
+	local level = math.clamp(Economy.level(profile, Luck.UPGRADE), 0, 5)
+	local assetName = "CatCafe_Plot_LuckyCat_" .. level
+	local existing = plot.model:FindFirstChild("LuckyCat")
+	if existing ~= nil and existing:GetAttribute("Asset") == assetName then
+		return
+	end
+	if existing ~= nil then
+		existing:Destroy()
+	end
+	local model = AssetRegistry.clone(assetName)
+	model.Name = "LuckyCat"
+	model:SetAttribute("Asset", assetName)
+	model:SetAttribute("Level", level)
+	CollectionService:AddTag(model, "LuckyCat")
+	model:PivotTo(plot.luckyCat.CFrame)
+	model.Parent = plot.model
+end
+
 -- The bait bowl in the front garden (data-model section 8): the bowl once the upgrade is bought, the food in it
 -- while a cat is on its way and the cat itself, eating, once it has arrived, so the street sees it. The item
 -- models are tiny, so they are scaled up to read from the path. BaitReadyAt is for display only.
@@ -668,6 +713,7 @@ function CafeService.refreshPlot(player: Player)
 	refreshSpots(plot, profile)
 	refreshExpansions(plot, profile)
 	refreshEspresso(plot, profile)
+	refreshLuckyCat(plot, profile)
 	refreshDecor(plot, profile) -- before the cats: at night they sleep on decor cat trees (F79, review S89)
 	refreshCats(player, plot, profile)
 	refreshTables(plot, profile)

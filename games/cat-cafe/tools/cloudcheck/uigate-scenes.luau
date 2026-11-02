@@ -205,7 +205,20 @@ function Scenes.setup()
 	UI.cannon.setEnabled(true) -- the Cat Cannon is live (F84): Cannon in the bottom row, no Alley or Areas
 	local now = os.time()
 	UI.update(samplePlayer(now))
-	UI.tipJar.set({ sessionStartedAt = workspace:GetServerTimeNow() - 25 * 60, claimed = { [1] = true } })
+	UI.tipJar.set({
+		sessionStartedAt = workspace:GetServerTimeNow() - 25 * 60,
+		claimed = { [1] = true },
+	})
+end
+
+-- the first Mythical cat in the catalog, for the big pull scenes
+local function mythicalCat()
+	for _, def in Catalog.cats do
+		if def.rarity == "Mythical" then
+			return def.id
+		end
+	end
+	return Catalog.cats[1].id
 end
 
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
@@ -224,7 +237,9 @@ local function press(windowName, name)
 		holder = holder and holder:FindFirstChild(part, true)
 	end
 	assert(holder, "uigate: no " .. name .. " in " .. windowName)
-	local button = if holder:IsA("GuiButton") then holder else holder:FindFirstChildWhichIsA("GuiButton", true)
+	local button = if holder:IsA("GuiButton")
+		then holder
+		else holder:FindFirstChildWhichIsA("GuiButton", true)
 	assert(button, "uigate: " .. name .. " has no button")
 	UIShim.fire(UIShim.eventOf(button, "Activated")) -- Components/Button listens to Activated only
 end
@@ -264,12 +279,33 @@ end
 local function startCatch(strayId, rarity, count, first, shrink)
 	local t = workspace:GetServerTimeNow()
 	local list = {}
-	local spots = { { 0.2, 0.4 }, { 0.45, 0.65 }, { 0.7, 0.35 }, { 0.35, 0.2 }, { 0.8, 0.7 }, { 0.55, 0.3 }, { 0.15, 0.75 } }
+	local spots = {
+		{ 0.2, 0.4 },
+		{ 0.45, 0.65 },
+		{ 0.7, 0.35 },
+		{ 0.35, 0.2 },
+		{ 0.8, 0.7 },
+		{ 0.55, 0.3 },
+		{ 0.15, 0.75 },
+	}
 	for index = 1, count do
 		local spot = spots[(index - 1) % #spots + 1]
-		table.insert(list, { startsAt = t + first + (index - 1) * 0.7, shrinkSeconds = shrink, x = spot[1], y = spot[2] })
+		table.insert(
+			list,
+			{
+				startsAt = t + first + (index - 1) * 0.7,
+				shrinkSeconds = shrink,
+				x = spot[1],
+				y = spot[2],
+			}
+		)
 	end
-	UI.catch.show({ strayId = strayId, catId = Catalog.cats[2].id, catName = "Mochi", rarity = rarity })
+	UI.catch.show({
+		strayId = strayId,
+		catId = Catalog.cats[2].id,
+		catName = "Mochi",
+		rarity = rarity,
+	})
 	UI.catch.showCircles(strayId, list, { perfect = 0.037, good = 0.09 })
 	return list
 end
@@ -285,315 +321,519 @@ end
 
 -- name, how the game opens it
 local SCENES = {
-	{ "Upgrades", function()
-		UI.open("Upgrades")
-	end },
-	{ "Decor", function()
-		UI.open("Decor")
-	end },
-	{ "Index", function()
-		UI.open("Collection")
-	end },
-	{ "Cats", function()
-		UI.open("Cats")
-	end },
-	{ "CatsPicked", function()
-		UI.open("Cats")
-		-- the cards build on the next frame; the gold cat, level 13, at work: favourite or Likes, Gold and level chips
-		task.delay(0.2, function()
-			press("Cats", "gate_3")
-		end)
-	end },
-	{ "RankUp", function()
-		UI.open("RankUp")
-	end },
-	{ "Cannon", function()
-		UI.cannon.open()
-	end },
-	{ "Bait", function()
-		UI.bait.openPicker()
-	end },
-	{ "Dealer", function()
-		UI.dealer.open()
-	end },
-	{ "DealerNight", function()
-		-- F94: one stock all night, the countdown to sunrise
-		UI.dealer.setStock({
-			window = 20400,
-			restocksAt = workspace:GetServerTimeNow() + 7 * 60 + 12,
-			stock = {
-				{ lureId = "sardines", cost = 25000, amount = 3, bought = 1 },
-				{ lureId = "caviar", cost = 120000, amount = 1, bought = 1 },
-				{ lureId = "moon_milk", cost = 400000, amount = 0, bought = 0 },
-				{ lureId = "star_treat", cost = 2500000, amount = 2, bought = 0 },
-			},
-		})
-		UI.dealer.open()
-	end },
-	{ "Settings", function()
-		UI.open("Settings")
-	end },
-	{ "TipJar", function()
-		UI.tipJar.open()
-	end },
-	{ "Spin", function()
-		UI.spin.open()
-	end },
-	{ "SpinOdds", function()
-		UI.spin.open()
-		press("SpinWheel", "Odds")
-	end },
-	{ "Market", function()
-		UI.market.open()
-		press("FishMarket", "CratesTab")
-	end },
-	{ "MarketFresh", function()
-		-- F94: a window mid-way, one row sold out to this player, one not stocked, a crate row
-		UI.freshCatch.setStock({
-			window = 5900000,
-			restocksAt = workspace:GetServerTimeNow() + 192,
-			stock = {
-				{ itemId = "tip_potion", fish = 10, amount = 3, bought = 1 },
-				{ itemId = "swift_potion", fish = 6, amount = 2, bought = 2 },
-				{ itemId = "steady_potion", fish = 12, amount = 0, bought = 0 },
-				{ itemId = "quick_bait_potion", fish = 15, amount = 1, bought = 0 },
-				{ itemId = "big_tip_potion", fish = 25, amount = 1, bought = 0 },
-				{ itemId = "lucky_potion", fish = 25, amount = 0, bought = 0 },
-				{ itemId = "gold_rush_potion", fish = 30, amount = 1, bought = 0 },
-				{ itemId = "classic_crate", fish = 50, amount = 1, bought = 0 },
-			},
-		})
-		UI.market.open()
-		press("FishMarket", "FreshTab")
-	end },
-	{ "MarketFreshNight", function()
-		UI.freshCatch.setStock(nil)
-		UI.market.open()
-		press("FishMarket", "FreshTab")
-	end },
-	{ "Feedback", function()
-		UI.bugReport.open("bug")
-	end },
+	{
+		"Upgrades",
+		function()
+			UI.open("Upgrades")
+		end,
+	},
+	{
+		"Decor",
+		function()
+			UI.open("Decor")
+		end,
+	},
+	{
+		"Index",
+		function()
+			UI.open("Collection")
+		end,
+	},
+	{
+		"Cats",
+		function()
+			UI.open("Cats")
+		end,
+	},
+	{
+		"CatsPicked",
+		function()
+			UI.open("Cats")
+			-- the cards build on the next frame; the gold cat, level 13, at work: favourite or Likes, Gold and level chips
+			task.delay(0.2, function()
+				press("Cats", "gate_3")
+			end)
+		end,
+	},
+	{
+		"RankUp",
+		function()
+			UI.open("RankUp")
+		end,
+	},
+	{
+		"Cannon",
+		function()
+			UI.cannon.open()
+		end,
+	},
+	{
+		"Bait",
+		function()
+			UI.bait.openPicker()
+		end,
+	},
+	{
+		"Dealer",
+		function()
+			UI.dealer.open()
+		end,
+	},
+	{
+		"DealerNight",
+		function()
+			-- F94: one stock all night, the countdown to sunrise
+			UI.dealer.setStock({
+				window = 20400,
+				restocksAt = workspace:GetServerTimeNow() + 7 * 60 + 12,
+				stock = {
+					{ lureId = "sardines", cost = 25000, amount = 3, bought = 1 },
+					{ lureId = "caviar", cost = 120000, amount = 1, bought = 1 },
+					{ lureId = "moon_milk", cost = 400000, amount = 0, bought = 0 },
+					{ lureId = "star_treat", cost = 2500000, amount = 2, bought = 0 },
+				},
+			})
+			UI.dealer.open()
+		end,
+	},
+	{
+		"Settings",
+		function()
+			UI.open("Settings")
+		end,
+	},
+	{
+		"TipJar",
+		function()
+			UI.tipJar.open()
+		end,
+	},
+	{
+		"Spin",
+		function()
+			UI.spin.open()
+		end,
+	},
+	{
+		"SpinOdds",
+		function()
+			UI.spin.open()
+			press("SpinWheel", "Odds")
+		end,
+	},
+	{
+		"Market",
+		function()
+			UI.market.open()
+			press("FishMarket", "CratesTab")
+		end,
+	},
+	{
+		"MarketFresh",
+		function()
+			-- F94: a window mid-way, one row sold out to this player, one not stocked, a crate row
+			UI.freshCatch.setStock({
+				window = 5900000,
+				restocksAt = workspace:GetServerTimeNow() + 192,
+				stock = {
+					{ itemId = "tip_potion", fish = 10, amount = 3, bought = 1 },
+					{ itemId = "swift_potion", fish = 6, amount = 2, bought = 2 },
+					{ itemId = "steady_potion", fish = 12, amount = 0, bought = 0 },
+					{ itemId = "quick_bait_potion", fish = 15, amount = 1, bought = 0 },
+					{ itemId = "big_tip_potion", fish = 25, amount = 1, bought = 0 },
+					{ itemId = "lucky_potion", fish = 25, amount = 0, bought = 0 },
+					{ itemId = "gold_rush_potion", fish = 30, amount = 1, bought = 0 },
+					{ itemId = "classic_crate", fish = 50, amount = 1, bought = 0 },
+				},
+			})
+			UI.market.open()
+			press("FishMarket", "FreshTab")
+		end,
+	},
+	{
+		"MarketFreshNight",
+		function()
+			UI.freshCatch.setStock(nil)
+			UI.market.open()
+			press("FishMarket", "FreshTab")
+		end,
+	},
+	{
+		"Feedback",
+		function()
+			UI.bugReport.open("bug")
+		end,
+	},
 	-- F87: the Feedback tile opens on the three faces, and a face brings the chips
-	{ "FeedbackFaces", function()
-		UI.bugReport.open()
-	end },
-	{ "FeedbackChips", function()
-		UI.bugReport.open()
-		press("BugReport", "Face_love")
-	end },
+	{
+		"FeedbackFaces",
+		function()
+			UI.bugReport.open()
+		end,
+	},
+	{
+		"FeedbackChips",
+		function()
+			UI.bugReport.open()
+			press("BugReport", "Face_love")
+		end,
+	},
 	-- F87: the one slide-in faces ask over the travel row
-	{ "FeedbackAsk", function()
-		UI.tips.showAsk()
-	end },
-	{ "Codes", function()
-		UI.codes.open()
-	end },
-	{ "CodesPrize", function()
-		UI.codes.open()
-		UI.codes.result(true, "Code redeemed!", CODE_PRIZE)
-	end },
+	{
+		"FeedbackAsk",
+		function()
+			UI.tips.showAsk()
+		end,
+	},
+	{
+		"Codes",
+		function()
+			UI.codes.open()
+		end,
+	},
+	{
+		"CodesPrize",
+		function()
+			UI.codes.open()
+			UI.codes.result(true, "Code redeemed!", CODE_PRIZE)
+		end,
+	},
 	-- F96: the Bellhop Cat's stand card before the first goals are done, Take me home greyed
-	{ "Bellhop", function()
-		UI.starterCat.open({
-			claimed = false,
-			gate = "task",
-			line = "Finish your first goals to take me home",
-			rate = 3,
-		})
-	end },
+	{
+		"Bellhop",
+		function()
+			UI.starterCat.open({
+				claimed = false,
+				gate = "task",
+				line = "Finish your first goals to take me home",
+				rate = 3,
+			})
+		end,
+	},
 	-- once the game is in a group: Join the group beside Take me home, and the server's refusal
-	{ "BellhopGroup", function()
-		UI.starterCat.open({ claimed = false, gate = "group", rate = 243 })
-		press("StarterCat", "TakeMeHome")
-		UI.starterCat.result(false, "Join the Cat Cafe group to take me home")
-	end },
-	{ "BellhopHome", function()
-		UI.starterCat.open({ claimed = true, gate = "group", line = "Already home with you", rate = 98765.4 })
-	end },
+	{
+		"BellhopGroup",
+		function()
+			UI.starterCat.open({ claimed = false, gate = "group", rate = 243 })
+			press("StarterCat", "TakeMeHome")
+			UI.starterCat.result(false, "Join the Cat Cafe group to take me home")
+		end,
+	},
+	{
+		"BellhopHome",
+		function()
+			UI.starterCat.open({
+				claimed = true,
+				gate = "group",
+				line = "Already home with you",
+				rate = 98765.4,
+			})
+		end,
+	},
 	-- F96 section 3: the favorite ask on the tip card
-	{ "FavoriteAsk", function()
-		UI.asks.show("favorite_ask")
-	end },
+	{
+		"FavoriteAsk",
+		function()
+			UI.asks.show("favorite_ask")
+		end,
+	},
 	-- the Index's Exclusive page, after every area
-	{ "IndexExclusive", function()
-		UI.openIndex("exclusive")
-	end },
+	{
+		"IndexExclusive",
+		function()
+			UI.openIndex("exclusive")
+		end,
+	},
 	-- an exclusive cat in the cat room reads "Can't sell"
-	{ "CatsBellhop", function()
-		local player = samplePlayer(os.time())
-		player.cats.gate_bellhop = {
-			uid = "gate_bellhop",
-			catId = "bellhop_cat",
-			variant = "base",
-			caughtAt = os.time() - 60,
-			level = 1,
-			xp = 0,
-			xpToNext = 40,
-			charm = 60,
-			stars = 3,
-			rating = 243,
-		}
-		UI.update({ cats = player.cats })
-		UI.open("Cats")
-		task.delay(0.2, function()
-			press("Cats", "gate_bellhop")
-		end)
-	end },
-	{ "Potions", function()
-		UI.open("Potions")
-	end },
-	{ "Quests", function()
-		UI.open("Quests")
-	end },
-	{ "QuestsWeekly", function()
-		UI.open("Quests")
-		press("Quests", "WeeklyTab")
-	end },
-	{ "QuestsAchievements", function()
-		UI.open("Quests")
-		press("Quests", "AchievementsTab")
-	end },
+	{
+		"CatsBellhop",
+		function()
+			local player = samplePlayer(os.time())
+			player.cats.gate_bellhop = {
+				uid = "gate_bellhop",
+				catId = "bellhop_cat",
+				variant = "base",
+				caughtAt = os.time() - 60,
+				level = 1,
+				xp = 0,
+				xpToNext = 40,
+				charm = 60,
+				stars = 3,
+				rating = 243,
+			}
+			UI.update({ cats = player.cats })
+			UI.open("Cats")
+			task.delay(0.2, function()
+				press("Cats", "gate_bellhop")
+			end)
+		end,
+	},
+	{
+		"Potions",
+		function()
+			UI.open("Potions")
+		end,
+	},
+	{
+		"Quests",
+		function()
+			UI.open("Quests")
+		end,
+	},
+	{
+		"QuestsWeekly",
+		function()
+			UI.open("Quests")
+			press("Quests", "WeeklyTab")
+		end,
+	},
+	{
+		"QuestsAchievements",
+		function()
+			UI.open("Quests")
+			press("Quests", "AchievementsTab")
+		end,
+	},
 	-- a claim shows at once: the row reads Claimed and drops to the bottom (Derek 2026-10-29)
-	{ "QuestsClaimed", function()
-		UI.open("Quests")
-		press("Quests", "DailyTab")
-		press("Quests", "Daily.Quest2.Claim")
-	end },
+	{
+		"QuestsClaimed",
+		function()
+			UI.open("Quests")
+			press("Quests", "DailyTab")
+			press("Quests", "Daily.Quest2.Claim")
+		end,
+	},
 	-- Claim all on the Achievements tab (two met in the sample player)
-	{ "QuestsClaimAll", function()
-		UI.open("Quests")
-		press("Quests", "AchievementsTab")
-		press("Quests", "ClaimAll")
-	end },
-	{ "DailyTreat", function()
-		UI.open("DailyTreat")
-	end },
+	{
+		"QuestsClaimAll",
+		function()
+			UI.open("Quests")
+			press("Quests", "AchievementsTab")
+			press("Quests", "ClaimAll")
+		end,
+	},
+	{
+		"DailyTreat",
+		function()
+			UI.open("DailyTreat")
+		end,
+	},
 	-- F93: the rescue bar after one hit, the zone moved on and the marker sped up (the scene is drawn about two
 	-- seconds in, so the zone keeps a few seconds)
-	{ "Rescue", function()
-		UI.rescue.show("gate_rescue", rescueChallenge())
-		local t = workspace:GetServerTimeNow()
-		UI.rescue.update("gate_rescue", 1, 3, false, false, {
-			zone = 2,
-			startsAt = t,
-			phase = 0.6,
-			speed = 0.97,
-			zoneEndsAt = t + 5,
-		})
-	end },
+	{
+		"Rescue",
+		function()
+			UI.rescue.show("gate_rescue", rescueChallenge())
+			local t = workspace:GetServerTimeNow()
+			UI.rescue.update("gate_rescue", 1, 3, false, false, {
+				zone = 2,
+				startsAt = t,
+				phase = 0.6,
+				speed = 0.97,
+				zoneEndsAt = t + 5,
+			})
+		end,
+	},
 	-- F93: the touch Net button, in a catching area while a swing could go (phones only)
-	{ "NetButton", function()
-		UI.setZone("Alley")
-		UI.net.setEnabled(true)
-	end },
+	{
+		"NetButton",
+		function()
+			UI.setZone("Alley")
+			UI.net.setEnabled(true)
+		end,
+	},
 	-- F93: a catch three circles in: Perfect, Good, Perfect, each cleared with its word, the pips filling
-	{ "Catch", function()
-		local list = startCatch("gate_stray", "Epic", 5, 0, 0.82)
-		local t0 = workspace:GetServerTimeNow()
-		for index, delay in { 0, 0.06, 0 } do
-			local target = list[index].startsAt + list[index].shrinkSeconds
-			task.delay(target - t0 + delay, tapCircles)
-		end
-	end },
+	{
+		"Catch",
+		function()
+			local list = startCatch("gate_stray", "Epic", 5, 0, 0.82)
+			local t0 = workspace:GetServerTimeNow()
+			for index, delay in { 0, 0.06, 0 } do
+				local target = list[index].startsAt + list[index].shrinkSeconds
+				task.delay(target - t0 + delay, tapCircles)
+			end
+		end,
+	},
 	-- F93: the result word over the strip once the server's grades land (three Perfects of four: EXCELLENT!)
-	{ "CatchResult", function()
-		startCatch("gate_stray", "Rare", 4, 1, 1)
-		task.delay(1.8, function()
-			UI.catch.showGrades("gate_stray", { "perfect", "good", "perfect", "perfect" }, true, 0)
-		end)
-	end },
+	{
+		"CatchResult",
+		function()
+			startCatch("gate_stray", "Rare", 4, 1, 1)
+			task.delay(1.8, function()
+				UI.catch.showGrades(
+					"gate_stray",
+					{ "perfect", "good", "perfect", "perfect" },
+					true,
+					0
+				)
+			end)
+		end,
+	},
 	-- F87: a context tip's card at the top centre, its bar draining
-	{ "TipCard", function()
-		UI.tips.show("second_cat")
-	end },
+	{
+		"TipCard",
+		function()
+			UI.tips.show("second_cat")
+		end,
+	},
 	-- F87: the first long return, the offline tip's ribbon on the card (the client tips marked seen, so no stuck cat
 	-- or Codes Cat tip pops up in later scenes)
-	{ "OfflineTip", function()
-		UI.update({ tipsSeen = { stuck_cat = true, codes_cat = true } })
-		UI.showOfflineEarnings(48200, 3 * 3600)
-	end },
+	{
+		"OfflineTip",
+		function()
+			UI.update({ tipsSeen = { stuck_cat = true, codes_cat = true } })
+			UI.showOfflineEarnings(48200, 3 * 3600)
+		end,
+	},
 	-- F87 section 2f: a brand new player's small HUD, the money, the hint strip, Home and the Cannon, the Tutorial
 	-- tile and Settings
-	{ "SmallHUD", function()
-		UI.update({ tutorialStep = 0, tier = 1, cats = {}, potions = {}, goldenFish = 0 })
-		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 0, tier = 1, cats = {}, upgradeLevels = {} }))
-	end },
+	{
+		"SmallHUD",
+		function()
+			UI.update({ tutorialStep = 0, tier = 1, cats = {}, potions = {}, goldenFish = 0 })
+			UI.tutorial.show(
+				UI.tutorial.hint({ tutorialStep = 0, tier = 1, cats = {}, upgradeLevels = {} })
+			)
+		end,
+	},
 	-- the first loop done: every piece comes back, each button with its gold "New!" (from a new player's state to the
 	-- sample player again, at step 5)
-	{ "SmallHUDNew", function()
-		UI.update({ tutorialStep = 0, tier = 1, cats = {}, potions = {}, goldenFish = 0 })
-		local player = samplePlayer(os.time())
-		player.tutorialStep = 5
-		UI.update(player)
-	end },
+	{
+		"SmallHUDNew",
+		function()
+			UI.update({ tutorialStep = 0, tier = 1, cats = {}, potions = {}, goldenFish = 0 })
+			local player = samplePlayer(os.time())
+			player.tutorialStep = 5
+			UI.update(player)
+		end,
+	},
 	-- F87 section 2g: "Need a hand?" after 90 s on one tutorial step
-	{ "HelpCard", function()
-		UI.tutorial.showHelp()
-	end },
-	{ "CatFound", function()
-		UI.showCatFound(Catalog.cats[2].id, true)
-	end },
+	{
+		"HelpCard",
+		function()
+			UI.tutorial.showHelp()
+		end,
+	},
+	{
+		"CatFound",
+		function()
+			UI.showCatFound(Catalog.cats[2].id, true)
+		end,
+	},
 	-- F96: a Bellhop claim that works: the card closes and the claim card shows (after CatFound, which first shows the
 	-- card's pieces)
-	{ "BellhopClaim", function()
-		UI.starterCat.open({ claimed = false, gate = "task", rate = 3 })
-		UI.starterCat.result(true)
-	end },
+	{
+		"BellhopClaim",
+		function()
+			UI.starterCat.open({ claimed = false, gate = "task", rate = 3 })
+			UI.starterCat.result(true)
+		end,
+	},
+	-- F89: this player's big pull card for a gold Mythical cat. It closes by itself at 2.4 s and the gate looks 2.5 s in,
+	-- so it starts 0.5 s into the scene, after the word has slammed down and the shake has settled
+	{
+		"BigPullCat",
+		function()
+			task.delay(0.5, function()
+				UI.securedRare(
+					game:GetService("Players").LocalPlayer.UserId,
+					mythicalCat(),
+					"Mythical",
+					true,
+					"gold"
+				)
+			end)
+		end,
+	},
+	-- F89 and F99: the longest rarity word, RAINBOW LEGENDARY!, on a rainbow card
+	{
+		"BigPullRainbow",
+		function()
+			task.delay(0.5, function()
+				UI.securedRare(
+					game:GetService("Players").LocalPlayer.UserId,
+					mythicalCat(),
+					"Legendary",
+					false,
+					"rainbow"
+				)
+			end)
+		end,
+	},
+	-- F89 section 2b: a Mythical style piece out of a Classic crate: the reveal, then the big card with Use it as the
+	-- crate's lid blows open 0.6 s later
+	{
+		"BigPullPiece",
+		function()
+			UI.market.open()
+			task.delay(0.3, function()
+				UI.market.result("classic_crate", "classic_gold_leaf", false, 0)
+			end)
+		end,
+	},
 	-- last, since no window closes it: the money's boosts card with a Money Potion running and some boosts bought
-	{ "HUDBoosts", function()
-		local t = workspace:GetServerTimeNow()
-		UI.update({
-			buffs = { tip_potion = t + 492, swift_potion = t + 130 },
-			fishPerks = { golden_espresso = 2 },
-		})
-		press("CatCafeHUD", "Counters.Money")
-	end },
+	{
+		"HUDBoosts",
+		function()
+			local t = workspace:GetServerTimeNow()
+			UI.update({
+				buffs = { tip_potion = t + 492, swift_potion = t + 130 },
+				fishPerks = { golden_espresso = 2 },
+			})
+			press("CatCafeHUD", "Counters.Money")
+		end,
+	},
 	-- F88: a Lucky Day with a Lucky Potion running: the Luck chip glowing at the start of the potion row, its card
 	-- open over the counters (closing the boosts card), and "Lucky Day now" under the clock
-	{ "HUDLuck", function()
-		local t = workspace:GetServerTimeNow()
-		UI.update({
-			luck = 2.3,
-			luckSources = {
-				{ id = "statue", value = 0.3 },
-				{ id = "potion", value = 0.5, endsAt = t + 492 },
-				{ id = "lucky_day", value = 0.5, endsAt = t + 190 },
-			},
-			buffs = { tip_potion = t + 492, swift_potion = t + 130, lucky_potion = t + 492 },
-		})
-		local clock = Instance.new("Folder")
-		clock.Name = "Clock"
-		clock:SetAttribute("Phase", "day")
-		clock:SetAttribute("PhaseEndsAt", t + 190)
-		clock:SetAttribute("AreasOpen", true)
-		clock:SetAttribute("Day", 4)
-		clock:SetAttribute("NextLuckyDay", 8)
-		clock:SetAttribute("LuckyDay", true)
-		UI.clock.bind(clock)
-		press("CatCafeHUD", "Luck")
-	end },
+	{
+		"HUDLuck",
+		function()
+			local t = workspace:GetServerTimeNow()
+			UI.update({
+				luck = 2.3,
+				luckSources = {
+					{ id = "statue", value = 0.3 },
+					{ id = "potion", value = 0.5, endsAt = t + 492 },
+					{ id = "lucky_day", value = 0.5, endsAt = t + 190 },
+				},
+				buffs = { tip_potion = t + 492, swift_potion = t + 130, lucky_potion = t + 492 },
+			})
+			local clock = Instance.new("Folder")
+			clock.Name = "Clock"
+			clock:SetAttribute("Phase", "day")
+			clock:SetAttribute("PhaseEndsAt", t + 190)
+			clock:SetAttribute("AreasOpen", true)
+			clock:SetAttribute("Day", 4)
+			clock:SetAttribute("NextLuckyDay", 8)
+			clock:SetAttribute("LuckyDay", true)
+			UI.clock.bind(clock)
+			press("CatCafeHUD", "Luck")
+		end,
+	},
 	-- F88: the night before a Lucky Day, LuckyDayWarnSeconds before sunrise: the warning banner and "Lucky Day at
 	-- sunrise" under the clock, the Luck card from the scene before closed
-	{ "LuckyDaySoon", function()
-		local t = workspace:GetServerTimeNow()
-		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
-		local card = hud and hud:FindFirstChild("LuckCard", true)
-		if card and card.Visible then
-			press("CatCafeHUD", "LuckCard.Close")
-		end
-		UI.update({ luck = 1.3, luckSources = { { id = "statue", value = 0.3 } } })
-		local clock = Instance.new("Folder")
-		clock.Name = "Clock"
-		clock:SetAttribute("Phase", "night")
-		clock:SetAttribute("PhaseEndsAt", t + 60)
-		clock:SetAttribute("AreasOpen", false)
-		clock:SetAttribute("Day", 3)
-		clock:SetAttribute("NextLuckyDay", 4)
-		clock:SetAttribute("LuckyDay", false)
-		UI.clock.bind(clock)
-		UI.luckyDay("warning", "A Lucky Day starts at sunrise!")
-	end },
+	{
+		"LuckyDaySoon",
+		function()
+			local t = workspace:GetServerTimeNow()
+			local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+			local card = hud and hud:FindFirstChild("LuckCard", true)
+			if card and card.Visible then
+				press("CatCafeHUD", "LuckCard.Close")
+			end
+			UI.update({ luck = 1.3, luckSources = { { id = "statue", value = 0.3 } } })
+			local clock = Instance.new("Folder")
+			clock.Name = "Clock"
+			clock:SetAttribute("Phase", "night")
+			clock:SetAttribute("PhaseEndsAt", t + 60)
+			clock:SetAttribute("AreasOpen", false)
+			clock:SetAttribute("Day", 3)
+			clock:SetAttribute("NextLuckyDay", 4)
+			clock:SetAttribute("LuckyDay", false)
+			UI.clock.bind(clock)
+			UI.luckyDay("warning", "A Lucky Day starts at sunrise!")
+		end,
+	},
 }
 
 Scenes.names = {}
@@ -622,7 +862,11 @@ function Scenes.close()
 	UI.tutorial.hide()
 	-- the help card waits for Got it
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
-	if ask and ask:FindFirstChild("Choice_ok", true) and ask:FindFirstChild("Card", true).Visible then
+	if
+		ask
+		and ask:FindFirstChild("Choice_ok", true)
+		and ask:FindFirstChild("Card", true).Visible
+	then
 		press("CatCafeAsk", "Choice_ok")
 	end
 	-- the cat found card goes by itself after 5 s; Nice! now, so it is not over the next scene
@@ -630,6 +874,11 @@ function Scenes.close()
 	found = found and found:FindFirstChild("CatFound", true)
 	if found and found.Visible then
 		press("CatCafePopups", "CatFound.Ok")
+	end
+	-- the big pull card takes a tap after 1 s (F89)
+	local pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
+	if pull and pull.Enabled then
+		press("CatCafeBigPull", "Card")
 	end
 	-- the offline card waits for its Claim
 	local popups = UIShim.playerGui:FindFirstChild("CatCafePopups")

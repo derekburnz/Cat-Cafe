@@ -22,6 +22,8 @@
 -- refusal is CrateResult(crateId, "", false, 0) and the server's toast says why. Buying a treat or perk fires
 -- events.buyFishItem(itemId). Golden fish are earned only: nothing here mentions Robux. Sums in
 -- Components/MarketLogic; walking out of range closes the window (as the wheel, N132).
+-- F89 (luck-and-rare-moments.md 2b): a Legendary or Mythical piece also plays the big pull card (callbacks.bigPull,
+-- Screens/BigPull) as the crate's lid blows open, with "Use it" on it for a new style piece.
 
 local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
@@ -30,6 +32,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local BigPullLogic = require(script.Parent.Parent.Components.BigPullLogic)
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
@@ -58,6 +61,8 @@ export type Callbacks = {
 	toast: (text: string) -> (), -- a crate result that lands while the window is closed
 	close: () -> (),
 	buyFresh: ((itemId: string, window: number?) -> ())?, -- Buy on a Fresh Catch row (F94)
+	-- a Legendary or Mythical piece's big pull card (F89), with onUse for "Use it" on a new style piece
+	bigPull: ((decorId: string, onUse: (() -> ())?) -> ())?,
 }
 
 export type FishMarket = {
@@ -229,6 +234,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self._freshKey = "" -- the row ids the Fresh Catch list was built for
 	self._tab = "Crates"
 	self._revealToken = 0
+	self._pullToken = 0 -- a newer open drops a big pull card still waiting for its crate's lid
 
 	local panel = Panel.new({
 		name = "FishMarket",
@@ -671,6 +677,9 @@ end
 
 -- The reveal: the won piece on a card in its rarity colour, "New!" or the duplicate's refund, then Done.
 function FishMarket._buildReveal(self: any, body: Frame)
+	-- Later, Nice! and Use it keep a 44 px face on a phone, and the card grows to hold them
+	self._revealButtonH = Scale.tapHeight(44, Theme.sizes.buttonDepth)
+	self._revealH = 330 + self._revealButtonH - 44
 	local cover: TextButton = Create("TextButton", {
 		Name = "RevealCover",
 		Text = "",
@@ -696,7 +705,7 @@ function FishMarket._buildReveal(self: any, body: Frame)
 		Name = "Reveal",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(300, 330),
+		Size = UDim2.fromOffset(300, self._revealH),
 		ZIndex = 32,
 		Parent = cover,
 	})
@@ -758,7 +767,7 @@ function FishMarket._buildReveal(self: any, body: Frame)
 		name = "Done",
 		text = "Nice!",
 		style = "primary",
-		size = UDim2.fromOffset(150, 44),
+		size = UDim2.fromOffset(150, self._revealButtonH),
 		anchorPoint = Vector2.new(0.5, 1),
 		position = UDim2.new(0.5, 0, 1, -10),
 		textSize = Theme.sizes.textBody + 1,
@@ -773,7 +782,7 @@ function FishMarket._buildReveal(self: any, body: Frame)
 		name = "UseIt",
 		text = "Use it",
 		style = "primary",
-		size = UDim2.fromOffset(130, 44),
+		size = UDim2.fromOffset(130, self._revealButtonH),
 		anchorPoint = Vector2.new(1, 1),
 		position = UDim2.new(0.5, -4, 1, -10),
 		textSize = Theme.sizes.textBody + 1,
@@ -819,7 +828,7 @@ function FishMarket._finishReveal(self: any)
 	self._revealToken += 1
 	self._revealing = false
 	local reveal = self._reveal
-	reveal.sheet.Size = UDim2.fromOffset(300, 330)
+	reveal.sheet.Size = UDim2.fromOffset(300, self._revealH)
 	reveal.glow.Size = UDim2.fromOffset(300, 300)
 	reveal.done.instance.Visible = true
 	reveal.use.instance.Visible = self._revealUse == true
@@ -855,6 +864,7 @@ function FishMarket._playReveal(self: any, decorId: string, duplicate: boolean, 
 		elseif offerUse then "New! Use it now, or later in Decor."
 		else "New! Find it in Decor."
 	reveal.status.TextColor3 = if duplicate then Theme.colors.goldDark else Theme.colors.goodDark
+	self:_bigPull(decorId, piece.rarity, offerUse)
 	-- two buttons side by side when Use it is offered, else Nice! in the middle
 	reveal.done:setText(if offerUse then "Later" else "Nice!")
 	reveal.done:setStyle(if offerUse then "ghost" else "primary")
@@ -862,7 +872,7 @@ function FishMarket._playReveal(self: any, decorId: string, duplicate: boolean, 
 	reveal.done.instance.Position = if offerUse
 		then UDim2.new(0.5, 4, 1, -10)
 		else UDim2.new(0.5, 0, 1, -10)
-	reveal.done.instance.Size = UDim2.fromOffset(if offerUse then 130 else 150, 44)
+	reveal.done.instance.Size = UDim2.fromOffset(if offerUse then 130 else 150, self._revealButtonH)
 	reveal.cover.Visible = true
 	reveal.done.instance.Visible = false
 	reveal.use.instance.Visible = false
@@ -876,10 +886,10 @@ function FishMarket._playReveal(self: any, decorId: string, duplicate: boolean, 
 		self:_finishReveal()
 		return
 	end
-	reveal.sheet.Size = UDim2.fromOffset(180, 198)
+	reveal.sheet.Size = UDim2.fromOffset(180, math.floor(self._revealH * 0.6))
 	reveal.glow.Size = UDim2.fromOffset(120, 120)
 	Tween.to(reveal.sheet, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-		Size = UDim2.fromOffset(300, 330),
+		Size = UDim2.fromOffset(300, self._revealH),
 	})
 	Tween.to(
 		reveal.glow,
@@ -889,6 +899,29 @@ function FishMarket._playReveal(self: any, decorId: string, duplicate: boolean, 
 	task.delay(REVEAL_SECONDS, function()
 		if self._revealToken == token then
 			self:_finishReveal()
+		end
+	end)
+end
+
+-- F89: a Legendary or Mythical piece's big pull card lands with the crate's lid, BigPullLogic.CRATE_HOLD after the
+-- prize shows (Effects/Market glows and shakes the crate that long). Its "Use it" does what the reveal's does.
+function FishMarket._bigPull(self: any, decorId: string, rarity: string?, offerUse: boolean)
+	self._pullToken += 1
+	local token = self._pullToken
+	local callback: ((string, (() -> ())?) -> ())? = self._callbacks.bigPull
+	if callback == nil or BigPullLogic.forPiece(rarity) == nil then
+		return
+	end
+	local show: (string, (() -> ())?) -> () = callback
+	local onUse = if offerUse
+		then function()
+			self._callbacks.useDecor(decorId)
+			self:_hideReveal()
+		end
+		else nil
+	task.delay(BigPullLogic.CRATE_HOLD, function()
+		if self._pullToken == token then
+			show(decorId, onUse)
 		end
 	end)
 end
@@ -1531,6 +1564,7 @@ end
 
 function FishMarket.destroy(self: any)
 	self._revealToken += 1
+	self._pullToken += 1
 	if self._tick then
 		self._tick:Disconnect()
 	end

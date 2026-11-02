@@ -88,7 +88,10 @@ the path and fence changing from cafe to cafe. It scans the hometown as the worl
 it) and adds: **dressed pieces clipping**, per cafe and tier; **customer routes**, each chair's walk as
 `CustomerController` makes it (Entry, Door, Order, Aisle, Approach, the seat) swept as a body 1.6 wide from 0.8 to
 4.5 studs up against every drawn part; **the back door's way** straight out across the yard to the fence that closes
-the old gate; and **the lawn fence's ends** against the cafe's walls in plot space.
+the old gate; **the lawn fence's ends** against the cafe's walls in plot space; and **the intro's cameras** as a new
+save in each cafe sees them (`Intro.shots`): any camera place inside a drawn part, and the first solid part in each
+sight line from half a stud out to 85% of the way to its look point (see-through parts and the part the look point
+sits in are passed). The shot 6 camp gates' bars are in every run by design.
 
 Output, positions in world studs (y up, the Town Square at the origin): `world-scan.md` (folded tables per Cafes,
 Town and Areas, then "Inside the model files"), `floating.csv`, `seams.csv`, `clipping.csv`, `models.csv` and

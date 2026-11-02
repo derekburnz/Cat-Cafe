@@ -76,6 +76,8 @@ console.log(`Built and dressed the world: ${all.length} parts, ${parts.length} i
 
 // What the dresser said about each plot.
 const plots = new Map();
+const cams = [];
+const camErrors = [];
 for (const line of info.split('\n')) {
   const f = line.split('\t');
   const p = Number(f[1]);
@@ -91,6 +93,11 @@ for (const line of info.split('\n')) {
     plot.way[f[2]] = f.slice(3, 6).map(Number);
   } else if (f[0] === 'BACKDOOR') {
     plot.backDoor = f.slice(2, 14).map(Number);
+  } else if (f[0] === 'CAM') {
+    const n = f.slice(5).map(Number);
+    cams.push({ p, shot: Number(f[2]), cut: Number(f[3]), which: f[4], at: n.slice(0, 3), look: n.slice(3, 6) });
+  } else if (f[0] === 'CAMERR') {
+    camErrors.push(`cafe ${p}: ${f.slice(2).join(' ')}`);
   }
 }
 
@@ -291,6 +298,69 @@ for (const r of townRows) {
 report.push(`${townFold.size} distinct rows outside the cafes (world-scan.md has them in full).`, '', '| check | place | parts | size |', '|---|---|---|---|');
 for (const r of [...townFold.values()].slice(0, 60)) report.push(`| ${r.kind} | ${r.place} | ${r.what} | ${typeof r.size === 'number' ? r.size.toFixed(2) : r.size} |`);
 
+// 7. The intro's cameras on a new save: none inside a drawn part, and what first stands in each sight line (from half a
+// stud out to 85% of the way to its look point; see-through parts and the parts the look point is in are passed).
+head('Intro cameras (Intro.shots on a new save, every cafe)');
+function boxLocal(part, w) {
+  const d = [w[0] - part.c[0], w[1] - part.c[1], w[2] - part.c[2]];
+  return [0, 1, 2].map((k) => d[0] * part.u[k][0] + d[1] * part.u[k][1] + d[2] * part.u[k][2]);
+}
+const pointIn = (part, w, margin) => boxLocal(part, w).every((v, k) => Math.abs(v) <= part.e[k] + margin);
+function entersAt(part, a, b) {
+  const ra = boxLocal(part, a);
+  const rb = boxLocal(part, b);
+  let t0 = 0, t1 = 1;
+  for (let k = 0; k < 3; k++) {
+    const d = rb[k] - ra[k];
+    if (Math.abs(d) < 1e-9) {
+      if (Math.abs(ra[k]) > part.e[k]) return null;
+      continue;
+    }
+    let ta = (-part.e[k] - ra[k]) / d, tb = (part.e[k] - ra[k]) / d;
+    if (ta > tb) [ta, tb] = [tb, ta];
+    t0 = Math.max(t0, ta);
+    t1 = Math.min(t1, tb);
+    if (t0 > t1) return null;
+  }
+  return t0;
+}
+const seen = all.filter((p) => p.visible);
+const camRows = [];
+for (const cam of cams) {
+  const inside = seen.filter((part) => cam.at.every((v, k) => v >= part.min[k] - 0.1 && v <= part.max[k] + 0.1) && pointIn(part, cam.at, 0.1));
+  const len = Math.hypot(...[0, 1, 2].map((k) => cam.look[k] - cam.at[k]));
+  const t0 = Math.min(0.5 / Math.max(len, 1e-6), 0.2), t1 = 0.85;
+  const a = cam.at.map((v, k) => v + (cam.look[k] - v) * t0), b = cam.at.map((v, k) => v + (cam.look[k] - v) * t1);
+  const lo = [0, 1, 2].map((k) => Math.min(a[k], b[k])), hi = [0, 1, 2].map((k) => Math.max(a[k], b[k]));
+  let first = null;
+  for (const part of seen) {
+    if (part.transparency >= 0.3 || !part.min.every((v, k) => v <= hi[k] && lo[k] <= part.max[k])) continue;
+    if (pointIn(part, cam.look, 0)) continue;
+    const t = entersAt(part, a, b);
+    if (t != null && (first == null || t < first.t)) first = { part, t: t0 + t * (t1 - t0) };
+  }
+  if (inside.length || first) camRows.push({ cam, inside, first });
+}
+const camKey = (r) => `shot ${r.cam.shot} cut ${r.cam.cut} ${r.cam.which}`;
+report.push(`${cams.length} camera places over ${new Set(cams.map((c) => c.p)).size} cafes; ${camRows.filter((r) => r.inside.length).length} inside a part, ${camRows.filter((r) => r.first).length} with something in the sight line.`, '');
+for (const e of camErrors) report.push(`- Intro.shots failed: ${e}`);
+if (camRows.length) {
+  report.push('| place in the intro | cafes | camera inside | first in the sight line (how far along) |', '|---|---|---|---|');
+  const fold = new Map();
+  for (const r of camRows) {
+    const what = `${r.inside.map(label).slice(0, 3).join('; ') || ''} | ${r.first ? label(r.first.part) : ''}`;
+    const key = `${camKey(r)} | ${what}`;
+    if (!fold.has(key)) fold.set(key, { r, what, cafes: [], t: [] });
+    fold.get(key).cafes.push(r.cam.p);
+    if (r.first) fold.get(key).t.push(r.first.t);
+  }
+  for (const [, f] of [...fold].sort((x, y) => x[1].r.cam.shot - y[1].r.cam.shot || x[1].r.cam.cut - y[1].r.cam.cut)) {
+    const [inside, sight] = f.what.split(' | ');
+    const t = f.t.length ? ` (${Math.round(Math.min(...f.t) * 100)}% to ${Math.round(Math.max(...f.t) * 100)}%)` : '';
+    report.push(`| ${camKey(f.r)} | ${f.cafes.join(' ')} | ${inside} | ${sight}${t} |`);
+  }
+}
+
 const summary = [
   '# Cafe fit check',
   '',
@@ -302,6 +372,7 @@ const summary = [
   `| customer route legs blocked | ${routeRows.length} |`,
   `| back doors with something in the way | ${doorRows.filter((r) => r.found.length > 0).length} of ${doorRows.length} |`,
   `| town rows (floating, seams, clipping) | ${townFold.size} |`,
+  `| intro cameras inside a part / sight lines crossed | ${camRows.filter((r) => r.inside.length).length} / ${camRows.filter((r) => r.first).length} of ${cams.length} |`,
 ];
 fs.writeFileSync(path.join(outDir, 'cafe-fit.md'), [...summary, ...report, ''].join('\n'));
 console.log(`Report: ${path.join(outDir, 'cafe-fit.md')}`);

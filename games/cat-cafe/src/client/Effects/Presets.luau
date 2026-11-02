@@ -2210,7 +2210,9 @@ Presets.orders = {
 		flicker = 0.12,
 		hz = 3.1,
 	},
-	door = { { 0, 0 }, { 0.14, -55 }, { 0.6, -55 }, { 0.95, 0 } },
+	-- 30 at most: the plot's Barista stands 2.65 studs in front of the oven (#781), and the 1.75 stud door would reach
+	-- it past that
+	door = { { 0, 0 }, { 0.12, -30 }, { 0.55, -30 }, { 0.85, 0 } },
 	waft = 6,
 	ding = {
 		sparkles = 10,

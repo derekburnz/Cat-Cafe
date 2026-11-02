@@ -33,7 +33,7 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every effect a
    ```luau
    Audio.setZone("Alley") -- "Cafe", "Alley", "Park"; later "Neighbourhood", "Woods", "Sewer"; nil for none
    ```
-   Crossing between the safe street (nil or `"Cafe"`) and a catching area also plays `zoneArea` or `zoneSafe` with the Safe zone chip: one per 4 s, none for 2 s after a `Travel`.
+   Crossing between the safe street and a catching area is silent since 2026-11-02, like a cat levelling up: their chimes (`zoneArea`, `zoneSafe`, `catLevelUp`) went with the Safe zone chip and the toasts (Derek 2026-10-28, UI PR #669). `Audio.setZone` still moves the ambience.
 5. **UI sounds**: the ui-designer's `Theme.sounds` ids become one injected function, `playSound = Audio.play`, called with cue ids: `uiClick` (click), `purchase` (buy), `uiError` (error), `jingleCatFound` (catFound), plus `uiOpen`, `uiClose`, `uiToast`, `uiTab` and the rest of sound list 5.8.
 6. **World loops** need only a CollectionService tag on the part or model (a model plays from its PrimaryPart). Audio follows the tags itself, streaming in and out with the parts:
 

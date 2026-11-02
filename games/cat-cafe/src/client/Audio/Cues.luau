@@ -404,8 +404,8 @@ local Cues: { [string]: Cue } = {
 	}, -- F42: was shinyReveal
 
 	-- Zones and travel (5.9) --------------------------------------------------------------------------------
-	zoneSafe = { ids = { "rbxassetid://106879168380819" }, group = "Sfx", volume = 0.45 }, -- back on the safe street
-	zoneArea = { ids = { "rbxassetid://103566569518372" }, group = "Sfx", volume = 0.45 }, -- into a catching area, shoves on
+	zoneSafe = { ids = { "rbxassetid://106879168380819" }, group = "Sfx", volume = 0.45 }, -- back on the safe street; silent since 2026-11-02 (UI PR #669), kept for its upload record
+	zoneArea = { ids = { "rbxassetid://103566569518372" }, group = "Sfx", volume = 0.45 }, -- into a catching area; silent since 2026-11-02 (UI PR #669), kept for its upload record
 	travelPoof = {
 		ids = { "rbxassetid://99298919905979" },
 		group = "Sfx",
@@ -557,7 +557,7 @@ local Cues: { [string]: Cue } = {
 		group = "Sfx",
 		volume = 0.4,
 		minGap = 1.5,
-	}, -- F75: one of your cats levels up
+	}, -- F75: one of your cats levels up; silent since 2026-11-02 with its toast (UI PR #669), kept for its upload record
 
 	-- UI (5.8) ----------------------------------------------------------------------------------------------
 	uiClick = {

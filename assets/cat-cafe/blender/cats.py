@@ -199,7 +199,12 @@ A_LEG_XY = {"LegF1": (0.22, -0.2), "LegF2": (-0.22, -0.2), "LegB1": (0.22, 0.42)
 A_NECK, A_TAIL = (0.0, -0.3, 0.85), (0.0, 0.58, 0.8)
 SHORT_LEGS = 0.12           # how much lower a short-legged cat's body is on A (the Munchkin)
 # Body B sitting up: haunches on the floor and an upright chest, the same on every cat so one outfit fits all.
-B_HAUNCH_C, B_HAUNCH_S = (0.0, 0.18, 0.28), (0.9, 0.75, 0.56)
+# The haunches are a little narrower, shallower and further forward than the first B's (0.9 x 0.75 x 0.56 at y 0.18),
+# and a big cat's body_scale widens them by half as much, so the rump is no shelf from behind (Derek 11-02: "the butt's
+# look way too big" on a sitting Chonk).
+B_HAUNCH_C, B_HAUNCH_S = (0.0, 0.15, 0.25), (0.82, 0.68, 0.5)
+B_HAUNCH_BS = 0.5           # how much of a cat's body_scale over 1 its haunches take
+S_HAUNCH_FRAME = ((0.0, 0.18, 0.28), (0.9, 0.75, 0.56))   # S keeps the first B's haunches for its back props' frames
 B_CHEST_C, B_CHEST_S = (0.0, -0.06, 0.74), (0.7, 0.55, 0.72)
 B_SHOULDER_Z = 0.62
 B_LEG_XY = {"LegF1": (0.17, -0.3), "LegF2": (-0.17, -0.3)}
@@ -279,7 +284,7 @@ def dims(spec, body="walk"):
         d["tail_chain"] = dict(angles=(35, 80), seg=0.3, thick=0.24 * tail_k, plane="X", taper=0.02)
     elif body == "work":
         d["chest"] = (B_CHEST_C, B_CHEST_S)
-        d["haunch"] = ((B_HAUNCH_C[0], B_HAUNCH_C[1], B_HAUNCH_S[2] / 2), B_HAUNCH_S)   # B's: only for props.Ctx's frames
+        d["haunch"] = S_HAUNCH_FRAME                     # only for props.Ctx's frames
         d["neck"] = B_NECK
         d["tail"] = S_TAIL
         sx, sy, sz = S_SHOULDER
@@ -289,7 +294,7 @@ def dims(spec, body="walk"):
         d["tail_chain"] = dict(angles=(-15, 15, 45, 75, 100), seg=0.24, thick=0.2 * tail_k, plane="X", taper=0.015,
                                lean=10)
     else:
-        size = (B_HAUNCH_S[0] * bs[0], B_HAUNCH_S[1] * bs[1], B_HAUNCH_S[2] * bs[2])
+        size = tuple(B_HAUNCH_S[i] * (1 + (bs[i] - 1) * B_HAUNCH_BS) for i in range(3))
         d["haunch"] = ((B_HAUNCH_C[0], B_HAUNCH_C[1], size[2] / 2), size)
         d["chest"] = (B_CHEST_C, B_CHEST_S)
         d["back_paws"] = [(sx * (size[0] / 2 - 0.08), -0.1) for sx in (1, -1)]

@@ -17,8 +17,8 @@
      "CFrame": {
       "position": [
        0.0,
-       0.266,
-       0.171
+       0.2375,
+       0.1425
       ],
       "orientation": [
        [
@@ -40,9 +40,9 @@
      }
     },
     "Size": [
-     0.855,
-     0.532,
-     0.7125
+     0.779,
+     0.475,
+     0.646
     ],
     "Color": [
      0.8824,
@@ -60,8 +60,8 @@
      "CFrame": {
       "position": [
        0.0,
-       -0.266,
-       -0.171
+       -0.2375,
+       -0.1425
       ],
       "orientation": [
        [
@@ -95,8 +95,8 @@
        "CFrame": {
         "position": [
          0.0,
-         0.361,
-         -0.4892
+         0.3895,
+         -0.4607
         ],
         "orientation": [
          [
@@ -127,8 +127,8 @@
        "CFrame": {
         "position": [
          0.0,
-         0.437,
-         -0.5225
+         0.4655,
+         -0.494
         ],
         "orientation": [
          [
@@ -159,8 +159,8 @@
        "CFrame": {
         "position": [
          0.0,
-         0.361,
-         -0.228
+         0.3895,
+         -0.1995
         ],
         "orientation": [
          [
@@ -191,8 +191,8 @@
        "CFrame": {
         "position": [
          0.0,
-         0.361,
-         -0.228
+         0.3895,
+         -0.1995
         ],
         "orientation": [
          [
@@ -223,8 +223,8 @@
        "CFrame": {
         "position": [
          0.0,
-         0.608,
-         0.0333
+         0.6365,
+         0.0618
         ],
         "orientation": [
          [
@@ -305,7 +305,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.3515,
+       -0.3135,
        0.0617,
        -0.095
       ],
@@ -354,7 +354,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.3515,
+       0.3135,
        0.0617,
        -0.095
       ],
@@ -600,7 +600,7 @@
      "CFrame": {
       "position": [
        0.0,
-       0.266,
+       0.2375,
        0.0475
       ],
       "orientation": [
@@ -623,8 +623,8 @@
      }
     },
     "Size": [
-     0.893,
-     0.456,
+     0.817,
+     0.399,
      0.114
     ],
     "Color": [
@@ -649,7 +649,7 @@
      "CFrame": {
       "position": [
        0.0,
-       0.266,
+       0.2375,
        0.3325
       ],
       "orientation": [
@@ -672,8 +672,8 @@
      }
     },
     "Size": [
-     0.893,
-     0.456,
+     0.817,
+     0.399,
      0.114
     ],
     "Color": [
@@ -697,9 +697,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.4441,
-       0.285,
-       0.19
+       0.4061,
+       0.2565,
+       0.1615
       ],
       "orientation": [
        [
@@ -723,7 +723,7 @@
     "Size": [
      0.0428,
      0.133,
-     0.589
+     0.5358
     ],
     "Color": [
      0.9686,
@@ -746,401 +746,401 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.4781,
-       0.3135,
-       -0.0594
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0347,
-     0.057,
-     0.0713
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Taxi_Sit_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4781,
-       0.3135,
-       0.0831
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0347,
-     0.057,
-     0.0713
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Taxi_Sit_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4781,
-       0.3135,
-       0.2256
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0347,
-     0.057,
-     0.0713
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Taxi_Sit_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4781,
-       0.3135,
-       0.3681
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0347,
-     0.057,
-     0.0713
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Taxi_Sit_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4781,
-       0.2565,
-       0.0119
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0347,
-     0.057,
-     0.0713
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Taxi_Sit_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4781,
-       0.2565,
-       0.1544
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0347,
-     0.057,
-     0.0713
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Taxi_Sit_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4781,
-       0.2565,
-       0.2969
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0347,
-     0.057,
-     0.0713
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Taxi_Sit_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4781,
-       0.2565,
-       0.4394
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0347,
-     0.057,
-     0.0713
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Taxi_Sit_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4441,
+       0.4402,
        0.285,
-       0.19
+       -0.0646
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0347,
+     0.057,
+     0.0646
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Taxi_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4402,
+       0.285,
+       0.0646
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0347,
+     0.057,
+     0.0646
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Taxi_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4402,
+       0.285,
+       0.1938
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0347,
+     0.057,
+     0.0646
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Taxi_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4402,
+       0.285,
+       0.323
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0347,
+     0.057,
+     0.0646
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Taxi_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4402,
+       0.228,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0347,
+     0.057,
+     0.0646
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Taxi_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4402,
+       0.228,
+       0.1292
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0347,
+     0.057,
+     0.0646
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Taxi_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4402,
+       0.228,
+       0.2584
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0347,
+     0.057,
+     0.0646
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Taxi_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4402,
+       0.228,
+       0.3876
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0347,
+     0.057,
+     0.0646
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Taxi_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4061,
+       0.2565,
+       0.1615
       ],
       "orientation": [
        [
@@ -1164,7 +1164,7 @@
     "Size": [
      0.0428,
      0.133,
-     0.589
+     0.5358
     ],
     "Color": [
      0.9686,
@@ -1187,9 +1187,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.4781,
-       0.3135,
-       -0.0594
+       -0.4402,
+       0.285,
+       -0.0646
       ],
       "orientation": [
        [
@@ -1213,7 +1213,7 @@
     "Size": [
      0.0347,
      0.057,
-     0.0713
+     0.0646
     ],
     "Color": [
      0.1686,
@@ -1236,9 +1236,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.4781,
-       0.3135,
-       0.0831
+       -0.4402,
+       0.285,
+       0.0646
       ],
       "orientation": [
        [
@@ -1262,7 +1262,7 @@
     "Size": [
      0.0347,
      0.057,
-     0.0713
+     0.0646
     ],
     "Color": [
      0.1686,
@@ -1285,9 +1285,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.4781,
-       0.3135,
-       0.2256
+       -0.4402,
+       0.285,
+       0.1938
       ],
       "orientation": [
        [
@@ -1311,7 +1311,7 @@
     "Size": [
      0.0347,
      0.057,
-     0.0713
+     0.0646
     ],
     "Color": [
      0.1686,
@@ -1334,9 +1334,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.4781,
-       0.3135,
-       0.3681
+       -0.4402,
+       0.285,
+       0.323
       ],
       "orientation": [
        [
@@ -1360,7 +1360,7 @@
     "Size": [
      0.0347,
      0.057,
-     0.0713
+     0.0646
     ],
     "Color": [
      0.1686,
@@ -1383,9 +1383,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.4781,
-       0.2565,
-       0.0119
+       -0.4402,
+       0.228,
+       0.0
       ],
       "orientation": [
        [
@@ -1409,7 +1409,7 @@
     "Size": [
      0.0347,
      0.057,
-     0.0713
+     0.0646
     ],
     "Color": [
      0.1686,
@@ -1432,9 +1432,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.4781,
-       0.2565,
-       0.1544
+       -0.4402,
+       0.228,
+       0.1292
       ],
       "orientation": [
        [
@@ -1458,7 +1458,7 @@
     "Size": [
      0.0347,
      0.057,
-     0.0713
+     0.0646
     ],
     "Color": [
      0.1686,
@@ -1481,9 +1481,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.4781,
-       0.2565,
-       0.2969
+       -0.4402,
+       0.228,
+       0.2584
       ],
       "orientation": [
        [
@@ -1507,7 +1507,7 @@
     "Size": [
      0.0347,
      0.057,
-     0.0713
+     0.0646
     ],
     "Color": [
      0.1686,
@@ -1530,9 +1530,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.4781,
-       0.2565,
-       0.4394
+       -0.4402,
+       0.228,
+       0.3876
       ],
       "orientation": [
        [
@@ -1556,7 +1556,7 @@
     "Size": [
      0.0347,
      0.057,
-     0.0713
+     0.0646
     ],
     "Color": [
      0.1686,
@@ -4578,7 +4578,7 @@
         "position": [
          -0.6673,
          0.1195,
-         0.2409
+         0.1792
         ],
         "orientation": [
          [
@@ -4656,7 +4656,7 @@
         "position": [
          -0.3462,
          0.1045,
-         0.5699
+         0.5081
         ],
         "orientation": [
          [
@@ -4705,7 +4705,7 @@
         "position": [
          -0.62,
          0.1045,
-         0.5092
+         0.4474
         ],
         "orientation": [
          [
@@ -4752,7 +4752,7 @@
       "position": [
        -0.19,
        0.1045,
-       0.513
+       0.4512
       ],
       "orientation": [
        [

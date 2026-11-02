@@ -1506,12 +1506,13 @@ Presets.palWave = {
 -- Avatar.Pose degrees (the legs stay the character's own): arms folded across the chest, the left forearm under the
 -- right, head tipped down to the cat; the wrists are held straight, so the hands keep still over the character's
 -- walk (16:51: "hands shake too much"). R6 has no elbows, so `arms6` reaches both arms forward and in to meet under
--- the cat. The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little) and
--- `forward` studs further out, clear of the chest, `loafSide` or `sitSide` studs to the right (negative: left).
--- Lying on the arms it turns `loafTurn` degrees, which puts it out at the character's left side with its face back
--- over the left shoulder: in front of the chest the body hid it from the game's camera behind the player (16:48:
--- "cat is missing from the arms"), and this way that camera sees its face peeking over the shoulder. Sitting up it
--- turns `sitTurn` (facing out). The arms ease in over `blendIn` and out over `blendOut` seconds. A HeldCat Pose
+-- the cat. The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little),
+-- `loafSide` or `sitSide` studs to the right of halfway between the forearms (negative: left) and `loafForward` or
+-- `forward` studs further out than them. Lying on the arms it turns `loafTurn` degrees: straight across the middle
+-- of the arms, head to the character's left (Derek 2026-11-02 12:01: "it should be straight across middle of arms";
+-- before, it lay out at the left side facing back over the shoulder, for the camera behind, which he found off
+-- centre). `loafForward` keeps its big head clear of the character's face, its back just in front of it, while it
+-- looks about. Sitting up it turns `sitTurn` (facing out), `forward` out. The arms ease in over `blendIn` and out over `blendOut` seconds. A HeldCat Pose
 -- cannot move part by part (still streaming in, or on Motor6D joints) stays on its weld and is tried again after
 -- `retry` seconds.
 Presets.carryPose = {
@@ -1530,8 +1531,9 @@ Presets.carryPose = {
 	arms6 = { sh = 80, sp = -30, neck = -12 } :: { [string]: number },
 	gap = -0.15,
 	forward = -0.6,
-	loafTurn = 150,
-	loafSide = -1.4,
+	loafForward = -1.15,
+	loafTurn = 90,
+	loafSide = 0,
 	sitTurn = 15,
 	sitSide = -0.55,
 	blendIn = 0.2,

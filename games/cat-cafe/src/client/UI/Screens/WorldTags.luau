@@ -9,6 +9,10 @@
 --   heart once they are served, then fades. Customers are this client's own models in Workspace.LocalCustomers with
 --   Order and Served attributes (CustomerController). F90 (cats-make-orders.md): Order is a menu id (coffee up to
 --   rainbow_cake) and the bubble shows the item's glyph from shared Catalog.getMenuItem, the dish pictures later.
+--   Making bubbles (F90, cats-make-orders.md section 2): over a Barista making an order, above its rate tag, the
+--   item's glyph in the same white bubble with a gold ring that fills clockwise over MakeSeconds. CafeOrders sets
+--   the cat's local Making (menu id) and MakeSeconds attributes while it works; the bubble pops out when Making
+--   clears, and starts over when the next order follows. The ding and the puff are VFX's.
 -- The labels are parented under the models themselves, so they go when the cat or the customer goes.
 --
 -- Roblox terms: a BillboardGui parented under a part draws over that part and always faces the camera; its Size
@@ -16,11 +20,13 @@
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local ProgressRing = require(script.Parent.Parent.Components.ProgressRing)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
@@ -38,6 +44,8 @@ local RATE_SIZE = Vector2.new(4, 1.1) -- studs
 local NAME_HEIGHT = 0.7 -- studs, the name line over the rate
 local BUBBLE_SIZE = 1.7 -- studs, square
 local HEART_SECONDS = 1.6 -- the heart stays this long, then fades
+local MAKING_SIZE = 1.5 -- studs, square: the making bubble over a Barista, a little smaller than an order bubble
+local RING_THICKNESS = 4 -- pixels
 -- Emoji draw in colour in Roblox text, so the bubbles need no image upload. Before F90's menu the orders were these
 -- three; a menu id reads its glyph from the catalog (orderGlyph).
 local ORDER_ICONS: { [string]: string } = { coffee = "☕", cake = "🍰", milk = "🥛" }
@@ -48,6 +56,16 @@ local NIGHT_TIPS: number = Config.NightIncomeMultiplier
 
 local WorldTags = {}
 WorldTags.__index = WorldTags
+
+type Making = {
+	billboard: BillboardGui,
+	bubble: Frame,
+	icon: TextLabel,
+	ring: ProgressRing.ProgressRing,
+	startAt: number, -- os.clock() when this order began
+	seconds: number,
+	on: boolean,
+}
 
 -- F90: the menu item's glyph for an Order menu id, the old three's, or "?" for an id nobody knows.
 local function orderGlyph(order: string): string
@@ -86,6 +104,9 @@ function WorldTags.new(): WorldTags
 	self._watched = {} :: { [Instance]: { RBXScriptConnection } }
 	self._labels = {} :: { [Instance]: BillboardGui }
 	self._renders = {} :: { [Instance]: () -> () } -- rate tags redraw when day turns to night
+	-- F90: the making bubbles, by cat, and the one Heartbeat that fills their rings while any is filling
+	self._making = {} :: { [Instance]: Making }
+	self._fill = nil :: RBXScriptConnection?
 	self._night = false
 	self._destroyed = false
 
@@ -220,13 +241,141 @@ function WorldTags._attachCat(self: any, cat: Instance)
 	billboard.Parent = part
 	self._labels[cat] = billboard
 	self._renders[cat] = render
+	local function making()
+		self:_renderMaking(cat, part, height + RATE_SIZE.Y + NAME_HEIGHT + 0.3)
+	end
 	self._watched[cat] = {
 		cat:GetAttributeChangedSignal("Rate"):Connect(render),
 		cat:GetAttributeChangedSignal("Napping"):Connect(render),
 		cat:GetAttributeChangedSignal("Rarity"):Connect(render),
 		cat:GetAttributeChangedSignal("DisplayName"):Connect(render),
+		cat:GetAttributeChangedSignal("Making"):Connect(making),
 	}
 	render()
+	making()
+end
+
+-- Making bubbles (F90) --------------------------------------------------------------------------------------
+
+-- Shows, restarts or pops out a Barista's making bubble from its Making and MakeSeconds attributes. `above` is how
+-- far over the anchor part's centre the rate tag ends.
+function WorldTags._renderMaking(self: any, cat: Instance, part: BasePart, above: number)
+	local item = cat:GetAttribute("Making")
+	local entry: Making? = self._making[cat]
+	if type(item) ~= "string" then
+		if entry and entry.on then
+			entry.on = false
+			local shown = entry
+			Tween.popOut(shown.bubble, function()
+				if not shown.on then
+					shown.billboard.Enabled = false
+				end
+			end)
+		end
+		return
+	end
+	local bubble: Making = if entry then entry else self:_makingBubble(part, above)
+	self._making[cat] = bubble
+	local seconds = cat:GetAttribute("MakeSeconds")
+	bubble.seconds = if type(seconds) == "number" and seconds > 0 then seconds else 2
+	bubble.startAt = os.clock()
+	bubble.on = true
+	bubble.icon.Text = orderGlyph(item)
+	bubble.ring:set(0)
+	bubble.billboard.Enabled = true
+	Tween.popIn(bubble.bubble, 0.6)
+	self:_startFill()
+end
+
+function WorldTags._makingBubble(_self: any, part: BasePart, above: number): Making
+	local billboard: BillboardGui = Create("BillboardGui", {
+		Name = "CatCafeMakingBubble",
+		Size = UDim2.fromScale(MAKING_SIZE, MAKING_SIZE),
+		StudsOffsetWorldSpace = Vector3.new(0, above + MAKING_SIZE / 2 + 0.1, 0),
+		MaxDistance = MAX_DISTANCE,
+		LightInfluence = 0,
+		ResetOnSpawn = false,
+	})
+	local bubble: Frame = Create("Frame", {
+		Name = "Bubble",
+		BackgroundColor3 = Theme.colors.paper,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0.8, 0.8),
+		Parent = billboard,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	local icon: TextLabel = Create("TextLabel", {
+		Name = "Icon",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.52),
+		Size = UDim2.fromScale(0.66, 0.66),
+		FontFace = Theme.fonts.display,
+		TextScaled = true,
+		TextColor3 = Theme.colors.ink,
+		Text = "",
+		Parent = bubble,
+	})
+	-- a faint track under the gold, so the ring reads as "this much left"; inset like the ring's circles, so both
+	-- strokes end at the bubble's edge
+	local track: Frame = Create("Frame", {
+		Name = "Track",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(RING_THICKNESS, RING_THICKNESS),
+		Size = UDim2.new(1, -2 * RING_THICKNESS, 1, -2 * RING_THICKNESS),
+		Parent = bubble,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIStroke", {
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Color = Theme.colors.ink,
+			Transparency = 0.6,
+			Thickness = RING_THICKNESS,
+		}),
+	})
+	local ring = ProgressRing.new({
+		parent = bubble,
+		color = Theme.colors.gold,
+		thickness = RING_THICKNESS,
+		zIndex = 2,
+	})
+	track.ZIndex = 1
+	billboard.Parent = part
+	return {
+		billboard = billboard,
+		bubble = bubble,
+		icon = icon,
+		ring = ring,
+		startAt = os.clock(),
+		seconds = 2,
+		on = false,
+	}
+end
+
+-- One Heartbeat fills every ring that is filling and stops itself when none is.
+function WorldTags._startFill(self: any)
+	if self._fill ~= nil then
+		return
+	end
+	self._fill = RunService.Heartbeat:Connect(function()
+		local now = os.clock()
+		local busy = false
+		for _, entry: Making in self._making do
+			if entry.on then
+				local progress = (now - entry.startAt) / entry.seconds
+				entry.ring:set(progress)
+				busy = busy or progress < 1
+			end
+		end
+		if not busy then
+			local connection: RBXScriptConnection? = self._fill
+			if connection then
+				connection:Disconnect()
+			end
+			self._fill = nil
+		end
+	end)
 end
 
 -- Order bubbles ----------------------------------------------------------------------------------------------
@@ -326,6 +475,11 @@ function WorldTags._detach(self: any, model: Instance)
 	end
 	self._watched[model] = nil
 	self._renders[model] = nil
+	local making: Making? = self._making[model]
+	if making then
+		making.billboard:Destroy()
+	end
+	self._making[model] = nil
 	local label: BillboardGui? = self._labels[model]
 	if label then
 		label:Destroy()
@@ -339,6 +493,11 @@ function WorldTags.destroy(self: any)
 		connection:Disconnect()
 	end
 	table.clear(self._connections)
+	local fill: RBXScriptConnection? = self._fill
+	if fill then
+		fill:Disconnect()
+	end
+	self._fill = nil
 	local models = {}
 	for model in self._watched do
 		table.insert(models, model)

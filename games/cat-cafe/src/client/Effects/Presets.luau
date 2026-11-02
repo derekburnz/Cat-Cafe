@@ -74,6 +74,9 @@ export type Budget = {
 	pullConfetti: number, -- confetti pieces on screen in a big pull (F89)
 	rainbowCats: number, -- rainbow cats whose bands flow, with a glow and a trail, at once (F99)
 	rainbowOutlines: number, -- of those, the nearest with a band-coloured outline (a Highlight each)
+	rallyPops: number, -- "+1" pops and paws flying into the Rally bar at once (F101)
+	pennants: number, -- bunting pennants fluttering at once (F101); 0 hangs them all still
+	decorMotion: number, -- rare decor's moving parts (_Swing, _Spin, _Bob) moving at once (F89 2c)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -103,6 +106,9 @@ Presets.budget = {
 		pullConfetti = 20,
 		rainbowCats = 6,
 		rainbowOutlines = 3,
+		rallyPops = 5,
+		pennants = 40,
+		decorMotion = 12,
 	},
 	high = {
 		animatedCats = 16,
@@ -127,6 +133,9 @@ Presets.budget = {
 		pullConfetti = 40,
 		rainbowCats = 10,
 		rainbowOutlines = 6,
+		rallyPops = 8,
+		pennants = 90,
+		decorMotion = 24,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -151,6 +160,9 @@ Presets.budget = {
 		pullConfetti = 13,
 		rainbowCats = 3,
 		rainbowOutlines = 0,
+		rallyPops = 3,
+		pennants = 0,
+		decorMotion = 0,
 	},
 } :: { [string]: Budget }
 
@@ -1730,6 +1742,79 @@ Presets.rainbow = {
 	outline = 0.25, -- outline transparency
 	moving = 0.6,
 	beam = { width = 0.5, height = 50, seconds = 3, ring = 0.55, within = 400 },
+}
+
+-- The Rescue Rally (F101, rescue-rally.md section 4) on this player's screen, over the UI's banner bar (`RallyBar`):
+-- each point anyone scores pops a "+N" in `text` up from just under the bar into the end of its fill, and this
+-- player's own points fly a paw with the "+N" up from the bottom middle of the screen. Each flies `seconds`, popping
+-- in over `popIn` and shrinking to `land` as it arrives, with a small sparkle there; no more than the budget's
+-- rallyPops at once, the rest skipped. Each step of the bar (`steps`) runs `stepSparkles` sparkles along the filled
+-- bar, twice as many in gold for the full bar. Reduce Motion drops the pops and halves the step sparkles.
+Presets.rally = {
+	displayOrder = 11, -- over the HUD (10), under the area title (12) and the modals (20)
+	steps = { 0.25, 0.5, 1 },
+	seconds = 0.65,
+	popIn = 0.14,
+	land = 0.55,
+	below = { 34, 64 }, -- pixels under the bar the "+N" pops at
+	spreadX = 46, -- pixels either side of the fill end
+	lift = { 0.12, 0.28 }, -- how far a flight bends, a share of its length, to either side
+	textSize = 26,
+	ownSize = 44, -- the paw's size in pixels
+	text = Color3.fromRGB(255, 249, 242),
+	stroke = Color3.fromRGB(217, 102, 40),
+	paw = Color3.fromRGB(255, 166, 77),
+	sparkle = Color3.fromRGB(255, 244, 176),
+	arrive = 5, -- sparkles where a pop lands
+	stepSparkles = 14,
+	stepSeconds = 0.8,
+	full = Color3.fromRGB(242, 193, 78),
+}
+
+-- Bunting pennants (F101: the Town Square's Rally bunting, the Rally Crate's cheer bunting): every Model or part whose
+-- name ends `_Pennant` inside a Model whose name has `Bunting` in it swings about its top edge, out of its hanging
+-- plane, leaning `lean` degrees downwind and fluttering `swing` degrees on two waves (`hz1`, `hz2`) that run across
+-- the square with the wind every `wavelength` studs. The nearest budget.pennants within ambientRadius move at the
+-- budget's update rate; the rest, and all of them with Reduce Motion, hang as modelled.
+Presets.bunting = {
+	lean = 7,
+	swing = 13,
+	hz1 = 0.9,
+	hz2 = 1.6,
+	wavelength = 18,
+	pick = 1, -- seconds between choosing which pennants move
+}
+
+-- Trade done (F102, trading.md section 3 step 6): the UI's "You get" pictures (tag `TradeGot`) fly off the confirm
+-- screen into the HUD's Cats pill, the cat room, one after another `stagger` seconds apart, in an arc that bends up
+-- by `lift` of the way, shrinking to `land` of the pill's height over `seconds`; each lands with `arrive` sparkles and
+-- a ring round the pill. With Reduce Motion nothing flies: the pill gets half the sparkles and no ring.
+Presets.tradeFly = {
+	displayOrder = 21, -- over the trade window (a modal, 20), under the bait card (35) and toasts (30)
+	seconds = 0.75,
+	stagger = 0.09,
+	lift = 0.22,
+	land = 0.8,
+	popIn = 0.12,
+	arrive = 6,
+	ring = 1.6, -- the ring grows to this many times the pill's height
+	ringSeconds = 0.45,
+	sparkle = Color3.fromRGB(255, 244, 176),
+	ringColor = Color3.fromRGB(255, 249, 242),
+}
+
+-- Moving parts of rare decor (F89 2c, luck-and-rare-moments.md: a Legendary piece has "a moving part and a light"):
+-- Model-Agent marks each with a child Model named ending `_Swing` (swings side to side about its pivot's Z axis, the
+-- pivot at the hook: lanterns, a porch swing, wind chimes), `_Spin` (turns about its pivot's Y axis: a record, a little
+-- fan) or `_Bob` (rides up and down along its pivot's Y: a duck on the water), lights inside riding along. Its own
+-- `Angle` (degrees), `Seconds` (one cycle) and `Rise` (studs) attributes override the defaults here, held inside the
+-- ranges. The nearest budget.decorMotion within ambientRadius move at the budget's update rate, each started at a
+-- random point of its cycle; Reduce Motion and Low performance hold them all still as modelled.
+Presets.decorMotion = {
+	angle = { default = 10, least = 0, most = 45 },
+	seconds = { default = 2, least = 0.3, most = 30 },
+	rise = { default = 0.08, least = 0, most = 1 },
+	pick = 1, -- seconds between choosing which parts move
 }
 
 -- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to

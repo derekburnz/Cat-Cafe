@@ -290,7 +290,7 @@ Each Legendary and Mythical furniture or decoration model has "a small sound whe
 | `decorIceCream` | Ice Cream Counter (Neighbourhood), at `CatCafe_Decor_IceCreamCounter_Sign_Spin` | 1.5 s | a scoop scrapes the tub, a soft plop, a four-note music box tune | P1 |
 | `decorDuckFountain` | Duck Fountain (Park), at `CatCafe_Decor_DuckFountain_Ducklings_Spin` | 1.6 s | water burbling from the duck's beak, a few plips, one small squeak | P1 |
 | `decorJukebox` | Retro Jukebox (Alleyway), at `CatCafe_Decor_RetroJukebox_Record_Spin` | 2.0 s | a coin drops in, the record clunks down, the needle crackles, a short bouncy organ riff | P1 |
-| `decorCatTree` | Cat Tree Tower (Classic Crate) | 1.3 s | claws rake the sisal post, the dangling toy's bell jingles, a paw lands on top | P1 |
+| `decorCatTree` | Cat Tree Tower (Classic Crate), at `CatCafe_Decor_CatTreeTower_Toy1_Swing` (the toy on a string, cat height) | 1.3 s | claws rake the sisal post, the dangling toy's bell jingles, a paw lands on top | P1 |
 
 P0 set (20): `musicDayA`, `musicNightA`, `jingleCatFound`, `jingleRankUp`, `ambAlleyNight`, `netSwing`, `circlePerfect`, `circleGood`, `circleMiss`, `catchSparkle`, `catchMiss`, `catHiss`, `straySprint`, `purrfectChime`, `checkInBell`, `coinPop`, `purchase`, `uiClick` and `uiError`. The three circle grades come first: the net is the riskiest feel (features.md build order), and sound is half of a timing game's feel. The upload order in `upload.py` follows this list, so a small monthly allowance covers the whole catch first.
 

@@ -22,7 +22,8 @@ Themes: the Alleyway in city blocks, the Park in hills and parkland with a lake,
 a road, the Woods in deep forest under mountains, the Sewer in brick works with chimneys. Nothing collides, casts a
 shadow or takes a raycast (rbx_export BACKDROP), and every piece keeps KEEP clear of the area's walls and its camp set.
 Built against Config.World's v4 (F84) sizes; each F85 long rectangle gets its own ring with its numbers in AREAS
-(CatCafe_Park_BackdropF85 round the 120 x 310 Park, CatCafe_Neighbourhood_BackdropF85 round the 180 x 430 Neighbourhood).
+(CatCafe_Park_BackdropF85 round the 120 x 310 Park, CatCafe_Neighbourhood_BackdropF85 round the 180 x 430 Neighbourhood,
+CatCafe_Woods_BackdropF85 round the 160 x 490 Woods).
 """
 
 import math
@@ -44,15 +45,19 @@ KEEP = 3.0             # nothing stands nearer than this to the walls' outer fac
 
 # area: (half its width across, half its length from the gate line to the far wall, theme), Config.World v4 (F84)
 AREAS = {
-    "Alleyway": (45.0, 125.5, "city"),        # the two lanes and the block between, 90 x 251
+    "Alleyway": (45.0, 125.5, "city"),        # the one lane (two lanes and a block until 11-02), 90 x 251
     "Park": (80.0, 60.0, "park"),             # ParkWidth 160, ParkDepth 120
     "Neighbourhood": (140.0, 140.0, "houses"),
     "Woods": (120.0, 120.0, "forest"),        # turned a quarter: its depth runs across
     "Sewer": (90.0, 90.0, "works"),
     "ParkF85": (60.0, 155.0, "park"),         # F85's long Park, 120 x 310 (parkf85.py)
     "NeighbourhoodF85": (90.0, 215.0, "houses"),   # F85's long Neighbourhood, 180 x 430 (neighbourhoodf85.py)
+    "WoodsF85": (80.0, 245.0, "forest"),      # F85's long Woods, 160 x 490 (woodsf85.py)
+    "SewerF85": (60.0, 285.0, "works"),       # F85's long Sewer, 120 x 570 (sewerf85.py)
 }
-NAMES = {"ParkF85": "CatCafe_Park_BackdropF85", "NeighbourhoodF85": "CatCafe_Neighbourhood_BackdropF85"}   # an F85 ring keeps its area's name, so WorldBuilder can pick it
+NAMES = {"ParkF85": "CatCafe_Park_BackdropF85", "NeighbourhoodF85": "CatCafe_Neighbourhood_BackdropF85",
+         "WoodsF85": "CatCafe_Woods_BackdropF85",
+         "SewerF85": "CatCafe_Sewer_BackdropF85"}   # an F85 ring keeps its area's name, so WorldBuilder can pick it
 
 ASPHALT_RGB = (70, 70, 75)                     # WorldBuilder's ASPHALT
 PALE_RGB = (150, 186, 128)                     # the far hills, as in the hometown's
@@ -450,8 +455,9 @@ def theme_city(f, P):
     road = P["road"]
     for (x0, x1, z0, z1) in _frame_rects(f, 0.0, MARGIN - 1.0):     # the plate under the city in asphalt
         road.span((x0, TOP + 0.05, z0), (x1, 0.08, z1), "fur_charcoal")
-    # the first row hard by the walls (the street behind the camp), the second taller behind it
-    for row, (d, step, h0, h1, depth) in enumerate(((1.6, 17.0, 16.0, 34.0, 20.0), (26.0, 21.0, 30.0, 58.0, 22.0))):
+    # the first row just past the alley buildings' backs (12 deep since 11-02, 10 past the walls), the second taller
+    # behind it; none on the camp's side (the street behind the camp)
+    for row, (d, step, h0, h1, depth) in enumerate(((11.6, 17.0, 16.0, 34.0, 20.0), (36.0, 21.0, 30.0, 58.0, 22.0))):
         for i, (x, z, nx, nz) in enumerate(f.around(d + depth / 2, step, 42 + row, corners=row == 1)):
             back = nz < -0.9
             if back and row == 0:

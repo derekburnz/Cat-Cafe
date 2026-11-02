@@ -79,29 +79,38 @@ function AssetRegistry.clone(name: string): Model
 	return clone :: Model
 end
 
+-- Which body a cat model is: the walking body (A), the seated one (B, the _Sit models) or the standing worker (S,
+-- the _Work models).
+export type Body = "walk" | "sit" | "work"
+
 -- A cat's model: its gold coat (v0.5 F42) when `variant` is "gold" and the asset is there, else the base cat, which
--- is the walking body (A). `sitting` asks for the seated body (B, the _Sit models) a working cat wears at its
--- station, trying the gold seat, the seat, the gold walker and the walker in that order, so a cat whose seat is not
--- exported yet still shows. The second result is true when a seated body came back.
-function AssetRegistry.cloneCat(
-	catId: string,
-	variant: string?,
-	sitting: boolean?
-): (Model, boolean)
+-- is the walking body (A). `body` "sit" asks for the seated body a resting cat sits on at the odd nap spots, trying
+-- the gold seat, the seat, the gold walker and the walker in that order, so a cat whose seat is not exported yet
+-- still shows. "work" asks for the standing worker a working cat wears at its station (Model-Agent #826; Derek
+-- picked S on 2026-11-02), trying the gold worker and the worker before that seated order. The second result is the
+-- body that came back.
+function AssetRegistry.cloneCat(catId: string, variant: string?, body: Body?): (Model, Body)
 	local base = Catalog.catModelName(catId)
 	local gold = Catalog.goldModelName(catId)
 	local walkers: { string } = if variant == "gold" then { gold, base } else { base }
-	if sitting then
+	if body == "work" then
+		for _, name in walkers do
+			if AssetRegistry.has(Catalog.workModelName(name)) then
+				return AssetRegistry.clone(Catalog.workModelName(name)), "work"
+			end
+		end
+	end
+	if body == "work" or body == "sit" then
 		for _, name in walkers do
 			if AssetRegistry.has(Catalog.sitModelName(name)) then
-				return AssetRegistry.clone(Catalog.sitModelName(name)), true
+				return AssetRegistry.clone(Catalog.sitModelName(name)), "sit"
 			end
 		end
 	end
 	if variant == "gold" and AssetRegistry.has(gold) then
-		return AssetRegistry.clone(gold), false
+		return AssetRegistry.clone(gold), "walk"
 	end
-	return AssetRegistry.clone(base), false
+	return AssetRegistry.clone(base), "walk"
 end
 
 return AssetRegistry

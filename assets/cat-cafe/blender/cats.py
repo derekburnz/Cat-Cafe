@@ -199,7 +199,12 @@ A_LEG_XY = {"LegF1": (0.22, -0.2), "LegF2": (-0.22, -0.2), "LegB1": (0.22, 0.42)
 A_NECK, A_TAIL = (0.0, -0.3, 0.85), (0.0, 0.58, 0.8)
 SHORT_LEGS = 0.12           # how much lower a short-legged cat's body is on A (the Munchkin)
 # Body B sitting up: haunches on the floor and an upright chest, the same on every cat so one outfit fits all.
-B_HAUNCH_C, B_HAUNCH_S = (0.0, 0.18, 0.28), (0.9, 0.75, 0.56)
+# The haunches are a little narrower, shallower and further forward than the first B's (0.9 x 0.75 x 0.56 at y 0.18),
+# and a big cat's body_scale widens them by half as much, so the rump is no shelf from behind (Derek 11-02: "the butt's
+# look way too big" on a sitting Chonk).
+B_HAUNCH_C, B_HAUNCH_S = (0.0, 0.13, 0.23), (0.78, 0.64, 0.46)
+B_HAUNCH_BS = 0.5           # how much of a cat's body_scale over 1 its haunches take
+S_HAUNCH_FRAME = ((0.0, 0.18, 0.28), (0.9, 0.75, 0.56))   # S keeps the first B's haunches for its back props' frames
 B_CHEST_C, B_CHEST_S = (0.0, -0.06, 0.74), (0.7, 0.55, 0.72)
 B_SHOULDER_Z = 0.62
 B_LEG_XY = {"LegF1": (0.17, -0.3), "LegF2": (-0.17, -0.3)}
@@ -279,21 +284,25 @@ def dims(spec, body="walk"):
         d["tail_chain"] = dict(angles=(35, 80), seg=0.3, thick=0.24 * tail_k, plane="X", taper=0.02)
     elif body == "work":
         d["chest"] = (B_CHEST_C, B_CHEST_S)
-        d["haunch"] = ((B_HAUNCH_C[0], B_HAUNCH_C[1], B_HAUNCH_S[2] / 2), B_HAUNCH_S)   # B's: only for props.Ctx's frames
+        d["haunch"] = S_HAUNCH_FRAME                     # only for props.Ctx's frames
         d["neck"] = B_NECK
         d["tail"] = S_TAIL
         sx, sy, sz = S_SHOULDER
         d["legs"] = {"LegF1": S_SHOULDER, "LegF2": (-sx, sy, sz), **{n: (x, y, S_HIP_Z) for n, (x, y) in S_LEG_XY.items()}}
-        d["tail_chain"] = dict(angles=(-25, 25, 75), seg=0.3, thick=0.2 * tail_k, plane="X", taper=0.02)
+        # out of the base of the back and up in a curve, the tip hooked over, leaning a little to the cat's left, so
+        # it reads from behind, over the cape and above an apron's bow (Derek 11-02: "tail seems off")
+        d["tail_chain"] = dict(angles=(-15, 15, 45, 75, 100), seg=0.24, thick=0.2 * tail_k, plane="X", taper=0.015,
+                               lean=10)
     else:
-        size = (B_HAUNCH_S[0] * bs[0], B_HAUNCH_S[1] * bs[1], B_HAUNCH_S[2] * bs[2])
+        size = tuple(B_HAUNCH_S[i] * (1 + (bs[i] - 1) * B_HAUNCH_BS) for i in range(3))
         d["haunch"] = ((B_HAUNCH_C[0], B_HAUNCH_C[1], size[2] / 2), size)
         d["chest"] = (B_CHEST_C, B_CHEST_S)
         d["back_paws"] = [(sx * (size[0] / 2 - 0.08), -0.1) for sx in (1, -1)]
         d["neck"] = B_NECK
         d["tail"] = (B_TAIL[0] * bs[0], B_HAUNCH_C[1] + size[1] / 2 - 0.015, 0.09 * tail_k + 0.02)   # lying just off the floor
         d["legs"] = {n: (x, y, B_SHOULDER_Z) for n, (x, y) in B_LEG_XY.items()}
-        d["tail_chain"] = dict(angles=(-30, -90, -150), seg=0.38, thick=0.18 * tail_k, plane="Z", taper=0.0)
+        # out behind the haunches first, so it shows from behind, then forward along the left side
+        d["tail_chain"] = dict(angles=(20, -45, -115), seg=0.35, thick=0.18 * tail_k, plane="Z", taper=0.0)
     h = d["head"]
     n = d["neck"]
     for piece, sx in (("Eye1", 1), ("Eye2", -1)):
@@ -376,8 +385,10 @@ def _head(spec, c, h):
     if pat == "points":
         surf, under = fy - 0.02, c["second"]
     if c.get("muzzle") and c["muzzle"] != c["fur"]:
-        b.box((0, fy + 0.01, fz - 0.15 * k), (0.36 * k, 0.08, 0.2 * k), c["muzzle"], bevel=False)
-        surf, under = fy - 0.03, c["muzzle"]
+        # 0.02 proud like the points muzzle, so its front keeps 0.025 behind the eyes': on B and S (drawn at 0.95)
+        # 0.015 came out under rbx_zfight's reach, which pushed the muzzle out over the nose and mouth (Derek 11-02)
+        b.box((0, fy + 0.015, fz - 0.15 * k), (0.36 * k, 0.07, 0.2 * k), c["muzzle"], bevel=False)
+        surf, under = fy - 0.02, c["muzzle"]
     b.box((0, fy - 0.025, fz - 0.11 * k), (0.1 * k, 0.06, 0.07 * k), c["nose"], bevel=False)
     _mouth(b, surf, fz - 0.145 * k, k, "fur_grey" if palette.lstar(under) < 35 else "fur_black")
     for side in (-1, 1):
@@ -459,10 +470,13 @@ def _tail(c, t):
     b = Builder()
     pos = [0.0, 0.0, 0.0]
     n = len(t["angles"])
+    lean = Matrix.Rotation(math.radians(t.get("lean", 0)), 3, "Y")      # tips the whole chain toward +X
     for i, deg in enumerate(t["angles"]):
         a = math.radians(deg)
         if t["plane"] == "X":
             d, rot = (0.0, math.cos(a), math.sin(a)), (a, "X")
+            if t.get("lean"):
+                d, rot = tuple(lean @ Vector(d)), lean @ Matrix.Rotation(a, 3, "X")
         else:
             d, rot = (math.cos(a), math.sin(a), 0.0), (a - math.pi / 2, "Z")
         seg, th = t["seg"], t["thick"] - i * t["taper"]

@@ -78,7 +78,7 @@ local TOP_EDGE = 30 -- compact: room above the window for the panel's ears and b
 local BOTTOM_EDGE = 8 -- compact: room between the window and the keyboard
 local COMPACT_MIN = 150 -- compact: the window never gets shorter, keyboard or not
 -- F87 faces page
-local FACES_TITLE = "How is Cat Cafe so far?"
+local FACES_TITLE = "How is Catch a Cat Cafe so far?"
 local CHIPS_TITLE = "Thanks! What would help most?"
 local THANKS_TITLE = "Thanks for telling us!"
 local TITLE_HEIGHT = 32

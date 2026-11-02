@@ -13,84 +13,6 @@
      "CFrame": {
       "position": [
        0.0,
-       1.9158,
-       0.0723
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.1115,
-     0.6916,
-     0.9262
-    ],
-    "Color": [
-     0.2902,
-     0.3098,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "PivotOffset": {
-     "CFrame": {
-      "position": [
-       0.0,
-       -1.9158,
-       -0.0723
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    }
-   },
-   "attributes": {
-    "Rojo_Id": "CatCafe_NPC_MysteryVisitor/0"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_MysteryVisitor_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
        2.4839,
        -0.2375
       ],
@@ -129,6 +51,84 @@
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -2.4839,
+       0.2375
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_NPC_MysteryVisitor/0"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_MysteryVisitor_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.8541,
+       0.0105
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.9633,
+     0.5681,
+     0.7904
+    ],
+    "Color": [
+     0.2902,
+     0.3098,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
    }
   },
@@ -139,7 +139,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.457,
+       -0.3829,
        1.6503,
        -0.2735
       ],
@@ -188,7 +188,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.457,
+       0.3829,
        1.6503,
        -0.2735
       ],
@@ -372,7 +372,7 @@
         "position": [
          0.0,
          2.9316,
-         -0.891
+         -0.8848
         ],
         "orientation": [
          [
@@ -396,7 +396,7 @@
       "Size": [
        0.4668,
        0.2594,
-       0.0988
+       0.0865
       ],
       "Color": [
        0.8039,
@@ -470,7 +470,7 @@
         "position": [
          0.0,
          2.9053,
-         -0.9466
+         -0.9342
         ],
         "orientation": [
          [
@@ -519,7 +519,7 @@
         "position": [
          0.0324,
          2.8473,
-         -0.9503
+         -0.9379
         ],
         "orientation": [
          [
@@ -568,7 +568,7 @@
         "position": [
          0.1102,
          2.8473,
-         -0.9466
+         -0.9342
         ],
         "orientation": [
          [
@@ -617,7 +617,7 @@
         "position": [
          -0.0324,
          2.8473,
-         -0.9503
+         -0.9379
         ],
         "orientation": [
          [
@@ -666,7 +666,7 @@
         "position": [
          -0.1102,
          2.8473,
-         -0.9466
+         -0.9342
         ],
         "orientation": [
          [
@@ -3873,15 +3873,15 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.4502,
+         -0.8675,
          1.7059,
-         0.3996
+         0.0335
         ],
         "orientation": [
          [
-          -0.5,
+          -0.9063,
           0.0,
-          -0.866
+          0.4226
          ],
          [
           0.0,
@@ -3889,9 +3889,9 @@
           0.0
          ],
          [
-          0.866,
+          -0.4226,
           0.0,
-          -0.5
+          -0.9063
          ]
         ]
        }
@@ -3899,7 +3899,7 @@
       "Size": [
        0.2223,
        0.2223,
-       0.5434
+       0.5064
       ],
       "Color": [
        0.2902,
@@ -3916,15 +3916,15 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
+         -0.7118,
          0.0,
-         0.0,
-         -0.2346
+         -0.0583
         ],
         "orientation": [
          [
-          -0.5,
+          -0.9063,
           0.0,
-          0.866
+          -0.4226
          ],
          [
           0.0,
@@ -3932,9 +3932,9 @@
           0.0
          ],
          [
-          -0.866,
+          0.4226,
           0.0,
-          -0.5
+          -0.9063
          ]
         ]
        }
@@ -3951,15 +3951,15 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.6534,
+         -0.4501,
          1.7059,
-         0.0476
+         0.4611
         ],
         "orientation": [
          [
-          -1.0,
+          0.342,
           0.0,
-          0.0
+          -0.9397
          ],
          [
           0.0,
@@ -3967,9 +3967,9 @@
           0.0
          ],
          [
+          0.9397,
           0.0,
-          0.0,
-          -1.0
+          0.342
          ]
         ]
        }
@@ -3977,7 +3977,7 @@
       "Size": [
        0.2223,
        0.2223,
-       0.5434
+       0.5063
       ],
       "Color": [
        0.2902,
@@ -4000,15 +4000,15 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.4502,
+         -0.806,
          1.7059,
-         -0.3044
+         0.3822
         ],
         "orientation": [
          [
-          -0.5,
+          -0.7071,
           0.0,
-          0.866
+          -0.7071
          ],
          [
           0.0,
@@ -4016,9 +4016,9 @@
           0.0
          ],
          [
-          -0.866,
+          0.7071,
           0.0,
-          -0.5
+          -0.7071
          ]
         ]
        }
@@ -4026,7 +4026,7 @@
       "Size": [
        0.2223,
        0.2223,
-       0.5434
+       0.5064
       ],
       "Color": [
        0.2902,
@@ -4049,7 +4049,7 @@
       "position": [
        -0.247,
        1.7059,
-       0.5169
+       0.3872
       ],
       "orientation": [
        [

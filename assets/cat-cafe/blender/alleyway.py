@@ -3,11 +3,11 @@ of the Alley Square, building backs that line the back alleys and the square, a 
 escape, a laundry line, long string lights and the Sewer manhole. Laid out in Roblox axes through common.RB,
 front -Z, sizes in studs.
 
-  CatCafe_Alley_ArchStreet   36 stud opening between 2 stud posts, over the street's north end at (0, 123.5)
+  CatCafe_Alley_ArchStreet   36 stud opening between 2 stud posts, over the one-lane Alleyway's way out of the F84
+                             camp (Derek 11-02: "just make it one big one"), both faces THE ALLEYWAY
   CatCafe_Alley_Arch         26 stud opening between 2 stud posts (30 overall), over each lane's way out of the F84
                              camp, both faces THE ALLEYWAY (the Alley Square it once named is gone)
-                             Both: pivot at the base centre of the opening. The street arch's -Z face reads ALLEY
-                             SQUARE, its +Z face CAFE STREET.
+                             Both: pivot at the base centre of the opening.
   CatCafe_Alley_WallWindows  Building backs, 30 wide, 1 thick plus whatever sticks out. Pivot on the back plane
   CatCafe_Alley_WallDoor     (local z 0) at the bottom centre: put it against the inner face of an alley wall with
   CatCafe_Alley_FireEscape   -Z facing into the alley. They are taller than the 10 stud walls, so the alley reads
@@ -16,6 +16,7 @@ front -Z, sizes in studs.
                              fire escape landing.
   CatCafe_Alley_LaundryLine  Two poles 24 apart with clothes on two lines at 10 studs.
   CatCafe_Alley_StringLightsLong   Two poles 28 apart, bulbs on a sagging wire, spans a back alley.
+  CatCafe_Alley_StringLightsWide   The same with poles 88 apart, across the one-lane Alleyway (90 wide).
   CatCafe_Sewer_Manhole      Cover (its own _Cover model, slide it away to open), barricades and a SignBoard.
 """
 
@@ -131,7 +132,7 @@ def _arch(name, mat, inner, front, back, board_top=13.28):
 
 
 def build_arch_street(mat):
-    return _arch("CatCafe_Alley_ArchStreet", mat, 36.0, "ALLEY SQUARE", "CAFE STREET")
+    return _arch("CatCafe_Alley_ArchStreet", mat, 36.0, "THE ALLEYWAY", "THE ALLEYWAY")
 
 
 def build_arch(mat):
@@ -517,20 +518,25 @@ def build_laundry_line(mat):
     return [b.finalize(name, mat), decor.finalize(name + "_Decor", mat)]
 
 
-def build_string_lights_long(mat):
-    name = "CatCafe_Alley_StringLightsLong"
+def build_string_lights_long(mat, name="CatCafe_Alley_StringLightsLong", half=14.0, sag=2.0, n=16):
     b, wire, bulbs = RB(), RB(), RB()
-    for x in (-14.0, 14.0):
+    for x in (-half, half):
         b.span((x - 0.5, 0, -0.5), (x + 0.5, 0.3, 0.5), "concrete_dark")
         b.cyl((x, 6.15, 0), 0.16, 11.7, "fur_black", segments=8)
         b.span((x - 0.25, 11.6, -0.25), (x + 0.25, 12.1, 0.25), "fur_black")
-    pts = _sag(-14.0, 14.0, 11.8, 2.0, 16)
+    pts = _sag(-half, half, 11.8, sag, n)
     for p0, p1 in zip(pts, pts[1:]):
         bar(wire, p0, p1, 0.06, -0.03, 0.03, "fur_black")
     colours = ("lamp_warm", "sparkle", "neon_pink", "lamp_warm", "mint")
     for k, (x, y) in enumerate(pts[1:-1]):
         bulbs.span((x - 0.16, y - 0.46, -0.16), (x + 0.16, y - 0.03, 0.16), colours[k % len(colours)])   # hung on the wire
     return [b.finalize(name, mat), wire.finalize(name + "_Decor", mat), bulbs.finalize(name + "_Bulbs", mat)]
+
+
+def build_string_lights_wide(mat):
+    """The one-lane Alleyway's string (Derek 11-02: one lane, not two): poles 88 apart at the building fronts, one
+    wire across the whole 90 with a deeper sag, bulbs about every 1.8."""
+    return build_string_lights_long(mat, "CatCafe_Alley_StringLightsWide", 44.0, 3.0, 48)
 
 
 def build_manhole(mat):
@@ -578,5 +584,6 @@ ASSETS = {
     "CatCafe_Alley_CrateStack": (build_crate_stack, 3000),
     "CatCafe_Alley_LaundryLine": (build_laundry_line, 2500),
     "CatCafe_Alley_StringLightsLong": (build_string_lights_long, 1500),
+    "CatCafe_Alley_StringLightsWide": (build_string_lights_wide, 4000),
     "CatCafe_Sewer_Manhole": (build_manhole, 2500),
 }

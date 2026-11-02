@@ -29,6 +29,7 @@ local Payout = require(script.Parent.Payout)
 local PlotService = require(script.Parent.PlotService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Telemetry = require(script.Parent.Telemetry)
+local Trade = require(ReplicatedStorage.Shared.Trade)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -149,7 +150,9 @@ local function onAnswer(player: Player, rawAccept: unknown)
 	if profile == nil then
 		return
 	end
+	-- F102: a cat on offer in an open trade waits for the trade
 	local why = blocker(profile, visit)
+		or (if CafeService.isOffered(player, visit.catUid) then Trade.Messages.catInTrade else nil)
 	if why ~= nil then
 		Net.toast(player, why, "warn")
 		return

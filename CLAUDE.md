@@ -1,6 +1,6 @@
-# Cat Cafe studio rules
+# Catch a Cat Cafe studio rules
 
-Working title: **Cat Cafe** (placeholder until a real name is picked). Game slug used in paths: `cat-cafe`. One game for now; the repo layout leaves room for a second.
+Game name: **Catch a Cat Cafe** (final since 2026-11-02: no hyphens, plain Cafe; the working title before it was Cat Cafe). Game slug used in paths: `cat-cafe`, and code names keep it (`CatCafe*`). In-world signs, the town name "Cat Cafe Town" and the Alley mural keep their Cat Cafe wording on purpose (Derek, 2026-11-02). One game for now; the repo layout leaves room for a second.
 Phase as of 2026-10-25: Phase 0 (setup on Derek's PC) running in parallel with an early Phase 2 rough draft.
 Repo: https://github.com/derekburnz/Cat-Cafe (public since 2026-10-27, source of truth; named purr-pot until 2026-10-27). Work on a branch, open a pull request, let CI run the check gate. Once a PR is reviewed, turn on GitHub auto-merge for it (merge commit) and it merges itself when the required checks pass; the `automerge` label is the fallback when GitHub refuses. Publishing to Roblox runs from GitHub Actions (skill `merge-and-publish`).
 
@@ -52,6 +52,7 @@ Write only inside the folders your role owns. If you need a change elsewhere, wr
 12. **Decisions** go in `docs/decisions.md` with date and reason.
 13. **Secrets** (Open Cloud keys, tokens) stay in environment variables, never in the repo or in chat.
 14. **Explain Roblox concepts** the first time they come up. Derek knows networking and Linux, not Luau or Studio.
+15. **Two Claude projects share this repo** (Derek's and Gavin's, since 2026-11-02). Before starting a feature, list open issues labeled `claim`. If one names the files or feature you're about to touch and the other person opened it, leave those files alone and comment on the issue instead. Open a `claim` issue (the "Claim work" form) before work that takes more than one PR or touches shared files (`src/shared/Config.luau`, `src/shared/Remotes.luau`, `Services/DataService.luau` for saves, the GDD), list the folders or files in it, and close it when its last PR merges. A one-PR change inside your own role's folders needs no claim. Branches from Gavin's project start with `gavin/`. Each project's library folders and memory are shared through the private repo `derekburnz/cat-cafe-library` (its README has the rules). If a claimed task needs newer files from the other project than that copy has, open an `upload-request` issue there naming the folders and linking your claim issue, then work on something else until it closes.
 
 ## Luau quick facts (for anyone new to Roblox)
 - A **place** is one level/world file; an **experience** is the published game that holds places. We work in a dev copy of the place.

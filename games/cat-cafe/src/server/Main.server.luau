@@ -1,8 +1,11 @@
 --!strict
 -- Cat Cafe server bootstrap. Order matters: remotes and the world exist before any player loads.
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 local AssetRegistry = require(script.Parent.World.AssetRegistry)
 local BaitService = require(script.Parent.Services.BaitService)
@@ -35,6 +38,7 @@ local QuestService = require(script.Parent.Services.QuestService)
 local RallyService = require(script.Parent.Services.RallyService)
 local RareMomentService = require(script.Parent.Services.RareMomentService)
 local RescueService = require(script.Parent.Services.RescueService)
+local ResetSaveService = require(script.Parent.Services.ResetSaveService)
 local RestartNoticeService = require(script.Parent.Services.RestartNoticeService)
 local RichTipService = require(script.Parent.Services.RichTipService)
 local ShoveService = require(script.Parent.Services.ShoveService)
@@ -44,8 +48,18 @@ local Telemetry = require(script.Parent.Services.Telemetry)
 local TipJarService = require(script.Parent.Services.TipJarService)
 local TipPileService = require(script.Parent.Services.TipPileService)
 local TipService = require(script.Parent.Services.TipService)
+local TradeService = require(script.Parent.Services.TradeService)
 local TravelService = require(script.Parent.Services.TravelService)
 local WorldBuilder = require(script.Parent.World.WorldBuilder)
+
+local Config = require(ReplicatedStorage.Shared.Config)
+
+-- The camera zooms out at most Config.CameraMaxZoomStuds (Derek 2026-11-02; Roblox's default is 128). A player takes
+-- StarterPlayer's limit as they join; anyone already in (a Studio test can be) gets it here.
+StarterPlayer.CameraMaxZoomDistance = Config.CameraMaxZoomStuds
+for _, player in Players:GetPlayers() do
+	player.CameraMaxZoomDistance = Config.CameraMaxZoomStuds
+end
 
 local started = os.clock()
 local placeholders = AssetRegistry.ensurePlaceholders()
@@ -89,6 +103,8 @@ LeaderboardService.start() -- F98: before DataService so its onLoaded sees every
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one
+TradeService.start() -- F102: before DataService, whose joins it settles owed trades in (onLoading)
+ResetSaveService.start() -- a tester's Reset my save
 Telemetry.start() -- after every service that registers leave work, so its own runs last
 DataService.start()
 

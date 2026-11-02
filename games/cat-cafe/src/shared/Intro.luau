@@ -137,8 +137,8 @@ export type Shot = {
 
 -- A camp the intro films (Layout.camps, hometown-cannon.md section 4), in the world. `origin` is the middle of the
 -- area's gate on the camp line, `u` the flat way from the camp into the area and `r` = u × up, the right hand as you
--- face into it. `wayOut` is g, the middle of the way out the intro uses: the Alleyway's east lane, the one on the
--- town side, else the gate's middle. `pad` is P, `basket` K, `board` B with `boardFacing` f, the way its face looks.
+-- face into it. `wayOut` is g, the middle of the way out the intro uses: the middle of the gate's opening (the
+-- Alleyway's one way in since F85). `pad` is P, `basket` K, `board` B with `boardFacing` f, the way its face looks.
 export type Camp = {
 	area: string,
 	turn: number,
@@ -170,16 +170,16 @@ local CAMP_PAD_Z = -13
 local CAMP_BASKET = { x = -11, z = -13 }
 local BOARD_IN = -4
 local BOARD_OUT = 4
+local ALLEY_BOARD_OUT = 7
 
 -- Where Layout.camps puts `area`'s camp, or nil for an area without one.
 function Intro.camp(area: string): Camp?
 	local W = Config.World
-	local ox: number, oz: number, turn: number, opening: number? = 0, 0, 0, nil
-	local wayOutRight = 0
+	local ox: number, oz: number, turn: number, opening: number = 0, 0, 0, 0
 	if area == "alley" then
-		-- the camp's line across both lanes' north ends, a half turn like the Park; g is the east lane's middle
-		ox, oz, turn, opening = W.AlleyCenterX, W.AlleyCenterZ + W.AlleyNorthZ, 180, nil
-		wayOutRight = (W.AlleyInnerX + W.AlleyOuterX) / 2 - W.AlleyLaneShift
+		-- the camp's line across the north end, a half turn like the Park, its one way in under the street arch (F85)
+		ox, oz, turn, opening =
+			W.AlleyCenterX, W.AlleyCenterZ + W.AlleyNorthZ, 180, W.AlleyWayHalfWidth
 	elseif area == "park" then
 		-- F85: the long Park's camp opens CampOpeningWidth wide
 		ox, oz, turn, opening = 0, W.ParkCenterZ + W.ParkDepth / 2, 180, W.CampOpeningWidth / 2
@@ -191,11 +191,13 @@ function Intro.camp(area: string): Camp?
 			0,
 			W.CampOpeningWidth / 2
 	elseif area == "woods" then
+		-- F85: the long Woods' depth runs along world X, its camp on its east side
 		ox, oz, turn, opening =
-			W.WoodsCenterX + W.WoodsWidth / 2, W.WoodsCenterZ, -90, W.SideGateHalfWidth
+			W.WoodsCenterX + W.WoodsDepth / 2, W.WoodsCenterZ, -90, W.SideGateHalfWidth
 	elseif area == "sewer" then
+		-- F85: the long Sewer's depth runs along world X too, its camp on its west side
 		ox, oz, turn, opening =
-			W.SewerCenterX - W.SewerWidth / 2, W.SewerCenterZ, 90, W.SideGateHalfWidth
+			W.SewerCenterX - W.SewerDepth / 2, W.SewerCenterZ, 90, W.SideGateHalfWidth
 	else
 		return nil
 	end
@@ -206,17 +208,16 @@ function Intro.camp(area: string): Camp?
 	local function point(x: number, z: number): Vector3
 		return origin + across * x + u * z
 	end
-	-- the Alleyway's one board stands between its two ways out; the others beside the opening, on the left of it
-	local board = if opening == nil
-		then point(0, BOARD_IN)
-		else point(-(opening + BOARD_OUT), BOARD_IN)
+	-- every board beside the opening, on the left of it, 4 in; the Alleyway's further out, past its low walls (F85)
+	local board =
+		point(-(opening + if area == "alley" then ALLEY_BOARD_OUT else BOARD_OUT), BOARD_IN)
 	return {
 		area = area,
 		turn = turn,
 		origin = origin,
 		u = u,
 		r = rightOf(u),
-		wayOut = origin + rightOf(u) * wayOutRight,
+		wayOut = origin,
 		pad = point(0, CAMP_PAD_Z),
 		basket = point(CAMP_BASKET.x, CAMP_BASKET.z),
 		board = board,

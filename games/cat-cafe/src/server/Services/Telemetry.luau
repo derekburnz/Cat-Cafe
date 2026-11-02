@@ -120,6 +120,9 @@ export type CustomEvent =
 	| "lucky_day"
 	-- F89 (luck-and-rare-moments.md 2d): a big pull; rarity, gold yes or no, catch, bait or rescue
 	| "rare_secured"
+	-- F102 (trading.md section 6): a trade swapped, for each player in it; value the cats that moved, fields the cats
+	-- given, the cats got and the best rarity got. Never who
+	| "trade_done"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.

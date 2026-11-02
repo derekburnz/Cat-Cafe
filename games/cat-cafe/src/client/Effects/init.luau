@@ -8,15 +8,16 @@
 -- the rainbow coats, the Rescue Rally's pops and bunting, Trade done's flight, rare decor's moving parts, the net
 -- swing's whoosh, the catch's result word, the rescue trap's shake, the Bellhop Cat's bell, cap and hop, the Lucky
 -- Cat statue and its beckoning paw, the Lucky Day's gold tint, the big pull's happy hop, the camp extras' rod and
--- lid, the camp pipe's drips, the pond's jumping fish, the pal wave at a front door and the cafe orders' steam, flour,
--- oven glow and ding, all on this client only. Effects read replicated world state (tags and attributes) and this
--- player's own events; they never fire a remote, never change game state and never move a part the server moves for
--- gameplay. Rules: .claude/skills/animation-vfx/SKILL.md.
+-- lid, the camp pipe's drips, the pond's jumping fish, the camp extras' collect bursts, the pal wave at a front door
+-- and the cafe orders' steam, flour, oven glow and ding, all on this client only. Effects read replicated world
+-- state (tags and attributes) and this player's own events; they never fire a remote, never change game state and
+-- never move a part the server moves for gameplay. Rules: .claude/skills/animation-vfx/SKILL.md.
 -- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
 local Bellhop = require(script.Bellhop)
 local CafeWalk = require(script.CafeWalk)
+local CampCollect = require(script.CampCollect)
 local CampExtras = require(script.CampExtras)
 local CampWater = require(script.CampWater)
 local Campfire = require(script.Campfire)
@@ -106,6 +107,7 @@ function Effects.start()
 	NetTrail.start()
 	LuckyCat.start()
 	CampWater.start()
+	CampCollect.start()
 	Orders.start()
 end
 

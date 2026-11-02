@@ -120,16 +120,17 @@ return function()
 			local sets: { [string]: string } = {
 				park = "CatCafe_Park_SetF85", -- F85 (#799)
 				neighbourhood = "CatCafe_Neighbourhood_SetF85", -- F85 (#810)
-				woods = "CatCafe_Woods_SetV32",
-				sewer = "CatCafe_Sewer_SetV32",
+				woods = "CatCafe_Woods_SetF85", -- F85 (#847)
+				sewer = "CatCafe_Sewer_SetF85", -- F85 (#860)
 			}
 			for id, name in sets do
 				local spec = Layout.areas[id]
 				expect(spec.set).to.equal(name)
 				local turn = Layout.gateTurn(spec)
 				-- on the ground or a low perch (a porch, a rock, the catwalk), never a roof; the Woods' tree house
-				-- cushion and the Great Oak's top nook, up their ladders, are the high spots
-				local top = spec.floorY + (if id == "woods" then 18.5 else 4)
+				-- cushion and the Great Oak's top nook, up their ladders, are the high spots, and the Sewer's junk
+				-- throne seat up on its dais
+				local top = spec.floorY + (if id == "woods" then 18.5 elseif id == "sewer" then 4.5 else 4)
 				for i, point in spec.spawnPoints do
 					if point.y < spec.floorY or point.y > top then
 						fail("%s spawn point %d stands at y %g", id, i, point.y)
@@ -149,8 +150,8 @@ return function()
 					end
 				end
 				local pieceTurns: { number } = if id == "woods"
-					then { 20, -20, 0, 0, -106.26 }
-					elseif id == "sewer" then { 0, 0, 90, -90 }
+					then { 20, -20, 0, 0, 87.21 }
+					elseif id == "sewer" then { 0, 0, -90, 90 }
 					elseif id == "neighbourhood" then { 0, 90, 0, 0 }
 					else {}
 				local built = 0
@@ -170,9 +171,9 @@ return function()
 				local gx, gz = Layout.gatePosition(spec)
 				expect(gx).to.be.ok()
 				-- the Park's plaza at local (-4, -145) is near its gate side, the Neighbourhood's porch at local
-				-- (-67.2, -166.9) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
-				-- canal bridge at local (44, -61) near its own
-				local index = if id == "woods" then 8 else 1
+				-- (-71.45, -166.9) near its own, the Woods' berry bush at local (-30, -223.8) near its own, the Sewer's
+				-- brick bridge at local (38, -205) near its own
+				local index = if id == "woods" then 4 else 1
 				local point = spec.spawnPoints[index]
 				local toGate =
 					math.sqrt((point.x - (gx :: number)) ^ 2 + (point.z - (gz :: number)) ^ 2)
@@ -192,9 +193,8 @@ return function()
 
 		-- F81 (town-layout-v3.md section 8d): a v3.2 set tags each cat spot near (the gate half) or deep (the far
 		-- half, where Epic and rarer strays wait), and some of its traps are in the far half. The Woods' Great Oak
-		-- top is "rare" (Catching.RARE_ZONE), in the far half too. The Sewer's zones go by region (#491): its near
-		-- spots are all in the gate half, but past the cross wall's arch is deep, the west hall's far chamber in the
-		-- gate half among it.
+		-- top is "rare" (Catching.RARE_ZONE), in the far half too. The Sewer's zones go by region (#491, #860): its
+		-- near spots are all in the gate half, and deep starts on the channel's catwalk, right on the middle line.
 		it(
 			"the v3.2 sets' spots are near their gates or deep in their far halves, with traps deep",
 			function()
@@ -208,19 +208,19 @@ return function()
 						byRegion = false,
 					},
 					{
-						id = "woods",
-						near = 26,
-						deep = 38,
+						id = "woods", -- F85 (#847): four of its five traps deep
+						near = 28,
+						deep = 43,
 						rare = 1,
-						deepTraps = 3,
+						deepTraps = 4,
 						byRegion = false,
 					},
 					{
-						id = "sewer",
-						near = 20,
-						deep = 32,
+						id = "sewer", -- F85 (#860): three of its four traps deep
+						near = 25,
+						deep = 35,
 						rare = 0,
-						deepTraps = 2,
+						deepTraps = 3,
 						byRegion = true,
 					},
 					{
@@ -280,6 +280,87 @@ return function()
 				expect(Layout.park.rescueSpots[1].rotY).to.equal(180)
 			end
 		)
+
+		-- F85 (hometown-cannon.md 6b; QA edge): whatever a long set's spots, it keeps what makes the carry home long.
+		-- The table's size is width x length with the 30 stud camp, and the v3.2 counts are the floors 6b keeps
+		-- (F81 rows: Park 16 + 24 spots, Neighbourhood 28 + 44, Woods 26 + 38 + the oak's rare, Sewer 20 + 32). In camp
+		-- space z is how far in from the gate line, the camp's edge, so "none within 100 studs of the camp" is z > 100.
+		-- An area joins when its set is a SetF85 one; one in the table that is not yet is skipped.
+		it("F85's long sets are 6b's size, with their traps deep and none near the camp (QA)", function()
+			local rows: { [string]: { width: number, length: number, spots: number, traps: number } } = {
+				park = { width = 120, length = 340, spots = 40, traps = 5 },
+				neighbourhood = { width = 180, length = 460, spots = 72, traps = 4 },
+				woods = { width = 160, length = 520, spots = 65, traps = 5 },
+				sewer = { width = 120, length = 600, spots = 52, traps = 4 },
+			}
+			local long = 0
+			for id, spec in Layout.areas do
+				local set = spec.set
+				if set == nil or string.sub(set, -7) ~= "_SetF85" then
+					continue
+				end
+				local row = rows[id]
+				if row == nil then
+					fail("%s has a long set (%s) with no row here", id, set)
+				end
+				long += 1
+				local camp = Layout.camps[id]
+				expect(camp).to.be.ok()
+				-- the set's floor from its four corners, across and along the way in
+				local x1, x2, z1, z2 = math.huge, -math.huge, math.huge, -math.huge
+				for _, sx in { -1, 1 } do
+					for _, sz in { -1, 1 } do
+						local x, z = Layout.campLocal(
+							camp,
+							spec.center.x + sx * spec.halfWidth,
+							spec.center.z + sz * spec.halfDepth
+						)
+						x1, x2 = math.min(x1, x), (math.max(x2, x))
+						z1, z2 = math.min(z1, z), (math.max(z2, z))
+					end
+				end
+				expect(x2 - x1).to.be.near(row.width, 0.5)
+				expect(z1).to.be.near(0, 0.5)
+				expect(z2 + W.CampDepth).to.be.near(row.length, 0.5)
+				local along = z2
+				-- spawn points: at least v3.2's, about 60% deep (or rare), spread to the far end
+				local deep, farthest = 0, 0
+				for _, point in spec.spawnPoints do
+					local _, z = Layout.campLocal(camp, point.x, point.z)
+					farthest = math.max(farthest, z)
+					if point.zone ~= "near" then
+						deep += 1
+					end
+				end
+				local spots = #spec.spawnPoints
+				if spots < row.spots then
+					fail("%s has %d spawn points, fewer than v3.2's %d", id, spots, row.spots)
+				end
+				if deep / spots < 0.55 or deep / spots > 0.67 then
+					fail("%s has %d of %d spawn points deep, not about 60%%", id, deep, spots)
+				end
+				if farthest < 0.9 * along then
+					fail("%s's farthest spawn point is %.0f of %.0f studs in", id, farthest, along)
+				end
+				-- traps: v3.2's count, three quarters in the far half, none within 100 studs of the camp
+				expect(#spec.rescueSpots).to.equal(row.traps)
+				local far = 0
+				for i, spot in spec.rescueSpots do
+					local _, z = Layout.campLocal(camp, spot.x, spot.z)
+					if z <= 100 then
+						fail("%s trap %d (%s) is %.1f studs from the camp", id, i, spot.trap, z)
+					end
+					if z > along / 2 then
+						far += 1
+					end
+				end
+				if far < 0.75 * row.traps then
+					fail("%s has %d of %d traps in its far half", id, far, row.traps)
+				end
+			end
+			-- the Park, the Neighbourhood and the Woods since #816, #817 and #858
+			expect(long >= 3).to.equal(true)
+		end)
 
 		-- Derek 2026-10-28 01:34 and 01:35 (Model-Agent #452): a cat can get stuck up the tree house's branch, and the
 		-- Great Oak's top nook is where the rarer cats wait.
@@ -347,8 +428,7 @@ return function()
 	local function fromLane(x: number, z: number): (number, number)
 		return W.AlleyCenterX + x - math.sign(x) * W.AlleyLaneShift, W.AlleyCenterZ + z
 	end
-	local AI, AO, AS, AN = W.AlleyInnerX, W.AlleyOuterX, W.AlleySouthZ, W.AlleyNorthZ
-	local MID = (AI + AO) / 2
+	local AO, AS, AN = W.AlleyOuterX, W.AlleySouthZ, W.AlleyNorthZ
 
 	describe("the Alleyway in the wild (world-and-feel section 2, F35; v4, F84)", function()
 		it(
@@ -368,26 +448,24 @@ return function()
 		)
 
 		it(
-			"every point lies in a lane or the passage, the nooks at the far end 10 studs from every lane point",
+			"every point lies on the one floor, the nooks at the far end 10 studs from every lane point",
 			function()
 				local sides: { [string]: number } = {}
 				for i, point in alley.spawnPoints do
-					local x, z = toLane(point.x, point.z)
-					local inLane = math.abs(x) >= AI and math.abs(x) <= AO and z > AS and z < AN
-					local inPassage = math.abs(x) < AI and z > AS and z < AS + W.AlleyPassageDepth
-					if not inLane and not inPassage then
+					if not onFloor(point.x, point.z, alleyRects, 0) then
 						fail(
-							"%s point %d at (%g, %g) is not in a lane or the passage",
+							"%s point %d at (%g, %g) is off the floor",
 							tostring(point.zone),
 							i,
-							x,
-							z
+							point.x,
+							point.z
 						)
 					end
 					if point.zone ~= "nook" then
 						continue
 					end
-					-- 6 to 6.5 from the south end wall, so 2 or more inside the roam rects' 4 stud margin
+					-- 6 to 6.5 from the south end wall, so 2 or more inside the roam rect's 4 stud margin
+					local x, z = toLane(point.x, point.z)
 					local fromEnd = z - AS
 					if fromEnd < 5 or fromEnd > 9 then
 						fail(
@@ -413,7 +491,7 @@ return function()
 		)
 
 		it(
-			"plot p owns near point p, just past the camp's ways out, the east lane's first (v0.13.18)",
+			"plot p owns near point p, just past the camp's way in, 5 then 15 either side of the middle (F85)",
 			function()
 				local near: { Point } = {}
 				for _, point in alley.spawnPoints do
@@ -421,17 +499,26 @@ return function()
 						table.insert(near, point)
 					end
 				end
+				expect(#near).to.equal(8)
 				for p, point in near do
-					local x, z = toLane(point.x, point.z)
-					expect(math.sign(x)).to.equal(if p <= 4 then 1 else -1)
-					local into = AN - z
+					local across = math.abs(point.x - W.AlleyCenterX)
+					expect(across).to.be.near(if p <= 4 then 5 else 15, 1e-9)
+					expect(across < W.AlleyWayHalfWidth).to.equal(true) -- in front of the way in
+					local into = W.AlleyCenterZ + AN - point.z
 					expect(into == 10 or into == 16).to.equal(true)
-					expect(math.abs(math.abs(x) - MID)).to.be.near(5, 1e-9)
 				end
-				-- g + 10u + 5r first: facing into the lane (-Z) the right hand is +X
-				local x1, z1 = toLane(near[1].x, near[1].z)
-				expect(x1).to.be.near(MID + 5, 1e-9)
-				expect(z1).to.be.near(AN - 10, 1e-9)
+				-- g + 10u + 5r first: facing into the Alleyway (-Z) the right hand is +X
+				expect(near[1].x - W.AlleyCenterX).to.be.near(5, 1e-9)
+				expect(W.AlleyCenterZ + AN - near[1].z).to.be.near(10, 1e-9)
+				-- and 4 or more from every lane point
+				for p, point in near do
+					for j, lane in alley.spawnPoints do
+						local apart = math.sqrt((point.x - lane.x) ^ 2 + (point.z - lane.z) ^ 2)
+						if lane.zone == "lane" and apart < 4 then
+							fail("near point %d is %.1f studs from lane point %d", p, apart, j)
+						end
+					end
+				end
 			end
 		)
 
@@ -550,8 +637,9 @@ return function()
 		)
 
 		it(
-			"walls in both lanes along their outer sides and far end, with the passage open through the block (v4)",
+			"walls along both outer sides and the far end, open in the middle and into the camp (F85)",
 			function()
+				local half = W.AlleyOuterX - W.AlleyLaneShift
 				for _, side in { -1, 1 } do
 					for z = AS + 1, AN - 1, 1 do
 						local wx, wz = fromLane(side * (AO + 0.5), z)
@@ -559,38 +647,28 @@ return function()
 							fail("no outer wall at lane (%g, %g)", side * (AO + 0.5), z)
 						end
 					end
-					for x = AI, AO, 2 do
-						local wx, wz = fromLane(side * x, AS - 0.5)
-						if not inWall(wx, wz, alleyWalls, 0) then
-							fail("no end wall at lane (%g, %g)", side * x, AS - 0.5)
-						end
-						-- and open into the camp at the north end
-						local cx, cz = fromLane(side * x, AN + 0.5)
-						if x > AI and x < AO and inWall(cx, cz, alleyWalls, 0) then
-							fail("the way out at lane (%g, %g) is walled", side * x, AN + 0.5)
-						end
-					end
 				end
-				-- the block between the lanes, and the passage through it at the far end
-				for z = AS + 1, AN - 1, 2 do
-					local blocked = inWall(W.AlleyCenterX, W.AlleyCenterZ + z, alleyWalls, 0)
-					local passage = z < AS + W.AlleyPassageDepth
-					if blocked == passage then
-						fail(
-							"the middle at lane z %g is %s",
-							z,
-							if passage then "walled" else "open"
-						)
+				for x = -half + 1, half - 1, 2 do
+					local wx = W.AlleyCenterX + x
+					if not inWall(wx, W.AlleyCenterZ + AS - 0.5, alleyWalls, 0) then
+						fail("no end wall at %g across", x)
+					end
+					-- one lane: no wall anywhere across it, and none on the camp line
+					for z = AS + 1, AN + 0.5, 2 do
+						if inWall(wx, W.AlleyCenterZ + z, alleyWalls, 0) then
+							fail("a wall at (%g, %g) across the Alleyway", x, z)
+						end
 					end
 				end
 			end
 		)
 
 		it(
-			"lays the camp across both lanes' north ends, its Index Board between the two ways out (v4)",
+			"lays the camp across the north end, its Index Board beside the one way in (F85)",
 			function()
 				local camp = Layout.camps.alley
 				expect(camp.turn).to.equal(180)
+				expect(camp.openingHalfWidth).to.equal(W.AlleyWayHalfWidth)
 				expect(camp.rect.x1).to.be.near(W.AlleyCenterX - (AO - W.AlleyLaneShift), 1e-9)
 				expect(camp.rect.x2).to.be.near(W.AlleyCenterX + (AO - W.AlleyLaneShift), 1e-9)
 				expect(camp.rect.z1).to.be.near(W.AlleyCenterZ + AN, 1e-9)
@@ -598,7 +676,12 @@ return function()
 				local board = Layout.indexBoards.alley
 				local bx, bz = Layout.campPoint(camp, board.x, board.z)
 				expect(inside(bx, bz, camp.rect, 0)).to.equal(true)
-				expect(math.abs(bx - W.AlleyCenterX) < AI - W.AlleyLaneShift).to.equal(true)
+				expect(math.abs(bx - W.AlleyCenterX) > W.AlleyWayHalfWidth).to.equal(true)
+				-- one arch over the way in, as wide as it
+				local arches = alley.arches :: { Layout.Arch }
+				expect(#arches).to.equal(1)
+				expect(arches[1].x).to.equal(W.AlleyCenterX)
+				expect(arches[1].span).to.equal(2 * W.AlleyWayHalfWidth)
 			end
 		)
 
@@ -775,14 +858,9 @@ return function()
 		return dist[cell + 1]
 	end
 
-	-- The camp's two ways out, a stud inside each lane's north end, in world space.
+	-- The camp's way out (F85: one, in the middle), a stud and a half inside the north end, in world space.
 	local function waysOut(): { { x: number, z: number } }
-		local list = {}
-		for _, side in { -1, 1 } do
-			local x, z = fromLane(side * MID, W.AlleyNorthZ - 1.5)
-			table.insert(list, { x = x, z = z })
-		end
-		return list
+		return { { x = W.AlleyCenterX, z = W.AlleyCenterZ + W.AlleyNorthZ - 1.5 } }
 	end
 
 	local nookPoints: { Point } = {}
@@ -801,8 +879,8 @@ return function()
 					if point.zone ~= "near" then
 						continue
 					end
-					local x = toLane(point.x, point.z)
-					local walk = math.abs(math.abs(x) - MID) + (line - point.z)
+					local across = math.abs(point.x - W.AlleyCenterX)
+					local walk = math.max(0, across - W.AlleyWayHalfWidth) + (line - point.z)
 					if walk / Config.NormalWalkSpeed >= 2 then
 						fail(
 							"near point %d is %.1f s from the camp line",
@@ -815,7 +893,7 @@ return function()
 		)
 
 		it(
-			"reaches every spawn point from each of the camp's ways out, the lanes joined by the passage (v4)",
+			"reaches every spawn point from the camp's way out, the whole lane open since the block went (v4, F85)",
 			function()
 				for _, out in waysOut() do
 					local dist = walkFrom(out.x, out.z)
@@ -860,7 +938,7 @@ return function()
 			if worst >= 25 then
 				fail("nook point %d is %.1f s from the camp at carry speed", worstPoint, worst)
 			end
-			-- the lanes are 251 studs long; a much shorter walk means the grid broke
+			-- the Alleyway is 251 studs long; a much shorter walk means the grid broke
 			expect(worst > 10).to.equal(true)
 		end)
 	end)
@@ -908,8 +986,8 @@ return function()
 				for _, def in Catalog.areas do
 					local camp = Layout.camps[def.id]
 					expect(camp).to.be.ok()
-					-- the Alleyway's ways out are its lanes' ends, either side of the block in the middle
-					local wayOut = if def.id == "alley" then MID - W.AlleyLaneShift else 0
+					-- every way out is the middle of the gate line, the Alleyway's one way in too since F85 (N338)
+					local wayOut = 0
 					for _, across in { -camp.halfAcross + 3, wayOut, camp.halfAcross - 3 } do
 						local ix, iz = Layout.campPoint(camp, across, -0.2)
 						expect(Layout.campAt(ix, iz)).to.equal(def.id)
@@ -1218,6 +1296,91 @@ return function()
 			end
 		end)
 
+		-- F85 as one lane (Model-Agent #875, area-sets.md "The Alleyway as one lane"): four rows of low blockers right
+		-- across, each one model at the middle, the way through never on the same side twice running (the middle, the
+		-- west side, the east side, the middle), and the string lights wall to wall in the other gaps between
+		-- buildings. Outside its way through each row (its own half depth, the Van's with its doors open) stays clear
+		-- of the spawn points by a cat's half body and of the traps by 2.
+		it(
+			"crosses the one lane with four blocker rows, the way through moving about, lights between (F85)",
+			function()
+				type Row = { z: number, name: string }
+				-- across from the middle: z, the way through from and to, the half depth
+				local want: { [string]: { number } } = {
+					RowCamp = { 88.025, -13, 13, 1.5 },
+					RowVan = { 18.25, -45, -20.6, 5.7 },
+					RowSkip = { -53.675, 21.6, 45, 2.7 },
+					RowFar = { -88.025, -16.1, 13, 2.7 },
+				}
+				local prefix = "CatCafe_Alley_Blocker_"
+				local rows: { Row } = {}
+				local lights: { number } = {}
+				for _, prop in alley.props :: { Layout.Prop } do
+					if prop.asset == "CatCafe_Alley_StringLightsWide" then
+						expect(prop.x).to.equal(W.AlleyCenterX)
+						table.insert(lights, prop.z - W.AlleyCenterZ)
+					end
+					expect(prop.asset).never.to.equal("CatCafe_Alley_StringLightsLong")
+					if prop.asset:sub(1, #prefix) ~= prefix then
+						continue
+					end
+					local name = prop.asset:sub(#prefix + 1)
+					local row = want[name]
+					if row == nil then
+						fail("%s is not one of the one-lane rows", prop.asset)
+					end
+					expect(prop.x).to.equal(W.AlleyCenterX)
+					expect(prop.z - W.AlleyCenterZ).to.be.near(row[1], 1e-9)
+					expect(prop.rotY or 0).to.equal(0)
+					table.insert(rows, { z = row[1], name = name })
+				end
+				expect(#rows).to.equal(4)
+				table.sort(rows, function(a: Row, b: Row): boolean
+					return a.z > b.z
+				end)
+				local function way(name: string): number
+					local middle = (want[name][2] + want[name][3]) / 2
+					return if math.abs(middle) < 10 then 0 else math.sign(middle)
+				end
+				for i = 2, #rows do
+					if way(rows[i].name) == way(rows[i - 1].name) then
+						fail("%s and %s leave the same way through", rows[i - 1].name, rows[i].name)
+					end
+				end
+				for _, row in rows do
+					local w = want[row.name]
+					local function clear(x: number, z: number, margin: number): boolean
+						local ax, az = x - W.AlleyCenterX, z - W.AlleyCenterZ
+						return math.abs(az - w[1]) > w[4] + margin
+							or (ax > w[2] + margin and ax < w[3] - margin)
+					end
+					for i, point in alley.spawnPoints do
+						if not clear(point.x, point.z, 0.8) then
+							fail(
+								"spawn point %d at (%g, %g) is in %s",
+								i,
+								point.x,
+								point.z,
+								row.name
+							)
+						end
+					end
+					for i, spot in alley.rescueSpots do
+						if not clear(spot.x, spot.z, 2) then
+							fail("rescue spot %d at (%g, %g) is by %s", i, spot.x, spot.z, row.name)
+						end
+					end
+				end
+				-- the lights hang in the two gaps between buildings that have no row
+				expect(#lights).to.equal(2)
+				for _, z in lights do
+					for _, row in rows do
+						expect(math.abs(z - row.z) > 10).to.equal(true)
+					end
+				end
+			end
+		)
+
 		-- Model-Agent #535: eight full buildings in place of the repeated backs and the staff doors; v4 a seventh on
 		-- each outer wall where the Woods or Sewer gate stood.
 		it(
@@ -1270,7 +1433,7 @@ return function()
 						expect(z <= W.AlleySouthZ and z >= W.AlleySouthZ - 1).to.equal(true)
 					end
 				end
-				expect(ends).to.equal(2) -- both south ends; the north ends open into the camp
+				expect(ends).to.equal(3) -- across the south end (F85); the north end opens into the camp
 			end
 		)
 	end)
@@ -1348,8 +1511,8 @@ return function()
 					alley = { W.AlleyCenterX, W.AlleyCenterZ + W.AlleyNorthZ, 180 },
 					park = { 0, W.ParkCenterZ + W.ParkDepth / 2, 180 },
 					neighbourhood = { 0, W.NeighbourhoodCenterZ - W.NeighbourhoodDepth / 2, 0 },
-					woods = { W.WoodsCenterX + W.WoodsWidth / 2, 0, -90 },
-					sewer = { W.SewerCenterX - W.SewerWidth / 2, 0, 90 },
+					woods = { W.WoodsCenterX + W.WoodsDepth / 2, 0, -90 }, -- F85: its depth along X
+					sewer = { W.SewerCenterX - W.SewerDepth / 2, 0, 90 }, -- F85: its depth along X too
 				} :: { [string]: { number } }
 				for id, spec in Layout.areas do
 					local x, z = Layout.gatePosition(spec)
@@ -1855,6 +2018,9 @@ return function()
 						if k ~= n then
 							check("nap spot " .. k, other.x, other.z)
 						end
+					end
+					for _, f79 in plot.beds do
+						check(f79.id, f79.x, f79.z)
 					end
 				end
 			end

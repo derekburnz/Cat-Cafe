@@ -796,6 +796,12 @@ function Catalog.sitModelName(modelName: string): string
 	return modelName .. "_Sit"
 end
 
+-- The standing worker (body S, Model-Agent #826; Derek picked S on 2026-11-02) of a walking model, "CatCafe_Cat_Tabby"
+-- -> "CatCafe_Cat_Tabby_Work" and "CatCafe_Cat_Tabby_Gold" -> "CatCafe_Cat_Tabby_Gold_Work".
+function Catalog.workModelName(modelName: string): string
+	return modelName .. "_Work"
+end
+
 -- What a working cat wears at its station (features.md F25; Derek 2026-10-27: outfits by role, no collars on any
 -- cat). Each piece is the asset CatCafe_Accessory_<Piece>, and each seated cat model (the _Sit bodies) carries an
 -- Attachment named Outfit_<Piece> at that piece's slot (asset thread's sit_slots). Cats resting in the cat room wear
@@ -876,7 +882,7 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 10000, -- F95 v2 (economy-ladder.md section 3, after F97's Epic in every wave; was 8,000)
+		cost = 12000, -- F95 v2.1 (QA's Pace with cannon trips: 9.8 min, under the 10 min floor; was 10,000)
 		distinctCats = 5,
 		slots = 4,
 		multiplier = 1.25,
@@ -1964,7 +1970,7 @@ Catalog.areas = {
 		id = "woods",
 		name = "Woods",
 		tier = 4,
-		spawnPoints = 65, -- the v3.2 set's cat spots, 26 near the gate, 38 deep and the Great Oak's top (F81)
+		spawnPoints = 72, -- F85's long set's cat spots, 28 near the camp, 43 deep and the Great Oak's top
 		waveSize = 4,
 		rescueSpots = 5, -- two hollow logs, two bramble bushes and the tree house branch
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
@@ -1974,7 +1980,7 @@ Catalog.areas = {
 		id = "sewer",
 		name = "Sewer",
 		tier = 5,
-		spawnPoints = 52, -- the v3.2 set's cat spots, 20 in the yard and the market and 32 deep (F81)
+		spawnPoints = 60, -- F85's long set's cat spots, 25 near the camp and 35 deep
 		waveSize = 4,
 		rescueSpots = 4, -- two grates and two drain pipes
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },

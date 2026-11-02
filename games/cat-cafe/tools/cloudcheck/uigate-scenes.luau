@@ -195,6 +195,7 @@ function Scenes.setup()
 	-- Claim all in the Quests window shows once the server has ClaimAll (Gameplay-Engineer); the gate checks it now
 	UIShim.require("ReplicatedStorage.Shared.Config").QuestClaimAll = true
 	UI.init({ catalog = catalogLikeTheGame(), keybinds = true })
+	UI.cannon.setEnabled(true) -- the Cat Cannon is live (F84): Cannon in the bottom row, no Alley or Areas
 	local now = os.time()
 	UI.update(samplePlayer(now))
 	UI.tipJar.set({ sessionStartedAt = workspace:GetServerTimeNow() - 25 * 60, claimed = { [1] = true } })
@@ -438,6 +439,15 @@ local SCENES = {
 	end },
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
+	end },
+	-- last, since no window closes it: the money's boosts card with a Money Potion running and some boosts bought
+	{ "HUDBoosts", function()
+		local t = workspace:GetServerTimeNow()
+		UI.update({
+			buffs = { tip_potion = t + 492, swift_potion = t + 130 },
+			fishPerks = { golden_espresso = 2 },
+		})
+		press("CatCafeHUD", "Counters.Money")
 	end },
 }
 

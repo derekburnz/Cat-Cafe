@@ -181,6 +181,63 @@ return function()
 		end)
 	end)
 
+	-- QA edges: what TipSeen, the save and ClearTips do with input nobody planned for.
+	describe("edges (QA)", function()
+		-- TipSeen goes through the server's Guard.id first (lowercase letters, digits, _ and -, 1 to MaxIdLength),
+		-- so an id outside it could never be saved.
+		it("every id TipSeen takes passes the server's id guard", function()
+			local ids: { string } = { Tips.LIKE_ASK, Tips.FEEDBACK_ASK, Tips.STUCK_HELP }
+			for _, def in Tips.LIST do
+				table.insert(ids, def.id)
+			end
+			for _, id in ids do
+				expect(#id >= 1 and #id <= Config.MaxIdLength).to.equal(true)
+				expect(id:match("^[%l%d_%-]+$")).to.equal(id)
+			end
+		end)
+
+		it("refuses names a table lookup could fake and near misses of real ids", function()
+			for _, id in { "LIST", "get", "seenId", "due", "FACES", "__index", "Bowl", "bowl ", "", "like_asks" } do
+				expect(Tips.seenId(id)).to.equal(false)
+			end
+		end)
+
+		it("a saved tipsSeen drops the asks kept elsewhere, values not true and keys not text", function()
+			local raw: any = {
+				feedback_ask = true,
+				stuck_help = true,
+				bowl = "true",
+				night = 1,
+				potion = false,
+				[5] = true,
+				free_coins = true,
+			}
+			expect(next(Tips.sanitizeSeen(raw, false))).never.to.be.ok()
+			for _, junk in { nil, 5, "bowl", true } :: { any } do
+				expect(next(Tips.sanitizeSeen(junk, false))).never.to.be.ok()
+			end
+			-- a veteran sees every tip but is still owed the one like ask
+			local veteran = Tips.sanitizeSeen(raw, true)
+			local count = 0
+			for key in veteran do
+				count += 1
+				expect(Tips.get(key)).to.be.ok()
+			end
+			expect(count).to.equal(#Tips.LIST)
+			expect(veteran[Tips.LIKE_ASK]).never.to.be.ok()
+		end)
+
+		it("a saved stuckHelpShown keeps only steps 0 to 5 marked true", function()
+			local raw: any = { ["-1"] = true, ["6"] = true, ["1.5"] = true, ["2"] = "yes", ["3"] = true, [4] = true }
+			expect(Tips.sanitizeHelp(raw) :: any).to.deepEqual({ ["3"] = true })
+			expect(next(Tips.sanitizeHelp(nil))).never.to.be.ok()
+		end)
+
+		it("Show tips again on a veteran's save leaves nothing, so every tip can show again", function()
+			expect(next(Tips.cleared(Tips.sanitizeSeen(nil, true)))).never.to.be.ok()
+		end)
+	end)
+
 	describe("constants (section 6)", function()
 		it("matches the design's timings", function()
 			expect(Config.StuckNudgeSeconds).to.equal(40)

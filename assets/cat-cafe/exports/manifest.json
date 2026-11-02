@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 08:41 UTC",
+  "generated": "2026-11-02 08:42 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -93072,6 +93072,130 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.02 (want 0)",
           "centered": "footprint center x=0.13 y=0.23"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Town_LeaderboardRow",
+      "category": "Town",
+      "module": "leaderboards",
+      "objects": [
+        "CatCafe_Town_LeaderboardRow",
+        "CatCafe_Town_LeaderboardRow_Flowers",
+        "CatCafe_Town_LeaderboardRow_Lamp_Bulb",
+        "CatCafe_Town_LeaderboardRow_Index",
+        "CatCafe_Town_LeaderboardRow_Index_Screen",
+        "CatCafe_Town_LeaderboardRow_Playtime",
+        "CatCafe_Town_LeaderboardRow_Playtime_Screen",
+        "CatCafe_Town_LeaderboardRow_Money",
+        "CatCafe_Town_LeaderboardRow_Money_Screen"
+      ],
+      "triangles": 5250,
+      "budget": 8000,
+      "size_studs": {
+        "x": 23.78,
+        "y": 2.72,
+        "z": 11.89
+      },
+      "size_roblox": [
+        23.78,
+        11.89,
+        2.72
+      ],
+      "bounds_min": [
+        -11.89,
+        -1.36,
+        0.0
+      ],
+      "bounds_max": [
+        11.89,
+        1.36,
+        11.89
+      ],
+      "pivot": "the plinth's base centre on the paving (world y 0.1), front -Z toward the Cat Cannon; Layout.leaderboards (40, 0.1, 0) turned 90, at the lane's east end",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Town_LeaderboardRow_Index": [
+          -6.72,
+          0.0,
+          0.35
+        ],
+        "CatCafe_Town_LeaderboardRow_Index_Screen": [
+          -6.72,
+          0.0,
+          0.35
+        ],
+        "CatCafe_Town_LeaderboardRow_Playtime": [
+          -0.0,
+          0.0,
+          0.35
+        ],
+        "CatCafe_Town_LeaderboardRow_Playtime_Screen": [
+          -0.0,
+          0.0,
+          0.35
+        ],
+        "CatCafe_Town_LeaderboardRow_Money": [
+          6.72,
+          0.0,
+          0.35
+        ],
+        "CatCafe_Town_LeaderboardRow_Money_Screen": [
+          6.72,
+          0.0,
+          0.35
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Town_LeaderboardRow_Index": [
+          6.72,
+          0.35,
+          0.0
+        ],
+        "CatCafe_Town_LeaderboardRow_Index_Screen": [
+          6.72,
+          0.35,
+          0.0
+        ],
+        "CatCafe_Town_LeaderboardRow_Playtime": [
+          0.0,
+          0.35,
+          0.0
+        ],
+        "CatCafe_Town_LeaderboardRow_Playtime_Screen": [
+          0.0,
+          0.35,
+          0.0
+        ],
+        "CatCafe_Town_LeaderboardRow_Money": [
+          -6.72,
+          0.35,
+          0.0
+        ],
+        "CatCafe_Town_LeaderboardRow_Money_Screen": [
+          -6.72,
+          0.35,
+          0.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_LeaderboardRow.model.json",
+      "rbx_parts": 358,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Town_LeaderboardRow.fbx",
+        "assets/cat-cafe/exports/CatCafe_Town_LeaderboardRow.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "5250/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2903 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
         }
       }
     },

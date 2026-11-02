@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 11:18 UTC",
+  "generated": "2026-11-02 11:23 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -98362,7 +98362,7 @@
         "CatCafe_Park_SetF85_229_Poplar",
         "CatCafe_Park_SetF85_230_Poplar"
       ],
-      "triangles": 98928,
+      "triangles": 100392,
       "budget": 150000,
       "size_studs": {
         "x": 119.5,
@@ -98772,7 +98772,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_SetF85.model.json",
-      "rbx_parts": 5419,
+      "rbx_parts": 5541,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.glb"
@@ -98785,10 +98785,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "98928/150000 tris",
+          "budget": "100392/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "62772 faces on swatch centers",
+          "uv": "63504 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.05 (want 0)",
           "centered": "footprint center x=0.00 y=-0.12"

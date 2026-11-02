@@ -154,7 +154,8 @@ def _railing(s, mat, z, gap):
 
 def _stream(s, mat):
     """A stream across the whole width, 6 wide between stone kerbs 0.7 high, out of a culvert in each side wall. It is
-    crossed only on the footbridge: a `_Barrier` over the channel either side of it (town-layout-v3 8c)."""
+    crossed only on the footbridge (town-layout-v3 8c): an iron rail 3 high on each kerb, its `_Barrier` a 0.5 thick
+    wall on the rail's line (style guide: a barrier always stands on something a player can see)."""
     b, water, decor, bar = Builder(), Builder(), Builder(), Builder()
     z0, z1 = STREAM_Z - 3.0, STREAM_Z + 3.0
     L = 2 * IN_X
@@ -189,8 +190,17 @@ def _stream(s, mat):
         decor.ico(bl(hx, hz, 1.05), 0.28, "offwhite", subdivisions=1)
         decor.box(bl(hx + 0.3 * math.cos(a), hz + 0.3 * math.sin(a), 1.02), (0.22, 0.14, 0.08), "fur_orange",
                   bevel=False, rot=(-a, "Z"))
-    for (a0, a1) in ((-IN_X, BRIDGE_X - 3.6), (BRIDGE_X + 3.6, IN_X)):
-        bar.box_base(bl((a0 + a1) / 2, STREAM_Z), (a1 - a0, 7.6, BARRIER_H), "offwhite", bevel=False)
+    for i, zc in enumerate((z0 - 0.4, z1 + 0.4)):      # an iron rail on each kerb, its barrier a wall on the rail's line
+        kt = 0.7 + 0.006 * i
+        for (a0, a1) in ((-IN_X + 0.45, BRIDGE_X - 2.9), (BRIDGE_X + 2.9, IN_X - 0.45)):    # clear of the culverts
+            n = max(1, round((a1 - a0 - 0.6) / 2.0))
+            for k in range(n + 1):
+                b.box_base(bl(a0 + 0.3 + (a1 - a0 - 0.6) * k / n, zc, kt), (0.16, 0.16, 3.0 - kt), "fur_black",
+                           bevel=False)
+            for (h, t) in ((1.6, 0.14), (2.85, 0.2)):
+                b.box(bl((a0 + a1) / 2, zc, h), (a1 - a0 - 0.4, 0.12, t), "fur_black", bevel=False)
+        for (a0, a1) in ((-IN_X, BRIDGE_X - 2.9), (BRIDGE_X + 2.9, IN_X)):
+            bar.box_base(bl((a0 + a1) / 2, zc), (a1 - a0, 0.5, BARRIER_H), "offwhite", bevel=False)
     s.put([b.finalize(N + "Stream", mat), water.finalize(N + "Stream_Water", mat),
            decor.finalize(N + "Stream_Decor", mat), bar.finalize(N + "Stream_Barrier", mat)], 0, 0, 0)
 

@@ -1,10 +1,11 @@
 # Area sets: how the world places them
 
-Built by `assets/cat-cafe/blender/{areakit,neighbourhood,woods,sewer,parkset,woodsset,sewerset}.py` from the
+Built by `assets/cat-cafe/blender/{areakit,neighbourhood,woods,sewer,parkset,parkf85,woodsset,sewerset}.py` from the
 approved drafts in `/mnt/project-files/Model-Agent/area-drafts/`. The Park, `CatCafe_Woods_SetV32`,
 `CatCafe_Sewer_SetV32` and `CatCafe_Neighbourhood_SetV32` (neighbourhoodset.py) are sized for town layout v3.2
 (town-layout-v3.md section 8, F81); the v3.1 `CatCafe_Neighbourhood_Set`, `CatCafe_Woods_Set` and
-`CatCafe_Sewer_Set` are still sized for v3.1 (section 7).
+`CatCafe_Sewer_Set` are still sized for v3.1 (section 7). `CatCafe_Park_SetF85` is F85's long Park
+(hometown-cannon.md section 6b), with its own camp, gate, night fence and backdrop ring.
 
 | Set | Footprint (studs) | Tris | Parts | Area in v3.1 |
 |---|---|---|---|---|
@@ -15,6 +16,7 @@ approved drafts in `/mnt/project-files/Model-Agent/area-drafts/`. The Park, `Cat
 | `CatCafe_Woods_SetV32` | 240 x 240 | 105,040 | 4,510 | v3.2: 240 x 240, centre (-215, 0), gate x -94 |
 | `CatCafe_Sewer_SetV32` | 179.2 x 179.15 | 89,112 | 4,471 | v3.2: 180 x 180, centre (185, 0), gate x 94 |
 | `CatCafe_Neighbourhood_SetV32` | 279.5 x 279.8 | 115,000 | 5,478 | v3.2: 280 x 280, centre (0, 266), gate z 125 |
+| `CatCafe_Park_SetF85` | 119.5 x 309.75 | 100,392 | 5,541 | F85: 120 x 310 wild part, the camp 30 more (340) |
 
 ## Placing a set
 
@@ -56,6 +58,43 @@ The way in winds: plaza, east along the flower beds to the only gap in the first
 back west to the pond and round it either side, out to the north-west to the only gap in the second hedge row
 (x -45 to -31, z 20), then the loop round the bandstand. The hedge rows are 8 to 8.8 high with a barrier on them. The playground hangs off the loop to the west, the rose
 garden to the east. About 210 studs gate to bandstand against 120 straight.
+
+## The Park (F85)
+
+F85 (hometown-cannon.md section 6b) makes the Park a long rectangle, 120 x 340 with its camp. Five new models, so the
+live Park stays as it is until the game switches all five together:
+
+| Model | What | Place it |
+|---|---|---|
+| `CatCafe_Park_SetF85` | the wild part, 120 x 310 | the area's centre on its floor, with the area's turn, as every set |
+| `CatCafe_Camp_ParkF85` | the camp, 120 wide and 30 deep, across the set's -Z end | the same CFrame as the set |
+| `CatCafe_Park_GateF85` | the Park gate over a 24 stud opening (CampOpeningWidth) | the gate position, z -155 in set space |
+| `CatCafe_Park_NightFenceF85` | its night fence, 24 wide | the gate's pivot, no offset |
+| `CatCafe_Park_BackdropF85` | the backdrop ring round 120 x 340 | the same CFrame as the set |
+
+It needs Config.World ParkWidth 120 and ParkDepth 310 (the wild part; the camp is CampDepth in front of it) and the
+Park's `openingHalfWidth` 12. The camp model's `camp` entry in the manifest gives its rect (x -59.5 to 59.5, z -186
+to -156 in set space), the gate line z -156 and the opening; its `pad`, `cannon`, `basket` and `index_board` spots
+are where Layout's camp spots already are (pad 0, -13; cannon 0, -26.5; basket -11, -13 in camp space).
+
+The set's walls are the v3.2 Park's (hedge, brick, iron railing on a hedge, old stone) just inside WorldBuilder's at
+x +-60 and z +155, and on the camp side a plinth with a railing and flower boxes, open to the camp, with lantern
+pillars at x +-17.5 either side of the gate. Four blockers cross the width, their gaps on alternating sides, so the
+far end is never in a straight line. Each is low enough to see over and has a 30 high `_Barrier` on its own line:
+
+| z (set space) | Blocker | Gap |
+|---|---|---|
+| -113 to -111 | a clipped box hedge, 3.4 to 4 high, an urn at each end of the gap | x 23 to 37 |
+| -50 to -47.6 | a plinth with a railing 4.6 high and flower boxes, lantern pillars at the gap | x -37 to -23 |
+| 8.2 to 15.8 | the stream, 6 wide between stone kerbs, an iron rail 3 high on each kerb | the footbridge at x 30 |
+| 73 to 75 | a second box hedge | x -37 to -23 |
+
+The footbridge spans z 3 to 21 at x 30: a deck 5.2 wide at 1.6 high, a ramp of 4 at each end (22 degrees), solid
+railings. The walk from the pad: the plaza and the picnic lawn, the first hedge gap, round the duck pond (players wade
+in it, as in v3.2), the railing gap, past the glasshouse (a tall piece, 15.6 high, with a barrier on its plinth) and
+the orchard, over the footbridge, through the rose garden, the second hedge gap, past the playground to the bandstand
+loop at the far end. The gravel path is about 485 studs; the shortest walk from the gate to the far corner is about
+415 (walk check on the Part model), so about 428 from the pad (6b: about 425).
 
 ## The Woods (v3.2)
 
@@ -180,6 +219,11 @@ floor or seat for one cat: none is inside a colliding part.
   kiosk 1, lawn 1), deep 24 (bank 1, oak 1, lawn 3, hedge 1, bandstand 3 at y 1.15, loop 2, slide 1, swings 1,
   sandbox 1 at y 0.55, seesaw 1, roundabout 1 at y 0.72, playground 1, fountain 1, roses 2, topiary 1, garden 1,
   far 2).
+- Park F85 (`CatCafe_Park_SetF85`, 48 spots, each `[x, y, z, zone]`, zone `near` for the camp half (z < 0) or
+  `deep`): near 20 (plaza 1, flowerbed 3 at y 0.62, bench 1, picnic 2, blanket 2 at y 0.06, oak 1, blossom 1, jetty 1
+  at y 1.2, bank 2, willow 1, kiosk 1, lawn 1, glasshouse 2 at y 0.5 on its steps, orchard 1), deep 28 (bench 1,
+  picnic 2, blanket 1 at y 0.06, lawn 3, stream 2, fountain 1, roses 2 (one at y 0.57), topiary 1, sundial 1, swings 1,
+  slide 1, sandbox 1 at y 0.55, seesaw 1, roundabout 1 at y 0.72, playground 1, bandstand 3 at y 1.15, loop 2, far 3).
 - Neighbourhood v3.2 (`CatCafe_Neighbourhood_SetV32`, 72 spots, each `[x, y, z, zone]`, zone `near` for the gate half
   (z < 0) or `deep`): near 28 (porch 12 at y 1.0, flowerbed 8 at y 0.7, garden 1, car 2 at y 0.29 and 0.34,
   bus_stop 1 at y 1.65, post_box 1, verge_bench 2, bins 1), deep 44 (porch 6 at y 1.0, flowerbed 2 at y 0.62 and
@@ -210,11 +254,14 @@ The Park's trap props are placed by the world, not built into the set: each trap
 and the prop stands there turned `turn` degrees (CFrame.Angles(0, math.rad(turn), 0) in set space; a rescue
 tree's branch points along its -X, a bin's open lid is at its back). `trap_tree` (-28, 0, -16, near, 180),
 (-18, 0, 27, deep, 180), (20, 0, 53, deep, -90); `trap_trashcan` (10, 0, -38.5, near, 0), (-14, 0, 23.5, deep, 90).
-Each has a 3.4 x 3.4 footprint clear of the set's solid parts.
+Each has a 3.4 x 3.4 footprint clear of the set's solid parts. The F85 Park's are placed the same way, four of the
+five deep and none within 100 studs of the camp (6b): `trap_tree` (46, 0, -24, near, 0), (-46, 0, 30, deep, 180),
+(46, 0, 98, deep, 0); `trap_trashcan` (-8, 0, 64, deep, 0), (-46, 0, 140, deep, 90).
 
 ## Checks
 
-All sets pass the build gate (budget 80,000, 120,000 for the v3.2 Woods, Sewer and Neighbourhood; transforms, one material, swatch
+All sets pass the build gate (budget 80,000, 120,000 for the v3.2 Woods, Sewer and Neighbourhood, 150,000 for the
+F85 Park; transforms, one material, swatch
 UVs, naming), the toolkit QA with 0 visible overlaps (`toolkit_qa.md`; the floating parts listed there stand on the
 world floor or are meant, such as a falling drip), and a part-overlap check between pieces (0 pairs sinking more
 than 0.15 studs into each other) plus a spot check (no spot inside a colliding part except trap spots, where the

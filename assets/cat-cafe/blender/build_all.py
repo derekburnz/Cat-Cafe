@@ -149,6 +149,9 @@ PIVOT_NOTES = {
     "CatCafe_Accessory_Hat": "attachment point (see attach)",
     "CatCafe_Accessory_Sash": "attachment point (see attach_upright)",
     "CatCafe_Accessory_PartyHat": "attachment point (see attach_upright)",
+    **{f"CatCafe_Accessory_{n}_Walk": "the walking cat's Outfit_<Piece> slot on the back's middle line under the back "
+                                       "of the head; +Z runs back along the spine. CatDress uses this version on a "
+                                       "walking model (no _Sit)" for n in ("Vest", "Sash", "Apron")},
     "CatCafe_Neighbourhood_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Woods_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Sewer_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
@@ -403,6 +406,8 @@ def cat_rbx_extras(name):
     pieces = {p for outfit in accessories.ROLE_OUTFITS.values() for p in outfit}
     if body == "walk":                      # walking staff wear only the pieces that fit A (accessories.WALK_PIECES)
         pieces &= set(accessories.WALK_PIECES)
+        if "Back" in (props.slot(cat), props.slot2(cat)):   # a Back prop: no back pieces (the cape is off too, F71)
+            pieces -= set(accessories.WALK_MESHES)
     for n, (part, off, r) in accessories.slots(spec, body).items():
         if n in pieces:
             turn = Euler([math.radians(a) for a in r], "XYZ").to_matrix().to_4x4()
@@ -585,7 +590,10 @@ def main():
                                               for k, v in lifts.items()}
         if name.startswith("CatCafe_Accessory_"):
             n = name.split("_")[-1]
-            if n in accessories.SIT_SLOTS:
+            if n == "Walk":                         # a walking version: its slot on the walking Tabby
+                n = name.split("_")[-2]
+                entry["slot"] = dict(_slot_entry(*accessories.slots(cats.ROSTER["Tabby"], "walk")[n]), body="walk")
+            elif n in accessories.SIT_SLOTS:
                 entry["slot"] = dict(_slot_entry(*accessories.SIT_SLOTS[n]), body="sit")
             elif n in accessories.slots(cats.ROSTER["Tabby"], "walk"):
                 entry["slot"] = dict(_slot_entry(*accessories.slots(cats.ROSTER["Tabby"], "walk")[n]), body="walk")

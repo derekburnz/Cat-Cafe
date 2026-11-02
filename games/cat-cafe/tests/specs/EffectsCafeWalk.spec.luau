@@ -186,5 +186,18 @@ return function()
 				expect(c.reach > 0 and c.range > c.reach).to.equal(true)
 			end
 		)
+
+		it("finds how high a head prop reaches, so a hat taller than the ears steps aside under a tray", function()
+			local x, y, z = Vector3.new(1, 0, 0), Vector3.new(0, 1, 0), Vector3.new(0, 0, 1)
+			-- upright: half its own height
+			expect(Logic.halfHeight(Vector3.new(0.6, 0.8, 0.4), x, y, z)).to.be.near(0.4, 1e-9)
+			-- lying on its side (turned 90 degrees about Z): half its width
+			expect(Logic.halfHeight(Vector3.new(0.6, 0.8, 0.4), y, Vector3.new(-1, 0, 0), z)).to.be.near(0.3, 1e-9)
+			-- tipped 45 degrees about X: the corner reaches up by both
+			local r = math.sqrt(0.5)
+			local reach = Logic.halfHeight(Vector3.new(1, 1, 1), x, Vector3.new(0, r, r), Vector3.new(0, -r, r))
+			expect(reach).to.be.near(r, 1e-9)
+			expect(c.tallAbove >= 0 and c.tallAbove < 0.2).to.equal(true)
+		end)
 	end)
 end

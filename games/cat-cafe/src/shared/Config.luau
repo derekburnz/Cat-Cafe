@@ -252,7 +252,7 @@ local Config = {
 	-- Tip piles (F61, data-model section 12, round 3 Q6): by day, every TipPileSeconds each earning cafe with a table
 	-- gets a pile worth TipPileRateSeconds of the day rate (at least $5). Since F97 (notes-10-28-to-10-30.md section 1)
 	-- a pile pays its owner the moment it appears, wherever they are; it shows on a table for TipPileShowSeconds and
-	-- at most TipPilesMax show at once (F90's Waiter will sweep them to the till instead).
+	-- at most TipPilesMax show at once (in your own cafe F90's Waiter sweeps them to the till).
 	TipPileSeconds = 30,
 	TipPileRateSeconds = 6,
 	TipPilesMax = 6,
@@ -350,6 +350,19 @@ local Config = {
 	},
 	FishMarketRange = 14, -- OpenCrate and BuyFishItem from this close to a FishMarket station
 	CrateOpenCooldownSeconds = 2,
+	-- The crate reel (F103, crate-reel.md section 4), shared so the UI's reel and VFX's counter crate time to the same
+	-- numbers: CrateReelTiles tiles slide under the marker and the won piece is tile CrateReelLandingTile; tiles
+	-- CrateReelProtectFrom to CrateReelProtectTo are never rarer than the prize; the reel eases in over
+	-- CrateReelRampSeconds to CrateReelTopSpeed tiles a second, slows over the last CrateReelStopSeconds and the marker
+	-- pulses CrateReelHoldSeconds at the stop (about 2.9 s to the stop). Display only: the server's CrateResult decides.
+	CrateReelTiles = 40,
+	CrateReelLandingTile = 34,
+	CrateReelProtectFrom = 26,
+	CrateReelProtectTo = 37,
+	CrateReelTopSpeed = 15,
+	CrateReelRampSeconds = 0.3,
+	CrateReelStopSeconds = 0.8,
+	CrateReelHoldSeconds = 0.25,
 	DecorSpots = { 2, 3, 4, 5, 6 } :: { number }, -- furniture and decorations in use, by tier
 	DecorIndexBonus = 0.05, -- every tip forever: a Decor Index page's decor10 prize (all twelve pieces since F80, F54)
 	DecorIndexHalfFish = 25, -- golden fish: a Decor Index page's decor5 prize (five of ten, F54)
@@ -512,6 +525,17 @@ local Config = {
 		CustomersMax = 24,
 		CustomersMaxLow = 12, -- on a phone or tablet (Effects.tier() "low"): each walker moves every frame
 		CustomerOrderSeconds = 2, -- standing at the counter before taking a seat
+		-- Cats make the orders (F90, cats-make-orders.md section 2), client only: at most OrderQueueMax orders wait or
+		-- are being made per cafe (a customer past that finds its dish on the table as it sits); with no Waiter in
+		-- your own cafe a customer waits up to OrderHandOverSeconds at the counter for the Barista to hand it over;
+		-- a Waiter trots at OrderWaiterSpeed; a left plate stays OrderPlateSeconds, then fades over
+		-- OrderPlateFadeSeconds; an idle Waiter or Greeter sweeps a tip pile TipSweepAfterSeconds after it appears.
+		OrderQueueMax = 3,
+		OrderHandOverSeconds = 8,
+		OrderWaiterSpeed = 5,
+		OrderPlateSeconds = 5,
+		OrderPlateFadeSeconds = 1,
+		TipSweepAfterSeconds = 6,
 	},
 }
 

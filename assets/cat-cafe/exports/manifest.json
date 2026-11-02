@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 10:08 UTC",
+  "generated": "2026-11-02 10:38 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -884,6 +884,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -1581,6 +1635,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -2286,6 +2394,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.184,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.18
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.184,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.18
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.184,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.18
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -2981,6 +3143,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -3682,6 +3898,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -4376,6 +4646,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -5095,6 +5419,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -5808,6 +6186,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -6532,6 +6964,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.184,
+            0.881
+          ],
+          "offset_roblox": [
+            0.0,
+            0.88,
+            -0.18
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.184,
+            0.881
+          ],
+          "offset_roblox": [
+            0.0,
+            0.88,
+            -0.18
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.184,
+            0.881
+          ],
+          "offset_roblox": [
+            0.0,
+            0.88,
+            -0.18
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -7246,6 +7732,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.156,
+            0.823
+          ],
+          "offset_roblox": [
+            0.0,
+            0.82,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.156,
+            0.823
+          ],
+          "offset_roblox": [
+            0.0,
+            0.82,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.156,
+            0.823
+          ],
+          "offset_roblox": [
+            0.0,
+            0.82,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -7954,6 +8494,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.192,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.192,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.192,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -8672,6 +9266,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -9384,6 +10032,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.22,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.22,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.22,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -10106,6 +10808,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -10817,6 +11573,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -11518,6 +12328,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -12215,6 +13079,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -12905,6 +13823,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.968
+          ],
+          "offset_roblox": [
+            0.0,
+            0.97,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.968
+          ],
+          "offset_roblox": [
+            0.0,
+            0.97,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.968
+          ],
+          "offset_roblox": [
+            0.0,
+            0.97,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -13623,6 +14595,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -14336,6 +15362,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -15064,6 +16144,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.79
+          ],
+          "offset_roblox": [
+            0.0,
+            0.79,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.79
+          ],
+          "offset_roblox": [
+            0.0,
+            0.79,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.79
+          ],
+          "offset_roblox": [
+            0.0,
+            0.79,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -15806,6 +16940,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -16540,6 +17728,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.23,
+            1.246
+          ],
+          "offset_roblox": [
+            0.0,
+            1.25,
+            -0.23
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.23,
+            1.246
+          ],
+          "offset_roblox": [
+            0.0,
+            1.25,
+            -0.23
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.23,
+            1.246
+          ],
+          "offset_roblox": [
+            0.0,
+            1.25,
+            -0.23
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -17268,6 +18510,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -18006,6 +19302,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.956
+          ],
+          "offset_roblox": [
+            0.0,
+            0.96,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.956
+          ],
+          "offset_roblox": [
+            0.0,
+            0.96,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.956
+          ],
+          "offset_roblox": [
+            0.0,
+            0.96,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -18730,6 +20080,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -19460,6 +20864,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -20202,6 +21660,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.22,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.22,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.22,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -20936,6 +22448,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -21681,6 +23247,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -22420,6 +24040,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -23149,6 +24823,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -23858,6 +25586,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -24593,6 +26375,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -25337,6 +27173,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -26073,6 +27963,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -26820,6 +28764,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -27554,6 +29552,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -28296,6 +30348,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -29001,6 +31107,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -29714,6 +31874,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -30423,6 +32637,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -31120,6 +33388,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -31829,6 +34151,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -32534,6 +34910,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -33235,6 +35665,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -33932,6 +36416,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -34641,6 +37179,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -35342,6 +37934,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -36051,6 +38697,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -36753,6 +39453,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -37471,6 +40225,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -38182,6 +40990,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -38916,6 +41778,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -39635,6 +42551,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -40345,6 +43315,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -41063,6 +44087,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -41786,6 +44864,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -42526,6 +45658,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -43272,6 +46458,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -44010,6 +47250,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -44700,6 +47994,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -45398,6 +48746,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.184,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.18
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.184,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.18
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.184,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.18
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -46086,6 +49488,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -46780,6 +50236,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -47467,6 +50977,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -48178,6 +51742,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -48883,6 +52501,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -49599,6 +53271,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.184,
+            0.881
+          ],
+          "offset_roblox": [
+            0.0,
+            0.88,
+            -0.18
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.184,
+            0.881
+          ],
+          "offset_roblox": [
+            0.0,
+            0.88,
+            -0.18
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.184,
+            0.881
+          ],
+          "offset_roblox": [
+            0.0,
+            0.88,
+            -0.18
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -50305,6 +54031,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.156,
+            0.823
+          ],
+          "offset_roblox": [
+            0.0,
+            0.82,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.156,
+            0.823
+          ],
+          "offset_roblox": [
+            0.0,
+            0.82,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.156,
+            0.823
+          ],
+          "offset_roblox": [
+            0.0,
+            0.82,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -51005,6 +54785,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.192,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.192,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.192,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -51715,6 +55549,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -52419,6 +56307,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.22,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.22,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.22,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -53133,6 +57075,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -53836,6 +57832,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -54530,6 +58580,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -55220,6 +59324,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -55903,6 +60061,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.968
+          ],
+          "offset_roblox": [
+            0.0,
+            0.97,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.968
+          ],
+          "offset_roblox": [
+            0.0,
+            0.97,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.968
+          ],
+          "offset_roblox": [
+            0.0,
+            0.97,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -56613,6 +60825,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -57318,6 +61584,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.93
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -58038,6 +62358,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.79
+          ],
+          "offset_roblox": [
+            0.0,
+            0.79,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.79
+          ],
+          "offset_roblox": [
+            0.0,
+            0.79,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.79
+          ],
+          "offset_roblox": [
+            0.0,
+            0.79,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -58772,6 +63146,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -59498,6 +63926,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.23,
+            1.246
+          ],
+          "offset_roblox": [
+            0.0,
+            1.25,
+            -0.23
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.23,
+            1.246
+          ],
+          "offset_roblox": [
+            0.0,
+            1.25,
+            -0.23
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.23,
+            1.246
+          ],
+          "offset_roblox": [
+            0.0,
+            1.25,
+            -0.23
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -60218,6 +64700,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -60948,6 +65484,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.956
+          ],
+          "offset_roblox": [
+            0.0,
+            0.96,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.956
+          ],
+          "offset_roblox": [
+            0.0,
+            0.96,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.956
+          ],
+          "offset_roblox": [
+            0.0,
+            0.96,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -61664,6 +66254,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -62386,6 +67030,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -63120,6 +67818,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.22,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.22,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.22,
+            1.127
+          ],
+          "offset_roblox": [
+            0.0,
+            1.13,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -63846,6 +68598,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -64583,6 +69389,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -65314,6 +70174,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -66035,6 +70949,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -66736,6 +71704,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -67463,6 +72485,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -68199,6 +73275,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -68927,6 +74057,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -69666,6 +74850,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -70392,6 +75630,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -71126,6 +76418,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -71824,6 +77170,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -72530,6 +77930,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -73232,6 +78686,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -73922,6 +79430,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -74624,6 +80186,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -75322,6 +80938,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -76016,6 +81686,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -76706,6 +82430,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -77408,6 +83186,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -78102,6 +83934,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -78804,6 +84690,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -79499,6 +85439,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -80209,6 +86203,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -80912,6 +86960,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -81638,6 +87740,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -82349,6 +88505,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -83051,6 +89261,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -83761,6 +90025,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -84476,6 +90794,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -85212,6 +91584,60 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.939
+          ],
+          "offset_roblox": [
+            0.0,
+            0.94,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -85942,6 +92368,60 @@
           ],
           "angles_roblox_deg": [
             -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.91
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
             0.0,
             0.0
           ]
@@ -90750,6 +97230,228 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_Cape.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_Cape.png"
+    },
+    {
+      "name": "CatCafe_Accessory_Vest_Walk",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_Vest_Walk"
+      ],
+      "triangles": 124,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.6,
+        "y": 0.52,
+        "z": 0.13
+      },
+      "size_roblox": [
+        0.6,
+        0.13,
+        0.52
+      ],
+      "bounds_min": [
+        -0.3,
+        -0.02,
+        -0.03
+      ],
+      "bounds_max": [
+        0.3,
+        0.5,
+        0.1
+      ],
+      "pivot": "the walking cat's Outfit_<Piece> slot on the back's middle line under the back of the head; +Z runs back along the spine. CatDress uses this version on a walking model (no _Sit)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Body",
+        "offset": [
+          0.0,
+          -0.16,
+          0.91
+        ],
+        "offset_roblox": [
+          0.0,
+          0.91,
+          -0.16
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_Vest_Walk.model.json",
+      "rbx_parts": 9,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_Vest_Walk.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_Vest_Walk.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "124/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "66 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.03 (want 0)",
+          "centered": "footprint center x=0.00 y=0.24"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_Sash_Walk",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_Sash_Walk"
+      ],
+      "triangles": 224,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.57,
+        "y": 0.56,
+        "z": 0.15
+      },
+      "size_roblox": [
+        0.57,
+        0.15,
+        0.56
+      ],
+      "bounds_min": [
+        -0.26,
+        -0.05,
+        -0.03
+      ],
+      "bounds_max": [
+        0.3,
+        0.52,
+        0.12
+      ],
+      "pivot": "the walking cat's Outfit_<Piece> slot on the back's middle line under the back of the head; +Z runs back along the spine. CatDress uses this version on a walking model (no _Sit)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Body",
+        "offset": [
+          0.0,
+          -0.16,
+          0.91
+        ],
+        "offset_roblox": [
+          0.0,
+          0.91,
+          -0.16
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_Sash_Walk.model.json",
+      "rbx_parts": 6,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_Sash_Walk.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_Sash_Walk.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "224/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "120 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.03 (want 0)",
+          "centered": "footprint center x=0.02 y=0.24"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Accessory_Apron_Walk",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_Apron_Walk"
+      ],
+      "triangles": 116,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.6,
+        "y": 0.55,
+        "z": 0.16
+      },
+      "size_roblox": [
+        0.6,
+        0.16,
+        0.55
+      ],
+      "bounds_min": [
+        -0.3,
+        -0.01,
+        -0.03
+      ],
+      "bounds_max": [
+        0.3,
+        0.54,
+        0.13
+      ],
+      "pivot": "the walking cat's Outfit_<Piece> slot on the back's middle line under the back of the head; +Z runs back along the spine. CatDress uses this version on a walking model (no _Sit)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Body",
+        "offset": [
+          0.0,
+          -0.16,
+          0.91
+        ],
+        "offset_roblox": [
+          0.0,
+          0.91,
+          -0.16
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_Apron_Walk.model.json",
+      "rbx_parts": 7,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_Apron_Walk.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_Apron_Walk.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "116/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "66 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.03 (want 0)",
+          "centered": "footprint center x=0.00 y=0.27"
+        }
+      }
     },
     {
       "name": "CatCafe_Street_DealerCart",

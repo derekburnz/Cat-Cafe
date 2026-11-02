@@ -87,6 +87,29 @@ local Moments = {
 	-- F92 (section 5): a player who joined through a pal's invite or by following them stands at that pal's front door,
 	-- on every client: (joinerUserId, palUserId) for the wave from both characters
 	PalArrived = Signal.new() :: Signal.Signal<number, number>,
+	-- Cats make the orders (F90, cats-make-orders.md section 2), from Controllers/CafeOrders, in any cafe this client
+	-- shows the making in (your own, and others nearby unless phone or Low performance):
+	-- OrderMaking (plot, station, at, seconds) a Barista starts on an order: station "espresso" (steam), "oven" (flour
+	-- puff and door glow) or "counter"; at is the plot's Espresso model, its Oven model or, for the counter, the
+	-- Barista. The Barista's local Making (menu id) and MakeSeconds attributes are set until it is done, for its bob
+	-- and the bubble's ring.
+	-- OrderReady (plot, station, at, item) the "ding!", with the same plot, station and at: item is the dish (the
+	-- CatCafe_Menu_<Model> clone, with a GoldPlate child and Rich true for the rich customer) where it appeared in
+	-- the Workspace (the counter's pass, a tray, the customer's hands or the table), nil without its art or while it
+	-- waits out of sight for its customer to sit.
+	-- OrderServed (customer, itemId, position) the dish is set on the customer's table, as the heart pops.
+	OrderMaking = Signal.new() :: Signal.Signal<Model, string, Instance, number>,
+	OrderReady = Signal.new() :: Signal.Signal<Model, string, Instance, Model?>,
+	OrderServed = Signal.new() :: Signal.Signal<Model, string, Vector3>,
+	-- Your own cafe only (F90 section 2.5): (cat, position) a Waiter or Greeter swept a tip pile into its coin bag at
+	-- position; (cat, position) it dropped the bag in the till at position. Cosmetic: the pile was paid as it appeared.
+	TipSwept = Signal.new() :: Signal.Signal<Model, Vector3>,
+	TipBanked = Signal.new() :: Signal.Signal<Model, Vector3>,
+	-- The crate reel (F103, crate-reel.md section 3), fired by the UI's reel in the Market window: CrateReelTick at each
+	-- tile line crossing the marker (Sound's ticks, at most one every 0.06 s), CrateReelLanded at the stop or on a tap
+	-- skip (the thunk, and VFX's lid pop on the counter crate).
+	CrateReelTick = Signal.new() :: Signal.Signal<()>,
+	CrateReelLanded = Signal.new() :: Signal.Signal<()>,
 }
 
 return Moments

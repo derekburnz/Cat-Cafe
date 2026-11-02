@@ -11,8 +11,10 @@
 -- Six everyday looks, A to F, and the rich customer each have a seated twin `<asset>_Sit` (Model-Agent #546) whose
 -- pivot is a chair's: at the chair the twin takes the standing model's place on the chair's pivot, facing the table,
 -- and the standing one comes back to walk out.
--- A customer model carries Order ("coffee", "cake" or "milk") from the counter on and Served once it sits, for the
--- order bubble and the heart.
+-- A customer model carries Order (a menu id, F90: Catalog.menuFor its cafe's Tier) from the counter on and Served
+-- once its dish is on the table, for the order bubble and the heart. Controllers/CafeOrders makes and serves the
+-- order (cats-make-orders.md): the Barista's bubble and ding, the Waiter's walk with the tray, the plate that fades
+-- after the customer leaves and, in your own cafe, the tip piles swept to the till.
 -- Tip piles (F61, data-model section 12): while a plot's TipPiles is above 0, that many small coin piles sit on its
 -- tables, each on the table a customer last left (else the table with the fewest), in a ring round the middle so
 -- table 1's rich tip keeps the centre. Since F97 a pile is paid the moment it appears: on your own cafe a new pile
@@ -29,6 +31,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local CafeOrders = require(script.Parent.CafeOrders)
 local Config = require(Shared:WaitForChild("Config"))
 local Effects = require(script.Parent.Parent.Effects)
 local Moments = require(script.Parent.Parent.Moments)
@@ -46,7 +49,6 @@ local activeCustomers = 0
 -- everyday customers, each with its seated twin `_Sit` (Model-Agent; G to L added for Derek's 10-28 "more customer
 -- variety", #697)
 local variants = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" }
-local orders = { "coffee", "cake", "milk" }
 local clock: Instance? = nil -- ReplicatedStorage.Clock once it has replicated
 local richVisits: { [Model]: boolean } = {} -- plots with a rich customer on the way or seated
 local coinPiles: { [Model]: Model } = {} -- plot -> the coin pile on its RichTipAnchor while a tip shows
@@ -61,10 +63,12 @@ local tipPiles: { [Model]: { Pile } } = {}
 local leftTables: { [Model]: { Model } } = {}
 local tipAmounts: { [Model]: number } = {} -- each shown plot's TipPilesAmount, for the "+$" a new pile paid
 
--- How a customer visits: which model, and for a rich customer how long it stays (while its tip shows).
+-- How a customer visits: which model, and for a rich customer how long it stays (while its tip shows) and that it
+-- orders the newest dish on the gold plate (F90).
 type Visit = {
 	asset: string,
 	staysWhile: (() -> boolean)?,
+	rich: boolean?,
 }
 
 local function isDay(): boolean
@@ -201,9 +205,15 @@ local function tableModelOf(seat: BasePart): Model?
 	return nil
 end
 
--- Seats a customer: its seated twin goes in on the chair's pivot, already served so its bubble opens on the heart,
--- and the standing model waits out of the world. Nil (the standing one stays at the seat, as before) without a twin.
-local function sitDown(standing: Model, seat: BasePart, sitSource: Instance?): Model?
+-- Seats a customer: its seated twin goes in on the chair's pivot (already served, so its bubble opens on the heart,
+-- when `served`; else CafeOrders serves it), and the standing model waits out of the world. Nil (the standing one
+-- stays at the seat, as before) without a twin.
+local function sitDown(
+	standing: Model,
+	seat: BasePart,
+	sitSource: Instance?,
+	served: boolean
+): Model?
 	local chair = chairOf(seat)
 	if sitSource == nil or chair == nil then
 		return nil
@@ -216,11 +226,28 @@ local function sitDown(standing: Model, seat: BasePart, sitSource: Instance?): M
 	local seated = cloned :: Model
 	seated.Name = standing.Name
 	seated:SetAttribute("Order", standing:GetAttribute("Order"))
-	seated:SetAttribute("Served", true)
+	seated:SetAttribute("Served", if served then true else nil)
 	seated:PivotTo(chair:GetPivot())
 	standing.Parent = nil
 	seated.Parent = container()
 	return seated
+end
+
+-- Where a dish goes for `seat` (F90): on its table's top, a little out from the middle toward the chair (clear of the
+-- rich tip's centre pile and the tip pile ring), its front to the chair.
+local function dishSpot(seat: BasePart): CFrame?
+	local tableModel = tableModelOf(seat)
+	local chair = chairOf(seat)
+	if tableModel == nil or chair == nil then
+		return nil
+	end
+	local cframe, size = tableModel:GetBoundingBox()
+	local centre = cframe.Position
+	local toward = (chair:GetPivot().Position - centre) * Vector3.new(1, 0, 1)
+	toward = if toward.Magnitude < 0.05 then Vector3.new(0, 0, -1) else toward.Unit
+	local out = math.min(0.6, math.min(size.X, size.Z) * 0.17)
+	local at = Vector3.new(centre.X, centre.Y + size.Y / 2, centre.Z) + toward * out
+	return CFrame.lookAt(at, at + toward)
 end
 
 -- Stands a seated customer back up at `at`, facing the way it sat, to walk out. The standing model drops its order
@@ -272,6 +299,8 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 	local sat = false
 	local seated: Model? = nil -- the seated twin while it sits
 	local speed = Config.CustomerWalkSpeed
+	local own = isOwnPlot(plot)
+	local ticket: CafeOrders.Ticket? = nil -- its order (F90), once it reached the counter
 	local arrived = Mover.walkTo(model, door, speed, isAlive)
 	-- order at the counter, standing a little to one side so a queue spreads out
 	if arrived and order ~= nil and (visit ~= nil or isDay()) then
@@ -282,8 +311,16 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 		arrived = Mover.walkTo(model, spot, speed, isAlive)
 		if arrived then
 			Mover.face(model, spot + inward)
-			model:SetAttribute("Order", orders[rng:NextInteger(1, #orders)])
-			task.wait(Config.World.CustomerOrderSeconds)
+			local place: CafeOrders.Place = {
+				seat = seat,
+				route = route,
+				tableModel = tableModelOf(seat),
+				dishAt = dishSpot(seat),
+			}
+			local order =
+				CafeOrders.order(plot, model, place, visit ~= nil and visit.rich == true, own)
+			ticket = order
+			CafeOrders.atCounter(order, isAlive)
 		end
 	end
 	for _, point in route do
@@ -303,10 +340,13 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 		if tableTop ~= nil then
 			Mover.face(model, tableTop.Position)
 		end
-		seated = sitDown(model, seat, sitSource)
-		model:SetAttribute("Served", true)
+		seated = sitDown(model, seat, sitSource, ticket == nil)
+		if ticket ~= nil then
+			CafeOrders.seated(ticket, seated or model)
+		else
+			model:SetAttribute("Served", true) -- it never ordered (no counter waypoint): only the heart
+		end
 		sat = true
-		local own = isOwnPlot(plot)
 		local stay = rng:NextNumber(Config.CustomerStayMin, Config.CustomerStayMax)
 		local elapsed = 0
 		local staysWhile = if visit ~= nil then visit.staysWhile else nil
@@ -346,7 +386,10 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 			leftTables[plot] = recent
 		end
 	end
-	-- out again: after the visit, or at once when the cafe closes for the night on the way in
+	-- out again: after the visit, or at once when the cafe closes for the night on the way in; its plate clears
+	if ticket ~= nil then
+		CafeOrders.left(ticket)
+	end
 	if seated ~= nil then
 		if isAlive() then
 			standUp(model, seated, seatPosition)
@@ -463,6 +506,7 @@ local function updateRich()
 				task.spawn(function()
 					runCustomer(plot, seat, tableTop, {
 						asset = "CatCafe_NPC_Customer_Rich",
+						rich = true,
 						staysWhile = function()
 							local amount = plot:GetAttribute("RichTipAmount")
 							return type(amount) == "number" and amount > 0
@@ -833,15 +877,28 @@ local function updatePiles()
 				clearPiles(plot)
 				continue
 			end
-			local list = shown or {}
+			local list: { Pile } = shown or {}
 			tipPiles[plot] = list
 			while #list > count do
-				local last = table.remove(list) :: Pile
+				-- a pile a Waiter already swept to the till goes first (F90)
+				local drop = #list
+				for i, pile in list do
+					if pile.model.Parent == nil then
+						drop = i
+						break
+					end
+				end
+				local last = table.remove(list, drop) :: Pile
 				last.model:Destroy()
 			end
 			while #list < count do
 				if not placePile(plot, list) then
 					break -- every slot on every table is full
+				end
+				if known ~= nil and isOwnPlot(plot) then
+					-- a new pile in your own cafe (not one already there as it came into view) is swept later
+					local new = list[#list]
+					CafeOrders.sweep(plot, new.model, new.tableModel)
 				end
 			end
 			-- a pile paid just now: float what it added over the newest pile (a sweep in the same quarter second
@@ -867,6 +924,7 @@ local function updatePiles()
 end
 
 function CustomerController.start()
+	CafeOrders.start()
 	task.spawn(function()
 		clock = ReplicatedStorage:WaitForChild("Clock")
 	end)

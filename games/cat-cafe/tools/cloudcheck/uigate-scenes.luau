@@ -234,6 +234,32 @@ local function firstArea()
 	return Catalog.areas[1].id
 end
 
+-- F103: the crate reel plays once shared Config has its numbers (Gameplay-Engineer adds them); the reel scenes turn
+-- them on and Scenes.close turns them off again, so the other Market scenes keep the card reveal
+local REEL_CONFIG = {
+	CrateReelTiles = 40,
+	CrateReelLandingTile = 34,
+	CrateReelProtectFrom = 26,
+	CrateReelProtectTo = 37,
+	CrateReelTopSpeed = 15,
+	CrateReelRampSeconds = 0.3,
+	CrateReelStopSeconds = 0.8,
+	CrateReelHoldSeconds = 0.25,
+}
+local reelWasOn = nil
+local function reel(on)
+	local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+	if reelWasOn == nil then
+		reelWasOn = Config.CrateReelTiles ~= nil
+	end
+	if reelWasOn then
+		return -- the real Config has them: leave them be
+	end
+	for key, value in REEL_CONFIG do
+		Config[key] = if on then value else nil
+	end
+end
+
 -- an F99 rainbow cat for the cat room: the first Epic in the catalog, level 8, resting
 local function rainbowCat()
 	local catId = Catalog.cats[1].id
@@ -739,6 +765,25 @@ local SCENES = {
 			UI.market.result("classic_crate", "classic_gold_leaf", false, 0)
 		end)
 	end },
+	-- F103: a Classic Crate's reel 2.2 s in, slowing towards a Common on tile 34 under the gold marker
+	{ "CrateReel", function()
+		reel(true)
+		UI.market.open()
+		task.delay(0.3, function()
+			UI.market.result("classic_crate", "classic_latte_brown", false, 0)
+		end)
+	end },
+	-- a tap skips it: the landing, then the prize card with its buttons
+	{ "CrateReelSkip", function()
+		reel(true)
+		UI.market.open()
+		task.delay(0.3, function()
+			UI.market.result("classic_crate", "classic_latte_brown", false, 0)
+		end)
+		task.delay(0.6, function()
+			press("FishMarket", "ReelCover")
+		end)
+	end },
 	-- last, since no window closes it: the money's boosts card with a Money Potion running and some boosts bought
 	{ "HUDBoosts", function()
 		UI.pals({ 4242 }) -- F92: one pal on the server, so the card has the Pals row
@@ -812,6 +857,7 @@ function Scenes.open(name)
 end
 
 function Scenes.close()
+	reel(false)
 	UI.close()
 	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
 	UI.catch.hideCircles()

@@ -19,7 +19,7 @@ return function()
 		OfflineCapSeconds = 28800,
 		OfflineRatePass = 1.0,
 		OfflineCapPassSeconds = 57600,
-		LongNapPassId = 0, -- 0 until Tools-Agent makes the pass, which keeps it off
+		LongNapPassId = 2064345084, -- Tools-Agent made it 2026-11-02 (off sale until launch)
 		AutosaveSeconds = 60,
 		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and
 		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
@@ -395,9 +395,15 @@ return function()
 		)
 
 		it("F95's pass ids and keep up (economy-ladder.md section 7)", function()
-			-- every id 0 until Tools-Agent makes the passes, which keeps their effects off
-			expect(Config.MoneyPassIds :: any).to.deepEqual({ [2] = 0, [3] = 0, [4] = 0 })
+			-- the ids Tools-Agent made on 2026-11-02 (tools/opencloud/passes.json); no extra slot pass yet, which keeps
+			-- its effect off
+			expect(Config.MoneyPassIds :: any).to.deepEqual({ [2] = 2064604577, [3] = 2064670602, [4] = 2064357148 })
 			expect(Config.ExtraSlotPassIds :: any).to.deepEqual({})
+			local ids: { [number]: boolean } = { [Config.LongNapPassId] = true }
+			for _, id in Config.MoneyPassIds do
+				expect(ids[id]).never.to.be.ok()
+				ids[id] = true
+			end
 			-- keep up is off: the shop-only cats use areaMultiplier instead, and it can come back by config
 			expect(next(Config.KeepUpRarities)).to.equal(nil)
 		end)

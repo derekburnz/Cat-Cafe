@@ -19,8 +19,10 @@ local Config = {
 	OfflineCapPassSeconds = 57600,
 	-- Game pass ids for F95's hooks (section 6); 0 until Tools-Agent makes the pass, which turns its effect off. The
 	-- Money passes by the income they multiply by (the highest owned counts); each extra slot pass adds a role slot.
-	LongNapPassId = 0,
-	MoneyPassIds = { [2] = 0, [3] = 0, [4] = 0 } :: { [number]: number },
+	-- Tools-Agent made the four in tools/opencloud/passes.json on 2026-11-02 (off sale until launch); no extra slot
+	-- pass exists yet.
+	LongNapPassId = 2064345084,
+	MoneyPassIds = { [2] = 2064604577, [3] = 2064670602, [4] = 2064357148 } :: { [number]: number },
 	ExtraSlotPassIds = {} :: { number },
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)

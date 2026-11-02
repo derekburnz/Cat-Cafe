@@ -29,6 +29,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -86,7 +87,10 @@ local function open(
 ): (Types.DecorDef, boolean, number, boolean)
 	-- roll first (pure), then pay, so an error in the roll never takes the crate or the fish (review N168)
 	local luck = profile.crateLuck[crate.area] or 0
-	local decorId, lucky = Crates.roll(crate, luck, random:NextNumber(), random:NextNumber())
+	-- F88: the player's Luck now multiplies a plain open's Epic and rarer chances (not the twentieth or golden ones)
+	local playerLuck = Luck.of(profile, os.time(), ClockService.luckyDay())
+	local decorId, lucky =
+		Crates.roll(crate, luck, random:NextNumber(), random:NextNumber(), playerLuck)
 	local def = Catalog.getDecor(decorId) :: Types.DecorDef
 	local rarity: Types.Rarity = def.rarity or "Common"
 	local banked = profile.crates[crate.id] or 0
@@ -133,6 +137,14 @@ local function open(
 		1,
 		{ crate.id, rarity .. " " .. (def.kind or "unknown"), outcome }
 	)
+	if playerLuck > 1 and not lucky and not crate.golden then
+		Telemetry.custom(
+			player,
+			"luck_used",
+			playerLuck,
+			{ "crate", rarity, tostring(Economy.tier(profile)) }
+		)
+	end
 	return def, duplicate, refund, placed
 end
 

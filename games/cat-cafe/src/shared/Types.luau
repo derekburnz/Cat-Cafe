@@ -359,7 +359,8 @@ export type TierDef = {
 	slots: number, -- role slots open at this tier
 	multiplier: number, -- tierMultiplier in the income formula
 	area: Area, -- the area this tier opens
-	caps: { tables: number, espresso: number, net: number, lure_bowl: number }, -- highest shop level allowed at this tier
+	-- highest shop level allowed at this tier (lucky_cat: F88, level n at Tier n)
+	caps: { tables: number, espresso: number, net: number, lure_bowl: number, lucky_cat: number },
 }
 
 export type CatInstance = {
@@ -631,6 +632,10 @@ export type PlayerProfile = {
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
+-- F88 (luck-and-rare-moments.md 1d): a source of Luck for the chip's card: "statue", "potion" or "lucky_day", what it
+-- adds, and when it ends (os.time()) for the potion and the Lucky Day.
+export type LuckSource = { id: string, value: number, endsAt: number? }
+
 export type PlayerState = {
 	money: number,
 	incomePerSecond: number,
@@ -674,6 +679,8 @@ export type PlayerState = {
 	feedbackAsked: boolean,
 	stuckHelpShown: { [string]: boolean },
 	starterCatClaimed: boolean, -- F96: the Bellhop Cat's stand card reads "Already home with you"
+	luck: number, -- F88: the player's Luck now (shared/Luck), x1 to LuckMax; the HUD chip shows it above 1
+	luckSources: { LuckSource }, -- F88: what adds it, in order (statue, potion, lucky_day)
 	serverTime: number,
 }
 

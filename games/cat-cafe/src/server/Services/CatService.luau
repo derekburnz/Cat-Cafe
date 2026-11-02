@@ -27,6 +27,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
+local Luck = require(ReplicatedStorage.Shared.Luck)
 local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
@@ -655,12 +656,14 @@ local function tutorialTick()
 end
 
 -- Sunrise (data-model section 9, v0.9): a full wave arrives at once. Dusk already cleared the area, so this only
--- fills free points; a cat let go during night is still there and keeps its point.
-local function spawnWave(areaDef: Types.AreaDef)
+-- fills free points; a cat let go during night is still there and keeps its point. On a Lucky Day (F88) the wave
+-- rolls at LuckyDayWaveLuck; nobody's own Luck touches it. Returns whether a Mythical came.
+local function spawnWave(areaDef: Types.AreaDef, luck: number): boolean
 	-- Roll the whole wave, then place the rarest first so Epic and rarer always find a Square point.
+	local odds = Luck.apply(areaDef.odds, luck)
 	local rarities: { Types.Rarity } = {}
 	for _ = 1, areaDef.waveSize do
-		table.insert(rarities, Catching.pickRarity(areaDef.odds, rng:NextNumber()))
+		table.insert(rarities, Catching.pickRarity(odds, rng:NextNumber()))
 	end
 	-- F97 section 7: every wave has an Epic or rarer stray
 	local rerolled = Catching.waveRare(rarities, rng:NextNumber())
@@ -674,18 +677,21 @@ local function spawnWave(areaDef: Types.AreaDef)
 	table.sort(rarities, function(a, b)
 		return Catalog.rarityRank[a] > Catalog.rarityRank[b]
 	end)
+	local mythical = false
 	for _, rarity: Types.Rarity in rarities do
+		mythical = mythical or rarity == "Mythical"
 		local point = freeSpawnPoint(areaDef.id, rarity)
 		if point ~= nil then
 			local stray = spawnAt(areaDef.id, point, rarity)
 			-- F58: everyone in the server hears of a wave's Mythical, those without the area too (a reason to rank
 			-- up); a tutorial or bait Mythical is not a wave's
-			local text = Catching.waveShoutOut(rarity, stray.variant, areaDef.name)
+			local text = Catching.waveShoutOut(rarity, stray.variant, areaDef.name, luck > 1)
 			if text ~= nil then
 				Net.fireAll("Announce", text, rarity)
 			end
 		end
 	end
+	return mythical
 end
 
 -- Runs `after` once nobody holds the stray's lock: at once when it is free, else when the catch in progress ends
@@ -2066,9 +2072,24 @@ function CatService.nightFalls()
 end
 
 -- Sunrise (v0.9, F66): every area gets its wave of WaveSize strays at once, whether or not anyone has it unlocked.
+-- F88: a Lucky Day's waves roll at LuckyDayWaveLuck, and the day is logged as `lucky_day` (value the players in the
+-- server; the first area a Mythical came to, or "none").
 function CatService.sunriseWave()
+	local luckyDay = ClockService.luckyDay()
+	local luck = if luckyDay then Config.LuckyDayWaveLuck else 1
+	local mythicalArea = "none"
 	for _, areaDef in Catalog.areas do
-		spawnWave(areaDef)
+		if spawnWave(areaDef, luck) and mythicalArea == "none" then
+			mythicalArea = areaDef.id
+		end
+	end
+	if luckyDay then
+		-- a server event with no player of its own: logged under the first player here, none in an empty server
+		local players = DataService.loadedPlayers()
+		local someone: Player? = players[1]
+		if someone ~= nil then
+			Telemetry.custom(someone, "lucky_day", #players, { mythicalArea })
+		end
 	end
 end
 

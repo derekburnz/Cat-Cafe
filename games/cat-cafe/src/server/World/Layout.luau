@@ -276,6 +276,9 @@ Layout.plot = {
 		z2 = -halfD - 1,
 	} :: Rect,
 	frontPath = { x1 = -2.5, z1 = -halfD - 1 - W.FrontGardenDepth, x2 = 2.5, z2 = -halfD - 1 } :: Rect,
+	-- The Lucky Cat statue (F88, luck-and-rare-moments.md section 1): in the front garden left of the path, by the
+	-- door, its front to the street. CafeService stands CatCafe_Plot_LuckyCat_<level> here, level 0 a plinth and sign.
+	luckyCat = { x = -5.1, y = 0, z = -halfD - 2.1 } :: Point,
 
 	-- The bait bowl (data-model section 8; v0.5 F44, Gavin: "The bowl sits out side of your cafe") on the back
 	-- step, right of the back door and under the shell's back lamp, facing the yard gate and the Alleyway the strays

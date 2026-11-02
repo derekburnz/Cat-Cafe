@@ -675,6 +675,19 @@ return function()
 		)
 	end)
 
+	describe("the Lucky Cat statue by the front door (F88, luck-and-rare-moments.md 1a)", function()
+		local plot = Layout.plot
+
+		it("stands in the front garden on the ground, clear of the path to the door", function()
+			local spot = plot.luckyCat
+			expect(spot.y).to.equal(0)
+			-- its plinth is 1.8 across: 0.9 each way stays in the garden and 1 stud off the path
+			expect(inside(spot.x, spot.z, plot.frontGarden, 0.9)).to.equal(true)
+			expect(inside(spot.x, spot.z, plot.frontPath, -1.9)).to.equal(false)
+			expect(math.abs(spot.x - plot.door.x) <= 8).to.equal(true) -- beside the door, seen from the street
+		end)
+	end)
+
 	-- Shortest walks over the Alleyway floor on a 1 stud grid, moving along x or z only, so every distance is at least
 	-- the real walk. A cell is walkable when the floor reaches 1 stud past its centre every way (across the seams
 	-- where one floor meets the next) and it is 1 stud clear of every wall. v4: the grid covers the set in the wild.

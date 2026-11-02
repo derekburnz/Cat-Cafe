@@ -104,6 +104,10 @@ export type CustomEvent =
 	| "feedback"
 	-- F96 (starter-cat.md section 4): the free Bellhop Cat taken home; the gate it passed, "task" or "group"
 	| "starter_cat"
+	-- F88 (luck-and-rare-moments.md 1f): a bait or crate roll with Luck above x1 (value the Luck; roll kind, rarity
+	-- won, tier) and a Lucky Day's sunrise (value the players in the server; the area of a Mythical, or none)
+	| "luck_used"
+	| "lucky_day"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.

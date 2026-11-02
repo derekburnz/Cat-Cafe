@@ -30,6 +30,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
+local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local Shove = require(ReplicatedStorage.Shared.Shove)
@@ -535,6 +536,7 @@ end
 -- rarer only in a nook or deep, never in a back alley lane or by a gate (F35, v3.1, F81). The Alleyway's `near`
 -- points by its camp are the tutorial stray's alone (v4, F84, data-model section 9 v0.13.18), never free here.
 local TUTORIAL_AREA, TUTORIAL_ZONE = "alley", "near"
+local NEAR_STRAY_STUDS = 12 -- F87: funnel v2 step near_stray, this close to the own tutorial stray
 local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
@@ -632,6 +634,13 @@ local function tutorialTick()
 				and (stray.lockedBy == 0 or lockExpired(stray))
 			then
 				reserve(stray, player.UserId)
+			end
+			-- F87 funnel v2 step near_stray (easy-start.md section 5)
+			if
+				not Onboarding.reached(profile.telemetry, "near_stray")
+				and withinRange(player, stray.body.Position, NEAR_STRAY_STUDS)
+			then
+				Telemetry.onboarding(player, profile, "near_stray")
 			end
 		elseif strayId == nil then
 			spawnAt(TUTORIAL_AREA, own, "Common", player.UserId)
@@ -1125,8 +1134,12 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local at = stray.model:GetPivot().Position
 		local homePos = Vector3.new(at.X, stray.home.Y, at.Z)
 		local knocks = stray.knocks
+		local area = stray.area
 		despawn(stray, player)
 		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks)
+		if area == "park" then
+			Telemetry.onboarding(player, profile, "first_park_catch") -- F87 funnel v2
+		end
 		return
 	end
 
@@ -1269,6 +1282,10 @@ function startCatch(
 	profile.stats.grabsAttempted += 1
 	Net.fire(player, "CatchSchedule", stray.id, circles, Circles.publicWindows(windows))
 	stray.funnel = Telemetry.catchEngaged(player, stray.def.rarity, "net", stray.area, funnel)
+	-- F87 funnel v2: a catch starts in reach of a stray, so it stands in for near_stray when the tutorial stray was
+	-- never the one (a player who caught another cat first would hold every later step behind it)
+	Telemetry.onboarding(player, profile, "near_stray")
+	Telemetry.onboarding(player, profile, "catch_started")
 
 	-- A circle nobody presses is a Miss at its deadline, which ends the catch; so is walking out of range.
 	task.spawn(function()
@@ -1323,6 +1340,13 @@ local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unkno
 	Circles.press(attempt, index, pressTime, arrival)
 	for judged = before, attempt.nextIndex - 1 do
 		logCircle(player, strayId, attempt, judged)
+		local grade = attempt.grades[judged]
+		if grade == "good" or grade == "perfect" then
+			local profile = DataService.get(player)
+			if profile ~= nil then
+				Telemetry.onboarding(player, profile, "first_circle_hit") -- F87 funnel v2
+			end
+		end
 	end
 	if Circles.isDone(attempt) then
 		finishCatch(player, stray, attempt)

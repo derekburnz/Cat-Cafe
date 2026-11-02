@@ -2314,6 +2314,14 @@ Presets.decor = {
 		emitter = "decorGlint",
 		colors = { palette.offwhite, palette.goldLight },
 	},
+	-- The Rally Crate's Mythical paint (F101, Model-Agent's #766: gold 255, 201, 77 Foil on the Paint parts, its
+	-- `_Trim` trims with #660), with Gold Leaf's look: the glints over the front and, once trims are in, their sweep.
+	rally_trophy_gold = {
+		look = "goldLeaf",
+		on = "Paint",
+		emitter = "decorGlint",
+		colors = { palette.offwhite, palette.goldLight },
+	},
 } :: { [string]: DecorSpec }
 
 -- How the Mythical styles look. Walls: Midnight Sky's stars and moon and Aurora Sky's lights are pictures on a

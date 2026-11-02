@@ -146,12 +146,12 @@ UI.events = {
 	-- F64
 	usePotion = Signal.new(), -- (potionId)   Use on a potion in the potion bag: forward as UsePotion
 	-- F61
-	collectTips = Signal.new(), -- ()   Collect on the till's tip button in your cafe: forward as CollectTips
+	collectTips = Signal.new(), -- ()   the till's Collect (F61); unbound since F97 pays tip piles on arrival
 	-- F73
 	claimQuest = Signal.new(), -- (kind, slot)   Claim on a finished quest, kind "daily" or "weekly": forward as ClaimQuest
 	rerollQuest = Signal.new(), -- (kind, slot)   Swap on an unfinished quest (the free reroll): forward as RerollQuest
 	claimAchievement = Signal.new(), -- (achievementId)   Claim on a met achievement: forward as ClaimAchievement
-	claimAll = Signal.new(), -- (what)   Claim all in the Quests window, "daily", "weekly" or "achievements": forward as ClaimAll (shown once Config.QuestClaimAll)
+	claimAll = Signal.new(), -- (what)   Claim all: "daily", "weekly" or "achievements" (Quests, Config.QuestClaimAll), "index" (the Index window, Config.IndexClaimAll) or "tipjar" (the Tip Jar, Config.TipJarClaimAll): forward as ClaimAll
 	-- F63
 	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
 	-- F70
@@ -225,7 +225,6 @@ local baitScreen: BaitBowl.BaitBowl? = nil
 local baitCard: BaitCard.BaitCard? = nil
 local baitView: Types.BaitView? = nil -- what is in the bowl (UI.bait.set)
 local baitCat: Types.BaitCat? = nil -- the cat at the bowl (UI.bait.showReady), until it is resolved
-local bowlPart: BasePart? = nil -- the player's own BaitBowl part (UI.bait.setBowl), for the range hints
 local dealerScreen: Dealer.Dealer? = nil
 local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), for the range hint
 local settingsScreen: Settings.Settings? = nil -- sound switches and volumes, screen shake and the like (gear in the HUD)
@@ -253,8 +252,8 @@ local tutorialText: string? = nil -- UI.tutorial.show's line, nil once hidden
 local applyTutorial: () -> ()
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
--- data-model section 8: ResolveBait within 20 studs of the bowl; UseLure works from anywhere (Derek 2026-10-28)
-local RESOLVE_RANGE: number = Config.BaitResolveRangeStuds
+-- data-model section 8: UseLure, Tame and Let go work from anywhere (Derek 2026-10-28: "tame or let go from anywhere";
+-- the server dropped BaitResolveRangeStuds in #720), so the bait card's buttons never grey for distance
 -- data-model section 8b: BuyDealerFood within 12 studs of the cart
 local CART_RANGE: number = Config.DealerRangeStuds
 
@@ -685,6 +684,9 @@ function UI.init(config: Types.InitConfig)
 		claimIndexReward = function(areaId: string, milestoneId: string)
 			UI.events.claimIndexReward:Fire(areaId, milestoneId)
 		end,
+		claimAll = function()
+			UI.events.claimAll:Fire("index")
+		end,
 		close = closeModal,
 	})
 	myCats = MyCats.new({
@@ -887,6 +889,9 @@ function UI.init(config: Types.InitConfig)
 		claim = function(step: number)
 			UI.events.claimTipJar:Fire(step)
 		end,
+		claimAll = function()
+			UI.events.claimAll:Fire("tipjar")
+		end,
 		status = function(summary)
 			hudInstance:setTipJar(summary)
 		end,
@@ -1054,10 +1059,6 @@ function UI.init(config: Types.InitConfig)
 				return
 			end
 			nearClock = 0
-			local distance = distanceTo(bowlPart)
-			if baitCard then
-				baitCard:setNear(if distance then distance <= RESOLVE_RANGE else nil)
-			end
 			if dealerScreen then
 				local cart = distanceTo(cartPart)
 				dealerScreen:setNear(if cart then cart <= CART_RANGE else nil)
@@ -1249,7 +1250,7 @@ function UI.destroy()
 	if baitCard then
 		baitCard:destroy()
 	end
-	baitScreen, baitCard, baitView, baitCat, bowlPart = nil, nil, nil, nil, nil
+	baitScreen, baitCard, baitView, baitCat = nil, nil, nil, nil
 	if dealerScreen then
 		dealerScreen:destroy()
 	end
@@ -1651,11 +1652,9 @@ local function renderBait()
 	end
 end
 
--- The player's own BaitBowl part. With it, Use greys out away from the bowl and the card says where to go;
--- without it the buttons stay on and the server decides.
-function UI.bait.setBowl(part: BasePart?)
-	bowlPart = part
-end
+-- The player's own BaitBowl part. Nothing needs it since Use, Tame and Let go work from anywhere (#720); kept so
+-- the controller's call stands.
+function UI.bait.setBowl(_part: BasePart?) end
 
 -- What is in the bowl: { lureId, readyAt, placedAt?, night? } with the times in server os.time(), or nil when the
 -- bowl is empty. night (F60) is true for food set at night, which waits half, and the countdowns show a moon. nil
@@ -1990,17 +1989,14 @@ UI.richTip = {}
 -- os.time()) show a tip, with Collect firing events.claimRichTip within 12 studs. When a claimed tip clears
 -- (RichTipOutcome "claimed") "+$X" rises from the coin pile and a toast says so, so the server needs no Notify for
 -- it; a missed one only toasts "Rich tip missed".
--- F61: the same plot's tip piles too. While its TipPiles is above 0 and the player stands on the plot, a green
--- "💰 Collect $120" pill floats over the till and fires events.collectTips.
 -- F63: the same plot's CollectorSpot, where the Cat Collector's tag and card follow UI.collector.offer.
 -- Call it again when the player gets a new plot; nil stops watching.
 function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then
 		richTipScreen:bind(plot)
 	end
-	if tillTips then
-		tillTips:bind(plot)
-	end
+	-- F97: tip piles pay the moment they appear (Gameplay-Engineer #714), so the till's Collect pill stays unbound
+	-- until F90's Waiter gives the till a job
 	if collectorScreen then
 		collectorScreen:bind(plot)
 	end

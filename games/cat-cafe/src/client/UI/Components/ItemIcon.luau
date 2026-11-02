@@ -5,7 +5,8 @@
 -- A still ViewportFrame only redraws when its contents change, so a list of these costs no frames.
 -- setFood (F69) colours the tile by the food's grade (Components/FoodGrade) and adds the grade badge: a word pill
 -- across the bottom edge, or a lettered gem in the top right corner of a picture too small for the word. Since F97
--- section 3 a food draws its uploaded picture (Components/ShopIcons.food) on that tile in place of its model.
+-- section 3 a food draws its uploaded picture (Components/ShopIcons.food) on that tile over its model, and the model
+-- (else the glyph) shows until the picture has loaded.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -31,7 +32,7 @@ export type Props = {
 export type ItemIcon = {
 	frame: Frame,
 	-- asset: the model name in ReplicatedStorage.Assets; glyph: shown when there is no model; image: an uploaded
-	-- shop icon (Components/ShopIcons) drawn in place of the model, the glyph showing until it loads
+	-- shop icon (Components/ShopIcons) drawn over the model, which shows (or else the glyph) until the picture loads
 	set: (self: ItemIcon, asset: string?, glyph: string, rarity: string?, image: string?) -> (),
 	-- a food by its LureDef, or by `id` alone when the catalog does not have it: tile, picture and grade badge
 	setFood: (self: ItemIcon, lure: Types.LureDef?, id: string?) -> (),
@@ -118,6 +119,8 @@ function ItemIcon.new(props: Props): ItemIcon
 	})
 	self._model = nil :: Model?
 	self._asset = nil :: string?
+	self._image = nil :: string? -- the uploaded picture over the model, if any
+	self._artWatch = nil :: RBXScriptConnection?
 	self._badgeKind = props.badge or "word"
 	self._badge = nil :: TextLabel?
 	return self :: ItemIcon
@@ -179,19 +182,28 @@ function ItemIcon.set(self: any, model: string?, glyph: string, rarity: string?,
 	local color = Theme.rarityColor(rarity)
 	self.frame.BackgroundColor3 = color:Lerp(Theme.colors.cream, TILE_SHADE)
 	self._border.Color = color:Lerp(Theme.colors.outline, 0.35)
-	self._glyph.Text = glyph
+	-- the model, when Assets has it: alone, or under an uploaded picture until that picture has loaded, as a new
+	-- upload draws nothing until Roblox moderation passes it (Derek 2026-10-28: "make different visuals for the area
+	-- crates and models"; every crate looked the same while its picture waited)
+	if model ~= self._asset or (model ~= nil and self._model == nil) then
+		self:_setModel(model)
+	end
+	local hasModel = self._model ~= nil
+	-- the glyph label holds the picture, so it stays shown with one; its emoji only while nothing else draws
+	self._glyph.Text = if hasModel then "" else glyph
 	if image then
-		IconArt.setImage(self._glyph, image, IMAGE_SCALE) -- a shop icon stands in for the model
+		IconArt.setImage(self._glyph, image, IMAGE_SCALE)
 	else
 		-- spins, crates, potions and decor tiles get the drawn icon; the Decor Index's unknown piece stays a plain "?"
-		IconArt.set(self._glyph, if glyph ~= "?" then glyph else nil)
+		IconArt.set(self._glyph, if glyph ~= "?" and not hasModel then glyph else nil)
 	end
-	local asset = if image then nil else model
-	if asset == self._asset and (self._model ~= nil or asset == nil) then
-		-- the same picture as before; a tile that never had a model shows its glyph (the coin tiles were blank)
-		self._glyph.Visible = self._model == nil
-		return
-	end
+	self._glyph.Visible = image ~= nil or not hasModel
+	self._image = image
+	self:_watchPicture()
+end
+
+-- The model in the viewport, or none; a model Assets does not have yet leaves the glyph.
+function ItemIcon._setModel(self: any, asset: string?)
 	local old: Model? = self._model
 	if old then
 		old:Destroy()
@@ -200,11 +212,9 @@ function ItemIcon.set(self: any, model: string?, glyph: string, rarity: string?,
 	self._asset = asset
 	local model = if asset then cloneModel(asset) else nil
 	if not model then
-		self._glyph.Visible = true
 		return
 	end
 	assert(model, "model")
-	self._glyph.Visible = false
 	-- face the item toward the camera (models face -Z, the Roblox front), turn it a little and frame its box
 	model:PivotTo(CFrame.Angles(0, math.rad(THREE_QUARTER), 0))
 	local boxCFrame, boxSize = model:GetBoundingBox()
@@ -214,6 +224,23 @@ function ItemIcon.set(self: any, model: string?, glyph: string, rarity: string?,
 	self._camera.CFrame = CFrame.lookAt(centre + Vector3.new(0, radius * 0.6, -distance), centre)
 	model.Parent = self._viewport
 	self._model = model
+end
+
+-- With a picture over a model, the model hides once the picture has loaded (IsLoaded).
+function ItemIcon._watchPicture(self: any)
+	local art = self._glyph:FindFirstChild("IconArt") :: ImageLabel?
+	if art and self._artWatch == nil then
+		self._artWatch = art:GetPropertyChangedSignal("IsLoaded"):Connect(function()
+			self:_coverModel()
+		end)
+	end
+	self:_coverModel()
+end
+
+function ItemIcon._coverModel(self: any)
+	local art = self._glyph:FindFirstChild("IconArt") :: ImageLabel?
+	local covered = self._image ~= nil and art ~= nil and art.Visible and art.IsLoaded
+	self._viewport.Visible = not covered
 end
 
 function ItemIcon.destroy(self: any)

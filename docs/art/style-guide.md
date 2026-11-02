@@ -337,7 +337,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Alley props | 800 | Dumpster 1,200; rescue traps (TrashBin, GarbageBags) 600 |
 | Park props | 800 | Fountain 1,200; rescue traps (RescueTree, TrashCan) 900 |
 | Area gates | 6,000 | Park, Neighbourhood, Woods, Sewer: arches with a barrier (section 13) |
-| Area sets (v3.2) | 80,000 Park, 120,000 Woods, Sewer and Neighbourhood | a whole area as one Model of Parts; the part count is the real cost (Park 2,807, Woods 4,510, Sewer 4,471, Neighbourhood 5,478) |
+| Area sets (v3.2) | 80,000 Park, 120,000 Woods, Sewer and Neighbourhood | a whole area as one Model of Parts; the part count is the real cost (Park 2,758, Woods 5,466, Sewer 4,789, Neighbourhood 5,478) |
 | Index Boards | 1,500 | one per area, at its entry inside the gate (section 14) |
 | Night pieces | 6,000 per gate fence | the short night (section 14): Alley_NightFenceSegment 2,000, Plot_BackDoorClosed 2,500 |
 | Street stations | 6,000 | the Codes Cat desk and the Golden Fish Market stall, each with its cat (section 14); the stall 7,000 with its Fresh Catch board (F94); the Bellhop Cat's stand 9,000 with its cat at 1.5 times (F96, 7,946, 473 parts) |
@@ -477,6 +477,8 @@ stripes, a big pipe and slime; the Neighbourhood in brick with a white pergola, 
 
 The town buildings (`CatCafe_Alley_Building_<Name>`, `townbuildings.py`) replace the repeated backs and the staff door with whole little buildings, each its own colour, height and roof so no two neighbours match: Bakery, Townhouses, Warehouse, Grocer, Apartments, ClockHouse, MusicShop and NarrowHouses. Shops say what they are with a hanging picture sign (bread, apple, music note), never words. Each is 30.6 wide like the backs, with a 3 deep body standing over the 1 thick outer wall: the pivot is the back plane at the bottom centre, set 2.25 behind the wall's inner face so the facade is 1 out into the lane and the body's back meets the Woods' and the Sewer's own walls (only the back sills and eaves reach 0.25 into them); lane-side doors, sills, canopies and lamps keep within 3.5 of the facade. The backs have plain windows for the areas behind. The Warehouse carries the walkable fire escape at the FireEscape's place (`ledges_roblox`), so the crate stack beside it still climbs to landing 1.
 
+The Town Square keeps its middle and its quarters for features; its dressing lives on the edge (Derek 2026-10-28: "move triangle flags and lamp posts/benches to perimiter of town square to make more space in the middle for other features"). Twelve `CatCafe_Square_Lamp`s stand on the middle of the brick border, 22.5 apart along each side (at the corners, beside both sign arches and at both sides of the lane's ends), their lantern arms across the side so no lantern hangs in a bunting's line. `CatCafe_Square_Bunting` (22) runs lamp to lamp round all four sides and `CatCafe_Square_BuntingShort` (16.5, 12 flags) over each end of the lane; the street's two ends have the sign arches instead. A `CatCafe_Square_Bench` faces the square under the middle of each long span, 1.6 inside the lamp line. The manifest's `placements_roblox` rows are the layout (`square.PLACEMENTS`).
+
 The hometown cannon (F84, `cannon.py`) stands in the middle of the Town Square: a cream barrel with gold bands and
 teal paws on a teal carriage with gold-rimmed wheels, a ladder up the back to the hatch, a fuse on the left shoulder,
 on a round cream plinth with two steps to the south, a coping paw print in each area's colour pointing its way and
@@ -515,8 +517,17 @@ areas (Alley, Park, Street, Square, Neighbourhood, Woods, Sewer) thin parts coll
 at least 0.9 long, so planks, decks, rungs and rails hold players up. Round parts (ellipsoids) get a block collider
 75% of their size so it does not stick out past the curve. An object ending `_Climb` exports as an invisible
 TrussPart (sizes in 2-stud steps, top flush with the deck it reaches) behind a ladder's rungs so players climb it.
-An object ending `_Barrier` exports as invisible parts that always collide: walls nobody sees that keep players
-and cats out of water (the Park pond's kerb ring, open only at the jetty), and 30 high on every blocker and outer wall of a v3.2 area set, so nobody jumps a hedge or a wall (a default jump clears 7.2). `_Flowers` never collide.
+A ladder is 2.6 between its rails (2.4 clear), its opening at the top at least that wide, and nothing over the
+climber's side of it (Derek 2026-10-28: the Great Oak was "just a little too tight to walk around inside and up
+ladders").
+An object ending `_Barrier` exports as invisible parts that always collide, 30 high on every blocker and outer wall
+of a v3.2 area set, so nobody jumps a hedge or a wall (a default jump clears 7.2), and along the water a set's way in
+crosses only on its bridges (8c). A barrier always stands on something a player can see (Derek 2026-10-28: "in park
+there is a invisible barrier around the edge of the pond", 10-29: "lots of invisible barriers in sewer"): a wall, a
+hedge, the bars of a tunnel mouth, or a railing on the water's edge, the Sewer's kerbs a steel guard rail 3.2 high
+(yellow top rail, like its catwalks) and the Woods stream's rock edges a log rail 3.0 high, each with its barrier a
+0.5 thick wall on the rail's line, so a player walks up to the rail. Water that no way in crosses gets no barrier: the
+Park's duck pond is shallow and players and cats wade in it. `_Flowers` never collide.
 
 Names the game code reads, so keep them when an asset is rebuilt: `_Roof` (faded for the owner), a part named
 `SignBoard` (owner sign SurfaceGui), `Bars` (a gate barrier, ForceField), `Top` (round table, customers face it),

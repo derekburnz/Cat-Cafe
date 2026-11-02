@@ -92589,2522 +92589,6 @@
    },
    "children": [
     {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         11.275,
-         5.0,
-         -9.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       7.45,
-       10.0,
-       0.4
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0,
-      "PivotOffset": {
-       "CFrame": {
-        "position": [
-         -11.275,
-         -5.0,
-         9.85
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     },
-     "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/98"
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -14.2694,
-         5.0,
-         -7.0647
-        ],
-        "orientation": [
-         [
-          0.9979,
-          0.0,
-          0.0654
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.0654,
-          0.0,
-          0.9979
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -14.0252,
-         5.0,
-         -5.2102
-        ],
-        "orientation": [
-         [
-          0.9808,
-          0.0,
-          0.1951
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.1951,
-          0.0,
-          0.9808
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -13.5411,
-         5.0,
-         -3.4034
-        ],
-        "orientation": [
-         [
-          0.9469,
-          0.0,
-          0.3214
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.3214,
-          0.0,
-          0.9469
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.8253,
-         5.0,
-         -1.6753
-        ],
-        "orientation": [
-         [
-          0.8969,
-          0.0,
-          0.4423
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.4423,
-          0.0,
-          0.8969
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -11.89,
-         5.0,
-         -0.0553
-        ],
-        "orientation": [
-         [
-          0.8315,
-          0.0,
-          0.5556
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.5556,
-          0.0,
-          0.8315
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -10.7513,
-         5.0,
-         1.4286
-        ],
-        "orientation": [
-         [
-          0.7518,
-          0.0,
-          0.6593
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6593,
-          0.0,
-          0.7518
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -9.4286,
-         5.0,
-         2.7513
-        ],
-        "orientation": [
-         [
-          0.6593,
-          0.0,
-          0.7518
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.7518,
-          0.0,
-          0.6593
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.9447,
-         5.0,
-         3.89
-        ],
-        "orientation": [
-         [
-          0.5556,
-          0.0,
-          0.8315
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.8315,
-          0.0,
-          0.5556
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.3247,
-         5.0,
-         4.8253
-        ],
-        "orientation": [
-         [
-          0.4423,
-          0.0,
-          0.8969
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.8969,
-          0.0,
-          0.4423
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.5966,
-         5.0,
-         5.5411
-        ],
-        "orientation": [
-         [
-          0.3214,
-          0.0,
-          0.9469
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.9469,
-          0.0,
-          0.3214
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -2.7898,
-         5.0,
-         6.0252
-        ],
-        "orientation": [
-         [
-          0.1951,
-          0.0,
-          0.9808
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.9808,
-          0.0,
-          0.1951
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.9353,
-         5.0,
-         6.2694
-        ],
-        "orientation": [
-         [
-          0.0654,
-          0.0,
-          0.9979
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.9979,
-          0.0,
-          0.0654
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.9353,
-         5.0,
-         6.2694
-        ],
-        "orientation": [
-         [
-          -0.0654,
-          0.0,
-          0.9979
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.9979,
-          0.0,
-          -0.0654
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         2.7898,
-         5.0,
-         6.0252
-        ],
-        "orientation": [
-         [
-          -0.1951,
-          0.0,
-          0.9808
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.9808,
-          0.0,
-          -0.1951
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         4.5966,
-         5.0,
-         5.5411
-        ],
-        "orientation": [
-         [
-          -0.3214,
-          0.0,
-          0.9469
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.9469,
-          0.0,
-          -0.3214
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         6.3247,
-         5.0,
-         4.8253
-        ],
-        "orientation": [
-         [
-          -0.4423,
-          0.0,
-          0.8969
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.8969,
-          0.0,
-          -0.4423
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         7.9447,
-         5.0,
-         3.89
-        ],
-        "orientation": [
-         [
-          -0.5556,
-          0.0,
-          0.8315
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.8315,
-          0.0,
-          -0.5556
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.4286,
-         5.0,
-         2.7513
-        ],
-        "orientation": [
-         [
-          -0.6593,
-          0.0,
-          0.7518
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.7518,
-          0.0,
-          -0.6593
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         10.7513,
-         5.0,
-         1.4286
-        ],
-        "orientation": [
-         [
-          -0.7518,
-          0.0,
-          0.6593
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.6593,
-          0.0,
-          -0.7518
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         11.89,
-         5.0,
-         -0.0553
-        ],
-        "orientation": [
-         [
-          -0.8315,
-          0.0,
-          0.5556
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.5556,
-          0.0,
-          -0.8315
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.8253,
-         5.0,
-         -1.6753
-        ],
-        "orientation": [
-         [
-          -0.8969,
-          0.0,
-          0.4423
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.4423,
-          0.0,
-          -0.8969
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         13.5411,
-         5.0,
-         -3.4034
-        ],
-        "orientation": [
-         [
-          -0.9469,
-          0.0,
-          0.3214
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.3214,
-          0.0,
-          -0.9469
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         14.0252,
-         5.0,
-         -5.2102
-        ],
-        "orientation": [
-         [
-          -0.9808,
-          0.0,
-          0.1951
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          -0.1951,
-          0.0,
-          -0.9808
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         14.0252,
-         5.0,
-         -10.7898
-        ],
-        "orientation": [
-         [
-          -0.9808,
-          0.0,
-          -0.1951
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.1951,
-          0.0,
-          -0.9808
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         13.5411,
-         5.0,
-         -12.5966
-        ],
-        "orientation": [
-         [
-          -0.9469,
-          0.0,
-          -0.3214
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.3214,
-          0.0,
-          -0.9469
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         12.8253,
-         5.0,
-         -14.3247
-        ],
-        "orientation": [
-         [
-          -0.8969,
-          0.0,
-          -0.4423
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.4423,
-          0.0,
-          -0.8969
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         11.89,
-         5.0,
-         -15.9447
-        ],
-        "orientation": [
-         [
-          -0.8315,
-          0.0,
-          -0.5556
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.5556,
-          0.0,
-          -0.8315
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         10.7513,
-         5.0,
-         -17.4286
-        ],
-        "orientation": [
-         [
-          -0.7518,
-          0.0,
-          -0.6593
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6593,
-          0.0,
-          -0.7518
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         9.4286,
-         5.0,
-         -18.7513
-        ],
-        "orientation": [
-         [
-          -0.6593,
-          0.0,
-          -0.7518
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.7518,
-          0.0,
-          -0.6593
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         7.9447,
-         5.0,
-         -19.89
-        ],
-        "orientation": [
-         [
-          -0.5556,
-          0.0,
-          -0.8315
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.8315,
-          0.0,
-          -0.5556
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         6.3247,
-         5.0,
-         -20.8253
-        ],
-        "orientation": [
-         [
-          -0.4423,
-          0.0,
-          -0.8969
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.8969,
-          0.0,
-          -0.4423
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         4.5966,
-         5.0,
-         -21.5411
-        ],
-        "orientation": [
-         [
-          -0.3214,
-          0.0,
-          -0.9469
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.9469,
-          0.0,
-          -0.3214
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         2.7898,
-         5.0,
-         -22.0252
-        ],
-        "orientation": [
-         [
-          -0.1951,
-          0.0,
-          -0.9808
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.9808,
-          0.0,
-          -0.1951
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.9353,
-         5.0,
-         -22.2694
-        ],
-        "orientation": [
-         [
-          -0.0654,
-          0.0,
-          -0.9979
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.9979,
-          0.0,
-          -0.0654
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -0.9353,
-         5.0,
-         -22.2694
-        ],
-        "orientation": [
-         [
-          0.0654,
-          0.0,
-          -0.9979
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.9979,
-          0.0,
-          0.0654
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -2.7898,
-         5.0,
-         -22.0252
-        ],
-        "orientation": [
-         [
-          0.1951,
-          0.0,
-          -0.9808
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.9808,
-          0.0,
-          0.1951
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -4.5966,
-         5.0,
-         -21.5411
-        ],
-        "orientation": [
-         [
-          0.3214,
-          0.0,
-          -0.9469
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.9469,
-          0.0,
-          0.3214
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -6.3247,
-         5.0,
-         -20.8253
-        ],
-        "orientation": [
-         [
-          0.4423,
-          0.0,
-          -0.8969
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.8969,
-          0.0,
-          0.4423
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -7.9447,
-         5.0,
-         -19.89
-        ],
-        "orientation": [
-         [
-          0.5556,
-          0.0,
-          -0.8315
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.8315,
-          0.0,
-          0.5556
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -9.4286,
-         5.0,
-         -18.7513
-        ],
-        "orientation": [
-         [
-          0.6593,
-          0.0,
-          -0.7518
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.7518,
-          0.0,
-          0.6593
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -10.7513,
-         5.0,
-         -17.4286
-        ],
-        "orientation": [
-         [
-          0.7518,
-          0.0,
-          -0.6593
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.6593,
-          0.0,
-          0.7518
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -11.89,
-         5.0,
-         -15.9447
-        ],
-        "orientation": [
-         [
-          0.8315,
-          0.0,
-          -0.5556
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.5556,
-          0.0,
-          0.8315
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -12.8253,
-         5.0,
-         -14.3247
-        ],
-        "orientation": [
-         [
-          0.8969,
-          0.0,
-          -0.4423
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.4423,
-          0.0,
-          0.8969
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -13.5411,
-         5.0,
-         -12.5966
-        ],
-        "orientation": [
-         [
-          0.9469,
-          0.0,
-          -0.3214
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.3214,
-          0.0,
-          0.9469
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -14.0252,
-         5.0,
-         -10.7898
-        ],
-        "orientation": [
-         [
-          0.9808,
-          0.0,
-          -0.1951
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.1951,
-          0.0,
-          0.9808
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -14.2694,
-         5.0,
-         -8.9353
-        ],
-        "orientation": [
-         [
-          0.9979,
-          0.0,
-          -0.0654
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0654,
-          0.0,
-          0.9979
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.6,
-       10.0,
-       1.9454
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         11.275,
-         5.0,
-         -6.15
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       7.45,
-       10.0,
-       0.4
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    },
-    {
-     "name": "CatCafe_Park_Set_072_Pond_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         7.75,
-         5.0,
-         -8.0
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.4,
-       10.0,
-       4.1
-      ],
-      "Color": [
-       1.0,
-       0.9765,
-       0.949
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0
-     }
-    }
-   ],
-   "properties": {
-    "WorldPivotData": {
-     "OptionalCFrame": {
-      "position": [
-       0.0,
-       0.0,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    }
-   },
-   "name": "CatCafe_Park_Set_072_Pond_Barrier"
-  },
-  {
-   "className": "Model",
-   "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/99"
-   },
-   "children": [
-    {
      "name": "CatCafe_Park_Set_073_Bench",
      "className": "Part",
      "properties": {
@@ -95179,7 +92663,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/99"
+      "Rojo_Id": "CatCafe_Park_Set/98"
      }
     },
     {
@@ -95706,7 +93190,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/100"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/99"
    },
    "children": [
     {
@@ -95784,7 +93268,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/100"
+      "Rojo_Id": "CatCafe_Park_Set/99"
      }
     },
     {
@@ -96311,7 +93795,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/101"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/100"
    },
    "children": [
     {
@@ -96389,7 +93873,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/101"
+      "Rojo_Id": "CatCafe_Park_Set/100"
      }
     },
     {
@@ -96916,7 +94400,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/102"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/101"
    },
    "children": [
     {
@@ -96994,7 +94478,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/102"
+      "Rojo_Id": "CatCafe_Park_Set/101"
      }
     },
     {
@@ -97521,7 +95005,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/103"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/102"
    },
    "children": [
     {
@@ -97600,7 +95084,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/103"
+      "Rojo_Id": "CatCafe_Park_Set/102"
      }
     },
     {
@@ -97982,7 +95466,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/104"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/103"
    },
    "children": [
     {
@@ -98060,7 +95544,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/104"
+      "Rojo_Id": "CatCafe_Park_Set/103"
      }
     }
    ],
@@ -98097,7 +95581,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/105"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/104"
    },
    "children": [
     {
@@ -98176,7 +95660,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/105"
+      "Rojo_Id": "CatCafe_Park_Set/104"
      }
     },
     {
@@ -98558,7 +96042,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/106"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/105"
    },
    "children": [
     {
@@ -98636,7 +96120,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/106"
+      "Rojo_Id": "CatCafe_Park_Set/105"
      }
     }
    ],
@@ -98673,7 +96157,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/107"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/106"
    },
    "children": [
     {
@@ -98752,7 +96236,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/107"
+      "Rojo_Id": "CatCafe_Park_Set/106"
      }
     },
     {
@@ -99134,7 +96618,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/108"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/107"
    },
    "children": [
     {
@@ -99212,7 +96696,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/108"
+      "Rojo_Id": "CatCafe_Park_Set/107"
      }
     }
    ],
@@ -99249,7 +96733,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/109"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/108"
    },
    "children": [
     {
@@ -99328,7 +96812,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/109"
+      "Rojo_Id": "CatCafe_Park_Set/108"
      }
     },
     {
@@ -99710,7 +97194,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/110"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/109"
    },
    "children": [
     {
@@ -99788,7 +97272,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/110"
+      "Rojo_Id": "CatCafe_Park_Set/109"
      }
     }
    ],
@@ -99825,7 +97309,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/111"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/110"
    },
    "children": [
     {
@@ -99903,7 +97387,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/111"
+      "Rojo_Id": "CatCafe_Park_Set/110"
      },
      "children": [
       {
@@ -100054,7 +97538,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/112"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/111"
    },
    "children": [
     {
@@ -100132,7 +97616,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/112"
+      "Rojo_Id": "CatCafe_Park_Set/111"
      }
     },
     {
@@ -101002,7 +98486,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/113"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/112"
    },
    "children": [
     {
@@ -101080,7 +98564,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/113"
+      "Rojo_Id": "CatCafe_Park_Set/112"
      }
     },
     {
@@ -102052,7 +99536,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/114"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/113"
    },
    "children": [
     {
@@ -102130,7 +99614,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/114"
+      "Rojo_Id": "CatCafe_Park_Set/113"
      }
     }
    ],
@@ -102167,7 +99651,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/115"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/114"
    },
    "children": [
     {
@@ -102246,7 +99730,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/115"
+      "Rojo_Id": "CatCafe_Park_Set/114"
      }
     },
     {
@@ -103471,7 +100955,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/116"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/115"
    },
    "children": [
     {
@@ -103550,7 +101034,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/116"
+      "Rojo_Id": "CatCafe_Park_Set/115"
      }
     },
     {
@@ -104775,7 +102259,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/117"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/116"
    },
    "children": [
     {
@@ -104853,7 +102337,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/117"
+      "Rojo_Id": "CatCafe_Park_Set/116"
      },
      "children": [
       {
@@ -105004,7 +102488,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/118"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/117"
    },
    "children": [
     {
@@ -105082,7 +102566,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/118"
+      "Rojo_Id": "CatCafe_Park_Set/117"
      },
      "children": [
       {
@@ -105233,7 +102717,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/119"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/118"
    },
    "children": [
     {
@@ -105311,7 +102795,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/119"
+      "Rojo_Id": "CatCafe_Park_Set/118"
      },
      "children": [
       {
@@ -105462,7 +102946,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/120"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/119"
    },
    "children": [
     {
@@ -105540,7 +103024,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/120"
+      "Rojo_Id": "CatCafe_Park_Set/119"
      },
      "children": [
       {
@@ -105691,7 +103175,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/121"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/120"
    },
    "children": [
     {
@@ -105769,7 +103253,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/121"
+      "Rojo_Id": "CatCafe_Park_Set/120"
      },
      "children": [
       {
@@ -106119,7 +103603,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/122"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/121"
    },
    "children": [
     {
@@ -106197,7 +103681,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/122"
+      "Rojo_Id": "CatCafe_Park_Set/121"
      },
      "children": [
       {
@@ -106547,7 +104031,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/123"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/122"
    },
    "children": [
     {
@@ -106626,7 +104110,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/123"
+      "Rojo_Id": "CatCafe_Park_Set/122"
      }
     },
     {
@@ -113603,7 +111087,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/124"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/123"
    },
    "children": [
     {
@@ -113682,7 +111166,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/124"
+      "Rojo_Id": "CatCafe_Park_Set/123"
      }
     },
     {
@@ -114469,7 +111953,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/125"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/124"
    },
    "children": [
     {
@@ -114548,7 +112032,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/125"
+      "Rojo_Id": "CatCafe_Park_Set/124"
      }
     },
     {
@@ -114931,7 +112415,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/126"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/125"
    },
    "children": [
     {
@@ -115010,7 +112494,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/126"
+      "Rojo_Id": "CatCafe_Park_Set/125"
      }
     },
     {
@@ -115392,7 +112876,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/127"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/126"
    },
    "children": [
     {
@@ -115470,7 +112954,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/127"
+      "Rojo_Id": "CatCafe_Park_Set/126"
      }
     }
    ],
@@ -115507,7 +112991,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/128"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/127"
    },
    "children": [
     {
@@ -115586,7 +113070,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/128"
+      "Rojo_Id": "CatCafe_Park_Set/127"
      }
     },
     {
@@ -115968,7 +113452,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/129"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/128"
    },
    "children": [
     {
@@ -116046,7 +113530,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/129"
+      "Rojo_Id": "CatCafe_Park_Set/128"
      }
     }
    ],
@@ -116083,7 +113567,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/130"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/129"
    },
    "children": [
     {
@@ -116162,7 +113646,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/130"
+      "Rojo_Id": "CatCafe_Park_Set/129"
      }
     },
     {
@@ -116544,7 +114028,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/131"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/130"
    },
    "children": [
     {
@@ -116622,7 +114106,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/131"
+      "Rojo_Id": "CatCafe_Park_Set/130"
      }
     }
    ],
@@ -116659,7 +114143,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/132"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/131"
    },
    "children": [
     {
@@ -116738,7 +114222,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/132"
+      "Rojo_Id": "CatCafe_Park_Set/131"
      }
     },
     {
@@ -117120,7 +114604,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/133"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/132"
    },
    "children": [
     {
@@ -117198,7 +114682,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/133"
+      "Rojo_Id": "CatCafe_Park_Set/132"
      }
     }
    ],
@@ -117235,7 +114719,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/134"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/133"
    },
    "children": [
     {
@@ -117313,7 +114797,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/134"
+      "Rojo_Id": "CatCafe_Park_Set/133"
      }
     },
     {
@@ -117840,7 +115324,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/135"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/134"
    },
    "children": [
     {
@@ -117918,7 +115402,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/135"
+      "Rojo_Id": "CatCafe_Park_Set/134"
      }
     },
     {
@@ -118445,7 +115929,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/136"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/135"
    },
    "children": [
     {
@@ -118523,7 +116007,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/136"
+      "Rojo_Id": "CatCafe_Park_Set/135"
      }
     },
     {
@@ -119638,7 +117122,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/137"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/136"
    },
    "children": [
     {
@@ -119717,7 +117201,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/137"
+      "Rojo_Id": "CatCafe_Park_Set/136"
      }
     }
    ],
@@ -119754,7 +117238,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/138"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/137"
    },
    "children": [
     {
@@ -119832,7 +117316,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/138"
+      "Rojo_Id": "CatCafe_Park_Set/137"
      }
     },
     {
@@ -120359,7 +117843,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/139"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/138"
    },
    "children": [
     {
@@ -120437,7 +117921,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/139"
+      "Rojo_Id": "CatCafe_Park_Set/138"
      }
     },
     {
@@ -120932,7 +118416,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/140"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/139"
    },
    "children": [
     {
@@ -121010,7 +118494,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/140"
+      "Rojo_Id": "CatCafe_Park_Set/139"
      }
     },
     {
@@ -121292,7 +118776,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/141"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/140"
    },
    "children": [
     {
@@ -121371,7 +118855,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/141"
+      "Rojo_Id": "CatCafe_Park_Set/140"
      }
     },
     {
@@ -123418,7 +120902,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/142"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/141"
    },
    "children": [
     {
@@ -123496,7 +120980,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/142"
+      "Rojo_Id": "CatCafe_Park_Set/141"
      },
      "children": [
       {
@@ -125755,7 +123239,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/143"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/142"
    },
    "children": [
     {
@@ -125833,7 +123317,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/143"
+      "Rojo_Id": "CatCafe_Park_Set/142"
      },
      "children": [
       {
@@ -128092,7 +125576,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/144"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/143"
    },
    "children": [
     {
@@ -128170,7 +125654,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/144"
+      "Rojo_Id": "CatCafe_Park_Set/143"
      }
     },
     {
@@ -128697,7 +126181,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/145"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/144"
    },
    "children": [
     {
@@ -128776,7 +126260,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/145"
+      "Rojo_Id": "CatCafe_Park_Set/144"
      }
     },
     {
@@ -131919,7 +129403,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/146"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/145"
    },
    "children": [
     {
@@ -131999,7 +129483,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/146"
+      "Rojo_Id": "CatCafe_Park_Set/145"
      }
     },
     {
@@ -132087,7 +129571,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/147"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/146"
    },
    "children": [
     {
@@ -132166,7 +129650,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/147"
+      "Rojo_Id": "CatCafe_Park_Set/146"
      }
     },
     {
@@ -132889,7 +130373,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/148"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/147"
    },
    "children": [
     {
@@ -132967,7 +130451,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/148"
+      "Rojo_Id": "CatCafe_Park_Set/147"
      },
      "children": [
       {
@@ -134203,7 +131687,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/149"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/148"
    },
    "children": [
     {
@@ -134282,7 +131766,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/149"
+      "Rojo_Id": "CatCafe_Park_Set/148"
      }
     },
     {
@@ -135005,7 +132489,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/150"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/149"
    },
    "children": [
     {
@@ -135083,7 +132567,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/150"
+      "Rojo_Id": "CatCafe_Park_Set/149"
      },
      "children": [
       {
@@ -136319,7 +133803,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/151"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/150"
    },
    "children": [
     {
@@ -136398,7 +133882,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/151"
+      "Rojo_Id": "CatCafe_Park_Set/150"
      }
     },
     {
@@ -137121,7 +134605,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/152"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/151"
    },
    "children": [
     {
@@ -137199,7 +134683,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/152"
+      "Rojo_Id": "CatCafe_Park_Set/151"
      },
      "children": [
       {
@@ -138435,7 +135919,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/153"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/152"
    },
    "children": [
     {
@@ -138514,7 +135998,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/153"
+      "Rojo_Id": "CatCafe_Park_Set/152"
      }
     },
     {
@@ -139237,7 +136721,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/154"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/153"
    },
    "children": [
     {
@@ -139315,7 +136799,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/154"
+      "Rojo_Id": "CatCafe_Park_Set/153"
      },
      "children": [
       {
@@ -140551,7 +138035,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/155"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/154"
    },
    "children": [
     {
@@ -140630,7 +138114,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/155"
+      "Rojo_Id": "CatCafe_Park_Set/154"
      }
     },
     {
@@ -141353,7 +138837,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/156"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/155"
    },
    "children": [
     {
@@ -141431,7 +138915,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/156"
+      "Rojo_Id": "CatCafe_Park_Set/155"
      },
      "children": [
       {
@@ -142667,7 +140151,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/157"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/156"
    },
    "children": [
     {
@@ -142745,7 +140229,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/157"
+      "Rojo_Id": "CatCafe_Park_Set/156"
      }
     },
     {
@@ -143419,7 +140903,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/158"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/157"
    },
    "children": [
     {
@@ -143498,7 +140982,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/158"
+      "Rojo_Id": "CatCafe_Park_Set/157"
      }
     },
     {
@@ -144985,7 +142469,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/159"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/158"
    },
    "children": [
     {
@@ -145063,7 +142547,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/159"
+      "Rojo_Id": "CatCafe_Park_Set/158"
      }
     },
     {
@@ -145737,7 +143221,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/160"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/159"
    },
    "children": [
     {
@@ -145816,7 +143300,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/160"
+      "Rojo_Id": "CatCafe_Park_Set/159"
      }
     },
     {
@@ -147303,7 +144787,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/161"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/160"
    },
    "children": [
     {
@@ -147381,7 +144865,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/161"
+      "Rojo_Id": "CatCafe_Park_Set/160"
      },
      "children": [
       {
@@ -147925,7 +145409,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/162"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/161"
    },
    "children": [
     {
@@ -148004,7 +145488,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/162"
+      "Rojo_Id": "CatCafe_Park_Set/161"
      }
     },
     {
@@ -148240,7 +145724,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/163"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/162"
    },
    "children": [
     {
@@ -148318,7 +145802,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/163"
+      "Rojo_Id": "CatCafe_Park_Set/162"
      }
     },
     {
@@ -148845,7 +146329,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/164"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/163"
    },
    "children": [
     {
@@ -148924,7 +146408,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/164"
+      "Rojo_Id": "CatCafe_Park_Set/163"
      }
     },
     {
@@ -149601,7 +147085,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/165"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/164"
    },
    "children": [
     {
@@ -149679,7 +147163,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/165"
+      "Rojo_Id": "CatCafe_Park_Set/164"
      },
      "children": [
       {
@@ -149830,7 +147314,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/166"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/165"
    },
    "children": [
     {
@@ -149908,7 +147392,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/166"
+      "Rojo_Id": "CatCafe_Park_Set/165"
      },
      "children": [
       {
@@ -150059,7 +147543,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/167"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/166"
    },
    "children": [
     {
@@ -150137,7 +147621,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/167"
+      "Rojo_Id": "CatCafe_Park_Set/166"
      },
      "children": [
       {
@@ -150288,7 +147772,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/168"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/167"
    },
    "children": [
     {
@@ -150366,7 +147850,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/168"
+      "Rojo_Id": "CatCafe_Park_Set/167"
      },
      "children": [
       {
@@ -150517,7 +148001,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/169"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/168"
    },
    "children": [
     {
@@ -150595,7 +148079,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/169"
+      "Rojo_Id": "CatCafe_Park_Set/168"
      },
      "children": [
       {
@@ -150746,7 +148230,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/170"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/169"
    },
    "children": [
     {
@@ -150824,7 +148308,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/170"
+      "Rojo_Id": "CatCafe_Park_Set/169"
      },
      "children": [
       {
@@ -150975,7 +148459,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/171"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/170"
    },
    "children": [
     {
@@ -151053,7 +148537,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/171"
+      "Rojo_Id": "CatCafe_Park_Set/170"
      },
      "children": [
       {
@@ -151204,7 +148688,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/172"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/171"
    },
    "children": [
     {
@@ -151282,7 +148766,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/172"
+      "Rojo_Id": "CatCafe_Park_Set/171"
      },
      "children": [
       {
@@ -151433,7 +148917,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/173"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/172"
    },
    "children": [
     {
@@ -151511,7 +148995,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/173"
+      "Rojo_Id": "CatCafe_Park_Set/172"
      },
      "children": [
       {
@@ -151662,7 +149146,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/174"
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_Set/173"
    },
    "children": [
     {
@@ -151740,7 +149224,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Park_Set/174"
+      "Rojo_Id": "CatCafe_Park_Set/173"
      },
      "children": [
       {

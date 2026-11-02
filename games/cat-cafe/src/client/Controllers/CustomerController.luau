@@ -15,8 +15,8 @@
 -- order bubble and the heart.
 -- Tip piles (F61, data-model section 12): while a plot's TipPiles is above 0, that many small coin piles sit on its
 -- tables, each on the table a customer last left (else the table with the fewest), in a ring round the middle so
--- table 1's rich tip keeps the centre. They vanish when the count drops; on your own cafe walking within
--- TipPileCollectRangeStuds of one sends CollectTips, and the collect floats "+$" with TipPilesAmount.
+-- table 1's rich tip keeps the centre. Since F97 a pile is paid the moment it appears: on your own cafe a new pile
+-- floats "+$" with what it added to TipPilesAmount, and the server takes it off the tables TipPileShowSeconds later.
 -- The Mystery Visitor (F64, data-model 12b) is built the same way from its plot's attributes: while
 -- MysteryVisitorUntil is ahead, a hooded visitor sits at the MysteryTable chair nearest the gift, and while
 -- MysteryGiftAt is set the wrapped gift sits on the plot's MysteryGiftAnchor. Both are models under the plot, tagged
@@ -25,7 +25,6 @@
 -- the counter, facing into the room, a model under the plot tagged CatCollector; the server holds his offer.
 
 local CollectionService = game:GetService("CollectionService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
@@ -34,7 +33,6 @@ local Config = require(Shared:WaitForChild("Config"))
 local Effects = require(script.Parent.Parent.Effects)
 local Moments = require(script.Parent.Parent.Moments)
 local Mover = require(Shared:WaitForChild("Mover"))
-local Net = require(script.Parent.Parent.Net)
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 
@@ -61,8 +59,7 @@ local collectors: { [Model]: Model } = {} -- plot -> the Cat Collector this clie
 type Pile = { model: Model, tableModel: Model, slot: number }
 local tipPiles: { [Model]: { Pile } } = {}
 local leftTables: { [Model]: { Model } } = {}
-local tipAmounts: { [Model]: number } = {} -- each shown plot's TipPilesAmount, for the "+$" when it is collected
-local collectSentAt = -math.huge -- os.clock() of the last CollectTips
+local tipAmounts: { [Model]: number } = {} -- each shown plot's TipPilesAmount, for the "+$" a new pile paid
 
 -- How a customer visits: which model, and for a rich customer how long it stays (while its tip shows).
 type Visit = {
@@ -806,10 +803,9 @@ local function clearPiles(plot: Model)
 		end
 	end
 	tipPiles[plot] = nil
-	tipAmounts[plot] = nil
 end
 
--- Matches every nearby plot's piles to its TipPiles. Your own piles going to none floats what they paid.
+-- Matches every nearby plot's piles to its TipPiles. A new pile on your own cafe floats what it paid (F97).
 local function updatePiles()
 	local plots = plotsFolder()
 	local seen: { [Model]: boolean } = {}
@@ -822,21 +818,21 @@ local function updatePiles()
 			local raw = plot:GetAttribute("TipPiles")
 			local count = if type(raw) == "number" then math.clamp(math.floor(raw), 0, 64) else 0
 			local shown = tipPiles[plot]
-			-- your own piles going down is a collect: the server only ever takes them all, but a new pile can land
-			-- within the same quarter second (review N248), so float what the piles held before
-			if shown ~= nil and #shown > count and isOwnPlot(plot) then
-				local amount = tipAmounts[plot] or 0
-				if amount > 0 then
-					local above = shown[1].model:GetPivot().Position + Vector3.new(0, 2.5, 0)
-					UI.floatText(above, "+$" .. amount)
-					Moments.CoinPop:Fire(above)
-				end
-			end
-			if count == 0 or not nearCamera(plot) then
+			local before = if shown ~= nil then #shown else 0
+			if not nearCamera(plot) then
 				clearPiles(plot)
 				continue
 			end
 			seen[plot] = true
+			local rawAmount = plot:GetAttribute("TipPilesAmount")
+			local amount = if type(rawAmount) == "number" then rawAmount else 0
+			-- known only while the plot stays in view, so walking back to piles paid earlier floats nothing
+			local known = tipAmounts[plot]
+			tipAmounts[plot] = amount
+			if count == 0 then
+				clearPiles(plot)
+				continue
+			end
 			local list = shown or {}
 			tipPiles[plot] = list
 			while #list > count do
@@ -848,8 +844,14 @@ local function updatePiles()
 					break -- every slot on every table is full
 				end
 			end
-			local amount = plot:GetAttribute("TipPilesAmount")
-			tipAmounts[plot] = if type(amount) == "number" then amount else 0
+			-- a pile paid just now: float what it added over the newest pile (a sweep in the same quarter second
+			-- can hide one, which only skips its float)
+			local paid = if known ~= nil then amount - known else 0
+			if count > before and paid > 0 and #list > 0 and isOwnPlot(plot) then
+				local above = list[#list].model:GetPivot().Position + Vector3.new(0, 2.5, 0)
+				UI.floatText(above, "+$" .. math.floor(paid))
+				Moments.CoinPop:Fire(above)
+			end
 		end
 	end
 	for plot in tipPiles do
@@ -857,29 +859,9 @@ local function updatePiles()
 			clearPiles(plot)
 		end
 	end
-end
-
--- On your own cafe: within TipPileCollectRangeStuds of any of its piles sends CollectTips, once a second at most.
-local function checkCollect()
-	local character = Players.LocalPlayer.Character
-	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
-	if root == nil or not root:IsA("BasePart") or os.clock() - collectSentAt < 1 then
-		return
-	end
-	local position = (root :: BasePart).Position
-	for plot, shown in tipPiles do
-		if not isOwnPlot(plot) then
-			continue
-		end
-		for _, pile in shown do
-			if
-				(pile.model:GetPivot().Position - position).Magnitude
-				<= Config.TipPileCollectRangeStuds
-			then
-				collectSentAt = os.clock()
-				Net.fire("CollectTips")
-				return
-			end
+	for plot in tipAmounts do
+		if not seen[plot] then
+			tipAmounts[plot] = nil
 		end
 	end
 end
@@ -922,7 +904,6 @@ function CustomerController.start()
 		while true do
 			task.wait(0.25)
 			updatePiles()
-			checkCollect()
 		end
 	end)
 end

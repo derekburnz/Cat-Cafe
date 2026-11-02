@@ -40,10 +40,12 @@ Keep up (F86) let an older Legendary or Mythical earn as if it came from the are
 
 | tier | was | now |
 |---|---|---|
-| 2 | 8,000 | 8,000 |
-| 3 | 80,000 | 350,000 |
-| 4 | 700,000 | 27,000,000 |
-| 5 | 5,000,000 | 800,000,000 |
+| 2 | 8,000 | 10,000 |
+| 3 | 80,000 | 500,000 |
+| 4 | 700,000 | 40,000,000 |
+| 5 | 5,000,000 | 1,200,000,000 |
+
+v2, 2026-11-02: QA's Pace.spec found that F97's Epic or rarer stray in every sunrise wave (#714) brought Tier 5 down to 7 h in one go, under check 3's 8 to 12 h. By rule v0.8 the costs went up from 8,000, 350,000, 27M and 800M to QA's probe above, which passes every check. Medians of QA's runs with the wave Epic in: one go Tier 5 at 8 h 28 (10th to 90th percentile 7 h 36 to 10 h 48), an hour a day on day 5, 4x Money 4 h 04, about 24x 1 h 41, Tier 2 at 10.6 to 12.7 minutes. On a full server the wave Epic is shared, so real players run a little slower than this. The table below is the v1 model, kept for the reasoning.
 
 Time to each tier, in minutes or hours of play (the day it comes in brackets). Medians of the pace model, 40 to 200 seeded runs:
 
@@ -122,7 +124,7 @@ A cafe now earns about 4 times today's figure at Tier 3, about 8 times at Tier 4
 
 1. At charm 50 and level 1 an Alleyway Mythical earns 75, a Park Legendary 75, a Neighbourhood Epic 72, a Woods Rare 81 and a Sewer Common 81.
 2. At Tier 5 an Alleyway Legendary earns 25 and shows no "Keeps up" tag.
-3. Rank ups cost 8,000, 350,000, 27M and 800M. Pace.spec: one-go play reaches Tier 2 in 10 to 20 minutes and Tier 5 in 8 to 12 hours; an hour a day with offline reaches Tier 5 on day 4 to 6.
+3. Rank ups cost 10,000, 500,000, 40M and 1.2B (v2). Pace.spec: one-go play reaches Tier 2 in 10 to 20 minutes and Tier 5 in 8 to 12 hours; an hour a day with offline reaches Tier 5 on day 4 to 6.
 4. Away 10 hours, a free player gets 8 hours at half their day rate. With Long Nap, 10 hours at the full rate; away 20 hours, 16.
 5. A running potion does not raise offline pay. A 2x Money pass doubles the income, the tip piles and offline pay.
 6. An exclusive cat at Tier 3 earns like a Neighbourhood cat of its rarity and does not count for Tier 4's 20 different cats.

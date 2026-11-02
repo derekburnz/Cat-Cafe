@@ -346,9 +346,8 @@ return function()
 						local was = if type(before) == "number" then before else 0
 						local is = if type(after) == "number" then after else 0
 						local want: string? = nil
-						if name == "TipPiles" and is < was then
-							want = "tipPile"
-						elseif name == "CollectorUntil" and was <= 0 and is > 0 then
+						-- TipPiles is silent since F97 (#714): piles pay as they appear and only a sweep lowers it
+						if name == "CollectorUntil" and was <= 0 and is > 0 then
 							want = "visitorCollector"
 						elseif name == "MysteryGiftAt" and was <= 0 and is > 0 then
 							want = "visitorMystery" -- a clearing is silent: giftOpen plays with the result card

@@ -1,8 +1,9 @@
 --!strict
 -- The cat that came to your bait bowl (F28, data-model section 8): its own 3D model on a rarity disc, its name,
 -- rarity, charm ("Charm +12%", F97: no stars) and a GOLD sticker, with Tame and Let go. Tame adds it straight to your cat room; Let go
--- sends it on its way. The food is used either way, so Let go asks for a second tap. The server takes the choice
--- only from someone at the bowl (20 studs), so away from it the buttons grey out and the card says where to go.
+-- sends it on its way. The food is used either way, so Let go asks for a second tap. Tame and Let go work from anywhere
+-- (Derek 2026-10-28: "tame or let go from anywhere"; the server's range went in #720). setNear(false) still greys the
+-- buttons with a "walk to your bowl" line, should a range ever come back; nothing calls it now.
 -- The X hides the card; the bowl chip brings it back while the cat waits.
 
 local Button = require(script.Parent.Parent.Components.Button)

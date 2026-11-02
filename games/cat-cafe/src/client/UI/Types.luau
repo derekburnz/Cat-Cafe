@@ -162,6 +162,7 @@ export type IndexMilestone = {
 	needs: number?,
 	gold: boolean?,
 	track: string?, -- "normal" or "gold"
+	whole: boolean?, -- F97: needs the whole page (decor10 on a Decor page), `needs` the floor
 }
 
 -- What an Index milestone pays, any of these (F54 adds all but coins, lures and decorId; decorId goes away).

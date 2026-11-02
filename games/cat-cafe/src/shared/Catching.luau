@@ -188,6 +188,25 @@ function Catching.percentText(chance: number): string
 	return string.format("%d%%", math.floor(chance * 100 + 0.5))
 end
 
+-- F97 (notes-10-28-to-10-30.md section 7; Derek 2026-10-29: "getting epic+ cats feels a little non existent from
+-- outside world"): a sunrise wave rolled as `rarities` with no Epic or rarer stray rerolls its last one from
+-- WaveMinRareRerollOdds (Epic 83, Legendary 15, Mythical 2). Changes `rarities` in place and returns the rarity the
+-- reroll gave, or nil when the wave already had one (or is empty). roll is in [0, 1).
+function Catching.waveRare(rarities: { Types.Rarity }, roll: number): Types.Rarity?
+	if #rarities == 0 then
+		return nil
+	end
+	for _, rarity in rarities do
+		if Catalog.rarityRank[rarity] >= Catalog.rarityRank.Epic then
+			return nil
+		end
+	end
+	local rerolled: Types.Rarity =
+		Catching.pickRarity(Config.WaveMinRareRerollOdds :: Types.LureOdds, roll)
+	rarities[#rarities] = rerolled
+	return rerolled
+end
+
 local SPREAD_WEIGHT_CAP = 60 -- studs: past this every gap weighs the same, so an empty area picks evenly
 
 -- Which of the free spawn `points` a new stray takes, as an index, given where the area's strays already stand

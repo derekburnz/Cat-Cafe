@@ -23,8 +23,9 @@ local Presets = require(script.Parent.Presets)
 
 local Pose = {}
 
--- "body", "head", "tail", "pawFL", "pawFR", "pawBL", "pawBR", "eye1", "eye2", "earL" or "earR". A plain string
--- so it can key tables.
+-- "body", "head", "tail", "pawFL", "pawFR", "pawBL", "pawBR", "eye1", "eye2", "earL" or "earR", or "cap" and "bell"
+-- for a hat (`_Prop` in the head) and a collar bell (`_Bell`) that turn about their own pivots (the Bellhop Cat,
+-- F96). A plain string so it can key tables.
 export type Group = string
 
 export type Rig = {
@@ -70,6 +71,7 @@ export type Rig = {
 	swell: number, -- the swell last drawn, as a share of bellyHeight; 0 at rest
 	moves: { [Group]: CFrame }, -- reused every frame, so a phone's garbage collector has less to do
 	frames: { CFrame },
+	scale: number, -- the cat's size against the manifest's (its Scale attribute times the model's scale)
 }
 
 -- Pieces named for what they are, as the placeholder names them (LegF1, EarL) or as the exporter does, after
@@ -282,6 +284,7 @@ local function newRig(model: Model, body: BasePart): Rig
 		swell = 0,
 		moves = {},
 		frames = {},
+		scale = 1,
 	}
 end
 
@@ -406,12 +409,18 @@ function Pose.bind(model: Model): Rig?
 	local pieces: { [Group]: Model } = {} -- the hinged pieces, each pivoted at its joint
 	local faces: { [Group]: BasePart } = {} -- an eye or ear part, for one with no hinge of its own
 	local namedLegs = false
+	local cap: Model? = nil -- a hat in the head that can tip (`_Prop`), and a bell that can swing (`_Bell`)
+	local bell: Model? = nil
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("Model") then
 			local group = pieceGroup(descendant)
 			local found: Model? = if group ~= nil then pieces[group] else nil
 			if group ~= nil and found == nil then
 				pieces[group] = descendant :: Model
+			elseif group == nil and isNamed(descendant, "Bell") then
+				bell = bell or descendant :: Model
+			elseif group == nil and isNamed(descendant, "Prop") then
+				cap = cap or descendant :: Model
 			end
 		elseif descendant:IsA("BasePart") then
 			local group = pieceGroup(descendant)
@@ -421,10 +430,19 @@ function Pose.bind(model: Model): Rig?
 		end
 	end
 	rig.kind = Pose.kindOf(model)
+	local headPiece: Model? = pieces.head
+	if cap ~= nil and (headPiece == nil or not cap:IsDescendantOf(headPiece)) then
+		cap = nil -- a prop worn anywhere but the head (a cape) rides what it rides
+	end
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") and (descendant :: BasePart).Anchored then
 			local part = descendant :: BasePart
 			local group = groupOf(part, body, head)
+			if bell ~= nil and part:IsDescendantOf(bell) then
+				group = "bell"
+			elseif cap ~= nil and part:IsDescendantOf(cap) then
+				group = "cap"
+			end
 			-- An outfit piece says what it rides (Follows), so only an unmarked part of the body can be a leg, and
 			-- only on a cat whose legs are not named (the exported cats before PR #259 named every part like the body).
 			if
@@ -515,6 +533,13 @@ function Pose.bind(model: Model): Rig?
 			rig.joints[group] = joint(hingeOf(part, model) or part.Position)
 		end
 	end
+	-- the cap and the bell turn in their own pivot's axes, as Model-Agent gives the turns (#708)
+	if cap ~= nil then
+		rig.joints.cap = bodyBase:ToObjectSpace(cap:GetPivot())
+	end
+	if bell ~= nil then
+		rig.joints.bell = bodyBase:ToObjectSpace(bell:GetPivot())
+	end
 	for k, index in rig.eyes do
 		rig.eyeAxes[k] = axisAlong(rig.base[index], axes.UpVector)
 	end
@@ -527,6 +552,7 @@ function Pose.bind(model: Model): Rig?
 	-- own axes (its pivot's), which can lean away from the model's, as the tail's do.
 	local attribute = model:GetAttribute("Scale")
 	local scale = (if type(attribute) == "number" then attribute else 1) * model:GetScale()
+	rig.scale = scale
 	for name, pose in Presets.catPoses do
 		if pose.body ~= rig.kind then
 			continue -- a sitting cat cannot take the walking body's poses, nor the other way round
@@ -809,6 +835,25 @@ function Pose.draw(rig: Rig, o: Logic.Offsets, hopAlpha: number)
 		* around(joints, bodyBase, "earL", CFrame.Angles(o.earL, 0, o.earL * EAR_OUT))
 	moves.earR = moves.head
 		* around(joints, bodyBase, "earR", CFrame.Angles(o.earR, 0, -o.earR * EAR_OUT))
+	-- the Bellhop Cat's cap tips and slides down over its eyes to sleep, and its bell swings (F96); still, they ride
+	-- the head like the rest of it
+	if o.capTip ~= 0 or o.capDown ~= 0 then
+		local sleepy = Presets.bellhop.sleepCap
+		local down = o.capDown * rig.scale
+		moves.cap = moves.head
+			* around(
+				joints,
+				bodyBase,
+				"cap",
+				CFrame.new(0, -sleepy.down * down, -sleepy.forward * down)
+					* CFrame.Angles(o.capTip + math.rad(sleepy.turn) * o.capDown, 0, 0)
+			)
+	else
+		moves.cap = moves.head
+	end
+	moves.bell = if o.bell ~= 0
+		then moves.head * around(joints, bodyBase, "bell", CFrame.Angles(0, 0, o.bell))
+		else moves.head
 
 	local frames = rig.frames
 	for i, group in rig.groups do

@@ -110,15 +110,16 @@ local function leave()
 	end
 end
 
--- Tonight's amounts with this player's bought counts.
+-- Tonight's amounts with this player's bought counts, priced at the player's tier (F97).
 local function stockFor(player: Player, tonight: { Dealer.FoodAmount }): Types.DealerStock
 	local mine = bought[player.UserId] or {}
+	local profile = DataService.get(player)
+	local tier = if profile ~= nil then Economy.tier(profile) else 1
 	local rows: { Types.DealerFood } = {}
 	for _, food in tonight do
-		local def = Catalog.getLure(food.lureId)
 		table.insert(rows, {
 			lureId = food.lureId,
-			cost = if def ~= nil then def.cost else 0,
+			cost = Economy.foodPrice(food.lureId, tier),
 			amount = food.amount,
 			bought = math.min(mine[food.lureId] or 0, food.amount),
 		})
@@ -215,16 +216,17 @@ local function onBuyDealerFood(player: Player, rawLureId: unknown, rawNight: unk
 		return
 	end
 	Economy.settle(profile, os.time(), ClockService.epoch())
-	if not Economy.trySpend(profile, def.cost) then
+	local price = Economy.foodPrice(lureId, Economy.tier(profile)) -- F97: grows with the tier
+	if not Economy.trySpend(profile, price) then
 		refuse("Not enough coins")
 		return
 	end
-	Telemetry.sink(player, profile, def.cost, "Shop", "dealer_" .. lureId)
+	Telemetry.sink(player, profile, price, "Shop", "dealer_" .. lureId)
 	-- the third field was the slot number before F59; it is which of the stock's amount this buy was ("2/3")
 	Telemetry.custom(
 		player,
 		"dealer_buy",
-		def.cost,
+		price,
 		{ lureId, tostring(Economy.tier(profile)), string.format("%d/%d", already + 1, amount) }
 	)
 	profile.lures[lureId] = (profile.lures[lureId] or 0) + 1

@@ -153,6 +153,9 @@ export type IndexMilestone = {
 	id: string,
 	track: IndexTrack,
 	needs: number,
+	-- F97: every piece of the Decor page, whatever its size (decor10: sixteen on the Classic page, twelve elsewhere);
+	-- `needs` is then the least it asks
+	whole: boolean?,
 }
 
 -- What one Index milestone pays (golden-fish.md section 8), any of it. `coins` is the minimum and `coinSeconds`
@@ -235,6 +238,9 @@ export type LureDef = {
 	attracts: Rarity, -- the rarity it is known for (the dealer foods: their likeliest rarity)
 	rarity: Rarity, -- v0.10 (F69): how good the food is, shown as a badge and border in the cat rarity colours
 	source: LureSource, -- "shop" foods are bought with BuyLure, "dealer" foods only from the night dealer
+	-- F97 (notes-10-28-to-10-30.md section 3): `cost` is the base price at Tiers 1 and 2 (Economy.foodPrice), and
+	-- every food list runs by sortOrder: Kibble, Tuna, Moonlit Sardines, Salmon, Caviar, Moon Milk, Star Treat
+	sortOrder: number,
 	description: string,
 	odds: LureOdds, -- percentages summing to 100, shown before purchase
 	asset: string, -- food model shown in the bowl while the lure is active

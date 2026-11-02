@@ -32,6 +32,14 @@ goes on the square's floor top (y 0.1) unless the table says otherwise.
                             on the ground under the middle of the span, its ends inside two lamp posts. Each flag is
                             its own child Model CatCafe_Square_Bunting_Flag<NN>_Pennant (two wedges), its pivot at
                             the middle of its top edge on the line, which VFX-Agent's flutter turns it about (#640).
+  CatCafe_Square_BuntingShort  the same over 16.5 studs with 12 flags, strung across the lane's two ends.
+
+The edge (Derek 2026-10-28: "move triangle flags and lamp posts/benches to perimiter of town square to make more space
+in the middle for other features"): twelve lamps stand on the middle of the brick border (EDGE_X, EDGE_Z), at the
+four corners, beside the sign arches and at both sides of the lane's ends, 22.5 apart along each side, and bunting
+runs lamp to lamp all round except over the street's two ends, where the sign arches are. A bench faces the square
+under the middle of each long span, its back to the border. The middle of the square holds only the cannon, its
+pad and the signpost, and the quarters only the stations.
   CatCafe_Square_Garden     a 22 x 12 raised bed for the gardens between the square and the back alleys: brick kerb,
                             grass, two trees, a hedge along the back (+Z), flowers along the front, a topiary cat.
 
@@ -57,9 +65,10 @@ POINT_TIP = 13.6                               # paw paths start past this (Layo
 AREA_POINTS = (("paw_neighbourhood", 0, 1), ("paw_park", 0, -1), ("paw_woods", -1, 0), ("paw_sewer", 1, 0))
 FOUNTAIN_R = 6.5                               # its step
 
-RING_R = 17.0                                  # bench ring radius
-BENCH_ANGLES = (35, 55)                        # degrees from +X in each quarter, clear of the cross
-LAMP_AT = 11.0                                 # lamps at (+-11, +-11)
+EDGE_X, EDGE_Z = 47.0, 31.0                    # the lamps stand on the middle of the brick border
+LAMP_STEP = 22.5                               # lamp to lamp along a side; a bunting's span is 0.5 less
+BUNTING_SPAN, SHORT_SPAN = 22.0, 16.5          # the long spans, and the short one across each end of the lane
+BENCH_IN = 1.6                                 # a bench's pivot this far inside the lamp line, its back to the border
 HOOK_Y = 9.6                                   # where the bunting ties on
 SAG = 1.0
 FLAGS = ("blush", "sign_teal", "pastel_butter", "mint", "nose_pink", "pastel_sky")
@@ -462,7 +471,7 @@ def _line_y(x, half):
     return HOOK_Y - SAG * (1 - (x / half) ** 2)
 
 
-def build_bunting(mat, span=2 * LAMP_AT):
+def build_bunting(mat, span=BUNTING_SPAN, name="CatCafe_Square_Bunting"):
     b = RB()
     half = span / 2
     n = 12
@@ -472,9 +481,9 @@ def build_bunting(mat, span=2 * LAMP_AT):
         length = math.hypot(x1 - x0, y1 - y0) + 0.05
         ang = math.degrees(math.atan2(y1 - y0, x1 - x0))
         b.box(((x0 + x1) / 2, (y0 + y1) / 2, 0), (length, 0.07, 0.07), "dark_wood", rot=rot_z(ang))
-    count = 16
+    count = round(16 * span / BUNTING_SPAN)                                                    # 16 on 22 studs
     step = (span - 2.6) / (count - 1)
-    out = [b.finalize("CatCafe_Square_Bunting", mat)]
+    out = [b.finalize(name, mat)]
     for k in range(count):                       # each flag its own Model, pivot on the line (VFX flutter, #640)
         x = -half + 1.3 + k * step
         xl, xr = x - 0.42, x + 0.42
@@ -482,7 +491,7 @@ def build_bunting(mat, span=2 * LAMP_AT):
         ym = (yl + yr) / 2
         flag = RB()
         flag.fan_z(0.0, (0, -1.05), [(xl - x, yl - ym), (xr - x, yr - ym)], 0.05, FLAGS[k % len(FLAGS)])
-        out.append(flag.finalize(f"CatCafe_Square_Bunting_Flag{k + 1:02d}_Pennant", mat, location=(x, ym, 0)))
+        out.append(flag.finalize(f"{name}_Flag{k + 1:02d}_Pennant", mat, location=(x, ym, 0)))
     return out
 
 
@@ -611,28 +620,40 @@ ASSETS = {
     "CatCafe_Square_Bench": (build_bench, 800),
     "CatCafe_Square_Lamp": (build_lamp, 1500),
     "CatCafe_Square_Bunting": (build_bunting, 1500),
+    "CatCafe_Square_BuntingShort": (lambda mat: build_bunting(mat, SHORT_SPAN, "CatCafe_Square_BuntingShort"), 1200),
     "CatCafe_Square_Garden": (build_garden, 4000),
 }
+
+
+def _edge_lamps():
+    """The twelve lamps on the border, (x, z, rot_y), each lamp's lantern arm across its side (diagonal at a corner),
+    so no lantern hangs in a bunting's line."""
+    out = []
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            out.append((sx * EDGE_X, sz * EDGE_Z, 45))                                   # the corners
+            out.append((sx * (EDGE_X - LAMP_STEP), sz * EDGE_Z, 90))                     # beside the sign arches
+            out.append((sx * EDGE_X, sz * (EDGE_Z - LAMP_STEP), 0))                      # at the lane's ends
+    return out
 
 
 def _placements():
     """(asset, x, z, rot_y degrees) in square coordinates (world), y at the square's floor top (0.1). rot_y is
     CFrame.Angles(0, math.rad(rot_y), 0). The arches and the signpost are WorldBuilder's (buildArch, buildSignpost)."""
     out = [("CatCafe_Square_Paving", 0, 0, 0), ("CatCafe_Square_Fountain", 0, 0, 0)]
-    for q in range(4):
-        for a in BENCH_ANGLES:
-            deg = a + 90 * q
-            if deg == 215:                                                      # the signpost stands there
-                continue
-            t = math.radians(deg)
-            out.append(("CatCafe_Square_Bench", round(RING_R * math.cos(t), 2), round(RING_R * math.sin(t), 2),
-                        (90 - deg) % 360))                                      # front toward the fountain
+    out += [("CatCafe_Square_Lamp", x, z, r) for (x, z, r) in _edge_lamps()]
+    mx, mz = EDGE_X - LAMP_STEP / 2, EDGE_Z - LAMP_STEP / 2                              # the long spans' middles
     for sx in (-1, 1):
         for sz in (-1, 1):
-            out.append(("CatCafe_Square_Lamp", sx * LAMP_AT, sz * LAMP_AT, 45))
-    out += [("CatCafe_Square_Bunting", 0, -LAMP_AT, 0), ("CatCafe_Square_Bunting", 0, LAMP_AT, 0),
-            ("CatCafe_Square_Bunting", -LAMP_AT, 0, 90), ("CatCafe_Square_Bunting", LAMP_AT, 0, 90),
-            ("CatCafe_Square_SignArch", 0, -SQ_D, 0), ("CatCafe_Square_SignArch", 0, SQ_D, 180)]
+            out.append(("CatCafe_Square_Bunting", sx * mx, sz * EDGE_Z, 0))              # north and south sides
+            out.append(("CatCafe_Square_Bunting", sx * EDGE_X, sz * mz, 90))             # east and west sides
+    for sx in (-1, 1):
+        out.append(("CatCafe_Square_BuntingShort", sx * EDGE_X, 0, 90))                  # over the lane's ends
+    for sx in (-1, 1):                                                                   # benches, front inward
+        for sz in (-1, 1):
+            out.append(("CatCafe_Square_Bench", sx * mx, sz * (EDGE_Z - BENCH_IN), 0 if sz > 0 else 180))
+            out.append(("CatCafe_Square_Bench", sx * (EDGE_X - BENCH_IN), sz * mz, 90 if sx > 0 else 270))
+    out += [("CatCafe_Square_SignArch", 0, -SQ_D, 0), ("CatCafe_Square_SignArch", 0, SQ_D, 180)]
     for sx in (-1, 1):
         for sz in (-1, 1):
             out.append(("CatCafe_Square_Garden", sx * 55.5, sz * 19.5, 90 * sx))  # front toward the square

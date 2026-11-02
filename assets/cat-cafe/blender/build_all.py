@@ -88,7 +88,10 @@ PIVOT_NOTES = {
                              "pivot, the stones 0.02 above it. Square space is world space; place with no turn.",
     "CatCafe_Square_Signpost": "Post's foot at (-9, 0.1, -7.5) with no turn: each _Arm<Area> board is aimed in world "
                                "space at its gate, long along its own X, with an Area attribute.",
-    "CatCafe_Square_Bunting": "On the ground under the middle of the span; its ends sit inside two lamps 22 apart.",
+    "CatCafe_Square_Bunting": "On the ground under the middle of the span; its ends sit inside two lamps 22.5 "
+                              "apart.",
+    "CatCafe_Square_BuntingShort": "On the ground under the middle of the span; its ends sit inside two lamps 17 "
+                                   "apart (across each end of the lane).",
     "CatCafe_Square_Cannon": "The plinth's base centre on the square's floor (0, 0.1, 0), placed with no turn, front "
                              "-Z (south). The _Turret pivot is the turntable's top centre, the barrel at rest "
                              "along +Z.",

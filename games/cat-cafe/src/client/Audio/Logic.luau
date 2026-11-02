@@ -259,16 +259,15 @@ function Logic.freshStart(startedAt: any, now: number, window: number?): boolean
 	return type(startedAt) == "number" and startedAt <= now + 1 and now - startedAt <= (window or 2)
 end
 
--- The cue for a change to one of your plot's display attributes (data-model section 13): the tip piles being
--- collected (F61), the Cat Collector arriving (F63), the Mystery Visitor's gift appearing (F64). The gift clearing
--- stays quiet, since the server also clears it at MysteryGiftKeepSeconds or a plot release; the UI plays giftOpen
--- with the MysteryGiftResult card. A missing or odd value counts as 0; nil for anything else.
+-- The cue for a change to one of your plot's display attributes (data-model section 13): the Cat Collector arriving
+-- (F63) and the Mystery Visitor's gift appearing (F64). The gift clearing stays quiet, since the server also clears
+-- it at MysteryGiftKeepSeconds or a plot release; the UI plays giftOpen with the MysteryGiftResult card. TipPiles is
+-- silent since F97 (#714): a pile pays as it appears (CoinPop) and the count only drops when old piles are swept.
+-- A missing or odd value counts as 0; nil for anything else.
 function Logic.plotCue(attribute: string, before: any, after: any): string?
 	local was = if type(before) == "number" then before else 0
 	local is = if type(after) == "number" then after else 0
-	if attribute == "TipPiles" then
-		return if is < was then "tipPile" else nil
-	elseif attribute == "CollectorUntil" then
+	if attribute == "CollectorUntil" then
 		return if was <= 0 and is > 0 then "visitorCollector" else nil
 	elseif attribute == "MysteryGiftAt" then
 		return if was <= 0 and is > 0 then "visitorMystery" else nil

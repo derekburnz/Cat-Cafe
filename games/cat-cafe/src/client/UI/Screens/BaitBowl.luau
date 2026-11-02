@@ -11,7 +11,8 @@
 -- running Gold Rush, Lucky or Quick Bait Potion's, as the server rolls food set now. F60: food set
 -- at night waits half, so by night the empty bowl's wait is the night one and a night bowl counts down behind a moon.
 -- F82: the odds row, the split and the wait are the bowl level's (shared Bait, as the server rolls), and the title
--- names the bowl you have, "Comfy Bowl" up to "Royal Bowl".
+-- names the bowl you have, "Comfy Bowl" up to "Royal Bowl". F97: Buy shows the food's price at the player's tier
+-- (shared Economy.foodPrice, as the server charges), and the foods run in rarity order (Components/FoodOrder).
 -- Opened by the bowl's prompt (UI.bait.openPicker), the HUD bowl chip or F.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -34,6 +35,7 @@ local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 local Bait = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Bait"))
+local Economy = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Economy"))
 
 export type Callbacks = {
 	useLure: (lureId: string) -> (),
@@ -432,6 +434,7 @@ function BaitBowl._buildRows(self: any)
 			detail = detail,
 			odds = odds,
 			split = nil :: string?, -- the per-cat split for the tier and bowl last drawn
+			price = lure.cost, -- what Buy says: the food's price at the player's tier (render)
 			def = lure,
 			dealer = dealer,
 		}
@@ -529,7 +532,16 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 		end
 		row.use:setEnabled(owned and empty and have > 0)
 		if not row.dealer then
-			row.buy:setEnabled(state.money >= row.def.cost)
+			-- F97: the server charges Economy.foodPrice, the catalog cost times the tier's factor
+			local price = Economy.foodPrice(lureId, state.tier)
+			if price <= 0 then
+				price = row.def.cost
+			end
+			if price ~= row.price then
+				row.price = price
+				row.buy:setText(Format.money(price))
+			end
+			row.buy:setEnabled(state.money >= price)
 		end
 	end
 	self:_renderStatus()
@@ -599,7 +611,7 @@ function BaitBowl._renderStatus(self: any)
 			title = "A cat is at your bowl!"
 			sub = if self._catWaiting
 				then "Tame it or let it go. The food is used either way."
-				else "Go to your bowl by the door to see who came."
+				else "It is sitting down at your bowl now."
 			if self._catWaiting then
 				action = "cat"
 			end

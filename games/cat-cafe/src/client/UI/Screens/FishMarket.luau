@@ -79,6 +79,7 @@ type CrateCard = {
 	frame: Frame,
 	icon: ItemIcon.ItemIcon,
 	owned: TextLabel,
+	tier: TextLabel, -- "Tier 3" on a zone crate, green once open
 	line: TextLabel,
 	luck: TextLabel,
 	odds: Button.Button,
@@ -951,7 +952,7 @@ function FishMarket._build(self: any)
 			position = UDim2.new(0.5, 0, 0, 8),
 		})
 		icon:set(
-			(crate :: any).asset,
+			(crate :: any).asset or ShopIcons.crateModel(crate.id),
 			Theme.icons.crate,
 			if crate.golden then "Legendary" else "Rare",
 			ShopIcons.crate(crate.id)
@@ -971,6 +972,30 @@ function FishMarket._build(self: any)
 			Parent = frame,
 		})
 		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = owned })
+		-- the crate's tier, shown open or locked (Derek 2026-10-28: "show the Tier still beside even if unlocked it
+		-- should be obvious")
+		local tier = text({
+			Name = "Tier",
+			Position = UDim2.fromOffset(6, 6),
+			Size = UDim2.fromOffset(0, 22),
+			AutomaticSize = Enum.AutomaticSize.X,
+			BackgroundTransparency = 0,
+			BackgroundColor3 = Theme.colors.good,
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.colors.white,
+			TextTruncate = Enum.TextTruncate.None,
+			Visible = false,
+			ZIndex = 3,
+			Parent = frame,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = tier })
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 8),
+			PaddingRight = UDim.new(0, 8),
+			Parent = tier,
+		})
+		Outline.text(tier, 1.5)
 		text({
 			Name = "Name",
 			Position = UDim2.fromOffset(6, 88),
@@ -1030,6 +1055,7 @@ function FishMarket._build(self: any)
 			frame = frame,
 			icon = icon,
 			owned = owned,
+			tier = tier,
 			line = line,
 			luck = luck,
 			odds = odds,
@@ -1188,6 +1214,11 @@ function FishMarket._refresh(self: any)
 		shown += 1
 		entry.owned.Visible = count > 0
 		entry.owned.Text = "x" .. Format.short(count)
+		local tier = MarketLogic.openTier(crate, areas)
+		entry.tier.Visible = tier ~= nil
+		-- grey once locked; the Locked button says the rest (a lock here covered the crate's picture, N306)
+		entry.tier.Text = if tier then ("Tier %d"):format(tier) else ""
+		entry.tier.BackgroundColor3 = if open then Theme.colors.good else Theme.colors.muted
 		local price = crate.price or 0
 		local pending = self:_pendingFor(crate.id)
 		showFish(entry.open, count <= 0 and open and not pending)
@@ -1197,7 +1228,6 @@ function FishMarket._refresh(self: any)
 			entry.open:setStyle("primary")
 			entry.open:setEnabled(not pending)
 		elseif not open then
-			local tier = MarketLogic.openTier(crate, areas)
 			entry.line.Text = if tier then ("Opens at Tier %d"):format(tier) else "Locked"
 			entry.open:setText(Theme.icons.lock .. " Locked")
 			entry.open:setEnabled(false)

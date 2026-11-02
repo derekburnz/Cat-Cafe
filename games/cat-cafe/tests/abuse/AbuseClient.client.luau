@@ -15,7 +15,7 @@
 	  = double spend    , travel            / tackle               \ rename         Insert telemetry
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
 	  J tip jar         K index rewards     L spin wheel           R bug report
-	  P fish market     O fresh catch       T codes             Backspace flood
+	  P fish market     O fresh catch       T codes             X tips              Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
@@ -51,6 +51,7 @@ local Codes = require(Shared:WaitForChild("Codes"))
 local Config = require(Shared:WaitForChild("Config"))
 local Crates = require(Shared:WaitForChild("Crates"))
 local FreshCatch = require(Shared:WaitForChild("FreshCatch"))
+local IndexRewards = require(Shared:WaitForChild("IndexRewards"))
 local NetSwing = require(Shared:WaitForChild("NetSwing"))
 local Prizes = require(Shared:WaitForChild("Prizes"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
@@ -3107,7 +3108,8 @@ case(
 	Enum.KeyCode.PageDown,
 	"Saved settings: volumes clamp, bad volumes and switch values refused, a repeat sends no sync",
 	function()
-		local SWITCHES = { "screenShake", "lowPerformance", "showOtherCats", "markers" }
+		-- tutorialButton since F72, shopAlerts since F94 (engineer PR #699)
+		local SWITCHES = { "screenShake", "lowPerformance", "showOtherCats", "markers", "tutorialButton", "shopAlerts" }
 		local VOLUMES = { "musicVolume", "sfxVolume" }
 		local function saved(): { [string]: any }?
 			local current = if state ~= nil then (state :: any).settings else nil
@@ -3238,6 +3240,207 @@ case(
 		end
 		return "PASS",
 			"volumes clamped to 1, 0 and 0.33, NaN, infinities and text refused, the new switches took only booleans and saved their flips, a repeat sent no sync; read the server output for no [Net] SetSetting handler failed line"
+	end
+)
+
+-- Context tips and the feedback faces (F87 part 3, engineer PR #705, easy-start.md sections 3, 4 and 6) ---------
+-- TipSeen(id, skipped?) takes 1 a second and only a shared/Tips id or one of its three asks; ClearTips takes 1 per
+-- 10 s and keeps the like ask; SendFeedback(face, chip?) takes 1 per 10 s, only Tips.FACES and Tips.CHIPS, and
+-- FeedbackSessionLimit a session. TipSeen sends no ProfileSync of its own, so the case reads tipsSeen and
+-- feedbackAsked from the next one (the periodic sync comes every SyncIntervalSeconds, or ClearTips sends one).
+
+case(
+	"tips",
+	Enum.KeyCode.X,
+	"Tips: TipSeen junk and floods, ClearTips keeps the like ask, SendFeedback junk and the session cap",
+	function()
+		local function seen(): { [string]: boolean }?
+			local current = if state ~= nil then (state :: any).tipsSeen else nil
+			return if type(current) == "table" then current else nil
+		end
+		local function asked(): boolean?
+			local current = if state ~= nil then (state :: any).feedbackAsked else nil
+			return if type(current) == "boolean" then current else nil
+		end
+		local function keys(map: { [string]: boolean }): string
+			local out: { string } = {}
+			for key in map do
+				table.insert(out, key)
+			end
+			table.sort(out)
+			return if #out > 0 then table.concat(out, ", ") else "none"
+		end
+		-- The next ProfileSync after `at`: the periodic one, or the one ClearTips sends.
+		local function nextSync(at: number): boolean
+			return waitFor(at, "ProfileSync", Config.SyncIntervalSeconds + 2) ~= nil
+		end
+		if seen() == nil or asked() == nil then
+			return "SKIP", "the ProfileSync carries no tipsSeen or feedbackAsked (needs engineer PR #705)"
+		end
+		local verdict: Verdict = "PASS"
+		local notes: { string } = {}
+
+		-- 1. Junk ids, 1.1 s apart so the 1 a second limit drops none: nothing new in tipsSeen.
+		local before = table.clone(seen() :: { [string]: boolean })
+		local junk: { any } = {
+			"not_a_tip",
+			"Bowl",
+			"bowl ",
+			"",
+			string.rep("a", 5000),
+			5,
+			{},
+			"__index",
+		}
+		local junkAt = os.clock()
+		fire("TipSeen", nil)
+		for _, id in junk do
+			task.wait(1.1)
+			fire("TipSeen", id, "yes")
+		end
+		task.wait(0.5)
+		local junkToasts = #since(junkAt, "Toast")
+		if not nextSync(os.clock()) then
+			return "CHECK", "no ProfileSync came within the sync interval to read tipsSeen from"
+		end
+		local afterJunk = seen() :: { [string]: boolean }
+		for key in afterJunk do
+			if before[key] == nil then
+				return "FAIL", string.format("TipSeen junk saved %q in tipsSeen", key)
+			end
+		end
+		if junkToasts > 0 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, string.format("%d toast(s) for junk TipSeen calls", junkToasts))
+		else
+			table.insert(notes, string.format("%d junk TipSeen ids saved nothing", #junk + 1))
+		end
+
+		-- 2. Ten real client tip ids in one frame: the 1 a second limit takes at most two.
+		local fresh: { string } = {}
+		for _, id in { "stuck_cat", "codes_cat", "luck", "offline", "bowl", "night", "potion", "dealer" } do
+			if afterJunk[id] ~= true then
+				table.insert(fresh, id)
+			end
+		end
+		if #fresh < 3 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format('flood skipped: %d unseen tips (on the server run %s("tips"))', #fresh, DEBUG)
+			)
+		else
+			task.wait(1.1)
+			local floodAt = os.clock()
+			for _, id in fresh do
+				Remotes.event("TipSeen"):FireServer(id)
+			end
+			log(string.format("    -> TipSeen(each of %d unseen tips) in one frame", #fresh))
+			task.wait(0.5)
+			nextSync(floodAt + 0.5)
+			local saved = 0
+			for _, id in fresh do
+				if (seen() :: { [string]: boolean })[id] == true then
+					saved += 1
+				end
+			end
+			if saved > 2 then
+				verdict = "FAIL"
+				table.insert(notes, string.format("%d of %d TipSeen in one frame were saved", saved, #fresh))
+			elseif saved == 0 then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, "no TipSeen of the flood was saved, not even the first")
+			else
+				table.insert(notes, string.format("%d of %d TipSeen in one frame saved", saved, #fresh))
+			end
+		end
+
+		-- 3. ClearTips: tipsSeen keeps only the like ask; five more in a frame send at most one sync.
+		local likeBefore = (seen() :: { [string]: boolean }).like_ask == true
+		task.wait(1.1)
+		local clearAt = os.clock()
+		fire("ClearTips")
+		local cleared = waitFor(clearAt, "ProfileSync", 3, function()
+			local now = seen()
+			if now == nil then
+				return false
+			end
+			for key in now do
+				if key ~= "like_ask" then
+					return false
+				end
+			end
+			return true
+		end)
+		if cleared == nil then
+			verdict = "FAIL"
+			table.insert(notes, "ClearTips sent no ProfileSync with tipsSeen cleared: " .. keys(seen() or {}))
+		elseif ((seen() :: { [string]: boolean }).like_ask == true) ~= likeBefore then
+			verdict = "FAIL"
+			table.insert(notes, "ClearTips changed the like ask")
+		else
+			table.insert(notes, "ClearTips left " .. keys(seen() :: { [string]: boolean }))
+		end
+		task.wait(0.5)
+		local clearFloodAt = os.clock()
+		for _ = 1, 5 do
+			Remotes.event("ClearTips"):FireServer()
+		end
+		log("    -> ClearTips() x5 in one frame")
+		task.wait(1.5)
+		local clearSyncs = #since(clearFloodAt, "ProfileSync")
+		if clearSyncs > 2 then
+			verdict = "FAIL"
+			table.insert(notes, string.format("%d ProfileSync from 5 ClearTips in one frame", clearSyncs))
+		end
+
+		-- 4. SendFeedback junk, 10.5 s apart so the 1 per 10 s limit drops none: feedbackAsked stays false. A
+		-- real face then sets it. With feedbackAsked already true the junk half cannot be read.
+		if asked() == true then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format('feedback skipped: feedbackAsked is already true (on the server run %s("tips"))', DEBUG)
+			)
+			return verdict, table.concat(notes, "; ")
+		end
+		local badFeedback: { { face: any, chip: any } } = {
+			{ face = "LOVE", chip = nil },
+			{ face = "love", chip = "I typed a sentence here" },
+			{ face = {}, chip = nil },
+			{ face = "ok", chip = 5 },
+		}
+		for _, call in badFeedback do
+			task.wait(10.5)
+			fire("SendFeedback", call.face, call.chip)
+		end
+		nextSync(os.clock())
+		if asked() ~= false then
+			verdict = "FAIL"
+			table.insert(notes, "a junk SendFeedback set feedbackAsked")
+		else
+			table.insert(notes, string.format("%d junk SendFeedback calls changed nothing", #badFeedback))
+		end
+		task.wait(10.5)
+		local goodAt = os.clock()
+		fire("SendFeedback", "ok", "other")
+		task.wait(0.5)
+		nextSync(goodAt + 0.5)
+		if asked() ~= true then
+			verdict = "FAIL"
+			table.insert(notes, 'SendFeedback("ok", "other") did not set feedbackAsked')
+		else
+			table.insert(notes, "a real face set feedbackAsked")
+		end
+		table.insert(
+			notes,
+			string.format(
+				'the session cap (%d) shows only in %s("telemetry") on the server: at most that many feedback events',
+				Config.FeedbackSessionLimit,
+				DEBUG
+			)
+		)
+		return verdict, table.concat(notes, "; ")
 	end
 )
 
@@ -3491,15 +3694,12 @@ local function pageCount(areaId: string, track: string): number
 	if s == nil then
 		return 0
 	end
-	local count = 0
 	if track == "decor" then
-		for _, def in Catalog.crateDecor do
-			if "decor_" .. tostring(def.crate) == areaId and s.decorOwned[def.id] then
-				count += 1
-			end
-		end
-		return count
+		-- the page's pieces as the server counts them (Crates.pageCount on the crate's pieces): sixteen on the
+		-- Classic page since F97 brought the coin pieces in, which Catalog.crateDecor does not list
+		return Crates.pageCount(s :: any, string.sub(areaId, #IndexRewards.DECOR_PREFIX + 1))
 	end
+	local count = 0
 	local collection = if track == "gold" then s.goldCollection else s.collection
 	for _, def in Catalog.cats do
 		if (areaId == "all" or def.area == areaId) and collection[def.id] ~= nil then
@@ -3558,6 +3758,16 @@ end
 
 type IndexMilestone = { areaId: string, id: string, left: number, track: string }
 
+-- What the server asks of a milestone on a page: IndexRewards.needs since engineer PR #727 (decor10 wants every piece
+-- of its Decor page, sixteen on Classic), else the milestone's own `needs`.
+local function milestoneNeeds(areaId: string, milestone: Types.IndexMilestone): number
+	local needs: unknown = (IndexRewards :: any).needs
+	if type(needs) == "function" then
+		return (needs :: any)(areaId, milestone)
+	end
+	return milestone.needs
+end
+
 -- The first unclaimed milestone, in page order, that has its cats or pieces (`ready` true) or is still short.
 local function indexMilestone(ready: boolean): IndexMilestone?
 	for _, areaId in indexPages() do
@@ -3566,7 +3776,7 @@ local function indexMilestone(ready: boolean): IndexMilestone?
 			if prizes[milestone.id] == nil or rewardClaimed(areaId, milestone.id) then
 				continue
 			end
-			local left = milestone.needs - pageCount(areaId, milestone.track)
+			local left = milestoneNeeds(areaId, milestone) - pageCount(areaId, milestone.track)
 			if (left <= 0) == ready then
 				return { areaId = areaId, id = milestone.id, left = left, track = milestone.track }
 			end

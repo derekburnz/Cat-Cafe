@@ -60,7 +60,7 @@ export type CatchCircles = {
 		circles: { Types.CatchCircle },
 		windows: Types.CatchWindows,
 		header: Header?,
-		onPress: (index: number, grade: Types.CircleGrade) -> ()
+		onPress: (index: number, grade: Types.CircleGrade?) -> ()
 	) -> (),
 	showResult: (self: CatchCircles, outcome: Outcome, onDone: (() -> ())?) -> (),
 	gradeLocal: (self: CatchCircles, index: number) -> Types.CircleGrade?,
@@ -217,7 +217,7 @@ function CatchCircles.new(parent: Instance): CatchCircles
 	self._next = 1
 	self._active = false
 	self._token = 0
-	self._onPress = nil :: ((index: number, grade: Types.CircleGrade) -> ())?
+	self._onPress = nil :: ((index: number, grade: Types.CircleGrade?) -> ())?
 	self._loop = nil :: RBXScriptConnection?
 	self._lastTarget = 0
 	self._awaitingResult = false
@@ -469,7 +469,7 @@ function CatchCircles.show(
 	circles: { Types.CatchCircle },
 	windows: Types.CatchWindows,
 	header: Header?,
-	onPress: (index: number, grade: Types.CircleGrade) -> ()
+	onPress: (index: number, grade: Types.CircleGrade?) -> ()
 )
 	self:hide()
 	self._token += 1
@@ -583,22 +583,26 @@ end
 -- Circles whose press window has closed on the server's terms count as misses here too, so the next
 -- press goes to the next circle, the same order the server judges in.
 function CatchCircles._expire(self: any, t: number)
-	if self._ended then
-		return
-	end
 	local windows: Types.CatchWindows = self._windows
-	local view: CircleView? = self._views[self._next]
-	if not view or t <= view.target + windows.good + LATENCY_CAP then
-		return
+	while true do
+		local index: number = self._next
+		local view: CircleView? = self._views[index]
+		if not view or t <= view.target + windows.good + LATENCY_CAP then
+			return
+		end
+		self._next = index + 1
+		if not self._ended then
+			self:_showGrade(index, "miss", false)
+			self:_endAfterMiss()
+		end
 	end
-	self:_showGrade(self._next, "miss", false)
-	self._next += 1
-	self:_endAfterMiss()
 end
 
 -- This device's first Miss (a press out of the bands or a circle nobody pressed): the server ends the catch on it
 -- too, so every circle still showing goes now and no later press can draw a grade (catch-rework.md section 3). The
--- server's result then settles the words, the pips and the result word.
+-- presses still go out (reviewer S101: the server judges on its own clock, so an edge press called a Miss here can
+-- be Good there, and then it waits for the next circle's press). The server's result settles the words, the pips
+-- and the result word.
 function CatchCircles._endAfterMiss(self: any)
 	self._ended = true
 	for _, view in self._views :: { CircleView } do
@@ -614,7 +618,7 @@ function CatchCircles._endAfterMiss(self: any)
 end
 
 function CatchCircles._press(self: any)
-	if not self._active or self._ended then
+	if not self._active then
 		return
 	end
 	local t = now()
@@ -626,6 +630,16 @@ function CatchCircles._press(self: any)
 	end
 	if t < view.circle.startsAt then
 		return -- before the circle starts: the server ignores it too
+	end
+	if self._ended then
+		-- after this device's first Miss: sent with no grade (so no grade sound) and drawn nowhere
+		self._next = index + 1
+		view.pressed = true
+		local onPress = self._onPress
+		if onPress then
+			onPress(index, nil)
+		end
+		return
 	end
 	local windows: Types.CatchWindows = self._windows
 	local offset = math.abs(t - view.target)
@@ -711,6 +725,7 @@ function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())
 	local token = self._token
 	self._awaitingResult = true
 	self._ended = true
+	self._onPress = nil -- the catch is over: later taps go nowhere
 	ContextActionService:UnbindAction(ACTION_NAME)
 	local grades = outcome.grades
 	for index, view in self._views :: { CircleView } do

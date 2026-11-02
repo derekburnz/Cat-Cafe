@@ -28,6 +28,8 @@
 --   D:Invoke("rally", nil, "points", 20)     -- 20 check-ins' points for you through the steps and prizes (F101)
 --   D:Invoke("rally", nil, "laps", 4)        -- your laps paid this weekend; returns the Rally's line either way
 --   D:Invoke("restartNotice", 300)     -- the restart countdown's 5 minute warning to everyone; returns its text
+--   D:Invoke("tradeMinTier", 0)        -- trading from Tier 0 in this server (F102; nil goes back to the flag or Config)
+--   D:Invoke("trading", false)         -- the trading kill switch off in this server, as CatCafe_Flags would (F102)
 --   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
@@ -82,6 +84,7 @@ local Telemetry = require(script.Parent.Telemetry)
 local TipJarService = require(script.Parent.TipJarService)
 local TipPileService = require(script.Parent.TipPileService)
 local TipService = require(script.Parent.TipService)
+local TradeService = require(script.Parent.TradeService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Debug = {}
@@ -246,6 +249,20 @@ end
 function Debug.restartNotice(seconds: unknown): string?
 	guard()
 	return RestartNoticeService.debugNotice(seconds)
+end
+
+-- F102 (trading.md section 2): this server's minimum tier to trade; returns the one now in force.
+function Debug.tradeMinTier(tier: unknown): number
+	guard()
+	return TradeService.debugMinTier(
+		if type(tier) == "number" then math.max(0, math.floor(tier)) else nil
+	)
+end
+
+-- F102 (section 4): the kill switch in this server (true or nil on, false off); returns whether trading is on.
+function Debug.trading(on: unknown): boolean
+	guard()
+	return TradeService.debugTrading(if type(on) == "boolean" then on else nil)
 end
 
 function Debug.rally(player: (Player | number | string)?, action: string?, value: any): string

@@ -8,15 +8,17 @@
 -- the rainbow coats, the Rescue Rally's pops and bunting, Trade done's flight, rare decor's moving parts, the net
 -- swing's whoosh, the catch's result word, the rescue trap's shake, the Bellhop Cat's bell, cap and hop, the Lucky
 -- Cat statue and its beckoning paw, the Lucky Day's gold tint, the big pull's happy hop, the camp extras' rod and
--- lid, the camp pipe's drips, the pond's jumping fish, the pal wave at a front door and the cafe orders' steam, flour,
--- oven glow and ding, all on this client only. Effects read replicated world state (tags and attributes) and this
--- player's own events; they never fire a remote, never change game state and never move a part the server moves for
--- gameplay. Rules: .claude/skills/animation-vfx/SKILL.md.
+-- lid, the camp pipe's drips, the pond's jumping fish, the camp extras' collect bursts, the pal wave at a front door,
+-- the cafe orders' steam, flour, oven glow and ding and the leaderboard crown's glint, all on this client only.
+-- Effects read replicated world state (tags and attributes) and this player's own events; they never fire a remote,
+-- never change game state and never move a part the server moves for gameplay. Rules:
+-- .claude/skills/animation-vfx/SKILL.md.
 -- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
 local Bellhop = require(script.Bellhop)
 local CafeWalk = require(script.CafeWalk)
+local CampCollect = require(script.CampCollect)
 local CampExtras = require(script.CampExtras)
 local CampWater = require(script.CampWater)
 local Campfire = require(script.Campfire)
@@ -27,6 +29,7 @@ local Cats = require(script.Cats)
 local Chase = require(script.Chase)
 local Codes = require(script.Codes)
 local Context = require(script.Context)
+local Crown = require(script.Crown)
 local Decor = require(script.Decor)
 local Equip = require(script.Equip)
 local Fish = require(script.Fish)
@@ -106,7 +109,9 @@ function Effects.start()
 	NetTrail.start()
 	LuckyCat.start()
 	CampWater.start()
+	CampCollect.start()
 	Orders.start()
+	Crown.start()
 end
 
 -- "low" on a phone or tablet or in Low performance mode, "high" on a PC or console (Presets.budget).

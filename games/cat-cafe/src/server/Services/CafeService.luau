@@ -41,6 +41,7 @@ local Settings = require(ReplicatedStorage.Shared.Settings)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
+local Trade = require(ReplicatedStorage.Shared.Trade)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -54,6 +55,13 @@ local carrying: { [Player]: string? } = {} -- catId while walking a caught stray
 -- Each player's cat levels at their last sync (v0.12 F75), so a level gained in any settle sends one CatLevelUp
 local knownLevels: { [Player]: { [string]: number } } = {}
 local rng = Random.new() -- charm rolls for caught cats
+-- F102: TradeService says whether a cat is on offer in an open trade (set at its start; nothing is on offer before)
+local offerCheck: (player: Player, uid: string) -> boolean = function(
+	_player: Player,
+	_uid: string
+): boolean
+	return false
+end
 
 -- Settled profile or nil when not loaded yet.
 local function profileFor(player: Player): Profile?
@@ -181,6 +189,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		luck = luck, -- F88
 		luckSources = luckSources,
 		longNap = Economy.passes(profile).longNap, -- F95: the welcome back card's line
+		tradeLog = table.clone(profile.tradeLog), -- F102: the Trades page
 		serverTime = now,
 	}
 end
@@ -221,9 +230,11 @@ local function shownName(player: Player, instance: Types.CatInstance): string
 		or (if def ~= nil then def.name else instance.catId)
 end
 
--- One cat's model at `at` for its `slot`, not parented yet, its Rate for an owner at `tier`. A working cat sits on
--- the seated body (B) in its role's outfit; with `sleepSpot` (F79) it is on the walking body (A) without the outfit
--- instead, on a bedtime trip to that spot or asleep on it. Resting cats mix their idles (Derek 2026-10-27: "use a
+-- One cat's model at `at` for its `slot`, not parented yet, its Rate for an owner at `tier`. A working cat stands on
+-- the worker body (S, Model-Agent #826; Derek picked S on 2026-11-02) in its role's outfit, its front legs posed for
+-- the role and holding the role's cup, tray or microphone (CatDress.workPose), else sits on the seated body (B) while
+-- its worker is not exported; with `sleepSpot` (F79) it is on the walking body (A) without the outfit instead, on a
+-- bedtime trip to that spot or asleep on it. Resting cats mix their idles (Derek 2026-10-27: "use a
 -- mix of idle animations"): the odd nap spots sit on B and wash a paw, the even ones lie on A, where they sleep and
 -- sit up into a loaf with its purr.
 local function buildCat(
@@ -238,8 +249,12 @@ local function buildCat(
 	local def = Catalog.getCat(instance.catId)
 	local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId) else nil
 	local napIndex = tonumber(slot:match("^nap_(%d+)$"))
-	local sitting = sleepSpot == nil and (spot ~= nil or (napIndex ~= nil and napIndex % 2 == 1))
-	local model, seated = AssetRegistry.cloneCat(instance.catId, instance.variant, sitting)
+	local body: AssetRegistry.Body = if sleepSpot ~= nil
+		then "walk"
+		elseif spot ~= nil then "work"
+		elseif napIndex ~= nil and napIndex % 2 == 1 then "sit"
+		else "walk"
+	local model, built = AssetRegistry.cloneCat(instance.catId, instance.variant, body)
 	model.Name = instance.uid
 	model:SetAttribute("Uid", instance.uid)
 	model:SetAttribute("CatId", instance.catId)
@@ -255,8 +270,8 @@ local function buildCat(
 	model:SetAttribute("OwnerUserId", player.UserId)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
 	model:PivotTo(at)
-	if seated then
-		model:SetAttribute("Pose", "sit") -- the client's Effects keep a seated cat seated
+	if built ~= "walk" then
+		model:SetAttribute("Pose", built) -- the client's Effects keep a seated cat seated and a worker at work
 	end
 	if spot ~= nil then
 		CollectionService:AddTag(model, "WorkingCat") -- the client's Audio purrs from the nearest few
@@ -917,11 +932,12 @@ function CafeService.addCaughtCat(
 		instance.rescued = true
 	end
 	local firstGold = false
+	local firstRainbow = false
 	if variant ~= nil then
 		instance.variant = variant
 		if variant == "rainbow" then
 			-- F99 (rainbow-coat.md section 5): the Rainbow page counts each cat's first rainbow coat
-			local firstRainbow = profile.rainbowCollection[def.id] == nil
+			firstRainbow = profile.rainbowCollection[def.id] == nil
 			if firstRainbow then
 				profile.rainbowCollection[def.id] = now
 			end
@@ -975,8 +991,9 @@ function CafeService.addCaughtCat(
 		)
 		Telemetry.collected(player, profile, def)
 	end
-	-- Golden fish (F52): a new Index entry, a first gold, or an Epic and better repeat by net or rescue
-	local fish = GoldenFish.forCatch(def.rarity, isNew, firstGold, how)
+	-- Golden fish (F52): a new Index entry, a first gold, a first rainbow (F99), or an Epic and better repeat by net
+	-- or rescue
+	local fish = GoldenFish.forCatch(def.rarity, isNew, firstGold, how, firstRainbow)
 	if fish > 0 then
 		GoldenFish.credit(profile, fish)
 		Telemetry.fishSource(
@@ -1116,6 +1133,17 @@ function CafeService.addGiftCat(
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 	return instance
+end
+
+-- F102: TradeService registers how to tell a cat on offer in an open trade (selling, locking and the Cat Collector
+-- wait for it).
+function CafeService.setOfferCheck(check: (player: Player, uid: string) -> boolean)
+	offerCheck = check
+end
+
+-- Whether `uid` is on offer in `player`'s open trade.
+function CafeService.isOffered(player: Player, uid: string): boolean
+	return offerCheck(player, uid)
 end
 
 function CafeService.setCarrying(player: Player, catId: string?)
@@ -1267,6 +1295,10 @@ local function onSellCat(player: Player, rawUid: unknown)
 		Net.toast(player, "This cat is locked. Unlock it to sell it.", "warn")
 		return
 	end
+	if offerCheck(player, uid) then
+		Net.toast(player, Trade.Messages.catInTrade, "warn") -- F102: take it off the offer first
+		return
+	end
 	local def = Catalog.getCat(instance.catId)
 	if def == nil then
 		return
@@ -1300,6 +1332,11 @@ local function onLockCat(player: Player, rawUid: unknown, rawLocked: unknown)
 	end
 	local instance = profile.cats[uid]
 	if instance == nil then
+		return
+	end
+	if rawLocked and offerCheck(player, uid) then
+		Net.toast(player, Trade.Messages.catInTrade, "warn") -- F102: a locked cat cannot be on offer
+		CafeService.sync(player)
 		return
 	end
 	instance.locked = if rawLocked then true else nil
@@ -1552,7 +1589,7 @@ local function onTutorialAdvance(player: Player, rawStep: unknown)
 end
 
 -- The Settings screen (data-model section 14 `settings`): a switch takes a boolean, a volume a number it clamps
--- to 0 to 1 (shared/Settings). Unknown keys and values that do not fit are dropped.
+-- to 0 to 1, a choice one of its strings (shared/Settings). Unknown keys and values that do not fit are dropped.
 local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 	local value = Settings.clean(rawKey, rawValue)
 	local profile = profileFor(player)

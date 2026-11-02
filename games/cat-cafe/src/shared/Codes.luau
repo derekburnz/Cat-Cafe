@@ -19,7 +19,7 @@ Codes.REDEEMED = "Code redeemed!"
 Codes.UNKNOWN = "That code doesn't exist"
 Codes.USED = "You already used that code"
 Codes.EXPIRED = "That code has expired"
-Codes.GROUP = "Join the Cat Cafe group to use this code"
+Codes.GROUP = "Join our group to use this code"
 Codes.LOCKED = "Too many tries, wait a minute"
 Codes.FAR = "Walk up to the Codes Cat"
 

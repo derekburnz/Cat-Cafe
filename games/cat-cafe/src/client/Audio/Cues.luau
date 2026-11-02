@@ -423,13 +423,33 @@ local Cues: { [string]: Cue } = {
 	catSold = { ids = {}, group = "Sfx", volume = 0.6 },
 
 	-- Bait bowl (5.4) ---------------------------------------------------------------------------------------
+	-- 2026-11-02: reused files until the upload quota allows the bowl its own (Derek: "continue with sounds needed to
+	-- be added"). Every food plays foodDealer until its own cue has a file.
 	foodKibble = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
 	foodTuna = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
 	foodSalmon = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
-	foodDealer = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
-	baitArrive = { ids = {}, group = "Sfx", volume = 0.7 },
-	baitTame = { ids = {}, group = "Sfx", volume = 0.7 },
-	baitLetGo = { ids = {}, group = "Sfx", volume = 0.6 },
+	foodDealer = {
+		ids = {},
+		sheet = "sheetCafe",
+		region = { 3.400, 3.680 },
+		group = "Sfx",
+		volume = 0.45,
+		minGap = 0.3,
+		range = 30,
+	}, -- the trayClink part: a soft tap and two china clinks as the food goes in the bowl
+	baitArrive = {
+		ids = { "rbxassetid://101433267853089" },
+		group = "Sfx",
+		volume = 0.6,
+		minGap = 1,
+	}, -- the catPlaced file: a hop, a happy mrrp and sparkles
+	baitTame = { ids = {}, group = "Sfx", volume = 0.7 }, -- unused: a tame sounds with its check-in (bell, jingle, sting)
+	baitLetGo = {
+		ids = { "rbxassetid://104205348504396" },
+		group = "Sfx",
+		volume = 0.6,
+		minGap = 1,
+	}, -- the catDrop file: a mrrp, soft paws and a shake
 
 	-- Cats in the world (5.5) -------------------------------------------------------------------------------
 	meow = {
@@ -554,7 +574,12 @@ local Cues: { [string]: Cue } = {
 		minGap = 0.2,
 		preload = true,
 	},
-	offlineClaim = { ids = {}, group = "Sfx", volume = 0.45 },
+	offlineClaim = {
+		ids = { "rbxassetid://89094982389204" },
+		group = "Sfx",
+		volume = 0.45,
+		minGap = 1,
+	}, -- 2026-11-02: the richTip file, a cascade of coins (the UI plays it on Claim)
 	placeFurniture = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
 	gateOpen = { ids = { "rbxassetid://89970899972584" }, group = "Sfx", volume = 0.7, range = 60 }, -- v0.4: the barrier dissolves
 	shuttersUp = {
@@ -571,6 +596,7 @@ local Cues: { [string]: Cue } = {
 		volume = 0.6,
 		minGap = 0.3,
 	}, -- F61: the tip piles were collected; silent since F97 (#714) pays them as they appear; F90 plays its file as tipSweep
+	-- Quiet on purpose for now: the cart parks with the dusk stinger and leaves with the dawn one, which mark it.
 	dealerArrive = { ids = {}, group = "Sfx", volume = 0.7, range = 60 },
 	dealerLeave = { ids = {}, group = "Sfx", volume = 0.6, range = 60 },
 
@@ -954,7 +980,7 @@ local Cues: { [string]: Cue } = {
 
 	-- F90 cats make the orders (5.16): the Cafe sheet, all 3D; they repeat with every order, so each is short and soft
 	sheetCafe = {
-		ids = {},
+		ids = { "rbxassetid://100577291813581" },
 		group = "Sfx",
 		volume = 1,
 		preload = true,

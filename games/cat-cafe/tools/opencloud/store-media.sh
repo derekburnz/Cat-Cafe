@@ -14,7 +14,9 @@
 # Usage (image paths are from the repo root; .png or .jpg):
 #   store-media.sh list                       icon, thumbnails, homepage thumbnails and the active homepage test
 #   store-media.sh icon <path>                set the icon (512 x 512)
-#   store-media.sh thumbnails <path>...       add thumbnails (1920 x 1080), in the order given
+#   store-media.sh thumbnails <path>...       add thumbnails (1920 x 1080), in the order given. Not for the source
+#                                             language (en): Roblox answers code 26 and has no key route for it,
+#                                             so the English gallery is changed in Creator Hub
 #   store-media.sh order <id>...              put the thumbnails in this order (ids from list)
 #   store-media.sh delete <id>                take one thumbnail off the page
 #   store-media.sh alt <id> <text>...         set a thumbnail's alt text
@@ -64,6 +66,11 @@ hint() {
 		case "$1" in
 		*thumbnail-personalization*) echo "The key needs universe.thumbnail:read and :write on Cat Cafe (docs/setup-guide.md step 23)." >&2 ;;
 		*) echo "The key needs legacy-universe:manage on Cat Cafe (docs/setup-guide.md step 23)." >&2 ;;
+		esac
+		;;
+	400)
+		case "$body" in
+		*"source language"*) echo "Roblox lets a key change only translations; the $LANG_CODE pictures are the source language's, so change them in Creator Hub." >&2 ;;
 		esac
 		;;
 	esac

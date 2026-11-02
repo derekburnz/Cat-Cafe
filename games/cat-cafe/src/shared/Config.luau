@@ -155,13 +155,18 @@ local Config = {
 	CharmStarOdds = { 7.84, 23.53, 35.67, 24.31, 8.65 } :: { number },
 	CarryWalkSpeed = 16,
 	NormalWalkSpeed = 20,
+	-- How far the camera zooms out (Derek 2026-11-02, the zoom card: "Cap it closer (60 studs)"; Roblox's default is
+	-- 128): it stays near the player, and the edges of the long areas and the backdrops stay out of view.
+	CameraMaxZoomStuds = 60,
 	-- The getaway after a net catch or a rescue (v0.8 F55, section 10c): every other player this close to the catcher
 	-- is pushed this far away (not a shove: no drop, no cooldown, never someone in a catch or rescue), and the catcher
 	-- walks at CatchRushWalkSpeed for CatchRushSeconds before carry speed. A picked-up cat gives neither.
+	-- CatchRushSeconds was 5; Derek's 10-28 to 10-30 notes asked for a longer boost now the areas are bigger (F85's
+	-- Park and Neighbourhood run 430 studs deep), so 10 s takes a carrier 240 studs before carry speed.
 	CatchBurstRadiusStuds = 10,
 	CatchBurstStuds = 8,
 	CatchRushWalkSpeed = 24,
-	CatchRushSeconds = 5,
+	CatchRushSeconds = 10,
 	-- A carrier this near either own door, or whose path passes this near it, checks the cat in (Derek 01:22: was 8)
 	CheckInRangeStuds = 10,
 	StrayWanderRadius = 5,
@@ -372,6 +377,8 @@ local Config = {
 	CrateReelHoldSeconds = 0.25,
 	DecorSpots = { 2, 3, 4, 5, 6 } :: { number }, -- furniture and decorations in use, by tier
 	DecorEquipBest = true, -- the server has EquipBestDecor (Derek 2026-10-28), so the Decor page shows Equip Best
+	-- Reset my save for testers (ResetSaveService): once the game is group-owned, this group rank and up may use it
+	ResetSaveGroupRank = 254,
 	DecorIndexBonus = 0.05, -- every tip forever: a Decor Index page's decor10 prize (all twelve pieces since F80, F54)
 	DecorIndexHalfFish = 25, -- golden fish: a Decor Index page's decor5 prize (five of ten, F54)
 	GoldenEspressoBonus = 0.05, -- every tip, per Golden Espresso level
@@ -395,6 +402,30 @@ local Config = {
 	CollectorRainbowMultiplier = 10,
 	RainbowAnimateMax = 10,
 	RainbowSpawnToastSeconds = 60,
+	-- golden fish for each cat's first rainbow coat: this times the rarity's FishFirstCatch (Common 5 to Mythical
+	-- 200), any way it was found, on top of a new cat's fish (section 1, added after the #795 review)
+	FishFirstRainbowMultiplier = 5,
+
+	-- Trading (F102, trading.md section 6; Derek 2026-10-30: from Tier 3, secure, nothing to scam). Cats only, up to
+	-- TradeMaxCats a side, both players at TradeMinTier or higher (CatCafeDebug tradeMinTier lowers it in one server).
+	-- A request waits TradeRequestSeconds; declined or timed out, the asker waits TradeReaskSeconds to ask that player
+	-- again. TradeCountdownSeconds after both press Ready the confirm screen opens; a lopsided trade (one side gives at
+	-- least TradeLopsidedRatio times the Collector value it gets) or a gift holds that side's Confirm for
+	-- TradeConfirmWaitSeconds. TradeCooldownSeconds between a player's trades, TradesPerDay a UTC day. The Trades page
+	-- keeps TradeLogMax trades, the save TradeIdsMax applied trade ids. Every server reads the CatCafe_Flags kill switch
+	-- every TradeFlagCheckSeconds.
+	TradeMinTier = 3,
+	TradeMaxCats = 9,
+	TradeCountdownSeconds = 5,
+	TradeLopsidedRatio = 3,
+	TradeConfirmWaitSeconds = 2,
+	TradeRequestSeconds = 20,
+	TradeReaskSeconds = 60,
+	TradeCooldownSeconds = 10,
+	TradesPerDay = 50,
+	TradeFlagCheckSeconds = 60,
+	TradeLogMax = 20,
+	TradeIdsMax = 100,
 
 	-- The camp extras (F100, camp-extras.md sections 2 and 4), each filling while the player is away up to its hold.
 	-- The Picnic Basket (Park) bags one PicnicPotion (Design-Agent 11-02: the 10 minute Money Potion) every
@@ -531,10 +562,12 @@ local Config = {
 		-- The hometown's back edge (v4, F84, hometown-cannon.md section 2): a fence at |x| TownEdgeX behind each row of
 		-- cafes' yards, where the back alleys began until v4.
 		TownEdgeX = 63,
-		-- The Alleyway's set (v4, F84, section 6a): its two lanes keep their v3.2 numbers, at |x| AlleyInnerX..AlleyOuterX
-		-- from AlleySouthZ to AlleyNorthZ in lane space, and the set stands in the wild with its middle at (AlleyCenterX,
-		-- AlleyCenterZ), each lane AlleyLaneShift nearer the middle than in lane space, so a 30 stud block of building
-		-- backs stands between them. Its camp is across both lanes' north ends.
+		-- The Alleyway's set (v4, F84, section 6a): laid out in lane space, the v3.2 back alleys' numbers (|x|
+		-- AlleyInnerX..AlleyOuterX from AlleySouthZ to AlleyNorthZ), and stood in the wild with its middle at
+		-- (AlleyCenterX, AlleyCenterZ), everything AlleyLaneShift nearer the middle than in lane space. Since F85
+		-- (Derek 2026-11-02: one big lane, not two) the block of building backs between the old lanes is gone, so the
+		-- Alleyway is one lane 2 * (AlleyOuterX - AlleyLaneShift) = 90 wide, its camp across the north end with one way
+		-- in, AlleyWayHalfWidth either side of the middle, under the street arch.
 		AlleyInnerX = 63,
 		AlleyOuterX = 93,
 		AlleySouthZ = -125.5,
@@ -542,7 +575,7 @@ local Config = {
 		AlleyCenterX = -1400,
 		AlleyCenterZ = -1400,
 		AlleyLaneShift = 48,
-		AlleyPassageDepth = 12, -- the way through the block between the lanes, at the far (south) end
+		AlleyWayHalfWidth = 20.3,
 		-- The wild areas (v4, F84, hometown-cannon.md section 6a): each v3.2 set moved WildAreaDistance out from the
 		-- Town Square in the same place, the Park south, the Neighbourhood north, the Woods west and the Sewer east, so
 		-- none is in view of the town or of another. Only the Cat Cannon reaches them. Each keeps its gate on its town
@@ -552,16 +585,18 @@ local Config = {
 		ParkCenterZ = -2000,
 		ParkWidth = 120,
 		ParkDepth = 310,
-		-- The Woods (v3.2: 240 x 240) with its camp on its east side, the Sewer (180 x 180) with its camp on its west. Their
-		-- gates keep the 24 wide openings they had in the back alleys' outer walls (SideGateHalfWidth either side).
+		-- The Woods and the Sewer (F85, hometown-cannon.md section 6b): long, the Woods 160 wide and 490 deep with its
+		-- camp on its east side, the Sewer 120 wide and 570 deep with its camp on its west, so their depth runs along
+		-- world X. Their gates keep the 24 wide openings they had in the back alleys' outer walls (SideGateHalfWidth
+		-- either side).
 		WoodsCenterX = -2000,
 		WoodsCenterZ = 0,
-		WoodsWidth = 240,
-		WoodsDepth = 240,
+		WoodsWidth = 160,
+		WoodsDepth = 490,
 		SewerCenterX = 2000,
 		SewerCenterZ = 0,
-		SewerWidth = 180,
-		SewerDepth = 180,
+		SewerWidth = 120,
+		SewerDepth = 570,
 		SideGateHalfWidth = 12,
 		-- The Neighbourhood (F85, hometown-cannon.md section 6b): long, 180 wide and 430 deep, its camp on its south side.
 		NeighbourhoodCenterX = 0,

@@ -1,7 +1,7 @@
 """The F84 camps (docs/design/cat-cafe/hometown-cannon.md sections 4 and 6a): each wild area's safe landing camp,
 added in front of its moved v3.2 set. In F84 the old gate is the camp's way out and its arch the name arch, so a
 camp is the ground, low side and back walls, the landing pad, a carrier basket and a few props in the area's theme.
-The Alleyway's camp lies across both back alleys' north ends, with the block of building backs between them.
+The Alleyway's camp lies across the north end of its one lane (Derek 11-02: one big lane, not two), 90 wide.
 
   CatCafe_Camp_<Area>   in area space (areakit): place it with the same CFrame as the area's set, at the area's centre
                         on its floor with -Z toward the camp. The gate line is z G = -(depth / 2 + 1); the camp is
@@ -19,8 +19,8 @@ Spots (manifest points_roblox, area space [x, height, z]): `pad` (the pad's cent
 CatCafe_Camp_Cannon_<Area> stands, barrel at rest +Z), `basket`, `index_board` (the area's Index Board beside the way
 out, front -Z into the camp). The manifest's `camp` entry has the rect and the opening.
 
-Theme props: the Alleyway a brick building end on the block between the two ways out (windows with shutters and
-flower boxes either side of the Index Board that stands in front of it), string lights over both ways out, a
+Theme props: the Alleyway low brick walls on the camp line from the way in (x +-20.5, where Gameplay's 40.6 wide
+CatCafe_Alley_ArchStreet stands) to the side walls, flower beds along them, one string of lights across the camp, a
 dumpster, bin bags, trash cans, crates, boxes and puddles, benches, lamps and flower beds; Park benches, lamps,
 trees and flower beds; Neighbourhood a mailbox, picket fences, lamp posts, flower
 beds and recycling bins; Woods a tent, a campfire with log benches, lanterns and pines; Sewer a manhole, a big pipe,
@@ -28,12 +28,13 @@ wall lanterns, barrels, cones and tyres.
 
 CatCafe_Camp_ParkF85 is the Park's camp for F85's long Park (parkf85.py, CatCafe_Park_SetF85, 120 x 310): the same
 camp 120 wide, in front of the 24 stud way out, placed with the long set's CFrame. CatCafe_Camp_NeighbourhoodF85 is
-the same for the long Neighbourhood (neighbourhoodf85.py, 180 x 430).
+the same for the long Neighbourhood (neighbourhoodf85.py, 180 x 430), CatCafe_Camp_WoodsF85 for the long Woods
+(woodsf85.py, 160 x 490) and CatCafe_Camp_SewerF85 for the long Sewer (sewerf85.py, 120 x 570).
 """
 
 import math
 
-from mathutils import Matrix, Vector
+from mathutils import Vector
 
 import alley
 import alleyway
@@ -50,14 +51,13 @@ from plot import rot_x, rot_y
 DEPTH = 30.0
 WALL_H, BARRIER_H = 3.5, 30.0
 PAD_IN, CANNON_IN = 12.0, 24.5          # the pad's centre and the cannon's spot, in from the gate line
-BLOCK_K = 0.92                           # the Alleyway block end's scale: 28.2 wide on the 30 stud block
 BASKET_X = -11.0
 # width, depth (the v3.2 set), the way out's half width, ground, path, wall, wall top, the area's colour
 AREAS = {
-    # two 30 stud back alleys (x 15 to 45 either side) and the 30 stud block of building backs between them; the
-    # set's floor ends at the lanes' north ends (z -D / 2), where the game's gate line and the lane arches stand
-    "Alleyway": dict(W=90.0, D=251.0, half=15.0, ground="concrete", path="paving_sand", wall="brick",
-                     top="concrete", trim="neon_pink", lanes=(-30.0, 30.0)),
+    # one lane 90 wide (until 11-02 two 30 stud back alleys with a block of building backs between them); the set's
+    # floor ends at the lane's north end (z -D / 2), where the game's gate line and the 40.6 wide arch stand
+    "Alleyway": dict(W=90.0, D=251.0, half=20.3, ground="concrete", path="paving_sand", wall="brick",
+                     top="concrete", trim="neon_pink", apron=True),
     "Park": dict(W=160.0, D=120.0, half=16.0, ground="leaf_green", path="paving_sand", wall="paving_grout",
                  top="leaf_dark", trim="paw_park", theme="Park"),
     # F85 (hometown-cannon.md 6b): the long Park, 120 x 310 behind a 24 stud opening (Config.World.CampOpeningWidth)
@@ -69,9 +69,15 @@ AREAS = {
     "NeighbourhoodF85": dict(W=180.0, D=430.0, half=12.0, ground="leaf_green", path="paving_light", wall="brick",
                              top="offwhite", trim="paw_neighbourhood", theme="Neighbourhood"),
     "Woods": dict(W=240.0, D=240.0, half=12.0, ground="fur_moss", path="fur_sand", wall="caramel_wood",
-                  top="dark_wood", trim="paw_woods"),
+                  top="dark_wood", trim="paw_woods", theme="Woods"),
+    # F85: the long Woods, 160 x 490 behind its 24 stud gate
+    "WoodsF85": dict(W=160.0, D=490.0, half=12.0, ground="fur_moss", path="fur_sand", wall="caramel_wood",
+                     top="dark_wood", trim="paw_woods", theme="Woods"),
     "Sewer": dict(W=180.0, D=180.0, half=12.0, ground="concrete_dark", path="concrete", wall="brick",
-                  top="concrete", trim="paw_sewer"),
+                  top="concrete", trim="paw_sewer", theme="Sewer"),
+    # F85: the long Sewer, 120 x 570 behind its 24 stud gate
+    "SewerF85": dict(W=120.0, D=570.0, half=12.0, ground="concrete_dark", path="concrete", wall="brick",
+                     top="concrete", trim="paw_sewer", theme="Sewer"),
 }
 CAMPS = {}               # asset -> the manifest's camp entry
 ATTACHMENTS = {}         # asset -> [(object suffix, name, Roblox point, Roblox rotation)]
@@ -127,7 +133,7 @@ def _wall(g, bar, x0, z0, x1, z1, look):
     if look.get("theme") == "Park":                                      # a stone base under a clipped hedge
         g.span((x0, 0, z0), (x1, 1.2, z1), wall)
         g.span((x0 + 0.05, 1.2, z0 + 0.05), (x1 - 0.05, WALL_H, z1 - 0.05), top)
-    elif look is AREAS["Woods"]:                                          # planks, a capping rail
+    elif look.get("theme") == "Woods":                                    # planks, a capping rail
         g.span((x0 + 0.1, 0, z0 + 0.1), (x1 - 0.1, WALL_H - 0.3, z1 - 0.1), wall)
         g.span((x0, WALL_H - 0.3, z0), (x1, WALL_H, z1), top)
     else:                                                                 # brick under a coping
@@ -158,7 +164,7 @@ def build_camp(area):
         s = Set(name)
         g, bar = RB(), RB()
         g.span((-W / 2 - 1, -1, B - 1), (W / 2 + 1, 0, near), look["ground"])               # the camp's ground
-        if "lanes" in look:                                                # an apron in front of both ways out
+        if look.get("apron"):                                              # an apron along the way in
             g.span((-W / 2 + 0.5, 0, G - 5), (W / 2 - 0.5, 0.02, near), look["path"])
             g.span((-14, 0, G - PAD_IN - 9), (14, 0.02, G - 5), look["path"])                # round the pad
         else:
@@ -169,7 +175,11 @@ def build_camp(area):
         for sx in (1, -1):
             _wall(g, bar, min(sx * (W / 2 - 0.5), sx * (W / 2 + 0.5)), B - 1,
                   max(sx * (W / 2 - 0.5), sx * (W / 2 + 0.5)), near, look)                     # side walls
-        if area == "Woods":
+        if look.get("apron"):                     # the camp line's walls either side of the way in (the arch's posts)
+            for sx in (1, -1):
+                x0, x1 = sorted((sx * (half + 0.2), sx * (W / 2 - 0.5)))
+                _wall(g, bar, x0, G, x1, near, look)
+        if look.get("theme") == "Woods":
             _posts(g, -W / 2 + 1, B, W / 2 - 1, B, 6.0, (0, 1))
             for sx in (1, -1):
                 _posts(g, sx * (W / 2 - 0.5), B + 2, sx * (W / 2 - 0.5), near - 1, 6.0, (-sx, 0))
@@ -183,10 +193,7 @@ def build_camp(area):
         s.mark("pad", 0, G - PAD_IN)
         s.mark("cannon", 0, B + (DEPTH - CANNON_IN))
         s.mark("basket", bx, bz)
-        if "lanes" in look:                       # between the two ways out, in front of the block (Layout)
-            s.mark("index_board", 0, near - 4)
-        else:
-            s.mark("index_board", -(half + 7), G - 1.5)
+        s.mark("index_board", -(half + 7), G - 1.5)
         _theme(s, mat, area, G, B, W, half)
         objs = s.finish(g, mat)
         objs.append(bar.finalize(name + "_Barrier", mat))
@@ -196,35 +203,13 @@ def build_camp(area):
     return build
 
 
-def _block_end(mat):
-    """The end of the block of building backs between the Alleyway's two lanes, facing the camp: a brick building end
-    (alleyway._facade) with two shuttered windows and flower boxes either side of the middle, where the Index Board
-    stands 4 out, and two small windows above them. Pivot on the back plane (local z 0) at the bottom centre, front
-    -Z; built 30 wide and scaled by BLOCK_K so its cornice stays clear of the lane arches' posts."""
-    name = "CatCafe_Alley_BlockEnd"
-    b, flowers = RB(), RB()
-    alleyway._facade(b, 12.0)
-    for sx in (1, -1):
-        alleyway._window(b, None, sx * 10.0, 3.8, 7.4, curtain="blush", shutters="sign_teal", flowers=flowers)
-        alleyway._window(b, None, sx * 10.0, 9.0, 10.9, w=2.6, curtain="pastel_butter")
-    alleyway._drainpipe(b, -12.9, 12.0)
-    return [b.finalize(name, mat), flowers.finalize(name + "_Flowers", mat)]
-
-
-def _scaled(objs, k):
-    """Objects a piece builder returned, scaled by k about the piece's pivot before Set.put places them."""
-    for ob in objs:
-        ob.matrix_world = Matrix.Diagonal((k, k, k, 1.0)) @ ob.matrix_world
-    return objs
-
-
 def _theme(s, mat, area, G, B, W, half):
     cz = B + (DEPTH - CANNON_IN)                                           # the cannon's z
     if area == "Alleyway":
-        near = G + 1                                                       # the lanes' ends and the block's face
-        s.put(_scaled(_block_end(mat), BLOCK_K), 0, near, 0)               # the block's end, behind the board
+        s.put(alleyway.build_string_lights_wide(mat), 0, G - 6, 0)          # across the camp
+        for x in (-41.0, -35.5, 27.5, 35.5, 41.0):                          # along the camp line's walls, clear of
+            s.put(nb.flowerbed(mat), x, G - 1.6, 0)                          # the Index Board at x -27.3
         for sx in (1, -1):
-            s.put(alleyway.build_string_lights_long(mat), sx * 29.5, G - 6, 0)   # over each way out
             s.put(square.build_lamp(mat), sx * 9, cz, 0)
             s.put(park.build_park_bench(mat), sx * 16, G - PAD_IN - 2, 90 * sx)
             s.put(nb.flowerbed(mat), sx * 22, B + 2.5, 180)
@@ -264,20 +249,21 @@ def _theme(s, mat, area, G, B, W, half):
             for x in (x for x in (60, 90, 120) if x < W / 2 - 6):
                 s.put(park.build_tree(mat), sx * x, B + 8, 0)
             s.put(nb.hedge(mat, 6.0), sx * (W / 2 - 4), G - 10, 90)
-    elif area == "Woods":
+    elif AREAS[area].get("theme") == "Woods":
         s.put(woods.tent(mat, "fur_orange"), 20, G - 21, 112)
         s.put(woods.campfire(mat), 15, G - 11, 0)
         s.put(woods.log_bench(mat), 15, G - 6.5, 0)
         s.put(woods.log_bench(mat), 20.5, G - 11, 90)
         for sx in (1, -1):
-            s.put(woods.lantern(mat), sx * (half + 2), G - 1.5, 90 - 90 * sx)
+            # the west one stands past the Index Board (Layout: 4 beside the way out, 4 in, turned -20), clear of it
+            s.put(woods.lantern(mat), sx * (half + (2.0 if sx > 0 else 11.5)), G - 1.5, 90 - 90 * sx)
             s.put(woods.lantern(mat), sx * 9, cz, 90 - 90 * sx)
-            for x in (30, 50, 70, 90, 110):
+            for x in (x for x in (30, 50, 70, 90, 110) if x < W / 2 - 6):
                 s.put(woods.pine(mat, h=18.0), sx * x, B + 5, 0)
         s.put(woods.stump(mat), -22, G - 20, 0)
         s.put(woods.fern(mat), -26, G - 8, 0)
         s.put(woods.fern(mat), 28, G - 4, 40)
-    elif area == "Sewer":
+    elif AREAS[area].get("theme") == "Sewer":
         s.put(_manhole(mat), 18, G - 8, 0)
         s.put(sw.pipe_large(mat), -30, B + 3, 0)
         for sx in (1, -1):

@@ -251,7 +251,8 @@ export type PlayerState = {
 	rainbowLuck: number?, -- F99: the Index's rainbow luck, capped (RainbowLuckMax), as a fraction
 	carrying: string?, -- catId while carrying a stray home (HUD banner)
 	tutorialStep: number?,
-	settings: { [string]: boolean | number }?, -- profile.settings (shared/Settings): switches and 0 to 1 volumes
+	settings: { [string]: boolean | number | string }?, -- profile.settings (shared/Settings): switches, 0 to 1 volumes, tradeRequests
+	tradeLog: { TradeLogEntry }?, -- F102: the last 20 trades, for the Trades page
 	indexRewards: { [string]: { [string]: boolean } }?, -- F48: area id -> milestone id -> true once claimed
 	spin: SpinState?, -- F49: the free spin and the banked ones
 	goldenFish: number?, -- F52: the rare currency; nil hides its HUD counter
@@ -300,7 +301,8 @@ export type PartialState = {
 	rainbowLuck: number?,
 	carrying: string?,
 	tutorialStep: number?,
-	settings: { [string]: boolean | number }?,
+	settings: { [string]: boolean | number | string }?,
+	tradeLog: { TradeLogEntry }?,
 	indexRewards: { [string]: { [string]: boolean } }?,
 	spin: SpinState?,
 	goldenFish: number?,
@@ -343,6 +345,8 @@ export type ScreenName =
 	| "Quests"
 	| "DailyTreat"
 	| "YardSale" -- F100: the Yard Sale's card, opened by its prompt (UI.campExtras.openYardSale)
+	| "Trade" -- F102: the players to trade with, then the trade window (UI.trade)
+	| "TradeLog" -- F102: the last 20 trades, opened from Settings
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 
@@ -528,6 +532,19 @@ export type YardSaleCrate = SharedTypes.YardSaleCrate
 -- The Rescue Rally (F101, rescue-rally.md section 5) as RallyState sends it (shared/Types): active, endsAt (0 when
 -- none runs), startsAt, lap, goal, points, myPoints, lapsPaid and lapsDone.
 export type RallyState = SharedTypes.RallyState
+
+-- F102 trading (trading.md section 6), from shared/Types since TradeService landed (#850). TradeTile: one cat in an
+-- offer as the viewer sees it (`rateForMe` is what it earns a second in the viewer's cafe). TradeSide: one player's
+-- side (`name` is the display name). TradeState is what TradeState(state?) sends, nil closing the window: `me` is the
+-- viewer's side, `version` goes up on every change and goes back with Ready and Confirm, `changed` is the last add or
+-- take away (server time) for the yellow flash, giveValue and getValue are the Collector's values, `lopsided` and
+-- `gift` the server's warnings and `confirmAt` the server time from which the viewer's Confirm counts. TradeCat is a
+-- cat in TradeDone and the trade log; TradeLogEntry one trade on the Trades page (`at` is os.time()).
+export type TradeTile = SharedTypes.TradeTile
+export type TradeSide = SharedTypes.TradeSide
+export type TradeState = SharedTypes.TradeStateView
+export type TradeCat = SharedTypes.CatSummary
+export type TradeLogEntry = SharedTypes.TradeLogEntry
 
 -- ModuleScripts must return a non-nil value.
 return {}

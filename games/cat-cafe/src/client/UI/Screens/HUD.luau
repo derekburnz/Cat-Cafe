@@ -3,7 +3,7 @@
 --   bottom left   the money with the rate beside the amount, then the golden fish (F52), one row in the corner
 --                 (Derek 2026-10-28); a tap on the money opens the boosts card (Components/BoostList: what lifts the
 --                 cafe's money, the exact amount on top), a tap on the golden fish shows its exact amount; the potion
---                 timers sit over the row, or beside the menu's top on a short screen, led by the Luck chip (F88,
+--                 timers sit over the row, or beside the menu's arrow tab on a short screen, led by the Luck chip (F88,
 --                 Screens/LuckChip: "🍀 Luck x1.3" from the first Luck source, a tap opens its card)
 --   top right     small icon buttons (Tutorial, Gifts, Daily, Feedback, Settings, Invite), the day and night clock
 --                 under them with the next Lucky Day under it (F88: "🍀 Lucky Day in 2 days"),
@@ -53,6 +53,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
+local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -67,6 +68,7 @@ local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
+local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -148,10 +150,16 @@ local PILL_H = 54
 local PILL_ICON = 36 -- the pictures on the pills and the bottom row are bigger than their text (Derek 2026-10-27)
 local TRAVEL_ICON = 28
 local TRAVEL_W = 136
+local BOWL_W = 150 -- the bait bowl chip, bottom right (moved clear of Roblox's jump button on a phone: _placeBowl)
+local BOWL_H = 64
 local TRAVEL_H = 50 -- every bottom row button, My Cafe too (Derek 2026-10-27 22:26: no bigger, no ears)
 local TRAVEL_ROW_W = 4 * TRAVEL_W + 3 * Theme.sizes.gap
-local ICON = 58 -- top right icon buttons
-local ICON_ROW_W = 6 * ICON + 5 * Theme.sizes.gap -- Tutorial, Gifts, Daily (F70), Feedback, Settings and Invite
+-- top right icon buttons; on a phone a little bigger, so each face reaches a finger's 44 px under its lip (F102 took
+-- them out of the UI gate's baseline)
+local ICON = Scale.tapHeight(58)
+local ICON_H = Scale.tapHeight(58, Theme.sizes.buttonDepth)
+-- Tutorial, Gifts, Daily (F70), Feedback, Settings, Trade (F102, from TradeMinTier) and Invite
+local ICON_ROW_W = 7 * ICON + 6 * Theme.sizes.gap
 local HIDE_HIT = 30 -- the Tutorial tile's × takes taps this big round its 20 px red dot
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
 local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
@@ -169,7 +177,7 @@ local CARRY_SUB = "Walk home and check in at your door"
 -- F19: the server allows one trip per 3 s; the row greys for the same time so a double tap is not refused
 local TRAVEL_COOLDOWN: number = Config.TravelCooldownSeconds
 -- right column: icon row (58), the clock line, then the tier and next goal block; the night tips line pushes it down
-local CLOCK_TOP = MARGIN + ICON + Theme.sizes.gap
+local CLOCK_TOP = MARGIN + ICON_H + Theme.sizes.gap
 local CLOCK_H = 30
 local CLOCK_W = 200
 local GOAL_TOP = CLOCK_TOP + CLOCK_H + 6
@@ -357,7 +365,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		})
 	end
 	local money = counter("Money", 1)
-	-- the gold coin badge, then the amount with the rate beside it on one line ("$610  +$1.7/s")
+	-- the gold coin badge, then the amount. The rate per second shows only in the boosts card a tap opens (Derek
+	-- 2026-11-02: "how much per second should be hidden until clicked also").
 	local coin: Frame = Create("Frame", {
 		Name = "Coin",
 		BackgroundColor3 = Theme.colors.gold,
@@ -382,7 +391,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(0, MONEY_H),
 		AutomaticSize = Enum.AutomaticSize.X,
-		ClipsDescendants = true,
 		LayoutOrder = 2,
 		Parent = money,
 	}, {
@@ -392,8 +400,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			Padding = UDim.new(0, 8),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		-- a very long amount and rate stop here, as the old fixed counter did
+		-- no clip, so the last letter and its dark outline always show whole ("$1.23B" was cut, Derek 2026-11-02);
+		-- the amount is short (Format.money), and the golden fish keeps clear of the widest one
 		Create("UISizeConstraint", { MaxSize = Vector2.new(MONEY_W - COUNTER_COIN - 8, MONEY_H) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 5) }),
 	})
 	self._moneyText = label({
 		Name = "Amount",
@@ -403,17 +413,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		TextTruncate = Enum.TextTruncate.None,
 		Text = Format.money(0),
 		LayoutOrder = 1,
-		Parent = line,
-	})
-	self._incomeText = label({
-		Name = "Income",
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 22),
-		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.hud.income,
-		TextTruncate = Enum.TextTruncate.None,
-		Text = "",
-		LayoutOrder = 2,
 		Parent = line,
 	})
 
@@ -439,7 +438,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = fish,
 	})
 
-	-- Potion timers (F64): a chip per running potion over the counters (beside the menu's top on a short screen);
+	-- Potion timers (F64): a chip per running potion over the counters (beside the menu's arrow tab on a short screen);
 	-- a tap opens the potion bag
 	self._buffs = BuffChips.new(root, MARGIN, function()
 		callbacks.openScreen("Potions")
@@ -494,7 +493,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -MARGIN, 0, MARGIN),
-		Size = UDim2.fromOffset(ICON_ROW_W, ICON),
+		Size = UDim2.fromOffset(ICON_ROW_W, ICON_H),
 		Parent = root,
 	}, {
 		Create("UIListLayout", {
@@ -516,7 +515,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		layout = "tile",
 		textSize = Theme.sizes.textTiny,
 		style = "gold",
-		size = UDim2.fromOffset(ICON, ICON),
+		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 1,
 		parent = icons,
 		onClick = function()
@@ -578,7 +577,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		layout = "tile",
 		textSize = Theme.sizes.textTiny,
 		style = "berry",
-		size = UDim2.fromOffset(ICON, ICON),
+		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 2,
 		parent = icons,
 		sound = false, -- the modal swish is the sound
@@ -620,7 +619,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		layout = "tile",
 		textSize = Theme.sizes.textTiny,
 		style = "primary",
-		size = UDim2.fromOffset(ICON, ICON),
+		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 3,
 		parent = icons,
 		sound = false, -- the modal swish is the sound
@@ -652,7 +651,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		layout = "tile",
 		textSize = Theme.sizes.textTiny,
 		style = "gold",
-		size = UDim2.fromOffset(ICON, ICON),
+		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 4,
 		parent = icons,
 		sound = false, -- the modal swish is the sound
@@ -670,7 +669,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			layout = "tile",
 			textSize = Theme.sizes.textTiny,
 			style = "ghost",
-			size = UDim2.fromOffset(ICON, ICON),
+			size = UDim2.fromOffset(ICON, ICON_H),
 			layoutOrder = 5,
 			parent = icons,
 			onClick = function()
@@ -685,14 +684,33 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		layout = "tile",
 		textSize = Theme.sizes.textTiny,
 		style = "secondary",
-		size = UDim2.fromOffset(ICON, ICON),
-		layoutOrder = 6,
+		size = UDim2.fromOffset(ICON, ICON_H),
+		layoutOrder = 7,
 		parent = icons,
 		onClick = function()
 			Invite.prompt() -- F92: with this player's name in the launch data
 		end,
 	})
 	table.insert(self._buttons, self._inviteTile)
+	-- F102 (trading.md section 3): the Trade window, from TradeMinTier (Workspace's live value, so a test server's
+	-- lower minimum shows it too); hidden below it
+	self._tradeTile = Button.new({
+		name = "Trade",
+		text = "Trade",
+		icon = TradeLogic.ICON,
+		layout = "tile",
+		textSize = Theme.sizes.textTiny,
+		style = "primary",
+		size = UDim2.fromOffset(ICON, ICON_H),
+		layoutOrder = 6,
+		parent = icons,
+		sound = false, -- the modal swish is the sound
+		onClick = function()
+			callbacks.openScreen("Trade")
+		end,
+	})
+	self._tradeTile.instance.Visible = false
+	table.insert(self._buttons, self._tradeTile)
 
 	-- Clock (top right, under the icon row): the sun or moon and the time to the next phase (F20), right-aligned
 	-- outlined text with no chip behind it ("☀ Day 3:29")
@@ -1085,7 +1103,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 1),
 		Position = UDim2.new(1, -MARGIN, 1, -MARGIN),
-		Size = UDim2.fromOffset(150, 64),
+		Size = UDim2.fromOffset(BOWL_W, BOWL_H),
 		Parent = root,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
@@ -1652,6 +1670,11 @@ end
 
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
+	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
+	-- the Workspace's TradingOn; while that is false the window says trading is resting)
+	self._tradeTile.instance.Visible = self:_open("invite")
+		and Workspace:GetAttribute("TradingOn") ~= nil
+		and TradeLogic.shown(state.tier, TradeLogic.minTier(Workspace:GetAttribute("TradeMinTier")))
 
 	-- money with a little green flash when it goes up
 	self._moneyText.Text = Format.money(state.money)
@@ -1694,7 +1717,6 @@ function HUD.render(self: any, state: Types.PlayerState)
 	if catalog then
 		distinct, total = IndexRewards.book(catalog, state)
 	end
-	self._incomeText.Text = Format.rate(state.incomePerSecond)
 
 	-- the tier and next goal block: "Tier 1 · Corner Cafe", then the next tier's requirements, or the tier alone
 	local tierProgress: RankUp.Progress? = nil
@@ -2524,13 +2546,7 @@ function HUD._layoutMenu(self: any)
 	local block = if roomy then menuH + foldUnder else menuH
 	self._menuTop = MARGIN + math.max(0, math.floor((band - block) / 2))
 	self._foldBeside = not roomy
-	if not roomy then
-		-- level with the first pill, right of the menu
-		self._buffs:place(
-			UDim2.fromOffset(MARGIN + PILL_W + 12, self._menuTop + PILL_H / 2),
-			Vector2.new(0, 0.5)
-		)
-	end
+
 	self._menu.Position =
 		UDim2.new(0, if self._menuFolded then MENU_FOLDED_X else MARGIN, 0, self._menuTop)
 	self:_placeMenuFold()
@@ -2549,15 +2565,59 @@ function HUD._layoutMenu(self: any)
 		self._travelFold.instance.Position =
 			UDim2.new(0.5, self._travelShift + rowW / 2 + gap, 1, -MARGIN)
 	end
+	self:_placeBowl()
+end
+
+-- The bait bowl chip sits in the bottom right corner, except where Roblox's touch jump button would cover it (a phone:
+-- the jump button is drawn in screen pixels, Components/NetButtonPlace). There it moves up and left, its right edge
+-- left of where the Net button shows and its foot over the bottom row, so a thumb on jump or Net never lands on it.
+-- A tablet's bigger jump button sits higher, over the chip, so the corner stays.
+function HUD._placeBowl(self: any)
+	local bowl: TextButton = self._bowlSlot
+	local corner = UDim2.new(1, -MARGIN, 1, -MARGIN)
+	local camera = Workspace.CurrentCamera
+	local root: Frame = self._root
+	local scale = Scale.get()
+	if not Scale.isTouch() or camera == nil or scale <= 0 or root.AbsoluteSize.Y <= 0 then
+		bowl.Position = corner
+		return
+	end
+	-- the root's corner in screen pixels (GUI space starts under the top bar inset)
+	local inset = GuiService:GetGuiInset()
+	local left = root.AbsolutePosition.X + inset.X
+	local top = root.AbsolutePosition.Y + inset.Y
+	local width = root.AbsoluteSize.X / scale
+	local height = root.AbsoluteSize.Y / scale
+	local viewport = camera.ViewportSize
+	local jumpAt, jumpSize = NetButtonPlace.jump(viewport)
+	local chipX = left + (width - MARGIN - BOWL_W) * scale
+	local chipY = top + (height - MARGIN - BOWL_H) * scale
+	local covered = chipX < jumpAt.X + jumpSize
+		and chipX + BOWL_W * scale > jumpAt.X
+		and chipY < jumpAt.Y + jumpSize
+		and chipY + BOWL_H * scale > jumpAt.Y
+	if not covered then
+		bowl.Position = corner
+		return
+	end
+	local netAt = NetButtonPlace.place(viewport)
+	local right = (netAt.X - NetButtonPlace.GAP - left) / scale -- design px from the root's left edge
+	local foot = height - MARGIN - TRAVEL_H - Theme.sizes.gap
+	bowl.Position = UDim2.fromOffset(math.floor(right), math.floor(foot))
 end
 
 -- The menu's arrow tab: under the menu, or beside its last pill on a short screen; at the edge once folded.
+-- On a short screen the luck, potion and pal chips follow the tab, just over the counters as on a PC (Derek
+-- 2026-11-02: "the luck on mobile should be moved somewhere better"; it sat by the Cats pill at the top, on its own),
+-- clear of the thumbstick, the jump and Net buttons and the right column.
 function HUD._placeMenuFold(self: any)
 	local fold = self._menuFold.instance
 	local menuH = self._menu.Size.Y.Offset
 	if self._foldBeside then
 		local x = if self._menuFolded then MARGIN else MARGIN + PILL_W + Theme.sizes.gap
-		fold.Position = UDim2.fromOffset(x, self._menuTop + menuH - (PILL_H + FOLD_H) / 2)
+		local middle = self._menuTop + menuH - PILL_H / 2
+		fold.Position = UDim2.fromOffset(x, middle - FOLD_H / 2)
+		self._buffs:place(UDim2.fromOffset(x + FOLD_W + 12, middle), Vector2.new(0, 0.5))
 	else
 		fold.Position = UDim2.fromOffset(MARGIN, self._menuTop + menuH + Theme.sizes.gap + 4)
 	end

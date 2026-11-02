@@ -30,9 +30,9 @@ return function()
 			end
 		)
 
-		it("words the favorite ask as starter-cat.md section 3 does, with a star", function()
+		it("words the favorite ask with the game's name and a star (starter-cat.md 3)", function()
 			expect(TipQueue.line(Tips.FAVORITE_ASK, "touch")).to.equal(
-				"Favorite Cat Cafe to find it fast next time"
+				"Favorite Catch a Cat Cafe to find it fast next time"
 			)
 			expect(TipQueue.icon(Tips.FAVORITE_ASK)).to.equal("⭐")
 			expect(TipQueue.ASK_SECONDS > TipQueue.CARD_SECONDS).to.equal(true)

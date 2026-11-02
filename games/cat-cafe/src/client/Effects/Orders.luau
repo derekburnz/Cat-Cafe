@@ -5,8 +5,11 @@
 -- machine, flour over the oven with its door window glowing warm and a light inside, a few cool twinkles at the
 -- counter for the milk and the sundae. When the item appears a ding sparkle bursts over it with a ring round its
 -- plate, in gold on the rich customer's gold-rimmed plate, and a bake's oven door swings open and shut with a waft of
--- steam. Your own cafe plays everything; other cafes in range only on a PC or console, as section 4 asks. Reduce
--- Motion keeps the door shut and the glow steady.
+-- steam. When the Waiter sets the dish on the table a few sparkles and a soft ring pop round the plate, under the
+-- customer's heart. In your own cafe, when a Waiter or Greeter sweeps a tip pile into its coin bag gold coins hop up
+-- off the table, and when it drops the bag in the till a gold burst and ring pop there. Your own cafe plays
+-- everything; other cafes in range only on a PC or console, as section 4 asks. Reduce Motion keeps the door shut and
+-- the glow steady.
 --
 -- Source: Gameplay-Engineer's `Moments.OrderMaking(plot, station, at, seconds)` when a Barista starts an order and
 -- `Moments.OrderReady(plot, station, at, item)` when its item appears on the counter. `station` is "espresso", "oven"
@@ -14,8 +17,12 @@
 -- (a part, an attachment or the Barista); `item` the CatCafe_Menu_<Id> model, with `Rich = true` or the
 -- CatCafe_Menu_GoldPlate inside it for the rich customer. Model-Agent's oven (#775) has the `DoorGlow` attachment on
 -- its door window and the door as a `_Door` child Model pivoted on its bottom hinge. Listening only: the door moves
--- on this client and goes back where it was. Numbers in Presets.orders and the budget's cafeOrders.
+-- on this client and goes back where it was. Serving and tips: `Moments.OrderServed(customer, itemId, position)`
+-- with the dish's spot on the table, and (your own cafe only) `Moments.TipSwept(cat, position)` at the pile and
+-- `Moments.TipBanked(cat, position)` at the till (Gameplay-Engineer's CafeOrders, #781). Numbers in Presets.orders
+-- and the budget's cafeOrders.
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -460,6 +467,80 @@ local function ready(plot: unknown, station: unknown, at: unknown, item: unknown
 	end
 end
 
+-- Serving and tips (F90 section 2 steps 3 and 5) ---------------------------------------------------------------
+
+-- Whether `at` is in this player's own cafe: within `plotReach` studs of the pivot of a Plot they own.
+local function inOwnCafe(at: Vector3): boolean
+	local player = Players.LocalPlayer
+	if player == nil then
+		return false
+	end
+	local reach = Presets.orders.plotReach
+	for _, plot in CollectionService:GetTagged("Plot") do
+		if
+			plot:IsA("Model")
+			and plot:GetAttribute("OwnerUserId") == player.UserId
+			and ((plot :: Model):GetPivot().Position - at).Magnitude <= reach
+		then
+			return true
+		end
+	end
+	return false
+end
+
+-- Moments.OrderServed: the dish set down on the customer's table, as the heart pops.
+local function served(_customer: unknown, _itemId: unknown, position: unknown)
+	if typeof(position) ~= "Vector3" then
+		return
+	end
+	local at = position :: Vector3
+	local o = Presets.orders
+	if
+		not Logic.orderPlays(
+			inOwnCafe(at),
+			Context.distance(at),
+			o.within,
+			0,
+			Context.budget.cafeOrders
+		)
+	then
+		return
+	end
+	local s = o.served
+	Particles.burst("dingSparkle", at + Vector3.new(0, s.above, 0), s.sparkles)
+	Particles.ring(at + Vector3.new(0, 0.05, 0), s.colour, s.ring, s.ringSeconds)
+end
+
+-- Moments.TipSwept (your own cafe): coins hop up off the table as the pile goes into the bag.
+local function swept(_cat: unknown, position: unknown)
+	if typeof(position) ~= "Vector3" then
+		return
+	end
+	local at = position :: Vector3
+	local o = Presets.orders
+	if Context.distance(at) > o.within then
+		return
+	end
+	Particles.burst("coinGlint", at + Vector3.new(0, o.sweep.above, 0), o.sweep.coins)
+	Particles.burst("dust", at, o.sweep.dust)
+end
+
+-- Moments.TipBanked (your own cafe): the bag lands in the till with a gold burst and a ring.
+local function banked(_cat: unknown, position: unknown)
+	if typeof(position) ~= "Vector3" then
+		return
+	end
+	local at = position :: Vector3
+	local o = Presets.orders
+	if Context.distance(at) > o.within then
+		return
+	end
+	local b = o.bank
+	Particles.burst("coinGlint", at + Vector3.new(0, b.above, 0), b.coins)
+	Particles.burst("dingSparkle", at + Vector3.new(0, b.above, 0), b.sparkles, b.colour)
+	Particles.ring(at + Vector3.new(0, 0.05, 0), b.colour, b.ring, b.ringSeconds)
+end
+
 function Orders.start()
 	if started then
 		return
@@ -472,6 +553,18 @@ function Orders.start()
 	local onReady = (Moments :: any).OrderReady
 	if onReady ~= nil then
 		onReady:Connect(ready)
+	end
+	local onServed = (Moments :: any).OrderServed
+	if onServed ~= nil then
+		onServed:Connect(served)
+	end
+	local onSwept = (Moments :: any).TipSwept
+	if onSwept ~= nil then
+		onSwept:Connect(swept)
+	end
+	local onBanked = (Moments :: any).TipBanked
+	if onBanked ~= nil then
+		onBanked:Connect(banked)
 	end
 	RunService.Heartbeat:Connect(step)
 end

@@ -16,6 +16,7 @@
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
 	  J tip jar         K index rewards     L spin wheel           R bug report
 	  P fish market     O fresh catch       T codes             X tips              Z bellhop cat
+	  V trade (two clients)  Keypad 1 claim all     Keypad 2 camp extras (stand in a camp)
 	  Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
@@ -46,7 +47,9 @@ end
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BugReport = require(Shared:WaitForChild("BugReport"))
+local CampExtras = require(Shared:WaitForChild("CampExtras"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local ClaimAll = require(Shared:WaitForChild("ClaimAll"))
 local Circles = require(Shared:WaitForChild("Circles"))
 local Codes = require(Shared:WaitForChild("Codes"))
 local Config = require(Shared:WaitForChild("Config"))
@@ -57,6 +60,7 @@ local NetSwing = require(Shared:WaitForChild("NetSwing"))
 local Prizes = require(Shared:WaitForChild("Prizes"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Spin = require(Shared:WaitForChild("Spin"))
+local Trade = require(Shared:WaitForChild("Trade"))
 local Types = require(Shared:WaitForChild("Types"))
 
 local player = Players.LocalPlayer
@@ -90,6 +94,7 @@ local events: { Event } = {}
 local state: Types.PlayerState? = nil
 local tipJar: Types.TipJarState? = nil -- the newest TipJarState (F47)
 local freshStock: Types.FreshCatchStock? = nil -- the newest FreshCatchStock (F94), nil at night
+local campState: Types.CampExtrasState? = nil -- the newest CampExtrasState (F100), sent on join
 local running: string? = nil
 local lastSyncAt = 0 -- os.clock() of the newest ProfileSync
 local lastSwingAt = -math.huge -- os.clock() of the newest SwingNet this script fired
@@ -5807,6 +5812,369 @@ end
 
 -- Every report this case sends starts with "[QA abuse]". From Studio they save under s_ keys, apart from the
 -- testers' reports (BugReport.prefix).
+-- F102 trading (trading.md sections 3 and 4; TradeService, engineer PR #854) ------------------------------------
+
+type TradeView = Types.TradeStateView
+
+-- A uid in the cats' shape that no save holds, and a GUID-shaped trade or request id nobody holds.
+local FAKE_UID = "0000beef-abc"
+local FAKE_TRADE = "00000000-0000-0000-0000-000000000000"
+
+local function tradeText(view: TradeView?): string
+	if view == nil then
+		return "closed"
+	end
+	local mine: { string } = {}
+	for _, tile in view.me.cats do
+		table.insert(mine, tile.uid)
+	end
+	return string.format(
+		"v%d %s mine=[%s] ready=%s confirmed=%s",
+		view.version,
+		view.phase,
+		table.concat(mine, ","),
+		tostring(view.me.ready),
+		tostring(view.me.confirmed)
+	)
+end
+
+-- The newest TradeState since `startedAt` that holds a trade, or nil.
+local function lastTrade(startedAt: number): TradeView?
+	local found: TradeView? = nil
+	for _, event in since(startedAt, "TradeState") do
+		found = event.data
+	end
+	return found
+end
+
+-- My cats that may go on offer (unlocked, not exclusive), and one locked and one exclusive cat if I have them.
+local function tradeCats(): ({ string }, string?, string?)
+	local open: { string } = {}
+	local locked, exclusive = nil, nil
+	if state ~= nil then
+		for uid, cat in state.cats do
+			local def = Catalog.getCat(cat.catId)
+			if def ~= nil and (def :: any).exclusive == true then
+				exclusive = uid
+			elseif cat.locked then
+				locked = uid
+			else
+				table.insert(open, uid)
+			end
+		end
+	end
+	table.sort(open)
+	return open, locked, exclusive
+end
+
+local function toastsLike(startedAt: number, text: string): number
+	local count = 0
+	for _, event in since(startedAt, "Toast") do
+		if string.find(event.text, text, 1, true) ~= nil then
+			count += 1
+		end
+	end
+	return count
+end
+
+case(
+	"trade",
+	Enum.KeyCode.V,
+	"Trading: junk, yourself, a request flood, other cats, stale versions, the confirm wait",
+	function()
+		if table.find(Remotes.ClientToServer, "TradeRequest") == nil then
+			return "SKIP", "no TradeRequest remote (engineer PR #854)"
+		end
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		local verdict: Verdict = "PASS"
+		local notes: { string } = {}
+		local catsBefore = catCount()
+
+		-- Alone: junk on every trade remote, 1.1 s apart for the 1 a second limits. Nothing opens and nothing moves.
+		-- `false` stands in for nil, which a table cannot hold in the middle.
+		local junk: { { any } } = {
+			{ "TradeRequest" },
+			{ "TradeRequest", "1" },
+			{ "TradeRequest", 0 },
+			{ "TradeRequest", -5 },
+			{ "TradeRequest", 0 / 0 },
+			{ "TradeRequest", 1e20 },
+			{ "TradeRequest", 4.5 },
+			{ "TradeRequest", {} },
+			{ "TradeRespond", FAKE_TRADE, true },
+			{ "TradeRespond", "not a guid", true },
+			{ "TradeRespond", string.rep("a", 41), true },
+			{ "TradeRespond", FAKE_TRADE, "yes" },
+			{ "TradeOffer", FAKE_TRADE, "add", FAKE_UID },
+			{ "TradeOffer", false, "add", FAKE_UID },
+			{ "TradeOffer", FAKE_TRADE, "steal", FAKE_UID },
+			{ "TradeOffer", FAKE_TRADE, "ADD", string.rep("z", 300) },
+			{ "TradeReady", FAKE_TRADE, 1, true },
+			{ "TradeReady", FAKE_TRADE, 0 / 0, true },
+			{ "TradeReady", FAKE_TRADE, "1", "true" },
+			{ "TradeConfirm", FAKE_TRADE, 1 },
+			{ "TradeConfirm", FAKE_TRADE, -1 },
+			{ "TradeCancel", FAKE_TRADE },
+			{ "TradeCancel", 5 },
+		}
+		local junkAt = os.clock()
+		for _, args in junk do
+			fire(table.unpack(args))
+			task.wait(1.1)
+		end
+		local selfAt = os.clock()
+		fire("TradeRequest", player.UserId)
+		waitFor(selfAt, "Toast", 2)
+		task.wait(0.3)
+		for _, name in { "TradeState", "TradeAsked", "TradeDone" } do
+			if #since(junkAt, name) > 0 then
+				return "FAIL", string.format("junk or a request to myself got a %s back", name)
+			end
+		end
+		if catCount() ~= catsBefore then
+			return "FAIL", "junk trade calls changed my cats"
+		end
+		if toastsLike(selfAt, Trade.Messages.self) == 0 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, "asking myself was refused but no toast said why")
+		end
+		table.insert(notes, string.format("%d junk calls and asking myself opened nothing", #junk))
+
+		-- With a second player: the rest needs one to accept (and later press Ready) on their own client.
+		local partner: Player? = nil
+		for _, other in Players:GetPlayers() do
+			if other ~= player then
+				partner = other
+				break
+			end
+		end
+		if partner == nil then
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ")
+					.. "; join a second client (Clients and Servers) for the two-player half"
+		end
+		local minTier = Workspace:GetAttribute("TradeMinTier")
+		if type(minTier) == "number" and state.tier < minTier then
+			return downgrade(verdict, "CHECK"),
+				string.format(
+					'%s; Tier %d is under the minimum %d: run %s("tradeMinTier", 0) on the server',
+					table.concat(notes, "; "),
+					state.tier,
+					minTier,
+					DEBUG
+				)
+		end
+		local open, locked, exclusive = tradeCats()
+		if #open < 2 then
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ")
+					.. "; needs two unlocked cats (one stays back): unlock or catch one"
+		end
+		local door = ownDoor()
+		if door ~= nil then
+			teleportTo(door.Position + Vector3.new(0, 0, 4)) -- the street: a safe zone
+		end
+
+		-- Five requests in one frame: one is read (1 a second, one request out at a time).
+		local askAt = os.clock()
+		for _ = 1, 5 do
+			Remotes.event("TradeRequest"):FireServer(partner.UserId)
+		end
+		log(string.format("    -> TradeRequest(%d) five times in one frame", partner.UserId))
+		task.wait(1.5)
+		local sent = toastsLike(askAt, "Asked ")
+		if sent > 1 then
+			return "FAIL", string.format("five requests in one frame sent %d asks", sent)
+		elseif sent == 0 then
+			local answer = waitFor(askAt, "Toast", 0.1)
+			return downgrade(verdict, "CHECK"),
+				string.format(
+					'%s; the request was refused with "%s" (both in town, by day, not busy?)',
+					table.concat(notes, "; "),
+					if answer ~= nil then answer.text else "no toast"
+				)
+		end
+		local who = partner.DisplayName
+		log(string.format("    on %s's client press Accept on the trade card (20 s)", who))
+		local first = waitFor(askAt, "TradeState", 22, function(event: Event): boolean
+			return event.data ~= nil
+		end)
+		if first == nil then
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ") .. "; asked once but no trade opened (accept within 20 s)"
+		end
+		local tradeId = (first.data :: TradeView).tradeId
+		local function current(): TradeView?
+			return lastTrade(askAt)
+		end
+		local function version(): number
+			local view = current()
+			return if view ~= nil then view.version else -1
+		end
+
+		-- Cats that are not mine to offer: a made-up uid, a locked cat, an exclusive cat. Nothing changes.
+		local refusals: { { string } } = { { FAKE_UID, Trade.Messages.notOwned } }
+		if locked ~= nil then
+			table.insert(refusals, { locked, Trade.Messages.locked })
+		end
+		if exclusive ~= nil then
+			table.insert(refusals, { exclusive, Trade.Messages.exclusive })
+		end
+		for _, pair in refusals do
+			local v0 = version()
+			local at = os.clock()
+			fire("TradeOffer", tradeId, "add", pair[1])
+			waitFor(at, "Toast", 2)
+			task.wait(0.3)
+			if version() ~= v0 then
+				local moved = string.format("TradeOffer of %s moved it to v%d", pair[1], version())
+				return "FAIL", moved
+			end
+			if toastsLike(at, pair[2]) == 0 then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, string.format('%s refused without "%s"', pair[1], pair[2]))
+			end
+		end
+
+		-- My cat twice in one frame: one change, one new version.
+		local uid = open[1]
+		local v0 = version()
+		local addAt = os.clock()
+		fire("TradeOffer", tradeId, "add", uid)
+		Remotes.event("TradeOffer"):FireServer(tradeId, "add", uid)
+		waitFor(addAt, "TradeState", 2)
+		task.wait(0.5)
+		if version() ~= v0 + 1 then
+			local moved = string.format("one cat added twice in a frame: v%d to v%d", v0, version())
+			return "FAIL", moved
+		end
+
+		-- Ready on an old and a made-up version: refused. On the version on the table: taken.
+		for _, stale in { v0, version() + 3 } do
+			local at = os.clock()
+			fire("TradeReady", tradeId, stale, true)
+			waitFor(at, "TradeState", 2)
+			task.wait(0.3)
+			local view = current()
+			if view ~= nil and view.me.ready then
+				local took = string.format("Ready on v%d took with v%d out", stale, view.version)
+				return "FAIL", took
+			end
+		end
+		local readyAt = os.clock()
+		fire("TradeReady", tradeId, version(), true)
+		waitFor(readyAt, "TradeState", 2)
+		task.wait(0.3)
+		local readied = current()
+		if readied == nil or not readied.me.ready then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, "Ready on the version on the table did not show as ready")
+		end
+
+		-- A change after Ready: a new version and nobody ready. Then Confirm on the offers: refused.
+		local vReady = version()
+		local removeAt = os.clock()
+		fire("TradeOffer", tradeId, "remove", uid)
+		waitFor(removeAt, "TradeState", 2)
+		task.wait(0.3)
+		local after = current()
+		if after == nil or after.version ~= vReady + 1 or after.me.ready or after.them.ready then
+			return "FAIL", "a cat off after Ready kept a Ready or the version: " .. tradeText(after)
+		end
+		fire("TradeOffer", tradeId, "add", uid)
+		task.wait(0.5)
+		local confirmAt = os.clock()
+		fire("TradeConfirm", tradeId, version())
+		task.wait(0.6)
+		local offered = current()
+		if offered ~= nil and offered.me.confirmed then
+			return "FAIL", "Confirm took on the offers, before a countdown: " .. tradeText(offered)
+		end
+		if #since(confirmAt, "TradeDone") > 0 then
+			return "FAIL", "Confirm on the offers swapped the cats"
+		end
+
+		-- A gift (they offer nothing): Ready on both sides, the countdown, then my Confirm inside the wait is refused.
+		fire("TradeReady", tradeId, version(), true)
+		log(
+			string.format(
+				"    on %s's client press Ready without adding a cat (25 s); the countdown follows",
+				partner.DisplayName
+			)
+		)
+		local wait = 25 + Config.TradeCountdownSeconds
+		local screen = waitFor(confirmAt, "TradeState", wait, function(event: Event): boolean
+			local view = event.data :: TradeView?
+			return view ~= nil and view.phase == "confirm"
+		end)
+		if screen == nil then
+			table.insert(notes, "no confirm screen (Ready on the other client): wait untested")
+			verdict = downgrade(verdict, "CHECK")
+		else
+			local view = screen.data :: TradeView
+			if #view.them.cats > 0 then
+				table.insert(notes, "they offered a cat, so no gift: the wait check is skipped")
+				verdict = downgrade(verdict, "CHECK")
+			elseif view.confirmAt == nil or not view.gift then
+				return "FAIL", "a gift's confirm screen came with no wait: " .. tradeText(view)
+			else
+				local early = os.clock()
+				fire("TradeConfirm", tradeId, view.version)
+				Remotes.event("TradeConfirm"):FireServer(tradeId, view.version)
+				task.wait(0.4)
+				local held = current()
+				if held ~= nil and held.me.confirmed or #since(early, "TradeDone") > 0 then
+					return "FAIL",
+						string.format(
+							"a Confirm %.1f s before confirmAt took",
+							view.confirmAt - serverNow()
+						)
+				end
+				waitUntilServer(view.confirmAt + 0.3)
+				local staleAt = os.clock()
+				fire("TradeConfirm", tradeId, view.version - 1)
+				task.wait(0.6)
+				local still = current()
+				if still ~= nil and still.me.confirmed or #since(staleAt, "TradeDone") > 0 then
+					return "FAIL", "a Confirm on an old version took after the wait"
+				end
+				table.insert(
+					notes,
+					"a gift's Confirm inside the wait and one on an old version were refused"
+				)
+			end
+		end
+
+		-- Five Cancels in one frame: one end, nothing moved; the old trade id does nothing after.
+		local cancelAt = os.clock()
+		for _ = 1, 5 do
+			Remotes.event("TradeCancel"):FireServer(tradeId)
+		end
+		log("    -> TradeCancel five times in one frame")
+		waitFor(cancelAt, "TradeEnded", 2)
+		task.wait(0.5)
+		local ended = #since(cancelAt, "TradeEnded")
+		if ended ~= 1 or #since(cancelAt, "TradeDone") > 0 then
+			return "FAIL", string.format("five Cancels ended the trade %d times", ended)
+		end
+		local lateAt = os.clock()
+		fire("TradeOffer", tradeId, "add", open[2])
+		task.wait(0.6)
+		if #since(lateAt, "TradeState") > 0 then
+			return "FAIL", "a TradeOffer on the ended trade's id opened or changed a trade"
+		end
+		if catCount() ~= catsBefore then
+			local count = catCount()
+			return "FAIL", string.format("%d cats before, %d after, no swap", catsBefore, count)
+		end
+		table.insert(notes, "others' cats refused, a double add one change, stale Ready refused")
+		table.insert(notes, "five Cancels ended it once")
+		return verdict, table.concat(notes, "; ")
+	end
+)
+
 case("reportBug", Enum.KeyCode.R, "Bug reports: bad texts, huge, flood, 21 s on", function()
 	if table.find(Remotes.ClientToServer, "ReportBug") == nil then
 		return "SKIP", "no ReportBug remote (engineer PR #265)"
@@ -5909,6 +6277,560 @@ case("reportBug", Enum.KeyCode.R, "Bug reports: bad texts, huge, flood, 21 s on"
 		notes
 			.. "; 21 s later went through. Server output: the big report's [BugReport] line keeps 500 bytes of text, kind bug and 3 client errors of 200 bytes; no [Net] ReportBug handler failed line"
 end)
+
+-- Claim all (engineer PR #818, ui-contract.md `claimAll`) ----------------------------------------------------------
+-- ClaimAll(what) pays every ready reward of one kind (shared/ClaimAll.KINDS) with one "good" toast, each marked before
+-- it pays, so a burst can never pay twice; nothing ready answers ClaimAll.NOTHING; anything else is dropped with no
+-- answer. Net allows 2 per 2 s, so the Quests window's daily then weekly both land.
+
+-- The answers to ClaimAll since `startedAt`: the toasts that paid ("[good]") and the ClaimAll.NOTHING refusals.
+local function claimAllAnswers(startedAt: number): (number, number)
+	local paid, nothing = 0, 0
+	for _, event in since(startedAt, "Toast") do
+		if string.find(event.text, ClaimAll.NOTHING, 1, true) ~= nil then
+			nothing += 1
+		elseif string.sub(event.text, 1, 6) == "[good]" then
+			paid += 1
+		end
+	end
+	return paid, nothing
+end
+
+case(
+	"claimAll",
+	Enum.KeyCode.KeypadOne,
+	"Claim all: junk kinds, ten Index claims in a frame, daily and weekly together",
+	function()
+		if table.find(Remotes.ClientToServer, "ClaimAll") == nil then
+			return "SKIP", "no ClaimAll remote in this build (engineer PR #818)"
+		end
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		-- Junk, 1.1 s apart: Guard.oneOf drops it, so no answer at all, not even "Nothing to claim yet".
+		local junk: { { any } } = {
+			{},
+			{ 5 },
+			{ {} },
+			{ "" },
+			{ "Daily" },
+			{ "index " },
+			{ "INDEX" },
+			{ "tipJar" },
+			{ 0 / 0 },
+			{ true },
+			{ string.rep("a", 5000) },
+		}
+		local before = freshWallet()
+		local fishBefore = fish()
+		local junkAt = os.clock()
+		for _, args in junk do
+			fire("ClaimAll", table.unpack(args))
+			task.wait(1.1)
+		end
+		local junkPaid, junkNothing = claimAllAnswers(junkAt)
+		if
+			junkNothing > 0
+			or fish() ~= fishBefore
+			or money() - before.money > incomeSince(before)
+		then
+			return "FAIL",
+				string.format(
+					'junk got %d "%s" answers, fish %d to %d, coins %d to %d',
+					junkNothing,
+					ClaimAll.NOTHING,
+					fishBefore,
+					fish(),
+					before.money,
+					money()
+				)
+		end
+		local verdict: Verdict = "PASS"
+		local notes = { string.format("%d junk calls dropped with no answer", #junk) }
+		if junkPaid > 0 then
+			verdict = "CHECK"
+			table.insert(notes, string.format("%d unrelated good toasts while it ran", junkPaid))
+		end
+
+		-- Ten in one frame: at most two get past the limiter, at most one pays, and the second finds nothing left.
+		task.wait(2.1)
+		local burstAt = os.clock()
+		for _ = 1, 10 do
+			Remotes.event("ClaimAll"):FireServer("index")
+		end
+		log('    -> ClaimAll("index") x10')
+		task.wait(2.5)
+		local paid, nothing = claimAllAnswers(burstAt)
+		if paid > 1 or paid + nothing > 2 then
+			return "FAIL",
+				string.format(
+					'ten ClaimAll("index") in one frame answered %d times, %d of them paying',
+					paid + nothing,
+					paid
+				)
+		end
+		if paid == 1 and nothing ~= 1 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format("the burst paid once but %d calls said nothing was left", nothing)
+			)
+		elseif paid == 0 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format(
+					'no Index reward was ready, so the burst only got "%s" (on the server run %s("fillIndex", nil, "alley", 5) and run again)',
+					ClaimAll.NOTHING,
+					DEBUG
+				)
+			)
+		else
+			table.insert(notes, "the burst paid once and the second call found nothing left")
+		end
+		-- And once more: everything is claimed, so nothing pays.
+		task.wait(2.1)
+		local after = freshWallet()
+		local fishAfter = fish()
+		local againAt = os.clock()
+		fire("ClaimAll", "index")
+		task.wait(1.5)
+		local againPaid, againNothing = claimAllAnswers(againAt)
+		if againPaid > 0 or fish() ~= fishAfter or money() - after.money > incomeSince(after) then
+			return "FAIL", 'ClaimAll("index") paid again after the burst had claimed everything'
+		end
+		if againNothing ~= 1 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format("the call after the burst got %d answers", againNothing)
+			)
+		end
+
+		-- Daily and weekly in one frame: 2 per 2 s, so both answer.
+		task.wait(2.1)
+		local pairAt = os.clock()
+		fire("ClaimAll", "daily")
+		fire("ClaimAll", "weekly")
+		task.wait(2)
+		local pairPaid, pairNothing = claimAllAnswers(pairAt)
+		if pairPaid + pairNothing < 2 then
+			return "FAIL",
+				string.format(
+					"ClaimAll daily and weekly in one frame got %d answers; Net should let both through (2 per 2 s)",
+					pairPaid + pairNothing
+				)
+		end
+		table.insert(notes, string.format("daily and weekly both answered (%d paid)", pairPaid))
+		return verdict,
+			table.concat(notes, "; ") .. ". Server output: no [Net] ClaimAll handler failed line"
+	end
+)
+
+-- Camp extras (F100, camp-extras.md section 4, engineer PR #801) ---------------------------------------------------
+-- CollectCampExtra(extraId) and BuyYardSale(crateId): the server checks the tier, then the reach (CampExtraRangeStuds
+-- plus 4 studs of slack from the model's PromptAnchor), then what the save holds or sells, 1 a second each. A refusal
+-- toasts why and answers CampExtraResult(id, false); junk gets no answer at all.
+
+type CampAnswer = { ok: boolean, paid: { string } }
+
+-- The placed camp extra nearest the character and its prompt's position. The models stream in only near their camp.
+local function nearestCampExtra(): (string?, Vector3?)
+	local root = rootPart()
+	if root == nil then
+		return nil, nil
+	end
+	local bestId: string? = nil
+	local bestAt: Vector3? = nil
+	local bestDistance = math.huge
+	for _, instance in CollectionService:GetTagged(CampExtras.TAG) do
+		local extraId = instance:GetAttribute("ExtraId")
+		if instance:IsA("Model") and type(extraId) == "string" then
+			local anchor = instance:FindFirstChild("PromptAnchor", true)
+			local at = if anchor ~= nil and anchor:IsA("Attachment")
+				then (anchor :: Attachment).WorldPosition
+				else (instance :: Model):GetPivot().Position
+			local distance = (at - root.Position).Magnitude
+			if distance < bestDistance then
+				bestId, bestAt, bestDistance = extraId, at, distance
+			end
+		end
+	end
+	return bestId, bestAt
+end
+
+local function campView(extraId: string): Types.CampExtraView?
+	if campState == nil then
+		return nil
+	end
+	return (campState :: any)[extraId] :: Types.CampExtraView?
+end
+
+-- The CampExtraResult answers about `extraId` since `startedAt`.
+local function campAnswers(startedAt: number, extraId: string): { CampAnswer }
+	local found: { CampAnswer } = {}
+	for _, event in since(startedAt, "CampExtraResult") do
+		if event.id == extraId then
+			table.insert(found, event.data :: CampAnswer)
+		end
+	end
+	return found
+end
+
+local function okCount(answers: { CampAnswer }): number
+	local count = 0
+	for _, answer in answers do
+		if answer.ok then
+			count += 1
+		end
+	end
+	return count
+end
+
+-- Fires one call and returns its CampExtraResult answer (nil after 2 s) and whether a toast held `expected`. Waits
+-- out the 1 a second limit after.
+local function campCall(
+	remote: string,
+	arg: string,
+	extraId: string,
+	expected: string
+): (CampAnswer?, boolean)
+	local startedAt = os.clock()
+	fire(remote, arg)
+	local event = waitFor(startedAt, "CampExtraResult", 2, about(extraId))
+	task.wait(1.1)
+	return if event ~= nil then event.data :: CampAnswer else nil, toasted(startedAt, expected)
+end
+
+-- Stands `studs` from the prompt, on the side the character is on, at the character's height.
+local function standFrom(anchor: Vector3, studs: number)
+	local root = rootPart()
+	if root == nil then
+		return
+	end
+	local flat = Vector3.new(root.Position.X - anchor.X, 0, root.Position.Z - anchor.Z)
+	local direction = if flat.Magnitude > 0.1 then flat.Unit else Vector3.new(1, 0, 0)
+	local spot = anchor + direction * studs
+	teleportTo(Vector3.new(spot.X, root.Position.Y - 3, spot.Z))
+end
+
+case(
+	"campExtras",
+	Enum.KeyCode.KeypadTwo,
+	"Camp extras: junk, a shut extra, from 20 studs, ten in a frame, the Yard Sale's checks",
+	function()
+		if table.find(Remotes.ClientToServer, "CollectCampExtra") == nil then
+			return "SKIP", "no CollectCampExtra remote in this build (engineer PR #801)"
+		end
+		if state == nil or campState == nil then
+			return "SKIP", "no ProfileSync or CampExtrasState yet"
+		end
+		-- Junk, 1.1 s apart: Guard drops it with no answer. "yardSale" is not a collect id, "Pond" is not "pond", and
+		-- "Classic_Crate" is not an id at all.
+		local long = string.rep("a", 5000)
+		local junk: { { any } } = {
+			{ "CollectCampExtra" },
+			{ "CollectCampExtra", 5 },
+			{ "CollectCampExtra", {} },
+			{ "CollectCampExtra", "Pond" },
+			{ "CollectCampExtra", CampExtras.YARD_SALE },
+			{ "CollectCampExtra", "" },
+			{ "CollectCampExtra", long },
+			{ "CollectCampExtra", 0 / 0 },
+			{ "BuyYardSale" },
+			{ "BuyYardSale", 5 },
+			{ "BuyYardSale", {} },
+			{ "BuyYardSale", "" },
+			{ "BuyYardSale", "Classic_Crate" },
+			{ "BuyYardSale", long },
+			{ "BuyYardSale", 0 / 0 },
+		}
+		local before = holdings()
+		local w = freshWallet()
+		local junkAt = os.clock()
+		for _, call in junk do
+			fire(call[1], table.unpack(call, 2))
+			task.wait(1.1)
+		end
+		local junkAnswers = #since(junkAt, "CampExtraResult")
+		if junkAnswers > 0 or fish() ~= before.fish or money() - w.money > incomeSince(w) then
+			return "FAIL",
+				string.format(
+					"%d junk calls got %d CampExtraResult answers or paid (fish %d to %d)",
+					#junk,
+					junkAnswers,
+					before.fish,
+					fish()
+				)
+		end
+		local verdict: Verdict = "PASS"
+		local notes = { string.format("%d junk calls dropped with no answer", #junk) }
+
+		-- A shut extra, its area above my tier: refused with its tier line from anywhere, nothing paid.
+		for _, extraId in CampExtras.COLLECT do
+			local view = campView(extraId)
+			if view ~= nil and not view.open then
+				local def = Catalog.getCampExtra(extraId) :: Types.CampExtraDef
+				local expected = string.format(
+					"The %s opens at Tier %d",
+					def.name,
+					CampExtras.tierOf(extraId) or 0
+				)
+				local fishBefore = fish()
+				local answer, said = campCall("CollectCampExtra", extraId, extraId, expected)
+				if answer ~= nil and answer.ok or fish() ~= fishBefore then
+					return "FAIL", string.format("the shut %s paid", def.name)
+				end
+				if answer == nil or not said then
+					verdict = downgrade(verdict, "CHECK")
+					table.insert(
+						notes,
+						string.format('the shut %s: no answer or no "%s"', def.name, expected)
+					)
+				else
+					table.insert(
+						notes,
+						string.format('the shut %s refused "%s"', def.name, expected)
+					)
+				end
+				break
+			end
+		end
+		local sale = campView(CampExtras.YARD_SALE)
+		if sale ~= nil and not sale.open then
+			local expected = string.format(
+				"The Yard Sale opens at Tier %d",
+				CampExtras.tierOf(CampExtras.YARD_SALE) or 0
+			)
+			local fishBefore = fish()
+			local answer, said =
+				campCall("BuyYardSale", CampExtras.CLASSIC_CRATE, CampExtras.YARD_SALE, expected)
+			if answer ~= nil and answer.ok or fish() ~= fishBefore then
+				return "FAIL", "a shut Yard Sale sold a crate"
+			end
+			if answer == nil or not said then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(
+					notes,
+					string.format('the shut Yard Sale: no answer or no "%s"', expected)
+				)
+			else
+				table.insert(notes, string.format('the shut Yard Sale refused "%s"', expected))
+			end
+		end
+
+		-- The rest needs a placed extra near me, open for my tier.
+		local extraId, anchor = nearestCampExtra()
+		local root = rootPart()
+		if
+			extraId == nil
+			or anchor == nil
+			or root == nil
+			or (anchor - root.Position).Magnitude > 60
+		then
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ")
+					.. "; for the reach and burst checks stand in a camp with an open extra (the Woods' Fish Pond at Tier 4, the Neighbourhood's Yard Sale at Tier 3) and run again"
+		end
+		local view = campView(extraId)
+		local def = Catalog.getCampExtra(extraId) :: Types.CampExtraDef
+		if view == nil or not view.open then
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ") .. string.format(
+					"; the %s here is shut for my tier, so stand by an open one",
+					def.name
+				)
+		end
+		local reach = Config.CampExtraRangeStuds + 4
+
+		if extraId ~= CampExtras.YARD_SALE then
+			-- From 20 studs: refused for the reach, nothing taken.
+			standFrom(anchor, 20)
+			local walkUp = string.format("Walk up to the %s first", def.name)
+			local far, saidFar = campCall("CollectCampExtra", extraId, extraId, walkUp)
+			if far ~= nil and far.ok then
+				return "FAIL",
+					string.format("the %s paid from 20 studs (reach %d)", def.name, reach)
+			end
+			if far == nil or not saidFar then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, string.format('from 20 studs: no answer or no "%s"', walkUp))
+			else
+				table.insert(notes, string.format('from 20 studs "%s"', walkUp))
+			end
+			-- Beside it, ten in one frame: one answer, at most one pays; then a second later "Nothing yet".
+			standFrom(anchor, 3)
+			local held = (campView(extraId) :: Types.CampExtraView).held
+			local burstAt = os.clock()
+			for _ = 1, 10 do
+				Remotes.event("CollectCampExtra"):FireServer(extraId)
+			end
+			log(string.format("    -> CollectCampExtra(%q) x10", extraId))
+			task.wait(2)
+			local burst = campAnswers(burstAt, extraId)
+			if okCount(burst) > 1 then
+				return "FAIL",
+					string.format("ten in one frame took the %s %d times", def.name, okCount(burst))
+			end
+			if #burst ~= 1 then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(
+					notes,
+					string.format("ten in one frame got %d answers (1 a second)", #burst)
+				)
+			end
+			if held > 0 and okCount(burst) == 1 then
+				local again, saidAgain =
+					campCall("CollectCampExtra", extraId, extraId, "Nothing yet")
+				if again ~= nil and again.ok then
+					return "FAIL", string.format("the %s paid twice after it was emptied", def.name)
+				end
+				if again == nil or not saidAgain then
+					verdict = downgrade(verdict, "CHECK")
+					table.insert(notes, 'after the take: no answer or no "Nothing yet"')
+				end
+				table.insert(
+					notes,
+					string.format(
+						'the burst took the %s\'s %d once (%s), then "Nothing yet"',
+						def.name,
+						held,
+						table.concat(burst[1].paid, ", ")
+					)
+				)
+			else
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(
+					notes,
+					string.format(
+						'the %s held nothing, so the burst was refused (on the server run %s("campExtras", nil, 7 * 3600) and run again)',
+						def.name,
+						DEBUG
+					)
+				)
+			end
+			return verdict,
+				table.concat(notes, "; ") .. ". Server output: no [Net] handler failed line"
+		end
+
+		-- The Yard Sale. From 20 studs: refused for the reach.
+		local stock: { Types.YardSaleCrate } = view.stock or {}
+		local today: string? = nil
+		for _, crate in stock do
+			if not crate.bought then
+				today = crate.crateId
+				break
+			end
+		end
+		local notToday: string? = nil
+		for _, area in Catalog.areas do
+			local crateId = area.id .. "_crate"
+			local listed = false
+			for _, crate in stock do
+				listed = listed or crate.crateId == crateId
+			end
+			if not listed and Catalog.getCrate(crateId) ~= nil then
+				notToday = crateId
+				break
+			end
+		end
+		standFrom(anchor, 20)
+		local walkUp = "Walk up to the Yard Sale first"
+		local far, saidFar =
+			campCall("BuyYardSale", today or CampExtras.CLASSIC_CRATE, CampExtras.YARD_SALE, walkUp)
+		if far ~= nil and far.ok then
+			return "FAIL", "the Yard Sale sold from 20 studs"
+		end
+		if far == nil or not saidFar then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, string.format('from 20 studs: no answer or no "%s"', walkUp))
+		else
+			table.insert(notes, string.format('from 20 studs "%s"', walkUp))
+		end
+		standFrom(anchor, 3)
+		if notToday ~= nil then
+			local expected = "That crate is not at the Yard Sale today"
+			local answer, said = campCall("BuyYardSale", notToday, CampExtras.YARD_SALE, expected)
+			if answer ~= nil and answer.ok then
+				return "FAIL",
+					string.format("the Yard Sale sold %s, not in today's stock", notToday)
+			end
+			if answer == nil or not said then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, string.format('%s: no answer or no "%s"', notToday, expected))
+			else
+				table.insert(notes, string.format('%s refused "%s"', notToday, expected))
+			end
+		end
+		if today == nil then
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ") .. "; both crates already bought today, so no burst"
+		end
+		local price = Config.YardSaleCratePrice
+		local fishBefore, cratesBefore = fish(), crateCount(today)
+		if fishBefore < price then
+			local expected = "Not enough golden fish"
+			local answer, said = campCall("BuyYardSale", today, CampExtras.YARD_SALE, expected)
+			if answer ~= nil and answer.ok or fish() ~= fishBefore then
+				return "FAIL",
+					string.format(
+						"the Yard Sale sold %s for %d fish of %d",
+						today,
+						fishBefore,
+						price
+					)
+			end
+			return downgrade(verdict, "CHECK"),
+				table.concat(notes, "; ") .. string.format(
+					'; %d fish: "%s"; for the burst run %s("setFish", nil, %d) and run again',
+					fishBefore,
+					if said then expected else "no toast",
+					DEBUG,
+					price * 2
+				)
+		end
+		-- Ten in one frame: one sale for exactly the price, then a second later "You bought that one today".
+		local burstAt = os.clock()
+		for _ = 1, 10 do
+			Remotes.event("BuyYardSale"):FireServer(today)
+		end
+		log(string.format("    -> BuyYardSale(%q) x10", today))
+		task.wait(2)
+		freshWallet()
+		local burst = campAnswers(burstAt, CampExtras.YARD_SALE)
+		local spent = fishBefore - fish()
+		local got = crateCount(today) - cratesBefore
+		if okCount(burst) > 1 or spent > price or got > 1 then
+			return "FAIL",
+				string.format(
+					"ten in one frame: %d sales, %d fish spent, %d %s banked",
+					okCount(burst),
+					spent,
+					got,
+					today
+				)
+		end
+		if okCount(burst) == 0 or spent ~= price or got ~= 1 then
+			verdict = downgrade(verdict, "CHECK")
+		end
+		table.insert(
+			notes,
+			string.format("the burst sold one %s for %d fish (%d answers)", today, spent, #burst)
+		)
+		local bought = "You bought that one today. New crates tomorrow"
+		local again, saidAgain = campCall("BuyYardSale", today, CampExtras.YARD_SALE, bought)
+		if again ~= nil and again.ok then
+			return "FAIL", string.format("%s sold twice in one day", today)
+		end
+		if again == nil or not saidAgain then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, string.format('the next buy: no answer or no "%s"', bought))
+		else
+			table.insert(notes, string.format('the next buy "%s"', bought))
+		end
+		return verdict, table.concat(notes, "; ") .. ". Server output: no [Net] handler failed line"
+	end
+)
 
 case("flood", Enum.KeyCode.Backspace, "Flood: 30 RequestSync in one frame", function()
 	local startedAt = os.clock()
@@ -6065,6 +6987,38 @@ Remotes.event("CodeResult").OnClientEvent
 		local answered: Answered = { ok = ok, message = message, prize = prize }
 		record("CodeResult", string.format("ok=%s %q", tostring(ok), message), nil, answered)
 	end)
+-- F102: only once TradeService exists (engineer PR #854).
+if table.find(Remotes.ServerToClient, "TradeState") ~= nil then
+	Remotes.event("TradeState").OnClientEvent:Connect(function(view: Types.TradeStateView?)
+		record("TradeState", tradeText(view), if view ~= nil then view.tradeId else nil, view)
+	end)
+	Remotes.event("TradeEnded").OnClientEvent:Connect(function(tradeId: string, reason: string)
+		record("TradeEnded", string.format("%q", reason), tradeId)
+	end)
+	Remotes.event("TradeDone").OnClientEvent:Connect(function(tradeId: string)
+		record("TradeDone", tradeId, tradeId)
+	end)
+	Remotes.event("TradeAsked").OnClientEvent:Connect(function(requestId: string, from: number)
+		record("TradeAsked", string.format("%s from %d", requestId, from), requestId)
+	end)
+end
+-- F100: only once CampExtraService exists (engineer PR #801).
+if table.find(Remotes.ServerToClient, "CampExtraResult") ~= nil then
+	Remotes.event("CampExtrasState").OnClientEvent:Connect(function(view: Types.CampExtrasState)
+		campState = view
+		record("CampExtrasState", string.format("day %d", view.day))
+	end)
+	Remotes.event("CampExtraResult").OnClientEvent
+		:Connect(function(extraId: string, ok: boolean, paid: { string }?, _prize: any)
+			local answer: CampAnswer = { ok = ok, paid = paid or {} }
+			record(
+				"CampExtraResult",
+				string.format("%s ok=%s %s", extraId, tostring(ok), table.concat(paid or {}, ", ")),
+				extraId,
+				answer
+			)
+		end)
+end
 -- F96: only once the remote exists (engineer PR #734), so the client still loads on an older build.
 if table.find(Remotes.ServerToClient, "StarterCatResult") ~= nil then
 	Remotes.event("StarterCatResult").OnClientEvent:Connect(function(ok: boolean, reason: string?)

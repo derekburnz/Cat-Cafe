@@ -18,6 +18,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Crates = require(ReplicatedStorage.Shared.Crates)
 local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
+local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
@@ -1442,6 +1443,40 @@ local function onToggleDecor(player: Player, rawId: unknown, rawPlaced: unknown)
 	CafeService.sync(player)
 end
 
+-- Equip Best for decor (Derek 2026-10-28): the best owned pieces out for the most money (shared/DecorBest), the rest
+-- put away, then one toast and a sync. Only owned pieces move.
+local function onEquipBestDecor(player: Player)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	local cap = Crates.spotCap(Economy.tier(profile), profile.fishPerks.extra_decor_spot or 0)
+	local plan = DecorBest.plan(profile, cap)
+	if plan.pieces == 0 then
+		Net.toast(player, "No decor yet. Find some in the Market's crates.", "info")
+		CafeService.sync(player)
+		return
+	end
+	if DecorBest.isSame(profile, plan) then
+		Net.toast(player, "Your best decor is already out.", "info")
+		CafeService.sync(player)
+		return
+	end
+	profile.decorPlaced = plan.placed
+	CafeService.refreshPlot(player)
+	Net.toast(
+		player,
+		string.format(
+			"Best decor out: %d piece%s, +%d%% money",
+			plan.pieces,
+			if plan.pieces == 1 then "" else "s",
+			math.floor(plan.bonus * 100 + 0.5)
+		),
+		"good"
+	)
+	CafeService.sync(player)
+end
+
 local function onBuyLure(player: Player, rawId: unknown)
 	local lureId = Guard.id(rawId)
 	local profile = profileFor(player)
@@ -1601,6 +1636,7 @@ function CafeService.start()
 	Net.on("BuyDecor", onBuyDecor)
 	Net.on("RankUp", onRankUp)
 	Net.on("ToggleDecor", onToggleDecor)
+	Net.on("EquipBestDecor", onEquipBestDecor)
 	Net.on("BuyLure", onBuyLure)
 	Net.on("ClaimOffline", onClaimOffline)
 	Net.on("TutorialAdvance", onTutorialAdvance)

@@ -6,7 +6,8 @@
   "Scale": {
    "Float64": 1.0
   },
-  "PropSlot": "Back"
+  "PropSlot": "Back",
+  "PropSlot2": "Head"
  },
  "children": [
   {
@@ -2262,6 +2263,1329 @@
       }
      },
      "name": "CatCafe_Cat_Munchkin_Gold_Sit_EarR"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Munchkin_Gold_Sit/10"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.7053,
+           -0.228
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.589,
+         0.2945,
+         0.589
+        ],
+        "Color": [
+         0.1216,
+         0.6471,
+         0.5608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.7363,
+           0.133
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Munchkin_Gold_Sit/10",
+        "Follows": "Head"
+       },
+       "children": [
+        {
+         "name": "Mesh",
+         "className": "SpecialMesh",
+         "properties": {
+          "MeshType": "Sphere"
+         }
+        }
+       ]
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.6482,
+           -0.228
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.114,
+         0.589,
+         0.589
+        ],
+        "Color": [
+         0.1216,
+         0.6471,
+         0.5608
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.8572,
+           -0.228
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.095,
+         0.095
+        ],
+        "Color": [
+         1.0,
+         0.4196,
+         0.5059
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.6293,
+           0.1805
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9848,
+            -0.1736
+           ],
+           [
+            0.0,
+            0.1736,
+            0.9848
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.437,
+         0.0333,
+         0.285
+        ],
+        "Color": [
+         1.0,
+         0.4196,
+         0.5059
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0089,
+           1.7152,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0467
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0089,
+           1.6795,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0246
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0089,
+           1.6795,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.309,
+            0.9511
+           ],
+           [
+            0.0,
+            0.9511,
+            0.309
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0246
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0428,
+           1.6906,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.309,
+            -0.9511
+           ],
+           [
+            0.0,
+            0.9511,
+            -0.309
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0467
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0483,
+           1.6736,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.309,
+            -0.9511
+           ],
+           [
+            0.0,
+            -0.9511,
+            -0.309
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0467
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0145,
+           1.6626,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.309,
+            0.9511
+           ],
+           [
+            0.0,
+            -0.9511,
+            0.309
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0246
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0145,
+           1.6626,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.809,
+            0.5878
+           ],
+           [
+            0.0,
+            0.5878,
+            -0.809
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0246
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0354,
+           1.6337,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.809,
+            -0.5878
+           ],
+           [
+            0.0,
+            0.5878,
+            0.809
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0467
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0209,
+           1.6232,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.809,
+            -0.5878
+           ],
+           [
+            0.0,
+            -0.5878,
+            0.809
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0467
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.652,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.809,
+            0.5878
+           ],
+           [
+            0.0,
+            -0.5878,
+            -0.809
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0246
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.652,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.809,
+            -0.5878
+           ],
+           [
+            0.0,
+            -0.5878,
+            -0.809
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0246
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0209,
+           1.6232,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.809,
+            0.5878
+           ],
+           [
+            0.0,
+            -0.5878,
+            0.809
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0467
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0354,
+           1.6337,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.809,
+            0.5878
+           ],
+           [
+            0.0,
+            0.5878,
+            0.809
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0467
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0145,
+           1.6626,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.809,
+            -0.5878
+           ],
+           [
+            0.0,
+            0.5878,
+            -0.809
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0246
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0145,
+           1.6626,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.309,
+            -0.9511
+           ],
+           [
+            0.0,
+            -0.9511,
+            0.309
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0246
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0483,
+           1.6736,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            -0.309,
+            0.9511
+           ],
+           [
+            0.0,
+            -0.9511,
+            -0.309
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0467
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0428,
+           1.6906,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.309,
+            0.9511
+           ],
+           [
+            0.0,
+            0.9511,
+            -0.309
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0467
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0089,
+           1.6795,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.309,
+            -0.9511
+           ],
+           [
+            0.0,
+            0.9511,
+            0.309
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0246
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0089,
+           1.6795,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0246
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2",
+       "className": "WedgePart",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0089,
+           1.7152,
+           -0.5244
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.019,
+         0.0179,
+         0.0467
+        ],
+        "Color": [
+         1.0,
+         0.7882,
+         0.302
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.969,
+         -0.095
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Munchkin_Gold_Sit_Prop2"
     }
    ],
    "properties": {
@@ -2850,7 +4174,7 @@
         "position": [
          0.0,
          0.76,
-         0.2518
+         0.2993
         ],
         "orientation": [
          [
@@ -2892,7 +4216,7 @@
        "CFrame": {
         "position": [
          -0.76,
-         -0.2517,
+         -0.2992,
          0.0
         ],
         "orientation": [
@@ -2929,7 +4253,7 @@
         "position": [
          -0.4085,
          0.76,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -2981,7 +4305,7 @@
         "position": [
          -0.228,
          0.76,
-         0.2993
+         0.3467
         ],
         "orientation": [
          [
@@ -3033,7 +4357,7 @@
         "position": [
          -0.228,
          0.9025,
-         0.3467
+         0.3943
         ],
         "orientation": [
          [
@@ -3086,7 +4410,7 @@
         "position": [
          -0.228,
          0.6175,
-         0.3467
+         0.3943
         ],
         "orientation": [
          [
@@ -3139,7 +4463,7 @@
         "position": [
          0.4085,
          0.76,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3191,7 +4515,7 @@
         "position": [
          0.228,
          0.76,
-         0.2993
+         0.3467
         ],
         "orientation": [
          [
@@ -3243,7 +4567,7 @@
         "position": [
          0.228,
          0.9025,
-         0.3467
+         0.3943
         ],
         "orientation": [
          [
@@ -3296,7 +4620,7 @@
         "position": [
          0.228,
          0.6175,
-         0.3467
+         0.3943
         ],
         "orientation": [
          [
@@ -3349,7 +4673,7 @@
         "position": [
          0.0943,
          0.7768,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3401,7 +4725,7 @@
         "position": [
          0.0231,
          0.7768,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3453,7 +4777,7 @@
         "position": [
          0.0231,
          0.7768,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3505,7 +4829,7 @@
         "position": [
          0.0451,
          0.8445,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3557,7 +4881,7 @@
         "position": [
          0.0132,
          0.8549,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3609,7 +4933,7 @@
         "position": [
          -0.0088,
          0.7871,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3661,7 +4985,7 @@
         "position": [
          -0.0088,
          0.7871,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3713,7 +5037,7 @@
         "position": [
          -0.0664,
          0.829,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3765,7 +5089,7 @@
         "position": [
          -0.0861,
          0.8019,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3817,7 +5141,7 @@
         "position": [
          -0.0285,
          0.76,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3869,7 +5193,7 @@
         "position": [
          -0.0285,
          0.76,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3921,7 +5245,7 @@
         "position": [
          -0.0861,
          0.7181,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -3973,7 +5297,7 @@
         "position": [
          -0.0664,
          0.691,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -4025,7 +5349,7 @@
         "position": [
          -0.0088,
          0.7329,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -4077,7 +5401,7 @@
         "position": [
          -0.0088,
          0.7329,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -4129,7 +5453,7 @@
         "position": [
          0.0132,
          0.6651,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -4181,7 +5505,7 @@
         "position": [
          0.0451,
          0.6755,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -4233,7 +5557,7 @@
         "position": [
          0.0231,
          0.7432,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -4285,7 +5609,7 @@
         "position": [
          0.0231,
          0.7432,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -4337,7 +5661,7 @@
         "position": [
          0.0943,
          0.7432,
-         0.2803
+         0.3277
         ],
         "orientation": [
          [
@@ -4388,8 +5712,8 @@
        "CFrame": {
         "position": [
          0.19,
-         1.0497,
-         0.0998
+         1.0592,
+         0.1852
         ],
         "orientation": [
          [
@@ -4413,7 +5737,7 @@
       "Size": [
        0.0855,
        0.038,
-       0.247
+       0.2185
       ],
       "Color": [
        0.1686,
@@ -4440,8 +5764,8 @@
        "CFrame": {
         "position": [
          0.19,
-         0.912,
-         0.2233
+         0.9951,
+         0.2755
         ],
         "orientation": [
          [
@@ -4464,8 +5788,8 @@
       },
       "Size": [
        0.0855,
-       0.285,
-       0.0475
+       0.1662,
+       0.038
       ],
       "Color": [
        0.1686,
@@ -4492,8 +5816,8 @@
        "CFrame": {
         "position": [
          -0.19,
-         1.0497,
-         0.0998
+         1.0592,
+         0.1852
         ],
         "orientation": [
          [
@@ -4517,7 +5841,7 @@
       "Size": [
        0.0855,
        0.038,
-       0.247
+       0.2185
       ],
       "Color": [
        0.1686,
@@ -4544,8 +5868,8 @@
        "CFrame": {
         "position": [
          -0.19,
-         0.912,
-         0.2233
+         0.9951,
+         0.2755
         ],
         "orientation": [
          [
@@ -4568,8 +5892,8 @@
       },
       "Size": [
        0.0855,
-       0.285,
-       0.0475
+       0.1662,
+       0.038
       ],
       "Color": [
        0.1686,

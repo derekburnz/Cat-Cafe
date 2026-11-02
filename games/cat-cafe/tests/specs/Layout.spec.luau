@@ -1297,114 +1297,86 @@ return function()
 			end
 		end)
 
-		-- F85 (hometown-cannon.md section 6b; Model-Agent #864): three rows of low blockers cross each lane on its
-		-- middle line, the way through never on the same side twice running. A long pile covers local x -15 to 2.6
-		-- (its lamp post) and leaves 1 to 15 open; a short one -15 to -4.9, and two back to back (turned 0 and
-		-- 180) leave the middle open. Each pile, with its own half depth, stays clear of the lane spawn points by a
-		-- cat's half body and of the traps by 2.
+		-- F85 as one lane (Model-Agent #875, area-sets.md "The Alleyway as one lane"): four rows of low blockers right
+		-- across, each one model at the middle, the way through never on the same side twice running (the middle, the
+		-- west side, the east side, the middle), and the string lights wall to wall in the other gaps between
+		-- buildings. Outside its way through each row (its own half depth, the Van's with its doors open) stays clear
+		-- of the spawn points by a cat's half body and of the traps by 2.
 		it(
-			"crosses each lane with three rows of low blockers, the ways through moving about",
+			"crosses the one lane with four blocker rows, the way through moving about, lights between (F85)",
 			function()
-				type Pile = { z: number, x1: number, x2: number, depth: number }
-				local prefix = "CatCafe_Alley_Blocker_"
-				local halfDepth: { [string]: number } = {
-					Bins = 1.3,
-					Pallets = 1.5,
-					Skip = 2.7,
-					Van = 5.7,
-					BinsShort = 1.3,
-					PalletsShort = 1.5,
+				type Row = { z: number, name: string }
+				-- across from the middle: z, the way through from and to, the half depth
+				local want: { [string]: { number } } = {
+					RowCamp = { 88.025, -13, 13, 1.5 },
+					RowVan = { 18.25, -45, -20.6, 5.7 },
+					RowSkip = { -53.675, 21.6, 45, 2.7 },
+					RowFar = { -88.025, -16.1, 13, 2.7 },
 				}
-				for _, side in { -1, 1 } do
-					local mid = side * MID
-					local piles: { Pile } = {}
-					local ways: { [number]: number } = {} -- each row's z: its way through, -1, 0 (middle) or 1
-					local shorts: { [number]: number } = {} -- each row's z: the sum of its short piles' sides
-					for _, prop in alley.props :: { Layout.Prop } do
-						if prop.asset:sub(1, #prefix) ~= prefix then
-							continue
-						end
-						local x, z = toLane(prop.x, prop.z)
-						if x * side <= 0 then
-							continue
-						end
-						expect(x).to.be.near(mid, 1e-9)
-						local turn = prop.rotY or 0
-						expect(turn == 0 or turn == 180).to.equal(true)
-						local name = prop.asset:sub(#prefix + 1)
-						local depth = halfDepth[name]
-						expect(depth).to.be.ok()
-						local flip = if turn == 0 then 1 else -1
-						local short = name:sub(-5) == "Short"
-						local reach = if short then -4.9 else 2.6
-						local a, b = mid - 15 * flip, mid + reach * flip
-						table.insert(
-							piles,
-							{ z = z, x1 = math.min(a, b), x2 = math.max(a, b), depth = depth }
-						)
-						if short then
-							-- never a short in a long's row (N337)
-							expect(ways[z] == nil or ways[z] == 0).to.equal(true)
-							shorts[z] = (shorts[z] or 0) + flip
-							ways[z] = 0
-						else
-							expect(ways[z]).to.equal(nil)
-							ways[z] = flip
-						end
+				local prefix = "CatCafe_Alley_Blocker_"
+				local rows: { Row } = {}
+				local lights: { number } = {}
+				for _, prop in alley.props :: { Layout.Prop } do
+					if prop.asset == "CatCafe_Alley_StringLightsWide" then
+						expect(prop.x).to.equal(W.AlleyCenterX)
+						table.insert(lights, prop.z - W.AlleyCenterZ)
 					end
-					-- a pair of shorts is one turned each way
-					for z, sum in shorts do
-						if sum ~= 0 then
-							fail("the short piles at z %g are not a pair", z)
-						end
+					expect(prop.asset).never.to.equal("CatCafe_Alley_StringLightsLong")
+					if prop.asset:sub(1, #prefix) ~= prefix then
+						continue
 					end
-					local rows: { number } = {}
-					for z in ways do
-						table.insert(rows, z)
+					local name = prop.asset:sub(#prefix + 1)
+					local row = want[name]
+					if row == nil then
+						fail("%s is not one of the one-lane rows", prop.asset)
 					end
-					table.sort(rows, function(a: number, b: number): boolean
-						return a > b
-					end)
-					expect(#rows).to.equal(3)
-					for i = 2, #rows do
-						if ways[rows[i]] == ways[rows[i - 1]] then
+					expect(prop.x).to.equal(W.AlleyCenterX)
+					expect(prop.z - W.AlleyCenterZ).to.be.near(row[1], 1e-9)
+					expect(prop.rotY or 0).to.equal(0)
+					table.insert(rows, { z = row[1], name = name })
+				end
+				expect(#rows).to.equal(4)
+				table.sort(rows, function(a: Row, b: Row): boolean
+					return a.z > b.z
+				end)
+				local function way(name: string): number
+					local middle = (want[name][2] + want[name][3]) / 2
+					return if math.abs(middle) < 10 then 0 else math.sign(middle)
+				end
+				for i = 2, #rows do
+					if way(rows[i].name) == way(rows[i - 1].name) then
+						fail("%s and %s leave the same way through", rows[i - 1].name, rows[i].name)
+					end
+				end
+				for _, row in rows do
+					local w = want[row.name]
+					local function clear(x: number, z: number, margin: number): boolean
+						local ax, az = x - W.AlleyCenterX, z - W.AlleyCenterZ
+						return math.abs(az - w[1]) > w[4] + margin
+							or (ax > w[2] + margin and ax < w[3] - margin)
+					end
+					for i, point in alley.spawnPoints do
+						if not clear(point.x, point.z, 0.8) then
 							fail(
-								"the rows at z %g and %g leave the same way through",
-								rows[i - 1],
-								rows[i]
+								"spawn point %d at (%g, %g) is in %s",
+								i,
+								point.x,
+								point.z,
+								row.name
 							)
 						end
 					end
-					for _, pile in piles do
-						local function clear(x: number, z: number, margin: number): boolean
-							return x < pile.x1 - margin
-								or x > pile.x2 + margin
-								or math.abs(z - pile.z) > pile.depth + margin
+					for i, spot in alley.rescueSpots do
+						if not clear(spot.x, spot.z, 2) then
+							fail("rescue spot %d at (%g, %g) is by %s", i, spot.x, spot.z, row.name)
 						end
-						for i, point in alley.spawnPoints do
-							local x, z = toLane(point.x, point.z)
-							if not clear(x, z, 0.8) then
-								fail(
-									"spawn point %d at (%g, %g) is in the pile at z %g",
-									i,
-									x,
-									z,
-									pile.z
-								)
-							end
-						end
-						for i, spot in alley.rescueSpots do
-							local x, z = toLane(spot.x, spot.z)
-							if not clear(x, z, 2) then
-								fail(
-									"rescue spot %d at (%g, %g) is by the pile at z %g",
-									i,
-									x,
-									z,
-									pile.z
-								)
-							end
-						end
+					end
+				end
+				-- the lights hang in the two gaps between buildings that have no row
+				expect(#lights).to.equal(2)
+				for _, z in lights do
+					for _, row in rows do
+						expect(math.abs(z - row.z) > 10).to.equal(true)
 					end
 				end
 			end

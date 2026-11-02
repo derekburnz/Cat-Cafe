@@ -450,17 +450,6 @@ local function onOuterWall(
 	}
 end
 
--- A piece against a back alley's south end wall (side -1 west, 1 east), front (-Z) turned up the alley; `along` and
--- `out` as for onOuterWall.
-local function onEndWall(asset: string, side: number, along: number?, out: number?): Prop
-	return {
-		asset = asset,
-		x = side * MID - (along or 0),
-		z = AS - (out or 0),
-		rotY = 180,
-	}
-end
-
 -- Buildings (30.6 wide) along each back alley's outer wall, so the lane reads as a street of different buildings
 -- rather than a bare wall (world-and-feel.md section 2; Model-Agent #535 made the repeated backs and the staff door
 -- into eight full buildings for Derek): three either side of where the Woods or Sewer gate stood until v4, from
@@ -496,6 +485,28 @@ local function building(name: string): string
 	return "CatCafe_Alley_Building_" .. name
 end
 
+-- F85's low blockers as one lane (hometown-cannon.md section 6b; Model-Agent #875, area-sets.md "The Alleyway as one
+-- lane"): four rows right across, each one model at the middle, its pile segments carrying their own invisible
+-- _Barrier (so nobody jumps a pile) and its lamp posts at the way through, which moves from row to row: the middle,
+-- the west side, the east side (the east Warehouse's crate stack stands in it, 21 left to walk) and the middle again.
+-- Each row stands in a gap between buildings; the string lights hang in the other gaps.
+local BLOCKER_ROWS: { { asset: string, z: number } } = {
+	{ asset = "CatCafe_Alley_Blocker_RowCamp", z = 88.025 },
+	{ asset = "CatCafe_Alley_Blocker_RowVan", z = 18.25 },
+	{ asset = "CatCafe_Alley_Blocker_RowSkip", z = -53.675 },
+	{ asset = "CatCafe_Alley_Blocker_RowFar", z = -88.025 },
+}
+local function blockerRowAt(z: number): boolean
+	for _, row in BLOCKER_ROWS do
+		if math.abs(row.z - z) < 1 then
+			return true
+		end
+	end
+	return false
+end
+-- the buildings across the south end, either side of the middle and in it (F85: 30.8 wide with their sills)
+local END_SIDE = 31
+
 local function alleyDressing(): { Prop }
 	local props: { Prop } = {}
 	local function add(prop: Prop)
@@ -516,26 +527,38 @@ local function alleyDressing(): { Prop }
 			end
 		end
 		add(onOuterWall(building(MIDDLE_BUILDING[side]), side, 0, 0, BUILDING_OUT))
-		-- String lights across the lane in the gaps between buildings, a laundry line in front of a windowed back.
-		for slot = 1, #BACK_SLOTS - 1 do
-			local gaps: { number } = if slot == GATE_SLOT
-				then { BACK_SLOTS[slot] / 2, BACK_SLOTS[slot + 1] / 2 } -- either side of the middle building
-				else { (BACK_SLOTS[slot] + BACK_SLOTS[slot + 1]) / 2 }
-			for _, z in gaps do
-				add({ asset = "CatCafe_Alley_StringLightsLong", x = side * MID, z = z })
-			end
-		end
+		-- a laundry line in front of a windowed back
 		add({
 			asset = "CatCafe_Alley_LaundryLine",
 			x = side * (MID - 0.4),
 			z = if side < 0 then BACK_SLOTS[5] else BACK_SLOTS[3],
 		})
 		-- the south end closes on a building either side, where the old lanes' staff doors stood
-		add(onEndWall(building(if side < 0 then "NarrowHouses" else "Grocer"), side, 0, END_OUT))
+		add({
+			asset = building(if side < 0 then "NarrowHouses" else "Grocer"),
+			x = fromMiddle(side * END_SIDE),
+			z = AS - END_OUT,
+			rotY = 180,
+		})
 	end
 	-- and the Clock House in the middle, where the passage through the block came out: the landmark at the end of
 	-- the one lane (F85, Model-Agent)
 	add({ asset = building("ClockHouse"), x = 0, z = AS - END_OUT, rotY = 180 })
+	-- string lights right across in the gaps between buildings, a blocker row in the others (F85: one string, wall to
+	-- wall, where each lane had its own)
+	for slot = 1, #BACK_SLOTS - 1 do
+		local gaps: { number } = if slot == GATE_SLOT
+			then { BACK_SLOTS[slot] / 2, BACK_SLOTS[slot + 1] / 2 } -- either side of the middle building
+			else { (BACK_SLOTS[slot] + BACK_SLOTS[slot + 1]) / 2 }
+		for _, z in gaps do
+			if not blockerRowAt(z) then
+				add({ asset = "CatCafe_Alley_StringLightsWide", x = 0, z = z })
+			end
+		end
+	end
+	for _, row in BLOCKER_ROWS do
+		add({ asset = row.asset, x = 0, z = row.z, rotY = 0 })
+	end
 	return props
 end
 
@@ -673,30 +696,6 @@ Layout.alley = {
 					{ asset = "CatCafe_Alley_Crate", x = AO - 2.9, z = AN - 9.5 },
 					{ asset = "CatCafe_Alley_Puddle", x = AI + 17, z = -12 },
 					{ asset = "CatCafe_Alley_Puddle", x = AI + 12, z = 26 },
-					-- F85's low blockers (hometown-cannon.md section 6b; Model-Agent #864, area-sets.md "The Alleyway
-					-- blockers (F85)"): three rows across each lane on its middle line, each on a string lights line,
-					-- the way through never on the same side twice running. A long pile leaves 14 studs at one end
-					-- (rotY 0 at +X, 180 at -X); two short ones back to back leave 13 in the middle. Each brings its
-					-- own invisible _Barrier, so nobody jumps a pile; a stray's walk stops at the pile. The east
-					-- lane's third row is at -88.025, past the Warehouse's crate stack.
-					{ asset = "CatCafe_Alley_Blocker_BinsShort", x = -MID, z = 88.025, rotY = 0 },
-					{
-						asset = "CatCafe_Alley_Blocker_PalletsShort",
-						x = -MID,
-						z = 88.025,
-						rotY = 180,
-					},
-					{ asset = "CatCafe_Alley_Blocker_Skip", x = -MID, z = 18.25, rotY = 180 },
-					{ asset = "CatCafe_Alley_Blocker_Pallets", x = -MID, z = -53.675, rotY = 0 },
-					{ asset = "CatCafe_Alley_Blocker_Pallets", x = MID, z = 88.025, rotY = 180 },
-					{ asset = "CatCafe_Alley_Blocker_Van", x = MID, z = 18.25, rotY = 0 },
-					{
-						asset = "CatCafe_Alley_Blocker_PalletsShort",
-						x = MID,
-						z = -88.025,
-						rotY = 0,
-					},
-					{ asset = "CatCafe_Alley_Blocker_BinsShort", x = MID, z = -88.025, rotY = 180 },
 				} :: { Prop }
 			do
 				table.insert(props, prop)

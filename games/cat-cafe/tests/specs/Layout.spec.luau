@@ -1299,6 +1299,119 @@ return function()
 			end
 		end)
 
+		-- F85 (hometown-cannon.md section 6b; Model-Agent #864): three rows of low blockers cross each lane on its
+		-- middle line, the way through never on the same side twice running. A long pile covers local x -15 to 2.6
+		-- (its lamp post) and leaves 1 to 15 open; a short one -15 to -4.9, and two back to back (turned 0 and
+		-- 180) leave the middle open. Each pile, with its own half depth, stays clear of the lane spawn points by a
+		-- cat's half body and of the traps by 2.
+		it(
+			"crosses each lane with three rows of low blockers, the ways through moving about",
+			function()
+				type Pile = { z: number, x1: number, x2: number, depth: number }
+				local prefix = "CatCafe_Alley_Blocker_"
+				local halfDepth: { [string]: number } = {
+					Bins = 1.3,
+					Pallets = 1.5,
+					Skip = 2.7,
+					Van = 5.7,
+					BinsShort = 1.3,
+					PalletsShort = 1.5,
+				}
+				for _, side in { -1, 1 } do
+					local mid = side * MID
+					local piles: { Pile } = {}
+					local ways: { [number]: number } = {} -- each row's z: its way through, -1, 0 (middle) or 1
+					local shorts: { [number]: number } = {} -- each row's z: the sum of its short piles' sides
+					for _, prop in alley.props :: { Layout.Prop } do
+						if prop.asset:sub(1, #prefix) ~= prefix then
+							continue
+						end
+						local x, z = toLane(prop.x, prop.z)
+						if x * side <= 0 then
+							continue
+						end
+						expect(x).to.be.near(mid, 1e-9)
+						local turn = prop.rotY or 0
+						expect(turn == 0 or turn == 180).to.equal(true)
+						local name = prop.asset:sub(#prefix + 1)
+						local depth = halfDepth[name]
+						expect(depth).to.be.ok()
+						local flip = if turn == 0 then 1 else -1
+						local short = name:sub(-5) == "Short"
+						local reach = if short then -4.9 else 2.6
+						local a, b = mid - 15 * flip, mid + reach * flip
+						table.insert(
+							piles,
+							{ z = z, x1 = math.min(a, b), x2 = math.max(a, b), depth = depth }
+						)
+						if short then
+							-- never a short in a long's row (N337)
+							expect(ways[z] == nil or ways[z] == 0).to.equal(true)
+							shorts[z] = (shorts[z] or 0) + flip
+							ways[z] = 0
+						else
+							expect(ways[z]).to.equal(nil)
+							ways[z] = flip
+						end
+					end
+					-- a pair of shorts is one turned each way
+					for z, sum in shorts do
+						if sum ~= 0 then
+							fail("the short piles at z %g are not a pair", z)
+						end
+					end
+					local rows: { number } = {}
+					for z in ways do
+						table.insert(rows, z)
+					end
+					table.sort(rows, function(a: number, b: number): boolean
+						return a > b
+					end)
+					expect(#rows).to.equal(3)
+					for i = 2, #rows do
+						if ways[rows[i]] == ways[rows[i - 1]] then
+							fail(
+								"the rows at z %g and %g leave the same way through",
+								rows[i - 1],
+								rows[i]
+							)
+						end
+					end
+					for _, pile in piles do
+						local function clear(x: number, z: number, margin: number): boolean
+							return x < pile.x1 - margin
+								or x > pile.x2 + margin
+								or math.abs(z - pile.z) > pile.depth + margin
+						end
+						for i, point in alley.spawnPoints do
+							local x, z = toLane(point.x, point.z)
+							if not clear(x, z, 0.8) then
+								fail(
+									"spawn point %d at (%g, %g) is in the pile at z %g",
+									i,
+									x,
+									z,
+									pile.z
+								)
+							end
+						end
+						for i, spot in alley.rescueSpots do
+							local x, z = toLane(spot.x, spot.z)
+							if not clear(x, z, 2) then
+								fail(
+									"rescue spot %d at (%g, %g) is by the pile at z %g",
+									i,
+									x,
+									z,
+									pile.z
+								)
+							end
+						end
+					end
+				end
+			end
+		)
+
 		-- Model-Agent #535: eight full buildings in place of the repeated backs and the staff doors; v4 a seventh on
 		-- each outer wall where the Woods or Sewer gate stood.
 		it(

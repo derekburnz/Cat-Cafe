@@ -201,7 +201,12 @@ end
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window
 local function press(windowName, name)
 	local playerGui = UIShim.playerGui
-	local window = playerGui:FindFirstChild(windowName, true)
+	-- windows sit in CatCafeModals.Root.Container; the HUD and the Index have pieces with the same names (Cats)
+	local modals = playerGui:FindFirstChild("CatCafeModals")
+	local rootFrame = modals and modals:FindFirstChild("Root")
+	local container = rootFrame and rootFrame:FindFirstChild("Container")
+	local window = (container and container:FindFirstChild(windowName))
+		or playerGui:FindFirstChild(windowName, true)
 	assert(window, "uigate: no window " .. windowName)
 	local holder = window:FindFirstChild(name, true)
 	assert(holder, "uigate: no " .. name .. " in " .. windowName)
@@ -233,6 +238,13 @@ local SCENES = {
 	end },
 	{ "Cats", function()
 		UI.open("Cats")
+	end },
+	{ "CatsPicked", function()
+		UI.open("Cats")
+		-- the cards build on the next frame; the gold cat, level 13, at work: favourite or Likes, Gold and level chips
+		task.delay(0.2, function()
+			press("Cats", "gate_3")
+		end)
 	end },
 	{ "RankUp", function()
 		UI.open("RankUp")

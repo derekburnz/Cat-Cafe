@@ -813,8 +813,9 @@ def build_tier(n, mat):
                 fx = cx - 3.9 + k * 0.975
                 b.span((fx - 0.2, 1.1, -16.0 + 0.2 * (k % 2)), (fx + 0.2, 1.5, -15.6 + 0.2 * (k % 2)),
                        ("blush", "sparkle", "offwhite", "nose_pink")[k % 4])
-        _bistro(b, 11.0, -17.3, "mint")
-        extra = [flowers.finalize(name + "_Flowers", mat)]
+        bistro = RB()                                 # _Bistro: the lawn code hides it when the lawn is in (F91)
+        _bistro(bistro, 11.0, -17.3, "mint")
+        extra = [flowers.finalize(name + "_Flowers", mat), bistro.finalize(name + "_Bistro", mat)]
     elif n == 3:                                                              # neon OPEN, string lights, 2nd bistro
         tube, bulbs = RB(), RB()
         cx = WINDOWS[0]
@@ -828,8 +829,10 @@ def build_tier(n, mat):
         # a festoon under each awning's scalloped edge (awnings x 5..16 each side, lip at z -18, scallops to y 9.35)
         _string_lights(b, bulbs, -15.8, -5.2, 9.25, FRONT - 3.0, 0.6, 7, up=9.86)       # hooked to the valance
         _string_lights(b, bulbs, 5.2, 15.8, 9.25, FRONT - 3.0, 0.6, 7, up=9.86)
-        _bistro(b, -7.6, -17.4, "blush")
-        extra = [tube.finalize(name + "_Sign_Tube", mat), bulbs.finalize(name + "_StringLights_Bulbs", mat)]
+        bistro = RB()                                 # _Bistro: the lawn code hides it when the lawn is in (F91)
+        _bistro(bistro, -7.6, -17.4, "blush")
+        extra = [tube.finalize(name + "_Sign_Tube", mat), bulbs.finalize(name + "_StringLights_Bulbs", mat),
+                 bistro.finalize(name + "_Bistro", mat)]
     elif n == 4:                                                              # fish tank in the window, back patio
         glass, water = RB(), RB()
         cx, dz = WINDOWS[1], 1.6                       # 1.6 back from the window, clear of the Window plants decor

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02 01:48 UTC",
+  "generated": "2026-11-02 01:49 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -76071,7 +76071,8 @@
       "module": "plot",
       "objects": [
         "CatCafe_Plot_Tier2",
-        "CatCafe_Plot_Tier2_Flowers"
+        "CatCafe_Plot_Tier2_Flowers",
+        "CatCafe_Plot_Tier2_Bistro"
       ],
       "triangles": 624,
       "budget": 3000,
@@ -76131,7 +76132,8 @@
       "objects": [
         "CatCafe_Plot_Tier3",
         "CatCafe_Plot_Tier3_Sign_Tube",
-        "CatCafe_Plot_Tier3_StringLights_Bulbs"
+        "CatCafe_Plot_Tier3_StringLights_Bulbs",
+        "CatCafe_Plot_Tier3_Bistro"
       ],
       "triangles": 1294,
       "budget": 3000,

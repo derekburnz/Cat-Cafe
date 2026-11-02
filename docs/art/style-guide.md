@@ -510,7 +510,8 @@ writes the cafe's name. The Garden Bench has a `NapSpot` attachment on its cushi
 and `Seat2` on the floor under its chairs (a customer faces the table). The cafe shell's own garden is two child
 Models so the lawn code can hide it: `_Path` (the path and its joints) and `_Garden` (beds, picket fence, flower
 clumps, bench, lamp post and shrubs, with the beds' `_Flowers`, the `_Fireflies` and the `_LampPost_Bulb` nested
-inside). The door mat stays on the shell.
+inside). The door mat stays on the shell. The bistro sets of Tier 2 and Tier 3 stand in the garden too, so each is its
+own child Model, `CatCafe_Plot_Tier2_Bistro` and `CatCafe_Plot_Tier3_Bistro`.
 
 Where a model meets the code-built walls (gates and arches, 2026-10-27, Derek: "a lot of the gate models for zones
 are clipping in eachother and can see it when walking"): a wall that ends at an opening must end inside a post, never

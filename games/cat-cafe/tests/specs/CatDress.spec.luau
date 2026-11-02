@@ -51,4 +51,30 @@ return function()
 			expect((wears("juggler", "Head", "Back"))).to.equal("")
 		end)
 	end)
+
+	-- Model-Agent #787: walking cuts of the waistcoat, sash and apron for F90's walking staff (Effects/CafeWalk).
+	describe("walking cuts (F90)", function()
+		local function body(name: string, pose: string?): any
+			local self: any = { Name = name }
+			function self.GetAttribute(_this: any, key: string): any
+				return if key == "Pose" then pose else nil
+			end
+			return self
+		end
+
+		it("tells a walking body from a seated one by Pose or the _Sit name", function()
+			expect(CatDress.isWalking(body("CafeWalker"))).to.equal(true)
+			expect(CatDress.isWalking(body("CatCafe_Cat_Tabby"))).to.equal(true)
+			expect(CatDress.isWalking(body("cat_7f3a", "sit"))).to.equal(false)
+			expect(CatDress.isWalking(body("CatCafe_Cat_Tabby_Sit"))).to.equal(false)
+			expect(CatDress.isWalking(body("CatCafe_Cat_Tabby_Gold_Sit"))).to.equal(false)
+		end)
+
+		it("tries the walking cut first on a walking body and only the plain piece on a seated one", function()
+			expect(table.concat(CatDress.assetNames("Vest", true), ",")).to.equal(
+				"CatCafe_Accessory_Vest_Walk,CatCafe_Accessory_Vest"
+			)
+			expect(table.concat(CatDress.assetNames("Vest", false), ",")).to.equal("CatCafe_Accessory_Vest")
+		end)
+	end)
 end

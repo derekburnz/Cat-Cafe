@@ -1687,7 +1687,7 @@ Presets.cannonCamera = {
 
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue
 -- pushes every other player within CatchBurstRadiusStuds (10) of the catcher away, so a ring as wide as that
--- spreads from the catcher's feet, and while their `RushUntil` runs (CatchRushSeconds, 5) speed lines stream off
+-- spreads from the catcher's feet, and while their `RushUntil` runs (Config.CatchRushSeconds) speed lines stream off
 -- them. Startled (F57): the player who missed walks slowly while their `StartledUntil` runs (StartledSeconds, 2), with
 -- the dizzy stars of a shove for that long and, for them, a camera bump between a miss's and a shove's.
 Presets.chase = {

@@ -2202,12 +2202,6 @@ function HUD._layoutMenu(self: any)
 			Vector2.new(0, 1)
 		)
 		bandBottom -= buffsH + BUFFS_GAP
-	else
-		-- level with the first pill, right of the menu
-		self._buffs:place(
-			UDim2.fromOffset(MARGIN + PILL_W + 12, MARGIN + PILL_H / 2),
-			Vector2.new(0, 0.5)
-		)
 	end
 	local band = bandBottom - MARGIN
 	-- a short screen closes the gaps between the pills a little before anything overlaps
@@ -2221,6 +2215,13 @@ function HUD._layoutMenu(self: any)
 	local block = if roomy then menuH + foldUnder else menuH
 	self._menuTop = MARGIN + math.max(0, math.floor((band - block) / 2))
 	self._foldBeside = not roomy
+	if not roomy then
+		-- level with the first pill, right of the menu
+		self._buffs:place(
+			UDim2.fromOffset(MARGIN + PILL_W + 12, self._menuTop + PILL_H / 2),
+			Vector2.new(0, 0.5)
+		)
+	end
 	self._menu.Position =
 		UDim2.new(0, if self._menuFolded then MENU_FOLDED_X else MARGIN, 0, self._menuTop)
 	self:_placeMenuFold()

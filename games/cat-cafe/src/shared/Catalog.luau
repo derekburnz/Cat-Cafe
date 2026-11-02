@@ -76,13 +76,15 @@ Catalog.rarityRank =
 	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5 } :: { [string]: number }
 
 -- Data-model v0.13.7 (Derek 2026-10-28 01:50: "just make the base money generation more from further areas"): a
--- cat earns its rarity's income times its area's multiplier. Catalog.areas carries the same numbers.
+-- cat earns its rarity's income times its area's multiplier. Catalog.areas carries the same numbers. F95 (the money
+-- ladder, economy-ladder.md section 1): each area pays three times the one before, so one step up in area is worth
+-- one step up in rarity ("mythical from T1 should be about as good as legendary from T2 or epic from T3").
 local AREA_INCOME: { [string]: number } = {
 	alley = 1,
-	park = 1.5,
-	neighbourhood = 2.25,
-	woods = 3.5,
-	sewer = 5,
+	park = 3,
+	neighbourhood = 9,
+	woods = 27,
+	sewer = 81,
 }
 
 local function cat(
@@ -857,7 +859,7 @@ Catalog.tiers = {
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 80000,
+		cost = 350000, -- F95 (economy-ladder.md section 3; was 80,000)
 		distinctCats = 12,
 		needsRarity = "Epic",
 		needsRarityCount = 1,
@@ -869,7 +871,7 @@ Catalog.tiers = {
 	{
 		tier = 4,
 		name = "Famous Cafe",
-		cost = 700000,
+		cost = 27000000, -- F95 (was 700,000)
 		distinctCats = 20,
 		needsRarity = "Legendary",
 		needsRarityCount = 1,
@@ -881,7 +883,7 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 5000000,
+		cost = 800000000, -- F95 (was 5,000,000)
 		distinctCats = 30,
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
@@ -917,7 +919,7 @@ Catalog.upgrades = {
 		name = "Tables",
 		description = "Each table seats two more customers and adds tips",
 		maxLevel = 6,
-		costs = { 150, 600, 3000, 10000, 50000, 150000 },
+		costs = { 150, 600, 3000, 10000, 200000, 600000 }, -- F95: levels 5 and 6 four times (section 4)
 		startLevel = 0,
 	},
 	{
@@ -925,7 +927,7 @@ Catalog.upgrades = {
 		name = "Espresso machine",
 		description = "Better coffee, bigger tips from every cat",
 		maxLevel = 5,
-		costs = { 0, 2000, 15000, 100000, 800000 },
+		costs = { 0, 2000, 15000, 400000, 6000000 }, -- F95: level 4 four times, 5 (Tier 4) 7.5 times
 		startLevel = 1,
 	},
 	{
@@ -933,7 +935,7 @@ Catalog.upgrades = {
 		name = "Net",
 		description = "A better net: higher odds on every swing",
 		maxLevel = 3,
-		costs = { 2500, 25000, 200000 },
+		costs = { 2500, 25000, 800000 }, -- F95: the Master Net four times
 		startLevel = 0,
 	},
 	{
@@ -942,7 +944,7 @@ Catalog.upgrades = {
 		-- F82 (v0.13.15): five levels, each tier opening one, the names in Bait.bowlName
 		description = "A bowl on your back step. Each level brings bait cats sooner and rarer",
 		maxLevel = 5,
-		costs = { 600, 6000, 60000, 500000, 3000000 },
+		costs = { 600, 6000, 240000, 4000000, 50000000 }, -- F95: Fancy, Deluxe and Royal Bowls
 		startLevel = 0,
 	},
 } :: { Types.UpgradeDef }
@@ -1002,7 +1004,7 @@ Catalog.decor = {
 	{
 		id = "neon_sign",
 		name = "Neon cat sign",
-		cost = 60000,
+		cost = 240000, -- F95 (was 60,000)
 		category = "Wall",
 		effect = "+10% tips",
 		description = "Seen from the far end of the street.",
@@ -1013,7 +1015,7 @@ Catalog.decor = {
 	{
 		id = "fish_tank",
 		name = "Fish tank",
-		cost = 500000,
+		cost = 4000000, -- F95 (was 500,000)
 		category = "Furniture",
 		effect = "+10% tips, cats stare at it",
 		description = "The fish are fine. Probably.",
@@ -1116,20 +1118,22 @@ Catalog.lures = {
 
 -- Section 11b (F47): the Tip Jar's twelve playtime gifts in step order, unlocked by minutes of the current session.
 -- Coins scale with the day rate at claim time (shared/TipJar.coins); the dealer foods are fine here since they are
--- free. Nothing about the jar can be bought.
+-- free. Nothing about the jar can be bought. F95 (economy-ladder.md section 6b, Derek 2026-10-30 00:27): every prize
+-- paid in seconds of day rate in this file (the jar, the Daily Treat, quests, the wheel, achievements, the Index
+-- milestones and codes) pays half the seconds it did; the minimum coins stay.
 Catalog.tipJar = {
-	{ step = 1, minutes = 2, prize = { coins = 50, coinSeconds = 30 } },
+	{ step = 1, minutes = 2, prize = { coins = 50, coinSeconds = 15 } },
 	{ step = 2, minutes = 5, prize = { lures = { kibble = 2 } } },
-	{ step = 3, minutes = 10, prize = { coins = 100, coinSeconds = 60 } },
+	{ step = 3, minutes = 10, prize = { coins = 100, coinSeconds = 30 } },
 	{ step = 4, minutes = 15, prize = { lures = { tuna = 1 } } },
-	{ step = 5, minutes = 20, prize = { coins = 150, coinSeconds = 90 } },
+	{ step = 5, minutes = 20, prize = { coins = 150, coinSeconds = 45 } },
 	{ step = 6, minutes = 30, prize = { lures = { tuna = 2 } } },
-	{ step = 7, minutes = 40, prize = { coins = 250, coinSeconds = 120 } },
+	{ step = 7, minutes = 40, prize = { coins = 250, coinSeconds = 60 } },
 	{ step = 8, minutes = 50, prize = { lures = { salmon = 1 } } },
 	-- v0.10 (F68, round 4 Q10): a pretty good gift at one hour
-	{ step = 9, minutes = 60, prize = { coins = 1000, coinSeconds = 600, fish = 10, spins = 1 } },
+	{ step = 9, minutes = 60, prize = { coins = 1000, coinSeconds = 300, fish = 10, spins = 1 } },
 	{ step = 10, minutes = 75, prize = { lures = { sardines = 1 } } },
-	{ step = 11, minutes = 90, prize = { coins = 600, coinSeconds = 300, spins = 1 } },
+	{ step = 11, minutes = 90, prize = { coins = 600, coinSeconds = 150, spins = 1 } },
 	-- and a really good one at two hours, with a Tip Potion since F64
 	{
 		step = 12,
@@ -1148,11 +1152,11 @@ Catalog.tipJar = {
 -- are pretty good and day 7 really good: a Golden Classic Crate and a Star Treat, the night dealer's best bait, for a
 -- real shot at a top cat while cats still come only from catching, rescue and bait. Earned only (monetization-policy).
 Catalog.dailyTreat = {
-	{ day = 1, prize = { coins = 300, coinSeconds = 300 } },
+	{ day = 1, prize = { coins = 300, coinSeconds = 150 } },
 	{ day = 2, prize = { lures = { salmon = 2 }, fish = 15, spins = 1 } },
-	{ day = 3, prize = { coins = 600, coinSeconds = 600 } },
+	{ day = 3, prize = { coins = 600, coinSeconds = 300 } },
 	{ day = 4, prize = { lures = { caviar = 1 }, crates = { classic_crate = 1 }, spins = 1 } },
-	{ day = 5, prize = { coins = 1000, coinSeconds = 900 } },
+	{ day = 5, prize = { coins = 1000, coinSeconds = 450 } },
 	{ day = 6, prize = { lures = { tuna = 3 }, potions = { lucky_potion = 1 } } },
 	{
 		day = 7,
@@ -1398,10 +1402,10 @@ Catalog.quests = {
 -- What finishing a quest pays, in the Index prize shape: coins are `coinSeconds` of the day rate when claimed, at
 -- least `coins`.
 Catalog.questPrizes = {
-	daily = { coins = 200, coinSeconds = 180, fish = 2 },
-	dailyBig = { coins = 400, coinSeconds = 300, fish = 4, lures = { tuna = 1 } },
+	daily = { coins = 200, coinSeconds = 90, fish = 2 },
+	dailyBig = { coins = 400, coinSeconds = 150, fish = 4, lures = { tuna = 1 } },
 	dailySet = { potions = { big_tip_potion = 1, gold_rush_potion = 1 }, fish = 10, spins = 1 },
-	weekly = { coins = 2000, coinSeconds = 1200, fish = 15, spins = 1, lures = { salmon = 1 } },
+	weekly = { coins = 2000, coinSeconds = 600, fish = 15, spins = 1, lures = { salmon = 1 } },
 	weeklySet = {
 		potions = { big_tip_potion = 3, gold_rush_potion = 3, quick_bait_potion = 2 },
 		crates = { classic_golden_crate = 1 },
@@ -1768,18 +1772,18 @@ Catalog.achievements = {
 
 -- An achievement's prize by its size; coins scale with the day rate when claimed.
 Catalog.achievementPrizes = {
-	S = { coins = 300, coinSeconds = 300, spins = 1 },
-	M = { coins = 1000, coinSeconds = 900, spins = 2, potions = { tip_potion = 1 } },
+	S = { coins = 300, coinSeconds = 150, spins = 1 },
+	M = { coins = 1000, coinSeconds = 450, spins = 2, potions = { tip_potion = 1 } },
 	L = {
 		coins = 2500,
-		coinSeconds = 1800,
+		coinSeconds = 900,
 		spins = 3,
 		crates = { classic_crate = 1 },
 		potions = { big_tip_potion = 1 },
 	},
 	XL = {
 		coins = 5000,
-		coinSeconds = 3600,
+		coinSeconds = 1800,
 		spins = 5,
 		crates = { classic_golden_crate = 1 },
 		potions = { big_tip_potion = 1, gold_rush_potion = 1 },
@@ -1975,7 +1979,7 @@ Catalog.indexMilestones = {
 -- errors instead of changing the prize for everyone on the server (reviewer S61).
 Catalog.indexPrizes = {
 	alley = {
-		cats3 = { coins = 300, coinSeconds = 600, fish = 5, spins = 1 },
+		cats3 = { coins = 300, coinSeconds = 300, fish = 5, spins = 1 },
 		cats6 = { lures = { tuna = 3 }, crates = { alley_crate = 1 }, bonus = 0.02 },
 		cats10 = {
 			lures = { salmon = 2 },
@@ -1985,11 +1989,11 @@ Catalog.indexPrizes = {
 			bonus = 0.05,
 		},
 		gold1 = { fish = 10, spins = 1, crates = { alley_crate = 1 }, goldLuck = 0.02 },
-		gold2 = { coins = 1000, coinSeconds = 900, fish = 15, spins = 2, goldLuck = 0.03 },
+		gold2 = { coins = 1000, coinSeconds = 450, fish = 15, spins = 2, goldLuck = 0.03 },
 		gold4 = { crates = { alley_golden_crate = 1 }, fish = 25, goldLuck = 0.05 },
 		gold6 = {
 			coins = 2000,
-			coinSeconds = 1800,
+			coinSeconds = 900,
 			lures = { salmon = 3 },
 			fish = 40,
 			spins = 3,
@@ -1998,7 +2002,7 @@ Catalog.indexPrizes = {
 		gold8 = { crates = { alley_golden_crate = 1 }, fish = 60, goldLuck = 0.05 },
 		gold10 = {
 			coins = 5000,
-			coinSeconds = 3600,
+			coinSeconds = 1800,
 			crates = { alley_golden_crate = 2 },
 			fish = 100,
 			spins = 5,
@@ -2007,7 +2011,7 @@ Catalog.indexPrizes = {
 		},
 	},
 	park = {
-		cats3 = { coins = 1000, coinSeconds = 600, fish = 10, spins = 1 },
+		cats3 = { coins = 1000, coinSeconds = 300, fish = 10, spins = 1 },
 		cats6 = { lures = { salmon = 3 }, crates = { park_crate = 1 }, bonus = 0.02 },
 		cats10 = {
 			lures = { caviar = 2 },
@@ -2017,11 +2021,11 @@ Catalog.indexPrizes = {
 			bonus = 0.05,
 		},
 		gold1 = { fish = 15, spins = 1, crates = { park_crate = 1 }, goldLuck = 0.02 },
-		gold2 = { coins = 3000, coinSeconds = 900, fish = 20, spins = 2, goldLuck = 0.03 },
+		gold2 = { coins = 3000, coinSeconds = 450, fish = 20, spins = 2, goldLuck = 0.03 },
 		gold4 = { crates = { park_golden_crate = 1 }, fish = 35, goldLuck = 0.05 },
 		gold6 = {
 			coins = 6000,
-			coinSeconds = 1800,
+			coinSeconds = 900,
 			lures = { caviar = 3 },
 			fish = 50,
 			spins = 3,
@@ -2030,7 +2034,7 @@ Catalog.indexPrizes = {
 		gold8 = { crates = { park_golden_crate = 1 }, fish = 75, goldLuck = 0.05 },
 		gold10 = {
 			coins = 15000,
-			coinSeconds = 3600,
+			coinSeconds = 1800,
 			crates = { park_golden_crate = 2 },
 			fish = 125,
 			spins = 5,
@@ -2039,7 +2043,7 @@ Catalog.indexPrizes = {
 		},
 	},
 	neighbourhood = {
-		cats3 = { coins = 3000, coinSeconds = 600, fish = 15, spins = 1 },
+		cats3 = { coins = 3000, coinSeconds = 300, fish = 15, spins = 1 },
 		cats6 = { lures = { caviar = 3 }, crates = { neighbourhood_crate = 1 }, bonus = 0.02 },
 		cats10 = {
 			lures = { moon_milk = 2 },
@@ -2049,11 +2053,11 @@ Catalog.indexPrizes = {
 			bonus = 0.05,
 		},
 		gold1 = { fish = 20, spins = 1, crates = { neighbourhood_crate = 1 }, goldLuck = 0.02 },
-		gold2 = { coins = 10000, coinSeconds = 900, fish = 30, spins = 2, goldLuck = 0.03 },
+		gold2 = { coins = 10000, coinSeconds = 450, fish = 30, spins = 2, goldLuck = 0.03 },
 		gold4 = { crates = { neighbourhood_golden_crate = 1 }, fish = 45, goldLuck = 0.05 },
 		gold6 = {
 			coins = 20000,
-			coinSeconds = 1800,
+			coinSeconds = 900,
 			lures = { moon_milk = 3 },
 			fish = 60,
 			spins = 3,
@@ -2062,7 +2066,7 @@ Catalog.indexPrizes = {
 		gold8 = { crates = { neighbourhood_golden_crate = 1 }, fish = 90, goldLuck = 0.05 },
 		gold10 = {
 			coins = 50000,
-			coinSeconds = 3600,
+			coinSeconds = 1800,
 			crates = { neighbourhood_golden_crate = 2 },
 			fish = 150,
 			spins = 5,
@@ -2071,7 +2075,7 @@ Catalog.indexPrizes = {
 		},
 	},
 	woods = {
-		cats3 = { coins = 10000, coinSeconds = 600, fish = 20, spins = 1 },
+		cats3 = { coins = 10000, coinSeconds = 300, fish = 20, spins = 1 },
 		cats6 = { lures = { moon_milk = 3 }, crates = { woods_crate = 1 }, bonus = 0.02 },
 		cats10 = {
 			lures = { star_treat = 2 },
@@ -2081,11 +2085,11 @@ Catalog.indexPrizes = {
 			bonus = 0.05,
 		},
 		gold1 = { fish = 25, spins = 1, crates = { woods_crate = 1 }, goldLuck = 0.02 },
-		gold2 = { coins = 30000, coinSeconds = 900, fish = 40, spins = 2, goldLuck = 0.03 },
+		gold2 = { coins = 30000, coinSeconds = 450, fish = 40, spins = 2, goldLuck = 0.03 },
 		gold4 = { crates = { woods_golden_crate = 1 }, fish = 60, goldLuck = 0.05 },
 		gold6 = {
 			coins = 60000,
-			coinSeconds = 1800,
+			coinSeconds = 900,
 			lures = { star_treat = 3 },
 			fish = 80,
 			spins = 3,
@@ -2094,7 +2098,7 @@ Catalog.indexPrizes = {
 		gold8 = { crates = { woods_golden_crate = 1 }, fish = 120, goldLuck = 0.05 },
 		gold10 = {
 			coins = 150000,
-			coinSeconds = 3600,
+			coinSeconds = 1800,
 			crates = { woods_golden_crate = 2 },
 			fish = 200,
 			spins = 5,
@@ -2103,7 +2107,7 @@ Catalog.indexPrizes = {
 		},
 	},
 	sewer = {
-		cats3 = { coins = 30000, coinSeconds = 600, fish = 25, spins = 1 },
+		cats3 = { coins = 30000, coinSeconds = 300, fish = 25, spins = 1 },
 		cats6 = { lures = { star_treat = 3 }, crates = { sewer_crate = 1 }, bonus = 0.02 },
 		cats10 = {
 			lures = { star_treat = 3 },
@@ -2113,11 +2117,11 @@ Catalog.indexPrizes = {
 			bonus = 0.05,
 		},
 		gold1 = { fish = 30, spins = 1, crates = { sewer_crate = 1 }, goldLuck = 0.02 },
-		gold2 = { coins = 100000, coinSeconds = 900, fish = 50, spins = 2, goldLuck = 0.03 },
+		gold2 = { coins = 100000, coinSeconds = 450, fish = 50, spins = 2, goldLuck = 0.03 },
 		gold4 = { crates = { sewer_golden_crate = 1 }, fish = 75, goldLuck = 0.05 },
 		gold6 = {
 			coins = 200000,
-			coinSeconds = 1800,
+			coinSeconds = 900,
 			lures = { star_treat = 4 },
 			fish = 100,
 			spins = 3,
@@ -2126,7 +2130,7 @@ Catalog.indexPrizes = {
 		gold8 = { crates = { sewer_golden_crate = 1 }, fish = 150, goldLuck = 0.05 },
 		gold10 = {
 			coins = 500000,
-			coinSeconds = 3600,
+			coinSeconds = 1800,
 			crates = { sewer_golden_crate = 2 },
 			fish = 250,
 			spins = 5,
@@ -2220,7 +2224,7 @@ Catalog.codes = {
 	launch = {
 		id = "launch",
 		active = false,
-		prize = { coins = 1000, coinSeconds = 600, fish = 25, spins = 2, lures = { tuna = 3 } },
+		prize = { coins = 1000, coinSeconds = 300, fish = 25, spins = 2, lures = { tuna = 3 } },
 	},
 	group = {
 		id = "group",
@@ -2228,7 +2232,7 @@ Catalog.codes = {
 		requiresGroup = true,
 		prize = {
 			coins = 2500,
-			coinSeconds = 1800,
+			coinSeconds = 900,
 			fish = 100,
 			spins = 5,
 			crates = { classic_crate = 1 },

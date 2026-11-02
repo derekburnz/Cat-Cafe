@@ -11,8 +11,17 @@ local Config = {
 	FavoriteMultiplier = 1.5,
 	TableBonus = 0.10,
 	EspressoBonus = 0.15,
-	OfflineRate = 0.25,
-	OfflineCapSeconds = 3600,
+	-- Coming back (F95, economy-ladder.md section 5; Derek 2026-11-01 22:32: "do 50% offline and pass makes it 100% and
+	-- up to 16h"): half the day rate for up to 8 hours away, the full rate for up to 16 with the Long Nap pass.
+	OfflineRate = 0.5,
+	OfflineCapSeconds = 28800,
+	OfflineRatePass = 1.0,
+	OfflineCapPassSeconds = 57600,
+	-- Game pass ids for F95's hooks (section 6); 0 until Tools-Agent makes the pass, which turns its effect off. The
+	-- Money passes by the income they multiply by (the highest owned counts); each extra slot pass adds a role slot.
+	LongNapPassId = 0,
+	MoneyPassIds = { [2] = 0, [3] = 0, [4] = 0 } :: { [number]: number },
+	ExtraSlotPassIds = {} :: { number },
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)
 
@@ -26,8 +35,10 @@ local Config = {
 	CharmSpread = 0.20, -- charm 0 earns 1 - spread, charm 100 earns 1 + spread
 	GoldMultiplier = 1.5, -- a gold cat's rating (data-model section 4)
 	-- Keep up (v0.13.16, F86, data-model 4b): a cat of these rarities from an older area earns with the incomeMultiplier
-	-- of the area opened KeepUpStepsBehind tiers before the owner's newest, never below its own area's.
-	KeepUpRarities = { Legendary = true, Mythical = true } :: { [string]: boolean },
+	-- of the area opened KeepUpStepsBehind tiers before the owner's newest, never below its own area's. F95
+	-- (economy-ladder.md section 2): none, since the area ladder itself makes an older Mythical worth a newer Legendary;
+	-- the code stays for the shop-only cats and for config.
+	KeepUpRarities = {} :: { [string]: boolean },
 	KeepUpStepsBehind = 1,
 
 	-- The clock (data-model section 9): a server-wide loop of day then night. v0.9 (F66, Derek 2026-10-27): night is a
@@ -99,10 +110,11 @@ local Config = {
 	-- share (half: 240 s), fixed in bait.readyAt at placement
 	LureWaitSecondsNight = 300,
 	-- F82 bowl levels (v0.13.15): the day wait and the bowl luck by lure_bowl level, read by shared/Bait. Luck is the
-	-- share of each rarity's chance moved up one rarity before the roll. The Big Bowl perk takes a fifth off any level.
+	-- share of each rarity's chance moved up one rarity before the roll. The Big Bowl perk takes BigBowlWaitCutSeconds
+	-- off any level's day wait, before night halves it (F95 section 6b, Derek 2026-10-28 17:39: "lower it by 2 min perma").
 	BowlWaitSeconds = { 600, 570, 540, 510, 480 } :: { number },
 	BowlLuck = { 0, 0.04, 0.08, 0.12, 0.16 } :: { number },
-	BigBowlWaitMultiplier = 0.8,
+	BigBowlWaitCutSeconds = 120,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	BaitResolveRangeStuds = 20, -- Tame or Let go from this close
 	GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02): rolled when the food goes in, revealed when the cat arrives
@@ -197,7 +209,7 @@ local Config = {
 	CollectorRollMin = 0.8,
 	CollectorRollMax = 1.5,
 	CollectorRangeStuds = 12, -- AnswerCollector from this close to him (his card opens there)
-	PotionMaxMinutes = 60, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8)
+	PotionMaxMinutes = 1440, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8; F95: 24 h, Derek 2026-10-28 17:36)
 	TipPotionBonus = 0.25, -- tip_potion: +25% on income, the tip piles and rich visitors
 	SwiftPotionSpeed = 4, -- swift_potion: added to walk and carry speed
 	LuckyPotionGoldScale = 2, -- lucky_potion: food set in the bowl rolls gold at this times the chance

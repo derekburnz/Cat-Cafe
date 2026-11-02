@@ -11,6 +11,7 @@ local RunService = game:GetService("RunService")
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local PassService = require(script.Parent.PassService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local ProfileStore = require(script.Parent.Parent.Vendor.ProfileStore)
 local Signal = require(ReplicatedStorage.Shared.Signal)
@@ -99,9 +100,13 @@ local function load(player: Player)
 		return
 	end
 
+	-- F95: the passes first, since Long Nap sets the offline rate and cap (rateAtLogout already has the Money pass)
+	local passes = PassService.check(player)
 	local now = os.time()
 	local profile = ProfileSchema.migrate(profileStore.Data, now)
-	local offline, offlineSeconds = Economy.offlineGain(profile.rateAtLogout, profile.lastSeen, now)
+	Economy.setPasses(profile, passes)
+	local offline, offlineSeconds =
+		Economy.offlineGain(profile.rateAtLogout, profile.lastSeen, now, passes.longNap)
 	profile.lastTick = now -- never credit the offline gap at the online rate
 	profile.stats.sessions += 1
 	profileStore.Data = profile :: any
@@ -229,8 +234,13 @@ function DataService.debugSetAway(player: Player, seconds: number): number
 		return 0
 	end
 	local now = os.time()
-	local amount, counted =
-		Economy.offlineGain(Economy.incomePerSecond(session.profile), now - seconds, now)
+	local profile = session.profile
+	local amount, counted = Economy.offlineGain(
+		Economy.incomePerSecond(profile),
+		now - seconds,
+		now,
+		Economy.passes(profile).longNap
+	)
 	session.pendingOffline = amount
 	session.pendingOfflineSeconds = counted
 	return amount

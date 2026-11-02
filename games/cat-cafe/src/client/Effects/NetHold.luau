@@ -171,6 +171,13 @@ local function smack(character: Model, now: number)
 	entry.smackAt, entry.missedAt = now, nil
 end
 
+-- The net in `character`'s hand while it shows, nil while it is away; NetTrail.luau (VFX-Agent, F93) draws the
+-- swing's whoosh off it.
+function NetHold.net(character: Model): Model?
+	local entry = held[character]
+	return if entry ~= nil then entry.model else nil
+end
+
 -- Lets go of a character that left or was rebuilt.
 function NetHold.forget(character: Model)
 	local entry = held[character]

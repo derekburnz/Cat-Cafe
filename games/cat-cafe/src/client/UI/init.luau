@@ -4757,8 +4757,11 @@ do
 		if screen then
 			screen:render(playerState)
 		end
+		-- the Trades page builds its cards only while open (review S116): most players never open it, and its
+		-- onOpen renders the latest state
 		local log = trading.log
-		if log then
+		local modalView = modal
+		if log and modalView and modalView:current() == "TradeLog" then
 			log:render(playerState)
 		end
 	end

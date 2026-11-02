@@ -5,7 +5,7 @@
 -- from the Trades row in Settings; Back returns there. View only.
 --   TradeLog.new(callbacks)   callbacks.close (the X), callbacks.back (Back, to Settings)
 --   log:setCatalog(catalog)   the cat pictures
---   log:render(state)         reads state.tradeLog
+--   log:render(state)         reads state.tradeLog; call it on open and while open only, since it builds the cards
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)

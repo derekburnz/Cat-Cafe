@@ -29,7 +29,6 @@ local Cannon = require(script.Screens.Cannon)
 local CannonCard = require(script.Screens.CannonCard)
 local CannonLogic = require(script.Components.CannonLogic)
 local CatCard = require(script.Screens.CatCard)
-local CatCardLogic = require(script.Components.CatCardLogic)
 local CatCollection = require(script.Screens.CatCollection)
 local CatVariant = require(script.Components.CatVariant)
 local CatchCircles = require(script.Screens.CatchCircles)
@@ -145,6 +144,7 @@ UI.events = {
 	claimQuest = Signal.new(), -- (kind, slot)   Claim on a finished quest, kind "daily" or "weekly": forward as ClaimQuest
 	rerollQuest = Signal.new(), -- (kind, slot)   Swap on an unfinished quest (the free reroll): forward as RerollQuest
 	claimAchievement = Signal.new(), -- (achievementId)   Claim on a met achievement: forward as ClaimAchievement
+	claimAll = Signal.new(), -- (what)   Claim all in the Quests window, "daily", "weekly" or "achievements": forward as ClaimAll (shown once Config.QuestClaimAll)
 	-- F63
 	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
 	-- F70
@@ -197,8 +197,6 @@ local signpost: Signpost.Signpost? = nil -- the fountain signpost's arms with ti
 local indexBoards: IndexBoards.IndexBoards? = nil -- each area's Index Board (F50), drawn from this player's Index
 local areaTitle: AreaTitle.AreaTitle? = nil
 local locationMarkers: LocationMarkers.LocationMarkers? = nil -- My Cafe, area and dealer icons that fade up close
-local zoneSafe: boolean? = nil -- whether the last UI.setZone was safe, nil before the first
-local safeToastAt = -math.huge -- os.clock() of the last "Safe zone" toast, so an area's open edge cannot spam it
 local currentZone: string? = nil -- the World.Zones name from UI.setZone, for the dusk banner (F66)
 local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
@@ -965,6 +963,9 @@ function UI.init(config: Types.InitConfig)
 		claimAchievement = function(achievementId: string)
 			UI.events.claimAchievement:Fire(achievementId)
 		end,
+		claimAll = function(what: string)
+			UI.events.claimAll:Fire(what)
+		end,
 		close = closeModal,
 	})
 	local questsView = questsScreen :: Quests.Quests
@@ -1367,7 +1368,7 @@ function UI.destroy()
 	hud, upgrades, decor, collection, modal, catch, toasts, popups =
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
-	locationMarkers, zoneSafe = nil, nil
+	locationMarkers = nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
 	cafeSigns, worldTags, actionPills, richTipScreen, tillTips = nil, nil, nil, nil, nil
 	catCard = nil
@@ -1500,45 +1501,10 @@ end
 -- Cat levels (F75)
 ----------------------------------------------------------------------------------------------------
 
-local LEVEL_UP_GATHER = 0.6 -- seconds: level ups that land together share one toast
-local levelUps: { [string]: number } = {} -- uid -> the newest level, until the toast
-local levelUpOrder: { string } = {}
-
-local function toastLevelUps()
-	local list: { CatCardLogic.LevelUp } = {}
-	local cats: { [string]: Types.CatInstance } = state.cats or {}
-	for _, uid in levelUpOrder do
-		local instance = cats[uid]
-		local def = lookupCat(if instance then instance.catId else nil)
-		local name = CatCardLogic.names(
-			if instance then instance.name else nil,
-			if def then def.name else "Your cat"
-		)
-		table.insert(list, { name = name, level = levelUps[uid] })
-	end
-	table.clear(levelUpOrder)
-	table.clear(levelUps)
-	local text = CatCardLogic.levelUpToast(list)
-	if text and toasts then
-		toasts:show(text, "good", true) -- quiet: Audio plays the level up chime from the same moment
-	end
-end
-
--- From the engineer's CatLevelUp(uid, level), the owner only: "Biscuit reached level 12!". Level ups that land
--- within LEVEL_UP_GATHER share one toast ("Biscuit and 2 more cats reached a new level!"), since a room of resting
--- cats can level together. The sparkle comes from the model's Level attribute (Effects) and the chime from Audio.
-function UI.catLevelUp(uid: string, level: number)
-	if type(uid) ~= "string" or type(level) ~= "number" then
-		return
-	end
-	if levelUps[uid] == nil then
-		table.insert(levelUpOrder, uid)
-		if #levelUpOrder == 1 then
-			task.delay(LEVEL_UP_GATHER, toastLevelUps)
-		end
-	end
-	levelUps[uid] = math.max(levelUps[uid] or 0, level)
-end
+-- From the engineer's CatLevelUp(uid, level), the owner only. No toast since 2026-11-02 (Derek 2026-10-28: "the
+-- levelup notifications for cats are a little spammy no need for that"): the cat's hover card shows its level and
+-- XP bar, which the next ProfileSync moves. Kept so the controller's call stays valid.
+function UI.catLevelUp(_uid: string, _level: number) end
 
 function UI.showOfflineEarnings(amount: number, seconds: number)
 	if popups then
@@ -2261,23 +2227,13 @@ local function watchDusk(phase: Types.ClockPhase, phaseEndsAt: number)
 end
 
 -- The World.Zones name the player stands in, from the controller's zone check (the one that picks the ambience):
--- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). Walking back to safety toasts at most
--- once in SAFE_TOAST_SECONDS (walking along an area's open edge flips the zone several times). The "Safe zone" chip
--- under the tier pill went on 2026-10-28 (Derek: "no need for 'safe zone' or danger zone bubble its just clutter").
-local SAFE_TOAST_SECONDS = 20
+-- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). It only times the dusk warning now:
+-- the "Safe zone" chip went on 2026-10-28 (Derek: "no need for 'safe zone' or danger zone bubble its just clutter")
+-- and the "Safe zone: no tackling here" toast on 2026-11-02 (Derek 2026-10-28: "no need for the safe area reached
+-- banner either").
 function UI.setZone(zone: string?)
 	currentZone = zone
 	showDusk() -- walking into an area during the dusk warning
-	local safe = Wayfinding.isSafe(zone)
-	local cameBack = zoneSafe == false and safe
-	zoneSafe = safe
-	if cameBack and os.clock() - safeToastAt >= SAFE_TOAST_SECONDS then
-		safeToastAt = os.clock()
-		-- quiet: Audio plays its own zone chime from Audio.setZone
-		if toasts then
-			toasts:show("Safe zone: no tackling here", "good", true)
-		end
-	end
 end
 
 -- Area title card (F39 P1): the area's name in big letters for two seconds. Call it when the player walks into

@@ -66,6 +66,28 @@ return function()
 			expect(QuestLogic.claimable({}, catalog)).to.equal(0)
 			expect(QuestLogic.claimedCount(catalog, state.achievements)).to.equal(1)
 		end)
+
+		it("counts one set's quests ready to claim, for Claim All (Derek 2026-10-29)", function()
+			local daily = {
+				quest("d_catch5", 5, 5, true),
+				quest("d_perfect10", 10, 10),
+				quest("d_rescue2", 2, 2),
+				quest("d_coins", 1, 600),
+			}
+			expect(QuestLogic.readyCount(daily)).to.equal(2)
+			expect(QuestLogic.readyCount({})).to.equal(0)
+			expect(QuestLogic.readyCount(nil)).to.equal(0)
+		end)
+	end)
+
+	describe("QuestLogic.rowOrder", function()
+		it("drops claimed quests below the rest and keeps slot order in each group", function()
+			-- the head and the set strip are LayoutOrder 1 and 2
+			expect(QuestLogic.rowOrder(1, false) > 2).to.equal(true)
+			expect(QuestLogic.rowOrder(1, false) < QuestLogic.rowOrder(5, false)).to.equal(true)
+			expect(QuestLogic.rowOrder(5, false) < QuestLogic.rowOrder(1, true)).to.equal(true)
+			expect(QuestLogic.rowOrder(1, true) < QuestLogic.rowOrder(5, true)).to.equal(true)
+		end)
 	end)
 
 	describe("QuestLogic.isCoins and resetText", function()

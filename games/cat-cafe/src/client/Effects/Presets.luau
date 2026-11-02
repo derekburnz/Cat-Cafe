@@ -77,6 +77,7 @@ export type Budget = {
 	rallyPops: number, -- "+1" pops and paws flying into the Rally bar at once (F101)
 	pennants: number, -- bunting pennants fluttering at once (F101); 0 hangs them all still
 	decorMotion: number, -- rare decor's moving parts (_Swing, _Spin, _Bob) moving at once (F89 2c)
+	netTrails: number, -- nets drawing a whoosh trail at once (F93)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -109,6 +110,7 @@ Presets.budget = {
 		rallyPops = 5,
 		pennants = 40,
 		decorMotion = 12,
+		netTrails = 3,
 	},
 	high = {
 		animatedCats = 16,
@@ -136,6 +138,7 @@ Presets.budget = {
 		rallyPops = 8,
 		pennants = 90,
 		decorMotion = 24,
+		netTrails = 6,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -163,6 +166,7 @@ Presets.budget = {
 		rallyPops = 3,
 		pennants = 0,
 		decorMotion = 0,
+		netTrails = 1,
 	},
 } :: { [string]: Budget }
 
@@ -1858,6 +1862,52 @@ Presets.decorMotion = {
 	rise = { default = 0.08, least = 0, most = 1 },
 	pick = 1, -- seconds between choosing which parts move
 }
+
+-- The net swing (F93, catch-rework.md sections 1 and 5): a whoosh trail off the net's hoop over the downswing, from
+-- `from` to `to` seconds into the smack (it lands at netSmack.land), each piece fading over `lifetime`. The trail's
+-- edges are the hoop and a point `inner` of the way out from the grip, so it sweeps a fan like a swung racket. Only
+-- characters within `within` studs, the nearest budget.netTrails at once; none with Reduce Motion.
+Presets.netTrail = {
+	from = 0.06,
+	to = 0.17,
+	lifetime = 0.14,
+	inner = 0.55,
+	transparency = 0.3, -- at the hoop's end of each piece; it fades to clear
+	lightEmission = 0.4,
+	within = 60,
+	colors = { Presets.palette.offwhite, Presets.palette.pastelSky },
+}
+
+-- The catch's result word (F93 section 3): as UI-Engineer's word slams in, sparkles burst off it in its colour and
+-- rings grow round it, the biggest for PURRFECT!; "So close!" gets none. The word is the first of `targets` found in
+-- CatCafeCatchCircles that shows within `wait` seconds of CatchResult. Sparkles are `size` pixels and fly up to
+-- `reach` pixels over `seconds`; rings grow from `ringFrom` to `ringTo` of the word's width over `ringSeconds`, the
+-- second `ringGap` seconds later. Never more sparkles than the budget's maxBurst; Reduce Motion halves them and drops
+-- the rings.
+Presets.catchWord = {
+	displayOrder = 26, -- just over the catch screen (CatCafeCatchCircles, 25), under toasts (30)
+	targets = { "ResultWord", "Outcome" },
+	wait = 0.5,
+	size = 12,
+	seconds = 0.6,
+	reach = 80,
+	stagger = 0.12,
+	ringFrom = 0.5,
+	ringTo = 1.4,
+	ringSeconds = 0.5,
+	ringGap = 0.15,
+	words = {
+		purrfect = { sparkles = 18, rings = 2, colour = Presets.palette.golden },
+		excellent = { sparkles = 11, rings = 1, colour = Presets.palette.golden },
+		great = { sparkles = 7, rings = 1, colour = Presets.palette.mint },
+	} :: { [string]: { sparkles: number, rings: number, colour: Color3 } },
+}
+
+-- Rescues (F93 section 4): the trap (the `<rescueSpotId>_Trap` model by its anchor) shakes on every hit of your
+-- rescue, tipping side to side about its base and hopping, a little more each hit (Logic.trapShake); Reduce Motion
+-- keeps it still. When the cat comes free it pops in its rarity colour (Catch.pop) `above` studs over its spot.
+Presets.trapShake = { least = 1.5, most = 5, seconds = 0.35, hz = 12, hop = 0.08 }
+Presets.rescueFree = { above = 1.2, depth = 20 } -- `depth`: how far under the spot the ring looks for the ground
 
 -- Clouds in the sky (Sky.luau; Derek 2026-10-28 17:05: "add clouds in sky"): Roblox's cloud layer at `cover` (0 to
 -- 1, how much of the sky it hides) and `density` (how thick each cloud looks), tinted `color`, drifting on `wind`

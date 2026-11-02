@@ -1814,10 +1814,13 @@ return function()
 			expect(oven[3] <= halfW - 1).to.equal(true)
 		end)
 
-		it("keeps the oven clear of every cat spot, decor spot, nap spot and bed", function()
+		it("keeps the oven and its open door clear of every cat spot, decor spot, nap spot and bed", function()
+			-- the door (Model-Agent #775) hinges at the front 1.2 in from the pivot and is 1.75 long, so open flat it
+			-- reaches 2.95 in front of the pivot
+			local swept = { oven[1], plot.oven.z - 2.95, oven[3], oven[4] }
 			for id, spot in plot.spots do
-				if overlaps(oven, cat(spot)) then
-					fail("the oven overlaps %s", id)
+				if overlaps(swept, cat(spot)) then
+					fail("the oven or its open door overlaps %s", id)
 				end
 			end
 			for n, spot in plot.decorSpots do

@@ -185,7 +185,8 @@ Layout.plot = {
 	espresso = { x = 3, y = 3, z = halfD - 3 } :: Point,
 	-- F90 (cats-make-orders.md section 3): the oven (CatCafe_Cafe_Oven, 3.2 wide, 2.9 deep, front -Z) against the
 	-- back wall past the counter's right end, x 4.5 to 7.7 and z 10.8 to the wall, under the back wall shelf; the
-	-- gap behind the counter itself is 1.5 deep. Barista 3 sits in front of it and decor spots 5 and 8 moved right.
+	-- gap behind the counter itself is 1.5 deep. Barista 3 sits in front of it, clear of its door, and decor spots 5 and
+	-- 8 moved right.
 	oven = { x = 6.1, y = 0, z = halfD - 1.75 } :: Point,
 	-- F90 (section 2), client only: where a made dish waits for the Waiter (on the counter top in front of the till,
 	-- clear of the tip jar and the level 3 espresso machine), where the Waiter stands to take it (on the floor at the
@@ -204,7 +205,9 @@ Layout.plot = {
 	spots = {
 		barista_1 = { x = -0.2, y = 3, z = halfD - 2.55 },
 		barista_2 = { x = -5.2, y = 0, z = halfD - 3 },
-		barista_3 = { x = 6.2, y = 0, z = halfD - 4.4 }, -- F90: in front of the oven (was 5.2, halfD - 3)
+		-- F90: in front of the oven, clear of its door's swing (hinged 0.6 up at z 11.05, 1.75 long, so open flat it
+		-- reaches z 9.3; Model-Agent); was 5.2, halfD - 3
+		barista_3 = { x = 6.2, y = 0, z = halfD - 5.5 },
 		waiter_1 = { x = -4.5, y = 0, z = -2.5 },
 		waiter_2 = { x = 4.5, y = 0, z = -2.5 },
 		waiter_3 = { x = 4.5, y = 0, z = 3.5 }, -- beside the aisle, off the door to counter walk (was 0, 4.5)

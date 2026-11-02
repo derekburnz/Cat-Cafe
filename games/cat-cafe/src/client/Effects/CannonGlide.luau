@@ -80,6 +80,23 @@ function CannonGlide.frames(
 	return frames, weight
 end
 
+-- A staged copy's flight (the intro's copy of you, tagged StagedCharacter): the pose alone, since the intro moves and
+-- spins the copy's root itself. The intro sets `StagedFlight` to "hop" with `StagedFlightAt` the server time the hop
+-- into the barrel starts, to "ball" at the BOOM, and to "land" with `StagedFlightAt` the server time its feet touch the
+-- pad (Avatar.stagedCannon). Nil and 0 without one.
+function CannonGlide.staged(
+	model: Model,
+	rig: Avatar.Rig,
+	now: number
+): ({ [Avatar.Joint]: CFrame }?, number)
+	local phase = model:GetAttribute("StagedFlight")
+	if type(phase) ~= "string" then
+		return nil, 0
+	end
+	local at = model:GetAttribute("StagedFlightAt")
+	return Avatar.stagedCannon(rig, phase, if type(at) == "number" then now - at else 0)
+end
+
 -- Where `character`'s body is mid flight, in the world: its middle, turned as it rolls. Nil while it is not flying
 -- or waits out of sight above the clouds.
 function CannonGlide.body(character: Model): CFrame?

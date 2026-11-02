@@ -3,10 +3,10 @@
 -- in memory: a server restart starts it again at lap 1.
 -- Points come only from the server's own events, never a remote: CatService scores a check-in (1, a rescued cat's
 -- 3), BaitService a tame (1) and RescueService each Team Rescue helper (3), through `score`. Each point goes to every
--- client as RallyPoint(userId, amount) for the pops. A lap's goal is fixed when it starts; passing a step pays every
--- player in the server who scored RallyMinPoints this lap (Rally.pays, at most RallyMaxLaps laps a weekend, kept in
--- the save) with one toast, and the full bar starts the next lap. RallyState goes to a player on join, to everyone
--- at each step, lap, start and end, and at most every RallyStateSeconds while points come in.
+-- client as RallyPoint(userId, amount) for the pops. A lap's goal is fixed at its first point (review N326); passing a
+-- step pays every player in the server who scored RallyMinPoints this lap (Rally.pays, at most RallyMaxLaps laps a
+-- weekend, kept in the save) with one toast, and the full bar starts the next lap. RallyState goes to a player on
+-- join, to everyone at each step, lap, start and end, and at most every RallyStateSeconds while points come in.
 -- While the Rally runs the Town Square shows its bunting and board (WorldBuilder.setRally). Analytics: rally_step
 -- (value the players in the server; the step's share, the lap, the players paid) and rally_points (value the
 -- player's points this Rally on this server; their laps paid), when the Rally ends or they leave.
@@ -90,6 +90,9 @@ local function sendAll()
 	end
 end
 
+-- A lap's goal is set as it starts and set again at its first point (review N326): a server that starts its Rally
+-- before anyone has joined, or a lap that starts in an empty moment, still gets 30 a player for who is playing. From
+-- the first point on it is fixed, so a player leaving does not move it.
 local function startLap(lap: number)
 	bar.lap = lap
 	bar.goal = Rally.goal(#Players:GetPlayers())
@@ -186,6 +189,9 @@ function RallyService.score(player: Player, kind: string)
 	myPoints[player] = (myPoints[player] or 0) + amount
 	rallyPoints[player] = (rallyPoints[player] or 0) + amount
 	local before = bar.points
+	if before == 0 then
+		bar.goal = Rally.goal(#Players:GetPlayers())
+	end
 	bar.points += amount
 	Net.fireAll("RallyPoint", player.UserId, amount)
 	local crossed = Rally.stepsCrossed(before, bar.points, bar.goal)

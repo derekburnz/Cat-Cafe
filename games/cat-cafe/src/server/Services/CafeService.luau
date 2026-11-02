@@ -28,6 +28,7 @@ local Leaderstats = require(script.Parent.Leaderstats)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
+local PalService = require(script.Parent.PalService)
 local PassService = require(script.Parent.PassService)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
@@ -61,11 +62,12 @@ local function profileFor(player: Player): Profile?
 end
 
 -- What the cafe earns per second right now: the day rate, times NightIncomeMultiplier at night (section 11) and the
--- Tip Potion's share while one runs (F64). PotionService syncs when a potion ends, so the HUD's rate follows.
+-- Tip Potion's share while one runs (F64) and the pal bonus (F92, Economy.tipMultiplier). PotionService syncs when a
+-- potion ends and CafeService when the pals change, so the HUD's rate follows.
 local function currentRate(profile: Profile): number
 	return Economy.incomePerSecond(profile)
 		* Economy.phaseMultiplier(ClockService.phase())
-		* Potions.tipMultiplier(profile, os.time())
+		* Economy.tipMultiplier(profile, os.time())
 end
 
 -- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view). A name is
@@ -1508,6 +1510,7 @@ local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
 end
 
 local function onLoaded(player: Player, profile: Profile)
+	Economy.setPals(profile, PalService.count(player)) -- F92: pals who were here before the save loaded
 	local plot = PlotService.assign(player)
 	if plot == nil then
 		Net.toast(player, "The street is full. Try another server.", "warn")
@@ -1544,6 +1547,14 @@ function CafeService.start()
 		local profile = profileFor(player)
 		if profile ~= nil then
 			Economy.setPasses(profile, passes)
+			CafeService.sync(player)
+		end
+	end)
+	PalService.changed:Connect(function(player: Player, count: number)
+		-- F92: a pal came or went; what was earned so far settles at the old bonus, then the new rate shows
+		local profile = profileFor(player)
+		if profile ~= nil then
+			Economy.setPals(profile, count)
 			CafeService.sync(player)
 		end
 	end)

@@ -17,7 +17,6 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local PlotService = require(script.Parent.PlotService)
-local Potions = require(ReplicatedStorage.Shared.Potions)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -67,7 +66,7 @@ local function addPile(
 	local current: Piles = piles[plot.index]
 		or { ownerUserId = player.UserId, plot = plot, shown = {} }
 	piles[plot.index] = current
-	local amount = Economy.tipPileAmount(dayRate * Potions.tipMultiplier(profile, now))
+	local amount = Economy.tipPileAmount(dayRate * Economy.tipMultiplier(profile, now))
 	Economy.credit(profile, amount)
 	profile.stats.tipPilesCollected += 1 -- F73: each pile counts
 	Telemetry.source(player, profile, amount, "Gameplay", "tip_pile")

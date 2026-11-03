@@ -24,6 +24,9 @@ local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028 pilot), in place of Theme.modal
+local PAL = Theme.dark
+
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
 export type Callbacks = {
@@ -54,7 +57,7 @@ local CARD = Vector2.new(150, 140)
 local GAP = Theme.sizes.gap + 4
 local ICON = 44
 local STRIP_HEIGHT = 40
-local BEST_FILL = Theme.colors.gold:Lerp(Theme.colors.paper, 0.72)
+local BEST_FILL = PAL.goldCard
 local PENDING_SECONDS = 2
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 
@@ -66,7 +69,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -95,6 +98,7 @@ function DailyTreat.new(callbacks: Callbacks): DailyTreat
 		title = "Daily Treat",
 		subtitle = "A stamp for each day you play · missing a day loses nothing",
 		color = Theme.colors.berry,
+		dark = true, -- #1028 pilot
 		icon = Theme.icons.daily,
 		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
@@ -105,13 +109,13 @@ function DailyTreat.new(callbacks: Callbacks): DailyTreat
 
 	local strip: Frame = Create("Frame", {
 		Name = "Strip",
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, STRIP_HEIGHT),
 		Parent = panel.content,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	self._line = text({
 		Name = "Next",
@@ -131,7 +135,7 @@ function DailyTreat.new(callbacks: Callbacks): DailyTreat
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
@@ -180,7 +184,7 @@ function DailyTreat._build(self: any)
 		})
 		local frame: Frame = Create("Frame", {
 			Name = "Card",
-			BackgroundColor3 = if best then BEST_FILL else Theme.modal.card,
+			BackgroundColor3 = if best then BEST_FILL else PAL.card,
 			BorderSizePixel = 0,
 			Size = UDim2.new(1, 0, 0, CARD.Y),
 			Parent = cell,
@@ -188,7 +192,7 @@ function DailyTreat._build(self: any)
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 		})
 		local stroke: UIStroke = Create("UIStroke", {
-			Color = Theme.modal.cardStroke,
+			Color = PAL.cardStroke,
 			Thickness = Theme.sizes.stroke,
 			Parent = frame,
 		})
@@ -198,7 +202,7 @@ function DailyTreat._build(self: any)
 			Size = UDim2.new(1, -12, 0, 20),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
-			TextColor3 = if best then Theme.colors.goldDark else Theme.modal.text,
+			TextColor3 = if best then PAL.gold else PAL.text,
 			Text = if best then ("Day %d  ·  Best day"):format(day) else ("Day %d"):format(day),
 			Parent = frame,
 		})
@@ -206,6 +210,7 @@ function DailyTreat._build(self: any)
 			parent = frame,
 			tile = ICON,
 			textSize = Theme.sizes.textBody,
+			textColor = PAL.text,
 			name = "Prize",
 			position = UDim2.new(0.5, 0, 0, 28),
 			anchorPoint = Vector2.new(0.5, 0),
@@ -218,9 +223,9 @@ function DailyTreat._build(self: any)
 			Position = UDim2.new(0.5, 0, 1, -8),
 			Size = UDim2.new(1, -16, 0, 26),
 			BackgroundTransparency = 0,
-			BackgroundColor3 = Theme.colors.line,
+			BackgroundColor3 = PAL.line,
 			FontFace = Theme.fonts.display,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			Visible = false,
 			Parent = frame,
 		})
@@ -333,11 +338,11 @@ function DailyTreat._refresh(self: any)
 		card.claim:setText(if pending then "..." else "Claim")
 		card.status.Visible = stamped or cell.state == "next"
 		card.status.Text = if stamped then "✓ Stamped" else "Tomorrow"
-		card.status.TextColor3 = if stamped then Theme.colors.goodDark else Theme.modal.subtext
+		card.status.TextColor3 = if stamped then PAL.good else PAL.subtext
 		card.stroke.Color = if ready
 			then Theme.colors.good
 			elseif card.best then Theme.colors.goldDark
-			else Theme.modal.cardStroke
+			else PAL.cardStroke
 		card.stroke.Thickness = Theme.sizes.stroke + (if ready or card.best then 1 else 0)
 		card.frame.BackgroundTransparency = if stamped then 0.35 else 0
 	end
@@ -352,7 +357,7 @@ function DailyTreat._refresh(self: any)
 	else
 		self._line.Text = "Next treat in " .. wait
 	end
-	self._line.TextColor3 = if readyDay ~= nil then Theme.colors.goodDark else Theme.modal.text
+	self._line.TextColor3 = if readyDay ~= nil then PAL.good else PAL.text
 end
 
 function DailyTreat.destroy(self: any)

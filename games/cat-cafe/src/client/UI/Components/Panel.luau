@@ -29,6 +29,7 @@ export type Props = {
 	name: string?,
 	color: Color3?, -- the header and ears (default Theme.modal.header, caramel)
 	icon: string?, -- an emoji on the round badge over the top-left corner; no badge when nil
+	dark: boolean?, -- the dark body of Theme.dark (#1028); the window then colours its content from Theme.dark
 }
 
 export type Panel = {
@@ -82,7 +83,7 @@ function Panel.new(props: Props): Panel
 
 	local body: Frame = Create("Frame", {
 		Name = "Body",
-		BackgroundColor3 = Theme.modal.panel,
+		BackgroundColor3 = if props.dark then Theme.dark.panel else Theme.modal.panel,
 		BorderSizePixel = 0,
 		Size = UDim2.fromScale(1, 1),
 		ClipsDescendants = true,
@@ -103,6 +104,7 @@ function Panel.new(props: Props): Panel
 			Rotation = paw[3],
 			Text = "🐾",
 			TextSize = 30,
+			TextColor3 = if props.dark then Theme.colors.white else Theme.colors.black,
 			TextTransparency = 0.95, -- fainter since 2026-10-27, so text over them reads clean
 			Parent = body,
 		})

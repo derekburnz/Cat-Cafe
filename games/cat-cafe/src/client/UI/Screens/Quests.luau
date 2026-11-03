@@ -35,6 +35,9 @@ local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028 pilot), in place of Theme.modal
+local PAL = Theme.dark
+
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
 export type Tab = "Daily" | "Weekly" | "Achievements"
@@ -137,7 +140,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -151,14 +154,14 @@ end
 local function card(name: string, size: UDim2, parent: Instance, order: number?): Frame
 	return Create("Frame", {
 		Name = name,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Size = size,
 		LayoutOrder = order or 0,
 		Parent = parent,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 end
 
@@ -166,7 +169,7 @@ end
 local function bar(parent: Instance, position: UDim2, size: UDim2): Frame
 	local track: Frame = Create("Frame", {
 		Name = "Bar",
-		BackgroundColor3 = Theme.colors.line,
+		BackgroundColor3 = PAL.line,
 		BorderSizePixel = 0,
 		Position = position,
 		Size = size,
@@ -188,7 +191,7 @@ local function check(parent: Instance, position: UDim2, anchor: Vector2): TextLa
 		Position = position,
 		Size = UDim2.fromOffset(ACTION_W, 32),
 		FontFace = Theme.fonts.display,
-		TextColor3 = Theme.colors.goodDark,
+		TextColor3 = PAL.good,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "✓ Claimed",
 		Visible = false,
@@ -206,7 +209,7 @@ local function scroll(name: string, parent: Instance, top: number): ScrollingFra
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Visible = false,
 		Parent = parent,
@@ -272,6 +275,7 @@ function Quests.new(callbacks: Callbacks): Quests
 		subtitle = "Fresh quests every day and week",
 		color = Theme.colors.goldDark,
 		icon = Theme.icons.quests,
+		dark = true, -- #1028 pilot
 		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
 	})
@@ -403,14 +407,14 @@ function Quests._buildPage(
 		Position = UDim2.fromScale(1, 0),
 		Size = UDim2.new(0.5, 0, 1, 0),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Parent = head,
 	})
 
 	-- what finishing all of them pays
 	local strip = card("Set", UDim2.new(1, 0, 0, STRIP), page, 2)
-	strip.BackgroundColor3 = Theme.colors.gold:Lerp(Theme.colors.paper, 0.7)
+	strip.BackgroundColor3 = PAL.goldCard
 	local setCaption = text({
 		Name = "Caption",
 		AnchorPoint = Vector2.new(0, 0.5),
@@ -429,6 +433,7 @@ function Quests._buildPage(
 	})
 	local setChips = PrizeChips.new({
 		parent = chipArea,
+		textColor = PAL.text,
 		tile = CHIP,
 		textSize = Theme.sizes.textSmall,
 		anchorPoint = Vector2.new(0, 0.5),
@@ -443,7 +448,7 @@ function Quests._buildPage(
 		Position = UDim2.new(1, -8, 0.5, 0),
 		Size = UDim2.fromOffset(ACTION_W, 24),
 		FontFace = Theme.fonts.display,
-		TextColor3 = Theme.colors.goodDark,
+		TextColor3 = PAL.good,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Parent = strip,
 	})
@@ -484,7 +489,7 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		Size = UDim2.fromOffset(96, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Parent = frame,
 	})
 	local chipArea: Frame = Create("Frame", {
@@ -496,6 +501,7 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 	})
 	local chips = PrizeChips.new({
 		parent = chipArea,
+		textColor = PAL.text,
 		tile = CHIP,
 		textSize = Theme.sizes.textSmall,
 		anchorPoint = Vector2.new(0, 0.5),
@@ -559,7 +565,7 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 		Position = UDim2.fromOffset(12, 30),
 		Size = UDim2.new(1, -24, 0, 18),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Parent = frame,
 	})
 	-- the count has room for "120,000/360,000" (Play for 100 hours) beside the bar
@@ -571,7 +577,7 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 		Size = UDim2.fromOffset(126, 20),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Parent = frame,
 	})
@@ -584,6 +590,7 @@ function Quests._buildCard(self: any, def: Types.AchievementDef): Card
 	})
 	local chips = PrizeChips.new({
 		parent = chipArea,
+		textColor = PAL.text,
 		tile = CARD_CHIP,
 		textSize = Theme.sizes.textTiny,
 		anchorPoint = Vector2.new(0, 0.5),
@@ -795,7 +802,7 @@ function Quests._renderRow(
 		Tween.popIn(row.check, 0.6)
 	end
 	row.claimed = claimed
-	row.frame.BackgroundColor3 = if claimed then Theme.modal.panel else Theme.modal.card
+	row.frame.BackgroundColor3 = if claimed then PAL.panel else PAL.card
 	row.frame.LayoutOrder = QuestLogic.rowOrder(slot, claimed)
 end
 
@@ -845,9 +852,9 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 		end
 		entry.claimed = row.claimed
 		entry.frame.BackgroundColor3 = if row.claimed
-			then Theme.modal.panel
-			elseif row.ready then Theme.colors.gold:Lerp(Theme.colors.paper, 0.75)
-			else Theme.modal.card
+			then PAL.panel
+			elseif row.ready then PAL.goldCard
+			else PAL.card
 		if row.ready then
 			ready += 1
 		end

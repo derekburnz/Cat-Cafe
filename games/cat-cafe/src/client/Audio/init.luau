@@ -292,7 +292,8 @@ local function crossfade(bed: Bed, cueId: string?, fade: number, from: number?)
 	bed.cue = if sound ~= nil then cueId else nil
 	bed.sound = sound
 	if sound ~= nil and cueId ~= nil then
-		local at = from or 0
+		local region = Cues[cueId].region -- a song in a sheet: `from` counts from its region's start
+		local at = (if region ~= nil then region[1] else 0) + (from or 0)
 		sound.Volume = 0
 		sound.TimePosition = at
 		sound:Play()

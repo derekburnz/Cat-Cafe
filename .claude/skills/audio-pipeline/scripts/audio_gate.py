@@ -42,6 +42,8 @@ BUDGETS = {
     "ui": (0.02, 1.5, True, None, -1.0, 10, False),
     "stinger": (0.5, 6.0, False, None, -1.0, 20, False),  # music/ files named Jingle* or Sting*
     "sheet": (0.5, 120.0, False, None, -1.0, 20, False),  # sheets/: parts joined with silence between
+    # sheets/CatCafe_Sheet_Music*: whole songs in one upload (#980); up to Roblox's 7 minute limit per audio file
+    "music sheet": (30.0, 420.0, False, -18.0, -1.0, 20, False),
 }
 LOUDNESS_TOLERANCE = 3.0
 FOLDER_KIND = {"music": "music", "ambience": "ambience", "amb": "ambience", "sfx": "sfx", "ui": "ui", "sheets": "sheet"}
@@ -136,6 +138,8 @@ def kind_of(path: Path, root: Path) -> str | None:
             kind = FOLDER_KIND[part.lower()]
             if kind == "music" and re.match(r"^CatCafe_Music_(Jingle|Sting)", path.stem):
                 return "stinger"
+            if kind == "sheet" and path.stem.startswith("CatCafe_Sheet_Music"):
+                return "music sheet"
             return kind
     return None
 

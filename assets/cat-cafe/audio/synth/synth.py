@@ -1806,6 +1806,110 @@ def tip_bank() -> np.ndarray:
     return finish(fade_tail(mix(d, (thump, 0.0), (cloth / np.max(np.abs(cloth)) * 0.3, 0.0), (jingle, 0.01)), 0.1), -7)
 
 
+# --- F28 the bait bowl and the welcome back claim (#983, 2026-11-03): until now every food played the Cafe sheet's
+# trayClink and the claim reused richTip. Each food gets its own short sound as it goes in the bowl, and the claim a
+# small jingle of its own. They live in the Bait sheet (mono: the foods play in 3D at you, the claim flat). Quiet and
+# short, since the bowl fills often; no thumps (Derek, 2026-11-03: loud beats and dings were too much). ------------
+CERAMIC = ((1.0, 1.0, 0.18), (2.41, 0.4, 0.08), (4.2, 0.15, 0.04))
+
+
+def bowl_ring(d: float, f: float = 1250.0, amp: float = 0.25) -> np.ndarray:
+    """A ceramic bowl answering what lands in it: a short, soft ring."""
+    return bell(d, f, CERAMIC, attack=0.0008) * amp
+
+
+def plop(d: float, f0: float, f1: float, seed: int, wet: float = 0.4) -> np.ndarray:
+    """Something soft dropping into a bowl: a low pitched-down blip and a little wet noise."""
+    body = glide(d, f0, f1, d * 0.5) * envelope(d, 0.002, d * 0.25)
+    squish = bandpass(noise(d, seed), 1400, 1.2) * envelope(d, 0.003, d * 0.15)
+    return body + squish / np.max(np.abs(squish)) * wet
+
+
+def food_kibble() -> np.ndarray:
+    """Kibble goes in the bowl: a handful of dry pellets rattling in and the bowl ringing softly under them."""
+    d = 0.55
+    rng = np.random.default_rng(983)
+    pellets = []
+    at = 0.0
+    for i in range(14):
+        f = 1800.0 + 1600.0 * rng.random()
+        click = bandpass(noise(0.02, 9830 + i), f, 6.0) * envelope(0.02, 0.0003, 0.004)
+        pellets.append((click / np.max(np.abs(click)) * (0.25 + 0.35 * np.sin(np.pi * (i + 1) / 15)), at))
+        at += 0.015 + 0.03 * rng.random() * (1 + i / 14)
+    return finish(fade_tail(mix(d, *pellets, (bowl_ring(d, 1250.0, 0.18), 0.01)), 0.15), -8)
+
+
+def food_tuna() -> np.ndarray:
+    """Tuna: the little can's ring-pull pops, then a soft fishy plop into the bowl."""
+    d = 0.55
+    pop = bandpass(noise(0.04, 984), 2600, 3.0) * envelope(0.04, 0.0004, 0.008)
+    hiss = bandpass(noise(0.1, 985), 5500, 1.5) * envelope(0.1, 0.002, 0.03)
+    return finish(fade_tail(mix(d, (pop / np.max(np.abs(pop)) * 0.5, 0.0), (hiss / np.max(np.abs(hiss)) * 0.12, 0.01),
+                                (plop(0.2, 420, 240, 986), 0.2), (bowl_ring(0.3, 1250.0, 0.12), 0.21)), 0.12), -8)
+
+
+def food_salmon() -> np.ndarray:
+    """Salmon: a heavier, juicier slap of fish landing in the bowl and settling."""
+    d = 0.5
+    return finish(fade_tail(mix(d, (plop(0.25, 330, 170, 987, 0.55), 0.0), (plop(0.12, 500, 330, 988, 0.3) * 0.4, 0.12),
+                                (bowl_ring(0.35, 1250.0, 0.1), 0.01)), 0.12), -8)
+
+
+def food_sardines() -> np.ndarray:
+    """Sardines (dealer): a tin's lid peeled back with a short metal scrape, then two small plops."""
+    d = 0.6
+    scrape = bandpass(noise(0.18, 989), sweep(0.18, 2200, 3200), 4.0) * envelope(0.18, 0.02, 0.08)
+    return finish(fade_tail(mix(d, (scrape / np.max(np.abs(scrape)) * 0.3, 0.0), (plop(0.12, 520, 300, 990), 0.25),
+                                (plop(0.12, 600, 340, 991) * 0.7, 0.36), (bowl_ring(0.25, 1250.0, 0.1), 0.26)), 0.12), -8)
+
+
+def food_caviar() -> np.ndarray:
+    """Caviar (dealer): a fancy spoonful, tiny glassy pearls pattering in, and one small crystal tink."""
+    d = 0.6
+    rng = np.random.default_rng(992)
+    times = np.sort(0.22 * rng.random(9))
+    pearls = [(bubble(0.04, f, f * 1.4, 0.008) * (0.12 + 0.08 * rng.random()), at)
+              for f, at in zip(2400 + 1200 * rng.random(9), times - times[0])]  # the first pearl at once
+    tink = bell(0.35, note("E7"), GLOCK, attack=0.0005) * 0.25
+    return finish(fade_tail(mix(d, *pearls, (tink, 0.26)), 0.15), -9)
+
+
+def food_moon_milk() -> np.ndarray:
+    """Moon Milk (dealer): a short creamy pour with a glug, and a soft silvery shimmer as it settles."""
+    d = 0.7
+    t = seconds(0.3)
+    pour = bandpass(bandpass(noise(0.3, 993), sweep(0.3, 700, 1100), 2.5), sweep(0.3, 700, 1100), 2.5)
+    pour *= np.clip(t / 0.03, 0, 1) * np.clip((0.3 - t) / 0.08, 0, 1)
+    shimmer = [(bell(d - at, note(n), CELESTA) * 0.12, at) for n, at in (("A6", 0.3), ("E7", 0.38))]
+    return finish(fade_tail(mix(d, (pour / np.max(np.abs(pour)) * 0.4, 0.0), (bubble(0.08, 380, 620, 0.02) * 0.3, 0.12),
+                                *shimmer), 0.2), -9)
+
+
+def food_star_treat() -> np.ndarray:
+    """Star Treat (dealer): a crisp little crunch as it drops in, and a three-note star twinkle going up."""
+    d = 0.75
+    crunch = bandpass(noise(0.07, 994), 3000, 1.0) * envelope(0.07, 0.001, 0.015)
+    twinkle = [(bell(d - at, note(n), GLOCK) * 0.18, at) for n, at in (("C7", 0.08), ("E7", 0.15), ("G7", 0.22))]
+    return finish(fade_tail(mix(d, (crunch / np.max(np.abs(crunch)) * 0.35, 0.0), (bowl_ring(0.25, 1250.0, 0.08), 0.0),
+                                *twinkle), 0.25), -9)
+
+
+def offline_claim() -> np.ndarray:
+    """Claim on the welcome back card: the coins the cafe earned while you were away slide out of a cloth pouch into
+    your hands (a short soft jingle, not richTip's big cascade), then a gentle two-note "welcome back"."""
+    d = 1.1
+    rng = np.random.default_rng(995)
+    cloth = bandpass(noise(0.12, 996), 900, 1.0) * envelope(0.12, 0.01, 0.04)
+    coins = []
+    at = 0.04
+    for i in range(8):
+        f = 2000.0 + 500.0 * rng.random()
+        coins.append((bell(0.15, f, COIN, attack=0.0005) * (0.3 - 0.02 * i), at))
+        at += 0.035 + 0.02 * rng.random()
+    chime = [(bell(d - at, note(n), CELESTA) * 0.35, at) for n, at in (("C6", 0.45), ("G6", 0.6))]
+    return finish(fade_tail(mix(d, (cloth / np.max(np.abs(cloth)) * 0.15, 0.0), *coins, *chime), 0.3), -7)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -1932,6 +2036,14 @@ SOUNDS = {
     "OrderDing": ("sheet-parts/sfx", "Sfx", order_ding),
     "TrayClink": ("sheet-parts/sfx", "Sfx", tray_clink),
     "TipBank": ("sheet-parts/sfx", "Sfx", tip_bank),
+    "FoodKibble": ("sheet-parts/sfx", "Sfx", food_kibble),
+    "FoodTuna": ("sheet-parts/sfx", "Sfx", food_tuna),
+    "FoodSalmon": ("sheet-parts/sfx", "Sfx", food_salmon),
+    "FoodSardines": ("sheet-parts/sfx", "Sfx", food_sardines),
+    "FoodCaviar": ("sheet-parts/sfx", "Sfx", food_caviar),
+    "FoodMoonMilk": ("sheet-parts/sfx", "Sfx", food_moon_milk),
+    "FoodStarTreat": ("sheet-parts/sfx", "Sfx", food_star_treat),
+    "OfflineClaim": ("sheet-parts/sfx", "Sfx", offline_claim),
 }
 
 # Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the
@@ -1955,6 +2067,9 @@ SHEETS = {
                    "RescueMiss", "RescueDrop", "RescueFail", "RescueDone", "TeamRescue")),
     # F90's cafe orders (2026-11-02), mono, all 3D
     "Cafe": (1, ("OrderPour", "OrderDing", "TrayClink", "TipBank")),
+    # F28's bait bowl foods and the welcome back claim (#983, 2026-11-03), mono: the foods play in 3D, the claim flat
+    "Bait": (1, ("FoodKibble", "FoodTuna", "FoodSalmon", "FoodSardines", "FoodCaviar", "FoodMoonMilk", "FoodStarTreat",
+                 "OfflineClaim")),
 }
 
 

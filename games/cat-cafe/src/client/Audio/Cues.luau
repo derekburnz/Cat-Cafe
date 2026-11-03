@@ -64,7 +64,43 @@ local Cues: { [string]: Cue } = {
 		seconds = 80, -- 32 bars of 3/4 at 72 BPM
 		sections = 4,
 	}, -- "After Hours"
-	musicNightB = { ids = {}, group = "Music", volume = 0.3, looped = true }, -- "Night Owls"
+	-- #980 (Derek OK'd them 2026-11-03): three more songs in one upload, the Music sheet. Each plays its own region of
+	-- it; silent (not in the rotation) until sheetMusic has an id. Rendered by synth/music.py, which prints the regions.
+	sheetMusic = {
+		ids = {},
+		group = "Music",
+		volume = 0.3,
+	}, -- stereo, 244.5 s: Paw Prints, Market Morning, Night Owls with 0.5 s of silence between
+	musicDayC = {
+		ids = {},
+		sheet = "sheetMusic",
+		region = { 0.000, 73.846 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 73.846, -- 32 bars at 104 BPM
+		sections = 4,
+	}, -- "Paw Prints"
+	musicDayD = {
+		ids = {},
+		sheet = "sheetMusic",
+		region = { 74.346, 142.918 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 68.571, -- 32 bars at 112 BPM
+		sections = 4,
+	}, -- "Market Morning"
+	musicNightB = {
+		ids = {},
+		sheet = "sheetMusic",
+		region = { 143.418, 244.470 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 101.053, -- 32 bars at 76 BPM
+		sections = 4,
+	}, -- "Night Owls"
 	stingDusk = {
 		ids = { "rbxassetid://72211264391144" },
 		group = "Music",
@@ -437,9 +473,76 @@ local Cues: { [string]: Cue } = {
 	-- 2026-11-02: reused files until the upload quota allows the bowl its own (Derek: "continue with sounds needed to
 	-- be added"). Every food plays foodDealer until its own cue has a file. 2026-11-03 (#981), Derek: "the cat cafe
 	-- bait and claim re-use ding is way too loud": the reused bowl and claim sounds play at half their volume.
-	foodKibble = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
-	foodTuna = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
-	foodSalmon = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
+	-- #983: each food's own sound in the Bait sheet (synth.py SHEETS); until sheetBait has an id they fall back to
+	-- foodDealer (Logic.foodCue). Soft on purpose: the bowl fills often.
+	sheetBait = {
+		ids = {},
+		group = "Sfx",
+		volume = 1,
+	}, -- mono, 8.85 s: the seven foods and the claim
+	foodKibble = {
+		ids = {},
+		sheet = "sheetBait",
+		region = { 0.000, 0.550 },
+		group = "Sfx",
+		volume = 0.35,
+		minGap = 0.3,
+		range = 30,
+	}, -- dry pellets rattling into a ceramic bowl
+	foodTuna = {
+		ids = {},
+		sheet = "sheetBait",
+		region = { 1.050, 1.600 },
+		group = "Sfx",
+		volume = 0.35,
+		minGap = 0.3,
+		range = 30,
+	}, -- a can's ring-pull pops, a soft plop
+	foodSalmon = {
+		ids = {},
+		sheet = "sheetBait",
+		region = { 2.100, 2.600 },
+		group = "Sfx",
+		volume = 0.35,
+		minGap = 0.3,
+		range = 30,
+	}, -- a juicier slap of fish settling in the bowl
+	foodSardines = {
+		ids = {},
+		sheet = "sheetBait",
+		region = { 3.100, 3.700 },
+		group = "Sfx",
+		volume = 0.35,
+		minGap = 0.3,
+		range = 30,
+	}, -- a tin lid peeled back, two small plops
+	foodCaviar = {
+		ids = {},
+		sheet = "sheetBait",
+		region = { 4.200, 4.800 },
+		group = "Sfx",
+		volume = 0.22,
+		minGap = 0.3,
+		range = 30,
+	}, -- tiny glassy pearls and one crystal tink
+	foodMoonMilk = {
+		ids = {},
+		sheet = "sheetBait",
+		region = { 5.300, 6.000 },
+		group = "Sfx",
+		volume = 0.3,
+		minGap = 0.3,
+		range = 30,
+	}, -- a creamy pour and a silvery shimmer
+	foodStarTreat = {
+		ids = {},
+		sheet = "sheetBait",
+		region = { 6.500, 7.250 },
+		group = "Sfx",
+		volume = 0.25,
+		minGap = 0.3,
+		range = 30,
+	}, -- a crisp crunch and a three-note star twinkle
 	foodDealer = {
 		ids = {},
 		sheet = "sheetCafe",
@@ -591,7 +694,8 @@ local Cues: { [string]: Cue } = {
 		group = "Sfx",
 		volume = 0.22,
 		minGap = 1,
-	}, -- 2026-11-02: the richTip file, a cascade of coins (the UI plays it on Claim)
+	}, -- 2026-11-02: the richTip file, a cascade of coins (the UI plays it on Claim). #983: once sheetBait has an id,
+	-- swap to its own jingle: ids = {}, sheet = "sheetBait", region = { 7.750, 8.850 }, volume 0.3 (by ear)
 	placeFurniture = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
 	gateOpen = { ids = { "rbxassetid://89970899972584" }, group = "Sfx", volume = 0.7, range = 60 }, -- v0.4: the barrier dissolves
 	shuttersUp = {

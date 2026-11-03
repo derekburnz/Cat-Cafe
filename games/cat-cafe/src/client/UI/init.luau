@@ -1347,7 +1347,15 @@ function UI.update(partial: Types.PartialState)
 		if before ~= nil and before < CannonLogic.HINT_TIER and tier >= CannonLogic.HINT_TIER then
 			for _, area in catalogAreas() do
 				if area.tier == CannonLogic.HINT_TIER then
-					cannonOpened = area.name
+					local opened = area.name
+					cannonOpened = opened
+					-- the hint and its trail go by themselves after a while; a flight clears them sooner
+					task.delay(CannonLogic.OPENED_HINT_SECONDS, function()
+						if cannonOpened == opened then
+							cannonOpened = nil
+							applyTutorial()
+						end
+					end)
 					break
 				end
 			end

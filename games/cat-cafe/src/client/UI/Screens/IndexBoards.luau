@@ -80,7 +80,7 @@ type Board = {
 	prompt: ProximityPrompt?,
 	ownPrompt: boolean, -- made here, so destroyed here
 	hung: boolean, -- the page is on a Screen part
-	near: boolean, -- the player has come within MAX_DISTANCE once, so its cats are cloned (review N157)
+	near: boolean, -- the player or the camera has come within MAX_DISTANCE once, so its cats are cloned (review N157)
 	connections: { RBXScriptConnection },
 }
 
@@ -198,7 +198,8 @@ function IndexBoards.new(parent: Instance, callbacks: Callbacks): IndexBoards
 		end)
 	)
 	-- Each cat on a board is a ViewportFrame with a whole cat model in it, so a board clones its cats only once
-	-- the player first comes near enough to see it (review N157).
+	-- the player, or the camera, first comes near enough to see it (review N157; the intro's camera visits a camp's
+	-- board while the character waits in town, Derek 2026-11-03: the cards were empty).
 	self._nearLoop = task.spawn(function()
 		while true do
 			task.wait(NEAR_CHECK_SECONDS)
@@ -425,22 +426,32 @@ function IndexBoards._attach(self: any, model: Instance)
 	self:_renderBoard(board)
 end
 
--- Marks boards the player has come near and draws their cats.
+-- Marks boards the player or the camera has come near and draws their cats.
 function IndexBoards._checkNear(self: any)
+	local points: { Vector3 } = {}
 	local character = Players.LocalPlayer.Character
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
-	if root == nil or not root:IsA("BasePart") then
-		return
+	if root ~= nil and root:IsA("BasePart") then
+		table.insert(points, (root :: BasePart).Position)
 	end
-	local position = (root :: BasePart).Position
+	local camera = Workspace.CurrentCamera
+	if camera ~= nil then
+		table.insert(points, camera.CFrame.Position)
+	end
 	for _, board in self._boards do
 		if board.near then
 			continue
 		end
 		local screen = screenOf(board.model)
-		if screen and (screen.Position - position).Magnitude <= MAX_DISTANCE then
-			board.near = true
-			self:_renderBoard(board)
+		if screen == nil then
+			continue
+		end
+		for _, point in points do
+			if (screen.Position - point).Magnitude <= MAX_DISTANCE then
+				board.near = true
+				self:_renderBoard(board)
+				break
+			end
 		end
 	end
 end

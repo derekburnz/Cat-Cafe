@@ -44,6 +44,7 @@ local BoostList = require(script.Parent.Parent.Components.BoostList)
 local BuffChips = require(script.Parent.BuffChips)
 local Button = require(script.Parent.Parent.Components.Button)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
+local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -1301,6 +1302,16 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Size = UDim2.fromOffset(36, 36),
 		Parent = carry,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	-- the carried cat's head in the rarity circle (Derek 2026-11-03: "the symbol for what carrying is showing just a
+	-- plain circle")
+	self._carryPortrait = CatPortrait.new({
+		parent = self._carryArt,
+		size = UDim2.fromScale(1.15, 1.15),
+		position = UDim2.fromScale(0.5, 0.5),
+		anchorPoint = Vector2.new(0.5, 0.5),
+		still = true,
+		head = true,
+	})
 	self._carryTitle = label({
 		Name = "Title",
 		Position = UDim2.fromOffset(56, 8),
@@ -1325,7 +1336,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		icon = Theme.icons.drop,
 		iconSize = 26,
 		style = "close",
-		size = UDim2.fromOffset(DROP_W, 40),
+		size = UDim2.fromOffset(DROP_W, 44), -- a 36 px face at the desktop's 0.9 scale (the UI gate's tap check)
 		anchorPoint = Vector2.new(1, 0.5),
 		position = UDim2.new(1, -8, 0.5, 0),
 		textSize = Theme.sizes.textBody,
@@ -1921,6 +1932,17 @@ function HUD.setCarrying(self: any, info: Types.CarryInfo?)
 		local rarity: string = info.rarity or "Common"
 		self._carry.Visible = true
 		self._carryArt.BackgroundColor3 = Theme.rarityColor(rarity)
+		local catalog: Types.Catalog? = self._catalog
+		local def: Types.CatDef? = nil
+		if catalog and info.catId then
+			for _, cat in catalog.cats do
+				if cat.id == info.catId then
+					def = cat
+					break
+				end
+			end
+		end
+		self._carryPortrait:set(def)
 		self._carryTitle.Text = "Carrying " .. (info.catName or "a cat")
 		self._carryTitle.TextColor3 = Theme.hud.text
 		-- hudPanel's outline is the "Border" stroke from Components/Outline
@@ -2916,6 +2938,7 @@ end
 
 function HUD.destroy(self: any)
 	self:_stopClock()
+	self._carryPortrait:destroy()
 	self.catchingChanged:DisconnectAll()
 	local spinTimer: thread? = self._spinTimer
 	if spinTimer then

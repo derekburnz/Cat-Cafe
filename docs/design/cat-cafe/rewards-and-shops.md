@@ -130,7 +130,7 @@ The Golden Fish Market gets a chalkboard on its stall, "Fresh Catch", and a thir
 - Potions bought here go into the potion bag like any other. The PotionMaxMinutes cap and its "Full" refusal apply when drinking, not when buying.
 - **Earn only.** Everything on the shelf costs golden fish, which are never sold for Robux, so nothing here is a paid random item. If Monetization-Agent's potion bundles ship, the Lucky and Gold Rush Potions stay out of any Robux bundle, because they change odds.
 
-- **Its coin twin (proposed, #1030).** The Corner Shop ([corner-shop.md](corner-shop.md)) reuses this roll for a coins-only stock beside the Market, open day and night.
+- **Its coin twin (#1030, OK'd by Derek 2026-11-03).** The Corner Shop ([corner-shop.md](corner-shop.md)) reuses this roll for a coins-only stock beside the Market, open day and night.
 
 ## 4. The night market: one stock per server per night
 

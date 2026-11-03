@@ -1,6 +1,6 @@
 # The Corner Shop: a coin shop that restocks every 5 minutes (#1030)
 
-Proposed 2026-11-03 by Design-Agent (friend's project), for Derek's playtest note: "the fresh catch rotating every 5 minutes is good but there should be also a cash item shop where extra money can be spent". Owner: game-designer. Readers: Derek, Gameplay-Engineer, UI-Engineer, Model-Agent, VFX, QA. Linked from [rewards-and-shops.md](rewards-and-shops.md) section 3 (Fresh Catch), whose roll it reuses.
+Proposed 2026-11-03 by Design-Agent (friend's project) and OK'd by Derek the same day (16:55), for Derek's playtest note: "the fresh catch rotating every 5 minutes is good but there should be also a cash item shop where extra money can be spent". Owner: game-designer. Readers: Derek, Gameplay-Engineer, UI-Engineer, Model-Agent, VFX, QA. Linked from [rewards-and-shops.md](rewards-and-shops.md) section 3 (Fresh Catch), whose roll it reuses.
 
 ## 1. In one paragraph
 

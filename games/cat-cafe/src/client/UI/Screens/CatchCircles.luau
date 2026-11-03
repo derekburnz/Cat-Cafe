@@ -8,8 +8,8 @@
 --
 -- Data-model section 10 step 5: the first Miss ends the catch and no Miss means caught. F93 (catch-rework.md
 -- section 3), so nothing on screen can contradict the result:
---   - each circle clears the moment it is judged: its rings pop away and its word (PERFECT! in gold, GOOD in mint,
---     MISS in grey) shows on the spot for a moment, then fades
+--   - each circle clears the moment it is judged: its rings pop away, with no word on the spot (Derek 2026-11-03:
+--     the words per circle, and a second one where the server's grade differed, read as random flashing)
 --   - on the first Miss every circle still showing goes at once and presses stop, so no grade can flash after it
 --   - a strip of pips at the top of the screen, one per circle, fills with each grade's colour as it lands
 --   - when the server's result comes, one word slams in over the strip (Components/CatchWords: PURRFECT!,
@@ -84,12 +84,9 @@ type CircleView = {
 	ring: Frame,
 	ringStroke: UIStroke,
 	number: TextLabel,
-	grade: TextLabel,
-	gradeStroke: UIStroke,
 	hint: Types.CircleGrade?, -- the grade drawn: this device's guess, then the server's
 	judged: boolean,
 	pressed: boolean,
-	fades: number, -- bumps on every new word, so an older fade leaves a newer word alone
 }
 
 local RING_RADIUS = 46 -- design pixels at 1280 x 720
@@ -104,10 +101,8 @@ local RESULT_SECONDS = 1.2 -- the result word and the strip are gone by then, ca
 local RESULT_FADE_AT = 0.8 -- they start to fade here
 local RESULT_FADE =
 	TweenInfo.new(RESULT_SECONDS - RESULT_FADE_AT, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-local GRADE_HOLD = 0.45 -- a circle's word stays this long after it pops, then fades
 -- the strip steps back under the result word so the word reads, then both fade from RESULT_FADE_AT
 local UNDER_WORD = TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-local GRADE_FADE = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 local CLEAR = TweenInfo.new(0.14, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 -- the progress strip at the top of the screen, over the header (which sits at 80; Roblox's buttons stop at 58 on
 -- the left only, so the middle of the top edge is free)
@@ -121,7 +116,6 @@ local ACTION_NAME = "CatCafeCatchPress"
 -- E is not here: it is the hold-to-start key on the catch prompt, and letting go of it would land as a press
 local PRESS_KEYS = { Enum.KeyCode.Space, Enum.KeyCode.ButtonA, Enum.KeyCode.ButtonR2 }
 
-local GRADE_TEXT: { [string]: string } = CatchWords.GRADE_TEXT
 local GRADE_COLOR: { [string]: Color3 } = {
 	perfect = Theme.colors.gold,
 	good = Theme.colors.mint,
@@ -434,20 +428,6 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		Text = tostring(index),
 		Parent = art,
 	})
-	local grade: TextLabel = Create("TextLabel", {
-		Name = "Grade",
-		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 0.5, -(RING_RADIUS + 8)),
-		Size = UDim2.fromOffset(180, 36),
-		FontFace = Theme.fonts.display,
-		TextSize = 30,
-		TextColor3 = Theme.colors.paper,
-		Text = "",
-		Visible = false,
-		Parent = holder,
-	})
-	local gradeStroke = Outline.text(grade, 3)
 	return {
 		circle = circle,
 		target = circle.startsAt + shrink,
@@ -460,12 +440,9 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		ring = ring,
 		ringStroke = ringStroke,
 		number = number,
-		grade = grade,
-		gradeStroke = gradeStroke,
 		hint = nil,
 		judged = false,
 		pressed = false,
-		fades = 0,
 	}
 end
 
@@ -671,9 +648,14 @@ function CatchCircles._press(self: any)
 	end
 end
 
--- The circle clears and its word pops on the spot, then fades after GRADE_HOLD. It pops again only if the server's
--- grade differs from this device's guess, so a right guess is not drawn twice. Its pip in the strip takes the colour.
-function CatchCircles._showGrade(self: any, index: number, grade: Types.CircleGrade, final: boolean)
+-- The circle clears and its pip in the strip takes the grade's colour; the pip pops again only if the server's grade
+-- differs from this device's guess. No word shows on the circle: the one result word comes at the end.
+function CatchCircles._showGrade(
+	self: any,
+	index: number,
+	grade: Types.CircleGrade,
+	_final: boolean
+)
 	local view: CircleView? = self._views[index]
 	if not view then
 		return
@@ -691,29 +673,6 @@ function CatchCircles._showGrade(self: any, index: number, grade: Types.CircleGr
 			Tween.popIn(pip, 0.6)
 		end
 	end
-	if not changed then
-		return
-	end
-	local label = view.grade
-	label.Text = GRADE_TEXT[grade]
-	label.TextColor3 = GRADE_COLOR[grade]
-	label.TextTransparency = if final then 0 else 0.1
-	view.gradeStroke.Transparency = 0
-	label.Visible = true
-	Tween.popIn(label, if grade == "perfect" then 0.4 else 0.6)
-	if grade == "miss" then
-		wobble(label)
-	end
-	view.fades += 1
-	local fades = view.fades
-	local token = self._token
-	task.delay(GRADE_HOLD, function()
-		if self._token ~= token or view.fades ~= fades then
-			return
-		end
-		Tween.to(label, GRADE_FADE, { TextTransparency = 1 })
-		Tween.to(view.gradeStroke, GRADE_FADE, { Transparency = 1 })
-	end)
 end
 
 -- Local hint for a circle, or nil while it is open. Tests and the demo read it.
@@ -722,7 +681,7 @@ function CatchCircles.gradeLocal(self: any, index: number): Types.CircleGrade?
 	return if view then view.hint else nil
 end
 
--- The server's verdict. Each graded circle shows the server's grade (a word pops again only where this device
+-- The server's verdict. Each graded circle's pip takes the server's grade (it pops again only where this device
 -- guessed differently), circles after the Miss go, every pip takes its server colour, and the result word slams in
 -- over the strip (Components/CatchWords). The strip and the word fade from RESULT_FADE_AT and the overlay hides at
 -- RESULT_SECONDS, caught or not; onDone runs then.

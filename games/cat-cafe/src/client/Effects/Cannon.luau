@@ -292,7 +292,7 @@ local function stepFlight(character: Model, flight: Flight, now: number)
 	for _, beat in Logic.beatsDue(t, flight.beats, flight.fired) do
 		if beat == "boom" and (seen or Context.distance(flight.muzzle) <= c.within) then
 			boom(flight)
-		elseif beat == "puff" and (seen or Context.distance(flight.last) <= c.within) then
+		elseif beat == "puff" and (seen or Context.distance(flight.last) <= c.skyWithin) then
 			Particles.burst("smokePuff", flight.last, c.skyPuff, Presets.clouds.white)
 		elseif beat == "land" and near(spot, c.within, flight.mine) then
 			land(character, spot)

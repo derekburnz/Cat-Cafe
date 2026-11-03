@@ -2876,7 +2876,8 @@ Presets.mystery = {
 -- server's `CannonLaunchAt`: the fuse fizzes until `boomAt`, then a smoke ring, confetti and a shake at the muzzle
 -- and a sparkle trail on the flying body until `puffAt`, where a cloud puff swallows it in the sky. The trail comes
 -- back as it drops onto the landing pad from `dropAt`, and a dust poof goes off at `landAt`, when its feet touch
--- down (Animation-Engineer's Presets.cannonPose). Onlookers within `within` studs see it; the launching player also
+-- down (Animation-Engineer's Presets.cannonPose). Onlookers within `within` studs see it, and the sky puff from as far as
+-- `skyWithin` (the flyer vanishes about 200 studs out and 120 up); the launching player also
 -- gets the full-screen clouds (Presets.clouds.cannon) with their own character gliding through them. `tints` is
 -- each destination's colour in the clouds: the paw path colours of town-layout-v3, neon pink for the Alleyway and a
 -- warm cream for the Town Square and Home.
@@ -2902,6 +2903,7 @@ Presets.cannon = {
 	landRadius = 1.6,
 	landDust = 4,
 	within = 150,
+	skyWithin = 300, -- studs from where the flyer vanished, for the sky puff only (one burst of skyPuff)
 	most = 4, -- flights showing their trail at once, your own first
 	findCannon = 20, -- studs round the player at launch to look for the cannon they sit in
 	-- The intro's cannon shot (intro-cutscene.md shot 2, PR #576): the flight squeezed, in seconds from the

@@ -203,4 +203,57 @@ function Leaderboards.rows(
 	return rows
 end
 
+-- One player in this server and their value on a list now, for withPresent.
+export type Present = { userId: number, name: string, value: number }
+
+-- `rows` (a list as last read from its store) with the players in this server put in at their values now (#941,
+-- Derek 2026-11-03: "the leaderboards still don't work"), so a board shows the people playing at once, between
+-- reads and in Studio, which never writes. Their stored rows are dropped, hidden players and values of 0 left out;
+-- best first, a tie keeping the earlier row ahead, cut at LeaderboardSize and ranked again. Fresh rows: `rows` is
+-- not changed.
+function Leaderboards.withPresent(
+	rows: { Types.LeaderboardRow },
+	present: { Present },
+	hidden: { [number]: boolean }
+): { Types.LeaderboardRow }
+	local here: { [number]: boolean } = {}
+	for _, player in present do
+		here[player.userId] = true
+	end
+	local merged: { Types.LeaderboardRow } = {}
+	for _, row in rows do
+		if not here[row.userId] then
+			table.insert(merged, table.clone(row))
+		end
+	end
+	for _, player in present do
+		if player.value > 0 and player.value == player.value and hidden[player.userId] ~= true then
+			table.insert(merged, {
+				rank = 0,
+				userId = player.userId,
+				name = player.name,
+				value = player.value,
+				crown = false,
+			})
+		end
+	end
+	local order: { [Types.LeaderboardRow]: number } = {}
+	for index, row in merged do
+		order[row] = index
+	end
+	table.sort(merged, function(a: Types.LeaderboardRow, b: Types.LeaderboardRow): boolean
+		if a.value ~= b.value then
+			return a.value > b.value
+		end
+		return order[a] < order[b]
+	end)
+	for index = #merged, Config.LeaderboardSize + 1, -1 do
+		merged[index] = nil
+	end
+	for index, row in merged do
+		row.rank = index
+	end
+	return merged
+end
+
 return Leaderboards

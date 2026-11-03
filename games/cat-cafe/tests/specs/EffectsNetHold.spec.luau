@@ -2,7 +2,7 @@
 -- The net hold (Derek 2026-10-28: "have your character holding a net while walking around until catching a cat",
 -- back over the shoulder; F93, catch-rework.md section 1: at all times, put away while a cat is in the arms) and the
 -- net smack: when a
--- character holds its net, which net it shows, how the arm eases in and out and how the 0.35 s smack moves it.
+-- character holds its net, which net it shows, how the arm eases in and out and how the 0.62 s smack moves it.
 -- Avatar.holdNet, Avatar.netHand and the net in the hand need a real character, so they are checked in Studio.
 -- Written by the Animation-Engineer (QA said new specs may go straight in here).
 return function()
@@ -76,17 +76,35 @@ return function()
 	end)
 
 	describe("Effects net smack", function()
-		it("lasts 0.35 s and lands at NetSmackDelay (0.15 s)", function()
-			expect(k.ends).to.be.near(0.35, 1e-9)
-			expect(k.land).to.be.near(0.15, 1e-9)
-			expect(k.rise > 0 and k.rise < k.land).to.equal(true)
-			expect(k.land + k.bounce < k.ends).to.equal(true)
-		end)
-
 		-- a smack that hit (`missedAt` false) or heard it missed `missedAt` seconds in
 		local function smack(seconds: number, missedAt: number | boolean): any
 			return Avatar.smack(seconds, if missedAt == false then nil else missedAt)
 		end
+		it("lasts 0.62 s and lands at NetSmackDelay (0.22 s), inside the swing cooldown", function()
+			expect(k.ends).to.be.near(0.62, 1e-9)
+			expect(k.land).to.be.near(0.22, 1e-9)
+			expect(k.rise > 0 and k.rise < k.land).to.equal(true)
+			expect(k.land + k.bounce < k.ends).to.equal(true)
+			expect(k.land + k.impact < k.ends).to.equal(true)
+			expect(k.ends < 0.8).to.equal(true) -- Config.NetSwingCooldown: done before the next swing can start
+		end)
+
+		it("holds the net on the ground for the impact beat after a hit", function()
+			same(smack(k.land + k.impact * 0.5, false), k.poses.landed)
+			same(smack(k.land + k.impact - 1e-6, false), k.poses.landed, 0.01)
+		end)
+
+		it("swings a little past the hold on the way back, then settles on it", function()
+			local h6 = pole6(h)
+			local past = false
+			for i = 1, 40 do
+				local at = k.land + k.impact + (k.ends - k.land - k.impact) * i / 41
+				if pole6(smack(at, false)) > h6 + 0.5 then
+					past = true
+				end
+			end
+			expect(past).to.equal(true)
+		end)
 
 		it("is nothing before the swing and from its end on", function()
 			expect(Avatar.smack(-0.01)).to.equal(nil)
@@ -150,7 +168,9 @@ return function()
 
 		it("joins its parts with no jump: the arm is where the last part left it", function()
 			for _, missedAt in { false, k.land, 0.25 } do
-				for _, at in { k.rise, k.land, k.land + k.bounce, 0.25, 0.25 + k.bounce } do
+				for _, at in
+					{ k.rise, k.land, k.land + k.impact, k.land + k.bounce, 0.25, 0.25 + k.bounce }
+				do
 					local before, after = smack(at - 1e-4, missedAt), smack(at, missedAt)
 					expect(math.abs(pole(before) - pole(after)) < 1).to.equal(true)
 					expect(math.abs(pole6(before) - pole6(after)) < 1).to.equal(true)

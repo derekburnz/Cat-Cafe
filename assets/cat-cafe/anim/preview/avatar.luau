@@ -145,7 +145,7 @@ local scenarios = {
 scenarios.cannon = {
 	flight = true,
 	from = -0.3,
-	to = 1.0,
+	to = 1.1,
 	slow = 0.5,
 	camera = "profile",
 	box = { { -7, 0, -9 }, { 7, 13, 9 } },
@@ -156,8 +156,8 @@ scenarios.cannon = {
 }
 scenarios.cannonLand = {
 	flight = true,
-	from = 2.3,
-	to = 3.3,
+	from = 3.25,
+	to = 4.2,
 	slow = 0.5,
 	camera = "three",
 	box = { { -4, 0, -4 }, { 4, 8, 4 } },
@@ -165,7 +165,46 @@ scenarios.cannonLand = {
 	cat = { 5, 0.25, -2, 230 },
 	props = "pad",
 }
-scenarios.cannonGlide = { flight = true, glide = true, from = 1.35, to = 2.45, slow = 1 }
+scenarios.cannonGlide = { flight = true, glide = true, from = 1.95, to = 3.05, slow = 1 }
+-- What the launching player sees, at full speed, with CannonGlide.luau's camera copied here (`chase`) and a stand-in
+-- town of plain blocks and trees for the sense of distance (`world`): cannonShot is the hop and the shot until the
+-- clouds cover it, cannonIn the way back down onto the pad and the landing. `heading` turns CannonHeading that many
+-- degrees off the barrel (0: the town cannon, aimed at its pad).
+scenarios.cannonShot = {
+	flight = true,
+	from = -0.3,
+	to = 2.0,
+	slow = 1,
+	chase = true,
+	world = true,
+	seat = { 0, 4.5, 0 },
+	stand = { 0, 3, 7 },
+	cat = { -4, 0, 6, 210 },
+	props = "cannon",
+	heading = 0,
+}
+scenarios.cannonBend = {
+	flight = true,
+	from = 0.4,
+	to = 2.0,
+	slow = 1,
+	chase = true,
+	world = true,
+	seat = { 0, 4.5, 0 },
+	props = "cannon",
+	heading = 70,
+}
+scenarios.cannonIn = {
+	flight = true,
+	from = 2.95,
+	to = 4.15,
+	slow = 1,
+	chase = true,
+	world = true,
+	seat = { 0, 3.25, 0 },
+	cat = { 5, 0.25, -2, 230 },
+	props = "pad",
+}
 local scenario = assert(scenarios[scenarioName], "no scenario " .. scenarioName)
 
 if scenario.flight then
@@ -245,6 +284,36 @@ if scenario.flight then
 			end
 		end
 	end
+	if scenario.world then
+		-- a stand-in town: plain houses and trees on a big floor, fixed by a seed, clear of the cannon and the pad
+		local seed = 11
+		local function rand(lo, hi)
+			seed = (seed * 1103515245 + 12345) % 2147483648
+			return lo + (hi - lo) * seed / 2147483648
+		end
+		local walls = { cream, Color3.fromRGB(240, 214, 190), Color3.fromRGB(214, 232, 236) }
+		local roofs = { teal, Color3.fromRGB(196, 96, 84), Color3.fromRGB(120, 92, 150) }
+		local green, trunk = Color3.fromRGB(96, 170, 96), Color3.fromRGB(120, 84, 56)
+		local placed = 0
+		while placed < 170 do
+			local x, z = rand(-260, 260), rand(-520, 140)
+			if math.abs(x) < 40 and math.abs(z) < 50 then
+				continue
+			end
+			placed += 1
+			if rand(0, 1) < 0.55 then
+				local w, d, h = rand(8, 16), rand(8, 16), rand(7, 14)
+				local turn = CFrame.Angles(0, rand(0, math.pi), 0)
+				local i = math.floor(rand(1, 3.999))
+				add("House" .. placed, "Block", walls[i], CFrame.new(x, h / 2, z) * turn, Vector3.new(w, h, d))
+				add("Roof" .. placed, "Block", roofs[i], CFrame.new(x, h + 1, z) * turn, Vector3.new(w + 1, 2, d + 1))
+			else
+				local h = rand(5, 9)
+				add("Trunk" .. placed, "Block", trunk, CFrame.new(x, h / 2, z), Vector3.new(1, h, 1))
+				add("Leaves" .. placed, "Ball", green, CFrame.new(x, h + 2, z), Vector3.new(7, 7, 7))
+			end
+		end
+	end
 	if scenario.glide then
 		-- puffs rushing past the camera, as VFX-Agent's tunnel will
 		local seed = 7
@@ -272,6 +341,63 @@ if scenario.flight then
 		end
 	end
 
+	-- CannonGlide.luau's camera for the launching player (track), on the player's own view as a default game camera
+	-- has it: `own.distance` studs back from a focus `own.focus` over the root, pitched `own.pitch`.
+	local K = Presets.cannonCamera
+	local own = { focus = Vector3.new(0, 1.5, 0), distance = 12, pitch = math.rad(-17) }
+	local heading = if scenario.heading
+		then Vector3.new(-math.sin(math.rad(scenario.heading)), 0, -math.cos(math.rad(scenario.heading)))
+		else nil
+	local view = nil
+	-- CFrame.lookAt as Roblox has it (Lune 0.10's turns the frame round when it looks along Z)
+	local function lookAt(at, target)
+		local back = (at - target).Unit
+		local right = Vector3.new(0, 1, 0):Cross(back).Unit
+		return CFrame.fromMatrix(at, right, back:Cross(right), back)
+	end
+	local function smooth(k)
+		k = math.clamp(k, 0, 1)
+		return k * k * (3 - 2 * k)
+	end
+	local function chaseCamera(t, rootCF, body)
+		if view == nil then
+			local focus = stood.Position + own.focus
+			local look = stood.LookVector * math.cos(own.pitch) + Vector3.new(0, math.sin(own.pitch), 0)
+			local at = body or rootCF.Position
+			view = { offset = focus - look * own.distance - at, look = look, body = at, last = nil }
+		end
+		local before = view.body
+		if body ~= nil then
+			view.body = body
+		end
+		local tilt = math.rad(c.tilt)
+		local barrel = rootCF.LookVector * math.cos(tilt) + rootCF.UpVector * math.sin(tilt)
+		local launch = lookAt(rootCF:PointToWorldSpace(K.launch), rootCF.Position + barrel * K.ahead)
+		local target
+		if t < c.boom then
+			local o = view.body + view.offset
+			target = lookAt(o, o + view.look):Lerp(launch, smooth(t / c.boom))
+		elseif t < c.gone then
+			local moved = view.body - before
+			local flat = Vector3.new(moved.X, 0, moved.Z)
+			local way = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(barrel.X, 0, barrel.Z).Unit
+			local chase = lookAt(view.body, view.body + way):PointToWorldSpace(K.chase)
+			target = launch:Lerp(lookAt(chase, view.body), smooth((t - c.boom) / K.catch))
+		elseif t < c.drop - K.over then
+			target = view.last
+		else
+			local fall = smooth((t - c.drop) / (c.touch - c.drop))
+			local rest = rootCF.Position + own.focus
+			local coming = body or rootCF:PointToWorldSpace(Vector3.new(0, c.height, c.back))
+			local focus = if t < c.touch then coming:Lerp(rest, smooth((t - (c.touch - c.open)) / c.open)) else rest
+			local look = rootCF.LookVector * math.cos(own.pitch) + Vector3.new(0, math.sin(own.pitch), 0)
+			local distance = own.distance * (1 + (K.wide - 1) * (1 - fall))
+			target = lookAt(focus - look * distance, focus)
+		end
+		view.last = target
+		return target
+	end
+
 	local frames = {}
 	local count = math.floor((scenario.to - scenario.from) / scenario.slow * fps + 0.5)
 	for f = 0, count - 1 do
@@ -281,14 +407,27 @@ if scenario.flight then
 			transforms, rootCF = Avatar.glideFrames(person.rig, t) or {}, CFrame.identity
 		elseif t < 0 then
 			rootCF = stood -- standing where it will hop from, before the launch
-		else
-			local out, weight = Avatar.cannon(person.rig, t, if scenario.stand then seat:Inverse() * stood else nil)
+		end
+		local centre = nil
+		if not scenario.glide and t >= 0 then
+			local out, weight, middle = Avatar.cannon(
+				person.rig,
+				t,
+				if scenario.stand then seat:Inverse() * stood else nil,
+				if heading then seat:VectorToObjectSpace(heading) else nil
+			)
 			for motor, cf in out or {} do
 				transforms[motor] = CFrame.identity:Lerp(cf, weight)
 			end
+			centre = if middle then (seat * middle).Position else nil
 		end
 		local partsAt = place(person, rootCF, transforms)
 		local frame = { t = t, pivot = { 0, 0, 0 }, parts = {} }
+		if scenario.chase then
+			local cam = chaseCamera(t, rootCF, centre or (if t < 0 then stood.Position else nil))
+			local ahead = cam.Position + cam.LookVector
+			frame.cam = { at = { cam.X, cam.Y, cam.Z }, look = { ahead.X, ahead.Y, ahead.Z }, fov = 70 }
+		end
 		local function put(cf, size)
 			local x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22 = cf:GetComponents()
 			table.insert(
@@ -319,7 +458,8 @@ if scenario.flight then
 			frames = frames,
 			box = scenario.box,
 			checker = not scenario.glide,
-			sky = if scenario.glide then { 0.62, 0.8, 0.95 } else nil,
+			sky = if scenario.glide or scenario.world then { 0.62, 0.8, 0.95 } else nil,
+			ground = if scenario.world then { size = 1600, tile = 8 } else nil,
 			cam = if scenario.glide
 				then {
 					at = { g.camera.X, g.camera.Y, g.camera.Z },

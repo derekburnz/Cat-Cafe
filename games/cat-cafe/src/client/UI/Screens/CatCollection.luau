@@ -17,12 +17,11 @@
 --         rainbow cat's tile has a slowly turning rainbow border and its name in rainbow letters (Components/Rainbow);
 --         the rest stay silhouettes. It starts with a Rainbow cats line, the one Rainbow track for the whole Index
 --         (rainbow1 to rainbow25), whose prizes add rainbow luck. The tab shows once the catalog has the track.
---   Top: the three leaderboards (F98, Screens/LeaderboardTop).
 --   Decor: the Decor Index (F53, Screens/DecorIndex): a page per crate with its twelve pieces and two rewards.
 --   In the title bar, the forever bonuses the claimed rewards add up to (F54 v0.10): tips, gold luck with the gold
 --   chance it gives, rainbow luck with the rainbow chance (F99, on the bands) and faster bait, each in its track's
 --   colour (Components/IndexRewards.totals). They sat beside the tabs until the Rainbow tab filled that row. Right of the tabs,
---   "Claim all (5)" while two or more rewards wait on any page (Derek 2026-10-28: "more claim all buttons needed so
+--   "Claim all (5)" while any reward waits on any page (from one since Derek 2026-11-03 never saw it) (Derek 2026-10-28: "more claim all buttons needed so
 --   many reward pop ups"): one ClaimAll("index"), one toast; shown once shared Config.IndexClaimAll is true.
 -- The Index opens on the first open area with cats still to find; an Index Board's prompt opens it on that area.
 
@@ -37,8 +36,6 @@ local Format = require(script.Parent.Parent.Components.Format)
 local IndexBook = require(script.Parent.Parent.Components.IndexBook)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local IndexStrip = require(script.Parent.IndexStrip)
-local LeaderboardLogic = require(script.Parent.Parent.Components.LeaderboardLogic)
-local LeaderboardTop = require(script.Parent.LeaderboardTop)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
@@ -57,8 +54,9 @@ export type Callbacks = {
 	close: () -> (),
 }
 
--- "Index" is the Cats tab (the name init and the Index Boards already use); "Top" is the leaderboards (F98)
-export type Tab = "Index" | "Gold" | "Rainbow" | "Top" | "Decor"
+-- "Index" is the Cats tab (the name init and the Index Boards already use). The Top tab (F98 leaderboards) went on
+-- 2026-11-03 (Derek: "no need to put "top" inside index"); the town's boards still show them.
+export type Tab = "Index" | "Gold" | "Rainbow" | "Decor"
 
 export type CatCollection = {
 	frame: Frame,
@@ -67,7 +65,6 @@ export type CatCollection = {
 	showTab: (self: CatCollection, tab: Tab) -> (),
 	showArea: (self: CatCollection, areaId: string) -> (),
 	setNight: (self: CatCollection, night: boolean) -> (),
-	setLeaderboards: (self: CatCollection, sync: LeaderboardLogic.Sync?) -> (),
 	destroy: (self: CatCollection) -> (),
 }
 
@@ -250,7 +247,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._panel = panel
 	self.frame = panel.frame
 
-	-- tabs: Cats, Gold, Rainbow, Top, Decor, then Claim all; tall enough for a finger on a phone and a 36 px face on
+	-- tabs: Cats, Gold, Rainbow, Decor, then Claim all; tall enough for a finger on a phone and a 36 px face on
 	-- a mouse
 	local tabH = Scale.tapHeight(TAB_HEIGHT + 1, Theme.sizes.buttonDepth)
 	local tabs: Frame = Create("Frame", {
@@ -290,7 +287,6 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._rainbowTab, self._rainbowBadge, self._rainbowBadgeCount =
 		tabButton("RainbowTab", "Rainbow", "🌈", 3, "Rainbow")
 	self._rainbowTab.instance.Visible = false -- until the catalog has the Rainbow track
-	self._topTab = tabButton("TopTab", "Top", "🏆", 4, "Top")
 	self._decorTab, self._decorBadge, self._decorBadgeCount =
 		tabButton("DecorTab", "Decor", Theme.icons.decor, 5, "Decor")
 	self._decorTab.instance.Visible = false
@@ -409,17 +405,6 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		Parent = panel.content,
 	})
 	self._decorIndex = DecorIndex.new(self._decor, { claim = callbacks.claimIndexReward })
-
-	-- Top: the three leaderboards on the dark page (Screens/LeaderboardTop, F98)
-	local topHolder: Frame = Create("Frame", {
-		Name = "TopPage",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, indexTop),
-		Size = UDim2.new(1, 0, 1, -indexTop),
-		Parent = panel.content,
-	})
-	self._topHolder = topHolder
-	self._top = LeaderboardTop.new(topHolder)
 
 	self:_buildDetail(panel.content)
 	self:_paintTabs()
@@ -543,19 +528,17 @@ function CatCollection._closeDetail(self: any)
 	self._cover.Visible = false
 end
 
--- The tabs' looks and the page behind them: dark for Cats, Gold, Rainbow and Top, the light window body for Decor.
+-- The tabs' looks and the page behind them: dark for Cats, Gold and Rainbow, the light window body for Decor.
 function CatCollection._paintTabs(self: any)
 	local tab: Tab = self._tab
 	self._indexTab:setStyle(if tab == "Index" then "gold" else "ghost")
 	self._goldTab:setStyle(if tab == "Gold" then "gold" else "ghost")
 	self._rainbowTab:setStyle(if tab == "Rainbow" then "gold" else "ghost")
-	self._topTab:setStyle(if tab == "Top" then "gold" else "ghost")
 	self._decorTab:setStyle(if tab == "Decor" then "gold" else "ghost")
 	local dark = tab ~= "Decor"
 	self._panel.body.BackgroundColor3 = if dark then Theme.index.body else Theme.modal.panel
 	self._book.Visible = tab == "Index" or tab == "Gold" or tab == "Rainbow"
 	self._decor.Visible = tab == "Decor"
-	self._top.frame.Visible = tab == "Top"
 end
 
 function CatCollection.showTab(self: any, tab: Tab)
@@ -1223,8 +1206,6 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 
 	if self._tab == "Decor" then
 		self._decorIndex:render(state)
-	elseif self._tab == "Top" then
-		self._top:render()
 	else
 		self:_renderBook(state)
 		if self._selected and self._cover.Visible then
@@ -1233,17 +1214,12 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	end
 end
 
--- The server's leaderboards (UI.leaderboards.sync, F98); the Top tab redraws at once while it is open.
-function CatCollection.setLeaderboards(self: any, sync: LeaderboardLogic.Sync?)
-	self._top:setSync(sync)
-end
-
--- Claim all shows while two or more rewards wait and the server has ClaimAll; a press reads "Claiming" until the sync.
+-- Claim all shows while any reward waits and the server has ClaimAll; a press reads "Claiming" until the sync.
 function CatCollection._syncClaimAll(self: any)
 	local count: number = self._waitingAll or 0
 	local can = (Config :: any).IndexClaimAll == true and self._callbacks.claimAll ~= nil
 	local pending = os.clock() - self._claimAllAt < CLAIM_ALL_HOLD
-	self._claimAll.instance.Visible = can and count >= 2
+	self._claimAll.instance.Visible = can and count >= 1
 	self._claimAll:setEnabled(not pending)
 	self._claimAll:setText(if pending then "Claiming" else ("Claim all (%d)"):format(count))
 end
@@ -1287,11 +1263,9 @@ function CatCollection.destroy(self: any)
 	self._detailArt:destroy()
 	self._detailClose:destroy()
 	self._decorIndex:destroy()
-	self._top:destroy()
 	self._indexTab:destroy()
 	self._goldTab:destroy()
 	self._rainbowTab:destroy()
-	self._topTab:destroy()
 	self._decorTab:destroy()
 	self._panel:destroy()
 end

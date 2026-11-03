@@ -125,8 +125,6 @@ PIVOT_NOTES = {
                                       "(-5.1, 0, -16.1), left of the door (luckycat.SPOT)" for n in range(6)},
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
                              "pivot, the stones 0.02 above it. Square space is world space; place with no turn.",
-    "CatCafe_Square_Signpost": "Post's foot at (-9, 0.1, -7.5) with no turn: each _Arm<Area> board is aimed in world "
-                               "space at its gate, long along its own X, with an Area attribute.",
     "CatCafe_Square_Bunting": "On the ground under the middle of the span; its ends sit inside two lamps 22.5 "
                               "apart.",
     "CatCafe_Square_BuntingShort": "On the ground under the middle of the span; its ends sit inside two lamps 17 "
@@ -243,8 +241,8 @@ STUDIO_NOTES = {
     "CatCafe_Decor_StringLights": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand (Brightness 0.8, Range 10); SmoothPlastic by day.",
     **{f"CatCafe_Item_Net_L{n}": f"The {items.NET_NAMES[n - 1]} Net (F93), held all the time by Effects' NetHold: the "
                                  "Attachment Grip (mid wrap, on the Handle, the net's axes) goes in the hand. Child "
-                                 "Models _Hoop (the rim, its far edge the point farthest from the Grip) and _Bag (strands; "
-                                 "_Bag_Glass, the see-through netting cone, exports at Transparency 0.6)."
+                                 "Models _Hoop (the rim, its far edge the point farthest from the Grip) and _Bag (open "
+                                 "diamond-mesh netting, no see-through lining since 2026-11-03)."
        for n in (1, 2, 3, 4)},
     **{f"CatCafe_Plot_Cafe_{c}": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. "
                                  "The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the "
@@ -591,8 +589,6 @@ def main():
             extra = {"nest": doorsets.NEST}
             if name.endswith("_Back"):
                 extra["attachments"] = [doorsets.back_cat_flap_attachment(name)]
-        if name == "CatCafe_Square_Signpost":     # each arm's Area, for the UI to draw its name and lock on
-            extra = {"part_attributes": square.ARM_ATTRIBUTES}
         if name in cannon.ATTACHMENTS:            # F84: Muzzle, Fuse and Seat in the turret; ladder and cover ride it
             extra = {"attachments": cannon.rbx_attachments(name), "nest": cannon.NEST}
         if name in camps.ATTACHMENTS:             # F84: the carrier basket's Drop

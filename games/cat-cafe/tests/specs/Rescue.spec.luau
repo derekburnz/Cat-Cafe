@@ -1,8 +1,9 @@
 --!strict
--- Rescue.luau and shared/RescueMarker.luau against data-model section 10b (F27): the bar, the tree's shake then
--- catch, paws, the deadline, and the features.md acceptance (three misses end the attempt; a tree ends with one catch
--- circle). F93 (catch-rework.md section 4): one more hit at every rarity, a zone not hit within RescueZonePasses
--- sweeps costs a paw and moves on, and every hit makes the marker RescueSpeedUpPerHit faster.
+-- Rescue.luau and shared/RescueMarker.luau against data-model section 10b (F27): the bar, the tree's shakes, paws,
+-- the deadline, and the features.md acceptance (three misses end the attempt). F93 (catch-rework.md section 4): one
+-- more hit at every rarity and every hit makes the marker RescueSpeedUpPerHit faster. Derek 2026-11-03 ("a little
+-- confusing"): a zone stays until it is hit, and a tree frees its cat on the last shake; the falling cat's catch
+-- circle stays behind Config.RescueTreeCircle (off).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
@@ -21,7 +22,7 @@ return function()
 	end
 
 	-- The first server time at or after the attempt's last press (or the marker's start) when its marker is at `x` on
-	-- its way out from the left end. Within a zone's two sweeps that comes exactly once.
+	-- its way out from the left end. Within one trip out and back that comes exactly once.
 	local function timeAt(attempt: any, x: number): number
 		local from = math.max(attempt.lastPressAt, attempt.markerAt)
 		local phase =
@@ -78,23 +79,24 @@ return function()
 	end)
 
 	describe("challenges", function()
-		it("a tree is shaken then caught, every other trap is the bar", function()
+		it("a tree shakes on every hit, every other trap is the plain bar", function()
 			expect(Rescue.kind("tree")).to.equal("shake_catch")
 			for _, trap in { "trash_bin", "garbage_bag", "trashcan", "hollow_log", "drain_pipe" } do
 				expect(Rescue.kind(trap)).to.equal("bar")
 			end
 		end)
 
-		it("a bar needs rescueHits, a tree one fewer, never fewer than one", function()
+		it("a bar and a tree both need rescueHits, with no catch circle after a tree", function()
+			expect(Config.RescueTreeCircle).to.equal(false)
 			for _, rarity in Catalog.rarityOrder do
 				local hits = Catalog.rarities[rarity].rescueHits
 				expect(Rescue.hitsNeeded(rarity, "bar")).to.equal(hits)
-				expect(Rescue.hitsNeeded(rarity, "shake_catch")).to.equal(math.max(1, hits - 1))
+				expect(Rescue.hitsNeeded(rarity, "shake_catch")).to.equal(hits)
 			end
 			-- F93: 3 for a Common up to 7 for a Mythical
 			expect(Rescue.hitsNeeded("Common", "bar")).to.equal(3)
 			expect(Rescue.hitsNeeded("Mythical", "bar")).to.equal(7)
-			expect(Rescue.hitsNeeded("Common", "shake_catch")).to.equal(2)
+			expect(Rescue.hitsNeeded("Common", "shake_catch")).to.equal(3)
 		end)
 
 		it("zones stay on the bar and each moves at least MIN_ZONE_STEP from the last", function()
@@ -126,17 +128,18 @@ return function()
 			expect(c.paws).to.equal(Config.RescuePatience)
 		end)
 
-		it("holds a spare zone per paw and says when the first one moves on (F93)", function()
-			local c = Rescue.newChallenge("Epic", "garbage_bag", 100, rolls({ 0.3, 0.8, 0.1, 0.6 }))
-			expect(#(c.zones :: { number })).to.equal(
-				(c.hitsNeeded :: number) + Config.RescuePatience
-			)
-			expect(c.zone).to.equal(1)
-			expect(c.zonePasses).to.equal(2)
-			expect(c.speedUpPerHit).to.be.near(0.08, 1e-12)
-			-- two trips along the bar from when the marker starts
-			expect(c.zoneEndsAt).to.be.near(c.startsAt + 2 / Config.RescueBarSpeed.Epic, 1e-9)
-		end)
+		it(
+			"holds one zone per hit, each lasting as long as the attempt (Derek 2026-11-03)",
+			function()
+				local c =
+					Rescue.newChallenge("Epic", "garbage_bag", 100, rolls({ 0.3, 0.8, 0.1, 0.6 }))
+				expect(#(c.zones :: { number })).to.equal(c.hitsNeeded :: number)
+				expect(c.zone).to.equal(1)
+				expect(c.zonePasses).never.to.be.ok()
+				expect(c.speedUpPerHit).to.be.near(0.08, 1e-12)
+				expect(c.zoneEndsAt).to.equal(c.endsAt)
+			end
+		)
 
 		it("the marker never waits inside the first zone", function()
 			local rng = Random.new(7)
@@ -231,7 +234,7 @@ return function()
 		end)
 	end)
 
-	describe("no waiting for the perfect moment (F93, catch-rework.md section 4)", function()
+	describe("the zone waits to be hit (Derek 2026-11-03; F93's speed up)", function()
 		local function binAttempt(rarity: any): any
 			return Rescue.newAttempt(
 				Rescue.newChallenge(rarity, "trash_bin", 0, rolls({ 0.2, 0.7, 0.4, 0.9 })),
@@ -239,51 +242,24 @@ return function()
 			)
 		end
 
-		it(
-			"a zone not hit within two sweeps costs a paw and the next one takes over from then",
-			function()
-				local attempt = binAttempt("Rare")
-				local first = attempt.zoneEndsAt
-				expect(Rescue.advance(attempt, first)).to.equal(0) -- not yet: it runs out after zoneEndsAt
-				expect(Rescue.advance(attempt, first + 0.01)).to.equal(1)
-				expect(attempt.paws).to.equal(Config.RescuePatience - 1)
-				expect(attempt.zone).to.equal(2)
-				expect(Rescue.currentZone(attempt)).to.equal(attempt.challenge.zones[2])
-				expect(attempt.zoneEndsAt).to.be.near(first + 2 / Config.RescueBarSpeed.Rare, 1e-9)
-				expect(attempt.stage).to.equal("bar")
-			end
-		)
-
-		it("zones that run out one after another take the last paw and end the attempt", function()
-			local attempt = binAttempt("Common")
-			expect(Rescue.advance(attempt, 1000)).to.equal(Config.RescuePatience)
-			expect(attempt.paws).to.equal(0)
-			expect(attempt.stage).to.equal("done")
-			expect(attempt.success).to.equal(false)
-			expect(Rescue.pressBar(attempt, 1000)).to.equal("ignored")
+		it("stays where it is however long the player waits, and costs no paw for it", function()
+			local attempt = binAttempt("Rare")
+			local zone = Rescue.currentZone(attempt)
+			-- ten sweeps of the bar without a press, then a press in the same zone
+			attempt.lastPressAt = attempt.markerAt + 10 / attempt.speed
+			local t = zoneTime(attempt)
+			expect(t < Rescue.endsAt(attempt)).to.equal(true)
+			expect(Rescue.pressBar(attempt, t)).to.equal("hit")
+			expect(attempt.challenge.zones[1]).to.equal(zone)
+			expect(attempt.paws).to.equal(Config.RescuePatience)
+			expect(attempt.zone).to.equal(2)
 		end)
 
-		it(
-			"a press after a zone ran out is judged on the next zone, and the lost paw stays lost",
-			function()
-				local attempt = binAttempt("Epic")
-				-- wait out zone 1 without pressing: the press lands on zone 2's spot
-				attempt.lastPressAt = attempt.zoneEndsAt + 0.001
-				local t = timeAt(attempt, attempt.challenge.zones[2])
-				expect(t < attempt.zoneEndsAt + 2 / attempt.speed).to.equal(true)
-				expect(Rescue.pressBar(attempt, t)).to.equal("hit")
-				expect(attempt.hits).to.equal(1)
-				expect(attempt.paws).to.equal(Config.RescuePatience - 1)
-				expect(attempt.zone).to.equal(3)
-			end
-		)
-
-		it("a press in the zone is always a hit, on the later of its two passes too", function()
+		it("a press in the zone is always a hit, on the way back too", function()
 			local attempt = binAttempt("Legendary")
 			local centre = Rescue.currentZone(attempt) :: number
-			-- the marker passes the zone once each way inside its two sweeps: take the later pass
+			-- the marker passes the zone once each way on a trip out and back: take the later pass
 			local t = math.max(timeAt(attempt, centre), timeAt(attempt, 2 - centre))
-			expect(t < attempt.zoneEndsAt).to.equal(true)
 			expect(Rescue.pressBar(attempt, t)).to.equal("hit")
 		end)
 
@@ -299,17 +275,15 @@ return function()
 					expect(attempt.speed).to.be.near(base * 1.08 ^ hits, 1e-9)
 					expect(Rescue.marker(attempt, t)).to.be.near(before, 1e-9) -- no jump
 					expect(attempt.markerAt).to.equal(t)
-					expect(attempt.zoneEndsAt).to.be.near(t + 2 / attempt.speed, 1e-9)
 				end
 			end
 		)
 
 		it("a miss costs a paw and leaves the zone where it is", function()
 			local attempt = binAttempt("Rare")
-			local zone, endsAt = attempt.zone, attempt.zoneEndsAt
+			local zone = attempt.zone
 			expect(Rescue.pressBar(attempt, missTime(attempt))).to.equal("miss")
 			expect(attempt.zone).to.equal(zone)
-			expect(attempt.zoneEndsAt).to.equal(endsAt)
 			expect(attempt.speed).to.equal(Config.RescueBarSpeed.Rare)
 		end)
 
@@ -330,7 +304,8 @@ return function()
 			expect(bar.startsAt).to.equal(attempt.markerAt)
 			expect(bar.phase).to.equal(attempt.markerPhase)
 			expect(bar.speed).to.equal(attempt.speed)
-			expect(bar.zoneEndsAt).to.equal(attempt.zoneEndsAt)
+			expect(bar.zoneEndsAt).to.equal(attempt.challenge.endsAt)
+			expect(bar.endsAt).to.equal(attempt.challenge.endsAt)
 			local t = attempt.markerAt + 0.37
 			expect(RescueMarker.position(bar.startsAt, bar.phase, bar.speed, t)).to.be.near(
 				Rescue.marker(attempt, t),
@@ -339,11 +314,11 @@ return function()
 		end)
 
 		it(
-			"a steady player's worst case still fits the 15 s deadline: every zone run out but the last paw",
+			"a steady player's worst case still fits the 15 s deadline: two misses, then every hit a trip late",
 			function()
 				for _, rarity in Catalog.rarityOrder do
 					local hits = Rescue.hitsNeeded(rarity :: any, "bar")
-					-- every hit at the end of its zone's two sweeps, after two zones ran out
+					-- every press a whole trip out and back after the last, two of them misses
 					local worst = Config.CircleLeadInSeconds
 					local speed = Config.RescueBarSpeed[rarity]
 					worst += (Config.RescuePatience - 1) * 2 / speed
@@ -365,40 +340,48 @@ return function()
 			)
 		end
 
-		it(
-			"a Common tree takes two shakes, then ends with one catch circle on the Pro Net",
-			function()
-				local attempt = treeAttempt("Common")
-				expect(attempt.challenge.kind).to.equal("shake_catch")
-				expect(attempt.challenge.hitsNeeded).to.equal(2)
+		-- With Config.RescueTreeCircle on, the last shake drops the cat into one catch circle: the attempt as the
+		-- server leaves it then (stage "falling"), for the circle's own checks while the switch is off.
+		local function fallen(rarity: any): any
+			local attempt = treeAttempt(rarity)
+			attempt.stage = "falling"
+			return attempt
+		end
+
+		it("a Common tree frees its cat on the third shake, with no catch circle", function()
+			local attempt = treeAttempt("Common")
+			expect(attempt.challenge.kind).to.equal("shake_catch")
+			expect(attempt.challenge.hitsNeeded).to.equal(3)
+			for _ = 1, 2 do
 				expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
 				expect(attempt.stage).to.equal("bar")
-				expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
-				expect(attempt.stage).to.equal("falling")
-				local now = 5
-				local circle = Rescue.startCircle(attempt, now, rolls({ 0.5 }))
-				expect(circle.kind).to.equal("circle")
-				expect(attempt.stage).to.equal("circle")
-				local windows = Circles.windowsFor(Rescue.CIRCLE_NET_LEVEL, "Common")
-				expect((circle.windows :: any).good).to.equal(windows.good)
-				expect((circle.windows :: any).good).to.be.near(0.1705, 1e-12) -- the Pro Net's 0.155 x 1.1 (F93)
-				local c = circle.circle :: any
-				expect(c.startsAt).to.be.near(now + Config.CircleLeadInSeconds, 1e-9)
-				expect(c.shrinkSeconds).to.be.near(Catalog.rarities.Common.shrinkSeconds, 1e-9)
-				local target = Circles.target(c)
-				expect(Rescue.pressCircle(attempt, target + 0.01, target + 0.05)).to.equal(
-					"perfect"
-				)
-				expect(attempt.stage).to.equal("done")
-				expect(attempt.success).to.equal(true)
 			end
-		)
+			expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
+			expect(attempt.stage).to.equal("done")
+			expect(attempt.success).to.equal(true)
+			expect(attempt.circle).never.to.be.ok()
+		end)
+
+		it("with RescueTreeCircle, the falling cat gets one catch circle on the Pro Net", function()
+			local attempt = fallen("Common")
+			local now = 5
+			local circle = Rescue.startCircle(attempt, now, rolls({ 0.5 }))
+			expect(circle.kind).to.equal("circle")
+			expect(attempt.stage).to.equal("circle")
+			local windows = Circles.windowsFor(Rescue.CIRCLE_NET_LEVEL, "Common")
+			expect((circle.windows :: any).good).to.equal(windows.good)
+			expect((circle.windows :: any).good).to.be.near(0.1705, 1e-12) -- the Pro Net's 0.155 x 1.1 (F93)
+			local c = circle.circle :: any
+			expect(c.startsAt).to.be.near(now + Config.CircleLeadInSeconds, 1e-9)
+			expect(c.shrinkSeconds).to.be.near(Catalog.rarities.Common.shrinkSeconds, 1e-9)
+			local target = Circles.target(c)
+			expect(Rescue.pressCircle(attempt, target + 0.01, target + 0.05)).to.equal("perfect")
+			expect(attempt.stage).to.equal("done")
+			expect(attempt.success).to.equal(true)
+		end)
 
 		it("a Mythical's falling circle has the Pro Net's windows times 0.6 (F83, F93)", function()
-			local attempt = treeAttempt("Mythical")
-			while attempt.stage == "bar" do
-				Rescue.pressBar(attempt, zoneTime(attempt))
-			end
+			local attempt = fallen("Mythical")
 			local challenge = Rescue.startCircle(attempt, 10, rolls({ 0.5 }))
 			expect((challenge.windows :: any).good).to.be.near(0.093, 1e-12)
 			expect((challenge.windows :: any).perfect).to.be.near(0.039, 1e-12)
@@ -409,11 +392,7 @@ return function()
 		end)
 
 		it("a missed circle means the cat climbs back up", function()
-			local attempt = treeAttempt("Rare")
-			while attempt.stage == "bar" do
-				Rescue.pressBar(attempt, zoneTime(attempt))
-			end
-			expect(attempt.hits).to.equal(Catalog.rarities.Rare.rescueHits - 1)
+			local attempt = fallen("Rare")
 			local circle = Rescue.startCircle(attempt, 10, rolls({ 0.5 })).circle :: any
 			local target = Circles.target(circle)
 			-- past Good (0.147 on the Pro Net for a Rare, F93) but before the circle's deadline: judged, and a Miss
@@ -423,10 +402,7 @@ return function()
 		end)
 
 		it("an unpressed circle runs out at its deadline", function()
-			local attempt = treeAttempt("Common")
-			while attempt.stage == "bar" do
-				Rescue.pressBar(attempt, zoneTime(attempt))
-			end
+			local attempt = fallen("Common")
 			local circle = Rescue.startCircle(attempt, 0, rolls({ 0.5 })).circle :: any
 			local deadline =
 				Circles.deadline(circle, Circles.windowsFor(Rescue.CIRCLE_NET_LEVEL, "Common"))

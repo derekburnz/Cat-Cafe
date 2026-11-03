@@ -1,5 +1,5 @@
 --!strict
--- UI/Components/Wayfinding.luau: when the My Cafe marker shows, which zones are safe and the signpost arms.
+-- UI/Components/Wayfinding.luau: when the My Cafe marker shows and which zones are safe.
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
@@ -92,34 +92,6 @@ return function()
 			end
 			expect(Wayfinding.scale(math.huge)).to.equal(Wayfinding.SCALE_MIN)
 			expect(Wayfinding.scale(-math.huge)).to.equal(1)
-		end)
-	end)
-
-	describe("Wayfinding.armArea", function()
-		it("reads the Area attribute first", function()
-			expect(Wayfinding.armArea("Woods", "Arm_Sewer")).to.equal("woods")
-		end)
-
-		it("falls back to the arm's name", function()
-			expect(Wayfinding.armArea(nil, "Arm_Neighbourhood")).to.equal("neighbourhood")
-			expect(Wayfinding.armArea(nil, "CatCafe_Square_Signpost_ArmPark")).to.equal("park")
-		end)
-
-		it("finds nothing on other parts", function()
-			expect(Wayfinding.armArea(nil, "Post")).never.to.be.ok()
-			expect(Wayfinding.armArea("", "Arm")).never.to.be.ok()
-			expect(Wayfinding.armArea(3, "Cap")).never.to.be.ok()
-		end)
-	end)
-
-	describe("Wayfinding.armLock", function()
-		it("locks an arm above the player's tier", function()
-			expect(Wayfinding.armLock(3, 1)).to.equal("🔒 Tier 3")
-		end)
-
-		it("leaves an opened area's arm plain", function()
-			expect(Wayfinding.armLock(2, 2)).never.to.be.ok()
-			expect(Wayfinding.armLock(1, 5)).never.to.be.ok()
 		end)
 	end)
 end

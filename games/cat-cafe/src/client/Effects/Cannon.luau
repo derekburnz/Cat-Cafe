@@ -23,6 +23,7 @@ local Workspace = game:GetService("Workspace")
 
 local Moments = require(script.Parent.Parent.Moments)
 
+local Carry = require(script.Parent.Carry)
 local Clouds = require(script.Parent.Clouds)
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
@@ -522,7 +523,8 @@ local function checkedIn(userId: number)
 	if character == nil or held == nil or not held:IsA("Model") then
 		return
 	end
-	local cat = held :: Model
+	-- the copy in its arms (Carry.luau) when that shows, so the hop starts where the cat is seen
+	local cat = Carry.copyFor(held :: Model) or held :: Model
 	if near(cat:GetPivot().Position, Presets.campCheckIn.within, player == Players.LocalPlayer) then
 		hopIn(cat, nil)
 	end

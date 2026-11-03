@@ -1908,57 +1908,6 @@ local function buildTownSquare(parent: Instance)
 	placeRallyBoard(square)
 end
 
--- The finger signpost by the cannon (town-layout-v3.md section 7d, Layout.townSquare.signpost), tagged
--- TownSignpost: each client draws its arms' names, icons and tier locks (ui-contract.md "Town signpost"). The art
--- when the AssetRegistry has it, placed with no turn so the arms it aims are in world space; until then a post and
--- an arm for each gated area, a board along its own X with the area's id in its Area attribute, aimed at the gate.
-local SIGNPOST_ASSET = "CatCafe_Square_Signpost"
-local SIGNPOST_WOOD = Color3.fromRGB(150, 105, 65)
-
-local function buildSignpost(parent: Instance)
-	local at = Layout.townSquare.signpost
-	local base = CFrame.new(at.x, at.y, at.z)
-	local model: Model
-	if AssetRegistry.known(SIGNPOST_ASSET) then
-		model = place(SIGNPOST_ASSET, base, parent)
-	else
-		model = Instance.new("Model")
-		model.PrimaryPart = part(
-			"Post",
-			Vector3.new(0.6, 7, 0.6),
-			base * CFrame.new(0, 3.5, 0),
-			SIGNPOST_WOOD,
-			Enum.Material.Wood,
-			model
-		)
-		local height = 6.3
-		for _, def in Catalog.areas do
-			local gx, gz = Layout.gatePosition(Layout.areas[def.id])
-			if gx == nil or gz == nil then
-				continue
-			end
-			local from = Vector3.new(at.x, at.y + height, at.z)
-			local toward = (Vector3.new(gx, from.Y, gz) - from).Unit
-			local middle = from + toward * 2.55
-			-- lookAt aims -Z at the gate; a quarter turn puts the board's X there instead
-			local arm = part(
-				"Arm_" .. def.name,
-				Vector3.new(4.5, 0.9, 0.2),
-				CFrame.lookAt(middle, middle + toward) * CFrame.Angles(0, math.rad(90), 0),
-				PICKET,
-				Enum.Material.Wood,
-				model
-			)
-			arm.CanCollide = false
-			arm:SetAttribute("Area", def.id)
-			height -= 0.75
-		end
-	end
-	model.Name = "Signpost"
-	CollectionService:AddTag(model, "TownSignpost")
-	model.Parent = parent
-end
-
 -- The paw paths (Layout.pawPrints): each print a pad and four toes, flat on what it lies on, in its area's colour.
 local PAW_COLORS = {
 	park = Color3.fromRGB(104, 196, 92), -- leaf green
@@ -2203,7 +2152,6 @@ function WorldBuilder.build(): World
 		end
 	end
 	buildTownSquare(root)
-	buildSignpost(root)
 	-- the hometown's edges (v4): a low hedge fence behind the yards and a wall across each end, each with an
 	-- invisible collider over any jump, so nobody walks out of town into the gap round it
 	local edges = folder("TownEdges", root)

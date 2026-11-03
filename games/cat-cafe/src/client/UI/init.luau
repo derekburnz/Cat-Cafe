@@ -71,7 +71,6 @@ local Scale = require(script.Scale)
 local Settings = require(script.Screens.Settings)
 local SettingsList = require(script.Components.SettingsList)
 local Signal = require(script.Components.Signal)
-local Signpost = require(script.Screens.Signpost)
 local Sound = require(script.Components.Sound)
 local SpinWheel = require(script.Screens.SpinWheel)
 local TackleBar = require(script.Screens.TackleBar)
@@ -238,7 +237,6 @@ local cannonOpened: string? = nil
 local hintTier: number? = nil -- the tier in the last update that carried one, to see the rank up to Tier 2
 local hintShown: string? = nil -- the cannon hint on screen, so render only redraws the line when it changes
 local gateSigns: GateSigns.GateSigns? = nil
-local signpost: Signpost.Signpost? = nil -- the fountain signpost's arms with tier locks (F77)
 local indexBoards: IndexBoards.IndexBoards? = nil -- each area's Index Board (F50), drawn from this player's Index
 local areaTitle: AreaTitle.AreaTitle? = nil
 local locationMarkers: LocationMarkers.LocationMarkers? = nil -- My Cafe, area and dealer icons that fade up close
@@ -346,7 +344,9 @@ local function cannonHint(): string?
 end
 
 -- The tutorial strip, marker and trail: the cannon hint with its arrow at the cannon when it applies, else the
--- controller's onboarding line (UI.tutorial.show). The marker and trail wait out the intro.
+-- controller's onboarding line (UI.tutorial.show). The marker and trail wait out the intro. With the Tutorial tile's
+-- × pressed (its setting off) none of them show (Derek 2026-11-03: "Tips from the tutorial still showing even though
+-- X is clicked"); the tip cards wait too (pumpTips).
 function applyTutorial()
 	local hint = cannonHint()
 	hintShown = hint
@@ -355,6 +355,9 @@ function applyTutorial()
 	local label: string? = tutorialLabel
 	if hint ~= nil then
 		text, target, label = hint, cannonPart, "Cannon"
+	end
+	if not tutorialButtonOn then
+		text, target = nil, nil
 	end
 	if hud then
 		hud:setTutorial(text)
@@ -493,9 +496,6 @@ local function render()
 	if gateSigns then
 		gateSigns:render(state)
 	end
-	if signpost then
-		signpost:render(state)
-	end
 	if indexBoards then
 		indexBoards:render(state)
 	end
@@ -565,9 +565,6 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if gateSigns then
 		gateSigns:setCatalog(newCatalog)
-	end
-	if signpost then
-		signpost:setCatalog(newCatalog)
 	end
 	if indexBoards then
 		indexBoards:setCatalog(newCatalog)
@@ -708,10 +705,11 @@ function UI.init(config: Types.InitConfig)
 		hideTutorialButton = function()
 			tutorialButtonOn = false
 			renderTutorialButton()
+			applyTutorial()
 			if settingsScreen then
 				settingsScreen:set(SettingsList.TUTORIAL_KEY, false)
 			end
-			UI.toast("Tutorial hidden. Replay it from Settings.", "info")
+			UI.toast("Tutorial and tips hidden. Turn them on in Settings.", "info")
 		end,
 		openFeedback = function()
 			UI.bugReport.open() -- F87: the faces page first
@@ -924,6 +922,7 @@ function UI.init(config: Types.InitConfig)
 			elseif key == SettingsList.TUTORIAL_KEY then
 				tutorialButtonOn = value == true
 				renderTutorialButton()
+				applyTutorial()
 			end
 			UI.settings.changed:Fire(key, value)
 		end,
@@ -1259,8 +1258,6 @@ function UI.init(config: Types.InitConfig)
 	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
-	-- the arms of the signpost by the fountain, one per area, locked ones dimmed with "🔒 Tier N" (F77)
-	signpost = Signpost.new(parent)
 	-- every area's Index Board, including boards that stream in later; its prompt opens that area's Index page
 	indexBoards = IndexBoards.new(parent, {
 		open = function(areaId: string)
@@ -1347,7 +1344,15 @@ function UI.update(partial: Types.PartialState)
 		if before ~= nil and before < CannonLogic.HINT_TIER and tier >= CannonLogic.HINT_TIER then
 			for _, area in catalogAreas() do
 				if area.tier == CannonLogic.HINT_TIER then
-					cannonOpened = area.name
+					local opened = area.name
+					cannonOpened = opened
+					-- the hint and its trail go by themselves after a while; a flight clears them sooner
+					task.delay(CannonLogic.OPENED_HINT_SECONDS, function()
+						if cannonOpened == opened then
+							cannonOpened = nil
+							applyTutorial()
+						end
+					end)
 					break
 				end
 			end
@@ -1493,10 +1498,6 @@ function UI.destroy()
 	if gateSigns then
 		gateSigns:destroy()
 	end
-	if signpost then
-		signpost:destroy()
-	end
-	signpost = nil
 	if indexBoards then
 		indexBoards:destroy()
 	end
@@ -3513,7 +3514,14 @@ do
 	-- Shows the next waiting tip when the moment is free and the gap has run.
 	local function pumpTips()
 		local card = tipCard
-		if card == nil or tipBusy or not initialized or tipQueue:size() == 0 then
+		-- the Tutorial tile's × (its setting off) holds the tip cards back too (Derek 2026-11-03)
+		if
+			card == nil
+			or tipBusy
+			or not initialized
+			or not tutorialButtonOn
+			or tipQueue:size() == 0
+		then
 			return
 		end
 		if not TipQueue.free(tipMoment()) then
@@ -4199,8 +4207,8 @@ end
 -- Leaderboards (F98)
 ----------------------------------------------------------------------------------------------------
 
--- The three leaderboards (leaderboards.md): the faces on the town's boards (Screens/LeaderboardBoards), the Index's
--- Top tab (Screens/LeaderboardTop) and the crown over an all time top 10 player's head (Screens/Crowns). UI.init
+-- The three leaderboards (leaderboards.md): the faces on the town's boards (Screens/LeaderboardBoards) and the crown
+-- over an all time top 10 player's head (Screens/Crowns); the Index's Top tab went on 2026-11-03. UI.init
 -- starts the faces and crowns; UIController calls UI.leaderboards.sync with each LeaderboardSync payload. The last
 -- payload is kept, so a rebuilt UI shows it at once. Its own block, as the module is short of locals.
 UI.leaderboards = {}
@@ -4221,9 +4229,6 @@ do
 		boards.faces = faces
 		boards.crowns = Crowns.new()
 		faces:setSync(boards.last)
-		if collection then
-			collection:setLeaderboards(boards.last)
-		end
 	end
 
 	-- LeaderboardSync { boards = { [board] = { allTime = rows, week = rows } }, me = { [board] = { rank?, value,
@@ -4237,9 +4242,6 @@ do
 		local faces = boards.faces
 		if faces then
 			faces:setSync(sync)
-		end
-		if collection then
-			collection:setLeaderboards(sync)
 		end
 	end
 

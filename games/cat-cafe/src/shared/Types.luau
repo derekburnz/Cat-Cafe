@@ -49,7 +49,8 @@ export type CatchWindows = { perfect: number, good: number }
 -- A rescue minigame as RescueChallenge sends it (data-model section 10b), times in server time. "bar": a marker
 -- slides back and forth along a bar (shared/RescueMarker) and each press inside the zone is a hit; zones holds
 -- the zone centre (0 to 1) for each hit in order. "shake_catch": the same bar on a tree, where each hit shakes
--- the branch; the server then sends a second challenge of kind "circle", one catch circle with its windows.
+-- the branch; with Config.RescueTreeCircle the server then sends a second challenge of kind "circle", one catch
+-- circle with its windows (off since Derek 2026-11-03: the last shake frees the cat).
 export type RescueKind = "bar" | "shake_catch" | "circle"
 export type RescueChallenge = {
 	kind: RescueKind,
@@ -61,9 +62,9 @@ export type RescueChallenge = {
 	hitsNeeded: number?,
 	paws: number?, -- misses the attempt can take (RescuePatience)
 	endsAt: number?, -- the attempt's deadline
-	-- F93 (catch-rework.md section 4): zones holds one spare zone per paw, since a zone not hit within zonePasses
-	-- sweeps costs a paw and the next one takes over; `zone` is the index of the one to hit now and zoneEndsAt when it
-	-- moves on. Every hit makes the marker speedUpPerHit faster; RescueResult's RescueBar says how it runs after that.
+	-- F93 (catch-rework.md section 4): `zone` is the index of the one to hit now. Every hit makes the marker
+	-- speedUpPerHit faster; RescueResult's RescueBar says how it runs after that. Derek 2026-11-03: a zone stays until
+	-- it is hit, so zoneEndsAt is the attempt's deadline and zonePasses is no longer sent.
 	zone: number?,
 	zoneEndsAt: number?,
 	zonePasses: number?,
@@ -78,7 +79,7 @@ export type RescueChallenge = {
 
 -- How the rescue bar runs now (F93), RescueResult's last argument: the marker from server time startsAt at phase
 -- (0 to 2) and speed bar lengths per second (shared/RescueMarker.position), zones[zone] the one to hit and
--- zoneEndsAt the server time it moves on if nobody hits it.
+-- zoneEndsAt the attempt's deadline (a zone stays until it is hit, Derek 2026-11-03).
 export type RescueBar = {
 	zone: number,
 	startsAt: number,

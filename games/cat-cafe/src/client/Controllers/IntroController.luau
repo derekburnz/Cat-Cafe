@@ -60,6 +60,7 @@ local COPY_CLEARS = {
 	"CannonLaunchAt",
 	"CannonFrom",
 	"CannonTo",
+	"CannonHeading",
 	"CloudHopAt",
 	"CloudHopTo",
 	"Camp",

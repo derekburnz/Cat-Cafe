@@ -5,9 +5,9 @@
 -- stamps them on arrival and takes off half the player's ping; enough hits free the cat into the player's arms, out
 -- of paws, out of time, walking away, Give up, dying or leaving ends the attempt and the cat stays stuck. A failed
 -- attempt never loses the cat. The cat's charm and gold roll stay here until it is free (reviewer N30).
--- F93 (catch-rework.md section 4): a zone not hit within RescueZonePasses sweeps costs a paw and moves on (the watch
--- loop and every press move past them, shared/Rescue.advance), every hit makes the marker faster, and each
--- RescueResult carries the bar as it now runs (Types.RescueBar).
+-- F93 (catch-rework.md section 4): every hit makes the marker faster, and each RescueResult carries the bar as it now
+-- runs (Types.RescueBar). Derek 2026-11-03: a zone stays until it is hit (only a miss costs a paw), and a tree frees
+-- its cat on the last shake unless Config.RescueTreeCircle brings back the falling cat's catch circle.
 -- F92 (playing-together.md section 3): Team Rescue. While a trap is locked to a rescuer, one other player within
 -- TeamRescueRangeStuds who is not carrying can join with RescueHelp: they get the same bar as it runs now
 -- (Rescue.helperChallenge), the attempt gets TeamRescueExtraSeconds, either player's hit counts and the helper's miss
@@ -439,9 +439,7 @@ local function stageOf(attempt: Rescue.Attempt): Rescue.Stage
 	return attempt.stage
 end
 
--- Watches an attempt until it ends: its deadline, the player walking more than LEAVE_RANGE_STUDS away or dying. A
--- zone that ran out moves on here once a late press for it could no longer arrive (CatchLatencyCapSeconds), and the
--- player hears of the lost paw and the new zone (F93).
+-- Watches an attempt until it ends: its deadline, the player walking more than LEAVE_RANGE_STUDS away or dying.
 local function watch(player: Player, entry: Stuck, attempt: Rescue.Attempt)
 	task.spawn(function()
 		while entry.attempt == attempt do
@@ -450,18 +448,8 @@ local function watch(player: Player, entry: Stuck, attempt: Rescue.Attempt)
 				return
 			end
 			local now = serverNow()
-			if
-				stageOf(attempt) == "bar"
-				and Rescue.advance(attempt, now - Config.CatchLatencyCapSeconds) > 0
-			then
-				if stageOf(attempt) == "done" then
-					finish(player, entry, attempt, nil) -- out of paws: the bar shows it on its own clock
-					return
-				end
-				sendAll(player, entry, attempt)
-			end
 			if Rescue.expire(attempt, now) then
-				finish(player, entry, attempt, nil) -- the bar shows "Too slow!" on its own clock
+				finish(player, entry, attempt, nil) -- out of time: the bar shows it on its own clock
 				return
 			end
 			if player.Parent ~= Players or not alive(player) then
@@ -687,15 +675,11 @@ local function onRescuePress(player: Player, rawSpotId: unknown)
 	local pressTime = arrival - Circles.latency(player:GetNetworkPing())
 	local stage = stageOf(attempt)
 	if stage == "bar" then
-		local zoneBefore, pawsBefore = attempt.zone, attempt.paws
 		local result = Rescue.pressBar(attempt, pressTime, helping)
 		if result == "ignored" then
-			-- too early, or arriving after the deadline or the last paw's zone ran out: end it now rather than at the
-			-- next watch tick
+			-- too early, or arriving after the deadline: end it now rather than at the next watch tick
 			if stageOf(attempt) == "done" or Rescue.expire(attempt, arrival) then
 				finish(rescuer, entry, attempt, nil)
-			elseif attempt.zone ~= zoneBefore or attempt.paws ~= pawsBefore then
-				sendAll(rescuer, entry, attempt)
 			end
 			return
 		end

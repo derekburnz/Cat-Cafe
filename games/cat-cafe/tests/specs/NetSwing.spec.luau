@@ -170,6 +170,11 @@ return function()
 			expect(NetSwing.refusal(check({ inCamp = true }))).to.equal("camp")
 		end)
 
+		it("never on the Town Square, where the net is put away (Derek 2026-11-03)", function()
+			expect(NetSwing.refusal(check({ inTown = true }))).to.equal("town")
+			expect(NetSwing.refusal(check({ inTown = false }))).never.to.be.ok()
+		end)
+
 		it(
 			"once per NetSwingCooldown, with a little slack for the ping between two presses",
 			function()

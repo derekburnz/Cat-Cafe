@@ -4,7 +4,8 @@
 -- shared/NetSwing.landingOrigin: where the server will judge a swing pressed now. NetSwingController drives it: it
 -- shows while a swing could go with a stray nearby, and for a moment after any press; cream while it would hit
 -- nothing, gold while Moments.NetInReach names a stray. A press brightens it, and NetSmackDelay later, when the net
--- lands, it flashes and settles. Local parts in the camera, never seen by other players.
+-- lands, it flashes and settles. Local parts in Effects/Context's folder with the other local effects (review N345),
+-- never seen by other players.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -12,6 +13,7 @@ local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local Context = require(script.Parent.Parent.Effects.Context)
 local NetSwing = require(Shared:WaitForChild("NetSwing"))
 
 local NetMarker = {}
@@ -190,7 +192,7 @@ local function step(deltaTime: number, rootOf: () -> BasePart?)
 		return
 	end
 	if made.Parent == nil then
-		made.Parent = Workspace.CurrentCamera
+		made.Parent = Context.folder()
 	end
 	local extra = pulse(now)
 	local fill = if inReach then FILL.reach else FILL.idle

@@ -401,7 +401,174 @@ def night_a(tmp: Path) -> np.ndarray:
     return blend({"lead": (lead, -20, 0.35), "harp": (harp, -22, 0.3), "pad": (pad, -27, 0.4)}, 301, tmp)
 
 
-SONGS = {"DayA": day_a, "DayB": day_b, "NightA": night_a}
+MARIMBA = ((1.0, 1.0, 0.42), (3.93, 0.22, 0.06), (9.3, 0.05, 0.025))
+
+
+def marimba(f: float, velocity: float = 1.0) -> np.ndarray:
+    """A wooden bar: a round fundamental and a quick bright overtone, plus a soft mallet tick."""
+    t = seconds(1.0)
+    tick = lowpass(np.random.default_rng(int(f * 7)).standard_normal(len(t)), 2500) * np.exp(-t / 0.004) * 0.15
+    return (bell(1.0, f, MARIMBA, attack=0.0015) + tick) * velocity
+
+
+def clap(seed: int) -> np.ndarray:
+    """A soft clap: two quick bursts of band-limited noise and a short tail."""
+    x = np.zeros(int(0.25 * SR))
+    for k, at in enumerate((0.0, 0.009, 0.019)):
+        burst = noise_hit(seed + k, 0.2, 900, 4200, 0.0006, 0.008 if k < 2 else 0.05)
+        start = int(at * SR)
+        end = min(len(x), start + len(burst))
+        x[start:end] += burst[: end - start] * (0.7 if k < 2 else 1.0)
+    return x
+
+
+def day_c(tmp: Path) -> np.ndarray:
+    """Paw Prints: playful, padding about. Pizzicato strings bounce on the chords; the tune on a marimba; a flute
+    takes it an octave up; the marimba again with a glockenspiel on top."""
+    s = Song(104, 4, seed=41)
+    bars = [  # bass root, bass fifth, the chord the strings bounce on
+        ("D2", "A2", "F#4 A4 D5"), ("B1", "F#2", "F#4 B4 D5"), ("G1", "D2", "G4 B4 D5"), ("A1", "E2", "E4 A4 C#5"),
+        ("D2", "A2", "F#4 A4 D5"), ("F#2", "C#3", "F#4 A4 C#5"), ("G1", "D2", "G4 B4 D5"), ("A1", "E2", "E4 G4 C#5"),
+    ]
+    tune = melody("0 0 0.5 A4; 0 0.5 0.5 F#4; 0 1 1 A4; 0 2 1 D5; 0 3 1 F#5;"
+                  "1 0 1.5 E5; 1 1.5 0.5 D5; 1 2 2 B4;"
+                  "2 0 0.5 B4; 2 0.5 0.5 D5; 2 1 1 G5; 2 2 1 F#5; 2 3 1 E5;"
+                  "3 0 2 E5; 3 2 1 C#5; 3 3 1 A4;"
+                  "4 0 0.5 A4; 4 0.5 0.5 F#4; 4 1 1 A4; 4 2 1 D5; 4 3 1 A5;"
+                  "5 0 1.5 F#5; 5 1.5 0.5 E5; 5 2 2 C#5;"
+                  "6 0 1 B4; 6 1 1 D5; 6 2 1 G5; 6 3 1 E5;"
+                  "7 0 1 E5; 7 1 1 C#5; 7 2 2 A4")
+    pizz, bass, lead, kit = s.stem(), s.stem(), s.stem(), s.stem()
+    for bar in range(BARS):
+        root, fifth, voicing = bars[bar % 8]
+        section = bar // 8
+        notes = chord(voicing)
+        for k, i in enumerate((0, 1, 2, 1, 0, 1, 2, 1)):  # bouncing eighths, the beat a little stronger
+            s.put(pizz, pluck(0.18, notes[i], bar * 16 + k, bright=0.55, ring=0.5) * (0.8 if k % 2 == 0 else 0.55),
+                  bar, k * 0.5, pan=-0.3 + 0.08 * i, loose=0.004)
+        s.put(bass, pluck(0.5, note(root), bar * 3, bright=0.25, ring=0.9), bar, 0.0, pan=-0.05)
+        s.put(bass, pluck(0.4, note(fifth), bar * 3 + 1, bright=0.25, ring=0.9) * 0.8, bar, 2.0, pan=-0.05)
+        s.put(bass, pluck(0.2, note(root) * 2, bar * 3 + 2, bright=0.25, ring=0.9) * 0.6, bar, 3.5, pan=-0.05)
+        for k in range(8):
+            s.put(kit, noise_hit(bar * 8 + k, 0.08, 5500, 11000, 0.004, 0.02), bar, k * 0.5, pan=0.4,
+                  gain=0.5 if k % 2 == 0 else 0.3)
+        soft = 0.6 if section == 0 else 1.0  # the kit plays throughout, softer at first, so the loop's seam is level
+        for beat in (1, 3):
+            s.put(kit, rim(bar * 4 + beat), bar, beat, pan=-0.3, gain=0.55 * soft)
+        if section in (1, 2, 3):
+            for b, beat, length, f in tune:
+                if b == bar % 8:
+                    if section == 2:
+                        s.put(lead, flute(length * s.beat * 0.9, f * 2, bar * 10 + int(beat * 2)), bar, beat, pan=0.1)
+                    else:
+                        s.put(lead, marimba(f, 0.9), bar, beat, pan=0.12)
+                        if section == 3:
+                            s.put(lead, glock(f * 2) * 0.25, bar, beat, pan=0.3)
+        if bar % 8 == 7:  # a little run up into the next phrase
+            for k, name in enumerate(("A5", "B5", "C#6")):
+                s.put(lead, marimba(note(name), 0.5), bar, 2.5 + 0.5 * k, pan=0.35)
+    return blend({"lead": (lead, -20, 0.25), "pizz": (pizz, -23, 0.2), "bass": (bass, -26, 0.05),
+                  "kit": (kit, -35, 0.1)}, 401, tmp)
+
+
+def day_d(tmp: Path) -> np.ndarray:
+    """Market Morning: sunny and busy. A bright strummed ukulele, bass and claps; the flute tune; a marimba takes
+    it; the flute again with a glockenspiel answer."""
+    s = Song(112, 4, seed=51)
+    bars = [
+        ("A2", "E2", "E4 A4 C#5"), ("C#3", "G#2", "E4 G#4 C#5"), ("D3", "A2", "F#4 A4 D5"), ("E2", "B2", "E4 G#4 B4"),
+        ("A2", "E2", "E4 A4 C#5"), ("F#2", "C#3", "F#4 A4 C#5"), ("B2", "F#2", "F#4 B4 D5"), ("E2", "B2", "D4 G#4 B4"),
+    ]
+    tune = melody("0 0 1 E5; 0 1 0.5 C#5; 0 1.5 0.5 E5; 0 2 1.5 A5; 0 3.5 0.5 G#5;"
+                  "1 0 1 G#5; 1 1 1 E5; 1 2 2 C#5;"
+                  "2 0 0.5 D5; 2 0.5 0.5 E5; 2 1 1 F#5; 2 2 1 A5; 2 3 1 F#5;"
+                  "3 0 3 E5; 3 3 0.5 B4; 3 3.5 0.5 C#5;"
+                  "4 0 1 E5; 4 1 0.5 C#5; 4 1.5 0.5 E5; 4 2 1 A5; 4 3 1 B5;"
+                  "5 0 1.5 C#6; 5 1.5 0.5 B5; 5 2 1 A5; 5 3 1 F#5;"
+                  "6 0 1 D5; 6 1 1 F#5; 6 2 1.5 B5; 6 3.5 0.5 A5;"
+                  "7 0 1.5 G#5; 7 1.5 0.5 F#5; 7 2 2 E5")
+    strum, bass, lead, kit = s.stem(), s.stem(), s.stem(), s.stem()
+    hits = ((0.0, 1.0, True), (1.0, 0.7, True), (1.5, 0.55, False), (2.5, 0.6, False), (3.0, 0.8, True),
+            (3.5, 0.55, False))
+    for bar in range(BARS):
+        root, fifth, voicing = bars[bar % 8]
+        section = bar // 8
+        notes = chord(voicing)
+        for h, (beat, accent, down) in enumerate(hits):  # down strums low to high, up strums high to low
+            order = notes if down else list(reversed(notes))
+            for i, f in enumerate(order):
+                s.put(strum, pluck(0.35, f, bar * 60 + h * 5 + i, bright=0.7, ring=0.7) * accent, bar,
+                      beat + 0.01 * i / s.beat, pan=-0.3, loose=0.003)
+        s.put(bass, upright(0.9, note(root), 1.0), bar, 0.0)
+        s.put(bass, upright(0.4, note(root), 0.7), bar, 1.5)
+        s.put(bass, upright(0.9, note(fifth), 0.85), bar, 2.0)
+        for k in range(8):
+            s.put(kit, noise_hit(bar * 8 + k, 0.1, 5000, 11000, 0.008, 0.025), bar, k * 0.5, pan=0.45,
+                  gain=0.55 if k % 2 == 0 else 0.4)
+        soft = 0.6 if section == 0 else 1.0  # the kit plays throughout, softer at first, so the loop's seam is level
+        for beat in (1, 3):
+            s.put(kit, clap(bar * 4 + beat), bar, beat, pan=0.05, gain=0.5 * soft)
+        if section in (1, 2, 3):
+            for b, beat, length, f in tune:
+                if b == bar % 8:
+                    if section == 2:
+                        s.put(lead, marimba(f, 0.9), bar, beat, pan=0.12)
+                    else:
+                        s.put(lead, flute(length * s.beat * 0.9, f, bar * 10 + int(beat * 2)), bar, beat, pan=0.1)
+            if section == 3 and bar % 2 == 1:  # the glockenspiel answers each second bar
+                for k, f in enumerate(notes[::-1]):
+                    s.put(lead, glock(f * 2) * 0.22, bar, 3.0 + 0.25 * k, pan=0.3)
+    return blend({"lead": (lead, -20, 0.25), "strum": (strum, -23, 0.15), "bass": (bass, -26, 0.05),
+                  "kit": (kit, -35, 0.1)}, 501, tmp)
+
+
+def night_b(tmp: Path) -> np.ndarray:
+    """Night Owls: late and cosy, a little dreamy. A soft electric piano on major seventh chords, upright bass and
+    brushes; the music box tune; the vibraphone dreams it an octave down; the music box again."""
+    s = Song(76, 4, seed=61, swing=0.07)
+    bars = [
+        ("F2", "C3", "A3 C4 E4 G4"), ("D3", "A2", "F3 A3 C4 E4"), ("Bb2", "F2", "A3 D4 F4"), ("C3", "G2", "Bb3 E4 G4"),
+        ("A2", "E2", "G3 C4 E4"), ("D3", "A2", "F3 A3 C4 E4"), ("G2", "D3", "F3 A3 Bb3 D4"), ("C3", "G2", "Bb3 D4 E4 G4"),
+    ]
+    tune = melody("0 0 1.5 C5; 0 1.5 0.5 A4; 0 2 2 E5;"
+                  "1 0 1 D5; 1 1 1 C5; 1 2 2 A4;"
+                  "2 0 1.5 D5; 2 1.5 0.5 C5; 2 2 1 A4; 2 3 1 F4;"
+                  "3 0 3 G4; 3 3 1 Bb4;"
+                  "4 0 1.5 C5; 4 1.5 0.5 E5; 4 2 2 G5;"
+                  "5 0 1 F5; 5 1 1 E5; 5 2 2 C5;"
+                  "6 0 1 D5; 6 1 1 Bb4; 6 2 1 A4; 6 3 1 F4;"
+                  "7 0 3 G4; 7 3 1 A4")
+    keys, bass, lead, kit, pad = s.stem(), s.stem(), s.stem(), s.stem(), s.stem()
+    for bar in range(BARS):
+        root, fifth, voicing = bars[bar % 8]
+        section = bar // 8
+        notes = chord(voicing)
+        for i, f in enumerate(notes):
+            s.put(keys, epiano(2.2, f, 0.55), bar, 0.0 + 0.03 * i, pan=-0.25 + 0.15 * i, loose=0.006)
+            s.put(keys, epiano(1.0, f, 0.35), bar, 2.5, pan=-0.25 + 0.15 * i, loose=0.006)
+        s.put(bass, upright(1.6, note(root), 0.9), bar, 0.0)
+        s.put(bass, upright(1.2, note(fifth), 0.7), bar, 2.0)
+        for beat in range(4):
+            s.put(kit, noise_hit(bar * 8 + beat, 0.4, 2500, 8000, 0.04, 0.1), bar, beat, pan=0.2, gain=0.4)
+            if beat in (1, 3):
+                s.put(kit, noise_hit(bar * 8 + beat + 4, 0.2, 1200, 4500, 0.003, 0.05), bar, beat, pan=-0.1,
+                      gain=0.5 if section > 0 else 0.3)
+        s.put(pad, strings(4 * s.beat, [f / 2 for f in notes[:3]], 600 + bar), bar, 0.0, loose=0)
+        if section in (1, 2, 3):
+            for b, beat, length, f in tune:
+                if b == bar % 8:
+                    if section == 2:
+                        s.put(lead, vibraphone(length * s.beat, f), bar, beat, pan=0.1)
+                    else:
+                        s.put(lead, music_box(f * 2) * 0.85, bar, beat, pan=0.2)
+        if bar % 4 == 3:  # music box sparkles drifting down at the end of each four bars
+            for k, f in enumerate(sorted(notes, reverse=True)[:3]):
+                s.put(lead, music_box(f * 4) * 0.25, bar, 2.0 + 0.5 * k, pan=0.35 - 0.1 * k)
+    return blend({"lead": (lead, -21, 0.35), "keys": (keys, -23, 0.3), "bass": (bass, -27, 0.05),
+                  "kit": (kit, -36, 0.15), "pad": (pad, -30, 0.4)}, 601, tmp)
+
+
+SONGS = {"DayA": day_a, "DayB": day_b, "NightA": night_a, "DayC": day_c, "DayD": day_d, "NightB": night_b}
 
 
 def encode(wav: Path, out: Path, codec: list[str]) -> None:

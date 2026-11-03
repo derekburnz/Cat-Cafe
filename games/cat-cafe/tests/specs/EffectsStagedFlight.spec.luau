@@ -43,19 +43,22 @@ return function()
 			expect(pose("ball", 100).hipL).to.equal(ball.hipL) -- however long the arc
 		end)
 
-		it("falls curled up, opens just before its feet touch and lands on them", function()
-			local high = pose("land", -1)
-			expect(high.hipL).to.be.near(c.poses.ball.hip, 1e-6)
-			expect(pose("land", -c.open - 0.01).hipL).to.be.near(c.poses.ball.hip, 1e-6)
-			local opening = pose("land", -c.open / 2)
-			expect(opening.hipL < c.poses.ball.hip and opening.hipL > c.poses.land.hip).to.equal(
-				true
-			)
-			local touch = pose("land", 0)
-			expect(touch.knL).to.be.near(c.poses.land.kn, 1e-6)
-		end)
+		it(
+			"falls feet first, swings into the landing just before its feet touch and lands on them",
+			function()
+				local high = pose("land", -1)
+				expect(high.knL).to.be.near(c.poses.drop.kn, 1e-6)
+				expect(pose("land", -c.open - 0.01).knL).to.be.near(c.poses.drop.kn, 1e-6)
+				local opening = pose("land", -c.open / 2)
+				expect(opening.hipL > c.poses.drop.hip and opening.hipL < c.poses.land.hip).to.equal(
+					true
+				)
+				local touch = pose("land", 0)
+				expect(touch.knL).to.be.near(c.poses.land.kn, 1e-6)
+			end
+		)
 
-		it("crouches, bounces and stands, then lets go", function()
+		it("kneels, stands and then lets go", function()
 			local last = pose("land", 0)
 			for since = 0, c.ends - c.touch, STEP do
 				local now = pose("land", since)

@@ -321,6 +321,27 @@ function Logic.cloudTint(t: number, plan: CloudPlan): number
 	return math.clamp((t - plan.tintFrom) / (plan.tintTo - plan.tintFrom), 0, 1)
 end
 
+-- The intro's cloud dip over a jump between places (#958, Presets.introCut), for a shot of `before` seconds left at
+-- the jump and one of `after` seconds after it (nil: long enough). A shot shorter than `full` gets its side of the dip
+-- shortened in proportion, so even the camp tour's quick cuts show clear for over half their time.
+function Logic.introDip(
+	p: { cut: number, full: number, plan: CloudPlan },
+	before: number?,
+	after: number?
+): CloudPlan
+	local into = math.clamp((before or p.full) / p.full, 0, 1)
+	local out = math.clamp((after or p.full) / p.full, 0, 1)
+	local base, cut = p.plan, p.cut
+	return {
+		coverFrom = cut - (cut - base.coverFrom) * into,
+		coverTo = cut - (cut - base.coverTo) * into,
+		partFrom = cut + (base.partFrom - cut) * out,
+		partTo = cut + (base.partTo - cut) * out,
+		tintFrom = base.tintFrom,
+		tintTo = base.tintTo,
+	}
+end
+
 -- Where the middle of the cloud tunnel has drifted `t` seconds in, as shares of the screen's shorter side: a slow,
 -- uneven loop, so the flight feels like it banks.
 function Logic.cloudBank(t: number, bank: { share: number, hz: number }): Vector2

@@ -204,8 +204,18 @@ def main():
     common._ensure_lights(True)
     if frames[0]["pivot"] != frames[-1]["pivot"] or data.get("checker"):
         checker_floor()  # so a walking cat is seen to move while the camera follows it
-    if data.get("sky"):  # up in the air: no floor, a sky behind
-        bpy.data.objects["_PreviewFloor"].hide_render = True
+    ground = data.get("ground")  # a big floor seen from high up: {size, tile} in studs
+    if ground:
+        floor = bpy.data.objects["_PreviewFloor"]
+        grow = ground["size"] / 400
+        floor.scale = (grow, grow, 1)
+        nodes = bpy.data.materials["_PreviewFloor"].node_tree.nodes
+        for node in nodes:
+            if node.type == "TEX_CHECKER":
+                node.inputs["Scale"].default_value = grow / ground["tile"]
+    if data.get("sky"):  # up in the air: a sky behind, and no floor unless there is ground
+        if not ground:
+            bpy.data.objects["_PreviewFloor"].hide_render = True
         bg = sc.world.node_tree.nodes.get("Background")
         bg.inputs["Color"].default_value = (*linear(data["sky"]), 1)
         bg.inputs["Strength"].default_value = 1.0
@@ -256,7 +266,14 @@ def main():
     paths = []
     for n, frame in enumerate(frames):
         pivot = Vector(frame["pivot"])
-        if not fixed:
+        moving = frame.get("cam")  # a camera of the game's own that moves, per frame
+        if moving:
+            cam.data.sensor_fit = "VERTICAL"
+            cam.data.angle_y = math.radians(moving["fov"])
+            cam.data.clip_end = 3000
+            cam.location = to_blender(moving["at"])
+            cam.rotation_euler = (to_blender(moving["look"]) - cam.location).to_track_quat("-Z", "Y").to_euler()
+        elif not fixed:
             aim(cam, to_blender(center_rbx + pivot), view_b, radius)
         for ob, info, part in zip(objs, data["parts"], frame["parts"]):
             sx, sy, sz = part_scale(info["shape"], part["size"])

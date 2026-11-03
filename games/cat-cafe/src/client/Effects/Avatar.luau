@@ -775,23 +775,50 @@ local function hopPlace(from: Vector3, yaw: number, k: number): (Vector3, number
 	return from:Lerp(Vector3.zero, k) + Vector3.new(0, lift, 0), turn * (1 - smooth(k))
 end
 
+-- The ball's way out of the barrel `t` seconds after the boom, in the root's frame (Presets.cannonPose): where it
+-- is; which way it heads over the ground, radians about the up axis from the barrel's way, easing round to `heading`
+-- between bendFrom and bendTo; and its pitch, radians from straight up to the way it is moving. The bend has no sum
+-- in closed form, so its ground track adds up OUT_STEPS slices.
+local OUT_STEPS = 24
+local function outgoing(t: number, heading: number): (Vector3, number, number)
+	local c = Presets.cannonPose
+	local tilt = math.rad(c.tilt)
+	local flat, rise = c.speed * math.cos(tilt), c.speed * math.sin(tilt)
+	local function way(s: number): number
+		return heading * smooth((s - c.bendFrom) / (c.bendTo - c.bendFrom))
+	end
+	local x, z = 0, -flat * math.min(t, c.bendFrom)
+	if t > c.bendFrom then
+		local slice = (t - c.bendFrom) / OUT_STEPS
+		for i = 1, OUT_STEPS do
+			local a = way(c.bendFrom + (i - 0.5) * slice)
+			x -= math.sin(a) * flat * slice
+			z -= math.cos(a) * flat * slice
+		end
+	end
+	local y = rise * t - 0.5 * c.gravity * t * t
+	return Vector3.new(x, y, z), way(t), math.atan2(flat, rise - c.gravity * t)
+end
+
 -- The flight `seconds` after CannonLaunchAt: the pose; where the body is from the root (which the server holds at
 -- the barrel's seat, then on the landing pad), in the root's frame; how far it is turned about the up axis from the
--- root's heading and how far it has rolled forward about its middle (radians); and how much of it shows, easing
--- back to the character's own animation after the landing. `from` and `fromYaw` are where the root stood just before
--- the launch and its heading, in the root's frame now (nil when this client never saw it: the hop starts at the
--- seat). Nil outside the flight. Plain numbers and vectors, so the tests run without CFrame.
+-- root's heading and how far it has rolled forward about its middle (radians); how much of it shows, easing back to
+-- the character's own animation after the landing; and how far it leans into a turn, about its own length
+-- (radians, positive leaning left). `from` and `fromYaw` are where the root stood just before the launch and its
+-- heading, in the root's frame now (nil when this client never saw it: the hop starts at the seat). `heading` is
+-- the flight's CannonHeading as radians about the up axis from the root's heading, the short way round (nil or 0:
+-- straight on along the barrel). Nil outside the flight. Plain numbers and vectors, so the tests run without CFrame.
 function Avatar.flight(
 	seconds: number,
 	from: Vector3?,
-	fromYaw: number?
-): (Pose?, Vector3, number, number, number)
+	fromYaw: number?,
+	heading: number?
+): (Pose?, Vector3, number, number, number, number)
 	local c = Presets.cannonPose
 	if seconds < 0 or seconds >= c.ends + c.blendOut then
-		return nil, Vector3.zero, 0, 0, 0
+		return nil, Vector3.zero, 0, 0, 0, 0
 	end
 	local ball = cannonKey("ball")
-	local roll = 2 * math.pi * c.spin
 	if seconds < c.hop then
 		-- a crouch where it stood, then up into the barrel, curling into the ball on the way down
 		local pose = through({
@@ -802,47 +829,56 @@ function Avatar.flight(
 		}, seconds)
 		local air = math.max(0, (seconds - c.hopCrouch) / (c.hop - c.hopCrouch))
 		local at, yaw = hopPlace(from or Vector3.zero, fromYaw or 0, air)
-		return pose, at, yaw, 0, 1
+		return pose, at, yaw, 0, 1, 0
 	end
 	if seconds < c.boom then
-		return Avatar.mix(ball, ball, 0), Vector3.zero, 0, 0, 1
+		return Avatar.mix(ball, ball, 0), Vector3.zero, 0, 0, 1, 0
 	end
+	local soar = cannonKey("soar")
 	if seconds < c.gone then
-		-- out along the barrel, rising in a high arc and still climbing when it meets the cloud
+		-- out of the barrel in a long climb: one roll, slowing as it opens out of the ball, then soaring head first
+		-- along the way it goes, bending round towards the landing pad and leaning into the turn
 		local t = seconds - c.boom
-		local tilt = math.rad(c.tilt)
-		local out = Vector3.new(0, math.sin(tilt), -math.cos(tilt)) * (c.speed * t)
-			- Vector3.new(0, 0.5 * c.gravity * t * t, 0)
-		return Avatar.mix(ball, ball, 0), out, 0, roll * t, 1
+		local turn = heading or 0
+		local at, yaw, pitch = outgoing(t, turn)
+		local k = math.min(1, t / c.flipFor)
+		local roll = 2 * math.pi * c.flips * (1 - (1 - k) * (1 - k)) + pitch * smooth(k)
+		local b = (t - c.bendFrom) / (c.bendTo - c.bendFrom)
+		local bank = if b > 0 and b < 1
+			then math.rad(c.bank) * math.clamp(turn / (math.pi / 2), -1, 1) * 4 * b * (1 - b)
+			else 0
+		local open = smooth((t - c.soarFrom) / (c.soarTo - c.soarFrom))
+		return Avatar.mix(ball, soar, open), at, yaw, roll, 1, bank
 	end
 	if seconds < c.drop then
-		return Avatar.mix(ball, ball, 0), Vector3.new(0, c.hidden, 0), 0, 0, 1
+		return Avatar.mix(soar, soar, 0), Vector3.new(0, c.hidden, 0), 0, 0, 1, 0
 	end
 	if seconds < c.touch then
-		-- falling faster and faster onto the pad, opening at the last moment and upright as its feet arrive
-		local k = (seconds - c.drop) / (c.touch - c.drop)
+		-- back over the pad feet first, falling along a curve from behind it and slowing as it comes down, the legs
+		-- swinging under it for the landing at the last moment
+		local u = (seconds - c.drop) / (c.touch - c.drop)
+		local k = (2 - c.arrive) * u + (c.arrive - 1) * u * u
+		local start = Vector3.new(0, c.height, c.back)
+		local bend = Vector3.new(0, c.height, c.back * 0.3)
 		local open = smooth((seconds - (c.touch - c.open)) / c.open)
-		return Avatar.mix(ball, cannonKey("land"), open),
-			Vector3.new(0, c.dropHeight * (1 - (0.6 * k + 0.4 * k * k)), 0),
+		return Avatar.mix(cannonKey("drop"), cannonKey("land"), open),
+			start * ((1 - k) * (1 - k)) + bend * (2 * k * (1 - k)),
 			0,
-			roll * (seconds - c.touch),
-			1
+			0,
+			1,
+			0
 	end
-	-- down into a crouch, deeper, a little bounce and up standing
-	local span = c.ends - c.touch
+	-- the hero landing: down on one knee with a fist on the ground, a beat held, then up standing
+	local rise = c.touch + c.hold
 	local pose = through({
 		{ at = c.touch, pose = cannonKey("land") },
-		{ at = c.touch + span * 0.25, pose = cannonKey("squash") },
-		{ at = c.touch + span * 0.55, pose = cannonKey("bounce") },
-		{ at = c.touch + span * 0.85, pose = cannonKey("settle") },
+		{ at = c.touch + c.kneel, pose = cannonKey("kneel") },
+		{ at = rise, pose = cannonKey("kneel") },
+		{ at = rise + (c.ends - rise) * 0.55, pose = cannonKey("settle") },
 		{ at = c.ends, pose = STAND },
 	}, seconds)
-	local b = (seconds - (c.touch + span * 0.25)) / (span * 0.6)
-	if b > 0 and b < 1 then
-		pose.air += c.bounce * math.sin(math.pi * b)
-	end
 	local weight = if seconds <= c.ends then 1 else smooth(1 - (seconds - c.ends) / c.blendOut)
-	return pose, Vector3.zero, 0, 0, weight
+	return pose, Vector3.zero, 0, 0, weight, 0
 end
 
 -- The middle of the rig's parts in the root's frame, with these Transforms: what the ball rolls about.
@@ -862,15 +898,17 @@ function Avatar.middle(rig: Rig, transforms: { [Joint]: CFrame }): Vector3
 end
 
 -- `pose`'s joint Transforms with the whole body moved from the root through the Root joint: to `at`, turned `yaw`
--- about the up axis, then rolled `roll` forward and banked `bank` towards its right about its middle (radians). Also
--- the body's middle, turned with it, in the root's frame.
+-- about the up axis, then rolled `roll` forward and banked `bank` towards its right about its middle, then turned
+-- `twist` about its own length, its left side going down (radians). Also the body's middle, turned with it, in the
+-- root's frame.
 local function moved(
 	rig: Rig,
 	pose: Pose,
 	at: Vector3,
 	yaw: number,
 	roll: number,
-	bank: number
+	bank: number,
+	twist: number?
 ): ({ [Joint]: CFrame }, CFrame)
 	local out = Avatar.solve(rig, pose)
 	local middle = Avatar.middle(rig, out)
@@ -878,6 +916,7 @@ local function moved(
 		* CFrame.Angles(0, yaw, 0)
 		* CFrame.new(middle)
 		* CFrame.Angles(-roll, 0, -bank)
+		* CFrame.Angles(0, -(twist or 0), 0)
 	local root = rig.joints.Root
 	for _, link in rig.links do
 		if link.motor == root then
@@ -892,23 +931,28 @@ end
 -- The flight's joint Transforms `seconds` after CannonLaunchAt and how much of them shows (Avatar.flight): the pose,
 -- with the whole body moved from the anchored root and rolled about its middle. Also where the body's middle is in
 -- the root's frame, nil while it waits out of sight above the clouds. `from` is where the root stood before the
--- launch, in the root's frame now. Nil outside the flight.
+-- launch and `heading` the flight's CannonHeading, both in the root's frame now. Nil outside the flight.
 function Avatar.cannon(
 	rig: Rig,
 	seconds: number,
-	from: CFrame?
+	from: CFrame?,
+	heading: Vector3?
 ): ({ [Joint]: CFrame }?, number, CFrame?)
 	local fromYaw = nil
 	if from ~= nil then
 		local look = from.LookVector
 		fromYaw = math.atan2(-look.X, -look.Z)
 	end
-	local pose, at, yaw, roll, weight =
-		Avatar.flight(seconds, if from ~= nil then from.Position else nil, fromYaw)
+	local turn = nil
+	if heading ~= nil and math.abs(heading.X) + math.abs(heading.Z) > 1e-3 then
+		turn = math.atan2(-heading.X, -heading.Z)
+	end
+	local pose, at, yaw, roll, weight, bank =
+		Avatar.flight(seconds, if from ~= nil then from.Position else nil, fromYaw, turn)
 	if pose == nil then
 		return nil, 0, nil
 	end
-	local out, centre = moved(rig, pose, at, yaw, roll, 0)
+	local out, centre = moved(rig, pose, at, yaw, roll, 0, bank)
 	local c = Presets.cannonPose
 	local hidden = seconds >= c.gone and seconds < c.drop
 	return out, weight, if hidden then nil else centre
@@ -917,8 +961,8 @@ end
 -- The Cat Cannon flight on a staged copy (the intro's copy of you, F72; Gameplay-Engineer's IntroController moves and
 -- spins its root itself, so this is the pose alone), as seconds into Avatar.flight: `phase` "hop" from `since` 0 (the
 -- hop into the barrel over cannonPose.hop, then the ball in the barrel), "ball" (curled up for the arc), or "land" with
--- `since` counted from the feet touching the pad (the ball opening just before, then the crouch, the bounce and up
--- standing on cannonPose's own timing). Nil when there is nothing to show: before the hop, after the landing or for a
+-- `since` counted from the feet touching the pad (falling feet first and swinging into the landing just before,
+-- then down on one knee and up standing on cannonPose's own timing). Nil when there is nothing to show: before the hop, after the landing or for a
 -- phase it does not know.
 function Avatar.stagedSeconds(phase: string, since: number): number?
 	local c = Presets.cannonPose
@@ -955,7 +999,7 @@ end
 
 -- The cloud cutscene's flyer `seconds` after CannonLaunchAt (Presets.cannonGlide), in its ViewportFrame's space: the
 -- pose, where the body is, its heading, its forward roll and its bank (radians). Before the clouds it waits below the
--- frame as the ball; nil once it has dived out. It is in view for `span` seconds from cannonPose's `gone` (its `drop`
+-- frame, soaring; nil once it has dropped out. It is in view for `span` seconds from cannonPose's `gone` (its `drop`
 -- less `gone` when nil, the flight's own); a shorter span (the intro's squeezed shot) squeezes the rise, the opening
 -- and the dive to fit, and the glide between keeps its own pace.
 function Avatar.glide(seconds: number, span: number?): (Pose?, Vector3, number, number, number)
@@ -969,19 +1013,18 @@ function Avatar.glide(seconds: number, span: number?): (Pose?, Vector3, number, 
 	local squeeze = math.min(1, window / full)
 	local rise, opening, dive = g.rise * squeeze, g.open * squeeze, g.dive * squeeze
 	local s = math.max(seconds, c.gone)
-	local ball, glide = cannonKey("ball"), cannonKey("spread")
+	local soar, glide = cannonKey("soar"), cannonKey("spread")
 	local heading = math.rad(g.heading)
-	local roll = 2 * math.pi * c.spin / squeeze
 	local opened = c.gone + rise + opening
 	local tuck = c.gone + window - dive
 	if s < opened then
-		-- up into view still rolling, opening out flat as the roll comes round upright
+		-- up into view soaring head first, then spreading out flat as it levels off
 		local up = smooth((s - c.gone) / rise)
 		local open = smooth((s - (opened - opening)) / opening)
-		return Avatar.mix(ball, glide, open),
+		return Avatar.mix(soar, glide, open),
 			Vector3.new(0, -g.below * (1 - up), 0),
 			heading,
-			roll * (s - opened),
+			math.rad(g.pitch) * (1 - open),
 			0
 	end
 	local function sway(t: number): (number, number)
@@ -999,13 +1042,13 @@ function Avatar.glide(seconds: number, span: number?): (Pose?, Vector3, number, 
 		local bob, bank = sway(t)
 		return pose, Vector3.new(0, bob, 0), heading, 0, bank
 	end
-	-- tucked back into the ball and diving out of the bottom
+	-- swinging its feet down under it, ready to land, and dropping out of the bottom
 	local k = (s - tuck) / dive
 	local bob, bank = sway(tuck - opened)
-	return Avatar.mix(glide, ball, smooth(k * 2)),
+	return Avatar.mix(glide, cannonKey("drop"), smooth(k * 2)),
 		Vector3.new(0, bob - g.below * k * k, 0),
 		heading,
-		roll * (s - tuck),
+		0,
 		bank * (1 - smooth(k))
 end
 

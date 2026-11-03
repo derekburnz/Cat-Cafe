@@ -27,6 +27,11 @@ Intro.STREAM_WAIT = 5 -- seconds the intro waits for the Alleyway's camp to stre
 
 Intro.AREA = "alley" -- the camp shots 2 to 4 and 7 film, where a new player's first flight goes
 Intro.CAMP_CUTS = { "park", "neighbourhood", "woods", "sewer" } -- shot 6, in order
+-- Smoother cuts between places (#958, Derek 2026-11-03: "make the locations cuts smoother"): a cut or shot boundary
+-- whose next camera place is more than JUMP_STUDS from the last is a jump, and Moments.IntroCut fires CUT_LEAD
+-- before it for Effects' cloud dip. None inside or into the cannon flight shot, which has its own clouds.
+Intro.JUMP_STUDS = 60
+Intro.CUT_LEAD = 0.2
 
 -- The demo stray (section 2a): a Tuxedo, an Alleyway Common whose own role is waiter, so it does not read as a
 -- second starter Tabby. It stands at S = g + 10u + 5r through shot 3.
@@ -630,6 +635,12 @@ function Intro.shotAt(shots: { Shot }, elapsed: number): number
 		end
 	end
 	return 1
+end
+
+-- True when the camera goes from `from` to `to` across a cut: a jump between places (more than JUMP_STUDS apart),
+-- which Effects covers with a cloud dip (#958).
+function Intro.jump(from: Key, to: Key): boolean
+	return (to.position - from.position).Magnitude > Intro.JUMP_STUDS
 end
 
 -- Shot 6's cuts that `streamed` says are there, sharing the shot's whole time between them, so a skipped camp gives

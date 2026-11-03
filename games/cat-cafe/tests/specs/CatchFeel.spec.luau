@@ -4,9 +4,10 @@
 -- chances for a player whose presses land within about 50 ms (one standard deviation, ping wobble included) and a
 -- shakier one at 70 ms. These checks work the same chances out from the build's own numbers: Circles.windowsFor and
 -- each rarity's circles for the net, RescueMarker.inZone over the real bar's speed (faster after every hit), zone
--- width and tolerance, Rescue.hitsNeeded, RescuePatience and RescueZonePasses for a rescue. A change to any of them
+-- width and tolerance, Rescue.hitsNeeded and RescuePatience for a rescue. A change to any of them
 -- that moves a chance by more than a point fails here, so the design's tables stay true. The F93 rescue rows are the
--- build's own figures, which the designer accepted against the spec's rounder ones (2026-11-02).
+-- build's own figures, which the designer accepted against the spec's rounder ones (2026-11-02), eased a little on
+-- 2026-11-03 when zones began waiting to be hit.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
@@ -61,10 +62,9 @@ return function()
 	end
 
 	-- Percent of bar attempts that free the cat (F93): hit k is pressed with the marker at RescueBarSpeed x (1 +
-	-- RescueSpeedUpPerHit)^k. A zone lasts RescueZonePasses (2) passes of the marker, so it takes at most two presses,
-	-- each miss a paw, and a zone missed twice runs out for a third paw as it moves on. Out of paws ends it.
+	-- RescueSpeedUpPerHit)^k. A zone stays until it is hit (Derek 2026-11-03), so each miss costs a paw and the player
+	-- presses again on the same zone. Out of paws ends it.
 	local function rescueChance(rarity: Types.Rarity, spread: number): number
-		expect(Config.RescueZonePasses).to.equal(2) -- the two presses per zone below
 		local hits = Rescue.hitsNeeded(rarity, "bar")
 		local p: { number } = {}
 		for k = 0, hits - 1 do
@@ -85,13 +85,7 @@ return function()
 				return known
 			end
 			local q = p[done + 1]
-			local chance = q * from(done + 1, paws)
-			if paws > 1 then
-				chance += (1 - q) * q * from(done + 1, paws - 1)
-			end
-			if paws > 2 then
-				chance += (1 - q) * (1 - q) * from(done, paws - 3)
-			end
+			local chance = q * from(done + 1, paws) + (1 - q) * from(done, paws - 1)
 			memo[key] = chance
 			return chance
 		end
@@ -146,8 +140,10 @@ return function()
 				at50[i] = rescueChance(rarity, 0.05)
 				at70[i] = rescueChance(rarity, 0.07)
 			end
-			rowMatches("bar 50 ms", at50, { 100, 98, 78, 36, 9 })
-			rowMatches("bar 70 ms", at70, { 100, 88, 44, 11, 2 })
+			-- Derek 2026-11-03: zones wait to be hit, so a slow press no longer costs a paw (was 100, 98, 78, 36, 9 and
+			-- 100, 88, 44, 11, 2 with F93's run-out)
+			rowMatches("bar 50 ms", at50, { 100, 100, 85, 41, 11 })
+			rowMatches("bar 70 ms", at70, { 100, 93, 51, 13, 2 })
 		end)
 
 		it("gives a steady player time for every hit and every spare paw inside the 15 s deadline", function()
@@ -159,7 +155,7 @@ return function()
 			end
 		end)
 
-		it("judges the tree's falling cat on the Pro Net times its own catchWindow, easier than its net catch", function()
+		it("judges the tree's falling cat (RescueTreeCircle) on the Pro Net times its catchWindow, easier than a net catch", function()
 			for _, rarity in RARITIES do
 				local windows = Circles.windowsFor(Rescue.CIRCLE_NET_LEVEL, rarity)
 				local falling = 100 * within(windows.good, 0.05)

@@ -1,0 +1,18 @@
+{
+  "labels": [
+    { "name": "ui", "color": "1d76db", "description": "Screens, HUD, menus, intro and tutorial text (src/client/UI)" },
+    { "name": "animation", "color": "5319e7", "description": "Poses, carry, cutscenes, the trailer (src/client/Effects, assets/cat-cafe/anim)" },
+    { "name": "gameplay", "color": "0e8a16", "description": "Server rules, Config, remotes, saves (src/server, src/shared)" },
+    { "name": "model", "color": "bfd4f2", "description": "3D models, areas and town layout (assets/cat-cafe/blender, World)" },
+    { "name": "sound", "color": "fbca04", "description": "Sounds, music, audio uploads (assets/cat-cafe/audio, src/client/Audio)" },
+    { "name": "vfx", "color": "f9d0c4", "description": "Effects and their loudness or budget (src/client/Effects, docs/vfx)" },
+    { "name": "store-art", "color": "e99695", "description": "Store page pictures, icon, gallery, Home test, video" },
+    { "name": "tools", "color": "c2e0c6", "description": "CI, publishing, Open Cloud, Roblox settings, the repo itself (.github, tools/opencloud)" },
+    { "name": "qa", "color": "d4c5f9", "description": "Test plans and playtest walk-throughs (docs/playtests)" },
+    { "name": "design", "color": "0052cc", "description": "Specs and the GDD (docs/design)" },
+    { "name": "needs-derek", "color": "d93f0b", "description": "Waits on Derek: an OK, his PC or a Roblox account step" }
+  ],
+  "milestones": [
+    { "title": "playtest 2026-11-03", "description": "Every request open at the 2026-11-03 handover, filed as an issue so either project can pick it up" }
+  ]
+}

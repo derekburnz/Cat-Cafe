@@ -6,15 +6,17 @@
 -- marker slides back and forth along a bar at RescueBarSpeed[rarity] bar lengths per second, and each press while
 -- it is inside the zone (RescueZoneWidth[rarity] wide, plus RescueTolerance either side) is a hit that moves the
 -- zone to its next spot. rescueHits[rarity] hits free the cat; each miss costs one of RescuePatience paws, and out
--- of paws ends the attempt. Kind "shake_catch" (a tree): rescueHits - 1 hits shake the branch, then the cat drops
--- and one catch circle (Common shrink time, the Pro Net's windows times the stuck cat's catchWindow, v0.13.15 F83)
--- must be Good or Perfect. The server stamps each press on arrival and takes off half the player's ping, as for a
--- catch circle.
+-- of paws ends the attempt. Kind "shake_catch" (a tree): the same bar, each hit shaking the branch; the last one frees
+-- the cat. With Config.RescueTreeCircle on (off since Derek 2026-11-03), rescueHits - 1 hits shake the branch, then
+-- the cat drops and one catch circle (Common shrink time, the Pro Net's windows times the stuck cat's catchWindow,
+-- v0.13.15 F83) must be Good or Perfect. The server stamps each press on arrival and takes off half the player's
+-- ping, as for a catch circle.
 --
--- F93 (catch-rework.md section 4): no waiting for the perfect moment. Each zone stays for RescueZonePasses sweeps of
--- the marker across the bar; one not hit by then costs a paw and the next zone takes over from that moment, so the
--- challenge holds one spare zone per paw. Every hit makes the marker RescueSpeedUpPerHit faster from where it is, and
--- a press in the zone is always a hit. RescueResult carries the RescueBar (barState) so the client draws the same.
+-- F93 (catch-rework.md section 4): every hit makes the marker RescueSpeedUpPerHit faster from where it is, and a press
+-- in the zone is always a hit. RescueResult carries the RescueBar (barState) so the client draws the same. Derek
+-- 2026-11-03 ("bars going in circles and stuff is a little confusing"): a zone stays where it is until it is hit, so
+-- only a miss costs a paw; the RescueBar's zoneEndsAt is the attempt's deadline (the zone's draining edge is its
+-- timer).
 --
 -- F92 (playing-together.md section 3): Team Rescue. One helper can join a running bar (addHelper): the attempt gets
 -- TeamRescueExtraSeconds on its deadline, the helper's hits count like the rescuer's and a helper's miss costs no paw
@@ -46,26 +48,26 @@ export type Attempt = {
 	success: boolean,
 	circle: Circles.Attempt?, -- the tree's falling cat, once the shakes are done
 	-- F93: the marker runs from markerAt (server time) at markerPhase and `speed`; each hit starts it again from
-	-- where it is, faster. zones[zone] is the one to hit until zoneEndsAt. lastPressAt keeps presses in order.
+	-- where it is, faster. zones[zone] is the one to hit. lastPressAt keeps presses in order.
 	markerAt: number,
 	markerPhase: number,
 	speed: number,
 	zone: number,
-	zoneEndsAt: number,
 	lastPressAt: number,
 	helped: boolean?, -- F92: a helper has joined (one an attempt, even after they left)
 }
 
--- A tree is shaken then caught; every other trap is a plain bar.
+-- A tree shakes on every hit (and, with RescueTreeCircle, ends with a catch); every other trap is a plain bar.
 function Rescue.kind(trap: string): Types.RescueKind
 	local kind: Types.RescueKind = if trap == "tree" then "shake_catch" else "bar"
 	return kind
 end
 
--- Bar hits the attempt needs: rescueHits on a bar, one fewer on a tree, whose catch circle is the last step.
+-- Bar hits the attempt needs: rescueHits, or one fewer on a tree while RescueTreeCircle makes its catch circle the
+-- last step.
 function Rescue.hitsNeeded(rarity: Types.Rarity, kind: Types.RescueKind): number
 	local hits = Catalog.rarities[rarity].rescueHits
-	return math.max(1, if kind == "shake_catch" then hits - 1 else hits)
+	return math.max(1, if kind == "shake_catch" and Config.RescueTreeCircle then hits - 1 else hits)
 end
 
 -- Zone centres for `count` hits, each inside the bar and at least MIN_ZONE_STEP from the one before.
@@ -95,11 +97,6 @@ function Rescue.markerAt(challenge: Types.RescueChallenge, t: number): number
 	return RescueMarker.position(challenge.startsAt, challenge.phase or 0, challenge.speed or 1, t)
 end
 
--- How long a zone stays at `speed` before it moves on: RescueZonePasses trips along the bar.
-function Rescue.zoneSeconds(speed: number): number
-	return Config.RescueZonePasses / math.max(speed, 0.01)
-end
-
 -- The marker of a running attempt at server time t, after its hits so far.
 function Rescue.marker(attempt: Attempt, t: number): number
 	return RescueMarker.position(attempt.markerAt, attempt.markerPhase, attempt.speed, t)
@@ -110,14 +107,19 @@ function Rescue.currentZone(attempt: Attempt): number?
 	return (attempt.challenge.zones or {})[attempt.zone]
 end
 
--- What RescueResult sends (F93): how the marker runs now and which zone to hit until when.
+-- The attempt's deadline in server time (later once a helper joins): when its zone's time runs out too.
+function Rescue.endsAt(attempt: Attempt): number
+	return attempt.challenge.endsAt or (attempt.challenge.startsAt + Config.RescueAttemptMaxSeconds)
+end
+
+-- What RescueResult sends (F93): how the marker runs now and which zone to hit (zoneEndsAt is the deadline).
 function Rescue.barState(attempt: Attempt): Types.RescueBar
 	return {
 		zone = attempt.zone,
 		startsAt = attempt.markerAt,
 		phase = attempt.markerPhase,
 		speed = attempt.speed,
-		zoneEndsAt = attempt.zoneEndsAt,
+		zoneEndsAt = Rescue.endsAt(attempt),
 		endsAt = attempt.challenge.endsAt, -- F92: later once a helper joins
 	}
 end
@@ -133,8 +135,8 @@ function Rescue.newChallenge(
 	local kind: Types.RescueKind = Rescue.kind(trap)
 	local width = Config.RescueZoneWidth[rarity]
 	local hitsNeeded = Rescue.hitsNeeded(rarity, kind)
-	-- one zone per hit and one spare per paw, for the zones that run out (F93)
-	local zones = Rescue.zones(hitsNeeded + Config.RescuePatience, width, roll)
+	local zones = Rescue.zones(hitsNeeded, width, roll) -- one per hit: a zone stays until it is hit
+	local endsAt = now + Config.RescueAttemptMaxSeconds
 	local phase = roll() * 2
 	local waiting = RescueMarker.position(0, phase, 0, 0)
 	if RescueMarker.inZone(waiting, zones[1], width, Config.RescueTolerance) then
@@ -151,10 +153,9 @@ function Rescue.newChallenge(
 		zones = zones,
 		hitsNeeded = hitsNeeded,
 		paws = Config.RescuePatience,
-		endsAt = now + Config.RescueAttemptMaxSeconds,
+		endsAt = endsAt,
 		zone = 1,
-		zoneEndsAt = startsAt + Rescue.zoneSeconds(speed),
-		zonePasses = Config.RescueZonePasses,
+		zoneEndsAt = endsAt,
 		speedUpPerHit = Config.RescueSpeedUpPerHit,
 	}
 end
@@ -173,36 +174,15 @@ function Rescue.newAttempt(challenge: Types.RescueChallenge, rarity: Types.Rarit
 		markerPhase = challenge.phase or 0,
 		speed = speed,
 		zone = 1,
-		zoneEndsAt = challenge.zoneEndsAt or (challenge.startsAt + Rescue.zoneSeconds(speed)),
 		lastPressAt = challenge.startsAt,
 	}
 end
 
--- Moves past every zone whose sweeps ran out by server time `t` without a hit (F93): each costs a paw and the next
--- zone takes over from the moment the last one ran out; out of paws (or zones) ends the attempt as a fail. Returns
--- how many zones ran out.
-function Rescue.advance(attempt: Attempt, t: number): number
-	local moved = 0
-	while attempt.stage == "bar" and t > attempt.zoneEndsAt do
-		moved += 1
-		attempt.paws = math.max(0, attempt.paws - 1)
-		local from = attempt.zoneEndsAt
-		attempt.zone += 1
-		attempt.zoneEndsAt = from + Rescue.zoneSeconds(attempt.speed)
-		if attempt.paws == 0 or Rescue.currentZone(attempt) == nil then
-			attempt.stage = "done"
-			attempt.success = false
-		end
-	end
-	return moved
-end
-
 -- Judges a bar press at `pressTime` (latency corrected). Ignored before the marker moves, after the deadline and
--- outside the bar stage. Zones that ran out before the press move on first (advance), which can end the attempt. A
--- hit restarts the marker from where it is RescueSpeedUpPerHit faster and moves to the next zone; a hit that
--- completes a tree's shakes moves the attempt to "falling": the caller then starts the circle with
--- Rescue.startCircle. A miss costs a paw and leaves the zone where it is, unless the press is a Team Rescue helper's
--- (F92): theirs costs nothing.
+-- outside the bar stage. A hit restarts the marker from where it is RescueSpeedUpPerHit faster and moves to the next
+-- zone; the last hit frees the cat, or with RescueTreeCircle completes a tree's shakes and moves the attempt to
+-- "falling": the caller then starts the circle with Rescue.startCircle. A miss costs a paw and leaves the zone where
+-- it is, unless the press is a Team Rescue helper's (F92): theirs costs nothing.
 function Rescue.pressBar(attempt: Attempt, pressTime: number, helper: boolean?): Press
 	local challenge = attempt.challenge
 	if attempt.stage ~= "bar" or pressTime < challenge.startsAt then
@@ -213,9 +193,8 @@ function Rescue.pressBar(attempt: Attempt, pressTime: number, helper: boolean?):
 	end
 	-- a press never lands before one already judged (a ping that dropped between them)
 	local at = math.max(pressTime, attempt.lastPressAt)
-	Rescue.advance(attempt, at)
 	local centre = Rescue.currentZone(attempt)
-	if attempt.stage ~= "bar" or centre == nil then
+	if centre == nil then
 		return "ignored"
 	end
 	attempt.lastPressAt = at
@@ -227,9 +206,8 @@ function Rescue.pressBar(attempt: Attempt, pressTime: number, helper: boolean?):
 		attempt.markerAt = at
 		attempt.speed *= 1 + Config.RescueSpeedUpPerHit
 		attempt.zone += 1
-		attempt.zoneEndsAt = at + Rescue.zoneSeconds(attempt.speed)
 		if attempt.hits >= (challenge.hitsNeeded or #(challenge.zones or {})) then
-			if challenge.kind == "shake_catch" then
+			if challenge.kind == "shake_catch" and Config.RescueTreeCircle then
 				attempt.stage = "falling"
 			else
 				attempt.stage = "done"
@@ -258,6 +236,7 @@ function Rescue.addHelper(attempt: Attempt): boolean
 	local challenge = attempt.challenge
 	if challenge.endsAt ~= nil then
 		challenge.endsAt = (challenge.endsAt :: number) + Config.TeamRescueExtraSeconds
+		challenge.zoneEndsAt = challenge.endsAt
 	end
 	return true
 end
@@ -277,8 +256,7 @@ function Rescue.helperChallenge(attempt: Attempt): Types.RescueChallenge
 		paws = attempt.paws,
 		endsAt = challenge.endsAt,
 		zone = attempt.zone,
-		zoneEndsAt = attempt.zoneEndsAt,
-		zonePasses = challenge.zonePasses,
+		zoneEndsAt = Rescue.endsAt(attempt),
 		speedUpPerHit = challenge.speedUpPerHit,
 		helper = true,
 		hits = attempt.hits,
@@ -335,8 +313,7 @@ function Rescue.pressCircle(attempt: Attempt, pressTime: number, now: number): T
 end
 
 -- The next server time the attempt can run out on its own: the bar's deadline plus the latency allowance, or the
--- circle's deadline. nil while falling (the caller starts the circle at once) or when done. A zone running out
--- (advance) is not an end of its own unless it takes the last paw.
+-- circle's deadline. nil while falling (the caller starts the circle at once) or when done.
 function Rescue.deadline(attempt: Attempt): number?
 	if attempt.stage == "bar" then
 		local endsAt = attempt.challenge.endsAt

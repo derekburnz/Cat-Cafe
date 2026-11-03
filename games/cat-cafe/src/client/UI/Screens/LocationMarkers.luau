@@ -4,7 +4,7 @@
 -- Wayfinding.FAR and Wayfinding.NEAR studs, so the cafe in front of the player is never covered, and draws smaller
 -- the further away it is (Wayfinding.scale). It hides while carrying, when the carry marker leads to the door.
 -- The areas, the night dealer's cart and the Town Square had markers too until Derek 2026-10-28: "toggle off the ui
--- bubbles for all places except your cafe people can just rely on signs in game" (the gate signs and the signpost).
+-- bubbles for all places except your cafe people can just rely on signs in game" (the gate signs).
 -- The point comes from the plot's pivot, so the marker shows before the parts stream in.
 --
 -- Roblox terms: a BillboardGui draws 2D UI at a 3D point, facing the camera; AlwaysOnTop shows it through walls.

@@ -2,9 +2,14 @@
 const O = '#2a1a12';
 const S = `stroke="${O}" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke"`;
 window.ICONS = {
-  cats: `<path ${S} fill="#fff" d="M10 56 Q8 30 19 22 L15 6 L29 15 Q32 14 35 15 L49 6 L45 22 Q56 30 54 56 Z"/>
-    <circle cx="24" cy="36" r="4" fill="${O}"/><circle cx="40" cy="36" r="4" fill="${O}"/>
-    <path d="M29 45 L35 45 L32 49 Z" fill="#ff7aa8" stroke="${O}" stroke-width="2" stroke-linejoin="round"/>`,
+  cats: `<path ${S} fill="#ffb04a" d="M8 48 Q6 30 15 22 L12 5 L27 14 Q32 13 37 14 L52 5 L49 22 Q58 30 56 48 Q54 60 32 60 Q10 60 8 48 Z"/>
+    <path d="M17 19 L15 10 L23 15 Z M47 19 L49 10 L41 15 Z" fill="#ff9ec4"/>
+    <path d="M28 16 L29 24 M32 15 V24 M36 16 L35 24" stroke="#d9741f" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="22" cy="36" rx="5" ry="6" fill="${O}"/><ellipse cx="42" cy="36" rx="5" ry="6" fill="${O}"/>
+    <circle cx="23.6" cy="33.6" r="2" fill="#fff"/><circle cx="43.6" cy="33.6" r="2" fill="#fff"/>
+    <circle cx="15" cy="45" r="4" fill="#ff8fb3" opacity=".7"/><circle cx="49" cy="45" r="4" fill="#ff8fb3" opacity=".7"/>
+    <path d="M29.5 42 H34.5 L32 45 Z" fill="#ff6f9a" stroke="${O}" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M26 47 Q29 51 32 47 Q35 51 38 47" stroke="${O}" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
   index: `<path ${S} fill="#fff" d="M6 14 Q19 9 32 16 Q45 9 58 14 V52 Q45 47 32 54 Q19 47 6 52 Z"/>
     <path d="M32 17 V52" stroke="${O}" stroke-width="4" stroke-linecap="round"/>
     <path d="M13 22 Q19 20 25 23 M13 30 Q19 28 25 31 M39 23 Q45 20 51 22 M39 31 Q45 28 51 30" stroke="#9bd1ff" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
@@ -12,12 +17,27 @@ window.ICONS = {
     <path d="M20 22 L26 28 L36 16" stroke="#2fbf4a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M20 40 H44 M20 48 H38" stroke="${O}" stroke-width="4" stroke-linecap="round"/>`,
   upgrades: `<path ${S} fill="#fff" d="M32 5 L57 31 H43 V58 H21 V31 H7 Z"/>`,
-  decor: `<path ${S} fill="#fff" d="M8 30 Q8 21 17 21 H47 Q56 21 56 30 V47 H8 Z"/>
-    <path ${S} fill="#ffd6e6" d="M16 32 H48 V42 H16 Z"/>
-    <path d="M13 47 V55 M51 47 V55" stroke="${O}" stroke-width="5" stroke-linecap="round"/>`,
-  store: `<path ${S} fill="#fff" d="M10 22 H54 L50 58 H14 Z"/>
-    <path d="M22 26 V18 Q22 8 32 8 Q42 8 42 18 V26" stroke="${O}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-    <path ${S} fill="#ffd84a" d="M32 32 L35 39 L42 40 L37 45 L38 52 L32 48 L26 52 L27 45 L22 40 L29 39 Z" stroke-width="2.5"/>`,
+  decor: `<path ${S} fill="#ffa3c8" d="M9 16 Q9 10 15 10 H33 Q39 10 39 16 V36 H9 Z"/>
+    <circle cx="18" cy="21" r="2.4" fill="#e8558f"/><circle cx="30" cy="21" r="2.4" fill="#e8558f"/>
+    <rect ${S} x="9" y="32" width="30" height="11" rx="4" fill="#ffbcd7"/>
+    <path ${S} fill="#ff7eb0" d="M2 30 Q2 24 7.5 24 Q13 24 13 30 V50 H2 Z"/>
+    <path ${S} fill="#ff7eb0" d="M35 30 Q35 24 40.5 24 Q46 24 46 30 V50 H35 Z"/>
+    <path ${S} fill="#ff7eb0" d="M13 42 H35 V50 H13 Z"/>
+    <path d="M6 50 V56 M42 50 V56" stroke="${O}" stroke-width="5" stroke-linecap="round"/>
+    <path ${S} fill="#e07b4a" stroke-width="3.5" d="M47 42 H62 L60 58 H49 Z"/>
+    <path ${S} fill="#3ccf5a" stroke-width="3" d="M54.5 42 Q46 34 49 24 Q56 31 54.5 42 Z"/>
+    <path ${S} fill="#3ccf5a" stroke-width="3" d="M54.5 42 Q61 33 61 24 Q53 28 54.5 42 Z"/>`,
+  store: `<path ${S} fill="#b8692e" d="M9 26 L5 9 Q5 4 11 4 H53 Q59 4 59 9 L55 26 Z"/>
+    <path d="M19 5 L21 25 M45 5 L43 25" stroke="#ffd23f" stroke-width="4"/>
+    <path ${S} fill="#ffd23f" stroke-width="3.5" d="M6 32 Q8 18 20 19 Q26 11 34 16 Q42 11 48 19 Q58 19 58 32 Z"/>
+    <circle cx="17" cy="25" r="4" fill="none" stroke="#e7a812" stroke-width="2.2"/><circle cx="46" cy="24" r="4" fill="none" stroke="#e7a812" stroke-width="2.2"/>
+    <path d="M24 24 L29 15 L34 24 L29 28 Z" fill="#ff5d8f" stroke="${O}" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="M34 22 L39 14 L44 22 L39 26 Z" fill="#5fd0ff" stroke="${O}" stroke-width="2.4" stroke-linejoin="round"/>
+    <rect ${S} x="5" y="30" width="54" height="28" rx="5" fill="#c46f2e"/>
+    <path d="M18 32 V56 M46 32 V56" stroke="#ffd23f" stroke-width="5"/>
+    <rect x="25.5" y="33" width="13" height="15" rx="3.5" fill="#ffd23f" stroke="${O}" stroke-width="3"/>
+    <path d="M32 38 V43" stroke="${O}" stroke-width="3" stroke-linecap="round"/>
+    <path fill="#fff" stroke="${O}" stroke-width="2" stroke-linejoin="round" d="M54 0.5 L56 7 L62.5 9 L56 11 L54 17.5 L52 11 L45.5 9 L52 7 Z"/>`,
   tutorial: `<text x="32" y="50" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="50" fill="#fff" stroke="${O}" stroke-width="5" paint-order="stroke">?</text>`,
   rewards: `<rect ${S} x="8" y="26" width="48" height="32" rx="5" fill="#fff"/>
     <rect ${S} x="5" y="17" width="54" height="12" rx="4" fill="#fff"/>

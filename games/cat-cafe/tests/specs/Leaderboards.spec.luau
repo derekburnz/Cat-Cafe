@@ -212,6 +212,59 @@ return function()
 			expect(Leaderboards.crowned(lists, 500)).to.equal(false)
 			expect(Config.LeaderboardCrownRank).to.equal(10)
 		end)
+
+		it("put the players in this server in at their values now (#941)", function()
+			local entries = {
+				{ key = "11", value = 900 },
+				{ key = "22", value = 800 },
+				{ key = "33", value = 600 },
+			}
+			local rows = Leaderboards.rows(entries, {}, name)
+			local present: { Leaderboards.Present } = {
+				{ userId = 22, name = "Here", value = 950 },
+				{ userId = 77, name = "P77", value = 700 },
+				{ userId = 88, name = "New", value = 0 },
+				{ userId = 99, name = "Hidden", value = 5000 },
+			}
+			local merged = Leaderboards.withPresent(rows, present, { [99] = true })
+			local ids = {}
+			for index, row in merged do
+				expect(row.rank).to.equal(index)
+				table.insert(ids, row.userId)
+			end
+			expect(ids).to.deepEqual({ 22, 11, 77, 33 })
+			expect(merged[1].name).to.equal("Here")
+			expect(merged[1].value).to.equal(950)
+			-- the list as read stays as it was
+			expect(#rows).to.equal(3)
+			expect(rows[2].userId).to.equal(22)
+			expect(rows[2].value).to.equal(800)
+		end)
+
+		it("show a player alone in Studio, with nothing read from a store", function()
+			local present: { Leaderboards.Present } = { { userId = 5, name = "P5", value = 3 } }
+			local merged = Leaderboards.withPresent({}, present, {})
+			expect(#merged).to.equal(1)
+			expect(merged[1].rank).to.equal(1)
+			expect(merged[1].value).to.equal(3)
+		end)
+
+		it("keep a tie's stored row ahead, and the top LeaderboardSize only", function()
+			local entries = {}
+			for i = 1, 60 do
+				table.insert(entries, { key = tostring(i), value = 100 - i })
+			end
+			local rows = Leaderboards.rows(entries, {}, name)
+			local present: { Leaderboards.Present } = {
+				{ userId = 1000, name = "Tie", value = 50 },
+				{ userId = 2000, name = "Top", value = 1000 },
+			}
+			local merged = Leaderboards.withPresent(rows, present, {})
+			expect(#merged).to.equal(Config.LeaderboardSize)
+			expect(merged[1].userId).to.equal(2000)
+			expect(merged[50].userId).to.equal(49)
+			expect(Leaderboards.rankOf(merged, 1000)).to.equal(nil)
+		end)
 	end)
 
 	describe("Leaderboards edges (QA)", function()

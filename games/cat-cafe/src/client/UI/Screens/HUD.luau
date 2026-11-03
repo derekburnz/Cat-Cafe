@@ -50,7 +50,6 @@ local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
-local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
@@ -154,9 +153,13 @@ local BOWL_ICON = "🥣" -- the bait bowl symbol's glyph, under the Big Bowl per
 -- some buttons into just symbols"): the left menu is a two-column grid of square symbol tiles, not wide pills.
 -- Since 2026-11-03 (Derek: "Build it as shown") they are clean tiles, the label under each square, and the Store is
 -- one wide gold tile over the grid ("make sure the store is good and stands out as thats how we will make robux").
-local MENU_TILE = 78
-local MENU_TEXT = 17 -- a menu tile's label, under its square
-local MENU_CELL_H = MENU_TILE + MENU_TEXT + 4 -- the square and the label's strip (Button's clean layout)
+-- On a touch screen the label sits inside each tile (Button layout "tile") and the Store is the grid's first square,
+-- so the grid stays up at the top, clear of Roblox's thumbstick on a small phone.
+local TOUCH = Scale.isTouch()
+local TILE_LAYOUT: Button.Layout = if TOUCH then "tile" else "clean"
+local MENU_TILE = if TOUCH then 64 else 78
+local MENU_TEXT = if TOUCH then Theme.sizes.textTiny + 1 else 17 -- a menu tile's label
+local MENU_CELL_H = if TOUCH then MENU_TILE else MENU_TILE + MENU_TEXT + 4 -- the square and the label's strip
 local STORE_H = 80 -- the Store's wide tile, two tiles wide, over the grid
 local STORE_TEXT = 27
 -- the Store's shine sweeps across in 0.9 s, then waits 3.5 s, for good; a still shine under reduced motion
@@ -166,18 +169,31 @@ local MENU_COLUMNS = 2
 -- a short screen (a phone) whose grid would run three rows deep takes three tiles a row, so the bottom row stays out
 -- of Roblox's thumbstick in the bottom left (review N343: the Store tile's row put Upgrades there)
 local MENU_COLUMNS_SHORT = 3
+-- on a touch screen the grid also keeps out of the bottom left's last 180 px, where Roblox's thumbstick sits (the UI
+-- gate's thumbstick zone), so a phone takes three tiles a row before its third row reaches down there
+local THUMB_ZONE = 180
 local MENU_GAP = 14 -- between the columns, so a tile's red dot clears its neighbour's key letter
 local function menuWidth(columns: number): number
 	return columns * MENU_TILE + (columns - 1) * MENU_GAP
 end
 local MENU_W = menuWidth(MENU_COLUMNS)
-local TRAVEL_ICON = 28
-local TRAVEL_W = 136
+local TRAVEL_ICON = 28 -- the pictures on the Rewards and Menu lists' rows
+-- the bottom row is clean tiles since 2026-11-03 (Derek: "cafe and cannon button redo", then "Build it as shown"):
+-- a square each with its label under it, a little apart so a long label ("Walk it home") clears its neighbours. On a
+-- touch screen the label sits inside the tile (Button layout "tile"), so the row stays low and the corner pair and
+-- the right column keep their room on a small phone.
+local TRAVEL_W = if TOUCH then 80 else 82
+local TRAVEL_TEXT = if TOUCH then Theme.sizes.textTiny + 1 else 17
+local TRAVEL_GAP = 14
 -- the potion and bait bowl symbols, bottom right (moved clear of Roblox's jump button on a phone: _placeCorner)
-local SYMBOL = 64
-local SYMBOL_ROW_W = 2 * SYMBOL + Theme.sizes.gap
-local TRAVEL_H = 50 -- every bottom row button, My Cafe too (Derek 2026-10-27 22:26: no bigger, no ears)
-local TRAVEL_ROW_W = 3 * TRAVEL_W + 2 * Theme.sizes.gap
+local SYMBOL = if TOUCH then 64 else 74 -- a little smaller on touch, where the pair may move (_placeCorner)
+local SYMBOL_TEXT = if TOUCH then Theme.sizes.textTiny else 16
+local SYMBOL_H = if TOUCH then SYMBOL else SYMBOL + SYMBOL_TEXT + 4 -- the square, and its label under it
+local CORNER_GAP = 14
+local SYMBOL_ROW_W = 2 * SYMBOL + CORNER_GAP
+-- every bottom row tile the same, My Cafe too (Derek 2026-10-27 22:26)
+local TRAVEL_H = if TOUCH then 64 else TRAVEL_W + TRAVEL_TEXT + 4
+local TRAVEL_ROW_W = 3 * TRAVEL_W + 2 * TRAVEL_GAP
 -- top right icon buttons; on a phone a little bigger, so each face reaches a finger's 44 px under its lip (F102 took
 -- them out of the UI gate's baseline)
 local ICON = Scale.tapHeight(60)
@@ -952,13 +968,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._pills = {} :: { [string]: Button.Button }
 	for index, item in menuItems do
 		-- the Store is its own wide tile over the grid (placed by _layoutMenu), the rest are the grid's squares
-		local isStore = item.name == "Store"
+		local isStore = item.name == "Store" and not TOUCH
 		local button = Button.new({
 			name = item.name,
 			text = item.name,
 			icon = item.icon,
 			image = ShopIcons.clean(item.name),
-			layout = if isStore then "wide" else "clean",
+			layout = if isStore then "wide" else TILE_LAYOUT,
 			style = item.style,
 			size = if isStore
 				then UDim2.fromOffset(MENU_W, STORE_H)
@@ -1004,7 +1020,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			self._storeTile = button
 			-- it stands out (Derek 2026-11-03: "make sure the store is good and stands out"): a soft gold glow round
 			-- it and a white shine that sweeps across now and then. Decoration only: no timer, no sale badge.
-			local corner = math.floor(STORE_H * 0.26) -- Button's clean corner for the tile's height
+			local corner = math.floor((if TOUCH then MENU_TILE else STORE_H) * 0.26) -- Button's corner for its height
 			Create("Frame", {
 				Name = "Glow",
 				BackgroundColor3 = Theme.colors.gold,
@@ -1113,14 +1129,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 1),
 		Position = UDim2.new(1, -MARGIN, 1, -MARGIN),
-		Size = UDim2.fromOffset(SYMBOL_ROW_W, SYMBOL),
+		Size = UDim2.fromOffset(SYMBOL_ROW_W, SYMBOL_H),
 		Parent = root,
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
 			HorizontalAlignment = Enum.HorizontalAlignment.Right,
 			VerticalAlignment = Enum.VerticalAlignment.Bottom,
-			Padding = UDim.new(0, Theme.sizes.gap),
+			Padding = UDim.new(0, CORNER_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
@@ -1129,10 +1145,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		name = "Potions",
 		text = "Potions",
 		icon = Theme.icons.potion,
-		layout = "tile",
-		textSize = Theme.sizes.textTiny,
-		style = "berry",
-		size = UDim2.fromOffset(SYMBOL, SYMBOL),
+		image = ShopIcons.clean("Potion"),
+		layout = TILE_LAYOUT,
+		textSize = SYMBOL_TEXT,
+		style = "purple",
+		size = UDim2.fromOffset(SYMBOL, SYMBOL_H),
 		layoutOrder = 1,
 		parent = corner,
 		sound = false, -- the modal swish is the sound
@@ -1143,16 +1160,16 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	table.insert(self._buttons, potions)
 	self._potionsTile = potions
 	if showKeys then
-		keycap(potions.face, "P", UDim2.fromOffset(3, 3))
+		keycap(potions.face, "P", UDim2.fromOffset(-4, -4))
 	end
-	-- how many potions are in the bag (F64), a paper pill inside the top right corner (the bowl tile sits close on its
-	-- right, so the pill stays inside); hidden with none
+	-- how many potions are in the bag (F64), a paper pill on the top right corner (white, not red: it is a count, not
+	-- news); hidden with none
 	local potionCount: TextLabel = Create("TextLabel", {
 		Name = "Count",
 		BackgroundColor3 = Theme.colors.paper,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -3, 0, 3),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -5, 0, 3),
 		Size = UDim2.fromOffset(28, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
@@ -1168,10 +1185,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		name = "Bowl",
 		text = "Add food",
 		icon = BOWL_ICON,
-		layout = "tile",
-		textSize = Theme.sizes.textTiny,
-		style = "primary",
-		size = UDim2.fromOffset(SYMBOL, SYMBOL),
+		image = ShopIcons.clean("Bowl"),
+		layout = TILE_LAYOUT,
+		textSize = SYMBOL_TEXT,
+		style = "secondary",
+		size = UDim2.fromOffset(SYMBOL, SYMBOL_H),
 		layoutOrder = 2,
 		parent = corner,
 		sound = false, -- the bait screen plays uiOpen itself
@@ -1179,26 +1197,25 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			self._callbacks.openBait()
 		end,
 	})
-	if bowl.icon then
-		IconArt.setImage(bowl.icon, ShopIcons.image("Perk_BigBowl"), 1.1)
-	end
 	if showKeys then
-		keycap(bowl.face, "F", UDim2.fromOffset(3, 3))
+		keycap(bowl.face, "F", UDim2.fromOffset(-4, -4))
 	end
 	bowl.instance.Visible = false -- once the Bait bowl upgrade is owned (_renderBowlSlot)
 	table.insert(self._buttons, bowl)
 	self._bowl = bowl
 	self._bowlSlot = bowl.instance
 	self._bowlText = "Add food"
-	self._bowlStyle = "primary" :: Button.Style
+	self._bowlStyle = "secondary" :: Button.Style
 	self._bait = nil :: Types.BaitView?
 	self._catWaiting = false
 	self._baitLoop = nil :: RBXScriptConnection?
 	self._baitReady = false
 
-	-- Bottom row (bottom centre): the gold My Cafe teleport, Alley and Areas, where Grow a Garden puts its teleport
-	-- buttons (features.md F19). Equip Best left the row on 2026-11-02 (fewer buttons); it stays in the Cats window. The three travel buttons grey out while carrying a cat, since
-	-- walking it home is the loop and the server refuses those trips, and for the trip cooldown.
+	-- Bottom row (bottom centre): the My Cafe teleport, Alley and Areas (the Cannon once it is live), where Grow a Garden
+	-- puts its teleport buttons (features.md F19), as clean tiles since 2026-11-03: My Cafe orange, Cannon red, Areas
+	-- sky. Equip Best left the row on 2026-11-02 (fewer buttons); it stays in the Cats window. The travel tiles grey
+	-- out while carrying a cat, since walking it home is the loop and the server refuses those trips, and for the trip
+	-- cooldown.
 	local travelRow: Frame = Create("Frame", {
 		Name = "Travel",
 		BackgroundTransparency = 1,
@@ -1211,7 +1228,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			FillDirection = Enum.FillDirection.Horizontal,
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Bottom,
-			Padding = UDim.new(0, Theme.sizes.gap),
+			Padding = UDim.new(0, TRAVEL_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
@@ -1222,9 +1239,23 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._carryBanner = false
 	self._carryState = false
 	self._homeCarrying = false
-	type TravelItem = { key: string, name: string, label: string, icon: string, style: Button.Style }
+	type TravelItem = {
+		key: string,
+		name: string,
+		label: string,
+		icon: string,
+		image: string?,
+		style: Button.Style,
+	}
 	local travelItems: { TravelItem } = {
-		{ key = "home", name = "Cafe", label = HOME_TEXT, icon = Theme.icons.home, style = "gold" },
+		{
+			key = "home",
+			name = "Cafe",
+			label = HOME_TEXT,
+			icon = Theme.icons.home,
+			image = ShopIcons.clean("Home"),
+			style = "danger",
+		},
 		{
 			key = "alley",
 			name = "Alley",
@@ -1237,7 +1268,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			name = "Areas",
 			label = "Areas",
 			icon = Theme.icons.travel,
-			style = "primary",
+			image = ShopIcons.clean("Areas"),
+			style = "sky",
 		},
 		-- F84: shown in place of Areas once the Cat Cannon is live (setCannonMode)
 		{
@@ -1245,7 +1277,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			name = "Cannon",
 			label = "Cannon",
 			icon = Theme.icons.cannon,
-			style = "primary",
+			image = ShopIcons.clean("Cannon"),
+			style = "close",
 		},
 	}
 	for index, item in travelItems do
@@ -1254,10 +1287,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			name = item.name,
 			text = item.label,
 			icon = item.icon,
-			iconSize = TRAVEL_ICON,
+			image = item.image,
+			layout = TILE_LAYOUT,
 			style = item.style,
 			size = UDim2.fromOffset(TRAVEL_W, TRAVEL_H),
-			textSize = Theme.sizes.textBody + 1,
+			textSize = TRAVEL_TEXT,
 			layoutOrder = index + 1,
 			parent = travelRow,
 			-- Areas only opens the panel, which swishes; Cafe and Alley click
@@ -1271,7 +1305,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			end,
 		})
 		if showKeys and home then
-			keycap(button.face, "H", UDim2.new(1, -6, 0, 6), Vector2.new(1, 0))
+			keycap(button.face, "H", UDim2.fromOffset(-4, -4))
 		end
 		self._travelButtons[item.key] = button
 		table.insert(self._buttons, button)
@@ -1285,7 +1319,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		style = "ghost",
 		size = UDim2.fromOffset(FOLD_W, FOLD_H),
 		anchorPoint = Vector2.new(0, 1),
-		position = UDim2.new(0.5, TRAVEL_ROW_W / 2 + Theme.sizes.gap, 1, -MARGIN),
+		position = UDim2.new(0.5, TRAVEL_ROW_W / 2 + TRAVEL_GAP, 1, -MARGIN),
 		textSize = Theme.sizes.textBody,
 		parent = root,
 		onClick = function()
@@ -1493,7 +1527,7 @@ function HUD._renderBowl(self: any)
 		self._bowlText = text
 		bowl:setText(text)
 	end
-	local style: Button.Style = if ready then "gold" else "primary"
+	local style: Button.Style = if ready then "gold" else "secondary"
 	if style ~= self._bowlStyle then
 		self._bowlStyle = style
 		bowl:setStyle(style)
@@ -1599,9 +1633,16 @@ function HUD.setMenuFolded(self: any, folded: boolean)
 			self._gridTop
 		),
 	})
-	Tween.to(self._storeTile.instance, Tween.POP, {
-		Position = UDim2.new(0, if folded then menuFoldedX(MENU_W) else MARGIN, 0, self._menuTop),
-	})
+	if not TOUCH then
+		Tween.to(self._storeTile.instance, Tween.POP, {
+			Position = UDim2.new(
+				0,
+				if folded then menuFoldedX(MENU_W) else MARGIN,
+				0,
+				self._menuTop
+			),
+		})
+	end
 	self:_placeMenuFold()
 	self:_renderFoldDot()
 end
@@ -1845,7 +1886,7 @@ function HUD._sizeTravelRow(self: any)
 			count += 1
 		end
 	end
-	local width = count * TRAVEL_W + math.max(0, count - 1) * Theme.sizes.gap
+	local width = count * TRAVEL_W + math.max(0, count - 1) * TRAVEL_GAP
 	self._travelRow.Size = UDim2.fromOffset(width, TRAVEL_H)
 end
 
@@ -2747,7 +2788,7 @@ function HUD._layoutMenu(self: any)
 	end
 	-- the Store's wide tile heads the column once it has a window to open (setStore)
 	local store: GuiObject = self._storeTile.instance
-	local storeH = if store.Visible then STORE_H + gap else 0
+	local storeH = if store.Visible and not TOUCH then STORE_H + gap else 0 -- on touch it is in the grid
 	self._menuFold.instance.Visible = shown > 0 or store.Visible -- no tab to fold an empty menu (F87)
 	local columns = MENU_COLUMNS
 	local rows = math.ceil(shown / columns)
@@ -2757,6 +2798,14 @@ function HUD._layoutMenu(self: any)
 	local bandBottom = height - MARGIN - self._counterH - gap
 	local buffsH = BuffChips.rowHeight()
 	local roomy = bandBottom - (buffsH + BUFFS_GAP) - MARGIN >= pills + spaces * gap + foldUnder
+	-- (the zone is screen pixels; the layout is design units, so it is divided by the scale)
+	if
+		TOUCH
+		and MARGIN + pills + spaces * gap
+			> height - THUMB_ZONE / (if scale > 0 then scale else 1)
+	then
+		roomy = false
+	end
 	if not roomy and rows >= 3 then
 		columns = MENU_COLUMNS_SHORT
 		rows = math.ceil(shown / columns)
@@ -2798,8 +2847,10 @@ function HUD._layoutMenu(self: any)
 
 	self._menu.Position =
 		UDim2.new(0, if self._menuFolded then menuFoldedX(menuW) else MARGIN, 0, self._gridTop)
-	store.Position =
-		UDim2.new(0, if self._menuFolded then menuFoldedX(MENU_W) else MARGIN, 0, self._menuTop)
+	if not TOUCH then
+		store.Position =
+			UDim2.new(0, if self._menuFolded then menuFoldedX(MENU_W) else MARGIN, 0, self._menuTop)
+	end
 	self:_placeMenuFold()
 
 	-- the bottom row (and its arrow tab) keeps clear of the counters
@@ -2814,7 +2865,7 @@ function HUD._layoutMenu(self: any)
 			if self._travelFolded then TRAVEL_H + 24 else -MARGIN
 		)
 		self._travelFold.instance.Position =
-			UDim2.new(0.5, self._travelShift + rowW / 2 + gap, 1, -MARGIN)
+			UDim2.new(0.5, self._travelShift + rowW / 2 + TRAVEL_GAP, 1, -MARGIN)
 	end
 	self:_placeCorner()
 end
@@ -2831,19 +2882,13 @@ function HUD._placeCorner(self: any)
 			shown += 1
 		end
 	end
-	local rowW = shown * SYMBOL + math.max(0, shown - 1) * Theme.sizes.gap
-	holder.Size = UDim2.fromOffset(math.max(rowW, SYMBOL), SYMBOL)
+	local rowW = shown * SYMBOL + math.max(0, shown - 1) * CORNER_GAP
+	holder.Size = UDim2.fromOffset(math.max(rowW, SYMBOL), SYMBOL_H)
 	local corner = UDim2.new(1, -MARGIN, 1, -MARGIN)
 	local camera = Workspace.CurrentCamera
 	local root: Frame = self._root
 	local scale = Scale.get()
-	if
-		shown == 0
-		or not Scale.isTouch()
-		or camera == nil
-		or scale <= 0
-		or root.AbsoluteSize.Y <= 0
-	then
+	if shown == 0 or not TOUCH or camera == nil or scale <= 0 or root.AbsoluteSize.Y <= 0 then
 		holder.Position = corner
 		return
 	end
@@ -2856,18 +2901,27 @@ function HUD._placeCorner(self: any)
 	local viewport = camera.ViewportSize
 	local jumpAt, jumpSize = NetButtonPlace.jump(viewport)
 	local rowX = left + (width - MARGIN - rowW) * scale
-	local rowY = top + (height - MARGIN - SYMBOL) * scale
+	local rowY = top + (height - MARGIN - SYMBOL_H) * scale
 	local covered = rowX < jumpAt.X + jumpSize
 		and rowX + rowW * scale > jumpAt.X
 		and rowY < jumpAt.Y + jumpSize
-		and rowY + SYMBOL * scale > jumpAt.Y
+		and rowY + SYMBOL_H * scale > jumpAt.Y
 	if not covered then
 		holder.Position = corner
 		return
 	end
 	local netAt = NetButtonPlace.place(viewport)
 	local right = (netAt.X - NetButtonPlace.GAP - left) / scale -- design px from the root's left edge
+	-- down on the bottom edge when the bottom row and its arrow tab end left of the pair, so the pair stays clear of
+	-- the right column's lines; else over the bottom row
 	local foot = height - MARGIN - TRAVEL_H - Theme.sizes.gap
+	local row: Frame? = self._travelRow
+	if row then
+		local rowRight = width / 2 + self._travelShift + row.Size.X.Offset / 2 + TRAVEL_GAP + FOLD_W
+		if not row.Visible or rowRight + Theme.sizes.gap <= right - rowW then
+			foot = height - MARGIN
+		end
+	end
 	holder.Position = UDim2.fromOffset(math.floor(right), math.floor(foot))
 end
 

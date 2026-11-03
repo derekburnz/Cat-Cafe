@@ -38,6 +38,8 @@ export type Style =
 -- a bright two-colour fill, a darker lip, a thick dark outline and one bold symbol (`image`, the glyph until it
 -- loads), its label under the square in white with a dark outline; `size` holds the square and the label.
 -- "wide": the clean tile drawn wide, the symbol at its left and the label inside, big (the Store).
+-- "tile" has the clean look too since 2026-11-03, its short label inside the square under the picture (the HUD's
+-- bottom row and corner on touch screens, where the labels under would stack too high).
 -- A row with `iconSize` draws its icon as its own picture that size at the left, then the text (the HUD's pills).
 -- An inline icon with a whole picture in Theme.glyphImages (the golden fish on a price, F97 section 4) is drawn as that
 -- picture just before the text, the two centred together, the emoji showing until the picture loads.
@@ -149,7 +151,8 @@ function Button.new(props: Props): Button
 	local layout: Layout = props.layout or "row"
 	local enabled = if props.enabled == nil then true else props.enabled :: boolean
 	local textSize = props.textSize or Theme.sizes.textBody
-	local clean = layout == "clean" or layout == "wide"
+	local square = layout == "clean" or layout == "wide" -- the symbol drawn by the clean code below
+	local clean = square or layout == "tile"
 	local depth = if clean then CLEAN_DEPTH else Theme.sizes.buttonDepth
 	local band = if layout == "clean" then textSize + 4 else 0 -- the label's strip under a clean square
 	local size = props.size or UDim2.fromOffset(140, 44)
@@ -340,7 +343,7 @@ function Button.new(props: Props): Button
 	elseif pictureRow then
 		Create("UIPadding", { PaddingRight = UDim.new(0, 2), Parent = label }) -- room for the text outline
 	end
-	local textOutline = Outline.text(label, if clean or textSize >= 20 then 3 else 2)
+	local textOutline = Outline.text(label, if square or textSize >= 20 then 3 else 2)
 
 	-- Tiles carry a big icon above the label; rows with iconSize a big icon left of it.
 	local icon: TextLabel? = nil
@@ -372,7 +375,7 @@ function Button.new(props: Props): Button
 			ZIndex = (props.zIndex or 1) + 2,
 			Parent = pictureRow,
 		})
-	elseif clean and props.icon then
+	elseif square and props.icon then
 		-- the one bold symbol: centred in a clean square, at the left of the wide tile
 		icon = Create("TextLabel", {
 			Name = "Icon",

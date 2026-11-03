@@ -61,4 +61,17 @@ return function()
 			)
 		end)
 	end)
+
+	describe("the flight's beats (Derek 2026-11-03: much further, no visible teleport)", function()
+		it(
+			"moves the character while the body is in the clouds, before the feet touch down",
+			function()
+				expect(Config.CannonLaunchSeconds).to.be.near(4.0, 1e-12)
+				expect(Config.CannonTeleportAtSeconds).to.be.near(2.6, 1e-12)
+				expect(Config.CannonCloudsAt < Config.CannonTeleportAtSeconds).to.equal(true)
+				expect(Config.CannonTeleportAtSeconds < Config.CannonTouchdownAt).to.equal(true)
+				expect(Config.CannonTouchdownAt < Config.CannonLaunchSeconds).to.equal(true)
+			end
+		)
+	end)
 end

@@ -1,9 +1,11 @@
 --!strict
 -- The Cat Cannon flight on every character this client can see (F84, hometown-cannon.md section 3b): the hop into
--- the barrel, the curled ball rolling out in a high arc and gone into the clouds, then from the sky onto the landing
--- pad, a crouch and a little bounce (Avatar.flight, Presets.cannonPose). The engineer's server holds the character's
--- root anchored at the barrel's seat and later on the pad, and sets `Launching` and `CannonLaunchAt` (server time)
--- on the character; the body moves away from that root through the Root joint, so every client draws every flight
+-- the barrel, the ball rolling once out of it and opening into a superhero soar along a long climb that bends towards
+-- the landing pad, gone into the clouds, then back from the sky behind the pad, feet first along a curve, and a hero
+-- landing on one knee (Avatar.flight, Presets.cannonPose). The engineer's server holds the character's root anchored
+-- at the barrel's seat and later on the pad, and sets `Launching`, `CannonLaunchAt` (server time) and
+-- `CannonHeading` (the flat way to the pad) on the character; the body moves away from that root through the Root
+-- joint, so every client draws every flight
 -- itself and nothing replicates. The hop starts from where the root last stood before the launch, as this client
 -- saw it. Tackle.luau asks for the frames each step and lays them over everything else, at any distance, since a
 -- flight is rare and seen across the town. A launch the server calls off before the drop (`Launching` cleared) lets
@@ -12,9 +14,10 @@
 -- The cloud cutscene (Derek 2026-10-28 13:56: "make the cloud cutscene a little better"): while the clouds cover the
 -- launching player's screen, their own character flies through them (Avatar.glide, Presets.cannonGlide), a copy of
 -- it posed in a ViewportFrame that VFX-Agent's cloud tunnel lays between its clouds (`CannonGlide.mount`).
--- The launching player's camera (section 7): it follows the hop, chases the ball out of the barrel, waits under the
--- clouds, watches the ball drop onto the pad and settles behind the character, then hands back to the game's camera
--- at the end of the flight (Presets.cannonCamera). Everyone else keeps their own camera.
+-- The launching player's camera (section 7): it follows the hop, chases the flyer out of the barrel, waits under the
+-- clouds, follows it down onto the pad from further out than the player's own view and settles in to that view,
+-- then hands back to the game's camera at the end of the flight (Presets.cannonCamera). Everyone else keeps their own
+-- camera.
 -- Listening only: nothing here fires a remote.
 
 local Players = game:GetService("Players")
@@ -72,7 +75,13 @@ function CannonGlide.frames(
 		return nil, 0
 	end
 	local from = if f.from ~= nil then root:Inverse() * f.from else nil
-	local frames, weight, centre = Avatar.cannon(rig, now - launchAt, from)
+	local heading = character:GetAttribute("CannonHeading")
+	local frames, weight, centre = Avatar.cannon(
+		rig,
+		now - launchAt,
+		from,
+		if typeof(heading) == "Vector3" then root:VectorToObjectSpace(heading) else nil
+	)
 	if frames == nil then
 		f.done, f.launchAt, f.from = launchAt, nil, nil
 	end
@@ -341,23 +350,30 @@ local function track()
 		local own = v.body + v.offset
 		target = CFrame.lookAt(own, own + v.look):Lerp(launch, smooth(seconds / c.boom))
 	elseif seconds < c.gone then
-		-- after the ball, the way it is going
+		-- after the flyer from behind and to its right, level with the way it goes over the ground, so it shows side on
 		local moved = v.body - before
-		local heading = if moved.Magnitude > 1e-3 then moved.Unit else barrel
+		local flat = Vector3.new(moved.X, 0, moved.Z)
+		local heading = if flat.Magnitude > 1e-3
+			then flat.Unit
+			else Vector3.new(barrel.X, 0, barrel.Z).Unit
 		local chase = CFrame.lookAt(v.body, v.body + heading):PointToWorldSpace(k.chase)
 		target = launch:Lerp(CFrame.lookAt(chase, v.body), smooth((seconds - c.boom) / k.catch))
 	elseif seconds < c.drop - k.over then
 		target = v.last -- under the clouds
 	else
-		-- over the pad watching the ball come down, then behind the character as the player had it
-		local above = CFrame.lookAt(
-			root:PointToWorldSpace(k.above),
-			if body ~= nil then v.body else root.Position
-		)
-		local focus = root.Position + v.focus
+		-- behind the flyer as it comes down onto the pad, as the player had the camera but `wide` times as far, closing
+		-- in on the player's own view of the character by the touch
+		local fall = smooth((seconds - c.drop) / (c.touch - c.drop))
+		local rest = root.Position + v.focus
+		local coming = if body ~= nil
+			then v.body
+			else root:PointToWorldSpace(Vector3.new(0, c.height, c.back)) -- where it comes back into sight
+		local focus = if seconds < c.touch
+			then coming:Lerp(rest, smooth((seconds - (c.touch - c.open)) / c.open))
+			else rest
 		local look = root.LookVector * math.cos(v.pitch) + Vector3.yAxis * math.sin(v.pitch)
-		local settle = CFrame.lookAt(focus - look * v.distance, focus)
-		target = above:Lerp(settle, smooth((seconds - c.touch) / (c.ends - c.touch)))
+		local distance = v.distance * (1 + (k.wide - 1) * (1 - fall))
+		target = CFrame.lookAt(focus - look * distance, focus)
 	end
 	v.last = target
 	camera.CFrame = target

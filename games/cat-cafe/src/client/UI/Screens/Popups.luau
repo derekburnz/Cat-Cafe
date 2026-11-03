@@ -31,6 +31,9 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 local WelcomeBack = require(script.Parent.Parent.Components.WelcomeBack)
 
+-- the dark window palette (#1028), in place of Theme.modal: the popups match the dark windows
+local PAL = Theme.dark
+
 export type Popups = {
 	screenGui: ScreenGui,
 	showCatFound: (
@@ -76,7 +79,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextWrapped = true,
 		Text = "",
@@ -134,7 +137,7 @@ function Popups.new(parent: Instance): Popups
 	-- Cat found card
 	local catCard: Frame = Create("Frame", {
 		Name = "CatFound",
-		BackgroundColor3 = Theme.modal.panel,
+		BackgroundColor3 = PAL.panel,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -204,7 +207,7 @@ function Popups.new(parent: Instance): Popups
 	-- a rarity-coloured disc with the cat's own model standing in front of it, a little larger than the disc
 	self._catArt = Create("Frame", {
 		Name = "Art",
-		BackgroundColor3 = Theme.colors.line,
+		BackgroundColor3 = PAL.line,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 0, ART_Y),
@@ -301,7 +304,7 @@ function Popups.new(parent: Instance): Popups
 		Position = UDim2.fromOffset(16, 242),
 		Size = UDim2.new(1, -32, 0, 22),
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.colors.good,
+		TextColor3 = PAL.good,
 		FontFace = Theme.fonts.bodyBold,
 		RichText = true, -- the favourite role in ink
 		Text = "",
@@ -313,7 +316,7 @@ function Popups.new(parent: Instance): Popups
 		Position = UDim2.fromOffset(16, 266),
 		Size = UDim2.new(1, -32, 0, 40),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = "",
 		Parent = catCard,
 	})
@@ -354,7 +357,7 @@ function Popups.new(parent: Instance): Popups
 	-- Offline earnings card
 	local offlineCard: Frame = Create("Frame", {
 		Name = "Offline",
-		BackgroundColor3 = Theme.modal.panel,
+		BackgroundColor3 = PAL.panel,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -411,7 +414,7 @@ function Popups.new(parent: Instance): Popups
 		Position = UDim2.fromOffset(16, 52),
 		Size = UDim2.new(1, -32, 0, 22),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = "",
 		Parent = offlineCard,
 	})
@@ -421,7 +424,7 @@ function Popups.new(parent: Instance): Popups
 		Size = UDim2.new(1, -32, 0, 54),
 		FontFace = Theme.fonts.display,
 		TextSize = 48,
-		TextColor3 = Theme.colors.good,
+		TextColor3 = PAL.good,
 		Text = "",
 		Parent = offlineCard,
 	})
@@ -431,7 +434,7 @@ function Popups.new(parent: Instance): Popups
 		Position = UDim2.fromOffset(16, 142),
 		Size = UDim2.new(1, -32, 0, 40),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = WelcomeBack.note(nil),
 		Parent = offlineCard,
 	})
@@ -462,7 +465,7 @@ function Popups.new(parent: Instance): Popups
 	-- Mystery gift card (F64): what the gift held, big, then gone by itself
 	local giftCard: Frame = Create("Frame", {
 		Name = "Gift",
-		BackgroundColor3 = Theme.modal.panel,
+		BackgroundColor3 = PAL.panel,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -648,16 +651,16 @@ function Popups.showCatFound(
 		self._catName.Text = def.name
 		local loves: string? = def.favoriteRole
 		self._catMeta.Text = Format.rate(info.rate or def.incomePerSecond)
-			.. (if loves then "  ·  " .. Format.lovesRole(loves, Theme.modal.text) else "")
+			.. (if loves then "  ·  " .. Format.lovesRole(loves, PAL.text) else "")
 		local charmGain = info.charmGain or 0
 		local line: string? = info.line
 		if line ~= nil or charmGain > 0 then
 			self._catDesc.Text = line or ("Purrfect catch!  Charm +%d"):format(charmGain)
-			self._catDesc.TextColor3 = Theme.colors.goldDark
+			self._catDesc.TextColor3 = PAL.gold
 			self._catDesc.FontFace = Theme.fonts.display
 		else
 			self._catDesc.Text = def.description or ""
-			self._catDesc.TextColor3 = Theme.modal.subtext
+			self._catDesc.TextColor3 = PAL.subtext
 			self._catDesc.FontFace = Theme.fonts.body
 		end
 		self._catDesc.TextSize = if line ~= nil then Theme.sizes.textBody else Theme.sizes.textSmall

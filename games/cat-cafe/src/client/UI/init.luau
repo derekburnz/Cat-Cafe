@@ -71,7 +71,6 @@ local Scale = require(script.Scale)
 local Settings = require(script.Screens.Settings)
 local SettingsList = require(script.Components.SettingsList)
 local Signal = require(script.Components.Signal)
-local Signpost = require(script.Screens.Signpost)
 local Sound = require(script.Components.Sound)
 local SpinWheel = require(script.Screens.SpinWheel)
 local TackleBar = require(script.Screens.TackleBar)
@@ -238,7 +237,6 @@ local cannonOpened: string? = nil
 local hintTier: number? = nil -- the tier in the last update that carried one, to see the rank up to Tier 2
 local hintShown: string? = nil -- the cannon hint on screen, so render only redraws the line when it changes
 local gateSigns: GateSigns.GateSigns? = nil
-local signpost: Signpost.Signpost? = nil -- the fountain signpost's arms with tier locks (F77)
 local indexBoards: IndexBoards.IndexBoards? = nil -- each area's Index Board (F50), drawn from this player's Index
 local areaTitle: AreaTitle.AreaTitle? = nil
 local locationMarkers: LocationMarkers.LocationMarkers? = nil -- My Cafe, area and dealer icons that fade up close
@@ -493,9 +491,6 @@ local function render()
 	if gateSigns then
 		gateSigns:render(state)
 	end
-	if signpost then
-		signpost:render(state)
-	end
 	if indexBoards then
 		indexBoards:render(state)
 	end
@@ -565,9 +560,6 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if gateSigns then
 		gateSigns:setCatalog(newCatalog)
-	end
-	if signpost then
-		signpost:setCatalog(newCatalog)
 	end
 	if indexBoards then
 		indexBoards:setCatalog(newCatalog)
@@ -1259,8 +1251,6 @@ function UI.init(config: Types.InitConfig)
 	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
-	-- the arms of the signpost by the fountain, one per area, locked ones dimmed with "🔒 Tier N" (F77)
-	signpost = Signpost.new(parent)
 	-- every area's Index Board, including boards that stream in later; its prompt opens that area's Index page
 	indexBoards = IndexBoards.new(parent, {
 		open = function(areaId: string)
@@ -1501,10 +1491,6 @@ function UI.destroy()
 	if gateSigns then
 		gateSigns:destroy()
 	end
-	if signpost then
-		signpost:destroy()
-	end
-	signpost = nil
 	if indexBoards then
 		indexBoards:destroy()
 	end

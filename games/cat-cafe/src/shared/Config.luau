@@ -113,7 +113,7 @@ local Config = {
 	-- NetSlackStuds of the root and within NetArcDegrees either side of its facing. A swing that hits nothing makes
 	-- every free stray within NetMissHopStuds hop NetMissHopShare of its rarity's fleeStuds away.
 	NetSwingCooldown = 0.8,
-	NetSmackDelay = 0.15,
+	NetSmackDelay = 0.22, -- Derek 2026-11-03 OK'd the smoother swing landing at 0.22 s (was 0.15)
 	NetReachStuds = 7,
 	NetSlackStuds = 1.5,
 	NetArcDegrees = 60,

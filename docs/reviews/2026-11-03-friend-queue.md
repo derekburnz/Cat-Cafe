@@ -7,7 +7,9 @@ Reviewer: luau-reviewer (Review-Agent, friend's project). Derek's open PRs while
 | #1022 | Cannon flight 4 s, intro cloud dip (Effects) | Pass | Ready; `automerge` label (auto-merge refused: already clean). Must merge before #1002. |
 | #1002 | Config cannon beats 4.0 s | Pending | Re-check against main after #1022 merges, then queue. |
 | #1031 | Store pictures v2, store-media/analytics prefer `ROBLOX_GROUP_KEY` | Pass | Merged by hand (workflow change; label path cannot). Workflow not run. |
-| #1033 | asset-artist names EL4CTEO/blender-skills | Pass | Ready; `automerge` label. |
+| #1033 | asset-artist names EL4CTEO/blender-skills | Pass | Ready; `automerge` label; merged. |
+| #1035 | Money counter flashes only for lumps (#1026, UI-Engineer) | Pass | Ready; auto-merge; merged. |
+| #1036 | `.claude/settings.json` allows `add_repo` and `register_repo_root` | Diff correct, **held** | Not queued: needs a human's own OK (see below). |
 
 ## #1022
 - Client only, listen only: `Effects/IntroCut.luau` reads `Moments.IntroCut` and `IntroEnd`, and `CannonGlide` reads the server's `CannonHeading` attribute (both on main). No remotes are fired or added, so the security checklist doesn't apply.
@@ -23,3 +25,19 @@ Reviewer: luau-reviewer (Review-Agent, friend's project). Derek's open PRs while
 
 ## #1033
 - One line in `.claude/agents/asset-artist.md`. It agrees with `.claude/skills/THIRD_PARTY.md` (pinned 71d031d, copied folders are never edited in place).
+
+## #1035 (ui-review checklist)
+- `UI/Components/MoneyFlash.luau` is pure and has a spec. HUD colours still come from `Theme.hud`, and no remote is fired.
+- The client predicts income 5×/s, so each tick is about a fifth of a second's income and stays under the one-second threshold. Sales, tips and rewards still flash. A drop or a sync pull-back doesn't.
+- Harmless edge cases: a frame hitch over 1 s, or an upward sync correction bigger than one second of income, gives one flash.
+- Open: the in-game check (QA). The "4 old baseline findings gone" in uigate likely comes from main, so a separate PR can update the baseline.
+
+## #1036 (held)
+- The JSON is valid and both tool names are right.
+- It adds agent tools to `permissions.allow` repo-wide because auto mode refused `add_repo`. Widening the allowlist to get past a refusal needs a person's explicit approval on the PR, not a request relayed between agent sessions. It's left as a draft for Derek or the friend.
+- Option: allow only `register_repo_root` and keep `add_repo` behind its prompt.
+
+## #1002 pre-check
+- Config beats CannonLaunchSeconds 4.0, CannonTeleportAtSeconds 2.6, CannonCloudsAt 2.0, CannonTouchdownAt 3.5, and Intro.STAND_AT 2.05. These match #1022's poses (clouds 2.0 to 3.0, touch 3.5, stand by 4.0) and the PR description.
+- The new spec checks clouds < teleport < touchdown < launch end. The Config.spec table matches.
+- No conflict with main after #1031, #1033 and #1035. It gets queued only after #1022 is on main.

@@ -41,7 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      # Since the game is group-owned, Roblox refuses thumbnail uploads from Derek's user key ("user does not have
+      # permission to upload thumbnail", 2026-11-03); a group-owned key in ROBLOX_GROUP_KEY wins when it is set.
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_GROUP_KEY || secrets.ROBLOX_PUBLISH_KEY }}
       ROBLOX_UNIVERSE_ID: "10773193456" # Cat Cafe
       ACTION: ${{ inputs.action }}
       ARGS: ${{ inputs.args }}

@@ -1,0 +1,16 @@
+const { chromium } = require('playwright');
+(async () => {
+  const [file, outDir] = process.argv.slice(2);
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 256, height: 256 } });
+  await page.goto('file://' + file);
+  await page.evaluate(() => document.fonts.ready);
+  const list = [['cats'], ['index'], ['quests'], ['upgrades'], ['decor'], ['store'], ['tutorial'], ['rewards'], ['feedback'], ['menu'], ['home'], ['cannon'], ['areas'], ['potion', '#ffd84a'], ['bowl'], ['coin'], ['fish'], ['bag'], ['crate'], ['caviar']];
+  for (const [n, arg] of list) {
+    await page.evaluate(([n, arg]) => window.show(n, arg), [n, arg]);
+    await page.waitForTimeout(50);
+    const el = await page.$('#i svg');
+    await el.screenshot({ path: `${outDir}/Icon_Clean_${n[0].toUpperCase() + n.slice(1)}.png`, omitBackground: true });
+  }
+  await browser.close();
+})();

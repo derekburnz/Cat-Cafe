@@ -1,0 +1,102 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root { --ink:#2a1a12; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { width:1280px; height:720px; overflow:hidden; font-family:Fredoka, sans-serif; position:relative; background:#7cc36a; }
+.bg { position:absolute; inset:0; background:url(bg.png) center/cover; filter:blur(1.5px) saturate(1.05); transform:scale(1.03); }
+.bg::after { content:''; position:absolute; inset:0; background:linear-gradient(rgba(255,255,255,.05),rgba(0,0,0,.08)); }
+.out { color:#fff; -webkit-text-stroke:5px var(--ink); paint-order:stroke fill; font-weight:700; }
+.btn { position:absolute; display:flex; flex-direction:column; align-items:center; }
+.tile { position:relative; border:4px solid var(--ink); border-radius:20px; display:flex; align-items:center; justify-content:center;
+  box-shadow: inset 0 5px 0 rgba(255,255,255,.38), inset 0 -7px 0 rgba(0,0,0,.18), 0 4px 0 var(--ink); }
+.lbl { margin-top:3px; font-size:18px; line-height:1; letter-spacing:.2px; }
+.key { position:absolute; left:-8px; top:-8px; width:24px; height:24px; border-radius:7px; background:#fff; border:3px solid var(--ink);
+  font-size:14px; font-weight:700; color:var(--ink); display:flex; align-items:center; justify-content:center; }
+.dot { position:absolute; right:-9px; top:-9px; min-width:26px; height:26px; padding:0 6px; border-radius:13px; background:#ff3b3b; border:3px solid var(--ink);
+  color:#fff; font-size:15px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.blue { background:linear-gradient(#6fc0ff,#2f86ef); } .green { background:linear-gradient(#7ae86f,#2fb043); }
+.yellow { background:linear-gradient(#ffe46b,#f5ac12); } .orange { background:linear-gradient(#ffb15a,#f06a1d); }
+.teal { background:linear-gradient(#62ecd2,#18ab95); } .pink { background:linear-gradient(#ff8cc2,#e8378a); }
+.purple { background:linear-gradient(#cf96ff,#8a47ea); } .red { background:linear-gradient(#ff8a7a,#e4402f); }
+.sky { background:linear-gradient(#8fe3ff,#2bb3e6); } .slate { background:linear-gradient(#c9d4e3,#7f8fa6); }
+.gold { background:linear-gradient(#ffe27a,#f2a50c); }
+.money { position:absolute; left:16px; bottom:14px; display:flex; align-items:center; gap:18px; }
+.money .row { display:flex; align-items:center; gap:6px; font-size:32px; }
+.chip { display:flex; flex-direction:column; align-items:center; justify-content:center; width:62px; height:66px; border-radius:14px;
+  background:rgba(30,20,16,.82); border:3px solid var(--ink); }
+.chip span { font-size:16px; margin-top:-2px; }
+.goal { position:absolute; right:16px; top:112px; width:250px; border-radius:16px; background:rgba(30,20,16,.72); border:3px solid var(--ink); padding:10px 12px; }
+.goal .t { font-size:20px; display:flex; justify-content:space-between; align-items:center; }
+.bar { height:12px; border-radius:6px; background:rgba(255,255,255,.18); margin-top:8px; overflow:hidden; border:2px solid var(--ink); }
+.bar i { display:block; height:100%; background:linear-gradient(#ffe46b,#f5ac12); }
+.prompt { position:absolute; left:50%; transform:translateX(-50%); bottom:150px; display:flex; align-items:center; gap:12px; padding:10px 16px 10px 12px;
+  border-radius:18px; background:rgba(30,20,16,.85); border:3px solid var(--ink); }
+.prompt .k { width:54px; height:54px; border-radius:12px; background:#fff; border:3px solid var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--ink); font-weight:700; font-size:24px; line-height:1; }
+.prompt .k small { font-size:11px; margin-top:2px; color:#e68a00; }
+.rar { padding:2px 10px; border-radius:10px; background:#4aa3ff; border:2px solid var(--ink); color:#fff; font-size:14px; font-weight:700; }
+.mini { width:120px; height:22px; border-radius:11px; background:#3a2a22; border:3px solid var(--ink); position:relative; }
+.mini b { position:absolute; left:58px; top:2px; width:30px; height:12px; border-radius:5px; background:#4fdc5f; }
+.mini u { position:absolute; left:42px; top:-8px; width:5px; height:32px; border-radius:3px; background:#fff; border:2px solid var(--ink); }
+.note { position:absolute; font-size:15px; color:#fff; background:rgba(229,64,47,.92); border:2px solid var(--ink); border-radius:10px; padding:3px 9px; font-weight:600; }
+</style></head>
+<body>
+<div class="bg"></div>
+<div id="hud"></div>
+<script src="icons.js"></script>
+<script>
+const hud = document.getElementById('hud');
+function tile(x, y, size, color, name, label, opts = {}) {
+  const el = document.createElement('div');
+  el.className = 'btn';
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  const isz = Math.round(size * 0.7);
+  el.innerHTML = `<div class="tile ${color}" style="width:${size}px;height:${size}px">${icon(name, isz, opts.arg)}
+    ${opts.key ? `<div class="key">${opts.key}</div>` : ''}${opts.dot ? `<div class="dot">${opts.dot}</div>` : ''}</div>
+    ${label ? `<div class="lbl out" style="font-size:${opts.fs || 18}px">${label}</div>` : ''}`;
+  hud.appendChild(el);
+}
+// left grid: the cafe's own buttons, two a row
+const L = [
+  ['blue', 'cats', 'Cats', { key: 'C' }], ['green', 'index', 'Index', { key: 'I', dot: '!' }],
+  ['yellow', 'quests', 'Quests', { key: 'J', dot: '4' }], ['orange', 'upgrades', 'Upgrades', { key: 'U', dot: '!' }],
+  ['teal', 'decor', 'Decor', { key: 'B' }], ['pink', 'store', 'Store', {}],
+];
+L.forEach(([c, n, l, o], i) => tile(18 + (i % 2) * 96, 128 + Math.floor(i / 2) * 112, 78, c, n, l, o));
+// top right row
+[['purple', 'tutorial', 'Tutorial', {}], ['red', 'rewards', 'Rewards', { dot: '5' }], ['sky', 'feedback', 'Feedback', {}], ['slate', 'menu', 'Menu', {}]]
+  .forEach(([c, n, l, o], i) => tile(1280 - 16 - 64 - (3 - i) * 78, 14, 64, c, n, l, { ...o, fs: 15 }));
+// bottom centre: home, cannon, areas
+tile(640 - 150, 600, 86, 'orange', 'home', 'My Cafe', { key: 'H' });
+tile(640 - 43, 600, 86, 'red', 'cannon', 'Cannon', {});
+tile(640 + 64, 600, 86, 'sky', 'areas', 'Areas', {});
+// bottom right: potions with its active chips, then the bait bowl
+tile(1280 - 16 - 78 - 96, 610, 78, 'purple', 'potion', 'Potions', { key: 'P', dot: '6', arg: '#ffd84a' });
+tile(1280 - 16 - 78, 610, 78, 'blue', 'bowl', 'Bait', { key: 'F' });
+const chips = document.createElement('div');
+chips.style.cssText = 'position:absolute;right:200px;bottom:44px;display:flex;gap:8px';
+chips.innerHTML = [['#5fe06a', '4:57'], ['#5fb7ff', '19:56'], ['#ffb04a', '10:33']]
+  .map(([c, t]) => `<div class="chip">${icon('potion', 36, c)}<span class="out" style="-webkit-text-stroke:3px var(--ink)">${t}</span></div>`).join('');
+hud.appendChild(chips);
+// money and golden fish, bottom left
+const money = document.createElement('div');
+money.className = 'money';
+money.innerHTML = `<div class="row">${icon('coin', 44)}<span class="out">$1.23B</span></div><div class="row">${icon('fish', 40)}<span class="out">1,234</span></div>`;
+hud.appendChild(money);
+// the goal card, top right under the row
+const goal = document.createElement('div');
+goal.className = 'goal';
+goal.innerHTML = `<div class="t"><span class="out" style="-webkit-text-stroke:4px var(--ink)">Famous Cafe</span><span class="rar" style="background:#ff5d8f">Rank up!</span></div>
+  ${[100, 100, 70].map((w) => `<div class="bar"><i style="width:${w}%"></i></div>`).join('')}`;
+hud.appendChild(goal);
+// the rescue prompt card: key, word, cat and rarity, a little picture of the bar in place of the sentence
+const prompt = document.createElement('div');
+prompt.className = 'prompt';
+prompt.innerHTML = `<div class="k">E<small>HOLD</small></div>
+  <div><div class="out" style="font-size:26px;-webkit-text-stroke:4px var(--ink)">Rescue</div>
+  <div style="display:flex;gap:8px;align-items:center;margin-top:3px"><span class="out" style="font-size:16px;-webkit-text-stroke:3px var(--ink)">Garbage Bag Cat</span><span class="rar">Rare</span></div></div>
+  <div class="mini"><b></b><u></u></div>`;
+hud.appendChild(prompt);
+</script>
+</body></html>

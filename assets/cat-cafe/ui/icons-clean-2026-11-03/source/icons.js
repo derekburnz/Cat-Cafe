@@ -48,10 +48,13 @@ window.ICONS = {
   bag: `<path ${S} fill="#3ccf5a" d="M22 16 Q16 8 22 6 H42 Q48 8 42 16 Q58 28 56 44 Q54 58 32 58 Q10 58 8 44 Q6 28 22 16 Z"/>
     <path d="M22 16 H42" stroke="${O}" stroke-width="4.5" stroke-linecap="round"/>
     <text x="32" y="49" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="28" fill="#fff" stroke="${O}" stroke-width="4" paint-order="stroke">$</text>`,
-  crate: `<rect ${S} x="8" y="12" width="48" height="44" rx="5" fill="#d9924a"/>
-    <path d="M8 26 H56 M8 42 H56" stroke="${O}" stroke-width="4"/>
-    <path d="M14 14 L50 54" stroke="#b06a2a" stroke-width="5" stroke-linecap="round"/>
-    <rect x="26" y="20" width="12" height="12" rx="3" fill="#ffd23f" stroke="${O}" stroke-width="3"/>`,
+  crate: `<path ${S} fill="#f2c27a" d="M10 22 L22 10 H56 L44 22 Z"/>
+    <path ${S} fill="#c9843f" d="M44 22 L56 10 V46 L44 58 Z"/>
+    <rect ${S} x="8" y="22" width="36" height="36" rx="3" fill="#e5a258"/>
+    <path d="M8 34 H44 M8 46 H44" stroke="#a8652a" stroke-width="3"/>
+    <path d="M50 16 V52" stroke="#9a5a22" stroke-width="3"/>
+    <circle cx="26" cy="40" r="11" fill="#ffd23f" stroke="${O}" stroke-width="4"/>
+    <text x="26" y="47" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="20" fill="#fff" stroke="${O}" stroke-width="3.5" paint-order="stroke">?</text>`,
   caviar: `<ellipse ${S} cx="32" cy="44" rx="25" ry="12" fill="#5fb7ff"/>
     <ellipse ${S} cx="32" cy="34" rx="25" ry="11" fill="#e9f5ff"/>
     ${[[20, 32], [27, 29], [34, 31], [41, 28], [24, 37], [31, 36], [38, 37], [45, 34]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.6" fill="#ff7a2f" stroke="${O}" stroke-width="1.6"/>`).join('')}`,

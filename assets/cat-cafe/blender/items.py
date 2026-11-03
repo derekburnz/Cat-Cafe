@@ -87,7 +87,7 @@ def _rod(b, a, c, radius, swatch, segments=8, extend=0.0):
     b.cyl(tuple((a + c) / 2), radius, (c - a).length + 2 * extend, swatch, segments=segments, bevel=False, rot=R)
 
 
-def _tube_ring(b, hy, rc, rho, swatch, n=16):
+def _tube_ring(b, hy, rc, rho, swatch, n=12):
     """A round rim: n rods round a ring lying flat in XY at (0, hy, 0), centre line at radius rc, `rho` thick (radius).
     Each rod runs a little past its corner so the outer faces meet; rod 0 is centred on the far point (-Y), so the
     rim's far end is the part farthest from the grip (VFX-Agent's NetTrail trails the whoosh off it)."""
@@ -111,18 +111,16 @@ def _ear(b, base, out, width, height, thick, swatch):
 
 NET_NAMES = ("Basic", "Sturdy", "Pro", "Master")     # CatCafe_Item_Net_L1 to L4 (catch-rework.md, F93)
 # Per level (Derek 2026-11-03: "The net designs should be improved also as they are seen all the time"): pole,
-# grip wrap and its rings, metal fittings, rim, netting strands and bag tint. L1 Basic is a bamboo garden net with a
+# grip wrap and its rings, metal fittings, rim and netting. L1 Basic is a bamboo garden net with a
 # twine grip, L2 Sturdy a mint pole with steel fittings and a steel rim, L3 Pro a blue pole with brass fittings and
 # a brass paw badge, L4 Master dark wood and shining gold with cat ears, gems and a little bell.
 NET_LOOK = (
     dict(pole="fur_sand", wrap="fur_oat", wrap_ring="fur_toffee", fit="fur_caramel", rim="caramel_wood",
-         strand="fur_vanilla", bag="fur_vanilla"),
-    dict(pole="mint", wrap="fur_black", wrap_ring="metal", fit="metal", rim="metal", strand="offwhite",
-         bag="offwhite"),
-    dict(pole="shirt_blue", wrap="pants_navy", wrap_ring="brass", fit="brass", rim="shirt_blue",
-         strand="offwhite", bag="pastel_sky"),
+         strand="fur_vanilla"),
+    dict(pole="mint", wrap="fur_black", wrap_ring="metal", fit="metal", rim="metal", strand="offwhite"),
+    dict(pole="shirt_blue", wrap="pants_navy", wrap_ring="brass", fit="brass", rim="shirt_blue", strand="pastel_sky"),
     dict(pole="dark_wood", wrap="fur_black", wrap_ring="gold_mid", fit="gold_mid", rim="gold_mid",
-         strand="offwhite", bag="pastel_lilac"),
+         strand="pastel_lilac"),
 )
 
 
@@ -133,11 +131,11 @@ def net_knots(level):
     pole, r = 3.0 + 0.3 * k, 0.9 + 0.15 * k
     rho = 0.07 + 0.01 * k
     hy = -pole - r
-    n = 6 if k < 2 else 8
-    depth = 1.0 + 0.1 * k
+    n = 6 if k < 2 else 7
+    depth = 1.25 * r                                     # deeper than the 2026-10 bag (1.0 + 0.1 a level)
     rb = r - 2 * rho + 0.02                              # just inside the rim's centre line
     rows = []
-    for m, (s, f) in enumerate(((0.0, 1.0), (0.4, 0.9), (0.74, 0.58))):
+    for m, (s, f) in enumerate(((0.0, 1.0), (0.38, 0.92), (0.72, 0.62))):
         off = (math.pi / n) * (m % 2)
         rows.append([(f * rb * math.cos(off + 2 * math.pi * j / n), hy + f * rb * math.sin(off + 2 * math.pi * j / n),
                       -rho * 0.4 - s * depth) for j in range(n)])
@@ -149,9 +147,9 @@ def build_net(level, mat):
     the grip end; the pole runs forward (-Y in Blender, -Z in Roblox) to a ferrule and a Y-shaped neck that holds a
     round rim lying flat at the far end, its open face up, and the netting hangs below it. The pole's length, the
     rim's outer size and the Grip are the same as the 2026-10 nets, so the hold, the swing and the reach are
-    unchanged. Four objects: `_Handle` (pole, grip wrap, ferrule, neck and the level's trims), `_Hoop` (the rim and
-    its trims), `_Bag` (diamond-mesh strands, knots crossing in rows round the bag down to a knot at its tip) and
-    `_Bag_Glass` (a light see-through lining in the level's tint so the bag reads as a bag)."""
+    unchanged. Three objects: `_Handle` (pole, grip wrap, ferrule, neck and the level's trims), `_Hoop` (the rim and
+    its trims) and `_Bag` (open diamond-mesh netting in the level's colour, knots crossing in rows round the bag down
+    to a knot at its tip; no see-through lining, so it reads as a net and not a lens)."""
     k = level - 1
     L = NET_LOOK[k]
     pole = 3.0 + 0.3 * k
@@ -159,13 +157,13 @@ def build_net(level, mat):
     rho = 0.07 + 0.01 * k                     # the rim's tube radius
     rc = r - rho
     hy = -pole - r                            # rim centre
-    h, hoop, bag, glass = Builder(), Builder(), Builder(), Builder()
+    h, hoop, bag = Builder(), Builder(), Builder()
     # pole, from the grip end to the ferrule
     neck_y = -pole + 0.42                     # where the neck leaves the ferrule
     _rod(h, (0, 0.0, 0), (0, neck_y + 0.05, 0), 0.1, L["pole"])
     h.cyl((0, 0.02, 0), 0.135, 0.08, L["fit"], segments=10, rot=(math.radians(90), "X"))             # end cap
     h.cyl((0, -GRIP, 0), 0.13, 0.68, L["wrap"], segments=10, rot=(math.radians(90), "X"))            # grip wrap
-    for y in (-0.1, -GRIP, -0.62):
+    for y in (-0.16, -0.56):
         h.cyl((0, y, 0), 0.138, 0.05, L["wrap_ring"], segments=10, rot=(math.radians(90), "X"))
     h.cyl((0, neck_y + 0.12, 0), 0.13, 0.26, L["fit"], segments=10, rot=(math.radians(90), "X"))    # ferrule
     # the neck: two arms from the ferrule out to the rim, 40 degrees either side of its near point
@@ -199,7 +197,7 @@ def build_net(level, mat):
                         segments=8, rings=4)
     if k == 3:                                # Master: cat ears on the far rim, pink inside, gems at the sides
         for sx in (-1, 1):
-            a = math.radians(-90 + sx * 38)
+            a = math.radians(-90 + sx * 45)      # at 45 degrees the ears stay nearer the grip than the rim's far end
             u = Vector((math.cos(a), math.sin(a), 0))
             base = Vector((0, hy, 0)) + u * (r - 0.04)
             _ear(hoop, base, u, 0.4, 0.34, 2 * rho - 0.02, L["rim"])
@@ -229,13 +227,8 @@ def build_net(level, mat):
         bag.sphere((0, hy, tip[2] - 0.1), 0.13, L["fit"], segments=10, rings=6)
     else:
         bag.sphere((0, hy, tip[2]), 0.06, L["strand"], segments=8, rings=4)
-    # the lining: a see-through bag just inside the strands, from the rim down to the tip
-    prof = [(math.hypot(rw[0][0], rw[0][1] - hy) - 0.05, rw[0][2]) for rw in rows] + [(0.08, tip[2] + 0.04)]
-    for (r0, z0), (r1, z1) in zip(prof, prof[1:]):
-        glass.cyl((0, hy, (z0 + z1) / 2), r1, z0 - z1, L["bag"], segments=12, radius2=r0, bevel=False)
     name = f"CatCafe_Item_Net_L{level}"
-    return [h.finalize(name + "_Handle", mat), hoop.finalize(name + "_Hoop", mat), bag.finalize(name + "_Bag", mat),
-            glass.finalize(name + "_Bag_Glass", mat)]
+    return [h.finalize(name + "_Handle", mat), hoop.finalize(name + "_Hoop", mat), bag.finalize(name + "_Bag", mat)]
 
 
 def grip_attachment():
@@ -323,10 +316,10 @@ ASSETS = {
     "CatCafe_Item_Kibble": (build_kibble, 300),
     "CatCafe_Item_TunaCan": (build_tuna_can, 300),
     "CatCafe_Item_Salmon": (build_salmon, 400),
-    "CatCafe_Item_Net_L1": (lambda m: build_net(1, m), 600),
-    "CatCafe_Item_Net_L2": (lambda m: build_net(2, m), 750),
-    "CatCafe_Item_Net_L3": (lambda m: build_net(3, m), 900),
-    "CatCafe_Item_Net_L4": (lambda m: build_net(4, m), 1100),
+    "CatCafe_Item_Net_L1": (lambda m: build_net(1, m), 2200),     # 2026-11-03 redesign: round rim, diamond mesh
+    "CatCafe_Item_Net_L2": (lambda m: build_net(2, m), 2200),
+    "CatCafe_Item_Net_L3": (lambda m: build_net(3, m), 2600),
+    "CatCafe_Item_Net_L4": (lambda m: build_net(4, m), 2600),
     "CatCafe_Item_Sardines": (build_sardines, 400),
     "CatCafe_Item_Caviar": (build_caviar, 600),
     "CatCafe_Item_MoonMilk": (build_moon_milk, 300),

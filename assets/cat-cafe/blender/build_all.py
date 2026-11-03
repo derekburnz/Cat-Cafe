@@ -243,8 +243,8 @@ STUDIO_NOTES = {
     "CatCafe_Decor_StringLights": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand (Brightness 0.8, Range 10); SmoothPlastic by day.",
     **{f"CatCafe_Item_Net_L{n}": f"The {items.NET_NAMES[n - 1]} Net (F93), held all the time by Effects' NetHold: the "
                                  "Attachment Grip (mid wrap, on the Handle, the net's axes) goes in the hand. Child "
-                                 "Models _Hoop (the rim, its far edge the point farthest from the Grip) and _Bag (strands; "
-                                 "_Bag_Glass, the see-through netting cone, exports at Transparency 0.6)."
+                                 "Models _Hoop (the rim, its far edge the point farthest from the Grip) and _Bag (open "
+                                 "diamond-mesh netting, no see-through lining since 2026-11-03)."
        for n in (1, 2, 3, 4)},
     **{f"CatCafe_Plot_Cafe_{c}": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. "
                                  "The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the "

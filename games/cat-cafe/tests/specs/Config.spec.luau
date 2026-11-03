@@ -175,7 +175,7 @@ return function()
 		CodeMaxLength = 20,
 		CodeWrongLimit = 5,
 		CodeLockSeconds = 60,
-		GroupId = 0,
+		GroupId = 107520049,
 		StarterCatRangeStuds = 12, -- F96 (starter-cat.md section 4)
 		StarterCatTutorialStep = 5,
 		StarterCatCharm = 60,

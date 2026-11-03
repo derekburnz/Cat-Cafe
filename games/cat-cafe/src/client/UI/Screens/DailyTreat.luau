@@ -57,7 +57,7 @@ local CARD = Vector2.new(150, 140)
 local GAP = Theme.sizes.gap + 4
 local ICON = 44
 local STRIP_HEIGHT = 40
-local BEST_FILL = Theme.colors.gold:Lerp(PAL.card, 0.72)
+local BEST_FILL = PAL.goldCard
 local PENDING_SECONDS = 2
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 

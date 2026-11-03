@@ -414,7 +414,7 @@ function Quests._buildPage(
 
 	-- what finishing all of them pays
 	local strip = card("Set", UDim2.new(1, 0, 0, STRIP), page, 2)
-	strip.BackgroundColor3 = Theme.colors.gold:Lerp(PAL.card, 0.7)
+	strip.BackgroundColor3 = PAL.goldCard
 	local setCaption = text({
 		Name = "Caption",
 		AnchorPoint = Vector2.new(0, 0.5),
@@ -853,7 +853,7 @@ function Quests._renderAchievements(self: any, state: Types.PlayerState, look: P
 		entry.claimed = row.claimed
 		entry.frame.BackgroundColor3 = if row.claimed
 			then PAL.panel
-			elseif row.ready then Theme.colors.gold:Lerp(PAL.card, 0.75)
+			elseif row.ready then PAL.goldCard
 			else PAL.card
 		if row.ready then
 			ready += 1

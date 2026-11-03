@@ -1267,6 +1267,14 @@ Presets.bellhop = {
 	sitModel = "CatCafe_Cat_BellhopCat_Sit",
 }
 
+-- A cat alive in a card's picture (Portrait.luau; Derek 2026-11-03 01:10 on the Bellhop Cat's card): the Bellhop Cat
+-- rings its bell `ringFrom` seconds after the card opens and then every `every` seconds, tipping its cap
+-- Presets.bellhop's `tipAfter` after each ring.
+Presets.portrait = {
+	ringFrom = 1.2,
+	every = 7,
+}
+
 -- The Lucky Cat statue's beckoning paw (F88, luck-and-rare-moments.md section 1a: "Its paw waves a little faster at
 -- each level"): the statue's `_Paw` piece (Model-Agent's #742, pivoted at the shoulder) tips forward and back about
 -- its pivot's X, `degrees` each way (clear of the head and ear), one beckon every `seconds[level]` for levels 1 to 5,

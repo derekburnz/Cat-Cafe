@@ -141,7 +141,6 @@ local COUNTER_GAP = 14
 -- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
 local BUFFS_GAP = 8 -- the potion timers sit this far over the counters (F64)
-local EXACT_SECONDS = 2.5 -- how long a tapped golden fish's exact amount stays up
 local BOOSTS_W = 300 -- the money's boosts card
 local BOOST_ROW_H = 24
 -- F66: in the last DUSK_SECONDS of a day the clock turns orange and counts to night; CLOSED_TEXT is the Alley
@@ -310,7 +309,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._catalog = nil :: Types.Catalog?
 	self._lastMoney = nil :: number?
 	self._lastFish = nil :: number?
-	self._exactToken = 0 -- the latest tap's, so an older timer leaves a newer amount up
 	self._areasOpen = true -- F66: false from dusk to sunrise (the Clock folder's AreasOpen)
 	self._night = false -- the clock's phase is night (F60: night bait waits half)
 	self._alleyClosed = false -- what the Alley button shows now
@@ -364,17 +362,22 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	local counterH = Scale.tapHeight(MONEY_H)
 	self._counterH = counterH
 	counters.Size = UDim2.fromOffset(0, counterH)
-	local function counter(name: string, order: number): TextButton
-		return Create("TextButton", {
+	-- the money is a button (it opens the boosts card); the golden fish is a plain frame, since a tap on it does
+	-- nothing (Derek 2026-11-03: "The golden fish shouldn't do anything when clicked")
+	local function counter(name: string, order: number, className: string): GuiObject
+		local props: { [string]: any } = {
 			Name = name,
-			Text = "",
-			AutoButtonColor = false,
 			BackgroundTransparency = 1,
 			Size = UDim2.fromOffset(0, counterH),
 			AutomaticSize = Enum.AutomaticSize.X,
 			LayoutOrder = order,
 			Parent = counters,
-		}, {
+		}
+		if className == "TextButton" then
+			props.Text = ""
+			props.AutoButtonColor = false
+		end
+		return Create(className, props, {
 			Create("UIListLayout", {
 				FillDirection = Enum.FillDirection.Horizontal,
 				VerticalAlignment = Enum.VerticalAlignment.Center,
@@ -383,7 +386,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			}),
 		})
 	end
-	local money = counter("Money", 1)
+	local money = counter("Money", 1, "TextButton") :: TextButton
 	-- the gold coin badge, then the amount. The rate per second shows only in the boosts card a tap opens (Derek
 	-- 2026-11-02: "how much per second should be hidden until clicked also").
 	local coin: Frame = Create("Frame", {
@@ -437,7 +440,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	-- Golden fish (F52): the rare currency's counter beside the money, with the gold fish (F97). Hidden until
 	-- ProfileSync sends goldenFish.
-	local fish = counter("Fish", 2)
+	local fish = counter("Fish", 2, "Frame")
 	fish.Visible = false
 	self._fishPanel = fish
 	FishCoin.new({
@@ -463,42 +466,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		callbacks.openScreen("Potions")
 	end)
 
-	-- A tap on the golden fish shows its exact amount over it for a moment (golden-fish.md section 1), since big
-	-- numbers are cut down to "1.99M".
-	self._exact = hudPanel("Exact", {
-		AnchorPoint = Vector2.new(0, 1),
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 36),
-		Visible = false,
-		ZIndex = 5,
-		Parent = root,
-	})
-	Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 12),
-		PaddingRight = UDim.new(0, 12),
-		Parent = self._exact,
-	})
-	self._exactText = label({
-		Name = "Amount",
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromScale(0, 1),
-		TextSize = 20,
-		TextTruncate = Enum.TextTruncate.None,
-		ZIndex = 5,
-		Parent = self._exact,
-	})
 	-- The boosts card over the counters (built last, so it draws over the menu): a tap on the money opens and closes
 	-- it, a tap on the card closes it, and any window opening closes it.
 	table.insert(
 		self._connections,
 		money.Activated:Connect(function()
 			self:_toggleBoosts()
-		end)
-	)
-	table.insert(
-		self._connections,
-		fish.Activated:Connect(function()
-			self:_showExact()
 		end)
 	)
 
@@ -1390,7 +1363,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 		function()
 			self:_hideBoosts()
-			self._exact.Visible = false
 		end
 	)
 	-- F92: the pal chip closes the potion timers' row; a tap opens the boosts card with the pals' row
@@ -2603,7 +2575,6 @@ function HUD._toggleBoosts(self: any)
 	if self._state == nil then
 		return
 	end
-	self._exact.Visible = false
 	self._luck:hide()
 	self:_renderBoosts()
 	self._boosts.Visible = true
@@ -2858,33 +2829,6 @@ function HUD._placeMenuFold(self: any)
 	else
 		fold.Position = UDim2.fromOffset(MARGIN, self._menuTop + menuH + Theme.sizes.gap + 4)
 	end
-end
-
--- The exact golden fish behind the counter, "1,234 golden fish", over it for EXACT_SECONDS.
-function HUD._showExact(self: any)
-	local state: Types.PlayerState? = self._state
-	if state == nil then
-		return
-	end
-	self:_hideBoosts()
-	self._luck:hide()
-	self._exactText.Text = Format.commas(math.floor(state.goldenFish or 0)) .. " golden fish"
-	self._exactText.TextColor3 = Theme.fish.text
-	local scale = Scale.get()
-	local x = if scale > 0
-		then (self._fishPanel.AbsolutePosition.X - self._root.AbsolutePosition.X) / scale
-		else MARGIN
-	self._exact.Position =
-		UDim2.new(0, math.max(MARGIN, x), 1, -(MARGIN + self._counterH + BUFFS_GAP))
-	self._exact.Visible = true
-	Sound.play("uiClick")
-	self._exactToken += 1
-	local token = self._exactToken
-	task.delay(EXACT_SECONDS, function()
-		if self._exactToken == token then
-			self._exact.Visible = false
-		end
-	end)
 end
 
 -- F92 (playing-together.md section 2): the pals on the server, cleaned (Components/PalsLogic.list). The chip shows

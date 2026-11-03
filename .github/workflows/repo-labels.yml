@@ -1,0 +1,50 @@
+# Creates or updates the issue labels and milestones listed in .github/labels.json, so every open request can be filed
+# by area (CLAUDE.md rule 15). Runs on each change to that file on main, or from the Actions tab (repo-labels > Run
+# workflow) or the GitHub actions_run_trigger tool. Safe to run again: labels are updated in place and a milestone is
+# only made when no milestone (open or closed) has its title.
+name: repo-labels
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/labels.json]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: repo-labels
+  cancel-in-progress: false
+
+jobs:
+  labels:
+    name: Labels and milestones
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply .github/labels.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          jq -c '.labels[]' .github/labels.json | while read -r l; do
+            name=$(jq -r '.name' <<<"$l")
+            gh label create "$name" --repo "$REPO" --force \
+              --color "$(jq -r '.color' <<<"$l")" --description "$(jq -r '.description' <<<"$l")"
+            echo "label: $name"
+          done
+          have=$(gh api "repos/$REPO/milestones?state=all&per_page=100" --paginate -q '.[].title')
+          jq -c '.milestones[]' .github/labels.json | while read -r m; do
+            title=$(jq -r '.title' <<<"$m")
+            if grep -Fxq "$title" <<<"$have"; then
+              echo "milestone exists: $title"
+            else
+              gh api -X POST "repos/$REPO/milestones" -f title="$title" -f description="$(jq -r '.description' <<<"$m")" \
+                -q '"milestone made: \(.title) (number \(.number))"'
+            fi
+          done
+          gh api "repos/$REPO/milestones?state=all&per_page=100" --paginate -q '.[] | "\(.number)  \(.state)  \(.title)"'

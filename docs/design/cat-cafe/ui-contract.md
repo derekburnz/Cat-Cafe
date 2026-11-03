@@ -113,6 +113,8 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 
 ### Catch prompt and rescue bar (`UI.catch`)
 
+**Less text (2026-11-03, Derek: "all the texts on thins like this is not needed too much text on screen make pictures easy for kids").** The card is the key cap, the word (Catch, Rescue, Pick up), the cat's name with its rarity chip right after it, and at its right a little picture of the minigame: a stuck cat shows the rescue bar (the dark track, the green zone, the white marker), a stray the catch ring (a white ring and the gold circle closing on it), a pick up nothing. The hint line is gone except where it says why to wait: "It's walking home. Grab it!", "Its owner gets the first try", "Wait till it stops". The card is 360 x 70, 86 with that line. The older hint texts quoted below no longer show. UI gate scenes `CatchPromptRescue` and `CatchPromptCatch`.
+
 Since 2026-10-27 (Derek: "hold E to start the minigame") a stray's prompt and a stuck cat's are held for `HoldDuration` (0.5 s): the card reads "Catch" with HOLD under the E key cap, the mobile button reads CATCH, and while the player holds, the key cap fills with gold from the bottom and the CATCH button fills with a gold disc over `HoldDuration`; letting go early drains both (reviewer S52, from `PromptButtonHoldBegan` and `PromptButtonHoldEnded` on the active prompt). The trigger asks for the closing circles (see Design v0.3 below). A prompt whose model has `Rescue = true` is a stuck cat: it reads "Rescue" (the button RESCUE) and its trigger asks for the rescue minigame (`UI.rescue.show`).
 
 | Function | Purpose |

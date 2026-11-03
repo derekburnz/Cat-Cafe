@@ -686,6 +686,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		name = "Trade",
 		text = "Trade",
 		icon = TradeLogic.ICON,
+		image = ShopIcons.clean("Trade"), -- #1024: the glyph shows until Icon_Clean_Trade is uploaded
 		layout = "clean",
 		textSize = ICON_TEXT,
 		style = "teal",

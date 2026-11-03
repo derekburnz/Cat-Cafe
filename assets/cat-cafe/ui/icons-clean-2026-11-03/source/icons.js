@@ -48,16 +48,41 @@ window.ICONS = {
   menu: `<g transform="translate(32 32)">
     ${[0, 45, 90, 135].map((a) => `<rect x="-6" y="-27" width="12" height="54" rx="4" fill="#fff" stroke="${O}" stroke-width="4.5" transform="rotate(${a})"/>`).join('')}
     <circle r="19" fill="#fff"/><circle r="8" fill="#a9b6c8" stroke="${O}" stroke-width="4"/></g>`,
-  home: `<path ${S} fill="#fff" d="M6 32 L32 8 L58 32 H51 V57 H13 V32 Z"/>
-    <path ${S} fill="#ff9a3c" stroke-width="3.5" d="M26 57 V42 Q26 37 32 37 Q38 37 38 42 V57 Z"/>`,
-  cannon: `<g transform="rotate(-30 30 36)"><rect ${S} x="10" y="24" width="44" height="20" rx="8" fill="#fff"/>
-    <rect ${S} x="50" y="21" width="8" height="26" rx="3" fill="#fff"/></g>
-    <circle ${S} cx="24" cy="46" r="11" fill="#ffb04a"/><circle cx="24" cy="46" r="3.5" fill="${O}"/>`,
+  home: `<path ${S} fill="#ffe7c2" d="M10 30 H54 V58 H10 Z"/>
+    <path ${S} fill="#ff6b4a" d="M4 31 L12 12 Q13 9 16 9 H48 Q51 9 52 12 L60 31 Z"/>
+    <path d="M14 11 L11 30 M24 10 L23 30 M34 10 V30 M44 10 L45 30 M53 12 L56 30" stroke="#fff" stroke-width="4" opacity=".9"/>
+    <path ${S} fill="#ff6b4a" stroke-width="3.5" d="M6 30 Q10.5 37 15 30 Q19.5 37 24 30 Q28.5 37 33 30 Q37.5 37 42 30 Q46.5 37 51 30 Q55.5 37 58 30 Z"/>
+    <rect ${S} stroke-width="3.5" x="14" y="40" width="15" height="12" rx="2.5" fill="#8fd8ff"/>
+    <path d="M17 49 L25 42" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".9"/>
+    <path ${S} stroke-width="3.5" fill="#b8692e" d="M35 58 V43 Q35 39 39.5 39 H44.5 Q49 39 49 43 V58 Z"/>
+    <circle cx="45.5" cy="49.5" r="1.8" fill="#ffd23f"/>
+    <path ${S} stroke-width="2.6" fill="#fff" d="M25 18 H37 V22 Q37 26 31 26 Q25 26 25 22 Z"/>
+    <path d="M37 19.5 Q40.5 19.5 40.5 21.5 Q40.5 23.5 37 23.5" stroke="${O}" stroke-width="2.2" fill="none"/>`,
+  cannon: `<path d="M50 9 L52 3 M56 13 L62 11 M53 6 L58 2" stroke="#ffd23f" stroke-width="3.2" stroke-linecap="round"/>
+    <g transform="rotate(-32 32 34)">
+    <path ${S} fill="#5b6b82" d="M8 26 Q8 20 14 20 L48 22 V42 L14 44 Q8 44 8 38 Z"/>
+    <path d="M14 24 L46 25.5" stroke="#9fb0c8" stroke-width="3.5" stroke-linecap="round"/>
+    <rect ${S} stroke-width="3.5" x="20" y="19" width="6" height="26" rx="2" fill="#ffc94d"/>
+    <rect ${S} stroke-width="3.5" x="34" y="20" width="6" height="24" rx="2" fill="#ffc94d"/>
+    <rect ${S} x="46" y="18" width="9" height="28" rx="3" fill="#7a8aa3"/>
+    <ellipse cx="55" cy="32" rx="2" ry="9" fill="${O}"/></g>
+    <path ${S} fill="#c46f2e" d="M6 58 L14 42 H36 L42 58 Z"/>
+    <path d="M12 54 H38" stroke="#8a4a1c" stroke-width="2.5"/>
+    <circle ${S} cx="26" cy="47" r="11" fill="#e8a25a"/>
+    <path d="M26 37 V57 M16 47 H36 M19 40 L33 54 M33 40 L19 54" stroke="#8a4a1c" stroke-width="2.4"/>
+    <circle cx="26" cy="47" r="3.8" fill="#ffd23f" stroke="${O}" stroke-width="2.6"/>`,
   areas: `<path ${S} fill="#fff" d="M32 58 Q12 36 12 24 A20 20 0 0 1 52 24 Q52 36 32 58 Z"/>
     <circle cx="32" cy="24" r="7" fill="#ff5d5d" stroke="${O}" stroke-width="3.5"/>`,
-  potion: (liquid = '#d36bff') => `<path ${S} fill="#fff" d="M25 6 H39 V20 Q54 27 54 41 A22 20 0 0 1 10 41 Q10 27 25 20 Z"/>
-    <path d="M14 40 Q20 36 32 39 Q44 42 50 39 A18 16 0 0 1 14 40 Z" fill="${liquid}"/>
-    <circle cx="25" cy="44" r="3" fill="#fff" opacity=".8"/><rect x="23" y="3" width="18" height="6" rx="2.5" fill="#c58b55" stroke="${O}" stroke-width="3.5"/>`,
+  potion: (liquid = '#d36bff') => `<path ${S} fill="#eaf6ff" d="M25 10 H39 V21 Q55 28 55 42 A23 20 0 0 1 9 42 Q9 28 25 21 Z"/>
+    <path d="M11.5 40 Q20 34 32 38 Q44 42 52.5 38 Q54 52 32 60 Q10 52 11.5 40 Z" fill="${liquid}"/>
+    <path d="M11.5 40 Q20 34 32 38 Q44 42 52.5 38" stroke="#fff" stroke-width="2.5" fill="none" opacity=".75" stroke-linecap="round"/>
+    <path d="M16 46 Q17 54 26 57" stroke="${O}" stroke-width="2.5" fill="none" opacity=".18" stroke-linecap="round"/>
+    <circle cx="38" cy="47" r="3.2" fill="#fff" opacity=".85"/><circle cx="30" cy="52" r="2" fill="#fff" opacity=".85"/><circle cx="43" cy="53" r="1.6" fill="#fff" opacity=".85"/>
+    <path d="M17 33 Q20 27 26 25" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path ${S} stroke-width="3.5" fill="#d9e9f5" d="M23 12 H41 V17 H23 Z"/>
+    <path ${S} stroke-width="3.5" fill="#c58b55" d="M25 3 H39 Q41 3 41 5 V12 H23 V5 Q23 3 25 3 Z"/>
+    <path d="M28 5 V10 M33 5 V10" stroke="#9a6534" stroke-width="2"/>
+    <path fill="#fff" stroke="${O}" stroke-width="2" stroke-linejoin="round" d="M53 10 L54.6 14.4 L59 16 L54.6 17.6 L53 22 L51.4 17.6 L47 16 L51.4 14.4 Z"/>`,
   bowl: `<path ${S} fill="#fff" d="M6 34 H58 Q56 56 32 56 Q8 56 6 34 Z"/>
     <path ${S} fill="#ffb04a" stroke-width="3.5" d="M18 30 Q28 18 40 26 L48 20 L47 34 L40 30 Q28 38 18 30 Z"/>
     <circle cx="23" cy="28" r="2" fill="${O}"/>`,
@@ -75,6 +100,10 @@ window.ICONS = {
     <path d="M50 16 V52" stroke="#9a5a22" stroke-width="3"/>
     <circle cx="26" cy="40" r="11" fill="#ffd23f" stroke="${O}" stroke-width="4"/>
     <text x="26" y="47" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="20" fill="#fff" stroke="${O}" stroke-width="3.5" paint-order="stroke">?</text>`,
+  trade: `<path ${S} fill="#4fc3ff" d="M8 24 Q8 14 18 14 H40 V6 L58 20 L40 34 V26 H20 Q18 26 18 28 V30 H8 Z"/>
+    <path d="M13 22 Q14 18 19 18 H42" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
+    <path ${S} fill="#ffb04a" d="M56 40 Q56 50 46 50 H24 V58 L6 44 L24 30 V38 H44 Q46 38 46 36 V34 H56 Z"/>
+    <path d="M51 42 Q50 46 45 46 H22" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>`,
   caviar: `<ellipse ${S} cx="32" cy="44" rx="25" ry="12" fill="#5fb7ff"/>
     <ellipse ${S} cx="32" cy="34" rx="25" ry="11" fill="#e9f5ff"/>
     ${[[20, 32], [27, 29], [34, 31], [41, 28], [24, 37], [31, 36], [38, 37], [45, 34]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.6" fill="#ff7a2f" stroke="${O}" stroke-width="1.6"/>`).join('')}`,

@@ -225,6 +225,19 @@ function PotionLogic.running(
 	return running
 end
 
+-- The potion bag's rows (Derek 2026-11-03: "it only shows use on potions you have and disappear when used"): the
+-- potions in the bag and the ones still running, in bag order; a potion you have none of and that is not running
+-- has no row.
+function PotionLogic.owned(catalog: Types.Catalog?, state: Types.PlayerState, now: number): { Row }
+	local owned: { Row } = {}
+	for _, row in PotionLogic.rows(catalog, state, now) do
+		if row.count > 0 or row.secondsLeft > 0 then
+			table.insert(owned, row)
+		end
+	end
+	return owned
+end
+
 function PotionLogic.boosts(catalog: Types.Catalog?, state: Types.PlayerState, now: number): Boosts
 	local defs: { [string]: Types.PotionDef } = {}
 	local list: { Types.PotionDef } = if catalog and type(catalog.potions) == "table"

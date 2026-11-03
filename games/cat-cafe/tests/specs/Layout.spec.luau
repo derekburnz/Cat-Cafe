@@ -1123,6 +1123,21 @@ return function()
 		local square = Layout.townSquare
 		local lanes = square.lanes :: { Rect }
 
+		it("puts the net away on the square only (Derek 2026-11-03)", function()
+			local floor = square.floor
+			expect(Layout.inTownSquare(0, 0)).to.equal(true)
+			expect(Layout.inTownSquare(floor.x1, floor.z2)).to.equal(true)
+			expect(Layout.inTownSquare(floor.x2 + 0.5, 0)).to.equal(false)
+			expect(Layout.inTownSquare(0, floor.z1 - 0.5)).to.equal(false)
+			for index = 1, W.PlotCount do
+				local placement = Layout.plotPlacement(index)
+				expect(Layout.inTownSquare(placement.x, placement.z)).to.equal(false)
+			end
+			for _, spec in Layout.areas do
+				expect(Layout.inTownSquare(spec.center.x, spec.center.z)).to.equal(false)
+			end
+		end)
+
 		it("puts plots 1 to 4 by the square and 5 to 8 one row out, west then east", function()
 			-- the bigger cafes (44 x 34, #917)
 			local want = { { -41, -62 }, { 41, -62 }, { -41, 62 }, { 41, 62 } }

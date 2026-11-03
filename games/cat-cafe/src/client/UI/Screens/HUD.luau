@@ -44,6 +44,7 @@ local BoostList = require(script.Parent.Parent.Components.BoostList)
 local BuffChips = require(script.Parent.BuffChips)
 local Button = require(script.Parent.Parent.Components.Button)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
+local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -141,7 +142,6 @@ local COUNTER_GAP = 14
 -- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
 local BUFFS_GAP = 8 -- the potion timers sit this far over the counters (F64)
-local EXACT_SECONDS = 2.5 -- how long a tapped golden fish's exact amount stays up
 local BOOSTS_W = 300 -- the money's boosts card
 local BOOST_ROW_H = 24
 -- F66: in the last DUSK_SECONDS of a day the clock turns orange and counts to night; CLOSED_TEXT is the Alley
@@ -310,7 +310,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._catalog = nil :: Types.Catalog?
 	self._lastMoney = nil :: number?
 	self._lastFish = nil :: number?
-	self._exactToken = 0 -- the latest tap's, so an older timer leaves a newer amount up
 	self._areasOpen = true -- F66: false from dusk to sunrise (the Clock folder's AreasOpen)
 	self._night = false -- the clock's phase is night (F60: night bait waits half)
 	self._alleyClosed = false -- what the Alley button shows now
@@ -364,17 +363,22 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	local counterH = Scale.tapHeight(MONEY_H)
 	self._counterH = counterH
 	counters.Size = UDim2.fromOffset(0, counterH)
-	local function counter(name: string, order: number): TextButton
-		return Create("TextButton", {
+	-- the money is a button (it opens the boosts card); the golden fish is a plain frame, since a tap on it does
+	-- nothing (Derek 2026-11-03: "The golden fish shouldn't do anything when clicked")
+	local function counter(name: string, order: number, className: string): GuiObject
+		local props: { [string]: any } = {
 			Name = name,
-			Text = "",
-			AutoButtonColor = false,
 			BackgroundTransparency = 1,
 			Size = UDim2.fromOffset(0, counterH),
 			AutomaticSize = Enum.AutomaticSize.X,
 			LayoutOrder = order,
 			Parent = counters,
-		}, {
+		}
+		if className == "TextButton" then
+			props.Text = ""
+			props.AutoButtonColor = false
+		end
+		return Create(className, props, {
 			Create("UIListLayout", {
 				FillDirection = Enum.FillDirection.Horizontal,
 				VerticalAlignment = Enum.VerticalAlignment.Center,
@@ -383,7 +387,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			}),
 		})
 	end
-	local money = counter("Money", 1)
+	local money = counter("Money", 1, "TextButton") :: TextButton
 	-- the gold coin badge, then the amount. The rate per second shows only in the boosts card a tap opens (Derek
 	-- 2026-11-02: "how much per second should be hidden until clicked also").
 	local coin: Frame = Create("Frame", {
@@ -437,7 +441,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	-- Golden fish (F52): the rare currency's counter beside the money, with the gold fish (F97). Hidden until
 	-- ProfileSync sends goldenFish.
-	local fish = counter("Fish", 2)
+	local fish = counter("Fish", 2, "Frame")
 	fish.Visible = false
 	self._fishPanel = fish
 	FishCoin.new({
@@ -463,42 +467,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		callbacks.openScreen("Potions")
 	end)
 
-	-- A tap on the golden fish shows its exact amount over it for a moment (golden-fish.md section 1), since big
-	-- numbers are cut down to "1.99M".
-	self._exact = hudPanel("Exact", {
-		AnchorPoint = Vector2.new(0, 1),
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 36),
-		Visible = false,
-		ZIndex = 5,
-		Parent = root,
-	})
-	Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 12),
-		PaddingRight = UDim.new(0, 12),
-		Parent = self._exact,
-	})
-	self._exactText = label({
-		Name = "Amount",
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromScale(0, 1),
-		TextSize = 20,
-		TextTruncate = Enum.TextTruncate.None,
-		ZIndex = 5,
-		Parent = self._exact,
-	})
 	-- The boosts card over the counters (built last, so it draws over the menu): a tap on the money opens and closes
 	-- it, a tap on the card closes it, and any window opening closes it.
 	table.insert(
 		self._connections,
 		money.Activated:Connect(function()
 			self:_toggleBoosts()
-		end)
-	)
-	table.insert(
-		self._connections,
-		fish.Activated:Connect(function()
-			self:_showExact()
 		end)
 	)
 
@@ -1301,6 +1275,16 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Size = UDim2.fromOffset(36, 36),
 		Parent = carry,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	-- the carried cat's head in the rarity circle (Derek 2026-11-03: "the symbol for what carrying is showing just a
+	-- plain circle")
+	self._carryPortrait = CatPortrait.new({
+		parent = self._carryArt,
+		size = UDim2.fromScale(1.15, 1.15),
+		position = UDim2.fromScale(0.5, 0.5),
+		anchorPoint = Vector2.new(0.5, 0.5),
+		still = true,
+		head = true,
+	})
 	self._carryTitle = label({
 		Name = "Title",
 		Position = UDim2.fromOffset(56, 8),
@@ -1325,7 +1309,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		icon = Theme.icons.drop,
 		iconSize = 26,
 		style = "close",
-		size = UDim2.fromOffset(DROP_W, 40),
+		size = UDim2.fromOffset(DROP_W, 44), -- a 36 px face at the desktop's 0.9 scale (the UI gate's tap check)
 		anchorPoint = Vector2.new(1, 0.5),
 		position = UDim2.new(1, -8, 0.5, 0),
 		textSize = Theme.sizes.textBody,
@@ -1390,7 +1374,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 		function()
 			self:_hideBoosts()
-			self._exact.Visible = false
 		end
 	)
 	-- F92: the pal chip closes the potion timers' row; a tap opens the boosts card with the pals' row
@@ -1921,6 +1904,17 @@ function HUD.setCarrying(self: any, info: Types.CarryInfo?)
 		local rarity: string = info.rarity or "Common"
 		self._carry.Visible = true
 		self._carryArt.BackgroundColor3 = Theme.rarityColor(rarity)
+		local catalog: Types.Catalog? = self._catalog
+		local def: Types.CatDef? = nil
+		if catalog and info.catId then
+			for _, cat in catalog.cats do
+				if cat.id == info.catId then
+					def = cat
+					break
+				end
+			end
+		end
+		self._carryPortrait:set(def)
 		self._carryTitle.Text = "Carrying " .. (info.catName or "a cat")
 		self._carryTitle.TextColor3 = Theme.hud.text
 		-- hudPanel's outline is the "Border" stroke from Components/Outline
@@ -2603,7 +2597,6 @@ function HUD._toggleBoosts(self: any)
 	if self._state == nil then
 		return
 	end
-	self._exact.Visible = false
 	self._luck:hide()
 	self:_renderBoosts()
 	self._boosts.Visible = true
@@ -2860,33 +2853,6 @@ function HUD._placeMenuFold(self: any)
 	end
 end
 
--- The exact golden fish behind the counter, "1,234 golden fish", over it for EXACT_SECONDS.
-function HUD._showExact(self: any)
-	local state: Types.PlayerState? = self._state
-	if state == nil then
-		return
-	end
-	self:_hideBoosts()
-	self._luck:hide()
-	self._exactText.Text = Format.commas(math.floor(state.goldenFish or 0)) .. " golden fish"
-	self._exactText.TextColor3 = Theme.fish.text
-	local scale = Scale.get()
-	local x = if scale > 0
-		then (self._fishPanel.AbsolutePosition.X - self._root.AbsolutePosition.X) / scale
-		else MARGIN
-	self._exact.Position =
-		UDim2.new(0, math.max(MARGIN, x), 1, -(MARGIN + self._counterH + BUFFS_GAP))
-	self._exact.Visible = true
-	Sound.play("uiClick")
-	self._exactToken += 1
-	local token = self._exactToken
-	task.delay(EXACT_SECONDS, function()
-		if self._exactToken == token then
-			self._exact.Visible = false
-		end
-	end)
-end
-
 -- F92 (playing-together.md section 2): the pals on the server, cleaned (Components/PalsLogic.list). The chip shows
 -- their faces and the bonus; an open boosts card gets their row; a marker for a pal who left goes.
 function HUD.setPals(self: any, userIds: { number })
@@ -2916,6 +2882,7 @@ end
 
 function HUD.destroy(self: any)
 	self:_stopClock()
+	self._carryPortrait:destroy()
 	self.catchingChanged:DisconnectAll()
 	local spinTimer: thread? = self._spinTimer
 	if spinTimer then

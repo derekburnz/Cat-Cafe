@@ -26,6 +26,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { Lua } from '@luau-rs/luau';
 import { buildTree, jsonToLuau } from './rojo-tree.mjs';
@@ -115,13 +116,18 @@ async function runProfile(profile) {
 
 const started = Date.now();
 const all = [];
-// --devices runs the three device sizes on their own: more than three Luau states in one process runs the wasm out
-// of memory
+// --devices runs the three device sizes on their own. Each size also runs in its own node process (--emit), so
+// every size gets a fresh wasm heap: three Luau states in one process sat at the wasm's memory ceiling, and on
+// 2026-11-03 CI's phone run died with "not enough memory" after desktop and laptop.
 const profiles = args.devices ? DEVICE_PROFILES : args.profile ? [...PROFILES, ...DEVICE_PROFILES] : PROFILES;
-for (const profile of profiles) {
-  if (args.profile && args.profile !== profile.name) continue;
+const wanted = profiles.filter((profile) => !args.profile || args.profile === profile.name);
+for (const profile of wanted) {
   const t0 = Date.now();
-  const scenes = await runProfile(profile);
+  const scenes = args.emit || wanted.length === 1 ? await runProfile(profile) : runChild(profile);
+  if (args.emit) {
+    fs.writeFileSync(args.emit, JSON.stringify(scenes));
+    process.exit(0);
+  }
   // The HUD stays on screen behind every window: a finding is listed once, in the first scene that shows it.
   const seen = new Set();
   for (const scene of scenes) {
@@ -175,6 +181,19 @@ if (fresh.length > 0 && !args.updateBaseline) {
 }
 console.log('UI gate passed');
 
+// One screen size in a child process: the same script with --profile and --emit, its scenes read back from a file.
+function runChild(profile) {
+  const file = path.join(os.tmpdir(), `cat-cafe-uigate-${process.pid}-${profile.name}.json`);
+  const childArgs = [...process.execArgv, fileURLToPath(import.meta.url), '--profile', profile.name, '--emit', file];
+  if (args.scene) childArgs.push('--scene', args.scene);
+  if (args.verbose) childArgs.push('--verbose');
+  const run = spawnSync(process.execPath, childArgs, { stdio: 'inherit' });
+  if (run.status !== 0) throw new Error(`UI gate: the ${profile.name} run failed (exit ${run.status})`);
+  const scenes = JSON.parse(fs.readFileSync(file, 'utf8'));
+  fs.rmSync(file, { force: true });
+  return scenes;
+}
+
 function parseArgs(argv) {
   const out = {};
   for (let i = 0; i < argv.length; i++) {
@@ -185,6 +204,7 @@ function parseArgs(argv) {
     else if (arg === '--scene') out.scene = argv[++i];
     else if (arg === '--update-baseline') out.updateBaseline = true;
     else if (arg === '--verbose' || arg === '-v') out.verbose = true;
+    else if (arg === '--emit') out.emit = argv[++i]; // internal: run one --profile and write its scenes as JSON
     else if (arg === '--help' || arg === '-h') {
       console.log('usage: node uigate.mjs [--out dir] [--devices] [--profile desktop|laptop|phone|tablet|smallphone|console] [--scene Name] [--update-baseline] [--verbose]');
       process.exit(0);

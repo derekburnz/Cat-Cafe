@@ -150501,65 +150501,6 @@
       }
     },
     {
-      "name": "CatCafe_Square_Signpost",
-      "category": "Square",
-      "module": "square",
-      "objects": [
-        "CatCafe_Square_Signpost",
-        "CatCafe_Square_Signpost_Flowers",
-        "CatCafe_Square_Signpost_ArmCap",
-        "CatCafe_Square_Signpost_ArmNeighbourhood",
-        "CatCafe_Square_Signpost_ArmPark",
-        "CatCafe_Square_Signpost_ArmWoods",
-        "CatCafe_Square_Signpost_ArmSewer"
-      ],
-      "triangles": 784,
-      "budget": 2000,
-      "size_studs": {
-        "x": 11.25,
-        "y": 11.26,
-        "z": 9.5
-      },
-      "size_roblox": [
-        11.25,
-        9.5,
-        11.26
-      ],
-      "bounds_min": [
-        -5.63,
-        -5.63,
-        0.0
-      ],
-      "bounds_max": [
-        5.62,
-        5.63,
-        9.5
-      ],
-      "pivot": "Post's foot at (-9, 0.1, -7.5) with no turn: each _Arm<Area> board is aimed in world space at its gate, long along its own X, with an Area attribute.",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "placements_roblox": [],
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Signpost.model.json",
-      "rbx_parts": 54,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Square_Signpost.fbx",
-        "assets/cat-cafe/exports/CatCafe_Square_Signpost.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [],
-        "checks": {
-          "budget": "784/2000 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "370 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-0.00 y=0.00"
-        }
-      }
-    },
-    {
       "name": "CatCafe_Square_ArchAlley",
       "category": "Square",
       "module": "square",

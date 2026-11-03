@@ -1,0 +1,31 @@
+# One open request (a fix, a feature, a picture, a setting) that either Claude project can pick up (CLAUDE.md rule 15).
+# Add the area label (ui, animation, gameplay, model, sound, vfx, store-art, tools, qa, design) and needs-derek when it
+# waits on him. To take it: add the claim label and comment who is on it; the PR that finishes it says "Closes #n".
+name: Task
+description: An open request with what was asked, where it stands and how to tell it's done
+body:
+  - type: textarea
+    id: asked
+    attributes:
+      label: What was asked
+      description: Derek's words (quote them, with the date) or the spec section it comes from. Screenshots are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details and done when
+      description: What to change, the real game values or files involved, and how to check it is done.
+    validations:
+      required: true
+  - type: textarea
+    id: state
+    attributes:
+      label: Where it stands
+      description: What is already done (PRs, files), what it waits on, and the next step.
+  - type: textarea
+    id: files
+    attributes:
+      label: Folders and files
+      description: One per line.
+      render: text

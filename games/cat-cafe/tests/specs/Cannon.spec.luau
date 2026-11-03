@@ -40,4 +40,25 @@ return function()
 			expect(Cannon.launchRefusal(check(Config.TackledDownSeconds + 1))).to.equal(nil)
 		end)
 	end)
+
+	describe("Cannon.heading (CannonHeading, Derek 2026-11-03)", function()
+		it("points from the cannon toward the pad on the ground plane, one stud long", function()
+			local heading =
+				Cannon.heading(Vector3.new(0, 5, 0), Vector3.new(300, -20, 400), Vector3.zero)
+			expect(heading.X).to.be.near(0.6, 1e-9)
+			expect(heading.Y).to.equal(0)
+			expect(heading.Z).to.be.near(0.8, 1e-9)
+		end)
+
+		it("falls back on the barrel's facing for a pad under the cannon or none", function()
+			local facing = Vector3.new(0, 0.7, 0.7)
+			expect(Cannon.heading(Vector3.zero, Vector3.new(0.2, 0, 0.3), facing)).to.equal(
+				Vector3.new(0, 0, 1)
+			)
+			expect(Cannon.heading(Vector3.zero, nil, facing)).to.equal(Vector3.new(0, 0, 1))
+			expect(Cannon.heading(Vector3.zero, nil, Vector3.new(0, 1, 0))).to.equal(
+				Vector3.new(0, 0, -1)
+			)
+		end)
+	end)
 end

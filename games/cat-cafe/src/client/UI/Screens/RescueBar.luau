@@ -10,12 +10,14 @@
 -- time alone. Hits and misses drawn on a press are this device's guess; update() replaces them with the
 -- server's count.
 --
--- F93 (catch-rework.md section 4), when the challenge carries `zone`: each zone stays for zonePasses sweeps, then
--- costs a paw and moves on ("Too slow!"); every hit speeds the marker up by speedUpPerHit; RescueResult's last
--- argument (Types.RescueBar) says how the marker runs and which zone is live from then on. The zone's bottom edge
--- drains as its time runs out. Polish: the marker is a needle with a little paw on top, the hit pips sit above the
--- bar and a ring round the bar runs down the attempt's deadline (it was a line under the bar). The trap's shake and
--- the free burst are the vfx-animator's.
+-- F93 (catch-rework.md section 4), when the challenge carries `zone`: every hit speeds the marker up by
+-- speedUpPerHit and moves the zone on; RescueResult's last argument (Types.RescueBar) says how the marker runs and
+-- which zone is live from then on. Derek 2026-11-03 01:04 ("bars going in circles and stuff is a little confusing"):
+-- a zone now stays put until it is hit and its zoneEndsAt is the attempt's deadline, so the zone's draining bottom
+-- edge is the one timer (red in its last quarter); the ring round the bar is gone. An older server's challenge
+-- with zonePasses still moves an unhit zone on after that many sweeps ("Too slow!"), timed per zone. Polish: the
+-- marker is a needle with a little paw on top and the hit pips sit above the bar. The trap's shake and the free
+-- burst are the vfx-animator's.
 --
 -- F92 Team Rescue (playing-together.md section 3): a helper's copy of a running bar (challenge.helper) starts from
 -- the hits so far, says "Helping! Your misses cost no paws", guesses no paw lost on a miss (the paws row is the
@@ -79,11 +81,9 @@ local NEEDLE = Vector2.new(6, 56) -- the marker's line, a little taller than the
 local PAW = 30 -- the paw on top of the needle
 local PIP = 22
 local BAR_TOP = PIP + 34 -- room for the paw between the pips and the bar
-local RING_PAD = 6 -- the deadline ring sits this far outside the bar
-local RING = 4 -- its thickness
-local LIFE = 4 -- the zone's draining bottom edge
+local LIFE = 6 -- the zone's draining bottom edge, the bar's one timer
 local GIVE_UP_H = 36 -- Give up's face on a mouse screen (Theme.sizes.tapMouse)
-local GIVE_UP_GAP = 14 -- between the ring and Give up
+local GIVE_UP_GAP = 20 -- between the bar and Give up
 -- data-model RescueTolerance (0.03 of the bar) and RescueAttemptMaxSeconds (15)
 local TOLERANCE: number = Config.RescueTolerance
 local MAX_SECONDS: number = Config.RescueAttemptMaxSeconds
@@ -281,7 +281,7 @@ function RescueBar.new(parent: Instance): RescueBar
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.62),
-		Size = UDim2.fromOffset(BAR.X, BAR_TOP + BAR.Y + RING_PAD + GIVE_UP_GAP + giveUpH),
+		Size = UDim2.fromOffset(BAR.X, BAR_TOP + BAR.Y + GIVE_UP_GAP + giveUpH),
 		Parent = root,
 	})
 	self._group = group
@@ -330,7 +330,7 @@ function RescueBar.new(parent: Instance): RescueBar
 		}),
 	})
 	Outline.border(self._zone, 2, Theme.colors.goodDark)
-	-- F93: the zone's bottom edge drains as its zonePasses sweeps run out
+	-- the zone's bottom edge drains as the time to hit it runs out (the attempt's deadline, F93 2026-11-03)
 	self._life = Create("Frame", {
 		Name = "Life",
 		BackgroundColor3 = Theme.colors.white,
@@ -339,7 +339,6 @@ function RescueBar.new(parent: Instance): RescueBar
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.fromScale(0, 1),
 		Size = UDim2.new(1, 0, 0, LIFE),
-		Visible = false,
 		ZIndex = 2,
 		Parent = self._zone,
 	})
@@ -387,33 +386,13 @@ function RescueBar.new(parent: Instance): RescueBar
 		Parent = bar,
 	})
 	Outline.text(self._word, 3)
-	-- time left: a ring round the bar that runs down to the attempt's deadline (F93 polish), four edges filling
-	-- clockwise from the top left corner
-	local ring: Frame = Create("Frame", {
-		Name = "Ring",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(-RING_PAD, BAR_TOP - RING_PAD),
-		Size = UDim2.fromOffset(BAR.X + 2 * RING_PAD, BAR.Y + 2 * RING_PAD),
-		Parent = group,
-	})
-	self._ringSize = Vector2.new(BAR.X + 2 * RING_PAD, BAR.Y + 2 * RING_PAD)
-	self._ringEdges = {} :: { Frame }
-	for index = 1, 4 do
-		local edge: Frame = Create("Frame", {
-			Name = "Edge" .. index,
-			BackgroundColor3 = Theme.colors.sky,
-			BorderSizePixel = 0,
-			Parent = ring,
-		})
-		table.insert(self._ringEdges, edge)
-	end
 	self._cancel = Button.new({
 		name = "GiveUp",
 		text = "Give up",
 		style = "ghost",
 		size = UDim2.fromOffset(120, giveUpH),
 		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, 0, 0, BAR_TOP + BAR.Y + RING_PAD + GIVE_UP_GAP),
+		position = UDim2.new(1, 0, 0, BAR_TOP + BAR.Y + GIVE_UP_GAP),
 		textSize = Theme.sizes.textSmall,
 		parent = group,
 		onClick = function()
@@ -548,7 +527,7 @@ function RescueBar.show(
 	self._hint.Text = if self._helper
 		then "Helping! Your misses cost no paws"
 		elseif shake then "Hit the green to shake the branch!"
-		elseif rules(challenge).zone ~= nil then "Hit the green before it moves!"
+		elseif rules(challenge).zone ~= nil then "Hit the green!"
 		elseif Scale.isTouch() then "Tap when the bar is in the green!"
 		else "Press Space or click when the bar is in the green!"
 	self._pawRow:set(challenge.paws, challenge.paws)
@@ -595,33 +574,6 @@ function RescueBar._markerAt(self: any, t: number): number
 	return RescueMarker.position(run.startsAt, run.phase, run.speed, t)
 end
 
--- The deadline ring: `share` of its length left, drawn clockwise from the top left corner (top, right, bottom,
--- left), sky blue and red in the last quarter.
-function RescueBar._drawRing(self: any, share: number)
-	local size: Vector2 = self._ringSize
-	local left = math.clamp(share, 0, 1) * 2 * (size.X + size.Y)
-	local color = if share <= 0.25 then Theme.colors.red else Theme.colors.sky
-	local edges: { Frame } = self._ringEdges
-	local function take(length: number): number
-		local used = math.clamp(left, 0, length)
-		left -= used
-		return used
-	end
-	local top, right, bottom, leftEdge = take(size.X), take(size.Y), take(size.X), take(size.Y)
-	edges[1].Position = UDim2.fromOffset(0, 0)
-	edges[1].Size = UDim2.fromOffset(top, RING)
-	edges[2].Position = UDim2.fromOffset(size.X - RING, 0)
-	edges[2].Size = UDim2.fromOffset(RING, right)
-	edges[3].Position = UDim2.fromOffset(size.X - bottom, size.Y - RING)
-	edges[3].Size = UDim2.fromOffset(bottom, RING)
-	edges[4].Position = UDim2.fromOffset(0, size.Y - leftEdge)
-	edges[4].Size = UDim2.fromOffset(RING, leftEdge)
-	for index, edge in edges do
-		edge.BackgroundColor3 = color
-		edge.Visible = ({ top, right, bottom, leftEdge })[index] > 0.5
-	end
-end
-
 function RescueBar._step(self: any, t: number)
 	local challenge: Types.RescueChallenge? = self._challenge
 	if not challenge then
@@ -637,17 +589,14 @@ function RescueBar._step(self: any, t: number)
 		local color = if inside then Theme.colors.gold else Theme.colors.white
 		self._marker.BackgroundColor3 = color
 		self._paw.BackgroundColor3 = color
-		-- F93: the zone's time left, as its bottom edge
-		local zoneEndsAt: number? = self._zoneEndsAt
-		self._life.Visible = zoneEndsAt ~= nil
-		if zoneEndsAt ~= nil then
-			local span = math.max(zoneEndsAt - self._zoneSince, 0.001)
-			self._life.Size = UDim2.new(math.clamp((zoneEndsAt - t) / span, 0, 1), 0, 0, LIFE)
-		end
+		-- the time left to hit the zone, as its bottom edge (the attempt's deadline when the server sends none)
+		local zoneEndsAt: number = self._zoneEndsAt or deadline(current)
+		local span = math.max(zoneEndsAt - self._zoneSince, 0.001)
+		local share = math.clamp((zoneEndsAt - t) / span, 0, 1)
+		self._life.Size = UDim2.new(share, 0, 0, LIFE)
+		self._life.BackgroundColor3 = if share <= 0.25 then Theme.colors.red else Theme.colors.white
 	end
 	local ends = deadline(current)
-	local total = math.max(ends - current.startsAt, 0.001)
-	self:_drawRing((ends - t) / total)
 	if not self._done and t >= ends then
 		self._done = true
 		self._hint.Text = "Too slow! It's still stuck."
@@ -700,8 +649,12 @@ function RescueBar._press(self: any)
 			local speed = run.speed * (1 + (f93.speedUpPerHit or 0))
 			self._run = { startsAt = t, phase = phaseAt(run, t), speed = speed }
 			self._zoneIndex += 1
-			self._zoneSince = t
-			self._zoneEndsAt = t + (f93.zonePasses or 2) / math.max(speed, 0.01)
+			-- an older server's zone lives zonePasses sweeps; now the time to hit it is the attempt's, kept as it was
+			local passes = f93.zonePasses
+			if passes ~= nil then
+				self._zoneSince = t
+				self._zoneEndsAt = t + passes / math.max(speed, 0.01)
+			end
 		else
 			self._zoneIndex = self._hits + 1
 		end
@@ -793,7 +746,7 @@ function RescueBar.update(
 	self._hits = hits
 	self:_paintPips()
 	if bar ~= nil then
-		-- F92 Team Rescue: a helper joining moves the attempt's deadline later (bar.endsAt); the ring and "Too slow!"
+		-- F92 Team Rescue: a helper joining moves the attempt's deadline later (bar.endsAt); the timer and "Too slow!"
 		-- read the kept challenge's endsAt, so it takes the new one. Read loosely until the shared type has it.
 		local endsAt: unknown = (bar :: any).endsAt
 		local challenge: Types.RescueChallenge? = self._challenge
@@ -803,7 +756,10 @@ function RescueBar.update(
 			self._challenge = moved
 		end
 		self._run = { startsAt = bar.startsAt, phase = bar.phase, speed = bar.speed }
-		if bar.zoneEndsAt ~= self._zoneEndsAt or nextZone ~= before then
+		-- an older server times each zone (zonePasses), so its timer restarts with the zone; now it runs from the
+		-- attempt's start and only grows when a helper's extra time moves the deadline
+		local perZone = challenge ~= nil and rules(challenge).zonePasses ~= nil
+		if perZone and (bar.zoneEndsAt ~= self._zoneEndsAt or nextZone ~= before) then
 			self._zoneSince = math.min(now(), bar.zoneEndsAt)
 		end
 		self._zoneEndsAt = bar.zoneEndsAt

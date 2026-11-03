@@ -110,7 +110,7 @@ return function()
 			expect(copy.helper).to.equal(true)
 			expect(copy.hits).to.equal(1)
 			expect(copy.zone).to.equal(2)
-			expect(copy.zoneEndsAt).to.equal(attempt.zoneEndsAt)
+			expect(copy.zoneEndsAt).to.equal(attempt.challenge.endsAt) -- a zone stays until hit: its time is the deadline
 			expect(copy.paws).to.equal(attempt.paws)
 			expect(copy.endsAt).to.equal(attempt.challenge.endsAt)
 			expect(copy.hitsNeeded).to.equal(attempt.challenge.hitsNeeded)

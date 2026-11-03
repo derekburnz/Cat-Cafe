@@ -409,6 +409,25 @@ function Logic.orderMakeCue(station: any): string?
 	return if type(station) == "string" then ORDER_MAKE_CUES[station] else nil
 end
 
+-- F84 cannon beats (#954, #955): when the flyer reaches the clouds and when the feet touch the pad, in seconds from
+-- CannonLaunchAt. Config's CannonCloudsAt and CannonTouchdownAt when they are positive numbers; else the old clouds
+-- time and the touchdown as the flight ends (CannonLaunchSeconds, else `flightFallback`). The touchdown never comes
+-- before the clouds.
+function Logic.cannonBeats(
+	cloudsAt: any,
+	touchdownAt: any,
+	flight: any,
+	cloudsFallback: number,
+	flightFallback: number
+): (number, number)
+	local function positive(value: any): number?
+		return if type(value) == "number" and value == value and value > 0 then value else nil
+	end
+	local clouds = positive(cloudsAt) or cloudsFallback
+	local touchdown = positive(touchdownAt) or positive(flight) or flightFallback
+	return clouds, math.max(touchdown, clouds)
+end
+
 -- Whether a plot is this player's own cafe, from its OwnerUserId attribute: only your own cafe's orders ding (#981).
 -- A For Rent plot (0 or no owner) and anything but a number are nobody's.
 function Logic.ownPlot(ownerUserId: any, yourUserId: number): boolean

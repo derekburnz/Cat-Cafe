@@ -66,7 +66,7 @@ Intro.ARC_UP = 32 -- studs above the ground at the puff
 Intro.ARC_OUT = 14 -- studs out along the aim at the puff
 Intro.DROP_FROM = 1.25
 Intro.LAND_AT = 1.55
-Intro.STAND_AT = 1.9
+Intro.STAND_AT = 2.05 -- Animation-Engineer's hero landing (one knee, then up) takes 0.5 s
 Intro.DROP_HEIGHT = 14 -- the root holds at 0 from LAND_AT: the landing crouch is Animation-Engineer's StagedFlight pose
 
 -- Shot 3's demo catch, in seconds into the shot: the ring closes to PERFECT, then the cat hops into your arms.

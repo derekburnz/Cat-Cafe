@@ -488,11 +488,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = fish,
 	})
 
-	-- Potion timers (F64): a chip per running potion over the counters (beside the menu's arrow tab on a short screen);
-	-- a tap opens the potion bag
+	-- Potion timers (F64): a chip per running potion beside the Potions tile (_placePotionTimers), and the Luck and pal
+	-- chips' row over the counters (beside the menu's arrow tab on a short screen); a tap on a potion opens the bag
 	self._buffs = BuffChips.new(root, MARGIN, function()
 		callbacks.openScreen("Potions")
 	end)
+	table.insert(
+		self._connections,
+		self._buffs.potions:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			self:_placePotionTimers()
+		end)
+	)
 
 	-- The boosts card over the counters (built last, so it draws over the menu): a tap on the money opens and closes
 	-- it, a tap on the card closes it, and any window opening closes it.
@@ -1654,6 +1660,7 @@ function HUD.setTravelFolded(self: any, folded: boolean)
 		Position = UDim2.new(0.5, self._travelShift, 1, if folded then TRAVEL_H + 24 else -MARGIN),
 	})
 	self:_layoutBottom()
+	self:_placePotionTimers()
 end
 
 -- The menu tab's red dot: lit while the pills are folded and one of them has a dot.
@@ -2875,6 +2882,11 @@ end
 -- their right edge left of where the Net button shows and their foot over the bottom row, so a thumb on jump or Net
 -- never lands on them. A tablet's bigger jump button sits higher, over the corner, so the corner stays.
 function HUD._placeCorner(self: any)
+	self:_placeCornerPair()
+	self:_placePotionTimers()
+end
+
+function HUD._placeCornerPair(self: any)
 	local holder: Frame = self._corner
 	local shown = 0
 	for _, child in holder:GetChildren() do
@@ -2923,6 +2935,40 @@ function HUD._placeCorner(self: any)
 		end
 	end
 	holder.Position = UDim2.fromOffset(math.floor(right), math.floor(foot))
+end
+
+-- The running potions' chips (#963, Derek 2026-11-03: "can show active like this screenshot"): beside the Potions
+-- tile, left of the corner pair with their tops level with its squares; when that would run into the bottom row (the
+-- pair on the bottom edge of a narrow screen) they sit over the pair instead, right edges level.
+function HUD._placePotionTimers(self: any)
+	local timers: Frame = self._buffs.potions
+	local holder: Frame = self._corner
+	local scale = Scale.get()
+	local size = self._root.AbsoluteSize
+	local width, height = Scale.DESIGN.X, Scale.DESIGN.Y - 58
+	if scale > 0 and size.Y > 0 then
+		width, height = size.X / scale, size.Y / scale
+	end
+	local at = holder.Position
+	local right = at.X.Scale * width + at.X.Offset -- the pair's right edge and foot, design px from the root's corner
+	local top = at.Y.Scale * height + at.Y.Offset - SYMBOL_H
+	local left = right - holder.Size.X.Offset - CORNER_GAP
+	local timersW = if scale > 0 then timers.AbsoluteSize.X / scale else 0
+	local beside = true
+	local row: Frame? = self._travelRow
+	if row and row.Visible and not self._travelFolded then
+		local rowRight = width / 2 + self._travelShift + row.Size.X.Offset / 2 + TRAVEL_GAP + FOLD_W
+		local rowTop = height - MARGIN - TRAVEL_H
+		local low = top + BuffChips.potionsHeight() > rowTop
+		beside = not low or left - timersW >= rowRight + Theme.sizes.gap
+	end
+	if beside then
+		timers.AnchorPoint = Vector2.new(1, 0)
+		timers.Position = UDim2.fromOffset(math.floor(left), math.floor(top))
+	else
+		timers.AnchorPoint = Vector2.new(1, 1)
+		timers.Position = UDim2.fromOffset(math.floor(right), math.floor(top - Theme.sizes.gap))
+	end
 end
 
 -- The menu's arrow tab: under the menu, or beside its last row on a short screen; at the edge once folded.

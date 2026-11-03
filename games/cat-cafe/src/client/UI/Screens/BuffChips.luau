@@ -1,11 +1,14 @@
 --!strict
 -- The HUD's potion timers (F64, data-model section 12b; quests.md section 7: "their timers show in the HUD buff
--- chips"): over the money and golden fish counters in the bottom left (beside the menu's arrow tab on a phone), one small chip per running potion, a round tile in the potion's
--- colour and its time left in outlined white ("8:12"), no dark panel behind them. A tap on any chip opens the
--- potion bag. Each tile shows the potion's own bottle icon (Components/ShopIcons). The row hides with no potion running; while one runs it ticks once a second, and a chip goes when
--- its time is up. Times come from ProfileSync `buffs` (endsAt in server time), so a rejoin shows what is left.
--- F88: the HUD's Luck chip (Screens/LuckChip) leads the row; setLead keeps the row up while it shows. F92: the pal
--- chip (Screens/PalChip) closes the row and keeps it up the same way, under its own key.
+-- chips"). Since 2026-11-03 (#963, Derek: "can show active like this screenshot") they are their own row, `potions`,
+-- which the HUD sets beside the Potions tile in the bottom right (HUD._placePotionTimers): one dark rounded chip per
+-- running potion with the potion's own bottle (Components/ShopIcons) and its time left under it in outlined white
+-- ("8:12"). A tap on any chip opens the potion bag. The row hides with no potion running; while one runs it ticks once
+-- a second, and a chip goes when its time is up. Times come from ProfileSync `buffs` (endsAt in server time), so a
+-- rejoin shows what is left.
+-- `frame` is the row over the money and golden fish counters in the bottom left (beside the menu's arrow tab on a
+-- phone) that holds the HUD's Luck chip (F88, Screens/LuckChip) and pal chip (F92, Screens/PalChip); setLead keeps it
+-- up while either shows, under its own key.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -20,7 +23,8 @@ local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 export type BuffChips = {
-	frame: Frame,
+	frame: Frame, -- the Luck and pal chips' row
+	potions: Frame, -- the running potions' chips
 	setCatalog: (self: BuffChips, catalog: Types.Catalog) -> (),
 	render: (self: BuffChips, state: Types.PlayerState) -> (),
 	place: (self: BuffChips, position: UDim2, anchor: Vector2) -> (),
@@ -28,18 +32,27 @@ export type BuffChips = {
 	destroy: (self: BuffChips) -> (),
 }
 
-local HEIGHT = 30 -- the time label
-local TILE = 28
-local TAP_H = 36 -- each chip takes taps this tall round its 28 px tile (more on a phone, Scale.tapHeight)
+local TAP_H = 36 -- the Luck and pal row's height (more on a phone, Scale.tapHeight)
+-- a potion chip (2026-11-03 mockup): a dark rounded square, the bottle over the time; tall enough for a finger
+local CHIP_W = 58
+local CHIP_H = 62
+local CHIP_BOTTLE = 36
+local CHIP_TEXT = 16
+local CHIP_GAP = 8
 
 type Chip = { frame: TextButton, time: TextLabel }
 
 local BuffChips = {}
 BuffChips.__index = BuffChips
 
--- How tall the row is: a chip's tap height, so the HUD keeps that much free over the counters.
+-- How tall the Luck and pal row is, so the HUD keeps that much free over the counters.
 function BuffChips.rowHeight(): number
 	return Scale.tapHeight(TAP_H)
+end
+
+-- How tall the potion chips' row is (the HUD sets it beside the Potions tile).
+function BuffChips.potionsHeight(): number
+	return CHIP_H
 end
 
 function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
@@ -51,7 +64,6 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 	self._clock = 0
 	self._onOpen = onOpen
 	self._leads = {} :: { [string]: boolean } -- F88: the Luck chip at the row's start; F92: the pal chip at its end
-	self._running = 0
 
 	self.frame = Create("Frame", {
 		Name = "Potions",
@@ -66,6 +78,23 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 			FillDirection = Enum.FillDirection.Horizontal,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 			Padding = UDim.new(0, 10),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self.potions = Create("Frame", {
+		Name = "PotionTimers",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0),
+		Size = UDim2.fromOffset(0, CHIP_H),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Visible = false,
+		Parent = parent,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Right,
+			VerticalAlignment = Enum.VerticalAlignment.Top,
+			Padding = UDim.new(0, CHIP_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
@@ -87,7 +116,7 @@ end
 -- pal chip (LayoutOrder 100) says the same under the key "pals".
 function BuffChips.setLead(self: any, shown: boolean, key: string?)
 	self._leads[key or "luck"] = if shown then true else nil
-	self.frame.Visible = next(self._leads) ~= nil or self._running > 0
+	self.frame.Visible = next(self._leads) ~= nil
 end
 
 function BuffChips.render(self: any, state: Types.PlayerState)
@@ -96,47 +125,42 @@ function BuffChips.render(self: any, state: Types.PlayerState)
 end
 
 function BuffChips._chip(self: any, potionId: string, order: number): Chip
-	-- the whole chip is the tap target for the bag, taller than it looks so a finger finds it
+	-- the whole chip is the tap target for the bag: the bottle at the top, the time under it
 	local frame: TextButton = Create("TextButton", {
 		Name = potionId,
 		Text = "",
 		AutoButtonColor = false,
-		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(0, BuffChips.rowHeight()),
-		AutomaticSize = Enum.AutomaticSize.X,
-		LayoutOrder = order,
-		Parent = self.frame,
-	}, {
-		Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Horizontal,
-			VerticalAlignment = Enum.VerticalAlignment.Center,
-			Padding = UDim.new(0, 4),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		}),
-	})
-	local tile: TextLabel = Create("TextLabel", {
-		Name = "Tile",
-		BackgroundColor3 = Theme.potionColor(potionId),
+		BackgroundColor3 = Theme.colors.outline,
+		BackgroundTransparency = 0.18,
 		BorderSizePixel = 0,
-		Size = UDim2.fromOffset(TILE, TILE),
+		Size = UDim2.fromOffset(CHIP_W, CHIP_H),
+		LayoutOrder = order,
+		Parent = self.potions,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, 14) }) })
+	Outline.border(frame, 3)
+	local bottle: TextLabel = Create("TextLabel", {
+		Name = "Bottle",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 3),
+		Size = UDim2.fromOffset(CHIP_BOTTLE, CHIP_BOTTLE),
 		FontFace = Theme.fonts.body,
-		TextSize = 16,
+		TextSize = 24,
+		TextColor3 = Theme.potionColor(potionId),
 		Text = Theme.icons.potion,
-		LayoutOrder = 1,
 		Parent = frame,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.border(tile, 2)
-	IconArt.setImage(tile, ShopIcons.potion(potionId), 0.92) -- the bottle; the glyph until it loads
+	})
+	IconArt.setImage(bottle, ShopIcons.potion(potionId)) -- the bottle; the glyph until it loads
 	local time: TextLabel = Create("TextLabel", {
 		Name = "Time",
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(0, HEIGHT),
-		AutomaticSize = Enum.AutomaticSize.X,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -3),
+		Size = UDim2.new(1, -4, 0, CHIP_TEXT + 4),
 		FontFace = Theme.fonts.display,
-		TextSize = 18,
+		TextSize = CHIP_TEXT,
 		TextColor3 = Theme.colors.white,
 		Text = "",
-		LayoutOrder = 2,
 		Parent = frame,
 	})
 	Outline.text(time, 2)
@@ -166,8 +190,7 @@ function BuffChips._draw(self: any)
 			self._chips[id] = nil
 		end
 	end
-	self._running = #running
-	self.frame.Visible = #running > 0 or next(self._leads) ~= nil
+	self.potions.Visible = #running > 0
 	-- tick once a second while anything runs; stop when the last one ends
 	local loop: RBXScriptConnection? = self._loop
 	if #running > 0 and loop == nil then
@@ -191,6 +214,7 @@ function BuffChips.destroy(self: any)
 		self._loop = nil
 	end
 	self.frame:Destroy()
+	self.potions:Destroy()
 end
 
 return BuffChips

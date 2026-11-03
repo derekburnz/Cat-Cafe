@@ -35,6 +35,9 @@ CannonLogic.TOWN_NAME = "Town Square"
 CannonLogic.CARRY_SUB = "Bring it to the camp!" -- the carry banner's line once every area is a wild area
 CannonLogic.CARRY_REFUSED = "Bring your cat to the camp first"
 CannonLogic.HINT_TIER = 2 -- the rank up that gets its own "is open!" hint (section 3a)
+-- how long that hint, its marker and its trail of dots stay up when the player does not fly (Derek 2026-11-03: "the
+-- tutorial yellow dots are still showing")
+CannonLogic.OPENED_HINT_SECONDS = 45
 
 -- The name card, seconds after CannonLaunchAt: it pops in as the clouds cover the screen (VFX: 1.6), wobbles as the
 -- tunnel takes the destination's colour (2.0), zips up and off as the clouds part (2.4) and is gone by 2.6.

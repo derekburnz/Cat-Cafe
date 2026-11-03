@@ -18,10 +18,6 @@ goes on the square's floor top (y 0.1) unless the table says otherwise.
                             the diagonals spouting into the pool, lily pads and wishing coins, a pedestal bowl that
                             spills a veil of water, and a brass cat on top waving south at the spawn. _Water parts are
                             Glass and do not collide.
-  CatCafe_Square_Signpost   the finger signpost at (-9, -7.5), placed with no turn: its four arms are aimed in world
-                            space at the Park, Neighbourhood, Woods and Sewer gates. Each arm is one blank board (the
-                            UI draws its name, icon and lock), long along its own X, with an `Area` attribute; tips
-                            and caps are separate plain parts.
   CatCafe_Square_ArchAlley  the alley arch, 12 wide, for the side openings into the back alleys: THE ALLEYWAY on the
                             -Z face (the square side), TOWN SQUARE on the alley side.
   CatCafe_Square_SignArch   the town's sign over the street at each end of the square: a 36 opening, CAT CAFE and
@@ -38,8 +34,9 @@ The edge (Derek 2026-10-28: "move triangle flags and lamp posts/benches to perim
 in the middle for other features"): twelve lamps stand on the middle of the brick border (EDGE_X, EDGE_Z), at the
 four corners, beside the sign arches and at both sides of the lane's ends, 22.5 apart along each side, and bunting
 runs lamp to lamp all round except over the street's two ends, where the sign arches are. A bench faces the square
-under the middle of each long span, its back to the border. The middle of the square holds only the cannon, its
-pad and the signpost, and the quarters only the stations.
+under the middle of each long span, its back to the border. The middle of the square holds only the cannon and its
+pad (the finger signpost to the old gates went on 2026-11-03, Derek: "not related to locations anymore"), and the
+quarters only the stations.
   CatCafe_Square_Garden     a 22 x 12 raised bed for the gardens between the square and the back alleys: brick kerb,
                             grass, two trees, a hedge along the back (+Z), flowers along the front, a topiary cat.
 
@@ -73,8 +70,6 @@ BENCH_IN = 1.6                                 # a bench's pivot this far inside
 HOOK_Y = 9.6                                   # where the bunting ties on
 SAG = 1.0
 FLAGS = ("blush", "sign_teal", "pastel_butter", "mint", "nose_pink", "pastel_sky")
-SIGNPOST_AT = (-9.0, -7.5)
-GATES = {"park": (0.0, -125.0), "neighbourhood": (0.0, 125.0), "woods": (-94.0, 0.0), "sewer": (94.0, 0.0)}
 
 
 def flat_tri(b, pts, y0, y1, swatch):
@@ -357,75 +352,6 @@ def build_fountain(mat):
             scarf.finalize("CatCafe_Square_Fountain_Decor", mat)]
 
 
-# ----------------------------------------------------------------------------------------------- signpost --
-ARM_LEN, ARM_H, ARM_T = 4.6, 0.72, 0.18
-ARM_ORDER = ("neighbourhood", "park", "woods", "sewer")         # top to bottom
-ARM_TOP = 7.45
-POST = 0.62
-
-
-def arm_frames():
-    """(area, centre (x, y, z), yaw degrees) for each arm in the signpost's space (world, less SIGNPOST_AT)."""
-    out = []
-    for k, area in enumerate(ARM_ORDER):
-        gx, gz = GATES[area]
-        dx, dz = gx - SIGNPOST_AT[0], gz - SIGNPOST_AT[1]
-        d = math.hypot(dx, dz)
-        ux, uz = dx / d, dz / d
-        r = POST / 2 + 0.12 + ARM_LEN / 2
-        y = ARM_TOP - ARM_H / 2 - k * (ARM_H + 0.1)
-        out.append((area, (ux * r, y, uz * r), math.degrees(math.atan2(-uz, ux))))
-    return out
-
-
-def build_signpost(mat):
-    b, arms = RB(), {}
-    h = POST / 2
-    b.cyl((0, 0.15, 0), 1.1, 0.3, "concrete", segments=16)                        # footing
-    b.cyl((0, 0.55, 0), 0.85, 0.5, "terracotta", r2=0.95, segments=14)            # planter ring
-    flowers = RB()
-    flowers.cyl((0, 0.82, 0), 0.82, 0.05, "leaf_green", segments=14)
-    for k in range(5):
-        a = 2 * math.pi * (k + 0.3) / 5
-        flower_clump(flowers, 0.58 * math.cos(a), 0.82, 0.58 * math.sin(a), n=3, spread=0.2)
-    b.span((-h, 0.3, -h), (h, 8.0, h), "caramel_wood")                           # post
-    for y in (2.0, 3.2):                                                          # iron bands
-        b.span((-h - 0.03, y, -h - 0.03), (h + 0.03, y + 0.12, h + 0.03), "fur_black")
-    b.span((-h - 0.1, 8.0, -h - 0.1), (h + 0.1, 8.2, h + 0.1), "dark_wood")        # cap
-    hy = 8.75                                                                     # a little cat head on top
-    b.ball((0, hy, 0), 0.6, "fur_ginger", scale=(1.1, 0.9, 0.95))
-    for s in (-1, 1):
-        b.box((s * 0.4, hy + 0.5, 0), (0.36, 0.36, 0.24), "fur_ginger", rot=rot_z(45))
-        b.box((s * 0.4, hy + 0.48, -0.1), (0.2, 0.2, 0.06), "nose_pink", rot=rot_z(45))
-        b.span((s * 0.22 - 0.06, hy + 0.02, -0.57), (s * 0.22 + 0.06, hy + 0.2, -0.42), "fur_black")
-    b.span((-0.07, hy - 0.1, -0.58), (0.07, hy - 0.02, -0.5), "nose_pink")
-    for k, x in enumerate((-0.15, -0.05, 0.05, 0.15)):
-        lo = hy - (0.25 if k in (0, 2) else 0.2)
-        b.span((x - 0.045, lo, -0.56 - 0.002 * k), (x + 0.045, lo + 0.06, -0.5), "fur_black")
-    tips = RB()
-    for area, (x, y, z), yaw in arm_frames():
-        arm = RB()
-        R = rot_y(yaw)
-        arm.box((x, y, z), (ARM_LEN, ARM_H, ARM_T), "cream", rot=R)                # the board the UI draws on
-        ux, uz = math.cos(math.radians(yaw)), -math.sin(math.radians(yaw))
-        e = ARM_LEN / 2
-        tx, tz = x + ux * (e + 0.25), z + uz * (e + 0.25)                         # pointed tip at the gate end
-        tips.box((tx, y, tz), (0.5, ARM_H * 0.71, ARM_T * 0.9), "dark_wood", rot=R @ rot_z(45))
-        for dy in (-1, 1):                                                         # dark trim top and bottom
-            tips.box((x, y + dy * (ARM_H / 2 + 0.035), z), (ARM_LEN, 0.07, ARM_T + 0.04), "dark_wood", rot=R)
-        bx, bz = ux * (h + 0.06), uz * (h + 0.06)                                 # bracket on the post
-        tips.box((bx, y, bz), (0.12, ARM_H + 0.2, ARM_T + 0.16), "fur_black", rot=R)
-        arms[area] = arm
-    out = [b.finalize("CatCafe_Square_Signpost", mat), flowers.finalize("CatCafe_Square_Signpost_Flowers", mat),
-           tips.finalize("CatCafe_Square_Signpost_ArmCap", mat)]
-    for area in ARM_ORDER:
-        out.append(arms[area].finalize("CatCafe_Square_Signpost_Arm" + area.capitalize(), mat))
-    return out
-
-
-ARM_ATTRIBUTES = {"_Arm" + a.capitalize(): {"Area": a} for a in ARM_ORDER}
-
-
 # -------------------------------------------------------------------------------------------------- bench --
 def build_bench(mat):
     b = RB()
@@ -615,7 +541,6 @@ def build_garden(mat):
 ASSETS = {
     "CatCafe_Square_Paving": (build_paving, 20000),
     "CatCafe_Square_Fountain": (build_fountain, 8000),
-    "CatCafe_Square_Signpost": (build_signpost, 2000),
     "CatCafe_Square_ArchAlley": (build_arch_alley, 5000),
     "CatCafe_Square_SignArch": (build_sign_arch, 6000),
     "CatCafe_Square_Bench": (build_bench, 800),
@@ -640,7 +565,7 @@ def _edge_lamps():
 
 def _placements():
     """(asset, x, z, rot_y degrees) in square coordinates (world), y at the square's floor top (0.1). rot_y is
-    CFrame.Angles(0, math.rad(rot_y), 0). The arches and the signpost are WorldBuilder's (buildArch, buildSignpost)."""
+    CFrame.Angles(0, math.rad(rot_y), 0). The arches are WorldBuilder's (buildArch)."""
     out = [("CatCafe_Square_Paving", 0, 0, 0), ("CatCafe_Square_Fountain", 0, 0, 0)]
     out += [("CatCafe_Square_Lamp", x, z, r) for (x, z, r) in _edge_lamps()]
     mx, mz = EDGE_X - LAMP_STEP / 2, EDGE_Z - LAMP_STEP / 2                              # the long spans' middles

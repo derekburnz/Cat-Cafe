@@ -1,5 +1,5 @@
 --!strict
--- Rules for the My Cafe marker, the safe zone toast and the town signpost (UI plan 2026-10-27; Derek: "symbols to
+-- Rules for the My Cafe marker and the safe zone toast (UI plan 2026-10-27; Derek: "symbols to
 -- locations also that disappear when close enough so its not clutter", and "if you get back to the area with the cafes
 -- that can be considered safe"). The other places lost their markers on 2026-10-28, so the locked-area fade and the
 -- zone box pick went with them.
@@ -8,8 +8,6 @@
 --                    ("further away the bubbles should be smaller")
 --   isSafe(zone)     the World.Zones name the player stands in: nil (the street) or "Cafe" is safe from shoves,
 --                    an area ("Alley", "Park") is not
---   armArea(attribute, name)  the area a town signpost arm points at, from its Area attribute or its name
---   armLock(needs, tier)  a town signpost arm's lock line, "🔒 Tier 3", or nil when the player's tier opens it
 -- Pure, no Theme, so the cloud spec runner can load it.
 
 local Wayfinding = {}
@@ -39,23 +37,6 @@ end
 
 function Wayfinding.isSafe(zone: string?): boolean
 	return zone == nil or zone == "Cafe"
-end
-
--- The `Area` attribute wins; else the end of the part's name after "Arm" ("Arm_Woods", "CatCafe_Square_Signpost_ArmWoods"
--- -> "woods"), so a model export with no attributes still works.
-function Wayfinding.armArea(attribute: any, name: string): string?
-	if type(attribute) == "string" and attribute ~= "" then
-		return string.lower(attribute)
-	end
-	local tail = name:match("Arm_?(%a+)$")
-	return if tail then tail:lower() else nil
-end
-
-function Wayfinding.armLock(needs: number, tier: number): string?
-	if tier >= needs then
-		return nil
-	end
-	return ("🔒 Tier %d"):format(needs)
 end
 
 return Wayfinding

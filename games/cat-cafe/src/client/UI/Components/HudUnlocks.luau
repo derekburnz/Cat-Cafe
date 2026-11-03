@@ -6,7 +6,8 @@
 --   upgrades                            step 2 (step 2's and 3's hints point at it)
 --   quests, daily, gifts, feedback,     step 5 (the treat and the spin already wait for it)
 --   invite, equipBest, clock, goal
---   index, decor                        the third cat
+--   decor                               step 2 with Upgrades, or the third cat (Derek 2026-11-03: it read as missing)
+--   index                               the third cat
 --   potions, fish                       Tier 2, or the first potion or golden fish if that comes first
 --   areas                               Tier 2 (the Areas button; the Alley and the Cannon always show)
 -- A state with no tutorialStep (an old client's view, the demo, the UI gate) shows everything.
@@ -113,7 +114,7 @@ function HudUnlocks.shown(view: View): { [Key]: boolean }
 		out[key] = done
 	end
 	out.index = view.cats >= HudUnlocks.INDEX_CATS
-	out.decor = view.cats >= HudUnlocks.INDEX_CATS
+	out.decor = out.upgrades or view.cats >= HudUnlocks.INDEX_CATS
 	out.potions = tier2 or view.potions > 0
 	out.fish = tier2 or view.fish > 0
 	out.areas = tier2

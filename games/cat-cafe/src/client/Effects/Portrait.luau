@@ -34,12 +34,13 @@ function Portrait.play(model: Model, frame: GuiObject, catId: string?): (() -> (
 	local id = catId or (if type(attribute) == "string" then attribute else nil)
 	local started = os.clock()
 	local function draw(): boolean
-		return pcall(function()
+		local ok = pcall(function()
 			if Pose.read(bound) then
 				Pose.hold(bound, floor)
 				Pose.draw(bound, Logic.portrait(id, os.clock() - started, bound.kind), -1)
 			end
 		end)
+		return ok
 	end
 	if not draw() then
 		pcall(Pose.release, bound)
@@ -54,7 +55,12 @@ function Portrait.play(model: Model, frame: GuiObject, catId: string?): (() -> (
 		end
 	end
 	connection = RunService.Heartbeat:Connect(function()
-		if not frame:IsDescendantOf(game) or (frame.Visible and not draw()) then
+		-- a frame that left the game, or a model taken out of it (the card swapped or closed it), ends the loop
+		if
+			not frame:IsDescendantOf(game)
+			or not model:IsDescendantOf(frame)
+			or (frame.Visible and not draw())
+		then
 			stop()
 		end
 	end)

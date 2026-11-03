@@ -33,7 +33,15 @@ export type ItemIcon = {
 	frame: Frame,
 	-- asset: the model name in ReplicatedStorage.Assets; glyph: shown when there is no model; image: an uploaded
 	-- shop icon (Components/ShopIcons) drawn over the model, which shows (or else the glyph) until the picture loads
-	set: (self: ItemIcon, asset: string?, glyph: string, rarity: string?, image: string?) -> (),
+	-- tint: the tile's colour in place of the rarity's (the Decor strip's per-kind tiles, #964)
+	set: (
+		self: ItemIcon,
+		asset: string?,
+		glyph: string,
+		rarity: string?,
+		image: string?,
+		tint: Color3?
+	) -> (),
 	-- a food by its LureDef, or by `id` alone when the catalog does not have it: tile, picture and grade badge
 	setFood: (self: ItemIcon, lure: Types.LureDef?, id: string?) -> (),
 	destroy: (self: ItemIcon) -> (),
@@ -174,13 +182,20 @@ function ItemIcon.setFood(self: any, lure: Types.LureDef?, id: string?)
 	badge.Visible = true
 end
 
-function ItemIcon.set(self: any, model: string?, glyph: string, rarity: string?, image: string?)
+function ItemIcon.set(
+	self: any,
+	model: string?,
+	glyph: string,
+	rarity: string?,
+	image: string?,
+	tint: Color3?
+)
 	local badge: TextLabel? = self._badge
 	if badge then
 		badge.Visible = false -- setFood shows it again; anything else has no grade
 	end
 	local color = Theme.rarityColor(rarity)
-	self.frame.BackgroundColor3 = color:Lerp(Theme.colors.cream, TILE_SHADE)
+	self.frame.BackgroundColor3 = tint or color:Lerp(Theme.colors.cream, TILE_SHADE)
 	self._border.Color = color:Lerp(Theme.colors.outline, 0.35)
 	-- the model, when Assets has it: alone, or under an uploaded picture until that picture has loaded, as a new
 	-- upload draws nothing until Roblox moderation passes it (Derek 2026-10-28: "make different visuals for the area

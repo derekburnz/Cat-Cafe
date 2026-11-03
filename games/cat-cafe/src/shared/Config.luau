@@ -477,7 +477,8 @@ local Config = {
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box
 	CodeWrongWindowSeconds = 60,
 	CodeLockSeconds = 60,
-	GroupId = 0, -- the community group a requiresGroup code needs; 0 while the game is on Derek's own account
+	GroupId = 107520049, -- Creampuff Games, the community group (since 2026-11-03, #999): the starter cat's gate and
+	-- requiresGroup codes. 0 turns both off (the starter cat back on the first goals)
 	GroupCheckSeconds = 60, -- how long a player's group membership answer is kept
 
 	-- The free Bellhop Cat (F96, starter-cat.md sections 2 and 4). Its stand's card opens and ClaimStarterCat is taken

@@ -23,6 +23,9 @@ export type Callbacks = {
 	close: () -> (),
 }
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Store = {
 	frame: Frame,
 	render: (
@@ -45,7 +48,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -64,6 +67,7 @@ function Store.new(callbacks: Callbacks): Store
 	self._rowHeight = math.max(ICON + 28, self._actionHeight + 24)
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Store",
 		color = Theme.colors.goldDark,
 		icon = "🛍️",
@@ -80,7 +84,7 @@ function Store.new(callbacks: Callbacks): Store
 		Name = "Note",
 		Size = UDim2.new(1, 0, 0, NOTE_H),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = "Passes are yours to keep. Prices are in Robux.",
 		Parent = panel.content,
 	})
@@ -93,7 +97,7 @@ function Store.new(callbacks: Callbacks): Store
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
@@ -106,7 +110,7 @@ function Store.new(callbacks: Callbacks): Store
 	self._empty = text({
 		Name = "Empty",
 		Size = UDim2.new(1, 0, 0, 60),
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextWrapped = true,
 		Text = "Nothing in the Store yet. Come back soon!",
@@ -127,13 +131,13 @@ function Store._card(self: any, key: string, order: number): any
 	local card: Frame = Create("Frame", {
 		Name = key,
 		LayoutOrder = order,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, self._rowHeight),
 		Parent = self._list,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	local tile: Frame = Create("Frame", {
 		Name = "Tile",
@@ -174,7 +178,7 @@ function Store._card(self: any, key: string, order: number): any
 		Position = UDim2.fromOffset(left, 40),
 		Size = UDim2.new(1, -(left + right), 1, -48),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
 		TextYAlignment = Enum.TextYAlignment.Top,

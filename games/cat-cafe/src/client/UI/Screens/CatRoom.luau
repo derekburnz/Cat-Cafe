@@ -42,6 +42,9 @@ local StaffSlots = require(script.Parent.Parent.Components.StaffSlots)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Callbacks = {
 	placeCat: (uid: string, spotId: string) -> (),
 	unplaceCat: (uid: string) -> (),
@@ -101,7 +104,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -114,7 +117,7 @@ end
 
 local function card(props: { [string]: any }): Frame
 	local merged: { [string]: any } = {
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 	}
 	for key, value in props do
@@ -123,7 +126,7 @@ local function card(props: { [string]: any }): Frame
 	local frame: Frame = Create("Frame", merged, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 	})
-	Outline.border(frame, Theme.sizes.stroke, Theme.modal.cardStroke)
+	Outline.border(frame, Theme.sizes.stroke, PAL.cardStroke)
 	return frame
 end
 
@@ -193,7 +196,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.X,
 		ScrollBarThickness = 4,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.X,
 		Parent = crew,
 	}, {
@@ -220,14 +223,14 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	})
 	local search: TextBox = Create("TextBox", {
 		Name = "Search",
-		BackgroundColor3 = Theme.colors.paper,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Size = UDim2.fromOffset(SEARCH_W, TOOL_H),
 		ClearTextOnFocus = false,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = Theme.modal.text,
-		PlaceholderColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.text,
+		PlaceholderColor3 = PAL.subtext,
 		PlaceholderText = "🔍 Search cats",
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
@@ -237,7 +240,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
 	})
-	Outline.border(search, Theme.sizes.stroke, Theme.modal.cardStroke)
+	Outline.border(search, Theme.sizes.stroke, PAL.cardStroke)
 	self._search = search
 	table.insert(
 		self._connections,
@@ -306,7 +309,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = parent,
 	}, {
@@ -334,7 +337,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		Size = UDim2.new(1, -(DETAIL_W + GAP), 0, 48),
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Center,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Visible = false,
 		Parent = parent,
 	})
@@ -374,7 +377,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextYAlignment = Enum.TextYAlignment.Center,
 		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Parent = detail,
 	})
 
@@ -388,7 +391,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 	self._detailBody = body
 	self._detailGlow = Create("Frame", {
 		Name = "Glow",
-		BackgroundColor3 = Theme.colors.line,
+		BackgroundColor3 = PAL.line,
 		BackgroundTransparency = 0.7,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(12, 12),
@@ -436,7 +439,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		Position = UDim2.fromOffset(textLeft, 50),
 		Size = UDim2.new(1, -(textLeft + 8), 0, 18),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.colors.caramelDark,
+		TextColor3 = PAL.caramel,
 		Parent = body,
 	})
 	self._renameButton = Button.new({
@@ -459,7 +462,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		Size = UDim2.new(1, -20, 0, 20),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = Theme.colors.goodDark,
+		TextColor3 = PAL.good,
 		Parent = body,
 	})
 	local keep: TextButton = Create("TextButton", {
@@ -498,7 +501,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		TextSize = Theme.sizes.textSmall,
 		TextWrapped = true,
 		TextYAlignment = Enum.TextYAlignment.Top,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Parent = body,
 	})
 	-- what lifts the cat's rate (F97 section 5), wrapping onto a second line
@@ -552,7 +555,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		TextYAlignment = Enum.TextYAlignment.Top,
 		TextSize = Theme.sizes.textTiny + 1,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Parent = body,
 	})
 
@@ -772,7 +775,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		Name = instance.uid,
 		Text = "",
 		AutoButtonColor = false,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Parent = self._grid,
 	}, {
@@ -780,10 +783,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		-- the rarity colour washes up from the bottom, like the inventory cards in Pet Simulator 99
 		Create("UIGradient", {
 			Rotation = 90,
-			Color = ColorSequence.new(
-				Theme.modal.card,
-				Theme.modal.card:Lerp(Theme.rarityColor(rarity), 0.45)
-			),
+			Color = ColorSequence.new(PAL.card, PAL.card:Lerp(Theme.rarityColor(rarity), 0.45)),
 		}),
 	})
 	-- a gold cat's card has a thicker gold edge, a rainbow cat's a slowly turning rainbow one (F99); the picked card
@@ -851,7 +851,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		Size = UDim2.new(1, -8, 0, 16),
 		FontFace = Theme.fonts.display,
 		TextScaled = true,
-		TextColor3 = Theme.colors.goodDark,
+		TextColor3 = PAL.good,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		ZIndex = 2,
 		Parent = button,
@@ -1248,7 +1248,7 @@ function CatRoom._renderCrew(
 			.. " "
 			.. row.name
 			.. (if loves then "  ★ 1.5x" else "")
-		role.label.TextColor3 = if loves then Theme.colors.caramelDark else Theme.modal.text
+		role.label.TextColor3 = if loves then PAL.caramel else PAL.text
 		for slotIndex, slot in row.slots do
 			local square = role.squares[slotIndex]
 			if not square then
@@ -1328,7 +1328,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	local custom = instance.name
 	self._detailName.Text = if custom and custom ~= "" then custom else breed
 	self._detailBreed.Text = ("%s%s %s"):format(CatVariant.word(instance.variant), rarity, breed)
-	self._detailBreed.TextColor3 = Theme.rarityColor(rarity):Lerp(Theme.colors.ink, 0.25)
+	self._detailBreed.TextColor3 = Theme.rarityLight(rarity)
 	-- F97: charm as a plain percentage, no stars
 	local charm: number? = instance.charm
 	self._detailStats.Text = if charm then CatBuffs.charmText(charm) else ""
@@ -1351,12 +1351,10 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	local showBuffs = false
 	if self._notice then
 		self._detailInfo.Text = self._notice
-		self._detailInfo.TextColor3 = if self._noticeTip
-			then Theme.colors.goodDark
-			else Theme.colors.warnDark
+		self._detailInfo.TextColor3 = if self._noticeTip then PAL.good else PAL.warn
 	elseif self._placing then
 		self._detailInfo.Text = "Tap a gold-ringed + above."
-		self._detailInfo.TextColor3 = Theme.colors.caramelDark
+		self._detailInfo.TextColor3 = PAL.caramel
 	else
 		showBuffs = true
 		self:_renderBuffs(
@@ -1380,7 +1378,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 				breed,
 				CatVariant.multiplier("rainbow")
 			)
-		self._detailInfo.TextColor3 = Theme.colors.warnDark
+		self._detailInfo.TextColor3 = PAL.warn
 		self._detailInfo.Visible = true
 		self._detailBuffs.Visible = false
 	end
@@ -1440,10 +1438,10 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 end
 
 -- Theme colours per chip: the favourite role in berry with a heart, gold in gold, rainbow on the turning bands (F99),
--- level in sky, Likes on paper.
+-- level in sky, Likes on the dark card (#1028).
 local BUFF_LOOK: { [string]: { fill: Color3, text: Color3 } } = {
 	favourite = { fill = Theme.colors.berry, text = Theme.colors.white },
-	likes = { fill = Theme.colors.paper, text = Theme.modal.text },
+	likes = { fill = PAL.card, text = PAL.text },
 	gold = { fill = Theme.colors.gold, text = Theme.colors.goldText },
 	rainbow = { fill = Theme.colors.white, text = Theme.colors.ink },
 	level = { fill = Theme.colors.sky, text = Theme.colors.white },

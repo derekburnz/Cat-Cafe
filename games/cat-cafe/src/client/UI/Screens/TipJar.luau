@@ -22,6 +22,9 @@ local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
 export type Callbacks = {
@@ -46,7 +49,7 @@ local CARD = Vector2.new(150, 132)
 local GAP = Theme.sizes.gap + 4
 local ICON = 52
 local BIG_ICON = 46 -- the pictures on a big gift's card
-local BIG_FILL = Theme.colors.gold:Lerp(Theme.colors.paper, 0.72)
+local BIG_FILL = PAL.goldCard
 local STRIP_HEIGHT = 52
 -- A pressed Claim reads "Claiming" until TipJarState answers, or this long, then it can be pressed again. The
 -- server takes one ClaimTipJar a second and drops the rest unanswered, so after any claim every Claim waits
@@ -65,7 +68,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -90,6 +93,7 @@ function TipJar.new(callbacks: Callbacks): TipJar
 	self._lastClaim = -math.huge -- os.clock() of the latest press on any Claim
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "TipJar",
 		title = "Tip Jar",
 		subtitle = "Free gifts for playing · they reset when you leave",
@@ -107,13 +111,13 @@ function TipJar.new(callbacks: Callbacks): TipJar
 	local stripH = math.max(STRIP_HEIGHT, claimH + 12)
 	local strip: Frame = Create("Frame", {
 		Name = "Strip",
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, stripH),
 		Parent = panel.content,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	self._played = text({
 		Name = "Played",
@@ -126,7 +130,7 @@ function TipJar.new(callbacks: Callbacks): TipJar
 	})
 	local track: Frame = Create("Frame", {
 		Name = "Track",
-		BackgroundColor3 = Theme.colors.line,
+		BackgroundColor3 = PAL.line,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(14, 32),
 		Size = UDim2.new(1, -28, 0, 10),
@@ -164,7 +168,7 @@ function TipJar.new(callbacks: Callbacks): TipJar
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
@@ -254,7 +258,7 @@ function TipJar._build(self: any)
 		})
 		local frame: Frame = Create("Frame", {
 			Name = "Card",
-			BackgroundColor3 = if big then BIG_FILL else Theme.modal.card,
+			BackgroundColor3 = if big then BIG_FILL else PAL.card,
 			BorderSizePixel = 0,
 			Size = UDim2.new(1, 0, 0, CARD.Y),
 			Parent = cell,
@@ -262,7 +266,7 @@ function TipJar._build(self: any)
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 		})
 		local stroke: UIStroke = Create("UIStroke", {
-			Color = Theme.modal.cardStroke,
+			Color = PAL.cardStroke,
 			Thickness = Theme.sizes.stroke,
 			Parent = frame,
 		})
@@ -273,7 +277,7 @@ function TipJar._build(self: any)
 			Size = UDim2.new(1, -12, 0, 18),
 			FontFace = if big then Theme.fonts.display else Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = if big then Theme.colors.goldDark else Theme.modal.subtext,
+			TextColor3 = if big then PAL.gold else PAL.subtext,
 			Text = if size == "full"
 				then minutes .. "  ·  Best gift"
 				elseif big then minutes .. "  ·  Big gift"
@@ -285,6 +289,7 @@ function TipJar._build(self: any)
 			Parent = frame,
 		})
 		local chips = PrizeChips.new({
+			textColor = PAL.text, -- light words on the dark window (#1028)
 			parent = frame,
 			tile = if big then BIG_ICON else ICON,
 			textSize = Theme.sizes.textBody,
@@ -303,10 +308,10 @@ function TipJar._build(self: any)
 			Position = UDim2.new(0.5, 0, 1, -8),
 			Size = UDim2.new(1, -16, 0, 26),
 			BackgroundTransparency = 0,
-			BackgroundColor3 = Theme.colors.line,
+			BackgroundColor3 = PAL.line,
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			Parent = frame,
 		})
 		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = waiting })
@@ -430,11 +435,11 @@ function TipJar._refresh(self: any)
 		card.claim:setText(if pending then "Claiming" else "Claim")
 		card.waiting.Visible = not ready
 		card.waiting.Text = if claimed then "✓ Claimed" else TipJarLogic.clock(view.remaining)
-		card.waiting.TextColor3 = if claimed then Theme.colors.goodDark else Theme.modal.subtext
+		card.waiting.TextColor3 = if claimed then PAL.good else PAL.subtext
 		card.stroke.Color = if ready
 			then Theme.colors.good
 			elseif card.big then Theme.colors.goldDark
-			else Theme.modal.cardStroke
+			else PAL.cardStroke
 		card.stroke.Thickness = Theme.sizes.stroke + (if ready or card.big then 1 else 0)
 		card.frame.BackgroundTransparency = if claimed then 0.35 else 0
 		local badge: TextLabel? = card.spinBadge

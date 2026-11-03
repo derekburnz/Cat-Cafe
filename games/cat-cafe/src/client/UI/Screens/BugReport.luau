@@ -47,6 +47,9 @@ export type Callbacks = {
 	feedback: ((face: string, chip: string?) -> ())?, -- F87: one answer from the faces page; no faces page without it
 }
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type BugReport = {
 	frame: Frame,
 	onOpen: (self: BugReport) -> (),
@@ -94,7 +97,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -127,6 +130,7 @@ function BugReport.new(callbacks: Callbacks): BugReport
 	self._picked = nil :: string? -- the chip sent with this page's face
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "BugReport",
 		title = "Feedback",
 		subtitle = "Read by the people making the game",
@@ -167,7 +171,7 @@ function BugReport.new(callbacks: Callbacks): BugReport
 
 	local box: TextBox = Create("TextBox", {
 		Name = "Box",
-		BackgroundColor3 = Theme.colors.cream,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		ClearTextOnFocus = false,
 		ClipsDescendants = true,
@@ -175,8 +179,8 @@ function BugReport.new(callbacks: Callbacks): BugReport
 		TextWrapped = true,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
-		PlaceholderColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.text,
+		PlaceholderColor3 = PAL.subtext,
 		PlaceholderText = BugReportLogic.example(self._kind),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -191,14 +195,14 @@ function BugReport.new(callbacks: Callbacks): BugReport
 			PaddingRight = UDim.new(0, 12),
 		}),
 	})
-	Outline.border(box, Theme.sizes.stroke, Theme.modal.cardStroke)
+	Outline.border(box, Theme.sizes.stroke, PAL.cardStroke)
 	self._box = box
 
 	self._note = text({
 		Name = "Note",
 		Size = UDim2.new(1, -COUNTER_WIDTH, 0, FOOT_HEIGHT),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = PRIVACY,
 		Parent = content,
 	})
@@ -207,7 +211,7 @@ function BugReport.new(callbacks: Callbacks): BugReport
 		AnchorPoint = Vector2.new(1, 0),
 		Size = UDim2.fromOffset(COUNTER_WIDTH, FOOT_HEIGHT),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Parent = content,
 	})
@@ -574,11 +578,9 @@ end
 function BugReport._refresh(self: any)
 	local raw: string = self._box.Text
 	self._counter.Text = BugReportLogic.counter(raw)
-	self._counter.TextColor3 = if #raw >= BugReportLogic.MAX_BYTES
-		then Theme.colors.red
-		else Theme.modal.subtext
+	self._counter.TextColor3 = if #raw >= BugReportLogic.MAX_BYTES then PAL.red else PAL.subtext
 	self._note.Text = if self._noAnswer then NO_ANSWER else PRIVACY
-	self._note.TextColor3 = if self._noAnswer then Theme.colors.red else Theme.modal.subtext
+	self._note.TextColor3 = if self._noAnswer then PAL.red else PAL.subtext
 	self._box.TextEditable = not self._pending
 	self._send:setText(if self._pending then "Sending..." else "Send")
 	self._send:setEnabled(not self._pending and BugReportLogic.canSend(raw))

@@ -20,6 +20,9 @@ local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CatName = require(Shared:WaitForChild("CatName"))
 local Config = require(Shared:WaitForChild("Config"))
@@ -66,7 +69,7 @@ function RenameDialog.new(
 
 	local card: Frame = Create("Frame", {
 		Name = "Card",
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -74,7 +77,7 @@ function RenameDialog.new(
 		ZIndex = 9,
 		Parent = frame,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
-	Outline.border(card, Theme.sizes.outline, Theme.colors.caramel)
+	Outline.border(card, Theme.sizes.outline, PAL.cardStroke)
 	self._card = card
 
 	local title: TextLabel = Create("TextLabel", {
@@ -84,7 +87,7 @@ function RenameDialog.new(
 		Size = UDim2.new(1, -32, 0, 28),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = "Rename Cat",
 		ZIndex = 10,
@@ -94,15 +97,15 @@ function RenameDialog.new(
 
 	local box: TextBox = Create("TextBox", {
 		Name = "Name",
-		BackgroundColor3 = Theme.colors.cream,
+		BackgroundColor3 = PAL.panel,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(16, 50),
 		Size = UDim2.new(1, -32, 0, 46),
 		ClearTextOnFocus = false,
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
-		TextColor3 = Theme.modal.text,
-		PlaceholderColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.text,
+		PlaceholderColor3 = PAL.subtext,
 		PlaceholderText = "",
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
@@ -113,7 +116,7 @@ function RenameDialog.new(
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }),
 	})
-	self._boxBorder = Outline.border(box, Theme.sizes.stroke, Theme.modal.cardStroke)
+	self._boxBorder = Outline.border(box, Theme.sizes.stroke, PAL.cardStroke)
 	self._box = box
 
 	local counter: TextLabel = Create("TextLabel", {
@@ -124,7 +127,7 @@ function RenameDialog.new(
 		Size = UDim2.fromOffset(60, 18),
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Text = "",
 		ZIndex = 10,
@@ -138,7 +141,7 @@ function RenameDialog.new(
 		Size = UDim2.new(1, -96, 0, 36),
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -201,13 +204,13 @@ function RenameDialog._check(self: any): string?
 	local length = utf8.len(raw) or 0
 	self._counter.Text = ("%d/%d"):format(length, MAX_LENGTH)
 	local tooLong = name == nil and length > MAX_LENGTH
-	self._counter.TextColor3 = if tooLong then Theme.colors.red else Theme.modal.subtext
+	self._counter.TextColor3 = if tooLong then Theme.colors.red else PAL.subtext
 	-- an empty box is not an error yet; a name the server would refuse is, in red with its reason
 	local blank = (raw:match("^%s*$")) ~= nil
 	local bad = name == nil and not blank
 	self._note.Text = if bad then reason or FILTER_NOTE else FILTER_NOTE
-	self._note.TextColor3 = if bad then Theme.colors.red else Theme.modal.subtext
-	self._boxBorder.Color = if bad then Theme.colors.red else Theme.modal.cardStroke
+	self._note.TextColor3 = if bad then Theme.colors.red else PAL.subtext
+	self._boxBorder.Color = if bad then Theme.colors.red else PAL.cardStroke
 	local ready = name ~= nil and name ~= self._current
 	self._save:setEnabled(ready)
 	return if ready then name else nil

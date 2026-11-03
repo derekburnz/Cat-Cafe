@@ -17,6 +17,9 @@ local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Tween)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Props = {
 	parent: Instance,
 	size: number,
@@ -78,7 +81,7 @@ function TradeTile.new(props: Props): TradeTile
 	self._key = ""
 	local frame: Frame = Create("Frame", {
 		Name = props.name or "Tile",
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Size = UDim2.fromOffset(size, size),
 		LayoutOrder = props.layoutOrder or 0,
@@ -87,12 +90,12 @@ function TradeTile.new(props: Props): TradeTile
 	self.frame = frame
 	self._wash = Create("UIGradient", {
 		Rotation = 90,
-		Color = ColorSequence.new(Theme.modal.card),
+		Color = ColorSequence.new(PAL.card),
 		Parent = frame,
 	}) :: UIGradient
 	self._stroke = Create("UIStroke", {
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		Color = Theme.modal.subtext,
+		Color = PAL.subtext,
 		Thickness = Theme.sizes.stroke,
 		Transparency = 0.5,
 		Parent = frame,
@@ -184,9 +187,9 @@ function TradeTile.set(self: any, view: View?)
 		self._coat.Visible = false
 		self._rate.Visible = false
 		self._cover.Visible = false
-		self._wash.Color = ColorSequence.new(Theme.modal.card)
+		self._wash.Color = ColorSequence.new(PAL.card)
 		frame.BackgroundTransparency = 0.5
-		stroke.Color = Theme.modal.subtext
+		stroke.Color = PAL.subtext
 		stroke.Thickness = Theme.sizes.stroke
 		stroke.Transparency = 0.6
 		if edge then
@@ -205,8 +208,7 @@ function TradeTile.set(self: any, view: View?)
 	end
 	self._portrait.frame.Visible = true
 	frame.BackgroundTransparency = 0
-	self._wash.Color =
-		ColorSequence.new(Theme.modal.card, Theme.modal.card:Lerp(Theme.rarityColor(rarity), 0.45))
+	self._wash.Color = ColorSequence.new(PAL.card, PAL.card:Lerp(Theme.rarityColor(rarity), 0.45))
 	stroke.Transparency = 0
 	stroke.Thickness = Theme.sizes.stroke + (if gold or rainbow then 1 else 0)
 	stroke.Color = if gold then Theme.colors.gold else Theme.rarityColor(rarity)
@@ -246,7 +248,7 @@ function TradeTile.flash(self: any)
 	task.delay(FLASH_SECONDS, function()
 		if self._flashToken == token and frame.Parent ~= nil then
 			self._wash.Enabled = true
-			Tween.to(frame, Tween.FAST, { BackgroundColor3 = Theme.modal.card })
+			Tween.to(frame, Tween.FAST, { BackgroundColor3 = PAL.card })
 		end
 	end)
 end

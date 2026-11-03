@@ -191,6 +191,8 @@ Theme.dark = {
 	good = Color3.fromHex("7BDA8F"), -- "Claimed", "Ready" and other green words
 	gold = Theme.colors.gold, -- gold words
 	caramel = Color3.fromHex("E0A86C"), -- scroll bars
+	red = Color3.fromHex("FF8A85"), -- refusals and errors (5.4:1 on a card)
+	warn = Color3.fromHex("F5A26B"), -- warnings (6.0:1 on a card)
 	-- a gold-tinted card (best day, ready row, the set strip): gold 0.85 of the way to `card`, so every text colour
 	-- here still reads at 5:1 or better on it (white 8.5, subtext 5.2, good 5.0, gold 5.6)
 	goldCard = Color3.fromHex("5C4A33"),
@@ -436,6 +438,12 @@ function Theme.rarityTextColor(rarity: string?): Color3
 		return entry.text
 	end
 	return Theme.rarity.Common.text
+end
+
+-- The rarity as text on a dark card (#1028): its colour a quarter of the way to white, 5.3:1 or better on Theme.dark's
+-- card (Common 5.7, Rare 6.3, Epic 5.8, Legendary 8.8, Mythical 5.3)
+function Theme.rarityLight(rarity: string?): Color3
+	return Theme.rarityColor(rarity):Lerp(Theme.colors.white, 0.25)
 end
 
 function Theme.rarityInk(rarity: string?): Color3

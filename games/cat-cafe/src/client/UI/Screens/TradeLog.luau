@@ -16,6 +16,9 @@ local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
 local TradeTile = require(script.Parent.Parent.Components.TradeTile)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Callbacks = {
 	close: () -> (),
 	back: () -> (),
@@ -48,7 +51,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -67,6 +70,7 @@ function TradeLog.new(callbacks: Callbacks): TradeLog
 	self._log = nil :: { Types.TradeLogEntry }?
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "TradeLog",
 		title = "Trades",
 		subtitle = string.format("Your last %d trades", TradeLogic.LOG_MAX),
@@ -90,7 +94,7 @@ function TradeLog.new(callbacks: Callbacks): TradeLog
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		Parent = content,
 	}, {
 		Create(
@@ -109,7 +113,7 @@ function TradeLog.new(callbacks: Callbacks): TradeLog
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 0.5, -(buttonH + GAP) / 2),
 		Size = UDim2.new(1, -40, 0, 60),
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
@@ -143,7 +147,7 @@ function TradeLog._line(_self: any, card: Frame, name: string, title: string, y:
 		Size = UDim2.fromOffset(LABEL_W, TILE),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = title,
 		Parent = card,
 	})
@@ -169,7 +173,7 @@ function TradeLog._line(_self: any, card: Frame, name: string, title: string, y:
 		Name = name .. "Nothing",
 		Position = UDim2.fromOffset(LEFT_W + LABEL_W, y),
 		Size = UDim2.new(1, -(LEFT_W + LABEL_W + PAD), 0, TILE),
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = "Nothing",
 		Visible = false,
 		Parent = card,
@@ -184,14 +188,14 @@ function TradeLog._card(self: any, index: number): Card
 	end
 	local frame: Frame = Create("Frame", {
 		Name = "Trade" .. index,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		LayoutOrder = index,
 		Size = UDim2.new(1, 0, 0, CARD_H),
 		Parent = self._list,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	local partner = text({
 		Name = "Partner",
@@ -206,7 +210,7 @@ function TradeLog._card(self: any, index: number): Card
 		Position = UDim2.fromOffset(PAD + 2, PAD + 32),
 		Size = UDim2.fromOffset(LEFT_W - PAD * 2, 20),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Parent = frame,
 	})
 	local card: Card = {

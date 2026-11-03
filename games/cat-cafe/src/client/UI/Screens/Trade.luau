@@ -29,6 +29,9 @@ local TradeTile = require(script.Parent.Parent.Components.TradeTile)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Callbacks = {
 	close: () -> (),
 	request: (userId: number) -> (),
@@ -79,7 +82,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -146,6 +149,7 @@ function Trade.new(callbacks: Callbacks): Trade
 	self._rowButtonH = Scale.tapHeight(44, Theme.sizes.buttonDepth)
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Trade",
 		title = TradeLogic.TITLE,
 		subtitle = "Swap cats with players in this server",
@@ -246,7 +250,7 @@ function Trade._buildPlayers(self: any, content: Frame)
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.modal.subtext,
+		ScrollBarImageColor3 = PAL.subtext,
 		Parent = players,
 	}, {
 		Create("UIListLayout", {
@@ -262,7 +266,7 @@ function Trade._buildPlayers(self: any, content: Frame)
 		Size = UDim2.new(1, 0, 0, 44),
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextWrapped = true,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = "Nobody else is in this server yet. Invite a friend to trade with!",
 		Visible = false,
 		Parent = players,
@@ -273,7 +277,7 @@ function Trade._buildPlayers(self: any, content: Frame)
 		Position = UDim2.fromScale(0, 1),
 		Size = UDim2.new(1, 0, 0, 36),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextWrapped = true,
 		Text = "Cats only. Locked cats stay home until you unlock them on their card.",
@@ -288,7 +292,7 @@ function Trade._row(self: any, player: Player): Row
 	end
 	local frame: Frame = Create("Frame", {
 		Name = "Player" .. player.UserId,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, math.max(ROW_H, self._rowButtonH + 12)),
 		Parent = self._list,
@@ -316,7 +320,7 @@ function Trade._row(self: any, player: Player): Row
 		Position = UDim2.new(0, 58, 0.5, 3),
 		Size = UDim2.new(1, -230, 0, 18),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Parent = frame,
 	})
 	local userId = player.UserId
@@ -472,7 +476,7 @@ function Trade._buildOffer(self: any, content: Frame)
 	})
 	local scroll: ScrollingFrame = Create("ScrollingFrame", {
 		Name = "List",
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BackgroundTransparency = 0.4,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(0, HEADER_H + 4),
@@ -481,7 +485,7 @@ function Trade._buildOffer(self: any, content: Frame)
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.modal.subtext,
+		ScrollBarImageColor3 = PAL.subtext,
 		Parent = picks,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
@@ -503,7 +507,7 @@ function Trade._buildOffer(self: any, content: Frame)
 		Position = UDim2.fromOffset(0, HEADER_H + 20),
 		Size = UDim2.new(1, 0, 0, 40),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextWrapped = true,
 		Text = "No cats to trade yet",
@@ -517,7 +521,7 @@ function Trade._buildOffer(self: any, content: Frame)
 		Size = UDim2.new(1, 0, 0, 22),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextWrapped = false,
 		TextTruncate = Enum.TextTruncate.AtEnd,
@@ -575,7 +579,7 @@ function Trade._buildConfirm(self: any, content: Frame)
 			AutomaticCanvasSize = Enum.AutomaticSize.X,
 			ScrollingDirection = Enum.ScrollingDirection.X,
 			ScrollBarThickness = 6,
-			ScrollBarImageColor3 = Theme.modal.subtext,
+			ScrollBarImageColor3 = PAL.subtext,
 			Parent = confirm,
 		}, {
 			Create("UIListLayout", {
@@ -588,7 +592,7 @@ function Trade._buildConfirm(self: any, content: Frame)
 			Name = "Nothing",
 			Position = UDim2.fromOffset(CONFIRM_TITLE_W, y),
 			Size = UDim2.new(1, -CONFIRM_TITLE_W, 0, cardH),
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Text = "Nothing",
 			Visible = false,
@@ -608,7 +612,7 @@ function Trade._buildConfirm(self: any, content: Frame)
 		Position = UDim2.fromScale(0, 1),
 		Size = UDim2.new(1, 0, 0, 24),
 		FontFace = Theme.fonts.bodyBold,
-		TextColor3 = Theme.colors.red,
+		TextColor3 = PAL.red,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Visible = false,
 		Parent = confirm,
@@ -721,7 +725,7 @@ function Trade._renderAll(self: any)
 		local give, get = TradeLogic.totals(trade)
 		self._side.me.total.Text = give
 		self._side.them.total.Text = get
-		self._side.them.total.TextColor3 = Theme.colors.goodDark
+		self._side.them.total.TextColor3 = PAL.good
 	end
 	if trade == nil then
 		self._panel:setTitle(TradeLogic.TITLE, "Swap cats with players in this server")
@@ -787,7 +791,7 @@ function Trade._renderPlayers(self: any)
 	self._rule.Text = if resting
 		then "Trading is resting for now. Try again later!"
 		else "Cats only. Locked cats stay home until you unlock them on their card."
-	self._rule.TextColor3 = if resting then Theme.colors.red else Theme.modal.subtext
+	self._rule.TextColor3 = if resting then PAL.red else PAL.subtext
 end
 
 local function tileView(self: any, tile: Types.TradeTile, good: boolean): TradeTile.View?
@@ -907,15 +911,13 @@ function Trade._renderConfirm(self: any, trade: Types.TradeState)
 					elseif cat.variant == "gold" then "Gold "
 					else ""
 			) .. cat.rarity
-			card.rarity.TextColor3 = Theme.rarityInk(cat.rarity) -- the darker rarity colour that reads on cream
+			card.rarity.TextColor3 = Theme.rarityLight(cat.rarity) -- the light rarity colour that reads on a dark card (#1028)
 		end
 		for index = #cats + 1, #row.cards do
 			row.cards[index].frame.Visible = false
 		end
 		row.nothing.Visible = #cats == 0
-		row.nothing.TextColor3 = if key == "get" and #cats == 0
-			then Theme.colors.red
-			else Theme.modal.subtext
+		row.nothing.TextColor3 = if key == "get" and #cats == 0 then PAL.red else PAL.subtext
 	end
 	local warning = TradeLogic.warning(trade)
 	self._warning.Text = warning or ""
@@ -977,7 +979,7 @@ function Trade._tick(self: any)
 				then "Your offer is full"
 				else "Tap a cat to add it"
 		)
-	self._hintLabel.TextColor3 = if hint then Theme.colors.warnDark else Theme.modal.subtext
+	self._hintLabel.TextColor3 = if hint then PAL.warn else PAL.subtext
 end
 
 function Trade._pressGo(self: any)

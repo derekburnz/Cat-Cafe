@@ -21,6 +21,9 @@ local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Callbacks = {
 	buy: (crateId: string) -> (),
 	close: () -> (),
@@ -66,7 +69,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -91,6 +94,7 @@ function YardSale.new(callbacks: Callbacks): YardSale
 	self._buyH = Scale.tapHeight(44, Theme.sizes.buttonDepth)
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "YardSale",
 		title = "Yard Sale",
 		subtitle = "Two crates a day for golden fish",
@@ -137,7 +141,7 @@ function YardSale.new(callbacks: Callbacks): YardSale
 		Position = UDim2.fromOffset(0, cardH + GAP + 20),
 		Size = UDim2.new(1, 0, 0, 18),
 		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = "Bought crates open free at the Golden Fish Market",
 		Parent = content,
 	})
@@ -172,14 +176,14 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 		local crate = self:_crate(crateId)
 		local frame: Frame = Create("Frame", {
 			Name = crateId,
-			BackgroundColor3 = Theme.modal.card,
+			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
 			LayoutOrder = index,
 			Size = UDim2.fromOffset(CARD_W, self._cardH),
 			Parent = self._row,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+			Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
 		local icon = ItemIcon.new({
 			parent = frame,
@@ -209,7 +213,7 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 			Size = UDim2.new(1, -12, 0, 18),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			Text = if marketPrice ~= nil then ("%d at the Market"):format(marketPrice) else "",
 			Parent = frame,
 		})

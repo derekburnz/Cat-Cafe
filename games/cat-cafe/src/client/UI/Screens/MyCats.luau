@@ -35,6 +35,7 @@ MyCats.__index = MyCats
 function MyCats.new(callbacks: Callbacks): MyCats
 	local self = setmetatable({}, MyCats) :: any
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Cats",
 		color = Theme.colors.sky,
 		icon = Theme.icons.cats,

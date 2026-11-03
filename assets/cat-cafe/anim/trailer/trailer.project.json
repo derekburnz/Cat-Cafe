@@ -1,0 +1,45 @@
+{
+  "name": "CatCafeTrailer",
+  "globIgnorePaths": ["**/README.md", "**/.gitkeep"],
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Shared": { "$path": "../../../../games/cat-cafe/src/shared" },
+      "Packages": { "$path": { "optional": "../../../../games/cat-cafe/Packages" } },
+      "Assets": { "$path": { "optional": "../../rbx" } },
+      "TrailerConfig": { "$path": "TrailerConfig.luau" }
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Server": { "$path": "../../../../games/cat-cafe/src/server" },
+      "TrailerDirector": { "$path": "TrailerDirector.server.luau" }
+    },
+
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "ServerPackages": { "$path": { "optional": "../../../../games/cat-cafe/ServerPackages" } }
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Client": { "$path": "../../../../games/cat-cafe/src/client" },
+        "TrailerCamera": { "$path": "TrailerCamera.client.luau" }
+      }
+    },
+
+    "Workspace": {
+      "$className": "Workspace",
+      "$properties": { "FilteringEnabled": true }
+    },
+
+    "SoundService": {
+      "$className": "SoundService",
+      "$properties": { "RespectFilteringEnabled": true }
+    }
+  }
+}

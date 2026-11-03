@@ -2989,6 +2989,26 @@ Presets.clouds = {
 	moved = 30, -- studs a root jumps in one step during a hop: it has arrived
 }
 
+-- The intro's cloud dip over a jump between far-apart places (IntroCut.luau, #958; Derek 2026-11-03 00:50: "make the
+-- locations cuts smoother"): the cannon's clouds (Presets.clouds) on a short plan, in seconds from when the hook came
+-- in, `cut` seconds before the jump. They cover the screen fully a few frames before the jump and part over the next
+-- third of a second, in plain white (no tint).
+Presets.introCut = {
+	cut = 0.2, -- Gameplay-Engineer's Intro.CUT_LEAD
+	-- a shot this long or longer gets the whole dip; a shorter one (the camp tour's 0.45 s cuts) a shorter one in
+	-- proportion (Logic.introDip). The dip takes coverFrom to partTo = 0.55 s of the shots around it, half of 1.1 s.
+	full = 1.1,
+	plan = {
+		coverFrom = 0,
+		coverTo = 0.16,
+		partFrom = 0.24,
+		partTo = 0.55,
+		tintFrom = 99,
+		tintTo = 99,
+	},
+	tint = Presets.palette.offwhite,
+}
+
 -- The campfires (the Woods' campsite and the Great Oak clearing; Derek 2026-10-30: "The fire from the camp fire
 -- isnt moving"). Model-Agent's flame (the `_Campfire_Glow` model: three tongues of three stacked Neon discs) moves on
 -- this client: each tongue stretches and squashes, leans and bends a little more at the tip, and flickers brighter,

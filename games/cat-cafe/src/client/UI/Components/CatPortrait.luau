@@ -16,6 +16,7 @@ local RunService = game:GetService("RunService")
 
 local Create = require(script.Parent.Create)
 local Outline = require(script.Parent.Outline)
+local Portrait = require(script.Parent.Parent.Parent.Effects.Portrait)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -192,6 +193,7 @@ function CatPortrait.new(props: Props): CatPortrait
 	self._def = nil :: Types.CatDef?
 	self._model = nil :: Model?
 	self._sway = nil :: RBXScriptConnection?
+	self._alive = nil :: (() -> ())?
 	return self :: CatPortrait
 end
 
@@ -200,6 +202,11 @@ function CatPortrait._clear(self: any)
 	if sway then
 		sway:Disconnect()
 		self._sway = nil
+	end
+	local alive: (() -> ())? = self._alive
+	if alive then
+		alive()
+		self._alive = nil
 	end
 	local model: Model? = self._model
 	if model then
@@ -257,6 +264,15 @@ function CatPortrait.set(self: any, def: Types.CatDef?, shiny: boolean?)
 	model:PivotTo(base)
 	if self._still then
 		return
+	end
+	-- a whole cat holds its view and moves like it does in the world (Derek 2026-11-03: the side to side "is kind of
+	-- laggy and slow"); a head shot, a placeholder or a Motor6D rig keeps the sway
+	if not head then
+		local alive = Portrait.play(model, self.frame, def.id)
+		if alive then
+			self._alive = alive
+			return
+		end
 	end
 	local started = os.clock()
 	self._sway = RunService.Heartbeat:Connect(function()

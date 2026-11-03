@@ -91,7 +91,9 @@ local TILE = 0.29 -- tile size, of the face
 local RADIUS = 0.34 -- tile middles from the hub, of the face
 local SPOKE = 3
 local RIM_LIGHTS = 12
-local SPIN_HEIGHT = 56
+local SPIN_HEIGHT = 64
+local COUNT_BADGE = 56 -- the spins count's gold badge (#965)
+local SIDE_PAD = 12 -- inside the side card on every edge, so no button's outline or lip is clipped (#965)
 local ODDS_HEIGHT = 44 -- full width; it was 84 x 36 (Derek 2026-10-28: "a little squished"). Both grow on a phone.
 local ODDS_ROW = 64
 local ODDS_ICON = 48
@@ -282,10 +284,12 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	})
 	Outline.text(pointer, Theme.sizes.textOutline)
 
-	-- the side: chances, spins, the free spin countdown, the button and the result line
+	-- the side (#965, Derek: "the right side of spin menu is very plain", "buttons ... get cut off"): a card with the
+	-- spins count in a big gold badge, the free spin line as a chip, Spin, Odds and the result line. Padded on every
+	-- edge, as the scroller clips: buttons' outlines and lips once reached past its right and bottom edges.
 	local side: ScrollingFrame = Create("ScrollingFrame", {
 		Name = "Side",
-		BackgroundTransparency = 1,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Position = UDim2.new(WHEEL_SHARE, Theme.sizes.gap, 0, 0),
 		Size = UDim2.new(1 - WHEEL_SHARE, -Theme.sizes.gap, 1, 0),
@@ -297,28 +301,91 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		Parent = panel.content,
 	}, {
 		Create("UIListLayout", {
-			Padding = UDim.new(0, 8),
+			Padding = UDim.new(0, 10),
 			SortOrder = Enum.SortOrder.LayoutOrder,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 8), PaddingBottom = UDim.new(0, 6) }),
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIPadding", {
+			PaddingTop = UDim.new(0, SIDE_PAD),
+			PaddingBottom = UDim.new(0, SIDE_PAD + Theme.sizes.buttonDepth),
+			PaddingLeft = UDim.new(0, SIDE_PAD),
+			PaddingRight = UDim.new(0, SIDE_PAD + 6),
+		}),
 	})
+	-- the spins count: a gold badge with the number, "Spins" beside it
+	local count: Frame = Create("Frame", {
+		Name = "Count",
+		LayoutOrder = 1,
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, COUNT_BADGE),
+		Parent = side,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 10),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	local badge = circle({
+		Name = "Badge",
+		LayoutOrder = 1,
+		Size = UDim2.fromOffset(COUNT_BADGE, COUNT_BADGE),
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		Parent = count,
+	})
+	Outline.border(badge, Theme.sizes.outline, Theme.colors.outline)
+	self._spinsCount = text({
+		Name = "Number",
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = 30,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		Parent = badge,
+	})
+	Outline.text(self._spinsCount, Theme.sizes.textOutline)
 	self._spinsLabel = text({
 		Name = "Spins",
-		LayoutOrder = 1,
-		Size = UDim2.new(1, 0, 0, 26),
+		LayoutOrder = 2,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, COUNT_BADGE),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
-		Parent = side,
+		TextSize = Theme.sizes.textLarge + 2,
+		TextTruncate = Enum.TextTruncate.None,
+		Parent = count,
 	})
+	Outline.text(self._spinsLabel, 2)
+	-- the free spin line as a chip
+	local chip: Frame = Create("Frame", {
+		Name = "FreeChip",
+		LayoutOrder = 2,
+		BackgroundColor3 = PAL.line,
+		BorderSizePixel = 0,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 26),
+		Parent = side,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }),
+		Create("UISizeConstraint", { MaxSize = Vector2.new(math.huge, 26) }),
+	})
+	self._freeChip = chip
 	self._freeLabel = text({
 		Name = "Free",
-		LayoutOrder = 2,
-		Size = UDim2.new(1, 0, 0, 18),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromScale(0, 1),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
-		Parent = side,
+		TextTruncate = Enum.TextTruncate.None,
+		Parent = chip,
 	})
 	self._button = Button.new({
 		name = "Spin",
@@ -930,7 +997,8 @@ function SpinWheel._refresh(self: any)
 
 	local spins = SpinLogic.spins(spin, now)
 	local banked = if spin then math.max(0, math.floor(spin.banked)) else 0
-	self._spinsLabel.Text = ("Spins: %d"):format(spins)
+	self._spinsCount.Text = tostring(spins)
+	self._spinsLabel.Text = if spins == 1 then "Spin" else "Spins"
 	local freeLine = if SpinLogic.freeDue(spin, now)
 		then "Free spin ready!"
 		else "Next free spin in " .. SpinLogic.wait(SpinLogic.nextFreeIn(spin, now))
@@ -938,7 +1006,9 @@ function SpinWheel._refresh(self: any)
 		freeLine ..= ("  ·  %d saved"):format(banked)
 	end
 	self._freeLabel.Text = freeLine
-	self._freeLabel.TextColor3 = if SpinLogic.freeDue(spin, now) then PAL.good else PAL.subtext
+	local due = SpinLogic.freeDue(spin, now)
+	self._freeLabel.TextColor3 = if due then PAL.good else PAL.subtext
+	self._freeChip.BackgroundColor3 = if due then PAL.goldCard else PAL.line
 
 	local turn: Turn? = self._turn
 	local button = SpinLogic.button({

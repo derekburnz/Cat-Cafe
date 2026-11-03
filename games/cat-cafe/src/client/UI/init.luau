@@ -4199,8 +4199,8 @@ end
 -- Leaderboards (F98)
 ----------------------------------------------------------------------------------------------------
 
--- The three leaderboards (leaderboards.md): the faces on the town's boards (Screens/LeaderboardBoards), the Index's
--- Top tab (Screens/LeaderboardTop) and the crown over an all time top 10 player's head (Screens/Crowns). UI.init
+-- The three leaderboards (leaderboards.md): the faces on the town's boards (Screens/LeaderboardBoards) and the crown
+-- over an all time top 10 player's head (Screens/Crowns); the Index's Top tab went on 2026-11-03. UI.init
 -- starts the faces and crowns; UIController calls UI.leaderboards.sync with each LeaderboardSync payload. The last
 -- payload is kept, so a rebuilt UI shows it at once. Its own block, as the module is short of locals.
 UI.leaderboards = {}
@@ -4221,9 +4221,6 @@ do
 		boards.faces = faces
 		boards.crowns = Crowns.new()
 		faces:setSync(boards.last)
-		if collection then
-			collection:setLeaderboards(boards.last)
-		end
 	end
 
 	-- LeaderboardSync { boards = { [board] = { allTime = rows, week = rows } }, me = { [board] = { rank?, value,
@@ -4237,9 +4234,6 @@ do
 		local faces = boards.faces
 		if faces then
 			faces:setSync(sync)
-		end
-		if collection then
-			collection:setLeaderboards(sync)
 		end
 	end
 

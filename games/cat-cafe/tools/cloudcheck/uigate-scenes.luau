@@ -842,20 +842,6 @@ local SCENES = {
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
 	end },
-	-- F98 section 2: the Index's Top tab on the Index board, the top 50 with medals and crowns, "You: 31 cats" pinned
-	{ "IndexTop", function()
-		UI.leaderboards.sync(leaderboardSync())
-		UI.open("Collection")
-		press("Collection", "TopTab")
-	end },
-	-- the Money board's This week list: this player is not on it, so their line says so
-	{ "IndexTopWeek", function()
-		UI.leaderboards.sync(leaderboardSync())
-		UI.open("Collection")
-		press("Collection", "TopTab")
-		press("Collection", "Board_money")
-		press("Collection", "Window_week")
-	end },
 	-- F99 section 3: the Index's Rainbow tab, the Rainbow cats line with its strip open on "Reward ready", rainbow
 	-- tiles on turning borders
 	{ "IndexRainbow", function()

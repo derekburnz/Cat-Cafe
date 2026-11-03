@@ -85,6 +85,33 @@ Theme.button = {
 		bottom = Color3.fromHex("E83A3A"),
 		depth = Color3.fromHex("A82525"),
 	},
+	-- the clean HUD tiles' extra colours (2026-11-03, assets/cat-cafe/ui/icons-clean-2026-11-03/README.md)
+	teal = {
+		top = Color3.fromHex("62ECD2"),
+		bottom = Color3.fromHex("18AB95"),
+		depth = Color3.fromHex("10806F"),
+	},
+	purple = {
+		top = Color3.fromHex("CF96FF"),
+		bottom = Color3.fromHex("8A47EA"),
+		depth = Color3.fromHex("6630BE"),
+	},
+	sky = {
+		top = Color3.fromHex("8FE3FF"),
+		bottom = Color3.fromHex("2BB3E6"),
+		depth = Color3.fromHex("1C86B0"),
+	},
+	slate = {
+		top = Color3.fromHex("C9D4E3"),
+		bottom = Color3.fromHex("7F8FA6"),
+		depth = Color3.fromHex("5E6C82"),
+	},
+	-- the Store's wide tile: brighter and warmer than gold so it is the first button the eye finds (Derek 2026-11-03)
+	store = {
+		top = Color3.fromHex("FFF07A"),
+		bottom = Color3.fromHex("FF9A1F"),
+		depth = Color3.fromHex("C9660A"),
+	},
 	disabled = {
 		top = Color3.fromHex("D8CDBF"),
 		bottom = Color3.fromHex("C2B5A6"),

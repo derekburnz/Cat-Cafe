@@ -79,5 +79,17 @@ return function()
 		it("has the HUD's Decor picture", function()
 			expect(ShopIcons.image("Icon_Decor")).to.equal("rbxassetid://132974074427583")
 		end)
+
+		it("has a clean symbol for every HUD tile (2026-11-03)", function()
+			for _, name in { "Store", "Cats", "Index", "Quests", "Upgrades", "Decor", "Tutorial", "Rewards" } do
+				expect(ShopIcons.clean(name)).to.equal(ShopIcons.image("Icon_Clean_" .. name))
+				expect(string.match(ShopIcons.clean(name) :: string, "^rbxassetid://%d+$")).to.be.ok()
+			end
+			for _, name in { "Feedback", "Menu", "Home", "Cannon", "Areas", "Potion", "Bowl" } do
+				expect(ShopIcons.clean(name)).to.be.ok()
+			end
+			expect(ShopIcons.clean("Store")).to.equal("rbxassetid://125596282319075")
+			expect(ShopIcons.clean("Nope")).to.equal(nil)
+		end)
 	end)
 end

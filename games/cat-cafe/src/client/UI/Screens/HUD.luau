@@ -148,17 +148,27 @@ local BOOST_ROW_H = 24
 -- button while the areas are shut for the night
 local DUSK_SECONDS: number = (Config :: any).DuskWarningSeconds or 15
 local CLOSED_TEXT = Theme.icons.moon .. " Closed"
-local STORE_ICON = "🛍️" -- the Store tile (no drawn icon yet; IconArt keeps the emoji)
+local STORE_ICON = "🛍️" -- the Store tile's glyph, under its clean treasure chest picture until that loads
 local BOWL_ICON = "🥣" -- the bait bowl symbol's glyph, under the Big Bowl perk's picture
 -- Fewer buttons (Derek 2026-11-02: "find a way to group some of the buttons into less screen clutter"; "changing
--- some buttons into just symbols"): the left menu is a two-column grid of square symbol tiles, not wide pills
-local MENU_TILE = 76
+-- some buttons into just symbols"): the left menu is a two-column grid of square symbol tiles, not wide pills.
+-- Since 2026-11-03 (Derek: "Build it as shown") they are clean tiles, the label under each square, and the Store is
+-- one wide gold tile over the grid ("make sure the store is good and stands out as thats how we will make robux").
+local MENU_TILE = 78
+local MENU_TEXT = 17 -- a menu tile's label, under its square
+local MENU_CELL_H = MENU_TILE + MENU_TEXT + 4 -- the square and the label's strip (Button's clean layout)
+local STORE_H = 80 -- the Store's wide tile, two tiles wide, over the grid
+local STORE_TEXT = 27
+-- the Store's shine sweeps across in 0.9 s, then waits 3.5 s, for good; a still shine under reduced motion
+local STORE_SHINE =
+	TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, -1, false, 3.5)
 local MENU_COLUMNS = 2
 -- a short screen (a phone) whose grid would run three rows deep takes three tiles a row, so the bottom row stays out
 -- of Roblox's thumbstick in the bottom left (review N343: the Store tile's row put Upgrades there)
 local MENU_COLUMNS_SHORT = 3
+local MENU_GAP = 14 -- between the columns, so a tile's red dot clears its neighbour's key letter
 local function menuWidth(columns: number): number
-	return columns * MENU_TILE + (columns - 1) * Theme.sizes.gap
+	return columns * MENU_TILE + (columns - 1) * MENU_GAP
 end
 local MENU_W = menuWidth(MENU_COLUMNS)
 local TRAVEL_ICON = 28
@@ -170,8 +180,9 @@ local TRAVEL_H = 50 -- every bottom row button, My Cafe too (Derek 2026-10-27 22
 local TRAVEL_ROW_W = 3 * TRAVEL_W + 2 * Theme.sizes.gap
 -- top right icon buttons; on a phone a little bigger, so each face reaches a finger's 44 px under its lip (F102 took
 -- them out of the UI gate's baseline)
-local ICON = Scale.tapHeight(58)
-local ICON_H = Scale.tapHeight(58, Theme.sizes.buttonDepth)
+local ICON = Scale.tapHeight(60)
+local ICON_TEXT = Theme.sizes.textSmall -- the label under each top right tile
+local ICON_H = ICON + ICON_TEXT + 4
 -- Tutorial, Gifts, Daily (F70), Feedback, Settings, Trade (F102, from TradeMinTier) and Invite
 local ICON_ROW_W = 5 * ICON + 4 * Theme.sizes.gap -- Tutorial, Rewards, Trade, Feedback, Menu
 -- the Rewards and Menu tiles open a short list under the icon row when they hold more than one thing
@@ -499,16 +510,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	self._icons = icons
 	self._lift = 0 -- design px the top right column sits higher, up in the top bar's free stretch
-	-- Tutorial (F72): gold with a "?", a small red × in its corner hides it (Settings brings it back). Hidden until
+	-- Tutorial (F72): purple with a "?", a small red × in its corner hides it (Settings brings it back). Hidden until
 	-- the intro is live (UI.intro, state.introSeen) and while the Tutorial button setting is off; greyed while
 	-- carrying or during a catch or rescue.
 	local tutorial = Button.new({
 		name = "Tutorial",
 		text = "Tutorial",
 		icon = Theme.icons.tutorial,
-		layout = "tile",
-		textSize = Theme.sizes.textTiny,
-		style = "gold",
+		image = ShopIcons.clean("Tutorial"),
+		layout = "clean",
+		textSize = ICON_TEXT,
+		style = "purple",
 		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 1,
 		parent = icons,
@@ -518,7 +530,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	tutorial.instance.Visible = false
 	if tutorial.icon then
-		Outline.text(tutorial.icon, 3) -- a white "?" needs the dark outline on gold
+		Outline.text(tutorial.icon, 3) -- the white "?" glyph, until the clean picture loads, needs the dark outline
 	end
 	table.insert(self._buttons, tutorial)
 	self._tutorialTile = tutorial
@@ -571,9 +583,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		name = "Rewards",
 		text = "Rewards",
 		icon = Theme.icons.gifts,
-		layout = "tile",
-		textSize = Theme.sizes.textTiny,
-		style = "berry",
+		image = ShopIcons.clean("Rewards"),
+		layout = "clean",
+		textSize = ICON_TEXT,
+		style = "close",
 		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 2,
 		parent = icons,
@@ -615,9 +628,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		name = "Feedback",
 		text = "Feedback",
 		icon = Theme.icons.feedback,
-		layout = "tile",
-		textSize = Theme.sizes.textTiny,
-		style = "gold",
+		image = ShopIcons.clean("Feedback"),
+		layout = "clean",
+		textSize = ICON_TEXT,
+		style = "sky",
 		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 4,
 		parent = icons,
@@ -633,9 +647,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		name = "Menu",
 		text = "Menu",
 		icon = Theme.icons.settings,
-		layout = "tile",
-		textSize = Theme.sizes.textTiny,
-		style = "ghost",
+		image = ShopIcons.clean("Menu"),
+		layout = "clean",
+		textSize = ICON_TEXT,
+		style = "slate",
 		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 7,
 		parent = icons,
@@ -651,9 +666,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		name = "Trade",
 		text = "Trade",
 		icon = TradeLogic.ICON,
-		layout = "tile",
-		textSize = Theme.sizes.textTiny,
-		style = "primary",
+		layout = "clean",
+		textSize = ICON_TEXT,
+		style = "teal",
 		size = UDim2.fromOffset(ICON, ICON_H),
 		layoutOrder = 6,
 		parent = icons,
@@ -856,14 +871,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		key: string?,
 		style: Button.Style,
 		dot: Types.ScreenName?, -- the Notices screen whose news lights this pill's dot
-		image: string?, -- an uploaded picture in place of the icon sheet's (the glyph shows until it loads)
 		open: () -> (),
 	}
 	local menuItems: { MenuItem } = {
 		{
 			name = "Store",
 			icon = STORE_ICON,
-			style = "gold",
+			style = "store",
 			open = function()
 				local open: (() -> ())? = self._storeOpen
 				if open then
@@ -912,10 +926,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			name = "Decor",
 			icon = Theme.icons.decor,
 			key = "B",
-			style = "gold",
+			style = "teal",
 			dot = "Decor",
-			-- Derek (Set 5 Q10): the Decor button needed an actual picture
-			image = ShopIcons.image("Icon_Decor"),
 			open = function()
 				callbacks.openScreen("Decor")
 			end,
@@ -923,8 +935,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	}
 	-- placed by _layoutMenu in the space over the counters; hidden tiles leave no hole in the grid
 	local menuLayout: UIGridLayout = Create("UIGridLayout", {
-		CellSize = UDim2.fromOffset(MENU_TILE, MENU_TILE),
-		CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
+		CellSize = UDim2.fromOffset(MENU_TILE, MENU_CELL_H),
+		CellPadding = UDim2.fromOffset(MENU_GAP, Theme.sizes.gap),
 		FillDirection = Enum.FillDirection.Horizontal,
 		FillDirectionMaxCells = MENU_COLUMNS,
 		SortOrder = Enum.SortOrder.LayoutOrder,
@@ -934,42 +946,43 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Name = "Menu",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(MARGIN, MARGIN),
-		Size = UDim2.fromOffset(MENU_W, MENU_TILE),
+		Size = UDim2.fromOffset(MENU_W, MENU_CELL_H),
 		Parent = root,
 	}, { menuLayout :: Instance })
 	self._pills = {} :: { [string]: Button.Button }
 	for index, item in menuItems do
+		-- the Store is its own wide tile over the grid (placed by _layoutMenu), the rest are the grid's squares
+		local isStore = item.name == "Store"
 		local button = Button.new({
 			name = item.name,
 			text = item.name,
 			icon = item.icon,
-			layout = "tile",
+			image = ShopIcons.clean(item.name),
+			layout = if isStore then "wide" else "clean",
 			style = item.style,
-			size = UDim2.fromOffset(MENU_TILE, MENU_TILE),
-			textSize = Theme.sizes.textSmall,
+			size = if isStore
+				then UDim2.fromOffset(MENU_W, STORE_H)
+				else UDim2.fromOffset(MENU_TILE, MENU_CELL_H),
+			textSize = if isStore then STORE_TEXT else MENU_TEXT,
 			layoutOrder = index,
-			parent = menu,
+			parent = if isStore then root else menu,
 			sound = false, -- the modal swish is the sound
 			onClick = item.open,
 		})
-		local picture = item.image
-		if picture and button.icon then
-			IconArt.setImage(button.icon, picture, 1.15)
-		end
 		local key = item.key
 		if showKeys and key then
-			keycap(button.face, key, UDim2.new(1, -3, 0, 3), Vector2.new(1, 0))
+			keycap(button.face, key, UDim2.fromOffset(-4, -4))
 		end
 		local screen = item.dot
 		if screen then
-			-- red "!" dot on the pill's top left corner when the screen has something new
+			-- red "!" dot on the tile's top right corner when the screen has something new
 			local dot: Frame = Create("Frame", {
 				Name = "Dot",
 				BackgroundColor3 = Theme.colors.red,
 				BorderSizePixel = 0,
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.fromOffset(4, 4),
-				Size = UDim2.fromOffset(24, 24),
+				Position = UDim2.new(1, -3, 0, 3),
+				Size = UDim2.fromOffset(22, 22),
 				Visible = false,
 				ZIndex = 6,
 				Parent = button.instance,
@@ -989,19 +1002,42 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		if item.name == "Store" then
 			button.instance.Visible = false -- until setStore hands it a window to open
 			self._storeTile = button
-		elseif item.name == "Index" then
-			-- cats found out of all cats, where the old top right cats pill had it, in the tile's top right corner
-			self._indexCount = label({
-				Name = "Count",
-				AnchorPoint = Vector2.new(1, 0),
-				Position = UDim2.new(1, -4, 0, 2),
-				Size = UDim2.fromOffset(44, 16),
-				TextSize = Theme.sizes.textTiny,
-				TextXAlignment = Enum.TextXAlignment.Right,
-				Text = "",
-				ZIndex = 5,
+			-- it stands out (Derek 2026-11-03: "make sure the store is good and stands out"): a soft gold glow round
+			-- it and a white shine that sweeps across now and then. Decoration only: no timer, no sale badge.
+			local corner = math.floor(STORE_H * 0.26) -- Button's clean corner for the tile's height
+			Create("Frame", {
+				Name = "Glow",
+				BackgroundColor3 = Theme.colors.gold,
+				BackgroundTransparency = 0.45,
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(-6, -6),
+				Size = UDim2.new(1, 12, 1, 12),
+				ZIndex = 0,
+				Parent = button.instance,
+			}, { Create("UICorner", { CornerRadius = UDim.new(0, corner + 6) }) })
+			local sweep: Frame = Create("Frame", {
+				Name = "Sweep",
+				BackgroundColor3 = Theme.colors.white,
+				BorderSizePixel = 0,
+				Size = UDim2.fromScale(1, 1),
+				ZIndex = 2, -- over the fill, under the chest and the word
 				Parent = button.face,
+			}, { Create("UICorner", { CornerRadius = UDim.new(0, corner) }) })
+			local band: UIGradient = Create("UIGradient", {
+				Rotation = 20,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 1),
+					NumberSequenceKeypoint.new(0.42, 1),
+					NumberSequenceKeypoint.new(0.5, 0.4),
+					NumberSequenceKeypoint.new(0.58, 1),
+					NumberSequenceKeypoint.new(1, 1),
+				}),
+				Offset = Vector2.new(if GuiService.ReducedMotionEnabled then 0.12 else -1, 0),
+				Parent = sweep,
 			})
+			if not GuiService.ReducedMotionEnabled then
+				self._storeShine = Tween.to(band, STORE_SHINE, { Offset = Vector2.new(1, 0) })
+			end
 		elseif item.name == "Quests" then
 			-- F73: hidden until ProfileSync has quests; a red count of quests and achievements ready to claim
 			button.instance.Visible = false
@@ -1011,8 +1047,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				BackgroundColor3 = Theme.colors.red,
 				BorderSizePixel = 0,
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.fromOffset(4, 4),
-				Size = UDim2.fromOffset(24, 24),
+				Position = UDim2.new(1, -3, 0, 3),
+				Size = UDim2.fromOffset(22, 22),
 				Visible = false,
 				ZIndex = 6,
 				Parent = button.instance,
@@ -1051,6 +1087,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	table.insert(self._buttons, menuFold)
 	self._menuFold = menuFold
 	self._menuTop = MARGIN
+	self._gridTop = MARGIN
 	self._foldBeside = false
 	self._buffsLow = true -- the potion row sits over the counters (_layoutMenu), not beside the arrow tab
 	self._travelShift = 0
@@ -1559,8 +1596,11 @@ function HUD.setMenuFolded(self: any, folded: boolean)
 			0,
 			if folded then menuFoldedX(self._menu.Size.X.Offset) else MARGIN,
 			0,
-			self._menuTop
+			self._gridTop
 		),
+	})
+	Tween.to(self._storeTile.instance, Tween.POP, {
+		Position = UDim2.new(0, if folded then menuFoldedX(MENU_W) else MARGIN, 0, self._menuTop),
 	})
 	self:_placeMenuFold()
 	self:_renderFoldDot()
@@ -1723,12 +1763,6 @@ function HUD.render(self: any, state: Types.PlayerState)
 	self._carryState = state.carrying ~= nil
 	self:_renderTravel()
 
-	-- the Index pill's "12/50": different cats found out of all cats, spare ones left out (F78)
-	local distinct, total = 0, 0
-	if catalog then
-		distinct, total = IndexRewards.book(catalog, state)
-	end
-
 	-- the tier and next goal block: "Tier 1 · Corner Cafe", then the next tier's requirements, or the tier alone
 	local tierProgress: RankUp.Progress? = nil
 	if catalog and catalog.tiers and state.tier then
@@ -1749,7 +1783,6 @@ function HUD.render(self: any, state: Types.PlayerState)
 	if catalog then
 		self:_renderDots(catalog, state)
 	end
-	self._indexCount.Text = ("%d/%d"):format(distinct, total)
 	self:_renderBowlSlot(state)
 end
 
@@ -2712,11 +2745,14 @@ function HUD._layoutMenu(self: any)
 			shown += 1
 		end
 	end
-	self._menuFold.instance.Visible = shown > 0 -- no tab to fold an empty menu (the small HUD, F87)
+	-- the Store's wide tile heads the column once it has a window to open (setStore)
+	local store: GuiObject = self._storeTile.instance
+	local storeH = if store.Visible then STORE_H + gap else 0
+	self._menuFold.instance.Visible = shown > 0 or store.Visible -- no tab to fold an empty menu (F87)
 	local columns = MENU_COLUMNS
 	local rows = math.ceil(shown / columns)
 	local spaces = math.max(0, rows - 1)
-	local pills = rows * MENU_TILE
+	local pills = storeH + rows * MENU_CELL_H
 	local foldUnder = gap + 4 + FOLD_H
 	local bandBottom = height - MARGIN - self._counterH - gap
 	local buffsH = BuffChips.rowHeight()
@@ -2725,7 +2761,7 @@ function HUD._layoutMenu(self: any)
 		columns = MENU_COLUMNS_SHORT
 		rows = math.ceil(shown / columns)
 		spaces = math.max(0, rows - 1)
-		pills = rows * MENU_TILE
+		pills = storeH + rows * MENU_CELL_H
 	end
 	self._menuLayout.FillDirectionMaxCells = columns
 	local menuW = menuWidth(columns)
@@ -2742,16 +2778,17 @@ function HUD._layoutMenu(self: any)
 	if not roomy and spaces > 0 and pills + spaces * gap > band then
 		padding = math.max(4, math.floor((band - pills) / spaces))
 	end
-	self._menuLayout.CellPadding = UDim2.fromOffset(gap, padding)
-	local menuH = pills + spaces * padding
+	self._menuLayout.CellPadding = UDim2.fromOffset(MENU_GAP, padding)
+	local menuH = rows * MENU_CELL_H + spaces * padding -- the grid alone, under the Store
 	self._menu.Size = UDim2.fromOffset(menuW, menuH)
-	local block = if roomy then menuH + foldUnder else menuH
+	local block = storeH + menuH + (if roomy then foldUnder else 0)
 	-- a short screen (a phone) keeps the grid up at the top, clear of Roblox's thumbstick in the bottom left
 	self._menuTop = if roomy then MARGIN + math.max(0, math.floor((band - block) / 2)) else MARGIN
+	self._gridTop = self._menuTop + storeH
 	self._foldBeside = not roomy
 	-- the luck, potion and pal chips stay just over the counters on a short screen too, when they fit under the grid
 	-- (Derek 2026-11-02: "the luck on mobile should be moved somewhere better"); else they go beside the arrow tab
-	self._buffsLow = roomy or MARGIN + menuH + gap <= bandBottom - (buffsH + BUFFS_GAP)
+	self._buffsLow = roomy or MARGIN + storeH + menuH + gap <= bandBottom - (buffsH + BUFFS_GAP)
 	if self._buffsLow and not roomy then
 		self._buffs:place(
 			UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
@@ -2760,7 +2797,9 @@ function HUD._layoutMenu(self: any)
 	end
 
 	self._menu.Position =
-		UDim2.new(0, if self._menuFolded then menuFoldedX(menuW) else MARGIN, 0, self._menuTop)
+		UDim2.new(0, if self._menuFolded then menuFoldedX(menuW) else MARGIN, 0, self._gridTop)
+	store.Position =
+		UDim2.new(0, if self._menuFolded then menuFoldedX(MENU_W) else MARGIN, 0, self._menuTop)
 	self:_placeMenuFold()
 
 	-- the bottom row (and its arrow tab) keeps clear of the counters
@@ -2843,13 +2882,13 @@ function HUD._placeMenuFold(self: any)
 		local x = if self._menuFolded
 			then MARGIN
 			else MARGIN + self._menu.Size.X.Offset + Theme.sizes.gap
-		local middle = self._menuTop + menuH - MENU_TILE / 2
+		local middle = self._gridTop + menuH - MENU_CELL_H / 2
 		fold.Position = UDim2.fromOffset(x, middle - FOLD_H / 2)
 		if not self._buffsLow then
 			self._buffs:place(UDim2.fromOffset(x + FOLD_W + 12, middle), Vector2.new(0, 0.5))
 		end
 	else
-		fold.Position = UDim2.fromOffset(MARGIN, self._menuTop + menuH + Theme.sizes.gap + 4)
+		fold.Position = UDim2.fromOffset(MARGIN, self._gridTop + menuH + Theme.sizes.gap + 4)
 	end
 end
 
@@ -2882,6 +2921,10 @@ end
 
 function HUD.destroy(self: any)
 	self:_stopClock()
+	local shine: Tween? = self._storeShine
+	if shine then
+		shine:Cancel()
+	end
 	self._carryPortrait:destroy()
 	self.catchingChanged:DisconnectAll()
 	local spinTimer: thread? = self._spinTimer

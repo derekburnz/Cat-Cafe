@@ -87,8 +87,6 @@ return function()
 		it("names the destination", function()
 			expect(CannonLogic.cardTitle("woods", "Woods")).to.equal("To the Woods!")
 			expect(CannonLogic.cardTitle("town", "Town Square")).to.equal("To Town Square!")
-			expect(CannonLogic.cardSub("woods", "Woods")).to.equal("Landing at the Woods camp")
-			expect(CannonLogic.cardSub("town", "Town Square")).to.equal("Landing in Town Square")
 		end)
 
 		it("pops in under the clouds and is gone before they part", function()

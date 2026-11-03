@@ -1527,9 +1527,11 @@ Presets.netHold = {
 	showAt = 0.5,
 }
 
--- The net smack (F93, catch-rework.md section 1): one swing every NetSwingCooldown (0.8 s), 0.35 s long. From the
--- shoulder the arm whips the net up over the head by `rise`, slams it down onto the ground ahead by `land`
--- (NetSmackDelay, when the server judges the hit) and is back on the shoulder by `ends`. A swing that hit nothing
+-- The net smack (F93, catch-rework.md section 1): one swing every NetSwingCooldown (0.8 s), 0.62 s long (Derek
+-- 2026-11-03 "much better swing", over the old 0.35 s snap). From the shoulder the arm winds the net up over the
+-- head by `rise`, slams it down onto the ground ahead by `land` (NetSmackDelay, when the server judges the hit),
+-- holds it there `impact` seconds and eases back to the shoulder by `ends`, swinging a little past it and settling
+-- (`settle`, an ease out with a back swing; 0 is a plain ease out). A swing that hit nothing
 -- bounces the net back up off the ground for `bounce` seconds first (the recoil). Each pose is a NetArm
 -- (Avatar.holdNet): `raised` has the pole about 150 degrees up from straight ahead (up and back over the head),
 -- `landed` about 23 degrees below it with the body bent into the hit (the hoop at the ground on a stand-in R15),
@@ -1537,15 +1539,18 @@ Presets.netHold = {
 -- NetSwung; the swinger's own screen takes a NetSwung for its player within `answerWithin` seconds of the press
 -- (NetSwingCooldown) as that swing's answer, not a new swing.
 Presets.netSmack = {
-	rise = 0.1,
-	land = 0.15,
-	ends = 0.35,
-	bounce = 0.07,
+	rise = 0.14,
+	land = 0.22,
+	impact = 0.05,
+	ends = 0.62,
+	bounce = 0.09,
+	settle = 1.1,
 	answerWithin = 0.8,
 	poses = {
-		raised = { sh = 155, tw = 0, sp = 10, el = 30, sh6 = 150, waist = -8 },
+		raised = { sh = 150, tw = 0, sp = 10, el = 35, sh6 = 165, waist = -8 },
 		landed = { sh = 32, tw = 0, sp = 4, el = 5, sh6 = 0, waist = 15 },
-		bounced = { sh = 60, tw = 0, sp = 6, el = 20, sh6 = 45, waist = 10 },
+		-- higher than a hit's eased return at the same moment, so the recoil reads as a miss's alone
+		bounced = { sh = 72, tw = 0, sp = 6, el = 26, sh6 = 60, waist = 10 },
 	},
 }
 

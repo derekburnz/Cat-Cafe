@@ -170,6 +170,13 @@ local function campOf(player: Player): string?
 	return if root ~= nil then Layout.campAt(root.X, root.Z) else nil
 end
 
+-- True while the player's character stands on the Town Square (Derek 2026-11-03: "character in town square should
+-- put net away"). No strays roam it, so the net is away there as it is while a cat is in the arms.
+local function inTownSquare(player: Player): boolean
+	local root = rootPosition(player)
+	return root ~= nil and Layout.inTownSquare(root.X, root.Z)
+end
+
 -- F84 (section 4): a drop spot in a camp or at its edge moves out into the wild part (Layout.outOfCamp), then onto
 -- that area's roam floor, since straight out from the Alleyway camp's middle can meet the building backs (N279).
 local function outOfCamp(position: Vector3): Vector3
@@ -770,8 +777,8 @@ local CARRIED_POSE = (function(): CFrame
 end)()
 
 -- The carrier's character attributes (section 13): CarryingCatId, CarryStartedAt (server time), BumpImmune (the
--- held window) and NetHidden (F93: the net is away while a cat is in the arms, on every client). Display only; the
--- shove checks read the carry record. nil clears them.
+-- held window) and NetHidden (F93: the net is away while a cat is in the arms, on every client; also on the Town
+-- Square, which markCamps keeps up to date). Display only; the shove checks read the carry record. nil clears them.
 local function showCarry(player: Player, carry: Carry?)
 	local character = player.Character
 	if character == nil then
@@ -783,7 +790,7 @@ local function showCarry(player: Player, carry: Carry?)
 		"BumpImmune",
 		if carry ~= nil then serverNow() < carry.immuneUntil else nil
 	)
-	character:SetAttribute("NetHidden", if carry ~= nil then true else nil)
+	character:SetAttribute("NetHidden", if carry ~= nil or inTownSquare(player) then true else nil)
 end
 
 local function attachHeldCat(player: Player, carry: Carry)
@@ -1523,6 +1530,7 @@ local function swingCheck(player: Player): NetSwing.SwingCheck
 		busy = holdsCatch(player) or inRescue(player),
 		inFlight = inFlight(player),
 		inCamp = campOf(player) ~= nil,
+		inTown = inTownSquare(player),
 		sinceSwing = if last ~= nil then serverNow() - last else nil,
 	}
 end
@@ -1776,7 +1784,9 @@ local function checkInPassing()
 end
 
 -- F84: each character's `Camp` attribute names the camp it stands in (its area id), nil elsewhere, for the client's
--- Tackle button and safe zone chip; the server's own checks look again (campOf).
+-- Tackle button and safe zone chip; the server's own checks look again (campOf). `NetHidden` is true while a cat is
+-- in the arms or the character stands on the Town Square (Derek 2026-11-03), so the net goes away on the way in and
+-- comes back on the way out; the swing checks look again (swingCheck).
 local function markCamps()
 	for _, player in Players:GetPlayers() do
 		local character = player.Character
@@ -1786,6 +1796,10 @@ local function markCamps()
 		local campId = campOf(player)
 		if character:GetAttribute("Camp") ~= campId then
 			character:SetAttribute("Camp", campId)
+		end
+		local netHidden = if carrying[player] ~= nil or inTownSquare(player) then true else nil
+		if character:GetAttribute("NetHidden") ~= netHidden then
+			character:SetAttribute("NetHidden", netHidden)
 		end
 	end
 end

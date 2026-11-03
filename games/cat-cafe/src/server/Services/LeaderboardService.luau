@@ -6,9 +6,12 @@
 --     Never in Studio or with Config.LeaderboardWrites off, so playtests never land on the live boards.
 --   Reads: every LeaderboardRefreshSeconds the top LeaderboardSize of every list, spread across the period, names
 --     from UserService in batches (cached for the server's life), the hidden list (DataStore key
---     CatCafe_LB_Hidden) dropped. Then every player gets LeaderboardSync with their own line, and the crowns are set:
---     attribute Crown on the Player and on their cafe's name sign while they are in the top LeaderboardCrownRank of
---     any all-time board.
+--     CatCafe_LB_Hidden) dropped.
+--   Shown: each list as read with the players in this server put in at their values now (Leaderboards.withPresent,
+--     #941), worked out again on every refresh and every write, so a board shows the people playing at once, and in
+--     Studio too. Then every player gets LeaderboardSync with their own line, and the crowns are set: attribute
+--     Crown on the Player and on their cafe's name sign while they are in the top LeaderboardCrownRank of any
+--     all-time board.
 -- Every value comes from the server's own profile and clock; a client never sends one. Nothing here prints a user id
 -- or a name, since the CI logs are public.
 
@@ -35,15 +38,16 @@ type List = Leaderboards.List
 type Row = Types.LeaderboardRow
 
 local written: { [Player]: { [string]: number } } = {} -- store name -> the value this server last wrote
-local lists: { [List]: { Row } } = {}
+local lists: { [List]: { Row } } = {} -- as last read from the stores
+local shown: { [List]: { Row } } = {} -- as read, with the players here at their values now (#941)
 local listWeek = 0 -- the week the weekly lists were read for
 local names: { [number]: string } = {}
 local hidden: { [number]: boolean } = {}
 local crowned: { [number]: boolean } = {}
 
--- A list as last read, or no rows before its first read.
+-- A list as shown: as last read with the players here put in (no rows before the first merge).
 local function listOf(list: List): { Row }
-	local rows = lists[list]
+	local rows = shown[list]
 	if rows == nil then
 		return {}
 	end
@@ -125,6 +129,8 @@ local function send(player: Player)
 	end
 end
 
+local showPresent: () -> ()
+
 -- Writes the player's values now (join, the timer, a rank up) and sends them their own line.
 local function writeNow(player: Player)
 	local profile = DataService.get(player)
@@ -135,6 +141,7 @@ local function writeNow(player: Player)
 		local now = os.time()
 		writeValues(player, valuesOf(player, profile, now), Leaderboards.week(now))
 	end
+	showPresent()
 	send(player)
 end
 
@@ -245,6 +252,34 @@ local function crown()
 	end
 end
 
+-- Every list as shown: as last read with the players in this server put in at their values now, then the crowns.
+function showPresent()
+	local now = os.time()
+	local present: { [List]: { Leaderboards.Present } } = {}
+	for _, list in Leaderboards.LISTS do
+		present[list] = {}
+	end
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if profile == nil then
+			continue
+		end
+		for list, value in valuesOf(player, profile, now) do
+			local into = present[list]
+			if into ~= nil then
+				table.insert(
+					into,
+					{ userId = player.UserId, name = player.DisplayName, value = value }
+				)
+			end
+		end
+	end
+	for _, list in Leaderboards.LISTS do
+		shown[list] = Leaderboards.withPresent(lists[list] or {}, present[list], hidden)
+	end
+	crown()
+end
+
 -- One refresh: the hidden list, then each list a step apart across LeaderboardRefreshSeconds, then everyone's sync.
 local function refresh()
 	readHidden()
@@ -260,7 +295,7 @@ local function refresh()
 		task.wait(step)
 	end
 	listWeek = week
-	crown()
+	showPresent()
 	for _, player in Players:GetPlayers() do
 		send(player)
 	end

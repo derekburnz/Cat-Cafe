@@ -1,6 +1,6 @@
 # One crate price and the Market rework (#1029)
 
-Proposed 2026-11-03 by Design-Agent (friend's project), for Derek's playtest note on v181: "crate prices maybe should change or re-work the golden fish market". Owner: game-designer. Readers: Derek, Gameplay-Engineer, UI-Engineer, QA. It changes [golden-fish.md](golden-fish.md) sections 2 to 4, [rewards-and-shops.md](rewards-and-shops.md) section 3 and [camp-extras.md](camp-extras.md) section 2; those docs point here.
+Proposed 2026-11-03 by Design-Agent (friend's project) and OK'd by Derek the same day (16:55), for Derek's playtest note on v181: "crate prices maybe should change or re-work the golden fish market". Owner: game-designer. Readers: Derek, Gameplay-Engineer, UI-Engineer, QA. It changes [golden-fish.md](golden-fish.md) sections 2 to 4, [rewards-and-shops.md](rewards-and-shops.md) section 3 and [camp-extras.md](camp-extras.md) section 2; those docs point here.
 
 ## 1. What changes, in one table
 

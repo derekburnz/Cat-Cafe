@@ -51,6 +51,34 @@ function NetSwing.inReach(origin: Vector3, look: Vector3, point: Vector3): boole
 	return flat.Unit:Dot(facing.Unit) >= math.cos(math.rad(Config.NetArcDegrees)) - 1e-9
 end
 
+-- Where the server will judge a swing pressed now from a root at `position` moving at `velocity`: the root carried
+-- on along the ground for NetSmackDelay, as the net lands that long after the press (the press's trip to the server
+-- and the character's trip back cancel out). The client's glow and landing marker swing from here.
+function NetSwing.landingOrigin(position: Vector3, velocity: Vector3): Vector3
+	return position + Vector3.new(velocity.X, 0, velocity.Z) * Config.NetSmackDelay
+end
+
+-- The landing marker's outer edge (Derek 2026-11-03): `slices` + 1 points on the ground plane round a root at the
+-- origin facing -Z (the root's flat space, +X to its right), from NetArcDegrees to its left to NetArcDegrees to its
+-- right, NetReachStuds out. NetSlackStuds stays off the marker, so everything it covers lands even on a slow
+-- connection.
+function NetSwing.fanPoints(slices: number): { Vector3 }
+	local arc = math.rad(Config.NetArcDegrees)
+	local points: { Vector3 } = {}
+	for index = 0, slices do
+		local angle = -arc + 2 * arc * index / slices
+		table.insert(
+			points,
+			Vector3.new(
+				Config.NetReachStuds * math.sin(angle),
+				0,
+				-Config.NetReachStuds * math.cos(angle)
+			)
+		)
+	end
+	return points
+end
+
 -- The nearest of `targets` the swing lands on, or nil. The caller leaves out strays that are sprinting, catching
 -- their breath or locked by another player.
 function NetSwing.pick(origin: Vector3, look: Vector3, targets: { Target }): Target?

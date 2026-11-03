@@ -201,7 +201,12 @@ return function()
 				return Cues[name] ~= nil
 			end
 			expect(Logic.foodCue("kibble", exists)).to.equal("foodKibble")
-			expect(Logic.foodCue("star_treat", exists)).to.equal("foodDealer")
+			expect(Logic.foodCue("star_treat", exists)).to.equal("foodStarTreat")
+			expect(Logic.foodCue("moon_milk", exists)).to.equal("foodMoonMilk")
+			local none = function(_name: string): boolean
+				return false
+			end
+			expect(Logic.foodCue("star_treat", none)).to.equal("foodDealer")
 			expect(Logic.trapCue("trash_bin")).to.equal("rescueHitBin")
 			expect(Logic.trapCue("tree")).to.equal("rescueHitTree")
 			expect(Logic.trapCue("dumpster")).to.equal(nil)

@@ -346,7 +346,9 @@ local function cannonHint(): string?
 end
 
 -- The tutorial strip, marker and trail: the cannon hint with its arrow at the cannon when it applies, else the
--- controller's onboarding line (UI.tutorial.show). The marker and trail wait out the intro.
+-- controller's onboarding line (UI.tutorial.show). The marker and trail wait out the intro. With the Tutorial tile's
+-- × pressed (its setting off) none of them show (Derek 2026-11-03: "Tips from the tutorial still showing even though
+-- X is clicked"); the tip cards wait too (pumpTips).
 function applyTutorial()
 	local hint = cannonHint()
 	hintShown = hint
@@ -355,6 +357,9 @@ function applyTutorial()
 	local label: string? = tutorialLabel
 	if hint ~= nil then
 		text, target, label = hint, cannonPart, "Cannon"
+	end
+	if not tutorialButtonOn then
+		text, target = nil, nil
 	end
 	if hud then
 		hud:setTutorial(text)
@@ -708,10 +713,11 @@ function UI.init(config: Types.InitConfig)
 		hideTutorialButton = function()
 			tutorialButtonOn = false
 			renderTutorialButton()
+			applyTutorial()
 			if settingsScreen then
 				settingsScreen:set(SettingsList.TUTORIAL_KEY, false)
 			end
-			UI.toast("Tutorial hidden. Replay it from Settings.", "info")
+			UI.toast("Tutorial and tips hidden. Turn them on in Settings.", "info")
 		end,
 		openFeedback = function()
 			UI.bugReport.open() -- F87: the faces page first
@@ -924,6 +930,7 @@ function UI.init(config: Types.InitConfig)
 			elseif key == SettingsList.TUTORIAL_KEY then
 				tutorialButtonOn = value == true
 				renderTutorialButton()
+				applyTutorial()
 			end
 			UI.settings.changed:Fire(key, value)
 		end,
@@ -3513,7 +3520,14 @@ do
 	-- Shows the next waiting tip when the moment is free and the gap has run.
 	local function pumpTips()
 		local card = tipCard
-		if card == nil or tipBusy or not initialized or tipQueue:size() == 0 then
+		-- the Tutorial tile's × (its setting off) holds the tip cards back too (Derek 2026-11-03)
+		if
+			card == nil
+			or tipBusy
+			or not initialized
+			or not tutorialButtonOn
+			or tipQueue:size() == 0
+		then
 			return
 		end
 		if not TipQueue.free(tipMoment()) then

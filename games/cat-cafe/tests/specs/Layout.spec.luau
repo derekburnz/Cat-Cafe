@@ -1658,22 +1658,11 @@ return function()
 					dealerCart = Layout.dealerCart,
 					bellhopStand = Layout.bellhopStand,
 					leaderboards = Layout.leaderboards,
-					signpost = square.signpost,
 				} :: { [string]: Point }
 			do
 				if math.sqrt((point.x - board.x) ^ 2 + (point.z - board.z) ^ 2) < 9 then
 					fail("the Rally board stands on the %s", name)
 				end
-			end
-		end)
-
-		it("stands the signpost by the cannon's plinth, south-west and off the cross", function()
-			local post = square.signpost :: Point
-			expect(post.x < 0 and post.z < 0).to.equal(true)
-			local fromCannon = math.sqrt(post.x ^ 2 + post.z ^ 2)
-			expect(fromCannon > square.fountainRadius + 3 and fromCannon < 15).to.equal(true)
-			for _, lane in lanes do
-				expect(inside(post.x, post.z, lane, -0.5)).to.equal(false)
 			end
 		end)
 
@@ -1873,8 +1862,6 @@ return function()
 					end
 					local off = (bench.rotY or 0) % 90
 					expect(math.min(off, 90 - off) < 0.5).to.equal(true)
-					local dx, dz = bench.x - square.signpost.x, bench.z - square.signpost.z
-					expect(math.sqrt(dx * dx + dz * dz) >= 4).to.equal(true)
 				end
 			end
 		)

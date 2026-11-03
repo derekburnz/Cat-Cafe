@@ -73,16 +73,56 @@ return function()
 	describe("Audio.Logic music and ambience", function()
 		local both = only({ "musicDayA", "musicDayB", "musicNightA", "musicNightB" })
 
-		it("plays bed A first and B after 150 s", function()
-			expect(Logic.bedFor("day", 0, 150, both)).to.equal("musicDayA")
-			expect(Logic.bedFor("day", 150, 150, both)).to.equal("musicDayB")
-			expect(Logic.bedFor("night", 20, 150, both)).to.equal("musicNightA")
+		it("lists a phase's songs that have a file, in letter order", function()
+			local songs = Logic.songsFor(
+				"day",
+				only({ "musicDayB", "musicDayA", "musicNightA", "musicDayD" })
+			)
+			expect(#songs).to.equal(3)
+			expect(songs[1]).to.equal("musicDayA")
+			expect(songs[2]).to.equal("musicDayB")
+			expect(songs[3]).to.equal("musicDayD")
+			expect(Logic.songsFor("night", both)[1]).to.equal("musicNightA")
+			expect(#Logic.songsFor("night", only({ "musicDayA" }))).to.equal(0)
 		end)
 
-		it("falls back to the other bed, then to silence", function()
-			local onlyA = only({ "musicDayA" })
-			expect(Logic.bedFor("day", 200, 150, onlyA)).to.equal("musicDayA")
-			expect(Logic.bedFor("night", 0, 150, onlyA)).to.equal(nil)
+		it("never plays the same song twice in a row while there is another", function()
+			local songs = { "musicDayA", "musicDayB", "musicDayC" }
+			for _, roll in { 0, 0.4, 0.99, 1 } do
+				expect(Logic.nextSong(songs, "musicDayB", roll) ~= "musicDayB").to.equal(true)
+			end
+			expect(Logic.nextSong(songs, "musicDayB", 0)).to.equal("musicDayA")
+			expect(Logic.nextSong(songs, "musicDayB", 0.99)).to.equal("musicDayC")
+			expect(Logic.nextSong({ "musicNightA" }, "musicNightA", 0.5)).to.equal("musicNightA")
+			expect(Logic.nextSong({}, nil, 0.5)).to.equal(nil)
+		end)
+
+		it("plays half a song from one of its sections", function()
+			local from, seconds = Logic.songPlay(80, 4, 2, 0.6, false, 60)
+			expect(from).to.equal(40)
+			expect(seconds).to.equal(40)
+			from, seconds = Logic.songPlay(80, 4, 2, 0.99, false, 60)
+			expect(from).to.equal(60) -- the last section wraps round the seamless loop
+			expect(seconds).to.equal(40)
+			from = Logic.songPlay(80, 4, 2, 0.99, true, 60)
+			expect(from).to.equal(0)
+			from, seconds = Logic.songPlay(nil, 4, 2, 0.5, false, 60)
+			expect(from).to.equal(0)
+			expect(seconds).to.equal(60)
+			from, seconds = Logic.songPlay(80, nil, 2, 0.5, false, 60)
+			expect(from).to.equal(0)
+			expect(seconds).to.equal(80)
+		end)
+
+		it("gives every song with a file its length and sections", function()
+			for name, cue in Cues do
+				if string.sub(name, 1, 5) == "music" and #cue.ids > 0 then
+					expect(type(cue.seconds) == "number" and (cue.seconds :: number) > 0).to.equal(
+						true
+					)
+					expect(cue.sections).to.equal(4)
+				end
+			end
 		end)
 
 		it("measures how far into the phase the clock is", function()
@@ -1030,5 +1070,45 @@ return function()
 				expect(Logic.orderDingStep(bad)).to.equal(nil)
 			end
 		end)
+	end)
+
+	-- #981 (Derek 2026-11-03): the cafe was too busy, the money dings too loud and too often, the greyed button too
+	-- loud. Only your own cafe dings, the coin pop is spaced out and the refusal is a soft low tick.
+	describe("Audio.Logic quieter cafe (#981)", function()
+		it("counts only your own numeric owner as your cafe", function()
+			expect(Logic.ownPlot(42, 42)).to.equal(true)
+			expect(Logic.ownPlot(7, 42)).to.equal(false)
+			expect(Logic.ownPlot(0, 0)).to.equal(false)
+			expect(Logic.ownPlot(nil, 42)).to.equal(false)
+			expect(Logic.ownPlot("42", 42)).to.equal(false)
+		end)
+
+		it("keeps the money pop soft and at most one every few seconds", function()
+			local cue = Cues.coinPop
+			expect(cue.volume <= 0.25).to.equal(true)
+			expect((cue.minGap or 0) >= 3).to.equal(true)
+			expect(cue.voices or 1).to.equal(1)
+		end)
+
+		it("plays the reused bait bowl and claim sounds at half volume", function()
+			for _, name in { "foodDealer", "baitArrive", "baitLetGo", "offlineClaim" } do
+				expect(Cues[name].volume <= 0.3).to.equal(true)
+			end
+		end)
+
+		it("spaces the order ding out", function()
+			expect((Cues.orderDing.minGap or 0) >= 2).to.equal(true)
+		end)
+
+		it(
+			"plays a lower, quieter tick for a refused press, not the old two falling notes",
+			function()
+				local cue = Cues.uiError
+				expect(cue.ids[1]).to.equal(Cues.uiTab.ids[1])
+				expect(cue.ids[1] ~= "rbxassetid://80135751380842").to.equal(true)
+				expect(cue.volume < 0.6).to.equal(true)
+				expect(cue.pitch ~= nil and cue.pitch[2] < 1).to.equal(true)
+			end
+		)
 	end)
 end

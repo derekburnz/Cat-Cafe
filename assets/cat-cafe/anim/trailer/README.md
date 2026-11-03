@@ -34,7 +34,7 @@ Recording: the ideal is 1920x1080 at 60 fps. Studio's game view can be set to 19
 
 ## Tuning
 
-Change `TrailerConfig.luau`, rebuild (or sync with `rojo serve trailer.project.json`) and press Play again. The things most likely to need a nudge in Studio:
+Change `TrailerConfig.luau`, rebuild (or sync with `rojo serve trailer.project.json` into the open trailer file, never into the published place) and press Play again. The things most likely to need a nudge in Studio:
 
 - `camera.*`: each shot's framing. Tracking shots are offsets in the runner's own space (x right, y up from its middle, z behind), and a dodge shot's x flips when the runner cuts left.
 - `dodge.*`: when each shover starts its run (`chargeLead`), when it dives (`diveLead`), and how far the runner cuts (`cutStuds`). The lunge, the belly slide's pose and the get up are the game's own Tackle numbers.

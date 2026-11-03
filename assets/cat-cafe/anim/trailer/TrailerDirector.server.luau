@@ -46,12 +46,13 @@ local LOG = "[Trailer]"
 local PROFILE_WAIT = 30 -- seconds for the player's save to load
 local HOME_STEP_OUT = 6 -- studs out from the front door, as TravelService lands a player at home
 
+local SAVES_WARNING = "not staging: this server's saves reach the real DataStore. Build the trailer place with Rojo"
+	.. " and open that file (see assets/cat-cafe/anim/trailer/README.md) so no real save changes."
+
+-- ProfileStore settles whether saves reach the DataStore a moment after the services start, so this is asked again
+-- once a save has loaded (Review-Agent S122); asked here too, it stops early when the answer is already known.
 if DataService.saves() then
-	warn(
-		LOG,
-		"not staging: this server's saves reach the real DataStore. Build the trailer place with Rojo and open that file"
-			.. " (see assets/cat-cafe/anim/trailer/README.md) so no real save changes."
-	)
+	warn(LOG, SAVES_WARNING)
 	return
 end
 
@@ -332,7 +333,8 @@ local function respawn(player: Player): boolean
 	return root ~= nil
 end
 
-local director: Player? = nil
+local claimed = false -- the first player is the one staged; later joiners are left alone
+local director: Player? = nil -- set once that player's save is staged, and the only one whose cues count
 
 cue.OnServerEvent:Connect(function(player: Player, what: unknown)
 	if player ~= director then
@@ -353,15 +355,20 @@ cue.OnServerEvent:Connect(function(player: Player, what: unknown)
 end)
 
 local function direct(player: Player)
-	if director ~= nil then
+	if claimed then
 		return
 	end
-	director = player
+	claimed = true
 	local profile = waitForProfile(player)
 	if profile == nil then
 		warn(LOG, "no save loaded for", player.Name)
 		return
 	end
+	if DataService.saves() then
+		warn(LOG, SAVES_WARNING)
+		return
+	end
+	director = player
 	setUpCafe(player, profile)
 	if respawn(player) then
 		stage(player)

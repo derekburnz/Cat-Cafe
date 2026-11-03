@@ -1201,6 +1201,10 @@ local SCENES = {
 	{ "HUDMenu", function()
 		press("CatCafeHUD", "Icons.Menu")
 	end },
+	-- carrying a cat: the banner over the bottom row with the cat's head in its rarity circle (Derek 2026-11-03)
+	{ "HUDCarry", function()
+		UI.setCarrying({ catId = Catalog.cats[1].id, catName = Catalog.cats[1].name, rarity = Catalog.cats[1].rarity })
+	end },
 	-- the Store (Derek 2026-11-02 20:01): passes on sale, so the HUD's gold Store tile shows at the top of the left grid
 	{ "HUDStore", function()
 		UI.store.preview(storePrices(true), {})
@@ -1334,6 +1338,7 @@ function Scenes.close()
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were
 	UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = workspace:GetServerTimeNow() + 3 * 86400 })) -- F101: no Rally
 	UI.trade.state(nil) -- F102: no trade, no TradeService, and the other players leave
+	UI.setCarrying(nil) -- no carry banner
 	UI.store.preview({}, {}) -- no pass on sale or owned, so the HUD's Store tile hides again
 	workspace:SetAttribute("StoreOpen", nil)
 	if workspace:GetAttribute("TradingOn") ~= nil then

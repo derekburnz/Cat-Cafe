@@ -15,6 +15,8 @@
 -- duck     ducks the music bed to 40 % while it plays
 -- sheet    a sound sheet's cue (sheetWorld, sheetMoments): the file is the sheet's, and this cue plays only its
 --          `region`, { start, stop } in seconds of that file (sound list section 5.13). Its own ids stay empty.
+-- seconds  a song's length (music cues): with `sections`, where a play may start and how long it lasts
+-- sections the equal parts a song is made of (its 8 bar phrases); a play starts at one of them
 
 export type Group = "Music" | "Ambience" | "Sfx" | "Ui"
 
@@ -31,27 +33,36 @@ export type Cue = {
 	duck: boolean?,
 	sheet: string?,
 	region: { number }?,
+	seconds: number?,
+	sections: number?,
 }
 
 local Cues: { [string]: Cue } = {
 	-- Music (sound list section 3) -------------------------------------------------------------------------
+	-- Songs play half their length from one of their four 8 bar sections, then rest (Audio refreshMusic).
 	musicDayA = {
 		ids = { "rbxassetid://92150429408895" },
 		group = "Music",
 		volume = 0.3,
 		looped = true,
+		seconds = 87.273, -- 32 bars at 88 BPM
+		sections = 4,
 	}, -- "Open for Business"
 	musicDayB = {
 		ids = { "rbxassetid://73896733157878" },
 		group = "Music",
 		volume = 0.3,
 		looped = true,
+		seconds = 91.429, -- 32 bars at 84 BPM
+		sections = 4,
 	}, -- "Second Cup"
 	musicNightA = {
 		ids = { "rbxassetid://131746689332910" },
 		group = "Music",
 		volume = 0.3,
 		looped = true,
+		seconds = 80, -- 32 bars of 3/4 at 72 BPM
+		sections = 4,
 	}, -- "After Hours"
 	musicNightB = { ids = {}, group = "Music", volume = 0.3, looped = true }, -- "Night Owls"
 	stingDusk = {
@@ -424,7 +435,8 @@ local Cues: { [string]: Cue } = {
 
 	-- Bait bowl (5.4) ---------------------------------------------------------------------------------------
 	-- 2026-11-02: reused files until the upload quota allows the bowl its own (Derek: "continue with sounds needed to
-	-- be added"). Every food plays foodDealer until its own cue has a file.
+	-- be added"). Every food plays foodDealer until its own cue has a file. 2026-11-03 (#981), Derek: "the cat cafe
+	-- bait and claim re-use ding is way too loud": the reused bowl and claim sounds play at half their volume.
 	foodKibble = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
 	foodTuna = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
 	foodSalmon = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
@@ -433,21 +445,21 @@ local Cues: { [string]: Cue } = {
 		sheet = "sheetCafe",
 		region = { 3.400, 3.680 },
 		group = "Sfx",
-		volume = 0.45,
+		volume = 0.22,
 		minGap = 0.3,
 		range = 30,
 	}, -- the trayClink part: a soft tap and two china clinks as the food goes in the bowl
 	baitArrive = {
 		ids = { "rbxassetid://101433267853089" },
 		group = "Sfx",
-		volume = 0.6,
+		volume = 0.3,
 		minGap = 1,
 	}, -- the catPlaced file: a hop, a happy mrrp and sparkles
 	baitTame = { ids = {}, group = "Sfx", volume = 0.7 }, -- unused: a tame sounds with its check-in (bell, jingle, sting)
 	baitLetGo = {
 		ids = { "rbxassetid://104205348504396" },
 		group = "Sfx",
-		volume = 0.6,
+		volume = 0.3,
 		minGap = 1,
 	}, -- the catDrop file: a mrrp, soft paws and a shake
 
@@ -560,13 +572,13 @@ local Cues: { [string]: Cue } = {
 	coinPop = {
 		ids = { "rbxassetid://80305681313349" },
 		group = "Sfx",
-		volume = 0.4,
+		volume = 0.2,
 		pitch = { 0.94, 1.06 },
-		minGap = 0.08,
-		voices = 4,
+		minGap = 4,
+		voices = 1,
 		range = 40,
 		preload = true,
-	},
+	}, -- Derek 2026-11-03 (#981): "ding's are too loud and too often I think its the money pop up dings": half as loud, one every 4 s at most (each seated customer floats one every 3 s)
 	purchase = {
 		ids = { "rbxassetid://135044364239461" },
 		group = "Sfx",
@@ -577,7 +589,7 @@ local Cues: { [string]: Cue } = {
 	offlineClaim = {
 		ids = { "rbxassetid://89094982389204" },
 		group = "Sfx",
-		volume = 0.45,
+		volume = 0.22,
 		minGap = 1,
 	}, -- 2026-11-02: the richTip file, a cascade of coins (the UI plays it on Claim)
 	placeFurniture = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
@@ -655,10 +667,14 @@ local Cues: { [string]: Cue } = {
 		voices = 2,
 		preload = true,
 	},
-	uiError = {
-		ids = { "rbxassetid://80135751380842" },
+	-- Derek 2026-11-03 (#981): "The noise of hittin a button you can't click is also a little loud and change it to
+	-- something less annoying". The uiTab tick played lower, a dull "tuk", in place of the Error file's two falling
+	-- notes (rbxassetid://80135751380842). The comment after the brace keeps upload.py from writing that id back.
+	uiError = { -- the uiTab file, lower and softer
+		ids = { "rbxassetid://122895842124214" },
 		group = "Ui",
-		volume = 0.6,
+		volume = 0.45,
+		pitch = { 0.78, 0.82 },
 		minGap = 0.3,
 		preload = true,
 	},
@@ -1001,12 +1017,12 @@ local Cues: { [string]: Cue } = {
 		sheet = "sheetCafe",
 		region = { 2.000, 2.900 },
 		group = "Sfx",
-		volume = 0.35,
+		volume = 0.3,
 		pitch = { 0.98, 1.02 },
-		minGap = 0.25,
+		minGap = 2,
 		voices = 2,
 		range = 35,
-	}, -- "ding!": one strike of a small counter bell, a note up for a drink and two for the counter
+	}, -- "ding!": one strike of a small counter bell, a note up for a drink and two for the counter; your own cafe only, one every 2 s at most (#981)
 	trayClink = {
 		ids = {},
 		sheet = "sheetCafe",

@@ -6,7 +6,7 @@ Owner: sound-designer (Luau reviewed by luau-reviewer). Rules: `.claude/skills/a
 |---|---|
 | `init.luau` | The Audio module: builds the four channels, plays cues, runs music by the day and night clock and ambience by zone, turns moments into sounds. |
 | `Cues.luau` | Every cue id with its channel, volume, pitch range, spam gap, voices, 3D range and asset ids. The only place asset ids live. Pure. |
-| `Logic.luau` | The rules with no Roblox services in them (voice pooling, the pentatonic step, which music bed or ambience plays, ducking, slider gain, rarity jingles, grade, food and trap cues, the hold fill speed, zone chimes, which strays twinkle, which resting cat purrs, the dusk bell's timing, the Mythical sting and the plot cues), so they can be unit tested. |
+| `Logic.luau` | The rules with no Roblox services in them (voice pooling, the pentatonic step, which song plays next and from where, which ambience plays, ducking, slider gain, rarity jingles, grade, food and trap cues, the hold fill speed, zone chimes, which strays twinkle, which resting cat purrs, the dusk bell's timing, the Mythical sting and the plot cues), so they can be unit tested. |
 
 Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every effect and jingle has an uploaded id. On 2026-10-27 Derek replaced the ambience with quiet music: the beds and the cafe door loop lost their files (their cues stay, silent), and the three music tracks, the rebuilt purrs, the tackle's whoosh and miss skid (F74, from each character's `TackleAt` and `TackleMissAt`) and the cat level up chime (F75, the `CatLevelUp` moment) were uploaded from GitHub Actions (upload-audio) the same night. A cue with no id yet plays nothing, so a hook is safe to add before its file exists.
 
@@ -42,7 +42,7 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every effect a
    | `CafeDoor` | each cafe's front door | `loopCafeDoor`, chatter and cups spilling out, 30 studs; only while the plot has an owner (`OwnerUserId`) and it is day, since For Rent shops are shut and the cafe closes at night (v0.5) |
    | `Fountain` | the park fountain | `loopFountain` |
    | `FishTank` | the fish tank decor | `loopFishTank` |
-   | `WorkingCat` | a cat at its station | `purr`, only on the 3 nearest within 14 studs, never one the player hid (`HiddenLocal`) |
+   | `WorkingCat` | a cat at its station | `purr`, only on the nearest within 14 studs (3 until #981), never one the player hid (`HiddenLocal`) |
 
    A Mythical stray (`Rarity`) plays `rareNear` once as you come within 30 studs, and again only after you have been 45 studs away (no loop since 2026-10-28; every other rarity and gold strays are silent).
 
@@ -58,7 +58,7 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every effect a
 
    Rescues (sound list 5.2) and F92 Team Rescue: the rescue moments play their rows from the Rescue sheet (they had no files before 2026-11-02); a trap hit plays at the trap and the pip climbs one scale step per hit. `TeamRescue` (rescueSpotId, rescuerUserId, helperUserId, position) plays `teamRescue` flat on both friends' screens, just after their `rescueDone`.
 
-   F90 cats make the orders (sound list 5.16): `OrderMaking` at the espresso machine plays `orderPour` there (`Logic.orderMakeCue`); `OrderReady` plays `orderDing` at the station, a scale step higher for a drink and two for the counter (`Logic.orderDingStep`); `OrderServed` plays `trayClink` at the table; in your own cafe `TipSwept` plays `tipSweep` (the `tipPile` file) at the table and `TipBanked` plays `tipBank` at the till. All five are 3D and stay silent without a place.
+   F90 cats make the orders (sound list 5.16). Since Derek found the cafe too busy (2026-11-03, #981) only your own cafe sounds (`Logic.ownPlot`): `OrderReady` plays `orderDing` at the station, a scale step higher for a drink and two for the counter (`Logic.orderDingStep`), at most one every 2 s, and `TipBanked` plays `tipBank` at the till. `OrderMaking` (`orderPour`), `OrderServed` (`trayClink`) and `TipSwept` (`tipSweep`) play nothing; their cues stay. Both are 3D and stay silent without a place.
 
    Sound sheets: a cue with `sheet` plays its sheet's file, and `region` makes its Sounds play only that stretch (`PlaybackRegionsEnabled` and `PlaybackRegion`); a timed stop just after the region, counted from when the file loads, backs it up. The sheet's own row holds the id and is preloaded.
 
@@ -83,7 +83,7 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every effect a
 
 ## How it behaves
 
-- Music follows the server clock on every client at once: day beds A then B (B from halfway through the phase), night beds A then B. On a phase change the bed fades out over 2 s, the dusk or dawn stinger plays, and the new A bed fades in. A missing B bed falls back to A.
+- Music follows the server clock on every client at once, and no song loops (2026-11-03). A phase plays one of its songs (`Logic.songsFor`: every `musicDay*` or `musicNight*` cue with a file) for half its length, two of the four sections its cue's `seconds` and `sections` give, from one picked at random (`Logic.songPlay`). It then fades out, rests 15 to 30 s and plays another, never the same one twice in a row while there is a choice (`Logic.nextSong`). On a phase change the song fades out over 2 s, the dusk or dawn stinger plays, and one of the new phase's songs starts from its top.
 - Stingers, the rank up jingle, the gold reveal, the Index reward, the wheel win and the Legendary and Mythical jingles duck the music to 40 % while they play. A catch or rescue ducks the music to 60 % and the ambience to 50 % until its result arrives (30 s at most).
 - Each cue has a pool of Sounds (`voices`); when all are busy the oldest restarts, so a coin shower never makes a hundred Sounds. `minGap` drops repeats that come too fast.
 - A loop on a part ends when the part is destroyed. A one-shot on something the server may remove in the same frame (a fleeing stray, the leaving dealer cart, a rescue trap) plays at its position instead, so the removal cannot cut it off. A pooled Sound whose part streamed out is simply reparented on its next play.

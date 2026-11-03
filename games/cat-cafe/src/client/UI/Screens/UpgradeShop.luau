@@ -31,6 +31,9 @@ local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 local FLASH = TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 export type Links = {
@@ -65,7 +68,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -79,14 +82,14 @@ end
 local function card(name: string, height: number, order: number, parent: Instance): Frame
 	return Create("Frame", {
 		Name = name,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, height),
 		LayoutOrder = order,
 		Parent = parent,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 end
 
@@ -130,7 +133,7 @@ local function scrollList(name: string, parent: Instance): ScrollingFrame
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = parent,
 	}, {
@@ -159,6 +162,7 @@ function UpgradeShop.new(
 	self._tab = "Cafe" :: Tab
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Upgrades",
 		color = Theme.colors.red,
 		icon = Theme.icons.upgrades,
@@ -229,7 +233,7 @@ function UpgradeShop.new(
 		Position = UDim2.fromOffset(16, 40),
 		Size = UDim2.new(1, -(BUTTON_W + 40), 0, 24),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextWrapped = true,
 		Parent = rank,
 	})
@@ -322,7 +326,7 @@ function UpgradeShop._buildRows(self: any)
 				TextSize = STAR,
 				TextXAlignment = Enum.TextXAlignment.Center,
 				TextTruncate = Enum.TextTruncate.None,
-				TextColor3 = Theme.colors.line,
+				TextColor3 = PAL.line,
 				Text = "★",
 				LayoutOrder = level,
 				Parent = starRow,
@@ -337,7 +341,7 @@ function UpgradeShop._buildRows(self: any)
 			Position = UDim2.fromOffset(TEXT_LEFT, if twoLines then 62 else 64),
 			Size = UDim2.new(1, -(TEXT_LEFT + BUTTON_W + 24), 0, if twoLines then 36 else 20),
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			Text = upgrade.description,
 			Parent = row,
 		})
@@ -384,7 +388,7 @@ function UpgradeShop._buildRows(self: any)
 			Position = UDim2.fromOffset(TEXT_LEFT, 36),
 			Size = UDim2.new(1, -(TEXT_LEFT + BUTTON_W + 24), 0, 18),
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			Parent = row,
 		})
 		local slotRow: Frame = Create("Frame", {
@@ -543,7 +547,7 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 			self:_celebrate(row, before, level)
 		else
 			for index, star in row.stars do
-				star.TextColor3 = if index <= level then Theme.colors.gold else Theme.colors.line
+				star.TextColor3 = if index <= level then Theme.colors.gold else PAL.line
 			end
 		end
 
@@ -578,12 +582,12 @@ function UpgradeShop._celebrate(_self: any, row: any, before: number, level: num
 				Tween.popIn(star, 0.4)
 			end
 		else
-			star.TextColor3 = if index <= level then Theme.colors.gold else Theme.colors.line
+			star.TextColor3 = if index <= level then Theme.colors.gold else PAL.line
 		end
 	end
 	local frame: Frame = row.frame
 	frame.BackgroundColor3 = Theme.colors.mint
-	Tween.to(frame, FLASH, { BackgroundColor3 = Theme.modal.card })
+	Tween.to(frame, FLASH, { BackgroundColor3 = PAL.card })
 end
 
 function UpgradeShop._renderStaff(self: any, state: Types.PlayerState)

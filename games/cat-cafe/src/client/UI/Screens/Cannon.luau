@@ -31,6 +31,9 @@ local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Callbacks = {
 	launch: (cannonId: string, destination: string) -> (),
 	close: () -> (),
@@ -76,7 +79,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -107,6 +110,7 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._rally = nil :: Types.RallyState?
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Cannon",
 		color = Theme.colors.mintDark,
 		icon = Theme.icons.cannon,
@@ -134,7 +138,7 @@ function Cannon.new(callbacks: Callbacks): Cannon
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
@@ -170,13 +174,13 @@ function Cannon._buildCards(self: any)
 		local id = place.id
 		local frame: Frame = Create("Frame", {
 			Name = id,
-			BackgroundColor3 = Theme.modal.card,
+			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
 			Visible = false,
 			Parent = self._grid,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+			Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
 		local art: Frame = Create("Frame", {
 			Name = "Art",
@@ -308,14 +312,14 @@ function Cannon._buildCards(self: any)
 			Position = UDim2.fromOffset(10, ART_H + 40),
 			Size = UDim2.new(1, -20, 0, 18),
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			Text = if id == CannonLogic.TOWN then "Cafes and markets" else "",
 			Parent = frame,
 		})
 		-- F100: the camp extra's strip, shown by render when the area's extra is open
 		local extra: Frame = Create("Frame", {
 			Name = "Extra",
-			BackgroundColor3 = Theme.colors.cream,
+			BackgroundColor3 = PAL.line,
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(10, ART_H + 60),
 			Size = UDim2.new(1, -20, 0, EXTRA_H - 4),
@@ -345,7 +349,7 @@ function Cannon._buildCards(self: any)
 			Position = UDim2.fromOffset(36, 19),
 			Size = UDim2.new(1, -66, 0, 15),
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Parent = extra,
 		})
@@ -538,9 +542,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			card.extraIcon.Text = line.icon
 			card.extraName.Text = line.name
 			card.extraState.Text = line.state
-			card.extraState.TextColor3 = if line.ready
-				then Theme.colors.goodDark
-				else Theme.modal.subtext
+			card.extraState.TextColor3 = if line.ready then PAL.good else PAL.subtext
 			card.extraState.FontFace = if line.ready then Theme.fonts.bodyBold else Theme.fonts.body
 			card.extraDot.Visible = line.ready
 		end

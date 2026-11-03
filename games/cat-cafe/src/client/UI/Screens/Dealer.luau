@@ -33,6 +33,9 @@ local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Callbacks = {
 	-- the food's row, the food and the window the screen showed, so a Buy that lands after a restock is refused (S42)
 	buy: (index: number, lureId: string, window: number?) -> (),
@@ -69,7 +72,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -82,7 +85,7 @@ end
 
 -- a rarity's odds colour as hex, for FoodOdds.rich
 local function rarityHex(rarity: string): string
-	return Theme.rarityInk(rarity):ToHex()
+	return Theme.rarityLight(rarity):ToHex() -- light odds on the dark cards (#1028)
 end
 
 -- "Attracts Epic": the rarity the food is known for, on paper with a border in that rarity's colour, so the solid
@@ -96,7 +99,7 @@ local function attractsChip(parent: Instance, lure: Types.LureDef, order: number
 		Size = UDim2.fromOffset(0, 20),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = Theme.colors.ink, -- dark words on the paper chip
 		Text = FoodGrade.attracts(lure),
 		LayoutOrder = order,
 		Parent = parent,
@@ -125,6 +128,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._accumulator = 0
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Dealer",
 		color = Theme.colors.berry,
 		icon = Theme.icons.moon,
@@ -191,7 +195,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
@@ -206,7 +210,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 		Name = "Empty",
 		Size = UDim2.new(1, 0, 0, 60),
 		TextXAlignment = Enum.TextXAlignment.Center,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextWrapped = true,
 		Text = "",
 		Visible = false,
@@ -252,7 +256,7 @@ function Dealer._buildRows(self: any)
 		local def = group.def
 		local row: Frame = Create("Frame", {
 			Name = group.lureId,
-			BackgroundColor3 = Theme.modal.card,
+			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
 			AutomaticSize = Enum.AutomaticSize.Y,
 			Size = UDim2.new(1, 0, 0, 0),
@@ -333,7 +337,7 @@ function Dealer._buildRows(self: any)
 			AutomaticSize = Enum.AutomaticSize.X,
 			Size = UDim2.fromOffset(0, 20),
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			LayoutOrder = 2,
 			Parent = stockLine,
 		})
@@ -382,7 +386,7 @@ function Dealer._buildRows(self: any)
 			AutomaticSize = Enum.AutomaticSize.Y,
 			Size = UDim2.new(1, 0, 0, 0),
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top,
@@ -562,7 +566,7 @@ function Dealer._renderAll(self: any)
 			elseif left > 0 then ("x%d Stock"):format(left)
 			else "Sold out"
 		row.stock.TextColor3 = if none
-			then Theme.modal.subtext
+			then PAL.subtext
 			elseif left > 0 then Theme.colors.good
 			else Theme.colors.red
 		local have = state.lures[group.lureId] or 0

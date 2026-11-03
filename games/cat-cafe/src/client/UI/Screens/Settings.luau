@@ -40,6 +40,9 @@ local Theme = require(script.Parent.Parent.Theme)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Callbacks = {
 	setSetting: (key: string, value: boolean | number) -> (),
 	changed: (key: string, value: boolean | number) -> (), -- the shown value moved (a tap, a drag or the server)
@@ -162,7 +165,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -196,6 +199,7 @@ function Settings.new(callbacks: Callbacks): Settings
 	self._alive = true
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Settings",
 		title = "Settings",
 		subtitle = "Saved with your cafe",
@@ -216,7 +220,7 @@ function Settings.new(callbacks: Callbacks): Settings
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
@@ -247,7 +251,7 @@ function Settings.new(callbacks: Callbacks): Settings
 			Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textLarge,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			Text = section.title,
 			Parent = list,
 		})
@@ -337,14 +341,14 @@ end
 function Settings._buildCard(self: any, key: string, icon: string, order: number): Frame
 	local card: Frame = Create("Frame", {
 		Name = key,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		LayoutOrder = order,
 		Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
 		Parent = self._list,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	self._cards[key] = card
 	local tile: Frame = Create("Frame", {
@@ -386,7 +390,7 @@ local function nameAndDetail(card: Frame, name: string, detail: string)
 		Position = UDim2.fromOffset(TEXT_LEFT, 42),
 		Size = UDim2.new(1, -TEXT_RIGHT, 0, 26),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.None,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -415,7 +419,7 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 			Size = UDim2.fromOffset(60, 28),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			TextXAlignment = Enum.TextXAlignment.Right,
 			Parent = card,
 		})
@@ -518,7 +522,7 @@ function Settings._buildTrading(
 		Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = "Trading",
 		Parent = self._list,
 	})
@@ -604,7 +608,7 @@ function Settings._buildTester(self: any, order: number, content: Instance, rese
 		Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = "Testers",
 		Parent = self._list,
 	})
@@ -625,7 +629,7 @@ function Settings._buildTester(self: any, order: number, content: Instance, rese
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.new(1, -24, 0, cardH),
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Visible = false,
 		Parent = content,
@@ -743,7 +747,7 @@ function Settings._buildSlider(self: any, card: Frame, key: string, percent: Tex
 	local inset = TEXT_LEFT + KNOB / 2 -- the knob's centre at 0%
 	local track: Frame = Create("Frame", {
 		Name = "Track",
-		BackgroundColor3 = Theme.colors.line,
+		BackgroundColor3 = PAL.line,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromOffset(inset, SLIDER_Y),

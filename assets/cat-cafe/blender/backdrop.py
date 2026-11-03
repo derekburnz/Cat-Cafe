@@ -328,8 +328,8 @@ def meadow(rb, flowers):
         side = -1 if k % 2 else 1
         spots.append((side * x, z))
     for k, (x, z) in enumerate(spots):
-        if ground_y(x, z) > 1.0 or not _clear_of_town(x, z, 6):
-            continue
+        if ground_y(x, z) > 1.0 or not _clear_of_town(x, z, 6) or abs(z) < 12:
+            continue                                                   # 12: the gate walks (half 6) and 6 to spare
         if (70 + DX < x < 100 + DX and -70 < z < -14) or (-100 - DX < x < -68 - DX and 12 < z < 44):
             continue                                                   # the barn and the pond
         r = _hash(k, 13)

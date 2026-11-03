@@ -1,0 +1,71 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root { --ink:#2a1a12; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { width:1280px; height:540px; overflow:hidden; font-family:Fredoka, sans-serif; background:#f6ead8; padding:22px 26px; color:var(--ink); }
+.out { color:#fff; -webkit-text-stroke:5px var(--ink); paint-order:stroke fill; font-weight:700; }
+h2 { font-size:22px; font-weight:700; margin-bottom:12px; }
+.cols { display:flex; gap:26px; }
+.card { background:#fffaf2; border:3px solid var(--ink); border-radius:18px; padding:16px; }
+.b { display:inline-flex; align-items:center; justify-content:center; gap:8px; height:50px; padding:0 22px; border-radius:14px; border:4px solid var(--ink);
+  font-size:20px; font-weight:700; box-shadow: inset 0 4px 0 rgba(255,255,255,.4), inset 0 -6px 0 rgba(0,0,0,.16), 0 4px 0 var(--ink); }
+.b.green { background:linear-gradient(#7ae86f,#2fb043); color:#fff; -webkit-text-stroke:4px var(--ink); paint-order:stroke fill; }
+.b.white { background:linear-gradient(#ffffff,#e9e2d8); color:var(--ink); }
+.b.gold { background:linear-gradient(#ffe27a,#f2a50c); color:#fff; -webkit-text-stroke:4px var(--ink); paint-order:stroke fill; }
+.b.red { background:linear-gradient(#ff8a7a,#e4402f); color:#fff; -webkit-text-stroke:4px var(--ink); paint-order:stroke fill; }
+.old { display:inline-flex; align-items:center; justify-content:center; width:150px; height:44px; border-radius:10px; font-weight:600; font-size:18px; color:#4b3a2e;
+  background: repeating-linear-gradient(0deg, #efe3cf 0 14px, #e6d6bc 14px 16px), #efe3cf; border:3px solid #6b5848; }
+.tag { font-size:14px; font-weight:600; color:#8a7766; margin:4px 0 8px; }
+.prow { display:flex; align-items:center; gap:12px; padding:9px 10px; border-radius:14px; background:#fff; border:3px solid var(--ink); margin-bottom:10px; width:470px; }
+.pic { width:56px; height:56px; border-radius:14px; border:3px solid var(--ink); display:flex; align-items:center; justify-content:center; }
+.n { font-size:20px; font-weight:700; } .e { font-size:15px; color:#7a6656; font-weight:500; }
+.x { margin-left:auto; font-size:20px; font-weight:700; }
+.wedge { width:96px; height:110px; border-radius:22px; border:4px solid var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.wedge .v { font-size:20px; margin-top:-2px; }
+</style></head>
+<body>
+<div class="cols">
+  <div style="width:330px">
+    <h2>Buttons</h2>
+    <div class="card">
+      <div class="tag">Old (beige tiles)</div>
+      <div style="display:flex;gap:10px"><div class="old">Rewards</div><div class="old">Remove</div></div>
+      <div class="tag" style="margin-top:16px">New: flat colour, thick outline</div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px">
+        <div class="b white">Rewards</div><div class="b white">Remove</div>
+        <div class="b green">Claim all (3)</div><div class="b gold">R$25</div><div class="b red">Give up</div>
+      </div>
+      <div class="tag" style="margin-top:16px">Decor menu chips: fewer, roomier</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="b gold" style="height:42px;padding:0 14px;font-size:17px">All</div>
+        <div class="b white" style="height:42px;padding:0 14px;font-size:17px">Lawn</div>
+        <div class="b white" style="height:42px;padding:0 14px;font-size:17px">Plants</div>
+        <div class="b white" style="height:42px;padding:0 14px;font-size:17px">Floor</div>
+        <div class="b white" style="height:42px;padding:0 14px;font-size:17px">Walls</div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h2>Potions: only the ones you have</h2>
+    <div class="card" style="padding:14px">
+      <div id="potions"></div>
+      <div class="tag">Names are examples. A row goes away when you use the last one. Active ones show as timer chips by the Potions button.</div>
+    </div>
+  </div>
+  <div style="width:336px">
+    <h2>Spin wheel prizes, bigger and clearer</h2>
+    <div class="card" style="display:flex;gap:12px;justify-content:space-between" id="wedges"></div>
+    <div class="tag" style="margin-top:10px">One fat symbol per prize, filling the wedge, no beige backing.</div>
+  </div>
+</div>
+<script src="icons.js"></script>
+<script>
+const P = [['#ffd84a', 'Money Potion', 'Money x2 for 10 min', 3, '#ffe27a'], ['#5fe06a', 'Luck Potion', 'Better cats for 10 min', 1, '#a9f0a0'], ['#5fb7ff', 'Swift Potion', 'Bait ready faster', 2, '#a9d8ff']];
+document.getElementById('potions').innerHTML = P.map(([c, n, e, x, bg]) => `<div class="prow"><div class="pic" style="background:${bg}">${icon('potion', 44, c)}</div>
+  <div><div class="n">${n}</div><div class="e">${e}</div></div><div class="x">x${x}</div><div class="b green" style="height:44px;padding:0 18px">Use</div></div>`).join('');
+const W = [['bag', '#c8f5c0', '$118K'], ['caviar', '#cfe9ff', 'x3'], ['crate', '#ffe0bf', 'x1']];
+document.getElementById('wedges').innerHTML = W.map(([n, bg, v]) => `<div class="wedge" style="background:${bg}">${icon(n, 66)}<div class="v out" style="-webkit-text-stroke:4px var(--ink)">${v}</div></div>`).join('');
+</script>
+</body></html>

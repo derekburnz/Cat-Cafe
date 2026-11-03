@@ -10,7 +10,7 @@ Reviewer: luau-reviewer (Review-Agent, friend's project). Derek's open PRs while
 | #1033 | asset-artist names EL4CTEO/blender-skills | Pass | Ready; `automerge` label; merged. |
 | #1035 | Money counter flashes only for lumps (#1026, UI-Engineer) | Pass | Ready; auto-merge; merged. |
 | #1037 | HUD right column stays under Roblox's top bar (#1025, UI-Engineer) | Pass | Ready; auto-merge once #1002 had landed. |
-| #1036 | `.claude/settings.json` allows `add_repo` and `register_repo_root` | Diff correct, **held** | Not queued: needs a human's own OK (see below). |
+| #1036 | `.claude/settings.json` allows `add_repo` and `register_repo_root` | Diff correct | Held for a human; Derek OK'd it himself and it merged (8cf9377e). |
 
 ## #1022
 - Client only, listen only: `Effects/IntroCut.luau` reads `Moments.IntroCut` and `IntroEnd`, and `CannonGlide` reads the server's `CannonHeading` attribute (both on main). No remotes are fired or added, so the security checklist doesn't apply.
@@ -33,10 +33,11 @@ Reviewer: luau-reviewer (Review-Agent, friend's project). Derek's open PRs while
 - Harmless edge cases: a frame hitch over 1 s, or an upward sync correction bigger than one second of income, gives one flash.
 - Open: the in-game check (QA). The "4 old baseline findings gone" in uigate likely comes from main, so a separate PR can update the baseline.
 
-## #1036 (held)
+## #1036
 - The JSON is valid and both tool names are right.
 - It adds agent tools to `permissions.allow` repo-wide because auto mode refused `add_repo`. Widening the allowlist to get past a refusal needs a person's explicit approval on the PR, not a request relayed between agent sessions. It's left as a draft for Derek or the friend.
 - Option: allow only `register_repo_root` and keep `add_repo` behind its prompt.
+- Outcome: Derek approved it in the Coordinator's chat ("ok and turn on auto merge") and the user confirmed it here. Merged 8cf9377e.
 
 ## #1002
 - Config beats CannonLaunchSeconds 4.0, CannonTeleportAtSeconds 2.6, CannonCloudsAt 2.0, CannonTouchdownAt 3.5, and Intro.STAND_AT 2.05. These match #1022's poses (clouds 2.0 to 3.0, touch 3.5, stand by 4.0) and the PR description.

@@ -1,13 +1,13 @@
 --!strict
--- The catch screen's words (F93, catch-rework.md section 3). Each circle pops its grade word the moment it is judged,
--- and when the last one is judged one result word slams in over the progress strip:
+-- The catch screen's word (F93, catch-rework.md section 3). When the last circle is judged one result word slams in
+-- over the progress strip; the circles show no words of their own (Derek 2026-11-03):
 --   every circle Perfect           PURRFECT!   (gold, the biggest burst)
 --   at least half Perfect          EXCELLENT!  (gold)
 --   every circle Good or better    GREAT!      (mint)
 --   a Miss, or no circles          So close!   (soft grey, no burst)
 -- The rule is the same as Effects/Logic.catchWord, which picks the burst behind the word, so the two always agree.
 --   result(grades, success) -> Result          which result word a finished catch earns
---   TEXT[result], GRADE_TEXT[grade]            the words themselves
+--   TEXT[result]                               the words themselves
 -- Pure, so the cloud spec runner checks it.
 
 local CatchWords = {}
@@ -20,12 +20,6 @@ CatchWords.TEXT = {
 	excellent = "EXCELLENT!",
 	great = "GREAT!",
 	close = "So close!",
-} :: { [string]: string }
-
-CatchWords.GRADE_TEXT = {
-	perfect = "PERFECT!",
-	good = "GOOD",
-	miss = "MISS",
 } :: { [string]: string }
 
 function CatchWords.result(grades: { Grade }, success: boolean): Result

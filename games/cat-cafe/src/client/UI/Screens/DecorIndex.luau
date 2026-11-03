@@ -17,6 +17,9 @@ local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Callbacks = {
 	claim: (areaId: string, milestoneId: string) -> (),
 }
@@ -64,7 +67,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -135,7 +138,7 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 	Outline.text(self._progressName, 2)
 	local track: Frame = Create("Frame", {
 		Name = "Track",
-		BackgroundColor3 = Theme.colors.line,
+		BackgroundColor3 = PAL.line,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.new(0, 196, 0.5, 0),
@@ -189,7 +192,7 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = page,
 	}, {
@@ -225,7 +228,7 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 		Size = UDim2.new(1, 0, 0, 40),
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Center,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = "The pieces arrive with the next update. Open crates at the Golden Fish Market.",
 		Visible = false,
 		Parent = self._grid,
@@ -261,7 +264,7 @@ function DecorIndex.setCatalog(self: any, catalog: Types.Catalog)
 			Name = pool,
 			Text = "",
 			AutoButtonColor = false,
-			BackgroundColor3 = Theme.modal.card,
+			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
 			Size = UDim2.new(1 / #pools, -gap * (#pools - 1) / #pools, 1, 0),
 			LayoutOrder = order,
@@ -356,7 +359,7 @@ end
 function DecorIndex._buildCell(self: any, def: Types.DecorDef, order: number): Cell
 	local frame: Frame = Create("Frame", {
 		Name = def.id,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		LayoutOrder = order,
 		Visible = false,
@@ -414,16 +417,16 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 	for _, chip: Chip in self._chips do
 		local selected = chip.pool == open
 		local have, all = DecorPieces.pageCounts(catalog, state, chip.pool)
-		chip.frame.BackgroundColor3 = if selected then chip.color else Theme.modal.card
-		chip.border.Color = if selected then Theme.colors.outline else Theme.modal.cardStroke
-		chip.label.TextColor3 = if selected then Theme.colors.white else Theme.modal.text
+		chip.frame.BackgroundColor3 = if selected then chip.color else PAL.card
+		chip.border.Color = if selected then Theme.colors.outline else PAL.cardStroke
+		chip.label.TextColor3 = if selected then Theme.colors.white else PAL.text
 		chip.count.Text = if have >= all and all > 0
 			then "Complete!"
 			else ("%d / %d"):format(have, all)
 		chip.count.TextColor3 = if selected
 			then Theme.colors.cream
-			elseif have >= all and all > 0 then Theme.colors.goodDark
-			else Theme.modal.subtext
+			elseif have >= all and all > 0 then PAL.good
+			else PAL.subtext
 		local waiting = ready[DecorPieces.areaOf(chip.pool)] or 0
 		chip.dot.Visible = waiting > 0
 		chip.dotCount.Text = tostring(waiting)
@@ -468,14 +471,12 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 			)
 			cell.kind.Visible = owned
 			cell.name.Text = if owned then cell.def.name else "???"
-			cell.name.TextColor3 = if owned then Theme.modal.text else Theme.modal.subtext
+			cell.name.TextColor3 = if owned then PAL.text else PAL.subtext
 			local rarity = piece.rarity or ""
 			cell.sub.Text = if owned
 				then ("%s · +%s"):format(rarity, Format.percent(cell.def.bonus or 0))
 				else rarity
-			cell.sub.TextColor3 = if owned
-				then Theme.modal.subtext
-				else Theme.rarityColor(piece.rarity)
+			cell.sub.TextColor3 = if owned then PAL.subtext else Theme.rarityColor(piece.rarity)
 		end
 	end
 	self._empty.Visible = shown == 0

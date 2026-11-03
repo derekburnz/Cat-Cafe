@@ -528,15 +528,15 @@ function CatCollection._closeDetail(self: any)
 	self._cover.Visible = false
 end
 
--- The tabs' looks and the page behind them: dark for Cats, Gold and Rainbow, the light window body for Decor.
+-- The tabs' looks; the page behind them is dark on every tab (#1028).
 function CatCollection._paintTabs(self: any)
 	local tab: Tab = self._tab
 	self._indexTab:setStyle(if tab == "Index" then "gold" else "ghost")
 	self._goldTab:setStyle(if tab == "Gold" then "gold" else "ghost")
 	self._rainbowTab:setStyle(if tab == "Rainbow" then "gold" else "ghost")
 	self._decorTab:setStyle(if tab == "Decor" then "gold" else "ghost")
-	local dark = tab ~= "Decor"
-	self._panel.body.BackgroundColor3 = if dark then Theme.index.body else Theme.modal.panel
+	-- every tab on the dark page since #1028 (the Decor Index draws from Theme.dark too)
+	self._panel.body.BackgroundColor3 = Theme.index.body
 	self._book.Visible = tab == "Index" or tab == "Gold" or tab == "Rainbow"
 	self._decor.Visible = tab == "Decor"
 end

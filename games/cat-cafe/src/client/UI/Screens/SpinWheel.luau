@@ -44,6 +44,9 @@ local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
 export type Callbacks = {
@@ -122,7 +125,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -181,6 +184,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	self._readyAt = 0 -- os.clock() when the server's cooldown has passed (a calm spin lands before it)
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "SpinWheel",
 		title = "Spin Wheel",
 		subtitle = "A free spin every day · Odds shows every chance",
@@ -287,7 +291,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
@@ -312,7 +316,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		Size = UDim2.new(1, 0, 0, 18),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Parent = side,
 	})
 	self._button = Button.new({
@@ -358,7 +362,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	local backHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	local odds: Frame = Create("Frame", {
 		Name = "OddsList",
-		BackgroundColor3 = Theme.modal.panel,
+		BackgroundColor3 = PAL.panel,
 		BorderSizePixel = 0,
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 10,
@@ -380,7 +384,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		Position = UDim2.fromOffset(4, 28),
 		Size = UDim2.new(1, -(BACK_WIDTH + 16), 0, 18),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = "Every slice of the wheel, likeliest first. Together they make 100%.",
 		Parent = odds,
 	})
@@ -406,7 +410,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = odds,
 	}, {
@@ -515,9 +519,9 @@ function SpinWheel.result(self: any, slice: number, amount: number)
 	local index = SpinLogic.indexOf(self._rows, slice)
 	if slice <= 0 or index == nil then
 		if slice > 0 then
-			self:_say("You won a prize!", Theme.colors.goodDark) -- a slice this catalog does not know
+			self:_say("You won a prize!", PAL.good) -- a slice this catalog does not know
 		else
-			self:_say(SpinLogic.refusal(self._spin, now), Theme.colors.warnDark)
+			self:_say(SpinLogic.refusal(self._spin, now), PAL.warn)
 			-- the wheel's own soft tok-tok; uiError "sounds too similar to a device disconnecting" (Derek 10-28)
 			Sound.play("uiSpinBusy")
 		end
@@ -525,7 +529,7 @@ function SpinWheel.result(self: any, slice: number, amount: number)
 		return
 	end
 	self:_light(nil)
-	self:_say("", Theme.modal.text)
+	self:_say("", PAL.text)
 	local calm = GuiService.ReducedMotionEnabled
 	local start = os.clock()
 	self._turn = {
@@ -566,7 +570,7 @@ function SpinWheel._build(self: any)
 				Name = "Spoke" .. index,
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Size = UDim2.new(0, SPOKE, 0.5, 0),
-				BackgroundColor3 = Theme.colors.line,
+				BackgroundColor3 = PAL.line,
 				BorderSizePixel = 0,
 				ZIndex = 1,
 				Parent = self._face,
@@ -582,7 +586,7 @@ function SpinWheel._build(self: any)
 			ZIndex = 2,
 			Parent = self._face,
 		})
-		local stroke = Outline.border(holder, Theme.sizes.stroke, Theme.modal.cardStroke)
+		local stroke = Outline.border(holder, Theme.sizes.stroke, PAL.cardStroke)
 		local icon = ItemIcon.new({
 			parent = holder,
 			size = UDim2.fromScale(0.6, 0.6),
@@ -645,14 +649,14 @@ function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
 	local line: Frame = Create("Frame", {
 		Name = "Slice" .. row.slice,
 		LayoutOrder = order,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, ODDS_ROW),
 		Parent = self._oddsList,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 	})
-	local stroke = Outline.border(line, Theme.sizes.stroke, Theme.modal.cardStroke)
+	local stroke = Outline.border(line, Theme.sizes.stroke, PAL.cardStroke)
 	local icon = ItemIcon.new({
 		parent = line,
 		size = UDim2.fromOffset(ODDS_ICON, ODDS_ICON),
@@ -671,7 +675,7 @@ function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
 	})
 	local track: Frame = Create("Frame", {
 		Name = "Bar",
-		BackgroundColor3 = Theme.colors.line,
+		BackgroundColor3 = PAL.line,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(left, 38),
 		Size = UDim2.new(1, -(left + ODDS_CHANCE), 0, 12),
@@ -776,7 +780,7 @@ function SpinWheel._land(self: any, turn: Turn)
 	local won = if row
 		then "You won " .. self:_prize(row, turn.amount) .. "!"
 		else "You won a prize!"
-	self:_say(won, Theme.colors.goodDark)
+	self:_say(won, PAL.good)
 	local tile: Tile? = self._tiles[turn.index]
 	if tile and self.frame.Visible then
 		Tween.popIn(tile.holder, 1.35)
@@ -820,7 +824,7 @@ function SpinWheel._light(self: any, index: number?)
 	self._landed = index
 	for each, tile: Tile in self._tiles do
 		local lit = each == index
-		tile.stroke.Color = if lit then Theme.colors.gold else Theme.modal.cardStroke
+		tile.stroke.Color = if lit then Theme.colors.gold else PAL.cardStroke
 		tile.stroke.Thickness = if lit then 4 else Theme.sizes.stroke
 	end
 end
@@ -871,7 +875,7 @@ function SpinWheel._press(self: any)
 		return
 	end
 	self._pressedAt = os.clock()
-	self:_say("", Theme.modal.text)
+	self:_say("", PAL.text)
 	self._callbacks.spin()
 	self:_refresh()
 end
@@ -892,7 +896,7 @@ function SpinWheel._refresh(self: any)
 	local spin: Types.SpinState? = self._spin
 	if self._pressedAt and os.clock() - self._pressedAt >= PENDING_SECONDS then
 		self._pressedAt = nil
-		self:_say("The wheel did not answer. Try again!", Theme.colors.warnDark)
+		self:_say("The wheel did not answer. Try again!", PAL.warn)
 	end
 	if not self.frame.Visible then
 		return
@@ -922,9 +926,7 @@ function SpinWheel._refresh(self: any)
 		freeLine ..= ("  ·  %d saved"):format(banked)
 	end
 	self._freeLabel.Text = freeLine
-	self._freeLabel.TextColor3 = if SpinLogic.freeDue(spin, now)
-		then Theme.colors.goodDark
-		else Theme.modal.subtext
+	self._freeLabel.TextColor3 = if SpinLogic.freeDue(spin, now) then PAL.good else PAL.subtext
 
 	local turn: Turn? = self._turn
 	local button = SpinLogic.button({

@@ -17,6 +17,9 @@ local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Callbacks = {
 	buyLawn: (id: string, spotId: string?) -> (),
 	setLawnSpot: (spotId: string, pieceId: string) -> (), -- "" clears the spot
@@ -60,7 +63,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -111,7 +114,7 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks): LawnTab
 			Name = (def.label:gsub(" ", "")),
 			Text = "",
 			AutoButtonColor = false,
-			BackgroundColor3 = Theme.modal.card,
+			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
 			LayoutOrder = order,
 			Size = UDim2.fromOffset(SLOT_WIDTH, STRIP_HEIGHT),
@@ -120,7 +123,7 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks): LawnTab
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 		})
 		local stroke: UIStroke = Create("UIStroke", {
-			Color = Theme.modal.cardStroke,
+			Color = PAL.cardStroke,
 			Thickness = Theme.sizes.stroke,
 			Parent = slot,
 		})
@@ -136,7 +139,7 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks): LawnTab
 			Size = UDim2.new(1, -(STRIP_HEIGHT + 6), 0, 16),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			Text = def.label,
 			Parent = slot,
 		})
@@ -187,7 +190,7 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks): LawnTab
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = frame,
 	}, {
@@ -225,12 +228,12 @@ function LawnTab._card(
 )
 	local card: Frame = Create("Frame", {
 		Name = id,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Parent = self._grid,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	local icon = ItemIcon.new({
 		parent = card,
@@ -284,7 +287,7 @@ function LawnTab._card(
 		Position = UDim2.fromOffset(10, 114),
 		Size = UDim2.new(1, -20, 0, 18),
 		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = what,
 		Parent = card,
 	})
@@ -338,7 +341,7 @@ function LawnTab.setFilter(self: any, filter: Filter)
 	self._filter = filter
 	for _, slot in self._slots do
 		local picked = slot.filter == filter
-		slot.stroke.Color = if picked then Theme.colors.gold else Theme.modal.cardStroke
+		slot.stroke.Color = if picked then Theme.colors.gold else PAL.cardStroke
 		slot.stroke.Thickness = if picked then Theme.sizes.stroke + 1 else Theme.sizes.stroke
 	end
 	for _, entry in self._cards do
@@ -354,16 +357,14 @@ function LawnTab.render(self: any, state: Types.PlayerState)
 		if slot.filter == "pieces" then
 			slot.icon:set(nil, slot.glyph, nil)
 			slot.value.Text = ("%d / %d"):format(used, open)
-			slot.value.TextColor3 = if open > 0 and used >= open
-				then Theme.colors.red
-				else Theme.modal.text
+			slot.value.TextColor3 = if open > 0 and used >= open then Theme.colors.red else PAL.text
 			continue
 		end
 		local id = LawnLogic.inUse(state, slot.filter)
 		local style = if id ~= nil then LawnLogic.getStyle(id) else nil
 		slot.icon:set(if style then style.model else nil, slot.glyph, nil)
 		slot.value.Text = if style then style.name else "None"
-		slot.value.TextColor3 = if style then Theme.modal.text else Theme.modal.subtext
+		slot.value.TextColor3 = if style then PAL.text else PAL.subtext
 	end
 	for _, entry in self._cards do
 		local action = if entry.piece

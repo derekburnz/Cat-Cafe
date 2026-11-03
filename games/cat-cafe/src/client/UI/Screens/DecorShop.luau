@@ -35,6 +35,9 @@ local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
 export type Callbacks = {
@@ -94,7 +97,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -125,6 +128,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	local chipHeight = self._chipHeight
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Decor",
 		color = Theme.colors.goldDark,
 		icon = Theme.icons.decor,
@@ -213,7 +217,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
@@ -229,12 +233,12 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	local footer: Frame = Create("Frame", {
 		Name = "FindMore",
 		LayoutOrder = 100000,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Parent = self._grid,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	text({
 		Name = "Glyph",
@@ -260,7 +264,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 		Position = UDim2.fromOffset(10, FOOTER_HEIGHT + 50),
 		Size = UDim2.new(1, -20, 0, 18),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "Golden Fish Market",
 		Parent = footer,
@@ -385,14 +389,14 @@ function DecorShop._buildStrip(self: any)
 			Name = kind,
 			Text = "",
 			AutoButtonColor = false,
-			BackgroundColor3 = Theme.modal.card,
+			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
 			LayoutOrder = order,
 			Size = UDim2.fromOffset(SLOT_WIDTH, STRIP_HEIGHT),
 			Parent = self._strip,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+			Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
 		local icon = ItemIcon.new({
 			parent = frame,
@@ -407,7 +411,7 @@ function DecorShop._buildStrip(self: any)
 			Size = UDim2.new(1, -(STRIP_HEIGHT + 6), 0, 16),
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			Text = if spots then "Decor spots" else DecorPieces.kindName(kind),
 			Parent = frame,
 		})
@@ -443,7 +447,7 @@ function DecorShop._renderStrip(self: any, state: Types.PlayerState, used: numbe
 		if slot.kind == "spots" then
 			slot.icon:set(nil, DecorPieces.kindIcon("furniture", Theme.icons.decor), nil)
 			slot.value.Text = ("%d / %d"):format(used, spots)
-			slot.value.TextColor3 = if used >= spots then Theme.colors.red else Theme.modal.text
+			slot.value.TextColor3 = if used >= spots then PAL.red else PAL.text
 			continue
 		end
 		local def = DecorPieces.inUse(self._decor, state.decorPlaced, slot.kind)
@@ -454,7 +458,7 @@ function DecorShop._renderStrip(self: any, state: Types.PlayerState, used: numbe
 			piece.rarity
 		)
 		slot.value.Text = if def then def.name else "Plain"
-		slot.value.TextColor3 = if def then Theme.modal.text else Theme.modal.subtext
+		slot.value.TextColor3 = if def then PAL.text else PAL.subtext
 	end
 end
 
@@ -538,13 +542,13 @@ function DecorShop._build(self: any)
 		local piece = DecorPieces.info(decor)
 		local card: Frame = Create("Frame", {
 			Name = decor.id,
-			BackgroundColor3 = Theme.modal.card,
+			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
 			LayoutOrder = index,
 			Parent = self._grid,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+			Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
 
 		-- art
@@ -667,7 +671,7 @@ function DecorShop._build(self: any)
 			Position = UDim2.fromOffset(10, 114),
 			Size = UDim2.new(1, -20, 0, 18),
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			Text = if piece.kind
 				then ("+%s money while in use"):format(Format.percent(decor.bonus or 0))
 				else decor.effect or decor.description or "",

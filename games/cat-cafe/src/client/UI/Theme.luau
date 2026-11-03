@@ -191,6 +191,8 @@ Theme.dark = {
 	good = Color3.fromHex("7BDA8F"), -- "Claimed", "Ready" and other green words
 	gold = Theme.colors.gold, -- gold words
 	caramel = Color3.fromHex("E0A86C"), -- scroll bars
+	red = Color3.fromHex("FF8A85"), -- refusals and errors (5.4:1 on a card)
+	warn = Color3.fromHex("F5A26B"), -- warnings (6.0:1 on a card)
 	-- a gold-tinted card (best day, ready row, the set strip): gold 0.85 of the way to `card`, so every text colour
 	-- here still reads at 5:1 or better on it (white 8.5, subtext 5.2, good 5.0, gold 5.6)
 	goldCard = Color3.fromHex("5C4A33"),

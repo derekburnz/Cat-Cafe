@@ -34,6 +34,9 @@ local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Callbacks = {
 	answer: (accept: boolean) -> (),
 	open: (force: boolean) -> (), -- open the card's window; unless forced (a tap on the tag), not over another one
@@ -84,7 +87,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -122,6 +125,7 @@ function Collector.new(parent: Instance, callbacks: Callbacks): Collector
 	self._shownKey = "" -- the cat and offer on the card, so a render does not rebuild the picture
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Collector",
 		title = "Cat Collector",
 		subtitle = "",
@@ -204,7 +208,7 @@ function Collector.new(parent: Instance, callbacks: Callbacks): Collector
 		Position = UDim2.fromOffset(0, noteTop),
 		Size = UDim2.new(1, 0, 0, NOTE_HEIGHT),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = NOTE,
 		Parent = content,
 	})
@@ -457,7 +461,7 @@ function Collector._refresh(self: any)
 		local breed = if def then def.name else "Your cat"
 		self._name.Text = if custom and custom ~= "" then custom else breed
 		self._rarity.Text = CollectorLogic.catLine(if def then def.rarity else nil, variant)
-		self._rarity.TextColor3 = Theme.rarityInk(if def then def.rarity else nil)
+		self._rarity.TextColor3 = Theme.rarityColor(if def then def.rarity else nil) -- bright on the dark body (#1028)
 		self._chips:set(CollectorLogic.prize(visit.offer, if def then def.area else nil))
 	end
 	self:_refreshButtons()

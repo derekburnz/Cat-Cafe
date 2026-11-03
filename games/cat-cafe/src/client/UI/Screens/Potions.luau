@@ -23,6 +23,9 @@ local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Callbacks = {
 	use: (potionId: string) -> (),
 	close: () -> (),
@@ -58,7 +61,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -79,6 +82,7 @@ function Potions.new(callbacks: Callbacks): Potions
 	self._pending = {} :: { [string]: number } -- potion id -> os.clock() of the press
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Potions",
 		title = "Potions",
 		subtitle = "Drink one for a boost · timers pause while you're away",
@@ -99,7 +103,7 @@ function Potions.new(callbacks: Callbacks): Potions
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
@@ -118,7 +122,7 @@ function Potions.new(callbacks: Callbacks): Potions
 		Name = "Hint",
 		Size = UDim2.new(1, 0, 0, 40),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextWrapped = true,
 		Text = "No potions yet. Mystery visitors, gifts and codes give them.",
@@ -168,13 +172,13 @@ end
 function Potions._row(self: any, potionId: string): Row
 	local frame: Frame = Create("Frame", {
 		Name = potionId,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, ROW_H),
 		Parent = self._list,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	local tile: Frame = Create("Frame", {
 		Name = "Tile",
@@ -239,7 +243,7 @@ function Potions._row(self: any, potionId: string): Row
 		Position = UDim2.fromOffset(textLeft, 40),
 		Size = UDim2.new(1, -(textLeft + textRight), 0, 22),
 		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Parent = frame,
 	})
 	-- "8:12 left" over the Use button while it runs
@@ -250,7 +254,7 @@ function Potions._row(self: any, potionId: string): Row
 		Size = UDim2.fromOffset(USE_W, 18),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.colors.goodDark,
+		TextColor3 = PAL.good,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Visible = false,
 		Parent = frame,

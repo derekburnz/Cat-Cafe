@@ -15,6 +15,9 @@ local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Requirement = {
 	label: string, -- "5 different cats"
 	short: string, -- "Different cats", the HUD goal block's caption over its bar, where the status says how many
@@ -245,7 +248,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -262,6 +265,7 @@ function RankUp.new(callbacks: Callbacks): RankUp
 	self._rows = {} :: { Frame }
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "RankUp",
 		color = Theme.colors.goldDark,
 		icon = "🏆",
@@ -288,7 +292,7 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		Position = UDim2.fromOffset(0, 36),
 		Size = UDim2.new(1, 0, 0, 20),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = "To rank up you need",
 		Parent = content,
 	})
@@ -311,7 +315,7 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		Position = UDim2.fromOffset(0, OPENS_TOP),
 		Size = UDim2.new(1, 0, 0, 20),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = "It opens",
 		Parent = content,
 	})
@@ -411,7 +415,7 @@ end
 function RankUp._row(self: any, index: number, item: Requirement): Frame
 	local row: Frame = Create("Frame", {
 		Name = "Row" .. index,
-		BackgroundColor3 = Theme.modal.card,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		LayoutOrder = index,
 		Size = UDim2.new(1, 0, 0, ROW_HEIGHT),
@@ -419,7 +423,7 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		Create("UIStroke", {
-			Color = if item.met then Theme.colors.good else Theme.modal.cardStroke,
+			Color = if item.met then Theme.colors.good else PAL.cardStroke,
 			Thickness = Theme.sizes.stroke,
 		}),
 	})
@@ -439,13 +443,13 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 		Size = UDim2.new(0, 170, 1, -6),
 		FontFace = Theme.fonts.display,
 		TextXAlignment = Enum.TextXAlignment.Right,
-		TextColor3 = if item.met then Theme.colors.good else Theme.colors.warn,
+		TextColor3 = if item.met then PAL.good else PAL.warn,
 		Text = item.status,
 		Parent = row,
 	})
 	local track: Frame = Create("Frame", {
 		Name = "Track",
-		BackgroundColor3 = Theme.colors.line,
+		BackgroundColor3 = PAL.line,
 		BorderSizePixel = 0,
 		Position = UDim2.new(0, 14, 1, -9),
 		Size = UDim2.new(1, -28, 0, 4),

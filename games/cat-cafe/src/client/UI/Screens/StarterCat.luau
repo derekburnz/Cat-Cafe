@@ -26,6 +26,9 @@ local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 -- What the card shows (StarterCatController's view).
 export type View = {
 	claimed: boolean,
@@ -74,7 +77,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextWrapped = true,
 		Text = "",
@@ -101,6 +104,7 @@ function StarterCat.new(callbacks: Callbacks): StarterCat
 	local row = Scale.tapHeight(ROW, Theme.sizes.buttonDepth)
 	local height = MAX_SIZE.Y + row - ROW
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "StarterCat",
 		title = "Bellhop Cat",
 		subtitle = "Free cat!",
@@ -163,7 +167,7 @@ function StarterCat.new(callbacks: Callbacks): StarterCat
 		Size = UDim2.new(1, -right, 0, RATE_HEIGHT),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
-		TextColor3 = Theme.colors.goodDark,
+		TextColor3 = PAL.good,
 		Parent = content,
 	})
 	self._role = text({
@@ -235,9 +239,9 @@ function StarterCat._paint(self: any)
 		else refusal or view.line
 	self._status.Text = if self._pending then "..." else line or ""
 	self._status.TextColor3 = if claimed
-		then Theme.colors.goodDark
-		elseif refusal ~= nil then Theme.colors.red
-		else Theme.colors.warnDark
+		then PAL.good
+		elseif refusal ~= nil then PAL.red
+		else PAL.warn
 	self._status.Position = UDim2.fromOffset(
 		0,
 		if claimed then self._claimedTop else self._rowTop - STATUS_HEIGHT - GAP
@@ -262,7 +266,7 @@ function StarterCat.show(self: any, view: View, def: Types.CatDef?)
 		self._defId = def.id
 		self._portrait:set(def)
 		local loves: string? = def.favoriteRole
-		self._role.Text = if loves then Format.lovesRole(loves, Theme.modal.text) else ""
+		self._role.Text = if loves then Format.lovesRole(loves, PAL.text) else ""
 	end
 	local key = ("%s|%s|%s|%.2f"):format(
 		tostring(view.claimed),

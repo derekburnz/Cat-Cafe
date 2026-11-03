@@ -31,6 +31,9 @@ local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
 export type Callbacks = {
@@ -71,7 +74,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -96,6 +99,7 @@ function Codes.new(callbacks: Callbacks): Codes
 	self._connections = {} :: { RBXScriptConnection }
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Codes",
 		title = "Codes",
 		subtitle = "From the Codes Cat",
@@ -119,14 +123,14 @@ function Codes.new(callbacks: Callbacks): Codes
 		Name = "Hint",
 		Size = UDim2.new(1, 0, 0, HINT_HEIGHT),
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.subtext,
 		Text = HINT,
 		Parent = content,
 	})
 	local rowTop = HINT_HEIGHT + GAP
 	local box: TextBox = Create("TextBox", {
 		Name = "Code",
-		BackgroundColor3 = Theme.colors.cream,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(0, rowTop),
 		Size = UDim2.new(1, -(REDEEM_WIDTH + GAP), 0, ROW),
@@ -134,8 +138,8 @@ function Codes.new(callbacks: Callbacks): Codes
 		ClipsDescendants = true,
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
-		TextColor3 = Theme.modal.text,
-		PlaceholderColor3 = Theme.modal.subtext,
+		TextColor3 = PAL.text,
+		PlaceholderColor3 = PAL.subtext,
 		PlaceholderText = PLACEHOLDER,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = "",
@@ -144,7 +148,7 @@ function Codes.new(callbacks: Callbacks): Codes
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }),
 	})
-	Outline.border(box, Theme.sizes.stroke, Theme.modal.cardStroke)
+	Outline.border(box, Theme.sizes.stroke, PAL.cardStroke)
 	self._box = box
 	self._redeem = Button.new({
 		name = "Redeem",
@@ -244,7 +248,7 @@ end
 function Codes._setAnswer(self: any, ok: boolean?, message: string?, prize: Types.IndexPrize?)
 	self._failed = ok == false
 	self._answer.Text = message or ""
-	self._answer.TextColor3 = if ok then Theme.colors.goodDark else Theme.colors.red
+	self._answer.TextColor3 = if ok then PAL.good else PAL.red
 	self._chips:set(prize, self:_look())
 	self._prizeRow.Visible = prize ~= nil
 	if prize ~= nil then

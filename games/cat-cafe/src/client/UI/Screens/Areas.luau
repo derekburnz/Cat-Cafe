@@ -11,6 +11,9 @@ local Panel = require(script.Parent.Parent.Components.Panel)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 export type Callbacks = {
 	travel: (areaId: string) -> (),
 	close: () -> (),
@@ -34,7 +37,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -52,6 +55,7 @@ function Areas.new(callbacks: Callbacks): Areas
 	self._catalog = nil :: Types.Catalog?
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Areas",
 		color = Theme.colors.good,
 		icon = Theme.icons.travel,
@@ -72,7 +76,7 @@ function Areas.new(callbacks: Callbacks): Areas
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
@@ -107,13 +111,13 @@ function Areas._buildCards(self: any)
 	for index, area in areaList do
 		local frame: Frame = Create("Frame", {
 			Name = area.id,
-			BackgroundColor3 = Theme.modal.card,
+			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
 			LayoutOrder = index,
 			Parent = self._grid,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+			Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
 		local art: Frame = Create("Frame", {
 			Name = "Art",
@@ -207,7 +211,7 @@ function Areas.render(self: any, state: Types.PlayerState, carrying: boolean)
 		card.lock.Visible = not unlocked
 		card.icon.TextTransparency = if unlocked then 0 else 0.55
 		card.art.BackgroundTransparency = if unlocked then 0 else 0.45
-		card.name.TextColor3 = if unlocked then Theme.modal.text else Theme.modal.subtext
+		card.name.TextColor3 = if unlocked then PAL.text else PAL.subtext
 		if unlocked then
 			card.go:setText(if closed then Theme.icons.moon .. " Sunrise" else "Go")
 			card.go:setEnabled(not carrying and not closed)

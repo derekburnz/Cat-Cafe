@@ -35,6 +35,9 @@ local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
+-- the dark window palette (#1028), in place of Theme.modal
+local PAL = Theme.dark
+
 local Bait = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Bait"))
 local Economy = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Economy"))
 
@@ -73,7 +76,7 @@ local function text(props: { [string]: any }): TextLabel
 		BackgroundTransparency = 1,
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = PAL.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
@@ -100,7 +103,7 @@ local function attractsChip(parent: Instance, lure: Types.LureDef, order: number
 		Size = UDim2.fromOffset(0, 20),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.modal.text,
+		TextColor3 = Theme.colors.ink, -- dark words on the paper chip
 		Text = FoodGrade.attracts(lure),
 		LayoutOrder = order,
 		Parent = parent,
@@ -130,6 +133,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	self._accumulator = 0
 
 	local panel = Panel.new({
+		dark = true, -- #1028
 		name = "Bait",
 		color = Theme.colors.mintDark,
 		icon = Theme.upgradeIcons.lure_bowl,
@@ -239,7 +243,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
-		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
@@ -289,7 +293,7 @@ function BaitBowl._buildRows(self: any)
 		local dealer = lure.source == "dealer"
 		local row: Frame = Create("Frame", {
 			Name = lure.id,
-			BackgroundColor3 = Theme.modal.card,
+			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
 			AutomaticSize = Enum.AutomaticSize.Y,
 			Size = UDim2.new(1, 0, 0, 0),
@@ -347,7 +351,7 @@ function BaitBowl._buildRows(self: any)
 			Position = UDim2.fromOffset(TEXT_LEFT, 38),
 			Size = UDim2.new(1, TEXT_WIDTH, 0, 18),
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			Parent = top,
 		})
 		local odds = text({
@@ -411,7 +415,7 @@ function BaitBowl._buildRows(self: any)
 			AutomaticSize = Enum.AutomaticSize.Y,
 			Size = UDim2.new(1, 0, 0, 0),
 			TextSize = Theme.sizes.textTiny,
-			TextColor3 = Theme.modal.subtext,
+			TextColor3 = PAL.subtext,
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top,

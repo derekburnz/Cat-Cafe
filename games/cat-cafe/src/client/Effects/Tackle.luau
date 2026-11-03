@@ -24,7 +24,9 @@
 -- (CannonGlide.frames).
 -- A staged character (tagged StagedCharacter, such as the intro's copy of you) gets the net hold and the carry like a
 -- player's; it has no player, so no tackle and no cannon flight from the attributes it was cloned with. Its own
--- flight poses come from StagedFlight (CannonGlide.staged), over everything, while the intro moves it.
+-- flight poses come from StagedFlight (CannonGlide.staged), over everything, while the intro moves it. One that also
+-- carries `StagedTackle` = true (the store video's shovers, assets/cat-cafe/anim/trailer) dives and belly-slides from
+-- its own `TackleAt` and `TackleMissAt` like a player who missed; whoever stages it moves its root.
 -- Listening only: nothing here fires a remote.
 
 local CollectionService = game:GetService("CollectionService")
@@ -59,6 +61,7 @@ type Entry = {
 local SAME = 1e-5
 local RETRY_SECONDS = 1 -- a character with no rig yet is read again this often
 local STAGED = "StagedCharacter" -- the tag on a character model with no player that is posed all the same
+local STAGED_TACKLE = "StagedTackle" -- true on a staged model whose own TackleAt and TackleMissAt are its dive
 
 local entries: { [Model]: Entry } = {}
 local stale: { [Model]: number } = {} -- characters whose rig must be read (again), and when to try next
@@ -310,6 +313,22 @@ local function step(dt: number)
 			local staged, showing = CannonGlide.staged(character, entry.rig, now)
 			if staged ~= nil then
 				table.insert(layers, { frames = staged, weight = showing })
+			elseif near and character:GetAttribute(STAGED_TACKLE) == true then
+				-- a staged tackler's own dive, always a miss: nobody it could have hit is named
+				local pose, weight = Avatar.at({
+					tackleAt = number(character, "TackleAt"),
+					hitAt = nil,
+					missAt = number(character, "TackleMissAt"),
+					shovedAt = nil,
+					fallForward = false,
+					side = 0,
+				}, now, times)
+				if pose ~= nil and weight > 0 then
+					table.insert(
+						layers,
+						{ frames = Avatar.solve(entry.rig, pose), weight = weight }
+					)
+				end
 			end
 			apply(entry, layers)
 			continue

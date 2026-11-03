@@ -2,6 +2,8 @@
 -- Visual tokens for the cat cafe UI. "Cozy Cream" from the concept sketches is the default.
 -- Change colors here, not in screens. Rarity colors are shared with the collection, shop and catch prompt.
 
+local CleanGlyphs = require(script.Parent.Components.CleanGlyphs)
+
 local Theme = {}
 
 Theme.name = "Cozy Cream"
@@ -393,28 +395,8 @@ Theme.foodIcons = {
 	star_treat = "⭐",
 } :: { [string]: string }
 
--- The clean symbol (Components/ShopIcons.clean, assets/cat-cafe/ui/icons-clean-2026-11-03) drawn for a glyph
--- everywhere IconArt draws it: window badges, prize tiles, item icons and buttons, so the windows match the clean HUD
--- (Derek live v181, #1027: "old pics of tips and daily rewards are still not updaed"). A glyph without a clean
--- symbol keeps its old sheet cell until one is drawn.
-Theme.cleanGlyphs = {
-	[Theme.icons.cats] = "Cats",
-	[Theme.icons.collection] = "Index",
-	[Theme.icons.upgrades] = "Upgrades",
-	[Theme.icons.decor] = "Decor",
-	[Theme.icons.home] = "Home",
-	[Theme.icons.travel] = "Areas",
-	[Theme.icons.cannon] = "Cannon",
-	[Theme.icons.feedback] = "Feedback",
-	[Theme.icons.gifts] = "Rewards", -- the Tip Jar's gifts
-	[Theme.icons.daily] = "Rewards", -- the Daily Treat shares the HUD's Rewards tile
-	[Theme.icons.crate] = "Crate",
-	[Theme.icons.potion] = "Potion",
-	[Theme.icons.quests] = "Quests",
-	[Theme.icons.tutorial] = "Tutorial",
-	[Theme.foodIcons.kibble] = "Bowl",
-	[Theme.foodIcons.caviar] = "Caviar",
-} :: { [string]: string }
+-- glyph -> the clean symbol IconArt draws for it (#1027, Components/CleanGlyphs)
+Theme.cleanGlyphs = CleanGlyphs.map(Theme.icons, Theme.foodIcons)
 
 function Theme.potionColor(potionId: string): Color3
 	return Theme.potionColors[potionId] or Color3.fromHex("C07CFF")

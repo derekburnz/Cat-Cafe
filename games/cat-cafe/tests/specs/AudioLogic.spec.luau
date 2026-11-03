@@ -1072,6 +1072,34 @@ return function()
 		end)
 	end)
 
+	-- #954 and #955: the longer cannon flight lands the thump on the feet (Config CannonTouchdownAt 3.5 of 4.0).
+	describe("Audio.Logic cannon beats", function()
+		it("uses Config's clouds and touchdown times", function()
+			local clouds, touchdown = Logic.cannonBeats(2.0, 3.5, 4.0, 1.4, 3)
+			expect(clouds).to.equal(2.0)
+			expect(touchdown).to.equal(3.5)
+		end)
+
+		it(
+			"falls back to the old clouds time and the end of the flight without the keys",
+			function()
+				local clouds, touchdown = Logic.cannonBeats(nil, nil, 3.0, 1.4, 3)
+				expect(clouds).to.equal(1.4)
+				expect(touchdown).to.equal(3.0)
+				clouds, touchdown = Logic.cannonBeats(nil, nil, nil, 1.4, 3)
+				expect(touchdown).to.equal(3)
+			end
+		)
+
+		it("ignores bad values and never touches down before the clouds", function()
+			local clouds, touchdown = Logic.cannonBeats(-1, 0 / 0, "4", 1.4, 3)
+			expect(clouds).to.equal(1.4)
+			expect(touchdown).to.equal(3)
+			clouds, touchdown = Logic.cannonBeats(2.5, 1.0, 4.0, 1.4, 3)
+			expect(touchdown).to.equal(2.5)
+		end)
+	end)
+
 	-- #981 (Derek 2026-11-03): the cafe was too busy, the money dings too loud and too often, the greyed button too
 	-- loud. Only your own cafe dings, the coin pop is spaced out and the refusal is a soft low tick.
 	describe("Audio.Logic quieter cafe (#981)", function()

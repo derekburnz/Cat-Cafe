@@ -560,6 +560,13 @@ function Avatar.smack(seconds: number, missedAt: number?): NetArm?
 			waist = a.waist + (b.waist - a.waist) * t,
 		}
 	end
+	local impact = k.impact or 0
+	-- back to the hold, overshooting it a little by `settle` and settling (an ease out with a back swing)
+	local function settle(t: number): number
+		local c = k.settle or 0
+		local u = math.clamp(t, 0, 1) - 1
+		return 1 + (c + 1) * u * u * u + c * u * u
+	end
 	-- the swing as a hit plays it, nil from `ends` on
 	local function swing(at: number): NetArm?
 		if at < k.rise then
@@ -567,8 +574,10 @@ function Avatar.smack(seconds: number, missedAt: number?): NetArm?
 		elseif at < k.land then
 			local t = (at - k.rise) / (k.land - k.rise)
 			return mix(raised, landed, t * t) -- faster and faster into the ground
+		elseif at < k.land + impact then
+			return mix(landed, landed, 0) -- held on the ground a beat, the smack
 		elseif at < k.ends then
-			return mix(landed, hold, smooth((at - k.land) / (k.ends - k.land)))
+			return mix(landed, hold, settle((at - k.land - impact) / (k.ends - k.land - impact)))
 		end
 		return nil
 	end
@@ -584,11 +593,13 @@ function Avatar.smack(seconds: number, missedAt: number?): NetArm?
 		return nil
 	end
 	local up = from + k.bounce
-	local back = k.ends - k.land - k.bounce
+	-- over at `ends` for a miss known by the landing, that much later for one heard late (exactly, not a sum that
+	-- rounds a hair past it)
+	local done = if from <= k.land then k.ends else from + (k.ends - k.land)
 	if seconds < up then
 		return mix(start, bounced, smooth((seconds - from) / k.bounce))
-	elseif seconds < up + back then
-		return mix(bounced, hold, smooth((seconds - up) / back))
+	elseif seconds < done then
+		return mix(bounced, hold, settle((seconds - up) / (done - up)))
 	end
 	return nil
 end

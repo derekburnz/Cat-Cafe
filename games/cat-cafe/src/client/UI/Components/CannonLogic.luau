@@ -7,7 +7,7 @@
 --   moreToOpen(areas, tier)  whether a rank up opens more ("More open as you rank up.")
 --   button(destination, closed, dusk, carrying)  a card's Launch: "launch", "carrying", "dusk" or "night"
 --   notice(closed, dusk, carrying, remaining)  the line under the picker's title, or nil for the plain one
---   cardTitle / cardSub  "To the Woods!" and "Landing at the Woods camp"
+--   cardTitle            "To the Woods!" (the card's sub line went 2026-11-03)
 --   cardTimes(hold?) / cardPhase(elapsed, hold?)  the name card's steps, seconds after CannonLaunchAt
 --   hint(view)  the cannon hint over the HUD, or nil
 -- Pure, no Theme, so the cloud spec runner can load it.
@@ -137,13 +137,6 @@ function CannonLogic.cardTitle(destination: string, name: string): string
 		return "To " .. CannonLogic.TOWN_NAME .. "!"
 	end
 	return "To the " .. name .. "!"
-end
-
-function CannonLogic.cardSub(destination: string, name: string): string
-	if destination == CannonLogic.TOWN then
-		return "Landing in " .. CannonLogic.TOWN_NAME
-	end
-	return "Landing at the " .. name .. " camp"
 end
 
 -- When the card pops in, wobbles, zips off and is gone. `hold` is how long it stays from popping in to zipping off

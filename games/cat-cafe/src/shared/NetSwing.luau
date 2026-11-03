@@ -25,6 +25,7 @@ export type SwingCheck = {
 	busy: boolean, -- in a catch or a rescue
 	inFlight: boolean, -- a Cat Cannon flight or a cloud hop (F84)
 	inCamp: boolean, -- a camp is a safe zone (F84)
+	inTown: boolean?, -- on the Town Square, where the net is put away (Derek 2026-11-03)
 	sinceSwing: number?, -- seconds since this player's last swing, nil for the first
 }
 
@@ -129,6 +130,9 @@ function NetSwing.refusal(check: SwingCheck): string?
 	end
 	if check.inCamp then
 		return "camp"
+	end
+	if check.inTown == true then
+		return "town"
 	end
 	if
 		check.sinceSwing ~= nil

@@ -2902,6 +2902,7 @@ Presets.cannon = {
 	landRadius = 1.6,
 	landDust = 4,
 	within = 150,
+	skyWithin = 300, -- the sky puff only: the flyer vanishes about 200 studs out and 120 up (#1018)
 	most = 4, -- flights showing their trail at once, your own first
 	findCannon = 20, -- studs round the player at launch to look for the cannon they sit in
 	-- The intro's cannon shot (intro-cutscene.md shot 2, PR #576): the flight squeezed, in seconds from the

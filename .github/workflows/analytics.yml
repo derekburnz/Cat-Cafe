@@ -43,6 +43,11 @@ jobs:
       DAYS: ${{ inputs.days }}
       FUNNEL: ${{ inputs.funnel }}
     steps:
+      - name: Which key secrets are set (names only, never values)
+        run: |
+          echo "OWNER_KEY set: ${{ secrets.OWNER_KEY != '' }}"
+          echo "ROBLOX_GROUP_KEY set: ${{ secrets.ROBLOX_GROUP_KEY != '' }}"
+          echo "ROBLOX_PUBLISH_KEY set: ${{ secrets.ROBLOX_PUBLISH_KEY != '' }}"
       - uses: actions/checkout@v5
         with:
           # the script, and Onboarding.luau for the onboarding funnels' step names (v2 and the alpha's v1)

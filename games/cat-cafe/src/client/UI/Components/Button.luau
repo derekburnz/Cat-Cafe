@@ -1,8 +1,9 @@
 --!strict
--- Chunky rounded button in the Roblox simulator style (Derek 2026-10-27: "copy the ui button background from the
--- popular games"): a dark outline round a face that runs from a light top colour to a deeper bottom one over a
--- darker lip, with faint tile marks, a light inner rim and a gloss on its top half (Theme.button), a white label
--- with a thick dark outline and an optional icon, press squash and hover grow (mouse only).
+-- Chunky rounded button (Derek 2026-10-27: "copy the ui button background from the popular games"), in the clean look
+-- since 2026-11-03 (Derek: "the buttons that are like this are getting old and should be remade to look clean"): a
+-- thick dark outline and a dark edge under a face that runs from a light top colour to a deeper one over a darker
+-- lip, a light bar along its top (Theme.button), a white label with a thick dark outline (dark text on the white
+-- ghost button) and an optional icon, press squash and hover grow (mouse only). No tile marks or gloss any more.
 -- Works with mouse, touch and gamepad through GuiButton.Activated. A press plays uiClick (or the `sound` prop's cue);
 -- a press on a greyed button plays uiError so the player hears why nothing happened.
 -- On a touch screen an invisible pad (Hit) over the button takes its taps and reaches out to a finger's 44 px when the
@@ -38,8 +39,8 @@ export type Style =
 -- a bright two-colour fill, a darker lip, a thick dark outline and one bold symbol (`image`, the glyph until it
 -- loads), its label under the square in white with a dark outline; `size` holds the square and the label.
 -- "wide": the clean tile drawn wide, the symbol at its left and the label inside, big (the Store).
--- "tile" has the clean look too since 2026-11-03, its short label inside the square under the picture (the HUD's
--- bottom row and corner on touch screens, where the labels under would stack too high).
+-- "tile": the same look with its short label inside the square under the picture (the HUD's tiles on touch screens,
+-- where the labels under would stack too high). "row" has the clean look too.
 -- A row with `iconSize` draws its icon as its own picture that size at the left, then the text (the HUD's pills).
 -- An inline icon with a whole picture in Theme.glyphImages (the golden fish on a price, F97 section 4) is drawn as that
 -- picture just before the text, the two centred together, the emoji showing until the picture loads.
@@ -79,7 +80,7 @@ export type Button = {
 }
 
 -- Each style's colours come from Theme.button. `outlined` labels are white with a dark outline (coloured
--- buttons); the light ghost button keeps dark text. Berry (pink) is for Equip Best and other "make my team
+-- buttons); the white ghost button keeps dark text. Berry (pink) is for Equip Best and other "make my team
 -- better" buttons.
 type Look = { top: Color3, bottom: Color3, depth: Color3, text: Color3, outlined: boolean }
 
@@ -111,12 +112,12 @@ local STYLES: { [string]: Look } = {
 }
 
 local HOVER_SCALE = 1.05
-local TILE = 18 -- px between the face's tile marks
-local TILE_TRANSPARENCY = 0.9
-local GLOSS = NumberSequence.new(0.62, 0.94) -- the top half's shine, strongest at the top
--- the clean tiles (2026-11-03 mockup): outline and depth in design px, the corner and the symbol as shares of the
--- square's side, where the darker lip starts down the face, the light bar at the top
+-- the clean look (2026-11-03 mockup): outline and depth in design px (a thinner outline on a small button), the
+-- corner and the symbol as shares of the square's side (a row's height), where the darker lip starts down the face,
+-- the light bar at the top
 local CLEAN_OUTLINE = 4
+local CLEAN_OUTLINE_SMALL = 3
+local SMALL = 40 -- a button under this many px tall is small
 local CLEAN_DEPTH = 5
 local CLEAN_CORNER = 0.26
 local CLEAN_SYMBOL = 0.72
@@ -130,13 +131,9 @@ local function brighten(color: Color3, amount: number): Color3
 	return color:Lerp(Theme.colors.white, amount)
 end
 
--- The face is white under a UIGradient, so the gradient's colours are the face's colours.
+-- The face is white under a UIGradient, so the gradient's colours are the face's colours: top to bottom colour, then
+-- a band of the darker depth colour along the bottom (the lip).
 local function fill(colors: Look, lighten: number): ColorSequence
-	return ColorSequence.new(brighten(colors.top, lighten), brighten(colors.bottom, lighten))
-end
-
--- A clean tile's face: top to bottom colour, then a band of the darker depth colour along the bottom (the lip).
-local function cleanFill(colors: Look, lighten: number): ColorSequence
 	local lip = brighten(colors.depth, lighten)
 	return ColorSequence.new({
 		ColorSequenceKeypoint.new(0, brighten(colors.top, lighten)),
@@ -151,17 +148,17 @@ function Button.new(props: Props): Button
 	local layout: Layout = props.layout or "row"
 	local enabled = if props.enabled == nil then true else props.enabled :: boolean
 	local textSize = props.textSize or Theme.sizes.textBody
-	local square = layout == "clean" or layout == "wide" -- the symbol drawn by the clean code below
-	local clean = square or layout == "tile"
-	local depth = if clean then CLEAN_DEPTH else Theme.sizes.buttonDepth
+	local square = layout == "clean" or layout == "wide" -- the symbol drawn by the square code below
+	local depth = CLEAN_DEPTH
 	local band = if layout == "clean" then textSize + 4 else 0 -- the label's strip under a clean square
 	local size = props.size or UDim2.fromOffset(140, 44)
-	local radius = Theme.sizes.radius
-	local side = math.min(size.X.Offset, size.Y.Offset - band) -- a clean square's side (the wide tile's height)
-	if clean and side > 0 then
-		radius = math.floor(side * CLEAN_CORNER)
-	end
-	local paint: (Look, number) -> ColorSequence = if clean then cleanFill else fill
+	-- a square's side (the wide tile's or a row's height); a side sized as a share of its parent counts as long
+	local width = if size.X.Scale == 0 then size.X.Offset else math.huge
+	local height = if size.Y.Scale == 0 then size.Y.Offset - band else math.huge
+	local side = math.min(width, height)
+	local measured = side > 0 and side < math.huge
+	local radius = if measured then math.floor(side * CLEAN_CORNER) else Theme.sizes.radius
+	local outline = if measured and side < SMALL then CLEAN_OUTLINE_SMALL else CLEAN_OUTLINE
 
 	local root: Frame = Create("Frame", {
 		Name = props.name or "Button",
@@ -173,17 +170,17 @@ function Button.new(props: Props): Button
 		ZIndex = props.zIndex or 1,
 	})
 
-	-- The depth frame spans the whole button so its outline wraps the face and the bottom edge together. A clean
-	-- tile's bottom edge is the outline's own dark colour, a thicker outline along the foot.
+	-- The depth frame spans the whole button so its outline wraps the face and the bottom edge together. The bottom
+	-- edge is the outline's own dark colour, a thicker outline along the foot.
 	local depthFrame: Frame = Create("Frame", {
 		Name = "Depth",
-		BackgroundColor3 = if clean then Theme.colors.outline else STYLES[style].depth,
+		BackgroundColor3 = Theme.colors.outline,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 1, -band),
 		ZIndex = props.zIndex or 1,
 		Parent = root,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, radius) }) })
-	Outline.border(depthFrame, if clean then CLEAN_OUTLINE else nil)
+	Outline.border(depthFrame, outline)
 
 	local face: TextButton = Create("TextButton", {
 		Name = "Face",
@@ -200,79 +197,32 @@ function Button.new(props: Props): Button
 	local gradient: UIGradient = Create("UIGradient", {
 		Name = "Fill",
 		Rotation = 90,
-		Color = paint(STYLES[style], 0),
+		Color = fill(STYLES[style], 0),
 		Parent = face,
 	})
-	-- faint tile marks over the fill, once the texture is uploaded (Theme.textures.buttonTiles); clean tiles have none
-	local tiles = Theme.textures.buttonTiles
-	if clean then
-		-- the light bar along the top of a clean face
-		Create("Frame", {
-			Name = "Shine",
-			BackgroundColor3 = Theme.colors.white,
-			BackgroundTransparency = CLEAN_SHINE_TRANSPARENCY,
-			BorderSizePixel = 0,
-			AnchorPoint = Vector2.new(0.5, 0),
-			Position = UDim2.new(0.5, 0, 0, 3),
-			Size = UDim2.new(1, -math.floor(radius * 1.2), 0, 5),
-			ZIndex = (props.zIndex or 1) + 1,
-			Parent = face,
-		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	elseif tiles ~= "" then
-		Create("ImageLabel", {
-			Name = "Tiles",
-			BackgroundTransparency = 1,
-			Size = UDim2.fromScale(1, 1),
-			Image = tiles,
-			ImageColor3 = Theme.colors.black,
-			ImageTransparency = TILE_TRANSPARENCY,
-			ScaleType = Enum.ScaleType.Tile,
-			TileSize = UDim2.fromOffset(TILE, TILE),
-			ZIndex = (props.zIndex or 1) + 1,
-			Parent = face,
-		}, { Create("UICorner", { CornerRadius = UDim.new(0, radius) }) })
-	end
-	-- the shine on the top half and a light rim just inside the outline (the older look; clean tiles have the bar)
-	if not clean then
-		Create("Frame", {
-			Name = "Gloss",
-			BackgroundColor3 = Theme.colors.white,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(4, 3),
-			Size = UDim2.new(1, -8, 0.42, 0),
-			ZIndex = (props.zIndex or 1) + 1,
-			Parent = face,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, math.max(2, radius - 3)) }),
-			Create("UIGradient", { Rotation = 90, Transparency = GLOSS }),
-		})
-		Create("Frame", {
-			Name = "Rim",
-			BackgroundTransparency = 1,
-			Position = UDim2.fromOffset(2, 2),
-			Size = UDim2.new(1, -4, 1, -4),
-			ZIndex = (props.zIndex or 1) + 1,
-			Parent = face,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, math.max(2, radius - 2)) }),
-			Create("UIStroke", {
-				Color = Theme.colors.white,
-				Thickness = 1.5,
-				Transparency = 0.6,
-			}),
-		})
-	end
+	-- the light bar along the top of the face (a little thinner on a small button)
+	local faceH = (if measured then side else 44) - depth
+	Create("Frame", {
+		Name = "Shine",
+		BackgroundColor3 = Theme.colors.white,
+		BackgroundTransparency = CLEAN_SHINE_TRANSPARENCY,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 3),
+		Size = UDim2.new(1, -math.floor(radius * 1.2), 0, if side < SMALL then 4 else 5),
+		ZIndex = (props.zIndex or 1) + 1,
+		Parent = face,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 
 	local isTile = layout == "tile"
 	local iconSize: number? = if not isTile
-			and not clean
+			and not square
 			and props.icon
 		then props.iconSize
 		else nil
 	local iconLeft = if iconSize then 6 + iconSize + 4 else 8 -- where a row's text starts
-	-- the icon sits in the text unless it is drawn on its own (tiles, clean tiles and rows with iconSize)
-	local inlineIcon = props.icon ~= nil and not isTile and not clean and iconSize == nil
-	local faceH = side - depth -- a clean face's height
+	-- the icon sits in the text unless it is drawn on its own (tiles, squares and rows with iconSize)
+	local inlineIcon = props.icon ~= nil and not isTile and not square and iconSize == nil
 	local symbol = math.max(8, math.floor(faceH * (if layout == "wide" then 0.9 else CLEAN_SYMBOL)))
 	-- an inline glyph with a whole picture: the picture and the text side by side in a centred row
 	local inlinePicture = if inlineIcon then Theme.glyphImages[props.icon :: string] else nil
@@ -410,7 +360,7 @@ function Button.new(props: Props): Button
 
 	if icon then
 		IconArt.set(icon, props.icon) -- the drawn picture from the icon sheet, when it has one for this glyph
-		if clean and props.image then
+		if props.image then
 			IconArt.setImage(icon, props.image)
 		end
 	end
@@ -476,8 +426,7 @@ function Button.new(props: Props): Button
 
 	local function applyStyle()
 		local colors = STYLES[if self._enabled then self._style else "disabled"]
-		gradient.Color = paint(colors, 0)
-		depthFrame.BackgroundColor3 = if clean then Theme.colors.outline else colors.depth
+		gradient.Color = fill(colors, 0)
 		label.TextColor3 = colors.text
 		textOutline.Enabled = colors.outlined
 		if icon then
@@ -536,7 +485,7 @@ function Button.new(props: Props): Button
 		target.MouseEnter:Connect(function()
 			if self._enabled and UserInputService.MouseEnabled then
 				hovered = true
-				gradient.Color = paint(STYLES[self._style], 0.12)
+				gradient.Color = fill(STYLES[self._style], 0.12)
 				if not pressed then
 					Tween.to(uiScale, Tween.FAST, { Scale = HOVER_SCALE })
 				end

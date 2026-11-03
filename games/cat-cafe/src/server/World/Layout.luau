@@ -1284,9 +1284,6 @@ Layout.townSquare = {
 	} :: { Rect },
 	-- the round plinth in the middle: the fountain's until v4, the Cat Cannon's since (Layout.cannons.town)
 	fountainRadius = 6,
-	-- The finger signpost (v3.1, section 7d) in place of the ring's south-west bench: left of the cannon from the
-	-- spawn and off the cross. Its arms point the way the cannon fires to each area (v4).
-	signpost = { x = -9, y = 0.1, z = -7.5 } :: Point,
 	-- The Rescue Rally's board (F101, Model-Agent #759: `CatCafe_Square_RallyBoard`, front -Z), in the north-east
 	-- quarter facing the spawn, off the lane and the cannon's lines; WorldBuilder.setRally shows it while a Rally runs.
 	rallyBoard = { asset = "CatCafe_Square_RallyBoard", x = 15, y = 0.1, z = 12, rotY = 30 } :: Prop,
@@ -1295,8 +1292,9 @@ Layout.townSquare = {
 	-- street, then the edge (Derek 10-28, Model-Agent #726): twelve lamps on the brick border, eight long buntings
 	-- round the sides and two short ones over the lane's ends (each ends 0.25 inside its lamps' hook rings, so the
 	-- lamps need no nudge), eight benches facing in, and the four gardens. The middle holds only the Cat Cannon
-	-- (v4, placed by WorldBuilder), its pad and the signpost, and the quarters only the stations. A short bunting
-	-- skips until its model is in (AssetRegistry.known).
+	-- (v4, placed by WorldBuilder) and its pad, and the quarters only the stations. The finger signpost south-west of
+	-- the cannon came out 2026-11-03 (Derek: its tier arms no longer matched the areas). A short bunting skips until
+	-- its model is in (AssetRegistry.known).
 	props = {
 		{ asset = "CatCafe_Square_Paving", x = 0, y = 0.1, z = 0 },
 		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = -32 },

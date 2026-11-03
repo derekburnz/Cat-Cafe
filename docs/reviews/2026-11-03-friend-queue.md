@@ -4,11 +4,12 @@ Reviewer: luau-reviewer (Review-Agent, friend's project). Derek's open PRs while
 
 | PR | Topic | Verdict | Action |
 |---|---|---|---|
-| #1022 | Cannon flight 4 s, intro cloud dip (Effects) | Pass | Ready; `automerge` label (auto-merge refused: already clean). Must merge before #1002. |
-| #1002 | Config cannon beats 4.0 s | Pending | Re-check against main after #1022 merges, then queue. |
+| #1022 | Cannon flight 4 s, intro cloud dip (Effects) | Pass | Ready; `automerge` label (auto-merge refused: already clean); merged 0c082b3f, before #1002. |
+| #1002 | Config cannon beats 4.0 s | Pass | Re-checked on main with #1022; auto-merge; merged 35b88f83. |
 | #1031 | Store pictures v2, store-media/analytics prefer `ROBLOX_GROUP_KEY` | Pass | Merged by hand (workflow change; label path cannot). Workflow not run. |
 | #1033 | asset-artist names EL4CTEO/blender-skills | Pass | Ready; `automerge` label; merged. |
 | #1035 | Money counter flashes only for lumps (#1026, UI-Engineer) | Pass | Ready; auto-merge; merged. |
+| #1037 | HUD right column stays under Roblox's top bar (#1025, UI-Engineer) | Pass | Ready; auto-merge once #1002 had landed. |
 | #1036 | `.claude/settings.json` allows `add_repo` and `register_repo_root` | Diff correct, **held** | Not queued: needs a human's own OK (see below). |
 
 ## #1022
@@ -37,7 +38,16 @@ Reviewer: luau-reviewer (Review-Agent, friend's project). Derek's open PRs while
 - It adds agent tools to `permissions.allow` repo-wide because auto mode refused `add_repo`. Widening the allowlist to get past a refusal needs a person's explicit approval on the PR, not a request relayed between agent sessions. It's left as a draft for Derek or the friend.
 - Option: allow only `register_repo_root` and keep `add_repo` behind its prompt.
 
-## #1002 pre-check
+## #1002
 - Config beats CannonLaunchSeconds 4.0, CannonTeleportAtSeconds 2.6, CannonCloudsAt 2.0, CannonTouchdownAt 3.5, and Intro.STAND_AT 2.05. These match #1022's poses (clouds 2.0 to 3.0, touch 3.5, stand by 4.0) and the PR description.
 - The new spec checks clouds < teleport < touchdown < launch end. The Config.spec table matches.
-- No conflict with main after #1031, #1033 and #1035. It gets queued only after #1022 is on main.
+- Re-checked on main with #1022 in (0c082b3f): no conflict. Audio already reads CannonCloudsAt and CannonTouchdownAt, and CannonService takes its delays from Config. Merged 35b88f83.
+
+## #1037 (ui-review checklist)
+- Removal only: `topbarLift`, `_liftRight`, `_lift`, `TOPBAR_SLACK`, `RIGHT_COLUMN_W`, and the TopbarInset and Scale.changed listeners are gone, along with the `_scaleConnection` disconnect in `destroy`. Nothing is left dangling.
+- The column starts at `MARGIN` under the `CoreUISafeInsets` area, so Roblox's top-bar shade can't cover its buttons, and the Roblox menu no longer moves it.
+- Trade-off for Derek: the empty band from before 10-27 comes back. If it's too empty, the next step is a shorter clock row.
+- Open: the before/after picture and the live check. The cloud UI gate doesn't draw Roblox's top bar, so both need live or Studio on Derek's side.
+
+## Merge order note
+Each merge to main restarts any running `automerge` label run (it retests on the new main). #1022 restarted twice, after #1033 and #1035. When an order matters, queue the next PR only after the previous one is on main.

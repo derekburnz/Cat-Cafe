@@ -16,9 +16,9 @@ return function()
 	describe("Effects cannon clouds", function()
 		it("cover the screen fully while the server moves the player", function()
 			local cannon, hop = Presets.clouds.cannon, Presets.clouds.hop
-			expect(Logic.cloudCover(1.9, cannon)).to.equal(1) -- CannonTeleportAtSeconds
+			expect(Logic.cloudCover(2.6, cannon)).to.equal(1) -- CannonTeleportAtSeconds
 			expect(Logic.cloudCover(0.6, hop)).to.equal(1) -- CloudHopMoveAtSeconds
-			expect(cannon.coverTo < 1.9 and cannon.partFrom > 1.9).to.equal(true)
+			expect(cannon.coverTo < 2.6 and cannon.partFrom > 2.6).to.equal(true)
 			expect(hop.coverTo < 0.6 and hop.partFrom > 0.6).to.equal(true)
 			expect(cannon.partTo <= Presets.cannon.endAt).to.equal(true)
 			expect(hop.partTo <= 1.6).to.equal(true) -- CloudHopSeconds
@@ -27,11 +27,11 @@ return function()
 		it("rush in, hold and part", function()
 			local plan = Presets.clouds.cannon
 			expect(Logic.cloudCover(1.0, plan)).to.equal(0)
-			local coming = Logic.cloudCover(1.5, plan)
+			local coming = Logic.cloudCover(2.1, plan)
 			expect(coming > 0 and coming < 1).to.equal(true)
-			local going = Logic.cloudCover(2.6, plan)
+			local going = Logic.cloudCover(3.2, plan)
 			expect(going > 0 and going < 1).to.equal(true)
-			expect(Logic.cloudCover(2.7, plan) < going).to.equal(true)
+			expect(Logic.cloudCover(3.3, plan) < going).to.equal(true)
 			expect(Logic.cloudCover(plan.partTo, plan)).to.equal(0)
 			expect(Logic.cloudCover(5, plan)).to.equal(0)
 		end)
@@ -43,7 +43,7 @@ return function()
 				true
 			)
 			expect(Logic.cloudTint(plan.tintTo + 1, plan)).to.equal(1)
-			expect(plan.tintFrom >= 1.9).to.equal(true) -- never the colour of a place you have not reached
+			expect(plan.tintFrom >= 2.6).to.equal(true) -- never the colour of a place you have not reached
 			local flat =
 				{ coverFrom = 0, coverTo = 1, partFrom = 2, partTo = 3, tintFrom = 1, tintTo = 1 }
 			expect(Logic.cloudTint(0.5, flat)).to.equal(0)
@@ -88,7 +88,7 @@ return function()
 			expect(Logic.cannonTrail(c.boomAt, c)).to.equal(true)
 			expect(Logic.cannonTrail(1.0, c)).to.equal(true)
 			expect(Logic.cannonTrail(c.puffAt, c)).to.equal(false) -- in the clouds
-			expect(Logic.cannonTrail(2.0, c)).to.equal(false)
+			expect(Logic.cannonTrail(2.5, c)).to.equal(false)
 			expect(Logic.cannonTrail(c.dropAt + 0.1, c)).to.equal(true) -- the drop to the pad
 			expect(Logic.cannonTrail(c.landAt, c)).to.equal(false)
 		end)
@@ -96,10 +96,10 @@ return function()
 		it("matches the spec's timeline", function()
 			local c = Presets.cannon
 			expect(c.boomAt).to.equal(0.5)
-			expect(c.puffAt).to.equal(1.4)
-			expect(c.dropAt).to.equal(2.4)
-			expect(c.landAt).to.equal(2.62) -- feet down (Animation-Engineer's Presets.cannonPose)
-			expect(c.endAt).to.equal(3.0) -- CannonLaunchSeconds
+			expect(c.puffAt).to.equal(2.0)
+			expect(c.dropAt).to.equal(3.0)
+			expect(c.landAt).to.equal(3.5) -- feet down (Animation-Engineer's Presets.cannonPose)
+			expect(c.endAt).to.equal(4.0) -- CannonLaunchSeconds
 			expect(Presets.clouds.cannon.coverFrom).to.equal(c.puffAt)
 			expect(Presets.clouds.cannon.partFrom).to.equal(c.dropAt)
 		end)
@@ -140,6 +140,8 @@ return function()
 			)
 			expect(Presets.bursts.fuseSpark <= 6).to.equal(true)
 			expect(Presets.cannon.most >= 1 and Presets.cannon.most <= 6).to.equal(true)
+			-- the far sky puff (#1018)
+			expect(Presets.cannon.skyWithin >= Presets.cannon.within).to.equal(true)
 		end)
 	end)
 

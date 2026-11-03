@@ -1236,7 +1236,8 @@ Presets.cafeWalk = {
 --   the middle of your character (in your arms), nose up
 --   `lean`, tail up `tailUp` and front paws reaching `reach` degrees. It vanishes in a sparkle there and fades back
 --   onto the cart over `fade` seconds, `back` seconds later.
--- `standScale`: the cart's cat is the sitting body (`sitModel`) at this scale (Model-Agent).
+-- `standScale`: the cart's cat is the sitting body (`sitModel`) at this scale (Model-Agent). `standAwake`: the cart's
+-- cat never dozes, so its face shows at night too (#1023, Derek: "the bellhop cat is missing face and features").
 Presets.bellhop = {
 	catId = "bellhop_cat",
 	ring = { seconds = 1.4, degrees = 30, swings = 4, shake = 7, shakeSeconds = 0.5 },
@@ -1264,6 +1265,7 @@ Presets.bellhop = {
 		fade = 0.4,
 	},
 	standScale = 1.5,
+	standAwake = true,
 	sitModel = "CatCafe_Cat_BellhopCat_Sit",
 }
 
@@ -2902,6 +2904,7 @@ Presets.cannon = {
 	landRadius = 1.6,
 	landDust = 4,
 	within = 150,
+	skyWithin = 300, -- the sky puff only: the flyer vanishes about 200 studs out and 120 up (#1018)
 	most = 4, -- flights showing their trail at once, your own first
 	findCannon = 20, -- studs round the player at launch to look for the cannon they sit in
 	-- The intro's cannon shot (intro-cutscene.md shot 2, PR #576): the flight squeezed, in seconds from the

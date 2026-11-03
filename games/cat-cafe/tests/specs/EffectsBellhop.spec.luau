@@ -140,5 +140,9 @@ return function()
 			expect(b.tipAfter >= b.ring.shakeSeconds and b.tipAfter < b.ring.seconds + 1).to.equal(true)
 			expect(b.greet > 0 and b.greet < b.walkUp).to.equal(true)
 		end)
+
+		it("keeps the stand cat awake at night so its face shows (#1023)", function()
+			expect(b.standAwake).to.equal(true)
+		end)
 	end)
 end

@@ -10,8 +10,9 @@
 -- - On its stand in town (tag BellhopStand under Workspace, CatCafe_Street_BellhopStand): the cat baked into the cart
 --   is hidden on this client and a copy of the sitting body at the stand's scale sits in its place while the stand is
 --   within budget.animRadius, so it breathes, blinks and moves. By day it rings its bell every 8 to 12 s and tips its
---   cap as you walk up; at night it dozes under its cap. When the server answers your claim (StarterCatResult true)
---   it bounces, leaps off the cart to you and vanishes in a sparkle, and fades back onto the cart a moment later.
+--   cap as you walk up; at night it stays awake, quiet (no bell), still tipping its cap (#1023). When the server
+--   answers your claim (StarterCatResult true) it bounces, leaps off the cart to you and vanishes in a sparkle, and
+--   fades back onto the cart a moment later.
 -- Every ring fires Beats.hit("bellRing", the bell's part) for Sound-Agent's bellhopBell. Listening only: nothing here
 -- fires a remote or moves a part the server owns (the hidden cart cat only gets LocalTransparencyModifier).
 
@@ -379,7 +380,9 @@ local function animateStand(stand: Stand, now: number)
 	local dt = math.clamp(now - stand.lastAt, 0, 0.5)
 	stand.lastAt = now
 	local night = Context.isNight()
-	local dozing = night and stand.hopAt == nil -- a claim at night wakes it for the hop
+	-- the stand is the shop sign, so it stays awake with its face showing at night (#1023: dozing under the cap at
+	-- 1.5 scale hid the face); a claim at night wakes a dozing one for the hop
+	local dozing = night and not b.standAwake and stand.hopAt == nil
 	local o = Logic.idle(if dozing then "doze" else "sit", now + stand.phase, rig.kind)
 	stand.capDown = toward(stand.capDown, if dozing then 1 else 0, dt / b.sleepCap.seconds)
 	o.capDown = smooth(stand.capDown)
@@ -441,7 +444,7 @@ local function scanStands()
 				seat = CFrame.identity,
 				phase = rng:NextNumber(0, 20),
 				lastAt = os.clock(),
-				capDown = if Context.isNight() then 1 else 0,
+				capDown = if Context.isNight() and not Presets.bellhop.standAwake then 1 else 0,
 				nextRing = os.clock() + rng:NextNumber(1, Presets.bellhop.every[1]),
 				ringAt = nil,
 				tipAt = nil,

@@ -54,6 +54,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
+local MoneyFlash = require(script.Parent.Parent.Components.MoneyFlash)
 local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
@@ -1775,9 +1776,9 @@ function HUD.render(self: any, state: Types.PlayerState)
 		and Workspace:GetAttribute("TradingOn") ~= nil
 		and TradeLogic.shown(state.tier, TradeLogic.minTier(Workspace:GetAttribute("TradeMinTier")))
 
-	-- money with a little green flash when it goes up
+	-- money with a little green flash for a lump (a sale, a tip, a reward), not for the steady income ticks (#1026)
 	self._moneyText.Text = Format.money(state.money)
-	if self._lastMoney and state.money > self._lastMoney then
+	if MoneyFlash.shouldFlash(self._lastMoney, state.money, state.incomePerSecond) then
 		self._moneyText.TextColor3 = Theme.hud.income
 		Tween.to(self._moneyText, Tween.RISE, { TextColor3 = Theme.hud.text })
 	end

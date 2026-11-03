@@ -955,6 +955,11 @@ local SCENES = {
 	{ "PalArrived", function()
 		UI.palArrived(4242, firstArea())
 	end },
+	-- F84: the name card in the clouds at the top centre, held so the scene catches it (Derek 2026-11-03: the flying
+	-- character shows below it)
+	{ "CannonFlightCard", function()
+		UI.cannon.flight("woods", workspace:GetServerTimeNow() - 1.6, 5)
+	end },
 	-- F92: the Cannon picker with that pal's tag on the area's card
 	{ "CannonPal", function()
 		UI.palArrived(4242, firstArea())

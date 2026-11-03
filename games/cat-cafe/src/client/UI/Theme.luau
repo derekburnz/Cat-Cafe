@@ -2,6 +2,8 @@
 -- Visual tokens for the cat cafe UI. "Cozy Cream" from the concept sketches is the default.
 -- Change colors here, not in screens. Rarity colors are shared with the collection, shop and catch prompt.
 
+local CleanGlyphs = require(script.Parent.Components.CleanGlyphs)
+
 local Theme = {}
 
 Theme.name = "Cozy Cream"
@@ -392,6 +394,9 @@ Theme.foodIcons = {
 	moon_milk = "🥛",
 	star_treat = "⭐",
 } :: { [string]: string }
+
+-- glyph -> the clean symbol IconArt draws for it (#1027, Components/CleanGlyphs)
+Theme.cleanGlyphs = CleanGlyphs.map(Theme.icons, Theme.foodIcons)
 
 function Theme.potionColor(potionId: string): Color3
 	return Theme.potionColors[potionId] or Color3.fromHex("C07CFF")

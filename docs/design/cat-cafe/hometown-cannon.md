@@ -55,20 +55,21 @@ Everything else stays as in town-layout-v3: the cafe rows and the stations in th
 - **Night.** At dusk a moon cover drops over the barrel's mouth, and it lifts at sunrise: it is down whenever the areas are closed (`AreasOpen` false; Gameplay-Engineer's reading in #643). The prompt still opens the picker, so players see the countdown.
 - **A Tier 1 player** sees the Alleyway card. Until a player's first launch, a hint says "Hop in the cannon to fly to the Alleyway!" with an arrow at the cannon (after the intro for a new player). The first time a player reaches Tier 2, a one-time hint says "The Park is open! Hop in the cannon to fly there." and the arrow points at the cannon again.
 
-### 3b. The flight (CannonLaunchSeconds 3.0)
+### 3b. The flight (CannonLaunchSeconds 4.0)
 
 | from | to | the launching player sees | everyone else sees | server |
 |---|---|---|---|---|
 | 0.0 | 0.5 | the character hops into the barrel; the barrel turns to the destination and wiggles; the fuse fizzes | the same | accepts `LaunchCannon`, anchors the character at the barrel's seat, sets `CannonLaunchAt` and `CannonTo` |
-| 0.5 | 1.4 | BOOM: a smoke ring, confetti and a camera shake; the character shoots out curled in a ball, spinning, in a high arc; the camera follows from behind | the character arcs up into the sky and vanishes into a puff of cloud | |
-| 1.4 | 2.4 | the cloud cutscene: the player's own character glides through a tunnel of clouds just ahead of the camera, uncurling from the ball into a happy spread, while clouds rush past with the destination's name and icon in the middle ("To the Woods!"), lit in the area's colour toward the end (Derek 13:56 asked for this part to be a little better) | | at CannonTeleportAtSeconds (1.9) moves the character (still anchored) onto a free spot on the destination's landing pad, and asks the client to stream around it |
-| 2.4 | 3.0 | the clouds part above the camp, the character drops onto the pad, lands in a crouch with a dust poof and a bounce, and the camera settles behind them | at the camp: a whistle and a ball dropping from the sky onto the pad | at 3.0 unanchors the character and clears the attributes; control returns |
+| 0.5 | 2.0 | BOOM: a smoke ring, confetti and a camera shake; the character shoots out in a long, high arc that bends toward the destination, with one easy tumble rather than spinning all the way (Derek 2026-11-03: "should be much further with less summer salting"); the camera follows from behind, and the destination card sits at the top of the screen so the flying character stays in view (Derek 01:11) | the character arcs far up and away and vanishes into a puff of cloud | |
+| 2.0 | 3.0 | the clouds (CannonCloudsAt 2.0): the character is out of sight in a tunnel of clouds tinted in the area's colour, so nothing shows the move | | at CannonTeleportAtSeconds (2.6) moves the character (still anchored) onto a free spot on the destination's landing pad, and asks the client to stream around it |
+| 3.0 | 3.5 | the clouds part above the camp and the character drops feet first onto the pad, touching down at CannonTouchdownAt (3.5) | at the camp: a whistle and a falling figure dropping from the sky onto the pad | |
+| 3.5 | 4.0 | the hero landing: down on one knee with a dust poof, then up, while the camera settles behind them | the same landing | at 4.0 unanchors the character and clears the attributes; control returns |
 
-The flight is the same from every cannon, and it lands at the hometown cannon's foot when the destination is the town. It cannot be skipped; three seconds is short, and the clouds hide the move. The town's landing pad is the same paw print at the hometown cannon's foot, on its south side.
+The flight is the same from every cannon, and it lands at the hometown cannon's foot when the destination is the town. It cannot be skipped; four seconds is short, and the clouds hide the move. v2026-11-03 (#1002 with Animation-Engineer's longer arc): the flight went from 3.0 to 4.0 s and the move from 1.9 to 2.6 s, so the move falls in the middle of the clouds with margin either side and the old "stop, then teleport" look is gone. The town's landing pad is the same paw print at the hometown cannon's foot, on its south side.
 
 Landing spots: each pad has seventeen, tried in order: its centre, eight points on a 4 stud ring, then eight on a 7 stud ring (inside LandingPadRadius 8). A spot is free when no character is within 3 studs of it. The server places one flight at a time, so two moves in the same frame never share a spot. If all seventeen are taken, the character lands on the nearest point of the camp (in town, of the square) off the pad with no character within 3 studs. Players never land inside each other.
 
-`Launching`, `CannonLaunchAt`, `CannonFrom` and `CannonTo` stay set for the whole flight and clear together at 3.0, so every client can time its sounds and effects from `CannonLaunchAt`.
+`Launching`, `CannonLaunchAt`, `CannonFrom` and `CannonTo` stay set for the whole flight and clear together at 4.0, so every client can time its sounds and effects from `CannonLaunchAt`; the sounds use CannonCloudsAt and CannonTouchdownAt.
 
 ### 3c. Camp cannons
 
@@ -115,7 +116,7 @@ F84 does not wait for new sets. Each current v3.2 set moves as it is to its new 
 
 The Alleyway sits on the diagonal between the Park and the Woods, about 1,500 studs from each and 1,980 from the town.
 
-**A Tier 1 trip** (for QA's pace model, which had 45 s out and back through the back door): walk from the cafe to the cannon about 5 s (or the Cannon button, at once), hop in 0.5 s, the flight 3 s, camp to a stray about 7 s on foot, the catch, the carry back about 8 s at CarryWalkSpeed 16 (16 s from the far end), the check-in at once, then Home by cloud hop 1.6 s. That is about 25 s for a trip with one catch and about 15 s more for each further catch from the camp, since a player stays out between catches. The bait bowl stays on the back step in the cafe's yard and works as now.
+**A Tier 1 trip** (for QA's pace model, which had 45 s out and back through the back door): walk from the cafe to the cannon about 5 s (or the Cannon button, at once), hop in 0.5 s, the flight 3.5 s more (4 s from launch), camp to a stray about 7 s on foot, the catch, the carry back about 8 s at CarryWalkSpeed 16 (16 s from the far end), the check-in at once, then Home by cloud hop 1.6 s. That is about 25 s for a trip with one catch and about 15 s more for each further catch from the camp, since a player stays out between catches. The bait bowl stays on the back step in the cafe's yard and works as now.
 
 WildAreaDistance (2000) keeps every area far out of view of the others. Each area sits on its own ground with a backdrop ring outside its walls (hills, trees, house roofs or brick vaults by theme), so no player ever sees the empty space between places. Lighting and the clock are shared, since it is one server.
 
@@ -143,7 +144,7 @@ The tackle rules do not change. The getaway (CatchRushWalkSpeed 24 for 10 s afte
 
 **Gameplay-Engineer (cannon, flight, camps, rules):**
 - `Config.World`: remove ParkGateZ, NeighbourhoodGateZ, WoodsGateX, SewerGateX, the gate openings and the back alleys' town numbers (AlleyInnerX, AlleyOuterX, AlleySouthZ, AlleyNorthZ, TownSquareArchWidth); the Alleyway's set is placed like the others. Add WildAreaDistance 2000, CampDepth 30, CampOpeningWidth 24, LandingPadRadius 8, CannonRangeStuds 10, and the area centres from 6a (later 6b's sizes).
-- `Config`: CannonLaunchSeconds 3.0, CannonTeleportAtSeconds 1.9, CannonCooldownSeconds 3, CloudHopSeconds 1.6, CloudHopMoveAtSeconds 0.6.
+- `Config`: CannonLaunchSeconds 4.0 (3.0 before #1002), CannonTeleportAtSeconds 2.6 (was 1.9), CannonCloudsAt 2.0, CannonTouchdownAt 3.5 (seconds from `CannonLaunchAt`, for sounds and effects), CannonCooldownSeconds 3, CloudHopSeconds 1.6, CloudHopMoveAtSeconds 0.6.
 - `Layout`: `cannons` (`town` at the square's centre, one per area at its camp's back wall, each with its fire direction), `camps` (each area's camp rect, pad centre and opening) and `landingPads` (`town` at the cannon's foot and one per camp, each with the seventeen spots in 3b). Index Boards move to the camps.
 - **Remote `LaunchCannon(cannonId, destination)`, rate-limited to 1 a second.**
   - `cannonId` is `town` or an area id (a camp cannon) and the caller is within CannonRangeStuds of it.
@@ -171,7 +172,7 @@ The tackle rules do not change. The getaway (CatchRushWalkSpeed 24 for 10 s afte
 
 **VFX-Agent and Animation-Engineer (flight):**
 - Animation: the hop into the barrel, the curled spinning ball pose, the glide through the cloud tunnel, and the crouch landing with a bounce.
-- **Camera (Animation-Engineer):** the launcher's camera only, in the client's Cannon module, started from `CannonLaunch` or the attributes. It follows from behind 0.5 to 1.4, rides just behind the glide in the tunnel 1.4 to 2.4, settles behind the character 2.4 to 3.0 and hands back to the default camera at 3.0. Onlookers keep their own camera.
+- **Camera (Animation-Engineer):** the launcher's camera only, in the client's Cannon module, started from `CannonLaunch` or the attributes. It follows from behind 0.5 to 2.0, rides in the cloud tunnel 2.0 to 3.0, settles behind the character 3.0 to 4.0 and hands back to the default camera at 4.0 (the beats since #1002). Onlookers keep their own camera.
 - VFX: the fuse fizz, the muzzle smoke ring and confetti, the sparkle trail, the cloud puff in the sky, the full-screen cloud tunnel tinted by area (neon pink for the Alleyway and the paw path colours from town layout v3: leaf green Park, warm orange Neighbourhood, deep green Woods, slate blue Sewer; cream for Town Square and for Home hops), the clouds parting, the landing dust poof, and the cat's hop into the carrier basket and its puff at a camp check-in.
 - The cloud hop is the cloud tunnel without the cannon.
 - Effects play at the `Muzzle`, `Fuse` and `Drop` attachments, falling back to the cannon's pivot and its Layout fire direction. The cloud tunnel sits just under UI's destination name card; VFX and UI agree the DisplayOrder.
@@ -195,7 +196,7 @@ The tackle rules do not change. The getaway (CatchRushWalkSpeed 24 for 10 s afte
 ## 8. QA checks
 
 1. From the hometown spawn the cannon is the first thing in view, every station is clear to walk to, and no stray, trap or tackle exists anywhere in town.
-2. The flight takes 3 seconds from Launch to control and lands on the chosen area's pad, never inside another player. Twenty players launching to one camp together all land apart: seventeen on the pad and the rest beside it.
+2. The flight takes 4 seconds from Launch to control, with no visible jump (the move happens while the character is in the clouds), and lands on the chosen area's pad, never inside another player. Twenty players launching to one camp together all land apart: seventeen on the pad and the rest beside it.
 3. A Tier 1 player sees only the Alleyway card in the picker and a Tier 2 player the Alleyway and the Park. A new player gets the first-flight hint after the intro, flies to the Alleyway, catches a cat and checks it in at the camp.
 4. In the last 15 seconds of the day no launch into an area is accepted. At night the picker shows the sunrise countdown.
 5. Carrying a cat in a wild area, every Home, Cannon button and cannon attempt is refused. Walking into the camp checks the cat in, and the cat is in the cat room.

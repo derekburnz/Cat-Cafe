@@ -7,7 +7,8 @@
 -- moderation approves it), for glyphs the sheet has no picture of, and with no sheet id at all.
 --
 --   IconArt.set(label, glyph, scale?)        the label's glyph changed (or was just made); scale shrinks the picture.
---                                            A glyph in Theme.glyphImages (the golden fish) draws that whole picture
+--                                            A glyph in Theme.glyphImages (the golden fish) draws that whole picture,
+--                                            and one in Theme.cleanGlyphs its clean symbol (#1027) before the sheet
 --   IconArt.setImage(label, image, scale?)   a whole uploaded picture instead of a sheet cell (the shop icons of
 --                                            Components/ShopIcons); nil goes back to the glyph
 --   IconArt.setTransparency(label, value)    fade or grey the icon, picture or emoji, whichever shows
@@ -16,6 +17,7 @@
 -- the picture has downloaded.
 
 local Create = require(script.Parent.Create)
+local ShopIcons = require(script.Parent.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 
 local IconArt = {}
@@ -86,6 +88,10 @@ end
 
 function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
 	local whole = if glyph then Theme.glyphImages[glyph] else nil
+	local clean = if glyph then Theme.cleanGlyphs[glyph] else nil
+	if (whole == nil or whole == "") and clean then
+		whole = ShopIcons.clean(clean)
+	end
 	if whole and whole ~= "" then
 		IconArt.setImage(label, whole, scale)
 		return

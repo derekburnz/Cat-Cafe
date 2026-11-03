@@ -70,10 +70,11 @@ Theme.button = {
 		bottom = Color3.fromHex("F0479F"),
 		depth = Color3.fromHex("B8336F"),
 	},
+	-- white, not beige, since 2026-11-03 (#961: "should be remade to look clean"); its words stay dark
 	ghost = {
-		top = Color3.fromHex("FFF8EE"),
-		bottom = Color3.fromHex("EFE0CB"),
-		depth = Color3.fromHex("D2B895"),
+		top = Color3.fromHex("FFFFFF"),
+		bottom = Color3.fromHex("ECE6DE"),
+		depth = Color3.fromHex("CFC4B6"),
 	},
 	danger = {
 		top = Color3.fromHex("FFAD55"),
@@ -128,8 +129,6 @@ Theme.fish = {
 
 -- Uploaded images. Empty until the image is on Roblox; whatever uses one draws without it until then.
 Theme.textures = {
-	-- the faint L-shaped tile mark repeated over button faces (assets/cat-cafe/ui/textures/UI_ButtonTiles.png)
-	buttonTiles = "rbxassetid://79710930693221",
 	-- the golden fish, one picture everywhere (F97 section 4: a shiny gold fish with a white glint; it replaced the
 	-- cat-face coin; assets/cat-cafe/exports/icons/CatCafe_Icon_GoldenFish.png, Model-Agent #690)
 	fishCoin = "rbxassetid://75310291409772",

@@ -22,6 +22,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Bellhop = require(script.Parent.Bellhop)
+local Carry = require(script.Parent.Carry)
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
@@ -542,8 +543,13 @@ local function lightGold(gold: { Logic.Candidate<Model> })
 	for _, model in Logic.nearest(gold, budget.ambientRadius, budget.goldEmitters) do
 		lit[model] = true
 		local emitter: ParticleEmitter? = sparkles[model]
-		if emitter == nil or not emitter:IsDescendantOf(model) then -- none yet, or its body streamed out
-			local body = model.PrimaryPart or partNamed(model, "Body")
+		-- a carried cat sparkles on its copy in the arms (Carry.luau) while that shows, else on itself
+		local shown = if held[model] then Carry.copyFor(model) or model else model
+		if emitter == nil or not emitter:IsDescendantOf(shown) then -- none yet, its body streamed out, or moved
+			if emitter ~= nil then
+				emitter:Destroy()
+			end
+			local body = shown.PrimaryPart or partNamed(shown, "Body")
 			local made = if body ~= nil then Particles.attach("shiny", body) else nil
 			if made ~= nil then
 				if Presets.textures.goldSparkle ~= "" then

@@ -1,8 +1,10 @@
 --!strict
 -- The Cat Cannon (F84, docs/design/cat-cafe/hometown-cannon.md sections 3, 5 and 7). LaunchCannon(cannonId,
 -- destination) from a player at a cannon is checked by shared/Cannon.launchRefusal. An accepted flight anchors the
--- character at the barrel's Seat with Launching, CannonLaunchAt, CannonFrom and CannonTo set, so every client plays
--- the flight from them, and sends CannonLaunch(destination, launchAt) to the caller for the camera and the name card.
+-- character at the barrel's Seat with Launching, CannonLaunchAt, CannonFrom, CannonTo and CannonHeading (the flat
+-- unit Vector3 from the cannon toward the landing pad, for the flight's arc; Derek 2026-11-03: the flight should
+-- carry on toward where it goes) set, so every client plays the flight from them, and sends CannonLaunch(destination,
+-- launchAt) to the caller for the camera and the name card. The destination starts streaming in at the launch.
 -- At CannonTeleportAtSeconds, inside the clouds, the still anchored character moves onto a free spot of the
 -- destination's landing pad, and at CannonLaunchSeconds it is let go and the attributes clear together. A refusal
 -- answers with a toast and CannonLaunch(destination, nil). A character that dies in a wild area by day comes back on
@@ -34,9 +36,9 @@ local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local CannonService = {}
 
-local CLOUDS_AT = 1.4 -- seconds into a flight the clouds cover the screen (section 3b): stream round the landing
 local STREAM_TIMEOUT = 2 -- seconds RequestStreamAroundAsync may wait
-local FLIGHT_ATTRIBUTES = { "Launching", "CannonLaunchAt", "CannonFrom", "CannonTo" }
+local FLIGHT_ATTRIBUTES =
+	{ "Launching", "CannonLaunchAt", "CannonFrom", "CannonTo", "CannonHeading" }
 
 local world: WorldBuilder.World
 local landedAt: { [Player]: number } = {} -- server time each player's last flight ended
@@ -65,6 +67,13 @@ local function othersAt(player: Player): { Vector3 }
 		end
 	end
 	return list
+end
+
+-- The way a flight from `cannon` to `destination` heads (Cannon.heading): toward the landing pad's centre.
+local function headingFor(cannon: Model, destination: string, seat: CFrame): Vector3
+	local pad = Layout.landingPads[destination]
+	local to = if pad ~= nil then Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z) else nil
+	return Cannon.heading(cannon:GetPivot().Position, to, seat.LookVector)
 end
 
 -- A free spot on `destination`'s landing pad (section 3b) as the root's CFrame, facing the way the pad faces; nil
@@ -134,12 +143,14 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	if cannonId == Cannon.TOWN then
 		WorldBuilder.aimCannon(cannon, Layout.cannonAim(destination))
 	end
+	local seat = WorldBuilder.cannonSeat(cannon)
 	body.Anchored = true
-	flyer:PivotTo(WorldBuilder.cannonSeat(cannon))
+	flyer:PivotTo(seat)
 	flyer:SetAttribute("Launching", true)
 	flyer:SetAttribute("CannonLaunchAt", now)
 	flyer:SetAttribute("CannonFrom", cannonId)
 	flyer:SetAttribute("CannonTo", destination)
+	flyer:SetAttribute("CannonHeading", headingFor(cannon, destination, seat))
 	Net.fire(player, "CannonLaunch", destination, now)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
 
@@ -150,7 +161,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 			and flyer.Parent ~= nil
 			and flyer:GetAttribute("CannonLaunchAt") == now
 	end
-	task.delay(CLOUDS_AT, function()
+	task.spawn(function()
 		local pad = Layout.landingPads[destination]
 		if current() and pad ~= nil then
 			local centre = pad.centre

@@ -183,6 +183,7 @@ function Codes.new(callbacks: Callbacks): Codes
 	})
 	self._prizeRow = prizeRow
 	self._chips = PrizeChips.new({
+		textColor = PAL.text, -- light words on the dark window (#1028)
 		parent = prizeRow,
 		tile = TILE,
 		textSize = Theme.sizes.textSmall,

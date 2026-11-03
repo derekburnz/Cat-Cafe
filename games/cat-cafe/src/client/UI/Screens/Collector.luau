@@ -192,6 +192,7 @@ function Collector.new(parent: Instance, callbacks: Callbacks): Collector
 		Parent = content,
 	})
 	self._chips = PrizeChips.new({
+		textColor = PAL.text, -- light words on the dark window (#1028)
 		parent = offerArea,
 		tile = TILE,
 		textSize = Theme.sizes.textBody,

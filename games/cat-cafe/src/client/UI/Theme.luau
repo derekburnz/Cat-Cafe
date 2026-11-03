@@ -440,6 +440,12 @@ function Theme.rarityTextColor(rarity: string?): Color3
 	return Theme.rarity.Common.text
 end
 
+-- The rarity as text on a dark card (#1028): its colour a quarter of the way to white, 5.3:1 or better on Theme.dark's
+-- card (Common 5.7, Rare 6.3, Epic 5.8, Legendary 8.8, Mythical 5.3)
+function Theme.rarityLight(rarity: string?): Color3
+	return Theme.rarityColor(rarity):Lerp(Theme.colors.white, 0.25)
+end
+
 function Theme.rarityInk(rarity: string?): Color3
 	local entry = (Theme.rarity :: any)[rarity or "Common"]
 	if entry then

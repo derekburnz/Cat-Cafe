@@ -89,7 +89,7 @@ end
 
 -- a rarity's odds colour as hex, for FoodOdds.rich
 local function rarityHex(rarity: string): string
-	return Theme.rarityInk(rarity):ToHex()
+	return Theme.rarityLight(rarity):ToHex() -- light odds on the dark cards (#1028)
 end
 
 -- "Attracts Epic": the rarity the food is known for, on paper with a border in that rarity's colour, so the solid

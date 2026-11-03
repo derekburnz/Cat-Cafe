@@ -17,6 +17,7 @@
 --                                                     #688), so level 0 offers Net_L2 and the top level keeps Net_L4
 --   image("Icon_Decor")                               the HUD's Decor pill; image("Coins") and image("Spin") the
 --                                                     prize pictures for coins and spins (F97 section 4)
+--   clean("Cats")                                     Icon_Clean_Cats, a clean HUD tile's symbol (2026-11-03)
 -- A new upload draws blank until Roblox moderation approves it; IconArt.setImage keeps the glyph until the picture
 -- has loaded. Each upload is a new asset, so a changed icon gets a new id here, never a second upload of the same file.
 -- Pure, so the cloud test runner checks it.
@@ -65,6 +66,28 @@ local IDS: { [string]: string } = {
 	Potion_QuickBait = "rbxassetid://88867156736573",
 	-- the HUD's Decor pill: a cat-eared armchair and a potted plant (Model-Agent, Set 5 Q10; uploaded 2026-11-02)
 	Icon_Decor = "rbxassetid://132974074427583",
+	-- the clean symbols on the HUD tiles (Derek 2026-11-03 "Build it as shown"; assets/cat-cafe/ui/icons-clean-2026-11-03,
+	-- uploaded 2026-11-03): one bold symbol with a thick dark outline, the tile behind it drawn in Luau
+	Icon_Clean_Areas = "rbxassetid://126370922327019",
+	Icon_Clean_Bag = "rbxassetid://81699518945581",
+	Icon_Clean_Bowl = "rbxassetid://80050724855728",
+	Icon_Clean_Cannon = "rbxassetid://112726655919470",
+	Icon_Clean_Cats = "rbxassetid://111022016391627",
+	Icon_Clean_Caviar = "rbxassetid://94374227160258",
+	Icon_Clean_Coin = "rbxassetid://112195289471900",
+	Icon_Clean_Crate = "rbxassetid://85523439563968",
+	Icon_Clean_Decor = "rbxassetid://130851033023889",
+	Icon_Clean_Feedback = "rbxassetid://101390180819645",
+	Icon_Clean_Fish = "rbxassetid://111395416488950",
+	Icon_Clean_Home = "rbxassetid://102266682155402",
+	Icon_Clean_Index = "rbxassetid://72904412280830",
+	Icon_Clean_Menu = "rbxassetid://76526281703913",
+	Icon_Clean_Potion = "rbxassetid://74312502748629",
+	Icon_Clean_Quests = "rbxassetid://120388931985566",
+	Icon_Clean_Rewards = "rbxassetid://100352240603614",
+	Icon_Clean_Store = "rbxassetid://125596282319075",
+	Icon_Clean_Tutorial = "rbxassetid://109885867788208",
+	Icon_Clean_Upgrades = "rbxassetid://90691118878000",
 }
 local NETS = 4
 
@@ -79,6 +102,10 @@ end
 
 function ShopIcons.image(name: string): string?
 	return IDS[name]
+end
+
+function ShopIcons.clean(name: string): string?
+	return IDS["Icon_Clean_" .. name]
 end
 
 -- The crate's pool in PascalCase and whether it is the golden twin, or nil for an id that is not a crate.

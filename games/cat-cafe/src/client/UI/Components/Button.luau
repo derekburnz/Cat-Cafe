@@ -19,17 +19,36 @@ local Sound = require(script.Parent.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Tween)
 
-export type Style = "primary" | "secondary" | "gold" | "berry" | "ghost" | "danger" | "close"
+export type Style =
+	"primary"
+	| "secondary"
+	| "gold"
+	| "berry"
+	| "ghost"
+	| "danger"
+	| "close"
+	| "teal"
+	| "purple"
+	| "sky"
+	| "slate"
+	| "store"
 
 -- "row": icon then text on one line. "tile": a big icon above a short label (the HUD menu squares).
+-- "clean" (Derek 2026-11-03, "Build it as shown"; assets/cat-cafe/ui/icons-clean-2026-11-03): a rounded square with
+-- a bright two-colour fill, a darker lip, a thick dark outline and one bold symbol (`image`, the glyph until it
+-- loads), its label under the square in white with a dark outline; `size` holds the square and the label.
+-- "wide": the clean tile drawn wide, the symbol at its left and the label inside, big (the Store).
+-- "tile" has the clean look too since 2026-11-03, its short label inside the square under the picture (the HUD's
+-- bottom row and corner on touch screens, where the labels under would stack too high).
 -- A row with `iconSize` draws its icon as its own picture that size at the left, then the text (the HUD's pills).
 -- An inline icon with a whole picture in Theme.glyphImages (the golden fish on a price, F97 section 4) is drawn as that
 -- picture just before the text, the two centred together, the emoji showing until the picture loads.
-export type Layout = "row" | "tile"
+export type Layout = "row" | "tile" | "clean" | "wide"
 
 export type Props = {
 	text: string?,
 	icon: string?,
+	image: string?, -- clean and wide layouts: the symbol's uploaded picture (the icon glyph shows until it loads)
 	iconSize: number?, -- row layout: the icon's own size in px, bigger than the text (default: inline with the text)
 	layout: Layout?,
 	style: Style?,
@@ -83,6 +102,11 @@ local STYLES: { [string]: Look } = {
 	ghost = look("ghost", Theme.colors.cocoa, false),
 	danger = look("danger", Theme.colors.white, true),
 	close = look("close", Theme.colors.white, true),
+	teal = look("teal", Theme.colors.white, true),
+	purple = look("purple", Theme.colors.white, true),
+	sky = look("sky", Theme.colors.white, true),
+	slate = look("slate", Theme.colors.white, true),
+	store = look("store", Theme.colors.white, true),
 	disabled = look("disabled", Theme.colors.paper, true),
 }
 
@@ -90,6 +114,14 @@ local HOVER_SCALE = 1.05
 local TILE = 18 -- px between the face's tile marks
 local TILE_TRANSPARENCY = 0.9
 local GLOSS = NumberSequence.new(0.62, 0.94) -- the top half's shine, strongest at the top
+-- the clean tiles (2026-11-03 mockup): outline and depth in design px, the corner and the symbol as shares of the
+-- square's side, where the darker lip starts down the face, the light bar at the top
+local CLEAN_OUTLINE = 4
+local CLEAN_DEPTH = 5
+local CLEAN_CORNER = 0.26
+local CLEAN_SYMBOL = 0.72
+local CLEAN_LIP = 0.84
+local CLEAN_SHINE_TRANSPARENCY = 0.6
 
 local Button = {}
 Button.__index = Button
@@ -103,32 +135,55 @@ local function fill(colors: Look, lighten: number): ColorSequence
 	return ColorSequence.new(brighten(colors.top, lighten), brighten(colors.bottom, lighten))
 end
 
+-- A clean tile's face: top to bottom colour, then a band of the darker depth colour along the bottom (the lip).
+local function cleanFill(colors: Look, lighten: number): ColorSequence
+	local lip = brighten(colors.depth, lighten)
+	return ColorSequence.new({
+		ColorSequenceKeypoint.new(0, brighten(colors.top, lighten)),
+		ColorSequenceKeypoint.new(CLEAN_LIP, brighten(colors.bottom, lighten)),
+		ColorSequenceKeypoint.new(CLEAN_LIP + 0.01, lip),
+		ColorSequenceKeypoint.new(1, lip),
+	})
+end
+
 function Button.new(props: Props): Button
-	local depth = Theme.sizes.buttonDepth
 	local style: Style = props.style or "primary"
 	local layout: Layout = props.layout or "row"
 	local enabled = if props.enabled == nil then true else props.enabled :: boolean
+	local textSize = props.textSize or Theme.sizes.textBody
+	local square = layout == "clean" or layout == "wide" -- the symbol drawn by the clean code below
+	local clean = square or layout == "tile"
+	local depth = if clean then CLEAN_DEPTH else Theme.sizes.buttonDepth
+	local band = if layout == "clean" then textSize + 4 else 0 -- the label's strip under a clean square
+	local size = props.size or UDim2.fromOffset(140, 44)
+	local radius = Theme.sizes.radius
+	local side = math.min(size.X.Offset, size.Y.Offset - band) -- a clean square's side (the wide tile's height)
+	if clean and side > 0 then
+		radius = math.floor(side * CLEAN_CORNER)
+	end
+	local paint: (Look, number) -> ColorSequence = if clean then cleanFill else fill
 
 	local root: Frame = Create("Frame", {
 		Name = props.name or "Button",
 		BackgroundTransparency = 1,
-		Size = props.size or UDim2.fromOffset(140, 44),
+		Size = size,
 		Position = props.position or UDim2.new(),
 		AnchorPoint = props.anchorPoint or Vector2.new(),
 		LayoutOrder = props.layoutOrder or 0,
 		ZIndex = props.zIndex or 1,
 	})
 
-	-- The depth frame spans the whole button so its outline wraps the face and the bottom edge together.
+	-- The depth frame spans the whole button so its outline wraps the face and the bottom edge together. A clean
+	-- tile's bottom edge is the outline's own dark colour, a thicker outline along the foot.
 	local depthFrame: Frame = Create("Frame", {
 		Name = "Depth",
-		BackgroundColor3 = STYLES[style].depth,
+		BackgroundColor3 = if clean then Theme.colors.outline else STYLES[style].depth,
 		BorderSizePixel = 0,
-		Size = UDim2.fromScale(1, 1),
+		Size = UDim2.new(1, 0, 1, -band),
 		ZIndex = props.zIndex or 1,
 		Parent = root,
-	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
-	Outline.border(depthFrame)
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, radius) }) })
+	Outline.border(depthFrame, if clean then CLEAN_OUTLINE else nil)
 
 	local face: TextButton = Create("TextButton", {
 		Name = "Face",
@@ -136,22 +191,34 @@ function Button.new(props: Props): Button
 		AutoButtonColor = false,
 		BackgroundColor3 = Theme.colors.white,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 1, -depth),
+		Size = UDim2.new(1, 0, 1, -(band + depth)),
 		ZIndex = (props.zIndex or 1) + 1,
 		Parent = root,
 	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UICorner", { CornerRadius = UDim.new(0, radius) }),
 	})
 	local gradient: UIGradient = Create("UIGradient", {
 		Name = "Fill",
 		Rotation = 90,
-		Color = fill(STYLES[style], 0),
+		Color = paint(STYLES[style], 0),
 		Parent = face,
 	})
-	local radius = Theme.sizes.radius
-	-- faint tile marks over the fill, once the texture is uploaded (Theme.textures.buttonTiles)
+	-- faint tile marks over the fill, once the texture is uploaded (Theme.textures.buttonTiles); clean tiles have none
 	local tiles = Theme.textures.buttonTiles
-	if tiles ~= "" then
+	if clean then
+		-- the light bar along the top of a clean face
+		Create("Frame", {
+			Name = "Shine",
+			BackgroundColor3 = Theme.colors.white,
+			BackgroundTransparency = CLEAN_SHINE_TRANSPARENCY,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0, 3),
+			Size = UDim2.new(1, -math.floor(radius * 1.2), 0, 5),
+			ZIndex = (props.zIndex or 1) + 1,
+			Parent = face,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	elseif tiles ~= "" then
 		Create("ImageLabel", {
 			Name = "Tiles",
 			BackgroundTransparency = 1,
@@ -165,41 +232,48 @@ function Button.new(props: Props): Button
 			Parent = face,
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, radius) }) })
 	end
-	-- the shine on the top half and a light rim just inside the outline
-	Create("Frame", {
-		Name = "Gloss",
-		BackgroundColor3 = Theme.colors.white,
-		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(4, 3),
-		Size = UDim2.new(1, -8, 0.42, 0),
-		ZIndex = (props.zIndex or 1) + 1,
-		Parent = face,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, math.max(2, radius - 3)) }),
-		Create("UIGradient", { Rotation = 90, Transparency = GLOSS }),
-	})
-	Create("Frame", {
-		Name = "Rim",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(2, 2),
-		Size = UDim2.new(1, -4, 1, -4),
-		ZIndex = (props.zIndex or 1) + 1,
-		Parent = face,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, math.max(2, radius - 2)) }),
-		Create("UIStroke", {
-			Color = Theme.colors.white,
-			Thickness = 1.5,
-			Transparency = 0.6,
-		}),
-	})
+	-- the shine on the top half and a light rim just inside the outline (the older look; clean tiles have the bar)
+	if not clean then
+		Create("Frame", {
+			Name = "Gloss",
+			BackgroundColor3 = Theme.colors.white,
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(4, 3),
+			Size = UDim2.new(1, -8, 0.42, 0),
+			ZIndex = (props.zIndex or 1) + 1,
+			Parent = face,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, math.max(2, radius - 3)) }),
+			Create("UIGradient", { Rotation = 90, Transparency = GLOSS }),
+		})
+		Create("Frame", {
+			Name = "Rim",
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(2, 2),
+			Size = UDim2.new(1, -4, 1, -4),
+			ZIndex = (props.zIndex or 1) + 1,
+			Parent = face,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, math.max(2, radius - 2)) }),
+			Create("UIStroke", {
+				Color = Theme.colors.white,
+				Thickness = 1.5,
+				Transparency = 0.6,
+			}),
+		})
+	end
 
 	local isTile = layout == "tile"
-	local iconSize: number? = if not isTile and props.icon then props.iconSize else nil
+	local iconSize: number? = if not isTile
+			and not clean
+			and props.icon
+		then props.iconSize
+		else nil
 	local iconLeft = if iconSize then 6 + iconSize + 4 else 8 -- where a row's text starts
-	-- the icon sits in the text unless it is drawn on its own (tiles, and rows with iconSize)
-	local inlineIcon = props.icon ~= nil and not isTile and iconSize == nil
-	local textSize = props.textSize or Theme.sizes.textBody
+	-- the icon sits in the text unless it is drawn on its own (tiles, clean tiles and rows with iconSize)
+	local inlineIcon = props.icon ~= nil and not isTile and not clean and iconSize == nil
+	local faceH = side - depth -- a clean face's height
+	local symbol = math.max(8, math.floor(faceH * (if layout == "wide" then 0.9 else CLEAN_SYMBOL)))
 	-- an inline glyph with a whole picture: the picture and the text side by side in a centred row
 	local inlinePicture = if inlineIcon then Theme.glyphImages[props.icon :: string] else nil
 	local pictureRow: Frame? = nil
@@ -225,15 +299,24 @@ function Button.new(props: Props): Button
 	local label: TextLabel = Create("TextLabel", {
 		Name = "Label",
 		BackgroundTransparency = 1,
-		AnchorPoint = if isTile then Vector2.new(0, 1) else Vector2.new(),
+		AnchorPoint = if isTile
+			then Vector2.new(0, 1)
+			elseif layout == "clean" then Vector2.new(0.5, 1)
+			else Vector2.new(),
 		Size = if isTile
 			then UDim2.new(1, -8, 0, textSize + 6)
+			elseif
+				layout == "clean"
+			then UDim2.new(1, 28, 0, band) -- a long word may pass the square's sides
+			elseif layout == "wide" then UDim2.new(1, -(symbol + 18), 1, 0)
 			elseif pictureRow then UDim2.fromScale(0, 1)
 			else UDim2.new(1, -(iconLeft + (if iconSize then 6 else 8)), 1, 0),
 		AutomaticSize = if pictureRow then Enum.AutomaticSize.X else Enum.AutomaticSize.None,
 		LayoutOrder = 2,
 		Position = if isTile
 			then UDim2.new(0, 4, 1, -4)
+			elseif layout == "clean" then UDim2.fromScale(0.5, 1)
+			elseif layout == "wide" then UDim2.fromOffset(symbol + 12, 0)
 			elseif pictureRow then UDim2.new()
 			else UDim2.fromOffset(iconLeft, 0),
 		FontFace = props.font or Theme.fonts.display,
@@ -243,19 +326,24 @@ function Button.new(props: Props): Button
 			then (props.icon :: string) .. " " .. (props.text or "")
 			else props.text or "",
 		-- beside a picture the label sizes itself to its text, so nothing to cut
-		TextTruncate = if pictureRow then Enum.TextTruncate.None else Enum.TextTruncate.AtEnd,
+		TextTruncate = if pictureRow or layout == "clean"
+			then Enum.TextTruncate.None
+			else Enum.TextTruncate.AtEnd,
 		-- next to a big icon the text reads from the icon and shrinks or wraps rather than cut off ("Walk it home")
-		TextXAlignment = if iconSize then Enum.TextXAlignment.Left else Enum.TextXAlignment.Center,
+		TextXAlignment = if iconSize or layout == "wide"
+			then Enum.TextXAlignment.Left
+			else Enum.TextXAlignment.Center,
 		TextScaled = iconSize ~= nil,
 		ZIndex = (props.zIndex or 1) + 2,
-		Parent = pictureRow or face,
+		-- a clean square's label sits under it on the button itself, so it stays put while the face presses down
+		Parent = if layout == "clean" then root else pictureRow or face,
 	})
 	if iconSize then
 		Create("UITextSizeConstraint", { MaxTextSize = textSize, MinTextSize = 10, Parent = label })
 	elseif pictureRow then
 		Create("UIPadding", { PaddingRight = UDim.new(0, 2), Parent = label }) -- room for the text outline
 	end
-	local textOutline = Outline.text(label, if textSize >= 20 then 3 else 2)
+	local textOutline = Outline.text(label, if square or textSize >= 20 then 3 else 2)
 
 	-- Tiles carry a big icon above the label; rows with iconSize a big icon left of it.
 	local icon: TextLabel? = nil
@@ -287,6 +375,23 @@ function Button.new(props: Props): Button
 			ZIndex = (props.zIndex or 1) + 2,
 			Parent = pictureRow,
 		})
+	elseif square and props.icon then
+		-- the one bold symbol: centred in a clean square, at the left of the wide tile
+		icon = Create("TextLabel", {
+			Name = "Icon",
+			BackgroundTransparency = 1,
+			AnchorPoint = if layout == "wide" then Vector2.new(0, 0.5) else Vector2.new(0.5, 0.5),
+			Position = if layout == "wide"
+				then UDim2.new(0, 8, 0.5, 0)
+				else UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(symbol, symbol),
+			FontFace = Theme.fonts.display,
+			TextScaled = true,
+			TextColor3 = Theme.colors.white,
+			Text = props.icon,
+			ZIndex = (props.zIndex or 1) + 2,
+			Parent = face,
+		})
 	elseif isTile and props.icon then
 		icon = Create("TextLabel", {
 			Name = "Icon",
@@ -305,6 +410,9 @@ function Button.new(props: Props): Button
 
 	if icon then
 		IconArt.set(icon, props.icon) -- the drawn picture from the icon sheet, when it has one for this glyph
+		if clean and props.image then
+			IconArt.setImage(icon, props.image)
+		end
 	end
 
 	local uiScale: UIScale = Create("UIScale", { Parent = root })
@@ -368,8 +476,8 @@ function Button.new(props: Props): Button
 
 	local function applyStyle()
 		local colors = STYLES[if self._enabled then self._style else "disabled"]
-		gradient.Color = fill(colors, 0)
-		depthFrame.BackgroundColor3 = colors.depth
+		gradient.Color = paint(colors, 0)
+		depthFrame.BackgroundColor3 = if clean then Theme.colors.outline else colors.depth
 		label.TextColor3 = colors.text
 		textOutline.Enabled = colors.outlined
 		if icon then
@@ -428,7 +536,7 @@ function Button.new(props: Props): Button
 		target.MouseEnter:Connect(function()
 			if self._enabled and UserInputService.MouseEnabled then
 				hovered = true
-				gradient.Color = fill(STYLES[self._style], 0.12)
+				gradient.Color = paint(STYLES[self._style], 0.12)
 				if not pressed then
 					Tween.to(uiScale, Tween.FAST, { Scale = HOVER_SCALE })
 				end

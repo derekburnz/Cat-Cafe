@@ -168,5 +168,10 @@ TrailerConfig.camera = {
 -- Screens left showing (every other ScreenGui of the game is hidden for the takes): the toasts, so the check-in's
 -- "New cat!" line shows.
 TrailerConfig.keepGuis = { CatCafeToasts = true } :: { [string]: boolean }
+-- The game's markers in the world hidden too: the "run home" and tutorial markers over their targets (BillboardGuis in
+-- the PlayerGui) and the tutorial's guide trail of dots on the ground (a folder of parts in the Workspace; QA-Planner
+-- saw it on a fresh save, which the director moves past the tutorial anyway).
+TrailerConfig.hideMarkers = { "CatCafeCarryMarker", "CatCafeTutorialMarker" }
+TrailerConfig.hideWorld = { "CatCafeTutorialTrail" }
 
 return TrailerConfig

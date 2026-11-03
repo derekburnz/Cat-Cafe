@@ -804,9 +804,33 @@ local function stopTake()
 	end
 end
 
--- Every frame: the shovers, then the camera ---------------------------------------------------------------------
+-- The game's markers and guide trail, hidden each frame (the UI turns its markers on whenever it wants them).
+local function hideMarkers()
+	local gui = player:FindFirstChildOfClass("PlayerGui")
+	if gui ~= nil then
+		for _, name in TrailerConfig.hideMarkers do
+			local marker = gui:FindFirstChild(name)
+			if marker ~= nil and marker:IsA("BillboardGui") then
+				marker.Enabled = false
+			end
+		end
+	end
+	for _, name in TrailerConfig.hideWorld do
+		local found = Workspace:FindFirstChild(name)
+		if found ~= nil then
+			for _, item in found:GetDescendants() do
+				if item:IsA("BasePart") then
+					item.LocalTransparencyModifier = 1
+				end
+			end
+		end
+	end
+end
+
+-- Every frame: the markers, the shovers, then the camera -------------------------------------------------------
 
 local function step(dt: number)
+	hideMarkers()
 	local h = hero()
 	if h ~= nil then
 		local v = flat(h.root.AssemblyLinearVelocity)

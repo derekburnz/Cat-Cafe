@@ -213,9 +213,10 @@ local Config = {
 		Mythical = 0.10,
 	} :: { [string]: number },
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
-	-- F93 (catch-rework.md section 4): a zone not hit within RescueZonePasses sweeps of the marker across the bar
-	-- costs a paw and moves on, and the marker gets RescueSpeedUpPerHit faster after every hit
-	RescueZonePasses = 2,
+	-- F93 (catch-rework.md section 4): the marker gets RescueSpeedUpPerHit faster after every hit. Derek 2026-11-03
+	-- ("a little confusing"): the zone stays where it is until it is hit (no more running out after two sweeps), and
+	-- RescueTreeCircle false ends a tree on its last shake like any bar, with no falling cat's catch circle after it.
+	RescueTreeCircle = false,
 	RescueSpeedUpPerHit = 0.08,
 	RescuePatience = 3, -- misses one attempt can take
 	RescueRetrySeconds = 3, -- after a failed attempt, before anyone else can try that trap

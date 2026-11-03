@@ -493,12 +493,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._buffs = BuffChips.new(root, MARGIN, function()
 		callbacks.openScreen("Potions")
 	end)
-	table.insert(
-		self._connections,
-		self._buffs.potions:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+	local timers: Frame = self._buffs.potions
+	local timersResized: RBXScriptConnection = timers
+		:GetPropertyChangedSignal("AbsoluteSize")
+		:Connect(function()
 			self:_placePotionTimers()
 		end)
-	)
+	table.insert(self._connections, timersResized)
 
 	-- The boosts card over the counters (built last, so it draws over the menu): a tap on the money opens and closes
 	-- it, a tap on the card closes it, and any window opening closes it.

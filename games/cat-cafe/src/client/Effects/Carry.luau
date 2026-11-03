@@ -95,7 +95,11 @@ local function copyOf(cat: Model): Model?
 			CollectionService:RemoveTag(descendant, tag)
 		end
 		-- its welds, and any name tag (one shows on the HeldCat already, if at all)
-		if descendant:IsA("JointInstance") or descendant:IsA("WeldConstraint") or descendant:IsA("BillboardGui") then
+		if
+			descendant:IsA("JointInstance")
+			or descendant:IsA("WeldConstraint")
+			or descendant:IsA("BillboardGui")
+		then
 			descendant:Destroy()
 		elseif descendant:IsA("BasePart") then
 			local part = descendant :: BasePart
@@ -190,7 +194,10 @@ local function place()
 			and cat:GetAttribute("HiddenLocal") ~= true
 			and (cat ~= entry.refused or now >= entry.retryAt)
 		local copy = entry.copy
-		if entry.cat ~= nil and (not wanted or entry.cat ~= cat or copy == nil or copy.Parent == nil) then
+		if
+			entry.cat ~= nil
+			and (not wanted or entry.cat ~= cat or copy == nil or copy.Parent == nil)
+		then
 			release(entry)
 		end
 		if wanted and entry.cat == nil and cat ~= nil then

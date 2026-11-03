@@ -174,6 +174,23 @@ Theme.index = {
 	dim = 0.55, -- how far a tile not found yet goes toward black
 }
 
+-- The dark windows (Derek 2026-11-03 03:06, #1028: "make more menu's dark themed like the index ui it's easier on the
+-- eyes darker background lighter buttons"): the Index's cocoa body, cards one step lighter, light words. Every text
+-- colour here reads at 4.5:1 or better on both the body and a card; the accents swap to lighter tints (goodDark on a
+-- dark card is 2.5:1, `good` here is 7.1:1). A window opts in with Panel's `dark` and reads this table in place of
+-- Theme.modal.
+Theme.dark = {
+	panel = Theme.index.body,
+	card = Color3.fromHex("3F332E"),
+	cardStroke = Color3.fromHex("5E4C42"),
+	text = Theme.colors.white,
+	subtext = Theme.index.subtext,
+	line = Theme.index.track, -- bar tracks and chips
+	good = Color3.fromHex("7BDA8F"), -- "Claimed", "Ready" and other green words
+	gold = Theme.colors.gold, -- gold words
+	caramel = Color3.fromHex("E0A86C"), -- scroll bars
+}
+
 -- `ink` is the rarity as text on a light card (odds rows, Derek 2026-10-28), dark enough to read at 14 px
 Theme.rarity = {
 	Common = {

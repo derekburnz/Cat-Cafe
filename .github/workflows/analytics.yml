@@ -38,8 +38,8 @@ jobs:
     timeout-minutes: 20
     env:
       # Since the game is group-owned, Derek's user key gets 403 "User does not have permission to view the metrics"
-      # (2026-11-03, #945); a group-owned key in ROBLOX_GROUP_KEY with universe.analytics:read wins when it is set.
-      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_GROUP_KEY || secrets.ROBLOX_PUBLISH_KEY }}
+      # (2026-11-03, #945); OWNER_KEY (a key on the account that owns the group, 2026-11-03) wins, then a group-owned key in ROBLOX_GROUP_KEY with universe.analytics:read.
+      ROBLOX_PUBLISH_KEY: ${{ secrets.OWNER_KEY || secrets.ROBLOX_GROUP_KEY || secrets.ROBLOX_PUBLISH_KEY }}
       DAYS: ${{ inputs.days }}
       FUNNEL: ${{ inputs.funnel }}
     steps:

@@ -537,6 +537,52 @@ return function()
 		end)
 	end)
 
+	describe("the cloud dips between places (#958)", function()
+		-- every camera place change in order: the shot it goes into, the cut, and whether it is a jump
+		local function changes(plot: Intro.Plot): { { shot: number, cut: number, jump: boolean } }
+			local list = {}
+			local last: Intro.Key? = nil
+			for _, shot in Intro.shots(plot, true) do
+				for index, cut in shot.cuts do
+					if last ~= nil and not shot.flight then
+						table.insert(list, {
+							shot = shot.index,
+							cut = index,
+							jump = Intro.jump(last :: Intro.Key, cut.from),
+						})
+					end
+					last = cut.to
+				end
+			end
+			return list
+		end
+
+		it(
+			"dips into your cafe, each camp of the tour, the board, the square and the town",
+			function()
+				for _, plotIndex in { 1, 2, 5, 8 } do
+					local jumps = {}
+					for _, change in changes(Intro.plot(plotIndex)) do
+						if change.jump then
+							table.insert(jumps, string.format("%d.%d", change.shot, change.cut))
+						end
+					end
+					expect(table.concat(jumps, " ")).to.equal("5.1 6.1 6.2 6.3 6.4 7.1 8.1 9.1")
+				end
+			end
+		)
+
+		it("keeps the Alleyway's catch and run and the end behind you as plain cuts", function()
+			for _, change in changes(EAST) do
+				if change.shot == 3 or change.shot == 4 or change.shot == 10 then
+					expect(change.jump).to.equal(false)
+				end
+			end
+			expect(Intro.JUMP_STUDS).to.equal(60)
+			expect(Intro.CUT_LEAD).to.be.near(0.2, 1e-12)
+		end)
+	end)
+
 	describe("the intro_cutscene event", function()
 		it("carries version 3 since the shots moved for the hometown and the cannon", function()
 			expect(Intro.VERSION).to.equal(3)

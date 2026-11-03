@@ -1505,6 +1505,13 @@ function Layout.campAt(x: number, z: number): string?
 	return nil
 end
 
+-- True when an x, z stands on the Town Square's floor (edges included). No strays roam it, so the net is put away
+-- there (Derek 2026-11-03).
+function Layout.inTownSquare(x: number, z: number): boolean
+	local rect = Layout.townSquare.floor
+	return x >= rect.x1 and x <= rect.x2 and z >= rect.z1 and z <= rect.z2
+end
+
 -- A world x, z in `camp`'s space: the inverse of campPoint.
 function Layout.campLocal(camp: Camp, x: number, z: number): (number, number)
 	local c, s = math.cos(math.rad(camp.turn)), math.sin(math.rad(camp.turn))

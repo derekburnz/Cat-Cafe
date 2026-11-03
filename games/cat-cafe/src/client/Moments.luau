@@ -77,6 +77,9 @@ local Moments = {
 	IntroShot = Signal.new() :: Signal.Signal<number>,
 	IntroCatSeated = Signal.new() :: Signal.Signal<Vector3, Model>,
 	IntroEnd = Signal.new() :: Signal.Signal<()>,
+	-- #958 (Derek 2026-11-03: "make the locations cuts smoother"): Intro.CUT_LEAD before the camera jumps to a far
+	-- place, (at, nextSeconds): the os.clock() of the jump and how long the cut after it lasts, for Effects' cloud dip
+	IntroCut = Signal.new() :: Signal.Signal<number, number>,
 	-- Rare moments (F89, luck-and-rare-moments.md 2a and 2b) from SecuredRare and FoundRareDecor on every client that
 	-- gets them: (userId, catId, rarity, gold, variant) a big pull, or this player's first Epic (rarity Epic, not
 	-- gold, userId this player's); (userId, decorId) a Mythical crate piece
@@ -113,7 +116,7 @@ local Moments = {
 	-- tile line crossing the marker (Sound's ticks, at most one every 0.06 s), CrateReelLanded at the stop or on a tap
 	-- skip (the thunk, and VFX's lid pop on the counter crate).
 	CrateReelTick = Signal.new() :: Signal.Signal<()>,
-	CrateReelLanded = Signal.new() :: Signal.Signal<()>,
+	CrateReelLanded = Signal.new() :: Signal.Signal<string?>, -- the won piece's rarity (UI #892), nil when none
 	-- The camp extras (F100, camp-extras.md section 3), from Controllers/CampExtrasController: CampExtraCollect
 	-- (extraId, position) on this client when the server confirms a collect or a Yard Sale buy ("picnic", "pond": the
 	-- rod lands the fish, "lostFound": the lid lets the prize out, or "yardSale"), at the extra's PromptAnchor;

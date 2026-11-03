@@ -38,7 +38,7 @@ return function()
 			expect(NetSwing.reach()).to.be.near(8.5, 1e-12)
 			expect(Config.NetArcDegrees).to.equal(60)
 			expect(Config.NetSwingCooldown).to.be.near(0.8, 1e-12)
-			expect(Config.NetSmackDelay).to.be.near(0.15, 1e-12)
+			expect(Config.NetSmackDelay).to.be.near(0.22, 1e-12)
 		end)
 
 		it(
@@ -168,6 +168,11 @@ return function()
 			expect(NetSwing.refusal(check({ busy = true }))).to.equal("busy")
 			expect(NetSwing.refusal(check({ inFlight = true }))).to.equal("flight")
 			expect(NetSwing.refusal(check({ inCamp = true }))).to.equal("camp")
+		end)
+
+		it("never on the Town Square, where the net is put away (Derek 2026-11-03)", function()
+			expect(NetSwing.refusal(check({ inTown = true }))).to.equal("town")
+			expect(NetSwing.refusal(check({ inTown = false }))).never.to.be.ok()
 		end)
 
 		it(

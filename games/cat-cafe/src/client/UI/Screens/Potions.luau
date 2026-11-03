@@ -1,10 +1,11 @@
 --!strict
 -- The potion bag (F64, data-model section 12b; the quest potions of F73 join it, quests.md section 4). Opened from
--- the Potions pill on the left menu (key P) or a tap on a HUD potion timer. One row per potion, kept brief (Derek
--- 2026-10-28: "keep the info brief and simple"): a round tile in the potion's colour with how many are in the bag,
+-- the Potions tile (key P) or a tap on a HUD potion timer. One row per potion the player has or is drinking (Derek
+-- 2026-11-03: "it only shows use on potions you have and disappear when used"), kept brief (Derek 2026-10-28: "keep
+-- the info brief and simple"): a round tile in the potion's colour with how many are in the bag,
 -- the name, one short line on what it does and for how long, the time left while it runs ("8:12 left"), and a Use
--- button. Use is grey with none in the bag and reads "Full" when another would take the timer past
--- PotionMaxMinutes (60). A pressed Use reads "..." for a moment; the server's answer is the next ProfileSync, and
+-- button. A running potion with none left in the bag has no Use. Use reads "Full" when another would take the timer
+-- past PotionMaxMinutes (60). A pressed Use reads "..." for a moment; the server's answer is the next ProfileSync, and
 -- a refusal is the server's toast. The drink sound plays when the bag's count drops, which is the server accepting.
 -- Timers pause while the player is away, so a rejoin shows what was left. Rows and sums: Components/PotionLogic.
 
@@ -294,7 +295,8 @@ function Potions._refresh(self: any)
 	if state == nil then
 		return
 	end
-	local rows = PotionLogic.rows(self._catalog, state, Workspace:GetServerTimeNow())
+	-- only what the player has or is drinking (Derek 2026-11-03); a row goes when its last one is used and runs out
+	local rows = PotionLogic.owned(self._catalog, state, Workspace:GetServerTimeNow())
 	local shown: { [string]: boolean } = {}
 	local any = false
 	for order, view in rows do
@@ -322,11 +324,9 @@ function Potions._refresh(self: any)
 		local full = view.count > 0 and not view.canUse
 		row.use:setText(if pending then "..." elseif full then "Full" else "Use")
 		row.use:setEnabled(view.canUse and not pending)
-		-- an empty row stays to show what the potion does, faded
-		local empty = view.count == 0 and not running
-		row.frame.BackgroundTransparency = if empty then 0.4 else 0
-		row.tile.BackgroundTransparency = if empty then 0.5 else 0
-		any = any or view.count > 0 or running
+		-- a running potion with none left in the bag: no Use, just its time left
+		row.use.instance.Visible = view.count > 0
+		any = true
 	end
 	for id, row in self._rows do
 		if not shown[id] then

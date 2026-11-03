@@ -71,22 +71,56 @@ function Logic.secondsInto(phaseLength: number, endsAt: number?, now: number): n
 	return math.clamp(phaseLength - (endsAt - now), 0, phaseLength)
 end
 
--- The music bed for a phase: A first, B once `bedSeconds` have played (sound list section 3). Falls back to the
--- other bed when one has no file yet, and to nil when neither has.
-function Logic.bedFor(
-	phase: string?,
-	secondsInto: number,
-	bedSeconds: number,
-	has: (string) -> boolean
-): string?
+-- Music without loops (sound list section 3, 2026-11-03). The songs a phase can play: its music cues with a file
+-- (musicDayA, musicDayB, ... or musicNightA, ...), in letter order, so a new song joins by getting its file.
+local SONG_LETTERS = { "A", "B", "C", "D", "E", "F", "G", "H" }
+
+function Logic.songsFor(phase: string?, has: (string) -> boolean): { string }
 	local base = if phase == "night" then "musicNight" else "musicDay"
-	local first, second = base .. "A", base .. "B"
-	local want = if secondsInto >= bedSeconds then second else first
-	if has(want) then
-		return want
+	local songs: { string } = {}
+	for _, letter in SONG_LETTERS do
+		if has(base .. letter) then
+			table.insert(songs, base .. letter)
+		end
 	end
-	local other = if want == first then second else first
-	return if has(other) then other else nil
+	return songs
+end
+
+-- The next song, picked by `roll` (0 to 1): never the one that just played while there is another; nil for none.
+function Logic.nextSong(songs: { string }, last: string?, roll: number): string?
+	local choices: { string } = {}
+	for _, song in songs do
+		if song ~= last then
+			table.insert(choices, song)
+		end
+	end
+	if #choices == 0 then
+		choices = songs
+	end
+	if #choices == 0 then
+		return nil
+	end
+	return choices[math.clamp(math.floor(roll * #choices) + 1, 1, #choices)]
+end
+
+-- Where a play starts and how long it lasts, in seconds. A song of `seconds` is `sections` equal parts; a play is
+-- `play` parts from the one `roll` picks (a seamless loop wraps round its end), or from the top when `fromTop`. A
+-- song with no length given plays `fallback` seconds from the top.
+function Logic.songPlay(
+	seconds: number?,
+	sections: number?,
+	play: number,
+	roll: number,
+	fromTop: boolean,
+	fallback: number
+): (number, number)
+	if type(seconds) ~= "number" or seconds <= 0 then
+		return 0, fallback
+	end
+	local parts = if type(sections) == "number" and sections >= 1 then math.floor(sections) else 1
+	local part = seconds / parts
+	local first = if fromTop then 0 else math.clamp(math.floor(roll * parts), 0, parts - 1)
+	return first * part, math.clamp(play, 1, parts) * part
 end
 
 -- The ambience bed for a zone and phase: amb<Zone><Day|Night>, else amb<Zone>, else nil (silence).
@@ -373,6 +407,31 @@ local ORDER_DING_STEPS: { [string]: number } = { oven = 1, espresso = 2, counter
 
 function Logic.orderMakeCue(station: any): string?
 	return if type(station) == "string" then ORDER_MAKE_CUES[station] else nil
+end
+
+-- F84 cannon beats (#954, #955): when the flyer reaches the clouds and when the feet touch the pad, in seconds from
+-- CannonLaunchAt. Config's CannonCloudsAt and CannonTouchdownAt when they are positive numbers; else the old clouds
+-- time and the touchdown as the flight ends (CannonLaunchSeconds, else `flightFallback`). The touchdown never comes
+-- before the clouds.
+function Logic.cannonBeats(
+	cloudsAt: any,
+	touchdownAt: any,
+	flight: any,
+	cloudsFallback: number,
+	flightFallback: number
+): (number, number)
+	local function positive(value: any): number?
+		return if type(value) == "number" and value == value and value > 0 then value else nil
+	end
+	local clouds = positive(cloudsAt) or cloudsFallback
+	local touchdown = positive(touchdownAt) or positive(flight) or flightFallback
+	return clouds, math.max(touchdown, clouds)
+end
+
+-- Whether a plot is this player's own cafe, from its OwnerUserId attribute: only your own cafe's orders ding (#981).
+-- A For Rent plot (0 or no owner) and anything but a number are nobody's.
+function Logic.ownPlot(ownerUserId: any, yourUserId: number): boolean
+	return type(ownerUserId) == "number" and ownerUserId ~= 0 and ownerUserId == yourUserId
 end
 
 function Logic.orderDingStep(station: any): number?

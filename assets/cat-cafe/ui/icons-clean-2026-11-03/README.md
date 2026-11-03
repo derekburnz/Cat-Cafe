@@ -14,11 +14,11 @@ Derek OK'd the look on 2026-11-03 ("Build it as shown"; the crate was redrawn af
 | Icon_Clean_Bag | 81699518945581 |
 | Icon_Clean_Bowl | 80050724855728 |
 | Icon_Clean_Cannon | 112726655919470 |
-| Icon_Clean_Cats | 73281357166646 |
+| Icon_Clean_Cats | 111022016391627 (redrawn 01:44; first upload 73281357166646 unused) |
 | Icon_Clean_Caviar | 94374227160258 |
 | Icon_Clean_Coin | 112195289471900 |
 | Icon_Clean_Crate | 85523439563968 |
-| Icon_Clean_Decor | 73990946688611 |
+| Icon_Clean_Decor | 130851033023889 (redrawn 01:44; first upload 73990946688611 unused) |
 | Icon_Clean_Feedback | 101390180819645 |
 | Icon_Clean_Fish | 111395416488950 |
 | Icon_Clean_Home | 102266682155402 |
@@ -27,7 +27,7 @@ Derek OK'd the look on 2026-11-03 ("Build it as shown"; the crate was redrawn af
 | Icon_Clean_Potion | 74312502748629 |
 | Icon_Clean_Quests | 120388931985566 |
 | Icon_Clean_Rewards | 100352240603614 |
-| Icon_Clean_Store | 133073738193868 |
+| Icon_Clean_Store | 125596282319075 (redrawn 01:44; first upload 133073738193868 unused) |
 | Icon_Clean_Tutorial | 109885867788208 |
 | Icon_Clean_Upgrades | 90691118878000 |
 

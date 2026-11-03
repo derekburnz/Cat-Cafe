@@ -30,6 +30,13 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 local OWNER_TURN = "Owner's turn" -- a knocked-loose cat inside its old carrier's DropOwnerPrioritySeconds
+-- Less text (Derek 2026-11-03: "all the texts on thins like this is not needed too much text on screen make pictures
+-- easy for kids"): the card is the key, the word, the cat's name and rarity, and a little picture of the minigame (the
+-- rescue bar, or a catch ring); the hint line shows only when it says why you have to wait.
+local CARD_W = 360
+local CARD_H = 70
+local CARD_HINT_H = 86 -- with the hint line
+local MINI_W = 96
 
 export type CatchPrompt = {
 	screenGui: ScreenGui,
@@ -86,7 +93,7 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -140),
-		Size = UDim2.fromOffset(340, 84),
+		Size = UDim2.fromOffset(CARD_W, CARD_H),
 		Parent = root,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 2) }),
@@ -143,8 +150,8 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 	self._action = Create("TextLabel", {
 		Name = "Action",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(66, 10),
-		Size = UDim2.new(1, -80, 0, 26),
+		Position = UDim2.fromOffset(66, 8),
+		Size = UDim2.new(1, -(80 + MINI_W), 0, 28),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge - 2,
 		TextColor3 = Theme.hud.text,
@@ -153,32 +160,47 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		Text = "Catch",
 		Parent = card,
 	})
+	-- the cat's name and its rarity chip side by side under the word
+	local line: Frame = Create("Frame", {
+		Name = "Line",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(66, 40),
+		Size = UDim2.new(1, -(80 + MINI_W), 0, 20),
+		Parent = card,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
 	self._catName = Create("TextLabel", {
 		Name = "Cat",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(66, 38),
-		Size = UDim2.new(1, -170, 0, 20),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 20),
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.hud.subtext,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
-		Parent = card,
-	})
+		LayoutOrder = 1,
+		Parent = line,
+	}, { Create("UISizeConstraint", { MaxSize = Vector2.new(CARD_W - 80 - MINI_W - 80, 20) }) })
 	self._rarity = Create("TextLabel", {
 		Name = "Rarity",
 		BackgroundColor3 = Theme.rarity.Common.color,
 		BorderSizePixel = 0,
 		AutomaticSize = Enum.AutomaticSize.X,
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -12, 0, 40),
+		LayoutOrder = 2,
 		Size = UDim2.fromOffset(0, 18),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = Theme.rarity.Common.text,
 		Text = "Common",
-		Parent = card,
+		Parent = line,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
@@ -186,15 +208,75 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 	self._hint = Create("TextLabel", {
 		Name = "Hint",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(66, 60),
+		Position = UDim2.fromOffset(66, 62),
 		Size = UDim2.new(1, -80, 0, 18),
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = Theme.hud.subtext,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = "Hit each circle on its ring",
+		Text = "",
+		Visible = false,
 		Parent = card,
 	})
+	-- the minigame in a picture, right of the words: the rescue bar (a dark track, the green zone, the marker) or a
+	-- catch ring (the white ring and the gold circle closing on it); none for a pick up
+	local bar: Frame = Create("Frame", {
+		Name = "MiniBar",
+		BackgroundColor3 = Theme.colors.cocoaDeep,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -14, 0, CARD_H / 2),
+		Size = UDim2.fromOffset(MINI_W, 20),
+		Visible = false,
+		Parent = card,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIStroke", { Color = Theme.colors.outline, Thickness = 2 }),
+		Create("Frame", {
+			Name = "Zone",
+			BackgroundColor3 = Theme.colors.good,
+			BorderSizePixel = 0,
+			Position = UDim2.new(0.56, 0, 0, 4),
+			Size = UDim2.new(0.28, 0, 1, -8),
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
+		Create("Frame", {
+			Name = "Marker",
+			BackgroundColor3 = Theme.colors.white,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.4, 0.5),
+			Size = UDim2.new(0, 5, 1, 10),
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIStroke", { Color = Theme.colors.outline, Thickness = 1.5 }),
+		}),
+	})
+	self._miniBar = bar
+	local ring: Frame = Create("Frame", {
+		Name = "MiniRing",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -(14 + MINI_W / 2), 0, CARD_H / 2),
+		Size = UDim2.fromOffset(40, 40),
+		Visible = false,
+		Parent = card,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIStroke", { Color = Theme.colors.white, Thickness = 3 }),
+		Create("Frame", {
+			Name = "Closing",
+			BackgroundColor3 = Theme.colors.gold,
+			BackgroundTransparency = 0.2,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(18, 18),
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIStroke", { Color = Theme.colors.outline, Thickness = 2 }),
+		}),
+	})
+	self._miniRing = ring
 
 	-- Mobile CATCH button (bottom right, right of the Shove button); reads RESCUE on a stuck cat
 	local grab: TextButton = Create("TextButton", {
@@ -335,13 +417,19 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
 	local blocked = self:blockedText()
-	self._hint.Text = if rescue
-		then "Stop the marker in the zone. The cat never leaves if you miss."
-		elseif pickUp and info.returning then "It's walking home. Grab it before it gets there!"
-		elseif pickUp then "No circles. Hold to pick it up!"
+	-- only a line that says why to wait; the rest is the picture
+	local hint = if rescue
+		then ""
+		elseif pickUp and info.returning then "It's walking home. Grab it!"
+		elseif pickUp then ""
 		elseif blocked == OWNER_TURN then "Its owner gets the first try"
-		elseif blocked then "Wait till it stops, then try again"
-		else "Hit each ring. Miss and it runs off!"
+		elseif blocked then "Wait till it stops"
+		else ""
+	self._hint.Text = hint
+	self._hint.Visible = hint ~= ""
+	self._card.Size = UDim2.fromOffset(CARD_W, if hint ~= "" then CARD_HINT_H else CARD_H)
+	self._miniBar.Visible = rescue
+	self._miniRing.Visible = not rescue and not pickUp
 	local key: Enum.KeyCode = info.keyCode or Enum.KeyCode.E
 	self._keycap.Text = key.Name
 	self._keyFrame.Visible = not Scale.isTouch()

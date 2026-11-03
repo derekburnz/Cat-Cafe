@@ -179,4 +179,46 @@ return function()
 			end
 		)
 	end)
+
+	describe("the landing marker (Derek 2026-11-03)", function()
+		it("judges from where the root will be when the net lands, along the ground", function()
+			local running = NetSwing.landingOrigin(ORIGIN, Vector3.new(16, 5, 0))
+			expect(running.X).to.be.near(ORIGIN.X + 16 * Config.NetSmackDelay, 1e-9)
+			expect(running.Y).to.be.near(ORIGIN.Y, 1e-9)
+			expect(running.Z).to.be.near(ORIGIN.Z, 1e-9)
+			expect(NetSwing.landingOrigin(ORIGIN, Vector3.zero)).to.equal(ORIGIN)
+		end)
+
+		it("so a runner's swing lands on a cat just past reach from where they stand", function()
+			local cat = ORIGIN + Vector3.new(0, 0, -9)
+			local origin = NetSwing.landingOrigin(ORIGIN, Vector3.new(0, 0, -16))
+			expect(NetSwing.inReach(ORIGIN, AHEAD, cat)).to.equal(false)
+			expect(NetSwing.inReach(origin, AHEAD, cat)).to.equal(true)
+		end)
+
+		it("draws the arc NetReachStuds out, NetArcDegrees either side, left to right", function()
+			local points = NetSwing.fanPoints(8)
+			expect(#points).to.equal(9)
+			for _, point in points do
+				expect(point.Y).to.equal(0)
+				expect(point.Magnitude).to.be.near(Config.NetReachStuds, 1e-9)
+			end
+			local left = math.deg(math.atan2(points[1].X, -points[1].Z))
+			local right = math.deg(math.atan2(points[9].X, -points[9].Z))
+			expect(left).to.be.near(-Config.NetArcDegrees, 1e-6)
+			expect(right).to.be.near(Config.NetArcDegrees, 1e-6)
+			expect(points[5].X).to.be.near(0, 1e-9)
+			expect(points[5].Z).to.be.near(-Config.NetReachStuds, 1e-9)
+		end)
+
+		it("covers only ground a swing lands on, from a root 3 studs up", function()
+			local root = Vector3.new(0, 3, 0)
+			for _, point in NetSwing.fanPoints(8) do
+				for _, share in { 0.2, 0.6, 1 } do
+					local cat = point * share + Vector3.new(0, 0.5, 0)
+					expect(NetSwing.inReach(root, AHEAD, cat)).to.equal(true)
+				end
+			end
+		end)
+	end)
 end

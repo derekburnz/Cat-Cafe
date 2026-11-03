@@ -143,4 +143,15 @@ function Cannon.inDuskWarning(phase: string, phaseEndsAt: number, now: number): 
 	return phase == "day" and phaseEndsAt - now <= Config.DuskWarningSeconds
 end
 
+-- The way a flight heads on the ground plane (the character's CannonHeading, Derek 2026-11-03), for the flight's
+-- arc: a unit Vector3 from the cannon at `from` toward the landing pad's centre `to`, or `facing` (the barrel's look)
+-- flattened when the pad is under the cannon or unknown, or -Z when even that is straight up.
+function Cannon.heading(from: Vector3, to: Vector3?, facing: Vector3): Vector3
+	local flat = if to ~= nil then Vector3.new(to.X - from.X, 0, to.Z - from.Z) else Vector3.zero
+	if flat.Magnitude < 1 then
+		flat = Vector3.new(facing.X, 0, facing.Z)
+	end
+	return if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
+end
+
 return Cannon

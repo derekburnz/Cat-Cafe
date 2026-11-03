@@ -28,6 +28,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
+local CleanGlyphs = require(script.Parent.Parent.Components.CleanGlyphs)
 local CrateLogic = require(script.Parent.Parent.Components.CrateLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
@@ -505,10 +506,12 @@ function SpinWheel._paintCrate(self: any, tile: Tile)
 	end
 	tile.crate = id
 	local crate: CrateLogic.Crate? = self._crates[id]
+	-- the clean crate symbol (#966: "too small"), the crate's model until it loads
 	tile.icon:set(
 		if crate then crate.asset else nil,
 		Theme.icons.crate,
-		if CrateLogic.isGolden(id, crate) then "Legendary" else "Rare"
+		if CrateLogic.isGolden(id, crate) then "Legendary" else "Rare",
+		ShopIcons.clean("Crate")
 	)
 end
 
@@ -587,12 +590,14 @@ function SpinWheel._build(self: any)
 			Parent = self._face,
 		})
 		local stroke = Outline.border(holder, Theme.sizes.stroke, PAL.cardStroke)
+		-- the prize picture on its own, big, with no beige tile behind it (#966)
 		local icon = ItemIcon.new({
 			parent = holder,
-			size = UDim2.fromScale(0.6, 0.6),
+			size = UDim2.fromScale(0.72, 0.72),
 			anchorPoint = Vector2.new(0.5, 0),
-			position = UDim2.fromScale(0.5, 0.06),
+			position = UDim2.fromScale(0.5, 0.02),
 			badge = "gem",
+			plain = true,
 		})
 		-- what the slice pays, under its picture (Derek 2026-10-28: the chances live behind Odds)
 		local amount = text({
@@ -638,9 +643,16 @@ function SpinWheel._paint(self: any, tile: Tile)
 	elseif row.kind == "crate" then
 		self:_paintCrate(tile)
 	elseif row.kind == "lure" then
-		icon:setFood(if row.lureId then self._lureById[row.lureId] else nil, row.lureId)
+		-- a food with a clean symbol (caviar's tin, kibble's bowl) shows that in place of its upload (#966)
+		local clean = CleanGlyphs.foods[row.lureId or ""]
+		icon:setFood(
+			if row.lureId then self._lureById[row.lureId] else nil,
+			row.lureId,
+			if clean then ShopIcons.clean(clean) else nil
+		)
 	else
-		icon:set(nil, COIN_GLYPH, "Legendary", ShopIcons.image("Coins")) -- F97 section 4: three gold coins
+		-- the clean money bag (#966, Derek: "The money bag ... too hard to understand what it is or too small")
+		icon:set(nil, COIN_GLYPH, "Legendary", ShopIcons.clean("Bag"))
 	end
 end
 

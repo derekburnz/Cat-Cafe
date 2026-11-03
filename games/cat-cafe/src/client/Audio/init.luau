@@ -276,7 +276,7 @@ local function loopSound(cueId: string): Sound?
 end
 
 -- Crossfades a bed (music or ambience) to another cue; nil fades to silence. One bed of each plays at a time.
-local function crossfade(bed: Bed, cueId: string?, fade: number)
+local function crossfade(bed: Bed, cueId: string?, fade: number, from: number?)
 	if cueId == bed.cue then
 		return
 	end
@@ -292,9 +292,17 @@ local function crossfade(bed: Bed, cueId: string?, fade: number)
 	bed.cue = if sound ~= nil then cueId else nil
 	bed.sound = sound
 	if sound ~= nil and cueId ~= nil then
+		local at = from or 0
 		sound.Volume = 0
-		sound.TimePosition = 0
+		sound.TimePosition = at
 		sound:Play()
+		if at > 0 and not sound.IsLoaded then -- a Sound still loading cannot seek yet
+			sound.Loaded:Once(function()
+				if bed.sound == sound then
+					sound.TimePosition = at
+				end
+			end)
+		end
 		tweenVolume(sound, Cues[cueId].volume * Logic.duckLevel(bed.ducks), fade)
 	end
 end
@@ -397,13 +405,48 @@ function Audio.loop(cueId: string, at: Target?): () -> ()
 	end
 end
 
-local function phaseLength(name: string?): number
-	return if name == "night" then Config.NightLengthSeconds else Config.DayLengthSeconds
+-- Music follows the server clock, and no song loops (2026-11-03, Derek: "a little too repetitive and too long").
+-- A phase plays one of its songs (Logic.songsFor) for MUSIC_PLAY_SECTIONS of its sections, from one picked at
+-- random (the songs loop seamlessly, so a play wraps round the end), fades it out, rests MUSIC_REST seconds and
+-- plays another, never the same one twice in a row while there is a choice. A phase change fades out, plays the
+-- stinger and starts a song from the top; joining mid-phase starts one at once. With music off nothing loads.
+local MUSIC_PLAY_SECTIONS = 2
+local MUSIC_REST = { 15, 30 }
+local MUSIC_FALLBACK = 60 -- seconds of a song whose cue gives no length
+local lastSong: string? = nil
+
+local function playSong(generation: number, fromTop: boolean)
+	if generation ~= bedGeneration or not enabled.Music then
+		return
+	end
+	local cueId = Logic.nextSong(Logic.songsFor(phase, has), lastSong, rng:NextNumber())
+	if cueId == nil then
+		crossfade(music, nil, MUSIC_FADE)
+		return
+	end
+	lastSong = cueId
+	local cue = Cues[cueId]
+	local from, seconds = Logic.songPlay(
+		cue.seconds,
+		cue.sections,
+		MUSIC_PLAY_SECTIONS,
+		rng:NextNumber(),
+		fromTop,
+		MUSIC_FALLBACK
+	)
+	crossfade(music, cueId, MUSIC_FADE, from)
+	task.delay(math.max(seconds - MUSIC_FADE, MUSIC_FADE), function()
+		if generation ~= bedGeneration then
+			return
+		end
+		crossfade(music, nil, MUSIC_FADE)
+		local rest = MUSIC_REST[1] + (MUSIC_REST[2] - MUSIC_REST[1]) * rng:NextNumber()
+		task.delay(MUSIC_FADE + rest, function()
+			playSong(generation, false)
+		end)
+	end)
 end
 
--- Music follows the server clock. On a phase change the bed fades out, the stinger plays and the new phase's
--- A bed fades in; B takes over halfway through the phase. Joining mid-phase picks the bed for that moment.
--- With music turned off no bed is loaded at all.
 local function refreshMusic(changed: boolean)
 	if not ready then
 		return
@@ -414,26 +457,14 @@ local function refreshMusic(changed: boolean)
 		crossfade(music, nil, MUSIC_FADE)
 		return
 	end
-	local half = phaseLength(phase) / 2
-	local into = 0
 	if changed then
 		crossfade(music, nil, MUSIC_FADE)
 		Audio.play(if phase == "night" then "stingDusk" else "stingDawn")
 		task.delay(MUSIC_FADE, function()
-			if generation == bedGeneration then
-				crossfade(music, Logic.bedFor(phase, 0, half, has), MUSIC_FADE)
-			end
+			playSong(generation, true)
 		end)
 	else
-		into = Logic.secondsInto(phaseLength(phase), phaseEndsAt, Workspace:GetServerTimeNow())
-		crossfade(music, Logic.bedFor(phase, into, half, has), MUSIC_FADE)
-	end
-	if into < half then
-		task.delay(half - into, function()
-			if generation == bedGeneration then
-				crossfade(music, Logic.bedFor(phase, half, half, has), MUSIC_FADE)
-			end
-		end)
+		playSong(generation, false)
 	end
 end
 
@@ -642,7 +673,7 @@ local TAGGED_LOOPS: { [string]: LoopDef } = {
 	CafeDoor = { cue = "loopCafeDoor", when = cafeOpen },
 	Fountain = { cue = "loopFountain" },
 	FishTank = { cue = "loopFishTank" },
-	WorkingCat = { cue = "purr", near = 14, when = shown },
+	WorkingCat = { cue = "purr", near = 14, max = 1, when = shown }, -- one purr, not a layered hum (#981)
 }
 local MAX_NEAR_LOOPS = 3
 local LOOP_CHECK_SECONDS = 0.5
@@ -1099,8 +1130,10 @@ local CHARACTER_GAP = 1
 local CATCH_QUIET = 2
 local TACKLE_FRESH = 0.6
 local lastCatchAt: number? = nil
--- F84: the cannon flight's timing (hometown-cannon.md 3b) until Config has CannonLaunchSeconds. The clouds
--- start at 1.4 s and cannonLand's whistle runs CANNON_LAND_LEAD before its thump, which lands as the flight ends.
+-- F84: the cannon flight's beats, in seconds from CannonLaunchAt, from Config (CannonCloudsAt, CannonTouchdownAt and
+-- CannonLaunchSeconds, PR #1002 for #954 and #955: into the clouds at 2.0, feet on the pad at 3.5 in the hero
+-- landing, standing at 4.0). cannonLand's whistle runs CANNON_LAND_LEAD before its thump, which lands on the feet.
+-- Without the keys: the clouds at 1.4 s and the touchdown as the flight ends (3 s), the timing before #1002.
 local CANNON_FLIGHT = 3
 local CANNON_CLOUDS_AT = 1.4
 local CANNON_LAND_LEAD = 0.6
@@ -1179,14 +1212,17 @@ local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptCo
 				end
 			end)
 		end
-		if isLocal then
-			later(CANNON_CLOUDS_AT, "cannonClouds")
-		end
-		local flight = (Config :: any).CannonLaunchSeconds
-		later(
-			(if type(flight) == "number" then flight else CANNON_FLIGHT) - CANNON_LAND_LEAD,
-			"cannonLand"
+		local clouds, touchdown = Logic.cannonBeats(
+			(Config :: any).CannonCloudsAt,
+			(Config :: any).CannonTouchdownAt,
+			(Config :: any).CannonLaunchSeconds,
+			CANNON_CLOUDS_AT,
+			CANNON_FLIGHT
 		)
+		if isLocal then
+			later(clouds, "cannonClouds")
+		end
+		later(math.max(0, touchdown - CANNON_LAND_LEAD), "cannonLand")
 	end)
 	local hop = character:GetAttributeChangedSignal("CloudHopAt"):Connect(function()
 		if
@@ -1716,33 +1752,19 @@ local HANDLERS: { [string]: (...any) -> () } = {
 			Audio.play(cue, if typeof(position) == "Vector3" then position else nil)
 		end
 	end,
-	-- F90 cats make the orders (Controllers/CafeOrders), in every cafe this client shows the making in: the espresso
-	-- pour as a Barista starts a drink and the "ding!" when any order is ready, at the station (`at` is the Espresso
-	-- or Oven model, or the Barista); the tray clink where the Waiter sets the dish down; and, your own cafe only,
-	-- the coin sweep at the table and the bag dropped in the till. Each needs a place: none plays flat.
-	OrderMaking = function(_plot: any, station: any, at: any)
-		local cueId = Logic.orderMakeCue(station)
+	-- F90 cats make the orders (Controllers/CafeOrders). Derek 2026-11-03 (#981): "Plate noises and eating noises too
+	-- loud honestly not even needed", "too much random ambient noises in the cafe". So only your own cafe sounds, and
+	-- only twice: the "ding!" when an order is ready, at the station (`at` is the Espresso or Oven model, or the
+	-- Barista), and the coin bag dropped in the till. The pour (OrderMaking), the dish set down (OrderServed) and the
+	-- coin sweep (TipSwept) play nothing; their cues stay for a later pass. Each needs a place: none plays flat.
+	OrderReady = function(plot: any, station: any, at: any)
 		local part = if typeof(at) == "Instance" then partOf(at) else nil
-		if cueId ~= nil and part ~= nil then
-			Audio.play(cueId, part)
-		end
-	end,
-	OrderReady = function(_plot: any, station: any, at: any)
-		local part = if typeof(at) == "Instance" then partOf(at) else nil
-		if part ~= nil then
+		if
+			part ~= nil
+			and typeof(plot) == "Instance"
+			and Logic.ownPlot(plot:GetAttribute("OwnerUserId"), Players.LocalPlayer.UserId)
+		then
 			Audio.play("orderDing", part, Logic.orderDingStep(station))
-		end
-	end,
-	OrderServed = function(_customer: any, _itemId: any, position: any)
-		local where = vec(position)
-		if where ~= nil then
-			Audio.play("trayClink", where)
-		end
-	end,
-	TipSwept = function(_cat: any, position: any)
-		local where = vec(position)
-		if where ~= nil then
-			Audio.play("tipSweep", where)
 		end
 	end,
 	TipBanked = function(_cat: any, position: any)

@@ -1328,6 +1328,31 @@ function Logic.capTip(o: Offsets, alpha: number)
 	o.headPitch -= math.rad(t.nod) * k
 end
 
+-- A cat's motion `t` seconds into a card's picture (Portrait.luau, Presets.portrait), for a cat `catId` on a `body`
+-- (Pose's rig kind): the stray idle in place, breathing with the belly, and for the Bellhop Cat a bell ring every
+-- `every` seconds from `ringFrom` with the cap tip `tipAfter` later. The body itself never moves or rolls, so the
+-- picture holds still round it.
+function Logic.portrait(catId: string?, t: number, body: Body?): Offsets
+	local p = Presets.portrait
+	local o = Logic.idle("stray", t, body)
+	local held = Presets.motion.held
+	o.bodyY = 0 -- breathing with the belly, as a cat in your arms does, instead of floating up and down
+	o.belly = Logic.breath(t, held.seconds) * held.breathe
+	o.bodyRoll = 0
+	if catId == Presets.bellhop.catId and t >= p.ringFrom then
+		local b = Presets.bellhop
+		local into = (t - p.ringFrom) % p.every
+		if into < b.ring.seconds then
+			Logic.bellRing(o, into / b.ring.seconds)
+		end
+		local tip = (into - b.tipAfter) / b.tip.seconds
+		if tip >= 0 and tip < 1 then
+			Logic.capTip(o, tip)
+		end
+	end
+	return o
+end
+
 -- The Bellhop Cat's little bow as it is put in its place (Presets.bellhop.bow), `alpha` 0 to 1: it leans forward,
 -- head down and cap tipped, holds and sits back up, the tail still while it bows.
 function Logic.bow(o: Offsets, alpha: number)

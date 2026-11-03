@@ -7,13 +7,15 @@
 #   ROBLOX_PUBLISH_KEY   Open Cloud API key with luau-execution-sessions Write on the Cat Cafe experience
 #   UNIVERSE_ID, PLACE_ID  defaults below
 #
-# Usage, from games/cat-cafe:  tools/opencloud/run-luau.sh tools/opencloud/Smoke.luau <place version>
+# Usage, from games/cat-cafe:  tools/opencloud/run-luau.sh tools/opencloud/Smoke.luau <place version | latest>
+# "latest" runs against the place's newest version (the Open Cloud path with no version); the task path it prints
+# names the version that ran.
 # Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 SCRIPT=${1:?script file}
-VERSION=${2:?place version, as printed by publish.sh}
+VERSION=${2:?place version, as printed by publish.sh, or latest}
 UNIVERSE_ID=${UNIVERSE_ID:-10773193456}
 PLACE_ID=${PLACE_ID:-119569792798199}
 : "${ROBLOX_PUBLISH_KEY:?set ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 15)}"
@@ -36,7 +38,11 @@ request=$(jq -n --rawfile script "$SCRIPT" '{script: $script, timeout: "180s"}')
 # three more tries over about two and a half minutes. A task started by one that went through anyway just runs on
 # its own; this script follows the last one.
 for wait in 20 40 80 0; do
-	call POST "$API/universes/$UNIVERSE_ID/places/$PLACE_ID/versions/$VERSION/luau-execution-session-tasks" "$request"
+	if [ "$VERSION" = latest ]; then
+		call POST "$API/universes/$UNIVERSE_ID/places/$PLACE_ID/luau-execution-session-tasks" "$request"
+	else
+		call POST "$API/universes/$UNIVERSE_ID/places/$PLACE_ID/versions/$VERSION/luau-execution-session-tasks" "$request"
+	fi
 	case "$status" in
 	5?? | 429 | 409) ;;
 	*) break ;;

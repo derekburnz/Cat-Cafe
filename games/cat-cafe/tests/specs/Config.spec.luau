@@ -284,7 +284,7 @@ return function()
 		-- the net swing and rescue rework (F93, catch-rework.md section 5)
 		CircleJitter = 0.10,
 		NetSwingCooldown = 0.8,
-		NetSmackDelay = 0.15,
+		NetSmackDelay = 0.22,
 		NetReachStuds = 7,
 		NetSlackStuds = 1.5,
 		NetArcDegrees = 60,

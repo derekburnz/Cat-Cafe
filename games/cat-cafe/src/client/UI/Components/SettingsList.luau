@@ -107,8 +107,8 @@ if Settings.kinds[SettingsList.TUTORIAL_KEY] then
 		key = SettingsList.TUTORIAL_KEY,
 		kind = "switch",
 		icon = "❓",
-		name = "Tutorial button",
-		detail = "The ? tile at the top that replays the intro",
+		name = "Tutorial and tips",
+		detail = "The ? tile, the hint at the top and the tip cards",
 	}
 	table.insert(SettingsList.SECTIONS[2].rows, row)
 end

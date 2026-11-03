@@ -941,6 +941,11 @@ local SCENES = {
 	{ "PalArrived", function()
 		UI.palArrived(4242, firstArea())
 	end },
+	-- F84: the name card in the clouds at the top centre, held so the scene catches it (Derek 2026-11-03: the flying
+	-- character shows below it)
+	{ "CannonFlightCard", function()
+		UI.cannon.flight("woods", workspace:GetServerTimeNow() - 1.6, 5)
+	end },
 	-- F92: the Cannon picker with that pal's tag on the area's card
 	{ "CannonPal", function()
 		UI.palArrived(4242, firstArea())
@@ -970,6 +975,27 @@ local SCENES = {
 		task.delay(1.8, function()
 			UI.catch.showGrades("gate_stray", { "perfect", "good", "perfect", "perfect" }, true, 0)
 		end)
+	end },
+	-- 2026-11-03 (Derek: "too much text on screen make pictures easy for kids"): the prompt cards with no hint line,
+	-- a little picture of the minigame in its place: a stuck cat's rescue bar, a stray's catch ring
+	{ "CatchPromptRescue", function()
+		UI.catch.show({
+			strayId = "gate_stuck",
+			catId = Catalog.cats[2].id,
+			catName = "Garbage Bag Cat",
+			rarity = "Rare",
+			kind = "rescue",
+			holdDuration = 0.5,
+		})
+	end },
+	{ "CatchPromptCatch", function()
+		UI.catch.show({
+			strayId = "gate_stray",
+			catId = Catalog.cats[2].id,
+			catName = "Mochi",
+			rarity = "Epic",
+			holdDuration = 0.5,
+		})
 	end },
 	-- F87: a context tip's card at the top centre, its bar draining
 	{ "TipCard", function()

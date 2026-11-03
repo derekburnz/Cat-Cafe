@@ -6,7 +6,7 @@ Status: decided by Derek, specced by the game-designer thread, 2026-11-01. Derek
 
 - **One new thing per tier.** Each area from the Park on gets one extra at its camp, opening with the area, so every rank up from Tier 2 to Tier 5 opens a new one. The Alleyway has none, so a new player's first area stays simple.
 - **The cannon menu says what is waiting.** Every card in the cannon picker (hometown-cannon.md section 3) gets one line under "7/10 cats" with the extra's icon and state, and a "!" only when something is ready to claim (Derek's rule for "!"). So nobody flies anywhere to check.
-- **Nothing is lost by waiting.** Each extra keeps filling while the player is away or offline, up to a cap that is at least six hours, so twice a day is enough to get everything. The flight is 3 seconds and you go to these areas to catch anyway.
+- **Nothing is lost by waiting.** Each extra keeps filling while the player is away or offline, up to a cap that is at least six hours, so twice a day is enough to get everything. The flight is 4 seconds and you go to these areas to catch anyway.
 - **No food and nothing for Robux.** The prizes are golden fish, potions and crates (Derek's Set 4 Q5 note: too much food already). Nothing here is sold, sped up or refilled for Robux.
 - **It sits in the camp,** inside the safe zone, beside the Index Board, so collecting never means walking into the wild part.
 

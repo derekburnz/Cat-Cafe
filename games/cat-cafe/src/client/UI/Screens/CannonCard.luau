@@ -1,7 +1,9 @@
 --!strict
 -- The destination's name card in the clouds (F84, hometown-cannon.md 3b): while the cloud tunnel covers the screen
--- in a cannon flight, a ticket with the place's picture, "To the Woods!" on a ribbon in its colour and "Landing at
--- the Woods camp" under it. It pops in with a white ring as the clouds close (1.6 s after CannonLaunchAt), wobbles
+-- in a cannon flight, a ticket with the place's picture and "To the Woods!" on a ribbon in its colour. Since Derek
+-- 2026-11-03 ("have the picture be top and you be shown still in the frame below the location as it's cool to see
+-- your character fly") it is a smaller card at the top centre, so the flying character in the middle stays in view,
+-- and the "Landing at the Woods camp" line is gone (less text). It pops in with a white ring as the clouds close (1.6 s after CannonLaunchAt), wobbles
 -- as the tunnel takes the place's colour (2.0), zips up and off as they part (2.4) and is gone by 2.6. With reduced
 -- motion it only shows from 1.6 to 2.4. DisplayOrder 46 sits just over VFX's cloud tunnel (45) and under the intro
 -- (50); it never takes input. No card for a cloud hop home.
@@ -31,9 +33,11 @@ export type CannonCard = {
 	destroy: (self: CannonCard) -> (),
 }
 
-local TICKET = Vector2.new(440, 268)
-local PICTURE_H = 150
-local HOME = UDim2.fromScale(0.5, 0.42)
+local PICTURE_H = 104
+local RIBBON_H = 50
+local TICKET = Vector2.new(360, 12 + PICTURE_H + RIBBON_H / 2 + 14)
+local TOP_GAP = 14 -- under Roblox's top bar (the ScreenGui keeps clear of it)
+local HOME = UDim2.new(0.5, 0, 0, TOP_GAP + 30 + TICKET.Y / 2) -- 30: room for the pop ring above the card
 local POP = TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local RING = TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local WOBBLE = TweenInfo.new(0.4, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out)
@@ -133,7 +137,7 @@ function CannonCard.new(parent: Instance): CannonCard
 		Name = "Ribbon",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 0, 12 + PICTURE_H),
-		Size = UDim2.new(1, 20, 0, 58),
+		Size = UDim2.new(1, 20, 0, RIBBON_H),
 		BackgroundColor3 = Theme.colors.caramel,
 		BorderSizePixel = 0,
 		ZIndex = 2,
@@ -147,25 +151,13 @@ function CannonCard.new(parent: Instance): CannonCard
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
 		FontFace = Theme.fonts.display,
-		TextSize = 38,
+		TextSize = 32,
 		TextColor3 = Theme.colors.white,
 		Text = "",
 		ZIndex = 3,
 		Parent = ribbon,
 	})
 	Outline.text(self._title, 4)
-	self._sub = Create("TextLabel", {
-		Name = "Sub",
-		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -10),
-		Size = UDim2.new(1, -24, 0, 26),
-		FontFace = Theme.fonts.bodyBold,
-		TextSize = Theme.sizes.textLarge - 2,
-		TextColor3 = Theme.modal.text,
-		Text = "",
-		Parent = ticket,
-	})
 	self._token = 0
 	return self :: CannonCard
 end
@@ -195,7 +187,6 @@ function CannonCard.show(
 	self._picture.Image = Theme.areaPictures[destination] or ""
 	self._ribbon.BackgroundColor3 = color
 	self._title.Text = CannonLogic.cardTitle(destination, name)
-	self._sub.Text = CannonLogic.cardSub(destination, name)
 
 	local function at(seconds: number, step: () -> ())
 		task.delay(math.max(0, seconds - elapsed), function()

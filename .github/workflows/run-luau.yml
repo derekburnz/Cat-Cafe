@@ -1,0 +1,56 @@
+# Run one read-only Luau check from games/cat-cafe/tools/opencloud/ inside a real Roblox server for a place version
+# (Open Cloud Luau Execution, tools/opencloud/run-luau.sh) and print what it printed. Start it from the Actions tab
+# (run-luau > Run workflow) or from any thread with the GitHub actions_run_trigger tool on main.
+# The run log is public: scripts here print counts and yes or no answers, never a user id or a name, and they never
+# write (DataStore calls in a task are real). Needs ROBLOX_PUBLISH_KEY with luau-execution-sessions Write.
+name: run-luau
+
+on:
+  workflow_dispatch:
+    inputs:
+      script:
+        description: "File name in games/cat-cafe/tools/opencloud/, for example Smoke.luau or LeaderboardCheck.luau"
+        required: true
+        default: Smoke.luau
+      version:
+        description: "Place version to run against (publish prints it); empty = the latest published version"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: run-luau
+  cancel-in-progress: false
+
+env:
+  UNIVERSE_ID: "10773193456"
+  PLACE_ID: "119569792798199"
+
+jobs:
+  run:
+    name: Run a Luau check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: games/cat-cafe
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check the file name
+        env:
+          SCRIPT: ${{ inputs.script }}
+        run: |
+          case "$SCRIPT" in
+          */* | .* | *[!A-Za-z0-9_.-]* | "") echo "Give a bare file name in tools/opencloud/, got '$SCRIPT'." >&2; exit 1 ;;
+          *.luau) ;;
+          *) echo "Only .luau files run here." >&2; exit 1 ;;
+          esac
+          test -f "tools/opencloud/$SCRIPT" || { echo "No tools/opencloud/$SCRIPT on this ref." >&2; exit 1; }
+      - name: Run it
+        env:
+          ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+          SCRIPT: ${{ inputs.script }}
+          VERSION: ${{ inputs.version }}
+        run: bash tools/opencloud/run-luau.sh "tools/opencloud/$SCRIPT" "${VERSION:-latest}"

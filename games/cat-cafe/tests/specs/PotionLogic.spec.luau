@@ -108,6 +108,24 @@ return function()
 		end)
 	end)
 
+	describe("PotionLogic.owned", function()
+		it("keeps the potions in the bag and the running ones, in bag order", function()
+			local owned = PotionLogic.owned(
+				nil,
+				state({ tip_potion = 2, lucky_potion = 0 }, { steady_potion = NOW + 30, lucky_potion = NOW - 1 }),
+				NOW
+			)
+			expect(ids(owned)).to.equal("tip_potion,steady_potion")
+			expect(owned[1].count).to.equal(2)
+			expect(owned[2].count).to.equal(0)
+		end)
+
+		it("has no rows for an empty bag with nothing running", function()
+			expect(#PotionLogic.owned(nil, state({}, {}), NOW)).to.equal(0)
+			expect(#PotionLogic.owned(nil, state(nil, nil), NOW)).to.equal(0)
+		end)
+	end)
+
 	describe("PotionLogic.boosts", function()
 		it("sums what the running potions add to food set now, as the server's Potions", function()
 			local none = PotionLogic.boosts(nil, state({}, nil), NOW)

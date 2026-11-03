@@ -1130,8 +1130,10 @@ local CHARACTER_GAP = 1
 local CATCH_QUIET = 2
 local TACKLE_FRESH = 0.6
 local lastCatchAt: number? = nil
--- F84: the cannon flight's timing (hometown-cannon.md 3b) until Config has CannonLaunchSeconds. The clouds
--- start at 1.4 s and cannonLand's whistle runs CANNON_LAND_LEAD before its thump, which lands as the flight ends.
+-- F84: the cannon flight's beats, in seconds from CannonLaunchAt, from Config (CannonCloudsAt, CannonTouchdownAt and
+-- CannonLaunchSeconds, PR #1002 for #954 and #955: into the clouds at 2.0, feet on the pad at 3.5 in the hero
+-- landing, standing at 4.0). cannonLand's whistle runs CANNON_LAND_LEAD before its thump, which lands on the feet.
+-- Without the keys: the clouds at 1.4 s and the touchdown as the flight ends (3 s), the timing before #1002.
 local CANNON_FLIGHT = 3
 local CANNON_CLOUDS_AT = 1.4
 local CANNON_LAND_LEAD = 0.6
@@ -1210,14 +1212,17 @@ local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptCo
 				end
 			end)
 		end
-		if isLocal then
-			later(CANNON_CLOUDS_AT, "cannonClouds")
-		end
-		local flight = (Config :: any).CannonLaunchSeconds
-		later(
-			(if type(flight) == "number" then flight else CANNON_FLIGHT) - CANNON_LAND_LEAD,
-			"cannonLand"
+		local clouds, touchdown = Logic.cannonBeats(
+			(Config :: any).CannonCloudsAt,
+			(Config :: any).CannonTouchdownAt,
+			(Config :: any).CannonLaunchSeconds,
+			CANNON_CLOUDS_AT,
+			CANNON_FLIGHT
 		)
+		if isLocal then
+			later(clouds, "cannonClouds")
+		end
+		later(math.max(0, touchdown - CANNON_LAND_LEAD), "cannonLand")
 	end)
 	local hop = character:GetAttributeChangedSignal("CloudHopAt"):Connect(function()
 		if

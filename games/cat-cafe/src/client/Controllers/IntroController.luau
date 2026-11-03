@@ -103,6 +103,7 @@ type Run = {
 	shot: number, -- the position in `shots` of the shot showing, 0 before the first
 	cuts: { Intro.Cut }, -- the showing shot's cuts; shot 6's after the stream check
 	cut: number, -- the cut showing, for shot 6's title cards
+	jumpFired: number, -- the last place change Moments.IntroCut went out for, as position * 100 + cut (#958)
 	character: Model?, -- the character when it started, so a respawn ends it
 	staged: { Instance }, -- local clones, destroyed at the end
 	hidden: { [Instance]: boolean }, -- parts and decals given a LocalTransparencyModifier, set back to 0 at the end
@@ -1044,6 +1045,55 @@ local function beats(r: Run, shot: Intro.Shot, t: number)
 	end
 end
 
+-- A shot's first cut as it will play: in shot 6 its first camp that has streamed in, as enterShot keeps them.
+local function firstCut(shot: Intro.Shot): Intro.Cut
+	if shot.cuts[1].area ~= nil then
+		local kept = Intro.keepCuts(shot, function(cut: Intro.Cut): boolean
+			return streamedNear(cut.to.look)
+		end)
+		if kept[1] ~= nil then
+			return kept[1]
+		end
+	end
+	return shot.cuts[1]
+end
+
+-- #958 (Derek 2026-11-03: "make the locations cuts smoother"): CUT_LEAD before the camera jumps to a far place
+-- (Intro.jump), at the end of a cut or a shot, Moments.IntroCut(at, nextSeconds) tells Effects to dip through the
+-- clouds: `at` the os.clock() of the jump, `nextSeconds` how long the next cut lasts. Never inside or into the
+-- cannon flight shot, which has its own clouds.
+local function aheadOfJump(
+	r: Run,
+	position: number,
+	shot: Intro.Shot,
+	cut: number,
+	cutStart: number,
+	t: number
+)
+	local id = position * 100 + cut
+	if r.jumpFired == id or shot.flight then
+		return
+	end
+	local last = cut == #r.cuts
+	local boundary = if last then shot.seconds else cutStart + r.cuts[cut].seconds
+	if boundary - t > Intro.CUT_LEAD then
+		return
+	end
+	r.jumpFired = id
+	local nextCut: Intro.Cut? = nil
+	if not last then
+		nextCut = r.cuts[cut + 1]
+	else
+		local following = r.shots[position + 1]
+		if following ~= nil and not following.flight and following.cuts[1] ~= nil then
+			nextCut = firstCut(following)
+		end
+	end
+	if nextCut ~= nil and Intro.jump(r.cuts[cut].to, nextCut.from) then
+		Moments.IntroCut:Fire(r.started + shot.starts + boundary, nextCut.seconds)
+	end
+end
+
 local finish: (finished: boolean) -> ()
 
 local function step()
@@ -1078,6 +1128,7 @@ local function step()
 	end
 	local c = r.cuts[cut]
 	setCamera(Intro.at(c, shot.ease, (t - cutStart) / c.seconds))
+	aheadOfJump(r, position, shot, cut, cutStart, t)
 	if shot.you then
 		hideCharacter(r, true)
 	end
@@ -1198,6 +1249,7 @@ function IntroController.play(replay: boolean)
 		shot = 0,
 		cuts = {},
 		cut = 1,
+		jumpFired = 0,
 		character = player.Character,
 		staged = {},
 		hidden = {},

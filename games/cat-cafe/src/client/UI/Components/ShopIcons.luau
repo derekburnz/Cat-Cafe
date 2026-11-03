@@ -51,11 +51,11 @@ local IDS: { [string]: string } = {
 	Perk_ExtraDecorSpot = "rbxassetid://72709782259210",
 	Coins = "rbxassetid://114567888385946",
 	Spin = "rbxassetid://109715715479737",
-	-- F93 nets redrawn (Model-Agent #688, uploaded by Tools-Agent 2026-11-02)
-	Net_L1 = "rbxassetid://88249861079985", -- Basic
-	Net_L2 = "rbxassetid://109283262373376", -- Sturdy
-	Net_L3 = "rbxassetid://86969687070766", -- Pro
-	Net_L4 = "rbxassetid://110774936117621", -- Master
+	-- the redesigned nets (#989, Model-Agent; rendered and uploaded by Tools-Agent 2026-11-03, PR #1012)
+	Net_L1 = "rbxassetid://78131427035748", -- Basic
+	Net_L2 = "rbxassetid://126997379642004", -- Sturdy
+	Net_L3 = "rbxassetid://113664337149561", -- Pro
+	Net_L4 = "rbxassetid://115470138259311", -- Master
 	Potion_Tip = "rbxassetid://93263370812167",
 	Potion_Lucky = "rbxassetid://113720150794733",
 	Potion_Swift = "rbxassetid://73826039259143",

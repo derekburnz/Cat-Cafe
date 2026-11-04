@@ -22,6 +22,8 @@
 -- has loaded. Each upload is a new asset, so a changed icon gets a new id here, never a second upload of the same file.
 -- Pure, so the cloud test runner checks it.
 
+local Catalog =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog"))
 local DecorPictures = require(script.Parent.DecorPictures)
 
 local ShopIcons = {}
@@ -192,8 +194,25 @@ function ShopIcons.crateModel(crateId: string?): string?
 	return "CatCafe_Prop_Crate_" .. pool .. (if golden then "_Gold" else "")
 end
 
+-- Bottles for potions with no flask of their own yet (#1250): the Cat Whistle borrows the Lucky flask for now.
+local POTION_STANDIN: { [string]: string } = {
+	cat_whistle = "Icon_Flask_Lucky",
+}
+
 function ShopIcons.potion(potionId: string?): string?
-	local name = if type(potionId) == "string" then potionId:match("^(.+)_potion$") else nil
+	if type(potionId) ~= "string" then
+		return nil
+	end
+	-- a Small or Big size runs its regular potion's timer, so it wears that potion's bottle (corner-shop-v2.md)
+	local def = Catalog.getPotion(potionId)
+	if def and def.buff and def.buff ~= potionId then
+		return ShopIcons.potion(def.buff)
+	end
+	local standin = POTION_STANDIN[potionId]
+	if standin then
+		return IDS[standin]
+	end
+	local name = potionId:match("^(.+)_potion$")
 	if name == nil then
 		return nil
 	end

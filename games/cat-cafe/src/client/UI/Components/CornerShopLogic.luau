@@ -7,7 +7,7 @@
 --   chance(itemId)                "In stock 9 times in 10", "Always in stock"
 --   stockLine(item)               "x2 left", "You bought 2", "None this time"
 --   button(item, row, coins, room) the Buy button's words and whether it can be pressed
---   snackLine(snackXp)            "Snacks today: 4,800 / 12,000 XP"
+--   snackLine(snackXp)            "Cat food today: 4,800 / 20,000 XP"
 --   effect(row)                   what the row does, in a line
 --   catsByLevel(cats)             the snack's cat picker, highest level first
 
@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ShortNumber = require(script.Parent.ShortNumber)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Catalog = require(Shared:WaitForChild("Catalog"))
 local Config = require(Shared:WaitForChild("Config")) :: any
 local SharedTypes = require(Shared:WaitForChild("Types"))
 
@@ -47,9 +48,14 @@ function CornerShopLogic.clock(restocksAt: number, now: number): string
 	return ("Restocks in %d:%02d"):format(left // 60, left % 60)
 end
 
--- How often the row is in stock, from Config.CornerShopAmountWeights (index 1 is the chance of none), in tenths.
+-- How often the row is in stock, from Config.CornerShopSizeWeights by the row's size (corner-shop-v2.md section 1;
+-- index 1 is the chance of none), in tenths.
 function CornerShopLogic.chance(itemId: string): string
-	local weights: { number }? = (Config.CornerShopAmountWeights or {})[itemId]
+	local row = Catalog.getCornerShopRow(itemId)
+	if row == nil then
+		return ""
+	end
+	local weights: { number }? = (Config.CornerShopSizeWeights or {})[row.size]
 	if weights == nil then
 		return ""
 	end
@@ -68,7 +74,7 @@ function CornerShopLogic.chance(itemId: string): string
 	if tenths <= 0 then
 		return "Rarely in stock"
 	end
-	return ("In stock %d times in 10"):format(tenths)
+	return ("In stock %d %s in 10"):format(tenths, if tenths == 1 then "time" else "times")
 end
 
 function CornerShopLogic.stockLine(item: Item): string
@@ -82,7 +88,7 @@ function CornerShopLogic.stockLine(item: Item): string
 	return ("x%d left"):format(left)
 end
 
--- The Buy button: "None", "Sold out", "Snacks full", else "Buy · $1.2K", greyed when the coins fall short.
+-- The Buy button: "None", "Sold out", "Food full", else "Buy · $1.2K", greyed when the coins fall short.
 function CornerShopLogic.button(item: Item, row: Row?, coins: number, snackRoom: number): ButtonView
 	if item.amount <= 0 then
 		return { text = "None", enabled = false }
@@ -90,29 +96,33 @@ function CornerShopLogic.button(item: Item, row: Row?, coins: number, snackRoom:
 	if item.bought >= item.amount then
 		return { text = "Sold out", enabled = false }
 	end
-	if row and row.kind == "snack" and (row.xp or 0) > snackRoom then
-		return { text = "Snacks full", enabled = false }
+	if row and row.kind == "food" and (row.xp or 0) > snackRoom then
+		return { text = "Food full", enabled = false }
 	end
 	return { text = "Buy · " .. money(item.price), enabled = coins >= item.price }
 end
 
 function CornerShopLogic.snackRoom(snackXp: number): number
-	return math.max(0, (Config.CornerSnackXpPerDay or 0) - snackXp)
+	return math.max(0, (Config.CornerFoodXpPerDay or 0) - snackXp)
 end
 
 function CornerShopLogic.snackLine(snackXp: number): string
-	return ("Snacks today: %s / %s XP"):format(
+	return ("Cat food today: %s / %s XP"):format(
 		commas(snackXp),
-		commas(Config.CornerSnackXpPerDay or 0)
+		commas(Config.CornerFoodXpPerDay or 0)
 	)
 end
 
 -- What a row does (corner-shop.md section 2), in one short line.
 function CornerShopLogic.effect(row: Row): string
 	if row.kind == "potion" then
-		return "Walk faster for 5 min, into your potion bag"
-	elseif row.kind == "snack" then
-		return ("+%s XP for one of your cats"):format(commas(row.xp or 0))
+		local potion = if row.potionId then Catalog.getPotion(row.potionId) else nil
+		if potion == nil then
+			return "Into your potion bag"
+		end
+		return ("%s for %d min, into your potion bag"):format(potion.effect, potion.minutes)
+	elseif row.kind == "food" then
+		return ("+%s XP cat food, into your Bag"):format(commas(row.xp or 0))
 	end
 	local seconds = row.showSeconds or 0
 	local length = if seconds >= 60

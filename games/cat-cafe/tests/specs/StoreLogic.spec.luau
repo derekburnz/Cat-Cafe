@@ -92,7 +92,7 @@ return function()
 		it("reads the price from Roblox's answer", function()
 			local button = StoreLogic.button(row, { robux = 5, forSale = true })
 			expect(button.text).to.equal("R$5")
-			expect(button.style).to.equal("primary")
+			expect(button.style).to.equal("store")
 			expect(button.enabled).to.equal(true)
 		end)
 

@@ -5,7 +5,10 @@
 -- no timers, no pop-ups.
 --
 -- A card per pass that exists (Components/StoreLogic.rows): its picture, name, what it does and one button, the price
--- ("R$5"), "Owned", "..." while the price loads or "Soon" while the pass is off sale. The money ladder shows its next
+-- ("R$5"), "..." while the price loads or "Soon" while the pass is off sale; an owned pass shows "Owned" in green in
+-- place of the button. Derek 2026-11-03 01:41 ("make sure the store is good and stands out", #1020): each pass is a
+-- gold-tinted card with a bright clean picture tile and the gold Store-style price button, honest for a young
+-- audience (monetization-policy): the price plainly, no timers, no sale or "limited" badges. The money ladder shows its next
 -- rung only. A line under the title says passes are kept for good. buy(passId) opens Roblox's purchase window
 -- (Components/PassShop); the server turns the pass on when Roblox says it was bought.
 
@@ -15,6 +18,7 @@ local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local StoreLogic = require(script.Parent.Parent.Components.StoreLogic)
 local Theme = require(script.Parent.Parent.Theme)
 
@@ -37,7 +41,17 @@ export type Store = {
 }
 
 local NOTE_H = 24
-local ICON = 64
+local ICON = 76
+-- the clean symbol on a pass's picture tile (the glyph shows until it loads, and for a pass without one)
+local CLEAN_PICTURE: { [string]: string } = {
+	money = "Bag",
+}
+-- the picture tile's fill, the HUD Store tile's gold (assets/cat-cafe/ui/icons-clean-2026-11-03 README)
+local TILE_FILL = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromHex("FFF07A")),
+	ColorSequenceKeypoint.new(0.5, Color3.fromHex("FFC61F")),
+	ColorSequenceKeypoint.new(1, Color3.fromHex("FF8F1F")),
+})
 local BUTTON_W = 150
 
 local Store = {}
@@ -131,26 +145,32 @@ function Store._card(self: any, key: string, order: number): any
 	local card: Frame = Create("Frame", {
 		Name = key,
 		LayoutOrder = order,
-		BackgroundColor3 = PAL.card,
+		BackgroundColor3 = PAL.goldCard,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, self._rowHeight),
 		Parent = self._list,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIStroke", { Color = Theme.colors.gold, Thickness = Theme.sizes.stroke + 1 }),
+		-- a soft light along the top, so the card reads as a lit gold panel rather than a flat row
+		Create("UIGradient", {
+			Rotation = 90,
+			Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(205, 205, 205)),
+		}),
 	})
 	local tile: Frame = Create("Frame", {
 		Name = "Tile",
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.new(0, 12, 0.5, 0),
 		Size = UDim2.fromOffset(ICON, ICON),
-		BackgroundColor3 = Theme.colors.gold,
+		BackgroundColor3 = Color3.new(1, 1, 1),
 		BorderSizePixel = 0,
 		Parent = card,
 	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UICorner", { CornerRadius = UDim.new(0, math.floor(ICON * 0.26)) }),
+		Create("UIGradient", { Rotation = 90, Color = TILE_FILL }),
 	})
-	Outline.border(tile, 2)
+	Outline.border(tile, 4)
 	local glyph = text({
 		Name = "Icon",
 		Size = UDim2.fromScale(1, 1),
@@ -173,6 +193,7 @@ function Store._card(self: any, key: string, order: number): any
 		TextSize = Theme.sizes.textLarge,
 		Parent = card,
 	})
+	Outline.text(name)
 	local effect = text({
 		Name = "Effect",
 		Position = UDim2.fromOffset(left, 40),
@@ -184,7 +205,23 @@ function Store._card(self: any, key: string, order: number): any
 		TextYAlignment = Enum.TextYAlignment.Top,
 		Parent = card,
 	})
-	local entry: any = { frame = card, glyph = glyph, name = name, effect = effect, passId = 0 }
+	-- an owned pass: the green word in place of the button (no price)
+	local owned = text({
+		Name = "Owned",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -12, 0.5, 0),
+		Size = UDim2.fromOffset(BUTTON_W, self._actionHeight),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = PAL.good,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "Owned ✓",
+		Visible = false,
+		Parent = card,
+	})
+	Outline.text(owned)
+	local entry: any =
+		{ frame = card, glyph = glyph, name = name, effect = effect, owned = owned, passId = 0 }
 	entry.button = Button.new({
 		name = "Buy",
 		text = "...",
@@ -215,11 +252,19 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 		entry.name.Text = row.name
 		entry.effect.Text = row.effect
 		entry.glyph.Text = row.icon
-		IconArt.set(entry.glyph, row.icon)
+		local picture = CLEAN_PICTURE[row.key]
+		local image = if picture then ShopIcons.clean(picture) else nil
+		if image then
+			IconArt.setImage(entry.glyph, image, 1.3)
+		else
+			IconArt.set(entry.glyph, row.icon)
+		end
 		local button = StoreLogic.button(row, prices[row.passId])
 		entry.button:setText(button.text)
 		entry.button:setStyle(button.style :: any)
 		entry.button:setEnabled(button.enabled)
+		entry.button.instance.Visible = not row.owned
+		entry.owned.Visible = row.owned
 	end
 	for key, entry in self._cards do
 		if not shown[key] then

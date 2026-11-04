@@ -652,9 +652,18 @@ local function wireIntents()
 		end)
 	end
 	-- Send on Report a bug; the server answers with a toast, which the window reads to close or keep the text.
-	UI.events.reportBug:Connect(function(text: string, kind: string, clientErrors: { string })
-		Net.fire("ReportBug", text, kind, clientErrors)
-	end)
+	-- featureName (#1083): the idea chip's "Feature my name" tick, once UI-Engineer's window sends it (nil until then).
+	UI.events.reportBug:Connect(
+		function(text: string, kind: string, clientErrors: { string }, featureName: boolean?)
+			Net.fire("ReportBug", text, kind, clientErrors, featureName)
+		end
+	)
+	-- Settings' "Show my name on the Thank You board" (#1083): true keeps the name off. Loose until UI-Engineer's Signal.
+	if uiEvents.setHideCredit ~= nil then
+		uiEvents.setHideCredit:Connect(function(hide: boolean)
+			Net.fire("SetHideCredit", hide)
+		end)
+	end
 	UI.events.buyUpgrade:Connect(function(upgradeId: string)
 		Net.fire("BuyUpgrade", upgradeId)
 	end)
@@ -1314,6 +1323,14 @@ local function wireServerEvents()
 		local spin: any = UI.spin
 		if type(spin.allResult) == "function" then
 			(spin.allResult :: any)(rolls, totals)
+		end
+	end)
+	-- The Thank You board (#1083): its rows, newest first, and whether this player has a credit (the Settings row shows
+	-- only then); on join and at each rebuild. Loose until UI-Engineer's `UI.thanksBoard(rows, hasCredit)`.
+	Net.on("ThanksBoard", function(rows: { any }, hasCredit: boolean)
+		local board = (UI :: any).thanksBoard
+		if type(board) == "function" then
+			(board :: any)(rows, hasCredit)
 		end
 	end)
 	-- The Corner Shop's stock (#1052): on join, at each 5 minute window and after every buy.

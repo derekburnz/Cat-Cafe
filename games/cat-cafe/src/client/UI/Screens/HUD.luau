@@ -231,9 +231,11 @@ local CLOCK_W = 200
 local GOAL_TOP = CLOCK_TOP + CLOCK_H + 6
 local NIGHT_LINE = 20
 local LUCKY_LINE_W = 260 -- F88: the Lucky Day line under the clock
--- The top right column (icon row, clock, tips line, tier and goal) starts under Roblox's top bar: moved up into the
--- bar's free stretch (Derek 2026-10-27), the bar's dark shade fell over its buttons (Derek live v181, #1025), so it
--- stays under it now.
+-- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
+-- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
+-- (GuiService.TopbarInset) runs over the column, the column moves up into it. TOPBAR_SLACK is how far short of the
+-- screen's right edge that stretch may stop and still count.
+local RIGHT_COLUMN_W = math.max(300, ICON_ROW_W)
 local QUEST_LINE_W = 300 -- F73: the quest line under the goal card
 local QUEST_LINE_H = 24
 -- F49: the Town Square's red free-spin dot went with its place bubble (Derek 2026-10-28 01:39), so the HUD says it
@@ -241,6 +243,7 @@ local QUEST_LINE_H = 24
 -- you walk up to
 local SPIN_TEXT = Theme.icons.spin .. " Free spin at the Town Square"
 local TUTORIAL_DONE = 5 -- the tutorial's last step (UIController.refreshTutorial): the quest line waits for it
+local TOPBAR_SLACK = 48
 -- F87: a newly unlocked button's gold "New!" stays this long
 local NEW_SECONDS = 6
 -- the left menu tiles each small HUD key shows (F87; Quests has its own rule too, Potions is the corner symbol)
@@ -530,6 +533,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		}),
 	})
 	self._icons = icons
+	self._lift = 0 -- design px the top right column sits higher, up in the top bar's free stretch
 	-- Tutorial (F72): purple with a "?", a small red × in its corner hides it (Settings brings it back). Hidden until
 	-- the intro is live (UI.intro, state.introSeen) and while the Tutorial button setting is off; greyed while
 	-- carrying or during a catch or rescue.
@@ -724,6 +728,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._pop = pop
 	self._popFor = nil :: string?
 	self._popRows = {} :: { [string]: Button.Button }
+	self._popBadges = {} :: { [string]: Frame } -- each row's red "!" (#1074)
 
 	-- Clock (top right, under the icon row): the sun or moon and the time to the next phase (F20), right-aligned
 	-- outlined text with no chip behind it ("☀ Day 3:29")
@@ -869,6 +874,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			callbacks.openScreen("Quests")
 		end)
 	)
+	-- the column follows the top bar as Roblox's menu opens and closes and as the window resizes
+	table.insert(
+		self._connections,
+		GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(function()
+			self:_liftRight()
+		end)
+	)
+	self._scaleConnection = Scale.changed:Connect(function()
+		self:_liftRight()
+	end)
+	self:_liftRight()
 
 	-- Menu (left, vertically centred): square symbol tiles two to a row, the "Shop / Index" grid of popular
 	-- simulators (Derek 2026-11-02: "group some of the buttons into less screen clutter"; they were wide pills). A small
@@ -2151,32 +2167,50 @@ function HUD.setAreasOpen(self: any, open: boolean)
 	self:_renderTravel()
 end
 
+-- How far the top right column can move up into Roblox's top bar: its height in design px when the bar's free
+-- stretch covers the column, else 0 (the bar holds Roblox buttons there, or the device has no top bar).
+local function topbarLift(): number
+	local inset = GuiService.TopbarInset
+	local camera = Workspace.CurrentCamera
+	local scale = Scale.get()
+	if camera == nil or scale <= 0 or inset.Height <= 0 then
+		return 0
+	end
+	local width = camera.ViewportSize.X
+	local columnLeft = width - (MARGIN + RIGHT_COLUMN_W) * scale
+	if inset.Max.X < width - TOPBAR_SLACK or inset.Min.X > columnLeft then
+		return 0
+	end
+	return inset.Max.Y / scale
+end
+
 -- The top right column, top down: the icon row, the clock, the night tips line when it shows, the tier and goal.
 function HUD._layoutRight(self: any)
-	self._icons.Position = UDim2.new(1, -MARGIN, 0, MARGIN)
-	self._pop.Position = UDim2.new(1, -MARGIN, 0, MARGIN + ICON_H + 6)
-	self._clock.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP)
-	self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H)
+	local lift = self._lift
+	self._icons.Position = UDim2.new(1, -MARGIN, 0, MARGIN - lift)
+	self._pop.Position = UDim2.new(1, -MARGIN, 0, MARGIN + ICON_H + 6 - lift)
+	self._clock.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP - lift)
+	self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H - lift)
 	local top = if self._clock.Visible then GOAL_TOP else CLOCK_TOP
 	if self._nightTips.Visible then
 		top += NIGHT_LINE
 	end
 	-- F88: the Lucky Day line under the clock (and under the night tips line when that shows)
-	self._luckyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6)
+	self._luckyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
 	if self._luckyLine.Visible then
 		top += NIGHT_LINE
 	end
 	-- F101: the Rescue Rally countdown under those
-	self._rallyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6)
+	self._rallyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
 	if self._rallyLine.Visible then
 		top += NIGHT_LINE
 	end
-	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top)
+	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
 	local goal = self._goal.frame
 	local lineTop = if goal.Visible then top + goal.Size.Y.Offset + Theme.sizes.gap else top
-	self._questLine.Position = UDim2.new(1, -MARGIN, 0, lineTop)
+	self._questLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
 	local spinTop = if self._questLine.Visible then lineTop + QUEST_LINE_H + 2 else lineTop
-	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, spinTop)
+	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, spinTop - lift)
 end
 
 -- F73: the Quests pill (shown once ProfileSync has quests) with its count of what is ready to claim, and the quest
@@ -2243,6 +2277,14 @@ function HUD._renderFreeSpin(self: any)
 			self:_renderFreeSpin()
 			self:_layoutRight()
 		end)
+	end
+end
+
+function HUD._liftRight(self: any)
+	local lift = topbarLift()
+	if lift ~= self._lift then
+		self._lift = lift
+		self:_layoutRight()
 	end
 end
 
@@ -2331,7 +2373,8 @@ function HUD._renderRewards(self: any)
 		Tween.popIn(self._rewardsDot, 0.5)
 	end
 	self._rewardsDot.Visible = ready > 0
-	self._rewardsCount.Text = tostring(ready)
+	-- a red "!" rather than a count (#1074, Derek: "should show a red exclamation mark as it's easier")
+	self._rewardsCount.Text = "!"
 	if self._popFor == "rewards" then
 		self:_fillPop() -- the open list's lines follow the countdown and the claims
 	end
@@ -2414,16 +2457,55 @@ function HUD._popText(self: any, id: string): string
 	if id == "Gifts" then
 		local summary: { ready: number, nextIn: number?, left: number }? = self._gift
 		local nextIn: number? = if summary then summary.nextIn else nil
+		-- a gift waiting shows the red "!" on the row (#1074), not "1 ready"
 		return if summary and summary.ready > 0
-			then ("Gifts: %d ready"):format(summary.ready)
+			then "Gifts"
 			elseif nextIn ~= nil then "Next gift " .. TipJarLogic.clock(nextIn)
 			else "Gifts"
 	elseif id == "Daily" then
-		return if self._dailyDue then "Daily treat: Claim!" else "Daily treat"
+		return "Daily treat"
 	elseif id == "Invite" then
 		return "Invite friends"
 	end
 	return id
+end
+
+-- Whether a list row has something to claim: it wears the red "!" (#1074).
+function HUD._popReady(self: any, id: string): boolean
+	if id == "Gifts" then
+		local summary: { ready: number, nextIn: number?, left: number }? = self._gift
+		return summary ~= nil and summary.ready > 0
+	elseif id == "Daily" then
+		return self._dailyDue == true
+	end
+	return false
+end
+
+-- The red "!" in a corner, the same badge as the Rewards tile's, on whatever can be claimed (#1074).
+local function claimBadge(parent: Instance, zIndex: number): Frame
+	local badge: Frame = Create("Frame", {
+		Name = "Claim",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -12, 0.5, -2), -- inside the row's right end, clear of the list's edge
+		Size = UDim2.fromOffset(24, 24),
+		Visible = false,
+		ZIndex = zIndex,
+		Parent = parent,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(badge, 2)
+	local mark = label({
+		Name = "Mark",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "!",
+		ZIndex = zIndex + 1,
+		Parent = badge,
+	})
+	mark.ZIndex = zIndex + 1
+	return badge
 end
 
 -- Opens the kind's list, or closes it when it is already open; another kind's list gives way.
@@ -2457,6 +2539,9 @@ function HUD._togglePop(self: any, kind: string)
 			end,
 		})
 		self._popRows[row.id] = button
+		local badge = claimBadge(button.instance, 23)
+		badge.Visible = self:_popReady(row.id)
+		self._popBadges[row.id] = badge
 	end
 	pop.Size = UDim2.fromOffset(POP_W, #rows * POP_ROW_H + math.max(0, #rows - 1) * 6 + 2 * POP_PAD)
 	self._popFor = kind
@@ -2469,6 +2554,10 @@ end
 function HUD._fillPop(self: any)
 	for id, button in self._popRows do
 		button:setText(self:_popText(id))
+		local badge: Frame? = self._popBadges[id]
+		if badge then
+			badge.Visible = self:_popReady(id)
+		end
 	end
 end
 
@@ -2479,6 +2568,7 @@ function HUD._closePop(self: any)
 		button:destroy()
 	end
 	table.clear(self._popRows)
+	table.clear(self._popBadges)
 end
 
 -- The gold Store tile at the top of the left menu (Derek 2026-11-02: "store still needs to be added"): shown with
@@ -3008,6 +3098,7 @@ function HUD.destroy(self: any)
 	self._palMarker:destroy()
 	self._pals:destroy()
 	self._buffs:destroy()
+	self._scaleConnection:Disconnect()
 	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()
 end

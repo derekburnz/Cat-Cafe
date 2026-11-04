@@ -30,6 +30,12 @@ Derek OK'd the look on 2026-11-03 ("Build it as shown"; the crate was redrawn af
 | Icon_Clean_Store | 125596282319075 (redrawn 01:44; first upload 133073738193868 unused) |
 | Icon_Clean_Tutorial | 109885867788208 |
 | Icon_Clean_Upgrades | 90691118878000 |
+| Icon_Clean_Wallpaper | 102259047705880 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Floor | 100560850589029 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Paint | 88844625138910 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Spots | 74579562921955 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Door | 82896268186640 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Catflap | 99900172207666 (#964, 11-03 22:13, run 41728803377) |
 | Icon_Clean_Trade | 86243209880722 (new 11-03 for #1024: two swap arrows, the HUD's Trade tile) |
 
 Tile colours used in the mockup (top to bottom gradient): Cats #6fc0ff to #2f86ef, Index #7ae86f to #2fb043, Quests #ffe46b to #f5ac12, Upgrades #ffb15a to #f06a1d, Decor #62ecd2 to #18ab95, Store (a wide tile, first in the left column) #fff07a to #ffc61f to #ff8f1f with a white shine, Tutorial and Potions #cf96ff to #8a47ea, Rewards and Cannon #ff8a7a to #e4402f, Feedback and Areas #8fe3ff to #2bb3e6, Menu #c9d4e3 to #7f8fa6, My Cafe orange like Upgrades, Bait blue like Cats. Outline 4 px #2a1a12, corner 20 px on a 78 px tile, label 18 px Fredoka bold, white with a 5 px dark outline.

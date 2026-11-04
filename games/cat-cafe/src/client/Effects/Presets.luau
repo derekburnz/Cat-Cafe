@@ -798,6 +798,22 @@ Presets.emitters = {
 		drag = 2.5,
 		lightEmission = 1,
 	},
+	-- Sprinkles' rainbow sprinkle puff (Effects/ShopCats, #1191): little sprinkles tossed up over the cat that tumble
+	-- and fall, tinted one colour per burst.
+	sprinkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite },
+		size = { 0.3, 0.2 },
+		transparency = { 0, 0.6 },
+		lifetime = { 0.6, 0.9 },
+		speed = { 3, 5 },
+		spread = 50,
+		rate = 0,
+		acceleration = Vector3.new(0, -12, 0),
+		drag = 1.5,
+		lightEmission = 0.4,
+		rotSpeed = { -360, 360 },
+	},
 	-- A glint on a leaderboard crown (Effects/Crown, F98): a few gold stars that flash and fade where they are.
 	crownGlint = {
 		texture = Presets.textures.sparkle,
@@ -3151,6 +3167,31 @@ Presets.cafeShow = {
 			Presets.palette.aurora,
 		},
 		glow = { seconds = 2, range = 40, brightness = 2, colour = Presets.palette.lampWarm },
+	},
+}
+
+-- The shop-only cats (#1191, Design-Agent's brief 2026-11-04; Effects/ShopCats). Sprinkles (`catId`): when a tip is
+-- swept off a paid table in a cafe where it works (Moments.TipSwept, your own cafe), a puff of `each` sprinkle
+-- particles in each of `colours` (one small burst in all, scaled by the budget) pops `lift` studs over its Head's
+-- BubbleAnchor (else `overPivot` studs over its pivot, or `overPile` over the pile when it swept itself), at most once
+-- every `gap` seconds and within `within` studs. With Reduce Motion: a short glow in `glow.colour` instead.
+Presets.shopCats = {
+	sprinkles = {
+		catId = "sprinkles",
+		gap = 20,
+		within = 120,
+		lift = 0.3,
+		overPivot = 2.5,
+		overPile = 2.5,
+		each = 2,
+		colours = {
+			Presets.palette.neonPink,
+			Presets.palette.golden,
+			Presets.palette.mint,
+			Presets.palette.eyeBlue,
+			Presets.palette.aurora,
+		},
+		glow = { seconds = 1.2, range = 8, brightness = 1.5, colour = Presets.palette.furRose },
 	},
 }
 

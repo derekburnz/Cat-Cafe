@@ -68,10 +68,10 @@ return function()
 			end
 		end)
 
-		it("matches the effects list: never hidden up close, back past 1 once hidden, to 80 studs for the 12 nearest", function()
+		it("matches the effects list: never hidden up close, back at once when the lock clears, to 80 studs for the 12 nearest", function()
 			local r = Presets.rarityMark
 			expect(r.hideWithin).to.equal(0)
-			expect(r.hideWithin + r.showAfter).to.equal(1)
+			expect(r.hideWithin + r.showAfter).to.equal(0)
 			expect(r.maxDistance).to.equal(80)
 			expect(r.most).to.equal(12)
 			expect(r.above).to.equal(0.9)

@@ -2851,7 +2851,7 @@ Presets.decorFx = {
 -- degrees, `gem` of the gui across, lit from the top (`light` of the way to white, `dark` to black at the bottom)
 -- with a white edge; a Mythical one glints now and then. It stays up close while the cat is free (hideWithin is 0,
 -- so the gem and the Catch card's name sit together), hides only while someone is catching the cat, and shows to
--- maxDistance for the `most` nearest. A hidden gem comes back past hideWithin + showAfter.
+-- maxDistance for the `most` nearest. A hidden gem comes back past hideWithin + showAfter (both 0, so at once).
 Presets.rarityMark = {
 	shows = { Common = true, Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
 	glints = { Mythical = true } :: { [string]: boolean },
@@ -2870,7 +2870,7 @@ Presets.rarityMark = {
 	glintSeconds = 0.3, -- one way
 	glintEvery = 2.2,
 	hideWithin = 0,
-	showAfter = 1,
+	showAfter = 0,
 	maxDistance = 80,
 	most = 12,
 	checkEvery = 0.25,

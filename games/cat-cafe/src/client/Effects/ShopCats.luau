@@ -418,9 +418,11 @@ local function stepKings()
 	local budget = Context.budget.shopCatEmitters
 	local motes = not still and not Context.lowPerformance and budget > 0
 	local chosen: { [Model]: boolean } = {}
-	for _, cat in Logic.nearest(candidates, c.within, c.most) do
+	-- nearest first: the glow and the trim on every chosen king, the motes only on the nearest
+	-- budget.shopCatEmitters (one on a phone)
+	for index, cat in Logic.nearest(candidates, c.within, c.most) do
 		chosen[cat] = true
-		dressKing(cat, kings[cat], motes, still)
+		dressKing(cat, kings[cat], motes and index <= budget, still)
 	end
 	for cat, k in kings do
 		if not chosen[cat] then

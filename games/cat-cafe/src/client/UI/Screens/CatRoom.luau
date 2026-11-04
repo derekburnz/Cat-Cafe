@@ -31,12 +31,14 @@ local CatRoomList = require(script.Parent.Parent.Components.CatRoomList)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local KeepUp = require(script.Parent.Parent.Components.KeepUp)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local RenameDialog = require(script.Parent.RenameDialog)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local StaffSlots = require(script.Parent.Parent.Components.StaffSlots)
 local Theme = require(script.Parent.Parent.Theme)
@@ -271,7 +273,9 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	-- Equip best: the server fills the open slots with the highest-rated cats (cat stats thread)
 	self._equipBest = Button.new({
 		name = "EquipBest",
-		text = Theme.icons.equipBest .. " Equip Best",
+		text = "Equip Best",
+		icon = Theme.icons.equipBest,
+		image = ShopIcons.clean("EquipBest"), -- the clean sparkles (#1136)
 		style = "gold",
 		size = UDim2.fromOffset(ACTION_W, TOOL_H),
 		anchorPoint = Vector2.new(1, 0),
@@ -829,6 +833,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 	lock.AnchorPoint = Vector2.new(1, 1)
 	lock.Position = UDim2.new(1, -4, 0, CARD_ART + 4)
 	lock.Visible = false
+	IconArt.set(lock, Theme.icons.lock) -- the clean padlock (#1136)
 	-- F86: on the picture's lower left corner while an older Legendary or Mythical keeps up
 	local keep = badge(button, KeepUp.TAG, Theme.colors.goodDark, Theme.colors.white)
 	keep.AnchorPoint = Vector2.new(0, 1)

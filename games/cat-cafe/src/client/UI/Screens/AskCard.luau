@@ -20,6 +20,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 
@@ -191,6 +192,10 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 				name = "Choice_" .. id,
 				text = choice.label,
 				icon = choice.icon,
+				-- the glyph's clean symbol beside the label (the Invite envelope, #1136)
+				image = if choice.icon
+					then ShopIcons.clean(Theme.cleanGlyphs[choice.icon] or "")
+					else nil,
 				style = choice.style or "ghost",
 				textSize = Theme.sizes.textBody,
 				size = UDim2.new(1 / count, -GAP * (count - 1) / count, 1, 0),

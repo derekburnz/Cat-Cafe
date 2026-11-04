@@ -6,6 +6,7 @@
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Theme = require(script.Parent.Parent.Theme)
@@ -153,6 +154,7 @@ function Areas._buildCards(self: any)
 			Visible = false,
 			Parent = art,
 		})
+		IconArt.set(lock, Theme.icons.lock) -- the clean padlock (#1136)
 		local name = text({
 			Name = "Name",
 			Position = UDim2.fromOffset(10, 92),

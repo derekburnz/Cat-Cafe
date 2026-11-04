@@ -143,6 +143,7 @@ local IDS: { [string]: string } = {
 	Icon_Clean_EquipBest = "rbxassetid://89501318892947",
 	Icon_Clean_Invite = "rbxassetid://136442901295833",
 	Icon_Clean_Lock = "rbxassetid://133489571923895",
+	Icon_Clean_Clover = "rbxassetid://70755641486261", -- #1258: the luck clover (upload-image run 41904365295, 11-04)
 }
 local NETS = 4
 

@@ -1087,7 +1087,7 @@ local SCENES = {
 		})
 		press("CatCafeHUD", "Counters.Money")
 	end },
-	-- F88: a Lucky Day with a Lucky Potion running: the Luck chip glowing at the start of the potion row, its card
+	-- F88: a Lucky Day with a Lucky Potion running: the Luck chip with gold text at the start of the potion row, its card
 	-- open over the counters (closing the boosts card), and "Lucky Day now" under the clock
 	{ "HUDLuck", function()
 		local t = workspace:GetServerTimeNow()

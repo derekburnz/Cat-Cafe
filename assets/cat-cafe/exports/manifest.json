@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-04 18:59 UTC",
+  "generated": "2026-11-04 19:04 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -143976,7 +143976,7 @@
         "CatCafe_Park_Gate_Lamp_Bulb",
         "CatCafe_Park_Gate_Flowers"
       ],
-      "triangles": 2776,
+      "triangles": 3870,
       "budget": 6000,
       "size_studs": {
         "x": 40.95,
@@ -144015,7 +144015,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_Gate.model.json",
-      "rbx_parts": 205,
+      "rbx_parts": 302,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_Gate.glb"
@@ -144027,10 +144027,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2776/6000 tris",
+          "budget": "3870/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1442 faces on swatch centers",
+          "uv": "1989 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.06"
@@ -144050,7 +144050,7 @@
         "CatCafe_Park_GateF85_Lamp_Bulb",
         "CatCafe_Park_GateF85_Flowers"
       ],
-      "triangles": 2776,
+      "triangles": 3870,
       "budget": 6000,
       "size_studs": {
         "x": 32.95,
@@ -144089,7 +144089,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). F85: the long Park's gate over its 24 stud opening, -Z toward the camp, in place of CatCafe_Park_Gate.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_GateF85.model.json",
-      "rbx_parts": 205,
+      "rbx_parts": 302,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_GateF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_GateF85.glb"
@@ -144101,15 +144101,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "2776/6000 tris",
+          "budget": "3870/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1442 faces on swatch centers",
+          "uv": "1989 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.06"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_GateF85.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Park_GateF85.png"
     },
     {
       "name": "CatCafe_Neighbourhood_Gate",
@@ -144122,16 +144124,16 @@
         "CatCafe_Neighbourhood_Gate_Lamp_Bulb",
         "CatCafe_Neighbourhood_Gate_Flowers"
       ],
-      "triangles": 3708,
+      "triangles": 4802,
       "budget": 6000,
       "size_studs": {
         "x": 44.62,
         "y": 7.15,
-        "z": 15.9
+        "z": 16.4
       },
       "size_roblox": [
         44.62,
-        15.9,
+        16.4,
         7.15
       ],
       "bounds_min": [
@@ -144142,7 +144144,7 @@
       "bounds_max": [
         21.8,
         1.95,
-        15.9
+        16.4
       ],
       "pivot": "base centre of the opening; -Z faces the side players come from",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -144161,7 +144163,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_Gate.model.json",
-      "rbx_parts": 321,
+      "rbx_parts": 418,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_Gate.glb"
@@ -144173,10 +144175,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3708/6000 tris",
+          "budget": "4802/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1922 faces on swatch centers",
+          "uv": "2469 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-0.51 y=-1.62"
@@ -144196,16 +144198,16 @@
         "CatCafe_Neighbourhood_GateF85_Lamp_Bulb",
         "CatCafe_Neighbourhood_GateF85_Flowers"
       ],
-      "triangles": 3660,
+      "triangles": 4754,
       "budget": 6000,
       "size_studs": {
         "x": 36.62,
         "y": 7.15,
-        "z": 15.9
+        "z": 16.4
       },
       "size_roblox": [
         36.62,
-        15.9,
+        16.4,
         7.15
       ],
       "bounds_min": [
@@ -144216,7 +144218,7 @@
       "bounds_max": [
         17.8,
         1.95,
-        15.9
+        16.4
       ],
       "pivot": "base centre of the 24 stud opening; -Z faces the camp (F85)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -144235,7 +144237,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). F85: the long Neighbourhood's gate over its 24 stud opening, -Z toward the camp, in place of CatCafe_Neighbourhood_Gate.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_GateF85.model.json",
-      "rbx_parts": 317,
+      "rbx_parts": 414,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_GateF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_GateF85.glb"
@@ -144247,15 +144249,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "3660/6000 tris",
+          "budget": "4754/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1898 faces on swatch centers",
+          "uv": "2445 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-0.51 y=-1.62"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Neighbourhood_GateF85.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Neighbourhood_GateF85.png"
     },
     {
       "name": "CatCafe_Woods_Gate",
@@ -144268,7 +144272,7 @@
         "CatCafe_Woods_Gate_Lamp_Bulb",
         "CatCafe_Woods_Gate_Flowers"
       ],
-      "triangles": 3228,
+      "triangles": 4322,
       "budget": 6000,
       "size_studs": {
         "x": 36.23,
@@ -144307,7 +144311,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_Gate.model.json",
-      "rbx_parts": 257,
+      "rbx_parts": 354,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_Gate.glb"
@@ -144319,10 +144323,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3228/6000 tris",
+          "budget": "4322/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1496 faces on swatch centers",
+          "uv": "2043 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=2.20"
@@ -144341,7 +144345,7 @@
         "CatCafe_Sewer_Gate_SignBoard",
         "CatCafe_Sewer_Gate_Lamp_Bulb"
       ],
-      "triangles": 2762,
+      "triangles": 3856,
       "budget": 6000,
       "size_studs": {
         "x": 31.1,
@@ -144380,7 +144384,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_Gate.model.json",
-      "rbx_parts": 191,
+      "rbx_parts": 288,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_Gate.glb"
@@ -144392,10 +144396,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2762/6000 tris",
+          "budget": "3856/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1237 faces on swatch centers",
+          "uv": "1784 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.85"

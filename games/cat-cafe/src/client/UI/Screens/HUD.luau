@@ -816,7 +816,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Visible = false,
 		Parent = root,
 	})
-	-- #1258: the luck chip's circle and clean clover in front of the right-aligned words, kept beside them as they change
+	-- #1258: the luck chip's circle and clean clover in front of the right-aligned words, kept beside them as they change.
+	-- TextBounds is in screen px, after the root's UIScale, so it is divided back into design px (Scale.get, as
+	-- LuckChip._place does); a scale change changes TextBounds too, so this runs again.
 	local luckyClover = LuckChip.circle(LUCKY_CLOVER, {
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, 0, 0.5, 0),
@@ -827,7 +829,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	table.insert(
 		self._connections,
 		luckyLine:GetPropertyChangedSignal("TextBounds"):Connect(function()
-			luckyClover.Position = UDim2.new(1, -(luckyLine.TextBounds.X + 4), 0.5, 0)
+			local width = luckyLine.TextBounds.X / math.max(Scale.get(), 0.01)
+			luckyClover.Position = UDim2.new(1, -(width + 4), 0.5, 0)
 		end)
 	)
 	self._luckyDay = nil :: LuckLogic.DayView?

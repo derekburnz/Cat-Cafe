@@ -12,7 +12,6 @@ local TweenService = game:GetService("TweenService")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
-local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
@@ -99,6 +98,7 @@ function TipCard.new(parent: Instance): TipCard
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 	})
 	Outline.border(disc, 2.5)
+	self._disc = disc
 	self._icon = Create("TextLabel", {
 		Name = "Glyph",
 		BackgroundTransparency = 1,
@@ -175,8 +175,11 @@ function TipCard.show(
 	self._onDone = onDone
 	self._line.Text = text
 	self._icon.Text = icon
-	-- #1258: the luck tip's clover is the clean picture (black outline drawn in); the other tips keep their glyph
-	IconArt.set(self._icon, if icon == LuckLogic.ICON then icon else nil, 0.82)
+	-- #1258: the luck tip shows the luck chip's look, the clean clover (black outline drawn in) on the dark green circle
+	-- with no gold round it; the other tips keep their glyph on the gold disc
+	local luck = icon == Theme.icons.luck
+	self._disc.BackgroundColor3 = if luck then Theme.luck.circle else Theme.colors.gold
+	IconArt.set(self._icon, if luck then icon else nil, 0.82)
 	local card: TextButton = self._card
 	card.Visible = true
 	local bar: Frame = self._bar

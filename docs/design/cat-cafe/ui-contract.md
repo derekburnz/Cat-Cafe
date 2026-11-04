@@ -707,7 +707,7 @@ A tip shows once per account, the first time a player meets something: one line 
 - **Lucky Day line:** under the clock in gold, the chip's circle and clover then "Lucky Day in 3 days", "Lucky Day tomorrow", "Lucky Day at sunrise" (the night before) or "Lucky Day now", from the Clock folder's `Day`, `NextLuckyDay` and `LuckyDay`, which `UI.clock.bind` now follows too. Shown with the clock.
 - **Banners:** `UI.luckyDay(kind, line)` (UIController's hook): "warning" shows "Lucky Day soon!" over the line at once; "start" shows "Lucky Day!" over "Rare cats are twice as likely until night" (split from `Luck.DAY_BANNER`) once the sunrise banner has had its 3 s, in step with Audio's chime.
 - **Shop and rank up:** the Lucky Cat row has 🐱 and two lines, "Luck +0.2 now, +0.3 next level" over "Rarer bait cats and crate finds" (level 0: "A beckoning cat by your front door" over "Each level: Luck +0.1, rarer bait cats and crate finds"). The rank up card's caps line adds "Lucky Cat to 3". The potion bag's Lucky Potion line reads "Luck +0.5 and double gold on bait".
-- **Tip:** the `luck` context tip ("Luck makes rare cats more likely. Tap the chip to see why", the clean clover in its disc) shows once the chip does, through the tip queue.
+- **Tip:** the `luck` context tip ("Luck makes rare cats more likely. Tap the chip to see why", the clean clover on the chip's dark green circle in place of the gold disc) shows once the chip does, through the tip queue.
 
 **Engineer (F88):** nothing more to send: ProfileSync's `luck` and `luckSources`, the Clock attributes and `UI.luckyDay` are all read as they are.
 

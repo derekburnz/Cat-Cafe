@@ -186,20 +186,20 @@ return function()
 		it("has flags = { autoPress = false } (section 10, reviewer S23)", function()
 			expect(ProfileSchema.template(0).flags :: any).to.deepEqual({ autoPress = false })
 		end)
-		it("has telemetry = { onboardingStep = 0, achieved = {}, funnel = 2, firstDay } (growth analytics-plan, F87)", function()
-			expect(ProfileSchema.template(0).telemetry :: any).to.deepEqual({ onboardingStep = 0, achieved = {}, funnel = 2, firstDay = 0 })
+		it("has telemetry = { onboardingStep = 0, achieved = {}, funnel = 3, firstDay, introStep = 0 } (F87, #1273)", function()
+			expect(ProfileSchema.template(0).telemetry :: any).to.deepEqual({ onboardingStep = 0, achieved = {}, funnel = 3, firstDay = 0, introStep = 0 })
 			expect(ProfileSchema.template(86400 * 20394 + 5).telemetry.firstDay).to.equal(20394)
 		end)
-		it("migrates telemetry: clamps the step, keeps only held steps after it (F16), in the v2 numbering (F87)", function()
+		it("migrates telemetry: a v1 state past its first catch leaves the funnel v3, one before it starts again (#1273)", function()
 			local raw = v2Save()
-			-- a v1 state: step 3 first_catch is v2 step 7, held 5 first_role is v2 step 9, held 2 saw_alley is behind it
+			-- a v1 state at step 3, first_catch: out of v3 and its intro funnel, held steps dropped
 			raw.telemetry = { onboardingStep = 3, achieved = { ["2"] = true, ["5"] = true, ["99"] = true, x = 1 } }
 			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.telemetry :: any).to.deepEqual({ onboardingStep = 7, achieved = { ["9"] = true }, funnel = 2, firstDay = 0 })
-			raw.telemetry = { onboardingStep = 40 }
-			expect(ProfileSchema.migrate(raw, 1000).telemetry.onboardingStep).to.equal(24)
+			expect(profile.telemetry :: any).to.deepEqual({ onboardingStep = 37, achieved = {}, funnel = 3, firstDay = 0, introStep = 13 })
+			raw.telemetry = { onboardingStep = 2, achieved = { ["5"] = true } }
+			expect(ProfileSchema.migrate(raw, 1000).telemetry :: any).to.deepEqual({ onboardingStep = 0, achieved = {}, funnel = 3, firstDay = 0, introStep = 0 })
 			raw.telemetry = "junk"
-			expect(ProfileSchema.migrate(raw, 1000).telemetry :: any).to.deepEqual({ onboardingStep = 0, achieved = {}, funnel = 2, firstDay = 0 })
+			expect(ProfileSchema.migrate(raw, 1000).telemetry :: any).to.deepEqual({ onboardingStep = 0, achieved = {}, funnel = 3, firstDay = 0, introStep = 0 })
 		end)
 		it("drops equippedLure, in the template and in the migration (F28)", function()
 			expect((ProfileSchema.template(0) :: any).equippedLure).never.to.be.ok()
@@ -1446,39 +1446,65 @@ return function()
 		local DAY = 20394 -- 2025-11-02 UTC
 		local NOW = DAY * 86400 + 3600
 
-		it("carries a version 18 save's v1 step and held steps to the same steps in v2", function()
+		it("takes a version 18 save past tier_2 (v1 9) out of the funnel v3 (#1273)", function()
 			local raw: any = ProfileSchema.template(NOW)
 			raw.version = 18
-			-- tier_2 (v1 9) reached, first_offline_claim (v1 11) held behind returned_next_day
 			raw.telemetry = { onboardingStep = 9, achieved = { ["11"] = true } }
 			local profile = ProfileSchema.migrate(raw, NOW)
 			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.telemetry :: any).to.deepEqual({
-				onboardingStep = 20,
-				achieved = { ["23"] = true },
-				funnel = 2,
+				onboardingStep = 37,
+				achieved = {},
+				funnel = 3,
 				firstDay = 0, -- not known for an account from before version 19
+				introStep = 13,
 			})
 		end)
 
-		it("keeps a v2 state as it is, clamped to the funnel's 25 steps, with only held steps after the step", function()
+		it("moves a v2 state (#1273): past first_catch out of v3, before it to v3's start, first day kept", function()
 			local raw: any = ProfileSchema.template(NOW)
-			raw.telemetry = { onboardingStep = 10, achieved = { ["4"] = true, ["12"] = true, ["30"] = true }, funnel = 2, firstDay = DAY - 3 }
+			raw.telemetry = { onboardingStep = 10, achieved = { ["12"] = true }, funnel = 2, firstDay = DAY - 3 }
+			expect(ProfileSchema.migrate(raw, NOW).telemetry :: any).to.deepEqual({
+				onboardingStep = 37,
+				achieved = {},
+				funnel = 3,
+				firstDay = DAY - 3,
+				introStep = 13,
+			})
+			raw.telemetry = { onboardingStep = 6, achieved = { ["9"] = true }, funnel = 2, firstDay = DAY }
+			expect(ProfileSchema.migrate(raw, NOW).telemetry :: any).to.deepEqual({
+				onboardingStep = 0,
+				achieved = {},
+				funnel = 3,
+				firstDay = DAY,
+				introStep = 0,
+			})
+		end)
+
+		it("keeps a v3 state as it is (no save version), clamped, with only held steps after the step", function()
+			local raw: any = ProfileSchema.template(NOW)
+			raw.telemetry =
+				{ onboardingStep = 10, achieved = { ["4"] = true, ["12"] = true, ["99"] = true }, funnel = 3, firstDay = DAY - 3, introStep = 5 }
 			expect(ProfileSchema.migrate(raw, NOW).telemetry :: any).to.deepEqual({
 				onboardingStep = 10,
 				achieved = { ["12"] = true },
-				funnel = 2,
+				funnel = 3,
 				firstDay = DAY - 3,
+				introStep = 5,
 			})
-			raw.telemetry = { onboardingStep = 99, achieved = {}, funnel = 2, firstDay = DAY }
-			expect(ProfileSchema.migrate(raw, NOW).telemetry.onboardingStep).to.equal(25) -- F96 added starter_cat
+			raw.telemetry = { onboardingStep = 99, achieved = {}, funnel = 3, firstDay = DAY, introStep = 50 }
+			local telemetry = ProfileSchema.migrate(raw, NOW).telemetry
+			expect(telemetry.onboardingStep).to.equal(37)
+			expect(telemetry.introStep).to.equal(13)
+			raw.telemetry = { onboardingStep = 1, achieved = {}, funnel = 3, firstDay = DAY, introStep = "x" }
+			expect(ProfileSchema.migrate(raw, NOW).telemetry.introStep).to.equal(0)
 		end)
 
 		it("clamps a first day in the future to today and a bad one to 0", function()
 			local raw: any = ProfileSchema.template(NOW)
-			raw.telemetry = { onboardingStep = 1, achieved = {}, funnel = 2, firstDay = DAY + 40 }
+			raw.telemetry = { onboardingStep = 1, achieved = {}, funnel = 3, firstDay = DAY + 40 }
 			expect(ProfileSchema.migrate(raw, NOW).telemetry.firstDay).to.equal(DAY)
-			raw.telemetry = { onboardingStep = 1, achieved = {}, funnel = 2, firstDay = "soon" }
+			raw.telemetry = { onboardingStep = 1, achieved = {}, funnel = 3, firstDay = "soon" }
 			expect(ProfileSchema.migrate(raw, NOW).telemetry.firstDay).to.equal(0)
 		end)
 

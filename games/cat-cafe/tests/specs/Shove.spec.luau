@@ -77,7 +77,7 @@ return function()
 
 		it("TackleCooldownSeconds between presses, from the press, hit or miss", function()
 			local cooldown = Config.TackleCooldownSeconds
-			expect(cooldown).to.equal(8)
+			expect(cooldown).to.equal(5)
 			expect(Shove.tackleRefusal(press({ sinceTackle = cooldown - 0.01 }))).to.be.ok()
 			expect(Shove.tackleRefusal(press({ sinceTackle = cooldown }))).never.to.be.ok()
 		end)
@@ -319,7 +319,7 @@ return function()
 			expect(Shove.targetRefusal(target())).never.to.be.ok()
 			expect(Shove.canKnockLoose(carryA, backAt - 0.01)).to.equal(false)
 			expect(Shove.canKnockLoose(carryA, backAt)).to.equal(true)
-			-- B picks it back up. At 12 s A is off TackleCooldownSeconds (8) but hit B at 0, so the lunge passes
+			-- B picks it back up. At 12 s A is off TackleCooldownSeconds (5) but hit B at 0, so the lunge passes
 			-- through B until 20 s.
 			expect(Shove.tackleRefusal(press({ sinceTackle = 12 }))).never.to.be.ok()
 			local again = target({ sinceShoveTarget = 12, sinceTargetShoved = 12 })

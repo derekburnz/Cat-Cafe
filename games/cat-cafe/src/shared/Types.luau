@@ -762,6 +762,36 @@ export type FreshCatchRow = {
 export type FreshCatchItem = { itemId: string, fish: number, amount: number, bought: number }
 export type FreshCatchStock = { window: number, restocksAt: number, stock: { FreshCatchItem } }
 
+-- The Corner Shop (corner-shop.md section 5, #1052). A row sells for coins only: a potion into the bag, a snack of
+-- `xp` for one cat the player picks, or a show (`showId`, `showSeconds` long) over the buyer's cafe. Its price is
+-- `seconds` of the player's day rate, at least `atLeast` (Economy.cornerPrice).
+export type CornerShopRow = {
+	id: string,
+	name: string,
+	kind: "potion" | "snack" | "show",
+	potionId: string?,
+	xp: number?,
+	showId: string?,
+	showSeconds: number?,
+	seconds: number,
+	atLeast: number,
+}
+-- Saved (version 29): the window the bought counts belong to, and the snack XP given on UTC day `snackDay`.
+export type CornerShopState = {
+	window: number,
+	bought: { [string]: number },
+	snackDay: number,
+	snackXp: number,
+}
+export type CornerShopItem = { itemId: string, price: number, amount: number, bought: number }
+-- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and today's snack XP.
+export type CornerShopStock = {
+	window: number,
+	restocksAt: number,
+	stock: { CornerShopItem },
+	snackXp: number,
+}
+
 -- The onboarding funnel's place (data-model section 14, growth analytics-plan 3.2): the last step logged, and later
 -- steps already done but held back until every step before them is logged. Keys are "1" to "12" (JSON-shaped).
 export type TelemetryState = {
@@ -856,6 +886,7 @@ export type PlayerProfile = {
 	lawnOwned: { [string]: boolean },
 	lawn: { [string]: string },
 	lawnStyles: LawnStyles,
+	cornerShop: CornerShopState, -- #1052 (corner-shop.md section 5, save version 29)
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.

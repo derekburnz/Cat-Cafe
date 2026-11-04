@@ -1354,6 +1354,10 @@ Layout.bellhopStand = station(-38, 0)
 -- row runs z -11.9 to 11.9 and x 38.6 to 41.4, clear of the edge lamps at x 47.
 Layout.leaderboards = station(40, 0)
 
+-- The Corner Shop (#1052, corner-shop.md section 4): beside the Golden Fish Market, toward the fountain. A first
+-- spot for Model-Agent's CatCafe_Street_CornerShop; Model-Agent moves it to fit the art.
+Layout.cornerShop = station(16, 16)
+
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,
 -- hometown-cannon.md section 4), in camp space (Layout.campPoint), filled in with the camps below.
 Layout.indexBoards = {} :: { [string]: Point }

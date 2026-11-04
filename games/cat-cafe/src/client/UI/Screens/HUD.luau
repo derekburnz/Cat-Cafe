@@ -4,10 +4,10 @@
 --                 (Derek 2026-10-28); a tap on the money opens the boosts card (Components/BoostList: what lifts the
 --                 cafe's money, the exact amount on top), a tap on the golden fish shows its exact amount; the potion
 --                 timers sit over the row, or beside the menu's arrow tab on a short screen, led by the Luck chip (F88,
---                 Screens/LuckChip: "🍀 Luck x1.3" from the first Luck source, a tap opens its card)
+--                 Screens/LuckChip: the clean clover on a dark green circle and "Luck x1.3" from the first Luck source, a tap opens its card)
 --   top right     small icon buttons (Tutorial, Rewards for the gifts and the Daily Treat, Trade, Feedback, and Menu for
 --                 Settings and Invite; Rewards and Menu open a short list), the day and night clock
---                 under them with the next Lucky Day under it (F88: "🍀 Lucky Day in 2 days"),
+--                 under them with the next Lucky Day under it (F88: the chip's clover then "Lucky Day in 2 days"),
 --                 the tier and next goal block (Screens/GoalCard) under that and the quest line under that (F73: the
 --                 closest unfinished daily, "📜 Catch 5 cats 3/5", or "📜 2 ready to claim"; a tap opens Quests), and
 --                 under it "🎡 Free spin at the Town Square" while today's free spin waits (F49)
@@ -231,6 +231,7 @@ local CLOCK_W = 200
 local GOAL_TOP = CLOCK_TOP + CLOCK_H + 6
 local NIGHT_LINE = 20
 local LUCKY_LINE_W = 260 -- F88: the Lucky Day line under the clock
+local LUCKY_CLOVER = 18 -- #1258: the luck chip's circle in front of that line
 -- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
 -- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
 -- (GuiService.TopbarInset) runs over the column, the column moves up into it. TOPBAR_SLACK is how far short of the
@@ -815,6 +816,20 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Visible = false,
 		Parent = root,
 	})
+	-- #1258: the luck chip's circle and clean clover in front of the right-aligned words, kept beside them as they change
+	local luckyClover = LuckChip.circle(LUCKY_CLOVER, {
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, 0, 0.5, 0),
+		ZIndex = self._luckyLine.ZIndex,
+		Parent = self._luckyLine,
+	})
+	local luckyLine: TextLabel = self._luckyLine
+	table.insert(
+		self._connections,
+		luckyLine:GetPropertyChangedSignal("TextBounds"):Connect(function()
+			luckyClover.Position = UDim2.new(1, -(luckyLine.TextBounds.X + 4), 0.5, 0)
+		end)
+	)
 	self._luckyDay = nil :: LuckLogic.DayView?
 	-- F101 (rescue-rally.md section 1): the Friday countdown to the Rescue Rally, under the Lucky Day line
 	self._rallyLine = label({
@@ -2120,7 +2135,7 @@ function HUD.setLuckyDay(self: any, view: LuckLogic.DayView?)
 	self:_layoutRight()
 end
 
--- "🍀 Lucky Day in 2 days" under the clock while the clock shows; the phase is the clock's own.
+-- "Lucky Day in 2 days" after the luck chip's clover under the clock while the clock shows; the phase is the clock's own.
 function HUD._renderLuckyLine(self: any)
 	local view: LuckLogic.DayView? = self._luckyDay
 	local clock: Types.ClockState? = self._clockState
@@ -2133,7 +2148,7 @@ function HUD._renderLuckyLine(self: any)
 			phase = clock.phase,
 		})
 	end
-	self._luckyLine.Text = if line then LuckLogic.ICON .. " " .. line else ""
+	self._luckyLine.Text = line or "" -- the clover is the circle in front (LuckChip.circle)
 	self._luckyLine.Visible = line ~= nil and self._clock.Visible
 end
 

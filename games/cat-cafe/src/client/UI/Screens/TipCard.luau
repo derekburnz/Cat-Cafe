@@ -11,6 +11,8 @@ local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 
 local Create = require(script.Parent.Parent.Components.Create)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
+local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
@@ -173,6 +175,8 @@ function TipCard.show(
 	self._onDone = onDone
 	self._line.Text = text
 	self._icon.Text = icon
+	-- #1258: the luck tip's clover is the clean picture (black outline drawn in); the other tips keep their glyph
+	IconArt.set(self._icon, if icon == LuckLogic.ICON then icon else nil, 0.82)
 	local card: TextButton = self._card
 	card.Visible = true
 	local bar: Frame = self._bar

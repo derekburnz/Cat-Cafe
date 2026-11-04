@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ShortNumber = require(script.Parent.ShortNumber)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Catalog = require(Shared:WaitForChild("Catalog"))
 local Config = require(Shared:WaitForChild("Config")) :: any
 local SharedTypes = require(Shared:WaitForChild("Types"))
 
@@ -47,9 +48,13 @@ function CornerShopLogic.clock(restocksAt: number, now: number): string
 	return ("Restocks in %d:%02d"):format(left // 60, left % 60)
 end
 
--- How often the row is in stock, from Config.CornerShopAmountWeights (index 1 is the chance of none), in tenths.
+-- How often the row is in stock, from its size's Config.CornerShopSizeWeights (Corner Shop v2, #1180; index 1 is the
+-- chance of none), in tenths.
 function CornerShopLogic.chance(itemId: string): string
-	local weights: { number }? = (Config.CornerShopAmountWeights or {})[itemId]
+	local row = Catalog.getCornerShopRow(itemId)
+	local weights: { number }? = if row ~= nil
+		then (Config.CornerShopSizeWeights or {})[row.size]
+		else nil
 	if weights == nil then
 		return ""
 	end
@@ -97,13 +102,13 @@ function CornerShopLogic.button(item: Item, row: Row?, coins: number, snackRoom:
 end
 
 function CornerShopLogic.snackRoom(snackXp: number): number
-	return math.max(0, (Config.CornerSnackXpPerDay or 0) - snackXp)
+	return math.max(0, (Config.CornerFoodXpPerDay or 0) - snackXp)
 end
 
 function CornerShopLogic.snackLine(snackXp: number): string
 	return ("Snacks today: %s / %s XP"):format(
 		commas(snackXp),
-		commas(Config.CornerSnackXpPerDay or 0)
+		commas(Config.CornerFoodXpPerDay or 0)
 	)
 end
 

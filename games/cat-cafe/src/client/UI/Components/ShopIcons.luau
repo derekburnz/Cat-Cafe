@@ -193,7 +193,16 @@ function ShopIcons.crateModel(crateId: string?): string?
 end
 
 function ShopIcons.potion(potionId: string?): string?
-	local name = if type(potionId) == "string" then potionId:match("^(.+)_potion$") else nil
+	if type(potionId) ~= "string" then
+		return nil
+	end
+	-- Corner Shop v2 (#1180): a Small or Big size shows its regular potion's bottle, and the Cat Whistle the plain
+	-- clean flask until it has its own picture
+	local regular = potionId:match("^(.+)_small$") or potionId:match("^(.+)_big$") or potionId
+	if regular == "cat_whistle" then
+		return IDS.Icon_Clean_Potion
+	end
+	local name = regular:match("^(.+)_potion$")
 	if name == nil then
 		return nil
 	end

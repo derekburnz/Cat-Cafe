@@ -39,6 +39,9 @@ return function()
 			end
 			expect(table.concat(missing, ",")).to.equal("")
 			expect(ShopIcons.potion("moon_potion")).to.equal(nil)
+			-- Corner Shop v2 (#1180): a size shows its regular bottle, the Cat Whistle the plain clean flask
+			expect(ShopIcons.potion("steady_potion_big")).to.equal(ShopIcons.potion("steady_potion"))
+			expect(ShopIcons.potion("cat_whistle_small")).to.equal(ShopIcons.potion("cat_whistle"))
 		end)
 
 		it("draws the Market's perks and every food in the catalog (F97)", function()

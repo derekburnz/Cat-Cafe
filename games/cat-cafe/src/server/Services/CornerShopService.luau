@@ -83,7 +83,11 @@ local function liveShows(userId: number, now: number): { Show }
 			table.insert(live, show)
 		end
 	end
-	shows[userId] = if #live > 0 then live else nil
+	if #live > 0 then
+		shows[userId] = live
+	else
+		shows[userId] = nil
+	end
 	return live
 end
 

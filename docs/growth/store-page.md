@@ -48,14 +48,14 @@ Roblox lets the genre change only once every 3 months and may correct a genre it
 
 Reworked 2026-11-04 to the format the person liked (Coordinator, examples in the library under Monetization-Agent/description-examples/). The order is:
 1. Emoji hook
-2. Update line
+2. Update line, then a codes line
 3. Intro line
-4. 7 feature bullets
+4. 6 feature bullets
 5. Devices line
 6. Group perk line
 7. A two-question FAQ
 
-Length is 936 characters (946 in UTF-16, 972 bytes), all under the 1,000 limit. The hook is 106 characters, so it shows in full in search.
+Length is 919 characters (929 in UTF-16, 957 bytes), all under the 1,000 limit. The hook is 106 characters, so it shows in full in search.
 
 Every claim checked against main on 2026-11-04:
 - **Update:** the Corner Shop is a coins-only stall that restocks every 5 minutes (#1052, `CornerShop.luau`, UI in `UIController`).
@@ -78,7 +78,7 @@ Every claim checked against main on 2026-11-04:
   - The four passes (2x/3x/4x Money, Long Nap) touch income only.
 
 Left out on purpose:
-- **Codes:** the only active codes are `playtest` and `playtest2`, which are for the alpha and go inactive before launch. `launch` and `group` are still off. Add a codes line when one of them is switched on.
+- **Codes line** (added 2026-11-04 at the friend's ask, "OK store text" with this one change): `Release · playtest · group (group members only)`. Gameplay-Engineer makes these codes work in #1118, and `store-page set` waits for the publish that ships it, so the page never lists a code that doesn't redeem.
 - **Console:** the UI gate checks a 1080p console screen, but whether the experience is turned on for Xbox or PlayStation is a Creator Hub setting nobody has confirmed. Add "and console" once Derek ticks it.
 - **No "Roblox" or "game(s)", no like or favourite asks, no promises of future content.**
 

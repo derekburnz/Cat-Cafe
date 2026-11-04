@@ -84,8 +84,9 @@ The friend, 11-04: show the recent updates on the board "in a clean looking way"
 
 ```lua
 return table.freeze({
+	{ id = "crate_bundle", date = "2026-11-04", icon = "new", text = "Buy 5 crates at once" },
 	{ id = "corner_shop", date = "2026-11-03", icon = "new", text = "Corner Shop opens in town" },
-	{ id = "cat_bubbles", date = "2026-11-05", icon = "cat", text = "Cats say hello", creditId = "c3" },
+	-- a row from a credited idea adds creditId = "c1" (the id idea-credits.yml returned)
 })
 ```
 

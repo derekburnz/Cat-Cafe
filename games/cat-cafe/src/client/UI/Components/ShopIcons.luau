@@ -89,6 +89,13 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Trade = "rbxassetid://86243209880722", -- #1024 (upload run 41649292093)
 	Icon_Clean_Tutorial = "rbxassetid://109885867788208",
 	Icon_Clean_Upgrades = "rbxassetid://90691118878000",
+	-- the Decor window's "Your cafe" slots (#964, upload-image run 41728803377 on 11-03)
+	Icon_Clean_Wallpaper = "rbxassetid://102259047705880",
+	Icon_Clean_Floor = "rbxassetid://100560850589029",
+	Icon_Clean_Paint = "rbxassetid://88844625138910",
+	Icon_Clean_Spots = "rbxassetid://74579562921955",
+	Icon_Clean_Door = "rbxassetid://82896268186640",
+	Icon_Clean_Catflap = "rbxassetid://99900172207666",
 }
 local NETS = 4
 

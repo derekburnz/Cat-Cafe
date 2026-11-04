@@ -4,7 +4,7 @@
 -- their last spin. The server picks the slice with its own Random and pays at once, so leaving mid-animation keeps
 -- the prize; then SpinResult(slice, amount) tells the window where to land, ProfileSync carries `spin`, and the
 -- station's LastSlice and LastSpinAt turn the world wheel on every client onto the same slice (show only). A
--- refused spin answers SpinResult(0, 0). Spins are free only: nothing sells them (monetization-policy).
+-- refused spin answers SpinResult(0, 0). SpinAll() (#1078) spends them all at once (onSpinAll). Spins are free only: nothing sells them (monetization-policy).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -102,12 +102,52 @@ local function onSpinWheel(player: Player)
 	station:SetAttribute("LastSpinAt", Workspace:GetServerTimeNow())
 end
 
+-- Use all spins (#1078, Derek 2026-11-04): SpinAll() spends every spin the player has, up to SpinAllMax, with the
+-- same checks as one spin (the station's range, the cooldown) and the same odds (Spin.pick with the server's Random,
+-- one roll each), paying each as one spin pays. One SpinAllResult(rolls, totals) answers for the one results card;
+-- nothing to spend answers SpinAllResult({}, {}). The world wheel rests on the last slice.
+local function onSpinAll(player: Player)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	local last = lastSpinAt[player]
+	local station = stationNear(player)
+	local now = os.time()
+	if
+		station == nil
+		or (last ~= nil and os.clock() - last < Config.SpinCooldownSeconds)
+		or Spin.available(profile.spin, now) == 0
+	then
+		Net.fire(player, "SpinAllResult", {}, {})
+		return
+	end
+	lastSpinAt[player] = os.clock()
+	local rolls: { Spin.SpinRoll } = {}
+	while #rolls < Config.SpinAllMax do
+		local kind = Spin.take(profile.spin, now)
+		if kind == nil then
+			break
+		end
+		local row = Spin.pick(random:NextNumber())
+		local amount = pay(player, profile, row)
+		profile.stats.spins += 1
+		Telemetry.custom(player, "spin", row.slice, { kind :: string, "all" })
+		table.insert(rolls, { slice = row.slice, amount = amount })
+	end
+	Net.fire(player, "SpinAllResult", rolls, Spin.summarize(rolls))
+	CafeService.sync(player)
+	station:SetAttribute("LastSlice", rolls[#rolls].slice)
+	station:SetAttribute("LastSpinAt", Workspace:GetServerTimeNow())
+end
+
 function SpinService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		lastSpinAt[player] = nil
 		forcedSlice[player] = nil
 	end)
 	Net.on("SpinWheel", onSpinWheel)
+	Net.on("SpinAll", onSpinAll)
 end
 
 -- Studio-only test hook (Debug.spins): sets the banked spins and, with `freeDue`, makes today's free spin due

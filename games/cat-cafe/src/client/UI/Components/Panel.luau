@@ -36,6 +36,9 @@ export type Panel = {
 	frame: Frame,
 	body: Frame,
 	content: Frame,
+	-- how far in from the window's right edge the X reaches, so a header button can sit left of it (#964)
+	closeReach: number,
+	headerHeight: number,
 	setTitle: (self: Panel, title: string, subtitle: string?) -> (),
 	destroy: (self: Panel) -> (),
 }
@@ -269,6 +272,14 @@ function Panel.new(props: Props): Panel
 	self._title = title
 	self._subtitle = subtitle
 	self._close = closeButton
+	self.closeReach = if closeButton == nil
+		then 0
+		elseif Scale.isTouch() then math.max(
+			Theme.sizes.touchMin,
+			Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth) - Theme.sizes.buttonDepth
+		) - CLOSE_OVERHANG
+		else Theme.sizes.touchMin + 8
+	self.headerHeight = HEADER_HEIGHT
 
 	if props.parent then
 		frame.Parent = props.parent

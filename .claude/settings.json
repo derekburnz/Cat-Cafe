@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Bash",
       "Bash(rojo *)",
       "Bash(wally *)",
       "Bash(wally-package-types *)",

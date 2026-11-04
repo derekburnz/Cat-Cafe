@@ -69,6 +69,7 @@ import night  # noqa: E402
 import doors  # noqa: E402
 import doorsets  # noqa: E402
 import market  # noqa: E402
+import thanksboard  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
 import park  # noqa: E402
@@ -95,7 +96,7 @@ import woods  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, alleyblockers,
-           boards, night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
+           boards, night, stations, coins, market, thanksboard, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop]
@@ -189,6 +190,7 @@ PIVOT_NOTES = {
     "CatCafe_Plot_BackDoor": "Plot.cframe: floor top centre of the cafe; the _Leaf pivot is the hinge",
     "CatCafe_Street_CodesCat": "base centre; the desk front (-Z) faces the players",
     "CatCafe_Street_FishMarket": "base centre; the counter front (-Z) faces the players",
+    "CatCafe_Street_ThanksBoard": "base centre; the Screen's Front (-Z) face looks at the players",
     "CatCafe_Prop_FishCoin": "base centre: the coin stands on its rim, the cat face toward -Z; spin it about Y",
 }
 STUDIO_NOTES = {
@@ -310,6 +312,10 @@ STUDIO_NOTES = {
                                  "tags it FishMarket and hangs the Shop prompt on the Attachment PromptAnchor (counter "
                                  "front, 3 up). The shopkeeper cat's sou'wester rides its Head Model; the sign Bulb is "
                                  "lit at night.",
+    "CatCafe_Street_ThanksBoard": "#1083 (idea-credits.md section 3): the Thank You board in the Town Square at "
+                                  "Layout.thanksBoard, tagged ThanksBoard, streams Atomic. The UI's SurfaceGui "
+                                  "(Adornee = the part named Screen, 7.6 x 5.2, cream) draws the credit rows on its "
+                                  "Front (-Z) face; the idea bulb (_Bulb) is lit at night.",
     "CatCafe_Street_BellhopStand": "F96 (starter-cat.md section 2): the Bellhop Cat's stand in the street plaza, "
                                    "between the Codes Cat and the Spin Wheel, the sign (-Z) toward the street. Tag "
                                    "BellhopStand; claims check the caller within 12 studs of its pivot. Attachments "

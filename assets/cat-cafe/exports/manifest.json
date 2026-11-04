@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-04 13:45 UTC",
+  "generated": "2026-11-04 14:55 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -147874,6 +147874,64 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_FishMarket.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Street_FishMarket.png"
+    },
+    {
+      "name": "CatCafe_Street_ThanksBoard",
+      "category": "Street",
+      "module": "thanksboard",
+      "objects": [
+        "CatCafe_Street_ThanksBoard",
+        "CatCafe_Street_ThanksBoard_Screen",
+        "CatCafe_Street_ThanksBoard_Bulb",
+        "CatCafe_Street_ThanksBoard_Flowers"
+      ],
+      "triangles": 3350,
+      "budget": 6000,
+      "size_studs": {
+        "x": 12.01,
+        "y": 1.5,
+        "z": 10.6
+      },
+      "size_roblox": [
+        12.01,
+        10.6,
+        1.5
+      ],
+      "bounds_min": [
+        -6.02,
+        -0.75,
+        0.0
+      ],
+      "bounds_max": [
+        5.99,
+        0.75,
+        10.6
+      ],
+      "pivot": "base centre; the Screen's Front (-Z) face looks at the players",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#1083 (idea-credits.md section 3): the Thank You board in the Town Square at Layout.thanksBoard, tagged ThanksBoard, streams Atomic. The UI's SurfaceGui (Adornee = the part named Screen, 7.6 x 5.2, cream) draws the credit rows on its Front (-Z) face; the idea bulb (_Bulb) is lit at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_ThanksBoard.model.json",
+      "rbx_parts": 239,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_ThanksBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_ThanksBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "3350/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1805 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.01 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_ThanksBoard.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Street_ThanksBoard.png"
     },
     {
       "name": "CatCafe_Decor_MilkCrateStools",

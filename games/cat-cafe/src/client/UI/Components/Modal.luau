@@ -47,7 +47,18 @@ function Modal.new(parent: Instance): Modal
 		Enabled = false,
 	})
 
-	-- Active, so a tap on it stops here instead of reaching the world under the window
+	-- The dim behind the windows (#1236): its own layer just under them that ignores the top bar inset, so it covers
+	-- the whole screen (it stopped short of the top, with a hard line). One backdrop, one darkness, its tweens never
+	-- racing (_dim). Active, so a tap on it stops here instead of reaching the world under the window.
+	local dimGui: ScreenGui = Create("ScreenGui", {
+		Name = "CatCafeModalDim",
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.None,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		DisplayOrder = 19,
+		Enabled = false,
+	})
 	local backdrop: Frame = Create("Frame", {
 		Name = "Backdrop",
 		Active = true,
@@ -55,7 +66,7 @@ function Modal.new(parent: Instance): Modal
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		Size = UDim2.fromScale(1, 1),
-		Parent = screenGui,
+		Parent = dimGui,
 	})
 
 	-- Scaled root: screens are built in design pixels inside this.
@@ -79,6 +90,8 @@ function Modal.new(parent: Instance): Modal
 
 	local self = setmetatable({}, Modal) :: any
 	self.screenGui = screenGui
+	self._dimGui = dimGui
+	self._dimTween = nil :: Tween?
 	self.container = container
 	self.changed = Signal.new()
 	self._backdrop = backdrop
@@ -89,6 +102,7 @@ function Modal.new(parent: Instance): Modal
 	self._closing = nil :: GuiObject? -- the frame still shrinking away after close()
 
 	if parent then
+		dimGui.Parent = parent
 		screenGui.Parent = parent
 	end
 	return self :: Modal
@@ -129,11 +143,7 @@ function Modal.open(self: any, name: string)
 	self._closing = nil
 	self._current = name
 	self.screenGui.Enabled = true
-	Tween.to(
-		self._backdrop,
-		Tween.FAST,
-		{ BackgroundTransparency = Theme.modal.backdropTransparency }
-	)
+	self:_dim(Theme.modal.backdropTransparency)
 	screen.frame.Visible = true
 	-- the night dealer's stall has its own bell (sound list 5.8)
 	Sound.play(if name == "Dealer" then "uiDealerOpen" else "uiOpen")
@@ -154,7 +164,7 @@ function Modal.close(self: any)
 	self._closing = frame
 	self._current = nil
 	Sound.play("uiClose")
-	Tween.to(self._backdrop, Tween.FAST, { BackgroundTransparency = 1 })
+	self:_dim(1)
 	Tween.popOut(frame, function()
 		-- reopened while it shrank: it stays (its pop in cancelled this)
 		if self._current == name then
@@ -166,6 +176,8 @@ function Modal.close(self: any)
 			self._closing = nil
 			if self._current == nil then
 				self.screenGui.Enabled = false
+				self._dimGui.Enabled = false
+				self._backdrop.BackgroundTransparency = 1
 			end
 		end
 	end)
@@ -173,6 +185,19 @@ function Modal.close(self: any)
 		screen.onClose()
 	end
 	self.changed:Fire(nil)
+end
+
+-- The backdrop to one darkness (#1236): the tween before it stops first, so quick opens, closes and switches never
+-- leave two tweens fighting over it.
+function Modal._dim(self: any, transparency: number)
+	local running: Tween? = self._dimTween
+	if running then
+		running:Cancel()
+	end
+	if transparency < 1 then
+		self._dimGui.Enabled = true
+	end
+	self._dimTween = Tween.to(self._backdrop, Tween.FAST, { BackgroundTransparency = transparency })
 end
 
 function Modal.toggle(self: any, name: string)
@@ -187,6 +212,7 @@ function Modal.destroy(self: any)
 	Scale.unbind(self._uiScale)
 	self.changed:DisconnectAll()
 	self.screenGui:Destroy()
+	self._dimGui:Destroy()
 end
 
 return Modal

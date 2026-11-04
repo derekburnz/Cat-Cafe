@@ -29,7 +29,7 @@ A small corner shop stall in the Town Square (town-layout-v3.md), beside the Gol
 - **No dealer food.** The night dealer's amounts are what keep Caviar, Moon Milk and the Star Treat rare (economy-ladder.md section 4). Kibble, Tuna and Salmon are already sold for coins at the bowl.
 - **No golden fish, crates, spins or anything random for coins.** Money passes multiply coins, so a coin route to random items would make them paid random items (monetization-policy section 2).
 - **No looks-only decor.** The front lawn (front-lawn.md) is already the coin decor shop: bought once, chosen freely, never rotating. The Corner Shop card has a line, "Lawn pieces are in Decor, Front lawn", so it points players there and doesn't make a second, rotating copy of the same thing.
-- **Nothing limited.** Every item comes back in a later window, and the stock chances are shown.
+- **Nothing limited.** Every item comes back in a later window. (The stock chances were shown here until #1190; the friend had them removed from every shop.)
 
 ## 4. How it works in game
 

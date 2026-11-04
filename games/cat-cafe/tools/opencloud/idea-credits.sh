@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Add, remove or list the player idea credits on the Thank You board (#1083, docs/design/cat-cafe/idea-credits.md)
 # in the data store IdeaCredits_v1 through Open Cloud. IdeaCreditsService (src/server/Services/IdeaCreditsService.luau)
-# reads the credit/ keys at server start and every 30 minutes; it never writes them. The hide/<userId> keys belong
+# reads the credit/ keys at server start and every 30 minutes; it never writes them. A credit's key is
+# credit/<yyyymmddhhmmss>-<report key> with the UTC time it was added first, so key order is date order (the game
+# lists at most 120 keys and keeps the newest). The hide/<userId> keys belong
 # to the game (SetHideCredit), so this script only counts them and never writes or deletes one.
 # Run by .github/workflows/idea-credits.yml; also works from Git Bash on a PC with the same variables set.
 #
@@ -167,8 +169,15 @@ add() {
 		echo "The report's user id is not a number." >&2
 		exit 1
 	}
-	key=$CREDIT$report
-	value=$(jq -cn --argjson u "$userId" --arg i "$idea" --argjson v "$version" --argjson t "$(date -u +%s)" \
+	local existing now
+	existing=$(credits_for "$report")
+	if [ -n "$existing" ]; then
+		echo "Refused: $(mask "$report") already has a credit ($(mask "$existing")); remove it first to change it." >&2
+		exit 1
+	fi
+	now=$(date -u +%s)
+	key=$CREDIT$(date -u -d "@$now" +%Y%m%d%H%M%S)-$report
+	value=$(jq -cn --argjson u "$userId" --arg i "$idea" --argjson v "$version" --argjson t "$now" \
 		'{userId: $u, idea: $i, version: $v, addedAt: $t}')
 	call PATCH "$base/$STORE/entries/$(uri "$key")?allowMissing=true" -H "Content-Type: application/json" \
 		--data "$(jq -cn --argjson v "$value" --arg u "users/$userId" '{value: $v, users: [$u]}')"
@@ -177,27 +186,36 @@ add() {
 	summary "Wrote \`$(mask "$key")\`: v$version \"$idea\""
 }
 
+# credits_for report -> every credit key for that report (credit/<yyyymmddhhmmss>-<report>), one a line
+credits_for() {
+	keys "$STORE" "$CREDIT" | grep -E "^${CREDIT}[0-9]{14}-$1\$" || true
+}
+
 remove() {
-	local report key
+	local report key found=0
 	report=$(report_key "$1")
-	key=$CREDIT$report
-	call DELETE "$base/$STORE/entries/$(uri "$key")"
-	case "$status" in
-	200 | 204) echo "Removed $(mask "$key")" && summary "Removed \`$(mask "$key")\`" ;;
-	404) echo "No credit at $(mask "$key"); nothing to remove." ;;
-	403)
-		# no :delete on the key: blank the credit instead (no userId, so IdeaCredits.sanitize drops it)
-		call PATCH "$base/$STORE/entries/$(uri "$key")" -H "Content-Type: application/json" \
-			--data '{"value":{"removed":true},"users":[]}'
+	while IFS= read -r key; do
+		[ -n "$key" ] || continue
+		found=1
+		call DELETE "$base/$STORE/entries/$(uri "$key")"
 		case "$status" in
-		200) echo "Blanked $(mask "$key") (the key has no delete permission); the board skips it" &&
-			summary "Blanked \`$(mask "$key")\`" ;;
+		200 | 204) echo "Removed $(mask "$key")" && summary "Removed \`$(mask "$key")\`" ;;
 		404) echo "No credit at $(mask "$key"); nothing to remove." ;;
+		403)
+			# no :delete on the key: blank the credit instead (no userId, so IdeaCredits.sanitize drops it)
+			call PATCH "$base/$STORE/entries/$(uri "$key")" -H "Content-Type: application/json" \
+				--data '{"value":{"removed":true},"users":[]}'
+			case "$status" in
+			200) echo "Blanked $(mask "$key") (the key has no delete permission); the board skips it" &&
+				summary "Blanked \`$(mask "$key")\`" ;;
+			404) echo "No credit at $(mask "$key"); nothing to remove." ;;
+			*) fail ;;
+			esac
+			;;
 		*) fail ;;
 		esac
-		;;
-	*) fail ;;
-	esac
+	done <<<"$(credits_for "$report")"
+	[ "$found" = 1 ] || echo "No credit for $(mask "$report"); nothing to remove."
 }
 
 action=${1:-list}

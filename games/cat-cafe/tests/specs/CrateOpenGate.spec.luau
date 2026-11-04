@@ -8,10 +8,11 @@ return function()
 	local Crates = require(Shared.Crates)
 
 	local LIMIT = Config.CrateOpenCooldownSeconds
-	local SLACK = 0.1 -- the Market window's GATE_SLACK
+	local SLACK = 0.2 -- the Market window's GATE_SLACK
 
-	-- The server's side of OpenCrate (FishMarketService.onOpenCrate) for one player: the gate, then an open that
-	-- sets the in-flight flag and clears it once its CrateResult is sent. `banked` crates; returns what each call got.
+	-- A model of the server's side of OpenCrate (FishMarketService.onOpenCrate needs Players and remotes, so it is
+	-- Studio-only) for one player: the gate, then an open that sets the in-flight flag and clears it once its
+	-- CrateResult is sent. Keep it in step with onOpenCrate. `banked` crates; returns what each call got.
 	local function server(banked: number)
 		local self = { banked = banked, inFlight = false, lastAt = nil :: number?, opened = 0 }
 		function self.press(now: number): string
@@ -47,12 +48,12 @@ return function()
 			expect(Crates.openRefusal(false, nil, 100)).to.equal(nil)
 			expect(Crates.openRefusal(false, 100, 100)).to.equal("spam")
 			expect(Crates.openRefusal(false, 100, 100 + LIMIT / 2)).to.equal("spam")
-			expect(Crates.openRefusal(false, 100, 100 + LIMIT)).to.equal(nil)
+			expect(Crates.openRefusal(false, 100, 100 + LIMIT + 1e-6)).to.equal(nil)
 		end)
 
 		it("the client's slack waits a little longer than the server", function()
-			expect(Crates.openRefusal(false, 100, 100 + LIMIT, SLACK)).to.equal("spam")
-			expect(Crates.openRefusal(false, 100, 100 + LIMIT + SLACK)).to.equal(nil)
+			expect(Crates.openRefusal(false, 100, 100 + LIMIT + 1e-6, SLACK)).to.equal("spam")
+			expect(Crates.openRefusal(false, 100, 100 + LIMIT + SLACK + 1e-6, SLACK)).to.equal(nil)
 		end)
 
 		it("a Quick open, then the next crate at once (well inside the old 2 s): opens", function()
@@ -68,8 +69,8 @@ return function()
 			local now = 50
 			for _ = 1, Config.CrateBundleCount do
 				expect(s.press(now)).to.equal("opened")
-				-- the client's next Open frees up after the limit and slack; jitter can make it arrive 0.05 s early
-				now += LIMIT + SLACK - 0.05
+				-- the client's next Open frees up after the limit and slack; jitter can make it arrive 0.15 s early
+				now += LIMIT + SLACK - 0.15
 			end
 			expect(s.opened).to.equal(Config.CrateBundleCount)
 			expect(s.press(now)).to.equal("none left")

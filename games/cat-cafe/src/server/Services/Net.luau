@@ -47,7 +47,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SpinAll = RateLimiter.new(1, 1), -- #1078: 1 a second (and the spin cooldown)
 	SpinWheel = RateLimiter.new(2, 1), -- SpinService also holds each player to SpinCooldownSeconds between spins
 	-- #1146: a flood guard only; FishMarketService refuses an open while one is in flight or within
-	-- CrateOpenCooldownSeconds (0.4 s) of the last, so Quick open and Buy 5's crates one by one go through
+	-- CrateOpenCooldownSeconds (0.3 s) of the last, so Quick open and Buy 5's crates one by one go through
 	OpenCrate = RateLimiter.new(3, 1),
 	BuyCrateBundle = RateLimiter.new(1, 1), -- #1051: 1 a second
 	BuyFishItem = RateLimiter.new(2, 1), -- golden-fish.md section 8: 2 a second

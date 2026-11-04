@@ -273,7 +273,11 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 		entry.effect.Text = row.effect
 		entry.glyph.Text = row.icon
 		local picture = CLEAN_PICTURE[row.key]
-		local image = if picture then ShopIcons.clean(picture) else nil
+		-- a potion pack shows the Potions flask picture (#1256) until it has a pack picture of its own
+		local image = if picture
+			then ShopIcons.clean(picture)
+			elseif row.product then ShopIcons.hud("Potion")
+			else nil
 		if image then
 			IconArt.setImage(entry.glyph, image, 1.3)
 		else

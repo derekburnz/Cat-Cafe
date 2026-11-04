@@ -145,6 +145,7 @@ UI.events = {
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
+	spinAll = Signal.new(), -- ()   Use all on the Spin window (#1078): forward as SpinAll
 	openCrate = Signal.new(), -- (crateId)   Open on a Golden Fish Market crate card: forward as OpenCrate (F53)
 	buyFishItem = Signal.new(), -- (itemId)   Buy on a Market treat or perk row: forward as BuyFishItem (F53)
 	buyFreshCatch = Signal.new(), -- (itemId, window?)   Buy on a Fresh Catch row: forward as BuyFreshCatch (F94)
@@ -184,6 +185,8 @@ UI.events = {
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
 	-- F100 (camp-extras.md section 3)
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
+	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
+	buyCornerShop = Signal.new(),
 	-- F102 (trading.md section 6): the client only asks; TradeState answers
 	requestTrade = Signal.new(), -- (userId)   Trade on a players list row: forward as TradeRequest
 	respondTrade = Signal.new(), -- (requestId, accept)   Accept or Decline on the request card: forward as TradeRespond
@@ -487,6 +490,7 @@ local function render()
 		cannonScreen:render(state, hud:isCarrying())
 	end
 	UI.campExtras.render(state)
+	UI.cornerShop.render(state)
 	UI.trade.render(state)
 	UI.lawn.render(state)
 	UI.store.render()
@@ -1019,6 +1023,9 @@ function UI.init(config: Types.InitConfig)
 		spin = function()
 			UI.events.spinWheel:Fire()
 		end,
+		spinAll = function()
+			UI.events.spinAll:Fire()
+		end,
 		toast = function(text: string)
 			if toasts then
 				toasts:show(text, "good")
@@ -1274,6 +1281,7 @@ function UI.init(config: Types.InitConfig)
 	UI.leaderboards.start(parent) -- the town boards' faces and the crowns over heads (F98)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
 	UI.campExtras.start() -- the Yard Sale card and the Cannon picker's camp extra strips (F100)
+	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	UI.trade.start() -- the Trade window in the modal (F102)
 	UI.lawn.start(parent) -- the front lawn's edit view (F91)
@@ -1946,6 +1954,14 @@ end
 function UI.spin.result(slice: number, amount: number)
 	if spinScreen then
 		spinScreen:result(slice, amount)
+	end
+end
+
+-- From SpinAllResult(rolls, totals) (#1078, Gameplay-Engineer #1098): the wheel turns to the last roll and one card
+-- sums every prize. Empty lists mean refused, and the window says why.
+function UI.spin.allResult(rolls: { { slice: number, amount: number } }, totals: { any })
+	if spinScreen then
+		spinScreen:allResult(rolls, totals)
 	end
 end
 
@@ -4416,6 +4432,116 @@ end
 ----------------------------------------------------------------------------------------------------
 -- Camp extras (F100, camp-extras.md section 3)
 ----------------------------------------------------------------------------------------------------
+
+-- The Corner Shop (#1052, corner-shop.md; Gameplay-Engineer #1069): the controller calls UI.cornerShop.open() from
+-- the stall's CornerShopPrompt, setStock(stock) with every CornerShopStock, and close() when it wants it shut; a Buy
+-- fires UI.events.buyCornerShop(itemId, window, shownPrice, catUid?). Walking away from the stall closes the window.
+-- The last stock is kept, so a rebuilt UI shows it at once. Its own block, as the module is short of locals.
+UI.cornerShop = {}
+do
+	local CornerShop = require(script.Screens.CornerShop)
+	local SharedConfig =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+	local SHOP_TAG = "CornerShop" -- shared/CornerShop.TAG: the stall, CatCafe_Street_CornerShop
+	local FAR_STUDS: number = (SharedConfig.CornerShopRange or 14) + 6
+	local corner = {
+		stock = nil :: any,
+		view = nil :: CornerShop.CornerShop?,
+	}
+
+	-- Studs from this player's character to the nearest stall, or nil while either is streamed out.
+	local function shopDistance(): number?
+		local character = Players.LocalPlayer.Character
+		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+		if root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		local best: number? = nil
+		for _, model in CollectionService:GetTagged(SHOP_TAG) do
+			if model:IsA("Model") and model:IsDescendantOf(Workspace) then
+				local distance = (
+					(model :: Model):GetPivot().Position - (root :: BasePart).Position
+				).Magnitude
+				if best == nil or distance < best then
+					best = distance
+				end
+			end
+		end
+		return best
+	end
+
+	function UI.cornerShop.start()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local old = corner.view
+		if old then
+			old:destroy()
+		end
+		local view = CornerShop.new({
+			buy = function(itemId: string, window: number, shownPrice: number, catUid: string?)
+				UI.events.buyCornerShop:Fire(itemId, window, shownPrice, catUid)
+			end,
+			close = function()
+				if modalView:current() == "CornerShop" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				local distance = shopDistance()
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		corner.view = view
+		modalView:register("CornerShop", {
+			frame = view.frame,
+			onOpen = function()
+				view:render(state)
+				view:opened()
+			end,
+			onClose = function()
+				view:closed()
+			end,
+		})
+		view:setStock(corner.stock)
+	end
+
+	function UI.cornerShop.render(playerState: Types.PlayerState)
+		local view = corner.view
+		if view then
+			view:render(playerState)
+		end
+	end
+
+	-- CornerShopStock(stock): on join, every 5 minute window and after every buy.
+	function UI.cornerShop.setStock(stock: any)
+		if type(stock) ~= "table" then
+			return
+		end
+		corner.stock = stock
+		local view = corner.view
+		if view then
+			view:setStock(stock)
+		end
+	end
+
+	-- The stall's prompt.
+	function UI.cornerShop.open()
+		local modalView = modal
+		if corner.view == nil or modalView == nil then
+			return
+		end
+		modalView:open("CornerShop")
+	end
+
+	function UI.cornerShop.close()
+		local modalView = modal
+		if modalView and modalView:current() == "CornerShop" then
+			modalView:close()
+		end
+	end
+end
 
 -- Controllers/CampExtrasController calls these when present: update(state) with every CampExtrasState (the Cannon
 -- picker's strips and the Yard Sale card), openYardSale(view) from the Yard Sale's prompt, collected(extraId, paid,

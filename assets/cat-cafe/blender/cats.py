@@ -40,7 +40,7 @@ from common import Builder, scale_mesh
 # eyes), curl (the tail tip curls over: up and forward on A, up off the floor and back on B), exclusive (no gold
 # twins); #1191 (the shop-only cats): eye_k (eyes that much bigger), apron ((cloth, sprinkle colours): an apron
 # painted on the chest with sprinkles on it, under where the Barista's apron goes), shop (sold for Robux only: the
-# model carries a BubbleAnchor). Themed cats wear a prop, some two (props.py).
+# model carries a BubbleAnchor), lids (half-closed eyes: a lid in the fur over the top of each eye, a calm gaze). Themed cats wear a prop, some two (props.py).
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
     "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True),
@@ -170,6 +170,9 @@ ROSTER = {
     "Sprinkles":   dict(rarity="Epic", fur="fur_custard", second="fur_caramel", third="fur_caramel", eyes="eye_amber",
                         pattern="patches", muzzle="fur_white", scale=0.88, eye_k=1.14, exclusive=True, shop=True,
                         apron=("apron_pink", ("neon_pink", "sign_teal", "rarity_legend", "shirt_blue", "mint"))),
+    "DuchessMarzipan": dict(rarity="Legendary", fur="fur_lilac_silver", second="pastel_lilac", eyes="eye_violet",
+                            pattern="solid", muzzle="pearl", nose="nose_pink", fluffy=True, lids=True, curl=True,
+                            body_scale=(0.9, 1.05, 1.0), tip="pearl", exclusive=True, shop=True),
 }
 
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze")
@@ -475,6 +478,10 @@ def _eye(spec, c, h, side):
     b.box((0, 0, 0), (0.2 * k, 0.07, EYE_H * k), eye, bevel=False)
     if not spec.get("glow_eyes"):
         b.box((side * 0.01, -0.025, -0.02 * k), (0.12 * k, 0.04, EYE_H * 0.72 * k), "fur_black", bevel=False)
+    if spec.get("lids"):                                # half closed: a lid over the top, the gloss under it
+        b.box((0, -0.006, EYE_H * 0.27 * k), (0.21 * k, 0.07, EYE_H * 0.48 * k), c["fur"], bevel=False)
+        b.box((-0.045 * k, -0.045, -EYE_H * 0.08 * k), (0.06 * k, 0.03, 0.05 * k), "milk", bevel=False)
+        return b
     b.box((-0.045 * k, -0.045, EYE_H * 0.28 * k), (0.06 * k, 0.03, 0.07 * k), "milk", bevel=False)
     return b
 

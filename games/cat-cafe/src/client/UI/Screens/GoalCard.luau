@@ -21,14 +21,20 @@ export type GoalCard = {
 	destroy: (self: GoalCard) -> (),
 }
 
-local WIDTH = 240
+-- The compact card of Derek's 11-04 HUD mockup (#1176): a dark rounded card with the next tier's name, a pink
+-- "Rank up!" pill at its right once ready and three thin bars (the captions and numbers are in the rank up card a tap
+-- opens). At the top tier the card holds the tier's line alone.
+local WIDTH = 250
+local PAD = 10
 local TIER_H = 18
 local TITLE_H = 26
-local TOP = TIER_H + TITLE_H + 4 -- the first requirement's caption
-local CAPTION_H = 18
-local BAR_H = 8
-local ROW = CAPTION_H + 2 + BAR_H
-local ROW_GAP = 6
+local TOP = TITLE_H + 6 -- the first bar
+local CAPTION_H = 0
+local BAR_H = 7
+local ROW = BAR_H
+local ROW_GAP = 7
+local CARD_TRANSPARENCY = 0.12
+local PILL_COLOR = Color3.fromHex("FF6B81")
 local ROWS = 3
 local SMALL_OUTLINE = 2 -- small text over the bright world needs a little more outline than in a window
 
@@ -63,38 +69,49 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 		Name = "TierGoal",
 		Text = "",
 		AutoButtonColor = false,
-		BackgroundTransparency = 1,
+		BackgroundColor3 = Theme.colors.outline,
+		BackgroundTransparency = CARD_TRANSPARENCY,
+		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = position,
-		Size = UDim2.fromOffset(WIDTH, TIER_H),
+		Size = UDim2.fromOffset(WIDTH, TIER_H + PAD * 2),
 		Visible = false,
 		Parent = parent,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, 12) }),
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, PAD + 2),
+			PaddingRight = UDim.new(0, PAD + 2),
+			PaddingTop = UDim.new(0, PAD),
+			PaddingBottom = UDim.new(0, PAD),
+		}),
 	})
+	Outline.border(frame, 2)
 	self.frame = frame
 
 	self._tier = text({
 		Name = "Tier",
 		Size = UDim2.new(1, 0, 0, TIER_H),
 		TextColor3 = Theme.hud.subtext,
+		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = frame,
 	})
 	self._title = text({
 		Name = "Title",
-		Position = UDim2.fromOffset(0, TIER_H),
-		Size = UDim2.new(1, 0, 0, TITLE_H),
-		TextSize = Theme.sizes.textBody + 4,
+		Size = UDim2.new(1, -96, 0, TITLE_H),
+		TextSize = Theme.sizes.textBody + 2,
+		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = frame,
 	})
 	-- the simulator "something to claim" sticker, tilted at the left of the title while a rank up is ready
 	self._badge = Create("TextLabel", {
 		Name = "RankReady",
-		BackgroundColor3 = Theme.colors.red,
+		BackgroundColor3 = PILL_COLOR,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.fromOffset(0, TIER_H + TITLE_H / 2),
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, 0, 0, TITLE_H / 2),
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 24),
-		Rotation = -6,
+		Size = UDim2.fromOffset(0, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.colors.white,
@@ -123,7 +140,7 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 			Name = "Bar",
 			BackgroundColor3 = Theme.colors.ink,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(0, CAPTION_H + 2),
+			Position = UDim2.fromOffset(0, CAPTION_H),
 			Size = UDim2.new(1, 0, 0, BAR_H),
 			Parent = row,
 		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
@@ -143,6 +160,7 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 				Name = "Label",
 				Size = UDim2.new(0.55, 0, 0, CAPTION_H),
 				TextXAlignment = Enum.TextXAlignment.Left,
+				Visible = false,
 				Parent = row,
 			}),
 			status = text({
@@ -150,6 +168,7 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 				AnchorPoint = Vector2.new(1, 0),
 				Position = UDim2.fromScale(1, 0),
 				Size = UDim2.new(0.45, 0, 0, CAPTION_H),
+				Visible = false,
 				Parent = row,
 			}),
 		}
@@ -168,6 +187,7 @@ function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string
 	self.frame.Visible = true
 	self._tier.Text = tierText
 	local nextTier = if progress then progress.nextTier else nil
+	self._tier.Visible = nextTier == nil -- the top tier: its line alone
 	local ready = progress ~= nil and progress.ready
 	self._title.Visible = nextTier ~= nil
 	local count = 0
@@ -185,11 +205,11 @@ function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string
 	end
 	if nextTier then
 		-- ready: "[Rank up!] Cozy Cafe" in gold, short enough to keep clear of the sticker
-		self._title.Text = if ready then nextTier.name else "Next: " .. nextTier.name
-		self._title.TextColor3 = if ready then Theme.colors.gold else Theme.hud.text
+		self._title.Text = nextTier.name
+		self._title.TextColor3 = Theme.hud.text
 	end
 	local height = if nextTier then TOP + count * (ROW + ROW_GAP) - ROW_GAP else TIER_H
-	self.frame.Size = UDim2.fromOffset(WIDTH, height)
+	self.frame.Size = UDim2.fromOffset(WIDTH, height + PAD * 2)
 
 	self._badge.Visible = ready
 	if ready and not self._ready then

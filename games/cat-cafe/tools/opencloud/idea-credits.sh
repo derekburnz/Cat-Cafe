@@ -21,7 +21,8 @@
 #   idea     our words for the idea, 1 to 48 bytes, shown on the board as is (never the player's own text)
 # add refuses unless the report is an idea whose player ticked "Feature my name" (kind "idea", featureName true),
 # and takes the player's user id from the report itself. The log is public, so it prints counts, keys with the user
-# id cut to its last three digits, ideas and versions, never a full user id or a name. Needs curl and jq.
+# id cut to its last three digits, ideas and versions, never a full user id or a name. add and remove end with a
+# list, so every change is read back. Needs curl and jq.
 set -euo pipefail
 
 UNIVERSE_ID=${UNIVERSE_ID:-10773193456}
@@ -67,7 +68,8 @@ call() {
 }
 
 fail() {
-	echo "Open Cloud answered HTTP $status: $body" >&2
+	# Roblox's error can echo the entry key, which ends in a user id: digit runs of 6 or more keep only their last 3
+	echo "Open Cloud answered HTTP $status: $(sed -E 's/[0-9]{3,}([0-9]{3})/...\1/g' <<<"$body")" >&2
 	case "$status" in
 	401 | 403) echo "The key needs universe-datastores.objects:list, :read, :create and :update on universe $UNIVERSE_ID (docs/setup-guide.md step 24)." >&2 ;;
 	esac

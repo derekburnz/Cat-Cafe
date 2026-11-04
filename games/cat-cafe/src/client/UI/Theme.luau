@@ -48,9 +48,9 @@ Theme.colors = {
 	berryDark = Color3.fromHex("C2477A"),
 }
 
--- Button fills (Derek 2026-10-27: "copy the ui button background from the popular games"): each face is a
--- gradient from `top` to `bottom` over a darker `depth` lip, under faint tile marks, a light rim and a gloss
--- (Components/Button). Brighter than the cafe palette above, as in popular simulators, in the same hues.
+-- Button fills (Derek 2026-10-27: "copy the ui button background from the popular games"; the clean look since
+-- 2026-11-03, #961): each face is a gradient from `top` to `bottom` over a darker `depth` lip, with a light bar along
+-- the top (Components/Button). Brighter than the cafe palette above, as in popular simulators, in the same hues.
 Theme.button = {
 	primary = {
 		top = Color3.fromHex("7BE85A"),
@@ -72,11 +72,12 @@ Theme.button = {
 		bottom = Color3.fromHex("F0479F"),
 		depth = Color3.fromHex("B8336F"),
 	},
-	-- white, not beige, since 2026-11-03 (#961: "should be remade to look clean"); its words stay dark
+	-- white, not beige, since 2026-11-03 (#961: "should be remade to look clean"); its words stay dark. A neutral grey
+	-- lip, not a beige one, as in Derek's 11-04 button mockup (library/UI-Engineer/mockups-2026-11-04)
 	ghost = {
 		top = Color3.fromHex("FFFFFF"),
-		bottom = Color3.fromHex("ECE6DE"),
-		depth = Color3.fromHex("CFC4B6"),
+		bottom = Color3.fromHex("F1F1F1"),
+		depth = Color3.fromHex("C8C8C8"),
 	},
 	danger = {
 		top = Color3.fromHex("FFAD55"),

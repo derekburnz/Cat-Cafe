@@ -97,7 +97,8 @@ Remotes.ClientToServer = {
 	-- (and QuestResult for quests, TipJarState for the Tip Jar); nothing ready answers "Nothing to claim yet"
 	"ClaimDailyTreat", -- ()  F70: a Daily Treat stamp due (a later UTC day than the last claim); pays the next day
 	-- of the card and answers with ProfileSync (`dailyTreat`)
-	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?)  shared/BugReport: 3 to 500 bytes of
+	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?, featureName: boolean?)  featureName (#1083)
+	-- is kept only for an idea and only as true;  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
 	"TipSeen", -- (id: string, skipped: boolean?)  F87 (easy-start.md section 6): a shared/Tips id or one of its
 	-- asks, 1 a second. A tip goes in tipsSeen (logged once as tip_shown, skipped true when a camera cut was skipped);
@@ -138,6 +139,8 @@ Remotes.ClientToServer = {
 	-- section 5): within CornerShopRange of a CornerShop stall, `window` the current one, fewer bought than the window
 	-- stocks, the server's price (Economy.cornerPrice) not above `shownPrice`, the coins; a snack's catUid one of the
 	-- player's cats and its XP within today's CornerSnackXpPerDay. 2 a second; answered with CornerShopStock
+	"SetHideCredit", -- (hide: boolean)  #1083: keeps the player's display name off the Thank You board (true) or puts it
+	-- back (false); saves profile.hideCredit and the board shows it from its next build; 1 a second
 }
 
 -- Server -> client.
@@ -249,6 +252,9 @@ Remotes.ServerToClient = {
 	"CafeShow", -- (userId: number, showId: string, endsAt: number)  #1052: the cafe of `userId` plays the show ("bubbles"
 	-- or "fireworks") until `endsAt` (server time), starting showSeconds before it; one show at a time a cafe, so a
 	-- bought show waits for the last to end. Sent to everyone at the buy, and the ones still running to a joiner
+	"ThanksBoard", -- (rows: { IdeaCredits.Row }, hasCredit: boolean)  #1083: the Thank You board's rows, newest first
+	-- (idea, version, display name or "a player"), and whether this player has a credit (the Settings row shows only
+	-- then); on join and after every rebuild
 }
 
 function Remotes.folder(): Folder

@@ -1,11 +1,11 @@
 --!strict
 -- The Yard Sale's card (F100, camp-extras.md section 3), opened by its prompt at the Neighbourhood camp
--- (UI.campExtras.openYardSale). Today's two crates side by side, the Classic Crate and the zone crate of the day, each
--- with its picture, name, the Market's own price for comparison and a Buy button with the gold fish and the Yard Sale
--- price (40). A crate taken today reads "Bought" and greys; one the player's golden fish do not cover greys too. A
--- press shows "..." until the next CampExtrasState or a refusal answers (refused). Under them: how many golden fish
--- the player has, when the next crates come, and that a bought crate opens free at the Golden Fish Market, which
--- keeps the crate reel there. Words and rules in Components/CampExtrasLogic; nothing is sold for Robux.
+-- (UI.campExtras.openYardSale). Since #1051 (crate-prices.md section 5) it holds one free crate a day, the zone crate
+-- of the day: its picture, name, the Market's own price for comparison, an Odds button that turns the card to the
+-- crate's rarity table (the crate is random, so its odds show before it is taken) and a green Take button ("Taken"
+-- once taken, greyed). A press shows "..." until the next CampExtrasState or a refusal answers (refused). Under it: how many golden
+-- fish the player has, when the next crate comes, and that a taken crate opens free at the Golden Fish Market, which
+-- keeps the crate reel there. A priced crate (an older server) still shows its price with the gold fish. Words and rules in Components/CampExtrasLogic; nothing is sold for Robux.
 
 local Workspace = game:GetService("Workspace")
 
@@ -50,6 +50,9 @@ type Card = {
 	name: TextLabel,
 	market: TextLabel,
 	buy: Button.Button,
+	odds: Button.Button, -- #1051: turns the card to its odds and back
+	oddsSheet: Frame,
+	oddsLabel: string,
 	label: string,
 	enabled: boolean?,
 }
@@ -58,6 +61,7 @@ local MAX_SIZE = Vector2.new(480, 310)
 local CARD_W = 200
 local CARD_GAP = 14
 local PICTURE = 76
+local ODDS_H = 42 -- the Odds button: a 37 px face over the lip, a mouse's 36 px tap (as the Market's Open)
 local PENDING_SECONDS = 5 -- a buy with no answer lets the button go again after this long
 local GAP = Theme.sizes.gap
 
@@ -97,7 +101,7 @@ function YardSale.new(callbacks: Callbacks): YardSale
 		dark = true, -- #1028
 		name = "YardSale",
 		title = "Yard Sale",
-		subtitle = "Two crates a day for golden fish",
+		subtitle = "A free crate every day", -- #1051
 		color = Theme.colors.berry,
 		icon = CampExtrasLogic.icon(CampExtrasLogic.YARD_SALE),
 		size = UDim2.new(1, 0, 0, MAX_SIZE.Y + (self._buyH - 44)),
@@ -142,7 +146,7 @@ function YardSale.new(callbacks: Callbacks): YardSale
 		Size = UDim2.new(1, 0, 0, 18),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = PAL.subtext,
-		Text = "Bought crates open free at the Golden Fish Market",
+		Text = "Taken crates open free at the Golden Fish Market",
 		Parent = content,
 	})
 	return self :: YardSale
@@ -163,6 +167,7 @@ function YardSale._clear(self: any)
 	for _, card: Card in self._cards do
 		card.icon:destroy()
 		card.buy:destroy()
+		card.odds:destroy()
 		card.frame:Destroy()
 	end
 	table.clear(self._cards)
@@ -217,6 +222,66 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 			Text = if marketPrice ~= nil then ("%d at the Market"):format(marketPrice) else "",
 			Parent = frame,
 		})
+		-- the crate's rarity table over the picture and name, under the Odds and Take buttons (#1051)
+		local sheet: Frame = Create("Frame", {
+			Name = "OddsSheet",
+			BackgroundColor3 = PAL.card,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 1, -(self._buyH + 8)),
+			Visible = false,
+			ZIndex = 2,
+			Parent = frame,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+			Create("UIPadding", {
+				PaddingTop = UDim.new(0, ODDS_H + 10),
+				PaddingLeft = UDim.new(0, 14),
+				PaddingRight = UDim.new(0, 14),
+			}),
+			Create("UIListLayout", {
+				Padding = UDim.new(0, 1),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+		})
+		local odds: { [string]: number }? = if crate ~= nil then crate.odds else nil
+		for order, line in CampExtrasLogic.yardOddsLines(odds) do
+			local rarityLine = text({
+				Name = line.rarity,
+				LayoutOrder = order,
+				Size = UDim2.new(1, 0, 0, 16), -- five rows fit between the Odds and Take buttons
+				FontFace = Theme.fonts.bodyBold,
+				TextSize = Theme.sizes.textSmall,
+				TextColor3 = Theme.rarityColor(line.rarity),
+				TextXAlignment = Enum.TextXAlignment.Left,
+				Text = line.rarity,
+				ZIndex = 2,
+				Parent = sheet,
+			})
+			text({
+				Name = "Chance",
+				Size = UDim2.fromScale(1, 1),
+				FontFace = Theme.fonts.bodyBold,
+				TextSize = Theme.sizes.textSmall,
+				TextXAlignment = Enum.TextXAlignment.Right,
+				Text = line.text,
+				ZIndex = 2,
+				Parent = rarityLine,
+			})
+		end
+		local oddsButton = Button.new({
+			name = "Odds",
+			text = "Odds",
+			style = "ghost",
+			size = UDim2.fromOffset(56, ODDS_H),
+			position = UDim2.fromOffset(6, 6),
+			textSize = Theme.sizes.textSmall,
+			parent = frame,
+			onClick = function()
+				sheet.Visible = not sheet.Visible
+				self:_paint()
+			end,
+		})
+		oddsButton.instance.ZIndex = 3
 		local buy = Button.new({
 			name = "Buy",
 			text = tostring(row.price),
@@ -238,6 +303,9 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 			name = name,
 			market = market,
 			buy = buy,
+			odds = oddsButton,
+			oddsSheet = sheet,
+			oddsLabel = "Odds",
 			label = tostring(row.price),
 			enabled = nil,
 		})
@@ -289,12 +357,17 @@ function YardSale._paint(self: any)
 		end
 		local fish: TextLabel? = card.buy.icon
 		if fish then
-			fish.Visible = not row.bought and not pending
+			fish.Visible = not row.bought and not pending and row.price > 0
 		end
 		local enabled = not row.bought and row.afford and self._pending == nil
 		if card.enabled ~= enabled then
 			card.enabled = enabled
 			card.buy:setEnabled(enabled)
+		end
+		local oddsText = if card.oddsSheet.Visible then "Back" else "Odds"
+		if card.oddsLabel ~= oddsText then
+			card.oddsLabel = oddsText
+			card.odds:setText(oddsText)
 		end
 		local faded = if row.bought then 0.5 else 0
 		card.name.TextTransparency = faded

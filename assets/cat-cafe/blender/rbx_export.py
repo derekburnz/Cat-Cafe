@@ -76,7 +76,11 @@ ROUND = 4
 # with a recursive FindFirstChild); a one-part object ending in _Bars goes straight into the root as a ForceField
 # part named Bars, because the gate code looks for a direct child.
 RENAME_BIGGEST = {"CatCafe_Furniture_TableRound": "Top"}
-PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars", "_Screen": "Screen", "_CodesCircle": "CodesCircle"}
+# The parts inside a pennant Model are "Cloth", so only the Model's name ends `_Pennant`: Effects/Rally.luau swings any
+# Model or part with that ending, and a part carrying it too was swung again on top of its Model's swing, re-reading
+# its rest pose from the swung one each time, so the flags crept away (#1082).
+PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars", "_Screen": "Screen", "_CodesCircle": "CodesCircle",
+              "_Pennant": "Cloth"}
 # CollectionService tags, keyed by object name, or by name suffix when the key starts with "_": the audio code plays
 # world loops from FishTank and Fountain (assets/cat-cafe/audio, PR #69), from the Model's PrimaryPart, and the UI
 # hangs each player's Index page on an IndexBoard. The Codes Cat's prompt finds its kiosk by CodesCat, and the night
@@ -88,15 +92,18 @@ TAGS = {"CatCafe_Decor_FishTank": ["FishTank"], "CatCafe_Plot_Tier4_Water": ["Fi
         "_NightFence": ["NightFence"],
         "CatCafe_Alley_NightFenceSegment": ["NightFence"], "CatCafe_Plot_BackDoorClosed": ["NightFence"],
         "_Basket": ["CampBasket"], "_LeaderboardRow_Index": ["Leaderboard"],
-        "_LeaderboardRow_Playtime": ["Leaderboard"], "_LeaderboardRow_Money": ["Leaderboard"]}
+        "_LeaderboardRow_Playtime": ["Leaderboard"], "_LeaderboardRow_Money": ["Leaderboard"],
+        "CatCafe_Street_ThanksBoard": ["ThanksBoard"]}
 # Tags on every part of an object, by object name suffix: the crate styles (F53, StyleController) recolour the cafe
 # shell's outer wall layer (Paint) and inner wall layer (Wallpaper), and give each part its own look back after.
 PART_TAGS = {"_Paint": ["Paint"], "_Wallpaper": ["Wallpaper"], "_Trim": ["PaintTrim"]}   # _Trim: a cafe's trims (F89)
 # Root Model properties by asset name suffix: an Index Board streams in whole, so its Screen is there whenever the
 # board is (reviewer S37, as for the cats).
 # The leaderboard row (F98) streams in whole the same way, with its three Screens.
+# The Thank You board (#1083) streams in whole too, so its Screen is there whenever it is.
 MODEL_PROPS = {"_IndexBoard": {"ModelStreamingMode": "Atomic"},
-               "_LeaderboardRow": {"ModelStreamingMode": "Atomic"}}
+               "_LeaderboardRow": {"ModelStreamingMode": "Atomic"},
+               "_ThanksBoard": {"ModelStreamingMode": "Atomic"}}
 # Objects whose Model goes inside another object's Model rather than the root: name suffix -> the suffix of the
 # object it rides, with the same prefix. Turning the Head Model (PivotTo) carries the eyes and ears with it.
 NEST = {"_Eye1": "_Head", "_Eye2": "_Head", "_EarL": "_Head", "_EarR": "_Head",

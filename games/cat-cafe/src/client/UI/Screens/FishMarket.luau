@@ -66,6 +66,8 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 
 export type Callbacks = {
 	openCrate: (crateId: string) -> (),
+	-- Buy 5 on a crate card (#1051, crate-prices.md section 3): banks CrateBundleCount crates, opens none
+	buyCrateBundle: ((crateId: string) -> ())?,
 	buyItem: (itemId: string) -> (),
 	useDecor: (decorId: string) -> (), -- "Use it" on a new style piece in the reveal
 	toast: (text: string) -> (), -- a crate result that lands while the window is closed
@@ -100,6 +102,8 @@ type CrateCard = {
 	luck: TextLabel,
 	odds: Button.Button,
 	open: Button.Button,
+	bundle: Button.Button, -- Buy 5 (#1051)
+	seen: number?, -- the crate count at the last render, to end a Buy 5 wait
 }
 
 type ItemRow = {
@@ -131,7 +135,12 @@ local CLOSE_SLACK = 2 -- studs past the server's range before the window closes
 local LUCKY_EVERY: number = Config.CrateLuckyEvery or 20
 local PENDING_SECONDS = 5 -- a pressed Open or Buy waits this long for the server before it can be pressed again
 local REVEAL_SECONDS = 2
-local CARD = Vector2.new(196, 244)
+local CARD = Vector2.new(196, 300) -- 56 px taller than before #1051, for Buy 5 under Open
+local CRATE_BUTTON_H = 42 -- Open and Buy 5: a 37 px face over the lip, a mouse's 36 px tap (#1051)
+-- Buy 5 (#1051): CrateBundleCount crates for CrateBundlePrice golden fish, banked; hidden without the Config
+local BUNDLE_COUNT: number? = Config.CrateBundleCount
+local BUNDLE_PRICE: number? = Config.CrateBundlePrice
+local BUNDLE_KEY = "bundle:" -- the pending key of a crate's Buy 5, apart from its Open
 local ROW_HEIGHT = 76
 local TOP_HEIGHT = 44
 local TAB_H = 42 -- a tab or Buy face of 37 px with a mouse; Scale.tapHeight makes it 44 on a phone
@@ -1163,13 +1172,28 @@ function FishMarket._build(self: any)
 			text = "Open",
 			icon = Theme.icons.goldenFish, -- the gold fish before a price, hidden while it opens free or is locked
 			style = "primary",
-			size = UDim2.new(1, -16, 0, 40),
+			size = UDim2.new(1, -16, 0, CRATE_BUTTON_H),
 			anchorPoint = Vector2.new(0.5, 1),
-			position = UDim2.new(0.5, 0, 1, -8),
+			position = UDim2.new(0.5, 0, 1, -(CRATE_BUTTON_H + 14)),
 			textSize = Theme.sizes.textBody + 1,
 			parent = frame,
 			onClick = function()
 				self:_open(crate)
+			end,
+		})
+		-- Buy 5 under Open: banks five, the player opens them one at a time with the reel (#1051)
+		local bundle = Button.new({
+			name = "Buy5",
+			text = "Buy 5",
+			icon = Theme.icons.goldenFish,
+			style = "gold",
+			size = UDim2.new(1, -16, 0, CRATE_BUTTON_H),
+			anchorPoint = Vector2.new(0.5, 1),
+			position = UDim2.new(0.5, 0, 1, -8),
+			textSize = Theme.sizes.textBody,
+			parent = frame,
+			onClick = function()
+				self:_buyBundle(crate)
 			end,
 		})
 		table.insert(self._crateCards, {
@@ -1182,6 +1206,8 @@ function FishMarket._build(self: any)
 			luck = luck,
 			odds = odds,
 			open = open,
+			bundle = bundle,
+			seen = nil,
 		})
 	end
 
@@ -1288,6 +1314,18 @@ function FishMarket._open(self: any, crate: Types.CrateDef)
 	self:_refresh()
 end
 
+function FishMarket._buyBundle(self: any, crate: Types.CrateDef)
+	local callbacks: Callbacks = self._callbacks
+	local buy = callbacks.buyCrateBundle
+	local key = BUNDLE_KEY .. crate.id
+	if buy == nil or self:_pendingFor(key) then
+		return
+	end
+	self._pending[key] = os.clock()
+	buy(crate.id)
+	self:_refresh()
+end
+
 function FishMarket._buy(self: any, row: Types.FishShopRow)
 	if self:_pendingFor(row.id) then
 		return
@@ -1310,6 +1348,14 @@ function FishMarket.render(self: any, state: Types.PlayerState)
 			self._pending[id] = nil
 		end
 		entry.seen = have
+	end
+	-- a crate count that changed ends that crate's Buy 5 wait (the bundle landed, or an open used one)
+	for _, entry: CrateCard in self._crateCards do
+		local count = if state.crates then state.crates[entry.crate.id] or 0 else 0
+		if entry.seen ~= nil and entry.seen ~= count then
+			self._pending[BUNDLE_KEY .. entry.crate.id] = nil
+		end
+		entry.seen = count
 	end
 	self:_refresh()
 end
@@ -1355,11 +1401,41 @@ function FishMarket._refresh(self: any)
 			entry.open:setEnabled(false)
 		else
 			entry.line.Text = ("%s golden fish"):format(Format.short(price))
+			-- short of fish: greyed, saying how many more (crate-prices.md section 3; no pop-up)
+			local short = fish < price
+			showFish(entry.open, open and not pending and not short)
 			entry.open:setText(
-				if pending then "..." else ("Open · %s"):format(Format.short(price))
+				if pending
+					then "..."
+					elseif short then MarketLogic.needText(price - fish)
+					else ("Open · %s"):format(Format.short(price))
 			)
 			entry.open:setStyle("gold")
-			entry.open:setEnabled(not pending and fish >= price)
+			entry.open:setEnabled(not pending and not short)
+		end
+		-- Buy 5: a crate sold at the Market (not golden) whose zone is open
+		local bundlePrice = BUNDLE_PRICE
+		local canBundle = bundlePrice ~= nil
+			and BUNDLE_COUNT ~= nil
+			and self._callbacks.buyCrateBundle ~= nil
+			and not crate.golden
+			and crate.price ~= nil
+			and open
+		entry.bundle.instance.Visible = canBundle
+		if canBundle and bundlePrice then
+			local waiting = self:_pendingFor(BUNDLE_KEY .. crate.id)
+			local short = fish < bundlePrice
+			showFish(entry.bundle, not waiting and not short)
+			entry.bundle:setText(
+				if waiting
+					then "..."
+					elseif short then MarketLogic.needText(bundlePrice - fish)
+					else ("Buy %d · %s"):format(
+						BUNDLE_COUNT :: number,
+						Format.short(bundlePrice)
+					)
+			)
+			entry.bundle:setEnabled(not waiting and not short)
 		end
 		local luck = if state.crateLuck then state.crateLuck[crate.area] else nil
 		local left = MarketLogic.luckLeft(luck, LUCKY_EVERY)

@@ -887,6 +887,7 @@ export type PlayerProfile = {
 	lawn: { [string]: string },
 	lawnStyles: LawnStyles,
 	cornerShop: CornerShopState, -- #1052 (corner-shop.md section 5, save version 29)
+	hideCredit: boolean?, -- #1083 (idea-credits.md section 4, save version 30): true keeps the name off the Thank You board
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.

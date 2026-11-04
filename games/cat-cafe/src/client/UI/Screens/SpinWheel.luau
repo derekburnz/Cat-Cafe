@@ -94,10 +94,16 @@ type Turn = {
 }
 
 local WHEEL_SHARE = 0.56 -- of the window's width; the side holds only the spins, Spin and Odds
-local FACE = 0.9 -- the turning face inside the caramel rim
-local TILE = 0.29 -- tile size, of the face
-local RADIUS = 0.34 -- tile middles from the hub, of the face
-local SPOKE = 3
+local FACE = 0.88 -- the turning face inside the rim
+local TILE = 0.3 -- a prize's picture and amount, of the face
+local RADIUS = 0.31 -- prize middles from the hub, of the face
+local SPOKE = 5 -- the white divider between two wedges
+-- The wedges (the user, 2026-11-04: "make the menu ui of the spin section much more satisfying and clean looking"): a
+-- classic prize wheel, each slice a bright wedge. Roblox UI has no pie shape, so a wedge is a fan of thin bars from
+-- the hub to the edge, WEDGE_STEP degrees apart; the white dividers and the rim's outline cover their seams.
+local WEDGE_STEP = 4
+local RIM_COLOR = Color3.fromHex("C2335F") -- deep berry, the window's header colour darker
+local HUB_COLOR = Color3.fromHex("FFC94D")
 local RIM_LIGHTS = 12
 local SPIN_HEIGHT = 64
 local COUNT_BADGE = 56 -- the spins count's gold badge (#965)
@@ -120,12 +126,12 @@ local TAG = "SpinWheel"
 
 -- The Cozy Cream pastels, one per slice in wheel order
 local SLICE_COLORS = {
-	Color3.fromHex("FFE3A3"),
-	Color3.fromHex("BFE8DC"),
-	Color3.fromHex("FFD1B0"),
-	Color3.fromHex("C9DEFF"),
-	Color3.fromHex("F7C6D9"),
-	Color3.fromHex("E2D0F7"),
+	Color3.fromHex("FF6B6B"),
+	Color3.fromHex("FFC94D"),
+	Color3.fromHex("3FCBB0"),
+	Color3.fromHex("5FA8FF"),
+	Color3.fromHex("FF7EB0"),
+	Color3.fromHex("A97CFF"),
 }
 
 local SpinWheel = {}
@@ -220,7 +226,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 0.5, 8),
 		Size = UDim2.new(1, -12, 1, -24),
-		BackgroundColor3 = Theme.colors.caramel,
+		BackgroundColor3 = RIM_COLOR,
 		BorderSizePixel = 0,
 		Parent = holder,
 	})
@@ -250,23 +256,32 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromScale(FACE, FACE),
-		BackgroundColor3 = Theme.colors.paper,
+		BackgroundColor3 = Theme.colors.white,
 		BorderSizePixel = 0,
 		Parent = rim,
 	})
-	Outline.border(face, Theme.sizes.stroke, Theme.colors.caramelDark)
+	Outline.border(face, Theme.sizes.outline, Theme.colors.outline)
 	self._face = face
+	-- the wedges turn with the wheel: one frame holds them all and takes the wheel's angle (_setAngle)
+	self._bars = {} :: { { frame: Frame, base: number } }
+	self._wedges = Create("Frame", {
+		Name = "Wedges",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 1,
+		Parent = face,
+	})
 	local hub = circle({
 		Name = "Hub",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromScale(0.17, 0.17),
-		BackgroundColor3 = Theme.colors.caramel,
+		Size = UDim2.fromScale(0.19, 0.19),
+		BackgroundColor3 = HUB_COLOR,
 		BorderSizePixel = 0,
 		ZIndex = 3,
 		Parent = face,
 	})
-	Outline.border(hub, Theme.sizes.stroke, Theme.colors.outline)
+	Outline.border(hub, Theme.sizes.outline, Theme.colors.outline)
 	text({
 		Name = "Paw",
 		Size = UDim2.fromScale(1, 1),
@@ -783,6 +798,32 @@ function SpinWheel._build(self: any)
 		spoke:Destroy()
 	end
 	table.clear(self._spokes)
+	for _, bar in self._wedges:GetChildren() do
+		bar:Destroy()
+	end
+	table.clear(self._bars)
+	local count = #self._rows
+	local size = if count > 0 then 360 / count else 360
+	local half = math.tan(math.rad(WEDGE_STEP / 2 + 0.6)) -- a bar's half width, of its length, so neighbours overlap
+	for index = 1, count do
+		local color = SLICE_COLORS[(index - 1) % #SLICE_COLORS + 1]
+		local from = (index - 1) * size - size / 2
+		local steps = math.max(1, math.ceil(size / WEDGE_STEP))
+		for step = 0, steps - 1 do
+			-- placed like a divider: centred halfway out along its angle and turned to it (_setAngle), as a frame
+			-- turns about its own middle
+			local bar: Frame = Create("Frame", {
+				Name = "Bar",
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Size = UDim2.fromScale(half, 0.5),
+				BackgroundColor3 = color,
+				BorderSizePixel = 0,
+				ZIndex = 1,
+				Parent = self._wedges,
+			})
+			table.insert(self._bars, { frame = bar, base = from + (step + 0.5) * size / steps })
+		end
+	end
 	for _, tile in self._oddsTiles do
 		tile.icon:destroy()
 		tile.holder:Destroy()
@@ -797,47 +838,59 @@ function SpinWheel._build(self: any)
 				Name = "Spoke" .. index,
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Size = UDim2.new(0, SPOKE, 0.5, 0),
-				BackgroundColor3 = PAL.line,
+				BackgroundColor3 = Theme.colors.white,
 				BorderSizePixel = 0,
-				ZIndex = 1,
+				ZIndex = 2,
 				Parent = self._face,
 			})
 		)
-		local color = SLICE_COLORS[(index - 1) % #SLICE_COLORS + 1]
+		-- the prize on its wedge: a big picture with no tile, the amount in a dark pill under it; a gold ring when won
 		local holder = circle({
 			Name = "Slice" .. row.slice,
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Size = UDim2.fromScale(TILE, TILE),
-			BackgroundColor3 = color,
+			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
-			ZIndex = 2,
+			ZIndex = 3,
 			Parent = self._face,
 		})
-		local stroke = Outline.border(holder, Theme.sizes.stroke, PAL.cardStroke)
-		-- the prize picture on its own, big, with no beige tile behind it (#966)
+		local stroke = Outline.border(holder, 4, Theme.colors.gold)
+		stroke.Enabled = false
 		local icon = ItemIcon.new({
 			parent = holder,
-			size = UDim2.fromScale(0.72, 0.72),
+			size = UDim2.fromScale(0.74, 0.74),
 			anchorPoint = Vector2.new(0.5, 0),
-			position = UDim2.fromScale(0.5, 0.02),
+			position = UDim2.fromScale(0.5, 0),
 			badge = "gem",
 			plain = true,
 		})
-		-- what the slice pays, under its picture (Derek 2026-10-28: the chances live behind Odds)
+		local pill: Frame = Create("Frame", {
+			Name = "Pill",
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.fromScale(0.5, 1),
+			Size = UDim2.fromScale(0.86, 0.3),
+			BackgroundColor3 = Theme.colors.outline,
+			BackgroundTransparency = 0.25,
+			BorderSizePixel = 0,
+			ZIndex = 4,
+			Parent = holder,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 		local amount = text({
 			Name = "Amount",
-			AnchorPoint = Vector2.new(0.5, 1),
-			Position = UDim2.fromScale(0.5, 0.97),
-			Size = UDim2.fromScale(0.9, 0.3),
+			Size = UDim2.fromScale(1, 1),
 			FontFace = Theme.fonts.display,
 			TextScaled = true,
 			TextColor3 = Theme.colors.white,
 			TextXAlignment = Enum.TextXAlignment.Center,
-			ZIndex = 3,
-			Parent = holder,
+			ZIndex = 5,
+			Parent = pill,
 		})
 		Create("UITextSizeConstraint", { MaxTextSize = 18, MinTextSize = 9, Parent = amount })
-		Outline.text(amount, 1.5)
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 4),
+			PaddingRight = UDim.new(0, 4),
+			Parent = amount,
+		})
 		local tile: Tile = {
 			holder = holder,
 			stroke = stroke,
@@ -962,6 +1015,13 @@ function SpinWheel._setAngle(self: any, angle: number)
 		return
 	end
 	local size = 360 / count
+	for _, bar in self._bars do
+		local turn = bar.base + angle
+		local theta = math.rad(turn)
+		bar.frame.Position =
+			UDim2.fromScale(0.5 + 0.25 * math.sin(theta), 0.5 - 0.25 * math.cos(theta))
+		bar.frame.Rotation = turn
+	end
 	for index, tile: Tile in self._tiles do
 		local theta = math.rad((index - 1) * size + angle)
 		tile.holder.Position =
@@ -1060,8 +1120,7 @@ function SpinWheel._light(self: any, index: number?)
 	self._landed = index
 	for each, tile: Tile in self._tiles do
 		local lit = each == index
-		tile.stroke.Color = if lit then Theme.colors.gold else PAL.cardStroke
-		tile.stroke.Thickness = if lit then 4 else Theme.sizes.stroke
+		tile.stroke.Enabled = lit
 	end
 end
 

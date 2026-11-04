@@ -44,7 +44,7 @@ local CARD_W = 330
 local ROW_H = 24
 local GAP = 6 -- between the chip and its card
 local EDGE = 8 -- the card keeps this far from the screen's right edge
-local GREEN = Color3.fromHex("4FAE5C") -- the clover's tile
+local GREEN = Color3.fromHex("6BE36F") -- the clover's tile, bright so it reads on grass (#1189); the small chip, no pill
 local PULSE = TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 
 local LuckChip = {}
@@ -131,7 +131,7 @@ function LuckChip.new(
 		LayoutOrder = 1,
 		Parent = chip,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.border(tile, 2)
+	Outline.border(tile, 2, Theme.colors.white) -- a white stroke round the clover's tile
 	-- the Lucky Day ring, a little wider than the tile
 	local ring: Frame = Create("Frame", {
 		Name = "Glow",

@@ -2580,14 +2580,8 @@ function UI.showAreaTitle(areaId: string)
 	end
 	local catalog = currentCatalog
 	if areaId == "home" then
-		local tierName: string? = nil
-		local tiers: { Types.TierDef } = if catalog then catalog.tiers or {} else {}
-		for _, def in tiers do
-			if def.tier == state.tier then
-				tierName = def.name
-			end
-		end
-		card:show("home", tierName or "Your Cafe", if tierName then "Your cafe" else nil)
+		-- no card for the player's own cafe (the friend 11-04: the "Busy Cafe" pop-up is clutter); the tier's name
+		-- lives in the rank card and the rank up moment
 		return
 	end
 	local areas: { Types.AreaDef } = if catalog then catalog.areas or {} else {}
@@ -5251,9 +5245,13 @@ do
 	local CatBubbles = require(script.Screens.CatBubbles)
 	local bubbles: CatBubbles.CatBubbles? = nil
 
-	-- UI.init.
+	-- UI.init. Off unless Config.CatBubblesEnabled is true (#1188, the friend 11-04: "vault the text bubble pop-ups
+	-- from walking near cats/npc's"); the code stays so they can come back.
 	function UI.bubbles.start(parent: Instance)
 		UI.bubbles.reset()
+		if (Config :: any).CatBubblesEnabled ~= true then
+			return
+		end
 		bubbles = CatBubbles.new(parent, {
 			blocked = function(): boolean
 				return not visible

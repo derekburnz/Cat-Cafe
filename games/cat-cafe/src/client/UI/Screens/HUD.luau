@@ -566,8 +566,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Text = "",
 		AutoButtonColor = false,
 		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(1, -6, 0, 6),
+		AnchorPoint = Vector2.new(1, 0.5), -- inset (#1176: "the Claim button's red ! badge hangs over into the Feedback button"): no more than 2 px past the edge
+		Position = UDim2.new(1, 4, 0, 6),
 		Size = UDim2.fromOffset(HIDE_HIT, HIDE_HIT),
 		ZIndex = 8,
 		Parent = tutorial.instance,
@@ -630,8 +630,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Name = "Dot",
 		BackgroundColor3 = Theme.colors.red,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(1, -4, 0, 4),
+		AnchorPoint = Vector2.new(1, 0.5), -- inset (#1176: "the Claim button's red ! badge hangs over into the Feedback button"): no more than 2 px past the edge
+		Position = UDim2.new(1, 2, 0, 4),
 		Size = UDim2.fromOffset(24, 24),
 		Visible = false,
 		ZIndex = 6,
@@ -1006,8 +1006,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				Name = "Dot",
 				BackgroundColor3 = Theme.colors.red,
 				BorderSizePixel = 0,
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.new(1, -3, 0, 3),
+				AnchorPoint = Vector2.new(1, 0.5), -- inset: no more than 2 px past the tile's edge (#1176)
+				Position = UDim2.new(1, 2, 0, 3),
 				Size = UDim2.fromOffset(22, 22),
 				Visible = false,
 				ZIndex = 6,
@@ -1072,8 +1072,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				Name = "Dot",
 				BackgroundColor3 = Theme.colors.red,
 				BorderSizePixel = 0,
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.new(1, -3, 0, 3),
+				AnchorPoint = Vector2.new(1, 0.5), -- inset: no more than 2 px past the tile's edge (#1176)
+				Position = UDim2.new(1, 2, 0, 3),
 				Size = UDim2.fromOffset(22, 22),
 				Visible = false,
 				ZIndex = 6,
@@ -1178,8 +1178,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Name = "Count",
 		BackgroundColor3 = Theme.colors.paper,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(1, -5, 0, 3),
+		AnchorPoint = Vector2.new(1, 0.5), -- inset (#1176)
+		Position = UDim2.new(1, 2, 0, 3),
 		Size = UDim2.fromOffset(28, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
@@ -1191,17 +1191,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(potionCount, 2)
 	self._potionCount = potionCount
+	-- the bowl sits in the left column after Decor (#1210, the friend 11-04: "move the food bowl into the left
+	-- column"); the grid closes up while it is hidden
 	local bowl = Button.new({
 		name = "Bowl",
 		text = "Bait",
 		icon = BOWL_ICON,
 		image = ShopIcons.hud("Bowl"),
 		layout = TILE_LAYOUT,
-		textSize = SYMBOL_TEXT,
+		textSize = MENU_TEXT,
 		style = "secondary",
-		size = UDim2.fromOffset(SYMBOL, SYMBOL_H),
-		layoutOrder = 2,
-		parent = corner,
+		size = UDim2.fromOffset(MENU_TILE, MENU_CELL_H),
+		layoutOrder = 100,
+		parent = self._menu,
 		sound = false, -- the bait screen plays uiOpen itself
 		onClick = function()
 			self._callbacks.openBait()
@@ -1515,13 +1517,13 @@ function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 end
 
 -- The bowl symbol's line under its picture: "Bait" when empty, the time to the cat ("7:42"), then "Cat!" on a
--- gold tile. F60: food set at night counts down behind a moon ("🌙 3:42"), and an empty bowl at night reads
--- "🌙 Half", since food set then comes in half the time. The Bait bowl window has the food's name and the rest.
+-- gold tile. F60: food set at night counts down behind a moon ("🌙 3:42"); an empty bowl reads "Bait" day and night
+-- (#1210 dropped "🌙 Half"). The Bait bowl window has the food's name and the rest.
 function HUD._renderBowl(self: any)
 	local bait: Types.BaitView? = self._bait
 	local wasReady = self._baitReady
 	local ready = false
-	local text = if self._night then Theme.icons.moon .. " Half" else "Bait" -- the mockup's label (#1176)
+	local text = "Bait" -- the mockup's label (#1176); no "🌙 Half" at night (#1210)
 	if bait then
 		local left = bait.readyAt - Workspace:GetServerTimeNow()
 		ready = left <= 0
@@ -1975,7 +1977,7 @@ function HUD._renderBowlSlot(self: any, state: Types.PlayerState)
 	local shown = (state.upgradeLevels.lure_bowl or 0) >= 1
 	if self._bowlSlot.Visible ~= shown then
 		self._bowlSlot.Visible = shown
-		self:_placeCorner()
+		self:_layoutMenu() -- the bowl is a left column tile (#1210)
 	end
 	self:_renderBowl()
 end

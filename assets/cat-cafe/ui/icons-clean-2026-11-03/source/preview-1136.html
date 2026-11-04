@@ -1,0 +1,16 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;padding:24px;background:#f3e6d3;font-family:Fredoka,sans-serif;display:flex;gap:22px;flex-wrap:wrap;width:900px}
+.c{display:flex;flex-direction:column;align-items:center;gap:6px}
+.t{width:78px;height:78px;border-radius:20px;border:4px solid #2a1a12;box-shadow:0 5px 0 #2a1a12;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+.t img{width:58px;height:58px}
+.big img{width:128px;height:128px}.big{width:150px;height:150px;border-radius:34px}
+.l{font-size:16px;color:#fff;-webkit-text-stroke:4px #2a1a12;paint-order:stroke fill}
+.row{display:flex;gap:22px;width:100%;align-items:flex-end}
+</style></head><body>
+<div class="row" id="small"></div><div class="row" id="big"></div>
+<script>
+const set=[['Rewards','#ff8a7a','#e4402f','old'],['Feedback','#8fe3ff','#2bb3e6','old'],['EquipBest','#ffe46b','#f5ac12','new'],['Invite','#ff9ec4','#e8558f','new'],['Lock','#c9d4e3','#7f8fa6','new']];
+for(const [id,big] of [['small',''],['big',' big']])for(const [n,a,b,k] of set)document.getElementById(id).insertAdjacentHTML('beforeend',`<div class="c"><div class="t${big}" style="background:linear-gradient(${a},${b})"><img src="../Icon_Clean_${n}.png"></div><div class="l">${n}${k==='new'?' (new)':''}</div></div>`);
+</script></body></html>

@@ -107,6 +107,11 @@ window.ICONS = {
   caviar: `<ellipse ${S} cx="32" cy="44" rx="25" ry="12" fill="#5fb7ff"/>
     <ellipse ${S} cx="32" cy="34" rx="25" ry="11" fill="#e9f5ff"/>
     ${[[20, 32], [27, 29], [34, 31], [41, 28], [24, 37], [31, 36], [38, 37], [45, 34]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.6" fill="#ff7a2f" stroke="${O}" stroke-width="1.6"/>`).join('')}`,
+  // #1070 (Coordinator 11-04): Kibble gets its own bowl of kibble, in the caviar bowl's style, not the HUD's fish bowl
+  kibble: `<path ${S} fill="#ff8a4c" d="M6 34 H58 Q56 54 32 56 Q8 54 6 34 Z"/>
+    <path d="M12 44 Q32 50 52 44" stroke="#ffb98f" stroke-width="3" fill="none" stroke-linecap="round"/>
+    ${[[16, 31], [24, 28], [33, 29], [42, 28], [49, 31], [20, 23], [29, 21], [38, 22], [45, 24], [33, 15]].map(([x, y], i) => `<rect x="${x - 4.5}" y="${y - 3.6}" width="9" height="7.2" rx="3.4" transform="rotate(${(i * 37) % 70 - 35} ${x} ${y})" fill="${i % 3 === 0 ? '#c9894a' : '#b06f36'}" stroke="${O}" stroke-width="1.8"/>`).join('')}
+    <path ${S} fill="none" d="M6 34 H58"/>`,
   // #1070: the foods that had no clean picture, and the spin wheel (Derek's live v184 check)
   tuna: `<ellipse ${S} cx="32" cy="46" rx="24" ry="9" fill="#9fb3c8"/>
     <path ${S} fill="#d8e3ee" d="M8 26 V46 Q32 58 56 46 V26 Z"/>

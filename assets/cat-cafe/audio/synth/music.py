@@ -13,6 +13,7 @@ the day, DayB for the second, NightA through the short night, then DayA again at
 Every note is synthesized (sine partials, plucked strings, filtered noise) with fixed seeds, so the music is
 original and the same on every run. Each song is exactly 32 bars and every note, tail and echo wraps around
 the end, so the loop is seamless. Outputs (overwritten): assets/cat-cafe/audio/music/CatCafe_Music_<Name>.ogg
+(DayC, DayD and NightB go to sheet-parts/music/ instead, joined into sheets/CatCafe_Sheet_Music.ogg, see SHEET)
 (stereo, 48 kHz, about -18 LUFS); with --preview: DIR/cat-cafe-music-preview.mp3 (40 s of each).
 Needs numpy and ffmpeg. Check the files with .claude/skills/audio-pipeline/scripts/audio_gate.py.
 """
@@ -570,6 +571,34 @@ def night_b(tmp: Path) -> np.ndarray:
 
 SONGS = {"DayA": day_a, "DayB": day_b, "NightA": night_a, "DayC": day_c, "DayD": day_d, "NightB": night_b}
 
+# The music sheet (#980, 2026-11-03). Audio uploads were used up (100 a month until an account is ID verified), so the
+# three songs Derek approved on 2026-11-03 share one upload: each renders on its own to sheet-parts/music/ (gated
+# there, never uploaded alone), and sheets/CatCafe_Sheet_Music.ogg is the three in this order with SHEET_GAP seconds
+# of silence between. Each song's cue plays its own region of it (`sheet` and `region` in Cues.luau; this script
+# prints the regions whenever a song changes). Roblox's limits for one audio file: under 20 MB and 7 minutes.
+SHEET = ("DayC", "DayD", "NightB")
+SHEET_GAP = 0.5
+
+
+def write_sheet(rendered: dict[str, np.ndarray], tmp: Path) -> None:
+    """Joins the sheet's songs (building any not rendered in this run) and prints each one's region."""
+    gap = np.zeros((int(SHEET_GAP * SR), 2))
+    pieces: list[np.ndarray] = []
+    at = 0
+    print("music: regions for Cues.luau:")
+    for name in SHEET:
+        x = rendered[name] if name in rendered else SONGS[name](tmp)
+        print(f"    music{name} = {{ sheet = \"sheetMusic\", region = {{ {at / SR:.3f}, {(at + len(x)) / SR:.3f} }}, "
+              f"seconds = {len(x) / SR:.3f} }}")
+        pieces += [x, gap]
+        at += len(x) + len(gap)
+    wav = tmp / "Sheet_Music.wav"
+    write_wav(wav, np.concatenate(pieces[:-1]))
+    out = ROOT / "sheets" / "CatCafe_Sheet_Music.ogg"
+    encode(wav, out, ["-c:a", "libvorbis", "-q:a", "5"])
+    size = out.stat().st_size / 1e6
+    print(f"music: {out.relative_to(ROOT.parents[2]).as_posix()}  {at / SR - SHEET_GAP:.1f} s, {size:.1f} MB")
+
 
 def encode(wav: Path, out: Path, codec: list[str]) -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -611,9 +640,12 @@ def main() -> int:
             rendered[name] = x
             wav = tmp / f"{name}.wav"
             write_wav(wav, x)
-            out = ROOT / "music" / f"CatCafe_Music_{name}.ogg"
+            folder = "sheet-parts/music" if name in SHEET else "music"
+            out = ROOT / folder / f"CatCafe_Music_{name}.ogg"
             encode(wav, out, ["-c:a", "libvorbis", "-q:a", "5"])
             print(f"music: {out.relative_to(ROOT.parents[2]).as_posix()}  {len(x) / SR:.1f} s")
+        if any(name in rendered for name in SHEET):
+            write_sheet(rendered, tmp)
         if args.preview:
             folder = Path(args.preview)
             folder.mkdir(parents=True, exist_ok=True)

@@ -3166,8 +3166,8 @@ end
 
 -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf at the Golden Fish Market, sold by day for golden fish
 -- in this order, each row's amount in a window rolled from Config.FreshCatchAmountWeights (shared/FreshCatch). A
--- row's id is its potion's or crate's id. The Classic Crate is 10 fish off its Market price and goes to the banked
--- crates. The Gold Rush Potion and the crate send a ShopAlert. Earned only: golden fish are never sold for Robux.
+-- row's id is its potion's id. No crate since #1051 (crate-prices.md section 4: the Market's 40 is the one price).
+-- The Gold Rush Potion sends a ShopAlert. Earned only: golden fish are never sold for Robux.
 Catalog.freshCatch = {
 	{ id = "tip_potion", kind = "potion", potionId = "tip_potion", fish = 10 },
 	{ id = "swift_potion", kind = "potion", potionId = "swift_potion", fish = 6 },
@@ -3182,7 +3182,6 @@ Catalog.freshCatch = {
 		fish = 30,
 		alert = true,
 	},
-	{ id = "classic_crate", kind = "crate", crateId = "classic_crate", fish = 50, alert = true },
 } :: { Types.FreshCatchRow }
 Catalog.freshCatchById = {} :: { [string]: Types.FreshCatchRow }
 for _, row in Catalog.freshCatch do

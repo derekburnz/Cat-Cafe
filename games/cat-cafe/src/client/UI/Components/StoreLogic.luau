@@ -142,7 +142,8 @@ function StoreLogic.button(row: Row, price: Price?): Button
 	if not price.forSale or price.robux == nil then
 		return { text = "Soon", style = "ghost", enabled = false }
 	end
-	return { text = ("R$%d"):format(price.robux :: number), style = "primary", enabled = true }
+	-- the gold Store look of the HUD's Store tile (#1020)
+	return { text = ("R$%d"):format(price.robux :: number), style = "store", enabled = true }
 end
 
 -- Whether any pass is on sale: the HUD's Store tile shows then.

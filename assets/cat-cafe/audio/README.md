@@ -7,7 +7,7 @@ music/      CatCafe_Music_<Name>.ogg     stereo seamless loops and stingers
 ambience/   CatCafe_Amb_<Name>.ogg       stereo seamless beds; CatCafe_Amb_Loop<Name>.ogg mono 3D loops (none since 2026-10-27)
 sfx/        CatCafe_Sfx_<Name>.ogg       mono, 3D or 2D game sounds
 ui/         CatCafe_Ui_<Name>.ogg        mono interface sounds
-sheets/     CatCafe_Sheet_<Name>.ogg     sound sheets: several short sounds in one upload (sound list 5.13); World mono, Moments stereo
+sheets/     CatCafe_Sheet_<Name>.ogg     sound sheets: several short sounds in one upload (sound list 5.13); World mono, Moments and Music stereo
 sheet-parts/<kind>/CatCafe_*.ogg         each sheet's parts, gated one by one and never uploaded on their own
 gates.md    written by audio_gate.py; never edit by hand
 synth/      synth.py (effects and jingles), music.py (the music beds) and ambience.py (retired beds): our own sounds made from code; rerun to rebuild
@@ -121,5 +121,7 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `sheetCatch` | `sheets/CatCafe_Sheet_Catch.ogg` | synthesized by `synth/synth.py` (parts: `netSmack`, `netBounce`, `strayHop`, `wordGreat`, `wordExcellent`) | original (Cat Cafe) | sound-designer | this repo | 104211245998996 | 2026-11-02 |
 | `sheetRescue` | `sheets/CatCafe_Sheet_Rescue.ogg` | synthesized by `synth/synth.py` (parts: `rescueStart`, `rescueHitBin`, `rescueHitBag`, `rescueHitTree`, `rescueHitCan`, `rescueHitTone`, `rescueMiss`, `rescueDrop`, `rescueFail`, `rescueDone`, `teamRescue`) | original (Cat Cafe) | sound-designer | this repo | 105628750022355 | 2026-11-02 |
 | `sheetCafe` | `sheets/CatCafe_Sheet_Cafe.ogg` | synthesized by `synth/synth.py` (parts: `orderPour`, `orderDing`, `trayClink`, `tipBank`) | original (Cat Cafe) | sound-designer | this repo | 100577291813581 | 2026-11-02 |
+| `sheetMusic` | `sheets/CatCafe_Sheet_Music.ogg` | composed and synthesized by `synth/music.py` (parts: `musicDayC` "Paw Prints", `musicDayD` "Market Morning", `musicNightB` "Night Owls"; Derek approved by ear 2026-11-03, #980) | original (Cat Cafe) | sound-designer | this repo |  | 2026-11-03 |
+| `sheetBait` | `sheets/CatCafe_Sheet_Bait.ogg` | synthesized by `synth/synth.py` (parts: `foodKibble`, `foodTuna`, `foodSalmon`, `foodSardines`, `foodCaviar`, `foodMoonMilk`, `foodStarTreat`, `offlineClaim`; #983) | original (Cat Cafe) | sound-designer | this repo |  | 2026-11-03 |
 | `trailerMusic` | not in the repo: `Sound-Agent/trailer/CatCafe_Trailer_Music_28s.wav` in the project library | composed and synthesized by `synth/trailer.py` (the DayA theme as a 28 s cue at 120 BPM, no lyrics), for the store page video only | original (Cat Cafe) | sound-designer | project library | not uploaded | 2026-11-03 |
 | `trailerCafeBed` | not in the repo: `Sound-Agent/trailer/sfx/CatCafe_Trailer_CafeBed_8s.wav` in the project library | mixed from the game's own `purr`, `coinPop` and the Cafe sheet's parts, for the store page video only | original (Cat Cafe) | sound-designer | project library | not uploaded | 2026-11-03 |

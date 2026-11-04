@@ -263,6 +263,27 @@ function Crates.openBlocker(profile: Types.PlayerProfile, tier: number, crateId:
 	return nil
 end
 
+-- Why the Market's Buy 5 (crate-prices.md section 3, #1051) of `crateId` would be refused, or nil: a crate sold for
+-- golden fish (not a golden or Rally Crate), its zone open at `tier`, and CrateBundlePrice golden fish in hand. It
+-- banks CrateBundleCount crates and opens none (the Market's range and rate are the server's).
+function Crates.bundleBlocker(profile: Types.PlayerProfile, tier: number, crateId: string): string?
+	local crate = Catalog.getCrate(crateId)
+	if crate == nil or crate.price == nil then
+		return "That crate is not sold in fives"
+	end
+	if crate.area ~= "classic" then
+		local area = Catalog.getArea(crate.area)
+		if area == nil or tier < area.tier then
+			return "Unlock this zone first"
+		end
+	end
+	local short = Config.CrateBundlePrice - profile.goldenFish
+	if short > 0 then
+		return string.format("Need %d more golden fish", short)
+	end
+	return nil
+end
+
 -- What one BuyFishItem of `row` costs at the player's level, or nil and why not. Crates open through OpenCrate.
 function Crates.buyCost(profile: Types.PlayerProfile, row: Types.FishShopRow): (number?, string?)
 	local cost: number? = row.cost

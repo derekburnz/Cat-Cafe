@@ -330,13 +330,46 @@ return function()
 			expect(Crates.openBlocker(profile, parkTier(), "park_crate")).never.to.be.ok()
 		end)
 
-		it("opens the Classic and Alley Crates from Tier 1 for 60 fish", function()
+		it("opens the Classic and Alley Crates from Tier 1 for 40 fish (crate-prices.md, one price)", function()
 			local profile = fresh()
-			profile.goldenFish = 59
+			profile.goldenFish = 39
 			expect(Crates.openBlocker(profile, 1, "classic_crate")).to.equal("Not enough golden fish")
-			profile.goldenFish = 60
+			profile.goldenFish = 40
 			expect(Crates.openBlocker(profile, 1, "classic_crate")).never.to.be.ok()
 			expect(Crates.openBlocker(profile, 1, "alley_crate")).never.to.be.ok()
+		end)
+
+		it("sells every fish-priced crate at the one price, 40", function()
+			for _, crate in Catalog.crates do
+				if crate.price ~= nil then
+					expect(crate.price).to.equal(40)
+				end
+			end
+		end)
+
+		it("sells 5 of a fish-priced crate for 180 when its zone is open (Buy 5, #1051)", function()
+			local profile = fresh()
+			expect(Config.CrateBundleCount).to.equal(5)
+			expect(Config.CrateBundlePrice).to.equal(180)
+			profile.goldenFish = 179
+			expect(Crates.bundleBlocker(profile, 1, "classic_crate")).to.equal("Need 1 more golden fish")
+			profile.goldenFish = 180
+			expect(Crates.bundleBlocker(profile, 1, "classic_crate")).never.to.be.ok()
+			expect(Crates.bundleBlocker(profile, 1, "alley_crate")).never.to.be.ok()
+			expect(Crates.bundleBlocker(profile, parkTier() - 1, "park_crate")).to.equal("Unlock this zone first")
+			expect(Crates.bundleBlocker(profile, parkTier(), "park_crate")).never.to.be.ok()
+		end)
+
+		it("never bundles a golden crate, a Rally Crate or an unknown id", function()
+			local profile = fresh()
+			profile.goldenFish = 10000
+			expect(Crates.bundleBlocker(profile, 5, "alley_golden_crate")).to.equal("That crate is not sold in fives")
+			expect(Crates.bundleBlocker(profile, 5, "nope")).to.equal("That crate is not sold in fives")
+			for _, crate in Catalog.crates do
+				if crate.price == nil then
+					expect(Crates.bundleBlocker(profile, 5, crate.id)).to.equal("That crate is not sold in fives")
+				end
+			end
 		end)
 
 		it("opens a banked crate free, golden ones only when banked", function()
@@ -522,7 +555,7 @@ return function()
 				local opensAt = if anyTier then 1 else (assert(area)).tier
 				for tier = 1, 6 do
 					for _, banked in { 0, 1 } do
-						for _, fish in { 0, 59, 60, 1000 } do
+						for _, fish in { 0, 39, 40, 1000 } do
 							local profile = fresh()
 							profile.goldenFish = fish
 							if banked > 0 then
@@ -537,7 +570,7 @@ return function()
 								want = "Golden crates come from the Index"
 							elseif crate.area == Catalog.RALLY_POOL then
 								want = "Rally Crates come from the Rescue Rally"
-							elseif fish < 60 then
+							elseif fish < 40 then
 								want = "Not enough golden fish"
 							end
 							expect(Crates.openBlocker(profile, tier, crate.id)).to.equal(want)

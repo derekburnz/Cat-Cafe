@@ -6766,9 +6766,9 @@ case(
 		end
 		if today == nil then
 			return downgrade(verdict, "CHECK"),
-				table.concat(notes, "; ") .. "; both crates already bought today, so no burst"
+				table.concat(notes, "; ") .. "; today's crate already taken, so no burst"
 		end
-		local price = Config.YardSaleCratePrice
+		local price = 0 -- the Yard Sale is free since #1051 (crate-prices.md section 5)
 		local fishBefore, cratesBefore = fish(), crateCount(today)
 		if fishBefore < price then
 			local expected = "Not enough golden fish"
@@ -6791,7 +6791,7 @@ case(
 					price * 2
 				)
 		end
-		-- Ten in one frame: one sale for exactly the price, then a second later "You bought that one today".
+		-- Ten in one frame: one free take, then a second later CampExtras.TAKEN.
 		local burstAt = os.clock()
 		for _ = 1, 10 do
 			Remotes.event("BuyYardSale"):FireServer(today)
@@ -6819,7 +6819,7 @@ case(
 			notes,
 			string.format("the burst sold one %s for %d fish (%d answers)", today, spent, #burst)
 		)
-		local bought = "You bought that one today. New crates tomorrow"
+		local bought = CampExtras.TAKEN
 		local again, saidAgain = campCall("BuyYardSale", today, CampExtras.YARD_SALE, bought)
 		if again ~= nil and again.ok then
 			return "FAIL", string.format("%s sold twice in one day", today)

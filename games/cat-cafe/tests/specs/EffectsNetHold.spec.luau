@@ -9,7 +9,9 @@ return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
 	local Effects = Client:WaitForChild("Effects")
+	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Avatar = require(Effects:WaitForChild("Avatar")) :: any
+	local Config = require(Shared:WaitForChild("Config")) :: any
 	local Presets = require(Effects:WaitForChild("Presets")) :: any
 
 	local h = Presets.netHold
@@ -82,7 +84,7 @@ return function()
 		end
 		it("lasts 0.62 s and lands at NetSmackDelay (0.22 s), inside the swing cooldown", function()
 			expect(k.ends).to.be.near(0.62, 1e-9)
-			expect(k.land).to.be.near(0.22, 1e-9)
+			expect(k.land).to.be.near(Config.NetSmackDelay, 1e-9) -- the drift guard (#1021)
 			expect(k.rise > 0 and k.rise < k.land).to.equal(true)
 			expect(k.land + k.bounce < k.ends).to.equal(true)
 			expect(k.land + k.impact < k.ends).to.equal(true)

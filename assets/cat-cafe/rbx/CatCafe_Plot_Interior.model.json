@@ -7538,7 +7538,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.0,
+       6.9,
        7.1,
        16.55
       ],
@@ -7562,7 +7562,7 @@
      }
     },
     "Size": [
-     5.0,
+     2.8,
      0.2,
      0.9
     ],
@@ -7636,7 +7636,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       10.0,
+       7.8,
        6.7,
        16.8
       ],
@@ -7832,7 +7832,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       6.3,
+       6.1,
        7.375,
        16.55
       ],
@@ -7882,7 +7882,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       6.3,
+       6.1,
        7.725,
        16.55
       ],
@@ -7932,7 +7932,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       6.3,
+       6.1,
        8.25,
        16.55
       ],
@@ -7982,7 +7982,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.0,
+       7.6,
        7.375,
        16.55
       ],
@@ -8032,7 +8032,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.0,
+       7.6,
        7.725,
        16.55
       ],
@@ -8082,7 +8082,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       8.0,
+       7.6,
        8.4,
        16.55
       ],
@@ -8131,7 +8131,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       7.7,
+       7.3,
        8.275,
        16.55
       ],
@@ -8180,7 +8180,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       7.625,
+       7.225,
        8.525,
        16.55
       ],
@@ -8220,156 +8220,6 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Interior",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       9.7,
-       7.375,
-       16.55
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.735,
-     0.735
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Cylinder"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Interior",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       9.7,
-       7.725,
-       16.55
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.805,
-     0.805
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Cylinder"
-   }
-  },
-  {
-   "name": "CatCafe_Plot_Interior",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       9.7,
-       8.25,
-       16.55
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.9,
-     0.9,
-     0.9
-    ],
-    "Color": [
-     0.3725,
-     0.7216,
-     0.3529
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Ball"
    }
   },
   {
@@ -9070,7 +8920,7 @@
       "position": [
        -21.94,
        8.4,
-       5.5857
+       10.4429
       ],
       "orientation": [
        [
@@ -9119,7 +8969,7 @@
       "position": [
        -21.86,
        8.4,
-       5.5857
+       10.4429
       ],
       "orientation": [
        [
@@ -9168,7 +9018,7 @@
       "position": [
        -21.82,
        8.1,
-       5.4357
+       10.2929
       ],
       "orientation": [
        [
@@ -9217,7 +9067,7 @@
       "position": [
        -21.82,
        8.5,
-       6.1357
+       10.9929
       ],
       "orientation": [
        [
@@ -9266,7 +9116,7 @@
       "position": [
        -21.82,
        8.9,
-       5.9857
+       10.8429
       ],
       "orientation": [
        [
@@ -9315,7 +9165,7 @@
       "position": [
        -21.82,
        8.9,
-       6.2857
+       11.1429
       ],
       "orientation": [
        [
@@ -9364,7 +9214,7 @@
       "position": [
        -21.82,
        8.7,
-       4.9107
+       9.7679
       ],
       "orientation": [
        [

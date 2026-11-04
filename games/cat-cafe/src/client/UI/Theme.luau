@@ -344,6 +344,7 @@ Theme.icons = {
 	quests = "📜", -- F73: the Quests pill, window badge and the HUD quest line
 	daily = "📅", -- F70: the HUD's Daily tile and the Daily Treat window's badge
 	tutorial = "?", -- F72: the Tutorial tile's big question mark, drawn in the display font
+	store = "🛍️", -- the Store window's badge, drawn as the clean chest (CleanGlyphs)
 	replay = "🎬", -- F72: Settings' Replay tutorial row
 }
 
@@ -351,27 +352,12 @@ Theme.icons = {
 -- index upgrades and cats could use a tiny bit more quality also"): sixteen 256 px icons in a 4 x 4 grid, one upload.
 -- Each glyph above that has a picture maps to its cell (column, row); Components/IconArt draws the picture over the
 -- glyph wherever a button, window badge, prize tile or place icon shows it, with the emoji as the fallback.
+-- Unused since #1136: every glyph on the sheet has a clean symbol in Components/CleanGlyphs, which IconArt.set draws first,
+-- so IconArt never reaches the sheet. Kept as IconArt's fallback for a glyph added here without a clean symbol.
 Theme.iconSheet = {
 	image = "rbxassetid://105899778786945",
 	cell = 256,
-	cells = {
-		[Theme.icons.cats] = Vector2.new(0, 0),
-		[Theme.icons.collection] = Vector2.new(1, 0),
-		[Theme.icons.upgrades] = Vector2.new(2, 0),
-		[Theme.icons.decor] = Vector2.new(3, 0),
-		[Theme.icons.home] = Vector2.new(0, 1),
-		[Theme.icons.travel] = Vector2.new(1, 1),
-		[Theme.icons.alley] = Vector2.new(2, 1),
-		[Theme.icons.equipBest] = Vector2.new(3, 1),
-		[Theme.icons.gifts] = Vector2.new(0, 2),
-		[Theme.icons.settings] = Vector2.new(1, 2),
-		[Theme.icons.invite] = Vector2.new(2, 2),
-		[Theme.icons.tutorial] = Vector2.new(3, 2),
-		[Theme.icons.spin] = Vector2.new(0, 3),
-		[Theme.icons.lock] = Vector2.new(1, 3),
-		[Theme.icons.crate] = Vector2.new(2, 3),
-		[Theme.icons.potion] = Vector2.new(3, 3),
-	} :: { [string]: Vector2 },
+	cells = CleanGlyphs.sheet(Theme.icons), -- glyph -> cell, from CleanGlyphs.sheetCells
 }
 
 -- Glyphs drawn as a whole uploaded picture in place of the sheet (Components/IconArt.set): the golden fish on every

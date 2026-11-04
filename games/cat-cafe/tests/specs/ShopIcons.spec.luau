@@ -30,7 +30,7 @@ return function()
 
 		it("has a bottle for every potion in the catalog", function()
 			-- the clean bottle first (#1070), the old picture behind it
-			expect(ShopIcons.potion("gold_rush_potion")).to.equal("rbxassetid://117084495995856")
+			expect(ShopIcons.potion("gold_rush_potion")).to.equal("rbxassetid://133671235439574") -- the #1193 flask (#1204)
 			local missing: { string } = {}
 			for _, potion in Catalog.potions do
 				if ShopIcons.potion(potion.id) == nil then

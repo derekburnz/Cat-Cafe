@@ -481,6 +481,12 @@ def build_cafe(colour, mat):
 # ------------------------------------------------------------------------------------------ interior --
 LAMPS = tuple((xs(x), zs(z)) for x, z in ((-9, -6), (0, -6), (9, -6), (-9, 1), (0, 1), (9, 1)))   # pendant lamps
 BEAMS = tuple(zs(z) for z in (-6.0, 1.0, 8.0))                      # tie beams; the pendant lamps hang from them
+# The back wall shelves (x0, x1, height), the plant shelf over the oven and the mug shelf, and the cat pictures on
+# the side walls (side, z), each 2.4 wide and 7.3 to 9.5 up. wall_fit.py reads them (#1187): the plant shelf ends at
+# 8.3 (was 10.5, three plants) so the Cat Tree Tower on decor spot 5 stands clear of it, and the second picture on the
+# left wall hangs at z 10.44 (was 5.59), clear of the Cat Tree Tower on decor spot 7.
+SHELVES = ((5.5, 8.3, 7.0), (-17.5 - (HWI - 18.0), -12.5 - (HWI - 18.0), 8.2))
+PICTURES = ((-1, zs(0.0)), (-1, zs(8.6)), (1, zs(0.0)), (1, -HDI + 2.8))
 
 
 def _wainscot(b):
@@ -565,11 +571,11 @@ def _menu_board(b):
 def _shelves(b):
     d = HDI - 14.0                                 # depths below are today's, carried to the back wall
     e = HWI - 18.0                                 # the mug shelf keeps its distance to the left wall
-    for (x0, x1, y) in ((5.5, 10.5, 7.0), (-17.5 - e, -12.5 - e, 8.2)):
+    for (x0, x1, y) in SHELVES:
         b.span((x0, y, 13.1 + d), (x1, y + 0.2, 14.0 + d), "caramel_wood")
         for x in (x0 + 0.5, x1 - 0.5):
             b.span((x - 0.1, y - 0.6, 13.6 + d), (x + 0.1, y, 14.0 + d), "dark_wood")
-    for x, plant in ((6.3, "ball"), (8.0, "cactus"), (9.7, "ball")):
+    for x, plant in ((6.1, "ball"), (7.6, "cactus")):
         b.cyl((x, 7.55, 13.55 + d), 0.35, 0.7, "terracotta", r2=0.42, segments=10)
         if plant == "ball":
             b.ball((x, 8.25, 13.55 + d), 0.45, "leaf_green")
@@ -588,9 +594,8 @@ def _shelves(b):
 
 def _frames(b):
     """Pictures of our cats on the side walls: frame, mat and a pixel cat."""
-    pics = ((-1, zs(0.0), "fur_orange", "mint"), (-1, zs(4.6), "fur_black", "blush"),
-            (1, zs(0.0), "fur_grey", "pastel_butter"), (1, -HDI + 2.8, "fur_white", "mint"))
-    for s_, z, fur, bg in pics:
+    for (s_, z), (fur, bg) in zip(PICTURES, (("fur_orange", "mint"), ("fur_black", "blush"),
+                                             ("fur_grey", "pastel_butter"), ("fur_white", "mint"))):
         f = s_ * HWI
         def sl(t0, t1, y0, y1, za, zb, sw, f=f, s_=s_):
             lo, hi = sorted((f - s_ * t0, f - s_ * t1))

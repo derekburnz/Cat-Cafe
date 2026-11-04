@@ -160,6 +160,12 @@ function CampExtras.yardStock(tier: number, day: number): { string }
 	return stock
 end
 
+-- True once the player has taken a Yard Sale crate today, whichever it was: the day's crate can change with a rank up
+-- (more zones open), and the take is one a day, not one per crate id (#1051 review).
+local function yardTakenToday(save: Types.CampExtrasSave, today: number): boolean
+	return save.yardSale.day == today and next(save.yardSale.bought) ~= nil
+end
+
 local function shut(): Types.CampExtraView
 	return { open = false, held = 0 }
 end
@@ -201,7 +207,7 @@ function CampExtras.view(
 	if CampExtras.isOpen(CampExtras.YARD_SALE, tier) then
 		local stock: { Types.YardSaleCrate } = {}
 		for _, crateId in CampExtras.yardStock(tier, today) do
-			local bought = save.yardSale.day == today and save.yardSale.bought[crateId] == true
+			local bought = yardTakenToday(save, today)
 			table.insert(stock, { crateId = crateId, price = 0, bought = bought })
 			if not bought then
 				yardSale.held += 1
@@ -377,7 +383,8 @@ function CampExtras.buyBlocker(
 	if table.find(CampExtras.yardStock(tier, today), crateId) == nil then
 		return "That crate is not at the Yard Sale today"
 	end
-	if save.yardSale.day == today and save.yardSale.bought[crateId] == true then
+	-- blocks a second free crate after a rank up moves today's crate to another zone
+	if yardTakenToday(save, today) then
 		return CampExtras.TAKEN
 	end
 	return nil

@@ -67,7 +67,7 @@ local Cues: { [string]: Cue } = {
 	-- #980 (Derek OK'd them 2026-11-03): three more songs in one upload, the Music sheet. Each plays its own region of
 	-- it; silent (not in the rotation) until sheetMusic has an id. Rendered by synth/music.py, which prints the regions.
 	sheetMusic = {
-		ids = {},
+		ids = { "rbxassetid://90426389837188" },
 		group = "Music",
 		volume = 0.3,
 	}, -- stereo, 244.5 s: Paw Prints, Market Morning, Night Owls with 0.5 s of silence between
@@ -476,7 +476,7 @@ local Cues: { [string]: Cue } = {
 	-- #983: each food's own sound in the Bait sheet (synth.py SHEETS); until sheetBait has an id they fall back to
 	-- foodDealer (Logic.foodCue). Soft on purpose: the bowl fills often.
 	sheetBait = {
-		ids = {},
+		ids = { "rbxassetid://91146885655744" },
 		group = "Sfx",
 		volume = 1,
 	}, -- mono, 8.85 s: the seven foods and the claim
@@ -690,12 +690,13 @@ local Cues: { [string]: Cue } = {
 		preload = true,
 	},
 	offlineClaim = {
-		ids = { "rbxassetid://89094982389204" },
+		ids = {},
+		sheet = "sheetBait",
+		region = { 7.750, 8.850 },
 		group = "Sfx",
-		volume = 0.22,
+		volume = 0.3,
 		minGap = 1,
-	}, -- 2026-11-02: the richTip file, a cascade of coins (the UI plays it on Claim). #983: once sheetBait has an id,
-	-- swap to its own jingle: ids = {}, sheet = "sheetBait", region = { 7.750, 8.850 }, volume 0.3 (by ear)
+	}, -- #983 (2026-11-04): its own jingle, coins out of a cloth pouch and a soft two-note "welcome back" (the UI plays it on Claim)
 	placeFurniture = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
 	gateOpen = { ids = { "rbxassetid://89970899972584" }, group = "Sfx", volume = 0.7, range = 60 }, -- v0.4: the barrier dissolves
 	shuttersUp = {

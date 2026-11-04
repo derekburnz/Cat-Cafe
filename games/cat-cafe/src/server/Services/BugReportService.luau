@@ -1,5 +1,6 @@
 --!strict
--- In-game bug reports for the friends alpha (docs/playtests/bug-reports.md). ReportBug(text, kind?, clientErrors?)
+-- In-game bug reports for the friends alpha (docs/playtests/bug-reports.md). ReportBug(text, kind?, clientErrors?,
+-- featureName?) (#1083: featureName is kept only for an idea and only as true, BugReport.featureName)
 -- from the Settings window is checked by shared/BugReport, held to one per REPORT_SECONDS per player, PLAYER_CAP per
 -- player and SERVER_CAP per server, and saved with what the server knows of the moment: who, which build, where,
 -- the clock, the cafe's tier, coins and cats, a carried cat, the device and the server's last error lines. Nothing
@@ -45,6 +46,7 @@ export type Record = {
 	text: string,
 	filteredText: string?, -- `text` through the broadcast filter; nil when filtering failed
 	kind: string,
+	featureName: boolean, -- #1083: an idea report ticked "Feature my name" (BugReport.featureName)
 	clientErrors: { string },
 	serverErrors: { string },
 	userId: number,
@@ -86,7 +88,13 @@ local function onMessage(message: string, messageType: Enum.MessageType)
 	end
 end
 
-local function record(player: Player, text: string, kind: string, clientErrors: { string }): Record
+local function record(
+	player: Player,
+	text: string,
+	kind: string,
+	featureName: boolean,
+	clientErrors: { string }
+): Record
 	local character = player.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
 	local position = if root ~= nil and root:IsA("BasePart")
@@ -106,6 +114,7 @@ local function record(player: Player, text: string, kind: string, clientErrors: 
 		v = 2,
 		text = text,
 		kind = kind,
+		featureName = featureName,
 		clientErrors = clientErrors,
 		serverErrors = table.clone(serverErrors),
 		userId = player.UserId,
@@ -136,7 +145,13 @@ local function filtered(player: Player, text: string): string?
 	return if ok and type(result) == "string" then result else nil
 end
 
-local function onReportBug(player: Player, rawText: unknown, rawKind: unknown, rawErrors: unknown)
+local function onReportBug(
+	player: Player,
+	rawText: unknown,
+	rawKind: unknown,
+	rawErrors: unknown,
+	rawFeature: unknown
+)
 	local text = BugReport.text(rawText)
 	if text == nil then
 		Net.toast(player, BugReport.Messages.short, "warn")
@@ -153,7 +168,14 @@ local function onReportBug(player: Player, rawText: unknown, rawKind: unknown, r
 	end
 	sentBy[userId] = (sentBy[userId] or 0) + 1
 	sentTotal += 1
-	local report = record(player, text, BugReport.kind(rawKind), BugReport.clientErrors(rawErrors))
+	local kind = BugReport.kind(rawKind)
+	local report = record(
+		player,
+		text,
+		kind,
+		BugReport.featureName(kind, rawFeature),
+		BugReport.clientErrors(rawErrors)
+	)
 	report.filteredText = filtered(player, text)
 	if RunService:IsStudio() then
 		print("[BugReport] " .. HttpService:JSONEncode(report))

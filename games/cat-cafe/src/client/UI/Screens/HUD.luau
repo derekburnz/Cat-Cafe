@@ -14,7 +14,7 @@
 --   Lighter HUD (Derek 2026-10-28, after a look at popular Roblox HUDs): counters, the clock and the goal are outlined
 --   text with no box behind them; only things you press look like buttons, and the top centre is left clear.
 --   left          square symbol tiles two to a row, three on a short screen that would need three rows (Derek
---                 2026-11-02, fewer buttons): Store (gold, once a pass is on sale), Cats, Index, Quests, Upgrades, Decor, with small key caps and red "!" dots, centred in the
+--                 2026-11-02, fewer buttons): Store (gold, always; #1167), Cats, Index, Quests, Upgrades, Decor, with small key caps and red "!" dots, centred in the
 --                 space over the counters, and an arrow tab under them (beside the last row on a short screen) that
 --                 folds them off the edge. Quests (F73) shows once ProfileSync has quests, with a red count of what is
 --                 ready to claim
@@ -115,7 +115,7 @@ export type HUD = {
 	screenOpened: (self: HUD, name: string?) -> (),
 	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
-	-- the gold Store tile at the top of the left menu, hidden until a pass is on sale (init's Store block)
+	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
@@ -728,6 +728,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._pop = pop
 	self._popFor = nil :: string?
 	self._popRows = {} :: { [string]: Button.Button }
+	self._popBadges = {} :: { [string]: Frame } -- each row's red "!" (#1074)
 
 	-- Clock (top right, under the icon row): the sun or moon and the time to the next phase (F20), right-aligned
 	-- outlined text with no chip behind it ("☀ Day 3:29")
@@ -888,7 +889,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Menu (left, vertically centred): square symbol tiles two to a row, the "Shop / Index" grid of popular
 	-- simulators (Derek 2026-11-02: "group some of the buttons into less screen clutter"; they were wide pills). A small
 	-- key cap shows the keyboard shortcut and a red "!" dot says the screen has something new. The gold Store tile
-	-- leads the grid once a pass is on sale (setStore); Potions moved to a symbol in the bottom right corner.
+	-- leads the grid once init's Store block hands it its window (setStore); Potions moved to a symbol in the bottom right corner.
 	local showKeys = UserInputService.KeyboardEnabled
 	type MenuItem = {
 		name: string,
@@ -2372,7 +2373,8 @@ function HUD._renderRewards(self: any)
 		Tween.popIn(self._rewardsDot, 0.5)
 	end
 	self._rewardsDot.Visible = ready > 0
-	self._rewardsCount.Text = tostring(ready)
+	-- a red "!" rather than a count (#1074, Derek: "should show a red exclamation mark as it's easier")
+	self._rewardsCount.Text = "!"
 	if self._popFor == "rewards" then
 		self:_fillPop() -- the open list's lines follow the countdown and the claims
 	end
@@ -2455,16 +2457,55 @@ function HUD._popText(self: any, id: string): string
 	if id == "Gifts" then
 		local summary: { ready: number, nextIn: number?, left: number }? = self._gift
 		local nextIn: number? = if summary then summary.nextIn else nil
+		-- a gift waiting shows the red "!" on the row (#1074), not "1 ready"
 		return if summary and summary.ready > 0
-			then ("Gifts: %d ready"):format(summary.ready)
+			then "Gifts"
 			elseif nextIn ~= nil then "Next gift " .. TipJarLogic.clock(nextIn)
 			else "Gifts"
 	elseif id == "Daily" then
-		return if self._dailyDue then "Daily treat: Claim!" else "Daily treat"
+		return "Daily treat"
 	elseif id == "Invite" then
 		return "Invite friends"
 	end
 	return id
+end
+
+-- Whether a list row has something to claim: it wears the red "!" (#1074).
+function HUD._popReady(self: any, id: string): boolean
+	if id == "Gifts" then
+		local summary: { ready: number, nextIn: number?, left: number }? = self._gift
+		return summary ~= nil and summary.ready > 0
+	elseif id == "Daily" then
+		return self._dailyDue == true
+	end
+	return false
+end
+
+-- The red "!" in a corner, the same badge as the Rewards tile's, on whatever can be claimed (#1074).
+local function claimBadge(parent: Instance, zIndex: number): Frame
+	local badge: Frame = Create("Frame", {
+		Name = "Claim",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -12, 0.5, -2), -- inside the row's right end, clear of the list's edge
+		Size = UDim2.fromOffset(24, 24),
+		Visible = false,
+		ZIndex = zIndex,
+		Parent = parent,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(badge, 2)
+	local mark = label({
+		Name = "Mark",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "!",
+		ZIndex = zIndex + 1,
+		Parent = badge,
+	})
+	mark.ZIndex = zIndex + 1
+	return badge
 end
 
 -- Opens the kind's list, or closes it when it is already open; another kind's list gives way.
@@ -2498,6 +2539,9 @@ function HUD._togglePop(self: any, kind: string)
 			end,
 		})
 		self._popRows[row.id] = button
+		local badge = claimBadge(button.instance, 23)
+		badge.Visible = self:_popReady(row.id)
+		self._popBadges[row.id] = badge
 	end
 	pop.Size = UDim2.fromOffset(POP_W, #rows * POP_ROW_H + math.max(0, #rows - 1) * 6 + 2 * POP_PAD)
 	self._popFor = kind
@@ -2510,6 +2554,10 @@ end
 function HUD._fillPop(self: any)
 	for id, button in self._popRows do
 		button:setText(self:_popText(id))
+		local badge: Frame? = self._popBadges[id]
+		if badge then
+			badge.Visible = self:_popReady(id)
+		end
 	end
 end
 
@@ -2520,11 +2568,12 @@ function HUD._closePop(self: any)
 		button:destroy()
 	end
 	table.clear(self._popRows)
+	table.clear(self._popBadges)
 end
 
 -- The gold Store tile at the top of the left menu (Derek 2026-11-02: "store still needs to be added"): shown with
--- the function that opens the Store window, hidden with nil. init's Store block calls it once Roblox says a pass is on
--- sale, or while the Workspace has StoreOpen for a preview; hidden, the grid closes up (review N341: moved here).
+-- the function that opens the Store window, hidden with nil. init's Store block calls it as soon as the window exists,
+-- passes on sale or not (#1167); hidden, the grid closes up (review N341: moved here).
 function HUD.setStore(self: any, open: (() -> ())?)
 	self._storeOpen = open
 	local tile: Button.Button = self._storeTile

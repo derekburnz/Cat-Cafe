@@ -147,6 +147,7 @@ UI.events = {
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
 	spinAll = Signal.new(), -- ()   Use all on the Spin window (#1078): forward as SpinAll
 	openCrate = Signal.new(), -- (crateId)   Open on a Golden Fish Market crate card: forward as OpenCrate (F53)
+	buyCrateBundle = Signal.new(), -- (crateId)   Buy 5 on a Market crate card: forward as BuyCrateBundle (#1051)
 	buyFishItem = Signal.new(), -- (itemId)   Buy on a Market treat or perk row: forward as BuyFishItem (F53)
 	buyFreshCatch = Signal.new(), -- (itemId, window?)   Buy on a Fresh Catch row: forward as BuyFreshCatch (F94)
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
@@ -165,7 +166,7 @@ UI.events = {
 	claimQuest = Signal.new(), -- (kind, slot)   Claim on a finished quest, kind "daily" or "weekly": forward as ClaimQuest
 	rerollQuest = Signal.new(), -- (kind, slot)   Swap on an unfinished quest (the free reroll): forward as RerollQuest
 	claimAchievement = Signal.new(), -- (achievementId)   Claim on a met achievement: forward as ClaimAchievement
-	claimAll = Signal.new(), -- (what)   Claim all: "daily", "weekly" or "achievements" (Quests, Config.QuestClaimAll), "index" (the Index window, Config.IndexClaimAll) or "tipjar" (the Tip Jar, Config.TipJarClaimAll): forward as ClaimAll
+	claimAll = Signal.new(), -- (what)   Claim all: "quests" (all three Quests tabs, #1073; or "daily", "weekly", "achievements"; Config.QuestClaimAll), "index" (the Index window, Config.IndexClaimAll) or "tipjar" (the Tip Jar, Config.TipJarClaimAll): forward as ClaimAll
 	-- F63
 	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
 	-- F70
@@ -1044,6 +1045,9 @@ function UI.init(config: Types.InitConfig)
 		openCrate = function(crateId: string)
 			UI.events.openCrate:Fire(crateId)
 		end,
+		buyCrateBundle = function(crateId: string)
+			UI.events.buyCrateBundle:Fire(crateId)
+		end,
 		buyItem = function(itemId: string)
 			UI.events.buyFishItem:Fire(itemId)
 		end,
@@ -1285,8 +1289,9 @@ function UI.init(config: Types.InitConfig)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	UI.trade.start() -- the Trade window in the modal (F102)
 	UI.lawn.start(parent) -- the front lawn's edit view (F91)
-	UI.store.start() -- the Store window and the HUD's Store tile, once a pass is on sale
+	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
 	worldTags = WorldTags.new()
+	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
 		blocked = function()
@@ -1397,6 +1402,7 @@ function UI.destroy()
 	UI.trade.reset()
 	UI.lawn.reset()
 	UI.store.reset()
+	UI.bubbles.reset()
 	if hud then
 		hud:destroy()
 	end
@@ -5130,8 +5136,9 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- The Store window (Derek 2026-11-02: "store still needs to be added"; Monetization-Agent's shop-and-pass-plan). The
--- HUD's gold Store tile shows once Roblox says any of our passes is on sale (they are off sale until launch), or
--- while the Workspace has StoreOpen = true for a preview. Each pass's card reads its price from Roblox and opens
+-- HUD's gold Store tile shows as soon as the window exists, on sale or not (Derek 2026-11-04, #1167: "the Store
+-- UI/menu is missing"; it used to wait for a pass on sale, and every pass is off sale until launch). An off-sale
+-- pass's card says "Soon". Each pass's card reads its price from Roblox and opens
 -- Roblox's own purchase window (Components/PassShop); the server's PassService turns a bought pass on. Its own
 -- block, as the module is short of locals.
 do
@@ -5141,7 +5148,6 @@ do
 	local shop = {
 		screen = nil :: Store.Store?,
 		changed = nil :: Signal.Connection?,
-		preview = nil :: RBXScriptConnection?,
 		open = false, -- whether the HUD's tile shows
 	}
 
@@ -5155,8 +5161,7 @@ do
 		if screen and modal and modal:current() == "Store" then
 			screen:render(rows(), PassShop.prices())
 		end
-		local open = StoreLogic.anyForSale(PassShop.prices())
-			or Workspace:GetAttribute("StoreOpen") == true
+		local open = screen ~= nil -- the tile shows whenever there is a window for it to open
 		if open ~= shop.open and hud then
 			shop.open = open
 			hud:setStore(if open
@@ -5194,7 +5199,6 @@ do
 			end,
 		})
 		shop.changed = PassShop.changed:Connect(refresh)
-		shop.preview = Workspace:GetAttributeChangedSignal("StoreOpen"):Connect(refresh)
 		PassShop.start(StoreLogic.passIds(Config))
 		refresh()
 	end
@@ -5222,16 +5226,59 @@ do
 			shop.changed:Disconnect()
 			shop.changed = nil
 		end
-		if shop.preview then
-			shop.preview:Disconnect()
-			shop.preview = nil
-		end
 		if shop.screen then
 			shop.screen:destroy()
 			shop.screen = nil
 		end
+		if shop.open and hud then
+			hud:setStore(nil) -- no window left for the tile to open
+		end
 		shop.open = false
 		PassShop.stop()
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Cat speech bubbles (#1079, cat-bubbles.md)
+----------------------------------------------------------------------------------------------------
+
+-- One short line over the nearest key cat (Screens/CatBubbles), hidden while any window, pop-up or bait card is
+-- open, during the catch circles or a rescue, while carrying, in the intro and while the UI is hidden. The Bellhop
+-- Cat's line needs `starterCatClaimed` in UI.update (false shows it); without it that line stays quiet. Its own
+-- block, as the module is short of locals.
+UI.bubbles = {}
+do
+	local CatBubbles = require(script.Screens.CatBubbles)
+	local bubbles: CatBubbles.CatBubbles? = nil
+
+	-- UI.init.
+	function UI.bubbles.start(parent: Instance)
+		UI.bubbles.reset()
+		bubbles = CatBubbles.new(parent, {
+			blocked = function(): boolean
+				return not visible
+					or (modal ~= nil and modal:current() ~= nil)
+					or (popups ~= nil and popups:isShowing())
+					or (baitCard ~= nil and baitCard:isShowing())
+					or (askCard ~= nil and askCard:isShowing())
+					or (hud ~= nil and hud:isCarrying())
+					or UI.catch.circlesActive()
+					or UI.rescue.isActive()
+					or UI.intro.playing()
+			end,
+			claimed = function(): boolean?
+				local claimed = (state :: any).starterCatClaimed
+				return if type(claimed) == "boolean" then claimed else nil
+			end,
+		})
+	end
+
+	-- UI.destroy.
+	function UI.bubbles.reset()
+		if bubbles then
+			bubbles:destroy()
+			bubbles = nil
+		end
 	end
 end
 

@@ -254,8 +254,7 @@ local function campExtras(picnic, bought, open)
 			held = if bought then 0 else 2,
 			nextAt = now + 3 * 3600,
 			stock = {
-				{ crateId = "classic_crate", price = 40, bought = bought },
-				{ crateId = "park_crate", price = 40, bought = bought },
+				{ crateId = "park_crate", price = 0, bought = bought }, -- #1051: one free crate a day
 			},
 		},
 		pond = { open = false, held = 0 },
@@ -1233,7 +1232,7 @@ local SCENES = {
 	{ "HUDCarry", function()
 		UI.setCarrying({ catId = Catalog.cats[1].id, catName = Catalog.cats[1].name, rarity = Catalog.cats[1].rarity })
 	end },
-	-- the Store (Derek 2026-11-02 20:01): passes on sale, so the HUD's gold Store tile shows at the top of the left grid
+	-- the Store (Derek 2026-11-02 20:01): passes on sale; the HUD's gold Store tile at the top of the left grid
 	{ "HUDStore", function()
 		UI.store.preview(storePrices(true), {})
 	end },
@@ -1248,11 +1247,26 @@ local SCENES = {
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[2]] = true, [Config.LongNapPassId] = true })
 		UI.open("Store")
 	end },
-	-- the passes off sale (a Studio preview with StoreOpen): every card says Soon
+	-- the passes off sale (as on live until launch): every card says Soon
 	{ "StoreSoon", function()
-		workspace:SetAttribute("StoreOpen", true)
 		UI.store.preview(storePrices(false), {})
 		UI.open("Store")
+	end },
+	-- #1167 (Derek 2026-11-04: "the Store UI/menu is missing"): with every pass off sale the HUD's gold Store tile
+	-- still shows, and a press on it opens the Store window. A hidden tile or a window that does not open fails here.
+	{ "HUDStoreOffSale", function()
+		UI.store.preview(storePrices(false), {})
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local hudRoot = hud and hud:FindFirstChild("Root")
+		local menu = hudRoot and hudRoot:FindFirstChild("Menu") -- on touch the tile is the grid's first square
+		local tile = hudRoot and (hudRoot:FindFirstChild("Store") or (menu and menu:FindFirstChild("Store")))
+		assert(tile and tile:IsA("GuiObject") and tile.Visible, "uigate: the HUD's Store tile is hidden (#1167)")
+		press("CatCafeHUD", "Store")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local modalRoot = modals and modals:FindFirstChild("Root")
+		local container = modalRoot and modalRoot:FindFirstChild("Container")
+		local window = container and container:FindFirstChild("Store")
+		assert(window and window:IsA("GuiObject") and window.Visible, "uigate: the Store tile did not open the Store")
 	end },
 	-- F102: the Trade window's players: Sam to ask, Alex under the minimum tier, Mia busy in a trade
 	{ "TradePlayers", function()
@@ -1367,8 +1381,7 @@ function Scenes.close()
 	UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = workspace:GetServerTimeNow() + 3 * 86400 })) -- F101: no Rally
 	UI.trade.state(nil) -- F102: no trade, no TradeService, and the other players leave
 	UI.setCarrying(nil) -- no carry banner
-	UI.store.preview({}, {}) -- no pass on sale or owned, so the HUD's Store tile hides again
-	workspace:SetAttribute("StoreOpen", nil)
+	UI.store.preview({}, {}) -- no pass on sale or owned (the HUD's Store tile shows either way, #1167)
 	if workspace:GetAttribute("TradingOn") ~= nil then
 		workspace:SetAttribute("TradingOn", nil)
 		-- the HUD drops its Trade tile again, and Trade requests (SettingsTrading) goes back to its default; only

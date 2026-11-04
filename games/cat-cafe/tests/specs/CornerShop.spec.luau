@@ -228,7 +228,7 @@ return function()
 
 	describe("save version 29", function()
 		it("starts an older save with nothing bought and makes a damaged one whole", function()
-			expect(ProfileSchema.VERSION).to.equal(29)
+			expect(ProfileSchema.VERSION >= 29).to.equal(true)
 			local raw: any = ProfileSchema.template(NOW)
 			raw.version = 28
 			raw.cornerShop = nil

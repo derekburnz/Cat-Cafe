@@ -100,7 +100,10 @@ local RADIUS = 0.32 -- prize middles from the hub, of the face
 local SPOKE = 5 -- the white divider between two wedges
 -- The wedges (the user, 2026-11-04: "make the menu ui of the spin section much more satisfying and clean looking"): a
 -- classic prize wheel, each slice a bright wedge. Roblox UI has no pie shape, so a wedge is a fan of thin bars from
--- the hub to the edge, WEDGE_STEP degrees apart; the white dividers and the rim's outline cover their seams.
+-- the hub to the edge, WEDGE_STEP degrees apart. Each bar's long side lies on a ray and the bar reaches into its own
+-- wedge (clockwise in the first half, back in the second), so no bar crosses a divider: a bar centred on its ray
+-- would spill past it near the hub (Review-Agent, #1109). Its far side could only cross the wedge's other edge inside
+-- 2 bar widths of the middle, under the hub.
 local WEDGE_STEP = 4
 local RIM_COLOR = Color3.fromHex("C2335F") -- deep berry, the window's header colour darker
 local HUB_COLOR = Color3.fromHex("FFC94D")
@@ -240,7 +243,10 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 			circle({
 				Name = "Light" .. index,
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.fromScale(0.5 + 0.475 * math.sin(theta), 0.5 - 0.475 * math.cos(theta)),
+				Position = UDim2.fromScale(
+					0.5 + 0.475 * math.sin(theta),
+					0.5 - 0.475 * math.cos(theta)
+				),
 				Size = UDim2.fromScale(0.045, 0.045),
 				BackgroundColor3 = Theme.colors.gold,
 				BorderSizePixel = 0,
@@ -260,7 +266,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	Outline.border(face, Theme.sizes.outline, Theme.colors.outline)
 	self._face = face
 	-- the wedges turn with the wheel: one frame holds them all and takes the wheel's angle (_setAngle)
-	self._bars = {} :: { { frame: Frame, base: number } }
+	self._bars = {} :: { { frame: Frame, base: number, side: number } }
 	self._wedges = Create("Frame", {
 		Name = "Wedges",
 		BackgroundTransparency = 1,
@@ -606,7 +612,12 @@ end
 
 -- The crate id a crate slice pays this player now (F54: "highest" is the crate of their highest open area).
 function SpinWheel._crateOf(self: any, row: Types.SpinRow): string
-	return CrateLogic.resolve(row.crate or CrateLogic.HIGHEST, self._crates, self._areas, self._tier)
+	return CrateLogic.resolve(
+		row.crate or CrateLogic.HIGHEST,
+		self._crates,
+		self._areas,
+		self._tier
+	)
 end
 
 -- A crate slice's picture, again whenever a new area changes which crate it pays.
@@ -647,7 +658,11 @@ end
 
 -- SpinAllResult(rolls, totals): the wheel turns to the last roll, then one card sums every prize (no popup per spin).
 -- Empty lists mean refused (out of range, cooldown, no spins); the window says why as for one spin.
-function SpinWheel.allResult(self: any, rolls: { { slice: number, amount: number } }, totals: { SpinLogic.Total })
+function SpinWheel.allResult(
+	self: any,
+	rolls: { { slice: number, amount: number } },
+	totals: { SpinLogic.Total }
+)
 	self._allPending = nil
 	if #rolls == 0 then
 		self:result(0, 0)
@@ -718,7 +733,10 @@ function SpinWheel._showAllCard(self: any, count: number, prize: Types.IndexPriz
 			name = "Nice",
 			text = "Nice!",
 			style = "primary",
-			size = UDim2.fromOffset(160, Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)),
+			size = UDim2.fromOffset(
+				160,
+				Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
+			),
 			anchorPoint = Vector2.new(0.5, 1),
 			position = UDim2.new(0.5, 0, 1, -10),
 			zIndex = 22,
@@ -789,24 +807,31 @@ function SpinWheel._build(self: any)
 	table.clear(self._bars)
 	local count = #self._rows
 	local size = if count > 0 then 360 / count else 360
-	local half = math.tan(math.rad(WEDGE_STEP / 2 + 0.6)) -- a bar's half width, of its length, so neighbours overlap
+	local steps = math.max(2, math.ceil(size / WEDGE_STEP))
+	local step = size / steps
+	-- a bar's width, of the face: wide enough to reach the next ray at the rim, a little more so neighbours overlap
+	local width = 0.5 * math.sin(math.rad(step)) * 1.15
+	self._barWidth = width
 	for index = 1, count do
 		local color = SLICE_COLORS[(index - 1) % #SLICE_COLORS + 1]
 		local from = (index - 1) * size - size / 2
-		local steps = math.max(1, math.ceil(size / WEDGE_STEP))
-		for step = 0, steps - 1 do
-			-- placed like a divider: centred halfway out along its angle and turned to it (_setAngle), as a frame
-			-- turns about its own middle
+		local function add(base: number, side: number)
 			local bar: Frame = Create("Frame", {
 				Name = "Bar",
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				Size = UDim2.fromScale(half, 0.5),
+				Size = UDim2.fromScale(width, 0.5),
 				BackgroundColor3 = color,
 				BorderSizePixel = 0,
 				ZIndex = 1,
 				Parent = self._wedges,
 			})
-			table.insert(self._bars, { frame = bar, base = from + (step + 0.5) * size / steps })
+			table.insert(self._bars, { frame = bar, base = base, side = side })
+		end
+		for k = 0, math.ceil(steps / 2) - 1 do
+			add(from + k * step, 1) -- from the wedge's first edge, reaching clockwise
+		end
+		for k = 0, math.ceil(steps / 2) - 1 do
+			add(from + size - k * step, -1) -- from its last edge, reaching back
 		end
 	end
 	for _, tile in self._oddsTiles do
@@ -980,7 +1005,8 @@ function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
 		Parent = line,
 	})
 	Outline.text(chance, 1)
-	local tile: Tile = { holder = line, stroke = stroke, icon = icon, row = row, crate = nil, prize = prize }
+	local tile: Tile =
+		{ holder = line, stroke = stroke, icon = icon, row = row, crate = nil, prize = prize }
 	self:_paint(tile)
 	table.insert(self._oddsTiles, tile)
 end
@@ -1000,15 +1026,22 @@ function SpinWheel._setAngle(self: any, angle: number)
 		return
 	end
 	local size = 360 / count
+	-- a bar turns about its middle: halfway out along its ray, then half its width off the ray into its wedge
+	local offset = (self._barWidth or 0) / 2
 	for _, bar in self._bars do
 		local turn = bar.base + angle
 		local theta = math.rad(turn)
-		bar.frame.Position = UDim2.fromScale(0.5 + 0.25 * math.sin(theta), 0.5 - 0.25 * math.cos(theta))
+		local sin, cos = math.sin(theta), math.cos(theta)
+		bar.frame.Position = UDim2.fromScale(
+			0.5 + 0.25 * sin + bar.side * offset * cos,
+			0.5 - 0.25 * cos + bar.side * offset * sin
+		)
 		bar.frame.Rotation = turn
 	end
 	for index, tile: Tile in self._tiles do
 		local theta = math.rad((index - 1) * size + angle)
-		tile.holder.Position = UDim2.fromScale(0.5 + RADIUS * math.sin(theta), 0.5 - RADIUS * math.cos(theta))
+		tile.holder.Position =
+			UDim2.fromScale(0.5 + RADIUS * math.sin(theta), 0.5 - RADIUS * math.cos(theta))
 	end
 	for index, spoke: Frame in self._spokes do
 		local edge = (index - 0.5) * size + angle
@@ -1056,7 +1089,9 @@ function SpinWheel._land(self: any, turn: Turn)
 	self:_blink(nil)
 	self:_light(turn.index)
 	local row: Types.SpinRow? = self._rows[turn.index]
-	local won = if row then "You won " .. self:_prize(row, turn.amount) .. "!" else "You won a prize!"
+	local won = if row
+		then "You won " .. self:_prize(row, turn.amount) .. "!"
+		else "You won a prize!"
 	self:_say(won, PAL.good)
 	local tile: Tile? = self._tiles[turn.index]
 	if tile and self.frame.Visible then
@@ -1224,7 +1259,9 @@ function SpinWheel._refresh(self: any)
 	local all: Button.Button = self._allButton
 	local showAll = self._callbacks.spinAll ~= nil and spins > 1
 	all.instance.Visible = showAll
-	self._oddsButton.instance.Size = if showAll then UDim2.new(0.5, -4, 1, 0) else UDim2.fromScale(1, 1)
+	self._oddsButton.instance.Size = if showAll
+		then UDim2.new(0.5, -4, 1, 0)
+		else UDim2.fromScale(1, 1)
 	all:setText(if allPending then "..." else SpinLogic.allText(spins, (Config :: any).SpinAllMax))
 	all:setEnabled(not allPending and turn == nil and self._pressedAt == nil)
 end

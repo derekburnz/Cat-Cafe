@@ -58,7 +58,9 @@ jobs:
           git for-each-ref --merged origin/main --format='%(refname:lstrip=3) %(committerdate:unix)' refs/remotes/origin \
             | awk -v c="$cutoff" '$2 < c {print $1}' | grep -v -x -e HEAD -e main -e origin | sort -u > in_main.txt
           git branch -r --format='%(refname:short)' | sed 's#^origin/##' | grep -v -x -e HEAD -e main -e origin | sort -u > all.txt
-          printf '%s\n' $ALSO_DELETE | grep -v -x -e '' -e main -e HEAD | sort -u > also.txt
+          set -f
+          printf '%s\n' $ALSO_DELETE | { grep -v -x -e '' -e main -e HEAD || true; } | sort -u > also.txt
+          set +f
           sort -u merged_pr.txt in_main.txt also.txt | comm -12 - all.txt | comm -23 - open.txt > delete.txt
           comm -23 all.txt delete.txt > keep.txt
           echo "Branches: $(wc -l < all.txt). To delete: $(wc -l < delete.txt). Kept: $(wc -l < keep.txt) (open PRs: $(wc -l < open.txt))."

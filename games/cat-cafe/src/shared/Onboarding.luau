@@ -285,8 +285,11 @@ function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { St
 		if step == nil or Onboarding.reached(state, name) then
 			return
 		end
-		for _, earlier in Onboarding.IMPLIES[name] or {} do
-			go(earlier)
+		local implied: { StepName }? = Onboarding.IMPLIES[name]
+		if implied ~= nil then
+			for _, earlier in implied do
+				go(earlier)
+			end
 		end
 		if step > state.onboardingStep + 1 then
 			state.achieved[tostring(step)] = true

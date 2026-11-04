@@ -5251,9 +5251,13 @@ do
 	local CatBubbles = require(script.Screens.CatBubbles)
 	local bubbles: CatBubbles.CatBubbles? = nil
 
-	-- UI.init.
+	-- UI.init. Off unless Config.CatBubblesEnabled is true (#1188, the friend 11-04: "vault the text bubble pop-ups
+	-- from walking near cats/npc's"); the code stays so they can come back.
 	function UI.bubbles.start(parent: Instance)
 		UI.bubbles.reset()
+		if (Config :: any).CatBubblesEnabled ~= true then
+			return
+		end
 		bubbles = CatBubbles.new(parent, {
 			blocked = function(): boolean
 				return not visible

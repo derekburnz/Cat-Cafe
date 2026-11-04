@@ -190,7 +190,7 @@ Onboarding.IMPLIES = {
 	tier_2 = { "rank_up_card_seen", "rank_up_ready" }, -- RankUp is pressed on the card with the needs met
 	first_park_catch = { "tier_2" }, -- the Park opens at Tier 2
 	tier_3 = { "tier_2" },
-} :: { [string]: { StepName } }
+} :: { [string]: { string } }
 
 -- The v2 funnel's 25 steps (F87 to #1273), for a save from it (fromOld) and the report's labels for onboarding_v2.
 Onboarding.V2_STEPS = {
@@ -280,12 +280,17 @@ end
 -- (it is held). Mutates `state`.
 function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { StepName }
 	local toLog: { StepName } = {}
-	local function go(name: StepName)
+	-- names are plain strings here (IMPLIES' lists read back as strings); what is logged is STEPS', typed
+	local function go(name: string)
 		local step = indexOf[name]
-		if step == nil or Onboarding.reached(state, name) then
+		if
+			step == nil
+			or step <= state.onboardingStep
+			or state.achieved[tostring(step)] == true
+		then
 			return
 		end
-		local implied: { StepName }? = Onboarding.IMPLIES[name]
+		local implied: { string }? = Onboarding.IMPLIES[name]
 		if implied ~= nil then
 			for _, earlier in implied do
 				go(earlier)
@@ -296,7 +301,7 @@ function Onboarding.reach(state: Types.TelemetryState, stepName: StepName): { St
 			return
 		end
 		state.onboardingStep = step
-		table.insert(toLog, name)
+		table.insert(toLog, Onboarding.STEPS[step])
 		while state.achieved[tostring(state.onboardingStep + 1)] do
 			state.onboardingStep += 1
 			state.achieved[tostring(state.onboardingStep)] = nil

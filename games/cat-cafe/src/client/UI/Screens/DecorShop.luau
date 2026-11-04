@@ -26,6 +26,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local Format = require(script.Parent.Parent.Components.Format)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
@@ -597,7 +598,8 @@ function DecorShop._build(self: any)
 			pieceIcon:set(
 				decor.asset,
 				DecorPieces.kindIcon(piece.kind, Theme.icons.decor),
-				piece.rarity
+				piece.rarity,
+				ShopIcons.decor(decor.id)
 			)
 			icon = pieceIcon
 			local rarity = text({
@@ -623,9 +625,9 @@ function DecorShop._build(self: any)
 				Parent = rarity,
 			})
 		else
-			-- placeholder art until decor renders exist: a coloured block with the first letter (DecorDef.asset
-			-- names the 3D model, not an image)
-			text({
+			-- the piece's clean picture (#1072) on its coloured block; the first letter stands in until it loads
+			-- (DecorDef.asset names the 3D model, not an image)
+			local letter = text({
 				Size = UDim2.fromScale(1, 1),
 				FontFace = Theme.fonts.display,
 				TextSize = 34,
@@ -634,6 +636,10 @@ function DecorShop._build(self: any)
 				Text = decor.name:sub(1, 1),
 				Parent = art,
 			})
+			local picture = ShopIcons.decor(decor.id)
+			if picture then
+				IconArt.setImage(letter, picture, 0.86)
+			end
 		end
 		-- Index decor (F48): a dark ribbon over the art says which Index milestone wins it, until it is claimed
 		local unlock: TextLabel? = nil

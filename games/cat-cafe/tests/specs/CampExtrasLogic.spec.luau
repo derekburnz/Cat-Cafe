@@ -28,8 +28,7 @@ return function()
 				held = if yardBought then 0 else 2,
 				nextAt = NOW + 3 * 3600,
 				stock = {
-					{ crateId = "classic_crate", price = 40, bought = yardBought },
-					{ crateId = "park_crate", price = 40, bought = yardBought },
+					{ crateId = "park_crate", price = 0, bought = yardBought }, -- #1051: one free crate
 				},
 			},
 			pond = shut(),
@@ -48,14 +47,17 @@ return function()
 	end)
 
 	describe("CampExtrasLogic.pickerLine", function()
-		it("splits the shared line into the name and what waits, with the red dot when it is ready", function()
-			local line = CampExtrasLogic.pickerLine(tier3(1, false), "park", NOW)
-			expect(line.extraId).to.equal("picnic")
-			expect(line.icon).to.equal("🧺")
-			expect(line.name).to.equal("Picnic Basket")
-			expect(line.state).to.equal("1 ready")
-			expect(line.ready).to.equal(true)
-		end)
+		it(
+			"splits the shared line into the name and what waits, with the red dot when it is ready",
+			function()
+				local line = CampExtrasLogic.pickerLine(tier3(1, false), "park", NOW)
+				expect(line.extraId).to.equal("picnic")
+				expect(line.icon).to.equal("🧺")
+				expect(line.name).to.equal("Picnic Basket")
+				expect(line.state).to.equal("1 ready")
+				expect(line.ready).to.equal(true)
+			end
+		)
 
 		it("shows the wait with no dot while nothing is ready", function()
 			local line = CampExtrasLogic.pickerLine(tier3(0, false), "park", NOW)
@@ -63,50 +65,56 @@ return function()
 			expect(line.ready).to.equal(false)
 		end)
 
-		it("words the Yard Sale's free crate, with no dot until UI-Engineer's #1051 card", function()
+		it("words the Yard Sale's free crate, with the red dot while it waits (#1051)", function()
 			local fresh = CampExtrasLogic.pickerLine(tier3(0, false), "neighbourhood", NOW)
 			expect(fresh.name).to.equal("Yard Sale")
 			expect(fresh.state).to.equal("Free crate")
-			expect(fresh.ready).to.equal(false)
+			expect(fresh.ready).to.equal(true)
 			local sold = CampExtrasLogic.pickerLine(tier3(0, true), "neighbourhood", NOW)
 			expect(sold.state).to.equal("New crate in 3 h")
 			expect(sold.ready).to.equal(false)
 		end)
 
-		it("shows nothing for an area with no extra, a shut extra or before the first state", function()
-			expect(CampExtrasLogic.pickerLine(tier3(1, false), "alley", NOW)).to.equal(nil)
-			expect(CampExtrasLogic.pickerLine(tier3(1, false), "woods", NOW)).to.equal(nil)
-			expect(CampExtrasLogic.pickerLine(nil, "park", NOW)).to.equal(nil)
-		end)
+		it(
+			"shows nothing for an area with no extra, a shut extra or before the first state",
+			function()
+				expect(CampExtrasLogic.pickerLine(tier3(1, false), "alley", NOW)).to.equal(nil)
+				expect(CampExtrasLogic.pickerLine(tier3(1, false), "woods", NOW)).to.equal(nil)
+				expect(CampExtrasLogic.pickerLine(nil, "park", NOW)).to.equal(nil)
+			end
+		)
 	end)
 
 	describe("CampExtrasLogic Yard Sale card", function()
-		it("lists today's crates with whether the player's golden fish cover them", function()
-			local rows = CampExtrasLogic.yardRows(tier3(0, false).yardSale, 40)
-			expect(#rows).to.equal(2)
-			expect(rows[1].crateId).to.equal("classic_crate")
-			expect(rows[2].crateId).to.equal("park_crate")
+		it("lists today's one free crate, which any player can take (#1051)", function()
+			local rows = CampExtrasLogic.yardRows(tier3(0, false).yardSale, 0)
+			expect(#rows).to.equal(1)
+			expect(rows[1].crateId).to.equal("park_crate")
 			expect(rows[1].afford).to.equal(true)
-			local poor = CampExtrasLogic.yardRows(tier3(0, false).yardSale, 39)
-			expect(poor[1].afford).to.equal(false)
 			expect(#CampExtrasLogic.yardRows(shut(), 100)).to.equal(0)
 			expect(#CampExtrasLogic.yardRows(nil, 100)).to.equal(0)
 		end)
 
-		it("words the Buy button: the price, Bought once taken, ... while a buy is out", function()
-			local rows = CampExtrasLogic.yardRows(tier3(0, false).yardSale, 100)
-			expect(CampExtrasLogic.yardButton(rows[1], false)).to.equal("40")
+		it("words the button: Take, Taken once taken, ... while a take is out (#1051)", function()
+			local rows = CampExtrasLogic.yardRows(tier3(0, false).yardSale, 0)
+			expect(CampExtrasLogic.yardButton(rows[1], false)).to.equal("Take")
 			expect(CampExtrasLogic.yardButton(rows[1], true)).to.equal("...")
-			local bought = CampExtrasLogic.yardRows(tier3(0, true).yardSale, 100)
-			expect(CampExtrasLogic.yardButton(bought[1], true)).to.equal("Bought")
+			local taken = CampExtrasLogic.yardRows(tier3(0, true).yardSale, 0)
+			expect(CampExtrasLogic.yardButton(taken[1], true)).to.equal("Taken")
+			expect(
+				CampExtrasLogic.yardButton(
+					{ crateId = "x", price = 40, bought = false, afford = true },
+					false
+				)
+			).to.equal("40")
 		end)
 
 		it("says when the next crates come", function()
 			local view = tier3(0, false).yardSale
 			view.nextAt = NOW + 3 * 3600 + 600
-			expect(CampExtrasLogic.yardFooter(view, NOW)).to.equal("New crates in 3 h 10 m")
+			expect(CampExtrasLogic.yardFooter(view, NOW)).to.equal("New crate in 3 h 10 m")
 			view.nextAt = nil
-			expect(CampExtrasLogic.yardFooter(view, NOW)).to.equal("New crates tomorrow")
+			expect(CampExtrasLogic.yardFooter(view, NOW)).to.equal("New crate tomorrow")
 			expect(CampExtrasLogic.yardFooter(shut(), NOW)).to.equal("Opens at Tier 3")
 		end)
 	end)

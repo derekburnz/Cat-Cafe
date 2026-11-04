@@ -3,7 +3,7 @@
 -- bottom row, and the Q key (gamepad Y), shown only while the controller says you stand in a catching area you have
 -- unlocked (setEnabled). Derek 2026-10-27 23:25: "dont need a tackle button taking up a lot of the screen make a bar
 -- that slowly recharges after tackle so people can tell when ready". The bar is full and bright orange when a tackle
--- is ready; a press empties it and it refills from the left over the TackleCooldownSeconds (8), then pops once when
+-- is ready; a press empties it and it refills from the left over the TackleCooldownSeconds (5), then pops once when
 -- it is full again. On touch the bar itself is the tap target, since phones have no Q.
 -- There is no lock-on (Derek 2026-10-27: "so you can just spam it and chase people it needs to be like skill"): a
 -- press fires tackle() and the character lunges straight ahead, TackleLungeStuds (12). There is no aim arrow on the

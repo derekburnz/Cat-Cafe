@@ -1,5 +1,6 @@
 # Deletes finished branches: every branch whose pull request was merged, plus every branch whose tip is already in
-# main. Branches with an open pull request, main itself, and branches that never had a merged pull request are kept.
+# main (if its last commit is over 2 days old). Branches with an open pull request, main itself, fresh branches and
+# branches that never had a merged pull request are kept.
 # Run from the Actions tab (branch-cleanup > Run workflow) or the GitHub actions_run_trigger tool. dry_run (default
 # true) only lists what would go; set it to false to delete. A deleted branch can be restored from its pull request
 # page ("Restore branch") or from refs/pull/<n>/head. Added 2026-11-04 at Derek's ask (friend's project).
@@ -12,6 +13,10 @@ on:
         description: "List only, delete nothing"
         type: boolean
         default: true
+      also_delete:
+        description: "Extra branches to delete even though they never merged (space separated; never main or an open PR's branch)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -30,6 +35,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}
       DRY_RUN: ${{ inputs.dry_run }}
+      ALSO_DELETE: ${{ inputs.also_delete }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -46,10 +52,16 @@ jobs:
             | sort -u > merged_pr_heads.txt
           git for-each-ref --format='%(refname:lstrip=3) %(objectname)' refs/remotes/origin | sort -u > tips.txt
           comm -12 merged_pr_heads.txt tips.txt | cut -d' ' -f1 | sort -u > merged_pr.txt
-          git branch -r --merged origin/main --format='%(refname:short)' | sed 's#^origin/##' \
-            | grep -v -x -e HEAD -e main -e origin | sort -u > in_main.txt
+          # Branches already in main by ancestry, but only when their last commit is over 2 days old: a branch
+          # just made from main (no commits of its own yet, like a new claude/* session branch) is kept.
+          cutoff=$(date -u -d '2 days ago' +%s)
+          git for-each-ref --merged origin/main --format='%(refname:lstrip=3) %(committerdate:unix)' refs/remotes/origin \
+            | awk -v c="$cutoff" '$2 < c {print $1}' | grep -v -x -e HEAD -e main -e origin | sort -u > in_main.txt
           git branch -r --format='%(refname:short)' | sed 's#^origin/##' | grep -v -x -e HEAD -e main -e origin | sort -u > all.txt
-          sort -u merged_pr.txt in_main.txt | comm -12 - all.txt | comm -23 - open.txt > delete.txt
+          set -f
+          printf '%s\n' $ALSO_DELETE | { grep -v -x -e '' -e main -e HEAD || true; } | sort -u > also.txt
+          set +f
+          sort -u merged_pr.txt in_main.txt also.txt | comm -12 - all.txt | comm -23 - open.txt > delete.txt
           comm -23 all.txt delete.txt > keep.txt
           echo "Branches: $(wc -l < all.txt). To delete: $(wc -l < delete.txt). Kept: $(wc -l < keep.txt) (open PRs: $(wc -l < open.txt))."
           echo "== kept (not open, never merged):"

@@ -154,6 +154,7 @@ return function()
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,
+		SpinAllMax = 25, -- #1078 (Derek 2026-11-04): Use all spins
 		SpinBankCap = 20,
 		-- golden fish and crates (F52, F53, golden-fish.md section 8)
 		CrateLuckyEvery = 20,

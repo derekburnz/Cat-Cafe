@@ -62,6 +62,8 @@ Remotes.ClientToServer = {
 	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)
 	"ClaimIndexReward", -- (areaId: string, milestoneId: string)  known prize, unclaimed, the area's count met (F48)
 	"SpinWheel", -- ()  within SpinStationRange of a SpinWheel station, a free or banked spin, SpinCooldownSeconds (F49)
+	"SpinAll", -- ()  #1078: as SpinWheel, but spends every free and banked spin, up to SpinAllMax, each rolled with the
+	-- same odds; 1 a second; answered with SpinAllResult
 	"OpenCrate", -- (crateId: string)  within FishMarketRange of a FishMarket, the crate's zone unlocked, a banked
 	-- crate (used first) or its price in golden fish, CrateOpenCooldownSeconds between opens (F53, shared/Crates)
 	"BuyCrateBundle", -- (crateId: string)  #1051 (crate-prices.md section 3): within FishMarketRange of a FishMarket, a
@@ -204,6 +206,8 @@ Remotes.ServerToClient = {
 	"ShowTip", -- (id: string)  F87 (easy-start.md section 3): a server-side context tip's moment came (shared/Tips:
 	-- `due` from the save and the clock, or its event, or F96's `dueAsk`, one ask a session); at most once a session
 	-- per id until TipSeen. The client queues and times it, then answers TipSeen
+	"SpinAllResult", -- (rolls: { Spin.SpinRoll }, totals: { Spin.SpinTotal })  #1078: each spin's slice and amount in
+	-- order, and the prizes added up for the one results card; both empty when nothing was spent
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)
 	"CrateResult", -- (crateId: string, decorId: string, duplicate: boolean, refund: number)  the piece an OpenCrate

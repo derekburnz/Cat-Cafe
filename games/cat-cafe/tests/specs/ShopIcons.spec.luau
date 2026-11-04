@@ -28,6 +28,12 @@ return function()
 			expect(ShopIcons.crate(nil)).to.equal(nil)
 		end)
 
+		it("gives a potion size its regular potion's bottle (#1250)", function()
+			expect(ShopIcons.potion("swift_potion_small")).to.equal(ShopIcons.potion("swift_potion"))
+			expect(ShopIcons.potion("quick_bait_potion_big")).to.equal(ShopIcons.potion("quick_bait_potion"))
+			expect(ShopIcons.potion("cat_whistle_big")).to.equal(ShopIcons.potion("cat_whistle"))
+			expect(ShopIcons.potion("cat_whistle") ~= nil).to.equal(true)
+		end)
 		it("has a bottle for every potion in the catalog", function()
 			-- the clean bottle first (#1070), the old picture behind it
 			expect(ShopIcons.potion("gold_rush_potion")).to.equal("rbxassetid://133671235439574") -- the #1193 flask (#1204)
@@ -39,9 +45,6 @@ return function()
 			end
 			expect(table.concat(missing, ",")).to.equal("")
 			expect(ShopIcons.potion("moon_potion")).to.equal(nil)
-			-- Corner Shop v2 (#1180): a size shows its regular bottle, the Cat Whistle the plain clean flask
-			expect(ShopIcons.potion("steady_potion_big")).to.equal(ShopIcons.potion("steady_potion"))
-			expect(ShopIcons.potion("cat_whistle_small")).to.equal(ShopIcons.potion("cat_whistle"))
 		end)
 
 		it("draws the Market's perks and every food in the catalog (F97)", function()

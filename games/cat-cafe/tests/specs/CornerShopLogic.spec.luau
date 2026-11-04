@@ -9,10 +9,12 @@ return function()
 	local snack = {
 		id = "cat_snack",
 		name = "Cat Snack",
-		kind = "snack",
+		family = "snack",
+		size = "regular",
+		kind = "food",
+		foodId = "cat_snack",
+		price = 1500,
 		xp = 1200,
-		seconds = 300,
-		atLeast = 500,
 	}
 
 	describe("CornerShopLogic", function()
@@ -21,10 +23,12 @@ return function()
 			expect(Logic.clock(900, 1000)).to.equal("Restocks in 0:00")
 		end)
 		it("says how often a row is in stock from the weights", function()
-			-- Corner Shop v2 (#1180): by the row's size
+			-- by size (corner-shop-v2.md section 1): small {0,..}, regular 20 of 100 none, big 70, mega 90
 			expect(Logic.chance("swift_potion_small")).to.equal("Always in stock")
 			expect(Logic.chance("cat_snack")).to.equal("In stock 8 times in 10")
 			expect(Logic.chance("big_cat_snack")).to.equal("In stock 3 times in 10")
+			expect(Logic.chance("cat_feast")).to.equal("In stock 1 time in 10")
+			expect(Logic.effect(snack)).to.equal("+1,200 XP cat food, into your Bag")
 			expect(Logic.chance("nothing")).to.equal("")
 		end)
 		it("words the stock line", function()
@@ -44,7 +48,7 @@ return function()
 			expect(ok.text).to.equal("Buy · $1,500")
 			expect(ok.enabled).to.equal(true)
 			expect(Logic.button(item, snack, 1000, 12000).enabled).to.equal(false)
-			expect(Logic.button(item, snack, 9000, 1000).text).to.equal("Snacks full")
+			expect(Logic.button(item, snack, 9000, 1000).text).to.equal("Food full")
 			expect(
 				Logic.button({ itemId = "x", price = 1, amount = 1, bought = 1 }, nil, 9, 0).text
 			).to.equal("Sold out")
@@ -52,8 +56,8 @@ return function()
 				Logic.button({ itemId = "x", price = 1, amount = 0, bought = 0 }, nil, 9, 0).text
 			).to.equal("None")
 		end)
-		it("says the snack XP left today", function()
-			expect(Logic.snackLine(4800)).to.equal("Snacks today: 4,800 / 20,000 XP")
+		it("says the cat food XP left today", function()
+			expect(Logic.snackLine(4800)).to.equal("Cat food today: 4,800 / 20,000 XP")
 			expect(Logic.snackRoom(19000)).to.equal(1000)
 			expect(Logic.snackRoom(21000)).to.equal(0)
 		end)

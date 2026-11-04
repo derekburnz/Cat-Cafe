@@ -3260,6 +3260,45 @@ function Catalog.getCornerShopRow(id: string): Types.CornerShopRow?
 	return Catalog.cornerShopById[id]
 end
 
+-- #1182 step 1: the developer products whose contents are set (shop-and-pass-plan 2026-11-01, #1186, #1191; the
+-- Starter Bundle waits on Sprinkles' model and the Cafe Pass paid tier is on hold). Each sells under
+-- Config.ProductIds[id] once it is made in Creator Hub; until then its id is 0 and it is never granted.
+Catalog.products = {
+	{
+		id = "potion_pack_xs",
+		name = "Potion Pack XS",
+		prize = { potions = { big_tip_potion = 2 } },
+	},
+	{
+		id = "potion_pack_s",
+		name = "Potion Pack S",
+		prize = { potions = { big_tip_potion = 3, swift_potion = 1, steady_potion = 1 } },
+	},
+	-- the mixes for M (10) and L (20 + 2 bonus) set in #1186 and #1191
+	{
+		id = "potion_pack_m",
+		name = "Potion Pack M",
+		prize = { potions = { big_tip_potion = 5, swift_potion = 3, steady_potion = 2 } },
+	},
+	{
+		id = "potion_pack_l",
+		name = "Potion Pack L",
+		prize = { potions = { big_tip_potion = 10, swift_potion = 6, steady_potion = 6 } },
+	},
+} :: { Types.ProductDef }
+Catalog.productsById = {} :: { [string]: Types.ProductDef }
+for _, product in Catalog.products do
+	Catalog.productsById[product.id] = product
+	table.freeze(product.prize.potions)
+	table.freeze(product.prize)
+	table.freeze(product)
+end
+table.freeze(Catalog.products)
+
+function Catalog.getProduct(id: string): Types.ProductDef?
+	return Catalog.productsById[id]
+end
+
 -- F90 (cats-make-orders.md section 1): the menu, which grows with the cafe's tier. A customer picks evenly among the
 -- items its cafe's tier has opened (menuFor); the rich customer orders the newest one (newestMenuItem) on the gold
 -- plate. A drink (espresso machine or counter) takes 2 s to make, a bake (oven) 3 s. Client only and cosmetic.

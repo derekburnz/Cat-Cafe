@@ -375,6 +375,7 @@ return function()
 				KeepUpRarities = true, -- F95: empty (was section 17's "Legendary, Mythical"), checked below
 				MoneyPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ExtraSlotPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
+				ProductIds = true, -- #1182: a table of developer product ids, checked in Products.spec
 				LostFoundTable = true, -- F100 (camp-extras.md section 2): a table, checked in CampExtras.spec
 				RallyPoints = true, -- F101 (rescue-rally.md section 2): a table, checked in Rally.spec
 				RallyForce = true, -- F101: false, checked in Rally.spec (a false value reads as missing above)

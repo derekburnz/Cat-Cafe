@@ -344,6 +344,7 @@ Theme.icons = {
 	quests = "📜", -- F73: the Quests pill, window badge and the HUD quest line
 	daily = "📅", -- F70: the HUD's Daily tile and the Daily Treat window's badge
 	tutorial = "?", -- F72: the Tutorial tile's big question mark, drawn in the display font
+	store = "🛍️", -- the Store window's badge, drawn as the clean chest (CleanGlyphs)
 	replay = "🎬", -- F72: Settings' Replay tutorial row
 }
 

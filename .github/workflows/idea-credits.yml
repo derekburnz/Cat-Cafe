@@ -1,0 +1,75 @@
+# Add, remove or list the player idea credits on the Thank You board (#1083) in the live IdeaCredits_v1 data store,
+# so a shipped idea gets "Idea from <display name>" with no publish. Start it from the Actions tab
+# (idea-credits > Run workflow) or from any thread with the GitHub actions_run_trigger tool on main.
+# add takes the player from the bug report and refuses unless it is an idea report with "Feature my name" ticked;
+# remove deletes that credit; list prints what the board will show. The game owns the hide/<userId> keys, and this
+# never writes them. Inputs and log are public: give the report as r_<YYYYMMDD>_<time> (without the user id) and the
+# log cuts user ids to three digits. Script: games/cat-cafe/tools/opencloud/idea-credits.sh.
+# Needs the repo secret ROBLOX_PUBLISH_KEY with universe-datastores.objects:list, :read, :create and :update, as
+# flags and bug-reports use it (docs/setup-guide.md step 24); :delete is optional (remove then blanks the credit).
+name: idea-credits
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "list | add | remove"
+        type: choice
+        options: [list, add, remove]
+        default: list
+      report:
+        description: "add and remove: the bug report, best as r_<YYYYMMDD>_<time> without the user id"
+        required: false
+        default: ""
+      version:
+        description: "add only: the place version the idea shipped in"
+        required: false
+        default: ""
+      idea:
+        description: "add only: our words for the idea, at most 48 bytes (shown as is on the board)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: idea-credits
+  cancel-in-progress: false
+
+env:
+  UNIVERSE_ID: "10773193456" # the Cat Cafe experience
+
+jobs:
+  credits:
+    name: Idea credits
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      # the data store key flags and bug-reports already use; OWNER_KEY has only the analytics and thumbnail scopes
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      ACTION: ${{ inputs.action }}
+      REPORT: ${{ inputs.report }}
+      VERSION: ${{ inputs.version }}
+      IDEA: ${{ inputs.idea }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: games/cat-cafe/tools/opencloud
+
+      - name: Check the key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      # inputs reach the script only through env, never pasted into the shell line
+      - name: List or change the credits
+        run: |
+          script=games/cat-cafe/tools/opencloud/idea-credits.sh
+          case "$ACTION" in
+          list) bash "$script" list ;;
+          add) bash "$script" add "$REPORT" "$VERSION" "$IDEA" ;;
+          remove) bash "$script" remove "$REPORT" ;;
+          esac

@@ -118,6 +118,7 @@ function LuckChip.new(
 	self._catalog = nil :: Types.Catalog?
 	self._state = nil :: Types.PlayerState?
 	self._shown = false
+	self._boosted = false
 	self._look = "plain"
 	self._onShown = onShown
 	self._said = nil :: string?
@@ -314,6 +315,11 @@ function LuckChip.isShown(self: any): boolean
 	return self._shown
 end
 
+-- Luck is above 1x (the chip always shows, so the luck tip waits for this, #1150).
+function LuckChip.isBoosted(self: any): boolean
+	return self._boosted
+end
+
 function LuckChip.isOpen(self: any): boolean
 	return self.card.Visible
 end
@@ -336,6 +342,7 @@ function LuckChip._draw(self: any)
 		self:_setLook(false, false)
 	end
 	self.chip.Visible = shown
+	self._boosted = state ~= nil and LuckLogic.boosted(state, now)
 	if shown ~= self._shown then
 		self._shown = shown
 		if not shown then

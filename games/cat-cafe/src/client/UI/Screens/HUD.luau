@@ -2193,9 +2193,10 @@ function HUD.buffRow(self: any): GuiObject
 	return self._buffs.frame
 end
 
--- F88: the Luck chip shows (its first source came), for the `luck` context tip.
+-- F88: the Luck chip shows with luck above 1x (the chip itself always shows since #1150, so the first boost), for
+-- the `luck` context tip.
 function HUD.luckShown(self: any): boolean
-	return self._luck:isShown()
+	return self._luck:isShown() and self._luck:isBoosted()
 end
 
 -- F66: the catching areas close from dusk to sunrise. The Alley button greys and reads "🌙 Closed", and a key bind

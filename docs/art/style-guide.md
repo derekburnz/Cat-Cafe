@@ -6,6 +6,8 @@ Game: Cat Cafe (placeholder name). Direction: **Cozy Cream** (default from the T
 
 A quiet afternoon in a small cafe. Cream walls, caramel wood, mint accents and warm lamp light. The room is calm and low-contrast so the cats are the color in it. Shapes are soft blocks: chunky, rounded, toy-like, never thin or spiky. The alley out back is the same world after hours: cool grey-blue concrete and brick with one warm street lamp, so catching trips feel like a small adventure and the cafe feels like coming home.
 
+Spelling: we spell it "cozy" (US), in game text, docs and comments.
+
 ## 2. Palette
 
 All colors live in one shared texture, `CatCafe_Palette.png` (256 x 512, 8 swatches across and 16 rows of 32 px swatches; rows 13 to 15 are empty for now). Every mesh in the game UV-maps each face to the center of one swatch, so one material and one texture cover every prop and every cat. Variants (a Tabby versus a Grey cat) are the same mesh with different swatch indices, not different textures.
@@ -486,7 +488,7 @@ reach up into the roof slab, and the arched glass runs 0.05 past the arch into t
 glass and wall (QA world scan 2026-11-01, M2, M3, M5). Inside, the curtains lie on the wallpaper from the window's
 edge, never on a pole in front of a gap (QA recheck after #630, M1, M2).
 
-The Alleyway behind the cafes is a city back street at cosy scale: building backs 30 wide and 16 to 24 tall in
+The Alleyway behind the cafes is a city back street at cozy scale: building backs 30 wide and 16 to 24 tall in
 brick with concrete quoins, cornices and window frames, a few lit windows with curtains (`_Pane`), shutters and
 flower boxes in the street's pastels, AC units, drainpipes and pipes. Variants: `CatCafe_Alley_WallWindows`,
 `WallDoor` (green staff door, teal canopy, lamp), `FireEscape` (two walkable landings, a ladder and stairs) and

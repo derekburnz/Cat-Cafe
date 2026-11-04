@@ -144,5 +144,16 @@ return function()
 			expect(QuestLogic.tracker({ daily = { quest("d_catch5", 5, 5) } })).to.equal(nil)
 			expect(QuestLogic.tracker(nil)).to.equal(nil)
 		end)
+
+		it("counts Claim all's ready rewards across all three tabs (#1073)", function()
+			local count = QuestLogic.claimAllCount
+			expect(count({ Daily = 1, Weekly = 0, Achievements = 0 })).to.equal(1)
+			expect(count({ Daily = 2, Weekly = 1, Achievements = 3 })).to.equal(6)
+			-- after one claim the rest still count, so the button stays
+			expect(count({ Daily = 0, Weekly = 0, Achievements = 1 })).to.equal(1)
+			expect(count({ Daily = 0, Weekly = 0, Achievements = 0 })).to.equal(0)
+			expect(count({})).to.equal(0)
+			expect(count(nil)).to.equal(0)
+		end)
 	end)
 end

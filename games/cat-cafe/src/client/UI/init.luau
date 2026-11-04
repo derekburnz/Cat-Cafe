@@ -165,7 +165,7 @@ UI.events = {
 	claimQuest = Signal.new(), -- (kind, slot)   Claim on a finished quest, kind "daily" or "weekly": forward as ClaimQuest
 	rerollQuest = Signal.new(), -- (kind, slot)   Swap on an unfinished quest (the free reroll): forward as RerollQuest
 	claimAchievement = Signal.new(), -- (achievementId)   Claim on a met achievement: forward as ClaimAchievement
-	claimAll = Signal.new(), -- (what)   Claim all: "daily", "weekly" or "achievements" (Quests, Config.QuestClaimAll), "index" (the Index window, Config.IndexClaimAll) or "tipjar" (the Tip Jar, Config.TipJarClaimAll): forward as ClaimAll
+	claimAll = Signal.new(), -- (what)   Claim all: "quests" (all three Quests tabs, #1073; or "daily", "weekly", "achievements"; Config.QuestClaimAll), "index" (the Index window, Config.IndexClaimAll) or "tipjar" (the Tip Jar, Config.TipJarClaimAll): forward as ClaimAll
 	-- F63
 	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
 	-- F70

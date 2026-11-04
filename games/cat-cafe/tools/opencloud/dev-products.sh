@@ -4,13 +4,13 @@
 # Creator Hub. A developer product is a Robux purchase the player can make again and again (a potion pack); the
 # server grants it in MarketplaceService.ProcessReceipt (src/server/Services/ProductService.luau).
 # Products cannot be deleted, so `create` only makes the products whose names are not there yet: running it twice
-# makes nothing new. New products start off sale unless FOR_SALE=true, so nobody can buy one before its code is in.
+# makes nothing new. `create` always makes them off sale, so nobody can buy one before the code that grants it is in;
+# `set <name> forSale=true` puts one on sale once ProductService and its Catalog.products entry are merged.
 # Same pattern as game-passes.sh. Run by .github/workflows/dev-products.yml; also works from Git Bash on a PC with
 # the same variables set.
 #
 #   ROBLOX_PUBLISH_KEY   Open Cloud API key with developer-product:read and developer-product:write on Cat Cafe
 #   ROBLOX_UNIVERSE_ID   the experience: default 10773193456, Cat Cafe
-#   FOR_SALE             create only: true puts the new products on sale at once (default false)
 #
 # Usage:
 #   dev-products.sh list [file]                every product: id, name, price, on or off sale, and its Config line
@@ -27,12 +27,13 @@ ACTION=${1:-list}
 API=https://apis.roblox.com/developer-products/v2/universes/$UNIVERSE/developer-products
 : "${ROBLOX_PUBLISH_KEY:?set ROBLOX_PUBLISH_KEY (an Open Cloud key with developer-product:read and :write)}"
 
-# The beta reference names the list and id fields differently in places, so these read every name it has used, and
-# the raw JSON is printed as well. An answer in none of these shapes stops the script before anything is made.
+# Field names from the Open Cloud reference (DeveloperProductConfigV2, read 2026-11-04): the list answers
+# {"developerProducts": [...], "nextPageToken": ...} and each product has a numeric productId. Any other shape stops
+# the script before anything is made.
 JQ_DEFS='
-def pid: (.productId // .developerProductId // .id);
-def items: (.developerProducts // .products // .developerProductConfigs);
-def price: (.priceInformation.defaultPriceInRobux? // .price? // .priceInRobux? // null);
+def pid: .productId;
+def items: .developerProducts;
+def price: (.priceInformation.defaultPriceInRobux? // null);
 def regional: ([.priceInformation.enabledFeatures?[]? | tostring | ascii_downcase | select(test("regional"))] | length > 0);
 def key: (.name // "" | ascii_downcase | gsub("^\\s+|\\s+$"; ""));
 def line: "\(pid)  \(.name)  "
@@ -44,11 +45,13 @@ def line: "\(pid)  \(.name)  "
 reply=$(mktemp)
 trap 'rm -f "$reply"' EXIT
 
-# request url [curl args...] -> sets $status and $body, one try. The key goes in a header only, never in the output.
+# request url [curl args...] -> sets $status and $body, one try. The key goes in a header read from a pipe, so it is
+# never on curl's command line or in the output.
 request() {
 	local url=$1
 	shift
-	status=$(curl -sS -o "$reply" -w '%{http_code}' "$url" -H "x-api-key: $ROBLOX_PUBLISH_KEY" "$@") || status=000
+	status=$(curl -sS --connect-timeout 10 --max-time 60 -o "$reply" -w '%{http_code}' "$url" \
+		-H @<(printf 'x-api-key: %s\n' "$ROBLOX_PUBLISH_KEY") "$@") || status=000
 	body=$(cat "$reply")
 }
 
@@ -94,8 +97,8 @@ fetch_products() {
 		[ -z "$token" ] || query="$query&pageToken=$(jq -rn --arg t "$token" '$t | @uri')"
 		call "$API/creator?$query"
 		# An answer in a shape this does not know would read as no products, and create would then make every product
-		# again, for good. Only a list whose entries have an id and a name, or {} for none, counts.
-		if ! jq -e "$JQ_DEFS"'type == "object" and (. == {} or ((items | type) == "array" and all(items[]; (pid | type) == "number" and (.name | type) == "string")))' <<<"$body" >/dev/null 2>&1; then
+		# again, for good. Only a developerProducts list whose entries have a numeric productId and a name counts.
+		if ! jq -e "$JQ_DEFS"'type == "object" and (items | type) == "array" and all(items[]; (pid | type) == "number" and (.name | type) == "string")' <<<"$body" >/dev/null 2>&1; then
 			echo "Open Cloud's product list came back in a shape this script does not know, so nothing was changed: $body" >&2
 			exit 1
 		fi
@@ -128,8 +131,8 @@ image_args() {
 		exit 2
 		;;
 	esac
-	[ -f "$REPO/$path" ] || {
-		echo "no such icon in the repo: $path" >&2
+	[ -f "$REPO/$path" ] && [ ! -L "$REPO/$path" ] || {
+		echo "no such icon in the repo (or it is a link): $path" >&2
 		exit 2
 	}
 	image=(-F "imageFile=@\"$REPO/$path\";type=$ctype")
@@ -166,9 +169,11 @@ check_file() {
 	}
 	jq -e 'type == "array" and length > 0 and all(.[];
 		(.name | type) == "string" and (.name | length) > 0 and (.name | length) <= 50
+		and ((.description // "") | type) == "string" and ((.description // "") | length) <= 1000
+		and ((.config // "ProductIds.x") | type == "string" and test("^ProductIds\\.[a-z0-9_]+$"))
 		and (.price | type) == "number" and .price >= 1
 		and .price == (.price | floor) and (.regionalPricing | type) == "boolean")' "$file" >/dev/null || {
-		echo "$file must be a list of products, each with a name of 1 to 50 characters, a whole price of at least 1 and regionalPricing true or false" >&2
+		echo "$file must be a list of products, each with a name of 1 to 50 characters, a description of at most 1000, a config of ProductIds.<id>, a whole price of at least 1 and regionalPricing true or false" >&2
 		exit 2
 	}
 	if [ "$(jq '[.[].name | ascii_downcase] | length != (unique | length)' "$file")" = true ]; then
@@ -178,14 +183,7 @@ check_file() {
 }
 
 create() {
-	local file=$1 n i entry name id wait made=0 sale=${FOR_SALE:-false} icon
-	case "$sale" in
-	true | false) ;;
-	*)
-		echo "FOR_SALE must be true or false, got: $sale" >&2
-		exit 2
-		;;
-	esac
+	local file=$1 n i entry name id wait made=0 icon got made_ids='{}'
 	check_file "$file"
 	fetch_products
 	n=$(jq length "$file")
@@ -197,63 +195,74 @@ create() {
 			echo "$name is there already as $id; left as it is."
 			continue
 		fi
-		# The price is always sent on create: a product made with no price has been seen stuck unbuyable.
+		# The price is always sent on create: a product made with no price has been seen stuck unbuyable. Regional
+		# pricing (a deprecated field) is only sent to turn it on.
 		local args=(
 			--form-string "name=$name"
 			--form-string "description=$(jq -r '.description // ""' <<<"$entry")"
 			--form-string "price=$(jq -r .price <<<"$entry")"
-			--form-string "isForSale=$sale"
-			--form-string "isRegionalPricingEnabled=$(jq -r .regionalPricing <<<"$entry")"
+			--form-string "isForSale=false"
 		)
+		[ "$(jq -r .regionalPricing <<<"$entry")" != true ] || args+=(--form-string "isRegionalPricingEnabled=true")
 		icon=$(jq -r '.icon // ""' <<<"$entry")
 		if [ -n "$icon" ]; then
 			image_args "$icon"
 			args+=("${image[@]}")
 		fi
-		# A make that timed out may still have gone through, and a second product of the same name could never be
-		# deleted, so before each new try the list is read again.
+		# Only a 429 (refused, so nothing was made) is tried again. A 5xx or no answer may still have made the product,
+		# and a second one of the same name could never be deleted, so the run stops and asks for a list first.
 		for wait in 5 10 20 0; do
 			request "$API" -X POST "${args[@]}"
-			retryable || break
+			[ "$status" = 429 ] || break
 			[ "$wait" = 0 ] && break
-			echo "Open Cloud answered HTTP $status making $name; looking whether it went through, then trying again in ${wait}s." >&2
+			echo "Open Cloud answered HTTP 429 making $name; trying again in ${wait}s." >&2
 			sleep "$wait"
-			fetch_products
-			id=$(find_id "$name")
-			[ -z "$id" ] || break
 		done
-		if [ -z "$id" ]; then
-			case "$status" in
-			200 | 201) ;;
-			*) fail ;;
-			esac
-			id=$(jq -r "$JQ_DEFS"'pid // empty' <<<"$body")
-			[ -n "$id" ] || {
-				echo "Open Cloud made $name but gave no id: $body" >&2
-				exit 1
-			}
-		fi
+		case "$status" in
+		200 | 201) ;;
+		5?? | 000)
+			echo "Open Cloud answered HTTP $status making $name, so it may or may not exist now. Made so far: $made_ids. Run list, then create again (it skips names that are there)." >&2
+			exit 1
+			;;
+		*)
+			echo "Made so far: $made_ids" >&2
+			fail
+			;;
+		esac
+		id=$(jq -r "$JQ_DEFS"'pid // empty' <<<"$body")
+		[ -n "$id" ] || {
+			echo "Open Cloud made $name but gave no id: $body" >&2
+			exit 1
+		}
+		made_ids=$(jq -c --arg k "$name" --argjson id "$id" '. + {($k | ascii_downcase): $id}' <<<"$made_ids")
 		echo "Made $name as $id."
 		made=$((made + 1))
+		# Roblox's filter can change a name; the next create would then not find it and make it again.
+		got=$(jq -r '.name // ""' <<<"$body")
+		if [ -n "$got" ] && [ "$got" != "$name" ]; then
+			echo "::error::Roblox stored $name as '$got'. Change products.json to match before the next create." >&2
+			exit 1
+		fi
 		sleep 1
 	done
 
 	fetch_products
 	show "$file"
 	echo "== Config lines (games/cat-cafe/src/shared/Config.luau)"
-	jq -r --argjson have "$products" "$JQ_DEFS"'
-		($have | map({(key): pid}) | add // {}) as $ids
+	jq -r --argjson have "$products" --argjson made "$made_ids" "$JQ_DEFS"'
+		(($have | map({(key): pid}) | add // {}) + $made) as $ids
 		| .[] | select(.config) | "\(.config) = \($ids[key] // 0)"' "$file"
 	# The beta API has been known to drop fields, so the made products are checked against the file, and any product
-	# that is on sale when the run asked for off sale is called out.
-	jq -r --argjson have "$products" --arg sale "$sale" "$JQ_DEFS"'
+	# on sale is called out.
+	jq -r --argjson have "$products" "$JQ_DEFS"'
 		($have | map({(key): .}) | add // {}) as $by
 		| .[] | . as $want | $by[key] as $got | select($got)
 		| ($got | price) as $p
 		| (if $p != null and $p != $want.price then "::warning::\($want.name) costs R$\($p) on Roblox, R$\($want.price) in the file"
 		   elif $p == null then "::warning::\($want.name): the answer shows no price; check it in Creator Hub"
 		   else empty end),
-		  (if $sale == "false" and $got.isForSale == true then "::warning::\($want.name) is ON SALE on Roblox" else empty end)' "$file"
+		  (if $got.isForSale == true then "::warning::\($want.name) is ON SALE on Roblox" else empty end),
+		  (if ($got | regional) != $want.regionalPricing then "::warning::\($want.name): regional pricing on Roblox differs from the file" else empty end)' "$file"
 	echo "Made $made new product(s)."
 	[ -z "${GITHUB_STEP_SUMMARY:-}" ] || echo "- Made $made new product(s) from \`${file#"$REPO"/}\`" >>"$GITHUB_STEP_SUMMARY"
 }

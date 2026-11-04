@@ -1,8 +1,8 @@
 # List, make and change the game's developer products (Open Cloud Developer Products API), so nobody types them into
 # Creator Hub. The same pattern as game-passes.yml. Start it from the Actions tab (dev-products > Run workflow) or
 # from any thread with the GitHub actions_run_trigger tool on main. list prints every product with its id; create
-# makes each product in games/cat-cafe/tools/opencloud/products.json that is missing, off sale unless for_sale is
-# ticked, and prints the Config lines for its ids; set changes one product's price, sale state, regional pricing or
+# makes each product in games/cat-cafe/tools/opencloud/products.json that is missing, always off sale, and prints the
+# Config lines for its ids; set changes one product's price, sale state, regional pricing or
 # icon. Products cannot be deleted, so a product is named and described as final before it goes in products.json,
 # and it stays off sale until the code that grants it (ProductService, Catalog.products) is merged.
 # Needs the repo secret ROBLOX_PUBLISH_KEY with developer-product:read and developer-product:write.
@@ -24,10 +24,6 @@ on:
         description: "set: one or more of price=N forSale=true|false regional=true|false icon=<image path from the repo root>"
         required: false
         default: ""
-      for_sale:
-        description: "create: put the new products on sale at once (unticked: nobody can buy them until a set with forSale=true)"
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -47,7 +43,6 @@ jobs:
       ACTION: ${{ inputs.action }}
       PRODUCT: ${{ inputs.product }}
       CHANGES: ${{ inputs.changes }}
-      FOR_SALE: ${{ inputs.for_sale }}
     steps:
       - uses: actions/checkout@v5
 

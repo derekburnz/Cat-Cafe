@@ -155,6 +155,10 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
+	local launcher = DataService.get(player)
+	if launcher ~= nil then
+		Telemetry.onboarding(player, launcher, "first_cannon") -- #1273: the way out to the first catch
+	end
 
 	-- this flight is still the character's: not respawned, not left, not a newer flight
 	local function current(): boolean

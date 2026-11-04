@@ -179,6 +179,7 @@ UI.events = {
 	clearTips = Signal.new(), -- ()   Show tips again in Settings: forward as ClearTips
 	sendFeedback = Signal.new(), -- (face, chip?)   one answer on the feedback faces (Tips.FACES, Tips.CHIPS): forward as SendFeedback
 	-- F87 (easy-start.md sections 2g and 5), analytics only: where the intro was played from, and each stuck nudge
+	tutorialClosed = Signal.new(), -- ()   #1273: the Tutorial tile's red X, analytics only: forward as TelemetryReport("tutorial_closed")
 	introChoice = Signal.new(), -- (from)   "tile" (the Tutorial tile) or "help" (Show me on Need a hand?): forward as TelemetryReport("intro_choice", from)
 	stuckNudge = Signal.new(), -- (kind)   "pulse", "help_shown" or "show_me": forward as TelemetryReport("stuck_nudge", kind)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
@@ -708,6 +709,7 @@ function UI.init(config: Types.InitConfig)
 			UI.events.introReplay:Fire()
 		end,
 		hideTutorialButton = function()
+			UI.events.tutorialClosed:Fire() -- #1273: analytics only
 			tutorialButtonOn = false
 			renderTutorialButton()
 			applyTutorial()

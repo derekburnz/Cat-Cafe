@@ -1,0 +1,78 @@
+# Add or remove one Thank You board credit ("Idea from <display name>", docs/design/cat-cafe/idea-credits.md, #1083)
+# in the IdeaCredits_v1 data store. Start it from the Actions tab (idea-credits > Run workflow) or with the GitHub
+# actions_run_trigger tool on main. Script: games/cat-cafe/tools/opencloud/idea-credits.sh.
+#   Add:    report_key (from bug-reports), idea (our words, at most 48 characters), version. Refused unless the
+#           report is an idea whose player ticked "Feature my name if you use my idea".
+#   Remove: remove_key only (the c_... key an add printed), for a request through Roblox support or a parent.
+# The log is public: it shows only "credit added <key>", "credit removed <key>" or why it refused, never a user id,
+# a name or the report text. The inputs are read from the event file, not step env, because GitHub prints a step's
+# env in the log and the report key ends in the player's user id.
+# Needs ROBLOX_PUBLISH_KEY with universe-datastores.objects:read and :create (add) and :delete (remove).
+name: idea-credits
+
+on:
+  workflow_dispatch:
+    inputs:
+      report_key:
+        description: "Add: the report's key, r_<YYYYMMDD>_<time>_<id> (leave empty to remove)"
+        required: false
+        default: ""
+      idea:
+        description: "Add: the idea in our words, at most 48 characters (shown on the board)"
+        required: false
+        default: ""
+      version:
+        description: "Add: the place version it shipped in, like 190"
+        required: false
+        default: ""
+      remove_key:
+        description: "Remove: the credit key c_<time>_<hex> to delete (leave the other three empty)"
+        required: false
+        default: ""
+
+permissions: {}
+
+concurrency:
+  group: idea-credits
+  cancel-in-progress: false
+
+env:
+  UNIVERSE_ID: "10773193456" # the Cat Cafe experience
+
+jobs:
+  credit:
+    name: Add or remove a credit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: games/cat-cafe/tools/opencloud
+          persist-credentials: false
+
+      - name: Add or remove the credit
+        env:
+          ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+          input() { jq -r --arg k "$1" '.inputs[$k] // "" | tostring' "$GITHUB_EVENT_PATH"; }
+          report_key=$(input report_key)
+          [ -z "$report_key" ] || echo "::add-mask::$report_key"
+          idea=$(input idea)
+          version=$(input version)
+          remove_key=$(input remove_key)
+          script=games/cat-cafe/tools/opencloud/idea-credits.sh
+          if [ -n "$remove_key" ]; then
+            if [ -n "$report_key$idea$version" ]; then
+              echo "refused: give remove_key alone, or report_key, idea and version without it" >&2
+              exit 1
+            fi
+            bash "$script" remove "$remove_key"
+          else
+            bash "$script" add "$report_key" "$idea" "$version"
+          fi

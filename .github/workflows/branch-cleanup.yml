@@ -13,6 +13,10 @@ on:
         description: "List only, delete nothing"
         type: boolean
         default: true
+      also_delete:
+        description: "Extra branches to delete even though they never merged (space separated; never main or an open PR's branch)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -31,6 +35,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}
       DRY_RUN: ${{ inputs.dry_run }}
+      ALSO_DELETE: ${{ inputs.also_delete }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -53,7 +58,8 @@ jobs:
           git for-each-ref --merged origin/main --format='%(refname:lstrip=3) %(committerdate:unix)' refs/remotes/origin \
             | awk -v c="$cutoff" '$2 < c {print $1}' | grep -v -x -e HEAD -e main -e origin | sort -u > in_main.txt
           git branch -r --format='%(refname:short)' | sed 's#^origin/##' | grep -v -x -e HEAD -e main -e origin | sort -u > all.txt
-          sort -u merged_pr.txt in_main.txt | comm -12 - all.txt | comm -23 - open.txt > delete.txt
+          printf '%s\n' $ALSO_DELETE | grep -v -x -e '' -e main -e HEAD | sort -u > also.txt
+          sort -u merged_pr.txt in_main.txt also.txt | comm -12 - all.txt | comm -23 - open.txt > delete.txt
           comm -23 all.txt delete.txt > keep.txt
           echo "Branches: $(wc -l < all.txt). To delete: $(wc -l < delete.txt). Kept: $(wc -l < keep.txt) (open PRs: $(wc -l < open.txt))."
           echo "== kept (not open, never merged):"

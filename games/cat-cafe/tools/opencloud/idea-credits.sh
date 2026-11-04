@@ -2,8 +2,8 @@
 # Add, remove or list the player idea credits on the Thank You board (#1083, docs/design/cat-cafe/idea-credits.md)
 # in the data store IdeaCredits_v1 through Open Cloud. IdeaCreditsService (src/server/Services/IdeaCreditsService.luau)
 # reads the credit/ keys at server start and every 30 minutes; it never writes them. A credit's key is
-# credit/<9999999999 - addedAt, 10 digits>-<report key>: ListKeysAsync lists keys in ascending order and the game stops
-# at 120, so the inverted time puts the newest credits first. The hide/<userId> keys belong
+# credit/<yyyymmddhhmmss UTC>-<report key>: IdeaCreditsService lists every credit/ key, sorts the names newest first
+# and reads the newest 120, so the date-first name is what orders the board. The hide/<userId> keys belong
 # to the game (SetHideCredit), so this script only counts them and never writes or deletes one.
 # Run by .github/workflows/idea-credits.yml; also works from Git Bash on a PC with the same variables set.
 #
@@ -176,7 +176,7 @@ add() {
 		exit 1
 	fi
 	now=$(date -u +%s)
-	key=$CREDIT$(printf '%010d' $((9999999999 - now)))-$report
+	key=$CREDIT$(date -u -d "@$now" +%Y%m%d%H%M%S)-$report
 	value=$(jq -cn --argjson u "$userId" --arg i "$idea" --argjson v "$version" --argjson t "$now" \
 		'{userId: $u, idea: $i, version: $v, addedAt: $t}')
 	call PATCH "$base/$STORE/entries/$(uri "$key")?allowMissing=true" -H "Content-Type: application/json" \
@@ -186,11 +186,11 @@ add() {
 	summary "Wrote \`$(mask "$key")\`: v$version \"$idea\""
 }
 
-# credits_for report -> that report's live credit keys (credit/<inverted time>-<report>), one a line; a credit
+# credits_for report -> that report's live credit keys (credit/<yyyymmddhhmmss>-<report>), one a line; a credit
 # blanked by remove ({removed = true}, when the key had no :delete) is skipped, so it never blocks a new add
 credits_for() {
 	local key
-	for key in $(keys "$STORE" "$CREDIT" | grep -E "^${CREDIT}[0-9]{10}-$1\$" || true); do
+	for key in $(keys "$STORE" "$CREDIT" | grep -E "^${CREDIT}[0-9]{14}-$1\$" || true); do
 		call GET "$base/$STORE/entries/$(uri "$key")"
 		[ "$status" = 200 ] || continue
 		[ "$(jq -r '.value.removed // false' <<<"$body")" = true ] || echo "$key"

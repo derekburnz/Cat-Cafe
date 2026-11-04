@@ -502,6 +502,55 @@ local function leaderboardSync()
 	}
 end
 
+-- #1221 (Derek 2026-11-04: the Store's pass cards "push out past the sides" and "lose their outlines"): every card
+-- shown, its gold outline included, sits inside the list's edges with the scroll bar's strip left clear, and its
+-- description stays inside the card and left of the button. Fails the scene when a card or its words run past.
+local function assertStoreCards()
+	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+	local window = modals and modals:FindFirstChild("Store", true)
+	local list = window and window:FindFirstChild("List", true)
+	assert(list and list:IsA("ScrollingFrame"), "uigate: the Store window has no card list")
+	local left = list.AbsolutePosition.X
+	local right = left + list.AbsoluteSize.X
+	local cards = 0
+	for _, card in list:GetChildren() do
+		if not card:IsA("Frame") or not card.Visible then
+			continue
+		end
+		local buy = card:FindFirstChild("Buy")
+		local stroke = card:FindFirstChildOfClass("UIStroke")
+		assert(buy and buy:IsA("GuiObject") and stroke, "uigate: Store card " .. card.Name .. " has no button or outline")
+		local k = buy.AbsoluteSize.X / buy.Size.X.Offset -- design px to screen px (the window's UIScale)
+		local outline = stroke.Thickness * k
+		local bar = list.ScrollBarThickness * k
+		local x1 = card.AbsolutePosition.X - outline
+		local x2 = card.AbsolutePosition.X + card.AbsoluteSize.X + outline
+		assert(
+			x1 >= left - 0.5 and x2 <= right - bar + 0.5,
+			string.format(
+				"uigate: Store card %s runs past the window's inner edge (%.1f to %.1f, list %.1f to %.1f less a %.1f px bar, #1221)",
+				card.Name,
+				x1,
+				x2,
+				left,
+				right,
+				bar
+			)
+		)
+		local effect = card:FindFirstChild("Effect")
+		if effect and effect:IsA("TextLabel") and effect.Text ~= "" then
+			local bottom = effect.AbsolutePosition.Y + effect.AbsoluteSize.Y
+			local cardBottom = card.AbsolutePosition.Y + card.AbsoluteSize.Y
+			assert(
+				bottom <= cardBottom + 0.5 and effect.AbsolutePosition.X + effect.AbsoluteSize.X <= buy.AbsolutePosition.X,
+				"uigate: Store card " .. card.Name .. "'s description runs out of the card or under its button (#1221)"
+			)
+		end
+		cards += 1
+	end
+	assert(cards > 0, "uigate: the Store window shows no cards")
+end
+
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
 -- "Daily.Quest2.Claim" walks down one name at a time
 local function press(windowName, name)
@@ -1240,17 +1289,20 @@ local SCENES = {
 	{ "Store", function()
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
+		assertStoreCards()
 	end },
 	-- 2x Money and Long Nap owned: the ladder's next rung (3x, in place of x2) and Long Nap marked Owned
 	{ "StoreOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[2]] = true, [Config.LongNapPassId] = true })
 		UI.open("Store")
+		assertStoreCards()
 	end },
 	-- the passes off sale (as on live until launch): every card says Soon
 	{ "StoreSoon", function()
 		UI.store.preview(storePrices(false), {})
 		UI.open("Store")
+		assertStoreCards()
 	end },
 	-- #1167 (Derek 2026-11-04: "the Store UI/menu is missing"): with every pass off sale the HUD's gold Store tile
 	-- still shows, and a press on it opens the Store window. A hidden tile or a window that does not open fails here.
@@ -1267,6 +1319,7 @@ local SCENES = {
 		local container = modalRoot and modalRoot:FindFirstChild("Container")
 		local window = container and container:FindFirstChild("Store")
 		assert(window and window:IsA("GuiObject") and window.Visible, "uigate: the Store tile did not open the Store")
+		assertStoreCards()
 	end },
 	-- F102: the Trade window's players: Sam to ask, Alex under the minimum tier, Mia busy in a trade
 	{ "TradePlayers", function()

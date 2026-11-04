@@ -194,7 +194,7 @@ local INDEX_SPOTS: { [string]: Point } = {
 -- paw room), and this far in from the front wall; each is turned to face the middle of the doorway.
 local FRONT_DOOR = { x = 0, y = 0, z = -halfD } :: Point
 local GREETER_OUT = 1.8
-local GREETER_IN = 4
+local GREETER_IN = 5
 
 local function greeterSlot(side: number): Point
 	local x = FRONT_DOOR.x + side * (W.DoorWidth / 2 + GREETER_OUT)

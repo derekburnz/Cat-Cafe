@@ -251,4 +251,26 @@ return function()
 			end
 		end)
 	end)
+
+	describe("SpinLogic Use all (#1078)", function()
+		it("adds the totals into one prize", function()
+			local prize = SpinLogic.totalsPrize({
+				{ kind = "coins", amount = 500 },
+				{ kind = "coins", amount = 250 },
+				{ kind = "fish", amount = 3 },
+				{ kind = "lure", id = "tuna", amount = 2 },
+				{ kind = "crate", id = "highest", amount = 1 },
+				{ kind = "crate", amount = 4 },
+				{ kind = "coins", amount = 0 },
+			})
+			expect(prize.coins).to.equal(750)
+			expect(prize.fish).to.equal(3)
+			expect(prize.lures.tuna).to.equal(2)
+			expect(prize.crates.highest).to.equal(1)
+		end)
+		it("words the button with the server's cap", function()
+			expect(SpinLogic.allText(5)).to.equal("Use all 5")
+			expect(SpinLogic.allText(30, 25)).to.equal("Use all 25")
+		end)
+	end)
 end

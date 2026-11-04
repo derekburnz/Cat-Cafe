@@ -56,15 +56,44 @@ return function()
 			-- the clean food pictures (#1070)
 			expect(ShopIcons.food("star_treat")).to.equal("rbxassetid://127060767808144")
 			expect(ShopIcons.food("moon_milk")).to.equal("rbxassetid://107176560784324")
+			-- the spin wheel's food (#1242)
+			expect(ShopIcons.food("caviar")).to.equal(ShopIcons.clean("Caviar"))
+			-- #1242: every food in the catalog, shop and dealer alike, resolves to its clean 2D picture, so
+			-- ItemIcon never falls back to the old 3D render for a food
+			local clean: { [string]: string } = {
+				kibble = "Kibble",
+				tuna = "Tuna",
+				salmon = "Salmon",
+				sardines = "Sardines",
+				caviar = "Caviar",
+				moon_milk = "MoonMilk",
+				star_treat = "StarTreat",
+			}
 			local missing: { string } = {}
 			for _, lure in Catalog.lures do
-				if ShopIcons.food(lure.id) == nil then
+				local picture = ShopIcons.food(lure.id)
+				local name = clean[lure.id]
+				if picture == nil or name == nil or picture ~= ShopIcons.clean(name) then
+					-- a new food needs a clean picture and a line above
 					table.insert(missing, lure.id)
 				end
 			end
 			expect(table.concat(missing, ",")).to.equal("")
 			expect(ShopIcons.food("pizza")).to.equal(nil)
 			expect(ShopIcons.food(nil)).to.equal(nil)
+		end)
+
+		it("has the clean money, golden fish and spin prize pictures (#1242)", function()
+			expect(ShopIcons.prize("coins")).to.equal(ShopIcons.clean("Bag"))
+			-- the same id as Theme.textures.fishCoin
+			expect(ShopIcons.prize("fish")).to.equal(ShopIcons.clean("Fish"))
+			expect(ShopIcons.prize("spins")).to.equal(ShopIcons.clean("Spin"))
+			for _, kind in { "coins", "fish", "spins" } do
+				local picture = ShopIcons.prize(kind) :: string
+				expect(string.match(picture, "^rbxassetid://%d+$")).to.be.ok()
+			end
+			expect(ShopIcons.prize("lure")).to.equal(nil)
+			expect(ShopIcons.prize(nil)).to.equal(nil)
 		end)
 
 		it("has the prize pictures for coins and spins (F97 section 4)", function()

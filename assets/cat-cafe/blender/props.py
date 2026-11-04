@@ -1497,6 +1497,106 @@ def bellhop_collar(ctx):
     B.box((0, -0.03, bot - 0.215), (0.12, 0.15, 0.02), "choco")                                      # slot
 
 
+# --------------------------------------------------------------------- #1191 the shop-only cats --
+PASTRY_AT, PASTRY_ROLL = (0.07, -0.02, -0.02), 16       # Sprinkles' toque: base centre (head frame) and tilt to its left
+
+
+def _pastry_q(q):
+    return tuple(Vector(PASTRY_AT) + _ry(PASTRY_ROLL) @ Vector(q))
+
+
+def pastry_hat(ctx):
+    """#1191 Sprinkles, the Starter Bundle cat: a new baker's pastry chef hat, a short puffy white toque tipped over
+    its left ear (the low side 0.02 into the head so no gap shows), an apron_pink band with five sprinkles on it.
+    Kept smaller than the Chef Cat's tall toque, so the two read apart."""
+    P, R = ctx.pen("head"), _ry(PASTRY_ROLL)
+    P.cyl(_pastry_q((0, 0, 0.06)), 0.25, 0.12, "apron_pink", rot=R, segments=12)                      # band
+    P.cyl(_pastry_q((0, 0, 0.2)), 0.235, 0.18, "milk", rot=R, segments=12, r2=0.27)                     # crown
+    for (x, y, z, r) in ((0.12, 0.0, 0.33, 0.14), (-0.12, 0.0, 0.33, 0.14), (0.0, 0.12, 0.33, 0.14),
+                         (0.0, -0.12, 0.33, 0.14), (0.0, 0.0, 0.38, 0.15)):
+        P.ico(_pastry_q((x, y, z)), r, "milk")                                                         # puffs
+    cols = ("neon_pink", "sign_teal", "rarity_legend", "shirt_blue", "mint")
+    for i in range(5):                                                                                 # sprinkles
+        a = math.radians(-150 + i * 30)                                 # round the front of the band
+        x, y = 0.255 * math.cos(a), 0.255 * math.sin(a)
+        P.box(_pastry_q((x, y, 0.06 + 0.025 * (i % 2 * 2 - 1))), (0.06, 0.012, 0.022), cols[i],
+              rot=R @ _rz(math.degrees(a) + 90) @ _ry(35 * (1 if i % 2 else -1)))
+
+
+def pearl_tiara(ctx):
+    """#1191 Duchess Marzipan, the Royal cat: a little pearl tiara between the ears, a pearl band toward the front of
+    the head top with a row of pearls rising to three points, the tallest a big pearl over a lilac gem; every pearl
+    sits on the band or on a point."""
+    P = ctx.pen("head")
+    y = -0.14                                            # toward the front of the head top, between the ears
+    P.box((0, y, 0.025), (0.44, 0.06, 0.05), "pearl")                                               # band
+    for x in (-0.18, -0.12, -0.06, 0.06, 0.12, 0.18):                                               # pearls on it
+        P.ico((x, y - 0.015, 0.07), 0.035, "pearl")
+    for x, h in ((-0.12, 0.09), (0.12, 0.09), (0.0, 0.15)):                                         # the points
+        P.box((x, y, 0.05 + h / 2), (0.05, 0.035, h), "pearl", rot=_ry(45) if x == 0 else None)
+        P.ico((x, y, 0.05 + h + 0.035), 0.045 if x else 0.065, "pearl")
+    P.box((0, y - 0.03, 0.11), (0.06, 0.02, 0.06), "velvet_lilac", rot=_ry(45))                     # gem
+
+
+def velvet_cape(ctx):
+    """#1191 Duchess Marzipan's second prop: a lilac velvet cape with a cream collar and hem and a pearl clasp,
+    on hero_cape's shape like the other second-prop capes."""
+    cloth, trim = "velvet_lilac", "cream"
+    if ctx.body == "walk":
+        P, hx, hy, sx = _cape_body(ctx, cloth, trim)
+        R = _rx(12.7)                                                                            # the lifted hem's slope
+        P.box((0, hy + 0.29, 0.113), (sx + 0.24, 0.12, 0.06), trim, rot=R)                     # hem
+        P.ico((0, -0.3, 0.06), 0.06, "pearl")                                                   # clasp
+        return
+    U, a, b, n, tilt, hb, ht = _cape_body(ctx, cloth, trim)
+    U.box((0, hb + 0.065, -0.875), (0.98, 0.07, 0.14), trim)                                    # hem
+    U.ico((0, -0.08, 0.08), 0.06, "pearl")                                                      # clasp, at the front
+
+
+CROWN_TOP = 0.42                        # King Croissant's crown: its top in head-frame units (CrownTop Attachment)
+
+
+def king_crown(ctx):
+    """#1191 King Croissant, the King cat: a small gold crown, smaller and plainer than the Bottlecap King's, a gold
+    band with five points round it, a gold ball on each point and three jewel dots on the front of the band (ruby,
+    sapphire, emerald). The Attachment CrownTop sits on its top for VFX's pay pop (build_all, ATTACH)."""
+    P = ctx.pen("head")
+    P.cyl((0, 0, 0.06), 0.24, 0.12, "gold_mid", segments=14)                                        # band
+    P.cyl((0, 0, 0.005), 0.255, 0.03, "gold_dark", segments=14)                                      # its rim
+    for i in range(5):                                                                               # points
+        R = _rz(i * 72)
+        P.pyramid(tuple(R @ Vector((0, -0.2, 0.2))), 0.16, 0.2, "gold_mid", rot=R @ _rx(-6) @ _rz(45))
+        P.ico(tuple(R @ Vector((0, -0.205, 0.32))), 0.04, "gold_light")
+    for x, sw in ((-0.11, "bowl_red"), (0.0, "shirt_blue"), (0.11, "leaf_green")):                   # jewels
+        P.ico((x, -0.235, 0.06), 0.04, sw)
+    P.ico((0, 0, 0.14), 0.21, "shirt_red", scale=(1.0, 1.0, 0.9))                                   # velvet cap
+    P.ico((0, 0, CROWN_TOP - 0.05), 0.05, "gold_light")                                             # bead, on the cap
+
+
+def king_cape(ctx):
+    """#1191 King Croissant's second prop: a red cape with a gold collar and a gold clasp, on hero_cape's shape like
+    the other capes, and its white trim with gold dots at the hem as its own object `<name>_CapeTrim` (ctx.piece),
+    so VFX can scroll a texture along it."""
+    cloth, collar, trim, dot = "shirt_red", "gold_mid", "offwhite", "rarity_legend"
+    if ctx.body == "walk":
+        P, hx, hy, sx = _cape_body(ctx, cloth, collar)
+        R = _rx(12.7)                                                                            # the lifted hem's slope
+        hem = Vector((0, hy + 0.29, 0.113))
+        T = ctx.piece("CapeTrim", "back", tuple(hem))
+        T.box(tuple(hem), (sx + 0.24, 0.12, 0.06), trim, rot=R)
+        for x in (-0.3, -0.1, 0.1, 0.3):
+            T.box(tuple(hem + R @ Vector((x * (sx + 0.2) / 0.8, 0.0, 0.034))), (0.04, 0.04, 0.012), dot, rot=R)
+        P.cyl((0, -0.29, 0.06), 0.07, 0.04, "gold_light", rot=_rx(90), segments=10)              # clasp
+        return
+    U, a, b, n, tilt, hb, ht = _cape_body(ctx, cloth, collar)
+    hem = (0, hb + 0.065, -0.875)
+    T = ctx.piece("CapeTrim", "up", hem)
+    T.box(hem, (0.98, 0.07, 0.14), trim)
+    for x in (-0.36, -0.12, 0.12, 0.36):
+        T.box((x, hb + 0.1, -0.875), (0.04, 0.012, 0.04), dot)
+    U.cyl((0, -0.07, 0.08), 0.07, 0.04, "gold_light", rot=_rx(90), segments=10)                 # clasp, at the front
+
+
 PROPS = {
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
     "MaineCoon": ("Face", bandit_mask), "Void": ("Head", ninja_band), "Midnight": ("Head", wizard_hat),
@@ -1515,6 +1615,10 @@ PROPS = {
     "Plumber": ("Head", work_cap),
     # F96 the free Bellhop Cat
     "BellhopCat": ("Head", bellhop_cap),
+    # #1191 the shop-only cats
+    "Sprinkles": ("Head", pastry_hat),
+    "DuchessMarzipan": ("Head", pearl_tiara),
+    "KingCroissant": ("Head", king_crown),
 }
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
@@ -1530,10 +1634,16 @@ PROPS2 = {
     "Bottlecap": ("Back", royal_cape), "Eclipse": ("Head", dragon_horns),
     # F96: the Bellhop's collar sits at the chin, so it is a Face prop and no role piece comes off for it
     "BellhopCat": ("Face", bellhop_collar),
+    # #1191: Duchess Marzipan's velvet cape
+    "DuchessMarzipan": ("Back", velvet_cape),
+    "KingCroissant": ("Back", king_cape),
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.
-PIECES = {"BellhopCat": {"Bell": "Prop2"}}
+PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"}}
+# Extra Attachments for VFX (#1191): cat -> [(object suffix, Attachment name, frame, point in that frame)]. Frame
+# "head" is the head-top frame the Head props draw in; "chest" puts it at the middle of the chest (B, S) or body (A).
+ATTACH = {"KingCroissant": [("_Prop", "CrownTop", "head", (0.0, 0.0, CROWN_TOP)), ("_Body", "Glow", "chest", None)]}
 
 
 # A cat with a second prop gets 1,800 triangles in place of 1,500 (style guide section 5): two props and a Mythical

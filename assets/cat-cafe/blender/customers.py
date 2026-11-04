@@ -1,4 +1,4 @@
-"""Cafe customers (F15, F37): cosy townsfolk instead of blocky stand-ins, each with a face, hair and an outfit of
+"""Cafe customers (F15, F37): cozy townsfolk instead of blocky stand-ins, each with a face, hair and an outfit of
 its own, and a seated twin for the chairs.
 
   CatCafe_NPC_Customer_<V>        standing, the pivot at the feet, front -Z (Blender -Y). Everyday looks A to F

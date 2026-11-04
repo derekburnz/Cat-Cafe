@@ -69,6 +69,9 @@ SWATCHES = [
     # row 14: the ten area-themed cats of F78 (data-model 3, v0.13), eight new coats
     ("fur_dusty", "#96918C"), ("fur_marmalade", "#E18C3C"), ("fur_indigo", "#2D236E"), ("fur_dune", "#D7B987"),
     ("fur_bubblegum", "#F7A8C8"), ("fur_toffee", "#8C5F3C"), ("fur_pewter", "#A5A5AA"), ("fur_gunmetal", "#69737D"),
+    # row 15: the shop-only cats (#1191) and the Royal Crest sign: Sprinkles, King Croissant, Duchess Marzipan
+    ("fur_custard", "#F8E4BE"), ("apron_pink", "#F6B9CB"), ("fur_croissant", "#E7A94E"), ("fur_croissant_dark", "#B9762E"),
+    ("fur_lilac_silver", "#CBC4DB"), ("velvet_lilac", "#9479BE"), ("pearl", "#F4EEF6"), ("royal_berry", "#8E2A4A"),
 ]
 assert len(SWATCHES) % GRID == 0 and len(SWATCHES) <= GRID * ROWS
 

@@ -1,0 +1,30 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700&family=Nunito:wght@700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;padding:16px;background:#f3e6d3;font-family:Nunito,sans-serif;width:720px;color:#2a1a12}
+h1{font:700 18px Fredoka;margin:0 0 8px}
+.row{display:flex;gap:12px;margin-bottom:12px}
+.bg{flex:1;height:96px;border-radius:10px;border:3px solid #2a1a12;display:flex;align-items:center;justify-content:center;gap:10px;position:relative}
+.bg small{position:absolute;left:8px;top:6px;font:700 12px Nunito;color:#fff;-webkit-text-stroke:3px #2a1a12;paint-order:stroke fill}
+.grass{background:repeating-linear-gradient(115deg,#6bb84a 0 9px,#5ea83f 9px 18px)}
+.floor{background:repeating-linear-gradient(90deg,#3a2b24 0 34px,#2f231d 34px 36px)}
+.chip{display:flex;align-items:center;gap:4px}
+.c{width:28px;height:28px;border-radius:50%;background:#1b7f3a;box-shadow:0 0 0 1px #2a1c15;display:flex;align-items:center;justify-content:center}
+.c img{width:23px;height:23px}
+.t{font:700 18px Fredoka;color:#fff;-webkit-text-stroke:4px #2a1a12;paint-order:stroke fill}
+.gold{color:#ffd23f}
+.big .c{width:84px;height:84px;box-shadow:0 0 0 3px #2a1c15}.big .c img{width:69px;height:69px}.big .t{font-size:54px;-webkit-text-stroke:12px #2a1a12}
+.note{background:#fff;border:3px solid #2a1a12;border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.4}
+</style></head><body>
+<h1>Luck chip (#1258): new, at real size (28 px circle, 18 px text)</h1>
+<div class="row">
+ <div class="bg grass"><small>grass</small><div class="chip"><div class="c"><img src="../Icon_Clean_Clover.png"></div><span class="t">Luck x1.9</span></div><div class="chip"><div class="c"><img src="../Icon_Clean_Clover.png"></div><span class="t gold">Luck x2.4</span></div></div>
+ <div class="bg floor"><small>dark floor</small><div class="chip"><div class="c"><img src="../Icon_Clean_Clover.png"></div><span class="t">Luck x1.9</span></div><div class="chip"><div class="c"><img src="../Icon_Clean_Clover.png"></div><span class="t gold">Luck x2.4</span></div></div>
+</div>
+<h1>Three times size, to see the outline</h1>
+<div class="row">
+ <div class="bg grass big" style="height:120px"><div class="chip"><div class="c"><img src="../Icon_Clean_Clover.png"></div><span class="t">Luck x1.9</span></div></div>
+ <div class="bg floor big" style="height:120px"><div class="chip"><div class="c"><img src="../Icon_Clean_Clover.png"></div><span class="t">Luck x1.9</span></div></div>
+</div>
+<div class="note"><b>Live now (v197):</b> a bright green (#6BE36F) circle with a 2 px white stroke, the 🍀 emoji (no outline, so its green runs into the circle's), and on a Lucky Day a 3 px gold ring 8 px wider than the circle that pulses. <b>New:</b> dark green (#1B7F3A) circle with only a 1 px dark edge, the clean clover picture in bright green (#22B04B) with a thin black outline round each leaf and the stem, no white, gold or yellow ring and no glow; a Lucky Day only turns the text gold (right-hand chip in each strip). "Luck x1.9" stays outlined HUD text.</div>
+</body></html>

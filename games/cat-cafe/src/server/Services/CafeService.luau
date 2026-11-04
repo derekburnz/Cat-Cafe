@@ -1046,14 +1046,14 @@ function CafeService.addCaughtCat(
 		if Economy.spotIsOpen(profile, spot.id) and Economy.catOnSpot(profile, spot.id) == nil then
 			instance.spotId = spot.id
 			CafeService.advanceTutorial(player, profile, 3)
-			Telemetry.onboarding(player, profile, "first_role")
+			Telemetry.onboarding(player, profile, "first_role_assigned")
 			break
 		end
 	end
 	if instance.spotId == nil then
 		Telemetry.custom(player, "slots_full", 1, { tostring(Economy.tier(profile)) })
 	end
-	-- F87 funnel v2 (easy-start.md section 5): a second cat checked in, five different cats owned
+	-- funnel steps (easy-start.md section 5): a second cat checked in, five different cats owned
 	if profile.stats.catsCaught >= 2 then
 		Telemetry.onboarding(player, profile, "second_cat")
 	end
@@ -1217,7 +1217,7 @@ local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
 	end
 	instance.spotId = spotId
 	CafeService.advanceTutorial(player, profile, 3)
-	Telemetry.onboarding(player, profile, "first_role")
+	Telemetry.onboarding(player, profile, "first_role_assigned")
 	Telemetry.catWorking(player, uid)
 	local catDef = Catalog.getCat(instance.catId)
 	Telemetry.custom(player, "role_favorite", 1, {
@@ -1266,7 +1266,7 @@ local function onEquipBest(player: Player)
 	end
 	if plan.catsPlaced > 0 then
 		CafeService.advanceTutorial(player, profile, 3)
-		Telemetry.onboarding(player, profile, "first_role")
+		Telemetry.onboarding(player, profile, "first_role_assigned")
 	end
 	Net.toast(
 		player,
@@ -1399,7 +1399,7 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 		CafeService.advanceTutorial(player, profile, if profile.stats.luresUsed > 0 then 5 else 4)
 		Telemetry.onboarding(player, profile, "first_table")
 	elseif upgradeId == "lure_bowl" then
-		Telemetry.onboarding(player, profile, "bowl_bought") -- F87 funnel v2
+		Telemetry.onboarding(player, profile, "bowl_bought")
 	end
 	local def = Catalog.getUpgrade(upgradeId) :: Types.UpgradeDef
 	Net.toast(
@@ -1614,7 +1614,7 @@ local function onTutorialAdvance(player: Player, rawStep: unknown)
 	if step == profile.tutorialStep + 1 then
 		profile.tutorialStep = step
 		if step == 1 then
-			Telemetry.onboarding(player, profile, "saw_alley")
+			Telemetry.onboarding(player, profile, "entered_alley") -- #1273: tutorial card 0 done
 		end
 		Telemetry.custom(player, "tutorial_step", 1, { tostring(step) })
 		CafeService.sync(player)

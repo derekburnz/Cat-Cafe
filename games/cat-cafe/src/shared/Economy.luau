@@ -426,8 +426,8 @@ function Economy.decorBlocker(profile: Types.PlayerProfile, decorId: string): st
 	return nil
 end
 
--- Different cats ever caught: entries in the collection (a gold cat is not a second entry). A shop-only cat
--- (`exclusive`, F95) is not one, so ranking up still needs catching.
+-- Different cats ever caught: entries in the collection (a gold cat is not a second entry). An exclusive cat (F95,
+-- F96) is not one. For quests, achievements and telemetry; rank up reads rankUpCatCount (#1141).
 function Economy.distinctCats(profile: Types.PlayerProfile): number
 	local n = 0
 	for catId in profile.collection do
@@ -452,6 +452,45 @@ function Economy.distinctCatsAtLeast(profile: Types.PlayerProfile, rarity: Types
 	return n
 end
 
+-- #1141 (Derek 2026-11-04): whether a collection entry counts toward rank up's "different cats". Every caught cat
+-- does, and so does the free Bellhop Cat (exclusive with source "free", F96); a shop-only cat (F95, source "shop")
+-- does not, so ranking up still needs catching. An id the catalog does not know counts, as in distinctCats. The
+-- collection is "ever had", one entry per catId, so duplicates, gold coats, cats away (camp, nap, cannon), locked,
+-- sold, released or traded cats change nothing. The server's rankUpBlocker and the client's RankUp.progress (the
+-- rank up card, the upgrade shop button, the goal card and the gate signs) both read these, so they agree.
+function Economy.countsForRankUp(catId: string): boolean
+	local def = Catalog.getCat(catId)
+	return def == nil or def.exclusive ~= true or def.source == "free"
+end
+
+-- Different cats toward rank up in `collection` (catId -> anything, the profile's or the client state's).
+function Economy.rankUpCatCount(collection: { [string]: any }): number
+	local n = 0
+	for catId in collection do
+		if Economy.countsForRankUp(catId) then
+			n += 1
+		end
+	end
+	return n
+end
+
+-- Of those, the ones of this rarity or rarer, for the Tier 3 to 5 requirement. An unknown id has no rarity, so it
+-- never meets one.
+function Economy.rankUpCatsAtLeast(collection: { [string]: any }, rarity: Types.Rarity): number
+	local n = 0
+	for catId in collection do
+		local def = Catalog.getCat(catId)
+		if
+			def ~= nil
+			and Economy.countsForRankUp(catId)
+			and Catching.rarityAtLeast(def.rarity, rarity)
+		then
+			n += 1
+		end
+	end
+	return n
+end
+
 -- Returns nil when RankUp would succeed, else a short reason for a toast (data-model section 5b). Checked in the
 -- order a player works through them: cats, the rarity, then coins.
 function Economy.rankUpBlocker(profile: Types.PlayerProfile): string?
@@ -459,14 +498,14 @@ function Economy.rankUpBlocker(profile: Types.PlayerProfile): string?
 	if nextTier == nil then
 		return "Your cafe is already a " .. (Catalog.getTier(Catalog.maxTier) :: Types.TierDef).name
 	end
-	local cats = Economy.distinctCats(profile)
+	local cats = Economy.rankUpCatCount(profile.collection)
 	if cats < nextTier.distinctCats then
 		return string.format("Needs %d different cats (you have %d)", nextTier.distinctCats, cats)
 	end
 	local rarity: Types.Rarity? = nextTier.needsRarity
 	if rarity ~= nil then
 		local need = nextTier.needsRarityCount or 1
-		if Economy.distinctCatsAtLeast(profile, rarity) < need then
+		if Economy.rankUpCatsAtLeast(profile.collection, rarity) < need then
 			return if need == 1
 				then string.format("Needs one cat, %s or better", rarity)
 				else string.format("Needs %d different cats, %s or better", need, rarity)

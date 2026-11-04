@@ -828,15 +828,18 @@ export type CornerShopStock = {
 }
 
 -- The onboarding funnel's place (data-model section 14, growth analytics-plan 3.2): the last step logged, and later
--- steps already done but held back until every step before them is logged. Keys are "1" to "12" (JSON-shaped).
+-- steps already done but held back until every step before them is logged. Keys are step numbers (JSON-shaped).
 export type TelemetryState = {
 	onboardingStep: number,
 	achieved: { [string]: boolean },
-	-- F87 (easy-start.md sections 5 and 6): the onboarding funnel's version (2 since F87; Onboarding.fromV1 moves a 1)
-	-- and the UTC day number (os.time() // 86400) of the account's first join, 0 when it is not known (an account from
-	-- before version 19), for new_player_left
+	-- F87 (easy-start.md sections 5 and 6): the onboarding funnel's version (3 since #1273; Onboarding.fromOld moves a
+	-- 1 or 2) and the UTC day number (os.time() // 86400) of the account's first join, 0 when it is not known (an
+	-- account from before version 19), for new_player_left and the session time markers
 	funnel: number,
 	firstDay: number,
+	-- #1273: the furthest step logged of the intro funnel (Onboarding.INTRO_STEPS), 0 before any. A field inside
+	-- telemetry with a default, so it needs no save version
+	introStep: number,
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount

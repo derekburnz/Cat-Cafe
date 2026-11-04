@@ -50,8 +50,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BugReport = require(Shared:WaitForChild("BugReport"))
 local CampExtras = require(Shared:WaitForChild("CampExtras"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
-local ClaimAll = require(Shared:WaitForChild("ClaimAll"))
 local Circles = require(Shared:WaitForChild("Circles"))
+local ClaimAll = require(Shared:WaitForChild("ClaimAll"))
 local Codes = require(Shared:WaitForChild("Codes"))
 local Config = require(Shared:WaitForChild("Config"))
 local Crates = require(Shared:WaitForChild("Crates"))
@@ -630,7 +630,10 @@ case(
 			swingReady()
 			local at = stray.model:GetPivot().Position
 			local stand = at + Vector3.new(probe.offset, 0, 0)
-			teleportFacing(stand, if probe.facing then at else stand + Vector3.new(probe.offset, 0, 0))
+			teleportFacing(
+				stand,
+				if probe.facing then at else stand + Vector3.new(probe.offset, 0, 0)
+			)
 			local hopBefore = stray.model:GetAttribute("HopAt")
 			local startedAt = os.clock()
 			fire("SwingNet")
@@ -1078,7 +1081,10 @@ case(
 		task.wait(math.max(0, startedAt + Config.GrabCooldownSeconds + 0.15 - os.clock()))
 		if serverNow() > endsAt(schedule) - 0.3 then
 			verdict = downgrade(verdict, "CHECK")
-			table.insert(notes, "the swing after 2 s skipped: the catch ended inside 2 s; " .. NO_LONG_STRAY)
+			table.insert(
+				notes,
+				"the swing after 2 s skipped: the catch ended inside 2 s; " .. NO_LONG_STRAY
+			)
 		else
 			fire("SwingNet")
 		end
@@ -1089,11 +1095,17 @@ case(
 		local results = countAbout(startedAt, "CatchResult", stray.id)
 		if schedules > 0 then
 			verdict = downgrade(verdict, "FAIL")
-			table.insert(notes, string.format("%d CatchSchedule(s) from swings during the catch", schedules))
+			table.insert(
+				notes,
+				string.format("%d CatchSchedule(s) from swings during the catch", schedules)
+			)
 		end
 		if swung > 0 then
 			verdict = downgrade(verdict, "FAIL")
-			table.insert(notes, string.format("%d swing(s) during the catch landed (NetSwung)", swung))
+			table.insert(
+				notes,
+				string.format("%d swing(s) during the catch landed (NetSwung)", swung)
+			)
 		else
 			table.insert(notes, "swings during the catch: no NetSwung, refused")
 		end
@@ -1175,7 +1187,10 @@ case(
 				if answer ~= nil and answer.name == "CatchSchedule" and answer.id ~= stray.id then
 					outcomeOf(probeAt, tostring(answer.id), answer.data)
 					verdict = downgrade(verdict, "CHECK")
-					table.insert(notes, probe .. ": the swing landed on another stray nearby, so not probed")
+					table.insert(
+						notes,
+						probe .. ": the swing landed on another stray nearby, so not probed"
+					)
 				elseif answer ~= nil and answer.name == "CatchSchedule" then
 					outcomeOf(probeAt, stray.id, answer.data)
 					return "FAIL",
@@ -1431,7 +1446,10 @@ case(
 		local pad = campPad()
 		if pad == nil then
 			verdict = downgrade(verdict, "CHECK")
-			table.insert(notes, "camp swing skipped: no LandingPad in the world (a build before F84)")
+			table.insert(
+				notes,
+				"camp swing skipped: no LandingPad in the world (a build before F84)"
+			)
 		else
 			teleportTo(pad.Position)
 			swingReady()
@@ -1668,7 +1686,10 @@ case(
 		end
 		if uid == nil or catCount() < 2 then
 			return "SKIP",
-				string.format('needs a resting, unlocked cat and one more; on the server run %s("giveCat", nil, "tabby")', DEBUG)
+				string.format(
+					'needs a resting, unlocked cat and one more; on the server run %s("giveCat", nil, "tabby")',
+					DEBUG
+				)
 		end
 		local id = uid :: string
 		local function locked(): boolean?
@@ -1687,12 +1708,23 @@ case(
 		task.wait(1.5)
 		local coinsOk, coinsText = coinsMovedBy(before, 0)
 		if catCount() ~= cats or locked() == nil or not coinsOk then
-			return "FAIL", string.format("a locked cat was sold: %s, cats %d -> %d", coinsText, cats, catCount())
+			return "FAIL",
+				string.format(
+					"a locked cat was sold: %s, cats %d -> %d",
+					coinsText,
+					cats,
+					catCount()
+				)
 		end
-		local notes = { "SellCat refused" .. (if toasted(sellAt, "locked") then " with the locked toast" else "") }
+		local notes = {
+			"SellCat refused"
+				.. (if toasted(sellAt, "locked") then " with the locked toast" else ""),
+		}
 		-- junk, 0.3 s apart so the 4 a second limit drops none: the cat stays locked and nobody answers
 		local junkAt = os.clock()
-		for _, args in { { id, "no" }, { id, 0 }, { id, nil }, { "not_my_cat", false }, { 5, false } } do
+		for _, args in
+			{ { id, "no" }, { id, 0 }, { id, nil }, { "not_my_cat", false }, { 5, false } }
+		do
 			fire("LockCat", args[1], args[2])
 			task.wait(0.3)
 		end
@@ -1710,7 +1742,12 @@ case(
 		end
 		table.insert(notes, "junk ignored, unlocked again")
 		local verdict: Verdict = if toasted(sellAt, "locked") then "PASS" else "CHECK"
-		return verdict, table.concat(notes, "; ") .. string.format(" (%s, run %.1f s)", coinsText, os.clock() - startedAt)
+		return verdict,
+			table.concat(notes, "; ") .. string.format(
+				" (%s, run %.1f s)",
+				coinsText,
+				os.clock() - startedAt
+			)
 	end
 )
 
@@ -1730,7 +1767,11 @@ case(
 			for candidate, instance in state.cats do
 				local def = Catalog.getCat(instance.catId)
 				-- F62: a locked cat is never sold, so this case takes an unlocked one
-				if def ~= nil and instance.locked ~= true and (uid == nil or instance.spotId == nil) then
+				if
+					def ~= nil
+					and instance.locked ~= true
+					and (uid == nil or instance.spotId == nil)
+				then
 					uid = candidate
 					value = Catalog.rarities[def.rarity].sellValue
 				end
@@ -2391,7 +2432,10 @@ case(
 			verdict = downgrade(verdict, "CHECK")
 			table.insert(
 				notes,
-				string.format("dropped only %.0f studs from the catch, so a walking-home cat may beat the checks", away)
+				string.format(
+					"dropped only %.0f studs from the catch, so a walking-home cat may beat the checks",
+					away
+				)
 			)
 		end
 		local alleyAt = os.clock()
@@ -2478,8 +2522,10 @@ case(
 			task.wait(0.6)
 			if (state ~= nil and state.carrying ~= nil) or droppedModel.Parent == nil then
 				return "FAIL",
-					table.concat(notes, "; ")
-						.. string.format("; a swing from %.1f studs picked the cat up", farOff)
+					table.concat(notes, "; ") .. string.format(
+						"; a swing from %.1f studs picked the cat up",
+						farOff
+					)
 			end
 			local swung = #swungSince(farAt)
 			if swung ~= #junk then
@@ -2561,7 +2607,10 @@ case(
 		local landed = #swungSince(pickAt)
 		if landed ~= 1 then
 			verdict = "FAIL"
-			table.insert(notes, string.format("%d of ten swings in one frame landed (NetSwung)", landed))
+			table.insert(
+				notes,
+				string.format("%d of ten swings in one frame landed (NetSwung)", landed)
+			)
 		end
 		if droppedModel:IsDescendantOf(Workspace) then
 			verdict = "FAIL"
@@ -2615,10 +2664,20 @@ case(
 				local left = horizontal(model:GetPivot().Position, caughtAt)
 				if not model:IsDescendantOf(Workspace) then
 					verdict = downgrade(verdict, "CHECK")
-					table.insert(notes, "the walking cat left the world before it got home (picked up, or dusk)")
+					table.insert(
+						notes,
+						"the walking cat left the world before it got home (picked up, or dusk)"
+					)
 				elseif model:GetAttribute("Returning") == true then
 					verdict = "FAIL"
-					table.insert(notes, string.format("still walking home %.0f s after the drop, %.0f studs out", limit, left))
+					table.insert(
+						notes,
+						string.format(
+							"still walking home %.0f s after the drop, %.0f studs out",
+							limit,
+							left
+						)
+					)
 				elseif
 					model:GetAttribute("Dropped") == true
 					or model:GetAttribute("PickUp") == true
@@ -2779,7 +2838,7 @@ end
 case(
 	"tackle",
 	Enum.KeyCode.Slash,
-	"Tackle: on the street, alone in the Alleyway, 10 in one frame, the 8 s cooldown, while carrying",
+	"Tackle: on the street, alone in the Alleyway, 10 in one frame, the 5 s cooldown, while carrying",
 	function()
 		if not checkInIfCarrying() then
 			return "SKIP", "carrying a cat that could not be checked in"
@@ -3117,7 +3176,14 @@ case(
 	"Saved settings: volumes clamp, bad volumes and switch values refused, a repeat sends no sync",
 	function()
 		-- tutorialButton since F72, shopAlerts since F94 (engineer PR #699)
-		local SWITCHES = { "screenShake", "lowPerformance", "showOtherCats", "markers", "tutorialButton", "shopAlerts" }
+		local SWITCHES = {
+			"screenShake",
+			"lowPerformance",
+			"showOtherCats",
+			"markers",
+			"tutorialButton",
+			"shopAlerts",
+		}
 		local VOLUMES = { "musicVolume", "sfxVolume" }
 		local function saved(): { [string]: any }?
 			local current = if state ~= nil then (state :: any).settings else nil
@@ -3283,7 +3349,8 @@ case(
 			return waitFor(at, "ProfileSync", Config.SyncIntervalSeconds + 2) ~= nil
 		end
 		if seen() == nil or asked() == nil then
-			return "SKIP", "the ProfileSync carries no tipsSeen or feedbackAsked (needs engineer PR #705)"
+			return "SKIP",
+				"the ProfileSync carries no tipsSeen or feedbackAsked (needs engineer PR #705)"
 		end
 		local verdict: Verdict = "PASS"
 		local notes: { string } = {}
@@ -3326,7 +3393,9 @@ case(
 
 		-- 2. Ten real client tip ids in one frame: the 1 a second limit takes at most two.
 		local fresh: { string } = {}
-		for _, id in { "stuck_cat", "codes_cat", "luck", "offline", "bowl", "night", "potion", "dealer" } do
+		for _, id in
+			{ "stuck_cat", "codes_cat", "luck", "offline", "bowl", "night", "potion", "dealer" }
+		do
 			if afterJunk[id] ~= true then
 				table.insert(fresh, id)
 			end
@@ -3335,7 +3404,11 @@ case(
 			verdict = downgrade(verdict, "CHECK")
 			table.insert(
 				notes,
-				string.format('flood skipped: %d unseen tips (on the server run %s("tips"))', #fresh, DEBUG)
+				string.format(
+					'flood skipped: %d unseen tips (on the server run %s("tips"))',
+					#fresh,
+					DEBUG
+				)
 			)
 		else
 			task.wait(1.1)
@@ -3354,12 +3427,18 @@ case(
 			end
 			if saved > 2 then
 				verdict = "FAIL"
-				table.insert(notes, string.format("%d of %d TipSeen in one frame were saved", saved, #fresh))
+				table.insert(
+					notes,
+					string.format("%d of %d TipSeen in one frame were saved", saved, #fresh)
+				)
 			elseif saved == 0 then
 				verdict = downgrade(verdict, "CHECK")
 				table.insert(notes, "no TipSeen of the flood was saved, not even the first")
 			else
-				table.insert(notes, string.format("%d of %d TipSeen in one frame saved", saved, #fresh))
+				table.insert(
+					notes,
+					string.format("%d of %d TipSeen in one frame saved", saved, #fresh)
+				)
 			end
 		end
 
@@ -3382,7 +3461,10 @@ case(
 		end)
 		if cleared == nil then
 			verdict = "FAIL"
-			table.insert(notes, "ClearTips sent no ProfileSync with tipsSeen cleared: " .. keys(seen() or {}))
+			table.insert(
+				notes,
+				"ClearTips sent no ProfileSync with tipsSeen cleared: " .. keys(seen() or {})
+			)
 		elseif ((seen() :: { [string]: boolean }).like_ask == true) ~= likeBefore then
 			verdict = "FAIL"
 			table.insert(notes, "ClearTips changed the like ask")
@@ -3399,7 +3481,10 @@ case(
 		local clearSyncs = #since(clearFloodAt, "ProfileSync")
 		if clearSyncs > 2 then
 			verdict = "FAIL"
-			table.insert(notes, string.format("%d ProfileSync from 5 ClearTips in one frame", clearSyncs))
+			table.insert(
+				notes,
+				string.format("%d ProfileSync from 5 ClearTips in one frame", clearSyncs)
+			)
 		end
 
 		-- 4. SendFeedback junk, 10.5 s apart so the 1 per 10 s limit drops none: feedbackAsked stays false. A
@@ -3408,7 +3493,10 @@ case(
 			verdict = downgrade(verdict, "CHECK")
 			table.insert(
 				notes,
-				string.format('feedback skipped: feedbackAsked is already true (on the server run %s("tips"))', DEBUG)
+				string.format(
+					'feedback skipped: feedbackAsked is already true (on the server run %s("tips"))',
+					DEBUG
+				)
 			)
 			return verdict, table.concat(notes, "; ")
 		end
@@ -3427,7 +3515,10 @@ case(
 			verdict = "FAIL"
 			table.insert(notes, "a junk SendFeedback set feedbackAsked")
 		else
-			table.insert(notes, string.format("%d junk SendFeedback calls changed nothing", #badFeedback))
+			table.insert(
+				notes,
+				string.format("%d junk SendFeedback calls changed nothing", #badFeedback)
+			)
 		end
 		task.wait(10.5)
 		local goodAt = os.clock()
@@ -4663,7 +4754,7 @@ case(
 			end
 		end
 
-		-- One open: twice in one frame (OpenCrate allows 1 a second), then again inside CrateOpenCooldownSeconds.
+		-- One open: twice in one frame, then again inside CrateOpenCooldownSeconds (#1146: the 0.4 s spam limit).
 		-- One piece, paid once.
 		local crate = openableCrate()
 		if crate == nil then
@@ -4686,19 +4777,22 @@ case(
 		fire("OpenCrate", crate.id)
 		Remotes.event("OpenCrate"):FireServer(crate.id)
 		log(string.format('    -> OpenCrate("%s") again in the same frame', crate.id))
+		task.wait(Config.CrateOpenCooldownSeconds / 4)
+		fire("OpenCrate", crate.id) -- inside the spam limit of the first, whenever its CrateResult lands
 		waitFor(openAt, "CrateResult", 3, function(event: Event): boolean
 			return (event.data :: Opened).decorId ~= ""
 		end)
-		task.wait(1.1)
-		local coolAt = os.clock()
-		fire("OpenCrate", crate.id)
-		waitFor(coolAt, "CrateResult", 2)
 		task.wait(0.5)
 		local opened = crateAnswers(openAt)
 		if #opened ~= 1 then
 			return done(
 				"FAIL",
-				string.format("%d pieces for three OpenCrate(%s) calls in 1.1 s", #opened, crate.id)
+				string.format(
+					"%d pieces for three OpenCrate(%s) calls inside %g s",
+					#opened,
+					crate.id,
+					Config.CrateOpenCooldownSeconds
+				)
 			)
 		end
 		local piece = opened[1]
@@ -4772,10 +4866,7 @@ case(
 			piece.decorId,
 			if wasOwned then string.format(", duplicate +%d fish", refund) else ""
 		)
-		if not toasted(coolAt, "One crate at a time") then
-			verdict = downgrade(verdict, "CHECK")
-			notes ..= ', but the open 1.1 s later got no "One crate at a time"'
-		end
+		-- #1146: the spam limit's refusals are quiet (an empty CrateResult frees the button, no toast)
 
 		-- Perks: one at its top level is refused; one level short of the top, two buys in one frame (the limit
 		-- allows 2 a second) take exactly one level and its cost.
@@ -5028,7 +5119,10 @@ case(
 		-- a row in stock this window, the cheapest first
 		local pick: Types.FreshCatchRow? = nil
 		for _, row in Catalog.freshCatch do
-			if FreshCatch.amountOf(window, row.id) > 0 and (pick == nil or row.fish < (pick :: any).fish) then
+			if
+				FreshCatch.amountOf(window, row.id) > 0
+				and (pick == nil or row.fish < (pick :: any).fish)
+			then
 				pick = row
 			end
 		end
@@ -5037,7 +5131,13 @@ case(
 		-- 24 studs out (FishMarketRange is 14): refused, nothing bought.
 		local far = standFromStation(stall, 24)
 		if far < Config.FishMarketRange + 4 then
-			return done("CHECK", string.format("could not stand 24 studs from the stall (settled %.1f studs out)", far))
+			return done(
+				"CHECK",
+				string.format(
+					"could not stand 24 studs from the stall (settled %.1f studs out)",
+					far
+				)
+			)
 		end
 		local held = freshHeld()
 		local farAt = os.clock()
@@ -5046,10 +5146,17 @@ case(
 		if freshHeld() ~= held then
 			return done(
 				"FAIL",
-				string.format("a buy from %.1f studs went through: %s, then %s", far, held, freshHeld())
+				string.format(
+					"a buy from %.1f studs went through: %s, then %s",
+					far,
+					held,
+					freshHeld()
+				)
 			)
 		end
-		local farText = if night then "The Fresh Catch is back at sunrise" else "Walk to the Golden Fish Market first"
+		local farText = if night
+			then "The Fresh Catch is back at sunrise"
+			else "Walk to the Golden Fish Market first"
 		if toastCount(farAt, farText) ~= 1 then
 			verdict = downgrade(verdict, "CHECK")
 			table.insert(notes, string.format('far buy: no "%s" toast', farText))
@@ -5059,7 +5166,10 @@ case(
 
 		local near = standFromStation(stall, 6)
 		if near > Config.FishMarketRange - 4 then
-			return done("CHECK", string.format("could not stand by the stall (settled %.1f studs out)", near))
+			return done(
+				"CHECK",
+				string.format("could not stand by the stall (settled %.1f studs out)", near)
+			)
 		end
 
 		-- At night every buy is refused; the rest needs the day.
@@ -5110,12 +5220,19 @@ case(
 		end
 		task.wait(0.5)
 		if freshHeld() ~= held then
-			return done("FAIL", string.format("a bad id or window bought something: %s, then %s", held, freshHeld()))
+			return done(
+				"FAIL",
+				string.format("a bad id or window bought something: %s, then %s", held, freshHeld())
+			)
 		end
 		local offBoard = toastCount(badAt, "isn't on the Fresh Catch board")
 		table.insert(
 			notes,
-			string.format("%d bad ids and windows bought nothing (%d off the board toasts)", #bad, offBoard)
+			string.format(
+				"%d bad ids and windows bought nothing (%d off the board toasts)",
+				#bad,
+				offBoard
+			)
 		)
 
 		-- A stale window: the stock the player saw has rolled over.
@@ -5142,7 +5259,10 @@ case(
 		local answered = toastCount(burstAt, "isn't on the Fresh Catch board")
 		if answered > 2 then
 			verdict = downgrade(verdict, "FAIL")
-			table.insert(notes, string.format("%d of 5 in one frame answered; the limit is 2 a second", answered))
+			table.insert(
+				notes,
+				string.format("%d of 5 in one frame answered; the limit is 2 a second", answered)
+			)
 		else
 			table.insert(notes, string.format("5 in one frame: %d answered", answered))
 		end
@@ -5150,7 +5270,10 @@ case(
 		-- Past the amount: buy the cheapest row in stock up to its amount, then once more; with too few fish for it,
 		-- "Not enough golden fish" and nothing bought.
 		if pick == nil then
-			return done("CHECK", "no row in stock this window, so the amount checks wait for the next one")
+			return done(
+				"CHECK",
+				"no row in stock this window, so the amount checks wait for the next one"
+			)
 		end
 		local row = pick :: Types.FreshCatchRow
 		local amount, bought = freshRow(row.id)
@@ -5163,7 +5286,12 @@ case(
 			if freshHeld() ~= held then
 				return done(
 					"FAIL",
-					string.format("bought %s with %d golden fish (it costs %d)", row.id, fish(), row.fish)
+					string.format(
+						"bought %s with %d golden fish (it costs %d)",
+						row.id,
+						fish(),
+						row.fish
+					)
 				)
 			end
 			if toastCount(poorAt, "Not enough golden fish") ~= 1 then
@@ -5553,7 +5681,9 @@ local StarterCat: any = if starterModule ~= nil and starterModule:IsA("ModuleScr
 	else nil
 local BELLHOP_ID: string = if StarterCat ~= nil then StarterCat.CAT_ID else "bellhop_cat"
 local BELLHOP_TAG: string = if StarterCat ~= nil then StarterCat.TAG else "BellhopStand"
-local BELLHOP_CLAIMED: string = if StarterCat ~= nil then StarterCat.CLAIMED else "Already home with you"
+local BELLHOP_CLAIMED: string = if StarterCat ~= nil
+	then StarterCat.CLAIMED
+	else "Already home with you"
 local BELLHOP_TOO_FAR: string = if StarterCat ~= nil
 	then StarterCat.TOO_FAR
 	else "Walk up to my stand to take me home"
@@ -5636,12 +5766,18 @@ case(
 		local farAnswer = waitFor(farAt, "StarterCatResult", 2)
 		task.wait(0.5)
 		if #bellhops() ~= mineBefore then
-			return done("FAIL", string.format("a ClaimStarterCat from %.1f studs gave a Bellhop Cat", far))
+			return done(
+				"FAIL",
+				string.format("a ClaimStarterCat from %.1f studs gave a Bellhop Cat", far)
+			)
 		end
 		local farExpected = if claimedBefore then BELLHOP_CLAIMED else BELLHOP_TOO_FAR
 		if farAnswer == nil then
 			verdict = downgrade(verdict, "CHECK")
-			table.insert(notes, string.format("%.1f studs gave nothing but no StarterCatResult", far))
+			table.insert(
+				notes,
+				string.format("%.1f studs gave nothing but no StarterCatResult", far)
+			)
 		else
 			local answered = farAnswer.data :: Claimed
 			if answered.ok then
@@ -5650,7 +5786,10 @@ case(
 			if answered.reason ~= farExpected then
 				verdict = downgrade(verdict, "CHECK")
 			end
-			table.insert(notes, string.format('%.1f studs refused with "%s"', far, tostring(answered.reason)))
+			table.insert(
+				notes,
+				string.format('%.1f studs refused with "%s"', far, tostring(answered.reason))
+			)
 		end
 		task.wait(math.max(0, farAt + 2.1 - os.clock()))
 
@@ -5669,7 +5808,8 @@ case(
 		end
 		local floodAt = os.clock()
 		fire("ClaimStarterCat")
-		local junk: { { any } } = { { BELLHOP_ID }, { 1e9 }, { {} }, { true, BELLHOP_ID, string.rep("x", 5000) } }
+		local junk: { { any } } =
+			{ { BELLHOP_ID }, { 1e9 }, { {} }, { true, BELLHOP_ID, string.rep("x", 5000) } }
 		for _, args in junk do
 			Remotes.event("ClaimStarterCat"):FireServer(table.unpack(args))
 		end
@@ -5689,12 +5829,19 @@ case(
 		if gained > 1 or paid > 1 then
 			return done(
 				"FAIL",
-				string.format("%d Bellhop Cats and %d ok answers from one flood and one more claim", gained, paid)
+				string.format(
+					"%d Bellhop Cats and %d ok answers from one flood and one more claim",
+					gained,
+					paid
+				)
 			)
 		end
 		if #floodAnswers > 1 then
 			verdict = downgrade(verdict, "FAIL")
-			table.insert(notes, string.format("%d answers to one frame's five claims (1 per 2 s)", #floodAnswers))
+			table.insert(
+				notes,
+				string.format("%d answers to one frame's five claims (1 per 2 s)", #floodAnswers)
+			)
 		end
 		local again = if againAnswer ~= nil then againAnswer.data :: Claimed else nil
 
@@ -5702,7 +5849,10 @@ case(
 			-- Nothing to claim: every answer is the same refusal and no cat came.
 			local expected = if claimedBefore then BELLHOP_CLAIMED else BELLHOP_GOALS
 			if gained ~= 0 or paid ~= 0 then
-				return done("FAIL", string.format('a refused profile ("%s") got a Bellhop Cat', expected))
+				return done(
+					"FAIL",
+					string.format('a refused profile ("%s") got a Bellhop Cat', expected)
+				)
 			end
 			if again == nil or again.reason ~= expected then
 				verdict = downgrade(verdict, "CHECK")
@@ -5715,8 +5865,14 @@ case(
 				)
 			)
 			local hint = if claimedBefore
-				then string.format('to see a claim, run %s("starterCat") on the server and run again', DEBUG)
-				else string.format("to see a claim, finish the first goals (tutorial step %d) and run again", step)
+				then string.format(
+					'to see a claim, run %s("starterCat") on the server and run again',
+					DEBUG
+				)
+				else string.format(
+					"to see a claim, finish the first goals (tutorial step %d) and run again",
+					step
+				)
 			if #mine == 0 then
 				return done(verdict, table.concat(notes, ", ") .. "; " .. hint)
 			end
@@ -7483,12 +7639,20 @@ end
 if table.find(Remotes.ServerToClient, "StarterCatResult") ~= nil then
 	Remotes.event("StarterCatResult").OnClientEvent:Connect(function(ok: boolean, reason: string?)
 		local answered: Claimed = { ok = ok, reason = reason }
-		record("StarterCatResult", string.format("ok=%s %q", tostring(ok), tostring(reason)), nil, answered)
+		record(
+			"StarterCatResult",
+			string.format("ok=%s %q", tostring(ok), tostring(reason)),
+			nil,
+			answered
+		)
 	end)
 end
 Remotes.event("FreshCatchStock").OnClientEvent:Connect(function(stock: Types.FreshCatchStock?)
 	freshStock = stock
-	record("FreshCatchStock", if stock ~= nil then string.format("window %d", stock.window) else "nil (night)")
+	record(
+		"FreshCatchStock",
+		if stock ~= nil then string.format("window %d", stock.window) else "nil (night)"
+	)
 end)
 Remotes.event("TipJarState").OnClientEvent:Connect(function(jar: Types.TipJarState)
 	tipJar = jar

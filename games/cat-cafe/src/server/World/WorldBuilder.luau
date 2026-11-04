@@ -15,6 +15,7 @@ local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
 local Layout = require(script.Parent.Layout)
+local SafeWords = require(script.Parent.SafeWords)
 local StarterCat = require(ReplicatedStorage.Shared.StarterCat)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -1234,10 +1235,94 @@ local function buildCamp(camp: Layout.Camp, look: AreaLook, parent: Instance)
 		(base * CFrame.new(across, top, -0.8)).Position,
 		folderCamp
 	)
+	-- the words wait for the gates (paintCampWords, after them), so they keep clear of the gate's bars too
+end
+
+-- The camp's SAFE ZONE words (#1132): where SafeWords.fit finds room that keeps a stud clear of everything standing on
+-- the camp (its set's circles, edging and props, the cannon, the gate, the Index Board and the camp extras) and of
+-- the stripe, the widest that fit, and none when nothing does. Flat paving (blocks thinner than 3 hundredths) is what
+-- they are painted on, so it is not an obstacle, and neither is the ground slab or the stripe.
+local SIGNS = { -1, 1 }
+local SAFE_SKIP = { Ground = true, CampFloor = true, SafeLine = true, SafeZoneWords = true }
+
+local function paintCampWords(
+	camp: Layout.Camp,
+	areaModel: Instance,
+	folderCamp: Instance,
+	extras: { Instance }
+)
+	local floorY = camp.origin.y
+	local base = CFrame.new(camp.origin.x, 0, camp.origin.z)
+		* CFrame.Angles(0, math.rad(camp.turn), 0)
+	local obstacles: { SafeWords.Box } = {}
+	local function add(root: Instance)
+		for _, descendant in root:GetDescendants() do
+			if not descendant:IsA("BasePart") or SAFE_SKIP[descendant.Name] then
+				continue
+			end
+			local piece = descendant :: BasePart
+			-- a night fence is built hidden (hideForDay) and keeps its real look in an attribute
+			local seen = piece:GetAttribute("NightTransparency")
+			local transparency = if type(seen) == "number" then seen else piece.Transparency
+			if transparency >= 0.95 then
+				continue
+			end
+			-- parts far from the camp cannot matter: skip them before the corner maths
+			local reachOut = camp.halfAcross + SafeWords.MAX_DEPTH + piece.Size.Magnitude / 2 + 2
+			local away = piece.Position
+				- Vector3.new(camp.origin.x, piece.Position.Y, camp.origin.z)
+			if away.Magnitude > reachOut then
+				continue
+			end
+			local half = piece.Size / 2
+			local box: SafeWords.Box =
+				{ x1 = math.huge, z1 = math.huge, x2 = -math.huge, z2 = -math.huge }
+			local low: number = math.huge
+			local high: number = -math.huge
+			for _, sx in SIGNS do
+				for _, sy in SIGNS do
+					for _, sz in SIGNS do
+						local corner = piece.CFrame
+							* Vector3.new(half.X * sx, half.Y * sy, half.Z * sz)
+						local at = base:PointToObjectSpace(Vector3.new(corner.X, floorY, corner.Z))
+						box.x1, box.x2 = math.min(box.x1, at.X), math.max(box.x2, at.X)
+						box.z1, box.z2 = math.min(box.z1, at.Z), math.max(box.z2, at.Z)
+						low = math.min(low, corner.Y)
+						high = math.max(high, corner.Y)
+					end
+				end
+			end
+			-- flat paving (thin in the world's up) is what the words are painted on
+			if
+				piece:IsA("Part")
+				and (piece :: Part).Shape == Enum.PartType.Block
+				and high - low <= 0.03
+			then
+				continue
+			end
+			-- only what stands on the floor round the words, not the ground below or a canopy far above
+			local near = box.z2 > -SafeWords.MAX_DEPTH - SafeWords.GAP - 1
+				and box.z1 < 0
+				and box.x2 > -camp.halfAcross - 1
+				and box.x1 < camp.halfAcross + 1
+			if near and high > floorY + 0.005 and low < floorY + 3 then
+				table.insert(obstacles, box)
+			end
+		end
+	end
+	add(areaModel)
+	for _, extra in extras do
+		add(extra)
+	end
+	local spot = SafeWords.fit(obstacles, camp.halfAcross)
+	if spot == nil then
+		return
+	end
+	local top = floorY + 0.03
 	safeWords(
-		(base * CFrame.new(0, top, -4)).Position,
+		(base * CFrame.new(spot.x, top, spot.z)).Position,
 		base:VectorToWorldSpace(Vector3.new(0, 0, -1)),
-		12,
+		spot.width,
 		folderCamp
 	)
 end
@@ -1976,6 +2061,7 @@ local PAW_COLORS = {
 	neighbourhood = Color3.fromRGB(240, 150, 64), -- warm orange
 	woods = Color3.fromRGB(38, 112, 64), -- deep green
 	sewer = Color3.fromRGB(86, 110, 150), -- slate blue
+	town = Color3.fromRGB(214, 84, 72), -- brick red, stands out on the cream paving
 } :: { [string]: Color3 }
 local PAW_TOES = { { -0.55, -0.5 }, { -0.2, -0.78 }, { 0.2, -0.78 }, { 0.55, -0.5 } }
 
@@ -2323,8 +2409,23 @@ function WorldBuilder.build(): World
 		end
 	end
 	buildPawPaths(root, sets)
-	buildIndexBoards(folder("IndexBoards", root))
-	buildCampExtras(folder("CampExtras", root))
+	local boardsFolder = folder("IndexBoards", root)
+	buildIndexBoards(boardsFolder)
+	local extrasFolder = folder("CampExtras", root)
+	buildCampExtras(extrasFolder)
+	-- the SAFE ZONE words last among the camp's dressing, so they find room clear of the gate, the Index Board and the
+	-- extras too (#1132)
+	for _, info in areas do
+		local campFolder = info.model:FindFirstChild("Camp")
+		if info.camp ~= nil and campFolder ~= nil then
+			paintCampWords(
+				info.camp,
+				info.model,
+				campFolder,
+				{ gatesFolder, extrasFolder, boardsFolder }
+			)
+		end
+	end
 	local cannons: { [string]: Model } = {}
 	local cannonsFolder = folder("Cannons", root)
 	for id in Layout.cannons do

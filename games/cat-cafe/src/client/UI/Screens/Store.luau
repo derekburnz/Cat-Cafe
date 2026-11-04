@@ -49,6 +49,15 @@ local CLEAN_PICTURE: { [string]: string } = {
 -- the picture tile's fill: the gold of the HUD Store tile and price button (Theme.button.store)
 local TILE_FILL = ColorSequence.new(Theme.button.store.top, Theme.button.store.bottom)
 local BUTTON_W = 116 -- #1176 live: "the buttons overlap and are too big"
+-- #1221 (Derek 2026-11-04: the pass cards "push out past the sides" of the window and "lose their outlines"): a
+-- UIStroke is drawn outside its card, and the list clips at its own edge, so the list keeps the outline's width
+-- inside its edges plus an even gap on both sides. The scroll bar takes its own strip (VerticalScrollBarInset), so
+-- the cards shrink when it shows and never run under it.
+local CARD_STROKE = Theme.sizes.stroke + 1 -- the card's gold outline
+local SCROLL_BAR = 6
+local CARD_SIDE = 8 -- between a card's outline and the window's inner edge (and the scroll bar)
+local CARD_INSET = CARD_STROKE + CARD_SIDE
+local CARD_FOOT = 12 -- under a long description that wraps onto more lines than the card's height holds
 
 local Store = {}
 Store.__index = Store
@@ -106,7 +115,8 @@ function Store.new(callbacks: Callbacks): Store
 		Size = UDim2.new(1, 0, 1, -(NOTE_H + Theme.sizes.gap)),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
-		ScrollBarThickness = 6,
+		ScrollBarThickness = SCROLL_BAR,
+		VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar, -- the bar's strip is not under the cards
 		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
@@ -115,7 +125,13 @@ function Store.new(callbacks: Callbacks): Store
 			Padding = UDim.new(0, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 10) }),
+		-- the first and last cards' outlines show at the top and bottom too
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, CARD_INSET),
+			PaddingRight = UDim.new(0, CARD_INSET),
+			PaddingTop = UDim.new(0, CARD_STROKE),
+			PaddingBottom = UDim.new(0, CARD_STROKE),
+		}),
 	})
 	self._empty = text({
 		Name = "Empty",
@@ -143,11 +159,16 @@ function Store._card(self: any, key: string, order: number): any
 		LayoutOrder = order,
 		BackgroundColor3 = PAL.goldCard,
 		BorderSizePixel = 0,
+		-- the padded list's width; the height is a minimum and grows with a long description (AutomaticSize)
 		Size = UDim2.new(1, 0, 0, self._rowHeight),
+		AutomaticSize = Enum.AutomaticSize.Y,
 		Parent = self._list,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.colors.gold, Thickness = Theme.sizes.stroke + 1 }),
+		Create("UIStroke", {
+			Color = Theme.colors.gold,
+			Thickness = CARD_STROKE,
+		}),
 		-- a soft light along the top, so the card reads as a lit gold panel rather than a flat row
 		Create("UIGradient", {
 			Rotation = 90,
@@ -193,7 +214,9 @@ function Store._card(self: any, key: string, order: number): any
 	local effect = text({
 		Name = "Effect",
 		Position = UDim2.fromOffset(left, 40),
-		Size = UDim2.new(1, -(left + right), 1, -48),
+		-- as wide as the space left of the button, and as tall as its lines (the card grows round it, #1221)
+		Size = UDim2.new(1, -(left + right), 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
 		TextWrapped = true,
@@ -201,6 +224,7 @@ function Store._card(self: any, key: string, order: number): any
 		TextYAlignment = Enum.TextYAlignment.Top,
 		Parent = card,
 	})
+	Create("UIPadding", { PaddingBottom = UDim.new(0, CARD_FOOT), Parent = effect })
 	-- an owned pass: the green word in place of the button (no price)
 	local owned = text({
 		Name = "Owned",

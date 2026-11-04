@@ -19,11 +19,21 @@ local Config = {
 	OfflineCapPassSeconds = 57600,
 	-- Game pass ids for F95's hooks (section 6); 0 until Tools-Agent makes the pass, which turns its effect off. The
 	-- Money passes by the income they multiply by (the highest owned counts); each extra slot pass adds a role slot.
-	-- Tools-Agent made the four in tools/opencloud/passes.json on 2026-11-02 (off sale until launch); no extra slot
-	-- pass exists yet.
+	-- Tools-Agent made the four in tools/opencloud/passes.json on 2026-11-02 (off sale until launch), and the rest on
+	-- 2026-11-04 as off-sale placeholders (#1197). Each stays off sale until the code that grants it is merged; the
+	-- Store cards (#1240) read the ids, and PassService already grants the extra slot to an owner.
 	LongNapPassId = 2064345084,
 	MoneyPassIds = { [2] = 2064604577, [3] = 2064670602, [4] = 2064357148 } :: { [number]: number },
-	ExtraSlotPassIds = {} :: { number },
+	ExtraSlotPassIds = { 2066816325 } :: { number },
+	VipPassId = 2072030274,
+	CatAccessoriesPassId = 2068634239,
+	UniformStylesPassId = 2071522382,
+	CafeStylePassId = 2070044168,
+	GrandThemePassId = 2071158673,
+	RoyalCatPassId = 2066438426,
+	KingPackPassId = 2071368679,
+	GoldenPondPassId = 2071704337, -- #1232
+	SecondBowlPassId = 2072132265, -- #1161
 	-- Developer product ids (#1182) by Catalog.products id; 0 until Derek makes the product in Creator Hub, and a 0 is
 	-- never granted. ProductService's ProcessReceipt reads them.
 	ProductIds = {

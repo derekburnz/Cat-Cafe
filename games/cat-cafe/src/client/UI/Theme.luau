@@ -312,6 +312,14 @@ Theme.sizes = {
 	gap = 8,
 }
 
+-- The HUD's Luck chip (#1258, Derek's drawing): a dark green circle with a thin dark edge and no ring or glow, so the
+-- bright green clover picture (Icon_Clean_Clover, black outline drawn in) stands clear of it on grass and dark floors
+Theme.luck = {
+	circle = Color3.fromRGB(27, 127, 58),
+	edge = Theme.colors.outline,
+	edgeThickness = 1,
+}
+
 -- Icon glyphs for buttons and chips. Colour emoji render on every Roblox platform, so they stand in until
 -- the asset thread draws real icons.
 Theme.icons = {
@@ -348,6 +356,7 @@ Theme.icons = {
 	tutorial = "?", -- F72: the Tutorial tile's big question mark, drawn in the display font
 	store = "🛍️", -- the Store window's badge, drawn as the clean chest (CleanGlyphs)
 	replay = "🎬", -- F72: Settings' Replay tutorial row
+	luck = "🍀", -- F88: LuckLogic.ICON, drawn as the clean clover (#1258) on the chip, card, Lucky Day line and tip
 }
 
 -- The drawn icon sheet (assets/cat-cafe/ui/icons/UI_IconSheet.png, Derek 2026-10-27: "a lot of the symbols like

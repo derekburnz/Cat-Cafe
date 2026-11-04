@@ -33,6 +33,8 @@ CleanGlyphs.icons = {
 	equipBest = "EquipBest",
 	invite = "Invite",
 	lock = "Lock",
+	-- #1258: the luck clover, bright green with a black outline drawn into the art (an emoji can't take an outline)
+	luck = "Clover",
 } :: { [string]: string }
 
 -- Theme.foodIcons key -> clean symbol name

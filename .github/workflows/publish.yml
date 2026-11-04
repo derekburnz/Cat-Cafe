@@ -1,7 +1,11 @@
 # Publish Cat Cafe to Roblox from GitHub, with no Studio window (Open Cloud place publishing).
 # Start it from the Actions tab (publish > Run workflow) or from any thread with the GitHub actions_run_trigger
 # tool. Needs the repo secret ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 15). With the repo variable
-# AUTO_PUBLISH set to true, every main commit whose check run passed also goes live.
+# AUTO_PUBLISH set to true, every main commit whose check run passed also goes live. An automatic publish first
+# shares every picture and sound with the experience (asset-permissions.yml grant), and afterwards restarts running
+# servers at once, with no countdown, only when ProfileSchema.VERSION differs from the last published build's. A run
+# that leaves every server on its build (an automatic publish, or a manual Published with restart_servers on, the
+# restart included) records its save version in a `published-build` artifact for the next automatic publish.
 name: publish
 
 on:
@@ -24,6 +28,11 @@ on:
     workflows: [check]
     types: [completed]
     branches: [main]
+
+# actions: read lets an automatic publish find the last published build's record (the published-build artifact).
+permissions:
+  contents: read
+  actions: read
 
 concurrency:
   group: publish
@@ -78,6 +87,81 @@ jobs:
       - name: Build the place (default.project.json, no tests)
         run: rojo build default.project.json -o CatCafe.rbxl
 
+      # The save version this build carries, for the record below and the automatic restart check.
+      - name: Read the save version (ProfileSchema.VERSION)
+        id: schema
+        run: |
+          version=$(sed -nE 's/^ProfileSchema\.VERSION = ([0-9]+)[[:space:]]*(--.*)?$/\1/p' src/shared/ProfileSchema.luau | head -n 1)
+          if [ -z "$version" ]; then
+            echo "::error::Could not read ProfileSchema.VERSION from src/shared/ProfileSchema.luau"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Save version in this build: $version"
+
+      # Automatic publish only: compare with the save version of the last build that went live, read from the
+      # published-build artifact of this workflow's newest successful run on main (never from another workflow's or a
+      # PR's artifact of the same name). With no record (none yet, or older than 90 days), or when GitHub's API cannot
+      # be read, it restarts: a missed restart lets the newer-save guard kick players, while an extra one only moves
+      # them to a fresh server.
+      - name: Compare with the last published build (automatic publish)
+        id: last
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          VERSION: ${{ steps.schema.outputs.version }}
+        run: |
+          api() {
+            curl -fsS --retry 3 --retry-all-errors -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$REPO/$1"
+          }
+          restart=true
+          previous=unknown
+          why="no published-build record from a successful publish run in the last 90 days"
+          dir=$(mktemp -d)
+          url=""
+          if runs=$(api "actions/workflows/publish.yml/runs?branch=main&status=success&per_page=30"); then
+            for id in $(jq -r --arg repo "$REPO" '.workflow_runs[] | select(.head_repository.full_name == $repo) | .id' <<<"$runs"); do
+              if ! found=$(api "actions/runs/$id/artifacts?name=published-build"); then
+                why="GitHub's API could not list run $id's artifacts"
+                break
+              fi
+              url=$(jq -r '[.artifacts[] | select(.expired | not)] | first | .archive_download_url // ""' <<<"$found")
+              [ -z "$url" ] || break
+            done
+          else
+            why="GitHub's API could not list this workflow's runs"
+          fi
+          if [ -n "$url" ]; then
+            if curl -fsSL --retry 3 --retry-all-errors -H "Authorization: Bearer $GH_TOKEN" -o "$dir/record.zip" "$url" &&
+              unzip -o -q "$dir/record.zip" -d "$dir"; then
+              previous=$(sed -nE 's/^profile_version=([0-9]+)$/\1/p' "$dir/published-build.txt" 2>/dev/null | head -n 1 || true)
+              previous=${previous:-unknown}
+              why="the record has no readable profile_version"
+              echo "Last published build: $(sed -nE 's/^sha=([0-9a-f]+)$/\1/p' "$dir/published-build.txt" 2>/dev/null | head -n 1), save version $previous"
+            else
+              why="the published-build record could not be downloaded"
+            fi
+          fi
+          if [ "$previous" = "$VERSION" ]; then
+            restart=false
+            echo "Save version unchanged ($VERSION): running servers stay up."
+          elif [ "$previous" = unknown ]; then
+            echo "::warning::Servers will be restarted after the publish to be safe: $why."
+          else
+            echo "Save version $previous -> $VERSION: running servers restart right after the publish."
+          fi
+          echo "restart=$restart" >> "$GITHUB_OUTPUT"
+          echo "previous=$previous" >> "$GITHUB_OUTPUT"
+
+      # Automatic publish only: give the experience Use permission on every picture and sound this build names, the
+      # same as asset-permissions.yml action=grant, so new uploads don't draw blank or play silent. A failure stops
+      # the run before anything is uploaded; asset-permissions.yml action=list shows which id the error names.
+      - name: Share pictures and sounds with the experience (automatic publish)
+        if: github.event_name == 'workflow_run'
+        run: bash tools/opencloud/asset-permissions.sh grant
+
       - name: Upload a Saved version
         id: saved
         run: bash tools/opencloud/publish.sh Saved CatCafe.rbxl
@@ -88,6 +172,7 @@ jobs:
         run: bash tools/opencloud/run-luau.sh tools/opencloud/Smoke.luau "${{ steps.saved.outputs.version }}"
 
       - name: Publish (goes live)
+        id: live
         if: github.event_name != 'workflow_dispatch' || inputs.version_type == 'Published'
         run: bash tools/opencloud/publish.sh Published CatCafe.rbxl
 
@@ -105,3 +190,33 @@ jobs:
       - name: Restart running servers onto the new version
         if: github.event_name == 'workflow_dispatch' && inputs.version_type == 'Published' && inputs.restart_servers
         run: bash tools/opencloud/restart-servers.sh
+
+      # Automatic publish only, and only when the save version changed (or no record said what it was): restart at
+      # once with no countdown, so no player saved by a new server lands on an old one.
+      - name: Restart running servers (automatic publish, save version changed)
+        if: github.event_name == 'workflow_run' && steps.live.outcome == 'success' && steps.last.outputs.restart == 'true'
+        run: bash tools/opencloud/restart-servers.sh
+
+      # What every running server is now on, for the next automatic publish's restart check. Last, so a failed
+      # countdown or restart (which skips these steps) leaves the older record and the next automatic run restarts.
+      # A manual Published without restart_servers writes none, since old servers may still run an older build.
+      # Kept 90 days (GitHub's longest by default).
+      - name: Write the published-build record
+        if: >-
+          steps.live.outcome == 'success' &&
+          (github.event_name == 'workflow_run' || inputs.restart_servers)
+        env:
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          VERSION: ${{ steps.schema.outputs.version }}
+        run: printf 'profile_version=%s\nsha=%s\n' "$VERSION" "$SHA" > published-build.txt
+
+      - name: Upload the published-build record
+        if: >-
+          steps.live.outcome == 'success' &&
+          (github.event_name == 'workflow_run' || inputs.restart_servers)
+        uses: actions/upload-artifact@v4
+        with:
+          name: published-build
+          path: games/cat-cafe/published-build.txt
+          retention-days: 90
+          overwrite: true

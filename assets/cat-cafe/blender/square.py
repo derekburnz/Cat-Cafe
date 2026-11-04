@@ -9,8 +9,8 @@ goes on the square's floor top (y 0.1) unless the table says otherwise.
   CatCafe_Square_Paving     the whole floor, pivot at (0, 0.1, 0): a 0.4 thick grout slab that players stand on
                             (top at the pivot) and 0.02 thick stones on it. The quarters are sand and tan tiles in a
                             checker, the cross is light pavers in running bond edged with brick kerbs, a brick border
-                            runs round the square, and the cross carries on as paths through both gardens to the side
-                            arches and across both back alleys to the Woods and Sewer gates. Round the fountain a
+                            runs round the square, and the lane carries on as paths through both gardens, each ending
+                            at the garden wall with a brick kerb across it (#1082: nothing runs off the map). Round the fountain a
                             compass: a cream medallion in a brick ring with a point down each arm in its area's colour
                             (Neighbourhood north, Park south, Woods west, Sewer east) and four short brick diagonals.
   CatCafe_Square_Fountain   radius 6.5 at its step, the landmark at (0, 0): a cream basin with a teal tile band, a rim
@@ -51,9 +51,10 @@ from plot import TOWN_EDGE_X, rot_x, rot_y, rot_z
 
 SQ_W, SQ_D = 48.0, 32.0                        # the square's half width (x) and half depth (z)
 LANE, CROSS = 8.0, 6.0                         # half widths of the street's line and the east to west lane
-GARDEN_X, ALLEY_X = TOWN_EDGE_X - 0.1, TOWN_EDGE_X + 0.6   # 62.9 and 63.6 at today's size: the garden path ends under
-GATE_X = 92.8 + TOWN_EDGE_X - 63                            # the arch, the crossing starts past the safe zone stripe
-#                                                             (x 63.05 to 63.55) and stops at the gate's wall
+# The garden paths end at the garden wall's inner face (WorldBuilder: 1 thick, centred on |x| TownEdgeX - 1), 67.5 at
+# today's size, with a brick kerb across the end. Since v4 the hometown stops at that wall: the side arches, the back
+# alleys and the Woods and Sewer gates beyond it are gone, so no path carries on past it (#1082).
+GARDEN_X = TOWN_EDGE_X - 1.5
 BORDER, KERB = 2.0, 0.6
 TILE_X, TILE_Z, JOINT = 3.8, 4.0, 0.14
 PAVER_L, PAVER_W = 3.7, 2.0                    # across the walk, along the walk
@@ -228,9 +229,11 @@ def build_paving(mat):
         x0, x1 = sorted((s * LANE, s * ix))
         _walk(b, x0, x1, -CROSS, CROSS, "x")                                       # the lane in the square
         x0, x1 = sorted((s * SQ_W, s * GARDEN_X))
-        _walk(b, x0, x1, -CROSS, CROSS, "x")                                       # through the garden
-        x0, x1 = sorted((s * ALLEY_X, s * GATE_X))
-        _walk(b, x0, x1, -CROSS, CROSS, "x")                                       # across the back alley
+        _kerbs(b, x0, x1, -CROSS, CROSS, "x")                                      # through the garden to its wall
+        x0, x1 = sorted((s * SQ_W, s * (GARDEN_X - KERB)))
+        _pavers(b, x0, x1, -CROSS + KERB, CROSS - KERB, "x")
+        x0, x1 = sorted((s * (GARDEN_X - KERB), s * GARDEN_X))
+        b.span((x0, 0, -CROSS + KERB), (x1, STONE, CROSS - KERB), "terracotta")    # the kerb across its end
     _compass(b)
     return [b.finalize("CatCafe_Square_Paving", mat), slab.finalize("CatCafe_Square_Paving_Slab", mat)]
 

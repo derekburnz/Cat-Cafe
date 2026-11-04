@@ -77,7 +77,7 @@ Every claim checked against main on 2026-11-04:
   - The only exclusive cat is the free Bellhop Cat.
   - The four passes (2x/3x/4x Money, Long Nap) touch income only.
 
-Left out on purpose:
+In or out, and why:
 - **Codes line** (added 2026-11-04 at the friend's ask, "OK store text" with this one change): `Release · playtest · group (group members only)`. Gameplay-Engineer makes these codes work in #1118, and `store-page set` waits for the publish that ships it, so the page never lists a code that doesn't redeem.
 - **Console:** the UI gate checks a 1080p console screen, but whether the experience is turned on for Xbox or PlayStation is a Creator Hub setting nobody has confirmed. Add "and console" once Derek ticks it.
 - **No "Roblox" or "game(s)", no like or favourite asks, no promises of future content.**

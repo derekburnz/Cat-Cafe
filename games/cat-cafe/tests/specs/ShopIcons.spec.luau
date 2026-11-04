@@ -65,6 +65,17 @@ return function()
 			expect(ShopIcons.food(nil)).to.equal(nil)
 		end)
 
+		it("has the clean money, golden fish and spin prize pictures (#1242)", function()
+			expect(ShopIcons.prize("coins")).to.equal(ShopIcons.clean("Bag"))
+			expect(ShopIcons.prize("fish")).to.equal("rbxassetid://111395416488950") -- Theme.textures.fishCoin
+			expect(ShopIcons.prize("spins")).to.equal(ShopIcons.clean("Spin"))
+			for _, kind in { "coins", "fish", "spins" } do
+				expect(string.match(ShopIcons.prize(kind) :: string, "^rbxassetid://%d+$")).to.be.ok()
+			end
+			expect(ShopIcons.prize("lure")).to.equal(nil)
+			expect(ShopIcons.prize(nil)).to.equal(nil)
+		end)
+
 		it("has the prize pictures for coins and spins (F97 section 4)", function()
 			expect(ShopIcons.image("Coins")).to.equal("rbxassetid://114567888385946")
 			expect(ShopIcons.image("Spin")).to.equal("rbxassetid://126057350997233") -- the clean wheel (#1070)

@@ -237,6 +237,14 @@ function ShopIcons.food(lureId: string?): string?
 	return if type(lureId) == "string" then IDS["Icon_Clean_" .. pascal(lureId)] else nil
 end
 
+-- The clean picture for a money, golden fish or spin prize (#1242, the Tip Jar, Daily Treat, quest and Index prize
+-- chips): the money bag, the golden fish coin and the wheel; nil for any other kind.
+local PRIZE_FOR: { [string]: string } = { coins = "Bag", fish = "Fish", spins = "Spin" }
+function ShopIcons.prize(kind: string?): string?
+	local name = if type(kind) == "string" then PRIZE_FOR[kind] else nil
+	return if name then IDS["Icon_Clean_" .. name] else nil
+end
+
 -- A decor piece's clean picture by its catalog id (#1072, Components/DecorPictures), or nil for an unknown id.
 function ShopIcons.decor(decorId: string?): string?
 	return if type(decorId) == "string" then DecorPictures[decorId] else nil

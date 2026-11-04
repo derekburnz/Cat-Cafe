@@ -50,8 +50,8 @@ local function nearStation(player: Player): boolean
 	return false
 end
 
--- Whether the player is in Config.GroupId, asked at most once per GroupCheckSeconds. A failed call counts as not a
--- member and is not kept, so the next try asks again. Yields.
+-- Whether the player is in Config.GroupId. A yes is kept for GroupCheckSeconds; a no or a failed call is not kept, so a
+-- player who joins after "Join our group to use this code!" can use it at once (#1118, as StarterCatService). Yields.
 local function inGroup(player: Player): boolean
 	local kept = groupAnswers[player]
 	if kept ~= nil and os.clock() - kept.at < Config.GroupCheckSeconds then
@@ -63,7 +63,9 @@ local function inGroup(player: Player): boolean
 	if not ok then
 		return false
 	end
-	groupAnswers[player] = { member = member == true, at = os.clock() }
+	if member == true then
+		groupAnswers[player] = { member = true, at = os.clock() }
+	end
 	return member == true
 end
 

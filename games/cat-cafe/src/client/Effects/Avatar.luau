@@ -605,14 +605,20 @@ function Avatar.smack(seconds: number, missedAt: number?): NetArm?
 end
 
 -- Whether a character holds its net (F93: at all times): alive, with no cat in its arms (`CarryingCatId`, or the
--- server's `NetHidden` for the carry), and not shot out of the Cat Cannon (`Launching`).
+-- server's `NetHidden` for the carry), not shot out of the Cat Cannon (`Launching`) and, for a staged copy only (the
+-- intro's copy of you, #1252), not told to show none (`IntroNoNet`; NetHold passes nil for a player's character).
 function Avatar.holdsNet(
 	carrying: unknown,
 	hidden: unknown,
 	alive: boolean,
-	launching: unknown
+	launching: unknown,
+	stagedNoNet: unknown?
 ): boolean
-	return carrying == nil and hidden ~= true and launching ~= true and alive
+	return carrying == nil
+		and hidden ~= true
+		and launching ~= true
+		and stagedNoNet ~= true
+		and alive
 end
 
 -- Which net model a player's `NetLevel` shows, 1 to 4: one a net, the Basic net (level 0) first and the Master net

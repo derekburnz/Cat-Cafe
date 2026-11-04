@@ -1,8 +1,8 @@
 --!strict
 -- The net in each player's hand (Derek 2026-10-28: "have your character holding a net while walking around until
 -- catching a cat"; F93, catch-rework.md section 1: at all times, put away while a cat is in the arms): alive, with no
--- cat in its arms (`CarryingCatId`, or the server's `NetHidden`) and not in a cannon flight (`Launching`), a character
--- this client sees holds its player's net, CatCafe_Item_Net_L1 to L4 from ReplicatedStorage.Assets by the server's
+-- cat in its arms (`CarryingCatId`, or the server's `NetHidden`), not in a cannon flight (`Launching`) and, for a staged
+-- character, not flagged `IntroNoNet` (the intro's copy of you, #1252), a character this client sees holds its player's net, CatCafe_Item_Net_L1 to L4 from ReplicatedStorage.Assets by the server's
 -- `NetLevel` on the character or its player (Avatar.netModel; a level whose model is missing shows the next one
 -- down), a copy made on this client and pivoted by its `Grip` attachment into the hand before each frame draws.
 -- Tackle.luau asks `NetHold.weight` every frame for each character it poses and raises the arm by that much
@@ -36,6 +36,7 @@ type Held = {
 	missedAt: number?, -- seconds into that smack this client heard it hit nothing
 }
 
+local NO_NET = "IntroNoNet" -- true on a staged character (no player) that shows no net and keeps its arm down
 local held: { [Model]: Held } = {}
 local started = false
 -- Server time of this player's last swing press, until the server's NetSwung for it comes back (Review S91).
@@ -112,14 +113,16 @@ end
 -- false beyond the animation radius, where the arm lowers and the net goes. Also makes or drops the net to match.
 function NetHold.weight(character: Model, rig: Avatar.Rig, dt: number, near: boolean): number
 	local entry = entryOf(character, rig)
+	local player = Players:GetPlayerFromCharacter(character)
 	local holding = Avatar.holdsNet(
 		character:GetAttribute("CarryingCatId"),
 		character:GetAttribute("NetHidden"),
 		alive(character),
-		character:GetAttribute("Launching")
+		character:GetAttribute("Launching"),
+		-- a staged copy's own flag (the intro's copy of you shows no net, #1252); a player's character ignores it
+		if player == nil then character:GetAttribute(NO_NET) else nil
 	)
 	-- the server's NetLevel on the character, or on its player
-	local player = Players:GetPlayerFromCharacter(character)
 	local netLevel = character:GetAttribute("NetLevel")
 	if netLevel == nil and player ~= nil then
 		netLevel = player:GetAttribute("NetLevel")

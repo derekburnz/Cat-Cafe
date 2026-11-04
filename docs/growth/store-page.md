@@ -46,24 +46,47 @@ Roblox lets the genre change only once every 3 months and may correct a genre it
 
 ## 3. The description (store-page.txt)
 
-About 600 of the 1,000 allowed characters. The hook is 93 characters, so it shows in full in search.
+Reworked 2026-11-04 to the format the person liked (Coordinator, examples in the library under Monetization-Agent/description-examples/). The order is:
+1. Emoji hook
+2. Update line
+3. Intro line
+4. 7 feature bullets
+5. Devices line
+6. Group perk line
+7. A two-question FAQ
 
-Checks:
-- **Every claim is in the game today:**
-  - 5 areas: Alleyway, Park, Neighbourhood, Woods, Sewer.
-  - 50 area cats in `Catalog.cats`, Common to Mythical, plus spares and the starter.
+Length is 936 characters (946 in UTF-16, 972 bytes), all under the 1,000 limit. The hook is 106 characters, so it shows in full in search.
+
+Every claim checked against main on 2026-11-04:
+- **Update:** the Corner Shop is a coins-only stall that restocks every 5 minutes (#1052, `CornerShop.luau`, UI in `UIController`).
+- **Areas and cats:**
+  - 5 areas.
+  - 50 area cats in `Catalog.cats`, plus 10 spares and the Bellhop Cat.
   - Gold and rainbow coats.
-  - Tier names Corner Cafe to Grand Cafe (`Catalog.luau`).
-  - Trading at `TradeMinTier = 3`.
-  - PalService and RescueService.
-  - Offline earnings, daily treat, quests, codes, leaderboards, and the Feedback button.
-- **Nothing promised:** no "new cats every week", no "limited", no countdown.
-- **No "Roblox" and no "game"/"games" anywhere:** the group is not named in the text, because "Creampuff Games" would trip the filter.
-- **No like, favourite or group-join ask, and no paid item mentioned.**
+- **Cafe and tools:**
+  - Roles take orders, make the food and serve.
+  - Decor through the crates.
+  - Cat Cannon (`Cannon.luau`).
+  - Bait bowl and lures (`Bait.luau`).
+  - Potions (`Potions.luau`).
+- **Trading** at `TradeMinTier = 3`, started from a player's head tag or the Trade button (trading.md section 1).
+- **Offline earnings:** half pay for up to 8 h without the Long Nap pass, so "keeps earning" holds for everyone.
+- **Group perk:** `Config.GroupId = 107520049` is live on main, so the Bellhop Cat is claimed by joining the group (starter-cat.md section 2). It's free, the player presses the join button themselves, and there's no paid step. The group isn't named, because "Creampuff Games" contains "Games".
+- **FAQ "Do I need Robux to get cats?":**
+  - True. No cat is sold.
+  - The only exclusive cat is the free Bellhop Cat.
+  - The four passes (2x/3x/4x Money, Long Nap) touch income only.
+
+Left out on purpose:
+- **Codes:** the only active codes are `playtest` and `playtest2`, which are for the alpha and go inactive before launch. `launch` and `group` are still off. Add a codes line when one of them is switched on.
+- **Console:** the UI gate checks a 1080p console screen, but whether the experience is turned on for Xbox or PlayStation is a Creator Hub setting nobody has confirmed. Add "and console" once Derek ticks it.
+- **No "Roblox" or "game(s)", no like or favourite asks, no promises of future content.**
+
+The FAQ questions are the ones players ask most on the comps' pages, Robux and trading. We don't have live player questions yet: the in-game feedback reports are mostly bugs. Swap them for real questions once the soft launch brings some.
 
 Open choices for Derek:
-1. Title stays `Catch a Cat Cafe`. Optional later: a seasonal tag in front (`[❄️] Catch a Cat Cafe`), which every top comp uses during events.
-2. If he says yes on #999 (group gate), add one line later: "🐾 Join our community to take home the Bellhop Cat." The group can't be named, for the filter reason above.
+1. Title stays `Catch a Cat Cafe`. Optional later: a seasonal tag in front (`[❄️] Catch a Cat Cafe`).
+2. Console on or off in Creator Hub.
 
 ## Sources
 

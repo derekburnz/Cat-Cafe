@@ -149,4 +149,30 @@ return function()
 			expect(Spin.amount(rows[6], 1000)).to.equal(1)
 		end)
 	end)
+
+	describe("use all (#1078)", function()
+		it("adds several spins' prizes up for one card, in the order each prize first came", function()
+			local totals = Spin.summarize({
+				{ slice = 2, amount = 3 },
+				{ slice = 1, amount = 250 },
+				{ slice = 5, amount = 8 },
+				{ slice = 3, amount = 1200 },
+				{ slice = 4, amount = 1 },
+				{ slice = 6, amount = 1 },
+				{ slice = 4, amount = 1 },
+				{ slice = 99, amount = 5 }, -- unknown: left out
+			})
+			expect(totals :: any).to.deepEqual({
+				{ kind = "fish", amount = 11 },
+				{ kind = "coins", amount = 1450 },
+				{ kind = "lure", id = "caviar", amount = 2 },
+				{ kind = "crate", id = "highest", amount = 1 },
+			})
+			expect(#Spin.summarize({})).to.equal(0)
+		end)
+
+		it("spends a full bank and today's free spin in one press", function()
+			expect(Config.SpinAllMax >= Config.SpinBankCap + 1).to.equal(true)
+		end)
+	end)
 end

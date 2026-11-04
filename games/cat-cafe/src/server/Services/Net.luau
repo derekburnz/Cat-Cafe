@@ -44,6 +44,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SetSetting = RateLimiter.new(4, 1), -- a toggle tap; each call sends a full sync
 	ClaimTipJar = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimIndexReward = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
+	SpinAll = RateLimiter.new(1, 1), -- #1078: 1 a second (and the spin cooldown)
 	SpinWheel = RateLimiter.new(2, 1), -- SpinService also holds each player to SpinCooldownSeconds between spins
 	OpenCrate = RateLimiter.new(1, 1), -- golden-fish.md section 8: 1 a second; FishMarketService holds 2 s between opens
 	BuyCrateBundle = RateLimiter.new(1, 1), -- #1051: 1 a second
@@ -66,6 +67,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimStarterCat = RateLimiter.new(1, 2), -- F96 (starter-cat.md section 4): 1 per 2 s
 	CollectCampExtra = RateLimiter.new(1, 1), -- F100 (camp-extras.md section 4): 1 a second
 	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second
+	BuyCornerShop = RateLimiter.new(2, 1), -- #1052: 2 a second
 	-- F91 (front-lawn.md section 5): each rebuilds the lawn and sends a full sync
 	BuyLawn = RateLimiter.new(2, 1),
 	SetLawnSpot = RateLimiter.new(4, 1),

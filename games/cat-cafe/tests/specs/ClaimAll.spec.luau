@@ -15,11 +15,12 @@ return function()
 	end
 
 	describe("the kinds", function()
-		it("takes the five windows' kinds and says when nothing is ready", function()
+		it("takes the windows' kinds, \"quests\" for all three Quests tabs, and says when nothing is ready", function()
 			expect(ClaimAll.KINDS :: any).to.deepEqual({
 				"daily",
 				"weekly",
 				"achievements",
+				"quests",
 				"index",
 				"tipjar",
 			})
@@ -53,6 +54,37 @@ return function()
 				end
 			end
 		)
+
+		it("gathers every ready daily, weekly and achievement for the one Claim all (#1073)", function()
+			local p = fresh()
+			p.quests.daily = Quests.rollSet(p, "daily", 0, {}, function()
+				return 0
+			end)
+			p.quests.daily[1] = Quests.entry(p, Catalog.getQuest("d_catch5") :: any, 0)
+			for slot in p.quests.daily do
+				p.quests.daily[slot].claimed = slot ~= 1
+			end
+			p.stats.rescues = 1e9
+			p.stats.catsCaught += 5
+			local ready = ClaimAll.questReady(p)
+			expect(ready.daily :: any).to.deepEqual(ClaimAll.quests(p, "daily"))
+			expect(ready.weekly :: any).to.deepEqual(ClaimAll.quests(p, "weekly"))
+			expect(ready.achievements :: any).to.deepEqual(ClaimAll.achievements(p))
+			expect(#ready.daily >= 1).to.equal(true)
+			expect(#ready.achievements >= 2).to.equal(true)
+			expect(ready.count).to.equal(#ready.daily + #ready.weekly + #ready.achievements)
+			-- claimed everywhere: nothing left, so the button hides
+			for _, slot in ready.daily do
+				p.quests.daily[slot].claimed = true
+			end
+			for _, slot in ready.weekly do
+				p.quests.weekly[slot].claimed = true
+			end
+			for _, id in ready.achievements do
+				p.achievements[id] = true
+			end
+			expect(ClaimAll.questReady(p).count).to.equal(0)
+		end)
 
 		it("lists the met, unclaimed achievements in Catalog order", function()
 			local p = fresh()

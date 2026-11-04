@@ -44,7 +44,8 @@ function PassShop.start(ids: { number }, productIds: { number }?)
 	if service == nil or player == nil then
 		return
 	end
-	for _, id in productIds or {} do
+	local productList: { number } = productIds or {}
+	for _, id in productList do
 		products[id] = true
 		task.spawn(function()
 			local okInfo, info = pcall(function()

@@ -182,7 +182,8 @@ local function productRows(config: any, view: ShopView?): { Row }
 		return rows
 	end
 	local byId: { [string]: any } = {}
-	for _, def in view.products or {} do
+	local defs: { any } = view.products or {}
+	for _, def in defs do
 		byId[def.id] = def
 	end
 	for _, card in PRODUCTS do

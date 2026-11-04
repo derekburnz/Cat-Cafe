@@ -2849,8 +2849,9 @@ Presets.decorFx = {
 -- up to it and looking at the name"): a small gem in the rarity colour (Presets.rarity) bobs `above` studs over each
 -- stray whose rarity `shows`, `size` studs tall plus `pixels` so a far one still reads. It is a square turned 45
 -- degrees, `gem` of the gui across, lit from the top (`light` of the way to white, `dark` to black at the bottom)
--- with a white edge; a Mythical one glints now and then. It hides within hideWithin studs, where the Catch card
--- shows the name, comes back past hideWithin + showAfter, and shows to maxDistance for the `most` nearest.
+-- with a white edge; a Mythical one glints now and then. It stays up close while the cat is free (hideWithin is 0,
+-- so the gem and the Catch card's name sit together), hides only while someone is catching the cat, and shows to
+-- maxDistance for the `most` nearest. A hidden gem comes back past hideWithin + showAfter.
 Presets.rarityMark = {
 	shows = { Common = true, Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
 	glints = { Mythical = true } :: { [string]: boolean },
@@ -2868,7 +2869,7 @@ Presets.rarityMark = {
 	glintSize = 0.34,
 	glintSeconds = 0.3, -- one way
 	glintEvery = 2.2,
-	hideWithin = 10,
+	hideWithin = 0,
 	showAfter = 1,
 	maxDistance = 80,
 	most = 12,

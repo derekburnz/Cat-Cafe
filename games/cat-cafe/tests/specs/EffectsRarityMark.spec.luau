@@ -19,22 +19,25 @@ return function()
 			expect(Presets.rarityMark.glints.Mythical).to.equal(true)
 		end)
 
-		it("hides while the cat is being caught, up close and far away", function()
+		it("stays visible up close while the cat is free, hides only while it is being caught", function()
 			local r = Presets.rarityMark
 			expect(Logic.rarityMarkShows("Epic", 123456, 40, true)).to.equal(false)
 			expect(Logic.rarityMarkShows("Epic", nil, 40, false)).to.equal(true) -- LockedBy not replicated yet
 			expect(Logic.rarityMarkShows("Epic", 0, r.maxDistance, true)).to.equal(true)
 			expect(Logic.rarityMarkShows("Epic", 0, r.maxDistance + 1, true)).to.equal(false)
-			expect(Logic.rarityMarkShows("Epic", 0, r.hideWithin, true)).to.equal(false)
-			expect(Logic.rarityMarkShows("Epic", 0, r.hideWithin + 0.5, true)).to.equal(true)
-			-- once hidden it waits until you step back past hideWithin + showAfter, so the edge never flickers
+			expect(r.hideWithin).to.equal(0) -- no close-up hiding: the gem stays over a free cat you stand next to
+			expect(Logic.rarityMarkShows("Epic", 0, 0.5, true)).to.equal(true)
+			expect(Logic.rarityMarkShows("Epic", 0, 5, true)).to.equal(true)
+			expect(Logic.rarityMarkShows("Epic", 0, 5, false)).to.equal(true)
+			expect(Logic.rarityMarkShows("Epic", 123456, 2, true)).to.equal(false) -- still hidden while LockedBy is set
+			expect(Logic.rarityMarkShows("Epic", 123456, 2, false)).to.equal(false)
+			-- the hysteresis still reads hideWithin + showAfter for a hidden gem, so a tuned hideWithin never flickers
 			expect(Logic.rarityMarkShows("Epic", 0, r.hideWithin + r.showAfter * 0.5, false)).to.equal(
 				false
 			)
 			expect(Logic.rarityMarkShows("Epic", 0, r.hideWithin + r.showAfter + 0.1, false)).to.equal(
 				true
 			)
-			expect(r.hideWithin >= 8 and r.hideWithin <= 12).to.equal(true) -- GrabRangeStuds is 10
 		end)
 
 		it("is small but readable far away", function()
@@ -65,10 +68,10 @@ return function()
 			end
 		end)
 
-		it("matches the effects list: gone within 10 studs, back past 11, to 80 studs for the 12 nearest", function()
+		it("matches the effects list: never hidden up close, back past 1 once hidden, to 80 studs for the 12 nearest", function()
 			local r = Presets.rarityMark
-			expect(r.hideWithin).to.equal(10)
-			expect(r.hideWithin + r.showAfter).to.equal(11)
+			expect(r.hideWithin).to.equal(0)
+			expect(r.hideWithin + r.showAfter).to.equal(1)
 			expect(r.maxDistance).to.equal(80)
 			expect(r.most).to.equal(12)
 			expect(r.above).to.equal(0.9)

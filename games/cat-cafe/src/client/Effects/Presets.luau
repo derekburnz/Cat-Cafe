@@ -664,6 +664,19 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -4, 0),
 		drag = 0.5,
 	},
+	-- The Cat Whistle (Corner Shop v2, #1250): little teal notes of air puffing up off the hands, as if it is blown.
+	potionWhistle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.signTeal, Presets.palette.offwhite },
+		size = { 0.16, 0.08 },
+		transparency = { 0.1, 0.8 },
+		lifetime = { 0.6, 1 },
+		speed = { 0.6, 1.2 },
+		spread = 30,
+		rate = 2,
+		drag = 1,
+		lightEmission = 0.4,
+	},
 	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
 	giftTwinkle = {
 		texture = Presets.textures.sparkle,
@@ -2883,6 +2896,9 @@ Presets.potions = {
 	big_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
 	gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
 	quick_bait_potion = { emitter = "potionQuickBait", on = "Hands", colour = palette.blush },
+	-- the Corner Shop's Cat Whistle (corner-shop-v2.md); its Small and Big sizes add minutes to it (`buff`), so
+	-- ActivePotions only ever names `cat_whistle` and they need no glow of their own
+	cat_whistle = { emitter = "potionWhistle", on = "Hands", colour = palette.signTeal },
 } :: { [string]: PotionSpec }
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }

@@ -2,7 +2,7 @@
 
 Run from the repo root:  python assets/cat-cafe/audio/synth/trailer.py OUT_DIR
 
-Animation-Engineer asked on 2026-11-03 for an upbeat, cosy track with no lyrics for Derek's 28 second store page
+Animation-Engineer asked on 2026-11-03 for an upbeat, cozy track with no lyrics for Derek's 28 second store page
 video (storyboard in the project library, Animation-Engineer/trailer/storyboard.md). It is the game's own day
 theme, so the video sounds like the game: the same tune and chords as music.py's DayA, at 120 BPM with a fuller
 kit. Nothing here is uploaded to Roblox or played in the game; it is only mixed into the video.

@@ -37,6 +37,7 @@ local PalService = require(script.Parent.Services.PalService)
 local PassService = require(script.Parent.Services.PassService)
 local PlotService = require(script.Parent.Services.PlotService)
 local PotionService = require(script.Parent.Services.PotionService)
+local ProductService = require(script.Parent.Services.ProductService)
 local QuestService = require(script.Parent.Services.QuestService)
 local RallyService = require(script.Parent.Services.RallyService)
 local RareMomentService = require(script.Parent.Services.RareMomentService)
@@ -104,6 +105,7 @@ TipService.start() -- F87: context tips and feedback; before DataService so its 
 BugReportService.start(world)
 IdeaCreditsService.start() -- #1083: the Thank You board's credits
 PassService.start() -- F95: purchases in game; DataService checks owned passes at each join
+ProductService.start() -- #1182: developer product receipts (ProcessReceipt)
 PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join

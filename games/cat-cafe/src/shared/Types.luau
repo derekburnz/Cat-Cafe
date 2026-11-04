@@ -174,6 +174,15 @@ export type IndexMilestone = {
 -- (when set) pays max(coins, floor(dayRate x coinSeconds)). `crates` maps a crate id, or "highest" (the plain crate
 -- of the player's highest open zone), to a count. `bonus` (tips), `goldLuck`, `rainbowLuck` (F99) and `baitSpeed` are
 -- permanent fractions from the claim on; a milestone has one kind. `tag` names a title the prize unlocks.
+-- A developer product (#1182): sold for Robux in the Store, granted by ProductService's ProcessReceipt. `prize` is a
+-- fixed bundle of Big Money, Swift and Steady Paw Potions only (monetization-policy, decision 2026-11-01 22:42): never
+-- coins, golden fish, crates, spins or anything random. The price is read from Roblox at runtime, never stored here.
+export type ProductDef = {
+	id: string,
+	name: string,
+	prize: { potions: { [string]: number } },
+}
+
 export type IndexPrize = {
 	coins: number?,
 	coinSeconds: number?,
@@ -888,6 +897,7 @@ export type PlayerProfile = {
 	lawnStyles: LawnStyles,
 	cornerShop: CornerShopState, -- #1052 (corner-shop.md section 5, save version 29)
 	hideCredit: boolean?, -- #1083 (idea-credits.md section 4, save version 30): true keeps the name off the Thank You board
+	receipts: { string }, -- #1182 (save version 31): the newest Products.RECEIPT_LIMIT developer product PurchaseIds granted
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.

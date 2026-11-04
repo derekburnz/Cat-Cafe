@@ -29,9 +29,22 @@ return function()
 		return total
 	end
 
-	local function v2Cat(uid: string, catId: string, spotId: string?, extra: { [string]: any }?): any
-		local entry: { [string]: any } =
-			{ uid = uid, catId = catId, variant = "base", caughtAt = 500, spotId = spotId, level = 1, xp = 0, charm = 50 }
+	local function v2Cat(
+		uid: string,
+		catId: string,
+		spotId: string?,
+		extra: { [string]: any }?
+	): any
+		local entry: { [string]: any } = {
+			uid = uid,
+			catId = catId,
+			variant = "base",
+			caughtAt = 500,
+			spotId = spotId,
+			level = 1,
+			xp = 0,
+			charm = 50,
+		}
 		for key, value in pairs(extra or {}) do
 			entry[key] = value
 		end
@@ -48,8 +61,14 @@ return function()
 			lastSeen = 900,
 			rateAtLogout = 3.3,
 			renovations = 0,
-			upgradeLevels = levels
-				or { cafe_level = 1, tables = 0, espresso = 1, net = 0, lure_bowl = 0, park_access = 0 },
+			upgradeLevels = levels or {
+				cafe_level = 1,
+				tables = 0,
+				espresso = 1,
+				net = 0,
+				lure_bowl = 0,
+				park_access = 0,
+			},
 			decorOwned = {},
 			decorPlaced = {},
 			lures = {},
@@ -89,10 +108,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 30 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 31 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(30)
-			expect(profile.version).to.equal(30)
+			expect(ProfileSchema.VERSION).to.equal(31)
+			expect(profile.version).to.equal(31)
 			-- F102 (version 27): no trades yet
 			expect(#profile.tradeLog).to.equal(0)
 			expect(#profile.tradeIds).to.equal(0)
@@ -110,7 +129,9 @@ return function()
 			expect(next(profile.codesRedeemed)).never.to.be.ok()
 			expect(profile.goldenFish).to.equal(0)
 			expect(profile.lifetimeGoldenFish).to.equal(0)
-			expect(count(profile.crates) + count(profile.crateLuck) + count(profile.fishPerks)).to.equal(0)
+			expect(count(profile.crates) + count(profile.crateLuck) + count(profile.fishPerks)).to.equal(
+				0
+			)
 			expect(profile.stats.cratesOpened).to.equal(0)
 			expect(profile.stats.fishEarned).to.equal(0)
 			expect(profile.spin :: any).to.deepEqual({ lastFreeDay = 0, banked = 0 })
@@ -121,8 +142,16 @@ return function()
 			expect(profile.lastTick).to.equal(1000)
 			expect(profile.lastSeen).to.equal(1000)
 			expect(profile.rateAtLogout).to.equal(0)
-			expect(profile.upgradeLevels :: any).to.deepEqual({ tables = 0, espresso = 1, net = 0, lure_bowl = 0, lucky_cat = 0 })
-			expect(count(profile.decorOwned) + count(profile.decorPlaced) + count(profile.lures)).to.equal(0)
+			expect(profile.upgradeLevels :: any).to.deepEqual({
+				tables = 0,
+				espresso = 1,
+				net = 0,
+				lure_bowl = 0,
+				lucky_cat = 0,
+			})
+			expect(count(profile.decorOwned) + count(profile.decorPlaced) + count(profile.lures)).to.equal(
+				0
+			)
 			expect(profile.tutorialStep).to.equal(0)
 			expect(profile.settings :: any).to.deepEqual({
 				music = true,
@@ -166,19 +195,17 @@ return function()
 			expect(profile.renovations).never.to.be.ok()
 			expect(profile.upgradeLevels.cafe_level).never.to.be.ok()
 			expect(profile.upgradeLevels.park_access).never.to.be.ok()
-			for _, key in
-				ipairs({
-					"perfectCircles",
-					"circlesTotal",
-					"rescues",
-					"rescueAttempts",
-					"baitsTamed",
-					"baitsLetGo",
-					"bumpsGiven",
-					"bumpsLanded",
-					"bumpsTaken",
-				})
-			do
+			for _, key in ipairs({
+				"perfectCircles",
+				"circlesTotal",
+				"rescues",
+				"rescueAttempts",
+				"baitsTamed",
+				"baitsLetGo",
+				"bumpsGiven",
+				"bumpsLanded",
+				"bumpsTaken",
+			}) do
 				expect(profile.stats[key]).to.equal(0)
 			end
 		end)
@@ -186,21 +213,45 @@ return function()
 		it("has flags = { autoPress = false } (section 10, reviewer S23)", function()
 			expect(ProfileSchema.template(0).flags :: any).to.deepEqual({ autoPress = false })
 		end)
-		it("has telemetry = { onboardingStep = 0, achieved = {}, funnel = 2, firstDay } (growth analytics-plan, F87)", function()
-			expect(ProfileSchema.template(0).telemetry :: any).to.deepEqual({ onboardingStep = 0, achieved = {}, funnel = 2, firstDay = 0 })
-			expect(ProfileSchema.template(86400 * 20394 + 5).telemetry.firstDay).to.equal(20394)
-		end)
-		it("migrates telemetry: clamps the step, keeps only held steps after it (F16), in the v2 numbering (F87)", function()
-			local raw = v2Save()
-			-- a v1 state: step 3 first_catch is v2 step 7, held 5 first_role is v2 step 9, held 2 saw_alley is behind it
-			raw.telemetry = { onboardingStep = 3, achieved = { ["2"] = true, ["5"] = true, ["99"] = true, x = 1 } }
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.telemetry :: any).to.deepEqual({ onboardingStep = 7, achieved = { ["9"] = true }, funnel = 2, firstDay = 0 })
-			raw.telemetry = { onboardingStep = 40 }
-			expect(ProfileSchema.migrate(raw, 1000).telemetry.onboardingStep).to.equal(24)
-			raw.telemetry = "junk"
-			expect(ProfileSchema.migrate(raw, 1000).telemetry :: any).to.deepEqual({ onboardingStep = 0, achieved = {}, funnel = 2, firstDay = 0 })
-		end)
+		it(
+			"has telemetry = { onboardingStep = 0, achieved = {}, funnel = 2, firstDay } (growth analytics-plan, F87)",
+			function()
+				expect(ProfileSchema.template(0).telemetry :: any).to.deepEqual({
+					onboardingStep = 0,
+					achieved = {},
+					funnel = 2,
+					firstDay = 0,
+				})
+				expect(ProfileSchema.template(86400 * 20394 + 5).telemetry.firstDay).to.equal(20394)
+			end
+		)
+		it(
+			"migrates telemetry: clamps the step, keeps only held steps after it (F16), in the v2 numbering (F87)",
+			function()
+				local raw = v2Save()
+				-- a v1 state: step 3 first_catch is v2 step 7, held 5 first_role is v2 step 9, held 2 saw_alley is behind it
+				raw.telemetry = {
+					onboardingStep = 3,
+					achieved = { ["2"] = true, ["5"] = true, ["99"] = true, x = 1 },
+				}
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.telemetry :: any).to.deepEqual({
+					onboardingStep = 7,
+					achieved = { ["9"] = true },
+					funnel = 2,
+					firstDay = 0,
+				})
+				raw.telemetry = { onboardingStep = 40 }
+				expect(ProfileSchema.migrate(raw, 1000).telemetry.onboardingStep).to.equal(24)
+				raw.telemetry = "junk"
+				expect(ProfileSchema.migrate(raw, 1000).telemetry :: any).to.deepEqual({
+					onboardingStep = 0,
+					achieved = {},
+					funnel = 2,
+					firstDay = 0,
+				})
+			end
+		)
 		it("drops equippedLure, in the template and in the migration (F28)", function()
 			expect((ProfileSchema.template(0) :: any).equippedLure).never.to.be.ok()
 			local raw = v2Save()
@@ -238,8 +289,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 31 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 32 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 31 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 30 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 29 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 28 })).to.equal(false)
@@ -275,53 +327,108 @@ return function()
 	end)
 
 	describe("migrate 2 to 3: tier and refunds at the version 2 prices", function()
-		it("a typical v2 save: Tier 1, levels capped, every coin refunded (F22 done-when)", function()
-			local raw = v2Save({
-				cafe_level = 3,
-				tables = 4,
-				espresso = 3,
-				net = 2,
-				lure_bowl = 1,
-				park_access = 1,
-			})
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.version).to.equal(ProfileSchema.VERSION)
-			expect(profile.tier).to.equal(1)
-			expect(profile.upgradeLevels :: any).to.deepEqual({ tables = 2, espresso = 2, net = 1, lure_bowl = 1, lucky_cat = 0 })
-			-- cafe_level 2 and 3 (250 + 800), park_access (1000), tables 3 and 4 (600 + 1500), espresso 3 (1200),
-			-- net 2 at the v2 price (2500, not today's 3000)
-			local refund = 250 + 800 + 1000 + 600 + 1500 + 1200 + 2500
-			expect(refund).to.equal(7850)
-			expect(profile.coins).to.equal(1234 + refund)
-			expect(profile.lifetimeCoins).to.equal(5000)
-		end)
-
-		it("no coins lost: coins after = coins before + the v2 price of every level taken away", function()
-			local cases: { { [string]: number } } = {
-				{ cafe_level = 1, tables = 0, espresso = 1, net = 0, lure_bowl = 0, park_access = 0 },
-				{ cafe_level = 2, tables = 2, espresso = 2, net = 1, lure_bowl = 1, park_access = 0 },
-				{ cafe_level = 5, tables = 6, espresso = 3, net = 3, lure_bowl = 1, park_access = 1 },
-				{ cafe_level = 4, tables = 5, espresso = 1, net = 0, lure_bowl = 0, park_access = 1 },
-			}
-			local caps = Catalog.tiers[1].caps
-			for _, levels in ipairs(cases) do
-				local expected = v2Cost("cafe_level", 1, levels.cafe_level)
-					+ v2Cost("park_access", 0, levels.park_access)
-					+ v2Cost("tables", math.min(levels.tables, caps.tables), levels.tables)
-					+ v2Cost("espresso", math.min(levels.espresso, caps.espresso), levels.espresso)
-					+ v2Cost("net", math.min(levels.net, caps.net), levels.net)
-				local profile = ProfileSchema.migrate(v2Save(table.clone(levels) :: any), 1000)
-				expect(profile.coins).to.equal(1234 + expected)
-				expect(profile.upgradeLevels.tables).to.equal(math.min(levels.tables, caps.tables))
-				expect(profile.upgradeLevels.espresso).to.equal(math.min(levels.espresso, caps.espresso))
-				expect(profile.upgradeLevels.net).to.equal(math.min(levels.net, caps.net))
-				expect(profile.upgradeLevels.lure_bowl).to.equal(levels.lure_bowl)
+		it(
+			"a typical v2 save: Tier 1, levels capped, every coin refunded (F22 done-when)",
+			function()
+				local raw = v2Save({
+					cafe_level = 3,
+					tables = 4,
+					espresso = 3,
+					net = 2,
+					lure_bowl = 1,
+					park_access = 1,
+				})
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.version).to.equal(ProfileSchema.VERSION)
+				expect(profile.tier).to.equal(1)
+				expect(profile.upgradeLevels :: any).to.deepEqual({
+					tables = 2,
+					espresso = 2,
+					net = 1,
+					lure_bowl = 1,
+					lucky_cat = 0,
+				})
+				-- cafe_level 2 and 3 (250 + 800), park_access (1000), tables 3 and 4 (600 + 1500), espresso 3 (1200),
+				-- net 2 at the v2 price (2500, not today's 3000)
+				local refund = 250 + 800 + 1000 + 600 + 1500 + 1200 + 2500
+				expect(refund).to.equal(7850)
+				expect(profile.coins).to.equal(1234 + refund)
+				expect(profile.lifetimeCoins).to.equal(5000)
 			end
-		end)
+		)
+
+		it(
+			"no coins lost: coins after = coins before + the v2 price of every level taken away",
+			function()
+				local cases: { { [string]: number } } = {
+					{
+						cafe_level = 1,
+						tables = 0,
+						espresso = 1,
+						net = 0,
+						lure_bowl = 0,
+						park_access = 0,
+					},
+					{
+						cafe_level = 2,
+						tables = 2,
+						espresso = 2,
+						net = 1,
+						lure_bowl = 1,
+						park_access = 0,
+					},
+					{
+						cafe_level = 5,
+						tables = 6,
+						espresso = 3,
+						net = 3,
+						lure_bowl = 1,
+						park_access = 1,
+					},
+					{
+						cafe_level = 4,
+						tables = 5,
+						espresso = 1,
+						net = 0,
+						lure_bowl = 0,
+						park_access = 1,
+					},
+				}
+				local caps = Catalog.tiers[1].caps
+				for _, levels in ipairs(cases) do
+					local expected = v2Cost("cafe_level", 1, levels.cafe_level)
+						+ v2Cost("park_access", 0, levels.park_access)
+						+ v2Cost("tables", math.min(levels.tables, caps.tables), levels.tables)
+						+ v2Cost(
+							"espresso",
+							math.min(levels.espresso, caps.espresso),
+							levels.espresso
+						)
+						+ v2Cost("net", math.min(levels.net, caps.net), levels.net)
+					local profile = ProfileSchema.migrate(v2Save(table.clone(levels) :: any), 1000)
+					expect(profile.coins).to.equal(1234 + expected)
+					expect(profile.upgradeLevels.tables).to.equal(
+						math.min(levels.tables, caps.tables)
+					)
+					expect(profile.upgradeLevels.espresso).to.equal(
+						math.min(levels.espresso, caps.espresso)
+					)
+					expect(profile.upgradeLevels.net).to.equal(math.min(levels.net, caps.net))
+					expect(profile.upgradeLevels.lure_bowl).to.equal(levels.lure_bowl)
+				end
+			end
+		)
 
 		it("everything maxed in v2 refunds 13,600 + 1,200 + 12,500 + 11,550 + 1,000", function()
 			local profile = ProfileSchema.migrate(
-				v2Save({ cafe_level = 5, tables = 6, espresso = 3, net = 3, lure_bowl = 1, park_access = 1 }),
+				v2Save({
+					cafe_level = 5,
+					tables = 6,
+					espresso = 3,
+					net = 3,
+					lure_bowl = 1,
+					park_access = 1,
+				}),
 				1000
 			)
 			expect(profile.coins).to.equal(1234 + 13600 + 1200 + 12500 + 11550 + 1000)
@@ -336,17 +443,36 @@ return function()
 
 		it("levels at or under the Tier 1 caps refund nothing", function()
 			local profile = ProfileSchema.migrate(
-				v2Save({ cafe_level = 1, tables = 2, espresso = 2, net = 1, lure_bowl = 1, park_access = 0 }),
+				v2Save({
+					cafe_level = 1,
+					tables = 2,
+					espresso = 2,
+					net = 1,
+					lure_bowl = 1,
+					park_access = 0,
+				}),
 				1000
 			)
 			expect(profile.coins).to.equal(1234)
-			expect(profile.upgradeLevels :: any).to.deepEqual({ tables = 2, espresso = 2, net = 1, lure_bowl = 1, lucky_cat = 0 })
+			expect(profile.upgradeLevels :: any).to.deepEqual({
+				tables = 2,
+				espresso = 2,
+				net = 1,
+				lure_bowl = 1,
+				lucky_cat = 0,
+			})
 		end)
 
 		it("damaged levels count as the start level and refund nothing", function()
 			for _, bad in ipairs({ "lots", 0 / 0, -5, math.huge, true }) do
 				local profile = ProfileSchema.migrate(
-					v2Save({ cafe_level = bad, tables = bad, espresso = bad, net = bad, park_access = bad }),
+					v2Save({
+						cafe_level = bad,
+						tables = bad,
+						espresso = bad,
+						net = bad,
+						park_access = bad,
+					}),
 					1000
 				)
 				expect(profile.coins).to.equal(1234)
@@ -361,7 +487,9 @@ return function()
 				v2Save({ cafe_level = 1e9, park_access = 7, tables = 40, net = 12, lure_bowl = 3 }),
 				1000
 			)
-			expect(profile.coins).to.equal(1234 + 11550 + 1000 + v2Cost("tables", 2, 6) + v2Cost("net", 1, 3))
+			expect(profile.coins).to.equal(
+				1234 + 11550 + 1000 + v2Cost("tables", 2, 6) + v2Cost("net", 1, 3)
+			)
 			expect(profile.upgradeLevels.tables).to.equal(2)
 			expect(profile.upgradeLevels.net).to.equal(1)
 			expect(profile.upgradeLevels.lure_bowl).to.equal(1) -- Tier 1's bowl cap, with nothing to refund (F82)
@@ -374,28 +502,34 @@ return function()
 			expect(profile.coins).to.equal(1234)
 		end)
 
-		it("a v1 gloves level becomes the net, capped at 1 with the rest refunded at v2 net prices", function()
-			local raw = v2Save({ gloves = 2 })
-			raw.version = 1
-			local profile: any = ProfileSchema.migrate(raw, 1000)
-			expect(profile.upgradeLevels.net).to.equal(1)
-			expect(profile.upgradeLevels.gloves).never.to.be.ok()
-			expect(profile.coins).to.equal(1234 + 2500)
-			raw = v2Save({ gloves = 99 })
-			raw.version = 1
-			profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.upgradeLevels.net).to.equal(1)
-			expect(profile.coins).to.equal(1234 + 2500 + 10000)
-		end)
+		it(
+			"a v1 gloves level becomes the net, capped at 1 with the rest refunded at v2 net prices",
+			function()
+				local raw = v2Save({ gloves = 2 })
+				raw.version = 1
+				local profile: any = ProfileSchema.migrate(raw, 1000)
+				expect(profile.upgradeLevels.net).to.equal(1)
+				expect(profile.upgradeLevels.gloves).never.to.be.ok()
+				expect(profile.coins).to.equal(1234 + 2500)
+				raw = v2Save({ gloves = 99 })
+				raw.version = 1
+				profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.upgradeLevels.net).to.equal(1)
+				expect(profile.coins).to.equal(1234 + 2500 + 10000)
+			end
+		)
 
-		it("when gloves and net were both saved, the net level wins and gloves is dropped", function()
-			local raw = v2Save({ gloves = 3, net = 1 })
-			raw.version = 1
-			local profile: any = ProfileSchema.migrate(raw, 1000)
-			expect(profile.upgradeLevels.net).to.equal(1)
-			expect(profile.upgradeLevels.gloves).never.to.be.ok()
-			expect(profile.coins).to.equal(1234)
-		end)
+		it(
+			"when gloves and net were both saved, the net level wins and gloves is dropped",
+			function()
+				local raw = v2Save({ gloves = 3, net = 1 })
+				raw.version = 1
+				local profile: any = ProfileSchema.migrate(raw, 1000)
+				expect(profile.upgradeLevels.net).to.equal(1)
+				expect(profile.upgradeLevels.gloves).never.to.be.ok()
+				expect(profile.coins).to.equal(1234)
+			end
+		)
 
 		it("a v2 save is Tier 1 even if it somehow holds a tier", function()
 			local raw = v2Save()
@@ -403,36 +537,39 @@ return function()
 			expect(ProfileSchema.migrate(raw, 1000).tier).to.equal(1)
 		end)
 
-		it("keeps coins, lifetime coins, times, the day rate, tutorial, settings, decor and food", function()
-			local raw = v2Save()
-			raw.decorOwned = { plants = true, rug = true, lava_lamp = true }
-			raw.decorPlaced = { plants = true, lava_lamp = true, neon_sign = true }
-			raw.lures = { kibble = 2, tuna = 0, caviar_v9 = 4 }
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.coins).to.equal(1234)
-			expect(profile.lifetimeCoins).to.equal(5000)
-			expect(profile.lastTick).to.equal(900)
-			expect(profile.lastSeen).to.equal(900)
-			expect(profile.rateAtLogout).to.be.near(3.3, 1e-9)
-			expect(profile.tutorialStep).to.equal(5)
-			expect(profile.settings :: any).to.deepEqual({
-				music = false,
-				sfx = true,
-				musicVolume = 1,
-				sfxVolume = 1,
-				screenShake = true,
-				lowPerformance = false,
-				showOtherCats = true,
-				markers = true,
-				tutorialButton = true,
-				shopAlerts = true,
-				tradeRequests = "everyone",
-			})
-			-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
-			expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })
-			expect(profile.decorPlaced :: any).to.deepEqual({ plants = true })
-			expect(profile.lures :: any).to.deepEqual({ kibble = 2 })
-		end)
+		it(
+			"keeps coins, lifetime coins, times, the day rate, tutorial, settings, decor and food",
+			function()
+				local raw = v2Save()
+				raw.decorOwned = { plants = true, rug = true, lava_lamp = true }
+				raw.decorPlaced = { plants = true, lava_lamp = true, neon_sign = true }
+				raw.lures = { kibble = 2, tuna = 0, caviar_v9 = 4 }
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.coins).to.equal(1234)
+				expect(profile.lifetimeCoins).to.equal(5000)
+				expect(profile.lastTick).to.equal(900)
+				expect(profile.lastSeen).to.equal(900)
+				expect(profile.rateAtLogout).to.be.near(3.3, 1e-9)
+				expect(profile.tutorialStep).to.equal(5)
+				expect(profile.settings :: any).to.deepEqual({
+					music = false,
+					sfx = true,
+					musicVolume = 1,
+					sfxVolume = 1,
+					screenShake = true,
+					lowPerformance = false,
+					showOtherCats = true,
+					markers = true,
+					tutorialButton = true,
+					shopAlerts = true,
+					tradeRequests = "everyone",
+				})
+				-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
+				expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })
+				expect(profile.decorPlaced :: any).to.deepEqual({ plants = true })
+				expect(profile.lures :: any).to.deepEqual({ kibble = 2 })
+			end
+		)
 
 		it("keeps the v2 stats and starts the new counters at 0; renovations goes", function()
 			local profile: any = ProfileSchema.migrate(v2Save(), 1000)
@@ -452,72 +589,97 @@ return function()
 		local function v2WithCats(): any
 			local raw = v2Save()
 			raw.cats = {
-				starter_tabby = v2Cat("starter_tabby", "tabby", "counter_1", { level = 4, xp = 10 }),
+				starter_tabby = v2Cat(
+					"starter_tabby",
+					"tabby",
+					"counter_1",
+					{ level = 4, xp = 10 }
+				),
 				c1 = v2Cat("c1", "tuxedo", "window_1", { charm = 70 }),
 				c2 = v2Cat("c2", "snow", "cushion_1"),
 				c3 = v2Cat("c3", "calico", nil, { rescued = true }),
-				c4 = v2Cat("c4", "void", "shelf_1", { variant = "golden", charm = 64, level = 3, xp = 25 }),
+				c4 = v2Cat(
+					"c4",
+					"void",
+					"shelf_1",
+					{ variant = "golden", charm = 64, level = 3, xp = 25 }
+				),
 			}
 			raw.collection = { tabby = 500, tuxedo = 600, snow = 600, calico = 700, void = 800 }
 			return raw
 		end
 
-		it("clears every v2 spot and Equip Best fills barista_1 and waiter_1 (two cats working)", function()
-			local profile = ProfileSchema.migrate(v2WithCats(), 1000)
-			local placed = working(profile)
-			expect(count(placed)).to.equal(2)
-			-- The Ninja Cat (void) loves waiter (37.5 there); the Pirate Cat (calico) as Barista (3) beats every
-			-- Common in either slot.
-			expect(placed.c4).to.equal("waiter_1")
-			expect(placed.c3).to.equal("barista_1")
-			local plan = EquipBest.plan(profile)
-			expect(EquipBest.isOptimal(profile, plan)).to.equal(true)
-		end)
+		it(
+			"clears every v2 spot and Equip Best fills barista_1 and waiter_1 (two cats working)",
+			function()
+				local profile = ProfileSchema.migrate(v2WithCats(), 1000)
+				local placed = working(profile)
+				expect(count(placed)).to.equal(2)
+				-- The Ninja Cat (void) loves waiter (37.5 there); the Pirate Cat (calico) as Barista (3) beats every
+				-- Common in either slot.
+				expect(placed.c4).to.equal("waiter_1")
+				expect(placed.c3).to.equal("barista_1")
+				local plan = EquipBest.plan(profile)
+				expect(EquipBest.isOptimal(profile, plan)).to.equal(true)
+			end
+		)
 
-		it("no cat keeps a v2 spot id, and every working cat sits in an open Tier 1 slot", function()
-			local profile = ProfileSchema.migrate(v2WithCats(), 1000)
-			for _, instance in pairs(profile.cats) do
-				if instance.spotId ~= nil then
-					expect(Catalog.getSpot(instance.spotId)).to.be.ok()
-					expect(Economy.spotIsOpen(profile, instance.spotId)).to.equal(true)
+		it(
+			"no cat keeps a v2 spot id, and every working cat sits in an open Tier 1 slot",
+			function()
+				local profile = ProfileSchema.migrate(v2WithCats(), 1000)
+				for _, instance in pairs(profile.cats) do
+					if instance.spotId ~= nil then
+						expect(Catalog.getSpot(instance.spotId)).to.be.ok()
+						expect(Economy.spotIsOpen(profile, instance.spotId)).to.equal(true)
+					end
 				end
 			end
-		end)
+		)
 
-		it("a v2 save with only the starter puts it to work as the Barista at 1.5 per second", function()
-			local profile = ProfileSchema.migrate(v2Save(), 1000)
-			expect(working(profile) :: any).to.deepEqual({ starter_tabby = "barista_1" })
-			expect(Economy.incomePerSecond(profile)).to.be.near(1.5, 1e-9)
-		end)
-
-		it("method: starter for the first Tabby, rescue for rescued cats, net for the rest", function()
-			local profile = ProfileSchema.migrate(v2WithCats(), 1000)
-			expect(profile.cats.starter_tabby.method).to.equal("starter")
-			expect(profile.cats.c3.method).to.equal("rescue")
-			for _, uid in ipairs({ "c1", "c2", "c4" }) do
-				expect(profile.cats[uid].method).to.equal("net")
+		it(
+			"a v2 save with only the starter puts it to work as the Barista at 1.5 per second",
+			function()
+				local profile = ProfileSchema.migrate(v2Save(), 1000)
+				expect(working(profile) :: any).to.deepEqual({ starter_tabby = "barista_1" })
+				expect(Economy.incomePerSecond(profile)).to.be.near(1.5, 1e-9)
 			end
-		end)
+		)
 
-		it("keeps charm and the rescued flag, remaps levels (v12); Golden becomes base; no v2 cat has a name", function()
-			local raw = v2WithCats()
-			raw.cats.c2.name = "Smuggled"
-			local profile = ProfileSchema.migrate(raw, 1000)
-			local tabby, void = profile.cats.starter_tabby, profile.cats.c4
-			expect(tabby.level).to.equal(9) -- 1 + ceil(2.5 x 3)
-			expect(tabby.xp).to.equal(0)
-			expect(void.variant).to.equal("base")
-			expect(void.charm).to.equal(64)
-			expect(void.level).to.equal(6) -- 1 + ceil(2.5 x 2)
-			expect(void.xp).to.equal(0)
-			expect(profile.cats.c1.charm).to.equal(70)
-			expect(profile.cats.c3.rescued).to.equal(true)
-			expect(profile.cats.c1.rescued).never.to.be.ok()
-			for _, instance in pairs(profile.cats) do
-				expect(instance.name).never.to.be.ok()
-				expect(instance.caughtAt).to.equal(500)
+		it(
+			"method: starter for the first Tabby, rescue for rescued cats, net for the rest",
+			function()
+				local profile = ProfileSchema.migrate(v2WithCats(), 1000)
+				expect(profile.cats.starter_tabby.method).to.equal("starter")
+				expect(profile.cats.c3.method).to.equal("rescue")
+				for _, uid in ipairs({ "c1", "c2", "c4" }) do
+					expect(profile.cats[uid].method).to.equal("net")
+				end
 			end
-		end)
+		)
+
+		it(
+			"keeps charm and the rescued flag, remaps levels (v12); Golden becomes base; no v2 cat has a name",
+			function()
+				local raw = v2WithCats()
+				raw.cats.c2.name = "Smuggled"
+				local profile = ProfileSchema.migrate(raw, 1000)
+				local tabby, void = profile.cats.starter_tabby, profile.cats.c4
+				expect(tabby.level).to.equal(9) -- 1 + ceil(2.5 x 3)
+				expect(tabby.xp).to.equal(0)
+				expect(void.variant).to.equal("base")
+				expect(void.charm).to.equal(64)
+				expect(void.level).to.equal(6) -- 1 + ceil(2.5 x 2)
+				expect(void.xp).to.equal(0)
+				expect(profile.cats.c1.charm).to.equal(70)
+				expect(profile.cats.c3.rescued).to.equal(true)
+				expect(profile.cats.c1.rescued).never.to.be.ok()
+				for _, instance in pairs(profile.cats) do
+					expect(instance.name).never.to.be.ok()
+					expect(instance.caughtAt).to.equal(500)
+				end
+			end
+		)
 
 		it("keeps the collection and adds any owned cat missing from it", function()
 			local raw = v2WithCats()
@@ -561,7 +723,8 @@ return function()
 			raw.coins = 4321
 			raw.upgradeLevels = { tables = 6, espresso = 4, net = 3, lure_bowl = 1 }
 			raw.lures = { kibble = 1, caviar = 2 }
-			raw.bait = { lureId = "tuna", placedAt = 90, catId = "siamese", variant = "shiny", charm = 88 }
+			raw.bait =
+				{ lureId = "tuna", placedAt = 90, catId = "siamese", variant = "shiny", charm = 88 }
 			raw.dealer = { window = 2938211, bought = { ["2"] = true } }
 			raw.cats.c1 = {
 				uid = "c1",
@@ -594,37 +757,42 @@ return function()
 
 		it("a fresh template loads unchanged", function()
 			local template = ProfileSchema.template(100)
-			expect(ProfileSchema.migrate(ProfileSchema.template(100), 500) :: any).to.deepEqual(template)
+			expect(ProfileSchema.migrate(ProfileSchema.template(100), 500) :: any).to.deepEqual(
+				template
+			)
 		end)
 
-		it("a full v3 save loads unchanged apart from shiny becoming gold: tier, slots, names, method, bait and dealer", function()
-			local raw = v3Save()
-			local before = ProfileSchema.migrate(v3Save(), 500)
-			expect(before.coins).to.equal(4321)
-			expect(before.tier).to.equal(3)
-			-- F88: every save gains the Lucky Cat at level 0
-			local levels = table.clone(raw.upgradeLevels)
-			levels.lucky_cat = 0
-			expect(before.upgradeLevels :: any).to.deepEqual(levels)
-			expect(working(before) :: any).to.deepEqual({
-				starter_tabby = "barista_1",
-				c1 = "entertainer_1",
-				c2 = "greeter_1",
-			})
-			expect(before.cats.c1.name).to.equal("Zoom")
-			expect(before.cats.c1.method).to.equal("bait")
-			expect(before.cats.c1.variant).to.equal("gold") -- Derek 2026-10-27: shiny is gold now
-			expect(before.cats.c2.method).to.equal("rescue")
-			local bait = table.clone(raw.bait)
-			bait.variant = "gold"
-			expect(before.bait :: any).to.deepEqual(bait)
-			-- F94: the dealer's saved counts are dropped (its stock is per server per night now)
-			expect((before :: any).dealer).never.to.be.ok()
-			expect(before.goldCollection :: any).to.deepEqual({ bengal = 95 })
-			expect((before :: any).shinyCollection).never.to.be.ok()
-			-- and loading the result again changes nothing
-			expect(ProfileSchema.migrate(before, 900) :: any).to.deepEqual(before)
-		end)
+		it(
+			"a full v3 save loads unchanged apart from shiny becoming gold: tier, slots, names, method, bait and dealer",
+			function()
+				local raw = v3Save()
+				local before = ProfileSchema.migrate(v3Save(), 500)
+				expect(before.coins).to.equal(4321)
+				expect(before.tier).to.equal(3)
+				-- F88: every save gains the Lucky Cat at level 0
+				local levels = table.clone(raw.upgradeLevels)
+				levels.lucky_cat = 0
+				expect(before.upgradeLevels :: any).to.deepEqual(levels)
+				expect(working(before) :: any).to.deepEqual({
+					starter_tabby = "barista_1",
+					c1 = "entertainer_1",
+					c2 = "greeter_1",
+				})
+				expect(before.cats.c1.name).to.equal("Zoom")
+				expect(before.cats.c1.method).to.equal("bait")
+				expect(before.cats.c1.variant).to.equal("gold") -- Derek 2026-10-27: shiny is gold now
+				expect(before.cats.c2.method).to.equal("rescue")
+				local bait = table.clone(raw.bait)
+				bait.variant = "gold"
+				expect(before.bait :: any).to.deepEqual(bait)
+				-- F94: the dealer's saved counts are dropped (its stock is per server per night now)
+				expect((before :: any).dealer).never.to.be.ok()
+				expect(before.goldCollection :: any).to.deepEqual({ bengal = 95 })
+				expect((before :: any).shinyCollection).never.to.be.ok()
+				-- and loading the result again changes nothing
+				expect(ProfileSchema.migrate(before, 900) :: any).to.deepEqual(before)
+			end
+		)
 
 		it("does not run Equip Best: a deliberate v3 placement stays as saved", function()
 			local raw = v3Save()
@@ -633,22 +801,25 @@ return function()
 			expect(profile.cats.c1.spotId).to.equal("waiter_2")
 		end)
 
-		it("clears slots above the tier, unknown or v2 slot ids, and a second cat on one slot", function()
-			local raw = v3Save()
-			raw.tier = 1
-			raw.cats.c2.spotId = "barista_1" -- the starter already works it
-			raw.cats.c3 = { uid = "c3", catId = "snow", caughtAt = 1, spotId = "window_1" }
-			local profile = ProfileSchema.migrate(raw, 500)
-			expect(profile.cats.c1.spotId).never.to.be.ok() -- entertainer_1 opens at Tier 3
-			expect(profile.cats.c3.spotId).never.to.be.ok()
-			local onBarista = 0
-			for _, instance in pairs(profile.cats) do
-				if instance.spotId == "barista_1" then
-					onBarista += 1
+		it(
+			"clears slots above the tier, unknown or v2 slot ids, and a second cat on one slot",
+			function()
+				local raw = v3Save()
+				raw.tier = 1
+				raw.cats.c2.spotId = "barista_1" -- the starter already works it
+				raw.cats.c3 = { uid = "c3", catId = "snow", caughtAt = 1, spotId = "window_1" }
+				local profile = ProfileSchema.migrate(raw, 500)
+				expect(profile.cats.c1.spotId).never.to.be.ok() -- entertainer_1 opens at Tier 3
+				expect(profile.cats.c3.spotId).never.to.be.ok()
+				local onBarista = 0
+				for _, instance in pairs(profile.cats) do
+					if instance.spotId == "barista_1" then
+						onBarista += 1
+					end
 				end
+				expect(onBarista).to.equal(1)
 			end
-			expect(onBarista).to.equal(1)
-		end)
+		)
 
 		it("clamps the tier to 1 to 5 and levels to each upgrade's range", function()
 			for _, case in ipairs({ { 0, 1 }, { 9, 5 }, { "2", 1 }, { 2.5, 2 } }) do
@@ -657,9 +828,16 @@ return function()
 				expect(ProfileSchema.migrate(raw, 500).tier).to.equal(case[2])
 			end
 			local raw = v3Save()
-			raw.upgradeLevels = { tables = 40, espresso = -2, net = "x", lure_bowl = 9, cafe_level = 4 }
+			raw.upgradeLevels =
+				{ tables = 40, espresso = -2, net = "x", lure_bowl = 9, cafe_level = 4 }
 			local profile: any = ProfileSchema.migrate(raw, 500)
-			expect(profile.upgradeLevels).to.deepEqual({ tables = 6, espresso = 1, net = 0, lure_bowl = 5, lucky_cat = 0 })
+			expect(profile.upgradeLevels).to.deepEqual({
+				tables = 6,
+				espresso = 1,
+				net = 0,
+				lure_bowl = 5,
+				lucky_cat = 0,
+			})
 			expect(profile.coins).to.equal(4321) -- refunds are for the 2 to 3 step only
 		end)
 
@@ -680,40 +858,70 @@ return function()
 			expect(profile.goldCollection :: any).to.deepEqual({ bengal = 95 })
 		end)
 
-		it("a version 4 or later save keeps gold cats, gold bait and its gold page, and ignores a stray shinyCollection", function()
-			local raw = ProfileSchema.migrate(v3Save(), 500) :: any
-			raw.goldCollection = { bengal = 95, calico = 96 }
-			raw.shinyCollection = { snow = 1 }
-			local profile = ProfileSchema.migrate(raw, 900)
-			expect(profile.version).to.equal(ProfileSchema.VERSION)
-			expect(profile.cats.c1.variant).to.equal("gold")
-			expect((profile.bait :: any).variant).to.equal("gold")
-			expect(profile.goldCollection :: any).to.deepEqual({ bengal = 95, calico = 96 })
-		end)
-
-		it("drops a bait with an unknown food or cat or a bad time, and fixes its variant and charm", function()
-			local cases: { any } = {
-				{ lureId = "pizza", placedAt = 90, catId = "siamese", variant = "base", charm = 50 },
-				{ lureId = "tuna", placedAt = 90, catId = "dragon", variant = "base", charm = 50 },
-				{ lureId = "tuna", placedAt = 0 / 0, catId = "siamese", variant = "base", charm = 50 },
-				{ lureId = "tuna", catId = "siamese", variant = "base", charm = 50 },
-				"tuna",
-			}
-			for _, bait in ipairs(cases) do
-				local raw = v3Save()
-				raw.bait = bait
-				expect(ProfileSchema.migrate(raw, 500).bait).never.to.be.ok()
+		it(
+			"a version 4 or later save keeps gold cats, gold bait and its gold page, and ignores a stray shinyCollection",
+			function()
+				local raw = ProfileSchema.migrate(v3Save(), 500) :: any
+				raw.goldCollection = { bengal = 95, calico = 96 }
+				raw.shinyCollection = { snow = 1 }
+				local profile = ProfileSchema.migrate(raw, 900)
+				expect(profile.version).to.equal(ProfileSchema.VERSION)
+				expect(profile.cats.c1.variant).to.equal("gold")
+				expect((profile.bait :: any).variant).to.equal("gold")
+				expect(profile.goldCollection :: any).to.deepEqual({ bengal = 95, calico = 96 })
 			end
-			local raw = v3Save()
-			raw.bait = { lureId = "star_treat", placedAt = 90.7, catId = "aurora", variant = "galaxy", charm = 400 }
-			expect(ProfileSchema.migrate(raw, 500).bait :: any).to.deepEqual({
-				lureId = "star_treat",
-				placedAt = 90,
-				catId = "aurora",
-				variant = "base",
-				charm = 100,
-			})
-		end)
+		)
+
+		it(
+			"drops a bait with an unknown food or cat or a bad time, and fixes its variant and charm",
+			function()
+				local cases: { any } = {
+					{
+						lureId = "pizza",
+						placedAt = 90,
+						catId = "siamese",
+						variant = "base",
+						charm = 50,
+					},
+					{
+						lureId = "tuna",
+						placedAt = 90,
+						catId = "dragon",
+						variant = "base",
+						charm = 50,
+					},
+					{
+						lureId = "tuna",
+						placedAt = 0 / 0,
+						catId = "siamese",
+						variant = "base",
+						charm = 50,
+					},
+					{ lureId = "tuna", catId = "siamese", variant = "base", charm = 50 },
+					"tuna",
+				}
+				for _, bait in ipairs(cases) do
+					local raw = v3Save()
+					raw.bait = bait
+					expect(ProfileSchema.migrate(raw, 500).bait).never.to.be.ok()
+				end
+				local raw = v3Save()
+				raw.bait = {
+					lureId = "star_treat",
+					placedAt = 90.7,
+					catId = "aurora",
+					variant = "galaxy",
+					charm = 400,
+				}
+				expect(ProfileSchema.migrate(raw, 500).bait :: any).to.deepEqual({
+					lureId = "star_treat",
+					placedAt = 90,
+					catId = "aurora",
+					variant = "base",
+					charm = 100,
+				})
+			end
+		)
 
 		it("keeps a bait's readyAt (F54) inside its placement and the longest wait", function()
 			local raw = v3Save()
@@ -725,7 +933,13 @@ return function()
 				{ readyAt = "soon", want = nil },
 			}
 			for _, case in cases do
-				raw.bait = { lureId = "tuna", placedAt = 90, readyAt = case.readyAt, catId = "siamese", charm = 50 }
+				raw.bait = {
+					lureId = "tuna",
+					placedAt = 90,
+					readyAt = case.readyAt,
+					catId = "siamese",
+					charm = 50,
+				}
 				local bait = ProfileSchema.migrate(raw, 500).bait
 				assert(bait)
 				expect(bait.readyAt).to.equal(case.want)
@@ -741,8 +955,14 @@ return function()
 				{ night = nil, want = nil },
 			}
 			for _, case in cases do
-				raw.bait =
-					{ lureId = "tuna", placedAt = 90, readyAt = 390, night = case.night, catId = "siamese", charm = 50 }
+				raw.bait = {
+					lureId = "tuna",
+					placedAt = 90,
+					readyAt = 390,
+					night = case.night,
+					catId = "siamese",
+					charm = 50,
+				}
 				local bait = ProfileSchema.migrate(raw, 500).bait
 				assert(bait)
 				expect(bait.night).to.equal(case.want)
@@ -750,17 +970,23 @@ return function()
 			end
 		end)
 
-		it("keeps All Cats and Decor Index claims (F54) and drops unknown pages and milestones", function()
-			local raw = v3Save()
-			raw.version = 7
-			raw.indexRewards = {
-				all = { total5 = true, cats3 = true },
-				decor_classic = { decor5 = true },
-				decor_moon = { decor5 = true },
-			}
-			local claims = ProfileSchema.migrate(raw, 500).indexRewards
-			expect(claims :: any).to.deepEqual({ all = { total5 = true }, decor_classic = { decor5 = true } })
-		end)
+		it(
+			"keeps All Cats and Decor Index claims (F54) and drops unknown pages and milestones",
+			function()
+				local raw = v3Save()
+				raw.version = 7
+				raw.indexRewards = {
+					all = { total5 = true, cats3 = true },
+					decor_classic = { decor5 = true },
+					decor_moon = { decor5 = true },
+				}
+				local claims = ProfileSchema.migrate(raw, 500).indexRewards
+				expect(claims :: any).to.deepEqual({
+					all = { total5 = true },
+					decor_classic = { decor5 = true },
+				})
+			end
+		)
 
 		it("keeps the autoPress flag only when a v3 save holds it as true", function()
 			local raw = v3Save()
@@ -775,11 +1001,14 @@ return function()
 			expect(ProfileSchema.migrate(v2, 1000).flags.autoPress).to.equal(false)
 		end)
 
-		it("drops the dealer's saved counts (F94: one stock per server per night, kept in memory)", function()
-			local raw = v3Save()
-			raw.dealer = { window = 77, bought = { sardines = 2 } }
-			expect((ProfileSchema.migrate(raw, 500) :: any).dealer).never.to.be.ok()
-		end)
+		it(
+			"drops the dealer's saved counts (F94: one stock per server per night, kept in memory)",
+			function()
+				local raw = v3Save()
+				raw.dealer = { window = 77, bought = { sardines = 2 } }
+				expect((ProfileSchema.migrate(raw, 500) :: any).dealer).never.to.be.ok()
+			end
+		)
 	end)
 
 	describe("saved names (section 4, reviewer N36)", function()
@@ -822,19 +1051,24 @@ return function()
 	describe("damaged and empty saves", function()
 		it("nil, a string or a number gives a fresh template", function()
 			for _, raw in ipairs({ "junk", 42, true }) do
-				expect(ProfileSchema.migrate(raw, 100) :: any).to.deepEqual(ProfileSchema.template(100))
+				expect(ProfileSchema.migrate(raw, 100) :: any).to.deepEqual(
+					ProfileSchema.template(100)
+				)
 			end
 			expect(ProfileSchema.migrate(nil, 100) :: any).to.deepEqual(ProfileSchema.template(100))
 		end)
 
-		it("an empty table is a version 1 save: the starter works as Barista with 50 coins", function()
-			local profile = ProfileSchema.migrate({}, 100)
-			expect(profile.version).to.equal(ProfileSchema.VERSION)
-			expect(profile.tier).to.equal(1)
-			expect(profile.coins).to.equal(Config.StartCoins)
-			expect(working(profile) :: any).to.deepEqual({ starter_tabby = "barista_1" })
-			expect(profile.collection.tabby).to.equal(100)
-		end)
+		it(
+			"an empty table is a version 1 save: the starter works as Barista with 50 coins",
+			function()
+				local profile = ProfileSchema.migrate({}, 100)
+				expect(profile.version).to.equal(ProfileSchema.VERSION)
+				expect(profile.tier).to.equal(1)
+				expect(profile.coins).to.equal(Config.StartCoins)
+				expect(working(profile) :: any).to.deepEqual({ starter_tabby = "barista_1" })
+				expect(profile.collection.tabby).to.equal(100)
+			end
+		)
 
 		it("negative or NaN coins fall back to the start coins before any refund", function()
 			for _, bad in ipairs({ -10, 0 / 0, "999" }) do
@@ -903,29 +1137,32 @@ return function()
 			expect(profile.stats.spins).to.equal(12)
 		end)
 
-		it("clamps a damaged spin table: no future day, banked 0 to SpinBankCap, whole numbers", function()
-			local raw: any = ProfileSchema.template(500)
-			raw.spin = { lastFreeDay = 99999, banked = 500 }
-			expect(ProfileSchema.migrate(raw, 30 * DAY + 5).spin :: any).to.deepEqual({
-				lastFreeDay = 30,
-				banked = Config.SpinBankCap,
-			})
-			raw.spin = { lastFreeDay = -4, banked = 2.7 }
-			expect(ProfileSchema.migrate(raw, 30 * DAY + 5).spin :: any).to.deepEqual({
-				lastFreeDay = 0,
-				banked = 2,
-			})
-			raw.spin = { lastFreeDay = 0 / 0, banked = "lots" }
-			expect(ProfileSchema.migrate(raw, 30 * DAY + 5).spin :: any).to.deepEqual({
-				lastFreeDay = 0,
-				banked = 0,
-			})
-			raw.spin = "spins"
-			expect(ProfileSchema.migrate(raw, 30 * DAY + 5).spin :: any).to.deepEqual({
-				lastFreeDay = 0,
-				banked = 0,
-			})
-		end)
+		it(
+			"clamps a damaged spin table: no future day, banked 0 to SpinBankCap, whole numbers",
+			function()
+				local raw: any = ProfileSchema.template(500)
+				raw.spin = { lastFreeDay = 99999, banked = 500 }
+				expect(ProfileSchema.migrate(raw, 30 * DAY + 5).spin :: any).to.deepEqual({
+					lastFreeDay = 30,
+					banked = Config.SpinBankCap,
+				})
+				raw.spin = { lastFreeDay = -4, banked = 2.7 }
+				expect(ProfileSchema.migrate(raw, 30 * DAY + 5).spin :: any).to.deepEqual({
+					lastFreeDay = 0,
+					banked = 2,
+				})
+				raw.spin = { lastFreeDay = 0 / 0, banked = "lots" }
+				expect(ProfileSchema.migrate(raw, 30 * DAY + 5).spin :: any).to.deepEqual({
+					lastFreeDay = 0,
+					banked = 0,
+				})
+				raw.spin = "spins"
+				expect(ProfileSchema.migrate(raw, 30 * DAY + 5).spin :: any).to.deepEqual({
+					lastFreeDay = 0,
+					banked = 0,
+				})
+			end
+		)
 	end)
 
 	describe("migrate to version 7: golden fish, crates and Market perks (F52, F53)", function()
@@ -943,7 +1180,9 @@ return function()
 			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.goldenFish).to.equal(0)
 			expect(profile.lifetimeGoldenFish).to.equal(0)
-			expect(count(profile.crates) + count(profile.crateLuck) + count(profile.fishPerks)).to.equal(0)
+			expect(count(profile.crates) + count(profile.crateLuck) + count(profile.fishPerks)).to.equal(
+				0
+			)
 			expect(profile.stats.cratesOpened).to.equal(0)
 			expect(profile.stats.fishEarned).to.equal(0)
 		end)
@@ -967,34 +1206,54 @@ return function()
 			expect(profile.stats.fishEarned).to.equal(300)
 		end)
 
-		it("cleans damaged values: whole fish of 0 or more, known crates and pools, luck 0 to 19, perks to their max", function()
-			local raw: any = ProfileSchema.template(500)
-			raw.goldenFish = 12.9
-			raw.lifetimeGoldenFish = 3 -- below the wallet: raised to it
-			raw.crates = { alley_crate = 1.5, mystery_crate = 4, park_crate = -2, sewer_crate = "lots", [1] = 3 }
-			raw.crateLuck = { park = 55, mars = 3, woods = -1, alley_crate = 2 }
-			raw.fishPerks = { golden_espresso = 9, extra_decor_spot = 2.5, big_bowl = 0, star_treat = 1, fly = 1 }
-			local profile = ProfileSchema.migrate(raw, 600)
-			expect(profile.goldenFish).to.equal(12)
-			expect(profile.lifetimeGoldenFish).to.equal(12)
-			expect(profile.crates :: any).to.deepEqual({ alley_crate = 1 })
-			expect(profile.crateLuck :: any).to.deepEqual({ park = Config.CrateLuckyEvery - 1 })
-			expect(profile.fishPerks :: any).to.deepEqual({ golden_espresso = 5, extra_decor_spot = 2 })
+		it(
+			"cleans damaged values: whole fish of 0 or more, known crates and pools, luck 0 to 19, perks to their max",
+			function()
+				local raw: any = ProfileSchema.template(500)
+				raw.goldenFish = 12.9
+				raw.lifetimeGoldenFish = 3 -- below the wallet: raised to it
+				raw.crates = {
+					alley_crate = 1.5,
+					mystery_crate = 4,
+					park_crate = -2,
+					sewer_crate = "lots",
+					[1] = 3,
+				}
+				raw.crateLuck = { park = 55, mars = 3, woods = -1, alley_crate = 2 }
+				raw.fishPerks = {
+					golden_espresso = 9,
+					extra_decor_spot = 2.5,
+					big_bowl = 0,
+					star_treat = 1,
+					fly = 1,
+				}
+				local profile = ProfileSchema.migrate(raw, 600)
+				expect(profile.goldenFish).to.equal(12)
+				expect(profile.lifetimeGoldenFish).to.equal(12)
+				expect(profile.crates :: any).to.deepEqual({ alley_crate = 1 })
+				expect(profile.crateLuck :: any).to.deepEqual({ park = Config.CrateLuckyEvery - 1 })
+				expect(profile.fishPerks :: any).to.deepEqual({
+					golden_espresso = 5,
+					extra_decor_spot = 2,
+				})
 
-			local cases: { any } = { -5, 0 / 0, math.huge, "100", {} }
-			for _, bad in cases do
-				raw.goldenFish = bad
-				raw.lifetimeGoldenFish = bad
+				local cases: { any } = { -5, 0 / 0, math.huge, "100", {} }
+				for _, bad in cases do
+					raw.goldenFish = bad
+					raw.lifetimeGoldenFish = bad
+					local loaded = ProfileSchema.migrate(raw, 600)
+					expect(loaded.goldenFish).to.equal(0)
+					expect(loaded.lifetimeGoldenFish).to.equal(0)
+				end
+				raw.crates = "crates"
+				raw.crateLuck = 5
+				raw.fishPerks = true
 				local loaded = ProfileSchema.migrate(raw, 600)
-				expect(loaded.goldenFish).to.equal(0)
-				expect(loaded.lifetimeGoldenFish).to.equal(0)
+				expect(count(loaded.crates) + count(loaded.crateLuck) + count(loaded.fishPerks)).to.equal(
+					0
+				)
 			end
-			raw.crates = "crates"
-			raw.crateLuck = 5
-			raw.fishPerks = true
-			local loaded = ProfileSchema.migrate(raw, 600)
-			expect(count(loaded.crates) + count(loaded.crateLuck) + count(loaded.fishPerks)).to.equal(0)
-		end)
+		)
 	end)
 
 	-- QA edges (qa-playtester): seeded damaged saves for the version 7 fields, checked against the rules written
@@ -1005,7 +1264,8 @@ return function()
 			seed = (seed * 1103515245 + 12345) % 2147483648
 			return seed % n + 1
 		end
-		local values: { any } = { "nil", 0, 1, 7, 12.9, 19, 20, 55, -5, 0 / 0, math.huge, 2 ^ 40, "3", true, {} }
+		local values: { any } =
+			{ "nil", 0, 1, 7, 12.9, 19, 20, 55, -5, 0 / 0, math.huge, 2 ^ 40, "3", true, {} }
 		local function pick(): any
 			local v = values[roll(#values)]
 			return if v == "nil" then nil else v
@@ -1071,60 +1331,79 @@ return function()
 			return out
 		end
 
-		it("cleans 500 damaged fish, crate, luck and perk saves by the rules, and a second load changes nothing", function()
-			for _ = 1, 500 do
-				local raw: any = ProfileSchema.template(500)
-				raw.goldenFish = pick()
-				raw.lifetimeGoldenFish = pick()
-				raw.crates = someOf(crateIds)
-				raw.crateLuck = someOf(pools)
-				raw.fishPerks = someOf(perkIds)
-				raw.stats.fishEarned = pick()
-				raw.stats.cratesOpened = pick()
-				local before = copy(raw)
-				local profile = ProfileSchema.migrate(raw, 600)
-				expect(same(raw, before)).to.equal(true) -- the load never writes into the raw save
+		it(
+			"cleans 500 damaged fish, crate, luck and perk saves by the rules, and a second load changes nothing",
+			function()
+				for _ = 1, 500 do
+					local raw: any = ProfileSchema.template(500)
+					raw.goldenFish = pick()
+					raw.lifetimeGoldenFish = pick()
+					raw.crates = someOf(crateIds)
+					raw.crateLuck = someOf(pools)
+					raw.fishPerks = someOf(perkIds)
+					raw.stats.fishEarned = pick()
+					raw.stats.cratesOpened = pick()
+					local before = copy(raw)
+					local profile = ProfileSchema.migrate(raw, 600)
+					expect(same(raw, before)).to.equal(true) -- the load never writes into the raw save
 
-				local wallet = good(before.goldenFish) or 0
-				expect(profile.goldenFish).to.equal(wallet)
-				expect(profile.lifetimeGoldenFish).to.equal(math.max(good(before.lifetimeGoldenFish) or 0, wallet))
-				expect(profile.stats.fishEarned).to.equal(good(before.stats.fishEarned) or 0)
-				expect(profile.stats.cratesOpened).to.equal(good(before.stats.cratesOpened) or 0)
+					local wallet = good(before.goldenFish) or 0
+					expect(profile.goldenFish).to.equal(wallet)
+					expect(profile.lifetimeGoldenFish).to.equal(
+						math.max(good(before.lifetimeGoldenFish) or 0, wallet)
+					)
+					expect(profile.stats.fishEarned).to.equal(good(before.stats.fishEarned) or 0)
+					expect(profile.stats.cratesOpened).to.equal(
+						good(before.stats.cratesOpened) or 0
+					)
 
-				local wantCrates, wantLuck, wantPerks = {}, {}, {}
-				if type(before.crates) == "table" then
-					for id, n in before.crates do
-						local whole = good(n)
-						if type(id) == "string" and Catalog.getCrate(id) and whole and whole > 0 then
-							wantCrates[id] = whole
+					local wantCrates, wantLuck, wantPerks = {}, {}, {}
+					if type(before.crates) == "table" then
+						for id, n in before.crates do
+							local whole = good(n)
+							if
+								type(id) == "string"
+								and Catalog.getCrate(id)
+								and whole
+								and whole > 0
+							then
+								wantCrates[id] = whole
+							end
 						end
 					end
-				end
-				if type(before.crateLuck) == "table" then
-					for pool, n in before.crateLuck do
-						local whole = good(n)
-						if type(pool) == "string" and Catalog.cratePools[pool] and whole and whole > 0 then
-							wantLuck[pool] = math.min(whole, Config.CrateLuckyEvery - 1)
+					if type(before.crateLuck) == "table" then
+						for pool, n in before.crateLuck do
+							local whole = good(n)
+							if
+								type(pool) == "string"
+								and Catalog.cratePools[pool]
+								and whole
+								and whole > 0
+							then
+								wantLuck[pool] = math.min(whole, Config.CrateLuckyEvery - 1)
+							end
 						end
 					end
-				end
-				if type(before.fishPerks) == "table" then
-					for id, n in before.fishPerks do
-						local row = if type(id) == "string" then Catalog.getFishShopRow(id) else nil
-						local whole = good(n)
-						if row and row.kind == "perk" and whole and whole > 0 then
-							wantPerks[id] = math.min(whole, row.maxLevel or 0)
+					if type(before.fishPerks) == "table" then
+						for id, n in before.fishPerks do
+							local row = if type(id) == "string"
+								then Catalog.getFishShopRow(id)
+								else nil
+							local whole = good(n)
+							if row and row.kind == "perk" and whole and whole > 0 then
+								wantPerks[id] = math.min(whole, row.maxLevel or 0)
+							end
 						end
 					end
-				end
-				expect(profile.crates :: any).to.deepEqual(wantCrates)
-				expect(profile.crateLuck :: any).to.deepEqual(wantLuck)
-				expect(profile.fishPerks :: any).to.deepEqual(wantPerks)
+					expect(profile.crates :: any).to.deepEqual(wantCrates)
+					expect(profile.crateLuck :: any).to.deepEqual(wantLuck)
+					expect(profile.fishPerks :: any).to.deepEqual(wantPerks)
 
-				local again = ProfileSchema.migrate(copy(profile), 600)
-				expect(again :: any).to.deepEqual(profile)
+					local again = ProfileSchema.migrate(copy(profile), 600)
+					expect(again :: any).to.deepEqual(profile)
+				end
 			end
-		end)
+		)
 	end)
 
 	describe("migrate to version 10: the intro cutscene (F72)", function()
@@ -1174,46 +1453,62 @@ return function()
 
 	describe("migrate to version 12: cat levels over time (v0.12 F75)", function()
 		local function catAt(level: any, xp: any): any
-			return { uid = "c1", catId = "bengal", variant = "base", caughtAt = 95, level = level, xp = xp, charm = 61 }
+			return {
+				uid = "c1",
+				catId = "bengal",
+				variant = "base",
+				caughtAt = 95,
+				level = level,
+				xp = xp,
+				charm = 61,
+			}
 		end
 
-		it("moves an older save's levels onto the 50-level curve with xp 0, never lowering a rating", function()
-			for old = 1, 10 do
+		it(
+			"moves an older save's levels onto the 50-level curve with xp 0, never lowering a rating",
+			function()
+				for old = 1, 10 do
+					local raw: any = ProfileSchema.template(500)
+					raw.version = 11
+					raw.cats.c1 = catAt(old, 77)
+					local cat = ProfileSchema.migrate(raw, 1000).cats.c1
+					expect(cat.level).to.equal(1 + math.ceil(2.5 * (old - 1)))
+					expect(cat.xp).to.equal(0)
+					expect(CatStats.levelMultiplier(cat.level) >= 1 + 0.05 * (old - 1) - 1e-9).to.equal(
+						true
+					)
+				end
 				local raw: any = ProfileSchema.template(500)
 				raw.version = 11
-				raw.cats.c1 = catAt(old, 77)
-				local cat = ProfileSchema.migrate(raw, 1000).cats.c1
-				expect(cat.level).to.equal(1 + math.ceil(2.5 * (old - 1)))
-				expect(cat.xp).to.equal(0)
-				expect(CatStats.levelMultiplier(cat.level) >= 1 + 0.05 * (old - 1) - 1e-9).to.equal(true)
+				raw.cats.c1 = catAt(10, 0)
+				expect(ProfileSchema.migrate(raw, 1000).cats.c1.level).to.equal(24) -- the design's example
+				raw.cats.c1 = catAt(99, 5) -- past the old cap: clamped to 10 first
+				expect(ProfileSchema.migrate(raw, 1000).cats.c1.level).to.equal(24)
+				for _, bad in { "7", -1, 0 / 0, math.huge } do
+					raw.cats.c1 = catAt(bad, bad)
+					local cat = ProfileSchema.migrate(raw, 1000).cats.c1
+					expect(cat.level).to.equal(1)
+					expect(cat.xp).to.equal(0)
+				end
 			end
-			local raw: any = ProfileSchema.template(500)
-			raw.version = 11
-			raw.cats.c1 = catAt(10, 0)
-			expect(ProfileSchema.migrate(raw, 1000).cats.c1.level).to.equal(24) -- the design's example
-			raw.cats.c1 = catAt(99, 5) -- past the old cap: clamped to 10 first
-			expect(ProfileSchema.migrate(raw, 1000).cats.c1.level).to.equal(24)
-			for _, bad in { "7", -1, 0 / 0, math.huge } do
-				raw.cats.c1 = catAt(bad, bad)
-				local cat = ProfileSchema.migrate(raw, 1000).cats.c1
-				expect(cat.level).to.equal(1)
-				expect(cat.xp).to.equal(0)
-			end
-		end)
+		)
 
-		it("a version 12 save keeps its level and fractional xp, and loading it again changes nothing", function()
-			local raw: any = ProfileSchema.template(500)
-			raw.version = 12
-			raw.cats.c1 = catAt(30, 12.25)
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.cats.c1.level).to.equal(30)
-			expect(profile.cats.c1.xp).to.equal(12.25)
-			expect(ProfileSchema.migrate(profile, 2000) :: any).to.deepEqual(profile)
-			raw.cats.c1 = catAt(Config.CatMaxLevel + 7, -3)
-			local clamped = ProfileSchema.migrate(raw, 1000).cats.c1
-			expect(clamped.level).to.equal(Config.CatMaxLevel)
-			expect(clamped.xp).to.equal(0)
-		end)
+		it(
+			"a version 12 save keeps its level and fractional xp, and loading it again changes nothing",
+			function()
+				local raw: any = ProfileSchema.template(500)
+				raw.version = 12
+				raw.cats.c1 = catAt(30, 12.25)
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.cats.c1.level).to.equal(30)
+				expect(profile.cats.c1.xp).to.equal(12.25)
+				expect(ProfileSchema.migrate(profile, 2000) :: any).to.deepEqual(profile)
+				raw.cats.c1 = catAt(Config.CatMaxLevel + 7, -3)
+				local clamped = ProfileSchema.migrate(raw, 1000).cats.c1
+				expect(clamped.level).to.equal(Config.CatMaxLevel)
+				expect(clamped.xp).to.equal(0)
+			end
+		)
 
 		it("starts every older save at 0 level ups and keeps a saved count", function()
 			local raw: any = ProfileSchema.template(500)
@@ -1236,7 +1531,16 @@ return function()
 		end
 
 		local function catOf(uid: string, catId: string, variant: string, locked: any): any
-			return { uid = uid, catId = catId, variant = variant, caughtAt = 95, level = 1, xp = 0, charm = 50, locked = locked }
+			return {
+				uid = uid,
+				catId = catId,
+				variant = variant,
+				caughtAt = 95,
+				level = 1,
+				xp = 0,
+				charm = 50,
+				locked = locked,
+			}
 		end
 
 		it("locks every gold, Legendary and Mythical cat of an older save once", function()
@@ -1256,111 +1560,141 @@ return function()
 			expect(cats.starter_tabby.locked).to.equal(nil)
 		end)
 
-		it("keeps a version 14 save's locks as saved, so an unlocked Mythical stays unlocked", function()
-			local raw: any = ProfileSchema.template(500)
-			raw.cats.myth = catOf("myth", firstOf("Mythical"), "base", false)
-			raw.cats.common = catOf("common", firstOf("Common"), "base", true)
-			raw.cats.junk = catOf("junk", firstOf("Common"), "base", "yes")
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.cats.myth.locked).to.equal(nil)
-			expect(profile.cats.common.locked).to.equal(true)
-			expect(profile.cats.junk.locked).to.equal(nil)
-			-- and loading the result again changes nothing
-			expect(ProfileSchema.migrate(profile, 2000).cats :: any).to.deepEqual(profile.cats)
-		end)
-
-		it("locks the best cats of a save from any version from 3 to 13, and only once (QA)", function()
-			for version = 3, 13 do
+		it(
+			"keeps a version 14 save's locks as saved, so an unlocked Mythical stays unlocked",
+			function()
 				local raw: any = ProfileSchema.template(500)
-				raw.version = version
-				raw.cats.gold = catOf("gold", firstOf("Rare"), "gold", nil)
-				raw.cats.legend = catOf("legend", firstOf("Legendary"), "base", nil)
-				raw.cats.rare = catOf("rare", firstOf("Rare"), "base", nil)
-				-- an older server never wrote the flag, so junk there means nothing
 				raw.cats.myth = catOf("myth", firstOf("Mythical"), "base", false)
+				raw.cats.common = catOf("common", firstOf("Common"), "base", true)
+				raw.cats.junk = catOf("junk", firstOf("Common"), "base", "yes")
 				local profile = ProfileSchema.migrate(raw, 1000)
-				expect(profile.version).to.equal(ProfileSchema.VERSION)
-				local cats = profile.cats
-				if
-					cats.gold.locked ~= true
-					or cats.legend.locked ~= true
-					or cats.myth.locked ~= true
-					or cats.rare.locked ~= nil
-				then
-					error(string.format("a version %d save's locks came out wrong", version))
-				end
-				-- the player unlocks the Legendary; the next load keeps it unlocked
-				local legend: any = cats.legend
-				legend.locked = nil
-				expect(ProfileSchema.migrate(profile, 2000).cats.legend.locked).to.equal(nil)
+				expect(profile.cats.myth.locked).to.equal(nil)
+				expect(profile.cats.common.locked).to.equal(true)
+				expect(profile.cats.junk.locked).to.equal(nil)
+				-- and loading the result again changes nothing
+				expect(ProfileSchema.migrate(profile, 2000).cats :: any).to.deepEqual(profile.cats)
 			end
-		end)
+		)
+
+		it(
+			"locks the best cats of a save from any version from 3 to 13, and only once (QA)",
+			function()
+				for version = 3, 13 do
+					local raw: any = ProfileSchema.template(500)
+					raw.version = version
+					raw.cats.gold = catOf("gold", firstOf("Rare"), "gold", nil)
+					raw.cats.legend = catOf("legend", firstOf("Legendary"), "base", nil)
+					raw.cats.rare = catOf("rare", firstOf("Rare"), "base", nil)
+					-- an older server never wrote the flag, so junk there means nothing
+					raw.cats.myth = catOf("myth", firstOf("Mythical"), "base", false)
+					local profile = ProfileSchema.migrate(raw, 1000)
+					expect(profile.version).to.equal(ProfileSchema.VERSION)
+					local cats = profile.cats
+					if
+						cats.gold.locked ~= true
+						or cats.legend.locked ~= true
+						or cats.myth.locked ~= true
+						or cats.rare.locked ~= nil
+					then
+						error(string.format("a version %d save's locks came out wrong", version))
+					end
+					-- the player unlocks the Legendary; the next load keeps it unlocked
+					local legend: any = cats.legend
+					legend.locked = nil
+					expect(ProfileSchema.migrate(profile, 2000).cats.legend.locked).to.equal(nil)
+				end
+			end
+		)
 	end)
 
 	describe("migrate to version 16: quests and achievements (F73)", function()
-		it("gives an older save empty quests at day and week 0, no achievements and the seven counters at 0", function()
-			local raw: any = ProfileSchema.template(500)
-			raw.version = 15
-			raw.quests = nil
-			raw.achievements = nil
-			for _, key in { "rareCatches", "goldCatches", "tipPilesCollected", "dailyQuestsDone", "dailySetsDone" } do
-				raw.stats[key] = nil
+		it(
+			"gives an older save empty quests at day and week 0, no achievements and the seven counters at 0",
+			function()
+				local raw: any = ProfileSchema.template(500)
+				raw.version = 15
+				raw.quests = nil
+				raw.achievements = nil
+				for _, key in
+					{
+						"rareCatches",
+						"goldCatches",
+						"tipPilesCollected",
+						"dailyQuestsDone",
+						"dailySetsDone",
+					}
+				do
+					raw.stats[key] = nil
+				end
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.version).to.equal(ProfileSchema.VERSION)
+				expect(profile.quests :: any).to.deepEqual({
+					day = 0,
+					daily = {},
+					dailyReroll = false,
+					dailySet = false,
+					week = 0,
+					weekly = {},
+					weeklyReroll = false,
+					weeklySet = false,
+				})
+				expect(next(profile.achievements)).never.to.be.ok()
+				expect(
+					profile.stats.rareCatches
+						+ profile.stats.goldCatches
+						+ profile.stats.tipPilesCollected
+				).to.equal(0)
+				expect(profile.stats.dailyQuestsDone + profile.stats.dailySetsDone).to.equal(0)
+				expect(profile.stats.weeklyQuestsDone + profile.stats.weeklySetsDone).to.equal(0)
 			end
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.version).to.equal(ProfileSchema.VERSION)
-			expect(profile.quests :: any).to.deepEqual({
-				day = 0,
-				daily = {},
-				dailyReroll = false,
-				dailySet = false,
-				week = 0,
-				weekly = {},
-				weeklyReroll = false,
-				weeklySet = false,
-			})
-			expect(next(profile.achievements)).never.to.be.ok()
-			expect(profile.stats.rareCatches + profile.stats.goldCatches + profile.stats.tipPilesCollected).to.equal(0)
-			expect(profile.stats.dailyQuestsDone + profile.stats.dailySetsDone).to.equal(0)
-			expect(profile.stats.weeklyQuestsDone + profile.stats.weeklySetsDone).to.equal(0)
-		end)
+		)
 
-		it("keeps a saved set dense and in its slot counts, with whole bases and needs of at least 1", function()
-			local raw: any = ProfileSchema.template(500)
-			raw.quests = {
-				day = 20000.7,
-				daily = {
-					{ id = "d_catch5", base = 3.9, needs = 5, claimed = true },
-					{ id = 42, base = -4, needs = 0, claimed = "yes" },
-					"junk",
-					{ id = "d_tips6", base = 1, needs = 6 },
-				},
-				dailyReroll = true,
-				dailySet = "yes",
-				week = 2857,
-				weekly = { { id = "w_catch60", base = 10, needs = 60 }, {}, {}, {} },
-				weeklyReroll = 1,
-				weeklySet = true,
-			}
-			local quests = ProfileSchema.migrate(raw, 1000).quests
-			expect(quests.day).to.equal(20000)
-			-- the junk third slot ends the list: nothing after a gap moves up into it
-			expect(quests.daily :: any).to.deepEqual({
-				{ id = "d_catch5", base = 3, needs = 5, claimed = true },
-				{ id = "", base = 0, needs = 1, claimed = false },
-			})
-			expect(quests.dailyReroll).to.equal(true)
-			expect(quests.dailySet).to.equal(false)
-			expect(quests.week).to.equal(2857)
-			expect(#quests.weekly).to.equal(Config.QuestWeeklyCount)
-			expect(quests.weekly[1] :: any).to.deepEqual({ id = "w_catch60", base = 10, needs = 60, claimed = false })
-			expect(quests.weeklyReroll).to.equal(false)
-			expect(quests.weeklySet).to.equal(true)
-		end)
+		it(
+			"keeps a saved set dense and in its slot counts, with whole bases and needs of at least 1",
+			function()
+				local raw: any = ProfileSchema.template(500)
+				raw.quests = {
+					day = 20000.7,
+					daily = {
+						{ id = "d_catch5", base = 3.9, needs = 5, claimed = true },
+						{ id = 42, base = -4, needs = 0, claimed = "yes" },
+						"junk",
+						{ id = "d_tips6", base = 1, needs = 6 },
+					},
+					dailyReroll = true,
+					dailySet = "yes",
+					week = 2857,
+					weekly = { { id = "w_catch60", base = 10, needs = 60 }, {}, {}, {} },
+					weeklyReroll = 1,
+					weeklySet = true,
+				}
+				local quests = ProfileSchema.migrate(raw, 1000).quests
+				expect(quests.day).to.equal(20000)
+				-- the junk third slot ends the list: nothing after a gap moves up into it
+				expect(quests.daily :: any).to.deepEqual({
+					{ id = "d_catch5", base = 3, needs = 5, claimed = true },
+					{ id = "", base = 0, needs = 1, claimed = false },
+				})
+				expect(quests.dailyReroll).to.equal(true)
+				expect(quests.dailySet).to.equal(false)
+				expect(quests.week).to.equal(2857)
+				expect(#quests.weekly).to.equal(Config.QuestWeeklyCount)
+				expect(quests.weekly[1] :: any).to.deepEqual({
+					id = "w_catch60",
+					base = 10,
+					needs = 60,
+					claimed = false,
+				})
+				expect(quests.weeklyReroll).to.equal(false)
+				expect(quests.weeklySet).to.equal(true)
+			end
+		)
 
 		it("keeps only claimed, known achievement ids", function()
 			local raw: any = ProfileSchema.template(500)
 			local known = Catalog.achievements[1].id
-			raw.achievements = { [known] = true, no_such = true, [Catalog.achievements[2].id] = "yes", [3] = true }
+			raw.achievements =
+				{ [known] = true, no_such = true, [Catalog.achievements[2].id] = "yes", [3] = true }
 			local profile = ProfileSchema.migrate(raw, 1000)
 			expect(profile.achievements :: any).to.deepEqual({ [known] = true })
 			expect(ProfileSchema.migrate({ achievements = "junk" }, 1000).achievements :: any).to.deepEqual({})
@@ -1380,278 +1714,346 @@ return function()
 			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
 		end)
 
-		it("keeps a saved card, whole, with the stamp 0 to 7 and the last claim no later than today", function()
-			local raw: any = ProfileSchema.template(500)
-			raw.dailyTreat = { stamp = 3.6, lastDay = 19999.2 }
-			expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({ stamp = 3, lastDay = 19999 })
-			raw.dailyTreat = { stamp = 12, lastDay = 25000 }
-			expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({ stamp = 7, lastDay = 20000 })
-			raw.dailyTreat = { stamp = -2, lastDay = 0 / 0 }
-			expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
-			raw.dailyTreat = "junk"
-			expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
-		end)
+		it(
+			"keeps a saved card, whole, with the stamp 0 to 7 and the last claim no later than today",
+			function()
+				local raw: any = ProfileSchema.template(500)
+				raw.dailyTreat = { stamp = 3.6, lastDay = 19999.2 }
+				expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({
+					stamp = 3,
+					lastDay = 19999,
+				})
+				raw.dailyTreat = { stamp = 12, lastDay = 25000 }
+				expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({
+					stamp = 7,
+					lastDay = 20000,
+				})
+				raw.dailyTreat = { stamp = -2, lastDay = 0 / 0 }
+				expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({
+					stamp = 0,
+					lastDay = 0,
+				})
+				raw.dailyTreat = "junk"
+				expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({
+					stamp = 0,
+					lastDay = 0,
+				})
+			end
+		)
 	end)
 
 	describe("migrate to version 18: the Fresh Catch shelf (F94)", function()
-		it("starts an older save with nothing bought and no alert, and drops its dealer counts", function()
-			local raw: any = ProfileSchema.template(500)
-			raw.version = 17
-			raw.freshCatch = nil
-			raw.dealer = { window = 5977152, bought = { caviar = 1 } }
-			local profile: any = ProfileSchema.migrate(raw, 500)
-			expect(profile.version).to.equal(ProfileSchema.VERSION)
-			expect(profile.freshCatch).to.deepEqual({ window = 0, bought = {}, alerted = 0 })
-			expect(profile.dealer).never.to.be.ok()
-		end)
-
-		it("keeps whole counts of shelf rows, at most the most a window rolls, and drops the rest", function()
-			local NOW = 5977152 * 300 + 10 -- in window 5977152 (2026-10-28 00:00 UTC)
-			local raw: any = ProfileSchema.template(NOW)
-			raw.freshCatch = {
-				window = 5977152.7,
-				alerted = 5977150,
-				bought = {
-					tip_potion = 2,
-					gold_rush_potion = 7, -- at most 1 a window
-					classic_crate = 1,
-					steady_potion = 0,
-					swift_potion = "1",
-					kibble = 3,
-				},
-			}
-			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
-				window = 5977152,
-				alerted = 5977150,
-				bought = { tip_potion = 2, gold_rush_potion = 1 }, -- the shelf has no crate since #1051
-			})
-			-- a future-dated window comes back to the next one, so the shelf is not "on its way" for days (N299)
-			raw.freshCatch = { window = 9000000, alerted = 9000000, bought = {} }
-			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
-				window = 5977153,
-				alerted = 5977153,
-				bought = {},
-			})
-			raw.freshCatch = "junk"
-			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
-				window = 0,
-				bought = {},
-				alerted = 0,
-			})
-		end)
-	end)
-
-	describe("migrate to version 19: the onboarding funnel v2 (F87, easy-start.md section 5)", function()
-		local DAY = 20394 -- 2025-11-02 UTC
-		local NOW = DAY * 86400 + 3600
-
-		it("carries a version 18 save's v1 step and held steps to the same steps in v2", function()
-			local raw: any = ProfileSchema.template(NOW)
-			raw.version = 18
-			-- tier_2 (v1 9) reached, first_offline_claim (v1 11) held behind returned_next_day
-			raw.telemetry = { onboardingStep = 9, achieved = { ["11"] = true } }
-			local profile = ProfileSchema.migrate(raw, NOW)
-			expect(profile.version).to.equal(ProfileSchema.VERSION)
-			expect(profile.telemetry :: any).to.deepEqual({
-				onboardingStep = 20,
-				achieved = { ["23"] = true },
-				funnel = 2,
-				firstDay = 0, -- not known for an account from before version 19
-			})
-		end)
-
-		it("keeps a v2 state as it is, clamped to the funnel's 25 steps, with only held steps after the step", function()
-			local raw: any = ProfileSchema.template(NOW)
-			raw.telemetry = { onboardingStep = 10, achieved = { ["4"] = true, ["12"] = true, ["30"] = true }, funnel = 2, firstDay = DAY - 3 }
-			expect(ProfileSchema.migrate(raw, NOW).telemetry :: any).to.deepEqual({
-				onboardingStep = 10,
-				achieved = { ["12"] = true },
-				funnel = 2,
-				firstDay = DAY - 3,
-			})
-			raw.telemetry = { onboardingStep = 99, achieved = {}, funnel = 2, firstDay = DAY }
-			expect(ProfileSchema.migrate(raw, NOW).telemetry.onboardingStep).to.equal(25) -- F96 added starter_cat
-		end)
-
-		it("clamps a first day in the future to today and a bad one to 0", function()
-			local raw: any = ProfileSchema.template(NOW)
-			raw.telemetry = { onboardingStep = 1, achieved = {}, funnel = 2, firstDay = DAY + 40 }
-			expect(ProfileSchema.migrate(raw, NOW).telemetry.firstDay).to.equal(DAY)
-			raw.telemetry = { onboardingStep = 1, achieved = {}, funnel = 2, firstDay = "soon" }
-			expect(ProfileSchema.migrate(raw, NOW).telemetry.firstDay).to.equal(0)
-		end)
-
-		it("gives a new account today's day", function()
-			expect(ProfileSchema.migrate(nil, NOW).telemetry.firstDay).to.equal(DAY)
-		end)
-	end)
-
-	describe("migrate to version 20: context tips and the feedback ask (F87, easy-start.md section 6)", function()
-		it("starts a new account with no tips seen, the ask not shown and no help cards", function()
-			local profile = ProfileSchema.template(1000)
-			expect(next(profile.tipsSeen)).never.to.be.ok()
-			expect(profile.feedbackAsked).to.equal(false)
-			expect(next(profile.stuckHelpShown)).never.to.be.ok()
-			local migrated = ProfileSchema.migrate(nil, 1000)
-			expect(next(migrated.tipsSeen)).never.to.be.ok()
-			expect(migrated.feedbackAsked).to.equal(false)
-		end)
-
-		it("marks every tip seen on a version 19 save past the first loop, but not the like ask", function()
-			local raw: any = ProfileSchema.template(1000)
-			raw.version = 19
-			raw.tutorialStep = 5
-			raw.tipsSeen = nil
-			raw.feedbackAsked = nil
-			raw.stuckHelpShown = nil
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.version).to.equal(ProfileSchema.VERSION)
-			for _, def in Tips.LIST do
-				expect(profile.tipsSeen[def.id]).to.equal(true)
+		it(
+			"starts an older save with nothing bought and no alert, and drops its dealer counts",
+			function()
+				local raw: any = ProfileSchema.template(500)
+				raw.version = 17
+				raw.freshCatch = nil
+				raw.dealer = { window = 5977152, bought = { caviar = 1 } }
+				local profile: any = ProfileSchema.migrate(raw, 500)
+				expect(profile.version).to.equal(ProfileSchema.VERSION)
+				expect(profile.freshCatch).to.deepEqual({ window = 0, bought = {}, alerted = 0 })
+				expect(profile.dealer).never.to.be.ok()
 			end
-			expect(profile.tipsSeen[Tips.LIKE_ASK]).never.to.be.ok()
-			expect(profile.feedbackAsked).to.equal(false)
-			expect(next(profile.stuckHelpShown)).never.to.be.ok()
-		end)
+		)
 
-		it("gives a version 19 save still in the tutorial every tip", function()
-			local raw: any = ProfileSchema.template(1000)
-			raw.version = 19
-			raw.tutorialStep = 4
-			raw.tipsSeen = nil
-			expect(next(ProfileSchema.migrate(raw, 1000).tipsSeen)).never.to.be.ok()
-		end)
-
-		it("keeps a version 20 save's tips, ask and help cards as they are, cleaned", function()
-			local raw: any = ProfileSchema.template(1000)
-			raw.tutorialStep = 5
-			raw.tipsSeen = { bowl = true, like_ask = true, night = false, nope = true, [3] = true }
-			raw.feedbackAsked = true
-			raw.stuckHelpShown = { ["0"] = true, ["2"] = true, ["7"] = true, ["3"] = 1 }
-			local profile = ProfileSchema.migrate(raw, 1000)
-			-- a version 20 save past the first loop is not a veteran: ClearTips stays cleared
-			expect(profile.tipsSeen :: any).to.deepEqual({ bowl = true, like_ask = true })
-			expect(profile.feedbackAsked).to.equal(true)
-			expect(profile.stuckHelpShown :: any).to.deepEqual({ ["0"] = true, ["2"] = true })
-		end)
-
-		it("drops damaged values", function()
-			local raw: any = ProfileSchema.template(1000)
-			raw.tipsSeen = "all"
-			raw.feedbackAsked = "yes"
-			raw.stuckHelpShown = 5
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(next(profile.tipsSeen)).never.to.be.ok()
-			expect(profile.feedbackAsked).to.equal(false)
-			expect(next(profile.stuckHelpShown)).never.to.be.ok()
-		end)
-	end)
-
-	describe("migrate to version 21: the free Bellhop Cat (F96, starter-cat.md section 4)", function()
-		local StarterCat = require(Shared.StarterCat)
-
-		it("starts a new account with the cat unclaimed", function()
-			expect(ProfileSchema.template(1000).starterCatClaimed).to.equal(false)
-			expect(ProfileSchema.migrate(nil, 1000).starterCatClaimed).to.equal(false)
-		end)
-
-		it("leaves a version 20 save unclaimed and keeps a claimed flag", function()
-			local raw: any = ProfileSchema.template(1000)
-			raw.version = 20
-			raw.starterCatClaimed = nil
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.version).to.equal(ProfileSchema.VERSION)
-			expect(profile.starterCatClaimed).to.equal(false)
-			raw = ProfileSchema.template(1000)
-			raw.starterCatClaimed = true
-			expect(ProfileSchema.migrate(raw, 1000).starterCatClaimed).to.equal(true)
-		end)
-
-		it("counts an owned Bellhop Cat as claimed, so a lost flag never gives a second", function()
-			local raw: any = ProfileSchema.template(1000)
-			raw.starterCatClaimed = false
-			raw.cats.gift1 = CatStats.newInstance("gift1", StarterCat.CAT_ID, 900, Config.StarterCatCharm)
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.cats.gift1 ~= nil).to.equal(true)
-			expect(profile.starterCatClaimed).to.equal(true)
-		end)
-
-		it("drops a damaged flag", function()
-			local raw: any = ProfileSchema.template(1000)
-			raw.starterCatClaimed = "yes"
-			expect(ProfileSchema.migrate(raw, 1000).starterCatClaimed).to.equal(false)
-		end)
-	end)
-
-	describe("migrate to version 22: when the notification ask first showed (F96, starter-cat.md section 3)", function()
-		it("starts at 0 for a new account and a version 21 save", function()
-			expect(ProfileSchema.template(1000).notifyAskAt).to.equal(0)
-			local raw: any = ProfileSchema.template(1000)
-			raw.version = 21
-			raw.notifyAskAt = nil
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.version).to.equal(ProfileSchema.VERSION)
-			expect(profile.notifyAskAt).to.equal(0)
-		end)
-
-		it("keeps a past time, whole, and never one in the future or a damaged one", function()
-			local raw: any = ProfileSchema.template(1000)
-			raw.notifyAskAt = 900.5
-			expect(ProfileSchema.migrate(raw, 1000).notifyAskAt).to.equal(900)
-			raw.notifyAskAt = 5000
-			expect(ProfileSchema.migrate(raw, 1000).notifyAskAt).to.equal(1000)
-			for _, junk in { -5, "soon", 0 / 0, math.huge, true } :: { any } do
-				raw.notifyAskAt = junk
-				expect(ProfileSchema.migrate(raw, 1000).notifyAskAt).to.equal(0)
+		it(
+			"keeps whole counts of shelf rows, at most the most a window rolls, and drops the rest",
+			function()
+				local NOW = 5977152 * 300 + 10 -- in window 5977152 (2026-10-28 00:00 UTC)
+				local raw: any = ProfileSchema.template(NOW)
+				raw.freshCatch = {
+					window = 5977152.7,
+					alerted = 5977150,
+					bought = {
+						tip_potion = 2,
+						gold_rush_potion = 7, -- at most 1 a window
+						classic_crate = 1,
+						steady_potion = 0,
+						swift_potion = "1",
+						kibble = 3,
+					},
+				}
+				expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
+					window = 5977152,
+					alerted = 5977150,
+					bought = { tip_potion = 2, gold_rush_potion = 1 }, -- the shelf has no crate since #1051
+				})
+				-- a future-dated window comes back to the next one, so the shelf is not "on its way" for days (N299)
+				raw.freshCatch = { window = 9000000, alerted = 9000000, bought = {} }
+				expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
+					window = 5977153,
+					alerted = 5977153,
+					bought = {},
+				})
+				raw.freshCatch = "junk"
+				expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
+					window = 0,
+					bought = {},
+					alerted = 0,
+				})
 			end
-		end)
-
-		it("keeps the favorite and notification asks seen", function()
-			local raw: any = ProfileSchema.template(1000)
-			raw.tipsSeen = { notify_ask = true, favorite_ask = true, like_ask = true }
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.tipsSeen :: any).to.deepEqual({ notify_ask = true, favorite_ask = true, like_ask = true })
-		end)
+		)
 	end)
 
-	describe("migrate to version 23: the leaderboards' best rate and this week (F98, leaderboards.md section 5)", function()
-		it("starts at 0 for a new account and a version 22 save", function()
-			local fresh = ProfileSchema.template(1000)
-			expect(fresh.stats.bestRate).to.equal(0)
-			expect(fresh.stats.weekPlay :: any).to.deepEqual({ week = 0, seconds = 0 })
-			expect(fresh.stats.weekBestRate :: any).to.deepEqual({ week = 0, rate = 0 })
-			local raw: any = ProfileSchema.template(1000)
-			raw.version = 22
-			raw.stats.bestRate = nil
-			raw.stats.weekPlay = nil
-			raw.stats.weekBestRate = nil
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.version).to.equal(ProfileSchema.VERSION)
-			expect(profile.stats.bestRate).to.equal(0)
-			expect(profile.stats.weekPlay :: any).to.deepEqual({ week = 0, seconds = 0 })
-			expect(profile.stats.weekBestRate :: any).to.deepEqual({ week = 0, rate = 0 })
-		end)
+	describe(
+		"migrate to version 19: the onboarding funnel v2 (F87, easy-start.md section 5)",
+		function()
+			local DAY = 20394 -- 2025-11-02 UTC
+			local NOW = DAY * 86400 + 3600
 
-		it("keeps a rate's fractions and the week's numbers, and drops damaged ones", function()
-			local raw: any = ProfileSchema.template(1000)
-			raw.stats.bestRate = 12.75
-			raw.stats.weekPlay = { week = 2913, seconds = 3600.5 }
-			raw.stats.weekBestRate = { week = 2913, rate = 9.5 }
-			raw.stats.catsCaught = 7.9
-			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.stats.bestRate).to.equal(12.75)
-			expect(profile.stats.weekPlay :: any).to.deepEqual({ week = 2913, seconds = 3600.5 })
-			expect(profile.stats.weekBestRate :: any).to.deepEqual({ week = 2913, rate = 9.5 })
-			expect(profile.stats.catsCaught).to.equal(7)
-			for _, junk in { -5, "fast", 0 / 0, math.huge, true, { 1 } } :: { any } do
-				raw.stats.bestRate = junk
-				raw.stats.weekPlay = junk
-				raw.stats.weekBestRate = { week = junk, rate = junk }
-				local migrated = ProfileSchema.migrate(raw, 1000)
-				expect(migrated.stats.bestRate).to.equal(0)
-				expect(migrated.stats.weekPlay :: any).to.deepEqual({ week = 0, seconds = 0 })
-				expect(migrated.stats.weekBestRate :: any).to.deepEqual({ week = 0, rate = 0 })
-			end
-		end)
-	end)
+			it(
+				"carries a version 18 save's v1 step and held steps to the same steps in v2",
+				function()
+					local raw: any = ProfileSchema.template(NOW)
+					raw.version = 18
+					-- tier_2 (v1 9) reached, first_offline_claim (v1 11) held behind returned_next_day
+					raw.telemetry = { onboardingStep = 9, achieved = { ["11"] = true } }
+					local profile = ProfileSchema.migrate(raw, NOW)
+					expect(profile.version).to.equal(ProfileSchema.VERSION)
+					expect(profile.telemetry :: any).to.deepEqual({
+						onboardingStep = 20,
+						achieved = { ["23"] = true },
+						funnel = 2,
+						firstDay = 0, -- not known for an account from before version 19
+					})
+				end
+			)
+
+			it(
+				"keeps a v2 state as it is, clamped to the funnel's 25 steps, with only held steps after the step",
+				function()
+					local raw: any = ProfileSchema.template(NOW)
+					raw.telemetry = {
+						onboardingStep = 10,
+						achieved = { ["4"] = true, ["12"] = true, ["30"] = true },
+						funnel = 2,
+						firstDay = DAY - 3,
+					}
+					expect(ProfileSchema.migrate(raw, NOW).telemetry :: any).to.deepEqual({
+						onboardingStep = 10,
+						achieved = { ["12"] = true },
+						funnel = 2,
+						firstDay = DAY - 3,
+					})
+					raw.telemetry =
+						{ onboardingStep = 99, achieved = {}, funnel = 2, firstDay = DAY }
+					expect(ProfileSchema.migrate(raw, NOW).telemetry.onboardingStep).to.equal(25) -- F96 added starter_cat
+				end
+			)
+
+			it("clamps a first day in the future to today and a bad one to 0", function()
+				local raw: any = ProfileSchema.template(NOW)
+				raw.telemetry =
+					{ onboardingStep = 1, achieved = {}, funnel = 2, firstDay = DAY + 40 }
+				expect(ProfileSchema.migrate(raw, NOW).telemetry.firstDay).to.equal(DAY)
+				raw.telemetry = { onboardingStep = 1, achieved = {}, funnel = 2, firstDay = "soon" }
+				expect(ProfileSchema.migrate(raw, NOW).telemetry.firstDay).to.equal(0)
+			end)
+
+			it("gives a new account today's day", function()
+				expect(ProfileSchema.migrate(nil, NOW).telemetry.firstDay).to.equal(DAY)
+			end)
+		end
+	)
+
+	describe(
+		"migrate to version 20: context tips and the feedback ask (F87, easy-start.md section 6)",
+		function()
+			it(
+				"starts a new account with no tips seen, the ask not shown and no help cards",
+				function()
+					local profile = ProfileSchema.template(1000)
+					expect(next(profile.tipsSeen)).never.to.be.ok()
+					expect(profile.feedbackAsked).to.equal(false)
+					expect(next(profile.stuckHelpShown)).never.to.be.ok()
+					local migrated = ProfileSchema.migrate(nil, 1000)
+					expect(next(migrated.tipsSeen)).never.to.be.ok()
+					expect(migrated.feedbackAsked).to.equal(false)
+				end
+			)
+
+			it(
+				"marks every tip seen on a version 19 save past the first loop, but not the like ask",
+				function()
+					local raw: any = ProfileSchema.template(1000)
+					raw.version = 19
+					raw.tutorialStep = 5
+					raw.tipsSeen = nil
+					raw.feedbackAsked = nil
+					raw.stuckHelpShown = nil
+					local profile = ProfileSchema.migrate(raw, 1000)
+					expect(profile.version).to.equal(ProfileSchema.VERSION)
+					for _, def in Tips.LIST do
+						expect(profile.tipsSeen[def.id]).to.equal(true)
+					end
+					expect(profile.tipsSeen[Tips.LIKE_ASK]).never.to.be.ok()
+					expect(profile.feedbackAsked).to.equal(false)
+					expect(next(profile.stuckHelpShown)).never.to.be.ok()
+				end
+			)
+
+			it("gives a version 19 save still in the tutorial every tip", function()
+				local raw: any = ProfileSchema.template(1000)
+				raw.version = 19
+				raw.tutorialStep = 4
+				raw.tipsSeen = nil
+				expect(next(ProfileSchema.migrate(raw, 1000).tipsSeen)).never.to.be.ok()
+			end)
+
+			it("keeps a version 20 save's tips, ask and help cards as they are, cleaned", function()
+				local raw: any = ProfileSchema.template(1000)
+				raw.tutorialStep = 5
+				raw.tipsSeen =
+					{ bowl = true, like_ask = true, night = false, nope = true, [3] = true }
+				raw.feedbackAsked = true
+				raw.stuckHelpShown = { ["0"] = true, ["2"] = true, ["7"] = true, ["3"] = 1 }
+				local profile = ProfileSchema.migrate(raw, 1000)
+				-- a version 20 save past the first loop is not a veteran: ClearTips stays cleared
+				expect(profile.tipsSeen :: any).to.deepEqual({ bowl = true, like_ask = true })
+				expect(profile.feedbackAsked).to.equal(true)
+				expect(profile.stuckHelpShown :: any).to.deepEqual({ ["0"] = true, ["2"] = true })
+			end)
+
+			it("drops damaged values", function()
+				local raw: any = ProfileSchema.template(1000)
+				raw.tipsSeen = "all"
+				raw.feedbackAsked = "yes"
+				raw.stuckHelpShown = 5
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(next(profile.tipsSeen)).never.to.be.ok()
+				expect(profile.feedbackAsked).to.equal(false)
+				expect(next(profile.stuckHelpShown)).never.to.be.ok()
+			end)
+		end
+	)
+
+	describe(
+		"migrate to version 21: the free Bellhop Cat (F96, starter-cat.md section 4)",
+		function()
+			local StarterCat = require(Shared.StarterCat)
+
+			it("starts a new account with the cat unclaimed", function()
+				expect(ProfileSchema.template(1000).starterCatClaimed).to.equal(false)
+				expect(ProfileSchema.migrate(nil, 1000).starterCatClaimed).to.equal(false)
+			end)
+
+			it("leaves a version 20 save unclaimed and keeps a claimed flag", function()
+				local raw: any = ProfileSchema.template(1000)
+				raw.version = 20
+				raw.starterCatClaimed = nil
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.version).to.equal(ProfileSchema.VERSION)
+				expect(profile.starterCatClaimed).to.equal(false)
+				raw = ProfileSchema.template(1000)
+				raw.starterCatClaimed = true
+				expect(ProfileSchema.migrate(raw, 1000).starterCatClaimed).to.equal(true)
+			end)
+
+			it(
+				"counts an owned Bellhop Cat as claimed, so a lost flag never gives a second",
+				function()
+					local raw: any = ProfileSchema.template(1000)
+					raw.starterCatClaimed = false
+					raw.cats.gift1 = CatStats.newInstance(
+						"gift1",
+						StarterCat.CAT_ID,
+						900,
+						Config.StarterCatCharm
+					)
+					local profile = ProfileSchema.migrate(raw, 1000)
+					expect(profile.cats.gift1 ~= nil).to.equal(true)
+					expect(profile.starterCatClaimed).to.equal(true)
+				end
+			)
+
+			it("drops a damaged flag", function()
+				local raw: any = ProfileSchema.template(1000)
+				raw.starterCatClaimed = "yes"
+				expect(ProfileSchema.migrate(raw, 1000).starterCatClaimed).to.equal(false)
+			end)
+		end
+	)
+
+	describe(
+		"migrate to version 22: when the notification ask first showed (F96, starter-cat.md section 3)",
+		function()
+			it("starts at 0 for a new account and a version 21 save", function()
+				expect(ProfileSchema.template(1000).notifyAskAt).to.equal(0)
+				local raw: any = ProfileSchema.template(1000)
+				raw.version = 21
+				raw.notifyAskAt = nil
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.version).to.equal(ProfileSchema.VERSION)
+				expect(profile.notifyAskAt).to.equal(0)
+			end)
+
+			it("keeps a past time, whole, and never one in the future or a damaged one", function()
+				local raw: any = ProfileSchema.template(1000)
+				raw.notifyAskAt = 900.5
+				expect(ProfileSchema.migrate(raw, 1000).notifyAskAt).to.equal(900)
+				raw.notifyAskAt = 5000
+				expect(ProfileSchema.migrate(raw, 1000).notifyAskAt).to.equal(1000)
+				for _, junk in { -5, "soon", 0 / 0, math.huge, true } :: { any } do
+					raw.notifyAskAt = junk
+					expect(ProfileSchema.migrate(raw, 1000).notifyAskAt).to.equal(0)
+				end
+			end)
+
+			it("keeps the favorite and notification asks seen", function()
+				local raw: any = ProfileSchema.template(1000)
+				raw.tipsSeen = { notify_ask = true, favorite_ask = true, like_ask = true }
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.tipsSeen :: any).to.deepEqual({
+					notify_ask = true,
+					favorite_ask = true,
+					like_ask = true,
+				})
+			end)
+		end
+	)
+
+	describe(
+		"migrate to version 23: the leaderboards' best rate and this week (F98, leaderboards.md section 5)",
+		function()
+			it("starts at 0 for a new account and a version 22 save", function()
+				local fresh = ProfileSchema.template(1000)
+				expect(fresh.stats.bestRate).to.equal(0)
+				expect(fresh.stats.weekPlay :: any).to.deepEqual({ week = 0, seconds = 0 })
+				expect(fresh.stats.weekBestRate :: any).to.deepEqual({ week = 0, rate = 0 })
+				local raw: any = ProfileSchema.template(1000)
+				raw.version = 22
+				raw.stats.bestRate = nil
+				raw.stats.weekPlay = nil
+				raw.stats.weekBestRate = nil
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.version).to.equal(ProfileSchema.VERSION)
+				expect(profile.stats.bestRate).to.equal(0)
+				expect(profile.stats.weekPlay :: any).to.deepEqual({ week = 0, seconds = 0 })
+				expect(profile.stats.weekBestRate :: any).to.deepEqual({ week = 0, rate = 0 })
+			end)
+
+			it("keeps a rate's fractions and the week's numbers, and drops damaged ones", function()
+				local raw: any = ProfileSchema.template(1000)
+				raw.stats.bestRate = 12.75
+				raw.stats.weekPlay = { week = 2913, seconds = 3600.5 }
+				raw.stats.weekBestRate = { week = 2913, rate = 9.5 }
+				raw.stats.catsCaught = 7.9
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.stats.bestRate).to.equal(12.75)
+				expect(profile.stats.weekPlay :: any).to.deepEqual({ week = 2913, seconds = 3600.5 })
+				expect(profile.stats.weekBestRate :: any).to.deepEqual({ week = 2913, rate = 9.5 })
+				expect(profile.stats.catsCaught).to.equal(7)
+				for _, junk in { -5, "fast", 0 / 0, math.huge, true, { 1 } } :: { any } do
+					raw.stats.bestRate = junk
+					raw.stats.weekPlay = junk
+					raw.stats.weekBestRate = { week = junk, rate = junk }
+					local migrated = ProfileSchema.migrate(raw, 1000)
+					expect(migrated.stats.bestRate).to.equal(0)
+					expect(migrated.stats.weekPlay :: any).to.deepEqual({ week = 0, seconds = 0 })
+					expect(migrated.stats.weekBestRate :: any).to.deepEqual({ week = 0, rate = 0 })
+				end
+			end)
+		end
+	)
 end

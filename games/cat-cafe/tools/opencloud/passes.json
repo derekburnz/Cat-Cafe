@@ -85,7 +85,7 @@
 		"config": "KingPackPassId",
 		"price": 999,
 		"regionalPricing": true,
-		"description": "King Croissant joins your cafe and always earns like a Mythical cat from your newest area, plus a gold crest for your cafe sign. Yours to keep, can't be traded."
+		"description": "King Croissant joins your cafe and always earns like a Mythical cat from your newest area, plus the Royal Crest style for your cafe sign. Yours to keep, can't be traded."
 	},
 	{
 		"name": "Golden Pond",
@@ -99,6 +99,6 @@
 		"config": "SecondBowlPassId",
 		"price": 149,
 		"regionalPricing": true,
-		"description": "A second bait bowl in your cafe, so you can run two baits at once. Both bowls share your bowl upgrades. Yours to keep."
+		"description": "A second bait bowl in your cafe, so you can run two baits at once. It has the same upgrades as your first bowl. Yours to keep."
 	}
 ]

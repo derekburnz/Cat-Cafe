@@ -23,6 +23,7 @@ CleanGlyphs.icons = {
 	potion = "Potion",
 	quests = "Quests",
 	tutorial = "Tutorial",
+	store = "Store", -- the Store window's badge: the HUD tile's chest
 	-- the last three sheet glyphs that already had a clean symbol (Derek live v187: "still shows the old images on ui
 	-- buttons"): the Settings gear, the Spin wheel and the Alley's paw door
 	settings = "Menu",

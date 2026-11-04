@@ -14,7 +14,7 @@
 --   Lighter HUD (Derek 2026-10-28, after a look at popular Roblox HUDs): counters, the clock and the goal are outlined
 --   text with no box behind them; only things you press look like buttons, and the top centre is left clear.
 --   left          square symbol tiles two to a row, three on a short screen that would need three rows (Derek
---                 2026-11-02, fewer buttons): Store (gold, once a pass is on sale), Cats, Index, Quests, Upgrades, Decor, with small key caps and red "!" dots, centred in the
+--                 2026-11-02, fewer buttons): Store (gold, always; #1167), Cats, Index, Quests, Upgrades, Decor, with small key caps and red "!" dots, centred in the
 --                 space over the counters, and an arrow tab under them (beside the last row on a short screen) that
 --                 folds them off the edge. Quests (F73) shows once ProfileSync has quests, with a red count of what is
 --                 ready to claim
@@ -115,7 +115,7 @@ export type HUD = {
 	screenOpened: (self: HUD, name: string?) -> (),
 	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
-	-- the gold Store tile at the top of the left menu, hidden until a pass is on sale (init's Store block)
+	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
@@ -889,7 +889,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Menu (left, vertically centred): square symbol tiles two to a row, the "Shop / Index" grid of popular
 	-- simulators (Derek 2026-11-02: "group some of the buttons into less screen clutter"; they were wide pills). A small
 	-- key cap shows the keyboard shortcut and a red "!" dot says the screen has something new. The gold Store tile
-	-- leads the grid once a pass is on sale (setStore); Potions moved to a symbol in the bottom right corner.
+	-- leads the grid once init's Store block hands it its window (setStore); Potions moved to a symbol in the bottom right corner.
 	local showKeys = UserInputService.KeyboardEnabled
 	type MenuItem = {
 		name: string,
@@ -2572,8 +2572,8 @@ function HUD._closePop(self: any)
 end
 
 -- The gold Store tile at the top of the left menu (Derek 2026-11-02: "store still needs to be added"): shown with
--- the function that opens the Store window, hidden with nil. init's Store block calls it once Roblox says a pass is on
--- sale, or while the Workspace has StoreOpen for a preview; hidden, the grid closes up (review N341: moved here).
+-- the function that opens the Store window, hidden with nil. init's Store block calls it as soon as the window exists,
+-- passes on sale or not (#1167); hidden, the grid closes up (review N341: moved here).
 function HUD.setStore(self: any, open: (() -> ())?)
 	self._storeOpen = open
 	local tile: Button.Button = self._storeTile

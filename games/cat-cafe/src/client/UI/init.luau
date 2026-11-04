@@ -1289,7 +1289,7 @@ function UI.init(config: Types.InitConfig)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	UI.trade.start() -- the Trade window in the modal (F102)
 	UI.lawn.start(parent) -- the front lawn's edit view (F91)
-	UI.store.start() -- the Store window and the HUD's Store tile, once a pass is on sale
+	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
 	worldTags = WorldTags.new()
 	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
@@ -5136,8 +5136,9 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- The Store window (Derek 2026-11-02: "store still needs to be added"; Monetization-Agent's shop-and-pass-plan). The
--- HUD's gold Store tile shows once Roblox says any of our passes is on sale (they are off sale until launch), or
--- while the Workspace has StoreOpen = true for a preview. Each pass's card reads its price from Roblox and opens
+-- HUD's gold Store tile shows as soon as the window exists, on sale or not (Derek 2026-11-04, #1167: "the Store
+-- UI/menu is missing"; it used to wait for a pass on sale, and every pass is off sale until launch). An off-sale
+-- pass's card says "Soon". Each pass's card reads its price from Roblox and opens
 -- Roblox's own purchase window (Components/PassShop); the server's PassService turns a bought pass on. Its own
 -- block, as the module is short of locals.
 do
@@ -5147,7 +5148,6 @@ do
 	local shop = {
 		screen = nil :: Store.Store?,
 		changed = nil :: Signal.Connection?,
-		preview = nil :: RBXScriptConnection?,
 		open = false, -- whether the HUD's tile shows
 	}
 
@@ -5161,8 +5161,7 @@ do
 		if screen and modal and modal:current() == "Store" then
 			screen:render(rows(), PassShop.prices())
 		end
-		local open = StoreLogic.anyForSale(PassShop.prices())
-			or Workspace:GetAttribute("StoreOpen") == true
+		local open = screen ~= nil -- the tile shows whenever there is a window for it to open
 		if open ~= shop.open and hud then
 			shop.open = open
 			hud:setStore(if open
@@ -5200,7 +5199,6 @@ do
 			end,
 		})
 		shop.changed = PassShop.changed:Connect(refresh)
-		shop.preview = Workspace:GetAttributeChangedSignal("StoreOpen"):Connect(refresh)
 		PassShop.start(StoreLogic.passIds(Config))
 		refresh()
 	end
@@ -5228,13 +5226,12 @@ do
 			shop.changed:Disconnect()
 			shop.changed = nil
 		end
-		if shop.preview then
-			shop.preview:Disconnect()
-			shop.preview = nil
-		end
 		if shop.screen then
 			shop.screen:destroy()
 			shop.screen = nil
+		end
+		if shop.open and hud then
+			hud:setStore(nil) -- no window left for the tile to open
 		end
 		shop.open = false
 		PassShop.stop()

@@ -311,7 +311,7 @@ spec's header comment).
 | `TipQueue.spec` | UI/Components/TipQueue.luau: the context tips' words and timing (F87, easy-start.md section 3). | F87, easy-start.md |
 | `TutorialHints.spec` | UI/Components/TutorialHints.luau: the tutorial strip's device-aware line per step (F87, easy-start.md section 2e). | F87, easy-start.md |
 | `WelcomeBack.spec` | UI/Components/WelcomeBack.luau: the welcome back card's line on what time away pays (F95 section 5). | F95 |
-| `StoreLogic.spec` | UI/Components/StoreLogic.luau: the Store window's cards and buttons (UI PR #914, shop-and-pass-plan, Derek 2026-11-02 20:01): the pass ids in order (money ladder low to high, then Long Nap) with passes not made yet (id 0) left out; one card per pass, only the next money rung above the highest owned and the top rung Owned once all are bought, Long Nap owned from Roblox or the save; the buy button reads its price from Roblox, shows ... until it is known, Soon while off sale and Owned (not pressable) once owned; the gold Store tile shows only while a pass is on sale. | Store window, #914 |
+| `StoreLogic.spec` | UI/Components/StoreLogic.luau: the Store window's cards and buttons (UI PR #914, shop-and-pass-plan, Derek 2026-11-02 20:01): the pass ids in order (money ladder low to high, then Long Nap) with passes not made yet (id 0) left out; one card per pass, only the next money rung above the highest owned and the top rung Owned once all are bought, Long Nap owned from Roblox or the save; the buy button reads its price from Roblox, shows ... until it is known, Soon while off sale and Owned (not pressable) once owned. | Store window, #914 |
 
 v0.3 specs QA writes as each feature lands (the engineer is asked to keep these as pure functions in
 `src/shared`, section 8):

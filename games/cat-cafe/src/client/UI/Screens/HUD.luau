@@ -13,15 +13,16 @@
 --                 under it "🎡 Free spin at the Town Square" while today's free spin waits (F49)
 --   Lighter HUD (Derek 2026-10-28, after a look at popular Roblox HUDs): counters, the clock and the goal are outlined
 --   text with no box behind them; only things you press look like buttons, and the top centre is left clear.
---   left          square symbol tiles two to a row, three on a short screen that would need three rows (Derek
---                 2026-11-02, fewer buttons): Store (gold, always; #1167), Cats, Index, Quests, Upgrades, Decor, with small key caps and red "!" dots, centred in the
+--   left          square symbol tiles two to a row, three or four on a short screen that would need three rows (Derek
+--                 2026-11-02, fewer buttons): Store (gold, always; #1167), Cats, Index, Quests, Upgrades, Decor and the
+--                 bait bowl (#1210), with small key caps and red "!" dots, a clear gap between them all, centred in the
 --                 space over the counters, and an arrow tab under them (beside the last row on a short screen) that
 --                 folds them off the edge. Quests (F73) shows once ProfileSync has quests, with a red count of what is
 --                 ready to claim
 --   bottom centre the gold My Cafe teleport, Alley and Areas (an arrow tab folds the row away), moved right of the
 --                 counters on a narrow screen; above them the carry banner with its red Drop button, and the tutorial
 --                 strip above that
---   bottom right  the Potions symbol (the bag) and, once the Bait bowl upgrade is owned, the bowl symbol
+--   bottom right  the Potions symbol (the bag)
 -- F87 (easy-start.md section 2f, Components/HudUnlocks): until the first loop is done only the money, the hint, Home
 -- and the Alley (or the Cannon), the Tutorial tile and Settings show; each other piece appears as it unlocks, with a
 -- gold "New!" on its button for NEW_SECONDS.
@@ -77,7 +78,7 @@ local Types = require(script.Parent.Parent.Types)
 export type Callbacks = {
 	openScreen: (name: Types.ScreenName) -> (),
 	travel: (destination: string) -> (), -- "home" or an AreaId
-	openBait: () -> (), -- the bowl chip opens the bait bowl screen, or the cat waiting at the bowl
+	openBait: () -> (), -- the left menu's bowl tile opens the bait bowl screen, or the cat waiting at the bowl
 	openIndex: () -> (), -- the Index on its cat pages, or closes it
 	equipBest: () -> (),
 	dropCat: () -> (), -- the carry banner's Drop button
@@ -170,10 +171,40 @@ local MENU_COLUMNS = 2
 -- a short screen (a phone) whose grid would run three rows deep takes three tiles a row, so the bottom row stays out
 -- of Roblox's thumbstick in the bottom left (review N343: the Store tile's row put Upgrades there)
 local MENU_COLUMNS_SHORT = 3
+-- and four a row when three would still reach the thumbstick (a phone with the bowl in the menu, #1210)
+local MENU_COLUMNS_MAX = 4
 -- on a touch screen the grid also keeps out of the bottom left's last 180 px, where Roblox's thumbstick sits (the UI
 -- gate's thumbstick zone), so a phone takes three tiles a row before its third row reaches down there
 local THUMB_ZONE = 180
-local MENU_GAP = 14 -- between the columns, so a tile's red dot clears its neighbour's key letter
+-- #1210 (Derek 2026-11-04: the Store tile sat on the Cats and Index tiles, the C key badge half under it, and the
+-- rows below the same): every tile and every row keeps a clear gap of at least the outline plus the button foot
+-- (#1105) between what each one draws, not between their boxes. A tile draws past its box: its outline all round,
+-- the key cap on its top left corner, the red dot on its top right and, on the Store, the gold glow and its hover.
+-- the empty space between two tiles' drawn edges (9): the outline plus the button foot, as #1210 asks, though the
+-- clean tiles draw no foot since #1105, so it is a little more room than the drawing needs
+local TILE_CLEAR = Button.OUTLINE + Theme.sizes.buttonDepth
+local KEY_REACH = 6 -- a key cap at (-4, -4) with its 2 px outline pokes this far past the tile's top and left
+-- the red dot (22 px, its middle 3 px down the tile's top edge, its right edge 2 px past the side since #1176, a 2 px
+-- outline) past the tile's top and its right side
+local DOT_TOP = 10
+local DOT_SIDE = 4
+local GLOW_REACH = 6 -- the Store's gold glow round it
+-- a wide Store tile grows by its hover scale round its middle (Button.HOVER_SCALE), half of it on each side
+local STORE_HOVER = math.ceil(STORE_H * (Button.HOVER_SCALE - 1) / 2)
+-- past a tile's sides and foot: its outline, or the Store's glow when the Store is one of the grid's squares (touch)
+local SIDE_REACH = if TOUCH then math.max(Button.OUTLINE, GLOW_REACH) else Button.OUTLINE
+-- a clean tile's foot is its label under the square: the text's 2 px outline, no box outline
+local FOOT_REACH = if TOUCH then SIDE_REACH else Theme.sizes.textOutline
+-- Between the columns: a tile's right side (its outline, or the Store's glow) and the next one's key cap keep
+-- TILE_CLEAR apart, and a lit red dot on the top right keeps at least the outline from that key cap.
+local MENU_GAP =
+	math.max(SIDE_REACH + KEY_REACH + TILE_CLEAR, DOT_SIDE + KEY_REACH + Button.OUTLINE) -- 19, 21 touch
+-- Under a tile whose foot reaches this far: TILE_CLEAR to the next row's key caps, the outline to its red dots.
+local function rowGap(foot: number): number
+	return math.max(foot + KEY_REACH + TILE_CLEAR, foot + DOT_TOP + Button.OUTLINE)
+end
+local ROW_GAP = rowGap(FOOT_REACH) -- between the rows (17 on a PC, 21 on touch)
+local STORE_GAP = rowGap(GLOW_REACH + STORE_HOVER) -- under the wide Store tile, over the grid (23)
 local function menuWidth(columns: number): number
 	return columns * MENU_TILE + (columns - 1) * MENU_GAP
 end
@@ -186,7 +217,7 @@ local TRAVEL_ICON = 28 -- the pictures on the Rewards and Menu lists' rows
 local TRAVEL_W = if TOUCH then 80 else 82
 local TRAVEL_TEXT = if TOUCH then Theme.sizes.textTiny + 1 else 17
 local TRAVEL_GAP = 14
--- the potion and bait bowl symbols, bottom right (moved clear of Roblox's jump button on a phone: _placeCorner)
+-- the Potions symbol, bottom right (moved clear of Roblox's jump button on a phone: _placeCorner)
 local SYMBOL = if TOUCH then 64 else 74 -- a little smaller on touch, where the pair may move (_placeCorner)
 local SYMBOL_TEXT = if TOUCH then Theme.sizes.textTiny else 16
 local SYMBOL_H = if TOUCH then SYMBOL else SYMBOL + SYMBOL_TEXT + 4 -- the square, and its label under it
@@ -215,6 +246,8 @@ local DROP_W = 104
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
+-- the arrow tab under the grid: the last row's foot, then the clear gap and the tab's own 3 px outline (#1210)
+local FOLD_UNDER = FOOT_REACH + TILE_CLEAR + 3
 local function menuFoldedX(width: number): number
 	return -(width + 40) -- past the left edge, dots too
 end
@@ -893,6 +926,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	local showKeys = UserInputService.KeyboardEnabled
 	type MenuItem = {
 		name: string,
+		text: string?, -- the label, when it is not the name (the bowl's "Bait")
 		icon: string,
 		key: string?,
 		style: Button.Style,
@@ -958,11 +992,23 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				callbacks.openScreen("Decor")
 			end,
 		},
+		-- #1210 (2026-11-04: "move the food bowl button into the left menu"): the bowl, once the Bait bowl upgrade is
+		-- owned, with its state as its label (_renderBowl)
+		{
+			name = "Bowl",
+			text = "Bait",
+			icon = BOWL_ICON,
+			key = "F",
+			style = "secondary",
+			open = function()
+				self._callbacks.openBait()
+			end,
+		},
 	}
 	-- placed by _layoutMenu in the space over the counters; hidden tiles leave no hole in the grid
 	local menuLayout: UIGridLayout = Create("UIGridLayout", {
 		CellSize = UDim2.fromOffset(MENU_TILE, MENU_CELL_H),
-		CellPadding = UDim2.fromOffset(MENU_GAP, Theme.sizes.gap),
+		CellPadding = UDim2.fromOffset(MENU_GAP, ROW_GAP),
 		FillDirection = Enum.FillDirection.Horizontal,
 		FillDirectionMaxCells = MENU_COLUMNS,
 		SortOrder = Enum.SortOrder.LayoutOrder,
@@ -981,7 +1027,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		local isStore = item.name == "Store" and not TOUCH
 		local button = Button.new({
 			name = item.name,
-			text = item.name,
+			text = item.text or item.name,
 			icon = item.icon,
 			image = ShopIcons.hud(item.name),
 			layout = if isStore then "wide" else TILE_LAYOUT,
@@ -992,7 +1038,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = if isStore then STORE_TEXT else MENU_TEXT,
 			layoutOrder = index,
 			parent = if isStore then root else menu,
-			sound = false, -- the modal swish is the sound
+			sound = false, -- the modal swish is the sound (the bait screen plays uiOpen itself)
 			onClick = item.open,
 		})
 		local key = item.key
@@ -1090,6 +1136,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				Parent = dot,
 			})
 			self._questDot = dot
+		elseif item.name == "Bowl" then
+			button.instance.Visible = false -- once the Bait bowl upgrade is owned (_renderBowlSlot)
+			self._bowl = button
+			self._bowlSlot = button.instance
 		end
 		self._pills[item.name] = button
 		table.insert(self._buttons, button)
@@ -1132,8 +1182,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._menuFoldDot = foldDot
 
 	-- Bottom right corner (Derek 2026-11-02: "a clean potion symbol bottom right and then clicking it opens the menu of
-	-- which to use"): two symbol tiles side by side, Potions (the bag, with how many it holds) and, once the Bait bowl
-	-- upgrade is owned, the bowl (F28) with its state under the picture: "Bait", the time to the cat, "Cat!" on gold.
+	-- which to use"): the Potions symbol (the bag, with how many it holds). The bait bowl's symbol moved into the left
+	-- menu on 2026-11-04 (#1210).
 	local corner: Frame = Create("Frame", {
 		Name = "Corner",
 		BackgroundTransparency = 1,
@@ -1191,31 +1241,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(potionCount, 2)
 	self._potionCount = potionCount
-	-- the bowl sits in the left column after Decor (#1210, the friend 11-04: "move the food bowl into the left
-	-- column"); the grid closes up while it is hidden
-	local bowl = Button.new({
-		name = "Bowl",
-		text = "Bait",
-		icon = BOWL_ICON,
-		image = ShopIcons.hud("Bowl"),
-		layout = TILE_LAYOUT,
-		textSize = MENU_TEXT,
-		style = "secondary",
-		size = UDim2.fromOffset(MENU_TILE, MENU_CELL_H),
-		layoutOrder = 100,
-		parent = self._menu,
-		sound = false, -- the bait screen plays uiOpen itself
-		onClick = function()
-			self._callbacks.openBait()
-		end,
-	})
-	if showKeys then
-		keycap(bowl.face, "F", UDim2.fromOffset(-4, -4))
-	end
-	bowl.instance.Visible = false -- once the Bait bowl upgrade is owned (_renderBowlSlot)
-	table.insert(self._buttons, bowl)
-	self._bowl = bowl
-	self._bowlSlot = bowl.instance
 	self._bowlText = "Bait"
 	self._bowlStyle = "secondary" :: Button.Style
 	self._bait = nil :: Types.BaitView?
@@ -1516,22 +1541,18 @@ function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	end)
 end
 
--- The bowl symbol's line under its picture: "Bait" when empty, the time to the cat ("7:42"), then "Cat!" on a
--- gold tile. F60: food set at night counts down behind a moon ("🌙 3:42"); an empty bowl reads "Bait" day and night
--- (#1210 dropped "🌙 Half"). The Bait bowl window has the food's name and the rest.
+-- The bowl tile's label: "Bait" when empty, the time to the cat ("7:42"), then "Cat!" on a gold tile. The night
+-- wait (F60: food set at night comes in half the time) is no longer on the tile, no "🌙 Half" and no moon (#1210,
+-- 2026-11-04: "remove the 🌙 Half label"); the Bait bowl window says it, with the food's name and the rest.
 function HUD._renderBowl(self: any)
 	local bait: Types.BaitView? = self._bait
 	local wasReady = self._baitReady
 	local ready = false
-	local text = "Bait" -- the mockup's label (#1176); no "🌙 Half" at night (#1210)
+	local text = "Bait" -- the mockup's label (#1176)
 	if bait then
 		local left = bait.readyAt - Workspace:GetServerTimeNow()
 		ready = left <= 0
-		text = if ready
-			then "Cat!"
-			else (if bait.night then Theme.icons.moon .. " " else "") .. TipJarLogic.clock(
-				left
-			)
+		text = if ready then "Cat!" else TipJarLogic.clock(left)
 	end
 	self._baitReady = ready
 	local bowl: Button.Button = self._bowl
@@ -1972,12 +1993,12 @@ function HUD._popNew(self: any, key: HudUnlocks.Key)
 	end)
 end
 
--- The bowl chip shows once the Bait bowl upgrade is owned.
+-- The bowl tile shows in the left menu once the Bait bowl upgrade is owned; the grid lays out again round it.
 function HUD._renderBowlSlot(self: any, state: Types.PlayerState)
 	local shown = (state.upgradeLevels.lure_bowl or 0) >= 1
 	if self._bowlSlot.Visible ~= shown then
 		self._bowlSlot.Visible = shown
-		self:_layoutMenu() -- the bowl is a left column tile (#1210)
+		self:_layoutMenu()
 	end
 	self:_renderBowl()
 end
@@ -2061,7 +2082,7 @@ end
 -- Day and night clock. nil hides it. The countdown runs on Workspace:GetServerTimeNow(), the server's
 -- synchronised epoch clock, so it compares with the server's os.time() in PhaseEndsAt and never trusts
 -- the device clock (data-model section 1, reviewer S16). In the last DUSK_SECONDS of a day it reads "Night in 0:12"
--- in orange (F66). F60: when night falls on an empty bowl, the bowl chip pops so the half wait is seen.
+-- in orange (F66). F60: when night falls on an empty bowl, the bowl tile pops beside the night bait toast.
 function HUD.setClock(self: any, clock: Types.ClockState?)
 	self:_stopClock()
 	self._clockState = clock
@@ -2833,7 +2854,7 @@ end
 -- The left side, laid out for the screen's height: the counters in the bottom left corner; the potion timers over
 -- them when there is room for those and the whole menu with its arrow tab under it, else (a phone) beside the
 -- menu's last row with the arrow tab; the menu grid centred in what is left above; the bottom row moved right of the
--- counters when the screen is too narrow for it to sit in the middle; and the potion and bowl symbols.
+-- counters when the screen is too narrow for it to sit in the middle; and the Potions symbol.
 function HUD._layoutMenu(self: any)
 	local scale = Scale.get()
 	local size = self._root.AbsoluteSize
@@ -2850,30 +2871,41 @@ function HUD._layoutMenu(self: any)
 	end
 	-- the Store's wide tile heads the column once it has a window to open (setStore)
 	local store: GuiObject = self._storeTile.instance
-	local storeH = if store.Visible and not TOUCH then STORE_H + gap else 0 -- on touch it is in the grid
+	local storeH = if store.Visible and not TOUCH then STORE_H + STORE_GAP else 0 -- on touch it is in the grid
 	self._menuFold.instance.Visible = shown > 0 or store.Visible -- no tab to fold an empty menu (F87)
-	local columns = MENU_COLUMNS
-	local rows = math.ceil(shown / columns)
-	local spaces = math.max(0, rows - 1)
-	local pills = storeH + rows * MENU_CELL_H
-	local foldUnder = gap + 4 + FOLD_H
+	local foldUnder = FOLD_UNDER + FOLD_H
 	local bandBottom = height - MARGIN - self._counterH - gap
 	local buffsH = BuffChips.rowHeight()
-	local roomy = bandBottom - (buffsH + BUFFS_GAP) - MARGIN >= pills + spaces * gap + foldUnder
 	-- (the zone is screen pixels; the layout is design units, so it is divided by the scale)
-	if
-		TOUCH
-		and MARGIN + pills + spaces * gap
-			> height - THUMB_ZONE / (if scale > 0 then scale else 1)
-	then
+	local thumbTop = height - THUMB_ZONE / (if scale > 0 then scale else 1)
+	-- the grid's height with this many tiles a row, the Store over it and ROW_GAP between the rows (#1210)
+	local function gridH(columns: number): number
+		local rows = math.ceil(shown / columns)
+		return storeH + rows * MENU_CELL_H + math.max(0, rows - 1) * ROW_GAP
+	end
+	local columns = MENU_COLUMNS
+	local roomy = bandBottom - (buffsH + BUFFS_GAP) - MARGIN >= gridH(columns) + foldUnder
+	if TOUCH and MARGIN + gridH(columns) > thumbTop then
 		roomy = false
 	end
-	if not roomy and rows >= 3 then
+	if not roomy and math.ceil(shown / columns) >= 3 then
+		-- a short screen keeps the gaps and takes more tiles a row instead (it used to close the gaps, and the tiles'
+		-- outlines and key caps ran into each other, #1210): three, then four while the grid would reach the
+		-- counters, or the thumbstick on touch
 		columns = MENU_COLUMNS_SHORT
-		rows = math.ceil(shown / columns)
-		spaces = math.max(0, rows - 1)
-		pills = storeH + rows * MENU_CELL_H
+		while
+			columns < MENU_COLUMNS_MAX
+			and math.ceil(shown / (columns + 1)) < math.ceil(shown / columns)
+			and (
+				MARGIN + gridH(columns) > bandBottom
+				or (TOUCH and MARGIN + gridH(columns) > thumbTop)
+			)
+		do
+			columns += 1
+		end
 	end
+	local rows = math.ceil(shown / columns)
+	local spaces = math.max(0, rows - 1)
 	self._menuLayout.FillDirectionMaxCells = columns
 	local menuW = menuWidth(columns)
 	if roomy then
@@ -2884,13 +2916,7 @@ function HUD._layoutMenu(self: any)
 		bandBottom -= buffsH + BUFFS_GAP
 	end
 	local band = bandBottom - MARGIN
-	-- a short screen closes the gaps between the rows a little before anything overlaps
-	local padding = gap
-	if not roomy and spaces > 0 and pills + spaces * gap > band then
-		padding = math.max(4, math.floor((band - pills) / spaces))
-	end
-	self._menuLayout.CellPadding = UDim2.fromOffset(MENU_GAP, padding)
-	local menuH = rows * MENU_CELL_H + spaces * padding -- the grid alone, under the Store
+	local menuH = rows * MENU_CELL_H + spaces * ROW_GAP -- the grid alone, under the Store
 	self._menu.Size = UDim2.fromOffset(menuW, menuH)
 	local block = storeH + menuH + (if roomy then foldUnder else 0)
 	-- a short screen (a phone) keeps the grid up at the top, clear of Roblox's thumbstick in the bottom left
@@ -2932,10 +2958,10 @@ function HUD._layoutMenu(self: any)
 	self:_placeCorner()
 end
 
--- The potion and bowl symbols sit in the bottom right corner, except where Roblox's touch jump button would cover
--- them (a phone: the jump button is drawn in screen pixels, Components/NetButtonPlace). There they move up and left,
--- their right edge left of where the Net button shows and their foot over the bottom row, so a thumb on jump or Net
--- never lands on them. A tablet's bigger jump button sits higher, over the corner, so the corner stays.
+-- The Potions symbol sits in the bottom right corner (the bowl moved to the left menu, #1210), except where Roblox's
+-- touch jump button would cover it (a phone: the jump button is drawn in screen pixels, Components/NetButtonPlace).
+-- There it moves up and left, its right edge left of where the Net button shows and its foot over the bottom row, so
+-- a thumb on jump or Net never lands on it. A tablet's bigger jump button sits higher, over the corner, so the corner stays.
 function HUD._placeCorner(self: any)
 	self:_placeCornerPair()
 	self:_placePotionTimers()
@@ -3034,16 +3060,14 @@ function HUD._placeMenuFold(self: any)
 	local fold = self._menuFold.instance
 	local menuH = self._menu.Size.Y.Offset
 	if self._foldBeside then
-		local x = if self._menuFolded
-			then MARGIN
-			else MARGIN + self._menu.Size.X.Offset + Theme.sizes.gap
+		local x = if self._menuFolded then MARGIN else MARGIN + self._menu.Size.X.Offset + MENU_GAP
 		local middle = self._gridTop + menuH - MENU_CELL_H / 2
 		fold.Position = UDim2.fromOffset(x, middle - FOLD_H / 2)
 		if not self._buffsLow then
 			self._buffs:place(UDim2.fromOffset(x + FOLD_W + 12, middle), Vector2.new(0, 0.5))
 		end
 	else
-		fold.Position = UDim2.fromOffset(MARGIN, self._gridTop + menuH + Theme.sizes.gap + 4)
+		fold.Position = UDim2.fromOffset(MARGIN, self._gridTop + menuH + FOLD_UNDER)
 	end
 end
 

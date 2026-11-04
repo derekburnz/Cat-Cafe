@@ -145,6 +145,7 @@ UI.events = {
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
+	spinAll = Signal.new(), -- ()   Use all on the Spin window (#1078): forward as SpinAll
 	openCrate = Signal.new(), -- (crateId)   Open on a Golden Fish Market crate card: forward as OpenCrate (F53)
 	buyFishItem = Signal.new(), -- (itemId)   Buy on a Market treat or perk row: forward as BuyFishItem (F53)
 	buyFreshCatch = Signal.new(), -- (itemId, window?)   Buy on a Fresh Catch row: forward as BuyFreshCatch (F94)
@@ -1021,6 +1022,9 @@ function UI.init(config: Types.InitConfig)
 	spinScreen = SpinWheel.new({
 		spin = function()
 			UI.events.spinWheel:Fire()
+		end,
+		spinAll = function()
+			UI.events.spinAll:Fire()
 		end,
 		toast = function(text: string)
 			if toasts then
@@ -1950,6 +1954,14 @@ end
 function UI.spin.result(slice: number, amount: number)
 	if spinScreen then
 		spinScreen:result(slice, amount)
+	end
+end
+
+-- From SpinAllResult(rolls, totals) (#1078, Gameplay-Engineer #1098): the wheel turns to the last roll and one card
+-- sums every prize. Empty lists mean refused, and the window says why.
+function UI.spin.allResult(rolls: { { slice: number, amount: number } }, totals: { any })
+	if spinScreen then
+		spinScreen:allResult(rolls, totals)
 	end
 end
 

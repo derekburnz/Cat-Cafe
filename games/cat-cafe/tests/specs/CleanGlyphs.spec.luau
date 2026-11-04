@@ -20,6 +20,11 @@ return function()
 			expect(CleanGlyphs.icons.gifts).to.equal("Rewards")
 			expect(CleanGlyphs.icons.daily).to.equal("Rewards")
 		end)
+		it("builds the sheet's glyph to cell map from Theme.icons keys", function()
+			local cells = CleanGlyphs.sheet({ lock = "🔒", unlock = "🔓" })
+			expect(cells["🔒"]).to.equal(CleanGlyphs.sheetCells.lock)
+			expect(cells["🔓"]).to.equal(nil)
+		end)
 		it("builds a glyph map and skips keys the icon tables lack", function()
 			local map = CleanGlyphs.map(
 				{ crate = "📦", potion = "🧪", unlock = "🔓" },
@@ -52,26 +57,7 @@ return function()
 		it(
 			"has a clean symbol for every Theme.iconSheet cell, so no glyph reaches the old sheet",
 			function()
-				-- the keys of Theme.iconSheet.cells (Theme itself needs Font, which the cloud runner lacks)
-				local sheetKeys = {
-					"cats",
-					"collection",
-					"upgrades",
-					"decor",
-					"home",
-					"travel",
-					"alley",
-					"equipBest",
-					"gifts",
-					"settings",
-					"invite",
-					"tutorial",
-					"spin",
-					"lock",
-					"crate",
-					"potion",
-				}
-				for _, key in sheetKeys do
+				for key in CleanGlyphs.sheetCells do
 					local name = CleanGlyphs.icons[key]
 					expect(name).to.be.ok()
 					expect(ShopIcons.clean(name)).to.be.ok()

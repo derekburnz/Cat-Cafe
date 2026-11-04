@@ -177,7 +177,9 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	if equipBest then
 		self._equipBest = Button.new({
 			name = "EquipBest",
-			text = Theme.icons.equipBest .. " Equip Best",
+			text = "Equip Best",
+			icon = Theme.icons.equipBest,
+			image = ShopIcons.clean("EquipBest"), -- the clean sparkles (#1136)
 			style = "berry", -- the HUD's Equip Best pink, apart from the gold chip that is picked
 			size = UDim2.fromOffset(EQUIP_W, chipHeight),
 			anchorPoint = Vector2.new(1, 0.5),

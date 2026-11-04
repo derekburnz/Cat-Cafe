@@ -25,11 +25,14 @@ local IdeaCreditsService = {}
 
 local NAME_BATCH = 100 -- user ids per GetUserInfosByUserIdsAsync call
 local KEY_PAGE = 100
+local MIRROR_SECONDS = 30 -- the most often one player's hide/<userId> key is written
 
 local credits: { IdeaCredits.Credit } = {}
 local names: { [number]: string } = {}
 local hidden: { [number]: boolean } = {}
 local rows: { IdeaCredits.Row } = {}
+local pendingMirror: { [number]: boolean } = {} -- each player's hide choice not yet mirrored to the store
+local mirroredAt: { [number]: number } = {} -- os.clock() of each player's last mirror write
 
 local function store(): DataStore
 	return DataStoreService:GetDataStore(IdeaCredits.STORE)
@@ -133,11 +136,42 @@ local function rebuild()
 	sendAll()
 end
 
+-- The hide/<userId> mirror, written at most once every MIRROR_SECONDS for each player and once more on leave, so a
+-- player toggling (or a script firing SetHideCredit at its 1 a second) cannot drain the server's DataStore write
+-- budget that profile saves share (review). The profile holds the truth meanwhile, and rebuild() reads it for
+-- everyone in the server.
+local function writeMirror(userId: number, hide: boolean)
+	local ok, err = pcall(function()
+		local key = IdeaCredits.HIDE_PREFIX .. tostring(userId)
+		if hide then
+			store():SetAsync(key, true, { userId })
+		else
+			store():RemoveAsync(key)
+		end
+	end)
+	if not ok then
+		warn("[IdeaCredits] hide save failed: " .. tostring(err))
+	end
+end
+
+local function flushMirror(userId: number)
+	local wanted = pendingMirror[userId]
+	if wanted == nil then
+		return
+	end
+	pendingMirror[userId] = nil
+	mirroredAt[userId] = os.clock()
+	task.spawn(writeMirror, userId, wanted)
+end
+
 local function onSetHideCredit(player: Player, rawHide: unknown)
 	local hide = Guard.bool(rawHide)
 	local profile = DataService.get(player)
 	if hide == nil or profile == nil then
 		return
+	end
+	if (profile.hideCredit == true) == hide then
+		return -- nothing changes: no write and no new board
 	end
 	profile.hideCredit = if hide then true else nil
 	local userId = player.UserId
@@ -146,25 +180,30 @@ local function onSetHideCredit(player: Player, rawHide: unknown)
 	else
 		hidden[userId] = nil
 	end
-	task.spawn(function()
-		local ok, err = pcall(function()
-			local key = IdeaCredits.HIDE_PREFIX .. tostring(userId)
-			if hide then
-				store():SetAsync(key, true, { userId })
-			else
-				store():RemoveAsync(key)
-			end
-		end)
-		if not ok then
-			warn("[IdeaCredits] hide save failed: " .. tostring(err))
-		end
-	end)
+	pendingMirror[userId] = hide
+	local last = mirroredAt[userId]
+	if last == nil or os.clock() - last >= MIRROR_SECONDS then
+		flushMirror(userId)
+	end
 	buildRows()
 	sendAll()
 end
 
 function IdeaCreditsService.start()
 	Net.on("SetHideCredit", onSetHideCredit)
+	Players.PlayerRemoving:Connect(function(player: Player)
+		flushMirror(player.UserId)
+		mirroredAt[player.UserId] = nil
+	end)
+	-- writes any choice that waited out a player's MIRROR_SECONDS
+	task.spawn(function()
+		while true do
+			task.wait(MIRROR_SECONDS)
+			for userId in pendingMirror do
+				flushMirror(userId)
+			end
+		end
+	end)
 	DataService.onLoaded:Connect(function(player: Player, profile: Types.PlayerProfile)
 		if profile.hideCredit == true and not hidden[player.UserId] then
 			hidden[player.UserId] = true

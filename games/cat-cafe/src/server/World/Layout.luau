@@ -1335,14 +1335,19 @@ Layout.townSquare = {
 		{ asset = "CatCafe_Square_Garden", x = -58.5, y = 0.1, z = 19.5, rotY = -90 },
 		{ asset = "CatCafe_Square_Garden", x = 58.5, y = 0.1, z = -19.5, rotY = 90 },
 		{ asset = "CatCafe_Square_Garden", x = 58.5, y = 0.1, z = 19.5, rotY = 90 },
+		-- #1130: the bed between each side's two gardens (17 x 12, kerbs front and back), where the paving's side paths
+		-- were; it spans z -8.5 to 8.5 and meets the gardens' end kerbs
+		{ asset = "CatCafe_Square_GardenMid", x = -58.5, y = 0.1, z = 0, rotY = -90 },
+		{ asset = "CatCafe_Square_GardenMid", x = 58.5, y = 0.1, z = 0, rotY = 90 },
 	} :: { Prop },
 }
 
 -- The stations, one per quarter: the Spin Wheel (F49) and the Golden Fish Market (F53) north of the lane, the Codes
 -- Cat (F65; its CodesCircle 6 studs in front, toward the fountain) and the night dealer's cart (data-model section
--- 8b, parked from dusk; the dealer stands at its +X end) south of it.
+-- 8b, parked from dusk; the dealer stands at its +X end) south of it. #1215: the Fish Market sits back toward the
+-- north-east corner, clear of the leaderboard row by 3.2 studs and the north bench by 2.9 (Model-Agent's check).
 Layout.spinWheel = station(-28, 16)
-Layout.fishMarket = station(28, 16)
+Layout.fishMarket = station(33.5, 20)
 Layout.codesCat = station(-28, -16)
 Layout.dealerCart = station(28, -16)
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
@@ -1356,10 +1361,11 @@ Layout.bellhopStand = station(-38, 0)
 -- row runs z -11.9 to 11.9 and x 38.6 to 41.4, clear of the edge lamps at x 47.
 Layout.leaderboards = station(40, 0)
 
--- The Corner Shop (#1052, corner-shop.md section 4): north of the Golden Fish Market, facing the cannon. Model-Agent's
--- spot for CatCafe_Street_CornerShop (10.9 x 4.3): clear of the Fish Market by 2.6 studs, the Rescue Rally board by
--- 5.7, the north sign arch by 2.7 and the street lane by 1.2 (16, 16 overlapped the Rally board).
-Layout.cornerShop = station(15, 23)
+-- The Corner Shop (#1052, corner-shop.md section 4): beside the Golden Fish Market toward the north-east corner,
+-- facing the cannon. Model-Agent's spot for CatCafe_Street_CornerShop (10.9 x 4.3, #1215; was 15, 23): clear of the
+-- Fish Market by 1.95 studs, the north sign arch's post by 1.2, the bunting line by 0.8, the lamp by 4.4 and the
+-- street by 7.1.
+Layout.cornerShop = station(21, 24)
 
 -- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5) near the Codes Cat,
 -- mirroring the Corner Shop in its quarter and facing the cannon. Model-Agent's spot (#1126): clear of the Codes Cat's

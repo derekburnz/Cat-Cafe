@@ -1825,6 +1825,51 @@ return function()
 		end)
 	end)
 
+	describe("the greeters stand clear of the open front door (#1145)", function()
+		local plot = Layout.plot
+		local door = plot.door
+		local jamb = W.DoorWidth / 2
+
+		it("puts the two slots on opposite sides of the walkway, mirrored", function()
+			local left, right = plot.spots.greeter_1, plot.spots.greeter_2
+			expect(left.x < door.x and right.x > door.x).to.equal(true)
+			expect(left.x - door.x).to.be.near(door.x - right.x, 1e-9)
+			expect(left.z).to.equal(right.z)
+		end)
+
+		it("keeps them past the jambs, so the open leaves never reach them", function()
+			for _, id in { "greeter_1", "greeter_2" } do
+				local spot = plot.spots[id]
+				-- a seated cat fills 0.75 either way; the leaf stands on its jamb
+				expect(math.abs(spot.x - door.x) - 0.75 >= jamb + 0.5).to.equal(true)
+			end
+		end)
+
+		it("stands them a few studs inside the wall, off the decor beside the door", function()
+			for _, id in { "greeter_1", "greeter_2" } do
+				local spot = plot.spots[id]
+				local inside = spot.z - door.z
+				expect(inside >= 3 and inside <= 5).to.equal(true)
+			end
+		end)
+
+		it("turns each to face the middle of the doorway", function()
+			for _, id in { "greeter_1", "greeter_2" } do
+				local spot = plot.spots[id]
+				local turn = math.rad(spot.rotY or 0)
+				-- a cat's front is -Z, turned about Y by rotY
+				local frontX, frontZ = -math.sin(turn), -math.cos(turn)
+				local toX, toZ = door.x - spot.x, door.z - spot.z
+				local length = math.sqrt(toX * toX + toZ * toZ)
+				expect(frontX * toX / length + frontZ * toZ / length).to.be.near(1, 1e-6)
+			end
+		end)
+
+		it("follows the door's own point, not the plot centre", function()
+			expect(plot.spots.greeter_1.z).to.equal(door.z + 4)
+		end)
+	end)
+
 	describe("the Town Square set (QA, engineer PR #444)", function()
 		local square = Layout.townSquare
 		local TSW, TSD = W.TownSquareHalfWidth, W.TownSquareHalfDepth

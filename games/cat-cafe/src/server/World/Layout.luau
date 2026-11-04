@@ -190,8 +190,22 @@ local INDEX_SPOTS: { [string]: Point } = {
 	sewer = { x = halfW - 1.4, y = 0, z = halfD - 1.4 }, -- the fountain, in the back right corner
 }
 
+-- Greeters (#1145): this far past each door jamb, so the cat clears the open leaf (a stud and a half of thickness and
+-- paw room), and this far in from the front wall; each is turned to face the middle of the doorway.
+local FRONT_DOOR = { x = 0, y = 0, z = -halfD } :: Point
+local GREETER_OUT = 1.8
+local GREETER_IN = 4
+
+local function greeterSlot(side: number): Point
+	local x = FRONT_DOOR.x + side * (W.DoorWidth / 2 + GREETER_OUT)
+	local z = FRONT_DOOR.z + GREETER_IN
+	-- a cat's front is -Z; turn it about Y until that points at the door
+	local rotY = math.deg(math.atan2(x - FRONT_DOOR.x, z - FRONT_DOOR.z))
+	return { x = x, y = 0, z = z, rotY = rotY }
+end
+
 Layout.plot = {
-	door = { x = 0, y = 0, z = -halfD } :: Point,
+	door = FRONT_DOOR,
 	entry = { x = 0, y = 0, z = -halfD - 1 - W.FrontGardenDepth - 1 } :: Point, -- customer start, on the sidewalk
 	sign = { x = 0, y = 7.5, z = -halfD - 0.3 } :: Point,
 	counter = { x = 0, y = 0, z = halfD - 3 } :: Point,
@@ -225,8 +239,11 @@ Layout.plot = {
 		waiter_1 = { x = -5.5, y = 0, z = -3.04 },
 		waiter_2 = { x = 5.5, y = 0, z = -3.04 },
 		waiter_3 = { x = 5.5, y = 0, z = 4.25 }, -- beside the aisle, off the door to counter walk (was 0, 4.5)
-		greeter_1 = { x = -4, y = 0, z = -halfD + 2.5 },
-		greeter_2 = { x = 4, y = 0, z = -halfD + 2.5 },
+		-- Derek 2026-11-04 (#1145): either side of the walkway, inside the entrance and turned toward the door, worked
+		-- out from the front door's own point and width (GREETER_OUT, GREETER_IN) so they hold if the door moves. Each
+		-- front leaf opens to stand across its half of the doorway, so these stand past the jambs, clear of that swing.
+		greeter_1 = greeterSlot(-1),
+		greeter_2 = greeterSlot(1),
 		-- the cat tree's top cushion, at its sit point (-0.5, 4.47, -0.4 from the tree's pivot)
 		entertainer_1 = { x = -17.61, y = 4.47, z = 9.31 },
 		entertainer_2 = { x = 16.61, y = 4.47, z = 9.31 },

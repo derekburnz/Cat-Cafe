@@ -89,6 +89,20 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Trade = "rbxassetid://86243209880722", -- #1024 (upload run 41649292093)
 	Icon_Clean_Tutorial = "rbxassetid://109885867788208",
 	Icon_Clean_Upgrades = "rbxassetid://90691118878000",
+	-- #1070: the potions, foods and spin wheel redrawn clean (upload-image run 41840327151, 11-04)
+	Icon_Clean_PotionTip = "rbxassetid://86488148454995",
+	Icon_Clean_PotionLucky = "rbxassetid://105359839986454",
+	Icon_Clean_PotionSwift = "rbxassetid://123223898814902",
+	Icon_Clean_PotionSteady = "rbxassetid://121053101784702",
+	Icon_Clean_PotionBigTip = "rbxassetid://89235368935178",
+	Icon_Clean_PotionGoldRush = "rbxassetid://117084495995856",
+	Icon_Clean_PotionQuickBait = "rbxassetid://103272653422076",
+	Icon_Clean_Tuna = "rbxassetid://128749627858421",
+	Icon_Clean_Salmon = "rbxassetid://78789450804337",
+	Icon_Clean_Sardines = "rbxassetid://133035243124941",
+	Icon_Clean_MoonMilk = "rbxassetid://107176560784324",
+	Icon_Clean_StarTreat = "rbxassetid://127060767808144",
+	Icon_Clean_Spin = "rbxassetid://126057350997233",
 }
 local NETS = 4
 

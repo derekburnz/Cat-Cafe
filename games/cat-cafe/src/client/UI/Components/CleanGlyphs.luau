@@ -22,11 +22,12 @@ CleanGlyphs.icons = {
 	potion = "Potion",
 	quests = "Quests",
 	tutorial = "Tutorial",
+	store = "Store", -- the Store window's badge: the HUD tile's chest
 } :: { [string]: string }
 
 -- Theme.foodIcons key -> clean symbol name
 CleanGlyphs.foods = {
-	kibble = "Bowl",
+	kibble = "Kibble", -- its own bowl of kibble since #1104
 	caviar = "Caviar",
 } :: { [string]: string }
 

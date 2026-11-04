@@ -33,6 +33,7 @@
 	},
 	{
 		"name": "VIP",
+		"id": 2072030274,
 		"config": "VipPassId",
 		"price": 25,
 		"regionalPricing": true,
@@ -40,6 +41,7 @@
 	},
 	{
 		"name": "Cat Accessories",
+		"id": 2068634239,
 		"config": "CatAccessoriesPassId",
 		"price": 149,
 		"regionalPricing": true,
@@ -47,6 +49,7 @@
 	},
 	{
 		"name": "Uniform Styles",
+		"id": 2071522382,
 		"config": "UniformStylesPassId",
 		"price": 149,
 		"regionalPricing": true,
@@ -54,6 +57,7 @@
 	},
 	{
 		"name": "Cafe Style",
+		"id": 2070044168,
 		"config": "CafeStylePassId",
 		"price": 249,
 		"regionalPricing": true,
@@ -61,6 +65,7 @@
 	},
 	{
 		"name": "Grand Cafe Theme",
+		"id": 2071158673,
 		"config": "GrandThemePassId",
 		"price": 799,
 		"regionalPricing": true,
@@ -68,6 +73,7 @@
 	},
 	{
 		"name": "Extra Slot",
+		"id": 2066816325,
 		"config": "ExtraSlotPassIds[1]",
 		"price": 149,
 		"regionalPricing": true,
@@ -75,6 +81,7 @@
 	},
 	{
 		"name": "Royal Cat",
+		"id": 2066438426,
 		"config": "RoyalCatPassId",
 		"price": 599,
 		"regionalPricing": true,
@@ -82,6 +89,7 @@
 	},
 	{
 		"name": "King Cat Pack",
+		"id": 2071368679,
 		"config": "KingPackPassId",
 		"price": 999,
 		"regionalPricing": true,
@@ -89,6 +97,7 @@
 	},
 	{
 		"name": "Golden Pond",
+		"id": 2071704337,
 		"config": "GoldenPondPassId",
 		"price": 149,
 		"regionalPricing": true,
@@ -96,6 +105,7 @@
 	},
 	{
 		"name": "Second Bait Bowl",
+		"id": 2072132265,
 		"config": "SecondBowlPassId",
 		"price": 149,
 		"regionalPricing": true,

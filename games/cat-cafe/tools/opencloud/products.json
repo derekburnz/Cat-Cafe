@@ -1,6 +1,7 @@
 [
 	{
 		"name": "Starter Bundle",
+		"id": 3728336166,
 		"config": "ProductIds.starter_bundle",
 		"price": 99,
 		"regionalPricing": false,
@@ -8,6 +9,7 @@
 	},
 	{
 		"name": "Potion Pack XS",
+		"id": 3728336174,
 		"config": "ProductIds.potion_pack_xs",
 		"price": 10,
 		"regionalPricing": false,
@@ -15,6 +17,7 @@
 	},
 	{
 		"name": "Potion Pack S",
+		"id": 3728336184,
 		"config": "ProductIds.potion_pack_s",
 		"price": 25,
 		"regionalPricing": false,
@@ -22,6 +25,7 @@
 	},
 	{
 		"name": "Potion Pack M",
+		"id": 3728336191,
 		"config": "ProductIds.potion_pack_m",
 		"price": 49,
 		"regionalPricing": false,
@@ -29,6 +33,7 @@
 	},
 	{
 		"name": "Potion Pack L",
+		"id": 3728336197,
 		"config": "ProductIds.potion_pack_l",
 		"price": 99,
 		"regionalPricing": false,
@@ -36,6 +41,7 @@
 	},
 	{
 		"name": "Cafe Pass",
+		"id": 3728336202,
 		"config": "ProductIds.cafe_pass",
 		"price": 299,
 		"regionalPricing": false,

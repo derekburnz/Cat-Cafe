@@ -34,13 +34,15 @@ local Config = {
 	KingPackPassId = 2071368679,
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
-	-- Developer product ids (#1182) by Catalog.products id; 0 until Derek makes the product in Creator Hub, and a 0 is
-	-- never granted. ProductService's ProcessReceipt reads them.
+	-- Developer product ids (#1182) by Catalog.products id; a 0 is never granted. ProductService's ProcessReceipt reads
+	-- them. Tools-Agent made these with dev-products.yml on 2026-11-04 (tools/opencloud/products.json), off sale until
+	-- launch. The Starter Bundle (3728336166) and Cafe Pass (3728336202) products exist too, off sale, and join this
+	-- table with their Catalog.products entries.
 	ProductIds = {
-		potion_pack_xs = 0,
-		potion_pack_s = 0,
-		potion_pack_m = 0,
-		potion_pack_l = 0,
+		potion_pack_xs = 3728336174,
+		potion_pack_s = 3728336184,
+		potion_pack_m = 3728336191,
+		potion_pack_l = 3728336197,
 	} :: { [string]: number },
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)

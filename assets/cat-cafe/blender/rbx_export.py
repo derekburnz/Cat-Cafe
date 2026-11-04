@@ -92,15 +92,18 @@ TAGS = {"CatCafe_Decor_FishTank": ["FishTank"], "CatCafe_Plot_Tier4_Water": ["Fi
         "_NightFence": ["NightFence"],
         "CatCafe_Alley_NightFenceSegment": ["NightFence"], "CatCafe_Plot_BackDoorClosed": ["NightFence"],
         "_Basket": ["CampBasket"], "_LeaderboardRow_Index": ["Leaderboard"],
-        "_LeaderboardRow_Playtime": ["Leaderboard"], "_LeaderboardRow_Money": ["Leaderboard"]}
+        "_LeaderboardRow_Playtime": ["Leaderboard"], "_LeaderboardRow_Money": ["Leaderboard"],
+        "CatCafe_Street_ThanksBoard": ["ThanksBoard"]}
 # Tags on every part of an object, by object name suffix: the crate styles (F53, StyleController) recolour the cafe
 # shell's outer wall layer (Paint) and inner wall layer (Wallpaper), and give each part its own look back after.
 PART_TAGS = {"_Paint": ["Paint"], "_Wallpaper": ["Wallpaper"], "_Trim": ["PaintTrim"]}   # _Trim: a cafe's trims (F89)
 # Root Model properties by asset name suffix: an Index Board streams in whole, so its Screen is there whenever the
 # board is (reviewer S37, as for the cats).
 # The leaderboard row (F98) streams in whole the same way, with its three Screens.
+# The Thank You board (#1083) streams in whole too, so its Screen is there whenever it is.
 MODEL_PROPS = {"_IndexBoard": {"ModelStreamingMode": "Atomic"},
-               "_LeaderboardRow": {"ModelStreamingMode": "Atomic"}}
+               "_LeaderboardRow": {"ModelStreamingMode": "Atomic"},
+               "_ThanksBoard": {"ModelStreamingMode": "Atomic"}}
 # Objects whose Model goes inside another object's Model rather than the root: name suffix -> the suffix of the
 # object it rides, with the same prefix. Turning the Head Model (PivotTo) carries the eyes and ears with it.
 NEST = {"_Eye1": "_Head", "_Eye2": "_Head", "_EarL": "_Head", "_EarR": "_Head",

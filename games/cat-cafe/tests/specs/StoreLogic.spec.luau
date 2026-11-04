@@ -79,6 +79,72 @@ return function()
 		end)
 	end)
 
+	describe("StoreLogic pass cards (#1182)", function()
+		it("hides a pass card while its Config id is 0 or missing", function()
+			local rows = StoreLogic.rows({ VipPassId = 0, ExtraSlotPassIds = {} }, {}, nil)
+			expect(#rows).to.equal(0)
+		end)
+		it("shows made passes after the ladder and Long Nap, in the shop's order", function()
+			local config = {
+				MoneyPassIds = { [2] = 11 },
+				LongNapPassId = 12,
+				KingPackPassId = 20,
+				VipPassId = 13,
+				ExtraSlotPassIds = { 0, 15 },
+			}
+			local keys = {}
+			for _, row in StoreLogic.rows(config, { [13] = true }, nil) do
+				table.insert(keys, row.key)
+			end
+			expect(table.concat(keys, ",")).to.equal("money,longNap,vip,extraSlot,kingPack")
+			local ids = StoreLogic.passIds(config)
+			expect(table.concat(ids, ",")).to.equal("11,12,13,15,20")
+		end)
+		it("marks a bought pass Owned and adds the can't-be-traded line", function()
+			local rows = StoreLogic.rows({ VipPassId = 13, RoyalCatPassId = 14 }, { [13] = true }, nil)
+			expect(rows[1].owned).to.equal(true)
+			expect(rows[2].owned).to.equal(false)
+			expect(rows[2].effect:find("Can't be traded", 1, true) ~= nil).to.equal(true)
+		end)
+	end)
+
+	describe("StoreLogic product cards (#1182)", function()
+		local view = {
+			products = {
+				{ id = "potion_pack_xs", name = "Potion Pack XS", prize = { potions = { big_tip_potion = 2 } } },
+				{
+					id = "potion_pack_s",
+					name = "Potion Pack S",
+					prize = { potions = { big_tip_potion = 3, swift_potion = 1 } },
+				},
+			},
+			potionNames = { big_tip_potion = "Big Money", swift_potion = "Swift Potion" },
+			have = { big_tip_potion = 4 },
+		}
+		it("hides a product while its id is 0", function()
+			local rows = StoreLogic.rows({ ProductIds = { potion_pack_xs = 0 } }, {}, nil, view)
+			expect(#rows).to.equal(0)
+			expect(#StoreLogic.productIds({ ProductIds = { potion_pack_xs = 0 } })).to.equal(0)
+		end)
+		it("puts the packs after VIP, with exact contents and the bag count", function()
+			local config = {
+				VipPassId = 13,
+				RoyalCatPassId = 14,
+				ProductIds = { potion_pack_xs = 31, potion_pack_s = 32 },
+			}
+			local rows = StoreLogic.rows(config, {}, nil, view)
+			local keys = {}
+			for _, row in rows do
+				table.insert(keys, row.key)
+			end
+			expect(table.concat(keys, ",")).to.equal("vip,potionXS,potionS,royalCat")
+			expect(rows[3].product).to.equal(true)
+			expect(rows[3].owned).to.equal(false)
+			expect(rows[3].effect:find("3 Big Money, 1 Swift Potion · You have 4", 1, true) ~= nil).to.equal(true)
+			expect(table.concat(StoreLogic.productIds(config), ",")).to.equal("31,32")
+		end)
+	end)
+
 	describe("StoreLogic.button", function()
 		local row = {
 			key = "money",

@@ -1497,6 +1497,32 @@ def bellhop_collar(ctx):
     B.box((0, -0.03, bot - 0.215), (0.12, 0.15, 0.02), "choco")                                      # slot
 
 
+# --------------------------------------------------------------------- #1191 the shop-only cats --
+PASTRY_AT, PASTRY_ROLL = (0.07, -0.02, -0.02), 16       # Sprinkles' toque: base centre (head frame) and tilt to its left
+
+
+def _pastry_q(q):
+    return tuple(Vector(PASTRY_AT) + _ry(PASTRY_ROLL) @ Vector(q))
+
+
+def pastry_hat(ctx):
+    """#1191 Sprinkles, the Starter Bundle cat: a new baker's pastry chef hat, a short puffy white toque tipped over
+    its left ear (the low side 0.02 into the head so no gap shows), an apron_pink band with five sprinkles on it.
+    Kept smaller than the Chef Cat's tall toque, so the two read apart."""
+    P, R = ctx.pen("head"), _ry(PASTRY_ROLL)
+    P.cyl(_pastry_q((0, 0, 0.06)), 0.25, 0.12, "apron_pink", rot=R, segments=12)                      # band
+    P.cyl(_pastry_q((0, 0, 0.2)), 0.235, 0.18, "milk", rot=R, segments=12, r2=0.27)                     # crown
+    for (x, y, z, r) in ((0.12, 0.0, 0.33, 0.14), (-0.12, 0.0, 0.33, 0.14), (0.0, 0.12, 0.33, 0.14),
+                         (0.0, -0.12, 0.33, 0.14), (0.0, 0.0, 0.38, 0.15)):
+        P.ico(_pastry_q((x, y, z)), r, "milk")                                                         # puffs
+    cols = ("neon_pink", "sign_teal", "rarity_legend", "shirt_blue", "mint")
+    for i in range(5):                                                                                 # sprinkles
+        a = math.radians(-150 + i * 30)                                 # round the front of the band
+        x, y = 0.255 * math.cos(a), 0.255 * math.sin(a)
+        P.box(_pastry_q((x, y, 0.06 + 0.025 * (i % 2 * 2 - 1))), (0.06, 0.012, 0.022), cols[i],
+              rot=R @ _rz(math.degrees(a) + 90) @ _ry(35 * (1 if i % 2 else -1)))
+
+
 PROPS = {
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
     "MaineCoon": ("Face", bandit_mask), "Void": ("Head", ninja_band), "Midnight": ("Head", wizard_hat),
@@ -1515,6 +1541,8 @@ PROPS = {
     "Plumber": ("Head", work_cap),
     # F96 the free Bellhop Cat
     "BellhopCat": ("Head", bellhop_cap),
+    # #1191 the shop-only cats
+    "Sprinkles": ("Head", pastry_hat),
 }
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.

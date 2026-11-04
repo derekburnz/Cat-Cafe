@@ -11,6 +11,7 @@ local EquipBest = require(script.Parent.EquipBest)
 local FreshCatch = require(script.Parent.FreshCatch)
 local Lawn = require(script.Parent.Lawn)
 local Onboarding = require(script.Parent.Onboarding)
+local Products = require(script.Parent.Products)
 local Rally = require(script.Parent.Rally)
 local Settings = require(script.Parent.Settings)
 local Spin = require(script.Parent.Spin)
@@ -81,7 +82,9 @@ local ProfileSchema = {}
 -- day's snack cap by hopping servers during a rollout. Older saves start with nothing bought.
 -- Version 30 (#1083, idea-credits.md section 4) adds hideCredit, true while the player keeps their name off the Thank
 -- You board: an older server would drop it, and the player's name would come back on the board after a rollout.
-ProfileSchema.VERSION = 30
+-- Version 31 (#1182) adds receipts, the developer product PurchaseIds already granted: an older server would drop
+-- them, and a receipt Roblox delivers again after a rollout would grant its potions twice.
+ProfileSchema.VERSION = 31
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -242,6 +245,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		lawnStyles = Lawn.freshStyles(),
 		cornerShop = CornerShop.fresh(),
 		hideCredit = nil,
+		receipts = {},
 	}
 end
 
@@ -855,6 +859,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.cornerShop = CornerShop.sanitize(raw.cornerShop, now)
 	-- #1083 (version 30): only true hides the name on the Thank You board; anything else is shown
 	profile.hideCredit = if raw.hideCredit == true then true else nil
+	-- #1182 (version 31): the granted PurchaseIds, kept as strings, newest last; older saves have granted none
+	profile.receipts = Products.sanitize(raw.receipts)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

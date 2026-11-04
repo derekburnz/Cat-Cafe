@@ -1,7 +1,9 @@
 --!strict
 -- One leaderboard row (F98, leaderboards.md section 2): the rank, the player's head picture, their display name (a
--- 👑 before it while they are in an all time top 10) and the value on the right. Ranks 1 to 3 sit on gold, silver and
--- bronze; the player's own row has a sky edge. The town boards and the Index's Top tab both draw these.
+-- 👑 before it while they are in an all time top 10) and the value on the right. #972 (Derek's reference board,
+-- 2026-11-03): the rank is a round badge, gold, silver and bronze for 1 to 3 and dark below, with a white outlined
+-- number; the head picture is round with a dark outline; the value is bold and bigger. Every row has the same fill, so
+-- the medal badges carry the top three. The player's own row has a sky edge.
 
 local Create = require(script.Parent.Create)
 local LeaderboardLogic = require(script.Parent.LeaderboardLogic)
@@ -25,6 +27,7 @@ export type LeaderboardRow = {
 
 local RANK_W = 30
 local VALUE_W = 104
+local PLAIN_BADGE = Color3.fromHex("3F332E") -- a rank badge below the top three (Theme.dark.card)
 
 local LeaderboardRow = {}
 LeaderboardRow.__index = LeaderboardRow
@@ -63,15 +66,28 @@ function LeaderboardRow.new(parent: Instance, look: Look, order: number?): Leade
 	})
 	local pad = math.floor(look.height * 0.12)
 	local head = look.height - pad * 2
+	local badge = math.min(RANK_W, head)
+	self._badge = Create("Frame", {
+		Name = "Badge",
+		BackgroundColor3 = PLAIN_BADGE,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0, 4 + RANK_W / 2, 0.5, 0),
+		Size = UDim2.fromOffset(badge, badge),
+		Parent = frame,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(self._badge, 2)
 	self._rank = label({
 		Name = "Rank",
-		Position = UDim2.fromOffset(4, 0),
-		Size = UDim2.new(0, RANK_W, 1, 0),
+		Size = UDim2.fromScale(1, 1),
 		FontFace = Theme.fonts.display,
-		TextSize = look.textSize,
-		TextColor3 = look.text,
-		Parent = frame,
+		TextSize = math.max(10, look.textSize - 2),
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		Parent = self._badge,
 	})
+	Outline.text(self._rank, 1.5)
 	self._head = Create("ImageLabel", {
 		Name = "Head",
 		BackgroundColor3 = Theme.colors.cream,
@@ -81,6 +97,7 @@ function LeaderboardRow.new(parent: Instance, look: Look, order: number?): Leade
 		Image = "",
 		Parent = frame,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(self._head, 2)
 	local nameX = 4 + RANK_W + 4 + head + 6
 	self._name = label({
 		Name = "PlayerName",
@@ -97,13 +114,13 @@ function LeaderboardRow.new(parent: Instance, look: Look, order: number?): Leade
 		Position = UDim2.new(1, -6, 0, 0),
 		Size = UDim2.new(0, VALUE_W, 1, 0),
 		FontFace = Theme.fonts.display,
-		TextSize = look.textSize,
+		TextSize = look.textSize + 2,
 		TextColor3 = look.text,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Parent = frame,
 	})
 	if look.outlined then
-		for _, text in { self._rank, self._name, self._value } do
+		for _, text in { self._name, self._value } do
 			Outline.text(text, 1.5)
 		end
 	end
@@ -116,18 +133,13 @@ function LeaderboardRow.paint(self: any, row: LeaderboardLogic.Row?, board: stri
 	if row == nil then
 		return
 	end
+	-- the medal colours the rank badge only; the row keeps the plain fill (#972)
 	local medal = LeaderboardLogic.medal(row.rank)
-	if medal ~= nil then
-		self.frame.BackgroundColor3 = Theme.medals[medal]
-		self.frame.BackgroundTransparency = 0.15
-	else
-		self.frame.BackgroundColor3 = look.plain
-		self.frame.BackgroundTransparency = look.plainTransparency
-	end
-	-- on a medal the words go dark so they read on the bright fill
-	local ink = if medal ~= nil and not look.outlined then Theme.colors.ink else look.text
-	self._rank.Text = "#" .. tostring(row.rank)
-	self._rank.TextColor3 = ink
+	self._badge.BackgroundColor3 = if medal ~= nil then Theme.medals[medal] else PLAIN_BADGE
+	self.frame.BackgroundColor3 = look.plain
+	self.frame.BackgroundTransparency = look.plainTransparency
+	local ink = look.text
+	self._rank.Text = tostring(row.rank)
 	self._head.Image = LeaderboardLogic.headshot(row.userId)
 	self._name.Text = (if row.crown == true then LeaderboardLogic.CROWN .. " " else "")
 		.. (row.name or "")

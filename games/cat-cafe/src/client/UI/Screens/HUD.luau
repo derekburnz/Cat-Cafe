@@ -182,7 +182,10 @@ local THUMB_ZONE = 180
 -- the key cap on its top left corner, the red dot on its top right and, on the Store, the gold glow and its hover.
 local TILE_CLEAR = Button.OUTLINE + Theme.sizes.buttonDepth -- 9: the empty space between two tiles' drawn edges
 local KEY_REACH = 6 -- a key cap at (-4, -4) with its 2 px outline pokes this far past the tile's top and left
-local DOT_REACH = 10 -- the red dot (22 px round 3 px in from the corner, 2 px outline) past the top and right
+-- the red dot (22 px, its middle 3 px down the tile's top edge, its right edge 2 px past the side since #1176, a 2 px
+-- outline) past the tile's top and its right side
+local DOT_TOP = 10
+local DOT_SIDE = 4
 local GLOW_REACH = 6 -- the Store's gold glow round it
 -- a wide Store tile grows by its hover scale round its middle (Button.HOVER_SCALE), half of it on each side
 local STORE_HOVER = math.ceil(STORE_H * (Button.HOVER_SCALE - 1) / 2)
@@ -192,10 +195,11 @@ local SIDE_REACH = if TOUCH then math.max(Button.OUTLINE, GLOW_REACH) else Butto
 local FOOT_REACH = if TOUCH then SIDE_REACH else Theme.sizes.textOutline
 -- Between the columns: a tile's right side (its outline, or the Store's glow) and the next one's key cap keep
 -- TILE_CLEAR apart, and a lit red dot on the top right keeps at least the outline from that key cap.
-local MENU_GAP = math.max(SIDE_REACH + KEY_REACH + TILE_CLEAR, DOT_REACH + KEY_REACH + Button.OUTLINE) -- 20, 21 touch
+local MENU_GAP =
+	math.max(SIDE_REACH + KEY_REACH + TILE_CLEAR, DOT_SIDE + KEY_REACH + Button.OUTLINE) -- 19, 21 touch
 -- Under a tile whose foot reaches this far: TILE_CLEAR to the next row's key caps, the outline to its red dots.
 local function rowGap(foot: number): number
-	return math.max(foot + KEY_REACH + TILE_CLEAR, foot + DOT_REACH + Button.OUTLINE)
+	return math.max(foot + KEY_REACH + TILE_CLEAR, foot + DOT_TOP + Button.OUTLINE)
 end
 local ROW_GAP = rowGap(FOOT_REACH) -- between the rows (17 on a PC, 21 on touch)
 local STORE_GAP = rowGap(GLOW_REACH + STORE_HOVER) -- under the wide Store tile, over the grid (23)
@@ -593,8 +597,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Text = "",
 		AutoButtonColor = false,
 		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(1, -6, 0, 6),
+		AnchorPoint = Vector2.new(1, 0.5), -- inset (#1176: "the Claim button's red ! badge hangs over into the Feedback button"): no more than 2 px past the edge
+		Position = UDim2.new(1, 4, 0, 6),
 		Size = UDim2.fromOffset(HIDE_HIT, HIDE_HIT),
 		ZIndex = 8,
 		Parent = tutorial.instance,
@@ -657,8 +661,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Name = "Dot",
 		BackgroundColor3 = Theme.colors.red,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(1, -4, 0, 4),
+		AnchorPoint = Vector2.new(1, 0.5), -- inset (#1176: "the Claim button's red ! badge hangs over into the Feedback button"): no more than 2 px past the edge
+		Position = UDim2.new(1, 2, 0, 4),
 		Size = UDim2.fromOffset(24, 24),
 		Visible = false,
 		ZIndex = 6,
@@ -1046,8 +1050,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				Name = "Dot",
 				BackgroundColor3 = Theme.colors.red,
 				BorderSizePixel = 0,
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.new(1, -3, 0, 3),
+				AnchorPoint = Vector2.new(1, 0.5), -- inset: no more than 2 px past the tile's edge (#1176)
+				Position = UDim2.new(1, 2, 0, 3),
 				Size = UDim2.fromOffset(22, 22),
 				Visible = false,
 				ZIndex = 6,
@@ -1112,8 +1116,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				Name = "Dot",
 				BackgroundColor3 = Theme.colors.red,
 				BorderSizePixel = 0,
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.new(1, -3, 0, 3),
+				AnchorPoint = Vector2.new(1, 0.5), -- inset: no more than 2 px past the tile's edge (#1176)
+				Position = UDim2.new(1, 2, 0, 3),
 				Size = UDim2.fromOffset(22, 22),
 				Visible = false,
 				ZIndex = 6,
@@ -1222,8 +1226,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Name = "Count",
 		BackgroundColor3 = Theme.colors.paper,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(1, -5, 0, 3),
+		AnchorPoint = Vector2.new(1, 0.5), -- inset (#1176)
+		Position = UDim2.new(1, 2, 0, 3),
 		Size = UDim2.fromOffset(28, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
@@ -2890,7 +2894,10 @@ function HUD._layoutMenu(self: any)
 		while
 			columns < MENU_COLUMNS_MAX
 			and math.ceil(shown / (columns + 1)) < math.ceil(shown / columns)
-			and (MARGIN + gridH(columns) > bandBottom or (TOUCH and MARGIN + gridH(columns) > thumbTop))
+			and (
+				MARGIN + gridH(columns) > bandBottom
+				or (TOUCH and MARGIN + gridH(columns) > thumbTop)
+			)
 		do
 			columns += 1
 		end

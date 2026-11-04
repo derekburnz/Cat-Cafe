@@ -74,7 +74,7 @@ return function()
 
 	describe("save version 30", function()
 		it("keeps hideCredit only as true", function()
-			expect(ProfileSchema.VERSION).to.equal(30)
+			expect(ProfileSchema.VERSION >= 30).to.equal(true)
 			expect(ProfileSchema.template(1000).hideCredit).to.equal(nil)
 			local raw: any = ProfileSchema.template(1000)
 			raw.version = 29

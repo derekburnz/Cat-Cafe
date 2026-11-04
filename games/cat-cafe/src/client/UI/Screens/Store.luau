@@ -41,14 +41,14 @@ export type Store = {
 }
 
 local NOTE_H = 24
-local ICON = 76
+local ICON = 64
 -- the clean symbol on a pass's picture tile (the glyph shows until it loads, and for a pass without one)
 local CLEAN_PICTURE: { [string]: string } = {
 	money = "Bag",
 }
 -- the picture tile's fill: the gold of the HUD Store tile and price button (Theme.button.store)
 local TILE_FILL = ColorSequence.new(Theme.button.store.top, Theme.button.store.bottom)
-local BUTTON_W = 150
+local BUTTON_W = 116 -- #1176 live: "the buttons overlap and are too big"
 
 local Store = {}
 Store.__index = Store
@@ -73,14 +73,14 @@ function Store.new(callbacks: Callbacks): Store
 	local self = setmetatable({}, Store) :: any
 	self._callbacks = callbacks
 	self._cards = {} :: { [string]: any }
-	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin + 4, Theme.sizes.buttonDepth)
+	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	self._rowHeight = math.max(ICON + 28, self._actionHeight + 24)
 
 	local panel = Panel.new({
 		dark = true, -- #1028
 		name = "Store",
 		color = Theme.colors.goldDark,
-		icon = "🛍️",
+		icon = Theme.icons.store,
 		title = "Store",
 		subtitle = "Help your cafe grow",
 		size = UDim2.fromScale(1, 1),

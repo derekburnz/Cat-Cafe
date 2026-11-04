@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-04 18:42 UTC",
+  "generated": "2026-11-04 19:04 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -144781,7 +144781,7 @@
         "CatCafe_Plot_Interior_HangingLamp_Bulb",
         "CatCafe_Plot_Interior_StringLights_Bulbs"
       ],
-      "triangles": 4088,
+      "triangles": 4032,
       "budget": 8000,
       "size_studs": {
         "x": 44.02,
@@ -144807,7 +144807,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Every plot. Big parts collide. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Interior.model.json",
-      "rbx_parts": 302,
+      "rbx_parts": 299,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Interior.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Interior.glb"
@@ -144817,10 +144817,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "4088/8000 tris",
+          "budget": "4032/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2380 faces on swatch centers",
+          "uv": "2348 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.00"

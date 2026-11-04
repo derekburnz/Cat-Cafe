@@ -50,9 +50,16 @@ Derek OK'd the look on 2026-11-03 ("Build it as shown"; the crate was redrawn af
 | Icon_Clean_MoonMilk | 107176560784324 (#1070, 11-04, run 41840327151) |
 | Icon_Clean_StarTreat | 127060767808144 (#1070, 11-04, run 41840327151) |
 | Icon_Clean_Spin | 126057350997233 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_EquipBest | 89501318892947 (#1136, 11-04, run 41889328270) |
+| Icon_Clean_Invite | 136442901295833 (#1136, 11-04, run 41889328270) |
+| Icon_Clean_Lock | 133489571923895 (#1136, 11-04, run 41889328270) |
 
 Tile colours used in the mockup (top to bottom gradient): Cats #6fc0ff to #2f86ef, Index #7ae86f to #2fb043, Quests #ffe46b to #f5ac12, Upgrades #ffb15a to #f06a1d, Decor #62ecd2 to #18ab95, Store (a wide tile, first in the left column) #fff07a to #ffc61f to #ff8f1f with a white shine, Tutorial and Potions #cf96ff to #8a47ea, Rewards and Cannon #ff8a7a to #e4402f, Feedback and Areas #8fe3ff to #2bb3e6, Menu #c9d4e3 to #7f8fa6, My Cafe orange like Upgrades, Bait blue like Cats. Outline 4 px #2a1a12, corner 20 px on a 78 px tile, label 18 px Fredoka bold, white with a 5 px dark outline.
 
 ## #1024 redraw (friend's UI-Engineer, 2026-11-03)
 
 Derek, live v181: "cafe and cannon simple still suck and potions", plus a missing Trade symbol. Home, Cannon and Potion were redrawn with more detail (awning and window, banded barrel on a wooden carriage, glass with bubbles), and Trade is new. Re-render only these with `node iconshot.cjs <abs>/icons-render.html <abs out dir> home,cannon,potion,trade`. Uploaded 11-03 with `upload-image.yml` (run 41649292093); the ids above are in `games/cat-cafe/src/client/UI/Components/ShopIcons.luau`. `asset-permissions.yml` still has to run for the group-owned game before the pictures show in the live game.
+
+## #1136: Equip Best, Invite and Lock (Derek's UI-Engineer, 2026-11-04)
+
+Derek, live v187: live still shows "the old images on ui buttons". These were the last three glyphs that drew the 2026-10-27 icon sheet (`Theme.iconSheet`): Equip Best is a big gold sparkle with a white and a blue one, Invite a white envelope with a pink heart seal, the lock a gold padlock with a grey shackle. Where they show: the Equip Best buttons (Cats and Decor windows, Button's inline `image`), the Invite row in the Menu list and the Invite ask card, and the lock badges on the Areas cards and locked cat cards. A 🔒 inside a sentence ("🔒 Locked") or on a staff slot square stays the emoji. Group Use permission: `asset-permissions.yml` grant runs on main once this merges. `mockup/preview-1136.png` (from `source/preview-1136.html`) shows them on HUD tiles beside Rewards and Feedback. Re-render with `node iconshot.cjs <abs>/icons-render.html <abs out dir> equipBest,invite,lock`.

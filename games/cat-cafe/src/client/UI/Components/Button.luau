@@ -43,13 +43,15 @@ export type Style =
 -- where the labels under would stack too high). "row" has the clean look too.
 -- A row with `iconSize` draws its icon as its own picture that size at the left, then the text (the HUD's pills).
 -- An inline icon with a whole picture in Theme.glyphImages (the golden fish on a price, F97 section 4) is drawn as that
--- picture just before the text, the two centred together, the emoji showing until the picture loads.
+-- picture just before the text, the two centred together, the emoji showing until the picture loads. An inline icon
+-- with an `image` (a clean symbol, #1136) is drawn the same way.
 export type Layout = "row" | "tile" | "clean" | "wide"
 
 export type Props = {
 	text: string?,
 	icon: string?,
-	image: string?, -- clean and wide layouts: the symbol's uploaded picture (the icon glyph shows until it loads)
+	image: string?, -- clean and wide layouts, and an inline icon: the symbol's uploaded picture (the glyph shows until
+	-- it loads)
 	iconSize: number?, -- row layout: the icon's own size in px, bigger than the text (default: inline with the text)
 	layout: Layout?,
 	style: Style?,
@@ -230,7 +232,9 @@ function Button.new(props: Props): Button
 	local inlineIcon = props.icon ~= nil and not isTile and not square and iconSize == nil
 	local symbol = math.max(8, math.floor(faceH * (if layout == "wide" then 0.9 else CLEAN_SYMBOL)))
 	-- an inline glyph with a whole picture: the picture and the text side by side in a centred row
-	local inlinePicture = if inlineIcon then Theme.glyphImages[props.icon :: string] else nil
+	local inlinePicture = if inlineIcon
+		then Theme.glyphImages[props.icon :: string] or props.image
+		else nil
 	local pictureRow: Frame? = nil
 	if inlinePicture and inlinePicture ~= "" then
 		inlineIcon = false

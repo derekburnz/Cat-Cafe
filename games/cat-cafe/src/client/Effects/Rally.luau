@@ -369,11 +369,27 @@ local function rest(p: Pennant)
 	end
 end
 
+-- A part inside a Model already named `_Pennant` swings with that Model, so it is never a flag of its own
+-- (Model-Agent's #1082: a flag swung twice).
+local function inPennantModel(part: Instance): boolean
+	local ancestor = part.Parent
+	while ancestor ~= nil and ancestor ~= (Workspace :: Instance) do
+		if ancestor:IsA("Model") and string.sub(ancestor.Name, -8) == "_Pennant" then
+			return true
+		end
+		ancestor = ancestor.Parent
+	end
+	return false
+end
+
 local function considerPennant(instance: Instance)
 	if not (instance:IsA("BasePart") or instance:IsA("Model")) or pennants[instance] ~= nil then
 		return
 	end
 	if string.sub(instance.Name, -8) ~= "_Pennant" or not inBunting(instance) then
+		return
+	end
+	if instance:IsA("BasePart") and inPennantModel(instance) then
 		return
 	end
 	pennants[instance] = {

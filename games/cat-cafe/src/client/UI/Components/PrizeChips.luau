@@ -238,7 +238,7 @@ local function partImage(part: IndexRewards.PrizePart): string?
 	elseif kind == "spins" then
 		return ShopIcons.image("Spin")
 	elseif kind == "fish" then
-		return ShopIcons.clean("FishGold") or Theme.textures.fishCoin
+		return ShopIcons.clean("Fish") or Theme.textures.fishCoin
 	end
 	return nil
 end

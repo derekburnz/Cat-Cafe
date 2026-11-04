@@ -112,6 +112,10 @@ return function()
 		-- the night dealer (F32, section 8b)
 		DealerRangeStuds = 12,
 		FreshCatchWindowSeconds = 300, -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf rolls every 5 minutes
+		-- #1052 (corner-shop.md section 5): the Corner Shop's window, its reach and the daily Cat Snack cap
+		CornerShopWindowSeconds = 300,
+		CornerShopRange = 14,
+		CornerSnackXpPerDay = 12000,
 		-- night income and rich customers (F31, sections 11 and 12)
 		NightIncomeMultiplier = 1, -- F60: full pay at night (0.6 until v0.8)
 		RichCheckSeconds = 60,
@@ -154,6 +158,7 @@ return function()
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,
+		SpinAllMax = 25, -- #1078 (Derek 2026-11-04): Use all spins
 		SpinBankCap = 20,
 		-- golden fish and crates (F52, F53, golden-fish.md section 8)
 		CrateLuckyEvery = 20,
@@ -352,6 +357,7 @@ return function()
 				FishRankUp = true, -- a table, checked below
 				CratePieceBonus = true, -- a table, checked below
 				FreshCatchAmountWeights = true, -- a table, checked in FreshCatch.spec
+				CornerShopAmountWeights = true, -- a table, checked in CornerShop.spec
 				CrateDuplicateRefund = true, -- a table, checked below
 				DecorSpots = true, -- a table, checked below
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"

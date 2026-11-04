@@ -82,6 +82,37 @@ function Spin.amount(row: Types.SpinSlice, dayRate: number): number
 	return row.count or 1
 end
 
+export type SpinRoll = { slice: number, amount: number }
+export type SpinTotal = { kind: string, id: string?, amount: number }
+
+-- Use all spins (#1078): the prizes of several spins added up for the one results card, in wheel order of each
+-- prize's first slice: coins together, golden fish together, each food by its lure id and each crate kind by its
+-- slice's `crate`. Unknown slices are left out.
+function Spin.summarize(rolls: { SpinRoll }): { SpinTotal }
+	local totals: { SpinTotal } = {}
+	local byKey: { [string]: SpinTotal } = {}
+	for _, roll in rolls do
+		local row = Catalog.spinWheel[roll.slice]
+		if row == nil then
+			continue
+		end
+		local id: string? = if row.kind == "lure"
+			then row.lureId
+			elseif row.kind == "crate" then row.crate
+			else nil
+		local key = row.kind .. ":" .. (id or "")
+		local total = byKey[key]
+		if total == nil then
+			local fresh: SpinTotal = { kind = row.kind, id = id, amount = 0 }
+			total = fresh
+			byKey[key] = fresh
+			table.insert(totals, fresh)
+		end
+		total.amount += roll.amount
+	end
+	return totals
+end
+
 -- A save's spin table made valid: whole numbers, `lastFreeDay` from 0 to today (a day in the future would hold
 -- back every free spin until then), `banked` from 0 to SpinBankCap.
 function Spin.sanitize(raw: unknown, now: number): Types.SpinState

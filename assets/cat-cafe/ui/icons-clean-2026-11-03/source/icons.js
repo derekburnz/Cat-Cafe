@@ -107,6 +107,39 @@ window.ICONS = {
   caviar: `<ellipse ${S} cx="32" cy="44" rx="25" ry="12" fill="#5fb7ff"/>
     <ellipse ${S} cx="32" cy="34" rx="25" ry="11" fill="#e9f5ff"/>
     ${[[20, 32], [27, 29], [34, 31], [41, 28], [24, 37], [31, 36], [38, 37], [45, 34]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.6" fill="#ff7a2f" stroke="${O}" stroke-width="1.6"/>`).join('')}`,
+  // the Decor window's "Your cafe" slots (#964, drawn by Derek's UI-Engineer 11-03 02:30)
+  wallpaper: `<path ${S} fill="#7fc4ff" d="M13 18 H51 V54 Q45 60 38.5 55 Q32 50 25.5 55 Q19 60 13 54 Z"/>
+    <path d="M23 25 V49 M32 25 V47 M41 25 V49" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="27.5" cy="30" r="2.2" fill="#ff8cc2"/><circle cx="36.5" cy="38" r="2.2" fill="#ff8cc2"/><circle cx="27.5" cy="44" r="2.2" fill="#ff8cc2"/>
+    <rect ${S} x="7" y="7" width="50" height="14" rx="7" fill="#fff"/>
+    <ellipse cx="54" cy="14" rx="2.6" ry="4.6" fill="#d9d0c4" stroke="${O}" stroke-width="2.4"/>`,
+  floor: `<path ${S} fill="#f4c983" d="M14 20 H50 L60 54 H4 Z"/>
+    <path d="M14 20 H23 L20.5 37 H9 Z M32 20 H41 L43.5 37 H32 Z M20.5 37 H32 V54 H18 Z M43.5 37 H55 L60 54 H46 Z" fill="#d68f3e"/>
+    <path ${S} fill="none" d="M14 20 H50 L60 54 H4 Z"/>
+    <path d="M32 20 V54 M9 37 H55 M23 20 L18 54 M41 20 L46 54" stroke="${O}" stroke-width="2.6" stroke-linecap="round"/>`,
+  paint: `<path d="M17 20 Q32 1 47 20" fill="none" stroke="${O}" stroke-width="4.5" stroke-linecap="round"/>
+    <path ${S} fill="#fff" d="M11 20 H53 L49 56 Q32 62 15 56 Z"/>
+    <path ${S} fill="#ff6fae" stroke-width="3.5" d="M11 20 H53 L52.2 27 Q50 34 47.5 27 Q45 42 41 27 Q37 31 33 27 Q29 39 25 27 Q21 32 18 27 Q15 33 11.8 27 Z"/>
+    <ellipse cx="32" cy="20" rx="21" ry="4.5" fill="#ff9cc9" stroke="${O}" stroke-width="3.5"/>`,
+  spots: `<path ${S} fill="#45cdb4" d="M14 14 Q14 7 21 7 H43 Q50 7 50 14 V34 H14 Z"/>
+    <path ${S} fill="#45cdb4" d="M5 28 Q5 21 11.5 21 Q18 21 18 28 V48 H5 Z"/>
+    <path ${S} fill="#45cdb4" d="M46 28 Q46 21 52.5 21 Q59 21 59 28 V48 H46 Z"/>
+    <rect ${S} x="16" y="31" width="32" height="12" rx="4" fill="#a6f1e2"/>
+    <path ${S} fill="#45cdb4" d="M18 42 H46 V48 H18 Z"/>
+    <path d="M9 48 V56 M55 48 V56" stroke="${O}" stroke-width="5" stroke-linecap="round"/>`,
+  door: `<rect ${S} x="14" y="5" width="36" height="52" rx="6" fill="#c97f45"/>
+    <rect x="20" y="11" width="24" height="18" rx="3.5" fill="#9ad8ff" stroke="${O}" stroke-width="3"/>
+    <path d="M32 12 V28 M21 20 H43" stroke="${O}" stroke-width="2.2"/>
+    <rect x="20" y="34" width="24" height="17" rx="3.5" fill="#b06a35" stroke="#7d4520" stroke-width="2.6"/>
+    <circle cx="43.5" cy="33" r="3.4" fill="#ffd23f" stroke="${O}" stroke-width="2.4"/>
+    <path d="M7 58.5 H57" stroke="${O}" stroke-width="5" stroke-linecap="round"/>`,
+  catflap: `<rect ${S} x="7" y="6" width="50" height="52" rx="6" fill="#c97f45"/>
+    <rect ${S} x="16" y="27" width="32" height="27" rx="9" fill="#ffd23f"/>
+    <path d="M17 34 H47" stroke="#d69a10" stroke-width="3"/>
+    <ellipse cx="32" cy="46.5" rx="5.5" ry="4.3" fill="${O}"/>
+    <circle cx="24.5" cy="40.5" r="2.5" fill="${O}"/><circle cx="29" cy="37.8" r="2.5" fill="${O}"/>
+    <circle cx="35" cy="37.8" r="2.5" fill="${O}"/><circle cx="39.5" cy="40.5" r="2.5" fill="${O}"/>
+    <path d="M12 14 H52" stroke="#a8652a" stroke-width="3" stroke-linecap="round"/>`,
 };
 window.icon = (name, size = 52, arg) => {
   const body = typeof ICONS[name] === 'function' ? ICONS[name](arg) : ICONS[name];

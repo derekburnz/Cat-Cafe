@@ -1,7 +1,7 @@
 --!strict
 -- Claim all (Derek 2026-10-28 and 10-29; ui-contract.md `claimAll`): ClaimAll(what) with `what` one of
--- shared/ClaimAll.KINDS. "daily" and "weekly" pay every finished quest of that set and "achievements" every met
--- achievement (QuestService), "index" every ready Index reward on every page (IndexRewardService) and "tipjar" every
+-- shared/ClaimAll.KINDS. "daily" and "weekly" pay every finished quest of that set, "achievements" every met
+-- achievement and "quests" (#1073) all three at once (QuestService), "index" every ready Index reward on every page (IndexRewardService) and "tipjar" every
 -- ready Tip Jar step (TipJarService). Each pays exactly what its single Claims would, marked before it pays, with one
 -- toast and one sync; nothing ready answers "Nothing to claim yet". Anything else is dropped. Net limits it to 2 per
 -- 2 s. Nothing here is sold for Robux.
@@ -25,6 +25,8 @@ local function onClaimAll(player: Player, rawWhat: unknown)
 		QuestService.claimAll(player, "weekly")
 	elseif what == "achievements" then
 		QuestService.claimAllAchievements(player)
+	elseif what == "quests" then
+		QuestService.claimEverything(player)
 	elseif what == "index" then
 		IndexRewardService.claimAll(player)
 	elseif what == "tipjar" then

@@ -32,6 +32,7 @@ local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
 local LawnTab = require(script.Parent.LawnTab)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -77,8 +78,18 @@ local SLOT_WIDTH = 150 -- four slots fit a full-width window with the fifth peek
 local STRIP_ORDER = { "wallpaper", "floor", "paint", "spots", "door", "catflap" }
 local LATE_KINDS: { [string]: boolean } = { door = true, catflap = true } -- shown once the catalog has one
 local SPOTS_BY_TIER: { number } = Config.DecorSpots or DecorPieces.SPOTS_BY_TIER
-local LAWN_CHIP = "Front lawn" -- F91: the chip that shows the Front lawn tab
-local LAWN_GLYPH = "🌷"
+local LAWN_CHIP = "Front lawn" -- F91: the chip that shows the Front lawn tab (the filter key)
+local LAWN_TEXT = "Lawn" -- its words on the chip, short so the row is roomier (#964)
+-- the "Your cafe" slots' clean symbols and light tiles (#964, the sheet in assets/cat-cafe/ui/icons-clean-2026-11-03):
+-- drawn while a slot is Plain, and always for the decor spots. Until a symbol is uploaded its kind's glyph shows.
+local SLOT_LOOK: { [string]: { picture: string, tint: Color3 } } = {
+	wallpaper = { picture = "Wallpaper", tint = Color3.fromHex("D6ECFF") },
+	floor = { picture = "Floor", tint = Color3.fromHex("FFE6C2") },
+	paint = { picture = "Paint", tint = Color3.fromHex("FFD9EA") },
+	spots = { picture = "Spots", tint = Color3.fromHex("CFF3EA") },
+	door = { picture = "Door", tint = Color3.fromHex("E6DCFF") },
+	catflap = { picture = "Catflap", tint = Color3.fromHex("FFF2C2") },
+}
 
 -- Placeholder art colour per category until the asset thread delivers images.
 local CATEGORY_COLORS: { [string]: Color3 } = {
@@ -142,12 +153,13 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self.frame = panel.frame
 
 	local equipBest = if Config.DecorEquipBest == true then callbacks.equipBest else nil
-	local chipsRight = if equipBest then EQUIP_W + CHIP_GAP else 0
+	-- the chips get the full width: Equip Best sits in the header, left of the X (#964, Derek: "buttons on the top row
+	-- feels too squished and cluttered")
 	self._chipRow = Create("ScrollingFrame", {
 		Name = "Chips",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, -chipsRight, 0, chipHeight),
+		Size = UDim2.new(1, 0, 0, chipHeight),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.X,
 		ScrollBarThickness = 0,
@@ -168,10 +180,12 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 			text = Theme.icons.equipBest .. " Equip Best",
 			style = "berry", -- the HUD's Equip Best pink, apart from the gold chip that is picked
 			size = UDim2.fromOffset(EQUIP_W, chipHeight),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, 0, 0, 0),
+			anchorPoint = Vector2.new(1, 0.5),
+			-- on the window frame, not the header, so a phone's taller button is not clipped by the body
+			position = UDim2.new(1, -(panel.closeReach + 8), 0, panel.headerHeight / 2 - 2),
 			textSize = Theme.sizes.textBody,
-			parent = panel.content,
+			zIndex = 4,
+			parent = panel.frame,
 			onClick = function()
 				local at = os.clock()
 				self._bestPressed = at
@@ -444,18 +458,29 @@ function DecorShop._renderStrip(self: any, state: Types.PlayerState, used: numbe
 		return
 	end
 	for _, slot in self._slots do
+		local look = SLOT_LOOK[slot.kind]
+		local picture = if look then ShopIcons.clean(look.picture) else nil
 		if slot.kind == "spots" then
-			slot.icon:set(nil, DecorPieces.kindIcon("furniture", Theme.icons.decor), nil)
+			slot.icon:set(
+				nil,
+				DecorPieces.kindIcon("furniture", Theme.icons.decor),
+				nil,
+				picture,
+				if look then look.tint else nil
+			)
 			slot.value.Text = ("%d / %d"):format(used, spots)
 			slot.value.TextColor3 = if used >= spots then PAL.red else PAL.text
 			continue
 		end
 		local def = DecorPieces.inUse(self._decor, state.decorPlaced, slot.kind)
 		local piece = DecorPieces.info(def)
+		-- the piece in use, else (Plain) the kind's clean symbol on its light tile
 		slot.icon:set(
 			if def then def.asset else nil,
 			DecorPieces.kindIcon(slot.kind, Theme.icons.decor),
-			piece.rarity
+			piece.rarity,
+			if def then nil else picture,
+			if def or not look then nil else look.tint
 		)
 		slot.value.Text = if def then def.name else "Plain"
 		slot.value.TextColor3 = if def then PAL.text else PAL.subtext
@@ -519,11 +544,10 @@ function DecorShop._build(self: any)
 		local lawn = category == LAWN_CHIP
 		local button = Button.new({
 			name = if lawn then "FrontLawn" else category,
-			text = category,
-			icon = if lawn then LAWN_GLYPH else nil,
+			text = if lawn then LAWN_TEXT else category,
 			style = "ghost",
 			size = UDim2.fromOffset(
-				math.max(CHIP_MIN_WIDTH, #category * 11 + CHIP_PAD + (if lawn then 24 else 0)),
+				math.max(CHIP_MIN_WIDTH, #(if lawn then LAWN_TEXT else category) * 11 + CHIP_PAD),
 				self._chipHeight
 			),
 			textSize = Theme.sizes.textSmall,

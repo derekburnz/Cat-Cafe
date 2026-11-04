@@ -989,7 +989,9 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 			then color
 			else color:Lerp(Color3.new(0, 0, 0), Theme.index.dim)
 		cell.portrait:setSilhouette(not isFound)
-		cell.name.Text = if isFound then def.name else def.rarity
+		-- an uncaught cat keeps its dark silhouette but says its name, so players know what to look for (#1077)
+		cell.name.Text = def.name
+		cell.name.TextTransparency = if isFound then 0 else 0.25
 		local bright = (gold or rainbow) and isFound
 		cell.border.Color = if gold and isFound then Theme.colors.gold else Theme.colors.outline
 		cell.border.Thickness = Theme.sizes.outline + (if bright then 1 else 0)
@@ -1111,7 +1113,8 @@ function CatCollection._showDetail(self: any)
 	end
 	self._detailStroke.Color = if rainbow then Theme.colors.white else color
 	self._detailDisc.BackgroundColor3 = color
-	local name = if found then def.name else "Not found yet"
+	-- the name shows whether or not the cat is found (#1077); "Not found yet" moves to the line under it
+	local name = def.name
 	self._detailName.Text = if gold and found
 		then "Gold " .. name
 		elseif rainbow then "Rainbow " .. name
@@ -1120,6 +1123,9 @@ function CatCollection._showDetail(self: any)
 	self._detailPill.BackgroundColor3 = color
 	self._detailPill.TextColor3 = Theme.rarityTextColor(def.rarity)
 	local meta = {}
+	if not found then
+		table.insert(meta, "Not found yet")
+	end
 	table.insert(meta, Format.rate(def.incomePerSecond))
 	if def.favoriteRole then
 		table.insert(meta, Format.lovesRole(def.favoriteRole, Theme.modal.text))

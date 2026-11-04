@@ -30,5 +30,75 @@
 		"price": 199,
 		"regionalPricing": true,
 		"description": "Your cats earn full pay while you are away, for up to 16 hours. Without it they earn half pay for up to 8 hours."
+	},
+	{
+		"name": "VIP",
+		"config": "VipPassId",
+		"price": 25,
+		"regionalPricing": true,
+		"description": "+10% cafe money, a VIP chat tag and a gold VIP plate on your cafe sign. Yours to keep."
+	},
+	{
+		"name": "Cat Accessories",
+		"config": "CatAccessoriesPassId",
+		"price": 149,
+		"regionalPricing": true,
+		"description": "Dress your cats in bows, hats and more. A dressed cat earns +15%. Yours to keep."
+	},
+	{
+		"name": "Uniform Styles",
+		"config": "UniformStylesPassId",
+		"price": 149,
+		"regionalPricing": true,
+		"description": "New uniform styles for every cafe job, and +15% cafe money. Yours to keep."
+	},
+	{
+		"name": "Cafe Style",
+		"config": "CafeStylePassId",
+		"price": 249,
+		"regionalPricing": true,
+		"description": "A new cafe theme and name tag, +50% cafe money, and rich visitors come 25% more often. Yours to keep."
+	},
+	{
+		"name": "Grand Cafe Theme",
+		"config": "GrandThemePassId",
+		"price": 799,
+		"regionalPricing": true,
+		"description": "The grand cafe look: +150% cafe money, twice as many rich visitors and +1 job slot at every tier. Yours to keep."
+	},
+	{
+		"name": "Extra Slot",
+		"config": "ExtraSlotPassIds[1]",
+		"price": 149,
+		"regionalPricing": true,
+		"description": "One more job slot in your cafe, so one more cat can work. Yours to keep."
+	},
+	{
+		"name": "Royal Cat",
+		"config": "RoyalCatPassId",
+		"price": 599,
+		"regionalPricing": true,
+		"description": "Duchess Marzipan joins your cafe and always earns like a Legendary cat from your newest area. Yours to keep, can't be traded."
+	},
+	{
+		"name": "King Cat Pack",
+		"config": "KingPackPassId",
+		"price": 999,
+		"regionalPricing": true,
+		"description": "King Croissant joins your cafe and always earns like a Mythical cat from your newest area, plus a gold crest for your cafe sign. Yours to keep, can't be traded."
+	},
+	{
+		"name": "Golden Pond",
+		"config": "GoldenPondPassId",
+		"price": 149,
+		"regionalPricing": true,
+		"description": "Your Fish Pond in the Woods makes 2x golden fish. Yours to keep."
+	},
+	{
+		"name": "Second Bait Bowl",
+		"config": "SecondBowlPassId",
+		"price": 149,
+		"regionalPricing": true,
+		"description": "A second bait bowl in your cafe, so you can run two baits at once. Both bowls share your bowl upgrades. Yours to keep."
 	}
 ]

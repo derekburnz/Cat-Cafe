@@ -351,6 +351,8 @@ Theme.icons = {
 -- index upgrades and cats could use a tiny bit more quality also"): sixteen 256 px icons in a 4 x 4 grid, one upload.
 -- Each glyph above that has a picture maps to its cell (column, row); Components/IconArt draws the picture over the
 -- glyph wherever a button, window badge, prize tile or place icon shows it, with the emoji as the fallback.
+-- Unused since #1136: every glyph below has a clean symbol in Components/CleanGlyphs, which IconArt.set draws first,
+-- so IconArt never reaches the sheet. Kept as IconArt's fallback for a glyph added here without a clean symbol.
 Theme.iconSheet = {
 	image = "rbxassetid://105899778786945",
 	cell = 256,

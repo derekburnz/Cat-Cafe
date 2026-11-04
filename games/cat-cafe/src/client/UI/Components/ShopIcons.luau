@@ -113,6 +113,10 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Spots = "rbxassetid://74579562921955",
 	Icon_Clean_Door = "rbxassetid://82896268186640",
 	Icon_Clean_Catflap = "rbxassetid://99900172207666",
+	-- #1136: the last glyphs that drew the old icon sheet (upload-image run 41889328270, 11-04)
+	Icon_Clean_EquipBest = "rbxassetid://89501318892947",
+	Icon_Clean_Invite = "rbxassetid://136442901295833",
+	Icon_Clean_Lock = "rbxassetid://133489571923895",
 }
 local NETS = 4
 

@@ -22,20 +22,61 @@ return function()
 		end)
 		it("builds a glyph map and skips keys the icon tables lack", function()
 			local map = CleanGlyphs.map(
-				{ crate = "📦", potion = "🧪", lock = "🔒" },
+				{ crate = "📦", potion = "🧪", unlock = "🔓" },
 				{ kibble = "🥣" }
 			)
 			expect(map["📦"]).to.equal("Crate")
 			expect(map["🧪"]).to.equal("Potion")
 			expect(map["🥣"]).to.equal("Bowl")
-			expect(map["🔒"]).to.equal(nil)
+			expect(map["🔓"]).to.equal(nil)
 			expect(map["🐱"]).to.equal(nil) -- cats is mapped, but this icon table has no cats key
 		end)
-		it("draws the Settings gear, the Spin wheel and the Alley clean, not from the old sheet", function()
-			local map = CleanGlyphs.map({ settings = "⚙️", spin = "🎡", alley = "🐾" }, {})
-			expect(map["⚙️"]).to.equal("Menu")
-			expect(map["🎡"]).to.equal("Spin")
-			expect(map["🐾"]).to.equal("Catflap")
+		it(
+			"draws the Settings gear, the Spin wheel and the Alley clean, not from the old sheet",
+			function()
+				local map = CleanGlyphs.map(
+					{ settings = "⚙️", spin = "🎡", alley = "🐾" },
+					{}
+				)
+				expect(map["⚙️"]).to.equal("Menu")
+				expect(map["🎡"]).to.equal("Spin")
+				expect(map["🐾"]).to.equal("Catflap")
+			end
+		)
+		it("draws Equip Best, Invite and the lock clean (#1136)", function()
+			local map = CleanGlyphs.map({ equipBest = "✨", invite = "💌", lock = "🔒" }, {})
+			expect(map["✨"]).to.equal("EquipBest")
+			expect(map["💌"]).to.equal("Invite")
+			expect(map["🔒"]).to.equal("Lock")
 		end)
+		it(
+			"has a clean symbol for every Theme.iconSheet cell, so no glyph reaches the old sheet",
+			function()
+				-- the keys of Theme.iconSheet.cells (Theme itself needs Font, which the cloud runner lacks)
+				local sheetKeys = {
+					"cats",
+					"collection",
+					"upgrades",
+					"decor",
+					"home",
+					"travel",
+					"alley",
+					"equipBest",
+					"gifts",
+					"settings",
+					"invite",
+					"tutorial",
+					"spin",
+					"lock",
+					"crate",
+					"potion",
+				}
+				for _, key in sheetKeys do
+					local name = CleanGlyphs.icons[key]
+					expect(name).to.be.ok()
+					expect(ShopIcons.clean(name)).to.be.ok()
+				end
+			end
+		)
 	end)
 end

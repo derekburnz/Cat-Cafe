@@ -601,7 +601,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	)
 
 	-- Rewards (Derek 2026-11-02, fewer buttons): one tile for the Tip Jar's playtime gifts (F47) and the Daily Treat
-	-- (F70). "Claim!" with a red count while either has something waiting, else the time to the next gift. With both
+	-- (F70). "Rewards" with a red "!" while either has something waiting, else the time to the next gift. With both
 	-- live a press opens a short list under the row; with one it opens that window at once.
 	local rewards = Button.new({
 		name = "Rewards",
@@ -1133,7 +1133,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	-- Bottom right corner (Derek 2026-11-02: "a clean potion symbol bottom right and then clicking it opens the menu of
 	-- which to use"): two symbol tiles side by side, Potions (the bag, with how many it holds) and, once the Bait bowl
-	-- upgrade is owned, the bowl (F28) with its state under the picture: "Add food", the time to the cat, "Cat!" on gold.
+	-- upgrade is owned, the bowl (F28) with its state under the picture: "Bait", the time to the cat, "Cat!" on gold.
 	local corner: Frame = Create("Frame", {
 		Name = "Corner",
 		BackgroundTransparency = 1,
@@ -1193,7 +1193,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._potionCount = potionCount
 	local bowl = Button.new({
 		name = "Bowl",
-		text = "Add food",
+		text = "Bait",
 		icon = BOWL_ICON,
 		image = ShopIcons.clean("Bowl"),
 		layout = TILE_LAYOUT,
@@ -1214,7 +1214,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	table.insert(self._buttons, bowl)
 	self._bowl = bowl
 	self._bowlSlot = bowl.instance
-	self._bowlText = "Add food"
+	self._bowlText = "Bait"
 	self._bowlStyle = "secondary" :: Button.Style
 	self._bait = nil :: Types.BaitView?
 	self._catWaiting = false
@@ -1514,14 +1514,14 @@ function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	end)
 end
 
--- The bowl symbol's line under its picture: "Add food" when empty, the time to the cat ("7:42"), then "Cat!" on a
+-- The bowl symbol's line under its picture: "Bait" when empty, the time to the cat ("7:42"), then "Cat!" on a
 -- gold tile. F60: food set at night counts down behind a moon ("🌙 3:42"), and an empty bowl at night reads
 -- "🌙 Half", since food set then comes in half the time. The Bait bowl window has the food's name and the rest.
 function HUD._renderBowl(self: any)
 	local bait: Types.BaitView? = self._bait
 	local wasReady = self._baitReady
 	local ready = false
-	local text = if self._night then Theme.icons.moon .. " Half" else "Add food"
+	local text = if self._night then Theme.icons.moon .. " Half" else "Bait" -- the mockup's label (#1176)
 	if bait then
 		local left = bait.readyAt - Workspace:GetServerTimeNow()
 		ready = left <= 0
@@ -2348,7 +2348,7 @@ function HUD._rewardParts(self: any): (boolean, boolean)
 		self._dailyWanted == true and self:_open("daily")
 end
 
--- The Rewards tile: shown while it holds anything; "Claim!" and a red count of what waits (gifts ready, plus one for
+-- The Rewards tile: shown while it holds anything; "Rewards" and a red "!" of what waits (gifts ready, plus one for
 -- a due stamp), else the time to the next gift, "Daily" with only the card, or "Rewards".
 function HUD._renderRewards(self: any)
 	local tile: Button.Button = self._rewards
@@ -2360,8 +2360,9 @@ function HUD._renderRewards(self: any)
 	local ready = (if summary then summary.ready else 0)
 		+ (if daily and self._dailyDue then 1 else 0)
 	local nextIn: number? = if summary then summary.nextIn else nil
+	-- "Rewards" with the red "!" while anything waits (Derek's 11-04 HUD mockup, #1176), else the time to the next gift
 	local text = if ready > 0
-		then "Claim!"
+		then "Rewards"
 		elseif nextIn ~= nil then TipJarLogic.clock(nextIn)
 		elseif daily and not gifts then "Daily"
 		else "Rewards"

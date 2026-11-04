@@ -3115,7 +3115,8 @@ Presets.crown = {
 
 -- The Corner Shop's shows (corner-shop.md sections 2 and 5, #1052): the server's `CafeShow(userId, showId, endsAt)`
 -- plays `showId` over the cafe whose plot's OwnerUserId is `userId` from `endsAt - seconds` to `endsAt` (server
--- time; `seconds` are Catalog.cornerShop's showSeconds, bubble_machine 600 and cafe_fireworks 20). A client that
+-- time; `seconds` is read from Catalog.cornerShop's showSeconds, and the numbers here are only the fallback for a
+-- missing row: bubble_machine 600 and cafe_fireworks 20). A client that
 -- joins late starts partway. `pick` is how often the shows are chosen. The Bubble Machine blows the `cafeBubble`
 -- emitter `lift` studs over the middle of the cafe's `Door` part, on the nearest budget.cafeBubbles cafes within
 -- `within`. Cafe Fireworks fire a shell every `every[tier]` seconds from `lift` studs over the cafe's top, on the

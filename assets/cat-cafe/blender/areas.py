@@ -35,6 +35,7 @@ INSET = 0.12                                       # the pillars start this far 
 FRONT, BACK = 1.3, 1.75                            # pillar depth either side of the gate line: the walls behind it
                                                    # (z 0.5 to 1.5) end inside, the alley's building backs stay clear
 SIGN = (-5.0, 5.0, 8.4, 10.9)                      # x0, x1, y0, y1 of the hanging sign board, at z -0.85..-0.65
+SIGN_PX = 0.26                                     # the hanging board's lettering: 1.3 studs tall, WELCOME! 8.6 wide
 SIGN_INFO = {"part": "SignBoard", "face": "Front (-Z)", "size": [10.0, 2.5], "centre": [0.0, 9.65, -0.85]}
 
 
@@ -46,6 +47,11 @@ def _sign(b, sign, frame, top):
         b.span((xa, ya, -0.9), (xb, yb, -0.6), frame)
     for x in (x0 + 0.8, x1 - 0.8):                                                         # chains
         b.span((x - 0.06, y1 + 0.2, -0.8), (x + 0.06, top, -0.7), "metal")
+    # #1192: the area's lock and progress are a BillboardGui over the gate (UI GateSigns), so nothing draws on this
+    # board; it reads WELCOME! toward the approach side (-Z) and SEE YOU! toward the area, in the frame's colour
+    ym = (y0 + y1) / 2 - 2.5 * SIGN_PX
+    label(b, "WELCOME!", 0, ym, -0.85, SIGN_PX, 0.05, frame, -1)
+    label(b, "SEE YOU!", 0, ym, -0.65, SIGN_PX, 0.05, frame, 1)
 
 
 def _title(b, text, y, px, z_front, z_back, swatch):
@@ -261,10 +267,12 @@ def _neighbourhood(b, lamps, flowers, half):
     bw = text_width("NEIGHBOURHOOD", px) + 2.0
     for x in (-bw / 2 + 1.0, bw / 2 - 1.0):
         b.span((x - 0.12, 13.15, -0.12), (x + 0.12, 13.6, 0.12), "fur_black")
-    b.span((-bw / 2, 13.62, -0.15), (bw / 2, 15.88, 0.15), "sign_teal")
-    for (ya, yb) in ((13.6, 13.78), (15.72, 15.9)):
+    # #1192: the board is tall enough that the letters (5 px = 2.0) sit clear of its cream rails; they used to run
+    # into both rails in the same colour, so the word read as a jumble
+    b.span((-bw / 2, 13.62, -0.15), (bw / 2, 16.38, 0.15), "sign_teal")
+    for (ya, yb) in ((13.6, 13.78), (16.22, 16.4)):
         b.span((-bw / 2 - 0.05, ya, -0.2), (bw / 2 + 0.05, yb, 0.2), TRIM)
-    _title(b, "NEIGHBOURHOOD", 13.75, px, -0.15, 0.15, "offwhite")
+    _title(b, "NEIGHBOURHOOD", 14.0, px, -0.15, 0.15, "offwhite")
     for s in (-1, 1):
         lantern(b, lamps, _pillar_x(s, half)[2], 13.15, 0, 0.8)
     return 12.0

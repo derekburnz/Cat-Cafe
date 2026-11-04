@@ -394,3 +394,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Derek (2026-11-04, #1134, chores thread)
 - 2026-11-04: `TackleCooldownSeconds` goes from 8 to 5. It still counts from the press, hit or miss, and is never refunded. Why: Derek asked for the tackle to come back faster. The server enforces it from `Config` and the HUD bar reads the same value, so there is no client trust. The per-target wait (`BumpSameTargetSeconds` 20) and `ShoveTargetImmuneSeconds` 4 stay, so a faster tackle does not become spam against one player, and safe zones still block tackles.
+
+### Chores thread (2026-11-04, #1150)
+- 2026-11-04: The HUD luck chip always shows. At a plain 1x it reads "Luck x1" in the quieter subtext colour; boosted it reads in white, and gold on a Lucky Day. The circle and clover (#1258) are unchanged. Why: Derek asked that players always see luck, so they know it exists and can watch it climb. The odds maths is untouched (1x changes nothing); the market's own luck line keeps its above-1x rule.

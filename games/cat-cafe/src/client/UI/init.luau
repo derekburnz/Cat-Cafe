@@ -2447,8 +2447,8 @@ function UI.cannon.open(cannonId: string?)
 end
 
 -- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card pops in at once, as it
--- closes, and is gone 0.8 s later as the BOOM fires (CannonLogic.CHOSEN_HOLD, #1163; a refused Launch never comes
--- here). Ends the first-flight and Tier 2 hints. The intro's shot 2 calls it too, for its staged flight to the
+-- closes, zips off with the BOOM 0.5 s after launchAt and is gone by 0.7 (CannonLogic.CHOSEN_HOLD, #1163; a refused
+-- Launch never comes here). Ends the first-flight and Tier 2 hints. The intro's shot 2 calls it too, for its staged flight to the
 -- Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts: given a `hold`, the card keeps the cloud
 -- schedule, from 1.6 s after launchAt (card up 0.7 to 1.1 s in); while the intro plays only the card shows, so the
 -- first-flight hint still follows the intro.
@@ -2476,10 +2476,11 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 		if hold ~= nil then
 			cannonCard:show(destination, name, launchAt, hold) -- the intro's, in the clouds
 		else
+			-- counted from launchAt, so the zip lands on the BOOM whatever the lag; it still pops in on arrival
 			cannonCard:show(
 				destination,
 				name,
-				Workspace:GetServerTimeNow(),
+				launchAt,
 				CannonLogic.CHOSEN_HOLD,
 				CannonLogic.CHOSEN_IN
 			)

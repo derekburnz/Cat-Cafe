@@ -115,22 +115,21 @@ return function()
 				local inAt, wobbleAt, outAt, goneAt =
 					CannonLogic.cardTimes(CannonLogic.CHOSEN_HOLD, CannonLogic.CHOSEN_IN)
 				expect(inAt).to.equal(0)
-				expect(math.abs(wobbleAt - 0.3) < 1e-9).to.equal(true)
-				expect(math.abs(outAt - 0.6) < 1e-9).to.equal(true)
-				expect(math.abs(goneAt - 0.8) < 1e-9).to.equal(true)
+				expect(math.abs(wobbleAt - 0.25) < 1e-9).to.equal(true)
+				expect(math.abs(outAt - 0.5) < 1e-9).to.equal(true)
+				expect(math.abs(goneAt - 0.7) < 1e-9).to.equal(true)
 				local hold, from = CannonLogic.CHOSEN_HOLD, CannonLogic.CHOSEN_IN
 				expect(CannonLogic.cardPhase(0, hold, from)).to.equal("in")
-				expect(CannonLogic.cardPhase(0.4, hold, from)).to.equal("wobble")
-				expect(CannonLogic.cardPhase(0.7, hold, from)).to.equal("out")
-				expect(CannonLogic.cardPhase(0.81, hold, from)).to.equal("gone")
+				expect(CannonLogic.cardPhase(0.3, hold, from)).to.equal("wobble")
+				expect(CannonLogic.cardPhase(0.6, hold, from)).to.equal("out")
+				expect(CannonLogic.cardPhase(0.71, hold, from)).to.equal("gone")
 			end
 		)
 
-		it("zips off by the BOOM, half a second after CannonLaunchAt, plus a little lag", function()
+		it("zips off by the BOOM, half a second after CannonLaunchAt", function()
 			local _, _, outAt, goneAt =
 				CannonLogic.cardTimes(CannonLogic.CHOSEN_HOLD, CannonLogic.CHOSEN_IN)
-			expect(outAt <= 0.6).to.equal(true)
-			expect(goneAt <= 1).to.equal(true)
+			expect(outAt <= 0.5).to.equal(true) -- Presets.cannon.boomAt, both counted from CannonLaunchAt
 		end)
 	end)
 

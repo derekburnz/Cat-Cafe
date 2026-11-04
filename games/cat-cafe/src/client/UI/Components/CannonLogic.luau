@@ -46,11 +46,12 @@ CannonLogic.CARD_IN = 1.6
 CannonLogic.CARD_WOBBLE = 2.0
 CannonLogic.CARD_OUT = 2.4
 CannonLogic.CARD_GONE = 2.6
--- A player's own flight (Derek 2026-11-04, #1163: "show right after the destination menu closes"): the card starts
--- the moment the picker closes on the server's accepted CannonLaunch (a refused Launch never gets one), pops in at
--- once, wobbles at 0.3, zips off at 0.6 as the BOOM fires (0.5 s after CannonLaunchAt) and is gone by 0.8.
+-- A player's own flight (Derek 2026-11-04, #1163: "show right after the destination menu closes"), in seconds after
+-- CannonLaunchAt: the card pops in as the picker closes on the server's accepted CannonLaunch (a refused Launch never
+-- gets one; the lag there only shortens the hold), wobbles at 0.25, zips off at 0.5 with the BOOM
+-- (Presets.cannon.boomAt) and is gone by 0.7.
 CannonLogic.CHOSEN_IN = 0
-CannonLogic.CHOSEN_HOLD = 0.6
+CannonLogic.CHOSEN_HOLD = 0.5
 
 -- The cards `cannonId`'s picker shows a player at `tier`: every area the tier has opened, in tier order (catalog
 -- order within a tier), and from a camp's cannon Town Square first and never the camp's own area.

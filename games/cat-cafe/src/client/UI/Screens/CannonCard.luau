@@ -4,11 +4,11 @@
 -- 2026-11-03 ("have the picture be top and you be shown still in the frame below the location as it's cool to see
 -- your character fly") it is a smaller card at the top centre, so the flying character in the middle stays in view,
 -- and the "Landing at the Woods camp" line is gone (less text). Since #1163 (Derek 2026-11-04) a player's own flight
--- shows it as the picker closes: it pops in with a white ring at once, wobbles (0.3 s), zips up and off as the BOOM
--- fires (0.6) and is gone by 0.8 (CannonLogic.CHOSEN_HOLD). The intro's shot 2 keeps the cloud schedule: in at 1.6 s
--- after its launchAt, wobble, zip off at 2.0 and gone by 2.2 (CannonLogic.cardTimes(0.4)). With reduced motion it
--- fades in and out instead, with no pop, ring, wobble or zip. DisplayOrder 46 sits just over VFX's cloud tunnel (45) and under the intro
--- (50); it never takes input. No card for a cloud hop home.
+-- shows it as the picker closes: it pops in with a white ring at once, wobbles, zips up and off with the BOOM (0.5 s
+-- after CannonLaunchAt) and is gone by 0.7 (CannonLogic.CHOSEN_HOLD). The intro's shot 2 keeps the cloud schedule:
+-- in at 1.6 s after its launchAt, wobble, zip off at 2.0 and gone by 2.2 (CannonLogic.cardTimes(0.4)). With reduced
+-- motion it fades in and out instead, with no pop, ring, wobble or zip. DisplayOrder 46 sits just over VFX's cloud
+-- tunnel (45) and under the intro (50); it never takes input. No card for a cloud hop home.
 
 local GuiService = game:GetService("GuiService")
 local Workspace = game:GetService("Workspace")
@@ -297,7 +297,7 @@ function CannonCard.show(
 			fade(self, false, FADE_OUT)
 			return
 		end
-		Tween.to(self._ticket, ZIP, { Position = UDim2.new(0.5, 0, -0.4, 0) })
+		self._zip = Tween.to(self._ticket, ZIP, { Position = UDim2.new(0.5, 0, -0.4, 0) })
 	end)
 	at(goneAt, function()
 		self._ticket.Visible = false
@@ -309,6 +309,10 @@ end
 function CannonCard.hide(self: any)
 	self._token += 1
 	unfade(self)
+	if self._zip ~= nil then
+		self._zip:Cancel() -- an older card's zip would drag the new one off screen
+		self._zip = nil
+	end
 	self._ticket.Visible = false
 	self._ticket.Position = HOME
 end

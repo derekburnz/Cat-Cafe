@@ -79,7 +79,9 @@ local ProfileSchema = {}
 -- Version 29 (#1052, corner-shop.md section 5) adds cornerShop, the Corner Shop's bought counts this window and the
 -- Cat Snack XP given today: an older server would drop it, letting a player buy a window's stock twice or pass the
 -- day's snack cap by hopping servers during a rollout. Older saves start with nothing bought.
-ProfileSchema.VERSION = 29
+-- Version 30 (#1083, idea-credits.md section 4) adds hideCredit, true while the player keeps their name off the Thank
+-- You board: an older server would drop it, and the player's name would come back on the board after a rollout.
+ProfileSchema.VERSION = 30
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -239,6 +241,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		lawn = {},
 		lawnStyles = Lawn.freshStyles(),
 		cornerShop = CornerShop.fresh(),
+		hideCredit = nil,
 	}
 end
 
@@ -850,6 +853,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 		Lawn.sanitize(raw.lawnOwned, raw.lawn, raw.lawnStyles, profile.tier)
 	-- #1052 (version 29): the Corner Shop; saves before it have bought nothing and fed no snacks
 	profile.cornerShop = CornerShop.sanitize(raw.cornerShop, now)
+	-- #1083 (version 30): only true hides the name on the Thank You board; anything else is shown
+	profile.hideCredit = if raw.hideCredit == true then true else nil
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

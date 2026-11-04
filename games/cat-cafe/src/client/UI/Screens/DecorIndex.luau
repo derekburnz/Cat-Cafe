@@ -13,6 +13,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local IndexStrip = require(script.Parent.IndexStrip)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -467,7 +468,8 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 			cell.icon:set(
 				if owned then cell.def.asset else nil,
 				if owned then DecorPieces.kindIcon(piece.kind, Theme.icons.decor) else "?",
-				if owned then piece.rarity else nil
+				if owned then piece.rarity else nil,
+				if owned then ShopIcons.decor(cell.def.id) else nil
 			)
 			cell.kind.Visible = owned
 			cell.name.Text = if owned then cell.def.name else "???"

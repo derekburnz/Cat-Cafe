@@ -1,7 +1,8 @@
 --!strict
 -- #1141: the rank up "different cats" count is one shared function (Economy.rankUpCatCount), read by the server's
 -- Economy.rankUpBlocker and by the client's RankUpNeeds, which RankUp.progress (the rank up card, the upgrade shop
--- button, the goal card and the gate signs) builds its rows and "ready" from. Derek's call (2026-11-04): the free Bellhop Cat counts. These check both sides agree.
+-- button, the goal card and the gate signs) builds its rows and "ready" from. Derek's call (2026-11-04): the free
+-- Bellhop Cat counts. These check both sides agree.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)

@@ -159,6 +159,7 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 	local requirements: { Requirement } = {}
 	local opens: { string } = {}
 	if nextTier then
+		-- the cat and rarity counts read the shared Catalog (as the server does), not `catalog.cats`
 		local needs = RankUpNeeds.of(nextTier, state)
 		table.insert(
 			requirements,

@@ -146,14 +146,4 @@ function StoreLogic.button(row: Row, price: Price?): Button
 	return { text = ("R$%d"):format(price.robux :: number), style = "store", enabled = true }
 end
 
--- Whether any pass is on sale: the HUD's Store tile shows then.
-function StoreLogic.anyForSale(prices: { [number]: Price }): boolean
-	for _, price in prices do
-		if price.forSale then
-			return true
-		end
-	end
-	return false
-end
-
 return StoreLogic

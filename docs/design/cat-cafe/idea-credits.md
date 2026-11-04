@@ -17,7 +17,7 @@ On the Feedback window's 💡 Idea chip, one line and a tick are added: "Feature
 ## 3. The Thank You board
 
 - **Where.** A wooden board with a cat-paw header, "Thank you for the ideas!", in the Town Square near the Codes Cat (Model-Agent picks the spot, `CatCafe_Street_ThanksBoard`, tag `ThanksBoard`). It is a world SurfaceGui, not a window or a HUD button, so nobody has to open anything.
-- **What a row shows.** The idea in our words and the version it shipped in, then "Idea from" and the display name: "Cats nap on lawn benches · v190 · Idea from Mochi_Pie". It shows the newest 12. A small "Older ideas" arrow pages back through the rest on the same board.
+- **What a row shows.** The idea in our words and the version it shipped in, then "Idea from" and the display name: "Cats nap on lawn benches · v190 · Idea from MochiPie". It shows the newest 12. A small "Older ideas" arrow pages back through the rest on the same board.
 - **Display name only.** The server looks up the display name by user id when it builds the board, with `UserService:GetUserInfosByUserIdsAsync`, so a renamed player shows their current name. If the lookup fails, the row reads "Idea from a player" and never shows a username or user id.
 - **Nowhere else.** Store pages, patch notes, social posts and Discord say "an idea from a player", never a name. Off-platform posts are outside Roblox's protections, so names stay inside the game.
 

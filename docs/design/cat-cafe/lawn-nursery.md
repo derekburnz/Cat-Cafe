@@ -6,14 +6,14 @@ The friend: "raise lawn decor prices by a lot" and "sell lawn decor from a Lawn 
 
 ## 1. New prices (fixed coins)
 
-The rule: a piece costs a good chunk of play at the tier that opens it. That's about 5 to 10 minutes of income for a Tier 1 piece, 10 to 15 minutes at Tier 2, 15 to 30 minutes at Tier 3, 20 to 40 minutes at Tier 4 and 30 to 60 minutes at Tier 5, using the economy-ladder.md pace model's day rates (about 15, 200, 4,000, 100,000 and 300,000 coins a second). Today a piece is under a minute of income. Lawn pieces give no bonus, so these prices only make the lawn something to save for. They never slow a tier for a player who skips it.
+The rule: a piece costs a good chunk of play at the tier that opens it. Tier 1 pieces can only be bought from Tier 2, when the Park and its nursery open, so they're priced at about 3 to 5 minutes of Tier 2 income (review on #1202). After that it's 10 to 15 minutes at Tier 2, 15 to 30 minutes at Tier 3, 20 to 40 minutes at Tier 4 and 30 to 60 minutes at Tier 5, using the economy-ladder.md pace model's day rates (about 15, 200, 4,000, 100,000 and 300,000 coins a second). Today a piece is under a minute of income. Lawn pieces give no bonus, so these prices only make the lawn something to save for. They never slow a tier for a player who skips it.
 
 | piece | spot | tier | was | now |
 |---|---|---|---|---|
-| Tulip Bed | small | 1 | 500 | 5,000 |
-| Sandwich Board | small | 1 | 500 | 5,000 |
-| Potted Cat Topiary | small | 1 | 1,000 | 8,000 |
-| Mailbox | small | 1 | 1,000 | 8,000 |
+| Tulip Bed | small | 1 | 500 | 40,000 |
+| Sandwich Board | small | 1 | 500 | 40,000 |
+| Potted Cat Topiary | small | 1 | 1,000 | 60,000 |
+| Mailbox | small | 1 | 1,000 | 60,000 |
 | Lamp Post | small | 2 | 3,000 | 75,000 |
 | Bird Bath | small | 2 | 3,000 | 75,000 |
 | Garden Gnome Cat | small | 2 | 5,000 | 120,000 |
@@ -30,10 +30,10 @@ The rule: a piece costs a good chunk of play at the tier that opens it. That's a
 | style | kind | tier | was | now |
 |---|---|---|---|---|
 | Grey Slabs | path | 1 | free | free |
-| Red Brick | path | 1 | 2,000 | 6,000 |
+| Red Brick | path | 1 | 2,000 | 50,000 |
 | Stepping Stones | path | 2 | 10,000 | 90,000 |
 | Paw Print Path | path | 3 | 200,000 | 3,000,000 |
-| White Picket | fence | 1 | 2,000 | 6,000 |
+| White Picket | fence | 1 | 2,000 | 50,000 |
 | Low Hedge | fence | 2 | 10,000 | 90,000 |
 | Iron Railing | fence | 3 | 200,000 | 3,000,000 |
 | Flower Box Fence | fence | 4 | 1,600,000 | 150,000,000 |

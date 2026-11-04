@@ -95,6 +95,40 @@ function DecorPieces.kindName(kind: string?): string
 	return if info then info.name else "Cosmetic"
 end
 
+-- The Decor menu's filter chips after All (and Lawn), left to right (#1120, the 11-04 mockup: "Decor menu chips:
+-- fewer, roomier"). Every piece lands under one of them: Walls holds the wallpaper, paint, door sets and cat flaps,
+-- Floor the floors and the furniture that stands on them, Plants the decorations.
+DecorPieces.CHIPS = { "Plants", "Floor", "Walls" }
+local KIND_CHIP: { [string]: string } = {
+	wallpaper = "Walls",
+	paint = "Walls",
+	door = "Walls",
+	catflap = "Walls",
+	floor = "Floor",
+	furniture = "Floor",
+	decoration = "Plants",
+}
+-- coin decor has a category and no kind (Catalog.decor: Plants, Floor, Wall, Furniture)
+local CATEGORY_CHIP: { [string]: string } = {
+	Wall = "Walls",
+	Floor = "Floor",
+	Furniture = "Floor",
+	Plants = "Plants",
+}
+
+-- A crate piece kind's chip ("Walls" for paint), or nil for a kind the chips do not know.
+function DecorPieces.kindChip(kind: string?): string?
+	return if kind then KIND_CHIP[kind] else nil
+end
+
+-- A decor item's chip: its kind's, else its category's, else Plants, so nothing new falls out of every chip but All.
+function DecorPieces.chip(def: Types.DecorDef): string
+	local loose = def :: any
+	return DecorPieces.kindChip(DecorPieces.info(def).kind)
+		or (if type(loose.category) == "string" then CATEGORY_CHIP[loose.category] else nil)
+		or "Plants"
+end
+
 function DecorPieces.kindIcon(kind: string?, fallback: string): string
 	local info = if kind then KIND_INFO[kind] else nil
 	return if info then info.icon else fallback

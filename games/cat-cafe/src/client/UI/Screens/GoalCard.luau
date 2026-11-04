@@ -22,17 +22,18 @@ export type GoalCard = {
 }
 
 -- The compact card of Derek's 11-04 HUD mockup (#1176): a dark rounded card with the next tier's name, a pink
--- "Rank up!" pill at its right once ready and three thin bars (the captions and numbers are in the rank up card a tap
--- opens). At the top tier the card holds the tier's line alone.
+-- "Rank up!" pill at its right once ready and a thin bar per requirement under its caption and numbers ("Coins
+-- $879 / $1.5K", "Different cats ✓"; the friend 11-04: "put the labels back"). At the top tier the card holds the
+-- tier's line alone.
 local WIDTH = 250
 local PAD = 10
 local TIER_H = 18
 local TITLE_H = 26
 local TOP = TITLE_H + 6 -- the first bar
-local CAPTION_H = 0
+local CAPTION_H = 17
 local BAR_H = 7
-local ROW = BAR_H
-local ROW_GAP = 7
+local ROW = CAPTION_H + 2 + BAR_H
+local ROW_GAP = 6
 local CARD_TRANSPARENCY = 0.12
 local PILL_COLOR = Color3.fromHex("FF6B81")
 local ROWS = 3
@@ -140,7 +141,7 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 			Name = "Bar",
 			BackgroundColor3 = Theme.colors.ink,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(0, CAPTION_H),
+			Position = UDim2.fromOffset(0, CAPTION_H + 2),
 			Size = UDim2.new(1, 0, 0, BAR_H),
 			Parent = row,
 		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
@@ -160,7 +161,6 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 				Name = "Label",
 				Size = UDim2.new(0.55, 0, 0, CAPTION_H),
 				TextXAlignment = Enum.TextXAlignment.Left,
-				Visible = false,
 				Parent = row,
 			}),
 			status = text({
@@ -168,7 +168,6 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 				AnchorPoint = Vector2.new(1, 0),
 				Position = UDim2.fromScale(1, 0),
 				Size = UDim2.new(0.45, 0, 0, CAPTION_H),
-				Visible = false,
 				Parent = row,
 			}),
 		}

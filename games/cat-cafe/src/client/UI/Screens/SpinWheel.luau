@@ -95,8 +95,8 @@ type Turn = {
 
 local WHEEL_SHARE = 0.56 -- of the window's width; the side holds only the spins, Spin and Odds
 local FACE = 0.88 -- the turning face inside the rim
-local TILE = 0.3 -- a prize's picture and amount, of the face
-local RADIUS = 0.31 -- prize middles from the hub, of the face
+local TILE = 0.34 -- a prize's picture and amount, of the face
+local RADIUS = 0.32 -- prize middles from the hub, of the face
 local SPOKE = 5 -- the white divider between two wedges
 -- The wedges (the user, 2026-11-04: "make the menu ui of the spin section much more satisfying and clean looking"): a
 -- classic prize wheel, each slice a bright wedge. Roblox UI has no pie shape, so a wedge is a fan of thin bars from
@@ -240,10 +240,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 			circle({
 				Name = "Light" .. index,
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.fromScale(
-					0.5 + 0.475 * math.sin(theta),
-					0.5 - 0.475 * math.cos(theta)
-				),
+				Position = UDim2.fromScale(0.5 + 0.475 * math.sin(theta), 0.5 - 0.475 * math.cos(theta)),
 				Size = UDim2.fromScale(0.045, 0.045),
 				BackgroundColor3 = Theme.colors.gold,
 				BorderSizePixel = 0,
@@ -609,12 +606,7 @@ end
 
 -- The crate id a crate slice pays this player now (F54: "highest" is the crate of their highest open area).
 function SpinWheel._crateOf(self: any, row: Types.SpinRow): string
-	return CrateLogic.resolve(
-		row.crate or CrateLogic.HIGHEST,
-		self._crates,
-		self._areas,
-		self._tier
-	)
+	return CrateLogic.resolve(row.crate or CrateLogic.HIGHEST, self._crates, self._areas, self._tier)
 end
 
 -- A crate slice's picture, again whenever a new area changes which crate it pays.
@@ -655,11 +647,7 @@ end
 
 -- SpinAllResult(rolls, totals): the wheel turns to the last roll, then one card sums every prize (no popup per spin).
 -- Empty lists mean refused (out of range, cooldown, no spins); the window says why as for one spin.
-function SpinWheel.allResult(
-	self: any,
-	rolls: { { slice: number, amount: number } },
-	totals: { SpinLogic.Total }
-)
+function SpinWheel.allResult(self: any, rolls: { { slice: number, amount: number } }, totals: { SpinLogic.Total })
 	self._allPending = nil
 	if #rolls == 0 then
 		self:result(0, 0)
@@ -730,10 +718,7 @@ function SpinWheel._showAllCard(self: any, count: number, prize: Types.IndexPriz
 			name = "Nice",
 			text = "Nice!",
 			style = "primary",
-			size = UDim2.fromOffset(
-				160,
-				Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
-			),
+			size = UDim2.fromOffset(160, Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)),
 			anchorPoint = Vector2.new(0.5, 1),
 			position = UDim2.new(0.5, 0, 1, -10),
 			zIndex = 22,
@@ -844,7 +829,8 @@ function SpinWheel._build(self: any)
 				Parent = self._face,
 			})
 		)
-		-- the prize on its wedge: a big picture with no tile, the amount in a dark pill under it; a gold ring when won
+		-- the prize on its wedge: one fat picture filling the wedge (Derek's 11-04 mockup), the amount in a dark pill over
+		-- its foot; a gold ring when won
 		local holder = circle({
 			Name = "Slice" .. row.slice,
 			AnchorPoint = Vector2.new(0.5, 0.5),
@@ -858,19 +844,19 @@ function SpinWheel._build(self: any)
 		stroke.Enabled = false
 		local icon = ItemIcon.new({
 			parent = holder,
-			size = UDim2.fromScale(0.74, 0.74),
+			size = UDim2.fromScale(0.9, 0.9),
 			anchorPoint = Vector2.new(0.5, 0),
-			position = UDim2.fromScale(0.5, 0),
+			position = UDim2.fromScale(0.5, -0.04),
 			badge = "gem",
 			plain = true,
 		})
 		local pill: Frame = Create("Frame", {
 			Name = "Pill",
 			AnchorPoint = Vector2.new(0.5, 1),
-			Position = UDim2.fromScale(0.5, 1),
-			Size = UDim2.fromScale(0.86, 0.3),
+			Position = UDim2.fromScale(0.5, 1.04),
+			Size = UDim2.fromScale(0.8, 0.27),
 			BackgroundColor3 = Theme.colors.outline,
-			BackgroundTransparency = 0.25,
+			BackgroundTransparency = 0.1,
 			BorderSizePixel = 0,
 			ZIndex = 4,
 			Parent = holder,
@@ -994,8 +980,7 @@ function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
 		Parent = line,
 	})
 	Outline.text(chance, 1)
-	local tile: Tile =
-		{ holder = line, stroke = stroke, icon = icon, row = row, crate = nil, prize = prize }
+	local tile: Tile = { holder = line, stroke = stroke, icon = icon, row = row, crate = nil, prize = prize }
 	self:_paint(tile)
 	table.insert(self._oddsTiles, tile)
 end
@@ -1018,14 +1003,12 @@ function SpinWheel._setAngle(self: any, angle: number)
 	for _, bar in self._bars do
 		local turn = bar.base + angle
 		local theta = math.rad(turn)
-		bar.frame.Position =
-			UDim2.fromScale(0.5 + 0.25 * math.sin(theta), 0.5 - 0.25 * math.cos(theta))
+		bar.frame.Position = UDim2.fromScale(0.5 + 0.25 * math.sin(theta), 0.5 - 0.25 * math.cos(theta))
 		bar.frame.Rotation = turn
 	end
 	for index, tile: Tile in self._tiles do
 		local theta = math.rad((index - 1) * size + angle)
-		tile.holder.Position =
-			UDim2.fromScale(0.5 + RADIUS * math.sin(theta), 0.5 - RADIUS * math.cos(theta))
+		tile.holder.Position = UDim2.fromScale(0.5 + RADIUS * math.sin(theta), 0.5 - RADIUS * math.cos(theta))
 	end
 	for index, spoke: Frame in self._spokes do
 		local edge = (index - 0.5) * size + angle
@@ -1073,9 +1056,7 @@ function SpinWheel._land(self: any, turn: Turn)
 	self:_blink(nil)
 	self:_light(turn.index)
 	local row: Types.SpinRow? = self._rows[turn.index]
-	local won = if row
-		then "You won " .. self:_prize(row, turn.amount) .. "!"
-		else "You won a prize!"
+	local won = if row then "You won " .. self:_prize(row, turn.amount) .. "!" else "You won a prize!"
 	self:_say(won, PAL.good)
 	local tile: Tile? = self._tiles[turn.index]
 	if tile and self.frame.Visible then
@@ -1243,9 +1224,7 @@ function SpinWheel._refresh(self: any)
 	local all: Button.Button = self._allButton
 	local showAll = self._callbacks.spinAll ~= nil and spins > 1
 	all.instance.Visible = showAll
-	self._oddsButton.instance.Size = if showAll
-		then UDim2.new(0.5, -4, 1, 0)
-		else UDim2.fromScale(1, 1)
+	self._oddsButton.instance.Size = if showAll then UDim2.new(0.5, -4, 1, 0) else UDim2.fromScale(1, 1)
 	all:setText(if allPending then "..." else SpinLogic.allText(spins, (Config :: any).SpinAllMax))
 	all:setEnabled(not allPending and turn == nil and self._pressedAt == nil)
 end

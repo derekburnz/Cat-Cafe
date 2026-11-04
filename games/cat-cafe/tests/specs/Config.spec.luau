@@ -161,7 +161,9 @@ return function()
 		SpinBankCap = 20,
 		-- golden fish and crates (F52, F53, golden-fish.md section 8)
 		CrateLuckyEvery = 20,
-		CratePrice = 60,
+		CratePrice = 40,
+		CrateBundleCount = 5,
+		CrateBundlePrice = 180,
 		FishMarketRange = 14,
 		CrateOpenCooldownSeconds = 2,
 		DecorIndexBonus = 0.05,
@@ -241,7 +243,6 @@ return function()
 		PicnicEverySeconds = 21600, -- F100 (camp-extras.md section 4); LostFoundTable is checked in CampExtras.spec
 		PicnicHold = 2,
 		PicnicPotion = "tip_potion", -- Design-Agent 11-02: one 10 minute Money Potion a fill, not a 15 minute one
-		YardSaleCratePrice = 40,
 		PondFishPerStep = 2,
 		PondStepSeconds = 1800,
 		PondHold = 24,

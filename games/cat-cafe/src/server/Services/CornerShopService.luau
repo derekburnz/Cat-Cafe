@@ -9,7 +9,8 @@
 --     Every buy, bought or refused, answers CornerShopStock; a refusal toasts why.
 --   CornerShopStock(stock)  S -> C: on join, at each new window, after every buy.
 --   CafeShow(userId, showId, endsAt)  S -> all: one show at a time a cafe, so a bought show starts when the last one
---     ends; a joiner gets every show still running or waiting. Kept in memory: a show is a moment, not a save.
+--     ends, and at most SHOW_QUEUE_MAX are held (one playing, one waiting); a joiner gets every show still running
+--     or waiting. Kept in memory: a show is a moment, not a save.
 -- Nothing here is random, sold for golden fish or Robux, or raises income (corner-shop.md section 3).
 
 local CollectionService = game:GetService("CollectionService")
@@ -33,6 +34,8 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local CornerShopService = {}
 
 type Show = { showId: string, endsAt: number }
+
+local SHOW_QUEUE_MAX = 2 -- shows a cafe holds at once: the one playing and the next
 
 local sentWindow: { [Player]: number } = {} -- the window each player's last CornerShopStock was for
 local shows: { [number]: { Show } } = {} -- each cafe owner's shows still running or waiting, in order
@@ -73,7 +76,7 @@ end
 
 -- The shows of `userId` still running or waiting at `now`, the ended ones dropped.
 local function liveShows(userId: number, now: number): { Show }
-	local list = shows[userId] or {}
+	local list: { Show } = shows[userId] or {}
 	local live: { Show } = {}
 	for _, show in list do
 		if show.endsAt > now then
@@ -148,6 +151,11 @@ local function onBuy(
 	}, window, price, profile.coins)
 	if blocker ~= nil then
 		refuse(blocker)
+		return
+	end
+	-- review: the running show plus one waiting at most, so a cafe's queue never runs on for many minutes
+	if row.kind == "show" and #liveShows(player.UserId, os.time()) >= SHOW_QUEUE_MAX then
+		refuse("A show is already waiting over your cafe. Try again after it starts.")
 		return
 	end
 	if not Economy.trySpend(profile, price) then

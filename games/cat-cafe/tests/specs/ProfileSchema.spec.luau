@@ -1422,7 +1422,7 @@ return function()
 			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
 				window = 5977152,
 				alerted = 5977150,
-				bought = { tip_potion = 2, gold_rush_potion = 1, classic_crate = 1 },
+				bought = { tip_potion = 2, gold_rush_potion = 1 }, -- the shelf has no crate since #1051
 			})
 			-- a future-dated window comes back to the next one, so the shelf is not "on its way" for days (N299)
 			raw.freshCatch = { window = 9000000, alerted = 9000000, bought = {} }

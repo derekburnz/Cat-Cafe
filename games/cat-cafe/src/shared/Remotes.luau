@@ -64,6 +64,9 @@ Remotes.ClientToServer = {
 	"SpinWheel", -- ()  within SpinStationRange of a SpinWheel station, a free or banked spin, SpinCooldownSeconds (F49)
 	"OpenCrate", -- (crateId: string)  within FishMarketRange of a FishMarket, the crate's zone unlocked, a banked
 	-- crate (used first) or its price in golden fish, CrateOpenCooldownSeconds between opens (F53, shared/Crates)
+	"BuyCrateBundle", -- (crateId: string)  #1051 (crate-prices.md section 3): within FishMarketRange of a FishMarket, a
+	-- crate sold for golden fish whose zone is open, CrateBundlePrice golden fish; banks CrateBundleCount of it, opens
+	-- none (Crates.bundleBlocker); 1 a second, answered with a toast and a ProfileSync
 	"BuyFishItem", -- (itemId: string)  within FishMarketRange of a FishMarket, a lure or perk row of Catalog.fishShop,
 	-- below its max level, its cost in golden fish (F53); answered with a toast and a ProfileSync
 	"RedeemCode", -- (text: string)  within CodesCatRange of a CodesCat, at most 40 bytes, trimmed and lowercased to 1
@@ -105,8 +108,8 @@ Remotes.ClientToServer = {
 	"CollectCampExtra", -- (extraId: string)  F100 (camp-extras.md section 4): "picnic", "pond" or "lostFound", the
 	-- player's tier opens its area, within CampExtraRangeStuds (and a little slack) of its PromptAnchor, something held;
 	-- takes it all; 1 a second, answered with CampExtraResult and CampExtrasState
-	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), one of today's two crates
-	-- (CampExtras.yardStock) not yet bought today, YardSaleCratePrice golden fish; banked for the Market; 1 a second
+	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), today's crate
+	-- (CampExtras.yardStock) not yet taken today, free since #1051; banked for the Market; 1 a second
 	-- F91 front lawn (front-lawn.md section 5; LawnService, shared/Lawn): the caller's own cafe, once its art is in
 	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet, the
 	-- caller's tier at its tier and its price in coins (sink "lawn"); a style goes in use at once, a piece onto
@@ -198,7 +201,7 @@ Remotes.ServerToClient = {
 	-- per server per night, `night` its count), nil by day; after every buy
 	"FreshCatchStock", -- (stock: Types.FreshCatchStock?)  F94: this player's Fresh Catch amounts and buys by day,
 	-- nil at night ("Back at sunrise"); at sunrise, at each new window, on join and after every BuyFreshCatch
-	"ShopAlert", -- (itemId: string)  F94: a Gold Rush Potion or the cheap Classic Crate is on the Fresh Catch shelf
+	"ShopAlert", -- (itemId: string)  F94: a Gold Rush Potion is on the Fresh Catch shelf (no crate since #1051)
 	-- and this player has the golden fish for it; at most once a window per player, only with settings.shopAlerts on
 	-- (none until shared/Settings saves the key, review S100)
 	"TipJarState", -- (state: Types.TipJarState)  when the profile loads and after every claim (F47)

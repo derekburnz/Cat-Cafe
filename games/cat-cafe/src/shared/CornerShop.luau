@@ -195,7 +195,7 @@ function CornerShop.sanitize(raw: unknown, now: number): Types.CornerShopState
 	state.snackXp = math.clamp(whole(value.snackXp), 0, Config.CornerSnackXpPerDay)
 	if type(value.bought) == "table" then
 		for _, row in Catalog.cornerShop do
-			local weights = Config.CornerShopAmountWeights[row.id] or {}
+			local weights: { number } = Config.CornerShopAmountWeights[row.id] or {}
 			local most = 0
 			for index, weight in weights do
 				if weight > 0 then

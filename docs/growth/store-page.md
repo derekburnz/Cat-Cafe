@@ -55,7 +55,7 @@ Reworked 2026-11-04 to the format the person liked (Coordinator, examples in the
 6. Group perk line
 7. A two-question FAQ
 
-Length is 919 characters (929 in UTF-16, 957 bytes), all under the 1,000 limit. The hook is 106 characters, so it shows in full in search.
+Length is 914 characters (952 bytes), all under the 1,000 limit. The hook is 106 characters, so it shows in full in search.
 
 Every claim checked against main on 2026-11-04:
 - **Update:** the Corner Shop is a coins-only stall that restocks every 5 minutes (#1052, `CornerShop.luau`, UI in `UIController`).
@@ -64,12 +64,12 @@ Every claim checked against main on 2026-11-04:
   - 50 area cats in `Catalog.cats`, plus 10 spares and the Bellhop Cat.
   - Gold and rainbow coats.
 - **Cafe and tools:**
-  - Roles take orders, make the food and serve.
+  - Roles: Barista, Waiter, Greeter, Entertainer (Types.luau), so "greet customers, make drinks and serve".
   - Decor through the crates.
   - Cat Cannon (`Cannon.luau`).
   - Bait bowl and lures (`Bait.luau`).
   - Potions (`Potions.luau`).
-- **Trading** at `TradeMinTier = 3`, started from a player's head tag or the Trade button (trading.md section 1).
+- **Trading** at `TradeMinTier = 3`, started from the Trade button (Review-Agent: there is no head-tag trade in the code, though trading.md section 1 describes one).
 - **Offline earnings:** half pay for up to 8 h without the Long Nap pass, so "keeps earning" holds for everyone.
 - **Group perk:** `Config.GroupId = 107520049` is live on main, so the Bellhop Cat is claimed by joining the group (starter-cat.md section 2). It's free, the player presses the join button themselves, and there's no paid step. The group isn't named, because "Creampuff Games" contains "Games".
 - **FAQ "Do I need Robux to get cats?":**

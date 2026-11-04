@@ -49,7 +49,7 @@ Theme.colors = {
 }
 
 -- Button fills (Derek 2026-10-27: "copy the ui button background from the popular games"; the clean look since
--- 2026-11-03, #1016): each face is a gradient from `top` to `bottom` over a darker `depth` lip, with a light bar along
+-- 2026-11-03, #961): each face is a gradient from `top` to `bottom` over a darker `depth` lip, with a light bar along
 -- the top (Components/Button). Brighter than the cafe palette above, as in popular simulators, in the same hues.
 Theme.button = {
 	primary = {

@@ -5228,6 +5228,9 @@ do
 			shop.screen:destroy()
 			shop.screen = nil
 		end
+		if shop.open and hud then
+			hud:setStore(nil) -- no window left for the tile to open
+		end
 		shop.open = false
 		PassShop.stop()
 	end

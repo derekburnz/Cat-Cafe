@@ -1257,11 +1257,15 @@ local SCENES = {
 	{ "HUDStoreOffSale", function()
 		UI.store.preview(storePrices(false), {})
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
-		local tile = hud and hud:FindFirstChild("Store", true)
+		local hudRoot = hud and hud:FindFirstChild("Root")
+		local menu = hudRoot and hudRoot:FindFirstChild("Menu") -- on touch the tile is the grid's first square
+		local tile = hudRoot and (hudRoot:FindFirstChild("Store") or (menu and menu:FindFirstChild("Store")))
 		assert(tile and tile:IsA("GuiObject") and tile.Visible, "uigate: the HUD's Store tile is hidden (#1167)")
 		press("CatCafeHUD", "Store")
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
-		local window = modals and modals:FindFirstChild("Store", true)
+		local modalRoot = modals and modals:FindFirstChild("Root")
+		local container = modalRoot and modalRoot:FindFirstChild("Container")
+		local window = container and container:FindFirstChild("Store")
 		assert(window and window:IsA("GuiObject") and window.Visible, "uigate: the Store tile did not open the Store")
 	end },
 	-- F102: the Trade window's players: Sam to ask, Alex under the minimum tier, Mia busy in a trade

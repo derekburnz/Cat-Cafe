@@ -12,7 +12,7 @@ Seven cats, one line each. Each line says what the station does in a few words, 
 | The Fish Market's shopkeeper (`FishMarket`) | Town Square | "Crates, treats and fresh potions!" | always |
 | The Codes Cat (`CodesCat`) | Town Square | "Got a code? Tell me here!" | always |
 | The Bellhop Cat at its stand (`BellhopStand`) | Town Square | "A free cat for your cafe!" | only until the player has claimed it |
-| The night dealer (`DealerCart`) | the street, at night | "Rare foods tonight. Back every night!" | only while the cart is in town |
+| The night dealer (`DealerCart`) | the street, at night | "Rare foods here every night!" | only while the cart is in town |
 | The Cat Collector (`CatCafe_NPC_Collector`) | at the player's cafe, on a visit | "Got a cat I'm looking for?" | only while he is visiting |
 | The Corner Shop's cat (`CornerShop`) | Town Square, once built (#1052) | "Snacks, bubbles and fireworks!" | always |
 

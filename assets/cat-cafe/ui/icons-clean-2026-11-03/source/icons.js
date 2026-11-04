@@ -173,6 +173,23 @@ window.ICONS = {
     <circle cx="24.5" cy="40.5" r="2.5" fill="${O}"/><circle cx="29" cy="37.8" r="2.5" fill="${O}"/>
     <circle cx="35" cy="37.8" r="2.5" fill="${O}"/><circle cx="39.5" cy="40.5" r="2.5" fill="${O}"/>
     <path d="M12 14 H52" stroke="#a8652a" stroke-width="3" stroke-linecap="round"/>`,
+  // #1136 (11-04): the last three glyphs that still drew the old icon sheet: Equip Best, Invite and the lock
+  equipBest: `<path ${S} fill="#ffd23f" d="M27 8 Q30 26 46 30 Q30 34 27 56 Q24 34 8 30 Q24 26 27 8 Z"/>
+    <path d="M27 17 Q28.5 25 34 27.5" stroke="#fff1a8" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path ${S} fill="#fff" stroke-width="3.5" d="M49 5 Q50.5 13 58 14.5 Q50.5 16 49 24 Q47.5 16 40 14.5 Q47.5 13 49 5 Z"/>
+    <path ${S} fill="#5fd0ff" stroke-width="3.5" d="M50 38 Q51.2 45 57 46.5 Q51.2 48 50 55 Q48.8 48 43 46.5 Q48.8 45 50 38 Z"/>`,
+  invite: `<rect ${S} x="6" y="16" width="52" height="38" rx="6" fill="#fff"/>
+    <path d="M9 50 L26 36 M55 50 L38 36" stroke="#d9cfc4" stroke-width="3.5" stroke-linecap="round"/>
+    <path ${S} fill="#ffe3ee" d="M7 19 Q7 16 10 16 H54 Q57 16 57 19 L36 37 Q32 40 28 37 Z"/>
+    <path ${S} fill="#ff4f7b" stroke-width="3.5" d="M32 46 Q20 38 21 31 Q22 25 27.5 25.5 Q30.5 26 32 29 Q33.5 26 36.5 25.5 Q42 25 43 31 Q44 38 32 46 Z"/>
+    <path d="M25.5 30 Q26 28.5 28 28.6" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".85"/>`,
+  lock: `<path d="M19 30 V20 A13 13 0 0 1 45 20 V30" fill="none" stroke="${O}" stroke-width="12" stroke-linecap="round"/>
+    <path d="M19 30 V20 A13 13 0 0 1 45 20 V30" fill="none" stroke="#a9b6c8" stroke-width="5" stroke-linecap="round"/>
+    <path d="M22.5 22 A9.5 9.5 0 0 1 30 12" fill="none" stroke="#e6edf6" stroke-width="2.2" stroke-linecap="round"/>
+    <rect ${S} x="9" y="28" width="46" height="31" rx="7" fill="#ffd23f"/>
+    <path d="M13 33 H51" stroke="#fff1a8" stroke-width="3" stroke-linecap="round"/>
+    <path d="M14 54 H50" stroke="#e7a812" stroke-width="3" stroke-linecap="round"/>
+    <path fill="${O}" d="M32 37 A5 5 0 0 1 34.5 46.3 L36 52 H28 L29.5 46.3 A5 5 0 0 1 32 37 Z"/>`,
 };
 // #1070: one clean flask per potion, in its colour (Theme.potionColors), as in Derek's 11-04 mockup
 for (const [name, liquid] of Object.entries({ potionTip: '#ffc94d', potionLucky: '#6ccb7a', potionSwift: '#5fa8ff', potionSteady: '#8fd3c1', potionBigTip: '#f2b233', potionGoldRush: '#ffe08a', potionQuickBait: '#f5a3c0' })) {

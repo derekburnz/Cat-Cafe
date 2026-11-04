@@ -180,7 +180,9 @@ local yardMid = (yardZ1 + yardZ2) / 2
 
 -- Index decor spots (F48): each area's piece and its gold piece share one, since the gold one stands in for it.
 local INDEX_SPOTS: { [string]: Point } = {
-	alley = { x = 17, y = 3.8, z = halfD - 0.2 }, -- the print, on the back wall right of the counter, above the wall rail
+	-- the print, on the bare right wall facing into the room (#1187: on the back wall it hung over the back window,
+	-- with decor spot 8's tall pieces in front; Model-Agent's wall_fit.py found no clash here)
+	alley = { x = halfW - 0.2, y = 3.8, z = 6, rotY = 90 },
 	park = { x = halfW - 1.2, y = 0, z = -2.43, rotY = 90 }, -- the bench, against the right wall facing the tables
 	neighbourhood = { x = -halfW + 1.2, y = 0, z = -4.25 }, -- the planter, left wall between the window and the tank
 	-- the lamp, in the back left corner (0.15 further out since #917: its cap touched the wainscot's rail)
@@ -239,9 +241,9 @@ Layout.plot = {
 	decorAnchors = {
 		plants = { x = 15, y = 1, z = -halfD + 0.7 }, -- on the right window's sill (its centre halfW - 7), clear of its curtain
 		rug = { x = 0, y = 0, z = -2.43 },
-		-- flat on the back wall over the Alleyway print, right of the counter: in front of the menu board it hid the
-		-- menu and stood 0.7 off the wall (Derek's 10-30 playtest); the sign's back is its pivot plane
-		neon_sign = { x = 17, y = 6.2, z = halfD - 0.2 },
+		-- flat on the right wall over the Alleyway print (#1187: on the back wall it covered the back window); in front
+		-- of the menu board it hid the menu (Derek's 10-30 playtest). The sign's back is its pivot plane
+		neon_sign = { x = halfW - 0.2, y = 6.2, z = 6, rotY = 90 },
 		fish_tank = { x = -halfW + 2, y = 0, z = 0, rotY = 90 },
 		index_alley = INDEX_SPOTS.alley,
 		index_park = INDEX_SPOTS.park,

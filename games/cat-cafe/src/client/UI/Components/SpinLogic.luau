@@ -164,4 +164,38 @@ function SpinLogic.refusal(spin: Spin?, now: number): string
 	return "Walk up to the wheel and try again"
 end
 
+-- #1078 Use all spins (Gameplay-Engineer #1098): SpinAllResult's totals, { kind, id, amount }, as one prize for the
+-- results card's PrizeChips. Kinds: "coins", "fish", "lure" (id = lureId), "crate" (id = crate key).
+export type Total = { kind: string, id: string?, amount: number }
+
+function SpinLogic.totalsPrize(totals: { Total }): Types.IndexPrize
+	local prize: Types.IndexPrize = {}
+	for _, total in totals do
+		local amount = total.amount
+		if type(amount) ~= "number" or amount <= 0 then
+			continue
+		end
+		if total.kind == "coins" then
+			prize.coins = (prize.coins or 0) + amount
+		elseif total.kind == "fish" then
+			prize.fish = (prize.fish or 0) + amount
+		elseif total.kind == "lure" and total.id then
+			local lures = prize.lures or {}
+			lures[total.id] = (lures[total.id] or 0) + amount
+			prize.lures = lures
+		elseif total.kind == "crate" and total.id then
+			local crates = prize.crates or {}
+			crates[total.id] = (crates[total.id] or 0) + amount
+			prize.crates = crates
+		end
+	end
+	return prize
+end
+
+-- The Use all button's words: "Use all 5"; it shows only with two or more spins to use.
+function SpinLogic.allText(spins: number, cap: number?): string
+	local n = if cap then math.min(spins, cap) else spins
+	return ("Use all %d"):format(n)
+end
+
 return SpinLogic

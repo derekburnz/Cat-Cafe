@@ -106,6 +106,22 @@ local IDS: { [string]: string } = {
 	Icon_Clean_StarTreat = "rbxassetid://127060767808144",
 	Icon_Clean_Spin = "rbxassetid://126057350997233",
 	Icon_Clean_Kibble = "rbxassetid://92153852858346", -- its own bowl of kibble (run 41851955780, 11-04)
+	-- #1176: Model-Agent's HUD button pictures (#1185; upload run 41891138375, 11-04), the HUD's tiles prefer them
+	Icon_Hud_Store = "rbxassetid://124606819909900",
+	Icon_Hud_Cats = "rbxassetid://114712006834691",
+	Icon_Hud_Index = "rbxassetid://92879334010014",
+	Icon_Hud_Quests = "rbxassetid://117754240235784",
+	Icon_Hud_Upgrades = "rbxassetid://90888785565724",
+	Icon_Hud_Decor = "rbxassetid://84550217471389",
+	Icon_Hud_Rewards = "rbxassetid://85822642571481",
+	Icon_Hud_Tutorial = "rbxassetid://86238131724533",
+	Icon_Hud_Feedback = "rbxassetid://92396498739111",
+	Icon_Hud_Menu = "rbxassetid://137145051907694",
+	Icon_Hud_MyCafe = "rbxassetid://133654340052418",
+	Icon_Hud_Cannon = "rbxassetid://139270542593530",
+	Icon_Hud_Areas = "rbxassetid://74170242876257",
+	Icon_Hud_Potions = "rbxassetid://123878686865679",
+	Icon_Hud_Bait = "rbxassetid://119953797390858",
 	-- #1204: Model-Agent's potion flasks (#1193; upload run 41893876000, 11-04), ShopIcons.potion prefers them
 	Icon_Flask_Tip = "rbxassetid://77878202219932",
 	Icon_Flask_Lucky = "rbxassetid://113253860132139",
@@ -161,6 +177,13 @@ end
 
 function ShopIcons.clean(name: string): string?
 	return IDS["Icon_Clean_" .. name]
+end
+
+-- A HUD tile's picture (#1185): the 3D-rendered button picture when there is one, else the clean symbol. Named as the
+-- clean symbols are (Home is My Cafe, Potion the Potions tile, Bowl the Bait tile).
+local HUD_FOR: { [string]: string } = { Home = "MyCafe", Potion = "Potions", Bowl = "Bait" }
+function ShopIcons.hud(name: string): string?
+	return IDS["Icon_Hud_" .. (HUD_FOR[name] or name)] or IDS["Icon_Clean_" .. name]
 end
 
 -- The crate's pool in PascalCase and whether it is the golden twin, or nil for an id that is not a crate.

@@ -110,7 +110,9 @@ function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
 	local whole = if glyph then Theme.glyphImages[glyph] else nil
 	local clean = if glyph then Theme.cleanGlyphs[glyph] else nil
 	if (whole == nil or whole == "") and clean then
-		whole = ShopIcons.clean(clean)
+		-- the HUD's 3D button picture when there is one (#1185), so a window's badge matches its HUD tile (#1203: the
+		-- Decor header was blank, its 🪴 draws nothing), else the clean symbol
+		whole = ShopIcons.hud(clean)
 	end
 	if whole and whole ~= "" then
 		IconArt.setImage(label, whole, scale)

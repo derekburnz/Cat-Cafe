@@ -13,75 +13,42 @@ return function()
 
 	describe("sanitize", function()
 		it("keeps a good credit and drops anything that is not one", function()
-			expect(
-				IdeaCredits.sanitize({
-					userId = 7,
-					idea = "Cats nap on benches",
-					version = 190,
-					addedAt = 5,
-				}) :: any
-			).to.deepEqual({
-				userId = 7,
-				idea = "Cats nap on benches",
-				version = 190,
-				addedAt = 5,
-			})
+			expect(IdeaCredits.sanitize({ userId = 7, idea = "Cats nap on benches", version = 190, addedAt = 5 }) :: any).to.deepEqual(
+				{ userId = 7, idea = "Cats nap on benches", version = 190, addedAt = 5 }
+			)
 			expect(IdeaCredits.sanitize(nil)).to.equal(nil)
 			expect(IdeaCredits.sanitize("x")).to.equal(nil)
-			expect(IdeaCredits.sanitize({ userId = 0, idea = "a", version = 1, addedAt = 1 })).to.equal(
-				nil
-			)
-			expect(IdeaCredits.sanitize({ userId = 7, idea = 5, version = 1, addedAt = 1 })).to.equal(
-				nil
-			)
-			expect(IdeaCredits.sanitize({ userId = 7, idea = "   ", version = 1, addedAt = 1 })).to.equal(
-				nil
-			)
-			expect(IdeaCredits.sanitize({ userId = 7, idea = "a", version = 0 / 0, addedAt = 1 })).to.equal(
-				nil
-			)
-			expect(IdeaCredits.sanitize({ userId = 7, idea = "\255bad", version = 1, addedAt = 1 })).to.equal(
-				nil
-			)
+			expect(IdeaCredits.sanitize({ userId = 0, idea = "a", version = 1, addedAt = 1 })).to.equal(nil)
+			expect(IdeaCredits.sanitize({ userId = 7, idea = 5, version = 1, addedAt = 1 })).to.equal(nil)
+			expect(IdeaCredits.sanitize({ userId = 7, idea = "   ", version = 1, addedAt = 1 })).to.equal(nil)
+			expect(IdeaCredits.sanitize({ userId = 7, idea = "a", version = 0 / 0, addedAt = 1 })).to.equal(nil)
+			expect(IdeaCredits.sanitize({ userId = 7, idea = "\255bad", version = 1, addedAt = 1 })).to.equal(nil)
 		end)
 
 		it("trims, drops control characters and cuts a long idea at a whole character", function()
-			local trimmed = IdeaCredits.sanitize({
-				userId = 7,
-				idea = "  two\nlines  ",
-				version = 1,
-				addedAt = 1,
-			})
+			local trimmed = IdeaCredits.sanitize({ userId = 7, idea = "  two\nlines  ", version = 1, addedAt = 1 })
 			expect((trimmed :: any).idea).to.equal("two lines")
 			local long = string.rep("é", 40) -- 80 bytes
-			local cut =
-				IdeaCredits.sanitize({ userId = 7, idea = long, version = 1, addedAt = 1 }) :: any
+			local cut = IdeaCredits.sanitize({ userId = 7, idea = long, version = 1, addedAt = 1 }) :: any
 			expect(#cut.idea <= IdeaCredits.IDEA_BYTES).to.equal(true)
 			expect(utf8.len(cut.idea)).to.equal(24)
 		end)
 	end)
 
 	describe("rows (QA checks 4 to 6)", function()
-		it(
-			"lists the newest first with the display name, and 'a player' when hidden or not looked up",
-			function()
-				local rows = IdeaCredits.rows(
-					{
-						credit(1, "Old idea", 10),
-						credit(2, "New idea", 30),
-						credit(3, "Middle idea", 20),
-					},
-					{ [1] = "MochiPie", [2] = "Biscuit" },
-					{ [2] = true }
-				)
-				expect(rows :: any).to.deepEqual({
-					{ idea = "New idea", version = 190, name = IdeaCredits.ANON }, -- hidden
-					{ idea = "Middle idea", version = 190, name = IdeaCredits.ANON }, -- lookup failed
-					{ idea = "Old idea", version = 190, name = "MochiPie" },
-				})
-				expect(IdeaCredits.ANON).to.equal("a player")
-			end
-		)
+		it("lists the newest first with the display name, and 'a player' when hidden or not looked up", function()
+			local rows = IdeaCredits.rows(
+				{ credit(1, "Old idea", 10), credit(2, "New idea", 30), credit(3, "Middle idea", 20) },
+				{ [1] = "MochiPie", [2] = "Biscuit" },
+				{ [2] = true }
+			)
+			expect(rows :: any).to.deepEqual({
+				{ idea = "New idea", version = 190, name = IdeaCredits.ANON }, -- hidden
+				{ idea = "Middle idea", version = 190, name = IdeaCredits.ANON }, -- lookup failed
+				{ idea = "Old idea", version = 190, name = "MochiPie" },
+			})
+			expect(IdeaCredits.ANON).to.equal("a player")
+		end)
 
 		it("never puts a user id in a row", function()
 			local rows = IdeaCredits.rows({ credit(123456789, "Idea", 1) }, {}, {})

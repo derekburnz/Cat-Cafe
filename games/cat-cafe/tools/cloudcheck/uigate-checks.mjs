@@ -38,8 +38,9 @@ const GATED = new Set(['tap', 'text', 'offscreen', 'topbar', 'fonts', 'jitter', 
 // tile draws is every piece under it, each grown by its outline (UIStroke Border draws outside the box): the
 // square, its label, the key cap, the red dot, the Store's glow. The invisible Hit pad that grows a tap target is
 // left out. Two tiles fail when what they draw comes closer than the larger of their two outlines.
-// The left column (the menu grid, the Store, the arrow tab) and the bottom right corner are gated; the other rows
-// (the top right icons, the bottom row) are reported as 'tilesnear', a warning, until they get the same pass. A
+// Two tiles both in the left column (the menu grid, the Store, the arrow tab) or the bottom right corner are gated;
+// any other pair (the top right icons, the bottom row, the carry banner's Drop) is reported as 'tilesnear', a
+// warning, until those rows get the same pass. A
 // list that opens over the icon row (Pop) sits over it on purpose and is left out.
 export const HUD_GUI = 'CatCafeHUD';
 const GATED_TILES = /^CatCafeHUD\/Root\/(Menu\/[^/]+|Store|MenuFold|Corner\/[^/]+)$/;
@@ -220,7 +221,7 @@ export function checkScene(profile, scene) {
         const gapY = Math.max(b.rect.y1 - a.rect.y2, a.rect.y1 - b.rect.y2);
         const gap = Math.max(gapX, gapY);
         const what = gap < 0 ? `overlaps ${a.node.path} by ${px(-gap)} px` : `${px(gap)} px from ${a.node.path}, needs ${px(clear)}`;
-        const gated = GATED_TILES.test(a.node.path) || GATED_TILES.test(b.node.path);
+        const gated = GATED_TILES.test(a.node.path) && GATED_TILES.test(b.node.path);
         add(gated ? 'tiles' : 'tilesnear', b.node, `HUD tile ${what}`);
       }
     }

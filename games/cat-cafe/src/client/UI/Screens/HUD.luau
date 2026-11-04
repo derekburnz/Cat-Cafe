@@ -78,7 +78,7 @@ local Types = require(script.Parent.Parent.Types)
 export type Callbacks = {
 	openScreen: (name: Types.ScreenName) -> (),
 	travel: (destination: string) -> (), -- "home" or an AreaId
-	openBait: () -> (), -- the bowl chip opens the bait bowl screen, or the cat waiting at the bowl
+	openBait: () -> (), -- the left menu's bowl tile opens the bait bowl screen, or the cat waiting at the bowl
 	openIndex: () -> (), -- the Index on its cat pages, or closes it
 	equipBest: () -> (),
 	dropCat: () -> (), -- the carry banner's Drop button
@@ -180,7 +180,9 @@ local THUMB_ZONE = 180
 -- rows below the same): every tile and every row keeps a clear gap of at least the outline plus the button foot
 -- (#1105) between what each one draws, not between their boxes. A tile draws past its box: its outline all round,
 -- the key cap on its top left corner, the red dot on its top right and, on the Store, the gold glow and its hover.
-local TILE_CLEAR = Button.OUTLINE + Theme.sizes.buttonDepth -- 9: the empty space between two tiles' drawn edges
+-- the empty space between two tiles' drawn edges (9): the outline plus the button foot, as #1210 asks, though the
+-- clean tiles draw no foot since #1105, so it is a little more room than the drawing needs
+local TILE_CLEAR = Button.OUTLINE + Theme.sizes.buttonDepth
 local KEY_REACH = 6 -- a key cap at (-4, -4) with its 2 px outline pokes this far past the tile's top and left
 -- the red dot (22 px, its middle 3 px down the tile's top edge, its right edge 2 px past the side since #1176, a 2 px
 -- outline) past the tile's top and its right side
@@ -215,7 +217,7 @@ local TRAVEL_ICON = 28 -- the pictures on the Rewards and Menu lists' rows
 local TRAVEL_W = if TOUCH then 80 else 82
 local TRAVEL_TEXT = if TOUCH then Theme.sizes.textTiny + 1 else 17
 local TRAVEL_GAP = 14
--- the potion and bait bowl symbols, bottom right (moved clear of Roblox's jump button on a phone: _placeCorner)
+-- the Potions symbol, bottom right (moved clear of Roblox's jump button on a phone: _placeCorner)
 local SYMBOL = if TOUCH then 64 else 74 -- a little smaller on touch, where the pair may move (_placeCorner)
 local SYMBOL_TEXT = if TOUCH then Theme.sizes.textTiny else 16
 local SYMBOL_H = if TOUCH then SYMBOL else SYMBOL + SYMBOL_TEXT + 4 -- the square, and its label under it
@@ -2852,7 +2854,7 @@ end
 -- The left side, laid out for the screen's height: the counters in the bottom left corner; the potion timers over
 -- them when there is room for those and the whole menu with its arrow tab under it, else (a phone) beside the
 -- menu's last row with the arrow tab; the menu grid centred in what is left above; the bottom row moved right of the
--- counters when the screen is too narrow for it to sit in the middle; and the potion and bowl symbols.
+-- counters when the screen is too narrow for it to sit in the middle; and the Potions symbol.
 function HUD._layoutMenu(self: any)
 	local scale = Scale.get()
 	local size = self._root.AbsoluteSize
@@ -2956,10 +2958,10 @@ function HUD._layoutMenu(self: any)
 	self:_placeCorner()
 end
 
--- The potion and bowl symbols sit in the bottom right corner, except where Roblox's touch jump button would cover
--- them (a phone: the jump button is drawn in screen pixels, Components/NetButtonPlace). There they move up and left,
--- their right edge left of where the Net button shows and their foot over the bottom row, so a thumb on jump or Net
--- never lands on them. A tablet's bigger jump button sits higher, over the corner, so the corner stays.
+-- The Potions symbol sits in the bottom right corner (the bowl moved to the left menu, #1210), except where Roblox's
+-- touch jump button would cover it (a phone: the jump button is drawn in screen pixels, Components/NetButtonPlace).
+-- There it moves up and left, its right edge left of where the Net button shows and its foot over the bottom row, so
+-- a thumb on jump or Net never lands on it. A tablet's bigger jump button sits higher, over the corner, so the corner stays.
 function HUD._placeCorner(self: any)
 	self:_placeCornerPair()
 	self:_placePotionTimers()

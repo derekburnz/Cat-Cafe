@@ -99,15 +99,22 @@ function LuckLogic.current(state: Types.PlayerState, now: number): number
 	return math.clamp(round(luck), 1, LUCK_MAX)
 end
 
+-- "Luck x1" at a plain 1x (#1150), else Luck.text's "Luck x1.3".
 function LuckLogic.text(luck: number): string
+	if luck <= 1 then
+		return "Luck x1"
+	end
 	return Luck.text(luck)
 end
 
-function LuckLogic.shown(state: Types.PlayerState, now: number): boolean
-	if state.luckSources == nil then
-		return LuckLogic.current(state, now) > 1
-	end
-	return #running(state, now) > 0
+-- The chip always shows (#1150), so a new player sees luck exists and watches it climb.
+function LuckLogic.shown(_state: Types.PlayerState, _now: number): boolean
+	return true
+end
+
+-- Whether anything lifts luck above 1x: the chip is quieter when nothing does.
+function LuckLogic.boosted(state: Types.PlayerState, now: number): boolean
+	return LuckLogic.current(state, now) > 1
 end
 
 function LuckLogic.lucky(state: Types.PlayerState, now: number): boolean

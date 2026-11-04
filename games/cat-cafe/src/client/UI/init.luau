@@ -3632,7 +3632,8 @@ do
 		if state.tipsSeen == nil then
 			return
 		end
-		-- F88 (luck-and-rare-moments.md 1d): the first Luck source shows the chip, and the chip the tip
+		-- F88 (luck-and-rare-moments.md 1d): the first Luck source lifts luck above 1x, and that shows the tip (the chip
+		-- itself always shows since #1150)
 		if not tipKnown("luck") and hud ~= nil and hud:luckShown() then
 			UI.tips.show("luck")
 		end

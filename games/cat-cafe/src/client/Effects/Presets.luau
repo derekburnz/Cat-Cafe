@@ -846,6 +846,20 @@ Presets.emitters = {
 		drag = 0.6,
 		rotSpeed = { -60, 60 },
 	},
+	-- King Croissant's gold motes (Effects/ShopCats, #1191): a slow drift of tiny warm gold lights rising off him.
+	goldMote = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden },
+		size = { 0.14, 0.05 },
+		transparency = { 0.2, 1 },
+		lifetime = { 2, 3 },
+		speed = { 0.2, 0.5 },
+		spread = 70,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.25, 0),
+		drag = 0.6,
+		lightEmission = 1,
+	},
 	-- A glint on a leaderboard crown (Effects/Crown, F98): a few gold stars that flash and fade where they are.
 	crownGlint = {
 		texture = Presets.textures.sparkle,
@@ -3247,6 +3261,29 @@ Presets.shopCats = {
 			spots = { { 0.9, 0.3, 0.4 }, { -0.7, 0.6, 1.9 }, { 0.2, -0.9, 3.1 } } :: { { number } },
 		},
 		shift = { sparkles = 8, ring = 3, ringSeconds = 0.5 },
+	},
+	-- King Croissant (`catId`), on the nearest `most` within `within` studs, stepped every `step` seconds: a soft
+	-- gold `glow` (a PointLight on his chest's Glow attachment, kept with Reduce Motion and Low performance), the
+	-- `goldMote` emitter there (none with Reduce Motion, in Low performance or with no budget.shopCatEmitters), and
+	-- a sparkle Texture in `trim.colour` tiled every `trim.tile` studs on `trim.faces` of his cape trim's band,
+	-- scrolling `trim.speed` studs a second (still with Reduce Motion). When his table pays (the same moment as
+	-- Sprinkles), `pop.sparkles` gold sparkles, `pop.stars` gold stars and a `pop.ring` ring off his CrownTop (else
+	-- `overPivot` studs over him), at most once every `pop.gap` seconds; not with Reduce Motion.
+	king = {
+		catId = "king_croissant",
+		within = 60,
+		most = 2,
+		step = 0.1,
+		overPivot = 3.2,
+		glow = { colour = Presets.palette.goldLight, range = 8, brightness = 0.8 },
+		trim = {
+			colour = Presets.palette.golden,
+			transparency = 0.35,
+			tile = 1.2,
+			speed = 0.4,
+			faces = { Enum.NormalId.Back, Enum.NormalId.Front } :: { Enum.NormalId },
+		},
+		pop = { gap = 20, sparkles = 10, stars = 5, ring = 4, ringSeconds = 0.55 },
 	},
 }
 

@@ -1,0 +1,44 @@
+[
+	{
+		"name": "Starter Bundle",
+		"config": "ProductIds.starter_bundle",
+		"price": 99,
+		"regionalPricing": false,
+		"description": "A head start: Sprinkles the baker cat, 10 Big Money Potions, 5 Swift Potions and a cafe sign style. Once per player."
+	},
+	{
+		"name": "Potion Pack XS",
+		"config": "ProductIds.potion_pack_xs",
+		"price": 10,
+		"regionalPricing": false,
+		"description": "2 Big Money Potions (+50% cafe money while active)."
+	},
+	{
+		"name": "Potion Pack S",
+		"config": "ProductIds.potion_pack_s",
+		"price": 25,
+		"regionalPricing": false,
+		"description": "3 Big Money Potions, 1 Swift Potion and 1 Steady Paw Potion."
+	},
+	{
+		"name": "Potion Pack M",
+		"config": "ProductIds.potion_pack_m",
+		"price": 49,
+		"regionalPricing": false,
+		"description": "10 potions: 5 Big Money, 3 Swift and 2 Steady Paw."
+	},
+	{
+		"name": "Potion Pack L",
+		"config": "ProductIds.potion_pack_l",
+		"price": 99,
+		"regionalPricing": false,
+		"description": "22 potions (20 + 2 bonus): 10 Big Money, 6 Swift and 6 Steady Paw."
+	},
+	{
+		"name": "Cafe Pass",
+		"config": "ProductIds.cafe_pass",
+		"price": 299,
+		"regionalPricing": false,
+		"description": "The paid track for the current Cafe Pass season. Level up with quests to unlock its prizes."
+	}
+]

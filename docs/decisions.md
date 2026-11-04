@@ -401,3 +401,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Chores thread (2026-11-04, #1150)
 - 2026-11-04: The HUD luck chip always shows. At a plain 1x it reads "Luck x1" in the quieter subtext colour; boosted it reads in white, and gold on a Lucky Day. The circle and clover (#1258) are unchanged. Why: Derek asked that players always see luck, so they know it exists and can watch it climb. The odds maths is untouched (1x changes nothing); the market's own luck line keeps its above-1x rule.
+
+### Decided by Derek (2026-11-04, #1141), written up by the Gameplay-Engineer thread
+- 2026-11-04: The free starter cat (the Bellhop Cat from the group gate, F96) **counts toward rank up's "different cats"** and its rarity. A shop-only exclusive cat (F95, source "shop") still does not, and quests, achievements and the Index keep leaving every exclusive cat out. One shared count, `Economy.rankUpCatCount` and `Economy.rankUpCatsAtLeast` in `src/shared/Economy.luau`, is read by the server's `rankUpBlocker` and by the client's `RankUpNeeds` (rank up card, upgrade shop button, goal card, gate signs). Why: the client counted the Bellhop and the server did not, so a player with 11 caught cats plus the Bellhop saw "ready" and was refused with "you have 11". Derek chose to count it.

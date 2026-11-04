@@ -5259,6 +5259,7 @@ do
 					or (modal ~= nil and modal:current() ~= nil)
 					or (popups ~= nil and popups:isShowing())
 					or (baitCard ~= nil and baitCard:isShowing())
+					or (askCard ~= nil and askCard:isShowing())
 					or (hud ~= nil and hud:isCarrying())
 					or UI.catch.circlesActive()
 					or UI.rescue.isActive()

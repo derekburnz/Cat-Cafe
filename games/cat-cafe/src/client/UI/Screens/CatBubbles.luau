@@ -6,12 +6,13 @@
 -- fades (Components/CatBubblesLogic). No tap, no prompt, no window, no remote: it is only text.
 --
 -- The stations are the server's models found by CollectionService tag (Components/CatBubbleLines); the Collector is
--- CustomerController's local model. A bubble floats over the station's prompt point (above its action pill), else
--- 1.5 studs over the model's top. It hides while `hooks.blocked()` says so (a window, a catch, a carry, the intro).
+-- CustomerController's local model. A bubble floats at the cat's BubbleAnchor, else over the station's prompt point
+-- (above its action pill), else 1.5 studs over the model's top. It hides while `hooks.blocked()` says so (a
+-- window, a catch, a carry, the intro).
 --
 -- Roblox terms: a BillboardGui draws 2D UI at a 3D point and always faces the camera. Sized with UDim2 scale it is
--- measured in studs, so it shrinks with distance; with AlwaysOnTop off, walls in front hide it; MaxDistance hides it
--- past that many studs. Two billboards take turns, so one can fade out while the next fades in.
+-- measured in studs, so it shrinks with distance; with AlwaysOnTop off, walls in front hide it.
+-- Two billboards take turns, so one can fade out while the next fades in.
 
 local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
@@ -56,7 +57,6 @@ type Slot = {
 	token: number,
 	width: number,
 	height: number,
-	shownScale: number,
 }
 
 local TAIL_SHARE = 0.2 -- of the billboard's height, under the box, where the tail points at the cat
@@ -81,7 +81,8 @@ local function newSlot(parent: Instance, index: number): Slot
 		Adornee = attachment,
 		AlwaysOnTop = false,
 		LightInfluence = 0,
-		MaxDistance = CatBubblesLogic.HIDE_STUDS + 4,
+		-- MaxDistance counts from the camera, which sits behind the player: the step decides by the player's distance
+		MaxDistance = math.huge,
 		ResetOnSpawn = false,
 		Size = UDim2.fromScale(1, 1),
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
@@ -131,7 +132,8 @@ local function newSlot(parent: Instance, index: number): Slot
 		Text = "",
 		ZIndex = 3,
 		Parent = box,
-	}, { Create("UITextSizeConstraint", { MinTextSize = 9, MaxTextSize = 64 }) })
+		-- no real minimum: the box is sized to the line in studs, so a floor would only push the text out of it
+	}, { Create("UITextSizeConstraint", { MinTextSize = 1, MaxTextSize = 64 }) })
 	return {
 		attachment = attachment,
 		billboard = billboard,
@@ -144,7 +146,6 @@ local function newSlot(parent: Instance, index: number): Slot
 		token = 0,
 		width = 1,
 		height = 1,
-		shownScale = -1,
 	}
 end
 
@@ -158,14 +159,10 @@ local function fade(slot: Slot, info: TweenInfo, transparency: number): Tween
 	return last
 end
 
--- Shrinks the bubble up close (CatBubblesLogic.closeScale), keeping the tail's tip on the point.
-local function applyScale(slot: Slot, scale: number)
-	if scale == slot.shownScale then
-		return
-	end
-	slot.shownScale = scale
-	local total = slot.height / (1 - TAIL_SHARE) * scale
-	slot.billboard.Size = UDim2.fromScale(slot.width * scale, total)
+-- Sizes the billboard to the line in studs, keeping the tail's tip on the point.
+local function applySize(slot: Slot)
+	local total = slot.height / (1 - TAIL_SHARE)
+	slot.billboard.Size = UDim2.fromScale(slot.width, total)
 	slot.billboard.StudsOffsetWorldSpace = Vector3.new(0, total / 2, 0)
 end
 
@@ -174,8 +171,7 @@ local function show(slot: Slot, entry: Entry)
 	local text = entry.line.text
 	slot.label.Text = text
 	slot.width, slot.height = CatBubblesLogic.size(text)
-	slot.shownScale = -1
-	applyScale(slot, CatBubblesLogic.closeScale(entry.distance))
+	applySize(slot)
 	slot.attachment.WorldPosition = entry.point or slot.attachment.WorldPosition
 	slot.box.BackgroundTransparency = 1
 	slot.boxStroke.Transparency = 1
@@ -208,6 +204,11 @@ local function pointOf(entry: Entry): Vector3?
 	local instance = entry.instance
 	if not instance:IsDescendantOf(Workspace) then
 		return nil
+	end
+	-- Model-Agent's BubbleAnchor over the cat's head (cat-bubbles.md section 2) wins once a model has one
+	local bubbleAnchor = instance:FindFirstChild("BubbleAnchor", true)
+	if bubbleAnchor ~= nil and bubbleAnchor:IsA("Attachment") then
+		return bubbleAnchor.WorldPosition
 	end
 	local anchorName = entry.line.anchor
 	if anchorName ~= nil then
@@ -338,7 +339,6 @@ function CatBubbles.new(parent: Instance, hooks: Hooks): CatBubbles
 			return
 		end
 		if shown == activeStation then
-			applyScale(slots[activeSlot], CatBubblesLogic.closeScale(entry.distance))
 			return
 		end
 		activeSlot = 3 - activeSlot -- the other billboard, so the old one can finish fading

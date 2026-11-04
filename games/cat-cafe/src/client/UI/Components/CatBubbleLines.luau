@@ -11,9 +11,9 @@
 --   collectorVisiting  only while the Cat Collector visits this player's cafe (CustomerController builds him on
 --                      the plot, tagged CatCollector, while the plot's visit lasts)
 --
--- `anchor` is the attachment the bubble floats over (the station's prompt point), and `lift` the studs the prompt's
--- action pill sits above it (ActionPill LIFT), so the bubble clears the pill. With no anchor the bubble sits 1.5
--- studs over the model's top.
+-- A `BubbleAnchor` attachment on the model (Model-Agent) always wins. Otherwise `anchor` is the attachment the
+-- bubble floats over (the station's prompt point), and `lift` the studs the prompt's action pill sits above it
+-- (ActionPill LIFT), so the bubble clears the pill. With neither the bubble sits 1.5 studs over the model's top.
 
 export type When = "always" | "unclaimedBellhop" | "dealerHere" | "collectorVisiting"
 

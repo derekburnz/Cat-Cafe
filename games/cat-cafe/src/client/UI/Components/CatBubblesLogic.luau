@@ -13,20 +13,18 @@
 
 local CatBubblesLogic = {}
 
+-- client only (no server check reads them), so they sit here and not in shared/Config
 CatBubblesLogic.SHOW_STUDS = 12
 CatBubblesLogic.HIDE_STUDS = 16
 CatBubblesLogic.REPEAT_SECONDS = 60
 CatBubblesLogic.STEP_SECONDS = 0.25 -- section 3: the distance check runs on a 0.25 s step, not every frame
 
--- Bubble size in studs: TEXT_STUDS tall text, about CHAR_STUDS per character, PAD_STUDS round it.
+-- Bubble size in studs: TEXT_STUDS tall text, CHAR_STUDS per character (a little over Fredoka One's average, so a
+-- line always fits on one line at full size), PAD_STUDS round it. Sized in studs only: no shrink up close.
 CatBubblesLogic.TEXT_STUDS = 0.55
 CatBubblesLogic.HEIGHT_STUDS = 1
-CatBubblesLogic.CHAR_STUDS = 0.29
+CatBubblesLogic.CHAR_STUDS = 0.34
 CatBubblesLogic.PAD_STUDS = 0.9
--- Closer than FULL_STUDS the bubble shrinks with the distance (to MIN_SCALE), so it never grows to cover the
--- screen when the player walks right up to the cat.
-CatBubblesLogic.FULL_STUDS = 8
-CatBubblesLogic.MIN_SCALE = 0.35
 
 export type Memory = {
 	current: any?, -- the station showing, nil for none
@@ -115,12 +113,6 @@ end
 function CatBubblesLogic.size(text: string): (number, number)
 	return #text * CatBubblesLogic.CHAR_STUDS + CatBubblesLogic.PAD_STUDS,
 		CatBubblesLogic.HEIGHT_STUDS
-end
-
--- The bubble's scale at `distance` studs, in steps of 0.05 so the size only changes now and then.
-function CatBubblesLogic.closeScale(distance: number): number
-	local scale = math.clamp(distance / CatBubblesLogic.FULL_STUDS, CatBubblesLogic.MIN_SCALE, 1)
-	return math.floor(scale * 20 + 0.5) / 20
 end
 
 return CatBubblesLogic

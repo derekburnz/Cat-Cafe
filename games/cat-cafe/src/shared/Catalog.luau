@@ -3166,8 +3166,8 @@ end
 
 -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf at the Golden Fish Market, sold by day for golden fish
 -- in this order, each row's amount in a window rolled from Config.FreshCatchAmountWeights (shared/FreshCatch). A
--- row's id is its potion's or crate's id. The Classic Crate is 10 fish off its Market price and goes to the banked
--- crates. The Gold Rush Potion and the crate send a ShopAlert. Earned only: golden fish are never sold for Robux.
+-- row's id is its potion's id. No crate since #1051 (crate-prices.md section 4: the Market's 40 is the one price).
+-- The Gold Rush Potion sends a ShopAlert. Earned only: golden fish are never sold for Robux.
 Catalog.freshCatch = {
 	{ id = "tip_potion", kind = "potion", potionId = "tip_potion", fish = 10 },
 	{ id = "swift_potion", kind = "potion", potionId = "swift_potion", fish = 6 },
@@ -3182,7 +3182,6 @@ Catalog.freshCatch = {
 		fish = 30,
 		alert = true,
 	},
-	{ id = "classic_crate", kind = "crate", crateId = "classic_crate", fish = 50, alert = true },
 } :: { Types.FreshCatchRow }
 Catalog.freshCatchById = {} :: { [string]: Types.FreshCatchRow }
 for _, row in Catalog.freshCatch do
@@ -3193,6 +3192,64 @@ table.freeze(Catalog.freshCatch)
 
 function Catalog.getFreshCatchRow(id: string): Types.FreshCatchRow?
 	return Catalog.freshCatchById[id]
+end
+
+-- The Corner Shop (corner-shop.md section 2, #1052): sold for coins only, in this order, each row's amount in a window
+-- rolled from Config.CornerShopAmountWeights (shared/CornerShop). `seconds` is the price in seconds of the day rate,
+-- `atLeast` the floor. Nothing random, nothing that raises income, nothing for golden fish or Robux.
+Catalog.cornerShop = {
+	{
+		id = "swift_potion",
+		name = "Swift Potion",
+		kind = "potion",
+		potionId = "swift_potion",
+		seconds = 120,
+		atLeast = 200,
+	},
+	{
+		id = "cat_snack",
+		name = "Cat Snack",
+		kind = "snack",
+		xp = 1200,
+		seconds = 300,
+		atLeast = 500,
+	},
+	{
+		id = "big_cat_snack",
+		name = "Big Cat Snack",
+		kind = "snack",
+		xp = 6000,
+		seconds = 1200,
+		atLeast = 2500,
+	},
+	{
+		id = "bubble_machine",
+		name = "Bubble Machine",
+		kind = "show",
+		showId = "bubbles",
+		showSeconds = 600,
+		seconds = 600,
+		atLeast = 1000,
+	},
+	{
+		id = "cafe_fireworks",
+		name = "Cafe Fireworks",
+		kind = "show",
+		showId = "fireworks",
+		showSeconds = 20,
+		seconds = 900,
+		atLeast = 1500,
+	},
+} :: { Types.CornerShopRow }
+Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }
+for _, row in Catalog.cornerShop do
+	Catalog.cornerShopById[row.id] = row
+	table.freeze(row)
+end
+table.freeze(Catalog.cornerShop)
+
+function Catalog.getCornerShopRow(id: string): Types.CornerShopRow?
+	return Catalog.cornerShopById[id]
 end
 
 -- F90 (cats-make-orders.md section 1): the menu, which grows with the cafe's tier. A customer picks evenly among the

@@ -112,6 +112,10 @@ return function()
 		-- the night dealer (F32, section 8b)
 		DealerRangeStuds = 12,
 		FreshCatchWindowSeconds = 300, -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf rolls every 5 minutes
+		-- #1052 (corner-shop.md section 5): the Corner Shop's window, its reach and the daily Cat Snack cap
+		CornerShopWindowSeconds = 300,
+		CornerShopRange = 14,
+		CornerSnackXpPerDay = 12000,
 		-- night income and rich customers (F31, sections 11 and 12)
 		NightIncomeMultiplier = 1, -- F60: full pay at night (0.6 until v0.8)
 		RichCheckSeconds = 60,
@@ -154,10 +158,13 @@ return function()
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,
+		SpinAllMax = 25, -- #1078 (Derek 2026-11-04): Use all spins
 		SpinBankCap = 20,
 		-- golden fish and crates (F52, F53, golden-fish.md section 8)
 		CrateLuckyEvery = 20,
-		CratePrice = 60,
+		CratePrice = 40,
+		CrateBundleCount = 5,
+		CrateBundlePrice = 180,
 		FishMarketRange = 14,
 		CrateOpenCooldownSeconds = 2,
 		DecorIndexBonus = 0.05,
@@ -237,7 +244,6 @@ return function()
 		PicnicEverySeconds = 21600, -- F100 (camp-extras.md section 4); LostFoundTable is checked in CampExtras.spec
 		PicnicHold = 2,
 		PicnicPotion = "tip_potion", -- Design-Agent 11-02: one 10 minute Money Potion a fill, not a 15 minute one
-		YardSaleCratePrice = 40,
 		PondFishPerStep = 2,
 		PondStepSeconds = 1800,
 		PondHold = 24,
@@ -351,6 +357,7 @@ return function()
 				FishRankUp = true, -- a table, checked below
 				CratePieceBonus = true, -- a table, checked below
 				FreshCatchAmountWeights = true, -- a table, checked in FreshCatch.spec
+				CornerShopAmountWeights = true, -- a table, checked in CornerShop.spec
 				CrateDuplicateRefund = true, -- a table, checked below
 				DecorSpots = true, -- a table, checked below
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"

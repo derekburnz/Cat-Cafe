@@ -1654,6 +1654,12 @@ end
 function methods.GetServerTimeNow()
 	return BASE_TIME + clock
 end
+-- Pose draws a whole cat in one call (Effects/Pose.luau, the card picture's living cat in CatPortrait)
+function methods.BulkMoveTo(_self, parts, frames)
+	for i, part in parts do
+		part.CFrame = frames[i]
+	end
+end
 function methods.Destroy(self)
 	local s = state[self]
 	for _, child in table.clone(s.children) do
@@ -1934,6 +1940,7 @@ local OWNERS = {
 	PreloadAsync = { "ContentProvider" },
 	GetPartsInPart = { "Workspace", "WorldModel" },
 	GetPartBoundsInRadius = { "Workspace", "WorldModel" },
+	BulkMoveTo = { "Workspace", "WorldModel" },
 }
 local CLASS_METHODS = {}
 for name, owners in OWNERS do

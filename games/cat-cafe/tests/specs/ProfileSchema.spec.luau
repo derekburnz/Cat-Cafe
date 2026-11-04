@@ -89,10 +89,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 28 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 29 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(28)
-			expect(profile.version).to.equal(28)
+			expect(ProfileSchema.VERSION).to.equal(29)
+			expect(profile.version).to.equal(29)
 			-- F102 (version 27): no trades yet
 			expect(#profile.tradeLog).to.equal(0)
 			expect(#profile.tradeIds).to.equal(0)
@@ -238,8 +238,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 29 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 30 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 29 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 28 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 27 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 26 })).to.equal(false)
@@ -1421,7 +1422,7 @@ return function()
 			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
 				window = 5977152,
 				alerted = 5977150,
-				bought = { tip_potion = 2, gold_rush_potion = 1, classic_crate = 1 },
+				bought = { tip_potion = 2, gold_rush_potion = 1 }, -- the shelf has no crate since #1051
 			})
 			-- a future-dated window comes back to the next one, so the shelf is not "on its way" for days (N299)
 			raw.freshCatch = { window = 9000000, alerted = 9000000, bought = {} }

@@ -1,7 +1,7 @@
 --!strict
 -- The camp extras on the server (F100, camp-extras.md section 4; the rules are shared/CampExtras).
 -- CollectCampExtra(extraId) takes everything the Picnic Basket, Fish Pond or Lost and Found holds; BuyYardSale(crateId)
--- buys one of the Yard Sale's two crates today for YardSaleCratePrice golden fish, banked for the Market, which opens
+-- takes the Yard Sale's free crate of the day (#1051), banked for the Market, which opens
 -- it free. Both check that the player's tier opens the extra's area and that they stand within CampExtraRangeStuds
 -- (plus RANGE_SLACK for lag) of its PromptAnchor, then settle the save and check what it holds or sells; a refusal
 -- toasts why. Each answers CampExtraResult(extraId, ok, paid, prize) and logs camp_extra (the extra, what was taken, the
@@ -21,7 +21,6 @@ local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
-local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
@@ -171,20 +170,14 @@ local function onBuyYardSale(player: Player, rawCrateId: unknown)
 		refuse(player, CampExtras.YARD_SALE, "Walk up to the Yard Sale first")
 		return
 	end
-	local blocker =
-		CampExtras.buyBlocker(profile.campExtras, crateId, tier, now, profile.goldenFish)
+	local blocker = CampExtras.buyBlocker(profile.campExtras, crateId, tier, now)
 	local crate = Catalog.getCrate(crateId)
 	if blocker ~= nil or crate == nil then
 		refuse(player, CampExtras.YARD_SALE, blocker or "That crate is not at the Yard Sale today")
 		refresh(player, profile, true)
 		return
 	end
-	local price = Config.YardSaleCratePrice
-	if not GoldenFish.trySpend(profile, price) then
-		refuse(player, CampExtras.YARD_SALE, "Not enough golden fish")
-		return
-	end
-	Telemetry.fishSink(player, profile, price, "Shop", "yard_sale")
+	-- free since #1051 (crate-prices.md section 5): no fish taken; the take logs as camp_extra below
 	profile.crates[crateId] = (profile.crates[crateId] or 0) + 1
 	profile.campExtras.yardSale.bought[crateId] = true
 	Telemetry.custom(player, "camp_extra", 1, { CampExtras.YARD_SALE, crateId, tostring(tier) })

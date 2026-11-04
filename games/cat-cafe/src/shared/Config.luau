@@ -195,8 +195,22 @@ local Config = {
 		big_tip_potion = { 60, 35, 5, 0 },
 		lucky_potion = { 60, 35, 5, 0 },
 		gold_rush_potion = { 75, 25, 0, 0 },
-		classic_crate = { 90, 10, 0, 0 },
 	} :: { [string]: { number } },
+
+	-- The Corner Shop (corner-shop.md, #1052; shared/CornerShop): a coins-only stall in the Town Square, open day and
+	-- night. Every CornerShopWindowSeconds window rolls an amount of each Catalog.cornerShop row (the chance in percent
+	-- of 0, 1, 2 and 3, by row id), the same on every server and apart from the Fresh Catch roll. Bought within
+	-- CornerShopRange of a CornerShop stall. Cat Snacks give at most CornerSnackXpPerDay XP a UTC day, across all cats.
+	CornerShopWindowSeconds = 300,
+	CornerShopRange = 14,
+	CornerShopAmountWeights = {
+		swift_potion = { 0, 20, 40, 40 },
+		cat_snack = { 10, 30, 40, 20 },
+		big_cat_snack = { 60, 35, 5, 0 },
+		bubble_machine = { 30, 50, 20, 0 },
+		cafe_fireworks = { 40, 50, 10, 0 },
+	} :: { [string]: { number } },
+	CornerSnackXpPerDay = 12000,
 
 	-- Rescue minigames (data-model section 10b)
 	RescueSpawnChance = 0.6, -- per trap at each night start
@@ -345,6 +359,7 @@ local Config = {
 	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.
 	SpinStationRange = 14, -- SpinWheel from this close to a station tagged SpinWheel
 	SpinCooldownSeconds = 4, -- the spin animation; a player's next spin waits this long
+	SpinAllMax = 25, -- #1078: Use all spends at most this many spins in one press (SpinBankCap and today's free one fit)
 	SpinBankCap = 20, -- banked spins (Tip Jar steps 11 and 12) stop here
 
 	-- Golden fish (F52, golden-fish.md sections 1 and 2): the rare currency, earned only, never sold or given for
@@ -357,7 +372,9 @@ local Config = {
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
 
 	-- Cafe Crates and the Golden Fish Market (F53, golden-fish.md sections 3 and 4). Pure rules in Crates.
-	CratePrice = 60, -- golden fish for a zone or Classic Crate at the Market
+	CratePrice = 40, -- golden fish for a zone or Classic Crate at the Market (crate-prices.md, #1051: one price)
+	CrateBundleCount = 5, -- Buy 5 at the Market banks this many crates of one kind, opened one by one
+	CrateBundlePrice = 180, -- golden fish for the bundle (36 a crate)
 	-- every tip in the cafe while the piece is in use
 	CratePieceBonus = { Common = 0.02, Rare = 0.04, Epic = 0.08, Legendary = 0.15, Mythical = 0.25 } :: {
 		[string]: number,
@@ -435,14 +452,13 @@ local Config = {
 
 	-- The camp extras (F100, camp-extras.md sections 2 and 4), each filling while the player is away up to its hold.
 	-- The Picnic Basket (Park) bags one PicnicPotion (Design-Agent 11-02: the 10 minute Money Potion) every
-	-- PicnicEverySeconds; the Yard Sale (Neighbourhood) sells the Classic Crate and one zone crate a UTC day at
-	-- YardSaleCratePrice golden fish each, banked for the Market; the Fish Pond (Woods) lands PondFishPerStep golden
+	-- PicnicEverySeconds; the Yard Sale (Neighbourhood) gives one zone crate a UTC day, free (crate-prices.md section
+	-- 5), banked for the Market; the Fish Pond (Woods) lands PondFishPerStep golden
 	-- fish every PondStepSeconds; the Lost and Found (Sewer) keeps one prize a UTC day from LostFoundTable (chances add
 	-- to 1, shown on its card). Each is collected within CampExtraRangeStuds of its PromptAnchor.
 	PicnicEverySeconds = 21600,
 	PicnicHold = 2,
 	PicnicPotion = "tip_potion",
-	YardSaleCratePrice = 40,
 	PondFishPerStep = 2,
 	PondStepSeconds = 1800,
 	PondHold = 24,

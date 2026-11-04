@@ -62,8 +62,13 @@ Remotes.ClientToServer = {
 	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)
 	"ClaimIndexReward", -- (areaId: string, milestoneId: string)  known prize, unclaimed, the area's count met (F48)
 	"SpinWheel", -- ()  within SpinStationRange of a SpinWheel station, a free or banked spin, SpinCooldownSeconds (F49)
+	"SpinAll", -- ()  #1078: as SpinWheel, but spends every free and banked spin, up to SpinAllMax, each rolled with the
+	-- same odds; 1 a second; answered with SpinAllResult
 	"OpenCrate", -- (crateId: string)  within FishMarketRange of a FishMarket, the crate's zone unlocked, a banked
 	-- crate (used first) or its price in golden fish, CrateOpenCooldownSeconds between opens (F53, shared/Crates)
+	"BuyCrateBundle", -- (crateId: string)  #1051 (crate-prices.md section 3): within FishMarketRange of a FishMarket, a
+	-- crate sold for golden fish whose zone is open, CrateBundlePrice golden fish; banks CrateBundleCount of it, opens
+	-- none (Crates.bundleBlocker); 1 a second, answered with a toast and a ProfileSync
 	"BuyFishItem", -- (itemId: string)  within FishMarketRange of a FishMarket, a lure or perk row of Catalog.fishShop,
 	-- below its max level, its cost in golden fish (F53); answered with a toast and a ProfileSync
 	"RedeemCode", -- (text: string)  within CodesCatRange of a CodesCat, at most 40 bytes, trimmed and lowercased to 1
@@ -87,7 +92,7 @@ Remotes.ClientToServer = {
 	-- neither finished nor claimed; another eligible quest from the same pool, counting from now
 	"ClaimAchievement", -- (achievementId: string)  F73: a known achievement, met and unclaimed; answered with
 	-- QuestResult
-	"ClaimAll", -- (what: string)  shared/ClaimAll.KINDS: "daily", "weekly" or "achievements" (the Quests window),
+	"ClaimAll", -- (what: string)  shared/ClaimAll.KINDS: "daily", "weekly", "achievements" or "quests" (all three, #1073),
 	-- "index" (every Index page) or "tipjar"; pays every one ready as its single Claim would, one toast and one sync
 	-- (and QuestResult for quests, TipJarState for the Tip Jar); nothing ready answers "Nothing to claim yet"
 	"ClaimDailyTreat", -- ()  F70: a Daily Treat stamp due (a later UTC day than the last claim); pays the next day
@@ -105,8 +110,8 @@ Remotes.ClientToServer = {
 	"CollectCampExtra", -- (extraId: string)  F100 (camp-extras.md section 4): "picnic", "pond" or "lostFound", the
 	-- player's tier opens its area, within CampExtraRangeStuds (and a little slack) of its PromptAnchor, something held;
 	-- takes it all; 1 a second, answered with CampExtraResult and CampExtrasState
-	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), one of today's two crates
-	-- (CampExtras.yardStock) not yet bought today, YardSaleCratePrice golden fish; banked for the Market; 1 a second
+	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), today's crate
+	-- (CampExtras.yardStock) not yet taken today, free since #1051; banked for the Market; 1 a second
 	-- F91 front lawn (front-lawn.md section 5; LawnService, shared/Lawn): the caller's own cafe, once its art is in
 	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet, the
 	-- caller's tier at its tier and its price in coins (sink "lawn"); a style goes in use at once, a piece onto
@@ -129,6 +134,10 @@ Remotes.ClientToServer = {
 	"TradeConfirm", -- (tradeId: string, version: number)  on the confirm screen, the version on the table, after
 	-- the side's confirmAt; both confirmed swaps the cats (section 4)
 	"TradeCancel", -- (tradeId: string)  ends the caller's open trade with nothing moved, unless it is swapping
+	"BuyCornerShop", -- (itemId: string, window: number, shownPrice: number, catUid: string?)  #1052 (corner-shop.md
+	-- section 5): within CornerShopRange of a CornerShop stall, `window` the current one, fewer bought than the window
+	-- stocks, the server's price (Economy.cornerPrice) not above `shownPrice`, the coins; a snack's catUid one of the
+	-- player's cats and its XP within today's CornerSnackXpPerDay. 2 a second; answered with CornerShopStock
 }
 
 -- Server -> client.
@@ -194,13 +203,15 @@ Remotes.ServerToClient = {
 	-- per server per night, `night` its count), nil by day; after every buy
 	"FreshCatchStock", -- (stock: Types.FreshCatchStock?)  F94: this player's Fresh Catch amounts and buys by day,
 	-- nil at night ("Back at sunrise"); at sunrise, at each new window, on join and after every BuyFreshCatch
-	"ShopAlert", -- (itemId: string)  F94: a Gold Rush Potion or the cheap Classic Crate is on the Fresh Catch shelf
+	"ShopAlert", -- (itemId: string)  F94: a Gold Rush Potion is on the Fresh Catch shelf (no crate since #1051)
 	-- and this player has the golden fish for it; at most once a window per player, only with settings.shopAlerts on
 	-- (none until shared/Settings saves the key, review S100)
 	"TipJarState", -- (state: Types.TipJarState)  when the profile loads and after every claim (F47)
 	"ShowTip", -- (id: string)  F87 (easy-start.md section 3): a server-side context tip's moment came (shared/Tips:
 	-- `due` from the save and the clock, or its event, or F96's `dueAsk`, one ask a session); at most once a session
 	-- per id until TipSeen. The client queues and times it, then answers TipSeen
+	"SpinAllResult", -- (rolls: { Spin.SpinRoll }, totals: { Spin.SpinTotal })  #1078: each spin's slice and amount in
+	-- order, and the prizes added up for the one results card; both empty when nothing was spent
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)
 	"CrateResult", -- (crateId: string, decorId: string, duplicate: boolean, refund: number)  the piece an OpenCrate
@@ -233,6 +244,11 @@ Remotes.ServerToClient = {
 	-- fish", "1 Park Crate") and prize the same for the pictures, nil when refused (the server's toast says why)
 	"CatLevelUp", -- (uid: string, level: number)  one of this player's cats reached `level` (v0.12 F75): the toast,
 	-- the level up chime and, from the model's Level attribute, the sparkle; once per settle that raises it
+	"CornerShopStock", -- (stock: Types.CornerShopStock)  #1052: this player's Corner Shop after every BuyCornerShop,
+	-- bought or refused, on join and at each new window
+	"CafeShow", -- (userId: number, showId: string, endsAt: number)  #1052: the cafe of `userId` plays the show ("bubbles"
+	-- or "fireworks") until `endsAt` (server time), starting showSeconds before it; one show at a time a cafe, so a
+	-- bought show waits for the last to end. Sent to everyone at the buy, and the ones still running to a joiner
 }
 
 function Remotes.folder(): Folder

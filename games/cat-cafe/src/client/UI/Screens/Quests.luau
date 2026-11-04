@@ -46,7 +46,7 @@ export type Callbacks = {
 	claimQuest: (kind: string, slot: number) -> (),
 	rerollQuest: (kind: string, slot: number) -> (),
 	claimAchievement: (achievementId: string) -> (),
-	claimAll: ((what: string) -> ())?, -- "daily", "weekly" or "achievements"
+	claimAll: ((what: string) -> ())?, -- "quests" (all three tabs, #1073); the server also takes the single kinds
 	close: () -> (),
 }
 
@@ -947,9 +947,6 @@ function Quests._pressAchievement(self: any, id: string)
 	self:_refreshAfter(CLAIM_HOLD)
 end
 
--- ClaimAll takes two requests per 2 s (Net), so the third list's waits a little (#1073)
-local CLAIM_ALL_GAP = 1.05
-
 -- Marks every ready reward of one tab (every met achievement on Achievements) as on its way; how many it marked.
 function Quests._markTab(self: any, state: Types.PlayerState, tab: Tab, now: number): number
 	local marked = 0
@@ -985,33 +982,24 @@ function Quests._markTab(self: any, state: Types.PlayerState, tab: Tab, now: num
 	return marked
 end
 
--- Claim all: every ready daily, weekly and achievement reward in one press (#1073). Each list with something ready is
--- one ClaimAll(what), spaced to the server's rate; the server pays only what is really ready.
+-- Claim all: every ready daily, weekly and achievement reward in one press (#1073): one ClaimAll("quests"), which the
+-- server (Gameplay-Engineer #1094) pays with one toast and one sync; it pays only what is really ready.
 function Quests._pressAll(self: any)
 	local state: Types.PlayerState? = self._state
 	if state == nil or not claimAllReady(self) then
 		return
 	end
 	local now = os.clock()
-	local kinds: { string } = {}
+	local marked = 0
 	for _, tab in TABS do
-		if self:_markTab(state, tab, now) > 0 then
-			table.insert(kinds, if tab == "Achievements" then "achievements" else string.lower(tab))
-		end
+		marked += self:_markTab(state, tab, now)
 	end
-	if #kinds == 0 then
+	if marked == 0 then
 		return
 	end
 	self:_claimed()
-	local claimAll = self._callbacks.claimAll :: (what: string) -> ()
-	for index, what in kinds do
-		if index == 1 then
-			claimAll(what)
-		else
-			task.delay((index - 1) * CLAIM_ALL_GAP, claimAll, what)
-		end
-	end
-	self:_refreshAfter(CLAIM_HOLD + (#kinds - 1) * CLAIM_ALL_GAP)
+	self._callbacks.claimAll("quests")
+	self:_refreshAfter(CLAIM_HOLD)
 end
 
 -- The claim sound plays on the press; QuestResult right after it stays quiet.

@@ -2,7 +2,8 @@
 -- Which clean symbol (Components/ShopIcons.clean, assets/cat-cafe/ui/icons-clean-2026-11-03) stands in for a glyph
 -- wherever Components/IconArt draws it: window badges, prize tiles, item icons and buttons, so the windows match the
 -- clean HUD (Derek live v181, #1027: "old pics of tips and daily rewards are still not updaed"). A glyph without a
--- clean symbol keeps its old icon sheet cell until one is drawn. Theme.cleanGlyphs is built from these tables.
+-- clean symbol keeps its old icon sheet cell (Theme.iconSheet.cells) until one is drawn. Theme.cleanGlyphs is built
+-- from these tables.
 
 local CleanGlyphs = {}
 
@@ -23,11 +24,16 @@ CleanGlyphs.icons = {
 	quests = "Quests",
 	tutorial = "Tutorial",
 	store = "Store", -- the Store window's badge: the HUD tile's chest
+	-- the last three sheet glyphs that already had a clean symbol (Derek live v187: "still shows the old images on ui
+	-- buttons"): the Settings gear, the Spin wheel and the Alley's paw door
+	settings = "Menu",
+	spin = "Spin",
+	alley = "Catflap",
 } :: { [string]: string }
 
 -- Theme.foodIcons key -> clean symbol name
 CleanGlyphs.foods = {
-	kibble = "Kibble", -- its own bowl of kibble since #1104
+	kibble = "Bowl",
 	caviar = "Caviar",
 } :: { [string]: string }
 

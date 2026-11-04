@@ -22,6 +22,8 @@
 -- has loaded. Each upload is a new asset, so a changed icon gets a new id here, never a second upload of the same file.
 -- Pure, so the cloud test runner checks it.
 
+local DecorPictures = require(script.Parent.DecorPictures)
+
 local ShopIcons = {}
 
 local IDS: { [string]: string } = {
@@ -193,6 +195,11 @@ end
 
 function ShopIcons.food(lureId: string?): string?
 	return if type(lureId) == "string" then preferClean(pascal(lureId)) else nil
+end
+
+-- A decor piece's clean picture by its catalog id (#1072, Components/DecorPictures), or nil for an unknown id.
+function ShopIcons.decor(decorId: string?): string?
+	return if type(decorId) == "string" then DecorPictures[decorId] else nil
 end
 
 function ShopIcons.net(level: number?): string?

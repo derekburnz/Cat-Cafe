@@ -62,14 +62,11 @@ local function keyNames(prefix: string, scan: number): { string }
 	return names
 end
 
--- The newest `limit` credits' stored values. The lead's idea-credits.yml names each key credit/<yyyymmddhhmmss>-<report
--- key> (UTC time first), so the highest key names are the newest; a DataStore lists keys only in ascending order, so
--- the names are sorted here and only the newest are read.
+-- The newest `limit` credits' stored values. The lead's idea-credits.yml names each key
+-- credit/<10 digits of 9999999999 - addedAt>-<report key>, so with the time inverted a DataStore's ascending listing
+-- gives the newest first: only the first `limit` names are listed and read.
 local function newestCredits(limit: number): { unknown }
-	local names = keyNames(IdeaCredits.CREDIT_PREFIX, SCAN_KEYS)
-	table.sort(names, function(a: string, b: string): boolean
-		return a > b
-	end)
+	local names = keyNames(IdeaCredits.CREDIT_PREFIX, limit)
 	local values: { unknown } = {}
 	for i = 1, math.min(limit, #names) do
 		local ok, value = pcall(function()

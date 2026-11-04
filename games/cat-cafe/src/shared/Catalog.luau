@@ -2245,9 +2245,10 @@ end
 table.freeze(Catalog.indexPrizes)
 
 -- Codes (F65, data-model section 11d), keyed by the lowercased code a player types at the Codes Cat. The prize uses
--- the Index prize shape and pays once per player. `playtest` is for the friends alpha and gets an endsAt or goes
--- inactive before the experience is public; `launch` switches on that day; `group` waits for the community group
--- (requiresGroup, Config.GroupId). F64 adds the potions to playtest and group, and `playtest2` with two of each so
+-- the Index prize shape and pays once per player. #1118 (the friend, 11-04, for the store page's codes line):
+-- `release` is the release code, `playtest` and `playtest2` stay active for everyone, and `group` is open to members
+-- of the community group only (requiresGroup, Config.GroupId; a non-member keeps it unused). `launch` switches on that
+-- day. F64 adds the potions to playtest and group, and `playtest2` with two of each so
 -- testers who redeemed playtest before potions existed still get them (data-model 11d). Rows can be added without
 -- new code.
 Catalog.codes = {
@@ -2270,6 +2271,18 @@ Catalog.codes = {
 			potions = { tip_potion = 2, lucky_potion = 2, swift_potion = 2, steady_potion = 2 },
 		},
 	},
+	-- #1118: about ten minutes of the player's own income plus golden fish, two potions and a few foods; nothing random
+	release = {
+		id = "release",
+		active = true,
+		prize = {
+			coins = 2000,
+			coinSeconds = 600,
+			fish = 60,
+			lures = { tuna = 2, salmon = 1 },
+			potions = { tip_potion = 1, lucky_potion = 1 },
+		},
+	},
 	launch = {
 		id = "launch",
 		active = false,
@@ -2277,7 +2290,7 @@ Catalog.codes = {
 	},
 	group = {
 		id = "group",
-		active = false,
+		active = true, -- #1118: on since the game's group (Config.GroupId) is set
 		requiresGroup = true,
 		-- F94 (was also 5 spins, 2 Caviar and a Tip Potion)
 		prize = { coins = 2500, coinSeconds = 900, fish = 100, crates = { classic_crate = 1 } },

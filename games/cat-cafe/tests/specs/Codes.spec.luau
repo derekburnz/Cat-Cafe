@@ -103,11 +103,14 @@ return function()
 		end)
 
 		it(
-			"an active group code is open once Config.GroupId is set; the group code stays off while inactive",
+			"the group code is open to members once Config.GroupId is set and kept unused for anyone else (#1118)",
 			function()
 				local profile = fresh()
 				expect(Config.GroupId).to.equal(107520049) -- Creampuff Games (#999)
-				expect(Codes.refusal(profile, "group", NOW, true)).to.equal(Codes.EXPIRED)
+				expect(Codes.refusal(profile, "group", NOW, true)).to.equal(nil)
+				expect(Codes.refusal(profile, "group", NOW, false)).to.equal(Codes.GROUP)
+				expect(Codes.refusal(profile, "group", NOW, nil)).to.equal(Codes.GROUP)
+				expect(Codes.GROUP).to.equal("Join our group to use this code!")
 				local open: Types.CodeDef =
 					{ id = "g", active = true, requiresGroup = true, prize = {} }
 				expect(Codes.expired(open, NOW)).to.equal(false)
@@ -199,14 +202,39 @@ return function()
 			end
 		)
 
-		it("launch and group wait to be switched on, and group needs the group", function()
+		it("release, playtest and playtest2 are on for everyone, case-insensitive, once each (#1118)", function()
+			for _, id in { "release", "playtest", "playtest2" } do
+				local def = Catalog.codes[id]
+				expect(def).to.be.ok()
+				expect(def.active).to.equal(true)
+				expect(def.requiresGroup).never.to.be.ok()
+				expect(def.endsAt).never.to.be.ok()
+				expect(Codes.refusal(fresh(), id, NOW, false)).to.equal(nil)
+			end
+			expect(Codes.normalize("Release")).to.equal("release")
+			expect(Codes.normalize("RELEASE")).to.equal("release")
+			local used = fresh()
+			used.codesRedeemed.release = NOW
+			expect(Codes.refusal(used, "release", NOW, false)).to.equal(Codes.USED)
+			expect(Catalog.codes.release.prize :: any).to.deepEqual({
+				coins = 2000,
+				coinSeconds = 600,
+				fish = 60,
+				potions = { tip_potion = 2 },
+			})
+			-- nothing random in it: no crates or spins (monetization-policy)
+			expect(Catalog.codes.release.prize.crates).never.to.be.ok()
+			expect(Catalog.codes.release.prize.spins).never.to.be.ok()
+		end)
+
+		it("launch waits to be switched on, and group is on but needs the group", function()
 			expect(Catalog.codes.launch.active).to.equal(false)
 			expect(Catalog.codes.launch.prize :: any).to.deepEqual({
 				coins = 1000,
 				coinSeconds = 300,
 				fish = 25,
 			}) -- F94: no spins or Tuna
-			expect(Catalog.codes.group.active).to.equal(false)
+			expect(Catalog.codes.group.active).to.equal(true) -- #1118
 			expect(Catalog.codes.group.requiresGroup).to.equal(true)
 			expect(Catalog.codes.group.prize.coinSeconds).to.equal(900) -- F95: half
 			expect(Catalog.codes.group.prize.coins).to.equal(2500)
@@ -496,7 +524,7 @@ return function()
 			-- used wins over expired: an old code that has since been switched off still says it was used
 			expect(Codes.refusal(profile, "launch", NOW, true)).to.equal(Codes.USED)
 			expect(Codes.refusal(fresh(), "launch", NOW, true)).to.equal(Codes.EXPIRED)
-			expect(Codes.refusal(fresh(), "group", NOW, true)).to.equal(Codes.EXPIRED)
+			expect(Codes.refusal(fresh(), "group", NOW, false)).to.equal(Codes.GROUP)
 			expect(Codes.refusal(fresh(), "playtest", NOW, false)).never.to.be.ok()
 			for id, def in pairs(Catalog.codes) do
 				expect(Codes.normalize(id)).to.equal(id)

@@ -273,4 +273,11 @@ return function()
 			end
 		end)
 	end)
+
+	describe("MarketLogic.needText (#1051)", function()
+		it("says how many more golden fish a greyed button needs", function()
+			expect(MarketLogic.needText(12)).to.equal("Need 12 more fish")
+			expect(MarketLogic.needText(0.4)).to.equal("Need 1 more fish")
+		end)
+	end)
 end

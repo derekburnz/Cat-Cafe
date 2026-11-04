@@ -46,6 +46,7 @@ import cannon  # noqa: E402
 import areakit  # noqa: E402
 import areas  # noqa: E402
 import bellhop  # noqa: E402
+import signstyles  # noqa: E402
 import boards  # noqa: E402
 import cats  # noqa: E402
 import coins  # noqa: E402
@@ -100,7 +101,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            boards, night, stations, coins, market, cornershop, thanksboard, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
-           leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop]
+           leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, signstyles]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "

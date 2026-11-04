@@ -103,14 +103,14 @@ return function()
 		end)
 
 		it(
-			"a group code has expired while Config.GroupId is 0 and needs membership after",
+			"an active group code is open once Config.GroupId is set; the group code stays off while inactive",
 			function()
 				local profile = fresh()
-				expect(Config.GroupId).to.equal(0)
+				expect(Config.GroupId).to.equal(107520049) -- Creampuff Games (#999)
 				expect(Codes.refusal(profile, "group", NOW, true)).to.equal(Codes.EXPIRED)
 				local open: Types.CodeDef =
 					{ id = "g", active = true, requiresGroup = true, prize = {} }
-				expect(Codes.expired(open, NOW)).to.equal(true) -- GroupId 0
+				expect(Codes.expired(open, NOW)).to.equal(false)
 			end
 		)
 	end)

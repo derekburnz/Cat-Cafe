@@ -118,9 +118,20 @@ function StarterCatController.start()
 				return
 			end
 			task.spawn(function()
-				pcall(function()
+				-- Closing the prompt or joining needs no line; a failed prompt (most often the account's group list
+				-- is full) gets a kind one on the card, never a paid step (#999).
+				local ok = pcall(function()
 					GroupService:PromptJoinAsync(Config.GroupId)
 				end)
+				if ok then
+					return
+				end
+				local card = cardUI()
+				if card ~= nil and type(card.result) == "function" then
+					(card.result :: any)(false, StarterCat.GROUP_FULL)
+				else
+					UI.toast(StarterCat.GROUP_FULL, "info")
+				end
 			end)
 		end)
 	end

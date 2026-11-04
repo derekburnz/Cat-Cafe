@@ -27,6 +27,7 @@ export type Props = {
 	anchorPoint: Vector2?,
 	name: string?,
 	badge: Badge?, -- how setFood shows the grade; "word" by default, "gem" for small pictures
+	plain: boolean?, -- no tile behind the picture: a bold picture on its own (the spin wheel's prizes, #966)
 }
 
 export type ItemIcon = {
@@ -42,8 +43,9 @@ export type ItemIcon = {
 		image: string?,
 		tint: Color3?
 	) -> (),
-	-- a food by its LureDef, or by `id` alone when the catalog does not have it: tile, picture and grade badge
-	setFood: (self: ItemIcon, lure: Types.LureDef?, id: string?) -> (),
+	-- a food by its LureDef, or by `id` alone when the catalog does not have it: tile, picture and grade badge;
+	-- `image` in place of the food's own uploaded picture
+	setFood: (self: ItemIcon, lure: Types.LureDef?, id: string?, image: string?) -> (),
 	destroy: (self: ItemIcon) -> (),
 }
 
@@ -94,6 +96,10 @@ function ItemIcon.new(props: Props): ItemIcon
 	})
 	self._border = Outline.border(frame, 2)
 	self.frame = frame
+	if props.plain then
+		frame.BackgroundTransparency = 1
+		self._border.Enabled = false
+	end
 
 	local camera: Camera = Create("Camera", { FieldOfView = FOV })
 	local viewport: ViewportFrame = Create("ViewportFrame", {
@@ -170,11 +176,11 @@ function ItemIcon._badgeLabel(self: any): TextLabel
 	return label
 end
 
-function ItemIcon.setFood(self: any, lure: Types.LureDef?, id: string?)
+function ItemIcon.setFood(self: any, lure: Types.LureDef?, id: string?, image: string?)
 	local grade = FoodGrade.of(lure)
 	local key = if lure then lure.id else id or ""
 	local asset = if lure then lure.asset else nil
-	self:set(asset, Theme.foodIcons[key] or Theme.icons.food, grade, ShopIcons.food(key))
+	self:set(asset, Theme.foodIcons[key] or Theme.icons.food, grade, image or ShopIcons.food(key))
 	local badge = self:_badgeLabel()
 	badge.BackgroundColor3 = Theme.rarityColor(grade)
 	badge.TextColor3 = Theme.rarityTextColor(grade)

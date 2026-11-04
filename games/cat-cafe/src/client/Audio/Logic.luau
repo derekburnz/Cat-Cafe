@@ -221,10 +221,12 @@ function Logic.gradeCue(grade: string?): string?
 	return GRADES[string.lower(grade)]
 end
 
--- The food cue for a bait id: foodKibble, foodTuna, foodSalmon; anything else is a dealer food.
+-- The food cue for a bait id: kibble -> foodKibble, star_treat -> foodStarTreat; foodDealer for a food whose cue does
+-- not exist or has no file yet.
 function Logic.foodCue(lureId: string?, exists: (string) -> boolean): string
 	if lureId ~= nil and lureId ~= "" then
-		local name = "food" .. string.upper(string.sub(lureId, 1, 1)) .. string.sub(lureId, 2)
+		local camel = string.gsub(lureId, "_(%a)", string.upper)
+		local name = "food" .. string.upper(string.sub(camel, 1, 1)) .. string.sub(camel, 2)
 		if exists(name) then
 			return name
 		end

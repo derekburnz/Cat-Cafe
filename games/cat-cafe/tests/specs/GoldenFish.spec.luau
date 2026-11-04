@@ -126,7 +126,7 @@ return function()
 				assert(crate and golden)
 				expect(crate.area).to.equal(pool)
 				expect(crate.golden).to.equal(false)
-				expect(crate.price).to.equal(60)
+				expect(crate.price).to.equal(40) -- crate-prices.md (#1051): one price
 				expect(golden.golden).to.equal(true)
 				expect(golden.price).never.to.be.ok()
 			end
@@ -339,7 +339,7 @@ return function()
 			}
 			for _, def in Catalog.crates do
 				if not def.golden and def.area ~= Catalog.RALLY_POOL then
-					want[def.id] = { 60 }
+					want[def.id] = { 40 }
 				end
 			end
 			local kinds = { crate = true, lure = true, perk = true }

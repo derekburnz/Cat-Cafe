@@ -4,13 +4,14 @@
 -- FishMarketRange, CrateOpenCooldownSeconds after their last open. The server rolls with its own Random (the lucky
 -- twentieth on golden odds), adds the piece or pays its duplicate refund, puts a new furniture or decoration piece on
 -- a free decor spot and answers CrateResult(crateId, decorId, duplicate, refund), so leaving mid-reveal keeps the
--- piece. BuyFishItem(itemId) buys a food or a perk level. Every cost comes from Catalog.fishShop and Config, never
+-- piece. BuyCrateBundle(crateId) (#1051) banks CrateBundleCount crates of one kind for CrateBundlePrice golden fish
+-- and opens none. BuyFishItem(itemId) buys a food or a perk level. Every cost comes from Catalog.fishShop and Config, never
 -- from the client. Golden fish are earned only: nothing here is sold for Robux (monetization-policy).
 -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf. By day shared/FreshCatch rolls a stock every
 -- FreshCatchWindowSeconds, the same on every server, and each player may buy up to its amount of each row in the
 -- window with BuyFreshCatch(itemId, window), refused for a window that has rolled over (S42). FreshCatchStock goes to
 -- each player whenever their stock or bought counts change (sunrise, a new window, a join), nil at night, and after
--- every buy, bought or not. A window that stocks the Gold Rush Potion or the cheap crate sends one ShopAlert a window
+-- every buy, bought or not. A window that stocks the Gold Rush Potion (the shelf has no crate since #1051) sends one ShopAlert a window
 -- to each player by day who has the golden fish for it and has settings.shopAlerts on; the window is saved in
 -- profile.freshCatch.alerted, so a rejoin never alerts twice. No alert goes out until settings saves the switch.
 
@@ -187,6 +188,37 @@ local function onOpenCrate(player: Player, rawCrateId: unknown)
 	if placed then
 		CafeService.refreshPlot(player)
 	end
+	CafeService.sync(player)
+end
+
+-- Buy 5 (#1051, crate-prices.md section 3): CrateBundleCount crates of one kind banked for CrateBundlePrice golden
+-- fish, none opened, so each still shows its own odds and lucky count when it opens. Net allows 1 a second.
+local function onBuyCrateBundle(player: Player, rawCrateId: unknown)
+	local crateId = Guard.id(rawCrateId)
+	local profile = DataService.get(player)
+	if crateId == nil or profile == nil then
+		return
+	end
+	if not nearMarket(player) then
+		Net.toast(player, "Walk to the Golden Fish Market first", "warn")
+		return
+	end
+	local blocker = Crates.bundleBlocker(profile, Economy.tier(profile), crateId)
+	local price = Config.CrateBundlePrice
+	if blocker ~= nil or not GoldenFish.trySpend(profile, price) then
+		Net.toast(player, blocker or "Not enough golden fish", "warn")
+		CafeService.sync(player)
+		return
+	end
+	local count = Config.CrateBundleCount
+	profile.crates[crateId] = (profile.crates[crateId] or 0) + count
+	Telemetry.fishSink(player, profile, price, "Shop", "crate_bundle")
+	local crate = Catalog.getCrate(crateId) :: Types.CrateDef
+	Net.toast(
+		player,
+		string.format("%d %ss banked. Open them one by one", count, crate.name),
+		"good"
+	)
 	CafeService.sync(player)
 end
 
@@ -400,6 +432,7 @@ function FishMarketService.start()
 		luckLogs[player] = nil
 	end)
 	Net.on("OpenCrate", onOpenCrate)
+	Net.on("BuyCrateBundle", onBuyCrateBundle)
 	Net.on("BuyFishItem", onBuyFishItem)
 	Net.on("BuyFreshCatch", onBuyFreshCatch)
 	ClockService.changed:Connect(function()

@@ -234,5 +234,10 @@ return function()
 			expect((a - b).Magnitude < 1e-9).to.equal(true)
 			expect((Avatar.glide(c.gone, 0))).to.equal(nil)
 		end)
+
+		it("lands the camera a little wide of the player's own view, not right in (#1081)", function()
+			local k = Presets.cannonCamera
+			expect(k.land > 1 and k.land < k.wide).to.equal(true)
+		end)
 	end)
 end

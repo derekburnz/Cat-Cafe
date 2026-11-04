@@ -68,8 +68,11 @@ call() {
 }
 
 fail() {
-	# Roblox's error can echo the entry key, which ends in a user id: digit runs of 6 or more keep only their last 3
-	echo "Open Cloud answered HTTP $status: $(sed -E 's/[0-9]{3,}([0-9]{3})/...\1/g' <<<"$body")" >&2
+	# Roblox's error text can echo the entry key, which ends in a user id of any length (old accounts have 3 to 5
+	# digits, which a digit-run mask misses), so only the status and Roblox's error code are shown
+	local code
+	code=$(jq -r '.code // empty' <<<"$body" 2>/dev/null | tr -cd 'A-Z_' || true)
+	echo "Open Cloud answered HTTP $status${code:+ ($code)}" >&2
 	case "$status" in
 	401 | 403) echo "The key needs universe-datastores.objects:list, :read, :create and :update on universe $UNIVERSE_ID (docs/setup-guide.md step 24)." >&2 ;;
 	esac
@@ -157,14 +160,20 @@ add() {
 	report=$(report_key "$1")
 	call GET "$base/$REPORTS/entries/$(uri "$report")"
 	[ "$status" = 200 ] || fail
-	record=$(jq -c '.value' <<<"$body")
-	if [ "$(jq -r '.kind' <<<"$record")" != idea ] || [ "$(jq -r '.featureName' <<<"$record")" != true ]; then
+	record=$(jq -c '(.value | objects) // {}' <<<"$body" 2>/dev/null) || record='{}'
+	# exactly the string "idea" and the boolean true: jq -r prints the string "true" like the boolean, so test in jq
+	if [ "$(jq -r '.kind == "idea" and .featureName == true' <<<"$record")" != true ]; then
 		echo "Refused: $(mask "$report") is not an idea report with \"Feature my name\" ticked, so it gets no credit." >&2
 		exit 1
 	fi
 	userId=$(jq -r '.userId' <<<"$record")
 	[[ $userId =~ ^[1-9][0-9]{0,15}$ ]] || {
 		echo "The report's user id is not a number." >&2
+		exit 1
+	}
+	# BugReport.key ends in the reporter's id, so a record that disagrees with its own key is not trusted
+	[ "${report##*_}" = "$userId" ] || {
+		echo "Refused: the report's user id does not match its key." >&2
 		exit 1
 	}
 	key=$CREDIT$report

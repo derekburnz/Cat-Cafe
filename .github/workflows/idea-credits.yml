@@ -49,13 +49,13 @@ jobs:
       # the data store key flags and bug-reports already use; OWNER_KEY has only the analytics and thumbnail scopes
       ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
       ACTION: ${{ inputs.action }}
-      REPORT: ${{ inputs.report }}
       VERSION: ${{ inputs.version }}
       IDEA: ${{ inputs.idea }}
     steps:
       - uses: actions/checkout@v5
         with:
           sparse-checkout: games/cat-cafe/tools/opencloud
+          persist-credentials: false
 
       - name: Check the key is set
         run: |
@@ -64,9 +64,16 @@ jobs:
             exit 1
           fi
 
-      # inputs reach the script only through env, never pasted into the shell line
+      # inputs reach the script only through env or the event file, never pasted into the shell line. report is
+      # read from the event file, not env: GitHub prints every step's env in the public log, and a full report key
+      # (r_<day>_<time>_<userId>) ends in the player's user id
       - name: List or change the credits
         run: |
+          REPORT=$(jq -r '.inputs.report // "" | tostring' "$GITHUB_EVENT_PATH")
+          case "$REPORT" in
+          *$'\n'* | *$'\r'*) echo "report must be one line" >&2; exit 2 ;;
+          *_*_*_*) echo "::add-mask::$REPORT" ;; # the full key, with the user id
+          esac
           script=games/cat-cafe/tools/opencloud/idea-credits.sh
           case "$ACTION" in
           list) bash "$script" list ;;

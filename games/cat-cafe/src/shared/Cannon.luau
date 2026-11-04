@@ -154,4 +154,11 @@ function Cannon.heading(from: Vector3, to: Vector3?, facing: Vector3): Vector3
 	return if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
 end
 
+-- The AimTurn (degrees about Y from the cannon's rest) that points a cannon resting at `fireTurn` along `heading`
+-- (#1205): WorldBuilder.cannonSeat then faces fireTurn + AimTurn, the heading, so the client's bend from the barrel's
+-- look to CannonHeading is 0 and the flight is one arc with no turn in the air.
+function Cannon.aimTurn(heading: Vector3, fireTurn: number): number
+	return math.deg(math.atan2(heading.X, heading.Z)) - fireTurn
+end
+
 return Cannon

@@ -202,10 +202,7 @@ function CampExtras.view(
 		local stock: { Types.YardSaleCrate } = {}
 		for _, crateId in CampExtras.yardStock(tier, today) do
 			local bought = save.yardSale.day == today and save.yardSale.bought[crateId] == true
-			table.insert(
-				stock,
-				{ crateId = crateId, price = 0, bought = bought }
-			)
+			table.insert(stock, { crateId = crateId, price = 0, bought = bought })
 			if not bought then
 				yardSale.held += 1
 			end

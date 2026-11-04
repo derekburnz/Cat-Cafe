@@ -106,6 +106,14 @@ local IDS: { [string]: string } = {
 	Icon_Clean_StarTreat = "rbxassetid://127060767808144",
 	Icon_Clean_Spin = "rbxassetid://126057350997233",
 	Icon_Clean_Kibble = "rbxassetid://92153852858346", -- its own bowl of kibble (run 41851955780, 11-04)
+	-- #1204: Model-Agent's potion flasks (#1193; upload run 41893876000, 11-04), ShopIcons.potion prefers them
+	Icon_Flask_Tip = "rbxassetid://77878202219932",
+	Icon_Flask_Lucky = "rbxassetid://113253860132139",
+	Icon_Flask_Swift = "rbxassetid://90712944202362",
+	Icon_Flask_Steady = "rbxassetid://78819814153561",
+	Icon_Flask_QuickBait = "rbxassetid://102617577148798",
+	Icon_Flask_BigTip = "rbxassetid://137883283288576",
+	Icon_Flask_GoldRush = "rbxassetid://133671235439574",
 	-- the Decor window's "Your cafe" slots (#964, upload-image run 41728803377 on 11-03)
 	Icon_Clean_Wallpaper = "rbxassetid://102259047705880",
 	Icon_Clean_Floor = "rbxassetid://100560850589029",
@@ -185,8 +193,9 @@ function ShopIcons.potion(potionId: string?): string?
 	if name == nil then
 		return nil
 	end
-	-- the clean flask in the potion's colour (#1070), else the older bottle
-	return IDS["Icon_Clean_Potion" .. pascal(name)] or IDS["Potion_" .. pascal(name)]
+	-- Model-Agent's flask (#1204), else the clean flask in the potion's colour (#1070), else the older bottle
+	local key = pascal(name)
+	return IDS["Icon_Flask_" .. key] or IDS["Icon_Clean_Potion" .. key] or IDS["Potion_" .. key]
 end
 
 function ShopIcons.perk(perkId: string?): string?

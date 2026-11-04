@@ -378,3 +378,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Recorded by the game-designer thread (Design-Agent, friend's project, #1121)
 - 2026-11-04: trading.md section 3 step 1 (Ask) now matches the game: a trade starts from the HUD Trade button (from Tier 3) and its player list, not from tapping a head tag. Reason: the code never had a head-tag path; it stays unbuilt unless Derek asks for it.
+
+### Proposed by the game-designer thread (Design-Agent, friend's project, 2026-11-04, #1180), from the friend's live note
+- 2026-11-04: Corner Shop v2 adds three useful coin items with daily limits: the Steady Paw Potion (3 a day), the Quick Bait Potion (1 a day) and a new Cat Whistle (3 a day; for 10 minutes a marker shows the nearest stray in the player's area). Prices are in seconds of the day rate, as for the other items. Still not sold for coins: crates, crate keys, spin tokens, luck and income boosts. Why: the friend asked for useful items, not only cosmetics. The daily limits keep the golden-fish Fresh Catch shelf worth visiting and keep tier pace (rule v0.8), and random items for coins would become paid random items because money passes multiply coins. Spec: [corner-shop.md](design/cat-cafe/corner-shop.md) v2.

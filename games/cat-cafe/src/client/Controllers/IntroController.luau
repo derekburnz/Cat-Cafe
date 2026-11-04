@@ -9,15 +9,15 @@
 -- through shared/Intro's shots once a frame; the UI's intro screen (UI.intro, the ui-designer's) draws the bars,
 -- captions, dots, title cards, the demo ring, the job card and Skip, and hides the HUD.
 --
--- Shots 1 to 4 (section 2a): a local copy of your own character, tagged StagedCharacter so Effects pose its carry
--- (and IntroNoNet, so it holds no net, #1252), climbs into the Town Square's cannon, flies to the Alleyway camp's pad
--- on Effects/Cannon's staged flight, catches the demo Tuxedo just past the way out and carries it into the camp,
--- where it hops into the basket. The real
--- character stays at the spawn the whole time, hidden on this screen until shot 5. In shot 5 the cat takes the waiter
--- spot in your cafe in its outfit with its rate tag. Everything staged here is local and goes at the end: your copy,
--- the demo cat, the seated waiter, the strays and the real waiter hidden, the cannon's turn and moon cover, the
--- turning wheel and the short night. The end, played out or skipped (UI.events.introSkip) or cut short by a respawn,
--- puts all of it back and sends IntroDone(shot, replay): 0 when it played out, else the shot showing.
+-- Shots 1 to 4 (section 2a): a local copy of your own character, tagged StagedCharacter so Effects pose its carry (and
+-- IntroNoNet, so it holds no net, #1252), climbs into the Town Square's cannon, flies to the Alleyway camp's pad on
+-- Effects/Cannon's staged flight, catches the demo Tuxedo just past the way out and carries it into the camp, where it
+-- hops into the basket. The real character stays at the spawn the whole time, hidden on this screen until shot 5. In
+-- shot 5 the cat takes the waiter spot in your cafe in its outfit with its rate tag. Everything staged here is local
+-- and goes at the end: your copy, the demo cat, the seated waiter, the strays and the real waiter hidden, the cannon's
+-- turn and moon cover, the turning wheel and the short night. The end, played out or skipped (UI.events.introSkip) or
+-- cut short by a respawn, puts all of it back and sends IntroDone(shot, replay): 0 when it played out, else the shot
+-- showing.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")

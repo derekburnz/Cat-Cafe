@@ -1,10 +1,11 @@
 --!strict
 -- The net in each player's hand (Derek 2026-10-28: "have your character holding a net while walking around until
 -- catching a cat"; F93, catch-rework.md section 1: at all times, put away while a cat is in the arms): alive, with no
--- cat in its arms (`CarryingCatId`, or the server's `NetHidden`), not in a cannon flight (`Launching`) and, for a staged
--- character, not flagged `IntroNoNet` (the intro's copy of you, #1252), a character this client sees holds its player's net, CatCafe_Item_Net_L1 to L4 from ReplicatedStorage.Assets by the server's
--- `NetLevel` on the character or its player (Avatar.netModel; a level whose model is missing shows the next one
--- down), a copy made on this client and pivoted by its `Grip` attachment into the hand before each frame draws.
+-- cat in its arms (`CarryingCatId`, or the server's `NetHidden`), not in a cannon flight (`Launching`) and, for a
+-- staged character, not flagged `IntroNoNet` (the intro's copy of you, #1252), a character this client sees holds its
+-- player's net, CatCafe_Item_Net_L1 to L4 from ReplicatedStorage.Assets by the server's `NetLevel` on the character or
+-- its player (Avatar.netModel; a level whose model is missing shows the next one down), a copy made on this client and
+-- pivoted by its `Grip` attachment into the hand before each frame draws.
 -- Tackle.luau asks `NetHold.weight` every frame for each character it poses and raises the arm by that much
 -- (Avatar.holdNet), with `NetHold.arm`'s smack over it; the net shows once the arm is past Presets.netHold.showAt,
 -- and fades as the hand does (the player's own in first person). The smack (Avatar.smack) starts on the swinger's

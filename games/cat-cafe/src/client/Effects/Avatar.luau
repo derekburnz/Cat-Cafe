@@ -612,7 +612,7 @@ function Avatar.holdsNet(
 	hidden: unknown,
 	alive: boolean,
 	launching: unknown,
-	stagedNoNet: unknown?
+	stagedNoNet: unknown
 ): boolean
 	return carrying == nil
 		and hidden ~= true

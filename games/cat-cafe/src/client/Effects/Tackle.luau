@@ -23,10 +23,11 @@
 -- The Cat Cannon flight (F84) goes over all of them, at any distance: the hop, the rolling ball and the landing
 -- (CannonGlide.frames).
 -- A staged character (tagged StagedCharacter, such as the intro's copy of you) gets the net hold and the carry like a
--- player's, without the net while it carries `IntroNoNet` = true (the intro's copy, #1252); it has no player, so no tackle and no cannon flight from the attributes it was cloned with. Its own
--- flight poses come from StagedFlight (CannonGlide.staged), over everything, while the intro moves it. One that also
--- carries `StagedTackle` = true (the store video's shovers, assets/cat-cafe/anim/trailer) dives and belly-slides from
--- its own `TackleAt` and `TackleMissAt` like a player who missed; whoever stages it moves its root.
+-- player's, without the net while it carries `IntroNoNet` = true (the intro's copy, #1252); it has no player, so no
+-- tackle and no cannon flight from the attributes it was cloned with. Its own flight poses come from StagedFlight
+-- (CannonGlide.staged), over everything, while the intro moves it. One that also carries `StagedTackle` = true (the
+-- store video's shovers, assets/cat-cafe/anim/trailer) dives and belly-slides from its own `TackleAt` and
+-- `TackleMissAt` like a player who missed; whoever stages it moves its root.
 -- Listening only: nothing here fires a remote.
 
 local CollectionService = game:GetService("CollectionService")

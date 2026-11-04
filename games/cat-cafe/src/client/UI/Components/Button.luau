@@ -126,6 +126,10 @@ local CLEAN_SHINE_TRANSPARENCY = 0.6
 
 local Button = {}
 Button.__index = Button
+-- what a clean button draws past its box, for layouts that keep a clear gap between them (#1210): its outline, and
+-- how much a hover grows it (the scale is round its middle, so each side gains half of the extra)
+Button.OUTLINE = CLEAN_OUTLINE
+Button.HOVER_SCALE = HOVER_SCALE
 
 local function brighten(color: Color3, amount: number): Color3
 	return color:Lerp(Theme.colors.white, amount)

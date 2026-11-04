@@ -31,7 +31,62 @@ export const LIMITS = {
 };
 
 // gate: fails the run when new; warn: in the report only
-const GATED = new Set(['tap', 'text', 'offscreen', 'topbar', 'fonts', 'jitter', 'error']);
+const GATED = new Set(['tap', 'text', 'offscreen', 'topbar', 'fonts', 'jitter', 'error', 'tiles']);
+
+// The HUD's buttons (#1210, Derek 2026-11-04: the gold Store tile sat on the Cats and Index tiles and the C key badge
+// was half under it): a Components/Button is a holder with a Depth frame (the outlined shape) and a Face. What a
+// tile draws is every piece under it, each grown by its outline (UIStroke Border draws outside the box): the
+// square, its label, the key cap, the red dot, the Store's glow. The invisible Hit pad that grows a tap target is
+// left out. Two tiles fail when what they draw comes closer than the larger of their two outlines.
+// The left column (the menu grid, the Store, the arrow tab) and the bottom right corner are gated; the other rows
+// (the top right icons, the bottom row) are reported as 'tilesnear', a warning, until they get the same pass. A
+// list that opens over the icon row (Pop) sits over it on purpose and is left out.
+export const HUD_GUI = 'CatCafeHUD';
+const GATED_TILES = /^CatCafeHUD\/Root\/(Menu\/[^/]+|Store|MenuFold|Corner\/[^/]+)$/;
+const SKIPPED_TILES = /^CatCafeHUD\/Root\/Pop\//;
+
+// What one piece draws, or null for an empty holder: its box grown by its outline, or for a label with no fill its
+// text (a label's box is often wider than its words), grown by the text's outline.
+function drawnRect(node) {
+  const filled = node.bgT !== undefined && node.bgT < 0.95;
+  if (node.bs || filled || (node.image && node.imageT < 0.95)) {
+    const grow = node.bs ? node.bs[1] : 0;
+    return { x1: node.x - grow, y1: node.y - grow, x2: node.x + node.w + grow, y2: node.y + node.h + grow };
+  }
+  if (node.text === undefined) return null;
+  const w = Math.min(node.w, node.tw);
+  const h = Math.min(node.h, node.th);
+  const x = node.tx === 'Left' ? node.x : node.tx === 'Right' ? node.x + node.w - w : node.x + (node.w - w) / 2;
+  const y = node.ty === 'Top' ? node.y : node.ty === 'Bottom' ? node.y + node.h - h : node.y + (node.h - h) / 2;
+  const grow = node.ts2 ? node.ts2[1] : 0;
+  return { x1: x - grow, y1: y - grow, x2: x + w + grow, y2: y + h + grow };
+}
+
+export function hudTiles(nodes) {
+  const byPath = new Map(nodes.map((n) => [n.path, n]));
+  const tiles = [];
+  for (const node of nodes) {
+    if (node.gui !== HUD_GUI) continue;
+    const depth = byPath.get(node.path + '/Depth');
+    if (!depth || !depth.bs || !byPath.has(node.path + '/Face')) continue;
+    if (SKIPPED_TILES.test(node.path)) continue;
+    tiles.push({ node, outline: depth.bs[1], rect: null });
+  }
+  for (const tile of tiles) {
+    const prefix = tile.node.path + '/';
+    let r = drawnRect(tile.node);
+    for (const part of nodes) {
+      if (!part.path.startsWith(prefix)) continue;
+      const rest = part.path.slice(prefix.length);
+      if (rest === 'Hit' || rest.startsWith('Hit/')) continue;
+      const d = drawnRect(part);
+      if (!d) continue;
+      r = r ? { x1: Math.min(r.x1, d.x1), y1: Math.min(r.y1, d.y1), x2: Math.max(r.x2, d.x2), y2: Math.max(r.y2, d.y2) } : d;
+    }
+    tile.rect = r;
+  }
+  return tiles;
+}
 
 function visibleRect(node) {
   let x1 = node.x;
@@ -146,6 +201,27 @@ export function checkScene(profile, scene) {
       if (!both) continue;
       if (area(both) > LIMITS.overlap * Math.min(area(a.rect), area(b.rect))) {
         add('overlap', b.node, `covers ${a.node.path}${label(a.node)}`);
+      }
+    }
+  }
+
+  // HUD tiles that run into each other (#1210): a tile inside another (a key cap's button) is part of it
+  const tiles = hudTiles(scene.nodes).filter(({ rect }) => rect && intersect(rect, screen));
+  for (let i = 0; i < tiles.length; i++) {
+    for (let j = i + 1; j < tiles.length; j++) {
+      const a = tiles[i];
+      const b = tiles[j];
+      if (b.node.path.startsWith(a.node.path + '/') || a.node.path.startsWith(b.node.path + '/')) continue;
+      const clear = Math.max(a.outline, b.outline);
+      const grown = { x1: a.rect.x1 - clear, y1: a.rect.y1 - clear, x2: a.rect.x2 + clear, y2: a.rect.y2 + clear };
+      const both = intersect(grown, b.rect);
+      if (both && both.w > 0.5 && both.h > 0.5) {
+        const gapX = Math.max(b.rect.x1 - a.rect.x2, a.rect.x1 - b.rect.x2);
+        const gapY = Math.max(b.rect.y1 - a.rect.y2, a.rect.y1 - b.rect.y2);
+        const gap = Math.max(gapX, gapY);
+        const what = gap < 0 ? `overlaps ${a.node.path} by ${px(-gap)} px` : `${px(gap)} px from ${a.node.path}, needs ${px(clear)}`;
+        const gated = GATED_TILES.test(a.node.path) || GATED_TILES.test(b.node.path);
+        add(gated ? 'tiles' : 'tilesnear', b.node, `HUD tile ${what}`);
       }
     }
   }

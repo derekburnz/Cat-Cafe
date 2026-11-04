@@ -1690,8 +1690,8 @@ Presets.cannonPose = {
 	ends = 4.0,
 	hopHeight = 2.5,
 	tilt = 50,
-	speed = 190,
-	gravity = 80,
+	speed = 260, -- was 190 (#1174: "shoot faster and further")
+	gravity = 50, -- was 80: a higher, longer climb, about 250 studs out and 240 up by the clouds
 	flips = 1,
 	flipFor = 0.8,
 	soarFrom = 0.35,
@@ -2944,7 +2944,7 @@ Presets.cannon = {
 	landRadius = 1.6,
 	landDust = 4,
 	within = 150,
-	skyWithin = 300, -- the sky puff only: the flyer vanishes about 200 studs out and 120 up (#1018)
+	skyWithin = 450, -- the sky puff only: the flyer vanishes ~250 studs out, 240 up (#1174)
 	most = 4, -- flights showing their trail at once, your own first
 	findCannon = 20, -- studs round the player at launch to look for the cannon they sit in
 	-- The intro's cannon shot (intro-cutscene.md shot 2, PR #576): the flight squeezed, in seconds from the
@@ -3115,7 +3115,8 @@ Presets.crown = {
 
 -- The Corner Shop's shows (corner-shop.md sections 2 and 5, #1052): the server's `CafeShow(userId, showId, endsAt)`
 -- plays `showId` over the cafe whose plot's OwnerUserId is `userId` from `endsAt - seconds` to `endsAt` (server
--- time; `seconds` are Catalog.cornerShop's showSeconds, bubble_machine 600 and cafe_fireworks 20). A client that
+-- time; `seconds` is read from Catalog.cornerShop's showSeconds, and the numbers here are only the fallback for a
+-- missing row: bubble_machine 600 and cafe_fireworks 20). A client that
 -- joins late starts partway. `pick` is how often the shows are chosen. The Bubble Machine blows the `cafeBubble`
 -- emitter `lift` studs over the middle of the cafe's `Door` part, on the nearest budget.cafeBubbles cafes within
 -- `within`. Cafe Fireworks fire a shell every `every[tier]` seconds from `lift` studs over the cafe's top, on the

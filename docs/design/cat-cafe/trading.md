@@ -15,14 +15,14 @@ The layout follows the trade menus players already know from the big pet games: 
 
 ## 2. Who can trade, and where
 
-- **Both players at Tier 3 or higher** (`Config.TradeMinTier` 3). For testing, `CatCafeDebug:Invoke("tradeMinTier", 0)` lowers it in that server only.
+- **Both players at Tier 3 or higher** (`Config.TradeMinTier` 3). The HUD Trade button shows from that live minimum, so a lowered test server shows it too. For testing, `CatCafeDebug:Invoke("tradeMinTier", 0)` lowers it in that server only.
 - **Both in a safe zone:** the town or any camp. Not while carrying a cat, in a catch or rescue, in a flight or in the middle of a big pull.
 - **Trade requests** setting: Everyone (default), Friends only or Off.
 - **One trade at a time** per player, at most TradesPerDay (50), and TradeCooldownSeconds (10) between trades.
 
 ## 3. How a trade goes
 
-1. **Ask.** Tap another player's head tag, or open the Trade button in the menu, which lists the players in the server who can trade. They get a card: "Sam wants to trade" with Accept and Decline, for 20 seconds. Declined or timed out, Sam cannot ask that player again for 60 seconds.
+1. **Ask.** Press the Trade button in the HUD icon row (it shows from Tier 3 and stays hidden below it). It opens a list of the other players in the server, each with their name, their tier and a Trade button. After you press it the button reads "Asked" for 60 seconds, it reads "Busy" while that player is trading, and "Tier 3 needed" if they are under the minimum. Tapping a head tag does nothing. They get a card: "Sam wants to trade" with Accept and Decline, for 20 seconds. Declined or timed out, Sam cannot ask that player again for 60 seconds.
 2. **Offer.** The trade window opens for both: your offer on the left, theirs on the right, each a 3 x 3 grid. Your cats list sits below, sorted by rarity, with locked cats greyed and marked "Unlock on its card to trade". Every tile shows the cat's picture, rarity colour, coat border, level, buff chips and **what it would earn in your cafe** ("+24/s for you"). Under each grid a total: "Their cats: +240/s in your cafe" and "Your cats: 180/s now".
 3. **Any change resets both.** Adding or taking away a cat clears both players' Ready, stops any countdown, flashes the changed tile yellow for 2 seconds and shows "Changed!" over that side. Nobody can swap a cat out at the last moment unseen.
 4. **Ready, then a countdown.** When both press Ready, a TradeCountdownSeconds (5) countdown runs on both screens. Any change cancels it.
@@ -45,7 +45,7 @@ Leaving the server, walking out of the safe zone or either player's Cancel ends 
   4. On every profile load, if a pointer is still there, the server finishes that player's side from the stored trade unless the profile's `tradeIds` already has it, then clears the pointer. `tradeIds` is the check, not the 20 entry `tradeLog`, so a finished trade never pays twice.
   The reviewer checks this path and QA runs it with a forced shutdown between steps 2 and 3.
 - **Rate limits:** 5 trade calls a second per player, one request out at a time.
-- **A kill switch.** `CatCafe_Flags.trading`, a DataStore flag every server reads every 60 seconds, turns trading off everywhere without a publish if something goes wrong. With it off, the Trade button says "Trading is resting for now".
+- **A kill switch.** `CatCafe_Flags.trading`, a DataStore flag every server reads every 60 seconds, turns trading off everywhere without a publish if something goes wrong. With it off, the player list says "Trading is resting for now. Try again later!" and every Trade button in it is off.
 - **No player text.** There is no message box in the trade window; players use Roblox chat, which Roblox filters.
 - **No logs of who.** Nothing prints user ids, names or trade contents to the output, since the repo and its CI logs are public. Analytics gets counts only.
 

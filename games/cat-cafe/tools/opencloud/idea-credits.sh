@@ -20,8 +20,8 @@
 #   version  the place version the idea shipped in (publish prints it)
 #   idea     our words for the idea, 1 to 48 bytes, shown on the board as is (never the player's own text)
 # add refuses unless the report is an idea whose player ticked "Feature my name" (kind "idea", featureName true),
-# and takes the player's user id from the report itself. The log is public, so it prints counts, keys with the user
-# id cut to its last three digits, ideas and versions, never a full user id or a name. add and remove end with a
+# and takes the player's user id from the report itself. The log is public, so it prints counts, keys without the
+# user id (r_<day>_<time>_..., which is still unique), ideas and versions, never a user id or a name. add and remove end with a
 # list, so every change is read back. Needs curl and jq.
 set -euo pipefail
 
@@ -42,7 +42,19 @@ usage() {
 summary() { [ -z "${GITHUB_STEP_SUMMARY:-}" ] || echo "$*" >>"$GITHUB_STEP_SUMMARY"; }
 
 # r_20261104_1762262400_12345678 -> r_20261104_1762262400_...678 (the log and the summary are public)
-mask() { sed -E 's/_[0-9]*([0-9]{3})$/_...\1/; s/_[0-9]{1,2}$/_.../' <<<"$1"; }
+# The whole id goes: old accounts have 3 to 5 digit ids, so keeping the last three would show them in full. A key of
+# any other shape prints as a placeholder rather than raw.
+mask() {
+	if [[ $1 =~ ^(([a-z]+/)?[rs]_[0-9]{8}_[0-9]+)_[0-9]+$ ]]; then
+		echo "${BASH_REMATCH[1]}_..."
+	else
+		echo "(unexpected key)"
+	fi
+}
+
+# hide a full report key from the rest of the Actions log (a no-op outside Actions). Must run in the main shell,
+# not inside $(...), so the runner sees it.
+hide_key() { [ -z "${GITHUB_ACTIONS:-}" ] || echo "::add-mask::$1"; }
 
 uri() { jq -rn --arg s "$1" '$s | @uri'; }
 
@@ -68,8 +80,11 @@ call() {
 }
 
 fail() {
-	# Roblox's error can echo the entry key, which ends in a user id: digit runs of 6 or more keep only their last 3
-	echo "Open Cloud answered HTTP $status: $(sed -E 's/[0-9]{3,}([0-9]{3})/...\1/g' <<<"$body")" >&2
+	# Roblox's error text can echo the entry key, which ends in a user id of any length (old accounts have 3 to 5
+	# digits, which a digit-run mask misses), so only the status and Roblox's error code are shown
+	local code
+	code=$(jq -r '.code // empty' <<<"$body" 2>/dev/null | tr -cd 'A-Z_' || true)
+	echo "Open Cloud answered HTTP $status${code:+ ($code)}" >&2
 	case "$status" in
 	401 | 403) echo "The key needs universe-datastores.objects:list, :read, :create and :update on universe $UNIVERSE_ID (docs/setup-guide.md step 24)." >&2 ;;
 	esac
@@ -104,9 +119,17 @@ report_key() {
 		echo "$report"
 		return
 	fi
-	mapfile -t found < <(keys "$REPORTS" "${report}_")
+	local out
+	out=$(keys "$REPORTS" "${report}_") || exit 1 # a failed list stops here instead of reading as "no report"
+	mapfile -t found < <([ -z "$out" ] || printf '%s\n' "$out")
 	case ${#found[@]} in
-	1) echo "${found[0]}" ;;
+	1)
+		[[ ${found[0]} =~ ^[rs]_[0-9]{8}_[0-9]+_[0-9]+$ ]] || {
+			echo "The bug report under $report has a key of an unexpected shape." >&2
+			exit 1
+		}
+		echo "${found[0]}"
+		;;
 	0)
 		echo "No bug report under $report in $REPORTS." >&2
 		exit 1
@@ -119,9 +142,11 @@ report_key() {
 }
 
 list() {
-	local credits hides key
-	mapfile -t credits < <(keys "$STORE" "$CREDIT")
-	mapfile -t hides < <(keys "$STORE" "$HIDE")
+	local credits hides key out
+	out=$(keys "$STORE" "$CREDIT") || exit 1 # a failed list must not print a short count and pass
+	mapfile -t credits < <([ -z "$out" ] || printf '%s\n' "$out")
+	out=$(keys "$STORE" "$HIDE") || exit 1
+	mapfile -t hides < <([ -z "$out" ] || printf '%s\n' "$out")
 	echo "== $STORE: ${#credits[@]} credit(s), ${#hides[@]} player(s) hiding their name (servers rebuild the board every 30 min)"
 	summary "### $STORE: ${#credits[@]} credit(s), ${#hides[@]} hidden"
 	for key in "${credits[@]}"; do
@@ -155,16 +180,23 @@ add() {
 		exit 2
 	fi
 	report=$(report_key "$1")
+	hide_key "$report"
 	call GET "$base/$REPORTS/entries/$(uri "$report")"
 	[ "$status" = 200 ] || fail
-	record=$(jq -c '.value' <<<"$body")
-	if [ "$(jq -r '.kind' <<<"$record")" != idea ] || [ "$(jq -r '.featureName' <<<"$record")" != true ]; then
+	record=$(jq -c '(.value | objects) // {}' <<<"$body" 2>/dev/null) || record='{}'
+	# exactly the string "idea" and the boolean true: jq -r prints the string "true" like the boolean, so test in jq
+	if [ "$(jq -r '.kind == "idea" and .featureName == true' <<<"$record")" != true ]; then
 		echo "Refused: $(mask "$report") is not an idea report with \"Feature my name\" ticked, so it gets no credit." >&2
 		exit 1
 	fi
 	userId=$(jq -r '.userId' <<<"$record")
 	[[ $userId =~ ^[1-9][0-9]{0,15}$ ]] || {
 		echo "The report's user id is not a number." >&2
+		exit 1
+	}
+	# BugReport.key ends in the reporter's id, so a record that disagrees with its own key is not trusted
+	[ "${report##*_}" = "$userId" ] || {
+		echo "Refused: the report's user id does not match its key." >&2
 		exit 1
 	}
 	key=$CREDIT$report
@@ -180,6 +212,7 @@ add() {
 remove() {
 	local report key
 	report=$(report_key "$1")
+	hide_key "$report"
 	key=$CREDIT$report
 	call DELETE "$base/$STORE/entries/$(uri "$key")"
 	case "$status" in

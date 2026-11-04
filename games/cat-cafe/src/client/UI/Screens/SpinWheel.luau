@@ -612,7 +612,7 @@ function SpinWheel._paintCrate(self: any, tile: Tile)
 	end
 	tile.crate = id
 	local crate: CrateLogic.Crate? = self._crates[id]
-	-- the clean crate symbol (#966: "too small"), the crate's model until it loads
+	-- the clean crate symbol (#966: "too small"); the crate's model only if that picture were missing (#1242)
 	tile.icon:set(
 		if crate then crate.asset else nil,
 		Theme.icons.crate,

@@ -97,13 +97,16 @@ local function artFor(label: TextLabel, image: string?, scale: number?): ImageLa
 	picture.Size = UDim2.fromScale(size, size)
 	picture.Visible = true
 	local id = image :: string
-	if not loaded[id] then
-		local labels = waiting[id]
+	-- wait on the fetch only while it runs: after a failed one the label's own IsLoaded change redraws it
+	if not loaded[id] and (not fetched[id] or waiting[id] ~= nil) then
+		local labels: { [TextLabel]: boolean }? = waiting[id]
 		if labels == nil then
-			labels = setmetatable({}, { __mode = "k" }) :: any
-			waiting[id] = labels
+			local made: { [TextLabel]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+			waiting[id] = made
+			labels = made
 		end
-		(labels :: { [TextLabel]: boolean })[label] = true
+		local set = labels :: { [TextLabel]: boolean }
+		set[label] = true
 	end
 	if not fetched[id] then
 		fetched[id] = true

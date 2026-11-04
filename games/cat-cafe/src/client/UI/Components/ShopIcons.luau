@@ -6,12 +6,14 @@
 -- table does not know yet keeps its glyph:
 --   crate("park_crate"), crate("park_golden_crate")   Crate_Park, Crate_Park_Gold
 --   crateModel("park_crate")                          CatCafe_Prop_Crate_Park (ReplicatedStorage.Assets, Model-Agent's
---                                                     crates.py; _Gold for a golden crate), the 3D crate under its
---                                                     picture until the picture loads (ItemIcon)
+--                                                     crates.py; _Gold for a golden crate), drawn by ItemIcon only
+--                                                     where the crate has no picture (#1242)
 --   potion("gold_rush_potion")                        Potion_GoldRush
 --   perk("golden_espresso")                           Perk_GoldenEspresso
---   food("moon_milk")                                 MoonMilk: every food's picture on its rarity tile (F97 section 3,
---                                                     Model-Agent #690), in the bowl, bag, shop, dealer and prizes
+--   food("moon_milk")                                 Icon_Clean_MoonMilk: every food's clean picture on its rarity
+--                                                     tile (#1070, #1242), in the bowl, bag, shop, dealer and prizes
+--   prize("coins"), prize("fish"), prize("spins")     Icon_Clean_Bag, _Fish, _Spin: the money, golden fish and spin
+--                                                     prize pictures (#1242)
 --   net(level)                                        the net the Upgrades row offers next. Net levels are 0 Basic,
 --                                                     1 Sturdy, 2 Pro, 3 Master (Net_L1 to Net_L4, Model-Agent
 --                                                     #688), so level 0 offers Net_L2 and the top level keeps Net_L4

@@ -3,9 +3,9 @@
 
 local CampExtras = require(script.Parent.CampExtras)
 local CatStats = require(script.Parent.CatStats)
-local CornerShop = require(script.Parent.CornerShop)
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
+local CornerShop = require(script.Parent.CornerShop)
 local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
 local FreshCatch = require(script.Parent.FreshCatch)

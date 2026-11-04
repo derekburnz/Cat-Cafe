@@ -32,6 +32,11 @@ local ART = "IconArt"
 local BASE = "IconTransparency" -- the transparency the caller asked for, whichever of the two shows
 local WAITING = 0.99 -- a picture still loading: as good as hidden, but still drawn, so Roblox downloads it
 local fetched: { [string]: boolean } = {} -- pictures already asked of ContentProvider
+-- #1242 (Derek live 11-04: the Tip Jar's money, fish and spin tiles stayed emoji): a picture ContentProvider has
+-- fetched counts as loaded for every label showing it, and every label waiting on that fetch is redrawn when it ends.
+-- Before, only the first label to ask was redrawn and the rest waited on their own IsLoaded change.
+local loaded: { [string]: boolean } = {}
+local waiting: { [string]: { [TextLabel]: boolean } } = {}
 
 -- The sheet cell for a glyph, or nil when the sheet has no picture of it or is not uploaded.
 function IconArt.cell(glyph: string?): Vector2?
@@ -46,7 +51,7 @@ local function apply(label: TextLabel)
 	local art = label:FindFirstChild(ART) :: ImageLabel?
 	local value = label:GetAttribute(BASE)
 	local transparency = if type(value) == "number" then value else 0
-	if art and art.Visible and art.IsLoaded then
+	if art and art.Visible and (art.IsLoaded or loaded[art.Image] == true) then
 		label.TextTransparency = 1
 		art.ImageTransparency = transparency
 	else
@@ -92,14 +97,35 @@ local function artFor(label: TextLabel, image: string?, scale: number?): ImageLa
 	picture.Size = UDim2.fromScale(size, size)
 	picture.Visible = true
 	local id = image :: string
+	-- wait on the fetch only while it runs: after a failed one the label's own IsLoaded change redraws it
+	if not loaded[id] and (not fetched[id] or waiting[id] ~= nil) then
+		local labels: { [TextLabel]: boolean }? = waiting[id]
+		if labels == nil then
+			local made: { [TextLabel]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+			waiting[id] = made
+			labels = made
+		end
+		local set = labels :: { [TextLabel]: boolean }
+		set[label] = true
+	end
 	if not fetched[id] then
 		fetched[id] = true
 		task.spawn(function()
 			pcall(function()
-				ContentProvider:PreloadAsync({ id })
+				ContentProvider:PreloadAsync({ id }, function(_, status: Enum.AssetFetchStatus)
+					if status == Enum.AssetFetchStatus.Success then
+						loaded[id] = true
+					end
+				end)
 			end)
-			if picture.Parent then
-				apply(label)
+			local labels = waiting[id]
+			waiting[id] = nil
+			if labels then
+				for each in labels do
+					if each.Parent then
+						apply(each)
+					end
+				end
 			end
 		end)
 	end

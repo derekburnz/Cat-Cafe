@@ -106,7 +106,7 @@ if gh api -X PUT "repos/$REPO/pulls/$PR/merge" -f merge_method=merge -f sha="$he
 	echo "Merged PR #$PR at $head."
 	gh workflow run check.yml --repo "$REPO" --ref main || true
 	if [ "${AUTO_PUBLISH:-}" = true ]; then
-		gh workflow run publish.yml --repo "$REPO" --ref main -f version_type=Published || true
+		gh workflow run publish.yml --repo "$REPO" --ref main -f version_type=Published -f automatic=true || true
 		echo "Started publish.yml (AUTO_PUBLISH is on)."
 	fi
 	exit 0

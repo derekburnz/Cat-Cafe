@@ -201,7 +201,12 @@ return function()
 				return Cues[name] ~= nil
 			end
 			expect(Logic.foodCue("kibble", exists)).to.equal("foodKibble")
-			expect(Logic.foodCue("star_treat", exists)).to.equal("foodDealer")
+			expect(Logic.foodCue("star_treat", exists)).to.equal("foodStarTreat")
+			expect(Logic.foodCue("moon_milk", exists)).to.equal("foodMoonMilk")
+			local none = function(_name: string): boolean
+				return false
+			end
+			expect(Logic.foodCue("star_treat", none)).to.equal("foodDealer")
 			expect(Logic.trapCue("trash_bin")).to.equal("rescueHitBin")
 			expect(Logic.trapCue("tree")).to.equal("rescueHitTree")
 			expect(Logic.trapCue("dumpster")).to.equal(nil)
@@ -1009,7 +1014,12 @@ return function()
 		it("falls back to the bowl clink for a food with no file", function()
 			local has = function(name: string): boolean
 				local cue = Cues[name]
-				return cue ~= nil and (#cue.ids > 0 or cue.sheet ~= nil)
+				if cue == nil then
+					return false
+				end
+				-- as Audio's has(): a sheet part has a file when its sheet row does
+				local sheet = if cue.sheet ~= nil then Cues[cue.sheet] else nil
+				return #(if sheet ~= nil then sheet.ids else cue.ids) > 0
 			end
 			expect(Logic.foodCue("kibble", has)).to.equal("foodDealer")
 			expect(Logic.foodCue("star_treat", has)).to.equal("foodDealer")

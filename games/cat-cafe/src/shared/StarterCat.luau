@@ -17,6 +17,9 @@ StarterCat.TOO_FAR = "Walk up to my stand to take me home"
 StarterCat.NEEDS_GOALS = "Finish your first goals to take me home"
 StarterCat.NEEDS_GROUP = "Join our group to take me home"
 StarterCat.TRY_AGAIN = "Try again in a moment"
+-- When Roblox's join prompt fails (#999, growth's note): most often the account is at its group limit. Copy only,
+-- never a paid step (Premium raises the limit, and we never say so), never pushy.
+StarterCat.GROUP_FULL = "Your group list may be full. Leave a group to join ours."
 
 -- What a claim is checked against: the first goals ("task") while the game has no group, the group after.
 export type Gate = "task" | "group"

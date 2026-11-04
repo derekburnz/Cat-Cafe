@@ -37,7 +37,6 @@ from music import (
 from synth import SR  # same folder
 
 BPM = 120
-BARS = 14  # 28 s
 LENGTH = 28.0
 PAD = 4.0  # silence after the end so the room's echo never wraps onto the start
 TARGET_LUFS = -16.0
@@ -47,11 +46,8 @@ class Timeline(music.Song):
     """music.Song with a fixed length plus padding, so nothing placed near the end wraps to the start."""
 
     def __init__(self, seed: int, swing: float):
-        self.beat = 60.0 / BPM
-        self.meter = 4
-        self.swing = swing
+        super().__init__(BPM, 4, seed, swing)
         self.n = int((LENGTH + PAD) * SR)
-        self.rng = np.random.default_rng(seed)
 
 
 # DayA's eight bars: bass root, bass fifth, the note leading to the next root, the voicing

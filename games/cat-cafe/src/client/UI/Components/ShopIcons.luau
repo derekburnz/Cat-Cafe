@@ -103,6 +103,7 @@ local IDS: { [string]: string } = {
 	Icon_Clean_MoonMilk = "rbxassetid://107176560784324",
 	Icon_Clean_StarTreat = "rbxassetid://127060767808144",
 	Icon_Clean_Spin = "rbxassetid://126057350997233",
+	Icon_Clean_Kibble = "rbxassetid://92153852858346", -- its own bowl of kibble (run 41851955780, 11-04)
 	-- the Decor window's "Your cafe" slots (#964, upload-image run 41728803377 on 11-03)
 	Icon_Clean_Wallpaper = "rbxassetid://102259047705880",
 	Icon_Clean_Floor = "rbxassetid://100560850589029",
@@ -126,7 +127,7 @@ end
 -- redraw (Icon_Clean_<Name>) shows that once its id is here; until then the older upload stands in.
 local CLEAN_FOR: { [string]: string } = {
 	Spin = "Spin",
-	Kibble = "Bowl",
+	Kibble = "Kibble",
 	Tuna = "Tuna",
 	Sardines = "Sardines",
 	Salmon = "Salmon",

@@ -103,7 +103,9 @@ async function runProfile(profile) {
   const names = scenes.rawGet('names').toArray().map(String);
   for (const name of names) {
     if (args.scene && args.scene !== name) continue;
-    const open = lua.createFunction(() => scenes.rawGet('open').call(name));
+    // a Lua closure, not a host function: a pcall under a JS callback fails in luau-rs ("invalid async callback
+    // continuation"), and the card picture's living cat (Effects/Portrait) guards its first draw with one
+    const open = lua.load('local open, name = ... return function() return open(name) end').call(scenes.rawGet('open'), name)[0];
     run(open, 1.5);
     const jitter = watch();
     const touchControls = fn('touchControls').call()[0] !== false;

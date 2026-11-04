@@ -9,8 +9,8 @@
 --   Weekly        the same for the week's three.
 --   Achievements  "12 of 44 claimed", then a card each: name, goal, bar, prize and Claim once met. Ready ones come
 --                 first, then the closest to done; claimed ones go last, faded.
--- A tab with something to claim carries a red count, and with two or more a Claim all button right of the tabs
--- (Derek 2026-10-29; shown once the server has ClaimAll, Config.QuestClaimAll). A claim shows at once (Derek
+-- A tab with something to claim carries a red count. A Claim all button right of the tabs shows while anything in
+-- any tab is ready and claims all three tabs at once (#1073; shown once the server has ClaimAll, Config.QuestClaimAll). A claim shows at once (Derek
 -- 2026-10-29, "claim lag"): the row or card reads "✓ Claimed", moves down and plays giftClaim on the press, and goes
 -- back to Claim if the next sync still has it unclaimed (the server refused and toasted why) or none comes within
 -- CLAIM_HOLD. Swap reads "..." until a sync shows the new quest or PENDING_SECONDS pass. The server still decides
@@ -726,9 +726,14 @@ local function claimAllReady(self: any): boolean
 	return (Config :: any).QuestClaimAll == true and self._callbacks.claimAll ~= nil
 end
 
+-- #1073 (Derek's live v184 check): Claim all stays while anything in any tab is ready, and one press claims daily,
+-- weekly and achievements together; it used to show only for two or more in the open tab and went after one claim.
 function Quests._syncClaimAll(self: any)
-	local ready: number = self._readyByTab[self._tab] or 0
-	self._claimAll.instance.Visible = claimAllReady(self) and ready >= 2
+	local ready = 0
+	for _, tab in TABS do
+		ready += self._readyByTab[tab] or 0
+	end
+	self._claimAll.instance.Visible = claimAllReady(self) and ready >= 1
 end
 
 function Quests.render(self: any, state: Types.PlayerState)
@@ -942,15 +947,13 @@ function Quests._pressAchievement(self: any, id: string)
 	self:_refreshAfter(CLAIM_HOLD)
 end
 
--- Claim all: marks every ready quest of the open tab (or every met achievement) as on its way, then one ClaimAll.
-function Quests._pressAll(self: any)
-	local state: Types.PlayerState? = self._state
-	if state == nil or not claimAllReady(self) then
-		return
-	end
-	local now = os.clock()
+-- ClaimAll takes two requests per 2 s (Net), so the third list's waits a little (#1073)
+local CLAIM_ALL_GAP = 1.05
+
+-- Marks every ready reward of one tab (every met achievement on Achievements) as on its way; how many it marked.
+function Quests._markTab(self: any, state: Types.PlayerState, tab: Tab, now: number): number
 	local marked = 0
-	if self._tab == "Achievements" then
+	if tab == "Achievements" then
 		local views = state.achievements
 		for _, row in QuestLogic.achievementRows(self._catalog, views) do
 			local id = row.def.id
@@ -960,32 +963,55 @@ function Quests._pressAll(self: any)
 				marked += 1
 			end
 		end
-	else
-		local page: Page = self._pages[self._tab]
-		local quests = state.quests
-		local list: { Types.QuestView } = if quests
-			then (if page.kind == "daily" then quests.daily else quests.weekly)
-			else {}
-		for slot, quest in list do
-			local key = page.kind .. ":" .. slot
-			if
-				not quest.claimed
-				and QuestLogic.done(quest)
-				and self:_waiting(key, quest.id, false, quests) == nil
-			then
-				self._pending[key] =
-					{ at = now, id = quest.id, claimed = false, source = quests, action = "claim" }
-				marked += 1
-			end
+		return marked
+	end
+	local page: Page = self._pages[tab]
+	local quests = state.quests
+	local list: { Types.QuestView } = if quests
+		then (if page.kind == "daily" then quests.daily else quests.weekly)
+		else {}
+	for slot, quest in list do
+		local key = page.kind .. ":" .. slot
+		if
+			not quest.claimed
+			and QuestLogic.done(quest)
+			and self:_waiting(key, quest.id, false, quests) == nil
+		then
+			self._pending[key] =
+				{ at = now, id = quest.id, claimed = false, source = quests, action = "claim" }
+			marked += 1
 		end
 	end
-	if marked == 0 then
+	return marked
+end
+
+-- Claim all: every ready daily, weekly and achievement reward in one press (#1073). Each list with something ready is
+-- one ClaimAll(what), spaced to the server's rate; the server pays only what is really ready.
+function Quests._pressAll(self: any)
+	local state: Types.PlayerState? = self._state
+	if state == nil or not claimAllReady(self) then
+		return
+	end
+	local now = os.clock()
+	local kinds: { string } = {}
+	for _, tab in TABS do
+		if self:_markTab(state, tab, now) > 0 then
+			table.insert(kinds, if tab == "Achievements" then "achievements" else string.lower(tab))
+		end
+	end
+	if #kinds == 0 then
 		return
 	end
 	self:_claimed()
-	local what = if self._tab == "Achievements" then "achievements" else string.lower(self._tab)
-	self._callbacks.claimAll(what)
-	self:_refreshAfter(CLAIM_HOLD)
+	local claimAll = self._callbacks.claimAll :: (what: string) -> ()
+	for index, what in kinds do
+		if index == 1 then
+			claimAll(what)
+		else
+			task.delay((index - 1) * CLAIM_ALL_GAP, claimAll, what)
+		end
+	end
+	self:_refreshAfter(CLAIM_HOLD + (#kinds - 1) * CLAIM_ALL_GAP)
 end
 
 -- The claim sound plays on the press; QuestResult right after it stays quiet.

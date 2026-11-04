@@ -61,6 +61,7 @@ local MAX_SIZE = Vector2.new(480, 310)
 local CARD_W = 200
 local CARD_GAP = 14
 local PICTURE = 76
+local ODDS_H = 42 -- the Odds button: a 37 px face over the lip, a mouse's 36 px tap (as the Market's Open)
 local PENDING_SECONDS = 5 -- a buy with no answer lets the button go again after this long
 local GAP = Theme.sizes.gap
 
@@ -233,12 +234,12 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 			Create("UIPadding", {
-				PaddingTop = UDim.new(0, 40),
+				PaddingTop = UDim.new(0, ODDS_H + 10),
 				PaddingLeft = UDim.new(0, 14),
 				PaddingRight = UDim.new(0, 14),
 			}),
 			Create("UIListLayout", {
-				Padding = UDim.new(0, 2),
+				Padding = UDim.new(0, 1),
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
 		})
@@ -247,7 +248,7 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 			local rarityLine = text({
 				Name = line.rarity,
 				LayoutOrder = order,
-				Size = UDim2.new(1, 0, 0, 18),
+				Size = UDim2.new(1, 0, 0, 16), -- five rows fit between the Odds and Take buttons
 				FontFace = Theme.fonts.bodyBold,
 				TextSize = Theme.sizes.textSmall,
 				TextColor3 = Theme.rarityColor(line.rarity),
@@ -271,7 +272,7 @@ function YardSale._build(self: any, rows: { CampExtrasLogic.YardRow })
 			name = "Odds",
 			text = "Odds",
 			style = "ghost",
-			size = UDim2.fromOffset(64, 30),
+			size = UDim2.fromOffset(56, ODDS_H),
 			position = UDim2.fromOffset(6, 6),
 			textSize = Theme.sizes.textSmall,
 			parent = frame,

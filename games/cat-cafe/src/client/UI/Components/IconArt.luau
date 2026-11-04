@@ -15,6 +15,12 @@
 --
 -- Roblox terms: ImageRectOffset and ImageRectSize cut one cell out of a bigger picture; IsLoaded turns true once
 -- the picture has downloaded.
+--
+-- Live fix (11-04, "it is still this old ui"): a picture waits at WAITING, not fully see-through. Roblox does not
+-- fetch an image it would not draw, so at ImageTransparency 1 IsLoaded never turned true and every menu showed its
+-- emoji (the Decor tile's sofa draws nothing, hence its blank tile). ContentProvider also fetches each new picture.
+
+local ContentProvider = game:GetService("ContentProvider")
 
 local Create = require(script.Parent.Create)
 local ShopIcons = require(script.Parent.ShopIcons)
@@ -24,6 +30,8 @@ local IconArt = {}
 
 local ART = "IconArt"
 local BASE = "IconTransparency" -- the transparency the caller asked for, whichever of the two shows
+local WAITING = 0.99 -- a picture still loading: as good as hidden, but still drawn, so Roblox downloads it
+local fetched: { [string]: boolean } = {} -- pictures already asked of ContentProvider
 
 -- The sheet cell for a glyph, or nil when the sheet has no picture of it or is not uploaded.
 function IconArt.cell(glyph: string?): Vector2?
@@ -44,7 +52,7 @@ local function apply(label: TextLabel)
 	else
 		label.TextTransparency = transparency
 		if art then
-			art.ImageTransparency = 1
+			art.ImageTransparency = if art.Visible then WAITING else 1
 		end
 	end
 end
@@ -68,7 +76,7 @@ local function artFor(label: TextLabel, image: string?, scale: number?): ImageLa
 			BackgroundTransparency = 1,
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromScale(0.5, 0.5),
-			ImageTransparency = 1,
+			ImageTransparency = WAITING,
 			ScaleType = Enum.ScaleType.Fit,
 			ZIndex = label.ZIndex,
 			Parent = label,
@@ -83,6 +91,18 @@ local function artFor(label: TextLabel, image: string?, scale: number?): ImageLa
 	picture.Image = image :: string
 	picture.Size = UDim2.fromScale(size, size)
 	picture.Visible = true
+	local id = image :: string
+	if not fetched[id] then
+		fetched[id] = true
+		task.spawn(function()
+			pcall(function()
+				ContentProvider:PreloadAsync({ id })
+			end)
+			if picture.Parent then
+				apply(label)
+			end
+		end)
+	end
 	return picture
 end
 

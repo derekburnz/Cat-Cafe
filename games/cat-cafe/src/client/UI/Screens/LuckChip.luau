@@ -88,7 +88,7 @@ function LuckChip.circle(size: number, props: { [string]: any }): TextLabel
 		BorderSizePixel = 0,
 		Size = UDim2.fromOffset(size, size),
 		FontFace = Theme.fonts.body,
-		TextSize = math.floor(size * 0.6),
+		TextSize = math.max(Theme.sizes.textTiny, math.floor(size * 0.6)), -- the emoji until the picture loads; 9 px+ on a phone
 		Text = LuckLogic.ICON,
 	}
 	for key, value in props do

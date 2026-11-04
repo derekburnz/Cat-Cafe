@@ -628,6 +628,13 @@ local function wireIntents()
 			Net.fire("BuyFishItem", itemId)
 		end)
 	end
+	-- Buy 5 on a Market crate card (#1051): banks five of that crate; the server answers with a toast and a ProfileSync.
+	-- Loose until UI-Engineer's Signal (friend/crate-prices-ui) is on main.
+	if uiEvents.buyCrateBundle ~= nil then
+		uiEvents.buyCrateBundle:Connect(function(crateId: string)
+			Net.fire("BuyCrateBundle", crateId)
+		end)
+	end
 	-- Send on Report a bug; the server answers with a toast, which the window reads to close or keep the text.
 	UI.events.reportBug:Connect(function(text: string, kind: string, clientErrors: { string })
 		Net.fire("ReportBug", text, kind, clientErrors)

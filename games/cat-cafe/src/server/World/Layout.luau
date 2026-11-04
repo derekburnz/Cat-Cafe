@@ -1359,6 +1359,11 @@ Layout.leaderboards = station(40, 0)
 -- 5.7, the north sign arch by 2.7 and the street lane by 1.2 (16, 16 overlapped the Rally board).
 Layout.cornerShop = station(15, 23)
 
+-- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5) near the Codes Cat,
+-- mirroring the Corner Shop in its quarter and facing the cannon. Model-Agent's spot (#1126): clear of the Codes Cat's
+-- circle by 2.8 studs, the south sign arch by 3.5 and the street lane by 1.6.
+Layout.thanksBoard = station(-15, -23)
+
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,
 -- hometown-cannon.md section 4), in camp space (Layout.campPoint), filled in with the camps below.
 Layout.indexBoards = {} :: { [string]: Point }

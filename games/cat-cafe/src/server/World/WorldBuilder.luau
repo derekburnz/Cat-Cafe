@@ -1783,6 +1783,27 @@ local function buildCornerShop(parent: Instance): Model?
 	return model
 end
 
+-- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard at Layout.thanksBoard, tagged
+-- ThanksBoard. Its part "Screen" carries UI-Engineer's SurfaceGui of IdeaCreditsService's rows; nothing here draws
+-- them. Persistent, so the face fills from anywhere in the square. Left out while the art is missing (no placeholder).
+local THANKS_BOARD = "CatCafe_Street_ThanksBoard"
+
+local function buildThanksBoard(parent: Instance): Model?
+	if not AssetRegistry.known(THANKS_BOARD) then
+		return nil
+	end
+	local spec = Layout.thanksBoard
+	local model = place(
+		THANKS_BOARD,
+		CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0),
+		parent
+	)
+	model.Name = "ThanksBoard"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	CollectionService:AddTag(model, "ThanksBoard")
+	return model
+end
+
 local function buildLeaderboards(parent: Instance): Model?
 	if not AssetRegistry.known(LEADERBOARD_ROW) then
 		return nil
@@ -2316,6 +2337,7 @@ function WorldBuilder.build(): World
 	buildBellhopStand(root)
 	buildLeaderboards(root)
 	buildCornerShop(root) -- #1052, once its art is in
+	buildThanksBoard(root) -- #1083, once its art is in
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"

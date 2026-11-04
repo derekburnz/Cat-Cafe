@@ -51,12 +51,12 @@ local TILE_FILL = ColorSequence.new(Theme.button.store.top, Theme.button.store.b
 local BUTTON_W = 116 -- #1176 live: "the buttons overlap and are too big"
 -- #1221 (Derek 2026-11-04: the pass cards "push out past the sides" of the window and "lose their outlines"): a
 -- UIStroke is drawn outside its card, and the list clips at its own edge, so the list keeps the outline's width
--- inside its edges plus an even gap on both sides, and on the right the scroll bar's width as well.
+-- inside its edges plus an even gap on both sides. The scroll bar takes its own strip (VerticalScrollBarInset), so
+-- the cards shrink when it shows and never run under it.
 local CARD_STROKE = Theme.sizes.stroke + 1 -- the card's gold outline
 local SCROLL_BAR = 6
 local CARD_SIDE = 8 -- between a card's outline and the window's inner edge (and the scroll bar)
 local CARD_INSET = CARD_STROKE + CARD_SIDE
-local CARD_RIGHT = CARD_INSET + SCROLL_BAR -- the scroll bar sits in the list's right padding
 local CARD_FOOT = 12 -- under a long description that wraps onto more lines than the card's height holds
 
 local Store = {}
@@ -116,6 +116,7 @@ function Store.new(callbacks: Callbacks): Store
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = SCROLL_BAR,
+		VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar, -- the bar's strip is not under the cards
 		ScrollBarImageColor3 = PAL.caramel,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
@@ -127,7 +128,7 @@ function Store.new(callbacks: Callbacks): Store
 		-- the first and last cards' outlines show at the top and bottom too
 		Create("UIPadding", {
 			PaddingLeft = UDim.new(0, CARD_INSET),
-			PaddingRight = UDim.new(0, CARD_RIGHT),
+			PaddingRight = UDim.new(0, CARD_INSET),
 			PaddingTop = UDim.new(0, CARD_STROKE),
 			PaddingBottom = UDim.new(0, CARD_STROKE),
 		}),
@@ -167,7 +168,6 @@ function Store._card(self: any, key: string, order: number): any
 		Create("UIStroke", {
 			Color = Theme.colors.gold,
 			Thickness = CARD_STROKE,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		}),
 		-- a soft light along the top, so the card reads as a lit gold panel rather than a flat row
 		Create("UIGradient", {

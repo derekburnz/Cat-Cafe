@@ -502,8 +502,6 @@ local function leaderboardSync()
 	}
 end
 
--- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
--- "Daily.Quest2.Claim" walks down one name at a time
 -- #1221 (Derek 2026-11-04: the Store's pass cards "push out past the sides" and "lose their outlines"): every card
 -- shown, its gold outline included, sits inside the list's edges with the scroll bar's strip left clear, and its
 -- description stays inside the card and left of the button. Fails the scene when a card or its words run past.
@@ -553,6 +551,8 @@ local function assertStoreCards()
 	assert(cards > 0, "uigate: the Store window shows no cards")
 end
 
+-- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
+-- "Daily.Quest2.Claim" walks down one name at a time
 local function press(windowName, name)
 	local playerGui = UIShim.playerGui
 	-- windows sit in CatCafeModals.Root.Container; the HUD and the Index have pieces with the same names (Cats)

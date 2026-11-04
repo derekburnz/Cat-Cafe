@@ -1011,7 +1011,7 @@ return function()
 			expect(Logic.baitArriveCue(nil)).to.equal("baitArrive")
 		end)
 
-		it("falls back to the bowl clink for a food with no file", function()
+		it("plays each food's own sound, the bowl clink for a food with no cue", function()
 			local has = function(name: string): boolean
 				local cue = Cues[name]
 				if cue == nil then
@@ -1021,12 +1021,21 @@ return function()
 				local sheet = if cue.sheet ~= nil then Cues[cue.sheet] else nil
 				return #(if sheet ~= nil then sheet.ids else cue.ids) > 0
 			end
-			expect(Logic.foodCue("kibble", has)).to.equal("foodDealer")
-			expect(Logic.foodCue("star_treat", has)).to.equal("foodDealer")
+			-- the Bait sheet is uploaded (#983, 2026-11-04), so every food in the catalog has its own sound
+			local foods = { "kibble", "tuna", "salmon", "sardines", "caviar", "moon_milk" }
+			table.insert(foods, "star_treat")
+			for _, food in foods do
+				local cue = Logic.foodCue(food, has)
+				expect(cue ~= "foodDealer").to.equal(true)
+				expect(Cues[cue].sheet).to.equal("sheetBait")
+			end
+			expect(Logic.foodCue("mystery_food", has)).to.equal("foodDealer")
+			expect(Logic.foodCue(nil, has)).to.equal("foodDealer")
 			expect(Cues.foodDealer.sheet).to.equal("sheetCafe")
 			expect(Cues.baitArrive.ids[1]).to.equal(Cues.catPlaced.ids[1])
 			expect(Cues.baitLetGo.ids[1]).to.equal(Cues.catDrop.ids[1])
-			expect(Cues.offlineClaim.ids[1]).to.equal(Cues.richTip.ids[1])
+			expect(Cues.offlineClaim.sheet).to.equal("sheetBait")
+			expect(has("offlineClaim")).to.equal(true)
 		end)
 	end)
 

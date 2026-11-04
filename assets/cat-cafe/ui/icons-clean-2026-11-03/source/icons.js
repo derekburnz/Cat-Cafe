@@ -140,6 +140,8 @@ window.ICONS = {
 for (const [name, liquid] of Object.entries({ potionTip: '#ffc94d', potionLucky: '#6ccb7a', potionSwift: '#5fa8ff', potionSteady: '#8fd3c1', potionBigTip: '#f2b233', potionGoldRush: '#ffe08a', potionQuickBait: '#f5a3c0' })) {
   window.ICONS[name] = window.ICONS.potion(liquid);
 }
+// #1071: the clean golden fish again under a new name, as the first upload (Icon_Clean_Fish) is stuck in moderation
+window.ICONS.fishGold = window.ICONS.fish;
 window.icon = (name, size = 52, arg) => {
   const body = typeof ICONS[name] === 'function' ? ICONS[name](arg) : ICONS[name];
   return `<svg viewBox="0 0 64 64" width="${size}" height="${size}">${body}</svg>`;

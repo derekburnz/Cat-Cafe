@@ -226,17 +226,19 @@ end
 
 -- The uploaded picture for a part (Components/ShopIcons; the golden fish is Theme's), drawn in place of its model.
 local function partImage(part: IndexRewards.PrizePart): string?
+	-- #1071 (Derek's live v184 check: "crate pictures, money bags, and fish ui still sucks on things like rewards"):
+	-- crates, money and golden fish draw the clean symbols, each with the older picture until its id is in ShopIcons
 	local kind = part.kind
 	if kind == "crate" then
-		return ShopIcons.crate(part.id)
+		return ShopIcons.clean("Crate") or ShopIcons.crate(part.id)
 	elseif kind == "potion" then
 		return ShopIcons.potion(part.id)
 	elseif kind == "coins" then
-		return ShopIcons.image("Coins")
+		return ShopIcons.clean("Bag") or ShopIcons.image("Coins")
 	elseif kind == "spins" then
 		return ShopIcons.image("Spin")
 	elseif kind == "fish" then
-		return Theme.textures.fishCoin
+		return ShopIcons.clean("FishGold") or Theme.textures.fishCoin
 	end
 	return nil
 end

@@ -613,6 +613,22 @@ local function wireIntents()
 	UI.events.spinWheel:Connect(function()
 		Net.fire("SpinWheel")
 	end)
+	-- Use all on the Spin window (#1078); the server answers with SpinAllResult and a ProfileSync. Loose until
+	-- UI-Engineer's button is on main, as are the Corner Shop's hooks below.
+	local looseEvents: any = UI.events
+	if looseEvents.spinAll ~= nil then
+		looseEvents.spinAll:Connect(function()
+			Net.fire("SpinAll")
+		end)
+	end
+	-- Buy on a Corner Shop row (#1052): the window and price the row showed, and for a snack the cat picked.
+	if looseEvents.buyCornerShop ~= nil then
+		looseEvents.buyCornerShop:Connect(
+			function(itemId: string, window: number, shownPrice: number, catUid: string?)
+				Net.fire("BuyCornerShop", itemId, window, shownPrice, catUid)
+			end
+		)
+	end
 	-- Use on a potion in the bag (F64); the server answers with a ProfileSync, or a "Full" toast.
 	UI.events.usePotion:Connect(function(potionId: string)
 		Net.fire("UsePotion", potionId)
@@ -986,7 +1002,7 @@ local function bindDealerCart()
 	end
 end
 
--- The Spin Wheel (F49) and the Golden Fish Market (F53) in the street plaza.
+-- The Spin Wheel (F49), the Golden Fish Market (F53) and the Corner Shop (#1052) in the street plaza.
 local function bindStations()
 	bindStationPrompts("SpinWheel", "SpinPrompt", function()
 		UI.spin.open()
@@ -995,6 +1011,13 @@ local function bindStations()
 		local market = marketUI()
 		if market ~= nil then
 			market.open()
+		end
+	end)
+	-- The Corner Shop (#1052): its window closes itself out of CornerShopRange, as the Market's does.
+	bindStationPrompts("CornerShop", "CornerShopPrompt", function()
+		local shop: any = (UI :: any).cornerShop
+		if shop ~= nil and type(shop.open) == "function" then
+			(shop.open :: any)()
 		end
 	end)
 end
@@ -1285,6 +1308,20 @@ local function wireServerEvents()
 	-- The slice a spin landed on and its coins or foods; 0, 0 when the server refused it (F49).
 	Net.on("SpinResult", function(slice: number, amount: number)
 		UI.spin.result(slice, amount)
+	end)
+	-- Use all (#1078): each spin's slice and amount and the prizes added up; both empty when refused.
+	Net.on("SpinAllResult", function(rolls: { any }, totals: { any })
+		local spin: any = UI.spin
+		if type(spin.allResult) == "function" then
+			(spin.allResult :: any)(rolls, totals)
+		end
+	end)
+	-- The Corner Shop's stock (#1052): on join, at each 5 minute window and after every buy.
+	Net.on("CornerShopStock", function(stock: any)
+		local shop: any = (UI :: any).cornerShop
+		if shop ~= nil and type(shop.setStock) == "function" then
+			(shop.setStock :: any)(stock)
+		end
 	end)
 	-- The piece a crate gave, whether it was a duplicate and its refund; "", false, 0 when the server refused (F53).
 	Net.on(

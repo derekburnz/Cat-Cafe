@@ -8,7 +8,6 @@
 -- fresh CornerShopStock and, when refused, its toast. Words and rules in Components/CornerShopLogic.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CornerShopLogic = require(script.Parent.Parent.Components.CornerShopLogic)
@@ -106,7 +105,7 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 		dark = true,
 		name = "CornerShop",
 		title = "Corner Shop",
-		subtitle = "Coins only · new stock every 5 minutes",
+		subtitle = "Coins only",
 		color = Theme.colors.caramel,
 		icon = "🏪",
 		size = UDim2.fromScale(1, 1), -- the modal's area, so a phone keeps it clear of Roblox's top bar
@@ -132,7 +131,7 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 		Size = UDim2.new(0.55, 0, 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
-		Text = "The same stock on every server",
+		Text = "",
 		Parent = content,
 	})
 	self._snack = text({
@@ -418,14 +417,14 @@ end
 
 function CornerShop._paint(self: any)
 	local stock: SharedTypes.CornerShopStock? = self._stock
-	local now = Workspace:GetServerTimeNow()
 	self._empty.Visible = stock == nil
 	if stock == nil then
 		self._clock.Text = ""
 		self._snack.Text = ""
 		return
 	end
-	self._clock.Text = CornerShopLogic.clock(stock.restocksAt, now)
+	-- No stock counts or restock clocks in shop windows (#1190, the friend 11-04); the server's stock rules are unchanged.
+	self._clock.Text = ""
 	self._snack.Text = CornerShopLogic.snackLine(stock.snackXp)
 	local state: Types.PlayerState? = self._state
 	local coins = if state then state.money else 0
@@ -436,9 +435,7 @@ function CornerShop._paint(self: any)
 			continue
 		end
 		local def = rowOf(item.itemId)
-		local chance = CornerShopLogic.chance(item.itemId)
-		local stockLine = CornerShopLogic.stockLine(item)
-		row.line.Text = if chance ~= "" then chance .. "  ·  " .. stockLine else stockLine
+		row.line.Text = ""
 		local pressedAt = self._pending[item.itemId]
 		local waiting = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
 		local view = CornerShopLogic.button(item, def, coins, room)

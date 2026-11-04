@@ -1279,6 +1279,7 @@ function UI.init(config: Types.InitConfig)
 	UI.lawn.start(parent) -- the front lawn's edit view (F91)
 	UI.store.start() -- the Store window and the HUD's Store tile, once a pass is on sale
 	worldTags = WorldTags.new()
+	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
 		blocked = function()
@@ -1389,6 +1390,7 @@ function UI.destroy()
 	UI.trade.reset()
 	UI.lawn.reset()
 	UI.store.reset()
+	UI.bubbles.reset()
 	if hud then
 		hud:destroy()
 	end
@@ -5106,6 +5108,49 @@ do
 		end
 		shop.open = false
 		PassShop.stop()
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Cat speech bubbles (#1079, cat-bubbles.md)
+----------------------------------------------------------------------------------------------------
+
+-- One short line over the nearest key cat (Screens/CatBubbles), hidden while any window, pop-up or bait card is
+-- open, during the catch circles or a rescue, while carrying, in the intro and while the UI is hidden. The Bellhop
+-- Cat's line needs `starterCatClaimed` in UI.update (false shows it); without it that line stays quiet. Its own
+-- block, as the module is short of locals.
+UI.bubbles = {}
+do
+	local CatBubbles = require(script.Screens.CatBubbles)
+	local bubbles: CatBubbles.CatBubbles? = nil
+
+	-- UI.init.
+	function UI.bubbles.start(parent: Instance)
+		UI.bubbles.reset()
+		bubbles = CatBubbles.new(parent, {
+			blocked = function(): boolean
+				return not visible
+					or (modal ~= nil and modal:current() ~= nil)
+					or (popups ~= nil and popups:isShowing())
+					or (baitCard ~= nil and baitCard:isShowing())
+					or (hud ~= nil and hud:isCarrying())
+					or UI.catch.circlesActive()
+					or UI.rescue.isActive()
+					or UI.intro.playing()
+			end,
+			claimed = function(): boolean?
+				local claimed = (state :: any).starterCatClaimed
+				return if type(claimed) == "boolean" then claimed else nil
+			end,
+		})
+	end
+
+	-- UI.destroy.
+	function UI.bubbles.reset()
+		if bubbles then
+			bubbles:destroy()
+			bubbles = nil
+		end
 	end
 end
 

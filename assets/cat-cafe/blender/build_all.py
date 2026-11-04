@@ -46,6 +46,7 @@ import cannon  # noqa: E402
 import areakit  # noqa: E402
 import areas  # noqa: E402
 import bellhop  # noqa: E402
+import shopcats  # noqa: E402
 import boards  # noqa: E402
 import cats  # noqa: E402
 import coins  # noqa: E402
@@ -100,7 +101,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            boards, night, stations, coins, market, cornershop, thanksboard, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
-           leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop]
+           leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -491,6 +492,15 @@ def cat_rbx_extras(name):
         carry = Vector(cats.carry_at(spec, body))
         attachments.append(("_Head", "BubbleAnchor", Matrix.Translation(
             Vector(joints["Head"]) + (carry + Vector((0.0, 0.0, BUBBLE_LIFT))) * cats.scale_of(spec, body))))
+    k = cats.scale_of(spec, body)
+    for obj, att, frame, pt in props.ATTACH.get(cat, []):     # #1191: VFX spots (King Croissant's CrownTop, Glow)
+        d = cats.dims(spec, body)
+        if frame == "chest":
+            at = Vector(d["body"][0] if body == "walk" else d["chest"][0]) * k
+        else:
+            fat, R, fs = props.Ctx(spec, "sit" if body == "work" else body, d)._frames[frame]
+            at = Vector(joints["Head"]) + (Vector(fat) + R @ Vector(pt) * fs) * k
+        attachments.append((obj, att, Matrix.Translation(at)))
     pieces = {p for outfit in accessories.ROLE_OUTFITS.values() for p in outfit}
     if body == "walk":                      # walking staff wear only the pieces that fit A (accessories.WALK_PIECES)
         pieces &= set(accessories.WALK_PIECES)
@@ -588,6 +598,8 @@ def main():
             extra = {"attachments": [cornershop.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         if name == "CatCafe_Street_DealerCart":   # the dealer's cat: its hood rides its Head
             extra = {"nest": {"_Prop": "_Head"}}
+        if name in shopcats.ASSETS:               # #1191: King Croissant's cushion throne, its Seat
+            extra = {"attachments": shopcats.attachments()}
         if name == bellhop.NAME:                  # F96: the claim card's spots; the cat's cap and collar in its Head
             extra = {"attachments": bellhop.attachments(), "nest": bellhop.NEST, "part_attributes": bellhop.FOLLOWS}
         if name in {**mystery.NEST, **collector.NEST}:   # F64, F63: hats ride the Head, the glass the raised paw

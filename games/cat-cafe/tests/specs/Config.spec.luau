@@ -166,7 +166,7 @@ return function()
 		CrateBundleCount = 5,
 		CrateBundlePrice = 180,
 		FishMarketRange = 14,
-		CrateOpenCooldownSeconds = 2,
+		CrateOpenCooldownSeconds = 0.3,
 		DecorIndexBonus = 0.05,
 		DecorEquipBest = true,
 		ResetSaveGroupRank = 254, -- testers' Reset my save once the game is group-owned

@@ -404,7 +404,10 @@ local Config = {
 		[string]: number,
 	},
 	FishMarketRange = 14, -- OpenCrate and BuyFishItem from this close to a FishMarket station
-	CrateOpenCooldownSeconds = 2,
+	-- #1146: a spam limit between OpenCrate starts, not a wait for the reveal; overlapping opens are refused by the
+	-- in-flight check (Crates.openRefusal) instead. Was 2 s, which refused a Quick open's next crate. The
+	-- Market window waits 0.2 s longer (its GATE_SLACK), so network jitter never lands a real press inside it.
+	CrateOpenCooldownSeconds = 0.3,
 	-- The crate reel (F103, crate-reel.md section 4), shared so the UI's reel and VFX's counter crate time to the same
 	-- numbers: CrateReelTiles tiles slide under the marker and the won piece is tile CrateReelLandingTile; tiles
 	-- CrateReelProtectFrom to CrateReelProtectTo are never rarer than the prize; the reel eases in over

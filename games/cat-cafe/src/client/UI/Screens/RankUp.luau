@@ -11,6 +11,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local RankUpNeeds = require(script.Parent.Parent.Components.RankUpNeeds) -- #1141: the server's own counts
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -62,11 +63,6 @@ local OPENS_TOP = LIST_TOP + LIST_H + 10 -- the tall window's "It opens", under 
 
 local RARITY_WORDS: { [number]: string } = { "One", "Two", "Three", "Four", "Five" }
 
--- Common is 1, Mythical 5. Unknown rarities rank 0, so they never meet a requirement.
-local function rarityRank(rarity: string): number
-	return table.find(Theme.rarityOrder, rarity) or 0
-end
-
 local function findTier(tiers: { Types.TierDef }, tier: number): Types.TierDef?
 	for _, def in tiers do
 		if def.tier == tier then
@@ -74,17 +70,6 @@ local function findTier(tiers: { Types.TierDef }, tier: number): Types.TierDef?
 		end
 	end
 	return nil
-end
-
--- Distinct cats ever caught. collection (catId -> firstCaughtAt) is the source; a state without it falls
--- back to the cats owned now.
-local function caughtIds(state: Types.PlayerState): { string }
-	local ids = {}
-	local source: { [string]: any } = state.collection or state.catsOwned
-	for catId in source do
-		table.insert(ids, catId)
-	end
-	return ids
 end
 
 local function requirement(
@@ -174,18 +159,15 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 	local requirements: { Requirement } = {}
 	local opens: { string } = {}
 	if nextTier then
-		local rarityOf: { [string]: string } = {}
-		for _, def in catalog.cats do
-			rarityOf[def.id] = def.rarity
-		end
-		local ids = caughtIds(state)
+		-- the cat and rarity counts read the shared Catalog (as the server does), not `catalog.cats`
+		local needs = RankUpNeeds.of(nextTier, state)
 		table.insert(
 			requirements,
 			requirement(
 				Format.money(nextTier.cost) .. " coins",
 				"Coins",
-				state.money,
-				nextTier.cost,
+				needs.coinsHave,
+				needs.coinsNeed,
 				Format.money(state.money),
 				Format.money(nextTier.cost)
 			)
@@ -195,24 +177,14 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 			requirement(
 				("%d different cats"):format(nextTier.distinctCats),
 				"Different cats",
-				#ids,
-				nextTier.distinctCats
+				needs.catsHave,
+				needs.catsNeed
 			)
 		)
-		local needsRarity = nextTier.needsRarity
+		local needsRarity = needs.rarity
 		if needsRarity then
-			-- "or better": a rarer cat also counts (designer, data-model 5b), matching the server's
-			-- Catching.rarityAtLeast over distinct catIds in the collection
-			local count = nextTier.needsRarityCount or 1
-			-- an unknown rarity can never be met, like the server's rarityAtLeast (rank 99)
-			local minimum: number = table.find(Theme.rarityOrder, needsRarity) or math.huge
-			local have = 0
-			for _, catId in ids do
-				local rarity = rarityOf[catId]
-				if rarity and rarityRank(rarity) >= minimum then
-					have += 1
-				end
-			end
+			local count = needs.rarityNeed
+			local have = needs.rarityHave
 			local label = if count == 1
 				then ("One cat, %s or better"):format(needsRarity)
 				else ("%s different cats, %s or better"):format(

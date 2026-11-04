@@ -24,6 +24,7 @@ local DailyTreatService = require(script.Parent.Services.DailyTreatService)
 local DataService = require(script.Parent.Services.DataService)
 local DealerService = require(script.Parent.Services.DealerService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
+local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
 local IndexRewardService = require(script.Parent.Services.IndexRewardService)
 local IntroService = require(script.Parent.Services.IntroService)
 local LawnService = require(script.Parent.Services.LawnService)
@@ -101,6 +102,7 @@ RareMomentService.start() -- F89: the toast clock
 IntroService.start()
 TipService.start() -- F87: context tips and feedback; before DataService so its onLoaded sees every join
 BugReportService.start(world)
+IdeaCreditsService.start() -- #1083: the Thank You board's credits
 PassService.start() -- F95: purchases in game; DataService checks owned passes at each join
 PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join

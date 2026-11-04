@@ -133,19 +133,18 @@ function CornerShopLogic.catsByLevel(
 	local list: { [string]: any } = cats or {}
 	for uid, cat in list do
 		if type(cat) == "table" and type(cat.catId) == "string" then
-			table.insert(out, {
-				uid = uid,
-				catId = cat.catId,
-				name = if type(cat.name) == "string" then cat.name else (names or {})[cat.catId],
-				level = if type(cat.level) == "number" then cat.level else 1,
-			})
+			local catId: string = cat.catId
+			local named: string? = if type(cat.name) == "string" then cat.name else (names or {})[catId]
+			local level: number = if type(cat.level) == "number" then cat.level else 1
+			local entry: CatEntry = { uid = uid, catId = catId, name = named, level = level }
+			table.insert(out, entry)
 		end
 	end
-	table.sort(out, function(a, b)
+	table.sort(out, function(a: CatEntry, b: CatEntry): boolean
 		if a.level ~= b.level then
 			return a.level > b.level
 		end
-		local an, bn = a.name or a.catId, b.name or b.catId
+		local an: string, bn: string = a.name or a.catId, b.name or b.catId
 		if an ~= bn then
 			return an < bn
 		end

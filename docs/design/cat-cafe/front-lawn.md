@@ -1,5 +1,7 @@
 # Front lawn decorations (F91)
 
+**v2 (2026-11-04, #1200): [lawn-nursery.md](lawn-nursery.md) replaces the prices in section 2 and moves buying from the Decor screen to the Garden Nursery stall in the Park.** Placing, spots, styles and the free tier gifts stay as below.
+
 Status: proposed by the game-designer thread, 2026-11-01. From Derek's ask of 2026-10-30 23:30: "Consider also adding decorations for the front lawn /infront of the cafe for more unique looking cafe's also". It also answers his 2026-10-31 point that the cafe has "not as much customization for the cafe as restaurant tycoon". In the decision memo's plan this is the second weekly update after launch.
 
 ## 1. What the player gets

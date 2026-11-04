@@ -107,7 +107,77 @@ window.ICONS = {
   caviar: `<ellipse ${S} cx="32" cy="44" rx="25" ry="12" fill="#5fb7ff"/>
     <ellipse ${S} cx="32" cy="34" rx="25" ry="11" fill="#e9f5ff"/>
     ${[[20, 32], [27, 29], [34, 31], [41, 28], [24, 37], [31, 36], [38, 37], [45, 34]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.6" fill="#ff7a2f" stroke="${O}" stroke-width="1.6"/>`).join('')}`,
+  // #1070 (Coordinator 11-04): Kibble gets its own bowl of kibble, in the caviar bowl's style, not the HUD's fish bowl
+  kibble: `<path ${S} fill="#ff8a4c" d="M6 34 H58 Q56 54 32 56 Q8 54 6 34 Z"/>
+    <path d="M12 44 Q32 50 52 44" stroke="#ffb98f" stroke-width="3" fill="none" stroke-linecap="round"/>
+    ${[[16, 31], [24, 28], [33, 29], [42, 28], [49, 31], [20, 23], [29, 21], [38, 22], [45, 24], [33, 15]].map(([x, y], i) => `<rect x="${x - 4.5}" y="${y - 3.6}" width="9" height="7.2" rx="3.4" transform="rotate(${(i * 37) % 70 - 35} ${x} ${y})" fill="${i % 3 === 0 ? '#c9894a' : '#b06f36'}" stroke="${O}" stroke-width="1.8"/>`).join('')}
+    <path ${S} fill="none" d="M6 34 H58"/>`,
+  // #1070: the foods that had no clean picture, and the spin wheel (Derek's live v184 check)
+  tuna: `<ellipse ${S} cx="32" cy="46" rx="24" ry="9" fill="#9fb3c8"/>
+    <path ${S} fill="#d8e3ee" d="M8 26 V46 Q32 58 56 46 V26 Z"/>
+    <ellipse ${S} cx="32" cy="26" rx="24" ry="9" fill="#eef4fa"/>
+    <path d="M9 34 Q32 44 55 34 V40 Q32 50 9 40 Z" fill="#5fa8ff"/>
+    <path ${S} stroke-width="3" fill="#ff9a8a" d="M22 37 Q30 31 38 36 L44 32 L43 41 L38 38 Q30 43 22 37 Z"/>
+    <ellipse cx="32" cy="26" rx="14" ry="4.5" fill="none" stroke="#9fb3c8" stroke-width="2.5"/>`,
+  salmon: `<rect ${S} x="8" y="30" width="48" height="22" rx="10" fill="#fff"/>
+    <path ${S} fill="#ff8a5c" d="M6 30 Q8 16 24 16 H44 Q58 16 58 30 Q46 36 32 34 Q18 36 6 30 Z"/>
+    <path d="M18 20 L24 31 M30 18 L35 32 M42 18 L46 30" stroke="#ffd2bf" stroke-width="3.5" stroke-linecap="round"/>
+    <rect x="27" y="29" width="10" height="23" rx="2" fill="#2f4f3a" stroke="${O}" stroke-width="3"/>`,
+  sardines: `<path ${S} fill="#8fc7ff" d="M4 36 Q18 18 38 28 L54 18 L52 36 L54 54 L38 44 Q18 54 4 36 Z"/>
+    <path d="M10 37 Q24 31 40 36" stroke="#e8f4ff" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <circle cx="14" cy="33" r="3" fill="${O}"/>
+    <path d="M24 28 Q27 36 24 44" stroke="#5f9fe0" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  moonMilk: `<path ${S} fill="#fff" d="M24 6 H40 V16 Q48 22 48 32 V54 Q48 60 42 60 H22 Q16 60 16 54 V32 Q16 22 24 16 Z"/>
+    <rect x="22" y="3" width="20" height="7" rx="2.5" fill="#8f7cff" stroke="${O}" stroke-width="3.5"/>
+    <path d="M18 34 H46 V54 Q46 58 42 58 H22 Q18 58 18 54 Z" fill="#dfe8ff"/>
+    <path ${S} stroke-width="3" fill="#ffd84a" d="M37 38 A9 9 0 1 0 37 54 A7 7 0 1 1 37 38 Z"/>`,
+  starTreat: `<path ${S} fill="#ffd23f" d="M32 4 L40 22 L60 24 L45 37 L49 57 L32 47 L15 57 L19 37 L4 24 L24 22 Z"/>
+    <path d="M32 14 L36 25 L48 26" stroke="#fff1a8" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="26" cy="34" r="2.6" fill="${O}"/><circle cx="38" cy="34" r="2.6" fill="${O}"/>
+    <path d="M28 40 Q32 44 36 40" stroke="${O}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`,
+  spin: `<circle ${S} cx="32" cy="34" r="25" fill="#fff"/>
+    ${[['#ff5d8f', 0], ['#ffd23f', 60], ['#5fd0ff', 120], ['#7be85a', 180], ['#c07cff', 240], ['#ff9a3c', 300]].map(([c, a]) => `<path d="M32 34 L32 12 A22 22 0 0 1 51.05 23 Z" fill="${c}" transform="rotate(${a} 32 34)"/>`).join('')}
+    <circle cx="32" cy="34" r="22" fill="none" stroke="${O}" stroke-width="3"/>
+    <circle cx="32" cy="34" r="6" fill="#fff" stroke="${O}" stroke-width="3.5"/>
+    <path ${S} stroke-width="3.5" fill="#ff4f4f" d="M25 3 H39 L32 15 Z"/>`,
+  // the Decor window's "Your cafe" slots (#964, drawn by Derek's UI-Engineer 11-03 02:30)
+  wallpaper: `<path ${S} fill="#7fc4ff" d="M13 18 H51 V54 Q45 60 38.5 55 Q32 50 25.5 55 Q19 60 13 54 Z"/>
+    <path d="M23 25 V49 M32 25 V47 M41 25 V49" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="27.5" cy="30" r="2.2" fill="#ff8cc2"/><circle cx="36.5" cy="38" r="2.2" fill="#ff8cc2"/><circle cx="27.5" cy="44" r="2.2" fill="#ff8cc2"/>
+    <rect ${S} x="7" y="7" width="50" height="14" rx="7" fill="#fff"/>
+    <ellipse cx="54" cy="14" rx="2.6" ry="4.6" fill="#d9d0c4" stroke="${O}" stroke-width="2.4"/>`,
+  floor: `<path ${S} fill="#f4c983" d="M14 20 H50 L60 54 H4 Z"/>
+    <path d="M14 20 H23 L20.5 37 H9 Z M32 20 H41 L43.5 37 H32 Z M20.5 37 H32 V54 H18 Z M43.5 37 H55 L60 54 H46 Z" fill="#d68f3e"/>
+    <path ${S} fill="none" d="M14 20 H50 L60 54 H4 Z"/>
+    <path d="M32 20 V54 M9 37 H55 M23 20 L18 54 M41 20 L46 54" stroke="${O}" stroke-width="2.6" stroke-linecap="round"/>`,
+  paint: `<path d="M17 20 Q32 1 47 20" fill="none" stroke="${O}" stroke-width="4.5" stroke-linecap="round"/>
+    <path ${S} fill="#fff" d="M11 20 H53 L49 56 Q32 62 15 56 Z"/>
+    <path ${S} fill="#ff6fae" stroke-width="3.5" d="M11 20 H53 L52.2 27 Q50 34 47.5 27 Q45 42 41 27 Q37 31 33 27 Q29 39 25 27 Q21 32 18 27 Q15 33 11.8 27 Z"/>
+    <ellipse cx="32" cy="20" rx="21" ry="4.5" fill="#ff9cc9" stroke="${O}" stroke-width="3.5"/>`,
+  spots: `<path ${S} fill="#45cdb4" d="M14 14 Q14 7 21 7 H43 Q50 7 50 14 V34 H14 Z"/>
+    <path ${S} fill="#45cdb4" d="M5 28 Q5 21 11.5 21 Q18 21 18 28 V48 H5 Z"/>
+    <path ${S} fill="#45cdb4" d="M46 28 Q46 21 52.5 21 Q59 21 59 28 V48 H46 Z"/>
+    <rect ${S} x="16" y="31" width="32" height="12" rx="4" fill="#a6f1e2"/>
+    <path ${S} fill="#45cdb4" d="M18 42 H46 V48 H18 Z"/>
+    <path d="M9 48 V56 M55 48 V56" stroke="${O}" stroke-width="5" stroke-linecap="round"/>`,
+  door: `<rect ${S} x="14" y="5" width="36" height="52" rx="6" fill="#c97f45"/>
+    <rect x="20" y="11" width="24" height="18" rx="3.5" fill="#9ad8ff" stroke="${O}" stroke-width="3"/>
+    <path d="M32 12 V28 M21 20 H43" stroke="${O}" stroke-width="2.2"/>
+    <rect x="20" y="34" width="24" height="17" rx="3.5" fill="#b06a35" stroke="#7d4520" stroke-width="2.6"/>
+    <circle cx="43.5" cy="33" r="3.4" fill="#ffd23f" stroke="${O}" stroke-width="2.4"/>
+    <path d="M7 58.5 H57" stroke="${O}" stroke-width="5" stroke-linecap="round"/>`,
+  catflap: `<rect ${S} x="7" y="6" width="50" height="52" rx="6" fill="#c97f45"/>
+    <rect ${S} x="16" y="27" width="32" height="27" rx="9" fill="#ffd23f"/>
+    <path d="M17 34 H47" stroke="#d69a10" stroke-width="3"/>
+    <ellipse cx="32" cy="46.5" rx="5.5" ry="4.3" fill="${O}"/>
+    <circle cx="24.5" cy="40.5" r="2.5" fill="${O}"/><circle cx="29" cy="37.8" r="2.5" fill="${O}"/>
+    <circle cx="35" cy="37.8" r="2.5" fill="${O}"/><circle cx="39.5" cy="40.5" r="2.5" fill="${O}"/>
+    <path d="M12 14 H52" stroke="#a8652a" stroke-width="3" stroke-linecap="round"/>`,
 };
+// #1070: one clean flask per potion, in its colour (Theme.potionColors), as in Derek's 11-04 mockup
+for (const [name, liquid] of Object.entries({ potionTip: '#ffc94d', potionLucky: '#6ccb7a', potionSwift: '#5fa8ff', potionSteady: '#8fd3c1', potionBigTip: '#f2b233', potionGoldRush: '#ffe08a', potionQuickBait: '#f5a3c0' })) {
+  window.ICONS[name] = window.ICONS.potion(liquid);
+}
 window.icon = (name, size = 52, arg) => {
   const body = typeof ICONS[name] === 'function' ? ICONS[name](arg) : ICONS[name];
   return `<svg viewBox="0 0 64 64" width="${size}" height="${size}">${body}</svg>`;

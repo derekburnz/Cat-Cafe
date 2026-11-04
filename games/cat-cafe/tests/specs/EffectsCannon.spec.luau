@@ -59,7 +59,8 @@ return function()
 				local _, a = Avatar.flight(c.gone - 0.02)
 				local _, b = Avatar.flight(c.gone - 0.01)
 				expect(-b.Z > 150).to.equal(true) -- the old shot went 87 studs out before the clouds
-				expect(b.Y > 80).to.equal(true)
+				expect(b.Y > 200).to.equal(true) -- #1174: higher (it was about 130)
+				expect(Vector3.new(b.X, 0, b.Z).Magnitude > 220).to.equal(true) -- further (was ~180)
 				expect(b.Y > a.Y).to.equal(true) -- still rising when it vanishes
 				local _, hidden = Avatar.flight((c.gone + c.drop) / 2)
 				expect(hidden.Y).to.equal(c.hidden)
@@ -233,6 +234,11 @@ return function()
 			local _, b = Avatar.glide(c.gone + 0.5, c.drop - c.gone)
 			expect((a - b).Magnitude < 1e-9).to.equal(true)
 			expect((Avatar.glide(c.gone, 0))).to.equal(nil)
+		end)
+
+		it("lands the camera a little wide of the player's own view, not right in (#1081)", function()
+			local k = Presets.cannonCamera
+			expect(k.land > 1 and k.land < k.wide).to.equal(true)
 		end)
 	end)
 end

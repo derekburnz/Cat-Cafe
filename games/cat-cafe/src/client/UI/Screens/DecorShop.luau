@@ -10,6 +10,8 @@
 -- say Place, Remove or "Spots full". The server checks the spots too.
 -- Derek 2026-10-28: "decor menu buttons are squished a little too much", so the chips are taller and wider with more
 -- room between them, and on a phone the chips and card buttons grow to a 44 px face (Scale.tapHeight).
+-- #1120 (the 11-04 mockup, "Decor menu chips: fewer, roomier"): five chips at most, All, Lawn, Plants, Floor and
+-- Walls (DecorPieces.chip folds each kind and category into them), sharing the row's width in 16 px words.
 -- F97 section 2 (Derek 2026-10-28: "make it so decor is crate find only"): a coin piece the catalog marks
 -- `source = "crate"` shows only once owned and never with a price, like a crate piece, and the grid always ends
 -- with "Find more decor in crates" pointing to the Golden Fish Market.
@@ -26,12 +28,14 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local Format = require(script.Parent.Parent.Components.Format)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
 local LawnTab = require(script.Parent.LawnTab)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -65,9 +69,7 @@ export type DecorShop = {
 local CARD_WIDTH = 164
 local CARD_TOP = 152 -- the card above its button: art, name, effect
 local CHIP_HEIGHT = 44 -- was 36 with a 31 px face (Derek 2026-10-28: "squished")
-local CHIP_MIN_WIDTH = 96
-local CHIP_PAD = 40 -- px round a chip's words
-local CHIP_GAP = 10
+local CHIP_GAP = 10 -- the chips share the row's width equally (#1120), so none is squished or scrolled off
 local EQUIP_W = 156 -- Equip Best, right of the chips
 local PRESS_HOLD = 3 -- seconds Equip Best stays grey after a press when no sync comes
 local FOOTER_HEIGHT = 56
@@ -77,8 +79,20 @@ local SLOT_WIDTH = 150 -- four slots fit a full-width window with the fifth peek
 local STRIP_ORDER = { "wallpaper", "floor", "paint", "spots", "door", "catflap" }
 local LATE_KINDS: { [string]: boolean } = { door = true, catflap = true } -- shown once the catalog has one
 local SPOTS_BY_TIER: { number } = Config.DecorSpots or DecorPieces.SPOTS_BY_TIER
-local LAWN_CHIP = "Front lawn" -- F91: the chip that shows the Front lawn tab
-local LAWN_GLYPH = "🌷"
+local LAWN_CHIP = "Front lawn" -- F91: the chip that shows the Front lawn tab (the filter key)
+local LAWN_TEXT = "Lawn" -- its words on the chip, short so the row is roomier (#964)
+-- the Decor spots slot's filter (#1120): the pieces that stand on a spot (furniture and decorations), under no one chip
+local SPOTS_FILTER = "Decor spots"
+-- the "Your cafe" slots' clean symbols and light tiles (#964, the sheet in assets/cat-cafe/ui/icons-clean-2026-11-03):
+-- drawn while a slot is Plain, and always for the decor spots. Until a symbol is uploaded its kind's glyph shows.
+local SLOT_LOOK: { [string]: { picture: string, tint: Color3 } } = {
+	wallpaper = { picture = "Wallpaper", tint = Color3.fromHex("D6ECFF") },
+	floor = { picture = "Floor", tint = Color3.fromHex("FFE6C2") },
+	paint = { picture = "Paint", tint = Color3.fromHex("FFD9EA") },
+	spots = { picture = "Spots", tint = Color3.fromHex("CFF3EA") },
+	door = { picture = "Door", tint = Color3.fromHex("E6DCFF") },
+	catflap = { picture = "Catflap", tint = Color3.fromHex("FFF2C2") },
+}
 
 -- Placeholder art colour per category until the asset thread delivers images.
 local CATEGORY_COLORS: { [string]: Color3 } = {
@@ -116,6 +130,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self._slots = {} :: { any } -- the "Your cafe" strip's style slots and the spots card
 	self._decor = {} :: { Types.DecorDef } -- Catalog.decor and Catalog.crateDecor
 	self._filter = "All"
+	self._slotPick = nil :: string? -- the "Your cafe" slot whose tap set the filter, so a second tap on it clears it
 	self._catalog = nil :: Types.Catalog?
 	self._plot = nil :: Instance?
 	self._plotConnection = nil :: RBXScriptConnection?
@@ -142,16 +157,13 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self.frame = panel.frame
 
 	local equipBest = if Config.DecorEquipBest == true then callbacks.equipBest else nil
-	local chipsRight = if equipBest then EQUIP_W + CHIP_GAP else 0
-	self._chipRow = Create("ScrollingFrame", {
+	-- the chips get the full width: Equip Best sits in the header, left of the X (#964, Derek: "buttons on the top row
+	-- feels too squished and cluttered")
+	self._chipRow = Create("Frame", {
 		Name = "Chips",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, -chipsRight, 0, chipHeight),
-		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = Enum.AutomaticSize.X,
-		ScrollBarThickness = 0,
-		ScrollingDirection = Enum.ScrollingDirection.X,
+		Size = UDim2.new(1, 0, 0, chipHeight),
 		Parent = panel.content,
 	}, {
 		Create("UIListLayout", {
@@ -168,10 +180,12 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 			text = Theme.icons.equipBest .. " Equip Best",
 			style = "berry", -- the HUD's Equip Best pink, apart from the gold chip that is picked
 			size = UDim2.fromOffset(EQUIP_W, chipHeight),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, 0, 0, 0),
+			anchorPoint = Vector2.new(1, 0.5),
+			-- on the window frame, not the header, so a phone's taller button is not clipped by the body
+			position = UDim2.new(1, -(panel.closeReach + 8), 0, panel.headerHeight / 2 - 2),
 			textSize = Theme.sizes.textBody,
-			parent = panel.content,
+			zIndex = 4,
+			parent = panel.frame,
 			onClick = function()
 				local at = os.clock()
 				self._bestPressed = at
@@ -285,14 +299,33 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	return self :: DecorShop
 end
 
--- A card's chip: a crate piece's kind ("Wallpaper"), else the decor's category.
-local function chipOf(def: Types.DecorDef): string
-	local kind = DecorPieces.info(def).kind
-	return if kind then DecorPieces.kindName(kind) else def.category
+-- The shown chips share the row's width equally: five with Lawn, four without it (#1120).
+function DecorShop._layoutChips(self: any)
+	local shown: { any } = {}
+	for _, chip in self._chips do
+		if chip.button.instance.Visible then
+			table.insert(shown, chip)
+		end
+	end
+	local count = math.max(#shown, 1)
+	for _, chip in shown do
+		chip.button.instance.Size =
+			UDim2.new(1 / count, -CHIP_GAP * (count - 1) / count, 0, self._chipHeight)
+	end
 end
 
-function DecorShop._setFilter(self: any, category: string)
+function DecorShop._setFilter(self: any, category: string, slot: string?)
+	-- a filter with no chip (a slot whose chip the catalog has no piece for) falls back to All
+	local known = category == "All" or category == SPOTS_FILTER
+	for _, chip in self._chips do
+		known = known or chip.category == category
+	end
+	if not known then
+		category = "All"
+		slot = nil
+	end
 	self._filter = category
+	self._slotPick = slot
 	for _, chip in self._chips do
 		chip.button:setStyle(if chip.category == category then "gold" else "ghost")
 	end
@@ -322,6 +355,7 @@ function DecorShop._renderLawnLive(self: any)
 			chip.button.instance.Visible = live
 		end
 	end
+	self:_layoutChips()
 	if not live and self._filter == LAWN_CHIP then
 		self:_setFilter("All")
 	end
@@ -357,8 +391,11 @@ function DecorShop._applyVisible(self: any)
 	local state: Types.PlayerState? = self._state
 	for _, card in self._cards do
 		local owned = state ~= nil and state.decorOwned[card.def.id] == true
-		card.frame.Visible = (self._filter == "All" or card.chip == self._filter)
-			and (not card.crateOnly or owned)
+		local spot = card.piece and not DecorPieces.isStyle(card.kind)
+		local shown = self._filter == "All"
+			or card.chip == self._filter
+			or (self._filter == SPOTS_FILTER and spot)
+		card.frame.Visible = shown and (not card.crateOnly or owned)
 	end
 end
 
@@ -423,9 +460,15 @@ function DecorShop._buildStrip(self: any)
 			TextSize = Theme.sizes.textBody,
 			Parent = frame,
 		})
-		local chip = if spots then DecorPieces.kindName("furniture") else DecorPieces.kindName(kind)
+		-- a style slot picks its kind's chip (Paint picks Walls); the spots slot shows what stands on a spot (#1120). A
+		-- second tap on the same slot goes back to All; a tap on another slot sharing the chip keeps it.
+		local chip = if spots then SPOTS_FILTER else DecorPieces.kindChip(kind) or "All"
 		local connection = frame.Activated:Connect(function()
-			self:_setFilter(if self._filter == chip then "All" else chip)
+			if self._slotPick == kind and self._filter == chip then
+				self:_setFilter("All")
+			else
+				self:_setFilter(chip, kind)
+			end
 		end)
 		table.insert(self._slots, {
 			kind = kind,
@@ -444,18 +487,29 @@ function DecorShop._renderStrip(self: any, state: Types.PlayerState, used: numbe
 		return
 	end
 	for _, slot in self._slots do
+		local look = SLOT_LOOK[slot.kind]
+		local picture = if look then ShopIcons.clean(look.picture) else nil
 		if slot.kind == "spots" then
-			slot.icon:set(nil, DecorPieces.kindIcon("furniture", Theme.icons.decor), nil)
+			slot.icon:set(
+				nil,
+				DecorPieces.kindIcon("furniture", Theme.icons.decor),
+				nil,
+				picture,
+				if look then look.tint else nil
+			)
 			slot.value.Text = ("%d / %d"):format(used, spots)
 			slot.value.TextColor3 = if used >= spots then PAL.red else PAL.text
 			continue
 		end
 		local def = DecorPieces.inUse(self._decor, state.decorPlaced, slot.kind)
 		local piece = DecorPieces.info(def)
+		-- the piece in use, else (Plain) the kind's clean symbol on its light tile
 		slot.icon:set(
 			if def then def.asset else nil,
 			DecorPieces.kindIcon(slot.kind, Theme.icons.decor),
-			piece.rarity
+			piece.rarity,
+			if def then nil else picture,
+			if def or not look then nil else look.tint
 		)
 		slot.value.Text = if def then def.name else "Plain"
 		slot.value.TextColor3 = if def then PAL.text else PAL.subtext
@@ -504,14 +558,17 @@ function DecorShop._build(self: any)
 		self:_buildStrip()
 	end
 
-	-- chips: All + each category (a piece's kind) in catalog order
+	-- chips (#1120): All, Lawn while the lawn is live, then Plants, Floor and Walls when the catalog has a piece for them
 	local categories = { "All" }
 	if #LawnLogic.pieces() > 0 then
 		table.insert(categories, LAWN_CHIP) -- F91: shown while the lawn is live
 	end
+	local present: { [string]: boolean } = {}
 	for _, decor in all do
-		local chip = chipOf(decor)
-		if not table.find(categories, chip) then
+		present[DecorPieces.chip(decor)] = true
+	end
+	for _, chip in DecorPieces.CHIPS do
+		if present[chip] then
 			table.insert(categories, chip)
 		end
 	end
@@ -519,14 +576,11 @@ function DecorShop._build(self: any)
 		local lawn = category == LAWN_CHIP
 		local button = Button.new({
 			name = if lawn then "FrontLawn" else category,
-			text = category,
-			icon = if lawn then LAWN_GLYPH else nil,
+			text = if lawn then LAWN_TEXT else category,
 			style = "ghost",
-			size = UDim2.fromOffset(
-				math.max(CHIP_MIN_WIDTH, #category * 11 + CHIP_PAD + (if lawn then 24 else 0)),
-				self._chipHeight
-			),
-			textSize = Theme.sizes.textSmall,
+			-- a share of the row (widths from _layoutChips), so Button measures its corners from the height
+			size = UDim2.new(1, 0, 0, self._chipHeight),
+			textSize = Theme.sizes.textBody,
 			layoutOrder = index,
 			parent = self._chipRow,
 			sound = "uiTab",
@@ -537,6 +591,7 @@ function DecorShop._build(self: any)
 		button.instance.Visible = not lawn or self._lawnLive
 		table.insert(self._chips, { category = category, button = button })
 	end
+	self:_layoutChips()
 
 	for index, decor in all do
 		local piece = DecorPieces.info(decor)
@@ -573,7 +628,8 @@ function DecorShop._build(self: any)
 			pieceIcon:set(
 				decor.asset,
 				DecorPieces.kindIcon(piece.kind, Theme.icons.decor),
-				piece.rarity
+				piece.rarity,
+				ShopIcons.decor(decor.id)
 			)
 			icon = pieceIcon
 			local rarity = text({
@@ -599,9 +655,9 @@ function DecorShop._build(self: any)
 				Parent = rarity,
 			})
 		else
-			-- placeholder art until decor renders exist: a coloured block with the first letter (DecorDef.asset
-			-- names the 3D model, not an image)
-			text({
+			-- the piece's clean picture (#1072) on its coloured block; the first letter stands in until it loads
+			-- (DecorDef.asset names the 3D model, not an image)
+			local letter = text({
 				Size = UDim2.fromScale(1, 1),
 				FontFace = Theme.fonts.display,
 				TextSize = 34,
@@ -610,6 +666,10 @@ function DecorShop._build(self: any)
 				Text = decor.name:sub(1, 1),
 				Parent = art,
 			})
+			local picture = ShopIcons.decor(decor.id)
+			if picture then
+				IconArt.setImage(letter, picture, 0.86)
+			end
 		end
 		-- Index decor (F48): a dark ribbon over the art says which Index milestone wins it, until it is claimed
 		local unlock: TextLabel? = nil
@@ -705,7 +765,7 @@ function DecorShop._build(self: any)
 			unlock = unlock,
 			icon = icon,
 			def = decor,
-			chip = chipOf(decor),
+			chip = DecorPieces.chip(decor),
 			piece = piece.kind ~= nil,
 			crateOnly = piece.kind ~= nil or decor.source == "crate", -- F97: never sold for coins
 			kind = piece.kind,

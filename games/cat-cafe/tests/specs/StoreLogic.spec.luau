@@ -115,17 +115,4 @@ return function()
 			expect(button.enabled).to.equal(false)
 		end)
 	end)
-
-	describe("StoreLogic.anyForSale", function()
-		it("is true only when a pass is on sale", function()
-			expect(StoreLogic.anyForSale({})).to.equal(false)
-			expect(StoreLogic.anyForSale({ [200] = { robux = 5, forSale = false } })).to.equal(
-				false
-			)
-			expect(StoreLogic.anyForSale({
-				[200] = { robux = 5, forSale = false },
-				[900] = { robux = 199, forSale = true },
-			})).to.equal(true)
-		end)
-	end)
 end

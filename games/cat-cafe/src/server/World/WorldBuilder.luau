@@ -13,6 +13,7 @@ local AssetRegistry = require(script.Parent.AssetRegistry)
 local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
+local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
 local Layout = require(script.Parent.Layout)
 local StarterCat = require(ReplicatedStorage.Shared.StarterCat)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -1742,6 +1743,67 @@ local LEADERBOARD_ROW = "CatCafe_Town_LeaderboardRow"
 local LEADERBOARD_BOARDS: { [string]: string } =
 	{ _Index = "index", _Playtime = "playtime", _Money = "money" }
 
+-- The Corner Shop (#1052, corner-shop.md section 4): CatCafe_Street_CornerShop at Layout.cornerShop, tagged
+-- CornerShop, with a "Corner Shop" prompt (CornerShopPrompt) that opens its window on the client; CornerShopService
+-- measures CornerShopRange from the pivot. Left out while Model-Agent's art is missing (it has no placeholder).
+local CORNER_SHOP = "CatCafe_Street_CornerShop"
+
+local function buildCornerShop(parent: Instance): Model?
+	if not AssetRegistry.known(CORNER_SHOP) then
+		return nil
+	end
+	local spec = Layout.cornerShop
+	local model = place(
+		CORNER_SHOP,
+		CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0),
+		parent
+	)
+	model.Name = "CornerShop"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	CollectionService:AddTag(model, CornerShop.TAG)
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "CornerShopPrompt"
+	prompt.ActionText = "Shop"
+	prompt.ObjectText = "Corner Shop"
+	prompt.HoldDuration = 0.3
+	prompt.MaxActivationDistance = Config.CornerShopRange - 4
+	prompt.RequiresLineOfSight = false
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	local anchor = model:FindFirstChild("PromptAnchor", true)
+	local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if anchor ~= nil and anchor:IsA("Attachment") then
+		prompt.Parent = anchor
+	elseif found ~= nil then
+		local float = Instance.new("Attachment")
+		float.Name = "PromptAnchor"
+		float.Parent = found
+		float.WorldPosition = (model:GetPivot() * CFrame.new(0, 3, -2)).Position
+		prompt.Parent = float
+	end
+	return model
+end
+
+-- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard at Layout.thanksBoard, tagged
+-- ThanksBoard. Its part "Screen" carries UI-Engineer's SurfaceGui of IdeaCreditsService's rows; nothing here draws
+-- them. Persistent, so the face fills from anywhere in the square. Left out while the art is missing (no placeholder).
+local THANKS_BOARD = "CatCafe_Street_ThanksBoard"
+
+local function buildThanksBoard(parent: Instance): Model?
+	if not AssetRegistry.known(THANKS_BOARD) then
+		return nil
+	end
+	local spec = Layout.thanksBoard
+	local model = place(
+		THANKS_BOARD,
+		CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0),
+		parent
+	)
+	model.Name = "ThanksBoard"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	CollectionService:AddTag(model, "ThanksBoard")
+	return model
+end
+
 local function buildLeaderboards(parent: Instance): Model?
 	if not AssetRegistry.known(LEADERBOARD_ROW) then
 		return nil
@@ -2274,6 +2336,8 @@ function WorldBuilder.build(): World
 	buildCodesCat(root)
 	buildBellhopStand(root)
 	buildLeaderboards(root)
+	buildCornerShop(root) -- #1052, once its art is in
+	buildThanksBoard(root) -- #1083, once its art is in
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"

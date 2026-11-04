@@ -14,7 +14,8 @@ local Types = require(script.Parent.Types)
 
 local ClaimAll = {}
 
-ClaimAll.KINDS = { "daily", "weekly", "achievements", "index", "tipjar" }
+-- "quests" (#1073, Derek 2026-11-04): the Quests window's one Claim all, every ready daily, weekly and achievement
+ClaimAll.KINDS = { "daily", "weekly", "achievements", "quests", "index", "tipjar" }
 ClaimAll.NOTHING = "Nothing to claim yet"
 
 export type IndexClaim = { areaId: string, milestoneId: string }
@@ -29,6 +30,27 @@ function ClaimAll.quests(profile: Types.PlayerProfile, kind: Types.QuestKind): {
 		end
 	end
 	return ready
+end
+
+export type QuestsReady = {
+	daily: { number },
+	weekly: { number },
+	achievements: { string },
+	count: number,
+}
+
+-- Everything the Quests window's one Claim all pays (#1073): the ready daily and weekly slots and the met achievements,
+-- with how many in all. The button shows while `count` is above 0.
+function ClaimAll.questReady(profile: Types.PlayerProfile): QuestsReady
+	local daily = ClaimAll.quests(profile, "daily")
+	local weekly = ClaimAll.quests(profile, "weekly")
+	local achievements = ClaimAll.achievements(profile)
+	return {
+		daily = daily,
+		weekly = weekly,
+		achievements = achievements,
+		count = #daily + #weekly + #achievements,
+	}
 end
 
 -- The met, unclaimed achievements, in Catalog order.

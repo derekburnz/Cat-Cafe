@@ -6,7 +6,7 @@
 --         background"): one scroll down a dark page, an area at a time in tier order (Components/IndexBook). Each
 --         area has a header line (its name in its colour, "7 / 10" or "Complete!", a slim bar and a Rewards button)
 --         over its cats as tiles in their rarity colour, rarest last, with the cat's name under it. A cat not found
---         yet is a black silhouette on a darkened tile with its rarity in place of the name, and no other writing
+--         yet is a black silhouette on a darkened tile with its name faded under it (#1077), and no other writing
 --         (Derek 2026-10-28: "just show found by the picture being filled its black if not found simple no need for
 --         writing"). The Gold tab shows each cat's gold coat and counts the gold track. Tap a tile for its details
 --         on a card over the page.
@@ -989,7 +989,9 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 			then color
 			else color:Lerp(Color3.new(0, 0, 0), Theme.index.dim)
 		cell.portrait:setSilhouette(not isFound)
-		cell.name.Text = if isFound then def.name else def.rarity
+		-- an uncaught cat keeps its dark silhouette but says its name, so players know what to look for (#1077)
+		cell.name.Text = def.name
+		cell.name.TextTransparency = if isFound then 0 else 0.25
 		local bright = (gold or rainbow) and isFound
 		cell.border.Color = if gold and isFound then Theme.colors.gold else Theme.colors.outline
 		cell.border.Thickness = Theme.sizes.outline + (if bright then 1 else 0)
@@ -1111,10 +1113,12 @@ function CatCollection._showDetail(self: any)
 	end
 	self._detailStroke.Color = if rainbow then Theme.colors.white else color
 	self._detailDisc.BackgroundColor3 = color
-	local name = if found then def.name else "Not found yet"
-	self._detailName.Text = if gold and found
+	-- the name shows whether or not the cat is found (#1077), with the coat the tab hunts for, so "Gold Tabby"
+	-- reads right on the Gold tab even while the player owns a plain Tabby
+	local name = def.name
+	self._detailName.Text = if gold
 		then "Gold " .. name
-		elseif rainbow then "Rainbow " .. name
+		elseif self._tab == "Rainbow" then "Rainbow " .. name
 		else name
 	self._detailPill.Text = def.rarity
 	self._detailPill.BackgroundColor3 = color
@@ -1134,7 +1138,8 @@ function CatCollection._showDetail(self: any)
 		table.insert(meta, "lives in the " .. Format.areaName(def.area or IndexBook.FALLBACK_AREA))
 	end
 	self._detailMeta.Text = table.concat(meta, "  ·  ")
-	self._detailDesc.Text = if found then (def.description or "") else ""
+	-- the description waits until the cat is found; its slot says so, leaving the one-line meta room for the area
+	self._detailDesc.Text = if found then (def.description or "") else "Not found yet"
 	if not self._cover.Visible then
 		self._cover.Visible = true
 		Tween.popIn(self._cover:FindFirstChild("Card") :: GuiObject, 0.9)

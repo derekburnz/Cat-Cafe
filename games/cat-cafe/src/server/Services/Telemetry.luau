@@ -43,6 +43,8 @@ export type CustomEvent =
 	| "dealer_buy"
 	-- F94 (rewards-and-shops.md section 6): a Fresh Catch buy, value the golden fish spent; the row id, tier
 	| "fresh_catch_buy"
+	-- #1052 (corner-shop.md section 4): a Corner Shop buy, value the coins spent; the row id, tier
+	| "corner_shop_buy"
 	| "rich_tip"
 	| "cat_sold"
 	| "cat_renamed"

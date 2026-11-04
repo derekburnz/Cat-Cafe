@@ -118,7 +118,7 @@ local HOVER_SCALE = 1.05
 local CLEAN_OUTLINE = 4
 local CLEAN_OUTLINE_SMALL = 3
 local SMALL = 40 -- a button under this many px tall is small
-local CLEAN_DEPTH = 5
+local CLEAN_DEPTH = 0 -- no foot or lip under the face (live, 11-04: "every button still has the dark shade at the bottom")
 local CLEAN_CORNER = 0.26
 local CLEAN_SYMBOL = 0.72
 local CLEAN_LIP = 0.84
@@ -134,7 +134,7 @@ end
 -- The face is white under a UIGradient, so the gradient's colours are the face's colours: top to bottom colour, then
 -- a band of the darker depth colour along the bottom (the lip).
 local function fill(colors: Look, lighten: number): ColorSequence
-	local lip = brighten(colors.depth, lighten)
+	local lip = brighten(colors.bottom, lighten) -- the same as the face's foot: no darker band (#1176)
 	return ColorSequence.new({
 		ColorSequenceKeypoint.new(0, brighten(colors.top, lighten)),
 		ColorSequenceKeypoint.new(CLEAN_LIP, brighten(colors.bottom, lighten)),
@@ -170,11 +170,12 @@ function Button.new(props: Props): Button
 		ZIndex = props.zIndex or 1,
 	})
 
-	-- The depth frame spans the whole button so its outline wraps the face and the bottom edge together. The bottom
-	-- edge is the outline's own dark colour, a thicker outline along the foot.
+	-- The depth frame spans the whole button so its outline wraps the face and the bottom edge together. The foot under
+	-- the face is the style's own darker shade (applyStyle), not black (#1075, Derek's live v184 check: "all ui buttons
+	-- have an unnecessary shadow looking black tint on the bottom").
 	local depthFrame: Frame = Create("Frame", {
 		Name = "Depth",
-		BackgroundColor3 = Theme.colors.outline,
+		BackgroundColor3 = STYLES[style].bottom,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 1, -band),
 		ZIndex = props.zIndex or 1,
@@ -427,6 +428,7 @@ function Button.new(props: Props): Button
 	local function applyStyle()
 		local colors = STYLES[if self._enabled then self._style else "disabled"]
 		gradient.Color = fill(colors, 0)
+		depthFrame.BackgroundColor3 = colors.bottom
 		label.TextColor3 = colors.text
 		textOutline.Enabled = colors.outlined
 		if icon then
@@ -451,7 +453,7 @@ function Button.new(props: Props): Button
 		Tween.to(
 			face,
 			Tween.FAST,
-			{ Position = UDim2.fromOffset(0, if down then depth - 1 else 0) }
+			{ Position = UDim2.fromOffset(0, if down then math.max(depth - 1, 1) else 0) }
 		)
 	end
 

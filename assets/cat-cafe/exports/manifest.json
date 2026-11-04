@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-03 01:20 UTC",
+  "generated": "2026-11-04 18:42 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -143976,7 +143976,7 @@
         "CatCafe_Park_Gate_Lamp_Bulb",
         "CatCafe_Park_Gate_Flowers"
       ],
-      "triangles": 2776,
+      "triangles": 3870,
       "budget": 6000,
       "size_studs": {
         "x": 40.95,
@@ -144015,7 +144015,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_Gate.model.json",
-      "rbx_parts": 205,
+      "rbx_parts": 302,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_Gate.glb"
@@ -144027,10 +144027,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2776/6000 tris",
+          "budget": "3870/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1442 faces on swatch centers",
+          "uv": "1989 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.06"
@@ -144050,7 +144050,7 @@
         "CatCafe_Park_GateF85_Lamp_Bulb",
         "CatCafe_Park_GateF85_Flowers"
       ],
-      "triangles": 2776,
+      "triangles": 3870,
       "budget": 6000,
       "size_studs": {
         "x": 32.95,
@@ -144089,7 +144089,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). F85: the long Park's gate over its 24 stud opening, -Z toward the camp, in place of CatCafe_Park_Gate.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_GateF85.model.json",
-      "rbx_parts": 205,
+      "rbx_parts": 302,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_GateF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_GateF85.glb"
@@ -144101,15 +144101,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "2776/6000 tris",
+          "budget": "3870/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1442 faces on swatch centers",
+          "uv": "1989 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.06"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_GateF85.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Park_GateF85.png"
     },
     {
       "name": "CatCafe_Neighbourhood_Gate",
@@ -144122,16 +144124,16 @@
         "CatCafe_Neighbourhood_Gate_Lamp_Bulb",
         "CatCafe_Neighbourhood_Gate_Flowers"
       ],
-      "triangles": 3708,
+      "triangles": 4802,
       "budget": 6000,
       "size_studs": {
         "x": 44.62,
         "y": 7.15,
-        "z": 15.9
+        "z": 16.4
       },
       "size_roblox": [
         44.62,
-        15.9,
+        16.4,
         7.15
       ],
       "bounds_min": [
@@ -144142,7 +144144,7 @@
       "bounds_max": [
         21.8,
         1.95,
-        15.9
+        16.4
       ],
       "pivot": "base centre of the opening; -Z faces the side players come from",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -144161,7 +144163,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_Gate.model.json",
-      "rbx_parts": 321,
+      "rbx_parts": 418,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_Gate.glb"
@@ -144173,10 +144175,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3708/6000 tris",
+          "budget": "4802/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1922 faces on swatch centers",
+          "uv": "2469 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-0.51 y=-1.62"
@@ -144196,16 +144198,16 @@
         "CatCafe_Neighbourhood_GateF85_Lamp_Bulb",
         "CatCafe_Neighbourhood_GateF85_Flowers"
       ],
-      "triangles": 3660,
+      "triangles": 4754,
       "budget": 6000,
       "size_studs": {
         "x": 36.62,
         "y": 7.15,
-        "z": 15.9
+        "z": 16.4
       },
       "size_roblox": [
         36.62,
-        15.9,
+        16.4,
         7.15
       ],
       "bounds_min": [
@@ -144216,7 +144218,7 @@
       "bounds_max": [
         17.8,
         1.95,
-        15.9
+        16.4
       ],
       "pivot": "base centre of the 24 stud opening; -Z faces the camp (F85)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -144235,7 +144237,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). F85: the long Neighbourhood's gate over its 24 stud opening, -Z toward the camp, in place of CatCafe_Neighbourhood_Gate.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_GateF85.model.json",
-      "rbx_parts": 317,
+      "rbx_parts": 414,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_GateF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_GateF85.glb"
@@ -144247,15 +144249,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "3660/6000 tris",
+          "budget": "4754/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1898 faces on swatch centers",
+          "uv": "2445 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=-0.51 y=-1.62"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Neighbourhood_GateF85.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Neighbourhood_GateF85.png"
     },
     {
       "name": "CatCafe_Woods_Gate",
@@ -144268,7 +144272,7 @@
         "CatCafe_Woods_Gate_Lamp_Bulb",
         "CatCafe_Woods_Gate_Flowers"
       ],
-      "triangles": 3228,
+      "triangles": 4322,
       "budget": 6000,
       "size_studs": {
         "x": 36.23,
@@ -144307,7 +144311,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_Gate.model.json",
-      "rbx_parts": 257,
+      "rbx_parts": 354,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_Gate.glb"
@@ -144319,10 +144323,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3228/6000 tris",
+          "budget": "4322/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1496 faces on swatch centers",
+          "uv": "2043 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=2.20"
@@ -144341,7 +144345,7 @@
         "CatCafe_Sewer_Gate_SignBoard",
         "CatCafe_Sewer_Gate_Lamp_Bulb"
       ],
-      "triangles": 2762,
+      "triangles": 3856,
       "budget": 6000,
       "size_studs": {
         "x": 31.1,
@@ -144380,7 +144384,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_Gate.model.json",
-      "rbx_parts": 191,
+      "rbx_parts": 288,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_Gate.glb"
@@ -144392,10 +144396,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2762/6000 tris",
+          "budget": "3856/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1237 faces on swatch centers",
+          "uv": "1784 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.85"
@@ -147876,6 +147880,242 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Street_FishMarket.png"
     },
     {
+      "name": "CatCafe_Street_CornerShop",
+      "category": "Street",
+      "module": "cornershop",
+      "objects": [
+        "CatCafe_Street_CornerShop",
+        "CatCafe_Street_CornerShop_Glass",
+        "CatCafe_Street_CornerShop_Bulb",
+        "CatCafe_Street_CornerShop_Cat_Body",
+        "CatCafe_Street_CornerShop_Cat_Head",
+        "CatCafe_Street_CornerShop_Cat_Eye1",
+        "CatCafe_Street_CornerShop_Cat_Eye2",
+        "CatCafe_Street_CornerShop_Cat_EarL",
+        "CatCafe_Street_CornerShop_Cat_EarR",
+        "CatCafe_Street_CornerShop_Cat_Tail",
+        "CatCafe_Street_CornerShop_Cat_LegF1",
+        "CatCafe_Street_CornerShop_Cat_LegF2",
+        "CatCafe_Street_CornerShop_Cat_Prop"
+      ],
+      "triangles": 5910,
+      "budget": 6000,
+      "size_studs": {
+        "x": 10.92,
+        "y": 4.33,
+        "z": 9.51
+      },
+      "size_roblox": [
+        10.92,
+        9.51,
+        4.33
+      ],
+      "bounds_min": [
+        -5.65,
+        -2.03,
+        -0.01
+      ],
+      "bounds_max": [
+        5.27,
+        2.3,
+        9.5
+      ],
+      "pivot": "base centre; the counter front (-Z) faces the players",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Street_CornerShop_Cat_Body": [
+          0.0,
+          0.95,
+          2.21
+        ],
+        "CatCafe_Street_CornerShop_Cat_Head": [
+          0.0,
+          0.81,
+          3.66
+        ],
+        "CatCafe_Street_CornerShop_Cat_Eye1": [
+          0.31,
+          0.07,
+          4.01
+        ],
+        "CatCafe_Street_CornerShop_Cat_Eye2": [
+          -0.31,
+          0.07,
+          4.01
+        ],
+        "CatCafe_Street_CornerShop_Cat_EarL": [
+          0.4,
+          0.69,
+          4.56
+        ],
+        "CatCafe_Street_CornerShop_Cat_EarR": [
+          -0.4,
+          0.69,
+          4.56
+        ],
+        "CatCafe_Street_CornerShop_Cat_Tail": [
+          0.28,
+          1.57,
+          2.37
+        ],
+        "CatCafe_Street_CornerShop_Cat_LegF1": [
+          0.24,
+          0.52,
+          3.09
+        ],
+        "CatCafe_Street_CornerShop_Cat_LegF2": [
+          -0.24,
+          0.52,
+          3.09
+        ],
+        "CatCafe_Street_CornerShop_Cat_Prop": [
+          0.0,
+          0.81,
+          3.66
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Street_CornerShop_Cat_Body": [
+          0.0,
+          2.21,
+          0.95
+        ],
+        "CatCafe_Street_CornerShop_Cat_Head": [
+          0.0,
+          3.66,
+          0.81
+        ],
+        "CatCafe_Street_CornerShop_Cat_Eye1": [
+          -0.31,
+          4.01,
+          0.07
+        ],
+        "CatCafe_Street_CornerShop_Cat_Eye2": [
+          0.31,
+          4.01,
+          0.07
+        ],
+        "CatCafe_Street_CornerShop_Cat_EarL": [
+          -0.4,
+          4.56,
+          0.69
+        ],
+        "CatCafe_Street_CornerShop_Cat_EarR": [
+          0.4,
+          4.56,
+          0.69
+        ],
+        "CatCafe_Street_CornerShop_Cat_Tail": [
+          -0.28,
+          2.37,
+          1.57
+        ],
+        "CatCafe_Street_CornerShop_Cat_LegF1": [
+          -0.24,
+          3.09,
+          0.52
+        ],
+        "CatCafe_Street_CornerShop_Cat_LegF2": [
+          0.24,
+          3.09,
+          0.52
+        ],
+        "CatCafe_Street_CornerShop_Cat_Prop": [
+          0.0,
+          3.66,
+          0.81
+        ]
+      },
+      "prompt_anchor_roblox": [
+        0.0,
+        3.0,
+        -1.7000000000000002
+      ],
+      "studio": "#1052 (corner-shop.md section 4): the Corner Shop in the Town Square at Layout.cornerShop; WorldBuilder tags it CornerShop and hangs the prompt on the Attachment PromptAnchor (counter front, 3 up). The jars' glass is _Glass (see-through), the shop cat's visor rides its Head Model, the sign Bulb is lit at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_CornerShop.model.json",
+      "rbx_parts": 483,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_CornerShop.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_CornerShop.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "5910/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2996 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=-0.19 y=0.13"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_CornerShop.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Street_CornerShop.png"
+    },
+    {
+      "name": "CatCafe_Street_ThanksBoard",
+      "category": "Street",
+      "module": "thanksboard",
+      "objects": [
+        "CatCafe_Street_ThanksBoard",
+        "CatCafe_Street_ThanksBoard_Screen",
+        "CatCafe_Street_ThanksBoard_Bulb",
+        "CatCafe_Street_ThanksBoard_Flowers"
+      ],
+      "triangles": 3350,
+      "budget": 6000,
+      "size_studs": {
+        "x": 12.01,
+        "y": 1.5,
+        "z": 10.6
+      },
+      "size_roblox": [
+        12.01,
+        10.6,
+        1.5
+      ],
+      "bounds_min": [
+        -6.02,
+        -0.75,
+        0.0
+      ],
+      "bounds_max": [
+        5.99,
+        0.75,
+        10.6
+      ],
+      "pivot": "base centre; the Screen's Front (-Z) face looks at the players",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#1083 (idea-credits.md section 3): the Thank You board in the Town Square at Layout.thanksBoard, tagged ThanksBoard, streams Atomic. The UI's SurfaceGui (Adornee = the part named Screen, 7.6 x 5.2, cream) draws the credit rows on its Front (-Z) face; the idea bulb (_Bulb) is lit at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_ThanksBoard.model.json",
+      "rbx_parts": 239,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_ThanksBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_ThanksBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "3350/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1805 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.01 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_ThanksBoard.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Street_ThanksBoard.png"
+    },
+    {
       "name": "CatCafe_Decor_MilkCrateStools",
       "category": "Decor",
       "module": "crate_decor",
@@ -150383,25 +150623,25 @@
         "CatCafe_Square_Paving",
         "CatCafe_Square_Paving_Slab"
       ],
-      "triangles": 9700,
+      "triangles": 8332,
       "budget": 20000,
       "size_studs": {
-        "x": 197.6,
+        "x": 135.0,
         "y": 64.0,
         "z": 0.49
       },
       "size_roblox": [
-        197.6,
+        135.0,
         0.49,
         64.0
       ],
       "bounds_min": [
-        -98.8,
+        -67.5,
         -32.0,
         -0.4
       ],
       "bounds_max": [
-        98.8,
+        67.5,
         32.0,
         0.09
       ],
@@ -150416,7 +150656,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Paving.model.json",
-      "rbx_parts": 807,
+      "rbx_parts": 693,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_Paving.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_Paving.glb"
@@ -150428,15 +150668,17 @@
           "pivot"
         ],
         "checks": {
-          "budget": "9700/20000 tris",
+          "budget": "8332/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "4794 faces on swatch centers",
+          "uv": "4110 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.40 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_Paving.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_Paving.png"
     },
     {
       "name": "CatCafe_Square_Fountain",
@@ -151139,7 +151381,9 @@
           "pivot": "floor at z=7.52 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_Bunting.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_Bunting.png"
     },
     {
       "name": "CatCafe_Square_BuntingShort",
@@ -151343,7 +151587,9 @@
           "pivot": "floor at z=7.53 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_BuntingShort.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_BuntingShort.png"
     },
     {
       "name": "CatCafe_Square_Garden",
@@ -168755,7 +169001,9 @@
           "pivot": "floor at z=7.52 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_RallyBunting.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_RallyBunting.png"
     },
     {
       "name": "CatCafe_Square_RallyBuntingShort",
@@ -168946,7 +169194,9 @@
           "pivot": "floor at z=7.53 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_RallyBuntingShort.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_RallyBuntingShort.png"
     },
     {
       "name": "CatCafe_Decor_BleacherBench",
@@ -169179,7 +169429,9 @@
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.18"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_CheerBunting.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_CheerBunting.png"
     },
     {
       "name": "CatCafe_Decor_VictoryPodium",

@@ -22,13 +22,20 @@ return function()
 		end)
 		it("builds a glyph map and skips keys the icon tables lack", function()
 			local map = CleanGlyphs.map(
-				{ crate = "📦", potion = "🧪", spin = "🎡" },
+				{ crate = "📦", potion = "🧪", lock = "🔒" },
 				{ kibble = "🥣" }
 			)
 			expect(map["📦"]).to.equal("Crate")
 			expect(map["🧪"]).to.equal("Potion")
 			expect(map["🥣"]).to.equal("Bowl")
-			expect(map["🎡"]).to.equal(nil)
+			expect(map["🔒"]).to.equal(nil)
+			expect(map["🐱"]).to.equal(nil) -- cats is mapped, but this icon table has no cats key
+		end)
+		it("draws the Settings gear, the Spin wheel and the Alley clean, not from the old sheet", function()
+			local map = CleanGlyphs.map({ settings = "⚙️", spin = "🎡", alley = "🐾" }, {})
+			expect(map["⚙️"]).to.equal("Menu")
+			expect(map["🎡"]).to.equal("Spin")
+			expect(map["🐾"]).to.equal("Catflap")
 		end)
 	end)
 end

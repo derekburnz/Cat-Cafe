@@ -22,6 +22,8 @@
 -- has loaded. Each upload is a new asset, so a changed icon gets a new id here, never a second upload of the same file.
 -- Pure, so the cloud test runner checks it.
 
+local DecorPictures = require(script.Parent.DecorPictures)
+
 local ShopIcons = {}
 
 local IDS: { [string]: string } = {
@@ -89,6 +91,28 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Trade = "rbxassetid://86243209880722", -- #1024 (upload run 41649292093)
 	Icon_Clean_Tutorial = "rbxassetid://109885867788208",
 	Icon_Clean_Upgrades = "rbxassetid://90691118878000",
+	-- #1070: the potions, foods and spin wheel redrawn clean (upload-image run 41840327151, 11-04)
+	Icon_Clean_PotionTip = "rbxassetid://86488148454995",
+	Icon_Clean_PotionLucky = "rbxassetid://105359839986454",
+	Icon_Clean_PotionSwift = "rbxassetid://123223898814902",
+	Icon_Clean_PotionSteady = "rbxassetid://121053101784702",
+	Icon_Clean_PotionBigTip = "rbxassetid://89235368935178",
+	Icon_Clean_PotionGoldRush = "rbxassetid://117084495995856",
+	Icon_Clean_PotionQuickBait = "rbxassetid://103272653422076",
+	Icon_Clean_Tuna = "rbxassetid://128749627858421",
+	Icon_Clean_Salmon = "rbxassetid://78789450804337",
+	Icon_Clean_Sardines = "rbxassetid://133035243124941",
+	Icon_Clean_MoonMilk = "rbxassetid://107176560784324",
+	Icon_Clean_StarTreat = "rbxassetid://127060767808144",
+	Icon_Clean_Spin = "rbxassetid://126057350997233",
+	Icon_Clean_Kibble = "rbxassetid://92153852858346", -- its own bowl of kibble (run 41851955780, 11-04)
+	-- the Decor window's "Your cafe" slots (#964, upload-image run 41728803377 on 11-03)
+	Icon_Clean_Wallpaper = "rbxassetid://102259047705880",
+	Icon_Clean_Floor = "rbxassetid://100560850589029",
+	Icon_Clean_Paint = "rbxassetid://88844625138910",
+	Icon_Clean_Spots = "rbxassetid://74579562921955",
+	Icon_Clean_Door = "rbxassetid://82896268186640",
+	Icon_Clean_Catflap = "rbxassetid://99900172207666",
 }
 local NETS = 4
 
@@ -101,8 +125,26 @@ local function pascal(id: string): string
 	return table.concat(words)
 end
 
+-- #1070 (Derek's live v184 check: "the new clean UI pictures in general are not live"): a picture with a clean
+-- redraw (Icon_Clean_<Name>) shows that once its id is here; until then the older upload stands in.
+local CLEAN_FOR: { [string]: string } = {
+	Spin = "Spin",
+	Kibble = "Kibble",
+	Tuna = "Tuna",
+	Sardines = "Sardines",
+	Salmon = "Salmon",
+	Caviar = "Caviar",
+	MoonMilk = "MoonMilk",
+	StarTreat = "StarTreat",
+}
+
+local function preferClean(name: string): string?
+	local clean = CLEAN_FOR[name]
+	return (if clean then IDS["Icon_Clean_" .. clean] else nil) or IDS[name]
+end
+
 function ShopIcons.image(name: string): string?
-	return IDS[name]
+	return preferClean(name)
 end
 
 function ShopIcons.clean(name: string): string?
@@ -140,7 +182,11 @@ end
 
 function ShopIcons.potion(potionId: string?): string?
 	local name = if type(potionId) == "string" then potionId:match("^(.+)_potion$") else nil
-	return if name then IDS["Potion_" .. pascal(name)] else nil
+	if name == nil then
+		return nil
+	end
+	-- the clean flask in the potion's colour (#1070), else the older bottle
+	return IDS["Icon_Clean_Potion" .. pascal(name)] or IDS["Potion_" .. pascal(name)]
 end
 
 function ShopIcons.perk(perkId: string?): string?
@@ -148,7 +194,12 @@ function ShopIcons.perk(perkId: string?): string?
 end
 
 function ShopIcons.food(lureId: string?): string?
-	return if type(lureId) == "string" then IDS[pascal(lureId)] else nil
+	return if type(lureId) == "string" then preferClean(pascal(lureId)) else nil
+end
+
+-- A decor piece's clean picture by its catalog id (#1072, Components/DecorPictures), or nil for an unknown id.
+function ShopIcons.decor(decorId: string?): string?
+	return if type(decorId) == "string" then DecorPictures[decorId] else nil
 end
 
 function ShopIcons.net(level: number?): string?

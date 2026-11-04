@@ -36,6 +36,7 @@ local Format = require(script.Parent.Parent.Components.Format)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
@@ -52,6 +53,8 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 
 export type Callbacks = {
 	spin: () -> (),
+	-- #1078 Use all: spends every saved spin in one go (SpinAll); no button without it
+	spinAll: (() -> ())?,
 	toast: (text: string) -> (), -- a prize that lands while the window is closed
 	close: () -> (),
 }
@@ -62,6 +65,11 @@ export type SpinWheel = {
 	setNight: (self: SpinWheel, night: boolean) -> (),
 	render: (self: SpinWheel, state: Types.PlayerState) -> (),
 	result: (self: SpinWheel, slice: number, amount: number) -> (),
+	allResult: (
+		self: SpinWheel,
+		rolls: { { slice: number, amount: number } },
+		totals: { SpinLogic.Total }
+	) -> (),
 	destroy: (self: SpinWheel) -> (),
 }
 
@@ -91,7 +99,9 @@ local TILE = 0.29 -- tile size, of the face
 local RADIUS = 0.34 -- tile middles from the hub, of the face
 local SPOKE = 3
 local RIM_LIGHTS = 12
-local SPIN_HEIGHT = 56
+local SPIN_HEIGHT = 64
+local COUNT_BADGE = 56 -- the spins count's gold badge (#965)
+local SIDE_PAD = 12 -- inside the side card on every edge, so no button's outline or lip is clipped (#965)
 local ODDS_HEIGHT = 44 -- full width; it was 84 x 36 (Derek 2026-10-28: "a little squished"). Both grow on a phone.
 local ODDS_ROW = 64
 local ODDS_ICON = 48
@@ -282,10 +292,12 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	})
 	Outline.text(pointer, Theme.sizes.textOutline)
 
-	-- the side: chances, spins, the free spin countdown, the button and the result line
+	-- the side (#965, Derek: "the right side of spin menu is very plain", "buttons ... get cut off"): a card with the
+	-- spins count in a big gold badge, the free spin line as a chip, Spin, Odds and the result line. Padded on every
+	-- edge, as the scroller clips: buttons' outlines and lips once reached past its right and bottom edges.
 	local side: ScrollingFrame = Create("ScrollingFrame", {
 		Name = "Side",
-		BackgroundTransparency = 1,
+		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Position = UDim2.new(WHEEL_SHARE, Theme.sizes.gap, 0, 0),
 		Size = UDim2.new(1 - WHEEL_SHARE, -Theme.sizes.gap, 1, 0),
@@ -297,28 +309,91 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		Parent = panel.content,
 	}, {
 		Create("UIListLayout", {
-			Padding = UDim.new(0, 8),
+			Padding = UDim.new(0, 10),
 			SortOrder = Enum.SortOrder.LayoutOrder,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 8), PaddingBottom = UDim.new(0, 6) }),
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create("UIPadding", {
+			PaddingTop = UDim.new(0, SIDE_PAD),
+			PaddingBottom = UDim.new(0, SIDE_PAD + Theme.sizes.buttonDepth),
+			PaddingLeft = UDim.new(0, SIDE_PAD),
+			PaddingRight = UDim.new(0, SIDE_PAD + 6),
+		}),
 	})
+	-- the spins count: a gold badge with the number, "Spins" beside it
+	local count: Frame = Create("Frame", {
+		Name = "Count",
+		LayoutOrder = 1,
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, COUNT_BADGE),
+		Parent = side,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 10),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	local badge = circle({
+		Name = "Badge",
+		LayoutOrder = 1,
+		Size = UDim2.fromOffset(COUNT_BADGE, COUNT_BADGE),
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		Parent = count,
+	})
+	Outline.border(badge, Theme.sizes.outline, Theme.colors.outline)
+	self._spinsCount = text({
+		Name = "Number",
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = 30,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		Parent = badge,
+	})
+	Outline.text(self._spinsCount, Theme.sizes.textOutline)
 	self._spinsLabel = text({
 		Name = "Spins",
-		LayoutOrder = 1,
-		Size = UDim2.new(1, 0, 0, 26),
+		LayoutOrder = 2,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, COUNT_BADGE),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
-		Parent = side,
+		TextSize = Theme.sizes.textLarge + 2,
+		TextTruncate = Enum.TextTruncate.None,
+		Parent = count,
 	})
+	Outline.text(self._spinsLabel, 2)
+	-- the free spin line as a chip
+	local chip: Frame = Create("Frame", {
+		Name = "FreeChip",
+		LayoutOrder = 2,
+		BackgroundColor3 = PAL.line,
+		BorderSizePixel = 0,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 26),
+		Parent = side,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }),
+		Create("UISizeConstraint", { MaxSize = Vector2.new(math.huge, 26) }),
+	})
+	self._freeChip = chip
 	self._freeLabel = text({
 		Name = "Free",
-		LayoutOrder = 2,
-		Size = UDim2.new(1, 0, 0, 18),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromScale(0, 1),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
-		Parent = side,
+		TextTruncate = Enum.TextTruncate.None,
+		Parent = chip,
 	})
 	self._button = Button.new({
 		name = "Spin",
@@ -333,22 +408,53 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 			self:_press()
 		end,
 	})
+	-- Use all and Odds share one row, so a phone's card holds them without scrolling (#1078)
+	local actionH = Scale.tapHeight(ODDS_HEIGHT, Theme.sizes.buttonDepth)
+	local actions: Frame = Create("Frame", {
+		Name = "Actions",
+		BackgroundTransparency = 1,
+		LayoutOrder = 4,
+		Size = UDim2.new(1, 0, 0, actionH),
+		Parent = side,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
 	self._oddsButton = Button.new({
 		name = "Odds",
 		text = "Odds",
 		icon = "📊",
 		style = "secondary",
-		size = UDim2.new(1, 0, 0, Scale.tapHeight(ODDS_HEIGHT, Theme.sizes.buttonDepth)),
+		size = UDim2.new(1, 0, 1, 0),
 		textSize = Theme.sizes.textBody + 1,
-		layoutOrder = 4,
-		parent = side,
+		layoutOrder = 2,
+		parent = actions,
 		onClick = function()
 			self:_showOdds(true)
 		end,
 	})
+	-- #1078 Use all: under Spin, while two or more spins wait (SpinLogic.allText)
+	self._allPending = nil :: number? -- os.clock() of a Use all press still waiting for SpinAllResult
+	self._allButton = Button.new({
+		name = "UseAll",
+		text = "Use all",
+		icon = Theme.icons.spin,
+		style = "purple",
+		size = UDim2.new(0.5, -4, 1, 0),
+		textSize = Theme.sizes.textBody + 1,
+		layoutOrder = 1,
+		parent = actions,
+		onClick = function()
+			self:_pressAll()
+		end,
+	})
+	self._allButton.instance.Visible = false
 	self._message = text({
 		Name = "Message",
-		LayoutOrder = 5,
+		LayoutOrder = 6,
 		Size = UDim2.new(1, 0, 0, 40),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textBody,
@@ -459,6 +565,7 @@ function SpinWheel.setCatalog(self: any, catalog: Types.Catalog)
 	for _, lure in catalog.lures do
 		self._lureById[lure.id] = lure
 	end
+	self._catalog = catalog
 	self._crates = CrateLogic.byId(catalog.crates)
 	self._areas = (catalog.areas or {}) :: any
 	self._rows = catalog.spinWheel or {}
@@ -516,6 +623,123 @@ function SpinWheel._paintCrate(self: any, tile: Tile)
 end
 
 -- SpinResult from the server: turn to `slice` and show what `amount` paid, or say why a 0 was refused.
+-- Use all (#1078): one SpinAll; the button reads "..." until SpinAllResult or PENDING_SECONDS.
+function SpinWheel._pressAll(self: any)
+	local spinAll: (() -> ())? = self._callbacks.spinAll
+	if spinAll == nil or self._turn ~= nil or self._pressedAt ~= nil then
+		return
+	end
+	if self._allPending and os.clock() - self._allPending < PENDING_SECONDS then
+		return
+	end
+	self._allPending = os.clock()
+	self:_say("", PAL.text)
+	spinAll()
+	self:_refresh()
+end
+
+-- SpinAllResult(rolls, totals): the wheel turns to the last roll, then one card sums every prize (no popup per spin).
+-- Empty lists mean refused (out of range, cooldown, no spins); the window says why as for one spin.
+function SpinWheel.allResult(
+	self: any,
+	rolls: { { slice: number, amount: number } },
+	totals: { SpinLogic.Total }
+)
+	self._allPending = nil
+	if #rolls == 0 then
+		self:result(0, 0)
+		return
+	end
+	local last = rolls[#rolls]
+	self:result(last.slice, last.amount)
+	local count = #rolls
+	local prize = SpinLogic.totalsPrize(totals)
+	local wait = if GuiService.ReducedMotionEnabled then CALM_SECONDS else SPIN_SECONDS
+	task.delay(wait, function()
+		self:_showAllCard(count, prize)
+	end)
+end
+
+-- The one results card over the window: "5 spins used", every prize as pictures with amounts, and Nice!.
+function SpinWheel._showAllCard(self: any, count: number, prize: Types.IndexPrize)
+	if self._allCard == nil then
+		local cover: Frame = Create("Frame", {
+			Name = "AllCard",
+			Active = true,
+			BackgroundColor3 = Theme.modal.backdrop,
+			BackgroundTransparency = 0.4,
+			BorderSizePixel = 0,
+			Size = UDim2.fromScale(1, 1),
+			ZIndex = 20,
+			Visible = false,
+			Parent = self._panel.content,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+		local card: Frame = Create("Frame", {
+			Name = "Card",
+			BackgroundColor3 = PAL.card,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.new(0.86, 0, 0, 230),
+			ZIndex = 21,
+			Parent = cover,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+		Outline.border(card, Theme.sizes.outline, Theme.colors.gold)
+		local title = text({
+			Name = "Title",
+			Position = UDim2.fromOffset(0, 12),
+			Size = UDim2.new(1, 0, 0, 30),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textLarge + 2,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			ZIndex = 22,
+			Parent = card,
+		})
+		Outline.text(title, 2)
+		local holder: Frame = Create("Frame", {
+			Name = "Prizes",
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(12, 50),
+			Size = UDim2.new(1, -24, 0, 110),
+			ZIndex = 22,
+			Parent = card,
+		})
+		local chips = PrizeChips.new({
+			parent = holder,
+			tile = 52,
+			wrap = true,
+			size = UDim2.fromScale(1, 1),
+			outlined = true,
+		})
+		local nice = Button.new({
+			name = "Nice",
+			text = "Nice!",
+			style = "primary",
+			size = UDim2.fromOffset(
+				160,
+				Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
+			),
+			anchorPoint = Vector2.new(0.5, 1),
+			position = UDim2.new(0.5, 0, 1, -10),
+			zIndex = 22,
+			parent = card,
+			onClick = function()
+				cover.Visible = false
+			end,
+		})
+		self._allCard = { cover = cover, title = title, chips = chips, nice = nice }
+	end
+	local view = self._allCard
+	view.title.Text = ("%d spin%s used"):format(count, if count == 1 then "" else "s")
+	local catalog: Types.Catalog? = self._catalog
+	if catalog then
+		view.chips:setCatalog(catalog)
+	end
+	view.chips:set(prize, { dayRate = self._income })
+	view.cover.Visible = true
+	Tween.popIn(view.cover:FindFirstChild("Card") :: GuiObject, 0.9)
+end
+
 function SpinWheel.result(self: any, slice: number, amount: number)
 	self._pressedAt = nil
 	local now = Workspace:GetServerTimeNow()
@@ -930,7 +1154,8 @@ function SpinWheel._refresh(self: any)
 
 	local spins = SpinLogic.spins(spin, now)
 	local banked = if spin then math.max(0, math.floor(spin.banked)) else 0
-	self._spinsLabel.Text = ("Spins: %d"):format(spins)
+	self._spinsCount.Text = tostring(spins)
+	self._spinsLabel.Text = if spins == 1 then "Spin" else "Spins"
 	local freeLine = if SpinLogic.freeDue(spin, now)
 		then "Free spin ready!"
 		else "Next free spin in " .. SpinLogic.wait(SpinLogic.nextFreeIn(spin, now))
@@ -938,7 +1163,9 @@ function SpinWheel._refresh(self: any)
 		freeLine ..= ("  ·  %d saved"):format(banked)
 	end
 	self._freeLabel.Text = freeLine
-	self._freeLabel.TextColor3 = if SpinLogic.freeDue(spin, now) then PAL.good else PAL.subtext
+	local due = SpinLogic.freeDue(spin, now)
+	self._freeLabel.TextColor3 = if due then PAL.good else PAL.subtext
+	self._freeChip.BackgroundColor3 = if due then PAL.goldCard else PAL.line
 
 	local turn: Turn? = self._turn
 	local button = SpinLogic.button({
@@ -952,6 +1179,16 @@ function SpinWheel._refresh(self: any)
 	self._button:setText(button.text)
 	self._button:setStyle(if button.skip then "secondary" else "gold")
 	self._button:setEnabled(button.enabled)
+	-- Use all (#1078): two or more spins, not while a spin turns or waits
+	local allPending = self._allPending ~= nil and os.clock() - self._allPending < PENDING_SECONDS
+	local all: Button.Button = self._allButton
+	local showAll = self._callbacks.spinAll ~= nil and spins > 1
+	all.instance.Visible = showAll
+	self._oddsButton.instance.Size = if showAll
+		then UDim2.new(0.5, -4, 1, 0)
+		else UDim2.fromScale(1, 1)
+	all:setText(if allPending then "..." else SpinLogic.allText(spins, (Config :: any).SpinAllMax))
+	all:setEnabled(not allPending and turn == nil and self._pressedAt == nil)
 end
 
 function SpinWheel.destroy(self: any)
@@ -965,8 +1202,14 @@ function SpinWheel.destroy(self: any)
 	end
 	table.clear(self._oddsTiles)
 	self._button:destroy()
+	self._allButton:destroy()
 	self._oddsButton:destroy()
 	self._oddsBack:destroy()
+	local card = self._allCard
+	if card then
+		card.chips:destroy()
+		card.nice:destroy()
+	end
 	self._panel:destroy()
 end
 

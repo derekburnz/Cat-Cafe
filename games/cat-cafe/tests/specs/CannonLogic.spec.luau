@@ -26,9 +26,7 @@ return function()
 		end)
 
 		it("puts Town Square first from a camp and leaves out the camp's own area", function()
-			expect(ids(CannonLogic.destinations(Catalog.areas, 3, "park"))).to.equal(
-				"town,alley,neighbourhood"
-			)
+			expect(ids(CannonLogic.destinations(Catalog.areas, 3, "park"))).to.equal("town,alley,neighbourhood")
 			expect(ids(CannonLogic.destinations(Catalog.areas, 1, "alley"))).to.equal("town")
 			local town = CannonLogic.destinations(Catalog.areas, 1, "alley")[1]
 			expect(town.name).to.equal("Town Square")
@@ -69,9 +67,7 @@ return function()
 
 	describe("CannonLogic.notice", function()
 		it("says why Launch is off", function()
-			expect(CannonLogic.notice(false, false, true, nil)).to.equal(
-				"Bring your cat to the camp first"
-			)
+			expect(CannonLogic.notice(false, false, true, nil)).to.equal("Bring your cat to the camp first")
 			expect(CannonLogic.notice(false, true, false, 12)).to.equal(
 				"Night is coming. Launch opens again at sunrise."
 			)
@@ -79,18 +75,10 @@ return function()
 		end)
 
 		it("counts down to sunrise at night", function()
-			expect(CannonLogic.notice(true, false, false, 160)).to.equal(
-				"Closed until sunrise · 2m 40s"
-			)
-			expect(CannonLogic.notice(true, false, false, 159.2)).to.equal(
-				"Closed until sunrise · 2m 40s"
-			)
-			expect(CannonLogic.notice(true, false, false, 45)).to.equal(
-				"Closed until sunrise · 45s"
-			)
-			expect(CannonLogic.notice(true, false, false, -2)).to.equal(
-				"Closed until sunrise · 0s"
-			)
+			expect(CannonLogic.notice(true, false, false, 160)).to.equal("Closed until sunrise · 2m 40s")
+			expect(CannonLogic.notice(true, false, false, 159.2)).to.equal("Closed until sunrise · 2m 40s")
+			expect(CannonLogic.notice(true, false, false, 45)).to.equal("Closed until sunrise · 45s")
+			expect(CannonLogic.notice(true, false, false, -2)).to.equal("Closed until sunrise · 0s")
 			expect(CannonLogic.notice(true, false, false, nil)).to.equal("Closed until sunrise")
 		end)
 	end)
@@ -178,9 +166,9 @@ return function()
 		end)
 
 		it("names the area the rank up to Tier 2 opened", function()
-			expect(
-				CannonLogic.hint(view({ tier = 2, launched = true, opened = "Park", told = false }))
-			).to.equal("The Park is open! Hop in the cannon to fly there.")
+			expect(CannonLogic.hint(view({ tier = 2, launched = true, opened = "Park", told = false }))).to.equal(
+				"The Park is open! Hop in the cannon to fly there."
+			)
 		end)
 
 		it("lets the onboarding line come first after the first catch", function()
@@ -188,9 +176,7 @@ return function()
 			expect(CannonLogic.hint(view({ tutorialStep = 4, told = false }))).to.equal(
 				"Hop in the cannon to fly to the Alleyway!"
 			)
-			expect(CannonLogic.hint(view({ tutorialStep = 1 }))).to.equal(
-				"Hop in the cannon to fly to the Alleyway!"
-			)
+			expect(CannonLogic.hint(view({ tutorialStep = 1 }))).to.equal("Hop in the cannon to fly to the Alleyway!")
 		end)
 	end)
 end

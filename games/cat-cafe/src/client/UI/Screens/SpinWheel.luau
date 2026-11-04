@@ -105,9 +105,14 @@ local SPOKE = 5 -- the white divider between two wedges
 -- would spill past it near the hub (Review-Agent, #1109). Its far side could only cross the wedge's other edge inside
 -- 2 bar widths of the middle, under the hub.
 local WEDGE_STEP = 4
-local RIM_COLOR = Color3.fromHex("C2335F") -- deep berry, the window's header colour darker
+-- The look of the wheel in the Town Square (assets/cat-cafe/blender/spinwheel.py; the user, 11-04: "make it look like
+-- the wheel model that you can see in game"): a gold frame with warm bulbs, a gold hub with a pink cap, a pink pointer
+local RIM_COLOR = Color3.fromHex("FFC94D") -- rarity_legend
+local RIM_LIGHT_COLOR = Color3.fromHex("FFF4B0") -- sparkle, the lit bulbs
 local HUB_COLOR = Color3.fromHex("FFC94D")
-local RIM_LIGHTS = 12
+local LIGHT_OFF_COLOR = Color3.fromHex("D9A23A") -- a bulb between flashes, darker than the frame
+local CAP_COLOR = Color3.fromHex("FF6B81") -- neon_pink, the hub's cap and the pointer
+local RIM_LIGHTS = 16
 local SPIN_HEIGHT = 64
 local COUNT_BADGE = 56 -- the spins count's gold badge (#965)
 local SIDE_PAD = 12 -- inside the side card on every edge, so no button's outline or lip is clipped (#965)
@@ -127,14 +132,14 @@ local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 local COIN_GLYPH = "💰"
 local TAG = "SpinWheel"
 
--- The Cozy Cream pastels, one per slice in wheel order
+-- The model's slices, one per slice in wheel order (spinwheel.py SLICES): butter, sky, mint, blush, lilac, deep blue
 local SLICE_COLORS = {
-	Color3.fromHex("FF6B6B"),
-	Color3.fromHex("FFC94D"),
-	Color3.fromHex("3FCBB0"),
-	Color3.fromHex("5FA8FF"),
-	Color3.fromHex("FF7EB0"),
-	Color3.fromHex("A97CFF"),
+	Color3.fromHex("F6DFA0"),
+	Color3.fromHex("A8D8F0"),
+	Color3.fromHex("8FD3C1"),
+	Color3.fromHex("E8A0A0"),
+	Color3.fromHex("C9B8E8"),
+	Color3.fromHex("3B4C8C"),
 }
 
 local SpinWheel = {}
@@ -247,8 +252,8 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 					0.5 + 0.475 * math.sin(theta),
 					0.5 - 0.475 * math.cos(theta)
 				),
-				Size = UDim2.fromScale(0.045, 0.045),
-				BackgroundColor3 = Theme.colors.gold,
+				Size = UDim2.fromScale(0.04, 0.04),
+				BackgroundColor3 = RIM_LIGHT_COLOR,
 				BorderSizePixel = 0,
 				Parent = rim,
 			})
@@ -285,13 +290,24 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		Parent = face,
 	})
 	Outline.border(hub, Theme.sizes.outline, Theme.colors.outline)
+	local cap = circle({
+		Name = "Cap",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0.66, 0.66),
+		BackgroundColor3 = CAP_COLOR,
+		BorderSizePixel = 0,
+		ZIndex = 3,
+		Parent = hub,
+	})
+	Outline.border(cap, 2, Theme.colors.outline)
 	text({
 		Name = "Paw",
 		Size = UDim2.fromScale(1, 1),
 		TextScaled = true,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "🐾",
-		ZIndex = 3,
+		ZIndex = 4,
 		Parent = hub,
 	})
 	local pointer = text({
@@ -301,7 +317,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		Size = UDim2.fromOffset(44, 44),
 		FontFace = Theme.fonts.display,
 		TextSize = 40,
-		TextColor3 = Theme.colors.red,
+		TextColor3 = CAP_COLOR,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.None,
 		Text = "▼",
@@ -1078,7 +1094,7 @@ end
 function SpinWheel._blink(self: any, phase: number?)
 	for index, light: Frame in self._lights do
 		local on = phase == nil or (index + phase) % 2 == 0
-		light.BackgroundColor3 = if on then Theme.colors.gold else Theme.colors.paper
+		light.BackgroundColor3 = if on then RIM_LIGHT_COLOR else LIGHT_OFF_COLOR
 	end
 end
 

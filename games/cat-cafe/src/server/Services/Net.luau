@@ -44,6 +44,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SetSetting = RateLimiter.new(4, 1), -- a toggle tap; each call sends a full sync
 	ClaimTipJar = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimIndexReward = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
+	SpinAll = RateLimiter.new(1, 1), -- #1078: 1 a second (and the spin cooldown)
 	SpinWheel = RateLimiter.new(2, 1), -- SpinService also holds each player to SpinCooldownSeconds between spins
 	OpenCrate = RateLimiter.new(1, 1), -- golden-fish.md section 8: 1 a second; FishMarketService holds 2 s between opens
 	BuyCrateBundle = RateLimiter.new(1, 1), -- #1051: 1 a second

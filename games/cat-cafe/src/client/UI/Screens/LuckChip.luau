@@ -44,7 +44,7 @@ local CARD_W = 330
 local ROW_H = 24
 local GAP = 6 -- between the chip and its card
 local EDGE = 8 -- the card keeps this far from the screen's right edge
-local GREEN = Color3.fromHex("5ED36A") -- the clover's tile, bright so it reads on grass (#1189)
+local GREEN = Color3.fromHex("6BE36F") -- the clover's tile, bright so it reads on grass (#1189); the small chip, no pill
 local PULSE = TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 
 local LuckChip = {}
@@ -106,11 +106,7 @@ function LuckChip.new(
 		Name = "Luck",
 		Text = "",
 		AutoButtonColor = false,
-		-- a dark pill with the gold outline, so it reads over the grass (#1189, the friend 11-04: "blends into the
-		-- green grass")
-		BackgroundColor3 = Theme.colors.outline,
-		BackgroundTransparency = 0.15,
-		BorderSizePixel = 0,
+		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(0, Scale.tapHeight(36)),
 		AutomaticSize = Enum.AutomaticSize.X,
 		LayoutOrder = 0, -- before every potion chip
@@ -120,15 +116,8 @@ function LuckChip.new(
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
-			Padding = UDim.new(0, 6),
+			Padding = UDim.new(0, 4),
 			SortOrder = Enum.SortOrder.LayoutOrder,
-		}),
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 12) }),
-		Create("UIStroke", {
-			Color = Theme.colors.gold,
-			Thickness = 2,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		}),
 	})
 	local tile: TextLabel = Create("TextLabel", {

@@ -118,7 +118,7 @@ function LuckChip.new(
 	self._catalog = nil :: Types.Catalog?
 	self._state = nil :: Types.PlayerState?
 	self._shown = false
-	self._lucky = false
+	self._look = "plain"
 	self._onShown = onShown
 	self._said = nil :: string?
 	self._loop = nil :: RBXScriptConnection?
@@ -149,7 +149,7 @@ function LuckChip.new(
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 30),
 		TextSize = 18,
-		TextColor3 = Theme.colors.white,
+		TextColor3 = Theme.hud.subtext, -- a plain 1x (_setLook)
 		TextTruncate = Enum.TextTruncate.None,
 		ZIndex = 1,
 		LayoutOrder = 2,
@@ -331,9 +331,9 @@ function LuckChip._draw(self: any)
 	local shown = state ~= nil and LuckLogic.shown(state, now)
 	if state ~= nil and shown then
 		self._text.Text = LuckLogic.text(LuckLogic.current(state, now))
-		self:_setLucky(LuckLogic.lucky(state, now))
+		self:_setLook(LuckLogic.lucky(state, now), LuckLogic.boosted(state, now))
 	else
-		self:_setLucky(false)
+		self:_setLook(false, false)
 	end
 	self.chip.Visible = shown
 	if shown ~= self._shown then
@@ -369,13 +369,18 @@ function LuckChip._draw(self: any)
 	end
 end
 
--- A Lucky Day: gold text (no ring round the circle, #1258).
-function LuckChip._setLucky(self: any, lucky: boolean)
-	if lucky == self._lucky then
+-- A Lucky Day: gold text (no ring round the circle, #1258). Boosted: white. A plain 1x: the quieter subtext colour
+-- (#1150). The circle and clover never change.
+function LuckChip._setLook(self: any, lucky: boolean, boosted: boolean)
+	local look = if lucky then "lucky" elseif boosted then "boosted" else "plain"
+	if look == self._look then
 		return
 	end
-	self._lucky = lucky
-	self._text.TextColor3 = if lucky then Theme.colors.gold else Theme.colors.white
+	self._look = look
+	self._text.TextColor3 = if lucky
+		then Theme.colors.gold
+		elseif boosted then Theme.colors.white
+		else Theme.hud.subtext
 end
 
 function LuckChip.toggle(self: any)

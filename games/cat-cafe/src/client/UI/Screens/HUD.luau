@@ -4,7 +4,7 @@
 --                 (Derek 2026-10-28); a tap on the money opens the boosts card (Components/BoostList: what lifts the
 --                 cafe's money, the exact amount on top), a tap on the golden fish shows its exact amount; the potion
 --                 timers sit over the row, or beside the menu's arrow tab on a short screen, led by the Luck chip (F88,
---                 Screens/LuckChip: the clean clover on a dark green circle and "Luck x1.3" from the first Luck source, a tap opens its card)
+--                 Screens/LuckChip: the clean clover on a dark green circle and "Luck x1.3" (always shown, a quiet "Luck x1" at 1x), a tap opens its card)
 --   top right     small icon buttons (Tutorial, Rewards for the gifts and the Daily Treat, Trade, Feedback, and Menu for
 --                 Settings and Invite; Rewards and Menu open a short list), the day and night clock
 --                 under them with the next Lucky Day under it (F88: the chip's clover then "Lucky Day in 2 days"),

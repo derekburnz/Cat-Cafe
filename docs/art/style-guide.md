@@ -203,6 +203,14 @@ row 15 stay free.
 | 117 | fur_toffee | #8C5F3C | Builder (Construction Cat) |
 | 118 | fur_pewter | #A5A5AA | Gnome (Gnome Cat) |
 | 119 | fur_gunmetal | #69737D | Plumber (Plumber Cat) |
+| 120 | fur_custard | #F8E4BE | Sprinkles (shop-only Starter Bundle cat, #1191) |
+| 121 | apron_pink | #F6B9CB | Sprinkles' sprinkle apron |
+| 122 | fur_croissant | #E7A94E | King Croissant (shop-only King cat, #1191) |
+| 123 | fur_croissant_dark | #B9762E | King Croissant's flaky markings |
+| 124 | fur_lilac_silver | #CBC4DB | Duchess Marzipan (shop-only Royal cat, #1191) |
+| 125 | velvet_lilac | #9479BE | Duchess Marzipan's velvet cape |
+| 126 | pearl | #F4EEF6 | Duchess Marzipan's pearl tiara |
+| 127 | royal_berry | #8E2A4A | the Royal Crest cafe sign style's board |
 
 **Cat coats (2026-10-27).** Derek asked for a clearly different color scheme on every cat, because the cat meshes may be replaced. So the colors are data, not mesh: `cats.ROSTER` gives each cat its fur, second and third (markings), ruff, muzzle, eyes (eyes2 for an odd-eyed cat's right eye), nose, tail tip, socks (all four paws) and pattern, and `manifest.json` repeats them per cat under `coat` (swatch and hex) and `pattern`, ready to apply to any future model. No two cats share a main coat color. Picture: `docs/concepts/cat-cafe/sheet_cats.png`.
 
@@ -268,6 +276,8 @@ row 15 stay free.
 | Gardener | fur_cream | fur_grey and fur_smoke_light patches, white muzzle | green | pink |
 | Gnome | fur_pewter | fur_white patches and muzzle, long coat, thick tail, a little rounder | green | pink |
 | Plumber | fur_gunmetal | fur_white bib, belly, socks and muzzle, fur_gunmetal tail tip | copper | dark |
+| Sprinkles | fur_custard | fur_caramel patches, white muzzle, a little under standard size (0.88), bigger eyes, an apron_pink apron with sprinkles drawn on the chest, a tilted pastry chef hat | amber | pink |
+| DuchessMarzipan | fur_lilac_silver | long coat (pastel_lilac fringe), pearl muzzle and tail tip, slim, half-closed eyes (lids in the fur), tail curled when she sits; a pearl tiara and a velvet_lilac cape with cream trim | violet | pink |
 
 **Gold cats (v0.5 F42, called shiny until 2026-10-27).** Derek picked gold and asked for gold-modeled cats, called gold. Every cat has `CatCafe_Cat_<Name>_Gold`: the same shapes with the coat in three golds and eyes, nose, inner ears and star specks unchanged. The cat's coat colors (fur, second, third, ruff, and a tail tip or socks when the coat names them) are ranked lightest first by CIE L*: the lightest takes gold_light, the next gold_mid, the next gold_dark, and any coat darker than L* 35 (black, chocolate) takes gold_dark too, so stripes, points and patches still show; the muzzle turns gold_light. The golds are metal: `palette.METAL_SWATCHES` makes them Material Metal on the Part models and metallic in the palette material (a mask texture, `CatCafe_Palette_Metal.png`, into Metallic, Roughness 0.3 there). Gold cats are Part models only; their meshes are the base cats'. Picture: `docs/concepts/cat-cafe/sheet_gold.png`.
 

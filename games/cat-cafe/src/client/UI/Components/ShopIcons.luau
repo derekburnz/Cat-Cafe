@@ -6,12 +6,14 @@
 -- table does not know yet keeps its glyph:
 --   crate("park_crate"), crate("park_golden_crate")   Crate_Park, Crate_Park_Gold
 --   crateModel("park_crate")                          CatCafe_Prop_Crate_Park (ReplicatedStorage.Assets, Model-Agent's
---                                                     crates.py; _Gold for a golden crate), the 3D crate under its
---                                                     picture until the picture loads (ItemIcon)
+--                                                     crates.py; _Gold for a golden crate), drawn by ItemIcon only
+--                                                     where the crate has no picture (#1242)
 --   potion("gold_rush_potion")                        Potion_GoldRush
 --   perk("golden_espresso")                           Perk_GoldenEspresso
---   food("moon_milk")                                 MoonMilk: every food's picture on its rarity tile (F97 section 3,
---                                                     Model-Agent #690), in the bowl, bag, shop, dealer and prizes
+--   food("moon_milk")                                 Icon_Clean_MoonMilk: every food's clean picture on its rarity
+--                                                     tile (#1070, #1242), in the bowl, bag, shop, dealer and prizes
+--   prize("coins"), prize("fish"), prize("spins")     Icon_Clean_Bag, _Fish, _Spin: the money, golden fish and spin
+--                                                     prize pictures (#1242)
 --   net(level)                                        the net the Upgrades row offers next. Net levels are 0 Basic,
 --                                                     1 Sturdy, 2 Pro, 3 Master (Net_L1 to Net_L4, Model-Agent
 --                                                     #688), so level 0 offers Net_L2 and the top level keeps Net_L4
@@ -106,6 +108,22 @@ local IDS: { [string]: string } = {
 	Icon_Clean_StarTreat = "rbxassetid://127060767808144",
 	Icon_Clean_Spin = "rbxassetid://126057350997233",
 	Icon_Clean_Kibble = "rbxassetid://92153852858346", -- its own bowl of kibble (run 41851955780, 11-04)
+	-- #1176: Model-Agent's HUD button pictures (#1185; upload run 41891138375, 11-04), the HUD's tiles prefer them
+	Icon_Hud_Store = "rbxassetid://124606819909900",
+	Icon_Hud_Cats = "rbxassetid://114712006834691",
+	Icon_Hud_Index = "rbxassetid://92879334010014",
+	Icon_Hud_Quests = "rbxassetid://117754240235784",
+	Icon_Hud_Upgrades = "rbxassetid://90888785565724",
+	Icon_Hud_Decor = "rbxassetid://84550217471389",
+	Icon_Hud_Rewards = "rbxassetid://85822642571481",
+	Icon_Hud_Tutorial = "rbxassetid://86238131724533",
+	Icon_Hud_Feedback = "rbxassetid://92396498739111",
+	Icon_Hud_Menu = "rbxassetid://137145051907694",
+	Icon_Hud_MyCafe = "rbxassetid://133654340052418",
+	Icon_Hud_Cannon = "rbxassetid://139270542593530",
+	Icon_Hud_Areas = "rbxassetid://74170242876257",
+	Icon_Hud_Potions = "rbxassetid://123878686865679",
+	Icon_Hud_Bait = "rbxassetid://119953797390858",
 	-- #1204: Model-Agent's potion flasks (#1193; upload run 41893876000, 11-04), ShopIcons.potion prefers them
 	Icon_Flask_Tip = "rbxassetid://77878202219932",
 	Icon_Flask_Lucky = "rbxassetid://113253860132139",
@@ -163,6 +181,13 @@ function ShopIcons.clean(name: string): string?
 	return IDS["Icon_Clean_" .. name]
 end
 
+-- A HUD tile's picture (#1185): the 3D-rendered button picture when there is one, else the clean symbol. Named as the
+-- clean symbols are (Home is My Cafe, Potion the Potions tile, Bowl the Bait tile).
+local HUD_FOR: { [string]: string } = { Home = "MyCafe", Potion = "Potions", Bowl = "Bait" }
+function ShopIcons.hud(name: string): string?
+	return IDS["Icon_Hud_" .. (HUD_FOR[name] or name)] or IDS["Icon_Clean_" .. name]
+end
+
 -- The crate's pool in PascalCase and whether it is the golden twin, or nil for an id that is not a crate.
 local function cratePool(crateId: string?): (string?, boolean)
 	if type(crateId) ~= "string" then
@@ -206,8 +231,20 @@ function ShopIcons.perk(perkId: string?): string?
 	return if type(perkId) == "string" then IDS["Perk_" .. pascal(perkId)] else nil
 end
 
+-- The one food picture lookup (#1242): every place a food shows (the bowl's card and rows, Market, Fresh Catch, the
+-- night dealer, the Tip Jar, Daily Treat, quest and spin prizes) reaches it through ItemIcon.setFood. Only the clean
+-- 2D picture (Icon_Clean_<Food>, assets/cat-cafe/ui/icons-clean-2026-11-03) counts: the older food uploads were 3D
+-- renders, so a food without a clean picture gets nil and the spec fails.
 function ShopIcons.food(lureId: string?): string?
-	return if type(lureId) == "string" then preferClean(pascal(lureId)) else nil
+	return if type(lureId) == "string" then IDS["Icon_Clean_" .. pascal(lureId)] else nil
+end
+
+-- The clean picture for a money, golden fish or spin prize (#1242, the Tip Jar, Daily Treat, quest and Index prize
+-- chips): the money bag, the golden fish coin and the wheel; nil for any other kind.
+local PRIZE_FOR: { [string]: string } = { coins = "Bag", fish = "Fish", spins = "Spin" }
+function ShopIcons.prize(kind: string?): string?
+	local name = if type(kind) == "string" then PRIZE_FOR[kind] else nil
+	return if name then IDS["Icon_Clean_" .. name] else nil
 end
 
 -- A decor piece's clean picture by its catalog id (#1072, Components/DecorPictures), or nil for an unknown id.

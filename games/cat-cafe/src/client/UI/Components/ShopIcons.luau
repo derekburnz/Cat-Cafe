@@ -229,8 +229,12 @@ function ShopIcons.perk(perkId: string?): string?
 	return if type(perkId) == "string" then IDS["Perk_" .. pascal(perkId)] else nil
 end
 
+-- The one food picture lookup (#1242): every place a food shows (the bowl's card and rows, Market, Fresh Catch, the
+-- night dealer, the Tip Jar, Daily Treat, quest and spin prizes) reaches it through ItemIcon.setFood. Only the clean
+-- 2D picture (Icon_Clean_<Food>, assets/cat-cafe/ui/icons-clean-2026-11-03) counts: the older food uploads were 3D
+-- renders, so a food without a clean picture gets nil and the spec fails.
 function ShopIcons.food(lureId: string?): string?
-	return if type(lureId) == "string" then preferClean(pascal(lureId)) else nil
+	return if type(lureId) == "string" then IDS["Icon_Clean_" .. pascal(lureId)] else nil
 end
 
 -- A decor piece's clean picture by its catalog id (#1072, Components/DecorPictures), or nil for an unknown id.

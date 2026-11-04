@@ -50,9 +50,13 @@ return function()
 			-- the clean food pictures (#1070)
 			expect(ShopIcons.food("star_treat")).to.equal("rbxassetid://127060767808144")
 			expect(ShopIcons.food("moon_milk")).to.equal("rbxassetid://107176560784324")
+			expect(ShopIcons.food("caviar")).to.equal(ShopIcons.clean("Caviar")) -- the spin wheel's food (#1242)
+			-- #1242: every food in the catalog, shop and dealer alike, resolves to its clean 2D picture, so
+			-- ItemIcon never falls back to the old 3D render for a food
 			local missing: { string } = {}
 			for _, lure in Catalog.lures do
-				if ShopIcons.food(lure.id) == nil then
+				local picture = ShopIcons.food(lure.id)
+				if picture == nil or string.match(picture, "^rbxassetid://%d+$") == nil then
 					table.insert(missing, lure.id)
 				end
 			end

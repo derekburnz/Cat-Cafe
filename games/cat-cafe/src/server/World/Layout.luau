@@ -190,8 +190,22 @@ local INDEX_SPOTS: { [string]: Point } = {
 	sewer = { x = halfW - 1.4, y = 0, z = halfD - 1.4 }, -- the fountain, in the back right corner
 }
 
+-- Greeters (#1145): this far past each door jamb, so the cat clears the open leaf (a stud and a half of thickness and
+-- paw room), and this far in from the front wall; each is turned to face the middle of the doorway.
+local FRONT_DOOR = { x = 0, y = 0, z = -halfD } :: Point
+local GREETER_OUT = 1.8
+local GREETER_IN = 5
+
+local function greeterSlot(side: number): Point
+	local x = FRONT_DOOR.x + side * (W.DoorWidth / 2 + GREETER_OUT)
+	local z = FRONT_DOOR.z + GREETER_IN
+	-- a cat's front is -Z; turn it about Y until that points at the door
+	local rotY = math.deg(math.atan2(x - FRONT_DOOR.x, z - FRONT_DOOR.z))
+	return { x = x, y = 0, z = z, rotY = rotY }
+end
+
 Layout.plot = {
-	door = { x = 0, y = 0, z = -halfD } :: Point,
+	door = FRONT_DOOR,
 	entry = { x = 0, y = 0, z = -halfD - 1 - W.FrontGardenDepth - 1 } :: Point, -- customer start, on the sidewalk
 	sign = { x = 0, y = 7.5, z = -halfD - 0.3 } :: Point,
 	counter = { x = 0, y = 0, z = halfD - 3 } :: Point,
@@ -225,8 +239,11 @@ Layout.plot = {
 		waiter_1 = { x = -5.5, y = 0, z = -3.04 },
 		waiter_2 = { x = 5.5, y = 0, z = -3.04 },
 		waiter_3 = { x = 5.5, y = 0, z = 4.25 }, -- beside the aisle, off the door to counter walk (was 0, 4.5)
-		greeter_1 = { x = -4, y = 0, z = -halfD + 2.5 },
-		greeter_2 = { x = 4, y = 0, z = -halfD + 2.5 },
+		-- Derek 2026-11-04 (#1145): either side of the walkway, inside the entrance and turned toward the door, worked
+		-- out from the front door's own point and width (GREETER_OUT, GREETER_IN) so they hold if the door moves. Each
+		-- front leaf opens to stand across its half of the doorway, so these stand past the jambs, clear of that swing.
+		greeter_1 = greeterSlot(-1),
+		greeter_2 = greeterSlot(1),
 		-- the cat tree's top cushion, at its sit point (-0.5, 4.47, -0.4 from the tree's pivot)
 		entertainer_1 = { x = -17.61, y = 4.47, z = 9.31 },
 		entertainer_2 = { x = 16.61, y = 4.47, z = 9.31 },
@@ -1335,14 +1352,19 @@ Layout.townSquare = {
 		{ asset = "CatCafe_Square_Garden", x = -58.5, y = 0.1, z = 19.5, rotY = -90 },
 		{ asset = "CatCafe_Square_Garden", x = 58.5, y = 0.1, z = -19.5, rotY = 90 },
 		{ asset = "CatCafe_Square_Garden", x = 58.5, y = 0.1, z = 19.5, rotY = 90 },
+		-- #1130: the bed between each side's two gardens (17 x 12, kerbs front and back), where the paving's side paths
+		-- were; it spans z -8.5 to 8.5 and meets the gardens' end kerbs
+		{ asset = "CatCafe_Square_GardenMid", x = -58.5, y = 0.1, z = 0, rotY = -90 },
+		{ asset = "CatCafe_Square_GardenMid", x = 58.5, y = 0.1, z = 0, rotY = 90 },
 	} :: { Prop },
 }
 
 -- The stations, one per quarter: the Spin Wheel (F49) and the Golden Fish Market (F53) north of the lane, the Codes
 -- Cat (F65; its CodesCircle 6 studs in front, toward the fountain) and the night dealer's cart (data-model section
--- 8b, parked from dusk; the dealer stands at its +X end) south of it.
+-- 8b, parked from dusk; the dealer stands at its +X end) south of it. #1215: the Fish Market sits back toward the
+-- north-east corner, clear of the leaderboard row by 3.2 studs and the north bench by 2.9 (Model-Agent's check).
 Layout.spinWheel = station(-28, 16)
-Layout.fishMarket = station(28, 16)
+Layout.fishMarket = station(33.5, 20)
 Layout.codesCat = station(-28, -16)
 Layout.dealerCart = station(28, -16)
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
@@ -1356,10 +1378,11 @@ Layout.bellhopStand = station(-38, 0)
 -- row runs z -11.9 to 11.9 and x 38.6 to 41.4, clear of the edge lamps at x 47.
 Layout.leaderboards = station(40, 0)
 
--- The Corner Shop (#1052, corner-shop.md section 4): north of the Golden Fish Market, facing the cannon. Model-Agent's
--- spot for CatCafe_Street_CornerShop (10.9 x 4.3): clear of the Fish Market by 2.6 studs, the Rescue Rally board by
--- 5.7, the north sign arch by 2.7 and the street lane by 1.2 (16, 16 overlapped the Rally board).
-Layout.cornerShop = station(15, 23)
+-- The Corner Shop (#1052, corner-shop.md section 4): beside the Golden Fish Market toward the north-east corner,
+-- facing the cannon. Model-Agent's spot for CatCafe_Street_CornerShop (10.9 x 4.3, #1215; was 15, 23): clear of the
+-- Fish Market by 1.95 studs, the north sign arch's post by 1.2, the bunting line by 0.8, the lamp by 4.4 and the
+-- street by 7.1.
+Layout.cornerShop = station(21, 24)
 
 -- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5) near the Codes Cat,
 -- mirroring the Corner Shop in its quarter and facing the cannon. Model-Agent's spot (#1126): clear of the Codes Cat's

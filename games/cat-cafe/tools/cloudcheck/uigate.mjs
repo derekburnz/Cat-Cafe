@@ -18,6 +18,8 @@
 //   jitter   a property that flips between two or three values every few frames once the scene has settled
 //            (Derek 2026-10-28: reward rows "spassing back and forth")
 //   error    a script error or warning while the scene built
+//   tiles    two HUD tiles, both in the left column or the bottom right corner, whose drawn edges (outline, key cap,
+//            dot, glow) come closer than their outline (#1210); any other pair is 'tilesnear', a warning
 // Warnings only (in the report, never a fail): pressables that overlap, and on the phone anything pressable under
 // the thumbstick or the jump button.
 // A finding already in uigate-baseline.json does not fail; a new one does. --update-baseline writes the current

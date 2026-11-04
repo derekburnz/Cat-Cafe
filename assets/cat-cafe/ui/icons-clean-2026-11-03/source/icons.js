@@ -191,6 +191,16 @@ window.ICONS = {
     <path d="M14 54 H50" stroke="#e7a812" stroke-width="3" stroke-linecap="round"/>
     <path fill="${O}" d="M32 37 A5 5 0 0 1 34.5 46.3 L36 52 H28 L29.5 46.3 A5 5 0 0 1 32 37 Z"/>`,
 };
+// #1258 (11-04, Derek's drawing): the luck clover. Bright green (#22b04b) with a thin black outline round each leaf
+// and the stem, drawn into the art since an emoji can't take an outline; the chip's dark green circle is drawn in Luau.
+{
+  const K = '#000';
+  const leaf = 'M0 0 C-4 -3 -15 -8 -14.5 -17.5 C-14 -24.5 -5 -26 0 -19 C5 -26 14 -24.5 14.5 -17.5 C15 -8 4 -3 0 0 Z';
+  const C = 'translate(32 28)';
+  window.ICONS.clover = `<path d="M32 30 Q33 47 45 58" fill="none" stroke="${K}" stroke-width="8" stroke-linecap="round"/>
+    <path d="M32 30 Q33 47 45 58" fill="none" stroke="#22b04b" stroke-width="4" stroke-linecap="round"/>
+    ${[45, 135, 225, 315].map((a) => `<path d="${leaf}" fill="#22b04b" stroke="${K}" stroke-width="2.6" stroke-linejoin="round" transform="${C} rotate(${a}) translate(0 -1.5)"/>`).join('')}`;
+}
 // #1070: one clean flask per potion, in its colour (Theme.potionColors), as in Derek's 11-04 mockup
 for (const [name, liquid] of Object.entries({ potionTip: '#ffc94d', potionLucky: '#6ccb7a', potionSwift: '#5fa8ff', potionSteady: '#8fd3c1', potionBigTip: '#f2b233', potionGoldRush: '#ffe08a', potionQuickBait: '#f5a3c0' })) {
   window.ICONS[name] = window.ICONS.potion(liquid);

@@ -166,7 +166,7 @@ return function()
 		CrateBundleCount = 5,
 		CrateBundlePrice = 180,
 		FishMarketRange = 14,
-		CrateOpenCooldownSeconds = 2,
+		CrateOpenCooldownSeconds = 0.3,
 		DecorIndexBonus = 0.05,
 		DecorEquipBest = true,
 		ResetSaveGroupRank = 254, -- testers' Reset my save once the game is group-owned
@@ -274,7 +274,7 @@ return function()
 		TackleHitGraceSeconds = 0.25,
 		TackleHitRadiusStuds = 3,
 		TackleHitSlackStuds = 1.5,
-		TackleCooldownSeconds = 8,
+		TackleCooldownSeconds = 5,
 		TackleHitRecoverSeconds = 0.4,
 		TackleMissRecoverSeconds = 1.2,
 		TackledDownSeconds = 0.8,
@@ -376,6 +376,15 @@ return function()
 				MoneyPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ExtraSlotPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ProductIds = true, -- #1182: a table of developer product ids, checked in Products.spec
+				VipPassId = true, -- #1197: an off-sale placeholder pass id, checked below
+				CatAccessoriesPassId = true, -- #1197: an off-sale placeholder pass id, checked below
+				UniformStylesPassId = true, -- #1197: an off-sale placeholder pass id, checked below
+				CafeStylePassId = true, -- #1197: an off-sale placeholder pass id, checked below
+				GrandThemePassId = true, -- #1197: an off-sale placeholder pass id, checked below
+				RoyalCatPassId = true, -- #1197: an off-sale placeholder pass id, checked below
+				KingPackPassId = true, -- #1197: an off-sale placeholder pass id, checked below
+				GoldenPondPassId = true, -- #1197: an off-sale placeholder pass id, checked below
+				SecondBowlPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				LostFoundTable = true, -- F100 (camp-extras.md section 2): a table, checked in CampExtras.spec
 				RallyPoints = true, -- F101 (rescue-rally.md section 2): a table, checked in Rally.spec
 				RallyForce = true, -- F101: false, checked in Rally.spec (a false value reads as missing above)
@@ -434,12 +443,28 @@ return function()
 		)
 
 		it("F95's pass ids and keep up (economy-ladder.md section 7)", function()
-			-- the ids Tools-Agent made on 2026-11-02 (tools/opencloud/passes.json); no extra slot pass yet, which keeps
-			-- its effect off
+			-- the ids Tools-Agent made on 2026-11-02 and 2026-11-04 (tools/opencloud/passes.json), all different
 			expect(Config.MoneyPassIds :: any).to.deepEqual({ [2] = 2064604577, [3] = 2064670602, [4] = 2064357148 })
-			expect(Config.ExtraSlotPassIds :: any).to.deepEqual({})
+			expect(Config.ExtraSlotPassIds :: any).to.deepEqual({ 2066816325 })
 			local ids: { [number]: boolean } = { [Config.LongNapPassId] = true }
 			for _, id in Config.MoneyPassIds do
+				expect(ids[id]).never.to.be.ok()
+				ids[id] = true
+			end
+			local c = Config :: any
+			for _, id in {
+				c.ExtraSlotPassIds[1],
+				c.VipPassId,
+				c.CatAccessoriesPassId,
+				c.UniformStylesPassId,
+				c.CafeStylePassId,
+				c.GrandThemePassId,
+				c.RoyalCatPassId,
+				c.KingPackPassId,
+				c.GoldenPondPassId,
+				c.SecondBowlPassId,
+			} do
+				expect(type(id)).to.equal("number")
 				expect(ids[id]).never.to.be.ok()
 				ids[id] = true
 			end

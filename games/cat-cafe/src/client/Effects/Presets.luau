@@ -664,6 +664,19 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -4, 0),
 		drag = 0.5,
 	},
+	-- The Cat Whistle (Corner Shop v2, #1250): little teal notes of air puffing up off the hands, as if it is blown.
+	potionWhistle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.signTeal, Presets.palette.offwhite },
+		size = { 0.16, 0.08 },
+		transparency = { 0.1, 0.8 },
+		lifetime = { 0.6, 1 },
+		speed = { 0.6, 1.2 },
+		spread = 30,
+		rate = 2,
+		drag = 1,
+		lightEmission = 0.4,
+	},
 	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
 	giftTwinkle = {
 		texture = Presets.textures.sparkle,
@@ -797,6 +810,22 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -6, 0),
 		drag = 2.5,
 		lightEmission = 1,
+	},
+	-- Sprinkles' rainbow sprinkle puff (Effects/ShopCats, #1191): little sprinkles tossed up over the cat that tumble
+	-- and fall, tinted one colour per burst.
+	sprinkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite },
+		size = { 0.3, 0.2 },
+		transparency = { 0, 0.6 },
+		lifetime = { 0.6, 0.9 },
+		speed = { 3, 5 },
+		spread = 50,
+		rate = 0,
+		acceleration = Vector3.new(0, -12, 0),
+		drag = 1.5,
+		lightEmission = 0.4,
+		rotSpeed = { -360, 360 },
 	},
 	-- A glint on a leaderboard crown (Effects/Crown, F98): a few gold stars that flash and fade where they are.
 	crownGlint = {
@@ -2820,8 +2849,9 @@ Presets.decorFx = {
 -- up to it and looking at the name"): a small gem in the rarity colour (Presets.rarity) bobs `above` studs over each
 -- stray whose rarity `shows`, `size` studs tall plus `pixels` so a far one still reads. It is a square turned 45
 -- degrees, `gem` of the gui across, lit from the top (`light` of the way to white, `dark` to black at the bottom)
--- with a white edge; a Mythical one glints now and then. It hides within hideWithin studs, where the Catch card
--- shows the name, comes back past hideWithin + showAfter, and shows to maxDistance for the `most` nearest.
+-- with a white edge; a Mythical one glints now and then. It stays up close while the cat is free (hideWithin is 0,
+-- so the gem and the Catch card's name sit together), hides only while someone is catching the cat, and shows to
+-- maxDistance for the `most` nearest. A hidden gem comes back past hideWithin + showAfter (both 0, so at once).
 Presets.rarityMark = {
 	shows = { Common = true, Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
 	glints = { Mythical = true } :: { [string]: boolean },
@@ -2839,8 +2869,8 @@ Presets.rarityMark = {
 	glintSize = 0.34,
 	glintSeconds = 0.3, -- one way
 	glintEvery = 2.2,
-	hideWithin = 10,
-	showAfter = 1,
+	hideWithin = 0,
+	showAfter = 0,
 	maxDistance = 80,
 	most = 12,
 	checkEvery = 0.25,
@@ -2883,6 +2913,9 @@ Presets.potions = {
 	big_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
 	gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
 	quick_bait_potion = { emitter = "potionQuickBait", on = "Hands", colour = palette.blush },
+	-- the Corner Shop's Cat Whistle (corner-shop-v2.md); its Small and Big sizes add minutes to it (`buff`), so
+	-- ActivePotions only ever names `cat_whistle` and they need no glow of their own
+	cat_whistle = { emitter = "potionWhistle", on = "Hands", colour = palette.signTeal },
 } :: { [string]: PotionSpec }
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }
@@ -3151,6 +3184,31 @@ Presets.cafeShow = {
 			Presets.palette.aurora,
 		},
 		glow = { seconds = 2, range = 40, brightness = 2, colour = Presets.palette.lampWarm },
+	},
+}
+
+-- The shop-only cats (#1191, Design-Agent's brief 2026-11-04; Effects/ShopCats). Sprinkles (`catId`): when a tip is
+-- swept off a paid table in a cafe where it works (Moments.TipSwept, your own cafe), a puff of `each` sprinkle
+-- particles in each of `colours` (one small burst in all, scaled by the budget) pops `lift` studs over its Head's
+-- BubbleAnchor (else `overPivot` studs over its pivot, or `overPile` over the pile when it swept itself), at most once
+-- every `gap` seconds and within `within` studs. With Reduce Motion: a short glow in `glow.colour` instead.
+Presets.shopCats = {
+	sprinkles = {
+		catId = "sprinkles",
+		gap = 20,
+		within = 120,
+		lift = 0.3,
+		overPivot = 2.5,
+		overPile = 2.5,
+		each = 2,
+		colours = {
+			Presets.palette.neonPink,
+			Presets.palette.golden,
+			Presets.palette.mint,
+			Presets.palette.eyeBlue,
+			Presets.palette.aurora,
+		},
+		glow = { seconds = 1.2, range = 8, brightness = 1.5, colour = Presets.palette.furRose },
 	},
 }
 

@@ -9,8 +9,8 @@ goes on the square's floor top (y 0.1) unless the table says otherwise.
   CatCafe_Square_Paving     the whole floor, pivot at (0, 0.1, 0): a 0.4 thick grout slab that players stand on
                             (top at the pivot) and 0.02 thick stones on it. The quarters are sand and tan tiles in a
                             checker, the cross is light pavers in running bond edged with brick kerbs, a brick border
-                            runs round the square, and the lane carries on as paths through both gardens, each ending
-                            at the garden wall with a brick kerb across it (#1082: nothing runs off the map). Round the fountain a
+                            runs round the square, and the lane ends at it (#1130: the paths that carried it on through
+                            the gardens to their wall are gone; the middle garden bed fills that ground). Round the fountain a
                             compass: a cream medallion in a brick ring with a point down each arm in its area's colour
                             (Neighbourhood north, Park south, Woods west, Sewer east) and four short brick diagonals.
   CatCafe_Square_Fountain   radius 6.5 at its step, the landmark at (0, 0): a cream basin with a teal tile band, a rim
@@ -39,6 +39,9 @@ pad (the finger signpost to the old gates went on 2026-11-03, Derek: "not relate
 quarters only the stations.
   CatCafe_Square_Garden     a 22 x 12 raised bed for the gardens between the square and the back alleys: brick kerb,
                             grass, two trees, a hedge along the back (+Z), flowers along the front, a topiary cat.
+  CatCafe_Square_GardenMid  the 17 x 12 bed between the two gardens each side, where the lane's path ran (#1130): kerbs
+                            front and back only, so its grass and hedge run on to the gardens' end kerbs either side;
+                            the hedge, flowers along the front, two round bushes and a stone bird bath in the middle.
 
 Pivots are at the base centre except where noted.
 """
@@ -51,10 +54,9 @@ from plot import TOWN_EDGE_X, rot_x, rot_y, rot_z
 
 SQ_W, SQ_D = 48.0, 32.0                        # the square's half width (x) and half depth (z)
 LANE, CROSS = 8.0, 6.0                         # half widths of the street's line and the east to west lane
-# The garden paths end at the garden wall's inner face (WorldBuilder: 1 thick, centred on |x| TownEdgeX - 1), 67.5 at
-# today's size, with a brick kerb across the end. Since v4 the hometown stops at that wall: the side arches, the back
-# alleys and the Woods and Sewer gates beyond it are gone, so no path carries on past it (#1082).
-GARDEN_X = TOWN_EDGE_X - 1.5
+# The gardens' middle, x, between the square and the garden wall (WorldBuilder: 1 thick, centred on |x| TownEdgeX - 1):
+# 58.5 at today's size, as Layout.townSquare.props has them.
+GARDEN_CX = TOWN_EDGE_X - 10.5
 BORDER, KERB = 2.0, 0.6
 TILE_X, TILE_Z, JOINT = 3.8, 4.0, 0.14
 PAVER_L, PAVER_W = 3.7, 2.0                    # across the walk, along the walk
@@ -212,9 +214,6 @@ def _compass(b):
 def build_paving(mat):
     b, slab = RB(), RB()
     slab.span((-SQ_W, -0.4, -SQ_D), (SQ_W, 0, SQ_D), "paving_grout")               # players stand on its top
-    for s in (-1, 1):                                                             # under the garden paths
-        x0, x1 = sorted((s * SQ_W, s * GARDEN_X))
-        slab.span((x0, -0.4, -CROSS), (x1, 0, CROSS), "paving_grout")
     _border(b)
     ix, iz = SQ_W - BORDER, SQ_D - BORDER
     for sx in (-1, 1):                                                            # the quarters
@@ -228,12 +227,8 @@ def build_paving(mat):
     for s in (-1, 1):
         x0, x1 = sorted((s * LANE, s * ix))
         _walk(b, x0, x1, -CROSS, CROSS, "x")                                       # the lane in the square
-        x0, x1 = sorted((s * SQ_W, s * GARDEN_X))
-        _kerbs(b, x0, x1, -CROSS, CROSS, "x")                                      # through the garden to its wall
-        x0, x1 = sorted((s * SQ_W, s * (GARDEN_X - KERB)))
-        _pavers(b, x0, x1, -CROSS + KERB, CROSS - KERB, "x")
-        x0, x1 = sorted((s * (GARDEN_X - KERB), s * GARDEN_X))
-        b.span((x0, 0, -CROSS + KERB), (x1, STONE, CROSS - KERB), "terracotta")    # the kerb across its end
+    # #1130: the lane stops at the brick border; the paths that carried it on through the gardens to their wall are
+    # gone, and the middle garden bed (CatCafe_Square_GardenMid) fills that ground between the two beds each side
     _compass(b)
     return [b.finalize("CatCafe_Square_Paving", mat), slab.finalize("CatCafe_Square_Paving_Slab", mat)]
 
@@ -541,6 +536,43 @@ def build_garden(mat):
     return [b.finalize("CatCafe_Square_Garden", mat), flowers.finalize("CatCafe_Square_Garden_Flowers", mat)]
 
 
+GARDEN_MID_W = 17.0                                   # the gap between the two gardens each side (z -8.5 to 8.5)
+
+
+def build_garden_mid(mat):
+    """#1130: the bed between the two gardens on each side, over the ground the lane's path took to the garden wall.
+    Same depth, kerb, grass, hedge and flowers as CatCafe_Square_Garden. Its ends are open: the gardens' end kerbs
+    close them, and the hedge runs on over those kerbs to meet the gardens' hedges, so each side reads as one long bed.
+    Placed like a garden: x +-58.5, z 0, front (-Z) toward the square (rotY 90 east, -90 west)."""
+    b, flowers = RB(), RB()
+    hw, hd = GARDEN_MID_W / 2, GARDEN_D / 2
+    k_ = 0.5
+    b.span((-hw, 0, -hd), (hw, 0.65, -hd + k_), "brick")                                       # front kerb
+    b.span((-hw, 0, hd - k_), (hw, 0.65, hd), "brick")                                         # back kerb
+    b.span((-hw, 0, -hd + k_), (hw, 0.5, hd - k_), "leaf_green")                               # grass
+    b.span((-hw - k_, 0.65, hd - 2.3), (hw + k_, 2.1, hd - k_), "leaf_dark")                   # hedge, over the end kerbs
+    b.span((-hw, 0.5, hd - 2.3), (hw, 0.65, hd - k_), "leaf_dark")                             # and down to the grass
+    for k in range(4):                                                                         # its rounded top
+        x = -hw + 2.2 + k * (GARDEN_MID_W - 4.4) / 3
+        b.ball((x, 2.1, hd - 1.4), 1.0, "leaf_dark", scale=(1.6, 0.55, 0.9))
+    # a stone bird bath in the middle, a little cat-ear rim, with a bird on it
+    b.cyl((0, 0.6, 0.2), 0.75, 0.2, "concrete", segments=12)                                   # foot, on the grass
+    b.cyl((0, 1.45, 0.2), 0.28, 1.5, "concrete", segments=10)                                  # stem
+    b.cyl((0, 2.3, 0.2), 1.05, 0.3, "concrete", r2=0.8, segments=14)                           # bowl
+    b.cyl((0, 2.46, 0.2), 0.85, 0.04, "fish_blue", segments=14)                                # water
+    for s in (-1, 1):
+        b.box((s * 0.6, 2.62, 0.2), (0.32, 0.32, 0.2), "concrete", rot=rot_z(45))             # ears on the rim
+    b.ball((0.55, 2.62, 0.55), 0.17, "pastel_sky")                                             # a little bird
+    b.ball((0.7, 2.75, 0.55), 0.11, "pastel_sky")
+    b.box((0.82, 2.75, 0.55), (0.1, 0.05, 0.05), "gold_mid")
+    for x in (-5.0, 5.0):                                                                      # round bushes
+        b.ball((x, 0.95, 1.6), 0.9, "leaf_dark")
+    for k in range(6):                                                                         # flowers along the front
+        x = -hw + 1.4 + k * (GARDEN_MID_W - 2.8) / 5
+        flower_clump(flowers, x, 0.5, -hd + 1.4, n=4, spread=0.45)
+    return [b.finalize("CatCafe_Square_GardenMid", mat), flowers.finalize("CatCafe_Square_GardenMid_Flowers", mat)]
+
+
 ASSETS = {
     "CatCafe_Square_Paving": (build_paving, 20000),
     "CatCafe_Square_Fountain": (build_fountain, 8000),
@@ -551,6 +583,7 @@ ASSETS = {
     "CatCafe_Square_Bunting": (build_bunting, 1500),
     "CatCafe_Square_BuntingShort": (lambda mat: build_bunting(mat, SHORT_SPAN, "CatCafe_Square_BuntingShort"), 1200),
     "CatCafe_Square_Garden": (build_garden, 4000),
+    "CatCafe_Square_GardenMid": (build_garden_mid, 3000),
 }
 
 
@@ -585,7 +618,9 @@ def _placements():
     out += [("CatCafe_Square_SignArch", 0, -SQ_D, 0), ("CatCafe_Square_SignArch", 0, SQ_D, 180)]
     for sx in (-1, 1):
         for sz in (-1, 1):
-            out.append(("CatCafe_Square_Garden", sx * 55.5, sz * 19.5, 90 * sx))  # front toward the square
+            out.append(("CatCafe_Square_Garden", sx * GARDEN_CX, sz * 19.5, 90 * sx))  # front toward the square
+    for sx in (-1, 1):
+        out.append(("CatCafe_Square_GardenMid", sx * GARDEN_CX, 0, 90 * sx))                  # between them (#1130)
     return out
 
 

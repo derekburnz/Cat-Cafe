@@ -1,9 +1,9 @@
 --!strict
 -- The intro cutscene's server half (F72, docs/design/cat-cafe/intro-cutscene.md sections 1 and 3). IntroDone(shot,
 -- replay) marks the intro seen on the first play and logs intro_cutscene (finished or skipped, the intro's version
--- and the shot, first or replay) for the growth thread. Replays save nothing. Since the reshoot for the hometown and
--- the cannon (F84, version 3) the intro starts and ends at the hometown spawn, so nothing here moves anyone; where a
--- respawn lands is CannonService's.
+-- and the shot, first or replay) for the growth thread; one played out is the intro funnel's intro_done (#1273).
+-- Replays save nothing. Since the reshoot for the hometown and the cannon (F84, version 3) the intro starts and ends
+-- at the hometown spawn, so nothing here moves anyone; where a respawn lands is CannonService's.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -31,6 +31,10 @@ local function onIntroDone(player: Player, rawShot: unknown, rawReplay: unknown)
 	if not replay and not profile.introSeen then
 		profile.introSeen = true
 		CafeService.sync(player)
+	end
+	-- #1273: the intro funnel's last step, once it played out (a skip's shot is in intro_cutscene below)
+	if shot == 0 then
+		Telemetry.intro(player, profile, "intro_done")
 	end
 	local count = (events[player] or 0) + 1
 	if count <= MAX_EVENTS then

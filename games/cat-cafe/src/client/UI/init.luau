@@ -179,6 +179,7 @@ UI.events = {
 	clearTips = Signal.new(), -- ()   Show tips again in Settings: forward as ClearTips
 	sendFeedback = Signal.new(), -- (face, chip?)   one answer on the feedback faces (Tips.FACES, Tips.CHIPS): forward as SendFeedback
 	-- F87 (easy-start.md sections 2g and 5), analytics only: where the intro was played from, and each stuck nudge
+	tutorialClosed = Signal.new(), -- ()   #1273: the Tutorial tile's red X, analytics only: forward as TelemetryReport("tutorial_closed")
 	introChoice = Signal.new(), -- (from)   "tile" (the Tutorial tile) or "help" (Show me on Need a hand?): forward as TelemetryReport("intro_choice", from)
 	stuckNudge = Signal.new(), -- (kind)   "pulse", "help_shown" or "show_me": forward as TelemetryReport("stuck_nudge", kind)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
@@ -708,6 +709,7 @@ function UI.init(config: Types.InitConfig)
 			UI.events.introReplay:Fire()
 		end,
 		hideTutorialButton = function()
+			UI.events.tutorialClosed:Fire() -- #1273: analytics only
 			tutorialButtonOn = false
 			renderTutorialButton()
 			applyTutorial()
@@ -2446,10 +2448,12 @@ function UI.cannon.open(cannonId: string?)
 	windows:open("Cannon")
 end
 
--- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card shows in the clouds
--- from 1.6 s after launchAt (server time) to 2.6 s. Ends the first-flight and Tier 2 hints. The intro's shot 2 calls
--- it too, for its staged flight to the Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts (card up
--- 0.7 to 1.1 s in); while the intro plays only the card shows, so the first-flight hint still follows the intro.
+-- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card pops in at once, as it
+-- closes, zips off with the BOOM 0.5 s after launchAt and is gone by 0.7 (CannonLogic.CHOSEN_HOLD, #1163; a refused
+-- Launch never comes here). Ends the first-flight and Tier 2 hints. The intro's shot 2 calls it too, for its staged flight to the
+-- Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts: given a `hold`, the card keeps the cloud
+-- schedule, from 1.6 s after launchAt (card up 0.7 to 1.1 s in); while the intro plays only the card shows, so the
+-- first-flight hint still follows the intro.
 function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 	-- no context tip pops up in the clouds or as the player lands (F87)
 	tipsHeldUntil = os.clock()
@@ -2471,7 +2475,18 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 		end
 	end
 	if cannonCard then
-		cannonCard:show(destination, name, launchAt, hold)
+		if hold ~= nil then
+			cannonCard:show(destination, name, launchAt, hold) -- the intro's, in the clouds
+		else
+			-- counted from launchAt, so the zip lands on the BOOM whatever the lag; it still pops in on arrival
+			cannonCard:show(
+				destination,
+				name,
+				launchAt,
+				CannonLogic.CHOSEN_HOLD,
+				CannonLogic.CHOSEN_IN
+			)
+		end
 	end
 end
 
@@ -3617,7 +3632,8 @@ do
 		if state.tipsSeen == nil then
 			return
 		end
-		-- F88 (luck-and-rare-moments.md 1d): the first Luck source shows the chip, and the chip the tip
+		-- F88 (luck-and-rare-moments.md 1d): the first Luck source lifts luck above 1x, and that shows the tip (the chip
+		-- itself always shows since #1150)
 		if not tipKnown("luck") and hud ~= nil and hud:luckShown() then
 			UI.tips.show("luck")
 		end

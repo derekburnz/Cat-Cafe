@@ -282,7 +282,7 @@ function CafeSigns._render(self: any, sign: Sign)
 		sign.name.TextXAlignment = Enum.TextXAlignment.Center
 		sign.info.TextXAlignment = Enum.TextXAlignment.Center
 		sign.name.Text = "FOR RENT"
-		sign.info.Text = "A cosy spot for a new cafe"
+		sign.info.Text = "A cozy spot for a new cafe"
 		sign.info.TextColor3 = Theme.colors.cream
 		sign.border.Color = Theme.colors.caramel
 		return

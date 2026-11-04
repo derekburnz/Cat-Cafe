@@ -76,7 +76,11 @@ ROUND = 4
 # with a recursive FindFirstChild); a one-part object ending in _Bars goes straight into the root as a ForceField
 # part named Bars, because the gate code looks for a direct child.
 RENAME_BIGGEST = {"CatCafe_Furniture_TableRound": "Top"}
-PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars", "_Screen": "Screen", "_CodesCircle": "CodesCircle"}
+# The parts inside a pennant Model are "Cloth", so only the Model's name ends `_Pennant`: Effects/Rally.luau swings any
+# Model or part with that ending, and a part carrying it too was swung again on top of its Model's swing, re-reading
+# its rest pose from the swung one each time, so the flags crept away (#1082).
+PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars", "_Screen": "Screen", "_CodesCircle": "CodesCircle",
+              "_Pennant": "Cloth"}
 # CollectionService tags, keyed by object name, or by name suffix when the key starts with "_": the audio code plays
 # world loops from FishTank and Fountain (assets/cat-cafe/audio, PR #69), from the Model's PrimaryPart, and the UI
 # hangs each player's Index page on an IndexBoard. The Codes Cat's prompt finds its kiosk by CodesCat, and the night

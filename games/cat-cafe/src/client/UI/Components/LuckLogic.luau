@@ -1,11 +1,11 @@
 --!strict
--- Luck on the HUD (F88, luck-and-rare-moments.md sections 1b to 1d): the Luck chip's number and glow, its card's rows,
+-- Luck on the HUD (F88, luck-and-rare-moments.md sections 1b to 1d): the Luck chip's number and gold text, its card's rows,
 -- the food and crate the card shows, the Lucky Day line under the clock and the Lucky Cat's two shop lines.
 --   current(state, now) -> number          Luck now: 1 plus every source not yet ended, rounded and capped as shared/Luck
 --                                          does (state.luck when ProfileSync sent no sources), so a potion that ran out
 --                                          drops off before the next sync and every card shows the odds the roll uses
 --   shown(state, now) -> boolean           the chip shows from the first source (spec 1d: hidden before that)
---   lucky(state, now) -> boolean           a Lucky Day runs: the chip glows
+--   lucky(state, now) -> boolean           a Lucky Day runs: the chip's text turns gold
 --   rows(state, now) -> { Row }            the card's sources, statue first: "Lucky Cat statue, level 3" "+0.3", "Lucky
 --                                          Potion" "+0.5" "8:12", "Lucky Day" "+0.5" "3:10"
 --   food(catalog, state) -> LureDef?       the food the card shows on your bowl: the rarest one in your bag, else the
@@ -35,7 +35,7 @@ local Luck = require(Shared:WaitForChild("Luck"))
 local LuckLogic = {}
 
 LuckLogic.UPGRADE = "lucky_cat"
-LuckLogic.ICON = "🍀"
+LuckLogic.ICON = "🍀" -- Theme.icons.luck; IconArt draws it as the clean clover (CleanGlyphs, #1258)
 LuckLogic.SUBTITLE = "Rarer cats from your bait and crates"
 
 local LUCK_MAX: number = (Config :: any).LuckMax or 3
@@ -99,15 +99,22 @@ function LuckLogic.current(state: Types.PlayerState, now: number): number
 	return math.clamp(round(luck), 1, LUCK_MAX)
 end
 
+-- "Luck x1" at a plain 1x (#1150), else Luck.text's "Luck x1.3".
 function LuckLogic.text(luck: number): string
+	if luck <= 1 then
+		return "Luck x1"
+	end
 	return Luck.text(luck)
 end
 
-function LuckLogic.shown(state: Types.PlayerState, now: number): boolean
-	if state.luckSources == nil then
-		return LuckLogic.current(state, now) > 1
-	end
-	return #running(state, now) > 0
+-- The chip always shows (#1150), so a new player sees luck exists and watches it climb.
+function LuckLogic.shown(_state: Types.PlayerState, _now: number): boolean
+	return true
+end
+
+-- Whether anything lifts luck above 1x: the chip is quieter when nothing does.
+function LuckLogic.boosted(state: Types.PlayerState, now: number): boolean
+	return LuckLogic.current(state, now) > 1
 end
 
 function LuckLogic.lucky(state: Types.PlayerState, now: number): boolean

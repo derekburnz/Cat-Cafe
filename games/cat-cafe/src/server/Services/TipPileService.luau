@@ -70,6 +70,7 @@ local function addPile(
 	Economy.credit(profile, amount)
 	profile.stats.tipPilesCollected += 1 -- F73: each pile counts
 	Telemetry.source(player, profile, amount, "Gameplay", "tip_pile")
+	Telemetry.onboarding(player, profile, "first_tip_collected") -- #1273
 	table.insert(current.shown, { amount = amount, at = os.clock() })
 	while #current.shown > Config.TipPilesMax do
 		table.remove(current.shown, 1)

@@ -3,7 +3,8 @@
 # tool on main. list prints every pass with its id; create makes each pass in
 # games/cat-cafe/tools/opencloud/passes.json that is missing, off sale unless for_sale is ticked, and prints the
 # Config lines for its ids; set changes one pass's price, sale state, regional pricing or icon. Passes cannot be
-# deleted, so a pass goes in passes.json only once the code that sells it is merged.
+# deleted, so a pass is named and described as final before it goes in passes.json. Since 2026-11-04 (Derek) a pass
+# may be made ahead of its code as an off-sale placeholder; it stays off sale until the code that grants it is merged.
 # Needs the repo secret ROBLOX_PUBLISH_KEY with game-pass:read and game-pass:write (docs/setup-guide.md step 22).
 name: game-passes
 

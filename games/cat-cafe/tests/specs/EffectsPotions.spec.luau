@@ -30,7 +30,13 @@ return function()
 			if type(Catalog.potions) == "table" then
 				-- Catalog.potions is the bag's ordered rows (F64); a map keyed by id reads too
 				for key, row in Catalog.potions do
-					table.insert(ids, if type(row) == "table" and type(row.id) == "string" then row.id else key)
+					-- a size (Small or Big) only adds minutes to its regular potion (`buff`) and never runs
+					-- under its own id, so the regular potion's glow is the one it shows
+					local isRow = type(row) == "table"
+					if not (isRow and row.buff ~= nil) then
+						local named = isRow and type(row.id) == "string"
+						table.insert(ids, if named then row.id else key)
+					end
 				end
 			end
 			for _, id in ids do

@@ -1492,7 +1492,7 @@ def cricket(d: float, f: float) -> np.ndarray:
 
 def decor_hollow_log() -> np.ndarray:
     """The Hollow Log Booth (Legendary): its lantern's little flame crackles and two crickets chirp in the dark
-    wood, a cosy night sound."""
+    wood, a cozy night sound."""
     d = 1.8
     t = seconds(d)
     hush = bandpass(bandpass(noise(d, 820), 380, 1.0), 380, 1.0) * (0.6 + 0.4 * np.sin(np.pi * np.clip(t / d, 0, 1)))

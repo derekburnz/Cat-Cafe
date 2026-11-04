@@ -1523,6 +1523,36 @@ def pastry_hat(ctx):
               rot=R @ _rz(math.degrees(a) + 90) @ _ry(35 * (1 if i % 2 else -1)))
 
 
+def pearl_tiara(ctx):
+    """#1191 Duchess Marzipan, the Royal cat: a little pearl tiara between the ears, a pearl band toward the front of
+    the head top with a row of pearls rising to three points, the tallest a big pearl over a lilac gem; every pearl
+    sits on the band or on a point."""
+    P = ctx.pen("head")
+    y = -0.14                                            # toward the front of the head top, between the ears
+    P.box((0, y, 0.025), (0.44, 0.06, 0.05), "pearl")                                               # band
+    for x in (-0.18, -0.12, -0.06, 0.06, 0.12, 0.18):                                               # pearls on it
+        P.ico((x, y - 0.015, 0.07), 0.035, "pearl")
+    for x, h in ((-0.12, 0.09), (0.12, 0.09), (0.0, 0.15)):                                         # the points
+        P.box((x, y, 0.05 + h / 2), (0.05, 0.035, h), "pearl", rot=_ry(45) if x == 0 else None)
+        P.ico((x, y, 0.05 + h + 0.035), 0.045 if x else 0.065, "pearl")
+    P.box((0, y - 0.03, 0.11), (0.06, 0.02, 0.06), "velvet_lilac", rot=_ry(45))                     # gem
+
+
+def velvet_cape(ctx):
+    """#1191 Duchess Marzipan's second prop: a lilac velvet cape with a cream collar and hem and a pearl clasp,
+    on hero_cape's shape like the other second-prop capes."""
+    cloth, trim = "velvet_lilac", "cream"
+    if ctx.body == "walk":
+        P, hx, hy, sx = _cape_body(ctx, cloth, trim)
+        R = _rx(12.7)                                                                            # the lifted hem's slope
+        P.box((0, hy + 0.29, 0.113), (sx + 0.24, 0.12, 0.06), trim, rot=R)                     # hem
+        P.ico((0, -0.3, 0.06), 0.06, "pearl")                                                   # clasp
+        return
+    U, a, b, n, tilt, hb, ht = _cape_body(ctx, cloth, trim)
+    U.box((0, hb + 0.065, -0.875), (0.98, 0.07, 0.14), trim)                                    # hem
+    U.ico((0, -0.08, 0.08), 0.06, "pearl")                                                      # clasp, at the front
+
+
 PROPS = {
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
     "MaineCoon": ("Face", bandit_mask), "Void": ("Head", ninja_band), "Midnight": ("Head", wizard_hat),
@@ -1543,6 +1573,7 @@ PROPS = {
     "BellhopCat": ("Head", bellhop_cap),
     # #1191 the shop-only cats
     "Sprinkles": ("Head", pastry_hat),
+    "DuchessMarzipan": ("Head", pearl_tiara),
 }
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
@@ -1558,6 +1589,8 @@ PROPS2 = {
     "Bottlecap": ("Back", royal_cape), "Eclipse": ("Head", dragon_horns),
     # F96: the Bellhop's collar sits at the chin, so it is a Face prop and no role piece comes off for it
     "BellhopCat": ("Face", bellhop_collar),
+    # #1191: Duchess Marzipan's velvet cape
+    "DuchessMarzipan": ("Back", velvet_cape),
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.

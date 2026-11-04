@@ -6,6 +6,8 @@ Game: Cat Cafe (placeholder name). Direction: **Cozy Cream** (default from the T
 
 A quiet afternoon in a small cafe. Cream walls, caramel wood, mint accents and warm lamp light. The room is calm and low-contrast so the cats are the color in it. Shapes are soft blocks: chunky, rounded, toy-like, never thin or spiky. The alley out back is the same world after hours: cool grey-blue concrete and brick with one warm street lamp, so catching trips feel like a small adventure and the cafe feels like coming home.
 
+Spelling: we spell it "cozy" (US), in game text, docs and comments.
+
 ## 2. Palette
 
 All colors live in one shared texture, `CatCafe_Palette.png` (256 x 512, 8 swatches across and 16 rows of 32 px swatches; rows 13 to 15 are empty for now). Every mesh in the game UV-maps each face to the center of one swatch, so one material and one texture cover every prop and every cat. Variants (a Tabby versus a Grey cat) are the same mesh with different swatch indices, not different textures.
@@ -277,6 +279,7 @@ row 15 stay free.
 | Gnome | fur_pewter | fur_white patches and muzzle, long coat, thick tail, a little rounder | green | pink |
 | Plumber | fur_gunmetal | fur_white bib, belly, socks and muzzle, fur_gunmetal tail tip | copper | dark |
 | Sprinkles | fur_custard | fur_caramel patches, white muzzle, a little under standard size (0.88), bigger eyes, an apron_pink apron with sprinkles drawn on the chest, a tilted pastry chef hat | amber | pink |
+| DuchessMarzipan | fur_lilac_silver | long coat (pastel_lilac fringe), pearl muzzle and tail tip, slim, half-closed eyes (lids in the fur), tail curled when she sits; a pearl tiara and a velvet_lilac cape with cream trim | violet | pink |
 
 **Gold cats (v0.5 F42, called shiny until 2026-10-27).** Derek picked gold and asked for gold-modeled cats, called gold. Every cat has `CatCafe_Cat_<Name>_Gold`: the same shapes with the coat in three golds and eyes, nose, inner ears and star specks unchanged. The cat's coat colors (fur, second, third, ruff, and a tail tip or socks when the coat names them) are ranked lightest first by CIE L*: the lightest takes gold_light, the next gold_mid, the next gold_dark, and any coat darker than L* 35 (black, chocolate) takes gold_dark too, so stripes, points and patches still show; the muzzle turns gold_light. The golds are metal: `palette.METAL_SWATCHES` makes them Material Metal on the Part models and metallic in the palette material (a mask texture, `CatCafe_Palette_Metal.png`, into Metallic, Roughness 0.3 there). Gold cats are Part models only; their meshes are the base cats'. Picture: `docs/concepts/cat-cafe/sheet_gold.png`.
 
@@ -485,7 +488,7 @@ reach up into the roof slab, and the arched glass runs 0.05 past the arch into t
 glass and wall (QA world scan 2026-11-01, M2, M3, M5). Inside, the curtains lie on the wallpaper from the window's
 edge, never on a pole in front of a gap (QA recheck after #630, M1, M2).
 
-The Alleyway behind the cafes is a city back street at cosy scale: building backs 30 wide and 16 to 24 tall in
+The Alleyway behind the cafes is a city back street at cozy scale: building backs 30 wide and 16 to 24 tall in
 brick with concrete quoins, cornices and window frames, a few lit windows with curtains (`_Pane`), shutters and
 flower boxes in the street's pastels, AC units, drainpipes and pipes. Variants: `CatCafe_Alley_WallWindows`,
 `WallDoor` (green staff door, teal canopy, lamp), `FireEscape` (two walkable landings, a ladder and stairs) and

@@ -37,11 +37,14 @@ return function()
 	}
 
 	describe("LuckLogic.current, shown and lucky", function()
-		it("hides the chip until the first source", function()
+		it("always shows the chip, even at a plain 1x (#1150)", function()
 			local state = player({ luck = 1, luckSources = {} })
-			expect(LuckLogic.shown(state, NOW)).to.equal(false)
+			expect(LuckLogic.shown(state, NOW)).to.equal(true)
 			expect(LuckLogic.current(state, NOW)).to.equal(1)
-			expect(LuckLogic.shown(player(), NOW)).to.equal(false)
+			expect(LuckLogic.boosted(state, NOW)).to.equal(false)
+			expect(LuckLogic.text(LuckLogic.current(state, NOW))).to.equal("Luck x1")
+			expect(LuckLogic.shown(player(), NOW)).to.equal(true)
+			expect(LuckLogic.boosted(player(), NOW)).to.equal(false)
 		end)
 
 		it("adds the running sources as the server does", function()
@@ -61,7 +64,9 @@ return function()
 			expect(LuckLogic.current(state, NOW + 500)).to.equal(1.3)
 			local potion =
 				player({ luckSources = { { id = "potion", value = 0.5, endsAt = NOW + 10 } } })
-			expect(LuckLogic.shown(potion, NOW + 11)).to.equal(false)
+			expect(LuckLogic.shown(potion, NOW + 11)).to.equal(true)
+			expect(LuckLogic.boosted(potion, NOW)).to.equal(true)
+			expect(LuckLogic.boosted(potion, NOW + 11)).to.equal(false)
 		end)
 
 		it("keeps state.luck when no sources came, at most LuckMax", function()

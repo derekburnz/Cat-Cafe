@@ -668,6 +668,19 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -4, 0),
 		drag = 0.5,
 	},
+	-- The Cat Whistle (Corner Shop v2, #1250): little teal notes of air puffing up off the hands, as if it is blown.
+	potionWhistle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.signTeal, Presets.palette.offwhite },
+		size = { 0.16, 0.08 },
+		transparency = { 0.1, 0.8 },
+		lifetime = { 0.6, 1 },
+		speed = { 0.6, 1.2 },
+		spread = 30,
+		rate = 2,
+		drag = 1,
+		lightEmission = 0.4,
+	},
 	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
 	giftTwinkle = {
 		texture = Presets.textures.sparkle,
@@ -2855,8 +2868,9 @@ Presets.decorFx = {
 -- up to it and looking at the name"): a small gem in the rarity colour (Presets.rarity) bobs `above` studs over each
 -- stray whose rarity `shows`, `size` studs tall plus `pixels` so a far one still reads. It is a square turned 45
 -- degrees, `gem` of the gui across, lit from the top (`light` of the way to white, `dark` to black at the bottom)
--- with a white edge; a Mythical one glints now and then. It hides within hideWithin studs, where the Catch card
--- shows the name, comes back past hideWithin + showAfter, and shows to maxDistance for the `most` nearest.
+-- with a white edge; a Mythical one glints now and then. It stays up close while the cat is free (hideWithin is 0,
+-- so the gem and the Catch card's name sit together), hides only while someone is catching the cat, and shows to
+-- maxDistance for the `most` nearest. A hidden gem comes back past hideWithin + showAfter (both 0, so at once).
 Presets.rarityMark = {
 	shows = { Common = true, Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
 	glints = { Mythical = true } :: { [string]: boolean },
@@ -2874,8 +2888,8 @@ Presets.rarityMark = {
 	glintSize = 0.34,
 	glintSeconds = 0.3, -- one way
 	glintEvery = 2.2,
-	hideWithin = 10,
-	showAfter = 1,
+	hideWithin = 0,
+	showAfter = 0,
 	maxDistance = 80,
 	most = 12,
 	checkEvery = 0.25,
@@ -2918,6 +2932,9 @@ Presets.potions = {
 	big_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
 	gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
 	quick_bait_potion = { emitter = "potionQuickBait", on = "Hands", colour = palette.blush },
+	-- the Corner Shop's Cat Whistle (corner-shop-v2.md); its Small and Big sizes add minutes to it (`buff`), so
+	-- ActivePotions only ever names `cat_whistle` and they need no glow of their own
+	cat_whistle = { emitter = "potionWhistle", on = "Hands", colour = palette.signTeal },
 } :: { [string]: PotionSpec }
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }

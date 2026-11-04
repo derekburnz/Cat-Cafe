@@ -9,14 +9,15 @@
 -- through shared/Intro's shots once a frame; the UI's intro screen (UI.intro, the ui-designer's) draws the bars,
 -- captions, dots, title cards, the demo ring, the job card and Skip, and hides the HUD.
 --
--- Shots 1 to 4 (section 2a): a local copy of your own character, tagged StagedCharacter so Effects pose its net and
--- its carry, climbs into the Town Square's cannon, flies to the Alleyway camp's pad on Effects/Cannon's staged flight,
--- catches the demo Tuxedo just past the way out and carries it into the camp, where it hops into the basket. The real
--- character stays at the spawn the whole time, hidden on this screen until shot 5. In shot 5 the cat takes the waiter
--- spot in your cafe in its outfit with its rate tag. Everything staged here is local and goes at the end: your copy,
--- the demo cat, the seated waiter, the strays and the real waiter hidden, the cannon's turn and moon cover, the
--- turning wheel and the short night. The end, played out or skipped (UI.events.introSkip) or cut short by a respawn,
--- puts all of it back and sends IntroDone(shot, replay): 0 when it played out, else the shot showing.
+-- Shots 1 to 4 (section 2a): a local copy of your own character, tagged StagedCharacter so Effects pose its carry (and
+-- IntroNoNet, so it holds no net, #1252), climbs into the Town Square's cannon, flies to the Alleyway camp's pad on
+-- Effects/Cannon's staged flight, catches the demo Tuxedo just past the way out and carries it into the camp, where it
+-- hops into the basket. The real character stays at the spawn the whole time, hidden on this screen until shot 5. In
+-- shot 5 the cat takes the waiter spot in your cafe in its outfit with its rate tag. Everything staged here is local
+-- and goes at the end: your copy, the demo cat, the seated waiter, the strays and the real waiter hidden, the cannon's
+-- turn and moon cover, the turning wheel and the short night. The end, played out or skipped (UI.events.introSkip) or
+-- cut short by a respawn, puts all of it back and sends IntroDone(shot, replay): 0 when it played out, else the shot
+-- showing.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -43,6 +44,16 @@ local WorldController = require(script.Parent.WorldController)
 
 local IntroController = {}
 
+-- #1273, analytics only: the intro funnel's start (0) and each shot shown, once a session each, as
+-- TelemetryReport("intro", n); the server logs each step once per player.
+local introReported: { [number]: boolean } = {}
+local function reportIntro(index: number)
+	if not introReported[index] then
+		introReported[index] = true
+		Net.fire("TelemetryReport", "intro", index)
+	end
+end
+
 local player = Players.LocalPlayer
 local RENDER_STEP = "CatCafeIntro"
 local DEMO_FADE_SECONDS = 0.4 -- with no copy of you to catch it, the demo cat fades at the hop instead
@@ -52,7 +63,8 @@ local BLEND = 0.15 -- seconds an animation of your copy fades in or out
 local SPIN_TURNS = 2 -- the ball's tumbles on the way up
 local NO_LADDER = Vector3.new(0, 0.1, -7.5) -- the foot of the town cannon's south steps without its Climb part
 local STAGED = "StagedCharacter" -- Tackle.luau poses a model with this tag (and no player) like a character
--- The attributes a copy of the character must not keep from it: no carry, no flight, no camp, the net out.
+local NO_NET = "IntroNoNet" -- Effects/NetHold.luau shows no net on a staged copy with this set (#1252)
+-- The attributes a copy of the character must not keep from it: no carry, no flight, no camp.
 local COPY_CLEARS = {
 	"CarryingCatId",
 	"NetHidden",
@@ -302,6 +314,9 @@ local function stageYou(r: Run): You?
 	for _, name in COPY_CLEARS do
 		model:SetAttribute(name, nil)
 	end
+	-- no shot of intro-cutscene.md shows a net (the shot 3 catch is the timing circle), so the copy holds none and
+	-- keeps its arm down for the whole intro (#1252); the real character keeps its own net
+	model:SetAttribute(NO_NET, true)
 	local copyRoot: BasePart? = nil
 	for _, item in model:GetDescendants() do
 		if item:IsA("LuaSourceContainer") or item:IsA("ForceField") then
@@ -808,6 +823,7 @@ local function enterShot(r: Run, position: number)
 
 	UI.intro.setShot(shot.index, shot.caption, if r.cuts[1] ~= nil then r.cuts[1].title else nil)
 	Moments.IntroShot:Fire(shot.index)
+	reportIntro(shot.index)
 end
 
 -- Shot 1, `t` seconds in: your copy at the ladder's foot, its hop into the barrel, the turn, the wiggle and the fuse.
@@ -1309,6 +1325,7 @@ function IntroController.play(replay: boolean)
 
 	UI.intro.start({ skipAfter = if replay then 0 else Intro.SKIP_AFTER, replay = replay })
 	Moments.IntroStart:Fire(replay)
+	reportIntro(0)
 	-- at Camera priority, under Effects/Cannon's BOOM shake at Camera + 1
 	RunService:BindToRenderStep(RENDER_STEP, Enum.RenderPriority.Camera.Value, step)
 end

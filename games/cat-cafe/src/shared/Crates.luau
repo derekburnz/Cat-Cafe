@@ -305,4 +305,25 @@ function Crates.buyCost(profile: Types.PlayerProfile, row: Types.FishShopRow): (
 	return cost, nil
 end
 
+-- #1146: whether an OpenCrate may start now, the same rule on the server (FishMarketService) and on the Market
+-- window's Open buttons. "busy" while another open of this player's is still in flight (pressed, no CrateResult
+-- yet); "spam" within CrateOpenCooldownSeconds (a short spam limit, not the reveal's length) of the last open that
+-- started; nil when it may go. A Quick open and the next crate, or Buy 5's crates one by one, never meet either in
+-- normal use: the client waits out both before it fires, with `slack` seconds more (the Market window's GATE_SLACK) so two
+-- presses that leave just far enough apart still arrive far enough apart on the server.
+function Crates.openRefusal(
+	inFlight: boolean,
+	lastOpenAt: number?,
+	now: number,
+	slack: number?
+): ("busy" | "spam")?
+	if inFlight then
+		return "busy"
+	end
+	if lastOpenAt ~= nil and now - lastOpenAt < Config.CrateOpenCooldownSeconds + (slack or 0) then
+		return "spam"
+	end
+	return nil
+end
+
 return Crates

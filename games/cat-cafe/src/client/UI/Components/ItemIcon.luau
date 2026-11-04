@@ -5,8 +5,10 @@
 -- A still ViewportFrame only redraws when its contents change, so a list of these costs no frames.
 -- setFood (F69) colours the tile by the food's grade (Components/FoodGrade) and adds the grade badge: a word pill
 -- across the bottom edge, or a lettered gem in the top right corner of a picture too small for the word. Since F97
--- section 3 a food draws its uploaded picture (Components/ShopIcons.food) on that tile over its model, and the model
--- (else the glyph) shows until the picture has loaded.
+-- section 3 a food draws its uploaded picture (Components/ShopIcons.food) on that tile. Since #1242 an item with a
+-- picture never loads its 3D model: the model under the picture stayed drawn wherever the icon was set only once (the
+-- bowl's rows, prize chips, the spin wheel), so only an item with no picture at all shows its model, and a picture
+-- still loading shows the glyph.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -32,8 +34,8 @@ export type Props = {
 
 export type ItemIcon = {
 	frame: Frame,
-	-- asset: the model name in ReplicatedStorage.Assets; glyph: shown when there is no model; image: an uploaded
-	-- shop icon (Components/ShopIcons) drawn over the model, which shows (or else the glyph) until the picture loads
+	-- asset: the model name in ReplicatedStorage.Assets, drawn only when there is no image; glyph: shown when there
+	-- is no model and while the image loads; image: an uploaded shop icon (Components/ShopIcons)
 	-- tint: the tile's colour in place of the rarity's (the Decor strip's per-kind tiles, #964)
 	set: (
 		self: ItemIcon,
@@ -133,8 +135,6 @@ function ItemIcon.new(props: Props): ItemIcon
 	})
 	self._model = nil :: Model?
 	self._asset = nil :: string?
-	self._image = nil :: string? -- the uploaded picture over the model, if any
-	self._artWatch = nil :: RBXScriptConnection?
 	self._badgeKind = props.badge or "word"
 	self._badge = nil :: TextLabel?
 	return self :: ItemIcon
@@ -203,11 +203,11 @@ function ItemIcon.set(
 	local color = Theme.rarityColor(rarity)
 	self.frame.BackgroundColor3 = tint or color:Lerp(Theme.colors.cream, TILE_SHADE)
 	self._border.Color = color:Lerp(Theme.colors.outline, 0.35)
-	-- the model, when Assets has it: alone, or under an uploaded picture until that picture has loaded, as a new
-	-- upload draws nothing until Roblox moderation passes it (Derek 2026-10-28: "make different visuals for the area
-	-- crates and models"; every crate looked the same while its picture waited)
-	if model ~= self._asset or (model ~= nil and self._model == nil) then
-		self:_setModel(model)
+	-- the model only for an item with no picture (#1242, Derek live 11-04: the bowl's rows, time rewards and spin
+	-- prizes still showed the old 3D food renders). A picture still loading shows the glyph under it (IconArt).
+	local wanted = if image then nil else model
+	if wanted ~= self._asset or (wanted ~= nil and self._model == nil) then
+		self:_setModel(wanted)
 	end
 	local hasModel = self._model ~= nil
 	-- the glyph label holds the picture, so it stays shown with one; its emoji only while nothing else draws
@@ -219,8 +219,6 @@ function ItemIcon.set(
 		IconArt.set(self._glyph, if glyph ~= "?" and not hasModel then glyph else nil)
 	end
 	self._glyph.Visible = image ~= nil or not hasModel
-	self._image = image
-	self:_watchPicture()
 end
 
 -- The model in the viewport, or none; a model Assets does not have yet leaves the glyph.
@@ -245,23 +243,6 @@ function ItemIcon._setModel(self: any, asset: string?)
 	self._camera.CFrame = CFrame.lookAt(centre + Vector3.new(0, radius * 0.6, -distance), centre)
 	model.Parent = self._viewport
 	self._model = model
-end
-
--- With a picture over a model, the model hides once the picture has loaded (IsLoaded).
-function ItemIcon._watchPicture(self: any)
-	local art = self._glyph:FindFirstChild("IconArt") :: ImageLabel?
-	if art and self._artWatch == nil then
-		self._artWatch = art:GetPropertyChangedSignal("IsLoaded"):Connect(function()
-			self:_coverModel()
-		end)
-	end
-	self:_coverModel()
-end
-
-function ItemIcon._coverModel(self: any)
-	local art = self._glyph:FindFirstChild("IconArt") :: ImageLabel?
-	local covered = self._image ~= nil and art ~= nil and art.Visible and art.IsLoaded
-	self._viewport.Visible = not covered
 end
 
 function ItemIcon.destroy(self: any)

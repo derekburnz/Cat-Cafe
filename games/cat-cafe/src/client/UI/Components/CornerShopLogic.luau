@@ -134,7 +134,9 @@ function CornerShopLogic.catsByLevel(
 	for uid, cat in list do
 		if type(cat) == "table" and type(cat.catId) == "string" then
 			local catId: string = cat.catId
-			local named: string? = if type(cat.name) == "string" then cat.name else (names or {})[catId]
+			local named: string? = if type(cat.name) == "string"
+				then cat.name
+				else (names or {})[catId]
 			local level: number = if type(cat.level) == "number" then cat.level else 1
 			local entry: CatEntry = { uid = uid, catId = catId, name = named, level = level }
 			table.insert(out, entry)

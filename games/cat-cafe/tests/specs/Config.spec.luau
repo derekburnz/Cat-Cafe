@@ -274,7 +274,7 @@ return function()
 		TackleHitGraceSeconds = 0.25,
 		TackleHitRadiusStuds = 3,
 		TackleHitSlackStuds = 1.5,
-		TackleCooldownSeconds = 8,
+		TackleCooldownSeconds = 5,
 		TackleHitRecoverSeconds = 0.4,
 		TackleMissRecoverSeconds = 1.2,
 		TackledDownSeconds = 0.8,

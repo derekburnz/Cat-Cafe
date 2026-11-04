@@ -2,8 +2,8 @@
 -- Which clean symbol (Components/ShopIcons.clean, assets/cat-cafe/ui/icons-clean-2026-11-03) stands in for a glyph
 -- wherever Components/IconArt draws it: window badges, prize tiles, item icons and buttons, so the windows match the
 -- clean HUD (Derek live v181, #1027: "old pics of tips and daily rewards are still not updaed"). A glyph without a
--- clean symbol keeps its old icon sheet cell until one is drawn: since 2026-11-04 only Equip Best (✨), Invite (💌) and
--- the lock (🔒). Theme.cleanGlyphs is built from these tables.
+-- clean symbol keeps its old icon sheet cell (Theme.iconSheet.cells) until one is drawn. Theme.cleanGlyphs is built
+-- from these tables.
 
 local CleanGlyphs = {}
 

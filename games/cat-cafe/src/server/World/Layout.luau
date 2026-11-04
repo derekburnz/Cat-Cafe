@@ -1549,8 +1549,8 @@ end
 
 -- The Cat Cannons (section 3): `town` on the Town Square's plinth and one in each camp, by id (`town` or the camp's
 -- area id). A cannon's barrel points along its model's +Z, so rotY turned by CFrame.Angles(0, rad(rotY), 0) fires
--- along (sin, cos): the town cannon rests pointing north and its turret turns to the area it fires at
--- (Layout.cannonAim), a camp cannon points out over its area.
+-- along (sin, cos): the town cannon rests pointing north and a camp cannon out over its area; since #1205 every
+-- cannon's turret turns to the landing pad it fires at (Cannon.aimTurn in CannonService).
 Layout.cannons = { town = { x = 0, y = 0.1, z = 0, rotY = 0 } :: Point } :: { [string]: Point }
 for id, camp in Layout.camps do
 	Layout.cannons[id] = camp.cannon

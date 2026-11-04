@@ -254,8 +254,7 @@ local function campExtras(picnic, bought, open)
 			held = if bought then 0 else 2,
 			nextAt = now + 3 * 3600,
 			stock = {
-				{ crateId = "classic_crate", price = 40, bought = bought },
-				{ crateId = "park_crate", price = 40, bought = bought },
+				{ crateId = "park_crate", price = 0, bought = bought }, -- #1051: one free crate a day
 			},
 		},
 		pond = { open = false, held = 0 },

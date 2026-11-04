@@ -94,7 +94,7 @@ function CampExtrasLogic.pickerLine(
 		icon = CampExtrasLogic.icon(def.id),
 		name = def.name,
 		state = rest,
-		ready = ready and def.id ~= CampExtrasLogic.YARD_SALE,
+		ready = ready, -- the Yard Sale's free crate lights the dot too since #1051
 	}
 end
 
@@ -116,13 +116,15 @@ function CampExtrasLogic.yardRows(view: SharedTypes.CampExtraView?, fish: number
 	return rows
 end
 
+-- The card's button (#1051, crate-prices.md section 5): "Take" for today's free crate, "Taken" once taken; a priced
+-- crate (an older server) still shows its price.
 function CampExtrasLogic.yardButton(row: YardRow, pending: boolean): string
 	if row.bought then
-		return "Bought"
+		return if row.price <= 0 then "Taken" else "Bought"
 	elseif pending then
 		return "..."
 	end
-	return tostring(row.price)
+	return if row.price <= 0 then "Take" else tostring(row.price)
 end
 
 function CampExtrasLogic.yardFooter(view: SharedTypes.CampExtraView?, now: number): string
@@ -130,9 +132,9 @@ function CampExtrasLogic.yardFooter(view: SharedTypes.CampExtraView?, now: numbe
 		return string.format("Opens at Tier %d", CampExtras.tierOf(CampExtrasLogic.YARD_SALE) or 3)
 	end
 	if view.nextAt == nil then
-		return "New crates tomorrow"
+		return "New crate tomorrow"
 	end
-	return "New crates in " .. (CampExtras.waitText(view.nextAt - now) :: string)
+	return "New crate in " .. (CampExtras.waitText(view.nextAt - now) :: string)
 end
 
 function CampExtrasLogic.prizeTitle(extraId: string, paid: { string }?): string

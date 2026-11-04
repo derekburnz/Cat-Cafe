@@ -146,6 +146,7 @@ UI.events = {
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
 	openCrate = Signal.new(), -- (crateId)   Open on a Golden Fish Market crate card: forward as OpenCrate (F53)
+	buyCrateBundle = Signal.new(), -- (crateId)   Buy 5 on a Market crate card: forward as BuyCrateBundle (#1051)
 	buyFishItem = Signal.new(), -- (itemId)   Buy on a Market treat or perk row: forward as BuyFishItem (F53)
 	buyFreshCatch = Signal.new(), -- (itemId, window?)   Buy on a Fresh Catch row: forward as BuyFreshCatch (F94)
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
@@ -1036,6 +1037,9 @@ function UI.init(config: Types.InitConfig)
 	marketScreen = FishMarket.new({
 		openCrate = function(crateId: string)
 			UI.events.openCrate:Fire(crateId)
+		end,
+		buyCrateBundle = function(crateId: string)
+			UI.events.buyCrateBundle:Fire(crateId)
 		end,
 		buyItem = function(itemId: string)
 			UI.events.buyFishItem:Fire(itemId)

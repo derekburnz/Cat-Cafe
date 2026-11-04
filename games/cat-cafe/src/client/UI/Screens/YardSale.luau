@@ -1,11 +1,10 @@
 --!strict
 -- The Yard Sale's card (F100, camp-extras.md section 3), opened by its prompt at the Neighbourhood camp
--- (UI.campExtras.openYardSale). Today's two crates side by side, the Classic Crate and the zone crate of the day, each
--- with its picture, name, the Market's own price for comparison and a Buy button with the gold fish and the Yard Sale
--- price (40). A crate taken today reads "Bought" and greys; one the player's golden fish do not cover greys too. A
--- press shows "..." until the next CampExtrasState or a refusal answers (refused). Under them: how many golden fish
--- the player has, when the next crates come, and that a bought crate opens free at the Golden Fish Market, which
--- keeps the crate reel there. Words and rules in Components/CampExtrasLogic; nothing is sold for Robux.
+-- (UI.campExtras.openYardSale). Since #1051 (crate-prices.md section 5) it holds one free crate a day, the zone crate
+-- of the day: its picture, name, the Market's own price for comparison and a green Take button ("Taken" once taken,
+-- greyed). A press shows "..." until the next CampExtrasState or a refusal answers (refused). Under it: how many golden
+-- fish the player has, when the next crate comes, and that a taken crate opens free at the Golden Fish Market, which
+-- keeps the crate reel there. A priced crate (an older server) still shows its price with the gold fish. Words and rules in Components/CampExtrasLogic; nothing is sold for Robux.
 
 local Workspace = game:GetService("Workspace")
 
@@ -97,7 +96,7 @@ function YardSale.new(callbacks: Callbacks): YardSale
 		dark = true, -- #1028
 		name = "YardSale",
 		title = "Yard Sale",
-		subtitle = "Two crates a day for golden fish",
+		subtitle = "A free crate every day", -- #1051
 		color = Theme.colors.berry,
 		icon = CampExtrasLogic.icon(CampExtrasLogic.YARD_SALE),
 		size = UDim2.new(1, 0, 0, MAX_SIZE.Y + (self._buyH - 44)),
@@ -142,7 +141,7 @@ function YardSale.new(callbacks: Callbacks): YardSale
 		Size = UDim2.new(1, 0, 0, 18),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = PAL.subtext,
-		Text = "Bought crates open free at the Golden Fish Market",
+		Text = "Taken crates open free at the Golden Fish Market",
 		Parent = content,
 	})
 	return self :: YardSale
@@ -289,7 +288,7 @@ function YardSale._paint(self: any)
 		end
 		local fish: TextLabel? = card.buy.icon
 		if fish then
-			fish.Visible = not row.bought and not pending
+			fish.Visible = not row.bought and not pending and row.price > 0
 		end
 		local enabled = not row.bought and row.afford and self._pending == nil
 		if card.enabled ~= enabled then

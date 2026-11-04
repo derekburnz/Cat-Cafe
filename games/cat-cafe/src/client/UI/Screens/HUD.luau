@@ -728,6 +728,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._pop = pop
 	self._popFor = nil :: string?
 	self._popRows = {} :: { [string]: Button.Button }
+	self._popBadges = {} :: { [string]: Frame } -- each row's red "!" (#1074)
 
 	-- Clock (top right, under the icon row): the sun or moon and the time to the next phase (F20), right-aligned
 	-- outlined text with no chip behind it ("☀ Day 3:29")
@@ -2372,7 +2373,8 @@ function HUD._renderRewards(self: any)
 		Tween.popIn(self._rewardsDot, 0.5)
 	end
 	self._rewardsDot.Visible = ready > 0
-	self._rewardsCount.Text = tostring(ready)
+	-- a red "!" rather than a count (#1074, Derek: "should show a red exclamation mark as it's easier")
+	self._rewardsCount.Text = "!"
 	if self._popFor == "rewards" then
 		self:_fillPop() -- the open list's lines follow the countdown and the claims
 	end
@@ -2455,16 +2457,55 @@ function HUD._popText(self: any, id: string): string
 	if id == "Gifts" then
 		local summary: { ready: number, nextIn: number?, left: number }? = self._gift
 		local nextIn: number? = if summary then summary.nextIn else nil
+		-- a gift waiting shows the red "!" on the row (#1074), not "1 ready"
 		return if summary and summary.ready > 0
-			then ("Gifts: %d ready"):format(summary.ready)
+			then "Gifts"
 			elseif nextIn ~= nil then "Next gift " .. TipJarLogic.clock(nextIn)
 			else "Gifts"
 	elseif id == "Daily" then
-		return if self._dailyDue then "Daily treat: Claim!" else "Daily treat"
+		return "Daily treat"
 	elseif id == "Invite" then
 		return "Invite friends"
 	end
 	return id
+end
+
+-- Whether a list row has something to claim: it wears the red "!" (#1074).
+function HUD._popReady(self: any, id: string): boolean
+	if id == "Gifts" then
+		local summary: { ready: number, nextIn: number?, left: number }? = self._gift
+		return summary ~= nil and summary.ready > 0
+	elseif id == "Daily" then
+		return self._dailyDue == true
+	end
+	return false
+end
+
+-- The red "!" in a corner, the same badge as the Rewards tile's, on whatever can be claimed (#1074).
+local function claimBadge(parent: Instance, zIndex: number): Frame
+	local badge: Frame = Create("Frame", {
+		Name = "Claim",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -12, 0.5, -2), -- inside the row's right end, clear of the list's edge
+		Size = UDim2.fromOffset(24, 24),
+		Visible = false,
+		ZIndex = zIndex,
+		Parent = parent,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(badge, 2)
+	local mark = label({
+		Name = "Mark",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "!",
+		ZIndex = zIndex + 1,
+		Parent = badge,
+	})
+	mark.ZIndex = zIndex + 1
+	return badge
 end
 
 -- Opens the kind's list, or closes it when it is already open; another kind's list gives way.
@@ -2498,6 +2539,9 @@ function HUD._togglePop(self: any, kind: string)
 			end,
 		})
 		self._popRows[row.id] = button
+		local badge = claimBadge(button.instance, 23)
+		badge.Visible = self:_popReady(row.id)
+		self._popBadges[row.id] = badge
 	end
 	pop.Size = UDim2.fromOffset(POP_W, #rows * POP_ROW_H + math.max(0, #rows - 1) * 6 + 2 * POP_PAD)
 	self._popFor = kind
@@ -2510,6 +2554,10 @@ end
 function HUD._fillPop(self: any)
 	for id, button in self._popRows do
 		button:setText(self:_popText(id))
+		local badge: Frame? = self._popBadges[id]
+		if badge then
+			badge.Visible = self:_popReady(id)
+		end
 	end
 end
 
@@ -2520,6 +2568,7 @@ function HUD._closePop(self: any)
 		button:destroy()
 	end
 	table.clear(self._popRows)
+	table.clear(self._popBadges)
 end
 
 -- The gold Store tile at the top of the left menu (Derek 2026-11-02: "store still needs to be added"): shown with

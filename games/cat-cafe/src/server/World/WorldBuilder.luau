@@ -1242,6 +1242,7 @@ end
 -- the camp (its set's circles, edging and props, the cannon, the gate, the Index Board and the camp extras) and of
 -- the stripe, the widest that fit, and none when nothing does. Flat paving (blocks thinner than 3 hundredths) is what
 -- they are painted on, so it is not an obstacle, and neither is the ground slab or the stripe.
+local SIGNS = { -1, 1 }
 local SAFE_SKIP = { Ground = true, CampFloor = true, SafeLine = true, SafeZoneWords = true }
 
 local function paintCampWords(
@@ -1260,14 +1261,17 @@ local function paintCampWords(
 				continue
 			end
 			local piece = descendant :: BasePart
-			if piece.Transparency >= 0.95 then
+			-- a night fence is built hidden (hideForDay) and keeps its real look in an attribute
+			local seen = piece:GetAttribute("NightTransparency")
+			local transparency = if type(seen) == "number" then seen else piece.Transparency
+			if transparency >= 0.95 then
 				continue
 			end
-			if
-				piece:IsA("Part")
-				and (piece :: Part).Shape == Enum.PartType.Block
-				and piece.Size.Y <= 0.03
-			then
+			-- parts far from the camp cannot matter: skip them before the corner maths
+			local reachOut = camp.halfAcross + SafeWords.MAX_DEPTH + piece.Size.Magnitude / 2 + 2
+			local away = piece.Position
+				- Vector3.new(camp.origin.x, piece.Position.Y, camp.origin.z)
+			if away.Magnitude > reachOut then
 				continue
 			end
 			local half = piece.Size / 2
@@ -1275,9 +1279,9 @@ local function paintCampWords(
 				{ x1 = math.huge, z1 = math.huge, x2 = -math.huge, z2 = -math.huge }
 			local low: number = math.huge
 			local high: number = -math.huge
-			for _, sx in { -1, 1 } do
-				for _, sy in { -1, 1 } do
-					for _, sz in { -1, 1 } do
+			for _, sx in SIGNS do
+				for _, sy in SIGNS do
+					for _, sz in SIGNS do
 						local corner = piece.CFrame
 							* Vector3.new(half.X * sx, half.Y * sy, half.Z * sz)
 						local at = base:PointToObjectSpace(Vector3.new(corner.X, floorY, corner.Z))
@@ -1288,8 +1292,20 @@ local function paintCampWords(
 					end
 				end
 			end
+			-- flat paving (thin in the world's up) is what the words are painted on
+			if
+				piece:IsA("Part")
+				and (piece :: Part).Shape == Enum.PartType.Block
+				and high - low <= 0.03
+			then
+				continue
+			end
 			-- only what stands on the floor round the words, not the ground below or a canopy far above
-			if high > floorY + 0.005 and low < floorY + 3 then
+			local near = box.z2 > -SafeWords.MAX_DEPTH - SafeWords.GAP - 1
+				and box.z1 < 0
+				and box.x2 > -camp.halfAcross - 1
+				and box.x1 < camp.halfAcross + 1
+			if near and high > floorY + 0.005 and low < floorY + 3 then
 				table.insert(obstacles, box)
 			end
 		end

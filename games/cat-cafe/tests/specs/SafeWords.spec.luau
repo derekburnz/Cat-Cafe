@@ -51,6 +51,10 @@ return function()
 			expect(SafeWords.fit({ wall }, 60)).to.equal(nil)
 		end)
 
+		it("leaves the words off a camp too narrow for any of them", function()
+			expect(SafeWords.fit({}, 3)).to.equal(nil)
+		end)
+
 		it("stays inside a narrow camp", function()
 			local spot = SafeWords.fit({}, 7)
 			expect(spot ~= nil).to.equal(true)

@@ -28,6 +28,9 @@ function SafeWords.fit(obstacles: { Box }, halfAcross: number): Spot?
 	for _, width in SafeWords.WIDTHS do
 		local depth = width * SafeWords.RATIO
 		local reach = halfAcross - gap - width / 2
+		if reach < 0 then
+			continue -- the camp is too narrow for words this wide
+		end
 		local offsets: { number } = { 0 }
 		local n = 1
 		while n * 2 <= reach do

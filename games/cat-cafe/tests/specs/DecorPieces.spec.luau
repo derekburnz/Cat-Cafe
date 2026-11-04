@@ -147,4 +147,43 @@ return function()
 			expect(pieces[1].id).to.equal("brick")
 		end)
 	end)
+
+	describe("DecorPieces.chip (#1120)", function()
+		it("folds every kind and coin category into Plants, Floor or Walls", function()
+			expect(DecorPieces.chip(DECOR[1])).to.equal("Plants")
+			expect(DecorPieces.chip(DECOR[2])).to.equal("Floor") -- furniture
+			expect(DecorPieces.chip(DECOR[3])).to.equal("Walls") -- wallpaper
+			expect(DecorPieces.chip(DECOR[6])).to.equal("Plants") -- decoration
+			expect(DecorPieces.chip(DECOR[7])).to.equal("Floor")
+			expect(DecorPieces.chip(piece("door", "alley", "Common", "door"))).to.equal("Walls")
+			expect(DecorPieces.chip(piece("flap", "alley", "Rare", "catflap"))).to.equal("Walls")
+			expect(DecorPieces.chip(piece("pink", "alley", "Rare", "paint"))).to.equal("Walls")
+			expect(DecorPieces.chip({ id = "sign", name = "Sign", category = "Wall" } :: any)).to.equal(
+				"Walls"
+			)
+			expect(DecorPieces.chip({ id = "tank", name = "Tank", category = "Furniture" } :: any)).to.equal(
+				"Floor"
+			)
+			expect(DecorPieces.chip({ id = "odd", name = "Odd", category = "Toys" } :: any)).to.equal(
+				"Plants"
+			)
+			expect(DecorPieces.kindChip("rug")).to.equal(nil)
+			expect(DecorPieces.kindChip(nil)).to.equal(nil)
+		end)
+
+		it("puts every piece in the real catalog under a known chip", function()
+			local Catalog = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
+			) :: any
+			local seen: { [string]: number } = {}
+			for _, def in DecorPieces.all(Catalog) do
+				local chip = DecorPieces.chip(def)
+				expect(table.find(DecorPieces.CHIPS, chip)).to.be.ok()
+				seen[chip] = (seen[chip] or 0) + 1
+			end
+			for _, chip in DecorPieces.CHIPS do
+				expect(seen[chip]).to.be.ok()
+			end
+		end)
+	end)
 end

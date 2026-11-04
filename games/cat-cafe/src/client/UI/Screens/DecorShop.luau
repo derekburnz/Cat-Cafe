@@ -10,6 +10,8 @@
 -- say Place, Remove or "Spots full". The server checks the spots too.
 -- Derek 2026-10-28: "decor menu buttons are squished a little too much", so the chips are taller and wider with more
 -- room between them, and on a phone the chips and card buttons grow to a 44 px face (Scale.tapHeight).
+-- #1120 (the 11-04 mockup, "Decor menu chips: fewer, roomier"): five chips at most, All, Lawn, Plants, Floor and
+-- Walls (DecorPieces.chip folds each kind and category into them), sharing the row's width in 16 px words.
 -- F97 section 2 (Derek 2026-10-28: "make it so decor is crate find only"): a coin piece the catalog marks
 -- `source = "crate"` shows only once owned and never with a price, like a crate piece, and the grid always ends
 -- with "Find more decor in crates" pointing to the Golden Fish Market.
@@ -66,9 +68,7 @@ export type DecorShop = {
 local CARD_WIDTH = 164
 local CARD_TOP = 152 -- the card above its button: art, name, effect
 local CHIP_HEIGHT = 44 -- was 36 with a 31 px face (Derek 2026-10-28: "squished")
-local CHIP_MIN_WIDTH = 96
-local CHIP_PAD = 40 -- px round a chip's words
-local CHIP_GAP = 10
+local CHIP_GAP = 10 -- the chips share the row's width equally (#1120), so none is squished or scrolled off
 local EQUIP_W = 156 -- Equip Best, right of the chips
 local PRESS_HOLD = 3 -- seconds Equip Best stays grey after a press when no sync comes
 local FOOTER_HEIGHT = 56
@@ -155,15 +155,11 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	local equipBest = if Config.DecorEquipBest == true then callbacks.equipBest else nil
 	-- the chips get the full width: Equip Best sits in the header, left of the X (#964, Derek: "buttons on the top row
 	-- feels too squished and cluttered")
-	self._chipRow = Create("ScrollingFrame", {
+	self._chipRow = Create("Frame", {
 		Name = "Chips",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, chipHeight),
-		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = Enum.AutomaticSize.X,
-		ScrollBarThickness = 0,
-		ScrollingDirection = Enum.ScrollingDirection.X,
 		Parent = panel.content,
 	}, {
 		Create("UIListLayout", {
@@ -299,10 +295,19 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	return self :: DecorShop
 end
 
--- A card's chip: a crate piece's kind ("Wallpaper"), else the decor's category.
-local function chipOf(def: Types.DecorDef): string
-	local kind = DecorPieces.info(def).kind
-	return if kind then DecorPieces.kindName(kind) else def.category
+-- The shown chips share the row's width equally: five with Lawn, four without it (#1120).
+function DecorShop._layoutChips(self: any)
+	local shown: { any } = {}
+	for _, chip in self._chips do
+		if chip.button.instance.Visible then
+			table.insert(shown, chip)
+		end
+	end
+	local count = math.max(#shown, 1)
+	for _, chip in shown do
+		chip.button.instance.Size =
+			UDim2.new(1 / count, -CHIP_GAP * (count - 1) / count, 0, self._chipHeight)
+	end
 end
 
 function DecorShop._setFilter(self: any, category: string)
@@ -336,6 +341,7 @@ function DecorShop._renderLawnLive(self: any)
 			chip.button.instance.Visible = live
 		end
 	end
+	self:_layoutChips()
 	if not live and self._filter == LAWN_CHIP then
 		self:_setFilter("All")
 	end
@@ -437,7 +443,8 @@ function DecorShop._buildStrip(self: any)
 			TextSize = Theme.sizes.textBody,
 			Parent = frame,
 		})
-		local chip = if spots then DecorPieces.kindName("furniture") else DecorPieces.kindName(kind)
+		-- the decor spots hold furniture, which stands under Floor (#1120)
+		local chip = DecorPieces.kindChip(if spots then "furniture" else kind) or "All"
 		local connection = frame.Activated:Connect(function()
 			self:_setFilter(if self._filter == chip then "All" else chip)
 		end)
@@ -529,14 +536,17 @@ function DecorShop._build(self: any)
 		self:_buildStrip()
 	end
 
-	-- chips: All + each category (a piece's kind) in catalog order
+	-- chips (#1120): All, Lawn while the lawn is live, then Plants, Floor and Walls when the catalog has a piece for them
 	local categories = { "All" }
 	if #LawnLogic.pieces() > 0 then
 		table.insert(categories, LAWN_CHIP) -- F91: shown while the lawn is live
 	end
+	local present: { [string]: boolean } = {}
 	for _, decor in all do
-		local chip = chipOf(decor)
-		if not table.find(categories, chip) then
+		present[DecorPieces.chip(decor)] = true
+	end
+	for _, chip in DecorPieces.CHIPS do
+		if present[chip] then
 			table.insert(categories, chip)
 		end
 	end
@@ -546,11 +556,8 @@ function DecorShop._build(self: any)
 			name = if lawn then "FrontLawn" else category,
 			text = if lawn then LAWN_TEXT else category,
 			style = "ghost",
-			size = UDim2.fromOffset(
-				math.max(CHIP_MIN_WIDTH, #(if lawn then LAWN_TEXT else category) * 11 + CHIP_PAD),
-				self._chipHeight
-			),
-			textSize = Theme.sizes.textSmall,
+			size = UDim2.fromOffset(0, self._chipHeight), -- widths from _layoutChips
+			textSize = Theme.sizes.textBody,
 			layoutOrder = index,
 			parent = self._chipRow,
 			sound = "uiTab",
@@ -561,6 +568,7 @@ function DecorShop._build(self: any)
 		button.instance.Visible = not lawn or self._lawnLive
 		table.insert(self._chips, { category = category, button = button })
 	end
+	self:_layoutChips()
 
 	for index, decor in all do
 		local piece = DecorPieces.info(decor)
@@ -729,7 +737,7 @@ function DecorShop._build(self: any)
 			unlock = unlock,
 			icon = icon,
 			def = decor,
-			chip = chipOf(decor),
+			chip = DecorPieces.chip(decor),
 			piece = piece.kind ~= nil,
 			crateOnly = piece.kind ~= nil or decor.source == "crate", -- F97: never sold for coins
 			kind = piece.kind,

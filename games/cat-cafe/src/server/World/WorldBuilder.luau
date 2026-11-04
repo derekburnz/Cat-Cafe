@@ -1976,6 +1976,7 @@ local PAW_COLORS = {
 	neighbourhood = Color3.fromRGB(240, 150, 64), -- warm orange
 	woods = Color3.fromRGB(38, 112, 64), -- deep green
 	sewer = Color3.fromRGB(86, 110, 150), -- slate blue
+	town = Color3.fromRGB(214, 84, 72), -- brick red: stands out on the cream Town Square paving, day and night
 } :: { [string]: Color3 }
 local PAW_TOES = { { -0.55, -0.5 }, { -0.2, -0.78 }, { 0.2, -0.78 }, { 0.55, -0.5 } }
 

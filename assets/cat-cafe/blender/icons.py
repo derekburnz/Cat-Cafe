@@ -18,6 +18,7 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
                             colour, sized weak, mid or strong within its family, with a badge for what it does
   CatCafe_Icon_Hud_<Name>   the HUD buttons (#1176, hud_icons.py): Store, Cats, Index, Quests, Upgrades, Decor,
                             Rewards, Tutorial, Feedback, Menu, MyCafe, Cannon, Areas, Potions and Bait
+  CatCafe_Icon_Cat_<Name>   the shop-only cats' Store card and cat book picture (#1191): the sitting cat in its props
   CatCafe_Icon_Menu_<Id>    the F90 order bubble pictures (#950): each of the 12 menu dishes on its plate (menu.py),
                             Coffee, Milk, CakeSlice, PawCookie, Tea, FishBiscuit, KittyCupcake, HotCocoa,
                             PancakeStack, Sundae, StrawberryRoll and RainbowCake, from the front and a little above
@@ -36,6 +37,7 @@ import numpy as np  # noqa: E402
 from mathutils import Vector  # noqa: E402
 
 import common  # noqa: E402
+import cats  # noqa: E402
 import crates  # noqa: E402
 import icon_art  # noqa: E402
 import hud_icons  # noqa: E402
@@ -100,6 +102,9 @@ ICONS = {
        for k in potions.POTIONS},
     **{f"CatCafe_Icon_PotionFlask_{n}": (fn, INK, 10, (-12.0, 8.0)) for n, fn in potion_icons.BUILDERS.items()},
     **{f"CatCafe_Icon_Menu_{n}": ((lambda m, n=n: menu._BUILDS[n](m)), INK, 10, (-22.0, 30.0)) for n in menu.ITEMS},
+    # #1191: the shop-only cats' Store card and cat book picture, the sitting cat in its props, three-quarter front
+    **{f"CatCafe_Icon_Cat_{n}": ((lambda m, n=n: cats.build_cat(n, m, body="sit")), INK, 10, (-24.0, 8.0))
+       for n, spec in cats.ROSTER.items() if spec.get("shop")},
 }
 # The HUD buttons (#1176): name -> (yaw, pitch); builders in hud_icons.py
 HUD_VIEWS = {"Store": (24.0, 18.0), "Cats": (-14.0, 8.0), "Index": (-8.0, 52.0), "Quests": (-14.0, 8.0),

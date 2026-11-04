@@ -38,7 +38,9 @@ from common import Builder, scale_mesh
 # v0.13: stripes2 (stripes alternate the second and third colours), checker (two colours: a checkered band along
 # each flank, the Taxi Cat's); v0.18 (F96): blaze (a stripe of that colour up the face from the muzzle between the
 # eyes), curl (the tail tip curls over: up and forward on A, up off the floor and back on B), exclusive (no gold
-# twins). Themed cats wear a prop, some two (props.py).
+# twins); #1191 (the shop-only cats): eye_k (eyes that much bigger), apron ((cloth, sprinkle colours): an apron
+# painted on the chest with sprinkles on it, under where the Barista's apron goes), shop (sold for Robux only: the
+# model carries a BubbleAnchor), lids (half-closed eyes: a lid in the fur over the top of each eye, a calm gaze). Themed cats wear a prop, some two (props.py).
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
     "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True),
@@ -164,6 +166,13 @@ ROSTER = {
     "BellhopCat":  dict(rarity="Rare", fur="fur_ginger", second="fur_russet", eyes="eye_green", pattern="stripes",
                         muzzle="fur_white", socks="fur_white", tip="fur_white", blaze="fur_white", curl=True,
                         exclusive=True),
+    # #1191 the shop-only cats (Design-Agent's briefs on #1191): fixed, never random, no gold twins
+    "Sprinkles":   dict(rarity="Epic", fur="fur_custard", second="fur_caramel", third="fur_caramel", eyes="eye_amber",
+                        pattern="patches", muzzle="fur_white", scale=0.88, eye_k=1.14, exclusive=True, shop=True,
+                        apron=("apron_pink", ("neon_pink", "sign_teal", "rarity_legend", "shirt_blue", "mint"))),
+    "DuchessMarzipan": dict(rarity="Legendary", fur="fur_lilac_silver", second="pastel_lilac", eyes="eye_violet",
+                            pattern="solid", muzzle="pearl", nose="nose_pink", fluffy=True, lids=True, curl=True,
+                            body_scale=(0.9, 1.05, 1.0), tip="pearl", exclusive=True, shop=True),
 }
 
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze")
@@ -464,11 +473,15 @@ def _mouth(b, surf, nz, k, ink):
 def _eye(spec, c, h, side):
     """One eye about its centre: iris, pupil (none on glowing eyes) and a glossy highlight."""
     b = Builder()
-    k = h["k"]
+    k = h["k"] * spec.get("eye_k", 1.0)
     eye = c["eyes"] if side > 0 else c["eyes2"]         # an odd-eyed cat's right eye (Eye2, screen left) is eyes2
     b.box((0, 0, 0), (0.2 * k, 0.07, EYE_H * k), eye, bevel=False)
     if not spec.get("glow_eyes"):
         b.box((side * 0.01, -0.025, -0.02 * k), (0.12 * k, 0.04, EYE_H * 0.72 * k), "fur_black", bevel=False)
+    if spec.get("lids"):                                # half closed: a lid over the top, the gloss under it
+        b.box((0, -0.006, EYE_H * 0.27 * k), (0.21 * k, 0.07, EYE_H * 0.48 * k), c["fur"], bevel=False)
+        b.box((-0.045 * k, -0.045, -EYE_H * 0.08 * k), (0.06 * k, 0.03, 0.05 * k), "milk", bevel=False)
+        return b
     b.box((-0.045 * k, -0.045, EYE_H * 0.28 * k), (0.06 * k, 0.03, 0.07 * k), "milk", bevel=False)
     return b
 
@@ -619,6 +632,29 @@ def _checker(b, cols, side, x, yc, length, zc, h, n=8):
             b.box((side * (x + 0.0225), yc - length / 2 + q * (j + 0.5), zc + dz), (0.015, q, qh), dark, bevel=False)
 
 
+APRON_SPRINKLES = ((-0.12, 0.62, 30), (0.1, 0.78, -40), (-0.04, 0.42, 75), (0.13, 0.36, 10), (-0.14, 0.2, -25),
+                   (0.15, 0.1, 50))       # (x, height as a share of the bib, turn) of each sprinkle on the bib, off the pocket
+
+
+def _apron(b, spec, front, w, z0, z1, sides=None):
+    """#1191 Sprinkles' apron, painted on the coat: a bib from z0 to z1 whose front is 0.022 in front of the body's
+    `front` face (inside the Barista's apron, whose bib stands 0.035 out, so one covers the other cleanly), w wide,
+    with sprinkles on it and a pocket; `sides` ((half width, y0, y1, z) of the body there) adds the waist tie round
+    the flanks."""
+    cloth, cols = spec["apron"]
+    b.box((0, front - 0.002, (z0 + z1) / 2), (w, 0.04, z1 - z0), cloth, bevel=False)                 # bib
+    fy = front - 0.022
+    for i, (x, t, a) in enumerate(APRON_SPRINKLES):
+        b.box((x * w / 0.38, fy - 0.004, z0 + t * (z1 - z0)), (0.075, 0.008, 0.025), cols[i % len(cols)], bevel=False,
+              rot=_rot(a, "Y"))
+    b.box((0, fy - 0.004, z0 + 0.09), (w * 0.5, 0.008, 0.1), "offwhite", bevel=False)                  # pocket
+    # (both stand 0.008 proud, so their fronts stay 0.005 behind the Barista apron's bib when a barista wears both)
+    if sides:
+        hx, y0, y1, z = sides
+        for side in (-1, 1):                                                                           # the waist tie
+            b.box((side * (hx + 0.006), (y0 + y1) / 2, z), (0.012, y1 - y0, 0.045), cloth, bevel=False)
+
+
 def _body_a(spec, c, d):
     b = Builder()
     (x0, y0, z0), (sx, sy, sz) = d["body"]
@@ -646,7 +682,9 @@ def _body_a(spec, c, d):
     elif pat == "gradient":                             # front to back: fur, second, third
         b.box((0, y0 + 0.04, z0), (sx + 0.03, sy * 0.3, sz + 0.03), c["second"], bevel=False)
         b.box((0, y0 + hy * 0.66, z0), (sx + 0.04, sy * 0.36, sz + 0.04), c["third"], bevel=False)
-    if c["belly"] and not spec.get("tuxedo") and not spec.get("ruff"):    # a pale chest under the chin (the ruff covers it)
+    if spec.get("apron"):                               # on the chest under the chin, tied along the flanks
+        _apron(b, spec, y0 - hy, 0.38, bottom + 0.03, top - 0.08, (hx, y0 - hy, y0 - hy + 0.22, z0 - 0.02))
+    elif c["belly"] and not spec.get("tuxedo") and not spec.get("ruff"):  # a pale chest under the chin (the ruff covers it)
         b.box((0, y0 - hy - 0.01, z0 - 0.04), (0.36, 0.06, sz * 0.6), c["belly"], bevel=False)
     _coat_extras(b, spec, c, d["body"][0], d["body"][1])
     if spec.get("checker"):                             # along each flank, over the stripes
@@ -673,6 +711,8 @@ def _body_b(spec, c, d):
     pat = spec["pattern"]
     if spec.get("tuxedo"):
         b.box((0, front - 0.01, cz0), (0.42, 0.06, 0.6), c["second"], bevel=False)                   # bib
+    elif spec.get("apron"):                             # the chest's lower front, tied round the chest
+        _apron(b, spec, front, 0.38, cz0 - csz / 2 + 0.04, cz0 + 0.2, (csx / 2, front, cy0 + csy / 2, cz0 - csz / 2 + 0.2))
     elif c["belly"] and not spec.get("ruff"):
         b.box((0, front - 0.01, cz0 + 0.02), (0.34, 0.06, 0.5), c["belly"], bevel=False)
     if pat == "stripes":
@@ -718,6 +758,8 @@ def _body_s(spec, c, d):
     if spec.get("tuxedo"):
         b.box((0, front - 0.01, cz0), (0.42, 0.06, 0.6), c["second"], bevel=False)                   # bib
         b.box((0, cy0, bottom - 0.01), (0.46, csy * 0.7, 0.04), c["second"], bevel=False)            # under the chest
+    elif spec.get("apron"):
+        _apron(b, spec, front, 0.38, bottom + 0.04, cz0 + 0.2, (csx / 2, front, cy0 + csy / 2, bottom + 0.2))
     elif c["belly"] and not spec.get("ruff"):
         b.box((0, front - 0.01, cz0 + 0.02), (0.34, 0.06, 0.5), c["belly"], bevel=False)
     if pat == "stripes":

@@ -629,7 +629,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag01_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -707,7 +707,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag01_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -793,7 +793,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag02_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -871,7 +871,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag02_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -957,7 +957,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag03_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -1035,7 +1035,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag03_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -1121,7 +1121,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag04_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -1199,7 +1199,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag04_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -1285,7 +1285,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag05_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -1363,7 +1363,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag05_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -1449,7 +1449,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag06_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -1527,7 +1527,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag06_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -1613,7 +1613,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag07_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -1691,7 +1691,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag07_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -1777,7 +1777,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag08_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -1855,7 +1855,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag08_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -1941,7 +1941,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag09_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -2019,7 +2019,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag09_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -2105,7 +2105,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag10_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -2183,7 +2183,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag10_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -2269,7 +2269,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag11_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -2347,7 +2347,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag11_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -2433,7 +2433,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag12_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -2511,7 +2511,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag12_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -2597,7 +2597,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag13_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -2675,7 +2675,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag13_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -2761,7 +2761,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag14_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -2839,7 +2839,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag14_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -2925,7 +2925,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag15_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -3003,7 +3003,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag15_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -3089,7 +3089,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Square_Bunting_Flag16_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {
@@ -3167,7 +3167,7 @@
      }
     },
     {
-     "name": "CatCafe_Square_Bunting_Flag16_Pennant",
+     "name": "Cloth",
      "className": "WedgePart",
      "properties": {
       "CFrame": {

@@ -23758,7 +23758,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -58.45,
+       -57.75,
        0.01,
        -5.7
       ],
@@ -23782,7 +23782,7 @@
      }
     },
     "Size": [
-     20.9,
+     19.5,
      0.02,
      0.6
     ],
@@ -23807,7 +23807,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -58.45,
+       -57.75,
        0.01,
        5.7
       ],
@@ -23831,7 +23831,7 @@
      }
     },
     "Size": [
-     20.9,
+     19.5,
      0.02,
      0.6
     ],
@@ -23856,7 +23856,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -67.855,
+       -65.85,
        0.01,
        -3.6
       ],
@@ -23880,7 +23880,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -23905,7 +23905,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -67.855,
+       -65.85,
        0.01,
        0.0
       ],
@@ -23929,7 +23929,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -23954,7 +23954,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -67.855,
+       -65.85,
        0.01,
        3.6
       ],
@@ -23978,7 +23978,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -24003,7 +24003,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -65.765,
+       -63.75,
        0.01,
        -4.5
       ],
@@ -24027,7 +24027,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -24052,7 +24052,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -65.765,
+       -63.75,
        0.01,
        -1.8
       ],
@@ -24076,203 +24076,7 @@
      }
     },
     "Size": [
-     1.95,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -65.765,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -65.765,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -63.675,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -63.675,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -24297,9 +24101,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -63.675,
+       -63.75,
        0.01,
-       3.6
+       1.8
       ],
       "orientation": [
        [
@@ -24321,7 +24125,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -24346,9 +24150,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -61.585,
+       -63.75,
        0.01,
-       -4.5
+       4.5
       ],
       "orientation": [
        [
@@ -24370,7 +24174,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -24395,9 +24199,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -61.585,
+       -61.65,
        0.01,
-       -1.8
+       -3.6
       ],
       "orientation": [
        [
@@ -24419,7 +24223,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -24444,154 +24248,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -61.585,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -61.585,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -59.495,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -59.495,
+       -61.65,
        0.01,
        0.0
       ],
@@ -24615,14 +24272,14 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
     "Color": [
-     0.949,
-     0.9098,
-     0.8353
+     0.9137,
+     0.851,
+     0.7686
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -24640,7 +24297,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -59.495,
+       -61.65,
        0.01,
        3.6
       ],
@@ -24664,7 +24321,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -24689,7 +24346,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -57.405,
+       -59.55,
        0.01,
        -4.5
       ],
@@ -24713,7 +24370,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -24738,7 +24395,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -57.405,
+       -59.55,
        0.01,
        -1.8
       ],
@@ -24762,7 +24419,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -24787,7 +24444,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -57.405,
+       -59.55,
        0.01,
        1.8
       ],
@@ -24811,7 +24468,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -24836,7 +24493,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -57.405,
+       -59.55,
        0.01,
        4.5
       ],
@@ -24860,7 +24517,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -24885,7 +24542,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -55.315,
+       -57.45,
        0.01,
        -3.6
       ],
@@ -24909,7 +24566,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -24934,7 +24591,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -55.315,
+       -57.45,
        0.01,
        0.0
       ],
@@ -24958,7 +24615,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -24983,7 +24640,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -55.315,
+       -57.45,
        0.01,
        3.6
       ],
@@ -25007,7 +24664,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -25032,7 +24689,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -53.225,
+       -55.35,
        0.01,
        -4.5
       ],
@@ -25056,7 +24713,154 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
+     0.02,
+     1.66
+    ],
+    "Color": [
+     0.949,
+     0.9098,
+     0.8353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_Paving",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -55.35,
+       0.01,
+       -1.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.96,
+     0.02,
+     3.46
+    ],
+    "Color": [
+     0.949,
+     0.9098,
+     0.8353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_Paving",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -55.35,
+       0.01,
+       1.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.96,
+     0.02,
+     3.46
+    ],
+    "Color": [
+     0.949,
+     0.9098,
+     0.8353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_Paving",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -55.35,
+       0.01,
+       4.5
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.96,
      0.02,
      1.66
     ],
@@ -25081,154 +24885,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -53.225,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -53.225,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -53.225,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -51.135,
+       -53.25,
        0.01,
        -3.6
       ],
@@ -25252,7 +24909,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -25277,7 +24934,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -51.135,
+       -53.25,
        0.01,
        0.0
       ],
@@ -25301,7 +24958,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -25326,7 +24983,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -51.135,
+       -53.25,
        0.01,
        3.6
       ],
@@ -25350,7 +25007,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -25375,7 +25032,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -49.045,
+       -51.15,
        0.01,
        -4.5
       ],
@@ -25399,7 +25056,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -25424,7 +25081,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -49.045,
+       -51.15,
        0.01,
        -1.8
       ],
@@ -25448,7 +25105,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -25473,7 +25130,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -49.045,
+       -51.15,
        0.01,
        1.8
       ],
@@ -25497,7 +25154,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -25522,7 +25179,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -49.045,
+       -51.15,
        0.01,
        4.5
       ],
@@ -25546,7 +25203,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -25571,9 +25228,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -84.2,
+       -49.05,
        0.01,
-       -5.7
+       -3.6
       ],
       "orientation": [
        [
@@ -25595,2611 +25252,161 @@
      }
     },
     "Size": [
-     29.2,
+     1.96,
      0.02,
-     0.6
+     3.46
+    ],
+    "Color": [
+     0.949,
+     0.9098,
+     0.8353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_Paving",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -49.05,
+       0.01,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.96,
+     0.02,
+     3.46
+    ],
+    "Color": [
+     0.949,
+     0.9098,
+     0.8353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_Paving",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -49.05,
+       0.01,
+       3.6
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.96,
+     0.02,
+     3.46
+    ],
+    "Color": [
+     0.949,
+     0.9098,
+     0.8353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_Paving",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -67.2,
+       0.01,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     0.02,
+     10.8
     ],
     "Color": [
      0.7686,
      0.4784,
      0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -84.2,
-       0.01,
-       5.7
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     29.2,
-     0.02,
-     0.6
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -97.8267,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -97.8267,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -97.8267,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -95.88,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -95.88,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -95.88,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -95.88,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -93.9333,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -93.9333,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -93.9333,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -91.9867,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -91.9867,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -91.9867,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -91.9867,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -90.04,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -90.04,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -90.04,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -88.0933,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -88.0933,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -88.0933,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -88.0933,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -86.1467,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -86.1467,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -86.1467,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -84.2,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -84.2,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -84.2,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -84.2,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -82.2533,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -82.2533,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -82.2533,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -80.3067,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -80.3067,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -80.3067,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -80.3067,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -78.36,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -78.36,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -78.36,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -76.4133,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -76.4133,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -76.4133,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -76.4133,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -74.4667,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -74.4667,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -74.4667,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -72.52,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -72.52,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -72.52,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -72.52,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -70.5733,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -70.5733,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -70.5733,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -31402,7 +28609,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       58.45,
+       57.75,
        0.01,
        -5.7
       ],
@@ -31426,7 +28633,7 @@
      }
     },
     "Size": [
-     20.9,
+     19.5,
      0.02,
      0.6
     ],
@@ -31451,7 +28658,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       58.45,
+       57.75,
        0.01,
        5.7
       ],
@@ -31475,7 +28682,7 @@
      }
     },
     "Size": [
-     20.9,
+     19.5,
      0.02,
      0.6
     ],
@@ -31500,7 +28707,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       49.045,
+       49.05,
        0.01,
        -3.6
       ],
@@ -31524,7 +28731,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -31549,7 +28756,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       49.045,
+       49.05,
        0.01,
        0.0
       ],
@@ -31573,7 +28780,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -31598,7 +28805,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       49.045,
+       49.05,
        0.01,
        3.6
       ],
@@ -31622,7 +28829,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -31647,7 +28854,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       51.135,
+       51.15,
        0.01,
        -4.5
       ],
@@ -31671,7 +28878,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -31696,7 +28903,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       51.135,
+       51.15,
        0.01,
        -1.8
       ],
@@ -31720,56 +28927,7 @@
      }
     },
     "Size": [
-     1.95,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       51.135,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -31794,7 +28952,56 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       51.135,
+       51.15,
+       0.01,
+       1.8
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.96,
+     0.02,
+     3.46
+    ],
+    "Color": [
+     0.949,
+     0.9098,
+     0.8353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Square_Paving",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       51.15,
        0.01,
        4.5
       ],
@@ -31818,7 +29025,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -31843,7 +29050,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       53.225,
+       53.25,
        0.01,
        -3.6
       ],
@@ -31867,7 +29074,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -31892,7 +29099,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       53.225,
+       53.25,
        0.01,
        0.0
       ],
@@ -31916,7 +29123,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -31941,7 +29148,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       53.225,
+       53.25,
        0.01,
        3.6
       ],
@@ -31965,7 +29172,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -31990,7 +29197,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       55.315,
+       55.35,
        0.01,
        -4.5
       ],
@@ -32014,7 +29221,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -32039,7 +29246,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       55.315,
+       55.35,
        0.01,
        -1.8
       ],
@@ -32063,7 +29270,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32088,7 +29295,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       55.315,
+       55.35,
        0.01,
        1.8
       ],
@@ -32112,7 +29319,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32137,7 +29344,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       55.315,
+       55.35,
        0.01,
        4.5
       ],
@@ -32161,7 +29368,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -32186,7 +29393,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       57.405,
+       57.45,
        0.01,
        -3.6
       ],
@@ -32210,7 +29417,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32235,7 +29442,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       57.405,
+       57.45,
        0.01,
        0.0
       ],
@@ -32259,7 +29466,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32284,7 +29491,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       57.405,
+       57.45,
        0.01,
        3.6
       ],
@@ -32308,7 +29515,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32333,7 +29540,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       59.495,
+       59.55,
        0.01,
        -4.5
       ],
@@ -32357,7 +29564,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -32382,7 +29589,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       59.495,
+       59.55,
        0.01,
        -1.8
       ],
@@ -32406,7 +29613,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32431,7 +29638,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       59.495,
+       59.55,
        0.01,
        1.8
       ],
@@ -32455,7 +29662,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32480,7 +29687,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       59.495,
+       59.55,
        0.01,
        4.5
       ],
@@ -32504,7 +29711,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -32529,7 +29736,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       61.585,
+       61.65,
        0.01,
        -3.6
       ],
@@ -32553,7 +29760,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32578,7 +29785,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       61.585,
+       61.65,
        0.01,
        0.0
       ],
@@ -32602,7 +29809,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32627,7 +29834,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       61.585,
+       61.65,
        0.01,
        3.6
       ],
@@ -32651,7 +29858,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32676,7 +29883,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       63.675,
+       63.75,
        0.01,
        -4.5
       ],
@@ -32700,7 +29907,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -32725,7 +29932,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       63.675,
+       63.75,
        0.01,
        -1.8
       ],
@@ -32749,7 +29956,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32774,7 +29981,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       63.675,
+       63.75,
        0.01,
        1.8
       ],
@@ -32798,7 +30005,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32823,7 +30030,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       63.675,
+       63.75,
        0.01,
        4.5
       ],
@@ -32847,7 +30054,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      1.66
     ],
@@ -32872,7 +30079,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       65.765,
+       65.85,
        0.01,
        -3.6
       ],
@@ -32896,7 +30103,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32921,7 +30128,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       65.765,
+       65.85,
        0.01,
        0.0
       ],
@@ -32945,7 +30152,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -32970,7 +30177,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       65.765,
+       65.85,
        0.01,
        3.6
       ],
@@ -32994,7 +30201,7 @@
      }
     },
     "Size": [
-     1.95,
+     1.96,
      0.02,
      3.46
     ],
@@ -33019,9 +30226,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       67.855,
+       67.2,
        0.01,
-       -4.5
+       0.0
       ],
       "orientation": [
        [
@@ -33043,2807 +30250,14 @@
      }
     },
     "Size": [
-     1.95,
+     0.6,
      0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       67.855,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       67.855,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       67.855,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.95,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       84.2,
-       0.01,
-       -5.7
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     29.2,
-     0.02,
-     0.6
+     10.8
     ],
     "Color": [
      0.7686,
      0.4784,
      0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       84.2,
-       0.01,
-       5.7
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     29.2,
-     0.02,
-     0.6
-    ],
-    "Color": [
-     0.7686,
-     0.4784,
-     0.3451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       70.5733,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       70.5733,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       70.5733,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       72.52,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       72.52,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       72.52,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       72.52,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       74.4667,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       74.4667,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       74.4667,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       76.4133,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       76.4133,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       76.4133,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       76.4133,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       78.36,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       78.36,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       78.36,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       80.3067,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       80.3067,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       80.3067,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       80.3067,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       82.2533,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       82.2533,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       82.2533,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       84.2,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       84.2,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       84.2,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       84.2,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       86.1467,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       86.1467,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       86.1467,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       88.0933,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       88.0933,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       88.0933,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       88.0933,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       90.04,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       90.04,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       90.04,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       91.9867,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       91.9867,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       91.9867,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       91.9867,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       93.9333,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       93.9333,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       93.9333,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       95.88,
-       0.01,
-       -4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       95.88,
-       0.01,
-       -1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       95.88,
-       0.01,
-       1.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       95.88,
-       0.01,
-       4.5
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     1.66
-    ],
-    "Color": [
-     0.949,
-     0.9098,
-     0.8353
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       97.8267,
-       0.01,
-       -3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       97.8267,
-       0.01,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Square_Paving",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       97.8267,
-       0.01,
-       3.6
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.8067,
-     0.02,
-     3.46
-    ],
-    "Color": [
-     0.9137,
-     0.851,
-     0.7686
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -39523,7 +33937,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -58.45,
+         -57.75,
          -0.2,
          0.0
         ],
@@ -39547,7 +33961,7 @@
        }
       },
       "Size": [
-       20.9,
+       19.5,
        0.4,
        12.0
       ],
@@ -39572,7 +33986,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         58.45,
+         57.75,
          -0.2,
          0.0
         ],
@@ -39596,7 +34010,7 @@
        }
       },
       "Size": [
-       20.9,
+       19.5,
        0.4,
        12.0
       ],

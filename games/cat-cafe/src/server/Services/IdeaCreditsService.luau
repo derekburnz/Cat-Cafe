@@ -25,6 +25,7 @@ local IdeaCreditsService = {}
 
 local NAME_BATCH = 100 -- user ids per GetUserInfosByUserIdsAsync call
 local KEY_PAGE = 100
+local SCAN_KEYS = 2000 -- the most key names one rebuild lists under a prefix (20 list requests)
 local MIRROR_SECONDS = 30 -- the most often one player's hide/<userId> key is written
 
 local credits: { IdeaCredits.Credit } = {}
@@ -38,33 +39,47 @@ local function store(): DataStore
 	return DataStoreService:GetDataStore(IdeaCredits.STORE)
 end
 
--- Every key under `prefix`, keyed by the rest of its name, with its value when `values` (else true: a hide key exists
--- only while hidden, so its name is enough and costs no read). Empty when the store cannot be read (a Studio place
--- with no API access, or an outage), so the board keeps "no ideas yet" rather than failing.
-local function readAll(prefix: string, limit: number, values: boolean): { [string]: unknown }
-	local out: { [string]: unknown } = {}
+-- The names of the keys under `prefix`, at most `scan` of them (listing costs one request a page and reads no
+-- values). Empty when the store cannot be read (a Studio place with no API access, or an outage), so the board keeps
+-- "no ideas yet" rather than failing.
+local function keyNames(prefix: string, scan: number): { string }
+	local names: { string } = {}
 	local ok, err = pcall(function()
 		local pages = store():ListKeysAsync(prefix, KEY_PAGE)
-		local count = 0
-		while count < limit do
+		while #names < scan do
 			for _, entry in pages:GetCurrentPage() do
-				local key = (entry :: DataStoreKey).KeyName
-				out[string.sub(key, #prefix + 1)] = if values then store():GetAsync(key) else true
-				count += 1
-				if count >= limit then
-					break
-				end
+				table.insert(names, (entry :: DataStoreKey).KeyName)
 			end
-			if pages.IsFinished or count >= limit then
+			if pages.IsFinished then
 				break
 			end
 			pages:AdvanceToNextPageAsync()
 		end
 	end)
 	if not ok then
-		warn("[IdeaCredits] read failed: " .. tostring(err))
+		warn("[IdeaCredits] list failed: " .. tostring(err))
 	end
-	return out
+	return names
+end
+
+-- The newest `limit` credits' stored values. The lead's idea-credits.yml names each key credit/<yyyymmddhhmmss>-<report
+-- key> (UTC time first), so the highest key names are the newest; a DataStore lists keys only in ascending order, so
+-- the names are sorted here and only the newest are read.
+local function newestCredits(limit: number): { unknown }
+	local names = keyNames(IdeaCredits.CREDIT_PREFIX, SCAN_KEYS)
+	table.sort(names, function(a: string, b: string): boolean
+		return a > b
+	end)
+	local values: { unknown } = {}
+	for i = 1, math.min(limit, #names) do
+		local ok, value = pcall(function()
+			return store():GetAsync(names[i])
+		end)
+		if ok then
+			table.insert(values, value)
+		end
+	end
+	return values
 end
 
 -- Display names for `userIds`; a user the lookup misses is left out (shown as "a player").
@@ -103,16 +118,16 @@ end
 -- Reads the credits and hide keys, looks the names up afresh and tells everyone.
 local function rebuild()
 	local fresh: { IdeaCredits.Credit } = {}
-	for _, raw in readAll(IdeaCredits.CREDIT_PREFIX, IdeaCredits.MAX_ROWS * 2, true) do
+	for _, raw in newestCredits(IdeaCredits.MAX_ROWS * 2) do
 		local credit = IdeaCredits.sanitize(raw)
 		if credit ~= nil then
 			table.insert(fresh, credit)
 		end
 	end
 	local hide: { [number]: boolean } = {}
-	for key, value in readAll(IdeaCredits.HIDE_PREFIX, 1000, false) do
-		local userId = tonumber(key)
-		if userId ~= nil and value == true then
+	for _, key in keyNames(IdeaCredits.HIDE_PREFIX, SCAN_KEYS) do
+		local userId = tonumber(string.sub(key, #IdeaCredits.HIDE_PREFIX + 1))
+		if userId ~= nil then
 			hide[userId] = true
 		end
 	end

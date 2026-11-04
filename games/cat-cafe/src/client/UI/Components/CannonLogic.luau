@@ -8,7 +8,7 @@
 --   button(destination, closed, dusk, carrying)  a card's Launch: "launch", "carrying", "dusk" or "night"
 --   notice(closed, dusk, carrying, remaining)  the line under the picker's title, or nil for the plain one
 --   cardTitle            "To the Woods!" (the card's sub line went 2026-11-03)
---   cardTimes(hold?) / cardPhase(elapsed, hold?)  the name card's steps, seconds after CannonLaunchAt
+--   cardTimes(hold?, from?) / cardPhase(elapsed, hold?, from?)  the name card's steps, seconds after its start
 --   hint(view)  the cannon hint over the HUD, or nil
 -- Pure, no Theme, so the cloud spec runner can load it.
 
@@ -39,12 +39,18 @@ CannonLogic.HINT_TIER = 2 -- the rank up that gets its own "is open!" hint (sect
 -- tutorial yellow dots are still showing")
 CannonLogic.OPENED_HINT_SECONDS = 45
 
--- The name card, seconds after CannonLaunchAt: it pops in as the clouds cover the screen (VFX: 1.6), wobbles as the
--- tunnel takes the destination's colour (2.0), zips up and off as the clouds part (2.4) and is gone by 2.6.
+-- The name card in the clouds, seconds after CannonLaunchAt: it pops in as the clouds cover the screen (VFX: 1.6),
+-- wobbles as the tunnel takes the destination's colour (2.0), zips up and off as the clouds part (2.4) and is gone by
+-- 2.6. Since #1163 only the intro's shot 2 keeps this schedule (cardTimes(0.4)).
 CannonLogic.CARD_IN = 1.6
 CannonLogic.CARD_WOBBLE = 2.0
 CannonLogic.CARD_OUT = 2.4
 CannonLogic.CARD_GONE = 2.6
+-- A player's own flight (Derek 2026-11-04, #1163: "show right after the destination menu closes"): the card starts
+-- the moment the picker closes on the server's accepted CannonLaunch (a refused Launch never gets one), pops in at
+-- once, wobbles at 0.3, zips off at 0.6 as the BOOM fires (0.5 s after CannonLaunchAt) and is gone by 0.8.
+CannonLogic.CHOSEN_IN = 0
+CannonLogic.CHOSEN_HOLD = 0.6
 
 -- The cards `cannonId`'s picker shows a player at `tier`: every area the tier has opened, in tier order (catalog
 -- order within a tier), and from a camp's cannon Town Square first and never the camp's own area.
@@ -139,19 +145,19 @@ function CannonLogic.cardTitle(destination: string, name: string): string
 	return "To the " .. name .. "!"
 end
 
--- When the card pops in, wobbles, zips off and is gone. `hold` is how long it stays from popping in to zipping off
--- (CARD_OUT - CARD_IN, 0.8 s, by default); the intro's shot 2 holds it 0.4 s (intro-cutscene.md section 4).
-function CannonLogic.cardTimes(hold: number?): (number, number, number, number)
+-- When the card pops in, wobbles, zips off and is gone, in seconds after its start. `from` is when it pops in
+-- (CARD_IN, in the clouds, by default; CHOSEN_IN for a player's own flight) and `hold` how long it stays from popping
+-- in to zipping off (CARD_OUT - CARD_IN, 0.8 s, by default; CHOSEN_HOLD for a player's own flight); the intro's shot 2
+-- holds it 0.4 s in the clouds (intro-cutscene.md section 4). The zip takes CARD_GONE - CARD_OUT (0.2 s) either way.
+function CannonLogic.cardTimes(hold: number?, from: number?): (number, number, number, number)
+	local inAt = math.max(0, from or CannonLogic.CARD_IN)
 	local shown = math.max(0, hold or (CannonLogic.CARD_OUT - CannonLogic.CARD_IN))
-	local out = CannonLogic.CARD_IN + shown
-	return CannonLogic.CARD_IN,
-		CannonLogic.CARD_IN + shown / 2,
-		out,
-		out + (CannonLogic.CARD_GONE - CannonLogic.CARD_OUT)
+	local out = inAt + shown
+	return inAt, inAt + shown / 2, out, out + (CannonLogic.CARD_GONE - CannonLogic.CARD_OUT)
 end
 
-function CannonLogic.cardPhase(elapsed: number, hold: number?): CardPhase
-	local inAt, wobbleAt, outAt, goneAt = CannonLogic.cardTimes(hold)
+function CannonLogic.cardPhase(elapsed: number, hold: number?, from: number?): CardPhase
+	local inAt, wobbleAt, outAt, goneAt = CannonLogic.cardTimes(hold, from)
 	if elapsed < inAt then
 		return "waiting"
 	elseif elapsed < wobbleAt then

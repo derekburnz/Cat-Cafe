@@ -26,7 +26,9 @@ return function()
 		end)
 
 		it("puts Town Square first from a camp and leaves out the camp's own area", function()
-			expect(ids(CannonLogic.destinations(Catalog.areas, 3, "park"))).to.equal("town,alley,neighbourhood")
+			expect(ids(CannonLogic.destinations(Catalog.areas, 3, "park"))).to.equal(
+				"town,alley,neighbourhood"
+			)
 			expect(ids(CannonLogic.destinations(Catalog.areas, 1, "alley"))).to.equal("town")
 			local town = CannonLogic.destinations(Catalog.areas, 1, "alley")[1]
 			expect(town.name).to.equal("Town Square")
@@ -67,7 +69,9 @@ return function()
 
 	describe("CannonLogic.notice", function()
 		it("says why Launch is off", function()
-			expect(CannonLogic.notice(false, false, true, nil)).to.equal("Bring your cat to the camp first")
+			expect(CannonLogic.notice(false, false, true, nil)).to.equal(
+				"Bring your cat to the camp first"
+			)
 			expect(CannonLogic.notice(false, true, false, 12)).to.equal(
 				"Night is coming. Launch opens again at sunrise."
 			)
@@ -75,10 +79,18 @@ return function()
 		end)
 
 		it("counts down to sunrise at night", function()
-			expect(CannonLogic.notice(true, false, false, 160)).to.equal("Closed until sunrise · 2m 40s")
-			expect(CannonLogic.notice(true, false, false, 159.2)).to.equal("Closed until sunrise · 2m 40s")
-			expect(CannonLogic.notice(true, false, false, 45)).to.equal("Closed until sunrise · 45s")
-			expect(CannonLogic.notice(true, false, false, -2)).to.equal("Closed until sunrise · 0s")
+			expect(CannonLogic.notice(true, false, false, 160)).to.equal(
+				"Closed until sunrise · 2m 40s"
+			)
+			expect(CannonLogic.notice(true, false, false, 159.2)).to.equal(
+				"Closed until sunrise · 2m 40s"
+			)
+			expect(CannonLogic.notice(true, false, false, 45)).to.equal(
+				"Closed until sunrise · 45s"
+			)
+			expect(CannonLogic.notice(true, false, false, -2)).to.equal(
+				"Closed until sunrise · 0s"
+			)
 			expect(CannonLogic.notice(true, false, false, nil)).to.equal("Closed until sunrise")
 		end)
 	end)
@@ -107,6 +119,30 @@ return function()
 			expect(CannonLogic.cardPhase(1.9, 0.4)).to.equal("wobble")
 			expect(CannonLogic.cardPhase(2.1, 0.4)).to.equal("out")
 			expect(CannonLogic.cardPhase(2.2, 0.4)).to.equal("gone")
+		end)
+
+		it(
+			"pops in at once on a player's own flight and is gone in under a second (#1163)",
+			function()
+				local inAt, wobbleAt, outAt, goneAt =
+					CannonLogic.cardTimes(CannonLogic.CHOSEN_HOLD, CannonLogic.CHOSEN_IN)
+				expect(inAt).to.equal(0)
+				expect(math.abs(wobbleAt - 0.3) < 1e-9).to.equal(true)
+				expect(math.abs(outAt - 0.6) < 1e-9).to.equal(true)
+				expect(math.abs(goneAt - 0.8) < 1e-9).to.equal(true)
+				local hold, from = CannonLogic.CHOSEN_HOLD, CannonLogic.CHOSEN_IN
+				expect(CannonLogic.cardPhase(0, hold, from)).to.equal("in")
+				expect(CannonLogic.cardPhase(0.4, hold, from)).to.equal("wobble")
+				expect(CannonLogic.cardPhase(0.7, hold, from)).to.equal("out")
+				expect(CannonLogic.cardPhase(0.81, hold, from)).to.equal("gone")
+			end
+		)
+
+		it("zips off by the BOOM, half a second after CannonLaunchAt, plus a little lag", function()
+			local _, _, outAt, goneAt =
+				CannonLogic.cardTimes(CannonLogic.CHOSEN_HOLD, CannonLogic.CHOSEN_IN)
+			expect(outAt <= 0.6).to.equal(true)
+			expect(goneAt <= 1).to.equal(true)
 		end)
 	end)
 
@@ -142,9 +178,9 @@ return function()
 		end)
 
 		it("names the area the rank up to Tier 2 opened", function()
-			expect(CannonLogic.hint(view({ tier = 2, launched = true, opened = "Park", told = false }))).to.equal(
-				"The Park is open! Hop in the cannon to fly there."
-			)
+			expect(
+				CannonLogic.hint(view({ tier = 2, launched = true, opened = "Park", told = false }))
+			).to.equal("The Park is open! Hop in the cannon to fly there.")
 		end)
 
 		it("lets the onboarding line come first after the first catch", function()
@@ -152,7 +188,9 @@ return function()
 			expect(CannonLogic.hint(view({ tutorialStep = 4, told = false }))).to.equal(
 				"Hop in the cannon to fly to the Alleyway!"
 			)
-			expect(CannonLogic.hint(view({ tutorialStep = 1 }))).to.equal("Hop in the cannon to fly to the Alleyway!")
+			expect(CannonLogic.hint(view({ tutorialStep = 1 }))).to.equal(
+				"Hop in the cannon to fly to the Alleyway!"
+			)
 		end)
 	end)
 end

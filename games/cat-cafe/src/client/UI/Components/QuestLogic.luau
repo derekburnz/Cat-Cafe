@@ -81,6 +81,16 @@ function QuestLogic.readyCount(quests: { Types.QuestView }?): number
 	return count
 end
 
+-- #1073: the Quests window's one Claim all counts what is ready across every tab (Daily, Weekly, Achievements) and
+-- shows while that is above 0, so one claim no longer hides it while anything else waits.
+function QuestLogic.claimAllCount(readyByTab: { [string]: number }?): number
+	local count = 0
+	for _, ready in readyByTab or {} do
+		count += math.max(0, number(ready))
+	end
+	return count
+end
+
 -- Derek 2026-10-29: claimed quests drop to the bottom. The window's head and set strip sit at 1 and 2, the rows in
 -- slot order after them, the claimed ones after all of those, still in slot order.
 function QuestLogic.rowOrder(slot: number, claimed: boolean): number

@@ -10,8 +10,9 @@
 --   Achievements  "12 of 44 claimed", then a card each: name, goal, bar, prize and Claim once met. Ready ones come
 --                 first, then the closest to done; claimed ones go last, faded.
 -- A tab with something to claim carries a red count. A Claim all button right of the tabs shows while anything in
--- any tab is ready and claims all three tabs at once (#1073; shown once the server has ClaimAll, Config.QuestClaimAll). A claim shows at once (Derek
--- 2026-10-29, "claim lag"): the row or card reads "✓ Claimed", moves down and plays giftClaim on the press, and goes
+-- any tab is ready and claims all three tabs at once (#1073; shown once the server has ClaimAll,
+-- Config.QuestClaimAll). A claim shows at once (Derek 2026-10-29, "claim lag"): the row or card reads
+-- "✓ Claimed", moves down and plays giftClaim on the press, and goes
 -- back to Claim if the next sync still has it unclaimed (the server refused and toasted why) or none comes within
 -- CLAIM_HOLD. Swap reads "..." until a sync shows the new quest or PENDING_SECONDS pass. The server still decides
 -- every claim. Rules: Components/QuestLogic.
@@ -317,7 +318,7 @@ function Quests.new(callbacks: Callbacks): Quests
 		local dot, count = countDot(button.instance)
 		self._tabs[tab] = { button = button, dot = dot, count = count }
 	end
-	-- Claim all, right of the tabs: every ready quest of the open tab, or every met achievement, in one go
+	-- Claim all, right of the tabs: every ready daily, weekly and achievement reward in one go (#1073)
 	self._readyByTab = {} :: { [string]: number }
 	self._claimAll = Button.new({
 		name = "ClaimAll",
@@ -729,11 +730,8 @@ end
 -- #1073 (Derek's live v184 check): Claim all stays while anything in any tab is ready, and one press claims daily,
 -- weekly and achievements together; it used to show only for two or more in the open tab and went after one claim.
 function Quests._syncClaimAll(self: any)
-	local ready = 0
-	for _, tab in TABS do
-		ready += self._readyByTab[tab] or 0
-	end
-	self._claimAll.instance.Visible = claimAllReady(self) and ready >= 1
+	self._claimAll.instance.Visible = claimAllReady(self)
+		and QuestLogic.claimAllCount(self._readyByTab) > 0
 end
 
 function Quests.render(self: any, state: Types.PlayerState)

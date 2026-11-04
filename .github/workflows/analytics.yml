@@ -50,7 +50,7 @@ jobs:
           echo "ROBLOX_PUBLISH_KEY set: ${{ secrets.ROBLOX_PUBLISH_KEY != '' }}"
       - uses: actions/checkout@v5
         with:
-          # the script, and Onboarding.luau for the onboarding funnels' step names (v2 and the alpha's v1)
+          # the script, and Onboarding.luau for the onboarding funnels' step names (v3, its intro funnel, v2 and v1)
           sparse-checkout: |
             games/cat-cafe/tools/opencloud
             games/cat-cafe/src/shared

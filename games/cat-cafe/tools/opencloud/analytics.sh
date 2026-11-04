@@ -2,8 +2,9 @@
 # Print the first-session numbers from Roblox analytics (Open Cloud Analytics Query API, beta), so a thread reads
 # where new players quit without Creator Hub. Read only. Sections:
 #   1. every funnel, players (or runs, for catch_attempt and bait_cycle) per step: the onboarding funnels
-#      (src/shared/Onboarding.luau: onboarding_v2 since F87, and the alpha's twelve step one before it) and the
-#      recurring ones (docs/growth/analytics-plan.md section 4), with the share of step 1 left and how many were
+#      (src/shared/Onboarding.luau: onboarding_v3 and onboarding_v3_intro since #1273, onboarding_v2 before it and
+#      the alpha's twelve step one before that) and the recurring ones (docs/growth/analytics-plan.md section 4),
+#      with the share of step 1 left and how many were
 #      lost since the step before; the biggest loss is the first thing to fix. Roblox lets FunnelName be a filter
 #      only, so the script asks which funnels were logged (dimension-values) and then reads each funnel on its own.
 #   2. players per day, new and returning; average session length; day 1 retention
@@ -178,22 +179,31 @@ say() { printf '%s\n' "$*" >>"$out"; }
 failed() { say "_${result//|/\\|}_" && say ""; }
 
 # Step names: the onboarding funnels' from Onboarding.luau (names never change once shipped), the recurring ones'
-# from Telemetry.luau. Roblox labels a step with its name when it has one, which wins. Since F87 (#691) the funnel
-# named Onboarding.FUNNEL (onboarding_v2) numbers its 24 steps by Onboarding.STEPS; the alpha's funnel before it went
-# through Roblox's own onboarding call and numbers its twelve by Onboarding.V1_STEPS.
+# from Telemetry.luau. Roblox labels a step with its name when it has one, which wins. Since #1273 the funnel named
+# Onboarding.FUNNEL (onboarding_v3) numbers its 37 steps by Onboarding.STEPS and Onboarding.INTRO_FUNNEL
+# (onboarding_v3_intro) its 13 by Onboarding.INTRO_STEPS; onboarding_v2 (F87 to #1273, still in a window that starts
+# before it) by Onboarding.V2_STEPS, and the alpha's funnel before it by Onboarding.V1_STEPS.
 declare -A names=(
 	[catch_attempt.1]=swing_hit [catch_attempt.2]=engaged [catch_attempt.3]=caught [catch_attempt.4]=checked_in
 	[catch_attempt.5]=working [bait_cycle.1]=set [bait_cycle.2]=seen [bait_cycle.3]=tamed
 )
-onboardingFunnel=onboarding_v2
+onboardingFunnel=onboarding_v3
+introFunnel=onboarding_v3_intro
 onboardingSteps=()
+introSteps=()
+onboardingV2Steps=()
 onboardingV1Steps=()
 if [ -f "$onboarding" ]; then
 	luaNames() { sed -n "/^Onboarding\.$1 = {/,/^}/p" "$onboarding" | grep -o '"[a-z0-9_]*"' | tr -d '"'; }
+	luaString() { sed -n "s/^Onboarding\.$1 = \"\([A-Za-z0-9_]*\)\".*/\1/p" "$onboarding"; }
 	mapfile -t onboardingSteps < <(luaNames STEPS)
+	mapfile -t introSteps < <(luaNames INTRO_STEPS)
+	mapfile -t onboardingV2Steps < <(luaNames V2_STEPS)
 	mapfile -t onboardingV1Steps < <(luaNames V1_STEPS)
-	funnelName=$(sed -n 's/^Onboarding\.FUNNEL = "\([A-Za-z0-9_]*\)".*/\1/p' "$onboarding")
+	funnelName=$(luaString FUNNEL)
 	onboardingFunnel=${funnelName:-$onboardingFunnel}
+	funnelName=$(luaString INTRO_FUNNEL)
+	introFunnel=${funnelName:-$introFunnel}
 fi
 stepName() { # funnel step label
 	local funnel=$1 step=$2 label=$3
@@ -203,8 +213,13 @@ stepName() { # funnel step label
 	elif [ -n "${names[$funnel.$step]:-}" ]; then
 		printf '%s' "${names[$funnel.$step]}"
 	elif [[ $step =~ ^[0-9]+$ ]] && [ "$step" -ge 1 ]; then
-		if [[ ${funnel,,} == *"${onboardingFunnel,,}"* ]]; then
+		# exact names first: onboarding_v3_intro also contains onboarding_v3
+		if [ "${funnel,,}" = "${introFunnel,,}" ]; then
+			list=("${introSteps[@]}")
+		elif [ "${funnel,,}" = "${onboardingFunnel,,}" ]; then
 			list=("${onboardingSteps[@]}")
+		elif [ "${funnel,,}" = onboarding_v2 ]; then
+			list=("${onboardingV2Steps[@]}")
 		elif [[ ${funnel,,} == *onboarding* ]]; then
 			list=("${onboardingV1Steps[@]}")
 		fi

@@ -606,7 +606,9 @@ end
 -- rarer only in a nook or deep, never in a back alley lane or by a gate (F35, v3.1, F81). The Alleyway's `near`
 -- points by its camp are the tutorial stray's alone (v4, F84, data-model section 9 v0.13.18), never free here.
 local TUTORIAL_AREA, TUTORIAL_ZONE = "alley", "near"
-local NEAR_STRAY_STUDS = 12 -- F87: funnel v2 step near_stray, this close to the own tutorial stray
+local NEAR_STRAY_STUDS = 12 -- F87: funnel step near_stray, this close to the own tutorial stray
+local IN_VIEW_STUDS = 40 -- #1273: funnel step first_stray_in_view, this close to it
+local CARRY_STEP_SECONDS = 10 -- #1273: carrying_first_cat, the first cat still held this long after its catch
 local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
@@ -705,12 +707,16 @@ local function tutorialTick()
 			then
 				reserve(stray, player.UserId)
 			end
-			-- F87 funnel v2 step near_stray (easy-start.md section 5)
-			if
-				not Onboarding.reached(profile.telemetry, "near_stray")
-				and withinRange(player, stray.body.Position, NEAR_STRAY_STUDS)
-			then
-				Telemetry.onboarding(player, profile, "near_stray")
+			-- funnel steps first_stray_in_view and near_stray (easy-start.md section 5)
+			if not Onboarding.reached(profile.telemetry, "near_stray") then
+				if withinRange(player, stray.body.Position, NEAR_STRAY_STUDS) then
+					Telemetry.onboarding(player, profile, "near_stray")
+				elseif
+					not Onboarding.reached(profile.telemetry, "first_stray_in_view")
+					and withinRange(player, stray.body.Position, IN_VIEW_STUDS)
+				then
+					Telemetry.onboarding(player, profile, "first_stray_in_view")
+				end
 			end
 		elseif strayId == nil then
 			spawnAt(TUTORIAL_AREA, own, "Common", player.UserId)
@@ -952,9 +958,25 @@ local function startCarry(
 	CafeService.setCarrying(player, def.id)
 	local profile = DataService.get(player)
 	if profile ~= nil then
-		-- a catch is out in an area, so it stands in for the alley step when TutorialAdvance 1 never came
-		Telemetry.onboarding(player, profile, "saw_alley")
-		Telemetry.onboarding(player, profile, "first_catch")
+		-- a catch is out in an area: first_catch implies the alley step when TutorialAdvance 1 never came (#1273)
+		if not Onboarding.reached(profile.telemetry, "first_catch") then
+			Telemetry.custom(
+				player,
+				"first_catch_tries",
+				math.max(1, profile.stats.grabsAttempted),
+				{
+					if method == "rescue" then "rescue" else "net",
+				}
+			)
+			Telemetry.onboarding(player, profile, "first_catch")
+			-- #1273: still holding it CARRY_STEP_SECONDS later (a check-in sooner implies the step)
+			task.delay(CARRY_STEP_SECONDS, function()
+				local current = DataService.get(player)
+				if current ~= nil and carrying[player] ~= nil then
+					Telemetry.onboarding(player, current, "carrying_first_cat")
+				end
+			end)
+		end
 	end
 	if funnel ~= nil then
 		Telemetry.catchCaught(player, funnel)
@@ -1225,7 +1247,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		despawn(stray, player)
 		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks)
 		if area == "park" then
-			Telemetry.onboarding(player, profile, "first_park_catch") -- F87 funnel v2
+			Telemetry.onboarding(player, profile, "first_park_catch")
 		end
 		return
 	end
@@ -1369,9 +1391,8 @@ function startCatch(
 	profile.stats.grabsAttempted += 1
 	Net.fire(player, "CatchSchedule", stray.id, circles, Circles.publicWindows(windows))
 	stray.funnel = Telemetry.catchEngaged(player, stray.def.rarity, "net", stray.area, funnel)
-	-- F87 funnel v2: a catch starts in reach of a stray, so it stands in for near_stray when the tutorial stray was
-	-- never the one (a player who caught another cat first would hold every later step behind it)
-	Telemetry.onboarding(player, profile, "near_stray")
+	-- a catch starts in reach of a stray, so catch_started implies near_stray when the tutorial stray was never the one
+	-- (a player who caught another cat first would hold every later step behind it)
 	Telemetry.onboarding(player, profile, "catch_started")
 
 	-- A circle nobody presses is a Miss at its deadline, which ends the catch; so is walking out of range.
@@ -1431,7 +1452,7 @@ local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unkno
 		if grade == "good" or grade == "perfect" then
 			local profile = DataService.get(player)
 			if profile ~= nil then
-				Telemetry.onboarding(player, profile, "first_circle_hit") -- F87 funnel v2
+				Telemetry.onboarding(player, profile, "first_circle_hit")
 			end
 		end
 	end

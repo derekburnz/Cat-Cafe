@@ -2271,17 +2271,12 @@ Catalog.codes = {
 			potions = { tip_potion = 2, lucky_potion = 2, swift_potion = 2, steady_potion = 2 },
 		},
 	},
-	-- #1118: about ten minutes of the player's own income plus golden fish, two potions and a few foods; nothing random
+	-- #1118: about ten minutes of the player's own income, golden fish and two Tip Potions; nothing random, and three
+	-- pictures as a big prize may show (rewards rule 3), no shop food (rule 1)
 	release = {
 		id = "release",
 		active = true,
-		prize = {
-			coins = 2000,
-			coinSeconds = 600,
-			fish = 60,
-			lures = { tuna = 2, salmon = 1 },
-			potions = { tip_potion = 1, lucky_potion = 1 },
-		},
+		prize = { coins = 2000, coinSeconds = 600, fish = 60, potions = { tip_potion = 2 } },
 	},
 	launch = {
 		id = "launch",

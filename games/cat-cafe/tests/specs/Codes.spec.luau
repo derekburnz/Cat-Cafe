@@ -220,8 +220,7 @@ return function()
 				coins = 2000,
 				coinSeconds = 600,
 				fish = 60,
-				lures = { tuna = 2, salmon = 1 },
-				potions = { tip_potion = 1, lucky_potion = 1 },
+				potions = { tip_potion = 2 },
 			})
 			-- nothing random in it: no crates or spins (monetization-policy)
 			expect(Catalog.codes.release.prize.crates).never.to.be.ok()

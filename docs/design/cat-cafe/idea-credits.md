@@ -46,3 +46,64 @@ On the Feedback window's 💡 Idea chip, one line and a tick are added: "Feature
 4. A credited player's row shows their display name, not their username. After a display name change it shows the new one on the next rebuild.
 5. With "Show my name on the Thank You board" off, the row reads "Idea from a player" after the next rebuild; turning it on brings the name back.
 6. A failed name lookup shows "Idea from a player", never a user id.
+
+## 7. "What's new" on the Thank You board (#1216)
+
+The friend, 11-04: show the recent updates on the board "in a clean looking way". Decided by the friend, relayed by the Coordinator; written up by Design-Agent.
+
+### 7a. Layout
+
+- **Two panels in one frame.** The board gets a second panel on its left, `WhatsNewPanel`, the same height as the credits panel and about two thirds of its width, under one shared cat-paw header, "Thank you for the ideas!". The left panel's own small title reads "What's new". Model-Agent widens the frame to hold both. If it can't fit in the board's spot, Model-Agent stacks the panel above the credits instead.
+- **3 to 5 rows**, newest at the top. With fewer than 3 updates in the module, the panel shows what it has. It never pads with filler.
+- **Each row, left to right:**
+  - an icon from the fixed set below (a clean `ShopIcons` picture, about 1 stud square);
+  - the update text in bold cocoa;
+  - the date on the right in small grey, written "Nov 4" (UTC, month and day, never "2 days ago", so the board never looks stale or rushed).
+- **Linked credit.** When an update came from a player's idea, a second smaller line under its text reads "💡 Idea from MochiPie", using the same display-name lookup and hide rule as the credits panel (section 3 and 4). If the name is hidden or the lookup fails, it reads "💡 A player's idea". A thin line of the same berry colour links the row to that credit's row in the credits panel, so the eye can follow it. There is nothing to tap: the board is a world sign.
+- **Readable from a few studs away:** the update text at least 0.4 studs tall, the date and credit line at least 0.25, and the Cozy Cream cream board with cocoa text. There are no animations except the night glow every board already has.
+
+### 7b. Copy rules
+
+- At most **28 characters**, in sentence case, with no full stop. Start with what the player gets: "Corner Shop opens in town", "Cleaner buttons", "Faster cannon flights".
+- The icon says the kind, so the text doesn't need "New:" or "Fix:".
+
+  | icon kind | picture | for |
+  |---|---|---|
+  | `new` | sparkle | a new place, shop or feature |
+  | `cat` | cat face | new cats or cat behaviour |
+  | `look` | paintbrush | art, UI or decor |
+  | `faster` | lightning | speed or fewer taps |
+  | `fix` | wrench | a bug fix players noticed |
+
+- No hype or pressure: no "HUGE", no "!!!", no "limited", no countdowns and no prices. Never name a Robux item. The board is for what got better, not for selling.
+- One line per update, not per PR. A publish that ships three small UI fixes gets one "Cleaner buttons" line.
+
+### 7c. The data module
+
+`shared/WhatsNew.luau` returns a frozen list, newest first:
+
+```lua
+return table.freeze({
+	{ id = "corner_shop", date = "2026-11-03", icon = "new", text = "Corner Shop opens in town" },
+	{ id = "cat_bubbles", date = "2026-11-05", icon = "cat", text = "Cats say hello", creditId = "c3" },
+})
+```
+
+- `date` is `YYYY-MM-DD` (UTC), `icon` one of the five kinds, `text` at most 28 characters. `creditId` is optional and is the credit's short id in `IdeaCredits_v1` (for example `c3`), never a user id or name, since the repo is public.
+- **Adding a line:** whoever opens the publish PR adds one row at the top. The board reads the module at server start, so the next publish shows it, with no change to the board's code or model.
+- **A spec test** (`WhatsNew.spec.luau`) fails the gate on a bad date, an unknown icon, text over 28 characters, a duplicate `id` or rows out of date order.
+- The board shows only the first 5 rows. Older rows can stay in the module as a history, or be trimmed.
+
+### 7d. Contracts and owners
+
+- **Credit ids:** each `IdeaCredits_v1` credit gets a short `creditId` (`c1`, `c2` and so on) when the workflow writes it, and the workflow's log prints only that id. This adds to section 4: `idea-credits.yml` returns the new `creditId` so a publish PR can link it.
+- **UI-Engineer:** `Screens/ThanksBoard.luau` gains the What's new panel (a SurfaceGui on `WhatsNewPanel`'s front face) and the link line. It reads `WhatsNew` directly on the client. The credit names come from the server's board data, as for the credits panel.
+- **Model-Agent:** the wider frame with the `WhatsNewPanel` part, or the stacked panel if the spot is tight.
+- **Gameplay-Engineer:** the board data includes each linked credit's display line by `creditId`. No new remote: the existing board rebuild carries it.
+
+### 7e. QA checks
+
+1. With 6 rows in `WhatsNew`, the panel shows the newest 5, newest at the top, each with its icon, text and "Nov 4" date.
+2. A row with a `creditId` shows "💡 Idea from" and the display name, or "💡 A player's idea" when that player hid their name.
+3. The spec test fails on a 29-character text, an unknown icon or a date out of order.
+4. From 8 studs away on a phone, the update text is readable.

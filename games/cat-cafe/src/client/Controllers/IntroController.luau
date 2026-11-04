@@ -44,6 +44,16 @@ local WorldController = require(script.Parent.WorldController)
 
 local IntroController = {}
 
+-- #1273, analytics only: the intro funnel's start (0) and each shot shown, once a session each, as
+-- TelemetryReport("intro", n); the server logs each step once per player.
+local introReported: { [number]: boolean } = {}
+local function reportIntro(index: number)
+	if not introReported[index] then
+		introReported[index] = true
+		Net.fire("TelemetryReport", "intro", index)
+	end
+end
+
 local player = Players.LocalPlayer
 local RENDER_STEP = "CatCafeIntro"
 local DEMO_FADE_SECONDS = 0.4 -- with no copy of you to catch it, the demo cat fades at the hop instead
@@ -813,6 +823,7 @@ local function enterShot(r: Run, position: number)
 
 	UI.intro.setShot(shot.index, shot.caption, if r.cuts[1] ~= nil then r.cuts[1].title else nil)
 	Moments.IntroShot:Fire(shot.index)
+	reportIntro(shot.index)
 end
 
 -- Shot 1, `t` seconds in: your copy at the ladder's foot, its hop into the barrel, the turn, the wiggle and the fuse.
@@ -1314,6 +1325,7 @@ function IntroController.play(replay: boolean)
 
 	UI.intro.start({ skipAfter = if replay then 0 else Intro.SKIP_AFTER, replay = replay })
 	Moments.IntroStart:Fire(replay)
+	reportIntro(0)
 	-- at Camera priority, under Effects/Cannon's BOOM shake at Camera + 1
 	RunService:BindToRenderStep(RENDER_STEP, Enum.RenderPriority.Camera.Value, step)
 end

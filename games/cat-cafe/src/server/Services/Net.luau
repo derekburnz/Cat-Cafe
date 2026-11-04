@@ -40,7 +40,9 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	Tackle = RateLimiter.new(2, 1), -- a flood guard; ShoveService holds TackleCooldownSeconds from each press
 	LockCat = RateLimiter.new(4, 1), -- data-model section 15: 4 a second (tapping the lock icon on cat cards)
 	RenameCat = RateLimiter.new(1, 1), -- a flood guard; NameService answers RenameCooldownSeconds with a reason
-	TelemetryReport = RateLimiter.new(10, 60), -- data-model section 15: 10 a minute
+	-- data-model section 15 said 10 a minute; #1273 adds the intro's eleven shots, the tutorial cards and the screen
+	-- open, each allowlisted and logged at most once a player or a session (Telemetry's onReport)
+	TelemetryReport = RateLimiter.new(40, 60),
 	SetSetting = RateLimiter.new(4, 1), -- a toggle tap; each call sends a full sync
 	ClaimTipJar = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimIndexReward = RateLimiter.new(1, 1), -- data-model section 15: 1 a second

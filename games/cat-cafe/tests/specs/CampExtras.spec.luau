@@ -55,7 +55,7 @@ return function()
 			expect(open.picnic.held).to.equal(1)
 			expect(open.pond.held).to.equal(Config.PondFishPerStep)
 			expect(open.lostFound.held).to.equal(1)
-			expect(open.yardSale.held).to.equal(2)
+			expect(open.yardSale.held).to.equal(1)
 		end)
 
 		it("refuses the pond to a Tier 3 account and the Yard Sale to Tier 2 (check 3)", function()
@@ -64,7 +64,7 @@ return function()
 			expect(CampExtras.collectBlocker(save, "pond", 3, T)).to.equal("The Fish Pond opens at Tier 4")
 			local prize = CampExtras.take(save, "pond", 3, T, half)
 			expect(prize).to.equal(nil)
-			expect(CampExtras.buyBlocker(save, "classic_crate", 2, T, 500)).to.equal("The Yard Sale opens at Tier 3")
+			expect(CampExtras.buyBlocker(save, "alley_crate", 2, T)).to.equal("The Yard Sale opens at Tier 3")
 			expect(CampExtras.collectBlocker(save, "yardSale", 5, T)).to.equal("There is nothing to collect there")
 		end)
 	end)
@@ -133,14 +133,14 @@ return function()
 	end)
 
 	describe("the Yard Sale (sections 2 and 4)", function()
-		it("sells the Classic Crate and one open zone's crate, the same for everyone on a day, a new zone each day (check 4)", function()
+		it("gives one open zone's crate, the same for everyone on a day, a new zone each day (crate-prices.md 5)", function()
 			local zones = { "alley_crate", "park_crate", "neighbourhood_crate" }
 			local seen: { [string]: boolean } = {}
 			for day = 20000, 20002 do
 				local stock = CampExtras.yardStock(3, day)
-				expect(stock :: any).to.deepEqual({ "classic_crate", zones[day % 3 + 1] })
+				expect(stock :: any).to.deepEqual({ zones[day % 3 + 1] })
 				expect(CampExtras.yardStock(3, day) :: any).to.deepEqual(stock)
-				seen[stock[2]] = true
+				seen[stock[1]] = true
 			end
 			for _, crateId in zones do
 				expect(seen[crateId]).to.equal(true)
@@ -148,45 +148,49 @@ return function()
 			expect(#CampExtras.yardStock(2, 20000)).to.equal(0)
 			-- Tier 5 picks from every area
 			for day = 20000, 20004 do
-				local zone = CampExtras.yardStock(5, day)[2]
+				local zone = CampExtras.yardStock(5, day)[1]
 				expect(Catalog.getCrate(zone)).to.be.ok()
 				expect((Catalog.getCrate(zone) :: any).golden).to.equal(false)
 			end
 		end)
 
-		it("sells each crate once a day for 40 golden fish, and again the next day", function()
+		it("gives today's crate free once a day, and a new one the next day (crate-prices.md 5)", function()
 			local save = emptied(3)
 			local today = CampExtras.day(T)
-			local zone = CampExtras.yardStock(3, today)[2]
-			expect(Config.YardSaleCratePrice).to.equal(40)
-			expect(CampExtras.buyBlocker(save, "classic_crate", 3, T, 39)).to.equal("Not enough golden fish")
-			expect(CampExtras.buyBlocker(save, "classic_crate", 3, T, 40)).to.equal(nil)
-			expect(CampExtras.buyBlocker(save, "classic_golden_crate", 3, T, 500)).to.equal(
+			local zone = CampExtras.yardStock(3, today)[1]
+			expect(CampExtras.buyBlocker(save, zone, 3, T)).to.equal(nil) -- free: no fish needed
+			expect(CampExtras.buyBlocker(save, "classic_crate", 3, T)).to.equal(
 				"That crate is not at the Yard Sale today"
 			)
-			save.yardSale.bought.classic_crate = true
-			expect(CampExtras.buyBlocker(save, "classic_crate", 3, T, 500)).to.equal(
-				"You bought that one today. New crates tomorrow"
+			expect(CampExtras.buyBlocker(save, "classic_golden_crate", 3, T)).to.equal(
+				"That crate is not at the Yard Sale today"
 			)
+			local before = CampExtras.view(save, 3, T)
+			expect(before.yardSale.held).to.equal(1)
+			expect((before.yardSale.stock :: any)[1].price).to.equal(0)
+			expect((CampExtras.nextYardCrate(before.yardSale) :: any).crateId).to.equal(zone)
+			save.yardSale.bought[zone] = true
+			expect(CampExtras.buyBlocker(save, zone, 3, T)).to.equal(CampExtras.TAKEN)
 			local view = CampExtras.view(save, 3, T)
-			expect(view.yardSale.held).to.equal(1)
-			expect((CampExtras.nextYardCrate(view.yardSale) :: any).crateId).to.equal(zone)
+			expect(view.yardSale.held).to.equal(0)
+			expect(CampExtras.nextYardCrate(view.yardSale)).to.equal(nil)
 			local tomorrow = at(save, 3, T + DAY)
-			expect(tomorrow.yardSale.held).to.equal(2)
-			expect(CampExtras.buyBlocker(save, "classic_crate", 3, T + DAY, 500)).to.equal(nil)
+			expect(tomorrow.yardSale.held).to.equal(1)
+			local nextCrate = CampExtras.yardStock(3, today + 1)[1]
+			expect(CampExtras.buyBlocker(save, nextCrate, 3, T + DAY)).to.equal(nil)
 		end)
 
-		it("never shows a ! on the Yard Sale's picker line (check 6)", function()
+		it("shows a ! on the Yard Sale's picker line while the free crate waits (#1051)", function()
 			local save = emptied(3)
 			local view = at(save, 3, T)
 			local line, ready = CampExtras.pickerLine(view, "neighbourhood", T)
-			expect(line).to.equal("Yard Sale: new crates")
-			expect(ready).to.equal(false)
+			expect(line).to.equal("Yard Sale: free crate !")
+			expect(ready).to.equal(true)
 			for _, crate in view.yardSale.stock do
 				save.yardSale.bought[crate.crateId] = true
 			end
 			local soldOut, readyAfter = CampExtras.pickerLine(CampExtras.view(save, 3, T), "neighbourhood", T)
-			expect(soldOut).to.equal("Yard Sale: new crates in 23 h")
+			expect(soldOut).to.equal("Yard Sale: new crate in 23 h")
 			expect(readyAfter).to.equal(false)
 		end)
 	end)
@@ -276,7 +280,7 @@ return function()
 			expect(action).to.equal("Collect 24 fish")
 			expect(select(2, CampExtras.promptText("picnic", view.picnic, now))).to.equal("Collect 1 Money Potion")
 			expect(select(2, CampExtras.promptText("lostFound", view.lostFound, now))).to.equal("Next in 16 h")
-			expect(select(2, CampExtras.promptText("yardSale", view.yardSale, now))).to.equal("See the crates")
+			expect(select(2, CampExtras.promptText("yardSale", view.yardSale, now))).to.equal("Take a free crate")
 			local shut = CampExtras.view(CampExtras.fresh(T), 1, T)
 			expect(select(2, CampExtras.promptText("pond", shut.pond, T))).to.equal("Opens at Tier 4")
 		end)

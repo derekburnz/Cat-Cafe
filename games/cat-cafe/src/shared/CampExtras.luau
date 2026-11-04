@@ -3,9 +3,9 @@
 -- every rank up from Tier 2 to Tier 5 opens one. Pure rules for the server (CampExtraService) and the client (the
 -- prompt's lines and the cannon picker's line):
 --   Picnic Basket (Park): one PicnicPotion every PicnicEverySeconds, up to PicnicHold.
---   Yard Sale (Neighbourhood): the Classic Crate and one zone crate a UTC day, YardSaleCratePrice golden fish each and
---     one buy of each a day, banked for the Market, which opens it free (Design-Agent 11-02). The zone crate is the
---     player's open areas' crates in Catalog order picked by the day number, so every server sells the same two.
+--   Yard Sale (Neighbourhood): one zone crate a UTC day, free, taken once a day and banked for the Market, which opens
+--     it (crate-prices.md section 5, #1051). The crate is the player's open areas' crates in Catalog order picked by
+--     the day number, so every server gives the same one.
 --   Fish Pond (Woods): PondFishPerStep golden fish every PondStepSeconds, up to PondHold.
 --   Lost and Found (Sewer): one prize a UTC day from LostFoundTable, up to LostFoundHold.
 -- Each keeps filling while the player is away. An extra whose area is shut does not fill, and the moment it opens one
@@ -25,6 +25,7 @@ CampExtras.PROMPT = "CampExtraPrompt" -- each model's ProximityPrompt, at its Pr
 CampExtras.YARD_SALE = "yardSale"
 CampExtras.COLLECT = { "picnic", "pond", "lostFound" } -- what CollectCampExtra takes
 CampExtras.CLASSIC_CRATE = "classic_crate"
+CampExtras.TAKEN = "You took today's crate. A new one tomorrow"
 
 -- The UTC day number of os.time() `now`.
 function CampExtras.day(now: number): number
@@ -139,8 +140,8 @@ function CampExtras.settle(save: Types.CampExtrasSave, tier: number, now: number
 	end
 end
 
--- The Yard Sale's crates on UTC day `day` for a player of `tier`: the Classic Crate, then the plain crate of one of
--- the player's open areas (Catalog order, picked by the day number), none while the Neighbourhood is shut.
+-- The Yard Sale's crate on UTC day `day` for a player of `tier`: the plain crate of one of the player's open areas
+-- (Catalog order, picked by the day number), none while the Neighbourhood is shut. A list, as the view sends it.
 function CampExtras.yardStock(tier: number, day: number): { string }
 	if not CampExtras.isOpen(CampExtras.YARD_SALE, tier) then
 		return {}
@@ -152,7 +153,7 @@ function CampExtras.yardStock(tier: number, day: number): { string }
 			table.insert(zones, crateId)
 		end
 	end
-	local stock = { CampExtras.CLASSIC_CRATE }
+	local stock: { string } = {}
 	if #zones > 0 then
 		table.insert(stock, zones[day % #zones + 1])
 	end
@@ -201,10 +202,7 @@ function CampExtras.view(
 		local stock: { Types.YardSaleCrate } = {}
 		for _, crateId in CampExtras.yardStock(tier, today) do
 			local bought = save.yardSale.day == today and save.yardSale.bought[crateId] == true
-			table.insert(
-				stock,
-				{ crateId = crateId, price = Config.YardSaleCratePrice, bought = bought }
-			)
+			table.insert(stock, { crateId = crateId, price = 0, bought = bought })
 			if not bought then
 				yardSale.held += 1
 			end
@@ -361,14 +359,13 @@ function CampExtras.take(
 	return nil, 0
 end
 
--- Why buying `crateId` at the Yard Sale would be refused for a settled save and a player with `fish` golden fish, or
--- nil. The server checks the player's range itself.
+-- Why taking `crateId` at the Yard Sale would be refused for a settled save, or nil. It is free, so golden fish are
+-- never checked. The server checks the player's range itself.
 function CampExtras.buyBlocker(
 	save: Types.CampExtrasSave,
 	crateId: string,
 	tier: number,
-	now: number,
-	fish: number
+	now: number
 ): string?
 	if not CampExtras.isOpen(CampExtras.YARD_SALE, tier) then
 		return string.format(
@@ -381,10 +378,7 @@ function CampExtras.buyBlocker(
 		return "That crate is not at the Yard Sale today"
 	end
 	if save.yardSale.day == today and save.yardSale.bought[crateId] == true then
-		return "You bought that one today. New crates tomorrow"
-	end
-	if fish < Config.YardSaleCratePrice then
-		return "Not enough golden fish"
+		return CampExtras.TAKEN
 	end
 	return nil
 end
@@ -425,16 +419,13 @@ function CampExtras.promptText(
 		elseif extraId == "lostFound" then
 			return name, "Collect " .. plural(view.held, "prize", "prizes")
 		end
-		return name, "See the crates"
+		return name, "Take a free crate"
 	end
 	if extraId == CampExtras.YARD_SALE then
 		return name,
 			if view.nextAt ~= nil
-				then string.format(
-					"Sold out, new crates in %s",
-					CampExtras.waitText(view.nextAt - now)
-				)
-				else "Sold out"
+				then string.format("Taken, new crate in %s", CampExtras.waitText(view.nextAt - now))
+				else "Taken"
 	end
 	return name,
 		if view.nextAt ~= nil
@@ -443,8 +434,8 @@ function CampExtras.promptText(
 end
 
 -- The cannon picker's line under an area's card (section 3), or nil when the area has no extra or it is shut, and
--- whether something waits to be claimed (the "!"; a Yard Sale never has one, since buying is not claiming):
--- "Picnic Basket: 1 ready !", "Yard Sale: new crates", "Fish Pond: 14 fish !", "Lost and Found: 2 to claim !".
+-- whether something waits to be claimed (the "!"; the Yard Sale's free crate is one since #1051):
+-- "Picnic Basket: 1 ready !", "Yard Sale: free crate !", "Fish Pond: 14 fish !", "Lost and Found: 2 to claim !".
 function CampExtras.pickerLine(
 	state: Types.CampExtrasState,
 	areaId: string,
@@ -459,11 +450,11 @@ function CampExtras.pickerLine(
 			local wait = if view.nextAt ~= nil then CampExtras.waitText(view.nextAt - now) else nil
 			if def.id == CampExtras.YARD_SALE then
 				if view.held > 0 then
-					return "Yard Sale: new crates", false
+					return "Yard Sale: free crate !", true
 				end
 				return if wait ~= nil
-					then "Yard Sale: new crates in " .. wait
-					else "Yard Sale: sold out",
+					then "Yard Sale: new crate in " .. wait
+					else "Yard Sale: taken",
 					false
 			end
 			if view.held > 0 then

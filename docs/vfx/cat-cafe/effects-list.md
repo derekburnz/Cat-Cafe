@@ -10,7 +10,7 @@ What design v0.3 removed from v0.1 of this list: the hold-and-release ring and i
 
 ## Corner Shop shows (#1052, 2026-11-04)
 
-Design: `docs/design/cat-cafe/corner-shop.md` sections 2 and 5 (Derek OK'd 2026-11-03 16:55). Gameplay-Engineer's server half is #1069 (`CafeShow`, one show at a time per cafe, queued). Files: `Effects/CafeShow.luau`, `Logic.showPhase` and `Logic.nextShell`, the `cafeBubble` and `fireworkStar` emitters, numbers in `Presets.cafeShow` and the budget's `cafeBubbles` and `cafeFireworks`.
+Design: `docs/design/cat-cafe/corner-shop.md` sections 2 and 5 (Derek OK'd 2026-11-03 16:55). Gameplay-Engineer's server half is #1069 (`CafeShow`, one show at a time per cafe, queued). Files: `Effects/CafeShow.luau`, `Logic.showPhase` and `Logic.nextShell`, the `cafeBubble` and `fireworkStar` emitters, numbers in `Presets.cafeShow` and the budget's `cafeBubbles` and `cafeFireworks`. How long each show runs comes from its `Catalog.cornerShop` row's `showSeconds` (`CafeShow.seconds`), the server's own number; the Presets lengths are only the fallback for a missing row.
 
 | Effect | Look | Hook |
 |---|---|---|

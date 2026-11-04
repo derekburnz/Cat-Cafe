@@ -31,9 +31,15 @@ return function()
 		end)
 
 		it("lasts as long as the Corner Shop sells it", function()
-			-- Catalog.cornerShop's showSeconds: bubble_machine 600, cafe_fireworks 20
-			expect(Presets.cafeShow.bubbles.seconds).to.equal(600)
-			expect(Presets.cafeShow.fireworks.seconds).to.equal(20)
+			local Catalog = require(game:GetService("ReplicatedStorage").Shared.Catalog) :: any
+			local CafeShow = require(Effects:WaitForChild("CafeShow")) :: any
+			local bubbles = Catalog.getCornerShopRow("bubble_machine")
+			local fireworks = Catalog.getCornerShopRow("cafe_fireworks")
+			expect(CafeShow.seconds("bubbles")).to.equal(bubbles.showSeconds)
+			expect(CafeShow.seconds("fireworks")).to.equal(fireworks.showSeconds)
+			-- the fallback for a missing row matches the catalog: bubble_machine 600, cafe_fireworks 20
+			expect(Presets.cafeShow.bubbles.seconds).to.equal(bubbles.showSeconds)
+			expect(Presets.cafeShow.fireworks.seconds).to.equal(fireworks.showSeconds)
 		end)
 
 		it("fires fewer shells on the low budget", function()

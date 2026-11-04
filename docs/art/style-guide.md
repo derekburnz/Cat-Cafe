@@ -8,7 +8,6 @@ A quiet afternoon in a small cafe. Cream walls, caramel wood, mint accents and w
 
 Spelling: we spell it "cozy" (US), in game text, docs and comments.
 
-
 ## 2. Palette
 
 All colors live in one shared texture, `CatCafe_Palette.png` (256 x 512, 8 swatches across and 16 rows of 32 px swatches; rows 13 to 15 are empty for now). Every mesh in the game UV-maps each face to the center of one swatch, so one material and one texture cover every prop and every cat. Variants (a Tabby versus a Grey cat) are the same mesh with different swatch indices, not different textures.

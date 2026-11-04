@@ -625,7 +625,7 @@ end
 -- SpinResult from the server: turn to `slice` and show what `amount` paid, or say why a 0 was refused.
 -- Use all (#1078): one SpinAll; the button reads "..." until SpinAllResult or PENDING_SECONDS.
 function SpinWheel._pressAll(self: any)
-	local spinAll = self._callbacks.spinAll
+	local spinAll: (() -> ())? = self._callbacks.spinAll
 	if spinAll == nil or self._turn ~= nil or self._pressedAt ~= nil then
 		return
 	end

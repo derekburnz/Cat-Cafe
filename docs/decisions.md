@@ -363,3 +363,9 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Decided by Derek (2026-11-03 16:55, OK relayed by the Coordinator), proposed by the game-designer thread (Design-Agent, friend's project, #1030)
 - 2026-11-03: A coins-only Corner Shop in the Town Square restocks every 5 minutes with the Fresh Catch roll (the same on every server). It sells a Swift Potion, Cat Snacks (XP for a chosen cat, capped at 12,000 XP a day), a Bubble Machine and Cafe Fireworks, each priced in seconds of the player's day rate with the money pass counted in, so it costs the same minutes of play at every tier and with any pass. It sells no Money Potion, catch potions, dealer food, golden fish, crates or random items, and no decor, because the front lawn is already the coin decor shop. Why: coins need a sink between rank ups that does not speed up the tiers (rule v0.8) or make coins a route to paid random items. Spec: [corner-shop.md](design/cat-cafe/corner-shop.md).
+
+### Decided by Derek (2026-11-04, Set 6, #1001: "do suggested", relayed by the Coordinator), recorded by the game-designer thread (Design-Agent, friend's project)
+- 2026-11-04: The front lawn (F91) stays bought with coins. Why: it gives no bonus and lets a player pick exactly what they want, which crates cannot; the Corner Shop leaves decor out because of it.
+- 2026-11-04: The rare currency keeps the name Golden Fish. Why: every screen, remote and save already says `goldenFish`; a rename costs a text pass and gains little.
+- 2026-11-04: Cat team battles wait until after launch, as a possible event like Rescue Rally. Why: a new core loop with balance and matchmaking work, and a fairness risk next to the paid money passes.
+- 2026-11-04: Quality-of-life changes are in when they remove a tap or a walk without paying out more; each is checked against rule v0.8. Set 6 questions not recorded in the repo stay open until copied into #1001.

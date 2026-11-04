@@ -85,7 +85,10 @@ end
 -- shows while that is above 0, so one claim no longer hides it while anything else waits.
 function QuestLogic.claimAllCount(readyByTab: { [string]: number }?): number
 	local count = 0
-	for _, ready in readyByTab or {} do
+	if readyByTab == nil then
+		return count
+	end
+	for _, ready in readyByTab do
 		count += math.max(0, number(ready))
 	end
 	return count

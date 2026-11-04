@@ -29,9 +29,8 @@ return function()
 		end)
 
 		it("has a bottle for every potion in the catalog", function()
-			expect(ShopIcons.potion("gold_rush_potion")).to.equal(
-				ShopIcons.image("Potion_GoldRush")
-			)
+			-- the clean bottle first (#1070), the old picture behind it
+			expect(ShopIcons.potion("gold_rush_potion")).to.equal("rbxassetid://117084495995856")
 			local missing: { string } = {}
 			for _, potion in Catalog.potions do
 				if ShopIcons.potion(potion.id) == nil then
@@ -48,8 +47,9 @@ return function()
 					expect(ShopIcons.perk(row.id)).to.be.ok()
 				end
 			end
-			expect(ShopIcons.food("star_treat")).to.equal("rbxassetid://84410663358335")
-			expect(ShopIcons.food("moon_milk")).to.equal(ShopIcons.image("MoonMilk"))
+			-- the clean food pictures (#1070)
+			expect(ShopIcons.food("star_treat")).to.equal("rbxassetid://127060767808144")
+			expect(ShopIcons.food("moon_milk")).to.equal("rbxassetid://107176560784324")
 			local missing: { string } = {}
 			for _, lure in Catalog.lures do
 				if ShopIcons.food(lure.id) == nil then
@@ -63,7 +63,7 @@ return function()
 
 		it("has the prize pictures for coins and spins (F97 section 4)", function()
 			expect(ShopIcons.image("Coins")).to.equal("rbxassetid://114567888385946")
-			expect(ShopIcons.image("Spin")).to.equal("rbxassetid://109715715479737")
+			expect(ShopIcons.image("Spin")).to.equal("rbxassetid://126057350997233") -- the clean wheel (#1070)
 		end)
 
 		it("offers the next net, staying on the top one", function()
@@ -81,7 +81,9 @@ return function()
 		end)
 
 		it("has a clean symbol for every HUD tile (2026-11-03)", function()
-			for _, name in { "Store", "Cats", "Index", "Quests", "Upgrades", "Decor", "Tutorial", "Rewards" } do
+			for _, name in
+				{ "Store", "Cats", "Index", "Quests", "Upgrades", "Decor", "Tutorial", "Rewards" }
+			do
 				expect(ShopIcons.clean(name)).to.equal(ShopIcons.image("Icon_Clean_" .. name))
 				expect(string.match(ShopIcons.clean(name) :: string, "^rbxassetid://%d+$")).to.be.ok()
 			end

@@ -1152,6 +1152,22 @@ local SCENES = {
 		UI.campExtras.update(extras)
 		UI.campExtras.openYardSale(extras.yardSale)
 	end },
+	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, fireworks sold out
+	{ "CornerShop", function()
+		UI.cornerShop.setStock({
+			window = 5000000,
+			restocksAt = workspace:GetServerTimeNow() + 192,
+			snackXp = 4800,
+			stock = {
+				{ itemId = "swift_potion", price = 2400, amount = 3, bought = 1 },
+				{ itemId = "cat_snack", price = 6000, amount = 2, bought = 1 },
+				{ itemId = "big_cat_snack", price = 24000, amount = 0, bought = 0 },
+				{ itemId = "bubble_machine", price = 12000, amount = 1, bought = 0 },
+				{ itemId = "cafe_fireworks", price = 18000, amount = 1, bought = 1 },
+			},
+		})
+		UI.cornerShop.open()
+	end },
 	-- F100: the prize toast after the Lost and Found: the line and two pictures
 	{ "CampPrize", function()
 		UI.campExtras.collected(

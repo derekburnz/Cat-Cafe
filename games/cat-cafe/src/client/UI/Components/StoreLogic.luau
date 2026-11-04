@@ -11,7 +11,7 @@
 local StoreLogic = {}
 
 export type Row = {
-	key: string, -- "money" or "longNap"
+	key: string, -- "money", "longNap" or a PASSES key
 	passId: number,
 	name: string,
 	icon: string,
@@ -34,6 +34,93 @@ export type Button = {
 local MONEY_ICON = "💰"
 local NAP_ICON = "😴"
 
+-- The rest of the shop's passes (#1182, docs/growth/store-skus.md section 1), in the Store's order after the ladder
+-- and Long Nap: VIP, then by price. Each reads its id from Config[configKey] (a number, or a list whose first made id
+-- counts, as ExtraSlotPassIds); 0 or missing means the pass is not made yet (#1197) and its card stays hidden.
+export type PassCard = {
+	key: string,
+	configKey: string,
+	name: string,
+	icon: string,
+	effect: string,
+	note: string?,
+}
+local PASSES: { PassCard } = {
+	{
+		key = "vip",
+		configKey = "VipPassId",
+		name = "VIP",
+		icon = "⭐",
+		effect = "+10% money, a VIP chat tag and a gold VIP plate on your cafe sign.",
+	},
+	{
+		key = "accessories",
+		configKey = "CatAccessoriesPassId",
+		name = "Cat Accessories",
+		icon = "🎀",
+		effect = "Dress your cats: a dressed cat earns +15%.",
+	},
+	{
+		key = "uniforms",
+		configKey = "UniformStylesPassId",
+		name = "Uniform Styles",
+		icon = "👕",
+		effect = "New uniform styles for every job: +15% money.",
+	},
+	{
+		key = "extraSlot",
+		configKey = "ExtraSlotPassIds",
+		name = "Extra Slot",
+		icon = "➕",
+		effect = "+1 job slot, so one more cat can work.",
+	},
+	{
+		key = "cafeStyle",
+		configKey = "CafeStylePassId",
+		name = "Cafe Style",
+		icon = "🏪",
+		effect = "A new cafe theme and tag, +50% money, and rich visitors come 25% more often.",
+	},
+	{
+		key = "royalCat",
+		configKey = "RoyalCatPassId",
+		name = "Royal Cat",
+		icon = "👑",
+		effect = "A cat that always earns like a Legendary from your newest area.",
+		note = "Yours to keep. Can't be traded.",
+	},
+	{
+		key = "grandTheme",
+		configKey = "GrandThemePassId",
+		name = "Grand Cafe Theme",
+		icon = "🏰",
+		effect = "The grand look: +150% money, twice the rich visitors, +1 job slot every tier.",
+	},
+	{
+		key = "kingPack",
+		configKey = "KingPackPassId",
+		name = "King Cat Pack",
+		icon = "🤴",
+		effect = "The King Cat, who always earns like a Mythical from your newest area, plus a crown sign style.",
+		note = "Yours to keep. Can't be traded.",
+	},
+}
+StoreLogic.PASSES = PASSES
+
+-- A pass card's id from the Config, or nil while it is not made (0, missing, or an empty list).
+local function passId(config: any, card: PassCard): number?
+	local value = config[card.configKey]
+	if type(value) == "table" then
+		for _, id in value do
+			if type(id) == "number" and id ~= 0 then
+				return id
+			end
+		end
+		return nil
+	end
+	return if type(value) == "number" and value ~= 0 then value else nil
+end
+
 -- Every pass id the Config names that is made, money ladder first.
 function StoreLogic.passIds(config: any): { number }
 	local ids: { number } = {}
@@ -47,6 +134,12 @@ function StoreLogic.passIds(config: any): { number }
 	local nap = config.LongNapPassId
 	if type(nap) == "number" and nap ~= 0 then
 		table.insert(ids, nap)
+	end
+	for _, card in PASSES do
+		local id = passId(config, card)
+		if id then
+			table.insert(ids, id)
+		end
 	end
 	return ids
 end
@@ -127,6 +220,19 @@ function StoreLogic.rows(config: any, owned: { [number]: boolean }, longNap: boo
 			),
 			owned = owned[nap] == true or longNap == true,
 		})
+	end
+	for _, card in PASSES do
+		local id = passId(config, card)
+		if id then
+			table.insert(rows, {
+				key = card.key,
+				passId = id,
+				name = card.name,
+				icon = card.icon,
+				effect = if card.note then card.effect .. "\n" .. card.note else card.effect,
+				owned = owned[id] == true,
+			})
+		end
 	end
 	return rows
 end

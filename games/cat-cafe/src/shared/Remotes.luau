@@ -90,7 +90,7 @@ Remotes.ClientToServer = {
 	-- neither finished nor claimed; another eligible quest from the same pool, counting from now
 	"ClaimAchievement", -- (achievementId: string)  F73: a known achievement, met and unclaimed; answered with
 	-- QuestResult
-	"ClaimAll", -- (what: string)  shared/ClaimAll.KINDS: "daily", "weekly" or "achievements" (the Quests window),
+	"ClaimAll", -- (what: string)  shared/ClaimAll.KINDS: "daily", "weekly", "achievements" or "quests" (all three, #1073),
 	-- "index" (every Index page) or "tipjar"; pays every one ready as its single Claim would, one toast and one sync
 	-- (and QuestResult for quests, TipJarState for the Tip Jar); nothing ready answers "Nothing to claim yet"
 	"ClaimDailyTreat", -- ()  F70: a Daily Treat stamp due (a later UTC day than the last claim); pays the next day

@@ -1,7 +1,8 @@
 --!strict
 -- The Golden Fish Market (F53, golden-fish.md sections 3 and 4): a stall in the street plaza tagged FishMarket.
 -- OpenCrate(crateId) opens a banked crate, or buys one for its price in golden fish, for a player within
--- FishMarketRange, CrateOpenCooldownSeconds after their last open. The server rolls with its own Random (the lucky
+-- FishMarketRange, with no other open of theirs in flight and CrateOpenCooldownSeconds (a 0.3 s spam limit, #1146)
+-- after their last. The server rolls with its own Random (the lucky
 -- twentieth on golden odds), adds the piece or pays its duplicate refund, puts a new furniture or decoration piece on
 -- a free decor spot and answers CrateResult(crateId, decorId, duplicate, refund), so leaving mid-reveal keeps the
 -- piece. BuyCrateBundle(crateId) (#1051) banks CrateBundleCount crates of one kind for CrateBundlePrice golden fish
@@ -41,7 +42,11 @@ local FishMarketService = {}
 FishMarketService.TAG = "FishMarket"
 
 local random = Random.new()
-local lastOpenAt: { [Player]: number } = {} -- os.clock() of each player's last crate, for the cooldown
+local lastOpenAt: { [Player]: number } = {} -- os.clock() of each player's last crate start, for the spam limit
+-- #1146: os.clock() of an open that has started and not yet sent its CrateResult. An open that errors part way never
+-- clears it, so it counts only for IN_FLIGHT_SECONDS: an error cannot lock the player out of crates for good.
+local inFlight: { [Player]: number } = {}
+local IN_FLIGHT_SECONDS = 5
 local luckLogs: { [Player]: number } = {} -- F88: luck_used crate events this session
 local LUCK_LOGS_PER_SESSION = 20
 local freshSent: { [Player]: string } = {} -- the Fresh Catch stock this player was last sent, so it is not resent
@@ -170,9 +175,22 @@ local function onOpenCrate(player: Player, rawCrateId: unknown)
 		refuse("Walk to the Golden Fish Market first")
 		return
 	end
-	local last = lastOpenAt[player]
-	if last ~= nil and os.clock() - last < Config.CrateOpenCooldownSeconds then
+	-- #1146: refused only while another open is in flight or within the short spam limit. The Market window waits
+	-- out both itself, so a player never sees this; a spam refusal stays quiet (the empty CrateResult still frees the
+	-- button). An open never yields today, so "busy" guards a future yield more than a race; the spam limit is what
+	-- stops a script.
+	local now = os.clock()
+	local started = inFlight[player]
+	local gate = Crates.openRefusal(
+		started ~= nil and now - started < IN_FLIGHT_SECONDS,
+		lastOpenAt[player],
+		now
+	)
+	if gate == "busy" then
 		refuse("One crate at a time")
+		return
+	elseif gate == "spam" then
+		Net.fire(player, "CrateResult", crateId, "", false, 0)
 		return
 	end
 	local blocker = Crates.openBlocker(profile, Economy.tier(profile), crateId)
@@ -180,10 +198,12 @@ local function onOpenCrate(player: Player, rawCrateId: unknown)
 		refuse(blocker)
 		return
 	end
-	lastOpenAt[player] = os.clock()
+	lastOpenAt[player] = now
+	inFlight[player] = now
 	local def, duplicate, refund, placed =
 		open(player, profile, Catalog.getCrate(crateId) :: Types.CrateDef)
 	Net.fire(player, "CrateResult", crateId, def.id, duplicate, refund)
+	inFlight[player] = nil
 	RareMomentService.foundDecor(player, def) -- F89: a Mythical piece toasts the server
 	if placed then
 		CafeService.refreshPlot(player)
@@ -428,6 +448,7 @@ end
 function FishMarketService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		lastOpenAt[player] = nil
+		inFlight[player] = nil
 		freshSent[player] = nil
 		luckLogs[player] = nil
 	end)
@@ -465,6 +486,7 @@ function FishMarketService.debugGive(
 	assert(Catalog.getCrate(crateId) ~= nil, "unknown crate " .. crateId)
 	setCount(profile.crates, crateId, math.floor(count))
 	lastOpenAt[player] = nil
+	inFlight[player] = nil
 	CafeService.sync(player)
 end
 

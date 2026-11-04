@@ -109,48 +109,90 @@ A context tip is one line on a card, or a camera cut of 3 to 4 seconds with one 
 
 ## 5. Funnel and events
 
-The onboarding funnel (analytics-plan section 3) gets finer steps at the start, so the dashboard shows exactly where new players stop. The game has not launched, so renumbering now mixes no data; the funnel's name gets a `v2` so the alpha's numbers stay apart. Logging order stays honest with the held-back rule in analytics-plan section 3.2.
+Since #1273 (2026-11-04) the onboarding funnel is **`onboarding_v3`**, much finer in the first ten minutes, with the optional intro cutscene in a funnel of its own, **`onboarding_v3_intro`**. They replace `onboarding_v2` outright (Derek 2026-11-04: no side by side); v2's numbers stay in Creator Hub under its name, and nothing logs to it any more. How to read the drops: `docs/growth/onboarding-funnel.md`.
+
+Rules (code: `src/shared/Onboarding.luau`, `src/server/Services/Telemetry.luau`):
+- Every step is logged by the server, once per player (the funnel session is the user id), and only in order. A step reached early is held in the save's `telemetry` until every step before it is logged (analytics-plan section 3.2).
+- A step the server sees proves the steps it **implies** were passed (a catch is started in reach of a stray), so reaching it reaches them first. That keeps a player on an old client, or one who skipped a card, from holding every later step.
+- A **client** step (marked C below) comes through `TelemetryReport`, allowlisted, 40 a minute, paying nothing. It implies nothing, so a client can never move a server step.
+- A save from funnel v1 or v2 that had logged its first catch leaves the funnel (it is for new players); one before its first catch starts v3 from `joined`. No save version: `telemetry.funnel` (now 3) tells the funnels apart and `telemetry.introStep` is a new field with a default.
+- Roblox allows 100 steps a funnel and 10 funnels; v3 has 37 and the intro funnel 13.
+
+### 5a. `onboarding_v3`
+
+| Step | stepName | Logged when | Implies |
+|---|---|---|---|
+| 1 | joined | the profile loads | |
+| 2 | loaded | C: the client's device report after its first ProfileSync (field: device) | |
+| 3 | tut_0_shown | C: tutorial card 0 ("go out to the alley") on screen | |
+| 4 | first_move | the character has moved 8 studs from where it was first seen | 1, 2, 3 |
+| 5 | first_cannon | the first accepted cannon launch (the way out to the Alleyway) | 4 |
+| 6 | entered_alley | `TutorialAdvance(1)` (card 0 done), or a first catch | 5 |
+| 7 | tut_1_shown | C: tutorial card 1 ("catch the cat") on screen | |
+| 8 | first_stray_in_view | within 40 studs of the player's own tutorial stray | 6, 7 |
+| 9 | near_stray | within 12 studs of it | 8 |
+| 10 | catch_card_opened | C: a stray's or stuck cat's catch card on screen | |
+| 11 | catch_started | the first catch's circles start | 9, 10 |
+| 12 | first_circle_hit | the first Good or Perfect | 11 |
+| 13 | first_catch | the first cat in the player's arms (also: custom event `first_catch_tries`) | 12 |
+| 14 | carrying_first_cat | still carrying that cat 10 s later | 13 |
+| 15 | first_checkin | the first check-in (card 1 done) | 14 |
+| 16 | first_role_assigned | the first cat in a role | 15 |
+| 17 | tut_3_shown | C: tutorial card 3 ("buy a table") on screen | |
+| 18 | first_customer_served | the cafe's first tips with a cat in a role | 16 |
+| 19 | second_cat | a second cat checked in | 15 |
+| 20 | first_window_opened | C: the first window opened (field: which; also custom event `first_window`) | |
+| 21 | first_table | tables to level 1, the first purchase (card 3 done) | 20 |
+| 22 | first_tip_collected | the first tip pile paid (piles need a table) | 21 |
+| 23 | tut_4_shown | C: tutorial card 4 (the Bait bowl and its food) on screen | |
+| 24 | bowl_bought | the Bait bowl bought | 20 |
+| 25 | first_bait | the first food in the bowl (card 4 done, tutorial done) | 24 |
+| 26 | first_rescue_started | the first `RescueBegin` accepted | |
+| 27 | first_rescue_done | the first stuck cat freed | 26 |
+| 28 | first_bait_resolved | the first bait result | 25 |
+| 29 | five_cats | five different cats owned | 19 |
+| 30 | rank_up_card_seen | C: the Rank Up card opened at Tier 1 | |
+| 31 | rank_up_ready | Tier 2's needs met | |
+| 32 | tier_2 | rank up to Tier 2 | 30, 31 |
+| 33 | first_park_catch | the first catch in the Park | 32 |
+| 34 | returned_next_day | a join on a later UTC day than the last session ended | |
+| 35 | first_offline_claim | the first offline claim | |
+| 36 | tier_3 | rank up to Tier 3 | 32 |
+| 37 | starter_cat | the free Bellhop Cat taken home | |
+
+Tutorial cards (`tutorialStep`, `TutorialHints`): card *n* is shown at `tut_<n>_shown` and done when the step after it is reached: card 0 at `entered_alley`, card 1 at `first_checkin`, card 3 at `first_table`, card 4 at `first_bait`. Card 2 ("give your cat a job" or "catch more") shows only when the first cat found no free role, so it is not a funnel step; `tutorial_step` still logs every `tutorialStep` passed. The Tutorial tile's red X is the custom event `tutorial_closed`.
+
+### 5b. `onboarding_v3_intro`
+
+The intro has played only from the Tutorial tile or the help card since F87 (`Config.IntroAutoPlay` is off), so a player who never plays it would hold the whole main funnel; it is a funnel of its own. Each step is logged once per player when it is past the furthest one logged; a shot left out (its camp did not stream in) is never logged, and Roblox counts it passed.
 
 | Step | stepName | Logged when |
 |---|---|---|
-| 1 | joined | the profile loads |
-| 2 | first_move | the character has moved 8 studs from its spawn |
-| 3 | saw_alley | the character enters the Alleyway (today's step) |
-| 4 | near_stray | within 12 studs of the tutorial stray |
-| 5 | catch_started | the first `GrabBegin` is accepted |
-| 6 | first_circle_hit | the first Good or Perfect |
-| 7 | first_catch | the first success |
-| 8 | first_checkin | the first check-in |
-| 9 | first_role | the first cat in a role (now at the first check-in) |
-| 10 | second_cat | a second cat checked in |
-| 11 | first_table | tables to level 1 |
-| 12 | bowl_bought | the bait bowl bought |
-| 13 | first_bait | the first food in the bowl |
-| 14 | first_rescue_started | the first `RescueBegin` accepted |
-| 15 | first_rescue_done | the first stuck cat freed |
-| 16 | first_bait_resolved | the first bait result |
-| 17 | five_cats | five different cats owned |
-| 18 | rank_up_card_seen | the Rank Up card opened with Tier 2's needs showing |
-| 19 | rank_up_ready | Tier 2's needs met |
-| 20 | tier_2 | rank up to Tier 2 |
-| 21 | first_park_catch | the first catch in the Park |
-| 22 | returned_next_day | a join on a later UTC day than the last session ended |
-| 23 | first_offline_claim | the first offline claim |
-| 24 | tier_3 | rank up to Tier 3 |
+| 1 | intro_choice_made | the intro chosen from the tile or the help card (`intro_choice` has which) |
+| 2 | intro_started | C: the intro starts |
+| 3 to 12 | intro_shot_1 to intro_shot_10 | C: that shot shows |
+| 13 | intro_done | `IntroDone` with the intro played out |
 
-Steps 1 to 15 are the first session in Monetization-Agent's key stats plan (`Monetization-Agent/key-stats-plan-2026-11-01.md` in the project files), where it is called `first_session`; here they are the start of the one onboarding funnel, so the chart runs from the first second to the first week without a second funnel to keep in order.
+A skip is `intro_cutscene` (skipped, version:shot, first or replay), as before.
 
-New custom events (analytics-plan section 6.4; three fields at most, short fixed values only):
+### 5c. Custom events
+
+Three fields at most, short fixed values only, never a name or chat.
 
 | eventName | value | customFields | Logged when |
 |---|---|---|---|
-| new_player_left | seconds played | the last funnel step reached, time bucket (0 to 60 s, 61 to 180 s, 3 to 10 min, 10 min plus: Roblox's bounce windows), device | PlayerRemoving on the player's first UTC day of play, or while `tutorialStep` is below 5 |
+| session_30s, session_60s, session_2m, session_5m, session_10m | the seconds | the furthest step logged, the screen open, device | that far into a new player's session (`Onboarding.MARKERS`) |
+| new_player_left | seconds played | the furthest step logged, the screen open as they left, time bucket (0 to 60 s, 61 to 180 s, 3 to 10 min, 10 min plus: Roblox's bounce windows) | PlayerRemoving for a new player |
+| quit_point | seconds played | the furthest step logged, the screen open, where they stood (cafe, an area, town, none) | PlayerRemoving below Tier 2 |
+| first_catch_tries | catch attempts it took | net or rescue | the first catch |
+| first_window | 1 | the screen | `first_window_opened` |
+| tutorial_closed | 1 | tutorialStep | the Tutorial tile's red X, once a session |
 | stuck_nudge | 1 | tutorialStep, kind (pulse, help_shown, show_me) | a nudge or the help card in 2g |
 | tip_shown | 1 | tip id, skipped (yes, no) | a context tip shows |
 | feedback | 1 | face (love, ok, no), chip (or none), tier | `SendFeedback` |
 | intro_choice | 1 | from (tile, help) | the intro is played from the tile or the help card |
 
-`new_player_left` and the funnel together answer Derek's "where/what step people are getting stuck and quitting": the funnel shows how many reach each step, `new_player_left` shows which step they were on when they left and in which of Roblox's bounce windows, which is what Home page ranking counts.
+A new player is one still below `tutorialStep` 5 or on the UTC day of their first join. The screen open is the window's id (upgrades, decor, collection, rank_up, areas, bait, dealer), "other" for any other window, or "none". `new_player_left` lost its device field to the screen; device is on `loaded` and `session_end`. Custom event names: 91 of Roblox's 100.
 
 ## 6. Contracts
 

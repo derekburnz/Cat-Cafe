@@ -1,7 +1,12 @@
 # Publish Cat Cafe to Roblox from GitHub, with no Studio window (Open Cloud place publishing).
 # Start it from the Actions tab (publish > Run workflow) or from any thread with the GitHub actions_run_trigger
 # tool. Needs the repo secret ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 15). With the repo variable
-# AUTO_PUBLISH set to true, every main commit whose check run passed also goes live.
+# AUTO_PUBLISH set to true, the tip of main goes live once a check run on it has passed (a gate job publishes the
+# tip at most once, whichever run gets there; a label merge's own dispatch publishes it at once). An automatic publish first
+# shares every picture and sound with the experience (asset-permissions.yml grant), and afterwards restarts running
+# servers at once, with no countdown, only when ProfileSchema.VERSION differs from the last published build's. A run
+# that leaves every server on its build (an automatic publish, or a manual Published with restart_servers on, the
+# restart included) records its save version in a `published-build` artifact for the next automatic publish.
 name: publish
 
 on:
@@ -20,10 +25,19 @@ on:
         description: "With restart_servers: tell every server 5, 3 and 1 minutes ahead and at the restart (adds 5 minutes)"
         type: boolean
         default: true
+      automatic:
+        description: "Set by automerge.sh after a label merge: treat this run as an automatic publish (gate, grant, restart on a save change)"
+        type: boolean
+        default: false
   workflow_run:
     workflows: [check]
     types: [completed]
     branches: [main]
+
+# actions: read lets an automatic publish find the last published build's record (the published-build artifact).
+permissions:
+  contents: read
+  actions: read
 
 concurrency:
   group: publish
@@ -34,14 +48,92 @@ env:
   PLACE_ID: "119569792798199" # its start place
 
 jobs:
-  publish:
-    name: Build with Rojo, engine smoke test, upload
-    # workflow_run fires for every finished check run on main; only a passing push to main publishes, and only
-    # when AUTO_PUBLISH is on. The automerge script starts this workflow itself after it merges.
+  # An automatic publish goes ahead only for the newest main commit, and only once. workflow_run fires once per
+  # finished check run on main, and a check run takes about 15 minutes, so a burst of merges finishes their checks
+  # one after another: before this gate each one published its own, older commit over the newer live one (seven
+  # publishes between 21:44 and 21:52 on 2026-11-04). This job decides before anything is built or uploaded.
+  gate:
+    name: Newest main commit, not published yet
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (vars.AUTO_PUBLISH == 'true' && github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push')
+      (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      go: ${{ steps.decide.outputs.go }}
+      auto: ${{ steps.decide.outputs.auto }}
+      sha: ${{ steps.decide.outputs.sha }}
+    steps:
+      - name: Decide
+        id: decide
+        env:
+          EVENT: ${{ github.event_name }}
+          AUTOMATIC: ${{ inputs.automatic }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ "$EVENT" = workflow_dispatch ] && [ "$AUTOMATIC" != true ]; then
+            echo "go=true" >> "$GITHUB_OUTPUT"
+            echo "auto=false" >> "$GITHUB_OUTPUT"
+            echo "sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+            echo "Started by hand: publishing the chosen ref."
+            exit 0
+          fi
+          echo "auto=true" >> "$GITHUB_OUTPUT"
+          api() {
+            curl -fsS --retry 3 --retry-all-errors -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$REPO/$1"
+          }
+          # 1. Always the tip of main, whichever run gets here: GitHub keeps one pending run per concurrency group and
+          # cancels the older one, so the run that survives must publish the tip, not its own commit. The run's own
+          # commit counts as checked (its check run passed, or a label merge checked it merged with main); any other
+          # tip needs a passed check.yml run on main first, or this run skips and the tip's own check run decides.
+          tip=$(api "branches/main" | jq -r '.commit.sha // ""')
+          if [ -z "$tip" ]; then
+            echo "::error::Could not read the tip of main, so nothing was published."
+            exit 1
+          fi
+          if [ "$tip" != "$HEAD_SHA" ]; then
+            passed=$(api "actions/workflows/check.yml/runs?branch=main&head_sha=$tip&status=success&per_page=1" |
+              jq -r '.total_count // 0')
+            if [ "${passed:-0}" = 0 ]; then
+              echo "go=false" >> "$GITHUB_OUTPUT"
+              echo "Skipped: $HEAD_SHA is no longer the tip of main, and the tip $tip has no passed check run yet; its own check run will publish it."
+              exit 0
+            fi
+            echo "$HEAD_SHA is no longer the tip of main; the tip $tip has passed its check, so this run publishes the tip."
+          fi
+          # 2. Not twice: skip when the tip is already the last live build (a re-run, or another run got there first).
+          # The newest published-build artifact from a successful publish.yml run on main says which build that is.
+          last=""
+          runs=$(api "actions/workflows/publish.yml/runs?branch=main&status=success&per_page=100" |
+            jq -c --arg repo "$REPO" '[.workflow_runs[] | select(.head_repository.full_name == $repo) | .id]')
+          url=$(api "actions/artifacts?name=published-build&per_page=100" |
+            jq -r --argjson runs "${runs:-[]}" '[.artifacts[] | select((.expired | not) and (.workflow_run.id as $r | $runs | index($r)))]
+              | sort_by(.created_at) | last | .archive_download_url // ""')
+          if [ -n "$url" ]; then
+            dir=$(mktemp -d)
+            if curl -fsSL --retry 3 --retry-all-errors -H "Authorization: Bearer $GH_TOKEN" -o "$dir/r.zip" "$url" &&
+              unzip -o -q "$dir/r.zip" -d "$dir"; then
+              last=$(sed -nE 's/^sha=([0-9a-f]+)$/\1/p' "$dir/published-build.txt" | head -n 1 || true)
+            fi
+          fi
+          if [ "$last" = "$tip" ]; then
+            echo "go=false" >> "$GITHUB_OUTPUT"
+            echo "Skipped: $tip is already the last published build."
+            exit 0
+          fi
+          echo "go=true" >> "$GITHUB_OUTPUT"
+          echo "sha=$tip" >> "$GITHUB_OUTPUT"
+          echo "Publishing $tip, the tip of main (last published: ${last:-unknown})."
+
+  publish:
+    name: Build with Rojo, engine smoke test, upload
+    # The automerge script starts this workflow itself after it merges.
+    needs: gate
+    if: needs.gate.outputs.go == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -52,7 +144,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ needs.gate.outputs.sha }}
 
       - name: Check the publish key is set
         run: |
@@ -78,6 +170,81 @@ jobs:
       - name: Build the place (default.project.json, no tests)
         run: rojo build default.project.json -o CatCafe.rbxl
 
+      # The save version this build carries, for the record below and the automatic restart check.
+      - name: Read the save version (ProfileSchema.VERSION)
+        id: schema
+        run: |
+          version=$(sed -nE 's/^ProfileSchema\.VERSION = ([0-9]+)[[:space:]]*(--.*)?$/\1/p' src/shared/ProfileSchema.luau | head -n 1)
+          if [ -z "$version" ]; then
+            echo "::error::Could not read ProfileSchema.VERSION from src/shared/ProfileSchema.luau"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Save version in this build: $version"
+
+      # Automatic publish only: compare with the save version of the last build that went live, read from the
+      # published-build artifact of this workflow's newest successful run on main (never from another workflow's or a
+      # PR's artifact of the same name). With no record (none yet, or older than 90 days), or when GitHub's API cannot
+      # be read, it restarts: a missed restart lets the newer-save guard kick players, while an extra one only moves
+      # them to a fresh server.
+      - name: Compare with the last published build (automatic publish)
+        id: last
+        if: needs.gate.outputs.auto == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          VERSION: ${{ steps.schema.outputs.version }}
+        run: |
+          api() {
+            curl -fsS --retry 3 --retry-all-errors -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$REPO/$1"
+          }
+          restart=true
+          previous=unknown
+          why="no published-build record from a successful publish run in the last 90 days"
+          dir=$(mktemp -d)
+          url=""
+          if runs=$(api "actions/workflows/publish.yml/runs?branch=main&status=success&per_page=100"); then
+            for id in $(jq -r --arg repo "$REPO" '.workflow_runs[] | select(.head_repository.full_name == $repo) | .id' <<<"$runs"); do
+              if ! found=$(api "actions/runs/$id/artifacts?name=published-build"); then
+                why="GitHub's API could not list run $id's artifacts"
+                break
+              fi
+              url=$(jq -r '[.artifacts[] | select(.expired | not)] | first | .archive_download_url // ""' <<<"$found")
+              [ -z "$url" ] || break
+            done
+          else
+            why="GitHub's API could not list this workflow's runs"
+          fi
+          if [ -n "$url" ]; then
+            if curl -fsSL --retry 3 --retry-all-errors -H "Authorization: Bearer $GH_TOKEN" -o "$dir/record.zip" "$url" &&
+              unzip -o -q "$dir/record.zip" -d "$dir"; then
+              previous=$(sed -nE 's/^profile_version=([0-9]+)$/\1/p' "$dir/published-build.txt" 2>/dev/null | head -n 1 || true)
+              previous=${previous:-unknown}
+              why="the record has no readable profile_version"
+              echo "Last published build: $(sed -nE 's/^sha=([0-9a-f]+)$/\1/p' "$dir/published-build.txt" 2>/dev/null | head -n 1), save version $previous"
+            else
+              why="the published-build record could not be downloaded"
+            fi
+          fi
+          if [ "$previous" = "$VERSION" ]; then
+            restart=false
+            echo "Save version unchanged ($VERSION): running servers stay up."
+          elif [ "$previous" = unknown ]; then
+            echo "::warning::Servers will be restarted after the publish to be safe: $why."
+          else
+            echo "Save version $previous -> $VERSION: running servers restart right after the publish."
+          fi
+          echo "restart=$restart" >> "$GITHUB_OUTPUT"
+          echo "previous=$previous" >> "$GITHUB_OUTPUT"
+
+      # Automatic publish only: give the experience Use permission on every picture and sound this build names, the
+      # same as asset-permissions.yml action=grant, so new uploads don't draw blank or play silent. A failure stops
+      # the run before anything is uploaded; asset-permissions.yml action=list shows which id the error names.
+      - name: Share pictures and sounds with the experience (automatic publish)
+        if: needs.gate.outputs.auto == 'true'
+        run: bash tools/opencloud/asset-permissions.sh grant
+
       - name: Upload a Saved version
         id: saved
         run: bash tools/opencloud/publish.sh Saved CatCafe.rbxl
@@ -88,6 +255,7 @@ jobs:
         run: bash tools/opencloud/run-luau.sh tools/opencloud/Smoke.luau "${{ steps.saved.outputs.version }}"
 
       - name: Publish (goes live)
+        id: live
         if: github.event_name != 'workflow_dispatch' || inputs.version_type == 'Published'
         run: bash tools/opencloud/publish.sh Published CatCafe.rbxl
 
@@ -96,12 +264,42 @@ jobs:
       # key cannot send in-game messages yet (docs/setup-guide.md step 21).
       - name: Warn players in game (5, 3 and 1 minutes, then now)
         if: >-
-          github.event_name == 'workflow_dispatch' && inputs.version_type == 'Published' && inputs.restart_servers &&
+          needs.gate.outputs.auto != 'true' && inputs.version_type == 'Published' && inputs.restart_servers &&
           inputs.warn_players
         run: bash tools/opencloud/restart-countdown.sh
 
       # A publish only reaches new servers. When it changes the save version, a player saved by a new server who
       # then joins an old one is kicked by the newer-save guard, so the old servers have to go.
       - name: Restart running servers onto the new version
-        if: github.event_name == 'workflow_dispatch' && inputs.version_type == 'Published' && inputs.restart_servers
+        if: needs.gate.outputs.auto != 'true' && inputs.version_type == 'Published' && inputs.restart_servers
         run: bash tools/opencloud/restart-servers.sh
+
+      # Automatic publish only, and only when the save version changed (or no record said what it was): restart at
+      # once with no countdown, so no player saved by a new server lands on an old one.
+      - name: Restart running servers (automatic publish, save version changed)
+        if: needs.gate.outputs.auto == 'true' && steps.live.outcome == 'success' && steps.last.outputs.restart == 'true'
+        run: bash tools/opencloud/restart-servers.sh
+
+      # What every running server is now on, for the next automatic publish's restart check. Last, so a failed
+      # countdown or restart (which skips these steps) leaves the older record and the next automatic run restarts.
+      # A manual Published without restart_servers writes none, since old servers may still run an older build.
+      # Kept 90 days (GitHub's longest by default).
+      - name: Write the published-build record
+        if: >-
+          steps.live.outcome == 'success' &&
+          (needs.gate.outputs.auto == 'true' || inputs.restart_servers)
+        env:
+          SHA: ${{ needs.gate.outputs.sha }}
+          VERSION: ${{ steps.schema.outputs.version }}
+        run: printf 'profile_version=%s\nsha=%s\n' "$VERSION" "$SHA" > published-build.txt
+
+      - name: Upload the published-build record
+        if: >-
+          steps.live.outcome == 'success' &&
+          (needs.gate.outputs.auto == 'true' || inputs.restart_servers)
+        uses: actions/upload-artifact@v4
+        with:
+          name: published-build
+          path: games/cat-cafe/published-build.txt
+          retention-days: 90
+          overwrite: true

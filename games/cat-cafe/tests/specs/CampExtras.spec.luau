@@ -174,6 +174,13 @@ return function()
 			local view = CampExtras.view(save, 3, T)
 			expect(view.yardSale.held).to.equal(0)
 			expect(CampExtras.nextYardCrate(view.yardSale)).to.equal(nil)
+			-- a rank up the same day can move today's crate to another zone: still one take a day (#1051 review)
+			for tier = 4, 5 do
+				local other = CampExtras.yardStock(tier, today)[1]
+				expect(CampExtras.buyBlocker(save, other, tier, T)).to.equal(CampExtras.TAKEN)
+				local ranked = CampExtras.view(save, tier, T)
+				expect(ranked.yardSale.held).to.equal(0)
+			end
 			local tomorrow = at(save, 3, T + DAY)
 			expect(tomorrow.yardSale.held).to.equal(1)
 			local nextCrate = CampExtras.yardStock(3, today + 1)[1]

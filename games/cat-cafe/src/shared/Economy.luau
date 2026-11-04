@@ -205,6 +205,13 @@ function Economy.incomePerSecond(profile: Types.PlayerProfile): number
 		* Economy.passMultiplier(profile)
 end
 
+-- A Corner Shop row's coin price (corner-shop.md section 2, #1052): `row.seconds` of `dayRate` (incomePerSecond: the
+-- cats, the cafe and the money pass in, running potions out), never under `row.atLeast`. The server and the window
+-- show the same number.
+function Economy.cornerPrice(row: Types.CornerShopRow, dayRate: number): number
+	return math.max(row.atLeast, math.floor(row.seconds * math.max(dayRate, 0)))
+end
+
 -- XP a second for one owned cat (data-model section 4b, v0.12 F75): a working cat earns CatXpPerSecondPlaced, times
 -- CatXpFavoriteMultiplier in its favorite role, and a resting cat CatXpPerSecondResting. Rarity does not change it,
 -- and night does not either (a napping working cat still counts as working).

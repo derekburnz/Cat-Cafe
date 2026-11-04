@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-03 01:20 UTC",
+  "generated": "2026-11-04 18:13 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -147876,6 +147876,242 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Street_FishMarket.png"
     },
     {
+      "name": "CatCafe_Street_CornerShop",
+      "category": "Street",
+      "module": "cornershop",
+      "objects": [
+        "CatCafe_Street_CornerShop",
+        "CatCafe_Street_CornerShop_Glass",
+        "CatCafe_Street_CornerShop_Bulb",
+        "CatCafe_Street_CornerShop_Cat_Body",
+        "CatCafe_Street_CornerShop_Cat_Head",
+        "CatCafe_Street_CornerShop_Cat_Eye1",
+        "CatCafe_Street_CornerShop_Cat_Eye2",
+        "CatCafe_Street_CornerShop_Cat_EarL",
+        "CatCafe_Street_CornerShop_Cat_EarR",
+        "CatCafe_Street_CornerShop_Cat_Tail",
+        "CatCafe_Street_CornerShop_Cat_LegF1",
+        "CatCafe_Street_CornerShop_Cat_LegF2",
+        "CatCafe_Street_CornerShop_Cat_Prop"
+      ],
+      "triangles": 5910,
+      "budget": 6000,
+      "size_studs": {
+        "x": 10.92,
+        "y": 4.33,
+        "z": 9.51
+      },
+      "size_roblox": [
+        10.92,
+        9.51,
+        4.33
+      ],
+      "bounds_min": [
+        -5.65,
+        -2.03,
+        -0.01
+      ],
+      "bounds_max": [
+        5.27,
+        2.3,
+        9.5
+      ],
+      "pivot": "base centre; the counter front (-Z) faces the players",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Street_CornerShop_Cat_Body": [
+          0.0,
+          0.95,
+          2.21
+        ],
+        "CatCafe_Street_CornerShop_Cat_Head": [
+          0.0,
+          0.81,
+          3.66
+        ],
+        "CatCafe_Street_CornerShop_Cat_Eye1": [
+          0.31,
+          0.07,
+          4.01
+        ],
+        "CatCafe_Street_CornerShop_Cat_Eye2": [
+          -0.31,
+          0.07,
+          4.01
+        ],
+        "CatCafe_Street_CornerShop_Cat_EarL": [
+          0.4,
+          0.69,
+          4.56
+        ],
+        "CatCafe_Street_CornerShop_Cat_EarR": [
+          -0.4,
+          0.69,
+          4.56
+        ],
+        "CatCafe_Street_CornerShop_Cat_Tail": [
+          0.28,
+          1.57,
+          2.37
+        ],
+        "CatCafe_Street_CornerShop_Cat_LegF1": [
+          0.24,
+          0.52,
+          3.09
+        ],
+        "CatCafe_Street_CornerShop_Cat_LegF2": [
+          -0.24,
+          0.52,
+          3.09
+        ],
+        "CatCafe_Street_CornerShop_Cat_Prop": [
+          0.0,
+          0.81,
+          3.66
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Street_CornerShop_Cat_Body": [
+          0.0,
+          2.21,
+          0.95
+        ],
+        "CatCafe_Street_CornerShop_Cat_Head": [
+          0.0,
+          3.66,
+          0.81
+        ],
+        "CatCafe_Street_CornerShop_Cat_Eye1": [
+          -0.31,
+          4.01,
+          0.07
+        ],
+        "CatCafe_Street_CornerShop_Cat_Eye2": [
+          0.31,
+          4.01,
+          0.07
+        ],
+        "CatCafe_Street_CornerShop_Cat_EarL": [
+          -0.4,
+          4.56,
+          0.69
+        ],
+        "CatCafe_Street_CornerShop_Cat_EarR": [
+          0.4,
+          4.56,
+          0.69
+        ],
+        "CatCafe_Street_CornerShop_Cat_Tail": [
+          -0.28,
+          2.37,
+          1.57
+        ],
+        "CatCafe_Street_CornerShop_Cat_LegF1": [
+          -0.24,
+          3.09,
+          0.52
+        ],
+        "CatCafe_Street_CornerShop_Cat_LegF2": [
+          0.24,
+          3.09,
+          0.52
+        ],
+        "CatCafe_Street_CornerShop_Cat_Prop": [
+          0.0,
+          3.66,
+          0.81
+        ]
+      },
+      "prompt_anchor_roblox": [
+        0.0,
+        3.0,
+        -1.7000000000000002
+      ],
+      "studio": "#1052 (corner-shop.md section 4): the Corner Shop in the Town Square at Layout.cornerShop; WorldBuilder tags it CornerShop and hangs the prompt on the Attachment PromptAnchor (counter front, 3 up). The jars' glass is _Glass (see-through), the shop cat's visor rides its Head Model, the sign Bulb is lit at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_CornerShop.model.json",
+      "rbx_parts": 483,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_CornerShop.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_CornerShop.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "5910/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2996 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=-0.19 y=0.13"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_CornerShop.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Street_CornerShop.png"
+    },
+    {
+      "name": "CatCafe_Street_ThanksBoard",
+      "category": "Street",
+      "module": "thanksboard",
+      "objects": [
+        "CatCafe_Street_ThanksBoard",
+        "CatCafe_Street_ThanksBoard_Screen",
+        "CatCafe_Street_ThanksBoard_Bulb",
+        "CatCafe_Street_ThanksBoard_Flowers"
+      ],
+      "triangles": 3350,
+      "budget": 6000,
+      "size_studs": {
+        "x": 12.01,
+        "y": 1.5,
+        "z": 10.6
+      },
+      "size_roblox": [
+        12.01,
+        10.6,
+        1.5
+      ],
+      "bounds_min": [
+        -6.02,
+        -0.75,
+        0.0
+      ],
+      "bounds_max": [
+        5.99,
+        0.75,
+        10.6
+      ],
+      "pivot": "base centre; the Screen's Front (-Z) face looks at the players",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#1083 (idea-credits.md section 3): the Thank You board in the Town Square at Layout.thanksBoard, tagged ThanksBoard, streams Atomic. The UI's SurfaceGui (Adornee = the part named Screen, 7.6 x 5.2, cream) draws the credit rows on its Front (-Z) face; the idea bulb (_Bulb) is lit at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_ThanksBoard.model.json",
+      "rbx_parts": 239,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_ThanksBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_ThanksBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "3350/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1805 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.01 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_ThanksBoard.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Street_ThanksBoard.png"
+    },
+    {
       "name": "CatCafe_Decor_MilkCrateStools",
       "category": "Decor",
       "module": "crate_decor",
@@ -150383,25 +150619,25 @@
         "CatCafe_Square_Paving",
         "CatCafe_Square_Paving_Slab"
       ],
-      "triangles": 9700,
+      "triangles": 8332,
       "budget": 20000,
       "size_studs": {
-        "x": 197.6,
+        "x": 135.0,
         "y": 64.0,
         "z": 0.49
       },
       "size_roblox": [
-        197.6,
+        135.0,
         0.49,
         64.0
       ],
       "bounds_min": [
-        -98.8,
+        -67.5,
         -32.0,
         -0.4
       ],
       "bounds_max": [
-        98.8,
+        67.5,
         32.0,
         0.09
       ],
@@ -150416,7 +150652,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Paving.model.json",
-      "rbx_parts": 807,
+      "rbx_parts": 693,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_Paving.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_Paving.glb"
@@ -150428,15 +150664,17 @@
           "pivot"
         ],
         "checks": {
-          "budget": "9700/20000 tris",
+          "budget": "8332/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "4794 faces on swatch centers",
+          "uv": "4110 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.40 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_Paving.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_Paving.png"
     },
     {
       "name": "CatCafe_Square_Fountain",
@@ -151139,7 +151377,9 @@
           "pivot": "floor at z=7.52 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_Bunting.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_Bunting.png"
     },
     {
       "name": "CatCafe_Square_BuntingShort",
@@ -151343,7 +151583,9 @@
           "pivot": "floor at z=7.53 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_BuntingShort.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_BuntingShort.png"
     },
     {
       "name": "CatCafe_Square_Garden",
@@ -168755,7 +168997,9 @@
           "pivot": "floor at z=7.52 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_RallyBunting.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_RallyBunting.png"
     },
     {
       "name": "CatCafe_Square_RallyBuntingShort",
@@ -168946,7 +169190,9 @@
           "pivot": "floor at z=7.53 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_RallyBuntingShort.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_RallyBuntingShort.png"
     },
     {
       "name": "CatCafe_Decor_BleacherBench",
@@ -169179,7 +169425,9 @@
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.18"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_CheerBunting.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_CheerBunting.png"
     },
     {
       "name": "CatCafe_Decor_VictoryPodium",

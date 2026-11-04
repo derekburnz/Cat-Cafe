@@ -12,6 +12,16 @@ BugReport.ErrorBytes = 200
 BugReport.Kinds = { "bug", "stuck", "idea" }
 BugReport.StoreName = "BugReports_v1"
 
+-- #1083 (idea-credits.md section 2): the Idea chip's tick and the line under it, one copy for the window and specs.
+BugReport.FeatureLabel = "Feature my name if you use my idea"
+BugReport.FeatureHint = "Only your display name goes on the Thank You board in town."
+
+-- Whether a report asks to be credited: only an idea, and only when the client sent exactly true (anything else,
+-- or a bug or stuck report claiming it, is false).
+function BugReport.featureName(kind: string, raw: unknown): boolean
+	return kind == "idea" and raw == true
+end
+
 -- The toasts the server answers with.
 BugReport.Messages = {
 	sent = "Thanks! Your report was sent.",

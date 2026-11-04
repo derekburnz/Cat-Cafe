@@ -46,12 +46,8 @@ local ICON = 76
 local CLEAN_PICTURE: { [string]: string } = {
 	money = "Bag",
 }
--- the picture tile's fill, the HUD Store tile's gold (assets/cat-cafe/ui/icons-clean-2026-11-03 README)
-local TILE_FILL = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromHex("FFF07A")),
-	ColorSequenceKeypoint.new(0.5, Color3.fromHex("FFC61F")),
-	ColorSequenceKeypoint.new(1, Color3.fromHex("FF8F1F")),
-})
+-- the picture tile's fill: the gold of the HUD Store tile and price button (Theme.button.store)
+local TILE_FILL = ColorSequence.new(Theme.button.store.top, Theme.button.store.bottom)
 local BUTTON_W = 150
 
 local Store = {}

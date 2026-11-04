@@ -170,11 +170,12 @@ function Button.new(props: Props): Button
 		ZIndex = props.zIndex or 1,
 	})
 
-	-- The depth frame spans the whole button so its outline wraps the face and the bottom edge together. The bottom
-	-- edge is the outline's own dark colour, a thicker outline along the foot.
+	-- The depth frame spans the whole button so its outline wraps the face and the bottom edge together. The foot under
+	-- the face is the style's own darker shade (applyStyle), not black (#1075, Derek's live v184 check: "all ui buttons
+	-- have an unnecessary shadow looking black tint on the bottom").
 	local depthFrame: Frame = Create("Frame", {
 		Name = "Depth",
-		BackgroundColor3 = Theme.colors.outline,
+		BackgroundColor3 = STYLES[style].depth,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 1, -band),
 		ZIndex = props.zIndex or 1,
@@ -427,6 +428,7 @@ function Button.new(props: Props): Button
 	local function applyStyle()
 		local colors = STYLES[if self._enabled then self._style else "disabled"]
 		gradient.Color = fill(colors, 0)
+		depthFrame.BackgroundColor3 = colors.depth
 		label.TextColor3 = colors.text
 		textOutline.Enabled = colors.outlined
 		if icon then

@@ -14,6 +14,9 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
   CatCafe_Icon_Coins, _Spin the prize pictures: a stack of three gold coins and the Spin Wheel's wheel (icon_art.py)
   CatCafe_Icon_Net_L<n>     the catching net at each level, L1 Basic to L4 Master (items.py)
   CatCafe_Icon_Decor        the HUD's Decor button: a cat-eared armchair and a potted plant (Set 5 Q10)
+  CatCafe_Icon_Menu_<Id>    the F90 order bubble pictures (#950): each of the 12 menu dishes on its plate (menu.py),
+                            Coffee, Milk, CakeSlice, PawCookie, Tea, FishBiscuit, KittyCupcake, HotCocoa,
+                            PancakeStack, Sundae, StrawberryRoll and RainbowCake, from the front and a little above
 """
 import argparse
 import math
@@ -32,6 +35,7 @@ import common  # noqa: E402
 import crates  # noqa: E402
 import icon_art  # noqa: E402
 import items  # noqa: E402
+import menu  # noqa: E402
 import potions  # noqa: E402
 from common import RB  # noqa: E402
 
@@ -88,6 +92,7 @@ ICONS = {
     **{f"CatCafe_Icon_Net_L{n}": ((lambda m, n=n: items.build_net(n, m)), INK, 10, (-62.0, 40.0)) for n in (1, 2, 3, 4)},
     **{f"CatCafe_Icon_Potion_{k}": ((lambda m, k=k: potions.build_potion(k, m)), INK, 10, (8.0, 10.0))
        for k in potions.POTIONS},
+    **{f"CatCafe_Icon_Menu_{n}": ((lambda m, n=n: menu._BUILDS[n](m)), INK, 10, (-22.0, 30.0)) for n in menu.ITEMS},
 }
 SIZE, PAD = 512, 0.05
 

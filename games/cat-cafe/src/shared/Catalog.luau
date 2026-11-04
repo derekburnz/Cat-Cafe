@@ -2245,9 +2245,10 @@ end
 table.freeze(Catalog.indexPrizes)
 
 -- Codes (F65, data-model section 11d), keyed by the lowercased code a player types at the Codes Cat. The prize uses
--- the Index prize shape and pays once per player. `playtest` is for the friends alpha and gets an endsAt or goes
--- inactive before the experience is public; `launch` switches on that day; `group` waits for the community group
--- (requiresGroup, Config.GroupId). F64 adds the potions to playtest and group, and `playtest2` with two of each so
+-- the Index prize shape and pays once per player. #1118 (the friend, 11-04, for the store page's codes line):
+-- `release` is the release code, `playtest` and `playtest2` stay active for everyone, and `group` is open to members
+-- of the community group only (requiresGroup, Config.GroupId; a non-member keeps it unused). `launch` switches on that
+-- day. F64 adds the potions to playtest and group, and `playtest2` with two of each so
 -- testers who redeemed playtest before potions existed still get them (data-model 11d). Rows can be added without
 -- new code.
 Catalog.codes = {
@@ -2270,6 +2271,13 @@ Catalog.codes = {
 			potions = { tip_potion = 2, lucky_potion = 2, swift_potion = 2, steady_potion = 2 },
 		},
 	},
+	-- #1118: about ten minutes of the player's own income, golden fish and two Tip Potions; nothing random, and three
+	-- pictures as a big prize may show (rewards rule 3), no shop food (rule 1)
+	release = {
+		id = "release",
+		active = true,
+		prize = { coins = 2000, coinSeconds = 600, fish = 60, potions = { tip_potion = 2 } },
+	},
 	launch = {
 		id = "launch",
 		active = false,
@@ -2277,7 +2285,7 @@ Catalog.codes = {
 	},
 	group = {
 		id = "group",
-		active = false,
+		active = true, -- #1118: on since the game's group (Config.GroupId) is set
 		requiresGroup = true,
 		-- F94 (was also 5 spins, 2 Caviar and a Tip Potion)
 		prize = { coins = 2500, coinSeconds = 900, fish = 100, crates = { classic_crate = 1 } },
@@ -3192,6 +3200,64 @@ table.freeze(Catalog.freshCatch)
 
 function Catalog.getFreshCatchRow(id: string): Types.FreshCatchRow?
 	return Catalog.freshCatchById[id]
+end
+
+-- The Corner Shop (corner-shop.md section 2, #1052): sold for coins only, in this order, each row's amount in a window
+-- rolled from Config.CornerShopAmountWeights (shared/CornerShop). `seconds` is the price in seconds of the day rate,
+-- `atLeast` the floor. Nothing random, nothing that raises income, nothing for golden fish or Robux.
+Catalog.cornerShop = {
+	{
+		id = "swift_potion",
+		name = "Swift Potion",
+		kind = "potion",
+		potionId = "swift_potion",
+		seconds = 120,
+		atLeast = 200,
+	},
+	{
+		id = "cat_snack",
+		name = "Cat Snack",
+		kind = "snack",
+		xp = 1200,
+		seconds = 300,
+		atLeast = 500,
+	},
+	{
+		id = "big_cat_snack",
+		name = "Big Cat Snack",
+		kind = "snack",
+		xp = 6000,
+		seconds = 1200,
+		atLeast = 2500,
+	},
+	{
+		id = "bubble_machine",
+		name = "Bubble Machine",
+		kind = "show",
+		showId = "bubbles",
+		showSeconds = 600,
+		seconds = 600,
+		atLeast = 1000,
+	},
+	{
+		id = "cafe_fireworks",
+		name = "Cafe Fireworks",
+		kind = "show",
+		showId = "fireworks",
+		showSeconds = 20,
+		seconds = 900,
+		atLeast = 1500,
+	},
+} :: { Types.CornerShopRow }
+Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }
+for _, row in Catalog.cornerShop do
+	Catalog.cornerShopById[row.id] = row
+	table.freeze(row)
+end
+table.freeze(Catalog.cornerShop)
+
+function Catalog.getCornerShopRow(id: string): Types.CornerShopRow?
+	return Catalog.cornerShopById[id]
 end
 
 -- F90 (cats-make-orders.md section 1): the menu, which grows with the cafe's tier. A customer picks evenly among the

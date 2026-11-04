@@ -101,8 +101,26 @@ local function pascal(id: string): string
 	return table.concat(words)
 end
 
+-- #1070 (Derek's live v184 check: "the new clean UI pictures in general are not live"): a picture with a clean
+-- redraw (Icon_Clean_<Name>) shows that once its id is here; until then the older upload stands in.
+local CLEAN_FOR: { [string]: string } = {
+	Spin = "Spin",
+	Kibble = "Bowl",
+	Tuna = "Tuna",
+	Sardines = "Sardines",
+	Salmon = "Salmon",
+	Caviar = "Caviar",
+	MoonMilk = "MoonMilk",
+	StarTreat = "StarTreat",
+}
+
+local function preferClean(name: string): string?
+	local clean = CLEAN_FOR[name]
+	return (if clean then IDS["Icon_Clean_" .. clean] else nil) or IDS[name]
+end
+
 function ShopIcons.image(name: string): string?
-	return IDS[name]
+	return preferClean(name)
 end
 
 function ShopIcons.clean(name: string): string?
@@ -140,7 +158,11 @@ end
 
 function ShopIcons.potion(potionId: string?): string?
 	local name = if type(potionId) == "string" then potionId:match("^(.+)_potion$") else nil
-	return if name then IDS["Potion_" .. pascal(name)] else nil
+	if name == nil then
+		return nil
+	end
+	-- the clean flask in the potion's colour (#1070), else the older bottle
+	return IDS["Icon_Clean_Potion" .. pascal(name)] or IDS["Potion_" .. pascal(name)]
 end
 
 function ShopIcons.perk(perkId: string?): string?
@@ -148,7 +170,7 @@ function ShopIcons.perk(perkId: string?): string?
 end
 
 function ShopIcons.food(lureId: string?): string?
-	return if type(lureId) == "string" then IDS[pascal(lureId)] else nil
+	return if type(lureId) == "string" then preferClean(pascal(lureId)) else nil
 end
 
 function ShopIcons.net(level: number?): string?

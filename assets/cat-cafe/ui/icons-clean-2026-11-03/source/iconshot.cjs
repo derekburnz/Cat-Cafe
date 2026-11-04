@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
   const page = await browser.newPage({ viewport: { width: 256, height: 256 } });
   await page.goto('file://' + file);
   await page.evaluate(() => document.fonts.ready);
-  const list = [['cats'], ['index'], ['quests'], ['upgrades'], ['decor'], ['store'], ['tutorial'], ['rewards'], ['feedback'], ['menu'], ['home'], ['cannon'], ['areas'], ['potion', '#ffd84a'], ['bowl'], ['coin'], ['fish'], ['bag'], ['crate'], ['trade'], ['caviar']];
+  const list = [['cats'], ['index'], ['quests'], ['upgrades'], ['decor'], ['store'], ['tutorial'], ['rewards'], ['feedback'], ['menu'], ['home'], ['cannon'], ['areas'], ['potion', '#ffd84a'], ['bowl'], ['coin'], ['fish'], ['bag'], ['crate'], ['trade'], ['caviar'], ['tuna'], ['salmon'], ['sardines'], ['moonMilk'], ['starTreat'], ['spin'], ['potionTip'], ['potionLucky'], ['potionSwift'], ['potionSteady'], ['potionBigTip'], ['potionGoldRush'], ['potionQuickBait']];
   for (const [n, arg] of list) {
     if (only && !only.split(',').includes(n)) continue;
     await page.evaluate(([n, arg]) => window.show(n, arg), [n, arg]);

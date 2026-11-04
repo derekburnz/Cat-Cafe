@@ -239,9 +239,11 @@ function TipJar._build(self: any)
 		local size = TipJarLogic.size(prize)
 		local big = size ~= "small"
 		local spins = prize.spins or 0
-		-- a small card shows its spins as the badge; bigger gifts show them as a picture among the rest
+		-- a small card with another prize shows its spins as the badge; bigger gifts, and a gift of spins alone,
+		-- show them as a picture (TipJarLogic.spinsAsBadge, #1070)
+		local asBadge = TipJarLogic.spinsAsBadge(prize)
 		local shown: TipJarLogic.Prize = prize
-		if not big and spins > 0 then
+		if asBadge then
 			local copy = table.clone(prize)
 			copy.spins = nil
 			shown = copy
@@ -283,7 +285,7 @@ function TipJar._build(self: any)
 				elseif big then minutes .. "  ·  Big gift"
 				else minutes,
 			-- a spin badge takes the right of the top line, so the minutes move left
-			TextXAlignment = if not big and spins > 0
+			TextXAlignment = if asBadge
 				then Enum.TextXAlignment.Left
 				else Enum.TextXAlignment.Center,
 			Parent = frame,
@@ -316,7 +318,7 @@ function TipJar._build(self: any)
 		})
 		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = waiting })
 		local spinBadge: TextLabel? = nil
-		if not big and spins > 0 then
+		if asBadge then
 			local badge = text({
 				Name = "Spin",
 				AnchorPoint = Vector2.new(1, 0),

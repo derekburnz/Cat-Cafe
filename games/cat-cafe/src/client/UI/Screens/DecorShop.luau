@@ -81,6 +81,8 @@ local LATE_KINDS: { [string]: boolean } = { door = true, catflap = true } -- sho
 local SPOTS_BY_TIER: { number } = Config.DecorSpots or DecorPieces.SPOTS_BY_TIER
 local LAWN_CHIP = "Front lawn" -- F91: the chip that shows the Front lawn tab (the filter key)
 local LAWN_TEXT = "Lawn" -- its words on the chip, short so the row is roomier (#964)
+-- the Decor spots slot's filter (#1120): the pieces that stand on a spot (furniture and decorations), under no one chip
+local SPOTS_FILTER = "Decor spots"
 -- the "Your cafe" slots' clean symbols and light tiles (#964, the sheet in assets/cat-cafe/ui/icons-clean-2026-11-03):
 -- drawn while a slot is Plain, and always for the decor spots. Until a symbol is uploaded its kind's glyph shows.
 local SLOT_LOOK: { [string]: { picture: string, tint: Color3 } } = {
@@ -128,6 +130,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self._slots = {} :: { any } -- the "Your cafe" strip's style slots and the spots card
 	self._decor = {} :: { Types.DecorDef } -- Catalog.decor and Catalog.crateDecor
 	self._filter = "All"
+	self._slotPick = nil :: string? -- the "Your cafe" slot whose tap set the filter, so a second tap on it clears it
 	self._catalog = nil :: Types.Catalog?
 	self._plot = nil :: Instance?
 	self._plotConnection = nil :: RBXScriptConnection?
@@ -311,8 +314,18 @@ function DecorShop._layoutChips(self: any)
 	end
 end
 
-function DecorShop._setFilter(self: any, category: string)
+function DecorShop._setFilter(self: any, category: string, slot: string?)
+	-- a filter with no chip (a slot whose chip the catalog has no piece for) falls back to All
+	local known = category == "All" or category == SPOTS_FILTER
+	for _, chip in self._chips do
+		known = known or chip.category == category
+	end
+	if not known then
+		category = "All"
+		slot = nil
+	end
 	self._filter = category
+	self._slotPick = slot
 	for _, chip in self._chips do
 		chip.button:setStyle(if chip.category == category then "gold" else "ghost")
 	end
@@ -378,8 +391,11 @@ function DecorShop._applyVisible(self: any)
 	local state: Types.PlayerState? = self._state
 	for _, card in self._cards do
 		local owned = state ~= nil and state.decorOwned[card.def.id] == true
-		card.frame.Visible = (self._filter == "All" or card.chip == self._filter)
-			and (not card.crateOnly or owned)
+		local spot = card.piece and not DecorPieces.isStyle(card.kind)
+		local shown = self._filter == "All"
+			or card.chip == self._filter
+			or (self._filter == SPOTS_FILTER and spot)
+		card.frame.Visible = shown and (not card.crateOnly or owned)
 	end
 end
 
@@ -444,10 +460,15 @@ function DecorShop._buildStrip(self: any)
 			TextSize = Theme.sizes.textBody,
 			Parent = frame,
 		})
-		-- the decor spots hold furniture, which stands under Floor (#1120)
-		local chip = DecorPieces.kindChip(if spots then "furniture" else kind) or "All"
+		-- a style slot picks its kind's chip (Paint picks Walls); the spots slot shows what stands on a spot (#1120). A
+		-- second tap on the same slot goes back to All; a tap on another slot sharing the chip keeps it.
+		local chip = if spots then SPOTS_FILTER else DecorPieces.kindChip(kind) or "All"
 		local connection = frame.Activated:Connect(function()
-			self:_setFilter(if self._filter == chip then "All" else chip)
+			if self._slotPick == kind and self._filter == chip then
+				self:_setFilter("All")
+			else
+				self:_setFilter(chip, kind)
+			end
 		end)
 		table.insert(self._slots, {
 			kind = kind,
@@ -557,7 +578,8 @@ function DecorShop._build(self: any)
 			name = if lawn then "FrontLawn" else category,
 			text = if lawn then LAWN_TEXT else category,
 			style = "ghost",
-			size = UDim2.fromOffset(0, self._chipHeight), -- widths from _layoutChips
+			-- a share of the row (widths from _layoutChips), so Button measures its corners from the height
+			size = UDim2.new(1, 0, 0, self._chipHeight),
 			textSize = Theme.sizes.textBody,
 			layoutOrder = index,
 			parent = self._chipRow,

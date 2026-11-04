@@ -30,6 +30,12 @@ Derek OK'd the look on 2026-11-03 ("Build it as shown"; the crate was redrawn af
 | Icon_Clean_Store | 125596282319075 (redrawn 01:44; first upload 133073738193868 unused) |
 | Icon_Clean_Tutorial | 109885867788208 |
 | Icon_Clean_Upgrades | 90691118878000 |
+| Icon_Clean_Wallpaper | 102259047705880 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Floor | 100560850589029 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Paint | 88844625138910 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Spots | 74579562921955 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Door | 82896268186640 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Catflap | 99900172207666 (#964, 11-03 22:13, run 41728803377) |
 | Icon_Clean_Trade | 86243209880722 (new 11-03 for #1024: two swap arrows, the HUD's Trade tile) |
 | Icon_Clean_PotionTip | 86488148454995 (#1070, 11-04, run 41840327151) |
 | Icon_Clean_PotionLucky | 105359839986454 (#1070, 11-04, run 41840327151) |

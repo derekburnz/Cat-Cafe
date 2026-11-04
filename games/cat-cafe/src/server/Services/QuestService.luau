@@ -287,6 +287,36 @@ function QuestService.claimAllAchievements(player: Player)
 	answer(player, allTitle(#ids, first, "achievements"), ClaimAll.merge(paid))
 end
 
+-- Claim all across the Quests window (#1073): every ready daily quest, then weekly, then achievement, each paid as
+-- its own Claim all would (marked before it pays, a set prize after a set's last quest), with one toast and one
+-- QuestResult. The server builds the list (ClaimAll.questReady); the client sends only the kind.
+function QuestService.claimEverything(player: Player)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	refresh(player, profile, os.time())
+	local ready = ClaimAll.questReady(profile)
+	if ready.count == 0 then
+		refuse(player, ClaimAll.NOTHING)
+		return
+	end
+	local paid: { string } = {}
+	for _, slot in ready.daily do
+		append(paid, payQuest(player, profile, "daily", slot, false))
+	end
+	for _, slot in ready.weekly do
+		append(paid, payQuest(player, profile, "weekly", slot, false))
+	end
+	for _, achievementId in ready.achievements do
+		local def = Catalog.getAchievement(achievementId) :: Types.AchievementDef
+		profile.achievements[achievementId] = true
+		append(paid, (Payout.pay(player, profile, Quests.achievementPrize(def), "achievement")))
+		Telemetry.custom(player, "achievement_claimed", 1, { def.id, def.size })
+	end
+	answer(player, allTitle(ready.count, "Reward claimed", "rewards"), ClaimAll.merge(paid))
+end
+
 function QuestService.start()
 	Net.on("ClaimQuest", onClaimQuest)
 	Net.on("RerollQuest", onRerollQuest)

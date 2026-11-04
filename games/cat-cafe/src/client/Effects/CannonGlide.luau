@@ -362,7 +362,7 @@ local function track()
 		target = v.last -- under the clouds
 	else
 		-- behind the flyer as it comes down onto the pad, as the player had the camera but `wide` times as far, closing
-		-- in on the player's own view of the character by the touch
+		-- in to `land` times as far by the touch
 		local fall = smooth((seconds - c.drop) / (c.touch - c.drop))
 		local rest = root.Position + v.focus
 		local coming = if body ~= nil
@@ -372,7 +372,13 @@ local function track()
 			then coming:Lerp(rest, smooth((seconds - (c.touch - c.open)) / c.open))
 			else rest
 		local look = root.LookVector * math.cos(v.pitch) + Vector3.yAxis * math.sin(v.pitch)
-		local distance = v.distance * (1 + (k.wide - 1) * (1 - fall))
+		-- `wide` times the player's distance down to `land` times it at the touch, then a slow settle onto the
+		-- player's own distance by the hand back at `ends` (#1081: the close-in read as too much zoom)
+		local settle = smooth((seconds - c.touch) / (c.ends - c.touch))
+		local scale = if seconds < c.touch
+			then k.land + (k.wide - k.land) * (1 - fall)
+			else 1 + (k.land - 1) * (1 - settle)
+		local distance = v.distance * scale
 		target = CFrame.lookAt(focus - look * distance, focus)
 	end
 	v.last = target

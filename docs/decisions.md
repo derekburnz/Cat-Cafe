@@ -375,3 +375,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Decided by Derek (2026-11-04, "go with the suggested options", relayed by the Coordinator), proposed by the game-designer thread (Design-Agent, friend's project, #1079)
 - 2026-11-04: Seven key cats get a one-line speech bubble when the player walks near: the Spin Wheel's cat, the Fish Market's shopkeeper, the Codes Cat, the Bellhop Cat (until claimed), the night dealer (while in town), the Cat Collector (while visiting) and the Corner Shop's cat. The bubble shows within 12 studs and hides past 16. Only the nearest cat shows one, and each cat stays quiet for 60 s after its bubble fades. Bubbles are client only, with no taps or windows. Why: Derek asked for bubbles with no tedious menus; one bubble at a time and the quiet time keep the square calm. Spec: [cat-bubbles.md](design/cat-cafe/cat-bubbles.md).
+
+### Recorded by the game-designer thread (Design-Agent, friend's project, #1121)
+- 2026-11-04: trading.md section 3 step 1 (Ask) now matches the game: a trade starts from the HUD Trade button (from Tier 3) and its player list, not from tapping a head tag. Reason: the code never had a head-tag path; it stays unbuilt unless Derek asks for it.

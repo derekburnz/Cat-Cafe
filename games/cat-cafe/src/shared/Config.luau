@@ -198,6 +198,21 @@ local Config = {
 		classic_crate = { 90, 10, 0, 0 },
 	} :: { [string]: { number } },
 
+	-- The Corner Shop (corner-shop.md, #1052; shared/CornerShop): a coins-only stall in the Town Square, open day and
+	-- night. Every CornerShopWindowSeconds window rolls an amount of each Catalog.cornerShop row (the chance in percent
+	-- of 0, 1, 2 and 3, by row id), the same on every server and apart from the Fresh Catch roll. Bought within
+	-- CornerShopRange of a CornerShop stall. Cat Snacks give at most CornerSnackXpPerDay XP a UTC day, across all cats.
+	CornerShopWindowSeconds = 300,
+	CornerShopRange = 14,
+	CornerShopAmountWeights = {
+		swift_potion = { 0, 20, 40, 40 },
+		cat_snack = { 10, 30, 40, 20 },
+		big_cat_snack = { 60, 35, 5, 0 },
+		bubble_machine = { 30, 50, 20, 0 },
+		cafe_fireworks = { 40, 50, 10, 0 },
+	} :: { [string]: { number } },
+	CornerSnackXpPerDay = 12000,
+
 	-- Rescue minigames (data-model section 10b)
 	RescueSpawnChance = 0.6, -- per trap at each night start
 	RescueMinStuck = 1, -- stuck cats every area gets at night start even when no trap rolled one

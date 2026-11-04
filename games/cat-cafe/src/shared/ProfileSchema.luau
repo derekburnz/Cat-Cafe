@@ -3,6 +3,7 @@
 
 local CampExtras = require(script.Parent.CampExtras)
 local CatStats = require(script.Parent.CatStats)
+local CornerShop = require(script.Parent.CornerShop)
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local DailyTreat = require(script.Parent.DailyTreat)
@@ -75,7 +76,10 @@ local ProfileSchema = {}
 -- Version 28 (F91, front-lawn.md section 5) adds lawnOwned, lawn and lawnStyles, the front lawn bought with coins: an
 -- older server would drop them, and the player would lose every piece and style paid for. Older saves start with an
 -- empty lawn, Grey Slabs and no fence; CafeService gives the Tier 2 and 3 gifts on load (Lawn.grantTierGifts).
-ProfileSchema.VERSION = 28
+-- Version 29 (#1052, corner-shop.md section 5) adds cornerShop, the Corner Shop's bought counts this window and the
+-- Cat Snack XP given today: an older server would drop it, letting a player buy a window's stock twice or pass the
+-- day's snack cap by hopping servers during a rollout. Older saves start with nothing bought.
+ProfileSchema.VERSION = 29
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -234,6 +238,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		lawnOwned = {},
 		lawn = {},
 		lawnStyles = Lawn.freshStyles(),
+		cornerShop = CornerShop.fresh(),
 	}
 end
 
@@ -843,6 +848,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- F91 (version 28): the front lawn, kept to what the tier opens
 	profile.lawnOwned, profile.lawn, profile.lawnStyles =
 		Lawn.sanitize(raw.lawnOwned, raw.lawn, raw.lawnStyles, profile.tier)
+	-- #1052 (version 29): the Corner Shop; saves before it have bought nothing and fed no snacks
+	profile.cornerShop = CornerShop.sanitize(raw.cornerShop, now)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

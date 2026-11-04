@@ -3195,6 +3195,64 @@ function Catalog.getFreshCatchRow(id: string): Types.FreshCatchRow?
 	return Catalog.freshCatchById[id]
 end
 
+-- The Corner Shop (corner-shop.md section 2, #1052): sold for coins only, in this order, each row's amount in a window
+-- rolled from Config.CornerShopAmountWeights (shared/CornerShop). `seconds` is the price in seconds of the day rate,
+-- `atLeast` the floor. Nothing random, nothing that raises income, nothing for golden fish or Robux.
+Catalog.cornerShop = {
+	{
+		id = "swift_potion",
+		name = "Swift Potion",
+		kind = "potion",
+		potionId = "swift_potion",
+		seconds = 120,
+		atLeast = 200,
+	},
+	{
+		id = "cat_snack",
+		name = "Cat Snack",
+		kind = "snack",
+		xp = 1200,
+		seconds = 300,
+		atLeast = 500,
+	},
+	{
+		id = "big_cat_snack",
+		name = "Big Cat Snack",
+		kind = "snack",
+		xp = 6000,
+		seconds = 1200,
+		atLeast = 2500,
+	},
+	{
+		id = "bubble_machine",
+		name = "Bubble Machine",
+		kind = "show",
+		showId = "bubbles",
+		showSeconds = 600,
+		seconds = 600,
+		atLeast = 1000,
+	},
+	{
+		id = "cafe_fireworks",
+		name = "Cafe Fireworks",
+		kind = "show",
+		showId = "fireworks",
+		showSeconds = 20,
+		seconds = 900,
+		atLeast = 1500,
+	},
+} :: { Types.CornerShopRow }
+Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }
+for _, row in Catalog.cornerShop do
+	Catalog.cornerShopById[row.id] = row
+	table.freeze(row)
+end
+table.freeze(Catalog.cornerShop)
+
+function Catalog.getCornerShopRow(id: string): Types.CornerShopRow?
+	return Catalog.cornerShopById[id]
+end
+
 -- F90 (cats-make-orders.md section 1): the menu, which grows with the cafe's tier. A customer picks evenly among the
 -- items its cafe's tier has opened (menuFor); the rich customer orders the newest one (newestMenuItem) on the gold
 -- plate. A drink (espresso machine or counter) takes 2 s to make, a bake (oven) 3 s. Client only and cosmetic.

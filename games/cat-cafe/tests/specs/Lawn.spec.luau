@@ -348,7 +348,7 @@ return function()
 			raw.lawn = nil
 			raw.lawnStyles = nil
 			local profile = ProfileSchema.migrate(raw, T)
-			expect(profile.version).to.equal(28)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(next(profile.lawnOwned)).never.to.be.ok()
 			expect(next(profile.lawn)).never.to.be.ok()
 			expect(profile.lawnStyles :: any).to.deepEqual({ path = "grey_slabs" })

@@ -129,6 +129,10 @@ Remotes.ClientToServer = {
 	"TradeConfirm", -- (tradeId: string, version: number)  on the confirm screen, the version on the table, after
 	-- the side's confirmAt; both confirmed swaps the cats (section 4)
 	"TradeCancel", -- (tradeId: string)  ends the caller's open trade with nothing moved, unless it is swapping
+	"BuyCornerShop", -- (itemId: string, window: number, shownPrice: number, catUid: string?)  #1052 (corner-shop.md
+	-- section 5): within CornerShopRange of a CornerShop stall, `window` the current one, fewer bought than the window
+	-- stocks, the server's price (Economy.cornerPrice) not above `shownPrice`, the coins; a snack's catUid one of the
+	-- player's cats and its XP within today's CornerSnackXpPerDay. 2 a second; answered with CornerShopStock
 }
 
 -- Server -> client.
@@ -233,6 +237,11 @@ Remotes.ServerToClient = {
 	-- fish", "1 Park Crate") and prize the same for the pictures, nil when refused (the server's toast says why)
 	"CatLevelUp", -- (uid: string, level: number)  one of this player's cats reached `level` (v0.12 F75): the toast,
 	-- the level up chime and, from the model's Level attribute, the sparkle; once per settle that raises it
+	"CornerShopStock", -- (stock: Types.CornerShopStock)  #1052: this player's Corner Shop after every BuyCornerShop,
+	-- bought or refused, on join and at each new window
+	"CafeShow", -- (userId: number, showId: string, endsAt: number)  #1052: the cafe of `userId` plays the show ("bubbles"
+	-- or "fireworks") until `endsAt` (server time), starting showSeconds before it; one show at a time a cafe, so a
+	-- bought show waits for the last to end. Sent to everyone at the buy, and the ones still running to a joiner
 }
 
 function Remotes.folder(): Folder

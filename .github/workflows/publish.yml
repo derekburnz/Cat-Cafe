@@ -1,7 +1,8 @@
 # Publish Cat Cafe to Roblox from GitHub, with no Studio window (Open Cloud place publishing).
 # Start it from the Actions tab (publish > Run workflow) or from any thread with the GitHub actions_run_trigger
 # tool. Needs the repo secret ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 15). With the repo variable
-# AUTO_PUBLISH set to true, every main commit whose check run passed also goes live. An automatic publish first
+# AUTO_PUBLISH set to true, the tip of main goes live once a check run on it has passed (a gate job publishes the
+# tip at most once, whichever run gets there; a label merge's own dispatch publishes it at once). An automatic publish first
 # shares every picture and sound with the experience (asset-permissions.yml grant), and afterwards restarts running
 # servers at once, with no countdown, only when ProfileSchema.VERSION differs from the last published build's. A run
 # that leaves every server on its build (an automatic publish, or a manual Published with restart_servers on, the
@@ -56,12 +57,13 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (vars.AUTO_PUBLISH == 'true' && github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main')
+      (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       go: ${{ steps.decide.outputs.go }}
       auto: ${{ steps.decide.outputs.auto }}
+      sha: ${{ steps.decide.outputs.sha }}
     steps:
       - name: Decide
         id: decide
@@ -75,6 +77,7 @@ jobs:
           if [ "$EVENT" = workflow_dispatch ] && [ "$AUTOMATIC" != true ]; then
             echo "go=true" >> "$GITHUB_OUTPUT"
             echo "auto=false" >> "$GITHUB_OUTPUT"
+            echo "sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
             echo "Started by hand: publishing the chosen ref."
             exit 0
           fi
@@ -83,38 +86,48 @@ jobs:
             curl -fsS --retry 3 --retry-all-errors -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$REPO/$1"
           }
-          # 1. Only the commit at the tip of main. An older one is skipped; the tip's own check run publishes it.
+          # 1. Always the tip of main, whichever run gets here: GitHub keeps one pending run per concurrency group and
+          # cancels the older one, so the run that survives must publish the tip, not its own commit. The run's own
+          # commit counts as checked (its check run passed, or a label merge checked it merged with main); any other
+          # tip needs a passed check.yml run on main first, or this run skips and the tip's own check run decides.
           tip=$(api "branches/main" | jq -r '.commit.sha // ""')
           if [ -z "$tip" ]; then
             echo "::error::Could not read the tip of main, so nothing was published."
             exit 1
           fi
           if [ "$tip" != "$HEAD_SHA" ]; then
-            echo "go=false" >> "$GITHUB_OUTPUT"
-            echo "Skipped: $HEAD_SHA is no longer the tip of main ($tip); the tip's check run will publish it."
-            exit 0
+            passed=$(api "actions/workflows/check.yml/runs?branch=main&head_sha=$tip&status=success&per_page=1" |
+              jq -r '.total_count // 0')
+            if [ "${passed:-0}" = 0 ]; then
+              echo "go=false" >> "$GITHUB_OUTPUT"
+              echo "Skipped: $HEAD_SHA is no longer the tip of main, and the tip $tip has no passed check run yet; its own check run will publish it."
+              exit 0
+            fi
+            echo "$HEAD_SHA is no longer the tip of main; the tip $tip has passed its check, so this run publishes the tip."
           fi
-          # 2. Not twice: skip when this commit is already the last live build (a re-run, or a second check run).
+          # 2. Not twice: skip when the tip is already the last live build (a re-run, or another run got there first).
+          # The newest published-build artifact from a successful publish.yml run on main says which build that is.
           last=""
-          for id in $(api "actions/workflows/publish.yml/runs?branch=main&status=success&per_page=30" |
-            jq -r --arg repo "$REPO" '.workflow_runs[] | select(.head_repository.full_name == $repo) | .id'); do
-            url=$(api "actions/runs/$id/artifacts?name=published-build" |
-              jq -r '[.artifacts[] | select(.expired | not)] | first | .archive_download_url // ""')
-            [ -n "$url" ] || continue
+          runs=$(api "actions/workflows/publish.yml/runs?branch=main&status=success&per_page=100" |
+            jq -c --arg repo "$REPO" '[.workflow_runs[] | select(.head_repository.full_name == $repo) | .id]')
+          url=$(api "actions/artifacts?name=published-build&per_page=100" |
+            jq -r --argjson runs "${runs:-[]}" '[.artifacts[] | select((.expired | not) and (.workflow_run.id as $r | $runs | index($r)))]
+              | sort_by(.created_at) | last | .archive_download_url // ""')
+          if [ -n "$url" ]; then
             dir=$(mktemp -d)
             if curl -fsSL --retry 3 --retry-all-errors -H "Authorization: Bearer $GH_TOKEN" -o "$dir/r.zip" "$url" &&
               unzip -o -q "$dir/r.zip" -d "$dir"; then
               last=$(sed -nE 's/^sha=([0-9a-f]+)$/\1/p' "$dir/published-build.txt" | head -n 1 || true)
             fi
-            break
-          done
-          if [ "$last" = "$HEAD_SHA" ]; then
+          fi
+          if [ "$last" = "$tip" ]; then
             echo "go=false" >> "$GITHUB_OUTPUT"
-            echo "Skipped: $HEAD_SHA is already the last published build."
+            echo "Skipped: $tip is already the last published build."
             exit 0
           fi
           echo "go=true" >> "$GITHUB_OUTPUT"
-          echo "Publishing $HEAD_SHA, the tip of main (last published: ${last:-unknown})."
+          echo "sha=$tip" >> "$GITHUB_OUTPUT"
+          echo "Publishing $tip, the tip of main (last published: ${last:-unknown})."
 
   publish:
     name: Build with Rojo, engine smoke test, upload
@@ -131,7 +144,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ needs.gate.outputs.sha }}
 
       - name: Check the publish key is set
         run: |
@@ -191,7 +204,7 @@ jobs:
           why="no published-build record from a successful publish run in the last 90 days"
           dir=$(mktemp -d)
           url=""
-          if runs=$(api "actions/workflows/publish.yml/runs?branch=main&status=success&per_page=30"); then
+          if runs=$(api "actions/workflows/publish.yml/runs?branch=main&status=success&per_page=100"); then
             for id in $(jq -r --arg repo "$REPO" '.workflow_runs[] | select(.head_repository.full_name == $repo) | .id' <<<"$runs"); do
               if ! found=$(api "actions/runs/$id/artifacts?name=published-build"); then
                 why="GitHub's API could not list run $id's artifacts"
@@ -276,7 +289,7 @@ jobs:
           steps.live.outcome == 'success' &&
           (needs.gate.outputs.auto == 'true' || inputs.restart_servers)
         env:
-          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          SHA: ${{ needs.gate.outputs.sha }}
           VERSION: ${{ steps.schema.outputs.version }}
         run: printf 'profile_version=%s\nsha=%s\n' "$VERSION" "$SHA" > published-build.txt
 

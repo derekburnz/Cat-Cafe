@@ -15,15 +15,20 @@ return function()
 	end
 
 	describe("SafeWords.fit", function()
-		it("puts the full 12 wide words in the middle of an empty camp, behind the stripe", function()
-			local spot = SafeWords.fit({}, 60)
-			expect(spot ~= nil).to.equal(true)
-			local at = spot :: SafeWords.Spot
-			expect(at.width).to.equal(12)
-			expect(at.x).to.equal(0)
-			local nearEdge = at.z + at.width * SafeWords.RATIO / 2
-			expect(nearEdge <= SafeWords.STRIPE_Z - SafeWords.STRIPE_HALF - GAP + 1e-9).to.equal(true)
-		end)
+		it(
+			"puts the full 12 wide words in the middle of an empty camp, behind the stripe",
+			function()
+				local spot = SafeWords.fit({}, 60)
+				expect(spot ~= nil).to.equal(true)
+				local at = spot :: SafeWords.Spot
+				expect(at.width).to.equal(12)
+				expect(at.x).to.equal(0)
+				local nearEdge = at.z + at.width * SafeWords.RATIO / 2
+				expect(nearEdge <= SafeWords.STRIPE_Z - SafeWords.STRIPE_HALF - GAP + 1e-9).to.equal(
+					true
+				)
+			end
+		)
 
 		it("keeps a stud clear of a circle plaza dead ahead by shrinking or moving", function()
 			-- a round plaza's box from z -5 deeper, 16 wide, as the Park's

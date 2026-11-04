@@ -1263,17 +1263,23 @@ local function paintCampWords(
 			if piece.Transparency >= 0.95 then
 				continue
 			end
-			if piece:IsA("Part") and (piece :: Part).Shape == Enum.PartType.Block and piece.Size.Y <= 0.03 then
+			if
+				piece:IsA("Part")
+				and (piece :: Part).Shape == Enum.PartType.Block
+				and piece.Size.Y <= 0.03
+			then
 				continue
 			end
 			local half = piece.Size / 2
-			local box: SafeWords.Box = { x1 = math.huge, z1 = math.huge, x2 = -math.huge, z2 = -math.huge }
+			local box: SafeWords.Box =
+				{ x1 = math.huge, z1 = math.huge, x2 = -math.huge, z2 = -math.huge }
 			local low: number = math.huge
 			local high: number = -math.huge
 			for _, sx in { -1, 1 } do
 				for _, sy in { -1, 1 } do
 					for _, sz in { -1, 1 } do
-						local corner = piece.CFrame * Vector3.new(half.X * sx, half.Y * sy, half.Z * sz)
+						local corner = piece.CFrame
+							* Vector3.new(half.X * sx, half.Y * sy, half.Z * sz)
 						local at = base:PointToObjectSpace(Vector3.new(corner.X, floorY, corner.Z))
 						box.x1, box.x2 = math.min(box.x1, at.X), math.max(box.x2, at.X)
 						box.z1, box.z2 = math.min(box.z1, at.Z), math.max(box.z2, at.Z)

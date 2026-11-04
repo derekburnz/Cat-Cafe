@@ -133,7 +133,9 @@ end
 
 -- The Odds lines on a Yard Sale crate (#1051): the crate's own rarity table as the Market shows it. The take is free,
 -- but the crate is random, so its odds show before it is taken (monetization-policy section 2, the Market's rule).
-function CampExtrasLogic.yardOddsLines(odds: { [string]: number }?): { { rarity: string, text: string } }
+function CampExtrasLogic.yardOddsLines(
+	odds: { [string]: number }?
+): { { rarity: string, text: string } }
 	local lines = {}
 	for _, row in MarketLogic.rarityRows(odds or {}) do
 		table.insert(lines, { rarity = row.rarity, text = MarketLogic.percent(row.percent) })

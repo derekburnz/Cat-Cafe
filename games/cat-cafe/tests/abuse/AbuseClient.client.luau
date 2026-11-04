@@ -2779,7 +2779,7 @@ end
 case(
 	"tackle",
 	Enum.KeyCode.Slash,
-	"Tackle: on the street, alone in the Alleyway, 10 in one frame, the 8 s cooldown, while carrying",
+	"Tackle: on the street, alone in the Alleyway, 10 in one frame, the 5 s cooldown, while carrying",
 	function()
 		if not checkInIfCarrying() then
 			return "SKIP", "carrying a cat that could not be checked in"

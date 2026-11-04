@@ -46,6 +46,24 @@ return function()
 			end
 		)
 
+		it(
+			"shows no net on a staged copy flagged IntroNoNet, and a net on one without the flag",
+			function()
+				expect(Avatar.holdsNet(nil, nil, true, nil, true)).to.equal(false)
+				expect(Avatar.holdsNet(nil, nil, true, nil, nil)).to.equal(true)
+				expect(Avatar.holdsNet(nil, nil, true, nil, false)).to.equal(true)
+			end
+		)
+
+		it("keeps the arm down while IntroNoNet hides the net (weight eases to 0)", function()
+			local weight = 1
+			for _ = 1, 60 do
+				weight =
+					Avatar.holdWeight(weight, Avatar.holdsNet(nil, nil, true, nil, true), 1 / 30)
+			end
+			expect(weight).to.equal(0)
+		end)
+
 		it("shows one model a level: Basic, Sturdy, Pro and Master", function()
 			expect(Avatar.netModel(0)).to.equal(1)
 			expect(Avatar.netModel(1)).to.equal(2)

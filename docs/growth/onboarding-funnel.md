@@ -14,7 +14,10 @@ Owner: growth-analyst. Written 2026-11-04 with #1273. The step list and when eac
 2. **Steps are "reached or passed".** A server step that proves earlier ones logs them too (a catch logs the stray and the catch card), and Roblox counts any step before a logged one as done. So a client step (the tutorial cards, the catch card, the first window) can read a little higher than the number who truly saw it. A drop between two client steps is still real.
 3. **Who is in it**: only players whose save had not caught a cat by 2026-11-04, and everyone who joins after. Veterans left the funnel on their next join.
 4. **Pair a drop with time.** `session_30s` to `session_10m` carry the furthest step and the screen open at that moment; `new_player_left` and `quit_point` carry the same as a player leaves, with the seconds played as the value. Break them down by the first field to see where people are standing when they go.
-5. **Small numbers lie.** Under about 100 players at step 1, a 10 point swing is noise. Wait for a few days of data before acting on one step.
+5. **Rescue first, catch steps implied.** A player whose first cat is a rescue logs `catch_started` and `first_circle_hit` with it, though they never saw the circles; `first_catch_tries` says "rescue" for them.
+6. **Release days are noisy.** While old servers still run after the 2026-11-04 release, a new player who hops to one can drop out of v3 for good (the old server reads the save as an old funnel). Leave the first day or two out when comparing.
+7. **The intro funnel counts any play.** Since the intro is played from the tile, a later replay that reaches further moves the player on; `intro_cutscene`'s first or replay field tells the two apart.
+8. **Small numbers lie.** Under about 100 players at step 1, a 10 point swing is noise. Wait for a few days of data before acting on one step.
 
 ## Step by step: what a big drop likely means
 

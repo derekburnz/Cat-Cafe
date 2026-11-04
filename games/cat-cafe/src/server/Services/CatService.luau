@@ -960,19 +960,18 @@ local function startCarry(
 	if profile ~= nil then
 		-- a catch is out in an area: first_catch implies the alley step when TutorialAdvance 1 never came (#1273)
 		if not Onboarding.reached(profile.telemetry, "first_catch") then
-			Telemetry.custom(
-				player,
-				"first_catch_tries",
-				math.max(1, profile.stats.grabsAttempted),
-				{
-					if method == "rescue" then "rescue" else "net",
-				}
-			)
+			local tries = if method == "rescue"
+				then profile.stats.rescueAttempts
+				else profile.stats.grabsAttempted
+			Telemetry.custom(player, "first_catch_tries", math.max(1, tries), {
+				if method == "rescue" then "rescue" else "net",
+			})
 			Telemetry.onboarding(player, profile, "first_catch")
 			-- #1273: still holding it CARRY_STEP_SECONDS later (a check-in sooner implies the step)
 			task.delay(CARRY_STEP_SECONDS, function()
 				local current = DataService.get(player)
-				if current ~= nil and carrying[player] ~= nil then
+				-- the same carry: a cat dropped and another picked up in the meantime does not count (review)
+				if current ~= nil and carrying[player] == carry then
 					Telemetry.onboarding(player, current, "carrying_first_cat")
 				end
 			end)

@@ -221,6 +221,7 @@ type Session = {
 	nudges: { [string]: boolean }, -- F87: stuck_nudge already logged this session, by "<tutorialStep>:<kind>"
 	introChoices: number, -- F87: intro_choice events logged this session
 	screen: string, -- #1273: the screen open as last reported (a SCREENS value, "other" or "none")
+	uiOpened: { [string]: boolean }, -- ui_opened logged this session, by screen, so a flood logs each once (review)
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
 }
 
@@ -871,7 +872,8 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		end
 	else
 		local screen = if type(rawValue) == "string" then SCREENS[rawValue] else nil
-		if screen ~= nil then
+		if screen ~= nil and not session.uiOpened[screen] then
+			session.uiOpened[screen] = true
 			Telemetry.custom(player, "ui_opened", 1, { screen })
 			if not Onboarding.reached(profile.telemetry, "first_window_opened") then
 				Telemetry.custom(player, "first_window", 1, { screen })
@@ -923,6 +925,7 @@ local function onLoaded(player: Player, profile: Profile)
 		nudges = {},
 		introChoices = 0,
 		screen = "none",
+		uiOpened = {},
 		tutorialClosed = false,
 	}
 	sessions[player] = session

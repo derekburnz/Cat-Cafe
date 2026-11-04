@@ -23,6 +23,7 @@ local CornerShopService = require(script.Parent.Services.CornerShopService)
 local DailyTreatService = require(script.Parent.Services.DailyTreatService)
 local DataService = require(script.Parent.Services.DataService)
 local DealerService = require(script.Parent.Services.DealerService)
+local FeedService = require(script.Parent.Services.FeedService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
 local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
 local IndexRewardService = require(script.Parent.Services.IndexRewardService)
@@ -97,6 +98,7 @@ ClaimAllService.start() -- Claim all in the Quests window, the Index and the Tip
 SpinService.start()
 FishMarketService.start()
 CornerShopService.start() -- #1052: the coins-only Corner Shop
+FeedService.start() -- #1181: cat food from the Bag (FeedCat)
 CodeService.start()
 StarterCatService.start() -- F96: the free Bellhop Cat
 RareMomentService.start() -- F89: the toast clock

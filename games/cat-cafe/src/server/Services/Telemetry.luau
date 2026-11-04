@@ -45,6 +45,8 @@ export type CustomEvent =
 	| "fresh_catch_buy"
 	-- #1052 (corner-shop.md section 4): a Corner Shop buy, value the coins spent; the row id, tier
 	| "corner_shop_buy"
+	-- #1181 (corner-shop-v2.md section 4): a food fed from the Bag, value its XP; the food id
+	| "cat_fed"
 	| "rich_tip"
 	| "cat_sold"
 	| "cat_renamed"

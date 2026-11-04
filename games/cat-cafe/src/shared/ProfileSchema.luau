@@ -84,7 +84,10 @@ local ProfileSchema = {}
 -- You board: an older server would drop it, and the player's name would come back on the board after a rollout.
 -- Version 31 (#1182) adds receipts, the developer product PurchaseIds already granted: an older server would drop
 -- them, and a receipt Roblox delivers again after a rollout would grant its potions twice.
-ProfileSchema.VERSION = 31
+-- Version 32 (#1180, #1181; corner-shop-v2.md section 4) adds catFood, the Bag's cat food, and the Corner Shop's day
+-- counters (day, today, foodXpToday; snackDay and snackXp go): an older server would drop them, losing the food
+-- bought and letting a player pass a daily limit by hopping servers during a rollout.
+ProfileSchema.VERSION = 32
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -246,6 +249,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		cornerShop = CornerShop.fresh(),
 		hideCredit = nil,
 		receipts = {},
+		catFood = {},
 	}
 end
 
@@ -861,6 +865,15 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.hideCredit = if raw.hideCredit == true then true else nil
 	-- #1182 (version 31): the granted PurchaseIds, kept as strings, newest last; older saves have granted none
 	profile.receipts = Products.sanitize(raw.receipts)
+	-- #1181 (version 32): the Bag's cat food, known foods only, whole counts of 1 to CatFoodMax
+	if type(raw.catFood) == "table" then
+		for _, food in Catalog.catFood do
+			local count = raw.catFood[food.id]
+			if type(count) == "number" and count == count and count >= 1 then
+				profile.catFood[food.id] = math.min(math.floor(count), Config.CatFoodMax)
+			end
+		end
+	end
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

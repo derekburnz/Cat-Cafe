@@ -183,6 +183,9 @@ export type ProductDef = {
 	prize: { potions: { [string]: number } },
 }
 
+-- Cat food (corner-shop-v2.md section 3, #1181): kept in the Bag (profile.catFood) and fed to one cat with FeedCat.
+export type CatFoodDef = { id: string, name: string, xp: number }
+
 export type IndexPrize = {
 	coins: number?,
 	coinSeconds: number?,
@@ -202,6 +205,10 @@ export type IndexPrize = {
 -- `effect` is one short line for the bag. Potions are earned only.
 export type PotionDef = {
 	id: string,
+	-- corner-shop-v2.md section 4: a Small or Big size of another potion runs that potion's timer (`buff`), so one chip
+	-- shows the summed minutes; `shopOnly` keeps a size or the Cat Whistle out of Mystery gifts.
+	buff: string?,
+	shopOnly: boolean?,
 	name: string,
 	minutes: number,
 	effect: string,
@@ -771,29 +778,48 @@ export type FreshCatchRow = {
 export type FreshCatchItem = { itemId: string, fish: number, amount: number, bought: number }
 export type FreshCatchStock = { window: number, restocksAt: number, stock: { FreshCatchItem } }
 
--- The Corner Shop (corner-shop.md section 5, #1052). A row sells for coins only: a potion into the bag, a snack of
--- `xp` for one cat the player picks, or a show (`showId`, `showSeconds` long) over the buyer's cafe. Its price is
--- `seconds` of the player's day rate, at least `atLeast` (Economy.cornerPrice).
+-- The Corner Shop (corner-shop.md, #1052): sold for coins only.
+-- v2 (corner-shop-v2.md section 4, #1180): every row sold for coins at a fixed `price`, in a `family` (its daily limit
+-- counts the family, Config.CornerDailyLimits) and a `size` (its stock chance, Config.CornerShopSizeWeights). A
+-- "potion" row gives `potionId` into the bag, a "food" row `foodId` into the Bag's cat food (its `xp` is that food's)
+-- and a "show" row plays `showId` over the buyer's cafe. `needsTier` hides and refuses the row below that tier.
+export type CornerShopSize = "small" | "regular" | "big" | "mega"
 export type CornerShopRow = {
 	id: string,
 	name: string,
-	kind: "potion" | "snack" | "show",
+	family: string,
+	size: CornerShopSize,
+	kind: "potion" | "food" | "show",
+	price: number,
 	potionId: string?,
+	foodId: string?,
 	xp: number?,
 	showId: string?,
 	showSeconds: number?,
-	seconds: number,
-	atLeast: number,
+	needsTier: number?,
 }
--- Saved (version 29): the window the bought counts belong to, and the snack XP given on UTC day `snackDay`.
+-- Saved (version 32): the window the bought counts belong to, and on UTC day `day` each family's buys (`today`) and
+-- the cat food XP bought (`foodXpToday`).
 export type CornerShopState = {
 	window: number,
 	bought: { [string]: number },
-	snackDay: number,
-	snackXp: number,
+	day: number,
+	today: { [string]: number },
+	foodXpToday: number,
 }
-export type CornerShopItem = { itemId: string, price: number, amount: number, bought: number }
--- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and today's snack XP.
+-- One row as CornerShopStock sends it: `today` the family's buys today and `perDay` its limit (nil: none).
+export type CornerShopItem = {
+	itemId: string,
+	price: number,
+	amount: number,
+	bought: number,
+	size: CornerShopSize,
+	needsTier: number?,
+	today: number,
+	perDay: number?,
+}
+-- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and the cat food XP bought
+-- today (`snackXp`, its v1 name, which the window reads).
 export type CornerShopStock = {
 	window: number,
 	restocksAt: number,
@@ -895,7 +921,8 @@ export type PlayerProfile = {
 	lawnOwned: { [string]: boolean },
 	lawn: { [string]: string },
 	lawnStyles: LawnStyles,
-	cornerShop: CornerShopState, -- #1052 (corner-shop.md section 5, save version 29)
+	cornerShop: CornerShopState, -- #1052 (corner-shop.md section 5, save version 29; v2 counters version 32)
+	catFood: { [string]: number }, -- #1181 (corner-shop-v2.md section 3, save version 32): food id -> count in the Bag
 	hideCredit: boolean?, -- #1083 (idea-credits.md section 4, save version 30): true keeps the name off the Thank You board
 	receipts: { string }, -- #1182 (save version 31): the newest Products.RECEIPT_LIMIT developer product PurchaseIds granted
 }
@@ -939,6 +966,7 @@ export type PlayerState = {
 	tutorialStep: number,
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
+	catFood: { [string]: number }, -- #1181: food id -> count in the Bag
 	buffs: { [string]: number }, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
 	settings: Settings, -- the Settings screen follows these; Audio mutes and sets its channels by them
 	quests: QuestsView, -- F73: the Quests window's Daily and Weekly tabs and the HUD tracker

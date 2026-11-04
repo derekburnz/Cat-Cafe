@@ -17,7 +17,7 @@ return function()
 	end
 
 	describe("Catalog.potions and Catalog.mysteryGift (section 12b)", function()
-		it("has the seven potions in bag order with the design's minutes", function()
+		it("has the potions in bag order with the design's minutes (Corner Shop v2 adds its own)", function()
 			local minutes: { [string]: number } = {}
 			local order: { string } = {}
 			for _, def in Catalog.potions do
@@ -34,11 +34,30 @@ return function()
 				"big_tip_potion",
 				"gold_rush_potion",
 				"quick_bait_potion",
+				-- corner-shop-v2.md section 1: the Cat Whistle and the Corner Shop's sizes
+				"cat_whistle",
+				"swift_potion_small",
+				"swift_potion_big",
+				"steady_potion_small",
+				"steady_potion_big",
+				"quick_bait_potion_small",
+				"quick_bait_potion_big",
+				"cat_whistle_small",
+				"cat_whistle_big",
 			})
 			expect(minutes).to.deepEqual({
 				tip_potion = 10,
 				lucky_potion = 10,
-				swift_potion = 5,
+				swift_potion = 10, -- corner-shop-v2.md section 1 (was 5)
+				cat_whistle = 10,
+				swift_potion_small = 3,
+				swift_potion_big = 30,
+				steady_potion_small = 5,
+				steady_potion_big = 30,
+				quick_bait_potion_small = 10,
+				quick_bait_potion_big = 60,
+				cat_whistle_small = 5,
+				cat_whistle_big = 30,
 				steady_potion = 10,
 				big_tip_potion = 30,
 				gold_rush_potion = 30,
@@ -100,7 +119,7 @@ return function()
 			p.potions.swift_potion = 1
 			p.buffs.swift_potion = 100 -- 100 s left at 1000, 40 at 1060
 			Potions.use(p, "swift_potion", 1060)
-			expect(Potions.left(p, "swift_potion", 1060)).to.equal(40 + 300)
+			expect(Potions.left(p, "swift_potion", 1060)).to.equal(40 + 600)
 		end)
 
 		it("refuses a drink whole when it would pass PotionMaxMinutes (v0.13.8)", function()
@@ -372,21 +391,22 @@ return function()
 
 	describe("potion edges (QA)", function()
 		it(
-			"refuses a 10 minute potion 5 minutes from the cap and takes it at 10; a Swift fits at 5 exactly",
+			"refuses a 10 minute potion 5 minutes from the cap and takes it at 10; a Small Swift fits at 3 exactly",
 			function()
 				-- the cap is PotionMaxMinutes (F95: 24 hours, was 60 minutes)
 				local cap = Config.PotionMaxMinutes * 60
 				local p = fresh(1000)
 				p.potions.tip_potion = 1
-				p.potions.swift_potion = 1
+				p.potions.swift_potion_small = 1
 				p.buffs.tip_potion = cap - 5 * 60
 				expect(Potions.useBlocker(p, "tip_potion", 1000)).to.equal("Full")
 				p.buffs.tip_potion = cap - 10 * 60
 				expect(Potions.useBlocker(p, "tip_potion", 1000)).to.equal(nil)
-				p.buffs.swift_potion = cap - 5 * 60
-				expect(Potions.useBlocker(p, "swift_potion", 1000)).to.equal(nil)
-				p.buffs.swift_potion = cap - 5 * 60 + 1
-				expect(Potions.useBlocker(p, "swift_potion", 1000)).to.equal("Full")
+				-- a Small Swift (3 minutes) runs the Swift Potion's timer (corner-shop-v2.md section 4)
+				p.buffs.swift_potion = cap - 3 * 60
+				expect(Potions.useBlocker(p, "swift_potion_small", 1000)).to.equal(nil)
+				p.buffs.swift_potion = cap - 3 * 60 + 1
+				expect(Potions.useBlocker(p, "swift_potion_small", 1000)).to.equal("Full")
 			end
 		)
 
@@ -457,9 +477,10 @@ return function()
 						seen[gift.kind .. ":" .. tostring(gift.id)] = true
 					end
 				end
-				-- F73: the quest potions come only from quest sets and achievements, never from his gift
+				-- F73: the quest potions come only from quest sets and achievements, never from his gift, and the
+				-- Corner Shop's own (corner-shop-v2.md) only from the shop
 				for _, def in Catalog.potions do
-					expect(seen["potion:" .. def.id] == true).to.equal(def.quest ~= true)
+					expect(seen["potion:" .. def.id] == true).to.equal(def.quest ~= true and def.shopOnly ~= true)
 				end
 				expect(seen["fish:nil"] and seen["spin:nil"]).to.equal(true)
 				for key in seen do

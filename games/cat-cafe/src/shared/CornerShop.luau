@@ -1,14 +1,15 @@
 --!strict
--- The Corner Shop (corner-shop.md, #1052): a coins-only stall in the Town Square, open day and night. Every
--- CornerShopWindowSeconds window rolls an amount of each Catalog.cornerShop row from Config.CornerShopAmountWeights,
--- seeded only from the global window with the salt "corner", so every server shows the same stock and it differs
--- from the Fresh Catch's roll in the same window. The amount is per player: each player may buy up to it of each row
--- in the window. Cat Snacks give at most CornerSnackXpPerDay XP a UTC day across all cats. Pure: the server's
--- CornerShopService checks the range, takes the coins and gives the item; the window shows the same numbers.
+-- The Corner Shop (corner-shop.md, #1052; v2 corner-shop-v2.md, #1180 and #1181): a coins-only stall in the Town
+-- Square, open day and night. Every CornerShopWindowSeconds window rolls an amount of each Catalog.cornerShop row from
+-- its size's Config.CornerShopSizeWeights, seeded only from the global window with the salt "corner", so every server
+-- shows the same stock and it differs from the Fresh Catch's roll in the same window. The amount is per player: each
+-- player may buy up to it of each row in the window. Prices are fixed (the row's `price`). A UTC day allows at most
+-- Config.CornerDailyLimits of a family, any size, and CornerFoodXpPerDay XP of cat food bought; a row's `needsTier`
+-- refuses it below that tier. Pure: the server's CornerShopService checks the range, takes the coins and gives the
+-- item; the window shows the same numbers.
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
-local Economy = require(script.Parent.Economy)
 local FreshCatch = require(script.Parent.FreshCatch)
 local Types = require(script.Parent.Types)
 
@@ -55,7 +56,7 @@ function CornerShop.stock(window: number): { ItemAmount }
 	local items: { ItemAmount } = {}
 	for _, row in Catalog.cornerShop do
 		state = (state * MULTIPLIER) % MODULUS
-		local weights = Config.CornerShopAmountWeights[row.id]
+		local weights = Config.CornerShopSizeWeights[row.size]
 		table.insert(items, {
 			itemId = row.id,
 			amount = if weights ~= nil then FreshCatch.pickAmount(weights, state / MODULUS) else 0,
@@ -76,19 +77,20 @@ end
 
 -- A new player's state.
 function CornerShop.fresh(): Types.CornerShopState
-	return { window = 0, bought = {}, snackDay = 0, snackXp = 0 }
+	return { window = 0, bought = {}, day = 0, today = {}, foodXpToday = 0 }
 end
 
 -- Clears the bought counts once the window has moved on (never on a step back: two servers' clocks can differ by a
--- second at a window edge, reviewer N32), and the snack XP once the UTC day has.
+-- second at a window edge, reviewer N32), and the day's counts once the UTC day has.
 function CornerShop.refresh(state: Types.CornerShopState, window: number, day: number)
 	if window > state.window then
 		state.window = window
 		state.bought = {}
 	end
-	if day > state.snackDay then
-		state.snackDay = day
-		state.snackXp = 0
+	if day > state.day then
+		state.day = day
+		state.today = {}
+		state.foodXpToday = 0
 	end
 end
 
@@ -97,54 +99,59 @@ function CornerShop.behind(state: Types.CornerShopState, window: number): boolea
 	return window < state.window
 end
 
--- The snack XP left today for a refreshed state.
-function CornerShop.snackRoom(state: Types.CornerShopState): number
-	return math.max(0, Config.CornerSnackXpPerDay - state.snackXp)
+-- The cat food XP that may still be bought today, for a refreshed state.
+function CornerShop.foodRoom(state: Types.CornerShopState): number
+	return math.max(0, Config.CornerFoodXpPerDay - state.foodXpToday)
 end
 
--- What CornerShopStock sends for a refreshed state at `dayRate`.
-function CornerShop.view(
-	state: Types.CornerShopState,
-	window: number,
-	dayRate: number
-): Types.CornerShopStock
+-- A family's daily limit, or nil for none (the Swift Potion, food, which counts XP instead, and the shows).
+function CornerShop.perDay(family: string): number?
+	return Config.CornerDailyLimits[family]
+end
+
+-- What CornerShopStock sends for a refreshed state.
+function CornerShop.view(state: Types.CornerShopState, window: number): Types.CornerShopStock
 	local stock: { Types.CornerShopItem } = {}
 	for _, item in CornerShop.stock(window) do
 		local row = Catalog.getCornerShopRow(item.itemId) :: Types.CornerShopRow
 		table.insert(stock, {
 			itemId = item.itemId,
-			price = Economy.cornerPrice(row, dayRate),
+			price = row.price,
 			amount = item.amount,
 			bought = state.bought[item.itemId] or 0,
+			size = row.size,
+			needsTier = row.needsTier,
+			today = state.today[row.family] or 0,
+			perDay = CornerShop.perDay(row.family),
 		})
 	end
 	return {
 		window = window,
 		restocksAt = CornerShop.restocksAt(window),
 		stock = stock,
-		snackXp = state.snackXp,
+		snackXp = state.foodXpToday,
 	}
 end
 
+-- What a buy is checked against besides the state: the server's window and the player's tier, coins and Bag count of
+-- the row's food.
 export type Buy = {
 	itemId: string,
 	seenWindow: number,
-	shownPrice: number,
-	ownsCat: boolean, -- a snack's cat is the player's (the server looks it up); true for every other row
+	tier: number,
+	coins: number,
+	foodHeld: number,
 }
 
--- Why a buy would be refused for a refreshed state, or nil, and the price it charges. `window` is the server's,
--- `price` the server's price, `coins` what the player has. The server checks the range itself.
-function CornerShop.buyBlocker(
-	state: Types.CornerShopState,
-	buy: Buy,
-	window: number,
-	price: number,
-	coins: number
-): string?
+-- Why a buy would be refused for a refreshed state at the server's `window`, or nil (QA checks 3 and 4). The server
+-- checks the range itself.
+function CornerShop.buyBlocker(state: Types.CornerShopState, buy: Buy, window: number): string?
 	local row = Catalog.getCornerShopRow(buy.itemId)
 	if row == nil then
 		return "That isn't in the Corner Shop."
+	end
+	if row.needsTier ~= nil and buy.tier < row.needsTier then
+		return string.format("Opens at Tier %d", row.needsTier)
 	end
 	if CornerShop.behind(state, window) then
 		return "The shop is restocking. Try again in a moment."
@@ -161,26 +168,39 @@ function CornerShop.buyBlocker(
 			then "You bought the only one this time."
 			else "You bought them all this time."
 	end
-	if price > buy.shownPrice then
-		-- the day rate rose while the window was open: never charge more than the player saw
-		return "The price just changed. Take another look."
+	local limit = CornerShop.perDay(row.family)
+	local today = state.today[row.family] or 0
+	if limit ~= nil and today >= limit then
+		return string.format("%d of %d today", today, limit)
 	end
-	if row.kind == "snack" then
-		if not buy.ownsCat then
-			return "Pick one of your cats for the snack."
+	if row.kind == "food" then
+		if (row.xp or 0) > CornerShop.foodRoom(state) then
+			return "Cat food is full for today"
 		end
-		if (row.xp or 0) > CornerShop.snackRoom(state) then
-			return "Snacks are full for today"
+		if buy.foodHeld >= Config.CatFoodMax then
+			return "Your Bag is full of that food"
 		end
 	end
-	if coins < price then
+	if buy.coins < row.price then
 		return "Not enough coins"
 	end
 	return nil
 end
 
--- A saved state made whole at os.time() `now`: whole numbers, the window no later than the next one, the snack day
--- no later than today, the snack XP within the cap, and a count per row of at most the largest amount a window rolls.
+-- Marks a passed buy of `itemId` on the state: the window's count, the family's count today and, for food, its XP.
+function CornerShop.record(state: Types.CornerShopState, itemId: string)
+	local row = Catalog.getCornerShopRow(itemId) :: Types.CornerShopRow
+	state.bought[itemId] = (state.bought[itemId] or 0) + 1
+	state.today[row.family] = (state.today[row.family] or 0) + 1
+	if row.kind == "food" then
+		state.foodXpToday += row.xp or 0
+	end
+end
+
+-- A saved state made whole at os.time() `now`: whole numbers, the window no later than the next one, the day no
+-- later than today, each family's count within its limit (a family with no limit within the most a day's windows
+-- could sell), the food XP within the cap, and a count per row of at most the largest amount a window rolls. A v1
+-- save (snackDay, snackXp) starts the day afresh.
 function CornerShop.sanitize(raw: unknown, now: number): Types.CornerShopState
 	local state = CornerShop.fresh()
 	if type(raw) ~= "table" then
@@ -191,11 +211,13 @@ function CornerShop.sanitize(raw: unknown, now: number): Types.CornerShopState
 		return if type(x) == "number" and x == x and math.abs(x) < 2 ^ 40 then math.floor(x) else 0
 	end
 	state.window = math.clamp(whole(value.window), 0, CornerShop.window(now) + 1)
-	state.snackDay = math.clamp(whole(value.snackDay), 0, CornerShop.day(now))
-	state.snackXp = math.clamp(whole(value.snackXp), 0, Config.CornerSnackXpPerDay)
+	state.day = math.clamp(whole(value.day), 0, CornerShop.day(now))
+	state.foodXpToday = math.clamp(whole(value.foodXpToday), 0, Config.CornerFoodXpPerDay)
+	local families: { [string]: boolean } = {}
 	if type(value.bought) == "table" then
 		for _, row in Catalog.cornerShop do
-			local weights: { number } = Config.CornerShopAmountWeights[row.id] or {}
+			families[row.family] = true
+			local weights: { number } = Config.CornerShopSizeWeights[row.size] or {}
 			local most = 0
 			for index, weight in weights do
 				if weight > 0 then
@@ -205,6 +227,20 @@ function CornerShop.sanitize(raw: unknown, now: number): Types.CornerShopState
 			local count = math.clamp(whole(value.bought[row.id]), 0, most)
 			if count > 0 then
 				state.bought[row.id] = count
+			end
+		end
+	else
+		for _, row in Catalog.cornerShop do
+			families[row.family] = true
+		end
+	end
+	if type(value.today) == "table" then
+		local dayMost = math.ceil(86400 / Config.CornerShopWindowSeconds) * 3 * #Catalog.cornerShop
+		for family in families do
+			local count =
+				math.clamp(whole(value.today[family]), 0, CornerShop.perDay(family) or dayMost)
+			if count > 0 then
+				state.today[family] = count
 			end
 		end
 	end

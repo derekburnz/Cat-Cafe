@@ -135,10 +135,13 @@ Remotes.ClientToServer = {
 	"TradeConfirm", -- (tradeId: string, version: number)  on the confirm screen, the version on the table, after
 	-- the side's confirmAt; both confirmed swaps the cats (section 4)
 	"TradeCancel", -- (tradeId: string)  ends the caller's open trade with nothing moved, unless it is swapping
-	"BuyCornerShop", -- (itemId: string, window: number, shownPrice: number, catUid: string?)  #1052 (corner-shop.md
-	-- section 5): within CornerShopRange of a CornerShop stall, `window` the current one, fewer bought than the window
-	-- stocks, the server's price (Economy.cornerPrice) not above `shownPrice`, the coins; a snack's catUid one of the
-	-- player's cats and its XP within today's CornerSnackXpPerDay. 2 a second; answered with CornerShopStock
+	"BuyCornerShop", -- (itemId: string, window: number)  #1052, v2 corner-shop-v2.md section 4: within
+	-- CornerShopRange of a CornerShop stall, `window` the current one, the row's needsTier met, fewer bought than the
+	-- window stocks, the family's CornerDailyLimits not reached, for food the day's bought XP within
+	-- CornerFoodXpPerDay, the row's fixed price in coins. A potion goes to the bag and food to the Bag's catFood (no
+	-- cat pick); any later arguments are ignored. 2 a second; answered with CornerShopStock
+	"FeedCat", -- (foodId: string, catUid: string)  #1181: one of that food from the Bag to one of the player's cats,
+	-- below CatMaxLevel; its XP through CatStats.addXp. 4 a second; answered with FeedResult and a ProfileSync
 	"SetHideCredit", -- (hide: boolean)  #1083: keeps the player's display name off the Thank You board (true) or puts it
 	-- back (false); saves profile.hideCredit and the board shows it from its next build; 1 a second
 }
@@ -249,6 +252,8 @@ Remotes.ServerToClient = {
 	-- the level up chime and, from the model's Level attribute, the sparkle; once per settle that raises it
 	"CornerShopStock", -- (stock: Types.CornerShopStock)  #1052: this player's Corner Shop after every BuyCornerShop,
 	-- bought or refused, on join and at each new window
+	"FeedResult", -- (catUid: string, level: number, xp: number)  #1181: the fed cat's new level and XP into it, after a
+	-- FeedCat that passed (a refusal toasts why)
 	"CafeShow", -- (userId: number, showId: string, endsAt: number)  #1052: the cafe of `userId` plays the show ("bubbles"
 	-- or "fireworks") until `endsAt` (server time), starting showSeconds before it; one show at a time a cafe, so a
 	-- bought show waits for the last to end. Sent to everyone at the buy, and the ones still running to a joiner

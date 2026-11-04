@@ -1315,7 +1315,8 @@ function FishMarket._open(self: any, crate: Types.CrateDef)
 end
 
 function FishMarket._buyBundle(self: any, crate: Types.CrateDef)
-	local buy = self._callbacks.buyCrateBundle
+	local callbacks: Callbacks = self._callbacks
+	local buy = callbacks.buyCrateBundle
 	local key = BUNDLE_KEY .. crate.id
 	if buy == nil or self:_pendingFor(key) then
 		return

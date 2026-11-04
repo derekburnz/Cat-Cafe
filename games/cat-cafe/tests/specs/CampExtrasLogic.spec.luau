@@ -119,6 +119,31 @@ return function()
 		end)
 	end)
 
+	describe("CampExtrasLogic.yardOddsLines", function()
+		it("lists the crate's rarities Common first with Market percents (#1051)", function()
+			local lines = CampExtrasLogic.yardOddsLines({
+				Mythical = 0.5,
+				Common = 60,
+				Rare = 27,
+				Epic = 10,
+				Legendary = 2.5,
+			})
+			expect(#lines).to.equal(5)
+			expect(lines[1].rarity).to.equal("Common")
+			expect(lines[1].text).to.equal("60%")
+			expect(lines[4].text).to.equal("2.5%")
+			expect(lines[5].rarity).to.equal("Mythical")
+			expect(lines[5].text).to.equal("0.5%")
+		end)
+
+		it("leaves out a rarity the crate never gives, and copes with no odds", function()
+			local lines = CampExtrasLogic.yardOddsLines({ Common = 0, Epic = 80, Legendary = 20 })
+			expect(#lines).to.equal(2)
+			expect(lines[1].rarity).to.equal("Epic")
+			expect(#CampExtrasLogic.yardOddsLines(nil)).to.equal(0)
+		end)
+	end)
+
 	describe("CampExtrasLogic.prizeTitle", function()
 		it("names the extra and what it paid in the server's words", function()
 			expect(CampExtrasLogic.prizeTitle("pond", { "+14 golden fish" })).to.equal(

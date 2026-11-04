@@ -4,12 +4,14 @@
 --   icon(extraId)                    the extra's glyph: 🧺 Picnic Basket, 🏷️ Yard Sale, 🎣 Fish Pond, 📦 Lost and Found
 --   pickerLine(state, areaId, now)   the Cat Cannon card's line under "7/10 cats" (section 3): the extra's icon, its
 --                                    name and what waits ("1 ready", "14 fish", "Next in 2 h 10 m"), with `ready`
---                                    for the card's red "!" dot (never on the Yard Sale, buying is not claiming), or
---                                    nil for an area with no extra, a shut one or no state yet
+--                                    for the card's red "!" dot (the Yard Sale's free crate too, #1051), or nil for
+--                                    an area with no extra, a shut one or no state yet
 --   yardRows(view, fish)             the Yard Sale card's crates in stock order: id, price, bought, and whether this
 --                                    player's golden fish cover it
---   yardButton(row, pending)         a crate's button: its price, "Bought" once taken, "..." while a buy is out
---   yardFooter(view, now)            when the next crates come: "New crates in 3 h 10 m"
+--   yardButton(row, pending)         a crate's button: "Take", "Taken" once taken, "..." while a take is out
+--   yardFooter(view, now)            when the next crate comes: "New crate in 3 h 10 m"
+--   yardOddsLines(odds)              the card's Odds lines (#1051, crate-prices.md section 5): "Common  60%" per
+--                                    rarity the crate can give, Common first
 --   prizeTitle(extraId, paid)        the prize toast's line: "Fish Pond: +14 golden fish"
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,6 +20,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CampExtras = require(Shared:WaitForChild("CampExtras")) :: any
 local Catalog = require(Shared:WaitForChild("Catalog")) :: any
 local SharedTypes = require(Shared:WaitForChild("Types"))
+
+local MarketLogic = require(script.Parent:WaitForChild("MarketLogic"))
 
 export type Line = {
 	extraId: string,
@@ -125,6 +129,16 @@ function CampExtrasLogic.yardButton(row: YardRow, pending: boolean): string
 		return "..."
 	end
 	return if row.price <= 0 then "Take" else tostring(row.price)
+end
+
+-- The Odds lines on a Yard Sale crate (#1051): the crate's own rarity table as the Market shows it. The take is free,
+-- but the crate is random, so its odds show before it is taken (monetization-policy section 2, the Market's rule).
+function CampExtrasLogic.yardOddsLines(odds: { [string]: number }?): { { rarity: string, text: string } }
+	local lines = {}
+	for _, row in MarketLogic.rarityRows(odds or {}) do
+		table.insert(lines, { rarity = row.rarity, text = MarketLogic.percent(row.percent) })
+	end
+	return lines
 end
 
 function CampExtrasLogic.yardFooter(view: SharedTypes.CampExtraView?, now: number): string

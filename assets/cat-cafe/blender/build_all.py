@@ -470,6 +470,9 @@ for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): N
                                 f"{props.slot(_n)}, so CatPose.dress leaves that slot's role piece off." + _two).strip()
 
 
+BUBBLE_LIFT = 0.75                          # a shop cat's BubbleAnchor this far over its ear tips (Carry), unscaled
+
+
 def cat_rbx_extras(name):
     """A cat's Part model carries its Scale, the Attachment Carry in the Head part (cats.carry_at) and one Attachment
     per role outfit piece (Outfit_<Piece>) at that piece's slot, times the scale, in the Body or Head part: every
@@ -484,6 +487,10 @@ def cat_rbx_extras(name):
     # F90: where a carried tray or coin bag rests, above the ears, in the Head part so it follows head turns
     attachments = [("_Head", "Carry", Matrix.Translation(Vector(joints["Head"]) +
                                                          Vector(cats.carry_at(spec, body)) * cats.scale_of(spec, body)))]
+    if spec.get("shop"):                    # #1191: the shop-only cats' speech bubble, clear over the hat
+        carry = Vector(cats.carry_at(spec, body))
+        attachments.append(("_Head", "BubbleAnchor", Matrix.Translation(
+            Vector(joints["Head"]) + (carry + Vector((0.0, 0.0, BUBBLE_LIFT))) * cats.scale_of(spec, body))))
     pieces = {p for outfit in accessories.ROLE_OUTFITS.values() for p in outfit}
     if body == "walk":                      # walking staff wear only the pieces that fit A (accessories.WALK_PIECES)
         pieces &= set(accessories.WALK_PIECES)

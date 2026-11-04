@@ -117,9 +117,11 @@ local function artFor(label: TextLabel, image: string?, scale: number?): ImageLa
 			end)
 			local labels = waiting[id]
 			waiting[id] = nil
-			for each in labels or {} do
-				if each.Parent then
-					apply(each)
+			if labels then
+				for each in labels do
+					if each.Parent then
+						apply(each)
+					end
 				end
 			end
 		end)

@@ -13,12 +13,15 @@
 # add reads the report from BugReports_v1 (written by src/server/Services/BugReportService.luau, key
 # BugReport.key: r_<YYYYMMDD>_<os.time()>_<userId>) and refuses unless its kind is "idea" and its featureName is
 # exactly true (the player ticked "Feature my name if you use my idea"). Then it creates a new entry in
-# IdeaCredits_v1 under c_<addedAt>_<random hex>: { userId, idea, version, addedAt }. The credit key has no user id
-# in it, so it is printed, for a later remove.
+# IdeaCredits_v1 under c_<16 random hex>: { userId, idea, version, addedAt }. The credit key has no user id in it,
+# so it is printed, for a later remove. Remove is a v2 delete: Roblox keeps the entry soft-deleted for about 30 days,
+# then purges it; the game stops reading it at once.
 #
 # The Actions log of this public repo is public, and the reporters are players, many of them young. So this script
 # never prints a user id, a name, the report text or any Open Cloud reply body; only "credit added <key>",
 # "credit removed <key>" or why it refused. The report key holds the user id, so it is masked and never echoed.
+# The bare user id is not masked: it is never printed, and a short id masked in the log would show up as *** inside
+# other numbers (review of #1116).
 # Needs curl, jq and openssl (all on GitHub's ubuntu runners).
 set -euo pipefail
 export LC_ALL=C.UTF-8 # ${#idea} counts characters, not bytes
@@ -53,6 +56,7 @@ trap 'rm -f "$reply"' EXIT
 call() {
 	local method=$1 url=$2 wait
 	shift 2
+	retried=
 	for wait in 5 10 20 0; do
 		status=$(curl -s -o "$reply" -w '%{http_code}' -X "$method" "$url" -H "x-api-key: $ROBLOX_PUBLISH_KEY" "$@" \
 			2>/dev/null) || status=000
@@ -63,6 +67,7 @@ call() {
 		[ "$wait" = 0 ] && break
 		echo "Open Cloud answered HTTP $status; trying again in ${wait}s." >&2
 		sleep "$wait"
+		retried=1 # an earlier try may have gone through even though its reply was lost
 	done
 	body=$(cat "$reply")
 }
@@ -80,6 +85,7 @@ fail() {
 
 add() {
 	local report_key=$1 idea=$2 version=$3
+	[[ $report_key != *[[:cntrl:]]* ]] || refuse "report_key must be one line"
 	mask "$report_key"
 	# r_ only: Studio playtests' reports (s_) are test data, not a player's idea
 	[[ $report_key =~ ^r_[0-9]{8}_[0-9]{10}_[1-9][0-9]*$ ]] ||
@@ -97,13 +103,14 @@ add() {
 	fi
 	[ "$status" = 200 ] || fail "read the report" read
 	# Only these three fields are taken from the record; the rest (text, name, ...) never leaves jq.
-	local kind feature user_id
-	kind=$(jq -r 'if (.value.kind | type) == "string" then .value.kind else "" end' <<<"$body")
-	feature=$(jq -r '.value.featureName == true' <<<"$body")
-	user_id=$(jq -r 'if (.value.userId | type) == "number" then .value.userId | floor | tostring else "" end' \
-		<<<"$body")
+	local record kind feature user_id
+	record=$(jq -c '(.value | objects) // {}' <<<"$body" 2>/dev/null) || record='{}'
 	body=
-	[ -z "$user_id" ] || mask "$user_id"
+	kind=$(jq -r 'if (.kind | type) == "string" then .kind else "" end' <<<"$record")
+	feature=$(jq -r '.featureName == true' <<<"$record")
+	user_id=$(jq -r 'if (.userId | type) == "number" and .userId > 0 and .userId == (.userId | floor)
+		then .userId | tostring else "" end' <<<"$record")
+	record=
 	[ "$kind" = idea ] || refuse "the report is not an idea"
 	[ "$feature" = true ] || refuse "the player did not tick \"Feature my name if you use my idea\""
 	[[ $user_id =~ ^[1-9][0-9]*$ ]] || refuse "the report has no valid userId"
@@ -112,23 +119,29 @@ add() {
 
 	local added_at credit_key value
 	added_at=$(date -u +%s)
-	credit_key=c_${added_at}_$(openssl rand -hex 4)
+	credit_key=c_$(openssl rand -hex 8)
 	value=$(jq -nc --argjson userId "$user_id" --arg idea "$idea" --argjson version "$version" \
 		--argjson addedAt "$added_at" '{userId: $userId, idea: $idea, version: $version, addedAt: $addedAt}')
 	# users tags the entry with the player, as BugReportService's SetAsync does, so a data request finds it.
 	# POST creates only: it never overwrites an existing credit.
 	call POST "$API/$CREDITS/entries?id=$credit_key" -H "Content-Type: application/json" \
 		--data "$(jq -nc --argjson value "$value" --arg user "users/$user_id" '{value: $value, users: [$user]}')"
-	[ "$status" = 200 ] || fail "write the credit" create
+	if [ "$status" = 409 ] && [ -n "$retried" ]; then
+		# the key is random, so it exists only if an earlier try of this POST was stored
+		call GET "$API/$CREDITS/entries/$credit_key"
+	fi
+	[ "$status" = 200 ] || fail "write the credit $credit_key" create
 	echo "credit added $credit_key"
 	[ -z "${GITHUB_STEP_SUMMARY:-}" ] || echo "### credit added \`$credit_key\`" >>"$GITHUB_STEP_SUMMARY"
 }
 
 remove() {
 	local credit_key=$1
-	[[ $credit_key =~ ^c_[0-9]{10}_[0-9a-f]{8}$ ]] || refuse "remove_key must be a credit key, c_<time>_<8 hex>"
+	[[ $credit_key =~ ^c_[0-9a-f]{16}$ ]] || refuse "remove_key must be a credit key, c_<16 hex>"
 	call DELETE "$API/$CREDITS/entries/$credit_key"
-	if [ "$status" = 404 ]; then
+	if [ "$status" = 404 ] && [ -n "$retried" ]; then
+		status=200 # an earlier try of this DELETE went through
+	elif [ "$status" = 404 ]; then
 		refuse "no credit under $credit_key in $CREDITS"
 	fi
 	[ "$status" = 200 ] || fail "remove the credit" delete

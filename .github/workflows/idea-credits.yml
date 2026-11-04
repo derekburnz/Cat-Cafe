@@ -26,7 +26,7 @@ on:
         required: false
         default: ""
       remove_key:
-        description: "Remove: the credit key c_<time>_<hex> to delete (leave the other three empty)"
+        description: "Remove: the credit key c_<16 hex> to delete (leave the other three empty)"
         required: false
         default: ""
 
@@ -62,6 +62,9 @@ jobs:
           fi
           input() { jq -r --arg k "$1" '.inputs[$k] // "" | tostring' "$GITHUB_EVENT_PATH"; }
           report_key=$(input report_key)
+          case "$report_key" in
+          *$'\n'* | *$'\r'*) echo "refused: report_key must be one line" >&2; exit 1 ;;
+          esac
           [ -z "$report_key" ] || echo "::add-mask::$report_key"
           idea=$(input idea)
           version=$(input version)

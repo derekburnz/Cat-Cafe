@@ -26,7 +26,12 @@ local Config = {
 	ExtraSlotPassIds = {} :: { number },
 	-- Developer product ids (#1182) by Catalog.products id; 0 until Derek makes the product in Creator Hub, and a 0 is
 	-- never granted. ProductService's ProcessReceipt reads them.
-	ProductIds = { potion_pack_xs = 0, potion_pack_s = 0 } :: { [string]: number },
+	ProductIds = {
+		potion_pack_xs = 0,
+		potion_pack_s = 0,
+		potion_pack_m = 0,
+		potion_pack_l = 0,
+	} :: { [string]: number },
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)
 

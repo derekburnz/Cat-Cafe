@@ -62,6 +62,8 @@ return function()
 			local want = {
 				potion_pack_xs = { big_tip_potion = 2 },
 				potion_pack_s = { big_tip_potion = 3, swift_potion = 1, steady_potion = 1 },
+				potion_pack_m = { big_tip_potion = 5, swift_potion = 3, steady_potion = 2 },
+				potion_pack_l = { big_tip_potion = 10, swift_potion = 6, steady_potion = 6 },
 			}
 			for _, product in Catalog.products do
 				expect(Config.ProductIds[product.id]).to.be.ok()

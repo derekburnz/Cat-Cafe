@@ -3260,9 +3260,9 @@ function Catalog.getCornerShopRow(id: string): Types.CornerShopRow?
 	return Catalog.cornerShopById[id]
 end
 
--- #1182 step 1: the developer products whose contents are set (shop-and-pass-plan 2026-11-01; Potion Pack M and L,
--- the Starter Bundle and the Cafe Pass paid tier wait on Derek). Each sells under Config.ProductIds[id] once it is
--- made in Creator Hub; until then its id is 0 and it is never granted.
+-- #1182 step 1: the developer products whose contents are set (shop-and-pass-plan 2026-11-01, #1186, #1191; the
+-- Starter Bundle waits on Sprinkles' model and the Cafe Pass paid tier is on hold). Each sells under
+-- Config.ProductIds[id] once it is made in Creator Hub; until then its id is 0 and it is never granted.
 Catalog.products = {
 	{
 		id = "potion_pack_xs",
@@ -3273,6 +3273,17 @@ Catalog.products = {
 		id = "potion_pack_s",
 		name = "Potion Pack S",
 		prize = { potions = { big_tip_potion = 3, swift_potion = 1, steady_potion = 1 } },
+	},
+	-- the mixes for M (10) and L (20 + 2 bonus) set in #1186 and #1191
+	{
+		id = "potion_pack_m",
+		name = "Potion Pack M",
+		prize = { potions = { big_tip_potion = 5, swift_potion = 3, steady_potion = 2 } },
+	},
+	{
+		id = "potion_pack_l",
+		name = "Potion Pack L",
+		prize = { potions = { big_tip_potion = 10, swift_potion = 6, steady_potion = 6 } },
 	},
 } :: { Types.ProductDef }
 Catalog.productsById = {} :: { [string]: Types.ProductDef }

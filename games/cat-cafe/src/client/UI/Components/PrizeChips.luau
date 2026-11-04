@@ -226,13 +226,15 @@ end
 
 -- The uploaded picture for a part (Components/ShopIcons; the golden fish is Theme's), drawn in place of its model.
 local function partImage(part: IndexRewards.PrizePart): string?
+	-- #1071, #1208: crates and money draw the clean symbols (the golden fish is Theme's clean fish), each with the
+	-- older picture until its id is in ShopIcons
 	local kind = part.kind
 	if kind == "crate" then
-		return ShopIcons.crate(part.id)
+		return ShopIcons.clean("Crate") or ShopIcons.crate(part.id)
 	elseif kind == "potion" then
 		return ShopIcons.potion(part.id)
 	elseif kind == "coins" then
-		return ShopIcons.image("Coins")
+		return ShopIcons.clean("Bag") or ShopIcons.image("Coins")
 	elseif kind == "spins" then
 		return ShopIcons.image("Spin")
 	elseif kind == "fish" then

@@ -5145,8 +5145,19 @@ do
 		open = false, -- whether the HUD's tile shows
 	}
 
+	-- the potion packs' contents and names from the shared Catalog, the bag from the state (#1182)
+	local SharedCatalog =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+	local potionNames: { [string]: string } = {}
+	for _, def in SharedCatalog.potions or {} do
+		potionNames[def.id] = def.name
+	end
 	local function rows(): { StoreLogic.Row }
-		return StoreLogic.rows(Config, PassShop.owned(), state.longNap)
+		return StoreLogic.rows(Config, PassShop.owned(), state.longNap, {
+			products = SharedCatalog.products,
+			potionNames = potionNames,
+			have = state.potions,
+		})
 	end
 
 	-- The window's cards when it is up, and the HUD's tile when its open state changes.
@@ -5193,7 +5204,7 @@ do
 			end,
 		})
 		shop.changed = PassShop.changed:Connect(refresh)
-		PassShop.start(StoreLogic.passIds(Config))
+		PassShop.start(StoreLogic.passIds(Config), StoreLogic.productIds(Config))
 		refresh()
 	end
 

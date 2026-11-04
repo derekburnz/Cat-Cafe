@@ -17,6 +17,7 @@ export type Row = {
 	icon: string,
 	effect: string,
 	owned: boolean,
+	product: boolean?, -- a developer product (bought each time; passId holds its product id, never Owned)
 }
 
 -- What Roblox said about a pass: its price in Robux and whether it is on sale. Missing until the lookup returns.
@@ -107,6 +108,103 @@ local PASSES: { PassCard } = {
 }
 StoreLogic.PASSES = PASSES
 
+-- The potion packs (#1182, store-skus.md section 1; Gameplay-Engineer's #1207): developer products, bought each time.
+-- Each reads its id from Config.ProductIds[productKey] (0 while not made: hidden) and its exact contents from
+-- Catalog.products, and the card says how many of those potions the player already has, so nobody buys blind.
+export type ProductCard = { key: string, productKey: string, effect: string }
+local PRODUCTS: { ProductCard } = {
+	{
+		key = "potionXS",
+		productKey = "potion_pack_xs",
+		effect = "Money Potions: more money while they last.",
+	},
+	{ key = "potionS", productKey = "potion_pack_s", effect = "A small potion mix." },
+	{ key = "potionM", productKey = "potion_pack_m", effect = "A potion mix." },
+	{ key = "potionL", productKey = "potion_pack_l", effect = "A big potion mix, with 2 bonus." },
+}
+StoreLogic.PRODUCTS = PRODUCTS
+
+-- What the Store needs to draw the product cards: Catalog.products, potion id to its name, and the player's bag.
+export type ShopView = {
+	products: { { id: string, name: string, prize: { potions: { [string]: number } } } }?,
+	potionNames: { [string]: string }?,
+	have: { [string]: number }?,
+}
+
+local function productId(config: any, card: ProductCard): number?
+	local ids = config.ProductIds
+	local id = if type(ids) == "table" then ids[card.productKey] else nil
+	return if type(id) == "number" and id ~= 0 then id else nil
+end
+
+-- The made products' ids, to look their prices up.
+function StoreLogic.productIds(config: any): { number }
+	local out: { number } = {}
+	for _, card in PRODUCTS do
+		local id = productId(config, card)
+		if id then
+			table.insert(out, id)
+		end
+	end
+	return out
+end
+
+-- "3 Money Potion, 1 Swift Potion · You have 4": the exact contents, biggest first, and how many of them are owned.
+function StoreLogic.contents(
+	potions: { [string]: number },
+	names: { [string]: string }?,
+	have: { [string]: number }?
+): string
+	type Entry = { id: string, count: number }
+	local list: { Entry } = {}
+	for id, count in potions do
+		table.insert(list, { id = id, count = count })
+	end
+	table.sort(list, function(a: Entry, b: Entry): boolean
+		if a.count ~= b.count then
+			return a.count > b.count
+		end
+		return a.id < b.id
+	end)
+	local parts: { string } = {}
+	local owned = 0
+	for _, entry in list do
+		table.insert(parts, ("%d %s"):format(entry.count, (names or {})[entry.id] or entry.id))
+		local mine: number = (have or {})[entry.id] or 0
+		owned += mine
+	end
+	return table.concat(parts, ", ") .. (" · You have %d"):format(owned)
+end
+
+local function productRows(config: any, view: ShopView?): { Row }
+	local rows: { Row } = {}
+	if view == nil then
+		return rows
+	end
+	local byId: { [string]: any } = {}
+	for _, def in view.products or {} do
+		byId[def.id] = def
+	end
+	for _, card in PRODUCTS do
+		local id = productId(config, card)
+		local def = byId[card.productKey]
+		if id and def then
+			table.insert(rows, {
+				key = card.key,
+				passId = id,
+				name = def.name,
+				icon = "🧪",
+				effect = card.effect
+					.. "\n"
+					.. StoreLogic.contents(def.prize.potions, view.potionNames, view.have),
+				owned = false,
+				product = true,
+			})
+		end
+	end
+	return rows
+end
+
 -- A pass card's id from the Config, or nil while it is not made (0, missing, or an empty list).
 local function passId(config: any, card: PassCard): number?
 	local value = config[card.configKey]
@@ -162,7 +260,12 @@ local function hours(seconds: number): number
 end
 
 -- The rows to show for a player who owns the pass ids in `owned`; `longNap` is ProfileSync's word on Long Nap.
-function StoreLogic.rows(config: any, owned: { [number]: boolean }, longNap: boolean?): { Row }
+function StoreLogic.rows(
+	config: any,
+	owned: { [number]: boolean },
+	longNap: boolean?,
+	view: ShopView?
+): { Row }
 	local rows: { Row } = {}
 	local ladder = rungs(config)
 	if #ladder > 0 then
@@ -221,7 +324,13 @@ function StoreLogic.rows(config: any, owned: { [number]: boolean }, longNap: boo
 			owned = owned[nap] == true or longNap == true,
 		})
 	end
-	for _, card in PASSES do
+	-- the order of store-skus.md: the ladder, Long Nap, VIP, the potion packs, then the rest by price
+	for index, card in PASSES do
+		if index == 2 then
+			for _, row in productRows(config, view) do
+				table.insert(rows, row)
+			end
+		end
 		local id = passId(config, card)
 		if id then
 			table.insert(rows, {

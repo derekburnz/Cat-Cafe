@@ -22,6 +22,7 @@ local PassShop = {}
 PassShop.changed = Signal.new() -- prices or ownership changed
 
 local prices: { [number]: StoreLogic.Price } = {}
+local products: { [number]: boolean } = {} -- developer product ids (#1182): priced as products, bought each time
 local owned: { [number]: boolean } = {}
 local started = false
 local finished: RBXScriptConnection? = nil
@@ -33,7 +34,7 @@ local function market(): MarketplaceService?
 	return if ok then service else nil
 end
 
-function PassShop.start(ids: { number })
+function PassShop.start(ids: { number }, productIds: { number }?)
 	if started then
 		return
 	end
@@ -42,6 +43,22 @@ function PassShop.start(ids: { number })
 	local player = Players.LocalPlayer
 	if service == nil or player == nil then
 		return
+	end
+	for _, id in productIds or {} do
+		products[id] = true
+		task.spawn(function()
+			local okInfo, info = pcall(function()
+				return service:GetProductInfoAsync(id, Enum.InfoType.Product)
+			end)
+			if okInfo and type(info) == "table" and prices[id] == nil then
+				local robux = info.PriceInRobux
+				prices[id] = {
+					robux = if type(robux) == "number" then robux else nil,
+					forSale = info.IsForSale == true,
+				}
+				PassShop.changed:Fire()
+			end
+		end)
 	end
 	for _, id in ids do
 		task.spawn(function()
@@ -87,7 +104,12 @@ function PassShop.prompt(id: number)
 		return
 	end
 	pcall(function()
-		service:PromptGamePassPurchase(player, id)
+		if products[id] then
+			-- a product (#1182): the server's ProcessReceipt grants it (#1207)
+			service:PromptProductPurchase(player, id)
+		else
+			service:PromptGamePassPurchase(player, id)
+		end
 	end)
 end
 
@@ -124,6 +146,7 @@ function PassShop.stop()
 	end
 	table.clear(prices)
 	table.clear(owned)
+	table.clear(products)
 	started = false
 end
 

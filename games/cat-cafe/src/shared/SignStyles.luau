@@ -9,6 +9,7 @@
 --   shown(saved, pick, ownsPass) -> id?       the pick if it is owned, else nil
 --   sanitize(raw) -> { [id]: true }           a saved owned set made whole (known ids only)
 --   sanitizePick(raw) -> id?                  a saved pick made whole (a known id or nil)
+--   pickFor(raw, saved, ownsPass) -> (ok, id?) what SetSignStyle may save: the plain sign, or an owned style
 
 local Config = require(script.Parent.Config)
 
@@ -100,6 +101,25 @@ end
 -- A saved pick made whole: a known style id, else nil.
 function SignStyles.sanitizePick(raw: unknown): string?
 	return if type(raw) == "string" and byId[raw] ~= nil then raw else nil
+end
+
+-- What SetSignStyle(raw) may save (the remote's whole check): nil, "" or "default" is the plain sign (ok, nil); an
+-- owned style id is (ok, id); anything else (a style not owned, an unknown id, a non-string) is refused (false, nil).
+function SignStyles.pickFor(
+	raw: unknown,
+	saved: { [string]: boolean },
+	ownsPass: (passId: number) -> boolean
+): (boolean, string?)
+	if raw == nil or raw == "" or raw == "default" then
+		return true, nil
+	end
+	if type(raw) ~= "string" or byId[raw] == nil then
+		return false, nil
+	end
+	if table.find(SignStyles.owned(saved, ownsPass), raw) == nil then
+		return false, nil
+	end
+	return true, raw
 end
 
 return SignStyles

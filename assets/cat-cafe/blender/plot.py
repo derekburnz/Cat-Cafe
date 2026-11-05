@@ -9,7 +9,7 @@ two arched front windows, a gable roof with its ridge running front to back, and
 z -20 to -15 with a path, beds, a bench and a lamp post.
 
 Objects per shell (the exporter turns each extra object into a child Model):
-  CatCafe_Plot_Cafe_<Colour>             trim, awning, door mat; the garden is the child Models _Garden and _Path
+  CatCafe_Plot_Cafe_<Colour>             trim, door mat; the garden is the child Models _Garden and _Path
   ..._Paint                              the pastel outer layer of every wall and gable (collidable); each part is
                                          tagged Paint, so a crate paint recolours the cafe front (F53)
   ..._Wallpaper                          the cream inner layer of the same walls; each part is tagged Wallpaper
@@ -23,6 +23,9 @@ Objects per shell (the exporter turns each extra object into a child Model):
   ..._SignBoard                          one part named SignBoard; its -Z face takes the owner's SurfaceGui
   ..._LampPost_Bulb, _SignLamp_Bulb, _BackLamp_Bulb    Neon at night
   ..._Path                               the path to the door and its joints (F91: a lawn path style replaces it)
+  ..._Awning                             the two striped window awnings (stripes, valances, scallops, end wedges;
+                                         their head rails stay on _Trim): a cafe theme (themes.py) hides this Model
+                                         and shows its own awnings in the same place
   ..._Garden                             beds, picket fence, bench, lamp post, round bush and the flower clumps on
                                          lawn spots, with the beds' _Flowers and the _LampPost_Bulb nested in it
                                          (F91: hidden once the lawn is live); the shrubs by the door and three
@@ -462,7 +465,8 @@ def build_cafe(colour, mat):
     _base_and_trim(tb)
     _gables(tb, walls, facade)
     _wall_plates(walls, facade)
-    ab = _Route(b, trim, ("dark_wood",))      # the awnings' head rails: Gold Leaf's "awning edge" (F89 2c)
+    awning = RB()                             # the stripes, their own child Model so a cafe theme can swap them
+    ab = _Route(awning, trim, ("dark_wood",))  # the awnings' head rails: Gold Leaf's "awning edge" (F89 2c)
     _awning(ab, accent, -WX - 5.0, -WX + 6.0)
     _awning(ab, accent, WX - 6.0, WX + 5.0)
     _sign(_Route(b, trim, ("dark_wood",)), sign, bulbs_sign, accent)           # the sign's frame and its ears
@@ -479,7 +483,7 @@ def build_cafe(colour, mat):
             chimney.finalize(name + "_Chimney", mat), flowers.finalize(name + "_Flowers", mat),
             fireflies.finalize(name + "_Fireflies", mat), paint.finalize(name + "_Paint", mat),
             paper.finalize(name + "_Wallpaper", mat), garden.finalize(name + "_Garden", mat),
-            path.finalize(name + "_Path", mat)]
+            path.finalize(name + "_Path", mat), awning.finalize(name + "_Awning", mat)]
 
 
 # ------------------------------------------------------------------------------------------ interior --

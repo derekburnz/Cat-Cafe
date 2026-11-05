@@ -180,7 +180,10 @@ export type IndexMilestone = {
 export type ProductDef = {
 	id: string,
 	name: string,
-	prize: { potions: { [string]: number } },
+	-- `cats` (shop-only cat ids) and `signStyles` (shared/SignStyles ids) are the Starter Bundle's (#1625)
+	prize: { potions: { [string]: number }, cats: { string }?, signStyles: { string }? },
+	-- #1625: sold once per account; a second receipt pays only the potions (Products.prizeFor)
+	oncePerAccount: boolean?,
 }
 
 -- Cat food (corner-shop-v2.md section 3, #1181): kept in the Bag (profile.catFood) and fed to one cat with FeedCat.
@@ -957,6 +960,11 @@ export type PlayerProfile = {
 	catFood: { [string]: number }, -- #1181 (corner-shop-v2.md section 3, save version 32): food id -> count in the Bag
 	hideCredit: boolean?, -- #1083 (idea-credits.md section 4, save version 30): true keeps the name off the Thank You board
 	receipts: { string }, -- #1182 (save version 31): the newest Products.RECEIPT_LIMIT developer product PurchaseIds granted
+	-- #1625 (save version 35): the once-per-account products already bought (product id -> true), the saved sign
+	-- styles owned (SignStyles id -> true; pass styles are not saved) and the sign's pick (nil: the plain sign)
+	onceBought: { [string]: boolean },
+	signStyles: { [string]: boolean },
+	signStyle: string?,
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
@@ -1014,6 +1022,9 @@ export type PlayerState = {
 	feedbackAsked: boolean,
 	stuckHelpShown: { [string]: boolean },
 	starterCatClaimed: boolean, -- F96: the Bellhop Cat's stand card reads "Already home with you"
+	starterBought: boolean, -- #1625: the Starter Bundle is bought, so its Store card hides
+	signStyles: { string }, -- #1625: every sign style owned (SignStyles.owned), saved or through a pass
+	signStyle: string?, -- #1625: the pick SetSignStyle saved, nil for the plain sign
 	luck: number, -- F88: the player's Luck now (shared/Luck), x1 to LuckMax; the HUD chip shows it above 1
 	luckSources: { LuckSource }, -- F88: what adds it, in order (statue, potion, lucky_day)
 	-- F95 (economy-ladder.md section 5): the Long Nap pass is owned, so the welcome back card says full pay up to

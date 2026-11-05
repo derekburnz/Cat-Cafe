@@ -329,28 +329,32 @@ return function()
 			lantern = { "Lantern", "Rare", "sewer", "waiter" },
 		}
 
-		it("has exactly 63 cats: the 20 slice, 30 later and 10 spare, the Bellhop Cat (F96) and 2 pass cats (#1447)", function()
-			expect(#Catalog.cats).to.equal(63)
-			for _, def in ipairs(Catalog.cats) do
-				expect(
-					slice[def.id] ~= nil
-						or reserved[def.id] ~= nil
-						or spares[def.id] ~= nil
-						or def.id == "bellhop_cat"
-						or def.id == "duchess_marzipan"
-						or def.id == "king_croissant"
-				).to.equal(true)
+		it(
+			"has exactly 64 cats: the 20 slice, 30 later and 10 spare, the Bellhop Cat, 2 pass cats and Sprinkles",
+			function()
+				expect(#Catalog.cats).to.equal(64)
+				for _, def in ipairs(Catalog.cats) do
+					expect(
+						slice[def.id] ~= nil
+							or reserved[def.id] ~= nil
+							or spares[def.id] ~= nil
+							or def.id == "bellhop_cat"
+							or def.id == "duchess_marzipan"
+							or def.id == "king_croissant"
+							or def.id == "sprinkles" -- #1625: the Starter Bundle's cat
+					).to.equal(true)
+				end
+				for id in pairs(slice) do
+					expect(Catalog.getCat(id)).to.be.ok()
+				end
+				for id in pairs(reserved) do
+					expect(Catalog.getCat(id)).to.be.ok()
+				end
+				for id in pairs(spares) do
+					expect(Catalog.getCat(id)).to.be.ok()
+				end
 			end
-			for id in pairs(slice) do
-				expect(Catalog.getCat(id)).to.be.ok()
-			end
-			for id in pairs(reserved) do
-				expect(Catalog.getCat(id)).to.be.ok()
-			end
-			for id in pairs(spares) do
-				expect(Catalog.getCat(id)).to.be.ok()
-			end
-		end)
+		)
 
 		it(
 			"keeps every spare cat as it was, in the spare pool, earning at the area it came from",
@@ -449,7 +453,9 @@ return function()
 						expect(def.area).to.equal("exclusive") -- F96: never spawns, earns at the newest area
 					else
 						expect(
-							areaSet[if def.area == "spare" then def.incomeArea :: string else def.area]
+							areaSet[if def.area == "spare"
+								then def.incomeArea :: string
+								else def.area]
 						).to.equal(true)
 					end
 					expect((def :: any).favoriteSpot).never.to.be.ok()
@@ -819,29 +825,32 @@ return function()
 			fish_tank = { rarity = "Epic", bonus = 0.10, asset = "CatCafe_Decor_FishTank" },
 		}
 
-		it("has exactly the four old shop pieces, now never sold and found in the Classic Crate", function()
-			expect(#Catalog.decor).to.equal(4)
-			local classic = assert(Catalog.getCrate("classic_crate"))
-			local inCrate: { [string]: boolean } = {}
-			for _, decorId in classic.pieces do
-				inCrate[decorId] = true
+		it(
+			"has exactly the four old shop pieces, now never sold and found in the Classic Crate",
+			function()
+				expect(#Catalog.decor).to.equal(4)
+				local classic = assert(Catalog.getCrate("classic_crate"))
+				local inCrate: { [string]: boolean } = {}
+				for _, decorId in classic.pieces do
+					inCrate[decorId] = true
+				end
+				for id, row in pairs(expected) do
+					local def = Catalog.getDecor(id)
+					expect(def).to.be.ok()
+					assert(def)
+					expect(def.cost).to.equal(0)
+					expect(def.source).to.equal("crate")
+					expect(def.crate).to.equal("classic")
+					expect(def.rarity).to.equal(row.rarity)
+					expect(def.bonus).to.be.near(row.bonus)
+					expect(def.requiresTier).never.to.be.ok()
+					expect((def :: any).requiresCafeLevel).never.to.be.ok()
+					expect(def.asset).to.equal(row.asset)
+					expect(#def.effect > 0).to.equal(true)
+					expect(inCrate[id]).to.equal(true)
+				end
 			end
-			for id, row in pairs(expected) do
-				local def = Catalog.getDecor(id)
-				expect(def).to.be.ok()
-				assert(def)
-				expect(def.cost).to.equal(0)
-				expect(def.source).to.equal("crate")
-				expect(def.crate).to.equal("classic")
-				expect(def.rarity).to.equal(row.rarity)
-				expect(def.bonus).to.be.near(row.bonus)
-				expect(def.requiresTier).never.to.be.ok()
-				expect((def :: any).requiresCafeLevel).never.to.be.ok()
-				expect(def.asset).to.equal(row.asset)
-				expect(#def.effect > 0).to.equal(true)
-				expect(inCrate[id]).to.equal(true)
-			end
-		end)
+		)
 
 		it("effect text states the bonus percentage", function()
 			for _, def in ipairs(Catalog.decor) do

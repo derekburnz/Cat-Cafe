@@ -64,13 +64,18 @@ return function()
 				potion_pack_s = { big_tip_potion = 3, swift_potion = 1, steady_potion = 1 },
 				potion_pack_m = { big_tip_potion = 5, swift_potion = 3, steady_potion = 2 },
 				potion_pack_l = { big_tip_potion = 10, swift_potion = 6, steady_potion = 6 },
+				starter_bundle = { big_tip_potion = 10, swift_potion = 5 }, -- #1625
 			}
+			-- #1625: besides potions only the Starter Bundle's named cat and sign style, never anything random
+			local extras = { cats = true, signStyles = true }
 			for _, product in Catalog.products do
 				expect(Config.ProductIds[product.id]).to.be.ok()
 				expect(product.prize.potions :: any).to.deepEqual(want[product.id])
 				local any = product.prize :: any
 				for key in any do
-					expect(key).to.equal("potions")
+					expect(
+						key == "potions" or (product.id == "starter_bundle" and extras[key] == true)
+					).to.equal(true)
 				end
 				for potionId, count in product.prize.potions do
 					expect(Products.ALLOWED_POTIONS[potionId]).to.equal(true)
@@ -92,6 +97,69 @@ return function()
 			expect(#ProfileSchema.migrate(raw, 1000).receipts).to.equal(0)
 			raw.receipts = { "abc", 7, "abc", "def" }
 			expect(ProfileSchema.migrate(raw, 1000).receipts :: any).to.deepEqual({ "abc", "def" })
+		end)
+	end)
+
+	describe("the Starter Bundle (#1625)", function()
+		local bundle = Catalog.getProduct("starter_bundle") :: any
+
+		it("is Sprinkles, 10 Big Money, 5 Swift and Bakery Stripes, once per account", function()
+			expect(bundle.oncePerAccount).to.equal(true)
+			expect(bundle.prize.cats).to.deepEqual({ "sprinkles" })
+			expect(bundle.prize.signStyles).to.deepEqual({ "bakery_stripes" })
+			expect(Config.ProductIds.starter_bundle).to.equal(3728336166)
+			local sprinkles = Catalog.getCat("sprinkles") :: any
+			expect(sprinkles.rarity).to.equal("Epic")
+			expect(sprinkles.exclusive).to.equal(true)
+			expect(sprinkles.source).to.equal("shop")
+		end)
+
+		it("gives everything the first time, then only the potions", function()
+			local profile = ProfileSchema.template(1000)
+			local give, first = Products.prizeFor(profile, bundle)
+			expect(first).to.equal(true)
+			expect(give.cats).to.deepEqual({ "sprinkles" })
+			expect(give.signStyles).to.deepEqual({ "bakery_stripes" })
+			Products.markBought(profile, bundle, give.signStyles)
+			expect(profile.onceBought.starter_bundle).to.equal(true)
+			expect(profile.signStyles.bakery_stripes).to.equal(true)
+			local again, firstAgain = Products.prizeFor(profile, bundle)
+			expect(firstAgain).to.equal(false)
+			expect(#again.cats).to.equal(0)
+			expect(#again.signStyles).to.equal(0)
+			expect(again.potions :: any).to.deepEqual({ big_tip_potion = 10, swift_potion = 5 })
+		end)
+
+		it("never marks a repeatable product bought", function()
+			local profile = ProfileSchema.template(1000)
+			local pack = Catalog.getProduct("potion_pack_s") :: any
+			local _, first = Products.prizeFor(profile, pack)
+			expect(first).to.equal(true)
+			Products.markBought(profile, pack, {})
+			expect(next(profile.onceBought)).to.equal(nil)
+			local _, still = Products.prizeFor(profile, pack)
+			expect(still).to.equal(true)
+		end)
+
+		it("keeps only known once-per-account ids in a save (version 35)", function()
+			expect(
+				Products.sanitizeOnce({
+					starter_bundle = true,
+					potion_pack_s = true,
+					nope = true,
+					x = 1,
+				}) :: any
+			).to.deepEqual({ starter_bundle = true })
+			expect(Products.sanitizeOnce("x") :: any).to.deepEqual({})
+			local raw: any = ProfileSchema.template(1000)
+			raw.version = 34
+			raw.onceBought = nil
+			raw.signStyles = nil
+			raw.signStyle = "made_up"
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(next(profile.onceBought)).to.equal(nil)
+			expect(next(profile.signStyles)).to.equal(nil)
+			expect(profile.signStyle).to.equal(nil)
 		end)
 	end)
 end

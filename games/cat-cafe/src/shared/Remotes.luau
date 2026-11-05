@@ -62,6 +62,7 @@ Remotes.ClientToServer = {
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
+	"SetSignStyle", -- (styleId: string?)  #1625: an owned shared/SignStyles id, or nil for the plain sign
 	"SetSetting", -- (key: string, value: boolean | number)  a key of shared/Settings: a switch takes a boolean, a
 	-- volume a number clamped to 0 to 1; saved in profile.settings, answered by ProfileSync
 	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)

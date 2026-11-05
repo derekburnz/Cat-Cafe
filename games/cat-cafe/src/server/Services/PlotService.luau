@@ -110,7 +110,8 @@ function PlotService.release(player: Player)
 	if anchor ~= nil then
 		anchor:Destroy()
 	end
-	for _, name in { "Espresso", "LuckyCat" } do
+	plot.model:SetAttribute("SignStyle", nil) -- #1625: the plain sign again (CafeService's refreshSignStyle)
+	for _, name in { "Espresso", "LuckyCat", "SignStyle" } do
 		local owned = plot.model:FindFirstChild(name)
 		if owned ~= nil then
 			owned:Destroy()

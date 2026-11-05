@@ -379,7 +379,9 @@ local function track()
 		local scale = if seconds < c.touch then 1 + (k.wide - 1) * (1 - fall) else 1
 		if seconds >= c.touch and not Context.reducedMotion() then
 			local t = math.clamp((seconds - c.touch) / k.bump, 0, 1)
-			local pulse = if t < k.bumpIn then smooth(t / k.bumpIn) else 1 - smooth((t - k.bumpIn) / (1 - k.bumpIn))
+			local pulse = if t < k.bumpIn
+				then smooth(t / k.bumpIn)
+				else 1 - smooth((t - k.bumpIn) / (1 - k.bumpIn))
 			scale = 1 - k.push * pulse
 		end
 		local distance = v.distance * scale

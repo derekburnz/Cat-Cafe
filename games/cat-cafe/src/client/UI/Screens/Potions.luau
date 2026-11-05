@@ -11,14 +11,16 @@
 --
 -- The Bag (corner-shop-v2.md section 3, #1181): this window is the Bag, with two tabs. Potions is the potion bag
 -- above; Cat Food lists each food the player has (picture, name, "+2,000 XP", "x3" and a green Feed). Feed shows the
--- player's cats, highest level first ("Level 23 · 1,400 XP to 24"); a tap feeds that cat one (FeedCat) and the
--- server's FeedResult toasts the XP. Nothing opens on buy any more. Words and lists: Components/BagLogic.
+-- player's cats as a grid of picture tiles (#1404), highest level first: the cat in a tile of its rarity colour, its
+-- name and "Lv 23" ("Max" at the cap, greyed); a tap feeds that cat one (FeedCat) and the server's FeedResult toasts
+-- the XP. Nothing opens on buy any more. Words and lists: Components/BagLogic.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local BagLogic = require(script.Parent.Parent.Components.BagLogic)
 local Button = require(script.Parent.Parent.Components.Button)
+local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CornerShopLogic = require(script.Parent.Parent.Components.CornerShopLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
@@ -55,6 +57,16 @@ local USE_W = 104
 local TAB_H = 40
 local FOOD_W = 104 -- the Feed button
 local PENDING_SECONDS = 1 -- a pressed Use waits this long for the server before it can be pressed again
+
+-- One cat in the feed grid (#1404).
+type CatTile = {
+	frame: TextButton,
+	portrait: CatPortrait.CatPortrait,
+	connection: RBXScriptConnection,
+}
+
+local CAT_TILE = Vector2.new(112, 136)
+local CAT_PICTURE = 76
 
 type Row = {
 	frame: Frame,
@@ -110,7 +122,7 @@ function Potions.new(callbacks: Callbacks): Potions
 
 	self._tab = "Potions" :: Tab
 	self._foodRows = {} :: { [string]: { frame: Frame, count: TextLabel, feed: Button.Button } }
-	self._catRows = {} :: { Button.Button }
+	self._catRows = {} :: { CatTile }
 	self._feeding = nil :: string? -- the food whose cat list shows
 	local tabs: Frame = Create("Frame", {
 		Name = "Tabs",
@@ -242,6 +254,21 @@ function Potions.new(callbacks: Callbacks): Potions
 		onClick = function()
 			self:_pickFood(nil)
 		end,
+	})
+	self._catGrid = Create("Frame", {
+		Name = "Cats",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.new(1, 0, 0, 0),
+		LayoutOrder = 1,
+		Parent = self._catList,
+	}, {
+		Create("UIGridLayout", {
+			CellSize = UDim2.fromOffset(CAT_TILE.X, CAT_TILE.Y),
+			CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
 	})
 
 	-- once a second while open, so the times left count down
@@ -434,8 +461,10 @@ end
 
 -- The cats to feed `food` to, highest level first; a tap feeds that cat one.
 function Potions._renderCats(self: any, food: BagLogic.Food)
-	for _, button in self._catRows do
-		button:destroy()
+	for _, tile in self._catRows do
+		tile.connection:Disconnect()
+		tile.portrait:destroy()
+		tile.frame:Destroy()
 	end
 	table.clear(self._catRows)
 	local state: any = self._state
@@ -454,29 +483,89 @@ function Potions._renderCats(self: any, food: BagLogic.Food)
 	end
 	local cats = CornerShopLogic.catsByLevel(state.cats, names)
 	for order, cat in cats do
-		local instance = (state.cats or {})[cat.uid]
-		local xp = if type(instance) == "table" and type(instance.xp) == "number"
-			then instance.xp
-			else 0
-		local open = BagLogic.canFeed(cat.level)
-		local button = Button.new({
-			name = cat.uid,
-			text = ("%s  ·  %s"):format(cat.name or cat.catId, BagLogic.catLine(cat.level, xp)),
-			style = "secondary",
-			size = UDim2.new(1, 0, 0, 44),
-			textSize = Theme.sizes.textBody,
-			layoutOrder = order,
-			parent = self._catList,
-			onClick = function()
-				local feed: ((string, string) -> ())? = self._callbacks.feed
-				if open and feed then
-					feed(food.id, cat.uid)
-				end
-			end,
-		})
-		button:setEnabled(open)
-		table.insert(self._catRows, button)
+		local tile: CatTile = self:_catTile(food, cat, order)
+		table.insert(self._catRows, tile)
 	end
+end
+
+-- A cat's tile in the feed grid: its picture on its rarity colour, its name and "Lv 20"; greyed at the top level.
+function Potions._catTile(
+	self: any,
+	food: BagLogic.Food,
+	cat: CornerShopLogic.CatEntry,
+	order: number
+): CatTile
+	local state: any = self._state
+	local catalog: any = self._catalog
+	local def: any = nil
+	for _, each in (if catalog then catalog.cats else nil) or {} do
+		if type(each) == "table" and each.id == cat.catId then
+			def = each
+		end
+	end
+	local instance = (state.cats or {})[cat.uid]
+	local gold = type(instance) == "table" and instance.variant == "gold"
+	local open = BagLogic.canFeed(cat.level)
+	local rarity = if def then def.rarity else nil
+	local tile: TextButton = Create("TextButton", {
+		Name = cat.uid,
+		Text = "",
+		AutoButtonColor = open,
+		BackgroundColor3 = if open then Theme.rarityColor(rarity) else Theme.colors.disabled,
+		BorderSizePixel = 0,
+		LayoutOrder = order,
+		Parent = self._catGrid,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+	Outline.border(tile, Theme.sizes.outline)
+	Outline.shade(tile, 0.3)
+	local portrait = CatPortrait.new({
+		parent = tile,
+		size = UDim2.fromOffset(CAT_PICTURE, CAT_PICTURE),
+		anchorPoint = Vector2.new(0.5, 0),
+		position = UDim2.new(0.5, 0, 0, 4),
+		still = true, -- a grid of cats costs no frames
+		zIndex = 2,
+	})
+	portrait:set(def, gold)
+	local name = text({
+		Name = "Name",
+		Position = UDim2.fromOffset(4, CAT_PICTURE + 8),
+		Size = UDim2.new(1, -8, 0, 22),
+		FontFace = Theme.fonts.display,
+		TextScaled = true,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = cat.name or cat.catId,
+		ZIndex = 3,
+		Parent = tile,
+	})
+	Create("UITextSizeConstraint", {
+		MaxTextSize = Theme.sizes.textBody,
+		MinTextSize = 9,
+		Parent = name,
+	})
+	Outline.text(name, 2)
+	local level = text({
+		Name = "Level",
+		Position = UDim2.fromOffset(4, CAT_PICTURE + 30),
+		Size = UDim2.new(1, -8, 0, 20),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall + 1,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = BagLogic.levelChip(cat.level),
+		ZIndex = 3,
+		Parent = tile,
+	})
+	Outline.text(level, 2)
+	local connection = tile.Activated:Connect(function()
+		local feed: ((string, string) -> ())? = self._callbacks.feed
+		if open and feed then
+			Sound.play("uiTab")
+			feed(food.id, cat.uid)
+		end
+	end)
+	return { frame = tile, portrait = portrait, connection = connection }
 end
 
 function Potions._row(self: any, potionId: string): Row
@@ -658,8 +747,9 @@ function Potions.destroy(self: any)
 	for _, row in self._foodRows do
 		row.feed:destroy()
 	end
-	for _, button in self._catRows do
-		button:destroy()
+	for _, tile in self._catRows do
+		tile.connection:Disconnect()
+		tile.portrait:destroy()
 	end
 	for _, button in self._tabButtons do
 		button:destroy()

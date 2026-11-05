@@ -986,6 +986,42 @@ local SCENES = {
 			press("Cats", "Sell")
 		end)
 	end },
+	-- #1573: three spare copies of a resting Common: the grid's first card is Sell extras; its Sell asks first
+	{ "CatsSellExtras", function()
+		local player = samplePlayer(os.time())
+		local common
+		for _, instance in player.cats do
+			local def = Catalog.getCat(instance.catId)
+			if def and def.rarity == "Common" and def.exclusive ~= true then
+				common = instance.catId
+				break
+			end
+		end
+		assert(common, "uigate: the sample player has no Common")
+		for count = 1, 3 do
+			local uid = "gate_extra_" .. count
+			player.cats[uid] = {
+				uid = uid,
+				catId = common,
+				variant = "base",
+				caughtAt = os.time() - 30 * count,
+				level = 1,
+				xp = 0,
+				xpToNext = 40,
+				charm = 50,
+				stars = 1,
+				rating = 1,
+			}
+		end
+		UI.update({ cats = player.cats })
+		UI.open("Cats")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("SellExtras", true)
+		assert(card and card.Visible, "uigate: no Sell extras card")
+		press("Cats", "SellExtras.ExtrasSell")
+		local line = card:FindFirstChild("Line") :: TextLabel
+		assert(string.find(line.Text, "^Sell %d+ extra Commons? for ") ~= nil, "uigate: Sell extras asks: " .. line.Text)
+	end },
 	-- F97 section 6: two spare cats (no Index page) with their "Classic" tag, one gold under its sparkle
 	{ "CatsClassic", function()
 		local player = samplePlayer(os.time())

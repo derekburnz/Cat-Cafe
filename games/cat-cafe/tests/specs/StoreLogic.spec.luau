@@ -260,6 +260,40 @@ return function()
 			end
 		)
 
+		it("lists the Starter Bundle's exact contents on its card (#1625)", function()
+			local full: any = table.clone(view)
+			full.products = {
+				{
+					id = "starter_bundle",
+					name = "Starter Bundle",
+					prize = {
+						potions = { big_tip_potion = 10, swift_potion = 5 },
+						cats = { "sprinkles" },
+						signStyles = { "bakery_stripes" },
+					},
+				},
+			}
+			full.potionNames = { big_tip_potion = "Big Money", swift_potion = "Swift" }
+			full.catNames = { sprinkles = "Sprinkles" }
+			full.have = { swift_potion = 2 }
+			local starter = StoreLogic.tabRows(StoreLogic.rows(config, {}, nil, full), "cats")[1]
+			expect(starter.key).to.equal("starterBundle")
+			expect(starter.effect).to.equal(
+				StoreLogic.STARTER.effect
+					.. "\nSprinkles the cat, Bakery Stripes sign style"
+					.. "\n10 Big Money, 5 Swift · You have 2"
+			)
+			-- a cat or style with no name yet still reads as words
+			expect(
+				StoreLogic.extras({
+					potions = {},
+					cats = { "new_cat" },
+					signStyles = { "odd_style" },
+				})
+			).to.equal("New Cat the cat, Odd Style sign style")
+			expect(StoreLogic.extras({ potions = { swift_potion = 1 } })).to.equal(nil)
+		end)
+
 		it("keeps the Starter Bundle hidden until the server says it is not bought", function()
 			local unknown: any = table.clone(view)
 			unknown.starterBought = nil

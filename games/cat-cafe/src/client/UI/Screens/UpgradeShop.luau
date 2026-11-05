@@ -371,7 +371,7 @@ function UpgradeShop._buildRows(self: any)
 	end
 
 	-- Staff: one row per role, its slot squares built from the catalog's spots
-	local layout = StaffSlots.rows(catalog.spots or {}, 1, nil)
+	local layout = StaffSlots.rows(catalog.allSpots or catalog.spots or {}, 1, nil)
 	for index, role in layout do
 		local row = card(role.role, ROW_HEIGHT, index, self._staff)
 		iconBox(row, Theme.roleIcons[role.role] or Theme.icons.cats, Theme.colors.mintDark)
@@ -396,7 +396,8 @@ function UpgradeShop._buildRows(self: any)
 			Name = "Slots",
 			BackgroundTransparency = 1,
 			Position = UDim2.fromOffset(TEXT_LEFT, 54),
-			Size = UDim2.fromOffset(#role.slots * (SLOT + 6), SLOT),
+			Size = UDim2.fromOffset(0, SLOT),
+			AutomaticSize = Enum.AutomaticSize.X, -- a hidden pass-only square takes no room (#1624)
 			Parent = row,
 		}, {
 			Create("UIListLayout", {
@@ -628,7 +629,15 @@ function UpgradeShop._renderStaff(self: any, state: Types.PlayerState)
 		end
 	end
 
-	for _, role in StaffSlots.rows(catalog.spots or {}, state.tier, cats) do
+	-- #1624: every slot, the pass-only ones too, opened by the tier and the extra slots
+	for _, role in
+		StaffSlots.rows(
+			catalog.allSpots or catalog.spots or {},
+			state.tier,
+			cats,
+			(state :: any).extraSlots
+		)
+	do
 		local row = self._roleRows[role.role]
 		if row then
 			row.summary.Text = role.summary
@@ -637,6 +646,7 @@ function UpgradeShop._renderStaff(self: any, state: Types.PlayerState)
 			for index, slot in role.slots do
 				local square = row.squares[index]
 				if square then
+					square.button.Visible = not slot.hidden
 					local glyph: TextLabel = square.glyph
 					local color = Theme.colors.disabled
 					local label = Theme.icons.lock

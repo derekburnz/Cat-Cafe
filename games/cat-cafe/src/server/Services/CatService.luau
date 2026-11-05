@@ -619,7 +619,37 @@ local TUTORIAL_AREA, TUTORIAL_ZONE = "alley", "near"
 local NEAR_STRAY_STUDS = 12 -- F87: funnel step near_stray, this close to the own tutorial stray
 local IN_VIEW_STUDS = 40 -- #1273: funnel step first_stray_in_view, this close to it
 local CARRY_STEP_SECONDS = 10 -- #1273: carrying_first_cat, the first cat still held this long after its catch
-local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?, far: boolean?): number?
+-- #1621: the area's gate on the ground plane (Layout.gatePosition), nil for the Alleyway, which has none.
+local function gateOf(areaId: string): (number?, number?)
+	local spec = Layout.areas[areaId]
+	if spec == nil then
+		return nil, nil
+	end
+	return Layout.gatePosition(spec)
+end
+
+-- #1621: how many live strays stand near the area's gate, and how many in all (0, live for an area with no gate).
+local function nearGateCount(areaId: string): (number, number)
+	local gateX, gateZ = gateOf(areaId)
+	local near, live = 0, 0
+	for _, stray in strays do
+		if stray.alive and stray.area == areaId then
+			live += 1
+			if gateX ~= nil and gateZ ~= nil then
+				local at = stray.model:GetPivot().Position
+				near += if StrayTopUp.nearGate(at.X, at.Z, gateX, gateZ) then 1 else 0
+			end
+		end
+	end
+	return near, live
+end
+
+local function freeSpawnPoint(
+	areaId: string,
+	rarity: Types.Rarity?,
+	far: boolean?,
+	entry: boolean?
+): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
 	local slots: { Catching.SpawnSlot } = {}
@@ -636,6 +666,16 @@ local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?, far: boolea
 	local pool = Catching.spawnPool(slots, rarity)
 	if far then
 		pool = StrayTopUp.farPool(pool, zones) -- #1159: a top-up fills the back of the area first
+	end
+	local gateX, gateZ = gateOf(areaId)
+	if entry and gateX ~= nil and gateZ ~= nil then
+		-- #1621: the start of the area by its gate
+		local near: { [number]: boolean } = {}
+		for _, index in pool do
+			local at = area.spawnPoints[index].Position
+			near[index] = StrayTopUp.nearGate(at.X, at.Z, gateX, gateZ)
+		end
+		pool = StrayTopUp.entryPool(pool, near)
 	end
 	-- Spread out (Derek 22:38): away from every stray already in the area, StraySpawnSpacingStuds apart when it can.
 	local points: { Vector3 } = {}
@@ -768,9 +808,11 @@ local function spawnWave(areaDef: Types.AreaDef, luck: number): boolean
 		return Catalog.rarityRank[a] > Catalog.rarityRank[b]
 	end)
 	local mythical = false
-	for _, rarity: Types.Rarity in rarities do
+	for place, rarity: Types.Rarity in rarities do
 		mythical = mythical or rarity == "Mythical"
-		local point = freeSpawnPoint(areaDef.id, rarity)
+		-- #1621: the commonest few land by the gate, so the start of the area is never bare at sunrise
+		local point =
+			freeSpawnPoint(areaDef.id, rarity, nil, StrayTopUp.waveEntry(place, #rarities))
 		if point ~= nil then
 			local stray = spawnAt(areaDef.id, point, rarity)
 			-- F58: everyone in the server hears of a wave's Mythical, those without the area too (a reason to rank
@@ -786,6 +828,8 @@ end
 
 -- #1159 (shared/StrayTopUp): each area's seconds left until its next top-up, while it is under its floor.
 local topUpLeft: { [string]: number } = {}
+-- #1621: each gated area's seconds left until its next stray by the gate, while fewer than StrayEntryFloor stand there.
+local entryLeft: { [string]: number } = {}
 
 -- Every second, `dt` the time since the last: by day, each area with fewer live strays than its floor (by the players
 -- who have it open) counts its timer down, and when it runs out one stray of the area's normal odds arrives at a far
@@ -793,6 +837,7 @@ local topUpLeft: { [string]: number } = {}
 local function topUpTick(dt: number)
 	if not ClockService.areasOpen() then
 		table.clear(topUpLeft)
+		table.clear(entryLeft)
 		return
 	end
 	local open: { [string]: number } = {}
@@ -811,11 +856,23 @@ local function topUpTick(dt: number)
 		if world.areas[areaDef.id] == nil then
 			continue
 		end
-		local live = 0
-		for _, stray in strays do
-			if stray.alive and stray.area == areaDef.id then
-				live += 1
+		local nearGate, live = nearGateCount(areaDef.id)
+		local gateX = gateOf(areaDef.id)
+		if gateX ~= nil and StrayTopUp.entryShort(nearGate, live) then
+			-- #1621: the start of the area gets its own quicker top-up
+			local wait = (entryLeft[areaDef.id] or Config.StrayEntryTopUpSeconds) - dt
+			if wait <= 0 then
+				local rarity: Types.Rarity = Catching.pickRarity(areaDef.odds, rng:NextNumber())
+				local point = freeSpawnPoint(areaDef.id, rarity, nil, true)
+				if point ~= nil then
+					spawnAt(areaDef.id, point, rarity)
+					live += 1
+				end
+				wait = Config.StrayEntryTopUpSeconds
 			end
+			entryLeft[areaDef.id] = wait
+		else
+			entryLeft[areaDef.id] = nil
 		end
 		if live >= StrayTopUp.floor(math.max(1, open[areaDef.id] or 0)) then
 			topUpLeft[areaDef.id] = nil

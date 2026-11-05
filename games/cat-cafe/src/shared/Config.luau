@@ -215,9 +215,15 @@ local Config = {
 	-- #1159 (shared/StrayTopUp): by day an area under its floor of live strays gets one more every 40 to 80 s, at a
 	-- far point first. The floor is StrayFloorBase for one player plus StrayFloorPerPlayer for each more who has the
 	-- area open, never above StrayLiveMax live cats in the area (the 10-28 "way too many" line is a live cap).
-	StrayFloorBase = 7, -- #1452 (was 5)
+	StrayFloorBase = 9, -- #1452 (was 5), more strays near the gates (was 7)
 	StrayFloorPerPlayer = 1,
-	StrayLiveMax = 14, -- #1452 (was 12)
+	StrayLiveMax = 16, -- #1452 (was 12), more strays near the gates (was 14)
+	-- Derek2 2026-11-05, "no cats start of sewer": a gated area keeps StrayEntryFloor live strays within
+	-- StrayEntryStuds of its gate by day. The commonest of each sunrise wave land there, and while it is short one more
+	-- arrives at an entry point every StrayEntryTopUpSeconds, still under StrayLiveMax (shared/StrayTopUp).
+	StrayEntryFloor = 3,
+	StrayEntryStuds = 120,
+	StrayEntryTopUpSeconds = 20,
 	StrayTopUpMinSeconds = 40, -- #1452: 40 to 80 s (was 60 to 120)
 	StrayTopUpMaxSeconds = 80,
 	StrayWanderSpeed = 3,
@@ -352,9 +358,10 @@ local Config = {
 	TipPileShowSeconds = 90,
 
 	-- The Mystery Visitor and potions (F64, data-model section 12b). Potions are earned only, never sold.
-	-- #1135: on a timer from MysteryEveryMin to MysteryEveryMax seconds of open day (1500 on average, as 120 s at 8%)
-	MysteryEveryMin = 900,
-	MysteryEveryMax = 2100,
+	-- #1135: on a timer from MysteryEveryMin to MysteryEveryMax seconds of open day; 1250 on average, a fifth more
+	-- often than the first 1500 (Derek2 2026-11-05: "up the rates of people leaving them slightly")
+	MysteryEveryMin = 750,
+	MysteryEveryMax = 1750,
 	MysteryStaySeconds = 120, -- the hooded visitor sits this long; dusk or a plot release sends it home sooner
 	MysteryGiftKeepSeconds = 600, -- an unopened gift is gone after this, or when its owner leaves (Derek 01:32)
 	MysteryRangeStuds = 12, -- OpenMysteryGift from this close to the gift
@@ -513,9 +520,9 @@ local Config = {
 	-- A request waits TradeRequestSeconds; declined or timed out, the asker waits TradeReaskSeconds to ask that player
 	-- again. TradeCountdownSeconds after both press Ready the confirm screen opens; a lopsided trade (one side gives at
 	-- least TradeLopsidedRatio times the Collector value it gets) or a gift holds that side's Confirm for
-	-- TradeConfirmWaitSeconds. TradeCooldownSeconds between a player's trades, TradesPerDay a UTC day. The Trades page
-	-- keeps TradeLogMax trades, the save TradeIdsMax applied trade ids. Every server reads the CatCafe_Flags kill switch
-	-- every TradeFlagCheckSeconds.
+	-- TradeConfirmWaitSeconds. TradeCooldownSeconds between a player's trades, TradesPerDay a game day (#1629, was a
+	-- UTC day). The Trades page keeps TradeLogMax trades, the save TradeIdsMax applied trade ids. Every server reads the
+	-- CatCafe_Flags kill switch every TradeFlagCheckSeconds.
 	TradeMinTier = 3,
 	TradeMaxCats = 9,
 	TradeMaxDecor = 9, -- #1574 (section 1b): decor and lawn pieces a side, beside the cats

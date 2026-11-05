@@ -8,13 +8,17 @@
 --   Decor (3 placed)      +12%    each placed piece's bonus (Catalog.decor and Catalog.crateDecor)
 --   Golden Espresso       +10%    Config.GoldenEspressoBonus a Market perk level
 --   Index rewards         +6%     the claimed milestones' money forever (IndexRewards.totals)
+--   VIP and cafe passes   +60%    #1624: what VIP, Cafe Style and Grand Cafe add (PlayerState.passBoosts.cafe)
 --   Cafe tier 3           x1.5    the tier's multiplier
+--   Outfit passes         x1.15   #1624: Cat Accessories and Uniform Styles on every working cat (passBoosts.staff)
+--   Money pass            x2      the Money pass (passBoosts.money)
 --   Money Potion          +25%    each running potion with `tips`, all together at most Config.TimedTipsMax
 --   Pals (2)              +15%    F92: shared Pals.bonus while pals are on the server (only then, so a solo player
 --                                 never sees a missing bonus), added to the potions as Economy.tipMultiplier does
---   All together          x4.3    (1 + the cafe's percents) x tier x (1 + potions + pals)
--- A source at 0 stays on the list in grey ("+0%"), so a player sees what else could lift it. The Money pass is not
--- on sale yet, so it has no row.
+--   All together          x4.3    (1 + the cafe's percents) x tier x outfits x Money pass x (1 + potions + pals), as
+--                                 the server's Economy.incomePerSecond multiplies them
+-- A source at 0 stays on the list in grey ("+0%"), so a player sees what else could lift it. The passes are the
+-- exception: their rows show only once owned, so the money card never advertises a Robux purchase.
 --   rows(catalog, state, now, pals?) -> { Row }   `pals`: how many pals PalsChanged last named
 --   percent(0.25) -> "+25%", times(1.5) -> "x1.5"
 -- Pure, so the cloud spec runner checks it.
@@ -149,6 +153,14 @@ function BoostList.rows(
 	)
 	local index = if catalog then IndexRewards.totals(catalog :: any, state :: any).bonus else 0
 	add(rows, "index", "Index rewards", index)
+	-- #1624: the store passes, only when owned (the server's PlayerState.passBoosts; missing before it sends one)
+	local boosts: any = (state :: any).passBoosts
+	local passCafe: number = if type(boosts) == "table" and type(boosts.cafe) == "number"
+		then boosts.cafe
+		else 0
+	if passCafe > 0 then
+		add(rows, "passes", "VIP and cafe passes", passCafe)
+	end
 	local cafe = 1
 	for _, row in rows do
 		cafe += row.amount
@@ -164,6 +176,28 @@ function BoostList.rows(
 		kind = "times" :: Kind,
 		active = tierTimes > 1,
 	})
+	local function times(key: string, name: string, multiplier: number)
+		table.insert(rows, {
+			key = key,
+			name = name,
+			value = BoostList.times(multiplier),
+			amount = multiplier,
+			kind = "times" :: Kind,
+			active = true,
+		})
+	end
+	local staff: number = if type(boosts) == "table" and type(boosts.staff) == "number"
+		then boosts.staff
+		else 1
+	if staff > 1 then
+		times("outfits", "Outfit passes", staff)
+	end
+	local moneyPass: number = if type(boosts) == "table" and type(boosts.money) == "number"
+		then boosts.money
+		else 1
+	if moneyPass > 1 then
+		times("moneyPass", "Money pass", moneyPass)
+	end
 
 	-- the running tip potions, each its own row, the sum capped as the server caps it
 	local potionTips: { [string]: number } = {}
@@ -203,7 +237,7 @@ function BoostList.rows(
 		add(rows, "pals", ("Pals (%d)"):format(palCount), share)
 	end
 
-	local total = cafe * tierTimes * (1 + tips)
+	local total = cafe * tierTimes * math.max(staff, 1) * math.max(moneyPass, 1) * (1 + tips)
 	table.insert(rows, {
 		key = "total",
 		name = "All together",

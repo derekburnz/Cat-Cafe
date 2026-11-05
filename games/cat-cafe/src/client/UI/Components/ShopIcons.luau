@@ -57,7 +57,7 @@ local IDS: { [string]: string } = {
 	Perk_BigBowl = "rbxassetid://106206692502921",
 	Perk_ExtraDecorSpot = "rbxassetid://72709782259210",
 	Coins = "rbxassetid://114567888385946",
-	Spin = "rbxassetid://109715715479737",
+	Spin = "rbxassetid://121432011555252", -- the 8-slice wheel (#1603, Tools-Agent 11-05); was 109715715479737
 	-- the redesigned nets (#989, Model-Agent; rendered and uploaded by Tools-Agent 2026-11-03, PR #1012)
 	Net_L1 = "rbxassetid://78131427035748", -- Basic
 	Net_L2 = "rbxassetid://126997379642004", -- Sturdy

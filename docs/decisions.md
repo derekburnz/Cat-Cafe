@@ -456,3 +456,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Intro plays on first join again (#1575), ui-engineer thread (UI-Engineer, friend's project)
 - 2026-11-05: `Config.IntroAutoPlay` goes back to true. The intro plays once when a player first joins (the saved `introSeen` is still false), with the Skip pill at the bottom right (pressable after Intro.SKIP_AFTER), and the ? tile and Settings still replay it. Why: Derek's answer on 2026-11-05: "plays once on first join only, with a Skip button at the bottom right (like it was), and can be replayed from the ? button". This reverses F87's tile-only start (easy-start.md section 2). No save change: `introSeen` already exists, and IntroService sets it when the first play ends, whether it played out or was skipped.
+
+### Corner Shop shows stock counts (#1465), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
+- 2026-11-05: Each Corner Shop row shows "n left", meaning what the player can still buy in this window. This reverses #1190's no-counts rule for the counts only; stock chances and daily-limit lines stay hidden. Why: the friend asked to "show amount in stock for corner shop". A plain count is honest information, not pressure. There's no countdown or "almost gone" copy. Spec: corner-shop-v2.md sections 1 and 4.

@@ -136,9 +136,12 @@ function CornerShopLogic.snackLine(_snackXp: number): string
 	return ""
 end
 
--- What a row does (corner-shop.md section 2), in one short line.
-function CornerShopLogic.effect(row: Row): string
-	if row.kind == "potion" then
+-- What a row does (corner-shop.md section 2), in one short line. A bait row (#1281) also says how many of that food
+-- the player has (`owned`).
+function CornerShopLogic.effect(row: Row, owned: number?): string
+	if row.kind == "bait" then
+		return ("Bait for your bowl · You have %d"):format(owned or 0)
+	elseif row.kind == "potion" then
 		local potion = if row.potionId then Catalog.getPotion(row.potionId) else nil
 		if potion == nil then
 			return "Into your potion bag"
@@ -147,14 +150,8 @@ function CornerShopLogic.effect(row: Row): string
 	elseif row.kind == "food" then
 		return ("+%s XP cat food, into your Bag"):format(commas(row.xp or 0))
 	end
-	local seconds = row.showSeconds or 0
-	local length = if seconds >= 60
-		then ("%d min"):format(seconds // 60)
-		else ("%d s"):format(seconds)
-	if row.showId == "fireworks" then
-		return ("A %s firework show over your cafe"):format(length)
-	end
-	return ("Bubbles from your cafe's door for %s"):format(length)
+	-- #1483: the bubble machine and fireworks shows are gone, so any other kind has no line yet
+	return ""
 end
 
 -- The player's cats for the snack picker, highest level first (then by name, then uid, so the order holds still).

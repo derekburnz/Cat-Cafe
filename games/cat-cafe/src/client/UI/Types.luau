@@ -48,7 +48,7 @@ export type Catalog = {
 	indexMilestones: { IndexMilestone }?, -- F48: the Index's milestones, the same on every area page
 	indexPrizes: { [string]: { [string]: IndexPrize } }?, -- F48: area id -> milestone id -> prize (S61: not indexRewards)
 	rarities: { [string]: RarityDef }?, -- the cat room's sell prices (reviewer N103)
-	spinWheel: { SpinRow }?, -- F49: the Spin Wheel's six slices, clockwise from the top (data-model section 11c)
+	spinWheel: { SpinRow }?, -- F49: the Spin Wheel's slices (eight since #1500), clockwise from the top (data-model section 11c)
 	crates: { CrateDef }?, -- F53: Catalog.crates, the Cafe Crates in Market order (golden-fish.md section 4)
 	fishShop: { FishShopRow }?, -- F53: Catalog.fishShop, what golden fish buy at the Market (section 3)
 	crateDecor: { DecorDef }?, -- F53: Catalog.crateDecor, the crate pieces that are not in Catalog.decor
@@ -135,8 +135,10 @@ export type SpinRow = {
 	minCoins: number?,
 	lureId: string?,
 	count: number?, -- foods, golden fish or crates
-	crate: string?, -- F54: the crate id, or "highest" for the crate of the player's highest open area
+	crate: string?, -- F54: the crate id, or "highest" for the crate of the player's highest open area ("highest_golden"
+	-- for its golden crate, #1500)
 	weight: number,
+	jackpot: boolean?, -- #1500: one of the two 0.5% slices, a narrow gold wedge
 }
 
 -- state.spin (F49): lastFreeDay is the UTC day number (floor(serverTime / 86400)) of the last free spin.

@@ -1115,8 +1115,8 @@ function Catalog.getDecor(id: string): Types.DecorDef?
 	return Catalog.decorById[id]
 end
 
--- Sections 8 and 8b. Odds are shown before purchase. Shop foods are bought with BuyLure; dealer foods only from
--- the night dealer's stock.
+-- Sections 8 and 8b. Odds are shown before purchase. Shop foods are bought at the Corner Shop (#1281, its "bait" rows;
+-- BuyLure refuses since); dealer foods only from the night dealer's stock.
 Catalog.lures = {
 	{
 		id = "kibble",
@@ -3476,9 +3476,46 @@ Catalog.cornerShop = {
 		price = 3200000000,
 		needsTier = 4,
 	},
+	-- #1281 (corner-shop-v2.md section 1b): the three shop bait foods, sold here instead of at the bowl. Last in the
+	-- list, so the rows above keep their rolls. `price` is filled in below from the food's cost; the buy charges
+	-- Economy.foodPrice for the buyer's tier. No daily limit.
+	{
+		id = "kibble",
+		name = "Kibble",
+		family = "bait",
+		size = "small",
+		kind = "bait",
+		lureId = "kibble",
+		price = 0,
+		weights = { 0, 0, 20, 80 },
+	},
+	{
+		id = "tuna",
+		name = "Tuna",
+		family = "bait",
+		size = "regular",
+		kind = "bait",
+		lureId = "tuna",
+		price = 0,
+		weights = { 0, 20, 50, 30 },
+	},
+	{
+		id = "salmon",
+		name = "Salmon",
+		family = "bait",
+		size = "big",
+		kind = "bait",
+		lureId = "salmon",
+		price = 0,
+		weights = { 20, 50, 30, 0 },
+	},
 } :: { Types.CornerShopRow }
 Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }
 for _, row in Catalog.cornerShop do
+	local lure = if row.lureId ~= nil then Catalog.luresById[row.lureId] else nil
+	if lure ~= nil then
+		row.price = lure.cost -- its Tier 1 price (FoodTierPriceFactor[1] is 1)
+	end
 	Catalog.cornerShopById[row.id] = row
 	table.freeze(row)
 end

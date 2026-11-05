@@ -26,7 +26,9 @@ local Presets = require(script.Parent.Presets)
 
 local CampExtras = {}
 
-local ROD = "_FishPond_Rod"
+-- the pond's rod: any child Model named ..._Rod (the FishPond's, the Woods FishingHut's and its gold coat's
+-- ..._FishingHut_Gold_Rod, Model-Agent #1351), pivot at the butt, casting about X
+local ROD = "_Rod"
 local LID = "_LostFound_Lid"
 
 type Kind = "cast" | "rattle" | "pop"

@@ -3347,18 +3347,23 @@ Presets.customerWalk = {
 	idleAfter = 0.08, -- seconds with no walk step before it starts to settle
 }
 
--- The Picnic Basket's ready glow (#1133, camp-stations.md section 2; Effects/PicnicGlow): while your picnic holds a
--- potion, one PointLight in `colour`, `brightness` over `range` studs (inside the night glow budget: the street's
--- night lights are 0.5 over 8), fading in and out over `fade` seconds, on the station's `anchor` attachment, else
--- `under` of the way up its bounding box. Checked every `pick` seconds for the station streaming in.
-Presets.picnicGlow = {
+-- The camp stations' ready glows (camp-stations.md sections 2 to 4; Effects/CampGlow): while one of your stations
+-- holds something (Picnic potions #1133, a free Yard Sale crate #1154, Fish Pond fish #1232), one PointLight in its
+-- `colour`, `brightness` over `range` studs (inside the night glow budget: the street's night lights are 0.5 over
+-- 8), fading in and out over `fade` seconds, on the station's `anchor` attachment, else `under` of the way up its
+-- bounding box (under the parasol, the awning, the hut's roof), once it holds `atLeast` (the pond: half its 36,
+-- Config.PondHold, so it reads as worth a trip). Checked every `pick` seconds for streaming.
+Presets.campGlow = {
 	anchor = "GlowAnchor",
-	under = 0.45,
-	colour = Presets.palette.lampWarm,
 	brightness = 0.6,
 	range = 7,
 	fade = 0.6,
 	pick = 1,
+	extras = {
+		picnic = { under = 0.45, colour = Presets.palette.lampWarm, atLeast = 1 },
+		yardSale = { under = 0.5, colour = Presets.palette.lampWarm, atLeast = 1 },
+		pond = { under = 0.4, colour = Presets.palette.golden, atLeast = 18 },
+	},
 }
 
 -- The decor door sign (#1172; Effects/DoorSign): its OPEN board's parts are named `open`, its CLOSED board is the child

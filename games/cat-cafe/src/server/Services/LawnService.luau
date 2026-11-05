@@ -1,6 +1,7 @@
 --!strict
 -- The front lawn on the server (F91, front-lawn.md section 5; the rules are shared/Lawn, the world LawnBuilder).
--- BuyLawn(id, spotId?) buys a lawn piece or a path or fence style with coins at the caller's tier (sink "lawn"): a
+-- BuyLawn(id, spotId?) buys a lawn piece or a path or fence style with coins at the caller's tier (sink "lawn"), from
+-- within LawnStallRange of the Garden Nursery (#1200, once its stall is in the world; checked here, never trusted): a
 -- style goes in use at once, a piece onto the spot asked for when it may stand there, else the first empty open spot
 -- of its size. SetLawnSpot(spotId, pieceId?) puts an owned piece on an open spot of its size, moving it from any other,
 -- or clears the spot; SetLawnStyle(kind, id) lays an owned path or puts up an owned fence. Each needs the caller's own
@@ -10,11 +11,14 @@
 -- budget (review S119; Telemetry's note on the budget, as with net swings in S99).
 -- Lawn pieces pay no tip bonus, so nothing here changes the income; coins are settled before a price comes off.
 
+local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
+local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -43,6 +47,35 @@ local function ready(player: Player): (Profile?, WorldBuilder.Plot?)
 		return nil, nil
 	end
 	return profile, plot
+end
+
+local STALL_TAG = "LawnStall" -- lawn-nursery.md section 2: the Garden Nursery, CatCafe_Camp_Park_GardenNursery
+
+-- #1200 (lawn-nursery.md section 4): true when the player stands within LawnStallRange of a Garden Nursery, measured
+-- on the server from their character. Until the nursery is in the world (Model-Agent's art), there is no stall to
+-- stand at, so buying stays where it was (the Decor screen's Front lawn tab) rather than closing.
+local function atStall(player: Player): boolean
+	local stalls: { Model } = {}
+	for _, instance in CollectionService:GetTagged(STALL_TAG) do
+		if instance:IsA("Model") and instance:IsDescendantOf(Workspace) then
+			table.insert(stalls, instance :: Model)
+		end
+	end
+	if #stalls == 0 then
+		return true
+	end
+	local character = player.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return false
+	end
+	local position = (root :: BasePart).Position
+	for _, stall in stalls do
+		if (stall:GetPivot().Position - position).Magnitude <= Config.LawnStallRange then
+			return true
+		end
+	end
+	return false
 end
 
 -- An optional id argument: nil or "" is none (ok), a valid id is itself, anything else is refused (ok false).
@@ -81,6 +114,10 @@ local function onBuyLawn(player: Player, rawId: unknown, rawSpotId: unknown)
 	end
 	local profile, plot = ready(player)
 	if profile == nil or plot == nil then
+		return
+	end
+	if not atStall(player) then
+		refuse(player, "Walk up to the Garden Nursery in the Park first")
 		return
 	end
 	local blocker = Lawn.buyBlocker(profile, id)

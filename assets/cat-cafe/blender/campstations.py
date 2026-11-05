@@ -8,6 +8,12 @@ its prompt card and a BangAnchor 2 studs over its sign for the owner's red "!" (
                                       a mug and a plate of sandwiches; beside it a chalk A-frame sign reading PICNIC.
                                       Attachments: PromptAnchor (the table's front, 1.5 up), BangAnchor (2 over the
                                       sign), GlowAnchor (under the parasol, for VFX's ready glow, #1328), Steam.
+  CatCafe_Camp_Neighbourhood_YardSaleStall (#1154, section 3) a folding table with a gingham cloth under a little
+                                      pastel blue and white striped awning on four posts; on it cardboard boxes, the
+                                      middle one holding the free zone crate with a FREE tag, a lamp, books, a teapot
+                                      and a cash tin; boxes stacked on the rug; a hand-painted YARD SALE board nailed to
+                                      a stake. Attachments: PromptAnchor (the table's front, 1.5 up), BangAnchor (2
+                                      over the board), GlowAnchor (under the awning).
 
 Every model: pivot at the base centre on the camp's ground, front -Z, no turn of its own, placed where its camp extra
 stands (Layout.campExtras, the area's set space) so Gameplay only swaps the asset name.
@@ -200,6 +206,119 @@ def build_picnic_station(mat):
     return [b.finalize(PIC, mat)]
 
 
+# ------------------------------------------------------------------------------------------ yard sale --
+YARD = "CatCafe_Camp_Neighbourhood_YardSaleStall"
+YT_X0, YT_X1, YT_Z0, YT_Z1, YT_H = -2.5, 2.5, -0.8, 0.8, 2.3   # the folding table
+POST_X, POST_ZF, POST_ZB = 2.9, -1.35, 1.15                    # the awning's posts
+AWN_F, AWN_B = 5.0, 5.5                                        # the canopy's front and back edge heights
+YSIGN_X, YSIGN_Z = 4.0, -1.5                                   # the stake
+
+
+def _cardboard_box(b, x, y, z, w, h, d, open_flaps=True):
+    b.span((x - w / 2, y, z - d / 2), (x + w / 2, y + h, z + d / 2), "cardboard")
+    b.span((x - w / 2, y + h, z - d / 2), (x + w / 2, y + h + 0.02, z - d / 2 + 0.04), "kibble")       # tape
+    if open_flaps:
+        b.box((x - w / 2 + 0.1, y + h + 0.15, z), (0.3, 0.04, d * 0.7), "cardboard", rot=_rz(-40))
+        b.box((x + w / 2 - 0.1, y + h + 0.15, z), (0.3, 0.04, d * 0.7), "cardboard", rot=_rz(40))
+
+
+def _rz(deg):
+    from plot import rot_z
+    return rot_z(deg)
+
+
+def _yard_table(b):
+    x0, x1, z0, z1, h = YT_X0, YT_X1, YT_Z0, YT_Z1, YT_H
+    b.span((x0 - 0.6, 0, z0 - 0.7), (x1 + 0.6, 0.04, z1 + 0.5), "pastel_lilac")                 # rug
+    b.span((x0 - 0.5, 0.04, z0 - 0.6), (x1 + 0.5, 0.06, z1 + 0.4), "blush")
+    b.span((x0, h, z0), (x1, h + 0.1, z1), "offwhite")
+    leg = math.hypot(h, 1.4)
+    for x in (x0 + 0.3, x1 - 0.3):                                                              # X legs
+        for sgn in (-1, 1):
+            b.box((x + sgn * 0.06, h / 2 + 0.03, 0), (0.08, leg, 0.08), "metal",
+                  rot=rot_x(sgn * math.degrees(math.atan2(1.4, h))))
+        for zz in (-0.72, 0.72):
+            b.span((x - 0.16, 0.06, zz - 0.08), (x + 0.16, 0.1, zz + 0.08), "fur_black")       # feet
+    b.span((x0 + 0.1, h + 0.1, z0 - 0.02), (x1 - 0.1, h + 0.13, z1 - 0.3), "pastel_sky")       # gingham cloth
+    b.span((x0 + 0.1, h - 0.45, z0 - 0.05), (x1 - 0.1, h + 0.13, z0 - 0.02), "pastel_sky")
+    for k in range(11):
+        cx = x0 + 0.35 + k * (x1 - x0 - 0.7) / 10
+        b.span((cx - 0.09, h - 0.45, z0 - 0.07), (cx + 0.09, h + 0.1, z0 - 0.05), "offwhite")
+    top = h + 0.13
+    # the boxes: the middle one holds the free zone crate, with a FREE tag on its front
+    _cardboard_box(b, -1.5, top, 0.0, 0.9, 0.6, 0.7)
+    b.span((-1.85, top + 0.6, -0.2), (-1.15, top + 0.7, 0.2), "fur_pewter")                    # odds and ends
+    _cardboard_box(b, 0.2, top, 0.0, 1.0, 0.6, 0.75)
+    b.span((-0.18, top + 0.6, -0.27), (0.58, top + 0.98, 0.27), "rarity_rare")                 # the crate in it
+    for dx in (-0.12, 0.32):
+        b.span((0.2 + dx - 0.04, top + 0.6, -0.285), (0.2 + dx + 0.04, top + 0.99, 0.285), "dark_wood")   # bands
+    b.span((-0.18, top + 0.1, -0.41), (0.58, top + 0.48, -0.375), "offwhite")                  # FREE tag
+    _label_front(b, "FREE", 0.2, top + 0.17, -0.405, 0.045, 0.02, "bowl_red")
+    # a lamp, books, a teapot and a cash tin
+    b.cyl((1.75, top + 0.04, 0.35), 0.18, 0.08, "brass", segments=10)
+    b.span((1.72, top + 0.08, 0.32), (1.78, top + 0.6, 0.38), "brass")
+    b.cyl((1.75, top + 0.75, 0.35), 0.3, 0.35, "pastel_butter", segments=10)
+    for k, sw in enumerate(("shirt_blue", "bowl_red", "mint")):
+        b.span((-2.35 + 0.03 * k, top + 0.12 * k, 0.15), (-1.95 - 0.02 * k, top + 0.12 * (k + 1), 0.6), sw)
+    b.ball((1.5, top + 0.18, -0.3), 0.2, "pastel_lilac", scale=(1, 0.85, 1))                    # teapot
+    b.span((1.67, top + 0.2, -0.33), (1.83, top + 0.26, -0.27), "pastel_lilac")
+    b.span((1.25, top + 0.12, -0.32), (1.33, top + 0.3, -0.28), "pastel_lilac")
+    b.span((1.45, top + 0.33, -0.35), (1.55, top + 0.4, -0.25), "offwhite")
+    b.span((0.95, top, 0.25), (1.3, top + 0.18, 0.55), "metal")                                 # cash tin
+    # a stack of boxes on the rug at the -X end, under the awning
+    _cardboard_box(b, x0 - 0.05, 0.06, 1.0, 0.8, 0.55, 0.6, open_flaps=False)
+    _cardboard_box(b, x0 - 0.05, 0.63, 1.0, 0.7, 0.45, 0.55, open_flaps=False)
+
+
+def _yard_awning(b):
+    """Four white posts and a little pastel blue and white striped canopy sloping to the front, a scalloped valance."""
+    for x in (-POST_X, POST_X):
+        for z, top in ((POST_ZF, AWN_F), (POST_ZB, AWN_B)):
+            b.span((x - 0.09, 0, z - 0.09), (x + 0.09, top, z + 0.09), "offwhite")
+            b.span((x - 0.18, 0, z - 0.18), (x + 0.18, 0.12, z + 0.18), "fur_black")               # a foot
+    n = 8
+    w = 2 * POST_X + 0.5
+    sw_w = w / n
+    depth, rise = POST_ZB - POST_ZF + 0.5, AWN_B - AWN_F
+    tilt = math.degrees(math.atan2(rise, depth))
+    zc = (POST_ZF + POST_ZB) / 2
+    for k in range(n):
+        x = -w / 2 + sw_w * (k + 0.5)
+        sw = ("pastel_sky", "offwhite")[k % 2]
+        b.box((x, (AWN_F + AWN_B) / 2 + 0.06, zc), (sw_w, 0.1, math.hypot(depth, rise)), sw, rot=rot_x(-tilt))
+        vz = POST_ZF - 0.32                                                                     # valance
+        b.span((x - sw_w / 2, AWN_F - 0.35, vz - 0.04), (x + sw_w / 2, AWN_F + 0.03, vz + 0.04), sw)
+        cy = AWN_F - 0.34
+        arc = [(x + sw_w / 2 * math.cos(math.radians(a)), cy + sw_w / 2 * math.sin(math.radians(a)))
+               for a in (180, 240, 300, 360)]
+        b.fan_z(vz, (x, cy), arc, 0.08, sw)
+
+
+def _yard_sign(b):
+    """A hand-painted YARD SALE board nailed to a stake, its painted face toward -Z. Returns its top (Roblox)."""
+    x, z = YSIGN_X, YSIGN_Z
+    b.span((x - 0.08, 0, z - 0.08), (x + 0.08, 3.4, z + 0.08), DARK)                             # the stake
+    y0, y1 = 2.0, 3.25
+    b.span((x - 0.8, y0, z - 0.14), (x + 0.8, y1, z - 0.08), "cardboard")                       # the board
+    b.span((x - 0.84, y0 - 0.04, z - 0.12), (x + 0.84, y1 + 0.04, z - 0.1), "kibble")           # its torn edge
+    _label_front(b, "YARD", x, y0 + 0.7, z - 0.14, 0.075, 0.02, "bowl_red")
+    _label_front(b, "SALE", x, y0 + 0.2, z - 0.14, 0.075, 0.02, "bowl_red")
+    for nx in (-0.6, 0.6):
+        b.span((x + nx - 0.03, y1 - 0.15, z - 0.17), (x + nx + 0.03, y1 - 0.09, z - 0.12), "metal")   # nails
+    return (x, y1 + 0.04, z - 0.11)
+
+
+def build_yardsale_stall(mat):
+    b = RB()
+    _yard_table(b)
+    _yard_awning(b)
+    top = _yard_sign(b)
+    _anchor(YARD, "PromptAnchor", (0.0, 1.5, YT_Z0 - 1.1))
+    _anchor(YARD, "BangAnchor", (top[0], top[1] + 2.0, top[2]))
+    _anchor(YARD, "GlowAnchor", (0.0, AWN_F - 0.5, (POST_ZF + POST_ZB) / 2))
+    return [b.finalize(YARD, mat)]
+
+
 def rbx_attachments(name):
     seen = {}
     for n, p in ATTACHMENTS.get(name, []):
@@ -209,4 +328,5 @@ def rbx_attachments(name):
 
 ASSETS = {
     PIC: (build_picnic_station, 4000),
+    YARD: (build_yardsale_stall, 4000),
 }

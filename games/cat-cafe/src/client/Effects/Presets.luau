@@ -1964,7 +1964,7 @@ Presets.wheel = {
 	-- "good" one (chance at most `good`) adds a mint ring and confetti from the top of the wheel, a "jackpot" (at
 	-- most `jackpot`) gold confetti, a gold ring, `showers` sparkle showers and longer blinking.
 	good = 0.16,
-	jackpot = 0.06,
+	jackpot = 0.02, -- the v2 wheel's two 0.5% slices only, not its 6% crate (#1411)
 	goodRing = 8,
 	jackpotRing = 12,
 	ringSeconds = 0.6,

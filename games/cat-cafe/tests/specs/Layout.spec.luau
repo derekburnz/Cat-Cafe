@@ -2263,5 +2263,20 @@ return function()
 				end
 			end
 		end)
+
+		it("stands the Garden Nursery in the Park camp, turned 90 on the camp, clear of the extra and the pad (#1200)", function()
+			local x, y, z, turn = Layout.lawnStallAt()
+			assert(x ~= nil and y ~= nil and z ~= nil and turn ~= nil, "no Garden Nursery spot")
+			local camp = Layout.camps.park
+			expect(Layout.campAt(x, z)).to.equal("park")
+			expect(y).to.equal(Layout.areas.park.floorY)
+			-- front (-Z) faces set -X: the camp's turn + 90
+			expect(turn).to.equal(camp.turn + 90)
+			local ex, _, ez = Layout.campExtraAt("park")
+			assert(ex ~= nil and ez ~= nil, "no park extra")
+			expect(apart(x, z, ex, ez) > 6).to.equal(true)
+			local pad = Layout.landingPads.park.centre
+			expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
+		end)
 	end)
 end

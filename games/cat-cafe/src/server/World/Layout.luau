@@ -1529,6 +1529,26 @@ function Layout.campExtraAt(areaId: string): (number?, number?, number?, number?
 		camp.turn
 end
 
+-- The Garden Nursery (#1200, lawn-nursery.md section 3; Model-Agent #1332): CatCafe_Camp_Park_GardenNursery's pivot
+-- (its base centre) in the Park's set space, the space Layout.campExtras uses, turned `turn` on top of the camp's
+-- turn so its front (-Z) faces set -X, toward the landing pad.
+Layout.lawnStall = { area = "park", x = 34, y = 0, z = -166, turn = 90 }
+
+-- Where the Garden Nursery stands in the world: x, the floor's y and z, and its turn about Y in degrees (the camp's
+-- plus its own), or nil when its area or camp is missing.
+function Layout.lawnStallAt(): (number?, number?, number?, number?)
+	local at = Layout.lawnStall
+	local spec, camp = Layout.areas[at.area], Layout.camps[at.area]
+	if spec == nil or camp == nil then
+		return nil, nil, nil, nil
+	end
+	local c, s = math.cos(math.rad(camp.turn)), math.sin(math.rad(camp.turn))
+	return spec.center.x + at.x * c + at.z * s,
+		spec.floorY + at.y,
+		spec.center.z - at.x * s + at.z * c,
+		camp.turn + at.turn
+end
+
 -- The camp an x, z stands in, by its rect (edges included), or nil.
 function Layout.campAt(x: number, z: number): string?
 	for id, camp in Layout.camps do

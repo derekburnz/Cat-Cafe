@@ -1288,6 +1288,7 @@ function UI.init(config: Types.InitConfig)
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
 	-- every area's Index Board, including boards that stream in later; its prompt opens that area's Index page
+	require(script.Screens.ThanksBoard).new(parent) -- #1083: the Thank You board's face (no local: init is at Luau's 200)
 	indexBoards = IndexBoards.new(parent, {
 		open = function(areaId: string)
 			UI.openIndex(areaId)
@@ -2070,6 +2071,12 @@ end
 ----------------------------------------------------------------------------------------------------
 -- Potions and the Mystery gift (F64, data-model section 12b)
 ----------------------------------------------------------------------------------------------------
+
+-- The Thank You board (#1083): ThanksBoard(rows, hasCredit) from IdeaCreditsService, on join and at each rebuild.
+-- `hasCredit` is for Settings' "Show my name" row, which comes with the Feedback tick in the next PR.
+function UI.thanksBoard(rows: { any }, _hasCredit: boolean)
+	require(script.Screens.ThanksBoard).show(if type(rows) == "table" then rows else {})
+end
 
 UI.potions = {}
 

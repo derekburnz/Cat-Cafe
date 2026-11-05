@@ -478,27 +478,26 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		})
 	end
 	local money = counter("Money", 1, "TextButton") :: TextButton
-	-- the gold coin badge, then the amount. The rate per second shows only in the boosts card a tap opens (Derek
-	-- 2026-11-02: "how much per second should be hidden until clicked also").
+	-- the gold coin picture (Icon_Clean_CoinGold, #1253), then the amount. The rate per second shows only in the
+	-- boosts card a tap opens (Derek 2026-11-02: "how much per second should be hidden until clicked also"). If the
+	-- picture fails to load, the gold "$" shows instead.
 	local coin: Frame = Create("Frame", {
 		Name = "Coin",
-		BackgroundColor3 = Theme.colors.gold,
-		BorderSizePixel = 0,
+		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(COUNTER_COIN, COUNTER_COIN),
 		LayoutOrder = 1,
 		Parent = money,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		label({
-			Size = UDim2.fromScale(1, 1),
-			TextSize = 22,
-			TextColor3 = Theme.colors.white,
-			TextXAlignment = Enum.TextXAlignment.Center,
-			Text = Theme.currencySymbol,
-		}),
 	})
-	Outline.border(coin, 2.5)
-	Outline.shade(coin, 0.2)
+	local coinGlyph = label({
+		Size = UDim2.fromScale(1, 1),
+		TextSize = 24,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = Theme.currencySymbol,
+		Parent = coin,
+	})
+	Outline.text(coinGlyph, 2.5)
+	IconArt.setImage(coinGlyph, ShopIcons.clean("Coin"), 1)
 	local line: Frame = Create("Frame", {
 		Name = "Line",
 		BackgroundTransparency = 1,

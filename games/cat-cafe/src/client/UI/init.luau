@@ -1312,7 +1312,7 @@ function UI.init(config: Types.InitConfig)
 	})
 	-- the icon over My Cafe, fading out up close and smaller far away (the other places' went 2026-10-28)
 	local markers = LocationMarkers.new(parent)
-	markers:setEnabled(settingsView:value("markers")) -- the My Cafe icon switch
+	markers:setEnabled(settingsView:value("markers")) -- the map icons switch (My Cafe, Night Market)
 	locationMarkers = markers
 	areaTitle = AreaTitle.new(parent)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers

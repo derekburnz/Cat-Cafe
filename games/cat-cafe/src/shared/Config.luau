@@ -92,7 +92,9 @@ local Config = {
 	StartledWalkSpeed = 12,
 	StartledSeconds = 2,
 	GrabCooldownSeconds = 2, -- per player, between two catches started
-	TravelCooldownSeconds = 3, -- per player, between two fast travels (features F19)
+	-- per player, between two fast travels (features F19); #1434 (Derek 2026-11-05): 1 (was 3), a quick anti-spam
+	-- cooldown rather than a wait. A trip still never starts while a cloud hop home is under way (TravelService).
+	TravelCooldownSeconds = 1,
 	-- The Cat Cannon (F84, hometown-cannon.md section 3b): a flight takes CannonLaunchSeconds from LaunchCannon to
 	-- control, the server moving the anchored character onto the landing pad at CannonTeleportAtSeconds, inside the
 	-- clouds; then CannonCooldownSeconds from landing before the next launch. Home from a wild area is a cloud hop

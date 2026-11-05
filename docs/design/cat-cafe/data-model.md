@@ -887,7 +887,7 @@ Removed: GrabEnd (replaced by CatchPress), RescueEnd (replaced by RescuePress), 
 
 v0.13.17 (F84, [hometown-cannon.md](hometown-cannon.md)): area travel is by cannon only. `Travel` keeps `home` from anywhere when not carrying, with the cloud hop from a wild area (CloudHopSeconds 1.6, the move at CloudHopMoveAtSeconds 0.6), adds `cannon` (Derek 14:10: the Cannon button moves the caller at once to the front of the nearest cannon, the Town Square cannon in town or their camp's cannon in a wild area, refused while carrying) and drops `alley` and the area destinations. `LaunchCannon` below is the way into and out of a wild area.
 
-v0.4 addition, `Travel(destination)` (engineer's F19, the shape is theirs): `home` or an area id; the area is unlocked, the player is not carrying, holds no catch or rescue lock (reviewer N47) and TravelCooldownSeconds (3) has passed; moves the character to that destination's entry point.
+v0.4 addition, `Travel(destination)` (engineer's F19, the shape is theirs): `home` or an area id; the area is unlocked, the player is not carrying, holds no catch or rescue lock (reviewer N47) and TravelCooldownSeconds (1 since #1434, was 3) has passed and no cloud hop home is under way; moves the character to that destination's entry point.
 
 ## 16. Analytics events (AnalyticsService)
 
@@ -956,7 +956,7 @@ Changed or new in v0.4:
 | AutoPressClearRate | 0.85 | new | CatService |
 | NormalWalkSpeed | 20 | 16 | CatService, PlotService |
 | CarryWalkSpeed | 16 | 13 | CatService |
-| TravelCooldownSeconds | 3 | new | Travel (F19) |
+| TravelCooldownSeconds | 1 (3 until #1434) | new | Travel (F19); no trip starts during a cloud hop home |
 | alley spawnPoints | 24 | 14 | Catalog areas |
 
 Changed or new in v0.5 (Gavin's round 2):

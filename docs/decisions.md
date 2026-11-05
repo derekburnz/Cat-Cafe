@@ -466,6 +466,9 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 ### Corner Shop prices v3 (#1385), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: Corner Shop coin prices go up by size: Small x10, regular x20, Big and Mega x40 (Swift Potion 3,000 / 100,000 / 20M, Cat Feast 3.2B). Why: the friend found them far too cheap and asked for a huge rise that climbs faster for the better items, with about 20x being fine. Each size step doubles the factor. The Feast stays at x40 so it costs no more than about 2.7 Tier 5 rank-ups. Daily limits, odds, tiers and bait foods are unchanged. Spec: corner-shop-v2.md section 1.
 
+### Spin Wheel jackpots (#1411), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
+- 2026-11-05: The Spin Wheel goes to 8 slices. Coins are 69% (a new 1,800 s slice at 12%), there are two 0.5% jackpots (a golden crate of the highest zone, and 100 golden fish), and the rest of the slices are reweighted. Why: the friend wants something to chase and spins to be a quick money source. Spins stay free only, so it isn't a paid random item. Spec: rewards-and-shops.md section 2b v2.
+
 ### More strays and better wild odds (#1452), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: Wild odds go to 54 / 29 / 11 / 4.8 / 1.2, the same in every area (was 72 / 22 / 5 / 0.9 / 0.1). Waves go to 8 / 7 / 7 / 6 / 6, and the top-up floor to 7, every 40 to 80 s, with a live cap of 14. Why: the friend wants rare cats to be realistic outside the bowl. The odds stay equal across areas under Derek's same-odds rule, and the Royal Bowl with Salmon stays 2.5 times better for Legendary and for Mythical (the friend's "about 2.5x better not 4x"). This eases "rare cats come mainly from food" (v0.13.7) without removing it. Spec: data-model.md section 9.
 

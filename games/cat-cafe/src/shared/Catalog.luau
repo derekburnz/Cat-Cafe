@@ -882,7 +882,7 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 13500, -- #1162 (4-friend non-stop pace, Design-Agent 11-05: 9.4 min at 12,000); F95 v2.1 12,000, 10,000 before
+		cost = 28000, -- #1452 (economy-ladder 3 v3, faster wild catching): 13,500 for #1162, F95 v2.1 12,000, 10,000 before
 		distinctCats = 5,
 		slots = 4,
 		multiplier = 1.25,
@@ -892,7 +892,7 @@ Catalog.tiers = {
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 500000, -- F95 v2 (was 350,000; 80,000 before F95)
+		cost = 700000, -- #1452 (economy-ladder 3 v3); F95 v2 500,000 (was 350,000; 80,000 before F95)
 		distinctCats = 12,
 		needsRarity = "Epic",
 		needsRarityCount = 1,
@@ -904,7 +904,7 @@ Catalog.tiers = {
 	{
 		tier = 4,
 		name = "Famous Cafe",
-		cost = 40000000, -- F95 v2 (was 27,000,000; 700,000 before F95)
+		cost = 60000000, -- #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
 		distinctCats = 20,
 		needsRarity = "Legendary",
 		needsRarityCount = 1,
@@ -916,7 +916,7 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 1200000000, -- F95 v2 (was 800,000,000; 5,000,000 before F95)
+		cost = 2000000000, -- #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
 		distinctCats = 30,
 		needsRarity = "Legendary",
 		needsRarityCount = 2,

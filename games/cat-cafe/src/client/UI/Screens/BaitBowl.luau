@@ -847,7 +847,7 @@ function BaitBowl._renderStatus(self: any)
 		end
 		if left > 0 then
 			title = if self._tabsShown
-				then ("%s is in bowl %d"):format(foodName, selected)
+				then foodName .. " is in bowl " .. tostring(selected)
 				else foodName .. " is in the bowl"
 			local inTime = Format.duration(math.ceil(left))
 			sub = if bait.night

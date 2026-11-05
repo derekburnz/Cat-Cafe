@@ -1,11 +1,11 @@
 --!strict
 -- Night dealer screen (F32, data-model section 8b), in the Grow a Garden seed shop style: "Fresh stock in
--- 4:12" across the top, then each dealer food with this window's stock, its odds and one green price button. F59:
+-- 4:12" across the top, then each dealer food with this window's stock and one green price button. F59:
 -- every food shows, "x2 Stock" while some are left for you, "Sold out" once you bought them all and "None this time"
--- for an amount of 0; the amounts are the same on every server (Components/DealerRows). The five-rarity odds
--- sit on every row before Buy as one short row, each rarity in its colour (Derek 2026-10-28), and Details opens the
--- food's line, the gold chance, the chance of each stock amount and the per-cat split (the
--- growth thread's rules for random items); each food wears its grade badge and border (F69). F82: the odds and the
+-- for an amount of 0; the amounts are the same on every server (Components/DealerRows). #1612 (Derek2 11-05: "no
+-- need to show odds of everything everywhere"): a row is the picture with its grade badge and border (F69), the name
+-- and the stock; Details opens the five-rarity odds (each rarity in its colour), the food's line, the gold chance,
+-- the chance of each stock amount and the per-cat split (the growth thread's rules for random items). F82: the odds and the
 -- split are the player's bowl level's (shared Bait, as the server rolls). What is for sale comes
 -- only from UI.dealer.setStock (the DealerStock remote); the screen never guesses stock, and the server recomputes
 -- it on every BuyDealerFood.
@@ -56,7 +56,7 @@ export type Dealer = {
 }
 
 local STRIP_HEIGHT = 84
-local ROW_HEIGHT = 132
+local ROW_HEIGHT = 108 -- #1612: the picture and its margins; the odds moved into Details
 local ICON = 84
 local BUTTON = Vector2.new(128, Theme.sizes.touchMin + 4)
 local DETAILS_H = 42 -- a 37 px face with a mouse; Scale.tapHeight makes Buy and Details 44 px faces on a phone
@@ -89,26 +89,9 @@ local function rarityHex(rarity: string): string
 	return Theme.rarityLight(rarity):ToHex() -- light odds on the dark cards (#1028)
 end
 
--- "Attracts Epic": the rarity the food is known for, on paper with a border in that rarity's colour, so the solid
--- badge on the picture stays the food's own grade (F69)
-local function attractsChip(parent: Instance, lure: Types.LureDef, order: number): TextLabel
-	return Create("TextLabel", {
-		Name = "Attracts",
-		BackgroundColor3 = Theme.colors.paper,
-		BorderSizePixel = 0,
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 20),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.colors.ink, -- dark words on the paper chip
-		Text = FoodGrade.attracts(lure),
-		LayoutOrder = order,
-		Parent = parent,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
-		Create("UIStroke", { Color = Theme.rarityColor(lure.attracts), Thickness = 2 }),
-	})
+-- words that go in the rich text Details next to the coloured odds
+local function plain(value: string): string
+	return (value:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"))
 end
 
 function Dealer.new(callbacks: Callbacks): Dealer
@@ -309,7 +292,6 @@ function Dealer._buildRows(self: any)
 			LayoutOrder = 1,
 			Parent = heading,
 		})
-		attractsChip(heading, def, 2)
 		local stockLine: Frame = Create("Frame", {
 			Name = "StockLine",
 			BackgroundTransparency = 1,
@@ -341,19 +323,6 @@ function Dealer._buildRows(self: any)
 			TextColor3 = PAL.subtext,
 			LayoutOrder = 2,
 			Parent = stockLine,
-		})
-		local odds = text({
-			Name = "Odds",
-			Position = UDim2.fromOffset(TEXT_LEFT, 60),
-			Size = UDim2.new(1, -(TEXT_LEFT + TEXT_RIGHT), 0, ROW_HEIGHT - 66),
-			FontFace = Theme.fonts.bodyBold,
-			TextSize = Theme.sizes.textSmall,
-			TextWrapped = true,
-			TextTruncate = Enum.TextTruncate.None,
-			TextYAlignment = Enum.TextYAlignment.Top,
-			RichText = true,
-			Text = FoodOdds.rich(def.odds, rarityHex),
-			Parent = top,
 		})
 		local lureId = group.lureId
 		local buy = Button.new({
@@ -391,6 +360,7 @@ function Dealer._buildRows(self: any)
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top,
+			RichText = true, -- #1612: the odds in their colours lead Details
 			Visible = false,
 			LayoutOrder = 2,
 			Parent = row,
@@ -409,7 +379,7 @@ function Dealer._buildRows(self: any)
 			buy = buy,
 			details = details,
 			detail = detail,
-			odds = odds,
+			odds = FoodOdds.rich(def.odds, rarityHex), -- #1612: Details' first line, rich text
 			split = nil :: string?, -- the per-cat split for the tier and bowl last drawn
 			group = group,
 		})
@@ -528,8 +498,7 @@ function Dealer._renderAll(self: any)
 		self._luck = playerLuck
 		for _, row in self._rows do
 			local def: Types.LureDef = row.group.def
-			row.odds.Text =
-				FoodOdds.rich(FoodOdds.atBowl(def.odds, bowlLevel, playerLuck), rarityHex)
+			row.odds = FoodOdds.rich(FoodOdds.atBowl(def.odds, bowlLevel, playerLuck), rarityHex)
 			row.split = FoodOdds.split(catalog, def, state.tier, bowlLevel, playerLuck)
 		end
 	end
@@ -554,7 +523,7 @@ function Dealer._renderAll(self: any)
 				table.insert(lines, stockOdds)
 			end
 			table.insert(lines, row.split or "")
-			row.detail.Text = table.concat(lines, "\n")
+			row.detail.Text = row.odds .. "\n" .. plain(table.concat(lines, "\n"))
 		end
 	end
 	for _, row in self._rows do

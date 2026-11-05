@@ -394,7 +394,8 @@ return function()
 				RallyPoints = true, -- F101 (rescue-rally.md section 2): a table, checked in Rally.spec
 				RallyForce = true, -- F101: false, checked in Rally.spec (a false value reads as missing above)
 				RescueTreeCircle = true, -- Derek 2026-11-03: false, checked in Rescue.spec (a false value reads as missing)
-				RescueSnack = true, -- #1181 (corner-shop-v2.md section 3): a food id, checked in CornerShop.spec
+				RescueSnack = true,
+				LawnStallRange = true, -- #1200 (lawn-nursery.md section 4): 14 studs, checked in LawnService -- #1181 (corner-shop-v2.md section 3): a food id, checked in CornerShop.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

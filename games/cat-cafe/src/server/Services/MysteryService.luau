@@ -1,7 +1,7 @@
 --!strict
--- The Mystery Visitor (F64, data-model section 12b). By day, every MysteryCheckSeconds, each owned cafe that earns
--- and has a table rolls MysteryChance, outside the last DuskWarningSeconds so a visitor never sits down only to
--- leave. A hit seats a hooded visitor for MysteryStaySeconds and puts a wrapped gift on the cafe's last table, rolled
+-- The Mystery Visitor (F64, data-model section 12b). By day, each owned cafe that earns and has a table gets one when
+-- its timer runs out (#1135: MysteryEveryMin to MysteryEveryMax seconds of open day, shared/VisitTimer), outside the
+-- last DuskWarningSeconds so a visitor never sits down only to leave. A hit seats a hooded visitor for MysteryStaySeconds and puts a wrapped gift on the cafe's last table, rolled
 -- now (shared/Potions.rollGift). The plot attributes MysteryVisitorUntil and MysteryGiftAt are display only: each
 -- client builds the visitor and the gift from them (CustomerController) and the effects follow their tags;
 -- MysteryTable names the gift's table.
@@ -27,6 +27,7 @@ local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
+local VisitTimer = require(ReplicatedStorage.Shared.VisitTimer)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local MysteryService = {}
@@ -207,27 +208,35 @@ local function arrive(
 	return visit
 end
 
--- By day only, before the last DuskWarningSeconds: each owned cafe that earns, has a table and no visit rolls
--- MysteryChance.
-local function roll()
+-- Each cafe's Mystery Visitor timer (#1135, shared/VisitTimer): seconds of open day left until the next one.
+local timers: { [Player]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+-- Every second, `dt` the time since the last: by day only, before the last DuskWarningSeconds, each owned cafe that
+-- earns, has a table and no visit counts its timer down; when it runs out a visitor sits down and a new timer is drawn.
+local function tickTimers(dt: number)
 	local now = os.time()
 	local dusk = math.floor(ClockService.phaseEndsAt())
-	if ClockService.isNight() or dusk - now <= Config.DuskWarningSeconds then
-		return
-	end
+	local open_ = not ClockService.isNight() and dusk - now > Config.DuskWarningSeconds
 	for _, player in DataService.loadedPlayers() do
 		local plot = PlotService.get(player)
 		local profile = DataService.get(player)
-		if plot == nil or profile == nil or visits[plot.index] ~= nil then
+		if plot == nil or profile == nil then
 			continue
 		end
 		local tables = math.min(Economy.level(profile, "tables"), #plot.tableAnchors)
-		if Economy.incomePerSecond(profile) <= 0 or tables < 1 then
-			continue
-		end
-		if rng:NextNumber() < Config.MysteryChance then
+		local ready = open_
+			and visits[plot.index] == nil
+			and Economy.incomePerSecond(profile) > 0
+			and tables >= 1
+		local left = timers[player]
+			or VisitTimer.draw(Config.MysteryEveryMin, Config.MysteryEveryMax, rng:NextNumber())
+		local due: boolean
+		left, due = VisitTimer.tick(left, dt, ready)
+		if due then
 			arrive(player, plot, tables, now)
+			left = VisitTimer.draw(Config.MysteryEveryMin, Config.MysteryEveryMax, rng:NextNumber())
 		end
+		timers[player] = left
 	end
 end
 
@@ -263,14 +272,13 @@ function MysteryService.start()
 		end
 	end)
 	task.spawn(function()
-		local nextRoll = os.clock() + Config.MysteryCheckSeconds
+		local last = os.clock()
 		while true do
 			task.wait(1)
 			checkExpiries()
-			if os.clock() >= nextRoll then
-				nextRoll = os.clock() + Config.MysteryCheckSeconds
-				roll()
-			end
+			local nowClock = os.clock()
+			tickTimers(nowClock - last)
+			last = nowClock
 		end
 	end)
 end

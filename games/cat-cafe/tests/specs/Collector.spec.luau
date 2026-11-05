@@ -116,7 +116,7 @@ return function()
 			expect(Collector.askable(cats.locked)).to.equal(false)
 		end)
 
-		it("picks a catId evenly, so a pile of one kind does not crowd out the rest", function()
+		it("picks by catId, so a pile of one kind does not crowd out the rest", function()
 			local a, b = firstOf("Common", "alley"), firstOf("Rare", "alley")
 			local cats: { [string]: any } = { b1 = cat("b1", b) }
 			for n = 1, 9 do
@@ -126,6 +126,34 @@ return function()
 			table.sort(ids)
 			expect((Collector.pickCat(cats, fixed(0)) :: any).catId).to.equal(ids[1])
 			expect((Collector.pickCat(cats, fixed(0.99)) :: any).catId).to.equal(ids[2])
+		end)
+
+		it("asks for a rarer catId as often as CollectorAskWeight says, never a cat in use (#1144)", function()
+			local commons: { string } = {}
+			for _, def in Catalog.cats do
+				if def.rarity == "Common" and Catalog.getArea(def.area) ~= nil and #commons < 6 then
+					table.insert(commons, def.id)
+				end
+			end
+			local epic = firstOf("Epic")
+			local cats: { [string]: any } = { e1 = cat("e1", epic), busy = cat("busy", epic, { spotId = "waiter_1" }) }
+			for n, id in commons do
+				cats["c" .. n] = cat("c" .. n, id)
+			end
+			local steps, epics = 1000, 0
+			for i = 0, steps - 1 do
+				local picked = Collector.pickCat(cats, fixed((i + 0.5) / steps)) :: any
+				expect(picked.uid ~= "busy").to.equal(true)
+				if picked.catId == epic then
+					epics += 1
+				end
+			end
+			local weights = Config.CollectorAskWeight
+			local want = weights.Epic / (weights.Epic + #commons * weights.Common)
+			expect(epics / steps).to.be.near(want, 0.01)
+			-- only commons still works
+			cats.e1 = nil
+			expect((Collector.pickCat(cats, fixed(0.5)) :: any).catId ~= epic).to.equal(true)
 		end)
 
 		it("takes that catId's lowest rated cat, the lowest uid on a tie", function()
@@ -269,13 +297,13 @@ return function()
 			expect(asked > 200).to.equal(true)
 		end)
 
-		it("about one visit every 25 minutes of play by the clock (one check every 120 s at 12%, by day only)", function()
+		it("about one visit every 25 minutes of play by the clock (a 600 to 1400 s timer of open day, #1135)", function()
 			-- data-model 12b says about 35, from before the short night (F66); by the build's numbers a check lands in
 			-- the open part of the day (a 300 s day of a 390 s loop, less the last DuskWarningSeconds) 285 / 390 of
 			-- the time, and a visit then holds the plot for CollectorStaySeconds
 			local open = (Config.DayLengthSeconds - Config.DuskWarningSeconds)
 				/ (Config.DayLengthSeconds + Config.NightLengthSeconds)
-			local waiting = Config.CollectorCheckSeconds / (Config.CollectorChance * open)
+			local waiting = (Config.CollectorEveryMin + Config.CollectorEveryMax) / 2 / open
 			local minutes = (waiting + Config.CollectorStaySeconds) / 60
 			expect(minutes > 20 and minutes < 30).to.equal(true)
 		end)

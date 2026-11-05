@@ -186,7 +186,8 @@ end
 
 -- A HUD tile's picture (#1185): the 3D-rendered button picture when there is one, else the clean symbol. Named as the
 -- clean symbols are (Home is My Cafe, Potion the Potions tile, Bowl the Bait tile).
-local HUD_FOR: { [string]: string } = { Home = "MyCafe", Potion = "Potions", Bowl = "Bait" }
+local HUD_FOR: { [string]: string } =
+	{ Home = "MyCafe", Potion = "Potions", Bowl = "Bait", Bag = "Potions" }
 function ShopIcons.hud(name: string): string?
 	return IDS["Icon_Hud_" .. (HUD_FOR[name] or name)] or IDS["Icon_Clean_" .. name]
 end
@@ -225,26 +226,40 @@ local POTION_STANDIN: { [string]: string } = {
 	cat_whistle = "Icon_Flask_Lucky",
 }
 
-function ShopIcons.potion(potionId: string?): string?
+-- Every bottle a potion has, best first (#1256): Model-Agent's flask (#1204), the clean flask in the potion's colour
+-- (#1070), the older bottle. IconArt.setImages draws the first that loads, so a flask not yet shared with the game
+-- falls back to the next bottle instead of the emoji. A Small or Big size runs its regular potion's timer, so it wears
+-- that potion's bottles (corner-shop-v2.md, #1250).
+function ShopIcons.potionAll(potionId: string?): { string }
+	local list: { string } = {}
 	if type(potionId) ~= "string" then
-		return nil
+		return list
 	end
-	-- a Small or Big size runs its regular potion's timer, so it wears that potion's bottle (corner-shop-v2.md)
 	local def = Catalog.getPotion(potionId)
 	if def and def.buff and def.buff ~= potionId then
-		return ShopIcons.potion(def.buff)
+		return ShopIcons.potionAll(def.buff)
 	end
 	local standin = POTION_STANDIN[potionId]
-	if standin then
-		return IDS[standin]
+	if standin and IDS[standin] then
+		table.insert(list, IDS[standin])
+		return list
 	end
 	local name = potionId:match("^(.+)_potion$")
 	if name == nil then
-		return nil
+		return list
 	end
-	-- Model-Agent's flask (#1204), else the clean flask in the potion's colour (#1070), else the older bottle
 	local key = pascal(name)
-	return IDS["Icon_Flask_" .. key] or IDS["Icon_Clean_Potion" .. key] or IDS["Potion_" .. key]
+	for _, prefix in { "Icon_Flask_", "Icon_Clean_Potion", "Potion_" } do
+		local id = IDS[prefix .. key]
+		if id then
+			table.insert(list, id)
+		end
+	end
+	return list
+end
+
+function ShopIcons.potion(potionId: string?): string?
+	return ShopIcons.potionAll(potionId)[1]
 end
 
 function ShopIcons.perk(perkId: string?): string?
@@ -255,6 +270,12 @@ end
 -- night dealer, the Tip Jar, Daily Treat, quest and spin prizes) reaches it through ItemIcon.setFood. Only the clean
 -- 2D picture (Icon_Clean_<Food>, assets/cat-cafe/ui/icons-clean-2026-11-03) counts: the older food uploads were 3D
 -- renders, so a food without a clean picture gets nil and the spec fails.
+-- Cat food in the Bag (#1181): the clean star treat for every size until the foods have pictures of their own (they
+-- are XP treats, not bait, so they don't borrow the bait foods' bowls).
+function ShopIcons.catFood(foodId: string?): string?
+	return if type(foodId) == "string" then IDS.Icon_Clean_StarTreat else nil
+end
+
 function ShopIcons.food(lureId: string?): string?
 	return if type(lureId) == "string" then IDS["Icon_Clean_" .. pascal(lureId)] else nil
 end

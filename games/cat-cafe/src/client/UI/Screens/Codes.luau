@@ -13,6 +13,11 @@
 -- not take the keyboard when it opens: the player is walking into the circle, so W, A, S and D keep moving the
 -- character until the box is clicked.
 --
+-- #1428 (the friend 11-05: "change the codes stand to be mixed with the store stand so that they have to see the store
+-- to find codes"): the box, Redeem and the answer sit in one Body frame, and mount(parent) moves that frame into the
+-- Store's Codes tab (Screens/Store, UI.store); the Codes Cat's circle then opens the Store on that tab. mount(nil)
+-- puts it back in this window.
+--
 -- Roblox terms: a TextBox is an editable text field; its FocusLost(enterPressed) fires when Enter is pressed in it.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -49,6 +54,7 @@ export type Codes = {
 	onOpen: (self: Codes) -> (),
 	onClose: (self: Codes) -> (),
 	result: (self: Codes, ok: boolean, message: string, prize: Types.IndexPrize?) -> (),
+	mount: (self: Codes, parent: Instance?) -> (),
 	destroy: (self: Codes) -> (),
 }
 
@@ -117,7 +123,14 @@ function Codes.new(callbacks: Callbacks): Codes
 		else UDim2.fromScale(0.5, 0.5)
 	self._panel = panel
 	self.frame = panel.frame
-	local content = panel.content
+	-- everything in one frame, so the Store's Codes tab can hold it (#1428)
+	local content: Frame = Create("Frame", {
+		Name = "Body",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Parent = panel.content,
+	})
+	self._body = content
 
 	text({
 		Name = "Hint",
@@ -334,6 +347,11 @@ function Codes.onClose(self: any)
 	self:_refresh()
 end
 
+-- Moves the box into `parent` (the Store's Codes tab), or back into this window with nil.
+function Codes.mount(self: any, parent: Instance?)
+	self._body.Parent = parent or self._panel.content
+end
+
 function Codes.destroy(self: any)
 	self._alive = false
 	for _, connection in self._connections do
@@ -342,6 +360,7 @@ function Codes.destroy(self: any)
 	table.clear(self._connections)
 	self._redeem:destroy()
 	self._chips:destroy()
+	self._body:Destroy() -- it may sit in the Store
 	self._panel:destroy()
 end
 

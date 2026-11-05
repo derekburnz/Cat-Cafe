@@ -33,6 +33,8 @@ local Theme = require(script.Parent.Parent.Theme)
 export type Callbacks = {
 	buy: (passId: number) -> (),
 	close: () -> (),
+	-- #1428: the Codes tab came into view (true) or left it (false), so the code box can start fresh or clear
+	codes: ((shown: boolean) -> ())?,
 }
 
 -- the dark window palette (#1028), in place of Theme.modal
@@ -46,6 +48,9 @@ export type Store = {
 		prices: { [number]: StoreLogic.Price }
 	) -> (),
 	showTab: (self: Store, tab: string) -> (),
+	tab: (self: Store) -> string,
+	closed: (self: Store) -> (),
+	codesPage: Frame, -- the Codes tab's page, where Screens/Codes mounts its box (#1428)
 	destroy: (self: Store) -> (),
 }
 
@@ -135,15 +140,24 @@ function Store.new(callbacks: Callbacks): Store
 	self._panel = panel
 	self.frame = panel.frame
 
-	-- the rail: one button per tab, top to bottom
-	self._rail = Create("Frame", {
+	-- the rail: one button per tab, top to bottom, a finger tall on touch (no lip, closer together, so six fit a
+	-- phone held sideways); it scrolls only on a screen too short for them all
+	local touch = Scale.isTouch()
+	local railButtonH = Scale.tapHeight(Theme.sizes.touchMin)
+	self._rail = Create("ScrollingFrame", {
 		Name = "Rail",
 		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
 		Size = UDim2.new(0, RAIL_W, 1, 0),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollBarThickness = 4,
+		ScrollBarImageColor3 = PAL.caramel,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
 		Create("UIListLayout", {
-			Padding = UDim.new(0, GAP),
+			Padding = UDim.new(0, if touch then 4 else GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
@@ -154,7 +168,7 @@ function Store.new(callbacks: Callbacks): Store
 			text = tab.name,
 			icon = tab.icon,
 			style = if id == self._tab then "gold" else "ghost",
-			size = UDim2.new(1, 0, 0, self._actionHeight),
+			size = UDim2.new(1, -6, 0, railButtonH),
 			textSize = Theme.sizes.textBody,
 			layoutOrder = order,
 			parent = self._rail,
@@ -221,6 +235,21 @@ function Store.new(callbacks: Callbacks): Store
 		Text = "Nothing in the Store yet. Come back soon!",
 		Visible = false,
 		Parent = self._featured,
+	})
+
+	-- Codes (#1428): Screens/Codes mounts its box here (UI.store.start)
+	self.codesPage = Create("Frame", {
+		Name = "CodesPage",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		Parent = pages,
+	}, {
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, CARD_INSET),
+			PaddingRight = UDim.new(0, CARD_INSET),
+			PaddingTop = UDim.new(0, GAP),
+		}),
 	})
 
 	-- every other tab: one grid, showing the cards of the tab picked
@@ -496,22 +525,42 @@ function Store.showTab(self: any, tab: string)
 			shown = true
 		end
 	end
+	local was = self._tab
 	self._tab = if shown then tab else "featured"
 	for id, button in self._railButtons do
 		button:setStyle(if id == self._tab then "gold" else "ghost")
 	end
 	local featured = self._tab == "featured"
+	local codes = self._tab == "codes"
 	self._featured.Visible = featured
-	self._list.Visible = not featured
+	self._list.Visible = not featured and not codes
+	self.codesPage.Visible = codes
+	local onCodes: ((boolean) -> ())? = self._callbacks.codes
+	if (was == "codes") ~= codes and onCodes then
+		onCodes(codes)
+	end
 	for slot, entry in self._cards do
 		if slot:sub(1, 5) == "grid:" then
 			local row = entry.row
 			entry.frame.Visible = row ~= nil and row.tab == self._tab
 		end
 	end
-	if not featured then
+	if not featured and not codes then
 		self._list.CanvasPosition = Vector2.zero
 	end
+end
+
+function Store.tab(self: any): string
+	return self._tab
+end
+
+-- The window closed: the Codes tab is out of view (its box clears), and the next open starts on Featured.
+function Store.closed(self: any)
+	local onCodes: ((boolean) -> ())? = self._callbacks.codes
+	if self._tab == "codes" and onCodes then
+		onCodes(false)
+	end
+	self._tab = "featured"
 end
 
 function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: StoreLogic.Price })

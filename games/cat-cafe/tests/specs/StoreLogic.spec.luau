@@ -236,8 +236,8 @@ return function()
 			for _, tab in StoreLogic.tabs(rows) do
 				table.insert(tabs, tab.id)
 			end
-			-- no Cafe Pass card yet, so no Cafe Pass tab
-			expect(table.concat(tabs, ",")).to.equal("featured,passes,cats,potions")
+			-- no Cafe Pass card yet, so no Cafe Pass tab; Codes always (#1428)
+			expect(table.concat(tabs, ",")).to.equal("featured,passes,cats,potions,codes")
 		end)
 
 		it("features the Starter Bundle, then the ladder, Long Nap and King Cat Pack", function()

@@ -2176,6 +2176,11 @@ UI.codes = {}
 -- flat). No key press and no prompt. A window the player has open (the Market stall is near) stays open instead
 -- (review N182).
 function UI.codes.open()
+	-- #1428: the code box lives in the Store's Codes tab, so the circle opens the Store there
+	local store: any = UI.store -- defined further down
+	if store.openCodes() then
+		return
+	end
 	if modal and modal:current() == nil then
 		modal:open("Codes")
 	end
@@ -2184,7 +2189,8 @@ end
 -- Closes the code box and clears its field: call it once the character is past CodesCircleRadius + 1. A window the
 -- player opened meanwhile stays open.
 function UI.codes.close()
-	if modal and modal:current() == "Codes" then
+	local store: any = UI.store
+	if modal and (modal:current() == "Codes" or store.codesShowing()) then
 		modal:close()
 	end
 end
@@ -2195,7 +2201,8 @@ function UI.codes.result(ok: boolean, message: string, prize: Types.IndexPrize?)
 	if codesScreen then
 		codesScreen:result(ok, message, prize)
 	end
-	if toasts and not (modal and modal:current() == "Codes") then
+	local store: any = UI.store
+	if toasts and not (modal and modal:current() == "Codes") and not store.codesShowing() then
 		toasts:show(message, if ok then "good" else "warn")
 	end
 end
@@ -5479,13 +5486,31 @@ do
 					modalView:close()
 				end
 			end,
+			-- #1428: the code box starts fresh on the Codes tab and clears when it leaves view
+			codes = function(shown: boolean)
+				local codes = codesScreen
+				if codes == nil then
+					return
+				end
+				if shown then
+					codes:onOpen()
+				else
+					codes:onClose()
+				end
+			end,
 		})
 		shop.screen = screen
+		if codesScreen then
+			codesScreen:mount(screen.codesPage) -- #1428: the code box is the Store's Codes tab
+		end
 		modalView:register("Store", {
 			frame = screen.frame,
 			onOpen = function()
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				screen:render(rows(), PassShop.prices())
+			end,
+			onClose = function()
+				screen:closed()
 			end,
 		})
 		shop.changed = PassShop.changed:Connect(refresh)
@@ -5504,6 +5529,34 @@ do
 		end
 	end
 
+	-- #1428: the Codes Cat's circle opens the Store on its Codes tab, unless another window is up (review N182).
+	-- False when there is no Store window, so the old Codes window opens instead.
+	function UI.store.openCodes(): boolean
+		local screen = shop.screen
+		local modalView = modal
+		if screen == nil or modalView == nil then
+			return false
+		end
+		local current = modalView:current()
+		if current == nil then
+			modalView:open("Store")
+			current = modalView:current()
+		end
+		if current == "Store" then
+			screen:showTab("codes")
+		end
+		return true
+	end
+
+	-- Whether the Store is up on its Codes tab (the circle's walk-out closes it, and answers show there).
+	function UI.store.codesShowing(): boolean
+		local screen = shop.screen
+		return screen ~= nil
+			and modal ~= nil
+			and modal:current() == "Store"
+			and screen:tab() == "codes"
+	end
+
 	-- The UI gate's and a Studio preview's answers in place of Roblox's: pass id to { robux, forSale }, and pass id
 	-- to true for the passes owned. preview({}, {}) clears them.
 	function UI.store.preview(prices: { [number]: StoreLogic.Price }, owned: { [number]: boolean })
@@ -5517,6 +5570,9 @@ do
 			shop.changed = nil
 		end
 		if shop.screen then
+			if codesScreen then
+				codesScreen:mount(nil) -- back in its own window before the Store goes
+			end
 			shop.screen:destroy()
 			shop.screen = nil
 		end

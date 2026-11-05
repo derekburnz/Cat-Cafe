@@ -809,7 +809,8 @@ export type CornerShopState = {
 	today: { [string]: number },
 	foodXpToday: number,
 }
--- One row as CornerShopStock sends it: `today` the family's buys today and `perDay` its limit (nil: none).
+-- One row as CornerShopStock sends it. `today` and `perDay` are no longer sent (#1190: the daily limits stay on the
+-- server and show only as a refusal toast); they stay optional here until the window stops reading them.
 export type CornerShopItem = {
 	itemId: string,
 	price: number,
@@ -817,7 +818,7 @@ export type CornerShopItem = {
 	bought: number,
 	size: CornerShopSize,
 	needsTier: number?,
-	today: number,
+	today: number?,
 	perDay: number?,
 }
 -- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and the cat food XP bought
@@ -972,6 +973,7 @@ export type PlayerState = {
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	catFood: { [string]: number }, -- #1181: food id -> count in the Bag
+	hideCredit: boolean, -- #1083: true while the player keeps their name off the Thank You board (SetHideCredit)
 	buffs: { [string]: number }, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
 	settings: Settings, -- the Settings screen follows these; Audio mutes and sets its channels by them
 	quests: QuestsView, -- F73: the Quests window's Daily and Weekly tabs and the HUD tracker

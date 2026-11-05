@@ -19,7 +19,7 @@ Every item is sold for **coins**, at a **fixed price**. Sizes go Small, regular,
 | Cat food (XP for one cat, goes to the Bag) | Small Snack, 600 XP · 400 | Cat Snack, 2,000 XP · 15,000 | Big Snack, 6,000 XP · 1,000,000 | Cat Feast, 20,000 XP · 80,000,000 | up to 20,000 XP bought |
 | Shows (looks only) | | Bubble Machine, 10 min · 50,000 | Cafe Fireworks, 20 s · 250,000 | | no limit |
 
-**How often each size is in stock** (the chance of 0, 1, 2 or 3 in a 5-minute window, the same for every family):
+**How often each size is in stock** (the chance of 0, 1, 2 or 3 in a 5-minute window, the same for every family). These are server numbers only. Since #1190 the window shows no stock chances, no "n left" counts and no restock clock: a row is either buyable or reads "Sold out".
 
 | size | 0 | 1 | 2 | 3 | average | shown to |
 |---|---|---|---|---|---|---|
@@ -29,7 +29,7 @@ Every item is sold for **coins**, at a **fixed price**. Sizes go Small, regular,
 | Mega (Cat Feast) | 90% | 10% | 0% | 0% | 0.1 | Tier 4 and up |
 
 - **Fixed prices, as the friend asked.** The price never changes with income, the tier, a money pass or the window. A rough feel for what a price means at each tier (day rates from the economy-ladder.md pace model): a Small item is a minute or two of income at Tier 1. A regular one is a minute or two at Tier 2. A Big one is 2 to 25 minutes at Tier 3 and under a minute at Tier 4. A Cat Feast is about 15 minutes at Tier 4 and 5 at Tier 5.
-- **Why the daily limits matter now.** With fixed prices, late-game players find Small and regular items almost free. So the limits, not the prices, keep the useful items in balance: at most 2 Quick Bait Potions and 4 each of Steady Paw and Whistle a day, whatever their size, and at most 20,000 XP of food bought a day. The Swift Potion and the shows only help you walk or look nice, so they have no limit. Every row shows "2 of 4 today".
+- **Why the daily limits matter now.** With fixed prices, late-game players find Small and regular items almost free. So the limits, not the prices, keep the useful items in balance: at most 2 Quick Bait Potions and 4 each of Steady Paw and Whistle a day, whatever their size, and at most 20,000 XP of food bought a day. The Swift Potion and the shows only help you walk or look nice, so they have no limit. The limits are enforced on the server and never shown on a row (#1190). A player who reaches one gets a short refusal toast when they try to buy: "That's all the Quick Bait for today, back tomorrow!"
 - **Tier gates.** Big items show from Tier 3 and the Cat Feast from Tier 4. Below that the row reads "Opens at Tier 3" in grey, so a new player isn't shown a 6,000,000 coin price. Stock is still the same on every server; the gate only hides the row.
 - **Durations, not strengths.** Sizes differ in how long they last (or how much XP they give). A Small and a Big Steady Paw give the same bands, so mixing sizes adds minutes to one buff chip and never shows two strengths at once. Each drink adds its minutes up to `PotionMaxMinutes` (24 hours), as today.
 - **The Fresh Catch shelf** keeps selling the regular Steady Paw and Quick Bait Potions for golden fish, with no daily limit. That stays the way to get more than the coin limits allow.
@@ -80,10 +80,10 @@ A daily player earns roughly 5,000 to 6,000 XP of food a day, about 1½ hours of
   - `catFood = { [foodId] = count }`, known ids only, whole counts from 1 to 999.
   - `cornerShop` keeps `window` and `bought`, and gains `day`, `today = { [family] = count }` and `foodXpToday`, all cleared when `day` isn't today (UTC). `snackDay` and `snackXp` go.
 - **Remotes:**
-  - `BuyCornerShop(itemId, window)`: the caller within `CornerShopRange`, the current `window`, the row's `needsTier` met, the window's amount not used up, the family's daily limit not reached, and for food the day's bought XP plus the row's XP no more than 20,000; enough coins. It charges the row's `price`; `shownPrice` and `catId` go, since prices are fixed and food goes to the Bag. Potions go to the potion bag and food to `catFood`. 2 a second. It answers with `CornerShopStock` (rows gain `size`, `needsTier`, `today` and `perDay`).
+  - `BuyCornerShop(itemId, window)`: the caller within `CornerShopRange`, the current `window`, the row's `needsTier` met, the window's amount not used up, the family's daily limit not reached, and for food the day's bought XP plus the row's XP no more than 20,000; enough coins. It charges the row's `price`; `shownPrice` and `catId` go, since prices are fixed and food goes to the Bag. Potions go to the potion bag and food to `catFood`. 2 a second. It answers with `CornerShopStock` (rows gain `size` and `needsTier`; `today` and `perDay` stay server-side and are not sent, #1190).
   - New `FeedCat(foodId: string, catUid: string)`: the player owns the cat and has at least one of that food. It takes one, grants the food's XP through `Economy.grantXp` (level ups count in `stats.catLevelUps` as today) and answers with the cat's new level and XP. 4 a second.
 - **Client:**
-  - UI-Engineer: the Bag pill and window (Potions and Cat Food tabs), the Feed button on the cat card, the Corner Shop rows with size, "n of 4 today" and the tier gate, and the removal of the buy-time cat picker.
+  - UI-Engineer: the Bag pill and window (Potions and Cat Food tabs), the Feed button on the cat card, the Corner Shop rows with size and the tier gate (no stock chances, counts, daily-limit lines or restock clock, #1190), and the removal of the buy-time cat picker.
   - The Cat Whistle marker, as in corner-shop.md's v2 note: a `WorldMarker` paw over the nearest replicated stray or trapped cat in the current area, updated on a 0.5 s step.
 - **Analytics:** `corner_shop_buy` gains the field `size`. New `cat_fed` (value XP, fields food id and source: bought or earned).
 - **Who builds:** Gameplay-Engineer (Catalog, Config, save, both remotes, the food sources); UI-Engineer (Bag, Feed, shop rows); VFX (the whistle marker's look, if needed); QA (section 5). This touches `Config.luau`, `Remotes.luau` and the save, so open a `claim` issue first.
@@ -93,7 +93,7 @@ A daily player earns roughly 5,000 to 6,000 XP of food a day, about 1½ hours of
 1. Prices: a Small Swift Potion costs 300 coins at Tier 1 and at Tier 5, with or without a 2x Money pass.
 2. Rotation: over 200 windows, Small rows are in stock at least 95% of the time, Big rows about 30% and the Cat Feast about 10%. Two servers show the same stock in the same window.
 3. Tier gates: at Tier 2 the Big rows read "Opens at Tier 3" and can't be bought (a forced `BuyCornerShop` is refused); at Tier 3 the Cat Feast still reads "Opens at Tier 4".
-4. Daily limits: a third Quick Bait Potion of any size in one UTC day is refused with "2 of 2 today", and a fifth Steady Paw or Whistle with "4 of 4 today". Food stops at 20,000 XP bought a day: a Big Snack bought on top of 15,000 XP is refused. All of these reset at 00:00 UTC.
+4. Daily limits: a third Quick Bait Potion of any size in one UTC day is refused with the toast "That's all the Quick Bait for today, back tomorrow!", and a fifth Steady Paw or Whistle with the matching toast. No row ever shows a daily count. Food stops at 20,000 XP bought a day: a Big Snack bought on top of 15,000 XP is refused. All of these reset at 00:00 UTC.
 5. Bag: buying a Cat Snack opens no picker, and the Bag's Cat Food tab shows "x1". Feeding it to a cat gives exactly 2,000 XP and the count drops; feeding with none left is refused.
 6. Sources: Daily Treat day 1 gives 2 Small Snacks; a rescue gives 1; over 500 net catches the drop rate is within 2 points of 10%; the Collector can offer "2 Big Snacks".
 7. Mixing sizes: drinking a Small then a Big Steady Paw shows one chip with 35 minutes, not two chips.

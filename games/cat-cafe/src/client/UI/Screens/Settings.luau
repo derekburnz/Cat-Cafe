@@ -54,6 +54,8 @@ export type Callbacks = {
 	setTradeRequests: ((mode: string) -> ())?, -- "everyone", "friends" or "off"
 	openTrades: (() -> ())?,
 	resetSave: (() -> ())?, -- the Testers section's Reset my save, after its confirm card; no section without it
+	-- #1083: "Show my name on the Thank You board" (true keeps it off); the row shows only after showCredit(true)
+	setHideCredit: ((hide: boolean) -> ())?,
 }
 
 export type Settings = {
@@ -65,6 +67,7 @@ export type Settings = {
 	showTutorial: (self: Settings, shown: boolean) -> (),
 	showTrading: (self: Settings, shown: boolean) -> (),
 	showTester: (self: Settings, shown: boolean) -> (),
+	showCredit: (self: Settings, shown: boolean) -> (), -- #1083: only for a player with a credit on the board
 	cancelReset: (self: Settings) -> (),
 	destroy: (self: Settings) -> (),
 }
@@ -108,6 +111,7 @@ local TILE_COLORS: { [string]: Color3 } = {
 	shopAlerts = Theme.colors.goldDark,
 	tradeRequests = Theme.colors.mintDark,
 	trades = Theme.colors.mintDark,
+	showCredit = Theme.colors.berry,
 	resetSave = Theme.colors.warn,
 }
 -- a volume row's switch: the slider greys while that switch is off
@@ -120,6 +124,14 @@ local REPLAY_ROW: ButtonRow = {
 	name = "Replay tutorial",
 	detail = "The quick tour of the town again",
 	button = "Play",
+}
+-- #1083 (idea-credits.md section 3): on for a player with a credit until they turn it off (profile.hideCredit)
+local CREDIT_ROW: ButtonRow = {
+	key = "showCredit",
+	icon = "💡",
+	name = "Show my name on the Thank You board",
+	detail = "Your display name under the ideas you sent",
+	button = "ON",
 }
 local TIPS_ROW: ButtonRow = {
 	key = "showTips",
@@ -286,6 +298,18 @@ function Settings.new(callbacks: Callbacks): Settings
 	local openTrades = callbacks.openTrades
 	if setTradeRequests and openTrades then
 		order = self:_buildTrading(order, setTradeRequests, openTrades)
+	end
+	local setHideCredit = callbacks.setHideCredit
+	if setHideCredit then
+		order += 1
+		self._hideCredit = false
+		self._creditSwitch = self:_buildButtonRow(CREDIT_ROW, order, function()
+			Sound.play("uiToggle")
+			self._hideCredit = not self._hideCredit
+			setHideCredit(self._hideCredit)
+			self:_refreshCredit()
+		end)
+		self:showCredit(false)
 	end
 	local resetSave = callbacks.resetSave
 	if resetSave then
@@ -727,6 +751,22 @@ function Settings.cancelReset(self: any)
 end
 
 -- The Testers section, shown while the Player attribute Tester is true.
+-- #1083: the "Show my name" row, shown only while the player has a credit on the board (ThanksBoard's hasCredit).
+function Settings.showCredit(self: any, shown: boolean)
+	local card: Frame? = self._cards[CREDIT_ROW.key]
+	if card then
+		card.Visible = shown
+	end
+end
+
+function Settings._refreshCredit(self: any)
+	local switch: Button.Button? = self._creditSwitch
+	if switch then
+		switch:setText(if self._hideCredit then "OFF" else "ON")
+		switch:setStyle(if self._hideCredit then "ghost" else "primary")
+	end
+end
+
 function Settings.showTester(self: any, shown: boolean)
 	local header: TextLabel? = self._testerHeader
 	if header then
@@ -908,6 +948,8 @@ end
 
 function Settings.render(self: any, state: Types.PlayerState)
 	self._settings = (state :: any).settings
+	self._hideCredit = state.hideCredit == true -- the server's saved value (SetHideCredit syncs at once)
+	self:_refreshCredit()
 	self:_refresh()
 	self:_refreshTrading()
 end

@@ -56,34 +56,35 @@ return function()
 				Logic.button({ itemId = "x", price = 1, amount = 0, bought = 0 }, nil, 9, 0).text
 			).to.equal("None")
 		end)
-		it("gates a row by tier and counts the daily limit (corner-shop-v2.md)", function()
-			local big = {
-				itemId = "swift_potion_big",
-				price = 9,
-				amount = 2,
-				bought = 0,
-				needsTier = 3,
-				today = 0,
-			}
-			expect(Logic.gate(big, 2)).to.equal("Opens at Tier 3")
-			expect(Logic.gate(big, 3)).to.equal(nil)
-			expect(Logic.button(big, nil, 100, 0, 2).text).to.equal("Tier 3")
-			expect(Logic.button(big, nil, 100, 0, 2).enabled).to.equal(false)
-			expect(Logic.button(big, nil, 100, 0, 3).enabled).to.equal(true)
-			local quick = {
-				itemId = "quick_bait_potion",
-				price = 9,
-				amount = 3,
-				bought = 0,
-				today = 2,
-				perDay = 2,
-			}
-			expect(Logic.todayLine(quick)).to.equal("2 of 2 today")
-			expect(Logic.button(quick, nil, 100, 0, 5).text).to.equal("Done today")
-			expect(Logic.todayLine({ itemId = "x", price = 1, amount = 1, bought = 0, today = 0 })).to.equal(
-				nil
-			)
-		end)
+		it(
+			"gates a row by tier and leaves the daily limit to the server (corner-shop-v2.md, #1190)",
+			function()
+				local big = {
+					itemId = "swift_potion_big",
+					price = 9,
+					amount = 2,
+					bought = 0,
+					needsTier = 3,
+					today = 0,
+				}
+				expect(Logic.gate(big, 2)).to.equal("Opens at Tier 3")
+				expect(Logic.gate(big, 3)).to.equal(nil)
+				expect(Logic.button(big, nil, 100, 0, 2).text).to.equal("Tier 3")
+				expect(Logic.button(big, nil, 100, 0, 2).enabled).to.equal(false)
+				expect(Logic.button(big, nil, 100, 0, 3).enabled).to.equal(true)
+				-- #1190: no daily-limit words or grey state; the server's toast says it
+				local quick = {
+					itemId = "quick_bait_potion",
+					price = 9,
+					amount = 3,
+					bought = 0,
+					today = 2,
+					perDay = 2,
+				}
+				expect(Logic.button(quick, nil, 100, 0, 5).enabled).to.equal(true)
+				expect(Logic.todayLine).to.equal(nil)
+			end
+		)
 		it("says the cat food XP left today", function()
 			expect(Logic.snackLine(4800)).to.equal("Cat food today: 4,800 / 20,000 XP")
 			expect(Logic.snackRoom(19000)).to.equal(1000)

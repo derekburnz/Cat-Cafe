@@ -10,10 +10,13 @@ all of that on the Screen).
     CatCafe_Street_ThanksBoard_Screen the 7.6 x 5.2 face, a part named Screen whose Front (-Z) face looks at the
                                       player; the UI's SurfaceGui (Adornee = Screen) draws the rows on it, so nothing
                                       stands in front of that face. Cream, so dark text reads on it day and night
+    CatCafe_Street_ThanksBoard_WhatsNewPanel  #1216: the 7.6 x 4.8 face stacked above the Screen in the same frame
+                                      (a rail between), a part named WhatsNewPanel whose Front (-Z) face takes the UI's
+                                      What's new SurfaceGui; cream like the Screen, nothing in front of it
     _Bulb                             the idea bulb on the crest above the header: lit at night
     _Flowers                          the planters' flowers
 
-Pivot at the base centre on the paving, the face (-Z) toward the players. Footprint about 10.6 x 2.4 studs, 10.6 tall.
+Pivot at the base centre on the paving, the face (-Z) toward the players. Footprint about 10.6 x 2.4 studs, 15.7 tall (10.6 before the What's new panel, #1216).
 The root Model streams Atomic (rbx_export.MODEL_PROPS) so the Screen is there whenever the board is, and it carries the
 ThanksBoard tag (rbx_export.TAGS). WorldBuilder places it at Layout.thanksBoard; the suggested spot is station(-15, -23)
 (turned to face the cannon), the Corner Shop's mirror in the Codes Cat's quarter: it clears the Codes Cat and its circle
@@ -32,7 +35,12 @@ FZ = -0.15                      # its front face
 F = 0.34                        # the frame's width round it
 HX = W / 2 + F                  # the frame's outer half width
 POST_X = HX + 0.28              # the posts' middles
-HEAD_Y0, HEAD_Y1 = Y0 + H + F, Y0 + H + F + 1.6    # the header plank
+# #1216 (idea-credits.md section 7a): the What's new panel, stacked above the credits under the shared header, since
+# the board's spot cannot take it beside them (one end is 1.6 from the street lane, the other would reach the Codes
+# Cat); the same width, 4.8 tall for its title and five rows at the spec's text sizes
+WN_H = 4.8
+WN_Y0 = Y0 + H + F              # its bottom, over the frame's middle rail
+HEAD_Y0, HEAD_Y1 = WN_Y0 + WN_H + F, WN_Y0 + WN_H + F + 1.6    # the header plank
 TRIM, WOOD, FACE = "dark_wood", "caramel_wood", "cream"
 
 
@@ -55,21 +63,25 @@ def _posts(b):
             b.ball((x + dx, HEAD_Y1 + 0.86, -0.02), 0.09, "gold_light")                    # toes
 
 
-def _board(b, screen):
-    # the face, its frame, a back board and the planks seen from behind
+def _board(b, screen, whatsnew):
+    # the two faces, their frame, a back board and the planks seen from behind
+    top = WN_Y0 + WN_H + F                                                                 # the frame's top
     screen.span((-W / 2, Y0, FZ), (W / 2, Y0 + H, FZ + 0.06), FACE)
-    b.span((-HX, Y0 - F, FZ + 0.06), (HX, Y0 + H + F, FZ + 0.3), WOOD)                     # back board
-    for (xa, xb, ya, yb) in ((-HX, HX, Y0 - F, Y0), (-HX, HX, Y0 + H, Y0 + H + F),
-                             (-HX, -W / 2, Y0, Y0 + H), (W / 2, HX, Y0, Y0 + H)):
-        b.span((xa, ya, FZ - 0.1), (xb, yb, FZ + 0.06), TRIM)                              # frame, proud of the face
+    whatsnew.span((-W / 2, WN_Y0, FZ), (W / 2, WN_Y0 + WN_H, FZ + 0.06), FACE)
+    b.span((-HX, Y0 - F, FZ + 0.06), (HX, top, FZ + 0.3), WOOD)                            # back board
+    for (xa, xb, ya, yb) in ((-HX, HX, Y0 - F, Y0), (-HX, HX, Y0 + H, WN_Y0),             # bottom and middle rails
+                             (-HX, HX, WN_Y0 + WN_H, top),                                  # top rail
+                             (-HX, -W / 2, Y0, Y0 + H), (W / 2, HX, Y0, Y0 + H),           # sides by the credits
+                             (-HX, -W / 2, WN_Y0, WN_Y0 + WN_H), (W / 2, HX, WN_Y0, WN_Y0 + WN_H)):  # and by What's new
+        b.span((xa, ya, FZ - 0.1), (xb, yb, FZ + 0.06), TRIM)                              # frame, proud of the faces
     for sx in (-1, 1):                                                                     # the board onto the posts
         x0, x1 = sorted((sx * (HX - 0.01), sx * POST_X))
-        for y in (Y0 + 0.4, Y0 + H - 0.75):
+        for y in (Y0 + 0.4, Y0 + H - 0.75, WN_Y0 + WN_H - 0.75):
             b.span((x0, y, -0.12), (x1, y + 0.35, 0.12), TRIM)
     bz = FZ + 0.31                                                                         # the back face
     for k in range(1, 8):                                                                  # planks from behind
         x = -HX + k * (2 * HX / 8)
-        b.span((x - 0.03, Y0 - F + 0.05, bz - 0.01), (x + 0.03, Y0 + H + F - 0.05, bz + 0.02), TRIM)
+        b.span((x - 0.03, Y0 - F + 0.05, bz - 0.01), (x + 0.03, top - 0.05, bz + 0.02), TRIM)
     hx, hy = 0.0, Y0 + H / 2                                                               # a painted heart and paw
     b.ball((hx - 0.42, hy + 0.3, bz + 0.03), 0.55, "blush", scale=(1.0, 1.0, 0.06))
     b.ball((hx + 0.42, hy + 0.3, bz + 0.03), 0.55, "blush", scale=(1.0, 1.0, 0.06))
@@ -134,14 +146,15 @@ def _planters(b, flowers):
 
 
 def build_thanks_board(mat):
-    b, screen, bulb, flowers = RB(), RB(), RB(), RB()
+    b, screen, whatsnew, bulb, flowers = RB(), RB(), RB(), RB(), RB()
     _posts(b)
-    _board(b, screen)
+    _board(b, screen, whatsnew)
     _header(b)
     _crest(b, bulb)
     _ledge(b)
     _planters(b, flowers)
-    return [b.finalize(NAME, mat), screen.finalize(NAME + "_Screen", mat), bulb.finalize(NAME + "_Bulb", mat),
+    return [b.finalize(NAME, mat), screen.finalize(NAME + "_Screen", mat),
+            whatsnew.finalize(NAME + "_WhatsNewPanel", mat), bulb.finalize(NAME + "_Bulb", mat),
             flowers.finalize(NAME + "_Flowers", mat)]
 
 

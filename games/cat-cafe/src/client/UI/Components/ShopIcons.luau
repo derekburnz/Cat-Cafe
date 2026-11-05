@@ -138,6 +138,23 @@ local IDS: { [string]: string } = {
 	Icon_ShopCat_Sprinkles = "rbxassetid://123101439533132",
 	Icon_ShopCat_DuchessMarzipan = "rbxassetid://105207350898043",
 	Icon_ShopCat_KingCroissant = "rbxassetid://127183027799927",
+	-- #950: the order bubbles' dishes, one per Catalog.menu model (Model-Agent #1101; upload run 41885238133, 11-04)
+	Icon_Menu_Coffee = "rbxassetid://79738997061623",
+	Icon_Menu_Milk = "rbxassetid://76795195002258",
+	Icon_Menu_CakeSlice = "rbxassetid://138724649868181",
+	Icon_Menu_PawCookie = "rbxassetid://105880991505196",
+	Icon_Menu_Tea = "rbxassetid://134890892831983",
+	Icon_Menu_FishBiscuit = "rbxassetid://118748045182640",
+	Icon_Menu_KittyCupcake = "rbxassetid://88442415090027",
+	Icon_Menu_HotCocoa = "rbxassetid://85103380790377",
+	Icon_Menu_PancakeStack = "rbxassetid://132289857954730",
+	Icon_Menu_Sundae = "rbxassetid://107717113357371",
+	Icon_Menu_StrawberryRoll = "rbxassetid://139023173238823",
+	Icon_Menu_RainbowCake = "rbxassetid://120021844545771",
+	-- #1302: Model-Agent's Cat Whistle flasks, one per size (upload run 41948674097, 11-05)
+	Icon_Flask_CatWhistleSmall = "rbxassetid://88245082341165",
+	Icon_Flask_CatWhistle = "rbxassetid://139758496638549",
+	Icon_Flask_CatWhistleBig = "rbxassetid://83123481656090",
 	-- the Decor window's "Your cafe" slots (#964, upload-image run 41728803377 on 11-03)
 	Icon_Clean_Wallpaper = "rbxassetid://102259047705880",
 	Icon_Clean_Floor = "rbxassetid://100560850589029",
@@ -229,6 +246,12 @@ end
 local POTION_STANDIN: { [string]: string } = {
 	cat_whistle = "Icon_Flask_Lucky",
 }
+-- A size with a flask of its own (#1302) shows it first, then its regular potion's bottles behind it.
+local OWN_FLASK: { [string]: string } = {
+	cat_whistle_small = "Icon_Flask_CatWhistleSmall",
+	cat_whistle = "Icon_Flask_CatWhistle",
+	cat_whistle_big = "Icon_Flask_CatWhistleBig",
+}
 
 -- Every bottle a potion has, best first (#1256): Model-Agent's flask (#1204), the clean flask in the potion's colour
 -- (#1070), the older bottle. IconArt.setImages draws the first that loads, so a flask not yet shared with the game
@@ -239,9 +262,18 @@ function ShopIcons.potionAll(potionId: string?): { string }
 	if type(potionId) ~= "string" then
 		return list
 	end
+	local own = OWN_FLASK[potionId]
+	if own and IDS[own] then
+		table.insert(list, IDS[own])
+	end
 	local def = Catalog.getPotion(potionId)
 	if def and def.buff and def.buff ~= potionId then
-		return ShopIcons.potionAll(def.buff)
+		for _, id in ShopIcons.potionAll(def.buff) do
+			if not table.find(list, id) then
+				table.insert(list, id)
+			end
+		end
+		return list
 	end
 	local standin = POTION_STANDIN[potionId]
 	if standin and IDS[standin] then
@@ -277,6 +309,13 @@ end
 -- A shop-only cat's picture (#1191) by its name, such as "KingCroissant", or nil.
 function ShopIcons.shopCat(name: string?): string?
 	return if type(name) == "string" then IDS["Icon_ShopCat_" .. name] else nil
+end
+
+-- A menu dish's picture for the order bubbles (#950), by its Catalog.menu id: the dish model's own render, or nil.
+function ShopIcons.menu(orderId: string?): string?
+	local item = if type(orderId) == "string" then Catalog.getMenuItem(orderId) else nil
+	local model = if item then (item :: any).model else nil
+	return if type(model) == "string" then IDS["Icon_Menu_" .. model] else nil
 end
 
 -- Cat food in the Bag (#1181): the clean star treat for every size until the foods have pictures of their own (they

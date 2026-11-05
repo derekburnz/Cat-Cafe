@@ -142,10 +142,11 @@ function FreshCatchBoard._drawFoot(self: any)
 	end
 	local left = stock.restocksAt - Workspace:GetServerTimeNow() -- the server's clock, as restocksAt is (S102)
 	local count = #self._lines
+	-- No stock counts or restock clocks in shop windows (#1190, the friend 11-04); the server's stock rules are unchanged.
 	self._foot.Text = if left <= 0
 		then "Fresh catch coming..."
-		elseif count == 0 then "Sold out! " .. FreshCatchLogic.countdown(left)
-		else FreshCatchLogic.countdown(left)
+		elseif count == 0 then "Sold out!"
+		else ""
 end
 
 function FreshCatchBoard.set(

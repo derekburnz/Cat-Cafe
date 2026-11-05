@@ -329,6 +329,7 @@ export type PartialState = {
 	luckSources: { LuckSource }?,
 	introSeen: boolean?,
 	potions: { [string]: number }?,
+	catFood: { [string]: number }?, -- #1181: the Bag's cat food
 	buffs: { [string]: number }?,
 	quests: QuestsView?,
 	achievements: { [string]: AchievementView }?,

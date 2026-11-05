@@ -1319,7 +1319,7 @@ function UI.init(config: Types.InitConfig)
 	cafeSigns = CafeSigns.new(parent)
 	UI.leaderboards.start(parent) -- the town boards' faces and the crowns over heads (F98)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
-	UI.campExtras.start() -- the Yard Sale card and the Cannon picker's camp extra strips (F100)
+	UI.campExtras.start(parent) -- the Yard Sale card, the Cannon picker's strips and the stations' "!" (F100)
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	UI.trade.start() -- the Trade window in the modal (F102)
@@ -4668,6 +4668,7 @@ end
 do
 	local CampExtrasLogic = require(script.Components.CampExtrasLogic)
 	local YardSale = require(script.Screens.YardSale)
+	local ReadyBang = require(script.Components.ReadyBang)
 	local SharedConfig =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 	local CAMP_TAG = "CampExtra" -- shared/CampExtras.TAG: the placed models, with their ExtraId attribute
@@ -4676,6 +4677,7 @@ do
 	local camp = {
 		state = nil :: Types.CampExtrasState?,
 		yard = nil :: YardSale.YardSale?,
+		bang = nil :: ReadyBang.ReadyBang?, -- the red "!" over each ready station (camp-stations.md section 1)
 	}
 
 	local function yardView(): Types.CampExtraView?
@@ -4702,9 +4704,12 @@ do
 		return nil
 	end
 
-	-- UI.init: the Yard Sale card in the modal, the strips from the kept state.
-	function UI.campExtras.start()
+	-- UI.init: the Yard Sale card in the modal, the stations' "!", the strips from the kept state.
+	function UI.campExtras.start(into: Instance)
 		UI.campExtras.reset()
+		local bang = ReadyBang.new(into)
+		bang:update(camp.state)
+		camp.bang = bang
 		local modalView = modal
 		if modalView == nil then
 			return
@@ -4767,6 +4772,10 @@ do
 		if cannonScreen then
 			cannonScreen:setExtras(extras)
 		end
+		local bang = camp.bang
+		if bang then
+			bang:update(extras)
+		end
 		local yard = camp.yard
 		if yard then
 			yard:setView(extras.yardSale)
@@ -4803,13 +4812,18 @@ do
 		end
 	end
 
-	-- UI.destroy: the card goes with the modal; the state stays for the next build.
+	-- UI.destroy: the card goes with the modal and the "!" with the UI; the state stays for the next build.
 	function UI.campExtras.reset()
 		local yard = camp.yard
 		if yard then
 			yard:destroy()
 		end
 		camp.yard = nil
+		local bang = camp.bang
+		if bang then
+			bang:destroy()
+		end
+		camp.bang = nil
 	end
 end
 

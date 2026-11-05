@@ -847,14 +847,15 @@ local function scan()
 		local themeSpec: Presets.DecorSpec? = if paintSpec and paintSpec.look == "goldLeaf"
 			then nil
 			else Presets.decor[themeId]
-		local current: Piece? = inPlot.Theme
+		local slot = "Theme"
+		local current: Piece? = inPlot[slot]
 		if current and (not themeSpec or current.decorId ~= themeId) then
 			stop(current)
-			inPlot.Theme = nil
+			inPlot[slot] = nil
 			current = nil
 		end
-		if not current and themeSpec and themeSpec.on == "Theme" then
-			inPlot.Theme = newPiece(plot, themeId, themeSpec, nil)
+		if not current and themeSpec and themeSpec.on == slot then
+			inPlot[slot] = newPiece(plot, themeId, themeSpec, nil)
 		end
 	end
 	for plot, slots in styles do

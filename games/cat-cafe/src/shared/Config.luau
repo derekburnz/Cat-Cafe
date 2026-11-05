@@ -260,12 +260,13 @@ local Config = {
 		Mythical = 0.08,
 		Golden = 0.12,
 	} :: { [string]: number },
-	CornerShopSizeWeights = {
-		small = { 0, 10, 30, 60 },
-		regular = { 20, 50, 25, 5 },
-		big = { 70, 25, 5, 0 },
-		mega = { 90, 10, 0, 0 },
-	} :: { [string]: { number } },
+	-- #1577 (day-cart.md section 2): the Day Cart's roll, which replaces the size table. Row i of the list by Tier 1
+	-- price (cheapest first) is in stock with max(DayCartFloor, DayCartTopChance - DayCartStep x (i - 1)), and a row
+	-- in stock has 1, 2 or 3 by DayCartQtyOdds.
+	DayCartTopChance = 0.95,
+	DayCartStep = 0.045,
+	DayCartFloor = 0.05,
+	DayCartQtyOdds = { 50, 30, 20 } :: { number },
 	CornerDailyLimits = { steady = 4, quick_bait = 2, whistle = 4 } :: { [string]: number },
 	CatFoodMax = 999, -- the most of one food the Bag holds
 	-- corner-shop-v2.md section 3 (#1181): a net catch of a stray drops a Small Snack 1 time in 10 (free, from play,
@@ -310,7 +311,9 @@ local Config = {
 	-- the F72 behaviour), and a player below TutorialGuaranteedStrayStep catches their own tutorial stray on one slow
 	-- circle with bands TutorialWindowScale times as wide; a Miss brings the circle back after TutorialRetrySeconds
 	-- with no sprint, and nobody else can catch it. Below TutorialGuaranteedStrayStep nobody can tackle them either.
-	IntroAutoPlay = false,
+	-- #1575 (Derek, 2026-11-05): the intro plays again on a first join (introSeen false), with Skip at the bottom right
+	-- and a replay from the ? tile
+	IntroAutoPlay = true,
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,

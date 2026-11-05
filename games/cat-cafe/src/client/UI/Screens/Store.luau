@@ -545,7 +545,9 @@ function Store.showTab(self: any, tab: string)
 			entry.frame.Visible = row ~= nil and row.tab == self._tab
 		end
 	end
-	if not featured and not codes then
+	-- a new tab starts at the top; render calls this again on every state change while open, which snapped a
+	-- scrolled list back up (#1605, Derek2 11-05), so the same tab keeps its place
+	if not featured and not codes and was ~= self._tab then
 		self._list.CanvasPosition = Vector2.zero
 	end
 end

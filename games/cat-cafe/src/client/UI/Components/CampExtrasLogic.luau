@@ -15,6 +15,8 @@
 --   prizeTitle(extraId, paid)        the prize toast's line: "Fish Pond: +14 golden fish"
 --   bangShows(state, extraId)        whether a station's red "!" (ReadyBang, camp-stations.md section 1) shows: the
 --                                    extra is open and holds something to claim; BANG_EXTRAS lists the stations
+--   bubble(state, extraId, now)      #1614: the bubble always over an open station (ReadyBang): the picker's line for
+--                                    that station's area, so it reads "14 fish" or "Next in 2 h 10 m"; nil while shut
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -185,6 +187,24 @@ end
 
 CampExtrasLogic.BANG_EXTRAS = { "picnic", "yardSale", "pond" }
 CampExtrasLogic.BANG_RANGE = 150 -- studs, camp-stations.md section 5 (ReadyBangRange)
+
+-- #1614 (Derek2 11-05: "when in the area with the stations example fish pond to always have a bubble up for whatever
+-- station is in that area"): the bubble over station `extraId`, the Cat Cannon picker's line for its area (icon,
+-- name, what waits and `ready` for its red "!"), or nil before the first state or while the extra is shut.
+function CampExtrasLogic.bubble(state: unknown, extraId: string, now: number): Line?
+	if type(state) ~= "table" then
+		return nil
+	end
+	local def: SharedTypes.CampExtraDef? = Catalog.getCampExtra(extraId)
+	if def == nil then
+		return nil
+	end
+	local view = (state :: any)[extraId]
+	if type(view) ~= "table" or view.open ~= true or type(view.held) ~= "number" then
+		return nil
+	end
+	return CampExtrasLogic.pickerLine(state :: any, def.area, now)
+end
 
 -- Whether `extraId`'s "!" shows for this CampExtrasState: the extra is open and holds something to claim (`held > 0`,
 -- the same state the Cat Cannon picker's dot reads), so it hides the moment it's claimed and while it refills.

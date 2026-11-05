@@ -101,6 +101,16 @@ local Cues: { [string]: Cue } = {
 		seconds = 101.053, -- 32 bars at 76 BPM
 		sections = 4,
 	}, -- "Night Owls"
+	-- 2026-11-05 (#1541, Derek): the tutorial plays its own calm song instead of the day and night songs, from the intro
+	-- cutscene and through the first tutorial steps, until it is skipped or done. Silent (the normal songs keep playing)
+	-- until it has an id.
+	musicTutorial = {
+		ids = {},
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 40, -- 16 bars at 96 BPM
+	}, -- "Step by Step"
 	stingDusk = {
 		ids = { "rbxassetid://72211264391144" },
 		group = "Music",
@@ -797,6 +807,13 @@ local Cues: { [string]: Cue } = {
 		ids = { "rbxassetid://98501439978038" },
 		group = "Ui",
 		volume = 0.6,
+		minGap = 1,
+	},
+	-- #1541: a tutorial step done; the Rank Ready chime's file, so it needs no upload of its own.
+	tutorialStepDone = {
+		ids = { "rbxassetid://98501439978038" },
+		group = "Ui",
+		volume = 0.45,
 		minGap = 1,
 	},
 	uiToast = { ids = { "rbxassetid://97064648437698" }, group = "Ui", volume = 0.5, minGap = 0.2 },

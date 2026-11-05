@@ -517,6 +517,18 @@ function Logic.shiftStarted(before: boolean?, now: boolean): boolean
 	return before == false and now
 end
 
+-- #1541: the tutorial's own song plays while the intro cutscene runs, or while the first tutorial steps (steps below
+-- `lastStep`) show with the Tutorial tile on. The tile's x (its setting off) or finishing the steps ends it. With no
+-- step known yet nothing plays.
+function Logic.tutorialSteps(step: number?, lastStep: number, tileOn: boolean): boolean
+	return tileOn and step ~= nil and step < lastStep
+end
+
+-- A tutorial step is done on a seen rise of the step (not the first sync after joining).
+function Logic.tutorialStepDone(before: number?, now: number): boolean
+	return before ~= nil and now > before
+end
+
 -- Animation beats (Beats.hit) to sounds: the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100).
 local BEAT_CUES: { [string]: string } = {
 	bellRing = "bellhopBell",

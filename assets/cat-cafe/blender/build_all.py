@@ -160,6 +160,7 @@ PIVOT_NOTES = {
     "CatCafe_Accessory_BowTie": "attachment point (see attach)",
     "CatCafe_Accessory_Apron": "attachment point (see attach)",
     "CatCafe_Accessory_Hat": "attachment point (see attach)",
+    "CatCafe_Accessory_LeafBeret": "attachment point: the walking head's Hat slot (see attach)",
     "CatCafe_Accessory_Sash": "attachment point (see attach_upright)",
     "CatCafe_Accessory_PartyHat": "attachment point (see attach_upright)",
     **{f"CatCafe_Accessory_{n}_Walk": "the walking cat's Outfit_<Piece> slot on the back's middle line under the back "

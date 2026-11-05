@@ -13,6 +13,8 @@ staff (F90) wear the pieces that fit A (WALK_PIECES), so the walking models carr
 
 import math
 
+from mathutils import Matrix, Vector
+
 import cats
 from common import Builder, scale_mesh
 
@@ -56,7 +58,8 @@ def slots(spec, body="sit"):
         return {**SIT_SLOTS, **{n: ("Head", hat, (0, 0, 0)) for n in ("BaristaCap", "Boater", "PartyHat")}}
     h = cats.dims(spec, "walk")["head"]
     return {"Glasses": ("Head", (0.0, round(h["fy"] - 0.05, 4), h["fz"]), (0, 0, 0)),
-            "Hat": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)), **walk_slots(spec)}
+            "Hat": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)),
+            "LeafBeret": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)), **walk_slots(spec)}
 
 
 # Role pieces on the walking body A (Animation-Engineer, 2026-11-02): the three hats, the bow tie and the cape fit A as
@@ -280,6 +283,30 @@ def build_hat(mat):
     return [b.finalize("CatCafe_Accessory_Hat", mat)]
 
 
+def build_leaf_beret(mat):
+    """#1637 the Cafe Pass Leaf Beret (cafe-pass.md section 3, level 5; Maple Muffin wears the same one as its prop):
+    a small forest-green knitted beret tipped to the right, a ribbed band, a stalk and a red maple leaf pin. It sits
+    on the Hat slot of the walking head (slots())."""
+    b = Builder()
+    for k in range(8):                                                                  # ribbed band
+        a = 2 * math.pi * (k + 0.5) / 8
+        b.box((0.345 * math.cos(a), 0.345 * math.sin(a), 0.035), (0.04, 0.04, 0.07), "leaf_dark", bevel=False,
+              rot=(a, "Z"))
+    b.cyl_base((0, 0, 0), 0.33, 0.07, "leaf_green", segments=12, bevel=False)
+    b.cyl_base((0, 0, 0.07), 0.35, 0.09, "leaf_dark", segments=12, radius2=0.29, bevel=False)   # the knit crown
+    b.cyl_base((0, 0, 0.16), 0.28, 0.05, "leaf_dark", segments=12, radius2=0.18, bevel=False)
+    b.cyl_base((0, 0, 0.21), 0.03, 0.07, "leaf_dark", segments=6, bevel=False)                  # stalk
+    leaf = Matrix.Translation((0.15, -0.3, 0.1)) @ Matrix.Rotation(math.radians(-70), 4, "X")
+    r3 = leaf.to_3x3()
+    b.star(tuple(leaf @ Vector((0, 0, 0))), 0.14, 0.065, 0.025, "fur_rust_red", rot=r3)       # maple leaf pin
+    b.star(tuple(leaf @ Vector((0, 0.045, 0))), 0.085, 0.042, 0.025, "fur_rust_red", rot=r3)
+    b.box(tuple(leaf @ Vector((0, -0.14, 0))), (0.02, 0.09, 0.022), "fur_russet", bevel=False, rot=r3)
+    b.box(tuple(leaf @ Vector((0, 0, 0.022))), (0.03, 0.03, 0.03), "gold_mid", bevel=False, rot=r3)
+    ob = b.finalize("CatCafe_Accessory_LeafBeret", mat)
+    ob.data.transform(Matrix.Translation((0, 0, 0.07)) @ Matrix.Rotation(math.radians(-12), 4, "Y"))   # tipped,
+    return [ob]                                                                         # its low side on the slot
+
+
 # The walking versions (WALK_MESHES): built about the slot on the back's middle line just under the back of the head,
 # +Y running back along the spine, each 0.03 into the back so the coat's stripes and specks stay under it.
 def _back_panel(b, y0, y1, swatch, top=BACK_TOP, w=BACK_W):
@@ -338,6 +365,7 @@ ASSETS = {
     "CatCafe_Accessory_BowTie": (build_bow_tie, 200),
     "CatCafe_Accessory_Apron": (build_apron, 200),
     "CatCafe_Accessory_Hat": (build_hat, 300),
+    "CatCafe_Accessory_LeafBeret": (build_leaf_beret, 500),
     "CatCafe_Accessory_Sash": (build_sash, 300),
     "CatCafe_Accessory_PartyHat": (build_party_hat, 300),
     "CatCafe_Accessory_BaristaCap": (build_barista_cap, 300),

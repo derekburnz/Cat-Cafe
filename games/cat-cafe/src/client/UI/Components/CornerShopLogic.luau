@@ -147,14 +147,8 @@ function CornerShopLogic.effect(row: Row): string
 	elseif row.kind == "food" then
 		return ("+%s XP cat food, into your Bag"):format(commas(row.xp or 0))
 	end
-	local seconds = row.showSeconds or 0
-	local length = if seconds >= 60
-		then ("%d min"):format(seconds // 60)
-		else ("%d s"):format(seconds)
-	if row.showId == "fireworks" then
-		return ("A %s firework show over your cafe"):format(length)
-	end
-	return ("Bubbles from your cafe's door for %s"):format(length)
+	-- #1483: the bubble machine and fireworks shows are gone, so any other kind has no line yet
+	return ""
 end
 
 -- The player's cats for the snack picker, highest level first (then by name, then uid, so the order holds still).

@@ -10,6 +10,7 @@
 --   snackLine(snackXp)            "" (#1255: no daily cat food cap any more)
 --   effect(row)                   what the row does, in a line
 --   catsByLevel(cats)             the snack's cat picker, highest level first
+--   sections(items)               #1599: the stock grouped under "Potions", "Cat food" and "Bait" headers
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -140,6 +141,42 @@ function CornerShopLogic.effect(row: Row, owned: number?): string
 	end
 	-- #1483: the bubble machine and fireworks shows are gone, so any other kind has no line yet
 	return ""
+end
+
+-- #1599 (Derek2 11-05: "sections and smaller boxes/text per item so its easiest to see a lot and scroll through"):
+-- the headers the window groups its rows under, by the row's kind.
+CornerShopLogic.SECTION_TITLES = table.freeze({
+	potion = "Potions",
+	food = "Cat food",
+	bait = "Bait",
+	show = "Shows",
+}) :: { [string]: string }
+local OTHER = "More"
+
+export type Section = { kind: string, title: string, indexes: { number } }
+
+-- The stock's rows grouped by kind, each group in the order its first row comes in the stock and each row keeping its
+-- place in the stock; `indexes` point into `items`. An item the catalog doesn't know goes under "More".
+function CornerShopLogic.sections(items: { Item }): { Section }
+	local out: { Section } = {}
+	local byKind: { [string]: Section } = {}
+	for index, item in items do
+		local row = Catalog.cornerShopById[item.itemId]
+		local kind: string = if row ~= nil then row.kind else "other"
+		local section = byKind[kind]
+		if section == nil then
+			local made: Section = {
+				kind = kind,
+				title = CornerShopLogic.SECTION_TITLES[kind] or OTHER,
+				indexes = {},
+			}
+			byKind[kind] = made
+			table.insert(out, made)
+			section = made
+		end
+		table.insert(section.indexes, index)
+	end
+	return out
 end
 
 -- The player's cats for the snack picker, highest level first (then by name, then uid, so the order holds still).

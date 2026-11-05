@@ -46,16 +46,16 @@ type Held = {
 
 local held: { [Model]: Held } = {}
 
--- #1460 (Derek2 2026-11-05: the arms fold but no cat shows): one line in the F9 console each time this player's own
+-- #1480 (Derek2 2026-11-05: the arms fold but no cat shows): one line in the F9 console each time this player's own
 -- carry changes state, so a live game can say where the copy went. Only the local player's own character reports,
--- at most once per state. Remove once #1460 is closed.
+-- at most once per state. Remove once #1480 is closed.
 local reported: { [string]: boolean } = {}
 local function report(character: Model, key: string, message: string)
 	if character ~= Players.LocalPlayer.Character or reported[key] then
 		return
 	end
 	reported[key] = true
-	print("[Carry #1460] " .. message)
+	print("[Carry #1480] " .. message)
 end
 local function forgetReports()
 	table.clear(reported)

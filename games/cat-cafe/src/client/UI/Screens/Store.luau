@@ -83,6 +83,7 @@ local CARD_PAD = 10 -- inside a card, round its picture, words and button
 -- a grid card (and a top pick): the picture and name side by side, what it does under them, the button at the foot
 local TILE = 52
 local EFFECT_MIN = 48 -- three small lines at least
+local EFFECT_MIN_TEXT = 10 -- a card's contents shrink no smaller than this to fit
 local CELL_MAX = 230 -- a grid card no taller than this, however tall the window
 local GRID_COLUMNS = 3
 local NARROW = 520 -- a page narrower than this (design px) gets 2 columns
@@ -111,6 +112,20 @@ local function text(props: { [string]: any }): TextLabel
 		merged[key] = value
 	end
 	return Create("TextLabel", merged)
+end
+
+-- A card's contents at the biggest size up to `maxSize` whose wrapped lines fit the label's box, so a short phone
+-- shows all of it smaller rather than losing the last line (Monetization-Agent 11-05: the King Cat Pack's "Can't be
+-- traded" and Long Nap's "up to 24 h" were cut off). Never under EFFECT_MIN_TEXT.
+local function fitText(label: TextLabel, maxSize: number)
+	label.TextSize = maxSize
+	if label.AbsoluteSize.X <= 0 or label.AbsoluteSize.Y <= 0 then
+		return
+	end
+	-- TextFits reads the wrapped text against the box in the label's own font, at any UI scale
+	while label.TextSize > EFFECT_MIN_TEXT and not label.TextFits do
+		label.TextSize -= 1
+	end
 end
 
 function Store.new(callbacks: Callbacks): Store
@@ -389,6 +404,7 @@ function Store._makeCard(
 		glyph = glyph,
 		name = name,
 		effect = effect,
+		effectMax = effect.TextSize, -- fitText's top size (the hero's drops on a short page)
 		owned = owned,
 		passId = 0,
 		key = "",
@@ -409,6 +425,10 @@ function Store._makeCard(
 			end
 		end,
 	})
+	-- a new box (the window or the page resized): fit the words again
+	effect:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		fitText(effect, entry.effectMax)
+	end)
 	self:_place(entry)
 	self._cards[slot] = entry
 	return entry
@@ -424,7 +444,7 @@ function Store._place(self: any, entry: any)
 		local left = CARD_PAD + 4 + side + 16
 		local right = HERO_BUTTON_W + CARD_PAD + 4 + 16
 		local nameH = Theme.sizes.textTitle + 8
-		local lineH = entry.effect.TextSize + 3
+		local lineH = entry.effectMax + 3 -- the top size, not the fitted one, so the box never shrinks after it
 		local wordsH = math.min(height - 2 * CARD_PAD, nameH + 6 + 5 * lineH)
 		local top = math.floor((height - wordsH) / 2)
 		entry.name.Position = UDim2.fromOffset(left, top)
@@ -453,6 +473,7 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.passId = row.passId
 	entry.name.Text = row.name
 	entry.effect.Text = row.effect
+	fitText(entry.effect, entry.effectMax)
 	-- the money card's rung is part of its picture (2x, 3x and 4x each have one)
 	local art = row.key .. (if row.multiplier then tostring(row.multiplier) else "")
 	if entry.key ~= art then
@@ -519,7 +540,8 @@ function Store._layout(self: any)
 	local hero = self._cards.hero
 	if hero then
 		hero.frame.Size = UDim2.new(1, 0, 0, heroH)
-		hero.effect.TextSize = if compact then Theme.sizes.textSmall else Theme.sizes.textBody
+		hero.effectMax = if compact then Theme.sizes.textSmall else Theme.sizes.textBody
+		hero.effect.TextSize = hero.effectMax
 		self:_place(hero)
 	end
 	-- the grid: 3 across (2 on a narrow page), 2 rows in view when there is room

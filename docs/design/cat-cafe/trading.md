@@ -7,11 +7,22 @@ The layout follows the trade menus players already know from the big pet games: 
 ## 1. What can be traded
 
 - **Cats only, at first.** Any cat the player owns, with its rarity, coat (base, gold or rainbow), charm and level. Up to TradeMaxCats (9) on each side.
-- **Never:** coins, golden fish, potions, food, crates, spins or decor, and never exclusive cats (the Bellhop Cat, shop cats and anything bought with Robux). So nothing in a trade can be bought with Robux, and there is no way to turn Robux or coins into another player's cats. Decor can join later, once trades have run clean for a while.
+- **Never:** coins, golden fish, potions, food, crates, spins or decor, and never exclusive cats (the Bellhop Cat, shop cats and anything bought with Robux). So nothing in a trade can be bought with Robux, and there is no way to turn Robux or coins into another player's cats. Decor joined on 2026-11-05 (section 1b).
 - **Locked cats cannot be offered.** Gold, rainbow, Legendary and Mythical cats arrive locked (F62), so a player has to unlock a good cat on its own card, outside the trade window, before they can trade it. That one step stops most rushed giveaways.
 - A traded cat keeps its rarity, coat, charm, level and rescued flag. Its custom name goes back to its kind's name. It arrives locked if it is gold, rainbow, Legendary or Mythical, and it counts as found in the new owner's Index pages (collection, gold and rainbow; source "trade"), so it can fill milestones, but it pays no golden fish, so passing cats back and forth cannot farm fish.
 - **Why traded cats count for the Index** (decided 2026-11-02 after the #854 security review): in the big pet games a traded pet fills the index, and that is a large part of why players trade, so we do the same. It does mean a group of friends can lend each other cats to fill their Index pages, Gold and Rainbow tabs and claim those milestones. We accept that: it is playing together, every milestone pays once per player, nothing in it is sold for Robux, the luck rewards are capped (GoldLuckMax, RainbowLuckMax), and TradesPerDay (50) with TradeMaxCats (9) bounds how fast it goes. If the ads week shows Index milestones being claimed far faster by traders than by catchers, the fix is a hold time before a traded cat counts, not taking trades out of the Index.
 - **Nothing pays per trade.** `stats.trades` is for the trade log and analytics only. No quest, achievement, milestone or prize may ever count trades, because two friends can swap one cat back and forth.
+
+### 1b. Decor joins (#1574)
+
+Derek, 2026-11-05 (Set 6 Q10): "Trading from Tier 3: cats and decor, with a countdown". So decor joins trades now.
+
+- **Which decor.** Any crate decor piece or lawn piece the player owns a spare of, or one they take down first. A placed piece can't be offered: the grid shows it with "Placed: take it down to trade". Never exclusive or Robux decor (pass decor, shop exclusives), never Index prize decor, which is tied to its milestone, and never the free Tier 2 and Tier 3 lawn gifts.
+- **Limits.** Up to `TradeMaxDecor` (9) decor on each side, beside the 9 cats. Legendary and up decor arrives locked like cats (F62), and must be unlocked on its own card before it can be offered.
+- **What shows.** Each piece shows its rarity, its tip bonus and "you have 2". The lopsided warning (section 3) counts decor at its Index bonus value next to the cats' rates.
+- **Index.** A traded piece counts as found on the new owner's Decor Index page (source `trade`), as for cats, and pays no golden fish.
+- **Countdown, safety and log** as for cats: any change resets both Ready presses, and the vault (section 4) holds both sides' decor too. Review-Agent re-runs the security review on the decor change before it ships.
+- Contracts: Config `TradeMaxDecor` 9. A trade offer gains `decor: { id: string, count: number }[]`, and the server checks owned, unplaced, tradeable and count. The trade log gains a decor list. QA: a placed piece can't be offered, an Index prize piece can't be offered, a two-sided cat-and-decor trade arrives complete on both sides, and a disconnect mid-trade returns everything.
 
 ## 2. Who can trade, and where
 

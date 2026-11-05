@@ -65,6 +65,13 @@ local offerCheck: (player: Player, uid: string) -> boolean = function(
 ): boolean
 	return false
 end
+-- #1574: and whether a decor or lawn piece is
+local pieceOfferCheck: (player: Player, id: string) -> boolean = function(
+	_player: Player,
+	_id: string
+): boolean
+	return false
+end
 
 -- Settled profile or nil when not loaded yet.
 local function profileFor(player: Player): Profile?
@@ -164,6 +171,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		upgradeLevels = profile.upgradeLevels,
 		decorOwned = profile.decorOwned,
 		decorPlaced = profile.decorPlaced,
+		decorUnlocked = profile.decorUnlocked,
 		lures = profile.lures,
 		bait = baitView(profile, now, 1),
 		bait2 = baitView(profile, now, 2), -- #1161: sent while food is in it, even after the pass went, so it can be emptied
@@ -1259,6 +1267,11 @@ function CafeService.isOffered(player: Player, uid: string): boolean
 	return offerCheck(player, uid)
 end
 
+-- #1574: TradeService registers how to tell a decor or lawn piece on offer (locking it waits for it).
+function CafeService.setPieceOfferCheck(check: (player: Player, id: string) -> boolean)
+	pieceOfferCheck = check
+end
+
 function CafeService.setCarrying(player: Player, catId: string?)
 	carrying[player] = catId
 	CafeService.sync(player)
@@ -1483,6 +1496,36 @@ local function onLockCat(player: Player, rawUid: unknown, rawLocked: unknown)
 	end
 	instance.locked = if rawLocked then true else nil
 	CafeService.sync(player)
+end
+
+-- #1574 (trading.md section 1b): the lock on a decor or lawn card. Only a Legendary and up piece has one; it arrives
+-- locked and must be unlocked here before it can go on offer, and one on offer cannot be locked.
+local function onLockDecor(player: Player, rawId: unknown, rawLocked: unknown)
+	local id = Guard.id(rawId)
+	local profile = profileFor(player)
+	if profile == nil or id == nil or type(rawLocked) ~= "boolean" then
+		return
+	end
+	local info = Trade.piece(id)
+	if info == nil or not Trade.ownsPiece(profile, id) or not Trade.lockable(info.rarity) then
+		return
+	end
+	if rawLocked and pieceOfferCheck(player, id) then
+		Net.toast(player, Trade.Messages.pieceInTrade, "warn")
+		CafeService.sync(player)
+		return
+	end
+	profile.decorUnlocked[id] = if rawLocked then nil else true
+	CafeService.sync(player)
+end
+
+-- #1574: after a trade moved decor or lawn pieces, the best owned pieces go out (as EquipBestDecor, without its toast).
+function CafeService.autoEquipDecor(_player: Player, profile: Profile)
+	local cap = Crates.spotCap(Economy.tier(profile), profile.fishPerks.extra_decor_spot or 0)
+	profile.decorPlaced = DecorBest.plan(profile, cap).placed
+	if WorldBuilder.lawnLive() then
+		Lawn.applyBest(profile)
+	end
 end
 
 local function onBuyUpgrade(player: Player, rawId: unknown)
@@ -1811,6 +1854,7 @@ function CafeService.start()
 	Net.on("UnequipAll", onUnequipAll)
 	Net.on("SellCat", onSellCat)
 	Net.on("LockCat", onLockCat)
+	Net.on("LockDecor", onLockDecor)
 	Net.on("BuyUpgrade", onBuyUpgrade)
 	Net.on("BuyDecor", onBuyDecor)
 	Net.on("RankUp", onRankUp)

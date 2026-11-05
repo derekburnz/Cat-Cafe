@@ -39,6 +39,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimRichTip = RateLimiter.new(1, 1), -- the Collect button waits 3 s for an answer
 	Tackle = RateLimiter.new(2, 1), -- a flood guard; ShoveService holds TackleCooldownSeconds from each press
 	LockCat = RateLimiter.new(4, 1), -- data-model section 15: 4 a second (tapping the lock icon on cat cards)
+	LockDecor = RateLimiter.new(4, 1), -- #1574: as LockCat, the lock on a decor card
 	RenameCat = RateLimiter.new(1, 1), -- a flood guard; NameService answers RenameCooldownSeconds with a reason
 	-- data-model section 15 said 10 a minute; #1273 adds the intro's eleven shots, the tutorial cards and the screen
 	-- open, each allowlisted and logged at most once a player or a session (Telemetry's onReport)

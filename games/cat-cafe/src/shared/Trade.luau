@@ -10,10 +10,17 @@
 --   owner's Index pages (the coat's too). It pays no golden fish (GoldenFish.forCatch is for catches).
 -- - `apply` is the one place a side of a trade changes a save, for the live swap and for finishing a trade after a
 --   shutdown (section 4), and it does nothing for a trade id the save has applied already.
+-- - #1574 (section 1b): decor joins. A piece is a crate decor id or a lawn piece id (never a lawn style, the free
+--   Tier 2 and 3 lawn gifts, or shop decor). Saves own pieces with no counts, so a piece the partner already owns
+--   can't go on offer ("They already have this"). Legendary and up arrive locked: a piece of a lockable rarity is
+--   locked unless the save's `decorUnlocked` has it, so every way of getting one (a crate, the lawn shop, a trade)
+--   lands it locked. Up to TradeMaxDecor a side. The swap takes a placed piece off its spot; TradeService runs both
+--   sides' Equip Best for decor and the lawn afterwards.
 
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
+local Lawn = require(script.Parent.Lawn)
 local Types = require(script.Parent.Types)
 
 local Trade = {}
@@ -48,7 +55,163 @@ Trade.Messages = {
 	lastCat = "Keep at least one cat",
 	catInTrade = "This cat is in a trade",
 	finishTrade = "Finish your trade first",
+	-- #1574 (section 1b): decor
+	pieceNotOwned = "That piece isn't yours",
+	pieceNotTradable = "This piece can't be traded",
+	theyHaveIt = "They already have this",
+	fullDecor = "Up to %d decor each",
+	pieceInTrade = "This piece is in a trade",
 }
+
+-- #1574: the rarities whose pieces arrive locked (Legendary and up; Golden is the lawn's top rung).
+Trade.LOCKED_RARITIES =
+	table.freeze({ Legendary = true, Mythical = true, Golden = true }) :: { [string]: boolean }
+
+-- #1574: a piece's Collector value for the lopsided warning, by rarity: the cats' CollectorValue, with the lawn-only
+-- rungs between theirs (Uncommon between Common and Rare, Golden with Mythical).
+local PIECE_VALUE_EXTRA: { [string]: number } = { Uncommon = 2, Golden = 50 }
+
+-- What the trade knows about a tradeable piece (#1574), or nil for any id that can't be traded: unknown, shop
+-- decor, a lawn style or a lawn tier gift.
+export type PieceInfo = { kind: string, name: string, rarity: string, bonus: number }
+
+function Trade.piece(id: string): PieceInfo?
+	local decor = Catalog.getDecor(id)
+	if decor ~= nil then
+		if decor.source ~= "crate" then
+			return nil
+		end
+		return {
+			kind = "decor",
+			name = decor.name,
+			rarity = decor.rarity or "Common",
+			bonus = decor.bonus,
+		}
+	end
+	local lawn = Catalog.getLawn(id)
+	if lawn == nil then
+		return nil
+	end
+	for _, gift in Lawn.TIER_GIFTS do
+		if gift == id then
+			return nil
+		end
+	end
+	return {
+		kind = "lawn",
+		name = lawn.name,
+		rarity = lawn.rarity,
+		bonus = Lawn.rarityBonus(lawn.rarity),
+	}
+end
+
+-- Whether the save owns piece `id` (a crate decor id or a lawn piece id).
+function Trade.ownsPiece(profile: Types.PlayerProfile, id: string): boolean
+	return profile.decorOwned[id] == true
+		or (Catalog.getLawn(id) ~= nil and profile.lawnOwned[id] == true)
+end
+
+-- Whether a piece of `rarity` arrives locked (Legendary and up).
+function Trade.lockable(rarity: string?): boolean
+	return rarity ~= nil and Trade.LOCKED_RARITIES[rarity] == true
+end
+
+-- Whether piece `id` is locked in the save: a lockable rarity the player hasn't unlocked on its card.
+function Trade.pieceLocked(profile: Types.PlayerProfile, id: string): boolean
+	local decor, lawn = Catalog.getDecor(id), Catalog.getLawn(id)
+	local rarity: string? = if decor ~= nil
+		then decor.rarity
+		elseif lawn ~= nil then lawn.rarity
+		else nil
+	return Trade.lockable(rarity) and profile.decorUnlocked[id] ~= true
+end
+
+-- Why piece `id` cannot go on `profile`'s side next to `offered` (the ids already there), in a trade with
+-- `partner`, or nil when it can. A piece already on offer is fine (adding it again does nothing).
+function Trade.pieceRefusal(
+	profile: Types.PlayerProfile,
+	partner: Types.PlayerProfile,
+	id: string,
+	offered: { string }
+): string?
+	if not Trade.ownsPiece(profile, id) then
+		return Trade.Messages.pieceNotOwned
+	end
+	if table.find(offered, id) ~= nil then
+		return nil
+	end
+	if Trade.piece(id) == nil then
+		return Trade.Messages.pieceNotTradable
+	end
+	if Trade.pieceLocked(profile, id) then
+		return Trade.Messages.locked
+	end
+	if Trade.ownsPiece(partner, id) then
+		return Trade.Messages.theyHaveIt
+	end
+	if #offered >= Config.TradeMaxDecor then
+		return string.format(Trade.Messages.fullDecor, Config.TradeMaxDecor)
+	end
+	return nil
+end
+
+-- A piece's Collector value (section 1b: decor counts next to the cats in the lopsided warning).
+function Trade.pieceValue(id: string): number
+	local info = Trade.piece(id)
+	if info == nil then
+		return 0
+	end
+	return Config.CollectorValue[info.rarity] or PIECE_VALUE_EXTRA[info.rarity] or 0
+end
+
+-- One piece as the log and the done card show it.
+function Trade.pieceSummary(id: string): Types.DecorSummary
+	local info = Trade.piece(id)
+	return {
+		id = id,
+		kind = if info ~= nil then info.kind else "decor",
+		rarity = if info ~= nil then info.rarity else "Common",
+	}
+end
+
+function Trade.pieceSummaries(ids: { string }): { Types.DecorSummary }
+	local out: { Types.DecorSummary } = {}
+	for _, id in ids do
+		table.insert(out, Trade.pieceSummary(id))
+	end
+	return out
+end
+
+-- Piece `id` leaves `profile`: off its spot (decor placed, or the lawn spot it stands on) and out of the owned and
+-- unlocked lists.
+local function takePiece(profile: Types.PlayerProfile, id: string)
+	profile.decorOwned[id] = nil
+	profile.decorPlaced[id] = nil
+	if Catalog.getLawn(id) ~= nil then
+		profile.lawnOwned[id] = nil
+		for _, spot in Lawn.SPOTS do
+			if profile.lawn[spot.id] == id then
+				profile.lawn[spot.id] = nil
+			end
+		end
+	end
+	profile.decorUnlocked[id] = nil
+end
+
+-- Piece `id` arrives in `profile`, owned and not placed (Equip Best places it); locked when its rarity is lockable,
+-- as `decorUnlocked` doesn't have it. A piece the save owns already is left as it is.
+local function givePiece(profile: Types.PlayerProfile, id: string)
+	local info = Trade.piece(id)
+	if info == nil or Trade.ownsPiece(profile, id) then
+		return
+	end
+	if info.kind == "lawn" then
+		profile.lawnOwned[id] = true
+	else
+		profile.decorOwned[id] = true
+	end
+	profile.decorUnlocked[id] = nil
+end
 
 -- What a trade ends with (TradeEnded's words).
 Trade.Ended = {
@@ -114,9 +277,9 @@ function Trade.sideValue(cats: { Types.CatInstance }): number
 	return total
 end
 
--- The confirm screen's warnings for the side giving `give` and getting `get` (Collector values) with `gets` cats
--- coming back: lopsided when it gives at least TradeLopsidedRatio times what it gets and gets something; a gift when
--- it gets no cat at all.
+-- The confirm screen's warnings for the side giving `give` and getting `get` (Collector values) with `gets` cats and
+-- pieces coming back: lopsided when it gives at least TradeLopsidedRatio times what it gets and gets something; a gift
+-- when it gets nothing at all.
 function Trade.warnings(give: number, get: number, gets: number): (boolean, boolean)
 	local gift = gets == 0
 	local lopsided = not gift and give > 0 and give >= Config.TradeLopsidedRatio * get
@@ -172,7 +335,8 @@ end
 -- Applies one side of trade `id` to `profile` at `now`: the cats in `gave` (uids) leave, the cats in `got` arrive
 -- (Trade.arrival; one whose uid the save already has is skipped), each counts in the Index, the stats count the
 -- trade and the log gets an entry for `partnerName`. False, and nothing changed, when the save has applied `id`.
--- `gaveSummaries` are what the log shows for the cats that left (taken before they left).
+-- `gaveSummaries` are what the log shows for the cats that left (taken before they left). #1574: the pieces in
+-- `pieces.gave` leave (off their spots) and those in `pieces.got` arrive unplaced (one the save owns is skipped).
 function Trade.apply(
 	profile: Types.PlayerProfile,
 	id: string,
@@ -180,13 +344,22 @@ function Trade.apply(
 	gave: { string },
 	gaveSummaries: { Types.CatSummary },
 	got: { Types.CatInstance },
-	now: number
+	now: number,
+	pieces: { gave: { string }, got: { string } }?
 ): boolean
 	if Trade.applied(profile, id) then
 		return false
 	end
 	for _, uid in gave do
 		profile.cats[uid] = nil
+	end
+	local gavePieces = if pieces ~= nil then pieces.gave else {}
+	local gotPieces = if pieces ~= nil then pieces.got else {}
+	for _, piece in gavePieces do
+		takePiece(profile, piece)
+	end
+	for _, piece in gotPieces do
+		givePiece(profile, piece)
 	end
 	for _, instance in got do
 		if profile.cats[instance.uid] == nil then
@@ -214,6 +387,8 @@ function Trade.apply(
 		partnerName = partnerName,
 		gave = gaveSummaries,
 		got = Trade.summaries(got),
+		gaveDecor = Trade.pieceSummaries(gavePieces),
+		gotDecor = Trade.pieceSummaries(gotPieces),
 	})
 	while #profile.tradeLog > Config.TradeLogMax do
 		table.remove(profile.tradeLog)
@@ -351,6 +526,27 @@ function Trade.sanitizeLog(raw: unknown): { Types.TradeLogEntry }
 		end
 		return list
 	end
+	local function pieceSummaries(value: any): { Types.DecorSummary }
+		local list: { Types.DecorSummary } = {}
+		if type(value) == "table" then
+			for _, entry in value do
+				if
+					type(entry) == "table"
+					and type(entry.id) == "string"
+					and #entry.id <= 64
+					and type(entry.rarity) == "string"
+					and #list < Config.TradeMaxDecor
+				then
+					table.insert(list, {
+						id = entry.id,
+						kind = if entry.kind == "lawn" then "lawn" else "decor",
+						rarity = string.sub(entry.rarity, 1, 16),
+					})
+				end
+			end
+		end
+		return list
+	end
 	for _, entry in raw :: { any } do
 		if #out >= Config.TradeLogMax then
 			break
@@ -368,6 +564,8 @@ function Trade.sanitizeLog(raw: unknown): { Types.TradeLogEntry }
 				partnerName = entry.partnerName,
 				gave = summaries(entry.gave),
 				got = summaries(entry.got),
+				gaveDecor = pieceSummaries(entry.gaveDecor),
+				gotDecor = pieceSummaries(entry.gotDecor),
 			})
 		end
 	end

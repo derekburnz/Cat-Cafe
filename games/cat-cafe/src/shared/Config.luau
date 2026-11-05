@@ -494,8 +494,9 @@ local Config = {
 	-- 200), any way it was found, on top of a new cat's fish (section 1, added after the #795 review)
 	FishFirstRainbowMultiplier = 5,
 
-	-- Trading (F102, trading.md section 6; Derek 2026-10-30: from Tier 3, secure, nothing to scam). Cats only, up to
-	-- TradeMaxCats a side, both players at TradeMinTier or higher (CatCafeDebug tradeMinTier lowers it in one server).
+	-- Trading (F102, trading.md section 6; Derek 2026-10-30: from Tier 3, secure, nothing to scam). Up to TradeMaxCats
+	-- cats (and since #1574 TradeMaxDecor pieces) a side, both players at TradeMinTier or higher (CatCafeDebug
+	-- tradeMinTier lowers it in one server).
 	-- A request waits TradeRequestSeconds; declined or timed out, the asker waits TradeReaskSeconds to ask that player
 	-- again. TradeCountdownSeconds after both press Ready the confirm screen opens; a lopsided trade (one side gives at
 	-- least TradeLopsidedRatio times the Collector value it gets) or a gift holds that side's Confirm for
@@ -504,6 +505,7 @@ local Config = {
 	-- every TradeFlagCheckSeconds.
 	TradeMinTier = 3,
 	TradeMaxCats = 9,
+	TradeMaxDecor = 9, -- #1574 (section 1b): decor and lawn pieces a side, beside the cats
 	TradeCountdownSeconds = 5,
 	TradeLopsidedRatio = 3,
 	TradeConfirmWaitSeconds = 2,

@@ -96,6 +96,8 @@ local ProfileSchema = {}
 -- YardSaleClaimHours after that UTC day began (CampExtras.sanitize).
 -- Version 34 (#1161) adds bait2, the Second Bait Bowl's food and rolled cat: an older server would drop it, losing
 -- the food and letting the player roll that bowl again by hopping servers during a rollout.
+-- #1574 (no new version): decorUnlocked, the Legendary and up pieces unlocked to trade, and the trade log's gaveDecor
+-- and gotDecor. An older server drops them, which only locks those pieces again and shortens old log entries.
 ProfileSchema.VERSION = 34
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
@@ -210,6 +212,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		upgradeLevels = levels,
 		decorOwned = {},
 		decorPlaced = {},
+		decorUnlocked = {},
 		lures = {},
 		bait = nil,
 		bait2 = nil,
@@ -886,6 +889,21 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- F91 (version 28): the front lawn, kept to what the tier opens
 	profile.lawnOwned, profile.lawn, profile.lawnStyles =
 		Lawn.sanitize(raw.lawnOwned, raw.lawn, raw.lawnStyles, profile.tier)
+	-- #1574 (no new version): the Legendary and up pieces unlocked to trade, owned ones only. An older server drops the
+	-- list, which only locks those pieces again.
+	profile.decorUnlocked = {}
+	if type(raw.decorUnlocked) == "table" then
+		for id, unlocked in raw.decorUnlocked do
+			if
+				type(id) == "string"
+				and unlocked == true
+				and Trade.ownsPiece(profile, id)
+				and Trade.pieceLocked(profile, id)
+			then
+				profile.decorUnlocked[id] = true
+			end
+		end
+	end
 	-- #1052 (version 29): the Corner Shop; saves before it have bought nothing and fed no snacks
 	profile.cornerShop = CornerShop.sanitize(raw.cornerShop, now)
 	-- #1083 (version 30): only true hides the name on the Thank You board; anything else is shown

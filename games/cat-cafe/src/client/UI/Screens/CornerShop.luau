@@ -1,11 +1,13 @@
 --!strict
 -- The Corner Shop window (#1052, corner-shop.md section 4), opened from the stall's CornerShopPrompt in the Town
--- Square (UI.cornerShop.open). Coins only, open day and night. On top the cat food line; then a row per item in
--- Catalog.cornerShop order: its picture, name, what it does, "Opens at Tier 3" on a row the player's tier doesn't
--- reach yet, else what is left this restock ("x2 left", #1456; still no chances, restock clock or daily limits: #1190),
--- and a green Buy with the coin price ("Sold out", "None", "Back tomorrow" past a daily limit, #1435, "Food full"). Food goes to the Bag (corner-shop-v2.md). Bait food rows (#1281) show the food's picture and grade and "You have n". Under the list: "Lawn pieces are in
--- Decor, Front lawn". No toasts of its own: the server's answer is a
--- fresh CornerShopStock and, when refused, its toast. Words and rules in Components/CornerShopLogic.
+-- Square (UI.cornerShop.open). Coins only, open day and night. On top the help line; then the items under a header
+-- per kind ("Potions", "Cat food", "Bait", #1599), each a compact row in Catalog.cornerShop order: its picture, name,
+-- what it does, "Opens at Tier 3" on a row the player's tier doesn't reach yet, else what is left this restock
+-- ("x2 left", #1456; still no chances, restock clock or daily limits: #1190), and a green Buy with the coin price
+-- ("Sold out", "None", "Back tomorrow" past a daily limit, #1435, "Food full"). Food goes to the Bag
+-- (corner-shop-v2.md). Bait food rows (#1281) show the food's picture and grade and "You have n". Under the list:
+-- "Lawn pieces are in Decor, Front lawn". No toasts of its own: the server's answer is a fresh CornerShopStock and,
+-- when refused, its toast. Words and rules in Components/CornerShopLogic.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -53,9 +55,14 @@ type Row = {
 local MAX_SIZE = Vector2.new(620, 460)
 local TOP_H = 20 -- the help line (#1577); the restock clock and snack line are empty since #1190 and #1255
 local NOTE_H = 22
-local ROW_H = 84
-local PICTURE = 60
-local BUY_W = 150
+-- #1599 (Derek2 11-05: "smaller boxes/text per item so its easiest to see a lot"): compact rows, the name and "x2
+-- left" on one line, what it does under it; the Buy keeps a 44 px face on a phone (Scale.tapHeight)
+local ROW_MIN_H = 50
+local ROW_GAP = 4
+local SECTION_H = 28
+local PICTURE = 40
+local BUY_W = 124
+local STOCK_W = 110
 local PENDING_SECONDS = 3 -- a buy with no answer lets the button go again after this long (#1384)
 -- The server takes BuyCornerShop 2 a second and drops the rest with no answer (Net.luau), which left a fast buyer's
 -- button on "..." (#1384). Buys are spaced this far apart; a press inside the gap waits its turn instead.
@@ -103,7 +110,9 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 	self._alive = true
 	self._open = false
 	self._tick = 0
-	self._buyH = Scale.tapHeight(44, Theme.sizes.buttonDepth)
+	self._buyH = Scale.tapHeight(36, Theme.sizes.buttonDepth)
+	self._rowH = math.max(ROW_MIN_H, self._buyH + 10)
+	self._headers = {} :: { TextLabel }
 
 	local panel = Panel.new({
 		dark = true,
@@ -165,7 +174,7 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 		Parent = content,
 	}, {
 		Create("UIListLayout", {
-			Padding = UDim.new(0, GAP),
+			Padding = UDim.new(0, ROW_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 		Create("UIPadding", {
@@ -378,23 +387,56 @@ function CornerShop._clear(self: any)
 		row.frame:Destroy()
 	end
 	table.clear(self._rows)
+	for _, header in self._headers do
+		header:Destroy()
+	end
+	table.clear(self._headers)
 end
 
--- A row per item in the stock's order; rebuilt only when the items change.
+-- #1599: a section's header over its rows ("Potions").
+function CornerShop._header(self: any, section: CornerShopLogic.Section, order: number)
+	local header = text({
+		Name = "Section_" .. section.kind,
+		Size = UDim2.new(1, 0, 0, SECTION_H),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 2,
+		TextColor3 = PAL.caramel,
+		TextYAlignment = Enum.TextYAlignment.Bottom,
+		Text = section.title,
+		LayoutOrder = order,
+		Parent = self._list,
+	})
+	Outline.text(header, 1.5)
+	table.insert(self._headers, header)
+end
+
+-- The rows under their section headers (#1599), each section in the stock's order; rebuilt only when the items
+-- change. self._rows stays in the stock's order, so _paint matches it to stock.stock by index.
 function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 	self:_clear()
-	for order, item in stock.stock do
+	local orderOf: { [number]: number } = {}
+	local order = 0
+	for _, section in CornerShopLogic.sections(stock.stock) do
+		order += 1
+		self:_header(section, order)
+		for _, index in section.indexes do
+			order += 1
+			orderOf[index] = order
+		end
+	end
+	local rowH = self._rowH
+	for index, item in stock.stock do
 		local itemId = item.itemId
 		local def = rowOf(itemId)
 		local frame: Frame = Create("Frame", {
 			Name = itemId,
 			BackgroundColor3 = PAL.card,
 			BorderSizePixel = 0,
-			LayoutOrder = order,
-			Size = UDim2.new(1, 0, 0, ROW_H),
+			LayoutOrder = orderOf[index] or index,
+			Size = UDim2.new(1, 0, 0, rowH),
 			Parent = self._list,
 		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
 			Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
 		local bait = def ~= nil and def.kind == "bait"
@@ -402,7 +444,7 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			parent = frame,
 			size = UDim2.fromOffset(PICTURE, PICTURE),
 			anchorPoint = Vector2.new(0, 0.5),
-			position = UDim2.new(0, 10, 0.5, 0),
+			position = UDim2.new(0, 8, 0.5, 0),
 			badge = if bait then "gem" else nil,
 		})
 		local potion = def and def.kind == "potion"
@@ -415,34 +457,37 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 		else
 			icon:set(nil, GLYPHS[itemId] or Theme.icons.potion, "Rare", nil)
 		end
-		local left = 10 + PICTURE + 12
-		local right = BUY_W + 20
+		-- the name with "x2 left" at its end, and what it does under them, centred on the row
+		local left = 8 + PICTURE + 10
+		local right = BUY_W + 16
 		local name = text({
 			Name = "Name",
-			Position = UDim2.fromOffset(left, 8),
-			Size = UDim2.new(1, -(left + right), 0, 24),
+			Position = UDim2.new(0, left, 0.5, -19),
+			Size = UDim2.new(1, -(left + right + STOCK_W), 0, 20),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textLarge,
+			TextSize = Theme.sizes.textBody + 1,
 			Text = if def then def.name else itemId,
 			Parent = frame,
 		})
-		Outline.text(name, 2)
-		local effect = text({
-			Name = "Effect",
-			Position = UDim2.fromOffset(left, 33),
-			Size = UDim2.new(1, -(left + right), 0, 18),
-			TextSize = Theme.sizes.textSmall,
-			TextColor3 = PAL.subtext,
-			Text = if def then CornerShopLogic.effect(def) else "",
-			Parent = frame,
-		})
+		Outline.text(name, 1.5)
 		local line = text({
 			Name = "Line",
-			Position = UDim2.fromOffset(left, 54),
-			Size = UDim2.new(1, -(left + right), 0, 18),
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -right, 0.5, -18),
+			Size = UDim2.fromOffset(STOCK_W, 18),
 			FontFace = Theme.fonts.bodyBold,
-			TextSize = Theme.sizes.textSmall,
+			TextSize = Theme.sizes.textTiny + 1,
 			TextColor3 = PAL.subtext,
+			TextXAlignment = Enum.TextXAlignment.Right,
+			Parent = frame,
+		})
+		local effect = text({
+			Name = "Effect",
+			Position = UDim2.new(0, left, 0.5, 3),
+			Size = UDim2.new(1, -(left + right), 0, 16),
+			TextSize = Theme.sizes.textTiny + 1,
+			TextColor3 = PAL.subtext,
+			Text = if def then CornerShopLogic.effect(def) else "",
 			Parent = frame,
 		})
 		local buy = Button.new({
@@ -451,8 +496,8 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			style = "primary",
 			size = UDim2.fromOffset(BUY_W, self._buyH),
 			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -10, 0.5, 0),
-			textSize = Theme.sizes.textBody,
+			position = UDim2.new(1, -8, 0.5, 0),
+			textSize = Theme.sizes.textSmall,
 			parent = frame,
 			onClick = function()
 				self:_press(itemId)

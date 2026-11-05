@@ -25,6 +25,12 @@ return function()
 			)
 		end)
 
+		it("turns round for the bowl and the Bag's Bait tab, rarest first (#1609)", function()
+			expect(ids(FoodOrder.defs(Catalog.lures, true))).to.equal(
+				"star_treat,moon_milk,caviar,salmon,sardines,tuna,kibble"
+			)
+		end)
+
 		it("leaves the catalog's own list alone", function()
 			local before = ids(Catalog.lures)
 			FoodOrder.defs(Catalog.lures)

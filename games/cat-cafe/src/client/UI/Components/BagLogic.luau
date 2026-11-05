@@ -3,7 +3,8 @@
 -- Screens/Potions draws the Bag: its Potions tab is the potion bag as before, its Cat Food tab these rows.
 --
 --   foods(defs, have)        the foods the player has, in catalog order: { id, name, xp, count }
---   baits(defs, have)        #1281: the bait foods (lures) the player has, in catalog order: { id, name, count, def }
+--   baits(defs, have)        #1281: the bait foods (lures) the player has, rarest first (#1609, as the bowl lists
+--                            them): { id, name, count, def }
 --   total(state)             everything in the Bag (potions plus cat food), for the HUD tile's count
 --   xpLine(xp)               "+2,000 XP"
 --   catLine(level, xp)       "Level 23 · 1,400 XP to 24", or "Level 50 · Max" at the cap
@@ -13,6 +14,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config")) :: any
+
+local FoodOrder = require(script.Parent.FoodOrder)
 
 local BagLogic = {}
 
@@ -44,11 +47,12 @@ end
 export type Bait = { id: string, name: string, count: number, def: any }
 
 -- #1281 (corner-shop-v2.md section 1b): the Bag's Bait tab lists the bowl foods the player has; they go in at the
--- bowl, so the tab has no Use.
+-- bowl, so the tab has no Use. #1609 (Derek2 11-05: "sort bait in inventory and bowl menu by rarity"): rarest first,
+-- in the bowl's order (Components/FoodOrder).
 function BagLogic.baits(defs: { any }?, have: { [string]: number }?): { Bait }
 	local out: { Bait } = {}
 	local owned: { [string]: number } = have or {}
-	local list: { any } = defs or {}
+	local list: { any } = FoodOrder.defs(defs or {}, true)
 	for _, def in list do
 		local count = owned[def.id]
 		if type(count) == "number" and count >= 1 then

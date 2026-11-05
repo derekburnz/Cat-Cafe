@@ -5,6 +5,10 @@
 -- Cat Cannon picker's dot uses) and hides the moment it is claimed or while it refills. Each client only gets its
 -- own CampExtrasState, and the billboards live in this player's PlayerGui, so only the owner ever sees theirs.
 -- Shows within BANG_RANGE studs (`ReadyBangRange`, 150), bobs 1 stud every 2 s, and holds still with Reduce Motion.
+-- #1614 (Derek2 11-05: "always have a bubble up for whatever station is in that area"): each open station now always
+-- wears a bubble within that range, its icon and name over what waits ("14 fish", "Next in 2 h 10 m"), the Cat Cannon
+-- picker's words (CampExtrasLogic.bubble). The red "!" sits on the bubble's corner while there is something to claim,
+-- and only then does the bubble bob. The words move on once a second.
 --
 -- Roblox terms: a BillboardGui is 2D UI drawn at a point in the 3D world, always facing the camera. Its Adornee is
 -- the part or attachment it hangs from, and MaxDistance hides it past that many studs. CollectionService tags let
@@ -37,10 +41,13 @@ ReadyBang.TAG = "CampExtra" -- shared/CampExtras.TAG
 ReadyBang.ANCHOR = "BangAnchor"
 ReadyBang.BOB_STUDS = 1
 ReadyBang.BOB_SECONDS = 2 -- one full bob, up and back down
-ReadyBang.LOOK_SECONDS = 2 -- how often a ready "!" with no station in yet looks for it again
+ReadyBang.LOOK_SECONDS = 1 -- the bubble's words move on, and a station not streamed in yet is looked for again
 
 type Bang = {
 	gui: BillboardGui,
+	title: TextLabel,
+	line: TextLabel,
+	dot: Frame,
 	bob: Tween?,
 }
 
@@ -61,11 +68,28 @@ local function anchorFor(extraId: string): Attachment?
 	return nil
 end
 
-local function build(parent: Instance, extraId: string): BillboardGui
+local function label(props: { [string]: any }): TextLabel
+	local merged: { [string]: any } = {
+		BackgroundTransparency = 1,
+		FontFace = Theme.fonts.bodyBold,
+		TextScaled = true,
+		TextColor3 = Theme.colors.white,
+		Text = "",
+	}
+	for key, value in props do
+		merged[key] = value
+	end
+	local made: TextLabel = Create("TextLabel", merged)
+	Outline.text(made, 1.5)
+	return made
+end
+
+-- The bubble: a dark rounded card with the station's icon and name over what waits, and the red "!" on its corner.
+local function build(parent: Instance, extraId: string): Bang
 	local gui: BillboardGui = Create("BillboardGui", {
 		Name = "CatCafeReadyBang_" .. extraId,
-		-- studs up close, never smaller than 26 px far away, so it reads from the cannon landing
-		Size = UDim2.new(1.6, 26, 1.6, 26),
+		-- studs up close, never smaller than 120 x 36 px far away, so it reads from the cannon landing
+		Size = UDim2.new(6, 120, 1.8, 36),
 		LightInfluence = 0,
 		AlwaysOnTop = false, -- walls in front hide it, as they hide the station (the Rescue "!" does the same)
 		MaxDistance = CampExtrasLogic.BANG_RANGE,
@@ -73,11 +97,48 @@ local function build(parent: Instance, extraId: string): BillboardGui
 		Enabled = false,
 		Parent = parent,
 	})
+	local card: Frame = Create("Frame", {
+		Name = "Bubble",
+		BackgroundColor3 = Theme.colors.cocoaDeep,
+		BackgroundTransparency = 0.15,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		Parent = gui,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0.3, 0) }),
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0.05, 0),
+			PaddingRight = UDim.new(0.05, 0),
+			PaddingTop = UDim.new(0.1, 0),
+			PaddingBottom = UDim.new(0.1, 0),
+		}),
+	})
+	Outline.border(card, 2)
+	local title = label({
+		Name = "Title",
+		Size = UDim2.fromScale(1, 0.55),
+		FontFace = Theme.fonts.display,
+		Text = CampExtrasLogic.icon(extraId),
+		Parent = card,
+	})
+	local line = label({
+		Name = "Line",
+		Position = UDim2.fromScale(0, 0.58),
+		Size = UDim2.fromScale(1, 0.42),
+		TextColor3 = Theme.colors.cream,
+		Parent = card,
+	})
+	-- the red "!" on the top right corner while there is something to claim
 	local dot: Frame = Create("Frame", {
 		Name = "Dot",
 		BackgroundColor3 = Theme.colors.red,
 		BorderSizePixel = 0,
-		Size = UDim2.fromScale(1, 1),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(1, 0),
+		Size = UDim2.fromScale(0.7, 0.7),
+		SizeConstraint = Enum.SizeConstraint.RelativeYY,
+		Visible = false,
+		ZIndex = 3,
 		Parent = gui,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(dot, 2)
@@ -90,10 +151,11 @@ local function build(parent: Instance, extraId: string): BillboardGui
 		TextScaled = true,
 		TextColor3 = Theme.colors.white,
 		Text = "!",
+		ZIndex = 4,
 		Parent = dot,
 	})
 	Outline.text(mark, 2)
-	return gui
+	return { gui = gui, title = title, line = line, dot = dot, bob = nil }
 end
 
 function ReadyBang.new(parent: Instance): ReadyBang
@@ -102,7 +164,7 @@ function ReadyBang.new(parent: Instance): ReadyBang
 	self._state = nil :: unknown
 	self._connections = {} :: { RBXScriptConnection }
 	for _, extraId in CampExtrasLogic.BANG_EXTRAS do
-		self._bangs[extraId] = { gui = build(parent, extraId), bob = nil }
+		self._bangs[extraId] = build(parent, extraId)
 	end
 	local function refresh()
 		self:_apply()
@@ -125,18 +187,14 @@ function ReadyBang.new(parent: Instance): ReadyBang
 			refresh()
 		end)
 	)
-	-- a station's parts stream in one by one, so a ready "!" whose anchor isn't in yet (or streamed out) looks again
+	-- once a second the words move on ("Next in 2 h 10 m"), and a station whose anchor isn't streamed in yet (or
+	-- streamed out) is looked for again
 	self._alive = true
 	task.spawn(function()
 		while self._alive do
 			task.wait(ReadyBang.LOOK_SECONDS)
-			for extraId, bang: Bang in self._bangs do
-				local adornee: Instance? = (bang.gui :: any).Adornee
-				local lost = adornee == nil or not (adornee :: Instance):IsDescendantOf(Workspace)
-				if self._alive and CampExtrasLogic.bangShows(self._state, extraId) and lost then
-					self:_apply()
-					break
-				end
+			if self._alive then
+				self:_apply()
 			end
 		end
 	end)
@@ -153,14 +211,28 @@ function ReadyBang._still(_self: any, bang: Bang)
 end
 
 function ReadyBang._apply(self: any)
+	local now = Workspace:GetServerTimeNow()
 	for extraId, bang: Bang in self._bangs do
+		local view = CampExtrasLogic.bubble(self._state, extraId, now)
 		local ready = CampExtrasLogic.bangShows(self._state, extraId)
-		local anchor = if ready then anchorFor(extraId) else nil
+		local anchor = if view ~= nil then anchorFor(extraId) else nil
 		local gui: any = bang.gui
-		gui.Adornee = anchor -- nil while hidden, so a streamed-out station isn't held on to
+		if gui.Adornee ~= anchor then
+			gui.Adornee = anchor -- nil while hidden, so a streamed-out station isn't held on to
+		end
 		local on = anchor ~= nil
 		bang.gui.Enabled = on
-		if not on then
+		if view ~= nil then
+			local title = view.icon .. " " .. view.name
+			if bang.title.Text ~= title then
+				bang.title.Text = title
+			end
+			if bang.line.Text ~= view.state then
+				bang.line.Text = view.state
+			end
+		end
+		bang.dot.Visible = ready
+		if not on or not ready then
 			self:_still(bang)
 		elseif bang.bob == nil and not GuiService.ReducedMotionEnabled then
 			local info = TweenInfo.new(

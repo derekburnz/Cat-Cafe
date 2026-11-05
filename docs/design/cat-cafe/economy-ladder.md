@@ -133,6 +133,11 @@ Monetization asked whether every money pass on the Store cards, stacked on top o
 - **No cap is needed**, and nothing changes in the prices. If a later pass or bonus pushes a paid player's Tier 5 under an hour, the rule above holds: Tier 5's cat requirements go up, not the bonuses down.
 - **Store card wording (proposed for the ui-designer):** Cafe Style's "+50% money" and Grand Cafe's "+150% money" add into the cafe bonus, so late in the game they feel like about +15% and +40% of a player's income. The cards should say "+50% cafe bonus" and "+150% cafe bonus", and the Boosts list should show the cafe bonus line with them in it, so a young player never feels the card overpromised. VIP's "+10% money" becomes "+10% cafe bonus" the same way.
 
+**v2.4 re-check, 2026-11-05 (#1624, before the build).** The check is still good with Tier costs v3, bait prices v2 and wild odds v2, because the ratios above are paid over free income at the same tier, and a cost change moves both players together. Two things v2.3 left open are settled here:
+- **Rich visitors.** Cafe Style's "25% more often" and Grand Cafe's "twice" add up on `RichChance`: x(1 + 0.25 + 1.0), so 0.10 becomes 0.225 with both. A rich visitor pays 120 s of day rate, which adds about 20% to a free player's day and about 45% with both passes. That's about x1.2 more on the totals above: Tier 1 about 37x, Tier 2 about 23x, Tier 3 about 17x, Tier 4 about 13x, Tier 5 about 12x. It's still at or under ~24x from Tier 2 on, so no percentages change and the Creator Hub descriptions stay.
+- **Night and offline.** Rich visitors only come by day (v0.13.4) and are paid when collected at the cafe, so offline pay and night never see the rich part. The cafe and rating parts do reach offline pay through `dayRateAtLogout`, like the Money pass.
+- **Cosmetic parts** (VIP chat tag and sign plate, the accessories, uniforms and the two themes) change no number. Nothing in any of the five touches luck, gold or rainbow chance, the pity cat or the day rolls.
+
 **QA (Pace.spec):** add an "every pass as carded" profile (the stacking above, Royal and King cats owned and working, Long Nap, 4x Money). Pass: Tier 2 at 5 minutes or more, Tier 5 at 1 hour or more of play in one go. If Tier 5 falls under, raise Tier 5's `distinctCats` (rule above).
 
 ## 6b. Three smaller rules from Derek's 2026-10-28 to 10-30 notes

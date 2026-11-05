@@ -139,6 +139,35 @@ function Potions.use(profile: Types.PlayerProfile, potionId: string, now: number
 	return true
 end
 
+-- #1600 (the Bag's "Use all"): how many of `potionId` could be drunk now, one after another: the bag's count, cut to
+-- what fits under PotionMaxMinutes with the time left (0 for an unknown potion).
+function Potions.fitCount(profile: Types.PlayerProfile, potionId: string, now: number): number
+	local def = Catalog.getPotion(potionId)
+	local have = profile.potions[potionId] or 0
+	if def == nil or have <= 0 or def.minutes <= 0 then
+		return 0
+	end
+	local room = Config.PotionMaxMinutes * 60
+		+ 0.5
+		- Potions.left(profile, Potions.buffOf(potionId), now)
+	return math.clamp(math.floor(room / (def.minutes * 60)), 0, have)
+end
+
+-- Drinks up to `count` of `potionId` (Potions.use each), stopping at the first one useBlocker refuses. Returns how
+-- many were drunk.
+function Potions.useMany(
+	profile: Types.PlayerProfile,
+	potionId: string,
+	count: number,
+	now: number
+): number
+	local drunk = 0
+	while drunk < count and Potions.use(profile, potionId, now) do
+		drunk += 1
+	end
+	return drunk
+end
+
 -- Counts every timer down by `elapsed` seconds of play and drops the ones that ran out (Economy.settle).
 function Potions.tick(profile: Types.PlayerProfile, elapsed: number)
 	local buffs = (profile :: any).buffs

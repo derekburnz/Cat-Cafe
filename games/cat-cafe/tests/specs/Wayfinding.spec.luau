@@ -69,6 +69,14 @@ return function()
 			end
 		end)
 
+		it("shows the My Cafe marker only in the cafe area (#1620)", function()
+			expect(Wayfinding.homeShows(nil)).to.equal(true)
+			expect(Wayfinding.homeShows("Cafe")).to.equal(true)
+			for _, area in Catalog.areas do
+				expect(Wayfinding.homeShows(zoneName(area.id))).to.equal(false)
+			end
+		end)
+
 		it("never gets less visible as the player walks away, and stays between 0 and 1", function()
 			local last = -1
 			for distance = -10, Wayfinding.FAR + 40, 0.5 do
@@ -82,16 +90,19 @@ return function()
 			expect(Wayfinding.alpha(math.huge)).to.equal(1)
 		end)
 
-		it("keeps every marker between SCALE_MIN and full size and never grows it walking away (#408)", function()
-			local last = 1
-			for distance = -10, Wayfinding.SCALE_FAR + 60, 0.5 do
-				local scale = Wayfinding.scale(distance)
-				expect(scale >= Wayfinding.SCALE_MIN and scale <= 1).to.equal(true)
-				expect(scale <= last).to.equal(true)
-				last = scale
+		it(
+			"keeps every marker between SCALE_MIN and full size and never grows it walking away (#408)",
+			function()
+				local last = 1
+				for distance = -10, Wayfinding.SCALE_FAR + 60, 0.5 do
+					local scale = Wayfinding.scale(distance)
+					expect(scale >= Wayfinding.SCALE_MIN and scale <= 1).to.equal(true)
+					expect(scale <= last).to.equal(true)
+					last = scale
+				end
+				expect(Wayfinding.scale(math.huge)).to.equal(Wayfinding.SCALE_MIN)
+				expect(Wayfinding.scale(-math.huge)).to.equal(1)
 			end
-			expect(Wayfinding.scale(math.huge)).to.equal(Wayfinding.SCALE_MIN)
-			expect(Wayfinding.scale(-math.huge)).to.equal(1)
-		end)
+		)
 	end)
 end

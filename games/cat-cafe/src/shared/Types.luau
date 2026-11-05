@@ -469,7 +469,7 @@ export type Stats = {
 	bestRate: number,
 	weekPlay: WeekPlay,
 	weekBestRate: WeekRate,
-	-- F102 (trading.md section 6): trades done, and today's count for TradesPerDay (the day is a UTC day number)
+	-- F102 (trading.md section 6): trades done, and today's count for TradesPerDay (the day is a global game day since #1629)
 	trades: number,
 	tradesToday: TradesToday,
 }

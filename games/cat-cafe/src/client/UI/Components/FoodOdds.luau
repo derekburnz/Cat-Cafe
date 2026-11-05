@@ -186,12 +186,24 @@ end
 -- "Gold 5%"; with gold luck the chance has it in (chance x (1 + luck), golden-fish.md section 5): "Gold 7% (+40%
 -- luck)". F73, as the server's BaitService: `potionLuck` (a running Gold Rush Potion's) goes on top of the Index's
 -- capped luck, and `goldScale` (a running Lucky Potion's 2) multiplies the lot: "Gold 16.5% (+65% luck, Lucky Potion
--- x2)". No charm star odds since F97 section 5.
-function FoodOdds.extras(goldLuck: number?, potionLuck: number?, goldScale: number?): string
+-- x2)". No charm star odds since F97 section 5. #1572: on a Golden Day (`goldenDay`) the base chance is
+-- x GoldenDayGoldMultiplier before the luck, as the server's Clock.goldChance: "Gold 10% (Golden Day x2)".
+function FoodOdds.extras(
+	goldLuck: number?,
+	potionLuck: number?,
+	goldScale: number?,
+	goldenDay: boolean?
+): string
 	local luck = math.clamp(goldLuck or 0, 0, GOLD_LUCK_MAX) + math.max(0, potionLuck or 0)
 	local scale = math.max(1, goldScale or 1)
-	local gold = percent(GOLD_CHANCE * (1 + luck) * scale * 100)
+	local dayScale = if goldenDay == true
+		then tonumber((Config :: any).GoldenDayGoldMultiplier) or 2
+		else 1
+	local gold = percent(GOLD_CHANCE * dayScale * (1 + luck) * scale * 100)
 	local notes: { string } = {}
+	if dayScale > 1 then
+		table.insert(notes, ("Golden Day x%g"):format(dayScale))
+	end
 	if luck > 0 then
 		table.insert(notes, ("+%s luck"):format(percent(luck * 100)))
 	end
@@ -207,17 +219,28 @@ end
 -- "Rainbow 0.5%" under the gold line (F99, rainbow-coat.md section 1): RainbowChanceBait x (1 + rainbow luck), the
 -- luck capped at RainbowLuckMax, so a Rainbow Master reads "Rainbow 1% (+100% luck)". Gold luck, Gold Rush and Lucky
 -- Potions never touch it. Nil while the server has no rainbow roll (no RainbowChanceBait in Config); `chance` stands
--- in for the Config's in the spec.
-function FoodOdds.rainbow(rainbowLuck: number?, chance: number?): string?
+-- in for the Config's in the spec. #1572: on a Rainbow Day (`rainbowDay`) the base chance is x RainbowDayMultiplier,
+-- as the server's Clock.rainbowChance: "Rainbow 4.5% (Rainbow Day x3)".
+function FoodOdds.rainbow(rainbowLuck: number?, chance: number?, rainbowDay: boolean?): string?
 	local base = chance or tonumber((Config :: any).RainbowChanceBait)
 	if base == nil or base <= 0 then
 		return nil
 	end
+	local dayScale = if rainbowDay == true
+		then tonumber((Config :: any).RainbowDayMultiplier) or 3
+		else 1
 	local most = tonumber((Config :: any).RainbowLuckMax) or 1
 	local luck = math.clamp(rainbowLuck or 0, 0, most)
-	local line = "Rainbow " .. percent(base * (1 + luck) * 100)
+	local line = "Rainbow " .. percent(base * dayScale * (1 + luck) * 100)
+	local notes: { string } = {}
+	if dayScale > 1 then
+		table.insert(notes, ("Rainbow Day x%g"):format(dayScale))
+	end
 	if luck > 0 then
-		line ..= (" (+%s luck)"):format(percent(luck * 100))
+		table.insert(notes, ("+%s luck"):format(percent(luck * 100)))
+	end
+	if #notes > 0 then
+		line ..= " (" .. table.concat(notes, ", ") .. ")"
 	end
 	return line
 end

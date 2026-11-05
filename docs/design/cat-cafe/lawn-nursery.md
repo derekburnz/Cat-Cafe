@@ -128,6 +128,7 @@ Each piece and style that is **out** on the lawn adds money, by its rarity:
 - **On buy:** a new piece goes straight onto the lawn if it beats the weakest piece out in its size, or fills an empty spot. The toast says "Tulip Bed is out on your lawn (+1% money)". Nothing to place by hand.
 - **No manual placing.** Edit lawn, the spot rings, the picker and Clear (front-lawn.md section 3) go. The Decor window's Lawn chip just lists what you own, with "Out" or "Stored" and each piece's bonus.
 - **Server decides.** The server picks the pieces and works out the bonus, and the client never names a spot or a bonus. The existing `lawn` and `lawnStyles` saves hold the result. There's no new save field. `SetLawnSpot` and `SetLawnStyle` are retired (they refuse with "The lawn sets itself now"), and `EquipBestDecor` covers the lawn.
+- **Existing lawns:** on a player's first load after this ships, the server runs `bestLawn` once and replaces any manual layout with its picks. Nothing owned is lost: pieces not picked are stored, and the bonus comes from what's out.
 - **Looks stay.** A player who liked a cheaper piece's look loses that choice. That trade is Derek's ask ("auto pick slots the same way decor does"). If players miss it, a later "Pin this piece" toggle can keep one chosen piece out.
 
 ### 6c. Contracts

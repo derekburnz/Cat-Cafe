@@ -795,6 +795,23 @@ local SCENES = {
 	end },
 	{ "Bait", function()
 		UI.bait.openPicker()
+		-- #1281: no Buy on any food; each says how many you have, or where to get more
+		local window = baitWindow()
+		local counts = 0
+		for _, piece in window:GetDescendants() do
+			assert(piece.Name ~= "Buy", "uigate: a Buy button in the bowl menu (#1281: foods sell at the Corner Shop)")
+			if piece.Name == "Count" and piece:IsA("TextLabel") then
+				counts += 1
+				local text = piece.Text
+				assert(
+					string.match(text, "^You have %d+$")
+						or text == "Get more at the Corner Shop"
+						or text == "Sold by the night dealer's cart",
+					("uigate: a food row says %q (#1281)"):format(text)
+				)
+			end
+		end
+		assert(counts == #Catalog.lures, ("uigate: %d food rows for %d foods"):format(counts, #Catalog.lures))
 	end },
 	-- #1161: the Second Bait Bowl pass owned, bowl 1 filling and bowl 2 empty: two tabs, and the screen opens on
 	-- bowl 2 (the empty one that takes food) with its Use buttons live

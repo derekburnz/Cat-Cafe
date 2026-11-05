@@ -5,6 +5,8 @@
 -- prize(title, prize) is the prize toast (F94 rule 3, F100 camp extras): the line on the green pill with what it
 -- paid as at most two little pictures after it (Components/PrizeChips, outlined for the pill); it needs the catalog
 -- (setCatalog) for the crates' and potions' pictures. Silent: the moment that pays brings its own sound.
+-- #1435 (the friend 11-05: four "That's all the Cat Whistles for today" toasts stacked over the Corner Shop): a line
+-- that is already on screen is not stacked again; that toast moves to the newest spot, pops and starts its time over.
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -79,6 +81,7 @@ function Toasts.new(parent: Instance): Toasts
 	self._catalog = nil :: Types.Catalog?
 	self._order = 0
 	self._alive = {} :: { Frame }
+	self._restart = {} :: { [Frame]: () -> () } -- each live plain toast's "show it again" (the #1435 merge)
 	if parent then
 		screenGui.Parent = parent
 	end
@@ -153,6 +156,16 @@ function Toasts._push(
 	bands: boolean?,
 	prize: Types.IndexPrize?
 )
+	-- the same words already up (and not fading out): that toast again, never a copy under it (#1435)
+	if prize == nil then
+		for _, live in self._alive do
+			local restart: (() -> ())? = self._restart[live]
+			if restart and live:GetAttribute("Line") == text then
+				restart()
+				return
+			end
+		end
+	end
 	self._order += 1
 	local toast: Frame = Create("Frame", {
 		Name = "Toast",
@@ -228,6 +241,7 @@ function Toasts._push(
 	while #self._alive > MAX_VISIBLE do
 		local oldest = table.remove(self._alive, 1)
 		if oldest then
+			self._restart[oldest] = nil
 			oldest:Destroy()
 		end
 	end
@@ -236,30 +250,65 @@ function Toasts._push(
 	Tween.to(message, Tween.FAST, { TextTransparency = 0 })
 	Tween.to(textOutline, Tween.FAST, { Transparency = 0 })
 	Tween.popIn(toast, 0.8)
-	task.delay(lifetime, function()
-		if not toast.Parent then
-			if chips then
-				chips:destroy()
-			end
-			return
-		end
-		if chips then
-			chips.frame.Visible = false
-		end
-		Tween.to(border, Tween.SETTLE, { Transparency = 1 })
-		Tween.to(message, Tween.SETTLE, { TextTransparency = 1 })
-		Tween.to(textOutline, Tween.SETTLE, { Transparency = 1 })
-		local out = Tween.to(toast, Tween.SETTLE, { BackgroundTransparency = 1 })
-		out.Completed:Once(function()
+	local generation = 0
+	local expire: (number) -> ()
+	if prize == nil then
+		toast:SetAttribute("Line", text)
+		self._restart[toast] = function()
+			generation += 1
+			self._order += 1
+			toast.LayoutOrder = self._order
 			local index = table.find(self._alive, toast)
 			if index then
 				table.remove(self._alive, index)
 			end
-			if chips then
-				chips:destroy()
+			table.insert(self._alive, toast)
+			Tween.popIn(toast, 0.9)
+			expire(generation)
+		end
+	end
+	expire = function(mine: number)
+		task.delay(lifetime, function()
+			if mine == generation then
+				self:_fade(toast, border, message, textOutline, chips)
 			end
-			toast:Destroy()
 		end)
+	end
+	expire(generation)
+end
+
+-- A toast's time is up: it fades and goes (or just goes, when it was pushed off the top already).
+function Toasts._fade(
+	self: any,
+	toast: Frame,
+	border: UIStroke,
+	message: TextLabel,
+	textOutline: UIStroke,
+	chips: PrizeChips.PrizeChips?
+)
+	self._restart[toast] = nil -- fading: a new toast with its words is a new toast
+	if not toast.Parent then
+		if chips then
+			chips:destroy()
+		end
+		return
+	end
+	if chips then
+		chips.frame.Visible = false
+	end
+	Tween.to(border, Tween.SETTLE, { Transparency = 1 })
+	Tween.to(message, Tween.SETTLE, { TextTransparency = 1 })
+	Tween.to(textOutline, Tween.SETTLE, { Transparency = 1 })
+	local out = Tween.to(toast, Tween.SETTLE, { BackgroundTransparency = 1 })
+	out.Completed:Once(function()
+		local index = table.find(self._alive, toast)
+		if index then
+			table.remove(self._alive, index)
+		end
+		if chips then
+			chips:destroy()
+		end
+		toast:Destroy()
 	end)
 end
 

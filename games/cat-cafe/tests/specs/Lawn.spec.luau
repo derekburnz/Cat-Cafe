@@ -26,24 +26,37 @@ return function()
 
 	describe("the catalog (section 2)", function()
 		-- prices: section 2's, times 4 at Tier 3, 8 at Tier 4 and 16 at Tier 5 (economy-ladder.md section 4, which wins)
-		it("sells the sixteen pieces at their sizes, tiers and ladder prices", function()
+		-- lawn-nursery.md section 1 (#1200): each piece and style costs its rarity's rung of the ladder
+		it("has the nursery's rarity ladder", function()
+			expect(Catalog.lawnRarityPrices :: any).to.deepEqual({
+				Common = 10000,
+				Uncommon = 50000,
+				Rare = 250000,
+				Epic = 1000000,
+				Legendary = 5000000,
+				Mythical = 50000000,
+				Golden = 500000000,
+			})
+		end)
+
+		it("sells the sixteen pieces at their sizes, tiers, rarities and ladder prices", function()
 			local expected = {
-				{ "tulip_bed", "small", 1, 500 },
-				{ "sandwich_board", "small", 1, 500 },
-				{ "potted_cat_topiary", "small", 1, 1000 },
-				{ "mailbox", "small", 1, 1000 },
-				{ "lamp_post", "small", 2, 3000 },
-				{ "bird_bath", "small", 2, 3000 },
-				{ "garden_gnome_cat", "small", 2, 5000 },
-				{ "bicycle_with_basket", "big", 2, 8000 },
-				{ "garden_bench", "big", 2, 8000 },
-				{ "umbrella_table", "big", 3, 100000 },
-				{ "little_fountain", "big", 3, 160000 },
-				{ "fairy_light_arch", "big", 4, 1200000 },
-				{ "flower_cart", "big", 4, 1600000 },
-				{ "balloon_bunch", "small", 4, 800000 },
-				{ "cat_tree_sign", "big", 5, 16000000 },
-				{ "golden_paw_statue", "big", 5, 50000000 },
+				{ "tulip_bed", "small", 1, "Common" },
+				{ "sandwich_board", "small", 1, "Common" },
+				{ "potted_cat_topiary", "small", 1, "Uncommon" },
+				{ "mailbox", "small", 1, "Uncommon" },
+				{ "lamp_post", "small", 2, "Rare" },
+				{ "bird_bath", "small", 2, "Rare" },
+				{ "garden_gnome_cat", "small", 2, "Rare" },
+				{ "bicycle_with_basket", "big", 2, "Epic" },
+				{ "garden_bench", "big", 2, "Epic" },
+				{ "umbrella_table", "big", 3, "Legendary" },
+				{ "little_fountain", "big", 3, "Legendary" },
+				{ "fairy_light_arch", "big", 4, "Mythical" },
+				{ "flower_cart", "big", 4, "Mythical" },
+				{ "balloon_bunch", "small", 4, "Legendary" },
+				{ "cat_tree_sign", "big", 5, "Golden" },
+				{ "golden_paw_statue", "big", 5, "Golden" },
 			}
 			expect(#Catalog.lawn).to.equal(#expected)
 			for i, row in expected do
@@ -51,21 +64,22 @@ return function()
 				expect(def.id).to.equal(row[1])
 				expect(def.spot).to.equal(row[2])
 				expect(def.tier).to.equal(row[3])
-				expect(def.price).to.equal(row[4])
+				expect(def.rarity).to.equal(row[4])
+				expect(def.price).to.equal(Catalog.lawnRarityPrices[row[4] :: string])
 				expect(Catalog.getLawn(def.id)).to.equal(def)
 			end
 		end)
 
 		it("sells four paths and four fences, Grey Slabs free", function()
-			local expected = {
-				{ "grey_slabs", "path", 1, 0 },
-				{ "red_brick", "path", 1, 2000 },
-				{ "stepping_stones", "path", 2, 10000 },
-				{ "paw_print_path", "path", 3, 200000 },
-				{ "white_picket", "fence", 1, 2000 },
-				{ "low_hedge", "fence", 2, 10000 },
-				{ "iron_railing", "fence", 3, 200000 },
-				{ "flower_box_fence", "fence", 4, 1600000 },
+			local expected: { { any } } = {
+				{ "grey_slabs", "path", 1, nil },
+				{ "red_brick", "path", 1, "Common" },
+				{ "stepping_stones", "path", 2, "Uncommon" },
+				{ "paw_print_path", "path", 3, "Epic" },
+				{ "white_picket", "fence", 1, "Common" },
+				{ "low_hedge", "fence", 2, "Uncommon" },
+				{ "iron_railing", "fence", 3, "Epic" },
+				{ "flower_box_fence", "fence", 4, "Mythical" },
 			}
 			expect(#Catalog.lawnStyles).to.equal(#expected)
 			for i, row in expected do
@@ -73,7 +87,8 @@ return function()
 				expect(def.id).to.equal(row[1])
 				expect(def.kind).to.equal(row[2])
 				expect(def.tier).to.equal(row[3])
-				expect(def.price).to.equal(row[4])
+				expect(def.rarity).to.equal(row[4])
+				expect(def.price).to.equal(if row[4] == nil then 0 else Catalog.lawnRarityPrices[row[4]])
 				expect(Catalog.getLawnStyle(def.id)).to.equal(def)
 			end
 		end)

@@ -799,13 +799,12 @@ export type FreshCatchStock = { window: number, restocksAt: number, stock: { Fre
 
 -- The Corner Shop (corner-shop.md, #1052): sold for coins only.
 -- v2 (corner-shop-v2.md section 4, #1180): every row sold for coins at a fixed `price`, in a `family` (its daily limit
--- counts the family, Config.CornerDailyLimits) and a `size` (its stock chance, Config.CornerShopSizeWeights). A
+-- counts the family, Config.CornerDailyLimits) and a `size` (Big and Mega rows are tier gated). A
 -- "potion" row gives `potionId` into the bag, a "food" row `foodId` into the Bag's cat food (its `xp` is that food's)
 -- and a "show" row played `showId` over the buyer's cafe (retired with the Bubble Machine and Cafe Fireworks, #1381; the
 -- kind and its fields go once Effects/CafeShow and CornerShopLogic stop reading them). `needsTier` hides and refuses
 -- the row below that tier. #1281 (section 1b): a "bait" row sells the bowl food `lureId` into `lures` at its
--- tier-scaled price (CornerShop.priceOf, so `price` is only its Tier 1 price), its stock rolled from its own `weights`
--- (the chance of 0, 1, 2 or 3) in place of its size's.
+-- tier-scaled price (CornerShop.priceOf, so `price` is only its Tier 1 price).
 export type CornerShopSize = "small" | "regular" | "big" | "mega"
 export type CornerShopRow = {
 	id: string,
@@ -817,7 +816,6 @@ export type CornerShopRow = {
 	potionId: string?,
 	foodId: string?,
 	lureId: string?, -- #1281: a "bait" row's bowl food
-	weights: { number }?, -- #1281: a "bait" row's stock chances, in place of Config.CornerShopSizeWeights[size]
 	xp: number?,
 	showId: string?,
 	showSeconds: number?,

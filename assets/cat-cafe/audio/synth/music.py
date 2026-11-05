@@ -65,11 +65,11 @@ def release(x: np.ndarray, hold: float, tail: float) -> np.ndarray:
 class Song:
     """A stereo loop of a whole number of bars. Everything placed on it wraps around the end."""
 
-    def __init__(self, bpm: float, meter: int, seed: int, swing: float = 0.0):
+    def __init__(self, bpm: float, meter: int, seed: int, swing: float = 0.0, bars: int = BARS):
         self.beat = 60.0 / bpm
         self.meter = meter
         self.swing = swing  # how late an off-beat eighth lands, in beats
-        self.n = round(BARS * meter * self.beat * SR)
+        self.n = round(bars * meter * self.beat * SR)
         self.rng = np.random.default_rng(seed)
 
     def time(self, bar: int, beat: float) -> float:
@@ -569,7 +569,39 @@ def night_b(tmp: Path) -> np.ndarray:
                   "kit": (kit, -36, 0.15), "pad": (pad, -30, 0.4)}, 601, tmp)
 
 
-SONGS = {"DayA": day_a, "DayB": day_b, "NightA": night_a, "DayC": day_c, "DayD": day_d, "NightB": night_b}
+def tutorial(tmp: Path) -> np.ndarray:
+    """Step by Step: the tutorial's own loop (2026-11-05), calm and clear so the helper sounds stand out. 16 bars in C
+    at 96 BPM: soft plucked chords and a bass, a rim tick, and a simple marimba tune (a glockenspiel joins it in the second half)."""
+    s = Song(96, 4, seed=51, bars=16)
+    bars = [
+        ("C2", "G2", "E4 G4 C5"), ("A1", "E2", "E4 A4 C5"), ("F1", "C2", "F4 A4 C5"), ("G1", "D2", "D4 G4 B4"),
+    ]
+    tune = melody("0 0 1 E5; 0 1 1 G5; 0 2 2 C6;"
+                  "1 0 1 B5; 1 1 1 A5; 1 2 2 E5;"
+                  "2 0 1 F5; 2 1 1 A5; 2 2 2 C6;"
+                  "3 0 1 B5; 3 1 1 G5; 3 2 2 D5")
+    pluck_s, bass, lead, kit = s.stem(), s.stem(), s.stem(), s.stem()
+    for bar in range(16):
+        root, fifth, voicing = bars[bar % 4]
+        notes = chord(voicing)
+        for k, i in enumerate((0, 1, 2, 1)):  # an easy rocking arpeggio on the quarter beats
+            s.put(pluck_s, pluck(0.5, notes[i], bar * 8 + k, bright=0.35, ring=1.2) * (0.8 if k == 0 else 0.55),
+                  bar, k, pan=-0.2 + 0.1 * i)
+        s.put(bass, pluck(0.7, note(root), bar * 3, bright=0.25, ring=1.1), bar, 0.0, pan=-0.05)
+        s.put(bass, pluck(0.5, note(fifth), bar * 3 + 1, bright=0.25, ring=1.0) * 0.7, bar, 2.0, pan=-0.05)
+        for beat in (1, 3):
+            s.put(kit, rim(bar * 4 + beat), bar, beat, pan=-0.3, gain=0.3 if bar < 8 else 0.4)
+        for b, beat, length, f in tune:  # the tune runs throughout, a glockenspiel joining it in the second half
+            if b == bar % 4:
+                s.put(lead, marimba(f, 0.8), bar, beat, pan=0.12)
+                if bar >= 8:
+                    s.put(lead, glock(f * 2) * 0.2, bar, beat, pan=0.3)
+    return blend({"lead": (lead, -20, 0.25), "pluck": (pluck_s, -22, 0.25), "bass": (bass, -26, 0.05),
+                  "kit": (kit, -36, 0.1)}, 501, tmp)
+
+
+SONGS = {"DayA": day_a, "DayB": day_b, "NightA": night_a, "DayC": day_c, "DayD": day_d, "NightB": night_b,
+         "Tutorial": tutorial}
 
 # The music sheet (#980, 2026-11-03). Audio uploads were used up (100 a month until an account is ID verified), so the
 # three songs Derek approved on 2026-11-03 share one upload: each renders on its own to sheet-parts/music/ (gated

@@ -1,12 +1,13 @@
 --!strict
 -- The Corner Shop (corner-shop.md, #1052; v2 corner-shop-v2.md, #1180 and #1181): a coins-only stall in the Town
--- Square, open day and night. Every CornerShopWindowSeconds window rolls an amount of each Catalog.cornerShop row from
--- its size's Config.CornerShopSizeWeights, seeded only from the global window with the salt "corner", so every server
--- shows the same stock and it differs from the Fresh Catch's roll in the same window. The amount is per player: each
+-- Square, open day and night; since #1577 it stands on the Day Cart (day-cart.md). Every CornerShopWindowSeconds window
+-- (one game day) rolls each Catalog.cornerShop row's stock by its place in the list by Tier 1 price (stock), seeded
+-- only from the global window with the salt "corner", so every server shows the same stock and it differs from the
+-- Fresh Catch's roll in the same window. The amount is per player: each
 -- player may buy up to it of each row in the window. Prices are fixed (the row's `price`). A UTC day allows at most
 -- Config.CornerDailyLimits of a family, any size (cat food has no daily XP cap since #1255; foodXpToday still counts
 -- it); a row's `needsTier` refuses it below that tier. #1281 (section 1b): the "bait" rows sell the bowl foods at
--- Economy.foodPrice for the buyer's tier (priceOf), from their own stock weights, up to LURE_MAX of each food held.
+-- Economy.foodPrice for the buyer's tier (priceOf), up to LURE_MAX of each food held.
 -- Pure: the server's CornerShopService checks the range, takes the coins and gives the item; the window shows the
 -- same numbers.
 
@@ -29,10 +30,8 @@ local DAY = 86400
 -- prizes) stays; it just can't grow by buying.
 CornerShop.LURE_MAX = 99
 
--- A row's stock chances (0, 1, 2 or 3): its own `weights` (the bait rows), else its size's.
-local function weightsOf(row: Types.CornerShopRow): { number }?
-	return row.weights or Config.CornerShopSizeWeights[row.size]
-end
+-- The most of a row a window can stock (day-cart.md section 2: 1, 2 or 3).
+CornerShop.MOST = #Config.DayCartQtyOdds
 
 -- What a row costs a player at `tier`: the bait rows' food price grows with the tier (Economy.foodPrice, F97), every
 -- other row's price is fixed.
@@ -72,17 +71,51 @@ end
 
 export type ItemAmount = { itemId: string, amount: number }
 
--- What everyone may buy of each row in `window`, in Catalog.cornerShop order.
+-- #1577 (day-cart.md section 2): the rows' Catalog.cornerShop indexes, cheapest Tier 1 price first (ties keep the
+-- Catalog order). Built once; the Catalog is frozen.
+local byPrice: { number }? = nil
+function CornerShop.listOrder(): { number }
+	if byPrice == nil then
+		local order: { number } = {}
+		for index in Catalog.cornerShop do
+			table.insert(order, index)
+		end
+		table.sort(order, function(a: number, b: number): boolean
+			local priceA, priceB = Catalog.cornerShop[a].price, Catalog.cornerShop[b].price
+			if priceA ~= priceB then
+				return priceA < priceB
+			end
+			return a < b
+		end)
+		byPrice = order
+	end
+	return byPrice :: { number }
+end
+
+-- The chance that the row at `place` (from 1) in the list by price is in stock: max(floor, top - step x (place - 1)).
+function CornerShop.stockChance(place: number): number
+	return math.max(Config.DayCartFloor, Config.DayCartTopChance - Config.DayCartStep * (place - 1))
+end
+
+-- What everyone may buy of each row in `window`, in Catalog.cornerShop order. Down the list by price each row rolls
+-- whether it's in stock (stockChance), then its amount (1, 2 or 3 by Config.DayCartQtyOdds); both rolls are always
+-- drawn, so one row's result never moves another's.
 function CornerShop.stock(window: number): { ItemAmount }
 	local state = CornerShop.seed(window)
-	local items: { ItemAmount } = {}
-	for _, row in Catalog.cornerShop do
+	local amounts: { number } = table.create(#Catalog.cornerShop, 0)
+	local odds = { 0 }
+	for _, weight in Config.DayCartQtyOdds do
+		table.insert(odds, weight)
+	end
+	for place, index in CornerShop.listOrder() do
 		state = (state * MULTIPLIER) % MODULUS
-		local weights = weightsOf(row)
-		table.insert(items, {
-			itemId = row.id,
-			amount = if weights ~= nil then FreshCatch.pickAmount(weights, state / MODULUS) else 0,
-		})
+		local inStock = state / MODULUS < CornerShop.stockChance(place)
+		state = (state * MULTIPLIER) % MODULUS
+		amounts[index] = if inStock then FreshCatch.pickAmount(odds, state / MODULUS) else 0
+	end
+	local items: { ItemAmount } = {}
+	for index, row in Catalog.cornerShop do
+		table.insert(items, { itemId = row.id, amount = amounts[index] })
 	end
 	return items
 end
@@ -266,14 +299,7 @@ function CornerShop.sanitize(raw: unknown, now: number): Types.CornerShopState
 	if type(value.bought) == "table" and not oldCount then
 		for _, row in Catalog.cornerShop do
 			families[row.family] = true
-			local weights: { number } = weightsOf(row) or {}
-			local most = 0
-			for index, weight in weights do
-				if weight > 0 then
-					most = index - 1
-				end
-			end
-			local count = math.clamp(whole(value.bought[row.id]), 0, most)
+			local count = math.clamp(whole(value.bought[row.id]), 0, CornerShop.MOST)
 			if count > 0 then
 				state.bought[row.id] = count
 			end

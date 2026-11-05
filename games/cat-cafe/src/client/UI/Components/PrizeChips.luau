@@ -271,7 +271,7 @@ function PrizeChips._partLook(
 	elseif kind == "potion" then
 		return nil, Theme.icons.potion, "Epic", amount
 	elseif kind == "catFood" then
-		return nil, "🍪", "Rare", amount
+		return nil, ShopIcons.snackGlyph(part.id), "Rare", amount -- #1616
 	elseif kind == "tag" then
 		return nil, Theme.icons.tag, "Mythical", part.id or ""
 	elseif kind == "decor" then

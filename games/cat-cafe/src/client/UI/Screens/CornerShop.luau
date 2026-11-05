@@ -18,6 +18,7 @@ local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -68,12 +69,6 @@ local PENDING_SECONDS = 3 -- a buy with no answer lets the button go again after
 -- button on "..." (#1384). Buys are spaced this far apart; a press inside the gap waits its turn instead.
 local SEND_GAP = 0.55
 local GAP = Theme.sizes.gap
-
--- a picture glyph per row until a drawn picture exists; the potion draws its clean flask
-local GLYPHS: { [string]: string } = {
-	cat_snack = "🍪",
-	big_cat_snack = "🧁",
-}
 
 local CornerShop = {}
 CornerShop.__index = CornerShop
@@ -455,7 +450,14 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			local lureId = def.lureId or itemId
 			icon:setFood(Catalog.getLure(lureId), lureId)
 		else
-			icon:set(nil, GLYPHS[itemId] or Theme.icons.potion, "Rare", nil)
+			-- #1616: a cat food's glyph, the same as in the Bag
+			local food = if def and def.kind == "food" then def.foodId or itemId else nil
+			icon:set(
+				nil,
+				if food then ShopIcons.snackGlyph(food) else Theme.icons.potion,
+				"Rare",
+				nil
+			)
 		end
 		-- the name with "x2 left" at its end, and what it does under them, centred on the row
 		local left = 8 + PICTURE + 10

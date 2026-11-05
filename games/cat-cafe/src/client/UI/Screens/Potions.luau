@@ -492,7 +492,7 @@ function Potions._foodRow(self: any, entry: BagLogic.Food)
 		Size = UDim2.fromScale(1, 1),
 		TextSize = 28,
 		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = "🍪",
+		Text = ShopIcons.snackGlyph(entry.id), -- #1616: each size its own
 		Parent = tile,
 	})
 	local picture = ShopIcons.catFood(entry.id)

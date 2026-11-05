@@ -191,11 +191,41 @@ local function copyOf(cat: Model): Model?
 	return copy
 end
 
+-- Where the copy rests this frame: on the folded arms (Avatar.cradle), or, when no arms are found or they say a spot
+-- further than carryPose.reach from the root (#1480: the copy was drawn a million studs under the player), the
+-- root's own chest spot.
+local function restingFloor(character: Model, entry: Held): CFrame
+	local c = Presets.carryPose
+	local root = entry.rig.root
+	local floor = Avatar.cradle(entry.rig, "loaf", frameOf)
+	if floor ~= nil and (floor.Position - root.Position).Magnitude <= c.reach then
+		return floor
+	end
+	report(
+		character,
+		"cradle",
+		if floor == nil
+			then "no arms to rest on: resting at the root"
+			else string.format(
+				"arms said %.1f, %.1f, %.1f, %.1f studs from the root: resting at the root",
+				floor.X,
+				floor.Y,
+				floor.Z,
+				(floor.Position - root.Position).Magnitude
+			)
+	)
+	return root.CFrame
+		* CFrame.new(0, c.rootUp, -c.rootForward)
+		* CFrame.Angles(0, math.rad(c.loafTurn), 0)
+end
+
 -- Puts a copy of `cat` on the carrier's arms and hides the HeldCat. A cat Pose cannot move part by part (one with
 -- Motor6D joints) is left showing on its weld and tried again after Presets.carryPose.retry seconds.
 local function show(character: Model, entry: Held, cat: Model, now: number)
 	local copy = copyOf(cat)
 	if copy ~= nil then
+		-- seated on the arms before it is read (#1480: the HeldCat's own pivot can say it is a million studs down)
+		copy:PivotTo(restingFloor(character, entry))
 		copy.Parent = Context.folder()
 	end
 	local copyRig = if copy ~= nil then Pose.bind(copy) else nil -- its parts are anchored: Pose moves each one
@@ -359,20 +389,41 @@ local function place()
 			continue
 		end
 		setHidden(cat, true) -- the camera scripts put the character's parts back every so often
-		local floor = Avatar.cradle(entry.rig, "loaf", frameOf)
-		if floor == nil or not Pose.read(copyRig) then
-			report(
-				character,
-				"dropped",
-				if floor == nil
-					then "copy taken off: no arms found to rest it on (Avatar.cradle)"
-					else "copy taken off: one of its parts went (Pose.read)"
-			)
+		local floor = restingFloor(character, entry)
+		if not Pose.read(copyRig) then
+			report(character, "dropped", "copy taken off: one of its parts went (Pose.read)")
 			release(entry)
 			continue
 		end
 		Pose.hold(copyRig, floor)
 		Pose.draw(copyRig, Logic.idle("held", now + entry.phase, copyRig.kind), -1)
+		-- #1480: drawn somewhere else (the parts did not take the move, or something else moved them): seat it again
+		-- and read it afresh there
+		local drawnAt = copyRig.body.Position
+		if (drawnAt - floor.Position).Magnitude > Presets.carryPose.reach and entry.copy ~= nil then
+			local copy = entry.copy :: Model
+			report(
+				character,
+				"reseated",
+				string.format(
+					"copy drawn at %.1f, %.1f, %.1f, not on the arms at %.1f, %.1f, %.1f: seated again",
+					drawnAt.X,
+					drawnAt.Y,
+					drawnAt.Z,
+					floor.X,
+					floor.Y,
+					floor.Z
+				)
+			)
+			copy:PivotTo(floor)
+			local again = Pose.bind(copy)
+			if again ~= nil and not again.usesMotors then
+				entry.copyRig = again
+				copyRig = again
+				Pose.hold(again, floor)
+				Pose.draw(again, Logic.idle("held", now + entry.phase, again.kind), -1)
+			end
+		end
 		if entry.copy ~= nil then
 			local copy = entry.copy :: Model
 			fadeIn(entry, copy, now)

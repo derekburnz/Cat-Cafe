@@ -90,7 +90,7 @@ return function()
 		SeatsPerTable = 2,
 		MaxIdLength = 40,
 		TutorialGuaranteedStrayStep = 2,
-		-- F87 (easy-start.md section 6); IntroAutoPlay is false, checked below
+		-- F87 (easy-start.md section 6); IntroAutoPlay is true since #1575, checked below
 		TutorialShrinkSeconds = 1.6,
 		TutorialWindowScale = 2,
 		TutorialRetrySeconds = 1.0,
@@ -338,13 +338,19 @@ return function()
 			end
 		)
 
-		it("FoodTierPriceFactor = 1, 1, 4, 8, 16 by tier (F97, notes-10-28-to-10-30.md section 3)", function()
-			expect(Config.FoodTierPriceFactor :: any).to.deepEqual({ 1, 1, 4, 8, 16 })
-		end)
+		it(
+			"FoodTierPriceFactor = 1, 1, 4, 8, 16 by tier (F97, notes-10-28-to-10-30.md section 3)",
+			function()
+				expect(Config.FoodTierPriceFactor :: any).to.deepEqual({ 1, 1, 4, 8, 16 })
+			end
+		)
 
-		it("IntroAutoPlay = false: the intro waits for the Tutorial tile (F87, easy-start.md section 2a)", function()
-			expect(Config.IntroAutoPlay).to.equal(false)
-		end)
+		it(
+			"IntroAutoPlay = true: the intro plays on a first join (#1575, Derek 2026-11-05; was false under F87)",
+			function()
+				expect(Config.IntroAutoPlay).to.equal(true)
+			end
+		)
 
 		it("has no extra top level tuning numbers the doc does not know about", function()
 			-- LureReserveSeconds: the doc now says a lured stray is reserved until despawn, so the constant is optional.
@@ -358,7 +364,7 @@ return function()
 				ProfileKeyPrefix = true,
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
-				IntroAutoPlay = true, -- false, checked below
+				IntroAutoPlay = true, -- true since #1575, checked below
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
 				WaveMinRareRerollOdds = true, -- a table, checked in Catching.spec (F97 section 7)
 				FoodTierPriceFactor = true, -- a table, checked below (F97 section 3)
@@ -367,7 +373,10 @@ return function()
 				FishRankUp = true, -- a table, checked below
 				CratePieceBonus = true, -- a table, checked below
 				FreshCatchAmountWeights = true, -- a table, checked in FreshCatch.spec
-				CornerShopSizeWeights = true, -- a table, checked in CornerShop.spec
+				DayCartQtyOdds = true, -- #1577: a table, checked in CornerShop.spec
+				DayCartTopChance = true, -- #1577: the Day Cart's in-stock odds by list place, checked in CornerShop.spec
+				DayCartStep = true,
+				DayCartFloor = true,
 				CornerDailyLimits = true, -- a table, checked in CornerShop.spec
 				CrateDuplicateRefund = true, -- a table, checked below
 				DecorSpots = true, -- a table, checked below
@@ -467,7 +476,11 @@ return function()
 
 		it("F95's pass ids and keep up (economy-ladder.md section 7)", function()
 			-- the ids Tools-Agent made on 2026-11-02 and 2026-11-04 (tools/opencloud/passes.json), all different
-			expect(Config.MoneyPassIds :: any).to.deepEqual({ [2] = 2064604577, [3] = 2064670602, [4] = 2064357148 })
+			expect(Config.MoneyPassIds :: any).to.deepEqual({
+				[2] = 2064604577,
+				[3] = 2064670602,
+				[4] = 2064357148,
+			})
 			expect(Config.ExtraSlotPassIds :: any).to.deepEqual({ 2066816325 })
 			local ids: { [number]: boolean } = { [Config.LongNapPassId] = true }
 			for _, id in Config.MoneyPassIds do
@@ -475,18 +488,20 @@ return function()
 				ids[id] = true
 			end
 			local c = Config :: any
-			for _, id in {
-				c.ExtraSlotPassIds[1],
-				c.VipPassId,
-				c.CatAccessoriesPassId,
-				c.UniformStylesPassId,
-				c.CafeStylePassId,
-				c.GrandThemePassId,
-				c.RoyalCatPassId,
-				c.KingPackPassId,
-				c.GoldenPondPassId,
-				c.SecondBowlPassId,
-			} do
+			for _, id in
+				{
+					c.ExtraSlotPassIds[1],
+					c.VipPassId,
+					c.CatAccessoriesPassId,
+					c.UniformStylesPassId,
+					c.CafeStylePassId,
+					c.GrandThemePassId,
+					c.RoyalCatPassId,
+					c.KingPackPassId,
+					c.GoldenPondPassId,
+					c.SecondBowlPassId,
+				}
+			do
 				expect(type(id)).to.equal("number")
 				expect(ids[id]).never.to.be.ok()
 				ids[id] = true
@@ -508,28 +523,31 @@ return function()
 			end
 		)
 
-		it("NetWindows matches the section 10 net table, levels 0 to 3, with no jitter column (F93)", function()
-			local expectedWindows = {
-				[0] = { perfect = 0.045, good = 0.11 },
-				[1] = { perfect = 0.055, good = 0.13 },
-				[2] = { perfect = 0.065, good = 0.155 },
-				[3] = { perfect = 0.08, good = 0.18 },
-			}
-			local levels = 0
-			for level, row in pairs(Config.NetWindows) do
-				levels += 1
-				local want = expectedWindows[level]
-				expect(want).to.be.ok()
-				assert(want)
-				expect(row.perfect).to.be.near(want.perfect, 1e-9)
-				expect(row.good).to.be.near(want.good, 1e-9)
-				expect((row :: any).jitter).never.to.be.ok()
+		it(
+			"NetWindows matches the section 10 net table, levels 0 to 3, with no jitter column (F93)",
+			function()
+				local expectedWindows = {
+					[0] = { perfect = 0.045, good = 0.11 },
+					[1] = { perfect = 0.055, good = 0.13 },
+					[2] = { perfect = 0.065, good = 0.155 },
+					[3] = { perfect = 0.08, good = 0.18 },
+				}
+				local levels = 0
+				for level, row in pairs(Config.NetWindows) do
+					levels += 1
+					local want = expectedWindows[level]
+					expect(want).to.be.ok()
+					assert(want)
+					expect(row.perfect).to.be.near(want.perfect, 1e-9)
+					expect(row.good).to.be.near(want.good, 1e-9)
+					expect((row :: any).jitter).never.to.be.ok()
+				end
+				expect(levels).to.equal(4)
+				local net = Catalog.getUpgrade("net")
+				assert(net)
+				expect(net.maxLevel).to.equal(3)
 			end
-			expect(levels).to.equal(4)
-			local net = Catalog.getUpgrade("net")
-			assert(net)
-			expect(net.maxLevel).to.equal(3)
-		end)
+		)
 
 		-- Holds through any retune of the numbers above (from the engineer's spec, 067b953).
 		it("net windows: Perfect inside Good, and a better net is never harder", function()
@@ -692,14 +710,17 @@ return function()
 			end
 		)
 
-		it("#1437: one global clock, and both shops restock at its sunrise once a game day", function()
-			local cycle = Config.DayLengthSeconds + Config.NightLengthSeconds
-			expect(Config.ClockEpoch).to.equal(1793491200) -- 2026-11-01 00:00 UTC
-			-- every sunrise falls on a whole number of cycles from the epoch, so a window of one cycle turns at sunrise
-			expect(Config.ServerStartDaySeconds + Config.NightLengthSeconds).to.equal(cycle)
-			expect(Config.FreshCatchWindowSeconds).to.equal(cycle)
-			expect(Config.CornerShopWindowSeconds).to.equal(cycle)
-		end)
+		it(
+			"#1437: one global clock, and both shops restock at its sunrise once a game day",
+			function()
+				local cycle = Config.DayLengthSeconds + Config.NightLengthSeconds
+				expect(Config.ClockEpoch).to.equal(1793491200) -- 2026-11-01 00:00 UTC
+				-- every sunrise falls on a whole number of cycles from the epoch, so a window of one cycle turns at sunrise
+				expect(Config.ServerStartDaySeconds + Config.NightLengthSeconds).to.equal(cycle)
+				expect(Config.FreshCatchWindowSeconds).to.equal(cycle)
+				expect(Config.CornerShopWindowSeconds).to.equal(cycle)
+			end
+		)
 
 		it(
 			"rescue: the player who failed waits longer, the chances are probabilities, a rescue pays no more",
@@ -737,10 +758,13 @@ return function()
 			end
 		)
 
-		it("bait bowl: gold is a probability (Tame and Let go work from anywhere since 2026-10-28)", function()
-			expect((Config :: any).BaitResolveRangeStuds).never.to.be.ok()
-			expect(Config.GoldChanceBait > 0 and Config.GoldChanceBait < 1).to.equal(true)
-		end)
+		it(
+			"bait bowl: gold is a probability (Tame and Let go work from anywhere since 2026-10-28)",
+			function()
+				expect((Config :: any).BaitResolveRangeStuds).never.to.be.ok()
+				expect(Config.GoldChanceBait > 0 and Config.GoldChanceBait < 1).to.equal(true)
+			end
+		)
 
 		it(
 			"CharmStarOdds has five shares that sum to 100 (pinned to rollCharm in CatStats.spec)",
@@ -776,18 +800,26 @@ return function()
 			expect(Config.RainbowChanceBait).to.be.near(Config.GoldChanceBait * 0.3, 1e-9)
 			expect(Config.RainbowChanceRescue).to.be.near(Config.GoldChanceRescue * 0.3, 1e-9)
 			expect(Config.RainbowMultiplier).to.equal(2 * Config.GoldMultiplier)
-			expect(Config.CollectorRainbowMultiplier > Config.CollectorGoldMultiplier).to.equal(true)
+			expect(Config.CollectorRainbowMultiplier > Config.CollectorGoldMultiplier).to.equal(
+				true
+			)
 		end)
 	end)
 
 	describe("the crate reel (F103, crate-reel.md section 4)", function()
-		it("keeps the won tile inside the protected run and the stop's view on the strip", function()
-			local landing = Config.CrateReelLandingTile
-			expect(landing >= Config.CrateReelProtectFrom and landing <= Config.CrateReelProtectTo).to.equal(true)
-			-- the seven tiles in view at the stop (three either side of the won one) are all on the strip
-			expect(Config.CrateReelProtectTo <= Config.CrateReelTiles and landing + 3 <= Config.CrateReelTiles).to.equal(
-				true
-			)
-		end)
+		it(
+			"keeps the won tile inside the protected run and the stop's view on the strip",
+			function()
+				local landing = Config.CrateReelLandingTile
+				expect(
+					landing >= Config.CrateReelProtectFrom and landing <= Config.CrateReelProtectTo
+				).to.equal(true)
+				-- the seven tiles in view at the stop (three either side of the won one) are all on the strip
+				expect(
+					Config.CrateReelProtectTo <= Config.CrateReelTiles
+						and landing + 3 <= Config.CrateReelTiles
+				).to.equal(true)
+			end
+		)
 	end)
 end

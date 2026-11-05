@@ -34,6 +34,16 @@ local Config = {
 	KingPackPassId = 2071368679,
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
+	-- #1624 (economy-ladder.md section 6a v2.4): what the five store passes give. VIP, Cafe Style and Grand Cafe add
+	-- into cafeMultiplier like tables and decor; Cat Accessories and Uniform Styles each multiply every working cat's
+	-- rate; Cafe Style and Grand Cafe add to how often rich visitors come (x(1 + 0.25 + 1.0) with both).
+	VipCafeBonus = 0.10,
+	CafeStyleCafeBonus = 0.50,
+	GrandCafeBonus = 1.50,
+	AccessoriesStaffMultiplier = 1.15,
+	UniformsStaffMultiplier = 1.15,
+	CafeStyleRichRate = 0.25,
+	GrandRichRate = 1.0,
 	-- Developer product ids (#1182) by Catalog.products id; a 0 is never granted. ProductService's ProcessReceipt reads
 	-- them. Tools-Agent made these with dev-products.yml on 2026-11-04 (tools/opencloud/products.json), off sale until
 	-- launch. The Starter Bundle (3728336166) and Cafe Pass (3728336202) products were made the same way.

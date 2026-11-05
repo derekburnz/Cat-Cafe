@@ -85,10 +85,10 @@ return function()
 				Logic.button({ itemId = "x", price = 1, amount = 0, bought = 0 }, nil, 9, 0).text
 			).to.equal("None")
 		end)
-		it("greys a row whose family hit its daily limit as Back tomorrow (#1435)", function()
+		it("greys a row whose family hit its limit as Back at sunrise (#1435, #1631)", function()
 			local out: any = { itemId = "x", price = 1, amount = 3, bought = 0, outToday = true }
 			local view = Logic.button(out, nil, 9, 0)
-			expect(view.text).to.equal("Back tomorrow")
+			expect(view.text).to.equal("Back at sunrise")
 			expect(view.enabled).to.equal(false)
 			-- the window's own stock still reads first
 			out.bought = 3

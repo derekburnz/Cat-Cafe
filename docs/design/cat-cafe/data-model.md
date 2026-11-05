@@ -913,6 +913,7 @@ Changed or new in v0.3 (everything not listed keeps its v0.2 value):
 | NetWindows | per section 10 table | new | CatService, UI |
 | CatchLatencyCapSeconds | 0.15 | new | CatService |
 | RescueSpawnChance | 0.6 | 0.5 | CatService |
+| LawnRarityBonus | Common 0.01, Uncommon 0.015, Rare 0.02, Epic 0.03, Legendary 0.05, Mythical 0.08, Golden 0.12 | new (#1283) | Lawn, Economy.cafeMultiplier (lawn-nursery.md section 6a) |
 | RescueMinStuck | 1 | new | CatService, stuck cats guaranteed per area per night |
 | RescueBarSpeed, RescueZoneWidth | per section 10b table | new | CatService, UI |
 | RescueTolerance | 0.03 | new | CatService |

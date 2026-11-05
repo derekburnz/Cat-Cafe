@@ -145,4 +145,61 @@ return function()
 			expect(Bait.bowlName(0)).to.equal("Bait Bowl")
 		end)
 	end)
+
+	describe("the Second Bait Bowl (#1161)", function()
+		local ProfileSchema = require(Shared.ProfileSchema)
+
+		local function bait(lureId: string, placedAt: number): any
+			return {
+				lureId = lureId,
+				placedAt = placedAt,
+				catId = "tabby",
+				variant = "base",
+				charm = 50,
+			}
+		end
+
+		it("keeps each bowl's bait apart: bowl 1 in bait, bowl 2 in bait2", function()
+			local profile = ProfileSchema.template(1000)
+			Bait.setState(profile, 1, bait("kibble", 10))
+			Bait.setState(profile, 2, bait("tuna", 20))
+			expect((Bait.stateOf(profile, 1) :: any).lureId).to.equal("kibble")
+			expect((Bait.stateOf(profile, 2) :: any).lureId).to.equal("tuna")
+			expect((profile.bait :: any).placedAt).to.equal(10)
+			expect((profile.bait2 :: any).placedAt).to.equal(20)
+			Bait.setState(profile, 2, nil)
+			expect(profile.bait2).never.to.be.ok()
+			expect((Bait.stateOf(profile, 1) :: any).lureId).to.equal("kibble")
+			expect(Bait.BOWLS).to.equal(2)
+		end)
+
+		it(
+			"is on with the pass and offered without it (capacity, not a paid random item)",
+			function()
+				expect(Bait.secondBowl(true)).to.equal("on")
+				expect(Bait.secondBowl(false)).to.equal("offer")
+			end
+		)
+
+		it(
+			"lists every food's odds at a level, the first bowl's odds, each summing to 100",
+			function()
+				for level = 1, Bait.MAX_LEVEL do
+					local rows = Bait.oddsCard(level)
+					expect(#rows).to.equal(#Catalog.lures)
+					for index, row in rows do
+						local lure = Catalog.lures[index]
+						expect(row.lureId).to.equal(lure.id)
+						expect(row.name).to.equal(lure.name)
+						expect(row.odds :: any).to.deepEqual(Bait.oddsFor(lure.odds, level) :: any)
+						local sum = 0
+						for _, rarity in Catalog.rarityOrder do
+							sum += (row.odds :: any)[rarity] or 0
+						end
+						expect(sum).to.be.near(100, 1e-6)
+					end
+				end
+			end
+		)
+	end)
 end

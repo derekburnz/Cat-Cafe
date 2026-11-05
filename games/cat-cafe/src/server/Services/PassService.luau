@@ -1,6 +1,6 @@
 --!strict
--- Game passes (F95, economy-ladder.md section 6): which of the Money, Long Nap and extra slot passes a player owns,
--- as Economy.Passes. DataService checks at join, before it works out offline pay, and Economy.setPasses holds the
+-- Game passes (F95, economy-ladder.md section 6): which of the Money, Long Nap, extra slot and Second Bait Bowl
+-- (#1161) passes a player owns, as Economy.Passes. DataService checks at join, before it works out offline pay, and Economy.setPasses holds the
 -- result on the profile for the session; nothing is saved. A pass bought in game counts from the purchase:
 -- MarketplaceService fires PromptGamePassPurchaseFinished on the server, and `changed` passes the new set on.
 -- A Config id of 0 is a pass not made yet and is never looked up, so until Tools-Agent makes them every player has
@@ -39,6 +39,9 @@ local function passIds(): { number }
 			table.insert(ids, id)
 		end
 	end
+	if Config.SecondBowlPassId ~= 0 then
+		table.insert(ids, Config.SecondBowlPassId) -- #1161
+	end
 	return ids
 end
 
@@ -60,6 +63,10 @@ function PassService.fromOwned(set: { [number]: boolean }): Economy.Passes
 		money = money,
 		longNap = Config.LongNapPassId ~= 0 and set[Config.LongNapPassId] == true,
 		slots = slots,
+		-- #1161: bowl 2 (CafeService.secondBowl)
+		secondBowl = if Config.SecondBowlPassId ~= 0 and set[Config.SecondBowlPassId]
+			then true
+			else nil,
 	}
 end
 

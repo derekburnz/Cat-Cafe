@@ -3381,4 +3381,25 @@ Presets.doorSign = {
 	within = 200,
 }
 
+-- The context tips' camera cut (#976, easy-start.md section 3; ContextCut.luau, Logic.cutEye and Logic.cutWeight):
+-- the camera swings out to the place over `swingIn` seconds, holds, and swings back over the last `swingOut`. It
+-- looks from `extent * fit` studs away (at least `near`, at most `far`), raised by `rise` of that, at a point `lookUp`
+-- of the place's height above its middle. Any press after `skipAfter` s skips: it swings back over `skipOut`. Black
+-- bars of `bars` of the screen's height slide in with the caption (outlined white text, `captionSize` px, on the
+-- lower bar), on a ScreenGui at `displayOrder` (over the HUD, under the tip card's 11 and the cloud tunnel's 45).
+Presets.contextCut = {
+	swingIn = 0.7,
+	swingOut = 0.6,
+	fit = 1.4,
+	near = 16,
+	far = 70,
+	rise = 0.45,
+	lookUp = 0.15,
+	skipAfter = 1,
+	skipOut = 0.35,
+	bars = 0.11,
+	captionSize = 26,
+	displayOrder = 10,
+}
+
 return Presets

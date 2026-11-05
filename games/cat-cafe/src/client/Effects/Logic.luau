@@ -2651,4 +2651,38 @@ function Logic.signFlip(t: number, flip: number, settle: number, swing: number):
 	return 1, swing * math.sin(2 * math.pi * share) * (1 - share)
 end
 
+-- The context tips' camera cut (#976, easy-start.md section 3, Presets.contextCut): where the camera looks at a
+-- place of `extent` studs across, centred on `target`, seen from the side the camera at `from` is on, raised by
+-- `rise` of its distance. Straight above or on the target it looks from the south (+Z).
+function Logic.cutEye(
+	target: Vector3,
+	extent: number,
+	from: Vector3,
+	p: { fit: number, near: number, far: number, rise: number }
+): Vector3
+	local flat = Vector3.new(from.X - target.X, 0, from.Z - target.Z)
+	local dir = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, 1)
+	local distance = math.clamp(extent * p.fit, p.near, p.far)
+	return target + dir * distance + Vector3.new(0, distance * p.rise, 0)
+end
+
+-- How far over to the place the cut's camera is, 0 (the player's view) to 1, `t` seconds into a cut of `seconds`:
+-- out over `swingIn`, held, and back over the last `swingOut`. With `reduced` (Reduce Motion) it jumps instead.
+function Logic.cutWeight(
+	t: number,
+	seconds: number,
+	p: { swingIn: number, swingOut: number },
+	reduced: boolean?
+): number
+	if t <= 0 or t >= seconds then
+		return 0
+	end
+	if reduced then
+		return 1
+	end
+	local into = smoothstep(t / p.swingIn)
+	local out = smoothstep((seconds - t) / p.swingOut)
+	return math.min(into, out)
+end
+
 return Logic

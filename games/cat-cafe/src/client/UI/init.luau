@@ -904,9 +904,6 @@ function UI.init(config: Types.InitConfig)
 		useLure = function(lureId: string, bowl: number)
 			UI.events.useLure:Fire(lureId, bowl)
 		end,
-		buyLure = function(lureId: string)
-			UI.events.buyLure:Fire(lureId)
-		end,
 		openUpgrades = function()
 			modalInstance:open("Upgrades")
 		end,

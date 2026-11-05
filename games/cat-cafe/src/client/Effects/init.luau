@@ -33,6 +33,7 @@ local Cats = require(script.Cats)
 local Chase = require(script.Chase)
 local Codes = require(script.Codes)
 local Context = require(script.Context)
+local ContextCut = require(script.ContextCut)
 local Crown = require(script.Crown)
 local Decor = require(script.Decor)
 local DoorSign = require(script.DoorSign)
@@ -126,6 +127,8 @@ function Effects.start()
 	Whistle.start()
 	DoorSign.start()
 	CampGlow.start()
+	-- the context tips' camera cuts (#976): the UI calls them once they are handed over
+	ContextCut.start(require(script.Parent.UI) :: any)
 end
 
 -- "low" on a phone or tablet or in Low performance mode, "high" on a PC or console (Presets.budget).

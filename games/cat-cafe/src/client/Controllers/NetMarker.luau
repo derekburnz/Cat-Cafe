@@ -2,7 +2,8 @@
 -- The net swing's landing marker on this client (Derek 2026-11-03: "an indicator of where it's going to land ... it's
 -- hard to tell"). A flat fan on the ground, NetReachStuds out and NetArcDegrees either side of the facing, drawn from
 -- shared/NetSwing.landingOrigin: where the server will judge a swing pressed now. NetSwingController drives it: it
--- shows while a swing could go with a stray nearby, and for a moment after any press; cream while it would hit
+-- shows only for a moment after a press, from the swing until the net has landed (Derek2 2026-11-05: "change the
+-- net outline to only show on swing", #1493), never while just walking about; cream while it would hit
 -- nothing, gold while Moments.NetInReach names a stray. A press brightens it, and NetSmackDelay later, when the net
 -- lands, it flashes and settles. Local parts in Effects/Context's folder with the other local effects (review N345),
 -- never seen by other players.
@@ -45,7 +46,6 @@ rayParams.FilterType = Enum.RaycastFilterType.Exclude
 rayParams.RespectCanCollide = true
 local rayCharacter: Model? = nil -- the character the ray leaves out, with the marker
 
-local wanted = false -- NetSwingController.setShown
 local inReach = false
 local pressedAt = -math.huge -- os.clock() of this player's last swing
 local alpha = 0 -- 0 hidden to 1 shown, eased
@@ -166,7 +166,7 @@ local function step(deltaTime: number, rootOf: () -> BasePart?)
 		return
 	end
 	local now = os.clock()
-	local show = wanted or pulse(now) > 0
+	local show = pulse(now) > 0
 	local root = if show or alpha > 0 then rootOf() else nil
 	local character = if root ~= nil then root.Parent else nil
 	local ground: number? = nil
@@ -214,11 +214,6 @@ function NetMarker.start(rootOf: () -> BasePart?)
 	RunService.PreRender:Connect(function(deltaTime: number)
 		step(deltaTime, rootOf)
 	end)
-end
-
--- Whether the marker should show: a swing could go and a stray is near.
-function NetMarker.setShown(on: boolean)
-	wanted = on
 end
 
 -- Whether a swing now would land on a stray (Moments.NetInReach named one): gold instead of cream.

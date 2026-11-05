@@ -1,6 +1,7 @@
 --!strict
 -- A BillboardGui marker over a world target with a label and live distance ("Check in · 24 m").
--- Used for the carry indicator (own cafe door) and tutorial arrows. One marker per purpose.
+-- Used for the carry indicator (own cafe door), tutorial arrows and the Cat Whistle's stray. One marker per purpose.
+-- It draws within 500 studs, or `maxDistance` (the Cat Whistle's reach, #1458).
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -19,7 +20,7 @@ export type WorldMarker = {
 local WorldMarker = {}
 WorldMarker.__index = WorldMarker
 
-function WorldMarker.new(parent: Instance, name: string): WorldMarker
+function WorldMarker.new(parent: Instance, name: string, maxDistance: number?): WorldMarker
 	local self = setmetatable({}, WorldMarker) :: any
 	self._attachment = nil :: Attachment?
 	self._loop = nil :: RBXScriptConnection?
@@ -29,7 +30,7 @@ function WorldMarker.new(parent: Instance, name: string): WorldMarker
 		AlwaysOnTop = true,
 		Size = UDim2.fromOffset(180, 64),
 		StudsOffset = Vector3.new(0, 4, 0),
-		MaxDistance = 500,
+		MaxDistance = maxDistance or 500,
 		ResetOnSpawn = false,
 		Enabled = false,
 		Parent = parent,

@@ -1,5 +1,7 @@
 # The Corner Shop: a coin shop that restocks every 5 minutes (#1030)
 
+**Since #1437 (built in #1473):** the window is one global game day, 390 s from `Config.ClockEpoch`, so the stock restocks at each sunrise, at the same moment on every server (data-model.md section 9). Read "5-minute window" below as that game-day window.
+
 **v2 (2026-11-04, #1180 and #1181): [corner-shop-v2.md](corner-shop-v2.md) replaces sections 2 and 5 below and the buy-time cat picker in section 4.** It has fixed coin prices, Small to Big sizes, daily limits and cat food in the Bag. The stall, the 5-minute roll, the shows and section 3 stay.
 
 Proposed 2026-11-03 by Design-Agent (friend's project) and OK'd by Derek the same day (16:55), for Derek's playtest note: "the fresh catch rotating every 5 minutes is good but there should be also a cash item shop where extra money can be spent". Owner: game-designer. Readers: Derek, Gameplay-Engineer, UI-Engineer, Model-Agent, VFX, QA. Linked from [rewards-and-shops.md](rewards-and-shops.md) section 3 (Fresh Catch), whose roll it reuses.

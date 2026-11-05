@@ -107,6 +107,34 @@ A cafe now earns about 4 times today's figure at Tier 3, about 8 times at Tier 4
 - **The extra role slot** (Grand Cafe): `slotBonus` from a pass adds that many role slots to every tier's `slots` (Config ExtraSlotPassIds, 0 until made), with a slot spot in each cafe expansion's layout.
 - **Paid players' pace.** A 4x Money player who plays in one go reaches Tier 5 in about 4 h 45. A player who owns every paid bonus (about 24 times a free player's income, with the extra slot) reaches it in about 2 h 8 in one go, or 1 h 35 of play at an hour a day with Long Nap. That is above Monetization-Agent's one hour floor, because catching the 30 different cats Tier 5 needs takes that long whatever the income. If QA finds it under an hour, the cat requirements go up, not the bonuses down.
 
+### 6a. Pass stacking check (v2.3, 2026-11-05, Design-Agent, friend's project; Refs #1182)
+
+Monetization asked whether every money pass on the Store cards, stacked on top of 4x Money, stays near the ~24x this ladder modelled for "owns every paid bonus". The cards (`StoreLogic.luau`) promise: VIP +10%, Cat Accessories +15% for a dressed cat, Uniform Styles +15%, Cafe Style +50%, Grand Cafe +150% and +1 job slot every tier, Extra Slot +1 job slot. None of these bonuses are in `Economy` yet except the Money passes and the Extra Slot, so this section also says how they stack, for the build.
+
+**How they stack (the build follows this):**
+- **VIP, Cafe Style and Grand Cafe add into `cafeMultiplier`** (+0.10, +0.50, +1.50), like tables, decor and the lawn. They never multiply each other or the Money pass directly, so their share shrinks as a cafe grows.
+- **Cat Accessories and Uniform Styles multiply a cat's rating** by 1.15 each (Accessories only for a dressed cat, Uniforms for a working cat), so a dressed working cat earns x1.3225.
+- **The Money pass stays last** (`passMultiplier`, the highest owned counts), as section 6 says.
+- **Job slots add up**: Grand Cafe's +1 and Extra Slot's +1 give +2 slots at every tier.
+- Royal and King cats are cats, not multipliers: they earn like their rarity from the newest area (section 6) and count toward none of this.
+
+**The numbers.** Paid over free income, with every pass, all slots filled. The free `cafeMultiplier` at each tier is an estimate from the upgrade and decor bonuses (tables +0.10 a level, espresso +0.15, decor up to about +0.65, lawn up to about +0.46), so treat these as rough:
+
+| tier | free cafeMultiplier (est.) | cafe part | rating part | Money | slots | about |
+|---|---|---|---|---|---|---|
+| 1 | 1.1 | 2.9x | 1.32x | 4x | 2 to 4: 2x | **31x** |
+| 2 | 1.5 | 2.4x | 1.32x | 4x | 4 to 6: 1.5x | **19x** |
+| 3 | 2.2 | 2.0x | 1.32x | 4x | 6 to 8: 1.33x | **14x** |
+| 4 | 2.9 | 1.7x | 1.32x | 4x | 8 to 10: 1.25x | **11x** |
+| 5 | 3.5 | 1.6x | 1.32x | 4x | 10 to 12: 1.2x | **10x** |
+
+**What it means.**
+- **The stack is over ~24x only in Tier 1** (about 31x, for the first 10 to 20 minutes), and that is the extra slots on a two-slot cafe. Tier 2 is held back by its 5 different cats more than by coins (v2.1), so this shouldn't take Tier 2 under the paid players' 9 minutes. From Tier 3 on, the stack is well under 24x, so a player who owns every pass reaches Tier 5 *slower* than the 2 h 8 modelled, and stays clear of the one hour floor.
+- **No cap is needed**, and nothing changes in the prices. If a later pass or bonus pushes a paid player's Tier 5 under an hour, the rule above holds: Tier 5's cat requirements go up, not the bonuses down.
+- **Store card wording (proposed for the ui-designer):** Cafe Style's "+50% money" and Grand Cafe's "+150% money" add into the cafe bonus, so late in the game they feel like about +15% and +40% of a player's income. The cards should say "+50% cafe bonus" and "+150% cafe bonus", and the Boosts list should show the cafe bonus line with them in it, so a young player never feels the card overpromised. VIP's "+10% money" becomes "+10% cafe bonus" the same way.
+
+**QA (Pace.spec):** add an "every pass as carded" profile (the stacking above, Royal and King cats owned and working, Long Nap, 4x Money). Pass: Tier 2 at 5 minutes or more, Tier 5 at 1 hour or more of play in one go. If Tier 5 falls under, raise Tier 5's `distinctCats` (rule above).
+
 ## 6b. Three smaller rules from Derek's 2026-10-28 to 10-30 notes
 
 - **Coin prizes pay half.** Derek, 2026-10-30 00:27: "maybe also tune down the money rewards based on income a bit as it progresses the cafe very fast and makes thing like the rich customer less rewarding and finding better cats feel less rewarding". Every prize paid in seconds of day rate (`coinSeconds` in the Tip Jar, the wheel, the Daily Treat, quests, achievements, Index milestones and codes) pays half its seconds. The minimum coin amounts stay, so early prizes still feel the same. Rich visitors (120 s) and tip piles stay as they are, so next to the smaller prizes they count for more.

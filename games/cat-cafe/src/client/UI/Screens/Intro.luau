@@ -5,7 +5,6 @@
 --   letterbox bars   9% of the screen each, near black; they slide in on start and out over 0.45 s at the end
 --   caption          one line just above the lower bar, popping from 0.9 to full size on each shot
 --   shot dots        one per shot on the top bar (IntroLogic.SHOTS, from shared/Intro), the current one gold
---   title card       the areas shot's names, one per cut, slammed in the middle of the screen
 --   demo ring        shot 2's closing catch circle over the stray: PERFECT at 1.3 s, a sparkle to 2.0 s
 --   job card         shot 4's four role buttons in miniature beside the cat; the given role lights with a tap
 --   Skip             an outlined "Skip »" pill on the lower bar at the right, on screen from the start and dimmed,
@@ -40,7 +39,8 @@ export type Callbacks = {
 export type Intro = {
 	screenGui: ScreenGui,
 	start: (self: Intro, options: Types.IntroOptions?) -> (),
-	setShot: (self: Intro, index: number, caption: string, titleCard: string?) -> (),
+	-- #1542: the third argument was the camp shot's title card; it is ignored (the shot and its cards are gone)
+	setShot: (self: Intro, index: number, caption: string, _titleCard: string?) -> (),
 	demoCatch: (self: Intro, worldPosition: Vector3) -> (),
 	jobCard: (self: Intro, worldPosition: Vector3, role: string) -> (),
 	finish: (self: Intro) -> (),
@@ -55,11 +55,9 @@ local OUT = IntroLogic.OUT_SECONDS
 local BARS_OUT = TweenInfo.new(OUT, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 local FADE = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local CAPTION_POP = TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-local TITLE_SLAM = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local SIDE = 24 -- design pixels kept clear at the screen's sides
 local CAPTION_HEIGHT = 44
 local CAPTION_TEXT = 30
-local TITLE_TEXT = 64
 local DOT = 10
 local DOT_NOW = 14
 local DOT_GAP = 8
@@ -244,24 +242,6 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	self._captionLabel = caption
 	self._captionScale = Create("UIScale", { Parent = caption })
 
-	-- shot 5's area name
-	local title: TextLabel = Create("TextLabel", {
-		Name = "TitleCard",
-		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.45),
-		Size = UDim2.new(1, -2 * SIDE, 0, TITLE_TEXT + 16),
-		FontFace = Theme.fonts.display,
-		TextColor3 = Theme.colors.white,
-		TextScaled = true,
-		Text = "",
-		Visible = false,
-		Parent = root,
-	}, { Create("UITextSizeConstraint", { MaxTextSize = TITLE_TEXT, MinTextSize = 24 }) })
-	Outline.text(title, 4)
-	self._title = title
-	self._titleScale = Create("UIScale", { Parent = title })
-
 	-- Skip: a dark pill with a light outline on the lower bar at the right, and a gold bar filling it
 	local skip: TextButton = Create("TextButton", {
 		Name = "Skip",
@@ -347,7 +327,6 @@ function Intro.start(self: any, options: Types.IntroOptions?)
 	self._shot = 0
 	self._caption = nil
 	self._captionLabel.Text = ""
-	self._title.Visible = false
 	self._root.Visible = true
 	self:_renderDots()
 	self:_layout()
@@ -367,9 +346,9 @@ function Intro.start(self: any, options: Types.IntroOptions?)
 	end
 end
 
--- A new shot: its dot turns gold and its caption pops. Within the areas shot the controller calls again for each cut
--- with the next title card; the caption then stays put and only the card slams in.
-function Intro.setShot(self: any, index: number, caption: string, titleCard: string?)
+-- A new shot: its dot turns gold and its caption pops; the same shot and caption again changes nothing. #1542 (Derek):
+-- the camp shot and its area title cards are gone, so a third argument is ignored.
+function Intro.setShot(self: any, index: number, caption: string, _titleCard: string?)
 	if not self._playing then
 		return
 	end
@@ -382,14 +361,6 @@ function Intro.setShot(self: any, index: number, caption: string, titleCard: str
 	self._shot = shot
 	self._caption = caption
 	self:_renderDots()
-	if titleCard and titleCard ~= "" then
-		self._title.Text = titleCard
-		self._title.Visible = true
-		self._titleScale.Scale = 1.25
-		Tween.to(self._titleScale, TITLE_SLAM, { Scale = 1 })
-	else
-		self._title.Visible = false
-	end
 end
 
 -- Shot 2's demo catch over the stray: the circle closes onto its ring in 1.3 s, PERFECT pops with the catch

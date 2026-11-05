@@ -168,8 +168,8 @@ return function()
 			end
 		end
 		expect(filled > 50).to.equal(true)
-		-- town-layout-v3 8d: at the real odds about 73% of Woods waves of four hold a Rare or better up there
-		expect(realFilled / real).to.be.near(1 - 0.72 ^ woods.waveSize, 0.1)
+		-- town-layout-v3 8d: at the real odds most Woods waves hold a Rare or better up there (#1452: Common 54%)
+		expect(realFilled / real).to.be.near(1 - (woods.odds.Common / 100) ^ woods.waveSize, 0.1)
 	end)
 
 	it("with points still held from the night, a stray waits only when no point its rarity may take is free", function()

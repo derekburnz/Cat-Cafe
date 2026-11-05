@@ -35,8 +35,9 @@ Remotes.ClientToServer = {
 	"EquipBestDecor", -- ()  puts out the best owned decor for the most money (shared/DecorBest), the rest away
 	"ResetSave", -- ()  testers only (Player attribute Tester): a fresh save at the next join, then a kick
 	"BuyLure", -- (lureId: string)  #1281: always refused ("Bait food is at the Corner Shop now"); goes in a cleanup
-	"UseLure", -- (lureId: string)  bowl bought and empty, food in stock; from anywhere (2026-10-28)
-	"ResolveBait", -- (choice: "tame" | "letgo")  the bowl's cat has arrived; from anywhere (2026-10-28)
+	-- #1161: both bait remotes take an optional bowl, 1 or 2 (nil is 1); bowl 2 takes food only with the pass
+	"UseLure", -- (lureId: string, bowl: number?)  that bowl bought and empty, food in stock; from anywhere (2026-10-28)
+	"ResolveBait", -- (choice: "tame" | "letgo", bowl: number?)  that bowl's cat has arrived; from anywhere
 	"ClaimOffline", -- ()
 	"TutorialAdvance", -- (step: number)
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)

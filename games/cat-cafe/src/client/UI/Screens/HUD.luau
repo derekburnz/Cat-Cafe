@@ -103,6 +103,7 @@ export type HUD = {
 	luckShown: (self: HUD) -> boolean,
 	setAreasOpen: (self: HUD, open: boolean) -> (),
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
+	setBowlCount: (self: HUD, count: number) -> (), -- #1161: a "2" on the bowl tile with the second bowl
 	pressTravel: (self: HUD, destination: string) -> boolean,
 	setCannonMode: (self: HUD, on: boolean) -> (),
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
@@ -1200,6 +1201,24 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			bowlBadge.AnchorPoint = Vector2.new(1, 0.5) -- inset like the Quests dot (#1176); the F key cap is top left
 			bowlBadge.Position = UDim2.new(1, 2, 0, 3)
 			self._bowlBadge = bowlBadge
+			-- #1161: a small "2" at the bottom right while the cafe has two bowls (the "!" is top right)
+			local count: TextLabel = label({
+				Name = "Count",
+				BackgroundColor3 = Theme.colors.cocoaDeep,
+				BackgroundTransparency = 0,
+				AnchorPoint = Vector2.new(1, 1),
+				Position = UDim2.new(1, 2, 1, 2),
+				Size = UDim2.fromOffset(20, 20),
+				TextSize = Theme.sizes.textTiny,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				Text = "2",
+				Visible = false,
+				ZIndex = 23,
+				Parent = button.instance,
+			})
+			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = count })
+			Outline.border(count, 2)
+			self._bowlCount = count
 		end
 		self._pills[item.name] = button
 		table.insert(self._buttons, button)
@@ -1598,6 +1617,12 @@ function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 			self._baitLoop = nil
 		end
 	end)
+end
+
+-- #1161: the Second Bait Bowl's "2" on the tile; setBait gets the sooner bowl and "!" for either bowl's cat.
+function HUD.setBowlCount(self: any, count: number)
+	local badge: TextLabel = self._bowlCount
+	badge.Visible = count >= 2
 end
 
 -- The bowl tile always reads "Bowl" (#1282, Derek 2026-11-04: no countdown on the tile; the Bait bowl window has the

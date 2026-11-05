@@ -41,8 +41,10 @@ local lastCarrying: string? = nil
 local lastPushedMoney = -1
 local lastTier: number? = nil
 local pendingCharmGain = 0 -- the last catch's Purrfect bonus, shown on the cat reveal at check-in
-local bowlPrompt: ProximityPrompt? = nil -- the own bait bowl's prompt, made here so only the owner sees it
-local shownBaitKey: string? = nil -- the bowl cat whose card has been shown, so each arrival pops it once
+-- The own bait bowls' prompts (1 and #1161's 2), made here so only the owner sees them, and the cat at each whose card
+-- has been shown, so each arrival pops it once.
+local bowlPrompts: { [number]: ProximityPrompt? } = {}
+local shownBaitKeys: { [number]: string? } = {}
 -- The rescue on screen, for the sounds: the server's count so far, so each RescueResult fires one hit or miss.
 type RescueRun = {
 	spotId: string,
@@ -307,9 +309,8 @@ local function boughtSomething(old: Types.PlayerState, new: Types.PlayerState): 
 	return false
 end
 
--- The cat at the bowl as the bait card wants it, or nil while the bowl is empty or its cat is on the way.
-local function baitCat(s: Types.PlayerState): UITypes.BaitCat?
-	local bait = s.bait
+-- The cat at a bowl as the bait card wants it, or nil while the bowl is empty or its cat is on the way.
+local function baitCat(bait: Types.BaitView?): UITypes.BaitCat?
 	local cat = if bait ~= nil then bait.cat else nil
 	if cat == nil then
 		return nil
@@ -317,28 +318,37 @@ local function baitCat(s: Types.PlayerState): UITypes.BaitCat?
 	return { catId = cat.catId, variant = cat.variant, charm = cat.charm, stars = cat.stars }
 end
 
--- The bait bowl (F28, data-model section 8): what is in it, the owner's prompt on it and the card the moment its
--- cat arrives. ProfileSync names the cat only once it has arrived, so its first appearance is the arrival. placedAt
--- sets the fill bar's length and night (F60) the countdown's moon.
-local function refreshBait(s: Types.PlayerState)
-	local bait = s.bait
-	UI.bait.set(if bait ~= nil
-		then {
-			lureId = bait.lureId,
-			readyAt = bait.readyAt,
-			placedAt = bait.placedAt,
-			night = bait.night,
-		}
-		else nil)
-	local bowl = UIController.ownBaitBowl()
-	UI.bait.setBowl(bowl)
+-- #1161: bowl 1 is ProfileSync's bait, bowl 2 its bait2 (the Second Bait Bowl pass).
+local function bowlBait(s: Types.PlayerState, index: number): Types.BaitView?
+	return if index == 2 then s.bait2 else s.bait
+end
 
-	local cat = baitCat(s)
-	local owned = (s.upgradeLevels.lure_bowl or 0) >= 1
-	local prompt = bowlPrompt
-	if owned and bowl ~= nil then
+-- The UI's bait API with the bowl argument (#1161). Older UI builds take one bowl and ignore the extra argument,
+-- and have no setSecond, so the calls go through `any` and setSecond is looked up first.
+local baitUI: any = UI.bait
+
+-- The own cafe's bowl anchors (F28; #1161: BaitBowl2 is the second bowl).
+local function ownBowlPart(index: number): BasePart?
+	if index == 1 then
+		return UIController.ownBaitBowl()
+	end
+	local plot = ownPlot()
+	local bowl = if plot ~= nil then plot:FindFirstChild("BaitBowl2") else nil
+	return if bowl ~= nil and bowl:IsA("BasePart") then bowl :: BasePart else nil
+end
+
+-- One bowl's owner prompt (made here so only the owner sees it): "See the cat", "Check" or "Add food". Gone while
+-- `show` is false.
+local function refreshBowlPrompt(
+	index: number,
+	part: BasePart?,
+	show: boolean,
+	bait: Types.BaitView?
+)
+	local prompt = bowlPrompts[index]
+	if show and part ~= nil then
 		local float = if prompt ~= nil then prompt.Parent else nil
-		if prompt == nil or float == nil or float.Parent ~= bowl then
+		if prompt == nil or float == nil or float.Parent ~= part then
 			if prompt ~= nil then
 				prompt:Destroy()
 			end
@@ -349,28 +359,28 @@ local function refreshBait(s: Types.PlayerState)
 			local point = Instance.new("Attachment")
 			point.Name = "PromptPoint"
 			point.Position = Vector3.new(0, 2.5, 0)
-			point.Parent = bowl
+			point.Parent = part
 			local made = Instance.new("ProximityPrompt")
 			made.Name = "BaitPrompt"
-			made.ObjectText = "Bait bowl"
+			made.ObjectText = if index == 2 then "Bait bowl 2" else "Bait bowl"
 			made.HoldDuration = 0
 			made.MaxActivationDistance = 8
 			made.RequiresLineOfSight = true -- on the back step: no pill through the back wall from inside (N91)
 			made.Style = Enum.ProximityPromptStyle.Custom
 			made.Triggered:Connect(function()
-				local waiting = if state ~= nil then baitCat(state) else nil
+				local waiting = if state ~= nil then baitCat(bowlBait(state, index)) else nil
 				if waiting ~= nil then
-					UI.bait.showReady(waiting)
+					baitUI.showReady(waiting, index)
 				else
 					UI.bait.openPicker()
 				end
 			end)
 			made.Parent = point
-			bowlPrompt = made
+			bowlPrompts[index] = made
 			prompt = made
 		end
 		local shown = prompt :: ProximityPrompt
-		shown.ActionText = if cat ~= nil
+		shown.ActionText = if baitCat(bait) ~= nil
 			then "See the cat"
 			elseif bait ~= nil then "Check"
 			else "Add food"
@@ -380,14 +390,47 @@ local function refreshBait(s: Types.PlayerState)
 		if float ~= nil and float:IsA("Attachment") then
 			float:Destroy()
 		end
-		bowlPrompt = nil
+		bowlPrompts[index] = nil
 	end
+end
 
-	if cat ~= nil and bait ~= nil then
-		local key = string.format("%s@%d", cat.catId, bait.readyAt)
-		if key ~= shownBaitKey then
-			shownBaitKey = key
-			UI.bait.showReady(cat)
+-- The bait bowls (F28, data-model section 8; #1161: a second with the pass): what is in each, the owner's prompt
+-- on each and the card the moment a bowl's cat arrives. ProfileSync names the cat only once it has arrived, so its
+-- first appearance is the arrival. placedAt sets the fill bar's length and night (F60) the countdown's moon.
+local function refreshBait(s: Types.PlayerState)
+	local setSecond: ((string?) -> ())? = baitUI.setSecond
+	if setSecond ~= nil then
+		setSecond(s.secondBowl)
+	end
+	local owned = (s.upgradeLevels.lure_bowl or 0) >= 1
+	for index = 1, 2 do
+		local bait = bowlBait(s, index)
+		baitUI.set(
+			if bait ~= nil
+				then {
+					lureId = bait.lureId,
+					readyAt = bait.readyAt,
+					placedAt = bait.placedAt,
+					night = bait.night,
+				}
+				else nil,
+			index
+		)
+		local part = ownBowlPart(index)
+		if index == 1 then
+			UI.bait.setBowl(part)
+		end
+		-- bowl 2 shows with the pass, and while food is still in it after the pass went (the server builds it then)
+		local show = owned and (index == 1 or s.secondBowl == "on" or bait ~= nil)
+		refreshBowlPrompt(index, part, show, bait)
+
+		local cat = baitCat(bait)
+		if cat ~= nil and bait ~= nil then
+			local key = string.format("%s@%d", cat.catId, bait.readyAt)
+			if key ~= shownBaitKeys[index] then
+				shownBaitKeys[index] = key
+				baitUI.showReady(cat, index)
+			end
 		end
 	end
 end
@@ -714,11 +757,12 @@ local function wireIntents()
 		Net.fire("BuyLure", lureId)
 	end)
 	-- The bait bowl (F28): Use on a food, then Tame or Let go on the card. The answer is the next ProfileSync.
-	UI.events.useLure:Connect(function(lureId: string)
-		Net.fire("UseLure", lureId)
+	-- #1161: `bowl` is 1 or 2 from a UI with two bowls, nil (bowl 1) from an older one.
+	UI.events.useLure:Connect(function(lureId: string, bowl: number?)
+		Net.fire("UseLure", lureId, bowl)
 	end)
-	UI.events.resolveBait:Connect(function(choice: string)
-		Net.fire("ResolveBait", choice)
+	UI.events.resolveBait:Connect(function(choice: string, bowl: number?)
+		Net.fire("ResolveBait", choice, bowl)
 	end)
 	UI.events.placeCat:Connect(function(uid: string, spotId: string)
 		Net.fire("PlaceCat", uid, spotId)

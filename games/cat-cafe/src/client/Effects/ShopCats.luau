@@ -4,7 +4,10 @@
 -- With Reduce Motion it is a short soft glow instead. Duchess Marzipan, the Royal cat: a few lilac petals drift
 -- round her (one steady emitter, the nearest budget.shopCatEmitters within `within` studs), a still scatter of
 -- petals on the floor at her spot instead in Low performance or with Reduce Motion, and a soft lilac sparkle as she
--- starts a shift (the chime is Sound-Agent's). King Croissant joins here when his model lands.
+-- starts a shift (the chime is Sound-Agent's). King Croissant, the King cat: a soft gold glow round him, one steady
+-- emitter of drifting gold motes, a slow gold shine scrolling along his cape's dotted trim, and a gold pop off his
+-- crown when his table pays (at most every `pop.gap` seconds). Reduce Motion keeps only the glow (the trim held
+-- still); Low performance drops the motes.
 --
 -- Source: Moments.TipSwept(cat, position), fired in your own cafe when a Waiter or Greeter sweeps a paid table's tip
 -- into its bag (Gameplay-Engineer's CafeOrders). The puff plays over every Sprinkles working in that cafe (a Model
@@ -12,8 +15,11 @@
 -- pivot; when Sprinkles is the cat that swept, and so is away on its walk, over the pile it swept. Duchess: every
 -- Model with CatId "duchess_marzipan" (Model-Agent, #1249), her Head's `BubbleAnchor` for the petals and the
 -- sparkle; a shift starts when one of her models (by `Uid`) goes from off duty to working (a `Role` without
--- `Bedtime`), so a cafe rebuilding her model or her streaming back in plays nothing. Listening only. Numbers in
--- Presets.shopCats.
+-- `Bedtime`), so a cafe rebuilding her model or her streaming back in plays nothing. King: every Model with CatId
+-- "king_croissant" (Model-Agent, friend/cat-king), his `Glow` attachment in the Body for the light and the motes,
+-- `CrownTop` (in the crown Prop inside the Head Model) for the pop, and the largest part of the Model ending
+-- `_CapeTrim` (inside Prop2) for the scrolling shine, the same Moments.TipSwept as Sprinkles for the pop. Listening
+-- only. Numbers in Presets.shopCats.
 
 local CollectionService = game:GetService("CollectionService")
 local Debris = game:GetService("Debris")
@@ -85,6 +91,27 @@ local function puff(at: Vector3)
 	end
 end
 
+-- King Croissant's crown: its `CrownTop` attachment (in the crown Prop inside the Head Model), else over his ears.
+local function crownTop(cat: Model): Vector3
+	local top = cat:FindFirstChild("CrownTop", true)
+	if top ~= nil and top:IsA("Attachment") then
+		return (top :: Attachment).WorldPosition
+	end
+	return anchorOf(cat, Presets.shopCats.king.overPivot)
+end
+
+-- His table pays: gold glints and stars pop off the crown with a small gold ring. Not with Reduce Motion, which
+-- keeps only his glow.
+local function crownPop(at: Vector3)
+	if Context.reducedMotion() then
+		return
+	end
+	local p = Presets.shopCats.king.pop
+	Particles.burst("dingSparkle", at, p.sparkles, Presets.palette.golden)
+	Particles.burst("crownGlint", at, p.stars)
+	Particles.ring(at, Presets.palette.golden, p.ring, p.ringSeconds)
+end
+
 local function swept(sweeper: unknown, position: unknown)
 	if typeof(sweeper) ~= "Instance" or not (sweeper :: Instance):IsA("Model") then
 		return
@@ -94,22 +121,30 @@ local function swept(sweeper: unknown, position: unknown)
 		return
 	end
 	local s = Presets.shopCats.sprinkles
+	local k = Presets.shopCats.king
 	local now = os.clock()
 	for _, descendant in plot:GetDescendants() do
-		if descendant:IsA("Model") and descendant:GetAttribute("CatId") == s.catId then
+		local catId = if descendant:IsA("Model") then descendant:GetAttribute("CatId") else nil
+		if catId == s.catId or catId == k.catId then
 			local cat = descendant :: Model
+			local king = catId == k.catId
+			local gap = if king then k.pop.gap else s.gap
 			local last = lastPuff[cat]
-			if last == nil or now - last >= s.gap then
+			if last == nil or now - last >= gap then
 				local at: Vector3? = nil
 				if cat == sweeper and typeof(position) == "Vector3" then
 					-- off on its walk: over the pile it swept
 					at = (position :: Vector3) + Vector3.new(0, s.overPile, 0)
 				elseif not CafeWalk.isAway(cat) then
-					at = anchorOf(cat, s.overPivot)
+					at = if king then crownTop(cat) else anchorOf(cat, s.overPivot)
 				end
 				if at ~= nil and Context.distance(at) <= s.within then
 					lastPuff[cat] = now
-					puff(at + Vector3.new(0, s.lift, 0))
+					if king then
+						crownPop(at :: Vector3)
+					else
+						puff((at :: Vector3) + Vector3.new(0, s.lift, 0))
+					end
 				end
 			end
 		end
@@ -263,11 +298,149 @@ local function followDuchess(cat: Model)
 	end
 end
 
+-- King Croissant -------------------------------------------------------------------------------------------
+
+type King = {
+	light: PointLight?,
+	motes: ParticleEmitter?,
+	trim: { Texture }, -- the shine on both faces of his cape trim's band
+	started: number, -- os.clock() when his trim began to scroll, for its phase
+}
+
+local kings: { [Model]: King } = {}
+
+local function glowAttachment(cat: Model): Attachment?
+	local glowAt = cat:FindFirstChild("Glow", true)
+	return if glowAt ~= nil and glowAt:IsA("Attachment") then glowAt :: Attachment else nil
+end
+
+-- The band of his cape's dotted trim: the largest part in the Model ending `_CapeTrim` (Model-Agent, inside Prop2).
+local function trimBand(cat: Model): BasePart?
+	local best: BasePart? = nil
+	local bestSize = 0
+	for _, descendant in cat:GetDescendants() do
+		if descendant:IsA("Model") and string.sub(descendant.Name, -9) == "_CapeTrim" then
+			for _, part in descendant:GetDescendants() do
+				if part:IsA("BasePart") then
+					local size = (part :: BasePart).Size
+					local area = size.X * size.Y * size.Z
+					if area > bestSize then
+						best, bestSize = part :: BasePart, area
+					end
+				end
+			end
+		end
+	end
+	return best
+end
+
+local function clearKing(k: King)
+	local light, motes, trim = k.light, k.motes, k.trim
+	k.light, k.motes, k.trim = nil, nil, {}
+	if light ~= nil then
+		light:Destroy()
+	end
+	if motes ~= nil then
+		motes.Enabled = false
+		Debris:AddItem(motes, Presets.emitters.goldMote.lifetime[2] + 0.2)
+	end
+	for _, texture in trim do
+		texture:Destroy()
+	end
+end
+
+-- The soft gold glow round him, the gold motes and the shine on his cape trim, on the nearest kings.
+local function dressKing(cat: Model, k: King, motes: boolean, still: boolean)
+	local c = Presets.shopCats.king
+	local glowAt = glowAttachment(cat)
+	if glowAt ~= nil and (k.light == nil or (k.light :: PointLight).Parent ~= glowAt) then
+		local light = Instance.new("PointLight")
+		light.Name = "KingGlow"
+		light.Color = c.glow.colour
+		light.Range = c.glow.range
+		light.Brightness = c.glow.brightness
+		light.Shadows = false
+		light.Parent = glowAt
+		k.light = light
+	end
+	if motes and glowAt ~= nil then
+		local emitter = k.motes
+		if emitter == nil or emitter.Parent ~= glowAt then
+			k.motes = Particles.attach("goldMote", glowAt :: Attachment)
+		else
+			Particles.switchOn(emitter, "goldMote")
+		end
+	elseif k.motes ~= nil then
+		local emitter = k.motes :: ParticleEmitter
+		k.motes = nil
+		emitter.Enabled = false
+		Debris:AddItem(emitter, Presets.emitters.goldMote.lifetime[2] + 0.2)
+	end
+	local laid = #k.trim > 0 and k.trim[1].Parent ~= nil
+	local band = if laid then nil else trimBand(cat)
+	if band ~= nil then
+		local t = c.trim
+		k.trim = {}
+		for _, face in t.faces do
+			local texture = Instance.new("Texture")
+			texture.Name = "KingTrimShine"
+			texture.Texture = Presets.textures.sparkle
+			texture.Color3 = t.colour
+			texture.Transparency = t.transparency
+			texture.StudsPerTileU = t.tile
+			texture.StudsPerTileV = t.tile
+			texture.Face = face
+			texture.Parent = band
+			table.insert(k.trim, texture)
+		end
+		k.started = os.clock()
+	end
+	-- a slow scroll along the band; held still with Reduce Motion
+	local offset = if still then 0 else ((os.clock() - k.started) * c.trim.speed) % c.trim.tile
+	for _, texture in k.trim do
+		texture.OffsetStudsU = offset
+	end
+end
+
+local function stepKings()
+	local c = Presets.shopCats.king
+	local candidates: { Logic.Candidate<Model> } = {}
+	for cat, k in kings do
+		if cat.Parent == nil then
+			clearKing(k)
+			kings[cat] = nil
+		elseif not CafeWalk.isAway(cat) and cat:GetAttribute("HiddenLocal") ~= true then
+			local distance = Context.distance(cat:GetPivot().Position)
+			table.insert(candidates, { key = cat, distance = distance })
+		end
+	end
+	local still = Context.reducedMotion()
+	local budget = Context.budget.shopCatEmitters
+	local motes = not still and not Context.lowPerformance and budget > 0
+	local chosen: { [Model]: boolean } = {}
+	-- nearest first: the glow and the trim on every chosen king, the motes only on the nearest
+	-- budget.shopCatEmitters (one on a phone)
+	for index, cat in Logic.nearest(candidates, c.within, c.most) do
+		chosen[cat] = true
+		dressKing(cat, kings[cat], motes and index <= budget, still)
+	end
+	for cat, k in kings do
+		if not chosen[cat] then
+			clearKing(k)
+		end
+	end
+end
+
 -- The server sets CatId before it parents a cat (CafeService.buildCat), so it arrives with the model.
 local function consider(instance: Instance)
-	local id = Presets.shopCats.duchess.catId
-	if instance:IsA("Model") and instance:GetAttribute("CatId") == id then
+	if not instance:IsA("Model") then
+		return
+	end
+	local catId = instance:GetAttribute("CatId")
+	if catId == Presets.shopCats.duchess.catId then
 		followDuchess(instance :: Model)
+	elseif catId == Presets.shopCats.king.catId and kings[instance :: Model] == nil then
+		kings[instance :: Model] = { light = nil, motes = nil, trim = {}, started = os.clock() }
 	end
 end
 
@@ -285,6 +458,12 @@ function ShopCats.start()
 		while true do
 			task.wait(Presets.shopCats.duchess.pick)
 			pickDuchesses()
+		end
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(Presets.shopCats.king.step)
+			stepKings()
 		end
 	end)
 end

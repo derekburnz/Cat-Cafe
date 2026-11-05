@@ -17,7 +17,6 @@ local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
-local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -360,12 +359,11 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			position = UDim2.new(0, 10, 0.5, 0),
 		})
 		local potion = def and def.kind == "potion"
-		icon:set(
-			nil,
-			GLYPHS[itemId] or Theme.icons.potion,
-			if potion then "Epic" else "Rare",
-			if potion and def then ShopIcons.potion(def.potionId) else nil
-		)
+		if potion and def then
+			icon:setPotion(def.potionId, "Epic")
+		else
+			icon:set(nil, GLYPHS[itemId] or Theme.icons.potion, "Rare", nil)
+		end
 		local left = 10 + PICTURE + 12
 		local right = BUY_W + 20
 		local name = text({

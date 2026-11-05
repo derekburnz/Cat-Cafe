@@ -34,7 +34,7 @@ Remotes.ClientToServer = {
 	"ToggleDecor", -- (decorId: string, placed: boolean)
 	"EquipBestDecor", -- ()  puts out the best owned decor for the most money (shared/DecorBest), the rest away
 	"ResetSave", -- ()  testers only (Player attribute Tester): a fresh save at the next join, then a kick
-	"BuyLure", -- (lureId: string)
+	"BuyLure", -- (lureId: string)  #1281: always refused ("Bait food is at the Corner Shop now"); goes in a cleanup
 	"UseLure", -- (lureId: string)  bowl bought and empty, food in stock; from anywhere (2026-10-28)
 	"ResolveBait", -- (choice: "tame" | "letgo")  the bowl's cat has arrived; from anywhere (2026-10-28)
 	"ClaimOffline", -- ()
@@ -137,11 +137,12 @@ Remotes.ClientToServer = {
 	"TradeConfirm", -- (tradeId: string, version: number)  on the confirm screen, the version on the table, after
 	-- the side's confirmAt; both confirmed swaps the cats (section 4)
 	"TradeCancel", -- (tradeId: string)  ends the caller's open trade with nothing moved, unless it is swapping
-	"BuyCornerShop", -- (itemId: string, window: number)  #1052, v2 corner-shop-v2.md section 4: within
+	"BuyCornerShop", -- (itemId: string, window: number, shownPrice: number?)  #1052, v2 corner-shop-v2.md section 4: within
 	-- CornerShopRange of a CornerShop stall, `window` the current one, the row's needsTier met, fewer bought than the
 	-- window stocks, the family's CornerDailyLimits not reached (cat food has no daily cap, #1255), the row's fixed
 	-- price in coins. A potion goes to the bag and food to the Bag's catFood (no
-	-- cat pick); any later arguments are ignored. 2 a second; answered with CornerShopStock
+	-- cat pick). #1281: a bait row's food goes to `lures` at Economy.foodPrice for the tier, refused above shownPrice
+	-- or at CornerShop.LURE_MAX held; later arguments are ignored. 2 a second; answered with CornerShopStock
 	"FeedCat", -- (foodId: string, catUid: string)  #1181: one of that food from the Bag to one of the player's cats,
 	-- below CatMaxLevel; its XP through CatStats.addXp. 4 a second; answered with FeedResult and a ProfileSync
 	"SetHideCredit", -- (hide: boolean)  #1083: keeps the player's display name off the Thank You board (true) or puts it

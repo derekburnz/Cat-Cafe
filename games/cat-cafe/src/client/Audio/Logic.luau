@@ -517,6 +517,12 @@ function Logic.shiftStarted(before: boolean?, now: boolean): boolean
 	return before == false and now
 end
 
+-- #1133/#1154/#1232: a camp station chimes when something starts waiting there, on a seen change of `held` from 0
+-- to more while its area is open. nil before (the first state after joining) plays nothing.
+function Logic.stationReady(before: number?, now: number, open: boolean): boolean
+	return open and before == 0 and now > 0
+end
+
 -- Animation beats (Beats.hit) to sounds: the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100).
 local BEAT_CUES: { [string]: string } = {
 	bellRing = "bellhopBell",

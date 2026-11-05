@@ -1614,7 +1614,33 @@ end
 -- Moment name to sounds (sound list section 6). NightStart and DayStart are absent on purpose: the music already
 -- follows the clock attribute, so it also knows the phase on join. CarryStart is absent too: the purr follows the
 -- synced carrying state (Audio.setCarrying), so a missed moment can never leave it purring.
+-- #1133/#1154/#1232: the Picnic Basket, Yard Sale and Fish Pond chime once as something starts waiting (the same
+-- `held` the "!" marker follows), in 2D. The first CampExtrasState after joining only records what waits.
+local STATION_EXTRAS = { "picnic", "yardSale", "pond" }
+local stationHeld: { [string]: number } = {}
+
+local function stationsReady(state: any)
+	if type(state) ~= "table" then
+		return
+	end
+	local ready = false
+	for _, id in STATION_EXTRAS do
+		local extra = state[id]
+		local held = if type(extra) == "table" then num(extra.held) else nil
+		if held ~= nil then
+			if Logic.stationReady(stationHeld[id], held, extra.open == true) then
+				ready = true
+			end
+			stationHeld[id] = held
+		end
+	end
+	if ready then
+		Audio.play("stationReady")
+	end
+end
+
 local HANDLERS: { [string]: (...any) -> () } = {
+	CampExtrasState = stationsReady,
 	CatchStart = function()
 		duckForCatch(true)
 		Audio.play("catchStart")

@@ -192,6 +192,8 @@ UI.events = {
 	buyCornerShop = Signal.new(),
 	-- (foodId, catUid)   #1181: Feed a cat from the Bag's Cat Food tab: forward as FeedCat; FeedResult calls UI.bag.fed
 	feedCat = Signal.new(),
+	-- (hide)   #1083: Settings' "Show my name on the Thank You board" off (true) or on: forward as SetHideCredit
+	setHideCredit = Signal.new(),
 	-- F102 (trading.md section 6): the client only asks; TradeState answers
 	requestTrade = Signal.new(), -- (userId)   Trade on a players list row: forward as TradeRequest
 	respondTrade = Signal.new(), -- (requestId, accept)   Accept or Decline on the request card: forward as TradeRespond
@@ -947,6 +949,11 @@ function UI.init(config: Types.InitConfig)
 		end,
 		openTrades = function()
 			UI.open("TradeLog")
+		end,
+		-- #1083: "Show my name on the Thank You board"; UIController forwards it as SetHideCredit
+		setHideCredit = function(hide: boolean)
+			local events: any = UI.events
+			events.setHideCredit:Fire(hide)
 		end,
 		showTipsAgain = function()
 			UI.tips.reset()
@@ -2074,8 +2081,11 @@ end
 
 -- The Thank You board (#1083): ThanksBoard(rows, hasCredit) from IdeaCreditsService, on join and at each rebuild.
 -- `hasCredit` is for Settings' "Show my name" row, which comes with the Feedback tick in the next PR.
-function UI.thanksBoard(rows: { any }, _hasCredit: boolean)
+function UI.thanksBoard(rows: { any }, hasCredit: boolean)
 	require(script.Screens.ThanksBoard).show(if type(rows) == "table" then rows else {})
+	if settingsScreen then
+		settingsScreen:showCredit(hasCredit == true) -- the "Show my name" row only for a credited player
+	end
 end
 
 UI.potions = {}

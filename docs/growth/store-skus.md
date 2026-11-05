@@ -36,7 +36,7 @@ Card layout as today: picture, name, one effect line, an optional second line (w
 
 | Key | Card name | Effect line | Contents line | Price (launch week) | Picture |
 |---|---|---|---|---|---|
-| starter | Starter Bundle | "A head start for a new cafe. Once per player." | "1 Sprinkles (the starter cat), 10 Big Money, 5 Swift, 1 sign style" | R$99 (R$49) | gift box with a cat, potions and a sign |
+| starter | Starter Bundle | "A head start for a new cafe. Once per player." | "1 Sprinkles (the starter cat), 10 Big Money, 5 Swift, 1 Bakery Stripes sign style" | R$99 (R$49) | gift box with a cat, potions and a sign |
 | potionXS | Potion Pack XS | "Big Money Potions: +50% money while they last." | "2 Big Money" | R$10 (no discount) | 2 gold potion bottles |
 | potionS | Potion Pack S | "A small potion mix." | "3 Big Money, 1 Swift, 1 Steady Paw" | R$25 (R$12) | 5 bottles in a basket |
 | potionM | Potion Pack M | "A potion mix." | "10 potions: 5 Big Money, 3 Swift, 2 Steady Paw" | R$49 (R$24) | crate of 10 bottles |
@@ -87,7 +87,7 @@ The King Cat joins your cafe and always earns like a Mythical from your newest a
 
 ```
 Starter Bundle | R$99
-A head start: 1 Sprinkles, 10 Big Money Potions, 5 Swift Potions and a cafe sign style. Once per player.
+A head start: 1 Sprinkles, 10 Big Money Potions, 5 Swift Potions and the Bakery Stripes sign style. Once per player.
 
 Potion Pack XS | R$10
 2 Big Money Potions (+50% cafe money while active).
@@ -109,7 +109,7 @@ The paid track for the current Cafe Pass season. Level up with quests to unlock 
 
 Decided 2026-11-04 (the friend, via the Coordinator, and the library plan):
 - **Starter Bundle cat:** Sprinkles, a starter-only cat that earns like an Epic from the newest area (#1191, built in #1244). It is not the Bellhop Cat.
-- **King Cat Pack:** the plan's Grand cat becomes the "King" whale item the friend remembers: the King Cat (earns like a Mythical, unique model and effect) plus the Royal Crest sign style, R$999. It's fixed, never random, always on sale, and can't be traded. Names and designs are on #1191: King Croissant and Royal Crest (built, #1267). The "Grand cat" in #1182's body is this pack; this file takes precedence.
+- **King Cat Pack:** the plan's Grand cat becomes the "King" whale item the friend remembers: the King Cat (earns like a Mythical, unique model and effect) plus the Royal Crest sign style, R$999. It's fixed, never random, always on sale, and can't be traded. Names and designs are on #1191: King Croissant and Royal Crest (built, #1289). The "Grand cat" in #1182's body is this pack; this file takes precedence.
 - **Royal Cat** stays at R$599 (earns like a Legendary).
 - **Pack mixes:** M is 5 Big Money, 3 Swift, 2 Steady Paw. L is 10 Big Money, 6 Swift, 6 Steady Paw.
 - **Extra Slot:** R$149.
@@ -117,7 +117,7 @@ Decided 2026-11-04 (the friend, via the Coordinator, and the library plan):
 Still open:
 1. **Stacking (economy check before build):** VIP, Accessories, Uniforms, Cafe Style and Grand Cafe all add money on top of the 4x ladder. The economy ladder modelled "about 24x" for a player with every paid bonus (economy-ladder.md). The game-designer should confirm the plan's numbers still match.
 2. **PolicyService:** nothing here is random, so no odds screen is needed, and nothing bought can be traded. Gameplay-Engineer still reads `PolicyService:GetPolicyInfoForPlayerAsync` per player, as the monetization-policy skill asks, and confirms in review that no flag needs a card hidden.
-3. **Names and models:** done on #1191: Sprinkles (starter cat, Epic), Duchess Marzipan (Royal Cat, Legendary), King Croissant (King Cat, Mythical) and the Royal Crest sign style. The Starter Bundle's own sign style is still to be named by Design-Agent.
+3. **Names and models:** done on #1191: Sprinkles (starter cat, Epic), Duchess Marzipan (Royal Cat, Legendary), King Croissant (King Cat, Mythical) and the Royal Crest sign style. The Starter Bundle's sign style is Bakery Stripes (#1289); nothing is left to name.
 4. **Policy call (Derek) before Golden Pond (#1232) and Second Bait Bowl (#1161) go on sale:** growth's view is that neither should be sold as specced. Golden fish are banned from Robux items and a second bowl doubles random arrivals.
 5. **Store FAQ:** "every cat is caught by playing" must change in the publish that first sells a shop cat (`store-page.txt`).
 6. **Regional pricing** is off for every pass; turn it on before launch except the money ladder (#1197). All 16 items still use the default icon (pictures in section 1).

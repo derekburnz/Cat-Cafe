@@ -572,6 +572,21 @@ flush with its face, or the two faces flicker. Posts reach 0.12 into the opening
 nothing beside a post sits on the wall's line. Check a placed piece in its scene, not alone: the toolkit only sees
 one model, so a gate that passes on its own can still cut through the walls around it.
 
+**Cafe themes (#1624, store-pass-looks.md, `themes.py`).** The Garden Cafe and Grand Cafe themes add parts to the
+shell and never move a wall, the door or collision. The shell's two window awnings are now their own child Model,
+`CatCafe_Plot_Cafe_<Colour>_Awning`; a theme hides it and shows its own `_Awning` in the same place and shape (the
+shell's head rails stay, on `_Trim`). Both themes use swatches already in the palette, so the palette gains no row:
+Garden is sage `fur_fern` (shade `fur_moss`), warm white `offwhite`, `terracotta` and `brass`; Grand is `cream`, the
+three golds and plum `royal_berry`. For the recolours the spec leaves to code: Garden's inside wall trim is
+`fur_fern`; Grand's outer walls (`Paint`) are `cream`, its trims (`PaintTrim`) and the counter trim `gold_mid`.
+Garden: `CatCafe_Plot_ThemeGarden` (terracotta flower troughs either side of the door, clear of the Lucky Cat plinth
+and the potted shrub, a hanging brass lamp over the door, sage and warm white awnings), `CatCafe_Plot_SignGarden`,
+`CatCafe_Prop_GardenTablePot` for the table tops and `CatCafe_Prop_GardenGarland` over the counter. Grand:
+`CatCafe_Plot_ThemeGrand` (cream pilasters with gold bases and capitals under a cream lintel, a plum carpet with gold
+edges down the path, two lantern posts on its front corners, plum and gold awnings), `CatCafe_Plot_SignGrand`,
+`CatCafe_Plot_ThemeGrandChandelier` between the first two tie beams and `CatCafe_Prop_GrandCushion` for the chairs.
+The VIP pass's `CatCafe_Plot_SignVipPlate` sits under the name on every sign style.
+
 ## 14. Part-built models in Roblox
 
 `build_all.py` also writes `assets/cat-cafe/rbx/<Name>.model.json` for every asset. Rojo syncs that folder into

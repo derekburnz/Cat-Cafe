@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 21:20 UTC",
+  "generated": "2026-11-05 21:36 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -149575,7 +149575,8 @@
         "CatCafe_Plot_Cafe_Mint_Paint",
         "CatCafe_Plot_Cafe_Mint_Wallpaper",
         "CatCafe_Plot_Cafe_Mint_Garden",
-        "CatCafe_Plot_Cafe_Mint_Path"
+        "CatCafe_Plot_Cafe_Mint_Path",
+        "CatCafe_Plot_Cafe_Mint_Awning"
       ],
       "triangles": 5628,
       "budget": 12000,
@@ -149671,7 +149672,8 @@
         "CatCafe_Plot_Cafe_Blush_Paint",
         "CatCafe_Plot_Cafe_Blush_Wallpaper",
         "CatCafe_Plot_Cafe_Blush_Garden",
-        "CatCafe_Plot_Cafe_Blush_Path"
+        "CatCafe_Plot_Cafe_Blush_Path",
+        "CatCafe_Plot_Cafe_Blush_Awning"
       ],
       "triangles": 5628,
       "budget": 12000,
@@ -149767,7 +149769,8 @@
         "CatCafe_Plot_Cafe_Butter_Paint",
         "CatCafe_Plot_Cafe_Butter_Wallpaper",
         "CatCafe_Plot_Cafe_Butter_Garden",
-        "CatCafe_Plot_Cafe_Butter_Path"
+        "CatCafe_Plot_Cafe_Butter_Path",
+        "CatCafe_Plot_Cafe_Butter_Awning"
       ],
       "triangles": 5628,
       "budget": 12000,
@@ -149863,7 +149866,8 @@
         "CatCafe_Plot_Cafe_Lilac_Paint",
         "CatCafe_Plot_Cafe_Lilac_Wallpaper",
         "CatCafe_Plot_Cafe_Lilac_Garden",
-        "CatCafe_Plot_Cafe_Lilac_Path"
+        "CatCafe_Plot_Cafe_Lilac_Path",
+        "CatCafe_Plot_Cafe_Lilac_Awning"
       ],
       "triangles": 5628,
       "budget": 12000,
@@ -178240,6 +178244,124 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignVipPlate.png"
     },
     {
+      "name": "CatCafe_Plot_SignGarden",
+      "category": "Plot",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Plot_SignGarden",
+        "CatCafe_Plot_SignGarden_SignBoard",
+        "CatCafe_Plot_SignGarden_Frame"
+      ],
+      "triangles": 846,
+      "budget": 3000,
+      "size_studs": {
+        "x": 16.99,
+        "y": 0.46,
+        "z": 5.39
+      },
+      "size_roblox": [
+        16.99,
+        5.39,
+        0.46
+      ],
+      "bounds_min": [
+        -8.5,
+        -18.74,
+        13.05
+      ],
+      "bounds_max": [
+        8.5,
+        -18.28,
+        18.44
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignGarden.model.json",
+      "rbx_parts": 65,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignGarden.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignGarden.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "846/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "543 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=13.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.51"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_SignGarden.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignGarden.png"
+    },
+    {
+      "name": "CatCafe_Plot_SignGrand",
+      "category": "Plot",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Plot_SignGrand",
+        "CatCafe_Plot_SignGrand_SignBoard",
+        "CatCafe_Plot_SignGrand_Frame"
+      ],
+      "triangles": 766,
+      "budget": 3000,
+      "size_studs": {
+        "x": 17.3,
+        "y": 0.39,
+        "z": 5.69
+      },
+      "size_roblox": [
+        17.3,
+        5.69,
+        0.39
+      ],
+      "bounds_min": [
+        -8.65,
+        -18.67,
+        12.75
+      ],
+      "bounds_max": [
+        8.65,
+        -18.28,
+        18.44
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignGrand.model.json",
+      "rbx_parts": 61,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignGrand.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignGrand.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "766/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "367 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=12.75 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.47"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_SignGrand.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignGrand.png"
+    },
+    {
       "name": "CatCafe_Camp_Park_GardenNursery",
       "category": "Camp",
       "module": "gardennursery",
@@ -179312,6 +179434,351 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MapleTreePlanter.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_MapleTreePlanter.png"
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGarden",
+      "category": "Plot",
+      "module": "themes",
+      "objects": [
+        "CatCafe_Plot_ThemeGarden",
+        "CatCafe_Plot_ThemeGarden_Bulb",
+        "CatCafe_Plot_ThemeGarden_Awning"
+      ],
+      "triangles": 1972,
+      "budget": 3000,
+      "size_studs": {
+        "x": 40.15,
+        "y": 3.09,
+        "z": 12.75
+      },
+      "size_roblox": [
+        40.15,
+        12.75,
+        3.09
+      ],
+      "bounds_min": [
+        -20.08,
+        -21.06,
+        0.0
+      ],
+      "bounds_max": [
+        20.08,
+        -17.97,
+        12.75
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGarden.model.json",
+      "rbx_parts": 97,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGarden.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGarden.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1972/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "960 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-19.51"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_ThemeGarden.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_ThemeGarden.png"
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGrand",
+      "category": "Plot",
+      "module": "themes",
+      "objects": [
+        "CatCafe_Plot_ThemeGrand",
+        "CatCafe_Plot_ThemeGrand_Bulb",
+        "CatCafe_Plot_ThemeGrand_Awning"
+      ],
+      "triangles": 2056,
+      "budget": 3000,
+      "size_studs": {
+        "x": 40.15,
+        "y": 4.86,
+        "z": 12.75
+      },
+      "size_roblox": [
+        40.15,
+        12.75,
+        4.86
+      ],
+      "bounds_min": [
+        -20.08,
+        -22.83,
+        0.0
+      ],
+      "bounds_max": [
+        20.08,
+        -17.97,
+        12.75
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGrand.model.json",
+      "rbx_parts": 105,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrand.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrand.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2056/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "832 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-20.40"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_ThemeGrand.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_ThemeGrand.png"
+    },
+    {
+      "name": "CatCafe_Plot_ThemeGrandChandelier",
+      "category": "Plot",
+      "module": "themes",
+      "objects": [
+        "CatCafe_Plot_ThemeGrandChandelier",
+        "CatCafe_Plot_ThemeGrandChandelier_Glow"
+      ],
+      "triangles": 806,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.32,
+        "y": 7.94,
+        "z": 3.32
+      },
+      "size_roblox": [
+        2.32,
+        3.32,
+        7.94
+      ],
+      "bounds_min": [
+        -1.16,
+        -7.01,
+        9.23
+      ],
+      "bounds_max": [
+        1.16,
+        0.93,
+        12.55
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe theme piece (store-pass-looks.md): placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ThemeGrandChandelier.model.json",
+      "rbx_parts": 43,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrandChandelier.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ThemeGrandChandelier.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "806/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "521 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=9.23 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.04"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_ThemeGrandChandelier.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_ThemeGrandChandelier.png"
+    },
+    {
+      "name": "CatCafe_Prop_GardenGarland",
+      "category": "Prop",
+      "module": "themes",
+      "objects": [
+        "CatCafe_Prop_GardenGarland"
+      ],
+      "triangles": 700,
+      "budget": 2500,
+      "size_studs": {
+        "x": 8.6,
+        "y": 0.59,
+        "z": 1.57
+      },
+      "size_roblox": [
+        8.6,
+        1.57,
+        0.59
+      ],
+      "bounds_min": [
+        -4.3,
+        -0.47,
+        -1.46
+      ],
+      "bounds_max": [
+        4.3,
+        0.12,
+        0.11
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe theme piece (store-pass-looks.md): a prop on each table top or chair seat (Garland: over the counter); pivot base centre (Garland: the middle of its hooks), front -Z. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_GardenGarland.model.json",
+      "rbx_parts": 35,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_GardenGarland.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_GardenGarland.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "700/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "676 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.46 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.17"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_GardenGarland.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_GardenGarland.png"
+    },
+    {
+      "name": "CatCafe_Prop_GardenTablePot",
+      "category": "Prop",
+      "module": "themes",
+      "objects": [
+        "CatCafe_Prop_GardenTablePot"
+      ],
+      "triangles": 200,
+      "budget": 400,
+      "size_studs": {
+        "x": 0.48,
+        "y": 0.5,
+        "z": 0.93
+      },
+      "size_roblox": [
+        0.48,
+        0.93,
+        0.5
+      ],
+      "bounds_min": [
+        -0.24,
+        -0.25,
+        0.0
+      ],
+      "bounds_max": [
+        0.24,
+        0.25,
+        0.93
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe theme piece (store-pass-looks.md): a prop on each table top or chair seat (Garland: over the counter); pivot base centre (Garland: the middle of its hooks), front -Z. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_GardenTablePot.model.json",
+      "rbx_parts": 9,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_GardenTablePot.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_GardenTablePot.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "200/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "122 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_GardenTablePot.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_GardenTablePot.png"
+    },
+    {
+      "name": "CatCafe_Prop_GrandCushion",
+      "category": "Prop",
+      "module": "themes",
+      "objects": [
+        "CatCafe_Prop_GrandCushion"
+      ],
+      "triangles": 172,
+      "budget": 400,
+      "size_studs": {
+        "x": 1.12,
+        "y": 1.12,
+        "z": 0.23
+      },
+      "size_roblox": [
+        1.12,
+        0.23,
+        1.12
+      ],
+      "bounds_min": [
+        -0.56,
+        -0.56,
+        -0.0
+      ],
+      "bounds_max": [
+        0.56,
+        0.56,
+        0.23
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe theme piece (store-pass-looks.md): a prop on each table top or chair seat (Garland: over the counter); pivot base centre (Garland: the middle of its hooks), front -Z. No collision.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_GrandCushion.model.json",
+      "rbx_parts": 7,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_GrandCushion.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_GrandCushion.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "172/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "124 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_GrandCushion.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_GrandCushion.png"
     },
     {
       "name": "CatCafe_Sign_VipPlate",

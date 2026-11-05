@@ -260,7 +260,7 @@ local function checkArrivals()
 			end
 		end
 		-- #1161: bowl 2 comes out when the pass is bought or found
-		local second = CafeService.secondBowl(player, profile)
+		local second: Types.SecondBowl = CafeService.secondBowl(player, profile)
 		if shownSecond[player] ~= second then
 			shownSecond[player] = second
 			changed = true

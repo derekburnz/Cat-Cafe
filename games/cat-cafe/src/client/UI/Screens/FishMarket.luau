@@ -135,6 +135,9 @@ local RANGE: number = Config.FishMarketRange or 14
 local CLOSE_SLACK = 2 -- studs past the server's range before the window closes
 local LUCKY_EVERY: number = Config.CrateLuckyEvery or 20
 local PENDING_SECONDS = 5 -- a pressed Open or Buy waits this long for the server before it can be pressed again
+-- #1408: a crate's price buttons stay blue with the price; a press short of fish greys it with "Need 6 more fish"
+-- for this long, then it goes back; nothing goes to the server (it checks the fish on every buy anyway)
+local SHORT_FLASH_SECONDS = 1.5
 local GATE_SLACK = 0.2 -- #1146: seconds the Open buttons wait past the server's crate spam limit, for network jitter
 local REVEAL_SECONDS = 2
 local CARD = Vector2.new(196, 300) -- 56 px taller than before #1051, for Buy 5 under Open
@@ -248,6 +251,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self._crateCards = {} :: { CrateCard }
 	self._itemRows = {} :: { ItemRow }
 	self._pending = {} :: { [string]: number } -- crate or item id -> os.clock() of the press
+	self._short = {} :: { [string]: number } -- crate or bundle key -> os.clock() of a press short of fish (#1408)
 	self._potionById = {} :: { [string]: PotionLogic.Potion }
 	self._crateById = {} :: { [string]: Types.CrateDef }
 	self._fresh = nil :: FreshCatchLogic.Stock?
@@ -1335,8 +1339,42 @@ function FishMarket._refreshAfterGate(self: any)
 	end)
 end
 
+-- Whether a price button is showing its brief "Need # more fish" (#1408).
+function FishMarket._flashing(self: any, key: string): boolean
+	local pressedAt: number? = self._short[key]
+	return pressedAt ~= nil and os.clock() - pressedAt < SHORT_FLASH_SECONDS
+end
+
+-- A press short of fish: nothing goes to the server; the button greys with "Need # more fish", then goes back.
+function FishMarket._flashShort(self: any, key: string)
+	self._short[key] = os.clock()
+	Sound.play("uiError")
+	self:_refresh()
+	task.delay(SHORT_FLASH_SECONDS + 0.02, function()
+		if not self._destroyed then
+			self:_refresh()
+		end
+	end)
+end
+
+-- Golden fish short of `price`, or nil when the player has enough (or no state yet).
+function FishMarket._shortBy(self: any, price: number): number?
+	local state: Types.PlayerState? = self._state
+	if state == nil then
+		return nil
+	end
+	local fish = math.floor(state.goldenFish or 0)
+	return if fish < price then price - fish else nil
+end
+
 function FishMarket._open(self: any, crate: Types.CrateDef)
 	if self._revealing then
+		return
+	end
+	local state: Types.PlayerState? = self._state
+	local owned = if state and state.crates then state.crates[crate.id] or 0 else 0
+	if owned <= 0 and self:_shortBy(crate.price or 0) ~= nil then
+		self:_flashShort(crate.id)
 		return
 	end
 	local gate = self:_crateGate()
@@ -1374,6 +1412,10 @@ function FishMarket._buyBundle(self: any, crate: Types.CrateDef)
 	local buy = callbacks.buyCrateBundle
 	local key = BUNDLE_KEY .. crate.id
 	if buy == nil or self:_pendingFor(key) then
+		return
+	end
+	if BUNDLE_PRICE ~= nil and self:_shortBy(BUNDLE_PRICE) ~= nil then
+		self:_flashShort(key)
 		return
 	end
 	self._pending[key] = os.clock()
@@ -1458,8 +1500,8 @@ function FishMarket._refresh(self: any)
 			entry.open:setEnabled(false)
 		else
 			entry.line.Text = ("%s golden fish"):format(Format.short(price))
-			-- short of fish: greyed, saying how many more (crate-prices.md section 3; no pop-up)
-			local short = fish < price
+			-- #1408: always the blue price button; a press short of fish greys it with how many more for a moment
+			local short = self:_flashing(crate.id) and fish < price
 			showFish(entry.open, open and not pending and not short)
 			entry.open:setText(
 				if pending
@@ -1467,7 +1509,7 @@ function FishMarket._refresh(self: any)
 					elseif short then MarketLogic.needText(price - fish)
 					else ("Open · %s"):format(Format.short(price))
 			)
-			entry.open:setStyle("gold")
+			entry.open:setStyle("secondary")
 			entry.open:setEnabled(not pending and not short)
 		end
 		-- Buy 5: a crate sold at the Market (not golden) whose zone is open
@@ -1481,7 +1523,8 @@ function FishMarket._refresh(self: any)
 		entry.bundle.instance.Visible = canBundle
 		if canBundle and bundlePrice then
 			local waiting = self:_pendingFor(BUNDLE_KEY .. crate.id)
-			local short = fish < bundlePrice
+			local short = self:_flashing(BUNDLE_KEY .. crate.id) and fish < bundlePrice -- #1408, as Open
+			entry.bundle:setStyle("secondary")
 			showFish(entry.bundle, not waiting and not short)
 			entry.bundle:setText(
 				if waiting

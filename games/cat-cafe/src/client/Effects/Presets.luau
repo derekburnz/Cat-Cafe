@@ -2956,6 +2956,17 @@ Presets.mystery = {
 	ringSeconds = 0.45,
 	confetti = 0.4,
 	ribbon = { palette.neonPink, palette.aurora, palette.sparkle, palette.offwhite },
+	-- the red "!" over every waiting gift (#1638): `studs` wide plus `pixels`, so it still reads from across the
+	-- street, `lift` studs over the gift, seen within `within` studs, bobbing `bob` studs every `seconds`
+	bang = {
+		studs = 1.2,
+		pixels = 18,
+		lift = 1.2,
+		within = 120,
+		bob = 0.5,
+		seconds = 1.6,
+		colour = Color3.fromRGB(240, 82, 79), -- the HUD's and the camp stations' red "!"
+	},
 	-- what was inside: a potion in its own colour, the rest by kind
 	kinds = {
 		lure = palette.blush,

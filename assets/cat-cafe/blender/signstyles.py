@@ -24,6 +24,14 @@ the shell's (plot.SIGN_INFO), and the name colour is the UI's (cream on the Roya
                                           a cream paw, under the cafe's name on the bottom of the sign and proud of
                                           every style's frame, shown only for an owner of the pass. No glow, no
                                           animation
+  CatCafe_Plot_SignGarden                the Garden Cafe theme's sign (store-pass-looks.md section 3, themes.py): a sage
+                                          board (SignBoard; cocoa name text), a brass frame (`_Frame`) with a leafy
+                                          sprig and two small flowers on each top corner, and a terracotta "GARDEN"
+                                          plate with cream letters standing on the frame's top centre
+  CatCafe_Plot_SignGrand                 the Grand Cafe theme's sign (section 4): a cream board (SignBoard; plum name
+                                          text) inside a plum inner border, a deep gold frame (`_Frame`) with gold
+                                          corner blocks, and a plum "GRAND" plate with gold letters in a gold rim on
+                                          the frame's top centre
 
 Every model is placed at the Plot's pivot like the tier sets (Plot.cframe: floor top centre, -Z toward the street)
 with no offset; WorldBuilder or the UI shows the one the plot uses. Nothing collides (the signs are high on the
@@ -34,7 +42,7 @@ import math
 
 from mathutils import Matrix
 
-from common import RB
+from common import RB, text_width
 from plot import FRONT, SIGN, arc
 from seasondecor import maple_leaf
 
@@ -217,10 +225,63 @@ def build_vip_plate(mat):
     return [b.finalize("CatCafe_Plot_SignVipPlate", mat)]
 
 
+def _tag_plate(b, word, board, letters, rim, px=0.16):
+    """A small name plate standing on the frame's top centre: `word` in block letters on a `board` plate in a `rim`."""
+    w = text_width(word, px)
+    pw, ph = w + 0.7, 5 * px + 0.5
+    y0, z = Y1 + 0.38, FACE - 0.2
+    b.span((-pw / 2 - 0.08, y0, z), (pw / 2 + 0.08, y0 + ph + 0.16, z + 0.3), rim)
+    b.span((-pw / 2, y0 + 0.08, z - 0.04), (pw / 2, y0 + ph + 0.08, z + 0.01), board)
+    b.text(word, (w / 2, y0 + 0.33, z - 0.04), px, 0.05, letters, right=(-1, 0, 0))
+
+
+def _frame(frame, f, zf, zb, sw):
+    for (xa, xb, ya, yb) in ((X0 - f, X1 + f, Y0 - f, Y0), (X0 - f, X1 + f, Y1, Y1 + f),
+                             (X0 - f, X0, Y0, Y1), (X1, X1 + f, Y0, Y1)):
+        frame.span((xa, ya, zf), (xb, yb, zb), sw)
+
+
+def build_garden(mat):
+    b, board, frame = RB(), RB(), RB()
+    board.span((X0, Y0, FACE), (X1, Y1, FACE + 0.1), "fur_fern")                         # SignBoard
+    f, zf, zb = 0.35, FACE - 0.12, FACE + 0.1
+    _frame(frame, f, zf, zb, "brass")
+    for sx in (-1, 1):                                                                      # sprigs on the top corners
+        x, y = sx * (X1 + f / 2), Y1 + f / 2
+        for k, (dx, dy, a) in enumerate(((0.0, 0.0, 0), (-sx * 0.55, 0.12, sx * 60), (0.0, -0.55, 0),
+                                         (-sx * 0.95, 0.15, sx * 75))):
+            b.ball((x + dx, y + dy, zf - 0.05), 0.24, ("fur_moss", "leaf_green")[k % 2], scale=(1.5, 0.8, 0.5))
+        for dx, sw in ((-sx * 0.3, "offwhite"), (-sx * 0.75, "blush")):
+            b.ball((x + dx, y + 0.2, zf - 0.14), 0.12, sw)
+    _tag_plate(b, "GARDEN", "terracotta", "cream", "brass")
+    return [b.finalize("CatCafe_Plot_SignGarden", mat), board.finalize("CatCafe_Plot_SignGarden_SignBoard", mat),
+            frame.finalize("CatCafe_Plot_SignGarden_Frame", mat)]
+
+
+def build_grand(mat):
+    b, board, frame = RB(), RB(), RB()
+    board.span((X0, Y0, FACE), (X1, Y1, FACE + 0.1), "cream")                               # SignBoard
+    i = 0.18                                                                                # plum inner border
+    for (xa, xb, ya, yb) in ((X0, X1, Y0, Y0 + i), (X0, X1, Y1 - i, Y1), (X0, X0 + i, Y0, Y1), (X1 - i, X1, Y0, Y1)):
+        b.span((xa, ya, FACE - 0.03), (xb, yb, FACE + 0.01), "royal_berry")
+    f, zf, zb = 0.5, FACE - 0.16, FACE + 0.1
+    _frame(frame, f, zf, zb, GOLD)
+    b.span((X0 - f, Y0 - f - 0.12, zf + 0.02), (X1 + f, Y0 - f + 0.01, zb), GOLD_DK)          # a deeper lip under it
+    for sx in (-1, 1):                                                                      # corner blocks
+        for y in (Y0 - f / 2, Y1 + f / 2):
+            b.span((sx * (X1 + f / 2) - 0.4, y - 0.4, zf - 0.08), (sx * (X1 + f / 2) + 0.4, y + 0.4, zf + 0.01), GOLD_LT)
+            b.cyl((sx * (X1 + f / 2), y, zf - 0.1), 0.15, 0.06, "royal_berry", axis="Z", segments=8)
+    _tag_plate(b, "GRAND", "royal_berry", GOLD_LT, GOLD)
+    return [b.finalize("CatCafe_Plot_SignGrand", mat), board.finalize("CatCafe_Plot_SignGrand_SignBoard", mat),
+            frame.finalize("CatCafe_Plot_SignGrand_Frame", mat)]
+
+
 ASSETS = {
     "CatCafe_Plot_SignRoyalCrest": (build_royal_crest, 3000),
     "CatCafe_Plot_SignBakeryStripes": (build_bakery_stripes, 3000),
     "CatCafe_Plot_SignKingCrest": (build_king_crest, 1200),
     "CatCafe_Plot_SignGoldenLeaf": (build_golden_leaf, 3000),
     "CatCafe_Plot_SignVipPlate": (build_vip_plate, 600),
+    "CatCafe_Plot_SignGarden": (build_garden, 3000),
+    "CatCafe_Plot_SignGrand": (build_grand, 3000),
 }

@@ -5,7 +5,7 @@
 --
 --   clock(restocksAt, now)        "Restocks in 3:12"
 --   chance(itemId)                "In stock 9 times in 10", "Always in stock"
---   stockLine(item)               "x2 left", "You bought 2", "None this time"
+--   stockLine(item)               "x2 left" while the player can buy some, else "" (#1671, #1678)
 --   button(item, row, coins, room) the Buy button's words and whether it can be pressed
 --   snackLine(snackXp)            "" (#1255: no daily cat food cap any more)
 --   effect(row)                   what the row does, in a line
@@ -76,12 +76,12 @@ function CornerShopLogic.gate(item: Item, tier: number?): string?
 end
 
 function CornerShopLogic.stockLine(item: Item): string
-	if item.amount <= 0 then
-		return "None this time"
-	end
+	-- #1678 (Derek2 11-05: "just more text clutter"): no "None this time" or "You bought 2", the button already
+	-- says None or Sold out. #1671: past the family's limit the cart's stock is not the player's to buy, so no count
+	-- beside "Back at sunrise" either.
 	local left = item.amount - item.bought
-	if left <= 0 then
-		return ("You bought %d"):format(item.bought)
+	if item.amount <= 0 or left <= 0 or (item :: any).outToday == true then
+		return ""
 	end
 	return ("x%d left"):format(left)
 end

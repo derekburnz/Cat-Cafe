@@ -198,7 +198,8 @@ local function consider(instance: Instance)
 		if turn ~= nil then
 			-- a part streaming in after its sign, as placed: it turns with the rest (one already taken is turned)
 			local part = instance :: BasePart
-			if turn.parts[part] ~= nil then
+			local known: CFrame? = turn.parts[part]
+			if known ~= nil then
 				return
 			end
 			turn.parts[part] = turn.base:ToObjectSpace(part.CFrame)

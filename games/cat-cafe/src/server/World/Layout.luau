@@ -1140,8 +1140,9 @@ Layout.woods = {
 		do
 			table.insert(points, point)
 		end
-		-- up the ladder inside the Great Oak to its top nook (Derek 2026-10-28 01:35: a higher rare chance there)
-		table.insert(points, setPoints(WX, WZ, WTURN, 0.1, { { -30.58, 18.3, 204.89 } }, "rare")[1])
+		-- up the ladder inside the Great Oak to its top nook (Derek 2026-10-28 01:35: a higher rare chance there), on
+		-- its cushion behind the ladder since #1461
+		table.insert(points, setPoints(WX, WZ, WTURN, 0.1, { { -33.58, 18.3, 207.23 } }, "rare")[1])
 		return points
 	end)(),
 	rescueSpots = {
@@ -1366,7 +1367,9 @@ Layout.townSquare = {
 Layout.spinWheel = station(-28, 16)
 Layout.fishMarket = station(33.5, 20)
 Layout.codesCat = station(-28, -16)
-Layout.dealerCart = station(28, -16)
+-- #1388: the night market parks in front of the Thank You board (below), on its line to the cannon, so the board
+-- stands 8.5 studs behind the cart with about 6.5 clear between them.
+Layout.dealerCart = station(29.5, -16)
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- The free Bellhop Cat's stand (F96, starter-cat.md section 2): between the Codes Cat and the Spin Wheel, at the west
 -- end of the lane, which leads nowhere since the side arches closed (v4). Out at x -38 its 12 stud card stays clear
@@ -1384,10 +1387,11 @@ Layout.leaderboards = station(40, 0)
 -- street by 7.1.
 Layout.cornerShop = station(21, 24)
 
--- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5) near the Codes Cat,
--- mirroring the Corner Shop in its quarter and facing the cannon. Model-Agent's spot (#1126): clear of the Codes Cat's
--- circle by 2.8 studs, the south sign arch by 3.5 and the street lane by 1.6.
-Layout.thanksBoard = station(-15, -23)
+-- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5), facing the cannon.
+-- #1388 (the friend, 11-05): moved from beside the Codes Cat to the left of the leaderboard row (its Index end, -Z),
+-- with the night dealer's cart parked in front of it. Model-Agent's spot: it runs from about (34, -25) to (40, -15),
+-- clear of the row's corner by 2.5 studs, the east bench behind it by 5, the south bench by 3.1 and the lane by 8.4.
+Layout.thanksBoard = station(37, -20)
 
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,
 -- hometown-cannon.md section 4), in camp space (Layout.campPoint), filled in with the camps below.

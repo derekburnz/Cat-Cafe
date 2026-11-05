@@ -3353,6 +3353,52 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 			"info"
 		)
 	end
+	-- #1157 (Derek 11-04: "a UI bubble pop-up at nightfall so players know there's more to do at night"): once a night,
+	-- at Tier 2 and up (where the dealer's tip starts, shared/Tips), a big banner that the Night Market is open, once
+	-- the cart is really out (DealerCart, Open) and nothing else is on screen: not during a catch, a rescue, a carry,
+	-- the intro, a tip or an open window (UI.tips.quiet). It waits up to 2 minutes for that moment, then lets it go.
+	if previous == "day" and phase == "night" and (state.tier or 1) >= 2 then
+		local clock: any = UI.clock
+		if clock.marketNight ~= phaseEndsAt then
+			clock.marketNight = phaseEndsAt
+			task.spawn(function()
+				for _ = 1, 60 do
+					task.wait(2)
+					if clockPhase ~= "night" then
+						return
+					end
+					local open = false
+					for _, cart in CollectionService:GetTagged("DealerCart") do
+						if
+							cart:IsDescendantOf(Workspace)
+							and cart:GetAttribute("Open") ~= false
+						then
+							open = true
+						end
+					end
+					local tips: any = UI.tips
+					local banner = areaTitle
+					local windows = modal
+					if
+						open
+						and banner
+						and windows
+						and windows:current() == nil
+						and tips.quiet()
+					then
+						banner:banner(
+							"night_market",
+							Theme.icons.moon .. " The Night Market is open!",
+							"Rare foods tonight at the dealer's cart in town.",
+							Theme.colors.berry,
+							6
+						)
+						return
+					end
+				end
+			end)
+		end
+	end
 	watchDusk(phase, phaseEndsAt)
 	if hud then
 		hud:setClock({ phase = phase, phaseEndsAt = phaseEndsAt })

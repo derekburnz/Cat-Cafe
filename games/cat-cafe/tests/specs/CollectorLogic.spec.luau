@@ -77,8 +77,10 @@ return function()
 			expect(CollectorLogic.clock(-4)).to.equal("0:00")
 		end)
 		it("keeps the cat food in an offer (#1181)", function()
-			local prize =
-				Logic.prize({ value = 8, catFood = { big_cat_snack = 2, nothing = 0 } }, "alley")
+			local prize = CollectorLogic.prize(
+				{ value = 8, catFood = { big_cat_snack = 2, nothing = 0 } },
+				"alley"
+			)
 			expect(prize.catFood.big_cat_snack).to.equal(2)
 			expect(prize.catFood.nothing).to.equal(nil)
 		end)

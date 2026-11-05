@@ -211,9 +211,16 @@ export type IndexPrize = {
 -- The Cafe Pass (#1645, cafe-pass.md). A paid track's named item, kept forever once claimed: a chat tag, an accessory,
 -- a uniform colour, a looks-only decor piece, a sign frame or the season cat.
 -- #1624 (store-pass-looks.md): the saved theme and uniform picks (shared/Looks ids), nil for Classic.
-export type LookPicks = { theme: string?, uniform: string? }
+export type LookPicks = { theme: string?, uniform: string?, accessory: string? }
 -- What the Style tab reads: the picks (the shown look, nil for Classic) and every owned id of each kind.
-export type LooksView = { theme: string?, uniform: string?, themes: { string }, uniforms: { string } }
+export type LooksView = {
+	theme: string?,
+	uniform: string?,
+	accessory: string?, -- #1624 section 6: the cats' accessory (save version 39)
+	themes: { string },
+	uniforms: { string },
+	accessories: { string },
+}
 
 export type PassItemKind = "tag" | "accessory" | "uniform" | "decor" | "frame" | "cat"
 export type PassItem = { kind: PassItemKind, id: string, name: string }

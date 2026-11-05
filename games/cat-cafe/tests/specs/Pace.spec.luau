@@ -936,12 +936,10 @@ return function()
 			check({ catches = 5, pals = FOUR_FRIENDS })
 		end)
 
-		-- SKIPPED until Design-Agent rules on it (#1159 with #1165, found 2026-11-05): the quickest case, a non-stop
-		-- catcher with +20% from 3 pals and every top-up of a 4-player floor to itself, reaches Tier 2 at a median of
-		-- 9.4 min (10th to 90th 4.8 to 13.7), 0.6 min under the 10 minute floor. Either piece alone passes (3 pals at 4
-		-- or 5 catches: 13.3 and 11.3 min; top-ups at 12 catches: 11.1 min). Rule v0.8 raises Tier 2's cost; then
-		-- this runs again. Its Tier 5 twin passes (8 h 47).
-		xit(
+		-- Found 2026-11-05: at Tier 2's old 12,000 coins this quickest case (a non-stop catcher with +20% from 3 pals
+		-- and every top-up of a 4-player floor to itself) reached Tier 2 at a median of 9.4 min, under the 10 minute
+		-- floor; Design-Agent raised the cost to 13,500 (rule v0.8).
+		it(
 			"takes 10 to 20 minutes on a server of 4 friends, the non-stop catcher with every top-up to itself",
 			function()
 				check({

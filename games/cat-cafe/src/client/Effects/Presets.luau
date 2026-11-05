@@ -68,6 +68,7 @@ export type Budget = {
 	rushLines: number, -- speed lines on a player in a Catch Rush (F55)
 	signatureCats: number, -- Legendary and Mythical themed cats showing their signature effect at once
 	decorEffects: number, -- Mythical cafe styles and decor moving at once; each takes one of steadyEmitters
+	lawnEffects: number, -- front lawn pieces showing their effects at once (#1283, Effects/Lawn)
 	potionGlows: number, -- players showing a running potion's glow at once (F64), your own first
 	cloudPuffs: number, -- puffs in the full-screen clouds of a cannon flight or a cloud hop (F84)
 	campfires: number, -- campfires whose flame moves, with embers and a light, at once
@@ -108,6 +109,7 @@ Presets.budget = {
 		rushLines = 2,
 		signatureCats = 3,
 		decorEffects = 2,
+		lawnEffects = 3,
 		potionGlows = 3,
 		cloudPuffs = 10,
 		campfires = 2,
@@ -143,6 +145,7 @@ Presets.budget = {
 		rushLines = 3,
 		signatureCats = 6,
 		decorEffects = 4,
+		lawnEffects = 6,
 		potionGlows = 6,
 		cloudPuffs = 16,
 		campfires = 3,
@@ -178,6 +181,7 @@ Presets.budget = {
 		rushLines = 1,
 		signatureCats = 1,
 		decorEffects = 0,
+		lawnEffects = 0,
 		potionGlows = 0,
 		cloudPuffs = 6,
 		campfires = 1,
@@ -823,6 +827,33 @@ Presets.emitters = {
 		lightEmission = 1,
 	},
 	-- A glint on a leaderboard crown (Effects/Crown, F98): a few gold stars that flash and fade where they are.
+	-- Lawn pieces (Effects/Lawn, #1283). The Little Fountain's spill: small drops tipping off the upper bowl's rim
+	-- and falling into the basin.
+	fountainDrops = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.pastelSky },
+		size = { 0.14, 0.06 },
+		transparency = { 0.2, 0.9 },
+		lifetime = { 0.45, 0.7 },
+		speed = { 0.8, 1.6 },
+		spread = 100,
+		rate = 8,
+		acceleration = Vector3.new(0, -14, 0),
+		lightEmission = 0.2,
+	},
+	-- A few slow fireflies round a lawn lamp or the Fairy Light Arch at night: fewer and smaller than the woods'.
+	lawnFireflies = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.lampWarm, Presets.palette.sparkle },
+		size = { 0.25, 0.12 },
+		transparency = { 0.1, 1 },
+		lifetime = { 3, 4.5 },
+		speed = { 0.15, 0.45 },
+		spread = 180,
+		rate = 1,
+		lightEmission = 1,
+		drag = 0.5,
+	},
 	crownGlint = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.offwhite, Presets.palette.goldLight, Presets.palette.golden },
@@ -3342,6 +3373,117 @@ Presets.contextCut = {
 	bars = 0.11,
 	captionSize = 26,
 	displayOrder = 10,
+}
+
+-- The front lawn pieces' effects (Effects/Lawn, #1283, front-lawn.md section 5), by LawnId. Each spot is `offset`
+-- studs from the bounding box centre of the piece's child named ending `at`, else from the piece's pivot (in its
+-- space). `emitter` is a steady Presets.emitters entry (`night`: only after dark); `light` a soft PointLight (`night`:
+-- only after dark); `pulse` fires every `every` seconds: a `burst` of `count` in `colour` and/or a `ring` that many
+-- studs across; `twinkle` (night only) glints `count` sparkles on a random part of the `at` child every `every`
+-- seconds. Only the nearest budget.lawnEffects pieces within `within` studs show any of it, checked every `step`
+-- seconds. Reduce Motion drops the emitters and rings and keeps the lights and glints; Low performance shows none.
+export type LawnSpec = {
+	emitter: { name: string, at: string?, offset: Vector3, night: boolean? }?,
+	light: {
+		at: string?,
+		offset: Vector3,
+		colour: Color3,
+		range: number,
+		brightness: number,
+		night: boolean?,
+	}?,
+	pulse: {
+		at: string?,
+		offset: Vector3,
+		every: number,
+		burst: string?,
+		count: number?,
+		colour: Color3,
+		ring: number?,
+	}?,
+	twinkle: { at: string, every: number, count: number, colour: Color3 }?,
+}
+
+Presets.lawn = {
+	within = 40,
+	step = 0.25,
+	pieces = {
+		lamp_post = {
+			emitter = { name = "lawnFireflies", at = "_Bulbs", offset = Vector3.zero, night = true },
+		},
+		bird_bath = {
+			pulse = {
+				offset = Vector3.new(0, 1.72, 0),
+				every = 3.5,
+				colour = Presets.palette.milk,
+				ring = 1.2,
+			},
+		},
+		garden_gnome_cat = {
+			light = {
+				offset = Vector3.new(0, 0.45, -0.38),
+				colour = Presets.palette.lampWarm,
+				range = 5,
+				brightness = 1,
+				night = true,
+			},
+		},
+		little_fountain = {
+			emitter = { name = "fountainDrops", offset = Vector3.new(0, 2.05, 0) },
+			pulse = {
+				offset = Vector3.new(0, 0.66, 0),
+				every = 2.5,
+				colour = Presets.palette.milk,
+				ring = 2.8,
+			},
+			light = {
+				offset = Vector3.new(0, 0.9, 0),
+				colour = Presets.palette.pastelSky,
+				range = 8,
+				brightness = 0.8,
+				night = true,
+			},
+		},
+		balloon_bunch = {
+			pulse = {
+				at = "_Balloons_Swing",
+				offset = Vector3.zero,
+				every = 5,
+				burst = "decorGlint",
+				count = 3,
+				colour = Presets.palette.sparkle,
+			},
+		},
+		fairy_light_arch = {
+			emitter = { name = "lawnFireflies", at = "_Bulbs", offset = Vector3.zero, night = true },
+			twinkle = { at = "_Bulbs", every = 0.5, count = 2, colour = Presets.palette.lampWarm },
+		},
+		flower_cart = {
+			emitter = { name = "decorPetals", at = "_Flowers", offset = Vector3.new(0, 0.5, 0) },
+		},
+		cat_tree_sign = {
+			pulse = {
+				at = "_Star_Spin",
+				offset = Vector3.zero,
+				every = 4,
+				burst = "crownGlint",
+				count = 4,
+				colour = Presets.palette.golden,
+			},
+			twinkle = { at = "_Bulbs", every = 0.8, count = 2, colour = Presets.palette.lampWarm },
+		},
+		golden_paw_statue = {
+			emitter = { name = "goldMote", at = "_Paw_Spin", offset = Vector3.zero },
+			pulse = {
+				at = "_Paw_Spin",
+				offset = Vector3.zero,
+				every = 6,
+				burst = "crownGlint",
+				count = 5,
+				colour = Presets.palette.golden,
+			},
+		},
+	} :: { [string]: LawnSpec },
 }
 
 return Presets

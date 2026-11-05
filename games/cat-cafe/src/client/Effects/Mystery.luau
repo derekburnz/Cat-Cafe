@@ -91,8 +91,8 @@ local function stopTwinkle()
 end
 
 local function removeBang(gift: Instance)
-	local anchor = bangs[gift]
-	if anchor ~= nil then
+	local anchor: Attachment? = bangs[gift]
+	if anchor then
 		anchor:Destroy()
 		bangs[gift] = nil
 	end
